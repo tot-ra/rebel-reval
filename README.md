@@ -63,7 +63,11 @@ They are outgunned and outmaneuvered, but they have the support of the people an
 
 -   **The Harju Kings** ✊🏻
     -   **Motivation:** Freedom. The main, rural-based military force of the uprising, born in the fields of Harju County. They are farmers and villagers who have taken up arms against their oppressors. They are the heart of the rebellion's military power, fighting in open battles.
-    -   **Core NPC:** **Kulle, one of the four kings**, a grizzled farmer with a strategic mind, who was elected to lead the Harju armies.
+    -   **Core NPCs:** 
+        - **Lembit Helme**, A stern village elder from Harjumaa with a gift for oratory and negotiation. Known for rallying disparate clans with his "fire-sermons" in the forests near Padise.
+        - **Kaja Lahekivi**, A cunning nobleman's daughter who turned against the Danish overlords. Led a covert network of messengers between Saaremaa and mainland rebels.
+        - **Jüri Ratnik** A former manor blacksmith from Läänemaa who forged weapons and alliances alike. Called "Iron Hand" by his followers, feared by knights for his brutal efficiency.
+        - **Urmas Laar** A zealot and mystic from the eastern marshlands, blending ancient Finno-Ugric rites with anti-crusader rhetoric. Claimed visions from Taara led him to battle.
     -   **Presence:** A Peasant Village (Harju County), The Hill of the First Flame (Harju County), The Rebel Kings' Camp, Pärnu.
 
 -   **The Black Cloaks** 🌃
