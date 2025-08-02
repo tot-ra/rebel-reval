@@ -9,22 +9,6 @@ Current state: Drafting game design document.
 ![](./assets/intro.jpg)
 
 
-## 🎭 Historical Context
-The State of Estonia in 1342: On paper, Northern Estonia is the Duchy of Estonia, a dominion of the Danish Crown, ruled by a viceroy from Toompea Castle. In reality, Danish power is a hollow shell. The true authority lies with a web of competing interests:
-
-- The German Vassals: Feudal lords who control the land and its people, loyal to the Danish king only when it suits them.
-- The Livonian Order: A powerful, semi-independent military order of German knights who act as the region's de facto army and landlords. They have their own agenda and often operate in defiance of the Danish crown.
-- The Hanseatic League: The wealthy German merchants of Reval, who operate with a high degree of autonomy and are primarily concerned with protecting their trade routes and profits.
-
-This fractured power structure has created a powder keg of resentment and ambition, where the native Estonian population is caught between a distant king, foreign knights, and wealthy merchants, all of whom see the land and its people as a resource to be exploited.
-
-The Seeds of Rebellion: The St. George's Night Uprising is not a sudden event, but the culmination of decades of simmering resentment. The key grievances include:
-- Heavy Taxation: The Danish Crown, weakened and distracted by its own internal politics, has imposed increasingly heavy taxes on the Estonian population to fund its distant ambitions.
-- Cultural and Religious Oppression: The German-speaking ruling class and the Catholic Church have systematically suppressed Estonian culture, language, and pagan beliefs.
-- Economic Exploitation: The Hanseatic merchants of Reval control the flow of trade, enriching themselves while the local population sees little benefit.
-- Loss of Land and Freedom: The rights of free Estonian peasants have been steadily eroded, with many forced into serfdom by the German feudal lords.
-
-
 ## 📖 Core Narrative
 The year is 1342. A fragile peace hangs over Reval, but the air is thick with resentment. The St. George's Night Uprising is a spark waiting to ignite.
 
@@ -47,83 +31,150 @@ You are Kalev, an Estonian smith. To the German lords, you're just another pair 
 ## ⚔️ Factions
 You can ally, betray, or infiltrate these political forces. Your actions will determine the fate of Reval and the future of Estonia. Each faction offers unique quests, abilities, and endings.
 
+**USER MUST CHOOSE TO JOIN EITHER RULERS OR REBELS**
+
 ### Ruling Factions
 
-These factions represent the established, foreign powers ruling over Reval. They offer stability, power, and advanced resources, but at the cost of natives freedom.
+These factions represent the established, foreign powers ruling over Reval. 
+They represent civilization, Christianity, stability, power, hierarchy, and advanced resources, but at the cost of natives freedom.
 
 -   **The Danish Crown** 🇩🇰 
     -   **Motivation:** To maintain their tenuous hold on the Duchy of Estonia, extract as much tax revenue as possible, and prevent the Livonian Order from seizing full control. They are a fading power, ruling in name only.
     -   **Core NPC:** **Viceroy Konrad Preen**, the Danish governor (capitaneus Revalie). A weary, aging diplomat who is more interested in securing a comfortable retirement than in governing effectively. He is pragmatic and can be bribed or persuaded, but his loyalty is ultimately to a distant king who has all but forgotten this northern outpost.
+    -   **Presence:** Toompea Castle (Reval).
 
 -   **The Hanseatic League** 🇪🇺
     -   **Motivation:** Profit and control. The League's merchants, led by the powerful guilds of Reval, see the uprising as a threat to their trade monopolies. They are not warriors, but their wealth gives them immense influence. They fund the Livonian Order, bribe city officials, and use their extensive network of spies to protect their interests.
     -   **Core NPC:** **Jürgen von League**, a wealthy and ruthless amber merchant who unofficially speaks for the League. He is a master of economic warfare, offering you advanced technology, access to smuggling rings, and vast sums of gold in exchange for services that secure the League's dominance.
+    -   **Presence:** St. Olaf's Guild Hall (Reval), The Sunken Harbor District (Reval).
 
 -   **The Livonian Order** ✠
     -   **Motivation:** Faith and fury. The Order sees itself as the sword of Christendom, tasked with rooting out paganism and imposing divine order on a savage land. They are the true military power in the region, and they view the Danish Crown with contempt and the Estonians as little more than heathens to be converted or crushed.
     -   **Core NPCs:** **Brother Burchard von Dreileben**, a zealous and battle-hardened knight of the Order. He is a formidable warrior and a charismatic leader, offering you access to elite combat training, blessed weaponry, and the chance to fight for what he believes is a righteous cause. He is unyielding in his faith and merciless to his enemies.
         - Brother Goswin von Herike - commander in Viljandi
         - Arnd von Herke
+    -   **Presence:** Toompea Castle (Reval), The Cathedral of Saint Mary (Reval), Wesenberg (Rakvere), Viljandi Castle, Padise Monastery.
 
 ### The Rebel Factions
 
-These factions represent the native Estonian resistance. They are outgunned and outmaneuvered, but they have the support of the people and a deep connection to the land itself.
+These factions represent the native Estonian resistance. 
+They represent rebellion, decentralization, grassroot nature powers, flexibility.
+They are outgunned and outmaneuvered, but they have the support of the people and a deep connection to the land itself.
 
--   **The Four Kings** 
-    -   **Motivation:** Freedom. A grassroots rebellion born in the fields and workshops of Harju County. They are bakers, smiths, and fishermen who have been pushed to the breaking point by years of oppression. They lack a unified leadership and a clear plan, but their anger is real, and their numbers are growing.
+-   **The Harju Kings** ✊🏻
+    -   **Motivation:** Freedom. The main, rural-based military force of the uprising, born in the fields of Harju County. They are farmers and villagers who have taken up arms against their oppressors. They are the heart of the rebellion's military power, fighting in open battles.
+    -   **Core NPC:** **Kulle, one of the four kings**, a grizzled farmer with a strategic mind, who was elected to lead the Harju armies.
+    -   **Presence:** A Peasant Village (Harju County), The Hill of the First Flame (Harju County), The Rebel Kings' Camp, Pärnu.
+
+-   **The Black Cloaks** 🌃
+    -   **Motivation:** Liberation from the inside. The urban guerilla arm of the rebellion within Reval's walls. Composed of smiths, artisans, and the city's underclass, they specialize in stealth, sabotage, intelligence, and street-level warfare.
     -   **Core NPC:** **Lembit Helme**, a charismatic and impulsive blacksmith who has become the reluctant leader of the Reval uprising. He is a man of action, not words, and he offers you a place at the heart of the rebellion, fighting for the freedom of your people.
+    -   **Presence:** The Smith's Forge (Reval), The Whispering Market (Reval), The Sunken Harbor District (Reval).
 
 -   **The Pagan Cult of Metsik** 🍀
     -   **Motivation:** The Old Ways. A secretive cult of forest-dwellers who worship the ancient Estonian gods. They see the Christian invaders as a plague upon the land and believe that the uprising is a chance to restore the old ways. Their magic is powerful and chaotic, drawn from the sacred groves and the spirits of the earth.
     -   **Core NPC:** **Ellen Luik**, the enigmatic high priestess of the cult. She is a powerful seer and a master of spirit magic, offering you access to ancient rituals, animal allies, and the raw, untamed power of the land itself. Her motives are cryptic, and her loyalty is to the spirits, not to any mortal cause. She seems to tell stories to children that surround her 
+    -   **Presence:** The Sacred Grove of Taara, The Sacred Lake of Saaremaa.
 
 ### The Neutral Factions
 
-These factions are not directly involved in the conflict between the Empire and the Rebels, but they have their own agendas and can be powerful allies or dangerous enemies.
+These factions are not directly involved in the conflict between the Rulers and the Rebels, but they have their own agendas and can be powerful allies or dangerous enemies.
 
 -   **The Veiled Council** 🕷️
     -   **Motivation:** The long game. A secret society of Reval's oldest and wealthiest German families who believe that both the Danes and the Livonian Order are temporary. They manipulate events from the shadows, seeking to create a new, independent state under their own control. They are masters of espionage, assassination, and political intrigue.
     -   **Core NPC:** **"Mart the Weaver"** a mysterious figure who communicates only through coded messages and intermediaries. They offer you access to a network of spies, saboteurs, and assassins, but their true motives are always hidden, and their loyalty is only to the Council's ultimate ambition.
+    -   **Presence:** Operates secretly throughout Reval, with influence in high-society locations like St. Olaf's Guild Hall.
 
 -   **The Vitalienbrüder** 🏴‍☠️
     -   **Motivation:** Plunder and chaos. The remnants of a once-powerful pirate brotherhood, now reduced to a scattered band of raiders and mercenaries. They have no loyalty to any flag and are interested only in profiting from the chaos of the uprising. They are masters of naval combat and can be hired to attack shipping, smuggle goods, or create diversions.
     -   **Core NPC:** **"Ironhand" Störtebeker**, a grizzled and pragmatic pirate captain who leads the largest band of Vitalienbrüder in the Baltic. He is a man of his word, but his word is always backed by a sharp axe and a lust for gold.
+    -   **Presence:** The Coast of Broken Promises, The Sunken Harbor District (Reval).
 
 -   **The Pskov Agents** 🐆
-    -   **Motivation:** Destabilization. The Republic of Pskov is a rising power, caught between the ambitions of the Livonian Order and the dominance of Novgorod. They see the uprising as an opportunity to weaken their rivals and expand their own influence in the region. They are masters of sabotage, espionage, and guerrilla warfare.
-    -   **Core NPC:** **Михаил Кол**, a cunning and resourceful Pskovian agent who operates under the cover of a fur trapper. He perfectly knows Reval streets. He offers you access to a network of spies, saboteurs, and assassins, as well as intelligence on the movements of the Livonian Order.
+    -   **Motivation:** Opportunity and Destabilization. The Republic of Pskov, a powerful Russian principality, watches the chaos in Estonia with keen interest. Historically, the Estonian rebels sent envoys to Pskov, seeking an alliance. In the game, Pskov's motives are ambiguous. Are they genuine allies, or are they simply exploiting the uprising to weaken their Teutonic and Danish rivals?
+    -   **Core NPC:** **Михаил Кол**, a cunning and resourceful Pskovian agent operating under the cover of a fur trapper. He knows Reval's streets intimately and offers access to a network of spies, saboteurs, and assassins. He can provide intelligence on the Livonian Order, but his true allegiance remains shrouded in mystery.
+    -   **Presence:** The Whispering Market (Reval), operating undercover.
 
 -   **The Novgorod Republic Trade Delegation** 🌞
-    -   **Motivation:** Security and profit. The powerful Republic of Novgorod is primarily concerned with protecting its lucrative trade routes through the region. They are officially neutral, but they will secretly support whichever side they believe is most likely to ensure the stability of the region and the continued flow of goods. They have vast resources and can provide you with money, political influence, and a safe escape route if the uprising fails.
-    -   **Core NPC:** **Иуана Подаяльная**, the head of the Novgorodian trade delegation in Reval. She is a shrewd and calculating diplomat who is always looking for an angle to exploit. She can be a powerful ally, but her support always comes at a price.
+    -   **Motivation:** Profit and Plausible Deniability. While historical records show no direct involvement from Novgorod in the uprising, this faction represents a "what if" scenario. The powerful Republic of Novgorod is officially neutral, concerned only with protecting its lucrative trade routes. However, they are not above profiting from chaos. They might secretly fund the rebels, the Order, or both, depending on which outcome best serves their economic interests.
+    -   **Core NPC:** **Иуана Подаяльная**, the head of the Novgorodian trade delegation in Reval. A shrewd and calculating diplomat, she is a master of economic statecraft. She can be a powerful ally, offering vast resources, political influence, and a safe escape route—but her support always comes at a steep price, and her loyalty is ultimately to the bottom line.
+    -   **Presence:** St. Olaf's Guild Hall (Reval).
 
 
 
-## 🏰 Setting & Exploration
-The game world is a condensed, semi-fictionalized representation of 14th-century Estonia, centered around the city of Reval (Tallinn). The following 12 scenes will serve as the primary locations for the game's missions:
+## 🏰 Setting & Exploration (scenes/levels) 🌍
+The game world is a condensed, semi-fictionalized representation of 14th-century Estonia. Locations are divided into two types: Core Locations, which are always accessible, and Dynamic Locations, whose state or availability changes dramatically with the start of the uprising (Phase 2).
 
-### The City of Reval (Lower Town)
+### Core Locations (Always Accessible)
+These locations form the backbone of the game world. While their atmosphere may change based on the "Living City" meters, they are always present and explorable.
 
-- **The Smith's Forge:** Your home base. A cluttered, fire-lit space filled with the tools of your trade, which gradually evolves into a clandestine headquarters for the rebellion.
-- **St. Olaf's Guild Hall** A grand, timber-framed hall where the Hanseatic merchants conduct their business. A place of wealth, power, and political intrigue.
-- **The Whispering Market** A bustling, open-air market filled with vendors, beggars, and spies. The best place to gather rumors or disappear into a crowd.
-- The Sunken Harbor District A maze of rickety docks, shadowy warehouses, and secret smuggling tunnels. The lifeblood of the city and a hotbed of illicit activity.
-- Toompea Castle (Domberg) The seat of Danish power, a heavily guarded fortress patrolled by Livonian knights. The ultimate symbol of foreign domination.
-- The Cathedral of Saint Mary A soaring Gothic cathedral, the spiritual heart of the Livonian Order. A place of serene beauty and oppressive authority.
+-   **The City of Reval (Lower Town):**
+    -   **The Smith's Forge:** Your home base and workshop.
+    -   **St. Olaf's Guild Hall:** The center of Hanseatic power and commerce.
+    -   **The Whispering Market:** A hub for information, goods, and spies.
+    -   **The Sunken Harbor District:** A maze of docks and smuggling tunnels.
+    -   **Toompea Castle (Domberg):** The heavily guarded seat of Danish and Livonian power.
+    -   **The Cathedral of Saint Mary:** The spiritual heart of the Livonian Order.
+-   **Livonian Order Strongholds:**
+    -   **Wesenberg (Rakvere):** A key Order fortress and regional base.
+    -   **Viljandi Castle (Fellin):** A formidable stronghold symbolizing the Order's military might.
+-   **The Wider World:**
+    -   **The Sacred Grove of Taara:** A hidden pagan sanctuary of immense natural power.
+    -   **A Peasant Village (Harju County):** The heart of the Estonian resistance, simmering with rebellion.
+
+### Dynamic & Event-Based Locations
+These locations are tied directly to the historical events of the uprising and change significantly between Phase 1 and Phase 2.
+
+-   **The Padise Monastery:**
+    -   **Phase 1 (Before Uprising):** A functioning Cistercian monastery. A place of quiet contemplation, but also a source of quests and information. You might interact with monks who are sympathetic to the Estonian cause or loyal to the Order.
+    -   **Phase 2 (During Uprising):** A smoking ruin and a key battleground. After the historical massacre, it becomes a haunted, dangerous location, filled with the ghosts of the slain monks and opportunistic looters.
+-   **Pärnu (Pernau):**
+    -   **Phase 1:** A strategic coastal town focused on trade.
+    -   **Phase 2:** The site of the "Battle of Pärnu," a major open-field conflict zone.
+-   **The Hill of the First Flame (Harju County):**
+    -   **Phase 1:** An unremarkable, windswept hill.
+    -   **Phase 2:** Becomes a sacred site of pilgrimage for the rebels after the signal fire for the uprising is lit here. A symbol of hope and defiance.
+-   **The Rebel Kings' Camp:**
+    -   **Phase 1:** Does not exist.
+    -   **Phase 2:** Appears as a sprawling, makeshift war camp hidden in the forests. Becomes a central hub for the Harju Kings faction, where you can train, gather intelligence, and prepare for large-scale battles.
+-   **The Swedish Outpost:**
+    -   **Phase 1:** Inaccessible.
+    -   **Phase 2:** Becomes accessible during the "Swedish Gambit" questline. A clandestine meeting point on the coast to negotiate for aid.
+-   **The Coast of Broken Promises:**
+    -   **Phase 1:** A desolate stretch of coastline.
+    -   **Phase 2:** Becomes a tense, quest-specific location where the rebels await promised aid from Sweden.
+-   **The Sacred Lake of Saaremaa:**
+    -   **Phase 1:** Inaccessible.
+    -   **Phase 2:** Becomes the final bastion of the rebellion in the late game. A mystical, fog-shrouded location for ancient rituals and a desperate last stand.
 
 
-### Wesenberg (Rakvere)
-- Livonian order home base
+
+## 🎭 Historical Context
+The State of Estonia in 1342: On paper, Northern Estonia is the Duchy of Estonia, a dominion of the Danish Crown, ruled by a viceroy from Toompea Castle. In reality, Danish power is a hollow shell. The true authority lies with a web of competing interests:
+
+- The German Vassals: Feudal lords who control the land and its people, loyal to the Danish king only when it suits them.
+- The Livonian Order: A powerful, semi-independent military order of German knights who act as the region's de facto army and landlords. They have their own agenda and often operate in defiance of the Danish crown.
+- The Hanseatic League: The wealthy German merchants of Reval, who operate with a high degree of autonomy and are primarily concerned with protecting their trade routes and profits.
+
+This fractured power structure has created a powder keg of resentment and ambition, where the native Estonian population is caught between a distant king, foreign knights, and wealthy merchants, all of whom see the land and its people as a resource to be exploited.
+
+The Seeds of Rebellion: The St. George's Night Uprising is not a sudden event, but the culmination of decades of simmering resentment. The key grievances include:
+- Heavy Taxation: The Danish Crown, weakened and distracted by its own internal politics, has imposed increasingly heavy taxes on the Estonian population to fund its distant ambitions.
+- Cultural and Religious Oppression: The German-speaking ruling class and the Catholic Church have systematically suppressed Estonian culture, language, and pagan beliefs.
+- Economic Exploitation: The Hanseatic merchants of Reval control the flow of trade, enriching themselves while the local population sees little benefit.
+- Loss of Land and Freedom: The rights of free Estonian peasants have been steadily eroded, with many forced into serfdom by the German feudal lords.
 
 
-### The Wider World
+## The Uprising in Reality: A Brief Historical Account
+The St. George's Night Uprising (1343–1345) was a widespread and brutal rebellion by the indigenous Estonian population against the Danish and German rulers who had dominated the land for over a century. It was not a single event, but a series of coordinated attacks that aimed to eradicate foreign influence and restore Estonian independence.
 
-- **The Sacred Grove of Taara:** A hidden, ancient forest sanctuary where pagan rituals are performed. A place of immense natural power and deep mystery.
-- **A Peasant Village (Harju County):** A small, impoverished rural settlement on the brink of open rebellion. The heart of the Estonian resistance.
-- **The Padise Monastery Ruins:** The haunted, burned-out shell of a Cistercian monastery destroyed in the early days of the uprising. A grim testament to the brutality of the conflict.
-- **The Field of Crosses:** A desolate, windswept battlefield where a previous uprising was brutally crushed. A place of ghosts and warnings.
-- **The Swamps of Saaremaa:** The last bastion of the Estonian rebels. A treacherous, fog-shrouded landscape where the final, desperate battles of the uprising will be fought.
--   **The Frozen Sea:** A vast, ice-bound expanse that serves as both a barrier and a bridge. A place for a final, desperate confrontation under a winter sky.
+The rebellion began on St. George's Night, April 23, 1343, with a signal fire lit on a hill in Harju County. This sparked a wave of violence across Danish Estonia. Estonian forces, led by four self-proclaimed "kings," targeted German nobles, merchants, and clergy. They burned manors, destroyed churches, and laid siege to the city of Reval (Tallinn). One of the most infamous events was the massacre at Padise Monastery, where 28 Cistercian monks were killed.
+
+Despite initial successes, the rebellion was ultimately crushed. The Estonian forces, though numerous, lacked the military sophistication of their enemies. Desperate for allies, the rebels sent envoys to both the Swedish bailiffs in Finland and the Russian city of Pskov. While the Swedes offered promises of support, no significant aid arrived in time. There is no historical record of Pskov providing any assistance. Left to fend for themselves, the Estonians were no match for the disciplined knights of the Teutonic Order, who intervened decisively to expand their own territory. By the end of 1343, the uprising in mainland Estonia was suppressed, though resistance continued on the island of Saaremaa until early 1345.
+
+In the aftermath, the Danish Crown, its authority shattered, sold the Duchy of Estonia to the Teutonic Order in 1346. The uprising, while a failure, remains a powerful symbol of Estonian resistance and the enduring desire for self-determination.
+
+
 
 
 ## 🧙 Gameplay Mechanics
@@ -131,30 +182,30 @@ The game world is a condensed, semi-fictionalized representation of 14th-century
 ## 🗺️ A Tale of Two Phases: From Intrigue to Open War
 The game is divided into two distinct phases, each with a different feel and set of objectives.
 
-- Phase 1: The Simmering City (Days 1-8)
+- Phase 1: The Simmering City (Levels 1-8)
 - Gameplay Focus: Political intrigue, stealth, and character development. This phase is about building your power and choosing your allies.
 - Player Goal: Navigate the treacherous social landscape of Reval. Your actions will build your reputation with different factions, unlocking unique abilities and story paths. Every choice you make determines who will stand with you—and who will stand against you—when the city finally erupts.
 - Narrative Arc: This phase is a slow-burn thriller. You'll uncover conspiracies, perform secret missions for different factions, and make difficult choices that have no clear right answer. The "Living City" meters (Hope, Fear, Chaos) are your primary measure of progress.
 
-- Phase 2: The Fire of Rebellion (Days 9-12)
+- Phase 2: The Fire of Rebellion (Levels 9-12)
 - Gameplay Focus: Open warfare, tactical combat, and large-scale battles. This phase begins on St. George's Night, April 23, 1343.
-- Player Goal: Survive and lead your chosen faction through the historical events of the uprising. Your missions will be based on the real-life timeline of the rebellion:
+- Player Goal: Survive and lead your chosen faction to victory. For the rebels, this means fighting for independence and driving out the foreign lords. For the rulers, this means crushing the uprising, restoring order, and punishing the seditious. Your missions will be based on the real-life timeline of the rebellion, allowing you to either follow history or rewrite it:
 - The Siege of Reval: Help the Estonian rebels in their attempt to take the city, or side with the Livonian Order to break the siege.
-- The Battle of Pärnu: Engage in a major field battle against the knights.
-- The Swedish Gambit: Attempt to secure aid from Sweden, or sabotage the rebels' efforts to do so.
-- Narrative Arc: This phase is a desperate, action-packed struggle for survival. The choices you made in Phase 1 will have dramatic consequences, determining which missions are available to you and what resources you have at your disposal.
+- The Battle of Pärnu: Engage in a major field battle against the knights, either as a rebel warrior or an Order champion.
+- The Swedish Gambit: As a rebel, attempt to secure aid from Sweden. As a ruler, sabotage the rebels' efforts and ensure no foreign aid arrives.
+- Narrative Arc: This phase is a desperate, action-packed struggle for the future of Estonia. The choices you made in Phase 1 will have dramatic consequences, determining which missions are available to you and what resources you have at your disposal.
 
 
 ### The Living City: A World That Remembers
-Your actions don't just complete quests; they ripple through the city of Reval, changing the world around you. The city's state is tracked through three interconnected meters:
+Your actions don't just complete quests; they ripple through the city of Reval, changing the world around you. The city's state is tracked through three interconnected meters, which are interpreted differently depending on your allegiance.
 
-- Hope: Represents the morale of the Estonian rebels and common folk.
-- Increases with: Public acts of defiance (humiliating a knight), successful sabotage, distributing aid to the poor.
-- Effects: More NPCs offer you shelter or information. Rebel graffiti appears on walls. Bards sing coded songs of your deeds. Faction "The Black Cloaks" becomes bolder.
-- Fear: Reflects the grip of the Livonian Order and Hanseatic elite.
-- Increases with: Getting caught, failing missions publicly, assassinations, brutal street fights.
-- Effects: More guards patrol the streets. Harsher curfews are enforced. Shops close early. NPCs become tight-lipped and suspicious.
-- Chaos: Measures the level of open conflict and instability in the city.
+- **Rebel Morale (Hope):** Represents the confidence and boldness of the Estonian rebels and their sympathizers.
+- Increases with: Public acts of defiance, successful sabotage against the rulers, distributing aid to the poor.
+- Effects: More NPCs offer you shelter or information. Rebel graffiti appears on walls. Bards sing coded songs of rebellion. For rulers, this meter represents a rising tide of insurrection that must be stamped out.
+- **Civic Order (Fear):** Reflects the grip and control of the ruling factions.
+- Increases with: Public arrests, successful counter-insurgency missions, displays of military power.
+- Effects: More guards patrol the streets. Harsher curfews are enforced. NPCs become tight-lipped and suspicious of rebel activity. For rebels, this meter represents a rising tide of oppression.
+- **Chaos**: Measures the level of open conflict and instability in the city.
 - Increases with: Starting riots, pitting factions against each other, large-scale destruction.
 - Effects: Faction skirmishes break out in the streets. Looting opportunities arise. The city's elite may hire mercenaries, creating new, dangerous foes. The Undercity becomes a hotbed of frantic activity.
 
@@ -168,10 +219,12 @@ The game operates on a dynamic day/night cycle, where each phase offers differen
 - Information Gathering: The streets are alive with gossip. Talk to merchants, beggars, and priests. Overhear conversations, bribe officials, and piece together the city's secrets.
 - Preparation: Use your earnings and materials to upgrade your forge, craft better gear, or set up traps and dead-drops for your nighttime activities.
 
-- Night (The Rebel's Shadow): When the sun sets, the rebellion's true work begins.
-- Missions & Sabotage: Undertake quests for the various factions. Sabotage a Hanseatic crane to disrupt their supply lines, replace a knight's banner with a pig's head, or lead a jailbreak from the city dungeon.
+- Night (The Shadow of Conflict): When the sun sets, the city's true allegiances are revealed and the real work begins, whether for rebellion or for control.
+- Missions & Covert Ops: Undertake quests for your chosen faction.
+    - **Rebel Path:** Sabotage a Hanseatic crane, replace a knight's banner with a pig's head, or lead a jailbreak from the city dungeon.
+    - **Ruler Path:** Infiltrate a rebel safe house, intercept a secret message from Pskov, or lead a night patrol to capture a key agitator.
 - Exploration & Rituals: Explore forbidden areas like the Undercity or venture into the sacred groves to perform rituals that grant you new powers. The city's layout might change at night, with new paths opening and old ones becoming more dangerous.
-- Action & Combat: Engage in fast-paced, top-down combat inspired by games like *Nox*. Use your smith's hammer, crafted weapons, and ancestral magic to overcome patrols, rival agents, and things that lurk in the dark.
+- Action & Combat: Engage in fast-paced, top-down combat inspired by games like *Nox*. Use your smith's hammer, crafted weapons, and faction-granted abilities to overcome patrols, rival agents, and things that lurk in the dark.
 
 ### The Grudge System: Turning Failure into Vengeance
 Defeat in "Reval Rebel" is not an end, but a new beginning. When Kalev is defeated, he doesn't just respawn. He awakens with a **Grudge**, a new, personal objective aimed at the person or faction that defeated him. This system transforms failure from a frustrating setback into a narrative and gameplay opportunity.
@@ -215,8 +268,8 @@ These abilities are unlocked by gaining favor with one of the six main factions.
 - Philosophy: There is one God and one truth. Order is divine.
 - Abilities: `Consecrate Ground`, `Iron Will`, `Righteous Condemnation`, `Smite`, `Wrath of God`.
 - The Black Cloaks (Guerilla Tactics):
-- Philosophy: Power comes from the community and knowing the streets.
-- Abilities: `Face in the Crowd`, `Whisper Network`, `Improvised Weaponry`, `Sabotage`, `Call to Arms`.
+    - Philosophy: Power comes from the community and knowing the streets.
+    - Abilities: `Face in the Crowd`, `Whisper Network`, `Improvised Weaponry`, `Sabotage`, `Call to Arms`.
 - The Hanseatic League (Mercantile Pragmatism):
 - Philosophy: Everything has a price. Power is in gold and technology.
 - Abilities: `Calculated Bribery`, `Strandrecht Repeal`, `Advanced Tools`, `Crossbow Turret`, `Hostile Takeover`.
