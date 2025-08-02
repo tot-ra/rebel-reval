@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://dr6kjfo1iknnt"]
+
+[ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="1_80nbo"]
+[ext_resource type="PackedScene" uid="uid://dyl726xerhjhg" path="res://intro.tscn" id="2_e2o6t"]
+
+[node name="Game" type="Node2D"]
+
+[node name="TileMap" type="TileMap" parent="."]
+format = 2
+
+[node name="Player" parent="." instance=ExtResource("1_80nbo")]
+position = Vector2(1, 20)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(2, 2)
+
+[node name="Control" parent="." instance=ExtResource("2_e2o6t")]
+offset_left = -575.0
+offset_top = 9.0
+offset_right = -575.0
+offset_bottom = 9.0
