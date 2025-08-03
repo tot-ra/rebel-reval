@@ -1,7 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://dr6kjfo1iknnt"]
+[gd_scene load_steps=2 format=3 uid="uid://dr6kjfo1iknnt"]
 
-[ext_resource type="PackedScene" uid="uid://dyl726xerhjhg" path="res://intro.tscn" id="2_e2o6t"]
-[ext_resource type="AudioStream" uid="uid://bcraupn4sfttd" path="res://assets/music/intro.mp3" id="3_feb5d"]
+[ext_resource type="PackedScene" uid="uid://dyl726xerhjhg" path="res://scenes/intro.tscn" id="2_e2o6t"]
 
 [node name="Game" type="Node2D"]
 
@@ -10,10 +9,5 @@ offset_left = -797.0
 offset_top = -453.0
 offset_right = -797.0
 offset_bottom = -453.0
-
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("3_feb5d")
-autoplay = true
-parameters/looping = false
 
 [node name="Camera2D" type="Camera2D" parent="."]

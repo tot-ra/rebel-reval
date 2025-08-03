@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://dbxean877egrv"]
+
+[ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="1_g2h75"]
+
+[sub_resource type="TileSet" id="TileSet_jwv3a"]
+tile_shape = 3
+
+[node name="Node2D" type="Node2D"]
+
+[node name="TileMapLayer" type="TileMapLayer" parent="."]
+position = Vector2(680, 505)
+tile_set = SubResource("TileSet_jwv3a")
+
+[node name="Player" parent="." instance=ExtResource("1_g2h75")]
+position = Vector2(689, 422)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(607, 447)
+zoom = Vector2(2, 2)

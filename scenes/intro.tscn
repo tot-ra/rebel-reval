@@ -1,0 +1,53 @@
+[gd_scene load_steps=5 format=3 uid="uid://dyl726xerhjhg"]
+
+[ext_resource type="Texture2D" uid="uid://dd45w7a1jk4sw" path="res://assets/intro.jpg" id="1_s2ta7"]
+[ext_resource type="Texture2D" uid="uid://tpmmgtanmk2t" path="res://assets/logo.png" id="2_ayt76"]
+[ext_resource type="AudioStream" uid="uid://bcraupn4sfttd" path="res://assets/music/intro.mp3" id="3_7a8ye"]
+[ext_resource type="Script" uid="uid://cb84o170r3wgt" path="res://scenes/intro/start_label.gd" id="3_i2l1n"]
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="City background" type="Sprite2D" parent="."]
+position = Vector2(830, 445)
+scale = Vector2(1.27443, 1.40426)
+texture = ExtResource("1_s2ta7")
+
+[node name="Logo" type="Sprite2D" parent="."]
+position = Vector2(856, 152)
+scale = Vector2(0.302513, 0.302513)
+texture = ExtResource("2_ayt76")
+
+[node name="Start label" type="RichTextLabel" parent="."]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 0
+offset_left = 704.0
+offset_top = 320.0
+offset_right = 1003.0
+offset_bottom = 368.0
+theme_override_colors/default_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/normal_font_size = 30
+text = "Start"
+horizontal_alignment = 1
+script = ExtResource("3_i2l1n")
+
+[node name="Exit label" type="RichTextLabel" parent="."]
+custom_minimum_size = Vector2(100, 0)
+offset_left = 704.0
+offset_top = 376.0
+offset_right = 1003.0
+offset_bottom = 424.0
+theme_override_colors/default_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/normal_font_size = 30
+text = "Exit"
+horizontal_alignment = 1
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_7a8ye")
+autoplay = true
+parameters/looping = false
