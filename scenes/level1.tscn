@@ -1,15 +1,20 @@
-[gd_scene load_steps=3 format=3 uid="uid://dbxean877egrv"]
+[gd_scene load_steps=5 format=3 uid="uid://dbxean877egrv"]
 
 [ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="1_g2h75"]
+[ext_resource type="Texture2D" uid="uid://cuunf5kllexvn" path="res://assets/tiles2.png" id="2_wwpf4"]
 
-[sub_resource type="TileSet" id="TileSet_jwv3a"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_m7ahb"]
+resource_name = "grass"
+texture = ExtResource("2_wwpf4")
+texture_region_size = Vector2i(128, 128)
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_dwgg1"]
 tile_shape = 3
+tile_size = Vector2i(128, 128)
+sources/0 = SubResource("TileSetAtlasSource_m7ahb")
 
 [node name="Node2D" type="Node2D"]
-
-[node name="TileMapLayer" type="TileMapLayer" parent="."]
-position = Vector2(680, 505)
-tile_set = SubResource("TileSet_jwv3a")
 
 [node name="Player" parent="." instance=ExtResource("1_g2h75")]
 position = Vector2(689, 422)
@@ -17,3 +22,8 @@ position = Vector2(689, 422)
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(607, 447)
 zoom = Vector2(2, 2)
+
+[node name="TileMapLayer" type="TileMapLayer" parent="."]
+position = Vector2(600, 507)
+tile_map_data = PackedByteArray(0, 0, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+tile_set = SubResource("TileSet_dwgg1")
