@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://dyl726xerhjhg"]
+[gd_scene load_steps=3 format=3 uid="uid://dyl726xerhjhg"]
 
 [ext_resource type="Texture2D" uid="uid://dd45w7a1jk4sw" path="res://assets/intro.jpg" id="1_s2ta7"]
+[ext_resource type="Texture2D" uid="uid://tpmmgtanmk2t" path="res://assets/logo.png" id="2_ayt76"]
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -11,6 +12,11 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Intro" type="Sprite2D" parent="."]
-position = Vector2(584.787, 322)
-scale = Vector2(0.843085, 0.843085)
+position = Vector2(830, 445)
+scale = Vector2(1.27443, 1.40426)
 texture = ExtResource("1_s2ta7")
+
+[node name="Logo2" type="Sprite2D" parent="."]
+position = Vector2(864, 151)
+scale = Vector2(0.302513, 0.302513)
+texture = ExtResource("2_ayt76")

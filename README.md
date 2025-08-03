@@ -1,12 +1,13 @@
 # Reval Rebel
 
-2D Indie Action RPG / Rogue-like game with AI-NPCs / located in Tallinn, Estonia in medieval time (14th-century)
+2D Indie Action RPG / Rogue-like game with AI-NPCs / located in semi-fictional 14th-century Estonia
+
 A moody, atmospheric feel that blends Hanseatic trade, Baltic folklore, and early Christianity with a touch of gallows humor. 
 Inspired by Skyrim, Hades, Fallout, Conan the Cimmerian, Rome 42 AD.
 
 Current state: Drafting game design document & concept art.
 
-![](./assets/intro.jpg)
+![](./img/intro-preview.png)
 
 
 ## 📖 Core Narrative
@@ -77,24 +78,24 @@ They are outgunned and outmaneuvered, but they have the support of the people an
         - **Urmas Laar** A zealot and mystic from the eastern marshlands, blending ancient Finno-Ugric rites with anti-crusader rhetoric. Claimed visions from Taara led him to battle.
     -   **Presence:** A Peasant Village (Harju County), The Hill of the First Flame (Harju County), The Rebel Kings' Camp, Pärnu.
 
-![alt text](image.png)
-![alt text](image-1.png)
-![alt text](image-3.png)
-![alt text](image-4.png)
+![alt text](./img/image.png)
+![alt text](./img/image-1.png)
+![alt text](./img/image-3.png)
+![alt text](./img/image-4.png)
 
 -   **The Black Cloaks** 🌃
     -   **Motivation:** Liberation from the inside. The urban guerilla arm of the rebellion within Reval's walls. Composed of smiths, artisans, and the city's underclass, they specialize in stealth, sabotage, intelligence, and street-level warfare.
     -   **Core NPC:** **Lembit Helme**, a charismatic and impulsive blacksmith who has become the reluctant leader of the Reval uprising. He is a man of action, not words, and he offers you a place at the heart of the rebellion, fighting for the freedom of your people.
     -   **Presence:** The Smith's Forge (Reval), The Whispering Market (Reval), The Sunken Harbor District (Reval).
 
-    ![alt text](image-5.png)
+    ![alt text](./img/image-5.png)
 
 -   **The Pagan Cult of Metsik** 🍀
     -   **Motivation:** The Old Ways. A secretive cult of forest-dwellers who worship the ancient Estonian gods. They see the Christian invaders as a plague upon the land and believe that the uprising is a chance to restore the old ways. Their magic is powerful and chaotic, drawn from the sacred groves and the spirits of the earth.
     -   **Core NPC:** **Ellen Luik**, the enigmatic high priestess of the cult. She is a powerful seer and a master of spirit magic, offering you access to ancient rituals, animal allies, and the raw, untamed power of the land itself. Her motives are cryptic, and her loyalty is to the spirits, not to any mortal cause. She seems to tell stories to children that surround her 
     -   **Presence:** The Sacred Grove of Taara, The Sacred Lake of Saaremaa.
 
-![alt text](image-6.png)
+![alt text](./img/image-6.png)
 
 ### The Neutral Factions
 
@@ -105,7 +106,7 @@ These factions are not directly involved in the conflict between the Rulers and 
     -   **Core NPC:** **"Mart the Weaver"** a mysterious figure who communicates only through coded messages and intermediaries. They offer you access to a network of spies, saboteurs, and assassins, but their true motives are always hidden, and their loyalty is only to the Council's ultimate ambition.
     -   **Presence:** Operates secretly throughout Reval, with influence in high-society locations like St. Olaf's Guild Hall.
 
-![alt text](image-7.png)
+![alt text](./img/image-7.png)
 
 
 -   **The Vitalienbrüder** 🏴‍☠️
@@ -113,7 +114,7 @@ These factions are not directly involved in the conflict between the Rulers and 
     -   **Core NPC:** **"Ironhand" Störtebeker**, a grizzled and pragmatic pirate captain who leads the largest band of Vitalienbrüder in the Baltic. He is a man of his word, but his word is always backed by a sharp axe and a lust for gold.
     -   **Presence:** Paldiski (Rågervik), The Sunken Harbor District (Reval).
 
-![alt text](image-8.png)
+![alt text](./img/image-8.png)
 
 -   **The Pskov Agents** 🐆
     -   **Motivation:** Opportunity and Destabilization. The Republic of Pskov, a powerful Russian principality, watches the chaos in Estonia with keen interest. Historically, the Estonian rebels sent envoys to Pskov, seeking an alliance. In the game, Pskov's motives are ambiguous. Are they genuine allies, or are they simply exploiting the uprising to weaken their Teutonic and Danish rivals?
@@ -129,7 +130,7 @@ These factions are not directly involved in the conflict between the Rulers and 
     -   **Core NPC:** **Иуана Подаяльная**, the head of the Novgorodian trade delegation in Reval. A shrewd and calculating diplomat, she is a master of economic statecraft. She can be a powerful ally, offering vast resources, political influence, and a safe escape route—but her support always comes at a steep price, and her loyalty is ultimately to the bottom line.
     -   **Presence:** St. Olaf's Guild Hall (Reval).
 
-![alt text](image-11.png)
+![alt text](./img/image-11.png)
 
 ## 🏰 Setting & Exploration (scenes/levels) 🌍
 The game world is a condensed, semi-fictionalized representation of 14th-century Estonia. Locations are divided into two types: Core Locations, which are always accessible, and Dynamic Locations, whose state or availability changes dramatically with the start of the uprising (Phase 2).
