@@ -49,19 +49,22 @@ They represent civilization, Christianity, stability, power, hierarchy, and adva
 -   **The Hanseatic League** 🇪🇺
     -   **Motivation:** Profit and control. The League's merchants, led by the powerful guilds of Reval, see the uprising as a threat to their trade monopolies. They are not warriors, but their wealth gives them immense influence. They fund the Livonian Order, bribe city officials, and use their extensive network of spies to protect their interests.
     -   **Core NPC:** **Jürgen von League**, a wealthy and ruthless amber merchant who unofficially speaks for the League. He is a master of economic warfare, offering you advanced technology, access to smuggling rings, and vast sums of gold in exchange for services that secure the League's dominance.
-    ![](./img/npc3.png)
     -   **Presence:** St. Olaf's Guild Hall (Reval), The Sunken Harbor District (Reval).
+
+    ![](./img/npc3.png)
 
 
 -   **The Livonian Order** ✠
     -   **Motivation:** Faith and fury. The Order sees itself as the sword of Christendom, tasked with rooting out paganism and imposing divine order on a savage land. They are the true military power in the region, and they view the Danish Crown with contempt and the Estonians as little more than heathens to be converted or crushed.
     -   **Core NPCs:** **Brother Burchard von Dreileben**, a zealous and battle-hardened knight of the Order. He is a formidable warrior and a charismatic leader, offering you access to elite combat training, blessed weaponry, and the chance to fight for what he believes is a righteous cause. He is unyielding in his faith and merciless to his enemies.
 
-    ![alt text](./img/npc2.png)
-
     - Brother Goswin von Herike - commander in Viljandi
     - Arnd von Herke
     -   **Presence:** Toompea Castle (Reval), The Cathedral of Saint Mary (Reval), Wesenberg (Rakvere), Viljandi Castle, Padise Monastery.
+
+![alt text](./img/teutonic-1.png)
+![alt text](./img/teutonic-2.png)
+
 
 ### The Rebel Factions
 
@@ -89,6 +92,7 @@ They are outgunned and outmaneuvered, but they have the support of the people an
     -   **Presence:** The Smith's Forge (Reval), The Whispering Market (Reval), The Sunken Harbor District (Reval).
 
     ![alt text](./img/image-5.png)
+    ![alt text](./img/black-1.png)
 
 -   **The Pagan Cult of Metsik** 🍀
     -   **Motivation:** The Old Ways. A secretive cult of forest-dwellers who worship the ancient Estonian gods. They see the Christian invaders as a plague upon the land and believe that the uprising is a chance to restore the old ways. Their magic is powerful and chaotic, drawn from the sacred groves and the spirits of the earth.
