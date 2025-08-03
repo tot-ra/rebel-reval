@@ -1,8 +1,11 @@
 [gd_scene load_steps=2 format=3 uid="uid://dr6kjfo1iknnt"]
 
+[ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="1_abcde"]
 [ext_resource type="PackedScene" uid="uid://dyl726xerhjhg" path="res://scenes/intro.tscn" id="2_e2o6t"]
 
 [node name="Game" type="Node2D"]
+
+[node name="Player" parent="." instance=ExtResource("1_abcde")]
 
 [node name="Control" parent="." instance=ExtResource("2_e2o6t")]
 offset_left = -797.0
