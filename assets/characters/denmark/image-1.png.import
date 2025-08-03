@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://5m5thaxs76wc"
-path="res://.godot/imported/shoot.png-f6904f09e65e49cfdabc82df82040940.ctex"
+uid="uid://m1mq3r2mb105"
+path="res://.godot/imported/image-1.png-d08be69b89ebc51c9f772450457f4665.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/shoot.png"
-dest_files=["res://.godot/imported/shoot.png-f6904f09e65e49cfdabc82df82040940.ctex"]
+source_file="res://assets/characters/denmark/image-1.png"
+dest_files=["res://.godot/imported/image-1.png-d08be69b89ebc51c9f772450457f4665.ctex"]
 
 [params]
 

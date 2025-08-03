@@ -4,7 +4,7 @@ Indie Action RPG withg rogue-like elements in semi-fictional 14th-century Estoni
 
 A moody, atmospheric feel that blends Hanseatic trade, Baltic folklore, and early Christianity with a touch of gallows humor. 
 
-Inspired by Hades, Fallout, Skyrim, Conan the Cimmerian, Rome 42 AD.
+Inspired by Hades, Fallout, Disco Elysium, Skyrim, Conan the Cimmerian, Rome 42 AD.
 
 Current state: `Drafting game design document & concept art`
 
@@ -27,7 +27,10 @@ You are Kalev, an Estonian smith. To the German lords, you're just another pair 
 - The Name of a Giant: Your name, "Kalev," is the same as the mythical giant-king of Estonia. Some see it as a prophecy, others as a cruel joke. Your strength is unusual, and perhaps there's a flicker of ancient power in your bloodline.
 - A Smith's Hands: You see the world through the eyes of a craftsman. Your hammer is not just a tool; it's an extension of your will. You can feel the secrets in stone and the stories in steel.
 - A Reluctant Rebel: You are not a hero by choice. The uprising is a nuisance that has overturned your life. Your journey is one of survival, but your actions might accidentally inspire hope... or bring about greater ruin. Your dialogue can be witty, sarcastic, or grimly pragmatic, reflecting a man caught in events far larger than himself.
-- Spiritual force. You have supernatural powers. Depending on the factions, you can align either with polytheistic or with monotheistic powers.
+- "Magical" forces. You have some supernatural powers (after you ate mushroom soup). Unlock more by aligning with factions.
+
+
+![alt text](image.png)
 
 
 ## ⚔️ Factions
@@ -71,6 +74,10 @@ They represent civilization, Christianity, stability, power, hierarchy, and adva
 ![](./img/teutonic-1.png)
 ![](./img/teutonic-2.png)
 
+![](./assets/characters/livonian/image-1.png)
+![](./assets/characters/livonian/image-2.png)
+![](./assets/characters/livonian/image-3.png)
+
 
 ### The Rebel Factions
 
@@ -105,6 +112,7 @@ They are outgunned and outmaneuvered, but they have the support of the people an
 -   **Core NPC:** **Ellen Luik**, the enigmatic high priestess of the cult. She is a powerful seer and a master of spirit magic, offering you access to ancient rituals, animal allies, and the raw, untamed power of the land itself. Her motives are cryptic, and her loyalty is to the spirits, not to any mortal cause. She seems to tell stories to children that surround her 
 -   **Presence:** The Sacred Grove of Taara, The Sacred Lake of Saaremaa.
 
+![](./assets/characters/metsik/metsik-4.png)
 ![](./assets/characters/metsik/metsik-1.png)
 ![](./assets/characters/metsik/metsik-2.png)
 ![](./assets/characters/metsik/metsik-3.png)

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cp3an7u3p2nd5"
-path="res://.godot/imported/walk.png-26b92807d9bb7f8ce900b46c9455a10c.ctex"
+uid="uid://b32hxeucelkdy"
+path="res://.godot/imported/hansa-2.png-cb96e62264f14ed11b61830dd7e2f4a3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/walk.png"
-dest_files=["res://.godot/imported/walk.png-26b92807d9bb7f8ce900b46c9455a10c.ctex"]
+source_file="res://assets/characters/hansa/hansa-2.png"
+dest_files=["res://.godot/imported/hansa-2.png-cb96e62264f14ed11b61830dd7e2f4a3.ctex"]
 
 [params]
 

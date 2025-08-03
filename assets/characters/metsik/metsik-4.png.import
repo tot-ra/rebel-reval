@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://8e4ichmpdmh0"
-path="res://.godot/imported/climb.png-1d9077cc933a043dab694b64813f7708.ctex"
+uid="uid://dbbpmn72smyuu"
+path="res://.godot/imported/metsik-4.png-e07b98eb2ca0929838fcde4cfb3bbb54.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/climb.png"
-dest_files=["res://.godot/imported/climb.png-1d9077cc933a043dab694b64813f7708.ctex"]
+source_file="res://assets/characters/metsik/metsik-4.png"
+dest_files=["res://.godot/imported/metsik-4.png-e07b98eb2ca0929838fcde4cfb3bbb54.ctex"]
 
 [params]
 

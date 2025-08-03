@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bcq03ncbx6sud"
-path="res://.godot/imported/hurt.png-edeb7a342775f4db07efe6206ddc5047.ctex"
+uid="uid://m7rt5w8ferub"
+path="res://.godot/imported/image-3.png-183f8270ad217bac4e3e00e6de742e65.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/hurt.png"
-dest_files=["res://.godot/imported/hurt.png-edeb7a342775f4db07efe6206ddc5047.ctex"]
+source_file="res://assets/characters/livonian/image-3.png"
+dest_files=["res://.godot/imported/image-3.png-183f8270ad217bac4e3e00e6de742e65.ctex"]
 
 [params]
 

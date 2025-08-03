@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bi10k0xcfcb8m"
-path="res://.godot/imported/run.png-80b12fed5eea8d43c51365fd08c63ad9.ctex"
+uid="uid://dmupng3rainfx"
+path="res://.godot/imported/hansa-3.png-f99561734c0c452fc7f9b9fffb2053dc.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/run.png"
-dest_files=["res://.godot/imported/run.png-80b12fed5eea8d43c51365fd08c63ad9.ctex"]
+source_file="res://assets/characters/hansa/hansa-3.png"
+dest_files=["res://.godot/imported/hansa-3.png-f99561734c0c452fc7f9b9fffb2053dc.ctex"]
 
 [params]
 

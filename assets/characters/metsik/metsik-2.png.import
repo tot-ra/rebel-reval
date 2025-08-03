@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bcp1fs7pac3ny"
-path="res://.godot/imported/emote.png-607e769bda5bad08c5eef9ad7860b0d3.ctex"
+uid="uid://c4l27ndpcavja"
+path="res://.godot/imported/metsik-2.png-f00042b22fec92f5c1ad9e0967d09444.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/emote.png"
-dest_files=["res://.godot/imported/emote.png-607e769bda5bad08c5eef9ad7860b0d3.ctex"]
+source_file="res://assets/characters/metsik/metsik-2.png"
+dest_files=["res://.godot/imported/metsik-2.png-f00042b22fec92f5c1ad9e0967d09444.ctex"]
 
 [params]
 

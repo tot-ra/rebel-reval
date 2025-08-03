@@ -16,9 +16,6 @@ sources/0 = SubResource("TileSetAtlasSource_m7ahb")
 
 [node name="Node2D" type="Node2D"]
 
-[node name="Player" parent="." instance=ExtResource("1_g2h75")]
-position = Vector2(689, 422)
-
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(607, 447)
 zoom = Vector2(2, 2)
@@ -27,3 +24,6 @@ zoom = Vector2(2, 2)
 position = Vector2(600, 507)
 tile_map_data = PackedByteArray(0, 0, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 tile_set = SubResource("TileSet_dwgg1")
+
+[node name="Player" parent="." instance=ExtResource("1_g2h75")]
+position = Vector2(689, 422)

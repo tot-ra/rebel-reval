@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b3xlf2e1l5waq"
-path="res://.godot/imported/spellcast.png-418beb29028c7cd9ddf2c8d9b6ff18be.ctex"
+uid="uid://chtymvvqmtwvd"
+path="res://.godot/imported/metsik-3.png-ac3c250e82fdd1a875c4a5d8758a859c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/spellcast.png"
-dest_files=["res://.godot/imported/spellcast.png-418beb29028c7cd9ddf2c8d9b6ff18be.ctex"]
+source_file="res://assets/characters/metsik/metsik-3.png"
+dest_files=["res://.godot/imported/metsik-3.png-ac3c250e82fdd1a875c4a5d8758a859c.ctex"]
 
 [params]
 

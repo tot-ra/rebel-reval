@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dpxkiqji7ahvn"
-path="res://.godot/imported/combat_idle.png-ef60098894b2195b1eb205826ed1fe2f.ctex"
+uid="uid://ca08gsmarbi7t"
+path="res://.godot/imported/image-2.png-2f1bf085296c8e1da832a469e23076c4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/combat_idle.png"
-dest_files=["res://.godot/imported/combat_idle.png-ef60098894b2195b1eb205826ed1fe2f.ctex"]
+source_file="res://assets/characters/livonian/image-2.png"
+dest_files=["res://.godot/imported/image-2.png-2f1bf085296c8e1da832a469e23076c4.ctex"]
 
 [params]
 
