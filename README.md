@@ -1,6 +1,6 @@
 # Reval Rebel
 
-2D Indie Action RPG / Rogue-like game located in Tallinn, Estonia in medieval time (14th-century)
+2D Indie Action RPG / Rogue-like game with AI-NPCs / located in Tallinn, Estonia in medieval time (14th-century)
 A moody, atmospheric feel that blends Hanseatic trade, Baltic folklore, and early Christianity with a touch of gallows humor. 
 Inspired by Skyrim, Hades, Fallout, Conan the Cimmerian, Rome 42 AD.
 
@@ -206,24 +206,28 @@ In the aftermath, the Danish Crown, its authority shattered, sold the Duchy of E
 
 
 
-## 🧙 Gameplay Mechanics
+## Gameplay Levels / Story
+### Prequel Chapter: The First Spark
+A short, narrative-driven prologue where you play as one of Kalev's ancestors during the initial Danish conquest. This chapter would establish the historical context and the deep-seated resentment that fuels the main story, allowing the player to witness the forging of the chains that Kalev will later try to break.
 
-## 🗺️ A Tale of Two Phases: From Intrigue to Open War
-The game is divided into two distinct phases, each with a different feel and set of objectives.
-
-- Phase 1: The Simmering City (Levels 1-8)
+### Chapter 1: The Simmering City (Levels 1-8)
 - Gameplay Focus: Political intrigue, stealth, and character development. This phase is about building your power and choosing your allies.
 - Player Goal: Navigate the treacherous social landscape of Reval. Your actions will build your reputation with different factions, unlocking unique abilities and story paths. Every choice you make determines who will stand with you—and who will stand against you—when the city finally erupts.
 - Narrative Arc: This phase is a slow-burn thriller. You'll uncover conspiracies, perform secret missions for different factions, and make difficult choices that have no clear right answer. The "Living City" meters (Hope, Fear, Chaos) are your primary measure of progress.
 
-- Phase 2: The Fire of Rebellion (Levels 9-12)
+### Chapter 2: The Fire of Rebellion (Levels 9-12)
 - Gameplay Focus: Open warfare, tactical combat, and large-scale battles. This phase begins on St. George's Night, April 23, 1343.
 - Player Goal: Survive and lead your chosen faction to victory. For the rebels, this means fighting for independence and driving out the foreign lords. For the rulers, this means crushing the uprising, restoring order, and punishing the seditious. Your missions will be based on the real-life timeline of the rebellion, allowing you to either follow history or rewrite it:
 - The Siege of Reval: Help the Estonian rebels in their attempt to take the city, or side with the Livonian Order to break the siege.
 - The Battle of Pärnu: Engage in a major field battle against the knights, either as a rebel warrior or an Order champion.
-- The Swedish Gambit: As a rebel, attempt to secure aid from Sweden. As a ruler, sabotage the rebels' efforts and ensure no foreign aid arrives.
+- The Swedish/Pskov Gambit: As a rebel, attempt to secure aid from neighbours. As a ruler, sabotage the rebels' efforts and ensure no foreign aid arrives.
 - Narrative Arc: This phase is a desperate, action-packed struggle for the future of Estonia. The choices you made in Phase 1 will have dramatic consequences, determining which missions are available to you and what resources you have at your disposal.
 
+### Chapter 3: The Livonian Crusade (Levels 13-16)
+The conflict expands beyond Reval. The Teutonic Order, having bought the rights to Estonia, launches a full-scale crusade to solidify its control. The player would travel to new regions, from the swamps of Saaremaa to the fortified cities of Livonia, participating in large-scale battles and sieges. This chapter would introduce new factions, such as the Samogitians or other Baltic tribes, who could be potential allies or enemies.
+
+
+## 🧙 Gameplay Mechanics
 
 ### The Living City: A World That Remembers
 Your actions don't just complete quests; they ripple through the city of Reval, changing the world around you. The city's state is tracked through three interconnected meters, which are interpreted differently depending on your allegiance.
@@ -255,6 +259,19 @@ The game operates on a dynamic day/night cycle, where each phase offers differen
 - Exploration & Rituals: Explore forbidden areas like the Undercity or venture into the sacred groves to perform rituals that grant you new powers. The city's layout might change at night, with new paths opening and old ones becoming more dangerous.
 - Action & Combat: Engage in fast-paced, top-down combat inspired by games like *Nox*. Use your smith's hammer, crafted weapons, and faction-granted abilities to overcome patrols, rival agents, and things that lurk in the dark.
 
+### Fight Mechanics: The Art of Battle
+Combat in "Reval Rebel" is designed to be deliberate and tactical, rewarding careful positioning and resource management.
+
+-   **Core Combat Loop (Stamina-Based):** Every action in combat—attacking, dodging, blocking, and sprinting—consumes Stamina. Stamina regenerates over time, but running out leaves you vulnerable. This system encourages a thoughtful rhythm of offense and defense, preventing players from simply spamming attacks.
+-   **Poise & Stagger System:** Both Kalev and his enemies possess a hidden "Poise" meter. Taking successive hits depletes this meter. Once broken, the character is staggered, interrupting their action and leaving them open to a devastating critical hit or a powerful follow-up attack. Heavier weapons are more effective at breaking poise.
+-   **Weapon Archetypes:** Kalev can wield a variety of weapons, each with a unique moveset, attack speed, and damage type.
+    -   **Smith's Hammer (Blunt):** Slow, heavy swings that excel at breaking enemy poise and shattering armor.
+    -   **Short Sword (Slashing):** Fast, fluid attacks that allow for quick combos and high mobility.
+    -   **Axe (Slashing/Blunt):** A balanced weapon that can cleave through multiple unarmored foes or deliver a powerful overhead chop.
+    -   **Spear (Piercing):** Offers superior range, allowing you to poke at enemies from a safe distance. Effective against armored targets.
+-   **Damage Calculation:** The damage dealt is determined by a combination of your weapon's power, your abilities, and the enemy's defenses. A simplified formula is:
+    `Final Damage = (Base Weapon Damage + Ability Damage) * (1 - (Target's Armor Value / 100))`
+
 ### The Grudge System: Turning Failure into Vengeance
 Defeat in "Reval Rebel" is not an end, but a new beginning. When Kalev is defeated, he doesn't just respawn. He awakens with a **Grudge**, a new, personal objective aimed at the person or faction that defeated him. This system transforms failure from a frustrating setback into a narrative and gameplay opportunity.
 
@@ -280,41 +297,59 @@ To create a truly living and unpredictable world, every NPC in Reval, from the h
 Abilities are divided into two main categories: the **Ancestral Magic Tree** (Kalev's innate skills) and **Faction-Specific Abilities** (unlocked through alignment).
 
 ### Ancestral Magic Tree: The Smith's Legacy
-These abilities are unique to Kalev, reflecting his lineage and his craft. This tree is divided into two branches: **Runic Forging** and **Primal Power**.
+These abilities are unique to Kalev, reflecting his lineage and his craft. This tree is divided into two branches: **Runic Forging** and **Primal Power**. Players can invest points in either branch to customize their playstyle.
 
-- Branch 1: Runic Forging (Crafting & Artifice): Focuses on enhancing Kalev's abilities as a smith.
-- Tiers: `Rääkiv Raud (Talking Iron)`, `Runic Inscription`, `Sacred Scrap Analysis`, `Hybrid Forging`, `The Living Forge`.
-- Branch 2: Primal Power (Combat & Inner Strength): Represents the awakening of the dormant, giant-like power within Kalev's bloodline.
-- Tiers: `Karujõud (Bear Strength)`, `Hundisõnad (Wolf Words)`, `Earth-Sense`, `Spirit Shield`, `Kalev's Echo`.
+| Branch | Ability | Effect |
+| --- | --- | --- |
+| **Runic Forging** | `Rääkiv Raud (Talking Iron)` | Passive: When crafting, reveals one hidden property of a component material. |
+| | `Runic Inscription` | Allows you to inscribe one elemental rune onto a weapon, adding +10% of its damage as Fire, Frost, or Shock damage. |
+| | `Sacred Scrap Analysis` | Passive: Increases the chance of recovering rare materials from deconstructing items by 25%. |
+| | `Hybrid Forging` | Allows a weapon to hold two Runic Inscriptions simultaneously. |
+| | `The Living Forge` (Ultimate) | Crafted weapons have a 10% chance to gain a unique "living" property (e.g., 5% Lifesteal, chance to poison on hit). |
+| **Primal Power** | `Karujõud (Bear Strength)` | Passive: Increases blunt weapon damage by 10% and poise by 15%. |
+| | `Hundisõnad (Wolf Words)` | Active: A battle cry that causes a single non-elite enemy to flee in fear for 3s. Cooldown: 20s. |
+| | `Earth-Sense` | Passive: You can sense the movement of nearby enemies, making them visible on the minimap even through walls. |
+| | `Spirit Shield` | Active: Creates a temporary shield that absorbs up to 100 damage or lasts for 10s. Cooldown: 30s. |
+| | `Kalev's Echo` (Ultimate) | Active: Perform a powerful ground slam. A spectral echo repeats the attack 1 second later, dealing 50% damage in a larger radius. |
 
 ### Faction-Specific Ability Trees
 These abilities are unlocked by gaining favor with one of the six main factions. Each offers a unique philosophical and gameplay path.
 
-- The Pagan Cult of Metsik (Animist Magic):
-- Philosophy: Everything has a soul. Magic is a conversation, not a command.
-- Abilities: `Whispering Stones`, `Animal Form`, `Uproot`, `Spirit Ally`, `Heart of the Forest`.
-- The Livonian Order (Holy Authority):
-- Philosophy: There is one God and one truth. Order is divine.
-- Abilities: `Consecrate Ground`, `Iron Will`, `Righteous Condemnation`, `Smite`, `Wrath of God`.
-- The Black Cloaks (Guerilla Tactics):
-    - Philosophy: Power comes from the community and knowing the streets.
-    - Abilities: `Face in the Crowd`, `Whisper Network`, `Improvised Weaponry`, `Sabotage`, `Call to Arms`.
-- The Hanseatic League (Mercantile Pragmatism):
-- Philosophy: Everything has a price. Power is in gold and technology.
-- Abilities: `Calculated Bribery`, `Strandrecht Repeal`, `Advanced Tools`, `Crossbow Turret`, `Hostile Takeover`.
-- The Veiled Council (Shadowy Manipulation):
-- Philosophy: The city is a board, and we are the players.
-- Abilities: `A Whisper of Doubt`, `False Identity`, `Blackmail`, `Misdirection`, `The Puppet Master`.
-- The Novgorodian Trade Delegation (Eastern Mysticism & Espionage):
-- Philosophy: The world is a web of secrets and saints.
-- Abilities: `Patron Saint's Blessing`, `Icon's Gaze`, `Pskovian Gambit`, `Smuggler's Network`, `The Bell of Kitezh`.
+| Faction | Ability | Effect on Player | Effect on Enemy |
+| --- | --- | --- | --- |
+| **Pagan Cult of Metsik** | `Uproot` | - | Immobilizes for 3s and deals 10 Nature damage/sec. Cooldown: 12s. |
+| | `Animal Form` | Transforms into a wolf (fast, low damage) or a bear (slow, high damage, high health). Duration: 30s. Cooldown: 60s. | - |
+| | `Spirit Ally` | Summons a spectral wolf to fight alongside you for 20s. Cooldown: 45s. | - |
+| | `Metsavana's Blessing` | Regenerates 15% of max health over 10s and grants immunity to poison. Cooldown: 30s. | - |
+| | `Heart of the Forest` (Ultimate) | Regenerates 50% of max health over 15s. | Creates a large AoE that slows all enemies by 50% and deals 25 Nature damage/sec for 15s. |
+| **Livonian Order** | `Consecrate Ground` | Creates a zone for 10s. Inside, gain +25% armor and regenerate 5% of max health. Cooldown: 20s. | Enemies entering the zone are slowed by 20%. |
+| | `Righteous Condemnation` | - | Marks a target for 8s. All attacks against the target deal +20% Holy damage. Cooldown: 15s. |
+| | `Sacred Fire` | Imbues weapon with Holy Fire for 15s, adding 15% of weapon damage as bonus Holy damage. Cooldown: 25s. | - |
+| | `Smite` | - | Calls down a bolt of holy energy, dealing 150 Holy damage and stunning the target for 2s. Cooldown: 18s. |
+| | `Wrath of God` (Ultimate) | - | Unleashes a wave of divine energy, dealing 300 Holy damage to all nearby enemies and knocking them back. |
+| **Black Cloaks** | `Face in the Crowd` | Become invisible for 8s or until you attack. Cooldown: 20s. | - |
+| | `Whisper Network` | Reveals all enemy positions on the minimap for 30s. Cooldown: 60s. | - |
+| | `Improvised Weaponry` | Passive: Grants +25% damage when wielding non-standard weapons (e.g., bottles, chairs). | - |
+| | `Sabotage` | - | Places a trap that explodes for 100 damage when an enemy comes within 3m. Cooldown: 10s. |
+| | `Call to Arms` (Ultimate) | - | Summons 3 rebel allies to fight for 30s. |
+| **Hanseatic League** | `Calculated Bribery` | - | Pay 100 gold to bribe a non-elite human enemy to fight for you for 60s. Cooldown: 30s. |
+| | `Strandrecht Repeal` | Passive: Defeated enemies drop 15% more gold. | - |
+| | `Advanced Tools` | Passive: Crafting speed is increased by 30%. | - |
+| | `Crossbow Turret` | - | Deploys a turret for 20s that fires at nearby enemies, dealing 20 damage per shot. Cooldown: 25s. |
+| | `Hostile Takeover` (Ultimate) | - | Permanently convert a non-elite human enemy to your side. Cooldown: 120s. |
+| **Veiled Council** | `A Whisper of Doubt` | - | Causes a non-elite human enemy to attack its allies for 10s. Cooldown: 25s. |
+| | `False Identity` | Disguise yourself as a member of the target faction for 60s. Does not work if you initiate combat. Cooldown: 90s. | - |
+| | `Blackmail` | - | Forces a targeted non-hostile NPC to give you a random valuable item. Can only be used on an NPC once. Cooldown: 5min. |
+| | `Misdirection` | - | Creates an illusionary clone of yourself for 10s that draws enemy aggression. Cooldown: 30s. |
+| | `The Puppet Master` (Ultimate) | - | Take direct control of a non-elite human enemy for 15s. |
+| **Pskov Agents** | `Patron Saint's Blessing` | Become invulnerable to all damage for 5s. Cooldown: 45s. | - |
+| | `Icon's Gaze` | - | Freezes a target enemy in place for 4s. Cooldown: 20s. |
+| | `Pskovian Gambit` | Feign death, becoming invisible to enemies for 10s. Your next attack deals +50% damage. Cooldown: 30s. | - |
+| | `Byzantine Fire` | - | Throws a projectile that creates a pool of fire for 8s, dealing 20 Fire damage/sec to enemies within it. Cooldown: 15s. |
+| | `The Bell of Kitezh` (Ultimate) | - | Creates a massive AoE that deals 250 damage and stuns all enemies within it for 3s. |
 
-## 🛠️ Character Build Archetypes
-These are not rigid classes, but rather fluid playstyles that emerge from player choices by combining Ancestral and Faction abilities.
 
-- The People's Champion (Black Cloaks + Primal Power): A charismatic brawler who fights for the common folk, focusing on direct confrontation and inspiring allies.
-- The Mystic Warlord (Pagan Cult + Runic Forging): A master of both ancient magic and enchanted steel, focusing on summoning allies, battlefield control, and powerful custom-forged weapons.
-- The Ghost of Reval (Veiled Council + Hanseatic League): A master of espionage, manipulation, and technology who avoids direct conflict in favor of stealth and misdirection.
+
 
 ## 🎨 Visual Style
 Color Palette: Earth tones, candlelight glow, icy blues and mossy greens.
@@ -331,8 +366,32 @@ Dynamic Sound Design: Pagan areas filled with whispers and wind chimes; Christia
 "Ashes for Amber": A widow offers magical amber for her husband's bones from a knight’s crypt.
 "The Copper Rat": Uncover the spy network hiding in Tallinn's sewers, using enchanted vermin.
 
+## 👹 Bestiary: Enemies of Reval
+The world of Reval Rebel is populated by a host of dangerous foes, each with unique behaviors and abilities tied to their faction and the dark folklore of the land.
 
-## 🕯️ Optional Twist Ending Paths
-Reval Burns: Lead a full uprising, overthrow all factions, and rule as a visionary—or tyrant.
-The Pact: Merge pagan and Christian powers to create a secret cult that controls the city’s soul.
-Forgetfulness: Choose to give up rebellion and vanish into the woods, becoming myth yourself.
+### Human Adversaries
+
+-   **Livonian Order:** The military arm of the ruling factions, disciplined and heavily armed.
+    -   **Order Footman (Low Threat):** The backbone of the Order's forces. Wields a sword and shield. Fights defensively, relying on numbers and formation.
+    -   **Order Sergeant (Medium Threat):** A battle-hardened leader. Can perform a shield bash to break the player's poise and shouts commands to buff nearby footmen.
+    -   **Order Knight (High Threat):** An elite warrior clad in full plate armor. Wields a greatsword or mace, capable of devastating, uninterruptible attacks. Highly resistant to stagger.
+-   **Pagan Cult of Metsik:** Wild and unpredictable, drawing power from the ancient forest.
+    -   **Forest Stalker (Low Threat):** A fast, lightly armored warrior who dual-wields axes. Attempts to flank the player and attacks in flurries.
+    -   **Spirit-Caller (Medium Threat):** A shaman who summons spectral wolves and casts debilitating curses that slow the player or drain their stamina. Prefers to keep their distance.
+-   **Black Cloaks & Urban Rebels:** Guerilla fighters who use the city itself as a weapon.
+    -   **Street Thug (Low Threat):** Armed with improvised weapons like clubs or daggers. Fights dirty, throwing sand to blind the player or ganging up.
+    -   **Saboteur (Medium Threat):** An agile rogue who uses smoke bombs to disappear and caltrops to control the battlefield. Attacks with a poisoned short sword from stealth.
+-   **Vanapagan's Cultists:** Humans who have bartered their souls for a sliver of the Old Devil's power.
+    -   **Rock-Thrower (Medium Threat):** Throws large stones with unnatural force and accuracy, capable of staggering the player.
+    -   **Brute (High Threat):** Possesses minor supernatural strength, allowing for powerful shove attacks that can send the player flying.
+
+### Mythological Creatures
+
+-   **Kratt (Medium Threat):** A terrifying construct of hay, old bones, and farming tools, animated by a stolen soul. It is fast, erratic, and relentless.
+    -   **Abilities:** Attacks with scythe-like arms, can disassemble into a pile of hay to avoid attacks before quickly reforming, and is extremely vulnerable to fire.
+-   **Puuk (Low Threat):** A small, dragon-like demonic creature known for its greed. They are fast, annoying, and travel in packs.
+    -   **Abilities:** Can steal items directly from the player's inventory, create illusions to disorient, and teleport in short bursts to evade attacks.
+-   **Põhja Konn (Boss):** The "Northern Frog," a colossal, ancient amphibian covered in stone-like armor, guarding a forgotten bog.
+    -   **Abilities:** A long, sticky tongue that can pull the player in for a devastating bite, a powerful ground-slam that creates a shockwave, and the ability to spit corrosive acid. Its soft underbelly is its only weak point, exposed briefly after its slam attack.
+-   **The Leshy (Boss):** An ancient forest spirit bound to a sacred grove. A massive, hulking creature of wood and vine.
+    -   **Abilities:** Can summon roots from the ground to immobilize the player, teleport in a cloud of leaves, and command packs of wolves. Its heart is exposed after it performs a powerful ground-slam attack.
