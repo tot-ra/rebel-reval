@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c38daddvcipvq"
-path="res://.godot/imported/image-3.png-491687ac1c3df1a3f383e0d3ef9d0a37.ctex"
+uid="uid://c47egpokyl16t"
+path="res://.godot/imported/image-23.png-14d5bdd4debaedf92a0cccc11082f50c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/harju/image-3.png"
-dest_files=["res://.godot/imported/image-3.png-491687ac1c3df1a3f383e0d3ef9d0a37.ctex"]
+source_file="res://assets/characters/image-23.png"
+dest_files=["res://.godot/imported/image-23.png-14d5bdd4debaedf92a0cccc11082f50c.ctex"]
 
 [params]
 
