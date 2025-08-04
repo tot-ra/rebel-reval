@@ -1,10 +1,10 @@
 # Reval Rebel
 
-Indie Action RPG withg rogue-like elements in semi-fictional 14th-century Estonia. Features rogue-like game elements, AI-NPCs, 2d (hex-isometric) views.
+Indie Action RPG withg rogue-like elements in semi-fictional 14th-century Estonia. 
 
 A moody, atmospheric feel that blends Hanseatic trade, Baltic folklore, and early Christianity with a touch of gallows humor. 
 
-Inspired by Hades, Fallout, Disco Elysium, Magicka, Skyrim, Conan the Cimmerian, Rome 42 AD.
+Inspired by Hades, Fallout, Disco Elysium, Magicka, Skyrim, Conan the Cimmerian.
 
 Current state: `Drafting game design document & concept art`
 
@@ -20,13 +20,26 @@ Caught between the ruthless Livonian Order, the scheming merchants, and the anci
 
 Will you become the hero your people whisper about — a new "Kalevipoeg", or will you forge your own path to order and civilization through the chaos, using your wits and your hammer to survive? The choices you make will determine whether the rebellion becomes a footnote in history or the dawn of a new era.
 
-- [HERO ABILITIES](./assets/player/)
+
+## 🦸 The Hero: Kalev the Smith
+![](./assets/player/image.png)
+
+You are Kalev, an Estonian smith. To the German lords, you're just another pair of hands to shoe their horses. To your own people, you're a stubborn man with a strong back and a cynical tongue. But there's more to you than meets the eye.
+
+- The Name of a Giant: Your name, "Kalev," is the same as the mythical giant-king. Your strength is unusual, and perhaps there's a flicker of ancient power in your bloodline.
+- A Smith's Hands: You see the world through the eyes of a craftsman. Your hammer is not just a tool; it's an extension of your will.
+- A Reluctant Rebel: You are not a hero by choice. The uprising is a nuisance that has overturned your life. Your journey is one of survival, but your actions might accidentally inspire hope... or bring about greater ruin. Your dialogue can be witty, sarcastic, or grimly pragmatic, reflecting a man caught in events far larger than himself.
+- "Magical" forces. You have some supernatural powers (after you ate mushroom soup). Unlock more by aligning with factions.
+
+## Game Details
+
+- [FIGHT GAMEPLAY](./GAMEPLAY-FIGHT.md)
+- [GAMEPLAY](./GAMEPLAY.md)
 - [NPC FACTIONS](./assets/characters/README.md)
 - [LOCATIONS](./scenes/)
 - [STORYLINE](./STORY.md)
 - [QUESTS](./QUESTS.md)
 - [BESTIARY](./assets/bestiary/)
-- [GAMEPLAY](./GAMEPLAY.md)
 - [MINI-GAMES](./MINI_GAMES.md)
 - [HISTORICAL CONTEXT](./HISTORY.md)
 
