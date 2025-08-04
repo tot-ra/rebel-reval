@@ -4,7 +4,7 @@ Indie Action RPG withg rogue-like elements in semi-fictional 14th-century Estoni
 
 A moody, atmospheric feel that blends Hanseatic trade, Baltic folklore, and early Christianity with a touch of gallows humor. 
 
-Inspired by Hades, Fallout, Disco Elysium, Skyrim, Conan the Cimmerian, Rome 42 AD.
+Inspired by Hades, Fallout, Disco Elysium, Magicka, Skyrim, Conan the Cimmerian, Rome 42 AD.
 
 Current state: `Drafting game design document & concept art`
 
