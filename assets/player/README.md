@@ -23,8 +23,7 @@ These abilities are unique to Kalev, reflecting his lineage and his craft. This 
 
 |Ability | Effect |
 | --- | --- |
-|`🐿️ Orava jõud (Squirrel Strength)` | Passive: Bites enemies, searching for nuts. |
-| `🐺 Hundisõnad (Wolf Words)` | Active: A battle cry that causes a single non-elite enemy to flee in fear for 3s. Cooldown: 20s. |
+| `🔨 Worker's hammer` | Active: Powerful crushing blow to a single non-elite enemy. Stuns for 2s. Cooldown: 20s. |
 | `👂 Earth-Sense` | Passive: You can sense the movement of nearby enemies, making them visible on the minimap even through walls. |
 | `🛡️ Spirit Shield` | Active: Creates a temporary shield that absorbs up to 100 damage or lasts for 10s. Cooldown: 30s. |
 | `💥 Kalev's Echo` (Ultimate) | Active: Perform a powerful ground slam. A spectral echo repeats the attack 1 second later, dealing 50% damage in a larger radius. |
@@ -47,7 +46,7 @@ This tree focuses on recruiting and controlling allies in battle, allowing for t
 | Ability | Effect on Player | Effect on Enemy |
 | --- | --- | --- |
 | `🌳 Uproot` | - | Immobilizes for 3s and deals 10 Nature damage/sec. Cooldown: 12s. |
-| `🐺 Animal Form` | Transforms into a wolf (fast, low damage) or a bear (slow, high damage, high health). Duration: 30s. Cooldown: 60s. | - |
+| `🐿️ Orava jõud` | Transforms into a squirrel (fast, low damage). Can attack enemies searching for nuts. Duration: 30s. Cooldown: 60s. | - |
 | `👻 Spirit Ally` | Summons a spectral wolf to fight alongside you for 20s. Cooldown: 45s. | - |
 | `🌿 Metsavana's Blessing` | Regenerates 15% of max health over 10s and grants immunity to poison. Cooldown: 30s. | - |
 | `🌲 Heart of the Forest` (Ultimate) | Regenerates 50% of max health over 15s. | Creates a large AoE that slows all enemies by 50% and deals 25 Nature damage/sec for 15s. |
