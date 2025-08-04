@@ -12,24 +12,22 @@ You are Kalev, an Estonian smith. To the German lords, you're just another pair 
 
 ## ⚡ Character Abilities & Magic
 As Kalev, you have access to a range of abilities that allow you to:
-
 *   **Fight with melee weapons:** Master the smith's hammer and other weapons of the era.
 *   **Use magic:** Wield innate ancestral powers and learn new abilities from the factions of Reval.
 *   **Control a team:** Recruit and command a party of up to 6 allies in battle.
-
 
 Abilities are divided into three main categories: the **Ancestral Magic Tree** (Kalev's innate skills), the **Leadership Tree** (for party management), and **Faction-Specific Abilities** (unlocked through alignment).
 
 ### Ancestral Magic Tree: The Smith's Legacy
 These abilities are unique to Kalev, reflecting his lineage and his craft. This tree is focused on **Primal Power**.
 
-| Branch | Ability | Effect |
-| --- | --- | --- |
-| **Primal Power** | `🐻 Karujõud (Bear Strength)` | Passive: Increases blunt weapon damage by 10% and poise by 15%. |
-| | `🐺 Hundisõnad (Wolf Words)` | Active: A battle cry that causes a single non-elite enemy to flee in fear for 3s. Cooldown: 20s. |
-| | `👂 Earth-Sense` | Passive: You can sense the movement of nearby enemies, making them visible on the minimap even through walls. |
-| | `🛡️ Spirit Shield` | Active: Creates a temporary shield that absorbs up to 100 damage or lasts for 10s. Cooldown: 30s. |
-| | `💥 Kalev's Echo` (Ultimate) | Active: Perform a powerful ground slam. A spectral echo repeats the attack 1 second later, dealing 50% damage in a larger radius. |
+|Ability | Effect |
+| --- | --- |
+|`🐿️ Orava jõud (Squirrel Strength)` | Passive: Bites enemies, searching for nuts. |
+| `🐺 Hundisõnad (Wolf Words)` | Active: A battle cry that causes a single non-elite enemy to flee in fear for 3s. Cooldown: 20s. |
+| `👂 Earth-Sense` | Passive: You can sense the movement of nearby enemies, making them visible on the minimap even through walls. |
+| `🛡️ Spirit Shield` | Active: Creates a temporary shield that absorbs up to 100 damage or lasts for 10s. Cooldown: 30s. |
+| `💥 Kalev's Echo` (Ultimate) | Active: Perform a powerful ground slam. A spectral echo repeats the attack 1 second later, dealing 50% damage in a larger radius. |
 
 ### Faction-Specific Ability Trees
 These abilities are unlocked by gaining favor with one of the six main factions. Each offers a unique philosophical and gameplay path.
@@ -95,6 +93,11 @@ This tree focuses on recruiting and controlling allies in battle, allowing for t
 | --- | --- | --- |
 | `🛡️ Patron Saint's Blessing` | Become invulnerable to all damage for 5s. Cooldown: 45s. | - |
 | `👀 Icon's Gaze` | - | Freezes a target enemy in place for 4s. Cooldown: 20s. |
+| `🔔 The Bell of Kitezh` (Ultimate) | - | Creates a massive AoE that deals 250 damage and stuns all enemies within it for 3s. |
+
+### Novgorod Merchants
+| Ability | Effect on Player | Effect on Enemy |
+| --- | --- | --- |
+| `🐻 Bear's Embrace` | - | Summons a spectral bear that mauls a single target, dealing 100 damage and stunning them for 3s. Cooldown: 25s. |
 | `💀 Pskovian Gambit` | Feign death, becoming invisible to enemies for 10s. Your next attack deals +50% damage. Cooldown: 30s. |
 | `🔥 Byzantine Fire` | - | Throws a projectile that creates a pool of fire for 8s, dealing 20 Fire damage/sec to enemies within it. Cooldown: 15s. |
-| `🔔 The Bell of Kitezh` (Ultimate) | - | Creates a massive AoE that deals 250 damage and stuns all enemies within it for 3s. |
