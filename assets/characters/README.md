@@ -29,7 +29,7 @@ They represent civilization, Christianity, stability, power, hierarchy, and adva
 ![](./hansa/hansa-3.png)
 
 
-**The Livonian Order** ✠
+**The Livonian Order** ✠ 
 -   **Motivation:** Faith and purity. The Order sees itself as the sword of Christendom, tasked with rooting out paganism and imposing divine order on a savage land. They are the true military power in the region, and they view the Danish Crown with contempt and the Estonians as little more than heathens to be converted or crushed.
 -   **Core NPCs:** **Brother Burchard von Dreileben**, a zealous and battle-hardened knight of the Order. He is a formidable warrior and a charismatic leader, offering you access to elite combat training, blessed weaponry, and the chance to fight for what he believes is a righteous cause. He is unyielding in his faith and merciless to his enemies.
 

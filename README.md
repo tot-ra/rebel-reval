@@ -20,43 +20,12 @@ Caught between the ruthless Livonian Order, the scheming merchants, and the anci
 
 Will you become the hero your people whisper about — a new "Kalevipoeg", or will you forge your own path to order and civilization through the chaos, using your wits and your hammer to survive? The choices you make will determine whether the rebellion becomes a footnote in history or the dawn of a new era.
 
-
-## 🦸 The Hero: Kalev the Smith
-You are Kalev, an Estonian smith. To the German lords, you're just another pair of hands to shoe their horses. To your own people, you're a stubborn man with a strong back and a cynical tongue. But there's more to you than meets the eye.
-
-- The Name of a Giant: Your name, "Kalev," is the same as the mythical giant-king of Estonia. Some see it as a prophecy, others as a cruel joke. Your strength is unusual, and perhaps there's a flicker of ancient power in your bloodline.
-- A Smith's Hands: You see the world through the eyes of a craftsman. Your hammer is not just a tool; it's an extension of your will. You can feel the secrets in stone and the stories in steel.
-- A Reluctant Rebel: You are not a hero by choice. The uprising is a nuisance that has overturned your life. Your journey is one of survival, but your actions might accidentally inspire hope... or bring about greater ruin. Your dialogue can be witty, sarcastic, or grimly pragmatic, reflecting a man caught in events far larger than himself.
-- "Magical" forces. You have some supernatural powers (after you ate mushroom soup). Unlock more by aligning with factions.
-
-
-![](./assets/player/image.png)
-
-- [CHARACTER ABILITIES](./assets/player/)
+- [HERO ABILITIES](./assets/player/)
 - [NPC FACTIONS](./assets/characters/)
+- [LOCATIONS](./scenes/)
+- [STORYLINE](./STORY.md)
 - [BESTIARY](./assets/bestiary/)
-- [SCENES](./scenes/)
 - [HISTORICAL CONTEXT](./HISTORY.md)
-
-## Storyline / Level progression
-### Prequel Chapter: The First Spark
-A short, narrative-driven prologue where you play as one of Kalev's ancestors during the initial Danish conquest. This chapter would establish the historical context and the deep-seated resentment that fuels the main story, allowing the player to witness the forging of the chains that Kalev will later try to break.
-
-### Chapter 1: The Simmering City (Levels 1-8)
-- Gameplay Focus: Political intrigue, stealth, and character development. This phase is about building your power and choosing your allies.
-- Player Goal: Navigate the treacherous social landscape of Reval. Your actions will build your reputation with different factions, unlocking unique abilities and story paths. Every choice you make determines who will stand with you—and who will stand against you—when the city finally erupts.
-- Narrative Arc: This phase is a slow-burn thriller. You'll uncover conspiracies, perform secret missions for different factions, and make difficult choices that have no clear right answer. The "Living City" meters (Hope, Fear, Chaos) are your primary measure of progress.
-
-### Chapter 2: The Fire of Rebellion (Levels 9-12)
-- Gameplay Focus: Open warfare, tactical combat, and large-scale battles. This phase begins on St. George's Night, April 23, 1343.
-- Player Goal: Survive and lead your chosen faction to victory. For the rebels, this means fighting for independence and driving out the foreign lords. For the rulers, this means crushing the uprising, restoring order, and punishing the seditious. Your missions will be based on the real-life timeline of the rebellion, allowing you to either follow history or rewrite it:
-- The Siege of Reval: Help the Estonian rebels in their attempt to take the city, or side with the Livonian Order to break the siege.
-- The Battle of Pärnu: Engage in a major field battle against the knights, either as a rebel warrior or an Order champion.
-- The Swedish/Pskov Gambit: As a rebel, attempt to secure aid from neighbours. As a ruler, sabotage the rebels' efforts and ensure no foreign aid arrives.
-- Narrative Arc: This phase is a desperate, action-packed struggle for the future of Estonia. The choices you made in Phase 1 will have dramatic consequences, determining which missions are available to you and what resources you have at your disposal.
-
-### Chapter 3: The Livonian Crusade (Levels 13-16)
-The conflict expands beyond Reval. The Teutonic Order, having bought the rights to Estonia, launches a full-scale crusade to solidify its control. The player would travel to new regions, from the swamps of Saaremaa to the fortified cities of Livonia, participating in large-scale battles and sieges. This chapter would introduce new factions, such as the Samogitians or other Baltic tribes, who could be potential allies or enemies.
 
 
 ## 🧙 Gameplay Mechanics
@@ -135,10 +104,3 @@ Architecture: Gothic and Hanseatic, but slowly overtaken by creeping pagan symbo
 ## 🎻 Music & Sound
 Soundtrack: Blend of medieval Baltic folk (kantele, runosong) with ambient electronics and minimalistic ritual drums.
 Dynamic Sound Design: Pagan areas filled with whispers and wind chimes; Christian zones echo with choirs and bells.
-
-## 📜 Quests (Examples)
-- "The Silent Baker": A mute baker's loaves cause hallucinations. Is he a prophet or a poisoner?
-- "The Elk with the Iron Eye": A mythical beast demands a debt from your ancestor—find its payment before it takes your soul.
-- "Ashes for Amber": A widow offers magical amber for her husband's bones from a knight’s crypt.
-- "The Copper Rat": Uncover the spy network hiding in Tallinn's sewers, using enchanted vermin.
-
