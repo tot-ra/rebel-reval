@@ -1,46 +1,51 @@
-## 🏰 Setting & Exploration (scenes/levels) 🌍
-The game world is a condensed, semi-fictionalized representation of 14th-century Estonia. Locations are divided into two types: Core Locations, which are always accessible, and Dynamic Locations, whose state or availability changes dramatically with the start of the uprising (Phase 2).
+# Scenes
 
-### Core Locations (Always Accessible)
-These locations form the backbone of the game world. While their atmosphere may change based on the "Living City" meters, they are always present and explorable.
+This directory contains all the game scenes, organized by their location and purpose.
 
--   **Toompea (Upper Town):**
-    -   **Toompea Castle (Domberg):** The heavily guarded seat of Danish and Livonian power.
-    -   **The Cathedral of Saint Mary:** The spiritual heart of the Livonian Order.
--   **The City of Reval (Lower Town):**
-    -   **The Smith's Forge:** Your home base and workshop.
-    -   **St. Olaf's Guild Hall:** The center of Hanseatic power and commerce.
-    -   **The Whispering Market:** A hub for information, goods, and spies.
-    -   **The Sunken Harbor District:** A maze of docks and smuggling tunnels.
--   **Livonian Order Strongholds:**
-    -   **Wesenberg (Rakvere):** A key Order fortress and regional base.
-    -   **Viljandi Castle (Fellin):** A formidable stronghold symbolizing the Order's military might.
--   **The Wider World:**
-    -   **The Sacred Grove of Taara:** A hidden pagan sanctuary of immense natural power.
-    -   **A Peasant Village (Harju County):** The heart of the Estonian resistance, simmering with rebellion.
+## Intro
+Scenes related to the game's introduction.
 
-### Dynamic & Event-Based Locations
-These locations are tied directly to the historical events of the uprising and change significantly between Phase 1 and Phase 2.
+- `intro/intro.tscn`: The main intro scene.
 
--   **The Padise Monastery:**
-    -   **Phase 1 (Before Uprising):** A functioning Cistercian monastery. A place of quiet contemplation, but also a source of quests and information. You might interact with monks who are sympathetic to the Estonian cause or loyal to the Order.
-    -   **Phase 2 (During Uprising):** A smoking ruin and a key battleground. After the historical massacre, it becomes a haunted, dangerous location, filled with the ghosts of the slain monks and opportunistic looters.
--   **Pärnu (Pernau):**
-    -   **Phase 1:** A strategic coastal town focused on trade.
-    -   **Phase 2:** The site of the "Battle of Pärnu," a major open-field conflict zone.
--   **The Hill of the First Flame (Harju County):**
-    -   **Phase 1:** An unremarkable, windswept hill.
-    -   **Phase 2:** Becomes a sacred site of pilgrimage for the rebels after the signal fire for the uprising is lit here. A symbol of hope and defiance.
--   **The Rebel Kings' Camp:**
-    -   **Phase 1:** Does not exist.
-    -   **Phase 2:** Appears as a sprawling, makeshift war camp hidden in the forests. Becomes a central hub for the Harju Kings faction, where you can train, gather intelligence, and prepare for large-scale battles.
--   **The Swedish Outpost:**
-    -   **Phase 1:** Inaccessible.
-    -   **Phase 2:** Becomes accessible during the "Swedish Gambit" questline. A clandestine meeting point on the coast to negotiate for aid.
--   **Paldiski (Rågervik):**
-    -   **Phase 1:** A desolate, rocky coastline, known for shipwrecks and smugglers.
-    -   **Phase 2:** Becomes a key strategic location for naval activities. The rebels may use it to await promised aid from Sweden, while the Vitalienbrüder pirates may use it as a base to plunder ships amidst the chaos.
--   **The Sacred Lake of Saaremaa:**
-    -   **Phase 1:** Inaccessible.
-    -   **Phase 2:** Becomes the final bastion of the rebellion in the late game. A mystical, fog-shrouded location for ancient rituals and a desperate last stand.
+## Reval (Tallinn)
+The main city, divided into the Lower and Upper Town.
 
+### Lower Town
+The bustling commercial center of Reval.
+
+- `forge.tscn`: The blacksmith's forge.
+- `harbor.tscn`: The main harbor.
+- `market.tscn`: The town market.
+- `olaf_guild_hall.tscn`: The Guild Hall of St. Olaf.
+
+### Upper Town (Toompea)
+The administrative and religious center, seat of the Danish Viceroy and the Bishop.
+
+- `domberg.tscn`: Toompea Hill, representing the castle area.
+- `maria_toomkirik.tscn`: St. Mary's Cathedral.
+
+## World
+Locations outside of Reval, representing key historical sites across Estonia.
+
+- `harju_village.tscn`: A generic village in Harju county.
+- `sacred_grove.tscn`: A pagan worship site.
+- `karja_fortress.tscn`: The rebel fortress on Saaremaa.
+
+### Order
+- `padise_monastery1.tscn` & `padise_monastery2.tscn`: The Cistercian monastery at Padise.
+- `haapsalu_castle.tscn`: The Bishop's castle at Haapsalu (Hapsal).
+- `paide_castle.tscn`: The Livonian Order's stronghold at Paide (Wittenstein).
+- `poide_castle.tscn`: The Order's fortress on Saaremaa (Peude).
+- `viljandi_castle.tscn`: The Order's powerful castle at Viljandi (Fellin).
+- `maasilinna_castle.tscn`: The "castle of atonement" on Saaremaa (Soneburg).
+
+## Events
+Special event scenes related to the main questline.
+
+- `paldiski.tscn`: An event related to the port town of Paldiski.
+- `pernau.tscn`: An event in the Hanseatic city of Pärnu.
+- `rebel_kings.tscn`: A scene involving the four Estonian kings.
+- `saaremaa.tscn`: A key event on the island of Saaremaa.
+- `swedesh_outpost.tscn`: An encounter at a Swedish outpost.
+- `swedish_arrival.tscn`: A scene depicting the arrival of the Swedish fleet.
+- `pskov_arrival_battle.tscn`: A scene for the arrival of the Pskovian army and their subsequent battle with the Order.

@@ -33,11 +33,3 @@ The epilogue is a short, deceptively innocent mini-game. The player, as the chil
 *   **Atmosphere:** The atmosphere is bright and cheerful, a stark contrast to the grim reality of the main game. The sound design is filled with the sounds of a bustling city, birds chirping, and the child's happy laughter.
 *   **The Twist:** As the sun begins to set, the child grows tired and sits down in the town square. The camera slowly zooms out, and the player begins to see the consequences of their "game." Every NPC the player tagged is now lying dead in the streets, a faint, dark aura around them. The child, the innocent carrier of the plague, has unknowingly brought death to everyone they touched.
 *   **Ending:** The screen fades to black, and a single line of text appears: "And so, the plague came to Reval." The game ends.
-
-
-
-## 📜 Quests
-- "The Silent Baker": A mute baker's loaves cause hallucinations. Is he a prophet or a poisoner?
-- "The Elk with the Iron Eye": A mythical beast demands a debt from your ancestor—find its payment before it takes your soul.
-- "Ashes for Amber": A widow offers magical amber for her husband's bones from a knight’s crypt.
-- "The Copper Rat": Uncover the spy network hiding in Tallinn's sewers, using enchanted vermin.

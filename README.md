@@ -24,7 +24,9 @@ Will you become the hero your people whisper about — a new "Kalevipoeg", or wi
 - [NPC FACTIONS](./assets/characters/)
 - [LOCATIONS](./scenes/)
 - [STORYLINE](./STORY.md)
+- [QUESTS](./QUESTS.md)
 - [BESTIARY](./assets/bestiary/)
+- [MINI-GAMES](./MINI_GAMES.md)
 - [HISTORICAL CONTEXT](./HISTORY.md)
 
 
