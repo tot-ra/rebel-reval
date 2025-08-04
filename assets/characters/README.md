@@ -32,7 +32,7 @@ They represent civilization, Christianity, stability, power, hierarchy, and adva
 ![](./hansa/hansa-2.png)
 ![](./hansa/hansa-3.png)
 
-![alt text](./hansa/image-18.png) - Jewish moneychanger in a rich blue robe with gold trim, braided beard, spectacles, and a ring on every finger.
+![Jewish moneychanger in a rich blue robe with gold trim, braided beard, spectacles, and a ring on every finger.](./hansa/image-18.png)
 
 
 **The Livonian Order** ✠ 
@@ -117,7 +117,7 @@ These factions are not directly involved in the conflict between the Rulers and 
 -   **Presence:** Operates secretly throughout Reval, with influence in high-society locations like St. Olaf's Guild Hall.
 
 ![](./veil/image-7.png)
-![](./veil/image-18.png) - Mute harpist with silver eyes, dressed in black rags, a bone ring on every finger, harp slung over his back.
+![Mute harpist with silver eyes, dressed in black rags, a bone ring on every finger, harp slung over his back.](./veil/image-18.png)
 
 **The Vitalienbrüder** 🏴‍☠️
 -   **Motivation:** Plunder and chaos. The remnants of a once-powerful pirate brotherhood, now reduced to a scattered band of raiders and mercenaries. They have no loyalty to any flag and are interested only in profiting from the chaos of the uprising. They are masters of naval combat and can be hired to attack shipping, smuggle goods, or create diversions.
@@ -133,46 +133,28 @@ These factions are not directly involved in the conflict between the Rulers and 
 
 ### Streets
 
-![alt text](./streets/image-21.png) Estonian cook/disguised rebel in soot-streaked apron, scars on forearms, long red hair in a tight braid under cap.
-
-![alt text](./streets/image-20.png)
-Order courier in leather riding gear, spattered with mud, scroll satchel across his chest, bruised lips.
-
-![alt text](./streets/image-19.png) City watchman with dented chainmail, crooked nose, rusted halberd, and one eye clouded with cataract.
-
-![alt text](./streets/image-18.png) Teutonic squire in a black-and-white surcoat, cropped blonde hair, carrying a polished longsword, boots spotless.
-
-![alt text](./streets/image-17.png) Franciscan friar in mud-streaked brown robes, tonsured head glistening with sweat, rosary swaying as he walks.
+![Estonian cook/disguised rebel in soot-streaked apron, scars on forearms, long red hair in a tight braid under cap.](./streets/image-21.png)
+![Order courier in leather riding gear, spattered with mud, scroll satchel across his chest, bruised lips.](./streets/image-20.png)
+![City watchman with dented chainmail, crooked nose, rusted halberd, and one eye clouded with cataract.](./streets/image-19.png)
+![Teutonic squire in a black-and-white surcoat, cropped blonde hair, carrying a polished longsword, boots spotless.](./streets/image-18.png)
+![Franciscan friar in mud-streaked brown robes, tonsured head glistening with sweat, rosary swaying as he walks.](./streets/image-17.png)
 
 
 ## Workers quarter
-![alt text](image-15.png) German tanner in fly-covered leather robes, a blood-spattered smock, and an expression of morbid glee.
-
-![alt text](image-16.png) Leech/healer in patchy robes lined with vials and feathers, a crow skull tied to her belt, red clay on her cheeks.
-
-![alt text](image-13.png) Mason in rough hemp trousers and a leather apron, dust clinging to his eyebrows, hands chalky with lime.
-
-![alt text](image-12.png) Swedish carpenter with wooden splinters in his tunic, rolled-up sleeves, a belt of chisels, and a white linen headband.
-
-![alt text](image-11.png)
-Bohemian glass peddler with a crooked back, glass beads braided into his beard, vibrant mismatched gloves.
-
-
-![](image-9.png) Young German merchant apprentice in tight woolen doublet, fur collar, ink-stained fingers, eyes darting nervously.
-
-![alt text](image-14.png) Young weaver girl with colored wool in her hair, faded apron patterned with geometric runes, bare feet calloused and dirty.
-
-![alt text](image-22.png)
-Apothecary crone with twisted spine, layers of moth-bitten shawls, owl feather behind one ear, eyes milky white.
-
-![alt text](image-23.png) Tailor’s wife in fine dyed linen, sleeves too tight, silver pins in her hair, smiling, yellow dress
-
-![alt text](image-24.png) Shoemaker in layered leathers, short and muscular, grey beard tied with twine, runes carved into his toolbelt.
+![German tanner in fly-covered leather robes, a blood-spattered smock, and an expression of morbid glee.](./workers_quarter/image-15.png)
+![Leech/healer in patchy robes lined with vials and feathers, a crow skull tied to her belt, red clay on her cheeks.](./workers_quarter/image-16.png)
+![Mason in rough hemp trousers and a leather apron, dust clinging to his eyebrows, hands chalky with lime.](./workers_quarter/image-13.png)
+![Swedish carpenter with wooden splinters in his tunic, rolled-up sleeves, a belt of chisels, and a white linen headband.](./workers_quarter/image-12.png)
+![Bohemian glass peddler with a crooked back, glass beads braided into his beard, vibrant mismatched gloves.](./workers_quarter/image-11.png)
+![Young German merchant apprentice in tight woolen doublet, fur collar, ink-stained fingers, eyes darting nervously.](./workers_quarter/image-9.png)
+![Young weaver girl with colored wool in her hair, faded apron patterned with geometric runes, bare feet calloused and dirty.](./workers_quarter/image-14.png)
+![Apothecary crone with twisted spine, layers of moth-bitten shawls, owl feather behind one ear, eyes milky white.](./workers_quarter/image-22.png)
+![Tailor’s wife in fine dyed linen, sleeves too tight, silver pins in her hair, smiling, yellow dress](./workers_quarter/image-23.png)
+![Shoemaker in layered leathers, short and muscular, grey beard tied with twine, runes carved into his toolbelt.](./workers_quarter/image-24.png)
 
 ### Harbour
-![](image-10.png) - Russian fur trader in layered pelts, bearskin hat with earflaps, thick beard iced with frost, belt heavy with pouches.
-
-![alt text](image-7.png) - Weathered Estonian fishwife in a patched linen tunic, seaweed tangled in her greying braids, hands red from cold water.
+![Russian fur trader in layered pelts, bearskin hat with earflaps, thick beard iced with frost, belt heavy with pouches.](./harbour/image-10.png) 
+![Weathered Estonian fishwife in a patched linen tunic, seaweed tangled in her greying braids, hands red from cold water.](./harbour/image-7.png)
 
 ### Tavern
 ![tavern woman](./tavern/image.png)
@@ -185,10 +167,10 @@ Apothecary crone with twisted spine, layers of moth-bitten shawls, owl feather b
 
 
 ### Peasants
-![peasant with a hat](image.png)
-![peasant](image-1.png)
-![peasant](image-2.png)
-![peasant with a bucket of water](image-4.png)
-![peasant with a heavy sack](image-5.png)
-![peasant with wood](image-6.png)
-![peasant fisherman wife](image-8.png)
+![peasant with a hat](./peasants/image.png)
+![peasant](./peasants/image-1.png)
+![peasant](./peasants/image-2.png)
+![peasant with a bucket of water](./peasants/image-4.png)
+![peasant with a heavy sack](./peasants/image-5.png)
+![peasant with wood](./peasants/image-6.png)
+![peasant fisherman wife](./peasants/image-8.png)
