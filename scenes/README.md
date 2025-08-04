@@ -1,3 +1,5 @@
+## 🏰 Setting & Exploration (scenes/levels) 🌍
+The game world is a condensed, semi-fictionalized representation of 14th-century Estonia. Locations are divided into two types: Core Locations, which are always accessible, and Dynamic Locations, whose state or availability changes dramatically with the start of the uprising (Phase 2).
 
 ### Core Locations (Always Accessible)
 These locations form the backbone of the game world. While their atmosphere may change based on the "Living City" meters, they are always present and explorable.

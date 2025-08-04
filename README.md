@@ -32,11 +32,13 @@ You are Kalev, an Estonian smith. To the German lords, you're just another pair 
 
 ![](./assets/player/image.png)
 
-[NPC FACTIONS]
-[SCENES](./scenes/)
+- [CHARACTER ABILITIES](./assets/player/)
+- [NPC FACTIONS](./assets/characters/)
+- [BESTIARY](./assets/bestiary/)
+- [SCENES](./scenes/)
+- [HISTORICAL CONTEXT](./HISTORY.md)
 
-
-## Gameplay Levels / Story
+## Storyline / Level progression
 ### Prequel Chapter: The First Spark
 A short, narrative-driven prologue where you play as one of Kalev's ancestors during the initial Danish conquest. This chapter would establish the historical context and the deep-seated resentment that fuels the main story, allowing the player to witness the forging of the chains that Kalev will later try to break.
 
@@ -123,62 +125,6 @@ To create a truly living and unpredictable world, every NPC in Reval, from the h
 - Emergent Behavior: Because NPCs are not on fixed scripts, they can react to events in unpredictable ways. A riot might cause a merchant to hire extra guards, or a food shortage might lead a normally law-abiding citizen to steal. This creates a world that feels alive and constantly evolving.
 - Integration with Gameplay Systems: The AI-driven NPCs are the engine that drives the "Living City." Your attempts to manipulate the **Hope**, **Fear**, and **Chaos** meters are essentially attempts to influence the collective mood and behavior of the city's AI inhabitants.
 
-## ⚡ Character Abilities & Magic
-Abilities are divided into two main categories: the **Ancestral Magic Tree** (Kalev's innate skills) and **Faction-Specific Abilities** (unlocked through alignment).
-
-### Ancestral Magic Tree: The Smith's Legacy
-These abilities are unique to Kalev, reflecting his lineage and his craft. This tree is divided into two branches: **Runic Forging** and **Primal Power**. Players can invest points in either branch to customize their playstyle.
-
-| Branch | Ability | Effect |
-| --- | --- | --- |
-| **Runic Forging** | `Rääkiv Raud (Talking Iron)` | Passive: When crafting, reveals one hidden property of a component material. |
-| | `Runic Inscription` | Allows you to inscribe one elemental rune onto a weapon, adding +10% of its damage as Fire, Frost, or Shock damage. |
-| | `Sacred Scrap Analysis` | Passive: Increases the chance of recovering rare materials from deconstructing items by 25%. |
-| | `Hybrid Forging` | Allows a weapon to hold two Runic Inscriptions simultaneously. |
-| | `The Living Forge` (Ultimate) | Crafted weapons have a 10% chance to gain a unique "living" property (e.g., 5% Lifesteal, chance to poison on hit). |
-| **Primal Power** | `Karujõud (Bear Strength)` | Passive: Increases blunt weapon damage by 10% and poise by 15%. |
-| | `Hundisõnad (Wolf Words)` | Active: A battle cry that causes a single non-elite enemy to flee in fear for 3s. Cooldown: 20s. |
-| | `Earth-Sense` | Passive: You can sense the movement of nearby enemies, making them visible on the minimap even through walls. |
-| | `Spirit Shield` | Active: Creates a temporary shield that absorbs up to 100 damage or lasts for 10s. Cooldown: 30s. |
-| | `Kalev's Echo` (Ultimate) | Active: Perform a powerful ground slam. A spectral echo repeats the attack 1 second later, dealing 50% damage in a larger radius. |
-
-### Faction-Specific Ability Trees
-These abilities are unlocked by gaining favor with one of the six main factions. Each offers a unique philosophical and gameplay path.
-
-| Faction | Ability | Effect on Player | Effect on Enemy |
-| --- | --- | --- | --- |
-| **Pagan Cult of Metsik** | `Uproot` | - | Immobilizes for 3s and deals 10 Nature damage/sec. Cooldown: 12s. |
-| | `Animal Form` | Transforms into a wolf (fast, low damage) or a bear (slow, high damage, high health). Duration: 30s. Cooldown: 60s. | - |
-| | `Spirit Ally` | Summons a spectral wolf to fight alongside you for 20s. Cooldown: 45s. | - |
-| | `Metsavana's Blessing` | Regenerates 15% of max health over 10s and grants immunity to poison. Cooldown: 30s. | - |
-| | `Heart of the Forest` (Ultimate) | Regenerates 50% of max health over 15s. | Creates a large AoE that slows all enemies by 50% and deals 25 Nature damage/sec for 15s. |
-| **Livonian Order** | `Consecrate Ground` | Creates a zone for 10s. Inside, gain +25% armor and regenerate 5% of max health. Cooldown: 20s. | Enemies entering the zone are slowed by 20%. |
-| | `Righteous Condemnation` | - | Marks a target for 8s. All attacks against the target deal +20% Holy damage. Cooldown: 15s. |
-| | `Sacred Fire` | Imbues weapon with Holy Fire for 15s, adding 15% of weapon damage as bonus Holy damage. Cooldown: 25s. | - |
-| | `Smite` | - | Calls down a bolt of holy energy, dealing 150 Holy damage and stunning the target for 2s. Cooldown: 18s. |
-| | `Wrath of God` (Ultimate) | - | Unleashes a wave of divine energy, dealing 300 Holy damage to all nearby enemies and knocking them back. |
-| **Black Cloaks** | `Face in the Crowd` | Become invisible for 8s or until you attack. Cooldown: 20s. | - |
-| | `Whisper Network` | Reveals all enemy positions on the minimap for 30s. Cooldown: 60s. | - |
-| | `Improvised Weaponry` | Passive: Grants +25% damage when wielding non-standard weapons (e.g., bottles, chairs). | - |
-| | `Sabotage` | - | Places a trap that explodes for 100 damage when an enemy comes within 3m. Cooldown: 10s. |
-| | `Call to Arms` (Ultimate) | - | Summons 3 rebel allies to fight for 30s. |
-| **Hanseatic League** | `Calculated Bribery` | - | Pay 100 gold to bribe a non-elite human enemy to fight for you for 60s. Cooldown: 30s. |
-| | `Strandrecht Repeal` | Passive: Defeated enemies drop 15% more gold. | - |
-| | `Advanced Tools` | Passive: Crafting speed is increased by 30%. | - |
-| | `Crossbow Turret` | - | Deploys a turret for 20s that fires at nearby enemies, dealing 20 damage per shot. Cooldown: 25s. |
-| | `Hostile Takeover` (Ultimate) | - | Permanently convert a non-elite human enemy to your side. Cooldown: 120s. |
-| **Veiled Council** | `A Whisper of Doubt` | - | Causes a non-elite human enemy to attack its allies for 10s. Cooldown: 25s. |
-| | `False Identity` | Disguise yourself as a member of the target faction for 60s. Does not work if you initiate combat. Cooldown: 90s. | - |
-| | `Blackmail` | - | Forces a targeted non-hostile NPC to give you a random valuable item. Can only be used on an NPC once. Cooldown: 5min. |
-| | `Misdirection` | - | Creates an illusionary clone of yourself for 10s that draws enemy aggression. Cooldown: 30s. |
-| | `The Puppet Master` (Ultimate) | - | Take direct control of a non-elite human enemy for 15s. |
-| **Pskov Agents** | `Patron Saint's Blessing` | Become invulnerable to all damage for 5s. Cooldown: 45s. | - |
-| | `Icon's Gaze` | - | Freezes a target enemy in place for 4s. Cooldown: 20s. |
-| | `Pskovian Gambit` | Feign death, becoming invisible to enemies for 10s. Your next attack deals +50% damage. Cooldown: 30s. | - |
-| | `Byzantine Fire` | - | Throws a projectile that creates a pool of fire for 8s, dealing 20 Fire damage/sec to enemies within it. Cooldown: 15s. |
-| | `The Bell of Kitezh` (Ultimate) | - | Creates a massive AoE that deals 250 damage and stuns all enemies within it for 3s. |
-
-
 
 
 ## 🎨 Visual Style
@@ -191,66 +137,8 @@ Soundtrack: Blend of medieval Baltic folk (kantele, runosong) with ambient elect
 Dynamic Sound Design: Pagan areas filled with whispers and wind chimes; Christian zones echo with choirs and bells.
 
 ## 📜 Quests (Examples)
-"The Silent Baker": A mute baker's loaves cause hallucinations. Is he a prophet or a poisoner?
-"The Elk with the Iron Eye": A mythical beast demands a debt from your ancestor—find its payment before it takes your soul.
-"Ashes for Amber": A widow offers magical amber for her husband's bones from a knight’s crypt.
-"The Copper Rat": Uncover the spy network hiding in Tallinn's sewers, using enchanted vermin.
-
-## 👹 Bestiary: Enemies of Reval
-The world of Reval Rebel is populated by a host of dangerous foes, each with unique behaviors and abilities tied to their faction and the dark folklore of the land.
-
-### Human Adversaries
-
--   **Livonian Order:** The military arm of the ruling factions, disciplined and heavily armed.
-    -   **Order Footman (Low Threat):** The backbone of the Order's forces. Wields a sword and shield. Fights defensively, relying on numbers and formation.
-    -   **Order Sergeant (Medium Threat):** A battle-hardened leader. Can perform a shield bash to break the player's poise and shouts commands to buff nearby footmen.
-    -   **Order Knight (High Threat):** An elite warrior clad in full plate armor. Wields a greatsword or mace, capable of devastating, uninterruptible attacks. Highly resistant to stagger.
--   **Pagan Cult of Metsik:** Wild and unpredictable, drawing power from the ancient forest.
-    -   **Forest Stalker (Low Threat):** A fast, lightly armored warrior who dual-wields axes. Attempts to flank the player and attacks in flurries.
-    -   **Spirit-Caller (Medium Threat):** A shaman who summons spectral wolves and casts debilitating curses that slow the player or drain their stamina. Prefers to keep their distance.
--   **Black Cloaks & Urban Rebels:** Guerilla fighters who use the city itself as a weapon.
-    -   **Street Thug (Low Threat):** Armed with improvised weapons like clubs or daggers. Fights dirty, throwing sand to blind the player or ganging up.
-    -   **Saboteur (Medium Threat):** An agile rogue who uses smoke bombs to disappear and caltrops to control the battlefield. Attacks with a poisoned short sword from stealth.
--   **Vanapagan's Cultists:** Humans who have bartered their souls for a sliver of the Old Devil's power.
-    -   **Rock-Thrower (Medium Threat):** Throws large stones with unnatural force and accuracy, capable of staggering the player.
-    -   **Brute (High Threat):** Possesses minor supernatural strength, allowing for powerful shove attacks that can send the player flying.
-
-### Mythological Creatures
-
--   **Kratt (Medium Threat):** A terrifying construct of hay, old bones, and farming tools, animated by a stolen soul. It is fast, erratic, and relentless.
-    -   **Abilities:** Attacks with scythe-like arms, can disassemble into a pile of hay to avoid attacks before quickly reforming, and is extremely vulnerable to fire.
--   **Puuk (Low Threat):** A small, dragon-like demonic creature known for its greed. They are fast, annoying, and travel in packs.
-    -   **Abilities:** Can steal items directly from the player's inventory, create illusions to disorient, and teleport in short bursts to evade attacks.
--   **Põhja Konn (Boss):** The "Northern Frog," a colossal, ancient amphibian covered in stone-like armor, guarding a forgotten bog.
-    -   **Abilities:** A long, sticky tongue that can pull the player in for a devastating bite, a powerful ground-slam that creates a shockwave, and the ability to spit corrosive acid. Its soft underbelly is its only weak point, exposed briefly after its slam attack.
--   **The Leshy (Boss):** An ancient forest spirit bound to a sacred grove. A massive, hulking creature of wood and vine.
-    -   **Abilities:** Can summon roots from the ground to immobilize the player, teleport in a cloud of leaves, and command packs of wolves. Its heart is exposed after it performs a powerful ground-slam attack.
-
-
-
-## 🎭 Historical Context
-The State of Estonia in 1342: On paper, Northern Estonia is the Duchy of Estonia, a dominion of the Danish Crown, ruled by a viceroy from Toompea Castle. In reality, Danish power is a hollow shell. The true authority lies with a web of competing interests:
-
-- The German Vassals: Feudal lords who control the land and its people, loyal to the Danish king only when it suits them.
-- The Livonian Order: A powerful, semi-independent military order of German knights who act as the region's de facto army and landlords. They have their own agenda and often operate in defiance of the Danish crown.
-- The Hanseatic League: The wealthy German merchants of Reval, who operate with a high degree of autonomy and are primarily concerned with protecting their trade routes and profits.
-
-This fractured power structure has created a powder keg of resentment and ambition, where the native Estonian population is caught between a distant king, foreign knights, and wealthy merchants, all of whom see the land and its people as a resource to be exploited.
-
-The Seeds of Rebellion: The St. George's Night Uprising is not a sudden event, but the culmination of decades of simmering resentment. The key grievances include:
-- Heavy Taxation: The Danish Crown, weakened and distracted by its own internal politics, has imposed increasingly heavy taxes on the Estonian population to fund its distant ambitions.
-- Cultural and Religious Oppression: The German-speaking ruling class and the Catholic Church have systematically suppressed Estonian culture, language, and pagan beliefs.
-- Economic Exploitation: The Hanseatic merchants of Reval control the flow of trade, enriching themselves while the local population sees little benefit.
-- Loss of Land and Freedom: The rights of free Estonian peasants have been steadily eroded, with many forced into serfdom by the German feudal lords.
-
-
-## The Uprising in Reality: A Brief Historical Account
-The St. George's Night Uprising (1343–1345) was a widespread and brutal rebellion by the indigenous Estonian population against the Danish and German rulers who had dominated the land for over a century. It was not a single event, but a series of coordinated attacks that aimed to eradicate foreign influence and restore Estonian independence.
-
-The rebellion began on St. George's Night, April 23, 1343, with a signal fire lit on a hill in Harju County. This sparked a wave of violence across Danish Estonia. Estonian forces, led by four self-proclaimed "kings," targeted German nobles, merchants, and clergy. They burned manors, destroyed churches, and laid siege to the city of Reval (Tallinn). One of the most infamous events was the massacre at Padise Monastery, where 28 Cistercian monks were killed.
-
-Despite initial successes, the rebellion was ultimately crushed. The Estonian forces, though numerous, lacked the military sophistication of their enemies. Desperate for allies, the rebels sent envoys to both the Swedish bailiffs in Finland and the Russian city of Pskov. While the Swedes offered promises of support, no significant aid arrived in time. There is no historical record of Pskov providing any assistance. Left to fend for themselves, the Estonians were no match for the disciplined knights of the Teutonic Order, who intervened decisively to expand their own territory. By the end of 1343, the uprising in mainland Estonia was suppressed, though resistance continued on the island of Saaremaa until early 1345.
-
-In the aftermath, the Danish Crown, its authority shattered, sold the Duchy of Estonia to the Teutonic Order in 1346. The uprising, while a failure, remains a powerful symbol of Estonian resistance and the enduring desire for self-determination.
-
+- "The Silent Baker": A mute baker's loaves cause hallucinations. Is he a prophet or a poisoner?
+- "The Elk with the Iron Eye": A mythical beast demands a debt from your ancestor—find its payment before it takes your soul.
+- "Ashes for Amber": A widow offers magical amber for her husband's bones from a knight’s crypt.
+- "The Copper Rat": Uncover the spy network hiding in Tallinn's sewers, using enchanted vermin.
 

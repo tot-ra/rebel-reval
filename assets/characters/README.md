@@ -116,7 +116,4 @@ These factions are not directly involved in the conflict between the Rulers and 
 -   **Core NPC:** **Яна Подаяльная**, the head of the Novgorodian trade delegation in Reval. A shrewd and calculating diplomat, she is a master of economic statecraft. She can be a powerful ally, offering vast resources, political influence, and a safe escape route—but her support always comes at a steep price, and her loyalty is ultimately to the bottom line.
 -   **Presence:** St. Olaf's Guild Hall (Reval).
 
-![](./img/image-11.png)
-
-## 🏰 Setting & Exploration (scenes/levels) 🌍
-The game world is a condensed, semi-fictionalized representation of 14th-century Estonia. Locations are divided into two types: Core Locations, which are always accessible, and Dynamic Locations, whose state or availability changes dramatically with the start of the uprising (Phase 2).
+![](./novgorod/image-11.png)
