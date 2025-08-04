@@ -1,4 +1,3 @@
-
 ## ⚔️ Factions
 You can ally, betray, or infiltrate these political forces. Your actions will determine the fate of Reval and the future of Estonia. Each faction offers unique quests, abilities, and endings.
 
@@ -10,9 +9,10 @@ These factions represent the established, foreign powers ruling over Reval.
 They represent civilization, Christianity, stability, power, hierarchy, and advanced resources, but at the cost of natives freedom.
 
 **The Danish Crown** 🇩🇰 
--   **Motivation:** To maintain their tenuous hold on the Duchy of Estonia, extract as much tax revenue as possible, and prevent the Livonian Order from seizing full control. They are a fading power, ruling in name only.
+-   **Core Value:** Legacy
+-   **Ideal:** To uphold their ancestral claim and the divine right of kings, providing stability as the legitimate rulers.
+-   **Shadow:** Their obsession with legacy makes them out of touch, willing to tax their subjects into ruin to maintain a fading glory.
 -   **Core NPC:** **Viceroy Konrad Preen**, the Danish governor (capitaneus Revalie). A weary, aging diplomat who is more interested in securing a comfortable retirement than in governing effectively. He is pragmatic and can be bribed or persuaded, but his loyalty is ultimately to a distant king who has all but forgotten this northern outpost.
-
 -   **Presence:** Toompea Castle (Reval).
 
 ![](./denmark/npc1.png)
@@ -20,7 +20,9 @@ They represent civilization, Christianity, stability, power, hierarchy, and adva
 ![](./denmark/image.png)
 
 **The Hanseatic League** 🇪🇺
--   **Motivation:** Profit and control. The League's merchants, led by the powerful guilds of Reval, see the uprising as a threat to their trade monopolies. They are not warriors, but their wealth gives them immense influence. They fund the Livonian Order, bribe city officials, and use their extensive network of spies to protect their interests.
+-   **Core Value:** Prosperity
+-   **Ideal:** To build a world of opportunity and wealth through trade, connecting cultures and funding innovation.
+-   **Shadow:** Their pursuit of profit becomes all-consuming greed, where human lives and traditions are exploited for coin.
 -   **Core NPC:** **Jürgen von League**, a wealthy and ruthless amber merchant who unofficially speaks for the League. He is a master of economic warfare, offering you advanced technology, access to smuggling rings, and vast sums of gold in exchange for services that secure the League's dominance.
 -   **Presence:** St. Olaf's Guild Hall (Reval), The Sunken Harbor District (Reval).
 
@@ -30,9 +32,10 @@ They represent civilization, Christianity, stability, power, hierarchy, and adva
 
 
 **The Livonian Order** ✠ 
--   **Motivation:** Faith and purity. The Order sees itself as the sword of Christendom, tasked with rooting out paganism and imposing divine order on a savage land. They are the true military power in the region, and they view the Danish Crown with contempt and the Estonians as little more than heathens to be converted or crushed.
+-   **Core Value:** Order
+-   **Ideal:** To create a stable, pious society under a single faith and a strong rule of law.
+-   **Shadow:** Their pursuit of order becomes brutal fanaticism, justifying massacres and cultural destruction in the name of God.
 -   **Core NPCs:** **Brother Burchard von Dreileben**, a zealous and battle-hardened knight of the Order. He is a formidable warrior and a charismatic leader, offering you access to elite combat training, blessed weaponry, and the chance to fight for what he believes is a righteous cause. He is unyielding in his faith and merciless to his enemies.
-
 - Brother Goswin von Herike - commander in Viljandi
 - Arnd von Herke
 -   **Presence:** Toompea Castle (Reval), The Cathedral of Saint Mary (Reval), Wesenberg (Rakvere), Viljandi Castle, Padise Monastery.
@@ -46,6 +49,9 @@ They represent civilization, Christianity, stability, power, hierarchy, and adva
 
 
 ### The Rebel Factions
+-   **Core Value:** Freedom
+-   **Ideal:** To rule their own lands, free from foreign masters.
+-   **Shadow:** Their fight for freedom can become violent xenophobia, leading to the slaughter of any and all outsiders.
 
 These factions represent the native Estonian resistance. 
 They represent rebellion, decentralization, grassroot nature powers, flexibility.
@@ -87,6 +93,18 @@ They are outgunned and outmaneuvered, but they have the support of the people an
 
 These factions are not directly involved in the conflict between the Rulers and the Rebels, but they have their own agendas and can be powerful allies or dangerous enemies.
 
+**The Republic of Novgorod & Pskov** 🌞
+-   **Core Value:** Opportunity
+-   **Ideal:** To expand their influence and trade through shrewd alliances and military might, seizing the chances that chaos provides.
+-   **Shadow:** Their pragmatism is a mask for ruthless opportunism; they are mercenaries who will betray any ally for a better deal.
+-   **Core NPCs:** 
+    - **Михаил Коловрат**, a cunning Pskovian agent operating as a fur trapper. He offers access to spies and saboteurs, but his true allegiance is a mystery.
+    - **Яна Подаяльная**, the head of the Novgorodian trade delegation. A shrewd diplomat who can offer vast resources, but her support always comes at a steep price.
+-   **Presence:** The Whispering Market (Reval), St. Olaf's Guild Hall (Reval).
+
+![](./pskov/npc4.png)
+![](./novgorod/image-11.png)
+
 **The Veiled Council** 🕷️
 -   **Motivation:** The long game. A secret society of Reval's oldest and wealthiest German families who believe that both the Danes and the Livonian Order are temporary. They manipulate events from the shadows, seeking to create a new, independent state under their own control. They are masters of espionage, assassination, and political intrigue.
 -   **Core NPC:** **"Mart the Weaver"** a mysterious figure who communicates only through coded messages and intermediaries. They offer you access to a network of spies, saboteurs, and assassins, but their true motives are always hidden, and their loyalty is only to the Council's ultimate ambition.
@@ -101,19 +119,3 @@ These factions are not directly involved in the conflict between the Rulers and 
 -   **Presence:** Paldiski (Rågervik), The Sunken Harbor District (Reval).
 
 ![](./bandits/image-8.png)
-
-**The Pskov Agents** 🐆
--   **Motivation:** Opportunity and Destabilization. The Republic of Pskov, a powerful Russian principality, watches the chaos in Estonia with keen interest. Historically, the Estonian rebels sent envoys to Pskov, seeking an alliance. In the game, Pskov's motives are ambiguous. Are they genuine allies, or are they simply exploiting the uprising to weaken their Teutonic and Danish rivals?
--   **Core NPC:** **Михаил Коловрат**, a cunning and resourceful Pskovian agent operating under the cover of a fur trapper. He knows Reval's streets intimately and offers access to a network of spies, saboteurs, and assassins. He can provide intelligence on the Livonian Order, but his true allegiance remains shrouded in mystery.
--   **Presence:** The Whispering Market (Reval), operating undercover.
-
-
-
-![](./pskov/npc4.png)
-
- **The Novgorod Republic Trade Delegation** 🌞
--   **Motivation:** Profit and Plausible Deniability. While historical records show no direct involvement from Novgorod in the uprising, this faction represents a "what if" scenario. The powerful Republic of Novgorod is officially neutral, concerned only with protecting its lucrative trade routes. However, they are not above profiting from chaos. They might secretly fund the rebels, the Order, or both, depending on which outcome best serves their economic interests.
--   **Core NPC:** **Яна Подаяльная**, the head of the Novgorodian trade delegation in Reval. A shrewd and calculating diplomat, she is a master of economic statecraft. She can be a powerful ally, offering vast resources, political influence, and a safe escape route—but her support always comes at a steep price, and her loyalty is ultimately to the bottom line.
--   **Presence:** St. Olaf's Guild Hall (Reval).
-
-![](./novgorod/image-11.png)

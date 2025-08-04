@@ -8,6 +8,8 @@ A short, narrative-driven prologue where you play as one of Kalev's ancestors du
 - Player Goal: Navigate the treacherous social landscape of Reval. Your actions will build your reputation with different factions, unlocking unique abilities and story paths. Every choice you make determines who will stand with you—and who will stand against you—when the city finally erupts.
 - Narrative Arc: This phase is a slow-burn thriller. You'll uncover conspiracies, perform secret missions for different factions, and make difficult choices that have no clear right answer. The "Living City" meters (Hope, Fear, Chaos) are your primary measure of progress.
 
+- **Chapter Conclusion:** The chapter concludes on the eve of St. George's Night, April 23, 1343. The player's actions throughout the chapter accumulate towards this date, influencing the city's state via the **Hope, Fear, and Chaos** meters. The final quests of this chapter will represent the tipping point, and the state of the meters at the end of the day will determine the opening scenario of Chapter 2, defining the strength and nature of the rebellion.
+
 ### Chapter 2: The Fire of Rebellion (year 1343)
 - Gameplay Focus: Open warfare, tactical combat, and large-scale battles. This phase begins on St. George's Night, April 23, 1343.
 - Player Goal: Survive and lead your chosen faction to victory. For the rebels, this means fighting for independence and driving out the foreign lords. For the rulers, this means crushing the uprising, restoring order, and punishing the seditious. Your missions will be based on the real-life timeline of the rebellion, allowing you to either follow history or rewrite it:
@@ -15,13 +17,19 @@ A short, narrative-driven prologue where you play as one of Kalev's ancestors du
 - The Battle of Pärnu: Engage in a major field battle against the knights, either as a rebel warrior or an Order champion.
 - The Swedish/Pskov Gambit: As a rebel, attempt to secure aid from neighbours. As a ruler, sabotage the rebels' efforts and ensure no foreign aid arrives.
 - Narrative Arc: This phase is a desperate, action-packed struggle for the future of Estonia. The choices you made in Phase 1 will have dramatic consequences, determining which missions are available to you and what resources you have at your disposal.
+- **Levels:** `scenes/events/rebel_kings.tscn`, `scenes/events/pernau.tscn`, `scenes/events/swedish_arrival.tscn`, `scenes/events/pskov_arrival_battle.tscn`, `scenes/lower_town/`, `scenes/upper_town/`
 
 ### Chapter 3: The Livonian Crusade
 The conflict expands beyond Reval. The Teutonic Order, having bought the rights to Estonia, launches a full-scale crusade to solidify its control. The player would travel to new regions, from the swamps of Saaremaa to the fortified cities of Livonia, participating in large-scale battles and sieges. This chapter would introduce new factions, such as the Samogitians or other Baltic tribes, who could be potential allies or enemies.
+- **Levels:** `scenes/world/`, `scenes/events/saaremaa.tscn`, `scenes/events/paldiski.tscn`
 
+### World Map
+A traversable world map that connects the different locations.
+- **Level:** `scenes/map/map.tscn`
 
 ### Epilogue
 The screen fades to black. A child's laughter echoes, then is abruptly silenced. The year 1351 appears on the screen, then fades.
+- **Levels:** `scenes/lower_town/`, `scenes/upper_town/`
 
 The scene opens on a strangely empty Reval. The sun is shining, but the streets are quiet. The player is no longer Kalev. Instead, they control a small child, a girl in a simple linen dress, clutching a rag doll.
 

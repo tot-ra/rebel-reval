@@ -2,6 +2,44 @@
 
 This directory contains all the game scenes, organized by their location and purpose.
 
+### Scene Flow
+
+#### Chapter 1: Reval
+```mermaid
+graph TD
+    Intro("intro.tscn") --> Forge("forge.tscn");
+    Forge --> Market("market.tscn");
+    Harbor("harbor.tscn") --> Market;
+    Market --> OlafGuild("olaf_guild_hall.tscn");
+    Market -- "Uphill Path" --> Domberg("domberg.tscn");
+    Domberg --> MariaKirik("maria_toomkirik.tscn");
+```
+
+#### Chapter 2: The Uprising
+```mermaid
+graph TD
+    Reval("Reval City") --> SiegeOfReval("Siege of Reval<br>(events/rebel_kings.tscn)");
+    SiegeOfReval --> BattleOfParnu("Battle of Pärnu<br>(events/pernau.tscn)");
+    SiegeOfReval --> SwedishGambit("Swedish Gambit<br>(events/swedish_arrival.tscn)");
+    SiegeOfReval --> PskovGambit("Pskov Gambit<br>(events/pskov_arrival_battle.tscn)");
+```
+
+#### Chapter 3 & Epilogue
+```mermaid
+graph TD
+    Chapter2End("Uprising Concludes") --> WorldMap("map/map.tscn");
+    WorldMap --> Harju("Harju Village<br>(world/harju_village.tscn)");
+    WorldMap --> SacredGrove("Sacred Grove<br>(world/sacred_grove.tscn)");
+    WorldMap --> Padise("Padise Monastery<br>(world/padise_monastery1.tscn)");
+    WorldMap --> Paide("Paide Castle<br>(world/paide_castle.tscn)");
+    WorldMap --> Saaremaa("Saaremaa Island");
+    Saaremaa --> Karja("Karja Fortress<br>(world/karja_fortress.tscn)");
+    Karja --> Poide("Poide Castle<br>(world/poide_castle.tscn)");
+    Poide --> Maasilinna("Maasilinna Castle<br>(world/maasilinna_castle.tscn)");
+    Karja --> SaaremaaEvent("Saaremaa Event<br>(events/saaremaa.tscn)");
+    WorldMap --> Epilogue("Epilogue<br>(Reval)");
+```
+
 ## Intro
 Scenes related to the game's introduction.
 
