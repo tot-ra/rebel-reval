@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b6aejnjs6iunv"
-path="res://.godot/imported/teutonic-2.png-bbaf5212690e372b742ea70189a4f183.ctex"
+uid="uid://dmfu4spkmi6u8"
+path="res://.godot/imported/black-1.png-237b0a2c6c7df29295e2f7f5b1681b2e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://img/teutonic-2.png"
-dest_files=["res://.godot/imported/teutonic-2.png-bbaf5212690e372b742ea70189a4f183.ctex"]
+source_file="res://assets/characters/cloaks/black-1.png"
+dest_files=["res://.godot/imported/black-1.png-237b0a2c6c7df29295e2f7f5b1681b2e.ctex"]
 
 [params]
 

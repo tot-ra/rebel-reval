@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://hixwu4ubibjk"
-path="res://.godot/imported/npc2.png-1ffbad12b47da6d99678bd9fdd72e9e4.ctex"
+uid="uid://vfxsuw6ytiea"
+path="res://.godot/imported/image-7.png-525c1b3bd35c9cbe1cd06da2a4e32149.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://img/npc2.png"
-dest_files=["res://.godot/imported/npc2.png-1ffbad12b47da6d99678bd9fdd72e9e4.ctex"]
+source_file="res://assets/characters/veil/image-7.png"
+dest_files=["res://.godot/imported/image-7.png-525c1b3bd35c9cbe1cd06da2a4e32149.ctex"]
 
 [params]
 

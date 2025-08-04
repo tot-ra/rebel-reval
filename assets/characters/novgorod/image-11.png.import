@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ct3hecqh5uesy"
-path="res://.godot/imported/image-8.png-e37d09f128e9fc81367b03ebc21c8fb6.ctex"
+uid="uid://f03wi022brxc"
+path="res://.godot/imported/image-11.png-6189baea9dfc9ce23283f394ae202ffb.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://img/image-8.png"
-dest_files=["res://.godot/imported/image-8.png-e37d09f128e9fc81367b03ebc21c8fb6.ctex"]
+source_file="res://assets/characters/novgorod/image-11.png"
+dest_files=["res://.godot/imported/image-11.png-6189baea9dfc9ce23283f394ae202ffb.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c1w0jmme2x4bg"
-path="res://.godot/imported/logo2.png-db84760b3de82b9cc22e3790d0ddfc18.ctex"
+uid="uid://cdb4ejvx5eygf"
+path="res://.godot/imported/image-8.png-4130e5e904cc89303e920714ad9738d1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://img/logo2.png"
-dest_files=["res://.godot/imported/logo2.png-db84760b3de82b9cc22e3790d0ddfc18.ctex"]
+source_file="res://assets/characters/bandits/image-8.png"
+dest_files=["res://.godot/imported/image-8.png-4130e5e904cc89303e920714ad9738d1.ctex"]
 
 [params]
 
