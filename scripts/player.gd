@@ -25,19 +25,16 @@ func _physics_process(_delta):
 func update_animation():
 	var new_animation
 	
+	new_animation = "idle" 
+	
 	if velocity.length() > 0:
 		# Player is moving
 		if velocity.x > 0:
 			new_animation = "walk_right"
-		# Add other directions here in the future
-		# elif velocity.x < 0:
-		#	 new_animation = "walk_left"
-		else:
-			# Default to idle if moving in an unhandled direction (e.g., vertically)
-			new_animation = "idle" 
-	else:
-		# Player is stopped
-		new_animation = "idle"
+			
+		if velocity.y > 0:
+			new_animation = "walk_down"
+			
 		
 	# Only change the animation if the state has changed
 	if animation_player.animation != new_animation:
