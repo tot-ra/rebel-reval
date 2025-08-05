@@ -17,14 +17,32 @@ The world of Reval Rebel is populated by a host of dangerous foes, each with uni
     -   **Rock-Thrower (Medium Threat):** Throws large stones with unnatural force and accuracy, capable of staggering the player.
     -   **Brute (High Threat):** Possesses minor supernatural strength, allowing for powerful shove attacks that can send the player flying.
 
+#### Bandits
+![](./bandits/thug.png)
+![](./bandits/thug2.png)
+![](./bandits/thug3.png)
+![](./bandits/thug4.png)
+
 ### Mythological Creatures
 
 -   **Kratt (Medium Threat):** A terrifying construct of hay, old bones, and farming tools, animated by a stolen soul. It is fast, erratic, and relentless.
     -   **Abilities:** Attacks with scythe-like arms, can disassemble into a pile of hay to avoid attacks before quickly reforming, and is extremely vulnerable to fire.
+
+![](kratt.png)
+
 -   **Puuk (Low Threat):** A small, dragon-like demonic creature known for its greed. They are fast, annoying, and travel in packs.
     -   **Abilities:** Can steal items directly from the player's inventory, create illusions to disorient, and teleport in short bursts to evade attacks.
+
+
+![](puuk.png)
+
 -   **Põhja Konn (Boss):** The "Northern Frog," a colossal, ancient amphibian covered in stone-like armor, guarding a forgotten bog.
     -   **Abilities:** A long, sticky tongue that can pull the player in for a devastating bite, a powerful ground-slam that creates a shockwave, and the ability to spit corrosive acid. Its soft underbelly is its only weak point, exposed briefly after its slam attack.
+
+![](konn.png)
+
 -   **The Leshy (Boss):** An ancient forest spirit bound to a sacred grove. A massive, hulking creature of wood and vine.
     -   **Abilities:** Can summon roots from the ground to immobilize the player, teleport in a cloud of leaves, and command packs of wolves. Its heart is exposed after it performs a powerful ground-slam attack.
 
+![](leshy.png)
+![](leshy2.png)

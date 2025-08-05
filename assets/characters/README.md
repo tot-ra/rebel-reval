@@ -19,7 +19,7 @@ They represent civilization, Christianity, stability, power, hierarchy, and adva
 ![](./denmark/image-3.png)
 ![](./denmark/image-1.png)
 ![](./denmark/image.png)
-![](image-21.png)
+![](./denmark/image-21.png)
 
 **The Hanseatic League** 🇪🇺
 -   **Core Value:** Prosperity
@@ -31,6 +31,7 @@ They represent civilization, Christianity, stability, power, hierarchy, and adva
 ![](./hansa/hansa-1.png)
 ![](./hansa/hansa-2.png)
 ![](./hansa/hansa-3.png)
+![](./hansa/image-4.png)
 
 ![Jewish moneychanger in a rich blue robe with gold trim, braided beard, spectacles, and a ring on every finger.](./hansa/image-18.png)
 
@@ -74,7 +75,10 @@ They are outgunned and outmaneuvered, but they have the support of the people an
 ![](./harju/image.png)
 ![](./harju/image-1.png)
 ![](./harju/image-14.png)
-![](./harju/image-4.png)
+![](./harju/elder.png)
+
+
+
 
 **The Black Cloaks** 🌃
 -   **Motivation:** Liberation from the inside. Radicals. The urban guerilla arm of the rebellion within Reval's walls. Composed of smiths, artisans, and the city's underclass, they specialize in stealth, sabotage, intelligence, and street-level warfare.
@@ -138,6 +142,11 @@ These factions are not directly involved in the conflict between the Rulers and 
 ![City watchman with dented chainmail, crooked nose, rusted halberd, and one eye clouded with cataract.](./streets/image-19.png)
 ![Teutonic squire in a black-and-white surcoat, cropped blonde hair, carrying a polished longsword, boots spotless.](./streets/image-18.png)
 ![Franciscan friar in mud-streaked brown robes, tonsured head glistening with sweat, rosary swaying as he walks.](./streets/image-17.png)
+
+![](./streets/blind.png)
+![](./streets/widow.png)
+![](./streets/innkeeper.png)
+![](./streets/innkeeper_daughter.png)
 
 
 ## Workers quarter
