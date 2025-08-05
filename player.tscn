@@ -1,32 +1,64 @@
-[gd_scene load_steps=5 format=3 uid="uid://bs36kitagkmg5"]
+[gd_scene load_steps=8 format=3 uid="uid://bs36kitagkmg5"]
 
-[ext_resource type="Texture2D" uid="uid://b2gqccxf6y6i1" path="res://assets/player/image.png" id="1_4flbx"]
 [ext_resource type="Script" uid="uid://qbfohjtotkyu" path="res://scripts/player.gd" id="1_v254c"]
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_ibah8"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("1_4flbx")
-}],
-"loop": true,
-"name": &"new_animation",
-"speed": 5.0
-}]
+[ext_resource type="Texture2D" uid="uid://bolp8ljuluvve" path="res://assets/player/idle.png" id="2_onrkg"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_3iwfv"]
 radius = 21.0
 height = 116.0
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_i3pqv"]
+atlas = ExtResource("2_onrkg")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="Animation" id="Animation_onrkg"]
+resource_name = "idle_down"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture:atlas")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1.66667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [ExtResource("2_onrkg"), ExtResource("2_onrkg")]
+}
+
+[sub_resource type="Animation" id="Animation_i3pqv"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture:atlas")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("2_onrkg")]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_hqtel"]
+_data = {
+&"RESET": SubResource("Animation_i3pqv"),
+&"idle_down": SubResource("Animation_onrkg")
+}
+
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_v254c")
-
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(1, -31)
-scale = Vector2(1.10547, 1.00451)
-sprite_frames = SubResource("SpriteFrames_ibah8")
-animation = &"new_animation"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(1, -33)
 shape = SubResource("CapsuleShape2D_3iwfv")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(3, -34)
+texture = SubResource("AtlasTexture_i3pqv")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_hqtel")
+}

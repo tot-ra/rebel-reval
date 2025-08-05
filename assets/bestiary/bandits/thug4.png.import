@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bki1luu3rd5r3"
-path="res://.godot/imported/image-4.png-48e81d45348792531df744822630589f.ctex"
+uid="uid://j7rg0veehmxr"
+path="res://.godot/imported/thug4.png-af41afa4cc8c38af46a9f16d52c45e74.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/hansa/image-4.png"
-dest_files=["res://.godot/imported/image-4.png-48e81d45348792531df744822630589f.ctex"]
+source_file="res://assets/bestiary/bandits/thug4.png"
+dest_files=["res://.godot/imported/thug4.png-af41afa4cc8c38af46a9f16d52c45e74.ctex"]
 
 [params]
 
