@@ -1,18 +1,49 @@
-[gd_scene load_steps=5 format=3 uid="uid://dbxean877egrv"]
+[gd_scene load_steps=6 format=4 uid="uid://dbxean877egrv"]
 
-[ext_resource type="Texture2D" uid="uid://cuunf5kllexvn" path="res://assets/tiles2.png" id="1_47kdn"]
+[ext_resource type="Texture2D" uid="uid://bahhhnrbxd5yn" path="res://assets/tiles.png" id="1_47kdn"]
 [ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="2_se5dk"]
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_m7ahb"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_se5dk"]
 resource_name = "grass"
 texture = ExtResource("1_47kdn")
-texture_region_size = Vector2i(128, 128)
+texture_region_size = Vector2i(128, 116)
 0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+4:0/0 = 0
+5:0/0 = 0
+6:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+2:1/0 = 0
+3:1/0 = 0
+4:1/0 = 0
+5:1/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_xucby"]
+resource_name = "cobblestone"
+texture = ExtResource("1_47kdn")
+texture_region_size = Vector2i(128, 116)
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+4:0/0 = 0
+5:0/0 = 0
+6:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+2:1/0 = 0
+3:1/0 = 0
+4:1/0 = 0
+5:1/0 = 0
 
 [sub_resource type="TileSet" id="TileSet_dwgg1"]
 tile_shape = 3
-tile_size = Vector2i(128, 128)
-sources/0 = SubResource("TileSetAtlasSource_m7ahb")
+tile_size = Vector2i(128, 116)
+sources/0 = SubResource("TileSetAtlasSource_se5dk")
+sources/1 = SubResource("TileSetAtlasSource_xucby")
 
 [node name="Node2D" type="Node2D"]
 
@@ -22,8 +53,8 @@ zoom = Vector2(2, 2)
 
 [node name="TileMapLayer" type="TileMapLayer" parent="."]
 position = Vector2(600, 507)
-tile_map_data = PackedByteArray(0, 0, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+tile_map_data = PackedByteArray("AAAAAP//AQAEAAAAAAABAAAAAQAEAAAAAAABAP//AQAEAAAAAAD+//3/AQABAAAAAAD///3/AQABAAAAAAD+////AQADAAAAAAD/////AQADAAAAAAD///7/AQADAAAAAAD+//7/AQADAAAAAAAAAAAAAQAFAAAAAAD//wAAAQAFAAAAAAD+/wAAAQAFAAAAAAD9////AQAFAAAAAAD9//7/AQAFAAAAAAABAP7/AQAEAAAAAAAAAP7/AQAEAAAAAAAAAP3/AQAEAAAAAAABAP3/AQAEAAAAAAACAP7/AQAEAAAAAAACAP//AQAEAAAAAAACAAAAAQAEAAAAAAA=")
 tile_set = SubResource("TileSet_dwgg1")
 
 [node name="Player" parent="." instance=ExtResource("2_se5dk")]
-position = Vector2(689, 422)
+position = Vector2(663, 466)
