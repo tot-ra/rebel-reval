@@ -21,7 +21,7 @@ They represent civilization, Christianity, stability, power, hierarchy, and adva
 ![](./denmark/image.png)
 ![](./denmark/image-21.png)
 
-**The Hanseatic League** 🇪🇺
+**The Hanseic Big League** 🇪🇺
 -   **Core Value:** Prosperity
 -   **Ideal:** To build a world of opportunity and wealth through trade, connecting cultures and funding innovation.
 -   **Shadow:** Their pursuit of profit becomes all-consuming greed, where human lives and traditions are exploited for coin.
@@ -87,6 +87,7 @@ They are outgunned and outmaneuvered, but they have the support of the people an
 
 ![](./cloaks/image-5.png)
 ![](./cloaks/black-1.png)
+![Mute harpist with silver eyes, dressed in black rags, a bone ring on every finger, harp slung over his back.](./veil/image-18.png)
 
 **The Cult of Metsik** 🍀
 -   **Motivation:** The Old Ways. A secretive cult of forest-dwellers who worship the ancient Estonian gods. They see the Christian invaders as a plague upon the land and believe that the uprising is a chance to restore the old ways. Their magic is powerful and chaotic, drawn from the sacred groves and the spirits of the earth.
@@ -115,13 +116,15 @@ These factions are not directly involved in the conflict between the Rulers and 
 ![](./pskov/npc4.png)
 ![](./novgorod/image-11.png)
 
-**The Veiled Council** 🕷️
--   **Motivation:** The long game. A secret society of Reval's oldest and wealthiest German families who believe that both the Danes and the Livonian Order are temporary. They manipulate events from the shadows, seeking to create a new, independent state under their own control. They are masters of espionage, assassination, and political intrigue.
--   **Core NPC:** **"Mart the Weaver"** a mysterious figure who communicates only through coded messages and intermediaries. They offer you access to a network of spies, saboteurs, and assassins, but their true motives are always hidden, and their loyalty is only to the Council's ultimate ambition.
--   **Presence:** Operates secretly throughout Reval, with influence in high-society locations like St. Olaf's Guild Hall.
+**The Brotherhood of Blackheads**
+-   **Motivation:** The Long Game & Prosperity. A guild of unmarried merchants, ship-owners, and foreigners. The Brotherhood is aiming to create an independent Reval under their control.
+-   **Core NPCs:** 
+    - **"Mart the Weaver"**, a mysterious figure who communicates only through coded messages and intermediaries, representing the Council's hidden leadership.
+    - **Johann von Minden**, the charismatic and ambitious leader of the Brotherhood of Blackheads. He is a master of public relations and a shrewd negotiator, but his every move serves the Council's secret agenda.
+-   **Presence:** The House of the Blackheads, St. Olaf's Guild Hall, and operates secretly throughout Reval.
 
 ![](./veil/image-7.png)
-![Mute harpist with silver eyes, dressed in black rags, a bone ring on every finger, harp slung over his back.](./veil/image-18.png)
+
 
 **The Vitalienbrüder** 🏴‍☠️
 -   **Motivation:** Plunder and chaos. The remnants of a once-powerful pirate brotherhood, now reduced to a scattered band of raiders and mercenaries. They have no loyalty to any flag and are interested only in profiting from the chaos of the uprising. They are masters of naval combat and can be hired to attack shipping, smuggle goods, or create diversions.

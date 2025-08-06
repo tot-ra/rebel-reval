@@ -35,7 +35,7 @@ You are Kalev, an Estonian smith. To the German lords, you're just another pair 
 
 - [FIGHT GAMEPLAY](./GAMEPLAY-FIGHT.md)
 - [GAMEPLAY](./GAMEPLAY.md)
-- [NPC FACTIONS](./assets/characters/README.md)
+- [FACTIONS](./assets/characters/README.md)
 - [LOCATIONS](./scenes/)
 - [STORYLINE](./STORY.md)
 - [QUESTS](./QUESTS.md)
