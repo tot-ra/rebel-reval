@@ -27,3 +27,26 @@ The Order maintains a strong military presence in the castle, using it as a barr
 ![](../../assets/characters/livonian/image-1.png)
 ![](../../assets/characters/livonian/image-2.png)
 ![](../../assets/characters/livonian/image-3.png)
+
+## NPCs
+
+1.  **Viceroy Konrad Preen**: The aging Danish governor, with a weary face, a neatly trimmed grey beard, and fine but slightly worn clothing. He often looks distracted and tired.
+2.  **Brother Burchard von Dreileben**: A zealous Livonian Order knight, with a scarred face, piercing blue eyes, and a powerful build. He is always in his immaculate white surcoat with the black cross.
+3.  **Danish Noblewoman**: A young, beautiful woman in a fashionable gown, with an air of boredom and melancholy. She is the Viceroy's niece and feels trapped in this provincial outpost.
+4.  **Livonian Order Sergeant**: A grizzled veteran with a broken nose and a gruff demeanor, responsible for training the castle's garrison.
+5.  **Castle Scribe**: A stooped, balding man with ink-stained fingers, perpetually hunched over a desk and surrounded by scrolls and documents.
+6.  **Kitchen Servant**: A young boy with a perpetually frightened expression, rushing through the castle corridors with trays of food.
+7.  **Danish Courtier**: A foppish man in brightly colored silks, with a carefully coiffed beard and a talent for flattery and intrigue.
+8.  **Livonian Order Chaplain**: A stern, ascetic priest who ministers to the spiritual needs of the knights. He has a thin, severe face and a disapproving gaze.
+9.  **Castle Blacksmith**: A massive, muscular man with a bushy black beard and a leather apron, responsible for maintaining the castle's arms and armor.
+10. **Stable Master**: A man with a weathered face and a no-nonsense attitude, who knows more about horses than he does about people.
+11. **Visiting German Nobleman**: A wealthy and arrogant young man, visiting the Viceroy on a diplomatic mission. He looks down on the local customs and people.
+12. **Estonian Servant Girl**: A young woman with a quiet, watchful demeanor, who understands more German than she lets on.
+13. **Castle Guard**: A young, inexperienced soldier on his first tour of duty, looking nervous and out of place in his ill-fitting armor.
+14. **The Viceroy's Personal Bodyguard**: A grim, silent man who never leaves the Viceroy's side. He has a reputation for being deadly with a sword.
+15. **Torturer**: A hulking, brutish man with a shaved head and a cruel smile, who works in the castle dungeons.
+16. **The Viceroy's Wife**: A proud, ambitious woman who is the real power behind the throne. She has a sharp tongue and a network of spies throughout the city.
+17. **Livonian Order Novice**: A young, idealistic squire who is eager to prove his worth and earn his spurs as a knight.
+18. **Castle Jester**: A small, nimble man in a colorful costume, who entertains the court with jokes, acrobatics, and surprisingly insightful political commentary.
+19. **Black Cloak Spy**: A man disguised as a wine merchant, who uses his access to the castle to gather intelligence for the rebellion.
+20. **The Ghost of a Danish King**: A spectral figure that is said to haunt the castle's ramparts on moonless nights, forever lamenting the loss of his kingdom.
