@@ -36,6 +36,9 @@ _This is where art for generic peasant NPCs would be linked._
 **Village Farmer**: A man with a sun-beaten face and strong, calloused hands, who works the fields from dawn till dusk.
 
 
+![alt text](image-8.png)
+**Rebel Recruiter**: A man who travels from village to village, urging the peasants to join the uprising. He has a powerful, persuasive voice.
+
 ![alt text](image-7.png)
 **Village Child**: A barefoot child with a dirty face and a mischievous grin
 
