@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cyky3lxcmr67w"
-path="res://.godot/imported/bucket-water.png-82ab64d88e5281b3bdf843785aa238cf.ctex"
+path="res://.godot/imported/bucket-water.png-c2c43eedbffa4c592cbb14a9395bec15.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/objects/bucket-water.png"
-dest_files=["res://.godot/imported/bucket-water.png-82ab64d88e5281b3bdf843785aa238cf.ctex"]
+source_file="res://assets/objects/furniture/bucket-water.png"
+dest_files=["res://.godot/imported/bucket-water.png-c2c43eedbffa4c592cbb14a9395bec15.ctex"]
 
 [params]
 

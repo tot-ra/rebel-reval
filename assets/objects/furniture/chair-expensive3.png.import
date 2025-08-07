@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dpx7bngprghe5"
-path="res://.godot/imported/chair-expensive3.png-5f1194d34d5b3fa1cb66dae3badeeee1.ctex"
+path="res://.godot/imported/chair-expensive3.png-3310ccf99d346b7b7ac0d94b1d996e8e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/objects/chair-expensive3.png"
-dest_files=["res://.godot/imported/chair-expensive3.png-5f1194d34d5b3fa1cb66dae3badeeee1.ctex"]
+source_file="res://assets/objects/furniture/chair-expensive3.png"
+dest_files=["res://.godot/imported/chair-expensive3.png-3310ccf99d346b7b7ac0d94b1d996e8e.ctex"]
 
 [params]
 

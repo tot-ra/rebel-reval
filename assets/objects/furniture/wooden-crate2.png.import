@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://nifxi2s342xd"
-path="res://.godot/imported/wooden-crate2.png-820c925a2a3ebcffc1d3ff3a00620cb4.ctex"
+path="res://.godot/imported/wooden-crate2.png-4121e1197fb772999b81ceb7bf53cb88.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/objects/wooden-crate2.png"
-dest_files=["res://.godot/imported/wooden-crate2.png-820c925a2a3ebcffc1d3ff3a00620cb4.ctex"]
+source_file="res://assets/objects/furniture/wooden-crate2.png"
+dest_files=["res://.godot/imported/wooden-crate2.png-4121e1197fb772999b81ceb7bf53cb88.ctex"]
 
 [params]
 
