@@ -17,19 +17,19 @@ A short, narrative-driven prologue where you play as one of Kalev's ancestors du
 - The Battle of Pärnu: Engage in a major field battle against the knights, either as a rebel warrior or an Order champion.
 - The Swedish/Pskov Gambit: As a rebel, attempt to secure aid from neighbours. As a ruler, sabotage the rebels' efforts and ensure no foreign aid arrives.
 - Narrative Arc: This phase is a desperate, action-packed struggle for the future of Estonia. The choices you made in Phase 1 will have dramatic consequences, determining which missions are available to you and what resources you have at your disposal.
-- **Levels:** `scenes/events/rebel_kings.tscn`, `scenes/events/pernau.tscn`, `scenes/events/swedish_arrival.tscn`, `scenes/events/pskov_arrival_battle.tscn`, `scenes/lower_town/`, `scenes/upper_town/`
+- **Locations:** [Reval Lower Town](./scenes/lower_town/), [Reval Upper Town](./scenes/upper_town/), [Rebel Kings' Camp](./scenes/events/rebel_kings.md), [Pärnu](./scenes/events/pernau.md), [Swedish Arrival](./scenes/events/swedish_arrival.md), [Swedish Outpost](./scenes/events/swedesh_outpost.md), [Pskov Arrival Battle](./scenes/events/pskov_arrival_battle.md)
 
 ### Chapter 3: The Livonian Crusade
 The conflict expands beyond Reval. The Teutonic Order, having bought the rights to Estonia, launches a full-scale crusade to solidify its control. The player would travel to new regions, from the swamps of Saaremaa to the fortified cities of Livonia, participating in large-scale battles and sieges. This chapter would introduce new factions, such as the Samogitians or other Baltic tribes, who could be potential allies or enemies.
-- **Levels:** `scenes/world/`, `scenes/events/saaremaa.tscn`, `scenes/events/paldiski.tscn`
+- **Locations:** [World Locations](./scenes/world/), [Saaremaa](./scenes/events/saaremaa.md), [Paldiski](./scenes/events/paldiski.md)
 
 ### World Map
 A traversable world map that connects the different locations.
-- **Level:** `scenes/map/map.tscn`
+- **Location:** [World Map](./scenes/map/map.md)
 
 ### Epilogue
 The screen fades to black. A child's laughter echoes, then is abruptly silenced. The year 1351 appears on the screen, then fades.
-- **Levels:** `scenes/lower_town/`, `scenes/upper_town/`
+- **Locations:** [Reval Lower Town](./scenes/lower_town/), [Reval Upper Town](./scenes/upper_town/)
 
 The scene opens on a strangely empty Reval. The sun is shining, but the streets are quiet. The player is no longer Kalev. Instead, they control a small child, a girl in a simple linen dress, clutching a rag doll.
 

@@ -4,86 +4,128 @@ This directory contains all the game scenes, organized by their location and pur
 
 ### Scene Flow
 
-#### Chapter 1: Reval
+These diagrams illustrate the relationships and progression between the major game locations, split by chapter. **Click on a node to view its detailed description.**
+
+#### Chapter 1: The Simmering City
 ```mermaid
 graph TD
-    Intro("intro.tscn") --> Forge("forge.tscn");
-    Forge --> Market("market.tscn");
-    Harbor("harbor.tscn") --> Market;
-    Market --> OlafGuild("olaf_guild_hall.tscn");
-    Market -- "Uphill Path" --> Domberg("domberg.tscn");
-    Domberg --> MariaKirik("maria_toomkirik.tscn");
+    Intro("[Intro]");
+    Forge("[The Smith's Forge]");
+    Market("[Reval Market]");
+    Harbor("[Reval Harbor]");
+    GuildHall("[St. Olaf's Guild Hall]");
+    Toompea("[Toompea Castle]");
+    Cathedral("[Cathedral of St. Mary]");
+
+    Intro --> Forge;
+    Forge <--> Market;
+    Harbor <--> Market;
+    Market <--> GuildHall;
+    Market --> Toompea;
+    Toompea --> Cathedral;
+
+    click Intro "./intro/intro.md" "Introduction"
+    click Forge "./lower_town/the_smiths_forge.md" "The Smith's Forge"
+    click Market "./lower_town/market.md" "Reval Market"
+    click Harbor "./lower_town/harbor.md" "Reval Harbor"
+    click GuildHall "./lower_town/st_olafs_guild_hall.md" "St. Olaf's Guild Hall"
+    click Toompea "./upper_town/toompea_castle.md" "Toompea Castle"
+    click Cathedral "./upper_town/cathedral_of_saint_mary.md" "Cathedral of St. Mary"
 ```
 
-#### Chapter 2: The Uprising
+#### Chapter 2: The Fire of Rebellion
 ```mermaid
 graph TD
-    Reval("Reval City") --> SiegeOfReval("Siege of Reval<br>(events/rebel_kings.tscn)");
-    SiegeOfReval --> BattleOfParnu("Battle of Pärnu<br>(events/pernau.tscn)");
-    SiegeOfReval --> SwedishGambit("Swedish Gambit<br>(events/swedish_arrival.tscn)");
-    SiegeOfReval --> PskovGambit("Pskov Gambit<br>(events/pskov_arrival_battle.tscn)");
+    Reval("Reval City<br>(Lower & Upper Town)");
+    RebelCamp("[Rebel Kings' Camp]");
+    Parnu("[Pärnu]");
+    SwedishOutpost("[Swedish Outpost]");
+    SwedishArrival("[Swedish Arrival]");
+    PskovBattle("[Pskov Arrival Battle]");
+
+    Reval --> RebelCamp;
+    RebelCamp --> Parnu;
+    RebelCamp --> SwedishOutpost;
+    SwedishOutpost --> SwedishArrival;
+    RebelCamp --> PskovBattle;
+
+    click RebelCamp "./events/rebel_kings.md" "Rebel Kings' Camp"
+    click Parnu "./events/pernau.md" "Pärnu"
+    click SwedishOutpost "./events/swedesh_outpost.md" "Swedish Outpost"
+    click SwedishArrival "./events/swedish_arrival.md" "Swedish Arrival"
+    click PskovBattle "./events/pskov_arrival_battle.md" "Pskov Arrival Battle"
 ```
 
-#### Chapter 3 & Epilogue
+#### Chapter 3 & World Map
 ```mermaid
 graph TD
-    Chapter2End("Uprising Concludes") --> WorldMap("map/map.tscn");
-    WorldMap --> Harju("Harju Village<br>(world/harju_village.tscn)");
-    WorldMap --> SacredGrove("Sacred Grove<br>(world/sacred_grove.tscn)");
-    WorldMap --> Padise("Padise Monastery<br>(world/padise_monastery1.tscn)");
-    WorldMap --> Paide("Paide Castle<br>(world/paide_castle.tscn)");
-    WorldMap --> Saaremaa("Saaremaa Island");
-    Saaremaa --> Karja("Karja Fortress<br>(world/karja_fortress.tscn)");
-    Karja --> Poide("Poide Castle<br>(world/poide_castle.tscn)");
-    Poide --> Maasilinna("Maasilinna Castle<br>(world/maasilinna_castle.tscn)");
-    Karja --> SaaremaaEvent("Saaremaa Event<br>(events/saaremaa.tscn)");
-    WorldMap --> Epilogue("Epilogue<br>(Reval)");
+    WorldMap("[World Map]");
+    Saaremaa("[Saaremaa]");
+    Paldiski("[Paldiski]");
+    
+    subgraph "Other World Locations"
+        Viljandi("[Viljandi Castle]");
+        Padise("[Padise Monastery]");
+        Haapsalu("[Haapsalu Castle]");
+        Paide("[Paide Castle]");
+        Harju("[Harju Village]");
+        SacredGrove("[Sacred Grove]");
+    end
+
+    WorldMap --> Saaremaa;
+    WorldMap --> Paldiski;
+    WorldMap --> Viljandi;
+    WorldMap --> Padise;
+    WorldMap --> Haapsalu;
+    WorldMap --> Paide;
+    WorldMap --> Harju;
+    WorldMap --> SacredGrove;
+
+    click WorldMap "./map/map.md" "World Map"
+    click Saaremaa "./events/saaremaa.md" "Saaremaa"
+    click Paldiski "./events/paldiski.md" "Paldiski"
+    click Viljandi "./world/viljandi_castle.md" "Viljandi Castle"
+    click Padise "./world/padise_monastery.md" "Padise Monastery"
+    click Haapsalu "./world/haapsalu_castle.md" "Haapsalu Castle"
+    click Paide "./world/paide_castle.md" "Paide Castle"
+    click Harju "./world/harju_village.md" "Harju Village"
+    click SacredGrove "./world/sacred_grove.md" "Sacred Grove"
 ```
 
-## Intro
-Scenes related to the game's introduction.
+## Scene Index
 
-- `intro/intro.tscn`: The main intro scene.
+### System & Menu
+- [Main Menu](./menu/main_menu.md)
+- [Introduction](./intro/intro.md)
+- [World Map](./map/map.md)
 
-## Reval (Tallinn)
-The main city, divided into the Lower and Upper Town.
+### Reval (Tallinn)
+#### Lower Town
+- [The Smith's Forge](./lower_town/the_smiths_forge.md)
+- [Reval Harbor](./lower_town/harbor.md)
+- [Reval Market](./lower_town/market.md)
+- [St. Olaf's Guild Hall](./lower_town/st_olafs_guild_hall.md)
 
-### Lower Town
-The bustling commercial center of Reval.
+#### Upper Town (Toompea)
+- [Toompea Castle](./upper_town/toompea_castle.md)
+- [Cathedral of Saint Mary](./upper_town/cathedral_of_saint_mary.md)
 
-- `forge.tscn`: The blacksmith's forge.
-- `harbor.tscn`: The main harbor.
-- `market.tscn`: The town market.
-- `olaf_guild_hall.tscn`: The Guild Hall of St. Olaf.
+### World Locations
+- [Haapsalu Castle](./world/haapsalu_castle.md)
+- [Harju Village](./world/harju_village.md)
+- [Karja Fortress](./world/karja_fortress.md)
+- [Maasilinna Castle](./world/maasilinna_castle.md)
+- [Padise Monastery](./world/padise_monastery.md)
+- [Paide Castle](./world/paide_castle.md)
+- [Pöide Castle](./world/poide_castle.md)
+- [Sacred Grove](./world/sacred_grove.md)
+- [Viljandi Castle](./world/viljandi_castle.md)
 
-### Upper Town (Toompea)
-The administrative and religious center, seat of the Danish Viceroy and the Bishop.
-
-- `domberg.tscn`: Toompea Hill, representing the castle area.
-- `maria_toomkirik.tscn`: St. Mary's Cathedral.
-
-## World
-Locations outside of Reval, representing key historical sites across Estonia.
-
-- `harju_village.tscn`: A generic village in Harju county.
-- `sacred_grove.tscn`: A pagan worship site.
-- `karja_fortress.tscn`: The rebel fortress on Saaremaa.
-
-### Order
-- `padise_monastery1.tscn` & `padise_monastery2.tscn`: The Cistercian monastery at Padise.
-- `haapsalu_castle.tscn`: The Bishop's castle at Haapsalu (Hapsal).
-- `paide_castle.tscn`: The Livonian Order's stronghold at Paide (Wittenstein).
-- `poide_castle.tscn`: The Order's fortress on Saaremaa (Peude).
-- `viljandi_castle.tscn`: The Order's powerful castle at Viljandi (Fellin).
-- `maasilinna_castle.tscn`: The "castle of atonement" on Saaremaa (Soneburg).
-
-## Events
-Special event scenes related to the main questline.
-
-- `paldiski.tscn`: An event related to the port town of Paldiski.
-- `pernau.tscn`: An event in the Hanseatic city of Pärnu.
-- `rebel_kings.tscn`: A scene involving the four Estonian kings.
-- `saaremaa.tscn`: A key event on the island of Saaremaa.
-- `swedesh_outpost.tscn`: An encounter at a Swedish outpost.
-- `swedish_arrival.tscn`: A scene depicting the arrival of the Swedish fleet.
-- `pskov_arrival_battle.tscn`: A scene for the arrival of the Pskovian army and their subsequent battle with the Order.
+### Event Locations
+- [Paldiski](./events/paldiski.md)
+- [Pärnu](./events/pernau.md)
+- [Pskov Arrival Battle](./events/pskov_arrival_battle.md)
+- [Rebel Kings' Camp](./events/rebel_kings.md)
+- [Saaremaa](./events/saaremaa.md)
+- [Swedish Outpost](./events/swedesh_outpost.md)
+- [Swedish Arrival](./events/swedish_arrival.md)
