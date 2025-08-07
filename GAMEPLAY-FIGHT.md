@@ -7,6 +7,11 @@ When combined in a sequence of up to 4, you can create a **spell** or action.
 *   **Use magic:** Wield innate ancestral powers and learn new abilities from the factions of Reval.
 *   **Control a team:** Recruit and command a party of up to 4 allies in battle.
 
+![](./assets/objects/weapons/sword.png)
+![](./assets/objects/weapons/hammer.png)
+![](./assets/objects/weapons/axe.png)
+
+
 ## 🔮 The Elements of Philosophy
 
 Magic in Reval is not about chanting arcane words, but about imposing one's philosophical will upon reality. The world is shaped by the interplay of fundamental concepts. By mastering these **Elements of Philosophy**, Kalev can forge his own spells and actions.

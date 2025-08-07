@@ -18,6 +18,7 @@ The world of Reval Rebel is populated by a host of dangerous foes, each with uni
     -   **Brute (High Threat):** Possesses minor supernatural strength, allowing for powerful shove attacks that can send the player flying.
 
 #### Bandits
+![](./bandits/woman1.png)
 ![](./bandits/thug.png)
 ![](./bandits/thug2.png)
 ![](./bandits/thug3.png)
@@ -44,5 +45,4 @@ The world of Reval Rebel is populated by a host of dangerous foes, each with uni
 -   **The Leshy (Boss):** An ancient forest spirit bound to a sacred grove. A massive, hulking creature of wood and vine.
     -   **Abilities:** Can summon roots from the ground to immobilize the player, teleport in a cloud of leaves, and command packs of wolves. Its heart is exposed after it performs a powerful ground-slam attack.
 
-![](leshy.png)
 ![](leshy2.png)
