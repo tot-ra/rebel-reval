@@ -12,6 +12,40 @@ On paper, Northern Estonia is the Duchy of Estonia, a dominion of the Danish Cro
 
 This fractured power structure has created a powder keg of resentment and ambition, where the native Estonian population is caught between a distant king, foreign knights, and wealthy merchants, all of whom see the land and its people as a resource to be exploited.
 
+### The Wider World: 1343
+
+#### The Kingdom of Denmark: A Hollow Crown
+
+In 1343, Denmark was ruled by **Valdemar IV Atterdag**, a king grappling with a realm in pieces. Having ascended to the throne in 1340, he inherited a kingdom that had been largely pawned off to German princes. His reign was a determined effort to reconstitute Danish territory and authority through a combination of cunning diplomacy and military campaigns. The sale of the Duchy of Estonia in 1346 was a direct consequence of this broader strategy to consolidate his power and resources closer to home.
+
+#### The Livonian Order: A State of Knights
+
+The Livonian Order, a semi-autonomous branch of the Teutonic Knights, was the dominant military power in the region. Led by the Livonian Master from his seat in Riga, the Order operated as a state within a state. In 1343, the Order was both expanding its influence—acquiring Reval and Wesenberg from Denmark—and facing significant internal threats, most notably the St. George's Night Uprising itself. The Order's swift and brutal suppression of the rebellion demonstrated its military might and its unwavering commitment to maintaining control over its territories.
+
+#### The Hanseatic League: The Power of Trade
+
+The Hanseatic League, a powerful confederation of merchant guilds, dominated trade in the Baltic. Reval (Tallinn), a member since 1285, was a key hub in this network. The city's German merchants operated with a high degree of autonomy, their primary concern being the protection of their commercial interests. The political turmoil of the uprising was a direct threat to their trade routes and profits, making them natural allies of the Livonian Order in restoring order.
+
+#### The Kingdom of Sweden: A Divided Realm
+
+Sweden, under **King Magnus IV (Magnus Eriksson)**, was a kingdom in transition. Magnus ruled over a vast territory that included Sweden, Finland, and Norway. However, by 1343, he faced growing opposition from the nobility, particularly in Norway. To manage these tensions, he made the strategic decision to divide his realms, appointing his younger son, Haakon, as King of Norway in 1343, while his elder son, Eric, was designated to rule Sweden. This internal focus meant that while Sweden was a potential player in the Estonian conflict, its capacity for direct intervention was limited.
+
+#### The Eastern Republics: Novgorod and Pskov
+
+To the east, the Novgorod Republic was a major power, but its relationship with its western neighbor, the Pskov Republic, was complex. By 1343, Pskov was de facto independent from Novgorod, though this status would not be formally recognized until the Treaty of Bolotovo in 1348. Both republics were frequent adversaries of the Livonian Order, and the Estonian rebels appealed to them for aid. However, the internal dynamics between Novgorod and Pskov, combined with the speed of the Order's response, prevented any effective intervention.
+
+**The Posadniks of Novgorod:** The Novgorod Republic was not ruled by a single prince but by a council of nobles (boyars) and an elected official known as a *posadnik*. While the names of the specific posadniks from 1343 are not readily available, this collective leadership was the key political authority in the powerful city-state.
+
+
+
+#### The Grand Duchy of Lithuania: A Power in Transition
+
+In 1343, the Grand Duchy of Lithuania was in a state of flux following the death of its powerful ruler, Gediminas, in 1341. His son, Jaunutis, held the title of Grand Duke, but his authority was weak and contested by his more ambitious and militarily capable brothers, Algirdas and Kęstutis. This internal power struggle, which would culminate in Algirdas seizing power in 1345, meant that Lithuania, despite being a major regional power and a natural enemy of the Livonian Order, was too preoccupied with its own succession crisis to offer any meaningful support to the Estonian rebels.
+
+#### The Golden Horde: A Fading Power
+
+Far to the east, the Golden Horde, once a formidable power, was beginning its long decline. In 1343, under the rule of **Jani Beg Khan**, the Horde was grappling with internal instability following the death of the powerful Özbeg Khan in 1341. Jani Beg's reign was marked by succession struggles, economic difficulties, and growing tensions with the Genoese and Venetian trading colonies in the Crimea. While the Horde's influence was still felt in the Russian principalities, its ability to project power into the Baltic was waning, and it played no direct role in the events of the St. George's Night Uprising.
+
 ### The Seeds of Rebellion
 
 The St. George's Night Uprising was not a sudden event, but the culmination of decades of simmering resentment. The key grievances include:
@@ -104,9 +138,80 @@ The Novgorod First Chronicle records the event as follows: "In the year 6852 (13
 
 ## Historiography and Legacy
 
-The St. George's Night Uprising remains a powerful symbol of Estonian resistance and the enduring desire for self-determination. While Soviet-era historiography emphasized the class struggle aspect of the rebellion against feudal oppressors, modern Estonian historiography often frames it as a national liberation movement against foreign rule.
+The St. George's Night Uprising remains a powerful symbol of Estonian resistance and a testament to the enduring desire for self-determination. While Soviet-era historiography emphasized the class struggle aspect of the rebellion against feudal oppressors, modern Estonian historiography often frames it as a national liberation movement against foreign rule.
 
 In memory of the uprising, a park was established in the Lasnamäe district of Tallinn. The Jüriöö Park (St. George's Night Park) features a memorial depicting a warrior's sword rising from a hill, symbolizing the start of the rebellion. The main primary sources for the events of the uprising are the *Younger Livonian Rhymed Chronicle* by Bartholomäus Hoeneke and the chronicles of Wigand of Marburg and Hermann von Wartberge.
 
 ![alt text](image.png)
 ![alt text](image-1.png)
+
+
+### World Famous people of the time
+
+A list of influential individuals who were alive in the year 1343, including artists, writers, thinkers, and rulers who shaped the cultural and political landscape of the 14th century. Useful to know for game design in case they were visiting Estonia.
+
+#### Artists & Architects
+1.  **Ambrogio Lorenzetti (c. 1290–1348):** An Italian painter of the Sienese school, known for his frescoes *The Allegory of Good and Bad Government*.
+2.  **Pietro Lorenzetti (c. 1280–1348):** Brother of Ambrogio, also a prominent painter of the Sienese school.
+3.  **Taddeo Gaddi (c. 1300–1366):** A pupil of Giotto, he was a leading painter and architect in Florence.
+4.  **Maso di Banco (c. 1300–1350):** A Florentine painter, considered one of the most important followers of Giotto.
+5.  **Andrea Pisano (c. 1290–1348):** A sculptor and architect, known for his work on the Baptistery in Florence.
+6.  **Jean Pucelle (c. 1300–1355):** A Parisian Gothic manuscript illuminator.
+#### Writers, Poets & Composers
+7.  **Petrarch (Francesco Petrarca) (1304–1374):** An Italian scholar and poet, considered the "Father of Humanism."
+8.  **Giovanni Boccaccio (1313–1375):** An Italian writer, poet, and humanist, author of the *Decameron*.
+9.  **Geoffrey Chaucer (c. 1343–1400):** The "Father of English literature," born in this very year.
+10. **Guillaume de Machaut (c. 1300–1377):** A French poet and composer, a key figure in the *Ars Nova* musical style.
+11. **Hafiz-i Shirazi (c. 1325–1390):** A Persian lyric poet whose collected works are regarded as a pinnacle of Persian literature.
+12. **Juan Ruiz, Archpriest of Hita (c. 1283–c. 1350):** A Castilian poet, author of *The Book of Good Love*.
+
+#### Thinkers & Philosophers
+13. **William of Ockham (c. 1287–1347):** An English Franciscan friar, scholastic philosopher, and theologian, known for the principle of Ockham's razor.
+14. **Nicole Oresme (c. 1323–1382):** A French philosopher, economist, mathematician, and physicist who made significant contributions to science.
+15. **Jean Buridan (c. 1300–c. 1358):** A French priest and philosopher who developed the theory of impetus, a key step toward modern dynamics.
+16. **Ibn Khaldun (1332–1406):** An Arab sociologist, philosopher, and historian, considered a forerunner of modern sociology, historiography, and economics.
+17. **Giovanni Dondi dell'Orologio (1330–1388):** An Italian physician, astronomer, and clockmaker who designed the Astrarium, a complex astronomical clock.
+18. **Levi ben Gershon (Gersonides) (1288–1344):** A French-Jewish philosopher, Talmudist, mathematician, and astronomer.
+19. **Richard Rolle (c. 1300–1349):** An English mystic and religious writer whose works in Middle English made complex theology accessible.
+20. **Simon Tunsted (d. 1369):** An English Franciscan friar, theologian, and musician who wrote on music theory and revised astronomical instruments.
+
+#### Travelers & Explorers
+21. **Ibn Battuta (1304–1369):** A Moroccan scholar and explorer who traveled extensively through Africa, the Middle East, and Asia, documenting his journeys.
+22. **John Mandeville (Author):** The pseudonymous author of *The Travels of Sir John Mandeville*, a highly influential (though partly fictional) travel narrative.
+
+#### Rulers & Political Figures
+23. **Valdemar IV Atterdag (c. 1320–1375):** King of Denmark, a central figure in the St. George's Night Uprising.
+24. **Magnus IV Eriksson (1316–1374):** King of Sweden, Norway, and Scania.
+25. **Edward III of England (1312–1377):** King of England, whose reign saw the beginning of the Hundred Years' War.
+26. **Philip VI of France (1293–1350):** King of France, the first of the House of Valois.
+27. **Louis IV, Holy Roman Emperor (1282–1347):** Emperor of the Holy Roman Empire.
+28. **Jani Beg Khan (d. 1357):** Khan of the Golden Horde.
+29. **Emperor Go-Murakami (1328–1368):** Emperor of Japan's Southern Court during the Nanboku-chō period.
+30. **Casimir III the Great (1310–1370):** King of Poland, who oversaw a period of great prosperity and reform.
+
+#### Eastern Rulers & Figures
+31. **Semyon Ivanovich (Simeon the Proud) (1316–1353):** Grand Prince of Moscow and Grand Prince of Vladimir. As the leader of the rising power of Moscow, he exerted significant influence over the neighboring Novgorod Republic, continuing his father's policy of consolidating power.
+32. **Prince Ivan of Pskov (fl. 1343):** A prince of the Pskov Republic who, according to chronicles, led a 5,000-strong army to support the Estonian rebels during the uprising.
+
+
+### Scholars & Scientists
+
+A list of influential thinkers, scholars, and scientists who were alive in the year 1343, shaping the intellectual landscape of the 14th century.
+
+34. **Albert of Saxony (c. 1320–1390):** A German philosopher and mathematician known for his contributions to logic and physics. He was a key figure in the spread of Parisian natural philosophy.
+35. **Isaac Argyros (c. 1310–c. 1375):** A Byzantine monk, mathematician, and astronomer who wrote treatises on arithmetic, geometry, and astronomy.
+36. **Immanuel ben Jacob Bonfils (c. 1300–1377):** A French-Jewish mathematician and astronomer who developed influential astronomical tables known as the "Six Wings."
+37. **Thomas Bradwardine (c. 1300–1349):** An English mathematician, philosopher, and theologian at Oxford, known for his work on the mean speed theorem. He was a member of the Oxford Calculators.
+38. **Paolo Dagomari (c. 1282–1374):** An Italian mathematician, astronomer, and astrologer in Florence, known as "Paul the Calculator."
+39. **John Dumbleton (c. 1310–c. 1349):** An English philosopher, logician, and natural philosopher at Merton College, Oxford. He was a key member of the Oxford Calculators.
+40. **Jamal al-Din Sa'id al-Turkistani (14th century):** A Persian astronomer and mathematician.
+41. **Giovanni di Casali (d. c. 1375):** A Franciscan friar and natural philosopher who taught at Cambridge and is known for his work on the kinematics of accelerated motion.
+42. **Ali al-Jurjani (1339–1414):** A Persian polymath, logician, and theologian.
+43. **Ibn al-Shatir (1304–1375):** An Arab astronomer, mathematician, and engineer from Damascus who developed non-Ptolemaic models of planetary motion.
+44. **Madhava of Sangamagrama (c. 1340–c. 1425):** An Indian mathematician and astronomer who founded the Kerala school of astronomy and mathematics.
+45. **Jean de Muris (c. 1290–c. 1350):** A French music theorist, mathematician, and astronomer.
+46. **Oxford Calculators (14th century):** A group of thinkers at Merton College, Oxford, including Thomas Bradwardine, William Hytesbury, John Dumbleton, and Richard Swineshead, who used a logical and mathematical approach to philosophical problems.
+47. **Nicole Oresme (c. 1323–1382):** A French philosopher, economist, and mathematician who made significant contributions to a wide range of fields and was one of the most original thinkers of the 14th century.
+48. **Peter of Denmark (14th century):** A Danish mathematician and astronomer known for his work on astronomical instruments.
+49. **Richard Swineshead (fl. c. 1340–1354):** An English mathematician and natural philosopher, famous for his work on kinematics and a member of the Oxford Calculators.
+50. **William Hytesbury (c. 1313–1372):** An English philosopher and logician, a prominent member of the Oxford Calculators.
