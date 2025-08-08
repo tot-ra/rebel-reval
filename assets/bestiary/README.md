@@ -26,6 +26,7 @@ The world of Reval Rebel is populated by a host of dangerous foes, each with uni
 -   **Forest Stalker (Low Threat):** A fast, lightly armored warrior who dual-wields axes. Attempts to flank the player and attacks in flurries.
 
 ![alt text](image-42.png)
+![alt text](image-43.png)
 -   **Spirit-Caller (Medium Threat):** A shaman who summons spectral wolves and casts debilitating curses that slow the player or drain their stamina. Prefers to keep their distance.
 
 
