@@ -73,8 +73,7 @@ The world of Reval Rebel is populated by a host of dangerous foes, each with uni
 ![alt text](image-1.png)
 -   **Metsik (Forest Guardian):** A powerful, ancient spirit of the forest, capable of commanding animals and manipulating plant life. Can be either a powerful ally or a formidable foe, depending on the player's actions towards nature.
 
-
-![alt text](image-2.png)
+![alt text](image-8.png)
 -   **Külmking (Frost-shoe):** A malevolent spirit that brings cold and despair. It freezes the ground with its touch and its presence drains the life and warmth from its victims.
 
 
@@ -87,7 +86,8 @@ The world of Reval Rebel is populated by a host of dangerous foes, each with uni
 ![alt text](image-7.png)
 -   **Luupainaja (Nightmare/Incubus):** A spirit that torments sleepers, causing terrifying nightmares and draining their life force. Appears as a shadowy figure that is difficult to harm with conventional weapons.
 
-![alt text](image-8.png)
+
+![alt text](image-2.png)
 ![alt text](image-9.png)
 -   **Kodukäija (Restless Spirit):** The ghost of a person who died a violent or unjust death, now haunting the living. Can be either a sorrowful spirit seeking peace or a vengeful one seeking retribution.
 
