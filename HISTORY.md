@@ -36,7 +36,13 @@ To the east, the Novgorod Republic was a major power, but its relationship with 
 
 **The Posadniks of Novgorod:** The Novgorod Republic was not ruled by a single prince but by a council of nobles (boyars) and an elected official known as a *posadnik*. While the names of the specific posadniks from 1343 are not readily available, this collective leadership was the key political authority in the powerful city-state.
 
+#### The Grand Duchy of Moscow: A Rising Power under Mongol Rule
 
+In 1343, the Grand Duchy of Moscow was a rising power, but still a vassal state under the authority of the Golden Horde. The Grand Prince, **Simeon "the Proud" Ivanovich**, navigated a complex political landscape, balancing the need to maintain favor with the Mongol Khan **Jani Beg** while simultaneously asserting Moscow's influence over other Russian principalities.
+
+The relationship with the Golden Horde was one of calculated subservience. The Khan's authority was absolute, and Russian princes were required to obtain a *yarlyk* (a patent of authority) from the Khan to legitimize their rule. Jani Beg, like his predecessors, practiced a policy of "divide and rule," supporting rival principalities like Tver and Ryazan to prevent any single Russian state from becoming too powerful.
+
+Despite this, Simeon skillfully used his position to continue his father's policy of "gathering the Russian lands." In 1343, this was most evident in his conflict with his cousin, **Prince Konstantin of Nizhny Novgorod**. Simeon attempted to annex the strategic principalities of Nizhny Novgorod and Gorodets, even convincing the local boyars to switch their allegiance. However, the move was ultimately thwarted by Khan Jani Beg, who intervened and restored the lands to Konstantin, demonstrating the clear limits of Moscow's autonomy. This event highlighted the central tension of the era: Moscow's ambition to unify the Russian lands under its leadership, and the Golden Horde's determination to maintain its control by keeping the Russian principalities fragmented and weak.
 
 #### The Grand Duchy of Lithuania: A Power in Transition
 
@@ -146,9 +152,9 @@ In memory of the uprising, a park was established in the Lasnamäe district of T
 ![alt text](image-1.png)
 
 
-### World Famous people of the time
+### Appendix: Notable Figures of the Era (1343)
 
-A list of influential individuals who were alive in the year 1343, including artists, writers, thinkers, and rulers who shaped the cultural and political landscape of the 14th century. Useful to know for game design in case they were visiting Estonia.
+A list of influential individuals who were alive in the year 1343, including artists, writers, thinkers, and rulers who shaped the cultural and political landscape of the 14th century. This list provides context on the key players of the time, some of whom had a direct or indirect influence on the events surrounding the St. George's Night Uprising.
 
 #### Artists & Architects
 1.  **Ambrogio Lorenzetti (c. 1290–1348):** An Italian painter of the Sienese school, known for his frescoes *The Allegory of Good and Bad Government*.
@@ -157,13 +163,14 @@ A list of influential individuals who were alive in the year 1343, including art
 4.  **Maso di Banco (c. 1300–1350):** A Florentine painter, considered one of the most important followers of Giotto.
 5.  **Andrea Pisano (c. 1290–1348):** A sculptor and architect, known for his work on the Baptistery in Florence.
 6.  **Jean Pucelle (c. 1300–1355):** A Parisian Gothic manuscript illuminator.
+7.  **Гойтан (Goytan) (fl. 1345):** A Russian icon painter active in the mid-14th century. Mentioned in historical records in 1345, he worked under the patronage of Simeon the Proud, the Grand Prince of Moscow. His work is representative of the Russian iconographic tradition during the rise of the Grand Duchy of Moscow.
 #### Writers, Poets & Composers
-7.  **Petrarch (Francesco Petrarca) (1304–1374):** An Italian scholar and poet, considered the "Father of Humanism."
-8.  **Giovanni Boccaccio (1313–1375):** An Italian writer, poet, and humanist, author of the *Decameron*.
-9.  **Geoffrey Chaucer (c. 1343–1400):** The "Father of English literature," born in this very year.
-10. **Guillaume de Machaut (c. 1300–1377):** A French poet and composer, a key figure in the *Ars Nova* musical style.
-11. **Hafiz-i Shirazi (c. 1325–1390):** A Persian lyric poet whose collected works are regarded as a pinnacle of Persian literature.
-12. **Juan Ruiz, Archpriest of Hita (c. 1283–c. 1350):** A Castilian poet, author of *The Book of Good Love*.
+8.  **Petrarch (Francesco Petrarca) (1304–1374):** An Italian scholar and poet, considered the "Father of Humanism."
+9.  **Giovanni Boccaccio (1313–1375):** An Italian writer, poet, and humanist, author of the *Decameron*.
+10. **Geoffrey Chaucer (c. 1343–1400):** The "Father of English literature," born in this very year.
+11. **Guillaume de Machaut (c. 1300–1377):** A French poet and composer, a key figure in the *Ars Nova* musical style.
+12. **Hafiz-i Shirazi (c. 1325–1390):** A Persian lyric poet whose collected works are regarded as a pinnacle of Persian literature.
+13. **Juan Ruiz, Archpriest of Hita (c. 1283–c. 1350):** A Castilian poet, author of *The Book of Good Love*.
 
 #### Thinkers & Philosophers
 13. **William of Ockham (c. 1287–1347):** An English Franciscan friar, scholastic philosopher, and theologian, known for the principle of Ockham's razor.
@@ -198,20 +205,21 @@ A list of influential individuals who were alive in the year 1343, including art
 
 A list of influential thinkers, scholars, and scientists who were alive in the year 1343, shaping the intellectual landscape of the 14th century.
 
-34. **Albert of Saxony (c. 1320–1390):** A German philosopher and mathematician known for his contributions to logic and physics. He was a key figure in the spread of Parisian natural philosophy.
-35. **Isaac Argyros (c. 1310–c. 1375):** A Byzantine monk, mathematician, and astronomer who wrote treatises on arithmetic, geometry, and astronomy.
-36. **Immanuel ben Jacob Bonfils (c. 1300–1377):** A French-Jewish mathematician and astronomer who developed influential astronomical tables known as the "Six Wings."
-37. **Thomas Bradwardine (c. 1300–1349):** An English mathematician, philosopher, and theologian at Oxford, known for his work on the mean speed theorem. He was a member of the Oxford Calculators.
-38. **Paolo Dagomari (c. 1282–1374):** An Italian mathematician, astronomer, and astrologer in Florence, known as "Paul the Calculator."
-39. **John Dumbleton (c. 1310–c. 1349):** An English philosopher, logician, and natural philosopher at Merton College, Oxford. He was a key member of the Oxford Calculators.
-40. **Jamal al-Din Sa'id al-Turkistani (14th century):** A Persian astronomer and mathematician.
-41. **Giovanni di Casali (d. c. 1375):** A Franciscan friar and natural philosopher who taught at Cambridge and is known for his work on the kinematics of accelerated motion.
-42. **Ali al-Jurjani (1339–1414):** A Persian polymath, logician, and theologian.
-43. **Ibn al-Shatir (1304–1375):** An Arab astronomer, mathematician, and engineer from Damascus who developed non-Ptolemaic models of planetary motion.
-44. **Madhava of Sangamagrama (c. 1340–c. 1425):** An Indian mathematician and astronomer who founded the Kerala school of astronomy and mathematics.
-45. **Jean de Muris (c. 1290–c. 1350):** A French music theorist, mathematician, and astronomer.
-46. **Oxford Calculators (14th century):** A group of thinkers at Merton College, Oxford, including Thomas Bradwardine, William Hytesbury, John Dumbleton, and Richard Swineshead, who used a logical and mathematical approach to philosophical problems.
-47. **Nicole Oresme (c. 1323–1382):** A French philosopher, economist, and mathematician who made significant contributions to a wide range of fields and was one of the most original thinkers of the 14th century.
-48. **Peter of Denmark (14th century):** A Danish mathematician and astronomer known for his work on astronomical instruments.
-49. **Richard Swineshead (fl. c. 1340–1354):** An English mathematician and natural philosopher, famous for his work on kinematics and a member of the Oxford Calculators.
-50. **William Hytesbury (c. 1313–1372):** An English philosopher and logician, a prominent member of the Oxford Calculators.
+34. **Berthold Schwarz (fl. 14th century):** A legendary German alchemist and Franciscan monk, often credited with the invention or independent discovery of gunpowder in Europe. While his historical existence is debated, with some scholars considering him a symbolic figure, he is said to have been active in the 14th century. His work, whether real or allegorical, represents the arrival of gunpowder technology in Europe, a development that would fundamentally change warfare and society.
+35. **Albert of Saxony (c. 1320–1390):** A German philosopher and mathematician known for his contributions to logic and physics. He was a key figure in the spread of Parisian natural philosophy.
+36. **Isaac Argyros (c. 1310–c. 1375):** A Byzantine monk, mathematician, and astronomer who wrote treatises on arithmetic, geometry, and astronomy.
+37. **Immanuel ben Jacob Bonfils (c. 1300–1377):** A French-Jewish mathematician and astronomer who developed influential astronomical tables known as the "Six Wings."
+38. **Thomas Bradwardine (c. 1300–1349):** An English mathematician, philosopher, and theologian at Oxford, known for his work on the mean speed theorem. He was a member of the Oxford Calculators.
+39. **Paolo Dagomari (c. 1282–1374):** An Italian mathematician, astronomer, and astrologer in Florence, known as "Paul the Calculator."
+40. **John Dumbleton (c. 1310–c. 1349):** An English philosopher, logician, and natural philosopher at Merton College, Oxford. He was a key member of the Oxford Calculators.
+41. **Jamal al-Din Sa'id al-Turkistani (14th century):** A Persian astronomer and mathematician.
+42. **Giovanni di Casali (d. c. 1375):** A Franciscan friar and natural philosopher who taught at Cambridge and is known for his work on the kinematics of accelerated motion.
+43. **Ali al-Jurjani (1339–1414):** A Persian polymath, logician, and theologian.
+44. **Ibn al-Shatir (1304–1375):** An Arab astronomer, mathematician, and engineer from Damascus who developed non-Ptolemaic models of planetary motion.
+45. **Madhava of Sangamagrama (c. 1340–c. 1425):** An Indian mathematician and astronomer who founded the Kerala school of astronomy and mathematics.
+46. **Jean de Muris (c. 1290–c. 1350):** A French music theorist, mathematician, and astronomer.
+47. **Oxford Calculators (14th century):** A group of thinkers at Merton College, Oxford, including Thomas Bradwardine, William Hytesbury, John Dumbleton, and Richard Swineshead, who used a logical and mathematical approach to philosophical problems.
+48. **Nicole Oresme (c. 1323–1382):** A French philosopher, economist, and mathematician who made significant contributions to a wide range of fields and was one of the most original thinkers of the 14th century.
+49. **Peter of Denmark (14th century):** A Danish mathematician and astronomer known for his work on astronomical instruments.
+50. **Richard Swineshead (fl. c. 1340–1354):** An English mathematician and natural philosopher, famous for his work on kinematics and a member of the Oxford Calculators.
+51. **William Hytesbury (c. 1313–1372):** An English philosopher and logician, a prominent member of the Oxford Calculators.
