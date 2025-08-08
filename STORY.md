@@ -85,12 +85,19 @@ Your gods are dead. Your land is mine. You will serve me, or you will join your 
 
 **Text on screen: "Reval, 1342. The embers of rebellion still glow."**
 
+
+
+
 ### Act 1: The Simmering City (year 1342)
 - Gameplay Focus: Political intrigue, stealth, and character development. This phase is about building your power and choosing your allies.
 - Player Goal: Navigate the treacherous social landscape of Reval. Your actions will build your reputation with different factions, unlocking unique abilities and story paths. Every choice you make determines who will stand with you—and who will stand against you—when the city finally erupts.
 - Narrative Arc: This phase is a slow-burn thriller. You'll uncover conspiracies, perform secret missions for different factions, and make difficult choices that have no clear right answer. The "Living City" meters (Hope, Fear, Chaos) are your primary measure of progress.
 
 - **Chapter Conclusion:** The chapter concludes on the eve of St. George's Night, April 23, 1343. The player's actions throughout the chapter accumulate towards this date, influencing the city's state via the **Hope, Fear, and Chaos** meters. The final quests of this chapter will represent the tipping point, and the state of the meters at the end of the day will determine the opening scenario of Chapter 2, defining the strength and nature of the rebellion.
+
+
+
+
 
 ### Act 2: The Fire of Rebellion (year 1343)
 - Gameplay Focus: Character progression, new challenges. Open warfare, tactical combat, and large-scale battles. This phase begins on St. George's Night, April 23, 1343.
@@ -108,9 +115,9 @@ Your gods are dead. Your land is mine. You will serve me, or you will join your 
 The conflict expands beyond Reval. The Teutonic Order, having bought the rights to Estonia, launches a full-scale crusade to solidify its control. The player would travel to new regions, from the swamps of Saaremaa to the fortified cities of Livonia, participating in large-scale battles and sieges. This chapter would introduce new factions, such as the Samogitians or other Baltic tribes, who could be potential allies or enemies.
 - **Locations:** [World Locations](./scenes/world/), [Saaremaa](./scenes/events/saaremaa.md), [Paldiski](./scenes/events/paldiski.md)
 
-### World Map
-A traversable world map that connects the different locations.
-- **Location:** [World Map](./scenes/map/map.md)
+
+
+
 
 ### Epilogue
 The screen fades to black. A child's laughter echoes, then is abruptly silenced. The year 1351 appears on the screen, then fades.
