@@ -19,6 +19,7 @@ The world of Reval Rebel is populated by a host of dangerous foes, each with uni
 -   **Order Knight (High Threat):** An elite warrior clad in full plate armor. Wields a greatsword or mace, capable of devastating, uninterruptible attacks. Highly resistant to stagger.
 
 
+
 -   **Pagan Cult of Metsik:** Wild and unpredictable, drawing power from the ancient forest.
 
 ![alt text](image.png)
@@ -27,18 +28,40 @@ The world of Reval Rebel is populated by a host of dangerous foes, each with uni
 
 ![alt text](image-42.png)
 ![alt text](image-43.png)
+![alt text](image-44.png)
 -   **Spirit-Caller (Medium Threat):** A shaman who summons spectral wolves and casts debilitating curses that slow the player or drain their stamina. Prefers to keep their distance.
 
 
 
 -   **Black Cloaks & Urban Rebels:** Guerilla fighters who use the city itself as a weapon.
-    -   **Street Thug (Low Threat):** Armed with improvised weapons like clubs or daggers. Fights dirty, throwing sand to blind the player or ganging up.
-    -   **Saboteur (Medium Threat):** An agile rogue who uses smoke bombs to disappear and caltrops to control the battlefield. Attacks with a poisoned short sword from stealth.
+
+![alt text](image-52.png)
+![alt text](image-53.png)
+
+-   **Street Thug (Low Threat):** Armed with improvised weapons like clubs or daggers. Fights dirty, throwing sand to blind the player or ganging up.
+
+
+-   **Saboteur (Medium Threat):** An agile rogue who uses smoke bombs to disappear and caltrops to control the battlefield. Attacks with a poisoned short sword from stealth.
+
 -   **Vanapagan's Cultists:** Humans who have bartered their souls for a sliver of the Old Devil's power.
-    -   **Rock-Thrower (Medium Threat):** Throws large stones with unnatural force and accuracy, capable of staggering the player.
-    -   **Brute (High Threat):** Possesses minor supernatural strength, allowing for powerful shove attacks that can send the player flying.
+
+![alt text](image-50.png)
+![alt text](image-49.png)
+-   **Rock-Thrower (Medium Threat):** Throws large stones with unnatural force and accuracy, capable of staggering the player.
+
+![alt text](image-55.png)
+![alt text](image-45.png)
+![alt text](image-47.png)
+![alt text](image-48.png)
+![alt text](image-54.png)
+
+-   **Brute (High Threat):** Possesses minor supernatural strength, allowing for powerful shove attacks that can send the player flying.
 
 #### Bandits
+![alt text](image-58.png)
+![alt text](image-57.png)
+![alt text](image-56.png)
+![](image-51.png)
 ![](./bandits/woman1.png)
 ![](./bandits/thug.png)
 ![](./bandits/thug2.png)
@@ -108,6 +131,7 @@ The world of Reval Rebel is populated by a host of dangerous foes, each with uni
 -   **Libahunt (Werewolf):** Not inherently evil, but fiercely territorial and dangerous when provoked. They are faster and stronger than normal wolves and can only be harmed by silver weapons.
 
 ![alt text](image-18.png)
+![alt text](image-46.png)
 -   **Vanapagan (The Old Devil):** A powerful, ancient demon who is the source of much of the evil in the land. He is a master of deception and corruption, and his influence can be seen in the actions of his cultists.
 
 ### Slavic Folklore Creatures:
