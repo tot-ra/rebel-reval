@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://dyl726xerhjhg"]
 
-[ext_resource type="Texture2D" uid="uid://bysfalwbeyasb" path="res://assets/menu/intro-hq.jpg" id="1_kiqgm"]
-[ext_resource type="Texture2D" uid="uid://s3dc3n3tlc3s" path="res://assets/menu/logo256.png" id="2_kiqgm"]
+[ext_resource type="Texture2D" uid="uid://bysfalwbeyasb" path="res://scenes/menu/intro-hq.jpg" id="1_kiqgm"]
+[ext_resource type="Texture2D" uid="uid://s3dc3n3tlc3s" path="res://scenes/menu/logo256.png" id="2_kiqgm"]
 [ext_resource type="AudioStream" uid="uid://bcraupn4sfttd" path="res://assets/music/intro.mp3" id="3_7a8ye"]
 [ext_resource type="Script" uid="uid://cb84o170r3wgt" path="res://scenes/intro/start_label.gd" id="3_i2l1n"]
 
@@ -14,8 +14,8 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="City background" type="Sprite2D" parent="."]
-position = Vector2(811.251, 411)
-scale = Vector2(0.513508, 0.496094)
+position = Vector2(819.626, 408)
+scale = Vector2(0.531494, 0.496094)
 texture = ExtResource("1_kiqgm")
 
 [node name="Logo" type="Sprite2D" parent="."]
@@ -53,3 +53,8 @@ horizontal_alignment = 1
 stream = ExtResource("3_7a8ye")
 autoplay = true
 parameters/looping = false
+
+[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
