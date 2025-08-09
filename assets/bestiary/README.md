@@ -1,22 +1,30 @@
 ## 👹 Bestiary
 The world of Reval Rebel is populated by a host of dangerous foes, each with unique behaviors and abilities tied to their faction and the dark folklore of the land.
 
+
+![alt text](image-33.png)
+-   **Myling (Murdered Child's Ghost):** The ghost of an unbaptized child who was murdered by its mother. It haunts the place of its death and seeks to be carried to a graveyard to find peace.
+
 ### Human Adversaries
 
 -   **Livonian Order:** The military arm of the ruling factions, disciplined and heavily armed.
 
+
 ![alt text](image-41.png)
 ![alt text](image-40.png)
 -   **Order Footman (Low Threat):** The backbone of the Order's forces. Wields a sword and shield. Fights defensively, relying on numbers and formation.
+    - Abilities: form shields
 
 ![alt text](image-39.png)
 ![alt text](image-37.png)
     
 -   **Order Sergeant (Medium Threat):** A battle-hardened leader. Can perform a shield bash to break the player's poise and shouts commands to buff nearby footmen.
+    - Abilities: form swords around them
 
 ![alt text](image-36.png)
 ![alt text](image-38.png)
 -   **Order Knight (High Threat):** An elite warrior clad in full plate armor. Wields a greatsword or mace, capable of devastating, uninterruptible attacks. Highly resistant to stagger.
+    - Abilities: Form both shields and swoards around them
 
 
 
@@ -108,6 +116,7 @@ The world of Reval Rebel is populated by a host of dangerous foes, each with uni
 
 ![alt text](image-7.png)
 -   **Luupainaja (Nightmare/Incubus):** A spirit that torments sleepers, causing terrifying nightmares and draining their life force. Appears as a shadowy figure that is difficult to harm with conventional weapons.
+    - Abilities - can slow down a character and stop him.
 
 
 ![alt text](image-2.png)
@@ -133,6 +142,7 @@ The world of Reval Rebel is populated by a host of dangerous foes, each with uni
 ![alt text](image-18.png)
 ![alt text](image-46.png)
 -   **Vanapagan (The Old Devil):** A powerful, ancient demon who is the source of much of the evil in the land. He is a master of deception and corruption, and his influence can be seen in the actions of his cultists.
+    - Idea for location - under monasteries
 
 ### Slavic Folklore Creatures:
 
@@ -155,9 +165,13 @@ The world of Reval Rebel is populated by a host of dangerous foes, each with uni
 
 ![alt text](image-24.png)
 -   **Poludnitsa (Lady Midday):** A spirit that appears at noon, often in fields. She can cause heatstroke and madness in those who work during the hottest part of the day.
+    - throws her hat as a suriken
+    - summons a scythe that attacks a player
 
 ![alt text](image-25.png)
 -   **Striga (Witch/Hag):** A powerful and malevolent witch who can transform into a monstrous creature. She is a master of dark magic and curses.
+    - Abilities: throws glass vials that affect character
+    - Idea: as NPC could heal character
 
 ### Scandinavian Folklore Creatures:
 
@@ -165,18 +179,20 @@ The world of Reval Rebel is populated by a host of dangerous foes, each with uni
 ![alt text](image-27.png)
 ![alt text](image-28.png)
 -   **Draugr (Undead Warrior):** The reanimated corpse of a Viking warrior, now a powerful and malevolent undead creature. They are incredibly strong and difficult to kill, and often guard ancient tombs and treasures.
+    - Abilities: creates a spirit that attacks player. The skeleton in that case is inactive. Spirit spits at the player. Attack can be deflected 
 
 ![alt text](image-29.png)
+
 -   **Huldra (Forest Woman):** A seductive and beautiful forest spirit with the tail of a cow. She can be benevolent, but is also known to lure men into the forest to never be seen again.
+    - Abilities: throws trees at the player
 
 
 ![alt text](image-30.png)
 ![alt text](image-31.png)
 ![alt text](image-32.png)
 -   **Troll:** A large, brutish, and dim-witted creature that lives in mountains and caves. They are incredibly strong and often hostile to humans.
+    - Abilities: stumps the ground, which immobilizes the player if he is near 
 
-![alt text](image-33.png)
--   **Myling (Murdered Child's Ghost):** The ghost of an unbaptized child who was murdered by its mother. It haunts the place of its death and seeks to be carried to a graveyard to find peace.
 
 ![alt text](image-34.png)
 -   **Jötunn (Giant):** A giant from Norse mythology, often associated with the forces of chaos and destruction. They are the enemies of the gods and of mankind.

@@ -14,6 +14,8 @@ This fractured power structure has created a powder keg of resentment and ambiti
 
 ### The Wider World: 1343
 
+![](./1360Europe.jpg)
+
 #### The Kingdom of Denmark: A Hollow Crown
 
 In 1343, Denmark was ruled by **Valdemar IV Atterdag**, a king grappling with a realm in pieces. Having ascended to the throne in 1340, he inherited a kingdom that had been largely pawned off to German princes. His reign was a determined effort to reconstitute Danish territory and authority through a combination of cunning diplomacy and military campaigns. The sale of the Duchy of Estonia in 1346 was a direct consequence of this broader strategy to consolidate his power and resources closer to home.
@@ -31,6 +33,7 @@ The Hanseatic League, a powerful confederation of merchant guilds, dominated tra
 Sweden, under **King Magnus IV (Magnus Eriksson)**, was a kingdom in transition. Magnus ruled over a vast territory that included Sweden, Finland, and Norway. However, by 1343, he faced growing opposition from the nobility, particularly in Norway. To manage these tensions, he made the strategic decision to divide his realms, appointing his younger son, Haakon, as King of Norway in 1343, while his elder son, Eric, was designated to rule Sweden. This internal focus meant that while Sweden was a potential player in the Estonian conflict, its capacity for direct intervention was limited.
 
 #### The Eastern Republics: Novgorod and Pskov
+![](./rus.jpg)
 
 To the east, the Novgorod Republic was a major power, but its relationship with its western neighbor, the Pskov Republic, was complex. By 1343, Pskov was de facto independent from Novgorod, though this status would not be formally recognized until the Treaty of Bolotovo in 1348. Both republics were frequent adversaries of the Livonian Order, and the Estonian rebels appealed to them for aid. However, the internal dynamics between Novgorod and Pskov, combined with the speed of the Order's response, prevented any effective intervention.
 
@@ -61,6 +64,8 @@ The St. George's Night Uprising was not a sudden event, but the culmination of d
 -   **Economic Exploitation**: The Hanseatic merchants of Reval control the flow of trade, enriching themselves while the local population sees little benefit.
 -   **Loss of Land and Freedom**: The rights of free Estonian peasants have been steadily eroded, with many forced into serfdom by the German feudal lords. As the chronicler Wigand of Marburg wrote, "the knights and vassals burdened the population with such heavy taxes and extortions... and so great was their violence that they dishonored their wives, raped their daughters, took away their property, and treated them as slaves."
 
+![](./1.jpg)
+
 ## The Uprising: A Historical Account
 
 The St. George's Night Uprising (1343–1345) was a widespread and brutal rebellion by the indigenous Estonian population against the Danish and German rulers who had dominated the land for over a century. It was not a single event, but a series of coordinated attacks that aimed to eradicate foreign influence and restore Estonian independence.
@@ -68,6 +73,8 @@ The St. George's Night Uprising (1343–1345) was a widespread and brutal rebell
 ### The Outbreak on the Continent
 
 The rebellion began on St. George's Night, April 23, 1343, with a signal fire lit on a hill in Harju County. This sparked a wave of violence across Danish Estonia. Estonian forces, led by four self-proclaimed "kings," targeted German nobles, merchants, and clergy. They burned manors, destroyed churches, and laid siege to the city of Reval. One of the most infamous events was the massacre at Padise Monastery, where 28 Cistercian monks were killed.
+
+![](./2.jpg)
 
 The uprising quickly spread to the neighboring provinces of Läänemaa and Virumaa. In Läänemaa, the rebels besieged the castle of Haapsalu, where the Bishop of Ösel-Wiek had taken refuge. The rebel army was estimated to be between 10,000 and 14,000 strong.
 
