@@ -2,91 +2,29 @@
 ## Storyline / Level progression
 ### Prequel Chapter: The Forging of Chains
 
-**Setting:** A sacred oak grove in Harju County, circa 1219. The air is thick with the smell of damp earth, moss, and the faint, sweet scent of burning offerings. An ancient, massive oak tree, its branches like gnarled arms reaching for the sky, stands at the center of a clearing. Carved wooden idols stand guard around it.
+**TITLE CARD: "REVAL, 1342 - ACT 1: THE SIMMERING CITY"**
 
-**Characters:**
+**KALEV** stands at his forge, hammer suspended mid-strike. Through the window, he watches a Danish tax collector extract silver from Old Henrik's trembling hands - the man's last coins, meant for his daughter's wedding dowry.
 
-*   **Lembitu**, a chieftain of the Sakala people and an ancestor of Kalev. He is a powerful man in his prime, with a long, braided beard and eyes that burn with a fierce, protective fire. He wears a wolf-pelt cloak over his leather armor.
-*   **Aita**, Lembitu's young daughter, about ten years old. She has her father's fiery spirit but her mother's gentle heart.
-*   **The Volkhv**, an old pagan priest, his face a mask of wrinkles and his eyes holding the wisdom of generations. He is the keeper of the old ways.
-*   **Valdemar II**, the King of Denmark, a tall, imposing figure in shining mail, his face a mask of cold, righteous fury.
-*   **Archbishop Anders Sunesen**, a man whose piety is matched only by his ruthlessness. He carries a golden cross that glints in the firelight.
-*   **Danish Knights**, a faceless, disciplined force of destruction, their shields bearing the white cross on a red field.
+The hammer falls. The heated iron splits.
 
-**(The scene opens with a wide shot of the sacred grove. The sun is setting, casting long, ominous shadows. The Volkhv is leading a ritual at the base of the great oak. Lembitu stands guard, his hand resting on the hilt of his sword. Aita watches from a safe distance, her eyes wide with a mixture of awe and fear.)**
+**KALEV**
+(Muttering an old Estonian curse)
+Kurat võtku...
 
-**VOLKHV**
-(Chanting in an ancient, guttural tongue)
-*Ukko, Lord of the Sky, hear us...*
-*Taara, Protector of the Forest, watch over us...*
-*The iron birds have come, their shadows long and cold...*
-*Grant us the strength to drive them from our lands...*
+His apprentice **MART** (16) looks up nervously.
 
-**(Suddenly, the sound of a horn shatters the peace. It is a sound of conquest, not of celebration. Lembitu draws his sword, his face grim.)**
+**MART**
+Master Kalev? The blade—
 
-**LEMBITU**
-They have found us. Aita, run! Hide!
+**KALEV**
+(Staring at the ruined metal)
+Some things are meant to break, boy. Question is whether we forge them again... or melt them down for something sharper.
 
-**(Aita hesitates, her eyes fixed on her father.)**
+**(He looks back out the window as Henrik weeps)**
 
-**LEMBITU**
-(Roaring)
-NOW!
-
-**(Aita turns and flees into the forest as the first of the Danish knights burst into the clearing. They are a wave of steel and faith, their swords drawn, their eyes burning with righteous zeal. The Volkhv continues his chant, his voice rising in defiance.)**
-
-**ARCHBISHOP SUNESEN**
-(Stepping forward, his voice booming)
-In the name of God and King Valdemar, I command you to cease this devil worship! Cast down your idols and bow before the one true cross!
-
-**(The Volkhv spits on the ground.)**
-
-**VOLKHV**
-Your god has no power here, priest. This is the land of Taara, and you are trespassers.
-
-**(Valdemar II steps forward, his hand on his sword.)**
-
-**VALDEMAR II**
-We are not trespassers. We are saviors. We bring light to this dark land. You will accept our god and our rule, or you will be cleansed by fire and sword.
-
-**(Lembitu steps between the king and the priest, his sword held ready.)**
-
-**LEMBITU**
-This is our land. Our gods. You will have neither.
-
-**(Valdemar II smiles, a cold, cruel smile.)**
-
-**VALDEMAR II**
-So be it.
-
-**(The king gives a signal, and the knights charge. The battle is short and brutal. Lembitu fights like a cornered wolf, his sword a blur of motion, but he is outnumbered and outmatched. He cuts down two knights before a sword blow to the leg sends him to his knees. The other Estonians are quickly overwhelmed.)**
-
-**(As Lembitu struggles to rise, he sees the Archbishop raise his golden cross.)**
-
-**ARCHBISHOP SUNESEN**
-Let the light of Christ shine upon this heathen darkness!
-
-**(At his command, the knights begin to chop at the base of the great oak with axes. The sound of the steel biting into the ancient wood is like a scream. The Volkhv cries out in anguish as the tree, the heart of their faith, begins to tremble.)**
-
-**(From her hiding place in the woods, Aita watches in horror. She sees her father, wounded and defeated. She sees the knights, their faces grim and determined. She sees the great oak, the tree she has known her whole life, begin to fall.)**
-
-**(The tree crashes to the ground with a deafening roar, sending a shower of leaves and splinters into the air. The clearing falls silent, save for the crackling of the fires the knights have started. The wooden idols are thrown into the flames, their carved faces seeming to twist in agony.)**
-
-**(Valdemar II walks over to the fallen Lembitu. He places the tip of his sword under the chieftain's chin.)**
-
-**VALDEMAR II**
-Your gods are dead. Your land is mine. You will serve me, or you will join your ancestors in the dirt.
-
-**(Lembitu looks up at the king, his eyes filled with a hatred that will burn for generations. He says nothing, but his silence is a vow of defiance.)**
-
-**(The camera focuses on Aita's face, her eyes wide with terror and a dawning, cold fury. She is witnessing the birth of a legacy of hatred, a debt that will be passed down from father to son, from mother to daughter, until it is finally paid in blood.)**
-
-**(The scene fades to black. The sound of the crackling flames and the distant, triumphant hymns of the Danes are the only sounds that remain.)**
-
-**Text on screen: "Reval, 1342. The embers of rebellion still glow."**
-
-
-
+**KALEV (CONT'D)**
+Fetch more iron. And bank the fires hotter tonight.
 
 ### Act 1: The Simmering City (year 1342)
 - Gameplay Focus: Political intrigue, stealth, and character development. This phase is about building your power and choosing your allies.
@@ -108,28 +46,177 @@ Your gods are dead. Your land is mine. You will serve me, or you will join your 
 - Narrative Arc: This phase is a desperate, action-packed struggle for the future of Estonia. The choices you made in Phase 1 will have dramatic consequences, determining which missions are available to you and what resources you have at your disposal.
 - **Locations:** [Reval Lower Town](./scenes/lower_town/), [Reval Upper Town](./scenes/upper_town/), [Rebel Kings' Camp](./scenes/events/rebel_kings.md), [Pärnu](./scenes/events/pernau.md), [Swedish Arrival](./scenes/events/swedish_arrival.md), [Swedish Outpost](./scenes/events/swedesh_outpost.md), [Pskov Arrival Battle](./scenes/events/pskov_arrival_battle.md)
 
-### Act 3: The Livonian Crusade. Final act
-- Gameplay Focus: Reward the user. Lore should make sense. Offer replayability with different endings
+### Act 3: The Iron Harvest (1344-1345)
 
+*Six months after the siege of Reval. Snow covers the bloodstains, but the scars remain.*
 
-The conflict expands beyond Reval. The Teutonic Order, having bought the rights to Estonia, launches a full-scale crusade to solidify its control. The player would travel to new regions, from the swamps of Saaremaa to the fortified cities of Livonia, participating in large-scale battles and sieges. This chapter would introduce new factions, such as the Samogitians or other Baltic tribes, who could be potential allies or enemies.
+**OPENING SCENE:**
+**FADE IN:** Kalev's forge, now cold and abandoned. Frost covers his tools. Through the window, we see Reval's walls pocked with siege damage, hastily repaired with mismatched stone.
+
+A KNOCK at the door. Kalev opens it to find **BROTHER HERMANN**, a Teutonic Knight, flanked by two soldiers.
+
+**BROTHER HERMANN**
+(In broken Estonian, then switching to Latin-accented German)
+Kalev the Smith. The Order has... acquired your services.
+
+**KALEV**
+(Noting the chains the soldiers carry)
+Acquired. Is that what we're calling it?
+
+**BROTHER HERMANN**
+The Grandmaster is rebuilding Estonia in God's image. Your skills will serve a higher purpose now.
+(Gestures to the cold forge)
+Light your fires. You forge for Christ now.
+
+**KALEV**
+(Looking at his grandfather's tools, then at the chains)
+And if I refuse?
+
+**BROTHER HERMANN**
+(Smiling coldly)
+Then you join the heretics feeding the crows on Toompea hill.
+
+Unlike Acts 1 and 2, where Kalev could hide behind "just following orders" or "just surviving," Act 3 forces him to confront what he's become. Every weapon he forges now directly serves his oppressors.
+
+**INTERNAL MONOLOGUE DURING FORGING SCENE:**
+**KALEV (V.O.)**
+(As he hammers out a sword blade)
+Each strike of the hammer... each spark that flies... I tell myself it's just metal. Just work.
+(The blade begins to take shape - clearly a Teutonic design)
+But this blade will drink Estonian blood. These hands that once forged freedom now forge chains.
+(He pauses, hammer raised)
+Lembitu... forgive me.
+
+**THE SAAREMAA CAMPAIGN:**
+**SCENE:** The siege of Pöide Castle, Saaremaa
+
+Kalev watches Estonian defenders on the walls - men who look like his father, his brother, himself. Below, Teutonic siege engines (built with metal he forged) prepare to fire.
+
+**KALEV**
+(To Brother Hermann)
+Those are my people on those walls.
+
+**BROTHER HERMANN**
+They are heretics and oath-breakers. Your people are the baptized Christians of this land.
+
+**KALEV**
+(Watching a young Estonian archer - no older than his apprentice Mart)
+That boy... he could be my son.
+
+**BROTHER HERMANN**
+Then pray he sees reason before the walls fall.
+
+The siege engine releases. Stone and metal crash against the wall. The young archer disappears in dust and debris.
+
+**KALEV**
+(Something breaking inside him)
+I forged the iron that killed him.
+
+**BROTHER HERMANN**
+You forged the instruments of God's will.
+
+**CLIMACTIC CHOICE:**
+**SCENE:** The final battle approaches. Hermann presents Kalev with a choice:
+
+**BROTHER HERMANN**
+The Grandmaster offers you a choice, smith. Forge the blessed sword that will end this rebellion - strike down the last pagan king yourself - and earn full redemption. Your family name restored, land granted, a place among the faithful.
+
+**KALEV**
+And if I refuse?
+
+**BROTHER HERMANN**
+Then tomorrow, when we take the grove, your wife and daughter burn with the sacred trees.
+
+**(Through the tent flap, Kalev can see his family, held under guard)**
+
+**KALEV**
+(His voice breaking)
+You would make me choose between my soul and their lives?
+
+**BROTHER HERMANN**
+I offer you salvation. The choice was always yours.
+
+**TRANSITION TO EPILOGUE:**
+**CLOSE-UP:** Kalev's hands, now stained with more than forge-soot.
+
+**KALEV (V.O.)**
+I told myself I was just making horseshoes. Just repairing farm tools. Just... surviving.
+
+**(Camera pulls back to reveal the consequences of his choice)**
+
+**KALEV (V.O.)**
+But a blade doesn't care who swings it. And a choice doesn't care if you meant to make it.
+
 - **Locations:** [World Locations](./scenes/world/), [Saaremaa](./scenes/events/saaremaa.md), [Paldiski](./scenes/events/paldiski.md)
 
 
 
 
 
-### Epilogue
-The screen fades to black. A child's laughter echoes, then is abruptly silenced. The year 1351 appears on the screen, then fades.
+### Epilogue: The Last Song (1351)
+
+*Eight years have passed. The rebellion is a memory. The old gods are silent.*
+
+**OPENING - ESTABLISH THE WORLD:**
+**FADE IN:** Reval, 1351. The city looks prosperous - new stone buildings, fresh paint, busy markets. But something feels hollow, like a beautiful mask over a skull.
+
+**CLOSE-UP:** A small wooden carving of Taara, hastily shoved under loose floorboards as **FOOTSTEPS** approach. A child's hands - these belong to **LIISA** (8), granddaughter of the old Volkhv from the prequel.
+
+**LIISA'S GRANDMOTHER (O.S.)**
+(Whispered, urgent)
+Hide it deeper, child. The priests have sharp eyes.
+
+**LIISA**
+Grandmother, why must we hide the forest father?
+
+**GRANDMOTHER**
+(Kneeling, touching the child's face)
+Because, little star, they fear what they cannot chain. Now come - we must seem good Christians when the bells ring.
+
+**THE PLAGUE ARRIVES - BUT WITH PURPOSE:**
+**SCENE:** Liisa finds an ornate wooden box washed up from a trading ship. Inside: beautiful amber beads, a trader's goods from the east. But also... something else.
+
+**LIISA**
+(Touching the amber)
+It feels warm, like summer stones.
+
+As she lifts the beads, we see her fingers briefly glow with the same light we saw around the sacred oak in the prequel. The old magic, weakened but not dead.
+
+**THE BITTER IRONY:**
+**GRANDMOTHER (V.O.)**
+(As Liisa plays with the beads)
+The Christians said their god would protect the faithful. They burned our sacred groves to build their churches. They buried our songs beneath their hymns.
+
+**(Liisa laughs, sharing the beads with other children)**
+
+**GRANDMOTHER (V.O.)**
+But death... death remembers the old ways. Death doesn't care which god you pray to.
+
+**THE BLESSING GAME:**
+Instead of random tag, Liisa teaches the other children an old Estonian game - one that involves touching foreheads and sharing "forest blessings." Each child she touches glows briefly with that same amber light.
+
+**LIISA**
+(Laughing as she runs)
+Taara's blessing! Taara's blessing! You're blessed now!
+
+The other children giggle and run, not understanding they're performing an ancient ritual. The irony: in trying to destroy Estonian culture, the Christians have made the children hungry for any game, any song, any story that feels different.
+
+**THE FINAL REVELATION:**
+As the plague spreads, we realize: this isn't random supernatural punishment. The amber beads were from a plague ship. But Liisa's "blessing game" - the old ritual of touching foreheads - spread it faster than it should have spread naturally.
+
+**KALEV (V.O.)**
+(Now an old man, watching from his window as the death carts roll)
+I spent my life forging chains for my people. But the old gods... they forge justice from different metal.
+
+**(He looks at his weathered hands - the same hands that once touched the sacred oak)**
+
+**KALEV (V.O.)**
+Death is the last freedom they cannot conquer. And death, it seems, remembers whose side it was always on.
+
+**FINAL SHOT:** The abandoned churches as the priests flee the plague. In the empty silence, we hear - faintly - the sound of Liisa and the other ghost children, still playing their game, their laughter echoing like wind through dead leaves.
+
+**FADE TO BLACK.**
+
+**TEXT:** "In 1351, the Black Death reached the Baltic. Among its first victims were the clergymen and nobles who had conquered Estonia. The plague, it was said, showed no favor to Christian or pagan. But the children's songs... those survived."
+
 - **Locations:** [Reval Lower Town](./scenes/lower_town/), [Reval Upper Town](./scenes/upper_town/)
-
-The scene opens on a strangely empty Reval. The sun is shining, but the streets are quiet. The player is no longer Kalev. Instead, they control a small child, a girl in a simple linen dress, clutching a rag doll.
-
-**The Game of Tag: A Mini-Game**
-
-The epilogue is a short, deceptively innocent mini-game. The player, as the child, runs through the streets of Reval, looking for people to play with.
-
-*   **Gameplay:** The gameplay is a simple game of "tag." The player moves the child through the city, and when they find an NPC, they can run up and "tag" them. The NPC will laugh, pat the child on the head, and then go about their business. The goal is to "tag" as many people as possible before the sun sets.
-*   **Atmosphere:** The atmosphere is bright and cheerful, a stark contrast to the grim reality of the main game. The sound design is filled with the sounds of a bustling city, birds chirping, and the child's happy laughter.
-*   **The Twist:** As the sun begins to set, the child grows tired and sits down in the town square. The camera slowly zooms out, and the player begins to see the consequences of their "game." Every NPC the player tagged is now lying dead in the streets, a faint, dark aura around them. The child, the innocent carrier of the plague, has unknowingly brought death to everyone they touched.
-*   **Ending:** The screen fades to black, and a single line of text appears: "And so, the plague came to Reval." The game ends.
