@@ -8,29 +8,6 @@ Current state: `Drafting game design document & concept art`
 
 ![](./img/intro-preview.png)
 
-## Game pillars and inspirations
-- Mind-and-body balance. Depth of action and fun is similar to depth of role playing, world building and immersion
-- Action
-    - Fun fighting with combinatorics and emergent complexity (Magicka)
-    - Short 30-min replayability sessions (Hades)
-- Thinking advised
-    - Faction alignments (WoW, Skyrim)
-    - Ego/self as NPC (Disco Elysium)
-    - Historical __if possible__
-- Freedom / agency
-    - Non-linearity in quests and world reactions (Fallout)
-    - No right solution / Gray moral. Often no correct way. (Witcher)
-    - Can include R-rated content
-- Simple
-    - Pixel graphics (HOMM3)
-    - Limited roleplay, no character customization
-- Novel
-    - AI-driven NPCs
-    - unique enemies (no critters/boss separation)
-
-
-Inspired by The Witcher, Hades, Fallout, Disco Elysium, Magicka.
-
 ## 📖 Core Narrative
 The year is 1342. A fragile peace hangs over Reval, but the air is thick with resentment. The St. George's Night Uprising is a spark waiting to ignite.
 
@@ -53,15 +30,18 @@ You are Kalev, an Estonian smith. To the German lords, you're just another pair 
 
 ## Game Details
 
-- [FIGHT GAMEPLAY](./GAMEPLAY-FIGHT.md)
+- [GAME PILLARS](./GAME-PILLARS.md)
+- [STORY](./story/STORY.md)
+- [HISTORICAL CONTEXT](./HISTORY.md)
+
 - [GAMEPLAY](./GAMEPLAY.md)
+- [FIGHT GAMEPLAY](./GAMEPLAY-FIGHT.md)
 - [FACTIONS](./assets/characters/README.md)
 - [LOCATIONS](./scenes/)
-- [STORYLINE](./STORY.md)
+
 - [QUESTS](./QUESTS.md)
 - [BESTIARY](./assets/bestiary/)
 - [MINI-GAMES](./MINI_GAMES.md)
-- [HISTORICAL CONTEXT](./HISTORY.md)
 
 
 
