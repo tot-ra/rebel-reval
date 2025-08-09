@@ -152,6 +152,17 @@ In memory of the uprising, a park was established in the Lasnamäe district of T
 ![alt text](image-1.png)
 
 
+
+
+### Appendix: On Witch Hunts
+
+While the great European witch hunts that swept across the continent from the 15th to the 18th centuries had not yet begun in 1343, the seeds of this conflict were already sown in the soil of 14th-century Estonia. The game's setting provides a glimpse into the precursor tensions that would later explode into widespread persecution.
+
+The core of the conflict was the clash between the encroaching German-led Christian order and the resilient pagan traditions of the Estonian people. The Livonian Order and the Catholic Church viewed local healers, wise women, and folk practitioners with deep suspicion, seeing their ancient customs not as cultural heritage, but as demonic superstition. Accusations of "witchcraft" or "sorcery" became a convenient and powerful tool for social and religious control, a way to eliminate influential local figures and suppress dissent.
+
+This tension was often intertwined with economic motives. A classic example is the brewing of beer. For centuries, brewing was the domain of women ("alewives"), who produced traditional ales in their homes for their families and for local sale. As monasteries and feudal lords sought to monopolize this lucrative trade, accusations of witchcraft could be weaponized to discredit and eliminate female competitors, framing their traditional herbal brews as "potions" and their cauldrons as tools of dark magic. In "Reval Rebel," this simmering conflict provides a rich source of quests and narrative, exploring a time when the lines between faith, folklore, and fear were dangerously blurred.
+
+
 ### Appendix: Notable Figures of the Era (1343)
 
 A list of influential individuals who were alive in the year 1343, including artists, writers, thinkers, and rulers who shaped the cultural and political landscape of the 14th century. This list provides context on the key players of the time, some of whom had a direct or indirect influence on the events surrounding the St. George's Night Uprising.
