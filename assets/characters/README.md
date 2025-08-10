@@ -26,10 +26,11 @@ They represent civilization, Christianity, stability, power, hierarchy, and adva
 **The Livonian Order** ✠ 
 -   **Core Value:** Order
 -   **Ideal:** To create a stable, pious society under a single faith and a strong rule of law.
--   **Shadow:** Their pursuit of order becomes brutal fanaticism, justifying massacres and cultural destruction in the name of God.
--   **Core NPCs:** **Brother Burchard von Dreileben**, a zealous and battle-hardened knight of the Order. He is a formidable warrior and a charismatic leader, offering you access to elite combat training, blessed weaponry, and the chance to fight for what he believes is a righteous cause. He is unyielding in his faith and merciless to his enemies.
-- Brother Goswin von Herike - commander in Viljandi
-- Arnd von Herke
+-   **Shadow:** Their pursuit of order becomes brutal fanaticism, justifying massacres and cultural destruction in the name of God. Their banner is the black cross of the Teutonic Order on a white field, a symbol of their military might and holy purpose.
+-   **Core NPCs:** 
+    - **Master Burchard von Dreileben**: The Livonian Master himself. A man in his late 50s, he is the embodiment of the Order's will. His face is a mask of stern authority, weathered by decades of campaigns. He is not just a zealot, but a cunning and pragmatic strategist who views the rebellion not as a tragedy, but as a political problem requiring a swift, brutal, and permanent solution. He is a man of few words, but his commands carry the absolute weight of life and death. He sees the world in black and white: the divine order he represents, and the chaos of the heathens he is destined to crush.
+    - **Brother Goswin von Herike** - commander in Viljandi
+    - **Arnd von Herke**
 -   **Presence:** [Toompea Castle](../../scenes/upper_town/toompea_castle.md), [The Cathedral of Saint Mary](../../scenes/upper_town/cathedral_of_saint_mary.md), [Viljandi Castle](../../scenes/world/viljandi_castle.md), [Padise Monastery](../../scenes/world/padise_monastery.md). Wesenberg is a mentioned location without a specific scene.
 
 

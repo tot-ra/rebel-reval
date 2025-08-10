@@ -20,21 +20,25 @@ This fractured power structure has created a powder keg of resentment and ambiti
 
 In 1343, Denmark was ruled by **Valdemar IV Atterdag**, a king grappling with a realm in pieces. Having ascended to the throne in 1340, he inherited a kingdom that had been largely pawned off to German princes. His reign was a determined effort to reconstitute Danish territory and authority through a combination of cunning diplomacy and military campaigns. The sale of the Duchy of Estonia in 1346 was a direct consequence of this broader strategy to consolidate his power and resources closer to home.
 
-![[20.jpg]]
+![](./20.jpg)
 
 #### The Livonian Order: A State of Knights
 
 The Livonian Order, a semi-autonomous branch of the Teutonic Knights, was the dominant military power in the region. Led by the Livonian Master from his seat in Riga, the Order operated as a state within a state. In 1343, the Order was both expanding its influence—acquiring Reval and Wesenberg from Denmark—and facing significant internal threats, most notably the St. George's Night Uprising itself. The Order's swift and brutal suppression of the rebellion demonstrated its military might and its unwavering commitment to maintaining control over its territories.
+![[26.jpg]]
 
 #### The Hanseatic League: The Power of Trade
 
 The Hanseatic League, a powerful confederation of merchant guilds, dominated trade in the Baltic. Reval (Tallinn), a member since 1285, was a key hub in this network. The city's German merchants operated with a high degree of autonomy, their primary concern being the protection of their commercial interests. The political turmoil of the uprising was a direct threat to their trade routes and profits, making them natural allies of the Livonian Order in restoring order.
 
+![[27.jpg]]
+
 #### The Kingdom of Sweden: A Divided Realm
 
 Sweden, under **King Magnus IV (Magnus Eriksson)**, was a kingdom in transition. Magnus ruled over a vast territory that included Sweden, Finland, and Norway. However, by 1343, he faced growing opposition from the nobility, particularly in Norway. To manage these tensions, he made the strategic decision to divide his realms, appointing his younger son, Haakon, as King of Norway in 1343, while his elder son, Eric, was designated to rule Sweden. This internal focus meant that while Sweden was a potential player in the Estonian conflict, its capacity for direct intervention was limited.
 
-![[21.jpg]]
+![](./21.jpg)
+
 #### The Eastern Republics: Novgorod and Pskov
 ![](./rus.jpg)
 
@@ -42,7 +46,7 @@ To the east, the Novgorod Republic was a major power, but its relationship with 
 
 **The Posadniks of Novgorod:** The Novgorod Republic was not ruled by a single prince but by a council of nobles (boyars) and an elected official known as a *posadnik*. While the names of the specific posadniks from 1343 are not readily available, this collective leadership was the key political authority in the powerful city-state.
 
-![[22.jpg]]
+![](./22.jpg)
 
 #### The Grand Duchy of Moscow: A Rising Power under Mongol Rule
 
@@ -52,19 +56,19 @@ The relationship with the Golden Horde was one of calculated subservience. The K
 
 Despite this, Simeon skillfully used his position to continue his father's policy of "gathering the Russian lands." In 1343, this was most evident in his conflict with his cousin, **Prince Konstantin of Nizhny Novgorod**. Simeon attempted to annex the strategic principalities of Nizhny Novgorod and Gorodets, even convincing the local boyars to switch their allegiance. However, the move was ultimately thwarted by Khan Jani Beg, who intervened and restored the lands to Konstantin, demonstrating the clear limits of Moscow's autonomy. This event highlighted the central tension of the era: Moscow's ambition to unify the Russian lands under its leadership, and the Golden Horde's determination to maintain its control by keeping the Russian principalities fragmented and weak.
 
-![[25.jpg]]
+![](./25.jpg)
 
 #### The Grand Duchy of Lithuania: A Power in Transition
 
 In 1343, the Grand Duchy of Lithuania was in a state of flux following the death of its powerful ruler, Gediminas, in 1341. His son, Jaunutis, held the title of Grand Duke, but his authority was weak and contested by his more ambitious and militarily capable brothers, Algirdas and Kęstutis. This internal power struggle, which would culminate in Algirdas seizing power in 1345, meant that Lithuania, despite being a major regional power and a natural enemy of the Livonian Order, was too preoccupied with its own succession crisis to offer any meaningful support to the Estonian rebels.
 
-![[23.jpg]]
+![](./23.jpg)
 
 #### The Golden Horde: A Fading Power
 
 Far to the east, the Golden Horde, once a formidable power, was beginning its long decline. In 1343, under the rule of **Jani Beg Khan**, the Horde was grappling with internal instability following the death of the powerful Özbeg Khan in 1341. Jani Beg's reign was marked by succession struggles, economic difficulties, and growing tensions with the Genoese and Venetian trading colonies in the Crimea. While the Horde's influence was still felt in the Russian principalities, its ability to project power into the Baltic was waning, and it played no direct role in the events of the St. George's Night Uprising.
 
-![[24.jpg]]
+![](./24.jpg)
 
 ### The Seeds of Rebellion
 
@@ -93,19 +97,19 @@ The rebels showed no mercy. They moved swiftly through the countryside, slaughte
 
 Having purged the countryside, the Estonian forces, demonstrating remarkable organization, elected four leaders among themselves, crowning them as "kings." This newly formed army, estimated at 10,000 strong, then marched on the fortified city of Reval (Tallinn) and laid siege to it. In the initial confrontation beneath the city walls, the rebels defeated the knights of the Livonian Order.
 
-![[3.jpg]]
-![[4.jpg]]
+![](./3.jpg)
+![](./4.jpg)
 Understanding that their initial success was fragile, the four kings made a shrewd diplomatic move. They sent a delegation to the Swedish bailiffs in Turku and Vyborg, offering to make Reval a Swedish city in exchange for military aid. The Swedes, seeing an opportunity to expand their influence, promised to raise an army and sail for Estonia.
 
 ### The Livonian Order's Intervention
 
 The besieged citizens of Reval, unable to defend the city, appealed to the Livonian Order for military aid. The Master of the Order, Burchard von Dreileben, who was on a campaign near the Pskov border, rushed his forces toward Tallinn. To buy time, he invited the four Estonian "kings" to negotiations at Paide Castle. The talks were a ruse. The Master accused the Estonians of murder, a quarrel broke out, and all the envoys were killed.
 
-![[5.jpg]]
+![](./5.jpg)
 
 Deprived of their leaders, the rebel army was thrown into disarray. On May 11, a detachment of the Order was defeated by a large Estonian force near Kanavere bog. Master Burchard, however, quickly advanced with his main army. The knights, forced to fight on foot in the marshy terrain, eventually surrounded and overwhelmed the rebels. According to the chronicler Hoeneke, about 1,600 Estonians were killed after surrendering under a promise of mercy.
 
-![[6.jpg]]
+![](./6.jpg)
 
 A few days later, on May 14, the Order's army attacked the main rebel camp near Tallinn. Using a similar tactic of feigned negotiations to encircle the enemy, the knights launched a surprise attack and slaughtered over 3,000 Estonians, effectively crushing the rebellion on the mainland.
 
@@ -119,7 +123,7 @@ Deprived of their leaders, the rebel army was thrown into disarray. On May 11, a
 
 A few days later, on May 14, the Order's army attacked the main rebel camp near Tallinn. Using a similar tactic of feigned negotiations to encircle the enemy, the knights launched a surprise attack and slaughtered over 3,000 Estonians, effectively crushing the rebellion on the mainland.
 
-![[7.jpg]]
+![](./7.jpg)
 
 ### The Role of Foreign Powers
 
@@ -135,7 +139,7 @@ The Order's swift and decisive action effectively neutralized the threat from al
 
 The chronicler Renner tells of a separate attempt by rebels to seize the formidable Order castle at Viljandi (Fellin). According to the story, the rebels hid inside sacks of rye, which were to be delivered as tribute, hoping to be carried into the castle. However, an Estonian woman, whose son was among the rebels, revealed the plot to the knights in exchange for her son's life. The knights intercepted the delivery, and the rebels hidden in the sacks were thrown into the castle's dungeon, where they all perished.
 
-![[8.jpg]]
+![](./8.jpg)
 
 ### The Uprising on Saaremaa (Ösel)
 
@@ -143,13 +147,13 @@ On July 24, 1343, the rebellion reignited on the island of Saaremaa. The islande
 
 The islanders, led by their "king" Vesse, began constructing a large fortress at Karja, knowing the Order lacked a fleet to cross the strait until winter. In February 1344, the Order's army, reinforced by troops from Prussia, crossed the frozen sea. After ravaging the island, they besieged the Karja fortress. Using siege engines, the knights breached the walls and stormed the stronghold, killing around 2,000 rebels. Their leader, Vesse, was captured and executed. The Order departed before the ice melted, securing a promise of submission from the island elders.
 
-![[9.jpg]]
+![](./9.jpg)
 
 
 The final pacification of Saaremaa occurred in the winter of 1345. The Order returned, and through a campaign of terror, forced the islanders to surrender. They were made to demolish their fortresses and hand over their weapons. To ensure control, the Order began construction of Maasilinna Castle (Soneburg), the "castle of atonement."
 
 
-![[10.jpg]]
+![](./10.jpg)
 ### Key Battles and Events
 
 -   **Padise Monastery Massacre** (April 1343): The rebels attack and burn the monastery, killing the monks.

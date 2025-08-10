@@ -1,6 +1,6 @@
 # Reval Rebel
 
-Indie Action RPG withg rogue-like elements in semi-fictional 14th-century Estonia. 
+Indie Action RPG with rogue-like elements in semi-fictional 14th-century Estonia. 
 
 A moody, atmospheric feel that blends Hanseatic trade, Baltic folklore, and early Christianity. 
 
@@ -31,7 +31,7 @@ You are Kalev, an Estonian smith. To the German lords, you're just another pair 
 ## Game Details
 
 - [GAME PILLARS](./GAME-PILLARS.md)
-- [HISTORICAL CONTEXT](./history/)
+- [HISTORICAL CONTEXT](./history/HISTORY.md)
     - [FACTIONS](./assets/characters/README.md)
     - [LOCATIONS](./scenes/)
     - [BESTIARY](./assets/bestiary/)
