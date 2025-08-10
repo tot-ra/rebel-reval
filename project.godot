@@ -13,7 +13,7 @@ config_version=5
 config/name="Rebel Revel"
 run/main_scene="uid://dyl726xerhjhg"
 config/features=PackedStringArray("4.4", "GL Compatibility")
-config/icon="res://icon.svg"
+config/icon="uid://s3dc3n3tlc3s"
 
 [display]
 

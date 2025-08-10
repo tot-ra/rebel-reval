@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://dyl726xerhjhg"]
+[gd_scene load_steps=7 format=3 uid="uid://dyl726xerhjhg"]
 
 [ext_resource type="Texture2D" uid="uid://bysfalwbeyasb" path="res://scenes/menu/intro-hq.jpg" id="1_kiqgm"]
 [ext_resource type="Texture2D" uid="uid://s3dc3n3tlc3s" path="res://scenes/menu/logo256.png" id="2_kiqgm"]
 [ext_resource type="AudioStream" uid="uid://bcraupn4sfttd" path="res://assets/music/intro.mp3" id="3_7a8ye"]
 [ext_resource type="Script" uid="uid://cb84o170r3wgt" path="res://scenes/intro/start_label.gd" id="3_i2l1n"]
 [ext_resource type="Script" uid="uid://c0ajiix2ug7wp" path="res://scenes/menu/exit_label.gd" id="4_hj162"]
+[ext_resource type="VideoStream" uid="uid://drwpbbti05fcs" path="res://scenes/menu/intro.ogv" id="6_xn6kt"]
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -15,9 +16,25 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="City background" type="Sprite2D" parent="."]
+visible = false
 position = Vector2(800, 408)
 scale = Vector2(0.544271, 0.496094)
 texture = ExtResource("1_kiqgm")
+
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="."]
+layout_mode = 0
+offset_left = -488.0
+offset_top = -140.0
+offset_right = 1983.0
+offset_bottom = 939.0
+ratio = 1.6
+
+[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="AspectRatioContainer"]
+layout_mode = 2
+stream = ExtResource("6_xn6kt")
+autoplay = true
+expand = true
+loop = true
 
 [node name="Logo" type="Sprite2D" parent="."]
 position = Vector2(767.497, 433)
@@ -55,8 +72,3 @@ script = ExtResource("4_hj162")
 stream = ExtResource("3_7a8ye")
 autoplay = true
 parameters/looping = false
-
-[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="."]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
