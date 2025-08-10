@@ -12,6 +12,13 @@ The Order's forces will be present to repel any potential Swedish landing.
 ### Swedish Forces
 The Swedish fleet, a potential ally whose intervention hangs in the balance.
 
+### Music
+- **Tense, Anticipatory, Majestic:** A slow, grand, and ominous theme that builds in intensity as the fleet appears on the horizon. Use of low brass, timpani, and a large string section.
+- **Hopeful, Anxious, Yearning (Rebel Perspective):** A variation of the rebel anthem, played by a solo instrument (e.g., flute, cello) over a bed of tremolo strings, creating a sense of fragile hope.
+- **Threatening, Imposing, Defensive (Order Perspective):** A martial, percussive theme with a strong brass presence, reflecting the Order's military might and determination to defend the city.
+- **Maritime, Expansive, Elemental:** The sounds of the sea—waves, wind, gulls—blended with a sweeping orchestral score that evokes the vastness and power of the ocean.
+- **Decisive, Pivotal, Climactic:** A sudden shift in the music—either to a triumphant, heroic theme or a somber, tragic one—as the Swedes make their decision.
+
 ## NPCs
 
 1.  **The Swedish Admiral**: The commander of the fleet, a proud and cautious man who is weighing the risks and rewards of intervention.

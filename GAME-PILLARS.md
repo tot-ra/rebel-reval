@@ -1,5 +1,5 @@
 ## Inspirations
-Witcher, Hades, Fallout, Disco Elysium, Magicka, WoW, Skyrim
+Witcher, Hades, Fallout, Disco Elysium, Magicka, WoW, Skyrim, Kingdom Come Deliverance
 
 ## Game Pillars and Inspirations
 
@@ -22,8 +22,8 @@ Witcher, Hades, Fallout, Disco Elysium, Magicka, WoW, Skyrim
 
 ### Story
 - **Personal, Not Epic:** The story is not about saving the world. It's about a man navigating a brutal conflict and trying to understand his place in it.
-- **Consequence-Driven Narrative:** The world and its inhabitants should react realistically to the player's choices, creating a branching narrative with no clear "good" or "evil" path, inspired by *The Witcher* and *Fallout*.
-- **Historical Fiction:** The story is grounded in the historical St. George's Night Uprising, but takes creative liberties to explore themes of freedom, oppression, and identity.
+- **Consequence-Driven Narrative:** The world and its inhabitants should react realistically to the player's choices, creating a branching narrative with no clear "good" or "evil" path (inspired by *The Witcher* and *Fallout*)
+- **Historical Fiction:** The story is grounded in the historical St. George's Night Uprising, but takes creative liberties to explore themes of freedom, oppression, and identity. (inspired by Kingdom Come Deliverance)
 
 ### World
 - **A Living City:** The city of Reval is the heart of the game. It should feel alive and reactive.
@@ -37,6 +37,12 @@ Witcher, Hades, Fallout, Disco Elysium, Magicka, WoW, Skyrim
     - **Dynamic Alliances:** The player's actions will build or break alliances with various sub-factions, each with their own goals and agendas.
     - **Moral Ambiguity:** Every faction believes they are in the right. There are no clear heroes or villains.
 - **Modern Resonance:** The political themes of the game should reflect modern-day issues of power, identity, and resistance.
+    - Oppression of imperial power based on language or beliefs.
+    - Lack of self-control of masses and violence.
+    - The role of misinformation and propaganda in shaping public opinion.
+    - The tension between individual freedom and collective security.
+    - The psychological toll of occupation and resistance.
+    - Economic inequality and exploitation as drivers of conflict.
 
 ### Quests
 - **Gray Morality:** Quests should have no easy answers. The player will be forced to make difficult choices with unforeseen consequences.

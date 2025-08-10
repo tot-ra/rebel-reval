@@ -1,10 +1,10 @@
 [gd_scene load_steps=2 format=3 uid="uid://us6f035ke5tx"]
 
-[ext_resource type="Texture2D" uid="uid://cib6pmrdycpsq" path="res://scenes/map/Estonia-Satellite-Map-1000x722.jpg" id="1_sxf4j"]
+[ext_resource type="Texture2D" uid="uid://b341k6vdm84u2" path="res://scenes/map/map.png" id="1_sxf4j"]
 
 [node name="Node2D" type="Node2D"]
 
 [node name="Estonia-satellite-map-1000x722" type="Sprite2D" parent="."]
-position = Vector2(817, 485)
+position = Vector2(1240, 821)
 scale = Vector2(1.62327, 1.62327)
 texture = ExtResource("1_sxf4j")

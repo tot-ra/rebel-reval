@@ -22,6 +22,12 @@ This is the home turf of the rural rebels.
 ## Other Characters
 The village is populated by peasants, farmers, and their families.
 
+### Music
+- **Pastoral, Folk, Communal:** Simple, melodic tunes played on traditional Estonian instruments (kannel, bagpipes, flute), with a sense of community and connection to the land.
+- **Hopeful, Resilient, Determined:** A variation of the rebel anthem, but more intimate and personal, with a sense of quiet determination and the strength of a community united in a common cause.
+- **Somber, Oppressed, Fearful:** A slow, mournful theme that reflects the hardships of peasant life under foreign rule, with a sense of ever-present danger and the fear of retribution.
+- **Mysterious, Pagan, Ancient:** Music that hints at the survival of the old ways, with elements of shamanic drumming, chanting, and a sense of a deep, hidden magic in the landscape.
+- **Sudden, Violent, Tragic:** The peaceful pastoral music is brutally interrupted by the sounds of an attack—dissonant brass, aggressive percussion, and a sense of chaos and terror.
 
 **Character Art:**
 _This is where art for generic peasant NPCs would be linked._

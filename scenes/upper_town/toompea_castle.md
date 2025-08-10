@@ -28,6 +28,13 @@ The Order maintains a strong military presence in the castle, using it as a barr
 ![](../../assets/characters/livonian/image-2.png)
 ![](../../assets/characters/livonian/image-3.png)
 
+### Music
+- **Pompous, Regal, Authoritative:** Full orchestra, majestic brass fanfares, timpani rolls, royal court music, stately processionals.
+- **Militaristic, Disciplined, Holy:** Martial drum patterns, Gregorian chants, powerful male choir, organ, trumpet calls.
+- **Intrigue, Paranoia, Betrayal:** Dissonant string clusters, low woodwind melodies, harpsichord, subtle and unsettling percussion, a sense of being watched.
+- **Decadent, Melancholy, Weary:** Slow, sad waltzes; solo cello or viola; melancholic piano melodies; music that reflects a sense of fading glory.
+- **Ancient, Haunted, Ghostly:** Ethereal choir, glass harmonica, music box, strange echoes and whispers, a sense of a dark history.
+
 ## NPCs
 
 1.  **Viceroy Konrad Preen**: The aging Danish governor, with a weary face, a neatly trimmed grey beard, and fine but slightly worn clothing. He often looks distracted and tired.

@@ -10,6 +10,13 @@ A coastal outpost and harbor, known as a haven for the **Vitalienbrüder** pirat
 This is a primary base of operations for the pirates.
 -   **Core NPC:** **"Ironhand" Störtebeker** and his crew can be found here, planning their next raid or seeking to hire out their services.
 
+### Music
+- **Rowdy, Raucous, Libertine:** Energetic and chaotic sea shanties, raucous tavern music with fiddles, accordions, and hurdy-gurdies, and the sounds of drunken revelry.
+- **Adventurous, Swashbuckling, Heroic:** A grand, orchestral score with a sweeping, memorable theme, a sense of high adventure, and a touch of roguish charm.
+- **Dangerous, Unpredictable, Violent:** A tense, percussive score with sudden, explosive bursts of sound, a sense of constant threat, and a mood of barely controlled chaos.
+- **Melancholy, Wistful, Romantic:** A sad, beautiful ballad about lost love, a distant homeland, or the freedom of the sea, played on a solo instrument like a guitar or a flute.
+- **Mysterious, Treasure-Hunting, Exotic:** A theme that incorporates elements of music from faraway lands, a sense of ancient secrets and hidden treasures, and a mood of mystery and intrigue.
+
 ## NPCs
 
 1.  **"Ironhand" Störtebeker**: The infamous pirate captain, with a prosthetic iron hand, a weathered face, and a charismatic, if dangerous, smile.

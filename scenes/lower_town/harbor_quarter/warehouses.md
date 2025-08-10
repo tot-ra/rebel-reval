@@ -17,3 +17,10 @@ The warehouses are tall, timber-framed buildings with large wooden doors and cra
 
 - **A Rat in the Grain:** A merchant might hire the player to deal with a pest problem of either the four-legged or two-legged variety.
 - **Lost Shipment:** The player could be tasked with locating a valuable shipment that has gone missing within the labyrinthine warehouses.
+
+### Music
+- **Busy, Rhythmic, Industrial:** The sounds of manual labor—hoisting, hammering, sawing—set to a rhythmic, percussive beat; workers' chants and shouts.
+- **Mysterious, Eerie, Suspenseful:** Low, sustained string notes; the scuttling sounds of rats; dripping water; distant, echoing footsteps; a lone, haunting flute.
+- **Tense, Stealthy, Dangerous:** A quiet, pulsing rhythm; pizzicato strings; soft, high-pitched percussion; sudden, loud noises that break the silence.
+- **Grand, Expansive, Global:** A sweeping, orchestral score with influences from various cultures, representing the diverse origins of the goods stored here.
+- **Calm, Quiet, Reflective:** A simple, melodic piece for solo harp or lute; the gentle lapping of water against the docks; the distant cry of gulls.

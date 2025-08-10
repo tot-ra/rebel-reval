@@ -12,6 +12,13 @@ Pärnu is a key strategic objective for the rebel forces.
 ### The Livonian Order ✠ 
 The Order has a presence in Pärnu and will fight to defend it from the rebels.
 
+### Music
+- **Epic, Chaotic, Brutal:** A full orchestra with a heavy emphasis on brass and percussion, a large choir singing in a powerful and aggressive style, the sounds of battle (clashing swords, shouting, explosions).
+- **Heroic, Triumphant, Hopeful (Rebel Victory):** A soaring, melodic theme with a strong brass and string presence, a triumphant choir, and a fast, driving rhythm.
+- **Tragic, Defeated, Somber (Order Victory):** A slow, mournful piece for strings and choir, a lone trumpet playing a lament, the tolling of a funeral bell.
+- **Tense, Strategic, Maneuvering:** A pulsing, rhythmic underscore with a sense of forward momentum, military-style drum cadences, and short, repeated melodic fragments that create a sense of anticipation.
+- **Personal, Emotional, Human:** A simple, melodic piece for a solo instrument (e.g., cello, piano, flute) that focuses on the human cost of the battle, the fear and the courage of the individual soldier.
+
 ## NPCs
 
 1.  **The Rebel Commander**: A charismatic and inspiring leader, who is directing the rebel forces in the battle for Pärnu.

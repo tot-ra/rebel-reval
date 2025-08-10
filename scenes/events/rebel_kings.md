@@ -10,6 +10,13 @@ A large, mobile encampment that serves as the military headquarters for the Harj
 This is the command center for the rural rebellion.
 -   **Core NPCs:** **Lembit Helme**, **Kaja Lahekivi**, **Jüri Ratnik**, and **Urmas Laar** can all be found here, leading their forces.
 
+### Music
+- **Hopeful, Determined, United:** A powerful, anthemic theme with a strong choral presence, folk instruments (flute, fiddle, bagpipes), and a driving, march-like rhythm.
+- **Militaristic, Rustic, DIY:** The sounds of a camp preparing for war—sharpening blades, fletching arrows, mending armor—set to a percussive, rhythmic backdrop.
+- **Somber, Reflective, Wary:** A lone voice singing a lament, a simple melody on a wooden flute, the crackling of a campfire, the distant howl of a wolf.
+- **Mystical, Ancient, Pagan:** Throat singing, shamanic drumming, the use of traditional Estonian instruments like the kannel, music that feels connected to the land and the old gods.
+- **Tense, Anxious, Expectant:** A low, pulsing drone; the rhythmic beat of a single drum; short, repeated melodic fragments that create a sense of anticipation and unease.
+
 ## NPCs
 
 1.  **Lembit Helme**: The stern and respected elder, often seen in council with the other leaders, his brow furrowed in thought.

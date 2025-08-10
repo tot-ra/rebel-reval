@@ -12,6 +12,13 @@ The island is a stronghold for the pagan faction, featuring locations like the S
 ### The Livonian Order ✠ 
 The Order will launch a crusade to crush the rebellion on Saaremaa, leading to major battles at locations like Karja Fortress and Pöide Castle.
 
+### Music
+- **Mystical, Primal, Pagan:** A raw, powerful sound featuring shamanic drumming, throat singing, traditional Estonian instruments (kannel, bagpipes), and a strong connection to the natural world.
+- **Brutal, Fanatical, Crusading (Livonian Order):** A heavy, martial theme with a large, aggressive choir singing in Latin, a powerful brass section, and a relentless, driving rhythm.
+- **Tragic, Desperate, Sacrificial:** A slow, mournful lament for solo female voice and cello, a sense of ancient traditions being destroyed, and a mood of noble, but doomed, resistance.
+- **Wild, Untamed, Natural:** The sounds of the island's wilderness—wind, waves, animal calls—blended with a score that evokes the untamed beauty and danger of the natural world.
+- **Supernatural, Ethereal, Magical:** A shimmering, atmospheric soundscape featuring glass harmonica, ethereal vocal pads, and other-worldly sound effects, creating a sense of a world where magic is real and powerful.
+
 ## NPCs
 
 1.  **The High Priestess of the Cult of Metsik**: A powerful and enigmatic woman, who is the spiritual leader of the pagan resistance.

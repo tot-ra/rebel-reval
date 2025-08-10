@@ -9,6 +9,13 @@ A major stronghold of the Livonian Order. This is the infamous site where the fo
 ### The Livonian Order ✠ 
 A key strategic castle for the Order, and the location of one of their most ruthless acts.
 
+### Music
+- **Tense, Deceptive, Hopeful (The "Peace Talks"):** A seemingly peaceful and noble theme, but with an undercurrent of tension and dissonance that hints at the coming betrayal.
+- **Shocking, Brutal, Treacherous (The Execution):** A sudden, violent, and chaotic outburst of music, with a sense of shock, horror, and disbelief.
+- **Tragic, Mournful, Enraged (The Aftermath):** A powerful and emotional lament for the fallen kings, with a sense of grief, anger, and a thirst for revenge.
+- **Haunting, Ghostly, Unforgiving:** An ethereal and unsettling theme for the ghosts of the murdered kings, with a sense of a lingering curse and a demand for justice.
+- **Cold, Ruthless, Pious (The Livonian Order):** A theme that combines elements of religious and military music, creating a sense of a cold, calculating, and self-righteous evil.
+
 ## NPCs
 
 1.  **The Four Estonian Kings**: Proud and defiant leaders of the rebellion, dressed in their finest clothes for the peace talks, unaware of the betrayal that awaits them.

@@ -12,6 +12,13 @@ A major, formidable stronghold for the Order. Goswin von Herike is the commander
 ### The Harju Kings ✊🏻
 The castle is a target for a clever but ultimately doomed infiltration quest.
 
+### Music
+- **Tense, Suspenseful, Claustrophobic:** A low, pulsing rhythm with a sense of confinement and rising tension, using pizzicato strings, soft percussion, and the sound of muffled heartbeats.
+- **Sudden, Violent, Failed:** An abrupt and chaotic burst of music, with dissonant brass, aggressive percussion, and a sense of panicked desperation.
+- **Tragic, Doomed, Inevitable:** A slow, mournful theme for strings and choir, with a sense of tragic heroism and the weight of inevitable failure.
+- **Militaristic, Imposing, Secure (Livonian Order):** A confident, martial theme with a strong brass and percussion presence, reflecting the strength and security of the castle.
+- **Haunting, Ghostly, Regretful:** An ethereal, atmospheric piece with a lone, sorrowful voice, the sound of rattling chains, and a sense of lingering regret and sorrow.
+
 ## NPCs
 
 1.  **Goswin von Herike**: The commander of Viljandi Castle, a shrewd and cautious knight who is not easily fooled.

@@ -8,6 +8,13 @@ A Swedish outpost, likely in Finland (Turku or Vyborg), where the player can tra
 
 This location is primarily populated by Swedish forces, who are not a main faction but can act as a powerful, temporary ally or enemy depending on the player's actions.
 
+### Music
+- **Nordic, Folk, Melancholy:** Traditional Swedish folk instruments like the nyckelharpa and hardanger fiddle, melancholic male and female vocals, music that evokes a sense of a vast, cold, and beautiful landscape.
+- **Courtly, Diplomatic, Stately:** Music for a small chamber ensemble (lute, recorder, viola da gamba), formal dance music, and fanfares for the Swedish bailiff.
+- **Tense, Suspicious, Clandestine:** A low, pulsing drone; soft, rhythmic percussion; and a simple, repeated melodic fragment that creates a sense of unease and suspicion.
+- **Mystical, Pagan, Finnish:** The use of the kantele (a traditional Finnish zither), shamanic drumming, and throat singing, creating a sense of ancient magic and connection to the natural world.
+- **Militaristic, Expansive, Imperial:** Martial rhythms, brass fanfares, and a sense of disciplined order, reflecting the military power of the Swedish kingdom.
+
 ## NPCs
 
 1.  **The Swedish Bailiff**: A proud and ambitious nobleman, who is the commander of the outpost. He is torn between his duty to his king and the opportunity to profit from the conflict in Estonia.

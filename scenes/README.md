@@ -102,31 +102,34 @@ graph TD
 ### Reval (Tallinn)
 #### Lower Town
 
-**Harbor Quarter**
+**Harbor Quarter** (north)
 - [Great Coast Gate & Fat Margaret Tower](./lower_town/harbor_quarter/great_coast_gate.md)
 - [Reval Harbor](./lower_town/harbor.md)
 - [Seamen's Inn](./lower_town/harbor_quarter/seamens_inn.md)
 - [Warehouses](./lower_town/harbor_quarter/warehouses.md)
 
 **Market & Civic Quarter**
-- [Town Hall Square (Raekoja plats)](./lower_town/market_civic_quarter/town_hall_square.md)
-- [Town Hall (Raekoda)](./lower_town/market_civic_quarter/town_hall.md)
 - [Reval Market](./lower_town/market.md)
 - [The Smith's Forge](./lower_town/the_smiths_forge.md)
-- [Church of the Holy Spirit (Püha Vaimu kirik)](./lower_town/market_civic_quarter/church_of_the_holy_spirit.md)
 
-**Guild & Merchant Quarter**
+**Guild & Merchant Quarter** (center)
+- [Town Hall Square (Raekoja plats)](./lower_town/market_civic_quarter/town_hall_square.md)
+- [Town Hall (Raekoda)](./lower_town/market_civic_quarter/town_hall.md)
+- [Church of the Holy Spirit (Püha Vaimu kirik)](./lower_town/market_civic_quarter/church_of_the_holy_spirit.md)
 - [Great Guild Hall](./lower_town/guild_merchant_quarter/great_guild_hall.md)
 - [St. Olaf's Guild Hall](./lower_town/st_olafs_guild_hall.md)
 - [Brotherhood of Blackheads House](./lower_town/guild_merchant_quarter/brotherhood_of_blackheads_house.md)
 - [Pikk Street](./lower_town/guild_merchant_quarter/pikk_street.md)
-
-**Church & Monastery Quarter**
-- [St. Nicholas' Church (Niguliste kirik)](./lower_town/church_monastery_quarter/st_nicholas_church.md)
 - [Dominican Monastery of St. Catherine](./lower_town/church_monastery_quarter/dominican_monastery.md)
-- [Lühike Jalg (Short Leg) Gate](./lower_town/church_monastery_quarter/luhike_jalg_gate.md)
 
-#### Upper Town (Toompea)
+**Knights Quarter** (south)
+- [St. Nicholas' Church (Niguliste kirik)](./lower_town/church_monastery_quarter/st_nicholas_church.md)
+- [Lühike Jalg (Short Leg) Gate](./lower_town/church_monastery_quarter/luhike_jalg_gate.md)
+- Harju gates
+- Kitsetorn?
+- Naitsitorn!
+
+#### Upper Town (Toompea), west
 - [Toompea Castle](./upper_town/toompea_castle.md)
 - [Cathedral of Saint Mary](./upper_town/cathedral_of_saint_mary.md)
 
@@ -149,3 +152,5 @@ graph TD
 - [Saaremaa](./events/saaremaa.md)
 - [Swedish Outpost](./events/swedesh_outpost.md)
 - [Swedish Arrival](./events/swedish_arrival.md)
+
+![](./map/map.png)

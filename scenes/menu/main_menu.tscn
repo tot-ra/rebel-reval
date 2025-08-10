@@ -2,9 +2,9 @@
 
 [ext_resource type="Texture2D" uid="uid://bysfalwbeyasb" path="res://scenes/menu/intro-hq.jpg" id="1_kiqgm"]
 [ext_resource type="Texture2D" uid="uid://s3dc3n3tlc3s" path="res://scenes/menu/logo256.png" id="2_kiqgm"]
-[ext_resource type="AudioStream" uid="uid://bcraupn4sfttd" path="res://assets/music/intro.mp3" id="3_7a8ye"]
 [ext_resource type="Script" uid="uid://cb84o170r3wgt" path="res://scenes/intro/start_label.gd" id="3_i2l1n"]
 [ext_resource type="Script" uid="uid://c0ajiix2ug7wp" path="res://scenes/menu/exit_label.gd" id="4_hj162"]
+[ext_resource type="AudioStream" uid="uid://c0dfe84qij00a" path="res://scenes/menu/intro-music.mp3" id="6_isoef"]
 [ext_resource type="VideoStream" uid="uid://drwpbbti05fcs" path="res://scenes/menu/intro.ogv" id="6_xn6kt"]
 
 [node name="Control" type="Control"]
@@ -69,6 +69,6 @@ horizontal_alignment = 1
 script = ExtResource("4_hj162")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("3_7a8ye")
+stream = ExtResource("6_isoef")
 autoplay = true
-parameters/looping = false
+parameters/looping = true

@@ -12,6 +12,13 @@ The Order is sworn to protect the monastery and will seek to avenge the massacre
 ### The Harju Kings ✊🏻
 The monastery is a primary target for the rebels in the early days of the uprising.
 
+### Music
+- **Peaceful, Contemplative, Serene (Before):** Gregorian chants, a cappella choir, the gentle sounds of nature (birds, wind), and a simple, melodic theme for a solo instrument like a flute or a harp.
+- **Violent, Sacrilegious, Tragic (The Massacre):** A brutal, dissonant, and chaotic score with a heavy emphasis on percussion and brass, a screaming choir, and the sounds of violence and destruction.
+- **Haunting, Desolate, Grief-Stricken (After):** A slow, mournful lament for a solo voice and cello, the sound of wind whistling through the ruins, and a sense of profound loss and desolation.
+- **Mysterious, Holy, Ancient:** A sense of deep history and sacredness, with music that incorporates elements of early church music, ethereal vocal pads, and a sense of timeless mystery.
+- **Vengeful, Righteous, Unforgiving (Livonian Order's Response):** A powerful, martial theme with a strong choral and brass presence, a sense of righteous anger, and a promise of brutal retribution.
+
 ## NPCs
 
 **Before the Massacre:**

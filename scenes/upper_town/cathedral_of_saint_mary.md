@@ -13,6 +13,13 @@ The Cathedral is a key site for the Order, representing their divine mandate to 
 **Character Art:**
 _Art for priests, monks, and other cathedral-specific characters would be linked here._
 
+### Music
+- **Divine, Serene, Awe-Inspiring:** Pipe organ, large choir singing Gregorian chants, soaring soprano solos, harp, orchestral strings, reverberating acoustics.
+- **Somber, Penitent, Devotional:** A cappella choir, funereal dirges, cello and viola duets, slow and melancholic organ pieces, the tolling of a single bell.
+- **Mysterious, Ancient, Sacred:** Ethereal vocal pads, glass harmonica, low male throat singing, Tibetan singing bowls, music that feels timeless and holy.
+- **Intrigue, Conspiracy, Heresy:** Dissonant organ chords, whispering voices, low string drones, a single, repeating piano note, unsettling silence.
+- **Hopeful, Uplifting, Transcendent:** A crescendo of organ and choir, bright brass fanfares, triumphant orchestral swells, joyous bell peals, music that feels like a divine revelation.
+
 ## NPCs
 
 1.  **The Bishop**: An old, frail man with a kind, gentle face and elaborate, embroidered vestments. He is a man of peace, often at odds with the more militant members of the Livonian Order.

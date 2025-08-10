@@ -1,4 +1,4 @@
-# Great Coast Gate & Fat Margaret Tower
+# Great Coast Gate & Margaret Tower
 
 **Location:** Harbor Quarter, Lower Town
 
@@ -17,3 +17,10 @@ The air here is thick with the smell of salt, tar, and fish. The stone walls of 
 
 - **The Contraband Cargo:** A local merchant might ask the player to help smuggle illicit goods past the watchful eyes of the guards.
 - **A Toll Tale:** The player may need to bribe or persuade the Gate Sergeant to allow passage for a suspicious individual or a sensitive item.
+
+### Music
+- **Imposing, Martial, Grand:** Loud brass fanfares, military drum cadences, deep male choir, powerful string section, echoing percussion.
+- **Suspenseful, Cautious, Tense:** Low string drones, soft, tapping percussion, single, sustained woodwind notes, pizzicato strings, ambient metallic sounds.
+- **Salty, Maritime, Bustling:** Accordion, sea shanties, fiddle tunes, sounds of seagulls and waves, distant ship bells.
+- **Secretive, Smuggling, Risky:** Muted trumpet, walking bass line, brushed snare drum, soft piano melody, finger snaps.
+- **Ancient, Weathered, Strong:** Gregorian chants, cello solo, deep organ chords, slow, heavy percussion, ethereal choir.

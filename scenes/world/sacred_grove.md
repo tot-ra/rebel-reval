@@ -17,6 +17,13 @@ This is the heart of the pagan cult's power.
 ![](../../assets/characters/metsik/metsik-3.png)
 ![](../../assets/characters/metsik/image-18.png)
 
+### Music
+- **Mystical, Magical, Otherworldly:** Ethereal choirs, shimmering synths, and traditional instruments like the kannel and flute create a sense of a world apart, a place of ancient magic and deep spiritual power.
+- **Primal, Ritualistic, Dangerous:** Heavy, rhythmic drumming, guttural chanting, and the sounds of nature—wind, animal calls, rustling leaves—build to a frenzied, ecstatic climax.
+- **Serene, Tranquil, Meditative:** The gentle sounds of a flowing stream, birdsong, and a simple, melodic theme for a solo instrument like a harp or a flute create a sense of peace and harmony with nature.
+- **Dark, Corrupted, Sacrificial:** A dissonant, unsettling score with a heavy emphasis on low strings and percussion, a sense of a dark and ancient evil, and the sounds of a blood sacrifice.
+- **Ancient, Wise, All-Knowing:** A slow, majestic theme with a sense of deep history and wisdom, featuring a lone, ancient-sounding voice and the use of traditional instruments in a sparse, minimalist arrangement.
+
 ## NPCs
 
 1.  **Ellen Luik**: The high priestess of the Cult of Metsik, a woman with piercing green eyes, long, flowing white hair, and skin adorned with intricate, swirling tattoos. She wears a crown of antlers and robes made of moss and leaves.

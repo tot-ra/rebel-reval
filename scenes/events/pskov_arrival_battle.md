@@ -12,6 +12,13 @@ The Pskovian army, a potential ally for the rebels.
 ### The Livonian Order ✠ 
 The Order's forces, attempting to intercept and repel the Pskovian army.
 
+### Music
+- **Epic, Orthodox, Eastern:** A grand, sweeping score with a distinct Russian flavor, featuring balalaikas, a large male choir singing in the Orthodox tradition, and powerful brass and percussion.
+- **Brutal, Chaotic, Decisive:** A fast-paced, aggressive battle theme with a heavy emphasis on percussion and dissonant brass, reflecting the chaos and brutality of the fighting.
+- **Heroic, Triumphant, Liberating (Pskov Victory):** A soaring, melodic theme with a strong choral and brass presence, conveying a sense of victory and liberation.
+- **Tragic, Defeated, Crushing (Order Victory):** A slow, mournful piece for strings and choir, with a sense of finality and despair.
+- **Suspenseful, Strategic, Shifting Tides:** A theme that ebbs and flows with the tide of battle, with moments of tension, release, and sudden, unexpected changes in mood and tempo.
+
 ## NPCs
 
 1.  **The Pskovian General**: A seasoned and charismatic leader, who is confident in his army's ability to defeat the Livonian Order.

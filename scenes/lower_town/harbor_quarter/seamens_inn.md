@@ -19,3 +19,10 @@ The inn is a low-ceilinged, smoke-filled room with rough-hewn wooden tables and 
 - **The Drunken Sailor:** The player might need to extract information from a sailor who has had too much to drink.
 - **A Pirate's Treasure:** A mysterious map could lead the player on a treasure hunt.
 - **Bar Brawl:** The player might get drawn into a fight, either by accident or on purpose.
+
+### Music
+- **Rowdy, Drunken, Lively:** Boisterous sea shanties, out-of-tune lutes, stomping feet, clanking tankards, off-key singing.
+- **Mysterious, Rumor-filled, Conspiratorial:** Soft, melodic harp; low, rhythmic drumming; hushed, melodic whispers; a lone, melancholic flute.
+- **Tense, Dangerous, Volatile:** A low, rumbling drone; sharp, percussive hits; sudden, dissonant chords; a fast, aggressive fiddle tune.
+- **Exotic, Foreign, Adventurous:** Music from distant lands featuring unusual instruments like the oud or sitar, complex rhythms, and non-Western scales.
+- **Melancholy, Homesick, Reflective:** A slow, sad ballad sung by a lone female voice; a simple, finger-picked guitar melody; the sound of a gentle accordion.

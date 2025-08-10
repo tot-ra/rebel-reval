@@ -12,6 +12,13 @@ While technically the seat of a Bishop, the Order has a strong interest in defen
 ### The Harju Kings ✊🏻
 The castle is a siege target for the rural rebel forces.
 
+### Music
+- **Tense, Besieged, Desperate:** A relentless, pulsing rhythm that creates a sense of being under constant attack, with a choir singing a desperate prayer for deliverance.
+- **Heroic, Defiant, Doomed (Defenders):** A noble, tragic theme for the defenders of the castle, with a sense of courage in the face of overwhelming odds.
+- **Aggressive, Relentless, Triumphant (Rebels):** A powerful, driving theme for the rebel army, with a heavy emphasis on percussion and a sense of unstoppable force.
+- **Haunting, Supernatural, Legendary (The White Lady):** An ethereal, ghostly theme for the White Lady, with a solo female voice, glass harmonica, and a sense of ancient sorrow.
+- **Quiet, Intimate, Human:** Small, intimate musical moments that focus on the human drama of the siege—a soldier writing a letter home, a mother comforting her child, a moment of quiet reflection before a battle.
+
 ## NPCs
 
 1.  **The Bishop of Ösel-Wiek**: A proud, defiant man in his 60s, who refuses to surrender his castle. He wears his episcopal robes even during the siege, a symbol of his authority.
