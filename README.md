@@ -6,7 +6,7 @@ A moody, atmospheric feel that blends Hanseatic trade, Baltic folklore, and earl
 
 Current state: `Drafting game design document & concept art`
 
-![](./img/intro-preview.png)
+![](./img/banner.jpg)
 
 ## 📖 Core Narrative
 The year is 1342. A fragile peace hangs over Reval, but the air is thick with resentment. The St. George's Night Uprising is a spark waiting to ignite.

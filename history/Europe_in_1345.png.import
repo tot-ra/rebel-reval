@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://s5xyltcivgrp"
-path="res://.godot/imported/image-1.png-c852fd033fba9e2282b3fe4cb433a6cc.ctex"
+uid="uid://dlwrr3ujlkcnj"
+path="res://.godot/imported/Europe_in_1345.png-2abc25a854bf066660845364c583b378.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://history/image-1.png"
-dest_files=["res://.godot/imported/image-1.png-c852fd033fba9e2282b3fe4cb433a6cc.ctex"]
+source_file="res://history/Europe_in_1345.png"
+dest_files=["res://.godot/imported/Europe_in_1345.png-2abc25a854bf066660845364c583b378.ctex"]
 
 [params]
 

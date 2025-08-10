@@ -15,8 +15,8 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="City background" type="Sprite2D" parent="."]
-position = Vector2(819.626, 408)
-scale = Vector2(0.531494, 0.496094)
+position = Vector2(800, 408)
+scale = Vector2(0.544271, 0.496094)
 texture = ExtResource("1_kiqgm")
 
 [node name="Logo" type="Sprite2D" parent="."]
