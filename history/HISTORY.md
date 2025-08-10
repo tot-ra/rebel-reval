@@ -25,13 +25,13 @@ In 1343, Denmark was ruled by **Valdemar IV Atterdag**, a king grappling with a 
 #### The Livonian Order: A State of Knights
 
 The Livonian Order, a semi-autonomous branch of the Teutonic Knights, was the dominant military power in the region. Led by the Livonian Master from his seat in Riga, the Order operated as a state within a state. In 1343, the Order was both expanding its influence—acquiring Reval and Wesenberg from Denmark—and facing significant internal threats, most notably the St. George's Night Uprising itself. The Order's swift and brutal suppression of the rebellion demonstrated its military might and its unwavering commitment to maintaining control over its territories.
-![[26.jpg]]
+![](./26.jpg)
 
 #### The Hanseatic League: The Power of Trade
 
 The Hanseatic League, a powerful confederation of merchant guilds, dominated trade in the Baltic. Reval (Tallinn), a member since 1285, was a key hub in this network. The city's German merchants operated with a high degree of autonomy, their primary concern being the protection of their commercial interests. The political turmoil of the uprising was a direct threat to their trade routes and profits, making them natural allies of the Livonian Order in restoring order.
 
-![[27.jpg]]
+![](./27.jpg)
 
 #### The Kingdom of Sweden: A Divided Realm
 
