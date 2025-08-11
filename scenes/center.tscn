@@ -1,11 +1,12 @@
-[gd_scene load_steps=11 format=4 uid="uid://cxbg0w372wak4"]
+[gd_scene load_steps=12 format=4 uid="uid://cxbg0w372wak4"]
 
-[ext_resource type="Texture2D" uid="uid://dl7pihtwltrs8" path="res://scenes/lower_town/forge/Screenshot 2025-08-11 at 00.57.04.png" id="1_6xlf5"]
+[ext_resource type="Texture2D" uid="uid://b0vr2i1ngbmd8" path="res://scenes/revel-map.jpg" id="1_03fwh"]
 [ext_resource type="Texture2D" uid="uid://bahhhnrbxd5yn" path="res://assets/tiles.png" id="2_0b3jf"]
 [ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="3_0b3jf"]
 [ext_resource type="Texture2D" uid="uid://ch2sfg0l6f4fn" path="res://assets/bestiary/bandits/thug2.png" id="4_32x1p"]
 [ext_resource type="AudioStream" uid="uid://dwndw6atminsm" path="res://scenes/lower_town/market_civic_quarter/music/market_day_1.mp3" id="4_85b1u"]
 [ext_resource type="AudioStream" uid="uid://c86xkjudewxkv" path="res://scenes/lower_town/market_civic_quarter/music/market_day_2.mp3" id="5_03fwh"]
+[ext_resource type="AudioStream" uid="uid://bc8ayd7vcn07d" path="res://scenes/lower_town/market_civic_quarter/music/market_day_3.mp3" id="6_03fwh"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_32x1p"]
 resource_name = "grass"
@@ -52,16 +53,17 @@ sources/1 = SubResource("TileSetAtlasSource_ckgkh")
 
 [sub_resource type="AudioStreamPlaylist" id="AudioStreamPlaylist_85b1u"]
 shuffle = true
-stream_count = 2
+stream_count = 3
 stream_0 = ExtResource("4_85b1u")
 stream_1 = ExtResource("5_03fwh")
+stream_2 = ExtResource("6_03fwh")
 
 [node name="Center" type="Node2D"]
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(-660, 355)
-scale = Vector2(9.79286, 9.79286)
-texture = ExtResource("1_6xlf5")
+position = Vector2(-6765, 9395)
+scale = Vector2(39.1383, 39.1383)
+texture = ExtResource("1_03fwh")
 
 [node name="TileMapLayer" type="TileMapLayer" parent="."]
 position = Vector2(122.647, 468)

@@ -31,11 +31,13 @@ You are Kalev, an Estonian smith. To the German lords, you're just another pair 
 ## Game Details
 
 - [GAME PILLARS](./GAME-PILLARS.md)
-- [HISTORICAL CONTEXT](./history/HISTORY.md)
+- SETTING
+    - [HISTORY](./history/HISTORY.md)
     - [FACTIONS](./assets/characters/README.md)
     - [LOCATIONS](./scenes/README.md)
     - [BESTIARY](./assets/bestiary/)
-- [GAME STORY LINES](./story/STORY.md)
+- [STORY](./story/STORY.md)
+    - KEY CHARACTERS
     - [QUESTS](./QUESTS.md)
 - [GAMEPLAY](./GAMEPLAY.md)
     - [FIGHT GAMEPLAY](./GAMEPLAY-FIGHT.md)

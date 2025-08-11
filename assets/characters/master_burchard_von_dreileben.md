@@ -1,0 +1,3 @@
+# Master Burchard von Dreileben
+
+**Visual Description:** The Livonian Master himself. A man in his late 50s, he is the embodiment of the Order's will. His face is a mask of stern authority, weathered by decades of campaigns. He is not just a zealot, but a cunning and pragmatic strategist who views the rebellion not as a tragedy, but as a political problem requiring a swift, brutal, and permanent solution. He is a man of few words, but his commands carry the absolute weight of life and death. He sees the world in black and white: the divine order he represents, and the chaos of the heathens he is destined to crush. He is always seen in the white mantle of the Teutonic Order, adorned with the black cross.
