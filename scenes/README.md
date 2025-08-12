@@ -126,6 +126,13 @@ graph TD
 - 🧱 **Nun's Tower** (14th century)
 - 🧱 **Sauna Tower** (14th century)
 - 🧱 **Golden Foot Tower** (14th century)
+- 🧱 [Eppingi Tower](./lower_town/eppingi_tower.md)
+- 🧱 [Renteni Tower](./lower_town/renteni_tower.md)
+- 🧱 [Bremeni Tower](./lower_town/bremeni_tower.md)
+- 🧱 [Stoltingi Tower](./lower_town/stoltingi_tower.md)
+- 🧱 [Hattorpe-tagune Tower](./lower_town/hattorpe_tagune_tower.md)
+- 🧱 [Kuradiema Tower](./lower_town/kuradiema_tower.md)
+- 🧱 [Assauwe Tower](./lower_town/assauwe_tower.md)
 - 🧱 [Lühike Jalg (Short Leg) Gate](./lower_town/church_monastery_quarter/luhike_jalg_gate.md)
 - 🚪 [Viru Gate](./lower_town/viru_gate.md) (14th century)
 - 🚪 [Harju Gate](./lower_town/harju_gate.md) (1355)
@@ -149,9 +156,10 @@ graph TD
 
 
 #### Upper Town (Toompea), west
-- 🏰 [Toompea Castle](./upper_town/toompea_castle.md) (~1050)
-- ⛪️ [Cathedral of Saint Mary](./upper_town/cathedral_of_saint_mary.md) (1233)
-- 🎓 [Dome School (Toompea Kool)](./upper_town/dome_school.md) (13th century)
+- 🏰 [Toompea Castle](upper_town/domberg/domberg.md) (~1050)
+- 🌳 [Danish King's Garden](./upper_town/danish_kings_garden.md) - featuring the "Three Monks" sculpture.
+- ⛪️ [Cathedral of Saint Mary](upper_town/cathedral_of_saint_mary/cathedral_of_saint_mary.md) (1233)
+- 🎓 [Dome School (Toompea Kool)](upper_town/dome_school/dome_school.md) (13th century)
 - 🧱 Swedish Gates (Small leg gates)
 
 

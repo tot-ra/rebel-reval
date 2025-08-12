@@ -13,7 +13,7 @@ They represent civilization, Christianity, stability, power, hierarchy, and adva
 -   **Ideal:** To uphold their ancestral claim and the divine right of kings, providing stability as the legitimate rulers.
 -   **Shadow:** Their obsession with legacy makes them out of touch, willing to tax their subjects into ruin to maintain a fading glory.
 -   **Core NPC:** [Viceroy Konrad Preen](./viceroy_konrad_preen.md)
--   **Presence:** [Toompea Castle](../../scenes/upper_town/toompea_castle.md)
+-   **Presence:** [Toompea Castle](../../scenes/upper_town/domberg/domberg.md)
 
 **The Hanseic Big League** 🇪🇺
 -   **Core Value:** Prosperity
@@ -31,7 +31,7 @@ They represent civilization, Christianity, stability, power, hierarchy, and adva
     - [Master Burchard von Dreileben](./master_burchard_von_dreileben.md)
     - [Brother Goswin von Herike](./brother_goswin_von_herike.md)
     - [Arnd von Herke](./arnd_von_herke.md)
--   **Presence:** [Toompea Castle](../../scenes/upper_town/toompea_castle.md), [The Cathedral of Saint Mary](../../scenes/upper_town/cathedral_of_saint_mary.md), [Viljandi Castle](../../scenes/world/viljandi_castle.md), [Padise Monastery](../../scenes/world/padise_monastery.md). Wesenberg is a mentioned location without a specific scene.
+-   **Presence:** [Toompea Castle](../../scenes/upper_town/domberg/domberg.md), [The Cathedral of Saint Mary](../../scenes/upper_town/cathedral_of_saint_mary/cathedral_of_saint_mary.md), [Viljandi Castle](../../scenes/world/viljandi_castle.md), [Padise Monastery](../../scenes/world/padise_monastery.md). Wesenberg is a mentioned location without a specific scene.
 
 
 ### The Rebel Factions

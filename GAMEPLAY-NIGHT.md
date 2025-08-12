@@ -4,11 +4,27 @@ At night, the strategic heart of "Reval Rebel" is revealed. The player's goal is
 
 ## The Tower System
 
-The city of Reval is divided into several districts, each with a central watchtower. These towers are not just symbolic; they are the nerve centers of the rulers' control, coordinating guard patrols and suppressing rebel activity.
+The city of Reval is protected by eight key defensive towers, each representing a crucial chokepoint in the medieval fortification system. These towers are not just symbolic; they are the nerve centers of the rulers' control, coordinating guard patrols and suppressing rebel activity.
 
-- **Lower Town:** The commercial heart of Reval, with several smaller towers controlled by the Hanseatic League and the city guard.
-- **Upper Town (Toompea):** The seat of power, with heavily fortified towers controlled by the Livonian Order and the Danish Crown.
-- **The Harbor:** A chaotic district with a mix of influences, where the Vitalienbrüder pirates and other neutral factions hold sway.
+### Attackable Towers (Player can attack one per night):
+
+1. **Viru Gate Towers** - Eastern entrance, twin round towers (Danish Crown control)
+2. **Maiden's Tower (Neitsitorn)** - Southeastern wall, rectangular tower (City Guard)
+3. **Nunna Tower** - Northern wall near St. Michael's nunnery (Livonian Order)
+4. **Sauna Tower** - Northern defenses by monastery baths (Livonian Order)
+5. **Kuldjala Tower** - Southern wall, "Golden Foot" tower (Hanseatic League)
+6. **Munkadetagune Tower** - Near Dominican monastery (City Guard)
+7. **Harju Gate Tower** - Southern entrance to Pärnu road (Danish Crown control)
+8. **Hellemann Tower** - Northwestern wall defenses (Livonian Order)
+9. **Eppingi Tower** - Significant defensive tower.
+10. **Renteni Tower** - An older tower, part of the north-west wall.
+11. **Bremeni Tower** - A former prison tower.
+12. **Assauwe Tower** - A tower of unknown strength.
+13. **Stoltingi Tower** - A tower of unknown strength.
+14. **Hattorpe-tagune Tower** - A tower of unknown strength.
+15. **Kuradiema Tower** - A tower of unknown strength.
+
+*Note: The mighty Kiek in de Kök bastion does not yet exist in 1343 (built 1475-1483).*
 
 ## Capturing a Tower
 
@@ -44,10 +60,39 @@ Capturing a tower has a significant impact on the game world.
 - **Increased Alertness:** The ruling factions will not take the loss of a tower lightly. Expect increased patrols, more powerful enemies, and even counter-attacks to try and reclaim the tower.
 - **Faction Reputation:** Capturing a tower will significantly increase your reputation with the rebel factions and decrease it with the ruling factions.
 
+## Tower Progression System
+
+Towers increase in difficulty based on their strategic importance and the faction controlling them:
+
+### Difficulty Tiers:
+**Tier 1 (Easier):** City Guard controlled towers
+- Maiden's Tower - Basic guards, simple layout
+- Munkadetagune Tower - Moderate defenses near monastery
+
+**Tier 2 (Medium):** Hanseatic League and others
+- Kuldjala Tower - Merchant guards, economic importance
+- Renteni Tower - Older, possibly less fortified
+- Assauwe Tower - Unknown defenses
+- Stoltingi Tower - Unknown defenses
+- Hattorpe-tagune Tower - Unknown defenses
+- Kuradiema Tower - Unknown defenses
+
+**Tier 3 (Harder):** Danish Crown and significant towers
+- Viru Gate Towers - Twin towers, coordinated defenses
+- Harju Gate Tower - Strategic southern entrance
+- Eppingi Tower - A significant defensive tower
+- Bremeni Tower - A former prison, likely well-guarded
+
+**Tier 4 (Hardest):** Livonian Order controlled towers
+- Nunna Tower - Elite knights, religious zeal
+- Sauna Tower - Heavy fortifications
+- Hellemann Tower - Master-level defenses
+
 ## Variety and Progression
 
 To keep the gameplay fresh and challenging, each tower will be unique.
 
 - **Architectural Variety:** Towers will have different layouts, from tall, slender watchtowers to sprawling, fortified structures.
 - **Enemy Variety:** As you progress, you will face more powerful and diverse enemies, including elite guards, war dogs, and even supernatural creatures.
+- **Faction-Specific Challenges:** Each controlling faction has unique defensive tactics and enemy types.
 - **Dynamic Events:** The game will feature dynamic events, such as a "Bloody Moon" night that makes enemies stronger, or a surprise inspection by a high-ranking knight that adds an extra layer of challenge.

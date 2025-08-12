@@ -7,13 +7,15 @@ The market is a vibrant, crowded space where goods from all over the known world
 ## Factions Present
 
 ### The Republic of Novgorod & Pskov 🌞
+
 The market is the main area of operation for Pskovian agents, who use the cover of trade to gather intelligence and recruit sympathizers.
--   **Core NPC:** **Михаил Коловрат**, a cunning Pskovian agent operating as a fur trapper. He can be found here, trading furs and secrets.
+
+- **Core NPC:** **Михаил Коловрат**, a cunning Pskovian agent operating as a fur trapper. He can be found here, trading furs and secrets.
 
 **Character Art:**
-![](../../assets/characters/pskov/npc4.png)
 
 ### The Black Cloaks 🌃
+
 The rebels also frequent the market to gather information, spread dissent, and acquire supplies.
 
 ## Other Characters
@@ -21,18 +23,22 @@ The rebels also frequent the market to gather information, spread dissent, and a
 The market is filled with various vendors, shoppers, and city dwellers.
 
 ### Music
+
+#### Daytime Market
+
 - **Bustling, Lively, Chaotic:** Lutes, fiddles, bagpipes, hand drums, overlapping conversations, shouting vendors, animal sounds.
+- **Folky, Communal, Celebratory:** Accordion, acoustic guitar, clapping, stomping, joyful singing, lively dance rhythms.
+
+#### Nighttime Market
+
 - **Mysterious, Intrigue, Espionage:** Oud, duduk, soft percussion, pizzicato strings, whispered vocals, a lone flute melody.
 - **Tense, Suspicious, Dangerous:** Low string drones, sharp percussion hits, dissonant brass swells, rhythmic chanting, a repeating, unsettling motif.
-- **Folky, Communal, Celebratory:** Accordion, acoustic guitar, clapping, stomping, joyful singing, lively dance rhythms.
 - **Oppressive, Somber, Controlled:** Martial drum beat, mournful horn calls, Gregorian chants, tolling bells, a sense of heavy silence.
 
-**Character Art:**
+### Character Art
+
 _This is where art for generic market NPCs, like the vendors and shoppers from the `workers_quarter` and `peasants` folders, would be linked._
 
-![German tanner in fly-covered leather robes, a blood-spattered smock, and an expression of morbid glee.](../../assets/characters/workers_quarter/image-15.png)
-![Leech/healer in patchy robes lined with vials and feathers, a crow skull tied to her belt, red clay on her cheeks.](../../assets/characters/workers_quarter/image-16.png)
-![Mason in rough hemp trousers and a leather apron, dust clinging to his eyebrows, hands chalky with lime.](../../assets/characters/workers_quarter/image-13.png)
 ![Swedish carpenter with wooden splinters in his tunic, rolled-up sleeves, a belt of chisels, and a white linen headband.](../../assets/characters/workers_quarter/image-12.png)
 ![Bohemian glass peddler with a crooked back, glass beads braided into his beard, vibrant mismatched gloves.](../../assets/characters/workers_quarter/image-11.png)
 ![Young German merchant apprentice in tight woolen doublet, fur collar, ink-stained fingers, eyes darting nervously.](../../assets/characters/workers_quarter/image-9.png)
@@ -43,10 +49,16 @@ _This is where art for generic market NPCs, like the vendors and shoppers from t
 
 ## NPCs
 
+![](../../assets/characters/pskov/npc4.png)
+
 1.  **Михаил Коловрат (Mikhail Kolovrat)**: A cunning Pskovian agent disguised as a fur trapper. He has a thick, dark beard, sharp eyes, and wears a heavy fur cloak.
-2.  **German Tanner**: A man in fly-covered leather robes and a blood-spattered smock, with a morbid grin on his face.
-3.  **Leech/Healer**: A woman in patchy robes lined with vials and feathers, with a crow skull tied to her belt and red clay on her cheeks.
-4.  **Mason**: A man in rough hemp trousers and a leather apron, with dust clinging to his eyebrows and hands chalky with lime.
+
+![German tanner in fly-covered leather robes, a blood-spattered smock, and an expression of morbid glee.](../../assets/characters/workers_quarter/image-15.png) 2. **German Tanner**: A man in fly-covered leather robes and a blood-spattered smock, with a morbid grin on his face.
+
+![Leech/healer in patchy robes lined with vials and feathers, a crow skull tied to her belt, red clay on her cheeks.](../../assets/characters/workers_quarter/image-16.png) 3. **Leech/Healer**: A woman in patchy robes lined with vials and feathers, with a crow skull tied to her belt and red clay on her cheeks.
+
+![Mason in rough hemp trousers and a leather apron, dust clinging to his eyebrows, hands chalky with lime.](../../assets/characters/workers_quarter/image-13.png) 4. **Mason**: A man in rough hemp trousers and a leather apron, with dust clinging to his eyebrows and hands chalky with lime.
+
 5.  **Swedish Carpenter**: A man with wooden splinters in his tunic, rolled-up sleeves, a belt of chisels, and a white linen headband.
 6.  **Bohemian Glass Peddler**: A man with a crooked back, glass beads braided into his beard, and vibrant, mismatched gloves.
 7.  **Young German Merchant Apprentice**: A young man in a tight woolen doublet and fur collar, with ink-stained fingers and nervously darting eyes.
