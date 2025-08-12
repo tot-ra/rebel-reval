@@ -55,6 +55,8 @@ The game world is composed of various scenes representing key locations in and a
 *   **Upper Town / Toompea:** The seat of power.
     *   [Toompea Castle](./scenes/upper_town/toompea_castle.md)
     *   [Cathedral of Saint Mary](./scenes/upper_town/cathedral_of_saint_mary.md)
+*   **The Undercity:** A network of tunnels and passages beneath Reval.
+    *   [The Bastion Passages](./scenes/undercity/bastion_passages.md)
 *   **Other Mentioned Locations (No specific scene file):**
     *   The Sunken Harbor District
     *   The Whispering Market

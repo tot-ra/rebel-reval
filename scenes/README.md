@@ -103,35 +103,58 @@ graph TD
 #### Lower Town
 
 **Harbor Quarter** (north)
-- [Great Coast Gate & Fat Margaret Tower](./lower_town/harbor_quarter/great_coast_gate.md)
-- [Reval Harbor](./lower_town/harbor.md)
-- [Seamen's Inn](./lower_town/harbor_quarter/seamens_inn.md)
-- [Warehouses](./lower_town/harbor_quarter/warehouses.md)
-
-**Market & Civic Quarter**
-- [Reval Market](./lower_town/market.md)
-- [The Smith's Forge](./lower_town/the_smiths_forge.md)
+- 🧱 [Great Coast Gate](./lower_town/harbor_quarter/great_coast_gate.md) (1359)
+- ⚓️ [Reval Harbor](./lower_town/harbor.md)
+- 🏠 [Seamen's Inn](./lower_town/harbor_quarter/seamens_inn.md)
+- 🏠 [Warehouses](./lower_town/harbor_quarter/warehouses.md)
 
 **Guild & Merchant Quarter** (center)
-- [Town Hall Square (Raekoja plats)](./lower_town/market_civic_quarter/town_hall_square.md)
-- [Town Hall (Raekoda)](./lower_town/market_civic_quarter/town_hall.md)
-- [Church of the Holy Spirit (Püha Vaimu kirik)](./lower_town/market_civic_quarter/church_of_the_holy_spirit.md)
-- [Great Guild Hall](./lower_town/guild_merchant_quarter/great_guild_hall.md)
-- [St. Olaf's Guild Hall](./lower_town/st_olafs_guild_hall.md)
-- [Brotherhood of Blackheads House](./lower_town/guild_merchant_quarter/brotherhood_of_blackheads_house.md)
-- [Pikk Street](./lower_town/guild_merchant_quarter/pikk_street.md)
-- [Dominican Monastery of St. Catherine](./lower_town/church_monastery_quarter/dominican_monastery.md)
+- 🧱 Hinke tower
+- 🧱 Nunnatorn tower
+- ⚓️ [Reval Market](./lower_town/market.md)
+- ⚓️ [Town Hall Square (Raekoja plats)](./lower_town/market_civic_quarter/town_hall_square.md)
+- 🏛️ [Town Hall (Raekoda)](./lower_town/market_civic_quarter/town_hall.md) (1322)
+- ⛪️ [Church of the Holy Spirit (Püha Vaimu kirik)](./lower_town/market_civic_quarter/church_of_the_holy_spirit.md) (before 1319)
+- 🏛️ [Great Guild Hall](./lower_town/guild_merchant_quarter/great_guild_hall.md) (1410)
+- 🏛️ [St. Olaf's Guild Hall](./lower_town/st_olafs_guild_hall.md) (1422)
+- 🏛️ [Brotherhood of Blackheads House](./lower_town/guild_merchant_quarter/brotherhood_of_blackheads_house.md) (1399)
+- ⚓️ [Pikk Street](./lower_town/guild_merchant_quarter/pikk_street.md)
+- 💧 [Rataskaev Well](./lower_town/rataskaev_well.md)
+- ⛪️ [Dominican Monastery of St. Catherine](./lower_town/church_monastery_quarter/dominican_monastery.md) (late 1240s)
 
 **Knights Quarter** (south)
-- [St. Nicholas' Church (Niguliste kirik)](./lower_town/church_monastery_quarter/st_nicholas_church.md)
-- [Lühike Jalg (Short Leg) Gate](./lower_town/church_monastery_quarter/luhike_jalg_gate.md)
-- Harju gates
-- Kitsetorn?
-- Naitsitorn!
+- 🧱 **Nun's Tower** (14th century)
+- 🧱 **Sauna Tower** (14th century)
+- 🧱 **Golden Foot Tower** (14th century)
+- 🧱 [Lühike Jalg (Short Leg) Gate](./lower_town/church_monastery_quarter/luhike_jalg_gate.md)
+- 🚪 [Viru Gate](./lower_town/viru_gate.md) (14th century)
+- 🚪 [Harju Gate](./lower_town/harju_gate.md) (1355)
+- 🧱 Zeghen tower
+- 🧱 [Maiden's Tower (Neitsitorn)](./lower_town/maidens_tower.md) (1370-1373)
+- 🧱 Horse tower (Tallitorn)
+
+
+- ⛪️ [St. Nicholas' Church (Niguliste kirik)](./lower_town/church_monastery_quarter/st_nicholas_church.md) (1230)
+- 🏠 [The Smith's Forge](./lower_town/the_smiths_forge.md)
+- ⛪️ [St. Olaf's Church (Oleviste kirik)](./lower_town/st_olafs_church.md) (1267)
+- ⛪️ [St. Michael's Cistercian Nunnery (Mihkli klooster)](./lower_town/st_michaels_nunnery.md) (mid-13th century)
+- 🏥 [Jaani Hospital (Leprosorium)](./world/jaani_hospital.md) (early 13th century)
+- 🏥 [Church of the Holy Spirit Hospital](./lower_town/holy_spirit_hospital.md) (late 13th century)
+- ⚔️ [Knights' Quarters](./lower_town/knights_quarters.md)
+- ⛓️ [City Jail](./lower_town/city_jail.md)
+- 🐴 [Horse Mill (Hobuveski)](./lower_town/horse_mill.md) (1379)
+- ⚕️ [Town Council's Apothecary (Raeapteek)](./lower_town/apothecary.md) (1422)
+- 🍻 [Eating Establishments](./lower_town/eating_establishments.md)
+- 💧 [Sewer System](./lower_town/sewer_system.md)
+
 
 #### Upper Town (Toompea), west
-- [Toompea Castle](./upper_town/toompea_castle.md)
-- [Cathedral of Saint Mary](./upper_town/cathedral_of_saint_mary.md)
+- 🏰 [Toompea Castle](./upper_town/toompea_castle.md) (~1050)
+- ⛪️ [Cathedral of Saint Mary](./upper_town/cathedral_of_saint_mary.md) (1233)
+- 🎓 [Dome School (Toompea Kool)](./upper_town/dome_school.md) (13th century)
+- 🧱 Swedish Gates (Small leg gates)
+
+
 
 ### World Locations
 - [Haapsalu Castle](./world/haapsalu_castle.md)

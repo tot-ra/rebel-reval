@@ -34,15 +34,33 @@ You are Kalev, an Estonian smith. To the German lords, you're just another pair 
 - SETTING
     - [HISTORY](./history/HISTORY.md)
     - [FACTIONS](./assets/characters/README.md)
-    - [LOCATIONS](./scenes/README.md)
+    - [LOCATIONS / AREAS](./scenes/README.md)
+        - RANDOM - TODO
     - [BESTIARY](./assets/bestiary/)
 - [STORY](./story/STORY.md)
     - KEY CHARACTERS
     - [QUESTS](./QUESTS.md)
+    - [CINEMATICS](./cinematics/1-intro.md)
 - [GAMEPLAY](./GAMEPLAY.md)
     - [FIGHT GAMEPLAY](./GAMEPLAY-FIGHT.md)
+    - SKILLS - TODO
+    - INVENTORY - TODO
+    - DIALOGUE - TODO
+    - ECONOMY - TODO
+        - VENDORS
+        - CRAFTING
 - [MINI-GAMES](./MINI_GAMES.md)
-
+- UX
+    - MAIN MENU
+        - GAME SAVING/LOADING - TODO
+    - HEALTH
+    - HUD
+    - CHARACTER
+    - INVENTORY
+    - JOURNAL
+    - DIALOGUE
+    - LOOTING
+    - MAPS
 
 
 ## 🎨 Visual Style

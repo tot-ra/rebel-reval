@@ -11,6 +11,11 @@ When combined in a sequence of up to 4, you can create a **spell** or action.
 ![](./assets/objects/weapons/hammer.png)
 ![](./assets/objects/weapons/axe.png)
 
+## TODO
+- MELEE VS RANGED
+- MAGICK
+- WEAPONS
+- ARMOR
 
 ## 🔮 The Elements of Philosophy
 
