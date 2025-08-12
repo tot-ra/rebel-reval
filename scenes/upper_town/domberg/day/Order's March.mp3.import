@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://6nmhb6l5a3p6"
+path="res://.godot/imported/Order's March.mp3-5b28ec6f62827ee262aeec7347b5b9bb.mp3str"
+
+[deps]
+
+source_file="res://scenes/upper_town/domberg/day/Order's March.mp3"
+dest_files=["res://.godot/imported/Order's March.mp3-5b28ec6f62827ee262aeec7347b5b9bb.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

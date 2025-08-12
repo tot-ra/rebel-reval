@@ -11,11 +11,11 @@ This is the heart of the pagan cult's power.
 -   **Core NPC:** **Ellen Luik**, the enigmatic high priestess of the cult. She is a powerful seer and a master of spirit magic, offering you access to ancient rituals, animal allies, and the raw, untamed power of the land itself.
 
 **Character Art:**
-![](../../assets/characters/metsik/metsik-4.png)
-![](../../assets/characters/metsik/metsik-1.png)
-![](../../assets/characters/metsik/metsik-2.png)
-![](../../assets/characters/metsik/metsik-3.png)
-![](../../assets/characters/metsik/image-18.png)
+![](../../characters/metsik_cult/metsik-4.png)
+![](../../characters/metsik_cult/metsik-1.png)
+![](../../characters/metsik_cult/metsik-2.png)
+![](../../characters/metsik_cult/metsik-3.png)
+![](../../characters/metsik_cult/image-18.png)
 
 ### Music
 - **Mystical, Magical, Otherworldly:** Ethereal choirs, shimmering synths, and traditional instruments like the kannel and flute create a sense of a world apart, a place of ancient magic and deep spiritual power.

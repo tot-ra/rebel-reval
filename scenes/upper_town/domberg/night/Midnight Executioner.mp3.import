@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://livgejieh8dm"
+path="res://.godot/imported/Midnight Executioner.mp3-f5226f2ccc4f44abc634d41a3aa0b0b7.mp3str"
+
+[deps]
+
+source_file="res://scenes/upper_town/domberg/night/Midnight Executioner.mp3"
+dest_files=["res://.godot/imported/Midnight Executioner.mp3-f5226f2ccc4f44abc634d41a3aa0b0b7.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

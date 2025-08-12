@@ -43,7 +43,7 @@ By day, you are Kalev the smith. The city is under the watchful eye of the Livon
 
 #### Night (The Shadow of Conflict)
 When the sun sets, the city's true allegiances are revealed and the real work begins, whether for rebellion or for control.
-- [THE SIEGE OF REVAL](./GAMEPLAY-NIGHT.md)
+- [GAMEPLAY-NIGHT](./GAMEPLAY-NIGHT.md)
 - Missions & Covert Ops: Undertake quests for your chosen faction.
     - **Rebel Path:** Sabotage a Hanseatic crane, replace a knight's banner with a pig's head, or lead a jailbreak from the city dungeon.
     - **Ruler Path:** Infiltrate a rebel safe house, intercept a secret message from Pskov, or lead a night patrol to capture a key agitator.

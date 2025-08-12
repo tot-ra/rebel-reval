@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://ctua2o7qajgvr"
+path="res://.godot/imported/Midnight Bells.mp3-2984036293ae5c161b27c4b4997c1ed0.mp3str"
+
+[deps]
+
+source_file="res://scenes/upper_town/dome_school/night/Midnight Bells.mp3"
+dest_files=["res://.godot/imported/Midnight Bells.mp3-2984036293ae5c161b27c4b4997c1ed0.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

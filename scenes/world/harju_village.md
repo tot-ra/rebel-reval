@@ -7,16 +7,16 @@ A representative peasant village in Harju County, the heartland of the Estonian 
 ### The Harju Kings ✊🏻
 This is the home turf of the rural rebels.
 
-![](../../assets/characters/harju/image.png)
+![](../../characters/harju/image.png)
 **Lembit Helme**: A stern village elder with a long white beard, a deeply wrinkled face, and eyes that have seen many winters. He carries a staff carved with ancient symbols.
 
-![](../../assets/characters/harju/image-1.png)
+![](../../characters/harju/image-1.png)
 **Kaja Lahekivi**: A nobleman's daughter turned rebel, with fiery red hair, a determined jaw, and practical leather clothing. She is skilled with a bow.
 
-![](../../assets/characters/harju/image-14.png)
+![](../../characters/harju/image-14.png)
 **Jüri Ratnik**: A former manor blacksmith, with a powerful build, a soot-stained face, and a quiet, thoughtful demeanor. He is a master of his craft.
 
-![](../../assets/characters/harju/elder.png)
+![](../../characters/harju/elder.png)
 **Urmas Laar**: A mystic from the eastern marshlands, with wild, unkempt hair, a feverish look in his eyes, and clothes adorned with bones and feathers.
 
 ## Other Characters
@@ -32,13 +32,13 @@ The village is populated by peasants, farmers, and their families.
 **Character Art:**
 _This is where art for generic peasant NPCs would be linked._
 
-![](../../assets/characters/peasants/image-1.png)
-![](../../assets/characters/peasants/image-4.png)
-![](../../assets/characters/peasants/image-6.png)
-![](../../assets/characters/peasants/image-8.png)
-![](../../assets/characters/peasants/image.png)
+![](../../characters/peasants/image-1.png)
+![](../../characters/peasants/image-4.png)
+![](../../characters/peasants/image-6.png)
+![](../../characters/peasants/image-8.png)
+![](../../characters/peasants/image.png)
 
-![](../../assets/characters/peasants/image-5.png)
+![](../../characters/peasants/image-5.png)
 **Village Farmer**: A man with a sun-beaten face and strong, calloused hands, who works the fields from dawn till dusk.
 
 
@@ -51,7 +51,7 @@ _This is where art for generic peasant NPCs would be linked._
 ![alt text](image-6.png)
  **Wandering Healer**: A woman with a deep knowledge of herbs and folk remedies, who treats the sick and injured in the village.
 
-![](../../assets/characters/peasants/image-2.png)
+![](../../characters/peasants/image-2.png)
 **Village Carpenter**: A skilled craftsman who builds and repairs the village's houses and furniture. He has a friendly, easygoing manner.
 
 

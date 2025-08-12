@@ -22,10 +22,6 @@ The forge is the central hub for the Black Cloaks.
 
 ## NPCs
 
-![](../../../assets/characters/cloaks/black-1.png)
-![](../../../assets/characters/cloaks/image-5.png)
-**Lembit Helme**: A charismatic blacksmith with a powerful build, often seen with a hammer in hand. He has a determined look, a thick beard, and eyes that burn with rebellious fire.
-
 
 ![](image.png)
 **Old Man Toomas**: A retired blacksmith who sometimes helps out at the forge. He is thin and wiry, with a kind, wrinkled face and hands gnarled from a lifetime of work.
@@ -47,8 +43,6 @@ The forge is the central hub for the Black Cloaks.
 ![alt text](image-4.png)
 **Farmer with a Broken Plow**: A man in simple, earth-stained clothes, holding a broken plowshare. He has a worried look and a sun-beaten face.
 
-![](image-5.png)
-**Mysterious Woman in a Black Cloak**: A woman who visits the forge at night, her face hidden by a deep hood. She speaks in whispers and carries a concealed dagger.
 
 ![alt text](image-6.png)
 **Gossip-Mongering Neighbor**: An old woman who lives next to the forge and seems to know everyone's business. She has a sharp nose and even sharper eyes.
@@ -72,6 +66,16 @@ The forge is the central hub for the Black Cloaks.
 
 ![alt text](image-12.png)
 **Runaway Serf**: A young man with a haunted look in his eyes, seeking refuge at the forge. He is thin and wears ragged clothes.
+
+
+### Black cloaks NPCs
+
+
+![](image-5.png)
+**Mysterious Woman in a Black Cloak**: A woman who visits the forge at night, her face hidden by a deep hood. She speaks in whispers and carries a concealed dagger.
+
+![](../../../characters/rebels/black-1.png)![](../../../characters/rebels/image-5.png)
+**Lembit Helme**: A charismatic blacksmith with a powerful build, often seen with a hammer in hand. He has a determined look, a thick beard, and eyes that burn with rebellious fire.
 
 ![alt text](image-13.png)
 **Black Cloak Scout**: A wiry, agile woman who moves with a cat-like grace. She has short-cropped dark hair and a network of scars on her arms.

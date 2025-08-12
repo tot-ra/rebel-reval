@@ -3,12 +3,12 @@
 importer="mp3"
 type="AudioStreamMP3"
 uid="uid://bqgr6wfqujevx"
-path="res://.godot/imported/market_night_1.mp3-56201dd18692b009df176cc2b6327d2f.mp3str"
+path="res://.godot/imported/market_night_1.mp3-04cb0311fa168f9cd27d0770c40954e3.mp3str"
 
 [deps]
 
-source_file="res://scenes/lower_town/market_civic_quarter/music/market_night_1.mp3"
-dest_files=["res://.godot/imported/market_night_1.mp3-56201dd18692b009df176cc2b6327d2f.mp3str"]
+source_file="res://scenes/lower_town/market_civic_quarter/music/night/market_night_1.mp3"
+dest_files=["res://.godot/imported/market_night_1.mp3-04cb0311fa168f9cd27d0770c40954e3.mp3str"]
 
 [params]
 

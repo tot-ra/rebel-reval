@@ -3,12 +3,12 @@
 importer="mp3"
 type="AudioStreamMP3"
 uid="uid://c86xkjudewxkv"
-path="res://.godot/imported/market_day_2.mp3-2149ee545e62121a10229f2bce57d3b7.mp3str"
+path="res://.godot/imported/market_day_2.mp3-417a2efd6c53a75175b36db4864a9712.mp3str"
 
 [deps]
 
-source_file="res://scenes/lower_town/market_civic_quarter/music/market_day_2.mp3"
-dest_files=["res://.godot/imported/market_day_2.mp3-2149ee545e62121a10229f2bce57d3b7.mp3str"]
+source_file="res://scenes/lower_town/market_civic_quarter/music/day/market_day_2.mp3"
+dest_files=["res://.godot/imported/market_day_2.mp3-417a2efd6c53a75175b36db4864a9712.mp3str"]
 
 [params]
 

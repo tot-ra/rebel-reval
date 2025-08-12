@@ -100,17 +100,65 @@ graph TD
 - [World Map](./map/map.md)
 
 ### Reval (Tallinn)
+
+## City Wall and Towers
+
+- 
+- 
+- 🚪 Swedish Gates (Small leg gates, center, connects lower/upper towns)
+
+
+
+- 1. 🚪 Nun's Gate (north-west, demolished later)
+- 2. 🧱 **Nun's Tower** (Nunnatorn, 14th century)
+- 3. 🧱 **Sauna Tower** (14th century)
+- 3. 🧱 **Golden Foot Tower** (Kuldjala, 14th century)
+- 4. 🧱 Nunnadetagune tower
+- 6. 🧱 Loewenschede torn (1373)
+- 7. 🧱 Lippe torn (demolished)
+- 8. 🧱 Köismäe torn (1360)
+- 9. 🧱 Plate torn (1401)
+- 10. 🧱 [Eppingi Tower](./lower_town/eppingi_tower.md) (1370)
+- 11. 🧱 Grusbeke-tagune torn
+- 12. 🧱 [Renteni Tower](./lower_town/renteni_tower.md) (1340)
+- 13. 🧱 Wulfardi-tagune torn (1370)
+- 14. 🚪 [Great Coast Gate](./lower_town/harbor_quarter/great_coast_gate.md) (1359, Strantporte, north)
+- 15. 🧱 [Stoltingi Tower](./lower_town/stoltingi_tower.md) (1410)
+- 16. 🧱 [Hattorpe-tagune Tower](./lower_town/hattorpe_tagune_tower.md) (1410)
+- 17. Russian
+- 18. Small harbour gate
+- 19. 🧱 [Bremeni Tower](./lower_town/bremeni_tower.md)
+- 20. 🧱 Munkadetagune form
+- 21. 🧱 Hellemani torn
+- 22. 🚪 [Viru Gate](./lower_town/viru_gate.md) (14th century, east)
+- 23. 🧱 Hinke tower
+- 24. 🧱 [Kuradiema Tower](./lower_town/kuradiema_tower.md)
+- 25. 🚪 Karjavärav
+- 26. 🧱 [Assauwe Tower](./lower_town/assauwe_tower.md)
+- 27. 🚪 [Harju Gate](./lower_town/harju_gate.md) (1355, south)
+- 28. 🧱 Zeghen tower (Kitsetorn, 1413)
+- 29. Kiek in de Kok (anachronistic)
+- 30. 🧱 [Maiden's Tower (Neitsitorn, Megede torn)](./lower_town/maidens_tower.md) (1370-1373)
+- 31. 🧱 Horse tower (Tallitorn)
+- 32. 🚪 [Lühike Jalg (Short Leg) Gate](./lower_town/church_monastery_quarter/luhike_jalg_gate.md)
+- 33. 🚪 Long Leg Gate (center, connects lower/upper towns)
+- 34. 🧱 Seegitagune torn (1450, demolished)
+- 35. 🧱 Saunatagune torn
+
+Not including as anachronic:
+- Monastery Gate
+- Fat Margaret
+-
+
 #### Lower Town
 
 **Harbor Quarter** (north)
-- 🧱 [Great Coast Gate](./lower_town/harbor_quarter/great_coast_gate.md) (1359)
 - ⚓️ [Reval Harbor](./lower_town/harbor.md)
 - 🏠 [Seamen's Inn](./lower_town/harbor_quarter/seamens_inn.md)
 - 🏠 [Warehouses](./lower_town/harbor_quarter/warehouses.md)
 
 **Guild & Merchant Quarter** (center)
-- 🧱 Hinke tower
-- 🧱 Nunnatorn tower
+
 - ⚓️ [Reval Market](./lower_town/market.md)
 - ⚓️ [Town Hall Square (Raekoja plats)](./lower_town/market_civic_quarter/town_hall_square.md)
 - 🏛️ [Town Hall (Raekoda)](./lower_town/market_civic_quarter/town_hall.md) (1322)
@@ -121,26 +169,9 @@ graph TD
 - ⚓️ [Pikk Street](./lower_town/guild_merchant_quarter/pikk_street.md)
 - 💧 [Rataskaev Well](./lower_town/rataskaev_well.md)
 - ⛪️ [Dominican Monastery of St. Catherine](./lower_town/church_monastery_quarter/dominican_monastery.md) (late 1240s)
+- St Michael Monastery (1249, north-west)
 
 **Knights Quarter** (south)
-- 🧱 **Nun's Tower** (14th century)
-- 🧱 **Sauna Tower** (14th century)
-- 🧱 **Golden Foot Tower** (14th century)
-- 🧱 [Eppingi Tower](./lower_town/eppingi_tower.md)
-- 🧱 [Renteni Tower](./lower_town/renteni_tower.md)
-- 🧱 [Bremeni Tower](./lower_town/bremeni_tower.md)
-- 🧱 [Stoltingi Tower](./lower_town/stoltingi_tower.md)
-- 🧱 [Hattorpe-tagune Tower](./lower_town/hattorpe_tagune_tower.md)
-- 🧱 [Kuradiema Tower](./lower_town/kuradiema_tower.md)
-- 🧱 [Assauwe Tower](./lower_town/assauwe_tower.md)
-- 🧱 [Lühike Jalg (Short Leg) Gate](./lower_town/church_monastery_quarter/luhike_jalg_gate.md)
-- 🚪 [Viru Gate](./lower_town/viru_gate.md) (14th century)
-- 🚪 [Harju Gate](./lower_town/harju_gate.md) (1355)
-- 🧱 Zeghen tower
-- 🧱 [Maiden's Tower (Neitsitorn)](./lower_town/maidens_tower.md) (1370-1373)
-- 🧱 Horse tower (Tallitorn)
-
-
 - ⛪️ [St. Nicholas' Church (Niguliste kirik)](./lower_town/church_monastery_quarter/st_nicholas_church.md) (1230)
 - 🏠 [The Smith's Forge](./lower_town/the_smiths_forge.md)
 - ⛪️ [St. Olaf's Church (Oleviste kirik)](./lower_town/st_olafs_church.md) (1267)
@@ -160,8 +191,6 @@ graph TD
 - 🌳 [Danish King's Garden](./upper_town/danish_kings_garden.md) - featuring the "Three Monks" sculpture.
 - ⛪️ [Cathedral of Saint Mary](upper_town/cathedral_of_saint_mary/cathedral_of_saint_mary.md) (1233)
 - 🎓 [Dome School (Toompea Kool)](upper_town/dome_school/dome_school.md) (13th century)
-- 🧱 Swedish Gates (Small leg gates)
-
 
 
 ### World Locations

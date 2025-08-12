@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://chg877kybv2m"
+path="res://.godot/imported/Gargoyle's Watch (1).mp3-3f85be3047a03fce6564dc2424e50338.mp3str"
+
+[deps]
+
+source_file="res://scenes/upper_town/dome_school/night/Gargoyle's Watch (1).mp3"
+dest_files=["res://.godot/imported/Gargoyle's Watch (1).mp3-3f85be3047a03fce6564dc2424e50338.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
