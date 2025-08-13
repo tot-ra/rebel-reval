@@ -4,19 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "cb8d68d48e92bf4c",
+        "id": "ea388aa16a33a622",
         "type": "tabs",
         "children": [
           {
-            "id": "6ba8e07a4b4e9154",
+            "id": "e356263a432d93d7",
             "type": "leaf",
             "state": {
-              "type": "image",
+              "type": "markdown",
               "state": {
-                "file": "history/24.jpg"
+                "file": "scenes/README.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-image",
-              "title": "24"
+              "icon": "lucide-file",
+              "title": "README"
             }
           }
         ]
@@ -76,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 298.5
+    "width": 571.5
   },
   "right": {
     "id": "a1a2e5724cd214b8",
@@ -166,53 +168,53 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "40ad962db64b1f0b",
+  "active": "e356263a432d93d7",
   "lastOpenFiles": [
-    "scenes/lower_town/forge/forge.tscn-gWmLIH",
-    "assets/objects/weapons/sword.png.import",
-    "assets/objects/weapons/sword.png",
-    "assets/objects/weapons/hammer.png.import",
-    "assets/objects/weapons/hammer.png",
-    "assets/objects/weapons/dagger.png.import",
-    "assets/objects/weapons/dagger.png",
-    "assets/objects/weapons/axe.png",
-    "assets/objects/weapons/axe2.png.import",
-    "assets/objects/weapons/axe2.png",
-    "assets/objects/weapons/axe.png.import",
-    "assets/objects/smith-room/zither.png.import",
-    "assets/objects/smith-room/zither.png",
-    "assets/objects/smith-room/wheel.png.import",
-    "assets/objects/smith-room/wheel.png",
-    "assets/objects/smith-room/spear.png.import",
-    "assets/objects/smith-room/spear.png",
-    "assets/objects/smith-room/shovel.png.import",
-    "assets/objects/smith-room/shovel.png",
-    "assets/objects/smith-room/map.png.import",
-    "assets/objects/smith-room/map.png",
-    "scenes/world/karja_fortress.md",
-    "scenes/world/jaani_hospital.md",
+    "scenes/revel_west_toompea/Untitled.md",
+    "scenes/revel_north_west_quarter_merchants/st_olafs_church.md",
+    "scenes/revel_north_oleviste",
+    "scenes/revel_central_quarter/st_michaels_nunnery.md",
+    "scenes/revel_south_quarter_niguliste/rataskaev_well.md",
+    "scenes/revel_south_quarter_niguliste/knights_quarters.md",
+    "scenes/revel_south_quarter_niguliste",
+    "scenes/revel_central_quarter/market_civic_quarter/st_olafs_guild_hall.md",
+    "scenes/revel_central_quarter/apothecary/Apothecary (1).mp3.import",
+    "scenes/revel_central_quarter/apothecary/Apothecary (7).mp3.import",
+    "scenes/revel_central_quarter/apothecary/Apothecary (5).mp3.import",
+    "scenes/revel_central_quarter/apothecary/Apothecary (9).mp3.import",
+    "scenes/revel_central_quarter/apothecary/Apothecary (4).mp3.import",
+    "scenes/revel_central_quarter/apothecary/Apothecary.mp3.import",
+    "scenes/revel_central_quarter/apothecary/Apothecary (3).mp3.import",
+    "scenes/revel_central_quarter/apothecary/Apothecary (6).mp3.import",
+    "scenes/revel_central_quarter/market_civic_quarter/market.md",
+    "scenes/revel_central_quarter/market_civic_quarter/church_of_the_holy_spirit.md",
+    "scenes/revel_east_quarter_monastery/st_nicholas_church.md",
+    "scenes/revel_east_quarter_monastery/dominican_monastery.md",
     "scenes/README.md",
-    "scenes/lower_town/harbor_quarter/great_coast_gate.md",
-    "characters/README.md",
-    "GAME-PILLARS.md",
-    "GAMEPLAY.md",
-    "GAMEPLAY-NIGHT.md",
-    "GAMEPLAY-FIGHT.md",
-    "MINI_GAMES.md",
-    "PROJECT_SUMMARY.md",
-    "QUESTS.md",
-    "characters/rebels/lembit_helme.md",
-    "characters/hansa/jurgen_von_league.md",
-    "characters/metsik_cult/ellen_luik.md",
-    "characters/rebels/urmas_laar.md",
-    "characters/rebels/juri_ratnik.md",
-    "characters/rebels/kaja_lahekivi.md",
-    "characters/denmark/viceroy_konrad_preen.md",
-    "characters/blackhead/johann_von_minden.md",
-    "characters/blackhead/mart_the_weaver.md",
-    "characters/arnd_von_herke.md",
-    "characters/rebels/lembit_helme_blacksmith.md",
-    "characters/order/master_burchard_von_dreileben.md",
-    "README.md"
+    "assets/buildings/tower.png",
+    "scenes/wall-map.png",
+    "scenes/revel_walls_towers/wall-map.png",
+    "scenes/revel_central_quarter/market_civic_quarter/town_hall_square.md",
+    "scenes/revel_central_quarter/market_civic_quarter/town_hall.md",
+    "scenes/revel_central_quarter/apothecary.md",
+    "scenes/revel_central_quarter/harbor_quarter/image-8.png",
+    "scenes/revel_central_quarter/harbor_quarter/image-10.png",
+    "scenes/revel_central_quarter/harbor_quarter/image-4.png",
+    "scenes/revel_central_quarter/harbor_quarter/image-2.png",
+    "scenes/revel_central_quarter/harbor_quarter/image-1.png",
+    "scenes/revel_central_quarter/harbor_quarter/image.png",
+    "scenes/revel_north_west_quarter_merchants/pikk_street.md",
+    "scenes/revel_north_west_quarter_merchants/great_guild_hall.md",
+    "scenes/revel_north_west_quarter_merchants/brotherhood_of_blackheads_house.md",
+    "scenes/revel_walls_towers/luhike_jalg_gate.md",
+    "scenes/revel_walls_towers/viru_gate.md",
+    "scenes/revel_central_quarter/sewer_system.md",
+    "scenes/revel_walls_towers/maidens_tower.md",
+    "scenes/revel_central_quarter/horse_mill.md",
+    "scenes/revel_central_quarter/holy_spirit_hospital.md",
+    "scenes/revel_walls_towers/harju_gate.md",
+    "scenes/revel_central_quarter/eating_establishments.md",
+    "scenes/revel_central_quarter/city_jail.md",
+    "history/24.jpg"
   ]
 }

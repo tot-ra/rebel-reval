@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bhj7kbijlpg14"
+path="res://.godot/imported/Order's March (1).mp3-989423da0c20d6e9eaced609ff6f0e6c.mp3str"
+
+[deps]
+
+source_file="res://scenes/revel_west_toompea/domberg/day/Order's March (1).mp3"
+dest_files=["res://.godot/imported/Order's March (1).mp3-989423da0c20d6e9eaced609ff6f0e6c.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cq46l5at7rbtv"
+path="res://.godot/imported/Ghosts of the Crown.mp3-34dfd5e40eb67440eda63b375a416514.mp3str"
+
+[deps]
+
+source_file="res://scenes/revel_west_toompea/domberg/night/Ghosts of the Crown.mp3"
+dest_files=["res://.godot/imported/Ghosts of the Crown.mp3-34dfd5e40eb67440eda63b375a416514.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -53,8 +53,8 @@ The game world is composed of various scenes representing key locations in and a
     *   [Reval Market](./scenes/lower_town/market.md)
     *   [St. Olaf's Guild Hall](./scenes/lower_town/st_olafs_guild_hall.md)
 *   **Upper Town / Toompea:** The seat of power.
-    *   [Toompea Castle](scenes/upper_town/domberg/domberg.md)
-    *   [Cathedral of Saint Mary](scenes/upper_town/cathedral_of_saint_mary/cathedral_of_saint_mary.md)
+    *   [Toompea Castle](scenes/revel_west_toompea/domberg/domberg.md)
+    *   [Cathedral of Saint Mary](scenes/revel_west_toompea/cathedral_of_saint_mary/cathedral_of_saint_mary.md)
 *   **The Undercity:** A network of tunnels and passages beneath Reval.
     *   [The Bastion Passages](./scenes/undercity/bastion_passages.md)
 *   **Other Mentioned Locations (No specific scene file):**

@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cellbceyg3wkq"
+path="res://.godot/imported/Merchants' Whispers (1).mp3-e770a1159f5a52e98043fa30f0233798.mp3str"
+
+[deps]
+
+source_file="res://scenes/revel_west_toompea/domberg/day/Merchants' Whispers (1).mp3"
+dest_files=["res://.godot/imported/Merchants' Whispers (1).mp3-e770a1159f5a52e98043fa30f0233798.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

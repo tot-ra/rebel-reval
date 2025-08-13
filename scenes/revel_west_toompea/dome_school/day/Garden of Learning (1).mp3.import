@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cmkp1pk7ocbf6"
+path="res://.godot/imported/Garden of Learning (1).mp3-dbef96c4e0371e7ffaa4c6bc223f0498.mp3str"
+
+[deps]
+
+source_file="res://scenes/revel_west_toompea/dome_school/day/Garden of Learning (1).mp3"
+dest_files=["res://.godot/imported/Garden of Learning (1).mp3-dbef96c4e0371e7ffaa4c6bc223f0498.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

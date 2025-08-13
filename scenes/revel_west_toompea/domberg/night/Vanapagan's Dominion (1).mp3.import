@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bixd1ep2r0b0y"
+path="res://.godot/imported/Vanapagan's Dominion (1).mp3-32b14c1780a2b69a687b16fe4b55a4d1.mp3str"
+
+[deps]
+
+source_file="res://scenes/revel_west_toompea/domberg/night/Vanapagan's Dominion (1).mp3"
+dest_files=["res://.godot/imported/Vanapagan's Dominion (1).mp3-32b14c1780a2b69a687b16fe4b55a4d1.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

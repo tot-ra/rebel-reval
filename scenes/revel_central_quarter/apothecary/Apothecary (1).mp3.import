@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://6ai78whounwj"
+path="res://.godot/imported/Apothecary (1).mp3-da0ac24b01701e926ed93cc6c0c5bd23.mp3str"
+
+[deps]
+
+source_file="res://scenes/revel_central_quarter/apothecary/Apothecary (1).mp3"
+dest_files=["res://.godot/imported/Apothecary (1).mp3-da0ac24b01701e926ed93cc6c0c5bd23.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

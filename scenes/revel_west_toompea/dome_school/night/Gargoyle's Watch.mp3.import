@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bau305p54hdmm"
+path="res://.godot/imported/Gargoyle's Watch.mp3-07c42ad69e6214b1af48223ed1bb6e37.mp3str"
+
+[deps]
+
+source_file="res://scenes/revel_west_toompea/dome_school/night/Gargoyle's Watch.mp3"
+dest_files=["res://.godot/imported/Gargoyle's Watch.mp3-07c42ad69e6214b1af48223ed1bb6e37.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

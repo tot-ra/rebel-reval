@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://livgejieh8dm"
+path="res://.godot/imported/Midnight Executioner.mp3-3f6ba78f7365c1a38f68276b9b70e81d.mp3str"
+
+[deps]
+
+source_file="res://scenes/revel_west_toompea/domberg/night/Midnight Executioner.mp3"
+dest_files=["res://.godot/imported/Midnight Executioner.mp3-3f6ba78f7365c1a38f68276b9b70e81d.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -102,13 +102,6 @@ graph TD
 ### Reval (Tallinn)
 
 ## City Wall and Towers
-
-- 
-- 
-- 🚪 Swedish Gates (Small leg gates, center, connects lower/upper towns)
-
-
-
 - 1. 🚪 Nun's Gate (north-west, demolished later)
 - 2. 🧱 **Nun's Tower** (Nunnatorn, 14th century)
 - 3. 🧱 **Sauna Tower** (14th century)
@@ -122,87 +115,101 @@ graph TD
 - 11. 🧱 Grusbeke-tagune torn
 - 12. 🧱 [Renteni Tower](./lower_town/renteni_tower.md) (1340)
 - 13. 🧱 Wulfardi-tagune torn (1370)
-- 14. 🚪 [Great Coast Gate](./lower_town/harbor_quarter/great_coast_gate.md) (1359, Strantporte, north)
+- 14. 🚪 [Great Coast Gate](revel_central_quarter/harbor_quarter/great_coast_gate.md) (1359, Strantporte, north)
 - 15. 🧱 [Stoltingi Tower](./lower_town/stoltingi_tower.md) (1410)
 - 16. 🧱 [Hattorpe-tagune Tower](./lower_town/hattorpe_tagune_tower.md) (1410)
-- 17. Russian
-- 18. Small harbour gate
+- 17. 🧱 Russian (demolished)
+- 18. 🚪 Small harbour gate
 - 19. 🧱 [Bremeni Tower](./lower_town/bremeni_tower.md)
 - 20. 🧱 Munkadetagune form
 - 21. 🧱 Hellemani torn
-- 22. 🚪 [Viru Gate](./lower_town/viru_gate.md) (14th century, east)
+- 22. 🚪 [Viru Gate](revel_walls_towers/viru_gate.md) (14th century, east)
 - 23. 🧱 Hinke tower
 - 24. 🧱 [Kuradiema Tower](./lower_town/kuradiema_tower.md)
 - 25. 🚪 Karjavärav
 - 26. 🧱 [Assauwe Tower](./lower_town/assauwe_tower.md)
-- 27. 🚪 [Harju Gate](./lower_town/harju_gate.md) (1355, south)
+- 27. 🚪 [Harju Gate](revel_walls_towers/harju_gate.md) (1355, south)
 - 28. 🧱 Zeghen tower (Kitsetorn, 1413)
 - 29. Kiek in de Kok (anachronistic)
-- 30. 🧱 [Maiden's Tower (Neitsitorn, Megede torn)](./lower_town/maidens_tower.md) (1370-1373)
+- 30. 🧱 [Maiden's Tower (Neitsitorn, Megede torn)](revel_walls_towers/maidens_tower.md) (1370-1373)
 - 31. 🧱 Horse tower (Tallitorn)
-- 32. 🚪 [Lühike Jalg (Short Leg) Gate](./lower_town/church_monastery_quarter/luhike_jalg_gate.md)
+- 32. 🚪 [Lühike Jalg (Short Leg) Gate](revel_walls_towers/luhike_jalg_gate.md) (aka swedish gates)
 - 33. 🚪 Long Leg Gate (center, connects lower/upper towns)
 - 34. 🧱 Seegitagune torn (1450, demolished)
 - 35. 🧱 Saunatagune torn
 
-Not including as anachronic:
-- Monastery Gate
-- Fat Margaret
--
 
 #### Lower Town
 
 **Harbor Quarter** (north)
 - ⚓️ [Reval Harbor](./lower_town/harbor.md)
-- 🏠 [Seamen's Inn](./lower_town/harbor_quarter/seamens_inn.md)
-- 🏠 [Warehouses](./lower_town/harbor_quarter/warehouses.md)
+- 🏠 [Seamen's Inn](revel_central_quarter/harbor_quarter/seamens_inn.md)
+- 🏠 [Warehouses](revel_central_quarter/harbor_quarter/warehouses.md)
 
 **Guild & Merchant Quarter** (center)
 
 - ⚓️ [Reval Market](./lower_town/market.md)
-- ⚓️ [Town Hall Square (Raekoja plats)](./lower_town/market_civic_quarter/town_hall_square.md)
-- 🏛️ [Town Hall (Raekoda)](./lower_town/market_civic_quarter/town_hall.md) (1322)
-- ⛪️ [Church of the Holy Spirit (Püha Vaimu kirik)](./lower_town/market_civic_quarter/church_of_the_holy_spirit.md) (before 1319)
-- 🏛️ [Great Guild Hall](./lower_town/guild_merchant_quarter/great_guild_hall.md) (1410)
+- ⚓️ [Town Hall Square (Raekoja plats)](revel_central_quarter/market_civic_quarter/town_hall_square.md)
+- 🏛️ [Town Hall (Raekoda)](revel_central_quarter/market_civic_quarter/town_hall.md) (1322)
+- ⛪️ [Church of the Holy Spirit (Püha Vaimu kirik)](revel_central_quarter/market_civic_quarter/church_of_the_holy_spirit.md) (before 1319)
+- 🏛️ [Great Guild Hall](revel_north_west_quarter_merchants/great_guild_hall.md) (1410)
 - 🏛️ [St. Olaf's Guild Hall](./lower_town/st_olafs_guild_hall.md) (1422)
-- 🏛️ [Brotherhood of Blackheads House](./lower_town/guild_merchant_quarter/brotherhood_of_blackheads_house.md) (1399)
-- ⚓️ [Pikk Street](./lower_town/guild_merchant_quarter/pikk_street.md)
-- 💧 [Rataskaev Well](./lower_town/rataskaev_well.md)
-- ⛪️ [Dominican Monastery of St. Catherine](./lower_town/church_monastery_quarter/dominican_monastery.md) (late 1240s)
+- 🏛️ [Brotherhood of Blackheads House](revel_north_west_quarter_merchants/brotherhood_of_blackheads_house.md) (1399)
+- ⚓️ [Pikk Street](revel_north_west_quarter_merchants/pikk_street.md)
+- 💧 [Rataskaev Well](revel_south_quarter_niguliste/rataskaev_well.md)
+- ⛪️ [Dominican Monastery of St. Catherine](revel_east_quarter_monastery/dominican_monastery.md) (late 1240s)
 - St Michael Monastery (1249, north-west)
 
 **Knights Quarter** (south)
-- ⛪️ [St. Nicholas' Church (Niguliste kirik)](./lower_town/church_monastery_quarter/st_nicholas_church.md) (1230)
+- ⛪️ [St. Nicholas' Church (Niguliste kirik)](revel_east_quarter_monastery/st_nicholas_church.md) (1230)
 - 🏠 [The Smith's Forge](./lower_town/the_smiths_forge.md)
-- ⛪️ [St. Olaf's Church (Oleviste kirik)](./lower_town/st_olafs_church.md) (1267)
-- ⛪️ [St. Michael's Cistercian Nunnery (Mihkli klooster)](./lower_town/st_michaels_nunnery.md) (mid-13th century)
+- ⛪️ [St. Olaf's Church (Oleviste kirik)](revel_north_west_quarter_merchants/st_olafs_church.md) (1267)
+- ⛪️ [St. Michael's Cistercian Nunnery (Mihkli klooster)](revel_central_quarter/st_michaels_nunnery.md) (mid-13th century)
 - 🏥 [Jaani Hospital (Leprosorium)](./world/jaani_hospital.md) (early 13th century)
-- 🏥 [Church of the Holy Spirit Hospital](./lower_town/holy_spirit_hospital.md) (late 13th century)
-- ⚔️ [Knights' Quarters](./lower_town/knights_quarters.md)
-- ⛓️ [City Jail](./lower_town/city_jail.md)
-- 🐴 [Horse Mill (Hobuveski)](./lower_town/horse_mill.md) (1379)
-- ⚕️ [Town Council's Apothecary (Raeapteek)](./lower_town/apothecary.md) (1422)
-- 🍻 [Eating Establishments](./lower_town/eating_establishments.md)
-- 💧 [Sewer System](./lower_town/sewer_system.md)
+- 🏥 [Church of the Holy Spirit Hospital](revel_central_quarter/holy_spirit_hospital.md) (late 13th century)
+- ⚔️ [Knights' Quarters](revel_south_quarter_niguliste/knights_quarters.md)
+- ⛓️ [City Jail](revel_central_quarter/city_jail.md)
+- 🐴 [Horse Mill (Hobuveski)](revel_central_quarter/horse_mill.md) (1379)
+- ⚕️ [Town Council's Apothecary (Raeapteek)](revel_central_quarter/apothecary.md) (1422)
+- 🍻 [Eating Establishments](revel_central_quarter/eating_establishments.md)
+- 💧 [Sewer System](revel_central_quarter/sewer_system.md)
 
 
 #### Upper Town (Toompea), west
-- 🏰 [Toompea Castle](upper_town/domberg/domberg.md) (~1050)
+- 🏰 [Toompea Castle](revel_west_toompea/domberg/domberg.md) (~1050)
 - 🌳 [Danish King's Garden](./upper_town/danish_kings_garden.md) - featuring the "Three Monks" sculpture.
-- ⛪️ [Cathedral of Saint Mary](upper_town/cathedral_of_saint_mary/cathedral_of_saint_mary.md) (1233)
-- 🎓 [Dome School (Toompea Kool)](upper_town/dome_school/dome_school.md) (13th century)
+- ⛪️ [Cathedral of Saint Mary](revel_west_toompea/cathedral_of_saint_mary/cathedral_of_saint_mary.md) (1233)
+- 🎓 [Dome School (Toompea Kool)](revel_west_toompea/dome_school/dome_school.md) (13th century)
 
 
-### World Locations
-- [Haapsalu Castle](./world/haapsalu_castle.md)
+### World Locations (TODO)
+
+Denmark
+- Rakvere Castle (!)
+
+Bishopric of Ösel–Wiek - Hermann II Osenbrügge as bishop
+- [Haapsalu Castle](./world/haapsalu_castle.md) (!)
+- Leal Castle (Lihula)
+
+Dorpat bishop
+- Dorpat Castle (Tartu)
+
+Livonian order:
+- Pernau Castle (Pärnu)
+- [Fellin Castle](./world/viljandi_castle.md) (Viljandi)
+- Põltsamaa Castle (!)
+- [Paide Castle](./world/paide_castle.md)
+- Hermann Castle (Narva)
+- [Pöide Castle](./world/poide_castle.md) (saaremaa)
+- Karkus-Nuija (Karksi-Nuia)
 - [Harju Village](./world/harju_village.md)
 - [Karja Fortress](./world/karja_fortress.md)
 - [Maasilinna Castle](./world/maasilinna_castle.md)
 - [Padise Monastery](./world/padise_monastery.md)
-- [Paide Castle](./world/paide_castle.md)
-- [Pöide Castle](./world/poide_castle.md)
+- Helme Castle
 - [Sacred Grove](./world/sacred_grove.md)
-- [Viljandi Castle](./world/viljandi_castle.md)
+- Koluvere Castle
+- Vastseliina Castle
 
 ### Event Locations
 - [Paldiski](./events/paldiski.md)
