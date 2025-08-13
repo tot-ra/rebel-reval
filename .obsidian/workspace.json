@@ -11,14 +11,12 @@
             "id": "e356263a432d93d7",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "image",
               "state": {
-                "file": "scenes/README.md",
-                "mode": "source",
-                "source": false
+                "file": "scenes/world/padise/padise-map.png"
               },
-              "icon": "lucide-file",
-              "title": "README"
+              "icon": "lucide-image",
+              "title": "padise-map"
             }
           }
         ]
@@ -168,8 +166,22 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "e356263a432d93d7",
+  "active": "40ad962db64b1f0b",
   "lastOpenFiles": [
+    "scenes/world/padise/padise_monastery.md",
+    "scenes/world/padise/padise-map.png",
+    "scenes/README.md",
+    "scenes/world/padise/padise_monastery2.tscn",
+    "scenes/world/padise/padise_monastery1.tscn",
+    "scenes/world/padise",
+    "history/AVE2011_Kadakas_Padise.pdf",
+    "history/AVE2011_Valkjt_Karksi.pdf",
+    "characters/riga/README.md",
+    "characters/riga",
+    "characters/dorpat/README.md",
+    "characters/dorpat",
+    "characters/osel_wiek/README.md",
+    "characters/osel_wiek",
     "scenes/revel_west_toompea/Untitled.md",
     "scenes/revel_north_west_quarter_merchants/st_olafs_church.md",
     "scenes/revel_north_oleviste",
@@ -178,19 +190,10 @@
     "scenes/revel_south_quarter_niguliste/knights_quarters.md",
     "scenes/revel_south_quarter_niguliste",
     "scenes/revel_central_quarter/market_civic_quarter/st_olafs_guild_hall.md",
-    "scenes/revel_central_quarter/apothecary/Apothecary (1).mp3.import",
-    "scenes/revel_central_quarter/apothecary/Apothecary (7).mp3.import",
-    "scenes/revel_central_quarter/apothecary/Apothecary (5).mp3.import",
-    "scenes/revel_central_quarter/apothecary/Apothecary (9).mp3.import",
-    "scenes/revel_central_quarter/apothecary/Apothecary (4).mp3.import",
-    "scenes/revel_central_quarter/apothecary/Apothecary.mp3.import",
-    "scenes/revel_central_quarter/apothecary/Apothecary (3).mp3.import",
-    "scenes/revel_central_quarter/apothecary/Apothecary (6).mp3.import",
     "scenes/revel_central_quarter/market_civic_quarter/market.md",
     "scenes/revel_central_quarter/market_civic_quarter/church_of_the_holy_spirit.md",
     "scenes/revel_east_quarter_monastery/st_nicholas_church.md",
     "scenes/revel_east_quarter_monastery/dominican_monastery.md",
-    "scenes/README.md",
     "assets/buildings/tower.png",
     "scenes/wall-map.png",
     "scenes/revel_walls_towers/wall-map.png",
@@ -210,11 +213,6 @@
     "scenes/revel_walls_towers/viru_gate.md",
     "scenes/revel_central_quarter/sewer_system.md",
     "scenes/revel_walls_towers/maidens_tower.md",
-    "scenes/revel_central_quarter/horse_mill.md",
-    "scenes/revel_central_quarter/holy_spirit_hospital.md",
-    "scenes/revel_walls_towers/harju_gate.md",
-    "scenes/revel_central_quarter/eating_establishments.md",
-    "scenes/revel_central_quarter/city_jail.md",
-    "history/24.jpg"
+    "scenes/revel_central_quarter/horse_mill.md"
   ]
 }

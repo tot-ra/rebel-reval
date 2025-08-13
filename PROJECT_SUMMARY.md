@@ -73,7 +73,7 @@ These scenes represent key locations for story progression, battles, and explora
     *   [Pöide Castle](./scenes/world/poide_castle.md)
     *   [Viljandi Castle](./scenes/world/viljandi_castle.md)
 *   **Monasteries & Villages:**
-    *   [Padise Monastery](./scenes/world/padise_monastery.md)
+    *   [Padise Monastery](scenes/world/padise/padise_monastery.md)
     *   [Harju Village](./scenes/world/harju_village.md)
     *   [Sacred Grove](./scenes/world/sacred_grove.md)
 *   **Major Event Scenes:**

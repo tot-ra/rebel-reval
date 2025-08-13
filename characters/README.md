@@ -31,7 +31,7 @@ They represent civilization, Christianity, stability, power, hierarchy, and adva
     - [Master Burchard von Dreileben](order/master_burchard_von_dreileben.md)
     - [Brother Goswin von Herike](order/brother_goswin_von_herike.md)
     - [Arnd von Herke](arnd_von_herke.md)
--   **Presence:** [Toompea Castle](../scenes/revel_west_toompea/domberg/domberg.md), [The Cathedral of Saint Mary](../scenes/revel_west_toompea/cathedral_of_saint_mary/cathedral_of_saint_mary.md), [Viljandi Castle](../../scenes/world/viljandi_castle.md), [Padise Monastery](../../scenes/world/padise_monastery.md). Wesenberg is a mentioned location without a specific scene.
+-   **Presence:** [Toompea Castle](../scenes/revel_west_toompea/domberg/domberg.md), [The Cathedral of Saint Mary](../scenes/revel_west_toompea/cathedral_of_saint_mary/cathedral_of_saint_mary.md), [Viljandi Castle](../../scenes/world/viljandi_castle.md), [Padise Monastery](../scenes/world/padise/padise_monastery.md). Wesenberg is a mentioned location without a specific scene.
 
 
 ### The Rebel Factions

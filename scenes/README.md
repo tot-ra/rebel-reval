@@ -205,7 +205,7 @@ Livonian order:
 - [Harju Village](./world/harju_village.md)
 - [Karja Fortress](./world/karja_fortress.md)
 - [Maasilinna Castle](./world/maasilinna_castle.md)
-- [Padise Monastery](./world/padise_monastery.md)
+- [Padise Monastery](world/padise/padise_monastery.md)
 - Helme Castle
 - [Sacred Grove](./world/sacred_grove.md)
 - Koluvere Castle
