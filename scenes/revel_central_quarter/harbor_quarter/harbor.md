@@ -100,3 +100,27 @@ The harbor is populated by a variety of NPCs, reflecting its role as a cultural 
 
 ![alt text](image-17.png)
 **Child Playing with a Toy Boat**: A small boy kneeling by the water's edge, sailing a crudely carved wooden boat. He is oblivious to the chaos and danger around him.
+
+## Ships in Port
+
+### The "Peeter"
+A sturdy, seaworthy cog, recently arrived from a long voyage. It's a hub of activity, with sailors and merchants bustling about its deck. The ship is owned by a prominent member of the Hanseatic League and is a symbol of the city's wealth and trade.
+
+### The Wreck of the "Viljo"
+An older, smaller vessel that has seen better days. It lies partially submerged in a quieter corner of the harbor, its mast broken and its hull covered in barnacles. The wreck is a source of salvage for some of the harbor's more desperate inhabitants.
+
+## New NPCs
+
+### The Scavenger
+An old, resourceful man who can be found picking through the wreckage of the "Viljo." He has a keen eye for valuable salvage and might be willing to trade rare items or offer quests related to the wrecks.
+
+## Dynamic Events
+
+### The Sinking of the "Peeter"
+The "Peeter" is not destined to remain in the harbor forever. Through a series of quests, the player's actions could lead to the ship sinking, dramatically altering the harbor's landscape and unlocking new opportunities for salvage and intrigue.
+
+## Items of Interest
+
+*   **Siegburg Pottery Shards:** Fragments of high-quality stoneware, found near the "Viljo."
+*   **Norwegian Bakestone Fragment:** A piece of a rare cooking stone, a testament to the far-reaching trade routes of the Hanseatic League.
+*   **Whale Tooth:** A valuable and mysterious item, perhaps from a whale hunted in the North Sea, that can be used in crafting powerful items.
