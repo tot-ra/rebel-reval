@@ -106,8 +106,12 @@ The harbor is populated by a variety of NPCs, reflecting its role as a cultural 
 ### The "Peeter"
 A sturdy, seaworthy cog, recently arrived from a long voyage. It's a hub of activity, with sailors and merchants bustling about its deck. The ship is owned by a prominent member of the Hanseatic League and is a symbol of the city's wealth and trade.
 
+*Visual Prompt: A 14th-century Hanseatic cog docked in a bustling medieval harbor. The ship is in good condition, with a single mast, a square-rigged sail, and high, rounded sides. The deck is crowded with sailors loading and unloading cargo. The style should be a blend of historical realism and moody, atmospheric lighting.*
+
 ### The Wreck of the "Viljo"
 An older, smaller vessel that has seen better days. It lies partially submerged in a quieter corner of the harbor, its mast broken and its hull covered in barnacles. The wreck is a source of salvage for some of the harbor's more desperate inhabitants.
+
+*Visual Prompt: The wreck of a small medieval ship, partially submerged in the calm, murky water of a harbor. The wood is dark and waterlogged, with seaweed and barnacles clinging to its sides. The broken mast juts out of the water at an angle. The scene should be quiet and melancholic, with a sense of history and decay.*
 
 ## New NPCs
 

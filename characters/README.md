@@ -34,6 +34,32 @@ They represent civilization, Christianity, stability, power, hierarchy, and adva
 -   **Presence:** [Toompea Castle](../scenes/revel_west_toompea/domberg/domberg.md), [The Cathedral of Saint Mary](../scenes/revel_west_toompea/cathedral_of_saint_mary/cathedral_of_saint_mary.md), [Viljandi Castle](../../scenes/world/viljandi_castle.md), [Padise Monastery](../scenes/world/padise/padise_monastery.md). Wesenberg is a mentioned location without a specific scene.
 
 
+### The Bishopric Factions
+
+These factions represent the ecclesiastical princes of the Livonian Confederation, ruling their territories as sovereign states. They wield both spiritual and temporal power, often finding themselves in conflict with the Livonian Order and other factions.
+
+**The Archbishopric of Riga** ⛪️
+-   **Core Value:** Faith
+-   **Ideal:** To guide the souls of Livonia towards salvation, maintaining the church as the moral and spiritual center of the land.
+-   **Shadow:** Their piety can become a mask for ambition, using their spiritual authority to amass wealth and political power.
+-   **Core NPC:** [Archbishop Fromhold von Tiesenhausen](riga/archbishop_fromhold_von_tiesenhausen.md)
+-   **Presence:** [Riga Cathedral](../../scenes/world/riga/riga_cathedral.md)
+
+**The Bishopric of Dorpat** 📚
+-   **Core Value:** Knowledge
+-   **Ideal:** To be a beacon of learning and theology, preserving ancient wisdom and fostering education in a savage land.
+-   **Shadow:** Their pursuit of knowledge can lead to arrogance and isolation, viewing the struggles of the common folk as beneath their notice.
+-   **Core NPC:** [Bishop Johannes V von Vechten](dorpat/bishop_johannes_v_von_vechten.md)
+-   **Presence:** [Dorpat Cathedral](../../scenes/world/dorpat/dorpat_cathedral.md)
+
+**The Bishopric of Ösel-Wiek** 🌊
+-   **Core Value:** Independence
+-   **Ideal:** To safeguard their flock and their lands from the ambitions of larger powers, maintaining a delicate balance of diplomacy and defense.
+-   **Shadow:** Their desire for independence can turn into paranoia and treachery, making them unreliable allies in the fight against greater threats.
+-   **Core NPC:** [Bishop Hermann II de Osenbrygge](osel_wiek/bishop_hermann_ii_de_osenbrygge.md)
+-   **Presence:** [Haapsalu Castle](../../scenes/world/osel_wiek/haapsalu_castle.md)
+
+
 ### The Rebel Factions
 -   **Core Value:** Freedom
 -   **Ideal:** To rule their own lands, free from foreign masters.

@@ -1,6 +1,8 @@
 extends CharacterBody2D
 
-@export var speed = 120
+class_name Player
+
+@export var speed = 160
 
 @onready var animation_player = $AnimatedSprite2D
 
