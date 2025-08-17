@@ -11,7 +11,7 @@ func _ready():
 
 func _on_spawn(position: Vector2, direction: String):
 	global_position=position
-	animation_player.play("move_"+direction)
+	animation_player.play("walk_"+direction)
 	animation_player.stop()
 
 func _physics_process(_delta):
