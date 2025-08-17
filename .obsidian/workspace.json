@@ -170,6 +170,8 @@
   },
   "active": "e356263a432d93d7",
   "lastOpenFiles": [
+    "scripts/global/BaseLevel.gd.uid",
+    "scripts/global/BaseLevel.gd",
     "scenes/revel_east/forge/forge.tscn-WiJNjv",
     "scenes/revel_east/forge/forge.gd.uid",
     "scenes/revel_east/forge/forge.gd",
@@ -180,9 +182,7 @@
     "scenes/world/padise/padise-map.png",
     "scenes/revel_east/revel_east.gd.uid",
     "scenes/revel_east/revel_east.gd",
-    "scenes/Lucid_Origin_rpg_game_asset_medieval_city_wall_isometric_view__0-1.jpg.import",
     "scenes/Lucid_Origin_rpg_game_asset_medieval_city_wall_isometric_view__0-1.jpg",
-    "scenes/revel_east/revel_east.tscn-ZTKOV6",
     "scenes/revel_east/forge/image.png",
     "scenes/revel_east/forge/image-9.png",
     "scenes/revel_east/forge/image-8.png",
