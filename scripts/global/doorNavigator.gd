@@ -1,5 +1,7 @@
 extends Node
 
+var spawn_door_tag
+
 const scene_forge = preload("res://scenes/revel_east/forge/forge.tscn")
 const scene_revel_east = preload("res://scenes/revel_east/revel_east.tscn")
 
@@ -15,7 +17,7 @@ func go_to_scene(level_tag, destination_tag):
 			scene_to_load = scene_revel_east
 			
 	if scene_to_load != null:
-		# spawn_door_tag = destination_tag
+		spawn_door_tag = destination_tag
 		get_tree().change_scene_to_packed(scene_to_load)
 
 func trigger_player_spawn(position: Vector2, direction: String):
