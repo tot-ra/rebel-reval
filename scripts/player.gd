@@ -6,6 +6,14 @@ class_name Player
 
 @onready var animation_player = $AnimatedSprite2D
 
+func _ready():
+	DoorNavigator.on_trigger_player_spawn.connect(_on_spawn)
+
+func _on_spawn(position: Vector2, direction: String):
+	global_position=position
+	animation_player.play("move_"+direction)
+	animation_player.stop()
+
 func _physics_process(_delta):
 	var direction_x = Input.get_axis("ui_left", "ui_right")
 	var direction_y = Input.get_axis("ui_up", "ui_down")

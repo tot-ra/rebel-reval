@@ -11,12 +11,14 @@
             "id": "e356263a432d93d7",
             "type": "leaf",
             "state": {
-              "type": "image",
+              "type": "markdown",
               "state": {
-                "file": "scenes/world/padise/padise-map.png"
+                "file": "scenes/revel_east/dominican_monastery.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-image",
-              "title": "padise-map"
+              "icon": "lucide-file",
+              "title": "dominican_monastery"
             }
           }
         ]
@@ -166,30 +168,34 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "40ad962db64b1f0b",
+  "active": "e356263a432d93d7",
   "lastOpenFiles": [
-    "scenes/center.tscn-6iXe3A",
-    "assets/buildings/tavern.png.import",
-    "assets/buildings/tavern.png",
+    "scenes/world/padise/padise-map.png",
+    "scenes/revel_east/revel_east.gd.uid",
+    "scenes/revel_east/revel_east.gd",
+    "scenes/Lucid_Origin_rpg_game_asset_medieval_city_wall_isometric_view__0-1.jpg.import",
+    "scenes/Lucid_Origin_rpg_game_asset_medieval_city_wall_isometric_view__0-1.jpg",
+    "scenes/revel_east/revel_east.tscn-ZTKOV6",
+    "scenes/revel_east/forge/music/5.mp3.import",
+    "scenes/revel_east/forge/music/5.mp3",
+    "scenes/revel_east/forge/music/4.mp3.import",
+    "scenes/revel_east/forge/music/4.mp3",
+    "scenes/revel_east/forge/music/3.mp3.import",
+    "scenes/revel_east/forge/music/3.mp3",
+    "scenes/revel_east/forge/image.png",
+    "scenes/revel_east/forge/image-9.png",
+    "scenes/revel_east/forge/image-8.png",
+    "scenes/revel_east/forge/image-7.png",
+    "scenes/revel_east/forge/image-6.png",
+    "scenes/revel_east/forge/image-5.png",
+    "scenes/revel_east/forge/image-4.png",
+    "scenes/revel_east/forge/image-3.png",
+    "scenes/revel_east/forge/image-2.png",
+    "scenes/revel_east/forge/forge.md",
+    "scenes/revel_east/st_nicholas_church.md",
+    "scenes/revel_east/dominican_monastery.md",
+    "scenes/revel_east_quarter_monastery/forge/forge.md",
     "characters/osel_wiek/hermann_osenbrugge.md",
-    "scenes/center.tscn-xWoBi3",
-    "assets/download-3.png.import",
-    "assets/rocks-grass.png.import",
-    "assets/download-1.png.import",
-    "assets/download.png.import",
-    "assets/download-2.png.import",
-    "assets/download-3.png",
-    "assets/download-2.png",
-    "assets/download-1.png",
-    "assets/download.png",
-    "assets/rocks-grass.png",
-    "assets/download-12.png",
-    "scenes/revel_central_quarter/harbor_quarter/ships/download-15.png.import",
-    "scenes/revel_central_quarter/harbor_quarter/ships/download.png.import",
-    "scenes/revel_central_quarter/harbor_quarter/ships/download-14.png.import",
-    "assets/buildings/download-13.png",
-    "assets/buildings/download-10.png",
-    "assets/buildings/download-12.png",
     "scenes/world/padise/padise_monastery.md",
     "scenes/README.md",
     "characters/riga/README.md",
@@ -209,10 +215,6 @@
     "scenes/revel_central_quarter/market_civic_quarter/town_hall.md",
     "scenes/revel_central_quarter/apothecary.md",
     "scenes/revel_north_west_quarter_merchants/pikk_street.md",
-    "scenes/revel_north_west_quarter_merchants/great_guild_hall.md",
-    "scenes/revel_north_west_quarter_merchants/brotherhood_of_blackheads_house.md",
-    "scenes/revel_walls_towers/luhike_jalg_gate.md",
-    "scenes/revel_walls_towers/viru_gate.md",
-    "scenes/revel_central_quarter/sewer_system.md"
+    "scenes/revel_north_west_quarter_merchants/great_guild_hall.md"
   ]
 }

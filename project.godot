@@ -15,6 +15,10 @@ run/main_scene="uid://dyl726xerhjhg"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="uid://s3dc3n3tlc3s"
 
+[autoload]
+
+DoorNavigator="*res://scripts/global/doorNavigator.gd"
+
 [display]
 
 window/size/viewport_width=1600
