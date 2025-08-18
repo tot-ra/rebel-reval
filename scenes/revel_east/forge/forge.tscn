@@ -100,12 +100,12 @@ texture = ExtResource("3_vhmh4")
 position = Vector2(600, 507)
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Node2D/WallsFront1/Furniture/Bed/collision"]
-position = Vector2(-599, -519)
-polygon = PackedVector2Array(-10, 79, -88, 45, 2, -17, 75, 30)
+position = Vector2(-589, -503)
+polygon = PackedVector2Array(-17, 84, -101, 37, -7, -37, 88, 25)
 
 [node name="Chair2" type="Sprite2D" parent="Node2D/WallsFront1/Furniture"]
 y_sort_enabled = true
-position = Vector2(708, 284)
+position = Vector2(656, 287)
 texture = ExtResource("4_1a1fe")
 
 [node name="collision" type="StaticBody2D" parent="Node2D/WallsFront1/Furniture/Chair2"]
@@ -174,7 +174,7 @@ position = Vector2(-7, -12)
 polygon = PackedVector2Array(-48, 27, 5.19797, -3.89847, 57, 29, 4, 56)
 
 [node name="IronIngots" type="Sprite2D" parent="Node2D/WallsFront1/Furniture"]
-position = Vector2(662, 581)
+position = Vector2(1096, 455)
 texture = ExtResource("10_l6lcm")
 
 [node name="StaticBody2D" type="StaticBody2D" parent="Node2D/WallsFront1/Furniture/IronIngots"]
@@ -200,9 +200,16 @@ scale = Vector2(0.390625, 0.390625)
 texture = ExtResource("12_g4vrm")
 
 [node name="Wooden-crate2" type="Sprite2D" parent="Node2D/WallsFront1/Furniture"]
-position = Vector2(652, 323)
+position = Vector2(765, 265)
 scale = Vector2(0.695312, 0.695312)
 texture = ExtResource("12_2u58i")
+
+[node name="collision" type="StaticBody2D" parent="Node2D/WallsFront1/Furniture/Wooden-crate2"]
+position = Vector2(171, 141)
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Node2D/WallsFront1/Furniture/Wooden-crate2/collision"]
+position = Vector2(15.9664, -11.5617)
+polygon = PackedVector2Array(-232.989, -116.494, -184.09, -92.045, -137, -111, -186.966, -145.259)
 
 [node name="Shovel" type="Sprite2D" parent="Node2D/WallsFront1/Furniture"]
 position = Vector2(762, 238)
@@ -210,7 +217,7 @@ scale = Vector2(0.621094, 0.621094)
 texture = ExtResource("9_pmd2t")
 
 [node name="Furnace" type="Sprite2D" parent="Node2D/WallsFront1/Furniture"]
-position = Vector2(1053, 393)
+position = Vector2(1038, 377)
 texture = ExtResource("14_kkgga")
 
 [node name="StaticBody2D" type="StaticBody2D" parent="Node2D/WallsFront1/Furniture/Furnace"]
@@ -221,7 +228,7 @@ polygon = PackedVector2Array(-48, 27, 37, -23, 137, 28, 46, 79)
 
 [node name="Player" parent="Node2D/WallsFront1" instance=ExtResource("2_se5dk")]
 y_sort_enabled = true
-position = Vector2(706, 363)
+position = Vector2(746, 363)
 
 [node name="DoorAndWalls" type="Sprite2D" parent="Node2D"]
 z_index = 1
