@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b2gqccxf6y6i1"
-path="res://.godot/imported/image.png-5cb81cd290fda52000dd79148e6ff06c.ctex"
+uid="uid://n0ho6k322pqu"
+path="res://.godot/imported/run_north_east.png-bc4fe6069ff7a09fba8714bfa62f805b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/player/image.png"
-dest_files=["res://.godot/imported/image.png-5cb81cd290fda52000dd79148e6ff06c.ctex"]
+source_file="res://assets/player/run/run_north_east.png"
+dest_files=["res://.godot/imported/run_north_east.png-bc4fe6069ff7a09fba8714bfa62f805b.ctex"]
 
 [params]
 

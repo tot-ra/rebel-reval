@@ -38,12 +38,20 @@ func update_animation():
 	new_animation = "idle" 
 	
 	if velocity.length() > 0:
+		new_animation = "walk"
+		
+		
+		if velocity.y > 0:
+			new_animation = new_animation + "_south"
+		if velocity.y < 0:
+			new_animation = new_animation + "_north"
+		
 		# Player is moving
 		if velocity.x > 0:
-			new_animation = "walk_right"
+			new_animation = new_animation + "_east"
+		if velocity.x < 0:
+			new_animation = new_animation + "_west"
 			
-		if velocity.y > 0:
-			new_animation = "walk_down"
 			
 		
 	# Only change the animation if the state has changed
