@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "scenes/revel_east/dominican_monastery.md",
+                "file": "scenes/README.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "dominican_monastery"
+              "title": "README"
             }
           }
         ]
@@ -78,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 571.5
+    "width": 395.5
   },
   "right": {
     "id": "a1a2e5724cd214b8",
@@ -170,6 +170,11 @@
   },
   "active": "e356263a432d93d7",
   "lastOpenFiles": [
+    "assets/objects/door1.png.import",
+    "assets/objects/door1.png",
+    "scenes/revel_east/dominican_monastery.md",
+    "scenes/revel_east/revel_east.tscn-fmGqZn",
+    "scenes/revel_east/revel_east.tscn-kwyBfY",
     "scripts/global/BaseLevel.gd.uid",
     "scripts/global/BaseLevel.gd",
     "scenes/revel_east/forge/forge.tscn-WiJNjv",
@@ -178,10 +183,7 @@
     "scenes/revel_east/forge/forge.tscn-8RLn41",
     "scenes/revel_east/revel_east.tscn-h1Y7RA",
     "scenes/revel_east/forge/forge.tscn-cOrjEi",
-    "scenes/revel_east/revel_east.tscn-5jAkLT",
     "scenes/world/padise/padise-map.png",
-    "scenes/revel_east/revel_east.gd.uid",
-    "scenes/revel_east/revel_east.gd",
     "scenes/Lucid_Origin_rpg_game_asset_medieval_city_wall_isometric_view__0-1.jpg",
     "scenes/revel_east/forge/image.png",
     "scenes/revel_east/forge/image-9.png",
@@ -190,10 +192,8 @@
     "scenes/revel_east/forge/image-6.png",
     "scenes/revel_east/forge/image-5.png",
     "scenes/revel_east/forge/image-4.png",
-    "scenes/revel_east/forge/image-3.png",
     "scenes/revel_east/forge/forge.md",
     "scenes/revel_east/st_nicholas_church.md",
-    "scenes/revel_east/dominican_monastery.md",
     "scenes/revel_east_quarter_monastery/forge/forge.md",
     "characters/osel_wiek/hermann_osenbrugge.md",
     "scenes/world/padise/padise_monastery.md",

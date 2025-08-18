@@ -25,10 +25,10 @@ window/size/viewport_width=1600
 window/size/viewport_height=900
 window/size/mode=2
 window/stretch/mode="viewport"
+window/vsync/vsync_mode=0
 
 [rendering]
 
-textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 environment/defaults/default_clear_color=Color(0, 0, 0, 1)
