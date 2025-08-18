@@ -1,10 +1,11 @@
-[gd_scene load_steps=33 format=4 uid="uid://dbxean877egrv"]
+[gd_scene load_steps=34 format=4 uid="uid://dbxean877egrv"]
 
 [ext_resource type="Script" uid="uid://daitot221wqe7" path="res://scenes/revel_east/forge/forge.gd" id="1_b7ac7"]
 [ext_resource type="Texture2D" uid="uid://cuunf5kllexvn" path="res://assets/tiles2.png" id="2_b7ac7"]
 [ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="2_se5dk"]
 [ext_resource type="Texture2D" uid="uid://cdjtsg3a4eal0" path="res://assets/objects/furniture/bed.png" id="3_vhmh4"]
 [ext_resource type="Texture2D" uid="uid://b8j562i6ciiuh" path="res://assets/objects/furniture/chair2.png" id="4_1a1fe"]
+[ext_resource type="Texture2D" uid="uid://cddn553stto7y" path="res://assets/objects/furniture/table2.png" id="5_kin5l"]
 [ext_resource type="Texture2D" uid="uid://dcvifxr4uji3h" path="res://assets/objects/furniture/chest5.png" id="6_eg132"]
 [ext_resource type="Texture2D" uid="uid://bbsqj0o8h33qw" path="res://assets/objects/smith-room/wheel.png" id="6_hnwuu"]
 [ext_resource type="AudioStream" uid="uid://bbxe0haypln7q" path="res://scenes/revel_east/forge/music/1.mp3" id="6_hsxjw"]
@@ -20,7 +21,7 @@
 [ext_resource type="PackedScene" uid="uid://dfb184eowm7q1" path="res://scenes/elements/door.tscn" id="11_6pyjq"]
 [ext_resource type="Texture2D" uid="uid://nifxi2s342xd" path="res://assets/objects/furniture/wooden-crate2.png" id="12_2u58i"]
 [ext_resource type="Texture2D" uid="uid://de2pta4jcuvus" path="res://assets/objects/smith-room/gauntlet.png" id="12_g4vrm"]
-[ext_resource type="Texture2D" uid="uid://cfgrkvne24kqi" path="res://assets/objects/furniture/table.png" id="13_kin5l"]
+[ext_resource type="Texture2D" uid="uid://bgqjbst8e4pcf" path="res://assets/objects/weapons/hammer.png" id="14_3qg1m"]
 [ext_resource type="Texture2D" uid="uid://dybiy1pwlgtt6" path="res://assets/objects/smith-room/furnace.png" id="14_kkgga"]
 [ext_resource type="PackedScene" uid="uid://2dkwfsgaefnk" path="res://scenes/elements/FadeArea.tscn" id="22_g4vrm"]
 [ext_resource type="Texture2D" uid="uid://bede4j64b60ov" path="res://assets/objects/furniture/shelf2.png" id="23_g4vrm"]
@@ -107,7 +108,7 @@ polygon = PackedVector2Array(-17, 84, -101, 37, -7, -37, 88, 25)
 
 [node name="Chair2" type="Sprite2D" parent="Node2D/WallsFront1/Furniture"]
 y_sort_enabled = true
-position = Vector2(656, 287)
+position = Vector2(669, 332)
 texture = ExtResource("4_1a1fe")
 
 [node name="collision" type="StaticBody2D" parent="Node2D/WallsFront1/Furniture/Chair2"]
@@ -117,32 +118,32 @@ position = Vector2(171, 141)
 polygon = PackedVector2Array(-203, -112, -171, -94, -137, -111, -169, -133)
 
 [node name="Table" type="Sprite2D" parent="Node2D/WallsFront1/Furniture"]
-position = Vector2(762, 464)
-scale = Vector2(1.53906, 1.53906)
-texture = ExtResource("13_kin5l")
+position = Vector2(733, 519)
+scale = Vector2(0.917968, 0.917968)
+texture = ExtResource("5_kin5l")
 
 [node name="StaticBody2D" type="StaticBody2D" parent="Node2D/WallsFront1/Furniture/Table"]
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Node2D/WallsFront1/Furniture/Table/StaticBody2D"]
-polygon = PackedVector2Array(-39.6345, 20.1422, 5.19797, -3.89847, 42.8832, 18.8427, 0, 44.8325)
+polygon = PackedVector2Array(-86.0596, 55.5575, 39.217, -19.6085, 87.149, 6.53618, -41.3957, 80.6128)
 
 [node name="Onions" type="Sprite2D" parent="Node2D/WallsFront1/Furniture/Table"]
-position = Vector2(-27.2894, -6.49747)
-scale = Vector2(0.269036, 0.269036)
+position = Vector2(-45.6475, 2.07298)
+scale = Vector2(0.372816, 0.372816)
 texture = ExtResource("25_kkgga")
 
 [node name="Bottle3" type="Sprite2D" parent="Node2D/WallsFront1/Furniture/Table"]
-position = Vector2(-14.9442, 3.05176e-05)
-scale = Vector2(0.121828, 0.121828)
+position = Vector2(11.3954, -31.004)
+scale = Vector2(0.213436, 0.213436)
 texture = ExtResource("26_3qg1m")
 
 [node name="Black-bread" type="Sprite2D" parent="Node2D/WallsFront1/Furniture/Table"]
-position = Vector2(-8.44669, -15.5939)
-scale = Vector2(0.192894, 0.192894)
+position = Vector2(-14.4576, -11.1895)
+scale = Vector2(0.311006, 0.311006)
 texture = ExtResource("27_2oisn")
 
 [node name="Bucket-water" type="Sprite2D" parent="Node2D/WallsFront1/Furniture/Table"]
-position = Vector2(25.3402, -12.3452)
+position = Vector2(41.3958, -49.0213)
 scale = Vector2(0.406092, 0.406092)
 texture = ExtResource("24_kin5l")
 
@@ -166,7 +167,7 @@ position = Vector2(-7, -12)
 polygon = PackedVector2Array(-48, 27, 5.19797, -3.89847, 57, 29, 4, 56)
 
 [node name="Anvil" type="Sprite2D" parent="Node2D/WallsFront1/Furniture"]
-position = Vector2(943, 372)
+position = Vector2(877, 452)
 texture = ExtResource("7_sw2kw")
 
 [node name="StaticBody2D" type="StaticBody2D" parent="Node2D/WallsFront1/Furniture/Anvil"]
@@ -174,6 +175,13 @@ texture = ExtResource("7_sw2kw")
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Node2D/WallsFront1/Furniture/Anvil/StaticBody2D"]
 position = Vector2(-7, -12)
 polygon = PackedVector2Array(-48, 27, 5.19797, -3.89847, 57, 29, 4, 56)
+
+[node name="Hammer" type="Sprite2D" parent="Node2D/WallsFront1/Furniture/Anvil"]
+position = Vector2(8, -37)
+rotation = 0.932006
+scale = Vector2(0.78, 0.78)
+skew = 0.287979
+texture = ExtResource("14_3qg1m")
 
 [node name="IronIngots" type="Sprite2D" parent="Node2D/WallsFront1/Furniture"]
 position = Vector2(1096, 455)
@@ -196,13 +204,8 @@ texture = ExtResource("11_2u58i")
 position = Vector2(-6.88172, 5.50538)
 polygon = PackedVector2Array(-48, 27, 6.88171, 2.75269, 57, 29, 4, 56)
 
-[node name="Gauntlet" type="Sprite2D" parent="Node2D/WallsFront1/Furniture"]
-position = Vector2(764, 477)
-scale = Vector2(0.390625, 0.390625)
-texture = ExtResource("12_g4vrm")
-
 [node name="Wooden-crate2" type="Sprite2D" parent="Node2D/WallsFront1/Furniture"]
-position = Vector2(765, 265)
+position = Vector2(941, 518)
 scale = Vector2(0.695312, 0.695312)
 texture = ExtResource("12_2u58i")
 
@@ -212,6 +215,12 @@ position = Vector2(171, 141)
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Node2D/WallsFront1/Furniture/Wooden-crate2/collision"]
 position = Vector2(15.9664, -11.5617)
 polygon = PackedVector2Array(-232.989, -116.494, -184.09, -92.045, -137, -111, -186.966, -145.259)
+
+[node name="Gauntlet" type="Sprite2D" parent="Node2D/WallsFront1/Furniture/Wooden-crate2"]
+position = Vector2(-3.8147e-06, -27.3259)
+rotation = 0.354302
+scale = Vector2(0.561798, 0.561798)
+texture = ExtResource("12_g4vrm")
 
 [node name="Shovel" type="Sprite2D" parent="Node2D/WallsFront1/Furniture"]
 position = Vector2(762, 238)
@@ -230,7 +239,7 @@ polygon = PackedVector2Array(-48, 27, 37, -23, 137, 28, 46, 79)
 
 [node name="Player" parent="Node2D/WallsFront1" instance=ExtResource("2_se5dk")]
 y_sort_enabled = true
-position = Vector2(746, 363)
+position = Vector2(720, 371)
 
 [node name="DoorAndWalls" type="Sprite2D" parent="Node2D"]
 z_index = 1
@@ -242,6 +251,7 @@ centered = false
 offset = Vector2(-128, -180)
 
 [node name="WallsFront" type="TileMapLayer" parent="Node2D"]
+visible = false
 z_index = 1
 y_sort_enabled = true
 position = Vector2(-3.05176e-05, -6.10352e-05)
