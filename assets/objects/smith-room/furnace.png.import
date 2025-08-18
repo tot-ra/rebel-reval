@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ddxcbxhtjp8xu"
-path="res://.godot/imported/door1.png-9ff039793bceb260ba30a76e5c6b9b68.ctex"
+uid="uid://dybiy1pwlgtt6"
+path="res://.godot/imported/furnace.png-bbe0445d99f28a7c4e89f1cbaeaab02c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/objects/door1.png"
-dest_files=["res://.godot/imported/door1.png-9ff039793bceb260ba30a76e5c6b9b68.ctex"]
+source_file="res://assets/objects/smith-room/furnace.png"
+dest_files=["res://.godot/imported/furnace.png-bbe0445d99f28a7c4e89f1cbaeaab02c.ctex"]
 
 [params]
 
