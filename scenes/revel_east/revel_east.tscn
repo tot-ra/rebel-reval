@@ -255,7 +255,7 @@ spawn_direction = "down"
 position = Vector2(-17, -12)
 
 [node name="CollisionShape2D" parent="Doors/door_forge" index="1"]
-position = Vector2(45, -62)
+position = Vector2(41.2988, -55.2668)
 rotation = 0.502655
 
 [editable path="Doors/door_forge"]

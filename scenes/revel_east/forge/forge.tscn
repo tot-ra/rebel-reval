@@ -81,7 +81,7 @@ tile_set = SubResource("TileSet_aes7p")
 [node name="StaticBody2D" type="StaticBody2D" parent="Node2D/WallsBack"]
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Node2D/WallsBack/StaticBody2D"]
-polygon = PackedVector2Array(574, 641, 704, 708, 1187, 456, 765, 255, 241, 481, 417, 556, 381, 613, 129, 474, 766, 200, 1345, 457, 704, 775, 510, 676)
+polygon = PackedVector2Array(574, 641, 704, 708, 1187, 456, 765, 255, 241, 481, 346, 601, 422, 692, 129, 474, 766, 200, 1345, 457, 704, 775, 421, 690)
 
 [node name="WallsFront1" type="TileMapLayer" parent="Node2D"]
 z_index = 1
@@ -244,14 +244,13 @@ position = Vector2(720, 371)
 [node name="DoorAndWalls" type="Sprite2D" parent="Node2D"]
 z_index = 1
 y_sort_enabled = true
-position = Vector2(478, 581)
+position = Vector2(468, 589)
 scale = Vector2(1.04297, 0.957031)
 texture = ExtResource("7_k3c1x")
 centered = false
 offset = Vector2(-128, -180)
 
 [node name="WallsFront" type="TileMapLayer" parent="Node2D"]
-visible = false
 z_index = 1
 y_sort_enabled = true
 position = Vector2(-3.05176e-05, -6.10352e-05)
@@ -279,11 +278,12 @@ destination_door_tag = "forge"
 spawn_direction = "down"
 
 [node name="Spawn" parent="Doors/door_main" index="0"]
-position = Vector2(278, -144)
+position = Vector2(227, -146)
 
 [node name="CollisionShape2D" parent="Doors/door_main" index="1"]
-position = Vector2(151.485, -77.8165)
+position = Vector2(129.728, -63.3115)
 rotation = 0.485202
+scale = Vector2(1, 1)
 
 [editable path="Node2D/WallsFront/FadeArea"]
 [editable path="Doors/door_main"]
