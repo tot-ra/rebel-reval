@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=4 uid="uid://dbxean877egrv"]
+[gd_scene load_steps=33 format=4 uid="uid://dbxean877egrv"]
 
 [ext_resource type="Script" uid="uid://daitot221wqe7" path="res://scenes/revel_east/forge/forge.gd" id="1_b7ac7"]
 [ext_resource type="Texture2D" uid="uid://cuunf5kllexvn" path="res://assets/tiles2.png" id="2_b7ac7"]
@@ -22,7 +22,9 @@
 [ext_resource type="Texture2D" uid="uid://de2pta4jcuvus" path="res://assets/objects/smith-room/gauntlet.png" id="12_g4vrm"]
 [ext_resource type="Texture2D" uid="uid://cfgrkvne24kqi" path="res://assets/objects/furniture/table.png" id="13_kin5l"]
 [ext_resource type="Texture2D" uid="uid://dybiy1pwlgtt6" path="res://assets/objects/smith-room/furnace.png" id="14_kkgga"]
+[ext_resource type="PackedScene" uid="uid://2dkwfsgaefnk" path="res://scenes/elements/FadeArea.tscn" id="22_g4vrm"]
 [ext_resource type="Texture2D" uid="uid://bede4j64b60ov" path="res://assets/objects/furniture/shelf2.png" id="23_g4vrm"]
+[ext_resource type="Script" uid="uid://c40knvp66jxf0" path="res://scenes/elements/FadeArea.gd" id="23_kin5l"]
 [ext_resource type="Texture2D" uid="uid://cyky3lxcmr67w" path="res://assets/objects/furniture/bucket-water.png" id="24_kin5l"]
 [ext_resource type="Texture2D" uid="uid://dwwwa2it1dt5t" path="res://assets/objects/food/onions.png" id="25_kkgga"]
 [ext_resource type="Texture2D" uid="uid://c5wqf0qlr6g76" path="res://assets/objects/food/bottle3.png" id="26_3qg1m"]
@@ -246,6 +248,13 @@ position = Vector2(-3.05176e-05, -6.10352e-05)
 tile_map_data = PackedByteArray("AAAPAPz/AQACAAMAAAAPAP3/AQACAAMAAAAPAP7/AQACAAMAAAAPAP//AQACAAMAAAAPAAAAAQACAAMAAAAPAAEAAQACAAMAAAAPAAIAAQACAAMAAAAPAAMAAQACAAMAAAAPAAQAAQACAAMAAAAPAAUAAQACAAMAAAANAAUAAQACAAMAAAAOAAUAAQACAAMAAAA=")
 tile_set = SubResource("TileSet_aes7p")
 
+[node name="FadeArea" parent="Node2D/WallsFront" instance=ExtResource("22_g4vrm")]
+script = ExtResource("23_kin5l")
+target_to_fade = NodePath("..")
+
+[node name="CollisionPolygon2D" parent="Node2D/WallsFront/FadeArea" index="0"]
+polygon = PackedVector2Array(500, 560, 573, 531, 704, 588, 1182, 348, 1378, 433, 698, 802, 499, 710)
+
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 stream = SubResource("AudioStreamRandomizer_beq2v")
 volume_db = -15.54
@@ -266,4 +275,5 @@ position = Vector2(278, -144)
 position = Vector2(151.485, -77.8165)
 rotation = 0.485202
 
+[editable path="Node2D/WallsFront/FadeArea"]
 [editable path="Doors/door_main"]
