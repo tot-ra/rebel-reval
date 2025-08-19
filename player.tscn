@@ -584,7 +584,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"run_east",
-"speed": 5.0
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -613,7 +613,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"run_north",
-"speed": 5.0
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -642,7 +642,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"run_north_east",
-"speed": 5.0
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -671,7 +671,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"run_north_west",
-"speed": 5.0
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -700,7 +700,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"run_south",
-"speed": 5.0
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -729,7 +729,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"run_south_east",
-"speed": 5.0
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -758,7 +758,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"run_south_west",
-"speed": 5.0
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -787,7 +787,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"run_west",
-"speed": 5.0
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -1041,7 +1041,8 @@ position_smoothing_enabled = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_nvl01")
-animation = &"run_east"
+animation = &"run_south_west"
+frame_progress = 0.951204
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 39)
