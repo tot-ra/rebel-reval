@@ -283,7 +283,6 @@ position = Vector2(227, -146)
 [node name="CollisionShape2D" parent="Doors/door_main" index="1"]
 position = Vector2(129.728, -63.3115)
 rotation = 0.485202
-scale = Vector2(1, 1)
 
 [editable path="Node2D/WallsFront/FadeArea"]
 [editable path="Doors/door_main"]
