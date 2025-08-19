@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dj3mjc0b2k7ry"
+path="res://.godot/imported/Apothecary (9).mp3-a9ce7fe5c2db5f64064586ef10cd3d09.mp3str"
+
+[deps]
+
+source_file="res://music/revel_east/Apothecary (9).mp3"
+dest_files=["res://.godot/imported/Apothecary (9).mp3-a9ce7fe5c2db5f64064586ef10cd3d09.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

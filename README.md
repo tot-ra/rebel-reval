@@ -71,3 +71,40 @@ Architecture: Gothic and Hanseatic, but slowly overtaken by creeping pagan symbo
 ## 🎻 Music & Sound
 Soundtrack: Blend of medieval Baltic folk (kantele, runosong) with ambient electronics and minimalistic ritual drums.
 Dynamic Sound Design: Pagan areas filled with whispers and wind chimes; Christian zones echo with choirs and bells.
+
+- Music available in [MUSIC](./music/) depending on scene
+- Sound effects in [SOUNDS](./sounds/)
+
+
+
+# Reval Rebel - Project Summary
+
+## Gameplay Mechanics
+
+The game features a dynamic day/night cycle:
+*   **Day:** Players engage in crafting, commerce, and information gathering as Kalev the smith.
+*   **Night:** Players undertake covert missions, engaging in stealth and combat to advance their faction's goals.
+
+A key feature is the **"Living City"** system, where player actions influence meters for **Rebel Morale (Hope)** and **Civic Order (Fear)**. This creates a dynamic world that reacts to the player's choices, shifting the overall **Balance of Power** between the Rebel and Ruler factions.
+
+## Combat System
+
+Combat is built around a unique spell-forging system. Players can map up to 8 **Elements of Philosophy** (e.g., Fire, Order, Deception) to their keys. By combining these elements in sequences of up to four, players can creatively **forge** a vast array of spells and actions. The system allows for deep tactical flexibility, alongside traditional melee combat and the ability to lead a party of allies.
+
+## Factions
+
+The political landscape is divided into three groups:
+
+*   **Ruling Factions:** Representing order and stability, these include the **Danish Crown**, the **Livonian Order**, and the **Hanseatic League**.
+*   **Rebel Factions:** Fighting for freedom, these include the rural **Harju Kings**, the urban **Black Cloaks**, and the pagan **Cult of Metsik**.
+*   **Neutral Factions:** Opportunistic groups with their own agendas, such as the **Republic of Novgorod & Pskov**, the **Brotherhood of Blackheads**, and the **Vitalienbrüder** pirates.
+
+Players must choose to align with either the Rulers or the Rebels, and their actions will build or break alliances with these factions.
+
+## Story Progression
+
+The narrative is structured in chapters that mirror the historical timeline of the uprising:
+*   **Chapter 1 (The Simmering City):** Focuses on political intrigue and building alliances before the rebellion erupts.
+*   **Chapter 2 (The Fire of Rebellion):** Begins on St. George's Night and focuses on open warfare and large-scale battles.
+*   **Chapter 3 (The Livonian Crusade):** Expands the conflict to new regions.
+*   **Epilogue:** A poignant mini-game set years later, revealing the long-term consequences of the conflict and the arrival of the plague.

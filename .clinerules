@@ -1,0 +1,11 @@
+- project game setting is set in medieval time (1342) in Estonia, summer time
+- when asked to visually describe a character, make sure to describe clothes texture, colours, figure, age, hair length and color
+    - do not add any objects into his hands as visual description is meant for image generation for in-game character where later animations and objects might get added
+    - check factions and history readmes to better understand the context
+
+- when asked to make better character, consider adding these sections:
+- motivations
+- ties & relationships - allies, enemies, initial view of the main player
+- history (biography)
+- daily routines
+- possible quest lines

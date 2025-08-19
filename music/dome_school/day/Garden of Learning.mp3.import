@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dw2ovs4nb8m0i"
+path="res://.godot/imported/Garden of Learning.mp3-671d650d3fa2aed4b55ff0878379bdb2.mp3str"
+
+[deps]
+
+source_file="res://music/dome_school/day/Garden of Learning.mp3"
+dest_files=["res://.godot/imported/Garden of Learning.mp3-671d650d3fa2aed4b55ff0878379bdb2.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
