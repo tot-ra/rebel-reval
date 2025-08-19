@@ -117,5 +117,10 @@ These factions are not directly involved in the conflict between the Rulers and 
 -   **Core NPC:** ["Ironhand" Störtebeker](pirates/ironhand_stortebeker.md)
 -   **Presence:** [Paldiski](../../scenes/events/paldiski.md), [Reval Harbor](../../scenes/lower_town/harbor.md).
 
+**The Lizard Union** 🦎
+-   **Motivation:** Ambition. A clandestine fraternity of disaffected Prussian and German-Baltic nobles, wealthy merchants, and disillusioned knights. They see the uprising as an opportunity to dismantle the power of the Livonian Order and seize control for themselves.
+-   **Core NPC:** [Nikolaus von Danzig](lizard_union/nikolaus_von_danzig.md)
+-   **Presence:** [Reval Market](../../scenes/lower_town/market.md), [The Serpent's Coil (Hidden Cellar)](../../scenes/lower_town/serpents_coil.md).
+
 
 _Character art has been moved to the individual location markdown files._

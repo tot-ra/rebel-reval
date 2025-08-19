@@ -31,7 +31,7 @@ Fetch more iron. And bank the fires hotter tonight.
 - Player Goal: Navigate the treacherous social landscape of Reval. Your actions will build your reputation with different factions, unlocking unique abilities and story paths. Every choice you make determines who will stand with you—and who will stand against you—when the city finally erupts.
 - Narrative Arc: This phase is a slow-burn thriller. You'll uncover conspiracies, perform secret missions for different factions, and make difficult choices that have no clear right answer. The "Living City" meters (Hope, Fear, Chaos) are your primary measure of progress.
 
-- **Chapter Conclusion:** The chapter concludes on the eve of St. George's Night, April 23, 1343. The player's actions throughout the chapter accumulate towards this date, influencing the city's state via the **Hope, Fear, and Chaos** meters. The final quests of this chapter will represent the tipping point, and the state of the meters at the end of the day will determine the opening scenario of Chapter 2, defining the strength and nature of the rebellion.
+- **Chapter Conclusion:** The chapter concludes on the eve of St. George's Night, April 23, 1343. The player's actions throughout the chapter accumulate towards this date, influencing the city's state via the **Hope, Fear, and Chaos** meters. The final quests of this chapter will represent the tipping point, and the state of the meters at the end of the day will determine the opening scenario of Chapter 2, defining the strength and nature of the rebellion. The player may also catch whispers of a third power, a group of merchants and knights playing both sides for their own gain, known only by their strange reptilian sigil.
 
 
 

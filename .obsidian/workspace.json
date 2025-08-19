@@ -170,6 +170,10 @@
   },
   "active": "40ad962db64b1f0b",
   "lastOpenFiles": [
+    "characters/lizard_union/image.png",
+    "characters/lizard_union/nikolaus_von_danzig.md",
+    "characters/lizard_union/README.md",
+    "characters/lizard_union",
     "characters/cats/download-20.aseprite",
     "characters/cats/download-1.png.import",
     "characters/cats/download-8 copy.png.import",
@@ -179,8 +183,6 @@
     "characters/cats/download-16 copy.png.import",
     "characters/cats/download-16.png.import",
     "characters/cats/download-17.png.import",
-    "characters/cats/download-18.png.import",
-    "characters/cats/download-20.png.import",
     "characters/bishopric_osel_wiek/image-3.png",
     "characters/bishopric_osel_wiek/image-2.png",
     "characters/bishopric_osel_wiek/image-1.png",
@@ -213,8 +215,6 @@
     "characters/black_cloaks/mysterious_woman.md",
     "characters/order/squire.md",
     "characters/peasants/disgruntled_farmer.md",
-    "characters/peasants/farmer_broken_plow.md",
-    "characters/merchants/merchants_wife.md",
-    "characters/forge_folk/juhan/juhan.md"
+    "characters/peasants/farmer_broken_plow.md"
   ]
 }
