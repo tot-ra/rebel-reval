@@ -83,8 +83,8 @@ texture = ExtResource("2_wrwjg")
 [node name="forge" type="Sprite2D" parent="."]
 z_index = 1
 y_sort_enabled = true
-position = Vector2(14130, 2101)
-scale = Vector2(0.847244, 0.847244)
+position = Vector2(14115, 2107)
+scale = Vector2(0.833394, 0.833394)
 texture = ExtResource("4_n1jbl")
 
 [node name="StaticBody2D" type="StaticBody2D" parent="forge"]

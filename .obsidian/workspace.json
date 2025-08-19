@@ -170,6 +170,7 @@
   },
   "active": "e356263a432d93d7",
   "lastOpenFiles": [
+    "img/user__idle.gif",
     "player.tscn-nctDCT",
     "player.tscn-ZXHm0h",
     "scenes/revel_east/forge/forge.tscn-6D2xae",
@@ -182,7 +183,6 @@
     "scenes/revel_east/forge/forge.tscn-lPpnej",
     "assets/player/run/run_north_west_2.png.import",
     "assets/player/run/run_east.png.import",
-    "assets/player/run/run_west.png.import",
     "assets/player/run/run_east.png",
     "assets/player/run/run_west.png",
     "assets/player/run/run_north_east.png",

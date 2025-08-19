@@ -1037,12 +1037,13 @@ libraries = {
 [node name="Camera2D" type="Camera2D" parent="."]
 process_callback = 0
 limit_smoothed = true
-position_smoothing_enabled = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(2, -11)
+scale = Vector2(1.22656, 1.22656)
 sprite_frames = SubResource("SpriteFrames_nvl01")
-animation = &"run_south_west"
-frame_progress = 0.951204
+animation = &"run_south"
+frame_progress = 0.802043
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 39)

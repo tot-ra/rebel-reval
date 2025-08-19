@@ -3,7 +3,7 @@ extends CharacterBody2D
 class_name Player
 
 @export var speed = 100
-@export var run_speed = 200
+@export var run_speed = 300
 
 @onready var animation_player = $AnimatedSprite2D
 
@@ -22,6 +22,9 @@ func _physics_process(_delta):
 	
 	var direction_x = Input.get_axis("ui_left", "ui_right")
 	var direction_y = Input.get_axis("ui_up", "ui_down")
+	
+	if direction_x && direction_y:
+		current_speed = current_speed * 0.7
 	
 	# --- Velocity ---
 	if direction_x:

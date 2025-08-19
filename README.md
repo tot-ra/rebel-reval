@@ -19,7 +19,7 @@ Will you become the hero your people whisper about — a new "Kalevipoeg", or wi
 
 
 ## 🦸 The Hero: Kalev the Smith
-![](./img/user___idle.gif)
+![](./img/user__idle.gif)
 
 You are Kalev, an Estonian smith. To the German lords, you're just another pair of hands to shoe their horses. To your own people, you're a stubborn man with a strong back and a cynical tongue. But there's more to you than meets the eye.
 
