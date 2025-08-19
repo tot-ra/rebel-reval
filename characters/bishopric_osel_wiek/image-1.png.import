@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://moboyed7r2vk"
-path="res://.godot/imported/image-1.png-372a66d9546d1d1e27b21a0431803ce2.ctex"
+path="res://.godot/imported/image-1.png-8716739cc34faa0b36ccea146a4bcc9c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/order/image-1.png"
-dest_files=["res://.godot/imported/image-1.png-372a66d9546d1d1e27b21a0431803ce2.ctex"]
+source_file="res://characters/bishopric_osel_wiek/image-1.png"
+dest_files=["res://.godot/imported/image-1.png-8716739cc34faa0b36ccea146a4bcc9c.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://3b2r2g2qjmhy"
-path="res://.godot/imported/peddler.png-95f71fe2d3124e375e8c785328cb08aa.ctex"
+uid="uid://l7xrcj4b6p2w"
+path="res://.godot/imported/gossip_neighbor.png-8adb8103b16d366e015c56a78aa824a0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/streets/peddler/peddler.png"
-dest_files=["res://.godot/imported/peddler.png-95f71fe2d3124e375e8c785328cb08aa.ctex"]
+source_file="res://characters/streets/gossip_neighbor/gossip_neighbor.png"
+dest_files=["res://.godot/imported/gossip_neighbor.png-8adb8103b16d366e015c56a78aa824a0.ctex"]
 
 [params]
 

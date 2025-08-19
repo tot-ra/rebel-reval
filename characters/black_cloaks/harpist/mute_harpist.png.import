@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://di6isd6ylr3n4"
-path="res://.godot/imported/mute_harpist.png-e85a1d097d1cb6c9a1cd1f61ef9533ea.ctex"
+path="res://.godot/imported/mute_harpist.png-b7ff56edca5344fb03f98dbc6ace58fc.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/bards/mute_harpist.png"
-dest_files=["res://.godot/imported/mute_harpist.png-e85a1d097d1cb6c9a1cd1f61ef9533ea.ctex"]
+source_file="res://characters/black_cloaks/harpist/mute_harpist.png"
+dest_files=["res://.godot/imported/mute_harpist.png-b7ff56edca5344fb03f98dbc6ace58fc.ctex"]
 
 [params]
 
