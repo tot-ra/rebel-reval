@@ -14,7 +14,20 @@ Magnus is motivated by a desire to hold his vast and unwieldy triple kingdom (Sw
 *   **Initial view of the main player (Kalev):** He would see Kalev, and the rebellion as a whole, as a tool. A means to an end. He might feel some sympathy for their cause, but it would be secondary to his own strategic interests. He would not know Kalev personally.
 
 **History (Biography):**
-Born in 1316, Magnus Eriksson became King of Sweden and Norway at a young age. His reign was marked by significant legal reforms, including the abolition of slavery. However, he faced constant challenges from a powerful nobility and the logistical difficulties of ruling a sprawling kingdom. By 1343, he was dealing with significant political tensions, particularly in Norway, which led him to appoint his son Haakon as its king. While he did promise aid to the Estonian rebels and a Swedish fleet did arrive off Tallinn, the rebellion on the mainland had already been crushed. Unwilling to risk a direct war with the victorious Livonian Order, he withdrew.
+Born in Norway in 1316, Magnus Eriksson became King of Sweden and Norway at a young age. His reign was marked by significant legal reforms, including the abolition of slavery. However, he faced constant challenges from a powerful nobility and the logistical difficulties of ruling a sprawling kingdom. By 1343, he was dealing with significant political tensions, particularly in Norway, which led him to appoint his son Haakon as its king. While not present himself, he has sent a high-level diplomatic and military mission to the region, led by his trusted cousin, **Lord Knut Folkesson**. Knut has been given the authority to negotiate with the rebels and, if the opportunity is right, to seize Reval in the name of the Swedish Crown. The Swedish fleet that arrives off Tallinn is this very mission, making its failure to intervene a direct and personal decision by Magnus's own representative.
+
+**Faction Views:**
+*   **The Danish Crown:** His primary rival in Scandinavia. He sees Valdemar IV's weakness in Estonia as a golden opportunity to expand Swedish influence and potentially gain control of Reval, a valuable trading hub.
+*   **The Livonian Order:** A powerful and dangerous neighbor. He is wary of their military strength and would prefer to avoid a direct conflict. He is willing to let the Estonian rebels weaken them, but he will not risk his own forces in a direct confrontation unless he is certain of victory.
+*   **The Hanseatic League:** A complex web of trade and politics. He understands their economic power and the importance of maintaining good relations with them, but he is also wary of their influence in cities like Stockholm and Visby.
+*   **The Estonian Rebels:** A convenient pawn. He is sympathetic to their cause to the extent that it serves his own interests. He is willing to offer them promises of aid to encourage their rebellion, but his support is conditional and ultimately unreliable.
+*   **Novgorod and Pskov:** A rival for influence in the eastern Baltic. He has a long-standing and often tense relationship with the Russian republics, competing for control of trade routes and territory in Finland and Karelia.
+
+**Scene Presence:**
+King Magnus IV remains in Sweden, but his cousin and plenipotentiary, **Lord Knut Folkesson**, is a key NPC.
+*   **[Swedish Arrival](../../scenes/events/swedish_arrival.md):** Lord Knut is in command of the Swedish fleet. The player may interact with him aboard his flagship, pleading the rebels' case or witnessing his cautious assessment of the situation.
+*   **[Swedish Outpost](../../scenes/events/swedish_outpost.md):** Before the fleet's arrival, Lord Knut may be present at the bailiff's court in Turku or Vyborg, where the initial negotiations with the rebels take place.
+*   **[Reval Harbor](../../scenes/revel_north_oleviste/harbor.md):** Swedish diplomats and knights under Lord Knut's command could be found in the harbor district, gathering intelligence before the main fleet arrives.
 
 **Daily Routines:**
 Magnus's days would be consumed by the administration of his kingdoms. This would involve holding court, settling disputes, meeting with his council of nobles, and dealing with endless correspondence. His life is one of politics and diplomacy, a constant balancing act to maintain his authority.

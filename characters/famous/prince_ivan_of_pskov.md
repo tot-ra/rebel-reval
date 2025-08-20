@@ -13,7 +13,18 @@ Ivan is motivated by the security and prosperity of the Pskov Republic. As a fre
 *   **Initial view of the main player (Kalev):** He would see Kalev as representative of the rebellion's potential. If the rebels are strong and organized, they are useful allies. If they are weak and fractured, they are a lost cause. He would judge Kalev on his strength and his ability to fight, not on his personal story.
 
 **History (Biography):**
-While specific biographical details about Prince Ivan of Pskov from this exact period are scarce, he represents the leadership of the Pskov Republic, a state that was fiercely independent and frequently at odds with the Livonian Order. In 1343, the chronicles record that a Pskovian army of 5,000, led by a Prince Ivan, invaded the territory of the Bishopric of Dorpat to support the Estonian rebels. They reached Otepää but retreated after learning that the main rebellion in Harju had been crushed, highlighting the pragmatic nature of Pskov's involvement.
+Born and raised in the fortified city of Pskov, Prince Ivan's life was shaped by the constant threat of the Livonian Order. He represents the leadership of the Pskov Republic, a state that was fiercely independent and frequently at odds with its western neighbors. In 1343, in response to a plea from the Estonian rebels, he led a Pskovian army of 5,000 men across the border, invading the territory of the Bishopric of Dorpat. His campaign was a direct, military intervention. They reached Otepää but retreated after learning that the main rebellion in Harju had been crushed, highlighting the pragmatic and self-interested nature of Pskov's involvement.
+
+**Faction Views:**
+*   **The Livonian Order & Bishopric of Dorpat:** His hereditary enemies. He views them as aggressive, expansionist powers that pose a direct threat to Pskov's independence and its control over regional trade. He is always looking for an opportunity to weaken them.
+*   **Novgorod:** A powerful, and sometimes overbearing, older brother. He values the alliance with Novgorod against the Livonians, but is also fiercely protective of Pskov's de facto independence. He is wary of being drawn into Novgorod's larger political games.
+*   **The Estonian Rebels:** A temporary and convenient ally. He sees their uprising as a perfect opportunity to strike at the Order with minimal risk to himself. He is willing to support them as long as they are a credible fighting force, but he will not waste Pskovian lives on a lost cause.
+*   **The Grand Duchy of Lithuania:** A distant but potential ally. He shares a common enemy with them in the Livonian Order, but their paganism and expansionist ambitions make them an unpredictable and potentially dangerous partner.
+*   **The Hanseatic League:** Competitors. He sees the German merchants of Reval and Dorpat as economic rivals to the traders of Pskov and Novgorod.
+
+**Scene Presence:**
+Prince Ivan's presence in the game is brief, military, and impactful.
+*   **[Pskov Arrival Battle](../../scenes/events/pskov_arrival_battle.md):** He is the central figure in this event, leading his army into Livonian territory. The player will interact with him here, witnessing his military command and his pragmatic decision to retreat.
 
 **Daily Routines:**
 As a prince of a frontier republic, Ivan's days would be a mix of military and civic duties. He would be involved in training the militia, inspecting fortifications, and planning defenses against the Livonians. He would also preside over the *veche* (the city's assembly), settling disputes and managing the affairs of the republic.

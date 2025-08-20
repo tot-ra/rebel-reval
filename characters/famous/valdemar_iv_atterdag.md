@@ -14,7 +14,19 @@ Valdemar's singular motivation is the restoration of the Kingdom of Denmark. In 
 *   **Initial view of the main player (Kalev):** He would not know or care about a single smith. To him, Kalev is just another face in the rebellious Estonian mob, an obstacle to the profitable sale of the duchy.
 
 **History (Biography):**
-Born around 1320, Valdemar IV, known as "Atterdag" (Day's Return), ascended to the throne of a fragmented and bankrupt Denmark in 1340. By 1342, he has spent two years tirelessly working to reassemble his kingdom. His journey to Reval in person is a high-stakes gamble, a secret trip to ensure the profitable sale of the duchy. The heavy taxes he imposed were a calculated risk to squeeze the last revenues from the territory, a decision that is now fueling the very rebellion that threatens to undermine his plans. The St. George's Night Uprising of 1343 would become the dangerous complication he failed to foresee, but in the summer of 1342, he is a king playing a dangerous game of chess, confident he is in control.
+Born around 1320, likely at Sønderborg Castle, Valdemar IV, known as "Atterdag" (Day's Return), ascended to the throne of a fragmented and bankrupt Denmark in 1340. By 1342, he has spent two years tirelessly working to reassemble his kingdom. His journey to Reval was a high-stakes gamble, a secret trip by sea under the guise of a diplomatic mission to Sweden, to ensure the profitable sale of the duchy. The heavy taxes he imposed were a calculated risk to squeeze the last revenues from the territory, a decision that is now fueling the very rebellion that threatens to undermine his plans. The St. George's Night Uprising of 1343 would become the dangerous complication he failed to foresee, but in the summer of 1342, he is a king playing a dangerous game of chess, confident he is in control.
+
+**Faction Views:**
+*   **The Livonian Order:** A necessary evil. He needs their military strength to control the Estonian peasants and their financial resources to buy the duchy, but he sees them as arrogant, untrustworthy rivals who have long undermined Danish authority.
+*   **The Hanseatic League:** A source of frustration and income. He resents their power and autonomy but knows he cannot afford to alienate them. He sees them as greedy merchants to be taxed and managed.
+*   **The Estonian Rebels:** A nuisance. He views them not as a people with legitimate grievances, but as a pest infestation that threatens the value of his property. He has no interest in their culture or their plight, only in their swift and brutal suppression.
+*   **The Swedish Crown:** A dangerous rival. He is deeply suspicious of Swedish ambitions in the Baltic and his secret trip to Reval is partly designed to prevent them from interfering in the sale of Estonia.
+*   **The Grand Duchy of Lithuania:** A distant, pagan threat. He knows of them primarily as an enemy of the Order, and as long as they keep the knights busy, he is content to ignore them.
+
+**Scene Presence:**
+*   **[Toompea Castle](../../scenes/revel_toompea/domberg/domberg.md):** Can be found in the most secure chambers of the castle, conducting secret negotiations with his viceroy and emissaries from the Livonian Order.
+*   **[The Cathedral of Saint Mary](../../scenes/revel_toompea/cathedral_of_saint_mary/cathedral_of_saint_mary.md):** Might attend a private mass here, a public display of piety that masks his purely political machinations.
+*   **[Reval Harbor](../../scenes/revel_north_oleviste/harbor.md):** Could make a secret, late-night visit to the harbor to oversee the loading of tax revenues onto a ship bound for Denmark.
 
 **Daily Routines:**
 As a king constantly on the move, Valdemar has no fixed routine. His days are filled with travel, negotiations, planning military campaigns, and managing the complex finances of his kingdom. When in a place like Reval, he would likely be found in Toompea Castle, poring over maps and ledgers, or meeting with his viceroy and vassals.

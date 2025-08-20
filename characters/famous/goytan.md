@@ -14,6 +14,11 @@ Goytan is motivated by his faith and his art. He is a devout Orthodox Christian 
 **History (Biography):**
 Goytan is mentioned in Russian chronicles as an icon painter active around 1345, working under the patronage of Semyon the Proud, the Grand Prince of Moscow. While there is no record of him visiting Reval, it was common for artisans, particularly those of high skill, to travel for commissions. The strong trade links between Reval and the Russian republics of Novgorod and Pskov make it plausible that a painter like Goytan could have been working in the city, perhaps for the small community of Orthodox merchants.
 
+**Scene Presence:**
+*   **A Novgorodian Merchant's House:** His primary location would be a private workshop set up in the house of a wealthy Novgorodian merchant, likely located near the eastern quarters of the Lower Town where Russian traders congregated.
+*   **[Reval Market](../../scenes/revel_central_quarter/market_civic_quarter/market.md):** He might be found quietly sketching the faces in the crowd, or purchasing supplies like eggs, linseed oil, and wooden panels for his work.
+*   **[Church of the Holy Spirit (Püha Vaimu kirik)](../../scenes/revel_central_quarter/market_civic_quarter/church_of_the_holy_spirit.md):** While a Catholic church, he might visit to study the religious art of the "Latins," comparing it to his own Orthodox traditions.
+
 **Daily Routines:**
 Goytan's days are spent in quiet contemplation and meticulous work. He would have a small workshop, perhaps in the home of his patron, where he would grind his own pigments, prepare his wooden panels with gesso, and painstakingly apply layer after layer of egg tempera. His life is one of prayer, fasting, and the slow, meditative process of creating a sacred image.
 
@@ -21,3 +26,12 @@ Goytan's days are spent in quiet contemplation and meticulous work. He would hav
 *   **The Sacred Pigments:** A quest could involve the player helping Goytan acquire rare and valuable pigments for his work, some of which might only be found in dangerous or forbidden places.
 *   **An Icon of Peace:** Goytan might ask the player to help him create an icon that he believes could bring peace to the city, requiring the player to protect him and his work from the escalating violence.
 *   **The Heretic Painter:** The player might have to protect Goytan from the suspicion of the Livonian Order, who may see his Orthodox icons as a form of blasphemy or a symbol of Russian influence.
+
+**Worldview and Philosophy:**
+Goytan's worldview is that of a master icon painter from the Novgorod Republic, a world deeply rooted in Orthodox Christian faith and a fierce sense of local identity. His philosophy of art is inseparable from his faith: the icon is not a mere picture but a sacred object, a "window into heaven" through which the faithful can connect with the divine. He believes the artist must be a vessel for tradition, following the strict iconographic canons that have been passed down for generations. Yet, within this tradition, he is a man of his time and place. Unlike the more ethereal and aristocratic art of Byzantium, Goytan's work is grounded in the earthy, pragmatic spirituality of Novgorod. He sees saints not as distant, otherworldly figures, but as powerful, accessible protectors who are deeply involved in the daily lives of the people—blessing their trade, protecting their city, and aiding them in their struggles.
+
+**Major Creative Works (as a representative of the Novgorod School):**
+While Goytan himself is a lesser-known figure, his work would be a prime example of the vibrant and distinctive Novgorod School of icon painting of the 14th century.
+-   **Style:** His icons would be characterized by their bold, clear compositions, strong linear rhythms, and a brilliant, jewel-like color palette. The Novgorod style is known for its use of fiery vermilion, bright yellows, and emerald greens, creating a sense of energy and immediacy. The figures are often monumental and powerful, with a simple, laconic grace that is both direct and deeply expressive.
+-   **Subject Matter:** As a Novgorodian painter, he would specialize in icons of the most venerated local saints, figures who were seen as the protectors of the city and its people. He would be a master of depicting saints like St. George the Dragon-Slayer, St. Nicholas the Miracle-Worker, and the Prophet Elijah—all powerful intercessors who resonated with the martial and mercantile spirit of the Novgorod Republic.
+-   **The Iconostasis:** Goytan would be an expert in the creation of icons for the iconostasis, the great screen of icons that separates the sanctuary from the nave in an Orthodox church. This was a major artistic innovation of the 14th century, and his work would involve creating sets of icons (the Deesis tier, the festival tier, etc.) that formed a coherent and powerful theological statement, guiding the faithful in their worship.
