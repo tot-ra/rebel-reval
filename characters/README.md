@@ -124,5 +124,19 @@ These factions are not directly involved in the conflict between the Rulers and 
 -   **Core NPC:** [Nikolaus von Danzig](lizard_union/nikolaus_von_danzig.md)
 -   **Presence:** [Reval Market](../../scenes/lower_town/market.md), [The Serpent's Coil (Hidden Cellar)](../../scenes/lower_town/serpents_coil.md).
 
+**The Grand Duchy of Lithuania** 🇱🇹
+-   **Core Value:** Defiance
+-   **Ideal:** To preserve their pagan traditions and forge a powerful, independent empire in the face of crusading knights and rival powers.
+-   **Shadow:** Their fierce independence can manifest as brutal expansionism, viewing their neighbors as potential conquests rather than allies.
+-   **Core NPC:** [Algirdas](famous/algirdas.md)
+-   **Presence:** [The Sacred Grove](../../scenes/world/sacred_grove.md)
+
+**The Golden Horde** ურდოს
+-   **Core Value:** Dominion
+-   **Ideal:** To maintain the vast, multicultural "Pax Mongolica," a world of open trade and swift justice under the unquestioned authority of the Khan.
+-   **Shadow:** Their rule is one of brutal extraction and intimidation; they are distant overlords who demand tribute and punish defiance with overwhelming force.
+-   **Core NPC:** [Jani Beg Khan](famous/jani_beg_khan.md)
+-   **Presence:** [Reval Market](../../scenes/lower_town/market.md)
+
 
 _Character art has been moved to the individual location markdown files._

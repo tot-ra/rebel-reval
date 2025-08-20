@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bkm8pducq2m14"
-path="res://.godot/imported/strategist.png-e63a47823d6537c1eb6be1b6963c127d.ctex"
+path="res://.godot/imported/strategist.png-42cf65d71ff24340f794801c08b3f995.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/black_cloaks/strategist.png"
-dest_files=["res://.godot/imported/strategist.png-e63a47823d6537c1eb6be1b6963c127d.ctex"]
+source_file="res://characters/rebels/black_cloaks/strategist.png"
+dest_files=["res://.godot/imported/strategist.png-42cf65d71ff24340f794801c08b3f995.ctex"]
 
 [params]
 

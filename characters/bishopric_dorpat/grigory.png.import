@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dbw05r0w7nxgl"
-path="res://.godot/imported/mysterious_woman.png-a97235153ce8d7924dfd1df036c1e1c5.ctex"
+uid="uid://1lmynp6dvw1o"
+path="res://.godot/imported/grigory.png-cf05acb177e6a1424a1452486a8ed60d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/rebels/black_cloaks/mysterious_woman.png"
-dest_files=["res://.godot/imported/mysterious_woman.png-a97235153ce8d7924dfd1df036c1e1c5.ctex"]
+source_file="res://characters/bishopric_dorpat/grigory.png"
+dest_files=["res://.godot/imported/grigory.png-cf05acb177e6a1424a1452486a8ed60d.ctex"]
 
 [params]
 

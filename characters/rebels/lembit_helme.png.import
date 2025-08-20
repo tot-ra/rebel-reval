@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dbw05r0w7nxgl"
-path="res://.godot/imported/mysterious_woman.png-a97235153ce8d7924dfd1df036c1e1c5.ctex"
+uid="uid://y5f4r5s26v02"
+path="res://.godot/imported/lembit_helme.png-21a3049d964bdcf7fa2491adb02ba774.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/rebels/black_cloaks/mysterious_woman.png"
-dest_files=["res://.godot/imported/mysterious_woman.png-a97235153ce8d7924dfd1df036c1e1c5.ctex"]
+source_file="res://characters/rebels/lembit_helme.png"
+dest_files=["res://.godot/imported/lembit_helme.png-21a3049d964bdcf7fa2491adb02ba774.ctex"]
 
 [params]
 

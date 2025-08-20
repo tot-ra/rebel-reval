@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://2bdkhgxq5r61"
-path="res://.godot/imported/image-44.png-dabe2e8b7214b5265a10737d1e146f1f.ctex"
+path="res://.godot/imported/image-44.png-b11135358fb9e312816b045a6556689c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/bestiary/image-44.png"
-dest_files=["res://.godot/imported/image-44.png-dabe2e8b7214b5265a10737d1e146f1f.ctex"]
+source_file="res://characters/metsik_cult/image-44.png"
+dest_files=["res://.godot/imported/image-44.png-b11135358fb9e312816b045a6556689c.ctex"]
 
 [params]
 

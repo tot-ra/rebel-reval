@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dbw05r0w7nxgl"
-path="res://.godot/imported/mysterious_woman.png-a97235153ce8d7924dfd1df036c1e1c5.ctex"
+uid="uid://br8bcr5k48x4s"
+path="res://.godot/imported/urmas_laar.png-05f48b9cdb194b8738da83add80ab535.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/rebels/black_cloaks/mysterious_woman.png"
-dest_files=["res://.godot/imported/mysterious_woman.png-a97235153ce8d7924dfd1df036c1e1c5.ctex"]
+source_file="res://characters/rebels/urmas_laar.png"
+dest_files=["res://.godot/imported/urmas_laar.png-05f48b9cdb194b8738da83add80ab535.ctex"]
 
 [params]
 

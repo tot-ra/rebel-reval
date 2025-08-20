@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ec8osmtnqeuq"
-path="res://.godot/imported/old_toomas.png-74ebc1b0108322fc50aa1abdb332de26.ctex"
+path="res://.godot/imported/old_toomas.png-427f70ca30c1afa74576b8c4d42a234a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/old_toomas/old_toomas.png"
-dest_files=["res://.godot/imported/old_toomas.png-74ebc1b0108322fc50aa1abdb332de26.ctex"]
+source_file="res://characters/forge_folk/old_toomas/old_toomas.png"
+dest_files=["res://.godot/imported/old_toomas.png-427f70ca30c1afa74576b8c4d42a234a.ctex"]
 
 [params]
 

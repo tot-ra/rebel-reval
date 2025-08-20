@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://di7frjxl2emf"
-path="res://.godot/imported/weapons_master.png-34ab790805000a5874baa336c51b5fdc.ctex"
+path="res://.godot/imported/weapons_master.png-8763538d0a0eac0e89fd7e4e23190365.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/black_cloaks/weapons_master.png"
-dest_files=["res://.godot/imported/weapons_master.png-34ab790805000a5874baa336c51b5fdc.ctex"]
+source_file="res://characters/rebels/black_cloaks/weapons_master.png"
+dest_files=["res://.godot/imported/weapons_master.png-8763538d0a0eac0e89fd7e4e23190365.ctex"]
 
 [params]
 

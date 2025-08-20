@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dbw05r0w7nxgl"
-path="res://.godot/imported/mysterious_woman.png-a97235153ce8d7924dfd1df036c1e1c5.ctex"
+uid="uid://i5hxiph08xcx"
+path="res://.godot/imported/kaja_lahekivi.png-0d097534ff734c0754053626238367ed.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/rebels/black_cloaks/mysterious_woman.png"
-dest_files=["res://.godot/imported/mysterious_woman.png-a97235153ce8d7924dfd1df036c1e1c5.ctex"]
+source_file="res://characters/rebels/kaja_lahekivi.png"
+dest_files=["res://.godot/imported/kaja_lahekivi.png-0d097534ff734c0754053626238367ed.ctex"]
 
 [params]
 

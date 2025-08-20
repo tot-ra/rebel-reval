@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bvckfsr1fu73h"
-path="res://.godot/imported/forger.png-308167f7e7d58d0c62135f19fa54f05a.ctex"
+path="res://.godot/imported/forger.png-8d0c73d8e8fc503bcbdb2d0fae8a3e98.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/black_cloaks/forger.png"
-dest_files=["res://.godot/imported/forger.png-308167f7e7d58d0c62135f19fa54f05a.ctex"]
+source_file="res://characters/rebels/black_cloaks/forger.png"
+dest_files=["res://.godot/imported/forger.png-8d0c73d8e8fc503bcbdb2d0fae8a3e98.ctex"]
 
 [params]
 
