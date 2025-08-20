@@ -1042,8 +1042,7 @@ limit_smoothed = true
 position = Vector2(2, -11)
 scale = Vector2(1.22656, 1.22656)
 sprite_frames = SubResource("SpriteFrames_nvl01")
-animation = &"run_south"
-frame_progress = 0.501908
+animation = &"idle"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 39)

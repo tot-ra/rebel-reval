@@ -1,7 +1,7 @@
 extends "res://scripts/global/BaseLevel.gd"
 
 @onready var player = get_node("Buildings/Player")
-@onready var tile_map = get_node("TileMapLayer")
+@onready var tile_map = get_node("Ground")
 
 func _ready():
 	super()

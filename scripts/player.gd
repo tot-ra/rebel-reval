@@ -46,13 +46,10 @@ func _physics_process(_delta):
 
 			velocity = run_speed * (next_path_position - current_agent_position).normalized()
 			
-			print("navigating new_velocity:", velocity)
-			
 			navigation_agent.set_velocity(velocity)
 			new_animation = "run"
 		else:
 			velocity = Vector2.ZERO
-			print("navigation_agent.is_navigation_finished")
 
 	move_and_slide()
 	update_animation(new_animation)
