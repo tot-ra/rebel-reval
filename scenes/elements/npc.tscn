@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://gty6ne6exn21"]
+[gd_scene load_steps=7 format=3 uid="uid://gty6ne6exn21"]
 
-[ext_resource type="Script" uid="uid://qbfohjtotkyu" path="res://scripts/player.gd" id="1_g2u8i"]
+[ext_resource type="Script" uid="uid://bqv0llhneaxaa" path="res://scripts/npc.gd" id="1_8hovi"]
+[ext_resource type="Texture2D" uid="uid://bbj6nmr5mjbha" path="res://assets/bandits/woman1.png" id="2_8hovi"]
 
 [sub_resource type="Animation" id="Animation_i3pqv"]
 length = 0.001
@@ -18,8 +19,8 @@ _data = {
 radius = 12.0
 height = 24.0
 
-[node name="Enemy" type="CharacterBody2D"]
-script = ExtResource("1_g2u8i")
+[node name="NPC" type="CharacterBody2D"]
+script = ExtResource("1_8hovi")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
@@ -31,3 +32,8 @@ position = Vector2(0, 39)
 shape = SubResource("CapsuleShape2D_3iwfv")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_8hovi")
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]

@@ -1,5 +1,5 @@
 # Goytan
-![alt text](image-5.png)
+![alt text](goytan.png)
 
 **Visual Description:**
 Goytan is a man in his 40s, with a quiet and observant demeanor. He has a long, thin face, a neatly trimmed brown beard, and deep-set, thoughtful eyes. His hands are calloused and stained with pigments from his work. He wears the simple, practical robes of a traveling artisan from Novgorod, perhaps of dark, undyed wool. He carries a satchel with his precious brushes, pigments, and wooden panels. He moves with a deliberate slowness, as if constantly studying the play of light and shadow on the world around him.

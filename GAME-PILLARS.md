@@ -31,6 +31,7 @@ Witcher, Hades, Fallout, Disco Elysium, Magicka, WoW, Skyrim, Kingdom Come Deliv
     - **Atmospheric and Moody:** The world should be dark, gritty, and atmospheric, reflecting the harsh realities of 14th-century life.
 - **Unique Enemies:** No generic "critters." Every enemy should be a person with their own motivations and place in the world.
 - **Mature Themes:** The game will not shy away from R-rated content, including violence, gore, and complex ethical dilemmas.
+- Grounded in realism. Characters have own motivations and are driven by realistic problems affecting them.
 
 ### Politics
 - **Factional Warfare:** The core conflict is between the Ruling Factions and the Rebel Factions.

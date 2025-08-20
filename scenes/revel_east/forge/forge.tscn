@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=4 uid="uid://dbxean877egrv"]
+[gd_scene load_steps=37 format=4 uid="uid://dbxean877egrv"]
 
 [ext_resource type="Script" uid="uid://daitot221wqe7" path="res://scenes/revel_east/forge/forge.gd" id="1_b7ac7"]
 [ext_resource type="Texture2D" uid="uid://cuunf5kllexvn" path="res://assets/tiles2.png" id="2_b7ac7"]
@@ -23,6 +23,7 @@
 [ext_resource type="Texture2D" uid="uid://de2pta4jcuvus" path="res://assets/objects/smith-room/gauntlet.png" id="12_g4vrm"]
 [ext_resource type="Texture2D" uid="uid://bgqjbst8e4pcf" path="res://assets/objects/weapons/hammer.png" id="14_3qg1m"]
 [ext_resource type="Texture2D" uid="uid://dybiy1pwlgtt6" path="res://assets/objects/smith-room/furnace.png" id="14_kkgga"]
+[ext_resource type="PackedScene" uid="uid://gty6ne6exn21" path="res://scenes/elements/npc.tscn" id="22_3qg1m"]
 [ext_resource type="PackedScene" uid="uid://2dkwfsgaefnk" path="res://scenes/elements/FadeArea.tscn" id="22_g4vrm"]
 [ext_resource type="Texture2D" uid="uid://bede4j64b60ov" path="res://assets/objects/furniture/shelf2.png" id="23_g4vrm"]
 [ext_resource type="Script" uid="uid://c40knvp66jxf0" path="res://scenes/elements/FadeArea.gd" id="23_kin5l"]
@@ -254,6 +255,9 @@ polygon = PackedVector2Array(-48, 27, 37, -23, 137, 28, 46, 79)
 [node name="Player" parent="Node2D/WallsFront1" instance=ExtResource("2_se5dk")]
 y_sort_enabled = true
 position = Vector2(720, 371)
+
+[node name="NPC" parent="Node2D/WallsFront1" instance=ExtResource("22_3qg1m")]
+position = Vector2(615, 429)
 
 [node name="DoorAndWalls" type="Sprite2D" parent="Node2D"]
 z_index = 1
