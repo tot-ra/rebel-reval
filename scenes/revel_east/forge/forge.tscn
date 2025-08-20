@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=4 uid="uid://dbxean877egrv"]
+[gd_scene load_steps=35 format=4 uid="uid://dbxean877egrv"]
 
 [ext_resource type="Script" uid="uid://daitot221wqe7" path="res://scenes/revel_east/forge/forge.gd" id="1_b7ac7"]
 [ext_resource type="Texture2D" uid="uid://cuunf5kllexvn" path="res://assets/tiles2.png" id="2_b7ac7"]
@@ -61,6 +61,10 @@ stream_1/stream = ExtResource("7_djdym")
 stream_2/stream = ExtResource("8_edhnc")
 stream_3/stream = ExtResource("9_36143")
 stream_4/stream = ExtResource("10_nf08j")
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kkgga"]
+resource_local_to_scene = true
+size = Vector2(187.495, 142.094)
 
 [node name="Forge" type="Node2D"]
 position = Vector2(-733, -360)
@@ -278,11 +282,13 @@ destination_door_tag = "forge"
 spawn_direction = "down"
 
 [node name="Spawn" parent="Doors/door_main" index="0"]
-position = Vector2(227, -146)
+position = Vector2(270, -181)
 
 [node name="CollisionShape2D" parent="Doors/door_main" index="1"]
-position = Vector2(129.728, -63.3115)
+position = Vector2(128.925, -98.6487)
 rotation = 0.485202
+scale = Vector2(1, 1)
+shape = SubResource("RectangleShape2D_kkgga")
 
 [editable path="Node2D/WallsFront/FadeArea"]
 [editable path="Doors/door_main"]

@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=4 uid="uid://i12knbdtgifr"]
+[gd_scene load_steps=33 format=4 uid="uid://i12knbdtgifr"]
 
 [ext_resource type="Script" uid="uid://bl7l57o36owyx" path="res://scenes/revel_east/revel_east.gd" id="1_xvruj"]
 [ext_resource type="Texture2D" uid="uid://bdon6tpfsllx3" path="res://scenes/revel_walls_towers/wall-map.png" id="2_jppj2"]
@@ -141,6 +141,10 @@ stream_6 = ExtResource("14_527ls")
 stream_7 = ExtResource("15_d1ipq")
 stream_8 = ExtResource("16_kylvb")
 stream_9 = ExtResource("17_8e8b0")
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vhx60"]
+resource_local_to_scene = true
+size = Vector2(933, 639)
 
 [node name="Center" type="Node2D"]
 script = ExtResource("1_xvruj")
@@ -307,5 +311,6 @@ position = Vector2(207, -17)
 [node name="CollisionShape2D" parent="Doors/door_east1" index="1"]
 position = Vector2(201, 331)
 rotation = 0.0139626
+shape = SubResource("RectangleShape2D_vhx60")
 
 [editable path="Doors/door_east1"]

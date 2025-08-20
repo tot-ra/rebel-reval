@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://1c2a60v6j3yi"]
+
+[ext_resource type="Texture2D" uid="uid://cxkmhnos6q5nn" path="res://assets/buildings/tower.png" id="1_rpjlw"]
+
+[node name="Turret" type="Node2D"]
+
+[node name="21" type="Sprite2D" parent="."]
+position = Vector2(1.32471, 10.7181)
+scale = Vector2(0.180028, 0.180028)
+texture = ExtResource("1_rpjlw")
+offset = Vector2(0, -400)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="21"]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="21/StaticBody2D"]
+position = Vector2(-1.80364, -398.371)
+polygon = PackedVector2Array(-262.874, 340.401, -207.327, 384.839, -124.007, 429.276, -29.5771, 445.94, 37.0791, 445.94, 48.1885, 462.604, 98.1806, 457.05, 92.6259, 434.831, 153.727, 401.503, 198.165, 368.175, 209.274, 368.175, 231.493, 334.847, 231.493, 312.628, 148.173, 262.636, -7.35833, 251.526, -146.225, 273.745)
