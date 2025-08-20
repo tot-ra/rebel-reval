@@ -28,6 +28,8 @@ The aftermath of the uprising (1343-1345) left the bishopric in a vulnerable pos
 *   **A Knight Commander:** The loyal commander of the Bishop's forces, responsible for defending the castles at Haapsalu and Kuressaare. He is constantly stretched thin, dealing with threats from the Order, potential uprisings, and pirate raids.
 *   **A Canon of the Cathedral Chapter:** An influential and ambitious member of the Bishop's council. He may secretly resent the Bishop's authority and could be in quiet negotiations with the Livonian Order for his own benefit.
 *   **A Sea Captain:** A salty, experienced mariner who trades in the Bishop's ports. He brings news from across the Baltic and may act as a privateer for the Bishop, or alternately, have dealings with pirates himself.
+*   **A Hanseatic Merchant:** A representative of the powerful Hanseatic League, with significant economic interests in the region.
+
 
 ## Governance and Daily Life
 

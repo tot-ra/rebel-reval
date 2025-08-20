@@ -170,6 +170,17 @@
   },
   "active": "e49a2cc9fe3c06a7",
   "lastOpenFiles": [
+    "characters/bishopric_osel_wiek/hermann.png",
+    "characters/bishopric_dorpat/grigory.png",
+    "characters/bishopric_dorpat/image.png",
+    "characters/bishopric_dorpat/andreas.png",
+    "characters/bishopric_dorpat/vifhusen.png",
+    "characters/bishopric_dorpat/brother_andreas.md",
+    "characters/bishopric_dorpat/klaus_von_rutenberg.md",
+    "characters/bishopric_dorpat/sir_matthias_von_lowenwolde.md",
+    "characters/bishopric_dorpat/meelis_of_otepaa.md",
+    "characters/bishopric_dorpat/voivode_grigori.md",
+    "characters/bishopric_dorpat/prince_bishop_johann.md",
     "characters/metsik_cult/ellen_luik.png",
     "characters/metsik_cult/image-1.png",
     "characters/metsik_cult/image.png.import",
@@ -188,11 +199,6 @@
     "characters/rebels/kaja_lahekivi.md",
     "characters/rebels/lembit_helme.md",
     "README.md",
-    "characters/rebels/urmas_laar.png",
-    "characters/rebels/black_cloaks/random.png",
-    "characters/rebels/random.png",
-    "characters/rebels/martin.png",
-    "characters/rebels/image.png",
     "characters/rebels/lembit_helme_blacksmith.md",
     "characters/order/image.png.import",
     "characters/order/brother_goswin.png.import",
@@ -209,12 +215,6 @@
     "assets/bestiary/README.md",
     "characters/forge_folk/old_toomas/old_toomas.md",
     "characters/lizard_union/nikolaus_von_danzig.md",
-    "characters/lizard_union/README.md",
-    "characters/clergy/emissary.md",
-    "characters/bishopric_riga/README.md",
-    "characters/streets/peddler/peddler.md",
-    "characters/streets/gossip_neighbor/gossip_neighbor.md",
-    "characters/streets/runaway_serf/runaway_serf.md",
-    "characters/denmark/town_guard/captain.md"
+    "characters/lizard_union/README.md"
   ]
 }
