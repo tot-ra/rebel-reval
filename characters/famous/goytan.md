@@ -1,5 +1,6 @@
 # Goytan
 ![alt text](image-5.png)
+
 **Visual Description:**
 Goytan is a man in his 40s, with a quiet and observant demeanor. He has a long, thin face, a neatly trimmed brown beard, and deep-set, thoughtful eyes. His hands are calloused and stained with pigments from his work. He wears the simple, practical robes of a traveling artisan from Novgorod, perhaps of dark, undyed wool. He carries a satchel with his precious brushes, pigments, and wooden panels. He moves with a deliberate slowness, as if constantly studying the play of light and shadow on the world around him.
 
@@ -12,7 +13,7 @@ Goytan is motivated by his faith and his art. He is a devout Orthodox Christian 
 *   **Initial view of the main player (Kalev):** He would see Kalev with a mixture of fear and artistic curiosity. He would be frightened by the violence Kalev represents, but also fascinated by his face, seeing in it the raw, earthy strength of the Estonian people—a face worthy of being painted, perhaps as a martyr or a saint.
 
 **History (Biography):**
-Goytan is mentioned in Russian chronicles as an icon painter active around 1345, working under the patronage of Semyon the Proud, the Grand Prince of Moscow. While there is no record of him visiting Reval, it was common for artisans, particularly those of high skill, to travel for commissions. The strong trade links between Reval and the Russian republics of Novgorod and Pskov make it plausible that a painter like Goytan could have been working in the city, perhaps for the small community of Orthodox merchants.
+Goytan is a well-regarded icon painter from the vibrant city of Novgorod, representing the local school of art. He has traveled to Reval for a commission from the Novgorodian merchant community, a common practice for skilled artisans. In the unique environment of this Catholic Hanseatic city, he finds himself working alongside two other prodigious young Orthodox painters: the sophisticated Byzantine, [**Theophanes the Greek**](theophanes_the_greek.md), and the talented [**Prokhor of Gorodets**](prokhor_of_gorodets.md) from the Volga. This meeting of three distinct artistic traditions in a foreign land creates a fertile ground for innovation, as they are all exposed to the local Gothic art and stained glass, which subtly influences their work.
 
 **Scene Presence:**
 *   **A Novgorodian Merchant's House:** His primary location would be a private workshop set up in the house of a wealthy Novgorodian merchant, likely located near the eastern quarters of the Lower Town where Russian traders congregated.
@@ -28,7 +29,7 @@ Goytan's days are spent in quiet contemplation and meticulous work. He would hav
 *   **The Heretic Painter:** The player might have to protect Goytan from the suspicion of the Livonian Order, who may see his Orthodox icons as a form of blasphemy or a symbol of Russian influence.
 
 **Worldview and Philosophy:**
-Goytan's worldview is that of a master icon painter from the Novgorod Republic, a world deeply rooted in Orthodox Christian faith and a fierce sense of local identity. His philosophy of art is inseparable from his faith: the icon is not a mere picture but a sacred object, a "window into heaven" through which the faithful can connect with the divine. He believes the artist must be a vessel for tradition, following the strict iconographic canons that have been passed down for generations. Yet, within this tradition, he is a man of his time and place. Unlike the more ethereal and aristocratic art of Byzantium, Goytan's work is grounded in the earthy, pragmatic spirituality of Novgorod. He sees saints not as distant, otherworldly figures, but as powerful, accessible protectors who are deeply involved in the daily lives of the people—blessing their trade, protecting their city, and aiding them in their struggles.
+Goytan's worldview is that of a master icon painter from the Novgorod Republic, grounded in the earthy, pragmatic spirituality of his city. He is a firm believer in the power of tradition and the strict iconographic canons. However, his time in Reval has opened his eyes. He is intrigued by the narrative clarity of the Catholic frescoes and the brilliant colors of their stained glass. He engages in spirited debates with Theophanes and Prokhor, arguing for the strength of the Novgorodian style while also absorbing the influences of his contemporaries and the foreign art around him. He is focused on how to incorporate new techniques to make the powerful protector saints of Novgorod even more immediate and accessible to the faithful.
 
 **Major Creative Works (as a representative of the Novgorod School):**
 While Goytan himself is a lesser-known figure, his work would be a prime example of the vibrant and distinctive Novgorod School of icon painting of the 14th century.

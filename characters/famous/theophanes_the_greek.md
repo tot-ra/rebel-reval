@@ -1,5 +1,7 @@
 # Theophanes the Greek (b. c. 1330)
 
+![alt text](image-25.png)
+
 **Visual Description:**
 At 13, Theophanes is a youth caught between boyhood and adolescence, with an intensity that belies his age. He is slight of build, with dark, unruly hair that often falls into his piercing, dark eyes. His complexion is olive, typical of his Byzantine Greek heritage, standing in contrast to the paler tones of the locals. He dresses in the simple, practical tunic of an apprentice, made of dark, earth-toned wool, though it is of a finer cut and fabric than those of local boys. His hands are perpetually stained with charcoal and pigment. He is often quiet and watchful, absorbing every detail of his surroundings with a startling focus, his gaze lingering on the play of light on stone or the expressions on faces in the crowd.
 
@@ -9,12 +11,13 @@ At 13, Theophanes is a youth caught between boyhood and adolescence, with an int
 - To understand the strange, "barbaric" art and culture of this cold northern land, seeing it as both unsettling and fascinating.
 
 **Ties & Relationships:**
-- **Allies:** His primary ally is his patron, a Genoese merchant named Niccolò. He would also seek out the company of other artists, craftsmen, or clergy who might offer him shelter, knowledge, or a scrap of parchment to draw on.
-- **Enemies:** He is fearful of the raw violence of both the rebels and the Order knights. He would be a target due to his foreign appearance and association with a wealthy merchant.
+- **Allies:** His primary ally is his patron, a Genoese merchant named Niccolò, who protects him in the foreign city of Reval.
+- **Contemporaries & Rivals:** He has found an unlikely community with two other young Orthodox masters in Reval: the pragmatic Novgorodian [**Goytan**](goytan.md) and the gifted [**Prokhor of Gorodets**](prokhor_of_gorodets.md) from the Volga. They are his rivals, his colleagues, and his only true artistic peers, engaging in constant debate and exchange of ideas that pushes all three of them to new heights.
+- **Enemies:** He is fearful of the raw violence of both the rebels and the Order knights. His foreignness makes him a target, and his sophisticated, expressive art could be seen as dangerously foreign by local traditionalists.
 - **Initial view of the main player:** He would view the player with a mixture of fear and fascination. As a non-combatant and an observer, he would see the player as a powerful force of action, a figure of immense interest to be sketched from a safe distance.
 
 **History (Biography):**
-Born in the vibrant heart of the declining Byzantine Empire, Constantinople, Theophanes was recognized as an artistic prodigy from a young age. His talent for capturing spiritual intensity in his drawings caught the eye of Niccolò, a wealthy Genoese merchant who traded in Byzantine silks and icons. Seeing a rare genius, Niccolò took the boy on as his protégé, intending to cultivate his talent for future commissions. Their travels brought them to the Hanseatic city of Reval, a key hub in the Baltic trade network. They arrived just as the St. George's Night Uprising erupted, trapping the merchant and his young apprentice far from home in a city suddenly consumed by violence and fear.
+Born in the vibrant heart of the declining Byzantine Empire, Constantinople, Theophanes was recognized as an artistic prodigy. His patron, a Genoese merchant named Niccolò, brought him to the Hanseatic city of Reval. Here, in this northern Catholic city, far from the heart of Orthodox culture, he encounters two other young masters who will become his legendary contemporaries: Goytan of Novgorod and Prokhor of Gorodets. This meeting in Reval becomes a crucible for artistic innovation. The three artists, each representing a different school of Orthodox painting, are exposed to the Gothic art and stained glass of the West for the first time. This shared experience of being "artists in exile" forges a unique bond of rivalry and collaboration, where they challenge and influence one another, ultimately shaping the future of Russian and Orthodox art.
 
 **Daily Routines:**
 - Stays close to his patron for protection, rarely venturing out alone.
