@@ -10,7 +10,7 @@
 [ext_resource type="AudioStream" uid="uid://6ai78whounwj" path="res://music/revel_east/Apothecary (1).mp3" id="8_yq6vu"]
 [ext_resource type="AudioStream" uid="uid://bkuxuac75jgbk" path="res://music/revel_east/Apothecary (2).mp3" id="9_2wnse"]
 [ext_resource type="AudioStream" uid="uid://nq0lk18uh8o8" path="res://music/revel_east/Apothecary (3).mp3" id="10_y7nby"]
-[ext_resource type="Texture2D" uid="uid://ch2sfg0l6f4fn" path="res://assets/bestiary/bandits/thug2.png" id="10_yq6vu"]
+[ext_resource type="Texture2D" path="res://assets/bestiary/bandits/thug2.png" id="10_yq6vu"]
 [ext_resource type="Texture2D" uid="uid://bihueuvppxkgj" path="res://assets/buildings/tavern.png" id="11_2wnse"]
 [ext_resource type="AudioStream" uid="uid://r5lwh25b2048" path="res://music/revel_east/Apothecary (6).mp3" id="11_w1qp5"]
 [ext_resource type="AudioStream" uid="uid://dnv58sc2w20m" path="res://music/revel_east/Apothecary (7).mp3" id="12_mot3s"]
@@ -341,8 +341,8 @@ position = Vector2(13772, 4279)
 texture = ExtResource("12_vnm0s")
 
 [node name="Tavern" type="Sprite2D" parent="."]
-position = Vector2(13869, 3246)
-scale = Vector2(1.28174, 1.28174)
+position = Vector2(13894, 3352)
+scale = Vector2(1.03137, 1.03137)
 texture = ExtResource("11_2wnse")
 
 [node name="StaticBody2D" type="StaticBody2D" parent="Tavern"]

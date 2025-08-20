@@ -22,9 +22,9 @@ The Order maintains a strong military presence in the castle, using it as a barr
 -   **Core NPCs:** **Brother Burchard von Dreileben**, a zealous and battle-hardened knight of the Order. He is a formidable warrior and a charismatic leader, offering you access to elite combat training, blessed weaponry, and the chance to fight for what he believes is a righteous cause. He is unyielding in his faith and merciless to his enemies.
 
 **Character Art:**
-![](../../../characters/order/teutonic-1.png)
+![](../../characters/order/brother_goswin_von_herike.png)
 ![](../../../characters/order/teutonic-2.png)
-![](../../../characters/order/image-1.png)
+![](../../characters/order/brother_goswin.png)
 ![](../../../characters/order/image-2.png)
 ![](../../../characters/order/image-3.png)
 

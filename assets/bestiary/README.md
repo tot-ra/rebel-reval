@@ -7,27 +7,6 @@ The world of Reval Rebel is populated by a host of dangerous foes, each with uni
 
 ### Human Adversaries
 
--   **Livonian Order:** The military arm of the ruling factions, disciplined and heavily armed.
-
-
-![alt text](image-41.png)
-![alt text](image-40.png)
--   **Order Footman (Low Threat):** The backbone of the Order's forces. Wields a sword and shield. Fights defensively, relying on numbers and formation.
-    - Abilities: form shields
-
-![alt text](image-39.png)
-![alt text](image-37.png)
-    
--   **Order Sergeant (Medium Threat):** A battle-hardened leader. Can perform a shield bash to break the player's poise and shouts commands to buff nearby footmen.
-    - Abilities: form swords around them
-
-![alt text](image-36.png)
-![alt text](image-38.png)
--   **Order Knight (High Threat):** An elite warrior clad in full plate armor. Wields a greatsword or mace, capable of devastating, uninterruptible attacks. Highly resistant to stagger.
-    - Abilities: Form both shields and swoards around them
-
-
-
 -   **Pagan Cult of Metsik:** Wild and unpredictable, drawing power from the ancient forest.
 
 ![alt text](image.png)
@@ -70,11 +49,11 @@ The world of Reval Rebel is populated by a host of dangerous foes, each with uni
 ![alt text](image-57.png)
 ![alt text](image-56.png)
 ![](image-51.png)
-![](./bandits/woman1.png)
-![](./bandits/thug.png)
-![](./bandits/thug2.png)
-![](./bandits/thug3.png)
-![](./bandits/thug4.png)
+![](../bandits/woman1.png)
+![](../bandits/thug.png)
+![](../bandits/thug2.png)
+![](../bandits/thug3.png)
+![](../bandits/thug4.png)
 
 ### Mythological Creatures
 

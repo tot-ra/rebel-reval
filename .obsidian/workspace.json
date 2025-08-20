@@ -4,21 +4,19 @@
     "type": "split",
     "children": [
       {
-        "id": "33b5d7e5a5c7e221",
+        "id": "8948216e347d5460",
         "type": "tabs",
         "children": [
           {
-            "id": "2e0b0fdc40a401a9",
+            "id": "e49a2cc9fe3c06a7",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "image",
               "state": {
-                "file": "characters/old_toomas/old_toomas.md",
-                "mode": "source",
-                "source": false
+                "file": "assets/download-2.png"
               },
-              "icon": "lucide-file",
-              "title": "old_toomas"
+              "icon": "lucide-image",
+              "title": "download-2"
             }
           }
         ]
@@ -168,31 +166,39 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "40ad962db64b1f0b",
+  "active": "e49a2cc9fe3c06a7",
   "lastOpenFiles": [
+    "characters/order/image.png.import",
+    "characters/order/brother_goswin.png.import",
+    "characters/order/image-39.png.import",
+    "characters/order/image-38.png.import",
+    "characters/order/image-41.png.import",
+    "characters/order/image-36.png.import",
+    "characters/order/image-40.png.import",
+    "characters/order/image-37.png.import",
+    "assets/download-3.png",
+    "assets/rocks-grass.png",
+    "assets/download-2.png",
+    "assets/download-1.png",
+    "assets/download.png",
+    "assets/tiles2.png",
+    "assets/tiles.png",
+    "assets/tiles1.png",
+    "assets/bestiary/image-53.png",
+    "assets/bestiary/image-55.png",
+    "MINI_GAMES.md",
+    "characters/order/brother_goswin_von_herike.md",
+    "Master Burchard von Dreileben.md",
+    "characters/order/master_burchard_von_dreileben.md",
+    "characters/order/README.md.md",
+    "characters/order/squire.md",
+    "assets/bestiary/README.md",
+    "characters/old_toomas/old_toomas.md",
     "characters/lizard_union/image.png.import",
-    "characters/lizard_union/image.png",
     "characters/lizard_union/nikolaus_von_danzig.md",
     "characters/lizard_union/README.md",
     "characters/lizard_union",
     "characters/cats/download-20.aseprite",
-    "characters/cats/download-1.png.import",
-    "characters/cats/download-8 copy.png.import",
-    "characters/cats/download-8.png.import",
-    "characters/cats/download-15.png.import",
-    "characters/cats/download-14.png.import",
-    "characters/cats/download-16 copy.png.import",
-    "characters/cats/download-16.png.import",
-    "characters/cats/download-17.png.import",
-    "characters/bishopric_osel_wiek/image-3.png",
-    "characters/bishopric_osel_wiek/image-2.png",
-    "characters/bishopric_osel_wiek/image-1.png",
-    "characters/cats/download-16 copy.png",
-    "characters/cats/download-8 copy.png",
-    "characters/cats/download-1.png",
-    "characters/cats/download.png",
-    "characters/cats/download-16.png",
-    "characters/cats/download-14.png",
     "characters/clergy/emissary.md",
     "characters/bishopric_riga/README.md",
     "characters/streets/peddler/peddler.md",
@@ -201,20 +207,12 @@
     "characters/denmark/town_guard/captain.md",
     "characters/streets/child_sword/child_sword.md",
     "characters/README.md",
-    "characters/order/master_burchard_von_dreileben.md",
-    "characters/order/brother_goswin_von_herike.md",
     "characters/bishopric_osel_wiek/hermann_osenbrugge.md",
     "characters/bishopric_osel_wiek/README.md",
     "characters/blackhead/johann_von_minden.md",
     "characters/black_cloaks/harpist/mute_harpist.md",
     "characters/black_cloaks/weapons_master.md",
     "characters/black_cloaks/healer.md",
-    "characters/black_cloaks/forger.md",
-    "characters/black_cloaks/strategist.md",
-    "characters/black_cloaks/scout.md",
-    "characters/black_cloaks/mysterious_woman.md",
-    "characters/order/squire.md",
-    "characters/peasants/disgruntled_farmer.md",
-    "characters/peasants/farmer_broken_plow.md"
+    "characters/black_cloaks/forger.md"
   ]
 }

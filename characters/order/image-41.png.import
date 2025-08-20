@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bbj6nmr5mjbha"
-path="res://.godot/imported/woman1.png-9480a8963c90bbea63b3e790ed4256c8.ctex"
+uid="uid://cvbsoh0jcsafr"
+path="res://.godot/imported/image-41.png-b5e747751f45c24bfba98fbd326c053e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/bestiary/bandits/woman1.png"
-dest_files=["res://.godot/imported/woman1.png-9480a8963c90bbea63b3e790ed4256c8.ctex"]
+source_file="res://characters/order/image-41.png"
+dest_files=["res://.godot/imported/image-41.png-b5e747751f45c24bfba98fbd326c053e.ctex"]
 
 [params]
 

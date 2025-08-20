@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dv618aet3bqd0"
-path="res://.godot/imported/thug.png-0a0bf9dc97c9eb83a23a83b6508b4da7.ctex"
+uid="uid://m0y7mpun2xey"
+path="res://.godot/imported/image-37.png-030474d242567fb24e29b0c22100e872.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/bestiary/bandits/thug.png"
-dest_files=["res://.godot/imported/thug.png-0a0bf9dc97c9eb83a23a83b6508b4da7.ctex"]
+source_file="res://characters/order/image-37.png"
+dest_files=["res://.godot/imported/image-37.png-030474d242567fb24e29b0c22100e872.ctex"]
 
 [params]
 
