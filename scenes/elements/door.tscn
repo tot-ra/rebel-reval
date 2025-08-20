@@ -4,7 +4,7 @@
 [ext_resource type="AudioStream" uid="uid://cqgq5vtwp8031" path="res://sounds/door.mp3" id="2_e708x"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_2xcpy"]
-size = Vector2(186.113, 103.269)
+size = Vector2(210.293, 238.484)
 
 [node name="Door" type="Area2D"]
 script = ExtResource("1_hpvv5")

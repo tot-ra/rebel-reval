@@ -8,13 +8,15 @@ var cache_order = []
 
 var scene_paths = {
 	"forge": "res://scenes/revel_east/forge/forge.tscn",
-	"revel_east": "res://scenes/revel_east/revel_east.tscn"
+	"revel_east": "res://scenes/revel_east/revel_east.tscn",
+	"revel_north": "res://scenes/revel_north/revel_north.tscn"
 }
 
 signal on_trigger_player_spawn
 
 func go_to_scene(level_tag, destination_tag):
 	if not scene_paths.has(level_tag):
+		print("scene does not have level tag" + level_tag)
 		return
 
 	spawn_door_tag = destination_tag

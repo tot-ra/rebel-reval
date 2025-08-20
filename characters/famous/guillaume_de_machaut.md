@@ -18,7 +18,7 @@ Guillaume de Machaut (c. 1300–1377) was a French poet and composer, a central 
 **Scene Presence:**
 *   **[Toompea Castle](../../scenes/revel_toompea/domberg/domberg.md):** As a guest of the Danish Viceroy, he could be found in the castle's great hall, performing for the nobles and high-ranking knights.
 *   **[The Cathedral of Saint Mary](../../scenes/revel_toompea/cathedral_of_saint_mary/cathedral_of_saint_mary.md):** He might be working with the cathedral choir, attempting to teach them his complex polyphonic compositions.
-*   **[Great Guild Hall](../../scenes/revel_north_west_quarter_merchants/great_guild_hall.md):** Could be commissioned by the wealthy Hanseatic merchants to perform at one of their lavish feasts.
+*   **[Great Guild Hall](../../scenes/revel_north/great_guild_hall.md):** Could be commissioned by the wealthy Hanseatic merchants to perform at one of their lavish feasts.
 
 **Daily Routines:**
 Machaut's days are dedicated to his art. He would spend his time composing music and poetry, practicing his instruments (such as the lute or the viol), and perhaps attempting to train a local church choir in the complex polyphonic style of the *Ars Nova*. He would be a man apart, trying to create a small island of high culture in a sea of conflict.

@@ -83,7 +83,7 @@ graph TD
     - ⚓️ [Reval Harbor](./lower_town/harbor.md)
     - 🏠 [Seamen's Inn](revel_central_quarter/harbor_quarter/seamens_inn.md)
     - 🏠 [Warehouses](revel_central_quarter/harbor_quarter/warehouses.md)
-    - ⛪️ [St. Olaf's Church (Oleviste kirik)](revel_north_west_quarter_merchants/st_olafs_church.md) (1267)
+    - ⛪️ [St. Olaf's Church (Oleviste kirik)](revel_north/st_olafs_church.md) (1267)
 
 - [CENTER](./revel_central_quarter/)
     - ⚓️ [Reval Market](./lower_town/market.md)
@@ -96,11 +96,11 @@ graph TD
     
 
 - [WEST](./revel_north_west_quarter_merchants/)
-    - ⚓️ [Pikk Street](revel_north_west_quarter_merchants/pikk_street.md)
+    - ⚓️ [Pikk Street](revel_north/pikk_street.md)
     - ⛪️ [St. Michael's Cistercian Nunnery (Mihkli klooster)](revel_central_quarter/st_michaels_nunnery.md) (1249)
-    - 🏛️ [Great Guild Hall](revel_north_west_quarter_merchants/great_guild_hall.md) (1410)
-    - 🏛️ [St. Olaf's Guild Hall](./revel_north_west_quarter_merchants/great_guild_hall.md) (1422)
-    - 🏛️ [Brotherhood of Blackheads House](revel_north_west_quarter_merchants/brotherhood_of_blackheads_house.md) (1399)
+    - 🏛️ [Great Guild Hall](revel_north/great_guild_hall.md) (1410)
+    - 🏛️ [St. Olaf's Guild Hall](revel_north/great_guild_hall.md) (1422)
+    - 🏛️ [Brotherhood of Blackheads House](revel_north/brotherhood_of_blackheads_house.md) (1399)
 
 - [SOUTH]
     - 💧 [Rataskaev Well](revel_south_quarter_niguliste/rataskaev_well.md)
