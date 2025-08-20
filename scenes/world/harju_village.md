@@ -7,16 +7,16 @@ A representative peasant village in Harju County, the heartland of the Estonian 
 ### The Harju Kings ✊🏻
 This is the home turf of the rural rebels.
 
-![](../../characters/harju/image.png)
+![](../../characters/rebels/lembit_helme.png)
 **Lembit Helme**: A stern village elder with a long white beard, a deeply wrinkled face, and eyes that have seen many winters. He carries a staff carved with ancient symbols.
 
-![](../../characters/harju/image-1.png)
+![](../../characters/rebels/image-1.png)
 **Kaja Lahekivi**: A nobleman's daughter turned rebel, with fiery red hair, a determined jaw, and practical leather clothing. She is skilled with a bow.
 
-![](../../characters/harju/image-14.png)
+![](../../characters/rebels/image-14.png)
 **Jüri Ratnik**: A former manor blacksmith, with a powerful build, a soot-stained face, and a quiet, thoughtful demeanor. He is a master of his craft.
 
-![](../../characters/harju/elder.png)
+![](../../characters/rebels/elder.png)
 **Urmas Laar**: A mystic from the eastern marshlands, with wild, unkempt hair, a feverish look in his eyes, and clothes adorned with bones and feathers.
 
 ## Other Characters

@@ -1,4 +1,4 @@
-![alt text](./scout.png)
+![alt text](scout.png)
 
 ## Black Cloak Scout
 

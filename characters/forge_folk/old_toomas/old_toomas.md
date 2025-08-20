@@ -1,4 +1,4 @@
-![](./old_toomas.gif)
+![](old_toomas.gif)
 
 ## Old Toomas
 

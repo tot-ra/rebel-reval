@@ -1,4 +1,4 @@
-![](./mysterious_woman.png)
+![](mysterious_woman.png)
 
 ## Mysterious Woman in a Black Cloak
 

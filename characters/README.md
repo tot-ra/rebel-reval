@@ -69,7 +69,7 @@ These factions represent the native Estonian resistance.
 They represent rebellion, decentralization, grassroot nature powers, flexibility.
 They are outgunned and outmaneuvered, but they have the support of the people and a deep connection to the land itself.
 
-**The Harju Kings** ✊🏻
+[**The Harju Kings** ✊🏻](./characters/rebels/)
 -   **Motivation:** Freedom. The main, rural-based military force of the uprising, born in the fields of Harju County. They are farmers and villagers who have taken up arms against their oppressors. They are the heart of the rebellion's military power, fighting in open battles.
 -   **Core NPCs:** 
     - [Lembit Helme](rebels/lembit_helme.md)
@@ -83,8 +83,10 @@ They are outgunned and outmaneuvered, but they have the support of the people an
 
 **The Black Cloaks** 🌃
 -   **Motivation:** Liberation from the inside. Radicals. The urban guerilla arm of the rebellion within Reval's walls. Composed of smiths, artisans, and the city's underclass, they specialize in stealth, sabotage, intelligence, and street-level warfare.
--   **Core NPC:** [Lembit Helme (The Blacksmith)](rebels/lembit_helme_blacksmith.md)
+-   **Core NPC:** [martin_the_blacksmith](rebels/martin_the_blacksmith.md)
 -   **Presence:** [The Smith's Forge](../../scenes/lower_town/the_smiths_forge.md), [Reval Market](../../scenes/lower_town/market.md), [Reval Harbor](../../scenes/lower_town/harbor.md).
+
+
 
 **The Cult of Metsik** 🍀
 -   **Motivation:** The Old Ways. A secretive cult of forest-dwellers who worship the ancient Estonian gods. They see the Christian invaders as a plague upon the land and believe that the uprising is a chance to restore the old ways. Their magic is powerful and chaotic, drawn from the sacred groves and the spirits of the earth.

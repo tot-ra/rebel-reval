@@ -22,7 +22,7 @@ The forge is the central hub for the Black Cloaks.
 
 ## NPCs
 
-- [Old Man Toomas](../../../characters/old_toomas/old_toomas.md)
+- [Old Man Toomas](../../../characters/forge_folk/old_toomas/old_toomas.md)
 - [Young Apprentice Juhan](../../../characters/forge_folk/juhan/juhan.md)
 - [Town Guard Captain](../../../characters/denmark/town_guard/captain.md)
 - [Wealthy Merchant's Wife](../../../characters/merchants/merchants_wife.md)
@@ -34,14 +34,14 @@ The forge is the central hub for the Black Cloaks.
 - [Priest's Emissary](../../../characters/clergy/emissary.md)
 - [Livonian Order Squire](../../../characters/order/squire.md)
 - [Runaway Serf](../../../characters/streets/runaway_serf/runaway_serf.md)
-- [The Mute Harpist](../../../characters/black_cloaks/harpist/mute_harpist.md)
+- [The Mute Harpist](../../../characters/rebels/black_cloaks/harpist/mute_harpist.md)
 
 ### Black Cloaks NPCs
 
-- [Mysterious Woman in a Black Cloak](../../../characters/black_cloaks/mysterious_woman.md)
+- [Mysterious Woman in a Black Cloak](../../../characters/rebels/black_cloaks/mysterious_woman.md)
 - [Lembit Helme](../../../characters/rebels/lembit_helme_blacksmith.md)
-- [Black Cloak Scout](../../../characters/black_cloaks/scout.md)
-- [Black Cloak Strategist](../../../characters/black_cloaks/strategist.md)
-- [Black Cloak Forger](../../../characters/black_cloaks/forger.md)
-- [Black Cloak Healer](../../../characters/black_cloaks/healer.md)
-- [Black Cloak Weapons Master](../../../characters/black_cloaks/weapons_master.md)
+- [Black Cloak Scout](../../../characters/rebels/black_cloaks/scout.md)
+- [Black Cloak Strategist](../../../characters/rebels/black_cloaks/strategist.md)
+- [Black Cloak Forger](../../../characters/rebels/black_cloaks/forger.md)
+- [Black Cloak Healer](../../../characters/rebels/black_cloaks/healer.md)
+- [Black Cloak Weapons Master](../../../characters/rebels/black_cloaks/weapons_master.md)

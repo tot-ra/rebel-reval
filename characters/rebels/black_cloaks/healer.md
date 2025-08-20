@@ -1,4 +1,4 @@
-![alt text](./healer.png)
+![alt text](healer.png)
 
 ## Black Cloak Healer
 

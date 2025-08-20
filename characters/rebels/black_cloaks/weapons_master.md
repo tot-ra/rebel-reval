@@ -1,4 +1,4 @@
-![alt text](./weapons_master.png)
+![alt text](weapons_master.png)
 
 ## Black Cloak Weapons Master
 

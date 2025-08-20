@@ -8,4 +8,4 @@ You are Kalev, an Estonian smith. To the German lords, you're just another pair 
 - "Magical" forces. You have some supernatural powers (after you ate mushroom soup). Unlock more by aligning with factions.
 
 
-![](image.png)
+![](../../history/image.png)

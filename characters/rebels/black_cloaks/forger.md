@@ -1,4 +1,4 @@
-![alt text](./forger.png)
+![alt text](forger.png)
 
 ## Black Cloak Forger
 

@@ -1,4 +1,4 @@
-![alt text](./strategist.png)
+![alt text](strategist.png)
 
 ## Black Cloak Strategist
 
