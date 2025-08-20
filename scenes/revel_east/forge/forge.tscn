@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=4 uid="uid://dbxean877egrv"]
+[gd_scene load_steps=36 format=4 uid="uid://dbxean877egrv"]
 
 [ext_resource type="Script" uid="uid://daitot221wqe7" path="res://scenes/revel_east/forge/forge.gd" id="1_b7ac7"]
 [ext_resource type="Texture2D" uid="uid://cuunf5kllexvn" path="res://assets/tiles2.png" id="2_b7ac7"]
@@ -31,6 +31,12 @@
 [ext_resource type="Texture2D" uid="uid://c5wqf0qlr6g76" path="res://assets/objects/food/bottle3.png" id="26_3qg1m"]
 [ext_resource type="Texture2D" uid="uid://b5qverp8f4ney" path="res://assets/objects/food/black-bread.png" id="27_2oisn"]
 
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_kkgga"]
+vertices = PackedVector2Array(64, 0, 0, 32, -64, 0, 0, -32)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(0, -32, -64, 0, 0, 32, 64, 0)])
+agent_radius = 0.0
+
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_k3c1x"]
 texture = ExtResource("2_b7ac7")
 texture_region_size = Vector2i(128, 128)
@@ -46,12 +52,16 @@ texture_region_size = Vector2i(128, 128)
 2:1/0 = 0
 1:2/0 = 0
 3:3/0 = 0
+3:3/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_kkgga")
 2:3/0 = 0
+2:3/0/physics_layer_0/polygon_0/points = PackedVector2Array(0, -32, -64, 0, 0, 32, 64, 0)
 
 [sub_resource type="TileSet" id="TileSet_aes7p"]
 tile_shape = 1
 tile_layout = 5
 tile_size = Vector2i(128, 64)
+physics_layer_0/collision_layer = 1
+navigation_layer_0/layers = 1
 sources/1 = SubResource("TileSetAtlasSource_k3c1x")
 
 [sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_beq2v"]
@@ -279,7 +289,7 @@ autoplay = true
 position = Vector2(316, 670)
 destination_level_tag = "revel_east"
 destination_door_tag = "forge"
-spawn_direction = "down"
+spawn_direction = "south"
 
 [node name="Spawn" parent="Doors/door_main" index="0"]
 position = Vector2(270, -181)
@@ -287,7 +297,6 @@ position = Vector2(270, -181)
 [node name="CollisionShape2D" parent="Doors/door_main" index="1"]
 position = Vector2(128.925, -98.6487)
 rotation = 0.485202
-scale = Vector2(1, 1)
 shape = SubResource("RectangleShape2D_kkgga")
 
 [editable path="Node2D/WallsFront/FadeArea"]

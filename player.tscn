@@ -1048,3 +1048,6 @@ frame_progress = 0.501908
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 39)
 shape = SubResource("CapsuleShape2D_3iwfv")
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+path_desired_distance = 10.0
