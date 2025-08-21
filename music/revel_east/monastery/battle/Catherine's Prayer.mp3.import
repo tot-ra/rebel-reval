@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cikyjthwq4rom"
+path="res://.godot/imported/Catherine's Prayer.mp3-d59547522a9cc821ff181fa99fd4777e.mp3str"
+
+[deps]
+
+source_file="res://music/revel_east/monastery/battle/Catherine's Prayer.mp3"
+dest_files=["res://.godot/imported/Catherine's Prayer.mp3-d59547522a9cc821ff181fa99fd4777e.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

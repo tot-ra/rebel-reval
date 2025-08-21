@@ -1058,6 +1058,7 @@ shape = SubResource("CapsuleShape2D_3iwfv")
 path_desired_distance = 10.0
 
 [node name="HealthBar" type="ProgressBar" parent="."]
+z_index = 1000
 offset_left = -34.0
 offset_top = -82.0
 offset_right = 41.0

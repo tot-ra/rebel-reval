@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dovu0wloevet7"
+path="res://.godot/imported/Whispers of the Monastery Garden (1).mp3-730011cdd74ef1864f8e3ecfab4bcbf8.mp3str"
+
+[deps]
+
+source_file="res://music/revel_east/monastery/Whispers of the Monastery Garden (1).mp3"
+dest_files=["res://.godot/imported/Whispers of the Monastery Garden (1).mp3-730011cdd74ef1864f8e3ecfab4bcbf8.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

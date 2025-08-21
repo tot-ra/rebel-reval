@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=4 uid="uid://dbxean877egrv"]
+[gd_scene load_steps=36 format=4 uid="uid://dbxean877egrv"]
 
 [ext_resource type="Script" uid="uid://daitot221wqe7" path="res://scenes/revel_east/forge/forge.gd" id="1_b7ac7"]
 [ext_resource type="Texture2D" uid="uid://cuunf5kllexvn" path="res://assets/tiles2.png" id="2_b7ac7"]
@@ -8,17 +8,11 @@
 [ext_resource type="Texture2D" uid="uid://cddn553stto7y" path="res://assets/objects/furniture/table2.png" id="5_kin5l"]
 [ext_resource type="Texture2D" uid="uid://dcvifxr4uji3h" path="res://assets/objects/furniture/chest5.png" id="6_eg132"]
 [ext_resource type="Texture2D" uid="uid://bbsqj0o8h33qw" path="res://assets/objects/smith-room/wheel.png" id="6_hnwuu"]
-[ext_resource type="AudioStream" uid="uid://bbxe0haypln7q" path="res://music/forge/1.mp3" id="6_hsxjw"]
-[ext_resource type="AudioStream" uid="uid://c41d0gqmjt6ng" path="res://music/forge/2.mp3" id="7_djdym"]
 [ext_resource type="Texture2D" uid="uid://ddxcbxhtjp8xu" path="res://assets/objects/smith-room/door1.png" id="7_k3c1x"]
 [ext_resource type="Texture2D" uid="uid://u04gml8lrs8o" path="res://assets/objects/smith-room/anvil.png" id="7_sw2kw"]
-[ext_resource type="AudioStream" uid="uid://b2i3qu5ats23d" path="res://music/forge/3.mp3" id="8_edhnc"]
-[ext_resource type="AudioStream" uid="uid://l0fpukln0074" path="res://music/forge/4.mp3" id="9_36143"]
 [ext_resource type="Texture2D" uid="uid://b6wila6ls3w5s" path="res://assets/objects/smith-room/shovel.png" id="9_pmd2t"]
 [ext_resource type="Texture2D" uid="uid://c6nx6w363lmao" path="res://assets/objects/smith-room/Iron ingots.png" id="10_l6lcm"]
-[ext_resource type="AudioStream" uid="uid://b50aaa8ceav8c" path="res://music/forge/5.mp3" id="10_nf08j"]
 [ext_resource type="Texture2D" uid="uid://dgxie2etanup3" path="res://assets/objects/smith-room/instruments.png" id="11_2u58i"]
-[ext_resource type="PackedScene" uid="uid://dfb184eowm7q1" path="res://scenes/elements/door.tscn" id="11_6pyjq"]
 [ext_resource type="Texture2D" uid="uid://nifxi2s342xd" path="res://assets/objects/furniture/wooden-crate2.png" id="12_2u58i"]
 [ext_resource type="Texture2D" uid="uid://de2pta4jcuvus" path="res://assets/objects/smith-room/gauntlet.png" id="12_g4vrm"]
 [ext_resource type="Texture2D" uid="uid://bgqjbst8e4pcf" path="res://assets/objects/weapons/hammer.png" id="14_3qg1m"]
@@ -30,7 +24,12 @@
 [ext_resource type="Texture2D" uid="uid://cyky3lxcmr67w" path="res://assets/objects/furniture/bucket-water.png" id="24_kin5l"]
 [ext_resource type="Texture2D" uid="uid://dwwwa2it1dt5t" path="res://assets/objects/food/onions.png" id="25_kkgga"]
 [ext_resource type="Texture2D" uid="uid://c5wqf0qlr6g76" path="res://assets/objects/food/bottle3.png" id="26_3qg1m"]
+[ext_resource type="AudioStream" uid="uid://cfgy7yg3i6bh7" path="res://music/forge/The Smith's Song.mp3" id="26_g4vrm"]
+[ext_resource type="AudioStream" uid="uid://h5lgwyqd4i0p" path="res://music/forge/Fireside Tale.mp3" id="26_kin5l"]
 [ext_resource type="Texture2D" uid="uid://b5qverp8f4ney" path="res://assets/objects/food/black-bread.png" id="27_2oisn"]
+[ext_resource type="AudioStream" uid="uid://fos6spyi14bv" path="res://music/forge/The Smith's Song2.mp3" id="27_kin5l"]
+[ext_resource type="Script" uid="uid://dotxenhm1atxm" path="res://scenes/elements/door.gd" id="29_kkgga"]
+[ext_resource type="AudioStream" uid="uid://cqgq5vtwp8031" path="res://sounds/door.mp3" id="30_3qg1m"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_kkgga"]
 vertices = PackedVector2Array(64, 0, 0, 32, -64, 0, 0, -32)
@@ -66,12 +65,10 @@ navigation_layer_0/layers = 1
 sources/1 = SubResource("TileSetAtlasSource_k3c1x")
 
 [sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_beq2v"]
-streams_count = 5
-stream_0/stream = ExtResource("6_hsxjw")
-stream_1/stream = ExtResource("7_djdym")
-stream_2/stream = ExtResource("8_edhnc")
-stream_3/stream = ExtResource("9_36143")
-stream_4/stream = ExtResource("10_nf08j")
+streams_count = 3
+stream_0/stream = ExtResource("26_kin5l")
+stream_1/stream = ExtResource("27_kin5l")
+stream_2/stream = ExtResource("26_g4vrm")
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_kkgga"]
 resource_local_to_scene = true
@@ -289,19 +286,33 @@ autoplay = true
 
 [node name="Doors" type="Node2D" parent="."]
 
-[node name="door_main" parent="Doors" instance=ExtResource("11_6pyjq")]
+[node name="door_main" type="Area2D" parent="Doors"]
 position = Vector2(316, 670)
+script = ExtResource("29_kkgga")
 destination_level_tag = "revel_east"
 destination_door_tag = "forge"
 spawn_direction = "south"
 
-[node name="Spawn" parent="Doors/door_main" index="0"]
+[node name="Spawn" type="Marker2D" parent="Doors/door_main"]
 position = Vector2(270, -181)
 
-[node name="CollisionShape2D" parent="Doors/door_main" index="1"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Doors/door_main"]
 position = Vector2(128.925, -98.6487)
 rotation = 0.485202
 shape = SubResource("RectangleShape2D_kkgga")
+debug_color = Color(0.25817, 0.552912, 0.832533, 0.42)
+
+[node name="ColorRect" type="ColorRect" parent="Doors/door_main/CollisionShape2D"]
+offset_left = -117.148
+offset_top = -76.5503
+offset_right = 789.852
+offset_bottom = 536.45
+scale = Vector2(0.312309, 0.264889)
+color = Color(0.229009, 0.478447, 0.846532, 0.403922)
+
+[node name="OpenSound" type="AudioStreamPlayer" parent="Doors/door_main"]
+stream = ExtResource("30_3qg1m")
+
+[connection signal="body_entered" from="Doors/door_main" to="Doors/door_main" method="_on_body_entered"]
 
 [editable path="Node2D/WallsFront/FadeArea"]
-[editable path="Doors/door_main"]

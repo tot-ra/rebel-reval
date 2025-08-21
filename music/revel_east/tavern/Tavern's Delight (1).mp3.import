@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bwboc1g7sn7n2"
+path="res://.godot/imported/Tavern's Delight (1).mp3-ff5acc5e99784385594243f4e3b7ac70.mp3str"
+
+[deps]
+
+source_file="res://music/revel_east/tavern/Tavern's Delight (1).mp3"
+dest_files=["res://.godot/imported/Tavern's Delight (1).mp3-ff5acc5e99784385594243f4e3b7ac70.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

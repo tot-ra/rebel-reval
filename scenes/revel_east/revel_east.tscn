@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=4 uid="uid://cxbg0w372wak4"]
+[gd_scene load_steps=36 format=4 uid="uid://cxbg0w372wak4"]
 
 [ext_resource type="Texture2D" uid="uid://bdon6tpfsllx3" path="res://scenes/revel_walls_towers/wall-map.png" id="1_8eko7"]
 [ext_resource type="Script" uid="uid://bl7l57o36owyx" path="res://scenes/revel_east/revel_east.gd" id="1_wrwjg"]
@@ -11,7 +11,9 @@
 [ext_resource type="AudioStream" uid="uid://bkuxuac75jgbk" path="res://music/revel_east/Apothecary (2).mp3" id="9_2wnse"]
 [ext_resource type="AudioStream" uid="uid://nq0lk18uh8o8" path="res://music/revel_east/Apothecary (3).mp3" id="10_y7nby"]
 [ext_resource type="Texture2D" uid="uid://bihueuvppxkgj" path="res://assets/buildings/tavern.png" id="11_2wnse"]
+[ext_resource type="AudioStream" uid="uid://63btgk1bndci" path="res://music/revel_east/The Shaman's Trance.mp3" id="11_hfmco"]
 [ext_resource type="AudioStream" uid="uid://r5lwh25b2048" path="res://music/revel_east/Apothecary (6).mp3" id="11_w1qp5"]
+[ext_resource type="AudioStream" uid="uid://casme8cm6evjr" path="res://music/revel_east/The Shaman's Trance (1).mp3" id="12_jn3t3"]
 [ext_resource type="AudioStream" uid="uid://dnv58sc2w20m" path="res://music/revel_east/Apothecary (7).mp3" id="12_mot3s"]
 [ext_resource type="PackedScene" uid="uid://dfb184eowm7q1" path="res://scenes/elements/door.tscn" id="12_y7nby"]
 [ext_resource type="AudioStream" uid="uid://oiiwu1au2324" path="res://music/revel_east/Apothecary (8).mp3" id="13_cje2n"]
@@ -20,7 +22,9 @@
 [ext_resource type="AudioStream" uid="uid://bc8x3eiou1nix" path="res://music/revel_east/streets2.mp3" id="16_roxo4"]
 [ext_resource type="AudioStream" uid="uid://bmt3ar6gowv53" path="res://music/revel_east/streets.mp3" id="17_xuwre"]
 [ext_resource type="PackedScene" uid="uid://gty6ne6exn21" path="res://scenes/elements/npc.tscn" id="20_q26ta"]
+[ext_resource type="Script" uid="uid://dotxenhm1atxm" path="res://scenes/elements/door.gd" id="21_roxo4"]
 [ext_resource type="Texture2D" uid="uid://c6hfgoar1s4lh" path="res://assets/trees/Scots_Pine.png" id="22_mot3s"]
+[ext_resource type="AudioStream" uid="uid://cqgq5vtwp8031" path="res://sounds/door.mp3" id="22_xuwre"]
 [ext_resource type="Texture2D" uid="uid://gqresc1xplk5" path="res://assets/trees/Silver_Birch.png" id="23_cje2n"]
 [ext_resource type="Texture2D" uid="uid://cxfqulimmj5uh" path="res://assets/trees/Norway_Spruce2.png" id="24_hfmco"]
 [ext_resource type="Texture2D" uid="uid://dto6kgedj4uiq" path="res://assets/animals/cats/download-17.png" id="24_mot3s"]
@@ -29,7 +33,7 @@
 [sub_resource type="AudioStreamPlaylist" id="AudioStreamPlaylist_608pq"]
 resource_local_to_scene = true
 shuffle = true
-stream_count = 10
+stream_count = 12
 stream_0 = ExtResource("8_yq6vu")
 stream_1 = ExtResource("9_2wnse")
 stream_2 = ExtResource("10_y7nby")
@@ -40,6 +44,8 @@ stream_6 = ExtResource("14_hfmco")
 stream_7 = ExtResource("15_jn3t3")
 stream_8 = ExtResource("16_roxo4")
 stream_9 = ExtResource("17_xuwre")
+stream_10 = ExtResource("11_hfmco")
+stream_11 = ExtResource("12_jn3t3")
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_q26ta"]
 resource_local_to_scene = true
@@ -160,20 +166,33 @@ autoplay = true
 
 [node name="Doors" type="Node2D" parent="."]
 
-[node name="door_forge" parent="Doors" instance=ExtResource("12_y7nby")]
+[node name="door_forge" type="Area2D" parent="Doors"]
 z_index = 1
-position = Vector2(13969, 2346)
+position = Vector2(13969, 2329)
+script = ExtResource("21_roxo4")
 destination_level_tag = "forge"
 destination_door_tag = "main"
 spawn_direction = "north"
 
-[node name="Spawn" parent="Doors/door_forge" index="0"]
+[node name="Spawn" type="Marker2D" parent="Doors/door_forge"]
 position = Vector2(-17, -12)
 
-[node name="CollisionShape2D" parent="Doors/door_forge" index="1"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Doors/door_forge"]
 position = Vector2(21.835, -72.9553)
 rotation = 0.509636
 shape = SubResource("RectangleShape2D_q26ta")
+debug_color = Color(0.25817, 0.552912, 0.832533, 0.42)
+
+[node name="ColorRect" type="ColorRect" parent="Doors/door_forge/CollisionShape2D"]
+offset_left = -58.085
+offset_top = -48.9246
+offset_right = 848.915
+offset_bottom = 564.075
+scale = Vector2(0.129237, 0.154345)
+color = Color(0.229009, 0.478447, 0.846532, 0.403922)
+
+[node name="OpenSound" type="AudioStreamPlayer" parent="Doors/door_forge"]
+stream = ExtResource("22_xuwre")
 
 [node name="door_south1" parent="Doors" instance=ExtResource("12_y7nby")]
 position = Vector2(4306, 15184)
@@ -263,7 +282,8 @@ texture = ExtResource("24_mot3s")
 position = Vector2(14192, 2406)
 texture = ExtResource("25_cje2n")
 
-[editable path="Doors/door_forge"]
+[connection signal="body_entered" from="Doors/door_forge" to="Doors/door_forge" method="_on_body_entered"]
+
 [editable path="Doors/door_south1"]
 [editable path="Doors/door_north1"]
 [editable path="Doors/door_central1"]
