@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dmwhvpobv2ux2"
+path="res://.godot/imported/Baltic Tempest (1).mp3-e4094285572e31bee7c4117b3aa90330.mp3str"
+
+[deps]
+
+source_file="res://music/harbor/battle/Baltic Tempest (1).mp3"
+dest_files=["res://.godot/imported/Baltic Tempest (1).mp3-e4094285572e31bee7c4117b3aa90330.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

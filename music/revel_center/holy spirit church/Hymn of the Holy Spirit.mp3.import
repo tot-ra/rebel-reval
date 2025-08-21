@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dmq5griu5khnt"
+path="res://.godot/imported/Hymn of the Holy Spirit.mp3-861a10f9664ff39eb6122f05f1bc375f.mp3str"
+
+[deps]
+
+source_file="res://music/revel_center/holy spirit church/Hymn of the Holy Spirit.mp3"
+dest_files=["res://.godot/imported/Hymn of the Holy Spirit.mp3-861a10f9664ff39eb6122f05f1bc375f.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

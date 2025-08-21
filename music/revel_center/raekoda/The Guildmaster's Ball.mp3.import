@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bt3db8qrvef0b"
+path="res://.godot/imported/The Guildmaster's Ball.mp3-8f0be1046b2f33bb8029d5328694b885.mp3str"
+
+[deps]
+
+source_file="res://music/revel_center/raekoda/The Guildmaster's Ball.mp3"
+dest_files=["res://.godot/imported/The Guildmaster's Ball.mp3-8f0be1046b2f33bb8029d5328694b885.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

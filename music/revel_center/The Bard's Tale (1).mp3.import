@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dwbuc887nqe2p"
+path="res://.godot/imported/The Bard's Tale (1).mp3-17d814bbc231de75815c89a7c6e6fe8d.mp3str"
+
+[deps]
+
+source_file="res://music/revel_center/The Bard's Tale (1).mp3"
+dest_files=["res://.godot/imported/The Bard's Tale (1).mp3-17d814bbc231de75815c89a7c6e6fe8d.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

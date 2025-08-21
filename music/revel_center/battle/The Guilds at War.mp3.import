@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dh4peq5v3hlle"
+path="res://.godot/imported/The Guilds at War.mp3-f5adbbbda2c9daa38a70c8b88ef35da9.mp3str"
+
+[deps]
+
+source_file="res://music/revel_center/battle/The Guilds at War.mp3"
+dest_files=["res://.godot/imported/The Guilds at War.mp3-f5adbbbda2c9daa38a70c8b88ef35da9.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

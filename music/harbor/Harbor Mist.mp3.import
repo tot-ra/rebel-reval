@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dwxmq0x42tklg"
+path="res://.godot/imported/Harbor Mist.mp3-747c31470cc686349bc4142f75c5cd9d.mp3str"
+
+[deps]
+
+source_file="res://music/harbor/Harbor Mist.mp3"
+dest_files=["res://.godot/imported/Harbor Mist.mp3-747c31470cc686349bc4142f75c5cd9d.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

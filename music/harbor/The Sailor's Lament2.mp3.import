@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cpr6sm2e8hipu"
+path="res://.godot/imported/The Sailor's Lament2.mp3-11e0a0b943f7bfc0291056e57be6fa63.mp3str"
+
+[deps]
+
+source_file="res://music/harbor/The Sailor's Lament2.mp3"
+dest_files=["res://.godot/imported/The Sailor's Lament2.mp3-11e0a0b943f7bfc0291056e57be6fa63.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

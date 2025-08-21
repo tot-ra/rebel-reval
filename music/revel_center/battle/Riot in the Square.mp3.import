@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://mkux7gss6w6m"
+path="res://.godot/imported/Riot in the Square.mp3-60265eca565157e1edd263b1f4594ab4.mp3str"
+
+[deps]
+
+source_file="res://music/revel_center/battle/Riot in the Square.mp3"
+dest_files=["res://.godot/imported/Riot in the Square.mp3-60265eca565157e1edd263b1f4594ab4.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

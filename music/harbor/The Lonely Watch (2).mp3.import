@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cjlje2x3i3n18"
+path="res://.godot/imported/The Lonely Watch (2).mp3-2cfa46bb12dfe96eaf8cc2308c16f865.mp3str"
+
+[deps]
+
+source_file="res://music/harbor/The Lonely Watch (2).mp3"
+dest_files=["res://.godot/imported/The Lonely Watch (2).mp3-2cfa46bb12dfe96eaf8cc2308c16f865.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

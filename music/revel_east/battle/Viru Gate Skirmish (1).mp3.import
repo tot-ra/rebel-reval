@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://xqfd1onk3ywn"
+path="res://.godot/imported/Viru Gate Skirmish (1).mp3-8193e3d6497b3c367453ea7071445107.mp3str"
+
+[deps]
+
+source_file="res://music/revel_east/battle/Viru Gate Skirmish (1).mp3"
+dest_files=["res://.godot/imported/Viru Gate Skirmish (1).mp3-8193e3d6497b3c367453ea7071445107.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
