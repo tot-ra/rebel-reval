@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bhgdhg0f5kani"
-path="res://.godot/imported/download-18.png-1d415e86dc9f16a3a3556ba75a933576.ctex"
+uid="uid://bcrg12j7hi25w"
+path="res://.godot/imported/Norway_Spruce.png-696f6e078fbfa50cbe66ccc8be1b2ab7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/cats/download-18.png"
-dest_files=["res://.godot/imported/download-18.png-1d415e86dc9f16a3a3556ba75a933576.ctex"]
+source_file="res://assets/trees/Norway_Spruce.png"
+dest_files=["res://.godot/imported/Norway_Spruce.png-696f6e078fbfa50cbe66ccc8be1b2ab7.ctex"]
 
 [params]
 

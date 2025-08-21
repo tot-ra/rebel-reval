@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d2jm3oj4clutc"
-path="res://.godot/imported/download-8.png-475f8e9c335b79185518ac9bb89c240b.ctex"
+uid="uid://b4chanhkwvshq"
+path="res://.godot/imported/hay.png-100b97af40b43f7db805ef0ff5b14892.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/cats/download-8.png"
-dest_files=["res://.godot/imported/download-8.png-475f8e9c335b79185518ac9bb89c240b.ctex"]
+source_file="res://assets/buildings/hay.png"
+dest_files=["res://.godot/imported/hay.png-100b97af40b43f7db805ef0ff5b14892.ctex"]
 
 [params]
 

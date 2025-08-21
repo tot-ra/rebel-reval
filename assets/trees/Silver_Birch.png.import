@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://rodw2n4ergn5"
-path="res://.godot/imported/download.png-f271efac33c6d1a37b7ed897bc27e683.ctex"
+uid="uid://gqresc1xplk5"
+path="res://.godot/imported/Silver_Birch.png-3e30ef6c49925149e4e91559b7ce4ed4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/cats/download.png"
-dest_files=["res://.godot/imported/download.png-f271efac33c6d1a37b7ed897bc27e683.ctex"]
+source_file="res://assets/trees/Silver_Birch.png"
+dest_files=["res://.godot/imported/Silver_Birch.png-3e30ef6c49925149e4e91559b7ce4ed4.ctex"]
 
 [params]
 

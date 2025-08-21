@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ckgr5tq1tou4k"
-path="res://.godot/imported/download-8 copy.png-9b270f939efc8c0dd51c7785a9e41aea.ctex"
+uid="uid://cn6vxs6uo3x6d"
+path="res://.godot/imported/bear.png-8a2204285dc34b3bc256e9ed48141880.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/cats/download-8 copy.png"
-dest_files=["res://.godot/imported/download-8 copy.png-9b270f939efc8c0dd51c7785a9e41aea.ctex"]
+source_file="res://assets/animals/bear.png"
+dest_files=["res://.godot/imported/bear.png-8a2204285dc34b3bc256e9ed48141880.ctex"]
 
 [params]
 

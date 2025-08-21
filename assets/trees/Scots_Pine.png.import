@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://2go3ecgquk8m"
-path="res://.godot/imported/download-1.png-e1e48930d49fc0baa03abf160d8af790.ctex"
+uid="uid://c6hfgoar1s4lh"
+path="res://.godot/imported/Scots_Pine.png-551a04623ba38874e7d64cf62a0d3570.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/cats/download-1.png"
-dest_files=["res://.godot/imported/download-1.png-e1e48930d49fc0baa03abf160d8af790.ctex"]
+source_file="res://assets/trees/Scots_Pine.png"
+dest_files=["res://.godot/imported/Scots_Pine.png-551a04623ba38874e7d64cf62a0d3570.ctex"]
 
 [params]
 

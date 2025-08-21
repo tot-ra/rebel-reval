@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://f0edejob2euq"
-path="res://.godot/imported/download-16.png-e9a6f46c0fc798fc9ccceb780763cf8f.ctex"
+uid="uid://dennlpm6k06dn"
+path="res://.godot/imported/European_Aspen.png-444fee36feb8261f3473131343f96d0c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/cats/download-16.png"
-dest_files=["res://.godot/imported/download-16.png-e9a6f46c0fc798fc9ccceb780763cf8f.ctex"]
+source_file="res://assets/trees/European_Aspen.png"
+dest_files=["res://.godot/imported/European_Aspen.png-444fee36feb8261f3473131343f96d0c.ctex"]
 
 [params]
 

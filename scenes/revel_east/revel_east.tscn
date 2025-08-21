@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=4 uid="uid://cxbg0w372wak4"]
+[gd_scene load_steps=29 format=4 uid="uid://cxbg0w372wak4"]
 
 [ext_resource type="Texture2D" uid="uid://bdon6tpfsllx3" path="res://scenes/revel_walls_towers/wall-map.png" id="1_8eko7"]
 [ext_resource type="Script" uid="uid://bl7l57o36owyx" path="res://scenes/revel_east/revel_east.gd" id="1_wrwjg"]
@@ -20,6 +20,11 @@
 [ext_resource type="AudioStream" uid="uid://bc8x3eiou1nix" path="res://music/revel_east/streets2.mp3" id="16_roxo4"]
 [ext_resource type="AudioStream" uid="uid://bmt3ar6gowv53" path="res://music/revel_east/streets.mp3" id="17_xuwre"]
 [ext_resource type="PackedScene" uid="uid://gty6ne6exn21" path="res://scenes/elements/npc.tscn" id="20_q26ta"]
+[ext_resource type="Texture2D" uid="uid://c6hfgoar1s4lh" path="res://assets/trees/Scots_Pine.png" id="22_mot3s"]
+[ext_resource type="Texture2D" uid="uid://gqresc1xplk5" path="res://assets/trees/Silver_Birch.png" id="23_cje2n"]
+[ext_resource type="Texture2D" uid="uid://cxfqulimmj5uh" path="res://assets/trees/Norway_Spruce2.png" id="24_hfmco"]
+[ext_resource type="Texture2D" uid="uid://dto6kgedj4uiq" path="res://assets/animals/cats/download-17.png" id="24_mot3s"]
+[ext_resource type="Texture2D" uid="uid://b1vwf786c6hmd" path="res://assets/animals/cats/download-20.png" id="25_cje2n"]
 
 [sub_resource type="AudioStreamPlaylist" id="AudioStreamPlaylist_608pq"]
 resource_local_to_scene = true
@@ -173,6 +178,29 @@ shape = SubResource("RectangleShape2D_yq6vu")
 
 [node name="NPC" parent="." instance=ExtResource("20_q26ta")]
 position = Vector2(13930, 2525)
+
+[node name="ScotsPine" type="Sprite2D" parent="."]
+position = Vector2(13426.5, 2252.5)
+scale = Vector2(1.49219, 1.49219)
+texture = ExtResource("22_mot3s")
+
+[node name="SilverBirch" type="Sprite2D" parent="."]
+position = Vector2(13724.5, 1942.5)
+scale = Vector2(1.63672, 1.63672)
+texture = ExtResource("23_cje2n")
+
+[node name="NorwaySpruce2" type="Sprite2D" parent="."]
+position = Vector2(13397, 2022)
+scale = Vector2(1.34375, 1.34375)
+texture = ExtResource("24_hfmco")
+
+[node name="Download-17" type="Sprite2D" parent="."]
+position = Vector2(13758, 2303)
+texture = ExtResource("24_mot3s")
+
+[node name="Download-20" type="Sprite2D" parent="."]
+position = Vector2(14192, 2406)
+texture = ExtResource("25_cje2n")
 
 [editable path="Doors/door_forge"]
 [editable path="Doors/door_north1"]

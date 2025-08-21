@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dg21emn1rmnx0"
-path="res://.godot/imported/download-14.png-3f95e5b03c8a288952f813764c1eb676.ctex"
+uid="uid://rnmkwa3kr4j0"
+path="res://.godot/imported/Downy_Birch.png-9a4d92db0f85d3ac21d5d1c68fa61b34.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/cats/download-14.png"
-dest_files=["res://.godot/imported/download-14.png-3f95e5b03c8a288952f813764c1eb676.ctex"]
+source_file="res://assets/trees/Downy_Birch.png"
+dest_files=["res://.godot/imported/Downy_Birch.png-9a4d92db0f85d3ac21d5d1c68fa61b34.ctex"]
 
 [params]
 

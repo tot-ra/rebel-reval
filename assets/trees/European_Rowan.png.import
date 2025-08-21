@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b1vwf786c6hmd"
-path="res://.godot/imported/download-20.png-bf27e56f6fb03d123644a69410198784.ctex"
+uid="uid://cuixo2slrqmo2"
+path="res://.godot/imported/European_Rowan.png-559b50fdf9b8ba3b8a65fc047f93ff54.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/cats/download-20.png"
-dest_files=["res://.godot/imported/download-20.png-bf27e56f6fb03d123644a69410198784.ctex"]
+source_file="res://assets/trees/European_Rowan.png"
+dest_files=["res://.godot/imported/European_Rowan.png-559b50fdf9b8ba3b8a65fc047f93ff54.ctex"]
 
 [params]
 
