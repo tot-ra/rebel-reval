@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://usu24bnxq0rh"
-path="res://.godot/imported/goytan.png-73bbf184cd00e1b497dcd206f0e229ff.ctex"
+uid="uid://c7es4bry255s4"
+path="res://.godot/imported/radonezhski.png-0fdb695aa5a7405867bd2698dd9f588e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/famous/goytan.png"
-dest_files=["res://.godot/imported/goytan.png-73bbf184cd00e1b497dcd206f0e229ff.ctex"]
+source_file="res://characters/novgorod/radonezhski.png"
+dest_files=["res://.godot/imported/radonezhski.png-0fdb695aa5a7405867bd2698dd9f588e.ctex"]
 
 [params]
 

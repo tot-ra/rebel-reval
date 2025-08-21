@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://k4l1ka6ordyr"
-path="res://.godot/imported/prokhor.png-9532c3e9002d99ad27253893ee53a880.ctex"
+uid="uid://usu24bnxq0rh"
+path="res://.godot/imported/goytan.png-3b7bfe931aff5c1ad9cf0eb0b570f608.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/famous/prokhor.png"
-dest_files=["res://.godot/imported/prokhor.png-9532c3e9002d99ad27253893ee53a880.ctex"]
+source_file="res://characters/novgorod/goytan.png"
+dest_files=["res://.godot/imported/goytan.png-3b7bfe931aff5c1ad9cf0eb0b570f608.ctex"]
 
 [params]
 

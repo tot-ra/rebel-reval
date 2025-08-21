@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c7es4bry255s4"
-path="res://.godot/imported/radonezhski.png-e10f6cd1832ee52d033a4abf989153fd.ctex"
+uid="uid://k4l1ka6ordyr"
+path="res://.godot/imported/prokhor.png-9e582fcc7998803dbf72dfba7fb2bff8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/famous/radonezhski.png"
-dest_files=["res://.godot/imported/radonezhski.png-e10f6cd1832ee52d033a4abf989153fd.ctex"]
+source_file="res://characters/novgorod/prokhor.png"
+dest_files=["res://.godot/imported/prokhor.png-9e582fcc7998803dbf72dfba7fb2bff8.ctex"]
 
 [params]
 

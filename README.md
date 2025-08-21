@@ -4,7 +4,6 @@ Indie Action RPG with rogue-like elements in semi-fictional 14th-century Estonia
 
 A moody, atmospheric feel that blends Hanseatic trade, Baltic folklore, and early Christianity. 
 
-Current state: `Drafting game design document & concept art`
 
 ![](./img/banner.jpg)
 
@@ -28,7 +27,7 @@ You are Kalev, an Estonian smith. To the German lords, you're just another pair 
 - A Smith's Hands: You see the world through the eyes of a craftsman. Your hammer is not just a tool; it's an extension of your will.
 - You have access to supernatural powers. Unlock more by aligning with factions.
 
-## Game Details
+## Game Details and status
 
 - [GAME PILLARS](./GAME-PILLARS.md)
 - SETTING

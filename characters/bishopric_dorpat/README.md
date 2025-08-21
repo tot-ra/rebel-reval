@@ -35,7 +35,7 @@ Life in the Bishopric of Dorpat was defined by its frontier status. Conflicts we
 *   **Internal Rebellion:** The Estonian rebels were a dangerous internal threat. Any sign of weakness on the part of the Bishop could encourage an uprising, which would not only undermine the bishopric's stability but also create an opening for Pskov or Novgorod to exploit. The Bishop had to maintain a firm grip on the local population to prevent a catastrophic war on two fronts.
 *   **The Livonian Order's Ambition:** The Order was a necessary but deeply distrusted ally. The Bishop of Dorpat had to constantly guard against the Order's attempts to use crises—like the uprising or a Russian invasion—as a pretext to seize control of key castles and permanently diminish the bishopric's autonomy.
 
-## Core NPCs
+## NPCs
 
 *   [Prince-Bishop Johann I von Vifhusen](prince_bishop_johann.md)
 *   [Voivode Grigori of Pskov](voivode_grigori.md)

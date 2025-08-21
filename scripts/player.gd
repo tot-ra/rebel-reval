@@ -7,8 +7,13 @@ class_name Player
 
 @onready var animation_player = $AnimatedSprite2D
 @onready var navigation_agent = $NavigationAgent2D
+@onready var health_bar = $HealthBar
+
+
+var health = 100
 
 func _ready():
+	health_bar.value=health
 	DoorNavigator.on_trigger_player_spawn.connect(_on_spawn)
 	navigation_agent.velocity_computed.connect(Callable(self, "_on_velocity_computed"))
 
