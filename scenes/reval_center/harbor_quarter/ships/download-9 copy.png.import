@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ccqhxi2f5flf7"
-path="res://.godot/imported/image-16.png-a0d52419da23cb7ee7c0ec809c9c5301.ctex"
+uid="uid://cspypd7pd2jd2"
+path="res://.godot/imported/download-9 copy.png-2c9f25ff75ce4faff33d7cfa946e2a81.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://scenes/revel_central_quarter/harbor_quarter/image-16.png"
-dest_files=["res://.godot/imported/image-16.png-a0d52419da23cb7ee7c0ec809c9c5301.ctex"]
+source_file="res://scenes/reval_center/harbor_quarter/ships/download-9 copy.png"
+dest_files=["res://.godot/imported/download-9 copy.png-2c9f25ff75ce4faff33d7cfa946e2a81.ctex"]
 
 [params]
 
