@@ -1,4 +1,4 @@
-[gd_scene load_steps=54 format=4 uid="uid://cxbg0w372wak4"]
+[gd_scene load_steps=58 format=4 uid="uid://cxbg0w372wak4"]
 
 [ext_resource type="Texture2D" uid="uid://bdon6tpfsllx3" path="res://scenes/revel_walls_towers/wall-map.png" id="1_8eko7"]
 [ext_resource type="Script" uid="uid://bl7l57o36owyx" path="res://scenes/revel_east/revel_east.gd" id="1_wrwjg"]
@@ -47,6 +47,10 @@
 [ext_resource type="Texture2D" uid="uid://dcvaojub40lq8" path="res://assets/buildings/brewer.png" id="45_e7oqb"]
 [ext_resource type="Texture2D" uid="uid://bunvkg7uqxqa0" path="res://assets/buildings/granary.png" id="46_74vnq"]
 [ext_resource type="Texture2D" uid="uid://ctjer4c1e1ab7" path="res://assets/buildings/well.png" id="47_5k54h"]
+[ext_resource type="Texture2D" uid="uid://cs520luvubbfq" path="res://assets/buildings/random4.png" id="48_5k54h"]
+[ext_resource type="Texture2D" uid="uid://ggmbooh1fyag" path="res://assets/buildings/tenement.png" id="49_pmivv"]
+[ext_resource type="Texture2D" uid="uid://7nvopiaptpl1" path="res://assets/buildings/inn.png" id="50_olqpg"]
+[ext_resource type="Texture2D" uid="uid://dan07lrjgvvps" path="res://assets/buildings/inn2.png" id="51_pmivv"]
 
 [sub_resource type="AudioStreamPlaylist" id="AudioStreamPlaylist_608pq"]
 resource_local_to_scene = true
@@ -230,7 +234,7 @@ position = Vector2(14192, 2406)
 texture = ExtResource("25_cje2n")
 
 [node name="Warehouse" type="Sprite2D" parent="Buildings"]
-position = Vector2(10275, 7376)
+position = Vector2(10691, 6920)
 texture = ExtResource("37_5k54h")
 
 [node name="Bathhouse" type="Sprite2D" parent="Buildings"]
@@ -239,7 +243,7 @@ scale = Vector2(1.55658, 1.55658)
 texture = ExtResource("38_pmivv")
 
 [node name="TannerHut" type="Sprite2D" parent="Buildings"]
-position = Vector2(12299, 8290)
+position = Vector2(13001, 7669)
 scale = Vector2(1.92, 1.92)
 texture = ExtResource("39_olqpg")
 
@@ -249,12 +253,12 @@ scale = Vector2(1.32031, 1.32031)
 texture = ExtResource("40_go33i")
 
 [node name="Weaver" type="Sprite2D" parent="Buildings"]
-position = Vector2(10871, 6557)
+position = Vector2(11215, 6177)
 scale = Vector2(1.11133, 1.11133)
 texture = ExtResource("41_5fekm")
 
 [node name="Potter" type="Sprite2D" parent="Buildings"]
-position = Vector2(13124, 7474)
+position = Vector2(11634, 7270)
 scale = Vector2(1.44, 1.44)
 texture = ExtResource("42_ae6c2")
 
@@ -263,17 +267,17 @@ position = Vector2(13740, 5847)
 texture = ExtResource("43_k2725")
 
 [node name="Butcher" type="Sprite2D" parent="Buildings"]
-position = Vector2(13333, 6649)
+position = Vector2(12194, 6476)
 scale = Vector2(1.23759, 1.23759)
 texture = ExtResource("44_16wxh")
 
 [node name="Brewer" type="Sprite2D" parent="Buildings"]
-position = Vector2(14497, 8167)
+position = Vector2(13508, 6714)
 scale = Vector2(1.15834, 1.15834)
 texture = ExtResource("45_e7oqb")
 
 [node name="Granary" type="Sprite2D" parent="Buildings"]
-position = Vector2(9572, 7821)
+position = Vector2(9964, 7457)
 scale = Vector2(1.4, 1.4)
 texture = ExtResource("46_74vnq")
 
@@ -385,6 +389,26 @@ offset_bottom = 211.0
 
 [node name="NPC" parent="." instance=ExtResource("20_q26ta")]
 position = Vector2(13930, 2525)
+
+[node name="Random4" type="Sprite2D" parent="."]
+position = Vector2(13698, -6628)
+scale = Vector2(2.03711, 2.03711)
+texture = ExtResource("48_5k54h")
+
+[node name="Tenement" type="Sprite2D" parent="."]
+position = Vector2(10868, 5023)
+scale = Vector2(1.22536, 1.22536)
+texture = ExtResource("49_pmivv")
+
+[node name="Inn" type="Sprite2D" parent="."]
+position = Vector2(7789, 11580)
+scale = Vector2(1.20605, 1.20605)
+texture = ExtResource("50_olqpg")
+
+[node name="Inn2" type="Sprite2D" parent="."]
+position = Vector2(4789, 3915)
+scale = Vector2(1.16016, 1.16016)
+texture = ExtResource("51_pmivv")
 
 [connection signal="body_entered" from="Doors/door_forge" to="Doors/door_forge" method="_on_body_entered"]
 
