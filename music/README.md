@@ -89,16 +89,16 @@
 #### SOUTH
 
 ##### Ambient
-- **The Knight's March:** military drums, fife, marching rhythm, disciplined and tense
-- **St. Nicholas' Lament:** solemn choir, church organ, lamenting melody, funereal pace
-- **The Whispering Wind:** nyckelharpa, haunting folk melody, sounds of wind and rustling leaves
-- **The Leper's Solitude:** solo cello, melancholic and introspective, sparse and emotional
-- **A Chant for the Departed:** Gregorian chants, echoing monastery acoustics, spiritual and serene
-- **The Danish King's Sorrow:** bagpipes, mournful drone, slow air, sense of loss and history
-- **The Catacombs Below:** dark ambient soundscape, distant whispers, unsettling drone, sparse percussion
-- **The Garden of Hope:** psaltery, gentle and hopeful melody, sounds of a garden, birds chirping
-- **The Crusader's Hymn:** knights' choir, powerful male vocals, epic and heroic, orchestral swells
-- **A Memory of Home:** rebec, medieval fiddle, somber tune, slow and reflective
+- **The Cobbler's Tune:** A simple, pleasant melody on a lute, with the gentle, rhythmic tapping of a cobbler's hammer in the background.
+- **Whispers from the Rataskaevu Well:** A mysterious and slightly melancholic tune played on a nyckelharpa, with the faint sound of dripping water and distant, unintelligible whispers.
+- **St. Nicholas' Peace:** A calm and reverent piece with a psaltery and a gentle choir, creating a sense of peace and sanctuary.
+- **The Alchemist's Secret:** A quiet, introspective piece with a clavichord and the soft bubbling of potions, evoking a sense of mystery and knowledge.
+- **A Knight's Rest:** A noble and slightly weary melody on a cello, suggesting a knight at rest, away from the battlefield.
+- **The Merchant's Tale:** A lively but not overly energetic tune with a bouzouki and a mandolin, reflecting the commerce and stories of the city.
+- **The City Walls at Dusk:** A sweeping and slightly melancholic piece with a string orchestra and a lone flute, capturing the view from the city walls as the sun sets.
+- **The Herbalist's Garden:** A gentle and calming piece with a harp and the sound of birdsong, creating a peaceful and natural atmosphere.
+- **Echoes of Old Town:** A haunting melody on a rebec, with the distant sounds of the city, evoking a sense of history and memory.
+- **Under the Linden Tree:** A warm and inviting folk tune with an acoustic guitar and a gentle flute, perfect for a moment of rest and conversation.
 
 ##### Battle
 - **Knights' Charge:** Pounding war drums, powerful brass fanfares, epic choir, sounds of a cavalry charge.

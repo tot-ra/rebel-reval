@@ -1,22 +1,28 @@
-[gd_scene load_steps=36 format=4 uid="uid://cxbg0w372wak4"]
+[gd_scene load_steps=54 format=4 uid="uid://cxbg0w372wak4"]
 
 [ext_resource type="Texture2D" uid="uid://bdon6tpfsllx3" path="res://scenes/revel_walls_towers/wall-map.png" id="1_8eko7"]
 [ext_resource type="Script" uid="uid://bl7l57o36owyx" path="res://scenes/revel_east/revel_east.gd" id="1_wrwjg"]
 [ext_resource type="Texture2D" uid="uid://b0vr2i1ngbmd8" path="res://scenes/revel-map.jpg" id="2_wrwjg"]
 [ext_resource type="Texture2D" uid="uid://ddibpritsk43m" path="res://assets/buildings/forge.png" id="4_n1jbl"]
 [ext_resource type="TileSet" uid="uid://cmqcn78ij7u06" path="res://scenes/tileset.tres" id="4_q26ta"]
+[ext_resource type="Texture2D" uid="uid://dmb4osyh6ucqj" path="res://assets/buildings/Market Hall.png" id="5_hepmx"]
 [ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="6_0eexq"]
+[ext_resource type="Texture2D" uid="uid://b0w3ysajwb78a" path="res://assets/buildings/merchant house.png" id="6_tx6sx"]
 [ext_resource type="PackedScene" uid="uid://1c2a60v6j3yi" path="res://scenes/elements/turret.tscn" id="7_q26ta"]
+[ext_resource type="Texture2D" uid="uid://12x3n61t3wy7" path="res://assets/buildings/Stone Gothic Merchant House.png" id="7_yw24h"]
 [ext_resource type="AudioStream" uid="uid://6ai78whounwj" path="res://music/revel_east/Apothecary (1).mp3" id="8_yq6vu"]
 [ext_resource type="AudioStream" uid="uid://bkuxuac75jgbk" path="res://music/revel_east/Apothecary (2).mp3" id="9_2wnse"]
 [ext_resource type="AudioStream" uid="uid://nq0lk18uh8o8" path="res://music/revel_east/Apothecary (3).mp3" id="10_y7nby"]
 [ext_resource type="Texture2D" uid="uid://bihueuvppxkgj" path="res://assets/buildings/tavern.png" id="11_2wnse"]
 [ext_resource type="AudioStream" uid="uid://63btgk1bndci" path="res://music/revel_east/The Shaman's Trance.mp3" id="11_hfmco"]
 [ext_resource type="AudioStream" uid="uid://r5lwh25b2048" path="res://music/revel_east/Apothecary (6).mp3" id="11_w1qp5"]
+[ext_resource type="Texture2D" uid="uid://b4chanhkwvshq" path="res://assets/buildings/hay.png" id="12_gyvbn"]
 [ext_resource type="AudioStream" uid="uid://casme8cm6evjr" path="res://music/revel_east/The Shaman's Trance (1).mp3" id="12_jn3t3"]
 [ext_resource type="AudioStream" uid="uid://dnv58sc2w20m" path="res://music/revel_east/Apothecary (7).mp3" id="12_mot3s"]
 [ext_resource type="PackedScene" uid="uid://dfb184eowm7q1" path="res://scenes/elements/door.tscn" id="12_y7nby"]
+[ext_resource type="Texture2D" uid="uid://cbf0nlbbusihf" path="res://assets/buildings/Small Chapel.png" id="13_16wxh"]
 [ext_resource type="AudioStream" uid="uid://oiiwu1au2324" path="res://music/revel_east/Apothecary (8).mp3" id="13_cje2n"]
+[ext_resource type="Texture2D" uid="uid://32eb67lewfh0" path="res://assets/buildings/carpenter.png" id="14_e7oqb"]
 [ext_resource type="AudioStream" uid="uid://dj3mjc0b2k7ry" path="res://music/revel_east/Apothecary (9).mp3" id="14_hfmco"]
 [ext_resource type="AudioStream" uid="uid://c2wq1mcsvvieh" path="res://music/revel_east/Apothecary.mp3" id="15_jn3t3"]
 [ext_resource type="AudioStream" uid="uid://bc8x3eiou1nix" path="res://music/revel_east/streets2.mp3" id="16_roxo4"]
@@ -29,6 +35,18 @@
 [ext_resource type="Texture2D" uid="uid://cxfqulimmj5uh" path="res://assets/trees/Norway_Spruce2.png" id="24_hfmco"]
 [ext_resource type="Texture2D" uid="uid://dto6kgedj4uiq" path="res://assets/animals/cats/download-17.png" id="24_mot3s"]
 [ext_resource type="Texture2D" uid="uid://b1vwf786c6hmd" path="res://assets/animals/cats/download-20.png" id="25_cje2n"]
+[ext_resource type="Texture2D" uid="uid://cahclvy7tlt5r" path="res://assets/buildings/gates.png" id="35_74vnq"]
+[ext_resource type="Texture2D" uid="uid://dok1uugm4cd0u" path="res://assets/buildings/warehouse.png" id="37_5k54h"]
+[ext_resource type="Texture2D" uid="uid://cv0mm5rd1qt10" path="res://assets/buildings/bathhouse.png" id="38_pmivv"]
+[ext_resource type="Texture2D" uid="uid://htcggfynqk4r" path="res://assets/buildings/Tanner hut.png" id="39_olqpg"]
+[ext_resource type="Texture2D" uid="uid://ddefkkvggbexw" path="res://assets/buildings/cooper.png" id="40_go33i"]
+[ext_resource type="Texture2D" uid="uid://colwhfkebpvtl" path="res://assets/buildings/weaver.png" id="41_5fekm"]
+[ext_resource type="Texture2D" uid="uid://dll1hn6n3yxd8" path="res://assets/buildings/potter.png" id="42_ae6c2"]
+[ext_resource type="Texture2D" uid="uid://00q36xar1el1" path="res://assets/buildings/baker.png" id="43_k2725"]
+[ext_resource type="Texture2D" uid="uid://cojxf8cp62xs7" path="res://assets/buildings/butcher.png" id="44_16wxh"]
+[ext_resource type="Texture2D" uid="uid://dcvaojub40lq8" path="res://assets/buildings/brewer.png" id="45_e7oqb"]
+[ext_resource type="Texture2D" uid="uid://bunvkg7uqxqa0" path="res://assets/buildings/granary.png" id="46_74vnq"]
+[ext_resource type="Texture2D" uid="uid://ctjer4c1e1ab7" path="res://assets/buildings/well.png" id="47_5k54h"]
 
 [sub_resource type="AudioStreamPlaylist" id="AudioStreamPlaylist_608pq"]
 resource_local_to_scene = true
@@ -104,6 +122,21 @@ position = Vector2(122.647, 468)
 [node name="Buildings" type="Node2D" parent="."]
 y_sort_enabled = true
 
+[node name="MarketHall" type="Sprite2D" parent="Buildings"]
+position = Vector2(12598, 4320)
+scale = Vector2(1.43025, 1.43025)
+texture = ExtResource("5_hepmx")
+
+[node name="MerchantHouse" type="Sprite2D" parent="Buildings"]
+position = Vector2(14116, 4705)
+scale = Vector2(1.08105, 1.08105)
+texture = ExtResource("6_tx6sx")
+
+[node name="StoneGothicMerchantHouse" type="Sprite2D" parent="Buildings"]
+position = Vector2(13614, 4510)
+scale = Vector2(1.125, 1.125)
+texture = ExtResource("7_yw24h")
+
 [node name="towers" type="Node2D" parent="Buildings"]
 y_sort_enabled = true
 position = Vector2(15579, -706)
@@ -123,7 +156,7 @@ position = Vector2(-1.68599, 70.0892)
 [node name="49" parent="Buildings/towers" instance=ExtResource("7_q26ta")]
 z_index = 3
 y_sort_enabled = true
-position = Vector2(215.325, 752.676)
+position = Vector2(-55.3969, 730.637)
 
 [node name="47" parent="Buildings/towers" instance=ExtResource("7_q26ta")]
 position = Vector2(-164.986, 1349.52)
@@ -158,6 +191,100 @@ polygon = PackedVector2Array(-321.098, 166.422, -327, 197.11, -295.132, 217.175,
 y_sort_enabled = true
 position = Vector2(13839, 2420)
 floor_constant_speed = true
+
+[node name="Hay" type="Sprite2D" parent="Buildings"]
+position = Vector2(16749, 5450)
+texture = ExtResource("12_gyvbn")
+
+[node name="SmallChapel" type="Sprite2D" parent="Buildings"]
+position = Vector2(11387, 1359)
+scale = Vector2(1.20312, 1.20312)
+texture = ExtResource("13_16wxh")
+
+[node name="ScotsPine" type="Sprite2D" parent="Buildings"]
+position = Vector2(13426.5, 2252.5)
+scale = Vector2(1.49219, 1.49219)
+texture = ExtResource("22_mot3s")
+
+[node name="SilverBirch" type="Sprite2D" parent="Buildings"]
+position = Vector2(13724.5, 1942.5)
+scale = Vector2(1.63672, 1.63672)
+texture = ExtResource("23_cje2n")
+
+[node name="NorwaySpruce2" type="Sprite2D" parent="Buildings"]
+position = Vector2(13397, 2022)
+scale = Vector2(1.34375, 1.34375)
+texture = ExtResource("24_hfmco")
+
+[node name="cat" type="Sprite2D" parent="Buildings"]
+position = Vector2(13758, 2303)
+texture = ExtResource("24_mot3s")
+
+[node name="Gates" type="Sprite2D" parent="Buildings"]
+position = Vector2(17102, 5583)
+scale = Vector2(1.35742, 1.35742)
+texture = ExtResource("35_74vnq")
+
+[node name="cat2" type="Sprite2D" parent="Buildings"]
+position = Vector2(14192, 2406)
+texture = ExtResource("25_cje2n")
+
+[node name="Warehouse" type="Sprite2D" parent="Buildings"]
+position = Vector2(10275, 7376)
+texture = ExtResource("37_5k54h")
+
+[node name="Bathhouse" type="Sprite2D" parent="Buildings"]
+position = Vector2(7195, 4679)
+scale = Vector2(1.55658, 1.55658)
+texture = ExtResource("38_pmivv")
+
+[node name="TannerHut" type="Sprite2D" parent="Buildings"]
+position = Vector2(12299, 8290)
+scale = Vector2(1.92, 1.92)
+texture = ExtResource("39_olqpg")
+
+[node name="Cooper" type="Sprite2D" parent="Buildings"]
+position = Vector2(12813, 5736)
+scale = Vector2(1.32031, 1.32031)
+texture = ExtResource("40_go33i")
+
+[node name="Weaver" type="Sprite2D" parent="Buildings"]
+position = Vector2(10871, 6557)
+scale = Vector2(1.11133, 1.11133)
+texture = ExtResource("41_5fekm")
+
+[node name="Potter" type="Sprite2D" parent="Buildings"]
+position = Vector2(13124, 7474)
+scale = Vector2(1.44, 1.44)
+texture = ExtResource("42_ae6c2")
+
+[node name="Baker" type="Sprite2D" parent="Buildings"]
+position = Vector2(13740, 5847)
+texture = ExtResource("43_k2725")
+
+[node name="Butcher" type="Sprite2D" parent="Buildings"]
+position = Vector2(13333, 6649)
+scale = Vector2(1.23759, 1.23759)
+texture = ExtResource("44_16wxh")
+
+[node name="Brewer" type="Sprite2D" parent="Buildings"]
+position = Vector2(14497, 8167)
+scale = Vector2(1.15834, 1.15834)
+texture = ExtResource("45_e7oqb")
+
+[node name="Granary" type="Sprite2D" parent="Buildings"]
+position = Vector2(9572, 7821)
+scale = Vector2(1.4, 1.4)
+texture = ExtResource("46_74vnq")
+
+[node name="Well" type="Sprite2D" parent="Buildings"]
+position = Vector2(14457, 3063)
+texture = ExtResource("47_5k54h")
+
+[node name="Carpenter" type="Sprite2D" parent="Buildings"]
+position = Vector2(11778.8, 5347.25)
+scale = Vector2(1.29053, 1.29053)
+texture = ExtResource("14_e7oqb")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 stream = SubResource("AudioStreamPlaylist_608pq")
@@ -258,29 +385,6 @@ offset_bottom = 211.0
 
 [node name="NPC" parent="." instance=ExtResource("20_q26ta")]
 position = Vector2(13930, 2525)
-
-[node name="ScotsPine" type="Sprite2D" parent="."]
-position = Vector2(13426.5, 2252.5)
-scale = Vector2(1.49219, 1.49219)
-texture = ExtResource("22_mot3s")
-
-[node name="SilverBirch" type="Sprite2D" parent="."]
-position = Vector2(13724.5, 1942.5)
-scale = Vector2(1.63672, 1.63672)
-texture = ExtResource("23_cje2n")
-
-[node name="NorwaySpruce2" type="Sprite2D" parent="."]
-position = Vector2(13397, 2022)
-scale = Vector2(1.34375, 1.34375)
-texture = ExtResource("24_hfmco")
-
-[node name="Download-17" type="Sprite2D" parent="."]
-position = Vector2(13758, 2303)
-texture = ExtResource("24_mot3s")
-
-[node name="Download-20" type="Sprite2D" parent="."]
-position = Vector2(14192, 2406)
-texture = ExtResource("25_cje2n")
 
 [connection signal="body_entered" from="Doors/door_forge" to="Doors/door_forge" method="_on_body_entered"]
 
