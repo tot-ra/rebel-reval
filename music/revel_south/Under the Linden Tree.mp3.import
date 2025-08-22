@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://sp02k5kqm23h"
+path="res://.godot/imported/Under the Linden Tree.mp3-51683ff0232a364357643f61e839dbe3.mp3str"
+
+[deps]
+
+source_file="res://music/revel_south/Under the Linden Tree.mp3"
+dest_files=["res://.godot/imported/Under the Linden Tree.mp3-51683ff0232a364357643f61e839dbe3.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

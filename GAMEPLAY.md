@@ -30,6 +30,18 @@ Power Uprising        Tenuous Peace       Order                 Desperation Upri
 Chaos = SUM(Rebels power) / SUM(Rebels power + Order power)
 Order = SUM(Order power) / SUM(Rebels power + Order power)
 
+#### Victory Conditions (Chapter 1)
+To win Chapter 1, you must shift the Balance of Power decisively in your faction's favor. This is achieved through a combination of controlling strategic locations (towers) and winning the support of the populace (NPCs).
+
+- **Towers:** There are **35 towers and gates** along the city wall. Controlling a majority of these (e.g., **18**) provides a significant strategic advantage. Each controlled tower offers benefits like revealing enemy movements, acting as a safe house, or reducing enemy patrols in the quarter.
+
+- **NPC Allegiance:** The city is home to over **140 potential NPCs** in various locations. Each NPC has an allegiance score:
+    - **-1:** Loyal to the Rulers
+    - **0:** Neutral
+    - **+1:** Sympathetic to the Rebels
+    
+    The **Balance of Power** meter is a direct reflection of the sum of all NPC allegiance scores. To trigger the "Power Uprising" as a rebel, you must reach a high positive score (e.g., +50). To win as a ruler, you must achieve a significant negative score (e.g., -50). Certain **influential NPCs** (like guild masters or clergy) hold more weight, with allegiance scores of +5 or -5, making them high-priority targets for persuasion.
+
 
 
 ### The Gameplay Loop: A Rebel's Day
@@ -39,10 +51,11 @@ The game operates on a dynamic day/night cycle, where each phase offers differen
 By day, you are Kalev the smith. The city is under the watchful eye of the Livonian Order.
 - Crafting & Commerce: Fulfill orders for townsfolk and even the overlords to earn coin and gather intelligence. Crafting a perfect horseshoe for a knight's warhorse might reveal weaknesses in their patrols.
 - Information Gathering: The streets are alive with gossip. Talk to merchants, beggars, and priests. Overhear conversations, bribe officials, and piece together the city's secrets.
+- **Persuasion & Allegiance**: During the day, you can move through the city's quarters, visiting the homes and workplaces of its citizens. From the blacksmith in the east quarter to the wealthy merchant in the north, many inhabitants of Reval have their own stories, problems, and potential allegiances. By engaging with them and completing quests, you can persuade them to support your cause, whether it be for the rebels or the rulers. Each person you sway will shift the **Balance of Power**, bringing you one step closer to your goal.
 - Preparation: Use your earnings and materials to upgrade your forge, craft better gear, or set up traps and dead-drops for your nighttime activities.
 
 #### Night (The Shadow of Conflict)
-When the sun sets, the city's true allegiances are revealed and the real work begins, whether for rebellion or for control.
+When the sun sets, the city's true allegiances are revealed and the real work begins. The night is a time for covert operations, sabotage, and combat. Battles can erupt on the city streets, or you can fight for control of the city's many towers. Each tower under your faction's control provides a strategic advantage, such as reduced enemy patrols in the surrounding area or a safe haven for your allies.
 - [GAMEPLAY-NIGHT](./GAMEPLAY-NIGHT.md)
 - Missions & Covert Ops: Undertake quests for your chosen faction.
     - **Rebel Path:** Sabotage a Hanseatic crane, replace a knight's banner with a pig's head, or lead a jailbreak from the city dungeon.
