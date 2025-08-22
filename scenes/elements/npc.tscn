@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://gty6ne6exn21"]
+[gd_scene load_steps=19 format=3 uid="uid://gty6ne6exn21"]
 
 [ext_resource type="Script" uid="uid://bqv0llhneaxaa" path="res://scripts/npc.gd" id="1_8hovi"]
 [ext_resource type="Texture2D" uid="uid://bbj6nmr5mjbha" path="res://assets/bandits/woman1.png" id="2_8hovi"]
+[ext_resource type="Texture2D" uid="uid://ec8osmtnqeuq" path="res://characters/forge_folk/old_toomas/old_toomas.png" id="2_mics8"]
 
 [sub_resource type="Animation" id="Animation_i3pqv"]
 length = 0.001
@@ -19,6 +20,76 @@ _data = {
 radius = 12.0
 height = 24.0
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_dhnyt"]
+atlas = ExtResource("2_mics8")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uud22"]
+atlas = ExtResource("2_mics8")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sr636"]
+atlas = ExtResource("2_mics8")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bgckq"]
+atlas = ExtResource("2_mics8")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_72ffd"]
+atlas = ExtResource("2_mics8")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_guhi4"]
+atlas = ExtResource("2_mics8")
+region = Rect2(640, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_adqar"]
+atlas = ExtResource("2_mics8")
+region = Rect2(768, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dk0dg"]
+atlas = ExtResource("2_mics8")
+region = Rect2(896, 0, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_tu6h0"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dhnyt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uud22")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_sr636")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bgckq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_72ffd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_guhi4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_adqar")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dk0dg")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ca1ny"]
+bg_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_t5u8q"]
+bg_color = Color(0.278431, 0.74902, 0.27451, 1)
+
 [node name="NPC" type="CharacterBody2D"]
 script = ExtResource("1_8hovi")
 
@@ -32,8 +103,22 @@ position = Vector2(0, 39)
 shape = SubResource("CapsuleShape2D_3iwfv")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_tu6h0")
+frame = 4
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+visible = false
 texture = ExtResource("2_8hovi")
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[node name="HealthBar" type="ProgressBar" parent="."]
+z_index = 1000
+offset_left = -40.0
+offset_top = -76.0
+offset_right = 35.0
+offset_bottom = -69.0
+theme_override_styles/background = SubResource("StyleBoxFlat_ca1ny")
+theme_override_styles/fill = SubResource("StyleBoxFlat_t5u8q")
+value = 100.0
+show_percentage = false

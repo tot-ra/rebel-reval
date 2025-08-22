@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://s3dc3n3tlc3s" path="res://scenes/menu/logo256.png" id="2_kiqgm"]
 [ext_resource type="Script" uid="uid://cb84o170r3wgt" path="res://scenes/intro/start_label.gd" id="3_i2l1n"]
 [ext_resource type="Script" uid="uid://c0ajiix2ug7wp" path="res://scenes/menu/exit_label.gd" id="4_hj162"]
-[ext_resource type="AudioStream" uid="uid://ds17mott5ye07" path="res://music/menu/1.mp3" id="6_isoef"]
+[ext_resource type="AudioStream" uid="uid://cmmrciuofjw3a" path="res://music/menu/Menu.mp3" id="6_isoef"]
 [ext_resource type="VideoStream" uid="uid://drwpbbti05fcs" path="res://scenes/menu/intro.ogv" id="6_xn6kt"]
 
 [node name="Control" type="Control"]

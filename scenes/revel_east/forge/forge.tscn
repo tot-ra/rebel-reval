@@ -72,7 +72,7 @@ stream_2/stream = ExtResource("26_g4vrm")
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_kkgga"]
 resource_local_to_scene = true
-size = Vector2(187.495, 142.094)
+size = Vector2(216.445, 82.7635)
 
 [node name="Forge" type="Node2D"]
 position = Vector2(-733, -360)
@@ -249,12 +249,12 @@ texture = ExtResource("14_kkgga")
 position = Vector2(-68, 8)
 polygon = PackedVector2Array(-48, 27, 37, -23, 137, 28, 46, 79)
 
+[node name="NPC" parent="Node2D/WallsFront1" instance=ExtResource("22_3qg1m")]
+position = Vector2(606, 465)
+
 [node name="Player" parent="Node2D/WallsFront1" instance=ExtResource("2_se5dk")]
 y_sort_enabled = true
 position = Vector2(720, 371)
-
-[node name="NPC" parent="Node2D/WallsFront1" instance=ExtResource("22_3qg1m")]
-position = Vector2(615, 429)
 
 [node name="DoorAndWalls" type="Sprite2D" parent="Node2D"]
 z_index = 1
@@ -297,16 +297,17 @@ spawn_direction = "south"
 position = Vector2(270, -181)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Doors/door_main"]
-position = Vector2(128.925, -98.6487)
+position = Vector2(153.48, -114.184)
 rotation = 0.485202
+scale = Vector2(1, 1)
 shape = SubResource("RectangleShape2D_kkgga")
 debug_color = Color(0.25817, 0.552912, 0.832533, 0.42)
 
 [node name="ColorRect" type="ColorRect" parent="Doors/door_main/CollisionShape2D"]
-offset_left = -117.148
-offset_top = -76.5503
-offset_right = 789.852
-offset_bottom = 536.45
+offset_left = -117.0
+offset_top = -77.0
+offset_right = 790.0
+offset_bottom = 310.0
 scale = Vector2(0.312309, 0.264889)
 color = Color(0.229009, 0.478447, 0.846532, 0.403922)
 

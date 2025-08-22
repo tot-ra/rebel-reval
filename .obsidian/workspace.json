@@ -170,17 +170,19 @@
   },
   "active": "7aa4e7c0048c7c07",
   "lastOpenFiles": [
+    "assets/tiles/cobblestone-road.png.import",
+    "assets/tiles/cobblestone-road.png",
+    "music/menu/Menu.mp3.import",
+    "music/menu/Menu.mp3",
+    "music/revel_south/The City Walls at Dusk.mp3.import",
+    "music/menu/README.md",
+    "music/revel_south/The City Walls at Dusk.mp3",
     "music/revel_south/Echoes of Old Town.mp3.import",
     "music/revel_south/The Herbalist's Garden.mp3.import",
     "music/revel_south/Under the Linden Tree (1).mp3.import",
     "music/revel_south/The Alchemist's Secret.mp3.import",
     "music/revel_south/The Herbalist's Garden (1).mp3.import",
     "music/revel_south/Under the Linden Tree.mp3.import",
-    "music/revel_south/Under the Linden Tree.mp3",
-    "music/revel_south/Under the Linden Tree (1).mp3",
-    "music/revel_south/The Herbalist's Garden (1).mp3",
-    "music/revel_south/The Herbalist's Garden.mp3",
-    "music/revel_south/Echoes of Old Town.mp3",
     "assets/buildings/inn2.png",
     "assets/buildings/inn.png",
     "assets/buildings/tenement.png",
@@ -191,7 +193,6 @@
     "assets/buildings/random2.png",
     "assets/buildings/random1.png",
     "assets/buildings/granary.png",
-    "assets/buildings/brewer.png",
     "music/README.md",
     "scenes/reval_center/market_civic_quarter/town_hall_square.md",
     "scenes/reval_center/market_civic_quarter/town_hall.md",
@@ -214,7 +215,6 @@
     "characters/novgorod/goytan.md",
     "characters/blackhead/hinrik_the_cartographer.md",
     "characters/blackhead/mart_the_weaver.md",
-    "characters/blackhead/johann_von_minden.md",
-    "characters/bishopric_riga/README.md"
+    "characters/blackhead/johann_von_minden.md"
   ]
 }

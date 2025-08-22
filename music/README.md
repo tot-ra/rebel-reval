@@ -1,41 +1,11 @@
 # Music Prompts
 
-### Reval (Tallinn)
+This document contains prompts for the game's soundtrack, designed to guide composers in creating music that aligns with the game's vision.
 
-#### EAST
+## Main Menu Theme
 
-##### Ambient
-- **The Smith's Song:** hammer dulcimer, rhythmic blacksmith clanging, simple folk melody, lute
-- **Tavern's Delight:** hurdy-gurdy, tavern chatter, upbeat tempo, bodhrán drum
-- **Catherine's Prayer:** monastic chants, solemn organ, echoing choir, cello drone
-- **Cobblestone Jig:** bagpipes, lively fiddle, stomping percussion, bouzouki
-- **Vainamoinen's Sorrow:** nyckelharpa, melancholic flute, slow tempo, acoustic guitar
-- **The Shaman's Trance:** jaw harp, steady drum beat, repetitive folk tune, mandolin
-- **Whispers of the Monastery Garden:** psaltery, gentle harp, ethereal vocals, soft strings
-- **The Viru Gate Dance:** rebec, medieval fiddle, energetic dance rhythm, tambourine
-- **Merchants' March:** crumhorn, shawm, raucous and loud, driving percussion
-- **Fireside Tale:** simple vocal melody, acoustic lute, crackling fire soundscape, sparse percussion
+**Condensed Prompt:** medieval Baltic folk, ambient electronics, kantele, runosong, cello, viola, frame drums, bodhrán, dark ambient drone, somber, tense, melancholic, defiant
 
-##### Battle
-- **Forge Fury:** Anvil strikes, driving war drums, distorted crumhorn, aggressive male shouts.
-- **Tavern Brawl:** Clashing tankards, chaotic fiddle, heavy stomping, shouting, fast-paced bodhrán.
-- **Monastery Under Siege:** Urgent bells, powerful organ chords, dramatic choir, pounding timpani, clashing swords.
-- **Viru Gate Skirmish:** War horns, rapid snare drums, tense strings, commanding shouts.
-- **Rebellion in the Streets:** Aggressive bagpipes, fast-paced war drums, dissonant strings, battle cries.
-
-#### HARBOUR
-
-##### Ambient
-- **Song of the Sea Wolves:** sea shanties, accordion, distant seagulls, rhythmic waves, fiddle
-- **The Lonely Watch:** concertina, lonely flute, foghorn drone, slow and melancholic
-- **Harbor Mist:** celtic harp, gentle strings, sound of ropes and wood creaking, ethereal female vocals
-- **Olaf's Jig:** uilleann pipes, bodhrán, lively jig, sounds of a busy port
-- **The Merchant's Voyage:** bouzouki, mandolin, upbeat folk melody, sailors singing in the background
-- **The Fisherman's Ballad:** tin whistle, acoustic guitar, storytelling ballad, gentle percussion
-- **Baltic Tempest:** string orchestra, epic and sweeping, horns, crashing waves sfx
-- **The Sunken City:** dark ambient drone, distant bells, mysterious synth pads, sparse piano
-- **The Sailor's Lament:** lute, solo male vocal, lamenting melody, sound of rain
-- **Dance on the Docks:** hurdy-gurdy, driving rhythm, cheerful folk dance, clapping hands
 
 ##### Battle
 - **Clash on the Docks:** War horns, driving percussion, clashing swords, shouting, tense string ostinato.
