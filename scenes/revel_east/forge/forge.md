@@ -2,6 +2,8 @@
 
 **Game Scene:** `forge.tscn`
 
+![Forge](../../../assets/buildings/forge.png)
+
 
 ### Music
 - **Rhythmic, Industrial, Brooding:** Anvil strikes, bellows whoosh, grinding metal, low male choir, heavy percussion.

@@ -1,5 +1,8 @@
 # Dominican Monastery of St. Catherine
 
+![Dominican Monastery of St. Catherine](../../assets/buildings/dominican_monastery.png)
+*Image missing*
+
 **Location:** Church & Monastery Quarter, Lower Town
 
 A large, influential monastic complex that is a center of learning, piety, and secrets. The Dominican friars, known as the "Black Friars," are dedicated to preaching and study.
