@@ -39,7 +39,7 @@ func _physics_process(_delta):
 		print("Player velocity: ", velocity)
 		navigation_agent.set_target_position(global_position)
 		if direction_x && direction_y:
-			current_speed = current_speed * 0.7
+			current_speed = current_speed / 1.4 # normalize vector for diagonal movement to be 1/sqrt(2)
 		
 		velocity.x = direction_x * current_speed
 		velocity.y = direction_y * current_speed

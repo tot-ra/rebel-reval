@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "c70f0a606dacc91b",
+        "id": "79d60bbd8562d05a",
         "type": "tabs",
         "children": [
           {
-            "id": "7aa4e7c0048c7c07",
+            "id": "db84a2327d21cb42",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "characters/blackhead/johann_von_minden.md",
+                "file": "characters/workers_quarter/sten/sten.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "johann_von_minden"
+              "title": "sten"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "README.md",
+                "file": "characters/workers_quarter/sten/sten.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for README"
+              "title": "Backlinks for sten"
             }
           },
           {
@@ -155,8 +155,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -168,53 +167,53 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "7aa4e7c0048c7c07",
+  "active": "db84a2327d21cb42",
   "lastOpenFiles": [
-    "scenes/revel_east/tinsmiths_shop.md",
-    "scenes/revel_east/tallow_chandlers_workshop.md",
-    "scenes/revel_east/saddlers_workshop.md",
-    "scenes/revel_east/ropemakers_walk.md",
-    "scenes/revel_east/parchment_makers_workshop.md",
-    "scenes/revel_east/net_makers_house.md",
-    "scenes/revel_east/locksmiths_shop.md",
-    "scenes/revel_east/grindstone.md",
-    "scenes/revel_east/glovers_workshop.md",
-    "scenes/revel_east/fletchers_shop.md",
-    "scenes/revel_east/brick_makers_yard.md",
-    "scenes/revel_east/undertakers_workshop.md",
-    "scenes/revel_east/soup_kitchen_monastery.md",
-    "scenes/revel_east/tailors_workshop.md",
-    "scenes/revel_east/beekeepers_house.md",
-    "scenes/revel_east/rat_catchers_hovel.md",
-    "scenes/revel_east/woodcutters_shack.md",
-    "scenes/revel_east/laundress_house.md",
-    "scenes/revel_east/cheesemongers_shop.md",
-    "scenes/revel_east/the_pagan_shrine.md",
-    "scenes/revel_east/the_smugglers_den.md",
-    "scenes/revel_east/the_scribes_attic.md",
-    "scenes/revel_east/the_black_cloaks_safehouse.md",
-    "scenes/revel_east/charcoal_burners_hut.md",
-    "scenes/revel_east/pigsty_alley.md",
-    "scenes/revel_east/midden_heap.md",
-    "assets/tiles/cobblestone-road.png.import",
-    "assets/tiles/cobblestone-road.png",
-    "music/menu/Menu.mp3.import",
-    "music/menu/Menu.mp3",
-    "music/revel_south/The City Walls at Dusk.mp3.import",
-    "music/revel_south/The City Walls at Dusk.mp3",
-    "music/revel_south/Echoes of Old Town.mp3.import",
-    "music/revel_south/The Herbalist's Garden.mp3.import",
-    "music/revel_south/Under the Linden Tree (1).mp3.import",
-    "music/revel_south/The Alchemist's Secret.mp3.import",
-    "music/revel_south/The Herbalist's Garden (1).mp3.import",
-    "assets/buildings/inn2.png",
-    "assets/buildings/inn.png",
-    "assets/buildings/tenement.png",
-    "assets/buildings/random4.png",
-    "assets/buildings/well.png",
-    "assets/buildings/random3.png",
-    "assets/buildings/random2.png",
-    "assets/buildings/random1.png",
-    "assets/buildings/granary.png"
+    "scenes/revel_east/revel_east.tscn-XUyACq",
+    "scenes/revel_east/forge/forge.tscn-sfxJmP",
+    "scenes/revel_east/revel_east.tscn-srqgbp",
+    "scenes/revel_east/forge/forge.tscn-yZr6De",
+    "scenes/revel_east/revel_east.tscn-RfUbJo",
+    "scenes/revel_east/revel_east.tscn-uWdYFa",
+    "scenes/revel_east/revel_east.tscn-fNplmJ",
+    "scenes/revel_east/revel_east.tscn-frneGj",
+    "scenes/revel_east/revel_east.tscn-vU0mDg",
+    "scenes/revel_east/revel_east.tscn-e3lqaM",
+    "scenes/revel_east/revel_east.tscn-BvxuUG",
+    "characters/workers_quarter/kaspar/kaspar.md",
+    "characters/workers_quarter/lembit/lembit.md",
+    "characters/workers_quarter/otto/otto.md",
+    "assets/player/light.png",
+    "assets/UI/hammer.png",
+    "assets/UI/top-bar.png",
+    "characters/workers_quarter/albrecht/albrecht.md",
+    "characters/workers_quarter/niklas/niklas.md",
+    "characters/workers_quarter/rein/rein.md",
+    "characters/workers_quarter/rein/rein.png",
+    "characters/workers_quarter/peeter/peeter.png",
+    "characters/workers_quarter/peeter/peeter.md",
+    "characters/workers_quarter/nikolaus/nikolaus.png",
+    "characters/workers_quarter/nikolaus/nikolaus.md",
+    "characters/workers_quarter/markus/markus.png",
+    "characters/workers_quarter/markus/markus.md",
+    "characters/workers_quarter/marek/marek_carpenter.png",
+    "characters/workers_quarter/liina/liina.md",
+    "characters/workers_quarter/liina/liina.png",
+    "characters/workers_quarter/lars/lars.png",
+    "characters/workers_quarter/lars/lars.md",
+    "characters/workers_quarter/knut/knut.md",
+    "characters/workers_quarter/katrin/katrin.md",
+    "characters/workers_quarter/kael/kael.md",
+    "characters/workers_quarter/jaan/jaan.md",
+    "characters/workers_quarter/ingrid/ingrid.md",
+    "characters/workers_quarter/hinrik/hinrik.md",
+    "characters/workers_quarter/hendrik/hendrik.md",
+    "characters/workers_quarter/gustav/gustav.md",
+    "characters/workers_quarter/greta/greta.md",
+    "scenes/revel_central_quarter/painters_sculptors_guild.md",
+    "scenes/revel_central_quarter/masons_guild.md",
+    "scenes/revel_north/tailors_guild.md",
+    "characters/workers_quarter/elsa/elsa.md",
+    "scenes/revel_north/shoemakers_guild.md"
   ]
 }

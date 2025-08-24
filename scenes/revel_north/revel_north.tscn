@@ -18,7 +18,7 @@
 [ext_resource type="AudioStream" uid="uid://bc8x3eiou1nix" path="res://music/revel_east/streets2.mp3" id="16_kylvb"]
 [ext_resource type="AudioStream" uid="uid://bmt3ar6gowv53" path="res://music/revel_east/streets.mp3" id="17_8e8b0"]
 [ext_resource type="PackedScene" uid="uid://gty6ne6exn21" path="res://scenes/elements/npc.tscn" id="19_o83g8"]
-[ext_resource type="Texture2D" path="res://characters/famous/radonezhski.png" id="20_8awr3"]
+[ext_resource type="Texture2D" uid="uid://c7es4bry255s4" path="res://characters/novgorod/radonezhski.png" id="20_8awr3"]
 [ext_resource type="PackedScene" uid="uid://dfb184eowm7q1" path="res://scenes/elements/door.tscn" id="21_lyron"]
 
 [sub_resource type="AudioStreamPlaylist" id="AudioStreamPlaylist_608pq"]

@@ -1,4 +1,4 @@
-[gd_scene load_steps=58 format=4 uid="uid://cxbg0w372wak4"]
+[gd_scene load_steps=60 format=4 uid="uid://cxbg0w372wak4"]
 
 [ext_resource type="Texture2D" uid="uid://bdon6tpfsllx3" path="res://scenes/revel_walls_towers/wall-map.png" id="1_8eko7"]
 [ext_resource type="Script" uid="uid://bl7l57o36owyx" path="res://scenes/revel_east/revel_east.gd" id="1_wrwjg"]
@@ -27,7 +27,6 @@
 [ext_resource type="AudioStream" uid="uid://c2wq1mcsvvieh" path="res://music/revel_east/Apothecary.mp3" id="15_jn3t3"]
 [ext_resource type="AudioStream" uid="uid://bc8x3eiou1nix" path="res://music/revel_east/streets2.mp3" id="16_roxo4"]
 [ext_resource type="AudioStream" uid="uid://bmt3ar6gowv53" path="res://music/revel_east/streets.mp3" id="17_xuwre"]
-[ext_resource type="PackedScene" uid="uid://gty6ne6exn21" path="res://scenes/elements/npc.tscn" id="20_q26ta"]
 [ext_resource type="Script" uid="uid://dotxenhm1atxm" path="res://scenes/elements/door.gd" id="21_roxo4"]
 [ext_resource type="Texture2D" uid="uid://c6hfgoar1s4lh" path="res://assets/trees/Scots_Pine.png" id="22_mot3s"]
 [ext_resource type="AudioStream" uid="uid://cqgq5vtwp8031" path="res://sounds/door.mp3" id="22_xuwre"]
@@ -50,7 +49,16 @@
 [ext_resource type="Texture2D" uid="uid://cs520luvubbfq" path="res://assets/buildings/random4.png" id="48_5k54h"]
 [ext_resource type="Texture2D" uid="uid://ggmbooh1fyag" path="res://assets/buildings/tenement.png" id="49_pmivv"]
 [ext_resource type="Texture2D" uid="uid://7nvopiaptpl1" path="res://assets/buildings/inn.png" id="50_olqpg"]
+[ext_resource type="PackedScene" uid="uid://gty6ne6exn21" path="res://scenes/elements/npc.tscn" id="51_olqpg"]
 [ext_resource type="Texture2D" uid="uid://dan07lrjgvvps" path="res://assets/buildings/inn2.png" id="51_pmivv"]
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_pmivv"]
+cull_mode = 2
+polygon = PackedVector2Array(-387.585, -281.675, -210.693, -451.807, 216.326, -672.64, 437.16, -294.069, 376.317, -224.213, 393.219, 31.5476, 209.566, 136.331, 63.0947, 153.231, -341.391, -5.63354, -318.856, -100.276, -323.363, -201.679)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_olqpg"]
+cull_mode = 1
+polygon = PackedVector2Array(-36.6592, 67.8186, -1.22168, 83.093, 26.2715, 72.0955, 26.2715, 54.3771, 12.8301, 43.3795, 12.8301, 25.6611, -17.7188, 25.0502, -21.9951, 47.0453)
 
 [sub_resource type="AudioStreamPlaylist" id="AudioStreamPlaylist_608pq"]
 resource_local_to_scene = true
@@ -127,17 +135,17 @@ position = Vector2(122.647, 468)
 y_sort_enabled = true
 
 [node name="MarketHall" type="Sprite2D" parent="Buildings"]
-position = Vector2(12598, 4320)
+position = Vector2(13484, 4337)
 scale = Vector2(1.43025, 1.43025)
 texture = ExtResource("5_hepmx")
 
 [node name="MerchantHouse" type="Sprite2D" parent="Buildings"]
-position = Vector2(14116, 4705)
+position = Vector2(11495, 4152)
 scale = Vector2(1.08105, 1.08105)
 texture = ExtResource("6_tx6sx")
 
 [node name="StoneGothicMerchantHouse" type="Sprite2D" parent="Buildings"]
-position = Vector2(13614, 4510)
+position = Vector2(12208, 4227)
 scale = Vector2(1.125, 1.125)
 texture = ExtResource("7_yw24h")
 
@@ -191,9 +199,12 @@ offset = Vector2(0, -200)
 position = Vector2(1.1267, -214.073)
 polygon = PackedVector2Array(-321.098, 166.422, -327, 197.11, -295.132, 217.175, -266.805, 213.634, -249.1, 240.781, -216.051, 240.781, -199.527, 214.814, -181.822, 221.896, -129.891, 188.848, -54.3516, 223.076, -98.0215, 250.223, -134.611, 299.796, -99.2031, 323.402, -107.465, 381.236, -26.0234, 421.366, 44.7949, 389.498, -23.6641, 326.943, 34.1719, 306.877, 79.0234, 345.827, 266.689, 254.944, 317.443, 282.091, 384.721, 240.781, 358.754, 179.405, 35.3516, 0)
 
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Buildings/forge"]
+occluder = SubResource("OccluderPolygon2D_pmivv")
+
 [node name="Player" parent="Buildings" instance=ExtResource("6_0eexq")]
 y_sort_enabled = true
-position = Vector2(13839, 2420)
+position = Vector2(13643, 2220)
 floor_constant_speed = true
 
 [node name="Hay" type="Sprite2D" parent="Buildings"]
@@ -211,9 +222,13 @@ scale = Vector2(1.49219, 1.49219)
 texture = ExtResource("22_mot3s")
 
 [node name="SilverBirch" type="Sprite2D" parent="Buildings"]
-position = Vector2(13724.5, 1942.5)
+position = Vector2(13646, 2005)
 scale = Vector2(1.63672, 1.63672)
 texture = ExtResource("23_cje2n")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Buildings/SilverBirch"]
+scale = Vector2(1, 1)
+occluder = SubResource("OccluderPolygon2D_olqpg")
 
 [node name="NorwaySpruce2" type="Sprite2D" parent="Buildings"]
 position = Vector2(13397, 2022)
@@ -221,7 +236,7 @@ scale = Vector2(1.34375, 1.34375)
 texture = ExtResource("24_hfmco")
 
 [node name="cat" type="Sprite2D" parent="Buildings"]
-position = Vector2(13758, 2303)
+position = Vector2(13652, 2341)
 texture = ExtResource("24_mot3s")
 
 [node name="Gates" type="Sprite2D" parent="Buildings"]
@@ -234,7 +249,7 @@ position = Vector2(14192, 2406)
 texture = ExtResource("25_cje2n")
 
 [node name="Warehouse" type="Sprite2D" parent="Buildings"]
-position = Vector2(10691, 6920)
+position = Vector2(11668, 7189)
 texture = ExtResource("37_5k54h")
 
 [node name="Bathhouse" type="Sprite2D" parent="Buildings"]
@@ -243,7 +258,7 @@ scale = Vector2(1.55658, 1.55658)
 texture = ExtResource("38_pmivv")
 
 [node name="TannerHut" type="Sprite2D" parent="Buildings"]
-position = Vector2(13001, 7669)
+position = Vector2(12863, 7580)
 scale = Vector2(1.92, 1.92)
 texture = ExtResource("39_olqpg")
 
@@ -253,12 +268,12 @@ scale = Vector2(1.32031, 1.32031)
 texture = ExtResource("40_go33i")
 
 [node name="Weaver" type="Sprite2D" parent="Buildings"]
-position = Vector2(11215, 6177)
+position = Vector2(11149, 5956)
 scale = Vector2(1.11133, 1.11133)
 texture = ExtResource("41_5fekm")
 
 [node name="Potter" type="Sprite2D" parent="Buildings"]
-position = Vector2(11634, 7270)
+position = Vector2(9904, 4783)
 scale = Vector2(1.44, 1.44)
 texture = ExtResource("42_ae6c2")
 
@@ -267,17 +282,17 @@ position = Vector2(13740, 5847)
 texture = ExtResource("43_k2725")
 
 [node name="Butcher" type="Sprite2D" parent="Buildings"]
-position = Vector2(12194, 6476)
+position = Vector2(12204, 6398)
 scale = Vector2(1.23759, 1.23759)
 texture = ExtResource("44_16wxh")
 
 [node name="Brewer" type="Sprite2D" parent="Buildings"]
-position = Vector2(13508, 6714)
+position = Vector2(13382, 6642)
 scale = Vector2(1.15834, 1.15834)
 texture = ExtResource("45_e7oqb")
 
 [node name="Granary" type="Sprite2D" parent="Buildings"]
-position = Vector2(9964, 7457)
+position = Vector2(10582, 6664)
 scale = Vector2(1.4, 1.4)
 texture = ExtResource("46_74vnq")
 
@@ -314,14 +329,6 @@ rotation = 0.509636
 shape = SubResource("RectangleShape2D_q26ta")
 debug_color = Color(0.25817, 0.552912, 0.832533, 0.42)
 
-[node name="ColorRect" type="ColorRect" parent="Doors/door_forge/CollisionShape2D"]
-offset_left = -58.085
-offset_top = -48.9246
-offset_right = 848.915
-offset_bottom = 564.075
-scale = Vector2(0.129237, 0.154345)
-color = Color(0.229009, 0.478447, 0.846532, 0.403922)
-
 [node name="OpenSound" type="AudioStreamPlayer" parent="Doors/door_forge"]
 stream = ExtResource("22_xuwre")
 
@@ -335,10 +342,6 @@ spawn_direction = "south"
 [node name="CollisionShape2D" parent="Doors/door_south1" index="1"]
 position = Vector2(-36.8665, 261.881)
 shape = SubResource("RectangleShape2D_mot3s")
-
-[node name="ColorRect" parent="Doors/door_south1/CollisionShape2D" index="0"]
-offset_top = -91.0
-offset_bottom = 83.0
 
 [node name="door_north1" parent="Doors" instance=ExtResource("12_y7nby")]
 destination_level_tag = "revel_north"
@@ -364,12 +367,6 @@ position = Vector2(-55, 53)
 rotation = 2.23751
 shape = SubResource("RectangleShape2D_cje2n")
 
-[node name="ColorRect" parent="Doors/door_central1/CollisionShape2D" index="0"]
-offset_left = -373.0
-offset_top = -205.0
-offset_right = 368.0
-offset_bottom = 203.0
-
 [node name="door_central2" parent="Doors" instance=ExtResource("12_y7nby")]
 position = Vector2(4080, 4471)
 destination_level_tag = "reval_center"
@@ -380,15 +377,6 @@ spawn_direction = "west"
 position = Vector2(177.29, 215.064)
 rotation = 0.602139
 shape = SubResource("RectangleShape2D_hfmco")
-
-[node name="ColorRect" parent="Doors/door_central2/CollisionShape2D" index="0"]
-offset_left = -661.0
-offset_top = -213.0
-offset_right = 659.0
-offset_bottom = 211.0
-
-[node name="NPC" parent="." instance=ExtResource("20_q26ta")]
-position = Vector2(13930, 2525)
 
 [node name="Random4" type="Sprite2D" parent="."]
 position = Vector2(13698, -6628)
@@ -409,6 +397,9 @@ texture = ExtResource("50_olqpg")
 position = Vector2(4789, 3915)
 scale = Vector2(1.16016, 1.16016)
 texture = ExtResource("51_pmivv")
+
+[node name="NPC" parent="." instance=ExtResource("51_olqpg")]
+position = Vector2(13778, 2433)
 
 [connection signal="body_entered" from="Doors/door_forge" to="Doors/door_forge" method="_on_body_entered"]
 

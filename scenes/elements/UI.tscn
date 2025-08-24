@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://mf6xvrb7vivm"]
+
+[ext_resource type="Texture2D" uid="uid://bgvcuonhnjqio" path="res://assets/UI/top-bar.png" id="1_85des"]
+[ext_resource type="Texture2D" uid="uid://c1pxcrd0ifsxo" path="res://assets/UI/hammer.png" id="2_e8iie"]
+
+[node name="Ui" type="CanvasLayer"]
+
+[node name="order-rebel-balance" type="TextureRect" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("1_85des")
+stretch_mode = 2
+
+[node name="hammer" type="TextureRect" parent="."]
+offset_left = 251.0
+offset_top = 6.0
+offset_right = 291.0
+offset_bottom = 46.0
+texture = ExtResource("2_e8iie")
+stretch_mode = 2

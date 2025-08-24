@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://gty6ne6exn21"]
+[gd_scene load_steps=20 format=3 uid="uid://gty6ne6exn21"]
 
 [ext_resource type="Script" uid="uid://bqv0llhneaxaa" path="res://scripts/npc.gd" id="1_8hovi"]
 [ext_resource type="Texture2D" uid="uid://bbj6nmr5mjbha" path="res://assets/bandits/woman1.png" id="2_8hovi"]
@@ -90,6 +90,10 @@ bg_color = Color(0, 0, 0, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_t5u8q"]
 bg_color = Color(0.278431, 0.74902, 0.27451, 1)
 
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_mics8"]
+cull_mode = 2
+polygon = PackedVector2Array(-42, -33, -23, -69, 12, -69, 43, -28, 39, 22, 24, 60, -39, 60, -47, 24)
+
 [node name="NPC" type="CharacterBody2D"]
 script = ExtResource("1_8hovi")
 
@@ -122,3 +126,6 @@ theme_override_styles/background = SubResource("StyleBoxFlat_ca1ny")
 theme_override_styles/fill = SubResource("StyleBoxFlat_t5u8q")
 value = 100.0
 show_percentage = false
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="."]
+occluder = SubResource("OccluderPolygon2D_mics8")

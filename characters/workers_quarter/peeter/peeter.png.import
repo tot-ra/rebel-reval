@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d24f4xy6dl85l"
-path="res://.godot/imported/image-3.png-d5eff7381100c7e918e7375409d557e6.ctex"
+uid="uid://b1u7602ttwuhs"
+path="res://.godot/imported/peeter.png-cf1ad5914e764d9ed0abb691d134c71b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/image-3.png"
-dest_files=["res://.godot/imported/image-3.png-d5eff7381100c7e918e7375409d557e6.ctex"]
+source_file="res://characters/workers_quarter/peeter/peeter.png"
+dest_files=["res://.godot/imported/peeter.png-cf1ad5914e764d9ed0abb691d134c71b.ctex"]
 
 [params]
 
