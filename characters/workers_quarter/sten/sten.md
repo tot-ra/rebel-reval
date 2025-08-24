@@ -2,6 +2,7 @@
 
 A quiet, solitary woodcutter with a powerful build and a deep connection to the forest.
 
+![](sten.png)
 ### Visual Description
 
 Sten is a man in his late thirties, tall and powerfully built, with broad shoulders and muscular arms honed by years of swinging an axe. He has a thick, untamed brown beard and long brown hair that he often ties back with a leather cord. His eyes are a deep green, the color of the forest canopy. He is dressed in practical, hard-wearing clothes: a simple linen tunic, leather breeches, and worn boots. His face is weathered and tanned from his time spent outdoors.

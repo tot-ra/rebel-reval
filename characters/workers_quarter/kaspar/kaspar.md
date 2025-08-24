@@ -2,6 +2,8 @@
 
 A tall, gaunt man with a quiet, professional demeanor, the city's undertaker.
 
+![](kaspar.png)
+
 ### Visual Description
 
 Kaspar is a man in his late fifties, with a tall, slender frame and a somber, composed expression. His face is long and narrow, with high cheekbones and deep-set, grey eyes that have a look of profound sadness. His hair is thin and grey, and he keeps it neatly combed. He is dressed in simple, dark, and impeccably clean clothes: a black woolen tunic and trousers. He moves with a slow, deliberate grace, and his voice is a low, soothing monotone.

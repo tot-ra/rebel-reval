@@ -4,6 +4,7 @@ A pragmatic and resourceful tallow chandler, unfazed by the unpleasant aspects o
 
 ### Visual Description
 
+![](ingrid.png)
 Ingrid is a woman in her late thirties, with a sturdy, robust build. Her face is plain and unadorned, with a no-nonsense expression. Her brown hair is usually covered with a simple linen cap to protect it from the grease and smoke of her workshop. Her eyes are a practical, steady brown. She wears a heavy leather apron over a simple woolen dress, both of which are stained with tallow.
 
 ### Motivations

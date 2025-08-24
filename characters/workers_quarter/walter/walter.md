@@ -2,6 +2,7 @@
 
 A master tinsmith in his late forties, a meticulous and skilled craftsman.
 
+![](walter.png)
 ### Visual Description
 Walter is a man in his late forties, with a thin, wiry build. He has a sharp, intelligent face, and he wears a pair of spectacles perched on his nose. His brown hair is neatly combed, and he has a well-trimmed beard. He wears a leather apron over a simple linen shirt and wool trousers.
 

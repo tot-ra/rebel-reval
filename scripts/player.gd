@@ -63,22 +63,34 @@ func _on_velocity_computed(safe_velocity):
 	velocity = safe_velocity
 	print("Safe velocity computed: ", safe_velocity)
 
-func update_animation(new_animation: String):
-	if velocity.length() > 0:		
-		if velocity.y > 0:
-			new_animation = new_animation + "_south"
-		if velocity.y < 0:
-			new_animation = new_animation + "_north"
+func _get_animation_direction(direction_vector: Vector2) -> String:
+	var direction_suffix = ""
+	# Check length to avoid returning a suffix for a zero vector
+	if direction_vector.length_squared() > 0:
+		if direction_vector.y < 0:
+			direction_suffix += "_north"
+		else:
+			direction_suffix += "_south"
 		
-		# Player is moving
-		if velocity.x > 0:
-			new_animation = new_animation + "_east"
-		if velocity.x < 0:
-			new_animation = new_animation + "_west"
+		if direction_vector.x > 0:
+			direction_suffix += "_east"
+		if direction_vector.x < 0:
+			direction_suffix += "_west"
 			
+	return direction_suffix
+
+func update_animation(base_animation: String):
+	var final_animation = ""
+	
+	if base_animation == "run" or base_animation == "walk":
+		# Player is moving based on input
+		final_animation = base_animation + _get_animation_direction(velocity)
 	else:
-		new_animation = "idle"
-		
+		# Player is idle, face the mouse
+		var mouse_pos = get_global_mouse_position()
+		var direction_to_mouse = mouse_pos - global_position
+		final_animation = "idle_south" # + _get_animation_direction(direction_to_mouse)
+
 	# Only change the animation if the state has changed
-	if animation_player.animation != new_animation:
-		animation_player.play(new_animation)
+	if animation_player.animation != final_animation and final_animation != "":
+		animation_player.play(final_animation)

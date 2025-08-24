@@ -4,6 +4,8 @@ A cheerful, hardworking shoemaker, who takes great pride in his work.
 
 ### Visual Description
 
+![](tomas.png)
+
 Tomas is a man in his early thirties, with a friendly, open face and a ready smile. He has a stocky, powerful build, and his hands are strong and capable. He has a short, brown beard and his eyes are a warm, friendly brown. He is dressed in simple, practical clothes: a leather apron over a linen shirt, and sturdy boots.
 
 ### Motivations

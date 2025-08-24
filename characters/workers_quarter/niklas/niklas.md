@@ -2,6 +2,7 @@
 
 A meticulous and creative tailor, known for his fine garments.
 
+![](niklas.png)
 ### Visual Description
 
 Niklas is a man in his early thirties, with a slender build and a keen eye for detail. He has a friendly, open face and a ready smile. He has short, brown hair and his eyes are a warm, friendly brown. He is dressed in a well-made linen shirt and wool trousers, a testament to his own craft.

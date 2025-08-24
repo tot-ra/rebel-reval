@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://bjmg2khxapbay"]
+
+[ext_resource type="Texture2D" uid="uid://b4jokiii5i6e2" path="res://scenes/harbor/Screenshot 2025-08-24 at 22.46.16.png" id="1_bop6h"]
+
+[node name="Harbor" type="Node2D"]
+
+[node name="Screenshot2025-08-24At22_46_16" type="Sprite2D" parent="."]
+position = Vector2(-24.9998, -318)
+scale = Vector2(14.0835, 14.0835)
+texture = ExtResource("1_bop6h")

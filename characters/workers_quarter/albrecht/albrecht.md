@@ -2,6 +2,7 @@
 
 A skilled fletcher, a man with a steady hand and a sharp eye.
 
+![](albrecht.png)
 ### Visual Description
 
 Albrecht is a man in his late twenties, with a slender, athletic build. He has long, dark hair that he keeps tied back in a practical braid. His eyes are a piercing green, and they miss nothing. He is dressed in simple, practical clothes: a leather jerkin over a linen shirt, and sturdy trousers.

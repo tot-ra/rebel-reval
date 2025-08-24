@@ -2,6 +2,7 @@
 
 A patient and meticulous net maker, his hands weathered by the sea and twine.
 
+![](kael.png)
 ### Visual Description
 
 Kael is a man in his late fifties, with a wiry build and a quiet, observant demeanor. His face is weathered and tanned from a life spent outdoors, and his hands are gnarled and calloused from years of working with rough twine. He has a short, graying beard and his eyes are the color of the sea on a calm day. He is dressed in simple, practical clothes: a woolen tunic, canvas trousers, and sturdy boots.

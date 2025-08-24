@@ -2,6 +2,7 @@
 
 A quiet and enigmatic locksmith in his late forties.
 
+![](valentin.png)
 ### Visual Description
 Valentin is a man in his late forties, with a lean, wiry build. He has sharp, intelligent eyes that seem to see right through people. His dark hair is streaked with grey, and he has a neatly trimmed beard. He dresses in dark, practical clothes.
 

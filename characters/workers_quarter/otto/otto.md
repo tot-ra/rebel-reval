@@ -1,7 +1,7 @@
 # Otto
 
 A gaunt, sullen man who smells faintly of death and decay, the city's official rat catcher.
-
+![](otto.png)
 ### Visual Description
 
 Otto is a man in his late forties, with a thin, wiry frame and a perpetually grim expression. His face is pale and pockmarked, and his eyes are small, dark, and constantly darting about, as if searching for movement in the shadows. His hair is greasy and lank, and he has a patchy, unkempt beard. He wears a collection of mismatched, ragged clothing, covered in stains and smelling of the sewers.

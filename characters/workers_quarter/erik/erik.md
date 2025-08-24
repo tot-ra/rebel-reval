@@ -2,6 +2,7 @@
 
 A master cooper, a man with a cheerful disposition and a love for his craft.
 
+![](erik.png)
 ### Visual Description
 
 Erik is a man in his early forties, with a stout, powerful build from years of wrestling with barrels. He has a friendly, open face, a ready laugh, and a bushy brown beard that is often flecked with sawdust. His eyes are a warm, friendly brown. He is dressed in simple, practical clothes: a leather apron over a linen shirt, and sturdy boots.

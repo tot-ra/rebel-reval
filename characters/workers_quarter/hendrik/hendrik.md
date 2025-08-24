@@ -2,6 +2,7 @@
 
 A cheerful and hardworking man who operates the public grindstone.
 
+![](hendrik.png)
 ### Visual Description
 
 Hendrik is a man in his early thirties, with a friendly, open face and a ready smile. He has a stocky, powerful build from years of operating the grindstone. He has a short, brown beard and his eyes are a warm, friendly brown. He is dressed in simple, practical clothes: a leather apron over a linen shirt, and sturdy boots.

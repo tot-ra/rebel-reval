@@ -204,7 +204,7 @@ occluder = SubResource("OccluderPolygon2D_pmivv")
 
 [node name="Player" parent="Buildings" instance=ExtResource("6_0eexq")]
 y_sort_enabled = true
-position = Vector2(13643, 2220)
+position = Vector2(14517, 2552)
 floor_constant_speed = true
 
 [node name="Hay" type="Sprite2D" parent="Buildings"]

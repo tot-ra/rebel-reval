@@ -2,6 +2,7 @@
 
 A gentle, patient man with a deep reverence for the bees he tends.
 
+![](lembit.png)
 ### Visual Description
 
 Lembit is a man in his late sixties, with a lean, wiry frame and a calm, peaceful demeanor. His face is a roadmap of gentle wrinkles, and his eyes, a pale, watery blue, hold a serene and observant gaze. He has a full, neatly trimmed white beard and long white hair that he keeps tied back. He is dressed in simple, practical clothes made of undyed linen, which he keeps meticulously clean. He moves with a slow, deliberate grace, so as not to startle his bees.

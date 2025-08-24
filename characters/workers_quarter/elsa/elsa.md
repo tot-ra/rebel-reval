@@ -1,7 +1,7 @@
 # Elsa
 
 A master tailor, a woman of impeccable taste and a sharp wit.
-
+![](elsa.png)
 ### Visual Description
 
 Elsa is a woman in her early forties, with a slender, elegant build. She has a cascade of auburn hair, which she wears in an intricate braid, and her eyes are a bright, intelligent green. She is dressed in a gown of the finest wool, a testament to her skill and her success.
