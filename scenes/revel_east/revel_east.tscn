@@ -1,4 +1,4 @@
-[gd_scene load_steps=59 format=4 uid="uid://cxbg0w372wak4"]
+[gd_scene load_steps=63 format=4 uid="uid://cxbg0w372wak4"]
 
 [ext_resource type="Texture2D" uid="uid://bdon6tpfsllx3" path="res://scenes/revel_walls_towers/wall-map.png" id="1_8eko7"]
 [ext_resource type="Script" uid="uid://bl7l57o36owyx" path="res://scenes/revel_east/revel_east.gd" id="1_wrwjg"]
@@ -51,6 +51,10 @@
 [ext_resource type="Texture2D" uid="uid://7nvopiaptpl1" path="res://assets/buildings/inn.png" id="50_olqpg"]
 [ext_resource type="PackedScene" uid="uid://gty6ne6exn21" path="res://scenes/elements/npc.tscn" id="51_olqpg"]
 [ext_resource type="Texture2D" uid="uid://dan07lrjgvvps" path="res://assets/buildings/inn2.png" id="51_pmivv"]
+[ext_resource type="Texture2D" uid="uid://b0w4s4ih5yfff" path="res://assets/animals/wolf1.png" id="52_ae6c2"]
+[ext_resource type="Texture2D" uid="uid://co48tjhxfsnal" path="res://assets/animals/wolf2.png" id="53_k2725"]
+[ext_resource type="Texture2D" uid="uid://dx70wykfjbt4w" path="res://assets/animals/wolf3.png" id="54_gwo1x"]
+[ext_resource type="Texture2D" uid="uid://cjvqv3v1gjqnt" path="res://assets/animals/download-4.png" id="55_hvmr7"]
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_olqpg"]
 cull_mode = 1
@@ -382,6 +386,22 @@ texture = ExtResource("51_pmivv")
 
 [node name="NPC" parent="." instance=ExtResource("51_olqpg")]
 position = Vector2(13778, 2433)
+
+[node name="Wolf1" type="Sprite2D" parent="."]
+position = Vector2(13640, 2581)
+texture = ExtResource("52_ae6c2")
+
+[node name="Wolf2" type="Sprite2D" parent="."]
+position = Vector2(13844, 2566)
+texture = ExtResource("53_k2725")
+
+[node name="Wolf3" type="Sprite2D" parent="."]
+position = Vector2(13914, 2613)
+texture = ExtResource("54_gwo1x")
+
+[node name="Download-4" type="Sprite2D" parent="."]
+position = Vector2(13643, 2640)
+texture = ExtResource("55_hvmr7")
 
 [connection signal="body_entered" from="Doors/door_forge" to="Doors/door_forge" method="_on_body_entered"]
 
