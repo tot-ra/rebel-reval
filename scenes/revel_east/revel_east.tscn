@@ -1,9 +1,8 @@
-[gd_scene load_steps=60 format=4 uid="uid://cxbg0w372wak4"]
+[gd_scene load_steps=59 format=4 uid="uid://cxbg0w372wak4"]
 
 [ext_resource type="Texture2D" uid="uid://bdon6tpfsllx3" path="res://scenes/revel_walls_towers/wall-map.png" id="1_8eko7"]
 [ext_resource type="Script" uid="uid://bl7l57o36owyx" path="res://scenes/revel_east/revel_east.gd" id="1_wrwjg"]
 [ext_resource type="Texture2D" uid="uid://b0vr2i1ngbmd8" path="res://scenes/revel-map.jpg" id="2_wrwjg"]
-[ext_resource type="Texture2D" uid="uid://ddibpritsk43m" path="res://assets/buildings/forge.png" id="4_n1jbl"]
 [ext_resource type="TileSet" uid="uid://cmqcn78ij7u06" path="res://scenes/tileset.tres" id="4_q26ta"]
 [ext_resource type="Texture2D" uid="uid://dmb4osyh6ucqj" path="res://assets/buildings/Market Hall.png" id="5_hepmx"]
 [ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="6_0eexq"]
@@ -34,6 +33,7 @@
 [ext_resource type="Texture2D" uid="uid://cxfqulimmj5uh" path="res://assets/trees/Norway_Spruce2.png" id="24_hfmco"]
 [ext_resource type="Texture2D" uid="uid://dto6kgedj4uiq" path="res://assets/animals/cats/download-17.png" id="24_mot3s"]
 [ext_resource type="Texture2D" uid="uid://b1vwf786c6hmd" path="res://assets/animals/cats/download-20.png" id="25_cje2n"]
+[ext_resource type="PackedScene" uid="uid://cmvai76lvtff3" path="res://scenes/elements/building.tscn" id="32_olqpg"]
 [ext_resource type="Texture2D" uid="uid://cahclvy7tlt5r" path="res://assets/buildings/gates.png" id="35_74vnq"]
 [ext_resource type="Texture2D" uid="uid://dok1uugm4cd0u" path="res://assets/buildings/warehouse.png" id="37_5k54h"]
 [ext_resource type="Texture2D" uid="uid://cv0mm5rd1qt10" path="res://assets/buildings/bathhouse.png" id="38_pmivv"]
@@ -51,10 +51,6 @@
 [ext_resource type="Texture2D" uid="uid://7nvopiaptpl1" path="res://assets/buildings/inn.png" id="50_olqpg"]
 [ext_resource type="PackedScene" uid="uid://gty6ne6exn21" path="res://scenes/elements/npc.tscn" id="51_olqpg"]
 [ext_resource type="Texture2D" uid="uid://dan07lrjgvvps" path="res://assets/buildings/inn2.png" id="51_pmivv"]
-
-[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_pmivv"]
-cull_mode = 2
-polygon = PackedVector2Array(-387.585, -281.675, -210.693, -451.807, 216.326, -672.64, 437.16, -294.069, 376.317, -224.213, 393.219, 31.5476, 209.566, 136.331, 63.0947, 153.231, -341.391, -5.63354, -318.856, -100.276, -323.363, -201.679)
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_olqpg"]
 cull_mode = 1
@@ -127,7 +123,7 @@ tile_map_data = PackedByteArray("AABhAIb/AAAFAAEAAABgAIX/AAAFAAEAAABiAIT/AAAFAAM
 tile_set = ExtResource("4_q26ta")
 
 [node name="Area2D" type="Area2D" parent="."]
-position = Vector2(122.647, 468)
+position = Vector2(13230, 2570)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
 
@@ -173,38 +169,9 @@ position = Vector2(-55.3969, 730.637)
 [node name="47" parent="Buildings/towers" instance=ExtResource("7_q26ta")]
 position = Vector2(-164.986, 1349.52)
 
-[node name="Tavern" type="Sprite2D" parent="Buildings"]
-y_sort_enabled = true
-position = Vector2(13894, 3505)
-scale = Vector2(1.03137, 1.03137)
-texture = ExtResource("11_2wnse")
-offset = Vector2(0, -150)
-
-[node name="StaticBody2D" type="StaticBody2D" parent="Buildings/Tavern"]
-
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Buildings/Tavern/StaticBody2D"]
-position = Vector2(1.93917, -148.346)
-polygon = PackedVector2Array(-20.2842, 368.25, 291.791, 246.54, 336.262, 266.825, 405.699, 232.497, 327.68, 194.267, 42.1309, 29.6472, -358.887, 191.146, -375.271, 241.859, -252.781, 312.076, -89.7217, 389.315)
-
-[node name="forge" type="Sprite2D" parent="Buildings"]
-y_sort_enabled = true
-position = Vector2(14124, 2252)
-scale = Vector2(0.887547, 0.887547)
-texture = ExtResource("4_n1jbl")
-offset = Vector2(0, -200)
-
-[node name="StaticBody2D" type="StaticBody2D" parent="Buildings/forge"]
-
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Buildings/forge/StaticBody2D"]
-position = Vector2(1.1267, -214.073)
-polygon = PackedVector2Array(-321.098, 166.422, -327, 197.11, -295.132, 217.175, -266.805, 213.634, -249.1, 240.781, -216.051, 240.781, -199.527, 214.814, -181.822, 221.896, -129.891, 188.848, -54.3516, 223.076, -98.0215, 250.223, -134.611, 299.796, -99.2031, 323.402, -107.465, 381.236, -26.0234, 421.366, 44.7949, 389.498, -23.6641, 326.943, 34.1719, 306.877, 79.0234, 345.827, 266.689, 254.944, 317.443, 282.091, 384.721, 240.781, 358.754, 179.405, 35.3516, 0)
-
-[node name="LightOccluder2D" type="LightOccluder2D" parent="Buildings/forge"]
-occluder = SubResource("OccluderPolygon2D_pmivv")
-
 [node name="Player" parent="Buildings" instance=ExtResource("6_0eexq")]
 y_sort_enabled = true
-position = Vector2(14517, 2552)
+position = Vector2(14509, 2464)
 floor_constant_speed = true
 
 [node name="Hay" type="Sprite2D" parent="Buildings"]
@@ -227,7 +194,6 @@ scale = Vector2(1.63672, 1.63672)
 texture = ExtResource("23_cje2n")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Buildings/SilverBirch"]
-scale = Vector2(1, 1)
 occluder = SubResource("OccluderPolygon2D_olqpg")
 
 [node name="NorwaySpruce2" type="Sprite2D" parent="Buildings"]
@@ -304,6 +270,22 @@ texture = ExtResource("47_5k54h")
 position = Vector2(11778.8, 5347.25)
 scale = Vector2(1.29053, 1.29053)
 texture = ExtResource("14_e7oqb")
+
+[node name="ForgeBuilding" parent="Buildings" instance=ExtResource("32_olqpg")]
+position = Vector2(14115, 2127)
+
+[node name="TavernBuilding" parent="Buildings" instance=ExtResource("32_olqpg")]
+position = Vector2(13949, 3448)
+
+[node name="BuildingSprite" parent="Buildings/TavernBuilding" index="0"]
+scale = Vector2(1.00703, 1.00703)
+texture = ExtResource("11_2wnse")
+
+[node name="CollisionPolygon2D" parent="Buildings/TavernBuilding/BuildingSprite/StaticBody2D" index="0"]
+polygon = PackedVector2Array(55.4746, 23.4141, 348.414, 195.206, 409.98, 230.954, 387.142, 257.766, 325.574, 279.612, 194.497, 295.5, -1.12695, 383.878, -16.0225, 405.725, -101.422, 405.725, -191.786, 345.151, -378.473, 266.703, -368.543, 211.094)
+
+[node name="LightOccluder2D" parent="Buildings/TavernBuilding/BuildingSprite" index="1"]
+position = Vector2(0.993014, -6.9511)
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 stream = SubResource("AudioStreamPlaylist_608pq")
@@ -403,6 +385,7 @@ position = Vector2(13778, 2433)
 
 [connection signal="body_entered" from="Doors/door_forge" to="Doors/door_forge" method="_on_body_entered"]
 
+[editable path="Buildings/TavernBuilding"]
 [editable path="Doors/door_south1"]
 [editable path="Doors/door_north1"]
 [editable path="Doors/door_central1"]

@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=3 uid="uid://cmvai76lvtff3"]
+
+[ext_resource type="Texture2D" uid="uid://ddibpritsk43m" path="res://assets/buildings/forge.png" id="1_r5w12"]
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_doagi"]
+cull_mode = 2
+polygon = PackedVector2Array(-381.317, -351.527, -212.506, -509.416, 199.596, -685.18, 394.227, -347.555, 365.429, -312.8, 399.191, 44.6855, 200.589, 94.3364, -63.5537, 210.519, -376.353, 62.5598, -386.283, -24.8254, -367.416, -192.645)
+
+[node name="Building" type="Node2D"]
+
+[node name="BuildingSprite" type="Sprite2D" parent="."]
+y_sort_enabled = true
+position = Vector2(-10, 128)
+scale = Vector2(0.887547, 0.887547)
+texture = ExtResource("1_r5w12")
+offset = Vector2(0, -200)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="BuildingSprite"]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="BuildingSprite/StaticBody2D"]
+position = Vector2(1.1267, -214.073)
+polygon = PackedVector2Array(-321.098, 166.422, -327, 197.11, -295.132, 217.175, -266.805, 213.634, -249.1, 240.781, -216.051, 240.781, -199.527, 214.814, -181.822, 221.896, -129.891, 188.848, -54.3516, 223.076, -98.0215, 250.223, -134.611, 299.796, -99.2031, 323.402, -107.465, 381.236, -26.0234, 421.366, 44.7949, 389.498, -23.6641, 326.943, 34.1719, 306.877, 79.0234, 345.827, 266.689, 254.944, 317.443, 282.091, 384.721, 240.781, 358.754, 179.405, 35.3516, 0)
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="BuildingSprite"]
+occluder = SubResource("OccluderPolygon2D_doagi")

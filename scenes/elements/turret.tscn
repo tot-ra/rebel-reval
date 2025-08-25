@@ -1,17 +1,24 @@
-[gd_scene load_steps=2 format=3 uid="uid://1c2a60v6j3yi"]
+[gd_scene load_steps=3 format=3 uid="uid://1c2a60v6j3yi"]
 
 [ext_resource type="Texture2D" uid="uid://cxkmhnos6q5nn" path="res://assets/buildings/tower.png" id="1_rpjlw"]
 
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_rpjlw"]
+cull_mode = 2
+polygon = PackedVector2Array(-262.874, -59.5357, -240.655, -437.255, -273.984, -503.911, -273.984, -570.567, -173.999, -637.224, -118.452, -703.88, -12.913, -848.302, 20.4151, -826.083, 20.4151, -803.864, 81.5167, -720.544, 131.509, -659.443, 187.056, -609.45, 253.712, -553.903, 253.712, -509.466, 225.939, -442.809, 209.275, -426.145, 220.384, -187.294, 237.048, -165.075, 237.048, -59.5357, 181.501, -9.54351, 98.1808, 34.894, 98.1808, 62.6675, 42.6339, 68.2222, 31.5245, 51.5581, -85.124, 46.0034, -173.999, 12.6753, -201.773, -15.0982, -223.991, -15.0982)
+
 [node name="Turret" type="Node2D"]
 
-[node name="21" type="Sprite2D" parent="."]
+[node name="TurretSprite" type="Sprite2D" parent="."]
 position = Vector2(1.32471, 10.7181)
 scale = Vector2(0.180028, 0.180028)
 texture = ExtResource("1_rpjlw")
 offset = Vector2(0, -400)
 
-[node name="StaticBody2D" type="StaticBody2D" parent="21"]
+[node name="StaticBody2D" type="StaticBody2D" parent="TurretSprite"]
 
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="21/StaticBody2D"]
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="TurretSprite/StaticBody2D"]
 position = Vector2(-1.80364, -398.371)
 polygon = PackedVector2Array(-262.874, 340.401, -207.327, 384.839, -124.007, 429.276, -29.5771, 445.94, 37.0791, 445.94, 48.1885, 462.604, 98.1806, 457.05, 92.6259, 434.831, 153.727, 401.503, 198.165, 368.175, 209.274, 368.175, 231.493, 334.847, 231.493, 312.628, 148.173, 262.636, -7.35833, 251.526, -146.225, 273.745)
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="TurretSprite"]
+occluder = SubResource("OccluderPolygon2D_rpjlw")
