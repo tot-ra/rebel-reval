@@ -4,7 +4,7 @@ on: push
 # NOTE: If your `project.godot` is at the repository root, set `PROJECT_PATH` below to ".".
 
 env:
-  GODOT_VERSION: 4.4.1
+  GODOT_VERSION: 4.4
   EXPORT_NAME: rebel-reval
   PROJECT_PATH: .
 
