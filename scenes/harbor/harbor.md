@@ -13,7 +13,7 @@ The League dominates the official trade in the harbor, with their warehouses and
 ![alt text](image-16.png)
 **Hanseatic League Guard**: A well-armed and disciplined soldier in the employ of the Hanseatic League, standing guard in front of a warehouse. He has a cold, professional demeanor.
 
-![alt text](../../skills/image-1.png)
+![alt text](../../character/skills/image-1.png)
 **Hanseatic League Clerk**: A prim and proper man in his late 20s, with a neat haircut and a perpetually worried expression. He carries a ledger and a quill pen.
 
 
@@ -22,7 +22,7 @@ The League dominates the official trade in the harbor, with their warehouses and
 The pirates have a strong, often clandestine, presence here, recruiting sailors, fencing stolen goods, and planning raids.
 
 
-![alt text](../../skills/image.png)
+![alt text](../../character/skills/image.png)
 **"Ironhand" Störtebeker**: A grizzled pirate captain with a prosthetic iron hand, a braided beard, and a patched-up eye. He wears a long leather coat and a confident smirk.
 
 ![](../../assets/characters/bandits/image-8.png)
@@ -41,7 +41,7 @@ The urban rebels use the harbor for smuggling weapons and supplies, and for maki
 ![](../../assets/characters/harbour/image-10.png) 
 **Russian Fur Trader**: A large, bearded man dressed in layered pelts and a bearskin hat with earflaps. His belt is heavy with pouches, and his breath mists in the cold air.
 
-![alt text](../../skills/image-8.png)
+![alt text](../../character/skills/image-8.png)
 **Foreign Merchant from Novgorod**: A man with sharp, intelligent eyes and a long, flowing robe. He speaks with a thick accent and is always looking for a good deal.
 
 
@@ -56,20 +56,20 @@ The harbor is populated by a variety of NPCs, reflecting its role as a cultural 
 **Weathered Estonian Fishwife**: An old woman with a wrinkled, sun-beaten face and seaweed tangled in her greying braids. Her hands are red and raw from the cold water.
 
 
-![alt text](../../skills/image-2.png)
-![alt text](../../skills/image-3.png)
+![alt text](../../character/skills/image-2.png)
+![alt text](../../character/skills/image-3.png)
 **Drunken Sailor from Lübeck**: A young man with a thick German accent, singing a bawdy sea shanty. He has a tattoo of a mermaid on his arm and a tankard of ale in his hand.
 
-![alt text](../../skills/image-5.png)
+![alt text](../../character/skills/image-5.png)
 **City Guard on Patrol**: A bored-looking guard in a dented helmet and a chainmail shirt, leaning on his spear and watching the ships come and go.
 
-![alt text](../../skills/image-4.png)
+![alt text](../../character/skills/image-4.png)
 **Smuggler's Lookout**: A young boy perched on a rooftop, keeping a watchful eye out for the city guard. He has a slingshot tucked into his belt.
 
-![alt text](../../skills/image-6.png)
+![alt text](../../character/skills/image-6.png)
 **Ship's Carpenter**: A man with a muscular build and a friendly, open face, carrying a set of well-used tools. He smells of sawdust and tar.
 
-![alt text](../../skills/image-7.png)
+![alt text](../../character/skills/image-7.png)
 **Seagull-Feeding Old Man**: A gentle old man who spends his days on the docks, feeding scraps of bread to the seagulls. He has a long white beard and a peaceful smile.
 
 

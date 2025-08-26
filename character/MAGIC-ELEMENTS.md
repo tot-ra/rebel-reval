@@ -6,9 +6,9 @@ When combined in a sequence of up to 4, you can create a **spell** or action.
 *   **Fight with melee weapons:** Master the smith's hammer and other weapons of the era.
 *   **Use magic:** Wield innate ancestral powers and learn new abilities from the factions of Reval.
 
-![](./assets/objects/weapons/sword.png)
-![](./assets/objects/weapons/hammer.png)
-![](./assets/objects/weapons/axe.png)
+![](../assets/objects/weapons/sword.png)
+![](../assets/objects/weapons/hammer.png)
+![](../assets/objects/weapons/axe.png)
 
 ## TODO
 - MELEE VS RANGED
@@ -51,7 +51,7 @@ There are 21 known Elements, grouped into three domains. While Kalev can learn t
 
 ## 🔥 The Inner Forge: Fueling Your Power
 
-The power of your forged spells and actions is directly tied to the state of your soul. Through the **[Hingepuu (Soul Tree)](skills/GAMEPLAY-PSYCHE.md)**, you can tend to your **Seven Hearths**, the spiritual centers that govern your abilities. The more stoked a Hearth is, the more potent the Elements associated with it become.
+The power of your forged spells and actions is directly tied to the state of your soul. Through the **[Hingepuu (Soul Tree)](PSYCHE.md)**, you can tend to your **Seven Hearths**, the spiritual centers that govern your abilities. The more stoked a Hearth is, the more potent the Elements associated with it become.
 
 For example, a well-tended **Hearth of the Sun**, which governs Strength and Raw Power, will dramatically increase the damage of spells forged with the `Fire` and `Beast` Elements. Similarly, a balanced **Hearth of the Brow** will reduce the cooldown of all your forged spells.
 

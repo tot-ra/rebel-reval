@@ -1,6 +1,6 @@
 # Jani Beg (Future Khan)
 
-![alt text](../../skills/image.png)
+![alt text](../../character/skills/image.png)
 
 **Visual Description:**
 Disguised as a wealthy Tartar merchant, Jani Beg appears as a man in his late 30s. He has a strong, solid build, with the powerful shoulders of a warrior beneath his merchant's garb. His hair is black, long, and tied back neatly in a leather cord. He has a well-kept, thick black beard that frames a stern mouth. His skin is weathered from travel, and his dark, almond-shaped eyes are sharp and calculating, missing nothing. He wears a heavy kaftan of deep blue wool, its collar and cuffs lined with rich, dark marten fur. Beneath it, a tunic of fine, patterned red silk is visible at his neck. His trousers are of a simple dark wool, tucked into high boots of soft, dark brown leather.
@@ -20,8 +20,8 @@ Jani Beg's personal journey to the Baltic is driven by a complex mix of strategi
 **Companions:**
 Jani Beg travels with a very small, elite retinue disguised as his servants and guards.
 
-![alt text](../../skills/image-1.png)
-![alt text](../../skills/image-2.png)
+![alt text](../../character/skills/image-1.png)
+![alt text](../../character/skills/image-2.png)
 *   **Temur "the Silent":**
     *   **Visual Description:** A man in his early 50s, Temur is built like a weathered rock. He is broad-shouldered and powerfully muscled, with a bald head and a long, grey-streaked beard braided with small iron rings. A jagged scar runs from his left temple to his jaw, giving his dark eyes a permanent, intimidating squint. He is disguised as a simple caravan guard, wearing a quilted brown wool gambeson over a plain linen tunic, with worn leather trousers and boots.
 *   **Alani "the Shadow":**

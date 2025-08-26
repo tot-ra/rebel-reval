@@ -1,6 +1,6 @@
 # Berthold Schwarz
 
-![alt text](../../skills/image-4.png)
+![alt text](../../character/skills/image-4.png)
 
 **Visual Description:**
 Berthold Schwarz is a man of indeterminate age, though likely in his 40s or 50s. He has a gaunt, scholarly appearance, with long, thin fingers often stained with chemicals. His grey hair is wild and unkempt, and his dark eyes have a manic, obsessive gleam. He wears the simple, dark robes of a Franciscan monk, but they are often singed, stained, and smelling faintly of sulfur and other strange chemicals. He is more at home in a laboratory than a monastery.

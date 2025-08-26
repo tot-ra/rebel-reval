@@ -19,7 +19,7 @@ Medieval blacksmith forge at night, 1340s Estonia. Kalev, holds a hammer suspend
 **Prompt:**
 "Medieval Reval street scene, 1342. Elderly Estonian peasant (Henrik) with trembling hands giving his last silver coins to a stern Danish tax collector in chainmail and royal colors. Henrik's face shows desperation and grief - these coins meant for his daughter's dowry. Danish collector wears red and white Danish heraldry, confident and cold. Cobblestone street, timber-framed houses, other Estonian townspeople watching fearfully from doorways. Overcast sky, muted earth tones, realistic medieval clothing and architecture. Wide shot emphasizing the power imbalance, documentary-style lighting, autumn atmosphere in medieval Tallinn."
 
-![alt text](../skills/image-8.png)
+![alt text](../character/skills/image-8.png)
 
 ## Scene 3: Master and Apprentice - The Philosophy of Breaking
 **Visual Style:** Warm interior lighting, teacher-student dynamic
@@ -28,7 +28,7 @@ Medieval blacksmith forge at night, 1340s Estonia. Kalev, holds a hammer suspend
 **Prompt:**
 "Medieval blacksmith workshop interior, master craftsman and young apprentice. Kalev (25, weathered Estonian blacksmith) and 16-year-old Mart (nervous, eager apprentice) standing near forge. Kalev holds broken blade, speaking intensely while Mart listens with wide eyes. Workshop details: bellows, hammers, horseshoes, chain mail, glowing coals. Warm orange firelight, wooden beams, stone walls. Kalev's expression shows hidden rage beneath teaching facade. Mart's youthful concern contrasts with master's world-weariness. Oil painting style, Renaissance chiaroscuro lighting, rich textures, medieval craftsmanship tools surrounding them."
 
-![alt text](../skills/image-7.png)
+![alt text](../character/skills/image-7.png)
 
 
 ## Scene 4: Memory and Resistance - The Inherited Blade

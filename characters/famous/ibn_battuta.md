@@ -1,6 +1,6 @@
 # Ibn Battuta
 
-![alt text](../../skills/image-6.png)
+![alt text](../../character/skills/image-6.png)
 
 **Visual Description:**
 A man in his late thirties, Ibn Battuta has the appearance of a seasoned traveler. He has dark, intelligent eyes that have seen countless wonders and horrors. His skin is tanned and weathered from years of travel across deserts and seas. He has a neatly trimmed black beard, perhaps with a few specks of grey. He would be dressed in the practical but dignified robes of a Moroccan scholar, likely of fine cotton or wool, in earthy tones. He might wear a turban, and his entire demeanor would be one of calm, observant curiosity.

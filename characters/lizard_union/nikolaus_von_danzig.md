@@ -1,5 +1,5 @@
 # Nikolaus von Danzig
-![alt text](../../skills/image.png)
+![alt text](../../character/skills/image.png)
 
 
 **Title:** Spymaster of the Lizard Union

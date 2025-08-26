@@ -4,7 +4,7 @@ Beyond the physical conflict for Reval, there is a battle within Kalev's soul. T
 
 The health and appearance of the Hingepuu are a direct reflection of Kalev's inner balance. A soul in harmony will have a mighty, vibrant oak, while a soul in turmoil will see the tree become withered, scorched, or overgrown with parasites.
 
-![alt text](image-4.png)
+![alt text](skills/image-4.png)
 
 
 ## The Seven Hearths of the Soul
@@ -16,14 +16,14 @@ The Hingepuu is the source of Kalev's inner power, which is channeled through se
     *   **Physical Influence:** Governs health pool, resistance to being knocked down.
     *   **Mental Influence:** Increases the power of `Earth` and `Metal` Elements. Increases duration of defensive spells.
 
-![alt text](image-8.png)
+![alt text](skills/image-8.png)
 
 *   **Hearth of the Heart** (Base of Trunk)
     *   **Core Stats:** Agility, Dexterity, Reaction Speed
     *   **Physical Influence:** Governs attack speed, dodge chance, and ranged accuracy.
     *   **Mental Influence:** Increases the power of `Water` and `Air` Elements. Reduces spell casting time.
 
-![alt text](image-1.png)
+![alt text](skills/image-1.png)
 
 
 *   **Hearth of the Sun** (Main Trunk)
@@ -31,7 +31,7 @@ The Hingepuu is the source of Kalev's inner power, which is channeled through se
     *   **Physical Influence:** Governs melee damage, ability to break guards.
     *   **Mental Influence:** Increases the power of `Fire` and `Beast` Elements. Increases raw damage of offensive spells.
 
-![alt text](image-2.png)
+![alt text](skills/image-2.png)
 
 
 *   **Hearth of the Chest** (Large Branch)
@@ -39,7 +39,7 @@ The Hingepuu is the source of Kalev's inner power, which is channeled through se
     *   **Physical Influence:** Governs effectiveness of ally-affecting shouts.
     *   **Mental Influence:** Increases the power of `Life` and `Hope` Elements. Increases potency of healing/support spells.
 
-![alt text](image-3.png)
+![alt text](skills/image-3.png)
 
 
 *   **Hearth of the Throat** (High Windy Branch)
@@ -47,14 +47,14 @@ The Hingepuu is the source of Kalev's inner power, which is channeled through se
     *   **Physical Influence:** Governs effectiveness of intimidation/rally cries.
     *   **Mental Influence:** Increases the power of `Deception` and `Dominion` Elements. Increases potency of crowd control spells.
 
-![alt text](image-5.png)
+![alt text](skills/image-5.png)
 
 *   **Hearth of the Brow** (Treetop Perch)
     *   **Core Stats:** Perception, Wisdom, Spell Cooldown
     *   **Physical Influence:** Governs ability to spot traps, critical hit chance.
     *   **Mental Influence:** Increases the power of `Mind` and `Time` Elements. Reduces spell cooldowns.
 
-![alt text](image-6.png)
+![alt text](skills/image-6.png)
 
 
 *   **Hearth of the Crown** (Sky Above Tree)
@@ -62,7 +62,7 @@ The Hingepuu is the source of Kalev's inner power, which is channeled through se
     *   **Physical Influence:** Governs "Willpower" (mana) pool.
     *   **Mental Influence:** Increases the power of `Faith` and `Spirit` Elements. Unlocks 4-Element spellforging.
 
-![alt text](image-7.png)
+![alt text](skills/image-7.png)
 
 
 

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "README.md",
+                "file": "character/BUILD.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "README"
+              "title": "BUILD"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "README.md",
+                "file": "character/BUILD.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for README"
+              "title": "Backlinks for BUILD"
             }
           },
           {
@@ -169,21 +169,29 @@
   },
   "active": "943d69cba5a63aa5",
   "lastOpenFiles": [
+    "README.md",
+    "character/image-1.png",
+    "character/image.png",
+    "character/BUILD.md",
+    "character/PSYCHE.md",
+    "character/WARRIOR-BUILD.md",
+    "GAMEPLAY-NIGHT.md",
+    "GAMEPLAY.md",
+    "character/MAGIC-ELEMENTS.md",
+    "character",
     "img/Screenshot 2025-08-26 at 16.42.48.png",
-    "skills/PROMPTS.md",
+    "character/skills/PROMPTS.md",
     "QUESTS.md",
     "MINI_GAMES.md",
     "icon.svg",
-    "skills/image.png",
-    "skills/image-1.png",
-    "skills/image-8.png",
-    "skills/image-3.png",
-    "skills/image-2.png",
-    "README.md",
-    "skills",
+    "character/skills/image.png",
+    "character/skills/image-1.png",
+    "character/skills/image-8.png",
+    "character/skills/image-3.png",
+    "character/skills/image-2.png",
+    "character/skills",
     "characters/order/master_burchard_von_dreileben.md",
     "characters/order/master_burchard_von_dreileben.png",
-    "characters/rebels/urmas_laar.png",
     "characters/rebels/lembit_helme.md",
     "player.tscn-rsZbVe",
     "scenes/revel_east/revel_east.tscn-7KbegZ",
@@ -193,9 +201,6 @@
     "scenes/revel_east/revel_east.tscn-oxLrS7",
     "scenes/elements/building.gd.uid",
     "scenes/elements/building.gd",
-    "scenes/revel_east/revel_east.tscn-TY4x9V",
-    "skills/image-7.png",
-    "skills/GAMEPLAY-PSYCHE.md",
     "characters/rebels/kaja_lahekivi.md",
     "characters/rebels/juri_ratnik.md",
     "characters/bishopric_dorpat/brother_andreas.md",
@@ -208,11 +213,6 @@
     "characters/workers_quarter/elga/elga.md",
     "characters/workers_quarter/hendrik/hendrik.md",
     "characters/workers_quarter/hinrik/hinrik.md",
-    "characters/workers_quarter/ingrid/ingrid.md",
-    "characters/workers_quarter/jaan/jaan.md",
-    "characters/workers_quarter/kael/kael.md",
-    "characters/workers_quarter/kaspar/kaspar.md",
-    "characters/workers_quarter/knut/knut.md",
-    "characters/workers_quarter/lars/lars.md"
+    "characters/workers_quarter/ingrid/ingrid.md"
   ]
 }
