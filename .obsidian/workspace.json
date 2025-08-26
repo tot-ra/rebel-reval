@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "79d60bbd8562d05a",
+        "id": "7a23a92c46047c8d",
         "type": "tabs",
         "children": [
           {
-            "id": "db84a2327d21cb42",
+            "id": "943d69cba5a63aa5",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "characters/rebels/lembit_helme.md",
+                "file": "README.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "lembit_helme"
+              "title": "README"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "characters/rebels/lembit_helme.md",
+                "file": "README.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for lembit_helme"
+              "title": "Backlinks for README"
             }
           },
           {
@@ -167,35 +167,39 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "db84a2327d21cb42",
+  "active": "943d69cba5a63aa5",
   "lastOpenFiles": [
-    "assets/animals/download-4.png.import",
-    "assets/animals/download-4.png",
-    "scenes/elements/water.tscn",
-    "scenes/revel_east/revel_east.tscn-CGwPtD",
-    "scenes/elements/water.gdshader.uid",
-    "scenes/elements/water.gdshader",
-    "scenes/revel_east/forge/forge.tscn-8NhKbS",
-    "scenes/revel_east/revel_east.tscn-gccjRY",
-    "scenes/revel_east/forge/forge.tscn-cqp4OZ",
-    "scenes/revel_east/revel_east.tscn-lxUW57",
-    "scenes/revel_east/revel_east.tscn-6L675S",
-    "scenes/revel_east/revel_east.tscn-4M4OS2",
-    "assets/tiles/wall.png",
-    "img/Lucid_Origin_Isometric_tileable_game_asset_of_a_medieval_stone_0-2.jpg",
+    "characters/order/master_burchard_von_dreileben.md",
+    "characters/order/master_burchard_von_dreileben.png",
+    "README.md",
+    "characters/rebels/urmas_laar.png",
+    "Screenshot 2025-08-26 at 16.42.48.png",
+    "characters/rebels/lembit_helme.md",
+    "player.tscn-rsZbVe",
+    "scenes/revel_east/revel_east.tscn-7KbegZ",
+    "scenes/revel_east/revel_east.tscn-c5vkM8",
+    "scenes/revel_east/revel_east.tscn-yqhgTU",
+    "scenes/revel_east/forge/forge.tscn-7bUGgb",
+    "scenes/revel_east/revel_east.tscn-oxLrS7",
+    "scenes/elements/building.gd.uid",
+    "scenes/elements/building.gd",
+    "scenes/revel_east/revel_east.tscn-TY4x9V",
+    "image-4.png.import",
+    "image-8.png",
+    "image-7.png",
+    "image-6.png",
+    "image-5.png",
+    "image-4.png",
+    "image-3.png",
+    "image-2.png",
+    "PROMPTS.md",
+    "GAMEPLAY-PSYCHE.md",
     "characters/rebels/kaja_lahekivi.md",
     "characters/rebels/juri_ratnik.md",
     "characters/bishopric_dorpat/brother_andreas.md",
     "scenes/revel_east/iron_guild_hall.md",
     "scenes/README.md",
     "scenes/harbor/warehouses.md",
-    "scenes/harbor/Screenshot 2025-08-24 at 22.46.16.png",
-    "scenes/harbor/ships/Screenshot 2025-08-24 at 22.46.16.png",
-    "characters/workers_quarter/apotheka.png",
-    "assets/player/idle/idle_south.png",
-    "characters/workers_quarter/image-24.png",
-    "characters/workers_quarter/image-23.png",
-    "characters/workers_quarter/image-16.png",
     "characters/workers_quarter/erik/erik.md",
     "characters/workers_quarter/elsa/elsa.md",
     "characters/workers_quarter/albrecht/albrecht.md",
@@ -209,11 +213,6 @@
     "characters/workers_quarter/knut/knut.md",
     "characters/workers_quarter/lars/lars.md",
     "characters/workers_quarter/lembit/lembit.md",
-    "characters/workers_quarter/niklas/niklas.md",
-    "characters/workers_quarter/otto/otto.md",
-    "characters/workers_quarter/walter/walter.md",
-    "characters/workers_quarter/valentin/valentin.md",
-    "characters/workers_quarter/tomas/tomas.md",
-    "characters/workers_quarter/sten/sten.md"
+    "characters/workers_quarter/niklas/niklas.md"
   ]
 }

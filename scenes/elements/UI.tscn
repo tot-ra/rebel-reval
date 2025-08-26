@@ -1,20 +1,41 @@
-[gd_scene load_steps=3 format=3 uid="uid://mf6xvrb7vivm"]
+[gd_scene load_steps=4 format=3 uid="uid://mf6xvrb7vivm"]
 
 [ext_resource type="Texture2D" uid="uid://bgvcuonhnjqio" path="res://assets/UI/top-bar.png" id="1_85des"]
 [ext_resource type="Texture2D" uid="uid://c1pxcrd0ifsxo" path="res://assets/UI/hammer.png" id="2_e8iie"]
+[ext_resource type="Texture2D" uid="uid://dofwai83bn23s" path="res://assets/UI/spell-hud.png" id="3_thx37"]
 
 [node name="Ui" type="CanvasLayer"]
 
 [node name="order-rebel-balance" type="TextureRect" parent="."]
-offset_right = 40.0
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -256.0
+offset_right = 256.0
 offset_bottom = 40.0
+grow_horizontal = 2
 texture = ExtResource("1_85des")
 stretch_mode = 2
 
 [node name="hammer" type="TextureRect" parent="."]
-offset_left = 251.0
-offset_top = 6.0
-offset_right = 291.0
-offset_bottom = 46.0
+offset_left = 784.0
+offset_right = 824.0
+offset_bottom = 40.0
 texture = ExtResource("2_e8iie")
+stretch_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -211.0
+offset_top = -92.9999
+offset_right = 956.0
+offset_bottom = 96.0001
+grow_horizontal = 2
+grow_vertical = 0
+scale = Vector2(0.450234, 0.450234)
+texture = ExtResource("3_thx37")
 stretch_mode = 2

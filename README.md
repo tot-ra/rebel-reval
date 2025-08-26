@@ -7,6 +7,7 @@ A moody, atmospheric feel that blends Hanseatic trade, Baltic folklore, and earl
 
 ![](./img/banner.jpg)
 
+![](Screenshot%202025-08-26%20at%2016.42.48.png)
 ## 📖 Core Narrative
 The year is 1342. A fragile peace hangs over Reval, but the air is thick with resentment. The St. George's Night Uprising is a spark waiting to ignite.
 
@@ -27,6 +28,13 @@ You are Kalev, an Estonian smith. To the German lords, you're just another pair 
 - A Smith's Hands: You see the world through the eyes of a craftsman. Your hammer is not just a tool; it's an extension of your will.
 - You have access to supernatural powers. Unlock more by aligning with factions.
 
+Some factions NPCs:
+
+
+![](characters/bishopric_dorpat/vifhusen.png)![](characters/bishopric_osel_wiek/hermann.png)![](characters/order/brother_goswin.png)![](characters/order/master_burchard_von_dreileben.png)
+
+
+![](characters/rebels/juri_ratnik.png)![](characters/rebels/urmas_laar.png)![](characters/rebels/lembit_helme.png)![](characters/rebels/kaja_lahekivi.png)
 ## Game Details and status
 
 - [GAME PILLARS](./GAME-PILLARS.md)

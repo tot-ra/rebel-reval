@@ -1,4 +1,4 @@
-[gd_scene load_steps=163 format=3 uid="uid://bs36kitagkmg5"]
+[gd_scene load_steps=165 format=3 uid="uid://bs36kitagkmg5"]
 
 [ext_resource type="Script" uid="uid://qbfohjtotkyu" path="res://scripts/player.gd" id="1_v254c"]
 [ext_resource type="Texture2D" uid="uid://gnw8icimcxng" path="res://assets/player/walk_east.png" id="2_1jxqw"]
@@ -19,18 +19,7 @@
 [ext_resource type="Texture2D" uid="uid://cu86o857x5p27" path="res://assets/player/walk_north_west.png" id="14_q13i1"]
 [ext_resource type="Texture2D" uid="uid://xumaib0lu5id" path="res://assets/player/walk_south_west.png" id="17_pylmc"]
 [ext_resource type="Texture2D" uid="uid://bs01wf732hlh4" path="res://assets/player/light.png" id="19_pylmc"]
-
-[sub_resource type="Animation" id="Animation_i3pqv"]
-length = 0.001
-
-[sub_resource type="Animation" id="Animation_onrkg"]
-resource_name = "idle_down"
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_hqtel"]
-_data = {
-&"RESET": SubResource("Animation_i3pqv"),
-&"idle_down": SubResource("Animation_onrkg")
-}
+[ext_resource type="PackedScene" uid="uid://mf6xvrb7vivm" path="res://scenes/elements/UI.tscn" id="20_pbfsw"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pfmca"]
 atlas = ExtResource("2_pylmc")
@@ -1072,6 +1061,22 @@ animations = [{
 "speed": 5.0
 }]
 
+[sub_resource type="Animation" id="Animation_i3pqv"]
+length = 0.001
+
+[sub_resource type="Animation" id="Animation_pylmc"]
+resource_name = "idle"
+
+[sub_resource type="Animation" id="Animation_onrkg"]
+resource_name = "idle_down"
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_hqtel"]
+_data = {
+&"RESET": SubResource("Animation_i3pqv"),
+&"idle": SubResource("Animation_pylmc"),
+&"idle_down": SubResource("Animation_onrkg")
+}
+
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_3iwfv"]
 radius = 12.0
 height = 24.0
@@ -1085,23 +1090,24 @@ bg_color = Color(0.278431, 0.74902, 0.27451, 1)
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_v254c")
 
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(1.5, -49.2599)
+scale = Vector2(1.22656, 1.22656)
+sprite_frames = SubResource("SpriteFrames_nvl01")
+animation = &"idle_south"
+
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
 &"": SubResource("AnimationLibrary_hqtel")
 }
 
 [node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(-0.5, -38.2599)
 process_callback = 0
 limit_smoothed = true
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(2, -11)
-scale = Vector2(1.22656, 1.22656)
-sprite_frames = SubResource("SpriteFrames_nvl01")
-animation = &"idle_south"
-
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, 39)
+position = Vector2(-0.5, 0.740051)
 shape = SubResource("CapsuleShape2D_3iwfv")
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
@@ -1109,21 +1115,21 @@ path_desired_distance = 10.0
 
 [node name="HealthBar" type="ProgressBar" parent="."]
 z_index = 1000
-offset_left = -34.0
-offset_top = -82.0
-offset_right = 41.0
-offset_bottom = -75.0
+offset_left = -34.5
+offset_top = -134.26
+offset_right = 40.5
+offset_bottom = -127.26
 theme_override_styles/background = SubResource("StyleBoxFlat_q13i1")
 theme_override_styles/fill = SubResource("StyleBoxFlat_pylmc")
 value = 50.0
 show_percentage = false
 
 [node name="PointLight2D" type="PointLight2D" parent="."]
+visible = false
 light_mask = 3
 visibility_layer = 3
-position = Vector2(-1, 4)
+position = Vector2(-0.5, -39.26)
 scale = Vector2(0.14075, 0.101074)
-energy = 0.3
 shadow_enabled = true
 shadow_filter = 1
 shadow_filter_smooth = 4.0
@@ -1132,7 +1138,16 @@ texture = ExtResource("19_pylmc")
 texture_scale = 50.0
 
 [node name="DirectionalLight2D" type="DirectionalLight2D" parent="."]
-energy = 0.2
+visible = false
+position = Vector2(-0.5, -38.2599)
+energy = 0.8
 blend_mode = 1
 height = 1.0
 max_distance = 500.0
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("2_pylmc")
+hframes = 8
+
+[node name="Ui" parent="." instance=ExtResource("20_pbfsw")]

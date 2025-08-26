@@ -47,6 +47,9 @@ To win Chapter 1, you must shift the Balance of Power decisively in your faction
 ### The Gameplay Loop: A Rebel's Day
 The game operates on a dynamic day/night cycle, where each phase offers different opportunities and dangers, creating a core loop of preparation, action, and consequence. This loop remains consistent across both phases of the game, but the stakes and mission types will change dramatically.
 
+#### The Inner World (The Soul's Journey)
+Your actions in the physical world create ripples in your psyche. During sleep or meditation, you can travel to the **[Hingepuu (Soul Tree)](./GAMEPLAY-PSYCHE.md)**, your inner world. Here you will confront the consequences of your choices, commune with the archetypes of your soul, and tend to your **Seven Hearths** to grow your power. This inner journey is crucial for unlocking your full potential and understanding your place in the conflict.
+
 #### Day (The Smith's Mask)
 By day, you are Kalev the smith. The city is under the watchful eye of the Livonian Order.
 - Crafting & Commerce: Fulfill orders for townsfolk and even the overlords to earn coin and gather intelligence. Crafting a perfect horseshoe for a knight's warhorse might reveal weaknesses in their patrols.

@@ -1,6 +1,6 @@
 # Master Burchard von Dreileben
 
-![alt text](image.png)
+![alt text](master_burchard_von_dreileben.png)
 
 **Visual Description:**
 Master Burchard von Dreileben is a man in his late 50s, his appearance a direct reflection of a life dedicated to military command and the austere principles of the Livonian Order. He has a tall and lean, yet powerful, figure, standing with an unyielding posture that speaks of authority. His face is long and angular, with high cheekbones and a strong, square jawline. The skin is weathered and leathery from years of exposure to the elements, with deep-set wrinkles around his sharp, piercing pale blue eyes. His hair is silver-grey, cut short and practical, receding slightly at the temples. He is clean-shaven, revealing a firm, resolute mouth that rarely smiles.
