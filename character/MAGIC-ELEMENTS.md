@@ -1,6 +1,6 @@
 # 🔮 The Elements of Philosophy
 
-Magic in Reval is not about chanting arcane words, but about imposing one's philosophical will upon reality. The world is shaped by the interplay of fundamental concepts, but how a practitioner accesses this power depends on their beliefs. Magic is divided into two distinct schools of thought: the raw, personal power of **Pagan Magic**, and the divine, structured **Divine Rites**.
+Magic in Reval is not about chanting arcane words, but about one's philosophical view ofreality. The world is shaped by the interplay of fundamental concepts, but how a practitioner accesses this power depends on their beliefs. Magic is divided into two distinct schools of thought: the raw, personal power of **Pagan Magic**, and the divine, structured **Divine Rites**.
 
 ## Two Schools of Thought
 
