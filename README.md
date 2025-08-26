@@ -1,13 +1,10 @@
 # Reval Rebel
 
-Indie Action RPG with rogue-like elements in semi-fictional 14th-century Estonia. 
-
-A moody, atmospheric feel that blends Hanseatic trade, Baltic folklore, and early Christianity. 
+**Reval Rebel** is a top-down isometric action RPG with rogue-like elements set in the tumultuous semi-fictional 14th-century Estonia.
 
 
 ![](./img/banner.jpg)
 
-![](img/Screenshot%202025-08-26%20at%2016.42.48.png)
 ## 📖 Core Narrative
 The year is 1342. A fragile peace hangs over Reval, but the air is thick with resentment. The St. George's Night Uprising is a spark waiting to ignite.
 
@@ -16,6 +13,9 @@ The year is 1342. A fragile peace hangs over Reval, but the air is thick with re
 Caught between the ruthless Livonian Order, the scheming merchants, and the ancient, chaotic power of the land itself, you must decide where your loyalties lie. Your choices will determine not if the rebellion happens, but how.
 
 Will you become the hero your people whisper about — a new "Kalevipoeg", or will you forge your own path to order and civilization through the chaos, using your wits and your hammer to survive? The choices you make will determine whether the rebellion becomes a footnote in history or the dawn of a new era.
+
+![](img/Screenshot%202025-08-26%20at%2016.42.48.png)
+
 
 
 ## 🦸 The Hero: Kalev the Smith
@@ -28,13 +28,31 @@ You are Kalev, an Estonian smith. To the German lords, you're just another pair 
 - A Smith's Hands: You see the world through the eyes of a craftsman. Your hammer is not just a tool; it's an extension of your will.
 - You have access to supernatural powers. Unlock more by aligning with factions.
 
-Some factions NPCs:
+## Some of NPCs
 
 
 ![](characters/bishopric_dorpat/vifhusen.png)![](characters/bishopric_osel_wiek/hermann.png)![](characters/order/brother_goswin.png)![](characters/order/master_burchard_von_dreileben.png)
 
 
 ![](characters/rebels/juri_ratnik.png)![](characters/rebels/urmas_laar.png)![](characters/rebels/lembit_helme.png)![](characters/rebels/kaja_lahekivi.png)
+
+
+
+### Key Features
+
+*   **A Living, Breathing City:** Explore the meticulously researched city of Reval, from the opulent halls of Toompea Castle to the grimy workshops of the lower town. The city is a dynamic entity that reacts to your choices, with shifting allegiances, patrols, and public sentiment.
+
+*   **Deep Faction System:** Ally with, betray, or infiltrate over 15 unique factions, including the knightly Livonian Order, the secretive Cult of Metsik, the opportunistic merchants of Novgorod, and the urban rebels of the Black Cloaks. Each faction offers unique quests, abilities, and story paths.
+
+*   **Innovative "Spellforging" Combat 🧙🏻:** There are no spellbooks in Reval. Instead, you will **forge** your own abilities by combining 21 "Elements of Philosophy
+
+*   **The Inner World - The Hingepuu 🌳 :** Your journey is not just external, but internal. During sleep or meditation, you can travel to the **Hingepuu** (Soul Tree), the landscape of your own psyche. Here, you will confront the consequences of your actions by communing with the four Jungian archetypes of your soul: The Persona, The Shadow, The Anima, and The Self. Tending to your inner world is crucial for unlocking your true power.
+
+*   **A Rich Bestiary of Folklore:** Battle creatures pulled from the pages of Estonian, Slavic, and Scandinavian folklore. Face the terrifying, soul-powered **Kratt**; the colossal, stone-armored **Põhja Konn**; and the restless, undead **Draugr**, among many others.
+
+* AI-driven NPCs (if possible at all) as alternative to hard-coded dialogues
+
+
 ## Game Details and status
 
 - [GAME PILLARS](./GAME-PILLARS.md)
@@ -68,6 +86,7 @@ Some factions NPCs:
     - DIALOGUE
     - LOOTING
     - MAPS
+
 
 
 ## 🎨 Visual Style
