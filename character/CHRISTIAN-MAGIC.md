@@ -34,8 +34,6 @@ Instead of a flexible "spellforging" system, this divine art uses a more rigid s
 ### The Path of Martyrdom
 A core tenet of the New Faith is sacrifice. Some of the most powerful rites require the practitioner to offer their own life force, suffering pain or injury to channel overwhelming divine power. This path is not for the faint of heart, but for the truly devout, martyrdom is the ultimate expression of faith, and its rewards can be immense. A character who walks this path may find themselves able to turn the tide of battle at great personal cost.
 
-*(For a full list of Pure Element Spells and Two-Element combinations, see the main [MAGIC-ELEMENTS.md](MAGIC-ELEMENTS.md) file.)*
-
 ## 🛡️ Rites of Endowment: Imbuing Armor and Shields
 
 Beyond performing miracles in the heat of battle, devout followers can perform **Rites of Endowment** to imbue their armor and shields with lasting divine power. These blessings are not temporary buffs, but persistent enchantments that grant holy properties to the equipment. This is a time-consuming ritual that requires intense prayer and focus, often performed in a consecrated place like a chapel or monastery.
