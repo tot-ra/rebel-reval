@@ -70,130 +70,132 @@ texture = ExtResource("5_yul1f")
 
 [node name="el-1" type="TextureRect" parent="character-background"]
 layout_mode = 0
-offset_left = 534.794
-offset_top = 670.065
-offset_right = 574.794
-offset_bottom = 710.065
+offset_left = 527.947
+offset_top = 603.448
+offset_right = 567.947
+offset_bottom = 643.448
 scale = Vector2(2.127, 2.127)
 texture = ExtResource("6_1srcq")
 
 [node name="el-2" type="TextureRect" parent="character-background"]
 layout_mode = 0
-offset_left = 534.794
-offset_top = 581.982
-offset_right = 574.794
-offset_bottom = 621.982
+offset_left = 527.208
+offset_top = 522.213
+offset_right = 567.208
+offset_bottom = 562.213
 scale = Vector2(2.127, 2.127)
 texture = ExtResource("7_qdomt")
 
 [node name="el-3" type="TextureRect" parent="character-background"]
 layout_mode = 0
-offset_left = 534.794
-offset_top = 512.773
-offset_right = 574.794
-offset_bottom = 552.773
+offset_left = 527.947
+offset_top = 446.156
+offset_right = 567.947
+offset_bottom = 486.156
 scale = Vector2(2.127, 2.127)
 texture = ExtResource("8_ckbae")
 
 [node name="el-4" type="TextureRect" parent="character-background"]
 layout_mode = 0
-offset_left = 534.794
-offset_top = 427.835
-offset_right = 574.794
-offset_bottom = 467.835
+offset_left = 527.947
+offset_top = 361.218
+offset_right = 567.947
+offset_bottom = 401.218
 scale = Vector2(2.127, 2.127)
 texture = ExtResource("9_da7hj")
 
 [node name="el-5" type="TextureRect" parent="character-background"]
 layout_mode = 0
-offset_left = 534.794
-offset_top = 339.751
-offset_right = 574.794
-offset_bottom = 379.751
+offset_left = 527.947
+offset_top = 273.134
+offset_right = 567.947
+offset_bottom = 313.134
 scale = Vector2(2.127, 2.127)
 texture = ExtResource("10_i785e")
 
 [node name="el-6" type="TextureRect" parent="character-background"]
 layout_mode = 0
-offset_left = 534.794
-offset_top = 257.959
-offset_right = 574.794
-offset_bottom = 297.959
+offset_left = 527.947
+offset_top = 191.342
+offset_right = 567.947
+offset_bottom = 231.342
 scale = Vector2(2.127, 2.127)
 texture = ExtResource("11_dfbq5")
 
 [node name="el-7" type="TextureRect" parent="character-background"]
 layout_mode = 0
-offset_left = 537.94
-offset_top = 176.167
-offset_right = 577.94
-offset_bottom = 216.167
+offset_left = 531.093
+offset_top = 109.55
+offset_right = 571.093
+offset_bottom = 149.55
 scale = Vector2(2.127, 2.127)
 texture = ExtResource("12_f4h47")
 
 [node name="el-6-text" type="RichTextLabel" parent="character-background"]
 layout_mode = 0
-offset_left = 629.0
-offset_top = 264.0
-offset_right = 906.0
-offset_bottom = 321.0
+offset_left = 623.064
+offset_top = 207.257
+offset_right = 900.064
+offset_bottom = 264.257
 theme_override_font_sizes/normal_font_size = 40
 text = "Awareness"
 
 [node name="el-6-text2" type="RichTextLabel" parent="character-background"]
 layout_mode = 0
-offset_left = 633.0
-offset_top = 346.0
-offset_right = 894.0
-offset_bottom = 403.0
+offset_left = 623.064
+offset_top = 293.984
+offset_right = 884.064
+offset_bottom = 350.984
 theme_override_font_sizes/normal_font_size = 40
 text = "Resonance"
 
 [node name="el-6-text3" type="RichTextLabel" parent="character-background"]
 layout_mode = 0
-offset_left = 633.0
-offset_top = 437.0
-offset_right = 827.0
-offset_bottom = 497.0
+offset_left = 623.064
+offset_top = 378.429
+offset_right = 817.064
+offset_bottom = 438.429
 theme_override_font_sizes/normal_font_size = 40
 text = "Unity"
 
 [node name="el-6-text4" type="RichTextLabel" parent="character-background"]
 layout_mode = 0
-offset_left = 635.0
-offset_top = 522.0
-offset_right = 855.0
-offset_bottom = 585.0
+offset_left = 627.629
+offset_top = 462.873
+offset_right = 847.629
+offset_bottom = 525.873
 theme_override_font_sizes/normal_font_size = 40
 text = "Tenacity"
 
 [node name="el-6-text5" type="RichTextLabel" parent="character-background"]
 layout_mode = 0
-offset_left = 635.0
-offset_top = 670.0
-offset_right = 856.0
-offset_bottom = 733.0
+offset_left = 623.064
+offset_top = 613.504
+offset_right = 844.064
+offset_bottom = 676.504
 theme_override_font_sizes/normal_font_size = 40
 text = "Nature"
 
 [node name="el-6-text6" type="RichTextLabel" parent="character-background"]
 layout_mode = 0
-offset_left = 632.0
-offset_top = 595.0
-offset_right = 871.0
-offset_bottom = 661.0
+offset_left = 627.629
+offset_top = 533.624
+offset_right = 866.629
+offset_bottom = 599.624
 theme_override_font_sizes/normal_font_size = 40
 text = "Affection"
 
 [node name="el-7-text" type="RichTextLabel" parent="character-background"]
-offset_left = 632.315
-offset_top = 191.897
-offset_right = 805.315
-offset_bottom = 254.897
+layout_mode = 0
+offset_left = 625.468
+offset_top = 125.28
+offset_right = 798.468
+offset_bottom = 188.28
 theme_override_font_sizes/normal_font_size = 40
 text = "Light"
 
 [node name="el-7-text" type="RichTextLabel" parent="character-background/el-7-text"]
+layout_mode = 0
 offset_left = 792.753
 offset_top = 204.48
 offset_right = 877.753
