@@ -167,6 +167,8 @@
   },
   "active": "40ad962db64b1f0b",
   "lastOpenFiles": [
+    "character/CHRISTIAN-MAGIC.md",
+    "character/PAGAN-MAGIC.md",
     "character/COMBAT.md",
     "character/skills/abilities-fonts.tres",
     "scenes/revel_east/revel_east.tscn-GdpEam",
@@ -210,8 +212,6 @@
     "characters/workers_quarter/elsa/elsa.md",
     "characters/workers_quarter/albrecht/albrecht.md",
     "characters/workers_quarter/elga/elga.md",
-    "characters/workers_quarter/hendrik/hendrik.md",
-    "characters/workers_quarter/hinrik/hinrik.md",
-    "characters/workers_quarter/ingrid/ingrid.md"
+    "characters/workers_quarter/hendrik/hendrik.md"
   ]
 }
