@@ -1,8 +1,17 @@
-[gd_scene load_steps=4 format=3 uid="uid://mf6xvrb7vivm"]
+[gd_scene load_steps=13 format=3 uid="uid://mf6xvrb7vivm"]
 
 [ext_resource type="Texture2D" uid="uid://bgvcuonhnjqio" path="res://assets/UI/top-bar.png" id="1_85des"]
 [ext_resource type="Texture2D" uid="uid://c1pxcrd0ifsxo" path="res://assets/UI/hammer.png" id="2_e8iie"]
 [ext_resource type="Texture2D" uid="uid://dofwai83bn23s" path="res://assets/UI/spell-hud.png" id="3_thx37"]
+[ext_resource type="Texture2D" uid="uid://dc83u0q1evqgj" path="res://assets/UI/character-hud/background.png" id="4_v5j3s"]
+[ext_resource type="Texture2D" uid="uid://c6irwmef5oyi7" path="res://assets/UI/character-hud/character-zoomed.png" id="5_yul1f"]
+[ext_resource type="Texture2D" uid="uid://ccw802pshc1pr" path="res://assets/UI/character-hud/el-1.png" id="6_1srcq"]
+[ext_resource type="Texture2D" uid="uid://bat2n2pnk8ep" path="res://assets/UI/character-hud/el-2.png" id="7_qdomt"]
+[ext_resource type="Texture2D" uid="uid://cpxxjvs8hdmib" path="res://assets/UI/character-hud/el-3.png" id="8_ckbae"]
+[ext_resource type="Texture2D" uid="uid://b8vg23tqnhplh" path="res://assets/UI/character-hud/el-4.png" id="9_da7hj"]
+[ext_resource type="Texture2D" uid="uid://c5wtrcmrht2pm" path="res://assets/UI/character-hud/el-5.png" id="10_i785e"]
+[ext_resource type="Texture2D" uid="uid://cev18s0hls6fa" path="res://assets/UI/character-hud/el-6.png" id="11_dfbq5"]
+[ext_resource type="Texture2D" uid="uid://bu2yapqtorwyi" path="res://assets/UI/character-hud/el-7.png" id="12_f4h47"]
 
 [node name="Ui" type="CanvasLayer"]
 
@@ -39,3 +48,155 @@ grow_vertical = 0
 scale = Vector2(0.450234, 0.450234)
 texture = ExtResource("3_thx37")
 stretch_mode = 2
+
+[node name="character-background" type="TextureRect" parent="."]
+offset_left = 26.0
+offset_top = 16.0
+offset_right = 1050.0
+offset_bottom = 1040.0
+scale = Vector2(0.317879, 0.317879)
+texture = ExtResource("4_v5j3s")
+
+[node name="character-zoomed" type="TextureRect" parent="character-background"]
+light_mask = 32
+visibility_layer = 32
+layout_mode = 0
+offset_left = -97.5212
+offset_top = 91.2295
+offset_right = 926.479
+offset_bottom = 1115.23
+scale = Vector2(0.872685, 0.872685)
+texture = ExtResource("5_yul1f")
+
+[node name="el-1" type="TextureRect" parent="character-background"]
+layout_mode = 0
+offset_left = 698.378
+offset_top = 657.482
+offset_right = 738.378
+offset_bottom = 697.482
+scale = Vector2(2.127, 2.127)
+texture = ExtResource("6_1srcq")
+
+[node name="el-2" type="TextureRect" parent="character-background"]
+layout_mode = 0
+offset_left = 698.378
+offset_top = 569.398
+offset_right = 738.378
+offset_bottom = 609.398
+scale = Vector2(2.127, 2.127)
+texture = ExtResource("7_qdomt")
+
+[node name="el-3" type="TextureRect" parent="character-background"]
+layout_mode = 0
+offset_left = 698.378
+offset_top = 500.19
+offset_right = 738.378
+offset_bottom = 540.19
+scale = Vector2(2.127, 2.127)
+texture = ExtResource("8_ckbae")
+
+[node name="el-4" type="TextureRect" parent="character-background"]
+layout_mode = 0
+offset_left = 698.378
+offset_top = 415.252
+offset_right = 738.378
+offset_bottom = 455.252
+scale = Vector2(2.127, 2.127)
+texture = ExtResource("9_da7hj")
+
+[node name="el-5" type="TextureRect" parent="character-background"]
+layout_mode = 0
+offset_left = 698.378
+offset_top = 327.168
+offset_right = 738.378
+offset_bottom = 367.168
+scale = Vector2(2.127, 2.127)
+texture = ExtResource("10_i785e")
+
+[node name="el-6" type="TextureRect" parent="character-background"]
+layout_mode = 0
+offset_left = 698.378
+offset_top = 245.376
+offset_right = 738.378
+offset_bottom = 285.376
+scale = Vector2(2.127, 2.127)
+texture = ExtResource("11_dfbq5")
+
+[node name="el-7" type="TextureRect" parent="character-background"]
+layout_mode = 0
+offset_left = 701.524
+offset_top = 163.584
+offset_right = 741.524
+offset_bottom = 203.584
+scale = Vector2(2.127, 2.127)
+texture = ExtResource("12_f4h47")
+
+[node name="el-6-text" type="RichTextLabel" parent="character-background"]
+layout_mode = 0
+offset_left = 792.334
+offset_top = 270.646
+offset_right = 934.334
+offset_bottom = 308.646
+theme_override_font_sizes/normal_font_size = 25
+text = "Awareness"
+
+[node name="el-6-text2" type="RichTextLabel" parent="character-background"]
+layout_mode = 0
+offset_left = 796.334
+offset_top = 352.646
+offset_right = 941.334
+offset_bottom = 390.646
+theme_override_font_sizes/normal_font_size = 25
+text = "Resonance"
+
+[node name="el-6-text3" type="RichTextLabel" parent="character-background"]
+layout_mode = 0
+offset_left = 796.334
+offset_top = 437.646
+offset_right = 916.334
+offset_bottom = 475.646
+theme_override_font_sizes/normal_font_size = 25
+text = "Unity"
+
+[node name="el-6-text4" type="RichTextLabel" parent="character-background"]
+layout_mode = 0
+offset_left = 795.899
+offset_top = 519.065
+offset_right = 915.899
+offset_bottom = 557.065
+theme_override_font_sizes/normal_font_size = 25
+text = "Tenacity"
+
+[node name="el-6-text5" type="RichTextLabel" parent="character-background"]
+layout_mode = 0
+offset_left = 799.045
+offset_top = 673.211
+offset_right = 919.045
+offset_bottom = 711.211
+theme_override_font_sizes/normal_font_size = 25
+text = "Nature"
+
+[node name="el-6-text6" type="RichTextLabel" parent="character-background"]
+layout_mode = 0
+offset_left = 795.899
+offset_top = 594.565
+offset_right = 915.899
+offset_bottom = 632.565
+theme_override_font_sizes/normal_font_size = 25
+text = "Affection"
+
+[node name="el-7-text" type="RichTextLabel" parent="character-background"]
+offset_left = 792.753
+offset_top = 204.48
+offset_right = 877.753
+offset_bottom = 242.48
+theme_override_font_sizes/normal_font_size = 25
+text = "Light"
+
+[node name="el-7-text" type="RichTextLabel" parent="character-background/el-7-text"]
+offset_left = 792.753
+offset_top = 204.48
+offset_right = 877.753
+offset_bottom = 242.48
+theme_override_font_sizes/normal_font_size = 25
+text = "10"

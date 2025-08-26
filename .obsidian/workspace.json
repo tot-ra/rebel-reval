@@ -11,14 +11,12 @@
             "id": "943d69cba5a63aa5",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "image",
               "state": {
-                "file": "character/BUILD.md",
-                "mode": "source",
-                "source": false
+                "file": "assets/UI/character-hud/el-7.png"
               },
-              "icon": "lucide-file",
-              "title": "BUILD"
+              "icon": "lucide-image",
+              "title": "el-7"
             }
           }
         ]
@@ -94,7 +92,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "character/BUILD.md",
+                "file": "assets/UI/character-hud/el-7.png",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +102,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for BUILD"
+              "title": "Backlinks for el-7"
             }
           },
           {
@@ -167,40 +165,41 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "943d69cba5a63aa5",
+  "active": "40ad962db64b1f0b",
   "lastOpenFiles": [
-    "README.md",
-    "character/image-1.png",
-    "character/image.png",
+    "assets/UI/character-hud/el-3.png.import",
+    "assets/UI/character-hud/el-2.png.import",
+    "assets/UI/character-hud/el-5.png.import",
+    "assets/UI/character-hud/el-6.png.import",
+    "assets/UI/character-hud/el-1.png.import",
+    "assets/UI/character-hud/el-7.png.import",
+    "assets/UI/character-hud/el-4.png.import",
+    "assets/UI/character-hud/el-6.png",
+    "assets/UI/character-hud/el-5.png",
+    "assets/UI/character-hud/el-4.png",
+    "assets/UI/character-hud/el-3.png",
+    "assets/UI/character-hud/el-1.png",
+    "assets/UI/character-hud/image-7.png.import",
+    "assets/UI/character-hud/image.png.import",
+    "assets/UI/character-hud/image-1.png.import",
+    "assets/UI/character-hud/image-2.png.import",
+    "assets/UI/character-hud/el-2.png",
+    "assets/UI/character-hud/el-7.png",
+    "assets/UI/character-hud/character-zoomed.png",
+    "character/image-5.png",
+    "assets/UI/character-hud/background.png",
     "character/BUILD.md",
+    "README.md",
     "character/PSYCHE.md",
     "character/WARRIOR-BUILD.md",
     "GAMEPLAY-NIGHT.md",
     "GAMEPLAY.md",
     "character/MAGIC-ELEMENTS.md",
-    "character",
-    "img/Screenshot 2025-08-26 at 16.42.48.png",
     "character/skills/PROMPTS.md",
     "QUESTS.md",
     "MINI_GAMES.md",
-    "icon.svg",
-    "character/skills/image.png",
-    "character/skills/image-1.png",
-    "character/skills/image-8.png",
-    "character/skills/image-3.png",
-    "character/skills/image-2.png",
-    "character/skills",
     "characters/order/master_burchard_von_dreileben.md",
-    "characters/order/master_burchard_von_dreileben.png",
     "characters/rebels/lembit_helme.md",
-    "player.tscn-rsZbVe",
-    "scenes/revel_east/revel_east.tscn-7KbegZ",
-    "scenes/revel_east/revel_east.tscn-c5vkM8",
-    "scenes/revel_east/revel_east.tscn-yqhgTU",
-    "scenes/revel_east/forge/forge.tscn-7bUGgb",
-    "scenes/revel_east/revel_east.tscn-oxLrS7",
-    "scenes/elements/building.gd.uid",
-    "scenes/elements/building.gd",
     "characters/rebels/kaja_lahekivi.md",
     "characters/rebels/juri_ratnik.md",
     "characters/bishopric_dorpat/brother_andreas.md",

@@ -68,8 +68,8 @@ You are Kalev, an Estonian smith. To the German lords, you're just another pair 
     - [CINEMATICS](./cinematics/1-intro.md)
 - CHARACTER
     - [CHARACTER BUILD](character/BUILD.md)
+        - [PSYCHE](character/PSYCHE.md)
     - [MAGIC ELEMENTS](character/MAGIC-ELEMENTS.md)
-    - [PSYCHE](character/PSYCHE.md)
     - SKILLS - TODO
     - INVENTORY - TODO
     - DIALOGUE - TODO
