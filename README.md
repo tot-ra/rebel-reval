@@ -56,17 +56,16 @@ You are Kalev, an Estonian smith. To the German lords, you're just another pair 
 ## Game Details and status
 
 - [GAME PILLARS](./GAME-PILLARS.md)
-- SETTING
+- WORLD SETTING
     - [HISTORY](./history/HISTORY.md)
     - [FACTIONS](characters/README.md)
     - [LOCATIONS / AREAS](./scenes/README.md)
-        - RANDOM - TODO
+        - RANDOM ENCOUNTERS - TODO
     - [BESTIARY](./assets/bestiary/)
+    - [GAMEPLAY](./GAMEPLAY.md)
 - [STORY](./story/STORY.md)
-    - KEY CHARACTERS
     - [QUESTS](./QUESTS.md)
     - [CINEMATICS](./cinematics/1-intro.md)
-- [GAMEPLAY](./GAMEPLAY.md)
     - [FIGHT GAMEPLAY](./GAMEPLAY-FIGHT.md)
     - SKILLS - TODO
     - INVENTORY - TODO
