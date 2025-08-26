@@ -5,7 +5,7 @@
 **(The scene opens with a wide shot of the sacred grove. The sun is setting, casting long, ominous shadows. The Volkhv is leading a ritual at the base of the great oak. Lembitu stands guard, his hand resting on the hilt of his sword. Aita watches from a safe distance, her eyes wide with a mixture of awe and fear.)**
 
 
-![alt text](image-4.png)
+![alt text](../skills/image-4.png)
 
 
 **Characters:**
@@ -26,7 +26,7 @@
 
 
 
-![alt text](image-5.png)
+![alt text](../skills/image-5.png)
 
 
 **(Before the Danish arrival, we see this moment:)**
@@ -42,7 +42,7 @@ Promise me something. If the iron birds come, you remember our songs. Keep them 
 (Points to her heart)
 
 
-![alt text](image-6.png)
+![alt text](../skills/image-6.png)
 
 **AITA**
 The iron birds are just stories to frighten children.

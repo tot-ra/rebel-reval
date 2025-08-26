@@ -1,6 +1,6 @@
 # Magnus IV Eriksson
 
-![alt text](image-7.png)
+![alt text](../../skills/image-7.png)
 
 **Visual Description:**
 At 27, Magnus IV has a thoughtful, almost troubled expression. He has light brown hair, cut neatly, and a trimmed beard. His eyes are a soft grey, often distant, reflecting the immense pressures of ruling three kingdoms. He is of average height and build. He would be dressed in the fine, but not overly ostentatious, attire of a Scandinavian king: a deep red or blue tunic of fine wool, perhaps with simple embroidery at the collar and cuffs, worn over a linen shirt. A heavy, fur-lined cloak would be common for travel.

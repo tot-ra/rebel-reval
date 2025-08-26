@@ -51,7 +51,7 @@ There are 21 known Elements, grouped into three domains. While Kalev can learn t
 
 ## 🔥 The Inner Forge: Fueling Your Power
 
-The power of your forged spells and actions is directly tied to the state of your soul. Through the **[Hingepuu (Soul Tree)](./GAMEPLAY-PSYCHE.md)**, you can tend to your **Seven Hearths**, the spiritual centers that govern your abilities. The more stoked a Hearth is, the more potent the Elements associated with it become.
+The power of your forged spells and actions is directly tied to the state of your soul. Through the **[Hingepuu (Soul Tree)](skills/GAMEPLAY-PSYCHE.md)**, you can tend to your **Seven Hearths**, the spiritual centers that govern your abilities. The more stoked a Hearth is, the more potent the Elements associated with it become.
 
 For example, a well-tended **Hearth of the Sun**, which governs Strength and Raw Power, will dramatically increase the damage of spells forged with the `Fire` and `Beast` Elements. Similarly, a balanced **Hearth of the Brow** will reduce the cooldown of all your forged spells.
 

@@ -42,33 +42,33 @@ _This is where art for generic peasant NPCs would be linked._
 **Village Farmer**: A man with a sun-beaten face and strong, calloused hands, who works the fields from dawn till dusk.
 
 
-![alt text](image-8.png)
+![alt text](../../skills/image-8.png)
 **Rebel Recruiter**: A man who travels from village to village, urging the peasants to join the uprising. He has a powerful, persuasive voice.
 
-![alt text](image-7.png)
+![alt text](../../skills/image-7.png)
 **Village Child**: A barefoot child with a dirty face and a mischievous grin
 
-![alt text](image-6.png)
+![alt text](../../skills/image-6.png)
  **Wandering Healer**: A woman with a deep knowledge of herbs and folk remedies, who treats the sick and injured in the village.
 
 ![](../../characters/peasants/image-2.png)
 **Village Carpenter**: A skilled craftsman who builds and repairs the village's houses and furniture. He has a friendly, easygoing manner.
 
 
-![alt text](image-5.png)
+![alt text](../../skills/image-5.png)
 **Old Woman Spinning Wool**: A crone with gnarled hands, sitting by the fire and spinning wool into yarn. She seems to know all the village gossip.
 
-![alt text](image-4.png)
+![alt text](../../skills/image-4.png)
 **Young Man Eager to Fight**: A teenager who is desperate to join the rebellion and prove himself a man. He has a boyish face and a fierce determination.
 
-![alt text](image-3.png)
+![alt text](../../skills/image-3.png)
 **Village Hunter**: A man who knows the forests and swamps like the back of his hand. He is lean and wiry, and moves with a silent grace.
 
-![alt text](image-2.png)
+![alt text](../../skills/image-2.png)
 **Traveling Merchant**: A man with a cart full of goods, who brings news and supplies to the isolated village.
 
-![alt text](image-1.png)
+![alt text](../../skills/image-1.png)
 **Priest from a Nearby Parish**: A man who is torn between his loyalty to the Church and his sympathy for the plight of the peasants.
 
-![alt text](image.png)
+![alt text](../../skills/image.png)
 **Deserter from the Livonian Order**: A man who has fled the brutality of the Order and is hiding in the village. He is haunted by what he has seen and done.

@@ -10,8 +10,8 @@ The Metsik Cult represents the continuation of ancient Estonian beliefs, a tradi
 
 Wild and unpredictable, drawing power from the ancient forest.
 
-![alt text](image.png)
-![alt text](image-1.png)
+![alt text](../../skills/image.png)
+![alt text](../../skills/image-1.png)
 
 -   **Forest Stalker (Low Threat):** A fast, lightly armored warrior who dual-wields axes. Attempts to flank the player and attacks in flurries.
 

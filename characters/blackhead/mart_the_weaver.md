@@ -2,7 +2,7 @@
 
 ### "A city is like a tapestry. Pull one thread, and the whole pattern unravels."
 
-![alt text](image.png)
+![alt text](../../skills/image.png)
 
 **Visual Description for Image Generation:**
 **Overall Appearance:** Mart is a man in his early fifties, with a stocky, powerful build from a lifetime spent working a loom. He has a grounded, steady presence, and his movements are patient and deliberate. He often has a thoughtful, almost distant expression, as if contemplating the intricate patterns of his craft.

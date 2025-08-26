@@ -71,25 +71,25 @@ The world of Reval Rebel is populated by a host of dangerous foes, each with uni
 
 ### Estonian Folklore Creatures:
 
-![alt text](image-1.png)
+![alt text](../../skills/image-1.png)
 -   **Metsik (Forest Guardian):** A powerful, ancient spirit of the forest, capable of commanding animals and manipulating plant life. Can be either a powerful ally or a formidable foe, depending on the player's actions towards nature.
 
-![alt text](image-8.png)
+![alt text](../../skills/image-8.png)
 -   **Külmking (Frost-shoe):** A malevolent spirit that brings cold and despair. It freezes the ground with its touch and its presence drains the life and warmth from its victims.
 
 
-![alt text](image-3.png)
-![alt text](image-4.png)
-![alt text](image-5.png)
-![alt text](image-6.png)
+![alt text](../../skills/image-3.png)
+![alt text](../../skills/image-4.png)
+![alt text](../../skills/image-5.png)
+![alt text](../../skills/image-6.png)
 -   **Näkk (Water Nymph/Nixie):** A seductive and dangerous water spirit that lures travelers to their deaths in rivers and lakes. Can appear as a beautiful woman or a monstrous creature.
 
-![alt text](image-7.png)
+![alt text](../../skills/image-7.png)
 -   **Luupainaja (Nightmare/Incubus):** A spirit that torments sleepers, causing terrifying nightmares and draining their life force. Appears as a shadowy figure that is difficult to harm with conventional weapons.
     - Abilities - can slow down a character and stop him.
 
 
-![alt text](image-2.png)
+![alt text](../../skills/image-2.png)
 ![alt text](image-9.png)
 -   **Kodukäija (Restless Spirit):** The ghost of a person who died a violent or unjust death, now haunting the living. Can be either a sorrowful spirit seeking peace or a vengeful one seeking retribution.
 

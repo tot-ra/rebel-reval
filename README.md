@@ -7,7 +7,7 @@ A moody, atmospheric feel that blends Hanseatic trade, Baltic folklore, and earl
 
 ![](./img/banner.jpg)
 
-![](Screenshot%202025-08-26%20at%2016.42.48.png)
+![](img/Screenshot%202025-08-26%20at%2016.42.48.png)
 ## 📖 Core Narrative
 The year is 1342. A fragile peace hangs over Reval, but the air is thick with resentment. The St. George's Night Uprising is a spark waiting to ignite.
 

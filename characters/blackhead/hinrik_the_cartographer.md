@@ -2,7 +2,7 @@
 
 ### "The world is a book, and those who do not travel read only one page. I intend to write a new chapter."
 
-![alt text](image-1.png)
+![alt text](../../skills/image-1.png)
 
 **Visual Description for Image Generation:**
 **Overall Appearance:** Hinrik is a man in his late twenties, with a slender, wiry frame that speaks to a life of travel and scholarly pursuit. He has an insatiable curiosity that shines in his bright, observant eyes. His movements are quick and precise, whether he is sketching a coastline or navigating a crowded street.

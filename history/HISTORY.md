@@ -199,8 +199,8 @@ The St. George's Night Uprising remains a powerful symbol of Estonian resistance
 
 In memory of the uprising, a park was established in the Lasnamäe district of Tallinn. The Jüriöö Park (St. George's Night Park) features a memorial depicting a warrior's sword rising from a hill, symbolizing the start of the rebellion. The main primary sources for the events of the uprising are the *Younger Livonian Rhymed Chronicle* by Bartholomäus Hoeneke and the chronicles of Wigand of Marburg and Hermann von Wartberge.
 
-![alt text](image.png)
-![alt text](image-1.png)
+![alt text](../skills/image.png)
+![alt text](../skills/image-1.png)
 
 
 

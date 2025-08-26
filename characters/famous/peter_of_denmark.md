@@ -1,6 +1,6 @@
 # Peter of Denmark
 
-![alt text](image-8.png)
+![alt text](../../skills/image-8.png)
 
 **Visual Description:**
 Peter is a young man, perhaps in his late 20s, with the pale complexion of a scholar who spends most of his time indoors or awake at night. He has light blond hair, often messy, and bright, inquisitive blue eyes. He is thin and slightly stooped from years of leaning over books and charts. He wears the simple, dark robes of a university scholar, practical for work and travel. He might be seen carrying a brass astrolabe or a rolled-up parchment star chart, his most prized possessions.
