@@ -1,20 +1,3 @@
-### Short-term gameplay - Fight Mechanics
-
-As Kalev, you are limited to 8 keys (QWER/ASDF) to map unique **elements**.
-When combined in a sequence of up to 4, you can create a **spell** or action.
-
-*   **Fight with melee weapons:** Master the smith's hammer and other weapons of the era.
-*   **Use magic:** Wield innate ancestral powers and learn new abilities from the factions of Reval.
-
-![](../assets/objects/weapons/sword.png)
-![](../assets/objects/weapons/hammer.png)
-![](../assets/objects/weapons/axe.png)
-
-## TODO
-- MELEE VS RANGED
-- MAGICK
-- WEAPONS
-- ARMOR
 
 ## 🔮 The Elements of Philosophy
 
@@ -49,13 +32,23 @@ There are 21 known Elements, grouped into three domains. While Kalev can learn t
 *   🕊️ **Freedom (Vabadus):** Liberation, autonomy, breaking bonds.
 *   💔 **Sacrifice (Ohver):** Giving up something for a greater cause.
 
-## 🔥 The Inner Forge: Fueling Your Power
+## 🔥 The Inner Forge: From Aspect to Element
 
-The power of your forged spells and actions is directly tied to the state of your soul. Through the **[Hingepuu (Soul Tree)](PSYCHE.md)**, you can tend to your **Seven Hearths**, the spiritual centers that govern your abilities. The more stoked a Hearth is, the more potent the Elements associated with it become.
+The power of your forged spells is a direct reflection of your inner self, as defined by the **[NATURAL character build system](BUILD.md)**. Each point you invest into one of the seven aspects of your soul directly empowers the magical elements associated with it.
 
-For example, a well-tended **Hearth of the Sun**, which governs Strength and Raw Power, will dramatically increase the damage of spells forged with the `Fire` and `Beast` Elements. Similarly, a balanced **Hearth of the Brow** will reduce the cooldown of all your forged spells.
+**The Rule of Power:** For every point in a given Aspect, the damage and effectiveness of its associated Elements are increased by **2%**.
 
-This creates a vital link between your inner journey of self-discovery and your effectiveness in the outer world's conflict. Neglecting your psyche will make you weaker, while confronting your inner demons will forge you into a more powerful force for change in Reval.
+This creates a vital link between your character's growth and your magical prowess. A high **Tenacity** not only makes you a formidable warrior but also a devastating pyromancer. A high **Awareness** not only makes you perceptive but also a master of time and thought.
+
+Here is the breakdown of which Aspects empower which Elements:
+
+-   **Nature:** Empowers `Earth` and `Metal`.
+-   **Affection:** Empowers `Water` and `Air`.
+-   **Tenacity:** Empowers `Fire` and `Beast`.
+-   **Unity:** Empowers `Life` and `Hope`.
+-   **Resonance:** Empowers `Deception` and `Dominion`.
+-   **Awareness:** Empowers `Mind` and `Time`.
+-   **Light:** Empowers `Faith` and `Spirit`.
 
 ##  blacksmithing: Forging Spells
 
@@ -63,24 +56,62 @@ Spells are not learned from tomes, but **forged** by combining Elements in a seq
 
 This system allows for immense creativity and tactical flexibility. A player might enter a mission with a set of Elements focused on stealth and illusion, or go in prepared for open warfare with elements of destruction and defense.
 
-### Spellforging Examples
+### Pure Element Spells
 
-The possibilities are nearly endless, but here are some examples of how Elements can be combined. The final power, cost, and cooldown of a spell are determined by the number and rarity of the Elements used.
+When an element is used on its own, without any modifiers, it produces its most fundamental effect. These are the simplest spells to forge, but they form the building blocks of all magic.
+
+| Element | Pure Spell | Effect |
+| --- | --- | --- |
+| `Life` | **Mend** | A small burst of healing energy that restores a minor amount of the caster's health. |
+| `Death` | **Wither** | A touch that causes a target's armor and weapons to temporarily decay, reducing their effectiveness. |
+| `Spirit` | **Spirit Ward** | A brief defensive aura that reduces incoming damage from magical or ethereal sources. |
+| `Time` | **Hasten** | A self-cast buff that slightly increases the caster's movement and attack speed for a few seconds. |
+| `Chaos` | **Unpredictable Bolt** | A projectile that has a random effect on impact, such as a small explosion, a flash of light, or a minor curse. |
+| `Order` | **Stabilize** | A self-cast buff that briefly increases resistance to being knocked down or staggered. |
+| `Mind` | **Focus** | A self-cast buff that briefly reduces the Willpower cost of the next spell forged. |
+| `Fire` | **Spark** | A small, fast projectile of fire that deals minor damage. |
+| `Water` | **Cleanse** | A splash of water that removes one negative status effect from the caster or an ally. |
+| `Earth` | **Tremor** | A small shockwave at the caster's feet that briefly staggers nearby enemies. |
+| `Air` | **Gust** | A blast of wind that pushes back a single enemy. |
+| `Metal` | **Reinforce** | A self-cast buff that temporarily increases the caster's armor rating. |
+| `Blood` | **Bloodletting** | A targeted spell that causes a minor bleed effect, dealing damage over time. |
+| `Beast` | **Primal Roar** | A shout that has a chance to cause weak enemies to hesitate for a moment. |
+| `Faith` | **Blessing** | A self-cast buff that slightly increases all damage dealt for a short period. |
+| `Deception` | **Distract** | Creates a sound or visual illusion at a target location to draw enemy attention. |
+| `Hope` | **Rally** | A self-cast buff that restores a small amount of stamina. |
+| `Fear` | **Intimidate** | A targeted debuff that slightly reduces an enemy's attack damage for a short time. |
+| `Dominion` | **Mark** | A targeted debuff that makes an enemy briefly visible through walls and obstacles. |
+| `Freedom` | **Unfetter** | Instantly removes any slowing or immobilizing effects from the caster. |
+| `Sacrifice` | **Convert** | The caster sacrifices a small amount of health to regain a small amount of Willpower. |
+
+### Spellforging Examples: The Power of Combination
+
+Combining elements is the true heart of magic in Reval. While a single element produces a simple effect, combining two creates a spell of significantly greater power and utility. The most powerful and complex three-element spells are often closely guarded secrets, taught only by the various factions to their most trusted members.
+
+#### Two-Element Spells
+
+Here are some examples of what can be achieved by forging two elements together.
 
 | Sequence | Forged Spell | Effect |
 | --- | --- | --- |
-| `Fire` | **Spark** | A small, fast projectile of fire. |
-| `Fire` + `Air` | **Fireball** | A larger, explosive projectile. The Air element gives it area of effect. |
+| `Fire` + `Air` | **Fireball** | A larger, explosive projectile. The Air element gives it an area of effect. |
 | `Earth` + `Metal` | **Iron Skin** | (Self-cast) Hardens your skin, granting a significant armor bonus for a short time. |
 | `Water` + `Life` | **Healing Mist** | (Area-cast) Creates a mist that heals allies who stand within it. |
 | `Mind` + `Deception` | **Illusionary Double** | Creates a clone of yourself that draws enemy fire. |
-| `Will` + `Dominion` | **Command: Flee** | (Targeted) Forces a single non-elite enemy to run in terror. |
-| `Darkness` + `Space` | **Shadow Step** | Instantly teleport a short distance, remaining unseen. |
-| `Hope` + `Light` + `Air` | **Beacon of Hope** | (Area-cast) Creates a beacon of light that heals allies, damages undead, and boosts Rebel Morale. The Air element makes it a wide-area pulse. |
-| `Blood` + `Sacrifice` + `Death` | **Hemomancy Curse** | (Targeted) Sacrifice a portion of your own health to place a powerful damage-over-time curse on an enemy that weakens them and heals you if they die while it's active. |
-| `Justice` + `Faith` + `Fire` | **Judgement** | Calls down a pillar of holy fire on a target. It deals extra damage to those with high "Fear" scores (e.g., oppressive guards). |
-| `Time` + `Time` + `Order` | **Stasis Field** | Creates a zone where time is slowed to a crawl for all but the caster. The Order element stabilizes the effect. |
-| `Freedom` + `Beast` + `Will` | **Unleash Spirit** | Temporarily transform into a powerful spectral wolf, gaining immense speed and attack power, breaking free from all bonds. |
+| `Faith` + `Fire` | **Holy Flame** | A projectile that deals both fire and holy damage, especially effective against undead. |
+| `Death` + `Spirit` | **Animate Corpse** | Raises a fallen enemy to fight for you for a limited time. |
+| `Time` + `Chaos` | **Erratic Haste** | A self-cast buff that dramatically increases speed, but with a chance to stumble. |
+| `Order` + `Dominion` | **Hold Person** | A targeted spell that paralyzes a single human enemy for a short duration. |
+| `Beast` + `Blood` | **Savage Strike** | A powerful melee attack that causes a deep bleeding wound. |
+| `Hope` + `Air` | **Inspiring Breeze** | A wave of energy that restores stamina to all nearby allies. |
+| `Fear` + `Deception` | **Phantasm** | Creates a terrifying illusion that causes a single enemy to flee in panic. |
+| `Freedom` + `Sacrifice` | **Liberating Burst** | Sacrifice a portion of your health to break all bonds and knock back all nearby enemies. |
+| `Earth` + `Fear` | **Quaking Dread** | A tremor that not only staggers enemies but also reduces their attack damage for a short time. |
+| `Metal` + `Order` | **Shrapnel Shot** | A projectile that fires a cone of metal shards in a predictable, orderly pattern. |
+| `Life` + `Beast` | **Primal Vigor** | A self-cast heal that also grants a temporary boost to melee damage. |
+| `Spirit` + `Mind` | **Clarity** | Instantly restores a significant amount of Willpower (mana). |
+| `Water` + `Chaos` | **Geyser** | An unpredictable eruption of water from the ground that launches a single target into the air. |
+| `Blood` + `Dominion` | **Blood Bond** | Link yourself to an enemy; a portion of the damage they take is also dealt to you, but your damage against them is greatly increased. |
 
 ### Faction Spell Examples
 

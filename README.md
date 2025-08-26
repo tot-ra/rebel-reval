@@ -69,6 +69,7 @@ You are Kalev, an Estonian smith. To the German lords, you're just another pair 
 - CHARACTER
     - [CHARACTER BUILD](character/BUILD.md)
         - [PSYCHE](character/PSYCHE.md)
+    - [COMBAT](character/COMBAT.md)
     - [MAGIC ELEMENTS](character/MAGIC-ELEMENTS.md)
     - SKILLS - TODO
     - INVENTORY - TODO
