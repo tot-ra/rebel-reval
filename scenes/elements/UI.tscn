@@ -54,7 +54,7 @@ offset_left = 26.0
 offset_top = 16.0
 offset_right = 1050.0
 offset_bottom = 1040.0
-scale = Vector2(0.317879, 0.317879)
+scale = Vector2(0.438157, 0.438157)
 texture = ExtResource("4_v5j3s")
 
 [node name="character-zoomed" type="TextureRect" parent="character-background"]
@@ -70,127 +70,127 @@ texture = ExtResource("5_yul1f")
 
 [node name="el-1" type="TextureRect" parent="character-background"]
 layout_mode = 0
-offset_left = 698.378
-offset_top = 657.482
-offset_right = 738.378
-offset_bottom = 697.482
+offset_left = 534.794
+offset_top = 670.065
+offset_right = 574.794
+offset_bottom = 710.065
 scale = Vector2(2.127, 2.127)
 texture = ExtResource("6_1srcq")
 
 [node name="el-2" type="TextureRect" parent="character-background"]
 layout_mode = 0
-offset_left = 698.378
-offset_top = 569.398
-offset_right = 738.378
-offset_bottom = 609.398
+offset_left = 534.794
+offset_top = 581.982
+offset_right = 574.794
+offset_bottom = 621.982
 scale = Vector2(2.127, 2.127)
 texture = ExtResource("7_qdomt")
 
 [node name="el-3" type="TextureRect" parent="character-background"]
 layout_mode = 0
-offset_left = 698.378
-offset_top = 500.19
-offset_right = 738.378
-offset_bottom = 540.19
+offset_left = 534.794
+offset_top = 512.773
+offset_right = 574.794
+offset_bottom = 552.773
 scale = Vector2(2.127, 2.127)
 texture = ExtResource("8_ckbae")
 
 [node name="el-4" type="TextureRect" parent="character-background"]
 layout_mode = 0
-offset_left = 698.378
-offset_top = 415.252
-offset_right = 738.378
-offset_bottom = 455.252
+offset_left = 534.794
+offset_top = 427.835
+offset_right = 574.794
+offset_bottom = 467.835
 scale = Vector2(2.127, 2.127)
 texture = ExtResource("9_da7hj")
 
 [node name="el-5" type="TextureRect" parent="character-background"]
 layout_mode = 0
-offset_left = 698.378
-offset_top = 327.168
-offset_right = 738.378
-offset_bottom = 367.168
+offset_left = 534.794
+offset_top = 339.751
+offset_right = 574.794
+offset_bottom = 379.751
 scale = Vector2(2.127, 2.127)
 texture = ExtResource("10_i785e")
 
 [node name="el-6" type="TextureRect" parent="character-background"]
 layout_mode = 0
-offset_left = 698.378
-offset_top = 245.376
-offset_right = 738.378
-offset_bottom = 285.376
+offset_left = 534.794
+offset_top = 257.959
+offset_right = 574.794
+offset_bottom = 297.959
 scale = Vector2(2.127, 2.127)
 texture = ExtResource("11_dfbq5")
 
 [node name="el-7" type="TextureRect" parent="character-background"]
 layout_mode = 0
-offset_left = 701.524
-offset_top = 163.584
-offset_right = 741.524
-offset_bottom = 203.584
+offset_left = 537.94
+offset_top = 176.167
+offset_right = 577.94
+offset_bottom = 216.167
 scale = Vector2(2.127, 2.127)
 texture = ExtResource("12_f4h47")
 
 [node name="el-6-text" type="RichTextLabel" parent="character-background"]
 layout_mode = 0
-offset_left = 792.334
-offset_top = 270.646
-offset_right = 934.334
-offset_bottom = 308.646
-theme_override_font_sizes/normal_font_size = 25
+offset_left = 629.0
+offset_top = 264.0
+offset_right = 906.0
+offset_bottom = 321.0
+theme_override_font_sizes/normal_font_size = 40
 text = "Awareness"
 
 [node name="el-6-text2" type="RichTextLabel" parent="character-background"]
 layout_mode = 0
-offset_left = 796.334
-offset_top = 352.646
-offset_right = 941.334
-offset_bottom = 390.646
-theme_override_font_sizes/normal_font_size = 25
+offset_left = 633.0
+offset_top = 346.0
+offset_right = 894.0
+offset_bottom = 403.0
+theme_override_font_sizes/normal_font_size = 40
 text = "Resonance"
 
 [node name="el-6-text3" type="RichTextLabel" parent="character-background"]
 layout_mode = 0
-offset_left = 796.334
-offset_top = 437.646
-offset_right = 916.334
-offset_bottom = 475.646
-theme_override_font_sizes/normal_font_size = 25
+offset_left = 633.0
+offset_top = 437.0
+offset_right = 827.0
+offset_bottom = 497.0
+theme_override_font_sizes/normal_font_size = 40
 text = "Unity"
 
 [node name="el-6-text4" type="RichTextLabel" parent="character-background"]
 layout_mode = 0
-offset_left = 795.899
-offset_top = 519.065
-offset_right = 915.899
-offset_bottom = 557.065
-theme_override_font_sizes/normal_font_size = 25
+offset_left = 635.0
+offset_top = 522.0
+offset_right = 855.0
+offset_bottom = 585.0
+theme_override_font_sizes/normal_font_size = 40
 text = "Tenacity"
 
 [node name="el-6-text5" type="RichTextLabel" parent="character-background"]
 layout_mode = 0
-offset_left = 799.045
-offset_top = 673.211
-offset_right = 919.045
-offset_bottom = 711.211
-theme_override_font_sizes/normal_font_size = 25
+offset_left = 635.0
+offset_top = 670.0
+offset_right = 856.0
+offset_bottom = 733.0
+theme_override_font_sizes/normal_font_size = 40
 text = "Nature"
 
 [node name="el-6-text6" type="RichTextLabel" parent="character-background"]
 layout_mode = 0
-offset_left = 795.899
-offset_top = 594.565
-offset_right = 915.899
-offset_bottom = 632.565
-theme_override_font_sizes/normal_font_size = 25
+offset_left = 632.0
+offset_top = 595.0
+offset_right = 871.0
+offset_bottom = 661.0
+theme_override_font_sizes/normal_font_size = 40
 text = "Affection"
 
 [node name="el-7-text" type="RichTextLabel" parent="character-background"]
-offset_left = 792.753
-offset_top = 204.48
-offset_right = 877.753
-offset_bottom = 242.48
-theme_override_font_sizes/normal_font_size = 25
+offset_left = 632.315
+offset_top = 191.897
+offset_right = 805.315
+offset_bottom = 254.897
+theme_override_font_sizes/normal_font_size = 40
 text = "Light"
 
 [node name="el-7-text" type="RichTextLabel" parent="character-background/el-7-text"]
