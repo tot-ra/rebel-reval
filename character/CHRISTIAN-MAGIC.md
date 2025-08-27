@@ -32,7 +32,51 @@ Miracles are not forged through experimentation, but performed through establish
 Instead of a flexible "spellforging" system, this divine art uses a more rigid structure. Combining `Faith`, `Order`, and `Fire` will always result in the "Blade of Judgment," a specific, pre-defined miracle. The power of these miracles scales not with the user's will, but with their **Piety**, a measure of their devotion and standing with the divine.
 
 ### The Path of Martyrdom
-A core tenet of the New Faith is sacrifice. Some of the most powerful rites require the practitioner to offer their own life force, suffering pain or injury to channel overwhelming divine power. This path is not for the faint of heart, but for the truly devout, martyrdom is the ultimate expression of faith, and its rewards can be immense. A character who walks this path may find themselves able to turn the tide of battle at great personal cost.
+A core tenet of the New Faith is sacrifice. Some of the most powerful rites require the practitioner to offer their own life force, suffering pain or injury to channel overwhelming divine power. In gameplay terms, this allows you to **spend Health instead of Willpower** to perform certain powerful rites, often with enhanced effects. This path is not for the faint of heart, but for the truly devout, martyrdom is the ultimate expression of faith.
+
+| Sequence | Martyrdom Rite | Effect |
+| --- | --- | --- |
+| `Sacrifice` + `Faith` | **Blood for Belief** | Spend a large amount of Health to create a powerful area-of-effect heal for allies. |
+| `Sacrifice` + `Judgment`| **Penitent Strike** | Sacrifice Health to deliver a devastating melee blow that ignores enemy armor. |
+| `Sacrifice` + `Light` | **Final Radiance** | At the moment of your death, you can choose to erupt in a blinding flash of light, stunning all nearby enemies. |
+| `Sacrifice` + `Dominion`| **Aura of Suffering** | Spend Health over time to create an aura that weakens the attack and defense of all nearby enemies. |
+
+### Pure Element Rites
+
+When an element is used on its own, it produces its most fundamental effect. These are the simplest rites, but they form the building blocks of all divine power.
+
+| Element | Pure Rite | Effect |
+| --- | --- | --- |
+| `Faith` | **Blessing** | A self-cast buff that slightly increases all damage dealt for a short period. |
+| `Order` | **Stabilize** | A self-cast buff that briefly increases resistance to being knocked down or staggered. |
+| `Hope` | **Rally** | A self-cast buff that restores a small amount of stamina. |
+| `Dominion` | **Mark** | A targeted debuff that makes an enemy briefly visible through walls and obstacles. |
+| `Sacrifice` | **Convert** | The caster sacrifices a small amount of health to regain a small amount of Willpower. |
+| `Light` | **Glimmer** | A flash of light that can briefly daze a single enemy. |
+| `Judgment`| **Smite** | A minor holy projectile that deals a small amount of damage. |
+
+### Two-Element Rites
+
+Combining two elements results in a miracle of greater power and utility, taught by the church and its military orders.
+
+| Sequence | Forged Rite | Effect |
+| --- | --- | --- |
+| `Faith` + `Fire` | **Holy Flame** | A projectile that deals both fire and holy damage, especially effective against undead. |
+| `Order` + `Dominion` | **Hold Person** | A targeted spell that paralyzes a single human enemy for a short duration. |
+| `Hope` + `Air` | **Inspiring Breeze** | A wave of energy that restores stamina to all nearby allies. |
+| `Faith` + `Light` | **Sacred Ground** | Creates a small area on the ground that heals allies and damages undead. |
+| `Judgment` + `Order` | **Seal of Justice** | Places a mark on an enemy. If the enemy attacks an ally, they are struck by holy damage. |
+| `Sacrifice` + `Hope` | **Martyr's Prayer** | Sacrifice a portion of your health to grant a powerful defensive buff to a nearby ally. |
+
+### ⛪ Congregational Rites
+These rites highlight the power of shared belief and the unity of the church. They are most effective when used in the presence of allies, and some may require multiple faithful participants to unlock their full potential.
+
+| Sequence | Congregational Rite | Effect |
+| --- | --- | --- |
+| `Hope` + `Faith` | **Shared Hymn** | Creates an aura that grants steady health and stamina regeneration to all nearby allies. The effect grows stronger for each ally in the aura. |
+| `Order` + `Dominion` | **Sanctuary** | Designates a large area as consecrated ground for a long duration. Allies within the area gain increased defense and resistance to fear. |
+| `Faith` + `Judgment` | **United Stand** | For a short time, all damage taken by allies in a wide area is pooled and distributed evenly among them, preventing any single member from being focused down. |
+| `Light` + `Hope` | **Beacon of Faith** | Summons a stationary beacon of holy light that periodically pulses, healing allies and damaging undead. The beacon lasts longer if more allies are nearby. |
 
 ## 🛡️ Rites of Endowment: Imbuing Armor and Shields
 
