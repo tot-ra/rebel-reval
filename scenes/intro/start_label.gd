@@ -5,4 +5,4 @@ func _ready():
 
 func _on_gui_input(event):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		get_tree().change_scene_to_file("res://scenes/revel_east/revel_east.tscn")
+		get_tree().change_scene_to_file("res://scenes/reval_east/reval_east.tscn")

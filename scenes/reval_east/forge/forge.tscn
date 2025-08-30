@@ -1,6 +1,6 @@
 [gd_scene load_steps=36 format=4 uid="uid://dbxean877egrv"]
 
-[ext_resource type="Script" uid="uid://daitot221wqe7" path="res://scenes/revel_east/forge/forge.gd" id="1_b7ac7"]
+[ext_resource type="Script" uid="uid://daitot221wqe7" path="res://scenes/reval_east/forge/forge.gd" id="1_b7ac7"]
 [ext_resource type="Texture2D" uid="uid://cuunf5kllexvn" path="res://assets/tiles2.png" id="2_b7ac7"]
 [ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="2_se5dk"]
 [ext_resource type="Texture2D" uid="uid://cdjtsg3a4eal0" path="res://assets/objects/furniture/bed.png" id="3_vhmh4"]

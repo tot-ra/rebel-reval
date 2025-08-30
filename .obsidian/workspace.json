@@ -4,19 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "7a23a92c46047c8d",
+        "id": "6abcc3486b5b875e",
         "type": "tabs",
         "children": [
           {
-            "id": "943d69cba5a63aa5",
+            "id": "68f3d6170c04627f",
             "type": "leaf",
             "state": {
-              "type": "image",
-              "state": {
-                "file": "assets/UI/character-hud/el-7.png"
-              },
-              "icon": "lucide-image",
-              "title": "el-7"
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "New tab"
             }
           }
         ]
@@ -92,7 +90,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "assets/UI/character-hud/el-7.png",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +99,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for el-7"
+              "title": "Backlinks"
             }
           },
           {
@@ -153,10 +150,12 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
+      "bases:Create new base": false,
       "switcher:Open quick switcher": false,
       "graph:Open graph view": false,
       "canvas:Create new canvas": false,
@@ -165,8 +164,15 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "40ad962db64b1f0b",
+  "active": "68f3d6170c04627f",
   "lastOpenFiles": [
+    "scenes/reval_east/reval_east.gd.uid",
+    "scenes/reval_east/reval_east.gd",
+    "scenes/reval_center/reval_center.tscn-NyTR8K",
+    "scenes/reval_east/reval_east.tscn",
+    "scenes/reval_center/reval_center.tscn-InPWRN",
+    "scenes/reval_east/revel_east.tscn-wSH6FD",
+    "assets/UI/character-hud/el-7.png",
     "character/CHRISTIAN-MAGIC.md",
     "character/PAGAN-MAGIC.md",
     "character/COMBAT.md",
@@ -175,18 +181,12 @@
     "assets/UI/character-hud/el-3.png.import",
     "assets/UI/character-hud/el-2.png.import",
     "assets/UI/character-hud/el-5.png.import",
-    "assets/UI/character-hud/el-6.png.import",
-    "assets/UI/character-hud/el-1.png.import",
-    "assets/UI/character-hud/el-7.png.import",
-    "assets/UI/character-hud/el-4.png.import",
     "assets/UI/character-hud/el-6.png",
     "assets/UI/character-hud/el-5.png",
     "assets/UI/character-hud/el-4.png",
     "assets/UI/character-hud/el-3.png",
     "assets/UI/character-hud/el-1.png",
-    "assets/UI/character-hud/image-7.png.import",
     "assets/UI/character-hud/el-2.png",
-    "assets/UI/character-hud/el-7.png",
     "assets/UI/character-hud/character-zoomed.png",
     "character/image-5.png",
     "assets/UI/character-hud/background.png",
@@ -211,7 +211,6 @@
     "characters/workers_quarter/erik/erik.md",
     "characters/workers_quarter/elsa/elsa.md",
     "characters/workers_quarter/albrecht/albrecht.md",
-    "characters/workers_quarter/elga/elga.md",
-    "characters/workers_quarter/hendrik/hendrik.md"
+    "characters/workers_quarter/elga/elga.md"
   ]
 }

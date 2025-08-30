@@ -3,7 +3,7 @@ extends CharacterBody2D
 class_name Player
 
 @export var walk_speed = 200
-@export var run_speed = 400
+@export var run_speed = 1000
 
 @onready var animation_player = $AnimatedSprite2D
 @onready var navigation_agent = $NavigationAgent2D

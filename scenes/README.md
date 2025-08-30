@@ -56,17 +56,17 @@ graph TD
 - 19. 🧱 [Bremeni Tower](./lower_town/bremeni_tower.md)
 - 20. 🧱 Munkadetagune form
 - 21. 🧱 Hellemani torn
-- 22. 🚪 [Viru Gate](revel_walls_towers/viru_gate.md) (14th century, east)
+- 22. 🚪 [Viru Gate](reval_walls_towers/viru_gate.md) (14th century, east)
 - 23. 🧱 Hinke tower
 - 24. 🧱 [Kuradiema Tower](./lower_town/kuradiema_tower.md)
 - 25. 🚪 Karjavärav
 - 26. 🧱 [Assauwe Tower](./lower_town/assauwe_tower.md)
-- 27. 🚪 [Harju Gate](revel_walls_towers/harju_gate.md) (1355, south)
+- 27. 🚪 [Harju Gate](reval_walls_towers/harju_gate.md) (1355, south)
 - 28. 🧱 Zeghen tower (Kitsetorn, 1413)
 - 29. Kiek in de Kok (anachronistic)
-- 30. 🧱 [Maiden's Tower (Neitsitorn, Megede torn)](revel_walls_towers/maidens_tower.md) (1370-1373)
+- 30. 🧱 [Maiden's Tower (Neitsitorn, Megede torn)](reval_walls_towers/maidens_tower.md) (1370-1373)
 - 31. 🧱 Horse tower (Tallitorn)
-- 32. 🚪 [Lühike Jalg (Short Leg) Gate](revel_walls_towers/luhike_jalg_gate.md) (aka swedish gates)
+- 32. 🚪 [Lühike Jalg (Short Leg) Gate](reval_walls_towers/luhike_jalg_gate.md) (aka swedish gates)
 - 33. 🚪 Long Leg Gate (center, connects lower/upper towns)
 - 34. 🧱 Seegitagune torn (1450, demolished)
 - 35. 🧱 Saunatagune torn
@@ -144,12 +144,12 @@ graph TD
         - 📦 [East Warehouse](./revel_east/east_warehouse.md)
 
 - [NORTH](./revel_north_oleviste/)
-    - ⚓️ [Pikk Street](revel_north/pikk_street.md)
+    - ⚓️ [Pikk Street](reval_north/pikk_street.md)
     - ⛪️ [St. Michael's Cistercian Nunnery (Mihkli klooster)](revel_central_quarter/st_michaels_nunnery.md) (1249)
-    - 🏛️ [Great Guild Hall](revel_north/great_guild_hall.md) (1410)
-    - 🏛️ [St. Olaf's Guild Hall](revel_north/great_guild_hall.md) (1422)
-    - 🏛️ [Brotherhood of Blackheads House](revel_north/brotherhood_of_blackheads_house.md) (1399)
-    - ⛪️ [St. Olaf's Church (Oleviste kirik)](revel_north/st_olafs_church.md) (1267)
+    - 🏛️ [Great Guild Hall](reval_north/great_guild_hall.md) (1410)
+    - 🏛️ [St. Olaf's Guild Hall](reval_north/great_guild_hall.md) (1422)
+    - 🏛️ [Brotherhood of Blackheads House](reval_north/brotherhood_of_blackheads_house.md) (1399)
+    - ⛪️ [St. Olaf's Church (Oleviste kirik)](reval_north/st_olafs_church.md) (1267)
     - **Commerce & Trade**
         - 💰 [The Hanseatic Kontor](./revel_north/hanseatic_kontor.md) - The main trading office of the Hanseatic League in Reval, a grand stone building bustling with merchants and clerks.
         - 📦 [Swedish Trading Post](./revel_north/swedish_trading_post.md) - A modest trading post run by Swedish merchants, dealing in iron, copper, and fish.
@@ -166,16 +166,16 @@ graph TD
         - 📚 [The Bookbinder's Shop](./revel_north/bookbinders_shop.md) - A shop where manuscripts are bound and sold.
         - 🕯️ [The Wax Chandler's Guild](./revel_north/wax_chandlers_guild.md) - A guildhall and workshop for the city's wax chandlers, who produce high-quality beeswax candles.
     - **Artisan & Craft Guilds**
-        - 🔨 [The Coopers' Guild](./revel_north/coopers_guild.md) - A guildhall and workshop for the city's barrel makers, essential for the shipping trade.
-        - 밧줄 [The Ropemakers' Guild](./revel_north/ropemakers_guild.md) - A long, open-sided building where ropes for ships are made.
-        - ⛵ [The Shipwrights' Yard](./revel_north/shipwrights_yard.md) - A yard near the harbor where ships are built and repaired.
-        -  नेट [The Netmakers' Loft](./revel_north/netmakers_loft.md) - A loft where fishing nets are made and mended.
-        - 돛 [The Sailmakers' Workshop](./revel_north/sailmakers_workshop.md) - A large workshop where sails for ships are sewn.
-        - 🎨 [The Painters' Guild](./revel_north/painters_guild.md) - A guildhall for artists who paint everything from religious icons to the coats of arms of noble families.
-        - 🗿 [The Stonemasons' Lodge](./revel_north/stonemasons_lodge.md) - A lodge for the stonemasons who build and maintain the city's grand stone buildings.
-        - ✨ [The Goldsmiths' Row](./revel_north/goldsmiths_row.md) - A street of workshops where goldsmiths and silversmiths create fine jewelry and tableware.
-        - 👞 [The Shoemakers' Guild (St. Crispin's Hall)](./revel_north/shoemakers_guild.md) - The guildhall of the city's shoemakers.
-        - 👕 [The Tailors' Guild (The Golden Fleece)](./revel_north/tailors_guild.md) - The guildhall of the city's tailors, who clothe the wealthy merchants.
+        - 🔨 [The Coopers' Guild](reval_north/coopers_guild.md) - A guildhall and workshop for the city's barrel makers, essential for the shipping trade.
+        - 밧줄 [The Ropemakers' Guild](reval_north/ropemakers_guild.md) - A long, open-sided building where ropes for ships are made.
+        - ⛵ [The Shipwrights' Yard](reval_north/shipwrights_yard.md) - A yard near the harbor where ships are built and repaired.
+        -  नेट [The Netmakers' Loft](reval_north/netmakers_loft.md) - A loft where fishing nets are made and mended.
+        - 돛 [The Sailmakers' Workshop](reval_north/sailmakers_workshop.md) - A large workshop where sails for ships are sewn.
+        - 🎨 [The Painters' Guild](reval_north/painters_guild.md) - A guildhall for artists who paint everything from religious icons to the coats of arms of noble families.
+        - 🗿 [The Stonemasons' Lodge](reval_north/stonemasons_lodge.md) - A lodge for the stonemasons who build and maintain the city's grand stone buildings.
+        - ✨ [The Goldsmiths' Row](reval_north/goldsmiths_row.md) - A street of workshops where goldsmiths and silversmiths create fine jewelry and tableware.
+        - 👞 [The Shoemakers' Guild (St. Crispin's Hall)](reval_north/shoemakers_guild.md) - The guildhall of the city's shoemakers.
+        - 👕 [The Tailors' Guild (The Golden Fleece)](reval_north/tailors_guild.md) - The guildhall of the city's tailors, who clothe the wealthy merchants.
     - **Residential**
         - 🏠 [The Von League House](./revel_north/von_league_house.md) - The opulent residence of Jürgen von League, a powerful Hanseatic merchant.
         - 🏠 [The Blackheads' Dormitory](./revel_north/blackheads_dormitory.md) - A residential building for the unmarried members of the Brotherhood of Blackheads.
@@ -257,10 +257,10 @@ graph TD
     - � [Warehouses](revel_central_quarter/harbor_quarter/warehouses.md)
 
 - [SOUTH]
-    - 💧 [Rataskaev Well](revel_south_quarter_niguliste/rataskaev_well.md)
+    - 💧 [Rataskaev Well](reval_south/rataskaev_well.md)
     - ⛪️ [St. Nicholas' Church (Niguliste kirik)](revel_east_quarter_monastery/st_nicholas_church.md) (1230)
     - 🏥 [Jaani Hospital (Leprosorium)](./world/jaani_hospital.md) (early 13th century)
-    - ⚔️ [Knights' Quarters](revel_south_quarter_niguliste/knights_quarters.md)
+    - ⚔️ [Knights' Quarters](reval_south/knights_quarters.md)
     - 🌳 [Danish King's Garden](./upper_town/danish_kings_garden.md)
     - **Commerce & Trade**
         - 🐴 [The Horse Market](./revel_south/horse_market.md) - An open square where horses and livestock are traded.

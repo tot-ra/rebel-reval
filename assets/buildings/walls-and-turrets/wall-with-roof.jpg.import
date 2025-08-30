@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bdon6tpfsllx3"
-path="res://.godot/imported/wall-map.png-f7adb02de55b60767e98b08c3806b3b2.ctex"
+uid="uid://cj44vowwb7t0c"
+path="res://.godot/imported/wall-with-roof.jpg-026efa9cad054c81e84950f116c62d95.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://scenes/revel_walls_towers/wall-map.png"
-dest_files=["res://.godot/imported/wall-map.png-f7adb02de55b60767e98b08c3806b3b2.ctex"]
+source_file="res://assets/buildings/walls-and-turrets/wall-with-roof.jpg"
+dest_files=["res://.godot/imported/wall-with-roof.jpg-026efa9cad054c81e84950f116c62d95.ctex"]
 
 [params]
 

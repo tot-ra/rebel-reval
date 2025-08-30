@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dl7pihtwltrs8"
-path="res://.godot/imported/Screenshot 2025-08-11 at 00.57.04.png-5cc568e55b0627a1473a62b5372c8151.ctex"
+uid="uid://ka8u25ra0dp2"
+path="res://.godot/imported/wall-sw-ne-supported.jpg-ae5c4691d1063cc87347e6e13d3eb631.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://scenes/revel_east/forge/Screenshot 2025-08-11 at 00.57.04.png"
-dest_files=["res://.godot/imported/Screenshot 2025-08-11 at 00.57.04.png-5cc568e55b0627a1473a62b5372c8151.ctex"]
+source_file="res://assets/buildings/walls-and-turrets/wall-sw-ne-supported.jpg"
+dest_files=["res://.godot/imported/wall-sw-ne-supported.jpg-ae5c4691d1063cc87347e6e13d3eb631.ctex"]
 
 [params]
 

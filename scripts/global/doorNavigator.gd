@@ -7,9 +7,11 @@ var scene_cache = {}
 var cache_order = []
 
 var scene_paths = {
-	"forge": "res://scenes/revel_east/forge/forge.tscn",
-	"revel_east": "res://scenes/revel_east/revel_east.tscn",
-	"revel_north": "res://scenes/revel_north/revel_north.tscn"
+	"forge": "res://scenes/reval_east/forge/forge.tscn",
+	"reval_east": "res://scenes/reval_east/reval_east.tscn",
+	"reval_north": "res://scenes/reval_north/reval_north.tscn",
+	"reval_center": "res://scenes/reval_center/reval_center.tscn",
+	"reval_south": "res://scenes/reval_south/reval_south.tscn"
 }
 
 signal on_trigger_player_spawn
