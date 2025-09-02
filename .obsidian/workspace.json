@@ -11,10 +11,14 @@
             "id": "68f3d6170c04627f",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "README.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "README"
             }
           }
         ]
@@ -90,6 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "README.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -99,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks"
+              "title": "Backlinks for README"
             }
           },
           {
@@ -166,30 +171,30 @@
   },
   "active": "68f3d6170c04627f",
   "lastOpenFiles": [
+    "history/AVE2016_17_KRAUT-NURK_Tln-Viru-tn.pdf",
+    "assets/buildings/walls-and-turrets/universal_upscale_0_a5c4a129-a557-4a90-80e5-ffaa0e3b3fc7_0.jpg.import",
+    "assets/buildings/walls-and-turrets/universal_upscale_0_dfaee730-f1c3-4ee1-94a9-dc59dded98a2_0.jpg.import",
+    "music/revel_center/The Merchant's Tale.mp3.import",
+    "music/revel_center/The Merchant's Tale.mp3",
+    "assets/buildings/walls-and-turrets/universal_upscale_0_dfaee730-f1c3-4ee1-94a9-dc59dded98a2_0.jpg",
+    "assets/buildings/walls-and-turrets/universal_upscale_0_a5c4a129-a557-4a90-80e5-ffaa0e3b3fc7_0.jpg",
+    "scenes/reval_east/reval_east.tscn-lyxTLF",
+    "history/AVE2018_12_Reppo_Toompea.pdf",
+    "Screenshot 2025-08-30 at 22.54.11.png.import",
+    "Screenshot 2025-08-30 at 22.54.11.png",
     "scenes/reval_east/reval_east.gd.uid",
     "scenes/reval_east/reval_east.gd",
     "scenes/reval_center/reval_center.tscn-NyTR8K",
-    "scenes/reval_east/reval_east.tscn",
-    "scenes/reval_center/reval_center.tscn-InPWRN",
-    "scenes/reval_east/revel_east.tscn-wSH6FD",
     "assets/UI/character-hud/el-7.png",
     "character/CHRISTIAN-MAGIC.md",
     "character/PAGAN-MAGIC.md",
     "character/COMBAT.md",
-    "character/skills/abilities-fonts.tres",
-    "scenes/revel_east/revel_east.tscn-GdpEam",
-    "assets/UI/character-hud/el-3.png.import",
-    "assets/UI/character-hud/el-2.png.import",
-    "assets/UI/character-hud/el-5.png.import",
     "assets/UI/character-hud/el-6.png",
     "assets/UI/character-hud/el-5.png",
     "assets/UI/character-hud/el-4.png",
     "assets/UI/character-hud/el-3.png",
     "assets/UI/character-hud/el-1.png",
     "assets/UI/character-hud/el-2.png",
-    "assets/UI/character-hud/character-zoomed.png",
-    "character/image-5.png",
-    "assets/UI/character-hud/background.png",
     "character/BUILD.md",
     "README.md",
     "character/PSYCHE.md",

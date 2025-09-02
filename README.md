@@ -52,7 +52,9 @@ You are Kalev, an Estonian smith. To the German lords, you're just another pair 
 
 * AI-driven NPCs (if possible at all) as alternative to hard-coded dialogues
 
-
+Some examples:
+Oleviste church:
+![](Screenshot%202025-08-30%20at%2022.54.11.png)
 ## Game Details and status
 
 - [GAME PILLARS](./GAME-PILLARS.md)
