@@ -67,9 +67,24 @@ The Hingepuu is inhabited by four archetypal figures from Jungian psychology, re
     *   **Associated Hearths:** Light
     *   **Gameplay Impact:** Achieving moments of integration grants significant, permanent bonuses to all Hearths. Full integration is the key to Kalev's ultimate potential.
 
+### Inner Demons: The Soul's Afflictions
+
+Actions, choices, and traumatic events do not just leave mental scars; they give birth to entities within the Hingepuu. These **Inner Demons** are living manifestations of Kalev's psychological state—symbolic creatures that embody his afflictions (and sometimes, his boons). They are not literal demons from hell, but personifications of his inner turmoil, like parasites feeding on the Soul Tree. Confronting and overcoming them is key to restoring balance. Each demon corresponds to a **Psyche State** with tangible gameplay effects.
+
+| icon | Psyche State (Inspiration) | Type | Visual Prompt / Description | Gameplay Effects | Potential Triggers |
+|--| :--- | :--- | :--- | :--- | :--- |
+| ![](image-1.png)| **Ruthless** (Sadist) | Volatile | A gaunt, hunched creature with thorny vines growing from its back and fingers sharpened into claws. It whispers cruelties. | **[+]** Increased Intimidation & critical damage.<br>**[-]** Blocks Empathy-based dialogue options; lowers Charisma. | Executing helpless or fleeing enemies; choosing exceptionally cruel dialogue options. |
+| ![](image-2.png)| **Exalted** (Maniac) | Volatile | A being of pure, frantic energy, flickering like a flame. It has too many limbs and its head is a vortex of light. | **[+]** Reduced spell cooldowns & increased movement speed.<br>**[-]** Increased damage taken; erratic aim with ranged weapons. | Surviving a major boss fight with critical health; a monumental quest victory. |
+| ![](image-3.png)| **Melancholy** (Depressive) | Affliction | A heavy, slow-moving creature made of wet clay and tangled roots, weeping a black sap that poisons the ground. | **[-]** Slower XP gain; reduced stamina regeneration.<br>**[+]** Increased resistance to Intimidation (apathy). | Witnessing a companion's death; failing to save an innocent; returning to a destroyed friendly location. |
+| ![](image-4.png)| **Pride** (Hubris) | Volatile | A beautiful, statuesque figure with golden, cracked skin. It admires its own reflection in a pool of stagnant water. | **[+]** Increased damage when at full health.<br>**[-]** Reduced defense when damaged; blocks options to ask for help. | Winning many battles without taking damage; acquiring powerful unique gear; succeeding on multiple Intimidation checks. |
+|![](image-5.png)| **Apathy** (Burnout) | Affliction | A grey, featureless humanoid figure that slowly crumbles at the edges like ash. It sits listlessly on a branch. | **[-]** All XP gain is halved; companion effectiveness reduced.<br>**[+]** High resistance to all psychological debuffs. | Ignoring multiple pleas for help; consistently choosing neutral/indifferent dialogue; letting companions die. |
+| ![](image-6.png) | **Paranoid** (Fear) | Affliction | A creature made of dozens of scurrying, insect-like shadows with countless glowing red eyes that dart around constantly. | **[+]** Increased Perception for spotting traps/ambushes.<br>**[-]** Lowers Charisma; may cause neutral NPCs to react negatively. | Being ambushed multiple times; being betrayed by a quest giver; reading conspiratorial texts. |
+| ![](image-7.png) | **Obsession** (Fixation) | Affliction | A magpie-like creature covered in glittering, stolen trinkets, constantly chattering about its collection. | **[+]** Bonus to tasks related to the obsession.<br>**[-]** Penalties to all non-related tasks; dialogue becomes fixated. | Repeatedly pursuing a single optional goal; collecting all items of a specific type; ignoring main quests. |
+
+
 ### The Gameplay Loop of the Psyche
 
-1.  **Action & Consequence:** An action in the real world (e.g., a moral choice in a quest) creates ripples in the inner world.
-2.  **Inner Turmoil:** The archetypes come into conflict, causing an imbalance in the Hingepuu and its Hearths (e.g., a violent act empowers The Shadow but distresses The Anima).
-3.  **Confrontation & Dialogue:** The player must visit the Hingepuu, travel to the affected Hearths, and speak with the archetypes to understand and resolve the conflict.
-4.  **Integration or Imbalance:** Successfully navigating these inner challenges leads to **Integration**, providing permanent bonuses. Ignoring them leads to **Imbalance**, which can result in gameplay penalties (e.g., failed speech checks, combat debuffs) until the inner conflict is resolved.
+1.  **Action & Consequence:** An action in the real world (e.g., a moral choice, a brutal combat finisher) creates ripples in the inner world.
+2.  **A Demon is Born:** The archetypes come into conflict, causing an imbalance. This spiritual energy coalesces and manifests as an **Inner Demon** latching onto the Hingepuu, inflicting a corresponding **Psyche State** (e.g., a violent act empowers The Shadow, giving birth to the Demon of Ruthlessness).
+3.  **Confrontation:** The player must visit the Hingepuu to confront the demon. This may involve dialogue, a symbolic inner challenge, or seeking the aid of one of the Four Faces to understand and weaken the entity. The appearance of the tree and the demon itself are clues to its nature.
+4.  **Integration or Subjugation:** Successfully confronting the demon banishes it, resolving the negative Psyche State and leading to **Integration**, providing permanent bonuses. Ignoring it allows the demon to fester and strengthen its hold, prolonging the **Imbalance** until it is dealt with.

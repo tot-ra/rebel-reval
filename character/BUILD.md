@@ -2,6 +2,10 @@
 
 See [PSYCHE](./PSYCHE.md) to better understand background of the character build system.
 
+### The Influence of the Psyche
+
+It is crucial to understand that the NATURAL aspects are not static. They can be temporarily influenced by **Psyche States**, as detailed in the [PSYCHE](./PSYCHE.md) document. For example, a state of **"Melancholy"** might temporarily reduce your Awareness (Wisdom), while a **"Ruthless"** state could boost your Tenacity (Intimidation). Managing Kalev's inner world is just as important as leveling up his physical and mental attributes.
+
 ### NATURAL character build system
 
 ### Character Progression
