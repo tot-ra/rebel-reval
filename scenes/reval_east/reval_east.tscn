@@ -1,7 +1,7 @@
 [gd_scene load_steps=56 format=4 uid="uid://cxbg0w372wak4"]
 
 [ext_resource type="Script" uid="uid://bl7l57o36owyx" path="res://scenes/reval_east/reval_east.gd" id="1_lycv7"]
-[ext_resource type="Texture2D" path="res://scenes/revel_walls_towers/wall-map.png" id="2_uygjw"]
+[ext_resource type="Texture2D" uid="uid://bdon6tpfsllx3" path="res://scenes/reval_walls_towers/wall-map.png" id="2_uygjw"]
 [ext_resource type="Texture2D" uid="uid://b0vr2i1ngbmd8" path="res://scenes/revel-map.jpg" id="3_dhebk"]
 [ext_resource type="TileSet" uid="uid://cmqcn78ij7u06" path="res://scenes/tileset.tres" id="4_y5b6u"]
 [ext_resource type="Texture2D" uid="uid://dmb4osyh6ucqj" path="res://assets/buildings/Market Hall.png" id="5_x3aos"]
