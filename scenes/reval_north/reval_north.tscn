@@ -1,7 +1,6 @@
-[gd_scene load_steps=26 format=4 uid="uid://cfkooe2yxmjff"]
+[gd_scene load_steps=25 format=4 uid="uid://cfkooe2yxmjff"]
 
 [ext_resource type="Script" uid="uid://bl7l57o36owyx" path="res://scenes/reval_east/reval_east.gd" id="1_rfrup"]
-[ext_resource type="Texture2D" path="res://scenes/revel_walls_towers/wall-map.png" id="2_2w1hh"]
 [ext_resource type="Texture2D" uid="uid://b0vr2i1ngbmd8" path="res://scenes/revel-map.jpg" id="3_00mf5"]
 [ext_resource type="TileSet" uid="uid://cmqcn78ij7u06" path="res://scenes/tileset.tres" id="4_a77lh"]
 [ext_resource type="PackedScene" uid="uid://1c2a60v6j3yi" path="res://scenes/elements/turret.tscn" id="5_0hx0x"]
@@ -55,7 +54,6 @@ script = ExtResource("1_rfrup")
 position = Vector2(2479, -3420)
 rotation = 0.535816
 scale = Vector2(31.1997, 31.1997)
-texture = ExtResource("2_2w1hh")
 
 [node name="Buildings-map" type="Sprite2D" parent="."]
 visible = false
