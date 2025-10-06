@@ -287,7 +287,7 @@ polygon = PackedVector2Array(43.2158, -9.19434, -311.706, 202.287, 136.084, 481.
 
 [node name="Player" parent="Buildings" instance=ExtResource("28_eiycm")]
 y_sort_enabled = true
-position = Vector2(12800, 8942)
+position = Vector2(14393, 14357)
 floor_constant_speed = true
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]

@@ -11,9 +11,12 @@ class_name Player
 
 
 var health = 100
+var max_health = 100
+const HEALTH_CHANGE_RATE = 10 # per second
 
 func _ready():
 	health_bar.value=health
+	health_bar.max_value = max_health
 	DoorNavigator.on_trigger_player_spawn.connect(_on_spawn)
 	navigation_agent.velocity_computed.connect(Callable(self, "_on_velocity_computed"))
 
@@ -56,6 +59,12 @@ func _physics_process(_delta):
 		else:
 			velocity = Vector2.ZERO
 
+	# Update health based on movement
+	if new_animation != "idle":
+		health = max(0, health - _delta * HEALTH_CHANGE_RATE)
+	else:
+		health = min(max_health, health + _delta * HEALTH_CHANGE_RATE)
+	health_bar.value = health
 	move_and_slide()
 	update_animation(new_animation)
 
