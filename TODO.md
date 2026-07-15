@@ -4,17 +4,17 @@ Format: `- [ ] ID | deps: ID,ID or none | deliverable: concrete artifact or beha
 
 ## P0 - Product, canon, and reproducible baseline
 
-- [ ] P0-001 | deps: none | deliverable: consistent `Reval Rebel` title in `project.godot`, README, window, and export metadata | verify: repository search finds no active `Rebel Revel` product title
-- [ ] P0-002 | deps: none | deliverable: root `AGENTS.md` with repository map, commands, conventions, scope constraints, and definition of done | verify: file contains named sections for repository map, setup, import, startup, tests, validation, export, scope constraints, task contract, and definition of done
-- [ ] P0-003 | deps: none | deliverable: ADR retaining Godot 4.x and listing measurable migration triggers | verify: ADR records status, context, decision, alternatives, and consequences
-- [ ] P0-004 | deps: none | deliverable: ADR selecting orthogonal three-quarter perspective as the target pending the comparison spike | verify: ADR defines movement directions, projection, collision plane, and decision gate
-- [ ] P0-005 | deps: none | deliverable: ADR selecting authored offline dialogue and prohibiting runtime LLM dependencies | verify: ADR defines deterministic offline behavior and content approval requirements
-- [ ] P0-006 | deps: none | deliverable: legacy-status header on conflicting design documents | verify: each legacy document linked by README is labeled `reference`, `superseded`, or `archive`
-- [ ] P0-007 | deps: P0-002 | deliverable: documented scope-change rule requiring equivalent scope removal and a written decision | verify: rule appears in `AGENTS.md` and names the approval artifact
-- [ ] P0-008 | deps: none | deliverable: `docs/CANON.md` with April-May 1343 timeline, terminology, names, pronunciation, and confidence labels | verify: every canon entry supports `attested`, `plausible composite`, `folklore`, or `invented`
-- [ ] P0-009 | deps: P0-008 | deliverable: historical audit of slice characters, buildings, weapons, religions, institutions, and events | verify: every reviewed claim has a source note and confidence label
-- [ ] P0-010 | deps: P0-008 | deliverable: implementation-ready scene outline for `The Maker's Mark` playable prologue | verify: outline defines locations, characters, interactions, tutorial beats, ledger branches, state effects, and exit condition
-- [ ] P0-011 | deps: none | deliverable: archived plague-justice epilogue marked non-canon | verify: active story index and README do not present the epilogue as planned content
+- [x] P0-001 | deps: none | deliverable: consistent `Reval Rebel` title in `project.godot`, README, window, and export metadata | verify: repository search finds no active `Rebel Revel` product title
+- [x] P0-002 | deps: none | deliverable: root `AGENTS.md` with repository map, commands, conventions, scope constraints, and definition of done | verify: file contains named sections for repository map, setup, import, startup, tests, validation, export, scope constraints, task contract, and definition of done
+- [x] P0-003 | deps: none | deliverable: ADR retaining Godot 4.x and listing measurable migration triggers | verify: ADR records status, context, decision, alternatives, and consequences
+- [x] P0-004 | deps: none | deliverable: ADR selecting orthogonal three-quarter perspective as the target pending the comparison spike | verify: ADR defines movement directions, projection, collision plane, and decision gate
+- [x] P0-005 | deps: none | deliverable: ADR selecting authored offline dialogue and prohibiting runtime LLM dependencies | verify: ADR defines deterministic offline behavior and content approval requirements
+- [x] P0-006 | deps: none | deliverable: legacy-status header on conflicting design documents | verify: each legacy document linked by README is labeled `reference`, `superseded`, or `archive`
+- [x] P0-007 | deps: P0-002 | deliverable: documented scope-change rule requiring equivalent scope removal and a written decision | verify: rule appears in `AGENTS.md` and names the approval artifact
+- [x] P0-008 | deps: none | deliverable: `docs/CANON.md` with April-May 1343 timeline, terminology, names, pronunciation, and confidence labels | verify: every canon entry supports `attested`, `plausible composite`, `folklore`, or `invented`
+- [x] P0-009 | deps: P0-008 | deliverable: historical audit of slice characters, buildings, weapons, religions, institutions, and events | verify: every reviewed claim has a source note and confidence label
+- [x] P0-010 | deps: P0-008 | deliverable: implementation-ready scene outline for `The Maker's Mark` playable prologue | verify: outline defines locations, characters, interactions, tutorial beats, ledger branches, state effects, and exit condition
+- [x] P0-011 | deps: none | deliverable: archived plague-justice epilogue marked non-canon | verify: active story index and README do not present the epilogue as planned content
 - [ ] P0-012 | deps: P0-008 | deliverable: resolved canon for Kalev's parents, siblings, partner, children, home, and relationship to Mart | verify: no active document introduces contradictory family facts
 - [ ] P0-013 | deps: P0-008,P0-012 | deliverable: approved briefs for Kalev, Mart, Aita, Kaja, Henning, and Jürgen | verify: each brief defines want, fear, contradiction, secret or withheld fact, relationships, voice, and possible outcomes
 - [ ] P0-014 | deps: P0-008 | deliverable: font and diacritic decision covering Estonian, Low German names, and Latin text | verify: a test scene renders the required character set without missing glyphs
@@ -27,9 +27,9 @@ Format: `- [ ] ID | deps: ID,ID or none | deliverable: concrete artifact or beha
 - [ ] P0-021 | deps: P0-017 | deliverable: separate health and stamina behavior | verify: movement drains stamina only and idling never heals or restores the wrong resource
 - [ ] P0-022 | deps: P0-017 | deliverable: stable scene and spawn IDs replacing hard-coded scene dictionaries and `Doors/door_<tag>` paths | verify: automated transition test loads every active destination and spawn
 - [ ] P0-023 | deps: P0-017 | deliverable: audited Godot import sidecars and cache policy | verify: clean clone regenerates caches while preserving required import settings
-- [ ] P0-024 | deps: none | deliverable: repository without tracked `.DS_Store` files and with ignore coverage | verify: `git ls-files '*.DS_Store'` returns no paths
+- [x] P0-024 | deps: none | deliverable: repository without tracked `.DS_Store` files and with ignore coverage | verify: `git ls-files '*.DS_Store'` returns no paths
 - [ ] P0-025 | deps: none | deliverable: Git LFS or external-storage policy for approved large binary sources | verify: policy defines tracked formats, size threshold, retrieval, and failure behavior
-- [ ] P0-026 | deps: P0-002 | deliverable: temporary freeze notice for new assets using the current isometric, pixel-frame, or superseded HUD pipeline | verify: `AGENTS.md` contains an explicit prohibition linked to P0-040 and lists the blocked asset classes
+- [x] P0-026 | deps: P0-002 | deliverable: temporary freeze notice for new assets using the current isometric, pixel-frame, or superseded HUD pipeline | verify: `AGENTS.md` contains an explicit prohibition linked to P0-040 and lists the blocked asset classes
 - [ ] P0-027 | deps: none | deliverable: art and audio inventory classified as `approved`, `prototype`, `unknown rights`, `inconsistent`, or `archive` | verify: every imported runtime image and audio file has one classification
 - [ ] P0-028 | deps: P0-027 | deliverable: `assets/SOURCES.csv` with asset ID, path, creator or tool, model/version, prompt or URL, seed, license, edits, and approval | verify: schema validation passes and every active runtime asset has one row
 - [ ] P0-029 | deps: P0-028 | deliverable: quarantine for assets with unknown origin or commercial rights | verify: Godot does not import quarantined assets
