@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Castle building, naval play, fishing, haggling, and similar minigames are explicitly excluded from the first campaign.  
+> **Current source of truth:** [`README.md`](./README.md) - Scope boundaries (Explicitly excluded).
+
 # Mini-Game Ideas
 
 This document outlines potential mini-games to be included in "Reval Rebel." These are designed to enhance the core gameplay loops of crafting, rebellion, and exploration.

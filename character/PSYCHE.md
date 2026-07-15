@@ -1,3 +1,7 @@
+> **Legacy status:** `superseded`  
+> **Reason:** Seven NATURAL aspect centers and psyche-state modifiers differ from the three-conviction reflection model and non-explorable Hingepuu screen.  
+> **Current source of truth:** [`README.md`](../README.md) - Product decisions (Narrative systems) and Main cast (Ellen Luik / Hingepuu).
+
 # 🌳 The Inner World: The Hingepuu
 
 Beyond the physical conflict for Reval, there is a battle within Kalev's soul. This is represented by the **Hingepuu** (Soul Tree), a personal world tree that serves as the landscape of Kalev's psyche. The player can visit the Hingepuu during sleep or meditation to take stock of their inner state, commune with the facets of their personality, and grow their spiritual power.

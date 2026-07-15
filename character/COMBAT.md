@@ -1,3 +1,7 @@
+> **Legacy status:** `superseded`  
+> **Reason:** Broad weapon families, spellforging combat, and party tactics exceed the small hammer combat model in current scope.  
+> **Current source of truth:** [`README.md`](../README.md) - Target game (Combat) and Vertical slice (Hard content budget).
+
 # ⚔️ Combat Mechanics
 
 Combat in Reval is a brutal and tactical affair, blending visceral melee, calculated ranged attacks, and the world-shaping power of **[spellforging](MAGIC-ELEMENTS.md)**. A successful warrior must master not only their weapon but also the flow of battle, knowing when to press the attack, when to defend, and when to unleash their inner power.

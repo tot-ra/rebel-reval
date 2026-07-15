@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Full-city scene graph and chapter flow describe exploratory maps beyond the one-district vertical slice.  
+> **Current source of truth:** [`README.md`](../README.md) - Vertical slice, Scope boundaries, and Repository sources of truth.
+
 # Scenes
 
 This directory contains all the game scenes, organized by their location and purpose.

@@ -1,3 +1,7 @@
+> **Legacy status:** `superseded`  
+> **Reason:** Original pillar set (combinatorial magic, Living City meters, Ego NPC, replayable runs) conflicts with the current compact narrative action RPG scope.  
+> **Current source of truth:** [`README.md`](./README.md) - Product vision, Game pillars, and Scope boundaries.
+
 ## Inspirations
 Witcher, Hades, Fallout, Disco Elysium, Magicka, WoW, Skyrim, Kingdom Come Deliverance
 

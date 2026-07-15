@@ -1,4 +1,6 @@
-
+> **Legacy status:** `superseded`  
+> **Reason:** Seven-aspect NATURAL progression and point-buy leveling are replaced by authored convictions and no character creation stat allocation.  
+> **Current source of truth:** [`README.md`](../README.md) - Product decisions (Narrative systems) and Main cast (Kalev).
 
 See [PSYCHE](./PSYCHE.md) to better understand background of the character build system.
 

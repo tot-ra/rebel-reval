@@ -1,3 +1,7 @@
+> **Legacy status:** `reference`  
+> **Reason:** Useful quest seeds and faction hooks; only quests reconciled in README (for example `A Bitter Brew`) are active design.  
+> **Current source of truth:** [`README.md`](./README.md) - Campaign outline, Quest design rules, and Vertical slice.
+
 # Quests
 
 This document outlines the quests available in "Reval Rebel." Quests are a primary driver of the narrative and a key way for the player to interact with the world and its factions.

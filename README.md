@@ -59,7 +59,7 @@ Time advances through explicit story phases after major actions. It is not a con
 
 ### Engine
 
-The default engine is **Godot 4.x with typed GDScript**.
+The default engine is **Godot 4.4 with typed GDScript**. The pinned editor version is recorded in [`.godot-version`](./.godot-version) and [`docs/SETUP.md`](./docs/SETUP.md).
 
 Godot is retained because the repository already contains Godot scenes, navigation, imports, and scripts; it is suitable for compact 2D production; and its text-based resources support review by coding agents. Unity, Unreal, RPG Maker, and a custom web engine do not solve the project's primary problem, which is scope and production coherence.
 
@@ -438,7 +438,8 @@ The following documents contain useful research and ideas but may conflict with 
 - [Original game pillars](./GAME-PILLARS.md)
 - [Original gameplay design](./GAMEPLAY.md)
 - [Original night gameplay](./GAMEPLAY-NIGHT.md)
-- [Original story](./story/STORY.md)
+- [Original story](./story/STORY.md) (superseded multi-act outline; plague-justice epilogue archived separately)
+- [Archived plague-justice epilogue](./story/archive/plague_justice_epilogue.md) (non-canon)
 - [Original quests](./QUESTS.md)
 - [Original character build](./character/BUILD.md)
 - [Original combat design](./character/COMBAT.md)

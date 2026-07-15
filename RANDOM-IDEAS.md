@@ -1,3 +1,6 @@
+> **Legacy status:** `archive`  
+> **Reason:** Untriaged brainstorm notes in mixed languages; not reconciled with README scope or canon.  
+> **Current source of truth:** [`README.md`](./README.md) - Product vision and Scope boundaries.
 
 - в интро, сделать сцену с датским королём пронзающим дерево. Мол я наведу порядок среди ведьм
 - lore игры - кузнецу надо днем ходить выполнять поручения по ковке для важных дворян

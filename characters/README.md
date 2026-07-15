@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Fifteen-plus faction roster, ruler/rebel join choice, and linked NPC sheets are research material outside the seven-character slice scope.  
+> **Current source of truth:** [`README.md`](../README.md) - Main cast, Product decisions (Narrative systems), and Scope boundaries.
+
 ## ⚔️ Factions
 You can ally, betray, or infiltrate these political forces. Your actions will determine the fate of Reval and the future of Estonia. Each faction offers unique quests, abilities, and endings.
 

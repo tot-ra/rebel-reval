@@ -1,3 +1,7 @@
+> **Legacy status:** `superseded`  
+> **Reason:** Describes Hope/Fear/Chaos city meters and a Balance of Power race replaced by explicit consequence flags and district pressures.  
+> **Current source of truth:** [`README.md`](./README.md) - Product decisions (Narrative systems) and Core gameplay loop.
+
 # 🧙 Gameplay Mechanics
 
 ### The Living City: A World That Remembers

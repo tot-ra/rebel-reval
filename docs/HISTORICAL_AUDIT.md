@@ -1,0 +1,98 @@
+# Historical Audit of Vertical Slice Content
+
+This document audits the characters, buildings, weapons, religions, institutions, and events featured in the *Reval Rebel* vertical slice. Every reviewed claim includes a source note and one confidence label from the canon vocabulary, maintaining the boundaries between verifiable history, plausible composites, folklore, and invented narrative.
+
+## Confidence Labels
+- **`attested`**: A verifiable historical fact, person, or term present in primary sources or established historiography.
+- **`plausible composite`**: A fictional element built strictly from historically accurate archetypes, structures, or plausible events.
+- **`folklore`**: An element drawn from period-appropriate or regionally appropriate myth, belief, or oral tradition, presented subjectively within the game.
+- **`invented`**: Entirely fictional content created to serve the game's specific narrative, dramatic, or gameplay needs, restricted by the boundaries of the established history.
+
+---
+
+## 1. Characters
+
+* **Kalev (The Smith)** 
+  * Label: **`invented`**
+  * Source Note: The player character is entirely fictional to serve the narrative. While Estonian blacksmiths existed in the lower town, "Kalev" is a culturally resonant name rather than a specific attested individual from 1343.
+* **Mart (The Apprentice)** 
+  * Label: **`invented`**
+  * Source Note: Fictional character created to represent the apprentice system in medieval craft guilds. In active canon, Mart is Kalev's apprentice and not his blood relative.
+* **Aita (Alewife & Healer)** 
+  * Label: **`invented`**
+  * Source Note: Fictional character and Kalev's older sister. However, women brewing ale and practicing folk healing were standard societal roles in medieval Baltic communities.
+* **Kaja (Bilingual Courier)** 
+  * Label: **`invented`**
+  * Source Note: Fictional character created to act as a bridge between the rural Estonian rebellion and the city's inhabitants.
+* **Captain Henning (Commander of Viru Watch)** 
+  * Label: **`plausible composite`**
+  * Source Note: Fictional composite representing the Danish or Low German watch authority. The name "Henning" and the existence of a city watch commander are historically plausible for 14th-century Reval.
+* **Jürgen Witte (Hanseatic Merchant)** 
+  * Label: **`plausible composite`**
+  * Source Note: Represents the Hanseatic League merchants who dominated Reval's trade. The name and occupation are historically grounded composites of typical merchant class individuals.
+* **Ellen Luik (Midwife)** 
+  * Label: **`plausible composite`**
+  * Source Note: A baptized native bridging Christian and older traditions. Midwives were common, and syncretism (mixing Catholic rites with older oral traditions and songs) is well-documented in the region.
+* **Watchman and Sergeant (Archetypes)** 
+  * Label: **`plausible composite`**
+  * Source Note: Standard guards protecting gates and enforcing the law under Danish/Livonian authority in 14th-century Reval.
+
+## 2. Buildings and Locations
+
+* **Lower-Town Street and Well**
+  * Label: **`attested`**
+  * Source Note: The lower town of Reval (Tallinn) and its public wells are archaeologically and historically verified features of the 14th-century city.
+* **Smith's Forge**
+  * Label: **`plausible composite`**
+  * Source Note: Blacksmith workshops were essential, ubiquitous infrastructure in medieval towns. 
+* **Aita's Brewery**
+  * Label: **`plausible composite`**
+  * Source Note: Small-scale brewing was a common domestic and commercial activity in medieval European towns.
+* **Watch Checkpoint / Detention Yard**
+  * Label: **`plausible composite`**
+  * Source Note: The Viru Gate (built in the 14th century) and other city defenses had guard posts, holding areas, and watchmen.
+
+## 3. Weapons
+
+* **Smith's Hammer**
+  * Label: **`attested`**
+  * Source Note: A basic, historically accurate ironworking tool that doubles as a plausible blunt weapon in a civil uprising context.
+* **Iron (Forge Technique)**
+  * Label: **`attested`**
+  * Source Note: Ironworking techniques to brace or jam mechanisms are fundamentally accurate to the physical properties of the material and period blacksmithing.
+
+## 4. Religions and Beliefs
+
+* **Christianity / Catholicism**
+  * Label: **`attested`**
+  * Source Note: Reval was a Christianized city with churches and institutions like the Livonian Order enforcing Catholic doctrine.
+* **Baltic Animism / Sacred Groves (Hingepuu)**
+  * Label: **`folklore`**
+  * Source Note: Animist beliefs, "soul trees," and sacred groves (hiis) are central to Estonian and broader Baltic traditional beliefs and oral history.
+
+## 5. Institutions
+
+* **Livonian Order**
+  * Label: **`attested`**
+  * Source Note: An autonomous branch of the Teutonic Knights, verifiable in primary records as the major military power in Livonia during the 1343 uprising.
+* **Hanseatic League**
+  * Label: **`attested`**
+  * Source Note: The commercial confederation that integrated Reval into the broader Northern European trade network.
+* **The Danish Crown**
+  * Label: **`attested`**
+  * Source Note: King Valdemar IV ruled the Duchy of Estonia (including Reval) during the uprising, before selling it in 1346.
+* **Viru Watch / City Watch**
+  * Label: **`attested`**
+  * Source Note: The defense structures of Reval, including the Viru Gate and its defenders, existed in the 14th century.
+
+## 6. Events
+
+* **St. George's Night Uprising (April 23, 1343)**
+  * Label: **`attested`**
+  * Source Note: A major historical rebellion recorded in the Livonian Chronicle of Hermann de Wartberge and the Chronicles of Balthasar Russow.
+* **The Simmering City (Pre-April 23 Tensions)**
+  * Label: **`invented`**
+  * Source Note: While historical tensions undoubtedly preceded the uprising, the specific day-by-day pacing of the game's timeline is invented for narrative structure.
+* **"A Bitter Brew" (Quest)**
+  * Label: **`invented`**
+  * Source Note: The specific events of the quest involving Aita and the watch are fictional scenarios created for gameplay, illustrating broader themes of the era.

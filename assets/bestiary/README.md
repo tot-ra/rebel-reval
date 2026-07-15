@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Expanded enemy roster and folklore creatures exceed the two-archetype vertical-slice combat budget.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice (Hard content budget) and Scope boundaries.
+
 ## 👹 Bestiary
 The world of Reval Rebel is populated by a host of dangerous foes, each with unique behaviors and abilities tied to their faction and the dark folklore of the land.
 

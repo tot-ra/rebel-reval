@@ -1,3 +1,7 @@
+> **Legacy status:** `superseded`  
+> **Reason:** Tower-capture night loop and district-by-district siege design are explicitly out of scope for the first campaign.  
+> **Current source of truth:** [`README.md`](./README.md) - Scope boundaries and Campaign outline (Finale - St. George's Night).
+
 # 🌙 Night Gameplay: The Siege of Reval
 
 At night, the strategic heart of "Reval Rebel" is revealed. The player's goal is to systematically dismantle the ruling factions' control over the city, district by district. This is achieved by capturing the watchtowers that symbolize their power.
