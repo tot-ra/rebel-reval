@@ -4,13 +4,18 @@ Format: `- [ ] ID | deps: ID,ID or none | deliverable: concrete artifact or beha
 
 ## Immediate parallel starts
 
-Coordination note (2026-07-15): no unchecked item was verified as already complete during triage. Start these existing tasks in separate sessions because their dependencies are satisfied and their file ownership is mostly independent:
+Coordination note (2026-07-16): recomputed from the authoritative checklist. These unchecked tasks have satisfied dependencies and can start now. Prefer separate sessions only when their likely file ownership does not overlap.
 
-- P0-016 - document headless import, startup, validation, test-status, and export commands.
-- P0-013 - write approved briefs for Kalev, Mart, Aita, Kaja, Henning, and Jürgen.
-- P0-028 - create and validate `assets/SOURCES.csv` from the asset inventory.
-- P0-032 - archive speculative location and NPC documents outside approved scope.
-- P0-017 - queue immediately after P0-016, then record the clean-clone startup baseline.
+- P0-021 - separate health and stamina behavior. Likely touches player resource and movement/action scripts; sequence with any other player-state work.
+- P0-030 - keep active runtime folders limited to slice candidates and required shared assets. Likely touches asset/docs inventory and active import paths; avoid parallel asset moves.
+- P0-034 - migration matrix for current TileSets, maps, collisions, animations, HUD, and assets. Mostly documentation/reporting, but coordinate with P0-030 asset classification.
+- P0-035 - comparison-room isometric/eight-direction and orthogonal/four-direction variants. Likely touches comparison scenes and movement test content; avoid overlap with player-state changes.
+- P1-004 - Python content validator for schemas, references, reachability, duplicate IDs, unsupported conditions, and missing assets. Likely touches `tools/`, schemas, content examples, and CI.
+- P1-006 - typed versioned `GameState` model. Likely touches runtime state scripts and tests; independent from content validator if interfaces stay stable.
+- P2-001 - final prologue branch map and state table before prose. Documentation/content design task; avoid editing shared content schemas.
+- P2-002 - final `A Bitter Brew` branch map and state table before prose. Documentation/content design task; can run beside P2-001 if using separate docs.
+
+Coordination caveat: P0-030 and P0-034 both depend on inventory interpretation and may overlap in reports. P0-021, P0-035, and P1-006 can all touch player/state behavior, so sequence or merge them if implementation files overlap.
 
 ## P0 - Product, canon, and reproducible baseline
 
@@ -30,23 +35,23 @@ Coordination note (2026-07-15): no unchecked item was verified as already comple
 - [x] P0-014 | deps: P0-008 | deliverable: font and diacritic decision covering Estonian, Low German names, and Latin text | verify: a test scene renders the required character set without missing glyphs
 - [x] P0-015 | deps: P0-003 | deliverable: pinned Godot version and installation instructions | verify: documented version matches project and CI configuration
 - [x] P0-016 | deps: P0-015 | deliverable: documented commands for headless import, startup, tests, content validation, and export | verify: each command is copy-pasteable from a clean shell
-- [ ] P0-017 | deps: P0-015,P0-016 | deliverable: clean-clone import and startup baseline | verify: pinned Godot imports the repository and reaches one playable room without parser or missing-resource errors
-- [ ] P0-018 | deps: P0-017 | deliverable: scene inventory classifying every `.tscn` as `working`, `partial`, `placeholder`, or `archive` | verify: inventory count equals repository `.tscn` count
-- [ ] P0-019 | deps: P0-017 | deliverable: known-runtime-defects report with reproduction steps and severity | verify: every observed critical or high defect has a reproducible entry
-- [ ] P0-020 | deps: P0-017 | deliverable: player script without movement debug logging | verify: normal movement produces no per-frame player velocity output
+- [x] P0-017 | deps: P0-015,P0-016 | deliverable: clean-clone import and startup baseline | verify: pinned Godot imports the repository and reaches one playable room without parser or missing-resource errors
+- [x] P0-018 | deps: P0-017 | deliverable: scene inventory classifying every `.tscn` as `working`, `partial`, `placeholder`, or `archive` | verify: inventory count equals repository `.tscn` count
+- [x] P0-019 | deps: P0-017 | deliverable: known-runtime-defects report with reproduction steps and severity | verify: every observed critical or high defect has a reproducible entry
+- [x] P0-020 | deps: P0-017 | deliverable: player script without movement debug logging | verify: normal movement produces no per-frame player velocity output
 - [ ] P0-021 | deps: P0-017 | deliverable: separate health and stamina behavior | verify: movement drains stamina only and idling never heals or restores the wrong resource
-- [ ] P0-022 | deps: P0-017 | deliverable: stable scene and spawn IDs replacing hard-coded scene dictionaries and `Doors/door_<tag>` paths | verify: automated transition test loads every active destination and spawn
-- [ ] P0-023 | deps: P0-017 | deliverable: audited Godot import sidecars and cache policy | verify: clean clone regenerates caches while preserving required import settings
+- [x] P0-022 | deps: P0-017 | deliverable: stable scene and spawn IDs replacing hard-coded scene dictionaries and `Doors/door_<tag>` paths | verify: `godot --headless -s tools/verify_transitions.gd` loads every active destination and spawn
+- [x] P0-023 | deps: P0-017 | deliverable: audited Godot import sidecars and cache policy | verify: clean clone regenerates caches while preserving required import settings
 - [x] P0-024 | deps: none | deliverable: repository without tracked `.DS_Store` files and with ignore coverage | verify: `git ls-files '*.DS_Store'` returns no paths
 - [x] P0-025 | deps: none | deliverable: Git LFS or external-storage policy for approved large binary sources | verify: policy defines tracked formats, size threshold, retrieval, and failure behavior
 - [x] P0-026 | deps: P0-002 | deliverable: temporary freeze notice for new assets using the current isometric, pixel-frame, or superseded HUD pipeline | verify: `AGENTS.md` contains an explicit prohibition linked to P0-040 and lists the blocked asset classes
 - [x] P0-027 | deps: none | deliverable: art and audio inventory classified as `approved`, `prototype`, `unknown rights`, `inconsistent`, or `archive` | verify: every imported runtime image and audio file has one classification
-- [ ] P0-028 | deps: P0-027 | deliverable: `assets/SOURCES.csv` with asset ID, path, creator or tool, model/version, prompt or URL, seed, license, edits, and approval | verify: schema validation passes and every active runtime asset has one row
-- [ ] P0-029 | deps: P0-028 | deliverable: quarantine for assets with unknown origin or commercial rights | verify: Godot does not import quarantined assets
+- [x] P0-028 | deps: P0-027 | deliverable: `assets/SOURCES.csv` with asset ID, path, creator or tool, model/version, prompt or URL, seed, license, edits, and approval | verify: schema validation passes and every active runtime asset has one row
+- [x] P0-029 | deps: P0-028 | deliverable: quarantine for assets with unknown origin or commercial rights | verify: Godot does not import quarantined assets
 - [ ] P0-030 | deps: P0-018,P0-027 | deliverable: active runtime folders containing only slice candidates and required shared assets | verify: inventory reports no archived or unclassified asset in the active import path
 - [x] P0-031 | deps: none | deliverable: generated report of broken active Markdown links, duplicate character names, contradictory dates, and missing references | verify: report command exits nonzero for a seeded invalid fixture and zero for clean active docs
-- [ ] P0-032 | deps: P0-006,P0-031 | deliverable: archived speculative locations and NPC documents outside approved scope | verify: active documentation contains no unresolved link to archived speculative content
-- [ ] P0-033 | deps: P0-017,P0-026 | deliverable: one comparison-room greybox with movement, collision, Y-sort, doorway, foreground fade, six NPC bodies, dialogue interaction, and combat exchange | verify: all listed behaviors run in one scene
+- [x] P0-032 | deps: P0-006,P0-031 | deliverable: archived speculative locations and NPC documents outside approved scope | verify: active documentation contains no unresolved link to archived speculative content
+- [x] P0-033 | deps: P0-017,P0-026 | deliverable: one comparison-room greybox with movement, collision, Y-sort, doorway, foreground fade, six NPC bodies, dialogue interaction, and combat exchange | verify: all listed behaviors run in one scene
 - [ ] P0-034 | deps: P0-018,P0-033 | deliverable: migration matrix for current TileSets, maps, collisions, animations, HUD, and assets | verify: every slice-relevant current artifact is marked `retain`, `convert`, or `archive`
 - [ ] P0-035 | deps: P0-033 | deliverable: current diamond-isometric/eight-direction and proposed orthogonal/four-direction variants of the same room | verify: both variants contain equivalent navigation, interaction, and combat content
 - [ ] P0-036 | deps: P0-035 | deliverable: pixel, digital-woodcut, and clean-painted visual targets using the same composition | verify: all three are reviewed at identical camera framing and gameplay scale
@@ -58,9 +63,9 @@ Coordination note (2026-07-15): no unchecked item was verified as already comple
 
 ## P1 - Tested runtime and content foundation
 
-- [ ] P1-001 | deps: P0-015,P0-016,P0-017 | deliverable: CI workflow for clean import, parser/startup, tests, validation, active links, manifest coverage, and desktop export smoke | verify: CI passes on clean main and fails on seeded parser, link, and manifest errors
-- [ ] P1-002 | deps: P1-001 | deliverable: one documented Godot test framework or minimal headless harness | verify: one command discovers tests, reports failures, and returns correct exit codes
-- [ ] P1-003 | deps: P0-008,P0-013 | deliverable: JSON schemas and examples for characters, dialogue, barks, quests, items, commissions, and locations | verify: valid examples pass and seeded invalid examples fail schema validation
+- [x] P1-001 | deps: P0-015,P0-016,P0-017 | deliverable: CI workflow for clean import, parser/startup, tests, validation, active links, manifest coverage, and desktop export smoke | verify: CI passes on clean main and fails on seeded parser, link, and manifest errors
+- [x] P1-002 | deps: P1-001 | deliverable: one documented Godot test framework or minimal headless harness | verify: `godot --headless --script tools/run_godot_tests.gd` discovers tests, reports failures, returns nonzero for a seeded failing test, and returns zero on the clean suite
+- [x] P1-003 | deps: P0-008,P0-013 | deliverable: JSON schemas and examples for characters, dialogue, barks, quests, items, commissions, and locations | verify: valid examples pass and seeded invalid examples fail schema validation
 - [ ] P1-004 | deps: P1-003 | deliverable: Python content validator for schemas, references, reachability, duplicate IDs, unsupported conditions, and missing assets | verify: validator tests cover every failure class and CI invokes it
 - [ ] P1-005 | deps: P1-003,P1-004 | deliverable: typed read-only `ContentDB` loading validated slice JSON | verify: lookup tests return known records and reject missing or malformed IDs
 - [ ] P1-006 | deps: P1-002 | deliverable: typed versioned `GameState` model | verify: tests cover default state, facts, relationships, pressures, phase, player state, and forged records
@@ -92,7 +97,7 @@ Coordination note (2026-07-15): no unchecked item was verified as already comple
 ## P2 - Vertical-slice production
 
 - [ ] P2-001 | deps: P0-010,P0-013,P1-003 | deliverable: final prologue branch map and state table before prose | verify: every node has entry conditions, effects, exit, and reachable outcome
-- [ ] P2-002 | deps: P0-009,P0-013,P1-003 | deliverable: final `A Bitter Brew` branch map and state table before prose | verify: map contains investigation evidence, three forging options, combat and non-combat resolution, and three aftermath states
+- [x] P2-002 | deps: P0-009,P0-013,P1-003 | deliverable: final `A Bitter Brew` branch map and state table before prose | verify: map contains investigation evidence, three forging options, combat and non-combat resolution, and three aftermath states
 - [ ] P2-003 | deps: P0-040,P1-029 | deliverable: modular environment kit for forge, street/well, brewery, and checkpoint | verify: four spaces are assembled without bespoke projection or scale exceptions
 - [ ] P2-004 | deps: P0-037,P0-040,P1-029 | deliverable: approved layered game models and portraits for Kalev, Mart, Aita, Kaja, Henning, and Jürgen | verify: all six use the shared rig, pass asset lint, and match art-bible silhouette and palette rules
 - [ ] P2-005 | deps: P1-025,P2-004 | deliverable: approved watchman and sergeant visual variants | verify: both are distinguishable at gameplay scale without relying on color alone
