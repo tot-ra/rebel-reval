@@ -1,13 +1,21 @@
 class_name MapTerrainRenderer
 extends Node2D
 
-## Draws a full terrain grid with deterministic procedural accents.
+## Draws one immutable terrain grid through a selectable P0-036 visual profile.
 
 var grid: MapTerrainGrid
+var visual_target: StringName
+var time_of_day: StringName
 
 
-func _init(terrain_grid: MapTerrainGrid) -> void:
+func _init(
+	terrain_grid: MapTerrainGrid,
+	target: StringName = MapVisualStyle.TARGET_CLEAN_PAINTED,
+	day_phase: StringName = MapVisualStyle.TIME_DAY
+) -> void:
 	grid = terrain_grid
+	visual_target = target
+	time_of_day = day_phase
 	z_index = 0
 
 
@@ -29,39 +37,37 @@ func _draw() -> void:
 
 
 func _draw_cell(origin: Vector2, cell_size: float, terrain_id: StringName, cell: Vector2i) -> void:
-	var base := TerrainPalette.base_color(terrain_id)
+	var base := TerrainPalette.base_color(terrain_id, visual_target, time_of_day)
 	draw_rect(Rect2(origin, Vector2(cell_size, cell_size)), base)
 
-	var patch_size := 4.0
+	var patch_size := MapVisualStyle.terrain_patch_size(visual_target)
 	var patches_x := int(cell_size / patch_size)
 	var patches_y := int(cell_size / patch_size)
 	for py in patches_y:
 		for px in patches_x:
 			var local := Vector2(float(px), float(py)) * patch_size
-			var color := TerrainPalette.pattern_color(terrain_id, cell, local, grid.seed)
+			var color := TerrainPalette.pattern_color(
+				terrain_id, cell, local, grid.seed, visual_target, time_of_day
+			)
 			draw_rect(Rect2(origin + local, Vector2(patch_size, patch_size)), color)
 
-	_draw_organic_marks(origin, cell_size, terrain_id, cell)
+	_draw_style_marks(origin, cell_size, terrain_id, cell)
 
 
-func _draw_organic_marks(origin: Vector2, cell_size: float, terrain_id: StringName, cell: Vector2i) -> void:
-	if terrain_id == MapTypes.TERRAIN_WATER:
-		return
-
-	var mark_count := 2 + TerrainPalette.cell_hash(cell, grid.seed, terrain_id) % 3
-	for index in mark_count:
-		var hash := TerrainPalette.cell_hash(cell + Vector2i(index, index * 3), grid.seed, terrain_id)
-		var mark_origin := origin + Vector2(
-			float(hash % int(cell_size - 3.0)),
-			float((hash >> 4) % int(cell_size - 3.0))
-		)
-		var mark_size := Vector2(2.0 + float(hash % 2), 2.0 + float((hash >> 2) % 2))
-		var mark_color := TerrainPalette.pattern_color(terrain_id, cell, mark_origin - origin, grid.seed)
-		match terrain_id:
-			MapTypes.TERRAIN_SAND, MapTypes.TERRAIN_HAY:
-				mark_color = mark_color.lightened(0.08 if hash % 2 == 0 else -0.06)
-			MapTypes.TERRAIN_STONE, MapTypes.TERRAIN_COBBLESTONE:
-				mark_color = mark_color.darkened(0.06 if hash % 2 == 0 else -0.04)
-			_:
-				mark_color = mark_color.darkened(0.04)
-		draw_rect(Rect2(mark_origin, mark_size), mark_color)
+func _draw_style_marks(origin: Vector2, cell_size: float, terrain_id: StringName, cell: Vector2i) -> void:
+	var hash := TerrainPalette.cell_hash(cell, grid.seed, terrain_id)
+	var ink := MapVisualStyle.role_color(&"ink", visual_target, time_of_day)
+	match visual_target:
+		MapVisualStyle.TARGET_PIXEL:
+			if hash % 3 == 0:
+				draw_rect(Rect2(origin + Vector2(float(hash % 23), float((hash >> 5) % 23)), Vector2(3, 3)), ink, true)
+		MapVisualStyle.TARGET_WOODCUT:
+			# Sparse directional hatching provides a printmaking cue without changing terrain boundaries.
+			var line_color := Color(ink, 0.23)
+			for index in 3:
+				var y := 5.0 + float((hash + index * 9) % 23)
+				draw_line(origin + Vector2(3.0, y), origin + Vector2(cell_size - 3.0, y - 6.0), line_color, 1.0)
+		MapVisualStyle.TARGET_CLEAN_PAINTED:
+			if hash % 4 == 0:
+				var highlight := TerrainPalette.base_color(terrain_id, visual_target, time_of_day).lightened(0.08)
+				draw_circle(origin + Vector2(float(7 + hash % 18), float(7 + (hash >> 4) % 18)), 2.5, Color(highlight, 0.45))

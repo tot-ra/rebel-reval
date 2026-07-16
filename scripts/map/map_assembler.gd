@@ -1,11 +1,21 @@
 class_name MapAssembler
 extends RefCounted
 
-## Wires definition, terrain grid, buildings, and props into a scene subtree.
+## Wires one immutable definition through a selectable rendering-only profile.
 
 
-static func assemble(parent: Node2D, definition: MapDefinition, grid: MapTerrainGrid, y_sort_parent: Node2D = null) -> Dictionary:
-	var terrain := MapTerrainRenderer.new(grid)
+static func assemble(
+	parent: Node2D,
+	definition: MapDefinition,
+	grid: MapTerrainGrid,
+	y_sort_parent: Node2D = null,
+	visual_target: StringName = MapVisualStyle.TARGET_CLEAN_PAINTED,
+	time_of_day: StringName = MapVisualStyle.TIME_DAY
+) -> Dictionary:
+	assert(MapVisualStyle.is_valid_target(visual_target))
+	assert(MapVisualStyle.is_valid_time(time_of_day))
+
+	var terrain := MapTerrainRenderer.new(grid, visual_target, time_of_day)
 	terrain.name = "Terrain"
 	parent.add_child(terrain)
 
@@ -15,16 +25,22 @@ static func assemble(parent: Node2D, definition: MapDefinition, grid: MapTerrain
 
 	var building_bodies: Array[StaticBody2D] = []
 	for building in definition.buildings:
-		var body := MapBuildingRenderer.create_building(building)
+		var body := MapBuildingRenderer.create_building(building, visual_target, time_of_day)
 		entities.add_child(body)
 		building_bodies.append(body)
 
+	var prop_nodes: Array[Node2D] = []
 	for prop in definition.props:
-		entities.add_child(MapPropRenderer.create_prop(prop))
+		var prop_node := MapPropRenderer.create_prop(prop, visual_target, time_of_day)
+		entities.add_child(prop_node)
+		prop_nodes.append(prop_node)
 
 	return {
 		"terrain": terrain,
 		"buildings": building_bodies,
+		"props": prop_nodes,
 		"grid": grid,
 		"definition": definition,
+		"visual_target": visual_target,
+		"time_of_day": time_of_day,
 	}

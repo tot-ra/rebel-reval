@@ -5,6 +5,45 @@ const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const MapTypes := preload("res://scripts/map/map_types.gd")
 const MapBuildingRenderer := preload("res://scripts/map/map_building_renderer.gd")
 const MapTerrainRenderer := preload("res://scripts/map/map_terrain_renderer.gd")
+const MapVisualStyle := preload("res://scripts/map/map_visual_style.gd")
+const MapAssembler := preload("res://scripts/map/map_assembler.gd")
+
+
+func test_visual_targets_freeze_scale_and_style_rules() -> void:
+	assert_eq(MapVisualStyle.ALL_TARGETS.size(), 3)
+	assert_eq(MapVisualStyle.CHARACTER_HEIGHT_PX, 64)
+	assert_eq(MapVisualStyle.CHARACTER_FOOTPRINT_PX, Vector2(28.0, 20.0))
+	assert_eq(MapVisualStyle.CHARACTER_PIVOT_PX, Vector2(0.0, 18.0))
+	for target in MapVisualStyle.ALL_TARGETS:
+		assert_true(MapVisualStyle.outline_width(target) > 0.0)
+		assert_true(MapVisualStyle.shadow_alpha(target, MapVisualStyle.TIME_DAY) > 0.0)
+		assert_true(MapVisualStyle.shadow_alpha(target, MapVisualStyle.TIME_NIGHT) > 0.0)
+		for terrain_id in MapTypes.ALL_TERRAINS:
+			assert_ne(MapVisualStyle.terrain_color(terrain_id, target, MapVisualStyle.TIME_DAY), Color.MAGENTA)
+			assert_ne(MapVisualStyle.terrain_color(terrain_id, target, MapVisualStyle.TIME_NIGHT), Color.MAGENTA)
+
+
+func test_visual_targets_keep_definition_collisions_and_anchors_identical() -> void:
+	var definition: MapDefinition = SmithyCourtyardDefinition.create()
+	var grid: MapTerrainGrid = MapBuilder.build(definition)
+	var expected_fingerprint := grid.fingerprint()
+	for target in MapVisualStyle.ALL_TARGETS:
+		var parent := Node2D.new()
+		var actors := Node2D.new()
+		parent.add_child(actors)
+		var result := MapAssembler.assemble(parent, definition, grid, actors, target, MapVisualStyle.TIME_DAY)
+		assert_eq(result["grid"].fingerprint(), expected_fingerprint)
+		assert_true(actors.y_sort_enabled)
+		assert_eq(result["buildings"].size(), definition.buildings.size())
+		assert_eq(result["props"].size(), definition.props.size())
+		for index in result["buildings"].size():
+			var body: StaticBody2D = result["buildings"][index]
+			assert_eq(body.get_meta("footprint"), definition.buildings[index]["footprint"])
+			assert_eq(body.get_meta("y_sort_anchor"), MapBuildingRenderer.footprint_y_sort_anchor(definition.buildings[index]["footprint"]))
+		for index in result["props"].size():
+			assert_eq(result["props"][index].get_meta("y_sort_anchor"), definition.props[index]["position"])
+		parent.free()
+
 
 
 func test_map_definition_validates() -> void:

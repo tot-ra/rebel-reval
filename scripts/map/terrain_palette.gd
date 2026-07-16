@@ -1,27 +1,15 @@
 class_name TerrainPalette
 extends RefCounted
 
-## Base colors and deterministic procedural accents for terrain IDs.
+## Deterministic terrain accents constrained by the selected P0-036 visual profile.
 
 
-static func base_color(terrain_id: StringName) -> Color:
-	match terrain_id:
-		MapTypes.TERRAIN_GRASS:
-			return Color(0.32, 0.52, 0.28, 1.0)
-		MapTypes.TERRAIN_SAND:
-			return Color(0.82, 0.72, 0.46, 1.0)
-		MapTypes.TERRAIN_HAY:
-			return Color(0.78, 0.66, 0.18, 1.0)
-		MapTypes.TERRAIN_DIRT:
-			return Color(0.45, 0.32, 0.22, 1.0)
-		MapTypes.TERRAIN_COBBLESTONE:
-			return Color(0.46, 0.44, 0.42, 1.0)
-		MapTypes.TERRAIN_WATER:
-			return Color(0.22, 0.38, 0.62, 1.0)
-		MapTypes.TERRAIN_STONE:
-			return Color(0.56, 0.58, 0.62, 1.0)
-		_:
-			return Color.MAGENTA
+static func base_color(
+	terrain_id: StringName,
+	target: StringName = MapVisualStyle.TARGET_CLEAN_PAINTED,
+	time_of_day: StringName = MapVisualStyle.TIME_DAY
+) -> Color:
+	return MapVisualStyle.terrain_color(terrain_id, target, time_of_day)
 
 
 static func cell_hash(cell: Vector2i, seed: int, terrain_id: StringName) -> int:
@@ -29,60 +17,40 @@ static func cell_hash(cell: Vector2i, seed: int, terrain_id: StringName) -> int:
 	return ((cell.x * 374761393) + (cell.y * 668265263) + seed + terrain_salt) & 0x7fffffff
 
 
-static func accent_offset(cell: Vector2i, seed: int, terrain_id: StringName) -> Vector2:
+static func pattern_color(
+	terrain_id: StringName,
+	cell: Vector2i,
+	local: Vector2,
+	seed: int,
+	target: StringName = MapVisualStyle.TARGET_CLEAN_PAINTED,
+	time_of_day: StringName = MapVisualStyle.TIME_DAY
+) -> Color:
+	var base := base_color(terrain_id, target, time_of_day)
 	var hash := cell_hash(cell, seed, terrain_id)
-	var angle := float(hash % 360) * (TAU / 360.0)
-	var radius := float((hash >> 8) % 5) + 1.0
-	return Vector2(cos(angle), sin(angle)) * radius
-
-
-static func pattern_color(terrain_id: StringName, cell: Vector2i, local: Vector2, seed: int) -> Color:
-	var base := base_color(terrain_id)
-	var hash := cell_hash(cell, seed, terrain_id)
-	var accent_strength := 0.08 + float(hash % 7) * 0.01
+	var strength := 0.06
+	match target:
+		MapVisualStyle.TARGET_PIXEL:
+			strength = 0.11
+		MapVisualStyle.TARGET_WOODCUT:
+			strength = 0.14
+		MapVisualStyle.TARGET_CLEAN_PAINTED:
+			strength = 0.055
 
 	match terrain_id:
 		MapTypes.TERRAIN_GRASS:
-			if fmod(float(hash) + local.x + local.y * 3.0, 5.0) < 1.2:
-				return base.lightened(accent_strength)
-			return base.darkened(accent_strength * 0.5)
+			return base.lightened(strength) if (hash + int(local.x * 3.0) + int(local.y)) % 5 == 0 else base.darkened(strength * 0.35)
 		MapTypes.TERRAIN_SAND:
-			var grain := fmod(float(hash) + local.x * 1.7 + local.y * 2.3, 3.0)
-			if grain < 0.8:
-				return base.lightened(0.10)
-			if grain > 2.2:
-				return base.darkened(0.08)
-			return base
+			return base.lightened(strength * 0.75) if (hash + int(local.x + local.y * 2.0)) % 4 == 0 else base.darkened(strength * 0.20)
 		MapTypes.TERRAIN_HAY:
-			if int(local.y + hash % 3) % 3 == 0:
-				return base.lightened(0.16)
-			if int(local.x + local.y * 2.0) % 5 == 0:
-				return Color(0.70, 0.58, 0.14, 1.0)
-			return base.darkened(0.06)
+			return base.lightened(strength) if (int(local.y) + hash) % 3 == 0 else base.darkened(strength * 0.40)
 		MapTypes.TERRAIN_DIRT:
-			if hash % 9 < 3:
-				return base.lightened(0.06)
-			return base.darkened(0.05)
+			return base.lightened(strength * 0.40) if hash % 7 < 2 else base.darkened(strength * 0.35)
 		MapTypes.TERRAIN_COBBLESTONE:
-			var pebble := Vector2i(int(local.x / 5.0), int(local.y / 5.0))
-			var pebble_hash := cell_hash(cell + pebble, seed, terrain_id)
-			var pebble_phase := fmod(float(pebble_hash % 16), 16.0)
-			if pebble_phase < 4.0:
-				return base.lightened(0.10)
-			if pebble_phase > 12.0:
-				return base.darkened(0.10)
-			return base.lightened(0.02)
+			var phase := (hash + int(local.x / 4.0) * 3 + int(local.y / 4.0) * 5) % 7
+			return base.lightened(strength * 0.60) if phase < 2 else base.darkened(strength * 0.35)
 		MapTypes.TERRAIN_WATER:
-			if int(local.y + hash % 5) % 6 < 2:
-				return base.lightened(0.10)
-			return base.darkened(0.04)
+			return base.lightened(strength) if (int(local.y) + hash) % 5 < 2 else base.darkened(strength * 0.25)
 		MapTypes.TERRAIN_STONE:
-			var slab := Vector2i(int(local.x / 12.0), int(local.y / 12.0))
-			var slab_hash := cell_hash(cell + slab, seed, terrain_id)
-			if slab_hash % 5 == 0:
-				return base.lightened(0.08)
-			if (int(local.x) + int(local.y)) % 12 < 2:
-				return base.darkened(0.14)
-			return base.darkened(0.03)
+			return base.darkened(strength * 0.70) if (int(local.x + local.y) + hash) % 6 == 0 else base.lightened(strength * 0.20)
 		_:
 			return base
