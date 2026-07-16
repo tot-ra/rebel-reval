@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://cmapsmithy042"]
+
+[ext_resource type="Script" path="res://scenes/map_prototype/smithy_courtyard.gd" id="1_scene"]
+[ext_resource type="Script" path="res://scripts/map/map_prototype_player.gd" id="2_player"]
+
+[node name="SmithyCourtyard" type="Node2D"]
+script = ExtResource("1_scene")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(800, 448)
+zoom = Vector2(1, 1)
+
+[node name="Actors" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Player" type="CharacterBody2D" parent="Actors"]
+position = Vector2(672, 496)
+script = ExtResource("2_player")
