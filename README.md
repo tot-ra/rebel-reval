@@ -6,6 +6,8 @@
 
 The player is **Kalev**, a lower-town smith. By day, he accepts commissions, investigates who will use his work, and decides whether to alter what he forges. By night, those objects return as weapons, protection, evidence, betrayal, or a means of escape. The uprising cannot be prevented, but its local cost and Kalev's responsibility can change.
 
+![](img/Screenshot%202025-08-26%20at%2016.42.48.png)
+
 > This README is the current product source of truth. [`TODO.md`](./TODO.md) contains only executable work. Older design documents are research or legacy concepts until explicitly reconciled with this README.
 
 ## Product vision
