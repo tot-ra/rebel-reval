@@ -1,0 +1,18 @@
+# Demo content (D-002 / D-003)
+
+Authored JSON for the MVP demo interaction loop. These records are schema-valid, deterministic, and engine-independent. Runtime wiring loads them through `ContentDB` in a later task.
+
+| ID | File | Used by |
+|----|------|---------|
+| `dialogue.demo.mart_street` | `dialogue.demo.mart_street.json` | D-002 Mart proximity conversation |
+| `item.forge_hammer` | `item.forge_hammer.json` | D-003 forge-hammer pickup and inventory display |
+
+Support character records under `support/` exist only so the demo corpus passes reference validation. They are trimmed copies of the approved briefs, not a second canon source.
+
+Validate the self-contained demo corpus from the repository root:
+
+```bash
+python3 tools/validate_content.py content/demo content/demo/support
+```
+
+Expected result: exit code `0` with no diagnostics.

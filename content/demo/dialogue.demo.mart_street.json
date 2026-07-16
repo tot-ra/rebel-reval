@@ -1,0 +1,67 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.demo.mart_street",
+  "title": "Demo - Mart on the Lower Town Street",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "Authored demo conversation for D-002 wiring; replace with slice dialogue after P1-011."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "Linear two-way exchange for the minimal demo dialogue box."
+  },
+  "participants": [
+    "char.kalev",
+    "char.mart"
+  ],
+  "start_node_id": "mart_opens",
+  "word_count_estimate": 58,
+  "nodes": [
+    {
+      "id": "mart_opens",
+      "speaker_id": "char.mart",
+      "text": "Master, the street is awake tonight. If the Black Cloaks move now, we will not get another chance.",
+      "next_node_id": "kalev_responds"
+    },
+    {
+      "id": "kalev_responds",
+      "speaker_id": "char.kalev",
+      "text": "The street is awake because people still have work to finish. Put your heat in the forge, not in slogans.",
+      "next_node_id": "mart_pushes"
+    },
+    {
+      "id": "mart_pushes",
+      "speaker_id": "char.mart",
+      "text": "The forge will not free anyone if we keep tempering fear instead of steel.",
+      "next_node_id": "kalev_closes"
+    },
+    {
+      "id": "kalev_closes",
+      "speaker_id": "char.kalev",
+      "text": "Then prove you can hold a line of iron before you talk about holding a line at the gate.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.demo_mart_spoken",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Short two-way demo beat between Kalev and Mart on the Lower Town slice.",
+      "citations": [
+        "docs/CHARACTERS/mart.md",
+        "docs/CHARACTERS/kalev.md",
+        "TODO.md#demo---mvp-playable-demo-highest-priority"
+      ]
+    }
+  ]
+}

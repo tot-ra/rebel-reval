@@ -28,3 +28,6 @@ jobs:
 
       - name: Validate complete content example corpus
         run: python3 tools/validate_content.py content/examples/valid content/examples/support
+
+      - name: Validate demo content corpus
+        run: python3 tools/validate_content.py content/demo content/demo/support

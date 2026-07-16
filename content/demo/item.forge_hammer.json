@@ -1,0 +1,30 @@
+{
+  "type": "item",
+  "id": "item.forge_hammer",
+  "name": "Forge hammer",
+  "category": "weapon",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "Demo pickup item for D-003 wiring; visible in the minimal demo inventory display."
+  },
+  "material_grade": "common",
+  "gameplay": {
+    "visible_in_pouch": true,
+    "stackable": false,
+    "uses": [
+      "Demo world pickup for the D-003 inventory loop.",
+      "Kalev's working hammer; later reused by hammer combat prototypes."
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Pickup hammer placed at a Lower Town definition anchor for the MVP demo.",
+      "citations": [
+        "TODO.md#demo---mvp-playable-demo-highest-priority"
+      ]
+    }
+  ]
+}
