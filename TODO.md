@@ -1,4 +1,5 @@
 # TODO
+- [ ] P2-006: Playable The Maker's Mark Tutorial
 
 Format: `- [ ] ID | deps: ID,ID or none | deliverable: concrete artifact or behavior | verify: objective completion check`
 
@@ -48,7 +49,7 @@ Coordination caveat: P0-030 and P0-034 both depend on inventory interpretation a
 - [x] P0-027 | deps: none | deliverable: art and audio inventory classified as `approved`, `prototype`, `unknown rights`, `inconsistent`, or `archive` | verify: every imported runtime image and audio file has one classification
 - [x] P0-028 | deps: P0-027 | deliverable: `assets/SOURCES.csv` with asset ID, path, creator or tool, model/version, prompt or URL, seed, license, edits, and approval | verify: schema validation passes and every active runtime asset has one row
 - [x] P0-029 | deps: P0-028 | deliverable: quarantine for assets with unknown origin or commercial rights | verify: Godot does not import quarantined assets
-- [ ] P0-030 | deps: P0-018,P0-027 | deliverable: active runtime folders containing only slice candidates and required shared assets | verify: inventory reports no archived or unclassified asset in the active import path
+- [x] P0-030 | deps: P0-018,P0-027 | deliverable: active runtime folders containing only slice candidates and required shared assets | verify: inventory reports no archived or unclassified asset in the active import path
 - [x] P0-034 | deps: P0-018,P0-033 | deliverable: migration matrix for current TileSets, maps, collisions, animations, HUD, and assets | verify: every slice-relevant current artifact is marked `retain`, `convert`, or `archive`
 - [x] P0-032 | deps: P0-006,P0-031 | deliverable: archived speculative locations and NPC documents outside approved scope | verify: active documentation contains no unresolved link to archived speculative content
 - [x] P0-033 | deps: P0-017,P0-026 | deliverable: one comparison-room greybox with movement, collision, Y-sort, doorway, foreground fade, six NPC bodies, dialogue interaction, and combat exchange | verify: all listed behaviors run in one scene

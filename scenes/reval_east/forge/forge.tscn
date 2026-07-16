@@ -1,7 +1,7 @@
-[gd_scene load_steps=36 format=4 uid="uid://dbxean877egrv"]
+[gd_scene load_steps=31 format=4 uid="uid://dbxean877egrv"]
 
 [ext_resource type="Script" uid="uid://daitot221wqe7" path="res://scenes/reval_east/forge/forge.gd" id="1_b7ac7"]
-[ext_resource type="Texture2D" uid="uid://cuunf5kllexvn" path="res://assets/tiles2.png" id="2_b7ac7"]
+[ext_resource type="Texture2D" uid="uid://bqxgreyboxfloor" path="res://assets/tiles/greybox_floor.png" id="2_b7ac7"]
 [ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="2_se5dk"]
 [ext_resource type="Texture2D" uid="uid://cdjtsg3a4eal0" path="res://assets/objects/furniture/bed.png" id="3_vhmh4"]
 [ext_resource type="Texture2D" uid="uid://b8j562i6ciiuh" path="res://assets/objects/furniture/chair2.png" id="4_1a1fe"]
@@ -24,12 +24,8 @@
 [ext_resource type="Texture2D" uid="uid://cyky3lxcmr67w" path="res://assets/objects/furniture/bucket-water.png" id="24_kin5l"]
 [ext_resource type="Texture2D" uid="uid://dwwwa2it1dt5t" path="res://assets/objects/food/onions.png" id="25_kkgga"]
 [ext_resource type="Texture2D" uid="uid://c5wqf0qlr6g76" path="res://assets/objects/food/bottle3.png" id="26_3qg1m"]
-[ext_resource type="AudioStream" uid="uid://cfgy7yg3i6bh7" path="res://music/forge/The Smith's Song.mp3" id="26_g4vrm"]
-[ext_resource type="AudioStream" uid="uid://h5lgwyqd4i0p" path="res://music/forge/Fireside Tale.mp3" id="26_kin5l"]
 [ext_resource type="Texture2D" uid="uid://b5qverp8f4ney" path="res://assets/objects/food/black-bread.png" id="27_2oisn"]
-[ext_resource type="AudioStream" uid="uid://fos6spyi14bv" path="res://music/forge/The Smith's Song2.mp3" id="27_kin5l"]
 [ext_resource type="Script" uid="uid://dotxenhm1atxm" path="res://scenes/elements/door.gd" id="29_kkgga"]
-[ext_resource type="AudioStream" uid="uid://cqgq5vtwp8031" path="res://sounds/door.mp3" id="30_3qg1m"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_kkgga"]
 vertices = PackedVector2Array(64, 0, 0, 32, -64, 0, 0, -32)
@@ -63,12 +59,6 @@ tile_size = Vector2i(128, 64)
 physics_layer_0/collision_layer = 1
 navigation_layer_0/layers = 1
 sources/1 = SubResource("TileSetAtlasSource_k3c1x")
-
-[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_beq2v"]
-streams_count = 3
-stream_0/stream = ExtResource("26_kin5l")
-stream_1/stream = ExtResource("27_kin5l")
-stream_2/stream = ExtResource("26_g4vrm")
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_kkgga"]
 resource_local_to_scene = true
@@ -279,18 +269,14 @@ target_to_fade = NodePath("..")
 [node name="CollisionPolygon2D" parent="Node2D/WallsFront/FadeArea" index="0"]
 polygon = PackedVector2Array(500, 560, 573, 531, 704, 588, 1182, 348, 1378, 433, 698, 802, 499, 710)
 
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-stream = SubResource("AudioStreamRandomizer_beq2v")
-volume_db = -15.54
-autoplay = true
-
 [node name="Doors" type="Node2D" parent="."]
 
 [node name="door_main" type="Area2D" parent="Doors"]
 position = Vector2(316, 670)
 script = ExtResource("29_kkgga")
-destination_level_tag = "revel_east"
-destination_door_tag = "forge"
+spawn_id = &"main"
+destination_scene_id = &"reval_east"
+destination_spawn_id = &"forge"
 spawn_direction = "south"
 
 [node name="Spawn" type="Marker2D" parent="Doors/door_main"]
@@ -301,9 +287,6 @@ position = Vector2(153.48, -114.184)
 rotation = 0.485202
 shape = SubResource("RectangleShape2D_kkgga")
 debug_color = Color(0.25817, 0.552912, 0.832533, 0.42)
-
-[node name="OpenSound" type="AudioStreamPlayer" parent="Doors/door_main"]
-stream = ExtResource("30_3qg1m")
 
 [connection signal="body_entered" from="Doors/door_main" to="Doors/door_main" method="_on_body_entered"]
 

@@ -5,7 +5,7 @@ class_name Player
 @export var walk_speed = 200
 @export var run_speed = 1000
 
-@onready var animation_player = $AnimatedSprite2D
+@onready var animation_player: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
 @onready var navigation_agent = $NavigationAgent2D
 @onready var health_bar = $HealthBar
 
@@ -22,8 +22,9 @@ func _ready():
 
 func _on_spawn(position: Vector2, direction: String):
 	global_position=position
-	animation_player.play("walk_"+direction)
-	animation_player.stop()
+	if animation_player != null:
+		animation_player.play("walk_"+direction)
+		animation_player.stop()
 
 func _physics_process(_delta):
 	var direction_x = Input.get_axis("ui_left", "ui_right")
@@ -39,7 +40,6 @@ func _physics_process(_delta):
 		else:
 			new_animation = "run"
 		
-		print("Player velocity: ", velocity)
 		navigation_agent.set_target_position(global_position)
 		if direction_x && direction_y:
 			current_speed = current_speed / 1.4 # normalize vector for diagonal movement to be 1/sqrt(2)
@@ -89,6 +89,8 @@ func _get_animation_direction(direction_vector: Vector2) -> String:
 	return direction_suffix
 
 func update_animation(base_animation: String):
+	if animation_player == null:
+		return
 	var final_animation = ""
 	
 	if base_animation == "run" or base_animation == "walk":
