@@ -1,0 +1,36 @@
+{
+  "type": "character",
+  "id": "char.aita",
+  "name": "Aita",
+  "role": "Alewife, healer, and Kalev's older sister",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P0-013"
+  },
+  "pronunciation": "EYE-tah",
+  "brief": {
+    "want": "Keep the Lower Town fed and medically safe.",
+    "fear": "Both rulers and rebels will sacrifice ordinary people.",
+    "contradiction": "She performs Christian respectability while preserving household rites.",
+    "secret_or_withheld_fact": "She keeps remedies and rites private from authorities."
+  },
+  "relationships": [],
+  "voice": {
+    "summary": "Practical, warm, and unsentimental.",
+    "diction": "Concrete observations about bodies, food, and risk."
+  },
+  "outcomes": [
+    {
+      "id": "safe",
+      "summary": "Aita remains able to support her community."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Support record completing P1-004 reference validation."
+    }
+  ]
+}

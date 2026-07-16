@@ -1,0 +1,26 @@
+{
+  "type": "item",
+  "id": "item.watch_buckle",
+  "name": "Watchman's buckle",
+  "category": "commission_object",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P0-010"
+  },
+  "material_grade": "common",
+  "gameplay": {
+    "visible_in_pouch": false,
+    "stackable": false,
+    "uses": [
+      "Commission object repaired during the prologue."
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Support record completing P1-004 reference validation."
+    }
+  ]
+}

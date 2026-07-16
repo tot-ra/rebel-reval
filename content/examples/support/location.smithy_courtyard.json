@@ -1,0 +1,29 @@
+{
+  "type": "location",
+  "id": "loc.smithy_courtyard",
+  "name": "Smithy Courtyard",
+  "district": "Lower Town",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review"
+  },
+  "description": "The small courtyard connecting Kalev's forge to the Lower Town street.",
+  "gameplay_space": false,
+  "pressure_tags": [
+    "Community",
+    "Suspicion"
+  ],
+  "phase_states": [
+    {
+      "id": "prologue_day",
+      "description": "Neighbors and Watch patrols pass the forge entrance."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Support record completing P1-004 reference validation."
+    }
+  ]
+}

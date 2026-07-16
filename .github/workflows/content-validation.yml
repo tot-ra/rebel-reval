@@ -1,0 +1,30 @@
+name: Content validation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate-content:
+    name: Validate content schemas and semantics
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify Python
+        run: python3 --version
+
+      - name: Content schema examples
+        run: python3 tools/validate_content_examples.py
+
+      - name: Content validator tests
+        run: python3 -m unittest tests.python.test_validate_content -v
+
+      - name: Validate complete content example corpus
+        run: python3 tools/validate_content.py content/examples/valid content/examples/support

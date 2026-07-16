@@ -1,0 +1,33 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.bad.runtime",
+  "title": "Bad runtime chat",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": true,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "start",
+  "nodes": [
+    {
+      "id": "start",
+      "speaker_id": "char.kalev",
+      "text": "Generate a line at runtime."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "fixture"
+    }
+  ]
+}

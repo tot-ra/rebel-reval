@@ -1,0 +1,82 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.makers_mark.henning_arrival",
+  "title": "The Maker's Mark - Henning Arrival",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "Representative schema example, not final prose."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "All nodes and choices are static and evaluated by allowlisted conditions only."
+  },
+  "participants": [
+    "char.kalev",
+    "char.henning"
+  ],
+  "start_node_id": "henning_shows_spearhead",
+  "word_count_estimate": 67,
+  "nodes": [
+    {
+      "id": "henning_shows_spearhead",
+      "speaker_id": "char.henning",
+      "text": "Your mark is on this spearhead, smith. Tell me why rejected iron is turning up in rebel hands.",
+      "choices": [
+        {
+          "id": "ask_where_found",
+          "text": "Where was it found?",
+          "target_node_id": "henning_pressure"
+        },
+        {
+          "id": "deny_work",
+          "text": "That is a reject, not a sale.",
+          "target_node_id": "henning_pressure"
+        },
+        {
+          "id": "stay_silent",
+          "text": "Say nothing.",
+          "target_node_id": "henning_pressure",
+          "effects": [
+            {
+              "op": "adjust_relationship",
+              "key": "rel.henning_trust",
+              "amount": -1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "henning_pressure",
+      "speaker_id": "char.henning",
+      "text": "Then your ledger will explain it before my next inspection.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.prologue_maker_mark_incident",
+          "value": true
+        },
+        {
+          "op": "set_fact",
+          "key": "fact.seized_spearhead_seen",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Playable prologue outline reconciled with canon.",
+      "citations": [
+        "docs/SCENES/the-makers-mark.md",
+        "docs/adr/0003-authored-offline-dialogue-and-prohibit-runtime-llm.md"
+      ]
+    }
+  ]
+}

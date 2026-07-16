@@ -1,0 +1,30 @@
+{
+  "type": "bark_pool",
+  "id": "bark.bad.random",
+  "title": "Bad random barks",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "first_valid_in_order"
+  },
+  "selection": "random_weighted",
+  "entries": [
+    {
+      "id": "one",
+      "speaker_id": "char.kalev",
+      "text": "Random."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "fixture"
+    }
+  ]
+}

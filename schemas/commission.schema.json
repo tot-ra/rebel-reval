@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "commission.schema.json",
+  "title": "Reval Rebel commission content",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "id",
+    "title",
+    "client_id",
+    "quest_id",
+    "object_item_id",
+    "location_id",
+    "confidence",
+    "canon_status",
+    "approval",
+    "concrete_order",
+    "hidden_contradiction",
+    "investigation_clues",
+    "forging_options",
+    "night_consequence",
+    "source_notes"
+  ],
+  "properties": {
+    "type": {
+      "const": "commission"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/content_id"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "client_id": {
+      "$ref": "common.schema.json#/$defs/content_id"
+    },
+    "quest_id": {
+      "$ref": "common.schema.json#/$defs/content_id"
+    },
+    "object_item_id": {
+      "$ref": "common.schema.json#/$defs/content_id"
+    },
+    "location_id": {
+      "$ref": "common.schema.json#/$defs/content_id"
+    },
+    "confidence": {
+      "$ref": "common.schema.json#/$defs/confidence_label"
+    },
+    "canon_status": {
+      "$ref": "common.schema.json#/$defs/canon_status"
+    },
+    "approval": {
+      "$ref": "common.schema.json#/$defs/review_record"
+    },
+    "concrete_order": {
+      "type": "string",
+      "minLength": 1
+    },
+    "hidden_contradiction": {
+      "type": "string",
+      "minLength": 1
+    },
+    "investigation_clues": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "summary"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/local_id"
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reveals_fact_id": {
+            "$ref": "common.schema.json#/$defs/content_id"
+          }
+        }
+      }
+    },
+    "forging_options": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label",
+          "effects"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "honest_work",
+              "subtle_defect",
+              "secret_feature",
+              "destroy_evidence"
+            ]
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "requires": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/condition"
+            }
+          },
+          "effects": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/effect"
+            }
+          },
+          "technique": {
+            "$ref": "common.schema.json#/$defs/forge_technique"
+          }
+        }
+      }
+    },
+    "night_consequence": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_notes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "common.schema.json#/$defs/source_note"
+      }
+    }
+  }
+}

@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quest.schema.json",
+  "title": "Reval Rebel quest content",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "id",
+    "title",
+    "summary",
+    "confidence",
+    "canon_status",
+    "approval",
+    "entry_conditions",
+    "states",
+    "objectives",
+    "outcomes",
+    "content_links",
+    "source_notes"
+  ],
+  "properties": {
+    "type": {
+      "const": "quest"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/content_id"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "confidence": {
+      "$ref": "common.schema.json#/$defs/confidence_label"
+    },
+    "canon_status": {
+      "$ref": "common.schema.json#/$defs/canon_status"
+    },
+    "approval": {
+      "$ref": "common.schema.json#/$defs/review_record"
+    },
+    "entry_conditions": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/condition"
+      }
+    },
+    "states": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/local_id"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "terminal": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "text",
+          "state_id"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/local_id"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "state_id": {
+            "$ref": "common.schema.json#/$defs/local_id"
+          },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/condition"
+            }
+          }
+        }
+      }
+    },
+    "outcomes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "summary",
+          "effects"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/local_id"
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "effects": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/effect"
+            }
+          }
+        }
+      }
+    },
+    "content_links": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "character_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/content_id"
+          }
+        },
+        "dialogue_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/content_id"
+          }
+        },
+        "bark_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/content_id"
+          }
+        },
+        "commission_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/content_id"
+          }
+        },
+        "item_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/content_id"
+          }
+        },
+        "location_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/content_id"
+          }
+        }
+      }
+    },
+    "source_notes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "common.schema.json#/$defs/source_note"
+      }
+    }
+  }
+}

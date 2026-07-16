@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "item.schema.json",
+  "title": "Reval Rebel item content",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "id",
+    "name",
+    "category",
+    "confidence",
+    "canon_status",
+    "approval",
+    "gameplay",
+    "source_notes"
+  ],
+  "properties": {
+    "type": {
+      "const": "item"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/content_id"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "quest_tool",
+        "evidence",
+        "commission_object",
+        "material",
+        "weapon",
+        "supply"
+      ]
+    },
+    "confidence": {
+      "$ref": "common.schema.json#/$defs/confidence_label"
+    },
+    "canon_status": {
+      "$ref": "common.schema.json#/$defs/canon_status"
+    },
+    "approval": {
+      "$ref": "common.schema.json#/$defs/review_record"
+    },
+    "owner_id": {
+      "$ref": "common.schema.json#/$defs/content_id"
+    },
+    "location_id": {
+      "$ref": "common.schema.json#/$defs/content_id"
+    },
+    "material_grade": {
+      "type": "string",
+      "enum": [
+        "none",
+        "poor",
+        "common",
+        "fine"
+      ]
+    },
+    "gameplay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "visible_in_pouch",
+        "stackable",
+        "uses"
+      ],
+      "properties": {
+        "visible_in_pouch": {
+          "type": "boolean"
+        },
+        "stackable": {
+          "type": "boolean"
+        },
+        "uses": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "source_notes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "common.schema.json#/$defs/source_note"
+      }
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "type": "character",
+  "id": "char.henning",
+  "name": "Henning",
+  "role": "Watch officer and dangerous customer",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P0-013"
+  },
+  "pronunciation": "HEN-ing",
+  "brief": {
+    "want": "Keep control of the Lower Town through useful informants.",
+    "fear": "The Watch will lose authority before the uprising begins.",
+    "contradiction": "He values order but manufactures pressure that creates resistance.",
+    "secret_or_withheld_fact": "The buckle repair is leverage for inspecting Kalev's ledger."
+  },
+  "relationships": [],
+  "voice": {
+    "summary": "Controlled, observant, and threatening without shouting.",
+    "diction": "Short demands framed as routine procedure."
+  },
+  "outcomes": [
+    {
+      "id": "watchful",
+      "summary": "Henning continues monitoring Kalev's forge."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Support record completing P1-004 reference validation."
+    }
+  ]
+}

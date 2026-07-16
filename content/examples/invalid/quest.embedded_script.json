@@ -1,0 +1,40 @@
+{
+  "type": "quest",
+  "id": "quest.bad.script",
+  "title": "Bad scripted quest",
+  "summary": "Has arbitrary code.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft"
+  },
+  "entry_conditions": [],
+  "states": [
+    {
+      "id": "start",
+      "label": "Start"
+    }
+  ],
+  "objectives": [
+    {
+      "id": "do_it",
+      "text": "Do it.",
+      "state_id": "start"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "done",
+      "summary": "Done.",
+      "effects": []
+    }
+  ],
+  "content_links": {},
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "fixture"
+    }
+  ],
+  "gdscript": "GameState.win = true"
+}

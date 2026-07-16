@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "bark.schema.json",
+  "title": "Reval Rebel phase bark pool content",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "id",
+    "title",
+    "confidence",
+    "canon_status",
+    "approval",
+    "deterministic_offline",
+    "selection",
+    "entries",
+    "source_notes"
+  ],
+  "properties": {
+    "type": {
+      "const": "bark_pool"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/content_id"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "owner_id": {
+      "$ref": "common.schema.json#/$defs/content_id"
+    },
+    "confidence": {
+      "$ref": "common.schema.json#/$defs/confidence_label"
+    },
+    "canon_status": {
+      "$ref": "common.schema.json#/$defs/canon_status"
+    },
+    "approval": {
+      "$ref": "common.schema.json#/$defs/review_record"
+    },
+    "deterministic_offline": {
+      "$ref": "common.schema.json#/$defs/deterministic_offline"
+    },
+    "selection": {
+      "type": "string",
+      "enum": [
+        "first_valid_in_order",
+        "cycle_by_seeded_index"
+      ]
+    },
+    "phase_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/content_id"
+      }
+    },
+    "location_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/content_id"
+      }
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "speaker_id",
+          "text"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/local_id"
+          },
+          "speaker_id": {
+            "$ref": "common.schema.json#/$defs/content_id"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10
+          },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/condition"
+            }
+          }
+        }
+      }
+    },
+    "source_notes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "common.schema.json#/$defs/source_note"
+      }
+    }
+  }
+}

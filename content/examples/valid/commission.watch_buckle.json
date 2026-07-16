@@ -1,0 +1,64 @@
+{
+  "type": "commission",
+  "id": "commission.watch_buckle_repair",
+  "title": "Repair the watchman's buckle",
+  "client_id": "char.henning",
+  "quest_id": "quest.makers_mark",
+  "object_item_id": "item.watch_buckle",
+  "location_id": "loc.kalev_smithy",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P0-010"
+  },
+  "concrete_order": "Repair a watchman's buckle before Henning's inspection.",
+  "hidden_contradiction": "The ordinary repair masks Henning's real purpose: pressuring Kalev over rebel-marked iron.",
+  "investigation_clues": [
+    {
+      "id": "maker_mark",
+      "summary": "The seized spearhead carries Kalev's maker mark.",
+      "reveals_fact_id": "fact.seized_spearhead_seen"
+    },
+    {
+      "id": "missing_rejects",
+      "summary": "Rejected blanks are gone from storage.",
+      "reveals_fact_id": "fact.rejected_blanks_missing"
+    }
+  ],
+  "forging_options": [
+    {
+      "id": "honest_work",
+      "label": "Repair it cleanly.",
+      "effects": [
+        {
+          "op": "adjust_relationship",
+          "key": "rel.henning_trust",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "subtle_defect",
+      "label": "Leave a weakness that could fail under strain.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.watch_buckle_weakened",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "night_consequence": "The repaired buckle and ledger branch affect Henning's trust and later watch pressure.",
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Playable prologue outline reconciled with canon.",
+      "citations": [
+        "docs/SCENES/the-makers-mark.md",
+        "docs/adr/0003-authored-offline-dialogue-and-prohibit-runtime-llm.md"
+      ]
+    }
+  ]
+}

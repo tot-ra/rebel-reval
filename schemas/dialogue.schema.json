@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dialogue.schema.json",
+  "title": "Reval Rebel dialogue tree content",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "id",
+    "title",
+    "confidence",
+    "canon_status",
+    "approval",
+    "deterministic_offline",
+    "participants",
+    "start_node_id",
+    "nodes",
+    "source_notes"
+  ],
+  "properties": {
+    "type": {
+      "const": "dialogue"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/content_id"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "confidence": {
+      "$ref": "common.schema.json#/$defs/confidence_label"
+    },
+    "canon_status": {
+      "$ref": "common.schema.json#/$defs/canon_status"
+    },
+    "approval": {
+      "$ref": "common.schema.json#/$defs/review_record"
+    },
+    "deterministic_offline": {
+      "$ref": "common.schema.json#/$defs/deterministic_offline"
+    },
+    "participants": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "common.schema.json#/$defs/content_id"
+      }
+    },
+    "start_node_id": {
+      "$ref": "common.schema.json#/$defs/local_id"
+    },
+    "word_count_estimate": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 2500
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/local_id"
+          },
+          "speaker_id": {
+            "$ref": "common.schema.json#/$defs/content_id"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/condition"
+            }
+          },
+          "effects": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/effect"
+            }
+          },
+          "once": {
+            "type": "boolean"
+          },
+          "next_node_id": {
+            "$ref": "common.schema.json#/$defs/local_id"
+          },
+          "choices": {
+            "type": "array",
+            "maxItems": 4,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "text",
+                "target_node_id"
+              ],
+              "properties": {
+                "id": {
+                  "$ref": "common.schema.json#/$defs/local_id"
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "target_node_id": {
+                  "$ref": "common.schema.json#/$defs/local_id"
+                },
+                "conditions": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "common.schema.json#/$defs/condition"
+                  }
+                },
+                "disabled_reason": {
+                  "type": "string"
+                },
+                "effects": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "common.schema.json#/$defs/effect"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "source_notes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "common.schema.json#/$defs/source_note"
+      }
+    }
+  }
+}

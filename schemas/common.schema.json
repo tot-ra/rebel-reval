@@ -1,0 +1,241 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "common.schema.json",
+  "title": "Reval Rebel shared content definitions",
+  "type": "object",
+  "$defs": {
+    "content_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(\\.[a-z0-9_]+)+$",
+      "description": "Stable dotted content ID, for example char.aita or quest.bitter_brew."
+    },
+    "local_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "document_path": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_./#' -]+$"
+    },
+    "confidence_label": {
+      "type": "string",
+      "enum": [
+        "attested",
+        "plausible composite",
+        "folklore",
+        "invented"
+      ],
+      "description": "Canon confidence label from docs/CANON.md."
+    },
+    "canon_status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "draft",
+        "reference",
+        "archive",
+        "non-canon"
+      ]
+    },
+    "approval_status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "review",
+        "approved",
+        "archived"
+      ],
+      "description": "AI-assisted drafts cannot ship until human editorial approval marks them approved."
+    },
+    "language": {
+      "type": "string",
+      "enum": [
+        "English",
+        "Estonian",
+        "Low German",
+        "Latin",
+        "Danish"
+      ]
+    },
+    "pressure": {
+      "type": "string",
+      "enum": [
+        "Authority",
+        "Rebellion",
+        "Community",
+        "Suspicion",
+        "Solidarity",
+        "Scarcity"
+      ]
+    },
+    "conviction": {
+      "type": "string",
+      "enum": [
+        "Duty",
+        "Fury",
+        "Mercy"
+      ]
+    },
+    "forge_technique": {
+      "type": "string",
+      "enum": [
+        "Iron",
+        "Ember",
+        "Root"
+      ]
+    },
+    "source_note": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "confidence",
+        "summary"
+      ],
+      "properties": {
+        "confidence": {
+          "$ref": "common.schema.json#/$defs/confidence_label"
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "citations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/document_path"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "op"
+      ],
+      "properties": {
+        "op": {
+          "type": "string",
+          "enum": [
+            "always",
+            "flag_is",
+            "flag_not",
+            "fact_known",
+            "phase_is",
+            "pressure_at_least",
+            "relationship_at_least",
+            "item_owned",
+            "quest_state_is"
+          ]
+        },
+        "key": {
+          "$ref": "common.schema.json#/$defs/content_id"
+        },
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer"
+          ]
+        },
+        "amount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        }
+      }
+    },
+    "effect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "op",
+        "key"
+      ],
+      "properties": {
+        "op": {
+          "type": "string",
+          "enum": [
+            "set_flag",
+            "set_fact",
+            "set_phase",
+            "set_quest_state",
+            "adjust_pressure",
+            "adjust_relationship",
+            "add_item",
+            "remove_item",
+            "set_location_state"
+          ]
+        },
+        "key": {
+          "$ref": "common.schema.json#/$defs/content_id"
+        },
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer"
+          ]
+        },
+        "amount": {
+          "type": "integer",
+          "minimum": -3,
+          "maximum": 3
+        }
+      },
+      "description": "Declarative allowlisted effect. Content must not embed arbitrary GDScript."
+    },
+    "deterministic_offline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authored",
+        "runtime_llm_allowed",
+        "free_text_input_allowed",
+        "selection"
+      ],
+      "properties": {
+        "authored": {
+          "const": true
+        },
+        "runtime_llm_allowed": {
+          "const": false
+        },
+        "free_text_input_allowed": {
+          "const": false
+        },
+        "selection": {
+          "type": "string",
+          "enum": [
+            "explicit_node_id",
+            "first_valid_in_order",
+            "cycle_by_seeded_index"
+          ]
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "description": "ADR 0003: shipped narrative content is statically authored and bundled with no runtime LLM or free-text chat."
+    },
+    "review_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "$ref": "common.schema.json#/$defs/approval_status"
+        },
+        "reviewer": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

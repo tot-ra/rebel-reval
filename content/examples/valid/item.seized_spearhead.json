@@ -1,0 +1,32 @@
+{
+  "type": "item",
+  "id": "item.seized_spearhead",
+  "name": "Seized spearhead with Kalev's maker mark",
+  "category": "evidence",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P0-010"
+  },
+  "owner_id": "char.henning",
+  "location_id": "loc.kalev_smithy",
+  "material_grade": "poor",
+  "gameplay": {
+    "visible_in_pouch": false,
+    "stackable": false,
+    "uses": [
+      "Evidence inspected during the prologue; not a normal reward item."
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Playable prologue outline reconciled with canon.",
+      "citations": [
+        "docs/SCENES/the-makers-mark.md",
+        "docs/adr/0003-authored-offline-dialogue-and-prohibit-runtime-llm.md"
+      ]
+    }
+  ]
+}

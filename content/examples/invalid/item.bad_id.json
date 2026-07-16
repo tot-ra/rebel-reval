@@ -1,0 +1,24 @@
+{
+  "type": "item",
+  "id": "bad item id",
+  "name": "Bad ID",
+  "category": "evidence",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft"
+  },
+  "gameplay": {
+    "visible_in_pouch": false,
+    "stackable": false,
+    "uses": [
+      "fixture"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "fixture"
+    }
+  ]
+}
