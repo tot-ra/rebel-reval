@@ -54,8 +54,16 @@ static func create() -> MapDefinition:
 		&"smithy_door_transition",
 		Rect2i(22, 18, 2, 2),
 		&"forge",
-		&"main",
+		&"door_courtyard",
 		&"forge"
+	)
+	InteriorMapFactory.add_transition(
+		definition,
+		&"street_start_spawn",
+		Rect2i(8, 28, 2, 2),
+		&"",
+		&"",
+		&"street_start"
 	)
 
 	definition.patrols = [
@@ -75,6 +83,7 @@ static func create() -> MapDefinition:
 			"scenes/reval_east/reval_east.tscn",
 			"docs/SCENES/the-makers-mark.md",
 			"docs/SCENES/a-bitter-brew.md",
+			"content/locations/loc.lower_town_slice.json",
 		]
 	)
 	return definition

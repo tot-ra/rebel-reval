@@ -6,8 +6,6 @@ const SCENE_THEME_ROUTES: Dictionary = {
 	"res://scenes/menu/main_menu.tscn": &"menu",
 	"res://scenes/reval_east/forge/forge.tscn": &"forge",
 	"res://scenes/reval_east/reval_east.tscn": &"town",
-	"res://scenes/reval_center/reval_center.tscn": &"town",
-	"res://scenes/reval_north/reval_north.tscn": &"town",
 }
 
 const MENU_TRACK := "res://music/menu/Menu.mp3"

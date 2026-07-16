@@ -59,7 +59,7 @@ static func create() -> MapDefinition:
 		Rect2i(17, 21, 6, 2),
 		&"reval_east",
 		&"forge",
-		&"main"
+		&"door_courtyard"
 	)
 	InteriorMapFactory.add_fade_volume(definition, Rect2i(14, 3, 12, 3))
 	InteriorMapFactory.add_source_references(
@@ -67,7 +67,7 @@ static func create() -> MapDefinition:
 		[
 			"scenes/reval_east/forge/forge.tscn",
 			"docs/SCENES/the-makers-mark.md",
-			"content/examples/valid/location.kalev_smithy.json",
+			"content/locations/loc.kalev_smithy.json",
 		]
 	)
 	return definition

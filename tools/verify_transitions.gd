@@ -2,6 +2,27 @@ extends SceneTree
 
 const MANIFEST_PATH := "res://content/transitions/active_destinations.json"
 const DOOR_SCRIPT_PATH := "res://scenes/elements/door.gd"
+const RETIRED_SPAWN_IDS := [
+	"main",
+	"south_1",
+	"center_1",
+	"center_2",
+	"center_3",
+	"center_4",
+	"center_5",
+	"north_1",
+	"north_2",
+	"east_1",
+	"east_2",
+	"east_3",
+	"east_4",
+	"east_5",
+]
+const RETIRED_SCENE_IDS := [
+	"reval_center",
+	"reval_north",
+	"reval_south",
+]
 const SOURCE_FILES_WITHOUT_LEGACY_DOOR_PATHS := [
 	"res://scripts/global/BaseLevel.gd",
 	"res://scripts/global/doorNavigator.gd",
@@ -17,8 +38,9 @@ func _initialize() -> void:
 func _verify() -> void:
 	_load_manifest()
 	_verify_no_legacy_path_construction()
-	_verify_active_destinations_and_spawns()
-	_verify_active_door_destinations()
+	_verify_retired_ids_absent()
+	await _verify_active_destinations_and_spawns()
+	await _verify_active_door_destinations()
 
 	if _errors.is_empty():
 		print("P0-022 transition verification passed: %d active scenes checked." % _active_scenes.size())
@@ -74,6 +96,29 @@ func _load_manifest() -> void:
 			"spawns": spawns,
 		}
 
+func _verify_retired_ids_absent() -> void:
+	for scene_id in RETIRED_SCENE_IDS:
+		if _active_scenes.has(scene_id):
+			_fail("Retired transition scene id remains active: " + scene_id)
+
+	var file := FileAccess.open(MANIFEST_PATH, FileAccess.READ)
+	if file == null:
+		return
+	var parsed = JSON.parse_string(file.get_as_text())
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return
+
+	for scene_record in parsed.get("scenes", []):
+		if typeof(scene_record) != TYPE_DICTIONARY:
+			continue
+		var scene_id := String(scene_record.get("id", ""))
+		for spawn_record in scene_record.get("spawns", []):
+			if typeof(spawn_record) != TYPE_DICTIONARY:
+				continue
+			var spawn_id := String(spawn_record.get("id", ""))
+			if spawn_id in RETIRED_SPAWN_IDS:
+				_fail("Retired spawn id %s remains in manifest scene %s" % [spawn_id, scene_id])
+
 func _verify_no_legacy_path_construction() -> void:
 	for path in SOURCE_FILES_WITHOUT_LEGACY_DOOR_PATHS:
 		var file := FileAccess.open(path, FileAccess.READ)
@@ -98,7 +143,7 @@ func _verify_active_destinations_and_spawns() -> void:
 			_fail("Active transition scene failed to load as PackedScene: %s (%s)" % [scene_id, scene_path])
 			continue
 
-		var instance := packed.instantiate()
+		var instance := await _mount_scene_instance(packed)
 		if instance == null:
 			_fail("Active transition scene failed to instantiate: %s (%s)" % [scene_id, scene_path])
 			continue
@@ -114,7 +159,7 @@ func _verify_active_destinations_and_spawns() -> void:
 				if door.get_node_or_null("Spawn") == null:
 					_fail("Scene %s spawn id %s door has no Spawn child" % [scene_id, spawn_id])
 
-		instance.free()
+		_release_scene_instance(instance)
 
 func _verify_active_door_destinations() -> void:
 	for source_scene_id in _active_scenes.keys():
@@ -122,11 +167,24 @@ func _verify_active_door_destinations() -> void:
 		var packed := load(source_scene_path) as PackedScene
 		if packed == null:
 			continue
-		var instance := packed.instantiate()
+		var instance := await _mount_scene_instance(packed)
 		if instance == null:
 			continue
 		_verify_doors_recursive(instance, source_scene_id, instance)
-		instance.free()
+		_release_scene_instance(instance)
+
+func _mount_scene_instance(packed: PackedScene) -> Node:
+	var instance := packed.instantiate()
+	if instance == null:
+		return null
+	root.add_child(instance)
+	if not instance.is_node_ready():
+		await instance.ready
+	return instance
+
+func _release_scene_instance(instance: Node) -> void:
+	if is_instance_valid(instance):
+		instance.queue_free()
 
 func _verify_doors_recursive(node: Node, source_scene_id: String, root: Node) -> void:
 	if _node_uses_script(node, DOOR_SCRIPT_PATH):

@@ -66,13 +66,13 @@ static func _create_doors(definition: MapDefinition, parent: Node2D) -> Array[Ar
 		door.position = rect.get_center()
 		if transition.has("spawn_id"):
 			door.spawn_id = transition["spawn_id"]
-		elif transition_id == &"door_courtyard":
-			# Temporary cutover alias required by MAP_CONVERSION_PLAN.
-			door.spawn_id = &"main"
-		if transition.has("destination_scene_id"):
+		var destination_scene_id := String(transition.get("destination_scene_id", ""))
+		if destination_scene_id.is_empty():
+			door.transition_enabled = false
+		else:
 			door.destination_scene_id = transition["destination_scene_id"]
-		if transition.has("destination_spawn_id"):
-			door.destination_spawn_id = transition["destination_spawn_id"]
+			if transition.has("destination_spawn_id"):
+				door.destination_spawn_id = transition["destination_spawn_id"]
 
 		var collision := door.get_node("CollisionShape2D") as CollisionShape2D
 		if collision != null:

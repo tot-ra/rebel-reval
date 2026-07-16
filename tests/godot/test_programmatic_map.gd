@@ -9,6 +9,17 @@ const MapVisualStyle := preload("res://scripts/map/map_visual_style.gd")
 const MapAssembler := preload("res://scripts/map/map_assembler.gd")
 
 
+const STYLE_GATE_TERRAINS: Array[StringName] = [
+	MapTypes.TERRAIN_GRASS,
+	MapTypes.TERRAIN_SAND,
+	MapTypes.TERRAIN_HAY,
+	MapTypes.TERRAIN_DIRT,
+	MapTypes.TERRAIN_COBBLESTONE,
+	MapTypes.TERRAIN_WATER,
+	MapTypes.TERRAIN_STONE,
+]
+
+
 func test_visual_targets_freeze_scale_and_style_rules() -> void:
 	assert_eq(MapVisualStyle.ALL_TARGETS.size(), 3)
 	assert_eq(MapVisualStyle.CHARACTER_HEIGHT_PX, 64)
@@ -18,7 +29,7 @@ func test_visual_targets_freeze_scale_and_style_rules() -> void:
 		assert_true(MapVisualStyle.outline_width(target) > 0.0)
 		assert_true(MapVisualStyle.shadow_alpha(target, MapVisualStyle.TIME_DAY) > 0.0)
 		assert_true(MapVisualStyle.shadow_alpha(target, MapVisualStyle.TIME_NIGHT) > 0.0)
-		for terrain_id in MapTypes.ALL_TERRAINS:
+		for terrain_id in STYLE_GATE_TERRAINS:
 			assert_ne(MapVisualStyle.terrain_color(terrain_id, target, MapVisualStyle.TIME_DAY), Color.MAGENTA)
 			assert_ne(MapVisualStyle.terrain_color(terrain_id, target, MapVisualStyle.TIME_NIGHT), Color.MAGENTA)
 

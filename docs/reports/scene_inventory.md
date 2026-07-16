@@ -64,10 +64,10 @@ Inventory row count (data rows in the table below): **43**.
 | 21 | `scenes/menu/main_menu.tscn` | working | `run/main_scene`; Start/Exit UI, video, audio; P0-017 smoke pass. |
 | 22 | `scenes/reval_center/market_civic_quarter/market.tscn` | partial | Inactive programmatic market square prototype; not in active destinations. |
 | 23 | `scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn` | partial | Inactive programmatic guild hall interior prototype; not in active destinations. |
-| 24 | `scenes/reval_center/reval_center.tscn` | partial | Inactive programmatic market civic quarter prototype; legacy manifest entry remains until P2-020. |
+| 24 | `scenes/reval_center/reval_center.tscn` | partial | Inactive programmatic market civic quarter prototype; removed from active destinations in P2-020. |
 | 25 | `scenes/reval_east/forge/forge.tscn` | working | Programmatic smithy interior; `DoorNavigator` target with stable anchors and courtyard transition. |
 | 26 | `scenes/reval_east/reval_east.tscn` | working | Programmatic bounded Lower Town exterior; default Start destination via manifest. |
-| 27 | `scenes/reval_north/reval_north.tscn` | partial | Inactive programmatic north quarter prototype; legacy manifest entry remains until P2-020. |
+| 27 | `scenes/reval_north/reval_north.tscn` | partial | Inactive programmatic north quarter prototype; removed from active destinations in P2-020. |
 | 28 | `scenes/reval_toompea/domberg.tscn` | archive | Empty `Node2D`; Toompea district outside slice. |
 | 29 | `scenes/reval_toompea/maria_toomkirik.tscn` | archive | Empty `Node2D`; cathedral shell outside slice. |
 | 30 | `scenes/tests/font_glyph_render_test.tscn` | partial | Dev-only font glyph verification; not player-facing. |

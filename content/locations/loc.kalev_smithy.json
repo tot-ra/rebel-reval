@@ -1,0 +1,59 @@
+{
+  "type": "location",
+  "id": "loc.kalev_smithy",
+  "name": "Kalev's Smithy",
+  "district": "Lower Town",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P2-020"
+  },
+  "description": "Kalev's home and primary workspace, holding the forge, anvil, ledger, storage chest, and sleeping alcove.",
+  "gameplay_space": true,
+  "scene_path": "res://scenes/reval_east/forge/forge.tscn",
+  "spawn_ids": [
+    "door_courtyard",
+    "bed_alcove",
+    "anvil"
+  ],
+  "connected_location_ids": [
+    "loc.lower_town_slice"
+  ],
+  "occupant_ids": [
+    "char.kalev",
+    "char.henning"
+  ],
+  "pressure_tags": [
+    "Authority",
+    "Suspicion",
+    "Community"
+  ],
+  "phase_states": [
+    {
+      "id": "prologue_day",
+      "description": "Forge is open for repairs before Henning escalates the maker-mark incident."
+    },
+    {
+      "id": "after_ledger_destroyed",
+      "description": "Ledger evidence is gone and the Watch treats the forge with greater suspicion.",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.forge_ledger_destroyed",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Production location record for the converted declarative forge interior.",
+      "citations": [
+        "docs/SCENES/the-makers-mark.md",
+        "scripts/map/definitions/lower_town/kalev_smithy_definition.gd"
+      ]
+    }
+  ]
+}

@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "description": "Active transition scene and spawn registry for P0-022. Scene IDs and spawn IDs are stable gameplay IDs; Godot node names are implementation details discovered from Door.spawn_id at verification/runtime.",
+  "description": "Active transition scene and spawn registry for the approved Lower Town slice after P2-020 cutover. Scene IDs and spawn IDs are stable gameplay IDs; Godot node names are implementation details discovered from Door.spawn_id at verification/runtime.",
   "scenes": [
     {
       "id": "forge",
       "path": "res://scenes/reval_east/forge/forge.tscn",
       "active": true,
       "spawns": [
-        { "id": "main" }
+        { "id": "door_courtyard" }
       ]
     },
     {
@@ -16,39 +16,7 @@
       "active": true,
       "spawns": [
         { "id": "forge" },
-        { "id": "south_1" },
-        { "id": "center_1" },
-        { "id": "center_2" },
-        { "id": "center_3" },
-        { "id": "center_4" },
-        { "id": "center_5" },
-        { "id": "north_1" },
-        { "id": "north_2" }
-      ]
-    },
-    {
-      "id": "reval_center",
-      "path": "res://scenes/reval_center/reval_center.tscn",
-      "active": true,
-      "spawns": [
-        { "id": "south_1" },
-        { "id": "east_1" },
-        { "id": "east_2" },
-        { "id": "east_3" },
-        { "id": "east_4" },
-        { "id": "east_5" }
-      ]
-    },
-    {
-      "id": "reval_north",
-      "path": "res://scenes/reval_north/reval_north.tscn",
-      "active": true,
-      "spawns": [
-        { "id": "center_1" },
-        { "id": "center_2" },
-        { "id": "center_3" },
-        { "id": "east_1" },
-        { "id": "east_2" }
+        { "id": "street_start" }
       ]
     }
   ]

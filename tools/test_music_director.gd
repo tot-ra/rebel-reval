@@ -29,8 +29,6 @@ func _check_routes(failures: Array[String]) -> void:
 		"res://scenes/menu/main_menu.tscn": &"menu",
 		"res://scenes/reval_east/forge/forge.tscn": &"forge",
 		"res://scenes/reval_east/reval_east.tscn": &"town",
-		"res://scenes/reval_center/reval_center.tscn": &"town",
-		"res://scenes/reval_north/reval_north.tscn": &"town",
 	}
 	for scene_path: String in expected_routes:
 		var actual: StringName = MusicDirectorScript.theme_for_scene(scene_path)

@@ -25,7 +25,7 @@ Interior terrain IDs: `ash`, `timber_floor`, `plaster`. Interior prop kinds incl
 | Prototypes | `reval_center.tscn`, `market.tscn`, `olaf_guild_hall.tscn`, `reval_north.tscn` | `prototype`, inactive |
 | Harbor expansion | `harbor/warehouse.tscn` | `prototype`, inactive |
 
-Legacy diamond TileSet layers were removed from converted scenes. Stable spawn and anchor IDs are preserved; forge courtyard exit uses transition id `door_courtyard` with temporary spawn alias `main`.
+Legacy diamond TileSet layers were removed from converted scenes. P2-020 retired the temporary `main` forge spawn alias in favor of stable `door_courtyard`, removed legacy district-edge spawns from the active manifest, and limited active destinations to `forge` and `reval_east` only.
 
 ## Verification
 
@@ -39,6 +39,5 @@ Godot headless tests: 76 tests, 0 failures (2026-07-16).
 
 ## Remaining work
 
-- P2-020 atomic manifest cutover
 - P2-021 visual and gameplay parity captures
 - Visual capture harness for prototype inspection scenes (optional follow-up)

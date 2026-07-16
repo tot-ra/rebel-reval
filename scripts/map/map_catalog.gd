@@ -14,13 +14,13 @@ const MAPS: Dictionary = {
 	},
 	"reval_center": {
 		"path": "res://scenes/reval_center/reval_center.tscn",
-		"scope": "production",
-		"active": true
+		"scope": "prototype",
+		"active": false
 	},
 	"reval_north": {
 		"path": "res://scenes/reval_north/reval_north.tscn",
-		"scope": "production",
-		"active": true
+		"scope": "prototype",
+		"active": false
 	},
 	"reval_toompea": {
 		"path": "res://scenes/reval_toompea/reval_toompea.tscn",

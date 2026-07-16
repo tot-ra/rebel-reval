@@ -1,0 +1,54 @@
+{
+  "type": "location",
+  "id": "loc.lower_town_slice",
+  "name": "Lower Town Street",
+  "district": "Lower Town",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P2-020"
+  },
+  "description": "Bounded Lower Town exterior connecting Kalev's smithy, the Foaming Mug brewery, the municipal cistern, and the watch checkpoint.",
+  "gameplay_space": true,
+  "scene_path": "res://scenes/reval_east/reval_east.tscn",
+  "spawn_ids": [
+    "street_start",
+    "forge"
+  ],
+  "connected_location_ids": [
+    "loc.kalev_smithy"
+  ],
+  "pressure_tags": [
+    "Authority",
+    "Community",
+    "Suspicion"
+  ],
+  "phase_states": [
+    {
+      "id": "prologue_day",
+      "description": "Patrols and neighbors move through the street before the night consequence."
+    },
+    {
+      "id": "night_tension",
+      "description": "Watch pressure and crowd noise increase after the brewery commission resolves.",
+      "conditions": [
+        {
+          "op": "phase_is",
+          "value": "night"
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Production location record for the converted bounded Lower Town exterior.",
+      "citations": [
+        "docs/SCENES/the-makers-mark.md",
+        "docs/SCENES/a-bitter-brew.md",
+        "scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
+      ]
+    }
+  ]
+}
