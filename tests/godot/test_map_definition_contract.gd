@@ -3,8 +3,8 @@ extends RefCounted
 
 var _failures: Array[String] = []
 
-func _get_failures() -> void:
-	return _failures
+func _get_failures() -> Array[String]:
+	return _failures.duplicate()
 
 func test_all() -> void:
 	
