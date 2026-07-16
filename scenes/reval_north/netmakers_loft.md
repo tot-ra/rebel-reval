@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # Netmakers' Loft
 
 A large, airy loft, filled with the smell of tar and the sea. Nets of all shapes and sizes hang from the rafters, and the floor is littered with the tools of the trade.

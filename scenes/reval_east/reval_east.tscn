@@ -1,4 +1,4 @@
-[gd_scene load_steps=56 format=4 uid="uid://cxbg0w372wak4"]
+[gd_scene load_steps=42 format=4 uid="uid://cxbg0w372wak4"]
 
 [ext_resource type="Script" uid="uid://bl7l57o36owyx" path="res://scenes/reval_east/reval_east.gd" id="1_lycv7"]
 [ext_resource type="Texture2D" uid="uid://bdon6tpfsllx3" path="res://scenes/reval_walls_towers/wall-map.png" id="2_uygjw"]
@@ -28,43 +28,13 @@
 [ext_resource type="Texture2D" uid="uid://ggmbooh1fyag" path="res://assets/buildings/tenement.png" id="26_diyxi"]
 [ext_resource type="Script" uid="uid://yoxqy2p5e8x" path="res://scenes/elements/building.gd" id="27_88wjb"]
 [ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="28_eiycm"]
-[ext_resource type="AudioStream" uid="uid://6ai78whounwj" path="res://music/revel_east/Apothecary (1).mp3" id="29_0bv5p"]
-[ext_resource type="AudioStream" uid="uid://bkuxuac75jgbk" path="res://music/revel_east/Apothecary (2).mp3" id="30_pnedy"]
-[ext_resource type="AudioStream" uid="uid://63btgk1bndci" path="res://music/revel_east/The Shaman's Trance.mp3" id="31_2owva"]
-[ext_resource type="AudioStream" uid="uid://casme8cm6evjr" path="res://music/revel_east/The Shaman's Trance (1).mp3" id="32_253op"]
-[ext_resource type="AudioStream" uid="uid://nq0lk18uh8o8" path="res://music/revel_east/Apothecary (3).mp3" id="33_rtr7s"]
-[ext_resource type="AudioStream" uid="uid://r5lwh25b2048" path="res://music/revel_east/Apothecary (6).mp3" id="34_f44tk"]
-[ext_resource type="AudioStream" uid="uid://dnv58sc2w20m" path="res://music/revel_east/Apothecary (7).mp3" id="35_uuf65"]
-[ext_resource type="AudioStream" uid="uid://oiiwu1au2324" path="res://music/revel_east/Apothecary (8).mp3" id="36_wx8dc"]
-[ext_resource type="AudioStream" uid="uid://dj3mjc0b2k7ry" path="res://music/revel_east/Apothecary (9).mp3" id="37_fwhqy"]
-[ext_resource type="AudioStream" uid="uid://c2wq1mcsvvieh" path="res://music/revel_east/Apothecary.mp3" id="38_yxbas"]
-[ext_resource type="AudioStream" uid="uid://bc8x3eiou1nix" path="res://music/revel_east/streets2.mp3" id="39_rb5um"]
-[ext_resource type="AudioStream" uid="uid://bmt3ar6gowv53" path="res://music/revel_east/streets.mp3" id="40_71kvb"]
 [ext_resource type="Script" uid="uid://dotxenhm1atxm" path="res://scenes/elements/door.gd" id="41_wcxp6"]
-[ext_resource type="AudioStream" uid="uid://cqgq5vtwp8031" path="res://sounds/door.mp3" id="42_32bt8"]
 [ext_resource type="PackedScene" uid="uid://dfb184eowm7q1" path="res://scenes/elements/door.tscn" id="43_h0iv2"]
 [ext_resource type="PackedScene" uid="uid://gty6ne6exn21" path="res://scenes/elements/npc.tscn" id="44_2r1j0"]
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_doagi"]
 cull_mode = 2
 polygon = PackedVector2Array(-419.285, -279.523, -204.126, -677.661, -98.3848, -756.736, 48.7324, -770.529, 254.697, -435.836, 422.044, -260.215, 399.191, 44.6855, 68.042, 281.362, -120.452, 175.622, -331.777, 45.8613, -382.506, 14.7119, -427.561, -39.5381, -382.506, -256.536)
-
-[sub_resource type="AudioStreamPlaylist" id="AudioStreamPlaylist_608pq"]
-resource_local_to_scene = true
-shuffle = true
-stream_count = 12
-stream_0 = ExtResource("29_0bv5p")
-stream_1 = ExtResource("30_pnedy")
-stream_2 = ExtResource("33_rtr7s")
-stream_3 = ExtResource("34_f44tk")
-stream_4 = ExtResource("35_uuf65")
-stream_5 = ExtResource("36_wx8dc")
-stream_6 = ExtResource("37_fwhqy")
-stream_7 = ExtResource("38_yxbas")
-stream_8 = ExtResource("39_rb5um")
-stream_9 = ExtResource("40_71kvb")
-stream_10 = ExtResource("31_2owva")
-stream_11 = ExtResource("32_253op")
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_q26ta"]
 resource_local_to_scene = true
@@ -290,19 +260,15 @@ y_sort_enabled = true
 position = Vector2(14393, 14357)
 floor_constant_speed = true
 
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-stream = SubResource("AudioStreamPlaylist_608pq")
-volume_db = -10.065
-autoplay = true
-
 [node name="Doors" type="Node2D" parent="."]
 
 [node name="door_forge" type="Area2D" parent="Doors"]
 z_index = 1
 position = Vector2(14740, 14483)
 script = ExtResource("41_wcxp6")
-destination_level_tag = "forge"
-destination_door_tag = "main"
+spawn_id = &"forge"
+destination_scene_id = &"forge"
+destination_spawn_id = &"main"
 spawn_direction = "north"
 
 [node name="Spawn" type="Marker2D" parent="Doors/door_forge"]
@@ -314,14 +280,11 @@ rotation = 0.534071
 shape = SubResource("RectangleShape2D_q26ta")
 debug_color = Color(0.25817, 0.552912, 0.832533, 0.42)
 
-[node name="OpenSound" type="AudioStreamPlayer" parent="Doors/door_forge"]
-stream = ExtResource("42_32bt8")
-
 [node name="door_south1" parent="Doors" instance=ExtResource("43_h0iv2")]
+spawn_id = &"south_1"
+transition_enabled = false
 position = Vector2(4306, 15184)
 rotation = 0.481711
-destination_level_tag = "reval_south"
-destination_door_tag = "east"
 spawn_direction = "south"
 
 [node name="CollisionShape2D" parent="Doors/door_south1" index="1"]
@@ -329,9 +292,10 @@ position = Vector2(-2014.2, 7077.57)
 shape = SubResource("RectangleShape2D_mot3s")
 
 [node name="door_center1" parent="Doors" instance=ExtResource("43_h0iv2")]
+spawn_id = &"center_1"
+destination_scene_id = &"reval_center"
+destination_spawn_id = &"east_1"
 position = Vector2(14627, -3121)
-destination_level_tag = "reval_center"
-destination_door_tag = "east1"
 spawn_direction = "north"
 
 [node name="Spawn" parent="Doors/door_center1" index="0"]
@@ -343,9 +307,10 @@ rotation = 2.23751
 shape = SubResource("RectangleShape2D_cje2n")
 
 [node name="door_center2" parent="Doors" instance=ExtResource("43_h0iv2")]
+spawn_id = &"center_2"
+destination_scene_id = &"reval_center"
+destination_spawn_id = &"east_2"
 position = Vector2(12335, -1800)
-destination_level_tag = "reval_center"
-destination_door_tag = "east2"
 spawn_direction = "west"
 
 [node name="Spawn" parent="Doors/door_center2" index="0"]
@@ -357,9 +322,10 @@ rotation = 0.368264
 shape = SubResource("RectangleShape2D_hfmco")
 
 [node name="door_center3" parent="Doors" instance=ExtResource("43_h0iv2")]
+spawn_id = &"center_3"
+destination_scene_id = &"reval_center"
+destination_spawn_id = &"east_1"
 position = Vector2(-3758, 3779)
-destination_level_tag = "reval_center"
-destination_door_tag = "east1"
 spawn_direction = "north"
 
 [node name="Spawn" parent="Doors/door_center3" index="0"]
@@ -371,9 +337,10 @@ rotation = 0.893609
 shape = SubResource("RectangleShape2D_yq6vu")
 
 [node name="door_center4" parent="Doors" instance=ExtResource("43_h0iv2")]
+spawn_id = &"center_4"
+destination_scene_id = &"reval_center"
+destination_spawn_id = &"east_4"
 position = Vector2(5583, 11163)
-destination_level_tag = "reval_center"
-destination_door_tag = "east4"
 spawn_direction = "west"
 
 [node name="Spawn" parent="Doors/door_center4" index="0"]
@@ -383,9 +350,10 @@ position = Vector2(645, 259)
 shape = SubResource("RectangleShape2D_lycv7")
 
 [node name="door_center5" parent="Doors" instance=ExtResource("43_h0iv2")]
+spawn_id = &"center_5"
+destination_scene_id = &"reval_center"
+destination_spawn_id = &"east_5"
 position = Vector2(2274, 12627)
-destination_level_tag = "reval_center"
-destination_door_tag = "east5"
 spawn_direction = "north"
 
 [node name="Spawn" parent="Doors/door_center5" index="0"]
@@ -395,9 +363,10 @@ position = Vector2(155, 616)
 shape = SubResource("RectangleShape2D_uygjw")
 
 [node name="door_north1" parent="Doors" instance=ExtResource("43_h0iv2")]
+spawn_id = &"north_1"
+destination_scene_id = &"reval_north"
+destination_spawn_id = &"east_1"
 position = Vector2(17632, 2804)
-destination_level_tag = "reval_north"
-destination_door_tag = "east1"
 spawn_direction = "north"
 
 [node name="Spawn" parent="Doors/door_north1" index="0"]
@@ -407,9 +376,10 @@ position = Vector2(-560, 435)
 shape = SubResource("RectangleShape2D_dhebk")
 
 [node name="door_north2" parent="Doors" instance=ExtResource("43_h0iv2")]
+spawn_id = &"north_2"
+destination_scene_id = &"reval_north"
+destination_spawn_id = &"east_1"
 position = Vector2(20043, 3031)
-destination_level_tag = "reval_north"
-destination_door_tag = "east1"
 spawn_direction = "north"
 
 [node name="Spawn" parent="Doors/door_north2" index="0"]

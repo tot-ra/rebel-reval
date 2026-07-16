@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** NPC roster entry outside the seven-character vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../../README.md) - Main cast; approved character briefs in [`docs/CHARACTERS/`](../../../docs/CHARACTERS/).
+
 ## Old Elga
 
 A cheerful, rosy-cheeked woman in her late sixties, the proprietor of the cheesemonger's shop.

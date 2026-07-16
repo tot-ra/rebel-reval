@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # Jaani Hospital (Leprosorium)
 
 The Jaani Hospital (St. John's Hospital) in Tallinn has its origins dating back to the beginning of the 13th century, making it one of the oldest healthcare-related structures in Estonia's capital.

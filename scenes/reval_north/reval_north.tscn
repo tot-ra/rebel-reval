@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=4 uid="uid://cfkooe2yxmjff"]
+[gd_scene load_steps=12 format=4 uid="uid://cfkooe2yxmjff"]
 
 [ext_resource type="Script" uid="uid://bl7l57o36owyx" path="res://scenes/reval_east/reval_east.gd" id="1_rfrup"]
 [ext_resource type="Texture2D" uid="uid://b0vr2i1ngbmd8" path="res://scenes/revel-map.jpg" id="3_00mf5"]
@@ -7,37 +7,8 @@
 [ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="6_2rfsk"]
 [ext_resource type="PackedScene" uid="uid://cmvai76lvtff3" path="res://scenes/elements/building.tscn" id="7_jhhii"]
 [ext_resource type="Texture2D" uid="uid://hcujpod8hprk" path="res://assets/buildings/north/oleviste.png" id="8_2ot80"]
-[ext_resource type="AudioStream" uid="uid://6ai78whounwj" path="res://music/revel_east/Apothecary (1).mp3" id="9_mwllr"]
-[ext_resource type="AudioStream" uid="uid://bkuxuac75jgbk" path="res://music/revel_east/Apothecary (2).mp3" id="10_uq7w8"]
-[ext_resource type="AudioStream" uid="uid://63btgk1bndci" path="res://music/revel_east/The Shaman's Trance.mp3" id="11_5ucdo"]
-[ext_resource type="AudioStream" uid="uid://casme8cm6evjr" path="res://music/revel_east/The Shaman's Trance (1).mp3" id="12_go14e"]
-[ext_resource type="AudioStream" uid="uid://nq0lk18uh8o8" path="res://music/revel_east/Apothecary (3).mp3" id="13_3jrjy"]
-[ext_resource type="AudioStream" uid="uid://r5lwh25b2048" path="res://music/revel_east/Apothecary (6).mp3" id="14_u3rve"]
-[ext_resource type="AudioStream" uid="uid://dnv58sc2w20m" path="res://music/revel_east/Apothecary (7).mp3" id="15_asdpv"]
-[ext_resource type="AudioStream" uid="uid://oiiwu1au2324" path="res://music/revel_east/Apothecary (8).mp3" id="16_0vryf"]
-[ext_resource type="AudioStream" uid="uid://dj3mjc0b2k7ry" path="res://music/revel_east/Apothecary (9).mp3" id="17_pkmu1"]
-[ext_resource type="AudioStream" uid="uid://c2wq1mcsvvieh" path="res://music/revel_east/Apothecary.mp3" id="18_fqx1x"]
-[ext_resource type="AudioStream" uid="uid://bc8x3eiou1nix" path="res://music/revel_east/streets2.mp3" id="19_x1fdh"]
-[ext_resource type="AudioStream" uid="uid://bmt3ar6gowv53" path="res://music/revel_east/streets.mp3" id="20_s1e7r"]
 [ext_resource type="PackedScene" uid="uid://dfb184eowm7q1" path="res://scenes/elements/door.tscn" id="21_ov46t"]
 [ext_resource type="PackedScene" uid="uid://gty6ne6exn21" path="res://scenes/elements/npc.tscn" id="22_s6t22"]
-
-[sub_resource type="AudioStreamPlaylist" id="AudioStreamPlaylist_608pq"]
-resource_local_to_scene = true
-shuffle = true
-stream_count = 12
-stream_0 = ExtResource("9_mwllr")
-stream_1 = ExtResource("10_uq7w8")
-stream_2 = ExtResource("13_3jrjy")
-stream_3 = ExtResource("14_u3rve")
-stream_4 = ExtResource("15_asdpv")
-stream_5 = ExtResource("16_0vryf")
-stream_6 = ExtResource("17_pkmu1")
-stream_7 = ExtResource("18_fqx1x")
-stream_8 = ExtResource("19_x1fdh")
-stream_9 = ExtResource("20_s1e7r")
-stream_10 = ExtResource("11_5ucdo")
-stream_11 = ExtResource("12_go14e")
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rfrup"]
 resource_local_to_scene = true
@@ -100,33 +71,32 @@ visible = false
 [node name="StaticBody2D" parent="Buildings/oleviste" index="1"]
 visible = false
 
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-stream = SubResource("AudioStreamPlaylist_608pq")
-volume_db = -10.065
-autoplay = true
-
 [node name="Doors" type="Node2D" parent="."]
 
 [node name="door_center1" parent="Doors" instance=ExtResource("21_ov46t")]
+spawn_id = &"center_1"
+transition_enabled = false
 position = Vector2(9026, -6230)
-destination_level_tag = "reval_center"
-destination_door_tag = "center1"
 spawn_direction = "north"
 
 [node name="door_center2" parent="Doors" instance=ExtResource("21_ov46t")]
+spawn_id = &"center_2"
+destination_scene_id = &"reval_east"
+destination_spawn_id = &"center_3"
 position = Vector2(-12422, -8740)
-destination_level_tag = "revel_east"
-destination_door_tag = "center3"
 spawn_direction = "north"
 
 [node name="door_center3" parent="Doors" instance=ExtResource("21_ov46t")]
+spawn_id = &"center_3"
+transition_enabled = false
 position = Vector2(42, -8192)
 
 [node name="door_east1" parent="Doors" instance=ExtResource("21_ov46t")]
+spawn_id = &"east_1"
+destination_scene_id = &"reval_east"
+destination_spawn_id = &"north_1"
 position = Vector2(19893, 3841)
 rotation = 0.481711
-destination_level_tag = "reval_east"
-destination_door_tag = "north1"
 spawn_direction = "south"
 
 [node name="Spawn" parent="Doors/door_east1" index="0"]
@@ -136,9 +106,10 @@ position = Vector2(-44.6183, -538.621)
 shape = SubResource("RectangleShape2D_rfrup")
 
 [node name="door_east2" parent="Doors" instance=ExtResource("21_ov46t")]
+spawn_id = &"east_2"
+destination_scene_id = &"reval_east"
+destination_spawn_id = &"north_2"
 position = Vector2(17453, 2871)
-destination_level_tag = "reval_east"
-destination_door_tag = "north2"
 spawn_direction = "south"
 
 [node name="Spawn" parent="Doors/door_east2" index="0"]

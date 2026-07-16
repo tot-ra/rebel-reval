@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # Viru Gate
 
 Viru Gate in Tallinn was constructed in the 14th century as part of the medieval city's defensive fortifications. The gate consists of two round towers that were built to defend the approaches to a drawbridge that spanned the moat in front of the city's ramparts.

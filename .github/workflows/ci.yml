@@ -1,0 +1,221 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+# .godot-version pins the supported 4.7 family. CI uses the P0-017 baseline
+# patch release so exports use matching editor and template binaries.
+env:
+  GODOT_VERSION_FAMILY: "4.7"
+  GODOT_CI_VERSION: "4.7.1"
+
+jobs:
+  validate-and-smoke:
+    name: Validate, import, and startup smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Check Godot version pins
+        run: |
+          set -euo pipefail
+          test "$(cat .godot-version)" = "$GODOT_VERSION_FAMILY"
+          grep -F 'config/features=PackedStringArray("4.7", "GL Compatibility")' project.godot
+
+      - name: Set up Godot
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: ${{ env.GODOT_CI_VERSION }}
+          use-dotnet: false
+          include-templates: true
+
+      - name: Verify tools
+        run: |
+          set -euo pipefail
+          godot --version
+          python3 --version
+
+      - name: Create Godot smoke helper
+        run: |
+          cat > "$RUNNER_TEMP/run_godot_smoke.sh" <<'BASH'
+          #!/usr/bin/env bash
+          set -euo pipefail
+
+          name="$1"
+          shift
+          log="$RUNNER_TEMP/${name}.log"
+
+          set +e
+          "$@" 2>&1 | tee "$log"
+          status=${PIPESTATUS[0]}
+          set -e
+
+          if [[ "$status" -ne 0 ]]; then
+            echo "Command failed with status $status: $*" >&2
+            exit "$status"
+          fi
+
+          # DEF-002 allows shutdown leak messages. These patterns are startup,
+          # parser, or missing-resource failures that should fail CI.
+          if grep -Eiq 'SCRIPT ERROR|Parse Error|Resource file not found|Failed loading resource|Can.t open file' "$log"; then
+            echo "Godot smoke log contains parser or missing-resource errors: $log" >&2
+            exit 1
+          fi
+          BASH
+          chmod +x "$RUNNER_TEMP/run_godot_smoke.sh"
+
+      - name: Clean headless import
+        run: $RUNNER_TEMP/run_godot_smoke.sh clean-import godot --headless --editor --quit
+
+      - name: Main scene startup smoke
+        run: $RUNNER_TEMP/run_godot_smoke.sh main-scene godot --headless --quit-after 5
+
+      - name: Playable room parser/startup smoke
+        run: $RUNNER_TEMP/run_godot_smoke.sh playable-room godot --headless --quit-after 5 scenes/reval_east/reval_east.tscn
+
+      - name: Godot headless tests
+        run: godot --headless --script tools/run_godot_tests.gd
+
+      - name: Seeded Godot test failure fails
+        run: |
+          set -euo pipefail
+          seeded_test="tests/godot/test_seeded_failure.gd"
+          cleanup_seeded_test() {
+            rm -f "$seeded_test"
+          }
+          trap cleanup_seeded_test EXIT
+
+          cat > "$seeded_test" <<'GDSCRIPT'
+          extends "res://tests/godot/test_case.gd"
+
+          func test_seeded_failure() -> void:
+              fail("Seeded CI failure must make the harness exit nonzero")
+          GDSCRIPT
+
+          if godot --headless --script tools/run_godot_tests.gd; then
+            echo "Seeded Godot test failure unexpectedly passed" >&2
+            exit 1
+          fi
+
+          cleanup_seeded_test
+          trap - EXIT
+
+      - name: Active Markdown links and validation
+        run: python3 tools/generate_active_docs_report.py --check
+
+      - name: Active Markdown seeded fixtures
+        run: |
+          set -euo pipefail
+          python3 tools/generate_active_docs_report.py --fixture clean
+          if python3 tools/generate_active_docs_report.py --fixture invalid; then
+            echo "Invalid active-doc fixture unexpectedly passed" >&2
+            exit 1
+          fi
+
+      - name: Asset source manifest coverage
+        run: python3 tools/validate_asset_sources.py
+
+      - name: Seeded manifest coverage error fails
+        run: |
+          set -euo pipefail
+          backup="$RUNNER_TEMP/SOURCES.csv.backup"
+          cp assets/SOURCES.csv "$backup"
+          restore_manifest() {
+            cp "$backup" assets/SOURCES.csv
+          }
+          trap restore_manifest EXIT
+
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("assets/SOURCES.csv")
+          lines = path.read_text(encoding="utf-8").splitlines()
+          if len(lines) < 3:
+              raise SystemExit("assets/SOURCES.csv fixture needs at least two data rows")
+          path.write_text("\n".join([lines[0], *lines[2:]]) + "\n", encoding="utf-8")
+          PY
+
+          if python3 tools/validate_asset_sources.py; then
+            echo "Seeded manifest coverage error unexpectedly passed" >&2
+            exit 1
+          fi
+
+          restore_manifest
+          trap - EXIT
+
+      - name: Seeded parser error fails
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/seeded_parser_error.gd" <<'GDSCRIPT'
+          extends SceneTree
+
+          func _initialize() -> void:
+              this is not valid gdscript
+          GDSCRIPT
+
+          set +e
+          godot --headless --script "$RUNNER_TEMP/seeded_parser_error.gd" > "$RUNNER_TEMP/seeded_parser_error.log" 2>&1
+          status=$?
+          set -e
+
+          # Godot can return 0 for --script parser diagnostics, so CI must
+          # assert on the log patterns used by the startup smoke helper.
+          if ! grep -Eiq 'SCRIPT ERROR|Parse Error' "$RUNNER_TEMP/seeded_parser_error.log"; then
+            cat "$RUNNER_TEMP/seeded_parser_error.log"
+            echo "Seeded parser error did not produce the expected parser diagnostics" >&2
+            exit 1
+          fi
+          echo "Seeded parser diagnostics detected; Godot exit status was $status."
+
+  desktop-export-smoke:
+    name: macOS desktop export smoke
+    runs-on: macos-latest
+    needs: validate-and-smoke
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Check Godot version pins
+        run: |
+          set -euo pipefail
+          test "$(cat .godot-version)" = "$GODOT_VERSION_FAMILY"
+          grep -F 'config/features=PackedStringArray("4.7", "GL Compatibility")' project.godot
+
+      - name: Set up Godot with export templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: ${{ env.GODOT_CI_VERSION }}
+          use-dotnet: false
+          include-templates: true
+
+      - name: Verify Godot
+        run: godot --version
+
+      - name: Clean headless import
+        run: godot --headless --editor --quit
+
+      - name: Export rr macOS preset
+        run: |
+          set -euo pipefail
+          mkdir -p build
+          godot --headless --export-release "rr" ./build/rr.dmg
+          test -s ./build/rr.dmg
+
+      - name: Upload export smoke artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rr-macos-export-smoke
+          path: build/rr.dmg
+          retention-days: 3

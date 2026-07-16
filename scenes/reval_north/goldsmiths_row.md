@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # Goldsmiths' Row
 
 A narrow, exclusive street, lined with the workshops of the city's most skilled goldsmiths. The windows of the shops are filled with exquisite jewelry, and the air is filled with the faint, metallic scent of precious metals.

@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # Sewer System
 
 The available historical records do not provide specific details about sewer systems in 14th century Tallinn. However, the broader context of medieval urban sanitation reveals important insights about waste management during this period.

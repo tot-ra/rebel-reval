@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # Knights' Quarters and Barracks
 
 There is no evidence of dedicated knights' quarters or barracks in 14th-century Tallinn. Instead, the city's defense was organized around its extensive system of walls and towers. Knights and soldiers were likely stationed within these defensive towers, with commanders assigned to specific sections of the wall.

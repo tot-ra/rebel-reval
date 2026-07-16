@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** NPC roster entry outside the seven-character vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../../README.md) - Main cast; approved character briefs in [`docs/CHARACTERS/`](../../../docs/CHARACTERS/).
+
 ## Friedrich
 
 A master saddler in his late fifties, a man who is as tough and stubborn as the leather he works with.

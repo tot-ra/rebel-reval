@@ -6,11 +6,11 @@ Operational guide for AI agents and contributors working on **Reval Rebel**. Pro
 
 | Path | Role | Notes |
 |------|------|-------|
-| `project.godot` | Godot project entry | Godot **4.4**, GL Compatibility renderer, main scene `res://scenes/menu/main_menu.tscn` |
+| `project.godot` | Godot project entry | Godot **4.7**, GL Compatibility renderer, main scene `res://scenes/menu/main_menu.tscn` |
 | `export_presets.cfg` | Desktop export metadata | One macOS preset named `rr` targeting `./rr.dmg` |
 | `scripts/` | Runtime GDScript | Player, NPC, doors, level base; autoload `DoorNavigator` in `scripts/global/` |
 | `scenes/` | Godot scenes and location design notes | 37 `.tscn` files; large markdown index under district folders |
-| `assets/` | Sprites, tiles, UI, props | Prototype art; no `SOURCES.csv` yet |
+| `assets/` | Sprites, tiles, UI, props | Prototype art plus `SOURCES.csv` provenance manifest |
 | `characters/` | Character portraits and design prose | Mostly reference and archive material |
 | `music/` | MP3 soundtrack library | Far larger than the vertical-slice budget |
 | `sounds/` | Short SFX | Door and footstep samples |
@@ -25,7 +25,6 @@ These paths are named in [`README.md`](./README.md) but do not exist in the repo
 
 - `docs/CANON.md`, `docs/ART_BIBLE.md`, `docs/WRITING_GUIDE.md`, `docs/ARCHITECTURE.md`, `docs/DECISIONS/` - see **P0-008**, **P0-040**, **P0-003** through **P0-005**
 - `content/` - validated JSON for dialogue, quests, characters, items - see **P1-003**
-- `assets/SOURCES.csv` - asset provenance manifest - see **P0-028**
 
 ### Current runtime surface (evidence-based)
 
@@ -51,7 +50,7 @@ These paths are named in [`README.md`](./README.md) but do not exist in the repo
 | Requirement | Status |
 |-------------|--------|
 | Git | Required to clone the repository |
-| Godot 4.x editor matching project features | Pinned to **4.4** in [`.godot-version`](./.godot-version) and `project.godot` `config/features` |
+| Godot 4.x editor matching project features | Pinned to **4.7** in [`.godot-version`](./.godot-version) and `project.godot` `config/features` |
 | Pinned install instructions and CI alignment | [`docs/SETUP.md`](./docs/SETUP.md) (version pin and editor install; headless commands remain **P0-016**) |
 
 ### Clone
@@ -63,9 +62,9 @@ cd rebel-reval
 
 ### Install Godot
 
-Pinned version: **4.4** ([`.godot-version`](./.godot-version), confirmed by `project.godot` `config/features`).
+Pinned version: **4.7** ([`.godot-version`](./.godot-version), confirmed by `project.godot` `config/features`).
 
-Follow [`docs/SETUP.md`](./docs/SETUP.md) for platform install steps, version verification, and opening `project.godot` in the editor. No CI workflow overrides this pin yet.
+Follow [`docs/SETUP.md`](./docs/SETUP.md) for platform install steps, version verification, and opening `project.godot` in the editor. CI does not override this pin; [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) checks `.godot-version` and `project.godot` before installing Godot 4.7.1 for automation.
 
 ## Import
 
@@ -73,8 +72,8 @@ Godot generates import metadata for binary assets. The repository tracks `*.impo
 
 | Action | Command or procedure | Status |
 |--------|----------------------|--------|
-| Import via editor | Open `project.godot` in Godot 4.4; the editor imports resources on load | Supported (manual) |
-| Headless import on clean clone | Documented copy-paste shell command | **Not yet available** - dependency **P0-016**, baseline **P0-017** |
+| Import via editor | Open `project.godot` in Godot 4.7; the editor imports resources on load | Supported (manual) |
+| Headless import on clean clone | Documented copy-paste shell command | **Supported** - see [`docs/SETUP.md`](./docs/SETUP.md) and [`docs/reports/startup_baseline.md`](./docs/reports/startup_baseline.md) |
 | Import cache policy | Documented `.godot/` regeneration rules | **Not yet available** - dependency **P0-023** |
 | Large binary sources | Follow [`docs/ASSET_STORAGE_POLICY.md`](./docs/ASSET_STORAGE_POLICY.md) | **Supported** - **P0-025** |
 
@@ -83,8 +82,8 @@ Godot generates import metadata for binary assets. The repository tracks `*.impo
 | Action | Command or procedure | Status |
 |--------|----------------------|--------|
 | Run from editor | Open project in Godot, press **F5** or use **Project -> Run** | Supported (manual); starts `scenes/menu/main_menu.tscn` |
-| Headless parser or startup check | Documented shell command that reaches a playable room without errors | **Not yet available** - dependency **P0-016**, baseline **P0-017** |
-| Known-defect reproduction list | `docs/` or report with repro steps | **Not yet available** - dependency **P0-019** |
+| Headless parser or startup check | Documented shell command that reaches a playable room without errors | **Supported** with workaround - `--check-only` hangs (`DEF-001`); use playable-room smoke in [`docs/SETUP.md`](./docs/SETUP.md) |
+| Known-defect reproduction list | `docs/` or report with repro steps | **Supported** - [`docs/reports/known_runtime_defects.md`](./docs/reports/known_runtime_defects.md) (P0-019; critical/high defects with repro steps) |
 
 Expected manual path today: main menu -> game flow into city or forge scenes using existing `DoorNavigator` transitions. Do not assume dialogue, combat, or save systems work.
 
@@ -92,23 +91,25 @@ Expected manual path today: main menu -> game flow into city or forge scenes usi
 
 | Action | Status | TODO dependency |
 |--------|--------|-----------------|
-| Unit or integration test command | **Not yet available** | **P1-002** (harness), **P1-001** (CI) |
-| Scene transition automated test | **Not yet available** | **P0-022**, **P1-002** |
+| Unit or integration test command | `godot --headless --script tools/run_godot_tests.gd` discovers `tests/godot/test_*.gd`, reports failures, and exits 0/1 | **P1-002** (minimal harness) |
+| Scene transition automated test | **Supported at API level** - `tests/godot/test_transition_manifest.gd`; full scene transition tests remain future work | **P0-022**, **P1-002** |
 | Combat or input state-machine tests | **Not yet available** | **P1-023**, **P1-024** |
 | Save round-trip tests | **Not yet available** | **P1-007**, **P1-008** |
 
-No Godot test scenes, GUT configuration, or shell test runner exists in the repository today.
+Decision: P1-002 uses a small repository-owned headless GDScript harness instead of adding GUT or another addon. This keeps CI dependency-free while the project only needs discoverable unit/integration tests for early runtime foundations. Add new test scripts under `tests/godot/` with filenames `test_*.gd` and zero-argument methods named `test_*`. Shared assertions live in `tests/godot/test_case.gd`.
 
 ## Validation
 
 | Action | Status | TODO dependency |
 |--------|--------|-----------------|
-| JSON schema validation for `content/` | **Not yet available** | **P1-003** |
-| Python content validator (references, IDs, assets) | **Not yet available** | **P1-004** |
+| JSON schema validation for `content/` | `python3 tools/validate_content_examples.py` | **P1-003** |
+| Python content validator (schemas, references, reachability, IDs, conditions, assets) | `python3 tools/validate_content.py content/examples/valid content/examples/support`; tests: `python3 -m unittest tests.python.test_validate_content -v` | **P1-004** |
 | Active Markdown link and canon consistency report | `python3 tools/generate_active_docs_report.py --check` | **P0-031** |
+| Speculative scene and NPC markdown archive headers | `python3 tools/archive_speculative_docs.py --dry-run` (no output when complete) | **P0-032** |
+| Asset provenance manifest schema and coverage | `python3 tools/validate_asset_sources.py` | **P0-028** |
 | Asset lint (dimensions, pivots, manifest rows) | **Not yet available** | **P1-029** |
 
-Do not add runtime JSON under `content/` until schemas and validators from **P1-003** and **P1-004** exist.
+Content schemas and the Python validator are now available. Add runtime JSON under `content/` only when it passes `tools/validate_content.py` as part of a complete corpus.
 
 ## Export
 
@@ -123,11 +124,11 @@ Do not add runtime JSON under `content/` until schemas and validators from **P1-
 
 | Action | Status | TODO dependency |
 |--------|--------|-----------------|
-| Documented headless export command | **Not yet available** | **P0-016** |
-| CI export smoke test | **Not yet available** | **P1-001**, **P3-012** |
+| Documented headless export command | `mkdir -p build && godot --headless --export-release "rr" ./build/rr.dmg` | **P0-016** |
+| CI export smoke test | `.github/workflows/ci.yml` macOS `desktop-export-smoke` job checks `build/rr.dmg` exists and is non-empty | **P1-001** |
 | Codesigning / notarization procedure | Not configured in preset | Out of scope until export baseline lands |
 
-Do not assume `godot --export-release` works in CI until **P1-001** adds the pipeline. See `docs/SETUP.md` for the exact local invocation.
+P1-001 adds CI coverage for export smoke only. Full install, start, save, load, exit support remains **P3-012**.
 
 ## Scope constraints
 
@@ -216,4 +217,3 @@ A production task is complete only when all of the following hold:
 - A **second reviewer** (human or agent) confirms correctness, simplicity, and scope
 
 If verification commands are still marked **not yet available** above, the task may still close when its `verify` clause does not depend on those commands, or when it explicitly delivers the command or doc that unblocks them (for example **P0-016**).
-le **P0-016**).

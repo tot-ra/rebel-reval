@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # St. Michael's Cistercian Nunnery (Mihkli klooster)
 
 The construction date of St. Michael's Cistercian Nunnery in Tallinn cannot be pinpointed to a single year, but archaeological evidence and historical records provide important insights into its medieval origins and development.

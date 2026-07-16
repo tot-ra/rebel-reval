@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** NPC roster entry outside the seven-character vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../../README.md) - Main cast; approved character briefs in [`docs/CHARACTERS/`](../../../docs/CHARACTERS/).
+
 ## Bjorn
 
 The guild master of the Coopers' Guild, a man of great influence and ambition.

@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # Sailmakers' Workshop
 
 A large, open workshop, with a floor of polished wood and a high, vaulted ceiling. Bolts of canvas are stacked against the walls, and the air is filled with the clean, sharp scent of waxed linen.

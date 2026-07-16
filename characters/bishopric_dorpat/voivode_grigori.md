@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** NPC roster entry outside the seven-character vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Main cast; approved character briefs in [`docs/CHARACTERS/`](../../docs/CHARACTERS/).
+
 # Voivode Grigori of Pskov
 
 A cunning and ambitious military commander from the neighboring Principality of Pskov. He sees the chaos of the uprising as a golden opportunity to seize the wealthy city of Dorpat and its surrounding lands. He is not just a brute; he is a capable strategist who may even attempt to forge temporary alliances with Estonian rebel leaders to achieve his goals.

@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # Danish King's Garden (Taani kuninga aed)
 
 A historic garden on the slopes of Toompea Hill, where legend says the Danish flag (Dannebrog) fell from the sky in 1219 during the battle of Lyndanisse. The garden is a place of quiet contemplation and historical significance.

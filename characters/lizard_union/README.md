@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** NPC roster entry outside the seven-character vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Main cast; approved character briefs in [`docs/CHARACTERS/`](../../docs/CHARACTERS/).
+
 ## The Lizard Union 🦎
 - **Core Value:** Ambition
 - **Ideal:** To forge a new Livonian order, free from the rigid doctrines of the great powers, where cunning and merit determine strength.

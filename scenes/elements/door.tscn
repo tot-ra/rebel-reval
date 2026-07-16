@@ -1,7 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://dfb184eowm7q1"]
+[gd_scene load_steps=3 format=3 uid="uid://dfb184eowm7q1"]
 
 [ext_resource type="Script" uid="uid://dotxenhm1atxm" path="res://scenes/elements/door.gd" id="1_hpvv5"]
-[ext_resource type="AudioStream" uid="uid://cqgq5vtwp8031" path="res://sounds/door.mp3" id="2_e708x"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_2xcpy"]
 resource_local_to_scene = true
@@ -16,8 +15,5 @@ script = ExtResource("1_hpvv5")
 position = Vector2(2.5, 3.5)
 shape = SubResource("RectangleShape2D_2xcpy")
 debug_color = Color(0.25817, 0.552912, 0.832533, 0.42)
-
-[node name="OpenSound" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("2_e708x")
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]

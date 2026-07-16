@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # Painters' Guild
 
 A quiet, well-lit guildhall, filled with the scent of linseed oil and turpentine. Canvases in various stages of completion are propped up on easels, and the walls are adorned with the works of the guild's masters.

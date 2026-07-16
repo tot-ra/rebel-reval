@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # The Bastion Passages
 
 Beneath the cobblestone streets of Reval lies a hidden world of tunnels and passages, known collectively as the Undercity. The most significant of these are the Bastion Passages, a network of defensive tunnels that have become a refuge for the city's outcasts and a breeding ground for its darkest legends.

@@ -1,22 +1,21 @@
 # TODO
-- [ ] P2-006: Playable The Maker's Mark Tutorial
+Planning notes (not checklist entries): playable tutorial work is tracked by P2-006; comparison-room measurements are tracked by P0-038.
 
 Format: `- [ ] ID | deps: ID,ID or none | deliverable: concrete artifact or behavior | verify: objective completion check`
 
 ## Immediate parallel starts
 
-Coordination note (2026-07-16): recomputed from the authoritative checklist. These unchecked tasks have satisfied dependencies and can start now. Prefer separate sessions only when their likely file ownership does not overlap.
+Coordination note (2026-07-16): recomputed from the authoritative checklist after completing P1-005. Only unchecked tasks whose listed dependencies are marked `[x]` appear below.
 
-- P0-021 - separate health and stamina behavior. Likely touches player resource and movement/action scripts; sequence with any other player-state work.
-- P0-030 - keep active runtime folders limited to slice candidates and required shared assets. Likely touches asset/docs inventory and active import paths; avoid parallel asset moves.
-- P0-034 - migration matrix for current TileSets, maps, collisions, animations, HUD, and assets. Mostly documentation/reporting, but coordinate with P0-030 asset classification.
-- P0-035 - comparison-room isometric/eight-direction and orthogonal/four-direction variants. Likely touches comparison scenes and movement test content; avoid overlap with player-state changes.
-- P1-004 - Python content validator for schemas, references, reachability, duplicate IDs, unsupported conditions, and missing assets. Likely touches `tools/`, schemas, content examples, and CI.
-- P1-006 - typed versioned `GameState` model. Likely touches runtime state scripts and tests; independent from content validator if interfaces stay stable.
-- P2-001 - final prologue branch map and state table before prose. Documentation/content design task; avoid editing shared content schemas.
-- P2-002 - final `A Bitter Brew` branch map and state table before prose. Documentation/content design task; can run beside P2-001 if using separate docs.
+- P0-034 - migration matrix for current TileSets, maps, collisions, animations, HUD, and assets. Documentation/reporting work; coordinate with the asset and scene inventories and avoid concurrent edits to shared reports.
+- P0-036 - pixel, digital-woodcut, and clean-painted visual targets using the same composition. Visual comparison work; keep framing and gameplay scale identical across targets.
+- P1-007 - atomic one-slot manual save and phase-boundary autosave with one backup. Own the save subsystem and related fixtures; avoid overlap with other GameState serialization work.
+- P1-009 - debug state inspector with deterministic reset and branch/phase jump. Own debug UI/tooling; coordinate its GameState-facing API with P1-007.
+- P1-010 - allowlisted declarative condition and effect evaluator. Newly unblocked by P1-005; likely touches content/state integration and should avoid concurrent edits to ContentDB or GameState.
+- P1-018 - reusable `Interactable` with stable ID, prompt, focus highlight, and callback. Scene/component work; avoid editing shared input or player-state files unless required.
+- P1-023 - coherent player movement and action state machine with input buffering. Own player controller and input tests; avoid parallel player-script edits.
 
-Coordination caveat: P0-030 and P0-034 both depend on inventory interpretation and may overlap in reports. P0-021, P0-035, and P1-006 can all touch player/state behavior, so sequence or merge them if implementation files overlap.
+Coordination caveat: P1-007, P1-009, and P1-010 all integrate with GameState, so use separate files with stable APIs or sequence them. P1-018 and P1-023 can overlap in player input/controller files and should be sequenced if their implementations require the same files.
 
 ## P0 - Product, canon, and reproducible baseline
 
@@ -51,7 +50,6 @@ Coordination caveat: P0-030 and P0-034 both depend on inventory interpretation a
 - [x] P0-029 | deps: P0-028 | deliverable: quarantine for assets with unknown origin or commercial rights | verify: Godot does not import quarantined assets
 - [x] P0-030 | deps: P0-018,P0-027 | deliverable: active runtime folders containing only slice candidates and required shared assets | verify: inventory reports no archived or unclassified asset in the active import path
 - [x] P0-031 | deps: P0-029,P0-030 | deliverable: restore menu, forge, and town music with repository-owned procedural prototype themes and centralized scene hooks | verify: `godot --headless --script tools/test_music_director.gd` synthesizes every routed looping theme and active scenes load without quarantined audio references
-- [x] P0-034 | deps: P0-018,P0-033 | deliverable: migration matrix for current TileSets, maps, collisions, animations, HUD, and assets | verify: every slice-relevant current artifact is marked `retain`, `convert`, or `archive`
 - [x] P0-032 | deps: P0-006,P0-031 | deliverable: archived speculative locations and NPC documents outside approved scope | verify: active documentation contains no unresolved link to archived speculative content
 - [x] P0-033 | deps: P0-017,P0-026 | deliverable: one comparison-room greybox with movement, collision, Y-sort, doorway, foreground fade, six NPC bodies, dialogue interaction, and combat exchange | verify: all listed behaviors run in one scene
 - [ ] P0-034 | deps: P0-018,P0-033 | deliverable: migration matrix for current TileSets, maps, collisions, animations, HUD, and assets | verify: every slice-relevant current artifact is marked `retain`, `convert`, or `archive`
@@ -69,7 +67,7 @@ Coordination caveat: P0-030 and P0-034 both depend on inventory interpretation a
 - [x] P1-002 | deps: P1-001 | deliverable: one documented Godot test framework or minimal headless harness | verify: `godot --headless --script tools/run_godot_tests.gd` discovers tests, reports failures, returns nonzero for a seeded failing test, and returns zero on the clean suite
 - [x] P1-003 | deps: P0-008,P0-013 | deliverable: JSON schemas and examples for characters, dialogue, barks, quests, items, commissions, and locations | verify: valid examples pass and seeded invalid examples fail schema validation
 - [x] P1-004 | deps: P1-003 | deliverable: Python content validator for schemas, references, reachability, duplicate IDs, unsupported conditions, and missing assets | verify: validator tests cover every failure class and CI invokes it
-- [ ] P1-005 | deps: P1-003,P1-004 | deliverable: typed read-only `ContentDB` loading validated slice JSON | verify: lookup tests return known records and reject missing or malformed IDs
+- [x] P1-005 | deps: P1-003,P1-004 | deliverable: typed read-only `ContentDB` loading validated slice JSON | verify: lookup tests return known records and reject missing or malformed IDs
 - [x] P1-006 | deps: P1-002 | deliverable: typed versioned `GameState` model | verify: tests cover default state, facts, relationships, pressures, phase, player state, and forged records
 - [ ] P1-007 | deps: P1-006 | deliverable: atomic one-slot manual save and phase-boundary autosave with one backup | verify: round-trip tests preserve all state and interrupted writes retain a loadable backup
 - [ ] P1-008 | deps: P1-007 | deliverable: save validation and migration harness | verify: tests cover truncated data, wrong types, unknown versions, and every released fixture

@@ -59,7 +59,7 @@ Time advances through explicit story phases after major actions. It is not a con
 
 ### Engine
 
-The default engine is **Godot 4.4 with typed GDScript**. The pinned editor version is recorded in [`.godot-version`](./.godot-version) and [`docs/SETUP.md`](./docs/SETUP.md).
+The default engine is **Godot 4.7 with typed GDScript**. The pinned editor version is recorded in [`.godot-version`](./.godot-version) and [`docs/SETUP.md`](./docs/SETUP.md).
 
 Godot is retained because the repository already contains Godot scenes, navigation, imports, and scripts; it is suitable for compact 2D production; and its text-based resources support review by coding agents. Unity, Unreal, RPG Maker, and a custom web engine do not solve the project's primary problem, which is scope and production coherence.
 

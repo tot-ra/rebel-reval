@@ -37,7 +37,7 @@ The Godot render artifact for this coverage is `scenes/tests/font_glyph_render_t
 - License: SIL Open Font License 1.1, copied in `assets/fonts/NotoSans-OFL-1.1.txt`
 - Commercial use: permitted by SIL OFL 1.1, including bundling and embedding with the game, as long as the font is not sold by itself and derivative font naming follows OFL rules.
 
-When `assets/SOURCES.csv` is introduced by P0-028, add a row for `assets/fonts/NotoSans-Regular.ttf` with this source URL, pinned revision, license, and approval status.
+`assets/SOURCES.csv` includes a row for `assets/fonts/NotoSans-Regular.ttf` with this source URL, pinned revision, license, and approval status.
 
 ## Implementation guidance
 

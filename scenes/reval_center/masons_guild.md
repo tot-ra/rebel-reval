@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # Masons' Guild
 
 A sturdy, practical building, constructed from the very stone that is the lifeblood of the guild. The air is thick with the dust of the quarry, and the sound of hammers and chisels is a constant, rhythmic beat.

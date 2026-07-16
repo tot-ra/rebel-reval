@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # Horse Mill (Hobuveski)
 
 The Tallinn Horse Mill (Tallinna hobuveski) is a 14th-century circular limestone building located in Tallinn's Old Town at Laia street 47. The oldest records of the mill date back to 1379.

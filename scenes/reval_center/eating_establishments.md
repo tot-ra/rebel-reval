@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # Eating Establishments, Taverns, and Inns
 
 In the 14th century, Tallinn's eating establishments would have reflected the city's growing importance as a Hanseatic trading center, though specific historical records about individual establishments from this period are limited. However, we can understand the types of dining venues that would have existed based on medieval hospitality practices of the time.

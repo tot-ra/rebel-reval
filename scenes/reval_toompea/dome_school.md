@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # Dome School (Toompea Kool)
 
 The Dome School in Tallinn was established in the 13th century at the cathedral. This makes it the oldest secondary school in Tallinn that continues to operate today.

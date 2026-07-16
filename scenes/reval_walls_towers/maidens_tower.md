@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # Maiden's Tower (Neitsitorn)
 
 The Maiden's Tower in Tallinn was constructed between 1370-1373 during the late 14th century. Originally known as Meghede torne, the tower was erected as part of the defensive wall system built in the Danish King's Garden.

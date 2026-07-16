@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # St. Olaf's Church (Oleviste kirik)
 
 St. Olaf's Church in Tallinn, Estonia has a complex construction history that spans several centuries, making its exact "construction date" somewhat nuanced to pin down precisely.

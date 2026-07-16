@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # Painters' & Sculptors' Guild
 
 A vibrant, chaotic space, filled with the scent of clay, paint, and turpentine. Canvases and sculptures in various stages of completion are scattered throughout the guildhall, and the walls are adorned with the works of the guild's masters.

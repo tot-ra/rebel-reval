@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # Town Council's Apothecary (Raeapteek)
 
 The Raeapteek is one of the oldest continuously running pharmacies in Europe, located in Tallinn's Old Town. It has been operating in the same building since at least 1422.

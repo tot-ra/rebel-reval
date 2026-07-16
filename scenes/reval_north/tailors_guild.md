@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # Tailors' Guild (The Golden Fleece)
 
 A fashionable, elegant guildhall, filled with the scent of expensive fabrics and the soft rustle of silk. The walls are lined with mirrors, and the rooms are filled with the latest creations of the guild's masters.

@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** NPC roster entry outside the seven-character vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Main cast; approved character briefs in [`docs/CHARACTERS/`](../../docs/CHARACTERS/).
+
 # Prince-Bishop Johann I von Vifhusen
 
 A stern and pragmatic ruler, more of a general than a priest, forced to navigate the treacherous politics of the Livonian frontier. He is deeply concerned with the defense of his territory against Pskov and sees the St. George's Night Uprising not as a righteous struggle for freedom, but as a foolish rebellion that dangerously weakens Christendom's eastern shield.

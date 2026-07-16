@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # Rataskaev (The Wheel Well)
 
 A historic well located at the intersection of Rataskaevu and Dunkri streets in Tallinn's Old Town. First mentioned on April 30, 1375, its name comes from the wheel mechanism used to draw water.

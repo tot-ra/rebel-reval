@@ -1,3 +1,7 @@
+> **Legacy status:** `archive`  
+> **Reason:** Speculative location design outside the approved vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+
 # Shoemakers' Guild (St. Crispin's Hall)
 
 A large, bustling guildhall, filled with the smell of leather and wax. The sound of hammers and awls is a constant, cheerful rhythm.

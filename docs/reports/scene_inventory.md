@@ -1,0 +1,117 @@
+# Scene inventory (P0-018)
+
+Recorded: 2026-07-16
+
+## Summary
+
+| Classification | Count | Role |
+|----------------|------:|------|
+| `working` | 7 | Active runtime scenes with verified or complete behavior |
+| `partial` | 6 | Substantial content but incomplete integration or dev-only use |
+| `placeholder` | 5 | Reserved stubs or reference-only visuals, not playable |
+| `archive` | 20 | Out of vertical-slice scope; legacy open-world or event shells |
+| **Total** | **38** | Matches repository `.tscn` count |
+
+Repository count command:
+
+```bash
+find . -name '*.tscn' -not -path './.git/*' | wc -l
+# Expected: 38
+```
+
+Inventory row count (data rows in the table below): **38**.
+
+## Classification criteria
+
+| Class | Definition | Signals used in this inventory |
+|-------|------------|----------------------------------|
+| `working` | Scene is on the active runtime path or is a complete reusable component used by playable districts. Loads without missing resources in baseline checks where applicable. | Listed in `run/main_scene`, reachable via `DoorNavigator` or default Start flow, or instanced with complete scripts/collision. P0-017 headless smoke passed for `main_menu` and `reval_east`. |
+| `partial` | Scene has meaningful authored content but is not fully integrated, uses legacy HUD/systems, or serves development verification only. | Tile maps and player present but slice mechanics missing; empty collision on used component; legacy NATURAL element HUD still attached; not in default menu flow. |
+| `placeholder` | Named scene file reserved for future work. Minimal node tree and no gameplay systems. | Root `Node2D` only, or a single reference sprite/screenshot without player, doors, navigation, or scripts. |
+| `archive` | Outside first-campaign / vertical-slice scope per `README.md`. Not referenced by `DoorNavigator` or Start flow. Kept as legacy open-world, campaign event, or superseded wrapper. | Empty event/world/toompea shells; superseded root wrapper not used as `run/main_scene`. |
+
+## Scope notes
+
+- `DoorNavigator` registers `reval_south`, but no `scenes/reval_south/reval_south.tscn` exists in the repository (see `DEF-003` in [`known_runtime_defects.md`](./known_runtime_defects.md)). That missing scene is **not** part of this inventory.
+- Sub-scenes under `scenes/reval_center/market_civic_quarter/` are placeholders and are **not** instanced by `reval_center.tscn` today.
+- World and event folders align with README exclusions (open world, army battles, playable maps outside the approved slice district).
+
+## Inventory
+
+| # | Scene path | Class | Notes |
+|---|------------|-------|-------|
+| 1 | `game.tscn` | archive | Legacy editor wrapper instancing `main_menu`; not `run/main_scene`. |
+| 2 | `player.tscn` | working | Full player rig, animations, and HUD instance; instanced by all district scenes. |
+| 3 | `scenes/elements/building.tscn` | working | Reusable building sprite with collision and light occluder. |
+| 4 | `scenes/elements/door.tscn` | working | Door transitions via `door.gd` and `DoorNavigator`. |
+| 5 | `scenes/elements/FadeArea.tscn` | partial | Instanced in forge; `CollisionPolygon2D` has no polygon yet. |
+| 6 | `scenes/elements/npc.tscn` | working | NPC prefab with navigation script and portrait variants. |
+| 7 | `scenes/elements/turret.tscn` | working | Wall/turret prop with collision and occluder; used in districts. |
+| 8 | `scenes/elements/UI.tscn` | partial | Legacy character HUD (element icons) still parented to player; systems out of slice scope. |
+| 9 | `scenes/events/paldiski.tscn` | archive | Empty `Node2D`; campaign location outside slice. |
+| 10 | `scenes/events/pernau.tscn` | archive | Empty `Node2D`; campaign location outside slice. |
+| 11 | `scenes/events/pskov_arrival_battle.tscn` | archive | Empty `Node2D`; battle event outside slice. |
+| 12 | `scenes/events/rebel_kings.tscn` | archive | Empty `Node2D`; campaign event outside slice. |
+| 13 | `scenes/events/saaremaa.tscn` | archive | Empty `Node2D`; campaign location outside slice. |
+| 14 | `scenes/events/swedesh_outpost.tscn` | archive | Empty `Node2D`; campaign location outside slice. |
+| 15 | `scenes/events/swedish_arrival.tscn` | archive | Empty `Node2D`; fleet arrival event outside slice. |
+| 16 | `scenes/harbor/harbor.tscn` | placeholder | Single screenshot sprite; no player, doors, or navigation. |
+| 17 | `scenes/intro/intro.tscn` | placeholder | Empty `Node2D`; intro video lives in `main_menu.tscn`. |
+| 18 | `scenes/map/map.tscn` | placeholder | Static map image only; no interaction or travel logic. |
+| 19 | `scenes/menu/main_menu.tscn` | working | `run/main_scene`; Start/Exit UI, video, audio; P0-017 smoke pass. |
+| 20 | `scenes/reval_center/market_civic_quarter/market.tscn` | placeholder | Empty `Node2D`; design stub, not instanced by parent district. |
+| 21 | `scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn` | placeholder | Empty `Node2D`; design stub, not instanced by parent district. |
+| 22 | `scenes/reval_center/reval_center.tscn` | partial | District with tile map, player, doors, NPCs; `DoorNavigator` target; less content than east. |
+| 23 | `scenes/reval_east/forge/forge.tscn` | partial | Slice hub with tile layers, NPCs, audio; forging gameplay not implemented; `DoorNavigator` target. |
+| 24 | `scenes/reval_east/reval_east.tscn` | working | Default Start destination; tile map, navigation, doors, NPCs; P0-017 playable-room smoke pass. |
+| 25 | `scenes/reval_north/reval_north.tscn` | partial | District with tile map, player, doors, NPCs; `DoorNavigator` target; smaller than east. |
+| 26 | `scenes/reval_toompea/domberg.tscn` | archive | Empty `Node2D`; Toompea district outside slice. |
+| 27 | `scenes/reval_toompea/maria_toomkirik.tscn` | archive | Empty `Node2D`; cathedral shell outside slice. |
+| 28 | `scenes/tests/font_glyph_render_test.tscn` | partial | Dev-only font glyph verification; not player-facing. |
+| 29 | `scenes/world/haapsalu_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 30 | `scenes/world/harju_village.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 31 | `scenes/world/karja_fortress.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 32 | `scenes/world/maasilinna_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 33 | `scenes/world/padise/padise_monastery1.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 34 | `scenes/world/padise/padise_monastery2.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 35 | `scenes/world/paide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 36 | `scenes/world/poide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 37 | `scenes/world/sacred_grove.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 38 | `scenes/world/viljandi_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+
+## Totals by folder
+
+| Folder | working | partial | placeholder | archive | Total |
+|--------|--------:|--------:|------------:|--------:|------:|
+| Repository root | 1 | 0 | 0 | 1 | 2 |
+| `scenes/elements/` | 4 | 2 | 0 | 0 | 6 |
+| `scenes/events/` | 0 | 0 | 0 | 7 | 7 |
+| `scenes/harbor/` | 0 | 0 | 1 | 0 | 1 |
+| `scenes/intro/` | 0 | 0 | 1 | 0 | 1 |
+| `scenes/map/` | 0 | 0 | 1 | 0 | 1 |
+| `scenes/menu/` | 1 | 0 | 0 | 0 | 1 |
+| `scenes/reval_center/` | 0 | 1 | 2 | 0 | 3 |
+| `scenes/reval_east/` | 1 | 1 | 0 | 0 | 2 |
+| `scenes/reval_north/` | 0 | 1 | 0 | 0 | 1 |
+| `scenes/reval_toompea/` | 0 | 0 | 0 | 2 | 2 |
+| `scenes/tests/` | 0 | 1 | 0 | 0 | 1 |
+| `scenes/world/` | 0 | 0 | 0 | 10 | 10 |
+| **All** | **7** | **6** | **5** | **20** | **38** |
+
+## Verification
+
+```bash
+# Repository scene count
+find . -name '*.tscn' -not -path './.git/*' | wc -l
+
+# Inventory data rows (excludes header/separator lines)
+grep -E '^\| [0-9]+ \|' docs/reports/scene_inventory.md | wc -l
+```
+
+Both commands should print `38` on a clean checkout at this revision.
+
+## Related tasks
+
+- **P0-030** - prune active runtime folders using this inventory.
+- **P0-034** - migration matrix for slice-relevant artifacts.
+- **P0-022** - fix door tags and stable scene IDs (`DEF-003`, `DEF-004` in [`known_runtime_defects.md`](./known_runtime_defects.md)).

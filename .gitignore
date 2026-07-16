@@ -1,4 +1,9 @@
 # Godot 4+ specific ignores
 .godot/
+# Legacy Godot import cache; Reval Rebel tracks *.import sidecars, not cache folders.
+.import/
 /android/
 .DS_Store
+# Documentation manifest generated/imported by Godot as a translation CSV; keep only the source CSV.
+/assets/SOURCES.csv.import
+/assets/SOURCES.*.translation
