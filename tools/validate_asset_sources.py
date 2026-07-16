@@ -63,6 +63,13 @@ def active_runtime_paths() -> set[str]:
     return active
 
 
+def _asset_file_exists(asset_path: str) -> bool:
+    return any(
+        (ROOT / mirror / asset_path).is_file()
+        for mirror in ("", "quarantine", "archive")
+    )
+
+
 def validate() -> list[str]:
     rows = read_sources()
     errors: list[str] = []
@@ -90,7 +97,7 @@ def validate() -> list[str]:
             )
         else:
             seen_paths[asset_path] = line_number
-        if asset_path and not (ROOT / asset_path).is_file() and not (ROOT / "quarantine" / asset_path).is_file():
+        if asset_path and not _asset_file_exists(asset_path):
             errors.append(f"line {line_number}: path does not exist: {asset_path}")
 
     source_paths = set(seen_paths)

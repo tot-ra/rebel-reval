@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://brs7hd00kpkxf"
+path="res://.godot/imported/Echoes of Old Town.mp3-8b1ec15172e79ee6b6a1dbb7226de445.mp3str"
+
+[deps]
+
+source_file="res://music/revel_south/Echoes of Old Town.mp3"
+dest_files=["res://.godot/imported/Echoes of Old Town.mp3-8b1ec15172e79ee6b6a1dbb7226de445.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

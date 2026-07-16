@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://hra4qf7ggs18"
+path="res://.godot/imported/Olaf's Jig.mp3-e574ef9ae0b762dc6c7403401acd0fce.mp3str"
+
+[deps]
+
+source_file="res://music/harbor/Olaf's Jig.mp3"
+dest_files=["res://.godot/imported/Olaf's Jig.mp3-e574ef9ae0b762dc6c7403401acd0fce.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

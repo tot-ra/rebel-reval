@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cr781i0irj7ax"
+path="res://.godot/imported/cathedral_of_saint_mary_1 (5).mp3-2547ba88682965a5d7cf610674597e68.mp3str"
+
+[deps]
+
+source_file="res://music/cathedral_of_saint_mary/day/cathedral_of_saint_mary_1 (5).mp3"
+dest_files=["res://.godot/imported/cathedral_of_saint_mary_1 (5).mp3-2547ba88682965a5d7cf610674597e68.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

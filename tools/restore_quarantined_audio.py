@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Restore maintainer-attested music and sounds from quarantine to active paths."""
+"""Restore maintainer-attested music and sounds from quarantine or archive to active paths."""
 
 from __future__ import annotations
 
@@ -10,8 +10,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 QUARANTINE = ROOT / "quarantine"
+ARCHIVE = ROOT / "archive"
 SOURCES = ROOT / "assets" / "SOURCES.csv"
 RESTORE_ROOTS = ("music", "sounds")
+RESTORE_MIRRORS = (QUARANTINE, ARCHIVE)
 
 APPROVAL = "approved - maintainer AI generation"
 CREATOR = "project maintainer"
@@ -27,20 +29,21 @@ EDITS = (
 
 def restore_files() -> list[str]:
     restored: list[str] = []
-    for root_name in RESTORE_ROOTS:
-        source_root = QUARANTINE / root_name
-        if not source_root.exists():
-            continue
-        for path in sorted(source_root.rglob("*")):
-            if not path.is_file():
+    for mirror_root in RESTORE_MIRRORS:
+        for root_name in RESTORE_ROOTS:
+            source_root = mirror_root / root_name
+            if not source_root.exists():
                 continue
-            relative = path.relative_to(QUARANTINE)
-            target = ROOT / relative
-            target.parent.mkdir(parents=True, exist_ok=True)
-            if target.exists():
-                raise FileExistsError(f"refusing to overwrite active file: {relative.as_posix()}")
-            shutil.move(path.as_posix(), target.as_posix())
-            restored.append(relative.as_posix())
+            for path in sorted(source_root.rglob("*")):
+                if not path.is_file():
+                    continue
+                relative = path.relative_to(mirror_root)
+                target = ROOT / relative
+                if target.exists():
+                    continue
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(path.as_posix(), target.as_posix())
+                restored.append(relative.as_posix())
     return restored
 
 
