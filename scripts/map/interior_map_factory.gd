@@ -53,7 +53,7 @@ static func add_perimeter_walls(
 	)
 
 	_add_wall_segment(definition, &"wall_north", _north_wall_rect(outer, thickness), wall_height, wall_color, doorway_gap, true)
-	_add_wall_segment(definition, &"wall_south", _south_wall_rect(outer, thickness), wall_height, wall_color, doorway_gap, false)
+	_add_wall_segment(definition, &"wall_south", _south_wall_rect(outer, thickness), wall_height, wall_color, doorway_gap, true)
 	_add_wall_segment(definition, &"wall_west", _west_wall_rect(outer, thickness), wall_height, wall_color)
 	_add_wall_segment(definition, &"wall_east", _east_wall_rect(outer, thickness), wall_height, wall_color)
 

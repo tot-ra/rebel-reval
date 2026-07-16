@@ -5,7 +5,7 @@
 
 ## Status
 
-Accepted
+Superseded by [ADR 0007](0007-ai-generated-isometric-presentation.md) (2026-07-16). The clean-painted flat-color implementation produced an unacceptable top-down placeholder look; the comparison evidence below remains valid history.
 
 ## Context
 

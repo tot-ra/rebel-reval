@@ -1,0 +1,324 @@
+{
+  "version": 1,
+  "capture": {
+    "directory": "docs/reports/images/map_audit",
+    "viewport_px": [
+      1600,
+      900
+    ],
+    "world_scale": 0.5,
+    "panel_world_px": [
+      1024,
+      576
+    ],
+    "legend": true
+  },
+  "maps": [
+    {
+      "id": "smithy_courtyard",
+      "location_name": "Smithy Courtyard",
+      "scene": "scenes/map_prototype/smithy_courtyard.tscn",
+      "definition": "scripts/map/smithy_courtyard_definition.gd",
+      "factory": "SmithyCourtyardDefinition.create",
+      "disposition": "retain",
+      "capture": "smithy_courtyard.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "kalev_smithy",
+      "location_name": "Kalev's Smithy",
+      "scene": "scenes/reval_east/forge/forge.tscn",
+      "definition": "scripts/map/definitions/lower_town/kalev_smithy_definition.gd",
+      "factory": "KalevSmithyDefinition.create",
+      "disposition": "convert",
+      "capture": "kalev_smithy.png",
+      "mandatory_anchors": [
+        "anvil",
+        "ledger",
+        "bed_alcove"
+      ],
+      "mandatory_transitions": [
+        "door_courtyard"
+      ]
+    },
+    {
+      "id": "lower_town_slice",
+      "location_name": "Lower Town Slice",
+      "scene": "scenes/reval_east/reval_east.tscn",
+      "definition": "scripts/map/definitions/lower_town/lower_town_slice_definition.gd",
+      "factory": "LowerTownSliceDefinition.create",
+      "disposition": "convert",
+      "capture": "lower_town_slice.png",
+      "mandatory_anchors": [
+        "street_start",
+        "smithy_door",
+        "brewery_door",
+        "checkpoint_west",
+        "checkpoint_east"
+      ],
+      "mandatory_transitions": [
+        "smithy_door_transition",
+        "street_start_spawn"
+      ]
+    },
+    {
+      "id": "market_civic_quarter",
+      "location_name": "Market Civic Quarter",
+      "scene": "scenes/reval_center/reval_center.tscn",
+      "definition": "scripts/map/definitions/prototypes/market_civic_quarter_definition.gd",
+      "factory": "MarketCivicQuarterDefinition.create",
+      "disposition": "convert",
+      "capture": "market_civic_quarter.png",
+      "mandatory_anchors": [
+        "inspection_spawn",
+        "town_hall_edge"
+      ],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "market_square",
+      "location_name": "Market Square",
+      "scene": "scenes/reval_center/market_civic_quarter/market.tscn",
+      "definition": "scripts/map/definitions/prototypes/market_square_definition.gd",
+      "factory": "MarketSquareDefinition.create",
+      "disposition": "convert",
+      "capture": "market_square.png",
+      "mandatory_anchors": [
+        "inspection_spawn",
+        "weigh_table"
+      ],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "st_olafs_guild_hall",
+      "location_name": "St. Olaf's Guild Hall",
+      "scene": "scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn",
+      "definition": "scripts/map/definitions/prototypes/st_olafs_guild_hall_definition.gd",
+      "factory": "StOlafsGuildHallDefinition.create",
+      "disposition": "convert",
+      "capture": "st_olafs_guild_hall.png",
+      "mandatory_anchors": [
+        "inspection_spawn",
+        "dais"
+      ],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "north_quarter",
+      "location_name": "North Quarter",
+      "scene": "scenes/reval_north/reval_north.tscn",
+      "definition": "scripts/map/definitions/prototypes/north_quarter_definition.gd",
+      "factory": "NorthQuarterDefinition.create",
+      "disposition": "convert",
+      "capture": "north_quarter.png",
+      "mandatory_anchors": [
+        "inspection_spawn",
+        "pikk_street_spine",
+        "guild_frontage"
+      ],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "harbor_warehouse",
+      "location_name": "Harbor Warehouse",
+      "scene": "scenes/harbor/warehouse.tscn",
+      "definition": "scripts/map/definitions/prototypes/harbor_warehouse_definition.gd",
+      "factory": "HarborWarehouseDefinition.create",
+      "disposition": "convert",
+      "capture": "harbor_warehouse.png",
+      "mandatory_anchors": [
+        "inspection_spawn",
+        "loading_bay"
+      ],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "prototype.reval_harbor_surroundings",
+      "location_name": "Reval Harbor Surroundings",
+      "scene": "scenes/harbor/harbor.tscn",
+      "definition": "scripts/map/definitions/outdoor/coast_harbor_definitions.gd",
+      "factory": "CoastHarborDefinitions.reval_harbor",
+      "disposition": "archive-prototype",
+      "capture": "reval_harbor_surroundings.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "prototype.paldiski_coastal_outpost",
+      "location_name": "Paldiski Coastal Outpost",
+      "scene": "scenes/events/paldiski.tscn",
+      "definition": "scripts/map/definitions/outdoor/coast_harbor_definitions.gd",
+      "factory": "CoastHarborDefinitions.paldiski_outpost",
+      "disposition": "archive-prototype",
+      "capture": "paldiski_coastal_outpost.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "prototype.harju_village",
+      "location_name": "Harju Village",
+      "scene": "scenes/world/harju_village.tscn",
+      "definition": "scripts/map/definitions/outdoor/village_monastery_definitions.gd",
+      "factory": "VillageMonasteryDefinitions.harju_village",
+      "disposition": "archive-prototype",
+      "capture": "harju_village.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "prototype.padise_monastery",
+      "location_name": "Padise Monastery",
+      "scene": "scenes/world/padise/padise_monastery1.tscn",
+      "definition": "scripts/map/definitions/outdoor/village_monastery_definitions.gd",
+      "factory": "VillageMonasteryDefinitions.padise_monastery",
+      "disposition": "archive-prototype",
+      "capture": "padise_monastery.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "prototype.haapsalu_castle",
+      "location_name": "Haapsalu Castle",
+      "scene": "scenes/world/haapsalu_castle.tscn",
+      "definition": "scripts/map/definitions/outdoor/castle_definitions.gd",
+      "factory": "CastleDefinitions.all",
+      "disposition": "archive-prototype",
+      "capture": "haapsalu_castle.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "prototype.paide_castle",
+      "location_name": "Paide Castle",
+      "scene": "scenes/world/paide_castle.tscn",
+      "definition": "scripts/map/definitions/outdoor/castle_definitions.gd",
+      "factory": "CastleDefinitions.all",
+      "disposition": "archive-prototype",
+      "capture": "paide_castle.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "prototype.viljandi_castle",
+      "location_name": "Viljandi Castle",
+      "scene": "scenes/world/viljandi_castle.tscn",
+      "definition": "scripts/map/definitions/outdoor/castle_definitions.gd",
+      "factory": "CastleDefinitions.all",
+      "disposition": "archive-prototype",
+      "capture": "viljandi_castle.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "prototype.poide_castle",
+      "location_name": "Poide Castle",
+      "scene": "scenes/world/poide_castle.tscn",
+      "definition": "scripts/map/definitions/outdoor/castle_definitions.gd",
+      "factory": "CastleDefinitions.all",
+      "disposition": "archive-prototype",
+      "capture": "poide_castle.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "prototype.maasilinna_castle",
+      "location_name": "Maasilinna Castle",
+      "scene": "scenes/world/maasilinna_castle.tscn",
+      "definition": "scripts/map/definitions/outdoor/castle_definitions.gd",
+      "factory": "CastleDefinitions.all",
+      "disposition": "archive-prototype",
+      "capture": "maasilinna_castle.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "prototype.karja_fortress",
+      "location_name": "Karja Fortress",
+      "scene": "scenes/world/karja_fortress.tscn",
+      "definition": "scripts/map/definitions/outdoor/castle_definitions.gd",
+      "factory": "CastleDefinitions.karja_fortress",
+      "disposition": "archive-prototype",
+      "capture": "karja_fortress.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "prototype.sacred_grove",
+      "location_name": "Sacred Grove",
+      "scene": "scenes/world/sacred_grove.tscn",
+      "definition": "scripts/map/definitions/outdoor/wilderness_event_definitions.gd",
+      "factory": "WildernessEventDefinitions.sacred_grove",
+      "disposition": "archive-prototype",
+      "capture": "sacred_grove.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "prototype.pernau",
+      "location_name": "Pärnu",
+      "scene": "scenes/events/pernau.tscn",
+      "definition": "scripts/map/definitions/outdoor/wilderness_event_definitions.gd",
+      "factory": "WildernessEventDefinitions.all",
+      "disposition": "archive-prototype",
+      "capture": "pernau.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "prototype.pskov_arrival_battle",
+      "location_name": "Pskov Arrival",
+      "scene": "scenes/events/pskov_arrival_battle.tscn",
+      "definition": "scripts/map/definitions/outdoor/wilderness_event_definitions.gd",
+      "factory": "WildernessEventDefinitions.all",
+      "disposition": "archive-prototype",
+      "capture": "pskov_arrival_battle.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "prototype.rebel_kings_camp",
+      "location_name": "Rebel Kings Camp",
+      "scene": "scenes/events/rebel_kings.tscn",
+      "definition": "scripts/map/definitions/outdoor/wilderness_event_definitions.gd",
+      "factory": "WildernessEventDefinitions.all",
+      "disposition": "archive-prototype",
+      "capture": "rebel_kings_camp.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "prototype.saaremaa",
+      "location_name": "Saaremaa",
+      "scene": "scenes/events/saaremaa.tscn",
+      "definition": "scripts/map/definitions/outdoor/wilderness_event_definitions.gd",
+      "factory": "WildernessEventDefinitions.all",
+      "disposition": "archive-prototype",
+      "capture": "saaremaa.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "prototype.swedish_outpost",
+      "location_name": "Swedish Outpost",
+      "scene": "scenes/events/swedesh_outpost.tscn",
+      "definition": "scripts/map/definitions/outdoor/wilderness_event_definitions.gd",
+      "factory": "WildernessEventDefinitions.all",
+      "disposition": "archive-prototype",
+      "capture": "swedish_outpost.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": []
+    },
+    {
+      "id": "prototype.swedish_arrival",
+      "location_name": "Swedish Arrival",
+      "scene": "scenes/events/swedish_arrival.tscn",
+      "definition": "scripts/map/definitions/outdoor/wilderness_event_definitions.gd",
+      "factory": "WildernessEventDefinitions.all",
+      "disposition": "archive-prototype",
+      "capture": "swedish_arrival.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": []
+    }
+  ]
+}

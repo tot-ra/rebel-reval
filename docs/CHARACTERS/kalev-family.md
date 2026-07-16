@@ -3,7 +3,7 @@
 **Status:** active canon  
 **Task:** P0-012  
 **Confidence label:** `invented` unless otherwise noted  
-**Sources:** [`README.md`](../../README.md) Main cast and Scope boundaries; [`docs/CANON.md`](../CANON.md)
+**Sources:** [`README.md`](../../README.md) Characters and Scope; [`docs/CANON.md`](../CANON.md)
 
 This document resolves Kalev's immediate family and household for the first campaign. It supersedes any active-document ambiguity about Kalev's parents, siblings, partner, children, home, and relationship to Mart. Legacy or archived material may contain alternate relatives or later plotlines, but those are reference only unless reconciled here and in `docs/CANON.md`.
 

@@ -51,7 +51,7 @@ static func create() -> MapDefinition:
 
 	InteriorMapFactory.add_interaction_anchor(definition, &"anvil", Rect2i(16, 12, 4, 3))
 	InteriorMapFactory.add_interaction_anchor(definition, &"ledger", Rect2i(8, 12, 3, 2))
-	InteriorMapFactory.add_interaction_anchor(definition, &"bed_alcove", Rect2i(31, 15, 4, 3))
+	InteriorMapFactory.add_interaction_anchor(definition, &"bed_alcove", Rect2i(29, 16, 2, 2))
 
 	InteriorMapFactory.add_transition(
 		definition,

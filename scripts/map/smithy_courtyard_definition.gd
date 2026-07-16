@@ -19,6 +19,11 @@ static func create() -> MapDefinition:
 	definition.fingerprint = "smithy_courtyard_v1"
 	definition.camera_bounds = definition.cell_rect_to_world_rect(Rect2i(0, 0, 50, 28))
 
+	definition.source_references = [
+		"scenes/map_prototype/smithy_courtyard.tscn",
+		"docs/MAP_AUTHORING.md",
+	]
+
 	definition.zones = [
 		# Lower Town street band across the north edge.
 		{"terrain": MapTypes.TERRAIN_COBBLESTONE, "rect": Rect2i(6, 0, 38, 5)},

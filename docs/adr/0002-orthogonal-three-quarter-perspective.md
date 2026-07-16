@@ -5,6 +5,8 @@
 ## Status
 Accepted (pending comparison spike confirmation)
 
+Amended by [ADR 0007](0007-ai-generated-isometric-presentation.md) (2026-07-16): the orthogonal gameplay plane (rules 1 and 3) is reaffirmed, but presentation becomes true 2:1 dimetric isometric rendered from AI-generated assets, and the four-direction cap (rule 2) is lifted for prerendered characters.
+
 ## Context
 The project's current prototype and design documents rely on diamond-isometric TileSets and eight-direction frame-animation assumptions. While this provides a classic RPG look, it introduces significant complexity in asset production (requiring eight directions of animation for characters), Y-sorting, and collision handling on a skewed grid. To reduce the asset burden and simplify the technical implementation of movement and collisions, we are proposing a shift to a fixed-camera 2D three-quarter top-down perspective on an orthogonal gameplay plane. This must be validated through a comparison spike (tasks P0-033 and P0-035) to ensure it meets our visual and gameplay requirements before fully committing and discarding the isometric prototypes.
 

@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `20`
-- Markdown files excluded as archive/reference/out of active scope: `274`
-- Local/external links inspected: `52`
-- Links to active Markdown docs: `21`
-- Links to existing archive/reference/non-active local docs: `21`
+- Active Markdown files scanned: `30`
+- Markdown files excluded as archive/reference/out of active scope: `287`
+- Local/external links inspected: `81`
+- Links to active Markdown docs: `53`
+- Links to existing archive/reference/non-active local docs: `9`
 - External links skipped for reachability: `1`
 - Issues found: `0`
 
@@ -42,18 +42,28 @@ No active Markdown documentation issues found.
 - `docs/adr/0001-retain-godot-4-and-migration-triggers.md`
 - `docs/adr/0002-orthogonal-three-quarter-perspective.md`
 - `docs/adr/0003-authored-offline-dialogue-and-prohibit-runtime-llm.md`
+- `docs/adr/0004-clean-painted-visual-style-candidate.md`
+- `docs/adr/0005-inactive-outdoor-map-prototypes.md`
+- `docs/adr/0006-interior-compact-urban-conversion-scope.md`
+- `docs/ART_BIBLE.md`
 - `docs/ASSET_INVENTORY.md`
 - `docs/ASSET_STORAGE_POLICY.md`
 - `docs/CANON.md`
 - `docs/CHARACTERS/aita.md`
+- `docs/CHARACTERS/ellen.md`
 - `docs/CHARACTERS/henning.md`
 - `docs/CHARACTERS/jurgen.md`
 - `docs/CHARACTERS/kaja.md`
 - `docs/CHARACTERS/kalev-family.md`
 - `docs/CHARACTERS/kalev.md`
 - `docs/CHARACTERS/mart.md`
+- `docs/CHARACTERS/README.md`
 - `docs/FONTS.md`
 - `docs/HISTORICAL_AUDIT.md`
+- `docs/MAP_AUTHORING.md`
+- `docs/MAP_CONVERSION_PLAN.md`
+- `docs/SCENES/a-bitter-brew.md`
+- `docs/SCENES/the-makers-mark-branch-map.md`
 - `docs/SCENES/the-makers-mark.md`
 - `docs/SETUP.md`
 - `README.md`

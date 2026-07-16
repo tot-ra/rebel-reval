@@ -66,7 +66,10 @@ class VerifyMapConversionPlanTest(unittest.TestCase):
 
     def test_missing_strict_task_is_reported(self) -> None:
         original = TODO.read_text(encoding="utf-8")
-        task_line = next(line for line in original.splitlines() if line.startswith("- [ ] P2-020 |"))
+        task_line = next(
+            line for line in original.splitlines()
+            if line.startswith(("- [ ] P2-020 |", "- [x] P2-020 |"))
+        )
         errors = self._validate_with(todo=original.replace(task_line + "\n", "", 1))
         self.assertTrue(any("missing strict TODO task `P2-020`" in error.message for error in errors))
 

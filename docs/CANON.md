@@ -76,7 +76,7 @@ The playable narrative focuses on the days immediately preceding and during the 
   * *Notes:* Replaces placeholder "Jürgen von League". Amber merchant representing Hanseatic economic interests.
 * **Ellen Luik** (Midwife) - **`plausible composite`**
   * *Pronunciation:* EL-len LOO-ik
-  * *Notes:* Baptized midwife and keeper of old songs, bridging Christian practice and older traditions.
+  * *Notes:* Baptized midwife and keeper of old songs, bridging Christian practice and older traditions. See [Ellen Character Brief](./CHARACTERS/ellen.md).
 
 ### Historical Figures (Mentioned/Background)
 

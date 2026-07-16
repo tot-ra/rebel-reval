@@ -5,9 +5,10 @@ Format: `- [ ] ID | deps: ID,ID or none | deliverable: concrete artifact or beha
 
 ## Immediate parallel starts
 
-Coordination note (2026-07-16): recomputed after archiving completed map tasks P0-043 through P0-045. Only unchecked tasks whose listed dependencies are complete appear below.
+Coordination note (2026-07-16): recomputed after ADR 0007 replaced the clean-painted flat-color candidate with the AI-generated painted isometric presentation. Only unchecked tasks whose listed dependencies are complete appear below.
 
-- P0-037 - shared cutout rig using the provisional 64 px clean-painted candidate rules from `docs/ART_BIBLE.md`; P0-036 is complete, but do not treat the style as P0-040-approved.
+- P0-051 - style-lock generation kit for the AI-painted isometric direction (camera spec, palette carry-over, prompt block, reference set, acceptance rubric). No renderer or map edits.
+- P0-052 - isometric presentation layer over the existing definitions (logic-to-iso projection, iso terrain/building/prop renderers). Rendering only; no fingerprint, collision, nav, or activation change; may start against placeholder art before P0-051 assets land.
 - P0-046 - detached archive handling for harbor, static world-map, intro wrapper, and legacy comparison shells. Metadata and `.gdignore` only; do not alter Start behavior.
 - P0-047 - outdoor terrain vocabulary and inactive coast prototypes (`active=false`). Reuse map factories from P0-043; do not edit Start flow or active destinations.
 - P1-007 - atomic one-slot manual save and phase-boundary autosave with one backup. Own the save subsystem and related fixtures; avoid overlap with other GameState serialization work.

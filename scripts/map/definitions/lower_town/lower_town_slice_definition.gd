@@ -46,8 +46,8 @@ static func create() -> MapDefinition:
 	InteriorMapFactory.add_interaction_anchor(definition, &"street_start", Rect2i(8, 28, 2, 2))
 	InteriorMapFactory.add_interaction_anchor(definition, &"smithy_door", Rect2i(22, 18, 2, 2))
 	InteriorMapFactory.add_interaction_anchor(definition, &"brewery_door", Rect2i(44, 18, 2, 2))
-	InteriorMapFactory.add_interaction_anchor(definition, &"checkpoint_west", Rect2i(7, 24, 2, 2))
-	InteriorMapFactory.add_interaction_anchor(definition, &"checkpoint_east", Rect2i(56, 24, 2, 2))
+	InteriorMapFactory.add_interaction_anchor(definition, &"checkpoint_west", Rect2i(10, 24, 2, 2))
+	InteriorMapFactory.add_interaction_anchor(definition, &"checkpoint_east", Rect2i(52, 24, 2, 2))
 
 	InteriorMapFactory.add_transition(
 		definition,
@@ -69,9 +69,9 @@ static func create() -> MapDefinition:
 	definition.patrols = [
 		{
 			"points": [
-				definition.cell_rect_center(Rect2i(7, 24, 2, 2)),
+				definition.cell_rect_center(Rect2i(10, 24, 2, 2)),
 				definition.cell_rect_center(Rect2i(20, 26, 2, 2)),
-				definition.cell_rect_center(Rect2i(56, 24, 2, 2)),
+				definition.cell_rect_center(Rect2i(52, 24, 2, 2)),
 			]
 		}
 	]

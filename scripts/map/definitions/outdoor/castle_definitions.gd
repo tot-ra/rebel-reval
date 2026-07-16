@@ -46,7 +46,7 @@ static func karja_fortress() -> MapDefinition:
 			Factory.landmark(&"rebel_longhouse", &"timber_hall", Vector2i(19, 15)),
 			Factory.landmark(&"earthwork_ditch", &"ditch", Vector2i(8, 16)),
 		],
-		"route": [Vector2i(4, 25), Vector2i(12, 24), Vector2i(24, 24), Vector2i(30, 19), Vector2i(36, 12)],
+		"route": [Vector2i(4, 25), Vector2i(12, 28), Vector2i(24, 28), Vector2i(36, 28), Vector2i(44, 25)],
 	})
 
 
@@ -92,5 +92,5 @@ static func _castle(
 			Factory.landmark(&"central_keep", &"stone_keep", Vector2i(25, 17)),
 			Factory.landmark(&"special", special_landmark, Vector2i(13, 15)),
 		],
-		"route": [Vector2i(4, 26), Vector2i(15, 27), Vector2i(25, 27), Vector2i(25, 22), Vector2i(36, 22)],
+		"route": [Vector2i(4, 26), Vector2i(15, 27), Vector2i(25, 28), Vector2i(36, 27), Vector2i(45, 26)],
 	})

@@ -58,9 +58,31 @@ static func nearest_walkable_cell(definition: MapDefinition, grid: MapTerrainGri
 	return origin
 
 
+static func is_walkable_point(definition: MapDefinition, grid: MapTerrainGrid, point: Vector2) -> bool:
+	var cell := Vector2i(
+		int(floor(point.x / definition.cell_size)),
+		int(floor(point.y / definition.cell_size))
+	)
+	return is_walkable_cell(definition, grid, cell)
+
+
+static func route_exists_exact(definition: MapDefinition, grid: MapTerrainGrid, from_pos: Vector2, to_pos: Vector2) -> bool:
+	## Required points must themselves be walkable. Snapping a blocked spawn or
+	## transition to a nearby cell would hide parity regressions in final audits.
+	if not is_walkable_point(definition, grid, from_pos) or not is_walkable_point(definition, grid, to_pos):
+		return false
+	var start := Vector2i(floori(from_pos.x / definition.cell_size), floori(from_pos.y / definition.cell_size))
+	var goal := Vector2i(floori(to_pos.x / definition.cell_size), floori(to_pos.y / definition.cell_size))
+	return _route_between_cells(definition, grid, start, goal)
+
+
 static func route_exists(definition: MapDefinition, grid: MapTerrainGrid, from_pos: Vector2, to_pos: Vector2) -> bool:
 	var start := nearest_walkable_cell(definition, grid, from_pos)
 	var goal := nearest_walkable_cell(definition, grid, to_pos)
+	return _route_between_cells(definition, grid, start, goal)
+
+
+static func _route_between_cells(definition: MapDefinition, grid: MapTerrainGrid, start: Vector2i, goal: Vector2i) -> bool:
 	if start == goal:
 		return true
 
