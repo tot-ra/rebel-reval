@@ -15,7 +15,7 @@ static func create() -> MapDefinition:
 		&"clean_painted",
 		Vector2i(64, 36),
 		MapTypes.TERRAIN_COBBLESTONE,
-		"lower_town_slice_v1",
+		"lower_town_slice_v2",
 		Rect2i(8, 28, 2, 2)
 	)
 
@@ -40,7 +40,7 @@ static func create() -> MapDefinition:
 		{"id": &"street_cart", "kind": MapTypes.PROP_KIND_CART, "position": definition.cell_rect_center(Rect2i(12, 26, 2, 2))},
 		{"id": &"cistern", "kind": MapTypes.PROP_KIND_WELL, "position": definition.cell_rect_center(Rect2i(30, 24, 4, 3))},
 		{"id": &"evidence_barrels", "kind": MapTypes.PROP_KIND_BARRELS, "position": definition.cell_rect_center(Rect2i(36, 22, 2, 2))},
-		{"id": &"courtyard_anvil", "kind": MapTypes.PROP_KIND_ANVIL, "position": definition.cell_rect_center(Rect2i(24, 18, 3, 2))},
+		{"id": &"courtyard_anvil", "kind": MapTypes.PROP_KIND_ANVIL, "position": definition.cell_rect_center(Rect2i(19, 20, 3, 2))},
 	]
 
 	InteriorMapFactory.add_interaction_anchor(definition, &"street_start", Rect2i(8, 28, 2, 2))

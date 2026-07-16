@@ -134,22 +134,25 @@ P1-001 adds CI coverage for export smoke only. Full install, start, save, load, 
 
 Agents must treat [`README.md`](./README.md) as the product source of truth.
 
-### In scope for the first campaign and vertical slice
+The product is a three-act faction RPG per [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md); delivery order is strict: demo → vertical-slice MVP → Act 1 → Act 2 → Act 3.
+
+### In scope (act-gated per TODO.md tracks)
 
 - Kalev as fixed protagonist; forge as hub
-- One dense Lower Town district for the slice
 - Commission, investigation, modification, consequence, reflection loop
-- Seven core characters in slice scope; authored offline dialogue
+- One dense Lower Town district for the slice; further districts and world locations activate only through their P4+/P5+/P6 tasks and the parity/activation gates
+- Seven core characters in slice scope, plus faction casts in act scope; authored offline dialogue
+- Eight active factions with ledger-based standing (P4-016+); night mission templates (P5-004+)
 - Small hammer combat and limited forge techniques
 - Deterministic state; no runtime LLM
 
 ### Explicitly out of scope
 
-- Open world or seamless full Reval
+- Open world or seamless full Reval; playable campaigns in other cities
 - Runtime LLM, procedural quests, or free-text NPC chat
-- Party control, army battles, tower-capture loops, survival sims
-- Playable maps outside the approved slice district
-- Legacy systems called out in README: 21 elements, 15+ factions, NATURAL aspects HUD, temperature or rhythm forging minigames
+- Party control, army/fleet battle simulation, tower-capture loops, survival sims
+- Activating any map before its TODO.md task and gates pass, regardless of ADR 0008
+- Legacy systems called out in README: 21 elements, Living City meters and NPC-allegiance arithmetic, NATURAL aspects HUD, combinatorial magic, temperature or rhythm forging minigames
 
 ### Legacy and documentation rules
 

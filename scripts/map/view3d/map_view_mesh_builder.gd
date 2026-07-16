@@ -11,6 +11,10 @@ const ROOF_PITCH := 0.9
 const ROOF_OVERHANG := 0.15
 const CAP_HEIGHT := 0.12
 const CAP_OVERHANG := 0.05
+const DOOR_WIDTH := 1.55
+const DOOR_HEIGHT := 1.85
+const DOOR_THICKNESS := 0.14
+const DOOR_FRAME_THICKNESS := 0.14
 
 ## Fallback wall heights in logic pixels when a building omits wall_height,
 ## matching the observed defaults in the shipped definitions.
@@ -89,6 +93,48 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 			Color(building.get("wall_color", DEFAULT_WALL_COLOR)).lightened(0.12)
 		)
 		root.add_child(cap)
+	return root
+
+
+## Functional transitions get a view-only framed door at the edge of their
+## trigger rectangle. The trigger can stay generously sized for navigation;
+## the visible door remains at the frozen character scale.
+static func build_transition_door(transition: Dictionary, cell_size: int) -> Node3D:
+	var root := Node3D.new()
+	root.name = "Door_%s" % String(transition["id"])
+	root.set_meta("transition_id", transition["id"])
+
+	var scale := MapViewBridge.world_scale(cell_size)
+	var rect: Rect2 = transition["rect"]
+	var horizontal_wall := rect.size.x >= rect.size.y
+	var center := rect.get_center() * scale
+	if horizontal_wall:
+		# Transition rectangles begin at the wall boundary and extend into the
+		# walkable approach, so use the leading edge rather than the center.
+		center.y = rect.position.y * scale
+	else:
+		center.x = rect.position.x * scale
+	root.position = Vector3(center.x, 0.0, center.y)
+	if not horizontal_wall:
+		root.rotation.y = PI * 0.5
+
+	_box(
+		root,
+		"Panel",
+		Vector3(DOOR_WIDTH, DOOR_HEIGHT, DOOR_THICKNESS),
+		Vector3(0.0, DOOR_HEIGHT * 0.5, 0.0),
+		&"wood"
+	)
+	var frame_height := DOOR_HEIGHT + DOOR_FRAME_THICKNESS
+	var frame_x := DOOR_WIDTH * 0.5 + DOOR_FRAME_THICKNESS * 0.5
+	_box(root, "FrameLeft", Vector3(DOOR_FRAME_THICKNESS, frame_height, 0.22), Vector3(-frame_x, frame_height * 0.5, 0.0), &"timber")
+	_box(root, "FrameRight", Vector3(DOOR_FRAME_THICKNESS, frame_height, 0.22), Vector3(frame_x, frame_height * 0.5, 0.0), &"timber")
+	_box(root, "Lintel", Vector3(DOOR_WIDTH + DOOR_FRAME_THICKNESS * 2.0, DOOR_FRAME_THICKNESS, 0.22), Vector3(0.0, frame_height, 0.0), &"timber")
+	_box(root, "Threshold", Vector3(DOOR_WIDTH + 0.18, 0.08, 0.28), Vector3(0.0, 0.04, 0.0), &"stone")
+	for plank_index in 3:
+		var plank_x := -DOOR_WIDTH * 0.25 + float(plank_index) * DOOR_WIDTH * 0.25
+		_box(root, "Plank%d" % plank_index, Vector3(0.025, DOOR_HEIGHT - 0.12, 0.018), Vector3(plank_x, DOOR_HEIGHT * 0.5, DOOR_THICKNESS * 0.5 + 0.01), &"timber")
+	_sphere(root, "Handle", 0.055, Vector3(DOOR_WIDTH * 0.3, DOOR_HEIGHT * 0.52, DOOR_THICKNESS * 0.5 + 0.06), &"metal")
 	return root
 
 

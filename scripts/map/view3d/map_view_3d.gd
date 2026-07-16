@@ -100,6 +100,13 @@ func _assemble() -> void:
 	for building in definition.buildings:
 		buildings.add_child(MapViewMeshBuilder.build_building(building, definition.cell_size))
 
+	var doors := Node3D.new()
+	doors.name = "Doors"
+	add_child(doors)
+	for transition in definition.transitions:
+		if not String(transition.get("destination_scene_id", "")).is_empty():
+			doors.add_child(MapViewMeshBuilder.build_transition_door(transition, definition.cell_size))
+
 	var props := Node3D.new()
 	props.name = "Props"
 	add_child(props)

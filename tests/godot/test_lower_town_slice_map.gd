@@ -27,3 +27,16 @@ func test_lower_town_required_route_endpoints_reachable() -> void:
 			MapVerification.route_exists(definition, grid, start, MapVerification.anchor_position(definition, anchor_id)),
 			"Missing route to %s" % String(anchor_id)
 		)
+
+
+func test_courtyard_anvil_does_not_cover_smithy_door() -> void:
+	var definition: MapDefinition = LowerTownSliceDefinition.create()
+	var anvil_position := Vector2.ZERO
+	for prop in definition.props:
+		if prop["id"] == &"courtyard_anvil":
+			anvil_position = prop["position"]
+	var door_position := MapVerification.anchor_position(definition, &"smithy_door")
+	assert_true(
+		anvil_position.distance_to(door_position) > float(definition.cell_size * 2),
+		"courtyard anvil must remain visually separate from the smithy door"
+	)

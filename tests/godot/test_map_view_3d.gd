@@ -76,6 +76,15 @@ func test_view_renders_definitions_without_touching_logic_results() -> void:
 			definition.props.size(),
 			"%s: one prop node per definition prop" % definition.map_id
 		)
+		var functional_transition_count := 0
+		for transition in definition.transitions:
+			if not String(transition.get("destination_scene_id", "")).is_empty():
+				functional_transition_count += 1
+		assert_eq(
+			view.get_node("Doors").get_child_count(),
+			functional_transition_count,
+			"%s: every functional transition needs one visible door" % definition.map_id
+		)
 
 		var camera := view.view_camera()
 		assert_eq(camera.projection, Camera3D.PROJECTION_ORTHOGONAL, "camera must be orthographic")
@@ -112,6 +121,21 @@ func test_houses_get_gabled_roofs_and_walls_get_caps() -> void:
 		else:
 			assert_true(node.has_node("Cap"), "%s: walls need a flat cap" % building["id"])
 		node.free()
+
+
+func test_transition_door_has_readable_frame_panel_and_handle() -> void:
+	var definition := LowerTownSlice.create()
+	var transition: Dictionary = definition.transitions[0]
+	var door := MapViewMeshBuilder.build_transition_door(transition, definition.cell_size)
+	assert_true(door.has_node("Panel"), "door needs a solid panel")
+	assert_true(door.has_node("FrameLeft"), "door needs a left frame")
+	assert_true(door.has_node("FrameRight"), "door needs a right frame")
+	assert_true(door.has_node("Lintel"), "door needs a lintel")
+	assert_true(door.has_node("Handle"), "door needs a visible handle")
+	var rect: Rect2 = transition["rect"]
+	var expected_boundary := rect.position.y * MapViewBridge.world_scale(definition.cell_size)
+	assert_true(is_equal_approx(door.position.z, expected_boundary), "door must sit flush with the smithy wall")
+	door.free()
 
 
 func test_every_prop_kind_builds_parametric_geometry() -> void:

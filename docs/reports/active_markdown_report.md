@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `32`
+- Active Markdown files scanned: `33`
 - Markdown files excluded as archive/reference/out of active scope: `290`
-- Local/external links inspected: `92`
-- Links to active Markdown docs: `63`
-- Links to existing archive/reference/non-active local docs: `9`
+- Local/external links inspected: `101`
+- Links to active Markdown docs: `70`
+- Links to existing archive/reference/non-active local docs: `10`
 - External links skipped for reachability: `1`
 - Issues found: `0`
 
@@ -46,6 +46,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0005-inactive-outdoor-map-prototypes.md`
 - `docs/adr/0006-interior-compact-urban-conversion-scope.md`
 - `docs/adr/0007-ai-generated-isometric-presentation.md`
+- `docs/adr/0008-three-act-campaign-and-faction-scope.md`
 - `docs/ART_BIBLE.md`
 - `docs/ASSET_INVENTORY.md`
 - `docs/ASSET_STORAGE_POLICY.md`
