@@ -5,16 +5,18 @@ Format: `- [ ] ID | deps: ID,ID or none | deliverable: concrete artifact or beha
 
 ## Immediate parallel starts
 
-Coordination note (2026-07-16): recomputed from the authoritative checklist after completing P0-034. Only unchecked tasks whose listed dependencies are marked `[x]` appear below.
+Coordination note (2026-07-16): recomputed from the authoritative checklist after completing P1-010. Only unchecked tasks whose listed dependencies are marked `[x]` appear below.
 
 - P0-036 - pixel, digital-woodcut, and clean-painted visual targets using the same composition. Visual comparison work; keep framing and gameplay scale identical across targets.
 - P1-007 - atomic one-slot manual save and phase-boundary autosave with one backup. Own the save subsystem and related fixtures; avoid overlap with other GameState serialization work.
 - P1-009 - debug state inspector with deterministic reset and branch/phase jump. Own debug UI/tooling; coordinate its GameState-facing API with P1-007.
-- P1-010 - allowlisted declarative condition and effect evaluator. Newly unblocked by P1-005; likely touches content/state integration and should avoid concurrent edits to ContentDB or GameState.
+- P1-011 - `DialogueRunner` supporting choices, conditions, effects, once-only lines, and phase barks. Own dialogue runtime files and reuse `StateRuleEvaluator`; avoid changing its allowlist contract.
+- P1-015 - `QuestManager` with explicit validated quest transitions. Own quest runtime and tests; coordinate GameState quest-state access with P1-007 and P1-009.
 - P1-018 - reusable `Interactable` with stable ID, prompt, focus highlight, and callback. Scene/component work; avoid editing shared input or player-state files unless required.
+- P1-019 - `ForgeCommission` flow displaying customer, object, known purpose, materials, and discovered leverage. Own commission runtime/UI and reuse ContentDB/GameState APIs without quest-specific branching.
 - P1-023 - coherent player movement and action state machine with input buffering. Own player controller and input tests; avoid parallel player-script edits.
 
-Coordination caveat: P1-007, P1-009, and P1-010 all integrate with GameState, so use separate files with stable APIs or sequence them. P1-018 and P1-023 can overlap in player input/controller files and should be sequenced if their implementations require the same files.
+Coordination caveat: P1-007, P1-009, P1-015, and P1-019 integrate with GameState, while P1-011, P1-015, and P1-019 share content/state contracts; use separate files with stable APIs or sequence overlapping edits. P1-018 and P1-023 can overlap in player input/controller files and should be sequenced if their implementations require the same files.
 
 ## P0 - Product, canon, and reproducible baseline
 
@@ -72,7 +74,7 @@ Coordination caveat: P1-007, P1-009, and P1-010 all integrate with GameState, so
 - [ ] P1-007 | deps: P1-006 | deliverable: atomic one-slot manual save and phase-boundary autosave with one backup | verify: round-trip tests preserve all state and interrupted writes retain a loadable backup
 - [ ] P1-008 | deps: P1-007 | deliverable: save validation and migration harness | verify: tests cover truncated data, wrong types, unknown versions, and every released fixture
 - [ ] P1-009 | deps: P1-006 | deliverable: debug state inspector with deterministic reset and branch/phase jump | verify: a developer reaches every slice phase and valid branch without replaying earlier content
-- [ ] P1-010 | deps: P1-005,P1-006 | deliverable: allowlisted declarative condition and effect evaluator | verify: tests cover all operators and reject arbitrary script expressions
+- [x] P1-010 | deps: P1-005,P1-006 | deliverable: allowlisted declarative condition and effect evaluator | verify: tests cover all operators and reject arbitrary script expressions
 - [ ] P1-011 | deps: P1-010 | deliverable: `DialogueRunner` supporting choices, conditions, effects, once-only lines, and phase barks | verify: content-only test dialogue changes state and the next conversation without custom NPC code
 - [ ] P1-012 | deps: P0-014,P1-011 | deliverable: dialogue UI with speaker, portrait, text, choices, continue, skip, backlog, and disabled-choice reason | verify: keyboard, mouse, and gamepad complete a branching dialogue at all supported text scales
 - [ ] P1-013 | deps: P1-012 | deliverable: dialogue settings for text speed, font size, contrast, subtitle background, and reduced motion | verify: settings persist across restart and affect the dialogue test scene

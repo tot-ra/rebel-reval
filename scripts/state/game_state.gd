@@ -22,6 +22,10 @@ var _facts: Dictionary[StringName, bool] = {}
 var _relationships: Dictionary[StringName, int] = {}
 var _pressures: Dictionary[StringName, int] = {}
 var _forged_records: Dictionary[StringName, ForgedRecord] = {}
+var _flags: Dictionary[StringName, bool] = {}
+var _quest_states: Dictionary[StringName, StringName] = {}
+var _location_states: Dictionary[StringName, StringName] = {}
+var _items: Dictionary[StringName, bool] = {}
 
 
 func _init() -> void:
@@ -48,6 +52,45 @@ func get_fact(key: StringName) -> bool:
 
 func set_fact(key: StringName, value: bool) -> void:
 	_facts[key] = value
+
+
+func get_flag(key: StringName) -> bool:
+	return _flags.get(key, false)
+
+
+func set_flag(key: StringName, value: bool) -> void:
+	_flags[key] = value
+
+
+func get_quest_state(key: StringName) -> StringName:
+	return _quest_states.get(key, &"")
+
+
+func set_quest_state(key: StringName, value: StringName) -> void:
+	_quest_states[key] = value
+
+
+func get_location_state(key: StringName) -> StringName:
+	return _location_states.get(key, &"")
+
+
+func set_location_state(key: StringName, value: StringName) -> void:
+	_location_states[key] = value
+
+
+func has_item(key: StringName) -> bool:
+	return _items.has(key)
+
+
+func add_item(key: StringName) -> bool:
+	if key.is_empty() or _items.has(key):
+		return false
+	_items[key] = true
+	return true
+
+
+func remove_item(key: StringName) -> bool:
+	return _items.erase(key)
 
 
 func get_relationship(key: StringName) -> int:
