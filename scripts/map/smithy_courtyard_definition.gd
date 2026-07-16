@@ -44,14 +44,14 @@ static func create() -> MapDefinition:
 	]
 
 	var wall_color := Color(0.48, 0.50, 0.54, 1.0)
-	var wall_height := 48.0
+	var wall_height := 56.0
 
 	definition.buildings = [
 		{
 			"id": &"smithy_hall",
 			"kind": MapTypes.BUILDING_KIND_HOUSE,
 			"footprint": definition.cell_rect_to_world_rect(Rect2i(13, 9, 9, 4)),
-			"wall_height": 72.0,
+			"wall_height": 128.0,
 			"wall_color": Color(0.34, 0.30, 0.26, 1.0),
 			"roof_color": Color(0.22, 0.20, 0.18, 1.0),
 		},
@@ -59,7 +59,7 @@ static func create() -> MapDefinition:
 			"id": &"coal_store",
 			"kind": MapTypes.BUILDING_KIND_HOUSE,
 			"footprint": definition.cell_rect_to_world_rect(Rect2i(23, 10, 3, 3)),
-			"wall_height": 56.0,
+			"wall_height": 96.0,
 			"wall_color": Color(0.30, 0.28, 0.24, 1.0),
 			"roof_color": Color(0.18, 0.17, 0.15, 1.0),
 		},
@@ -67,7 +67,7 @@ static func create() -> MapDefinition:
 			"id": &"street_shop",
 			"kind": MapTypes.BUILDING_KIND_HOUSE,
 			"footprint": definition.cell_rect_to_world_rect(Rect2i(39, 1, 5, 3)),
-			"wall_height": 64.0,
+			"wall_height": 112.0,
 			"wall_color": Color(0.42, 0.36, 0.30, 1.0),
 			"roof_color": Color(0.24, 0.20, 0.16, 1.0),
 		},

@@ -66,6 +66,51 @@ static func role(role_name: StringName) -> StandardMaterial3D:
 	return material
 
 
+## Flat vegetation and landscape tints for the view-only scatter and treeline.
+## Instance colors modulate these through vertex_color_use_as_albedo.
+static func foliage_tuft() -> StandardMaterial3D:
+	return _tinted("foliage_tuft", Color8(96, 122, 60))
+
+
+static func foliage_spruce() -> StandardMaterial3D:
+	return _tinted("foliage_spruce", Color8(56, 82, 54))
+
+
+static func foliage_leaf() -> StandardMaterial3D:
+	return _tinted("foliage_leaf", Color8(94, 116, 58))
+
+
+static func bark() -> StandardMaterial3D:
+	return _tinted("bark", Color8(74, 56, 42))
+
+
+static func surroundings_ground() -> StandardMaterial3D:
+	var key := "surroundings_ground"
+	if _cache.has(key):
+		return _cache[key]
+	var material := _make_material(Color8(74, 88, 60), 8117)
+	material.uv1_scale = Vector3(96.0, 96.0, 1.0)
+	_cache[key] = material
+	return material
+
+
+## Soft unshaded billboard puff for chimney smoke; alpha comes from the
+## particle color ramp.
+static func smoke() -> StandardMaterial3D:
+	var key := "smoke"
+	if _cache.has(key):
+		return _cache[key]
+	var material := StandardMaterial3D.new()
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.vertex_color_use_as_albedo = true
+	material.albedo_color = Color(0.86, 0.85, 0.83, 1.0)
+	material.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	material.billboard_keep_scale = true
+	_cache[key] = material
+	return material
+
+
 static func _tinted(prefix: String, color: Color) -> StandardMaterial3D:
 	var key := "%s:%s" % [prefix, color.to_html()]
 	if _cache.has(key):
@@ -83,6 +128,9 @@ static func _make_material(base: Color, noise_seed: int) -> StandardMaterial3D:
 	material.roughness = 1.0
 	material.metallic = 0.0
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	# Terrain cells and scatter instances carry per-cell tone in vertex/instance
+	# colors; meshes without a color attribute stay white so nothing shifts.
+	material.vertex_color_use_as_albedo = true
 	return material
 
 

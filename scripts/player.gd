@@ -2,8 +2,10 @@ extends CharacterBody2D
 
 class_name Player
 
-@export var walk_speed = 200
-@export var run_speed = 1000
+# Logic px/s (32 px = 1 world unit): a readable walk and a believable sprint.
+# MapViewRuntime.RUN_ANIMATION_MIN_SPEED sits midway between these.
+@export var walk_speed = 100
+@export var run_speed = 240
 
 @onready var animation_player: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
 @onready var navigation_agent: NavigationAgent2D = $NavigationAgent2D

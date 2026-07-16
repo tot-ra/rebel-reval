@@ -17,7 +17,7 @@ const CAMERA_PITCH_DEGREES := -30.0
 const CAMERA_YAW_DEGREES := 45.0
 const CAMERA_DISTANCE := 90.0
 const CAMERA_MARGIN := 1.15
-const CAMERA_HEADROOM := 3.0
+const CAMERA_HEADROOM := 5.0
 const CAMERA_FAR := 400.0
 
 const SUN_DAY_ROTATION_DEGREES := Vector3(-50.0, -35.0, 0.0)
@@ -92,7 +92,9 @@ func sun_light() -> DirectionalLight3D:
 
 
 func _assemble() -> void:
+	add_child(MapViewMeshBuilder.build_surroundings(definition))
 	add_child(MapViewMeshBuilder.build_terrain(definition, grid))
+	add_child(MapViewMeshBuilder.build_scatter(definition, grid))
 
 	var buildings := Node3D.new()
 	buildings.name = "Buildings"

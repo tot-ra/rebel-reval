@@ -11,22 +11,62 @@ const ROOF_PITCH := 0.9
 const ROOF_OVERHANG := 0.15
 const CAP_HEIGHT := 0.12
 const CAP_OVERHANG := 0.05
-const DOOR_WIDTH := 1.55
-const DOOR_HEIGHT := 1.85
+## Doorways must read taller than the frozen 2.0-unit character.
+const DOOR_WIDTH := 1.5
+const DOOR_HEIGHT := 2.5
 const DOOR_THICKNESS := 0.14
-const DOOR_FRAME_THICKNESS := 0.14
+const DOOR_FRAME_THICKNESS := 0.16
 
-## Fallback wall heights in logic pixels when a building omits wall_height,
-## matching the observed defaults in the shipped definitions.
+## Fallback wall heights in logic pixels when a building omits wall_height.
+## Houses carry a full storey plus loft over the 2.0-unit character; freestanding
+## walls stay chest-high so courtyards read open.
 const DEFAULT_WALL_HEIGHT_PX := {
-	MapTypes.BUILDING_KIND_HOUSE: 64.0,
-	MapTypes.BUILDING_KIND_WALL: 48.0,
-	MapTypes.BUILDING_KIND_INTERIOR_WALL: 56.0,
-	MapTypes.BUILDING_KIND_INTERIOR_BLOCK: 48.0,
+	MapTypes.BUILDING_KIND_HOUSE: 112.0,
+	MapTypes.BUILDING_KIND_WALL: 64.0,
+	MapTypes.BUILDING_KIND_INTERIOR_WALL: 72.0,
+	MapTypes.BUILDING_KIND_INTERIOR_BLOCK: 56.0,
 }
 
 const DEFAULT_WALL_COLOR := Color(0.46, 0.44, 0.40)
 const DEFAULT_ROOF_COLOR := Color(0.24, 0.20, 0.16)
+
+## Per-cell ground tone variation so large terrain fields stop reading as one
+## flat tint: fine per-cell jitter plus a broader patch drift, both deterministic.
+const TERRAIN_JITTER := 0.07
+const TERRAIN_PATCH_STRENGTH := 0.06
+const TERRAIN_PATCH_CELLS := 5
+
+const CHIMNEY_SIZE := 0.5
+const SMOKE_LIFETIME := 6.0
+const SMOKE_AMOUNT := 28
+
+## View-only landscape ring past the playable bounds: warm meadow apron with a
+## scattered treeline instead of a hard void.
+const SURROUNDINGS_SIZE_WORLD := 512.0
+const SURROUNDINGS_COLOR := Color8(74, 88, 60)
+const TREE_BAND_INNER := 1.5
+const TREE_BAND_OUTER := 18.0
+const TREE_GRID_SPACING := 3.0
+const TREE_KEEP_RATIO := 0.5
+
+## Ground scatter (grass tufts, pebbles) is decorative only; it never implies
+## collision, so every piece stays well under knee height.
+const SCATTER_TUFT_CHANCE := {
+	MapTypes.TERRAIN_GRASS: 0.85,
+	MapTypes.TERRAIN_MEADOW: 0.9,
+	MapTypes.TERRAIN_FOREST_FLOOR: 0.6,
+	MapTypes.TERRAIN_BOG: 0.4,
+	MapTypes.TERRAIN_HAY: 0.35,
+	MapTypes.TERRAIN_STRAW: 0.3,
+}
+const SCATTER_STONE_CHANCE := {
+	MapTypes.TERRAIN_DIRT: 0.12,
+	MapTypes.TERRAIN_COBBLESTONE: 0.06,
+	MapTypes.TERRAIN_MUD: 0.1,
+	MapTypes.TERRAIN_SAND: 0.08,
+	MapTypes.TERRAIN_COAST_SAND: 0.1,
+	MapTypes.TERRAIN_GRASS: 0.05,
+}
 
 
 ## One MeshInstance3D per used terrain: every cell of that terrain becomes a
@@ -38,18 +78,40 @@ static func build_terrain(definition: MapDefinition, grid: MapTerrainGrid) -> No
 	for terrain_id in grid.used_terrain_ids():
 		var surface := SurfaceTool.new()
 		surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-		var height := -WATER_RECESS if MapViewMaterials.WATER_TERRAINS.has(terrain_id) else 0.0
+		var water := MapViewMaterials.WATER_TERRAINS.has(terrain_id)
+		var height := -WATER_RECESS if water else 0.0
 		for y in grid.size_cells.y:
 			for x in grid.size_cells.x:
 				if grid.get_terrain(Vector2i(x, y)) != terrain_id:
 					continue
-				_add_ground_quad(surface, x, y, height)
+				var tone := 1.0 if water else _cell_tone(x, y, definition.seed)
+				_add_ground_quad(surface, x, y, height, tone)
 		var instance := MeshInstance3D.new()
 		instance.name = "Terrain_%s" % String(terrain_id)
 		instance.mesh = surface.commit()
 		instance.material_override = MapViewMaterials.terrain(terrain_id, definition.seed)
 		root.add_child(instance)
 	return root
+
+
+## Deterministic per-cell brightness: fine jitter over a broad patch drift.
+static func _cell_tone(x: int, y: int, noise_seed: int) -> float:
+	var fine := _hash01(x, y, noise_seed)
+	var patch := _hash01(
+		floori(float(x) / TERRAIN_PATCH_CELLS),
+		floori(float(y) / TERRAIN_PATCH_CELLS),
+		noise_seed + 977
+	)
+	var tone := 1.0
+	tone += (fine * 2.0 - 1.0) * TERRAIN_JITTER
+	tone += (patch * 2.0 - 1.0) * TERRAIN_PATCH_STRENGTH
+	return clampf(tone, 0.75, 1.2)
+
+
+static func _hash01(x: int, y: int, noise_seed: int) -> float:
+	var hashed := ((x * 374761393) + (y * 668265263) + noise_seed * 69069) & 0x7fffffff
+	hashed = (hashed ^ (hashed >> 13)) * 1274126177 & 0x7fffffff
+	return float(hashed % 100000) / 99999.0
 
 
 ## Building footprint plus per-kind height rules become a wall prism; houses
@@ -82,6 +144,7 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 		roof.position = Vector3(0.0, height, 0.0)
 		roof.material_override = MapViewMaterials.roof(building.get("roof_color", DEFAULT_ROOF_COLOR))
 		root.add_child(roof)
+		_add_chimney(root, building, size, height)
 	else:
 		var cap := MeshInstance3D.new()
 		cap.name = "Cap"
@@ -214,7 +277,207 @@ static func build_prop(prop: Dictionary, cell_size: int) -> Node3D:
 	return root
 
 
-static func _add_ground_quad(surface: SurfaceTool, x: int, y: int, height: float) -> void:
+## Decorative ground clutter per terrain family: grass tufts on green cells,
+## pebbles on worked ground. Deterministic from the map seed, skips building
+## footprints, and stays under knee height so it never suggests collision.
+static func build_scatter(definition: MapDefinition, grid: MapTerrainGrid) -> Node3D:
+	var root := Node3D.new()
+	root.name = "Scatter"
+	var blocked := _building_cell_rects(definition)
+
+	var tufts: Array[Transform3D] = []
+	var tuft_colors: Array[Color] = []
+	var stones: Array[Transform3D] = []
+	var stone_colors: Array[Color] = []
+	for y in grid.size_cells.y:
+		for x in grid.size_cells.x:
+			var cell := Vector2i(x, y)
+			if _cell_blocked(cell, blocked):
+				continue
+			var terrain := grid.get_terrain(cell)
+			var roll := _hash01(x, y, definition.seed + 4242)
+			if roll < SCATTER_TUFT_CHANCE.get(terrain, 0.0):
+				var count := 1 + int(_hash01(x, y, definition.seed + 511) * 2.0)
+				for tuft_index in count:
+					tufts.append(_scatter_transform(x, y, definition.seed + 31 * (tuft_index + 1), 0.7, 1.5))
+					var green := 0.86 + _hash01(x + tuft_index, y, definition.seed + 77) * 0.28
+					tuft_colors.append(Color(green * 0.94, green, green * 0.8))
+			elif roll < SCATTER_TUFT_CHANCE.get(terrain, 0.0) + SCATTER_STONE_CHANCE.get(terrain, 0.0):
+				stones.append(_scatter_transform(x, y, definition.seed + 913, 0.6, 1.6))
+				var gray := 0.8 + _hash01(x, y, definition.seed + 154) * 0.35
+				stone_colors.append(Color(gray, gray, gray * 0.97))
+
+	var tuft_mesh := CylinderMesh.new()
+	tuft_mesh.top_radius = 0.0
+	tuft_mesh.bottom_radius = 0.09
+	tuft_mesh.height = 0.26
+	tuft_mesh.radial_segments = 5
+	tuft_mesh.rings = 1
+	root.add_child(_multi_mesh("Tufts", tuft_mesh, tufts, tuft_colors, MapViewMaterials.foliage_tuft(), Vector3(0.0, 0.13, 0.0)))
+
+	var stone_mesh := SphereMesh.new()
+	stone_mesh.radius = 0.09
+	stone_mesh.height = 0.11
+	stone_mesh.radial_segments = 6
+	stone_mesh.rings = 3
+	root.add_child(_multi_mesh("Stones", stone_mesh, stones, stone_colors, MapViewMaterials.role(&"stone"), Vector3(0.0, 0.03, 0.0)))
+	return root
+
+
+## Landscape ring outside the playable rectangle: a warm meadow apron plane and
+## a deterministic treeline (spruce and broadleaf) with a few boulders, so map
+## edges read as countryside instead of a void. Everything is unreachable and
+## purely view-side.
+static func build_surroundings(definition: MapDefinition) -> Node3D:
+	var root := Node3D.new()
+	root.name = "Surroundings"
+	var map_size := Vector2(definition.size_cells)
+
+	var apron := MeshInstance3D.new()
+	apron.name = "Apron"
+	var apron_mesh := PlaneMesh.new()
+	apron_mesh.size = Vector2(SURROUNDINGS_SIZE_WORLD, SURROUNDINGS_SIZE_WORLD)
+	apron_mesh.material = MapViewMaterials.surroundings_ground()
+	apron.mesh = apron_mesh
+	apron.position = Vector3(map_size.x * 0.5, -0.04, map_size.y * 0.5)
+	root.add_child(apron)
+
+	var trunks: Array[Transform3D] = []
+	var trunk_colors: Array[Color] = []
+	var spruces: Array[Transform3D] = []
+	var spruce_colors: Array[Color] = []
+	var leaves: Array[Transform3D] = []
+	var leaf_colors: Array[Color] = []
+	var boulders: Array[Transform3D] = []
+	var boulder_colors: Array[Color] = []
+
+	var inner := Rect2(Vector2.ZERO, map_size).grow(TREE_BAND_INNER)
+	var start_x := int(-TREE_BAND_OUTER / TREE_GRID_SPACING)
+	var end_x := int((map_size.x + TREE_BAND_OUTER) / TREE_GRID_SPACING)
+	var start_y := int(-TREE_BAND_OUTER / TREE_GRID_SPACING)
+	var end_y := int((map_size.y + TREE_BAND_OUTER) / TREE_GRID_SPACING)
+	for gy in range(start_y, end_y + 1):
+		for gx in range(start_x, end_x + 1):
+			var base := Vector2(gx, gy) * TREE_GRID_SPACING
+			var jitter := Vector2(
+				_hash01(gx, gy, definition.seed + 601) - 0.5,
+				_hash01(gx, gy, definition.seed + 907) - 0.5
+			) * TREE_GRID_SPACING * 0.9
+			var spot := base + jitter
+			if inner.has_point(spot):
+				continue
+			var keep := _hash01(gx, gy, definition.seed + 1201)
+			if keep > TREE_KEEP_RATIO:
+				continue
+			var kind_roll := _hash01(gx, gy, definition.seed + 1499)
+			if kind_roll < 0.06:
+				var boulder_scale := 0.5 + _hash01(gx, gy, definition.seed + 1601) * 0.9
+				boulders.append(_placed(spot, boulder_scale, Vector3(0.0, 0.16 * boulder_scale, 0.0), _hash01(gx, gy, definition.seed + 1733) * TAU))
+				var gray := 0.85 + _hash01(gx, gy, definition.seed + 1801) * 0.25
+				boulder_colors.append(Color(gray, gray, gray))
+				continue
+			var tree_scale := 0.75 + _hash01(gx, gy, definition.seed + 1907) * 0.7
+			var yaw := _hash01(gx, gy, definition.seed + 2003) * TAU
+			trunks.append(_placed(spot, tree_scale, Vector3(0.0, 0.5 * tree_scale, 0.0), yaw))
+			var bark := 0.85 + _hash01(gx, gy, definition.seed + 2111) * 0.3
+			trunk_colors.append(Color(bark, bark, bark))
+			var tint := 0.8 + _hash01(gx, gy, definition.seed + 2221) * 0.4
+			if kind_roll < 0.6:
+				spruces.append(_placed(spot, tree_scale, Vector3(0.0, (0.9 + 1.1) * tree_scale, 0.0), yaw))
+				spruce_colors.append(Color(tint * 0.9, tint, tint * 0.88))
+			else:
+				leaves.append(_placed(spot, tree_scale, Vector3(0.0, (0.9 + 0.75) * tree_scale, 0.0), yaw))
+				leaf_colors.append(Color(tint * 0.96, tint, tint * 0.8))
+
+	var trunk_mesh := CylinderMesh.new()
+	trunk_mesh.top_radius = 0.11
+	trunk_mesh.bottom_radius = 0.16
+	trunk_mesh.height = 1.0
+	trunk_mesh.radial_segments = 6
+	root.add_child(_multi_mesh("Trunks", trunk_mesh, trunks, trunk_colors, MapViewMaterials.bark(), Vector3.ZERO))
+
+	var spruce_mesh := CylinderMesh.new()
+	spruce_mesh.top_radius = 0.0
+	spruce_mesh.bottom_radius = 0.85
+	spruce_mesh.height = 2.2
+	spruce_mesh.radial_segments = 7
+	root.add_child(_multi_mesh("SpruceCanopies", spruce_mesh, spruces, spruce_colors, MapViewMaterials.foliage_spruce(), Vector3.ZERO))
+
+	var leaf_mesh := SphereMesh.new()
+	leaf_mesh.radius = 0.85
+	leaf_mesh.height = 1.5
+	leaf_mesh.radial_segments = 8
+	leaf_mesh.rings = 4
+	root.add_child(_multi_mesh("LeafCanopies", leaf_mesh, leaves, leaf_colors, MapViewMaterials.foliage_leaf(), Vector3.ZERO))
+
+	var boulder_mesh := SphereMesh.new()
+	boulder_mesh.radius = 0.45
+	boulder_mesh.height = 0.6
+	boulder_mesh.radial_segments = 7
+	boulder_mesh.rings = 4
+	root.add_child(_multi_mesh("Boulders", boulder_mesh, boulders, boulder_colors, MapViewMaterials.role(&"stone"), Vector3.ZERO))
+	return root
+
+
+static func _placed(spot: Vector2, scale: float, lift: Vector3, yaw: float) -> Transform3D:
+	var basis := Basis(Vector3.UP, yaw).scaled(Vector3.ONE * scale)
+	return Transform3D(basis, Vector3(spot.x, 0.0, spot.y) + lift)
+
+
+static func _scatter_transform(x: int, y: int, noise_seed: int, scale_min: float, scale_max: float) -> Transform3D:
+	var offset := Vector2(
+		_hash01(x, y, noise_seed + 7) * 0.9 + 0.05,
+		_hash01(x, y, noise_seed + 13) * 0.9 + 0.05
+	)
+	var scale := scale_min + _hash01(x, y, noise_seed + 29) * (scale_max - scale_min)
+	var yaw := _hash01(x, y, noise_seed + 41) * TAU
+	var basis := Basis(Vector3.UP, yaw).scaled(Vector3.ONE * scale)
+	return Transform3D(basis, Vector3(float(x) + offset.x, 0.0, float(y) + offset.y))
+
+
+static func _multi_mesh(
+	name: String,
+	mesh: Mesh,
+	transforms: Array[Transform3D],
+	colors: Array[Color],
+	material: StandardMaterial3D,
+	mesh_lift: Vector3
+) -> MultiMeshInstance3D:
+	var instance := MultiMeshInstance3D.new()
+	instance.name = name
+	var multi := MultiMesh.new()
+	multi.transform_format = MultiMesh.TRANSFORM_3D
+	multi.use_colors = true
+	multi.mesh = mesh
+	multi.instance_count = transforms.size()
+	for index in transforms.size():
+		var transform := transforms[index]
+		transform.origin += mesh_lift * transform.basis.get_scale().y
+		multi.set_instance_transform(index, transform)
+		multi.set_instance_color(index, colors[index])
+	instance.multimesh = multi
+	instance.material_override = material
+	return instance
+
+
+static func _building_cell_rects(definition: MapDefinition) -> Array[Rect2]:
+	var rects: Array[Rect2] = []
+	var scale := MapViewBridge.world_scale(definition.cell_size)
+	for building in definition.buildings:
+		var footprint: Rect2 = building["footprint"]
+		rects.append(Rect2(footprint.position * scale, footprint.size * scale))
+	return rects
+
+
+static func _cell_blocked(cell: Vector2i, rects: Array[Rect2]) -> bool:
+	var center := Vector2(cell) + Vector2(0.5, 0.5)
+	for rect in rects:
+		if rect.grow(0.5).has_point(center):
+			return true
+	return false
+
+
+static func _add_ground_quad(surface: SurfaceTool, x: int, y: int, height: float, tone: float = 1.0) -> void:
 	var x0 := float(x)
 	var x1 := float(x + 1)
 	var z0 := float(y)
@@ -234,7 +497,65 @@ static func _add_ground_quad(surface: SurfaceTool, x: int, y: int, height: float
 	for index in [0, 1, 2, 0, 2, 3]:
 		surface.set_normal(Vector3.UP)
 		surface.set_uv(uvs[index])
+		surface.set_color(Color(tone, tone, tone))
 		surface.add_vertex(corners[index])
+
+
+## Every house earns a stone chimney near one ridge end with a slow smoke
+## plume: deterministic per building id, view-only, and the cheapest signal
+## that somebody actually lives here.
+static func _add_chimney(root: Node3D, building: Dictionary, size: Vector2, wall_height: float) -> void:
+	var ridge_along_x := size.x >= size.y
+	var rise := (minf(size.x, size.y) * 0.5 + ROOF_OVERHANG) * ROOF_PITCH
+	var along := (maxf(size.x, size.y) * 0.5 - CHIMNEY_SIZE) * 0.62
+	if String(building["id"]).hash() % 2 == 0:
+		along = -along
+	var offset := Vector3(along, 0.0, 0.0) if ridge_along_x else Vector3(0.0, 0.0, along)
+	var top := wall_height + rise + 0.55
+	var stack := MeshInstance3D.new()
+	stack.name = "Chimney"
+	var stack_mesh := BoxMesh.new()
+	stack_mesh.size = Vector3(CHIMNEY_SIZE, top - wall_height + 0.9, CHIMNEY_SIZE)
+	stack.mesh = stack_mesh
+	stack.position = offset + Vector3(0.0, (top + wall_height - 0.9) * 0.5, 0.0)
+	stack.material_override = MapViewMaterials.role(&"stone")
+	root.add_child(stack)
+
+	var smoke := GPUParticles3D.new()
+	smoke.name = "ChimneySmoke"
+	smoke.position = offset + Vector3(0.0, top + 0.1, 0.0)
+	smoke.amount = SMOKE_AMOUNT
+	smoke.lifetime = SMOKE_LIFETIME
+	smoke.preprocess = SMOKE_LIFETIME
+	smoke.local_coords = true
+	var process := ParticleProcessMaterial.new()
+	process.direction = Vector3(0.35, 1.0, 0.1)
+	process.spread = 16.0
+	process.initial_velocity_min = 0.3
+	process.initial_velocity_max = 0.55
+	process.gravity = Vector3(0.14, 0.26, 0.0)
+	process.scale_min = 0.8
+	process.scale_max = 1.4
+	process.angle_min = -180.0
+	process.angle_max = 180.0
+	var scale_curve := Curve.new()
+	scale_curve.add_point(Vector2(0.0, 0.3))
+	scale_curve.add_point(Vector2(1.0, 1.0))
+	var curve_texture := CurveTexture.new()
+	curve_texture.curve = scale_curve
+	process.scale_curve = curve_texture
+	var alpha_ramp := Gradient.new()
+	alpha_ramp.set_color(0, Color(1.0, 1.0, 1.0, 0.32))
+	alpha_ramp.set_color(1, Color(1.0, 1.0, 1.0, 0.0))
+	var ramp_texture := GradientTexture1D.new()
+	ramp_texture.gradient = alpha_ramp
+	process.color_ramp = ramp_texture
+	smoke.process_material = process
+	var puff := QuadMesh.new()
+	puff.size = Vector2(1.0, 1.0)
+	puff.material = MapViewMaterials.smoke()
+	smoke.draw_pass_1 = puff
+	root.add_child(smoke)
 
 
 ## Gabled roof over a rectangular footprint: ridge along the longer axis,

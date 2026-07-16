@@ -5,13 +5,25 @@ class_name SharedCharacterRig
 const CANONICAL_ANIMATIONS: Dictionary = {
 	&"idle": &"Idle",
 	&"walk": &"Walking_A",
+	&"run": &"Running_A",
 	&"forge_strike": &"1H_Melee_Attack_Chop",
 	&"hammer_attack": &"1H_Melee_Attack_Slice_Diagonal",
 	&"guard": &"Blocking",
 	&"hit": &"Hit_A",
 	&"fall": &"Death_A",
 }
-const LOOPING_ANIMATIONS: Array[StringName] = [&"idle", &"walk", &"guard"]
+const LOOPING_ANIMATIONS: Array[StringName] = [&"idle", &"walk", &"run", &"guard"]
+
+## Ground speed (world units/s) at which each locomotion cycle looks right at
+## 1x playback; set_locomotion_speed stretches playback around these so feet
+## track the ground instead of skating.
+const LOCOMOTION_REFERENCE_SPEED: Dictionary = {
+	&"walk": 2.6,
+	&"run": 5.5,
+}
+const LOCOMOTION_SPEED_SCALE_MIN := 0.7
+const LOCOMOTION_SPEED_SCALE_MAX := 1.5
+const TURN_SMOOTHING := 10.0
 const VENDOR_EQUIPMENT_NAMES: Array[StringName] = [
 	&"1H_Axe_Offhand",
 	&"Barbarian_Round_Shield",
@@ -69,6 +81,32 @@ func set_facing(logic_direction: Vector2) -> void:
 		return
 	# Logic Y maps to world Z in the P0-052 bridge. The imported rig faces +Z.
 	rotation.y = atan2(logic_direction.x, logic_direction.y)
+
+## Frame-rate independent turn toward a logic direction; use instead of
+## set_facing for continuous movement so direction changes read as a turn
+## rather than a snap.
+func face_toward(logic_direction: Vector2, delta: float) -> void:
+	if logic_direction.is_zero_approx():
+		return
+	var target := atan2(logic_direction.x, logic_direction.y)
+	var weight := 1.0 - exp(-TURN_SMOOTHING * delta)
+	rotation.y = lerp_angle(rotation.y, target, weight)
+
+## Matches locomotion playback rate to actual ground speed (world units/s).
+## Non-locomotion animations always play at their authored rate.
+func set_locomotion_speed(world_speed: float) -> void:
+	if _animation_player == null:
+		return
+	var canonical := current_canonical_animation()
+	if not LOCOMOTION_REFERENCE_SPEED.has(canonical):
+		_animation_player.speed_scale = 1.0
+		return
+	var reference: float = LOCOMOTION_REFERENCE_SPEED[canonical]
+	_animation_player.speed_scale = clampf(
+		world_speed / reference,
+		LOCOMOTION_SPEED_SCALE_MIN,
+		LOCOMOTION_SPEED_SCALE_MAX
+	)
 
 func current_canonical_animation() -> StringName:
 	if _animation_player == null:

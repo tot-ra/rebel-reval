@@ -15,12 +15,10 @@ const PLAYER_RIG_SCENE := preload("res://assets/characters/kalev/kalev.tscn")
 const FOLLOW_LERP_WEIGHT := 8.0
 const SNAP_DISTANCE_WORLD := 6.0
 const WALK_ANIMATION_MIN_SPEED := 5.0
+## Logic px/s above which locomotion reads as running (midpoint between the
+## player's walk and run speeds).
+const RUN_ANIMATION_MIN_SPEED := 170.0
 const INPUT_PROJECTION_SAMPLE_PX := 64.0
-
-## Unlit surroundings past the map edge: darker than any walkable terrain so
-## the boundary stays readable, but no hard black void inside the frame.
-const APRON_SIZE_WORLD := 512.0
-const APRON_COLOR := Color8(44, 46, 42)
 
 var view: MapView3D
 
@@ -48,7 +46,6 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 
 	runtime._camera = runtime.view.view_camera()
 	runtime._camera.size = CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
-	runtime.add_child(runtime._create_apron())
 
 	scene_root.add_child(runtime)
 	runtime._configure_screen_relative_movement()
@@ -80,14 +77,19 @@ func _process(delta: float) -> void:
 func _sync_player(snap: bool, delta: float = 0.0) -> void:
 	view.sync_actor(_player_rig, _player.global_position)
 	_follow_player(snap, delta)
-	var moving := _player.velocity.length() > WALK_ANIMATION_MIN_SPEED
-	if moving:
-		_player_rig.set_facing(_player.velocity)
+	var speed := _player.velocity.length()
+	var moving := speed > WALK_ANIMATION_MIN_SPEED
+	var facing := _player.velocity if moving else _logic_direction_toward_camera()
+	if snap:
+		_player_rig.set_facing(facing)
 	else:
-		_player_rig.set_facing(_logic_direction_toward_camera())
-	var wanted: StringName = &"walk" if moving else &"idle"
+		_player_rig.face_toward(facing, delta)
+	var wanted: StringName = &"idle"
+	if moving:
+		wanted = &"run" if speed > RUN_ANIMATION_MIN_SPEED else &"walk"
 	if _player_rig.current_canonical_animation() != wanted:
 		_player_rig.play_animation(wanted)
+	_player_rig.set_locomotion_speed(speed * MapViewBridge.world_scale(_definition.cell_size))
 
 
 func _configure_screen_relative_movement() -> void:
@@ -112,21 +114,6 @@ func _follow_player(snap: bool, delta: float) -> void:
 		_camera.position = target
 		return
 	_camera.position = _camera.position.lerp(target, clampf(FOLLOW_LERP_WEIGHT * delta, 0.0, 1.0))
-
-
-func _create_apron() -> MeshInstance3D:
-	var apron := MeshInstance3D.new()
-	apron.name = "Apron"
-	var mesh := PlaneMesh.new()
-	mesh.size = Vector2(APRON_SIZE_WORLD, APRON_SIZE_WORLD)
-	var material := StandardMaterial3D.new()
-	material.albedo_color = APRON_COLOR
-	material.roughness = 1.0
-	mesh.material = material
-	apron.mesh = mesh
-	var map_units := Vector2(_definition.size_cells)
-	apron.position = Vector3(map_units.x * 0.5, -0.03, map_units.y * 0.5)
-	return apron
 
 
 static func _hide_player_canvas(player: CharacterBody2D) -> void:
