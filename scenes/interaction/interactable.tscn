@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3 uid="uid://c8k5interactable"]
+
+[ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="1_interactable"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_range"]
+radius = 115.0
+
+[node name="Interactable" type="Area2D"]
+script = ExtResource("1_interactable")
+
+[node name="Body" type="ColorRect" parent="."]
+offset_left = -12.0
+offset_top = -24.0
+offset_right = 12.0
+offset_bottom = 0.0
+color = Color(0.45, 0.58, 0.72, 1)
+
+[node name="FocusHighlight" type="ColorRect" parent="."]
+visible = false
+offset_left = -18.0
+offset_top = -30.0
+offset_right = 18.0
+offset_bottom = 6.0
+color = Color(0.95, 0.82, 0.35, 0.85)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_range")
