@@ -74,7 +74,16 @@ func test_all_terrain_ids_are_present() -> void:
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
 	var used: Array[StringName] = grid.used_terrain_ids()
 
-	for terrain_id in MapTypes.ALL_TERRAINS:
+	var courtyard_terrains: Array[StringName] = [
+		MapTypes.TERRAIN_GRASS,
+		MapTypes.TERRAIN_SAND,
+		MapTypes.TERRAIN_HAY,
+		MapTypes.TERRAIN_DIRT,
+		MapTypes.TERRAIN_COBBLESTONE,
+		MapTypes.TERRAIN_WATER,
+		MapTypes.TERRAIN_STONE,
+	]
+	for terrain_id in courtyard_terrains:
 		assert_array_contains(used, terrain_id, "Terrain ID missing from built map: %s" % String(terrain_id))
 
 

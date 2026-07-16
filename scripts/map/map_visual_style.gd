@@ -120,6 +120,9 @@ static func _pixel_terrain(terrain_id: StringName) -> Color:
 		MapTypes.TERRAIN_COBBLESTONE: return Color8(112, 107, 101)
 		MapTypes.TERRAIN_WATER: return Color8(52, 103, 124)
 		MapTypes.TERRAIN_STONE: return Color8(132, 130, 120)
+		MapTypes.TERRAIN_ASH: return Color8(96, 92, 88)
+		MapTypes.TERRAIN_TIMBER_FLOOR: return Color8(118, 82, 52)
+		MapTypes.TERRAIN_PLASTER: return Color8(188, 168, 132)
 		_: return Color.MAGENTA
 
 
@@ -132,6 +135,9 @@ static func _woodcut_terrain(terrain_id: StringName) -> Color:
 		MapTypes.TERRAIN_COBBLESTONE: return Color8(126, 119, 105)
 		MapTypes.TERRAIN_WATER: return Color8(66, 99, 105)
 		MapTypes.TERRAIN_STONE: return Color8(145, 136, 116)
+		MapTypes.TERRAIN_ASH: return Color8(104, 98, 92)
+		MapTypes.TERRAIN_TIMBER_FLOOR: return Color8(122, 86, 56)
+		MapTypes.TERRAIN_PLASTER: return Color8(198, 178, 140)
 		_: return Color.MAGENTA
 
 
@@ -144,6 +150,9 @@ static func _clean_terrain(terrain_id: StringName) -> Color:
 		MapTypes.TERRAIN_COBBLESTONE: return Color8(126, 125, 121)
 		MapTypes.TERRAIN_WATER: return Color8(58, 116, 143)
 		MapTypes.TERRAIN_STONE: return Color8(147, 147, 139)
+		MapTypes.TERRAIN_ASH: return Color8(108, 104, 98)
+		MapTypes.TERRAIN_TIMBER_FLOOR: return Color8(126, 88, 58)
+		MapTypes.TERRAIN_PLASTER: return Color8(205, 184, 146)
 		_: return Color.MAGENTA
 
 
@@ -162,6 +171,7 @@ static func _pixel_role(role: StringName) -> Color:
 		&"character_cloth": return Color8(166, 58, 47)
 		&"character_skin": return Color8(205, 157, 111)
 		&"character_apron": return Color8(79, 91, 91)
+		&"ember": return Color8(214, 98, 42)
 		_: return Color.MAGENTA
 
 
@@ -180,6 +190,7 @@ static func _woodcut_role(role: StringName) -> Color:
 		&"character_cloth": return Color8(151, 49, 42)
 		&"character_skin": return Color8(195, 156, 111)
 		&"character_apron": return Color8(69, 75, 68)
+		&"ember": return Color8(196, 88, 38)
 		_: return Color.MAGENTA
 
 
@@ -198,4 +209,5 @@ static func _clean_role(role: StringName) -> Color:
 		&"character_cloth": return Color8(178, 61, 49)
 		&"character_skin": return Color8(216, 169, 123)
 		&"character_apron": return Color8(83, 99, 101)
+		&"ember": return Color8(224, 108, 48)
 		_: return Color.MAGENTA

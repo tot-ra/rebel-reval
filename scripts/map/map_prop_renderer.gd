@@ -28,6 +28,16 @@ static func create_prop(
 		MapTypes.PROP_KIND_CART: _draw_cart(root, target, time_of_day)
 		MapTypes.PROP_KIND_WELL: _draw_well(root, target, time_of_day)
 		MapTypes.PROP_KIND_BARRELS: _draw_barrels(root, target, time_of_day)
+		MapTypes.PROP_KIND_FURNACE: _draw_furnace(root, target, time_of_day)
+		MapTypes.PROP_KIND_LEDGER: _draw_ledger(root, target, time_of_day)
+		MapTypes.PROP_KIND_BED: _draw_bed(root, target, time_of_day)
+		MapTypes.PROP_KIND_CHEST: _draw_chest(root, target, time_of_day)
+		MapTypes.PROP_KIND_TABLE: _draw_table(root, target, time_of_day)
+		MapTypes.PROP_KIND_SHELF: _draw_shelf(root, target, time_of_day)
+		MapTypes.PROP_KIND_QUENCH: _draw_quench(root, target, time_of_day)
+		MapTypes.PROP_KIND_STAIRS: _draw_stairs(root, target, time_of_day)
+		MapTypes.PROP_KIND_STALL: _draw_stall(root, target, time_of_day)
+		MapTypes.PROP_KIND_HEARTH: _draw_hearth(root, target, time_of_day)
 		_: _add_rect(root, "Marker", Vector2(-8, -8), Vector2(16, 16), Color.MAGENTA, target, time_of_day)
 	return root
 
@@ -63,6 +73,75 @@ static func _draw_well(parent: Node2D, target: StringName, time_of_day: StringNa
 	_add_circle(parent, "Water", Vector2(0, -10), 14.0, water, target, time_of_day)
 	_add_rect(parent, "Curb", Vector2(-24, -4), Vector2(48, 8), stone.darkened(0.10), target, time_of_day)
 	_add_line(parent, "WaterGlint", PackedVector2Array([Vector2(-8, -12), Vector2(8, -12)]), target, time_of_day, &"water_highlight")
+
+
+static func _draw_furnace(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	var stone := MapVisualStyle.role_color(&"stone", target, time_of_day)
+	var ember := MapVisualStyle.role_color(&"ember", target, time_of_day)
+	_add_rect(parent, "FurnaceBase", Vector2(-24, -18), Vector2(48, 28), stone.darkened(0.10), target, time_of_day)
+	_add_rect(parent, "FireMouth", Vector2(-14, -10), Vector2(28, 16), ember, target, time_of_day)
+	_add_rect(parent, "Chimney", Vector2(-8, -34), Vector2(16, 18), stone, target, time_of_day)
+
+
+static func _draw_ledger(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
+	_add_rect(parent, "LedgerDesk", Vector2(-20, -10), Vector2(40, 14), wood, target, time_of_day)
+	_add_rect(parent, "LedgerBook", Vector2(-10, -18), Vector2(20, 10), wood.lightened(0.18), target, time_of_day)
+
+
+static func _draw_bed(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
+	var plaster := MapVisualStyle.role_color(&"plaster", target, time_of_day)
+	_add_rect(parent, "BedFrame", Vector2(-28, -12), Vector2(56, 22), wood, target, time_of_day)
+	_add_rect(parent, "BedRoll", Vector2(-22, -18), Vector2(44, 12), plaster.lightened(0.10), target, time_of_day)
+
+
+static func _draw_chest(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
+	_add_rect(parent, "ChestBody", Vector2(-16, -12), Vector2(32, 20), wood.darkened(0.08), target, time_of_day)
+	_add_rect(parent, "ChestLid", Vector2(-16, -18), Vector2(32, 8), wood, target, time_of_day)
+
+
+static func _draw_table(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
+	_add_rect(parent, "TableTop", Vector2(-24, -8), Vector2(48, 12), wood, target, time_of_day)
+	_add_rect(parent, "LegL", Vector2(-20, 4), Vector2(6, 12), wood.darkened(0.12), target, time_of_day)
+	_add_rect(parent, "LegR", Vector2(14, 4), Vector2(6, 12), wood.darkened(0.12), target, time_of_day)
+
+
+static func _draw_shelf(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
+	_add_rect(parent, "ShelfBack", Vector2(-18, -28), Vector2(36, 34), wood.darkened(0.10), target, time_of_day)
+	_add_rect(parent, "ShelfMid", Vector2(-16, -10), Vector2(32, 4), wood, target, time_of_day)
+	_add_rect(parent, "ShelfTop", Vector2(-16, -24), Vector2(32, 4), wood, target, time_of_day)
+
+
+static func _draw_quench(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
+	var water := MapVisualStyle.terrain_color(MapTypes.TERRAIN_WATER, target, time_of_day)
+	_add_rect(parent, "Trough", Vector2(-18, -8), Vector2(36, 12), wood, target, time_of_day)
+	_add_rect(parent, "Water", Vector2(-14, -6), Vector2(28, 6), water, target, time_of_day)
+
+
+static func _draw_stairs(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	var stone := MapVisualStyle.role_color(&"stone", target, time_of_day)
+	for step in 4:
+		var y := step * 5
+		_add_rect(parent, "Step%d" % step, Vector2(-20 + step * 3, -8 + y), Vector2(40 - step * 6, 5), stone.darkened(step * 0.04), target, time_of_day)
+
+
+static func _draw_stall(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
+	var plaster := MapVisualStyle.role_color(&"plaster", target, time_of_day)
+	_add_rect(parent, "StallCounter", Vector2(-22, -10), Vector2(44, 12), wood, target, time_of_day)
+	_add_polygon(parent, "Awning", PackedVector2Array([Vector2(-26, -18), Vector2(26, -18), Vector2(18, -28), Vector2(-18, -28)]), plaster.darkened(0.05), target, time_of_day)
+
+
+static func _draw_hearth(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	var stone := MapVisualStyle.role_color(&"stone", target, time_of_day)
+	var ember := MapVisualStyle.role_color(&"ember", target, time_of_day)
+	_add_rect(parent, "HearthBase", Vector2(-20, -10), Vector2(40, 16), stone, target, time_of_day)
+	_add_rect(parent, "HearthFire", Vector2(-10, -6), Vector2(20, 8), ember, target, time_of_day)
 
 
 static func _draw_barrels(parent: Node2D, target: StringName, time_of_day: StringName) -> void:

@@ -41,10 +41,13 @@ static func create_building(
 
 	var wall_height: float = float(building.get("wall_height", 56.0))
 	var kind: StringName = building.get("kind", MapTypes.BUILDING_KIND_HOUSE)
-	if kind == MapTypes.BUILDING_KIND_WALL:
-		_draw_wall(visuals, local_footprint, wall_height, target, time_of_day)
-	else:
-		_draw_house(visuals, local_footprint, wall_height, target, time_of_day, String(building["id"]))
+	match kind:
+		MapTypes.BUILDING_KIND_WALL, MapTypes.BUILDING_KIND_INTERIOR_WALL:
+			_draw_wall(visuals, local_footprint, wall_height, target, time_of_day)
+		MapTypes.BUILDING_KIND_INTERIOR_BLOCK:
+			_draw_interior_block(visuals, local_footprint, wall_height, target, time_of_day)
+		_:
+			_draw_house(visuals, local_footprint, wall_height, target, time_of_day, String(building["id"]))
 	return body
 
 
@@ -111,6 +114,25 @@ static func _draw_house(
 	# Stable detail variation is visual-only and cannot move the footprint or pivot.
 	if abs(building_id.hash()) % 2 == 0:
 		_add_polygon(parent, "ForgeSign", _rect_points(Rect2(door.end.x + 5.0, facade.position.y + 7.0, 8.0, 8.0)), MapVisualStyle.role_color(&"metal", target, time_of_day), 7, ink, outline)
+
+
+static func _draw_interior_block(
+	parent: Node2D,
+	footprint: Rect2,
+	wall_height: float,
+	target: StringName,
+	time_of_day: StringName
+) -> void:
+	var ink := MapVisualStyle.role_color(&"ink", target, time_of_day)
+	var timber := MapVisualStyle.role_color(&"timber", target, time_of_day)
+	var plaster := MapVisualStyle.role_color(&"plaster", target, time_of_day)
+	var outline := MapVisualStyle.outline_width(target)
+	var shadow_rect := footprint
+	shadow_rect.position += MapVisualStyle.shadow_offset(target)
+	_add_polygon(parent, "GroundShadow", _rect_points(shadow_rect), Color(ink, MapVisualStyle.shadow_alpha(target, time_of_day)), -3)
+	_add_polygon(parent, "BlockMass", _rect_points(footprint), timber.darkened(0.12), 0, ink, outline)
+	var face := Rect2(footprint.position.x, footprint.end.y - minf(footprint.size.y * 0.55, wall_height * 0.35), footprint.size.x, minf(footprint.size.y * 0.55, wall_height * 0.35))
+	_add_polygon(parent, "BlockFace", _rect_points(face), plaster.darkened(0.08), 1, ink, outline)
 
 
 static func _draw_wall(parent: Node2D, footprint: Rect2, wall_height: float, target: StringName, time_of_day: StringName) -> void:
