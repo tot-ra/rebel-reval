@@ -42,7 +42,7 @@ Coordination caveat: P1-007, P1-009, P1-015, and P1-019 integrate with GameState
 - [ ] P1-012 | deps: P0-014,P1-011 | deliverable: dialogue UI with speaker, portrait, text, choices, continue, skip, backlog, and disabled-choice reason | verify: keyboard, mouse, and gamepad complete a branching dialogue at all supported text scales
 - [ ] P1-013 | deps: P1-012 | deliverable: dialogue settings for text speed, font size, contrast, subtitle background, and reduced motion | verify: settings persist across restart and affect the dialogue test scene
 - [ ] P1-014 | deps: P1-012 | deliverable: pseudo-localization and dialogue overflow test | verify: expanded pseudo-localized strings fit or scroll without clipping at target resolutions
-- [ ] P1-015 | deps: P1-005,P1-006,P1-010 | deliverable: `QuestManager` with explicit validated quest transitions | verify: tests traverse every valid slice transition and reject invalid transitions
+- [x] P1-015 | deps: P1-005,P1-006,P1-010 | deliverable: `QuestManager` with explicit validated quest transitions | verify: tests traverse every valid slice transition and reject invalid transitions
 - [ ] P1-016 | deps: P1-015 | deliverable: journal showing current objective and discovered evidence without hidden outcomes | verify: journal updates from quest state and persists through save/load
 - [ ] P1-017 | deps: P1-006,P1-015 | deliverable: authored morning, investigation, night, and reflection phase transitions | verify: phase tests update participating NPC placement, props, barks, patrols, and music hooks
 - [ ] P1-018 | deps: P0-022,P1-006 | deliverable: reusable `Interactable` with stable ID, prompt, focus highlight, and callback | verify: keyboard and gamepad activate three different interactable types in a test scene

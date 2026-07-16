@@ -783,6 +783,54 @@ def _validate_record_semantics(
             diagnostics, path=path, pointer="$.outcomes", ids=_local_ids(record.get("outcomes")), root=root
         )
         state_ids = set(_local_ids(record.get("states")))
+        initial_state = record.get("initial_state")
+        if isinstance(initial_state, str) and state_ids and initial_state not in state_ids:
+            diagnostics.append(
+                _diag(
+                    "REFERENCE",
+                    path,
+                    "$.initial_state",
+                    f"unknown quest state id {initial_state!r}",
+                    root=root,
+                )
+            )
+        _check_local_duplicates(
+            diagnostics,
+            path=path,
+            pointer="$.transitions",
+            ids=_local_ids(record.get("transitions")),
+            root=root,
+        )
+        for transition_index, transition in enumerate(record.get("transitions") or []):
+            if not isinstance(transition, dict):
+                continue
+            for field in ("from_state", "to_state"):
+                state_id = transition.get(field)
+                if isinstance(state_id, str) and state_ids and state_id not in state_ids:
+                    diagnostics.append(
+                        _diag(
+                            "REFERENCE",
+                            path,
+                            f"$.transitions[{transition_index}].{field}",
+                            f"unknown quest state id {state_id!r}",
+                            root=root,
+                        )
+                    )
+            for effect_index, effect in enumerate(transition.get("effects") or []):
+                if (
+                    isinstance(effect, dict)
+                    and effect.get("op") == "set_quest_state"
+                    and effect.get("key") == record.get("id")
+                ):
+                    diagnostics.append(
+                        _diag(
+                            "UNSUPPORTED_EFFECT",
+                            path,
+                            f"$.transitions[{transition_index}].effects[{effect_index}]",
+                            "quest transitions must use to_state instead of setting their own quest state",
+                            root=root,
+                        )
+                    )
         for obj_index, objective in enumerate(record.get("objectives") or []):
             if not isinstance(objective, dict):
                 continue

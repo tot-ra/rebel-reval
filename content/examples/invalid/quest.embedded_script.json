@@ -9,10 +9,19 @@
     "status": "draft"
   },
   "entry_conditions": [],
+  "initial_state": "start",
   "states": [
     {
       "id": "start",
       "label": "Start"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "finish",
+      "from_state": "start",
+      "to_state": "start",
+      "effects": []
     }
   ],
   "objectives": [

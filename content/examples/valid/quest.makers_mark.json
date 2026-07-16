@@ -17,6 +17,7 @@
       "value": "active"
     }
   ],
+  "initial_state": "not_started",
   "states": [
     {
       "id": "not_started",
@@ -30,6 +31,63 @@
       "id": "ledger_committed",
       "label": "Ledger branch committed",
       "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "discover_incident",
+      "from_state": "not_started",
+      "to_state": "incident_known",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.prologue_maker_mark_incident",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "preserve_ledger",
+      "from_state": "incident_known",
+      "to_state": "ledger_committed",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.forge_ledger_preserved",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "alter_ledger",
+      "from_state": "incident_known",
+      "to_state": "ledger_committed",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.forge_ledger_altered",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "destroy_ledger",
+      "from_state": "incident_known",
+      "to_state": "ledger_committed",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.mart_missing",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "adjust_pressure",
+          "key": "pressure.suspicion",
+          "amount": 1
+        }
+      ]
     }
   ],
   "objectives": [

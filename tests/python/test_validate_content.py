@@ -98,7 +98,19 @@ def _minimal_quest(quest_id: str = "quest.test_a", **overrides) -> dict:
         "canon_status": "draft",
         "approval": {"status": "draft"},
         "entry_conditions": [],
-        "states": [{"id": "open", "label": "Open"}],
+        "initial_state": "open",
+        "states": [
+            {"id": "open", "label": "Open"},
+            {"id": "done", "label": "Done", "terminal": True},
+        ],
+        "transitions": [
+            {
+                "id": "complete",
+                "from_state": "open",
+                "to_state": "done",
+                "effects": [{"op": "set_flag", "key": "flag.quest_done", "value": True}],
+            }
+        ],
         "objectives": [{"id": "obj", "text": "Do thing", "state_id": "open"}],
         "outcomes": [
             {
@@ -334,6 +346,66 @@ class ValidateContentTests(unittest.TestCase):
                             "id": "done",
                             "summary": "Done",
                             "effects": [{"op": "set_flag", "key": "char.bad", "value": True}],
+                        }
+                    ]
+                ),
+            )
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("UNSUPPORTED_EFFECT", _codes(diagnostics))
+
+    def test_quest_transition_rejects_unknown_state_reference(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(
+                content / "quest.json",
+                _minimal_quest(
+                    transitions=[
+                        {
+                            "id": "complete",
+                            "from_state": "open",
+                            "to_state": "missing",
+                            "effects": [],
+                        }
+                    ]
+                ),
+            )
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("REFERENCE", _codes(diagnostics))
+
+    def test_quest_transition_rejects_duplicate_ids(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            transition = {
+                "id": "complete",
+                "from_state": "open",
+                "to_state": "done",
+                "effects": [],
+            }
+            _write(content / "quest.json", _minimal_quest(transitions=[transition, transition]))
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("DUPLICATE_ID", _codes(diagnostics))
+
+    def test_quest_transition_rejects_direct_self_state_effect(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(
+                content / "quest.json",
+                _minimal_quest(
+                    transitions=[
+                        {
+                            "id": "complete",
+                            "from_state": "open",
+                            "to_state": "done",
+                            "effects": [
+                                {
+                                    "op": "set_quest_state",
+                                    "key": "quest.test_a",
+                                    "value": "done",
+                                }
+                            ],
                         }
                     ]
                 ),
