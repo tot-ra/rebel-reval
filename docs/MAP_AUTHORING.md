@@ -191,3 +191,13 @@ Headless tests cover definition validation (including negative cases), terrain d
 - **Procedural geometry only** - no new raster assets.
 - **Do not modify active districts** (`reval_east`, `reval_center`, `forge`, etc.) until P0-040 / P2-003.
 - **No JSON/schema framework** - plain typed GDScript dictionaries keep the spike small and AI-editable.
+
+
+## Inactive outdoor prototypes
+
+Outdoor verification maps live under `scripts/map/definitions/outdoor/`. Location files declare composition only and must call `OutdoorMapFactory.create()`; do not create a location-specific builder or scene framework. The factory forces `scope=prototype`, `active=false`, no transitions, stable `prototype_inspection` spawn metadata, camera bounds, source references, and deterministic fingerprints. `OutdoorTerrainPalette` covers shared historically plausible ground classes. Snow is not part of the palette without a canonical phase decision. Generate captures with:
+
+```bash
+/Applications/Godot.app/Contents/MacOS/Godot --path . --script tools/capture_outdoor_maps.gd
+python3 tools/verify_outdoor_prototypes.py
+```

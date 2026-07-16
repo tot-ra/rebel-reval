@@ -222,3 +222,17 @@ At this baseline the expected repository scene count is **43**. P0-018 recorded 
 - [ ] Archive source markdown and images remain available and are not treated as approved runtime art.
 - [ ] Visual parity checks topology, interactions, collision, navigation, depth and palette rather than pixel copying.
 - [ ] Automated verification and its seeded-failure tests pass.
+
+
+## Inactive outdoor prototype evidence (ADR 0005)
+
+The archive disposition of the legacy harbor, world, castle, grove, and event `.tscn` shells is unchanged. ADR 0005 permits separate declarative definitions solely as `scope=prototype`, `active=false` verification artifacts. They are not conversion commitments and are absent from Start, active destinations, and release traversal.
+
+| Package | Definitions | Evidence |
+|---|---|---|
+| Coast/harbor | Reval harbor surroundings, Paldiski coastal outpost | `scripts/map/definitions/outdoor/coast_harbor_definitions.gd` |
+| Villages/monasteries | Harju village, Padise monastery with before/after phase metadata | `scripts/map/definitions/outdoor/village_monastery_definitions.gd` |
+| Castles | Haapsalu, Paide, Viljandi, Poide, Maasilinna, Karja | `scripts/map/definitions/outdoor/castle_definitions.gd` |
+| Wilderness/events | Sacred grove, Pärnu, Pskov arrival, rebel kings camp, Saaremaa, Swedish outpost, Swedish arrival | `scripts/map/definitions/outdoor/wilderness_event_definitions.gd` |
+
+All 17 definitions use one `OutdoorMapFactory`, full base terrain coverage with ordered zones, shared structure/prop primitives, footprint-derived collision, a stable developer inspection spawn, a deterministic inspection route, at least three landmarks, and a SHA-256 definition fingerprint. Snow is intentionally absent because no approved canonical phase requires it. Existing images are layout references only; captures are procedural renders.
