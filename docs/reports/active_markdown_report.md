@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `30`
-- Markdown files excluded as archive/reference/out of active scope: `287`
-- Local/external links inspected: `81`
-- Links to active Markdown docs: `53`
+- Active Markdown files scanned: `32`
+- Markdown files excluded as archive/reference/out of active scope: `290`
+- Local/external links inspected: `91`
+- Links to active Markdown docs: `63`
 - Links to existing archive/reference/non-active local docs: `9`
 - External links skipped for reachability: `1`
 - Issues found: `0`
@@ -45,6 +45,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0004-clean-painted-visual-style-candidate.md`
 - `docs/adr/0005-inactive-outdoor-map-prototypes.md`
 - `docs/adr/0006-interior-compact-urban-conversion-scope.md`
+- `docs/adr/0007-ai-generated-isometric-presentation.md`
 - `docs/ART_BIBLE.md`
 - `docs/ASSET_INVENTORY.md`
 - `docs/ASSET_STORAGE_POLICY.md`
@@ -62,6 +63,7 @@ No active Markdown documentation issues found.
 - `docs/HISTORICAL_AUDIT.md`
 - `docs/MAP_AUTHORING.md`
 - `docs/MAP_CONVERSION_PLAN.md`
+- `docs/MATERIAL_STYLE_LOCK_KIT.md`
 - `docs/SCENES/a-bitter-brew.md`
 - `docs/SCENES/the-makers-mark-branch-map.md`
 - `docs/SCENES/the-makers-mark.md`

@@ -1,10 +1,10 @@
 # Art Bible
 
-Status: **Approved**
+Status: **Superseded as style candidate** — [ADR 0007](adr/0007-ai-generated-isometric-presentation.md) (2026-07-16) replaces the clean-painted flat-color candidate with an AI-generated painted isometric presentation. Scale, pivot, shadow, value-hierarchy, night-grade, and Reval shape-language rules below carry forward into ART_BIBLE v2 (produced by P0-040); material prompts, post-grade parameters, and the eight-family palette lock live in [`MATERIAL_STYLE_LOCK_KIT.md`](MATERIAL_STYLE_LOCK_KIT.md) (P0-051). The flat-color palette-as-final-art sections are historical evidence only.
 Recorded: 2026-07-16  
-Evidence: [P0-036 visual target report](reports/visual_targets_p0_036.md), [P0-036 UX review](reports/visual_targets_p0_036_ux_review.md), [ADR 0004](adr/0004-clean-painted-visual-style-candidate.md)
+Evidence: [P0-036 visual target report](reports/visual_targets_p0_036.md), [P0-036 UX review](reports/visual_targets_p0_036_ux_review.md), [ADR 0004](adr/0004-clean-painted-visual-style-candidate.md) (superseded), [ADR 0007](adr/0007-ai-generated-isometric-presentation.md)
 
-This document freezes the candidate rules exercised by the P0-036 Smithy Courtyard gate. It does not authorize conversion of active districts. Final approval remains blocked by P0-038, P0-039, and a human P0-040 decision.
+This document froze the candidate rules exercised by the P0-036 Smithy Courtyard gate. It does not authorize conversion of active districts. Final approval remains blocked by P0-038, P0-039, and a human P0-040 decision over the ADR 0007 candidate.
 
 ## Candidate direction
 
