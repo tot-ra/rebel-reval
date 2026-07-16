@@ -5,9 +5,8 @@ Format: `- [ ] ID | deps: ID,ID or none | deliverable: concrete artifact or beha
 
 ## Immediate parallel starts
 
-Coordination note (2026-07-16): recomputed from the authoritative checklist after completing P1-005. Only unchecked tasks whose listed dependencies are marked `[x]` appear below.
+Coordination note (2026-07-16): recomputed from the authoritative checklist after completing P0-034. Only unchecked tasks whose listed dependencies are marked `[x]` appear below.
 
-- P0-034 - migration matrix for current TileSets, maps, collisions, animations, HUD, and assets. Documentation/reporting work; coordinate with the asset and scene inventories and avoid concurrent edits to shared reports.
 - P0-036 - pixel, digital-woodcut, and clean-painted visual targets using the same composition. Visual comparison work; keep framing and gameplay scale identical across targets.
 - P1-007 - atomic one-slot manual save and phase-boundary autosave with one backup. Own the save subsystem and related fixtures; avoid overlap with other GameState serialization work.
 - P1-009 - debug state inspector with deterministic reset and branch/phase jump. Own debug UI/tooling; coordinate its GameState-facing API with P1-007.
@@ -52,7 +51,7 @@ Coordination caveat: P1-007, P1-009, and P1-010 all integrate with GameState, so
 - [x] P0-031 | deps: P0-029,P0-030 | deliverable: restore menu, forge, and town music with repository-owned procedural prototype themes and centralized scene hooks | verify: `godot --headless --script tools/test_music_director.gd` synthesizes every routed looping theme and active scenes load without quarantined audio references
 - [x] P0-032 | deps: P0-006,P0-031 | deliverable: archived speculative locations and NPC documents outside approved scope | verify: active documentation contains no unresolved link to archived speculative content
 - [x] P0-033 | deps: P0-017,P0-026 | deliverable: one comparison-room greybox with movement, collision, Y-sort, doorway, foreground fade, six NPC bodies, dialogue interaction, and combat exchange | verify: all listed behaviors run in one scene
-- [ ] P0-034 | deps: P0-018,P0-033 | deliverable: migration matrix for current TileSets, maps, collisions, animations, HUD, and assets | verify: every slice-relevant current artifact is marked `retain`, `convert`, or `archive`
+- [x] P0-034 | deps: P0-018,P0-033 | deliverable: migration matrix for current TileSets, maps, collisions, animations, HUD, and assets | verify: every slice-relevant current artifact is marked `retain`, `convert`, or `archive`
 - [x] P0-035 | deps: P0-033 | deliverable: current diamond-isometric/eight-direction and proposed orthogonal/four-direction variants of the same room | verify: both variants contain equivalent navigation, interaction, and combat content
 - [ ] P0-036 | deps: P0-035 | deliverable: pixel, digital-woodcut, and clean-painted visual targets using the same composition | verify: all three are reviewed at identical camera framing and gameplay scale
 - [ ] P0-037 | deps: P0-036 | deliverable: shared cutout rig with idle, four-direction walk, forge strike, hammer attack, guard, hit, and fall | verify: one rig plays every required animation without frame-specific character redraws
