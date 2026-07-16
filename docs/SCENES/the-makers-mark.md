@@ -17,6 +17,7 @@
 * **Captain Henning:** Commander of the Viru Watch. Imposing, representing the local city watch authority.
 * **Mart:** Kalev's 16-year-old apprentice. Mart is not physically present in this prologue beat; his absence and the missing rejected iron create the incident Kalev must answer for.
 
+See also: [Branch Map & State Table](the-makers-mark-branch-map.md) for detailed node transitions and game state variables.
 ## Interactions
 
 1. **Introduction:** Kalev starts in the Smithy Courtyard and enters the smithy to repair a plough part and a watchman's buckle.

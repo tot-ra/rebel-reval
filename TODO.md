@@ -96,7 +96,7 @@ Coordination caveat: P0-030 and P0-034 both depend on inventory interpretation a
 
 ## P2 - Vertical-slice production
 
-- [ ] P2-001 | deps: P0-010,P0-013,P1-003 | deliverable: final prologue branch map and state table before prose | verify: every node has entry conditions, effects, exit, and reachable outcome
+- [x] P2-001 | deps: P0-010,P0-013,P1-003 | deliverable: final prologue branch map and state table before prose | verify: every node has entry conditions, effects, exit, and reachable outcome
 - [x] P2-002 | deps: P0-009,P0-013,P1-003 | deliverable: final `A Bitter Brew` branch map and state table before prose | verify: map contains investigation evidence, three forging options, combat and non-combat resolution, and three aftermath states
 - [ ] P2-003 | deps: P0-040,P1-029 | deliverable: modular environment kit for forge, street/well, brewery, and checkpoint | verify: four spaces are assembled without bespoke projection or scale exceptions
 - [ ] P2-004 | deps: P0-037,P0-040,P1-029 | deliverable: approved layered game models and portraits for Kalev, Mart, Aita, Kaja, Henning, and Jürgen | verify: all six use the shared rig, pass asset lint, and match art-bible silhouette and palette rules
