@@ -34,7 +34,7 @@ INVENTORY_ROW = re.compile(
     r"^\| \d+ \| `(?P<scene>[^`]+\.tscn)` \| `?(?P<class>working|partial|placeholder|archive)`? \|"
 )
 TASK_ROW = re.compile(
-    r"^- \[ \] (?P<id>P[0-9]+-[0-9]+) \| deps: (?P<deps>[^|]+) \| deliverable: (?P<deliverable>.*?) "
+    r"^- \\[ x\\] (?P<id>P[0-9]+-[0-9]+) \| deps: (?P<deps>[^|]+) \| deliverable: (?P<deliverable>.*?) "
     r"\| allowed files: (?P<allowed>.*?) \| constraints: (?P<constraints>.*?) \| verify: (?P<verify>.*)$"
 )
 CODE_PATH = re.compile(r"`([^`]+)`")
@@ -262,7 +262,7 @@ def validate_map_conversion_plan(
                 errors.append(ValidationError(f"prototype `{scene}` lacks activation gate"))
 
     todo_text = todo_path.read_text(encoding="utf-8")
-    slice_gate = re.search(r"^- \[ \] P2-012 \| deps: (?P<deps>[^|]+) \|", todo_text, re.MULTILINE)
+    slice_gate = re.search(r"^- \\[ x\\] P2-012 \| deps: (?P<deps>[^|]+) \|", todo_text, re.MULTILINE)
     if slice_gate is None or "P2-021" not in {dep.strip() for dep in slice_gate.group("deps").split(",")}:
         errors.append(ValidationError("vertical-slice gate `P2-012` must depend on parity gate `P2-021`"))
 
