@@ -7,6 +7,7 @@ const DEFINITION_SCRIPT := preload("res://scripts/map/definitions/lower_town/low
 @onready var player = $Actors/Player
 
 var _bootstrap: Dictionary = {}
+var _view_runtime: MapViewRuntime
 
 
 func _ready() -> void:
@@ -18,10 +19,11 @@ func _ready() -> void:
 		var navigation: NavigationRegion2D = _bootstrap.get("navigation")
 		if navigation != null:
 			player.navigation_agent.set_navigation_map(navigation.get_navigation_map())
+	_view_runtime = MapViewRuntime.install(self, _bootstrap, map_root, player)
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if player == null:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		player.navigation_agent.set_target_position(get_global_mouse_position())
+		player.navigation_agent.set_target_position(_view_runtime.logic_position_at_screen(event.position))

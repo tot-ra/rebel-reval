@@ -1,0 +1,12 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://assets/characters/shared/shared_character_rig.gd" id="1_rig"]
+[ext_resource type="PackedScene" path="res://assets/characters/shared/kaykit_barbarian.glb" id="2_model"]
+[ext_resource type="Resource" path="res://assets/characters/kalev/kalev_variant.tres" id="3_variant"]
+
+[node name="SharedCharacterRig" type="Node3D"]
+script = ExtResource("1_rig")
+variant = ExtResource("3_variant")
+
+[node name="Model" parent="." instance=ExtResource("2_model")]
+scale = Vector3(0.9148, 0.9148, 0.9148)

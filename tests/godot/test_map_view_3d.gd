@@ -1,0 +1,216 @@
+extends "res://tests/godot/test_case.gd"
+
+## P0-052: the 3D orthographic view layer must render the smithy courtyard and
+## Lower Town slice definitions without changing any logic-plane result, and
+## actor positions synchronized from the logic plane must match anchors within
+## one logic cell.
+
+const SmithyCourtyard := preload("res://scripts/map/smithy_courtyard_definition.gd")
+const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
+const PLAYER_SCENE := preload("res://player.tscn")
+
+
+func _view_definitions() -> Array[MapDefinition]:
+	return [SmithyCourtyard.create(), LowerTownSlice.create()]
+
+
+func test_bridge_maps_logic_axes_to_world_axes() -> void:
+	var world := MapViewBridge.logic_to_world(Vector2(96.0, 64.0), 32)
+	assert_eq(world, Vector3(3.0, 0.0, 2.0), "logic (x, y) must map to world (x, 0, z)")
+	var logic := MapViewBridge.world_to_logic(world, 32)
+	assert_eq(logic, Vector2(96.0, 64.0), "bridge round trip must be exact")
+	assert_eq(
+		MapViewBridge.logic_to_world(Vector2(96.0, 64.0), 32),
+		MapViewBridge.logic_to_world(Vector2(96.0, 64.0), 32),
+		"bridge must be deterministic"
+	)
+	assert_eq(MapViewBridge.cell_center_to_world(Vector2i(0, 0), 32), Vector3(0.5, 0.0, 0.5))
+
+
+func test_actor_sync_matches_anchors_within_one_cell() -> void:
+	for definition in _view_definitions():
+		var grid := MapBuilder.build(definition)
+		var view := MapView3D.create(definition, grid)
+		var actor := Node3D.new()
+		for anchor in definition.interaction_anchors:
+			var anchor_position: Vector2 = anchor["position"]
+			view.sync_actor(actor, anchor_position)
+			var logic_back := MapViewBridge.world_to_logic(actor.position, definition.cell_size)
+			assert_true(
+				logic_back.distance_to(anchor_position) < float(definition.cell_size),
+				"%s: synced actor must sit within one logic cell of anchor %s"
+					% [definition.map_id, anchor["id"]]
+			)
+			var marker := view.get_node("Anchors/%s" % String(anchor["id"])) as Marker3D
+			assert_true(marker != null, "%s: anchor marker missing for %s" % [definition.map_id, anchor["id"]])
+			assert_true(
+				marker.position.distance_to(actor.position) < 1.0,
+				"%s: anchor marker and synced actor must agree within one cell" % definition.map_id
+			)
+		actor.free()
+		view.free()
+
+
+func test_view_renders_definitions_without_touching_logic_results() -> void:
+	for definition in _view_definitions():
+		var grid := MapBuilder.build(definition)
+		var fingerprint_before := grid.fingerprint()
+		var definition_fingerprint_before := definition.fingerprint
+		var blocked_before := MapVerification.blocked_cells(definition).hash()
+
+		var view := MapView3D.create(definition, grid)
+
+		var terrain := view.get_node("Terrain")
+		assert_eq(
+			terrain.get_child_count(),
+			grid.used_terrain_ids().size(),
+			"%s: one terrain region mesh per used terrain" % definition.map_id
+		)
+		assert_eq(
+			view.get_node("Buildings").get_child_count(),
+			definition.buildings.size(),
+			"%s: one building node per definition building" % definition.map_id
+		)
+		assert_eq(
+			view.get_node("Props").get_child_count(),
+			definition.props.size(),
+			"%s: one prop node per definition prop" % definition.map_id
+		)
+
+		var camera := view.view_camera()
+		assert_eq(camera.projection, Camera3D.PROJECTION_ORTHOGONAL, "camera must be orthographic")
+		assert_true(
+			camera.rotation_degrees.is_equal_approx(Vector3(-30.0, 45.0, 0.0)),
+			"%s: camera must keep the fixed dimetric framing" % definition.map_id
+		)
+
+		var sun := view.sun_light()
+		assert_true(sun is DirectionalLight3D, "sun must be a DirectionalLight3D")
+		assert_true(sun.shadow_enabled, "sun must cast real shadows")
+
+		assert_eq(grid.fingerprint(), fingerprint_before, "%s: grid fingerprint must be unchanged" % definition.map_id)
+		assert_eq(definition.fingerprint, definition_fingerprint_before, "%s: definition fingerprint must be unchanged" % definition.map_id)
+		assert_eq(
+			MapVerification.blocked_cells(definition).hash(),
+			blocked_before,
+			"%s: collision cells must be unchanged" % definition.map_id
+		)
+		assert_true(MapVerification.collision_parity(definition), "%s: 2D collision parity must still hold" % definition.map_id)
+		assert_true(definition.validate().is_empty(), "%s: definition must still validate" % definition.map_id)
+		view.free()
+
+
+func test_houses_get_gabled_roofs_and_walls_get_caps() -> void:
+	var definition := SmithyCourtyard.create()
+	for building in definition.buildings:
+		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
+		assert_true(node.has_node("Walls"), "every building needs a wall prism")
+		if building["kind"] == MapTypes.BUILDING_KIND_HOUSE:
+			assert_true(node.has_node("Roof"), "%s: houses need a gabled roof" % building["id"])
+			var roof := node.get_node("Roof") as MeshInstance3D
+			assert_true(roof.mesh is ArrayMesh, "%s: gabled roof must be generated geometry" % building["id"])
+		else:
+			assert_true(node.has_node("Cap"), "%s: walls need a flat cap" % building["id"])
+		node.free()
+
+
+func test_every_prop_kind_builds_parametric_geometry() -> void:
+	for kind in MapTypes.ALL_PROP_KINDS:
+		var node := MapViewMeshBuilder.build_prop(
+			{"id": kind, "kind": kind, "position": Vector2(64.0, 64.0)},
+			MapTypes.DEFAULT_CELL_SIZE
+		)
+		assert_true(node.get_child_count() >= 1, "%s: prop must produce geometry" % kind)
+		assert_false(node.has_node("Marker"), "%s: prop must not fall back to the unknown-kind marker" % kind)
+		assert_eq(node.position, Vector3(2.0, 0.0, 2.0), "%s: prop anchors at the definition position" % kind)
+		node.free()
+
+
+func test_night_state_is_deterministic_and_darker() -> void:
+	var definition := SmithyCourtyard.create()
+	var first := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_NIGHT)
+	var second := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_NIGHT)
+	assert_eq(first.sun_light().light_energy, second.sun_light().light_energy, "night sun energy must be deterministic")
+	assert_eq(first.sun_light().light_color, second.sun_light().light_color, "night sun color must be deterministic")
+	assert_eq(first.sun_light().rotation_degrees, second.sun_light().rotation_degrees, "night sun angle must be deterministic")
+	assert_true(
+		MapView3D.SUN_NIGHT_ENERGY <= MapView3D.SUN_DAY_ENERGY * 0.8,
+		"night must be at least 20 percent darker than day"
+	)
+	first.set_time_of_day(MapView3D.TIME_DAY)
+	assert_true(
+		is_equal_approx(first.sun_light().light_energy, MapView3D.SUN_DAY_ENERGY),
+		"day state must restore deterministically"
+	)
+	first.free()
+	second.free()
+
+
+func test_placeholder_materials_cover_every_terrain() -> void:
+	for terrain_id in MapTypes.ALL_TERRAINS:
+		var material := MapViewMaterials.terrain(terrain_id, MapTypes.DEFAULT_SEED)
+		assert_ne(material.albedo_color, Color.MAGENTA, "%s: terrain needs a placeholder material" % terrain_id)
+		assert_true(material.albedo_texture != null, "%s: placeholder material needs procedural detail" % terrain_id)
+
+
+func test_runtime_hides_flat_map_visuals_without_disabling_collision() -> void:
+	var terrain := Node2D.new()
+	var building := StaticBody2D.new()
+	var collision := CollisionShape2D.new()
+	var shape := RectangleShape2D.new()
+	shape.size = Vector2(32.0, 32.0)
+	collision.shape = shape
+	building.add_child(collision)
+	var prop := Node2D.new()
+	var bootstrap := {
+		"assembled": {
+			"terrain": terrain,
+			"buildings": [building],
+			"props": [prop],
+		},
+	}
+
+	MapViewRuntime._hide_flat_map_visuals(bootstrap)
+
+	assert_false(terrain.visible, "flat terrain must not overlay the 3D view")
+	assert_false(building.visible, "flat building art must not overlay the 3D view")
+	assert_false(prop.visible, "flat prop art must not overlay the 3D view")
+	assert_false(collision.disabled, "hiding flat art must preserve logic-plane collision")
+	terrain.free()
+	building.free()
+	prop.free()
+
+
+func test_runtime_maps_keyboard_to_screen_axes_and_faces_idle_rig_at_camera() -> void:
+	var scene_root := Node2D.new()
+	var map_root := Node2D.new()
+	var actors := Node2D.new()
+	var player := PLAYER_SCENE.instantiate() as Player
+	scene_root.add_child(map_root)
+	scene_root.add_child(actors)
+	actors.add_child(player)
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(scene_root)
+
+	var definition := LowerTownSlice.create()
+	var bootstrap := {
+		"definition": definition,
+		"grid": MapBuilder.build(definition),
+		"assembled": {"buildings": [], "props": []},
+	}
+	var runtime := MapViewRuntime.install(scene_root, bootstrap, map_root, player)
+	var screen_up_in_logic := player.movement_direction_for_screen_input(Vector2.UP)
+	assert_true(
+		screen_up_in_logic.is_equal_approx(Vector2(-1.0, -1.0).normalized()),
+		"the fixed camera must project Up to the screen's top edge"
+	)
+
+	var rig := runtime.get_node("PlayerRig") as SharedCharacterRig
+	var camera := runtime.view.view_camera()
+	var camera_offset := camera.position - rig.position
+	var camera_direction := Vector2(camera_offset.x, camera_offset.z).normalized()
+	assert_true(
+		is_equal_approx(rig.rotation.y, atan2(camera_direction.x, camera_direction.y)),
+		"an idle player rig must turn toward the gameplay camera"
+	)
+	scene_root.free()

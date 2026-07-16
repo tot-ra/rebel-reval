@@ -28,7 +28,7 @@ static func create() -> MapDefinition:
 	]
 
 	definition.buildings = [
-		{"id": &"smithy_facade", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(20, 14, 8, 5)), "wall_height": 72.0, "wall_color": Color(0.34, 0.30, 0.26), "roof_color": Color(0.22, 0.20, 0.18)},
+		{"id": &"smithy_facade", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(20, 14, 8, 4)), "wall_height": 72.0, "wall_color": Color(0.34, 0.30, 0.26), "roof_color": Color(0.22, 0.20, 0.18)},
 		{"id": &"brewery_facade", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(42, 14, 7, 5)), "wall_height": 68.0, "wall_color": Color(0.38, 0.32, 0.26), "roof_color": Color(0.24, 0.20, 0.16)},
 		{"id": &"checkpoint_west_mass", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(6, 20, 3, 8)), "wall_height": 56.0, "wall_color": Color(0.48, 0.50, 0.54)},
 		{"id": &"checkpoint_east_mass", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(55, 20, 3, 8)), "wall_height": 56.0, "wall_color": Color(0.48, 0.50, 0.54)},
@@ -44,7 +44,7 @@ static func create() -> MapDefinition:
 	]
 
 	InteriorMapFactory.add_interaction_anchor(definition, &"street_start", Rect2i(8, 28, 2, 2))
-	InteriorMapFactory.add_interaction_anchor(definition, &"smithy_door", Rect2i(22, 18, 2, 2))
+	InteriorMapFactory.add_interaction_anchor(definition, &"smithy_door", Rect2i(21, 18, 6, 1))
 	InteriorMapFactory.add_interaction_anchor(definition, &"brewery_door", Rect2i(44, 18, 2, 2))
 	InteriorMapFactory.add_interaction_anchor(definition, &"checkpoint_west", Rect2i(10, 24, 2, 2))
 	InteriorMapFactory.add_interaction_anchor(definition, &"checkpoint_east", Rect2i(52, 24, 2, 2))
@@ -52,10 +52,11 @@ static func create() -> MapDefinition:
 	InteriorMapFactory.add_transition(
 		definition,
 		&"smithy_door_transition",
-		Rect2i(22, 18, 2, 2),
+		Rect2i(21, 18, 6, 1),
 		&"forge",
 		&"door_courtyard",
-		&"forge"
+		&"forge",
+		Vector2(0.0, 48.0)
 	)
 	InteriorMapFactory.add_transition(
 		definition,

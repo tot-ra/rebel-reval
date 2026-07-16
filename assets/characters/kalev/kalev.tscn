@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://assets/characters/shared/shared_character_rig.tscn" id="1_rig"]
+[ext_resource type="Resource" path="res://assets/characters/kalev/kalev_variant.tres" id="2_variant"]
+
+[node name="Kalev" instance=ExtResource("1_rig")]
+variant = ExtResource("2_variant")
+

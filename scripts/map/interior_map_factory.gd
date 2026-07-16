@@ -88,7 +88,8 @@ static func add_transition(
 	cell_rect: Rect2i,
 	destination_scene_id: StringName = &"",
 	destination_spawn_id: StringName = &"",
-	spawn_id: StringName = &""
+	spawn_id: StringName = &"",
+	spawn_offset: Vector2 = Vector2.ZERO
 ) -> void:
 	var entry := {
 		"id": transition_id,
@@ -100,6 +101,8 @@ static func add_transition(
 		entry["destination_spawn_id"] = destination_spawn_id
 	if not spawn_id.is_empty():
 		entry["spawn_id"] = spawn_id
+	if spawn_offset != Vector2.ZERO:
+		entry["spawn_offset"] = spawn_offset
 	definition.transitions.append(entry)
 
 

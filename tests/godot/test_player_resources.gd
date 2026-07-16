@@ -60,6 +60,27 @@ func test_movement_stamina_is_clamped_at_zero() -> void:
 	_assert_eq(player.stamina, 0.0, "Movement stamina must not become negative")
 	player.free()
 
+func test_screen_relative_basis_maps_arrows_to_camera_diagonals() -> void:
+	var player := _create_player()
+	player.set_screen_movement_basis(Vector2(1.0, -1.0), Vector2(1.0, 1.0))
+
+	_assert_vector_approx(
+		player.movement_direction_for_screen_input(Vector2.UP),
+		Vector2(-1.0, -1.0).normalized(),
+		"Up must move toward the top of the isometric screen"
+	)
+	_assert_vector_approx(
+		player.movement_direction_for_screen_input(Vector2.DOWN),
+		Vector2(1.0, 1.0).normalized(),
+		"Down must move toward the bottom of the isometric screen"
+	)
+	_assert_vector_approx(
+		player.movement_direction_for_screen_input(Vector2.RIGHT),
+		Vector2(1.0, -1.0).normalized(),
+		"Right must move toward the right of the isometric screen"
+	)
+	player.free()
+
 func _create_player() -> Player:
 	var player := PLAYER_SCENE.instantiate() as Player
 	var tree := Engine.get_main_loop() as SceneTree
@@ -68,6 +89,10 @@ func _create_player() -> Player:
 
 func _assert_eq(actual: Variant, expected: Variant, message: String) -> void:
 	if actual != expected:
+		_failures.append("%s - expected <%s> but got <%s>" % [message, str(expected), str(actual)])
+
+func _assert_vector_approx(actual: Vector2, expected: Vector2, message: String) -> void:
+	if not actual.is_equal_approx(expected):
 		_failures.append("%s - expected <%s> but got <%s>" % [message, str(expected), str(actual)])
 
 func _get_failures() -> Array[String]:

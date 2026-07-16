@@ -16,6 +16,9 @@ var stamina: float = 100.0
 var max_stamina: float = 100.0
 const STAMINA_DRAIN_RATE := 10.0 # per second
 
+var _screen_right_in_logic := Vector2.RIGHT
+var _screen_down_in_logic := Vector2.DOWN
+
 func _ready() -> void:
 	_sync_resource_bars()
 	DoorNavigator.on_trigger_player_spawn.connect(_on_spawn)
@@ -28,11 +31,14 @@ func _on_spawn(position: Vector2, direction: String):
 		animation_player.stop()
 
 func _physics_process(_delta):
-	var direction_x = Input.get_axis("ui_left", "ui_right")
-	var direction_y = Input.get_axis("ui_up", "ui_down")
+	var screen_direction := Vector2(
+		Input.get_axis("ui_left", "ui_right"),
+		Input.get_axis("ui_up", "ui_down")
+	)
+	var movement_direction := movement_direction_for_screen_input(screen_direction)
 	var new_animation = "idle"
 	
-	if direction_x != 0 or direction_y != 0:
+	if not movement_direction.is_zero_approx():
 		var current_speed = run_speed
 		
 		if Input.is_action_pressed("ui_shift"):
@@ -42,11 +48,7 @@ func _physics_process(_delta):
 			new_animation = "run"
 		
 		navigation_agent.set_target_position(global_position)
-		if direction_x && direction_y:
-			current_speed = current_speed / 1.4 # normalize vector for diagonal movement to be 1/sqrt(2)
-		
-		velocity.x = direction_x * current_speed
-		velocity.y = direction_y * current_speed
+		velocity = movement_direction * current_speed
 		
 	else:
 		if not navigation_agent.is_navigation_finished():
@@ -64,6 +66,22 @@ func _physics_process(_delta):
 	_sync_resource_bars()
 	move_and_slide()
 	update_animation(new_animation)
+
+func set_screen_movement_basis(logic_right: Vector2, logic_down: Vector2) -> void:
+	if logic_right.is_zero_approx() or logic_down.is_zero_approx():
+		push_warning("Screen movement basis must contain two non-zero directions")
+		return
+	# Both vectors come from the same screen-space sample distance. Preserve
+	# their relative lengths so diagonal input also stays diagonal on screen.
+	_screen_right_in_logic = logic_right
+	_screen_down_in_logic = logic_down
+
+func movement_direction_for_screen_input(screen_direction: Vector2) -> Vector2:
+	var logic_direction := (
+		_screen_right_in_logic * screen_direction.x
+		+ _screen_down_in_logic * screen_direction.y
+	)
+	return logic_direction.normalized() if not logic_direction.is_zero_approx() else Vector2.ZERO
 
 func _update_movement_resources(delta: float, is_moving: bool) -> void:
 	# Health changes belong to damage/healing systems, never to locomotion or idle.

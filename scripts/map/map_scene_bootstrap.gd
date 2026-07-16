@@ -81,6 +81,9 @@ static func _create_doors(definition: MapDefinition, parent: Node2D) -> Array[Ar
 				shape = RectangleShape2D.new()
 				collision.shape = shape
 			shape.size = Vector2(maxf(32.0, rect.size.x), maxf(32.0, rect.size.y))
+		var spawn := door.get_node("Spawn") as Marker2D
+		if spawn != null and transition.has("spawn_offset"):
+			spawn.position = transition["spawn_offset"]
 		doors_root.add_child(door)
 		doors.append(door)
 	return doors

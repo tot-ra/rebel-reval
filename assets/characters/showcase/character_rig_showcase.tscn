@@ -1,0 +1,122 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://assets/characters/showcase/character_rig_showcase.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://assets/characters/kalev/kalev.tscn" id="2_kalev"]
+[ext_resource type="PackedScene" path="res://assets/characters/variants/mart.tscn" id="3_mart"]
+
+[sub_resource type="StandardMaterial3D" id="Material_floor"]
+albedo_color = Color(0.105882, 0.12549, 0.121569, 1)
+roughness = 1.0
+
+[sub_resource type="PlaneMesh" id="Mesh_floor"]
+material = SubResource("Material_floor")
+size = Vector2(50, 18)
+
+[sub_resource type="Environment" id="Environment_showcase"]
+background_mode = 1
+background_color = Color(0.0352941, 0.0470588, 0.0470588, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.603922, 0.678431, 0.741176, 1)
+ambient_light_energy = 0.42
+tonemap_mode = 2
+
+[sub_resource type="LabelSettings" id="Label_title"]
+font_size = 30
+font_color = Color(0.91, 0.86, 0.72, 1)
+outline_size = 6
+outline_color = Color(0.04, 0.05, 0.05, 0.92)
+
+[sub_resource type="LabelSettings" id="Label_caption"]
+font_size = 17
+font_color = Color(0.93, 0.93, 0.88, 1)
+outline_size = 4
+outline_color = Color(0.04, 0.05, 0.05, 0.92)
+
+[sub_resource type="StyleBoxFlat" id="Panel_background"]
+bg_color = Color(0.035, 0.045, 0.044, 0.88)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.42, 0.38, 0.29, 0.8)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[node name="CharacterRigShowcase" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_showcase")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-48, -32, 0)
+light_color = Color(1, 0.86, 0.68, 1)
+light_energy = 1.15
+shadow_enabled = true
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+mesh = SubResource("Mesh_floor")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+position = Vector3(20, 15, 20)
+projection = 1
+size = 28.125
+current = true
+
+[node name="Idle" parent="." instance=ExtResource("2_kalev")]
+position = Vector3(-10.6066, 0, 10.6066)
+start_animation = &"idle"
+
+[node name="Walk" parent="." instance=ExtResource("2_kalev")]
+position = Vector3(-7.07107, 0, 7.07107)
+start_animation = &"walk"
+
+[node name="ForgeStrike" parent="." instance=ExtResource("2_kalev")]
+position = Vector3(-3.53553, 0, 3.53553)
+start_animation = &"forge_strike"
+
+[node name="HammerAttack" parent="." instance=ExtResource("2_kalev")]
+start_animation = &"hammer_attack"
+
+[node name="Guard" parent="." instance=ExtResource("2_kalev")]
+position = Vector3(3.53553, 0, -3.53553)
+start_animation = &"guard"
+
+[node name="Hit" parent="." instance=ExtResource("2_kalev")]
+position = Vector3(7.07107, 0, -7.07107)
+start_animation = &"hit"
+
+[node name="Fall" parent="." instance=ExtResource("2_kalev")]
+position = Vector3(10.6066, 0, -10.6066)
+start_animation = &"fall"
+
+[node name="Mart" parent="." instance=ExtResource("3_mart")]
+position = Vector3(0, 0, -5)
+start_animation = &"idle"
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Title" type="Label" parent="UI"]
+offset_left = 36.0
+offset_top = 28.0
+offset_right = 800.0
+offset_bottom = 74.0
+text = "P0-037 · shared low-poly rig · 64 px gameplay scale"
+label_settings = SubResource("Label_title")
+
+[node name="Legend" type="PanelContainer" parent="UI"]
+offset_left = 36.0
+offset_top = 790.0
+offset_right = 1564.0
+offset_bottom = 866.0
+theme_override_styles/panel = SubResource("Panel_background")
+
+[node name="Caption" type="Label" parent="UI/Legend"]
+layout_mode = 2
+text = "Kalev:  IDLE      WALK      FORGE STRIKE      HAMMER ATTACK      GUARD      HIT      FALL    ·    Mart: material + equipment swap on the same rig"
+label_settings = SubResource("Label_caption")
+horizontal_alignment = 1
+vertical_alignment = 1
+

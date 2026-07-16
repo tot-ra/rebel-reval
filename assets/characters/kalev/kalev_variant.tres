@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="CharacterVariant" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://assets/characters/shared/character_variant.gd" id="1_variant"]
+[ext_resource type="PackedScene" path="res://assets/characters/shared/hammer.tscn" id="2_hammer"]
+
+[resource]
+script = ExtResource("1_variant")
+stable_id = &"char.kalev"
+material_tint = Color(0.92, 0.78, 0.72, 1)
+equipment = ExtResource("2_hammer")
+show_cape = true
+

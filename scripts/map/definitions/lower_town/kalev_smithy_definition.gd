@@ -56,10 +56,11 @@ static func create() -> MapDefinition:
 	InteriorMapFactory.add_transition(
 		definition,
 		&"door_courtyard",
-		Rect2i(17, 21, 6, 2),
+		Rect2i(17, 21, 6, 1),
 		&"reval_east",
 		&"forge",
-		&"door_courtyard"
+		&"door_courtyard",
+		Vector2(0.0, -48.0)
 	)
 	InteriorMapFactory.add_fade_volume(definition, Rect2i(14, 3, 12, 3))
 	InteriorMapFactory.add_source_references(
