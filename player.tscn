@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://bs36kitagkmg5"]
+[gd_scene load_steps=6 format=3 uid="uid://bs36kitagkmg5"]
 
 [ext_resource type="Script" uid="uid://qbfohjtotkyu" path="res://scripts/player.gd" id="1_v254c"]
 [ext_resource type="PackedScene" uid="uid://mf6xvrb7vivm" path="res://scenes/elements/UI.tscn" id="2_ui"]
@@ -11,7 +11,10 @@ height = 32.0
 bg_color = Color(0, 0, 0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pylmc"]
-bg_color = Color(0.278431, 0.74902, 0.27451, 1)
+bg_color = Color(0.74902, 0.654902, 0.27451, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_health"]
+bg_color = Color(0.74902, 0.27451, 0.27451, 1)
 
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_v254c")
@@ -39,12 +42,23 @@ path_desired_distance = 10.0
 [node name="HealthBar" type="ProgressBar" parent="."]
 z_index = 1000
 offset_left = -34.5
+offset_top = -144.26
+offset_right = 40.5
+offset_bottom = -137.26
+theme_override_styles/background = SubResource("StyleBoxFlat_q13i1")
+theme_override_styles/fill = SubResource("StyleBoxFlat_health")
+value = 100.0
+show_percentage = false
+
+[node name="StaminaBar" type="ProgressBar" parent="."]
+z_index = 1000
+offset_left = -34.5
 offset_top = -134.26
 offset_right = 40.5
 offset_bottom = -127.26
 theme_override_styles/background = SubResource("StyleBoxFlat_q13i1")
 theme_override_styles/fill = SubResource("StyleBoxFlat_pylmc")
-value = 50.0
+value = 100.0
 show_percentage = false
 
 [node name="Ui" parent="." instance=ExtResource("2_ui")]

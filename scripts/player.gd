@@ -6,17 +6,18 @@ class_name Player
 @export var run_speed = 1000
 
 @onready var animation_player: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
-@onready var navigation_agent = $NavigationAgent2D
-@onready var health_bar = $HealthBar
+@onready var navigation_agent: NavigationAgent2D = $NavigationAgent2D
+@onready var health_bar: ProgressBar = $HealthBar
+@onready var stamina_bar: ProgressBar = $StaminaBar
 
+var health: float = 100.0
+var max_health: float = 100.0
+var stamina: float = 100.0
+var max_stamina: float = 100.0
+const STAMINA_DRAIN_RATE := 10.0 # per second
 
-var health = 100
-var max_health = 100
-const HEALTH_CHANGE_RATE = 10 # per second
-
-func _ready():
-	health_bar.value=health
-	health_bar.max_value = max_health
+func _ready() -> void:
+	_sync_resource_bars()
 	DoorNavigator.on_trigger_player_spawn.connect(_on_spawn)
 	navigation_agent.velocity_computed.connect(Callable(self, "_on_velocity_computed"))
 
@@ -59,14 +60,21 @@ func _physics_process(_delta):
 		else:
 			velocity = Vector2.ZERO
 
-	# Update health based on movement
-	if new_animation != "idle":
-		health = max(0, health - _delta * HEALTH_CHANGE_RATE)
-	else:
-		health = min(max_health, health + _delta * HEALTH_CHANGE_RATE)
-	health_bar.value = health
+	_update_movement_resources(_delta, new_animation != "idle")
+	_sync_resource_bars()
 	move_and_slide()
 	update_animation(new_animation)
+
+func _update_movement_resources(delta: float, is_moving: bool) -> void:
+	# Health changes belong to damage/healing systems, never to locomotion or idle.
+	if is_moving:
+		stamina = maxf(0.0, stamina - delta * STAMINA_DRAIN_RATE)
+
+func _sync_resource_bars() -> void:
+	health_bar.max_value = max_health
+	health_bar.value = health
+	stamina_bar.max_value = max_stamina
+	stamina_bar.value = stamina
 
 func _on_velocity_computed(safe_velocity):
 	velocity = safe_velocity

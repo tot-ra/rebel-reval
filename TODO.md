@@ -40,7 +40,7 @@ Coordination caveat: P0-030 and P0-034 both depend on inventory interpretation a
 - [x] P0-018 | deps: P0-017 | deliverable: scene inventory classifying every `.tscn` as `working`, `partial`, `placeholder`, or `archive` | verify: inventory count equals repository `.tscn` count
 - [x] P0-019 | deps: P0-017 | deliverable: known-runtime-defects report with reproduction steps and severity | verify: every observed critical or high defect has a reproducible entry
 - [x] P0-020 | deps: P0-017 | deliverable: player script without movement debug logging | verify: normal movement produces no per-frame player velocity output
-- [ ] P0-021 | deps: P0-017 | deliverable: separate health and stamina behavior | verify: movement drains stamina only and idling never heals or restores the wrong resource
+- [x] P0-021 | deps: P0-017 | deliverable: separate health and stamina behavior | verify: movement drains stamina only and idling never heals or restores the wrong resource
 - [x] P0-022 | deps: P0-017 | deliverable: stable scene and spawn IDs replacing hard-coded scene dictionaries and `Doors/door_<tag>` paths | verify: `godot --headless -s tools/verify_transitions.gd` loads every active destination and spawn
 - [x] P0-023 | deps: P0-017 | deliverable: audited Godot import sidecars and cache policy | verify: clean clone regenerates caches while preserving required import settings
 - [x] P0-024 | deps: none | deliverable: repository without tracked `.DS_Store` files and with ignore coverage | verify: `git ls-files '*.DS_Store'` returns no paths
