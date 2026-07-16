@@ -70,7 +70,7 @@ Coordination caveat: P0-030 and P0-034 both depend on inventory interpretation a
 - [x] P1-003 | deps: P0-008,P0-013 | deliverable: JSON schemas and examples for characters, dialogue, barks, quests, items, commissions, and locations | verify: valid examples pass and seeded invalid examples fail schema validation
 - [ ] P1-004 | deps: P1-003 | deliverable: Python content validator for schemas, references, reachability, duplicate IDs, unsupported conditions, and missing assets | verify: validator tests cover every failure class and CI invokes it
 - [ ] P1-005 | deps: P1-003,P1-004 | deliverable: typed read-only `ContentDB` loading validated slice JSON | verify: lookup tests return known records and reject missing or malformed IDs
-- [ ] P1-006 | deps: P1-002 | deliverable: typed versioned `GameState` model | verify: tests cover default state, facts, relationships, pressures, phase, player state, and forged records
+- [x] P1-006 | deps: P1-002 | deliverable: typed versioned `GameState` model | verify: tests cover default state, facts, relationships, pressures, phase, player state, and forged records
 - [ ] P1-007 | deps: P1-006 | deliverable: atomic one-slot manual save and phase-boundary autosave with one backup | verify: round-trip tests preserve all state and interrupted writes retain a loadable backup
 - [ ] P1-008 | deps: P1-007 | deliverable: save validation and migration harness | verify: tests cover truncated data, wrong types, unknown versions, and every released fixture
 - [ ] P1-009 | deps: P1-006 | deliverable: debug state inspector with deterministic reset and branch/phase jump | verify: a developer reaches every slice phase and valid branch without replaying earlier content
