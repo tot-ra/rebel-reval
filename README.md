@@ -6,7 +6,7 @@ It is April 1343. Reval—present-day Tallinn—is days away from the St. George
 
 The uprising cannot be prevented. Its local cost—and Kalev's responsibility for it—can change.
 
-![In-game prototype of Reval](./img/Screenshot%202025-08-26%20at%2016.42.48.png)
+![Reval Rebel concept banner](./img/banner.jpg)
 
 > Reval Rebel is in pre-production with an early playable Godot prototype. See [`TODO.md`](./TODO.md) for the executable roadmap and [`docs/SETUP.md`](./docs/SETUP.md) to run it.
 
@@ -72,9 +72,9 @@ Named people, events, institutions, buildings, and beliefs are marked as `attest
 
 ## Visual direction
 
-Gameplay uses a fixed-camera, three-quarter view on an orthogonal 2D plane. The current comparison target is clean-painted low-resolution art with restrained digital-woodcut accents, a limited Baltic palette, and readable silhouettes. Architecture draws from medieval Reval; candlelight, icy blues, earth tones, and mossy greens shape the mood.
+The game presents as a fixed-camera 2:1 painted isometric view in the tradition of Fallout and Stoneshard, while gameplay logic (collision, navigation, interaction) stays on a simple orthogonal 2D plane. Maps are declarative, contract-tested definitions; the art that dresses them — terrain, buildings, props — is AI-generated under a locked style specification. Architecture draws from medieval Reval; candlelight, icy blues, earth tones, and mossy greens shape the mood.
 
-Production characters are intended to share a modular cutout rig rather than require bespoke frame-by-frame animation. Earlier pixel sprites remain useful prototypes and visual history. Exact scale, palette, pivots, shadows, and readability rules are tracked in [`docs/ART_BIBLE.md`](./docs/ART_BIBLE.md).
+Production characters come from a prerender pipeline (concept → 3D → fixed-camera sprite renders), the same method the original Fallout used, rather than hand-drawn frame animation. Earlier pixel sprites remain useful prototypes and visual history. The decision and its rationale live in [`docs/adr/0007-ai-generated-isometric-presentation.md`](./docs/adr/0007-ai-generated-isometric-presentation.md); scale, palette, pivots, shadows, and readability rules are tracked in [`docs/ART_BIBLE.md`](./docs/ART_BIBLE.md).
 
 ## Scope
 

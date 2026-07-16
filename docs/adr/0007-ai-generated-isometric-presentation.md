@@ -11,7 +11,7 @@ Accepted
 
 ## Context
 
-The pre-scope-cut prototype (`img/Screenshot 2025-08-26 at 16.42.48.png`, still the README hero image) was an AI-generated painted isometric scene: timber-framed buildings with visible facades and roof mass, textured terrain, dense Fallout/Stoneshard-like mood. That image is the product vision players were shown.
+The pre-scope-cut prototype (`quarantine/img/Screenshot 2025-08-26 at 16.42.48.png`, archived after README reverted to `img/banner.jpg`) was an AI-generated painted isometric scene: timber-framed buildings with visible facades and roof mass, textured terrain, dense Fallout/Stoneshard-like mood. That image is the product vision players were shown.
 
 The scope-reduction chain then degraded the visible game in two steps:
 
