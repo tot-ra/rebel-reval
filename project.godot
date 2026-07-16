@@ -22,6 +22,7 @@ config/icon="uid://s3dc3n3tlc3s"
 [autoload]
 
 DoorNavigator="*res://scripts/global/doorNavigator.gd"
+MusicDirector="*res://scripts/global/music_director.gd"
 
 [display]
 
