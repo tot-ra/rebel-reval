@@ -1,10 +1,10 @@
-[gd_scene load_steps=3 format=3 uid="uid://cbw13j7u4n5dm"]
+[gd_scene format=3 uid="uid://yra457hfvvt1"]
 
-[ext_resource type="Script" path="res://scenes/reval_center/market_civic_quarter/market.gd" id="1_market"]
+[ext_resource type="Script" path="res://scenes/harbor/warehouse.gd" id="1_wh"]
 [ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="2_player"]
 
-[node name="Market" type="Node2D"]
-script = ExtResource("1_market")
+[node name="HarborWarehouse" type="Node2D"]
+script = ExtResource("1_wh")
 
 [node name="MapRoot" type="Node2D" parent="."]
 
@@ -15,8 +15,8 @@ y_sort_enabled = true
 y_sort_enabled = true
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(800, 448)
+position = Vector2(640, 384)
 limit_left = 0
 limit_top = 0
-limit_right = 1600
-limit_bottom = 896
+limit_right = 1280
+limit_bottom = 768

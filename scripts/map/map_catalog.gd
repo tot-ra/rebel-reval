@@ -36,6 +36,11 @@ const MAPS: Dictionary = {
 		"path": "res://scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn",
 		"scope": "prototype",
 		"active": false
+	},
+	"harbor_warehouse": {
+		"path": "res://scenes/harbor/warehouse.tscn",
+		"scope": "prototype",
+		"active": false
 	}
 }
 

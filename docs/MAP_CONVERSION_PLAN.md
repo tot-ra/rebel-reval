@@ -51,6 +51,7 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `scenes/events/swedesh_outpost.tscn` | event | `archive` | `loc.swedish_outpost` legacy Finland concept | Playable Sweden is explicitly excluded; never activate | none - archive |
 | `scenes/events/swedish_arrival.tscn` | event | `archive` | `event.swedish_arrival` | Fleet intervention campaign concept; never activate | none - archive |
 | `scenes/harbor/harbor.tscn` | level | `archive` | `loc.reval_harbor` legacy harbor concept | Outside the one-district campaign map; screenshot remains a reference | none - archive |
+| `scenes/harbor/warehouse.tscn` | level | `convert` | `loc.reval_harbor.warehouse` | `active=false` prototype only until separate approval artifact (ADR 0006) | `scripts/map/definitions/prototypes/harbor_warehouse_definition.gd` |
 | `scenes/intro/intro.tscn` | support | `archive` | Empty legacy intro shell | Main menu owns intro presentation; never active | none - archive |
 | `scenes/map/map.tscn` | map | `archive` | `ref.estonia_world_map` | Static reference image, not a travel system | none - archive |
 | `scenes/map_prototype/smithy_courtyard.tscn` | level | `retain` | `loc.smithy_courtyard` authoring spike | Developer-only P0-042 prototype; not an active destination | `scripts/map/smithy_courtyard_definition.gd` |
@@ -112,6 +113,7 @@ These conversions can preserve layout research without expanding the playable po
 | Scene | Status | Terrain palette | World bounds | Required buildings and props | Transitions and spawns | Collision and navigation | Source references | Target declarative definition |
 |-------|--------|-----------------|--------------|------------------------------|------------------------|--------------------------|-------------------|-------------------------------|
 | `scenes/harbor/harbor.tscn` | `archive` | none - archive; retain wet timber, stone quay and Baltic water only as future art notes | none - archive; current screenshot has no gameplay coordinate contract | Preserve notes for quay, warehouses, Great Coast Gate, ships, cranes, nets, barrels and Seamen's Inn | No destination or spawn | No collision or navigation | `scenes/harbor/harbor.tscn`<br>`scenes/harbor/harbor.md`<br>`scenes/harbor/Screenshot 2025-08-24 at 22.46.16.png`<br>`scenes/harbor/warehouses.md`<br>`scenes/harbor/great_coast_gate.md` | none - archive |
+| `scenes/harbor/warehouse.tscn` | `convert` | `harbor_warehouse_prototype`: timber floor, stone threshold, packed dirt | 40 x 24 cells | Loading bay, crate stacks, cart, quay stairs | Prototype inspection spawn only; no active destination | Closed interior shell, cargo footprints, loading route nav, foreground fade | `scenes/harbor/warehouses.md`<br>`scenes/harbor/harbor.md` | `scripts/map/definitions/prototypes/harbor_warehouse_definition.gd` |
 | `scenes/reval_toompea/domberg.tscn` | `archive` | none - archive; castle stone and timber notes require new approval | none - archive | Preserve notes for castle walls, courtyard, barracks, hall, chapel and dungeon only | No destination or spawn | No collision or navigation | `scenes/reval_toompea/domberg.tscn`<br>`scenes/reval_toompea/domberg.md`<br>`scenes/revel-map.jpg` | none - archive |
 | `scenes/reval_toompea/maria_toomkirik.tscn` | `archive` | none - archive; cathedral stone and interior value notes require new approval | none - archive | Preserve cathedral nave, altar, tomb and service-space notes only | No destination or spawn | No collision or navigation | `scenes/reval_toompea/maria_toomkirik.tscn`<br>`scenes/reval_toompea/cathedral_of_saint_mary.md` | none - archive |
 
@@ -207,7 +209,7 @@ python3 -m unittest tests.python.test_verify_map_conversion_plan -v
 
 The verifier compares the disposition index to all repository `.tscn` files, compares both against `docs/reports/scene_inventory.md`, requires one detailed specification for every `level`, `map`, and `event` row, validates statuses and target rules, resolves every source-reference path, and confirms that all map-conversion TODO tasks declare exact allowed files and objective verification.
 
-At this baseline the expected repository scene count is **42**. P0-018 recorded 41 before P0-042 added `scenes/map_prototype/smithy_courtyard.tscn`; this plan updates the inventory report to remove that drift.
+At this baseline the expected repository scene count is **43**. P0-018 recorded 41 before P0-042 added `scenes/map_prototype/smithy_courtyard.tscn`; ADR 0006 adds `scenes/harbor/warehouse.tscn`.
 
 ## Review checklist
 

@@ -10,16 +10,16 @@ Recorded: 2026-07-16
 | `partial` | 10 | Substantial content but incomplete integration or dev-only use |
 | `placeholder` | 5 | Reserved stubs or reference-only visuals, not playable |
 | `archive` | 20 | Out of vertical-slice scope; legacy open-world or event shells |
-| **Total** | **42** | Matches repository `.tscn` count |
+| **Total** | **43** | Matches repository `.tscn` count |
 
 Repository count command:
 
 ```bash
 find . -name '*.tscn' -not -path './.git/*' | wc -l
-# Expected: 42
+# Expected: 43
 ```
 
-Inventory row count (data rows in the table below): **42**.
+Inventory row count (data rows in the table below): **43**.
 
 ## Classification criteria
 
@@ -57,32 +57,33 @@ Inventory row count (data rows in the table below): **42**.
 | 14 | `scenes/events/swedesh_outpost.tscn` | archive | Empty `Node2D`; campaign location outside slice. |
 | 15 | `scenes/events/swedish_arrival.tscn` | archive | Empty `Node2D`; fleet arrival event outside slice. |
 | 16 | `scenes/harbor/harbor.tscn` | placeholder | Single screenshot sprite; no player, doors, or navigation. |
-| 17 | `scenes/intro/intro.tscn` | placeholder | Empty `Node2D`; intro video lives in `main_menu.tscn`. |
-| 18 | `scenes/map/map.tscn` | placeholder | Static map image only; no interaction or travel logic. |
-| 19 | `scenes/map_prototype/smithy_courtyard.tscn` | partial | P0-042 deterministic programmatic map-authoring spike; developer-only and not in the active transition manifest. |
-| 20 | `scenes/menu/main_menu.tscn` | working | `run/main_scene`; Start/Exit UI, video, audio; P0-017 smoke pass. |
-| 21 | `scenes/reval_center/market_civic_quarter/market.tscn` | placeholder | Empty `Node2D`; design stub, not instanced by parent district. |
-| 22 | `scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn` | placeholder | Empty `Node2D`; design stub, not instanced by parent district. |
-| 23 | `scenes/reval_center/reval_center.tscn` | partial | District with tile map, player, doors, NPCs; `DoorNavigator` target; less content than east. |
-| 24 | `scenes/reval_east/forge/forge.tscn` | partial | Slice hub with embedded TileSet, tile layers, NPCs, audio; forging gameplay not implemented; `DoorNavigator` target. |
-| 25 | `scenes/reval_east/reval_east.tscn` | working | Default Start destination; tile map, navigation, doors, NPCs; P0-017 playable-room smoke pass. |
-| 26 | `scenes/reval_north/reval_north.tscn` | partial | District with tile map, player, doors, NPCs; `DoorNavigator` target; smaller than east. |
-| 27 | `scenes/reval_toompea/domberg.tscn` | archive | Empty `Node2D`; Toompea district outside slice. |
-| 28 | `scenes/reval_toompea/maria_toomkirik.tscn` | archive | Empty `Node2D`; cathedral shell outside slice. |
-| 29 | `scenes/tests/font_glyph_render_test.tscn` | partial | Dev-only font glyph verification; not player-facing. |
-| 30 | `scenes/world/haapsalu_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 31 | `scenes/world/harju_village.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 32 | `scenes/world/karja_fortress.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 33 | `scenes/world/maasilinna_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 34 | `scenes/world/padise/padise_monastery1.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 35 | `scenes/world/padise/padise_monastery2.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 36 | `scenes/world/paide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 37 | `scenes/world/poide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 38 | `scenes/world/sacred_grove.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 39 | `scenes/world/viljandi_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 40 | `scenes/comparison_room/comparison_room.tscn` | partial | P0-033 greybox baseline with procedural collisions, HUD, and slice mechanics verification. |
-| 41 | `scenes/comparison_room/orthogonal_4_direction.tscn` | partial | P0-035 proposed orthogonal/four-direction variant; dev verification only. |
-| 42 | `scenes/comparison_room/diamond_isometric_8_direction.tscn` | partial | P0-035 legacy diamond-isometric/eight-direction variant; dev verification only. |
+| 17 | `scenes/harbor/warehouse.tscn` | partial | Inactive programmatic warehouse interior prototype (`active=false`); ADR 0006 scope expansion. |
+| 18 | `scenes/intro/intro.tscn` | placeholder | Empty `Node2D`; intro video lives in `main_menu.tscn`. |
+| 19 | `scenes/map/map.tscn` | placeholder | Static map image only; no interaction or travel logic. |
+| 20 | `scenes/map_prototype/smithy_courtyard.tscn` | partial | P0-042 deterministic programmatic map-authoring spike; developer-only and not in the active transition manifest. |
+| 21 | `scenes/menu/main_menu.tscn` | working | `run/main_scene`; Start/Exit UI, video, audio; P0-017 smoke pass. |
+| 22 | `scenes/reval_center/market_civic_quarter/market.tscn` | partial | Inactive programmatic market square prototype; not in active destinations. |
+| 23 | `scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn` | partial | Inactive programmatic guild hall interior prototype; not in active destinations. |
+| 24 | `scenes/reval_center/reval_center.tscn` | partial | Inactive programmatic market civic quarter prototype; legacy manifest entry remains until P2-020. |
+| 25 | `scenes/reval_east/forge/forge.tscn` | working | Programmatic smithy interior; `DoorNavigator` target with stable anchors and courtyard transition. |
+| 26 | `scenes/reval_east/reval_east.tscn` | working | Programmatic bounded Lower Town exterior; default Start destination via manifest. |
+| 27 | `scenes/reval_north/reval_north.tscn` | partial | Inactive programmatic north quarter prototype; legacy manifest entry remains until P2-020. |
+| 28 | `scenes/reval_toompea/domberg.tscn` | archive | Empty `Node2D`; Toompea district outside slice. |
+| 29 | `scenes/reval_toompea/maria_toomkirik.tscn` | archive | Empty `Node2D`; cathedral shell outside slice. |
+| 30 | `scenes/tests/font_glyph_render_test.tscn` | partial | Dev-only font glyph verification; not player-facing. |
+| 31 | `scenes/world/haapsalu_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 32 | `scenes/world/harju_village.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 33 | `scenes/world/karja_fortress.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 34 | `scenes/world/maasilinna_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 35 | `scenes/world/padise/padise_monastery1.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 36 | `scenes/world/padise/padise_monastery2.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 37 | `scenes/world/paide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 38 | `scenes/world/poide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 39 | `scenes/world/sacred_grove.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 40 | `scenes/world/viljandi_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 41 | `scenes/comparison_room/comparison_room.tscn` | partial | P0-033 greybox baseline with procedural collisions, HUD, and slice mechanics verification. |
+| 42 | `scenes/comparison_room/orthogonal_4_direction.tscn` | partial | P0-035 proposed orthogonal/four-direction variant; dev verification only. |
+| 43 | `scenes/comparison_room/diamond_isometric_8_direction.tscn` | partial | P0-035 legacy diamond-isometric/eight-direction variant; dev verification only. |
 
 ## Totals by folder
 
@@ -92,7 +93,7 @@ Inventory row count (data rows in the table below): **42**.
 | `scenes/comparison_room/` | 0 | 3 | 0 | 0 | 3 |
 | `scenes/elements/` | 4 | 2 | 0 | 0 | 6 |
 | `scenes/events/` | 0 | 0 | 0 | 7 | 7 |
-| `scenes/harbor/` | 0 | 0 | 1 | 0 | 1 |
+| `scenes/harbor/` | 0 | 1 | 1 | 0 | 2 |
 | `scenes/intro/` | 0 | 0 | 1 | 0 | 1 |
 | `scenes/map/` | 0 | 0 | 1 | 0 | 1 |
 | `scenes/map_prototype/` | 0 | 1 | 0 | 0 | 1 |

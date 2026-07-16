@@ -1,3 +1,22 @@
-[gd_scene load_steps=0 format=3 uid="uid://t6ydnr68jtou"]
+[gd_scene load_steps=3 format=3 uid="uid://t6ydnr68jtou"]
+
+[ext_resource type="Script" path="res://scenes/reval_center/market_civic_quarter/olaf_guild_hall.gd" id="1_guild"]
+[ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="2_player"]
 
 [node name="OlafGuildHall" type="Node2D"]
+script = ExtResource("1_guild")
+
+[node name="MapRoot" type="Node2D" parent="."]
+
+[node name="Actors" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Player" parent="Actors" instance=ExtResource("2_player")]
+y_sort_enabled = true
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(512, 320)
+limit_left = 0
+limit_top = 0
+limit_right = 1024
+limit_bottom = 640
