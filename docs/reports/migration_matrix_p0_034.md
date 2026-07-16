@@ -12,6 +12,7 @@ This matrix classifies current slice-relevant artifacts for migration toward the
 | `scenes/comparison_room/comparison_room.tscn` | `retain` | Verified P0-033 greybox baseline with procedural room content and slice mechanics. |
 | `scenes/comparison_room/orthogonal_4_direction.tscn` | `retain` | P0-035 proposed orthogonal/four-direction comparison variant; keep as migration reference. |
 | `scenes/comparison_room/diamond_isometric_8_direction.tscn` | `archive` | P0-035 legacy diamond-isometric/eight-direction spike; superseded by orthogonal target. |
+| `scenes/map_prototype/smithy_courtyard.tscn` | `retain` | P0-042 deterministic declarative authoring spike; keep developer-only as the production schema reference. |
 | `scenes/elements/building.tscn` | `convert` | Reusable district prop; sprite and collision bounds need orthogonal/P0-040 alignment. |
 | `scenes/elements/door.tscn` | `convert` | Transition logic is sound but doorway geometry must match new orthogonal room layouts. |
 | `scenes/elements/FadeArea.tscn` | `convert` | Instanced in forge with empty `CollisionPolygon2D`; needs authored fade polygon for new maps. |

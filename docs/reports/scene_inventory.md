@@ -7,19 +7,19 @@ Recorded: 2026-07-16
 | Classification | Count | Role |
 |----------------|------:|------|
 | `working` | 7 | Active runtime scenes with verified or complete behavior |
-| `partial` | 9 | Substantial content but incomplete integration or dev-only use |
+| `partial` | 10 | Substantial content but incomplete integration or dev-only use |
 | `placeholder` | 5 | Reserved stubs or reference-only visuals, not playable |
 | `archive` | 20 | Out of vertical-slice scope; legacy open-world or event shells |
-| **Total** | **41** | Matches repository `.tscn` count |
+| **Total** | **42** | Matches repository `.tscn` count |
 
 Repository count command:
 
 ```bash
 find . -name '*.tscn' -not -path './.git/*' | wc -l
-# Expected: 41
+# Expected: 42
 ```
 
-Inventory row count (data rows in the table below): **41**.
+Inventory row count (data rows in the table below): **42**.
 
 ## Classification criteria
 
@@ -59,29 +59,30 @@ Inventory row count (data rows in the table below): **41**.
 | 16 | `scenes/harbor/harbor.tscn` | placeholder | Single screenshot sprite; no player, doors, or navigation. |
 | 17 | `scenes/intro/intro.tscn` | placeholder | Empty `Node2D`; intro video lives in `main_menu.tscn`. |
 | 18 | `scenes/map/map.tscn` | placeholder | Static map image only; no interaction or travel logic. |
-| 19 | `scenes/menu/main_menu.tscn` | working | `run/main_scene`; Start/Exit UI, video, audio; P0-017 smoke pass. |
-| 20 | `scenes/reval_center/market_civic_quarter/market.tscn` | placeholder | Empty `Node2D`; design stub, not instanced by parent district. |
-| 21 | `scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn` | placeholder | Empty `Node2D`; design stub, not instanced by parent district. |
-| 22 | `scenes/reval_center/reval_center.tscn` | partial | District with tile map, player, doors, NPCs; `DoorNavigator` target; less content than east. |
-| 23 | `scenes/reval_east/forge/forge.tscn` | partial | Slice hub with embedded TileSet, tile layers, NPCs, audio; forging gameplay not implemented; `DoorNavigator` target. |
-| 24 | `scenes/reval_east/reval_east.tscn` | working | Default Start destination; tile map, navigation, doors, NPCs; P0-017 playable-room smoke pass. |
-| 25 | `scenes/reval_north/reval_north.tscn` | partial | District with tile map, player, doors, NPCs; `DoorNavigator` target; smaller than east. |
-| 26 | `scenes/reval_toompea/domberg.tscn` | archive | Empty `Node2D`; Toompea district outside slice. |
-| 27 | `scenes/reval_toompea/maria_toomkirik.tscn` | archive | Empty `Node2D`; cathedral shell outside slice. |
-| 28 | `scenes/tests/font_glyph_render_test.tscn` | partial | Dev-only font glyph verification; not player-facing. |
-| 29 | `scenes/world/haapsalu_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 30 | `scenes/world/harju_village.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 31 | `scenes/world/karja_fortress.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 32 | `scenes/world/maasilinna_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 33 | `scenes/world/padise/padise_monastery1.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 34 | `scenes/world/padise/padise_monastery2.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 35 | `scenes/world/paide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 36 | `scenes/world/poide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 37 | `scenes/world/sacred_grove.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 38 | `scenes/world/viljandi_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 39 | `scenes/comparison_room/comparison_room.tscn` | partial | P0-033 greybox baseline with procedural collisions, HUD, and slice mechanics verification. |
-| 40 | `scenes/comparison_room/orthogonal_4_direction.tscn` | partial | P0-035 proposed orthogonal/four-direction variant; dev verification only. |
-| 41 | `scenes/comparison_room/diamond_isometric_8_direction.tscn` | partial | P0-035 legacy diamond-isometric/eight-direction variant; dev verification only. |
+| 19 | `scenes/map_prototype/smithy_courtyard.tscn` | partial | P0-042 deterministic programmatic map-authoring spike; developer-only and not in the active transition manifest. |
+| 20 | `scenes/menu/main_menu.tscn` | working | `run/main_scene`; Start/Exit UI, video, audio; P0-017 smoke pass. |
+| 21 | `scenes/reval_center/market_civic_quarter/market.tscn` | placeholder | Empty `Node2D`; design stub, not instanced by parent district. |
+| 22 | `scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn` | placeholder | Empty `Node2D`; design stub, not instanced by parent district. |
+| 23 | `scenes/reval_center/reval_center.tscn` | partial | District with tile map, player, doors, NPCs; `DoorNavigator` target; less content than east. |
+| 24 | `scenes/reval_east/forge/forge.tscn` | partial | Slice hub with embedded TileSet, tile layers, NPCs, audio; forging gameplay not implemented; `DoorNavigator` target. |
+| 25 | `scenes/reval_east/reval_east.tscn` | working | Default Start destination; tile map, navigation, doors, NPCs; P0-017 playable-room smoke pass. |
+| 26 | `scenes/reval_north/reval_north.tscn` | partial | District with tile map, player, doors, NPCs; `DoorNavigator` target; smaller than east. |
+| 27 | `scenes/reval_toompea/domberg.tscn` | archive | Empty `Node2D`; Toompea district outside slice. |
+| 28 | `scenes/reval_toompea/maria_toomkirik.tscn` | archive | Empty `Node2D`; cathedral shell outside slice. |
+| 29 | `scenes/tests/font_glyph_render_test.tscn` | partial | Dev-only font glyph verification; not player-facing. |
+| 30 | `scenes/world/haapsalu_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 31 | `scenes/world/harju_village.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 32 | `scenes/world/karja_fortress.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 33 | `scenes/world/maasilinna_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 34 | `scenes/world/padise/padise_monastery1.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 35 | `scenes/world/padise/padise_monastery2.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 36 | `scenes/world/paide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 37 | `scenes/world/poide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 38 | `scenes/world/sacred_grove.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 39 | `scenes/world/viljandi_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 40 | `scenes/comparison_room/comparison_room.tscn` | partial | P0-033 greybox baseline with procedural collisions, HUD, and slice mechanics verification. |
+| 41 | `scenes/comparison_room/orthogonal_4_direction.tscn` | partial | P0-035 proposed orthogonal/four-direction variant; dev verification only. |
+| 42 | `scenes/comparison_room/diamond_isometric_8_direction.tscn` | partial | P0-035 legacy diamond-isometric/eight-direction variant; dev verification only. |
 
 ## Totals by folder
 
@@ -94,6 +95,7 @@ Inventory row count (data rows in the table below): **41**.
 | `scenes/harbor/` | 0 | 0 | 1 | 0 | 1 |
 | `scenes/intro/` | 0 | 0 | 1 | 0 | 1 |
 | `scenes/map/` | 0 | 0 | 1 | 0 | 1 |
+| `scenes/map_prototype/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/menu/` | 1 | 0 | 0 | 0 | 1 |
 | `scenes/reval_center/` | 0 | 1 | 2 | 0 | 3 |
 | `scenes/reval_east/` | 1 | 1 | 0 | 0 | 2 |
@@ -101,7 +103,7 @@ Inventory row count (data rows in the table below): **41**.
 | `scenes/reval_toompea/` | 0 | 0 | 0 | 2 | 2 |
 | `scenes/tests/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/world/` | 0 | 0 | 0 | 10 | 10 |
-| **All** | **7** | **9** | **5** | **20** | **41** |
+| **All** | **7** | **10** | **5** | **20** | **42** |
 
 ## Verification
 
@@ -113,7 +115,7 @@ find . -name '*.tscn' -not -path './.git/*' | wc -l
 grep -E '^\| [0-9]+ \|' docs/reports/scene_inventory.md | wc -l
 ```
 
-Both commands should print `41` on a clean checkout at this revision.
+Both commands should print `42` on a clean checkout at this revision.
 
 ## Related tasks
 
