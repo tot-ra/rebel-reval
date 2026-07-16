@@ -12,6 +12,18 @@ var zones: Array[Dictionary] = []
 var buildings: Array[Dictionary] = []
 var props: Array[Dictionary] = []
 var player_spawn: Vector2 = Vector2.ZERO
+var location: StringName = &""
+var scope: StringName = &""
+var active: bool = false
+var palette: StringName = &""
+var transitions: Array[Dictionary] = []
+var excluded_areas: Array[Rect2i] = []
+var patrols: Array[Dictionary] = []
+var interaction_anchors: Array[Dictionary] = []
+var camera_bounds: Rect2 = Rect2(0, 0, 0, 0)
+var fade_volumes: Array[Dictionary] = []
+var source_references: Array[String] = []
+var fingerprint: String = ""
 
 
 func cell_rect_to_world_rect(cell_rect: Rect2i) -> Rect2:
@@ -52,6 +64,38 @@ func validate() -> Array[String]:
 	elif not _point_inside_world_pixels(player_spawn):
 		errors.append("player_spawn is outside world bounds")
 
+
+	if location.is_empty():
+		errors.append("location is required")
+	if scope.is_empty():
+		errors.append("scope is required")
+	elif not scope in [&"prototype", &"production", &"archive"]:
+		errors.append("scope must be prototype, production, or archive")
+	if active and scope in [&"prototype", &"archive"]:
+		errors.append("active=true is rejected for prototype or archive scope")
+	if palette.is_empty():
+		errors.append("palette is required")
+
+	for index in transitions.size():
+		errors.append_array(_validate_transition(transitions[index], index, seen_ids))
+
+	for index in excluded_areas.size():
+		errors.append_array(_validate_excluded_area(excluded_areas[index], index))
+
+	for index in patrols.size():
+		errors.append_array(_validate_patrol(patrols[index], index))
+
+	for index in interaction_anchors.size():
+		errors.append_array(_validate_interaction_anchor(interaction_anchors[index], index, seen_ids))
+
+	for index in fade_volumes.size():
+		errors.append_array(_validate_fade_volume(fade_volumes[index], index))
+
+	if camera_bounds.size.x < 0 or camera_bounds.size.y < 0:
+		errors.append("camera_bounds cannot be negative")
+
+	if fingerprint.is_empty():
+		errors.append("fingerprint is required")
 	return errors
 
 
@@ -155,3 +199,89 @@ func _point_inside_world_pixels(point: Vector2) -> bool:
 		and point.y >= 0.0 \
 		and point.x <= world.x \
 		and point.y <= world.y
+
+
+func _validate_transition(trans: Dictionary, index: int, seen_ids: Dictionary) -> Array[String]:
+	var errors: Array[String] = []
+	var prefix := "transitions[%d]" % index
+
+	if not trans.has("id") or String(trans["id"]).is_empty():
+		errors.append("%s.id is required" % prefix)
+	else:
+		var trans_id: StringName = trans["id"]
+		if seen_ids.has(trans_id):
+			errors.append("duplicate stable id: %s" % String(trans_id))
+		seen_ids[trans_id] = true
+
+	if not trans.has("rect") or not trans["rect"] is Rect2:
+		errors.append("%s.rect must be Rect2" % prefix)
+	elif not _rect_inside_world_pixels(trans["rect"]):
+		errors.append("%s.rect is outside world bounds" % prefix)
+
+	return errors
+
+
+func _validate_excluded_area(rect: Rect2i, index: int) -> Array[String]:
+	var errors: Array[String] = []
+	var prefix := "excluded_areas[%d]" % index
+
+	if rect.size.x <= 0 or rect.size.y <= 0:
+		errors.append("%s must have positive size" % prefix)
+	elif not _rect_inside_bounds(rect):
+		errors.append("%s is outside world bounds" % prefix)
+
+	return errors
+
+
+func _validate_patrol(patrol: Dictionary, index: int) -> Array[String]:
+	var errors: Array[String] = []
+	var prefix := "patrols[%d]" % index
+
+	if not patrol.has("points") or not patrol["points"] is Array:
+		errors.append("%s.points must be Array of Vector2" % prefix)
+	else:
+		var points = patrol["points"]
+		if points.is_empty():
+			errors.append("%s.points must not be empty" % prefix)
+		else:
+			for p in points:
+				if not p is Vector2:
+					errors.append("%s.points must contain Vector2" % prefix)
+					break
+				if not _point_inside_world_pixels(p):
+					errors.append("%s.points has point outside world bounds" % prefix)
+					break
+
+	return errors
+
+
+func _validate_interaction_anchor(anchor: Dictionary, index: int, seen_ids: Dictionary) -> Array[String]:
+	var errors: Array[String] = []
+	var prefix := "interaction_anchors[%d]" % index
+
+	if not anchor.has("id") or String(anchor["id"]).is_empty():
+		errors.append("%s.id is required" % prefix)
+	else:
+		var anchor_id: StringName = anchor["id"]
+		if seen_ids.has(anchor_id):
+			errors.append("duplicate stable id: %s" % String(anchor_id))
+		seen_ids[anchor_id] = true
+
+	if not anchor.has("position") or not anchor["position"] is Vector2:
+		errors.append("%s.position must be Vector2" % prefix)
+	elif not _point_inside_world_pixels(anchor["position"]):
+		errors.append("%s.position is outside world bounds" % prefix)
+
+	return errors
+
+
+func _validate_fade_volume(volume: Dictionary, index: int) -> Array[String]:
+	var errors: Array[String] = []
+	var prefix := "fade_volumes[%d]" % index
+
+	if not volume.has("rect") or not volume["rect"] is Rect2:
+		errors.append("%s.rect must be Rect2" % prefix)
+	elif not _rect_inside_world_pixels(volume["rect"]):
+		errors.append("%s.rect is outside world bounds" % prefix)
+
+	return errors

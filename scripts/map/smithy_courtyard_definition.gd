@@ -12,6 +12,12 @@ static func create() -> MapDefinition:
 	definition.size_cells = Vector2i(50, 28)
 	definition.base_terrain = MapTypes.TERRAIN_GRASS
 	definition.player_spawn = definition.cell_rect_center(Rect2i(20, 15, 2, 2))
+	definition.location = &"lower_town"
+	definition.scope = &"prototype"
+	definition.active = false
+	definition.palette = &"clean_painted"
+	definition.fingerprint = "smithy_courtyard_v1"
+	definition.camera_bounds = definition.cell_rect_to_world_rect(Rect2i(0, 0, 50, 28))
 
 	definition.zones = [
 		# Lower Town street band across the north edge.
