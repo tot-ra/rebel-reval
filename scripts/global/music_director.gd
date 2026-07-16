@@ -1,7 +1,5 @@
 extends Node
 
-const SAMPLE_RATE := 11025
-const LOOP_SECONDS := 8.0
 const DEFAULT_VOLUME_DB := -8.0
 
 const SCENE_THEME_ROUTES: Dictionary = {
@@ -12,23 +10,28 @@ const SCENE_THEME_ROUTES: Dictionary = {
 	"res://scenes/reval_north/reval_north.tscn": &"town",
 }
 
-const THEME_NOTES: Dictionary = {
-	&"menu": [293.66, 349.23, 392.00, 440.00, 392.00, 349.23, 293.66, 261.63],
-	&"forge": [220.00, 261.63, 293.66, 261.63, 220.00, 196.00, 220.00, 174.61],
-	&"town": [261.63, 293.66, 329.63, 392.00, 349.23, 329.63, 293.66, 246.94],
-}
+const MENU_TRACK := "res://music/menu/Menu.mp3"
 
-const THEME_ROOTS: Dictionary = {
-	&"menu": 73.42,
-	&"forge": 55.00,
-	&"town": 65.41,
-}
+const FORGE_TRACKS: Array[String] = [
+	"res://music/forge/Fireside Tale.mp3",
+	"res://music/forge/The Smith's Song2.mp3",
+	"res://music/forge/The Smith's Song.mp3",
+]
 
-const THEME_TEMPOS: Dictionary = {
-	&"menu": 60.0,
-	&"forge": 80.0,
-	&"town": 70.0,
-}
+const TOWN_TRACKS: Array[String] = [
+	"res://music/revel_east/Apothecary (1).mp3",
+	"res://music/revel_east/Apothecary (2).mp3",
+	"res://music/revel_east/Apothecary (3).mp3",
+	"res://music/revel_east/Apothecary (6).mp3",
+	"res://music/revel_east/Apothecary (7).mp3",
+	"res://music/revel_east/Apothecary (8).mp3",
+	"res://music/revel_east/Apothecary (9).mp3",
+	"res://music/revel_east/Apothecary.mp3",
+	"res://music/revel_east/streets2.mp3",
+	"res://music/revel_east/streets.mp3",
+	"res://music/revel_east/The Shaman's Trance.mp3",
+	"res://music/revel_east/The Shaman's Trance (1).mp3",
+]
 
 var _player: AudioStreamPlayer
 var _active_scene: Node
@@ -61,15 +64,27 @@ static func theme_for_scene(scene_path: String) -> StringName:
 
 
 static func has_theme(theme_id: StringName) -> bool:
-	return THEME_NOTES.has(theme_id)
+	return theme_id in [&"menu", &"forge", &"town"]
 
 
-func get_theme_stream(theme_id: StringName) -> AudioStreamWAV:
+static func theme_track_paths(theme_id: StringName) -> PackedStringArray:
+	match theme_id:
+		&"menu":
+			return PackedStringArray([MENU_TRACK])
+		&"forge":
+			return PackedStringArray(FORGE_TRACKS)
+		&"town":
+			return PackedStringArray(TOWN_TRACKS)
+		_:
+			return PackedStringArray()
+
+
+func get_theme_stream(theme_id: StringName) -> AudioStream:
 	if not has_theme(theme_id):
 		return null
 	if not _stream_cache.has(theme_id):
-		_stream_cache[theme_id] = _synthesize_theme(theme_id)
-	return _stream_cache[theme_id] as AudioStreamWAV
+		_stream_cache[theme_id] = _build_theme_stream(theme_id)
+	return _stream_cache[theme_id] as AudioStream
 
 
 func _sync_with_current_scene() -> void:
@@ -93,69 +108,29 @@ func _apply_theme(theme_id: StringName) -> void:
 	_player.play()
 
 
-func _synthesize_theme(theme_id: StringName) -> AudioStreamWAV:
-	var notes: Array = THEME_NOTES[theme_id]
-	var root_frequency: float = THEME_ROOTS[theme_id]
-	var tempo: float = THEME_TEMPOS[theme_id]
-	var sample_count := int(SAMPLE_RATE * LOOP_SECONDS)
-	var pcm := PackedByteArray()
-	pcm.resize(sample_count * 2)
-
-	for sample_index in sample_count:
-		var time := float(sample_index) / SAMPLE_RATE
-		var sample := _sample_theme(theme_id, notes, root_frequency, tempo, time)
-		# A short edge fade prevents clicks even when a generated oscillator does not
-		# complete an exact number of periods at the loop boundary.
-		var edge_gain := minf(1.0, minf(time / 0.04, (LOOP_SECONDS - time) / 0.04))
-		sample = clampf(sample * edge_gain, -0.92, 0.92)
-		pcm.encode_s16(sample_index * 2, int(round(sample * 32767.0)))
-
-	var stream := AudioStreamWAV.new()
-	stream.format = AudioStreamWAV.FORMAT_16_BITS
-	stream.mix_rate = SAMPLE_RATE
-	stream.stereo = false
-	stream.data = pcm
-	stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
-	stream.loop_begin = 0
-	stream.loop_end = sample_count
-	return stream
-
-
-func _sample_theme(
-	theme_id: StringName,
-	notes: Array,
-	root_frequency: float,
-	tempo: float,
-	time: float
-) -> float:
-	var tau := TAU
-	var beat := time * tempo / 60.0
-	var note_duration := LOOP_SECONDS / notes.size()
-	var note_index := mini(int(time / note_duration), notes.size() - 1)
-	var note_time := fmod(time, note_duration)
-	var note_frequency: float = notes[note_index]
-	var pluck_envelope := exp(-note_time * 2.8)
-
-	var drone := sin(tau * root_frequency * time) * 0.16
-	drone += sin(tau * root_frequency * 0.5 * time) * 0.09
-	drone += sin(tau * root_frequency * 1.5 * time) * 0.035
-
-	var pluck := sin(tau * note_frequency * note_time)
-	pluck += sin(tau * note_frequency * 2.0 * note_time) * 0.28
-	pluck += sin(tau * note_frequency * 3.0 * note_time) * 0.10
-	pluck *= pluck_envelope * 0.16
-
-	var pulse_time := fmod(beat, 1.0) * 60.0 / tempo
-	var pulse := 0.0
+func _build_theme_stream(theme_id: StringName) -> AudioStream:
 	match theme_id:
 		&"menu":
-			var drum_time := fmod(beat, 4.0) * 60.0 / tempo
-			pulse = sin(tau * (72.0 - drum_time * 18.0) * drum_time) * exp(-drum_time * 9.0) * 0.12
+			return _load_looping_mp3(MENU_TRACK)
 		&"forge":
-			var hammer_tone := sin(tau * (920.0 - pulse_time * 420.0) * pulse_time)
-			pulse = hammer_tone * exp(-pulse_time * 22.0) * 0.14
-			pluck *= 0.82
+			var randomizer := AudioStreamRandomizer.new()
+			randomizer.streams_count = FORGE_TRACKS.size()
+			for track_index in range(FORGE_TRACKS.size()):
+				randomizer.set_stream(track_index, load(FORGE_TRACKS[track_index]) as AudioStream)
+			return randomizer
 		&"town":
-			pulse = sin(tau * 110.0 * pulse_time) * exp(-pulse_time * 13.0) * 0.035
+			var playlist := AudioStreamPlaylist.new()
+			playlist.shuffle = true
+			playlist.stream_count = TOWN_TRACKS.size()
+			for track_index in range(TOWN_TRACKS.size()):
+				playlist.set_list_stream(track_index, load(TOWN_TRACKS[track_index]) as AudioStream)
+			return playlist
+		_:
+			return null
 
-	return drone + pluck + pulse
+
+func _load_looping_mp3(path: String) -> AudioStream:
+	var stream := load(path) as AudioStream
+	if stream is AudioStreamMP3:
+		stream.loop = true
+	return stream

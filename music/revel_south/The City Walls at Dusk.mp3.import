@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cak665u4dfkyu"
+path="res://.godot/imported/The City Walls at Dusk.mp3-185ae05799a5f47b87d5242bb73f2fb1.mp3str"
+
+[deps]
+
+source_file="res://music/revel_south/The City Walls at Dusk.mp3"
+dest_files=["res://.godot/imported/The City Walls at Dusk.mp3-185ae05799a5f47b87d5242bb73f2fb1.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -49,16 +49,26 @@ func _check_streams(failures: Array[String]) -> void:
 			failures.append("Theme %s is routed but not configured" % theme_id)
 			continue
 
-		var stream: AudioStreamWAV = director.get_theme_stream(theme_id)
+		for track_path: String in MusicDirectorScript.theme_track_paths(theme_id):
+			if not ResourceLoader.exists(track_path):
+				failures.append("Missing approved track for %s: %s" % [theme_id, track_path])
+
+		var stream: AudioStream = director.get_theme_stream(theme_id)
 		if stream == null:
-			failures.append("Theme %s did not synthesize a stream" % theme_id)
+			failures.append("Theme %s did not load a stream" % theme_id)
 			continue
-		if stream.data.is_empty():
-			failures.append("Theme %s synthesized empty PCM data" % theme_id)
-		if stream.loop_mode != AudioStreamWAV.LOOP_FORWARD:
-			failures.append("Theme %s is not configured to loop" % theme_id)
-		if stream.loop_begin != 0 or stream.loop_end != stream.data.size() / 2:
-			failures.append("Theme %s has invalid loop boundaries" % theme_id)
+		match theme_id:
+			&"menu":
+				if not stream is AudioStreamMP3:
+					failures.append("Menu theme should load an MP3 stream")
+				elif not (stream as AudioStreamMP3).loop:
+					failures.append("Menu theme should loop")
+			&"forge":
+				if not stream is AudioStreamRandomizer:
+					failures.append("Forge theme should use AudioStreamRandomizer")
+			&"town":
+				if not stream is AudioStreamPlaylist:
+					failures.append("Town theme should use AudioStreamPlaylist")
 
 	director.free()
 
@@ -71,8 +81,6 @@ func _check_autoload_playback(failures: Array[String]) -> void:
 		return
 
 	await scene_changed_signal
-	# `process_frame` is emitted before Node._process callbacks. Wait for the next
-	# frame boundary as well so MusicDirector has observed the new current scene.
 	await process_frame
 	await process_frame
 	var director := root.get_node_or_null("MusicDirector")

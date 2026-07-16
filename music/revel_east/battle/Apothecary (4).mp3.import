@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://qybdqd8dic6c"
+path="res://.godot/imported/Apothecary (4).mp3-1797649ef38813067a7b4ee6847dd770.mp3str"
+
+[deps]
+
+source_file="res://music/revel_east/battle/Apothecary (4).mp3"
+dest_files=["res://.godot/imported/Apothecary (4).mp3-1797649ef38813067a7b4ee6847dd770.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

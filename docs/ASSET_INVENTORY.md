@@ -24,25 +24,25 @@ Priority order:
 
 | Classification | Count |
 | --- | ---: |
-| approved | 0 |
+| approved | 159 |
 | prototype | 45 |
 | unknown rights | 0 |
 | inconsistent | 0 |
 | archive | 0 |
-| **Total** | **45** |
+| **Total** | **204** |
 
 ## Counts by media type
 
 | Media type | Count |
 | --- | ---: |
 | image | 45 |
-| audio | 0 |
-| **Total** | **45** |
+| audio | 159 |
+| **Total** | **204** |
 
 ## Verification summary
 
-- Inventory row count: `45`
-- Runtime source files found under `assets/`, `music/`, and `sounds/`: `45`
+- Inventory row count: `204`
+- Runtime source files found under `assets/`, `music/`, and `sounds/`: `204`
 - Imported `img/` marketing source files included as archive: `0`
 - Rows missing Godot `.import` sidecar: `0`
 - Orphan `.import` sidecars with no source file, not counted as runtime assets: `0`
@@ -98,3 +98,162 @@ Priority order:
 | `assets/objects/smith-room/wheel.png` | image | prototype | yes | Pre-art-bible runtime art candidate; provenance and approval are still pending P0-028/P0-040. |
 | `assets/objects/weapons/hammer.png` | image | prototype | yes | Pre-art-bible runtime art candidate; provenance and approval are still pending P0-028/P0-040. |
 | `assets/tiles/greybox_floor.png` | image | prototype | yes | P0-030 greybox tile placeholder for district TileMapLayers until P0-040 orthogonal art lands. |
+| `music/cathedral_of_saint_mary/day/cathedral_of_saint_mary_1 (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/cathedral_of_saint_mary/day/cathedral_of_saint_mary_1 (2).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/cathedral_of_saint_mary/day/cathedral_of_saint_mary_1 (3).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/cathedral_of_saint_mary/day/cathedral_of_saint_mary_1 (4).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/cathedral_of_saint_mary/day/cathedral_of_saint_mary_1 (5).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/cathedral_of_saint_mary/day/cathedral_of_saint_mary_1.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/cathedral_of_saint_mary/night/cathedral_of_saint_mary_1.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/cathedral_of_saint_mary/night/cathedral_of_saint_mary_2.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/cathedral_of_saint_mary/night/cathedral_of_saint_mary_3.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/cathedral_of_saint_mary/night/cathedral_of_saint_mary_4.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/domberg/day/Baltic Wind (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/domberg/day/Baltic Wind.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/domberg/day/Crown of Stone.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/domberg/day/Merchants' Whispers (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/domberg/day/Merchants' Whispers.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/domberg/day/Noble Lessons (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/domberg/day/Noble Lessons.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/domberg/day/Order's March (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/domberg/day/Order's March.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/domberg/night/Bones Beneath Stone (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/domberg/night/Bones Beneath Stone.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/domberg/night/Ghosts of the Crown (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/domberg/night/Ghosts of the Crown.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/domberg/night/Midnight Executioner.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/domberg/night/The Wailer's Lament (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/domberg/night/The Wailer's Lament.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/domberg/night/Vanapagan's Dominion (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/domberg/night/Vanapagan's Dominion.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/dome_school/day/Garden of Learning (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/dome_school/day/Garden of Learning.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/dome_school/day/Scholar's Dawn (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/dome_school/day/Scholar's Dawn.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/dome_school/day/Whispers of Heritage (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/dome_school/day/Whispers of Heritage.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/dome_school/night/Forbidden Knowledge (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/dome_school/night/Forbidden Knowledge.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/dome_school/night/Gargoyle's Watch (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/dome_school/night/Gargoyle's Watch.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/dome_school/night/Haunted Codex (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/dome_school/night/Haunted Codex.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/dome_school/night/Midnight Bells (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/dome_school/night/Midnight Bells.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/forge/Fireside Tale.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/forge/The Smith's Song.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/forge/The Smith's Song2.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/garden/day/danish_kings_garden_1.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/garden/day/danish_kings_garden_2.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/garden/day/danish_kings_garden_3.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/garden/night/danish_kings_garden_1.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/garden/night/danish_kings_garden_2.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/garden/night/danish_kings_garden_3.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/harbor/battle/Baltic Tempest (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/harbor/battle/Baltic Tempest (2).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/harbor/battle/Baltic Tempest.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/harbor/battle/Clash on the Docks.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/harbor/Harbor Mist (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/harbor/Harbor Mist.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/harbor/Olaf's Jig.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/harbor/Song of the Sea Wolves (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/harbor/Song of the Sea Wolves.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/harbor/The Fisherman's Ballad (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/harbor/The Fisherman's Ballad.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/harbor/The Lonely Watch (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/harbor/The Lonely Watch (2).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/harbor/The Lonely Watch.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/harbor/The Merchant's Voyage.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/harbor/The Sailor's Lament.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/harbor/The Sailor's Lament2.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/harbor/The Sunken City.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/menu/Menu.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/A Moment of Peace (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/A Moment of Peace (2).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/A Moment of Peace (3).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/A Moment of Peace.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/apotheca/The Apothecary's Secret (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/apotheca/The Apothecary's Secret.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/battle/Defense of the Town Hall.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/battle/Market Mayhem.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/battle/Riot in the Square.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/battle/The Festival of St. John.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/battle/The Guilds at War (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/battle/The Guilds at War.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/holy spirit church/Hymn of the Holy Spirit (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/holy spirit church/Hymn of the Holy Spirit.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/Market Day.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/market_day_2.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/market_day_3.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/market_day_4.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/market_day_5.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/raekoda/The Guildmaster's Ball.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/raekoda/The Town Hall Fanfare.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/The Bard's Tale (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/The Bard's Tale.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/The Children's Dance.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_center/The Merchant's Tale.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/2.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/Apothecary (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/Apothecary (2).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/Apothecary (3).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/Apothecary (6).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/Apothecary (7).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/Apothecary (8).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/Apothecary (9).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/Apothecary.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/battle/1.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/battle/2.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/battle/4.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/battle/Apothecary (4).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/battle/Apothecary (5).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/battle/Cobblestone Jig (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/battle/Cobblestone Jig.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/battle/The Viru Gate Dance1.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/battle/The Viru Gate Dance2.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/battle/The Viru Gate Dance3.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/battle/Viru Gate Skirmish (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/battle/Viru Gate Skirmish.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/intro.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/monastery/battle/Catherine's Prayer.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/monastery/battle/Catherine's Prayer2.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/monastery/Whispers of the Monastery Garden (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/monastery/Whispers of the Monastery Garden (2).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/monastery/Whispers of the Monastery Garden (3).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/monastery/Whispers of the Monastery Garden.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/streets.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/streets2.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/tavern/Tavern's Delight (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/tavern/Tavern's Delight (2).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/tavern/Tavern's Delight.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/The Shaman's Trance (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_east/The Shaman's Trance.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_north/A Journey Through the North (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_north/A Journey Through the North.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_north/A Worker's Toil (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_north/A Worker's Toil.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_north/battle/Ambush on Pikk Street (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_north/battle/Ambush on Pikk Street.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_north/battle/Battle for Oleviste.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_north/battle/Blackheads' Charge (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_north/battle/Blackheads' Charge.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_north/battle/Sacking the Nunnery (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_north/battle/Sacking the Nunnery.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_north/battle/The Blackheads' Oath.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_north/battle/The Guild War.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_north/oleviste/Oleviste's Bells (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_north/oleviste/Oleviste's Bells.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_north/The Craftsman's Pride.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_north/The Merchant's Path (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_north/The Merchant's Path.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_north/The Nunnery's Peace (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_north/The Nunnery's Peace.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_south/Echoes of Old Town.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_south/The Alchemist's Secret.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_south/The City Walls at Dusk.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_south/The Herbalist's Garden (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_south/The Herbalist's Garden.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_south/Under the Linden Tree (1).mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `music/revel_south/Under the Linden Tree.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `sounds/door.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |
+| `sounds/walk_wood.mp3` | audio | approved | yes | Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv. |

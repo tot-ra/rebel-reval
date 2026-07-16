@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bncbl0nb3r77u"
+path="res://.godot/imported/A Worker's Toil (1).mp3-26a5b62703c739df3436166d74bdef65.mp3str"
+
+[deps]
+
+source_file="res://music/revel_north/A Worker's Toil (1).mp3"
+dest_files=["res://.godot/imported/A Worker's Toil (1).mp3-26a5b62703c739df3436166d74bdef65.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

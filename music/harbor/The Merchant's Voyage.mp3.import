@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://rlp1vkyyh0w0"
+path="res://.godot/imported/The Merchant's Voyage.mp3-2a31f0e117a906ee6e29cc7d590bf2b3.mp3str"
+
+[deps]
+
+source_file="res://music/harbor/The Merchant's Voyage.mp3"
+dest_files=["res://.godot/imported/The Merchant's Voyage.mp3-2a31f0e117a906ee6e29cc7d590bf2b3.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

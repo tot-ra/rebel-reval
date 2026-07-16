@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://63btgk1bndci"
+path="res://.godot/imported/The Shaman's Trance.mp3-c77a5e52d6d4bf76a66c93348a7c4ca0.mp3str"
+
+[deps]
+
+source_file="res://music/revel_east/The Shaman's Trance.mp3"
+dest_files=["res://.godot/imported/The Shaman's Trance.mp3-c77a5e52d6d4bf76a66c93348a7c4ca0.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

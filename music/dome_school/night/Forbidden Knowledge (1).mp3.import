@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://buoscppsxgupo"
+path="res://.godot/imported/Forbidden Knowledge (1).mp3-f6bd90f8278785a65e801c82c5838695.mp3str"
+
+[deps]
+
+source_file="res://music/dome_school/night/Forbidden Knowledge (1).mp3"
+dest_files=["res://.godot/imported/Forbidden Knowledge (1).mp3-f6bd90f8278785a65e801c82c5838695.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

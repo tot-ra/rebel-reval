@@ -8,7 +8,9 @@ The inventory is intentionally conservative for P0-027: assets are not marked
 from __future__ import annotations
 
 import argparse
+import csv
 from collections import Counter
+from functools import lru_cache
 from pathlib import Path
 from typing import Iterable
 
@@ -79,6 +81,19 @@ def media_type(path: Path) -> str:
     return "audio" if path.suffix.lower() in AUDIO_EXTENSIONS else "image"
 
 
+@lru_cache(maxsize=1)
+def source_approvals_by_path() -> dict[str, str]:
+    sources = ROOT / "assets" / "SOURCES.csv"
+    if not sources.exists():
+        return {}
+    with sources.open(newline="", encoding="utf-8") as handle:
+        return {
+            row["path"]: row.get("approval", "")
+            for row in csv.DictReader(handle)
+            if row.get("path")
+        }
+
+
 def classify(path: Path) -> tuple[str, str]:
     """Classify one runtime asset using conservative P0-027 rules."""
     p = path.as_posix()
@@ -94,6 +109,12 @@ def classify(path: Path) -> tuple[str, str]:
         return "prototype", "P0-030 greybox tile placeholder for district TileMapLayers until P0-040 orthogonal art lands."
 
     if media_type(path) == "audio":
+        approval = source_approvals_by_path().get(p, "")
+        if approval.startswith("approved"):
+            return (
+                "approved",
+                "Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv.",
+            )
         return "unknown rights", "No per-track source, creator, license, or approval manifest exists yet."
 
     if p.startswith("assets/UI/"):
