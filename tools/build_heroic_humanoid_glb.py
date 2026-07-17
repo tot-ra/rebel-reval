@@ -240,17 +240,19 @@ def _euler_xyz_degrees_to_quat(euler: np.ndarray) -> np.ndarray:
     )
 
 
-# Locomotion clips keep a large local-Y delta from the KayKit chibi rig. On the
-# slim adult silhouette that reads as hands flaring left/right instead of
+# Locomotion clips keep large local pitch/roll deltas from the KayKit chibi rig.
+# On the slim adult silhouette that reads as hands flaring left/right instead of
 # swinging along +Z.
 _LOCOMOTION_ANIMATIONS = frozenset({"Running_B", "Walking_A"})
-_ARM_SWING_LATERAL_ATTENUATION = 0.55
+_ARM_SWING_LATERAL_ATTENUATION = 0.22
+_ARM_SWING_ROLL_ATTENUATION = 0.35
 
 
 def _remap_arm_swing_delta(
     source_rest: np.ndarray,
     values: np.ndarray,
     animation_name: str,
+    bone_name: str = "",
 ) -> np.ndarray:
     """Preserve clip timing but flatten lateral elbow flare on locomotion."""
     if animation_name not in _LOCOMOTION_ANIMATIONS:
@@ -259,6 +261,8 @@ def _remap_arm_swing_delta(
     deltas = _quat_multiply(inv_rest, values)
     euler = _quat_to_euler_xyz_degrees(deltas)
     euler[..., 1] *= _ARM_SWING_LATERAL_ATTENUATION
+    if bone_name.startswith("upperarm"):
+        euler[..., 0] *= _ARM_SWING_ROLL_ATTENUATION
     remapped = _quat_multiply(source_rest, _euler_xyz_degrees_to_quat(euler))
     return remapped
 
@@ -491,7 +495,9 @@ def build(character: str) -> None:
                 rotated_outputs[output] = node_index
                 values = _read_accessor(gltf, bin_chunk, output).astype(np.float64)
                 source_rest = source_arm_rests[node_index]
-                remapped = _remap_arm_swing_delta(source_rest, values, animation_name)
+                remapped = _remap_arm_swing_delta(
+                    source_rest, values, animation_name, names[node_index]
+                )
                 offset = offset_by_node[node_index]
                 _write_accessor(
                     gltf,
