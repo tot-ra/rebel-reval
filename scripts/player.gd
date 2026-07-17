@@ -40,10 +40,7 @@ func _physics_process(_delta):
 		update_animation("idle")
 		return
 
-	var screen_direction := Vector2(
-		Input.get_axis("ui_left", "ui_right"),
-		Input.get_axis("ui_up", "ui_down")
-	)
+	var screen_direction := ScreenDirectionInput.read_axis()
 	var movement_direction := movement_direction_for_screen_input(screen_direction)
 	var new_animation = "idle"
 	

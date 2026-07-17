@@ -15,7 +15,7 @@ Items occupy rectangular footprints on the grid (`grid_width` x `grid_height`). 
 
 **Encumbrance:** movement speed scales linearly from 100% at empty load to 65% at the weight cap. Volume does not slow the player directly, but a full grid blocks new pickups.
 
-Open the bag with **I**; close with **I** or **Esc**. While open, movement is paused so the player can rearrange items.
+Open the bag with **I**; close with **I** or **Esc**. While open, movement is paused so the player can rearrange items. Move the grid selection with arrow keys or **WASD**; **Enter** or **Space** picks up or places the focused item (same as clicking a cell).
 
 ## Relationship to other systems
 

@@ -480,6 +480,8 @@ func _on_cell_pressed(cell_x: int, cell_y: int) -> void:
 	if _bag == null:
 		return
 
+	_focus_cell = Vector2i(cell_x, cell_y)
+
 	var placement := _bag.get_placement_at_cell(cell_x, cell_y)
 	if _selected == null:
 		if placement != null and placement.grid_x == cell_x and placement.grid_y == cell_y:

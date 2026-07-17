@@ -36,7 +36,7 @@ func _ready() -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	var input := Vector2(Input.get_axis("ui_left", "ui_right"), Input.get_axis("ui_up", "ui_down"))
+	var input := ScreenDirectionInput.read_axis()
 	if input != Vector2.ZERO:
 		_facing = _resolve_cardinal(input)
 		velocity = _facing * MOVE_SPEED
