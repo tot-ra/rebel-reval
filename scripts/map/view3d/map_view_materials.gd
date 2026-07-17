@@ -64,11 +64,11 @@ const TERRAIN_UV_SCALE := {
 ## repeats, one procedural tile spans an entire house wall and bricks read
 ## billboard-sized. Values are tuned for typical 3-6 unit footprints at the
 ## frozen 32 px/cell scale (character height 2.0 units).
-## Brick stretcher courses need more vertical repeats than horizontal ones so
-## each brick reads wider than tall (running bond, not soldier/stack bond).
+## Stretcher courses need more vertical UV repeats than horizontal ones so each
+## block reads wider than tall (running bond, not soldier/stack bond).
 const BUILDING_UV_SCALE := {
 	PATTERN_BRICK: Vector3(5.0, 6.5, 5.0),
-	PATTERN_LIMESTONE: Vector3(4.0, 2.0, 4.0),
+	PATTERN_LIMESTONE: Vector3(4.0, 6.0, 4.0),
 	PATTERN_PLANK: Vector3(5.0, 3.0, 5.0),
 	PATTERN_PLASTER: Vector3(3.5, 2.5, 3.5),
 	PATTERN_ROOF_TILE: Vector3(4.0, 2.5, 4.0),
@@ -579,16 +579,17 @@ static func _paint_plank(image: Image, noise_seed: int) -> void:
 			_fill_value(image, x, y, value)
 
 
-## Irregular ashlar courses: Tallinn's grey limestone masonry.
+## Irregular ashlar courses: Tallinn's grey limestone masonry. Keep block width
+## well above course height so tall fortification walls read horizontal courses.
 static func _paint_limestone(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
-	var courses := 10
+	var courses := 16
 	var course_h := size / courses
 	for y in size:
 		var row := y / course_h
 		var in_course := y % course_h
 		for x in size:
-			var width := 12 + int(_hash01(row, 3, noise_seed) * 10.0)
+			var width := 16 + int(_hash01(row, 3, noise_seed) * 12.0)
 			var offset := int(_hash01(row, 7, noise_seed + 3) * 24.0)
 			var column := (x + offset) / width
 			var in_block := (x + offset) % width

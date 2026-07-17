@@ -80,6 +80,7 @@ const TOWER_ROOF_COLOR := Color8(158, 64, 44)
 const WALL_ROOF_COLOR := Color8(150, 66, 48)
 const TOWER_ROOF_PITCH := 1.45
 const WALL_WALK_ROOF_LIFT := 0.75
+const WALL_WALK_TIMBER_TONE := Color(0.50, 0.36, 0.24)
 
 const CHIMNEY_SIZE := 0.5
 const CHIMNEY_SMOKE_SCRIPT := preload("res://scripts/map/view3d/chimney_smoke_3d.gd")
@@ -433,10 +434,17 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 		cap_mesh.size = Vector3(size.x + CAP_OVERHANG * 2.0, CAP_HEIGHT, size.y + CAP_OVERHANG * 2.0)
 		cap.mesh = cap_mesh
 		cap.position = Vector3(0.0, height + CAP_HEIGHT * 0.5, 0.0)
-		cap.material_override = MapViewMaterials.wall_surface(
-			&"limestone" if kind == MapTypes.BUILDING_KIND_WALL else &"plaster",
-			wall_color.lightened(0.12)
-		)
+		if fortification:
+			# Covered wall walks rest on a timber deck, not a stone coping slab.
+			cap.material_override = MapViewMaterials.wall_surface(
+				&"plank",
+				wall_color.lerp(WALL_WALK_TIMBER_TONE, 0.72)
+			)
+		else:
+			cap.material_override = MapViewMaterials.wall_surface(
+				&"limestone" if kind == MapTypes.BUILDING_KIND_WALL else &"plaster",
+				wall_color.lightened(0.12)
+			)
 		root.add_child(cap)
 		if fortification:
 			_add_battlements(root, building, size, height)

@@ -471,6 +471,12 @@ func test_town_wall_gets_battlements_and_gate_arch_clears_character() -> void:
 			if building["id"] == &"city_wall_north":
 				assert_true(node.has_node("Merlons"), "straight fortification walls need battlements")
 				assert_true(node.has_node("WalkRoof"), "Tallinn wall walks need covered red-tile roofs")
+				var cap := node.get_node("Cap") as MeshInstance3D
+				var cap_mat := cap.material_override as StandardMaterial3D
+				assert_true(
+					is_equal_approx(cap_mat.uv1_scale.y, 3.0),
+					"wall walk deck must use plank timber, not limestone coping"
+				)
 			else:
 				assert_true(node.has_node("TowerRoof"), "%s needs a conical red-tile roof" % building["id"])
 				assert_true((node.get_node("Walls") as MeshInstance3D).mesh is CylinderMesh, "%s must be round" % building["id"])
