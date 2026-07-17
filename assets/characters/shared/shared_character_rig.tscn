@@ -8,5 +8,9 @@
 script = ExtResource("1_rig")
 variant = ExtResource("3_variant")
 
-[node name="Model" parent="." instance=ExtResource("2_model")]
-scale = Vector3(0.687, 0.687, 0.687)
+[node name="Model" type="Node3D" parent="."]
+# Imported scene roots do not reliably retain non-uniform inherited overrides.
+# This stable wrapper enforces the adult height and restrained horizontal bulk.
+scale = Vector3(0.62, 1.12, 0.62)
+
+[node name="ImportedHumanoid" parent="Model" instance=ExtResource("2_model")]

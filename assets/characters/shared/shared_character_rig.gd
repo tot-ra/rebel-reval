@@ -32,6 +32,7 @@ const VENDOR_EQUIPMENT_NAMES: Array[StringName] = [
 	&"Mug",
 ]
 const RIGHT_HAND_BONE := &"hand.r"
+const HEROIC_MODEL_SCALE := Vector3(0.62, 1.12, 0.62)
 const OCCLUDED_SILHOUETTE_SHADER := preload("res://assets/characters/shared/occluded_silhouette.gdshader")
 const HEAD_SCALE_MODIFIER := preload("res://assets/characters/shared/head_scale_modifier.gd")
 
@@ -47,6 +48,9 @@ var _equipment_attachment: BoneAttachment3D
 var _occlusion_ghost := false
 
 func _ready() -> void:
+	# Apply the authored anisotropic normalization in code because inherited
+	# imported-scene transforms can be reset to identity during instantiation.
+	$Model.scale = HEROIC_MODEL_SCALE
 	_animation_player = _find_animation_player($Model)
 	_skeleton = _find_skeleton($Model)
 	_hide_vendor_equipment()
@@ -54,8 +58,8 @@ func _ready() -> void:
 	_install_head_scale()
 	play_animation(start_animation)
 
-## Adult proportions are baked into heroic_humanoid.glb; the modifier only
-## applies subtle per-bone polish after animation updates.
+## Adult proportions are baked into heroic_humanoid.glb; the modifier finishes
+## the retarget in animated poses so limbs stay long and the head stays restrained.
 func _install_head_scale() -> void:
 	if _skeleton == null:
 		return

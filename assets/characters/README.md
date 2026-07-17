@@ -34,9 +34,9 @@ character.play_animation(&"walk")
 | `hit` | `Hit_A` | damage reaction |
 | `fall` | `Death_A` | non-looping fall |
 
-The runtime keeps an optional `SkeletonModifier3D` for subtle polish only (`head` `0.96`, leg segments `1.04`, arm segments `1.03`, torso `0.98`). Adult proportions come from the baked mesh, not extreme bone scaling.
+The runtime finishes the baked proportions with a moderate `SkeletonModifier3D` (`head` `0.88`, leg segments `1.12`, arm segments `1.10`, torso `0.94`) so animated poses preserve the taller adult silhouette without the extreme deformation previously required by the untouched vendor mesh.
 
-The shared model is normalized to `2.0` world units (`Model` scale `0.687` on the baked `2.911` unit mesh). `CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE` is `28.125`, which projects that height to the carried-forward 64 px target in the 1600 x 900 viewport. P0-052 may read these constants but must not duplicate or silently change them; P0-040 can replace them when ART_BIBLE v2 is approved.
+The shared model uses non-uniform root normalization (`Model` scale `0.62, 1.12, 0.62`): the baked visible body is brought to the `2.0` world-unit height contract while its horizontal bulk is restrained. `CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE` is `28.125`, which projects that height to the carried-forward 64 px target in the 1600 x 900 viewport. P0-052 may read these constants but must not duplicate or silently change them; P0-040 can replace them when ART_BIBLE v2 is approved.
 
 ## Variant procedure
 

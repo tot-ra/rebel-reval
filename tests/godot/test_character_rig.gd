@@ -91,6 +91,12 @@ func test_scale_contract_projects_to_sixty_four_pixels() -> void:
 	assert_true(is_equal_approx(CharacterScale.VISIBLE_HEIGHT_WORLD, 2.0))
 	assert_true(is_equal_approx(CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE, 28.125))
 	assert_true(is_equal_approx(CharacterScale.projected_height_px(), 64.0))
+	var kalev := _instantiate(KALEV_SCENE)
+	assert_true(
+		kalev.get_node("Model").scale.is_equal_approx(SharedCharacterRig.HEROIC_MODEL_SCALE),
+		"runtime must retain the taller, narrower heroic model normalization"
+	)
+	kalev.queue_free()
 
 
 func test_realistic_proportions_modifier_retargets_vendor_rig() -> void:
@@ -98,28 +104,28 @@ func test_realistic_proportions_modifier_retargets_vendor_rig() -> void:
 	var modifier := kalev.skeleton().get_node_or_null("RealisticProportions")
 	assert_true(modifier != null, "shared rig must install its animated proportions modifier")
 	if modifier != null:
-		assert_true(is_equal_approx(modifier.head_scale, 0.96), "head polish stays near identity")
+		assert_true(is_equal_approx(modifier.head_scale, 0.88), "head must stay restrained in animated poses")
 		assert_true(
-			is_equal_approx(modifier.leg_segment_scale, 1.04),
-			"legs rely on baked geometry, not extreme bone stretch"
+			is_equal_approx(modifier.leg_segment_scale, 1.12),
+			"legs must preserve the taller adult silhouette during animation"
 		)
 		assert_true(
-			is_equal_approx(modifier.arm_segment_scale, 1.03),
-			"arms rely on baked geometry, not extreme bone stretch"
+			is_equal_approx(modifier.arm_segment_scale, 1.10),
+			"arms must preserve adult reach during animation"
 		)
 		modifier.call("_process_modification")
 		var head_bone := kalev.skeleton().find_bone("head")
 		assert_true(head_bone >= 0, "vendor rig must expose the head bone")
 		if head_bone >= 0:
 			assert_true(
-				kalev.skeleton().get_bone_pose_scale(head_bone).is_equal_approx(Vector3.ONE * 0.96),
+				kalev.skeleton().get_bone_pose_scale(head_bone).is_equal_approx(Vector3.ONE * 0.88),
 				"head pose scale must survive animation updates"
 			)
 		var upper_leg := kalev.skeleton().find_bone("upperleg.l")
 		assert_true(upper_leg >= 0, "vendor rig must expose leg bones")
 		if upper_leg >= 0:
 			assert_true(
-				kalev.skeleton().get_bone_pose_scale(upper_leg).is_equal_approx(Vector3(1.0, 1.04, 1.0)),
+				kalev.skeleton().get_bone_pose_scale(upper_leg).is_equal_approx(Vector3(1.0, 1.12, 1.0)),
 				"leg pose scale must survive animation updates"
 			)
 	kalev.queue_free()

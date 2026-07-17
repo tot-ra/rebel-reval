@@ -1,12 +1,13 @@
 extends SkeletonModifier3D
 
-## Optional fine-tuning on top of the baked heroic mesh proportions.
-## Values stay near 1.0 because adult silhouette is authored in geometry.
+## Final animated retargeting on top of the baked heroic body proportions.
+## Moderate values keep the silhouette adult at gameplay scale without the
+## extreme deformation previously required by the untouched vendor mesh.
 
-@export_range(0.3, 1.0, 0.01) var head_scale := 0.96
-@export_range(1.0, 1.5, 0.01) var leg_segment_scale := 1.04
-@export_range(1.0, 1.5, 0.01) var arm_segment_scale := 1.03
-@export_range(0.7, 1.0, 0.01) var torso_scale := 0.98
+@export_range(0.3, 1.0, 0.01) var head_scale := 0.88
+@export_range(1.0, 1.5, 0.01) var leg_segment_scale := 1.12
+@export_range(1.0, 1.5, 0.01) var arm_segment_scale := 1.10
+@export_range(0.7, 1.0, 0.01) var torso_scale := 0.94
 
 const LEG_BONES: Array[StringName] = [
 	&"upperleg.l",
