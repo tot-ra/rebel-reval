@@ -1121,7 +1121,11 @@ static func build_scatter(definition: MapDefinition, grid: MapTerrainGrid) -> No
 				var gray := 0.8 + _hash01(x, y, definition.seed + 154) * 0.35
 				stone_colors.append(Color(gray, gray, gray * 0.97))
 
-	root.add_child(_multi_mesh("Tufts", _grass_tuft_mesh(), tufts, tuft_colors, MapViewMaterials.grass_blades(), Vector3.ZERO))
+	var grass_tufts := _multi_mesh("Tufts", _grass_tuft_mesh(), tufts, tuft_colors, MapViewMaterials.grass_blades(), Vector3.ZERO)
+	# Knee-height scatter should not cast shadows: wind-swayed vertices make
+	# directional shadow maps flicker on paper-thin blade geometry.
+	grass_tufts.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	root.add_child(grass_tufts)
 
 	var stone_mesh := SphereMesh.new()
 	stone_mesh.radius = 0.09

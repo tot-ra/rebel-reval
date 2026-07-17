@@ -150,6 +150,11 @@ func test_grass_and_tree_detail_use_generated_meshes_and_wind_materials() -> voi
 	var tufts := view.get_node("Scatter/Tufts") as MultiMeshInstance3D
 	assert_true(tufts.multimesh.mesh is ArrayMesh, "grass must use blade geometry instead of a cone primitive")
 	assert_true(tufts.material_override is ShaderMaterial, "grass blades must carry the wind shader")
+	assert_eq(
+		tufts.cast_shadow,
+		GeometryInstance3D.SHADOW_CASTING_SETTING_OFF,
+		"grass must not cast shadows while vertex wind animates"
+	)
 	for path in ["Surroundings/SpruceCanopies", "Surroundings/LeafCanopies"]:
 		var canopy := view.get_node(path) as MultiMeshInstance3D
 		assert_true(canopy.multimesh.mesh is ArrayMesh, "%s must use a multi-lobed generated mesh" % path)

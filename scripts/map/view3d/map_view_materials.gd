@@ -160,7 +160,10 @@ void fragment() {
 ## and weights a two-frequency wind sway so tips travel and roots hold.
 const GRASS_SHADER_CODE := "
 shader_type spatial;
-render_mode cull_disabled;
+// depth_draw_opaque keeps stacked blade layers sorted; cull_disabled shows both
+// faces. Wind stays in vertex(), but grass must not cast shadows: animated
+// vertices make shadow maps jitter on thin geometry.
+render_mode cull_disabled, depth_draw_opaque;
 
 uniform vec3 base_color : source_color = vec3(0.38, 0.48, 0.24);
 uniform float sway_strength = 0.10;
@@ -177,6 +180,10 @@ void vertex() {
 }
 
 void fragment() {
+	// Double-sided blades otherwise flip normals and shadowed lighting flickers.
+	if (!FRONT_FACING) {
+		NORMAL = -NORMAL;
+	}
 	ALBEDO = base_color * COLOR.rgb * mix(0.5, 1.1, UV.y);
 	ROUGHNESS = 0.95;
 }
