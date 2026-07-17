@@ -248,6 +248,20 @@ python3 tools/generate_active_docs_report.py --check
 
 The Godot suite includes contract, deterministic fingerprint, terrain coverage, collision, reachability, Y-sort, scene bootstrap, and map audit coverage. The Python checks cover audit inventory/captures, activation isolation, and conversion-plan consistency.
 
+### `lower_town_slice` parity fixture
+
+`tests/fixtures/maps/lower_town_slice.parity.json` is the reviewed pre-compiler baseline for `lower_town_slice`. Its canonical serializer records normalized map metadata, an output terrain-ID grid hash, buildings and props, anchors, transitions, patrols, view landmarks, direction signs, exclusions, fade volumes, source references, surroundings metadata, and a cell-by-cell walkability hash/count. Dictionary keys and stable-ID collections are sorted, unordered records are compared canonically, and floats use nine fixed decimal places so representation-only changes do not create diffs. Patrol points retain order because their order is gameplay-relevant. Legacy paint-operation order and the authoring fingerprint are intentionally excluded: a compiler may express the same final terrain differently and will use a new canonical fingerprint policy.
+
+The normal test suite only reads this fixture and never rewrites it. Regeneration is intentionally guarded and must be invoked explicitly:
+
+```bash
+godot --headless --path . \
+  --script tools/regenerate_lower_town_slice_parity.gd \
+  -- --write-lower-town-slice-parity-fixture
+```
+
+After regeneration, review the full fixture diff before accepting it. Confirm every metadata or stable-ID change is intended, inspect changed building footprints/properties and gameplay collections, and treat either terrain or walkability hash changes as a map-layout/navigation change requiring dedicated map review. Then run the Godot suite and verify the existing endpoint, gate-passage, water exclusion, and navigation-polygon tests still pass. Do not regenerate merely to make a failing migration test green.
+
 The compiler implementation is not complete until it adds documented commands or focused test targets that prove all of the following:
 
 1. blueprint schema and negative-case validation;

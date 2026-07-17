@@ -4,7 +4,9 @@ const LowerTownSliceDefinition := preload("res://scripts/map/definitions/lower_t
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const MapTypes := preload("res://scripts/map/map_types.gd")
 const MapVerification := preload("res://scripts/map/map_verification.gd")
+const MapParitySnapshot := preload("res://scripts/map/map_parity_snapshot.gd")
 const PLAYER_SCENE := preload("res://player.tscn")
+const PARITY_FIXTURE_PATH := "res://tests/fixtures/maps/lower_town_slice.parity.json"
 
 
 func test_lower_town_slice_validates() -> void:
@@ -12,6 +14,44 @@ func test_lower_town_slice_validates() -> void:
 	assert_eq(definition.size_cells, Vector2i(88, 56))
 	var errors: Array[String] = MapBuilder.validate(definition)
 	assert_true(errors.is_empty(), str(errors))
+
+
+func test_lower_town_slice_matches_canonical_parity_fixture() -> void:
+	var definition: MapDefinition = LowerTownSliceDefinition.create()
+	var grid: MapTerrainGrid = MapBuilder.build(definition)
+	var fixture := FileAccess.get_file_as_string(PARITY_FIXTURE_PATH)
+	assert_false(fixture.is_empty(), "Missing parity fixture: %s" % PARITY_FIXTURE_PATH)
+	var actual := MapParitySnapshot.serialize(definition, grid)
+	assert_true(
+		actual == fixture,
+		"lower_town_slice gameplay data changed; regenerate only after reviewing the canonical diff (%s)" % MapParitySnapshot.first_difference(fixture, actual)
+	)
+
+
+func test_parity_serializer_normalizes_dictionary_order_and_floats() -> void:
+	var first := {
+		"z": -0.0,
+		"nested": {"b": Vector2(1.25, 2.0), "a": Color(0.1, 0.2, 0.3, 1.0)},
+	}
+	var second := {
+		"nested": {"a": Color(0.10000000001, 0.2, 0.3, 1), "b": Vector2(1.25, 2)},
+		"z": 0.0,
+	}
+	assert_eq(MapParitySnapshot.serialize_value(first), MapParitySnapshot.serialize_value(second))
+
+
+func test_parity_snapshot_normalizes_stable_id_collection_order() -> void:
+	var first: MapDefinition = LowerTownSliceDefinition.create()
+	var second: MapDefinition = LowerTownSliceDefinition.create()
+	second.buildings.reverse()
+	second.props.reverse()
+	second.interaction_anchors.reverse()
+	second.transitions.reverse()
+	second.view_landmarks.reverse()
+	assert_eq(
+		MapParitySnapshot.serialize(first, MapBuilder.build(first)),
+		MapParitySnapshot.serialize(second, MapBuilder.build(second))
+	)
 
 
 func test_lower_town_required_route_endpoints_reachable() -> void:
