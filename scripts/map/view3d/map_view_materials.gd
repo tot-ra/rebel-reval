@@ -60,6 +60,18 @@ const TERRAIN_UV_SCALE := {
 	MapTypes.TERRAIN_TIMBER_FLOOR: 2.0,
 }
 
+## BoxMesh and CylinderMesh map UV 0-1 across each face. Without extra
+## repeats, one procedural tile spans an entire house wall and bricks read
+## billboard-sized. Values are tuned for typical 3-6 unit footprints at the
+## frozen 32 px/cell scale (character height 2.0 units).
+const BUILDING_UV_SCALE := {
+	PATTERN_BRICK: Vector3(6.0, 2.5, 6.0),
+	PATTERN_LIMESTONE: Vector3(4.0, 2.0, 4.0),
+	PATTERN_PLANK: Vector3(5.0, 3.0, 5.0),
+	PATTERN_PLASTER: Vector3(3.5, 2.5, 3.5),
+	PATTERN_ROOF_TILE: Vector3(4.0, 2.5, 4.0),
+}
+
 const WATER_SHADER_CODE := "
 shader_type spatial;
 render_mode cull_disabled;
@@ -204,7 +216,7 @@ static func canopy(kind: StringName) -> ShaderMaterial:
 
 
 static func wall(color: Color) -> StandardMaterial3D:
-	return _patterned("wall", color, PATTERN_PLASTER)
+	return _building_surface("wall", color, PATTERN_PLASTER)
 
 
 ## Building wall surface in an explicit material family so houses read as
@@ -212,17 +224,17 @@ static func wall(color: Color) -> StandardMaterial3D:
 static func wall_surface(family: StringName, color: Color) -> StandardMaterial3D:
 	match family:
 		&"brick":
-			return _patterned("wall_brick", color, PATTERN_BRICK)
+			return _building_surface("wall_brick", color, PATTERN_BRICK)
 		&"plank":
-			return _patterned("wall_plank", color, PATTERN_PLANK)
+			return _building_surface("wall_plank", color, PATTERN_PLANK)
 		&"limestone":
-			return _patterned("wall_limestone", color, PATTERN_LIMESTONE)
+			return _building_surface("wall_limestone", color, PATTERN_LIMESTONE)
 		_:
-			return _patterned("wall_plaster", color, PATTERN_PLASTER)
+			return _building_surface("wall_plaster", color, PATTERN_PLASTER)
 
 
 static func roof(color: Color) -> StandardMaterial3D:
-	return _patterned("roof", color, PATTERN_ROOF_TILE)
+	return _building_surface("roof", color, PATTERN_ROOF_TILE)
 
 
 ## Prop surface materials keyed by the shared visual-style roles so the
@@ -316,6 +328,13 @@ static func _patterned(prefix: String, color: Color, pattern: StringName) -> Sta
 		return _cache[key]
 	var material := _make_material(color, pattern, int(key.hash()))
 	_cache[key] = material
+	return material
+
+
+static func _building_surface(prefix: String, color: Color, pattern: StringName) -> StandardMaterial3D:
+	var material := _patterned(prefix, color, pattern)
+	var uv: Variant = BUILDING_UV_SCALE.get(pattern, Vector3.ONE)
+	material.uv1_scale = uv as Vector3
 	return material
 
 
@@ -461,8 +480,10 @@ static func _paint_cobble(image: Image, noise_seed: int) -> void:
 
 static func _paint_brick(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
-	var course := 12
-	var brick_w := 28
+	# Half the legacy course/brick span so each tile carries more bricks; UV
+	# repeats on building faces finish the scale for typical house footprints.
+	var course := 6
+	var brick_w := 14
 	for y in size:
 		var row := y / course
 		var in_course := y % course
@@ -473,7 +494,7 @@ static func _paint_brick(image: Image, noise_seed: int) -> void:
 			var tone := _hash01(column, row, noise_seed)
 			var value := 0.82 + (tone - 0.5) * 0.16
 			value += _lattice(float(x) / 7.0, float(y) / 7.0, size / 7, noise_seed + 5) * 0.06
-			if in_course < 2 or in_brick < 2:
+			if in_course < 1 or in_brick < 1:
 				value = 0.62 + _hash01(x, y, noise_seed + 9) * 0.06
 			_fill_value(image, x, y, value)
 
@@ -501,20 +522,20 @@ static func _paint_plank(image: Image, noise_seed: int) -> void:
 ## Irregular ashlar courses: Tallinn's grey limestone masonry.
 static func _paint_limestone(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
-	var courses := 6
+	var courses := 10
 	var course_h := size / courses
 	for y in size:
 		var row := y / course_h
 		var in_course := y % course_h
 		for x in size:
-			var width := 24 + int(_hash01(row, 3, noise_seed) * 16.0)
-			var offset := int(_hash01(row, 7, noise_seed + 3) * 40.0)
+			var width := 12 + int(_hash01(row, 3, noise_seed) * 10.0)
+			var offset := int(_hash01(row, 7, noise_seed + 3) * 24.0)
 			var column := (x + offset) / width
 			var in_block := (x + offset) % width
 			var tone := _hash01(column, row, noise_seed + 17)
 			var value := 0.80 + (tone - 0.5) * 0.18
 			value += _lattice(float(x) / 9.0, float(y) / 9.0, size / 9, noise_seed + 23) * 0.08
-			if in_course < 2 or in_block < 2:
+			if in_course < 1 or in_block < 1:
 				value = 0.58 + _hash01(x, y, noise_seed + 31) * 0.05
 			_fill_value(image, x, y, value)
 
@@ -523,8 +544,8 @@ static func _paint_limestone(image: Image, noise_seed: int) -> void:
 ## staggers its vertical joints, reading as hand-laid clay tiles.
 static func _paint_roof_tile(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
-	var course := 16
-	var tile_w := 16
+	var course := 10
+	var tile_w := 10
 	for y in size:
 		var row := y / course
 		var in_course := y % course
