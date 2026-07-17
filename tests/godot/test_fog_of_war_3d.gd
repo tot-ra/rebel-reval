@@ -38,6 +38,14 @@ func test_player_clear_radius_keeps_the_whole_character_live() -> void:
 	)
 
 
+func test_fullscreen_shader_is_not_face_culled() -> void:
+	var source := FogOfWar.FOG_SHADER.code
+	assert_true("cull_disabled" in source, "the clip-space overlay must draw regardless of quad winding")
+	assert_false("cull_front" in source, "front-face culling silently removes the fullscreen pass")
+	assert_true("hint_screen_texture" in source, "the overlay must sample the rendered scene")
+	assert_true("hint_depth_texture" in source, "the overlay must preserve real character and building surfaces")
+
+
 func test_blur_distances_are_doubled_with_a_wide_transition() -> void:
 	assert_eq(FogOfWar.CLEAR_RADIUS_WORLD, 18.0, "distant blur must begin at twice the original radius")
 	assert_eq(FogOfWar.MEMORY_RADIUS_WORLD, 36.0, "the distant blur transition must end at twice the original radius")

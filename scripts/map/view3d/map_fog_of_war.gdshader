@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode unshaded, fog_disabled, depth_draw_never, depth_test_disabled, cull_front;
+render_mode unshaded, fog_disabled, depth_draw_never, depth_test_disabled, cull_disabled;
 
 // The spatial full-screen pass can read scene depth, unlike CanvasItem. This
 // keeps the fog attached to actual visible surfaces instead of projecting every
