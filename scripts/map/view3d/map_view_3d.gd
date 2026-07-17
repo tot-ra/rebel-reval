@@ -12,6 +12,7 @@ const DirectionSignBuilder := preload("res://scripts/map/view3d/direction_sign_3
 
 const TIME_DAY := &"day"
 const TIME_NIGHT := &"night"
+const FOG_OF_WAR_SCRIPT := preload("res://scripts/map/view3d/map_fog_of_war.gd")
 const ALL_TIMES: Array[StringName] = [TIME_DAY, TIME_NIGHT]
 
 ## Classic isometric framing per ADR 0007; final values freeze in ART_BIBLE v2 (P0-040).
@@ -45,6 +46,8 @@ var time_of_day: StringName = TIME_DAY
 var _sun: DirectionalLight3D
 var _environment: Environment
 var _camera: Camera3D
+var _fog_of_war: CanvasLayer
+var _memory_animation_state: Dictionary = {}
 var _occluder_bounds: Array[AABB] = []
 
 
@@ -60,6 +63,42 @@ static func create(
 	view._assemble()
 	view.set_time_of_day(initial_time)
 	return view
+
+
+func _process(_delta: float) -> void:
+	if _fog_of_war == null:
+		return
+	var player_rig := get_tree().get_first_node_in_group(&"player_view_rig") as Node3D
+	if player_rig == null:
+		return
+	var facing := Vector2(sin(player_rig.global_rotation.y), cos(player_rig.global_rotation.y))
+	_fog_of_war.call("update_view", player_rig.global_position, facing)
+	_update_memory_animations(player_rig.global_position, facing)
+
+
+func _update_memory_animations(player_position: Vector3, facing: Vector2) -> void:
+	var player_ground := Vector2(player_position.x, player_position.z)
+	for animated in get_tree().get_nodes_in_group(&"fog_memory_animation"):
+		if not animated is AnimationPlayer:
+			continue
+		var animation := animated as AnimationPlayer
+		var owner := animation.get_parent() as Node3D
+		if owner == null:
+			continue
+		var position := Vector2(owner.global_position.x, owner.global_position.z)
+		var alive := float(_fog_of_war.call("visibility_at", position, player_ground, facing)) > 0.5
+		var key := animation.get_instance_id()
+		if not _memory_animation_state.has(key):
+			_memory_animation_state[key] = animation.active
+		animation.active = bool(_memory_animation_state[key]) if alive else false
+
+	for smoke in get_tree().get_nodes_in_group(&"fog_memory_particles"):
+		if not smoke is GPUParticles3D:
+			continue
+		var particles := smoke as GPUParticles3D
+		var position := Vector2(particles.global_position.x, particles.global_position.z)
+		var alive := float(_fog_of_war.call("visibility_at", position, player_ground, facing)) > 0.5
+		particles.speed_scale = 1.0 if alive else 0.0
 
 
 func set_time_of_day(next_time: StringName) -> void:
@@ -82,6 +121,7 @@ func _update_chimney_smokes() -> void:
 	for building_node in buildings.get_children():
 		var smoke := building_node.get_node_or_null("ChimneySmoke") as ChimneySmoke3D
 		if smoke != null:
+			smoke.add_to_group(&"fog_memory_particles")
 			smoke.apply_time_of_day(time_of_day)
 
 
@@ -202,6 +242,12 @@ func _assemble() -> void:
 
 	_camera = _create_camera()
 	add_child(_camera)
+	# Headless uses the dummy renderer, which cannot provide the screen texture
+	# sampled by this post-process. Visibility logic remains directly testable.
+	if DisplayServer.get_name() != "headless":
+		_fog_of_war = FOG_OF_WAR_SCRIPT.new()
+		_fog_of_war.call("configure", _camera, definition)
+		add_child(_fog_of_war)
 
 
 static func _append_mesh_bounds(node: Node3D, accumulated: Transform3D, bounds: Array[AABB]) -> void:
