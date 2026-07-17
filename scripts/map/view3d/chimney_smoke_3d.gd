@@ -2,14 +2,14 @@ class_name ChimneySmoke3D
 extends GPUParticles3D
 
 ## Per-chimney smoke plume: simple rounded billboards with building-specific
-## wind bias, gust-driven direction, and day/night emission schedules.
+## wind bias, gust-driven sway, and day/night emission schedules.
 
 enum Schedule { NEVER, DAY_ONLY, NIGHT_ONLY, ALWAYS }
 
 const SMOKE_LIFETIME := 8.5
 
 var _building_seed: int = 0
-var _base_wind := Vector3(0.2, 1.0, 0.08)
+var _horizontal_wind := Vector3(0.2, 0.0, 0.08)
 var _phase := 0.0
 var _schedule: Schedule = Schedule.ALWAYS
 var _day_amount := 20
@@ -34,11 +34,7 @@ func configure(building_id: StringName) -> void:
 	_schedule = schedule_for(_building_seed)
 	_phase = float((_building_seed & 0xffff) % 6283) / 1000.0
 	var wind_angle := fmod(float((_building_seed >> 3) % 6283) / 1000.0, TAU)
-	_base_wind = Vector3(
-		cos(wind_angle) * 0.55 + 0.08,
-		1.0,
-		sin(wind_angle) * 0.55 + 0.06
-	).normalized()
+	_horizontal_wind = Vector3(cos(wind_angle), 0.0, sin(wind_angle)).normalized()
 	_day_amount = (22 + ((_building_seed >> 5) % 14)) * 2
 	_night_amount = (30 + ((_building_seed >> 7) % 16)) * 2
 	_setup_particles(building_id)
@@ -75,35 +71,31 @@ func _setup_particles(building_id: StringName) -> void:
 	preprocess = 0.0
 	local_coords = true
 	explosiveness = 0.0
-	randomness = 0.28
+	randomness = 0.12
 	visibility_aabb = AABB(Vector3(-5.0, -1.5, -5.0), Vector3(10.0, 12.0, 10.0))
 
 	var process := ParticleProcessMaterial.new()
 	process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_POINT
-	process.direction = _base_wind
-	process.spread = 22.0 + float((_building_seed >> 9) % 16)
-	process.flatness = 0.18
-	process.initial_velocity_min = 0.35
-	process.initial_velocity_max = 0.72 + float((_building_seed >> 11) % 20) * 0.01
-	process.gravity = Vector3(_base_wind.x * 0.16, 0.12, _base_wind.z * 0.16)
-	process.linear_accel_min = 0.01
-	process.linear_accel_max = 0.08
-	process.damping_min = 0.28
-	process.damping_max = 0.62
+	# Launch straight up from the chimney mouth; horizontal drift comes later via gravity.
+	process.direction = Vector3.UP
+	process.spread = 6.0 + float((_building_seed >> 9) % 6)
+	process.flatness = 0.0
+	process.initial_velocity_min = 0.85
+	process.initial_velocity_max = 1.15 + float((_building_seed >> 11) % 12) * 0.02
+	process.gravity = Vector3.ZERO
+	process.linear_accel_min = -0.04
+	process.linear_accel_max = -0.01
+	process.damping_min = 0.18
+	process.damping_max = 0.42
 	process.angle_min = -180.0
 	process.angle_max = 180.0
-	process.angular_velocity_min = -18.0
-	process.angular_velocity_max = 18.0
-	process.scale_min = 0.8
-	process.scale_max = 1.4
+	process.angular_velocity_min = -12.0
+	process.angular_velocity_max = 12.0
+	process.scale_min = 0.9
+	process.scale_max = 1.5
 	process.hue_variation_min = 0.0
 	process.hue_variation_max = 0.0
-	process.turbulence_enabled = true
-	process.turbulence_noise_strength = 2.2 + float((_building_seed >> 17) % 10) * 0.15
-	process.turbulence_noise_scale = 2.4
-	process.turbulence_noise_speed = Vector3(0.42, 0.18, 0.36)
-	process.turbulence_influence_min = 0.22
-	process.turbulence_influence_max = 0.55
+	process.turbulence_enabled = false
 
 	var scale_curve := Curve.new()
 	scale_curve.add_point(Vector2(0.0, 0.12))
@@ -123,20 +115,15 @@ func _setup_particles(building_id: StringName) -> void:
 	set_meta("building_id", building_id)
 
 
-## Eight-sided geometry keeps the old flat-particle look while rounding off
-## the most distracting square corners. Vertex colors provide a radial alpha
-## falloff so each puff is dense in the center and fades at the rim.
+## Eight-sided fan mesh: flat-tinted billboards without per-vertex alpha gradients.
 static func _rounded_puff_mesh() -> ArrayMesh:
 	const SIDES := 8
 	const RADIUS := 0.5
 	var vertices := PackedVector3Array([Vector3.ZERO])
-	var colors := PackedColorArray([Color(1.0, 1.0, 1.0, 1.0)])
 	var indices := PackedInt32Array()
 	for point in SIDES:
 		var angle := TAU * float(point) / float(SIDES) + PI / 8.0
 		vertices.append(Vector3(cos(angle) * RADIUS, sin(angle) * RADIUS, 0.0))
-		# Slightly lighter rim plus zero alpha gives a soft circular falloff.
-		colors.append(Color(0.94, 0.94, 0.96, 0.0))
 	for point in SIDES:
 		indices.append(0)
 		indices.append(point + 1)
@@ -144,7 +131,6 @@ static func _rounded_puff_mesh() -> ArrayMesh:
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = vertices
-	arrays[Mesh.ARRAY_COLOR] = colors
 	arrays[Mesh.ARRAY_INDEX] = indices
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
@@ -186,16 +172,10 @@ func _process(_delta: float) -> void:
 	if process == null:
 		return
 	var t := Time.get_ticks_msec() * 0.001
-	var gust := Vector3(
-		sin(t * 0.43 + _phase) * 0.38 + sin(t * 1.65 + _phase * 2.1) * 0.16,
-		0.0,
-		cos(t * 0.39 + _phase * 1.15) * 0.36 + cos(t * 1.95 + _phase * 0.7) * 0.14
+	var gust := Vector2(
+		sin(t * 0.43 + _phase) * 0.42 + sin(t * 1.65 + _phase * 2.1) * 0.18,
+		cos(t * 0.39 + _phase * 1.15) * 0.40 + cos(t * 1.95 + _phase * 0.7) * 0.16
 	)
-	var swirl := Vector3(
-		sin(t * 2.4 + _phase * 3.0) * 0.12,
-		sin(t * 0.8 + _phase) * 0.05,
-		cos(t * 2.2 + _phase * 2.4) * 0.12
-	)
-	var dir := (_base_wind + gust + swirl).normalized()
-	process.direction = dir
-	process.gravity = Vector3(dir.x * 0.22, 0.1 + sin(t * 0.55 + _phase) * 0.04, dir.z * 0.22)
+	var sway := _horizontal_wind + Vector3(gust.x, 0.0, gust.y)
+	# Gravity bends the rising column; new puffs still launch upward from the chimney.
+	process.gravity = Vector3(sway.x * 0.38, -0.03 + sin(t * 0.55 + _phase) * 0.02, sway.z * 0.38)

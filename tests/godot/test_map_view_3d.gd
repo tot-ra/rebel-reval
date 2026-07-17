@@ -208,9 +208,8 @@ func test_chimney_smoke_varies_by_building_and_time_of_day() -> void:
 			var puff_mesh := smoke.draw_pass_1 as ArrayMesh
 			var puff_vertices: PackedVector3Array = puff_mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
 			assert_eq(puff_vertices.size(), 9, "%s: smoke puffs must be eight-sided" % building["id"])
-			var puff_colors: PackedColorArray = puff_mesh.surface_get_arrays(0)[Mesh.ARRAY_COLOR]
-			assert_eq(puff_colors.size(), 9, "%s: smoke puffs must carry radial vertex colors" % building["id"])
-			assert_true(puff_colors[0].a > puff_colors[1].a, "%s: puff center must be denser than the rim" % building["id"])
+			var puff_arrays: Array = puff_mesh.surface_get_arrays(0)
+			assert_false(puff_arrays[Mesh.ARRAY_COLOR], "%s: smoke puffs must not use vertex color gradients" % building["id"])
 			assert_eq(smoke.preprocess, 0.0, "%s: smoke must spawn at the chimney mouth" % building["id"])
 			var building_seed := String(building["id"]).hash()
 			var expected_day_amount := (22 + ((building_seed >> 5) % 14)) * 2
@@ -218,12 +217,14 @@ func test_chimney_smoke_varies_by_building_and_time_of_day() -> void:
 			var ramp_texture := process.color_ramp as GradientTexture1D
 			var ramp: Gradient = ramp_texture.gradient
 			color_signatures[building["id"]] = ramp.get_color(1)
-			assert_true(process.turbulence_enabled, "%s: smoke must use turbulence" % building["id"])
+			assert_false(process.turbulence_enabled, "%s: smoke sway must come from wind gravity, not turbulence" % building["id"])
 			assert_eq(
 				process.emission_shape,
 				ParticleProcessMaterial.EMISSION_SHAPE_POINT,
 				"%s: smoke must emit from the chimney mouth" % building["id"]
 			)
+			assert_eq(process.direction, Vector3.UP, "%s: smoke must launch upward from the chimney" % building["id"])
+			assert_true(process.spread <= 12.0, "%s: smoke spread must stay tight at the chimney mouth" % building["id"])
 		else:
 			without_smoke += 1
 		node.free()
