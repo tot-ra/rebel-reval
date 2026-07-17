@@ -86,6 +86,10 @@ const CHIMNEY_SIZE := 0.5
 const CHIMNEY_WALL_THICKNESS := 0.09
 ## Stone lip above the flue so the mouth reads as a tube, not a flat cube top.
 const CHIMNEY_FLUE_LIP := 0.05
+## Fixed stack height on the ridge - must not scale with roof span or chimneys
+## tower above the whole building.
+const CHIMNEY_STACK_HEIGHT := 0.58
+const CHIMNEY_STACK_EMBED := 0.16
 const CHIMNEY_SMOKE_SCRIPT := preload("res://scripts/map/view3d/chimney_smoke_3d.gd")
 
 ## House facades: every house gets a street door and shuttered windows so the
@@ -1041,7 +1045,7 @@ static func build_prop(prop: Dictionary, cell_size: int) -> Node3D:
 		MapTypes.PROP_KIND_FURNACE:
 			_box(root, "Mass", Vector3(1.0, 1.1, 0.9), Vector3(0.0, 0.55, 0.0), &"stone")
 			_box(root, "Mouth", Vector3(0.42, 0.36, 0.08), Vector3(0.0, 0.35, 0.48), &"ember")
-			_add_chimney_stack(root, "Chimney", 0.26, 0.6, Vector3(0.2, 1.4, -0.15))
+			_add_chimney_stack(root, "Chimney", 0.26, 0.48, Vector3(0.2, 1.34, -0.15))
 		MapTypes.PROP_KIND_LEDGER:
 			_box(root, "Stand", Vector3(0.16, 0.9, 0.16), Vector3(0.0, 0.45, 0.0), &"wood")
 			_box(root, "Book", Vector3(0.52, 0.08, 0.42), Vector3(0.0, 0.95, 0.0), &"plaster")
@@ -1581,10 +1585,11 @@ static func _add_chimney(root: Node3D, building: Dictionary, size: Vector2, wall
 	if String(building_id).hash() % 2 == 0:
 		along = -along
 	var offset := Vector3(along, 0.0, 0.0) if ridge_along_x else Vector3(0.0, 0.0, along)
-	var top := wall_height + rise + 0.55
-	var stack_height := top - wall_height + 0.9
-	var stack_center_y := (top + wall_height - 0.9) * 0.5
-	_add_chimney_stack(root, "Chimney", CHIMNEY_SIZE, stack_height, offset + Vector3(0.0, stack_center_y, 0.0))
+	var ridge_y := wall_height + rise
+	var stack_bottom := ridge_y - CHIMNEY_STACK_EMBED
+	var stack_center_y := stack_bottom + CHIMNEY_STACK_HEIGHT * 0.5
+	var top := stack_bottom + CHIMNEY_STACK_HEIGHT
+	_add_chimney_stack(root, "Chimney", CHIMNEY_SIZE, CHIMNEY_STACK_HEIGHT, offset + Vector3(0.0, stack_center_y, 0.0))
 
 	if ChimneySmoke3D.schedule_for(String(building_id).hash()) == ChimneySmoke3D.Schedule.NEVER:
 		return
