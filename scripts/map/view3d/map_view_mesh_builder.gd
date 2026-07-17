@@ -779,13 +779,25 @@ static func build_landmark(landmark: Dictionary, cell_size: int) -> Node3D:
 	return root
 
 
+## Gate passages follow the street axis, not the landmark rectangle aspect ratio.
+## Boundary arches are often deeper than they are wide even when the road runs
+## east-west (or vice versa on the north edge).
+static func _gate_passage_along_x(landmark: Dictionary, size: Vector2) -> bool:
+	var axis: StringName = landmark.get("passage_axis", &"")
+	if axis == &"x":
+		return true
+	if axis == &"z":
+		return false
+	return size.x >= size.y
+
+
 ## Stone jambs, lintel, and open gate leaves over a walkable passage. The
 ## jambs close the giant side voids that a lintel-only arch left visible.
 static func _add_gate_arch(root: Node3D, landmark: Dictionary, size: Vector2, scale: float) -> void:
 	var color := Color(landmark.get("wall_color", DEFAULT_WALL_COLOR))
 	var top := MapTypes.resolved_landmark_top_px(landmark) * scale
 	var span_height := maxf(top - GATE_ARCH_CLEARANCE, 0.6)
-	var passage_along_x := size.x >= size.y
+	var passage_along_x := _gate_passage_along_x(landmark, size)
 
 	var bridge := MeshInstance3D.new()
 	bridge.name = "Bridge"

@@ -536,6 +536,36 @@ func test_town_wall_gets_battlements_and_gate_arch_clears_character() -> void:
 	karja_arch.free()
 
 
+func test_district_boundary_gate_arches_frame_street_axis() -> void:
+	var definition := LowerTownSlice.create()
+	var west_arch_def: Dictionary = {}
+	var north_arch_def: Dictionary = {}
+	for landmark in definition.view_landmarks:
+		match landmark["id"]:
+			&"vanaturu_kael_arch":
+				west_arch_def = landmark
+			&"vene_district_arch":
+				north_arch_def = landmark
+	assert_false(west_arch_def.is_empty(), "west boundary needs its gate arch")
+	assert_false(north_arch_def.is_empty(), "north boundary needs its gate arch")
+
+	var west_arch := MapViewMeshBuilder.build_landmark(west_arch_def, definition.cell_size)
+	var west_jamb := west_arch.get_node("Jamb0") as MeshInstance3D
+	assert_true(
+		absf(west_jamb.position.x) < 0.05 and absf(west_jamb.position.z) > 1.0,
+		"Viru street arch must place jambs north and south of the east-west passage"
+	)
+	west_arch.free()
+
+	var north_arch := MapViewMeshBuilder.build_landmark(north_arch_def, definition.cell_size)
+	var north_jamb := north_arch.get_node("Jamb0") as MeshInstance3D
+	assert_true(
+		absf(north_jamb.position.z) < 0.05 and absf(north_jamb.position.x) > 0.5,
+		"Vene street arch must place jambs east and west of the north-south passage"
+	)
+	north_arch.free()
+
+
 func test_fortification_walls_render_150_percent_taller_than_authored() -> void:
 	var definition := LowerTownSlice.create()
 	var scale := MapViewBridge.world_scale(definition.cell_size)

@@ -224,8 +224,8 @@ static func create() -> MapDefinition:
 		{"id": &"karja_gate_arch", "kind": &"gate_arch", "rect": definition.cell_rect_to_world_rect(Rect2i(36, 47, 3, 4)), "wall_color": Color(0.56, 0.55, 0.50), "top_px": 256.0, "door_material": &"metal"},
 		# District boundary arches where streets continue into closed districts:
 		# they mark the edge of the playable quarter instead of open ground.
-		{"id": &"vanaturu_kael_arch", "kind": &"gate_arch", "rect": definition.cell_rect_to_world_rect(Rect2i(0, 19, 2, 4)), "wall_color": Color(0.52, 0.50, 0.46), "top_px": 160.0},
-		{"id": &"vene_district_arch", "kind": &"gate_arch", "rect": definition.cell_rect_to_world_rect(Rect2i(14, 0, 3, 2)), "wall_color": Color(0.52, 0.50, 0.46), "top_px": 160.0},
+		{"id": &"vanaturu_kael_arch", "kind": &"gate_arch", "rect": definition.cell_rect_to_world_rect(Rect2i(0, 19, 2, 4)), "wall_color": Color(0.52, 0.50, 0.46), "top_px": 160.0, "passage_axis": &"x"},
+		{"id": &"vene_district_arch", "kind": &"gate_arch", "rect": definition.cell_rect_to_world_rect(Rect2i(14, 0, 3, 2)), "wall_color": Color(0.52, 0.50, 0.46), "top_px": 160.0, "passage_axis": &"z"},
 	]
 
 	# Reval continues north (Pikk street quarter) and west (town centre); east
