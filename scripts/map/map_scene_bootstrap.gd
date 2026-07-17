@@ -19,6 +19,10 @@ static func assemble(
 	var host := map_root if map_root != null else root
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
 	var assembled := MapAssembler.assemble(host, definition, grid, actors, visual_target, time_of_day)
+	var terrain := assembled.get("terrain") as MapTerrainRenderer
+	var terrain_focus := actors.find_child("Player", true, false) as Node2D
+	if terrain != null and terrain_focus != null:
+		terrain.follow(terrain_focus)
 	var nav := MapNavBuilder.create_navigation_region(definition, grid)
 	nav.name = "Navigation"
 	host.add_child(nav)
@@ -52,12 +56,22 @@ static func wire_player(player: Node, definition: MapDefinition, navigation: Nav
 	if player == null:
 		return
 	player.global_position = definition.player_spawn
+	var terrain := _terrain_renderer_for_player(player)
+	if terrain != null:
+		terrain.follow(player as Node2D)
 	if player.has_method("set_navigation_map") and navigation != null:
 		player.set_navigation_map(navigation.get_navigation_map())
 	elif player.has_node("navigation_agent"):
 		var agent: NavigationAgent2D = player.get_node("navigation_agent")
 		if agent != null and navigation != null:
 			agent.set_navigation_map(navigation.get_navigation_map())
+
+
+static func _terrain_renderer_for_player(player: Node) -> MapTerrainRenderer:
+	var root := player.get_tree().current_scene if player.is_inside_tree() else null
+	if root == null:
+		return null
+	return root.find_child("Terrain", true, false) as MapTerrainRenderer
 
 
 static func _create_doors(definition: MapDefinition, parent: Node2D) -> Array[Area2D]:

@@ -1,11 +1,18 @@
 class_name MapTerrainRenderer
 extends Node2D
 
-## Draws one immutable terrain grid through a selectable P0-036 visual profile.
+## Streams fixed-size terrain draw nodes around a global camera/player focus.
+
+const DEFAULT_LOAD_RADIUS_CHUNKS := 2
 
 var grid: MapTerrainGrid
 var visual_target: StringName
 var time_of_day: StringName
+var load_radius_chunks := DEFAULT_LOAD_RADIUS_CHUNKS
+var debug_chunk_bounds := false
+var _loaded_chunks: Dictionary = {}
+var _focus_source: Node2D
+var _last_focus_chunk := Vector2i(2147483647, 2147483647)
 
 
 func _init(
@@ -20,54 +27,143 @@ func _init(
 
 
 func _ready() -> void:
-	queue_redraw()
+	if grid != null and _loaded_chunks.is_empty():
+		# Compatibility behavior draws the complete terrain until a focus source is
+		# supplied. Large maps call update_active_chunks before entering the tree.
+		load_all_chunks()
+	set_process(_focus_source != null)
 
 
-func _draw() -> void:
+func _process(_delta: float) -> void:
+	if _focus_source == null or not is_instance_valid(_focus_source):
+		set_process(false)
+		return
+	var focus_chunk := chunk_for_world_position(_focus_source.global_position)
+	if focus_chunk != _last_focus_chunk:
+		update_active_chunks(_focus_source.global_position)
+
+
+func load_chunk(coordinates: Vector2i) -> MapTerrainChunkRenderer:
+	if grid == null or grid.get_chunk(coordinates) == null:
+		return null
+	if _loaded_chunks.has(coordinates):
+		return _loaded_chunks[coordinates] as MapTerrainChunkRenderer
+	var chunk_renderer := MapTerrainChunkRenderer.new()
+	chunk_renderer.name = "Chunk_%d_%d" % [coordinates.x, coordinates.y]
+	chunk_renderer.configure(grid, coordinates, visual_target, time_of_day, debug_chunk_bounds)
+	add_child(chunk_renderer)
+	_loaded_chunks[coordinates] = chunk_renderer
+	return chunk_renderer
+
+
+func unload_chunk(coordinates: Vector2i) -> bool:
+	var chunk_renderer := _loaded_chunks.get(coordinates) as MapTerrainChunkRenderer
+	if chunk_renderer == null:
+		return false
+	_loaded_chunks.erase(coordinates)
+	remove_child(chunk_renderer)
+	chunk_renderer.free()
+	return true
+
+
+func unload_all_chunks() -> void:
+	for coordinates in loaded_chunk_coordinates():
+		unload_chunk(coordinates)
+
+
+func load_all_chunks() -> void:
 	if grid == null:
 		return
-
-	var cell_size := float(grid.cell_size)
-	for y in grid.size_cells.y:
-		for x in grid.size_cells.x:
-			var cell := Vector2i(x, y)
-			var terrain_id := grid.get_terrain(cell)
-			var origin := Vector2(float(x), float(y)) * cell_size
-			_draw_cell(origin, cell_size, terrain_id, cell)
+	for coordinates in grid.chunk_coordinates():
+		load_chunk(coordinates)
 
 
-func _draw_cell(origin: Vector2, cell_size: float, terrain_id: StringName, cell: Vector2i) -> void:
-	var base := TerrainPalette.base_color(terrain_id, visual_target, time_of_day)
-	draw_rect(Rect2(origin, Vector2(cell_size, cell_size)), base)
+func update_active_chunks(global_position: Vector2, radius_chunks: int = load_radius_chunks) -> void:
+	if grid == null:
+		return
+	assert(radius_chunks >= 0)
+	var focus_chunk := chunk_for_world_position(global_position)
+	_last_focus_chunk = focus_chunk
+	var wanted: Dictionary = {}
+	for y in range(focus_chunk.y - radius_chunks, focus_chunk.y + radius_chunks + 1):
+		for x in range(focus_chunk.x - radius_chunks, focus_chunk.x + radius_chunks + 1):
+			var coordinates := Vector2i(x, y)
+			if grid.get_chunk(coordinates) != null:
+				wanted[coordinates] = true
+	for coordinates in loaded_chunk_coordinates():
+		if not wanted.has(coordinates):
+			unload_chunk(coordinates)
+	var ordered: Array[Vector2i] = []
+	ordered.assign(wanted.keys())
+	ordered.sort_custom(func(left: Vector2i, right: Vector2i) -> bool:
+		var left_distance := maxi(absi(left.x - focus_chunk.x), absi(left.y - focus_chunk.y))
+		var right_distance := maxi(absi(right.x - focus_chunk.x), absi(right.y - focus_chunk.y))
+		if left_distance != right_distance:
+			return left_distance < right_distance
+		return left.y < right.y or (left.y == right.y and left.x < right.x)
+	)
+	for coordinates in ordered:
+		load_chunk(coordinates)
 
-	var patch_size := MapVisualStyle.terrain_patch_size(visual_target)
-	var patches_x := int(cell_size / patch_size)
-	var patches_y := int(cell_size / patch_size)
-	for py in patches_y:
-		for px in patches_x:
-			var local := Vector2(float(px), float(py)) * patch_size
-			var color := TerrainPalette.pattern_color(
-				terrain_id, cell, local, grid.seed, visual_target, time_of_day
-			)
-			draw_rect(Rect2(origin + local, Vector2(patch_size, patch_size)), color)
 
-	_draw_style_marks(origin, cell_size, terrain_id, cell)
+func chunk_for_world_position(global_position: Vector2) -> Vector2i:
+	if grid == null:
+		return Vector2i.ZERO
+	var focus_cell := Vector2i(
+		floori(global_position.x / float(grid.cell_size)),
+		floori(global_position.y / float(grid.cell_size))
+	)
+	return grid.chunk_for_cell(focus_cell)
 
 
-func _draw_style_marks(origin: Vector2, cell_size: float, terrain_id: StringName, cell: Vector2i) -> void:
-	var hash := TerrainPalette.cell_hash(cell, grid.seed, terrain_id)
-	var ink := MapVisualStyle.role_color(&"ink", visual_target, time_of_day)
-	match visual_target:
-		MapVisualStyle.TARGET_PIXEL:
-			if hash % 3 == 0:
-				draw_rect(Rect2(origin + Vector2(float(hash % 23), float((hash >> 5) % 23)), Vector2(3, 3)), ink, true)
-		MapVisualStyle.TARGET_WOODCUT:
-			# Sparse directional hatching provides a printmaking cue without changing terrain boundaries.
-			var line_color := Color(ink, 0.23)
-			for index in 3:
-				var y := 5.0 + float((hash + index * 9) % 23)
-				draw_line(origin + Vector2(3.0, y), origin + Vector2(cell_size - 3.0, y - 6.0), line_color, 1.0)
-		MapVisualStyle.TARGET_CLEAN_PAINTED:
-			if hash % 4 == 0:
-				var highlight := TerrainPalette.base_color(terrain_id, visual_target, time_of_day).lightened(0.08)
-				draw_circle(origin + Vector2(float(7 + hash % 18), float(7 + (hash >> 4) % 18)), 2.5, Color(highlight, 0.45))
+func follow(source: Node2D, radius_chunks: int = DEFAULT_LOAD_RADIUS_CHUNKS) -> void:
+	assert(radius_chunks >= 0)
+	_focus_source = source
+	load_radius_chunks = radius_chunks
+	if source != null:
+		update_active_chunks(source.global_position, load_radius_chunks)
+	set_process(source != null)
+
+
+func stop_following() -> void:
+	_focus_source = null
+	set_process(false)
+
+
+func update_from_camera(camera: Camera2D, radius_chunks: int = load_radius_chunks) -> void:
+	if camera != null:
+		update_active_chunks(camera.global_position, radius_chunks)
+
+
+func update_from_player(player: Node2D, radius_chunks: int = load_radius_chunks) -> void:
+	if player != null:
+		update_active_chunks(player.global_position, radius_chunks)
+
+
+func loaded_chunk_coordinates() -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	result.assign(_loaded_chunks.keys())
+	result.sort_custom(func(left: Vector2i, right: Vector2i) -> bool:
+		return left.y < right.y or (left.y == right.y and left.x < right.x)
+	)
+	return result
+
+
+func loaded_chunk_count() -> int:
+	return _loaded_chunks.size()
+
+
+func loaded_cell_bounds() -> Rect2i:
+	var result := Rect2i()
+	var first := true
+	for coordinates in loaded_chunk_coordinates():
+		var bounds := grid.chunk_bounds(coordinates)
+		result = bounds if first else result.merge(bounds)
+		first = false
+	return result
+
+
+func set_debug_chunk_bounds(enabled: bool) -> void:
+	debug_chunk_bounds = enabled
+	for chunk_renderer: MapTerrainChunkRenderer in _loaded_chunks.values():
+		chunk_renderer.set_debug_bounds_enabled(enabled)

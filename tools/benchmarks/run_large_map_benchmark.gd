@@ -191,6 +191,10 @@ func _run_synthetic_once(size: int, sample_frames: bool) -> Dictionary:
 	started = Time.get_ticks_usec()
 	var bootstrap := MapSceneBootstrapScript.assemble(host, definition, actors)
 	var bootstrap_ms := _elapsed_ms(started)
+	var terrain_renderer := bootstrap["assembled"]["terrain"] as MapTerrainRenderer
+	started = Time.get_ticks_usec()
+	terrain_renderer.update_active_chunks(Vector2(size - 1, size - 1) * float(definition.cell_size))
+	var terrain_chunk_reload_ms := _elapsed_ms(started)
 	# Isolate current nav cost as well; this duplicate bake is benchmark-only and
 	# excluded from pipeline_cpu_ms because bootstrap already includes one bake.
 	started = Time.get_ticks_usec()
@@ -206,6 +210,9 @@ func _run_synthetic_once(size: int, sample_frames: bool) -> Dictionary:
 	result.merge({
 		"definition_create_ms": definition_create_ms,
 		"terrain_build_ms": terrain_build_ms,
+		"terrain_resident_chunk_count": terrain_renderer.loaded_chunk_count(),
+		"terrain_resident_node_count": terrain_renderer.get_child_count(),
+		"terrain_chunk_reload_ms": terrain_chunk_reload_ms,
 		"bootstrap_ms": bootstrap_ms,
 		"navigation_bake_ms": navigation_bake_ms,
 		"pipeline_cpu_ms": definition_create_ms + bootstrap_ms,
@@ -367,6 +374,8 @@ func _budget_summary(profiles: Array) -> Dictionary:
 			"memory_delta_mib": _check_budget(metrics, "memory_delta_mib", "p95", float(budgets.get("resident_memory_delta_mib", INF))),
 			"frame_time_ms_p95": _check_budget(metrics, "frame_time_ms_p95", "p95", float(budgets.get("steady_frame_time_ms_p95", INF))),
 			"navigation_bake_ms": _check_budget(metrics, "navigation_bake_ms", "p95", float(budgets.get("chunk_navigation_bake_ms_p95", INF))),
+			"terrain_resident_node_count": _check_budget(metrics, "terrain_resident_node_count", "median", 25.0),
+			"terrain_chunk_reload_ms": _check_budget(metrics, "terrain_chunk_reload_ms", "p95", float(budgets.get("chunk_activation_cpu_ms_p95", INF))),
 		}
 		if String(profile.get("id", "")) == "synthetic_32":
 			checks["chunk_activation_cpu_ms"] = _check_budget(metrics, "pipeline_cpu_ms", "p95", float(budgets.get("chunk_activation_cpu_ms_p95", INF)))

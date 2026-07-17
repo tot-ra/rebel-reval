@@ -17,6 +17,9 @@ static func assemble(
 
 	var terrain := MapTerrainRenderer.new(grid, visual_target, time_of_day)
 	terrain.name = "Terrain"
+	# Terrain is the first chunked runtime layer. Buildings and navigation remain
+	# monolithic until their dedicated milestones.
+	terrain.update_active_chunks(definition.player_spawn)
 	parent.add_child(terrain)
 
 	var entities := y_sort_parent if y_sort_parent != null else parent
