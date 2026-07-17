@@ -2,6 +2,7 @@ class_name MapSceneBootstrap
 extends RefCounted
 
 const DOOR_SCENE := preload("res://scenes/elements/door.tscn")
+const LOCATION_HUD_SCENE := preload("res://scenes/elements/location_hud.tscn")
 
 ## Wires declarative maps into playable scenes without legacy TileSets.
 
@@ -30,6 +31,7 @@ static func assemble(
 	var doors := _create_doors(definition, gameplay)
 	var anchors := _create_anchor_markers(definition, gameplay)
 	var fades := _create_fade_areas(definition, gameplay)
+	var location_hud := _create_location_hud(definition, root)
 
 	return {
 		"grid": grid,
@@ -40,6 +42,7 @@ static func assemble(
 		"doors": doors,
 		"anchors": anchors,
 		"fades": fades,
+		"location_hud": location_hud,
 		"definition": definition,
 	}
 
@@ -91,6 +94,13 @@ static func _create_doors(definition: MapDefinition, parent: Node2D) -> Array[Ar
 		doors_root.add_child(door)
 		doors.append(door)
 	return doors
+
+
+static func _create_location_hud(definition: MapDefinition, root: Node2D) -> LocationHud:
+	var hud := LOCATION_HUD_SCENE.instantiate() as LocationHud
+	root.add_child(hud)
+	hud.configure(definition)
+	return hud
 
 
 ## Navigation constrains click targets, but keyboard input drives CharacterBody2D

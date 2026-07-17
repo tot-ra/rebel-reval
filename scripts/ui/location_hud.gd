@@ -1,0 +1,40 @@
+class_name LocationHud
+extends CanvasLayer
+
+## Player-facing names stay separate from stable map/content IDs so the HUD can
+## use natural district names without leaking implementation identifiers.
+const DISPLAY_NAMES_BY_MAP: Dictionary = {
+	&"lower_town_slice": "Eastern District",
+	&"kalev_smithy": "Kalev's Smithy",
+	&"market_civic_quarter": "Central District",
+	&"market_square": "Market Square",
+	&"north_quarter": "Northern District",
+	&"st_olafs_guild_hall": "St. Olaf's Guild Hall",
+	&"harbor_warehouse": "Harbour Warehouse",
+}
+
+
+func configure(definition: MapDefinition) -> void:
+	var location_label := get_node("LocationLabel") as Label
+	location_label.text = display_name_for(definition)
+	location_label.visible = not location_label.text.is_empty()
+
+
+static func display_name_for(definition: MapDefinition) -> String:
+	if definition == null:
+		return ""
+
+	var authored_name := String(DISPLAY_NAMES_BY_MAP.get(definition.map_id, ""))
+	if not authored_name.is_empty():
+		return authored_name
+
+	# Prototype and future maps still get a useful label until a curated HUD name
+	# is added above. Map IDs are preferred because they describe the current scene.
+	return _humanize_id(definition.map_id)
+
+
+static func _humanize_id(value: StringName) -> String:
+	var words := String(value).trim_prefix("prototype.").replace("_", " ").split(" ", false)
+	for index in words.size():
+		words[index] = words[index].capitalize()
+	return " ".join(words)
