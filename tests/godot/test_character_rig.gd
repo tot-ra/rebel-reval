@@ -98,28 +98,28 @@ func test_realistic_proportions_modifier_retargets_vendor_rig() -> void:
 	var modifier := kalev.skeleton().get_node_or_null("RealisticProportions")
 	assert_true(modifier != null, "shared rig must install its animated proportions modifier")
 	if modifier != null:
-		assert_true(is_equal_approx(modifier.head_scale, 0.64), "head must use the approved realistic scale")
+		assert_true(is_equal_approx(modifier.head_scale, 0.96), "head polish stays near identity")
 		assert_true(
-			is_equal_approx(modifier.leg_segment_scale, 1.30),
-			"legs must lengthen toward realistic proportions"
+			is_equal_approx(modifier.leg_segment_scale, 1.04),
+			"legs rely on baked geometry, not extreme bone stretch"
 		)
 		assert_true(
-			is_equal_approx(modifier.arm_segment_scale, 1.24),
-			"arms must lengthen toward realistic proportions"
+			is_equal_approx(modifier.arm_segment_scale, 1.03),
+			"arms rely on baked geometry, not extreme bone stretch"
 		)
 		modifier.call("_process_modification")
 		var head_bone := kalev.skeleton().find_bone("head")
 		assert_true(head_bone >= 0, "vendor rig must expose the head bone")
 		if head_bone >= 0:
 			assert_true(
-				kalev.skeleton().get_bone_pose_scale(head_bone).is_equal_approx(Vector3.ONE * 0.64),
+				kalev.skeleton().get_bone_pose_scale(head_bone).is_equal_approx(Vector3.ONE * 0.96),
 				"head pose scale must survive animation updates"
 			)
 		var upper_leg := kalev.skeleton().find_bone("upperleg.l")
 		assert_true(upper_leg >= 0, "vendor rig must expose leg bones")
 		if upper_leg >= 0:
 			assert_true(
-				kalev.skeleton().get_bone_pose_scale(upper_leg).is_equal_approx(Vector3(1.0, 1.30, 1.0)),
+				kalev.skeleton().get_bone_pose_scale(upper_leg).is_equal_approx(Vector3(1.0, 1.04, 1.0)),
 				"leg pose scale must survive animation updates"
 			)
 	kalev.queue_free()

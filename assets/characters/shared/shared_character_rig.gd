@@ -54,8 +54,8 @@ func _ready() -> void:
 	_install_head_scale()
 	play_animation(start_animation)
 
-## The vendor rig ships with chibi proportions; a modifier retargets head, limb,
-## and torso scales after every animation update toward realistic anatomy.
+## Adult proportions are baked into heroic_humanoid.glb; the modifier only
+## applies subtle per-bone polish after animation updates.
 func _install_head_scale() -> void:
 	if _skeleton == null:
 		return

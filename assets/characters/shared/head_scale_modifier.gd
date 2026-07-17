@@ -1,13 +1,12 @@
 extends SkeletonModifier3D
 
-## Retargets the vendor KayKit rig from chibi toward realistic humanoid proportions.
-## Runs as a skeleton modifier so pose overrides survive every animation update
-## instead of being overwritten by the AnimationPlayer.
+## Optional fine-tuning on top of the baked heroic mesh proportions.
+## Values stay near 1.0 because adult silhouette is authored in geometry.
 
-@export_range(0.3, 1.0, 0.01) var head_scale := 0.64
-@export_range(1.0, 1.5, 0.01) var leg_segment_scale := 1.30
-@export_range(1.0, 1.5, 0.01) var arm_segment_scale := 1.24
-@export_range(0.7, 1.0, 0.01) var torso_scale := 0.88
+@export_range(0.3, 1.0, 0.01) var head_scale := 0.96
+@export_range(1.0, 1.5, 0.01) var leg_segment_scale := 1.04
+@export_range(1.0, 1.5, 0.01) var arm_segment_scale := 1.03
+@export_range(0.7, 1.0, 0.01) var torso_scale := 0.98
 
 const LEG_BONES: Array[StringName] = [
 	&"upperleg.l",

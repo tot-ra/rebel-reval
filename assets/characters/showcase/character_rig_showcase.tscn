@@ -108,7 +108,7 @@ offset_left = 36.0
 offset_top = 28.0
 offset_right = 800.0
 offset_bottom = 74.0
-text = "P0-037 · shared low-poly rig · 64 px gameplay scale"
+text = "P0-037 · heroic low-poly rig · 64 px gameplay scale"
 label_settings = SubResource("Label_title")
 
 [node name="Legend" type="PanelContainer" parent="UI"]

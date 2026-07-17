@@ -8,9 +8,9 @@ This folder owns the shared low-poly humanoid rig contract used by Kalev and lat
 
 ## Source and approval boundary
 
-The proof uses KayKit Character Pack: Adventurers, commit `672074b73ba276876a19e8816ecdc5241817ab47`. The bundled `Barbarian.glb` has one low-poly skeleton, 76 clips, embedded atlas material, and interchangeable equipment. Kay Lousberg releases the pack under CC0 1.0; the local license copy is [`shared/KAYKIT_CC0_LICENSE.txt`](shared/KAYKIT_CC0_LICENSE.txt), and the binary plus Godot-extracted texture have provenance rows in `assets/SOURCES.csv`.
+Runtime mesh: [`shared/heroic_humanoid.glb`](shared/heroic_humanoid.glb), baked from KayKit Character Pack: Adventurers (`Barbarian.glb`, commit `672074b73ba276876a19e8816ecdc5241817ab47`) via [`tools/build_heroic_humanoid_glb.py`](../../tools/build_heroic_humanoid_glb.py). The bake lengthens limbs, compresses the torso, and shrinks the head at the vertex level while keeping the KayKit skeleton, skin weights, 76 clips, embedded atlas material, and interchangeable equipment. Kay Lousberg releases the source pack under CC0 1.0; the local license copy is [`shared/KAYKIT_CC0_LICENSE.txt`](shared/KAYKIT_CC0_LICENSE.txt). Provenance rows for both the baked mesh and the KayKit source live in `assets/SOURCES.csv`.
 
-The model is a technical P0-037 proof, not approved final Kalev art. P2-004 owns the approved Kalev/Mart/Aita/Kaja/Henning/Jürgen models after P0-040 freezes the art bible. Replacing this proof model must preserve the API and tests below.
+P0-040 and P2-004 remain open: this heroic bake is the approved P0-037 pipeline silhouette (classic isometric RPG adult proportions at geometry level), not final Kalev art. Replacing it must preserve the API and tests below.
 
 ## Stable runtime contract
 
@@ -34,9 +34,9 @@ character.play_animation(&"walk")
 | `hit` | `Hit_A` | damage reaction |
 | `fall` | `Death_A` | non-looping fall |
 
-The runtime applies a non-destructive `SkeletonModifier3D` after every animation update to move the compact vendor silhouette toward adult heroic proportions: the head is reduced to `0.64`, both leg segments are lengthened to `1.30`, both arm segments to `1.24`, and the torso is compressed slightly to `0.88`. This keeps every mesh and animation on the shared rig while making the figure read closer to the grounded proportions of classic isometric RPGs.
+The runtime keeps an optional `SkeletonModifier3D` for subtle polish only (`head` `0.96`, leg segments `1.04`, arm segments `1.03`, torso `0.98`). Adult proportions come from the baked mesh, not extreme bone scaling.
 
-The shared model is normalized to `2.0` world units. `CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE` is `28.125`, which projects that height to the carried-forward 64 px target in the 1600 x 900 viewport. P0-052 may read these constants but must not duplicate or silently change them; P0-040 can replace them when ART_BIBLE v2 is approved.
+The shared model is normalized to `2.0` world units (`Model` scale `0.687` on the baked `2.911` unit mesh). `CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE` is `28.125`, which projects that height to the carried-forward 64 px target in the 1600 x 900 viewport. P0-052 may read these constants but must not duplicate or silently change them; P0-040 can replace them when ART_BIBLE v2 is approved.
 
 ## Variant procedure
 
@@ -76,6 +76,7 @@ These are pipeline-operation timings, not P2-004 art-direction/modeling time. A 
 ## Verification
 
 ```bash
+python3 tools/build_heroic_humanoid_glb.py
 godot --headless --path . --script assets/characters/showcase/verify_character_rig.gd
 godot --headless --path . --script tools/run_godot_tests.gd
 godot --path . --audio-driver Dummy --resolution 1600x900 assets/characters/showcase/character_rig_showcase.tscn -- --capture-p0-037
