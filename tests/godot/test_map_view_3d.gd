@@ -321,6 +321,26 @@ func test_runtime_maps_keyboard_to_screen_axes_and_faces_idle_rig_at_camera() ->
 		"re-projected movement must stay normalized"
 	)
 
+	var yaw_before_drag := camera.rotation_degrees.y
+	var right_press := InputEventMouseButton.new()
+	right_press.button_index = MOUSE_BUTTON_RIGHT
+	right_press.pressed = true
+	runtime._unhandled_input(right_press)
+	var drag := InputEventMouseMotion.new()
+	drag.relative = Vector2(-100.0, 0.0)
+	runtime._unhandled_input(drag)
+	assert_true(
+		is_equal_approx(
+			camera.rotation_degrees.y,
+			wrapf(yaw_before_drag + 100.0 * MapViewRuntime.MOUSE_ROTATE_DEGREES_PER_PIXEL, -180.0, 180.0)
+		),
+		"right-click drag must orbit the camera horizontally"
+	)
+	var right_release := InputEventMouseButton.new()
+	right_release.button_index = MOUSE_BUTTON_RIGHT
+	right_release.pressed = false
+	runtime._unhandled_input(right_release)
+
 	var default_camera_size := camera.size
 	var wheel_up := InputEventMouseButton.new()
 	wheel_up.button_index = MOUSE_BUTTON_WHEEL_UP

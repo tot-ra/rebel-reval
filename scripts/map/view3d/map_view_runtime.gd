@@ -25,9 +25,11 @@ const INPUT_PROJECTION_SAMPLE_PX := 64.0
 const ZOOM_STEP_FACTOR := 0.9
 const ZOOM_MIN_ORTHOGRAPHIC_SIZE := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE * 0.5
 const ZOOM_MAX_ORTHOGRAPHIC_SIZE := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE * 2.0
-## Holding Page Up / Page Down orbits the dimetric camera smoothly around the
-## player so facades the default angle hides stay reachable.
+## Holding Page Up / Page Down, or dragging with the right mouse button, orbits
+## the dimetric camera smoothly around the player so facades the default angle
+## hides stay reachable.
 const ROTATE_SPEED_DEGREES := 120.0
+const MOUSE_ROTATE_DEGREES_PER_PIXEL := 0.3
 ## Rig heights (world units, of the frozen 2.0-unit character) probed toward
 ## the camera to decide when the occluded-player silhouette should show.
 const OCCLUSION_PROBE_HEIGHTS: Array[float] = [0.5, 1.1, 1.8]
@@ -38,6 +40,7 @@ var _definition: MapDefinition
 var _player: CharacterBody2D
 var _player_rig: SharedCharacterRig
 var _camera: Camera3D
+var _drag_rotating_view := false
 
 
 static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasItem, player: CharacterBody2D) -> MapViewRuntime:
@@ -89,16 +92,27 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	var mouse_button := event as InputEventMouseButton
-	if mouse_button == null or not mouse_button.pressed:
+	if event is InputEventMouseButton:
+		var mouse_button := event as InputEventMouseButton
+		if mouse_button.button_index == MOUSE_BUTTON_RIGHT:
+			_drag_rotating_view = mouse_button.pressed
+			get_viewport().set_input_as_handled()
+			return
+		if not mouse_button.pressed:
+			return
+		if mouse_button.button_index == MOUSE_BUTTON_WHEEL_UP:
+			zoom_view_steps(mouse_button.factor)
+		elif mouse_button.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			zoom_view_steps(-mouse_button.factor)
+		else:
+			return
+		get_viewport().set_input_as_handled()
 		return
-	if mouse_button.button_index == MOUSE_BUTTON_WHEEL_UP:
-		zoom_view_steps(mouse_button.factor)
-	elif mouse_button.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-		zoom_view_steps(-mouse_button.factor)
-	else:
-		return
-	get_viewport().set_input_as_handled()
+
+	if event is InputEventMouseMotion and _drag_rotating_view:
+		var mouse_motion := event as InputEventMouseMotion
+		rotate_view_degrees(-mouse_motion.relative.x * MOUSE_ROTATE_DEGREES_PER_PIXEL)
+		get_viewport().set_input_as_handled()
 
 
 ## Positive steps zoom in and negative steps zoom out. Exponential scaling
@@ -112,6 +126,8 @@ func zoom_view_steps(steps: float) -> void:
 
 
 func _apply_view_rotation(delta: float) -> void:
+	if _drag_rotating_view and not Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+		_drag_rotating_view = false
 	var direction := 0.0
 	if Input.is_key_pressed(KEY_PAGEUP):
 		direction += 1.0
