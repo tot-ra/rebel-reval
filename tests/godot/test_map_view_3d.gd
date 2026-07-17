@@ -534,3 +534,34 @@ func test_town_wall_gets_battlements_and_gate_arch_clears_character() -> void:
 		"Karja Gate doors should use metal"
 	)
 	karja_arch.free()
+
+
+func test_fortification_walls_render_150_percent_taller_than_authored() -> void:
+	var definition := LowerTownSlice.create()
+	var scale := MapViewBridge.world_scale(definition.cell_size)
+	var wall: Dictionary = {}
+	var fence: Dictionary = {}
+	for building in definition.buildings:
+		match building["id"]:
+			&"city_wall_north":
+				wall = building
+			&"smithy_yard_fence_north":
+				fence = building
+	assert_false(wall.is_empty(), "Lower Town slice must keep its north wall")
+	assert_false(fence.is_empty(), "smithy fence must stay available for contrast")
+	var wall_node := MapViewMeshBuilder.build_building(wall, definition.cell_size)
+	var fence_node := MapViewMeshBuilder.build_building(fence, definition.cell_size)
+	var wall_mesh := (wall_node.get_node("Walls") as MeshInstance3D).mesh as BoxMesh
+	var fence_mesh := (fence_node.get_node("Walls") as MeshInstance3D).mesh as BoxMesh
+	var authored_wall := float(wall["wall_height"]) * scale
+	var authored_fence := float(fence["wall_height"]) * scale
+	assert_true(
+		is_equal_approx(wall_mesh.size.y, authored_wall * MapTypes.FORTIFICATION_HEIGHT_SCALE),
+		"city fortifications must render 150% taller than authored heights"
+	)
+	assert_true(
+		is_equal_approx(fence_mesh.size.y, authored_fence),
+		"low courtyard fences must keep their authored height"
+	)
+	wall_node.free()
+	fence_node.free()

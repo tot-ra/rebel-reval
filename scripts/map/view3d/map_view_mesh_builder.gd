@@ -367,13 +367,14 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 	var footprint: Rect2 = building["footprint"]
 	var size := footprint.size * scale
 	var kind: StringName = building.get("kind", MapTypes.BUILDING_KIND_HOUSE)
-	var height_px := float(building.get("wall_height", DEFAULT_WALL_HEIGHT_PX.get(kind, 64.0)))
-	var height := height_px * scale
+	var authored_height_px := float(building.get("wall_height", DEFAULT_WALL_HEIGHT_PX.get(kind, 64.0)))
+	var render_height_px := MapTypes.resolved_wall_height_px(building)
+	var height := render_height_px * scale
 	var center := footprint.get_center() * scale
 	root.position = Vector3(center.x, 0.0, center.y)
 
 	var wall_color := Color(building.get("wall_color", DEFAULT_WALL_COLOR))
-	var fortification := kind == MapTypes.BUILDING_KIND_WALL and height_px >= BATTLEMENT_MIN_HEIGHT_PX
+	var fortification := kind == MapTypes.BUILDING_KIND_WALL and authored_height_px >= BATTLEMENT_MIN_HEIGHT_PX
 	var footprint_aspect := minf(size.x, size.y) / maxf(size.x, size.y)
 	var tower := (
 		fortification
@@ -444,7 +445,7 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 		)
 		root.add_child(cap)
 		_add_tower_roof(root, radius, height)
-		if height_px >= TOWER_MIN_HEIGHT_PX:
+		if authored_height_px >= TOWER_MIN_HEIGHT_PX:
 			_add_tower_slits(root, radius, height)
 	else:
 		var cap := MeshInstance3D.new()
@@ -782,7 +783,7 @@ static func build_landmark(landmark: Dictionary, cell_size: int) -> Node3D:
 ## jambs close the giant side voids that a lintel-only arch left visible.
 static func _add_gate_arch(root: Node3D, landmark: Dictionary, size: Vector2, scale: float) -> void:
 	var color := Color(landmark.get("wall_color", DEFAULT_WALL_COLOR))
-	var top := float(landmark.get("top_px", 256.0)) * scale
+	var top := MapTypes.resolved_landmark_top_px(landmark) * scale
 	var span_height := maxf(top - GATE_ARCH_CLEARANCE, 0.6)
 	var passage_along_x := size.x >= size.y
 

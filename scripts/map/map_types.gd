@@ -103,3 +103,26 @@ const ALL_PROP_KINDS: Array[StringName] = [
 
 const DEFAULT_CELL_SIZE := 32
 const DEFAULT_SEED := 42042
+
+## City fortifications render taller than authored px heights so walls and towers
+## read imposing next to the frozen 2.0-unit character. Low enclosure fences and
+## courtyard walls stay at their authored scale.
+const FORTIFICATION_HEIGHT_SCALE := 1.5
+const FORTIFICATION_MIN_HEIGHT_PX := 128.0
+
+
+static func resolved_wall_height_px(building: Dictionary) -> float:
+	var height_px := float(building.get("wall_height", 64.0))
+	var kind: StringName = building.get("kind", BUILDING_KIND_HOUSE)
+	if kind != BUILDING_KIND_WALL or height_px < FORTIFICATION_MIN_HEIGHT_PX:
+		return height_px
+	if building.has("wall_height_scale"):
+		return height_px * float(building["wall_height_scale"])
+	return height_px * FORTIFICATION_HEIGHT_SCALE
+
+
+static func resolved_landmark_top_px(landmark: Dictionary) -> float:
+	var top_px := float(landmark.get("top_px", 256.0))
+	if top_px < FORTIFICATION_MIN_HEIGHT_PX:
+		return top_px
+	return top_px * FORTIFICATION_HEIGHT_SCALE

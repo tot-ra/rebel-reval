@@ -39,7 +39,7 @@ static func create_building(
 	visuals.name = "Visuals"
 	body.add_child(visuals)
 
-	var wall_height: float = float(building.get("wall_height", 56.0))
+	var wall_height: float = MapTypes.resolved_wall_height_px(building)
 	var kind: StringName = building.get("kind", MapTypes.BUILDING_KIND_HOUSE)
 	match kind:
 		MapTypes.BUILDING_KIND_WALL, MapTypes.BUILDING_KIND_INTERIOR_WALL:
