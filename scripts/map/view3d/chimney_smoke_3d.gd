@@ -1,13 +1,12 @@
 class_name ChimneySmoke3D
 extends GPUParticles3D
 
-## Per-chimney smoke plume: soft billboards, building-specific tint and wind
-## bias, gust-driven direction, and day/night emission schedules.
+## Per-chimney smoke plume: simple rounded billboards with building-specific
+## wind bias, gust-driven direction, and day/night emission schedules.
 
 enum Schedule { NEVER, DAY_ONLY, NIGHT_ONLY, ALWAYS }
 
 const SMOKE_LIFETIME := 8.5
-const SMOKE_PREPROCESS := 8.5
 
 var _building_seed: int = 0
 var _base_wind := Vector3(0.2, 1.0, 0.08)
@@ -40,8 +39,8 @@ func configure(building_id: StringName) -> void:
 		1.0,
 		sin(wind_angle) * 0.55 + 0.06
 	).normalized()
-	_day_amount = 22 + ((_building_seed >> 5) % 14)
-	_night_amount = 30 + ((_building_seed >> 7) % 16)
+	_day_amount = (22 + ((_building_seed >> 5) % 14)) * 2
+	_night_amount = (30 + ((_building_seed >> 7) % 16)) * 2
 	_setup_particles(building_id)
 	apply_time_of_day(_time_of_day)
 
@@ -71,20 +70,21 @@ func _setup_particles(building_id: StringName) -> void:
 	name = "ChimneySmoke"
 	amount = _day_amount
 	lifetime = SMOKE_LIFETIME
-	preprocess = SMOKE_PREPROCESS
+	# Keep at zero so puffs spawn at the chimney mouth and travel outward instead
+	# of appearing mid-plume from a long warm-up simulation.
+	preprocess = 0.0
 	local_coords = true
 	explosiveness = 0.0
-	randomness = 0.5
+	randomness = 0.28
 	visibility_aabb = AABB(Vector3(-5.0, -1.5, -5.0), Vector3(10.0, 12.0, 10.0))
 
 	var process := ParticleProcessMaterial.new()
-	process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
-	process.emission_sphere_radius = 0.12
+	process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_POINT
 	process.direction = _base_wind
 	process.spread = 22.0 + float((_building_seed >> 9) % 16)
 	process.flatness = 0.18
-	process.initial_velocity_min = 0.18
-	process.initial_velocity_max = 0.55 + float((_building_seed >> 11) % 20) * 0.01
+	process.initial_velocity_min = 0.35
+	process.initial_velocity_max = 0.72 + float((_building_seed >> 11) % 20) * 0.01
 	process.gravity = Vector3(_base_wind.x * 0.16, 0.12, _base_wind.z * 0.16)
 	process.linear_accel_min = 0.01
 	process.linear_accel_max = 0.08
@@ -94,8 +94,8 @@ func _setup_particles(building_id: StringName) -> void:
 	process.angle_max = 180.0
 	process.angular_velocity_min = -18.0
 	process.angular_velocity_max = 18.0
-	process.scale_min = 0.65
-	process.scale_max = 2.1 + float((_building_seed >> 13) % 8) * 0.1
+	process.scale_min = 0.8
+	process.scale_max = 1.4
 	process.hue_variation_min = 0.0
 	process.hue_variation_max = 0.0
 	process.turbulence_enabled = true
@@ -106,11 +106,9 @@ func _setup_particles(building_id: StringName) -> void:
 	process.turbulence_influence_max = 0.55
 
 	var scale_curve := Curve.new()
-	scale_curve.add_point(Vector2(0.0, 0.15))
-	scale_curve.add_point(Vector2(0.12, 0.42))
-	scale_curve.add_point(Vector2(0.35, 0.78))
-	scale_curve.add_point(Vector2(0.65, 1.05))
-	scale_curve.add_point(Vector2(1.0, 1.45))
+	scale_curve.add_point(Vector2(0.0, 0.12))
+	scale_curve.add_point(Vector2(0.18, 0.45))
+	scale_curve.add_point(Vector2(1.0, 1.0))
 	var curve_texture := CurveTexture.new()
 	curve_texture.curve = scale_curve
 	process.scale_curve = curve_texture
@@ -118,12 +116,39 @@ func _setup_particles(building_id: StringName) -> void:
 	process_material = process
 	_update_color_ramp(false)
 
-	var puff := QuadMesh.new()
-	puff.size = Vector2(2.0, 2.0)
-	puff.material = MapViewMaterials.smoke()
+	var puff := _rounded_puff_mesh()
+	puff.surface_set_material(0, MapViewMaterials.smoke())
 	draw_pass_1 = puff
 
 	set_meta("building_id", building_id)
+
+
+## Eight-sided geometry keeps the old flat-particle look while rounding off
+## the most distracting square corners. Vertex colors provide a radial alpha
+## falloff so each puff is dense in the center and fades at the rim.
+static func _rounded_puff_mesh() -> ArrayMesh:
+	const SIDES := 8
+	const RADIUS := 0.5
+	var vertices := PackedVector3Array([Vector3.ZERO])
+	var colors := PackedColorArray([Color(1.0, 1.0, 1.0, 1.0)])
+	var indices := PackedInt32Array()
+	for point in SIDES:
+		var angle := TAU * float(point) / float(SIDES) + PI / 8.0
+		vertices.append(Vector3(cos(angle) * RADIUS, sin(angle) * RADIUS, 0.0))
+		# Slightly lighter rim plus zero alpha gives a soft circular falloff.
+		colors.append(Color(0.94, 0.94, 0.96, 0.0))
+	for point in SIDES:
+		indices.append(0)
+		indices.append(point + 1)
+		indices.append((point + 1) % SIDES + 1)
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	arrays[Mesh.ARRAY_COLOR] = colors
+	arrays[Mesh.ARRAY_INDEX] = indices
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return mesh
 
 
 func _update_color_ramp(night: bool) -> void:

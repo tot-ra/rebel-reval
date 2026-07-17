@@ -210,7 +210,7 @@ func test_chimney_smoke_varies_by_building_and_time_of_day() -> void:
 			assert_eq(puff_vertices.size(), 9, "%s: smoke puffs must be eight-sided" % building["id"])
 			var puff_colors: PackedColorArray = puff_mesh.surface_get_arrays(0)[Mesh.ARRAY_COLOR]
 			assert_eq(puff_colors.size(), 9, "%s: smoke puffs must carry radial vertex colors" % building["id"])
-			assert_gt(puff_colors[0].a, puff_colors[1].a, "%s: puff center must be denser than the rim" % building["id"])
+			assert_true(puff_colors[0].a > puff_colors[1].a, "%s: puff center must be denser than the rim" % building["id"])
 			assert_eq(smoke.preprocess, 0.0, "%s: smoke must spawn at the chimney mouth" % building["id"])
 			var building_seed := String(building["id"]).hash()
 			var expected_day_amount := (22 + ((building_seed >> 5) % 14)) * 2
