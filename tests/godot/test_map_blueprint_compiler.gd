@@ -63,6 +63,20 @@ func test_grouped_terrain_rectangles_and_orthogonal_strokes_expand_deterministic
 	])
 
 
+func test_rect_placement_uses_cell_rect_center_for_even_footprints() -> void:
+	var blueprint := _base_blueprint()
+	blueprint.prop_rect(&"prop.anvil", MapTypes.PROP_KIND_ANVIL, Rect2i(2, 3, 2, 2))
+	blueprint.interaction_anchor_rect(&"anchor.work", Rect2i(4, 4, 2, 2))
+	blueprint.patrol_path_rects(&"patrol.watch", [Rect2i(1, 1, 2, 2), Rect2i(7, 1, 2, 2)])
+	var definition := MapBlueprintCompiler.compile(blueprint)
+	assert_true(definition != null)
+	if definition == null:
+		return
+	assert_eq(_record_by_id(definition.props, &"prop.anvil")["position"], Vector2(96, 128))
+	assert_eq(_record_by_id(definition.interaction_anchors, &"anchor.work")["position"], Vector2(160, 160))
+	assert_eq(_record_by_id(definition.patrols, &"patrol.watch")["points"], [Vector2(64, 64), Vector2(256, 64)])
+
+
 func test_wall_openings_use_stable_deterministic_fragment_ids() -> void:
 	var blueprint := _base_blueprint()
 	blueprint.wall_run(

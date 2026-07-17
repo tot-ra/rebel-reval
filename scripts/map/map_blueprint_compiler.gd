@@ -4,7 +4,7 @@ extends RefCounted
 ## Pure, deterministic expansion from cell-space MapBlueprint semantics to the
 ## existing MapDefinition runtime contract.
 
-const COMPILER_VERSION := 1
+const COMPILER_VERSION := 2
 const ID_PATTERN := "^[a-z0-9_.-]+$"
 
 const COMMON_STYLE_KEYS: Array[StringName] = [&"enabled"]
@@ -14,17 +14,17 @@ const BUILDING_OVERRIDE_KEYS: Array[StringName] = [
 	&"door_side", &"ridge_axis", &"primitive",
 ]
 const PROP_OVERRIDE_KEYS: Array[StringName] = [
-	&"cell", &"facing", &"style_variant", &"visual_offset_px", &"primitive",
+	&"cell", &"rect", &"facing", &"style_variant", &"visual_offset_px", &"primitive",
 ]
-const SPAWN_KEYS: Array[StringName] = [&"cell"]
+const SPAWN_KEYS: Array[StringName] = [&"cell", &"rect"]
 const TRANSITION_KEYS: Array[StringName] = [
 	&"rect", &"destination_scene_id", &"destination_spawn_id", &"spawn_id",
 	&"spawn_offset_px", &"highlight_area", &"view_landmark_id",
 ]
-const ANCHOR_KEYS: Array[StringName] = [&"cell", &"kind"]
-const PATROL_KEYS: Array[StringName] = [&"points"]
+const ANCHOR_KEYS: Array[StringName] = [&"cell", &"rect", &"kind"]
+const PATROL_KEYS: Array[StringName] = [&"points", &"point_rects"]
 const RECT_KEYS: Array[StringName] = [&"rect"]
-const SIGN_KEYS: Array[StringName] = [&"text", &"cell", &"direction"]
+const SIGN_KEYS: Array[StringName] = [&"text", &"cell", &"rect", &"direction"]
 const LANDMARK_OVERRIDE_KEYS: Array[StringName] = [
 	&"rect", &"wall_color", &"top_px", &"door_material", &"passage_axis",
 ]
@@ -33,7 +33,7 @@ const ALL_STYLE_KEYS: Array[StringName] = [
 	&"roof_color", &"door_side", &"ridge_axis", &"primitive", &"cell", &"facing",
 	&"style_variant", &"visual_offset_px", &"destination_scene_id", &"destination_spawn_id",
 	&"spawn_id", &"spawn_offset_px", &"highlight_area", &"view_landmark_id", &"kind",
-	&"points", &"text", &"direction", &"top_px", &"door_material", &"passage_axis",
+	&"points", &"point_rects", &"text", &"direction", &"top_px", &"door_material", &"passage_axis",
 ]
 
 
@@ -51,9 +51,11 @@ static func compile_with_diagnostics(blueprint: MapBlueprint) -> MapBlueprintCom
 	_validate_deterministic_value(blueprint.styles, "styles", result.errors)
 	_validate_deterministic_value(blueprint.primitives, "primitives", result.errors)
 	_validate_deterministic_value(blueprint.object_overrides, "object_overrides", result.errors)
+	var prefab_expansion := MapPrefabExpander.expand(blueprint, result.errors)
+	_validate_deterministic_value(prefab_expansion["primitives"], "expanded_prefabs", result.errors)
 	var resolved_styles := _resolve_styles(blueprint, result.errors)
 	var global_overrides := _index_global_overrides(blueprint, result.errors)
-	var expanded := _expand_primitives(blueprint, resolved_styles, global_overrides, result.errors)
+	var expanded := _expand_primitives(blueprint, resolved_styles, global_overrides, result.errors, prefab_expansion)
 	_validate_unused_overrides(global_overrides, expanded["resolved_ids"], result.errors)
 	var spawn_count: int = expanded["spawns"].size()
 	if spawn_count != 1:
@@ -202,7 +204,8 @@ static func _expand_primitives(
 	blueprint: MapBlueprint,
 	styles: Dictionary,
 	global_overrides: Dictionary,
-	errors: Array[String]
+	errors: Array[String],
+	prefab_expansion: Dictionary = {"primitives": [], "instance_ids": {}}
 ) -> Dictionary:
 	var expanded := {
 		"terrain": [],
@@ -218,13 +221,16 @@ static func _expand_primitives(
 		"landmarks": [],
 		"resolved_ids": {},
 	}
-	var source_ids: Dictionary = {}
-	for index in blueprint.primitives.size():
-		var primitive: Dictionary = blueprint.primitives[index]
+	var source_ids: Dictionary = prefab_expansion.get("instance_ids", {}).duplicate()
+	var all_primitives: Array = blueprint.primitives.duplicate()
+	all_primitives.append_array(prefab_expansion.get("primitives", []))
+	for index in all_primitives.size():
+		var primitive: Dictionary = all_primitives[index]
 		var path := "primitives[%d]" % index
 		var primitive_kind: StringName = primitive.get("primitive", &"")
 		var primitive_id: StringName = primitive.get("id", &"")
-		_validate_id(primitive_id, "%s.id" % path, false, errors)
+		var is_prefab_expanded := bool(primitive.get("prefab_expanded", false))
+		_validate_id(primitive_id, "%s.id" % path, is_prefab_expanded, errors)
 		if source_ids.has(primitive_id):
 			errors.append("%s duplicates source id: %s" % [path, String(primitive_id)])
 		else:
@@ -518,10 +524,14 @@ static func _expand_point_record(
 	if not bool(values.get("enabled", true)):
 		return
 	var cell: Variant = values.get("cell")
-	if not cell is Vector2i:
-		errors.append("%s.cell must be Vector2i" % path)
+	var placement_rect: Variant = values.get("rect")
+	if placement_rect is Rect2i:
+		_validate_rect(placement_rect, "%s.rect" % path, blueprint.size_cells, errors)
+	elif cell is Vector2i:
+		_validate_cell(cell, "%s.cell" % path, blueprint.size_cells, errors)
+	else:
+		errors.append("%s requires cell or rect" % path)
 		return
-	_validate_cell(cell, "%s.cell" % path, blueprint.size_cells, errors)
 	values["id"] = object_id
 	values["record_kind"] = record_kind
 	destination.append(values)
@@ -556,15 +566,27 @@ static func _expand_patrol(
 	_register_id(object_id, path, expanded, errors)
 	if not bool(values.get("enabled", true)):
 		return
+	var point_rects: Variant = values.get("point_rects")
 	var points: Variant = values.get("points")
-	if not points is Array or points.is_empty():
-		errors.append("%s.points must be a non-empty Array[Vector2i]" % path)
+	if point_rects is Array and not point_rects.is_empty():
+		var resolved_points: Array = []
+		for index in point_rects.size():
+			var rect: Variant = point_rects[index]
+			if not rect is Rect2i:
+				errors.append("%s.point_rects[%d] must be Rect2i" % [path, index])
+				continue
+			_validate_rect(rect, "%s.point_rects[%d]" % [path, index], blueprint.size_cells, errors)
+			resolved_points.append(rect)
+		values["point_rects"] = resolved_points
+	elif points is Array and not points.is_empty():
+		for index in points.size():
+			if not points[index] is Vector2i:
+				errors.append("%s.points[%d] must be Vector2i" % [path, index])
+			else:
+				_validate_cell(points[index], "%s.points[%d]" % [path, index], blueprint.size_cells, errors)
+	else:
+		errors.append("%s must define a non-empty points or point_rects array" % path)
 		return
-	for index in points.size():
-		if not points[index] is Vector2i:
-			errors.append("%s.points[%d] must be Vector2i" % [path, index])
-		else:
-			_validate_cell(points[index], "%s.points[%d]" % [path, index], blueprint.size_cells, errors)
 	values["id"] = object_id
 	expanded["patrols"].append(values)
 
@@ -580,11 +602,14 @@ static func _expand_sign(
 	if String(values.get("text", "")).strip_edges().is_empty():
 		errors.append("%s.text is required" % path)
 	var cell: Variant = values.get("cell")
+	var placement_rect: Variant = values.get("rect")
 	var direction: Variant = values.get("direction")
-	if not cell is Vector2i:
-		errors.append("%s.cell must be Vector2i" % path)
-	else:
+	if placement_rect is Rect2i:
+		_validate_rect(placement_rect, "%s.rect" % path, blueprint.size_cells, errors)
+	elif cell is Vector2i:
 		_validate_cell(cell, "%s.cell" % path, blueprint.size_cells, errors)
+	else:
+		errors.append("%s requires cell or rect" % path)
 	if not direction is Vector2i or direction == Vector2i.ZERO:
 		errors.append("%s.direction must be a non-zero Vector2i" % path)
 	elif direction.x != 0 and direction.y != 0:
@@ -621,10 +646,14 @@ static func _append_prop(
 	if not MapTypes.ALL_PROP_KINDS.has(values.get("kind", &"")):
 		errors.append("%s prop kind is unknown: %s" % [path, str(values.get("kind", ""))])
 	var cell: Variant = values.get("cell")
-	if not cell is Vector2i:
-		errors.append("%s.cell must be Vector2i" % path)
+	var placement_rect: Variant = values.get("rect")
+	if placement_rect is Rect2i:
+		_validate_rect(placement_rect, "%s.rect" % path, blueprint.size_cells, errors)
+	elif cell is Vector2i:
+		_validate_cell(cell, "%s.cell" % path, blueprint.size_cells, errors)
+	else:
+		errors.append("%s requires cell or rect" % path)
 		return
-	_validate_cell(cell, "%s.cell" % path, blueprint.size_cells, errors)
 	values["id"] = object_id
 	expanded["props"].append(values)
 
@@ -702,14 +731,14 @@ static func _build_definition(blueprint: MapBlueprint, expanded: Dictionary) -> 
 	var spawns: Array = expanded["spawns"]
 	spawns.sort_custom(_compare_id_records)
 	if spawns.size() == 1:
-		definition.player_spawn = _cell_center(spawns[0]["cell"], definition.cell_size)
+		definition.player_spawn = _placement_position(spawns[0], definition.cell_size)
 		definition.set_meta("player_spawn_id", spawns[0]["id"])
 	elif spawns.is_empty():
 		# MapDefinition treats Vector2.ZERO as missing, so source validation keeps
 		# this error tied to the authored primitive rather than a runtime index.
 		definition.player_spawn = Vector2.ZERO
 	else:
-		definition.player_spawn = _cell_center(spawns[0]["cell"], definition.cell_size)
+		definition.player_spawn = _placement_position(spawns[0], definition.cell_size)
 
 	var transitions: Array = expanded["transitions"]
 	transitions.sort_custom(_compare_id_records)
@@ -723,8 +752,13 @@ static func _build_definition(blueprint: MapBlueprint, expanded: Dictionary) -> 
 	patrols.sort_custom(_compare_id_records)
 	for values in patrols:
 		var points: Array[Vector2] = []
-		for cell in values["points"]:
-			points.append(_cell_center(cell, definition.cell_size))
+		var point_rects: Variant = values.get("point_rects")
+		if point_rects is Array and not point_rects.is_empty():
+			for rect in point_rects:
+				points.append(_rect_center(rect, definition.cell_size))
+		else:
+			for cell in values["points"]:
+				points.append(_cell_center(cell, definition.cell_size))
 		definition.patrols.append({"id": values["id"], "points": points})
 
 	var signs: Array = expanded["signs"]
@@ -762,7 +796,11 @@ static func _compile_building(values: Dictionary, definition: MapDefinition) -> 
 
 
 static func _compile_prop(values: Dictionary, definition: MapDefinition) -> Dictionary:
-	var output := {"id": values["id"], "kind": values["kind"], "position": _cell_center(values["cell"], definition.cell_size)}
+	var output := {
+		"id": values["id"],
+		"kind": values["kind"],
+		"position": _placement_position(values, definition.cell_size),
+	}
 	_copy_fields(values, output, [&"facing", &"style_variant", &"visual_offset_px", &"primitive"])
 	return output
 
@@ -778,7 +816,7 @@ static func _compile_transition(values: Dictionary, definition: MapDefinition) -
 
 
 static func _compile_anchor(values: Dictionary, definition: MapDefinition) -> Dictionary:
-	var output := {"id": values["id"], "position": _cell_center(values["cell"], definition.cell_size)}
+	var output := {"id": values["id"], "position": _placement_position(values, definition.cell_size)}
 	if not String(values.get("kind", "")).is_empty():
 		output["kind"] = values["kind"]
 	return output
@@ -786,7 +824,12 @@ static func _compile_anchor(values: Dictionary, definition: MapDefinition) -> Di
 
 static func _compile_sign(values: Dictionary, definition: MapDefinition) -> Dictionary:
 	var direction := Vector2(values["direction"]).normalized()
-	return {"id": values["id"], "text": values["text"], "position": _cell_center(values["cell"], definition.cell_size), "direction": direction}
+	return {
+		"id": values["id"],
+		"text": values["text"],
+		"position": _placement_position(values, definition.cell_size),
+		"direction": direction,
+	}
 
 
 static func _compile_landmark(values: Dictionary, definition: MapDefinition) -> Dictionary:
@@ -897,6 +940,21 @@ static func _merge(target: Dictionary, source: Dictionary) -> void:
 
 static func _cell_center(cell: Vector2i, cell_size: int) -> Vector2:
 	return (Vector2(cell) + Vector2(0.5, 0.5)) * float(cell_size)
+
+
+static func _rect_center(cell_rect: Rect2i, cell_size: int) -> Vector2:
+	var world_rect := Rect2(
+		Vector2(cell_rect.position) * float(cell_size),
+		Vector2(cell_rect.size) * float(cell_size)
+	)
+	return world_rect.position + world_rect.size * 0.5
+
+
+static func _placement_position(values: Dictionary, cell_size: int) -> Vector2:
+	var placement_rect: Variant = values.get("rect")
+	if placement_rect is Rect2i:
+		return _rect_center(placement_rect, cell_size)
+	return _cell_center(values["cell"], cell_size)
 
 
 static func _compare_string_values(left: Variant, right: Variant) -> bool:

@@ -59,7 +59,7 @@ MapDefinition               <- existing runtime contract
 | **Generated nodes** | Terrain, geometry, collision, navigation, markers, and view nodes assembled from a compiled definition. They are never source of truth. |
 | **Chunk** | A runtime partition used for loading or rendering. It is not a blueprint namespace or gameplay identity. |
 
-`MapBlueprint` and `MapBlueprintCompiler` names in this document describe the accepted target API. They must not be treated as available classes until implementation lands.
+`MapBlueprint`, `MapBlueprintCompiler`, `MapPrefabPackage`, `MapPrefab`, and `MapTransform` are implemented typed GDScript APIs. Prefab packages are registered explicitly on each blueprint; the compiler never discovers packages by filesystem order.
 
 ## Coordinate and unit rules
 
@@ -202,6 +202,80 @@ map.structure_rect(&"wall.courtyard_west", &"wall", Rect2i(8, 8, 1, 10))
 map.fade_rect(&"fade.south_roof", Rect2i(9, 17, 8, 2))
 map.view_landmark(&"landmark.gate_arch", &"gate_arch", Rect2i(19, 7, 4, 1))
 ```
+
+### Migrated map excerpt (`lower_town_slice`)
+
+Production Lower Town authoring compiles through `LowerTownSliceBlueprint` and the thin `LowerTownSliceDefinition.create()` adapter. Terrain paint order is preserved with grouped `terrain_rects` batches; structures use named styles plus a compact placement table; gameplay routes, transitions, and landmarks stay explicit.
+
+```gdscript
+static func create() -> MapBlueprint:
+    var map := MapBlueprint.new(&"lower_town_slice", &"loc.lower_town_slice", Vector2i(88, 56), MapTypes.TERRAIN_DIRT)
+    map.scope = &"production"
+    map.active = true
+    map.palette = &"clean_painted"
+    _define_styles(map)
+    _add_terrain(map)
+    _add_structures(map)
+    _add_landmarks_props_routes(map)
+    map.surroundings([&"north", &"west"])
+    return map
+
+static func _add_terrain(map: MapBlueprint) -> void:
+    map.terrain_rects(&"terrain.00", MapTypes.TERRAIN_GRASS, [Rect2i(66, 0, 22, 50), Rect2i(0, 50, 88, 6), ...], 0, 0)
+    map.terrain_rects(&"terrain.01", MapTypes.TERRAIN_WATER, [Rect2i(70, 0, 3, 16), Rect2i(70, 14, 5, 2), ...], 0, 9)
+    map.terrain_rects(&"terrain.02", MapTypes.TERRAIN_DIRT, [Rect2i(66, 19, 22, 3), Rect2i(36, 50, 3, 6)], 0, 22)
+```
+
+## Reusable prefab packages
+
+A `MapPrefabPackage` owns versioned, package-local prefabs. Maps register a package explicitly with `use_prefab_package()` and refer to a prefab by qualified ID such as `urban.house_row`. Every instance has a stable map-local ID; `street.houses/house.west` is derived from instance and local IDs, never an array index. The reviewed example library is `scripts/map/prefabs/urban_prefab_package.gd` and includes `urban.house_row`, `urban.wall_tower_segment`, and nested `urban.gate_composition`. It is example content only and does not migrate Lower Town.
+
+Parameters must be declared with a type and default. Values use `MapPrefab.parameter()` references. Supplying an unknown parameter or a value of the wrong declared type is an error. Nested instances are allowed, but direct or indirect recursion and nesting deeper than 32 levels are rejected.
+
+Deterministic evaluation order is normative:
+
+1. Resolve declared parameter defaults, then supplied instance parameter values.
+2. Expand local primitives and nested instances. Nested transforms apply from the innermost instance outward.
+3. For each transform, mirror local X, then local Y, then rotate clockwise by `0`, `90`, `180`, or `270` degrees. Transform occupied integer cells around local `(0, 0)`.
+4. Translate transformed cells by the instance origin.
+5. Apply prefab-child inline values, then the nearest instance override, then each containing-instance override from inner to outer, then map-level `override_object()`.
+6. Validate allowlisted fields, IDs, references, final map bounds, and canonical output.
+
+Orientation fields transform with geometry: cardinal `door_side`, `facing`, and `direction` values rotate/reflect; `ridge_axis` and `passage_axis` swap axes on quarter turns. Overrides occur after transforms, so an override states the final map-space orientation. Override targets are local semantic paths such as `house.middle` or `east/tower`, never indices.
+
+### Concise AI-generation examples
+
+```gdscript
+var map := MapBlueprint.new(&"new_quarter", &"loc.new_quarter", Vector2i(80, 50), MapTypes.TERRAIN_GRASS)
+map.use_prefab_package(UrbanPrefabPackage.create())
+map.prefab_instance(
+    &"street.houses",
+    UrbanPrefabPackage.HOUSE_ROW,
+    Vector2i(8, 12),
+    MapTransform.new(90, true), # mirror X, then rotate clockwise
+    {&"roof_color": Color(0.28, 0.12, 0.10)},
+    {&"house.middle": {"door_side": &"east"}}, # final map-space side
+)
+map.prefab_instance(
+    &"gate.north",
+    UrbanPrefabPackage.GATE_COMPOSITION,
+    Vector2i(42, 8),
+    MapTransform.new(),
+    {},
+    {&"east/tower": {"wall_height": 256.0}},
+)
+```
+
+Choose the smallest construct that communicates intent:
+
+| Need | Use | Rule |
+|---|---|---|
+| Repeated multi-object composition with stable internal roles | Prefab | Reuse it at least twice, or establish a reviewed domain building block. Prefer a variant over many structural overrides. |
+| Repeated same-kind objects along one vector | `placement_row` | Every slot needs an explicit stable slot ID. Use it when spacing is regular and composition is one-dimensional. |
+| Connected orthogonal terrain or wall path | Stroke or `wall_run` | Use ordered points for path intent; use explicit rectangles if overlap/paint fragments need independent meaning. |
+| Unique geometry, transition, landmark, or exception | Explicit placement | Keep one-off intent visible. Do not create a single-use prefab solely to shorten code. |
+
+AI authors should invent IDs before coordinates, keep package IDs domain-scoped, use parameters for declared reusable variation, and use named overrides only for narrow exceptions. If generation needs indices, raw runtime dictionaries, recursive composition, or many overrides, stop and choose a clearer primitive/prefab variant.
 
 ## Validation expectations
 

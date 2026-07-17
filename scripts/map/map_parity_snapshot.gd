@@ -34,11 +34,11 @@ static func serialize(definition: MapDefinition, grid: MapTerrainGrid) -> String
 		"props": _sorted_id_records(definition.props),
 		"anchors": _sorted_id_records(definition.interaction_anchors),
 		"transitions": _sorted_id_records(definition.transitions),
-		"patrols": _sorted_records(definition.patrols),
+		"patrols": _sorted_records(_strip_optional_ids(definition.patrols)),
 		"landmarks": _sorted_id_records(definition.view_landmarks),
-		"signs": _sorted_records(definition.direction_signs),
+		"signs": _sorted_records(_strip_optional_ids(definition.direction_signs)),
 		"exclusions": _sorted_records(definition.excluded_areas),
-		"fade_volumes": _sorted_records(definition.fade_volumes),
+		"fade_volumes": _sorted_records(_strip_optional_ids(definition.fade_volumes)),
 		"source_references": _sorted_strings(definition.source_references),
 		"surroundings_town_sides": _sorted_strings(definition.surroundings_town_sides),
 		"navigation": _navigation_snapshot(definition, grid),
@@ -95,6 +95,18 @@ static func _navigation_snapshot(definition: MapDefinition, grid: MapTerrainGrid
 		"walkability_sha256": _sha256(walkability.hex_encode()),
 		"walkable_cell_count": walkable_count,
 	}
+
+
+static func _strip_optional_ids(records: Array) -> Array:
+	var normalized: Array = []
+	for record in records:
+		if record is Dictionary:
+			var copy: Dictionary = record.duplicate(true)
+			copy.erase("id")
+			normalized.append(copy)
+		else:
+			normalized.append(record)
+	return normalized
 
 
 static func _sorted_id_records(source: Array[Dictionary]) -> Array:

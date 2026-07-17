@@ -25,6 +25,8 @@ var surroundings_town_sides: Array[StringName] = []
 var authored_camera_bounds: Rect2i = Rect2i()
 var has_authored_camera_bounds := false
 var object_overrides: Array[Dictionary] = []
+var prefab_packages: Array[MapPrefabPackage] = []
+var prefab_instances: Array[Dictionary] = []
 
 
 func _init(
@@ -203,8 +205,24 @@ func prop(
 	return self
 
 
+func prop_rect(
+	prop_id: StringName,
+	kind: StringName,
+	placement_rect: Rect2i,
+	style_id: StringName = &"",
+	overrides: Dictionary = {}
+) -> MapBlueprint:
+	_append_primitive(&"prop", prop_id, {"kind": kind, "rect": placement_rect}, style_id, overrides)
+	return self
+
+
 func player_spawn(spawn_id: StringName, cell: Vector2i, overrides: Dictionary = {}) -> MapBlueprint:
 	_append_primitive(&"player_spawn", spawn_id, {"cell": cell}, &"", overrides)
+	return self
+
+
+func player_spawn_rect(spawn_id: StringName, placement_rect: Rect2i, overrides: Dictionary = {}) -> MapBlueprint:
+	_append_primitive(&"player_spawn", spawn_id, {"rect": placement_rect}, &"", overrides)
 	return self
 
 
@@ -237,8 +255,24 @@ func interaction_anchor(
 	return self
 
 
+func interaction_anchor_rect(
+	anchor_id: StringName,
+	placement_rect: Rect2i,
+	kind: StringName = &"",
+	style_id: StringName = &"",
+	overrides: Dictionary = {}
+) -> MapBlueprint:
+	_append_primitive(&"interaction_anchor", anchor_id, {"rect": placement_rect, "kind": kind}, style_id, overrides)
+	return self
+
+
 func patrol_path(path_id: StringName, points: Array[Vector2i]) -> MapBlueprint:
 	_append_primitive(&"patrol_path", path_id, {"points": points.duplicate()}, &"", {})
+	return self
+
+
+func patrol_path_rects(path_id: StringName, point_rects: Array[Rect2i]) -> MapBlueprint:
+	_append_primitive(&"patrol_path", path_id, {"point_rects": point_rects.duplicate()}, &"", {})
 	return self
 
 
@@ -268,6 +302,22 @@ func direction_sign(
 	return self
 
 
+func direction_sign_rect(
+	sign_id: StringName,
+	text: String,
+	placement_rect: Rect2i,
+	direction: Vector2i,
+	style_id: StringName = &"",
+	overrides: Dictionary = {}
+) -> MapBlueprint:
+	_append_primitive(&"direction_sign", sign_id, {
+		"text": text,
+		"rect": placement_rect,
+		"direction": direction,
+	}, style_id, overrides)
+	return self
+
+
 func view_landmark(
 	landmark_id: StringName,
 	kind: StringName,
@@ -292,6 +342,30 @@ func camera_bounds(rect: Rect2i) -> MapBlueprint:
 
 func override_object(object_id: StringName, values: Dictionary) -> MapBlueprint:
 	object_overrides.append({"id": object_id, "values": values.duplicate(true)})
+	return self
+
+
+func use_prefab_package(package: MapPrefabPackage) -> MapBlueprint:
+	prefab_packages.append(package)
+	return self
+
+
+func prefab_instance(
+	instance_id: StringName,
+	prefab_id: StringName,
+	origin: Vector2i,
+	transform: MapTransform = null,
+	parameters: Dictionary = {},
+	overrides_by_local_id: Dictionary = {}
+) -> MapBlueprint:
+	prefab_instances.append({
+		"id": instance_id,
+		"prefab_id": prefab_id,
+		"origin": origin,
+		"transform": transform if transform != null else MapTransform.new(),
+		"parameters": parameters.duplicate(true),
+		"overrides": overrides_by_local_id.duplicate(true),
+	})
 	return self
 
 
