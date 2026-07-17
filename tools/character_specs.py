@@ -32,8 +32,10 @@ BASE_PROPORTIONS = {
     "hand_size": 0.85,
     # Degrees the upper arms are folded toward the body across every clip.
     # The CC0 source clips were authored around a barrel-wide chibi torso, so
-    # on our slim bodies the arms read as spread wings without this.
-    "arm_relax_degrees": 17.0,
+    # on our slim bodies the arms read as spread wings without this. Higher
+    # values tuck the hands closer to the forward stride axis (+Z) instead of
+    # hanging out to the sides (+/-X).
+    "arm_relax_degrees": 26.0,
 }
 
 BASE_SHAPE = {

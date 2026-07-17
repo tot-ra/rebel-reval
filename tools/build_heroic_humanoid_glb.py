@@ -309,11 +309,12 @@ def build(character: str) -> None:
         forward_axis = np.array([0.0, 0.0, 1.0])
         # Forearms fold a further fraction of the same angle: the source
         # clips bow the elbows outward around the chibi belly.
+        forearm_fraction = 0.72
         rotation_offsets = {
             "upperarm.l": _axis_angle_quat(forward_axis, -relax_degrees),
             "upperarm.r": _axis_angle_quat(forward_axis, relax_degrees),
-            "lowerarm.l": _axis_angle_quat(forward_axis, -relax_degrees * 0.65),
-            "lowerarm.r": _axis_angle_quat(forward_axis, relax_degrees * 0.65),
+            "lowerarm.l": _axis_angle_quat(forward_axis, -relax_degrees * forearm_fraction),
+            "lowerarm.r": _axis_angle_quat(forward_axis, relax_degrees * forearm_fraction),
         }
     for name, offset in rotation_offsets.items():
         node = nodes[name_to_index[name]]
