@@ -1,6 +1,8 @@
 class_name MapNavBuilder
 extends RefCounted
 
+const AGENT_RADIUS := 16.0
+
 ## Builds a coarse NavigationRegion2D from the world rectangle minus building
 ## footprints and excluded areas.
 ##
@@ -30,7 +32,9 @@ static func create_navigation_region(definition: MapDefinition, grid: MapTerrain
 				)
 
 	var nav_polygon := NavigationPolygon.new()
-	nav_polygon.agent_radius = 0.0
+	# Match the player's physics capsule so click paths cannot cut through
+	# building corners that direct movement cannot physically clear.
+	nav_polygon.agent_radius = AGENT_RADIUS
 	NavigationServer2D.bake_from_source_geometry_data(nav_polygon, source)
 	region.navigation_polygon = nav_polygon
 	return region

@@ -4,6 +4,7 @@ const LowerTownSliceDefinition := preload("res://scripts/map/definitions/lower_t
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const MapTypes := preload("res://scripts/map/map_types.gd")
 const MapVerification := preload("res://scripts/map/map_verification.gd")
+const PLAYER_SCENE := preload("res://player.tscn")
 
 
 func test_lower_town_slice_validates() -> void:
@@ -77,6 +78,15 @@ func test_navigation_region_builds_despite_overlapping_wall_footprints() -> void
 		region.navigation_polygon.get_polygon_count() > 0,
 		"nav region must produce polygons even with overlapping tower/wall footprints"
 	)
+	var player := PLAYER_SCENE.instantiate() as CharacterBody2D
+	var collision := player.get_node("CollisionShape2D") as CollisionShape2D
+	var capsule := collision.shape as CapsuleShape2D
+	assert_eq(
+		region.navigation_polygon.agent_radius,
+		capsule.radius,
+		"click navigation must preserve clearance for the player's physics capsule"
+	)
+	player.free()
 	region.free()
 
 
