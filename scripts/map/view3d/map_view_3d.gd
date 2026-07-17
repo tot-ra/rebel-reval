@@ -46,7 +46,7 @@ var time_of_day: StringName = TIME_DAY
 var _sun: DirectionalLight3D
 var _environment: Environment
 var _camera: Camera3D
-var _fog_of_war: CanvasLayer
+var _fog_of_war: Node3D
 var _memory_animation_state: Dictionary = {}
 var _occluder_bounds: Array[AABB] = []
 
@@ -65,14 +65,14 @@ static func create(
 	return view
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if _fog_of_war == null:
 		return
 	var player_rig := get_tree().get_first_node_in_group(&"player_view_rig") as Node3D
 	if player_rig == null:
 		return
 	var facing := Vector2(sin(player_rig.global_rotation.y), cos(player_rig.global_rotation.y))
-	_fog_of_war.call("update_view", player_rig.global_position, facing)
+	_fog_of_war.call("update_view", player_rig.global_position, facing, delta)
 	_update_memory_animations(player_rig.global_position, facing)
 
 

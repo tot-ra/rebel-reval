@@ -1,41 +1,57 @@
-extends CanvasLayer
+extends Node3D
 
 ## Player-facing memory overlay for the active orthographic 3D map. Visibility
-## is evaluated on the logic ground plane against the same declarative building
-## footprints used by collision and rendering.
+## is evaluated against the same declarative building footprints used by
+## collision and rendering. The shader reconstructs each visible surface from
+## the depth buffer so elevated characters and buildings are not mistaken for
+## distant points on the ground plane.
 
 const FOG_SHADER := preload("res://scripts/map/view3d/map_fog_of_war.gdshader")
 const FIELD_OF_VIEW_DEGREES := 120.0
-## Pulling the cone vertex behind the rig keeps the whole elevated character
-## inside the live region after its pixels are projected onto the ground plane.
+const FOV_EDGE_SOFTNESS_DEGREES := 12.0
+## Pulling the cone vertex behind the rig widens the live region immediately
+## around the character. PLAYER_CLEAR_RADIUS_WORLD is the final safeguard for
+## animated extremities that can briefly extend behind the pivot.
 const FOV_ORIGIN_BACK_OFFSET_WORLD := 2.0
-const CLEAR_RADIUS_WORLD := 9.0
-const MEMORY_RADIUS_WORLD := 18.0
-const OCCLUSION_MASK_PIXELS_PER_CELL := 4
+const PLAYER_CLEAR_RADIUS_WORLD := 1.5
+## Both the fully clear distance and the blur transition are twice the original
+## 9 -> 18 range, keeping more of the scene legible with a gentler falloff.
+const CLEAR_RADIUS_WORLD := 18.0
+const MEMORY_RADIUS_WORLD := 36.0
+## Do not cast fog onto eaves and facade details whose ground footprint lands
+## just beyond their building's blocker due to their height.
+const OCCLUSION_TARGET_GRACE_WORLD := 0.75
+const OCCLUSION_MASK_PIXELS_PER_CELL := 8
+const FACING_SMOOTHING_SPEED := 12.0
 
 var _material: ShaderMaterial
 var _camera: Camera3D
 var _definition: MapDefinition
 var _occluders: Array[Rect2] = []
+var _smoothed_facing := Vector2.ZERO
 
 
 func configure(camera: Camera3D, definition: MapDefinition) -> void:
 	name = "FogOfWar"
-	layer = 10
 	_camera = camera
 	_definition = definition
 	_occluders = occluder_rects_for_definition(definition)
 	_assemble()
 
 
-func update_view(player_position: Vector3, facing: Vector2) -> void:
+func update_view(player_position: Vector3, facing: Vector2, delta: float = 0.0) -> void:
 	if _material == null or _camera == null:
 		return
 	var normalized_facing := facing.normalized() if not facing.is_zero_approx() else Vector2.DOWN
+	if _smoothed_facing.is_zero_approx() or delta <= 0.0:
+		_smoothed_facing = normalized_facing
+	else:
+		var smoothing_weight := 1.0 - exp(-FACING_SMOOTHING_SPEED * delta)
+		_smoothed_facing = _smoothed_facing.slerp(normalized_facing, smoothing_weight).normalized()
 	var player_ground := Vector2(player_position.x, player_position.z)
 	_material.set_shader_parameter("player_world", player_ground)
-	_material.set_shader_parameter("fov_origin_world", fov_origin(player_ground, normalized_facing))
-	_material.set_shader_parameter("facing_world", normalized_facing)
+	_material.set_shader_parameter("fov_origin_world", fov_origin(player_ground, _smoothed_facing))
+	_material.set_shader_parameter("facing_world", _smoothed_facing)
 	_update_ground_projection()
 
 
@@ -43,6 +59,8 @@ func visibility_at(world_position: Vector2, player_position: Vector2, facing: Ve
 	var normalized_facing := facing.normalized() if not facing.is_zero_approx() else Vector2.DOWN
 	var offset := world_position - player_position
 	var distance := offset.length()
+	if distance <= PLAYER_CLEAR_RADIUS_WORLD:
+		return 1.0
 	if distance > MEMORY_RADIUS_WORLD:
 		return 0.0
 	var fov_offset := world_position - fov_origin(player_position, normalized_facing)
@@ -61,7 +79,9 @@ static func fov_origin(player_position: Vector2, facing: Vector2) -> Vector2:
 
 
 static func segment_crosses_rect(from: Vector2, to: Vector2, rect: Rect2) -> bool:
-	# The blocking structure is visible; only content beyond its footprint is not.
+	# The blocking structure is visible; only content sufficiently beyond its
+	# footprint is hidden. The target grace mirrors the shader's protection for
+	# elevated roof and facade geometry near the footprint edge.
 	if rect.has_point(from) or rect.has_point(to):
 		return false
 	var delta := to - from
@@ -82,7 +102,8 @@ static func segment_crosses_rect(from: Vector2, to: Vector2, rect: Rect2) -> boo
 		exit = minf(exit, maxf(first, second))
 		if exit < enter:
 			return false
-	return exit > 0.0 and enter > 0.0 and enter < 0.985
+	var distance_beyond_rect := (1.0 - exit) * delta.length()
+	return exit > 0.0 and enter > 0.0 and enter < 1.0 and distance_beyond_rect > OCCLUSION_TARGET_GRACE_WORLD
 
 
 static func occluder_rects_for_definition(definition: MapDefinition) -> Array[Rect2]:
@@ -98,18 +119,28 @@ static func occluder_rects_for_definition(definition: MapDefinition) -> Array[Re
 func _assemble() -> void:
 	_material = ShaderMaterial.new()
 	_material.shader = FOG_SHADER
+	_material.render_priority = 127
 	_material.set_shader_parameter("clear_radius", CLEAR_RADIUS_WORLD)
 	_material.set_shader_parameter("memory_radius", MEMORY_RADIUS_WORLD)
+	_material.set_shader_parameter("player_clear_radius", PLAYER_CLEAR_RADIUS_WORLD)
+	_material.set_shader_parameter("occlusion_target_grace", OCCLUSION_TARGET_GRACE_WORLD)
 	_material.set_shader_parameter("half_fov_cos", cos(deg_to_rad(FIELD_OF_VIEW_DEGREES * 0.5)))
-	_material.set_shader_parameter("soft_fov_cos", cos(deg_to_rad(FIELD_OF_VIEW_DEGREES * 0.5 + 5.0)))
+	_material.set_shader_parameter("soft_fov_cos", cos(deg_to_rad(FIELD_OF_VIEW_DEGREES * 0.5 + FOV_EDGE_SOFTNESS_DEGREES)))
 	_material.set_shader_parameter("map_world_size", Vector2(_definition.size_cells))
 	_material.set_shader_parameter("occlusion_mask", _build_occlusion_mask())
 
-	var overlay := ColorRect.new()
+	# A spatial full-screen pass can read scene depth. CanvasItem shaders cannot,
+	# which caused the previous overlay to project heads and roofs onto the floor.
+	var quad := QuadMesh.new()
+	quad.size = Vector2(2.0, 2.0)
+	quad.flip_faces = true
+	quad.material = _material
+	var overlay := MeshInstance3D.new()
 	overlay.name = "MemoryOverlay"
-	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	overlay.material = _material
+	overlay.mesh = quad
+	overlay.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	overlay.ignore_occlusion_culling = true
+	overlay.extra_cull_margin = 16384.0
 	add_child(overlay)
 
 

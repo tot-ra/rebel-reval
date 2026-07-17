@@ -17,7 +17,7 @@ func test_visibility_uses_120_degree_character_facing() -> void:
 	assert_true(fog.visibility_at(Vector2(-5.0, 0.0), player, facing) < 0.5, "content well behind must become memory")
 
 
-func test_fov_vertex_starts_behind_the_character() -> void:
+func test_player_clear_radius_keeps_the_whole_character_live() -> void:
 	var fog = FogOfWar.new()
 	var empty: Array[Rect2] = []
 	fog._occluders = empty
@@ -26,15 +26,26 @@ func test_fov_vertex_starts_behind_the_character() -> void:
 	assert_eq(
 		FogOfWar.fov_origin(player, facing),
 		Vector2(10.0 - FogOfWar.FOV_ORIGIN_BACK_OFFSET_WORLD, 10.0),
-		"the cone vertex must start behind the character"
+		"the widened cone still starts behind the character"
 	)
 	assert_true(
-		fog.visibility_at(player + Vector2(-0.5, 0.0), player, facing) > 0.5,
-		"the character footprint just behind its pivot must remain live"
+		fog.visibility_at(player - facing * (FogOfWar.PLAYER_CLEAR_RADIUS_WORLD - 0.05), player, facing) > 0.5,
+		"the entire animated character footprint must remain live even behind its pivot"
+	)
+	assert_true(
+		fog.visibility_at(player - facing * (FogOfWar.FOV_ORIGIN_BACK_OFFSET_WORLD + 0.5), player, facing) < 0.5,
+		"the clear bubble must not reveal unrelated content behind the character"
 	)
 
 
-func test_visibility_stops_at_memory_radius() -> void:
+func test_blur_distances_are_doubled_with_a_wide_transition() -> void:
+	assert_eq(FogOfWar.CLEAR_RADIUS_WORLD, 18.0, "distant blur must begin at twice the original radius")
+	assert_eq(FogOfWar.MEMORY_RADIUS_WORLD, 36.0, "the distant blur transition must end at twice the original radius")
+	assert_eq(
+		FogOfWar.MEMORY_RADIUS_WORLD - FogOfWar.CLEAR_RADIUS_WORLD,
+		18.0,
+		"the smooth transition width must also be doubled"
+	)
 	var fog = FogOfWar.new()
 	var empty: Array[Rect2] = []
 	fog._occluders = empty
@@ -42,7 +53,7 @@ func test_visibility_stops_at_memory_radius() -> void:
 	assert_true(fog.visibility_at(Vector2(FogOfWar.MEMORY_RADIUS_WORLD + 0.1, 0.0), Vector2.ZERO, Vector2.RIGHT) < 0.5)
 
 
-func test_building_footprint_hides_only_content_behind_it() -> void:
+func test_building_footprint_hides_only_content_beyond_its_surface() -> void:
 	var fog = FogOfWar.new()
 	var occluders: Array[Rect2] = [Rect2(4.0, -1.0, 2.0, 2.0)]
 	fog._occluders = occluders
@@ -50,7 +61,14 @@ func test_building_footprint_hides_only_content_behind_it() -> void:
 	var facing := Vector2.RIGHT
 	assert_true(fog.visibility_at(Vector2(5.0, 0.0), player, facing) > 0.5, "the blocking wall itself must remain visible")
 	assert_true(fog.visibility_at(Vector2(3.0, 0.0), player, facing) > 0.5, "content before a wall must remain visible")
-	assert_true(fog.visibility_at(Vector2(8.0, 0.0), player, facing) < 0.5, "content behind a wall must become memory")
+	assert_true(
+		fog.visibility_at(Vector2(6.0 + FogOfWar.OCCLUSION_TARGET_GRACE_WORLD * 0.5, 0.0), player, facing) > 0.5,
+		"roof and facade details just beyond the footprint must remain visible"
+	)
+	assert_true(
+		fog.visibility_at(Vector2(6.0 + FogOfWar.OCCLUSION_TARGET_GRACE_WORLD + 0.1, 0.0), player, facing) < 0.5,
+		"content clearly beyond a wall must become memory"
+	)
 	assert_true(fog.visibility_at(Vector2(8.0, 4.0), player, facing) > 0.5, "a sight line that misses the wall must remain visible")
 
 
