@@ -354,8 +354,40 @@ static func surroundings_ground() -> StandardMaterial3D:
 	return material
 
 
-## Soft unshaded billboard puff for chimney smoke; alpha comes from the
-## particle color ramp.
+## Soft radial puff texture for chimney smoke billboards. Multi-lobed noise
+## breaks up the circular falloff so overlapping quads read as fluffy wisps.
+static func smoke_puff_texture() -> Texture2D:
+	var key := "smoke_puff"
+	if _cache.has(key):
+		return _cache[key]
+	const SIZE := 96
+	var image := Image.create(SIZE, SIZE, false, Image.FORMAT_RGBA8)
+	var center := Vector2(SIZE * 0.5, SIZE * 0.5)
+	var radius := float(SIZE) * 0.48
+	for y in SIZE:
+		for x in SIZE:
+			var uv := Vector2(x, y)
+			var dist := uv.distance_to(center) / radius
+			var alpha := 1.0 - smoothstep(0.0, 1.0, dist)
+			alpha = pow(alpha, 0.75)
+			var wisp_a := _lattice(float(x) / 5.0, float(y) / 5.0, 12, 42069)
+			var wisp_b := _lattice(float(x) / 11.0 + 4.2, float(y) / 9.0 - 2.1, 8, 99173)
+			var wisp := wisp_a * 0.62 + wisp_b * 0.38
+			alpha *= lerpf(0.12, 1.0, wisp)
+			var lobe_center := center + Vector2(4.0, -3.0)
+			var lobe_dist := uv.distance_to(lobe_center) / (radius * 0.72)
+			var lobe := pow(1.0 - smoothstep(0.08, 0.95, lobe_dist), 1.15) * 0.42
+			alpha = clampf(maxf(alpha, lobe * wisp_b), 0.0, 1.0)
+			alpha = pow(alpha, 1.4)
+			image.set_pixel(x, y, Color(1.0, 1.0, 1.0, alpha))
+	image.generate_mipmaps()
+	var texture := ImageTexture.create_from_image(image)
+	_cache[key] = texture
+	return texture
+
+
+## Soft unshaded billboard puff for chimney smoke; tint comes from the particle
+## color ramp and alpha from the puff texture.
 static func smoke() -> StandardMaterial3D:
 	var key := "smoke"
 	if _cache.has(key):
@@ -364,7 +396,10 @@ static func smoke() -> StandardMaterial3D:
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.vertex_color_use_as_albedo = true
-	material.albedo_color = Color(0.86, 0.85, 0.83, 1.0)
+	material.albedo_color = Color(1.0, 1.0, 1.0, 1.0)
+	material.albedo_texture = smoke_puff_texture()
+	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
 	material.billboard_keep_scale = true
 	_cache[key] = material
