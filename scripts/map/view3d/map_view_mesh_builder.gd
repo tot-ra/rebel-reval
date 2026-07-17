@@ -106,6 +106,12 @@ const ARROW_SLIT_FRAME_DEPTH := 0.12
 
 ## Gate arch landmark: view-only mass bridging a walkable gate passage.
 const GATE_ARCH_CLEARANCE := 3.2
+const GATE_JAMB_THICKNESS := 0.55
+const GATE_DOOR_HEIGHT := 2.45
+const GATE_DOOR_THICKNESS := 0.12
+## Fortification wall prisms grow slightly past their authored footprint so
+## thin segments visually seal against wider towers at bends and gate throats.
+const WALL_SEAL_OVERHANG := 0.45
 
 ## Background town silhouette on `surroundings_town_sides`.
 const TOWN_GRID_SPACING := 6.5
@@ -393,7 +399,10 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 		)
 	else:
 		var wall_mesh := BoxMesh.new()
-		wall_mesh.size = Vector3(size.x, height, size.y)
+		var mesh_size := Vector3(size.x, height, size.y)
+		if fortification:
+			mesh_size = _sealed_wall_size(mesh_size)
+		wall_mesh.size = mesh_size
 		walls.mesh = wall_mesh
 		if kind == MapTypes.BUILDING_KIND_HOUSE:
 			walls.material_override = _house_wall_material(building, wall_color, wall_mesh.size)
@@ -765,19 +774,108 @@ static func build_landmark(landmark: Dictionary, cell_size: int) -> Node3D:
 	root.position = Vector3(center.x, 0.0, center.y)
 	match landmark.get("kind", &""):
 		&"gate_arch":
-			var color := Color(landmark.get("wall_color", DEFAULT_WALL_COLOR))
-			var top := float(landmark.get("top_px", 256.0)) * scale
-			var span_height := maxf(top - GATE_ARCH_CLEARANCE, 0.6)
-			var bridge := MeshInstance3D.new()
-			bridge.name = "Bridge"
-			var bridge_mesh := BoxMesh.new()
-			bridge_mesh.size = Vector3(size.x, span_height, size.y)
-			bridge.mesh = bridge_mesh
-			bridge.position = Vector3(0.0, GATE_ARCH_CLEARANCE + span_height * 0.5, 0.0)
-			bridge.material_override = MapViewMaterials.wall_surface_for_size(&"limestone", color, bridge_mesh.size)
-			root.add_child(bridge)
-			_add_battlements(root, {"id": landmark["id"], "wall_color": color}, size, top - CAP_HEIGHT)
+			_add_gate_arch(root, landmark, size, scale)
 	return root
+
+
+## Stone jambs, lintel, and open gate leaves over a walkable passage. The
+## jambs close the giant side voids that a lintel-only arch left visible.
+static func _add_gate_arch(root: Node3D, landmark: Dictionary, size: Vector2, scale: float) -> void:
+	var color := Color(landmark.get("wall_color", DEFAULT_WALL_COLOR))
+	var top := float(landmark.get("top_px", 256.0)) * scale
+	var span_height := maxf(top - GATE_ARCH_CLEARANCE, 0.6)
+	var passage_along_x := size.x >= size.y
+
+	var bridge := MeshInstance3D.new()
+	bridge.name = "Bridge"
+	var bridge_mesh := BoxMesh.new()
+	bridge_mesh.size = Vector3(size.x, span_height, size.y)
+	bridge.mesh = bridge_mesh
+	bridge.position = Vector3(0.0, GATE_ARCH_CLEARANCE + span_height * 0.5, 0.0)
+	bridge.material_override = MapViewMaterials.wall_surface_for_size(&"limestone", color, bridge_mesh.size)
+	root.add_child(bridge)
+
+	var jamb_height := GATE_ARCH_CLEARANCE
+	var half := size * 0.5
+	if passage_along_x:
+		for side_index in 2:
+			var side := -1.0 if side_index == 0 else 1.0
+			var z := side * (half.y - GATE_JAMB_THICKNESS * 0.5)
+			_box(
+				root,
+				"Jamb%d" % side_index,
+				Vector3(size.x, jamb_height, GATE_JAMB_THICKNESS),
+				Vector3(0.0, jamb_height * 0.5, z),
+				&"stone"
+			)
+	else:
+		for side_index in 2:
+			var side := -1.0 if side_index == 0 else 1.0
+			var x := side * (half.x - GATE_JAMB_THICKNESS * 0.5)
+			_box(
+				root,
+				"Jamb%d" % side_index,
+				Vector3(GATE_JAMB_THICKNESS, jamb_height, size.y),
+				Vector3(x, jamb_height * 0.5, 0.0),
+				&"stone"
+			)
+
+	_box(
+		root,
+		"Threshold",
+		Vector3(size.x + 0.2, 0.1, size.y + 0.2),
+		Vector3(0.0, 0.05, 0.0),
+		&"stone"
+	)
+
+	var door_material: StringName = landmark.get("door_material", &"wood")
+	if door_material in [&"wood", &"metal"]:
+		_add_gate_doors(root, size, passage_along_x, door_material)
+
+	_add_battlements(root, {"id": landmark["id"], "wall_color": color}, size, top - CAP_HEIGHT)
+
+
+## Double gate leaves hinged on the jambs and swung open so the passage stays
+## walkable while the gate reads as an inhabited threshold.
+static func _add_gate_doors(root: Node3D, size: Vector2, passage_along_x: bool, door_material: StringName) -> void:
+	var door_height := minf(GATE_DOOR_HEIGHT, GATE_ARCH_CLEARANCE - 0.1)
+	var half := size * 0.5
+	var role := door_material
+
+	if passage_along_x:
+		var leaf_width := maxf((size.x - GATE_JAMB_THICKNESS * 2.4) * 0.5, 0.8)
+		for side_index in 2:
+			var side := -1.0 if side_index == 0 else 1.0
+			var hinge_z := side * (half.y - GATE_JAMB_THICKNESS * 0.5)
+			var door := MeshInstance3D.new()
+			door.name = "GateDoor%d" % side_index
+			var mesh := BoxMesh.new()
+			mesh.size = Vector3(leaf_width, door_height, GATE_DOOR_THICKNESS)
+			door.mesh = mesh
+			door.position = Vector3(0.0, door_height * 0.5, hinge_z + side * leaf_width * 0.5)
+			door.rotation.y = side * deg_to_rad(92.0)
+			door.material_override = _role_material(role)
+			root.add_child(door)
+	else:
+		var leaf_width := maxf((size.y - GATE_JAMB_THICKNESS * 2.4) * 0.5, 0.8)
+		for side_index in 2:
+			var side := -1.0 if side_index == 0 else 1.0
+			var hinge_x := side * (half.x - GATE_JAMB_THICKNESS * 0.5)
+			var door := MeshInstance3D.new()
+			door.name = "GateDoor%d" % side_index
+			var mesh := BoxMesh.new()
+			mesh.size = Vector3(GATE_DOOR_THICKNESS, door_height, leaf_width)
+			door.mesh = mesh
+			door.position = Vector3(hinge_x + side * leaf_width * 0.5, door_height * 0.5, 0.0)
+			door.rotation.y = side * deg_to_rad(92.0)
+			door.material_override = _role_material(role)
+			root.add_child(door)
+
+
+static func _sealed_wall_size(size: Vector3) -> Vector3:
+	if size.x <= size.z:
+		return Vector3(size.x + WALL_SEAL_OVERHANG * 2.0, size.y, size.z)
+	return Vector3(size.x, size.y, size.z + WALL_SEAL_OVERHANG * 2.0)
 
 
 ## Functional transitions get a view-only framed door at the edge of their

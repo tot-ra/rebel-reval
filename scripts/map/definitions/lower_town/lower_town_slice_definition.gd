@@ -41,7 +41,7 @@ static func create() -> MapDefinition:
 		&"clean_painted",
 		Vector2i(88, 56),
 		MapTypes.TERRAIN_DIRT,
-		"lower_town_slice_v6_historical_east_quarter",
+		"lower_town_slice_v7_wall_seals",
 		Rect2i(48, 20, 2, 2)
 	)
 
@@ -119,6 +119,16 @@ static func create() -> MapDefinition:
 		# segments between towers, direction changing at each tower, exactly as
 		# the wall map draws the Hinke torn / Kuraditorn stretch.
 		{"id": &"city_wall_gate_south", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(63, 26, 2, 4)), "wall_height": 192.0, "wall_color": Color(0.58, 0.57, 0.52)},
+		# Thin wall segments stop short of wider towers; these seals close the
+		# visible holes at gate throats and bend junctions without blocking
+		# the walkable passages.
+		{"id": &"wall_seal_viru_south_west", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(62, 26, 1, 4)), "wall_height": 192.0, "wall_color": Color(0.58, 0.57, 0.52)},
+		{"id": &"wall_seal_viru_south_east", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(65, 26, 2, 4)), "wall_height": 192.0, "wall_color": Color(0.58, 0.57, 0.52)},
+		{"id": &"wall_seal_hinke_north", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(60, 26, 3, 3)), "wall_height": 192.0, "wall_color": Color(0.58, 0.57, 0.52)},
+		{"id": &"wall_seal_bend_a_east", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(60, 30, 1, 2)), "wall_height": 192.0, "wall_color": Color(0.58, 0.57, 0.52)},
+		{"id": &"wall_seal_bend_b_north", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(52, 30, 2, 4)), "wall_height": 192.0, "wall_color": Color(0.58, 0.57, 0.52)},
+		{"id": &"wall_seal_bend_c_west", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(44, 38, 2, 2)), "wall_height": 192.0, "wall_color": Color(0.58, 0.57, 0.52)},
+		{"id": &"wall_seal_bend_d_north", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(42, 38, 2, 4)), "wall_height": 192.0, "wall_color": Color(0.58, 0.57, 0.52)},
 		{"id": &"hinke_tower", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(60, 29, 4, 4)), "wall_height": 240.0, "wall_color": Color(0.55, 0.54, 0.50)},
 		{"id": &"city_wall_bend_a", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(55, 30, 5, 2)), "wall_height": 192.0, "wall_color": Color(0.58, 0.57, 0.52)},
 		{"id": &"wall_tower_southeast", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(52, 30, 3, 4)), "wall_height": 240.0, "wall_color": Color(0.55, 0.54, 0.50)},
@@ -209,9 +219,9 @@ static func create() -> MapDefinition:
 	definition.view_landmarks = [
 		# Arches bridging the two real gate passages and the foregate mouth; the
 		# roads beneath stay fully walkable.
-		{"id": &"viru_gate_arch", "kind": &"gate_arch", "rect": definition.cell_rect_to_world_rect(Rect2i(62, 19, 5, 3)), "wall_color": Color(0.56, 0.55, 0.50), "top_px": 256.0},
-		{"id": &"viru_foregate_arch", "kind": &"gate_arch", "rect": definition.cell_rect_to_world_rect(Rect2i(72, 19, 3, 3)), "wall_color": Color(0.56, 0.55, 0.50), "top_px": 176.0},
-		{"id": &"karja_gate_arch", "kind": &"gate_arch", "rect": definition.cell_rect_to_world_rect(Rect2i(36, 47, 3, 4)), "wall_color": Color(0.56, 0.55, 0.50), "top_px": 256.0},
+		{"id": &"viru_gate_arch", "kind": &"gate_arch", "rect": definition.cell_rect_to_world_rect(Rect2i(62, 19, 5, 3)), "wall_color": Color(0.56, 0.55, 0.50), "top_px": 256.0, "door_material": &"wood"},
+		{"id": &"viru_foregate_arch", "kind": &"gate_arch", "rect": definition.cell_rect_to_world_rect(Rect2i(72, 19, 3, 3)), "wall_color": Color(0.56, 0.55, 0.50), "top_px": 176.0, "door_material": &"wood"},
+		{"id": &"karja_gate_arch", "kind": &"gate_arch", "rect": definition.cell_rect_to_world_rect(Rect2i(36, 47, 3, 4)), "wall_color": Color(0.56, 0.55, 0.50), "top_px": 256.0, "door_material": &"metal"},
 		# District boundary arches where streets continue into closed districts:
 		# they mark the edge of the playable quarter instead of open ground.
 		{"id": &"vanaturu_kael_arch", "kind": &"gate_arch", "rect": definition.cell_rect_to_world_rect(Rect2i(0, 19, 2, 4)), "wall_color": Color(0.52, 0.50, 0.46), "top_px": 160.0},

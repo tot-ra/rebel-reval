@@ -509,6 +509,8 @@ func test_town_wall_gets_battlements_and_gate_arch_clears_character() -> void:
 	assert_true(definition.view_landmarks.size() >= 1, "Viru Gate needs its arch landmark")
 	var arch := MapViewMeshBuilder.build_landmark(definition.view_landmarks[0], definition.cell_size)
 	assert_true(arch.has_node("Bridge"), "gate arch needs a bridging mass")
+	assert_true(arch.has_node("Jamb0"), "gate arch needs stone jambs to close side holes")
+	assert_true(arch.has_node("GateDoor0"), "Viru Gate needs open gate doors")
 	var bridge := arch.get_node("Bridge") as MeshInstance3D
 	var bridge_mesh := bridge.mesh as BoxMesh
 	assert_true(
@@ -516,3 +518,19 @@ func test_town_wall_gets_battlements_and_gate_arch_clears_character() -> void:
 		"the arch must clear the frozen 2.0-unit character"
 	)
 	arch.free()
+
+	var karja_arch_def: Dictionary = {}
+	for landmark in definition.view_landmarks:
+		if landmark["id"] == &"karja_gate_arch":
+			karja_arch_def = landmark
+			break
+	assert_false(karja_arch_def.is_empty(), "Karja Gate needs its arch landmark")
+	var karja_arch := MapViewMeshBuilder.build_landmark(karja_arch_def, definition.cell_size)
+	assert_true(karja_arch.has_node("GateDoor0"), "Karja Gate needs open metal doors")
+	var karja_door := karja_arch.get_node("GateDoor0") as MeshInstance3D
+	var metal_mat := MapViewMaterials.role(&"metal")
+	assert_true(
+		(karja_door.material_override as StandardMaterial3D).albedo_color.is_equal_approx(metal_mat.albedo_color),
+		"Karja Gate doors should use metal"
+	)
+	karja_arch.free()
