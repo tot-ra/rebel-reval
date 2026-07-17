@@ -3,9 +3,13 @@ extends Node
 ## Session-scoped GameState holder. Inventory and quest flags survive map transitions
 ## within one play session until save/load lands in P1-007/P1-008.
 
+## Demo gameplay items/dialogue plus the validated example corpus. Do not list
+## `content/demo/support` here: `content/demo` already recurses into it and
+## would register duplicate IDs. Runtime uses `content/examples/support` for
+## shared character references instead of the trimmed demo-only copies.
 const DEMO_CONTENT_DIRS: Array[String] = [
 	"res://content/demo",
-	"res://content/demo/support",
+	"res://content/examples/support",
 	"res://content/examples/valid",
 ]
 

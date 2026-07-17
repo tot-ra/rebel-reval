@@ -30,4 +30,4 @@ jobs:
         run: python3 tools/validate_content.py content/examples/valid content/examples/support
 
       - name: Validate demo content corpus
-        run: python3 tools/validate_content.py content/demo content/demo/support
+        run: python3 tools/validate_content.py content/demo content/examples/support content/examples/valid

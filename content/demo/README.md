@@ -7,12 +7,10 @@ Authored JSON for the MVP demo interaction loop. These records are schema-valid,
 | `dialogue.demo.mart_street` | `dialogue.demo.mart_street.json` | D-002 Mart proximity conversation |
 | `item.forge_hammer` | `item.forge_hammer.json` | D-003 forge-hammer pickup and bag overlay (`docs/INVENTORY_MECHANICS.md`) |
 
-Support character records under `support/` exist only so the demo corpus passes reference validation. They are trimmed copies of the approved briefs, not a second canon source.
-
-Validate the self-contained demo corpus from the repository root:
+Support character records live in `content/examples/support/` so the demo corpus and the validated example corpus share one canon source. Validate the demo slice together with that support pack:
 
 ```bash
-python3 tools/validate_content.py content/demo content/demo/support
+python3 tools/validate_content.py content/demo content/examples/support content/examples/valid
 ```
 
 Expected result: exit code `0` with no diagnostics.
