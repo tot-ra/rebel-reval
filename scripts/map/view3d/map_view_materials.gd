@@ -297,32 +297,8 @@ static func surroundings_ground() -> StandardMaterial3D:
 	return material
 
 
-## Soft radial puff texture for chimney smoke billboards. Cached once so every
-## plume shares the same wispy alpha mask.
-static func smoke_puff_texture() -> Texture2D:
-	var key := "smoke_puff"
-	if _cache.has(key):
-		return _cache[key]
-	const SIZE := 64
-	var image := Image.create(SIZE, SIZE, false, Image.FORMAT_RGBA8)
-	var center := Vector2(SIZE * 0.5, SIZE * 0.5)
-	var radius := float(SIZE) * 0.5
-	for y in SIZE:
-		for x in SIZE:
-			var dist := Vector2(x, y).distance_to(center) / radius
-			var alpha := 1.0 - smoothstep(0.18, 1.0, dist)
-			var wisp := _lattice(float(x) / 7.0, float(y) / 7.0, 9, 42069)
-			alpha *= lerpf(0.42, 1.0, wisp)
-			alpha = pow(alpha, 1.55)
-			image.set_pixel(x, y, Color(1.0, 1.0, 1.0, alpha))
-	image.generate_mipmaps()
-	var texture := ImageTexture.create_from_image(image)
-	_cache[key] = texture
-	return texture
-
-
-## Soft unshaded billboard puff for chimney smoke; tint comes from the particle
-## color ramp and alpha from the puff texture.
+## Soft unshaded billboard puff for chimney smoke; alpha comes from the
+## particle color ramp.
 static func smoke() -> StandardMaterial3D:
 	var key := "smoke"
 	if _cache.has(key):
@@ -331,10 +307,7 @@ static func smoke() -> StandardMaterial3D:
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.vertex_color_use_as_albedo = true
-	material.albedo_color = Color(1.0, 1.0, 1.0, 1.0)
-	material.albedo_texture = smoke_puff_texture()
-	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	material.albedo_color = Color(0.86, 0.85, 0.83, 1.0)
 	material.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
 	material.billboard_keep_scale = true
 	_cache[key] = material
