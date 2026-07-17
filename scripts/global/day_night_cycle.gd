@@ -19,3 +19,23 @@ static func advance(progress: float, delta_seconds: float) -> float:
 static func day_blend(progress: float) -> float:
 	var wrapped := wrapf(progress, 0.0, 1.0)
 	return clampf((sin(wrapped * TAU - PI * 0.5) + 1.0) * 0.5, 0.0, 1.0)
+
+
+static func progress_to_hour(progress: float) -> float:
+	return wrapf(progress, 0.0, 1.0) * 24.0
+
+
+## Soft on/off ramp for evening window glow. fade_hours is in-game hours.
+static func evening_glow_strength(
+	hour: float,
+	start_hour: float,
+	end_hour: float,
+	fade_hours: float = 0.5
+) -> float:
+	if hour < start_hour - fade_hours or hour > end_hour + fade_hours:
+		return 0.0
+	if hour < start_hour:
+		return smoothstep(start_hour - fade_hours, start_hour, hour)
+	if hour > end_hour:
+		return 1.0 - smoothstep(end_hour, end_hour + fade_hours, hour)
+	return 1.0

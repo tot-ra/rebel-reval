@@ -136,6 +136,7 @@ func apply_cycle_progress(progress: float, sweep_sun_yaw: bool = true) -> void:
 		_last_chimney_bucket = bucket
 		time_of_day = bucket
 		_update_chimney_smokes()
+	_update_window_lights()
 
 
 func _update_chimney_smokes() -> void:
@@ -147,6 +148,16 @@ func _update_chimney_smokes() -> void:
 		if smoke != null:
 			smoke.add_to_group(&"fog_memory_particles")
 			smoke.apply_time_of_day(time_of_day)
+
+
+func _update_window_lights() -> void:
+	var buildings := get_node_or_null("Buildings")
+	if buildings == null:
+		return
+	for building_node in buildings.get_children():
+		var lights := building_node.get_node_or_null("WindowLights")
+		if lights != null and lights.has_method(&"apply_cycle_progress"):
+			lights.call("apply_cycle_progress", cycle_progress)
 
 
 func world_position(logic_position: Vector2, height: float = 0.0) -> Vector3:

@@ -91,6 +91,7 @@ const CHIMNEY_FLUE_LIP := 0.05
 const CHIMNEY_STACK_HEIGHT := 0.58
 const CHIMNEY_STACK_EMBED := 0.16
 const CHIMNEY_SMOKE_SCRIPT := preload("res://scripts/map/view3d/chimney_smoke_3d.gd")
+const WINDOW_LIGHTS_SCRIPT := preload("res://scripts/map/view3d/building_window_lights_3d.gd")
 
 ## House facades: every house gets a street door and shuttered windows so the
 ## dwellings read as inhabited from the dimetric camera.
@@ -437,6 +438,7 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 		_add_chimney(root, building, size, height, ridge_along_x)
 		_add_house_structure(root, building, size, height)
 		_add_house_facade(root, building, size, height)
+		_add_window_lights(root, building["id"])
 	elif tower:
 		var radius := minf(size.x, size.y) * TOWER_RADIUS_FACTOR
 		# The stone overhang ring doubles as the flat cap the view contract
@@ -1601,6 +1603,12 @@ static func _add_chimney(root: Node3D, building: Dictionary, size: Vector2, wall
 	smoke.position = offset + Vector3(0.0, top + 0.1, 0.0)
 	smoke.configure(building_id)
 	root.add_child(smoke)
+
+
+static func _add_window_lights(root: Node3D, building_id: StringName) -> void:
+	var lights: BuildingWindowLights3D = WINDOW_LIGHTS_SCRIPT.new()
+	root.add_child(lights)
+	lights.configure(building_id)
 
 
 ## Gabled roof over a rectangular footprint: ridge along the longer axis,
