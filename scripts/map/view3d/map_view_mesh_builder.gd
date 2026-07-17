@@ -83,6 +83,9 @@ const WALL_WALK_ROOF_LIFT := 0.75
 const WALL_WALK_TIMBER_TONE := Color(0.50, 0.36, 0.24)
 
 const CHIMNEY_SIZE := 0.5
+const CHIMNEY_WALL_THICKNESS := 0.09
+## Stone lip above the flue so the mouth reads as a tube, not a flat cube top.
+const CHIMNEY_FLUE_LIP := 0.05
 const CHIMNEY_SMOKE_SCRIPT := preload("res://scripts/map/view3d/chimney_smoke_3d.gd")
 
 ## House facades: every house gets a street door and shuttered windows so the
@@ -1038,7 +1041,7 @@ static func build_prop(prop: Dictionary, cell_size: int) -> Node3D:
 		MapTypes.PROP_KIND_FURNACE:
 			_box(root, "Mass", Vector3(1.0, 1.1, 0.9), Vector3(0.0, 0.55, 0.0), &"stone")
 			_box(root, "Mouth", Vector3(0.42, 0.36, 0.08), Vector3(0.0, 0.35, 0.48), &"ember")
-			_box(root, "Chimney", Vector3(0.26, 0.6, 0.26), Vector3(0.2, 1.4, -0.15), &"stone")
+			_add_chimney_stack(root, "Chimney", 0.26, 0.6, Vector3(0.2, 1.4, -0.15))
 		MapTypes.PROP_KIND_LEDGER:
 			_box(root, "Stand", Vector3(0.16, 0.9, 0.16), Vector3(0.0, 0.45, 0.0), &"wood")
 			_box(root, "Book", Vector3(0.52, 0.08, 0.42), Vector3(0.0, 0.95, 0.0), &"plaster")
@@ -1526,6 +1529,48 @@ static func _visual_patch_terrain(
 	return grid.get_terrain(Vector2i(floori(sample.x), floori(sample.y)))
 
 
+## Hollow stone stack: four walls plus a recessed ink flue so the mouth reads as
+## a dark tube instead of a solid cube (same pattern as tower arrow slits).
+static func _add_chimney_stack(parent: Node3D, node_name: String, outer_size: float, height: float, position: Vector3) -> Node3D:
+	var chimney := Node3D.new()
+	chimney.name = node_name
+	chimney.position = position
+	parent.add_child(chimney)
+
+	var wall := CHIMNEY_WALL_THICKNESS
+	var inner := outer_size - wall * 2.0
+	var center_y := height * 0.5
+	var half_outer := outer_size * 0.5
+	var stone := MapViewMaterials.role(&"stone")
+
+	for side in [
+		{"name": "WallN", "size": Vector3(outer_size, height, wall), "pos": Vector3(0.0, center_y, half_outer - wall * 0.5)},
+		{"name": "WallS", "size": Vector3(outer_size, height, wall), "pos": Vector3(0.0, center_y, -(half_outer - wall * 0.5))},
+		{"name": "WallE", "size": Vector3(wall, height, inner), "pos": Vector3(half_outer - wall * 0.5, center_y, 0.0)},
+		{"name": "WallW", "size": Vector3(wall, height, inner), "pos": Vector3(-(half_outer - wall * 0.5), center_y, 0.0)},
+	]:
+		var segment := MeshInstance3D.new()
+		segment.name = side["name"]
+		var segment_mesh := BoxMesh.new()
+		segment_mesh.size = side["size"]
+		segment.mesh = segment_mesh
+		segment.position = side["pos"]
+		segment.material_override = stone
+		chimney.add_child(segment)
+
+	var flue_height := height - CHIMNEY_FLUE_LIP
+	var flue := MeshInstance3D.new()
+	flue.name = "Flue"
+	var flue_mesh := BoxMesh.new()
+	flue_mesh.size = Vector3(inner, flue_height, inner)
+	flue.mesh = flue_mesh
+	flue.position = Vector3(0.0, flue_height * 0.5, 0.0)
+	# Deep void - the flue interior must stay darker than glazed windows.
+	flue.material_override = MapViewMaterials.role(&"ink")
+	chimney.add_child(flue)
+	return chimney
+
+
 ## Every house earns a stone chimney near one ridge end. Smoke is optional and
 ## schedule-driven per building id: tint, wind bias, and day/night emission all
 ## vary deterministically.
@@ -1537,14 +1582,9 @@ static func _add_chimney(root: Node3D, building: Dictionary, size: Vector2, wall
 		along = -along
 	var offset := Vector3(along, 0.0, 0.0) if ridge_along_x else Vector3(0.0, 0.0, along)
 	var top := wall_height + rise + 0.55
-	var stack := MeshInstance3D.new()
-	stack.name = "Chimney"
-	var stack_mesh := BoxMesh.new()
-	stack_mesh.size = Vector3(CHIMNEY_SIZE, top - wall_height + 0.9, CHIMNEY_SIZE)
-	stack.mesh = stack_mesh
-	stack.position = offset + Vector3(0.0, (top + wall_height - 0.9) * 0.5, 0.0)
-	stack.material_override = MapViewMaterials.role(&"stone")
-	root.add_child(stack)
+	var stack_height := top - wall_height + 0.9
+	var stack_center_y := (top + wall_height - 0.9) * 0.5
+	_add_chimney_stack(root, "Chimney", CHIMNEY_SIZE, stack_height, offset + Vector3(0.0, stack_center_y, 0.0))
 
 	if ChimneySmoke3D.schedule_for(String(building_id).hash()) == ChimneySmoke3D.Schedule.NEVER:
 		return

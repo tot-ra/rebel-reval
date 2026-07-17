@@ -223,6 +223,14 @@ func test_chimney_smoke_varies_by_building_and_time_of_day() -> void:
 		house_ids.append(building["id"])
 		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
 		assert_true(node.has_node("Chimney"), "%s: every house keeps a chimney stack" % building["id"])
+		var chimney := node.get_node("Chimney")
+		assert_true(chimney.has_node("Flue"), "%s: chimney must expose a dark flue" % building["id"])
+		var flue := chimney.get_node("Flue") as MeshInstance3D
+		var flue_material := flue.material_override as StandardMaterial3D
+		assert_true(
+			flue_material.albedo_color.v < 0.2,
+			"%s: flue interior must read darker than stone walls" % building["id"]
+		)
 		if node.has_node("ChimneySmoke"):
 			with_smoke += 1
 			var smoke := node.get_node("ChimneySmoke") as ChimneySmoke3D
@@ -233,7 +241,11 @@ func test_chimney_smoke_varies_by_building_and_time_of_day() -> void:
 			assert_eq(puff_vertices.size(), 9, "%s: smoke puffs must be eight-sided" % building["id"])
 			var puff_arrays: Array = puff_mesh.surface_get_arrays(0)
 			assert_eq(puff_arrays[Mesh.ARRAY_COLOR], null, "%s: smoke puffs must not use vertex color gradients" % building["id"])
-			assert_eq(smoke.preprocess, 0.0, "%s: smoke must spawn at the chimney mouth" % building["id"])
+			assert_eq(
+				smoke.preprocess,
+				ChimneySmoke3D.SMOKE_PREWARM_SECONDS,
+				"%s: smoke must prewarm enough to remain visible when memory freezes it" % building["id"]
+			)
 			var building_seed := String(building["id"]).hash()
 			var expected_day_amount := (22 + ((building_seed >> 5) % 14)) * 2
 			assert_eq(smoke.amount, expected_day_amount, "%s: day smoke amount must be doubled" % building["id"])
