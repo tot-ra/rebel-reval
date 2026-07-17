@@ -54,13 +54,13 @@ func _ready() -> void:
 	_install_head_scale()
 	play_animation(start_animation)
 
-## The vendor rig ships with chibi proportions; a modifier shrinks the head
-## after every animation update so it reads closer to realistic anatomy.
+## The vendor rig ships with chibi proportions; a modifier retargets head, limb,
+## and torso scales after every animation update toward realistic anatomy.
 func _install_head_scale() -> void:
 	if _skeleton == null:
 		return
 	var modifier := HEAD_SCALE_MODIFIER.new()
-	modifier.name = "HeadScale"
+	modifier.name = "RealisticProportions"
 	_skeleton.add_child(modifier)
 
 func canonical_animation_names() -> Array[StringName]:
