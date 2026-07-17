@@ -111,6 +111,18 @@ func test_view_renders_definitions_without_touching_logic_results() -> void:
 		var sun := view.sun_light()
 		assert_true(sun is DirectionalLight3D, "sun must be a DirectionalLight3D")
 		assert_true(sun.shadow_enabled, "sun must cast real shadows")
+		assert_eq(
+			sun.directional_shadow_mode,
+			DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS,
+			"%s: sun must use four cascades for gameplay shadow detail" % definition.map_id
+		)
+		assert_true(
+			sun.directional_shadow_max_distance < MapView3D.CAMERA_FAR,
+			"%s: shadow distance must stay tighter than the camera far plane" % definition.map_id
+		)
+		assert_true(sun.directional_shadow_blend_splits, "sun must blend cascade splits")
+		assert_eq(sun.shadow_blur, 0.0, "sun must not add extra shadow blur")
+		assert_eq(sun.light_angular_distance, 0.0, "sun must use hard shadows")
 
 		assert_eq(grid.fingerprint(), fingerprint_before, "%s: grid fingerprint must be unchanged" % definition.map_id)
 		assert_eq(definition.fingerprint, definition_fingerprint_before, "%s: definition fingerprint must be unchanged" % definition.map_id)

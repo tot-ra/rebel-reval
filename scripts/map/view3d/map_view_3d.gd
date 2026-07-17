@@ -40,6 +40,18 @@ const AMBIENT_NIGHT_COLOR := Color8(52, 66, 100)
 const AMBIENT_NIGHT_ENERGY := 0.5
 const BACKGROUND_NIGHT_COLOR := Color8(12, 14, 22)
 
+## Shadow cascades only need the max-zoom gameplay frustum, not the authored map
+## or the camera far plane. Tighter distance concentrates shadow-map texels on
+## the slice the player actually sees.
+const SUN_SHADOW_MAX_DISTANCE := (
+	CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE * 2.0 * 1.35 + 8.0
+)
+const SUN_SHADOW_SPLIT_1 := 0.08
+const SUN_SHADOW_SPLIT_2 := 0.22
+const SUN_SHADOW_SPLIT_3 := 0.48
+const SUN_SHADOW_BIAS := 0.05
+const SUN_SHADOW_NORMAL_BIAS := 1.2
+
 var definition: MapDefinition
 var grid: MapTerrainGrid
 var time_of_day: StringName = TIME_DAY
@@ -264,7 +276,7 @@ func _assemble() -> void:
 
 	_sun = DirectionalLight3D.new()
 	_sun.name = "Sun"
-	_sun.shadow_enabled = true
+	_configure_sun_shadows(_sun)
 	add_child(_sun)
 
 	_environment = Environment.new()
@@ -283,6 +295,22 @@ func _assemble() -> void:
 		_fog_of_war = FOG_OF_WAR_SCRIPT.new()
 		_fog_of_war.call("configure", _camera, definition)
 		add_child(_fog_of_war)
+
+
+static func _configure_sun_shadows(sun: DirectionalLight3D) -> void:
+	sun.shadow_enabled = true
+	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
+	sun.directional_shadow_max_distance = SUN_SHADOW_MAX_DISTANCE
+	sun.directional_shadow_split_1 = SUN_SHADOW_SPLIT_1
+	sun.directional_shadow_split_2 = SUN_SHADOW_SPLIT_2
+	sun.directional_shadow_split_3 = SUN_SHADOW_SPLIT_3
+	sun.directional_shadow_blend_splits = true
+	sun.shadow_bias = SUN_SHADOW_BIAS
+	sun.shadow_normal_bias = SUN_SHADOW_NORMAL_BIAS
+	sun.shadow_blur = 0.0
+	# Hard shadows: GLES Compatibility does not run PCSS, but zeroing angular size
+	# keeps the authored look crisp if the renderer is upgraded later.
+	sun.light_angular_distance = 0.0
 
 
 static func _append_mesh_bounds(node: Node3D, accumulated: Transform3D, bounds: Array[AABB]) -> void:
