@@ -82,6 +82,8 @@ const PROP_KIND_QUENCH := &"quench_bucket"
 const PROP_KIND_STAIRS := &"stairs"
 const PROP_KIND_STALL := &"stall"
 const PROP_KIND_HEARTH := &"hearth"
+const PROP_KIND_CHAIR := &"chair"
+const PROP_KIND_CANDLE := &"candle"
 
 const ALL_PROP_KINDS: Array[StringName] = [
 	PROP_KIND_ANVIL,
@@ -99,6 +101,8 @@ const ALL_PROP_KINDS: Array[StringName] = [
 	PROP_KIND_STAIRS,
 	PROP_KIND_STALL,
 	PROP_KIND_HEARTH,
+	PROP_KIND_CHAIR,
+	PROP_KIND_CANDLE,
 ]
 
 const DEFAULT_CELL_SIZE := 32

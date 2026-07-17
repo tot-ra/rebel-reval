@@ -164,7 +164,34 @@ func test_enclosed_interior_suppresses_countryside_surroundings() -> void:
 	var view := MapView3D.create(definition, MapBuilder.build(definition))
 	assert_false(view.has_node("Surroundings/Apron"), "interior shell must not paint meadow apron")
 	assert_false(view.has_node("Surroundings/SpruceCanopies"), "interior shell must not spawn treeline")
+	var window_landmarks := 0
+	for landmark in definition.view_landmarks:
+		if landmark.get("kind", &"") == &"interior_window":
+			window_landmarks += 1
+			var node := view.get_node("Landmarks/Landmark_%s" % String(landmark["id"]))
+			assert_true(node.has_node("InteriorWindowLights"), "interior windows need cycle-driven daylight")
+			assert_true(node.has_node("Window0"), "interior window needs glazed pane")
+	assert_eq(window_landmarks, 4)
+	var candle := view.get_node("Props/Prop_desk_candle")
+	assert_true(candle.has_node("CandleLight"), "desk candle needs local light controller")
+	view.apply_cycle_progress(0.5)
+	view.apply_cycle_progress(0.0)
 	view.free()
+
+
+func test_kalev_smithy_door_sits_on_south_wall_boundary() -> void:
+	var definition := KalevSmithyDefinition.create()
+	var transition: Dictionary
+	for candidate in definition.transitions:
+		if candidate.get("id") == &"door_courtyard":
+			transition = candidate
+			break
+	var door := MapViewMeshBuilder.build_transition_door(transition, definition.cell_size)
+	assert_true(door.has_node("Panel"), "smithy door needs a solid panel")
+	var rect: Rect2 = transition["rect"]
+	var expected_boundary := rect.position.y * MapViewBridge.world_scale(definition.cell_size)
+	assert_true(is_equal_approx(door.position.z, expected_boundary), "smithy door must sit flush with the south wall")
+	door.free()
 
 
 func test_grass_and_tree_detail_use_generated_meshes_and_wind_materials() -> void:

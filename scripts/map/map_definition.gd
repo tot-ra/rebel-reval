@@ -34,7 +34,7 @@ var view_landmarks: Array[Dictionary] = []
 ## surroundings should read as continuing town instead of open woodland.
 var surroundings_town_sides: Array[StringName] = []
 
-const VIEW_LANDMARK_KINDS: Array[StringName] = [&"gate_arch"]
+const VIEW_LANDMARK_KINDS: Array[StringName] = [&"gate_arch", &"interior_window"]
 const WORLD_SIDES: Array[StringName] = [&"north", &"south", &"east", &"west"]
 
 

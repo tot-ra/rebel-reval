@@ -5,34 +5,33 @@ source "scenes/reval_east/forge/forge.tscn"
 source "docs/SCENES/the-makers-mark.md"
 source "content/locations/loc.kalev_smithy.json"
 style wall.shell wall_height=56 wall_color=756f66ff
-style block.heavy wall_height=64 wall_color=453630ff
-style block.light wall_height=48 wall_color=615730ff
-style block.fore wall_height=72 wall_color=615730ff
-terrain floor.work dirt 8 4 10 5 order=1
-terrain floor.furnace ash 18 2 4 3 order=2
-terrain floor.living timber_floor 2 8 7 4 order=3
-terrain floor.bed plaster 18 7 6 4 order=4
-wall wall.north 0 0 25 0 thickness=1 kind=interior_wall style=wall.shell
-wall wall.south 0 13 25 13 thickness=1 openings=10,13,6,1 kind=interior_wall style=wall.shell
-wall wall.west 0 1 0 12 thickness=1 kind=interior_wall style=wall.shell
-wall wall.east 25 1 25 12 thickness=1 kind=interior_wall style=wall.shell
-building furnace_mass interior_block 17 1 5 3 style=block.heavy
-building bed_alcove_mass interior_block 19 8 5 3 style=block.light
-building storage_mass interior_block 2 2 3 2 style=block.light
-building foreground_wall interior_block 10 1 8 1 style=block.fore
+terrain floor.work dirt 7 2 12 6 order=1
+terrain floor.furnace ash 17 1 6 4 order=2
+terrain floor.living timber_floor 1 8 10 4 order=3
+terrain floor.bed plaster 18 8 6 4 order=4
+wall wall.north 0 0 25 0 thickness=1 openings=3,0,2,1|19,0,2,1 kind=interior_wall style=wall.shell
+wall wall.south 0 13 25 13 thickness=1 openings=11,13,4,1 kind=interior_wall style=wall.shell
+wall wall.west 0 1 0 12 thickness=1 openings=0,4,1,3 kind=interior_wall style=wall.shell
+wall wall.east 25 1 25 12 thickness=1 openings=25,4,1,3 kind=interior_wall style=wall.shell
 prop forge_anvil anvil 11 5 rect=3,2
 prop forge_furnace furnace 18 2 rect=2,2
 prop forge_ledger ledger 5 6 rect=2,2
+prop desk_candle candle 6 6 rect=1,1
 prop quench quench_bucket 15 5 rect=2,2
 prop bed bed 20 9 rect=3,2
 prop chest chest 3 9 rect=2,2
 prop food_table table 4 11 rect=3,2
+prop work_chair chair 7 11 rect=2,2
 prop tool_shelf shelf 2 2 rect=2,2
+landmark window.north_west interior_window 3 0 2 1 passage_axis=z
+landmark window.north_east interior_window 19 0 2 1 passage_axis=z
+landmark window.west interior_window 0 4 1 3 passage_axis=x
+landmark window.east interior_window 25 4 1 3 passage_axis=x
 spawn spawn.main 12 7 rect=2,2
 anchor anvil 11 5 rect=3,2
 anchor ledger 5 6 rect=2,2
-anchor bed_alcove 17 10 rect=2,2
-transition door_courtyard 10 13 6 1 to=reval_east destination_spawn=forge spawn=door_courtyard spawn_offset_px=0,-48
+anchor bed_alcove 20 9 rect=3,2
+transition door_courtyard 11 13 4 1 to=reval_east destination_spawn=forge spawn=door_courtyard spawn_offset_px=0,-48
 transition smithy_start_spawn 12 7 2 2 spawn=smithy_start
 exclude blocked.fore 10 1 8 1
 fade fade.fore 10 1 8 2

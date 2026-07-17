@@ -2,6 +2,7 @@ extends "res://tests/godot/test_case.gd"
 
 const KalevSmithyDefinition := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
+const MapTypes := preload("res://scripts/map/map_types.gd")
 const MapVerification := preload("res://scripts/map/map_verification.gd")
 
 
@@ -56,6 +57,31 @@ func test_kalev_smithy_door_and_work_triangle_reachable() -> void:
 func test_kalev_smithy_collision_parity() -> void:
 	var definition: MapDefinition = KalevSmithyDefinition.create()
 	assert_true(MapVerification.collision_parity(definition))
+
+
+func test_kalev_smithy_has_windows_furniture_and_local_lighting() -> void:
+	var definition: MapDefinition = KalevSmithyDefinition.create()
+	var window_count := 0
+	for landmark in definition.view_landmarks:
+		if landmark.get("kind", &"") == &"interior_window":
+			window_count += 1
+	assert_eq(window_count, 4, "smithy needs north, west, and east daylight windows")
+	var prop_kinds: Dictionary = {}
+	for prop in definition.props:
+		prop_kinds[prop["kind"]] = true
+	for required in [MapTypes.PROP_KIND_BED, MapTypes.PROP_KIND_TABLE, MapTypes.PROP_KIND_CHAIR, MapTypes.PROP_KIND_FURNACE, MapTypes.PROP_KIND_CANDLE]:
+		assert_true(prop_kinds.has(required), "Missing prop kind %s" % String(required))
+	var block_count := 0
+	for building in definition.buildings:
+		if building.get("kind", &"") == MapTypes.BUILDING_KIND_INTERIOR_BLOCK:
+			block_count += 1
+	assert_eq(block_count, 0, "interior blocks should be replaced by props and wall openings")
+
+
+func test_kalev_smithy_door_aligns_with_south_wall_opening() -> void:
+	var definition: MapDefinition = KalevSmithyDefinition.create()
+	var door := MapVerification.transition_rect(definition, &"door_courtyard")
+	assert_eq(door, Rect2(352, 416, 128, 32), "Courtyard door must match the south wall opening")
 
 
 func test_kalev_smithy_full_terrain_coverage() -> void:

@@ -38,6 +38,10 @@ static func assemble(
 		entities.add_child(prop_node)
 		prop_nodes.append(prop_node)
 
+	for landmark in definition.view_landmarks:
+		if landmark.get("kind", &"") == &"interior_window":
+			entities.add_child(MapBuildingRenderer.create_interior_window(landmark, visual_target, time_of_day))
+
 	return {
 		"terrain": terrain,
 		"buildings": building_bodies,

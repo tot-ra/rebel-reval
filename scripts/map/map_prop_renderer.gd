@@ -38,6 +38,8 @@ static func create_prop(
 		MapTypes.PROP_KIND_STAIRS: _draw_stairs(root, target, time_of_day)
 		MapTypes.PROP_KIND_STALL: _draw_stall(root, target, time_of_day)
 		MapTypes.PROP_KIND_HEARTH: _draw_hearth(root, target, time_of_day)
+		MapTypes.PROP_KIND_CHAIR: _draw_chair(root, target, time_of_day)
+		MapTypes.PROP_KIND_CANDLE: _draw_candle(root, target, time_of_day)
 		_: _add_rect(root, "Marker", Vector2(-8, -8), Vector2(16, 16), Color.MAGENTA, target, time_of_day)
 	return root
 
@@ -142,6 +144,22 @@ static func _draw_hearth(parent: Node2D, target: StringName, time_of_day: String
 	var ember := MapVisualStyle.role_color(&"ember", target, time_of_day)
 	_add_rect(parent, "HearthBase", Vector2(-20, -10), Vector2(40, 16), stone, target, time_of_day)
 	_add_rect(parent, "HearthFire", Vector2(-10, -6), Vector2(20, 8), ember, target, time_of_day)
+
+
+static func _draw_chair(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
+	_add_rect(parent, "Seat", Vector2(-10, -4), Vector2(20, 8), wood, target, time_of_day)
+	_add_rect(parent, "Back", Vector2(-9, -18), Vector2(18, 14), wood.darkened(0.08), target, time_of_day)
+	_add_rect(parent, "LegL", Vector2(-8, 4), Vector2(4, 10), wood.darkened(0.14), target, time_of_day)
+	_add_rect(parent, "LegR", Vector2(4, 4), Vector2(4, 10), wood.darkened(0.14), target, time_of_day)
+
+
+static func _draw_candle(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	var plaster := MapVisualStyle.role_color(&"plaster", target, time_of_day)
+	var ember := MapVisualStyle.role_color(&"ember", target, time_of_day)
+	_add_rect(parent, "Holder", Vector2(-5, 2), Vector2(10, 6), MapVisualStyle.role_color(&"metal", target, time_of_day), target, time_of_day)
+	_add_rect(parent, "Wax", Vector2(-2, -6), Vector2(4, 10), plaster.lightened(0.12), target, time_of_day)
+	_add_circle(parent, "Flame", Vector2(0, -10), 4.0, ember, target, time_of_day)
 
 
 static func _draw_barrels(parent: Node2D, target: StringName, time_of_day: StringName) -> void:

@@ -116,6 +116,27 @@ static func _draw_house(
 		_add_polygon(parent, "ForgeSign", _rect_points(Rect2(door.end.x + 5.0, facade.position.y + 7.0, 8.0, 8.0)), MapVisualStyle.role_color(&"metal", target, time_of_day), 7, ink, outline)
 
 
+static func create_interior_window(
+	landmark: Dictionary,
+	target: StringName = MapVisualStyle.TARGET_CLEAN_PAINTED,
+	time_of_day: StringName = MapVisualStyle.TIME_DAY
+) -> Node2D:
+	var rect: Rect2 = landmark["rect"]
+	var root := Node2D.new()
+	root.name = "Landmark_%s" % String(landmark["id"])
+	root.position = rect.get_center()
+	root.set_meta("y_sort_anchor", rect.get_center())
+
+	var ink := MapVisualStyle.role_color(&"ink", target, time_of_day)
+	var timber := MapVisualStyle.role_color(&"timber", target, time_of_day)
+	var window := MapVisualStyle.role_color(&"window", target, time_of_day)
+	var outline := MapVisualStyle.outline_width(target)
+	var local := Rect2(-rect.size * 0.5, rect.size)
+	_add_polygon(root, "Frame", _rect_points(local.grow(-2.0)), timber, 0, ink, outline)
+	_add_polygon(root, "Glass", _rect_points(local.grow(-5.0)), window, 1, ink, outline * 0.5)
+	return root
+
+
 static func _draw_interior_block(
 	parent: Node2D,
 	footprint: Rect2,

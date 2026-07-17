@@ -164,12 +164,23 @@ func _update_chimney_smokes() -> void:
 
 func _update_window_lights() -> void:
 	var buildings := get_node_or_null("Buildings")
-	if buildings == null:
-		return
-	for building_node in buildings.get_children():
-		var lights := building_node.get_node_or_null("WindowLights")
-		if lights != null and lights.has_method(&"apply_cycle_progress"):
-			lights.call("apply_cycle_progress", cycle_progress)
+	if buildings != null:
+		for building_node in buildings.get_children():
+			var lights := building_node.get_node_or_null("WindowLights")
+			if lights != null and lights.has_method(&"apply_cycle_progress"):
+				lights.call("apply_cycle_progress", cycle_progress)
+	var landmarks := get_node_or_null("Landmarks")
+	if landmarks != null:
+		for landmark_node in landmarks.get_children():
+			var interior_lights := landmark_node.get_node_or_null("InteriorWindowLights")
+			if interior_lights != null and interior_lights.has_method(&"apply_cycle_progress"):
+				interior_lights.call("apply_cycle_progress", cycle_progress)
+	var props := get_node_or_null("Props")
+	if props != null:
+		for prop_node in props.get_children():
+			var candle := prop_node.get_node_or_null("CandleLight")
+			if candle != null and candle.has_method(&"apply_cycle_progress"):
+				candle.call("apply_cycle_progress", cycle_progress)
 
 
 func world_position(logic_position: Vector2, height: float = 0.0) -> Vector3:

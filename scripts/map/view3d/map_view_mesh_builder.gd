@@ -92,6 +92,8 @@ const CHIMNEY_STACK_HEIGHT := 0.58
 const CHIMNEY_STACK_EMBED := 0.16
 const CHIMNEY_SMOKE_SCRIPT := preload("res://scripts/map/view3d/chimney_smoke_3d.gd")
 const WINDOW_LIGHTS_SCRIPT := preload("res://scripts/map/view3d/building_window_lights_3d.gd")
+const INTERIOR_WINDOW_LIGHTS_SCRIPT := preload("res://scripts/map/view3d/interior_window_lights_3d.gd")
+const CANDLE_LIGHT_SCRIPT := preload("res://scripts/map/view3d/candle_light_3d.gd")
 
 ## House facades: every house gets a street door and shuttered windows so the
 ## dwellings read as inhabited from the dimetric camera.
@@ -815,6 +817,11 @@ static func build_landmark(landmark: Dictionary, cell_size: int) -> Node3D:
 	match landmark.get("kind", &""):
 		&"gate_arch":
 			_add_gate_arch(root, landmark, size, scale)
+		&"interior_window":
+			_add_interior_window_landmark(root, landmark, size, scale, cell_size)
+			var interior_lights = INTERIOR_WINDOW_LIGHTS_SCRIPT.new()
+			interior_lights.configure_from(root)
+			root.add_child(interior_lights)
 	return root
 
 
@@ -830,8 +837,47 @@ static func _gate_passage_along_x(landmark: Dictionary, size: Vector2) -> bool:
 	return size.x >= size.y
 
 
-## Stone jambs, lintel, and open gate leaves over a walkable passage. The
-## jambs close the giant side voids that a lintel-only arch left visible.
+## View-only interior window frame and glazed pane on the inward wall face.
+static func _add_interior_window_landmark(
+	root: Node3D,
+	landmark: Dictionary,
+	size: Vector2,
+	_scale: float,
+	cell_size: int
+) -> void:
+	var side := _interior_window_side(landmark, cell_size)
+	var wall_height := 1.65
+	var sill := 0.95
+	var frame := HOUSE_WINDOW_FRAME
+	var span := size.x if side in [&"north", &"south"] else size.y
+	var opening_height := minf(size.y if side in [&"north", &"south"] else size.x, wall_height - sill)
+	opening_height = maxf(opening_height, 0.55)
+	var glass_w := maxf(span - frame * 2.0, 0.25)
+	var glass_h := maxf(opening_height - frame * 2.0, 0.35)
+	var center_y := sill + opening_height * 0.5
+	var face_offset := 0.35
+	_facade_box(root, "WindowFrameT0", Vector3(span, frame, HOUSE_WINDOW_OUTER_DEPTH), 0.0, sill + opening_height - frame * 0.5, side, face_offset, &"timber")
+	_facade_box(root, "WindowFrameB0", Vector3(span, frame, HOUSE_WINDOW_OUTER_DEPTH), 0.0, sill + frame * 0.5, side, face_offset, &"timber")
+	_facade_box(root, "WindowFrameL0", Vector3(frame, opening_height, HOUSE_WINDOW_OUTER_DEPTH), -span * 0.5 + frame * 0.5, center_y, side, face_offset, &"timber")
+	_facade_box(root, "WindowFrameR0", Vector3(frame, opening_height, HOUSE_WINDOW_OUTER_DEPTH), span * 0.5 - frame * 0.5, center_y, side, face_offset, &"timber")
+	_facade_box(root, "Window0", Vector3(glass_w, glass_h, HOUSE_WINDOW_GLASS_DEPTH), 0.0, center_y, side, face_offset, &"window")
+	_facade_box(root, "WindowMullionV0", Vector3(HOUSE_WINDOW_MULLION, glass_h, HOUSE_WINDOW_MULLION_DEPTH), 0.0, center_y, side, face_offset, &"timber")
+	_facade_box(root, "WindowLintel0", Vector3(span + 0.12, 0.1, 0.09), 0.0, sill + opening_height + 0.05, side, face_offset, &"timber")
+	_facade_box(root, "WindowSill0", Vector3(span + 0.12, 0.08, 0.12), 0.0, sill - 0.04, side, face_offset, &"timber")
+
+
+static func _interior_window_side(landmark: Dictionary, cell_size: int) -> StringName:
+	var rect: Rect2 = landmark["rect"]
+	var axis: StringName = landmark.get("passage_axis", &"z")
+	if axis == &"z":
+		if rect.position.y <= float(cell_size):
+			return &"north"
+		return &"south"
+	if rect.position.x <= float(cell_size):
+		return &"west"
+	return &"east"
+
+
 static func _add_gate_arch(root: Node3D, landmark: Dictionary, size: Vector2, scale: float) -> void:
 	var color := Color(landmark.get("wall_color", DEFAULT_WALL_COLOR))
 	var top := MapTypes.resolved_landmark_top_px(landmark) * scale
@@ -1086,6 +1132,32 @@ static func build_prop(prop: Dictionary, cell_size: int) -> Node3D:
 		MapTypes.PROP_KIND_HEARTH:
 			_box(root, "Base", Vector3(1.0, 0.4, 1.0), Vector3(0.0, 0.2, 0.0), &"stone")
 			_box(root, "Fire", Vector3(0.5, 0.22, 0.5), Vector3(0.0, 0.5, 0.0), &"ember")
+		MapTypes.PROP_KIND_CHAIR:
+			_box(root, "Seat", Vector3(0.5, 0.08, 0.45), Vector3(0.0, 0.42, 0.0), &"wood")
+			_box(root, "Back", Vector3(0.48, 0.5, 0.06), Vector3(0.0, 0.72, -0.18), &"timber")
+			_box(root, "LegFL", Vector3(0.06, 0.4, 0.06), Vector3(-0.18, 0.2, 0.14), &"timber")
+			_box(root, "LegFR", Vector3(0.06, 0.4, 0.06), Vector3(0.18, 0.2, 0.14), &"timber")
+		MapTypes.PROP_KIND_CANDLE:
+			_cylinder(root, "Holder", 0.12, 0.06, Vector3(0.0, 0.03, 0.0), &"metal")
+			_cylinder(root, "Wax", 0.05, 0.22, Vector3(0.0, 0.2, 0.0), &"plaster")
+			var flame := MeshInstance3D.new()
+			flame.name = "Flame"
+			var flame_mesh := SphereMesh.new()
+			flame_mesh.radius = 0.07
+			flame_mesh.height = 0.14
+			flame_mesh.radial_segments = 8
+			flame_mesh.rings = 4
+			flame.mesh = flame_mesh
+			flame.position = Vector3(0.0, 0.36, 0.0)
+			flame.material_override = _role_material(&"ember")
+			root.add_child(flame)
+			var candle_light := OmniLight3D.new()
+			candle_light.name = "Omni"
+			candle_light.position = Vector3(0.0, 0.42, 0.0)
+			root.add_child(candle_light)
+			var controller = CANDLE_LIGHT_SCRIPT.new()
+			controller.configure(candle_light, flame)
+			root.add_child(controller)
 		_:
 			_box(root, "Marker", Vector3(0.5, 0.5, 0.5), Vector3(0.0, 0.25, 0.0), &"ink")
 	return root
