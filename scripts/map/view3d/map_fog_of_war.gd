@@ -6,6 +6,9 @@ extends CanvasLayer
 
 const FOG_SHADER := preload("res://scripts/map/view3d/map_fog_of_war.gdshader")
 const FIELD_OF_VIEW_DEGREES := 120.0
+## Pulling the cone vertex behind the rig keeps the whole elevated character
+## inside the live region after its pixels are projected onto the ground plane.
+const FOV_ORIGIN_BACK_OFFSET_WORLD := 2.0
 const CLEAR_RADIUS_WORLD := 9.0
 const MEMORY_RADIUS_WORLD := 18.0
 const OCCLUSION_MASK_PIXELS_PER_CELL := 4
@@ -29,24 +32,32 @@ func update_view(player_position: Vector3, facing: Vector2) -> void:
 	if _material == null or _camera == null:
 		return
 	var normalized_facing := facing.normalized() if not facing.is_zero_approx() else Vector2.DOWN
-	_material.set_shader_parameter("player_world", Vector2(player_position.x, player_position.z))
+	var player_ground := Vector2(player_position.x, player_position.z)
+	_material.set_shader_parameter("player_world", player_ground)
+	_material.set_shader_parameter("fov_origin_world", fov_origin(player_ground, normalized_facing))
 	_material.set_shader_parameter("facing_world", normalized_facing)
 	_update_ground_projection()
 
 
 func visibility_at(world_position: Vector2, player_position: Vector2, facing: Vector2) -> float:
+	var normalized_facing := facing.normalized() if not facing.is_zero_approx() else Vector2.DOWN
 	var offset := world_position - player_position
 	var distance := offset.length()
 	if distance > MEMORY_RADIUS_WORLD:
 		return 0.0
-	if not offset.is_zero_approx():
-		var normalized_facing := facing.normalized() if not facing.is_zero_approx() else Vector2.DOWN
-		if normalized_facing.dot(offset / distance) < cos(deg_to_rad(FIELD_OF_VIEW_DEGREES * 0.5)):
+	var fov_offset := world_position - fov_origin(player_position, normalized_facing)
+	if not fov_offset.is_zero_approx():
+		if normalized_facing.dot(fov_offset.normalized()) < cos(deg_to_rad(FIELD_OF_VIEW_DEGREES * 0.5)):
 			return 0.0
 	for rect in _occluders:
 		if segment_crosses_rect(player_position, world_position, rect):
 			return 0.0
 	return 1.0
+
+
+static func fov_origin(player_position: Vector2, facing: Vector2) -> Vector2:
+	var normalized_facing := facing.normalized() if not facing.is_zero_approx() else Vector2.DOWN
+	return player_position - normalized_facing * FOV_ORIGIN_BACK_OFFSET_WORLD
 
 
 static func segment_crosses_rect(from: Vector2, to: Vector2, rect: Rect2) -> bool:

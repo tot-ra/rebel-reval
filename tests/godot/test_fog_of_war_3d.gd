@@ -12,8 +12,26 @@ func test_visibility_uses_120_degree_character_facing() -> void:
 	var facing := Vector2.RIGHT
 	assert_true(fog.visibility_at(Vector2(5.0, 0.0), player, facing) > 0.5, "content in front must stay alive")
 	assert_true(fog.visibility_at(Vector2(2.5, 4.0), player, facing) > 0.5, "content inside 120 degrees must stay alive")
-	assert_true(fog.visibility_at(Vector2(2.0, 4.0), player, facing) < 0.5, "content outside 120 degrees must become memory")
-	assert_true(fog.visibility_at(Vector2(-5.0, 0.0), player, facing) < 0.5, "content behind must become memory")
+	assert_true(fog.visibility_at(Vector2(2.0, 4.0), player, facing) > 0.5, "the rear-shifted vertex must widen the live cone around the character")
+	assert_true(fog.visibility_at(Vector2(0.0, 4.0), player, facing) < 0.5, "content outside the shifted 120 degree cone must become memory")
+	assert_true(fog.visibility_at(Vector2(-5.0, 0.0), player, facing) < 0.5, "content well behind must become memory")
+
+
+func test_fov_vertex_starts_behind_the_character() -> void:
+	var fog = FogOfWar.new()
+	var empty: Array[Rect2] = []
+	fog._occluders = empty
+	var player := Vector2(10.0, 10.0)
+	var facing := Vector2.RIGHT
+	assert_eq(
+		FogOfWar.fov_origin(player, facing),
+		Vector2(10.0 - FogOfWar.FOV_ORIGIN_BACK_OFFSET_WORLD, 10.0),
+		"the cone vertex must start behind the character"
+	)
+	assert_true(
+		fog.visibility_at(player + Vector2(-0.5, 0.0), player, facing) > 0.5,
+		"the character footprint just behind its pivot must remain live"
+	)
 
 
 func test_visibility_stops_at_memory_radius() -> void:

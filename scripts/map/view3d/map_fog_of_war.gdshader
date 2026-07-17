@@ -11,6 +11,7 @@ uniform vec2 ground_origin;
 uniform vec2 ground_uv_x;
 uniform vec2 ground_uv_y;
 uniform vec2 player_world;
+uniform vec2 fov_origin_world;
 uniform vec2 facing_world = vec2(0.0, 1.0);
 uniform float clear_radius = 9.0;
 uniform float memory_radius = 18.0;
@@ -44,9 +45,11 @@ bool hidden_behind_mass(vec2 from, vec2 to) {
 
 void fragment() {
 	vec2 world = ground_origin + ground_uv_x * SCREEN_UV.x + ground_uv_y * SCREEN_UV.y;
-	vec2 offset = world - player_world;
-	float distance_to_player = length(offset);
-	vec2 sight_direction = distance_to_player > 0.0001 ? offset / distance_to_player : facing_world;
+	vec2 radial_offset = world - player_world;
+	float distance_to_player = length(radial_offset);
+	vec2 fov_offset = world - fov_origin_world;
+	float distance_to_fov_origin = length(fov_offset);
+	vec2 sight_direction = distance_to_fov_origin > 0.0001 ? fov_offset / distance_to_fov_origin : facing_world;
 
 	float facing_dot = dot(normalize(facing_world), sight_direction);
 	float in_fov = smoothstep(soft_fov_cos, half_fov_cos, facing_dot);
