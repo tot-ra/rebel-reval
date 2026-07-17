@@ -41,6 +41,7 @@ var _player: CharacterBody2D
 var _player_rig: SharedCharacterRig
 var _camera: Camera3D
 var _drag_rotating_view := false
+var _last_facing := Vector2.ZERO
 
 
 static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasItem, player: CharacterBody2D) -> MapViewRuntime:
@@ -65,6 +66,7 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 
 	scene_root.add_child(runtime)
 	runtime._configure_screen_relative_movement()
+	runtime._last_facing = runtime._logic_direction_toward_camera()
 	runtime._sync_player(true)
 	return runtime
 
@@ -151,7 +153,9 @@ func _sync_player(snap: bool, delta: float = 0.0) -> void:
 	_follow_player(snap, delta)
 	var speed := _player.velocity.length()
 	var moving := speed > WALK_ANIMATION_MIN_SPEED
-	var facing := _player.velocity if moving else _logic_direction_toward_camera()
+	if moving:
+		_last_facing = _player.velocity.normalized()
+	var facing := _player.velocity if moving else _last_facing
 	if snap:
 		_player_rig.set_facing(facing)
 	else:

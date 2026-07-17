@@ -351,7 +351,7 @@ func test_runtime_hides_flat_map_visuals_without_disabling_collision() -> void:
 	prop.free()
 
 
-func test_runtime_maps_keyboard_to_screen_axes_and_faces_idle_rig_at_camera() -> void:
+func test_runtime_maps_keyboard_to_screen_axes_and_preserves_facing_on_stop() -> void:
 	var scene_root := Node2D.new()
 	var map_root := Node2D.new()
 	var actors := Node2D.new()
@@ -381,7 +381,18 @@ func test_runtime_maps_keyboard_to_screen_axes_and_faces_idle_rig_at_camera() ->
 	var camera_direction := Vector2(camera_offset.x, camera_offset.z).normalized()
 	assert_true(
 		is_equal_approx(rig.rotation.y, atan2(camera_direction.x, camera_direction.y)),
-		"an idle player rig must turn toward the gameplay camera"
+		"an idle player rig with no movement history must face the gameplay camera"
+	)
+
+	var move_direction := Vector2(1.0, 0.0)
+	player.velocity = move_direction * (MapViewRuntime.WALK_ANIMATION_MIN_SPEED + 1.0)
+	runtime._sync_player(false, 0.016)
+	player.velocity = Vector2.ZERO
+	runtime.rotate_view_degrees(45.0)
+	runtime._sync_player(false, 0.016)
+	assert_true(
+		is_equal_approx(rig.rotation.y, atan2(move_direction.x, move_direction.y)),
+		"an idle player rig must keep the last movement direction after stopping"
 	)
 
 	var yaw_before := camera.rotation_degrees.y
