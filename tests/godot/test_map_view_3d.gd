@@ -6,6 +6,7 @@ extends "res://tests/godot/test_case.gd"
 ## one logic cell.
 
 const SmithyCourtyard := preload("res://scripts/map/smithy_courtyard_definition.gd")
+const KalevSmithyDefinition := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
 const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const PLAYER_SCENE := preload("res://player.tscn")
@@ -155,6 +156,14 @@ func test_terrain_uses_dense_subcell_geometry() -> void:
 		* 6
 	)
 	assert_true(vertex_count >= minimum_dense_budget, "terrain must retain at least eight visual patches per logic cell")
+	view.free()
+
+
+func test_enclosed_interior_suppresses_countryside_surroundings() -> void:
+	var definition := KalevSmithyDefinition.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition))
+	assert_false(view.has_node("Surroundings/Apron"), "interior shell must not paint meadow apron")
+	assert_false(view.has_node("Surroundings/SpruceCanopies"), "interior shell must not spawn treeline")
 	view.free()
 
 

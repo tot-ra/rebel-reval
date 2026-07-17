@@ -1186,6 +1186,8 @@ static func _grass_tuft_mesh() -> ArrayMesh:
 static func build_surroundings(definition: MapDefinition) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Surroundings"
+	if definition.suppresses_exterior_surroundings():
+		return root
 	var map_size := Vector2(definition.size_cells)
 
 	var apron := MeshInstance3D.new()

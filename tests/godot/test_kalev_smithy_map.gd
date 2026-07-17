@@ -10,6 +10,10 @@ func test_kalev_smithy_definition_validates() -> void:
 	assert_eq(definition.size_cells, Vector2i(26, 14))
 	assert_eq(definition.scope, &"production")
 	assert_true(definition.active)
+	assert_true(
+		definition.suppresses_exterior_surroundings(),
+		"Interior shell must not request countryside surroundings"
+	)
 	var errors: Array[String] = MapBuilder.validate(definition)
 	assert_true(errors.is_empty(), str(errors))
 

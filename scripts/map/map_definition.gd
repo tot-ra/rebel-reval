@@ -125,6 +125,40 @@ func world_size() -> Vector2:
 	return Vector2(float(size_cells.x * cell_size), float(size_cells.y * cell_size))
 
 
+## Enclosed room shells (perimeter interior_wall on every side) should not paint
+## the countryside treeline or meadow apron past the authored walls.
+func suppresses_exterior_surroundings() -> bool:
+	if not surroundings_town_sides.is_empty():
+		return false
+	var north := false
+	var south := false
+	var west := false
+	var east := false
+	for building in buildings:
+		if building.get("kind") != MapTypes.BUILDING_KIND_INTERIOR_WALL:
+			continue
+		var cell_rect := _world_rect_to_cell_rect(building["footprint"])
+		if cell_rect.position.y <= 0:
+			north = true
+		if cell_rect.end.y >= size_cells.y:
+			south = true
+		if cell_rect.position.x <= 0:
+			west = true
+		if cell_rect.end.x >= size_cells.x:
+			east = true
+	return north and south and west and east
+
+
+func _world_rect_to_cell_rect(world_rect: Rect2) -> Rect2i:
+	var pixel := float(cell_size)
+	return Rect2i(
+		int(floor(world_rect.position.x / pixel)),
+		int(floor(world_rect.position.y / pixel)),
+		maxi(1, int(round(world_rect.size.x / pixel))),
+		maxi(1, int(round(world_rect.size.y / pixel)))
+	)
+
+
 func _validate_zone(zone: Dictionary, index: int) -> Array[String]:
 	var errors: Array[String] = []
 	var prefix := "zones[%d]" % index
