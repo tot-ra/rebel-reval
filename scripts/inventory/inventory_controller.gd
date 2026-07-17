@@ -13,6 +13,7 @@ func _ready() -> void:
 	_overlay.visible = false
 	add_child(_overlay)
 	_overlay.configure(SessionState.state.bag, SessionState.content_db)
+	_overlay.configure_state(SessionState.state)
 	_overlay.closed.connect(_on_overlay_closed)
 
 

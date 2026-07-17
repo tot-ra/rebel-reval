@@ -18,6 +18,9 @@ enum AddResult {
 }
 
 var placements: Array[InventoryPlacement] = []
+## Weight carried outside the grid (equipped items); counts toward the cap
+## and encumbrance. Maintained by GameState equipment placement.
+var reserved_weight_kg := 0.0
 var _occupied: PackedByteArray = PackedByteArray()
 
 
@@ -52,7 +55,7 @@ func get_total_weight() -> float:
 func get_weight_ratio() -> float:
 	if is_zero_approx(MAX_WEIGHT_KG):
 		return 0.0
-	return clampf(get_total_weight() / MAX_WEIGHT_KG, 0.0, 1.0)
+	return clampf((get_total_weight() + reserved_weight_kg) / MAX_WEIGHT_KG, 0.0, 1.0)
 
 
 func get_speed_multiplier() -> float:
@@ -111,13 +114,13 @@ func try_add(item_id: StringName, quantity: int = 1) -> AddResult:
 			if next_quantity > ItemCarryProfile.MAX_STACK_SIZE:
 				return AddResult.STACK_FULL
 			var added_weight := profile.weight_kg * add_count
-			if get_total_weight() + added_weight > MAX_WEIGHT_KG + 0.001:
+			if get_total_weight() + reserved_weight_kg + added_weight > MAX_WEIGHT_KG + 0.001:
 				return AddResult.OVER_WEIGHT
 			placement.quantity = next_quantity
 			return AddResult.OK
 
 	var added_weight := profile.total_weight(add_count)
-	if get_total_weight() + added_weight > MAX_WEIGHT_KG + 0.001:
+	if get_total_weight() + reserved_weight_kg + added_weight > MAX_WEIGHT_KG + 0.001:
 		return AddResult.OVER_WEIGHT
 
 	var origin := _find_auto_placement(profile)
@@ -152,6 +155,18 @@ func remove(placement: InventoryPlacement) -> bool:
 
 func set_content_db(content_db: ContentDB) -> void:
 	_content_db = content_db
+
+
+## Public carry-stat lookup so equipment state can weigh worn items.
+func profile_for(item_id: StringName) -> ItemCarryProfile:
+	return _profile_for(item_id)
+
+
+func find_placement(item_id: StringName) -> InventoryPlacement:
+	for placement in placements:
+		if placement.item_id == item_id:
+			return placement
+	return null
 
 
 var _content_db: ContentDB = null

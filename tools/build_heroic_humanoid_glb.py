@@ -80,8 +80,11 @@ def _translation_factors(p: dict, hips_lift: float) -> dict[str, np.ndarray]:
         "lowerarm.r": np.array([1.0, p["arm_length"], 1.0]),
         "wrist.l": np.array([1.0, p["arm_length"], 1.0]),
         "wrist.r": np.array([1.0, p["arm_length"], 1.0]),
-        "handslot.l": np.array([p["hand_size"]] * 3),
-        "handslot.r": np.array([p["hand_size"]] * 3),
+        # Pull the grip point into the center of our generated mitt: the
+        # vendor handslot sits at the fingertip-front of the KayKit hand,
+        # outside the blockier generated fist.
+        "handslot.l": np.array([p["hand_size"] * 0.45] * 3),
+        "handslot.r": np.array([p["hand_size"] * 0.45] * 3),
         "upperleg.l": np.array([p["hip_socket_width"], 1.0, 1.0]),
         "upperleg.r": np.array([p["hip_socket_width"], 1.0, 1.0]),
         "lowerleg.l": np.array([1.0, p["leg_length"], 1.0]),
@@ -304,9 +307,13 @@ def build(character: str) -> None:
     relax_degrees = float(p.get("arm_relax_degrees", 0.0))
     if relax_degrees:
         forward_axis = np.array([0.0, 0.0, 1.0])
+        # Forearms fold a further fraction of the same angle: the source
+        # clips bow the elbows outward around the chibi belly.
         rotation_offsets = {
             "upperarm.l": _axis_angle_quat(forward_axis, -relax_degrees),
             "upperarm.r": _axis_angle_quat(forward_axis, relax_degrees),
+            "lowerarm.l": _axis_angle_quat(forward_axis, -relax_degrees * 0.65),
+            "lowerarm.r": _axis_angle_quat(forward_axis, relax_degrees * 0.65),
         }
     for name, offset in rotation_offsets.items():
         node = nodes[name_to_index[name]]

@@ -83,6 +83,32 @@
             "minLength": 1
           }
         },
+        "equip": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "slot"
+          ],
+          "properties": {
+            "slot": {
+              "type": "string",
+              "enum": [
+                "right_hand",
+                "left_hand",
+                "head",
+                "back"
+              ]
+            },
+            "scene": {
+              "type": "string",
+              "pattern": "^res://.+\\.tscn$"
+            },
+            "garment": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
         "carry": {
           "type": "object",
           "additionalProperties": false,

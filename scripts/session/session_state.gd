@@ -27,3 +27,5 @@ func _seed_demo_bag_if_empty() -> void:
 	_demo_seeded = true
 	state.bag.try_add(&"item.forge_hammer")
 	state.bag.try_add(&"item.seized_spearhead")
+	# Kalev starts with his working hammer in hand; stow it from the bag (I).
+	state.equip_from_bag(&"right_hand", &"item.forge_hammer")

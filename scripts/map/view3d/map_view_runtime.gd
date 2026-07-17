@@ -60,6 +60,7 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 	runtime._player_rig.name = "PlayerRig"
 	runtime._player_rig.add_to_group(&"player_view_rig")
 	runtime.add_child(runtime._player_rig)
+	runtime._bind_equipment_state()
 
 	runtime._camera = runtime.view.view_camera()
 	runtime._camera.size = CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
@@ -169,6 +170,34 @@ func _sync_player(snap: bool, delta: float = 0.0) -> void:
 		_player_rig.play_animation(wanted)
 	_player_rig.set_locomotion_speed(speed * MapViewBridge.world_scale(_definition.cell_size))
 	_update_occlusion_ghost()
+
+
+## The session GameState owns what Kalev wears; the variant's authored
+## equipment is only a default for showcase scenes. Mirror the state now and
+## on every equipment change.
+func _bind_equipment_state() -> void:
+	var state := SessionState.state
+	if state == null:
+		return
+	for slot: StringName in SharedCharacterRig.EQUIPMENT_SLOTS:
+		_sync_equipment_slot(slot)
+	state.equipment_changed.connect(_sync_equipment_slot)
+
+
+func _sync_equipment_slot(slot: StringName) -> void:
+	var state := SessionState.state
+	var item_id := state.equipped_item(slot)
+	if item_id.is_empty():
+		_player_rig.unequip(slot)
+		return
+	var record: Dictionary = SessionState.content_db.get_item(item_id)
+	var gameplay: Dictionary = record.get("gameplay", {})
+	var equip_info: Dictionary = gameplay.get("equip", {})
+	var scene_path := String(equip_info.get("scene", ""))
+	if scene_path.is_empty():
+		_player_rig.unequip(slot)
+		return
+	_player_rig.equip(slot, load(scene_path) as PackedScene)
 
 
 func _update_occlusion_ghost() -> void:

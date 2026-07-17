@@ -18,6 +18,7 @@ const CATEGORY_COLORS := {
 
 var _bag: InventoryBag
 var _content_db: ContentDB
+var _state: GameState
 var _selected: InventoryPlacement = null
 
 var _panel: PanelContainer
@@ -26,12 +27,21 @@ var _weight_bar: ProgressBar
 var _volume_bar: ProgressBar
 var _speed_label: Label
 var _detail_label: Label
+var _equipped_row: HBoxContainer
+var _equip_button: Button
 var _cell_buttons: Array[Button] = []
 
 
 func configure(bag: InventoryBag, content_db: ContentDB) -> void:
 	_bag = bag
 	_content_db = content_db
+	if is_node_ready():
+		_refresh()
+
+
+## Optional: enables the equip/unequip UI backed by GameState placement rules.
+func configure_state(state: GameState) -> void:
+	_state = state
 	if is_node_ready():
 		_refresh()
 
@@ -109,6 +119,10 @@ func _build_ui() -> void:
 	_speed_label.add_theme_font_size_override("font_size", 13)
 	layout.add_child(_speed_label)
 
+	_equipped_row = HBoxContainer.new()
+	_equipped_row.add_theme_constant_override("separation", 8)
+	layout.add_child(_equipped_row)
+
 	_grid = GridContainer.new()
 	_grid.columns = InventoryBag.GRID_WIDTH
 	_grid.add_theme_constant_override("h_separation", CELL_GAP)
@@ -119,6 +133,12 @@ func _build_ui() -> void:
 	_detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_detail_label.add_theme_font_size_override("font_size", 13)
 	layout.add_child(_detail_label)
+
+	_equip_button = Button.new()
+	_equip_button.visible = false
+	_equip_button.focus_mode = Control.FOCUS_NONE
+	_equip_button.pressed.connect(_on_equip_pressed)
+	layout.add_child(_equip_button)
 
 	for cell_y in range(InventoryBag.GRID_HEIGHT):
 		for cell_x in range(InventoryBag.GRID_WIDTH):
@@ -162,7 +182,7 @@ func _refresh() -> void:
 		return
 
 	_weight_bar.max_value = InventoryBag.MAX_WEIGHT_KG
-	_weight_bar.value = _bag.get_total_weight()
+	_weight_bar.value = _bag.get_total_weight() + _bag.reserved_weight_kg
 	_volume_bar.max_value = float(_bag.get_total_cells())
 	_volume_bar.value = float(_bag.get_used_cells())
 
@@ -177,6 +197,68 @@ func _refresh() -> void:
 		_style_cell_button(button, placement, cell_x, cell_y)
 
 	_update_detail_label()
+	_refresh_equipment_ui()
+
+
+func _refresh_equipment_ui() -> void:
+	for child: Node in _equipped_row.get_children():
+		child.queue_free()
+	_equip_button.visible = false
+	if _state == null:
+		return
+
+	var caption := Label.new()
+	caption.text = "Worn:"
+	caption.add_theme_font_size_override("font_size", 13)
+	_equipped_row.add_child(caption)
+	var slots := _state.equipped_slots()
+	if slots.is_empty():
+		var none_label := Label.new()
+		none_label.text = "nothing"
+		none_label.add_theme_font_size_override("font_size", 13)
+		none_label.modulate = Color(0.7, 0.72, 0.76)
+		_equipped_row.add_child(none_label)
+	for slot: StringName in slots:
+		var record := _item_record(_state.equipped_item(slot))
+		var slot_button := Button.new()
+		slot_button.focus_mode = Control.FOCUS_NONE
+		slot_button.text = "%s: %s  (click to stow)" % [
+			String(slot).replace("_", " "),
+			String(record.get("name", "Item")),
+		]
+		var captured_slot := slot
+		slot_button.pressed.connect(func() -> void:
+			_state.unequip_to_bag(captured_slot)
+			_refresh()
+		)
+		_equipped_row.add_child(slot_button)
+
+	if _selected != null:
+		var equip_info := _equip_info(_selected.item_id)
+		if not equip_info.is_empty():
+			_equip_button.visible = true
+			_equip_button.text = "Equip %s (%s)" % [
+				String(_item_record(_selected.item_id).get("name", "item")),
+				String(equip_info.get("slot", "")).replace("_", " "),
+			]
+
+
+func _on_equip_pressed() -> void:
+	if _state == null or _selected == null:
+		return
+	var equip_info := _equip_info(_selected.item_id)
+	if equip_info.is_empty():
+		return
+	var slot := StringName(String(equip_info.get("slot", "")))
+	if _state.equip_from_bag(slot, _selected.item_id):
+		_selected = null
+	_refresh()
+
+
+func _equip_info(item_id: StringName) -> Dictionary:
+	var record := _item_record(item_id)
+	var gameplay: Dictionary = record.get("gameplay", {})
+	return gameplay.get("equip", {})
 
 
 func _style_cell_button(

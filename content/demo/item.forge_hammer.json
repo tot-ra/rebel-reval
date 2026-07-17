@@ -21,6 +21,10 @@
       "weight_g": 4500,
       "grid_width": 2,
       "grid_height": 2
+    },
+    "equip": {
+      "slot": "right_hand",
+      "scene": "res://assets/characters/shared/hammer.tscn"
     }
   },
   "source_notes": [

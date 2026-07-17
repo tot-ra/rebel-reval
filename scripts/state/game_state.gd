@@ -1,6 +1,9 @@
 class_name GameState
 extends RefCounted
 
+## Fired after a slot's contents change so the 3D view can mirror the state.
+signal equipment_changed(slot: StringName)
+
 const CURRENT_VERSION := 1
 
 const PHASE_PROLOGUE_DAY := &"phase.prologue_day"
@@ -19,6 +22,7 @@ var phase: StringName = PHASE_PROLOGUE_DAY
 var player: PlayerState = PlayerState.new()
 var bag: InventoryBag = InventoryBag.new()
 
+var _equipped: Dictionary[StringName, StringName] = {}
 var _facts: Dictionary[StringName, bool] = {}
 var _relationships: Dictionary[StringName, int] = {}
 var _pressures: Dictionary[StringName, int] = {}
@@ -77,6 +81,80 @@ func get_location_state(key: StringName) -> StringName:
 
 func set_location_state(key: StringName, value: StringName) -> void:
 	_location_states[key] = value
+
+
+## --- Equipment placement (see docs/INVENTORY_MECHANICS.md) ---------------
+## Equipped items leave the bag grid but keep counting toward the weight cap:
+## you carry what you wear. Failed swaps mutate nothing.
+
+func equipped_item(slot: StringName) -> StringName:
+	return _equipped.get(slot, &"")
+
+
+func equipped_slots() -> Array[StringName]:
+	var slots: Array[StringName] = []
+	for slot: StringName in _equipped:
+		slots.append(slot)
+	slots.sort()
+	return slots
+
+
+func equip_from_bag(slot: StringName, item_id: StringName) -> bool:
+	if slot.is_empty() or item_id.is_empty():
+		return false
+	var placement := bag.find_placement(item_id)
+	if placement == null:
+		return false
+
+	# Take one unit out of the grid before attempting the swap-back so the
+	# previous occupant can use the freed cells.
+	var restore_origin := Vector2i(placement.grid_x, placement.grid_y)
+	if placement.quantity > 1:
+		placement.quantity -= 1
+	else:
+		bag.remove(placement)
+
+	var previous := equipped_item(slot)
+	if not previous.is_empty() and bag.try_add(previous) != InventoryBag.AddResult.OK:
+		# Rollback: the previous occupant does not fit back into the grid.
+		if placement.quantity >= 1 and bag.find_placement(item_id) == placement:
+			placement.quantity += 1
+		else:
+			bag.try_add(item_id)
+		return false
+
+	_equipped[slot] = item_id
+	_refresh_reserved_weight()
+	equipment_changed.emit(slot)
+	return true
+
+
+func unequip_to_bag(slot: StringName) -> bool:
+	var item_id := equipped_item(slot)
+	if item_id.is_empty():
+		return false
+	# The item's own weight is already counted as reserved, so release it
+	# for the duration of the add-back check.
+	bag.reserved_weight_kg -= bag.profile_for(item_id).weight_kg
+	if bag.try_add(item_id) != InventoryBag.AddResult.OK:
+		_refresh_reserved_weight()
+		return false
+	_equipped.erase(slot)
+	_refresh_reserved_weight()
+	equipment_changed.emit(slot)
+	return true
+
+
+## Bag weight plus worn weight; the cap covers everything Kalev carries.
+func get_carried_weight() -> float:
+	return bag.get_total_weight() + bag.reserved_weight_kg
+
+
+func _refresh_reserved_weight() -> void:
+	var total := 0.0
+	for slot: StringName in _equipped:
+		total += bag.profile_for(_equipped[slot]).weight_kg
+	bag.reserved_weight_kg = total
 
 
 func has_item(key: StringName) -> bool:
