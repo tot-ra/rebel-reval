@@ -4,14 +4,26 @@ const DirectionSign3D := preload("res://scripts/map/view3d/direction_sign_3d.gd"
 const LowerTownSliceDefinition := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
 
 
-func test_lower_town_has_harbour_sign_outside_viru_wall() -> void:
+func test_lower_town_has_wall_exit_signs_outside_the_moat() -> void:
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
-	assert_eq(definition.direction_signs.size(), 1)
-	var sign: Dictionary = definition.direction_signs[0]
-	assert_eq(sign["text"], "to harbour")
-	assert_eq(sign["direction"], Vector2.RIGHT)
+	assert_eq(definition.direction_signs.size(), 2)
+
+	var harbour_sign: Dictionary = definition.direction_signs[0]
+	assert_eq(harbour_sign["text"], "to harbour")
+	assert_eq(harbour_sign["direction"], Vector2.RIGHT)
 	# Viru's outer wall face ends at cell 67; the sign belongs on the glacis.
-	assert_true(sign["position"].x > float(definition.cell_size * 67))
+	assert_true(harbour_sign["position"].x > float(definition.cell_size * 67))
+	# Causeway centre is y=20; keep the post off the walkable road.
+	assert_true(harbour_sign["position"].y < float(definition.cell_size * 19))
+
+	var karja_sign: Dictionary = definition.direction_signs[1]
+	assert_eq(karja_sign["text"], "to town centre")
+	assert_eq(karja_sign["direction"], Vector2.DOWN)
+	# South wall mass ends at cell 50; the sign sits on the outer glacis.
+	assert_true(karja_sign["position"].y > float(definition.cell_size * 50))
+	# Karja causeway centre is x=37.5; keep the post east of the road.
+	assert_true(karja_sign["position"].x > float(definition.cell_size * 39))
+
 	assert_true(MapBuilder.validate(definition).is_empty())
 
 
@@ -26,6 +38,19 @@ func test_direction_sign_builds_wooden_arrow_with_two_sided_text() -> void:
 	assert_eq((node.get_node("TextBack") as Label3D).text, "to harbour")
 	assert_eq(node.get_meta("outside_direction"), Vector2.RIGHT)
 	assert_true(is_zero_approx(node.rotation.y), "right-pointing sign must face world +X")
+	node.free()
+
+
+func test_karja_sign_points_south_along_outgoing_road() -> void:
+	var definition: MapDefinition = LowerTownSliceDefinition.create()
+	var sign: Dictionary = definition.direction_signs[1]
+	var node := DirectionSign3D.build(sign, definition.cell_size)
+	assert_eq((node.get_node("TextFront") as Label3D).text, "to town centre")
+	var world_arrow_direction := (node.transform.basis * Vector3.RIGHT).normalized()
+	assert_true(
+		world_arrow_direction.is_equal_approx(Vector3.BACK),
+		"Karja gate sign must point south along the causeway"
+	)
 	node.free()
 
 
@@ -65,4 +90,5 @@ func test_map_view_assembles_direction_signs_without_logic_geometry() -> void:
 	var signs := view.get_node("DirectionSigns") as Node3D
 	assert_eq(signs.get_child_count(), definition.direction_signs.size())
 	assert_eq(signs.get_child(0).get_meta("direction_text"), "to harbour")
+	assert_eq(signs.get_child(1).get_meta("direction_text"), "to town centre")
 	view.free()

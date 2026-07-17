@@ -248,6 +248,11 @@ static func create() -> MapDefinition:
 			"position": definition.cell_rect_center(Rect2i(78, 17, 1, 1)),
 			"direction": Vector2.RIGHT,
 		},
+		{
+			"text": "to town centre",
+			"position": definition.cell_rect_center(Rect2i(41, 51, 1, 1)),
+			"direction": Vector2.DOWN,
+		},
 	]
 
 	definition.props = [
