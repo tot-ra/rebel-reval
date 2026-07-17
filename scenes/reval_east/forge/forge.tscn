@@ -17,14 +17,14 @@ y_sort_enabled = true
 y_sort_enabled = true
 
 [node name="Henning" parent="Actors" instance=ExtResource("3_henning")]
-position = Vector2(400, 528)
+position = Vector2(432, 368)
 
 [node name="Cat" parent="Actors" instance=ExtResource("4_cat")]
-position = Vector2(384, 576)
+position = Vector2(656, 304)
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(640, 384)
+position = Vector2(416, 224)
 limit_left = 0
 limit_top = 0
-limit_right = 1280
-limit_bottom = 768
+limit_right = 832
+limit_bottom = 448

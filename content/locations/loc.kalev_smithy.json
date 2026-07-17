@@ -52,7 +52,8 @@
       "summary": "Production location record for the converted declarative forge interior.",
       "citations": [
         "docs/SCENES/the-makers-mark.md",
-        "scripts/map/definitions/lower_town/kalev_smithy_definition.gd"
+        "scripts/map/definitions/lower_town/kalev_smithy_definition.gd",
+        "content/maps/kalev_smithy.rrmap"
       ]
     }
   ]

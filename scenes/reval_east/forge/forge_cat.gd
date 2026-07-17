@@ -12,11 +12,11 @@ const LICK_SECONDS := 3.0
 const STRETCH_SECONDS := 2.0
 
 const SPOTS: Array[Vector2] = [
-	Vector2(10.5, 17.5) * MapTypes.DEFAULT_CELL_SIZE,
-	Vector2(15.5, 10.5) * MapTypes.DEFAULT_CELL_SIZE,
-	Vector2(25.5, 16.5) * MapTypes.DEFAULT_CELL_SIZE,
-	Vector2(30.5, 10.5) * MapTypes.DEFAULT_CELL_SIZE,
-	Vector2(34.5, 18.5) * MapTypes.DEFAULT_CELL_SIZE,
+	Vector2(6.5, 11.5) * MapTypes.DEFAULT_CELL_SIZE,
+	Vector2(12.5, 6.5) * MapTypes.DEFAULT_CELL_SIZE,
+	Vector2(20.5, 10.5) * MapTypes.DEFAULT_CELL_SIZE,
+	Vector2(22.5, 6.5) * MapTypes.DEFAULT_CELL_SIZE,
+	Vector2(8.5, 8.5) * MapTypes.DEFAULT_CELL_SIZE,
 ]
 
 enum RoutineState {

@@ -4,11 +4,22 @@ extends RefCounted
 ## Explicit inventory of blueprint sources. Filesystem discovery is deliberately
 ## avoided so validation order and CI coverage cannot depend on import ordering.
 
+const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smithy_rrmap_factory.gd")
 const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_blueprint.gd")
 
 
 static func entries() -> Array[Dictionary]:
 	return [
+		{
+			"id": &"kalev_smithy",
+			"source": "res://content/maps/kalev_smithy.rrmap",
+			"factory": KalevSmithy,
+			"required_anchors": [
+				&"anvil",
+				&"ledger",
+				&"bed_alcove",
+			],
+		},
 		{
 			"id": &"lower_town_slice",
 			"source": "res://scripts/map/definitions/lower_town/lower_town_slice_blueprint.gd",

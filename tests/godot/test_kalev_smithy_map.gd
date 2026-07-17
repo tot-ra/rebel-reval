@@ -7,7 +7,7 @@ const MapVerification := preload("res://scripts/map/map_verification.gd")
 
 func test_kalev_smithy_definition_validates() -> void:
 	var definition: MapDefinition = KalevSmithyDefinition.create()
-	assert_eq(definition.size_cells, Vector2i(40, 24))
+	assert_eq(definition.size_cells, Vector2i(26, 14))
 	assert_eq(definition.scope, &"production")
 	assert_true(definition.active)
 	var errors: Array[String] = MapBuilder.validate(definition)

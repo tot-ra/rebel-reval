@@ -13,11 +13,11 @@ const SIT_IDLE_SECONDS := 3.0
 const SIT_UP_SECONDS := 1.2
 
 const ROUTE: Array[Vector2] = [
-	Vector2(13.5, 16.5) * MapTypes.DEFAULT_CELL_SIZE,
-	Vector2(13.5, 10.5) * MapTypes.DEFAULT_CELL_SIZE,
+	Vector2(13.5, 11.5) * MapTypes.DEFAULT_CELL_SIZE,
+	Vector2(13.5, 7.5) * MapTypes.DEFAULT_CELL_SIZE,
 	# The final stop doubles as a chair-height animation showcase. A dedicated
 	# chair prop can be snapped here later without changing NPC gameplay state.
-	Vector2(11.5, 16.5) * MapTypes.DEFAULT_CELL_SIZE,
+	Vector2(11.5, 11.5) * MapTypes.DEFAULT_CELL_SIZE,
 ]
 
 enum RoutineState {
