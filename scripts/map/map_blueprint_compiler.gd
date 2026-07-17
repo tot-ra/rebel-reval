@@ -4,7 +4,7 @@ extends RefCounted
 ## Pure, deterministic expansion from cell-space MapBlueprint semantics to the
 ## existing MapDefinition runtime contract.
 
-const COMPILER_VERSION := 2
+const COMPILER_VERSION := 3
 const ID_PATTERN := "^[a-z0-9_.-]+$"
 
 const COMMON_STYLE_KEYS: Array[StringName] = [&"enabled"]
@@ -38,13 +38,19 @@ const ALL_STYLE_KEYS: Array[StringName] = [
 
 
 static func compile(blueprint: MapBlueprint) -> MapDefinition:
-	return compile_with_diagnostics(blueprint).definition
+	var result := compile_with_diagnostics(blueprint)
+	return result.definition if result.is_ok() else null
 
 
-static func compile_with_diagnostics(blueprint: MapBlueprint) -> MapBlueprintCompileResult:
+static func compile_with_diagnostics(
+	blueprint: MapBlueprint,
+	required_anchor_ids: Array[StringName] = [],
+	transition_registry: Dictionary = {}
+) -> MapBlueprintCompileResult:
 	var result := MapBlueprintCompileResult.new()
 	if blueprint == null:
 		result.errors.append("blueprint is required")
+		result.import_legacy_errors()
 		return result
 
 	_validate_metadata(blueprint, result.errors)
@@ -61,6 +67,7 @@ static func compile_with_diagnostics(blueprint: MapBlueprint) -> MapBlueprintCom
 	if spawn_count != 1:
 		result.errors.append("blueprint must define exactly one enabled player_spawn; found %d" % spawn_count)
 	if not result.errors.is_empty():
+		result.import_legacy_errors(blueprint.map_id)
 		return result
 
 	var definition := _build_definition(blueprint, expanded)
@@ -68,9 +75,13 @@ static func compile_with_diagnostics(blueprint: MapBlueprint) -> MapBlueprintCom
 	for error in runtime_errors:
 		result.errors.append("compiled MapDefinition: %s" % error)
 	if not result.errors.is_empty():
+		result.import_legacy_errors(blueprint.map_id)
 		return result
 
 	result.definition = definition
+	for diagnostic in MapBlueprintSemanticValidator.validate(definition, required_anchor_ids, transition_registry):
+		result.add_diagnostic(diagnostic)
+	result.import_legacy_errors(blueprint.map_id)
 	return result
 
 

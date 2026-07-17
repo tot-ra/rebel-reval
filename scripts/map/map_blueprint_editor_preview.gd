@@ -43,6 +43,7 @@ var _generated_root: Node2D
 var _overlay: MapBlueprintPreviewOverlay
 var _last_definition: MapDefinition
 var _diagnostic_errors: Array[String] = []
+var _diagnostic_warnings: Array[String] = []
 var _rebuild_queued := false
 
 
@@ -83,6 +84,8 @@ func _get_configuration_warnings() -> PackedStringArray:
 		warnings.append("Assign a MapBlueprint factory script with static create().")
 	for compiler_error in _diagnostic_errors:
 		warnings.append("MapBlueprint compiler: %s" % compiler_error)
+	for compiler_warning in _diagnostic_warnings:
+		warnings.append("MapBlueprint warning: %s" % compiler_warning)
 	return warnings
 
 
@@ -182,28 +185,40 @@ func _update_overlay() -> void:
 
 
 func _apply_diagnostics(result: MapBlueprintCompileResult, action: String) -> void:
-	_diagnostic_errors.assign(result.errors)
+	_diagnostic_errors.clear()
+	_diagnostic_warnings.clear()
+	for diagnostic in result.diagnostics:
+		if diagnostic.is_error():
+			_diagnostic_errors.append(diagnostic.format())
+		else:
+			_diagnostic_warnings.append(diagnostic.format())
 	update_configuration_warnings()
-	if result.is_ok():
+	if result.diagnostics.is_empty():
 		return
 
 	var source := blueprint_factory.resource_path if blueprint_factory != null else "<unassigned>"
-	var lines: PackedStringArray = ["%s failed for %s:" % [action, source]]
-	for compiler_error in result.errors:
-		lines.append("- %s" % compiler_error)
-		push_error("MapBlueprint preview [%s]: %s" % [source, compiler_error])
-	lines.append("Fix the blueprint source, then use Validate or Rebuild Preview.")
+	var lines: PackedStringArray = ["%s diagnostics for %s:" % [action, source]]
+	for diagnostic in result.diagnostics:
+		lines.append("- %s" % diagnostic.format())
+		if diagnostic.is_error():
+			push_error("MapBlueprint preview [%s]: %s" % [source, diagnostic.format()])
+		else:
+			push_warning("MapBlueprint preview [%s]: %s" % [source, diagnostic.format()])
+	if result.has_errors():
+		lines.append("Fix blueprint errors, then use Validate or Rebuild Preview.")
 	preview_status = "\n".join(lines)
 
 
 func _failed_result(message: String) -> MapBlueprintCompileResult:
 	var result := MapBlueprintCompileResult.new()
 	result.errors.append(message)
+	result.import_legacy_errors()
 	return result
 
 
 func _success_status(prefix: String, definition: MapDefinition) -> String:
-	return "%s: %s\nFingerprint: %s\nTerrain zones: %d | Buildings: %d | Props: %d | Landmarks: %d | Anchors: %d" % [
+	var warning_suffix := "\nWarnings: %d (see configuration warnings)" % _diagnostic_warnings.size() if not _diagnostic_warnings.is_empty() else ""
+	return "%s: %s\nFingerprint: %s\nTerrain zones: %d | Buildings: %d | Props: %d | Landmarks: %d | Anchors: %d%s" % [
 		prefix,
 		definition.map_id,
 		definition.fingerprint,
@@ -212,6 +227,7 @@ func _success_status(prefix: String, definition: MapDefinition) -> String:
 		definition.props.size(),
 		definition.view_landmarks.size(),
 		definition.interaction_anchors.size(),
+		warning_suffix,
 	]
 
 

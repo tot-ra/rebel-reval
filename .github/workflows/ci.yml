@@ -85,6 +85,9 @@ jobs:
       - name: Godot headless tests
         run: godot --headless --script tools/run_godot_tests.gd
 
+      - name: Validate registered map blueprints
+        run: godot --headless --path . --script tools/validate_map_blueprints.gd
+
       - name: Seeded Godot test failure fails
         run: |
           set -euo pipefail

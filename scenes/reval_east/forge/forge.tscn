@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://dbxean877egrv"]
+[gd_scene load_steps=5 format=3 uid="uid://dbxean877egrv"]
 
 [ext_resource type="Script" path="res://scenes/reval_east/forge/forge.gd" id="1_forge"]
 [ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="2_player"]
 [ext_resource type="PackedScene" path="res://scenes/reval_east/forge/smithy_henning.tscn" id="3_henning"]
+[ext_resource type="PackedScene" path="res://scenes/reval_east/forge/forge_cat.tscn" id="4_cat"]
 
 [node name="Forge" type="Node2D"]
 script = ExtResource("1_forge")
@@ -17,6 +18,9 @@ y_sort_enabled = true
 
 [node name="Henning" parent="Actors" instance=ExtResource("3_henning")]
 position = Vector2(400, 528)
+
+[node name="Cat" parent="Actors" instance=ExtResource("4_cat")]
+position = Vector2(384, 576)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(640, 384)

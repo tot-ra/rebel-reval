@@ -234,3 +234,21 @@ A production task is complete only when all of the following hold:
 - A **second reviewer** (human or agent) confirms correctness, simplicity, and scope
 
 If verification commands are still marked **not yet available** above, the task may still close when its `verify` clause does not depend on those commands, or when it explicitly delivers the command or doc that unblocks them (for example **P0-016**).
+
+## Map blueprint pre-commit validation
+
+Every `MapBlueprint` factory must be listed explicitly in `scripts/map/map_blueprint_registry.gd`; add mandatory gameplay anchors to that entry. Do not discover blueprints by walking the filesystem. Treat `MapBlueprintDiagnostic.code` as an API for editor and AI automation: preserve stable codes, use `error` for rejected output and `warning` for reviewable compiled output.
+
+Before committing any blueprint, prefab, map compiler/validator, transition registry, map audit requirement, or `MAP_AUTHORING.md` change, run exactly:
+
+```bash
+godot --headless --path . --script tools/validate_map_blueprints.gd
+godot --headless --path . --script tools/run_godot_tests.gd
+python3 tools/verify_map_audit.py
+python3 tools/verify_map_activation.py
+python3 tools/verify_map_conversion_plan.py
+python3 tools/generate_active_docs_report.py --check
+git diff --check
+```
+
+The first command validates all registered blueprints and fails CI on error diagnostics. Warnings such as `MAP_GEOMETRY_OVERLAP` and `MAP_CHUNK_BOUNDARY_AMBIGUOUS` do not fail CI, but must be reviewed rather than hidden. See [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) for the complete code table and semantic rules.

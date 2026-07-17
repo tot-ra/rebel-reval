@@ -308,19 +308,43 @@ For a migration, compare old and compiled definitions using a canonical semantic
 
 An intentional difference must be listed in the migration change and asserted in a test or updated golden artifact. A changed fingerprint alone neither proves parity nor automatically indicates failure: migrated compiler output uses the new canonical fingerprint policy, while semantic parity is checked explicitly.
 
-## Documented checks
+## Semantic diagnostics and pre-commit validation
 
-Run the existing repository checks after any current map change and while building the compiler:
+`MapBlueprintCompiler.compile_with_diagnostics()` returns a `MapBlueprintCompileResult` with a canonical `diagnostics` array. Every `MapBlueprintDiagnostic` exposes `code`, `severity`, `message`, `map_id`, `path`, `subject`, and `details`, plus `format()` for humans and `to_dict()` for editor or AI tooling. Diagnostic codes are a compatibility API and must not be renamed to reword a message.
+
+Errors reject compiler output and make headless validation exit non-zero. Warnings preserve a valid compiled definition and keep CI green, but are printed for review. Current stable semantic codes are:
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `MAP_ID_DUPLICATE`, `MAP_ID_UNSTABLE` | error | Duplicate map-wide identity or an ID outside the lowercase stable-ID grammar. |
+| `MAP_STYLE_UNKNOWN`, `MAP_KIND_UNKNOWN`, `MAP_TERRAIN_UNKNOWN` | error | Reference is outside an explicit allowlist. |
+| `MAP_GEOMETRY_OUT_OF_BOUNDS`, `MAP_SIZE_INVALID` | error | Cell geometry is outside half-open map bounds or has a non-positive size. |
+| `MAP_PREFAB_RECURSION`, `MAP_OVERRIDE_TARGET_MISSING` | error | Prefab expansion cycles or a named override has no expanded target. |
+| `MAP_TRANSITION_SPAWN_RELATION_INVALID`, `MAP_TRANSITION_DESTINATION_UNKNOWN`, `MAP_TRANSITION_DESTINATION_SPAWN_UNKNOWN` | error | A transition lacks a complete local/destination spawn relationship or disagrees with `content/transitions/active_destinations.json`. |
+| `MAP_ANCHOR_BLOCKED`, `MAP_REQUIRED_ANCHOR_MISSING`, `MAP_REQUIRED_ANCHOR_UNREACHABLE` | error | An anchor is blocked, absent from a registry requirement, or unreachable from the exact player spawn. |
+| `MAP_GEOMETRY_OVERLAP` | warning | Blocking footprints fully overlap and require author review. |
+| `MAP_CHUNK_BOUNDARY_AMBIGUOUS` | warning | Gameplay/blocking geometry crosses the future 16x16-cell planning grid without explicit ownership. |
+| `MAP_COMPILE_ERROR`, `MAP_RUNTIME_CONTRACT`, `MAP_TRANSITION_REGISTRY_INVALID` | error | A lower-level compiler/runtime contract or validation registry failed. |
+
+Register every new blueprint factory in `scripts/map/map_blueprint_registry.gd`. Registry order is explicit and deterministic; filesystem discovery is forbidden. Put mandatory anchor IDs in the registry entry. The headless command compiles every entry, checks cross-map transitions and exact required-anchor reachability, prints stable codes, and exits `1` when any error exists:
 
 ```bash
+godot --headless --path . --script tools/validate_map_blueprints.gd
+```
+
+Before committing any map blueprint, prefab, compiler, transition registry, audit requirement, or map-authoring documentation change, run this exact workflow from the repository root in this order:
+
+```bash
+godot --headless --path . --script tools/validate_map_blueprints.gd
 godot --headless --path . --script tools/run_godot_tests.gd
 python3 tools/verify_map_audit.py
 python3 tools/verify_map_activation.py
 python3 tools/verify_map_conversion_plan.py
 python3 tools/generate_active_docs_report.py --check
+git diff --check
 ```
 
-The Godot suite includes contract, deterministic fingerprint, terrain coverage, collision, reachability, Y-sort, scene bootstrap, and map audit coverage. The Python checks cover audit inventory/captures, activation isolation, and conversion-plan consistency.
+Do not suppress warnings merely to obtain quiet output. Review overlap and chunk-boundary subjects, then either change authored geometry or record the intentional condition in the map review. CI runs the registry command independently and fails on errors.
 
 ### `lower_town_slice` parity fixture
 

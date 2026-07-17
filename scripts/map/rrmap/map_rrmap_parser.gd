@@ -100,10 +100,17 @@ func _parse(text: String, source_path: String) -> MapRrmapParseResult:
 		return _result
 	_result.blueprint = _blueprint
 	var compiled := MapBlueprintCompiler.compile_with_diagnostics(_blueprint)
+	for diagnostic in compiled.diagnostics:
+		var location := _diagnostic_location(diagnostic.message)
+		_result.diagnostics.append(MapRrmapDiagnostic.new(
+			_path,
+			location.x,
+			location.y,
+			diagnostic.code,
+			diagnostic.message,
+			diagnostic.severity
+		))
 	if not compiled.is_ok():
-		for message in compiled.errors:
-			var location := _diagnostic_location(message)
-			_error(location.x, location.y, &"blueprint_compile", message)
 		return _result
 	_result.definition = compiled.definition
 	return _result

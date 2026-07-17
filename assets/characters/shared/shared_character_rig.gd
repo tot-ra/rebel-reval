@@ -261,6 +261,7 @@ func equip_garment(garment_id: StringName, scene: PackedScene) -> bool:
 	for found: Node in source.find_children("*", "MeshInstance3D", true, false):
 		var mesh_instance := found as MeshInstance3D
 		mesh_instance.get_parent().remove_child(mesh_instance)
+		mesh_instance.owner = null
 		mesh_instance.name = "Garment_%s_%s" % [garment_id, mesh_instance.name]
 		_skeleton.add_child(mesh_instance)
 		mesh_instance.skeleton = NodePath("..")

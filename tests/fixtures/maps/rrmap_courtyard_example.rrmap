@@ -11,7 +11,7 @@ prop prop.well well 10 8
 spawn spawn.main 3 7
 anchor anchor.house 6 6 kind=door
 patrol patrol.watch 3,7|10,7|16,7
-transition exit.south 10 13 2 1 to=prototype_hub destination_spawn=entry.north spawn=spawn.main
+transition exit.south 10 13 2 1 to=forge destination_spawn=door_courtyard spawn=spawn.main
 sign sign.exit "to prototype hub" 9 12 south
 exclude blocked.storage 15 9 2 2
 fade fade.house 4 3 5 3
