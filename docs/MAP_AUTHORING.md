@@ -1,216 +1,289 @@
-# Programmatic map authoring (P0-042)
+# Compact map authoring
 
-This document describes the deterministic, data-driven map spike for the **Smithy Courtyard** and adjacent **Lower Town street**. It is a procedural geometry prototype only: no raster tiles, no edits to active district scenes, and no replacement of production art.
+This document defines the target authoring contract for programmatic maps. It is normative for new map work and should be read with [ADR 0009](adr/0009-map-blueprint-authoring-architecture.md). The architecture is accepted before implementation: existing maps still construct `MapDefinition` directly until the blueprint model, compiler, and migration checks described below land.
 
 ## Goals
 
-1. **Declarative definitions** that are easy for humans and AI agents to extend.
-2. **Reusable builder/renderer** that fills world bounds with a base terrain and overlays zones.
-3. **Seven distinct terrain IDs** with fixed-seed procedural accents: `grass`, `sand`, `hay`, `dirt`, `cobblestone`, `water`, `stone`.
-4. **Data-defined buildings and props** with simple orthogonal 3/4 visuals and `StaticBody2D` collisions derived from the same footprints.
-5. **Playable prototype scene** with camera and four-direction greybox player for inspection.
+- Give humans and AI agents a compact, typed vocabulary that expresses intent instead of runtime dictionaries.
+- Keep the existing `MapDefinition` contract stable for builders, navigation, collisions, transitions, audits, and the 2D and 3D views.
+- Make repeated structures reusable without hiding their local geometry or gameplay IDs.
+- Produce deterministic, reviewable output with actionable validation errors and stable fingerprints.
+- Preserve exact author control for exceptional composition without adding a general raw-data back door.
+- Keep generated Godot nodes disposable and keep large-map chunking independent from semantic authoring.
+- Support incremental migration with mechanical and visual parity evidence.
 
-## Layout references (read-only)
+Non-goals for the first implementation are a visual level editor, a new runtime map contract, a custom YAML/JSON grammar, arbitrary procedural generation, seamless-world streaming, and a universal raw `Dictionary` escape hatch.
 
-Use these legacy images only as **layout and scale references**, not as runtime textures:
+## Architecture and terminology
 
-| Reference | Path | Use |
-|-----------|------|-----|
-| City overview | `scenes/revel-map.jpg` | Relative placement of Lower Town quarters, streets, and the eastern forge cluster |
-| Wall topology | `scenes/reval_walls_towers/wall-map.png` | Gate spacing, block scale, and north-south street rhythm |
-
-The spike map is **not** a pixel trace of either image. It captures the approved slice relationships:
-
-- A **north-south cobblestone connection** from Lower Town into a **smith work yard**.
-- A **street band** along the north edge (Lower Town).
-- **Hay, stone forge pad, sand/coal pile, and water trough** inside the courtyard readable at gameplay scale.
-
-## Historical and scale principles
-
-- **Orthogonal gameplay plane** per [ADR 0002](adr/0002-orthogonal-three-quarter-perspective.md): collisions and navigation use flat X/Y; art may suggest depth with facades and roofs.
-- **Cell size:** `32` world pixels per terrain cell (see `MapTypes.DEFAULT_CELL_SIZE`).
-- **Prototype world:** `50 x 28` cells -> `1600 x 896` pixels, aligned with the project viewport width.
-- **Zones** are declared in **cells** as `Rect2i`.
-- **Building footprints and prop anchors** are derived from cells via `MapDefinition.cell_rect_to_world_rect()` and `MapDefinition.cell_rect_center()` so authors never mix units in one definition file.
-- **Medieval density:** courtyard props and buildings are packed for walkable inspection, not historical cadastral accuracy.
-
-## Architecture
-
-```
-scripts/map/
-  map_types.gd                  # terrain IDs, building/prop kinds, defaults
-  map_definition.gd             # declarative schema + validation + cell helpers
-  smithy_courtyard_definition.gd# spike content
-  map_terrain_grid.gd           # built per-cell terrain
-  map_builder.gd                # fill base + apply zones
-  terrain_palette.gd            # colors + deterministic patterns
-  map_terrain_renderer.gd       # draws full grid
-  map_building_renderer.gd      # 3/4 houses/walls + collisions
-  map_prop_renderer.gd          # procedural props
-  map_assembler.gd              # wires nodes into a scene
-  map_prototype_player.gd       # four-direction greybox walker
-
-scenes/map_prototype/
-  smithy_courtyard.tscn         # playable prototype
-  smithy_courtyard.gd           # scene bootstrap
-
-tests/godot/
-  test_programmatic_map.gd      # validation, determinism, coverage, collisions
+```text
+human or AI author
+        |
+        v
+MapBlueprint factory        <- source of truth
+  metadata + primitives
+  prefab instances
+  exact placements
+  allowlisted overrides
+        |
+        v
+MapBlueprintCompiler
+  source validation
+  prefab expansion
+  stable-ID resolution
+  coordinate conversion
+  canonical ordering
+  fingerprinting
+        |
+        v
+MapDefinition               <- existing runtime contract
+        |
+        +--> MapBuilder / navigation / collision / gameplay
+        +--> 2D and 3D renderers
+        +--> runtime node assembly
+        +--> optional runtime chunk index
 ```
 
-### Data flow
+| Term | Meaning |
+|---|---|
+| **MapBlueprint** | The human/AI-authored semantic source for one map. Initially this is a typed GDScript factory using named APIs, not a raw nested dictionary. |
+| **MapBlueprintCompiler** | A pure compiler that validates and expands a blueprint into the existing `MapDefinition` runtime contract. |
+| **MapDefinition** | The current runtime data consumed by map builders and systems. It is compiler output for migrated maps, not the preferred authoring surface. |
+| **Primitive** | The smallest supported semantic operation, such as a terrain rectangle, wall run, prop, transition, or anchor. |
+| **Prefab** | A reusable composition of primitives in a named local cell coordinate system. A prefab contains no absolute map position. |
+| **Instance** | One placement of a prefab with an explicit stable instance ID, origin, and optional supported transform and overrides. |
+| **Local ID** | A stable ID inside a prefab, such as `door.front` or `prop.anvil`. |
+| **Resolved ID** | The map-wide ID derived from an instance ID and local ID, such as `smithy/door.front`. |
+| **Exact placement** | A first-class primitive placed directly in map cell space when a prefab would not improve reuse. |
+| **Override** | A narrow, validated change to one named prefab child field after expansion. |
+| **Generated nodes** | Terrain, geometry, collision, navigation, markers, and view nodes assembled from a compiled definition. They are never source of truth. |
+| **Chunk** | A runtime partition used for loading or rendering. It is not a blueprint namespace or gameplay identity. |
 
-1. `MapDefinition` holds `base_terrain`, ordered `zones`, `buildings`, `props`, and `player_spawn`.
-2. `MapBuilder.build()` fills every cell with `base_terrain`, then paints each zone rectangle.
-3. `MapTerrainRenderer` draws every cell with `TerrainPalette.pattern_color()` using `definition.seed`.
-4. `MapBuildingRenderer` and `MapPropRenderer` instantiate visuals from the same dictionaries.
-5. `smithy_courtyard.gd` loads `SmithyCourtyardDefinition.create()` and calls `MapAssembler.assemble()` with the scene `Actors` node for shared Y-sort.
+`MapBlueprint` and `MapBlueprintCompiler` names in this document describe the accepted target API. They must not be treated as available classes until implementation lands.
 
-## Authoring a new map (recipe)
+## Coordinate and unit rules
 
-### 1. Create a definition factory
+- Author semantic layout in integer **cells**. The project default is `MapTypes.DEFAULT_CELL_SIZE`, currently 32 world pixels per cell.
+- The gameplay plane remains orthogonal X/Y per [ADR 0002](adr/0002-orthogonal-three-quarter-perspective.md). The view layer may present that plane isometrically.
+- Rectangle origins use the north-west cell and sizes are positive. Bounds are half-open: `[position, position + size)`.
+- A point-like primitive occupies an explicit cell or cell-relative offset. The compiler performs all conversion to `Vector2`, `Rect2`, and other world-space runtime values.
+- Do not mix cells and world pixels in a blueprint. A rare non-grid visual offset must use a field whose unit is explicit in its name and schema, for example `visual_offset_px`; it must not alter gameplay collision or navigation silently.
+- Array order is semantic only where the primitive says so, such as terrain paint layers or patrol points. Otherwise the compiler canonicalizes output independently of declaration order.
 
-Add `scripts/map/your_map_definition.gd`:
+## Supported primitive vocabulary
+
+The initial vocabulary must cover the existing runtime contract without exposing arbitrary runtime dictionaries. The exact typed API may evolve during implementation, but these capabilities and semantics are required.
+
+| Primitive or metadata | Required author intent | Compiles to |
+|---|---|---|
+| `map` metadata | `map_id`, canonical location, scope, active flag, seed, palette, size, base terrain, source references | Top-level `MapDefinition` fields |
+| `terrain_rect` | Terrain ID, cell rectangle, explicit layer/order when overlaps matter | `zones` |
+| `structure_rect` | Stable ID, supported building/structure kind, cell footprint, style parameters | `buildings` |
+| `wall_run` | Stable ID, endpoints or cell rectangle, thickness, openings, style | One or more canonical `buildings` entries |
+| `prop` | Stable ID, supported prop kind, cell placement, optional facing/style | `props` |
+| `player_spawn` | Named or primary spawn placement | `player_spawn` and any supported spawn metadata |
+| `transition` | Stable ID, cell rectangle, destination scene/spawn IDs, optional local spawn metadata | `transitions` |
+| `interaction_anchor` | Stable ID, cell placement, optional kind | `interaction_anchors` |
+| `patrol_path` | Stable ID and ordered cell points | `patrols` |
+| `excluded_rect` | Cell rectangle blocked from traversal | `excluded_areas` |
+| `fade_rect` | Cell rectangle for roof or foreground fade | `fade_volumes` |
+| `direction_sign` | Stable association, text, placement, outgoing direction | `direction_signs` |
+| `view_landmark` | Stable ID, supported view-only kind, placement and dimensions | `view_landmarks` |
+| `surroundings` | Explicit town-continuation sides | `surroundings_town_sides` |
+| `camera_bounds` | Optional cell rectangle, otherwise full map bounds | `camera_bounds` |
+| `prefab_instance` | Stable instance ID, prefab ID/version, origin, supported transform, overrides | Expanded primitives in the fields above |
+
+New reusable behavior must be added as a reviewed typed primitive with validation, compilation, and tests. Do not bypass the vocabulary with a generic `raw_definition_entry` or embedded `MapDefinition` dictionary.
+
+## Stable-ID rules
+
+Stable IDs connect map geometry to content, saves, transitions, audits, captures, and tests. Treat them as public API.
+
+1. `map_id` is globally unique and immutable after external references exist. Prefer the existing map ID when migrating.
+2. Every semantic object that can be referenced, overridden, audited, saved, or reported receives an explicit ID. Terrain paint fragments need IDs only when they are referenced or overridden.
+3. IDs use lowercase ASCII segments with digits, `_`, `.`, or `-`. `/` is reserved for prefab namespace composition. Do not derive IDs from display text.
+4. IDs describe identity or role, for example `gate.viru`, `anchor.forge`, or `stall.fish`, not array position or incidental coordinates such as `prop_12_7`.
+5. IDs are unique after prefab expansion across all referenceable map objects. The compiler rejects duplicates across categories unless the schema explicitly defines a shared object.
+6. A prefab declares immutable local child IDs. An instance with ID `smithy` resolves local ID `door.front` to `smithy/door.front`. Nested namespaces compose in the same order.
+7. Moving, rotating, reflecting, reordering, or overriding an object does not change its ID. Runtime chunk assignment also never changes it.
+8. Deleting or renaming an externally referenced ID is a migration. Update all references atomically or provide a documented alias at the runtime/content boundary when that boundary supports aliases.
+9. The compiler may create internal fragments, such as wall segments around an opening, only from a documented deterministic suffix of the owning stable ID. Internal fragments must not become gameplay references.
+
+## Deterministic generation requirements
+
+Given the same blueprint semantic content, compiler version, primitive/prefab library versions, and seed, compilation must produce semantically identical output and the same canonical fingerprint on every supported platform.
+
+- No wall-clock time, global random state, filesystem enumeration order, scene-tree state, editor metadata, locale, or platform-dependent path is an input.
+- Random variation uses an explicit seed and stable per-object derivation from IDs. Adding an unrelated object must not reshuffle existing object variation.
+- Prefab expansion order and generated suffixes are specified. Never use hash-map iteration order or declaration index as identity.
+- Canonical output ordering is documented and covered by tests. Ordered semantics, such as paint precedence and patrol paths, preserve explicit author order; unordered collections sort by resolved stable ID and a defined tie-breaker.
+- Numeric transforms are exact for supported grid operations. Canonical fingerprint input does not depend on `str(Dictionary)` or locale-sensitive float formatting.
+- The fingerprint covers all runtime-relevant semantics and excludes comments, source formatting, generated scene node names, and chunk assignment.
+- Compiling twice in one process and in fresh processes must match. A compile-check mode must fail if a checked-in generated artifact, if any, is stale.
+
+## Prefabs and local coordinates
+
+- A prefab has a stable prefab ID and, once compatibility requires it, an explicit schema/version.
+- Prefab geometry is authored relative to local cell origin `(0, 0)`. Prefabs do not know the destination map, absolute world pixels, scene paths, or runtime chunk.
+- Every referenceable child has a stable local ID. Prefab internals may refer to siblings by local ID; the compiler resolves those references after namespacing.
+- Instances provide an explicit stable instance ID and map-cell origin. Supported transforms should be limited initially to integer translation and orthogonal rotations/reflections that can be represented exactly on the cell grid.
+- Transform order is fixed: resolve prefab defaults, apply the instance transform in local space, translate to the map origin, then apply allowlisted overrides and validate final bounds/references.
+- Nested prefabs are allowed only if cycle detection, maximum expansion depth, deterministic namespace composition, and diagnostics are implemented. Otherwise they must be rejected in the first version.
+- A prefab may supply defaults, but it must not silently choose map-wide IDs, destinations, activation state, or content references.
+- If a reusable composition requires many per-instance structural overrides, create a clearer prefab variant or use explicit primitives. Do not turn overrides into a second programming language.
+
+## Escape hatches: explicit placement and overrides
+
+Compact authoring must not prevent exact layouts.
+
+### Explicit placement
+
+Use a supported primitive directly in map coordinates for unique geometry, a landmark, a one-off transition, or composition that is clearer without a prefab. Exact placement is normal authoring, not an error. It still uses typed fields, cell units, stable IDs, validation, canonical ordering, and the compiler.
+
+### Prefab overrides
+
+An override targets one resolved prefab child by local stable ID and changes only allowlisted fields, for example:
+
+- terrain/style/material variant;
+- facing, dimensions, or height within primitive constraints;
+- enabled/disabled state for an optional child;
+- destination IDs or text deliberately left as prefab parameters;
+- an explicit cell-relative placement adjustment when the primitive supports it.
+
+The compiler rejects unknown targets, duplicate/conflicting overrides, type changes, ID mutation, raw runtime fields, and overrides that leave geometry or references invalid. Overrides apply after expansion and transforms, before final validation and fingerprinting.
+
+There is no generic raw dictionary escape hatch. If neither a primitive, exact placement, nor a narrow override can express a requirement, extend the reviewed primitive vocabulary and its tests.
+
+## Authoring example
+
+The final method names may change during implementation, but intended source shape is compact and typed:
 
 ```gdscript
-class_name YourMapDefinition
+class_name ExampleSmithyBlueprint
 extends RefCounted
 
-static func create() -> MapDefinition:
-	var definition := MapDefinition.new()
-	definition.map_id = &"your_map"
-	definition.seed = 42042
-	definition.cell_size = MapTypes.DEFAULT_CELL_SIZE
-	definition.size_cells = Vector2i(50, 28)
-	definition.base_terrain = MapTypes.TERRAIN_GRASS
-	definition.player_spawn = definition.cell_rect_center(Rect2i(20, 15, 2, 2))
+static func create() -> MapBlueprint:
+    var map := MapBlueprint.new(
+        &"lower_town_smithy_example",
+        &"loc.kalev_smithy",
+        Vector2i(50, 28),
+        MapTypes.TERRAIN_GRASS,
+    )
+    map.scope = &"prototype"
+    map.active = false
+    map.seed = 42042
+    map.palette = &"clean_painted"
+    map.add_source_reference("scenes/revel-map.jpg")
 
-	definition.zones = [
-		{"terrain": MapTypes.TERRAIN_COBBLESTONE, "rect": Rect2i(8, 0, 30, 4)},
-	]
-	definition.buildings = [
-		{
-			"id": &"example_hall",
-			"kind": MapTypes.BUILDING_KIND_HOUSE,
-			"footprint": definition.cell_rect_to_world_rect(Rect2i(10, 8, 6, 4)),
-			"wall_height": 64.0,
-			"wall_color": Color(0.35, 0.32, 0.28),
-			"roof_color": Color(0.20, 0.18, 0.16),
-		},
-		{
-			"id": &"courtyard_wall",
-			"kind": MapTypes.BUILDING_KIND_WALL,
-			"footprint": definition.cell_rect_to_world_rect(Rect2i(8, 8, 1, 10)),
-			"wall_height": 48.0,
-			"wall_color": Color(0.48, 0.50, 0.54),
-		},
-	]
-	definition.props = [
-		{
-			"id": &"well",
-			"kind": MapTypes.PROP_KIND_WELL,
-			"position": definition.cell_rect_center(Rect2i(28, 18, 4, 3)),
-		},
-	]
-	return definition
+    map.terrain_rect(&"street", MapTypes.TERRAIN_COBBLESTONE, Rect2i(8, 0, 30, 4))
+    map.prefab_instance(
+        &"smithy",
+        &"building.smithy_small",
+        Vector2i(10, 8),
+        MapTransform.IDENTITY,
+        {
+            &"door.front": {"destination_scene_id": &"lower_town_slice"},
+            &"prop.anvil": {"style_variant": &"worn"},
+        },
+    )
+    map.prop(&"well", MapTypes.PROP_KIND_WELL, Vector2i(30, 19))
+    map.transition(&"gate.north", Rect2i(20, 0, 2, 1), &"lower_town_slice", &"smithy_gate")
+    map.interaction_anchor(&"anchor.delivery", Vector2i(24, 15))
+    map.player_spawn(&"spawn.main", Vector2i(22, 16))
+    return map
 ```
 
-### 2. Validate early
+The compiler, not the author, converts cells to world units, expands `smithy/door.front` and `smithy/prop.anvil`, emits canonical `MapDefinition` arrays, and computes the fingerprint.
+
+A unique layout should remain explicit rather than hiding behind a single-use prefab:
 
 ```gdscript
-var errors := MapBuilder.validate(YourMapDefinition.create())
-assert errors.is_empty()
+map.structure_rect(&"wall.courtyard_west", &"wall", Rect2i(8, 8, 1, 10))
+map.fade_rect(&"fade.south_roof", Rect2i(9, 17, 8, 2))
+map.view_landmark(&"landmark.gate_arch", &"gate_arch", Rect2i(19, 7, 4, 1))
 ```
 
-Validation rejects:
+## Validation expectations
 
-- Unknown terrain, building kind, or prop kind
-- Empty or out-of-bounds terrain zones
-- Duplicate stable IDs across buildings and props
-- `player_spawn` or prop positions outside world bounds
-- Building footprints outside world bounds
+Validation has four layers and must report the blueprint path plus source ID, not only a generated array index.
 
-### 3. Add a prototype scene
+### 1. Blueprint source validation
 
-Copy `scenes/map_prototype/smithy_courtyard.tscn` and point the root script at your definition factory. Pass the scene `Actors` node into `MapAssembler.assemble()` so buildings, props, and the player share one Y-sort hierarchy.
+Reject missing metadata, unsupported primitive kinds, invalid units or rectangles, duplicate source IDs, invalid scope/activation combinations, unknown fields, stale source references, and non-explicit randomness.
 
-### 4. Extend tests
+### 2. Prefab and reference validation
 
-Mirror `tests/godot/test_programmatic_map.gd` for your definition: validation, fingerprint determinism, full cell coverage, all terrain IDs used, footprint collision equality, cell helper consistency, and negative validation cases.
+Reject unknown prefab IDs or versions, cycles, duplicate resolved IDs, invalid transforms, unresolved local references, unknown override targets, forbidden override fields, and references to disabled or missing children.
 
-### 5. Visual check
+### 3. Compiled contract validation
 
-Run `scenes/map_prototype/smithy_courtyard.tscn` in the editor. Confirm:
+Run `MapDefinition.validate()` and require known terrain/building/prop kinds, positive in-bounds geometry, valid transitions and anchors, complete fingerprint and metadata, unique IDs, and valid camera/world bounds. Compiler diagnostics must map a runtime failure back to its blueprint primitive.
 
-- No gaps inside world bounds.
-- All seven terrain types are visually distinct.
-- Building footprints block the greybox player.
-- Stone courtyard walls read as enclosed with the street lane left open.
-- The player can walk in front of and behind props/buildings via Y-sort.
+### 4. Behavioral and parity validation
 
-## Zone and building fields
+Require full terrain coverage, collision-footprint equality, spawn/transition/mandatory-anchor reachability, patrol segment reachability, deterministic fingerprints, shared Y-sort policy, activation isolation, source-reference resolution, scene startup, and deterministic visual captures where relevant.
 
-### Zone entry
+For a migration, compare old and compiled definitions using a canonical semantic snapshot. Preserve at minimum:
 
-| Field | Type | Notes |
-|-------|------|-------|
-| `terrain` | `StringName` | One of the seven terrain IDs |
-| `rect` | `Rect2i` | Cell rectangle; later zones overwrite earlier ones |
+- map, transition, spawn, anchor, patrol, prop, structure, and landmark IDs;
+- scope, activation, destination references, source references, and map bounds;
+- terrain coverage and precedence;
+- collision and excluded areas;
+- navigation reachability between mandatory points;
+- view metadata and capture composition within the approved visual tolerance.
 
-### Building entry
+An intentional difference must be listed in the migration change and asserted in a test or updated golden artifact. A changed fingerprint alone neither proves parity nor automatically indicates failure: migrated compiler output uses the new canonical fingerprint policy, while semantic parity is checked explicitly.
 
-| Field | Type | Notes |
-|-------|------|-------|
-| `id` | `StringName` | Stable identifier |
-| `kind` | `StringName` | `house` (gabled roof, doorway, timber) or `wall` (flat coping, no roof) |
-| `footprint` | `Rect2` | World-pixel collision and floor; derive from `cell_rect_to_world_rect()` |
-| `wall_height` | `float` | Facade extrusion for 3/4 read |
-| `wall_color` / `roof_color` | `Color` | Procedural polygon tints (`roof_color` ignored for `wall`) |
+## Documented checks
 
-Y-sort anchor for buildings is the **south footprint edge center** (`MapBuildingRenderer.footprint_y_sort_anchor()`).
-
-Optional view-only building keys (read by `MapViewMeshBuilder`, ignored by the logic plane):
-
-| Field | Type | Notes |
-|-------|------|-------|
-| `door_side` | `StringName` | Facade for the house door/windows: `north`/`south`/`east`/`west` (default `south`); `none` keeps windows but suppresses the plain door (use when a framed transition door is the entry) |
-| `ridge_axis` | `StringName` | Pins the gabled-roof ridge to `x` or `z` instead of the longest footprint axis (turn a gable end to the street) |
-
-Fortification dressing is automatic: `wall` buildings taller than 160 px get battlements; above 220 px they also get arrow slits.
-
-### View landmarks and surroundings
-
-`definition.view_landmarks` renders view-only geometry that never blocks cells — currently kind `gate_arch` (`id`, `rect` in world pixels, optional `wall_color`, `top_px`) bridging a walkable gate passage. `definition.surroundings_town_sides` lists map sides (`north`/`south`/`east`/`west`) where the out-of-bounds backdrop reads as continuing town instead of woodland; open sides keep a cleared glacis strip before the treeline.
-
-### Prop entry
-
-| Field | Type | Notes |
-|-------|------|-------|
-| `id` | `StringName` | Stable identifier |
-| `kind` | `StringName` | `anvil`, `hay_stack`, `cart`, `well`, `barrels` |
-| `position` | `Vector2` | World-pixel feet anchor; derive from `cell_rect_center()` |
-
-## Verification
+Run the existing repository checks after any current map change and while building the compiler:
 
 ```bash
-/Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tools/run_godot_tests.gd
-/Applications/Godot.app/Contents/MacOS/Godot --headless --path . --quit-after 2 scenes/map_prototype/smithy_courtyard.tscn
+godot --headless --path . --script tools/run_godot_tests.gd
+python3 tools/verify_map_audit.py
+python3 tools/verify_map_activation.py
+python3 tools/verify_map_conversion_plan.py
+python3 tools/generate_active_docs_report.py --check
 ```
 
-Headless tests cover definition validation (including negative cases), terrain determinism, full-grid coverage, presence of all terrain IDs, building footprint collisions, cell helper consistency, well/water alignment, and courtyard wall segments.
+The Godot suite includes contract, deterministic fingerprint, terrain coverage, collision, reachability, Y-sort, scene bootstrap, and map audit coverage. The Python checks cover audit inventory/captures, activation isolation, and conversion-plan consistency.
 
-## Constraints
+The compiler implementation is not complete until it adds documented commands or focused test targets that prove all of the following:
 
-- **Procedural geometry only** - no new raster assets.
-- **Do not modify active districts** (`reval_east`, `reval_center`, `forge`, etc.) until P0-040 / P2-003.
-- **No JSON/schema framework** - plain typed GDScript dictionaries keep the spike small and AI-editable.
+1. blueprint schema and negative-case validation;
+2. deterministic compile output in repeated and fresh runs;
+3. prefab transform, namespace, cycle, and override behavior;
+4. canonical semantic snapshot comparison between legacy and compiled definitions;
+5. collision/navigation/transition/anchor parity for each migration;
+6. stale generated-artifact detection if generated artifacts are checked in.
 
+Until those checks exist, agents may design or test the compiler but must not declare a production map migrated. Once implementation lands, replace this paragraph with the exact commands and keep `AGENTS.md` synchronized.
 
-## Inactive outdoor prototypes
+For visual changes, also run the relevant map scene or capture tool and inspect the deterministic capture. Generated nodes in the running scene are evidence only; edit the blueprint or compiler to fix them.
 
-Outdoor verification maps live under `scripts/map/definitions/outdoor/`. Location files declare composition only and must call `OutdoorMapFactory.create()`; do not create a location-specific builder or scene framework. The factory forces `scope=prototype`, `active=false`, no transitions, stable `prototype_inspection` spawn metadata, camera bounds, source references, and deterministic fingerprints. `OutdoorTerrainPalette` covers shared historically plausible ground classes. Snow is not part of the palette without a canonical phase decision. Generate captures with:
+## Migration policy
 
-```bash
-/Applications/Godot.app/Contents/MacOS/Godot --path . --script tools/capture_outdoor_maps.gd
-python3 tools/verify_outdoor_prototypes.py
-```
+1. **Do not mass-convert.** Existing direct `MapDefinition` factories remain supported while the compiler is introduced. They are legacy authoring sources, not examples for new maps.
+2. **Freeze a baseline first.** Capture the legacy semantic snapshot, fingerprint, mandatory IDs/references, reachability, collision, and representative visual output before editing a map.
+3. **Migrate one representative compact map first.** It must exercise terrain, a prefab, explicit placement, transitions, anchors, collision, and view metadata.
+4. **Preserve stable IDs and external contracts.** Layout cleanup does not justify renaming IDs. Intentional renames require atomic reference updates or supported aliases.
+5. **Keep runtime consumers unchanged.** A migration replaces the definition factory's source path with blueprint compilation; it does not rewrite builders, renderers, or gameplay systems to understand blueprints.
+6. **Keep a temporary parity fixture.** The old factory or a reviewed canonical snapshot remains until semantic, behavioral, scene, and visual parity checks pass.
+7. **Delete obsolete source only after parity.** Generated scene nodes are never retained as a fallback source. Small bootstrap scenes may stay.
+8. **Update registries and docs atomically.** Audit manifest, conversion plan, source references, captures, and tests change in the same migration when needed.
+9. **Guard new work.** After the representative migration passes, add a lint/review guard that rejects new giant direct `MapDefinition` dictionary factories while allowing focused runtime tests and unmigrated legacy files.
+10. **Chunking does not block migration.** Do not add authored chunk IDs or split stable-ID namespaces during conversion. A later runtime layer partitions compiled data transparently.
+
+## Recommended implementation order
+
+| Order | Deliverable | Depends on | Exit evidence |
+|---|---|---|---|
+| 1 | Freeze `MapDefinition` semantic snapshots and representative parity fixtures | Existing runtime, audit registry, and map tests | Legacy definitions reproduce stable snapshots, collision/navigation checks, and captures |
+| 2 | Add typed `MapBlueprint`, primitive records, diagnostics, and source validation | Step 1; `MapTypes`; current metadata contract | Positive and negative blueprint tests |
+| 3 | Add prefab library, local coordinates, transforms, namespaced IDs, and overrides | Step 2 stable-ID and validation rules | Transform/namespace determinism, cycle rejection, override tests |
+| 4 | Add pure `MapBlueprintCompiler` and canonical fingerprint serializer | Steps 1-3; unchanged `MapDefinition` | Repeated/fresh-process determinism and `MapDefinition.validate()` |
+| 5 | Migrate one compact representative map | Step 4; existing audit/capture tools | Semantic, collision, navigation, scene, and visual parity |
+| 6 | Migrate remaining maps incrementally and add direct-definition guard | Step 5 passing; per-map external-reference inventory | One reviewed parity package per map, no new giant factories |
+| 7 | Design runtime chunk indexing only after profiling | Stable compiled contract plus measured large-map bottleneck | Separate runtime ADR/tests for cross-chunk identity and traversal |
+
+The critical dependency direction is one-way: `MapBlueprint` and prefab libraries feed `MapBlueprintCompiler`; the compiler targets `MapDefinition`; current runtime consumers read only `MapDefinition`; optional chunking reads compiled runtime data. Rendering, scene nodes, and chunks never feed authored map semantics back into a blueprint.

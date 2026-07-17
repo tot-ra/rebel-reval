@@ -9,6 +9,7 @@ Operational guide for AI agents and contributors working on **Reval Rebel**. Pro
 | `project.godot` | Godot project entry | Godot **4.7**, GL Compatibility renderer, main scene `res://scenes/menu/main_menu.tscn` |
 | `export_presets.cfg` | Desktop export metadata | One macOS preset named `rr` targeting `./rr.dmg` |
 | `scripts/` | Runtime GDScript | Player, NPC, doors, level base; autoload `DoorNavigator` in `scripts/global/` |
+| `docs/MAP_AUTHORING.md` | Mandatory map-authoring contract | Blueprint primitives, stable IDs, deterministic compilation, parity checks, and migration policy |
 | `scenes/` | Godot scenes and location design notes | 37 `.tscn` files; large markdown index under district folders |
 | `assets/` | Sprites, tiles, UI, props | Prototype art plus `SOURCES.csv` provenance manifest |
 | `characters/` | Character portraits and design prose | Mostly reference and archive material |
@@ -41,6 +42,7 @@ These paths are named in [`README.md`](./README.md) but do not exist in the repo
 - Godot import sidecars (`*.import`) are tracked; local editor cache `.godot/` is gitignored
 - New production work should use **typed GDScript**, small reusable scenes, and composition as described in README; do not hand-edit giant city `.tscn` files unless the task includes visual verification
 - Stable content IDs should follow forms such as `quest.bitter_brew`, `char.aita`, `flag.aita_detained` once `content/` exists
+- Map work must follow [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) and [ADR 0009](./docs/adr/0009-map-blueprint-authoring-architecture.md); generated scene nodes are not authored map content
 - Task tracking format in `TODO.md`: `ID | deps | deliverable | verify`
 
 ## Setup
@@ -110,6 +112,18 @@ Decision: P1-002 uses a small repository-owned headless GDScript harness instead
 | Asset lint (dimensions, pivots, manifest rows) | **Not yet available** | **P1-029** |
 
 Content schemas and the Python validator are now available. Add runtime JSON under `content/` only when it passes `tools/validate_content.py` as part of a complete corpus.
+
+### Mandatory map-authoring workflow
+
+Before creating, changing, reviewing, or migrating map content, agents **must read** [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) and follow [ADR 0009](./docs/adr/0009-map-blueprint-authoring-architecture.md).
+
+- Prefer `MapBlueprint` primitives and reviewed prefabs for new or migrated content. Until the compiler is implemented, do not invent a parallel source format or use the target API as if it already exists.
+- Do not add direct giant `MapDefinition` dictionary factories. Existing direct factories are migration inputs and may receive narrow fixes only when the task requires them.
+- Preserve map, transition, spawn, anchor, patrol, prop, structure, landmark, prefab-instance, and prefab-local stable IDs. Moving or reordering content, changing generated nodes, and runtime chunk assignment must not rename IDs.
+- Use explicit typed primitive placement for one-off geometry and allowlisted prefab-child overrides for exceptions. Do not add raw runtime dictionaries as an escape hatch.
+- Treat generated terrain, geometry, collision, navigation, marker, and view nodes as disposable output. Fix their blueprint/compiler input rather than hand-editing generated scene nodes.
+- Keep large-map chunking in a separate runtime layer that consumes compiled `MapDefinition` data and preserves authored IDs.
+- Run the validation and parity checks documented in `docs/MAP_AUTHORING.md`. Current map changes require the Godot suite plus map audit, activation, conversion-plan, and active-doc checks. A migration is incomplete until the compiler-specific deterministic, semantic snapshot, collision/navigation, scene, and visual parity checks exist and pass.
 
 ## Export
 

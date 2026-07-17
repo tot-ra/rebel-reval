@@ -95,7 +95,7 @@ Production characters come from a shared low-poly rig with per-character texture
 
 This game is produced end to end by AI agents — code, content, art, music curation, and documentation — with a human maintainer acting as product owner and reviewer. That is a design constraint, and the architecture serves it:
 
-- **Maps are data.** Declarative, fingerprinted definitions with contract tests, so an agent can add or modify a location and prove it correct headlessly.
+- **Maps are data.** `MapBlueprint` is the compact human/AI source, compiled deterministically to the existing contract-tested `MapDefinition`; see the [map-authoring guide](./docs/MAP_AUTHORING.md) and [ADR 0009](./docs/adr/0009-map-blueprint-authoring-architecture.md).
 - **Quests are data.** Dialogue, quests, items, and characters are schema-validated JSON packages; the quest-content pipeline (P4) turns "add a quest" into an agent task with generated branch-traversal tests. Content volume in Acts 2–3 depends on this, not on hand-wiring scenes.
 - **Art is generated under contract.** Materials and textures come from the style-lock kit with provenance rows in [`assets/SOURCES.csv`](./assets/SOURCES.csv); characters are rig variants, not bespoke animation sets.
 - **Dialogue is authored offline.** Agents write and validate it at development time; there is no runtime LLM, generated quest, or free-text NPC chat in the shipped game ([ADR 0003](./docs/adr/0003-authored-offline-dialogue-and-prohibit-runtime-llm.md)).
@@ -159,6 +159,7 @@ python3 tools/generate_active_docs_report.py --check
 | [`docs/CHARACTERS/`](./docs/CHARACTERS/README.md) | Active cast briefs and relationships |
 | [`docs/ART_BIBLE.md`](./docs/ART_BIBLE.md) | Visual target, scale, palette, and readability rules |
 | [`docs/SETUP.md`](./docs/SETUP.md) | Editor installation, import, startup, tests, and export |
+| [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) | Compact map-blueprint primitives, stable IDs, compiler architecture, validation, and migration policy |
 | [`docs/adr/`](./docs/adr/) | Product and technical decisions |
 | [`assets/SOURCES.csv`](./assets/SOURCES.csv) | Asset provenance, rights, and approval metadata |
 
