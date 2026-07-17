@@ -1,11 +1,12 @@
 {
-  "version": 1,
-  "description": "Active transition scene and spawn registry for the approved Lower Town slice after P2-020 cutover. Scene IDs and spawn IDs are stable gameplay IDs; Godot node names are implementation details discovered from Door.spawn_id at verification/runtime.",
+  "version": 2,
+  "description": "Transition scene and spawn registry. Release destinations (release=true) are the approved slice; dev destinations (release=false) enable developer traversal between prototype districts without changing Start flow.",
   "scenes": [
     {
       "id": "forge",
       "path": "res://scenes/reval_east/forge/forge.tscn",
       "active": true,
+      "release": true,
       "spawns": [
         { "id": "door_courtyard" }
       ]
@@ -14,9 +15,64 @@
       "id": "reval_east",
       "path": "res://scenes/reval_east/reval_east.tscn",
       "active": true,
+      "release": true,
       "spawns": [
         { "id": "forge" },
-        { "id": "street_start" }
+        { "id": "street_start" },
+        { "id": "vana_turg_boundary" },
+        { "id": "vene_district_boundary" },
+        { "id": "viru_road_boundary" },
+        { "id": "karja_road_boundary" }
+      ]
+    },
+    {
+      "id": "reval_center",
+      "path": "res://scenes/reval_center/reval_center.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        { "id": "from_reval_east" },
+        { "id": "to_reval_north" },
+        { "id": "to_market" },
+        { "id": "to_guild_hall" }
+      ]
+    },
+    {
+      "id": "reval_north",
+      "path": "res://scenes/reval_north/reval_north.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        { "id": "from_reval_east" },
+        { "id": "from_reval_center" }
+      ]
+    },
+    {
+      "id": "market_civic_quarter",
+      "path": "res://scenes/reval_center/market_civic_quarter/market.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        { "id": "from_reval_east" },
+        { "id": "from_reval_center" }
+      ]
+    },
+    {
+      "id": "st_olafs_guild_hall",
+      "path": "res://scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        { "id": "from_reval_center" }
+      ]
+    },
+    {
+      "id": "harbor_warehouse",
+      "path": "res://scenes/harbor/warehouse.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        { "id": "from_reval_east" }
       ]
     }
   ]

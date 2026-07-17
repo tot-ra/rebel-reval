@@ -44,12 +44,17 @@ def verify_activation(catalog_path, destinations_path, start_label_path):
             dests = json.load(f)
             
         for scene in dests.get("scenes", []):
-            if scene.get("active", False):
-                path = scene.get("path")
-                map_info = path_to_map.get(path)
-                
-                if map_info and map_info["scope"] in ["archive", "prototype"]:
-                    errors.append(f"Scene {path} is active in destinations but has scope {map_info['scope']}")
+            if not scene.get("active", False):
+                continue
+            # Dev-traversal prototypes may register in the manifest while release
+            # stays limited to the approved slice set.
+            if scene.get("release", True) is False:
+                continue
+            path = scene.get("path")
+            map_info = path_to_map.get(path)
+
+            if map_info and map_info["scope"] in ["archive", "prototype"]:
+                errors.append(f"Scene {path} is active in destinations but has scope {map_info['scope']}")
     except FileNotFoundError:
         pass
         

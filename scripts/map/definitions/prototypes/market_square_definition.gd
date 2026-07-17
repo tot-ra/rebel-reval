@@ -35,6 +35,26 @@ static func create() -> MapDefinition:
 
 	InteriorMapFactory.add_interaction_anchor(definition, &"inspection_spawn", Rect2i(24, 14, 2, 2))
 	InteriorMapFactory.add_interaction_anchor(definition, &"weigh_table", Rect2i(22, 10, 3, 2))
+	InteriorMapFactory.add_transition(
+		definition,
+		&"to_reval_east",
+		Rect2i(22, 26, 4, 2),
+		&"reval_east",
+		&"karja_road_boundary",
+		&"from_reval_east",
+		Vector2(0.0, -48.0),
+		true
+	)
+	InteriorMapFactory.add_transition(
+		definition,
+		&"to_reval_center",
+		Rect2i(0, 12, 2, 4),
+		&"reval_center",
+		&"to_market",
+		&"from_reval_center",
+		Vector2(48.0, 0.0),
+		true
+	)
 	InteriorMapFactory.add_source_references(
 		definition,
 		[

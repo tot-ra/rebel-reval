@@ -41,6 +41,42 @@ static func create() -> MapDefinition:
 
 	InteriorMapFactory.add_interaction_anchor(definition, &"inspection_spawn", Rect2i(30, 24, 2, 2))
 	InteriorMapFactory.add_interaction_anchor(definition, &"town_hall_edge", Rect2i(30, 14, 2, 2))
+	InteriorMapFactory.add_transition(
+		definition,
+		&"to_reval_east",
+		Rect2i(0, 22, 2, 4),
+		&"reval_east",
+		&"vana_turg_boundary",
+		&"from_reval_east",
+		Vector2(48.0, 0.0),
+		true
+	)
+	InteriorMapFactory.add_transition(
+		definition,
+		&"to_reval_north",
+		Rect2i(28, 0, 4, 2),
+		&"reval_north",
+		&"from_reval_center",
+		&"to_reval_north",
+		Vector2(0.0, 48.0),
+		true
+	)
+	InteriorMapFactory.add_transition(
+		definition,
+		&"to_market",
+		Rect2i(40, 18, 2, 2),
+		&"market_civic_quarter",
+		&"from_reval_center",
+		&"to_market"
+	)
+	InteriorMapFactory.add_transition(
+		definition,
+		&"to_guild_hall",
+		Rect2i(12, 10, 2, 2),
+		&"st_olafs_guild_hall",
+		&"from_reval_center",
+		&"to_guild_hall"
+	)
 	InteriorMapFactory.add_fade_volume(definition, Rect2i(20, 8, 24, 4))
 	InteriorMapFactory.add_source_references(
 		definition,

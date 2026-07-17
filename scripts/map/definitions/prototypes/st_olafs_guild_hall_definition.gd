@@ -37,6 +37,16 @@ static func create() -> MapDefinition:
 	InteriorMapFactory.add_prop_at_cell(definition, &"guild_hearth", MapTypes.PROP_KIND_HEARTH, Rect2i(22, 6, 3, 2))
 	InteriorMapFactory.add_interaction_anchor(definition, &"inspection_spawn", Rect2i(14, 10, 2, 2))
 	InteriorMapFactory.add_interaction_anchor(definition, &"dais", Rect2i(14, 5, 4, 2))
+	InteriorMapFactory.add_transition(
+		definition,
+		&"to_reval_center",
+		Rect2i(14, 17, 4, 2),
+		&"reval_center",
+		&"to_guild_hall",
+		&"from_reval_center",
+		Vector2(0.0, -48.0),
+		true
+	)
 	InteriorMapFactory.add_fade_volume(definition, Rect2i(10, 3, 12, 3))
 	InteriorMapFactory.add_source_references(
 		definition,

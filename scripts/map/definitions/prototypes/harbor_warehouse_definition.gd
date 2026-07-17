@@ -35,6 +35,24 @@ static func create() -> MapDefinition:
 	InteriorMapFactory.add_prop_at_cell(definition, &"quay_stairs", MapTypes.PROP_KIND_STAIRS, Rect2i(18, 18, 4, 2))
 	InteriorMapFactory.add_interaction_anchor(definition, &"inspection_spawn", Rect2i(18, 12, 2, 2))
 	InteriorMapFactory.add_interaction_anchor(definition, &"loading_bay", Rect2i(16, 14, 3, 2))
+	InteriorMapFactory.add_transition(
+		definition,
+		&"to_reval_east",
+		Rect2i(17, 0, 6, 2),
+		&"reval_east",
+		&"viru_road_boundary",
+		&"from_reval_east",
+		Vector2(-48.0, 0.0),
+		true
+	)
+	InteriorMapFactory.add_transition(
+		definition,
+		&"quay_exit",
+		Rect2i(17, 20, 6, 1),
+		&"reval_east",
+		&"viru_road_boundary",
+		&"quay_exit"
+	)
 	InteriorMapFactory.add_fade_volume(definition, Rect2i(12, 4, 16, 3))
 	InteriorMapFactory.add_source_references(
 		definition,

@@ -53,7 +53,7 @@ const MAPS: Dictionary = {
         errors = verify_activation(self.catalog_path, dest_path, start_path)
         self.assertEqual(len(errors), 0)
 
-    def test_seeded_active_prototype(self):
+    def test_seeded_active_prototype_without_release_flag(self):
         dest_path = os.path.join(self.temp_dir.name, "dest.json")
         with open(dest_path, 'w') as f:
             json.dump({"scenes": [{"path": "res://prototype.tscn", "active": True}]}, f)
@@ -65,6 +65,18 @@ const MAPS: Dictionary = {
         errors = verify_activation(self.catalog_path, dest_path, start_path)
         self.assertEqual(len(errors), 1)
         self.assertIn("scope prototype", errors[0])
+
+    def test_dev_traversal_prototype_skips_release_guard(self):
+        dest_path = os.path.join(self.temp_dir.name, "dest.json")
+        with open(dest_path, 'w') as f:
+            json.dump({"scenes": [{"path": "res://prototype.tscn", "active": True, "release": False}]}, f)
+
+        start_path = os.path.join(self.temp_dir.name, "start.gd")
+        with open(start_path, 'w') as f:
+            f.write('change_scene_to_file("res://valid.tscn")')
+
+        errors = verify_activation(self.catalog_path, dest_path, start_path)
+        self.assertEqual(len(errors), 0)
 
     def test_seeded_archived_destination(self):
         dest_path = os.path.join(self.temp_dir.name, "dest.json")

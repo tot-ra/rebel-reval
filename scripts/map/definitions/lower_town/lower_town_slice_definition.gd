@@ -263,47 +263,46 @@ static func create() -> MapDefinition:
 		Vector2(0.0, 48.0),
 		true
 	)
-	# These marked boundary exits deliberately have no destination until their
-	# inactive district prototypes pass the activation gate. They communicate the
-	# intended level seams without making decorative surroundings traversable.
+	# District boundary exits wire into developer-traversable prototype scenes.
+	# Release builds still gate these through active_destinations.json release flags.
 	InteriorMapFactory.add_transition(
 		definition,
 		&"vana_turg_boundary",
 		Rect2i(0, 19, 2, 4),
-		&"",
-		&"",
-		&"",
-		Vector2.ZERO,
+		&"reval_center",
+		&"from_reval_east",
+		&"vana_turg_boundary",
+		Vector2(48.0, 0.0),
 		true
 	)
 	InteriorMapFactory.add_transition(
 		definition,
 		&"vene_district_boundary",
 		Rect2i(14, 0, 3, 2),
-		&"",
-		&"",
-		&"",
-		Vector2.ZERO,
+		&"reval_north",
+		&"from_reval_east",
+		&"vene_district_boundary",
+		Vector2(0.0, 48.0),
 		true
 	)
 	InteriorMapFactory.add_transition(
 		definition,
 		&"viru_road_boundary",
 		Rect2i(84, 19, 4, 3),
-		&"",
-		&"",
-		&"",
-		Vector2.ZERO,
+		&"harbor_warehouse",
+		&"from_reval_east",
+		&"viru_road_boundary",
+		Vector2(-48.0, 0.0),
 		true
 	)
 	InteriorMapFactory.add_transition(
 		definition,
 		&"karja_road_boundary",
 		Rect2i(36, 53, 3, 3),
-		&"",
-		&"",
-		&"",
-		Vector2.ZERO,
+		&"market_civic_quarter",
+		&"from_reval_east",
+		&"karja_road_boundary",
+		Vector2(0.0, -48.0),
 		true
 	)
 	InteriorMapFactory.add_transition(
