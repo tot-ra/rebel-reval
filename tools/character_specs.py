@@ -16,7 +16,8 @@ Spec fields (all optional except output):
 - shape: high-level mesh knobs merged over BASE_SHAPE; consumed by the body
   generator (multipliers on generated geometry, not on bones).
 - palette: sRGB color overrides merged over the base PALETTE of the
-  generator (skin, tunic, pants, boots, belt, hair, beard, eyes, ...).
+  generator (skin, tunic, sleeves, sleeve_band, pants, boots, belt, hair,
+  beard, eyes, ...).
 - output: runtime glb path relative to the repo root.
 - garments: garment ids to export as separate skinned glbs next to the
   body ("cape", "hat"). Usually only the shared hero set carries these.
@@ -53,9 +54,50 @@ BASE_SHAPE = {
 
 CHARACTERS = {
     # The shared hero body used by Kalev, Mart, and current NPC variants.
+    # Palette matches the legacy Kalev pixel sprite (img/user__idle.gif).
     "hero": {
+        "palette": {
+            "tunic": (0.38, 0.24, 0.14, 1.0),
+            "sleeves": (0.84, 0.83, 0.80, 1.0),
+            "sleeve_band": (0.22, 0.42, 0.72, 1.0),
+            "pants": (0.16, 0.12, 0.10, 1.0),
+            "boots": (0.42, 0.28, 0.16, 1.0),
+            "belt": (0.62, 0.46, 0.28, 1.0),
+            "hair": (0.48, 0.32, 0.20, 1.0),
+            "beard": (0.42, 0.28, 0.16, 1.0),
+        },
         "output": "assets/characters/shared/heroic_humanoid.glb",
         "garments": ["cape", "hat"],
+    },
+    # Captain Henning: tall, broad-shouldered and disciplined. The dark Watch
+    # palette and heavier upper body keep his authority readable at gameplay
+    # scale without introducing bespoke runtime geometry.
+    "henning": {
+        "proportions": {
+            "leg_length": 1.90,
+            "arm_length": 1.28,
+            "torso_length": 0.92,
+            "shoulder_width": 0.96,
+            "hip_socket_width": 1.0,
+        },
+        "shape": {
+            "bulk": 1.10,
+            "chest_breadth": 1.14,
+            "belly": 1.04,
+            "head_scale": 0.98,
+        },
+        "palette": {
+            "skin": (0.73, 0.52, 0.38, 1.0),
+            "tunic": (0.20, 0.25, 0.30, 1.0),
+            "pants": (0.15, 0.17, 0.19, 1.0),
+            "boots": (0.11, 0.09, 0.08, 1.0),
+            "belt": (0.31, 0.20, 0.13, 1.0),
+            "hair": (0.29, 0.23, 0.18, 1.0),
+            "beard": (0.24, 0.19, 0.15, 1.0),
+            "eyes": (0.05, 0.06, 0.07, 1.0),
+        },
+        "output": "assets/characters/shared/henning.glb",
+        "garments": [],
     },
     # Worked example for docs/CHARACTER_GENERATION.md: a stocky innkeeper
     # frame — shorter legs, broad chest, real belly, heavier bulk.

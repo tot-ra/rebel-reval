@@ -36,16 +36,22 @@ GARMENT_OUTPUTS = {
     "hat": ROOT / "assets/characters/shared/hero_hat.glb",
 }
 
-RING_SEGMENTS = 10
+# More ring segments than the first P0-037 pass so limbs and the tunic read
+# rounder at portrait distance while staying within the low-poly rig budget.
+RING_SEGMENTS = 16
 
+# Default hero palette aligned with the legacy Kalev pixel sprite (img/user__idle.gif):
+# brown long tunic, tan belt, dark trousers, brown boots, brown hair/beard.
 PALETTE = {
     "skin": (0.80, 0.58, 0.42, 1.0),
-    "tunic": (0.28, 0.38, 0.44, 1.0),
-    "pants": (0.34, 0.25, 0.18, 1.0),
-    "boots": (0.24, 0.17, 0.12, 1.0),
-    "belt": (0.58, 0.26, 0.14, 1.0),
-    "hair": (0.78, 0.62, 0.34, 1.0),
-    "beard": (0.46, 0.33, 0.17, 1.0),
+    "tunic": (0.38, 0.24, 0.14, 1.0),
+    "sleeves": (0.84, 0.83, 0.80, 1.0),
+    "sleeve_band": (0.22, 0.42, 0.72, 1.0),
+    "pants": (0.16, 0.12, 0.10, 1.0),
+    "boots": (0.42, 0.28, 0.16, 1.0),
+    "belt": (0.62, 0.46, 0.28, 1.0),
+    "hair": (0.48, 0.32, 0.20, 1.0),
+    "beard": (0.42, 0.28, 0.16, 1.0),
     "eyes": (0.06, 0.05, 0.05, 1.0),
     "cape": (0.42, 0.24, 0.14, 1.0),
     "hat": (0.32, 0.36, 0.28, 1.0),
@@ -236,7 +242,7 @@ class PartBuilder:
         for polygon, material_name in zip(mesh.polygons, self.face_materials):
             polygon.material_index = material_slots[material_name]
         for polygon in mesh.polygons:
-            polygon.use_smooth = False
+            polygon.use_smooth = True
 
         obj = bpy.data.objects.new(self.name, mesh)
         bpy.context.scene.collection.objects.link(obj)
@@ -345,12 +351,36 @@ def generate(character: str) -> None:
     shoulder_line = _mix(hips, head, 0.72)
     chest_height = _mix(hips, head, 0.45)
     waist = _mix(hips, head, 0.16)
+    knee_center = (knee_l + knee_r) * 0.5
+    mid_thigh = crotch.lerp(knee_center, 0.55)
+
     torso.start_tube()
+    # Pelvis cap stays pants-colored but is hidden under the long tunic skirt.
     torso.ring(
         crotch, up, 0.085 * scale * belly, 0.070 * scale * belly, {"hips": 1.0}, "pants"
     )
-    # Close the pelvis so nothing shows through between the legs.
     torso.cap(crotch - up * 0.005 * scale, {"hips": 1.0}, "pants")
+    torso.start_tube()
+    # Long tunic hem — flares over the thighs like the legacy sprite silhouette.
+    torso.ring(
+        knee_center + up * 0.04 * scale,
+        up,
+        0.162 * scale,
+        0.098 * scale,
+        {"hips": 1.0},
+        "tunic",
+    )
+    torso.ring(
+        mid_thigh, up, 0.148 * scale, 0.102 * scale, {"hips": 1.0}, "tunic"
+    )
+    torso.ring(
+        hips - up * 0.03 * scale,
+        up,
+        0.132 * scale * belly,
+        0.096 * scale * belly,
+        {"hips": 1.0},
+        "tunic",
+    )
     torso.ring(
         hips + up * 0.02, up, 0.120 * scale * belly, 0.092 * scale * belly,
         {"hips": 1.0}, "belt",
@@ -381,7 +411,7 @@ def generate(character: str) -> None:
             Vector((0.068 * scale, 0.062 * scale, 0.066 * scale)),
             {f"upperarm.{suffix}": 1.0},
             "tunic",
-            rings=5,
+            rings=7,
         )
     parts.append(torso)
 
@@ -396,6 +426,7 @@ def generate(character: str) -> None:
         Vector((0.140 * scale, 0.145 * scale, 0.155 * scale)),
         {"head": 1.0},
         "skin",
+        rings=10,
     )
     # neck
     head_part.start_tube()
@@ -413,7 +444,7 @@ def generate(character: str) -> None:
         Vector((0.148 * scale, 0.140 * scale, 0.152 * scale)),
         {"head": 1.0},
         "hair",
-        rings=6,
+        rings=9,
     )
     # beard wedge
     head_part.box(
@@ -456,6 +487,7 @@ def generate(character: str) -> None:
         arm.start_tube()
         axis_upper = (elbow - shoulder).normalized()
         axis_lower = (wrist - elbow).normalized()
+        # Short brown tunic sleeves over long grey undersleeves with blue cuffs.
         arm.ring(
             shoulder - axis_upper * 0.02,
             axis_upper,
@@ -465,12 +497,20 @@ def generate(character: str) -> None:
             "tunic",
         )
         arm.ring(
-            _mix(shoulder, elbow, 0.5),
+            _mix(shoulder, elbow, 0.38),
             axis_upper,
-            0.052 * scale,
-            0.052 * scale,
+            0.054 * scale,
+            0.054 * scale,
             {bone("upperarm"): 1.0},
             "tunic",
+        )
+        arm.ring(
+            _mix(shoulder, elbow, 0.62),
+            axis_upper,
+            0.048 * scale,
+            0.048 * scale,
+            {bone("upperarm"): 1.0},
+            "sleeves",
         )
         arm.ring(
             elbow,
@@ -478,15 +518,23 @@ def generate(character: str) -> None:
             0.044 * scale,
             0.044 * scale,
             _blend(bone("upperarm"), bone("lowerarm"), 0.5),
-            "skin",
+            "sleeves",
         )
         arm.ring(
-            _mix(elbow, wrist, 0.5),
+            _mix(elbow, wrist, 0.45),
             axis_lower,
             0.040 * scale,
             0.040 * scale,
             {bone("lowerarm"): 1.0},
-            "skin",
+            "sleeves",
+        )
+        arm.ring(
+            _mix(elbow, wrist, 0.78),
+            axis_lower,
+            0.036 * scale,
+            0.036 * scale,
+            {bone("lowerarm"): 1.0},
+            "sleeve_band",
         )
         arm.ring(
             wrist,
