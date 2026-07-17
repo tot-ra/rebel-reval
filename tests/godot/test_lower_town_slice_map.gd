@@ -2,6 +2,7 @@ extends "res://tests/godot/test_case.gd"
 
 const LowerTownSliceDefinition := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
+const MapTypes := preload("res://scripts/map/map_types.gd")
 const MapVerification := preload("res://scripts/map/map_verification.gd")
 
 
@@ -79,7 +80,27 @@ func test_navigation_region_builds_despite_overlapping_wall_footprints() -> void
 	region.free()
 
 
-func test_boundary_exits_are_marked_without_activating_prototype_scenes() -> void:
+func test_water_cells_are_not_navigable() -> void:
+	var definition: MapDefinition = LowerTownSliceDefinition.create()
+	var grid: MapTerrainGrid = MapBuilder.build(definition)
+	var moat_cell := Vector2i(71, 8)
+	assert_true(MapTypes.WATER_TERRAINS.has(grid.get_terrain(moat_cell)), "test cell must be water")
+	var region := MapNavBuilder.create_navigation_region(definition, grid)
+	var nav_point := definition.cell_rect_center(Rect2i(moat_cell, Vector2i.ONE))
+	var vertices := region.navigation_polygon.get_vertices()
+	for polygon_index in region.navigation_polygon.get_polygon_count():
+		var indices: PackedInt32Array = region.navigation_polygon.get_polygon(polygon_index)
+		var poly := PackedVector2Array()
+		for vertex_index in indices:
+			poly.append(vertices[vertex_index])
+		assert_false(
+			Geometry2D.is_point_in_polygon(nav_point, poly),
+			"water cells must not be inside navigation polygons"
+		)
+	region.free()
+
+
+func test_boundary_exits_connect_to_registered_destinations() -> void:
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
 	var transition_by_id: Dictionary = {}
 	for transition in definition.transitions:
@@ -93,9 +114,13 @@ func test_boundary_exits_are_marked_without_activating_prototype_scenes() -> voi
 		assert_true(transition_by_id.has(transition_id), "missing boundary transition %s" % transition_id)
 		var transition: Dictionary = transition_by_id[transition_id]
 		assert_true(bool(transition.get("highlight_area", false)), "%s must be visibly marked" % transition_id)
-		assert_true(
+		assert_false(
 			String(transition.get("destination_scene_id", "")).is_empty(),
-			"%s must not activate an unapproved destination" % transition_id
+			"%s must route to a registered destination" % transition_id
+		)
+		assert_false(
+			String(transition.get("destination_spawn_id", "")).is_empty(),
+			"%s must target a stable destination spawn" % transition_id
 		)
 
 

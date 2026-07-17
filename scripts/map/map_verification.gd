@@ -29,8 +29,7 @@ static func blocked_cells(definition: MapDefinition) -> Dictionary:
 static func is_walkable_cell(definition: MapDefinition, grid: MapTerrainGrid, cell: Vector2i) -> bool:
 	if cell.x < 0 or cell.y < 0 or cell.x >= definition.size_cells.x or cell.y >= definition.size_cells.y:
 		return false
-	var terrain: StringName = grid.get_terrain(cell)
-	if terrain == MapTypes.TERRAIN_WATER:
+	if MapTypes.WATER_TERRAINS.has(grid.get_terrain(cell)):
 		return false
 	if blocked_cells(definition).has(cell):
 		return false

@@ -20,6 +20,14 @@ const TERRAIN_BOG := &"bog"
 const TERRAIN_CASTLE_PAVING := &"castle_paving"
 const TERRAIN_SHALLOW_WATER := &"shallow_water"
 const TERRAIN_DEEP_WATER := &"deep_water"
+
+## Terrain families that block movement until a dedicated water traversal
+## mechanic exists.
+const WATER_TERRAINS: Array[StringName] = [
+	TERRAIN_WATER,
+	TERRAIN_SHALLOW_WATER,
+	TERRAIN_DEEP_WATER,
+]
 const TERRAIN_ASH := &"ash"
 const TERRAIN_TIMBER_FLOOR := &"timber_floor"
 const TERRAIN_PLASTER := &"plaster"

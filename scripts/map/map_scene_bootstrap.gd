@@ -21,6 +21,7 @@ static func assemble(
 	nav.name = "Navigation"
 	host.add_child(nav)
 	var world_bounds := _create_world_bounds(definition, host)
+	var water_blocks := _create_water_blocks(definition, grid, host)
 
 	var gameplay := Node2D.new()
 	gameplay.name = "Gameplay"
@@ -35,6 +36,7 @@ static func assemble(
 		"assembled": assembled,
 		"navigation": nav,
 		"world_bounds": world_bounds,
+		"water_blocks": water_blocks,
 		"doors": doors,
 		"anchors": anchors,
 		"fades": fades,
@@ -94,6 +96,34 @@ static func _create_doors(definition: MapDefinition, parent: Node2D) -> Array[Ar
 ## Navigation constrains click targets, but keyboard input drives CharacterBody2D
 ## directly. Thin static walls keep both input methods inside the authored map;
 ## transition triggers sit just inside these walls and fire before contact.
+## Keyboard movement bypasses NavigationAgent2D, so water cells need the same
+## physical blocking as buildings until a traversal mechanic ships.
+static func _create_water_blocks(definition: MapDefinition, grid: MapTerrainGrid, parent: Node2D) -> StaticBody2D:
+	var body := StaticBody2D.new()
+	body.name = "WaterBlocks"
+	body.add_to_group(&"map_water_collision")
+	var index := 0
+	for y in range(definition.size_cells.y):
+		for x in range(definition.size_cells.x):
+			var cell := Vector2i(x, y)
+			if not MapTypes.WATER_TERRAINS.has(grid.get_terrain(cell)):
+				continue
+			var world_rect := definition.cell_rect_to_world_rect(Rect2i(cell, Vector2i.ONE))
+			var collision := CollisionShape2D.new()
+			collision.name = "Water%d" % index
+			index += 1
+			var shape := RectangleShape2D.new()
+			shape.size = world_rect.size
+			collision.shape = shape
+			collision.position = world_rect.get_center()
+			body.add_child(collision)
+	if index == 0:
+		body.free()
+		return null
+	parent.add_child(body)
+	return body
+
+
 static func _create_world_bounds(definition: MapDefinition, parent: Node2D) -> StaticBody2D:
 	var bounds := StaticBody2D.new()
 	bounds.name = "WorldBounds"

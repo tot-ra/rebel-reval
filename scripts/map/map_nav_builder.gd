@@ -21,6 +21,13 @@ static func create_navigation_region(definition: MapDefinition, grid: MapTerrain
 		source.add_obstruction_outline(_rect_outline(building["footprint"]))
 	for rect in definition.excluded_areas:
 		source.add_obstruction_outline(_rect_outline(definition.cell_rect_to_world_rect(rect)))
+	for y in range(definition.size_cells.y):
+		for x in range(definition.size_cells.x):
+			var cell := Vector2i(x, y)
+			if MapTypes.WATER_TERRAINS.has(grid.get_terrain(cell)):
+				source.add_obstruction_outline(
+					_rect_outline(definition.cell_rect_to_world_rect(Rect2i(cell, Vector2i.ONE)))
+				)
 
 	var nav_polygon := NavigationPolygon.new()
 	nav_polygon.agent_radius = 0.0
