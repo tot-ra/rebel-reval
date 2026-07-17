@@ -10,6 +10,7 @@ const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const PLAYER_SCENE := preload("res://player.tscn")
 const TRANSITION_MARKER_SCRIPT := preload("res://scripts/map/view3d/transition_marker_3d.gd")
+const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 
 
 func _view_definitions() -> Array[MapDefinition]:
@@ -368,6 +369,31 @@ func test_night_state_is_deterministic_and_darker() -> void:
 	)
 	first.free()
 	second.free()
+
+
+func test_cycle_progress_interpolates_lighting_and_advances() -> void:
+	var definition := SmithyCourtyard.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_DAY)
+	view.apply_cycle_progress(0.0)
+	assert_true(
+		view.sun_light().light_energy <= MapView3D.SUN_DAY_ENERGY * 0.8,
+		"midnight cycle point must be at least as dark as discrete night"
+	)
+	view.apply_cycle_progress(0.5)
+	assert_true(
+		is_equal_approx(view.sun_light().light_energy, MapView3D.SUN_DAY_ENERGY),
+		"noon cycle point must match discrete day energy"
+	)
+	var before_yaw := view.sun_light().rotation_degrees.y
+	view.apply_cycle_progress(0.75)
+	assert_false(
+		is_equal_approx(view.sun_light().rotation_degrees.y, before_yaw),
+		"cycle must sweep sun yaw so shadows move"
+	)
+	var progress := DayNightCycle.DEFAULT_PROGRESS
+	progress = DayNightCycle.advance(progress, DayNightCycle.CYCLE_DURATION_SECONDS)
+	assert_true(is_equal_approx(progress, DayNightCycle.DEFAULT_PROGRESS), "one full cycle must wrap to the start")
+	view.free()
 
 
 func test_placeholder_materials_cover_every_terrain() -> void:

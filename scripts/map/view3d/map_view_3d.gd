@@ -2,6 +2,7 @@ class_name MapView3D
 extends Node3D
 
 const DirectionSignBuilder := preload("res://scripts/map/view3d/direction_sign_3d.gd")
+const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 
 ## P0-052 3D orthographic view layer (ADR 0007). Assembles terrain, building,
 ## and prop geometry from an immutable MapDefinition, framed by a fixed
@@ -42,8 +43,10 @@ const BACKGROUND_NIGHT_COLOR := Color8(12, 14, 22)
 var definition: MapDefinition
 var grid: MapTerrainGrid
 var time_of_day: StringName = TIME_DAY
+var cycle_progress: float = DayNightCycle.DEFAULT_PROGRESS
 
 var _sun: DirectionalLight3D
+var _last_chimney_bucket: StringName = TIME_DAY
 var _environment: Environment
 var _camera: Camera3D
 var _fog_of_war: Node3D
@@ -103,15 +106,36 @@ func _update_memory_animations(player_position: Vector3, facing: Vector2) -> voi
 
 func set_time_of_day(next_time: StringName) -> void:
 	assert(next_time in ALL_TIMES)
-	time_of_day = next_time
-	var night := next_time == TIME_NIGHT
-	_sun.rotation_degrees = SUN_NIGHT_ROTATION_DEGREES if night else SUN_DAY_ROTATION_DEGREES
-	_sun.light_color = SUN_NIGHT_COLOR if night else SUN_DAY_COLOR
-	_sun.light_energy = SUN_NIGHT_ENERGY if night else SUN_DAY_ENERGY
-	_environment.ambient_light_color = AMBIENT_NIGHT_COLOR if night else AMBIENT_DAY_COLOR
-	_environment.ambient_light_energy = AMBIENT_NIGHT_ENERGY if night else AMBIENT_DAY_ENERGY
-	_environment.background_color = BACKGROUND_NIGHT_COLOR if night else BACKGROUND_DAY_COLOR
-	_update_chimney_smokes()
+	apply_cycle_progress(0.5 if next_time == TIME_DAY else 0.0, false)
+
+
+func apply_cycle_progress(progress: float, sweep_sun_yaw: bool = true) -> void:
+	cycle_progress = wrapf(progress, 0.0, 1.0)
+	var day_blend := DayNightCycle.day_blend(cycle_progress)
+	var night := day_blend < 0.5
+
+	_sun.rotation_degrees.x = lerpf(SUN_NIGHT_ROTATION_DEGREES.x, SUN_DAY_ROTATION_DEGREES.x, day_blend)
+	if sweep_sun_yaw:
+		# Sweep the sun across the map so shadow direction changes through the loop.
+		_sun.rotation_degrees.y = lerpf(
+			SUN_DAY_ROTATION_DEGREES.y - 70.0,
+			SUN_DAY_ROTATION_DEGREES.y + 110.0,
+			cycle_progress
+		)
+	else:
+		_sun.rotation_degrees.y = SUN_NIGHT_ROTATION_DEGREES.y if night else SUN_DAY_ROTATION_DEGREES.y
+	_sun.rotation_degrees.z = 0.0
+	_sun.light_color = SUN_NIGHT_COLOR.lerp(SUN_DAY_COLOR, day_blend)
+	_sun.light_energy = lerpf(SUN_NIGHT_ENERGY, SUN_DAY_ENERGY, day_blend)
+	_environment.ambient_light_color = AMBIENT_NIGHT_COLOR.lerp(AMBIENT_DAY_COLOR, day_blend)
+	_environment.ambient_light_energy = lerpf(AMBIENT_NIGHT_ENERGY, AMBIENT_DAY_ENERGY, day_blend)
+	_environment.background_color = BACKGROUND_NIGHT_COLOR.lerp(BACKGROUND_DAY_COLOR, day_blend)
+
+	var bucket := TIME_NIGHT if night else TIME_DAY
+	if bucket != _last_chimney_bucket:
+		_last_chimney_bucket = bucket
+		time_of_day = bucket
+		_update_chimney_smokes()
 
 
 func _update_chimney_smokes() -> void:

@@ -9,6 +9,7 @@ extends Node3D
 ## logic to view, through MapViewBridge.
 
 const PLAYER_RIG_SCENE := preload("res://assets/characters/kalev/kalev.tscn")
+const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 
 ## Gameplay camera: frozen 64 px character target from CharacterScale, with
 ## light smoothing so door spawns snap and walking glides.
@@ -35,6 +36,10 @@ const MOUSE_ROTATE_DEGREES_PER_PIXEL := 0.3
 const OCCLUSION_PROBE_HEIGHTS: Array[float] = [0.5, 1.1, 1.8]
 
 var view: MapView3D
+
+## Dev pacing: one in-game day every DayNightCycle.CYCLE_DURATION_SECONDS.
+var cycle_enabled := true
+var cycle_progress := DayNightCycle.DEFAULT_PROGRESS
 
 var _definition: MapDefinition
 var _player: CharacterBody2D
@@ -68,6 +73,7 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 	scene_root.add_child(runtime)
 	runtime._configure_screen_relative_movement()
 	runtime._sync_player(true)
+	runtime.view.apply_cycle_progress(runtime.cycle_progress)
 	return runtime
 
 
@@ -83,10 +89,14 @@ func logic_position_at_screen(screen_position: Vector2) -> Vector2:
 
 
 func set_time_of_day(next_time: StringName) -> void:
+	cycle_enabled = false
 	view.set_time_of_day(next_time)
 
 
 func _process(delta: float) -> void:
+	if cycle_enabled:
+		cycle_progress = DayNightCycle.advance(cycle_progress, delta)
+		view.apply_cycle_progress(cycle_progress)
 	if _player == null or not is_instance_valid(_player):
 		return
 	_apply_view_rotation(delta)
