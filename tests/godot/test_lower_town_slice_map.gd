@@ -89,10 +89,16 @@ func test_city_wall_blocks_except_viru_gate() -> void:
 	# The gate passage itself stays open from Viru street to the east road.
 	var inside := definition.cell_rect_center(Rect2i(60, 20, 1, 1))
 	var outside := definition.cell_rect_center(Rect2i(80, 20, 1, 1))
+	var region := MapNavBuilder.create_navigation_region(definition, grid)
 	assert_true(
 		MapVerification.route_exists_exact(definition, grid, inside, outside),
 		"Viru street must pass through the gate to the east road"
 	)
+	assert_true(
+		_navigation_points_connected(region.navigation_polygon, inside, outside),
+		"merged water obstructions must keep Viru causeway connected in the baked navigation mesh"
+	)
+	region.free()
 
 
 func test_karja_gate_passage_stays_open() -> void:
@@ -104,10 +110,16 @@ func test_karja_gate_passage_stays_open() -> void:
 	# The passage and the causeway over the south moat stay open to the edge.
 	var inside := definition.cell_rect_center(Rect2i(37, 45, 1, 1))
 	var outside := definition.cell_rect_center(Rect2i(37, 54, 1, 1))
+	var region := MapNavBuilder.create_navigation_region(definition, grid)
 	assert_true(
 		MapVerification.route_exists_exact(definition, grid, inside, outside),
 		"Suur-Karja must pass through Karja Gate to the south road"
 	)
+	assert_true(
+		_navigation_points_connected(region.navigation_polygon, inside, outside),
+		"merged water obstructions must keep Karja causeway connected in the baked navigation mesh"
+	)
+	region.free()
 
 
 func test_navigation_region_builds_despite_overlapping_wall_footprints() -> void:
@@ -135,7 +147,11 @@ func test_water_cells_are_not_navigable() -> void:
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
 	var moat_cell := Vector2i(71, 8)
 	assert_true(MapTypes.WATER_TERRAINS.has(grid.get_terrain(moat_cell)), "test cell must be water")
+	var fingerprint_before := definition.fingerprint
+	var grid_fingerprint_before := grid.fingerprint()
 	var region := MapNavBuilder.create_navigation_region(definition, grid)
+	assert_eq(definition.fingerprint, fingerprint_before, "navigation geometry must not mutate the terrain fingerprint")
+	assert_eq(grid.fingerprint(), grid_fingerprint_before, "navigation geometry must not mutate terrain cells")
 	var nav_point := definition.cell_rect_center(Rect2i(moat_cell, Vector2i.ONE))
 	var vertices := region.navigation_polygon.get_vertices()
 	for polygon_index in region.navigation_polygon.get_polygon_count():
@@ -185,3 +201,45 @@ func test_courtyard_anvil_does_not_cover_smithy_door() -> void:
 		anvil_position.distance_to(door_position) > float(definition.cell_size * 2),
 		"courtyard anvil must remain visually separate from the smithy door"
 	)
+
+
+func _navigation_points_connected(nav_polygon: NavigationPolygon, start: Vector2, target: Vector2) -> bool:
+	var vertices := nav_polygon.get_vertices()
+	var start_polygon := -1
+	var target_polygon := -1
+	var adjacency: Dictionary = {}
+	var edge_owners: Dictionary = {}
+	for polygon_index in nav_polygon.get_polygon_count():
+		adjacency[polygon_index] = {}
+		var indices := nav_polygon.get_polygon(polygon_index)
+		var outline := PackedVector2Array()
+		for vertex_index in indices:
+			outline.append(vertices[vertex_index])
+		if Geometry2D.is_point_in_polygon(start, outline):
+			start_polygon = polygon_index
+		if Geometry2D.is_point_in_polygon(target, outline):
+			target_polygon = polygon_index
+		for edge_index in indices.size():
+			var first := int(indices[edge_index])
+			var second := int(indices[(edge_index + 1) % indices.size()])
+			var edge := Vector2i(mini(first, second), maxi(first, second))
+			if edge_owners.has(edge):
+				var neighbor := int(edge_owners[edge])
+				adjacency[polygon_index][neighbor] = true
+				adjacency[neighbor][polygon_index] = true
+			else:
+				edge_owners[edge] = polygon_index
+	if start_polygon < 0 or target_polygon < 0:
+		return false
+
+	var pending: Array[int] = [start_polygon]
+	var visited := {start_polygon: true}
+	while not pending.is_empty():
+		var current: int = pending.pop_front()
+		if current == target_polygon:
+			return true
+		for neighbor: int in adjacency[current]:
+			if not visited.has(neighbor):
+				visited[neighbor] = true
+				pending.append(neighbor)
+	return false

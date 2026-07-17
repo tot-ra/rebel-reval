@@ -3,6 +3,7 @@ extends RefCounted
 
 const DOOR_SCENE := preload("res://scenes/elements/door.tscn")
 const LOCATION_HUD_SCENE := preload("res://scenes/elements/location_hud.tscn")
+const GridRegionMergerScript := preload("res://scripts/map/grid_region_merger.gd")
 
 ## Wires declarative maps into playable scenes without legacy TileSets.
 
@@ -112,22 +113,21 @@ static func _create_water_blocks(definition: MapDefinition, grid: MapTerrainGrid
 	var body := StaticBody2D.new()
 	body.name = "WaterBlocks"
 	body.add_to_group(&"map_water_collision")
-	var index := 0
-	for y in range(definition.size_cells.y):
-		for x in range(definition.size_cells.x):
-			var cell := Vector2i(x, y)
-			if not MapTypes.WATER_TERRAINS.has(grid.get_terrain(cell)):
-				continue
-			var world_rect := definition.cell_rect_to_world_rect(Rect2i(cell, Vector2i.ONE))
-			var collision := CollisionShape2D.new()
-			collision.name = "Water%d" % index
-			index += 1
-			var shape := RectangleShape2D.new()
-			shape.size = world_rect.size
-			collision.shape = shape
-			collision.position = world_rect.get_center()
-			body.add_child(collision)
-	if index == 0:
+	var water_rects := GridRegionMergerScript.merge_matching_cells(
+		definition.size_cells,
+		func(cell: Vector2i) -> bool:
+			return MapTypes.WATER_TERRAINS.has(grid.get_terrain(cell))
+	)
+	for index in water_rects.size():
+		var world_rect := definition.cell_rect_to_world_rect(water_rects[index])
+		var collision := CollisionShape2D.new()
+		collision.name = "Water%d" % index
+		var shape := RectangleShape2D.new()
+		shape.size = world_rect.size
+		collision.shape = shape
+		collision.position = world_rect.get_center()
+		body.add_child(collision)
+	if water_rects.is_empty():
 		body.free()
 		return null
 	parent.add_child(body)

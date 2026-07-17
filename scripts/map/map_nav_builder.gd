@@ -1,6 +1,8 @@
 class_name MapNavBuilder
 extends RefCounted
 
+const GridRegionMergerScript := preload("res://scripts/map/grid_region_merger.gd")
+
 const AGENT_RADIUS := 16.0
 
 ## Builds a coarse NavigationRegion2D from the world rectangle minus building
@@ -23,13 +25,13 @@ static func create_navigation_region(definition: MapDefinition, grid: MapTerrain
 		source.add_obstruction_outline(_rect_outline(building["footprint"]))
 	for rect in definition.excluded_areas:
 		source.add_obstruction_outline(_rect_outline(definition.cell_rect_to_world_rect(rect)))
-	for y in range(definition.size_cells.y):
-		for x in range(definition.size_cells.x):
-			var cell := Vector2i(x, y)
-			if MapTypes.WATER_TERRAINS.has(grid.get_terrain(cell)):
-				source.add_obstruction_outline(
-					_rect_outline(definition.cell_rect_to_world_rect(Rect2i(cell, Vector2i.ONE)))
-				)
+	var water_rects := GridRegionMergerScript.merge_matching_cells(
+		definition.size_cells,
+		func(cell: Vector2i) -> bool:
+			return MapTypes.WATER_TERRAINS.has(grid.get_terrain(cell))
+	)
+	for rect in water_rects:
+		source.add_obstruction_outline(_rect_outline(definition.cell_rect_to_world_rect(rect)))
 
 	var nav_polygon := NavigationPolygon.new()
 	# Match the player's physics capsule so click paths cannot cut through

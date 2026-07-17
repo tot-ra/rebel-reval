@@ -55,11 +55,26 @@ func test_bootstrap_adds_water_collision_for_direct_keyboard_movement() -> void:
 	var water_blocks := bootstrap.get("water_blocks") as StaticBody2D
 	assert_true(water_blocks != null, "maps with water terrain need physical water blocks")
 	assert_true(water_blocks.is_in_group(&"map_water_collision"))
-	var water_zone := Rect2i(31, 18, 4, 3)
-	var blocked_cells := 0
-	for y in range(water_zone.position.y, water_zone.end.y):
-		for x in range(water_zone.position.x, water_zone.end.x):
-			if MapTypes.WATER_TERRAINS.has(grid.get_terrain(Vector2i(x, y))):
-				blocked_cells += 1
-	assert_eq(water_blocks.get_child_count(), blocked_cells)
+	var water_cells: Dictionary = {}
+	for y in range(definition.size_cells.y):
+		for x in range(definition.size_cells.x):
+			var cell := Vector2i(x, y)
+			if MapTypes.WATER_TERRAINS.has(grid.get_terrain(cell)):
+				water_cells[cell] = true
+	var covered_cells: Dictionary = {}
+	for child in water_blocks.get_children():
+		var collision := child as CollisionShape2D
+		var shape := collision.shape as RectangleShape2D
+		var world_rect := Rect2(collision.position - shape.size * 0.5, shape.size)
+		var cell_rect := Rect2i(
+			Vector2i(world_rect.position / float(definition.cell_size)),
+			Vector2i(world_rect.size / float(definition.cell_size))
+		)
+		for y in range(cell_rect.position.y, cell_rect.end.y):
+			for x in range(cell_rect.position.x, cell_rect.end.x):
+				var cell := Vector2i(x, y)
+				assert_false(covered_cells.has(cell), "merged water collisions must not overlap")
+				covered_cells[cell] = true
+	assert_eq(covered_cells, water_cells, "merged collisions must cover exactly the water cells")
+	assert_true(water_blocks.get_child_count() < water_cells.size(), "contiguous water must use fewer collision shapes")
 	root.free()
