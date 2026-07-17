@@ -1,4 +1,3 @@
-class_name LowerTownSliceDefinition
 extends RefCounted
 
 ## Viru Gate quarter of the eastern Lower Town (P2-019, historical layout pass).

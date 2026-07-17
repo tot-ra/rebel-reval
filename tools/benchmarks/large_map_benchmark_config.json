@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "chunk_size_cells": 32,
+  "navigation_border_cells": 2,
+  "simulation_radius_chunks": 1,
+  "load_radius_chunks": 2,
+  "visual_lod": {
+    "lod0_max_distance_chunks": 1,
+    "lod1_max_distance_chunks": 2,
+    "lod2_min_distance_chunks": 3
+  },
+  "budgets": {
+    "chunk_activation_cpu_ms_p95": 50.0,
+    "chunk_navigation_bake_ms_p95": 25.0,
+    "main_thread_streaming_ms_per_frame": 4.0,
+    "resident_node_count": 5000,
+    "resident_collision_count": 900,
+    "resident_memory_delta_mib": 256.0,
+    "steady_frame_time_ms_p95": 16.67,
+    "steady_frame_time_ms_p99": 25.0
+  },
+  "benchmark": {
+    "warmup_runs": 1,
+    "timed_runs": 3,
+    "frame_samples": 120,
+    "synthetic_profiles": [
+      {"id": "synthetic_32", "size_cells": 32},
+      {"id": "synthetic_64", "size_cells": 64},
+      {"id": "synthetic_128", "size_cells": 128},
+      {"id": "synthetic_256", "size_cells": 256}
+    ],
+    "building_stride_cells": 8,
+    "props_per_chunk": 4
+  }
+}

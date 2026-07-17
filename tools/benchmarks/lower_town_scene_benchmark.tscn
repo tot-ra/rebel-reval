@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/reval_east/reval_east.tscn" id="1_lower_town"]
+[ext_resource type="Script" path="res://tools/benchmarks/lower_town_scene_baseline.gd" id="2_baseline"]
+
+[node name="LowerTownSceneBenchmark" type="Node"]
+
+[node name="LowerTown" parent="." instance=ExtResource("1_lower_town")]
+
+[node name="BaselineRecorder" type="Node" parent="."]
+script = ExtResource("2_baseline")
