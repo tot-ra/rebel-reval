@@ -24,15 +24,31 @@ const LOCOMOTION_REFERENCE_SPEED: Dictionary = {
 const LOCOMOTION_SPEED_SCALE_MIN := 0.7
 const LOCOMOTION_SPEED_SCALE_MAX := 1.5
 const TURN_SMOOTHING := 10.0
-const VENDOR_EQUIPMENT_NAMES: Array[StringName] = [
-	&"1H_Axe_Offhand",
-	&"Barbarian_Round_Shield",
-	&"1H_Axe",
-	&"2H_Axe",
-	&"Mug",
-]
 const RIGHT_HAND_BONE := &"hand.r"
-const HEROIC_MODEL_SCALE := Vector3(0.62, 1.12, 0.62)
+
+## Named bone-attachment points for rigid equipment (weapons, tools, props).
+## Hands use the dedicated handslot grip bones so props sit in the palm.
+const EQUIPMENT_SLOTS: Dictionary = {
+	&"right_hand": &"handslot.r",
+	&"left_hand": &"handslot.l",
+	&"head": &"head",
+	&"back": &"chest",
+}
+
+## Skinned garments authored against the shared skeleton by
+## tools/generate_hero_body.py; they deform with the body.
+const GARMENT_SCENES: Dictionary = {
+	&"cape": preload("res://assets/characters/shared/hero_cape.glb"),
+	&"hat": preload("res://assets/characters/shared/hero_hat.glb"),
+}
+## Uniform: the generated body is authored at adult proportions, so no
+## anisotropic correction is needed — only normalization to the 2.0-unit
+## visible height contract (2.0 / BODY_STATURE from the generator log).
+const HEROIC_MODEL_SCALE := Vector3(1.1621, 1.1621, 1.1621)
+
+## Per-scene override for non-hero bodies: a body scene generated from a
+## different spec sets this to 2.0 / its own BODY_STATURE.
+@export var model_scale: Vector3 = HEROIC_MODEL_SCALE
 const OCCLUDED_SILHOUETTE_SHADER := preload("res://assets/characters/shared/occluded_silhouette.gdshader")
 const HEAD_SCALE_MODIFIER := preload("res://assets/characters/shared/head_scale_modifier.gd")
 
@@ -44,22 +60,23 @@ static var _occluded_silhouette_material: ShaderMaterial
 
 var _animation_player: AnimationPlayer
 var _skeleton: Skeleton3D
-var _equipment_attachment: BoneAttachment3D
+var _slot_attachments: Dictionary = {}
+var _garments: Dictionary = {}
 var _occlusion_ghost := false
 
 func _ready() -> void:
 	# Apply the authored anisotropic normalization in code because inherited
 	# imported-scene transforms can be reset to identity during instantiation.
-	$Model.scale = HEROIC_MODEL_SCALE
+	$Model.scale = model_scale
 	_animation_player = _find_animation_player($Model)
 	_skeleton = _find_skeleton($Model)
-	_hide_vendor_equipment()
 	_apply_variant()
 	_install_head_scale()
 	play_animation(start_animation)
 
-## Adult proportions are baked into heroic_humanoid.glb; the modifier finishes
-## the retarget in animated poses so limbs stay long and the head stays restrained.
+## Adult proportions are baked into the generated heroic_humanoid.glb; the
+## modifier stays neutral by default and exists as a per-variant fine-tune
+## hook (slightly different head/limb builds without new meshes).
 func _install_head_scale() -> void:
 	if _skeleton == null:
 		return
@@ -185,7 +202,76 @@ func variant_id() -> StringName:
 	return variant.stable_id
 
 func has_equipment() -> bool:
-	return _equipment_attachment != null and _equipment_attachment.get_child_count() > 0
+	return equipped(&"right_hand") != null
+
+## Mounts a rigid prop scene on a named bone slot, replacing whatever the
+## slot held. Returns the mounted instance, or null for an unknown slot.
+func equip(slot: StringName, scene: PackedScene) -> Node3D:
+	if _skeleton == null or not EQUIPMENT_SLOTS.has(slot) or scene == null:
+		push_warning("Cannot equip on slot %s" % slot)
+		return null
+	unequip(slot)
+	var attachment: BoneAttachment3D = _slot_attachments.get(slot)
+	if attachment == null:
+		attachment = BoneAttachment3D.new()
+		attachment.name = "Slot_%s" % slot
+		attachment.bone_name = String(EQUIPMENT_SLOTS[slot])
+		_skeleton.add_child(attachment)
+		_slot_attachments[slot] = attachment
+	var instance := scene.instantiate() as Node3D
+	attachment.add_child(instance)
+	if _occlusion_ghost:
+		_apply_overlay(instance, _silhouette_material())
+	return instance
+
+func unequip(slot: StringName) -> void:
+	var attachment: BoneAttachment3D = _slot_attachments.get(slot)
+	if attachment == null:
+		return
+	for child: Node in attachment.get_children():
+		child.queue_free()
+
+func equipped(slot: StringName) -> Node3D:
+	var attachment: BoneAttachment3D = _slot_attachments.get(slot)
+	if attachment == null:
+		return null
+	for child: Node in attachment.get_children():
+		if not child.is_queued_for_deletion():
+			return child as Node3D
+	return null
+
+## Mounts a skinned garment (a glb whose meshes are skinned to the shared
+## skeleton) so it deforms with the body — clothes rather than props.
+func equip_garment(garment_id: StringName, scene: PackedScene) -> bool:
+	if _skeleton == null or scene == null:
+		return false
+	unequip_garment(garment_id)
+	var source := scene.instantiate()
+	var mounted: Array[MeshInstance3D] = []
+	for found: Node in source.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := found as MeshInstance3D
+		mesh_instance.get_parent().remove_child(mesh_instance)
+		mesh_instance.name = "Garment_%s_%s" % [garment_id, mesh_instance.name]
+		_skeleton.add_child(mesh_instance)
+		mesh_instance.skeleton = NodePath("..")
+		mesh_instance.transform = Transform3D.IDENTITY
+		if _occlusion_ghost:
+			_apply_overlay(mesh_instance, _silhouette_material())
+		mounted.append(mesh_instance)
+	source.free()
+	if mounted.is_empty():
+		return false
+	_garments[garment_id] = mounted
+	return true
+
+func unequip_garment(garment_id: StringName) -> void:
+	var mounted: Array = _garments.get(garment_id, [])
+	for mesh_instance: MeshInstance3D in mounted:
+		mesh_instance.queue_free()
+	_garments.erase(garment_id)
+
+func has_garment(garment_id: StringName) -> bool:
+	return _garments.has(garment_id)
 
 func skeleton() -> Skeleton3D:
 	return _skeleton
@@ -211,29 +297,18 @@ func _find_skeleton(root: Node) -> Skeleton3D:
 			return found
 	return null
 
-func _hide_vendor_equipment() -> void:
-	for node_name: StringName in VENDOR_EQUIPMENT_NAMES:
-		var equipment_node := $Model.find_child(String(node_name), true, false) as Node3D
-		if equipment_node != null:
-			equipment_node.visible = false
-	var cape := $Model.find_child("Barbarian_Cape", true, false) as Node3D
-	if cape != null:
-		cape.visible = variant != null and variant.show_cape
-	var hat := $Model.find_child("Barbarian_Hat", true, false) as Node3D
-	if hat != null:
-		hat.visible = variant != null and variant.show_hat
-
 func _apply_variant() -> void:
 	if variant == null:
 		return
 	_tint_meshes($Model, variant.material_tint)
-	if _skeleton == null or variant.equipment == null:
+	if _skeleton == null:
 		return
-	_equipment_attachment = BoneAttachment3D.new()
-	_equipment_attachment.name = "EquipmentRightHand"
-	_equipment_attachment.bone_name = String(RIGHT_HAND_BONE)
-	_skeleton.add_child(_equipment_attachment)
-	_equipment_attachment.add_child(variant.equipment.instantiate())
+	if variant.equipment != null:
+		equip(&"right_hand", variant.equipment)
+	if variant.show_cape:
+		equip_garment(&"cape", GARMENT_SCENES[&"cape"])
+	if variant.show_hat:
+		equip_garment(&"hat", GARMENT_SCENES[&"hat"])
 
 func _tint_meshes(root: Node, tint: Color) -> void:
 	if root is MeshInstance3D:

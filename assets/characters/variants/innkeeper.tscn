@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://assets/characters/shared/shared_character_rig.gd" id="1_rig"]
+[ext_resource type="PackedScene" path="res://assets/characters/shared/innkeeper.glb" id="2_model"]
+[ext_resource type="Resource" path="res://assets/characters/variants/innkeeper_variant.tres" id="3_variant"]
+
+[node name="Innkeeper" type="Node3D"]
+script = ExtResource("1_rig")
+variant = ExtResource("3_variant")
+
+[node name="Model" type="Node3D" parent="."]
+# Same uniform scale as the hero body: both are authored in the same
+# skeleton units, so sharing the scale preserves their relative statures
+# (the innkeeper stands naturally shorter than 2.0 world units).
+scale = Vector3(1.1621, 1.1621, 1.1621)
+
+[node name="ImportedHumanoid" parent="Model" instance=ExtResource("2_model")]

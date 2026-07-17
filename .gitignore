@@ -7,3 +7,5 @@
 # Documentation manifest generated/imported by Godot as a translation CSV; keep only the source CSV.
 /assets/SOURCES.csv.import
 /assets/SOURCES.*.translation
+# Character pipeline build intermediates (regenerate with tools/rebuild_hero_character.sh)
+tools/character_build/

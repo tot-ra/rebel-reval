@@ -4,10 +4,13 @@ extends SkeletonModifier3D
 ## Moderate values keep the silhouette adult at gameplay scale without the
 ## extreme deformation previously required by the untouched vendor mesh.
 
-@export_range(0.3, 1.0, 0.01) var head_scale := 0.88
-@export_range(1.0, 1.5, 0.01) var leg_segment_scale := 1.12
-@export_range(1.0, 1.5, 0.01) var arm_segment_scale := 1.10
-@export_range(0.7, 1.0, 0.01) var torso_scale := 0.94
+## Neutral by default: adult proportions are now fully baked into the glb
+## skeleton by tools/build_heroic_humanoid_glb.py; these stay as per-variant
+## fine-tune knobs only.
+@export_range(0.3, 1.2, 0.01) var head_scale := 1.0
+@export_range(0.8, 1.5, 0.01) var leg_segment_scale := 1.0
+@export_range(0.8, 1.5, 0.01) var arm_segment_scale := 1.0
+@export_range(0.7, 1.2, 0.01) var torso_scale := 1.0
 
 const LEG_BONES: Array[StringName] = [
 	&"upperleg.l",

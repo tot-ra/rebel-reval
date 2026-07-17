@@ -29,6 +29,33 @@ Open the bag with **I**; close with **I** or **Esc**. While open, movement is pa
 
 Pickup wiring (D-003) should call `GameState.bag.try_add(item_id)` and, on success, `GameState.add_item(item_id)` so quest conditions and the bag stay aligned.
 
+## Equipment placement (design)
+
+Status: **designed, not yet implemented.** The rig side exists (`SharedCharacterRig.equip/unequip/equip_garment`, slots `right_hand`, `left_hand`, `head`, `back` — see [`docs/CHARACTER_GENERATION.md`](CHARACTER_GENERATION.md)); this section fixes the inventory-side contract before wiring.
+
+**Content**: item records gain an optional `gameplay.equip` block:
+
+```json
+"equip": {
+  "slot": "right_hand",
+  "scene": "res://assets/characters/shared/hammer.tscn"
+}
+```
+
+or, for clothes, `"garment": "cape"` instead of `scene`. No `equip` block means the item is carry-only.
+
+**Rules** (all state lives in `GameState`, mirroring the bag):
+
+- `GameState.equipped` maps slot → item_id, persisted with the session like the bag.
+- Equipping requires the item in the bag; on success it **leaves the grid** (frees cells) but its weight **still counts** toward the 28 kg cap — you carry what you wear.
+- Equipping into an occupied slot returns the previous item to the bag first; if the grid cannot fit it, the swap is rejected with no partial mutation (same no-partial-mutation discipline as quest state).
+- Unequip is the reverse: needs free grid space, else rejected.
+- Quest/content ownership flags (`add_item`/`has_item`) are unaffected by equip state — an equipped hammer is still owned.
+
+**UI**: the bag overlay gains a slot column (right hand, left hand, head, back) beside the grid. Click an equipable item → "Equip" action; click an occupied slot → returns the item to the bag. Encumbrance meter unchanged.
+
+**Visuals**: on any change to `GameState.equipped`, the player controller calls the matching `rig.equip/unequip/equip_garment` so the 3D view always reflects state; NPC variants keep using `CharacterVariant` defaults.
+
 ## Content authoring
 
 Optional `gameplay.carry` block on item records:

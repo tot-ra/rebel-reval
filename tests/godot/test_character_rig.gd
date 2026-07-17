@@ -2,6 +2,7 @@ extends "res://tests/godot/test_case.gd"
 
 const KALEV_SCENE := preload("res://assets/characters/kalev/kalev.tscn")
 const MART_SCENE := preload("res://assets/characters/variants/mart.tscn")
+const INNKEEPER_SCENE := preload("res://assets/characters/variants/innkeeper.tscn")
 const REQUIRED_ANIMATIONS: Array[StringName] = [
 	&"idle",
 	&"walk",
@@ -99,35 +100,18 @@ func test_scale_contract_projects_to_sixty_four_pixels() -> void:
 	kalev.queue_free()
 
 
-func test_realistic_proportions_modifier_retargets_vendor_rig() -> void:
+func test_proportions_modifier_installed_and_neutral_by_default() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
 	var modifier := kalev.skeleton().get_node_or_null("RealisticProportions")
-	assert_true(modifier != null, "shared rig must install its animated proportions modifier")
+	assert_true(modifier != null, "shared rig must install its per-variant proportions hook")
 	if modifier != null:
-		assert_true(is_equal_approx(modifier.head_scale, 0.88), "head must stay restrained in animated poses")
-		assert_true(
-			is_equal_approx(modifier.leg_segment_scale, 1.12),
-			"legs must preserve the taller adult silhouette during animation"
-		)
-		assert_true(
-			is_equal_approx(modifier.arm_segment_scale, 1.10),
-			"arms must preserve adult reach during animation"
-		)
-		modifier.call("_process_modification")
-		var head_bone := kalev.skeleton().find_bone("head")
-		assert_true(head_bone >= 0, "vendor rig must expose the head bone")
-		if head_bone >= 0:
-			assert_true(
-				kalev.skeleton().get_bone_pose_scale(head_bone).is_equal_approx(Vector3.ONE * 0.88),
-				"head pose scale must survive animation updates"
-			)
-		var upper_leg := kalev.skeleton().find_bone("upperleg.l")
-		assert_true(upper_leg >= 0, "vendor rig must expose leg bones")
-		if upper_leg >= 0:
-			assert_true(
-				kalev.skeleton().get_bone_pose_scale(upper_leg).is_equal_approx(Vector3(1.0, 1.12, 1.0)),
-				"leg pose scale must survive animation updates"
-			)
+		# Adult proportions are baked into the generated glb by
+		# tools/build_heroic_humanoid_glb.py + tools/generate_hero_body.py;
+		# the runtime modifier is a fine-tune hook and must default neutral.
+		assert_true(is_equal_approx(modifier.head_scale, 1.0), "baked head needs no runtime correction")
+		assert_true(is_equal_approx(modifier.leg_segment_scale, 1.0), "baked legs need no runtime correction")
+		assert_true(is_equal_approx(modifier.arm_segment_scale, 1.0), "baked arms need no runtime correction")
+		assert_true(is_equal_approx(modifier.torso_scale, 1.0), "baked torso needs no runtime correction")
 	kalev.queue_free()
 
 
@@ -167,6 +151,69 @@ func test_occlusion_ghost_overlays_every_mesh_and_clears() -> void:
 		assert_eq(mesh_instance.material_overlay, null, "%s must drop the overlay when visible" % mesh_instance.name)
 
 	kalev.queue_free()
+
+func test_equipment_slots_mount_replace_and_clear_props() -> void:
+	var kalev := _instantiate(KALEV_SCENE)
+	var hammer_scene := load("res://assets/characters/shared/hammer.tscn") as PackedScene
+
+	assert_true(kalev.equipped(&"right_hand") != null, "variant hammer must occupy the right hand slot")
+	var left := kalev.equip(&"left_hand", hammer_scene)
+	assert_true(left != null, "left hand slot must accept a prop")
+	assert_eq(kalev.equipped(&"left_hand"), left)
+
+	var replacement := kalev.equip(&"left_hand", hammer_scene)
+	assert_true(replacement != null and replacement != left, "equipping again must replace the prop")
+
+	kalev.unequip(&"left_hand")
+	assert_eq(kalev.equipped(&"left_hand"), null, "unequip must clear the slot")
+	assert_eq(kalev.equip(&"nonsense", hammer_scene), null, "unknown slots must be rejected")
+	kalev.queue_free()
+
+func test_skinned_garments_deform_with_the_shared_skeleton() -> void:
+	var kalev := _instantiate(KALEV_SCENE)
+	var mart := _instantiate(MART_SCENE)
+
+	assert_true(kalev.has_garment(&"cape"), "Kalev variant must wear the generated cape")
+	assert_false(kalev.has_garment(&"hat"), "Kalev variant must not wear the hat")
+	assert_true(mart.has_garment(&"hat"), "Mart variant must wear the generated hat")
+
+	var cape_meshes := kalev.skeleton().find_children("Garment_cape*", "MeshInstance3D", false, false)
+	assert_true(cape_meshes.size() > 0, "cape meshes must mount under the skeleton")
+	for mesh: MeshInstance3D in cape_meshes:
+		assert_true(mesh.mesh.get_surface_count() > 0, "garment must carry visible surfaces")
+		assert_true(mesh.skin != null, "garment must stay skinned so it deforms with the body")
+
+	kalev.unequip_garment(&"cape")
+	assert_false(kalev.has_garment(&"cape"), "garments must be removable")
+
+	assert_true(
+		kalev.equip_garment(&"hat", SharedCharacterRig.GARMENT_SCENES[&"hat"]),
+		"garments must be equippable at runtime"
+	)
+	assert_true(kalev.has_garment(&"hat"))
+
+	kalev.queue_free()
+	mart.queue_free()
+
+func test_innkeeper_body_spec_fulfills_the_rig_contract() -> void:
+	var kalev := _instantiate(KALEV_SCENE)
+	var innkeeper := _instantiate(INNKEEPER_SCENE)
+
+	assert_eq(innkeeper.validation_errors(), [], "generated body specs must satisfy the rig contract")
+	assert_eq(innkeeper.variant_id(), &"char.innkeeper")
+	assert_eq(
+		innkeeper.skeleton().get_bone_count(),
+		kalev.skeleton().get_bone_count(),
+		"all generated bodies share the retargeted skeleton layout"
+	)
+	assert_eq(innkeeper.canonical_animation_names(), kalev.canonical_animation_names())
+	assert_false(is_same(
+		innkeeper.animation_player().get_animation_library(&""),
+		kalev.animation_player().get_animation_library(&""),
+	), "a body spec carries its own retargeted clips, proportioned to its skeleton")
+
+	kalev.queue_free()
+	innkeeper.queue_free()
 
 func _instantiate(scene: PackedScene) -> SharedCharacterRig:
 	var character := scene.instantiate() as SharedCharacterRig
