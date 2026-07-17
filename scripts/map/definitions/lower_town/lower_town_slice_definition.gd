@@ -242,6 +242,14 @@ static func create() -> MapDefinition:
 	# and south lie beyond the wall and moat, so open glacis begins there.
 	definition.surroundings_town_sides = [&"north", &"west"]
 
+	definition.direction_signs = [
+		{
+			"text": "to harbour",
+			"position": definition.cell_rect_center(Rect2i(78, 17, 1, 1)),
+			"direction": Vector2.RIGHT,
+		},
+	]
+
 	definition.props = [
 		# Smithy work yard.
 		{"id": &"courtyard_anvil", "kind": MapTypes.PROP_KIND_ANVIL, "position": definition.cell_rect_center(Rect2i(56, 24, 2, 2))},

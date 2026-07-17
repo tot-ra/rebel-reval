@@ -17,6 +17,9 @@ var scope: StringName = &""
 var active: bool = false
 var palette: StringName = &""
 var transitions: Array[Dictionary] = []
+## Optional wooden wayfinding signs attached to transitions that lead beyond
+## the city walls. Each sign declares text, position, and outgoing direction.
+var direction_signs: Array[Dictionary] = []
 var excluded_areas: Array[Rect2i] = []
 var patrols: Array[Dictionary] = []
 var interaction_anchors: Array[Dictionary] = []
@@ -87,6 +90,9 @@ func validate() -> Array[String]:
 
 	for index in transitions.size():
 		errors.append_array(_validate_transition(transitions[index], index, seen_ids))
+
+	for index in direction_signs.size():
+		errors.append_array(_validate_direction_sign(direction_signs[index], index))
 
 	for index in excluded_areas.size():
 		errors.append_array(_validate_excluded_area(excluded_areas[index], index))
@@ -233,6 +239,26 @@ func _validate_transition(trans: Dictionary, index: int, seen_ids: Dictionary) -
 		errors.append("%s.rect must be Rect2" % prefix)
 	elif not _rect_inside_world_pixels(trans["rect"]):
 		errors.append("%s.rect is outside world bounds" % prefix)
+
+	return errors
+
+
+func _validate_direction_sign(sign: Dictionary, index: int) -> Array[String]:
+	var errors: Array[String] = []
+	var prefix := "direction_signs[%d]" % index
+
+	if not sign.has("text") or String(sign["text"]).strip_edges().is_empty():
+		errors.append("%s.text is required" % prefix)
+
+	if not sign.has("position") or not sign["position"] is Vector2:
+		errors.append("%s.position must be Vector2" % prefix)
+	elif not _point_inside_world_pixels(sign["position"]):
+		errors.append("%s.position is outside world bounds" % prefix)
+
+	if not sign.has("direction") or not sign["direction"] is Vector2:
+		errors.append("%s.direction must be Vector2" % prefix)
+	elif (sign["direction"] as Vector2).is_zero_approx():
+		errors.append("%s.direction must not be zero" % prefix)
 
 	return errors
 

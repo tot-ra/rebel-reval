@@ -1,6 +1,8 @@
 class_name MapView3D
 extends Node3D
 
+const DirectionSignBuilder := preload("res://scripts/map/view3d/direction_sign_3d.gd")
+
 ## P0-052 3D orthographic view layer (ADR 0007). Assembles terrain, building,
 ## and prop geometry from an immutable MapDefinition, framed by a fixed
 ## dimetric orthographic camera under a deterministic day/night sun.
@@ -163,6 +165,17 @@ func _assemble() -> void:
 			Vector2(prop_node.position.x, prop_node.position.z)
 		)
 		props.add_child(prop_node)
+
+	var direction_signs := Node3D.new()
+	direction_signs.name = "DirectionSigns"
+	add_child(direction_signs)
+	for sign in definition.direction_signs:
+		var sign_node := DirectionSignBuilder.build(sign, definition.cell_size)
+		sign_node.position.y = MapViewMeshBuilder.ground_height(
+			definition,
+			Vector2(sign_node.position.x, sign_node.position.z)
+		)
+		direction_signs.add_child(sign_node)
 
 	var anchors := Node3D.new()
 	anchors.name = "Anchors"
