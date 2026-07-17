@@ -19,6 +19,7 @@ func test_kalev_smithy_required_anchors_present() -> void:
 	for anchor_id in [&"anvil", &"ledger", &"bed_alcove"]:
 		assert_true(MapVerification.has_anchor(definition, anchor_id), "Missing anchor %s" % String(anchor_id))
 	assert_false(MapVerification.transition_rect(definition, &"door_courtyard") == Rect2())
+	assert_false(MapVerification.transition_rect(definition, &"smithy_start_spawn") == Rect2())
 
 
 func test_kalev_smithy_door_and_work_triangle_reachable() -> void:

@@ -8,7 +8,8 @@
       "active": true,
       "release": true,
       "spawns": [
-        { "id": "door_courtyard" }
+        { "id": "door_courtyard" },
+        { "id": "smithy_start" }
       ]
     },
     {

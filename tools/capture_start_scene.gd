@@ -1,7 +1,7 @@
 extends SceneTree
 
 ## D-001 evidence capture: reproduces the post-menu Start flow (spawn at
-## street_start in the Lower Town slice) and saves day and night gameplay-view
+## smithy_start in Kalev's forge) and saves day and night gameplay-view
 ## PNGs. Requires a rendering-capable run (no --headless):
 ## godot --path . --script tools/capture_start_scene.gd
 
@@ -16,7 +16,7 @@ func _initialize() -> void:
 func _run() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	var navigator := root.get_node("DoorNavigator")
-	navigator.go_to_scene(&"reval_east", &"street_start")
+	navigator.go_to_scene(&"forge", &"smithy_start")
 	for time_of_day in MapView3D.ALL_TIMES:
 		for _frame in SETTLE_FRAMES:
 			await process_frame

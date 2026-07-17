@@ -20,6 +20,7 @@ func test_transition_manifest_includes_dev_traversal_scenes() -> void:
 func test_transition_manifest_resolves_paths_and_spawns() -> void:
 	assert_eq(DoorNavigator.get_scene_path(&"forge"), "res://scenes/reval_east/forge/forge.tscn")
 	assert_true(DoorNavigator.has_spawn(&"forge", &"door_courtyard"), "Forge must expose its stable courtyard spawn")
+	assert_true(DoorNavigator.has_spawn(&"forge", &"smithy_start"), "Forge must expose its new-game start spawn")
 	assert_true(DoorNavigator.has_spawn(&"reval_east", &"street_start"), "Lower Town must expose its Start spawn")
 	assert_true(DoorNavigator.has_spawn(&"reval_east", &"forge"), "Lower Town must expose its smithy spawn")
 	assert_true(DoorNavigator.has_spawn(&"reval_east", &"vana_turg_boundary"), "Lower Town must expose its west boundary spawn")

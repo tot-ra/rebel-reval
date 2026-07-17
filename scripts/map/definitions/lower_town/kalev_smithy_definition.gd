@@ -62,6 +62,15 @@ static func create() -> MapDefinition:
 		&"door_courtyard",
 		Vector2(0.0, -48.0)
 	)
+	# New-game entry uses the authored player_spawn, not the courtyard doorway.
+	InteriorMapFactory.add_transition(
+		definition,
+		&"smithy_start_spawn",
+		Rect2i(18, 14, 2, 2),
+		&"",
+		&"",
+		&"smithy_start"
+	)
 	InteriorMapFactory.add_fade_volume(definition, Rect2i(14, 3, 12, 3))
 	InteriorMapFactory.add_source_references(
 		definition,
