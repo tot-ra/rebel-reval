@@ -158,8 +158,8 @@ func _update_color_ramp(night: bool) -> void:
 	alpha_ramp.set_color(0, Color(fade.r, fade.g, fade.b, 0.0))
 	# Configure both default endpoints before inserting sorted intermediate points.
 	alpha_ramp.set_color(1, Color(fade.r, fade.g, fade.b, 0.0))
-	alpha_ramp.add_point(0.1, Color(base.r, base.g, base.b, 0.28 if night else 0.22))
-	alpha_ramp.add_point(0.4, Color(mid.r, mid.g, mid.b, 0.18 if night else 0.14))
+	alpha_ramp.add_point(0.1, Color(base.r, base.g, base.b, 0.32 if night else 0.26))
+	alpha_ramp.add_point(0.4, Color(mid.r, mid.g, mid.b, 0.20 if night else 0.16))
 	alpha_ramp.add_point(0.75, Color(fade.r, fade.g, fade.b, 0.06))
 	var ramp_texture := GradientTexture1D.new()
 	ramp_texture.gradient = alpha_ramp
