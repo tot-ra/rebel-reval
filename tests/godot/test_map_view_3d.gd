@@ -253,6 +253,33 @@ func test_runtime_maps_keyboard_to_screen_axes_and_faces_idle_rig_at_camera() ->
 		is_equal_approx(rotated_up.length(), 1.0),
 		"re-projected movement must stay normalized"
 	)
+
+	var default_camera_size := camera.size
+	var wheel_up := InputEventMouseButton.new()
+	wheel_up.button_index = MOUSE_BUTTON_WHEEL_UP
+	wheel_up.pressed = true
+	runtime._unhandled_input(wheel_up)
+	assert_true(camera.size < default_camera_size, "mouse wheel up must zoom toward the player")
+
+	var wheel_down := InputEventMouseButton.new()
+	wheel_down.button_index = MOUSE_BUTTON_WHEEL_DOWN
+	wheel_down.pressed = true
+	runtime._unhandled_input(wheel_down)
+	assert_true(
+		is_equal_approx(camera.size, default_camera_size),
+		"opposite wheel steps must restore the previous zoom level"
+	)
+
+	runtime.zoom_view_steps(100.0)
+	assert_true(
+		is_equal_approx(camera.size, MapViewRuntime.ZOOM_MIN_ORTHOGRAPHIC_SIZE),
+		"zooming in must stop at the close-up limit"
+	)
+	runtime.zoom_view_steps(-200.0)
+	assert_true(
+		is_equal_approx(camera.size, MapViewRuntime.ZOOM_MAX_ORTHOGRAPHIC_SIZE),
+		"zooming out must stop at the overview limit"
+	)
 	scene_root.free()
 
 

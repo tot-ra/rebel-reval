@@ -19,6 +19,12 @@ const WALK_ANIMATION_MIN_SPEED := 5.0
 ## player's walk and run speeds).
 const RUN_ANIMATION_MIN_SPEED := 170.0
 const INPUT_PROJECTION_SAMPLE_PX := 64.0
+## Orthographic zoom keeps the player-centered orbit intact while changing how
+## much of the map is visible. Limits prevent clipping into the character or
+## zooming so far out that gameplay-scale details become unreadable.
+const ZOOM_STEP_FACTOR := 0.9
+const ZOOM_MIN_ORTHOGRAPHIC_SIZE := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE * 0.5
+const ZOOM_MAX_ORTHOGRAPHIC_SIZE := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE * 2.0
 ## Page Up / Page Down orbit the dimetric camera in fixed steps so players can
 ## look at facades the default angle hides.
 const ROTATE_STEP_DEGREES := 45.0
@@ -75,6 +81,29 @@ func _process(delta: float) -> void:
 	if _player == null or not is_instance_valid(_player):
 		return
 	_sync_player(false, delta)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	var mouse_button := event as InputEventMouseButton
+	if mouse_button == null or not mouse_button.pressed:
+		return
+	if mouse_button.button_index == MOUSE_BUTTON_WHEEL_UP:
+		zoom_view_steps(mouse_button.factor)
+	elif mouse_button.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+		zoom_view_steps(-mouse_button.factor)
+	else:
+		return
+	get_viewport().set_input_as_handled()
+
+
+## Positive steps zoom in and negative steps zoom out. Exponential scaling
+## gives mouse wheels and high-resolution trackpads the same proportional feel.
+func zoom_view_steps(steps: float) -> void:
+	_camera.size = clampf(
+		_camera.size * pow(ZOOM_STEP_FACTOR, steps),
+		ZOOM_MIN_ORTHOGRAPHIC_SIZE,
+		ZOOM_MAX_ORTHOGRAPHIC_SIZE
+	)
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
