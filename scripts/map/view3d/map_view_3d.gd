@@ -78,6 +78,11 @@ func world_position(logic_position: Vector2, height: float = 0.0) -> Vector3:
 
 func sync_actor(actor: Node3D, logic_position: Vector2) -> void:
 	MapViewBridge.sync_actor(actor, logic_position, definition.cell_size)
+	# Actors ride the visible terrain relief; the logic plane stays flat.
+	actor.position.y = MapViewMeshBuilder.ground_height(
+		definition,
+		Vector2(actor.position.x, actor.position.z)
+	)
 
 
 func anchor_world_position(anchor_id: StringName) -> Vector3:
@@ -140,7 +145,12 @@ func _assemble() -> void:
 	props.name = "Props"
 	add_child(props)
 	for prop in definition.props:
-		props.add_child(MapViewMeshBuilder.build_prop(prop, definition.cell_size))
+		var prop_node := MapViewMeshBuilder.build_prop(prop, definition.cell_size)
+		prop_node.position.y = MapViewMeshBuilder.ground_height(
+			definition,
+			Vector2(prop_node.position.x, prop_node.position.z)
+		)
+		props.add_child(prop_node)
 
 	var anchors := Node3D.new()
 	anchors.name = "Anchors"

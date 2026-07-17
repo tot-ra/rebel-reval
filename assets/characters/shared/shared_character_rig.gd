@@ -33,6 +33,7 @@ const VENDOR_EQUIPMENT_NAMES: Array[StringName] = [
 ]
 const RIGHT_HAND_BONE := &"hand.r"
 const OCCLUDED_SILHOUETTE_SHADER := preload("res://assets/characters/shared/occluded_silhouette.gdshader")
+const HEAD_SCALE_MODIFIER := preload("res://assets/characters/shared/head_scale_modifier.gd")
 
 static var _occluded_silhouette_material: ShaderMaterial
 
@@ -50,7 +51,17 @@ func _ready() -> void:
 	_skeleton = _find_skeleton($Model)
 	_hide_vendor_equipment()
 	_apply_variant()
+	_install_head_scale()
 	play_animation(start_animation)
+
+## The vendor rig ships with chibi proportions; a modifier shrinks the head
+## after every animation update so it reads closer to realistic anatomy.
+func _install_head_scale() -> void:
+	if _skeleton == null:
+		return
+	var modifier := HEAD_SCALE_MODIFIER.new()
+	modifier.name = "HeadScale"
+	_skeleton.add_child(modifier)
 
 func canonical_animation_names() -> Array[StringName]:
 	var names: Array[StringName] = []

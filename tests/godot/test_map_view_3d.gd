@@ -118,6 +118,41 @@ func test_view_renders_definitions_without_touching_logic_results() -> void:
 		view.free()
 
 
+func test_terrain_uses_dense_subcell_geometry() -> void:
+	var definition := LowerTownSlice.create()
+	var grid := MapBuilder.build(definition)
+	var view := MapView3D.create(definition, grid)
+	var vertex_count := 0
+	for terrain_mesh: MeshInstance3D in view.get_node("Terrain").get_children():
+		var mesh := terrain_mesh.mesh as ArrayMesh
+		for surface_index in mesh.get_surface_count():
+			var index_count := mesh.surface_get_array_index_len(surface_index)
+			vertex_count += index_count if index_count > 0 else mesh.surface_get_array_len(surface_index)
+	# Tangent generation welds some vertices on animated water surfaces, so the
+	# post-commit count can be slightly below the raw 9x triangle budget.
+	var minimum_dense_budget := (
+		grid.size_cells.x
+		* grid.size_cells.y
+		* (MapViewMeshBuilder.TERRAIN_SUBDIVISIONS * MapViewMeshBuilder.TERRAIN_SUBDIVISIONS - 1)
+		* 6
+	)
+	assert_true(vertex_count >= minimum_dense_budget, "terrain must retain at least eight visual patches per logic cell")
+	view.free()
+
+
+func test_grass_and_tree_detail_use_generated_meshes_and_wind_materials() -> void:
+	var definition := SmithyCourtyard.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition))
+	var tufts := view.get_node("Scatter/Tufts") as MultiMeshInstance3D
+	assert_true(tufts.multimesh.mesh is ArrayMesh, "grass must use blade geometry instead of a cone primitive")
+	assert_true(tufts.material_override is ShaderMaterial, "grass blades must carry the wind shader")
+	for path in ["Surroundings/SpruceCanopies", "Surroundings/LeafCanopies"]:
+		var canopy := view.get_node(path) as MultiMeshInstance3D
+		assert_true(canopy.multimesh.mesh is ArrayMesh, "%s must use a multi-lobed generated mesh" % path)
+		assert_true(canopy.material_override is ShaderMaterial, "%s must carry canopy sway" % path)
+	view.free()
+
+
 func test_houses_get_gabled_roofs_and_walls_get_caps() -> void:
 	var definition := SmithyCourtyard.create()
 	for building in definition.buildings:
@@ -364,7 +399,12 @@ func test_town_wall_gets_battlements_and_gate_arch_clears_character() -> void:
 	for building in definition.buildings:
 		if building["id"] in [&"city_wall_north", &"viru_gate_north_tower", &"hinke_tower"]:
 			var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
-			assert_true(node.has_node("Merlons"), "%s: fortifications need battlements" % building["id"])
+			if building["id"] == &"city_wall_north":
+				assert_true(node.has_node("Merlons"), "straight fortification walls need battlements")
+				assert_true(node.has_node("WalkRoof"), "Tallinn wall walks need covered red-tile roofs")
+			else:
+				assert_true(node.has_node("TowerRoof"), "%s needs a conical red-tile roof" % building["id"])
+				assert_true((node.get_node("Walls") as MeshInstance3D).mesh is CylinderMesh, "%s must be round" % building["id"])
 			node.free()
 	assert_true(definition.view_landmarks.size() >= 1, "Viru Gate needs its arch landmark")
 	var arch := MapViewMeshBuilder.build_landmark(definition.view_landmarks[0], definition.cell_size)

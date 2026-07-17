@@ -41,6 +41,24 @@ func test_scale_contract_projects_to_sixty_four_pixels() -> void:
 	assert_true(is_equal_approx(CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE, 28.125))
 	assert_true(is_equal_approx(CharacterScale.projected_height_px(), 64.0))
 
+
+func test_head_modifier_shrinks_vendor_rig_proportions() -> void:
+	var kalev := _instantiate(KALEV_SCENE)
+	var modifier := kalev.skeleton().get_node_or_null("HeadScale")
+	assert_true(modifier != null, "shared rig must install its animated head-scale modifier")
+	if modifier != null:
+		assert_true(is_equal_approx(modifier.head_scale, 0.72), "head must use the approved realistic scale")
+		modifier.call("_process_modification")
+		var head_bone := kalev.skeleton().find_bone("head")
+		assert_true(head_bone >= 0, "vendor rig must expose the head bone")
+		if head_bone >= 0:
+			assert_true(
+				kalev.skeleton().get_bone_pose_scale(head_bone).is_equal_approx(Vector3.ONE * 0.72),
+				"head pose scale must survive animation updates"
+			)
+	kalev.queue_free()
+
+
 func test_mart_is_a_data_only_swap_on_the_shared_rig() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
 	var mart := _instantiate(MART_SCENE)
