@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://bs36kitagkmg5"]
+[gd_scene load_steps=7 format=3 uid="uid://bs36kitagkmg5"]
 
 [ext_resource type="Script" uid="uid://qbfohjtotkyu" path="res://scripts/player.gd" id="1_v254c"]
 [ext_resource type="PackedScene" uid="uid://mf6xvrb7vivm" path="res://scenes/elements/UI.tscn" id="2_ui"]
+[ext_resource type="Script" path="res://scripts/inventory/inventory_controller.gd" id="3_inventory"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_3iwfv"]
 radius = 16.0
@@ -62,3 +63,6 @@ value = 100.0
 show_percentage = false
 
 [node name="Ui" parent="." instance=ExtResource("2_ui")]
+
+[node name="InventoryController" type="Node" parent="."]
+script = ExtResource("3_inventory")

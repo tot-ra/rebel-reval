@@ -33,6 +33,13 @@ func _on_spawn(position: Vector2, direction: String):
 		animation_player.stop()
 
 func _physics_process(_delta):
+	if _movement_blocked():
+		velocity = Vector2.ZERO
+		_sync_resource_bars()
+		move_and_slide()
+		update_animation("idle")
+		return
+
 	var screen_direction := Vector2(
 		Input.get_axis("ui_left", "ui_right"),
 		Input.get_axis("ui_up", "ui_down")
@@ -41,11 +48,12 @@ func _physics_process(_delta):
 	var new_animation = "idle"
 	
 	if not movement_direction.is_zero_approx():
-		var current_speed = run_speed
+		var encumbrance := _get_encumbrance_speed_multiplier()
+		var current_speed = run_speed * encumbrance
 		
 		if Input.is_action_pressed("ui_shift"):
 			new_animation = "walk"
-			current_speed = walk_speed
+			current_speed = walk_speed * encumbrance
 		else:
 			new_animation = "run"
 		
@@ -57,7 +65,7 @@ func _physics_process(_delta):
 			var current_agent_position: Vector2 = global_position
 			var next_path_position: Vector2 = navigation_agent.get_next_path_position()
 
-			velocity = run_speed * (next_path_position - current_agent_position).normalized()
+			velocity = run_speed * _get_encumbrance_speed_multiplier() * (next_path_position - current_agent_position).normalized()
 			
 			navigation_agent.set_velocity(velocity)
 			new_animation = "run"
@@ -84,6 +92,17 @@ func movement_direction_for_screen_input(screen_direction: Vector2) -> Vector2:
 		+ _screen_down_in_logic * screen_direction.y
 	)
 	return logic_direction.normalized() if not logic_direction.is_zero_approx() else Vector2.ZERO
+
+func _movement_blocked() -> bool:
+	var controller := get_node_or_null("InventoryController") as InventoryController
+	return controller != null and controller.is_open()
+
+
+func _get_encumbrance_speed_multiplier() -> float:
+	if not has_node("/root/SessionState"):
+		return 1.0
+	return SessionState.state.bag.get_speed_multiplier()
+
 
 func _update_movement_resources(delta: float, is_moving: bool) -> void:
 	# Health changes belong to damage/healing systems, never to locomotion or idle.

@@ -15,7 +15,12 @@
     "stackable": false,
     "uses": [
       "Commission object repaired during the prologue."
-    ]
+    ],
+    "carry": {
+      "weight_g": 1100,
+      "grid_width": 1,
+      "grid_height": 2
+    }
   },
   "source_notes": [
     {

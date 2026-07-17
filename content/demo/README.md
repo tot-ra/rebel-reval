@@ -5,7 +5,7 @@ Authored JSON for the MVP demo interaction loop. These records are schema-valid,
 | ID | File | Used by |
 |----|------|---------|
 | `dialogue.demo.mart_street` | `dialogue.demo.mart_street.json` | D-002 Mart proximity conversation |
-| `item.forge_hammer` | `item.forge_hammer.json` | D-003 forge-hammer pickup and inventory display |
+| `item.forge_hammer` | `item.forge_hammer.json` | D-003 forge-hammer pickup and bag overlay (`docs/INVENTORY_MECHANICS.md`) |
 
 Support character records under `support/` exist only so the demo corpus passes reference validation. They are trimmed copies of the approved briefs, not a second canon source.
 

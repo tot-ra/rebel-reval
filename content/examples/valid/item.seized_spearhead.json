@@ -17,7 +17,12 @@
     "stackable": false,
     "uses": [
       "Evidence inspected during the prologue; not a normal reward item."
-    ]
+    ],
+    "carry": {
+      "weight_g": 350,
+      "grid_width": 1,
+      "grid_height": 1
+    }
   },
   "source_notes": [
     {

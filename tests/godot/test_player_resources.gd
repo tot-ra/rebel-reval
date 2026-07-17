@@ -82,6 +82,7 @@ func test_screen_relative_basis_maps_arrows_to_camera_diagonals() -> void:
 	player.free()
 
 func _create_player() -> Player:
+	SessionState.state.bag = InventoryBag.new()
 	var player := PLAYER_SCENE.instantiate() as Player
 	var tree := Engine.get_main_loop() as SceneTree
 	tree.root.add_child(player)

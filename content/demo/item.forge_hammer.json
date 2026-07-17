@@ -16,7 +16,12 @@
     "uses": [
       "Demo world pickup for the D-003 inventory loop.",
       "Kalev's working hammer; later reused by hammer combat prototypes."
-    ]
+    ],
+    "carry": {
+      "weight_g": 4500,
+      "grid_width": 2,
+      "grid_height": 2
+    }
   },
   "source_notes": [
     {

@@ -17,6 +17,7 @@ const PRESSURE_MAX := 3
 var version: int = CURRENT_VERSION
 var phase: StringName = PHASE_PROLOGUE_DAY
 var player: PlayerState = PlayerState.new()
+var bag: InventoryBag = InventoryBag.new()
 
 var _facts: Dictionary[StringName, bool] = {}
 var _relationships: Dictionary[StringName, int] = {}

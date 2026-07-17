@@ -82,6 +82,31 @@
             "type": "string",
             "minLength": 1
           }
+        },
+        "carry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "weight_g",
+            "grid_width",
+            "grid_height"
+          ],
+          "properties": {
+            "weight_g": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "grid_width": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 8
+            },
+            "grid_height": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5
+            }
+          }
         }
       }
     },
