@@ -66,30 +66,35 @@ size = 28.125
 current = true
 
 [node name="Idle" parent="." instance=ExtResource("2_kalev")]
-position = Vector3(-10.6066, 0, 10.6066)
+position = Vector3(-12.3744, 0, 12.3744)
 start_animation = &"idle"
 
 [node name="Walk" parent="." instance=ExtResource("2_kalev")]
-position = Vector3(-7.07107, 0, 7.07107)
+position = Vector3(-8.83883, 0, 8.83883)
 start_animation = &"walk"
 
+[node name="Run" parent="." instance=ExtResource("2_kalev")]
+position = Vector3(-5.3033, 0, 5.3033)
+start_animation = &"run"
+
 [node name="ForgeStrike" parent="." instance=ExtResource("2_kalev")]
-position = Vector3(-3.53553, 0, 3.53553)
+position = Vector3(-1.76777, 0, 1.76777)
 start_animation = &"forge_strike"
 
 [node name="HammerAttack" parent="." instance=ExtResource("2_kalev")]
+position = Vector3(1.76777, 0, -1.76777)
 start_animation = &"hammer_attack"
 
 [node name="Guard" parent="." instance=ExtResource("2_kalev")]
-position = Vector3(3.53553, 0, -3.53553)
+position = Vector3(5.3033, 0, -5.3033)
 start_animation = &"guard"
 
 [node name="Hit" parent="." instance=ExtResource("2_kalev")]
-position = Vector3(7.07107, 0, -7.07107)
+position = Vector3(8.83883, 0, -8.83883)
 start_animation = &"hit"
 
 [node name="Fall" parent="." instance=ExtResource("2_kalev")]
-position = Vector3(10.6066, 0, -10.6066)
+position = Vector3(12.3744, 0, -12.3744)
 start_animation = &"fall"
 
 [node name="Mart" parent="." instance=ExtResource("3_mart")]
@@ -115,7 +120,7 @@ theme_override_styles/panel = SubResource("Panel_background")
 
 [node name="Caption" type="Label" parent="UI/Legend"]
 layout_mode = 2
-text = "Kalev:  IDLE      WALK      FORGE STRIKE      HAMMER ATTACK      GUARD      HIT      FALL    ·    Mart: material + equipment swap on the same rig"
+text = "Kalev:  IDLE      WALK      RUN      FORGE STRIKE      HAMMER ATTACK      GUARD      HIT      FALL    ·    Mart: same rig"
 label_settings = SubResource("Label_caption")
 horizontal_alignment = 1
 vertical_alignment = 1

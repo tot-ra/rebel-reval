@@ -4,10 +4,10 @@ extends SkeletonModifier3D
 ## Runs as a skeleton modifier so pose overrides survive every animation update
 ## instead of being overwritten by the AnimationPlayer.
 
-@export_range(0.3, 1.0, 0.01) var head_scale := 0.72
-@export_range(1.0, 1.5, 0.01) var leg_segment_scale := 1.22
-@export_range(1.0, 1.5, 0.01) var arm_segment_scale := 1.18
-@export_range(0.7, 1.0, 0.01) var torso_scale := 0.90
+@export_range(0.3, 1.0, 0.01) var head_scale := 0.64
+@export_range(1.0, 1.5, 0.01) var leg_segment_scale := 1.30
+@export_range(1.0, 1.5, 0.01) var arm_segment_scale := 1.24
+@export_range(0.7, 1.0, 0.01) var torso_scale := 0.88
 
 const LEG_BONES: Array[StringName] = [
 	&"upperleg.l",

@@ -27,11 +27,14 @@ character.play_animation(&"walk")
 |---|---|---|
 | `idle` | `Idle` | neutral loop |
 | `walk` | `Walking_A` | logic-plane locomotion loop |
+| `run` | `Running_B` | faster stride with contralateral forward/backward arm swing |
 | `forge_strike` | `1H_Melee_Attack_Chop` | downward work strike |
 | `hammer_attack` | `1H_Melee_Attack_Slice_Diagonal` | combat strike |
 | `guard` | `Blocking` | held guard loop |
 | `hit` | `Hit_A` | damage reaction |
 | `fall` | `Death_A` | non-looping fall |
+
+The runtime applies a non-destructive `SkeletonModifier3D` after every animation update to move the compact vendor silhouette toward adult heroic proportions: the head is reduced to `0.64`, both leg segments are lengthened to `1.30`, both arm segments to `1.24`, and the torso is compressed slightly to `0.88`. This keeps every mesh and animation on the shared rig while making the figure read closer to the grounded proportions of classic isometric RPGs.
 
 The shared model is normalized to `2.0` world units. `CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE` is `28.125`, which projects that height to the carried-forward 64 px target in the 1600 x 900 viewport. P0-052 may read these constants but must not duplicate or silently change them; P0-040 can replace them when ART_BIBLE v2 is approved.
 

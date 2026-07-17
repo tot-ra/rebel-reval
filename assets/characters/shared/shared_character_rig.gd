@@ -5,7 +5,7 @@ class_name SharedCharacterRig
 const CANONICAL_ANIMATIONS: Dictionary = {
 	&"idle": &"Idle",
 	&"walk": &"Walking_A",
-	&"run": &"Running_A",
+	&"run": &"Running_B",
 	&"forge_strike": &"1H_Melee_Attack_Chop",
 	&"hammer_attack": &"1H_Melee_Attack_Slice_Diagonal",
 	&"guard": &"Blocking",
