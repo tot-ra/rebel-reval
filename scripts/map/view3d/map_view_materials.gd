@@ -73,6 +73,10 @@ const BUILDING_UV_SCALE := {
 	PATTERN_PLASTER: Vector3(3.5, 2.5, 3.5),
 	PATTERN_ROOF_TILE: Vector3(4.0, 2.5, 4.0),
 }
+## Reference box size the fixed BUILDING_UV_SCALE repeats were tuned against.
+## building_uv_scale() scales repeats proportionally so long fortification
+## walls keep brick and stone courses the same world size as house facades.
+const BUILDING_UV_REFERENCE_SIZE := Vector3(4.0, 3.5, 4.0)
 
 const WATER_SHADER_CODE := "
 shader_type spatial;
@@ -292,8 +296,38 @@ static func wall_surface(family: StringName, color: Color) -> StandardMaterial3D
 			return _building_surface("wall_plaster", color, PATTERN_PLASTER)
 
 
+## Wall material with UV repeats derived from the mesh world size so BoxMesh
+## faces tile instead of stretching one pattern across the full span.
+static func wall_surface_for_size(family: StringName, color: Color, size: Vector3) -> StandardMaterial3D:
+	var material := wall_surface(family, color).duplicate()
+	material.uv1_scale = building_uv_scale(_wall_pattern(family), size)
+	return material
+
+
+static func wall_for_size(color: Color, size: Vector3) -> StandardMaterial3D:
+	var material := wall(color).duplicate()
+	material.uv1_scale = building_uv_scale(PATTERN_PLASTER, size)
+	return material
+
+
 static func roof(color: Color) -> StandardMaterial3D:
 	return _building_surface("roof", color, PATTERN_ROOF_TILE)
+
+
+## UV repeat counts for a box face whose width, height, and depth are size.
+static func building_uv_scale(pattern: StringName, size: Vector3) -> Vector3:
+	var repeats: Vector3 = BUILDING_UV_SCALE.get(pattern, Vector3.ONE)
+	var ref := BUILDING_UV_REFERENCE_SIZE
+	return Vector3(
+		size.x * repeats.x / ref.x,
+		size.y * repeats.y / ref.y,
+		size.z * repeats.z / ref.z
+	)
+
+
+## CylinderMesh wraps U around the circumference; pass radius and height.
+static func building_uv_scale_cylinder(pattern: StringName, radius: float, height: float) -> Vector3:
+	return building_uv_scale(pattern, Vector3(TAU * radius, height, TAU * radius))
 
 
 ## Prop surface materials keyed by the shared visual-style roles so the
@@ -427,9 +461,20 @@ static func _patterned(prefix: String, color: Color, pattern: StringName) -> Sta
 
 static func _building_surface(prefix: String, color: Color, pattern: StringName) -> StandardMaterial3D:
 	var material := _patterned(prefix, color, pattern)
-	var uv: Variant = BUILDING_UV_SCALE.get(pattern, Vector3.ONE)
-	material.uv1_scale = uv as Vector3
+	material.uv1_scale = building_uv_scale(pattern, BUILDING_UV_REFERENCE_SIZE)
 	return material
+
+
+static func _wall_pattern(family: StringName) -> StringName:
+	match family:
+		&"brick":
+			return PATTERN_BRICK
+		&"plank":
+			return PATTERN_PLANK
+		&"limestone":
+			return PATTERN_LIMESTONE
+		_:
+			return PATTERN_PLASTER
 
 
 static func _make_material(base: Color, pattern: StringName, noise_seed: int) -> StandardMaterial3D:

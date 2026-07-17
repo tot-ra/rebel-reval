@@ -167,6 +167,20 @@ func test_houses_get_gabled_roofs_and_walls_get_caps() -> void:
 		node.free()
 
 
+func test_building_uv_scale_grows_with_wall_span() -> void:
+	var reference := MapViewMaterials.BUILDING_UV_REFERENCE_SIZE
+	var short_uv := MapViewMaterials.building_uv_scale(MapViewMaterials.PATTERN_BRICK, reference)
+	var long_uv := MapViewMaterials.building_uv_scale(
+		MapViewMaterials.PATTERN_BRICK,
+		Vector3(24.0, reference.y, reference.z)
+	)
+	assert_true(
+		is_equal_approx(short_uv.x, MapViewMaterials.BUILDING_UV_SCALE[MapViewMaterials.PATTERN_BRICK].x),
+		"reference footprint must keep the legacy brick repeat count"
+	)
+	assert_true(long_uv.x > short_uv.x * 5.0, "long walls must tile more bricks instead of stretching them")
+
+
 func test_chimney_smoke_varies_by_building_and_time_of_day() -> void:
 	var smoke_material := MapViewMaterials.smoke()
 	assert_ne(smoke_material.albedo_texture, null, "smoke must use a soft puff texture")
@@ -473,8 +487,10 @@ func test_town_wall_gets_battlements_and_gate_arch_clears_character() -> void:
 				assert_true(node.has_node("WalkRoof"), "Tallinn wall walks need covered red-tile roofs")
 				var cap := node.get_node("Cap") as MeshInstance3D
 				var cap_mat := cap.material_override as StandardMaterial3D
+				var cap_mesh := cap.mesh as BoxMesh
+				var plank_uv := MapViewMaterials.building_uv_scale(MapViewMaterials.PATTERN_PLANK, cap_mesh.size)
 				assert_true(
-					is_equal_approx(cap_mat.uv1_scale.y, 3.0),
+					is_equal_approx(cap_mat.uv1_scale.y, plank_uv.y),
 					"wall walk deck must use plank timber, not limestone coping"
 				)
 			else:

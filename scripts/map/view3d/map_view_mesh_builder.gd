@@ -384,17 +384,21 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 		drum.height = height
 		drum.radial_segments = 18
 		walls.mesh = drum
-		walls.material_override = MapViewMaterials.wall_surface(&"limestone", wall_color.lightened(0.08))
+		walls.material_override = MapViewMaterials.wall_surface_for_size(
+			&"limestone",
+			wall_color.lightened(0.08),
+			Vector3(TAU * drum.top_radius, height, TAU * drum.top_radius)
+		)
 	else:
 		var wall_mesh := BoxMesh.new()
 		wall_mesh.size = Vector3(size.x, height, size.y)
 		walls.mesh = wall_mesh
 		if kind == MapTypes.BUILDING_KIND_HOUSE:
-			walls.material_override = _house_wall_material(building, wall_color)
+			walls.material_override = _house_wall_material(building, wall_color, wall_mesh.size)
 		elif kind == MapTypes.BUILDING_KIND_WALL:
-			walls.material_override = MapViewMaterials.wall_surface(&"limestone", wall_color)
+			walls.material_override = MapViewMaterials.wall_surface_for_size(&"limestone", wall_color, wall_mesh.size)
 		else:
-			walls.material_override = MapViewMaterials.wall(wall_color)
+			walls.material_override = MapViewMaterials.wall_for_size(wall_color, wall_mesh.size)
 	walls.position = Vector3(0.0, height * 0.5, 0.0)
 	root.add_child(walls)
 
@@ -422,7 +426,11 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 		ring.radial_segments = 18
 		cap.mesh = ring
 		cap.position = Vector3(0.0, height + CAP_HEIGHT, 0.0)
-		cap.material_override = MapViewMaterials.wall_surface(&"limestone", wall_color.lightened(0.16))
+		cap.material_override = MapViewMaterials.wall_surface_for_size(
+			&"limestone",
+			wall_color.lightened(0.16),
+			Vector3(TAU * ring.top_radius, ring.height, TAU * ring.top_radius)
+		)
 		root.add_child(cap)
 		_add_tower_roof(root, radius, height)
 		if height_px >= TOWER_MIN_HEIGHT_PX:
@@ -436,14 +444,16 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 		cap.position = Vector3(0.0, height + CAP_HEIGHT * 0.5, 0.0)
 		if fortification:
 			# Covered wall walks rest on a timber deck, not a stone coping slab.
-			cap.material_override = MapViewMaterials.wall_surface(
+			cap.material_override = MapViewMaterials.wall_surface_for_size(
 				&"plank",
-				wall_color.lerp(WALL_WALK_TIMBER_TONE, 0.72)
+				wall_color.lerp(WALL_WALK_TIMBER_TONE, 0.72),
+				cap_mesh.size
 			)
 		else:
-			cap.material_override = MapViewMaterials.wall_surface(
+			cap.material_override = MapViewMaterials.wall_surface_for_size(
 				&"limestone" if kind == MapTypes.BUILDING_KIND_WALL else &"plaster",
-				wall_color.lightened(0.12)
+				wall_color.lightened(0.12),
+				cap_mesh.size
 			)
 		root.add_child(cap)
 		if fortification:
@@ -464,14 +474,14 @@ static func _house_style(building: Dictionary) -> StringName:
 	return HOUSE_STYLE_PLANK
 
 
-static func _house_wall_material(building: Dictionary, wall_color: Color) -> StandardMaterial3D:
+static func _house_wall_material(building: Dictionary, wall_color: Color, size: Vector3) -> StandardMaterial3D:
 	match _house_style(building):
 		HOUSE_STYLE_TIMBER:
-			return MapViewMaterials.wall_surface(&"plaster", wall_color.lerp(PLASTER_TONE, 0.55))
+			return MapViewMaterials.wall_surface_for_size(&"plaster", wall_color.lerp(PLASTER_TONE, 0.55), size)
 		HOUSE_STYLE_BRICK:
-			return MapViewMaterials.wall_surface(&"brick", wall_color.lerp(BRICK_TONE, 0.6))
+			return MapViewMaterials.wall_surface_for_size(&"brick", wall_color.lerp(BRICK_TONE, 0.6), size)
 		_:
-			return MapViewMaterials.wall_surface(&"plank", wall_color)
+			return MapViewMaterials.wall_surface_for_size(&"plank", wall_color, size)
 
 
 ## Structural dressing that gives every house physical depth: a stone plinth,
@@ -738,7 +748,7 @@ static func build_landmark(landmark: Dictionary, cell_size: int) -> Node3D:
 			bridge_mesh.size = Vector3(size.x, span_height, size.y)
 			bridge.mesh = bridge_mesh
 			bridge.position = Vector3(0.0, GATE_ARCH_CLEARANCE + span_height * 0.5, 0.0)
-			bridge.material_override = MapViewMaterials.wall_surface(&"limestone", color)
+			bridge.material_override = MapViewMaterials.wall_surface_for_size(&"limestone", color, bridge_mesh.size)
 			root.add_child(bridge)
 			_add_battlements(root, {"id": landmark["id"], "wall_color": color}, size, top - CAP_HEIGHT)
 	return root
