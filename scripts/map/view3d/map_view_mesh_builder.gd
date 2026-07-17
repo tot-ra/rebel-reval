@@ -92,6 +92,11 @@ const HOUSE_DOOR_HEIGHT := 2.1
 const HOUSE_WINDOW_SIZE := Vector2(0.6, 0.75)
 const HOUSE_WINDOW_SILL := 1.15
 const HOUSE_WINDOW_SPACING := 2.1
+const HOUSE_WINDOW_FRAME := 0.08
+const HOUSE_WINDOW_OUTER_DEPTH := 0.11
+const HOUSE_WINDOW_GLASS_DEPTH := 0.035
+const HOUSE_WINDOW_MULLION := 0.045
+const HOUSE_WINDOW_MULLION_DEPTH := 0.09
 const FACADE_RELIEF := 0.05
 
 ## Fortification dressing: town-wall segments and towers above this height get
@@ -691,10 +696,35 @@ static func _add_house_facade(root: Node3D, building: Dictionary, size: Vector2,
 			# Keep the front windows clear of the door.
 			if face == side and absf(along - door_along) < (HOUSE_DOOR_WIDTH + HOUSE_WINDOW_SIZE.x) * 0.62:
 				continue
-			_facade_box(root, "Window%d" % index, Vector3(HOUSE_WINDOW_SIZE.x, HOUSE_WINDOW_SIZE.y, 0.06), along, window_sill + HOUSE_WINDOW_SIZE.y * 0.5, face, face_offset, &"window")
-			_facade_box(root, "WindowLintel%d" % index, Vector3(HOUSE_WINDOW_SIZE.x + 0.18, 0.1, 0.09), along, window_sill + HOUSE_WINDOW_SIZE.y + 0.05, face, face_offset, &"timber")
-			_facade_box(root, "WindowSill%d" % index, Vector3(HOUSE_WINDOW_SIZE.x + 0.18, 0.08, 0.12), along, window_sill - 0.04, face, face_offset, &"timber")
+			_add_house_window(root, index, along, window_sill, face, face_offset)
 			index += 1
+
+
+## Shuttered house window: outer timber frame, recessed glazed pane, inner
+## mullions, plus lintel and sill so the opening reads as carpentry not paint.
+static func _add_house_window(root: Node3D, index: int, along: float, window_sill: float, face: StringName, face_offset: float) -> void:
+	var w := HOUSE_WINDOW_SIZE.x
+	var h := HOUSE_WINDOW_SIZE.y
+	var fw := HOUSE_WINDOW_FRAME
+	var cy := window_sill + h * 0.5
+	var glass_w := w - fw * 2.0
+	var glass_h := h - fw * 2.0
+
+	# Outer frame wraps the opening and sits proud of the wall.
+	_facade_box(root, "WindowFrameL%d" % index, Vector3(fw, h, HOUSE_WINDOW_OUTER_DEPTH), along - w * 0.5 + fw * 0.5, cy, face, face_offset, &"timber")
+	_facade_box(root, "WindowFrameR%d" % index, Vector3(fw, h, HOUSE_WINDOW_OUTER_DEPTH), along + w * 0.5 - fw * 0.5, cy, face, face_offset, &"timber")
+	_facade_box(root, "WindowFrameT%d" % index, Vector3(w, fw, HOUSE_WINDOW_OUTER_DEPTH), along, window_sill + h - fw * 0.5, face, face_offset, &"timber")
+	_facade_box(root, "WindowFrameB%d" % index, Vector3(w, fw, HOUSE_WINDOW_OUTER_DEPTH), along, window_sill + fw * 0.5, face, face_offset, &"timber")
+
+	# Glazed pane sits recessed between the outer frame and inner mullions.
+	_facade_box(root, "Window%d" % index, Vector3(glass_w, glass_h, HOUSE_WINDOW_GLASS_DEPTH), along, cy, face, face_offset, &"window")
+
+	# Inner cross mullions divide the pane like a simple leaded casement.
+	_facade_box(root, "WindowMullionV%d" % index, Vector3(HOUSE_WINDOW_MULLION, glass_h, HOUSE_WINDOW_MULLION_DEPTH), along, cy, face, face_offset, &"wood")
+	_facade_box(root, "WindowMullionH%d" % index, Vector3(glass_w, HOUSE_WINDOW_MULLION, HOUSE_WINDOW_MULLION_DEPTH), along, cy, face, face_offset, &"wood")
+
+	_facade_box(root, "WindowLintel%d" % index, Vector3(w + 0.18, 0.1, 0.09), along, window_sill + h + 0.05, face, face_offset, &"timber")
+	_facade_box(root, "WindowSill%d" % index, Vector3(w + 0.18, 0.08, 0.12), along, window_sill - 0.04, face, face_offset, &"timber")
 
 
 static func _opposite_side(side: StringName) -> StringName:

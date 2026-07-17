@@ -350,6 +350,14 @@ static func role(role_name: StringName) -> StandardMaterial3D:
 		&"metal":
 			material.metallic = 0.55
 			material.roughness = 0.45
+		&"window":
+			# Glazed openings read as dark tinted glass, not bright sky panels.
+			material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			material.albedo_color = base.darkened(0.42)
+			material.albedo_color.a = 0.52
+			material.roughness = 0.1
+			material.specular = 0.35
+			material.cull_mode = BaseMaterial3D.CULL_DISABLED
 		&"water_highlight":
 			material.roughness = 0.15
 		&"ember":

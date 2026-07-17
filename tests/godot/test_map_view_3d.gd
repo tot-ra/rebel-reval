@@ -208,6 +208,10 @@ func test_chimney_smoke_varies_by_building_and_time_of_day() -> void:
 			var puff_mesh := smoke.draw_pass_1 as ArrayMesh
 			var puff_vertices: PackedVector3Array = puff_mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
 			assert_eq(puff_vertices.size(), 9, "%s: smoke puffs must be eight-sided" % building["id"])
+			var puff_colors: PackedColorArray = puff_mesh.surface_get_arrays(0)[Mesh.ARRAY_COLOR]
+			assert_eq(puff_colors.size(), 9, "%s: smoke puffs must carry radial vertex colors" % building["id"])
+			assert_gt(puff_colors[0].a, puff_colors[1].a, "%s: puff center must be denser than the rim" % building["id"])
+			assert_eq(smoke.preprocess, 0.0, "%s: smoke must spawn at the chimney mouth" % building["id"])
 			var building_seed := String(building["id"]).hash()
 			var expected_day_amount := (22 + ((building_seed >> 5) % 14)) * 2
 			assert_eq(smoke.amount, expected_day_amount, "%s: day smoke amount must be doubled" % building["id"])
@@ -215,6 +219,11 @@ func test_chimney_smoke_varies_by_building_and_time_of_day() -> void:
 			var ramp: Gradient = ramp_texture.gradient
 			color_signatures[building["id"]] = ramp.get_color(1)
 			assert_true(process.turbulence_enabled, "%s: smoke must use turbulence" % building["id"])
+			assert_eq(
+				process.emission_shape,
+				ParticleProcessMaterial.EMISSION_SHAPE_POINT,
+				"%s: smoke must emit from the chimney mouth" % building["id"]
+			)
 		else:
 			without_smoke += 1
 		node.free()
@@ -501,6 +510,12 @@ func test_houses_get_facade_doors_and_windows() -> void:
 		else:
 			assert_true(node.has_node("Door"), "%s: every house needs a street door" % building["id"])
 		assert_true(node.has_node("Window0"), "%s: every house needs at least one window" % building["id"])
+		assert_true(node.has_node("WindowFrameL0"), "%s: windows need an outer timber frame" % building["id"])
+		assert_true(node.has_node("WindowMullionV0"), "%s: windows need inner mullions" % building["id"])
+		var glass := node.get_node("Window0") as MeshInstance3D
+		var glass_mat := glass.material_override as StandardMaterial3D
+		assert_true(glass_mat.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA, "%s: window glass must be translucent" % building["id"])
+		assert_true(glass_mat.albedo_color.a < 0.75, "%s: window glass must not read as opaque bright panels" % building["id"])
 		node.free()
 
 
