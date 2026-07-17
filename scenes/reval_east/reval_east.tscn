@@ -1,10 +1,16 @@
-[gd_scene load_steps=3 format=3 uid="uid://cxbg0w372wak4"]
+[gd_scene load_steps=5 format=3 uid="uid://cxbg0w372wak4"]
 
 [ext_resource type="Script" path="res://scenes/reval_east/reval_east.gd" id="1_east"]
 [ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="2_player"]
+[ext_resource type="Script" path="res://scripts/map/map_blueprint_editor_preview.gd" id="3_preview"]
+[ext_resource type="Script" path="res://scripts/map/definitions/lower_town/lower_town_slice_blueprint.gd" id="4_blueprint"]
 
 [node name="RevalEast" type="Node2D"]
 script = ExtResource("1_east")
+
+[node name="MapBlueprintPreview" type="Node2D" parent="."]
+script = ExtResource("3_preview")
+blueprint_factory = ExtResource("4_blueprint")
 
 [node name="MapRoot" type="Node2D" parent="."]
 

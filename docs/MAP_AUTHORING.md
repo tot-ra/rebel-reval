@@ -349,6 +349,40 @@ Until those checks exist, agents may design or test the compiler but must not de
 
 For visual changes, also run the relevant map scene or capture tool and inspect the deterministic capture. Generated nodes in the running scene are evidence only; edit the blueprint or compiler to fix them.
 
+### Godot editor preview
+
+Migrated blueprint scenes may include `MapBlueprintEditorPreview`, an `@tool` component that is safe to reuse in small scene shells. `scenes/reval_east/reval_east.tscn` binds it to `LowerTownSliceBlueprint`. The component calls `MapBlueprintCompiler.compile_with_diagnostics()` and then uses the normal `MapBuilder` and `MapAssembler` visual path. It does not use `MapSceneBootstrap`, instantiate transition doors, install a gameplay view, or attach a live navigation region.
+
+Select `MapBlueprintPreview` in the Scene dock to use these Inspector controls:
+
+- **Rebuild Preview** - recompile the blueprint and replace all disposable terrain, building, prop, landmark, and overlay nodes.
+- **Validate** - compile and validate without replacing the current preview. The read-only **Preview Status** contains the map ID, fingerprint, counts, or one actionable compiler diagnostic per line. Errors also appear as node configuration warnings and in the editor Output panel.
+- **Show Stable IDs** - label compiled building, prop, landmark, anchor, and transition IDs.
+- **Show Anchors** - display interaction anchors as cyan crosshairs.
+- **Show Navigation** - draw polygon data baked with the runtime `MapNavBuilder`; no `NavigationRegion2D` enters the edited scene tree.
+- **Show Chunk Bounds** - display a clearly labeled 16x16-cell planning grid. This is a placeholder, not authored chunk identity or a runtime streaming contract.
+
+Only `blueprint_factory` is stored in the scene. The controls and status are editor-session state. The generated root is internal, has no `owner`, is marked `preview_only`, and has physics disabled. Therefore generated nodes are omitted from `.tscn` saves and `PackedScene.pack()`, and the component clears itself and disables processing outside the editor. Runtime still compiles the Lower Town blueprint independently through `LowerTownSliceDefinition.create()` and deliberately rebuilds gameplay nodes there.
+
+#### Manual verification and screenshots
+
+1. Start Godot 4.7.1, open `scenes/reval_east/reval_east.tscn`, select `MapBlueprintPreview`, and click **Rebuild Preview**. Confirm terrain, buildings, props, magenta landmark rectangles, and cyan anchors appear in the 2D viewport. Capture `lower-town-preview-base.png` with the Scene dock, Inspector success status, and full viewport visible.
+2. Enable **Show Stable IDs**, **Show Anchors**, **Show Navigation**, and **Show Chunk Bounds**. Confirm labels follow compiled objects, cyan anchor crosses match the labels, blue navigation avoids blocked footprints/water, and the orange grid says `CHUNK BOUNDS PLACEHOLDER`. Capture `lower-town-preview-overlays.png`.
+3. Temporarily introduce an invalid blueprint value in `lower_town_slice_blueprint.gd`, for example duplicate a stable primitive ID. Click **Validate** and confirm the Inspector status, yellow node warning, and Output error name the compiler problem and tell the author to fix the blueprint. Undo the edit, click **Validate**, and confirm success.
+4. Before and after toggling every overlay, save the scene and run `git diff -- scenes/reval_east/reval_east.tscn`. Confirm no generated nodes, overlay state, status text, or compiler output is serialized.
+5. Run the scene. Confirm gameplay transitions are created only by `MapSceneBootstrap`, the preview component contains no generated child, and entering a transition changes scenes once rather than being triggered by preview geometry.
+6. Run `godot --headless --path . --script tools/run_godot_tests.gd`. `test_map_blueprint_editor_preview.gd` verifies production-compiler parity, inert runtime behavior, disabled preview physics, packing separation, and the Lower Town scene binding.
+
+Screenshots are manual review artifacts. Store them with the relevant map audit/capture package when a ticket requires checked-in evidence; do not embed generated preview nodes in the `.tscn` to preserve a visual baseline.
+
+Lower Town base preview (compiled terrain, buildings, props, landmarks, and anchors):
+
+![Lower Town compiled MapBlueprint editor preview](reports/images/lower-town-preview-base.png)
+
+Lower Town preview with stable IDs, anchors, runtime navigation polygon data, and chunk-bound placeholder enabled:
+
+![Lower Town MapBlueprint editor preview overlays](reports/images/lower-town-preview-overlays.png)
+
 ## Migration policy
 
 1. **Do not mass-convert.** Existing direct `MapDefinition` factories remain supported while the compiler is introduced. They are legacy authoring sources, not examples for new maps.
