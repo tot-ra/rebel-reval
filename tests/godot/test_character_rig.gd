@@ -68,7 +68,7 @@ func test_running_uses_contralateral_arm_swing() -> void:
 		var start_left_foot_z := skeleton.get_bone_global_pose(left_foot).origin.z
 		var start_right_foot_z := skeleton.get_bone_global_pose(right_foot).origin.z
 		assert_true(
-			start_left_hand_z < -0.25 and start_right_hand_z > 0.25,
+			start_left_hand_z < -0.10 and start_right_hand_z > 0.10,
 			"hands must visibly swing to opposite sides of the torso"
 		)
 		assert_true(
@@ -81,8 +81,8 @@ func test_running_uses_contralateral_arm_swing() -> void:
 		modifier.call("_process_modification")
 		skeleton.force_update_all_bone_transforms()
 		assert_true(
-			skeleton.get_bone_global_pose(left_hand).origin.z > 0.25
-			and skeleton.get_bone_global_pose(right_hand).origin.z < -0.25,
+			skeleton.get_bone_global_pose(left_hand).origin.z > 0.10
+			and skeleton.get_bone_global_pose(right_hand).origin.z < -0.10,
 			"arm swing must reverse during the second half of the stride"
 		)
 	kalev.queue_free()

@@ -43,7 +43,7 @@ tools/rebuild_hero_character.sh <spec_name>
 
 Spec knobs, in order of visual power:
 
-- `proportions` — **bone-level**; also reshapes every animation clip consistently: `leg_length`, `arm_length`, `torso_length`, `shoulder_width`, `hip_socket_width`, `arm_relax_degrees` (how far the arms fold toward the body across all clips — raise for closed/timid characters, lower for burly ones).
+- `proportions` — **bone-level**; also reshapes every animation clip consistently: `leg_length`, `arm_length`, `torso_length`, `shoulder_width`, `hip_socket_width`, `arm_relax_degrees` (upper-arm +Z fold; sets elbow breadth), `forearm_relax_degrees` (extra forearm +Z fold that brings handslots forward without pulling elbows in).
 - `shape` — **mesh-level**, bones untouched: `bulk` (overall girth), `chest_breadth`, `belly`, `head_scale` (keep within ±10 %).
 - `palette` — sRGB color overrides: `skin`, `tunic`, `pants`, `boots`, `belt`, `hair`, `beard`, `eyes`.
 - `output` — runtime glb path under `assets/characters/shared/`.

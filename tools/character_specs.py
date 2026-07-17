@@ -30,12 +30,14 @@ BASE_PROPORTIONS = {
     "hip_socket_width": 0.95,
     "head_size": 0.32,
     "hand_size": 0.85,
-    # Degrees the upper arms are folded toward the body across every clip.
-    # The CC0 source clips were authored around a barrel-wide chibi torso, so
-    # on our slim bodies the arms read as spread wings without this. Higher
-    # values tuck the hands closer to the forward stride axis (+Z) instead of
-    # hanging out to the sides (+/-X).
-    "arm_relax_degrees": 26.0,
+    # Degrees the upper arms rotate around +Z (shoulder fold). Sets elbow
+    # breadth: lower values keep elbows wider, higher values glue them to the
+    # ribs. The CC0 KayKit clips assume a barrel-wide chibi torso.
+    "arm_relax_degrees": 24.0,
+    # Extra +Z fold applied only on the forearm bones. This swings the
+    # handslots forward without pulling the elbows inward the way a single
+    # shared angle did before.
+    "forearm_relax_degrees": 40.0,
 }
 
 BASE_SHAPE = {

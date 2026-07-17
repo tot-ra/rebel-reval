@@ -210,6 +210,59 @@ def _axis_angle_quat(axis: np.ndarray, degrees: float) -> np.ndarray:
     return np.append(axis * np.sin(radians / 2.0), np.cos(radians / 2.0))
 
 
+def _quat_inverse(q: np.ndarray) -> np.ndarray:
+    inverse = q.copy()
+    inverse[..., :3] *= -1.0
+    return inverse
+
+
+def _quat_to_euler_xyz_degrees(q: np.ndarray) -> np.ndarray:
+    x, y, z, w = q[..., 0], q[..., 1], q[..., 2], q[..., 3]
+    roll = np.arctan2(2.0 * (w * x + y * z), 1.0 - 2.0 * (x * x + y * y))
+    pitch = np.arcsin(np.clip(2.0 * (w * y - z * x), -1.0, 1.0))
+    yaw = np.arctan2(2.0 * (w * z + x * y), 1.0 - 2.0 * (y * y + z * z))
+    return np.degrees(np.stack([roll, pitch, yaw], axis=-1))
+
+
+def _euler_xyz_degrees_to_quat(euler: np.ndarray) -> np.ndarray:
+    roll, pitch, yaw = np.radians(euler[..., 0]), np.radians(euler[..., 1]), np.radians(euler[..., 2])
+    cr, sr = np.cos(roll / 2.0), np.sin(roll / 2.0)
+    cp, sp = np.cos(pitch / 2.0), np.sin(pitch / 2.0)
+    cy, sy = np.cos(yaw / 2.0), np.sin(yaw / 2.0)
+    return np.stack(
+        [
+            sr * cp * cy - cr * sp * sy,
+            cr * sp * cy + sr * cp * sy,
+            cr * cp * sy - sr * sp * cy,
+            cr * cp * cy + sr * sp * sy,
+        ],
+        axis=-1,
+    )
+
+
+# Locomotion clips keep a large local-Y delta from the KayKit chibi rig. On the
+# slim adult silhouette that reads as hands flaring left/right instead of
+# swinging along +Z.
+_LOCOMOTION_ANIMATIONS = frozenset({"Running_B", "Walking_A"})
+_ARM_SWING_LATERAL_ATTENUATION = 0.55
+
+
+def _remap_arm_swing_delta(
+    source_rest: np.ndarray,
+    values: np.ndarray,
+    animation_name: str,
+) -> np.ndarray:
+    """Preserve clip timing but flatten lateral elbow flare on locomotion."""
+    if animation_name not in _LOCOMOTION_ANIMATIONS:
+        return values
+    inv_rest = _quat_inverse(source_rest)
+    deltas = _quat_multiply(inv_rest, values)
+    euler = _quat_to_euler_xyz_degrees(deltas)
+    euler[..., 1] *= _ARM_SWING_LATERAL_ATTENUATION
+    remapped = _quat_multiply(source_rest, _euler_xyz_degrees_to_quat(euler))
+    return remapped
+
+
 def _quat_to_matrix(q: np.ndarray) -> np.ndarray:
     x, y, z, w = q
     return np.array(
@@ -300,25 +353,26 @@ def build(character: str) -> None:
         new_translations[index] = new
         nodes[index]["translation"] = new.tolist()
 
-    # 1b. Fold the upper arms toward the body (rest pose and, below, every
-    # rotation track) so clips authored around the wide chibi torso relax
-    # onto the slim adult silhouette.
+    # 1b. Fold the arms toward +Z. Upper-arm and forearm angles are authored
+    # separately so elbows can stay wide while handslots sit nearer the stride
+    # axis; see arm_relax_degrees / forearm_relax_degrees in character_specs.
     rotation_offsets: dict[str, np.ndarray] = {}
-    relax_degrees = float(p.get("arm_relax_degrees", 0.0))
-    if relax_degrees:
+    upper_relax = float(p.get("arm_relax_degrees", 0.0))
+    lower_relax = float(p.get("forearm_relax_degrees", upper_relax))
+    source_arm_rests: dict[int, np.ndarray] = {}
+    if upper_relax or lower_relax:
         forward_axis = np.array([0.0, 0.0, 1.0])
-        # Forearms fold a further fraction of the same angle: the source
-        # clips bow the elbows outward around the chibi belly.
-        forearm_fraction = 0.72
         rotation_offsets = {
-            "upperarm.l": _axis_angle_quat(forward_axis, -relax_degrees),
-            "upperarm.r": _axis_angle_quat(forward_axis, relax_degrees),
-            "lowerarm.l": _axis_angle_quat(forward_axis, -relax_degrees * forearm_fraction),
-            "lowerarm.r": _axis_angle_quat(forward_axis, relax_degrees * forearm_fraction),
+            "upperarm.l": _axis_angle_quat(forward_axis, -upper_relax),
+            "upperarm.r": _axis_angle_quat(forward_axis, upper_relax),
+            "lowerarm.l": _axis_angle_quat(forward_axis, -lower_relax),
+            "lowerarm.r": _axis_angle_quat(forward_axis, lower_relax),
         }
     for name, offset in rotation_offsets.items():
-        node = nodes[name_to_index[name]]
+        index = name_to_index[name]
+        node = nodes[index]
         rest_rotation = np.array(node.get("rotation", [0.0, 0.0, 0.0, 1.0]))
+        source_arm_rests[index] = rest_rotation
         node["rotation"] = _quat_multiply(offset, rest_rotation).tolist()
 
     new_globals = _global_rest_transforms(gltf, new_translations)
@@ -412,6 +466,7 @@ def build(character: str) -> None:
     scaled_outputs: dict[int, int] = {}
     rotated_outputs: dict[int, int] = {}
     for animation in gltf.get("animations", []):
+        animation_name = animation.get("name", "")
         for channel in animation["channels"]:
             target = channel["target"]
             path = target.get("path")
@@ -435,11 +490,14 @@ def build(character: str) -> None:
                     continue
                 rotated_outputs[output] = node_index
                 values = _read_accessor(gltf, bin_chunk, output).astype(np.float64)
+                source_rest = source_arm_rests[node_index]
+                remapped = _remap_arm_swing_delta(source_rest, values, animation_name)
+                offset = offset_by_node[node_index]
                 _write_accessor(
                     gltf,
                     bin_chunk,
                     output,
-                    _quat_multiply(offset_by_node[node_index], values),
+                    _quat_multiply(offset, remapped),
                 )
 
     # Report resulting stature for the uniform Model scale constant.
