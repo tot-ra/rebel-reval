@@ -5,6 +5,7 @@ const DEFINITION_SCRIPT := preload("res://scripts/map/definitions/lower_town/kal
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
 @onready var player: Player = $Actors/Player
+@onready var henning: SmithyHenning = $Actors/Henning
 
 var _bootstrap: Dictionary = {}
 var _view_runtime: MapViewRuntime
@@ -15,6 +16,7 @@ func _ready() -> void:
 	_bootstrap = MapSceneBootstrap.assemble(self, definition, actors, map_root)
 	DoorNavigator.spawn_player_at_pending_spawn(self)
 	_wire_player_navigation()
+	_wire_henning_navigation()
 	if player == null:
 		player = _find_player(get_tree().root)
 	_view_runtime = MapViewRuntime.install(self, _bootstrap, map_root, player)
@@ -26,6 +28,12 @@ func _wire_player_navigation() -> void:
 		player.navigation_agent.set_navigation_map(navigation.get_navigation_map())
 		if DoorNavigator.pending_spawn_id.is_empty():
 			player.global_position = (_bootstrap["definition"] as MapDefinition).player_spawn
+
+
+func _wire_henning_navigation() -> void:
+	var navigation: NavigationRegion2D = _bootstrap.get("navigation")
+	if henning != null and navigation != null:
+		henning.configure_navigation(navigation.get_navigation_map())
 
 
 func _unhandled_input(event: InputEvent) -> void:

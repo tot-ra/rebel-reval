@@ -47,6 +47,10 @@ character.play_animation(&"walk")
 | `guard` | `Blocking` | held guard loop |
 | `hit` | `Hit_A` | damage reaction |
 | `fall` | `Death_A` | non-looping fall |
+| `talk_gesture` | `Interact` | conversational hand gesture |
+| `sit_down` | `Sit_Chair_Down` | transition from standing to a seat |
+| `sit_idle` | `Sit_Chair_Idle` | seated idle loop |
+| `sit_up` | `Sit_Chair_StandUp` | transition back to standing |
 
 ## Equipment: slots and garments
 

@@ -47,6 +47,7 @@ var _player_rig: SharedCharacterRig
 var _camera: Camera3D
 var _drag_rotating_view := false
 var _last_facing := Vector2.ZERO
+var _actor_rigs: Dictionary = {}
 
 
 static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasItem, player: CharacterBody2D) -> MapViewRuntime:
@@ -65,12 +66,13 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 	runtime._player_rig.name = "PlayerRig"
 	runtime._player_rig.add_to_group(&"player_view_rig")
 	runtime.add_child(runtime._player_rig)
-	runtime._bind_equipment_state()
 
 	runtime._camera = runtime.view.view_camera()
 	runtime._camera.size = CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
 
 	scene_root.add_child(runtime)
+	runtime._bind_equipment_state()
+	runtime._register_view_actors(scene_root)
 	runtime._configure_screen_relative_movement()
 	runtime._sync_player(true)
 	runtime.view.apply_cycle_progress(runtime.cycle_progress)
@@ -105,6 +107,71 @@ func _process(delta: float) -> void:
 		return
 	_apply_view_rotation(delta)
 	_sync_player(false, delta)
+	_sync_view_actors(delta)
+
+
+func _register_view_actors(scene_root: Node) -> void:
+	for found: Node in scene_root.find_children("*", "", true, false):
+		if not found.is_in_group(&"map_view_actor") or not found is Node2D:
+			continue
+		var actor := found as Node2D
+		var rig_scene: PackedScene = actor.get("rig_scene") as PackedScene
+		if rig_scene == null:
+			push_warning("Map view actor %s has no rig_scene" % actor.name)
+			continue
+		var rig := rig_scene.instantiate() as SharedCharacterRig
+		if rig == null:
+			push_warning("Map view actor %s rig is not a SharedCharacterRig" % actor.name)
+			continue
+		rig.name = "%sRig" % actor.name
+		add_child(rig)
+		_actor_rigs[actor] = rig
+		_hide_actor_canvas(actor)
+		_sync_view_actor(actor, rig, true, 0.0)
+
+
+func _sync_view_actors(delta: float) -> void:
+	for actor: Node2D in _actor_rigs.keys():
+		if not is_instance_valid(actor):
+			var stale_rig: SharedCharacterRig = _actor_rigs[actor]
+			if is_instance_valid(stale_rig):
+				stale_rig.queue_free()
+			_actor_rigs.erase(actor)
+			continue
+		_sync_view_actor(actor, _actor_rigs[actor] as SharedCharacterRig, false, delta)
+
+
+func _sync_view_actor(
+	actor: Node2D,
+	rig: SharedCharacterRig,
+	snap: bool,
+	delta: float
+) -> void:
+	view.sync_actor(rig, actor.global_position)
+	var facing := Vector2.DOWN
+	if actor.has_method("view_facing"):
+		facing = actor.call("view_facing") as Vector2
+	if snap:
+		rig.set_facing(facing)
+	else:
+		rig.face_toward(facing, delta)
+	var wanted := &"idle"
+	if actor.has_method("view_animation"):
+		wanted = actor.call("view_animation") as StringName
+	# Newly added rigs enter the tree on add_child(), so their AnimationPlayer
+	# is ready before we ask for a canonical state.
+	if not rig.is_node_ready():
+		return
+	if rig.current_canonical_animation() != wanted:
+		rig.play_animation(wanted)
+	var actor_velocity := actor.get("velocity") as Vector2
+	rig.set_locomotion_speed(actor_velocity.length() * MapViewBridge.world_scale(_definition.cell_size))
+
+
+static func _hide_actor_canvas(actor: Node2D) -> void:
+	for child: Node in actor.get_children():
+		if child is CanvasItem and not child is CollisionShape2D and not child is NavigationAgent2D:
+			(child as CanvasItem).visible = false
 
 
 func _unhandled_input(event: InputEvent) -> void:

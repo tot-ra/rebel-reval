@@ -11,8 +11,18 @@ const CANONICAL_ANIMATIONS: Dictionary = {
 	&"guard": &"Blocking",
 	&"hit": &"Hit_A",
 	&"fall": &"Death_A",
+	&"talk_gesture": &"Interact",
+	&"sit_down": &"Sit_Chair_Down",
+	&"sit_idle": &"Sit_Chair_Idle",
+	&"sit_up": &"Sit_Chair_StandUp",
 }
-const LOOPING_ANIMATIONS: Array[StringName] = [&"idle", &"walk", &"run", &"guard"]
+const LOOPING_ANIMATIONS: Array[StringName] = [
+	&"idle",
+	&"walk",
+	&"run",
+	&"guard",
+	&"sit_idle",
+]
 
 ## Ground speed (world units/s) at which each locomotion cycle looks right at
 ## 1x playback; set_locomotion_speed stretches playback around these so feet

@@ -3,6 +3,7 @@ extends "res://tests/godot/test_case.gd"
 const KALEV_SCENE := preload("res://assets/characters/kalev/kalev.tscn")
 const MART_SCENE := preload("res://assets/characters/variants/mart.tscn")
 const INNKEEPER_SCENE := preload("res://assets/characters/variants/innkeeper.tscn")
+const HENNING_SCENE := preload("res://assets/characters/variants/henning.tscn")
 const REQUIRED_ANIMATIONS: Array[StringName] = [
 	&"idle",
 	&"walk",
@@ -12,6 +13,10 @@ const REQUIRED_ANIMATIONS: Array[StringName] = [
 	&"guard",
 	&"hit",
 	&"fall",
+	&"talk_gesture",
+	&"sit_down",
+	&"sit_idle",
+	&"sit_up",
 ]
 
 func test_kalev_rig_has_required_skeleton_animations_and_hammer() -> void:
@@ -214,6 +219,26 @@ func test_innkeeper_body_spec_fulfills_the_rig_contract() -> void:
 
 	kalev.queue_free()
 	innkeeper.queue_free()
+
+
+func test_henning_body_has_an_authoritative_silhouette_and_social_animations() -> void:
+	var kalev := _instantiate(KALEV_SCENE)
+	var henning := _instantiate(HENNING_SCENE)
+
+	assert_eq(henning.validation_errors(), [], "Henning must satisfy the shared rig contract")
+	assert_eq(henning.variant_id(), &"char.henning")
+	var kalev_head := kalev.skeleton().get_bone_global_rest(kalev.skeleton().find_bone("head")).origin.y
+	var henning_head := henning.skeleton().get_bone_global_rest(henning.skeleton().find_bone("head")).origin.y
+	assert_true(
+		henning_head > kalev_head,
+		"Henning's generated skeleton must read taller than Kalev"
+	)
+	for animation_name: StringName in [&"walk", &"idle", &"talk_gesture", &"sit_down", &"sit_idle", &"sit_up"]:
+		assert_true(henning.has_animation(animation_name), "Henning needs %s" % animation_name)
+
+	kalev.queue_free()
+	henning.queue_free()
+
 
 func _instantiate(scene: PackedScene) -> SharedCharacterRig:
 	var character := scene.instantiate() as SharedCharacterRig
