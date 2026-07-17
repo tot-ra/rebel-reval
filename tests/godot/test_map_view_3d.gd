@@ -210,6 +210,7 @@ func test_city_wall_masonry_uses_direction_independent_triplanar_scale() -> void
 func test_chimney_smoke_varies_by_building_and_time_of_day() -> void:
 	var smoke_material := MapViewMaterials.smoke()
 	assert_eq(smoke_material.albedo_texture, null, "smoke must stay texture-free")
+	assert_true(smoke_material.vertex_color_use_as_albedo, "smoke material must apply the particle lifetime fade")
 
 	var definition := LowerTownSlice.create()
 	var house_ids: Array[StringName] = []
@@ -231,7 +232,7 @@ func test_chimney_smoke_varies_by_building_and_time_of_day() -> void:
 			var puff_vertices: PackedVector3Array = puff_mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
 			assert_eq(puff_vertices.size(), 9, "%s: smoke puffs must be eight-sided" % building["id"])
 			var puff_arrays: Array = puff_mesh.surface_get_arrays(0)
-			assert_false(puff_arrays[Mesh.ARRAY_COLOR], "%s: smoke puffs must not use vertex color gradients" % building["id"])
+			assert_eq(puff_arrays[Mesh.ARRAY_COLOR], null, "%s: smoke puffs must not use vertex color gradients" % building["id"])
 			assert_eq(smoke.preprocess, 0.0, "%s: smoke must spawn at the chimney mouth" % building["id"])
 			var building_seed := String(building["id"]).hash()
 			var expected_day_amount := (22 + ((building_seed >> 5) % 14)) * 2
@@ -239,6 +240,10 @@ func test_chimney_smoke_varies_by_building_and_time_of_day() -> void:
 			var ramp_texture := process.color_ramp as GradientTexture1D
 			var ramp: Gradient = ramp_texture.gradient
 			color_signatures[building["id"]] = ramp.get_color(1)
+			var peak_alpha := ramp.sample(0.1).a
+			assert_true(peak_alpha > ramp.sample(0.4).a, "%s: smoke must begin fading after its initial puff" % building["id"])
+			assert_true(ramp.sample(0.4).a > ramp.sample(0.75).a, "%s: smoke must become more transparent over time" % building["id"])
+			assert_eq(ramp.sample(1.0).a, 0.0, "%s: smoke must be fully transparent before removal" % building["id"])
 			assert_false(process.turbulence_enabled, "%s: smoke sway must come from wind gravity, not turbulence" % building["id"])
 			assert_eq(
 				process.emission_shape,
