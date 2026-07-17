@@ -185,6 +185,28 @@ func test_building_uv_scale_grows_with_wall_span() -> void:
 	assert_true(long_uv.x > short_uv.x * 5.0, "long walls must tile more bricks instead of stretching them")
 
 
+func test_city_wall_masonry_uses_direction_independent_triplanar_scale() -> void:
+	var definition := LowerTownSlice.create()
+	var expected_density := MapViewMaterials.building_uv_density(MapViewMaterials.PATTERN_LIMESTONE)
+	var wall_ids: Array[StringName] = [&"city_wall_north", &"city_wall_southwest"]
+	var checked := 0
+	for building in definition.buildings:
+		if building["id"] not in wall_ids:
+			continue
+		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
+		var walls := node.get_node("Walls") as MeshInstance3D
+		var material := walls.material_override as StandardMaterial3D
+		assert_true(material.uv1_triplanar, "%s must not use direction-dependent BoxMesh UVs" % building["id"])
+		assert_false(material.uv1_world_triplanar, "%s projection must stay anchored to the wall" % building["id"])
+		assert_true(
+			material.uv1_scale.is_equal_approx(expected_density),
+			"%s must keep constant masonry density on both wall axes" % building["id"]
+		)
+		checked += 1
+		node.free()
+	assert_eq(checked, wall_ids.size(), "test needs perpendicular Lower Town wall segments")
+
+
 func test_chimney_smoke_varies_by_building_and_time_of_day() -> void:
 	var smoke_material := MapViewMaterials.smoke()
 	assert_eq(smoke_material.albedo_texture, null, "smoke must stay texture-free")

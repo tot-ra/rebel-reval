@@ -413,7 +413,7 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 		if kind == MapTypes.BUILDING_KIND_HOUSE:
 			walls.material_override = _house_wall_material(building, wall_color, wall_mesh.size)
 		elif kind == MapTypes.BUILDING_KIND_WALL:
-			walls.material_override = MapViewMaterials.wall_surface_for_size(&"limestone", wall_color, wall_mesh.size)
+			walls.material_override = MapViewMaterials.wall_surface_triplanar(&"limestone", wall_color)
 		else:
 			walls.material_override = MapViewMaterials.wall_for_size(wall_color, wall_mesh.size)
 	walls.position = Vector3(0.0, height * 0.5, 0.0)
@@ -835,7 +835,7 @@ static func _add_gate_arch(root: Node3D, landmark: Dictionary, size: Vector2, sc
 	bridge_mesh.size = Vector3(size.x, span_height, size.y)
 	bridge.mesh = bridge_mesh
 	bridge.position = Vector3(0.0, GATE_ARCH_CLEARANCE + span_height * 0.5, 0.0)
-	bridge.material_override = MapViewMaterials.wall_surface_for_size(&"limestone", color, bridge_mesh.size)
+	bridge.material_override = MapViewMaterials.wall_surface_triplanar(&"limestone", color)
 	root.add_child(bridge)
 
 	var jamb_height := GATE_ARCH_CLEARANCE

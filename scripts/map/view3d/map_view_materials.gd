@@ -304,6 +304,18 @@ static func wall_surface_for_size(family: StringName, color: Color, size: Vector
 	return material
 
 
+## Object-space triplanar mapping keeps masonry density independent of whether a
+## BoxMesh wall runs along X or Z. Regular BoxMesh UVs only use uv1_scale.x/y,
+## which makes Z-aligned walls derive their visible repeat count from thickness.
+static func wall_surface_triplanar(family: StringName, color: Color) -> StandardMaterial3D:
+	var pattern := _wall_pattern(family)
+	var material := wall_surface(family, color).duplicate()
+	material.uv1_triplanar = true
+	material.uv1_world_triplanar = false
+	material.uv1_scale = building_uv_density(pattern)
+	return material
+
+
 static func wall_for_size(color: Color, size: Vector3) -> StandardMaterial3D:
 	var material := wall(color).duplicate()
 	material.uv1_scale = building_uv_scale(PATTERN_PLASTER, size)
@@ -314,15 +326,16 @@ static func roof(color: Color) -> StandardMaterial3D:
 	return _building_surface("roof", color, PATTERN_ROOF_TILE)
 
 
+## UV repeat density per world unit. Triplanar materials use this directly so
+## X- and Z-facing walls receive the same masonry scale.
+static func building_uv_density(pattern: StringName) -> Vector3:
+	var repeats: Vector3 = BUILDING_UV_SCALE.get(pattern, Vector3.ONE)
+	return repeats / BUILDING_UV_REFERENCE_SIZE
+
+
 ## UV repeat counts for a box face whose width, height, and depth are size.
 static func building_uv_scale(pattern: StringName, size: Vector3) -> Vector3:
-	var repeats: Vector3 = BUILDING_UV_SCALE.get(pattern, Vector3.ONE)
-	var ref := BUILDING_UV_REFERENCE_SIZE
-	return Vector3(
-		size.x * repeats.x / ref.x,
-		size.y * repeats.y / ref.y,
-		size.z * repeats.z / ref.z
-	)
+	return size * building_uv_density(pattern)
 
 
 ## CylinderMesh wraps U around the circumference; pass radius and height.
