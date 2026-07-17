@@ -21,12 +21,33 @@ func test_lower_town_required_route_endpoints_reachable() -> void:
 		&"brewery_door",
 		&"checkpoint_west",
 		&"checkpoint_east",
+		&"katariina_kaik",
+		&"monastery_gate",
+		&"karja_lane_south",
 	]
 	for anchor_id in checks:
 		assert_true(
 			MapVerification.route_exists(definition, grid, start, MapVerification.anchor_position(definition, anchor_id)),
 			"Missing route to %s" % String(anchor_id)
 		)
+
+
+func test_city_wall_blocks_except_viru_gate() -> void:
+	var definition: MapDefinition = LowerTownSliceDefinition.create()
+	var grid: MapTerrainGrid = MapBuilder.build(definition)
+	# Wall cells north and south of the gate must block movement.
+	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(53, 8)), "north wall must block")
+	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(52, 24)), "south wall must block")
+	# The moat outside the wall blocks except at the gate causeway.
+	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(58, 25)), "moat must block")
+	assert_true(MapVerification.is_walkable_cell(definition, grid, Vector2i(58, 16)), "causeway must stay open")
+	# The gate passage itself stays open from Viru street to the east road.
+	var inside := definition.cell_rect_center(Rect2i(50, 16, 1, 1))
+	var outside := definition.cell_rect_center(Rect2i(61, 16, 1, 1))
+	assert_true(
+		MapVerification.route_exists_exact(definition, grid, inside, outside),
+		"Viru street must pass through the gate to the east road"
+	)
 
 
 func test_courtyard_anvil_does_not_cover_smithy_door() -> void:

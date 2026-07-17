@@ -1,15 +1,15 @@
 {
   "type": "location",
   "id": "loc.lower_town_slice",
-  "name": "Lower Town Street",
+  "name": "Viru Gate Quarter",
   "district": "Lower Town",
-  "confidence": "invented",
+  "confidence": "plausible composite",
   "canon_status": "active",
   "approval": {
     "status": "approved",
     "reviewer": "P2-020"
   },
-  "description": "Bounded Lower Town exterior connecting Kalev's smithy, the Foaming Mug brewery, the municipal cistern, and the watch checkpoint.",
+  "description": "Eastern Lower Town quarter inside Viru Gate: the town wall and moat on the east, Muurivahe lane hugging the wall, Viru street running west toward Vana turg, St. Catherine's Passage and the Dominican monastery to the north, with Kalev's smithy, the Foaming Mug brewery, the public well, and the Viru Watch gate post.",
   "gameplay_space": true,
   "scene_path": "res://scenes/reval_east/reval_east.tscn",
   "spawn_ids": [
@@ -42,8 +42,17 @@
   ],
   "source_notes": [
     {
-      "confidence": "invented",
-      "summary": "Production location record for the converted bounded Lower Town exterior.",
+      "confidence": "attested",
+      "summary": "Street topology follows the real eastern Old Town plan: Viru Gate with flanking towers and moat, Viru street toward Vana turg, Muurivahe inside the wall, Vene street, St. Catherine's Passage, and the Dominican monastery of St. Catherine (founded 1246).",
+      "citations": [
+        "scenes/revel-map.jpg",
+        "scenes/reval_walls_towers/wall-map.png",
+        "scenes/reval_walls_towers/viru_gate.md"
+      ]
+    },
+    {
+      "confidence": "plausible composite",
+      "summary": "Individual houses, the smithy work yard against the wall, and the unnamed wall towers are composites; the later Hellemann tower (post-1343) is represented only as a generic wall tower.",
       "citations": [
         "docs/SCENES/the-makers-mark.md",
         "docs/SCENES/a-bitter-brew.md",
