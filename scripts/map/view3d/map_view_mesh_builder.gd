@@ -101,6 +101,8 @@ const TOWER_MIN_HEIGHT_PX := 220.0
 const MERLON_SIZE := Vector3(0.42, 0.5, 0.3)
 const MERLON_SPACING := 0.95
 const ARROW_SLIT_SIZE := Vector3(0.14, 0.7, 0.08)
+const ARROW_SLIT_FRAME_PAD := Vector2(0.1, 0.12)
+const ARROW_SLIT_FRAME_DEPTH := 0.12
 
 ## Gate arch landmark: view-only mass bridging a walkable gate passage.
 const GATE_ARCH_CLEARANCE := 3.2
@@ -565,16 +567,40 @@ static func _add_tower_roof(root: Node3D, radius: float, height: float) -> void:
 
 
 static func _add_tower_slits(root: Node3D, radius: float, height: float) -> void:
+	var slit_center_y := height * 0.62
 	var index := 0
 	for angle in [0.0, PI * 0.5, PI, PI * 1.5]:
+		var outward := Vector3(sin(angle), 0.0, cos(angle))
+		var frame_size := Vector3(
+			ARROW_SLIT_SIZE.x + ARROW_SLIT_FRAME_PAD.x * 2.0,
+			ARROW_SLIT_SIZE.y + ARROW_SLIT_FRAME_PAD.y * 2.0,
+			ARROW_SLIT_FRAME_DEPTH
+		)
+		var frame := MeshInstance3D.new()
+		frame.name = "SlitFrame%d" % index
+		var frame_mesh := BoxMesh.new()
+		frame_mesh.size = frame_size
+		frame.mesh = frame_mesh
+		frame.position = outward * (radius + ARROW_SLIT_FRAME_DEPTH * 0.5)
+		frame.position.y = slit_center_y
+		frame.rotation.y = angle
+		frame.material_override = MapViewMaterials.wall_surface_for_size(
+			&"brick",
+			BRICK_TONE,
+			frame_size
+		)
+		root.add_child(frame)
+
 		var slit := MeshInstance3D.new()
 		slit.name = "Slit%d" % index
 		var mesh := BoxMesh.new()
 		mesh.size = ARROW_SLIT_SIZE
 		slit.mesh = mesh
-		slit.position = Vector3(sin(angle) * radius, height * 0.62, cos(angle) * radius)
+		slit.position = outward * (radius + ARROW_SLIT_FRAME_DEPTH + ARROW_SLIT_SIZE.z * 0.5 - 0.01)
+		slit.position.y = slit_center_y
 		slit.rotation.y = angle
-		slit.material_override = MapViewMaterials.role(&"window")
+		# Deep void, not glazed house windows - arrow loops read as dark openings.
+		slit.material_override = MapViewMaterials.role(&"ink")
 		root.add_child(slit)
 		index += 1
 

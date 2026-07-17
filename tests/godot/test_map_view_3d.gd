@@ -496,6 +496,15 @@ func test_town_wall_gets_battlements_and_gate_arch_clears_character() -> void:
 			else:
 				assert_true(node.has_node("TowerRoof"), "%s needs a conical red-tile roof" % building["id"])
 				assert_true((node.get_node("Walls") as MeshInstance3D).mesh is CylinderMesh, "%s must be round" % building["id"])
+				if float(building.get("wall_height", 0.0)) >= 220.0:
+					assert_true(node.has_node("SlitFrame0"), "%s needs brick-framed arrow slits" % building["id"])
+					var slit := node.get_node("Slit0") as MeshInstance3D
+					var slit_mat := slit.material_override as StandardMaterial3D
+					var window_mat := MapViewMaterials.role(&"window")
+					assert_false(
+						slit_mat.albedo_color.is_equal_approx(window_mat.albedo_color),
+						"%s arrow slits must not reuse glazed house window tint" % building["id"]
+					)
 			node.free()
 	assert_true(definition.view_landmarks.size() >= 1, "Viru Gate needs its arch landmark")
 	var arch := MapViewMeshBuilder.build_landmark(definition.view_landmarks[0], definition.cell_size)
