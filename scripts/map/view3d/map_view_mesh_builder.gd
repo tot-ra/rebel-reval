@@ -108,6 +108,10 @@ const HOUSE_WINDOW_GLASS_DEPTH := 0.035
 const HOUSE_WINDOW_MULLION := 0.045
 const HOUSE_WINDOW_MULLION_DEPTH := 0.09
 const FACADE_RELIEF := 0.05
+## Interior glazing sits above a low sill and below a stone/timber lintel band.
+const INTERIOR_WINDOW_SILL_RATIO := 0.22
+const INTERIOR_WINDOW_LINTEL := 0.12
+const INTERIOR_WINDOW_MIN_HEIGHT := 0.55
 
 ## Fortification dressing: town-wall segments and towers above this height get
 ## battlements; towers additionally get arrow slits.
@@ -805,8 +809,21 @@ static func _add_battlements(root: Node3D, building: Dictionary, size: Vector2, 
 	root.add_child(merlons)
 
 
+## Resolves the authored interior shell height for window framing.
+static func interior_shell_wall_height_world(definition: MapDefinition) -> float:
+	var scale := MapViewBridge.world_scale(definition.cell_size)
+	for building in definition.buildings:
+		if building.get("kind", &"") == MapTypes.BUILDING_KIND_INTERIOR_WALL:
+			return MapTypes.resolved_wall_height_px(building) * scale
+	return DEFAULT_WALL_HEIGHT_PX[MapTypes.BUILDING_KIND_INTERIOR_WALL] * scale
+
+
 ## View-only landmark geometry over walkable openings (never collides).
-static func build_landmark(landmark: Dictionary, cell_size: int) -> Node3D:
+static func build_landmark(
+	landmark: Dictionary,
+	cell_size: int,
+	wall_height_world: float = -1.0
+) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Landmark_%s" % String(landmark["id"])
 	var scale := MapViewBridge.world_scale(cell_size)
@@ -818,7 +835,10 @@ static func build_landmark(landmark: Dictionary, cell_size: int) -> Node3D:
 		&"gate_arch":
 			_add_gate_arch(root, landmark, size, scale)
 		&"interior_window":
-			_add_interior_window_landmark(root, landmark, size, scale, cell_size)
+			var resolved_wall_height := wall_height_world
+			if resolved_wall_height <= 0.0:
+				resolved_wall_height = DEFAULT_WALL_HEIGHT_PX[MapTypes.BUILDING_KIND_INTERIOR_WALL] * scale
+			_add_interior_window_landmark(root, landmark, size, cell_size, resolved_wall_height)
 			var interior_lights = INTERIOR_WINDOW_LIGHTS_SCRIPT.new()
 			interior_lights.configure_from(root)
 			root.add_child(interior_lights)
@@ -842,20 +862,38 @@ static func _add_interior_window_landmark(
 	root: Node3D,
 	landmark: Dictionary,
 	size: Vector2,
-	_scale: float,
-	cell_size: int
+	cell_size: int,
+	wall_height_world: float
 ) -> void:
 	var side := _interior_window_side(landmark, cell_size)
-	var wall_height := 1.65
-	var sill := 0.95
+	var sill := wall_height_world * INTERIOR_WINDOW_SILL_RATIO
+	var max_opening := wall_height_world - sill - INTERIOR_WINDOW_LINTEL
+	var span: float
+	var opening_height: float
+	if side in [&"north", &"south"]:
+		# Horizontal wall runs encode opening width in X and wall thickness in Y.
+		span = size.x
+		opening_height = clampf(wall_height_world * 0.42, INTERIOR_WINDOW_MIN_HEIGHT, max_opening)
+	else:
+		# Vertical wall runs encode thickness in X and opening height along the run in Y.
+		span = maxf(size.x, 0.35)
+		opening_height = clampf(size.y, INTERIOR_WINDOW_MIN_HEIGHT, max_opening)
 	var frame := HOUSE_WINDOW_FRAME
-	var span := size.x if side in [&"north", &"south"] else size.y
-	var opening_height := minf(size.y if side in [&"north", &"south"] else size.x, wall_height - sill)
-	opening_height = maxf(opening_height, 0.55)
 	var glass_w := maxf(span - frame * 2.0, 0.25)
 	var glass_h := maxf(opening_height - frame * 2.0, 0.35)
 	var center_y := sill + opening_height * 0.5
 	var face_offset := 0.35
+	if sill > 0.08:
+		_facade_box(
+			root,
+			"WallBelow0",
+			Vector3(span + 0.1, sill, HOUSE_WINDOW_OUTER_DEPTH * 0.65),
+			0.0,
+			sill * 0.5,
+			side,
+			face_offset - 0.04,
+			&"stone"
+		)
 	_facade_box(root, "WindowFrameT0", Vector3(span, frame, HOUSE_WINDOW_OUTER_DEPTH), 0.0, sill + opening_height - frame * 0.5, side, face_offset, &"timber")
 	_facade_box(root, "WindowFrameB0", Vector3(span, frame, HOUSE_WINDOW_OUTER_DEPTH), 0.0, sill + frame * 0.5, side, face_offset, &"timber")
 	_facade_box(root, "WindowFrameL0", Vector3(frame, opening_height, HOUSE_WINDOW_OUTER_DEPTH), -span * 0.5 + frame * 0.5, center_y, side, face_offset, &"timber")
@@ -1098,9 +1136,9 @@ static func build_prop(prop: Dictionary, cell_size: int) -> Node3D:
 			_box(root, "Stand", Vector3(0.16, 0.9, 0.16), Vector3(0.0, 0.45, 0.0), &"wood")
 			_box(root, "Book", Vector3(0.52, 0.08, 0.42), Vector3(0.0, 0.95, 0.0), &"plaster")
 		MapTypes.PROP_KIND_BED:
-			_box(root, "Frame", Vector3(1.4, 0.34, 0.8), Vector3(0.0, 0.17, 0.0), &"wood")
-			_box(root, "Mattress", Vector3(1.3, 0.14, 0.7), Vector3(0.0, 0.41, 0.0), &"plaster")
-			_box(root, "Pillow", Vector3(0.3, 0.12, 0.5), Vector3(-0.48, 0.52, 0.0), &"hay")
+			_box(root, "Frame", Vector3(2.4, 0.38, 1.35), Vector3(0.0, 0.19, 0.0), &"wood")
+			_box(root, "Mattress", Vector3(2.2, 0.16, 1.2), Vector3(0.0, 0.46, 0.0), &"plaster")
+			_box(root, "Pillow", Vector3(0.42, 0.14, 0.72), Vector3(-0.82, 0.58, 0.0), &"hay")
 		MapTypes.PROP_KIND_CHEST:
 			_box(root, "Box", Vector3(0.7, 0.42, 0.46), Vector3(0.0, 0.21, 0.0), &"wood")
 			_box(root, "Lid", Vector3(0.72, 0.14, 0.48), Vector3(0.0, 0.49, 0.0), &"timber")

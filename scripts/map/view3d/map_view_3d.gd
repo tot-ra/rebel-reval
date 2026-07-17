@@ -64,6 +64,11 @@ var _camera: Camera3D
 var _fog_of_war: Node3D
 var _memory_animation_state: Dictionary = {}
 var _occluder_bounds: Array[AABB] = []
+var _object_index: MapChunkRuntimeIndex
+var _object_streamer: MapObjectChunkStreamer
+var _scatter_root: Node3D
+var _loaded_scatter_chunks: Dictionary = {}
+var _active_chunks: Array[Vector2i] = []
 
 
 static func create(
@@ -218,6 +223,29 @@ func sun_light() -> DirectionalLight3D:
 	return _sun
 
 
+func object_streamer() -> MapObjectChunkStreamer:
+	return _object_streamer
+
+
+func update_active_chunks_from_logic_positions(logic_positions: Array[Vector2]) -> void:
+	var chunks: Array[Vector2i] = []
+	for position in logic_positions:
+		var cell := Vector2i(
+			floori(position.x / float(definition.cell_size)),
+			floori(position.y / float(definition.cell_size))
+		)
+		var center := grid.chunk_for_cell(cell)
+		for y in range(center.y - MapTerrainRenderer.DEFAULT_LOAD_RADIUS_CHUNKS, center.y + MapTerrainRenderer.DEFAULT_LOAD_RADIUS_CHUNKS + 1):
+			for x in range(center.x - MapTerrainRenderer.DEFAULT_LOAD_RADIUS_CHUNKS, center.x + MapTerrainRenderer.DEFAULT_LOAD_RADIUS_CHUNKS + 1):
+				var coordinates := Vector2i(x, y)
+				if grid.get_chunk(coordinates) != null and not chunks.has(coordinates):
+					chunks.append(coordinates)
+	chunks.sort_custom(func(left: Vector2i, right: Vector2i) -> bool:
+		return left.y < right.y or (left.y == right.y and left.x < right.x)
+	)
+	_update_active_chunks(chunks)
+
+
 func _assemble() -> void:
 	add_child(MapViewMeshBuilder.build_surroundings(definition))
 	add_child(MapViewMeshBuilder.build_terrain(definition, grid))
@@ -232,8 +260,9 @@ func _assemble() -> void:
 	var landmarks := Node3D.new()
 	landmarks.name = "Landmarks"
 	add_child(landmarks)
+	var interior_wall_height := MapViewMeshBuilder.interior_shell_wall_height_world(definition)
 	for landmark in definition.view_landmarks:
-		landmarks.add_child(MapViewMeshBuilder.build_landmark(landmark, definition.cell_size))
+		landmarks.add_child(MapViewMeshBuilder.build_landmark(landmark, definition.cell_size, interior_wall_height))
 
 	# Buildings and landmarks are the only masses tall enough to hide an actor
 	# from the dimetric camera; their mesh bounds feed is_segment_occluded.

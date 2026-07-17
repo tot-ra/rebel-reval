@@ -540,6 +540,9 @@ func test_placeholder_materials_cover_every_terrain() -> void:
 func test_runtime_hides_flat_map_visuals_without_disabling_collision() -> void:
 	var terrain := Node2D.new()
 	var building := StaticBody2D.new()
+	var visuals := Node2D.new()
+	visuals.name = "Visuals"
+	building.add_child(visuals)
 	var collision := CollisionShape2D.new()
 	var shape := RectangleShape2D.new()
 	shape.size = Vector2(32.0, 32.0)
@@ -557,7 +560,8 @@ func test_runtime_hides_flat_map_visuals_without_disabling_collision() -> void:
 	MapViewRuntime._hide_flat_map_visuals(bootstrap)
 
 	assert_false(terrain.visible, "flat terrain must not overlay the 3D view")
-	assert_false(building.visible, "flat building art must not overlay the 3D view")
+	assert_true(building.visible, "building collision host must stay active")
+	assert_false(visuals.visible, "flat building art must not overlay the 3D view")
 	assert_false(prop.visible, "flat prop art must not overlay the 3D view")
 	assert_false(collision.disabled, "hiding flat art must preserve logic-plane collision")
 	terrain.free()

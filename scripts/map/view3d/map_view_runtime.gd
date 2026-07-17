@@ -60,6 +60,7 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 
 	map_root.visible = false
 	_hide_flat_map_visuals(bootstrap)
+	_bind_streamed_flat_visual_hiding(bootstrap)
 	_hide_player_canvas(player)
 
 	runtime._player_rig = PLAYER_RIG_SCENE.instantiate()
@@ -333,11 +334,38 @@ static func _hide_flat_map_visuals(bootstrap: Dictionary) -> void:
 	# Y-sorted with the player. Hide the render nodes explicitly; CanvasItem
 	# visibility does not disable the StaticBody2D collision used by gameplay.
 	var assembled: Dictionary = bootstrap.get("assembled", {})
-	for key: String in ["terrain", "buildings", "props"]:
+	for key: String in ["terrain", "buildings", "props", "view_landmarks"]:
 		var value: Variant = assembled.get(key)
 		if value is CanvasItem:
 			(value as CanvasItem).visible = false
 		elif value is Array:
 			for item: Variant in value as Array:
-				if item is CanvasItem:
-					(item as CanvasItem).visible = false
+				_hide_flat_map_object(item)
+
+
+static func _bind_streamed_flat_visual_hiding(bootstrap: Dictionary) -> void:
+	var assembled: Dictionary = bootstrap.get("assembled", {})
+	var streamer: Variant = assembled.get("object_streamer")
+	if streamer == null or not streamer.has_signal(&"object_loaded"):
+		return
+	if not streamer.object_loaded.is_connected(_on_streamed_flat_map_object_loaded):
+		streamer.object_loaded.connect(_on_streamed_flat_map_object_loaded)
+	for object_id in streamer.loaded_object_ids():
+		_hide_flat_map_object(streamer.loaded_instance(object_id))
+
+
+static func _on_streamed_flat_map_object_loaded(_handle: Dictionary, instance: Node) -> void:
+	_hide_flat_map_object(instance)
+
+
+static func _hide_flat_map_object(item: Variant) -> void:
+	if item == null or not item is Node:
+		return
+	var node := item as Node
+	if node is StaticBody2D:
+		var visuals := node.get_node_or_null("Visuals") as CanvasItem
+		if visuals != null:
+			visuals.visible = false
+		return
+	if node is CanvasItem:
+		(node as CanvasItem).visible = false

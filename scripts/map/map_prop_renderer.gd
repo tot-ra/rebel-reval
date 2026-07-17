@@ -94,8 +94,8 @@ static func _draw_ledger(parent: Node2D, target: StringName, time_of_day: String
 static func _draw_bed(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
 	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
 	var plaster := MapVisualStyle.role_color(&"plaster", target, time_of_day)
-	_add_rect(parent, "BedFrame", Vector2(-28, -12), Vector2(56, 22), wood, target, time_of_day)
-	_add_rect(parent, "BedRoll", Vector2(-22, -18), Vector2(44, 12), plaster.lightened(0.10), target, time_of_day)
+	_add_rect(parent, "BedFrame", Vector2(-44, -14), Vector2(88, 26), wood, target, time_of_day)
+	_add_rect(parent, "BedRoll", Vector2(-36, -22), Vector2(72, 16), plaster.lightened(0.10), target, time_of_day)
 
 
 static func _draw_chest(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
