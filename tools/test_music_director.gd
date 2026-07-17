@@ -1,6 +1,7 @@
 extends SceneTree
 
 const MusicDirectorScript = preload("res://scripts/global/music_director.gd")
+const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 
 
 func _init() -> void:
@@ -47,7 +48,7 @@ func _check_streams(failures: Array[String]) -> void:
 			failures.append("Theme %s is routed but not configured" % theme_id)
 			continue
 
-		for track_path: String in MusicDirectorScript.theme_track_paths(theme_id):
+		for track_path: String in MusicDirectorScript.day_track_paths_for_theme(theme_id):
 			if not ResourceLoader.exists(track_path):
 				failures.append("Missing approved track for %s: %s" % [theme_id, track_path])
 
@@ -68,7 +69,20 @@ func _check_streams(failures: Array[String]) -> void:
 				if not stream is AudioStreamPlaylist:
 					failures.append("Town theme should use AudioStreamPlaylist")
 
+	_check_cycle_volume(failures)
 	director.free()
+
+
+func _check_cycle_volume(failures: Array[String]) -> void:
+	var noon_db := MusicDirectorScript.volume_db_for_cycle_progress(0.5)
+	var midnight_db := MusicDirectorScript.volume_db_for_cycle_progress(0.0)
+	if not is_equal_approx(
+		MusicDirectorScript.volume_linear_for_day_blend(DayNightCycle.day_blend(0.0)),
+		0.5
+	):
+		failures.append("Midnight should duck music to 50 percent linear volume")
+	if noon_db <= midnight_db:
+		failures.append("Day cycle volume must be louder than night cycle volume")
 
 
 func _check_autoload_playback(failures: Array[String]) -> void:

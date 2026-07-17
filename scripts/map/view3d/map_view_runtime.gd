@@ -74,6 +74,7 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 	runtime._configure_screen_relative_movement()
 	runtime._sync_player(true)
 	runtime.view.apply_cycle_progress(runtime.cycle_progress)
+	runtime._sync_music_cycle()
 	return runtime
 
 
@@ -91,12 +92,15 @@ func logic_position_at_screen(screen_position: Vector2) -> Vector2:
 func set_time_of_day(next_time: StringName) -> void:
 	cycle_enabled = false
 	view.set_time_of_day(next_time)
+	cycle_progress = 0.5 if next_time == MapView3D.TIME_DAY else 0.0
+	_sync_music_cycle()
 
 
 func _process(delta: float) -> void:
 	if cycle_enabled:
 		cycle_progress = DayNightCycle.advance(cycle_progress, delta)
 		view.apply_cycle_progress(cycle_progress)
+		_sync_music_cycle()
 	if _player == null or not is_instance_valid(_player):
 		return
 	_apply_view_rotation(delta)
@@ -156,6 +160,10 @@ func rotate_view_degrees(delta_degrees: float) -> void:
 	_camera.rotation_degrees.y = wrapf(_camera.rotation_degrees.y + delta_degrees, -180.0, 180.0)
 	_follow_player(true, 0.0)
 	_configure_screen_relative_movement()
+
+
+func _sync_music_cycle() -> void:
+	MusicDirector.set_cycle_progress(cycle_progress)
 
 
 func _sync_player(snap: bool, delta: float = 0.0) -> void:
