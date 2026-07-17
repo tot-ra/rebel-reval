@@ -45,6 +45,8 @@ func test_fullscreen_shader_is_not_face_culled() -> void:
 	assert_true("hint_screen_texture" in source, "the overlay must sample the rendered scene")
 	assert_true("hint_depth_texture" in source, "the overlay must preserve real character and building surfaces")
 	assert_true("on_blocking_surface" in source, "facade classification must tolerate footprint-edge precision")
+	assert_true("float desaturation" in source, "unseen areas must be communicated through saturation")
+	assert_false("color.rgb *=" in source, "visibility must not darken scene lighting or real shadows")
 	assert_eq(FogOfWar.OVERLAY_RENDER_PRIORITY, -127, "transparent smoke must render after the opaque-scene overlay")
 
 

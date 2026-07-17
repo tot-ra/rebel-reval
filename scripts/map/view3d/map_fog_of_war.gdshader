@@ -120,9 +120,10 @@ void fragment() {
 	float blur_lod = clamp(radial_fog * 3.0 + (1.0 - in_fov) * 2.0 + occluded * 4.0, 0.0, 5.5);
 	vec4 color = textureLod(screen_texture, SCREEN_UV, blur_lod);
 	float luminance = dot(color.rgb, vec3(0.299, 0.587, 0.114));
-	float gray_amount = max(memory * 0.9, occluded * 0.72);
-	color.rgb = mix(color.rgb, vec3(luminance), clamp(gray_amount, 0.0, 1.0));
-	color.rgb *= 1.0 - occluded * 0.52 - radial_fog * 0.12;
+	float desaturation = clamp(max(memory, occluded), 0.0, 1.0);
+	// Visibility must not act as a second lighting system. Preserve scene
+	// luminance so sunlight, weather, and the day/night cycle remain authoritative.
+	color.rgb = mix(color.rgb, vec3(luminance), desaturation);
 	ALBEDO = color.rgb;
 	ALPHA = 1.0;
 }
