@@ -1,40 +1,38 @@
 class_name MapNavBuilder
 extends RefCounted
 
-## Builds a coarse NavigationRegion2D from walkable terrain cells.
+## Builds a coarse NavigationRegion2D from the world rectangle minus building
+## footprints and excluded areas.
+##
+## Building footprints may legitimately overlap (wall segments sealed by
+## towers) or sit flush against the world edge, so the outlines are baked
+## through NavigationServer2D source geometry, which unions obstructions
+## before triangulating; feeding raw overlapping outlines to
+## make_polygons_from_outlines fails its convex partition.
 
 
 static func create_navigation_region(definition: MapDefinition, grid: MapTerrainGrid) -> NavigationRegion2D:
 	var region := NavigationRegion2D.new()
 	region.name = "NavigationRegion2D"
 
-	var nav_polygon := NavigationPolygon.new()
-	var outline := PackedVector2Array()
-	var world := definition.world_size()
-	outline.append(Vector2.ZERO)
-	outline.append(Vector2(world.x, 0.0))
-	outline.append(world)
-	outline.append(Vector2(0.0, world.y))
-	nav_polygon.add_outline(outline)
-
+	var source := NavigationMeshSourceGeometryData2D.new()
+	source.add_traversable_outline(_rect_outline(Rect2(Vector2.ZERO, definition.world_size())))
 	for building in definition.buildings:
-		var footprint: Rect2 = building["footprint"]
-		var obstacle := PackedVector2Array()
-		obstacle.append(footprint.position)
-		obstacle.append(Vector2(footprint.end.x, footprint.position.y))
-		obstacle.append(footprint.end)
-		obstacle.append(Vector2(footprint.position.x, footprint.end.y))
-		nav_polygon.add_outline(obstacle)
-
+		source.add_obstruction_outline(_rect_outline(building["footprint"]))
 	for rect in definition.excluded_areas:
-		var world_rect := definition.cell_rect_to_world_rect(rect)
-		var obstacle := PackedVector2Array()
-		obstacle.append(world_rect.position)
-		obstacle.append(Vector2(world_rect.end.x, world_rect.position.y))
-		obstacle.append(world_rect.end)
-		obstacle.append(Vector2(world_rect.position.x, world_rect.end.y))
-		nav_polygon.add_outline(obstacle)
+		source.add_obstruction_outline(_rect_outline(definition.cell_rect_to_world_rect(rect)))
 
-	nav_polygon.make_polygons_from_outlines()
+	var nav_polygon := NavigationPolygon.new()
+	nav_polygon.agent_radius = 0.0
+	NavigationServer2D.bake_from_source_geometry_data(nav_polygon, source)
 	region.navigation_polygon = nav_polygon
 	return region
+
+
+static func _rect_outline(rect: Rect2) -> PackedVector2Array:
+	var outline := PackedVector2Array()
+	outline.append(rect.position)
+	outline.append(Vector2(rect.end.x, rect.position.y))
+	outline.append(rect.end)
+	outline.append(Vector2(rect.position.x, rect.end.y))
+	return outline

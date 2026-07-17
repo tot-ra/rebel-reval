@@ -8,6 +8,7 @@ extends "res://tests/godot/test_case.gd"
 const SmithyCourtyard := preload("res://scripts/map/smithy_courtyard_definition.gd")
 const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
 const PLAYER_SCENE := preload("res://player.tscn")
+const TRANSITION_MARKER_SCRIPT := preload("res://scripts/map/view3d/transition_marker_3d.gd")
 
 
 func _view_definitions() -> Array[MapDefinition]:
@@ -77,13 +78,21 @@ func test_view_renders_definitions_without_touching_logic_results() -> void:
 			"%s: one prop node per definition prop" % definition.map_id
 		)
 		var functional_transition_count := 0
+		var highlighted_transition_count := 0
 		for transition in definition.transitions:
 			if not String(transition.get("destination_scene_id", "")).is_empty():
 				functional_transition_count += 1
+			if bool(transition.get("highlight_area", false)):
+				highlighted_transition_count += 1
 		assert_eq(
 			view.get_node("Doors").get_child_count(),
 			functional_transition_count,
 			"%s: every functional transition needs one visible door" % definition.map_id
+		)
+		assert_eq(
+			view.get_node("TransitionMarkers").get_child_count(),
+			highlighted_transition_count,
+			"%s: every highlighted transition needs one visible ground marker" % definition.map_id
 		)
 
 		var camera := view.view_camera()
@@ -136,6 +145,29 @@ func test_transition_door_has_readable_frame_panel_and_handle() -> void:
 	var expected_boundary := rect.position.y * MapViewBridge.world_scale(definition.cell_size)
 	assert_true(is_equal_approx(door.position.z, expected_boundary), "door must sit flush with the smithy wall")
 	door.free()
+
+
+func test_transition_marker_is_translucent_and_covers_trigger() -> void:
+	var definition := LowerTownSlice.create()
+	var transition: Dictionary
+	for candidate in definition.transitions:
+		if candidate.get("id") == &"vana_turg_boundary":
+			transition = candidate
+			break
+	var marker := MapViewMeshBuilder.build_transition_marker(transition, definition.cell_size)
+	var surface := marker.get_node("Surface") as MeshInstance3D
+	var mesh := surface.mesh as BoxMesh
+	var rect: Rect2 = transition["rect"]
+	var scale := MapViewBridge.world_scale(definition.cell_size)
+	assert_true(mesh.size.is_equal_approx(Vector3(rect.size.x * scale, MapViewMeshBuilder.TRANSITION_MARKER_HEIGHT, rect.size.y * scale)))
+	var material := surface.material_override as StandardMaterial3D
+	assert_true(material.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA)
+	assert_true(material.albedo_color.a > 0.0 and material.albedo_color.a < 1.0)
+	(marker as TransitionMarker3D).set_focused(true)
+	assert_true(is_equal_approx(material.albedo_color.a, TransitionMarker3D.FOCUS_ALPHA))
+	(marker as TransitionMarker3D).set_focused(false)
+	assert_true(is_equal_approx(material.albedo_color.a, TransitionMarker3D.IDLE_ALPHA))
+	marker.free()
 
 
 func test_every_prop_kind_builds_parametric_geometry() -> void:
@@ -239,10 +271,10 @@ func test_runtime_maps_keyboard_to_screen_axes_and_faces_idle_rig_at_camera() ->
 	)
 
 	var yaw_before := camera.rotation_degrees.y
-	runtime.rotate_view(1)
+	runtime.rotate_view_degrees(30.0)
 	assert_true(
-		is_equal_approx(camera.rotation_degrees.y, wrapf(yaw_before + MapViewRuntime.ROTATE_STEP_DEGREES, -180.0, 180.0)),
-		"rotate_view must orbit the camera by one fixed step"
+		is_equal_approx(camera.rotation_degrees.y, wrapf(yaw_before + 30.0, -180.0, 180.0)),
+		"rotate_view_degrees must orbit the camera by the requested angle"
 	)
 	var rotated_up := player.movement_direction_for_screen_input(Vector2.UP)
 	assert_false(
@@ -281,6 +313,36 @@ func test_runtime_maps_keyboard_to_screen_axes_and_faces_idle_rig_at_camera() ->
 		"zooming out must stop at the overview limit"
 	)
 	scene_root.free()
+
+
+func test_occlusion_query_flags_actors_behind_masses_only() -> void:
+	var definition := LowerTownSlice.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition))
+	var toward_camera: Vector3 = view.view_camera().transform.basis.z * MapView3D.CAMERA_DISTANCE
+	var away := Vector3(toward_camera.x, 0.0, toward_camera.z).normalized()
+	var scale := MapViewBridge.world_scale(definition.cell_size)
+
+	var wall: Dictionary = {}
+	for building in definition.buildings:
+		if building["id"] == &"city_wall_north":
+			wall = building
+	assert_false(wall.is_empty(), "Lower Town slice must keep its north wall")
+	var footprint: Rect2 = wall["footprint"]
+	var center := footprint.get_center() * scale
+	var half_depth := footprint.size * scale * 0.5
+	var hidden := Vector3(center.x, 0.0, center.y) - away * (maxf(half_depth.x, half_depth.y) + 1.0)
+	assert_true(
+		view.is_segment_occluded(hidden + Vector3.UP, hidden + Vector3.UP + toward_camera),
+		"an actor tucked behind the town wall must read as occluded"
+	)
+
+	var world_units := Vector2(definition.size_cells)
+	var open := Vector3(world_units.x, 0.0, world_units.y) + away * 4.0
+	assert_false(
+		view.is_segment_occluded(open + Vector3.UP, open + Vector3.UP + toward_camera),
+		"an actor on the camera side of every mass must not read as occluded"
+	)
+	view.free()
 
 
 func test_houses_get_facade_doors_and_windows() -> void:

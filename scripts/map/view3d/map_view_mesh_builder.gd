@@ -1,6 +1,8 @@
 class_name MapViewMeshBuilder
 extends RefCounted
 
+const TRANSITION_MARKER_SCRIPT := preload("res://scripts/map/view3d/transition_marker_3d.gd")
+
 ## Converts immutable MapDefinition data into 3D view geometry (P0-052).
 ## View only: no collision shapes, physics bodies, or navigation are generated
 ## here - the logic plane keeps owning all gameplay geometry. All sizes are in
@@ -16,6 +18,8 @@ const DOOR_WIDTH := 1.5
 const DOOR_HEIGHT := 2.5
 const DOOR_THICKNESS := 0.14
 const DOOR_FRAME_THICKNESS := 0.16
+const TRANSITION_MARKER_HEIGHT := 0.035
+const TRANSITION_MARKER_COLOR := Color(0.55, 0.78, 0.48, 0.3)
 
 ## Fallback wall heights in logic pixels when a building omits wall_height.
 ## Houses carry a full storey plus loft over the 2.0-unit character; freestanding
@@ -387,6 +391,30 @@ static func build_transition_door(transition: Dictionary, cell_size: int) -> Nod
 	return root
 
 
+## A low translucent patch makes district exits readable without looking like
+## ordinary terrain. Runtime proximity raises its opacity for a gentle focus cue.
+static func build_transition_marker(transition: Dictionary, cell_size: int) -> Node3D:
+	var root := TRANSITION_MARKER_SCRIPT.new() as Node3D
+	root.name = "Marker_%s" % String(transition["id"])
+	root.set_meta("transition_id", transition["id"])
+	var rect: Rect2 = transition["rect"]
+	var scale := MapViewBridge.world_scale(cell_size)
+	var mesh_instance := MeshInstance3D.new()
+	mesh_instance.name = "Surface"
+	var mesh := BoxMesh.new()
+	mesh.size = Vector3(rect.size.x * scale, TRANSITION_MARKER_HEIGHT, rect.size.y * scale)
+	mesh_instance.mesh = mesh
+	mesh_instance.position.y = TRANSITION_MARKER_HEIGHT * 0.5
+	var material := StandardMaterial3D.new()
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = TRANSITION_MARKER_COLOR
+	mesh_instance.material_override = material
+	root.position = Vector3(rect.get_center().x * scale, 0.0, rect.get_center().y * scale)
+	root.add_child(mesh_instance)
+	return root
+
+
 ## Parametric primitive assembly per prop kind, anchored at the shared
 ## definition position so the logic plane and the view agree on placement.
 static func build_prop(prop: Dictionary, cell_size: int) -> Node3D:
@@ -525,7 +553,9 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 	apron_mesh.size = Vector2(SURROUNDINGS_SIZE_WORLD, SURROUNDINGS_SIZE_WORLD)
 	apron_mesh.material = MapViewMaterials.surroundings_ground()
 	apron.mesh = apron_mesh
-	apron.position = Vector3(map_size.x * 0.5, -0.04, map_size.y * 0.5)
+	# Below WATER_RECESS: the apron spans under the playable map too, so it must
+	# sit deeper than recessed water cells or moats render invisible.
+	apron.position = Vector3(map_size.x * 0.5, -WATER_RECESS - 0.04, map_size.y * 0.5)
 	root.add_child(apron)
 
 	var trunks: Array[Transform3D] = []

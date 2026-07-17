@@ -25,9 +25,12 @@ const INPUT_PROJECTION_SAMPLE_PX := 64.0
 const ZOOM_STEP_FACTOR := 0.9
 const ZOOM_MIN_ORTHOGRAPHIC_SIZE := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE * 0.5
 const ZOOM_MAX_ORTHOGRAPHIC_SIZE := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE * 2.0
-## Page Up / Page Down orbit the dimetric camera in fixed steps so players can
-## look at facades the default angle hides.
-const ROTATE_STEP_DEGREES := 45.0
+## Holding Page Up / Page Down orbits the dimetric camera smoothly around the
+## player so facades the default angle hides stay reachable.
+const ROTATE_SPEED_DEGREES := 120.0
+## Rig heights (world units, of the frozen 2.0-unit character) probed toward
+## the camera to decide when the occluded-player silhouette should show.
+const OCCLUSION_PROBE_HEIGHTS: Array[float] = [0.5, 1.1, 1.8]
 
 var view: MapView3D
 
@@ -51,6 +54,7 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 
 	runtime._player_rig = PLAYER_RIG_SCENE.instantiate()
 	runtime._player_rig.name = "PlayerRig"
+	runtime._player_rig.add_to_group(&"player_view_rig")
 	runtime.add_child(runtime._player_rig)
 
 	runtime._camera = runtime.view.view_camera()
@@ -80,6 +84,7 @@ func set_time_of_day(next_time: StringName) -> void:
 func _process(delta: float) -> void:
 	if _player == null or not is_instance_valid(_player):
 		return
+	_apply_view_rotation(delta)
 	_sync_player(false, delta)
 
 
@@ -106,24 +111,21 @@ func zoom_view_steps(steps: float) -> void:
 	)
 
 
-func _unhandled_key_input(event: InputEvent) -> void:
-	var key := event as InputEventKey
-	if key == null or not key.pressed or key.echo:
+func _apply_view_rotation(delta: float) -> void:
+	var direction := 0.0
+	if Input.is_key_pressed(KEY_PAGEUP):
+		direction += 1.0
+	if Input.is_key_pressed(KEY_PAGEDOWN):
+		direction -= 1.0
+	if direction == 0.0:
 		return
-	if key.keycode == KEY_PAGEUP:
-		rotate_view(1)
-		get_viewport().set_input_as_handled()
-	elif key.keycode == KEY_PAGEDOWN:
-		rotate_view(-1)
-		get_viewport().set_input_as_handled()
+	rotate_view_degrees(direction * ROTATE_SPEED_DEGREES * delta)
 
 
-## Rotates the gameplay camera by whole steps around the player, then
+## Orbits the gameplay camera around the player by an arbitrary angle, then
 ## re-projects the keyboard axes so screen-relative movement stays intuitive.
-func rotate_view(steps: int) -> void:
-	_camera.rotation_degrees.y = wrapf(
-		_camera.rotation_degrees.y + float(steps) * ROTATE_STEP_DEGREES, -180.0, 180.0
-	)
+func rotate_view_degrees(delta_degrees: float) -> void:
+	_camera.rotation_degrees.y = wrapf(_camera.rotation_degrees.y + delta_degrees, -180.0, 180.0)
 	_follow_player(true, 0.0)
 	_configure_screen_relative_movement()
 
@@ -144,6 +146,18 @@ func _sync_player(snap: bool, delta: float = 0.0) -> void:
 	if _player_rig.current_canonical_animation() != wanted:
 		_player_rig.play_animation(wanted)
 	_player_rig.set_locomotion_speed(speed * MapViewBridge.world_scale(_definition.cell_size))
+	_update_occlusion_ghost()
+
+
+func _update_occlusion_ghost() -> void:
+	var toward_camera := _camera.transform.basis.z * MapView3D.CAMERA_DISTANCE
+	var occluded := false
+	for height in OCCLUSION_PROBE_HEIGHTS:
+		var from := _player_rig.position + Vector3.UP * height
+		if view.is_segment_occluded(from, from + toward_camera):
+			occluded = true
+			break
+	_player_rig.set_occlusion_ghost(occluded)
 
 
 func _configure_screen_relative_movement() -> void:

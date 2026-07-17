@@ -43,6 +43,7 @@ var time_of_day: StringName = TIME_DAY
 var _sun: DirectionalLight3D
 var _environment: Environment
 var _camera: Camera3D
+var _occluder_bounds: Array[AABB] = []
 
 
 static func create(
@@ -87,6 +88,16 @@ func view_camera() -> Camera3D:
 	return _camera
 
 
+## True when a building or landmark mass crosses the segment. The runtime
+## probes from an actor toward the camera to decide when the occluded-actor
+## silhouette overlay should show.
+func is_segment_occluded(from: Vector3, to: Vector3) -> bool:
+	for bounds in _occluder_bounds:
+		if bounds.intersects_segment(from, to):
+			return true
+	return false
+
+
 func sun_light() -> DirectionalLight3D:
 	return _sun
 
@@ -108,10 +119,20 @@ func _assemble() -> void:
 	for landmark in definition.view_landmarks:
 		landmarks.add_child(MapViewMeshBuilder.build_landmark(landmark, definition.cell_size))
 
+	# Buildings and landmarks are the only masses tall enough to hide an actor
+	# from the dimetric camera; their mesh bounds feed is_segment_occluded.
+	_append_mesh_bounds(buildings, buildings.transform, _occluder_bounds)
+	_append_mesh_bounds(landmarks, landmarks.transform, _occluder_bounds)
+
+	var transition_markers := Node3D.new()
+	transition_markers.name = "TransitionMarkers"
+	add_child(transition_markers)
 	var doors := Node3D.new()
 	doors.name = "Doors"
 	add_child(doors)
 	for transition in definition.transitions:
+		if bool(transition.get("highlight_area", false)):
+			transition_markers.add_child(MapViewMeshBuilder.build_transition_marker(transition, definition.cell_size))
 		if not String(transition.get("destination_scene_id", "")).is_empty():
 			doors.add_child(MapViewMeshBuilder.build_transition_door(transition, definition.cell_size))
 
@@ -146,6 +167,14 @@ func _assemble() -> void:
 
 	_camera = _create_camera()
 	add_child(_camera)
+
+
+static func _append_mesh_bounds(node: Node3D, accumulated: Transform3D, bounds: Array[AABB]) -> void:
+	if node is MeshInstance3D:
+		bounds.append(accumulated * (node as MeshInstance3D).get_aabb())
+	for child in node.get_children():
+		if child is Node3D:
+			_append_mesh_bounds(child, accumulated * (child as Node3D).transform, bounds)
 
 
 func _create_camera() -> Camera3D:

@@ -32,6 +32,9 @@ const VENDOR_EQUIPMENT_NAMES: Array[StringName] = [
 	&"Mug",
 ]
 const RIGHT_HAND_BONE := &"hand.r"
+const OCCLUDED_SILHOUETTE_SHADER := preload("res://assets/characters/shared/occluded_silhouette.gdshader")
+
+static var _occluded_silhouette_material: ShaderMaterial
 
 @export var variant: CharacterVariant
 @export var start_animation: StringName = &"idle"
@@ -40,6 +43,7 @@ const RIGHT_HAND_BONE := &"hand.r"
 var _animation_player: AnimationPlayer
 var _skeleton: Skeleton3D
 var _equipment_attachment: BoneAttachment3D
+var _occlusion_ghost := false
 
 func _ready() -> void:
 	_animation_player = _find_animation_player($Model)
@@ -134,6 +138,31 @@ func validation_errors() -> Array[String]:
 	if variant == null:
 		errors.append("Rig has no CharacterVariant resource")
 	return errors
+
+## Shows a translucent silhouette wherever view geometry hides this rig so the
+## character stays readable behind buildings. The overlay's inverted depth test
+## only draws on occluded fragments; keeping it off while fully visible avoids
+## ghost tint where the rig's own limbs overlap its body.
+func set_occlusion_ghost(enabled: bool) -> void:
+	if _occlusion_ghost == enabled:
+		return
+	_occlusion_ghost = enabled
+	_apply_overlay(self, _silhouette_material() if enabled else null)
+
+func occlusion_ghost_enabled() -> bool:
+	return _occlusion_ghost
+
+static func _silhouette_material() -> ShaderMaterial:
+	if _occluded_silhouette_material == null:
+		_occluded_silhouette_material = ShaderMaterial.new()
+		_occluded_silhouette_material.shader = OCCLUDED_SILHOUETTE_SHADER
+	return _occluded_silhouette_material
+
+static func _apply_overlay(root: Node, overlay: Material) -> void:
+	if root is MeshInstance3D:
+		(root as MeshInstance3D).material_overlay = overlay
+	for child: Node in root.get_children():
+		_apply_overlay(child, overlay)
 
 func variant_id() -> StringName:
 	if variant == null:

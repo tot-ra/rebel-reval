@@ -58,6 +58,26 @@ func test_mart_is_a_data_only_swap_on_the_shared_rig() -> void:
 	kalev.queue_free()
 	mart.queue_free()
 
+func test_occlusion_ghost_overlays_every_mesh_and_clears() -> void:
+	var kalev := _instantiate(KALEV_SCENE)
+	var mesh_instances := kalev.find_children("*", "MeshInstance3D", true, false)
+	assert_true(mesh_instances.size() > 0, "Rig must expose mesh instances to overlay")
+	assert_false(kalev.occlusion_ghost_enabled(), "Ghost must start disabled")
+
+	kalev.set_occlusion_ghost(true)
+	for mesh_instance: MeshInstance3D in mesh_instances:
+		var overlay := mesh_instance.material_overlay as ShaderMaterial
+		assert_true(
+			overlay != null and overlay.shader == SharedCharacterRig.OCCLUDED_SILHOUETTE_SHADER,
+			"%s must carry the occlusion silhouette overlay" % mesh_instance.name
+		)
+
+	kalev.set_occlusion_ghost(false)
+	for mesh_instance: MeshInstance3D in mesh_instances:
+		assert_eq(mesh_instance.material_overlay, null, "%s must drop the overlay when visible" % mesh_instance.name)
+
+	kalev.queue_free()
+
 func _instantiate(scene: PackedScene) -> SharedCharacterRig:
 	var character := scene.instantiate() as SharedCharacterRig
 	var tree := Engine.get_main_loop() as SceneTree

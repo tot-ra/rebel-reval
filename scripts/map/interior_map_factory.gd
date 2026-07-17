@@ -89,7 +89,8 @@ static func add_transition(
 	destination_scene_id: StringName = &"",
 	destination_spawn_id: StringName = &"",
 	spawn_id: StringName = &"",
-	spawn_offset: Vector2 = Vector2.ZERO
+	spawn_offset: Vector2 = Vector2.ZERO,
+	highlight_area: bool = false
 ) -> void:
 	var entry := {
 		"id": transition_id,
@@ -103,6 +104,8 @@ static func add_transition(
 		entry["spawn_id"] = spawn_id
 	if spawn_offset != Vector2.ZERO:
 		entry["spawn_offset"] = spawn_offset
+	if highlight_area:
+		entry["highlight_area"] = true
 	definition.transitions.append(entry)
 
 

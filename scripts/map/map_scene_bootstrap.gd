@@ -20,6 +20,7 @@ static func assemble(
 	var nav := MapNavBuilder.create_navigation_region(definition, grid)
 	nav.name = "Navigation"
 	host.add_child(nav)
+	var world_bounds := _create_world_bounds(definition, host)
 
 	var gameplay := Node2D.new()
 	gameplay.name = "Gameplay"
@@ -33,6 +34,7 @@ static func assemble(
 		"grid": grid,
 		"assembled": assembled,
 		"navigation": nav,
+		"world_bounds": world_bounds,
 		"doors": doors,
 		"anchors": anchors,
 		"fades": fades,
@@ -87,6 +89,33 @@ static func _create_doors(definition: MapDefinition, parent: Node2D) -> Array[Ar
 		doors_root.add_child(door)
 		doors.append(door)
 	return doors
+
+
+## Navigation constrains click targets, but keyboard input drives CharacterBody2D
+## directly. Thin static walls keep both input methods inside the authored map;
+## transition triggers sit just inside these walls and fire before contact.
+static func _create_world_bounds(definition: MapDefinition, parent: Node2D) -> StaticBody2D:
+	var bounds := StaticBody2D.new()
+	bounds.name = "WorldBounds"
+	bounds.add_to_group(&"map_world_bounds")
+	var world := definition.world_size()
+	var thickness := float(definition.cell_size)
+	var walls := [
+		{"position": Vector2(world.x * 0.5, -thickness * 0.5), "size": Vector2(world.x + thickness * 2.0, thickness)},
+		{"position": Vector2(world.x * 0.5, world.y + thickness * 0.5), "size": Vector2(world.x + thickness * 2.0, thickness)},
+		{"position": Vector2(-thickness * 0.5, world.y * 0.5), "size": Vector2(thickness, world.y)},
+		{"position": Vector2(world.x + thickness * 0.5, world.y * 0.5), "size": Vector2(thickness, world.y)},
+	]
+	for index in walls.size():
+		var collision := CollisionShape2D.new()
+		collision.name = "Boundary%d" % index
+		collision.position = walls[index]["position"]
+		var shape := RectangleShape2D.new()
+		shape.size = walls[index]["size"]
+		collision.shape = shape
+		bounds.add_child(collision)
+	parent.add_child(bounds)
+	return bounds
 
 
 static func _create_anchor_markers(definition: MapDefinition, parent: Node2D) -> Array[Marker2D]:
