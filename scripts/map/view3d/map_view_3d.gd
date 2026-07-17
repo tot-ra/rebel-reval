@@ -70,6 +70,17 @@ func set_time_of_day(next_time: StringName) -> void:
 	_environment.ambient_light_color = AMBIENT_NIGHT_COLOR if night else AMBIENT_DAY_COLOR
 	_environment.ambient_light_energy = AMBIENT_NIGHT_ENERGY if night else AMBIENT_DAY_ENERGY
 	_environment.background_color = BACKGROUND_NIGHT_COLOR if night else BACKGROUND_DAY_COLOR
+	_update_chimney_smokes()
+
+
+func _update_chimney_smokes() -> void:
+	var buildings := get_node_or_null("Buildings")
+	if buildings == null:
+		return
+	for building_node in buildings.get_children():
+		var smoke := building_node.get_node_or_null("ChimneySmoke") as ChimneySmoke3D
+		if smoke != null:
+			smoke.apply_time_of_day(time_of_day)
 
 
 func world_position(logic_position: Vector2, height: float = 0.0) -> Vector3:

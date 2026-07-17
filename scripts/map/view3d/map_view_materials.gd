@@ -64,8 +64,10 @@ const TERRAIN_UV_SCALE := {
 ## repeats, one procedural tile spans an entire house wall and bricks read
 ## billboard-sized. Values are tuned for typical 3-6 unit footprints at the
 ## frozen 32 px/cell scale (character height 2.0 units).
+## Brick stretcher courses need more vertical repeats than horizontal ones so
+## each brick reads wider than tall (running bond, not soldier/stack bond).
 const BUILDING_UV_SCALE := {
-	PATTERN_BRICK: Vector3(6.0, 2.5, 6.0),
+	PATTERN_BRICK: Vector3(5.0, 6.5, 5.0),
 	PATTERN_LIMESTONE: Vector3(4.0, 2.0, 4.0),
 	PATTERN_PLANK: Vector3(5.0, 3.0, 5.0),
 	PATTERN_PLASTER: Vector3(3.5, 2.5, 3.5),
@@ -295,8 +297,32 @@ static func surroundings_ground() -> StandardMaterial3D:
 	return material
 
 
-## Soft unshaded billboard puff for chimney smoke; alpha comes from the
-## particle color ramp.
+## Soft radial puff texture for chimney smoke billboards. Cached once so every
+## plume shares the same wispy alpha mask.
+static func smoke_puff_texture() -> Texture2D:
+	var key := "smoke_puff"
+	if _cache.has(key):
+		return _cache[key]
+	const SIZE := 64
+	var image := Image.create(SIZE, SIZE, false, Image.FORMAT_RGBA8)
+	var center := Vector2(SIZE * 0.5, SIZE * 0.5)
+	var radius := float(SIZE) * 0.5
+	for y in SIZE:
+		for x in SIZE:
+			var dist := Vector2(x, y).distance_to(center) / radius
+			var alpha := 1.0 - smoothstep(0.18, 1.0, dist)
+			var wisp := _lattice(float(x) / 7.0, float(y) / 7.0, 9, 42069)
+			alpha *= lerpf(0.42, 1.0, wisp)
+			alpha = pow(alpha, 1.55)
+			image.set_pixel(x, y, Color(1.0, 1.0, 1.0, alpha))
+	image.generate_mipmaps()
+	var texture := ImageTexture.create_from_image(image)
+	_cache[key] = texture
+	return texture
+
+
+## Soft unshaded billboard puff for chimney smoke; tint comes from the particle
+## color ramp and alpha from the puff texture.
 static func smoke() -> StandardMaterial3D:
 	var key := "smoke"
 	if _cache.has(key):
@@ -305,7 +331,10 @@ static func smoke() -> StandardMaterial3D:
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.vertex_color_use_as_albedo = true
-	material.albedo_color = Color(0.86, 0.85, 0.83, 1.0)
+	material.albedo_color = Color(1.0, 1.0, 1.0, 1.0)
+	material.albedo_texture = smoke_puff_texture()
+	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
 	material.billboard_keep_scale = true
 	_cache[key] = material
@@ -482,8 +511,9 @@ static func _paint_brick(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
 	# Half the legacy course/brick span so each tile carries more bricks; UV
 	# repeats on building faces finish the scale for typical house footprints.
-	var course := 6
-	var brick_w := 14
+	# Keep brick_w >> course so stretcher courses stay visibly horizontal.
+	var course := 5
+	var brick_w := 16
 	for y in size:
 		var row := y / course
 		var in_course := y % course

@@ -82,8 +82,7 @@ const TOWER_ROOF_PITCH := 1.45
 const WALL_WALK_ROOF_LIFT := 0.75
 
 const CHIMNEY_SIZE := 0.5
-const SMOKE_LIFETIME := 6.0
-const SMOKE_AMOUNT := 28
+const CHIMNEY_SMOKE_SCRIPT := preload("res://scripts/map/view3d/chimney_smoke_3d.gd")
 
 ## House facades: every house gets a street door and shuttered windows so the
 ## dwellings read as inhabited from the dimetric camera.
@@ -1323,13 +1322,14 @@ static func _visual_patch_terrain(
 	return grid.get_terrain(Vector2i(floori(sample.x), floori(sample.y)))
 
 
-## Every house earns a stone chimney near one ridge end with a slow smoke
-## plume: deterministic per building id, view-only, and the cheapest signal
-## that somebody actually lives here.
+## Every house earns a stone chimney near one ridge end. Smoke is optional and
+## schedule-driven per building id: tint, wind bias, and day/night emission all
+## vary deterministically.
 static func _add_chimney(root: Node3D, building: Dictionary, size: Vector2, wall_height: float, ridge_along_x: bool) -> void:
+	var building_id: StringName = building["id"]
 	var rise := ((size.y if ridge_along_x else size.x) * 0.5 + ROOF_OVERHANG) * ROOF_PITCH
 	var along := ((size.x if ridge_along_x else size.y) * 0.5 - CHIMNEY_SIZE) * 0.62
-	if String(building["id"]).hash() % 2 == 0:
+	if String(building_id).hash() % 2 == 0:
 		along = -along
 	var offset := Vector3(along, 0.0, 0.0) if ridge_along_x else Vector3(0.0, 0.0, along)
 	var top := wall_height + rise + 0.55
@@ -1342,40 +1342,11 @@ static func _add_chimney(root: Node3D, building: Dictionary, size: Vector2, wall
 	stack.material_override = MapViewMaterials.role(&"stone")
 	root.add_child(stack)
 
-	var smoke := GPUParticles3D.new()
-	smoke.name = "ChimneySmoke"
+	if ChimneySmoke3D.schedule_for(String(building_id).hash()) == ChimneySmoke3D.Schedule.NEVER:
+		return
+	var smoke: ChimneySmoke3D = CHIMNEY_SMOKE_SCRIPT.new()
 	smoke.position = offset + Vector3(0.0, top + 0.1, 0.0)
-	smoke.amount = SMOKE_AMOUNT
-	smoke.lifetime = SMOKE_LIFETIME
-	smoke.preprocess = SMOKE_LIFETIME
-	smoke.local_coords = true
-	var process := ParticleProcessMaterial.new()
-	process.direction = Vector3(0.35, 1.0, 0.1)
-	process.spread = 16.0
-	process.initial_velocity_min = 0.3
-	process.initial_velocity_max = 0.55
-	process.gravity = Vector3(0.14, 0.26, 0.0)
-	process.scale_min = 0.8
-	process.scale_max = 1.4
-	process.angle_min = -180.0
-	process.angle_max = 180.0
-	var scale_curve := Curve.new()
-	scale_curve.add_point(Vector2(0.0, 0.3))
-	scale_curve.add_point(Vector2(1.0, 1.0))
-	var curve_texture := CurveTexture.new()
-	curve_texture.curve = scale_curve
-	process.scale_curve = curve_texture
-	var alpha_ramp := Gradient.new()
-	alpha_ramp.set_color(0, Color(1.0, 1.0, 1.0, 0.32))
-	alpha_ramp.set_color(1, Color(1.0, 1.0, 1.0, 0.0))
-	var ramp_texture := GradientTexture1D.new()
-	ramp_texture.gradient = alpha_ramp
-	process.color_ramp = ramp_texture
-	smoke.process_material = process
-	var puff := QuadMesh.new()
-	puff.size = Vector2(1.0, 1.0)
-	puff.material = MapViewMaterials.smoke()
-	smoke.draw_pass_1 = puff
+	smoke.configure(building_id)
 	root.add_child(smoke)
 
 

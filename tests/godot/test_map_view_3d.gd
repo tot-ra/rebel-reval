@@ -167,6 +167,55 @@ func test_houses_get_gabled_roofs_and_walls_get_caps() -> void:
 		node.free()
 
 
+func test_chimney_smoke_varies_by_building_and_time_of_day() -> void:
+	var smoke_material := MapViewMaterials.smoke()
+	assert_ne(smoke_material.albedo_texture, null, "smoke must use a soft puff texture")
+
+	var definition := LowerTownSlice.create()
+	var house_ids: Array[StringName] = []
+	var with_smoke := 0
+	var without_smoke := 0
+	var color_signatures: Dictionary = {}
+	for building in definition.buildings:
+		if building["kind"] != MapTypes.BUILDING_KIND_HOUSE:
+			continue
+		house_ids.append(building["id"])
+		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
+		assert_true(node.has_node("Chimney"), "%s: every house keeps a chimney stack" % building["id"])
+		if node.has_node("ChimneySmoke"):
+			with_smoke += 1
+			var smoke := node.get_node("ChimneySmoke") as ChimneySmoke3D
+			var process := smoke.process_material as ParticleProcessMaterial
+			var ramp_texture := process.color_ramp as GradientTexture1D
+			var ramp: Gradient = ramp_texture.gradient
+			color_signatures[building["id"]] = ramp.get_color(1)
+			assert_true(process.turbulence_enabled, "%s: smoke must use turbulence" % building["id"])
+		else:
+			without_smoke += 1
+		node.free()
+
+	assert_true(with_smoke > 0, "at least one house must emit smoke")
+	assert_true(without_smoke > 0, "some houses must omit smoke entirely")
+	assert_true(color_signatures.size() >= 2, "smoke tints must vary across houses")
+
+	var view := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_DAY)
+	var day_emitters: Array[bool] = []
+	for building_id in house_ids:
+		var building_node := view.get_node("Buildings/Building_%s" % String(building_id))
+		var smoke := building_node.get_node_or_null("ChimneySmoke") as ChimneySmoke3D
+		day_emitters.append(smoke != null and smoke.emitting)
+	view.set_time_of_day(MapView3D.TIME_NIGHT)
+	var night_changed := false
+	for index in house_ids.size():
+		var building_node := view.get_node("Buildings/Building_%s" % String(house_ids[index]))
+		var smoke := building_node.get_node_or_null("ChimneySmoke") as ChimneySmoke3D
+		var night_emitting := smoke != null and smoke.emitting
+		if night_emitting != day_emitters[index]:
+			night_changed = true
+	view.free()
+	assert_true(night_changed, "day/night must change which chimneys emit smoke")
+
+
 func test_transition_door_has_readable_frame_panel_and_handle() -> void:
 	var definition := LowerTownSlice.create()
 	var transition: Dictionary = definition.transitions[0]
