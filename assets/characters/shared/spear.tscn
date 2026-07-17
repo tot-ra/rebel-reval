@@ -1,0 +1,35 @@
+[gd_scene load_steps=5 format=3]
+
+[sub_resource type="StandardMaterial3D" id="Material_wood"]
+albedo_color = Color(0.286275, 0.14902, 0.0745098, 1)
+roughness = 0.9
+
+[sub_resource type="CylinderMesh" id="Mesh_shaft"]
+material = SubResource("Material_wood")
+top_radius = 0.02
+bottom_radius = 0.025
+height = 1.2
+radial_segments = 8
+
+[sub_resource type="StandardMaterial3D" id="Material_iron"]
+albedo_color = Color(0.203922, 0.25098, 0.258824, 1)
+roughness = 0.78
+metallic = 0.35
+
+[sub_resource type="CylinderMesh" id="Mesh_head"]
+material = SubResource("Material_iron")
+top_radius = 0.0
+bottom_radius = 0.045
+height = 0.22
+radial_segments = 8
+
+[node name="SeizedSpear" type="Node3D"]
+transform = Transform3D(0, 1, 0, -1, 0, 0, 0, 0, 1, -0.12, 0.04, 0.06)
+
+[node name="Shaft" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.58, 0)
+mesh = SubResource("Mesh_shaft")
+
+[node name="Head" type="MeshInstance3D" parent="."]
+position = Vector3(0, 1.19, 0)
+mesh = SubResource("Mesh_head")

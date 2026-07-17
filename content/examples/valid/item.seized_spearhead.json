@@ -22,6 +22,10 @@
       "weight_g": 350,
       "grid_width": 1,
       "grid_height": 1
+    },
+    "equip": {
+      "slot": "left_hand",
+      "scene": "res://assets/characters/shared/spear.tscn"
     }
   },
   "source_notes": [

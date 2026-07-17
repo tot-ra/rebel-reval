@@ -67,6 +67,18 @@ func test_equipping_over_occupied_slot_swaps_back_to_bag() -> void:
 	)
 
 
+func test_spearhead_equips_to_left_hand_while_hammer_stays_worn() -> void:
+	var state := GameState.new()
+	state.bag.try_add(ITEM_HAMMER)
+	state.bag.try_add(ITEM_SPEARHEAD)
+	state.equip_from_bag(&"right_hand", ITEM_HAMMER)
+
+	assert_true(state.equip_from_bag(&"left_hand", ITEM_SPEARHEAD))
+	assert_eq(state.equipped_item(&"right_hand"), ITEM_HAMMER)
+	assert_eq(state.equipped_item(&"left_hand"), ITEM_SPEARHEAD)
+	assert_eq(state.bag.get_used_cells(), 0)
+
+
 func test_equipment_changed_signal_fires_per_slot() -> void:
 	var state := GameState.new()
 	state.bag.try_add(ITEM_HAMMER)
