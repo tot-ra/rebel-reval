@@ -7,6 +7,7 @@ extends "res://tests/godot/test_case.gd"
 
 const SmithyCourtyard := preload("res://scripts/map/smithy_courtyard_definition.gd")
 const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
+const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const PLAYER_SCENE := preload("res://player.tscn")
 const TRANSITION_MARKER_SCRIPT := preload("res://scripts/map/view3d/transition_marker_3d.gd")
 
@@ -79,15 +80,18 @@ func test_view_renders_definitions_without_touching_logic_results() -> void:
 		)
 		var functional_transition_count := 0
 		var highlighted_transition_count := 0
+		var visible_door_count := 0
 		for transition in definition.transitions:
 			if not String(transition.get("destination_scene_id", "")).is_empty():
 				functional_transition_count += 1
+				if not MapViewMeshBuilder.transition_uses_landmark_visual(definition, transition):
+					visible_door_count += 1
 			if bool(transition.get("highlight_area", false)):
 				highlighted_transition_count += 1
 		assert_eq(
 			view.get_node("Doors").get_child_count(),
-			functional_transition_count,
-			"%s: every functional transition needs one visible door" % definition.map_id
+			visible_door_count,
+			"%s: framed doors only where no gate arch landmark owns the threshold" % definition.map_id
 		)
 		assert_eq(
 			view.get_node("TransitionMarkers").get_child_count(),
@@ -183,7 +187,7 @@ func test_building_uv_scale_grows_with_wall_span() -> void:
 
 func test_chimney_smoke_varies_by_building_and_time_of_day() -> void:
 	var smoke_material := MapViewMaterials.smoke()
-	assert_ne(smoke_material.albedo_texture, null, "smoke must use a soft puff texture")
+	assert_eq(smoke_material.albedo_texture, null, "smoke must stay texture-free")
 
 	var definition := LowerTownSlice.create()
 	var house_ids: Array[StringName] = []
@@ -200,6 +204,13 @@ func test_chimney_smoke_varies_by_building_and_time_of_day() -> void:
 			with_smoke += 1
 			var smoke := node.get_node("ChimneySmoke") as ChimneySmoke3D
 			var process := smoke.process_material as ParticleProcessMaterial
+			assert_true(smoke.draw_pass_1 is ArrayMesh, "%s: smoke puffs must use rounded geometry" % building["id"])
+			var puff_mesh := smoke.draw_pass_1 as ArrayMesh
+			var puff_vertices: PackedVector3Array = puff_mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+			assert_eq(puff_vertices.size(), 9, "%s: smoke puffs must be eight-sided" % building["id"])
+			var building_seed := String(building["id"]).hash()
+			var expected_day_amount := (22 + ((building_seed >> 5) % 14)) * 2
+			assert_eq(smoke.amount, expected_day_amount, "%s: day smoke amount must be doubled" % building["id"])
 			var ramp_texture := process.color_ramp as GradientTexture1D
 			var ramp: Gradient = ramp_texture.gradient
 			color_signatures[building["id"]] = ramp.get_color(1)
@@ -232,7 +243,12 @@ func test_chimney_smoke_varies_by_building_and_time_of_day() -> void:
 
 func test_transition_door_has_readable_frame_panel_and_handle() -> void:
 	var definition := LowerTownSlice.create()
-	var transition: Dictionary = definition.transitions[0]
+	var transition: Dictionary
+	for candidate in definition.transitions:
+		if candidate.get("id") == &"smithy_door_transition":
+			transition = candidate
+			break
+	assert_false(transition.is_empty(), "smithy door must stay a framed building entry")
 	var door := MapViewMeshBuilder.build_transition_door(transition, definition.cell_size)
 	assert_true(door.has_node("Panel"), "door needs a solid panel")
 	assert_true(door.has_node("FrameLeft"), "door needs a left frame")
@@ -564,6 +580,23 @@ func test_district_boundary_gate_arches_frame_street_axis() -> void:
 		"Vene street arch must place jambs east and west of the north-south passage"
 	)
 	north_arch.free()
+
+
+func test_suburb_boundary_arches_replace_field_doors() -> void:
+	var definition := LowerTownSlice.create()
+	var suburb_arch_ids: Array[StringName] = [&"viru_suburb_arch", &"karja_suburb_arch"]
+	for arch_id in suburb_arch_ids:
+		var found := false
+		for landmark in definition.view_landmarks:
+			if landmark.get("id") == arch_id:
+				found = true
+				break
+		assert_true(found, "missing suburb boundary arch %s" % String(arch_id))
+
+	var view := MapView3D.create(definition, MapBuilder.build(definition))
+	var framed_doors := view.get_node("Doors").get_child_count()
+	assert_eq(framed_doors, 1, "only the smithy should keep a framed transition door on the slice")
+	view.free()
 
 
 func test_fortification_walls_render_150_percent_taller_than_authored() -> void:

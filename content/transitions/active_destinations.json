@@ -32,6 +32,7 @@
       "release": false,
       "spawns": [
         { "id": "from_reval_east" },
+        { "id": "from_reval_east_south" },
         { "id": "to_reval_north" },
         { "id": "to_market" },
         { "id": "to_guild_hall" }

@@ -891,6 +891,25 @@ static func _sealed_wall_size(size: Vector3) -> Vector3:
 	return Vector3(size.x, size.y, size.z + WALL_SEAL_OVERHANG * 2.0)
 
 
+## District exits and gate passages render through view_landmarks instead of a
+## second framed door floating in open ground.
+static func transition_uses_landmark_visual(definition: MapDefinition, transition: Dictionary) -> bool:
+	var landmark_id := StringName(String(transition.get("view_landmark_id", "")))
+	if not String(landmark_id).is_empty():
+		for landmark in definition.view_landmarks:
+			if landmark.get("id") == landmark_id:
+				return true
+		return true
+	var rect: Rect2 = transition["rect"]
+	for landmark in definition.view_landmarks:
+		if landmark.get("kind", &"") != &"gate_arch":
+			continue
+		var landmark_rect: Rect2 = landmark["rect"]
+		if landmark_rect == rect or landmark_rect.encloses(rect):
+			return true
+	return false
+
+
 ## Functional transitions get a view-only framed door at the edge of their
 ## trigger rectangle. The trigger can stay generously sized for navigation;
 ## the visible door remains at the frozen character scale.

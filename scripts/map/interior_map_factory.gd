@@ -42,7 +42,8 @@ static func add_perimeter_walls(
 	wall_thickness_cells: int,
 	wall_height: float,
 	wall_color: Color,
-	doorway_gap: Rect2i = Rect2i(-1, -1, 0, 0)
+	south_doorway_gap: Rect2i = Rect2i(-1, -1, 0, 0),
+	north_doorway_gap: Rect2i = Rect2i(-1, -1, 0, 0)
 ) -> void:
 	var thickness := maxi(1, wall_thickness_cells)
 	var outer := Rect2i(
@@ -52,8 +53,8 @@ static func add_perimeter_walls(
 		inner.size.y + thickness * 2
 	)
 
-	_add_wall_segment(definition, &"wall_north", _north_wall_rect(outer, thickness), wall_height, wall_color, doorway_gap, true)
-	_add_wall_segment(definition, &"wall_south", _south_wall_rect(outer, thickness), wall_height, wall_color, doorway_gap, true)
+	_add_wall_segment(definition, &"wall_north", _north_wall_rect(outer, thickness), wall_height, wall_color, north_doorway_gap, true)
+	_add_wall_segment(definition, &"wall_south", _south_wall_rect(outer, thickness), wall_height, wall_color, south_doorway_gap, true)
 	_add_wall_segment(definition, &"wall_west", _west_wall_rect(outer, thickness), wall_height, wall_color)
 	_add_wall_segment(definition, &"wall_east", _east_wall_rect(outer, thickness), wall_height, wall_color)
 
@@ -90,7 +91,8 @@ static func add_transition(
 	destination_spawn_id: StringName = &"",
 	spawn_id: StringName = &"",
 	spawn_offset: Vector2 = Vector2.ZERO,
-	highlight_area: bool = false
+	highlight_area: bool = false,
+	view_landmark_id: StringName = &""
 ) -> void:
 	var entry := {
 		"id": transition_id,
@@ -106,6 +108,8 @@ static func add_transition(
 		entry["spawn_offset"] = spawn_offset
 	if highlight_area:
 		entry["highlight_area"] = true
+	if not String(view_landmark_id).is_empty():
+		entry["view_landmark_id"] = view_landmark_id
 	definition.transitions.append(entry)
 
 

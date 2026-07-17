@@ -149,7 +149,8 @@ func _assemble() -> void:
 	for transition in definition.transitions:
 		if bool(transition.get("highlight_area", false)):
 			transition_markers.add_child(MapViewMeshBuilder.build_transition_marker(transition, definition.cell_size))
-		if not String(transition.get("destination_scene_id", "")).is_empty():
+		if not String(transition.get("destination_scene_id", "")).is_empty() \
+				and not MapViewMeshBuilder.transition_uses_landmark_visual(definition, transition):
 			doors.add_child(MapViewMeshBuilder.build_transition_door(transition, definition.cell_size))
 
 	var props := Node3D.new()

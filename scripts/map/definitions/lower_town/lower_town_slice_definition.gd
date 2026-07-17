@@ -41,7 +41,7 @@ static func create() -> MapDefinition:
 		&"clean_painted",
 		Vector2i(88, 56),
 		MapTypes.TERRAIN_DIRT,
-		"lower_town_slice_v7_wall_seals",
+		"lower_town_slice_v8_boundary_arches",
 		Rect2i(48, 20, 2, 2)
 	)
 
@@ -212,6 +212,13 @@ static func create() -> MapDefinition:
 		{"id": &"kalev_smithy", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(50, 23, 5, 4)), "wall_height": 128.0, "wall_color": Color(0.34, 0.30, 0.26), "roof_color": Color(0.22, 0.20, 0.18), "door_side": &"none"},
 		{"id": &"smithy_yard_fence_north", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(55, 23, 2, 1)), "wall_height": 56.0, "wall_color": Color(0.48, 0.50, 0.54)},
 		{"id": &"smithy_yard_fence_east", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(59, 23, 1, 5)), "wall_height": 56.0, "wall_color": Color(0.48, 0.50, 0.54)},
+		{"id": &"suburb_house_north_a", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(68, 16, 4, 3)), "wall_height": 96.0, "wall_color": Color(0.39, 0.35, 0.30), "roof_color": Color(0.22, 0.20, 0.17), "door_side": &"south"},
+		{"id": &"suburb_house_south_a", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(68, 23, 4, 3)), "wall_height": 96.0, "wall_color": Color(0.38, 0.34, 0.29), "roof_color": Color(0.22, 0.19, 0.16), "door_side": &"north"},
+		{"id": &"suburb_house_north_b", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(76, 16, 4, 3)), "wall_height": 96.0, "wall_color": Color(0.40, 0.36, 0.30), "roof_color": Color(0.23, 0.20, 0.17), "door_side": &"south"},
+		{"id": &"suburb_house_south_b", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(76, 23, 4, 3)), "wall_height": 96.0, "wall_color": Color(0.39, 0.35, 0.30), "roof_color": Color(0.22, 0.20, 0.17), "door_side": &"north"},
+		# South suburb lane houses sealing the Karja Gate causeway.
+		{"id": &"karja_suburb_house_west", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(32, 53, 3, 3)), "wall_height": 96.0, "wall_color": Color(0.39, 0.35, 0.30), "roof_color": Color(0.22, 0.20, 0.17), "door_side": &"east"},
+		{"id": &"karja_suburb_house_east", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(40, 53, 3, 3)), "wall_height": 96.0, "wall_color": Color(0.38, 0.34, 0.29), "roof_color": Color(0.22, 0.19, 0.16), "door_side": &"west"},
 		# Houses sealing the Muurivahe lane where it leaves the quarter north.
 		{"id": &"muurivahe_house_north", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(58, 0, 5, 3)), "wall_height": 104.0, "wall_color": Color(0.40, 0.36, 0.30), "roof_color": Color(0.22, 0.20, 0.18), "door_side": &"south"},
 	]
@@ -226,6 +233,9 @@ static func create() -> MapDefinition:
 		# they mark the edge of the playable quarter instead of open ground.
 		{"id": &"vanaturu_kael_arch", "kind": &"gate_arch", "rect": definition.cell_rect_to_world_rect(Rect2i(0, 19, 2, 4)), "wall_color": Color(0.52, 0.50, 0.46), "top_px": 160.0, "passage_axis": &"x"},
 		{"id": &"vene_district_arch", "kind": &"gate_arch", "rect": definition.cell_rect_to_world_rect(Rect2i(14, 0, 3, 2)), "wall_color": Color(0.52, 0.50, 0.46), "top_px": 160.0, "passage_axis": &"z"},
+		# Suburb street ends where prototype districts continue past the wall.
+		{"id": &"viru_suburb_arch", "kind": &"gate_arch", "rect": definition.cell_rect_to_world_rect(Rect2i(84, 19, 4, 3)), "wall_color": Color(0.52, 0.50, 0.46), "top_px": 140.0, "passage_axis": &"x", "door_material": &"wood"},
+		{"id": &"karja_suburb_arch", "kind": &"gate_arch", "rect": definition.cell_rect_to_world_rect(Rect2i(36, 53, 3, 3)), "wall_color": Color(0.52, 0.50, 0.46), "top_px": 140.0, "passage_axis": &"z", "door_material": &"wood"},
 	]
 
 	# Reval continues north (Pikk street quarter) and west (town centre); east
@@ -283,7 +293,8 @@ static func create() -> MapDefinition:
 		&"from_reval_east",
 		&"vana_turg_boundary",
 		Vector2(48.0, 0.0),
-		true
+		true,
+		&"vanaturu_kael_arch"
 	)
 	InteriorMapFactory.add_transition(
 		definition,
@@ -293,7 +304,8 @@ static func create() -> MapDefinition:
 		&"from_reval_east",
 		&"vene_district_boundary",
 		Vector2(0.0, 48.0),
-		true
+		true,
+		&"vene_district_arch"
 	)
 	InteriorMapFactory.add_transition(
 		definition,
@@ -303,17 +315,19 @@ static func create() -> MapDefinition:
 		&"from_reval_east",
 		&"viru_road_boundary",
 		Vector2(-48.0, 0.0),
-		true
+		true,
+		&"viru_suburb_arch"
 	)
 	InteriorMapFactory.add_transition(
 		definition,
 		&"karja_road_boundary",
 		Rect2i(36, 53, 3, 3),
-		&"market_civic_quarter",
-		&"from_reval_east",
+		&"reval_center",
+		&"from_reval_east_south",
 		&"karja_road_boundary",
 		Vector2(0.0, -48.0),
-		true
+		true,
+		&"karja_suburb_arch"
 	)
 	InteriorMapFactory.add_transition(
 		definition,
