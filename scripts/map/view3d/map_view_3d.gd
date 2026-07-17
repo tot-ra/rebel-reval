@@ -102,6 +102,12 @@ func _assemble() -> void:
 	for building in definition.buildings:
 		buildings.add_child(MapViewMeshBuilder.build_building(building, definition.cell_size))
 
+	var landmarks := Node3D.new()
+	landmarks.name = "Landmarks"
+	add_child(landmarks)
+	for landmark in definition.view_landmarks:
+		landmarks.add_child(MapViewMeshBuilder.build_landmark(landmark, definition.cell_size))
+
 	var doors := Node3D.new()
 	doors.name = "Doors"
 	add_child(doors)

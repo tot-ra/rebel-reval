@@ -24,6 +24,15 @@ var camera_bounds: Rect2 = Rect2(0, 0, 0, 0)
 var fade_volumes: Array[Dictionary] = []
 var source_references: Array[String] = []
 var fingerprint: String = ""
+## View-only markers rendered by the 3D layer (e.g. a gate arch spanning a
+## walkable opening). Never contributes collision, navigation, or blocking.
+var view_landmarks: Array[Dictionary] = []
+## Sides of the map (&"north"/&"south"/&"east"/&"west") where the view-only
+## surroundings should read as continuing town instead of open woodland.
+var surroundings_town_sides: Array[StringName] = []
+
+const VIEW_LANDMARK_KINDS: Array[StringName] = [&"gate_arch"]
+const WORLD_SIDES: Array[StringName] = [&"north", &"south", &"east", &"west"]
 
 
 func cell_rect_to_world_rect(cell_rect: Rect2i) -> Rect2:
@@ -90,6 +99,13 @@ func validate() -> Array[String]:
 
 	for index in fade_volumes.size():
 		errors.append_array(_validate_fade_volume(fade_volumes[index], index))
+
+	for index in view_landmarks.size():
+		errors.append_array(_validate_view_landmark(view_landmarks[index], index, seen_ids))
+
+	for side in surroundings_town_sides:
+		if not WORLD_SIDES.has(side):
+			errors.append("surroundings_town_sides has unknown side: %s" % String(side))
 
 	if camera_bounds.size.x < 0 or camera_bounds.size.y < 0:
 		errors.append("camera_bounds cannot be negative")
@@ -271,6 +287,29 @@ func _validate_interaction_anchor(anchor: Dictionary, index: int, seen_ids: Dict
 		errors.append("%s.position must be Vector2" % prefix)
 	elif not _point_inside_world_pixels(anchor["position"]):
 		errors.append("%s.position is outside world bounds" % prefix)
+
+	return errors
+
+
+func _validate_view_landmark(landmark: Dictionary, index: int, seen_ids: Dictionary) -> Array[String]:
+	var errors: Array[String] = []
+	var prefix := "view_landmarks[%d]" % index
+
+	if not landmark.has("id") or String(landmark["id"]).is_empty():
+		errors.append("%s.id is required" % prefix)
+	else:
+		var landmark_id: StringName = landmark["id"]
+		if seen_ids.has(landmark_id):
+			errors.append("duplicate stable id: %s" % String(landmark_id))
+		seen_ids[landmark_id] = true
+
+	if not VIEW_LANDMARK_KINDS.has(landmark.get("kind", &"")):
+		errors.append("%s.kind is unknown: %s" % [prefix, str(landmark.get("kind", ""))])
+
+	if not landmark.has("rect") or not landmark["rect"] is Rect2:
+		errors.append("%s.rect must be Rect2" % prefix)
+	elif not _rect_inside_world_pixels(landmark["rect"]):
+		errors.append("%s.rect is outside world bounds" % prefix)
 
 	return errors
 

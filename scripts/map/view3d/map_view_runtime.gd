@@ -19,6 +19,9 @@ const WALK_ANIMATION_MIN_SPEED := 5.0
 ## player's walk and run speeds).
 const RUN_ANIMATION_MIN_SPEED := 170.0
 const INPUT_PROJECTION_SAMPLE_PX := 64.0
+## Page Up / Page Down orbit the dimetric camera in fixed steps so players can
+## look at facades the default angle hides.
+const ROTATE_STEP_DEGREES := 45.0
 
 var view: MapView3D
 
@@ -72,6 +75,28 @@ func _process(delta: float) -> void:
 	if _player == null or not is_instance_valid(_player):
 		return
 	_sync_player(false, delta)
+
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	var key := event as InputEventKey
+	if key == null or not key.pressed or key.echo:
+		return
+	if key.keycode == KEY_PAGEUP:
+		rotate_view(1)
+		get_viewport().set_input_as_handled()
+	elif key.keycode == KEY_PAGEDOWN:
+		rotate_view(-1)
+		get_viewport().set_input_as_handled()
+
+
+## Rotates the gameplay camera by whole steps around the player, then
+## re-projects the keyboard axes so screen-relative movement stays intuitive.
+func rotate_view(steps: int) -> void:
+	_camera.rotation_degrees.y = wrapf(
+		_camera.rotation_degrees.y + float(steps) * ROTATE_STEP_DEGREES, -180.0, 180.0
+	)
+	_follow_player(true, 0.0)
+	_configure_screen_relative_movement()
 
 
 func _sync_player(snap: bool, delta: float = 0.0) -> void:

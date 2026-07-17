@@ -237,4 +237,53 @@ func test_runtime_maps_keyboard_to_screen_axes_and_faces_idle_rig_at_camera() ->
 		is_equal_approx(rig.rotation.y, atan2(camera_direction.x, camera_direction.y)),
 		"an idle player rig must turn toward the gameplay camera"
 	)
+
+	var yaw_before := camera.rotation_degrees.y
+	runtime.rotate_view(1)
+	assert_true(
+		is_equal_approx(camera.rotation_degrees.y, wrapf(yaw_before + MapViewRuntime.ROTATE_STEP_DEGREES, -180.0, 180.0)),
+		"rotate_view must orbit the camera by one fixed step"
+	)
+	var rotated_up := player.movement_direction_for_screen_input(Vector2.UP)
+	assert_false(
+		rotated_up.is_equal_approx(screen_up_in_logic),
+		"rotating the view must re-project keyboard movement"
+	)
+	assert_true(
+		is_equal_approx(rotated_up.length(), 1.0),
+		"re-projected movement must stay normalized"
+	)
 	scene_root.free()
+
+
+func test_houses_get_facade_doors_and_windows() -> void:
+	var definition := LowerTownSlice.create()
+	for building in definition.buildings:
+		if building["kind"] != MapTypes.BUILDING_KIND_HOUSE:
+			continue
+		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
+		if building.get("door_side", &"south") == &"none":
+			assert_false(node.has_node("Door"), "%s: door_side none must suppress the plain door" % building["id"])
+		else:
+			assert_true(node.has_node("Door"), "%s: every house needs a street door" % building["id"])
+		assert_true(node.has_node("Window0"), "%s: every house needs at least one window" % building["id"])
+		node.free()
+
+
+func test_town_wall_gets_battlements_and_gate_arch_clears_character() -> void:
+	var definition := LowerTownSlice.create()
+	for building in definition.buildings:
+		if building["id"] in [&"city_wall_north", &"viru_gate_north_tower", &"hinke_tower"]:
+			var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
+			assert_true(node.has_node("Merlons"), "%s: fortifications need battlements" % building["id"])
+			node.free()
+	assert_true(definition.view_landmarks.size() >= 1, "Viru Gate needs its arch landmark")
+	var arch := MapViewMeshBuilder.build_landmark(definition.view_landmarks[0], definition.cell_size)
+	assert_true(arch.has_node("Bridge"), "gate arch needs a bridging mass")
+	var bridge := arch.get_node("Bridge") as MeshInstance3D
+	var bridge_mesh := bridge.mesh as BoxMesh
+	assert_true(
+		bridge.position.y - bridge_mesh.size.y * 0.5 >= 2.0,
+		"the arch must clear the frozen 2.0-unit character"
+	)
+	arch.free()

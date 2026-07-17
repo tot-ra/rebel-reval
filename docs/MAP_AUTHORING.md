@@ -169,6 +169,19 @@ Run `scenes/map_prototype/smithy_courtyard.tscn` in the editor. Confirm:
 
 Y-sort anchor for buildings is the **south footprint edge center** (`MapBuildingRenderer.footprint_y_sort_anchor()`).
 
+Optional view-only building keys (read by `MapViewMeshBuilder`, ignored by the logic plane):
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `door_side` | `StringName` | Facade for the house door/windows: `north`/`south`/`east`/`west` (default `south`); `none` keeps windows but suppresses the plain door (use when a framed transition door is the entry) |
+| `ridge_axis` | `StringName` | Pins the gabled-roof ridge to `x` or `z` instead of the longest footprint axis (turn a gable end to the street) |
+
+Fortification dressing is automatic: `wall` buildings taller than 160 px get battlements; above 220 px they also get arrow slits.
+
+### View landmarks and surroundings
+
+`definition.view_landmarks` renders view-only geometry that never blocks cells — currently kind `gate_arch` (`id`, `rect` in world pixels, optional `wall_color`, `top_px`) bridging a walkable gate passage. `definition.surroundings_town_sides` lists map sides (`north`/`south`/`east`/`west`) where the out-of-bounds backdrop reads as continuing town instead of woodland; open sides keep a cleared glacis strip before the treeline.
+
 ### Prop entry
 
 | Field | Type | Notes |

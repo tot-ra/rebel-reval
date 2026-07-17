@@ -40,6 +40,32 @@ const CHIMNEY_SIZE := 0.5
 const SMOKE_LIFETIME := 6.0
 const SMOKE_AMOUNT := 28
 
+## House facades: every house gets a street door and shuttered windows so the
+## dwellings read as inhabited from the dimetric camera.
+const HOUSE_DOOR_WIDTH := 0.95
+const HOUSE_DOOR_HEIGHT := 2.1
+const HOUSE_WINDOW_SIZE := Vector2(0.6, 0.75)
+const HOUSE_WINDOW_SILL := 1.15
+const HOUSE_WINDOW_SPACING := 2.1
+const FACADE_RELIEF := 0.05
+
+## Fortification dressing: town-wall segments and towers above this height get
+## battlements; towers additionally get arrow slits.
+const BATTLEMENT_MIN_HEIGHT_PX := 160.0
+const TOWER_MIN_HEIGHT_PX := 220.0
+const MERLON_SIZE := Vector3(0.42, 0.5, 0.3)
+const MERLON_SPACING := 0.95
+const ARROW_SLIT_SIZE := Vector3(0.14, 0.7, 0.08)
+
+## Gate arch landmark: view-only mass bridging a walkable gate passage.
+const GATE_ARCH_CLEARANCE := 3.2
+
+## Background town silhouette on `surroundings_town_sides`.
+const TOWN_GRID_SPACING := 6.5
+const TOWN_KEEP_RATIO := 0.6
+const TOWN_BAND_INNER := 2.5
+const GLACIS_CLEARANCE := 6.0
+
 ## View-only landscape ring past the playable bounds: warm meadow apron with a
 ## scattered treeline instead of a hard void.
 const SURROUNDINGS_SIZE_WORLD := 512.0
@@ -138,13 +164,15 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 	root.add_child(walls)
 
 	if kind == MapTypes.BUILDING_KIND_HOUSE:
+		var ridge_along_x := _ridge_along_x(building, size)
 		var roof := MeshInstance3D.new()
 		roof.name = "Roof"
-		roof.mesh = _gabled_roof_mesh(size)
+		roof.mesh = _gabled_roof_mesh(size, ridge_along_x)
 		roof.position = Vector3(0.0, height, 0.0)
 		roof.material_override = MapViewMaterials.roof(building.get("roof_color", DEFAULT_ROOF_COLOR))
 		root.add_child(roof)
-		_add_chimney(root, building, size, height)
+		_add_chimney(root, building, size, height, ridge_along_x)
+		_add_house_facade(root, building, size, height)
 	else:
 		var cap := MeshInstance3D.new()
 		cap.name = "Cap"
@@ -156,6 +184,164 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 			Color(building.get("wall_color", DEFAULT_WALL_COLOR)).lightened(0.12)
 		)
 		root.add_child(cap)
+		if height_px >= BATTLEMENT_MIN_HEIGHT_PX and kind == MapTypes.BUILDING_KIND_WALL:
+			_add_battlements(root, building, size, height)
+			if height_px >= TOWER_MIN_HEIGHT_PX:
+				_add_arrow_slits(root, building, size, height)
+	return root
+
+
+## Ridge orientation: longest footprint axis unless the definition pins it via
+## "ridge_axis" (&"x"/&"z") - Hanseatic houses turn the gable end to the street.
+static func _ridge_along_x(building: Dictionary, size: Vector2) -> bool:
+	match building.get("ridge_axis", &""):
+		&"x":
+			return true
+		&"z":
+			return false
+	return size.x >= size.y
+
+
+## Street door plus shuttered windows on the "door_side" facade (&"south"
+## default) and matching windows on the opposite face. A house whose entry is
+## already a framed transition door declares door_side &"none" to keep windows
+## without doubling the door.
+static func _add_house_facade(root: Node3D, building: Dictionary, size: Vector2, height: float) -> void:
+	var declared: StringName = building.get("door_side", &"south")
+	var side := declared if declared != &"none" else &"south"
+	var along_x := side == &"north" or side == &"south"
+	var facade_length := size.x if along_x else size.y
+	var face_offset := (size.y if along_x else size.x) * 0.5
+	var id_hash := String(building["id"]).hash()
+
+	var door_height := minf(HOUSE_DOOR_HEIGHT, height - 0.2)
+	var door_along := (float(id_hash % 100) / 99.0 - 0.5) * maxf(facade_length - HOUSE_DOOR_WIDTH - 1.2, 0.0) * 0.5
+	if declared != &"none":
+		_facade_box(root, "Door", Vector3(HOUSE_DOOR_WIDTH, door_height, DOOR_THICKNESS), door_along, door_height * 0.5, side, face_offset, &"wood")
+		_facade_box(root, "DoorLintel", Vector3(HOUSE_DOOR_WIDTH + 0.24, DOOR_FRAME_THICKNESS, DOOR_THICKNESS + 0.02), door_along, door_height + DOOR_FRAME_THICKNESS * 0.5, side, face_offset, &"timber")
+		_facade_box(root, "DoorStep", Vector3(HOUSE_DOOR_WIDTH + 0.2, 0.09, 0.34), door_along, 0.045, side, face_offset, &"stone")
+
+	var window_count := clampi(int(facade_length / HOUSE_WINDOW_SPACING), 1, 3)
+	var window_sill := minf(HOUSE_WINDOW_SILL, height - HOUSE_WINDOW_SIZE.y - 0.15)
+	var index := 0
+	var faces: Array[StringName] = [side, _opposite_side(side)]
+	for face in faces:
+		for window in window_count:
+			var along := (float(window + 1) / float(window_count + 1) - 0.5) * facade_length
+			# Keep the front windows clear of the door.
+			if face == side and absf(along - door_along) < (HOUSE_DOOR_WIDTH + HOUSE_WINDOW_SIZE.x) * 0.62:
+				continue
+			_facade_box(root, "Window%d" % index, Vector3(HOUSE_WINDOW_SIZE.x, HOUSE_WINDOW_SIZE.y, 0.06), along, window_sill + HOUSE_WINDOW_SIZE.y * 0.5, face, face_offset, &"window")
+			_facade_box(root, "WindowLintel%d" % index, Vector3(HOUSE_WINDOW_SIZE.x + 0.18, 0.1, 0.09), along, window_sill + HOUSE_WINDOW_SIZE.y + 0.05, face, face_offset, &"timber")
+			_facade_box(root, "WindowSill%d" % index, Vector3(HOUSE_WINDOW_SIZE.x + 0.18, 0.08, 0.12), along, window_sill - 0.04, face, face_offset, &"timber")
+			index += 1
+
+
+static func _opposite_side(side: StringName) -> StringName:
+	match side:
+		&"north":
+			return &"south"
+		&"south":
+			return &"north"
+		&"east":
+			return &"west"
+	return &"east"
+
+
+## Places a box flush against the given facade, protruding FACADE_RELIEF so it
+## reads in the dimetric light.
+static func _facade_box(root: Node3D, name: String, box_size: Vector3, along: float, center_y: float, side: StringName, face_offset: float, role: StringName) -> void:
+	var out := face_offset + box_size.z * 0.5 - FACADE_RELIEF + 0.06
+	var position := Vector3.ZERO
+	var size := box_size
+	match side:
+		&"south":
+			position = Vector3(along, center_y, out)
+		&"north":
+			position = Vector3(along, center_y, -out)
+		&"east":
+			position = Vector3(out, center_y, along)
+			size = Vector3(box_size.z, box_size.y, box_size.x)
+		&"west":
+			position = Vector3(-out, center_y, along)
+			size = Vector3(box_size.z, box_size.y, box_size.x)
+	_box(root, name, size, position, role)
+
+
+## Crenellated parapet along the cap of tall fortification walls and towers.
+static func _add_battlements(root: Node3D, building: Dictionary, size: Vector2, height: float) -> void:
+	var transforms: Array[Transform3D] = []
+	var colors: Array[Color] = []
+	var half := size * 0.5
+	var tower := size.x <= 3.4 and size.y <= 3.4
+	var edges: Array = []
+	if tower or size.x >= size.y:
+		edges.append([Vector3(-half.x, 0.0, -half.y), Vector3(half.x, 0.0, -half.y)])
+		edges.append([Vector3(-half.x, 0.0, half.y), Vector3(half.x, 0.0, half.y)])
+	if tower or size.y > size.x:
+		edges.append([Vector3(-half.x, 0.0, -half.y), Vector3(-half.x, 0.0, half.y)])
+		edges.append([Vector3(half.x, 0.0, -half.y), Vector3(half.x, 0.0, half.y)])
+	for edge in edges:
+		var from: Vector3 = edge[0]
+		var to: Vector3 = edge[1]
+		var length := from.distance_to(to)
+		var count := maxi(2, int(length / MERLON_SPACING))
+		for step in count + 1:
+			var origin := from.lerp(to, float(step) / float(count))
+			origin.y = height + CAP_HEIGHT + MERLON_SIZE.y * 0.5
+			transforms.append(Transform3D(Basis.IDENTITY, origin))
+			colors.append(Color.WHITE)
+	var merlon_mesh := BoxMesh.new()
+	merlon_mesh.size = MERLON_SIZE
+	var merlons := _multi_mesh(
+		"Merlons",
+		merlon_mesh,
+		transforms,
+		colors,
+		MapViewMaterials.wall(Color(building.get("wall_color", DEFAULT_WALL_COLOR)).lightened(0.12)),
+		Vector3.ZERO
+	)
+	root.add_child(merlons)
+
+
+## Narrow dark openings on tower faces so they read defensive up close.
+static func _add_arrow_slits(root: Node3D, building: Dictionary, size: Vector2, height: float) -> void:
+	var id_hash := String(building["id"]).hash()
+	var slit_y := height * 0.62
+	var index := 0
+	var sides: Array[StringName] = [&"south", &"east", &"north", &"west"]
+	for side in sides:
+		var along := (float((id_hash + index * 37) % 100) / 99.0 - 0.5) * 0.6
+		var along_x: bool = side == &"north" or side == &"south"
+		var face_offset := (size.y if along_x else size.x) * 0.5
+		var facade_length := size.x if along_x else size.y
+		_facade_box(root, "Slit%d" % index, ARROW_SLIT_SIZE, along * facade_length, slit_y, side, face_offset, &"window")
+		index += 1
+
+
+## View-only landmark geometry over walkable openings (never collides).
+static func build_landmark(landmark: Dictionary, cell_size: int) -> Node3D:
+	var root := Node3D.new()
+	root.name = "Landmark_%s" % String(landmark["id"])
+	var scale := MapViewBridge.world_scale(cell_size)
+	var rect: Rect2 = landmark["rect"]
+	var size := rect.size * scale
+	var center := rect.get_center() * scale
+	root.position = Vector3(center.x, 0.0, center.y)
+	match landmark.get("kind", &""):
+		&"gate_arch":
+			var color := Color(landmark.get("wall_color", DEFAULT_WALL_COLOR))
+			var top := float(landmark.get("top_px", 256.0)) * scale
+			var span_height := maxf(top - GATE_ARCH_CLEARANCE, 0.6)
+			var bridge := MeshInstance3D.new()
+			bridge.name = "Bridge"
+			var bridge_mesh := BoxMesh.new()
+			bridge_mesh.size = Vector3(size.x, span_height, size.y)
+			bridge.mesh = bridge_mesh
+			bridge.position = Vector3(0.0, GATE_ARCH_CLEARANCE + span_height * 0.5, 0.0)
+			bridge.material_override = MapViewMaterials.wall(color)
+			root.add_child(bridge)
+			_add_battlements(root, {"id": landmark["id"], "wall_color": color}, size, top - CAP_HEIGHT)
 	return root
 
 
@@ -351,6 +537,7 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 	var boulders: Array[Transform3D] = []
 	var boulder_colors: Array[Color] = []
 
+	var town_sides := definition.surroundings_town_sides
 	var inner := Rect2(Vector2.ZERO, map_size).grow(TREE_BAND_INNER)
 	var start_x := int(-TREE_BAND_OUTER / TREE_GRID_SPACING)
 	var end_x := int((map_size.x + TREE_BAND_OUTER) / TREE_GRID_SPACING)
@@ -366,6 +553,13 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 			var spot := base + jitter
 			if inner.has_point(spot):
 				continue
+			if not town_sides.is_empty():
+				# Town keeps going on urban sides; open sides keep a cleared
+				# glacis strip before the treeline starts.
+				if town_sides.has(_world_side(spot, map_size)):
+					continue
+				if _distance_outside(spot, map_size) < GLACIS_CLEARANCE:
+					continue
 			var keep := _hash01(gx, gy, definition.seed + 1201)
 			if keep > TREE_KEEP_RATIO:
 				continue
@@ -416,7 +610,99 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 	boulder_mesh.radial_segments = 7
 	boulder_mesh.rings = 4
 	root.add_child(_multi_mesh("Boulders", boulder_mesh, boulders, boulder_colors, MapViewMaterials.role(&"stone"), Vector3.ZERO))
+	if not town_sides.is_empty():
+		root.add_child(_town_silhouette(definition, map_size))
 	return root
+
+
+## Which side of the map bounds a surroundings spot falls on.
+static func _world_side(spot: Vector2, map_size: Vector2) -> StringName:
+	var west := -spot.x
+	var east := spot.x - map_size.x
+	var north := -spot.y
+	var south := spot.y - map_size.y
+	var best := maxf(maxf(west, east), maxf(north, south))
+	if best == east:
+		return &"east"
+	if best == west:
+		return &"west"
+	if best == north:
+		return &"north"
+	return &"south"
+
+
+static func _distance_outside(spot: Vector2, map_size: Vector2) -> float:
+	return maxf(
+		maxf(-spot.x, spot.x - map_size.x),
+		maxf(-spot.y, spot.y - map_size.y)
+	)
+
+
+## Background house masses continuing the town past the playable bounds on the
+## urban sides, so a walled-city district no longer reads as a forest clearing.
+static func _town_silhouette(definition: MapDefinition, map_size: Vector2) -> Node3D:
+	var bodies: Array[Transform3D] = []
+	var body_colors: Array[Color] = []
+	var roofs: Array[Transform3D] = []
+	var roof_colors: Array[Color] = []
+	var inner := Rect2(Vector2.ZERO, map_size).grow(TOWN_BAND_INNER)
+	var start_x := int(-TREE_BAND_OUTER / TOWN_GRID_SPACING)
+	var end_x := int((map_size.x + TREE_BAND_OUTER) / TOWN_GRID_SPACING)
+	var start_y := int(-TREE_BAND_OUTER / TOWN_GRID_SPACING)
+	var end_y := int((map_size.y + TREE_BAND_OUTER) / TOWN_GRID_SPACING)
+	for gy in range(start_y, end_y + 1):
+		for gx in range(start_x, end_x + 1):
+			var base := Vector2(gx, gy) * TOWN_GRID_SPACING
+			var jitter := Vector2(
+				_hash01(gx, gy, definition.seed + 3301) - 0.5,
+				_hash01(gx, gy, definition.seed + 3407) - 0.5
+			) * TOWN_GRID_SPACING * 0.55
+			var spot := base + jitter
+			if inner.has_point(spot):
+				continue
+			if not definition.surroundings_town_sides.has(_world_side(spot, map_size)):
+				continue
+			if _hash01(gx, gy, definition.seed + 3511) > TOWN_KEEP_RATIO:
+				continue
+			var width := 2.6 + _hash01(gx, gy, definition.seed + 3607) * 2.6
+			var depth := 2.2 + _hash01(gx, gy, definition.seed + 3701) * 2.0
+			var body_height := 1.7 + _hash01(gx, gy, definition.seed + 3803) * 1.3
+			var yaw := (_hash01(gx, gy, definition.seed + 3907) - 0.5) * 0.24
+			var body_basis := Basis(Vector3.UP, yaw).scaled(Vector3(width, body_height, depth))
+			bodies.append(Transform3D(body_basis, Vector3(spot.x, body_height * 0.5, spot.y)))
+			var tone := 0.8 + _hash01(gx, gy, definition.seed + 4001) * 0.3
+			body_colors.append(Color(tone, tone * 0.97, tone * 0.9))
+			var rise := depth * (0.42 + _hash01(gx, gy, definition.seed + 4111) * 0.14)
+			var roof_basis := Basis(Vector3.UP, yaw).scaled(Vector3(width + 0.25, rise, depth + 0.25))
+			roofs.append(Transform3D(roof_basis, Vector3(spot.x, body_height, spot.y)))
+			var warmth := 0.72 + _hash01(gx, gy, definition.seed + 4211) * 0.4
+			roof_colors.append(Color(warmth, warmth * 0.86, warmth * 0.8))
+
+	var root := Node3D.new()
+	root.name = "TownSilhouette"
+	var body_mesh := BoxMesh.new()
+	body_mesh.size = Vector3.ONE
+	root.add_child(_multi_mesh("TownBodies", body_mesh, bodies, body_colors, MapViewMaterials.role(&"plaster"), Vector3.ZERO))
+	root.add_child(_multi_mesh("TownRoofs", _unit_roof_prism(), roofs, roof_colors, _role_material(&"roof"), Vector3.ZERO))
+	return root
+
+
+## Unit triangular prism (1 x 1 base, ridge along x at y = 1) scaled per town
+## silhouette instance.
+static func _unit_roof_prism() -> ArrayMesh:
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var a := Vector3(-0.5, 0.0, -0.5)
+	var b := Vector3(0.5, 0.0, -0.5)
+	var c := Vector3(0.5, 0.0, 0.5)
+	var d := Vector3(-0.5, 0.0, 0.5)
+	var r0 := Vector3(-0.5, 1.0, 0.0)
+	var r1 := Vector3(0.5, 1.0, 0.0)
+	_add_roof_quad(surface, a, b, r1, r0, Vector3(0.0, 0.5, -1.0).normalized())
+	_add_roof_quad(surface, r0, r1, c, d, Vector3(0.0, 0.5, 1.0).normalized())
+	_add_roof_triangle(surface, a, r0, d, Vector3.LEFT)
+	_add_roof_triangle(surface, b, c, r1, Vector3.RIGHT)
+	return surface.commit()
 
 
 static func _placed(spot: Vector2, scale: float, lift: Vector3, yaw: float) -> Transform3D:
@@ -504,10 +790,9 @@ static func _add_ground_quad(surface: SurfaceTool, x: int, y: int, height: float
 ## Every house earns a stone chimney near one ridge end with a slow smoke
 ## plume: deterministic per building id, view-only, and the cheapest signal
 ## that somebody actually lives here.
-static func _add_chimney(root: Node3D, building: Dictionary, size: Vector2, wall_height: float) -> void:
-	var ridge_along_x := size.x >= size.y
-	var rise := (minf(size.x, size.y) * 0.5 + ROOF_OVERHANG) * ROOF_PITCH
-	var along := (maxf(size.x, size.y) * 0.5 - CHIMNEY_SIZE) * 0.62
+static func _add_chimney(root: Node3D, building: Dictionary, size: Vector2, wall_height: float, ridge_along_x: bool) -> void:
+	var rise := ((size.y if ridge_along_x else size.x) * 0.5 + ROOF_OVERHANG) * ROOF_PITCH
+	var along := ((size.x if ridge_along_x else size.y) * 0.5 - CHIMNEY_SIZE) * 0.62
 	if String(building["id"]).hash() % 2 == 0:
 		along = -along
 	var offset := Vector3(along, 0.0, 0.0) if ridge_along_x else Vector3(0.0, 0.0, along)
@@ -560,11 +845,10 @@ static func _add_chimney(root: Node3D, building: Dictionary, size: Vector2, wall
 
 ## Gabled roof over a rectangular footprint: ridge along the longer axis,
 ## rise proportional to the narrow span, small eave overhang.
-static func _gabled_roof_mesh(base: Vector2) -> ArrayMesh:
+static func _gabled_roof_mesh(base: Vector2, ridge_along_x: bool = true) -> ArrayMesh:
 	var half_w := base.x * 0.5 + ROOF_OVERHANG
 	var half_d := base.y * 0.5 + ROOF_OVERHANG
-	var ridge_along_x := base.x >= base.y
-	var narrow := minf(half_w, half_d)
+	var narrow := half_d if ridge_along_x else half_w
 	var rise := narrow * ROOF_PITCH
 
 	var surface := SurfaceTool.new()

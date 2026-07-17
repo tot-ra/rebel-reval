@@ -29,7 +29,7 @@ static func create() -> MapDefinition:
 		&"clean_painted",
 		Vector2i(64, 36),
 		MapTypes.TERRAIN_DIRT,
-		"lower_town_slice_v4_viru_gate_quarter",
+		"lower_town_slice_v5_viru_gate_detail",
 		Rect2i(47, 30, 2, 2)
 	)
 
@@ -63,48 +63,66 @@ static func create() -> MapDefinition:
 	]
 
 	definition.buildings = [
-		# Town wall line, north of Viru Gate.
+		# Town wall line, north of Viru Gate, with rectangular flanking towers
+		# (the square-tower silhouette matches the pre-1355 wall program).
 		{"id": &"city_wall_north", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(53, 0, 2, 12)), "wall_height": 192.0, "wall_color": Color(0.58, 0.57, 0.52)},
+		{"id": &"wall_tower_northeast", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(52, 0, 3, 3)), "wall_height": 240.0, "wall_color": Color(0.55, 0.54, 0.50)},
 		{"id": &"wall_tower_north", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(52, 5, 3, 3)), "wall_height": 240.0, "wall_color": Color(0.55, 0.54, 0.50)},
-		# Viru Gate: two flanking tower masses with the street passing between.
+		# Viru Gate: two flanking tower masses, a foregate funneling the road
+		# to the moat bridge, and a view-only arch bridging the passage.
 		{"id": &"viru_gate_north_tower", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(52, 12, 4, 3)), "wall_height": 256.0, "wall_color": Color(0.56, 0.55, 0.50)},
 		{"id": &"viru_gate_south_tower", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(52, 18, 4, 3)), "wall_height": 256.0, "wall_color": Color(0.56, 0.55, 0.50)},
+		{"id": &"foregate_wall_north", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(55, 14, 3, 1)), "wall_height": 128.0, "wall_color": Color(0.57, 0.56, 0.51)},
+		{"id": &"foregate_wall_south", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(55, 18, 3, 1)), "wall_height": 128.0, "wall_color": Color(0.57, 0.56, 0.51)},
 		# Town wall south of the gate, bending west at the Hinke tower spot.
 		{"id": &"city_wall_south", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(52, 21, 2, 8)), "wall_height": 192.0, "wall_color": Color(0.58, 0.57, 0.52)},
+		{"id": &"wall_tower_south", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(51, 23, 3, 3)), "wall_height": 240.0, "wall_color": Color(0.55, 0.54, 0.50)},
 		{"id": &"hinke_tower", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(50, 28, 3, 3)), "wall_height": 224.0, "wall_color": Color(0.55, 0.54, 0.50)},
 		{"id": &"city_wall_south_lower", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(50, 31, 2, 5)), "wall_height": 192.0, "wall_color": Color(0.58, 0.57, 0.52)},
 		# Dominican monastery of St. Catherine north of the passage.
-		{"id": &"st_catherines_church", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(22, 2, 12, 5)), "wall_height": 192.0, "wall_color": Color(0.66, 0.64, 0.58), "roof_color": Color(0.30, 0.16, 0.12)},
-		{"id": &"monastery_cloister", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(34, 0, 9, 6)), "wall_height": 128.0, "wall_color": Color(0.62, 0.60, 0.55), "roof_color": Color(0.28, 0.16, 0.12)},
+		{"id": &"st_catherines_church", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(22, 2, 12, 5)), "wall_height": 192.0, "wall_color": Color(0.66, 0.64, 0.58), "roof_color": Color(0.30, 0.16, 0.12), "door_side": &"south"},
+		{"id": &"monastery_cloister", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(34, 0, 9, 6)), "wall_height": 128.0, "wall_color": Color(0.62, 0.60, 0.55), "roof_color": Color(0.28, 0.16, 0.12), "door_side": &"south"},
 		{"id": &"monastery_precinct_wall", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(21, 0, 1, 8)), "wall_height": 96.0, "wall_color": Color(0.60, 0.58, 0.53)},
-		# Houses south of St. Catherine's Passage fronting Viru street; the
-		# one-cell gaps between them are the passage-to-street alleys.
-		{"id": &"kaik_house_west", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(21, 10, 4, 5)), "wall_height": 112.0, "wall_color": Color(0.42, 0.37, 0.31), "roof_color": Color(0.24, 0.20, 0.16)},
-		{"id": &"kaik_house_mid", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(26, 10, 4, 5)), "wall_height": 120.0, "wall_color": Color(0.46, 0.40, 0.33), "roof_color": Color(0.26, 0.21, 0.16)},
-		{"id": &"guild_storehouse", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(31, 10, 6, 5)), "wall_height": 136.0, "wall_color": Color(0.52, 0.48, 0.42), "roof_color": Color(0.26, 0.14, 0.11)},
-		{"id": &"glovers_house", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(38, 10, 4, 5)), "wall_height": 112.0, "wall_color": Color(0.40, 0.36, 0.30), "roof_color": Color(0.22, 0.20, 0.18)},
-		{"id": &"corner_house_muurivahe", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(43, 10, 6, 5)), "wall_height": 128.0, "wall_color": Color(0.50, 0.46, 0.40), "roof_color": Color(0.26, 0.15, 0.12)},
+		# Houses south of St. Catherine's Passage fronting Viru street: narrow
+		# Hanseatic plots, gable end to the street, two-cell alleys between.
+		{"id": &"kaik_house_west", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(21, 10, 4, 5)), "wall_height": 112.0, "wall_color": Color(0.42, 0.37, 0.31), "roof_color": Color(0.24, 0.20, 0.16), "door_side": &"south"},
+		{"id": &"kaik_house_mid", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(27, 10, 4, 5)), "wall_height": 120.0, "wall_color": Color(0.46, 0.40, 0.33), "roof_color": Color(0.26, 0.21, 0.16), "door_side": &"south"},
+		{"id": &"guild_storehouse", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(33, 10, 5, 5)), "wall_height": 136.0, "wall_color": Color(0.52, 0.48, 0.42), "roof_color": Color(0.26, 0.14, 0.11), "door_side": &"south", "ridge_axis": &"z"},
+		{"id": &"glovers_house", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(40, 11, 3, 4)), "wall_height": 112.0, "wall_color": Color(0.40, 0.36, 0.30), "roof_color": Color(0.22, 0.20, 0.18), "door_side": &"south"},
+		{"id": &"corner_house_muurivahe", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(45, 10, 4, 5)), "wall_height": 128.0, "wall_color": Color(0.50, 0.46, 0.40), "roof_color": Color(0.26, 0.15, 0.12), "door_side": &"south"},
 		# Blocks west of Vene street, toward the town centre.
-		{"id": &"vene_row_house", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(6, 1, 6, 5)), "wall_height": 120.0, "wall_color": Color(0.44, 0.40, 0.34), "roof_color": Color(0.24, 0.20, 0.16)},
-		{"id": &"market_row_house", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(1, 7, 5, 4)), "wall_height": 112.0, "wall_color": Color(0.41, 0.37, 0.31), "roof_color": Color(0.23, 0.20, 0.17)},
-		{"id": &"apothecary_house", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(12, 8, 4, 6)), "wall_height": 128.0, "wall_color": Color(0.50, 0.45, 0.38), "roof_color": Color(0.26, 0.15, 0.12)},
+		{"id": &"vene_row_house", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(6, 1, 6, 5)), "wall_height": 120.0, "wall_color": Color(0.44, 0.40, 0.34), "roof_color": Color(0.24, 0.20, 0.16), "door_side": &"south"},
+		{"id": &"market_row_house", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(1, 7, 5, 4)), "wall_height": 112.0, "wall_color": Color(0.41, 0.37, 0.31), "roof_color": Color(0.23, 0.20, 0.17), "door_side": &"south"},
+		{"id": &"apothecary_house", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(12, 8, 4, 6)), "wall_height": 128.0, "wall_color": Color(0.50, 0.45, 0.38), "roof_color": Color(0.26, 0.15, 0.12), "door_side": &"east"},
 		# South side of Viru street: brewery and the inn by the gate.
-		{"id": &"foaming_mug_brewery", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(30, 18, 6, 4)), "wall_height": 120.0, "wall_color": Color(0.38, 0.32, 0.26), "roof_color": Color(0.24, 0.20, 0.16)},
-		{"id": &"weary_traveler_inn", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(44, 18, 4, 3)), "wall_height": 120.0, "wall_color": Color(0.43, 0.38, 0.31), "roof_color": Color(0.25, 0.21, 0.16)},
+		{"id": &"foaming_mug_brewery", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(30, 18, 6, 4)), "wall_height": 120.0, "wall_color": Color(0.38, 0.32, 0.26), "roof_color": Color(0.24, 0.20, 0.16), "door_side": &"north"},
+		{"id": &"weary_traveler_inn", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(44, 18, 4, 3)), "wall_height": 120.0, "wall_color": Color(0.43, 0.38, 0.31), "roof_color": Color(0.25, 0.21, 0.16), "door_side": &"north"},
 		# Kalev's smithy and its walled work yard against the town wall.
-		{"id": &"kalev_smithy", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(39, 22, 5, 4)), "wall_height": 128.0, "wall_color": Color(0.34, 0.30, 0.26), "roof_color": Color(0.22, 0.20, 0.18)},
+		# The smithy's entry renders as the framed transition door, so the
+		# facade generator only adds windows here.
+		{"id": &"kalev_smithy", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(39, 22, 5, 4)), "wall_height": 128.0, "wall_color": Color(0.34, 0.30, 0.26), "roof_color": Color(0.22, 0.20, 0.18), "door_side": &"none"},
 		{"id": &"courtyard_wall_west", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(38, 21, 1, 7)), "wall_height": 56.0, "wall_color": Color(0.48, 0.50, 0.54)},
 		{"id": &"courtyard_wall_south", "kind": MapTypes.BUILDING_KIND_WALL, "footprint": definition.cell_rect_to_world_rect(Rect2i(39, 28, 2, 1)), "wall_height": 56.0, "wall_color": Color(0.48, 0.50, 0.54)},
 		# Artisan quarter between Viru street and the Karja Gate lane.
-		{"id": &"saddlers_house", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(13, 19, 5, 4)), "wall_height": 112.0, "wall_color": Color(0.40, 0.36, 0.30), "roof_color": Color(0.22, 0.20, 0.18)},
-		{"id": &"coopers_house", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(20, 19, 5, 4)), "wall_height": 112.0, "wall_color": Color(0.42, 0.38, 0.31), "roof_color": Color(0.23, 0.20, 0.17)},
-		{"id": &"public_bathhouse", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(13, 26, 5, 4)), "wall_height": 120.0, "wall_color": Color(0.46, 0.42, 0.36), "roof_color": Color(0.25, 0.21, 0.16)},
-		{"id": &"tenement_row", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(1, 22, 5, 5)), "wall_height": 112.0, "wall_color": Color(0.40, 0.36, 0.30), "roof_color": Color(0.22, 0.20, 0.18)},
-		{"id": &"potters_house", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(21, 26, 4, 4)), "wall_height": 104.0, "wall_color": Color(0.39, 0.35, 0.29), "roof_color": Color(0.22, 0.19, 0.16)},
-		{"id": &"laundress_house", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(2, 30, 5, 4)), "wall_height": 104.0, "wall_color": Color(0.38, 0.34, 0.29), "roof_color": Color(0.22, 0.19, 0.16)},
-		{"id": &"widows_house", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(28, 25, 4, 4)), "wall_height": 104.0, "wall_color": Color(0.39, 0.35, 0.30), "roof_color": Color(0.22, 0.20, 0.17)},
-		{"id": &"artisan_shed", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(33, 30, 5, 4)), "wall_height": 96.0, "wall_color": Color(0.37, 0.33, 0.28), "roof_color": Color(0.21, 0.19, 0.16)},
+		{"id": &"saddlers_house", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(13, 19, 5, 4)), "wall_height": 112.0, "wall_color": Color(0.40, 0.36, 0.30), "roof_color": Color(0.22, 0.20, 0.18), "door_side": &"north"},
+		{"id": &"coopers_house", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(20, 19, 5, 4)), "wall_height": 112.0, "wall_color": Color(0.42, 0.38, 0.31), "roof_color": Color(0.23, 0.20, 0.17), "door_side": &"north"},
+		{"id": &"public_bathhouse", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(13, 26, 5, 4)), "wall_height": 120.0, "wall_color": Color(0.46, 0.42, 0.36), "roof_color": Color(0.25, 0.21, 0.16), "door_side": &"east"},
+		{"id": &"tenement_row", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(1, 22, 5, 5)), "wall_height": 112.0, "wall_color": Color(0.40, 0.36, 0.30), "roof_color": Color(0.22, 0.20, 0.18), "door_side": &"east"},
+		{"id": &"potters_house", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(21, 26, 4, 4)), "wall_height": 104.0, "wall_color": Color(0.39, 0.35, 0.29), "roof_color": Color(0.22, 0.19, 0.16), "door_side": &"west"},
+		{"id": &"laundress_house", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(2, 30, 5, 4)), "wall_height": 104.0, "wall_color": Color(0.38, 0.34, 0.29), "roof_color": Color(0.22, 0.19, 0.16), "door_side": &"north"},
+		{"id": &"widows_house", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(28, 25, 4, 4)), "wall_height": 104.0, "wall_color": Color(0.39, 0.35, 0.30), "roof_color": Color(0.22, 0.20, 0.17), "door_side": &"east"},
+		{"id": &"artisan_shed", "kind": MapTypes.BUILDING_KIND_HOUSE, "footprint": definition.cell_rect_to_world_rect(Rect2i(33, 30, 5, 4)), "wall_height": 96.0, "wall_color": Color(0.37, 0.33, 0.28), "roof_color": Color(0.21, 0.19, 0.16), "door_side": &"north"},
 	]
+
+	definition.view_landmarks = [
+		# Arch bridging the gate passage between the flanking towers; the road
+		# beneath stays fully walkable.
+		{"id": &"viru_gate_arch", "kind": &"gate_arch", "rect": definition.cell_rect_to_world_rect(Rect2i(52, 14, 4, 5)), "wall_color": Color(0.56, 0.55, 0.50), "top_px": 256.0},
+	]
+
+	# The quarter sits inside the walled town: Reval continues to the north,
+	# west, and south; only past the wall and moat does open land begin.
+	definition.surroundings_town_sides = [&"north", &"west", &"south"]
 
 	definition.props = [
 		# Smithy work yard.
