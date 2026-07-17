@@ -21,8 +21,13 @@ const MEMORY_RADIUS_WORLD := 36.0
 ## Do not cast fog onto eaves and facade details whose ground footprint lands
 ## just beyond their building's blocker due to their height.
 const OCCLUSION_TARGET_GRACE_WORLD := 0.75
+## Depth reconstruction and footprint rasterization can disagree by a texel at
+## vertical facade edges. Treat a small world-space neighborhood as the same
+## building surface so flat walls do not alternate between live and occluded.
+const OCCLUSION_SURFACE_PADDING_WORLD := 0.25
 const OCCLUSION_MASK_PIXELS_PER_CELL := 8
 const FACING_SMOOTHING_SPEED := 12.0
+const OVERLAY_RENDER_PRIORITY := -127
 
 var _material: ShaderMaterial
 var _camera: Camera3D
@@ -119,11 +124,14 @@ static func occluder_rects_for_definition(definition: MapDefinition) -> Array[Re
 func _assemble() -> void:
 	_material = ShaderMaterial.new()
 	_material.shader = FOG_SHADER
-	_material.render_priority = 127
+	# Run before ordinary transparent materials so smoke and other particles stay
+	# visible while still inheriting the already processed opaque scene beneath.
+	_material.render_priority = OVERLAY_RENDER_PRIORITY
 	_material.set_shader_parameter("clear_radius", CLEAR_RADIUS_WORLD)
 	_material.set_shader_parameter("memory_radius", MEMORY_RADIUS_WORLD)
 	_material.set_shader_parameter("player_clear_radius", PLAYER_CLEAR_RADIUS_WORLD)
 	_material.set_shader_parameter("occlusion_target_grace", OCCLUSION_TARGET_GRACE_WORLD)
+	_material.set_shader_parameter("occlusion_surface_padding", OCCLUSION_SURFACE_PADDING_WORLD)
 	_material.set_shader_parameter("half_fov_cos", cos(deg_to_rad(FIELD_OF_VIEW_DEGREES * 0.5)))
 	_material.set_shader_parameter("soft_fov_cos", cos(deg_to_rad(FIELD_OF_VIEW_DEGREES * 0.5 + FOV_EDGE_SOFTNESS_DEGREES)))
 	_material.set_shader_parameter("map_world_size", Vector2(_definition.size_cells))

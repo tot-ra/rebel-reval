@@ -7,6 +7,9 @@ extends GPUParticles3D
 enum Schedule { NEVER, DAY_ONLY, NIGHT_ONLY, ALWAYS }
 
 const SMOKE_LIFETIME := 8.5
+## Seed a short plume before FOV can freeze particle time. This keeps memory
+## smoke visible at the chimney mouth instead of freezing an empty emitter.
+const SMOKE_PREWARM_SECONDS := 1.0
 
 var _building_seed: int = 0
 var _horizontal_wind := Vector3(0.2, 0.0, 0.08)
@@ -66,9 +69,7 @@ func _setup_particles(building_id: StringName) -> void:
 	name = "ChimneySmoke"
 	amount = _day_amount
 	lifetime = SMOKE_LIFETIME
-	# Keep at zero so puffs spawn at the chimney mouth and travel outward instead
-	# of appearing mid-plume from a long warm-up simulation.
-	preprocess = 0.0
+	preprocess = SMOKE_PREWARM_SECONDS
 	local_coords = true
 	explosiveness = 0.0
 	randomness = 0.12

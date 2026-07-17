@@ -44,6 +44,8 @@ func test_fullscreen_shader_is_not_face_culled() -> void:
 	assert_false("cull_front" in source, "front-face culling silently removes the fullscreen pass")
 	assert_true("hint_screen_texture" in source, "the overlay must sample the rendered scene")
 	assert_true("hint_depth_texture" in source, "the overlay must preserve real character and building surfaces")
+	assert_true("on_blocking_surface" in source, "facade classification must tolerate footprint-edge precision")
+	assert_eq(FogOfWar.OVERLAY_RENDER_PRIORITY, -127, "transparent smoke must render after the opaque-scene overlay")
 
 
 func test_blur_distances_are_doubled_with_a_wide_transition() -> void:

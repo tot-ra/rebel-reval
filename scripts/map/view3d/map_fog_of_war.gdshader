@@ -18,6 +18,7 @@ uniform float player_clear_radius = 1.5;
 uniform float clear_radius = 18.0;
 uniform float memory_radius = 36.0;
 uniform float occlusion_target_grace = 0.75;
+uniform float occlusion_surface_padding = 0.25;
 uniform float half_fov_cos = 0.5;
 uniform float soft_fov_cos = 0.309017;
 
@@ -31,11 +32,29 @@ bool blocked(vec2 world) {
 	return texture(occlusion_mask, uv).r > 0.5;
 }
 
+bool on_blocking_surface(vec2 world) {
+	// A reconstructed facade point can sit just outside its ground footprint due
+	// to depth precision and wall height. A 3x3 neighborhood makes that decision
+	// stable without extending the actual sight-line blocker.
+	if (blocked(world)) {
+		return true;
+	}
+	vec2 padding = vec2(occlusion_surface_padding);
+	return blocked(world + vec2(padding.x, 0.0))
+		|| blocked(world - vec2(padding.x, 0.0))
+		|| blocked(world + vec2(0.0, padding.y))
+		|| blocked(world - vec2(0.0, padding.y))
+		|| blocked(world + padding)
+		|| blocked(world - padding)
+		|| blocked(world + vec2(padding.x, -padding.y))
+		|| blocked(world + vec2(-padding.x, padding.y));
+}
+
 bool hidden_behind_mass(vec2 from, vec2 to) {
 	// Buildings stay visible, including raised facade/roof pixels whose world XZ
 	// can land just outside the footprint. Only blockers with enough clear space
 	// between their far edge and the target produce memory fog.
-	if (blocked(from) || blocked(to)) {
+	if (blocked(from) || on_blocking_surface(to)) {
 		return false;
 	}
 	float sight_length = distance(from, to);
