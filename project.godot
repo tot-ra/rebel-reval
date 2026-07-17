@@ -33,6 +33,9 @@ window/size/mode=2
 window/stretch/mode="viewport"
 window/vsync/vsync_mode=0
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/rrmap/plugin.cfg")
 [input]
 
 ui_left={

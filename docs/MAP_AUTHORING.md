@@ -409,3 +409,192 @@ Lower Town preview with stable IDs, anchors, runtime navigation polygon data, an
 | 7 | Design runtime chunk indexing only after profiling | Stable compiled contract plus measured large-map bottleneck | Separate runtime ADR/tests for cross-chunk identity and traversal |
 
 The critical dependency direction is one-way: `MapBlueprint` and prefab libraries feed `MapBlueprintCompiler`; the compiler targets `MapDefinition`; current runtime consumers read only `MapDefinition`; optional chunking reads compiled runtime data. Rendering, scene nodes, and chunks never feed authored map semantics back into a blueprint.
+
+## Optional `.rrmap` source format (v1)
+
+### Adoption decision and guardrails
+
+The typed GDScript `MapBlueprint` API remains the proven, production authoring path. Lower Town continues to use `LowerTownSliceBlueprint` and its parity fixture. `.rrmap` is an optional declarative front end added only after those semantics, compiler validation, editor preview, and production parity checks existed. The first migrated source is deliberately the non-production fixture `tests/fixtures/maps/rrmap_courtyard_example.rrmap`.
+
+Do not migrate Lower Town or replace a GDScript blueprint merely because `.rrmap` exists. Before any production migration, compare representative sources using the same semantic content and require all of the following:
+
+1. both sources compile through `MapBlueprintCompiler` to the same canonical parity snapshot/fingerprint;
+2. all gameplay, navigation, visual-preview, and malformed-input tests pass;
+3. the `.rrmap` source has a meaningful measured token/readability benefit for reviewers and authoring agents;
+4. no required semantic depends on an unsupported escape hatch.
+
+The small trial is 126 whitespace-delimited words and 987 bytes. This is evidence that the line form is compact for simple maps, not evidence that the large production Lower Town should move. Lower Town remains untouched until a reviewed, semantics-equivalent measurement is available.
+
+### Safety and loading
+
+`.rrmap` is data, not GDScript. The parser recognizes a closed command set, integer coordinates, booleans, allowlisted typed options, quoted text, and explicitly registered prefab packages. It has no expressions, function calls, script paths, includes, filesystem discovery, or raw dictionary values. Unknown commands and fields are errors. This prevents arbitrary code execution by construction.
+
+The enabled `addons/rrmap` editor plugin registers `RrmapResourceFormatLoader`. Loading a `.rrmap` produces an `RrmapResource` only after:
+
+```text
+source text -> MapRrmapParser -> MapBlueprint -> MapBlueprintCompiler -> MapDefinition
+```
+
+A parse or compile failure returns `ERR_PARSE_ERROR` and prints diagnostics as:
+
+```text
+res://maps/example.rrmap:12:18: error[invalid_integer]: expected an integer, got 'east'
+```
+
+Runtime systems still consume `MapDefinition`; the loader does not introduce a parallel runtime contract. Tests and tools may call `MapRrmapParser.parse_file(path)` directly.
+
+### Lexical rules
+
+- UTF-8 text, one statement per physical line.
+- The first non-empty, non-comment line must be exactly `rrmap 1`.
+- Spaces and tabs separate tokens. There is no indentation syntax.
+- `#` starts a comment outside a quoted string.
+- Double-quoted strings support `\\n`, `\\"`, `\\\\`, and `\\#` escapes.
+- IDs are unquoted tokens and are ultimately validated by `MapBlueprintCompiler` with `^[a-z0-9_.-]+$`.
+- Coordinates and rectangle values are signed base-10 integers. A rectangle is `x y width height`; sizes must pass compiler validation.
+- Compact point lists use `x,y|x,y|...`; compact rectangle lists use `x,y,w,h|x,y,w,h|...`.
+- Options are `key=value`, may not repeat on one line, and are command-specific.
+- Colors omit the comment marker and use `RRGGBB` or `RRGGBBAA`, for example `806f5cff`.
+- A file is rejected as a whole if any parser or compiler diagnostic exists. There is no partial map.
+
+### Version behavior
+
+Version 1 is the only accepted grammar. Version 0 produces `version_migration_required` with the explicit action to change the header to `rrmap 1` and validate all semantics. Versions greater than 1 produce `unsupported_version`; they are never guessed or silently downgraded. Future grammar changes must either remain compatible with v1 or add an explicit deterministic migration tool and tests.
+
+### Grammar
+
+The normative grammar below uses `[]` for optional syntax, `...` for repetition, and `|` for alternatives. These notation characters are not generally literal source syntax.
+
+```ebnf
+file          = trivia, "rrmap", WS, "1", EOL,
+                trivia, map, EOL,
+                { trivia, statement, EOL }, trivia, EOF ;
+trivia        = { blank_line | comment_line } ;
+statement     = source | surroundings | camera | style
+              | terrain | terrain_rects | stroke | building | wall | prop
+              | spawn | transition | anchor | patrol | exclude | fade
+              | sign | landmark | package | prefab | override ;
+
+map           = "map", ID, ID, INT, INT, ID,
+                { map_option } ;
+map_option    = "scope=", ("prototype" | "production" | "archive")
+              | "active=", BOOL | "palette=", ID
+              | "seed=", INT | "cell_size=", INT ;
+source        = "source", STRING ;
+surroundings  = "surroundings", SIDE, { SIDE } ;
+camera        = "camera", RECT ;
+style         = "style", ID, [ "parent=", ID ], typed_option, { typed_option } ;
+
+terrain       = "terrain", ID, TERRAIN, RECT,
+                [ "layer=", INT ], [ "order=", INT ], [ "style=", ID ] ;
+terrain_rects = "terrain_rects", ID, TERRAIN, RECT_LIST,
+                [ "layer=", INT ], [ "order=", INT ], [ "style=", ID ] ;
+stroke        = "stroke", ID, TERRAIN, POINT_LIST,
+                [ "thickness=", INT ], [ "layer=", INT ],
+                [ "order=", INT ], [ "style=", ID ] ;
+building      = "building", ID, BUILDING_KIND, RECT,
+                [ "style=", ID ], { typed_option } ;
+wall          = "wall", ID, INT, INT, INT, INT,
+                [ "thickness=", INT ], [ "openings=", RECT_LIST ],
+                [ "kind=", BUILDING_KIND ], [ "style=", ID ], { typed_option } ;
+prop          = "prop", ID, PROP_KIND, INT, INT,
+                [ "rect=", INT, ",", INT ], [ "style=", ID ], { typed_option } ;
+spawn         = "spawn", ID, INT, INT, [ "rect=", INT, ",", INT ] ;
+transition    = "transition", ID, RECT,
+                [ "to=", ID ], [ "destination_spawn=", ID ], [ "spawn=", ID ],
+                [ "style=", ID ], { typed_option } ;
+anchor        = "anchor", ID, INT, INT,
+                [ "kind=", ID ], [ "rect=", INT, ",", INT ],
+                [ "style=", ID ], { typed_option } ;
+patrol        = "patrol", ID, POINT_LIST ;
+exclude       = "exclude", ID, RECT ;
+fade          = "fade", ID, RECT ;
+sign          = "sign", ID, STRING, INT, INT, SIDE,
+                [ "style=", ID ], { typed_option } ;
+landmark      = "landmark", ID, ID, RECT,
+                [ "style=", ID ], { typed_option } ;
+package       = "package", "urban", "1" ;
+prefab        = "prefab", ID, ID, INT, INT,
+                [ "rotation=", ("0" | "90" | "180" | "270") ],
+                [ "mirror_x=", BOOL ], [ "mirror_y=", BOOL ],
+                { "param.", ID, "=", LITERAL } ;
+override       = "override", ID, typed_option, { typed_option } ;
+
+RECT          = INT, INT, INT, INT ;
+POINT_LIST    = INT, ",", INT, { "|", INT, ",", INT } ;
+RECT_LIST     = INT, ",", INT, ",", INT, ",", INT,
+                { "|", INT, ",", INT, ",", INT, ",", INT } ;
+SIDE          = "north" | "east" | "south" | "west" ;
+BOOL          = "true" | "false" ;
+```
+
+### Exact primitive mappings
+
+| `.rrmap` command | Exact `MapBlueprint` call |
+|---|---|
+| `map` | `MapBlueprint.new(...)` plus typed metadata fields |
+| `source` | `add_source_reference()` |
+| `surroundings` | `surroundings()` |
+| `camera` | `camera_bounds()` |
+| `style` | `style()` |
+| `terrain` | `terrain_rect()` |
+| `terrain_rects` | `terrain_rects()` |
+| `stroke` | `terrain_stroke()` |
+| `building` | `structure_rect()` |
+| `wall` | `wall_run()` |
+| `prop` | `prop()` or `prop_rect()` when `rect=w,h` is present |
+| `spawn` | `player_spawn()` or `player_spawn_rect()` |
+| `transition` | `transition()` |
+| `anchor` | `interaction_anchor()` or `interaction_anchor_rect()` |
+| `patrol` | `patrol_path()` |
+| `exclude` | `excluded_rect()` |
+| `fade` | `fade_rect()` |
+| `sign` | `direction_sign()` |
+| `landmark` | `view_landmark()` |
+| `package urban 1` | `use_prefab_package(UrbanPrefabPackage.create())` |
+| `prefab` | `prefab_instance()` with `MapTransform` |
+| `override` | `override_object()` |
+
+`placement_row` and arbitrary prefab definitions are intentionally not exposed in v1. They remain typed GDScript capabilities because a safe compact grammar has not demonstrated a readability benefit for them.
+
+Typed style/override keys are closed to the compiler's current semantic fields: `enabled`, `terrain`, `rect`, `wall_height`, `wall_height_scale`, `wall_color`, `roof_color`, `door_side`, `ridge_axis`, `primitive`, `cell`, `facing`, `style_variant`, `visual_offset_px`, `destination_scene_id`, `destination_spawn_id`, `spawn_id`, `spawn_offset_px`, `highlight_area`, `view_landmark_id`, `kind`, `direction`, `top_px`, `door_material`, and `passage_axis`. Each key has one parser type; unknown keys are rejected before compilation.
+
+### AI authoring checklist
+
+1. Start with `rrmap 1`, then exactly one `map` line.
+2. Use stable lowercase IDs. Never derive gameplay IDs from declaration order.
+3. Declare exactly one `spawn`.
+4. Keep coordinates in integer cells and paint terrain in explicit `layer`/`order` when overlaps matter.
+5. Prefer one semantic command per line; use comments for intent, not hidden data.
+6. Quote human-facing text and source paths. Do not invent commands or override keys.
+7. Run parser/compiler tests and compare canonical fingerprints before proposing a migration.
+8. If the vocabulary cannot express the map exactly, keep or extend the typed GDScript path instead of encoding data into strings.
+
+### Complete non-production example
+
+This is the complete first trial source, mirrored in `tests/fixtures/maps/rrmap_courtyard_example.rrmap`:
+
+```rrmap
+# Small non-production trial. Lower Town remains authored in typed GDScript.
+rrmap 1
+map rrmap_courtyard_example loc.rrmap_courtyard_example 20 14 grass scope=prototype active=false palette=clean_painted seed=42042 cell_size=32
+source "docs/MAP_AUTHORING.md"
+style house.warm wall_height=96 wall_color=806f5cff roof_color=453027ff door_side=south
+terrain yard dirt 2 2 16 10 order=1
+stroke path cobblestone 0,7|10,7|10,13 thickness=2 order=2
+building house.main house 4 3 5 3 style=house.warm
+wall wall.north 2 2 17 2 thickness=1 openings=9,2,2,1
+prop prop.well well 10 8
+spawn spawn.main 3 7
+anchor anchor.house 6 6 kind=door
+patrol patrol.watch 3,7|10,7|16,7
+transition exit.south 10 13 2 1 to=prototype_hub destination_spawn=entry.north spawn=spawn.main
+sign sign.exit "to prototype hub" 9 12 south
+exclude blocked.storage 15 9 2 2
+fade fade.house 4 3 5 3
+landmark landmark.gate gate_arch 9 2 2 1 wall_color=8c8980ff top_px=128 passage_axis=z
+camera 1 1 18 12
+surroundings north west
+```
+
+`MapRrmapParser.canonical_print()` emits a deterministic normalized v1 source. Tests require `parse -> canonical print -> parse -> canonical print` stability and an unchanged compiled fingerprint.
