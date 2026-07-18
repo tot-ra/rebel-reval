@@ -86,6 +86,33 @@ func test_gamepad_accept_activates_three_kinds() -> void:
 	assert_array_contains(activated, InteractionKinds.USE)
 
 
+func test_interact_action_ignored_while_demo_dialogue_is_active() -> void:
+	var root := _make_root()
+	var actor := _spawn_actor(root, Vector2(100, 100))
+	var interactable := _spawn_interactable(root, ID_TALK, InteractionKinds.TALK, "Talk", Vector2(100, 100))
+	var activated := false
+	interactable.set_interact_callback(func(_body: Node) -> void:
+		activated = true
+	)
+	interactable.register_actor_in_range(actor)
+
+	var controller := InteractionController.new()
+	controller.actor = actor
+	root.add_child(controller)
+	controller._update_focus()
+
+	var marker := Node.new()
+	marker.add_to_group(&"demo_dialogue_active")
+	root.add_child(marker)
+
+	var event := InputEventAction.new()
+	event.action = "interact"
+	event.pressed = true
+	controller._unhandled_input(event)
+	assert_false(activated, "Focused interactable must not fire while dialogue is active")
+	_cleanup_node(root)
+
+
 func test_interaction_test_scene_exposes_three_kinds() -> void:
 	var scene: Node2D = TEST_SCENE.instantiate()
 	_tree().root.add_child(scene)

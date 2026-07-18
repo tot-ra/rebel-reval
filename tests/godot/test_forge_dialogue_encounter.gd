@@ -115,6 +115,42 @@ func test_interactable_world_indicator_toggles_focus_ring() -> void:
 	_cleanup_node(root)
 
 
+func test_keyboard_advance_works_while_cat_interactable_is_focused() -> void:
+	var root := _make_root()
+	var box := DemoDialogueBox.new()
+	root.add_child(box)
+	await box.ready
+
+	var db := ContentDB.new()
+	assert_true(db.load_from_directories(SessionState.DEMO_CONTENT_DIRS))
+
+	var actor := CharacterBody2D.new()
+	root.add_child(actor)
+
+	var cat_talk := _spawn_interactable(root)
+	cat_talk.global_position = Vector2(100, 100)
+	actor.global_position = Vector2(100, 100)
+	cat_talk.register_actor_in_range(actor)
+
+	var controller := InteractionController.new()
+	controller.actor = actor
+	root.add_child(controller)
+	controller._update_focus()
+	assert_eq(controller.get_focused_interactable(), cat_talk)
+
+	var runner := DemoDialogueRunner.new()
+	root.add_child(runner)
+	runner.configure(db, GameState.new(), box, controller)
+	assert_true(runner.start(CAT_DIALOGUE_ID))
+
+	var keyboard := InputEventAction.new()
+	keyboard.action = "interact"
+	keyboard.pressed = true
+	assert_true(runner.try_advance(keyboard))
+	assert_true(runner.is_active())
+	_cleanup_node(root)
+
+
 func _spawn_interactable(parent: Node) -> Interactable:
 	var interactable: Interactable = preload("res://scenes/interaction/interactable.tscn").instantiate()
 	interactable.interaction_kind = InteractionKinds.TALK

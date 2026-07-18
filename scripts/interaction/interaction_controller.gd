@@ -22,8 +22,11 @@ func _process(_delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not _is_interact_event(event):
 		return
+	if _is_dialogue_active():
+		return
+	if not try_interact():
+		return
 	get_viewport().set_input_as_handled()
-	try_interact()
 
 
 func get_focused_interactable() -> Interactable:
@@ -41,8 +44,14 @@ func try_interact() -> bool:
 func _is_actor_input_blocked() -> bool:
 	if actor == null:
 		return false
+	if _is_dialogue_active():
+		return true
 	var commission := actor.get_node_or_null("ForgeCommissionController") as ForgeCommissionController
 	return commission != null and commission.is_open()
+
+
+func _is_dialogue_active() -> bool:
+	return not get_tree().get_nodes_in_group(&"demo_dialogue_active").is_empty()
 
 
 func _is_interact_event(event: InputEvent) -> bool:

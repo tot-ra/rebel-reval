@@ -42,21 +42,24 @@ func get_line_text() -> String:
 
 func _build_ui() -> void:
 	var margin := MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	margin.add_theme_constant_override("margin_left", 24)
 	margin.add_theme_constant_override("margin_right", 24)
 	margin.add_theme_constant_override("margin_bottom", 24)
 	add_child(margin)
 
-	var bottom := Control.new()
-	bottom.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	bottom.offset_top = -168.0
-	margin.add_child(bottom)
+	var stack := VBoxContainer.new()
+	stack.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	margin.add_child(stack)
+
+	var spacer := Control.new()
+	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	stack.add_child(spacer)
 
 	_panel = PanelContainer.new()
-	_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_panel.custom_minimum_size = Vector2(0, 168)
 	_panel.visible = false
-	bottom.add_child(_panel)
+	stack.add_child(_panel)
 
 	var content := VBoxContainer.new()
 	content.add_theme_constant_override("separation", 8)

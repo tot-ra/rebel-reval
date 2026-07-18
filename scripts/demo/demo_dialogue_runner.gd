@@ -142,6 +142,7 @@ func _set_interaction_enabled(enabled: bool) -> void:
 	if _interaction_controller == null:
 		return
 	_interaction_controller.set_process(enabled)
+	_interaction_controller.set_process_unhandled_input(enabled)
 	if _interaction_controller.prompt_label != null:
 		_interaction_controller.prompt_label.visible = enabled and _interaction_controller.get_focused_interactable() != null
 
