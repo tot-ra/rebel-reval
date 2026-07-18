@@ -24,8 +24,10 @@ const INPUT_PROJECTION_SAMPLE_PX := 64.0
 ## much of the map is visible. Limits prevent clipping into the character or
 ## zooming so far out that gameplay-scale details become unreadable.
 const ZOOM_STEP_FACTOR := 0.9
-const ZOOM_MIN_ORTHOGRAPHIC_SIZE := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE * 0.5
-const ZOOM_MAX_ORTHOGRAPHIC_SIZE := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE * 2.0
+const ZOOM_MIN_FACTOR := 0.3
+const ZOOM_MAX_FACTOR := 1.5
+const ZOOM_MIN_ORTHOGRAPHIC_SIZE := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE * ZOOM_MIN_FACTOR
+const ZOOM_MAX_ORTHOGRAPHIC_SIZE := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE * ZOOM_MAX_FACTOR
 ## Holding Page Up / Page Down, or dragging with the right mouse button, orbits
 ## the dimetric camera smoothly around the player so facades the default angle
 ## hides stay reachable.
