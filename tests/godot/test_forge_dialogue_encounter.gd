@@ -115,6 +115,65 @@ func test_interactable_world_indicator_toggles_focus_ring() -> void:
 	_cleanup_node(root)
 
 
+func test_forge_cat_stops_and_faces_player_during_dialogue() -> void:
+	var cat := ForgeCat.new()
+	var player := CharacterBody2D.new()
+	cat.global_position = Vector2(200, 200)
+	player.global_position = Vector2(260, 200)
+	cat._set_state(ForgeCat.RoutineState.WALKING, 0.0)
+	cat.velocity = Vector2(ForgeCat.WALK_SPEED, 0.0)
+
+	cat.set_conversation_partner(player)
+	cat._physics_process(0.1)
+
+	assert_true(cat.velocity.is_zero_approx(), "Cat must stop moving during conversation")
+	assert_true(cat.view_facing().dot(Vector2.RIGHT) > 0.9, "Cat must face the player")
+	assert_eq(cat.view_animation(), &"idle")
+
+	cat.set_conversation_partner(null)
+	cat.free()
+	player.free()
+
+
+func test_dialogue_runner_pauses_host_npc_during_forge_talk() -> void:
+	var root := _make_root()
+	var box := DemoDialogueBox.new()
+	root.add_child(box)
+	await box.ready
+
+	var db := ContentDB.new()
+	assert_true(db.load_from_directories(SessionState.DEMO_CONTENT_DIRS))
+
+	var cat := ForgeCat.new()
+	cat.name = "Cat"
+	root.add_child(cat)
+	cat.global_position = Vector2(200, 200)
+
+	var actor := CharacterBody2D.new()
+	actor.global_position = Vector2(260, 200)
+	root.add_child(actor)
+
+	var controller := InteractionController.new()
+	controller.actor = actor
+	root.add_child(controller)
+
+	var runner := DemoDialogueRunner.new()
+	root.add_child(runner)
+	runner.configure(db, GameState.new(), box, controller)
+
+	cat._set_state(ForgeCat.RoutineState.WALKING, 0.0)
+	cat.velocity = Vector2(ForgeCat.WALK_SPEED, 0.0)
+
+	assert_true(runner.start(CAT_DIALOGUE_ID, cat))
+	cat._physics_process(0.1)
+	assert_true(cat.velocity.is_zero_approx(), "Dialogue runner must pause the conversation host")
+
+	while runner.is_active():
+		runner.advance_for_test()
+	assert_false(runner.is_active())
+	_cleanup_node(root)
+
+
 func test_keyboard_advance_works_while_cat_interactable_is_focused() -> void:
 	var root := _make_root()
 	var box := DemoDialogueBox.new()

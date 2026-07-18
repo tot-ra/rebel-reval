@@ -106,4 +106,4 @@ func _build_interaction(definition: MapDefinition) -> void:
 func _on_talk_pressed(_actor: Node) -> void:
 	if _dialogue_runner == null or _dialogue_runner.is_active():
 		return
-	_dialogue_runner.start(DIALOGUE_ID)
+	_dialogue_runner.start(DIALOGUE_ID, _mart)

@@ -93,7 +93,7 @@ func _spawn_talk_interactable(
 	interactable.prompt = prompt
 	interactable.interaction_radius = 96.0
 	host.add_child(interactable)
-	interactable.set_interact_callback(_on_talk_pressed.bind(dialogue_id))
+	interactable.set_interact_callback(_on_talk_pressed.bind(dialogue_id, host))
 	return interactable
 
 
@@ -120,7 +120,7 @@ func _build_dialogue_runner() -> void:
 	)
 
 
-func _on_talk_pressed(_actor: Node, dialogue_id: StringName) -> void:
+func _on_talk_pressed(_actor: Node, dialogue_id: StringName, host: Node2D) -> void:
 	if _dialogue_runner == null or _dialogue_runner.is_active():
 		return
-	_dialogue_runner.start(dialogue_id)
+	_dialogue_runner.start(dialogue_id, host)

@@ -35,6 +35,7 @@ enum RoutineState {
 var _state := RoutineState.IDLE
 var _state_seconds := IDLE_SECONDS
 var _last_facing := Vector2.DOWN
+var _conversation_partner: Node2D = null
 
 
 func _ready() -> void:
@@ -46,7 +47,17 @@ func configure_navigation(navigation_map: RID) -> void:
 	_begin_walk(_random_spot_index())
 
 
+func set_conversation_partner(partner: Node2D) -> void:
+	_conversation_partner = partner
+	if partner != null:
+		velocity = Vector2.ZERO
+
+
 func _physics_process(delta: float) -> void:
+	if _conversation_partner != null and is_instance_valid(_conversation_partner):
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
 	match _state:
 		RoutineState.WALKING:
 			_update_walk()
@@ -59,6 +70,8 @@ func _physics_process(delta: float) -> void:
 
 
 func view_animation() -> StringName:
+	if _conversation_partner != null and is_instance_valid(_conversation_partner):
+		return &"idle"
 	match _state:
 		RoutineState.WALKING:
 			return &"walk"
@@ -73,6 +86,10 @@ func view_animation() -> StringName:
 
 
 func view_facing() -> Vector2:
+	if _conversation_partner != null and is_instance_valid(_conversation_partner):
+		var toward_player := _conversation_partner.global_position - global_position
+		if toward_player.length_squared() > 1.0:
+			return toward_player.normalized()
 	return velocity.normalized() if not velocity.is_zero_approx() else _last_facing
 
 

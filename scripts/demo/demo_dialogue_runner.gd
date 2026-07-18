@@ -21,6 +21,7 @@ var _nodes_by_id: Dictionary = {}
 var _current_node_id := ""
 var _active := false
 var _input_enabled := false
+var _conversation_host: Node2D = null
 
 
 func configure(
@@ -41,7 +42,7 @@ func is_active() -> bool:
 	return _active
 
 
-func start(dialogue_id: StringName) -> bool:
+func start(dialogue_id: StringName, conversation_host: Node2D = null) -> bool:
 	if _content_db == null or _box == null:
 		return false
 
@@ -65,6 +66,7 @@ func start(dialogue_id: StringName) -> bool:
 
 	_active = true
 	add_to_group(&"demo_dialogue_active")
+	_set_conversation_host(conversation_host)
 	_enable_advance()
 	_set_interaction_enabled(false)
 	started.emit()
@@ -132,10 +134,33 @@ func _close() -> void:
 	_current_node_id = ""
 	set_process_unhandled_input(false)
 	remove_from_group(&"demo_dialogue_active")
+	_set_conversation_host(null)
 	if _box != null:
 		_box.hide_box()
 	_set_interaction_enabled(true)
 	finished.emit()
+
+
+func _set_conversation_host(host: Node2D) -> void:
+	if _conversation_host != null and _conversation_host != host:
+		_clear_conversation_host(_conversation_host)
+	_conversation_host = host
+	if host == null:
+		return
+	if host.has_method("set_conversation_partner"):
+		host.call("set_conversation_partner", _conversation_partner())
+
+
+func _clear_conversation_host(host: Node2D) -> void:
+	if host != null and host.has_method("set_conversation_partner"):
+		host.call("set_conversation_partner", null)
+
+
+func _conversation_partner() -> Node2D:
+	if _interaction_controller == null:
+		return null
+	var actor := _interaction_controller.actor
+	return actor as Node2D if actor is Node2D else null
 
 
 func _set_interaction_enabled(enabled: bool) -> void:
