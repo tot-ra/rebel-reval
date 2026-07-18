@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=3 uid="uid://bs36kitagkmg5"]
+[gd_scene load_steps=8 format=3 uid="uid://bs36kitagkmg5"]
 
 [ext_resource type="Script" uid="uid://qbfohjtotkyu" path="res://scripts/player.gd" id="1_v254c"]
 [ext_resource type="PackedScene" uid="uid://mf6xvrb7vivm" path="res://scenes/elements/UI.tscn" id="2_ui"]
 [ext_resource type="Script" path="res://scripts/inventory/inventory_controller.gd" id="3_inventory"]
 [ext_resource type="Script" path="res://scripts/journal/journal_controller.gd" id="4_journal"]
 [ext_resource type="Script" path="res://scripts/forge/forge_commission_controller.gd" id="5_commission"]
+[ext_resource type="Script" path="res://scripts/ui/quick_access_menu.gd" id="6_quick_access"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_3iwfv"]
 radius = 16.0
@@ -74,3 +75,6 @@ script = ExtResource("4_journal")
 
 [node name="ForgeCommissionController" type="Node" parent="."]
 script = ExtResource("5_commission")
+
+[node name="QuickAccessMenu" type="CanvasLayer" parent="."]
+script = ExtResource("6_quick_access")

@@ -7,7 +7,7 @@
 
 ## Status
 
-Proposed. Do not start production runtime implementation until the compact authoring compiler, semantic validation, representative migration, and parity gates in ADR 0009 are stable.
+Accepted and implemented for the fixed-size compiled-map chunk pipeline. The canonical compiler, representative parity migration, registry audit, terrain chunking, stable-ID runtime index, and version-2 persistence boundary satisfy the rollout gate. Seamless-world streaming, production coarse A*, and GPU LOD acceptance remain explicitly out of scope.
 
 ## Context
 
@@ -15,7 +15,7 @@ ADR 0009 deliberately keeps `MapBlueprint` semantic and compiles it into the exi
 
 The benchmark in this decision demonstrates that this monolithic model does not scale linearly. On the reference machine, a synthetic 32x32 map costs 2.3 ms to bootstrap and 0.5 ms for an isolated navigation bake. A 128x128 map has 7,839 nodes and 1,284 collision shapes and takes 59.5 ms for navigation. A 256x256 map has 31,251 nodes and 5,124 collision shapes and takes 3.17 seconds for navigation. These are synthetic observations, not production content predictions, but they show where the current architecture stops meeting interactive loading budgets.
 
-Save/load is not implemented yet. `GameState.CURRENT_VERSION` is 1 and state lasts only for the current session. Chunking must therefore define a persistence boundary without freezing an accidental scene-node format.
+`GameState.CURRENT_VERSION` is 2 and owns a `MapStableStateStore` persistence boundary. It preserves stable location/object IDs, global cell positions, semantic deltas, and unknown fields without freezing scene nodes or chunk ownership into saves.
 
 ## Decision
 
@@ -181,3 +181,7 @@ GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot \
 ```
 
 The benchmark is non-production. Neither benchmark scene is referenced by `project.godot`, the map registry, or a production scene.
+
+## Implementation evidence
+
+`MapBuilder` produces deterministic fixed-size terrain chunks from canonical `MapDefinition`; runtime rendering and cache keys derive from those chunks. `MapChunkRuntimeIndex` derives owner/consumer metadata for stable compiled objects. `MapStableStateStore` and `GameState` version 2 preserve unload-safe state independently of partition size. Registry, persistence, canonical-consumer, parity, route, navigation, 3D, and benchmark smoke gates run through `tools/run_map_pipeline_ci.sh`. The budgets and limitations in [`docs/MAP_AUTHORING.md`](../MAP_AUTHORING.md) are part of this decision.

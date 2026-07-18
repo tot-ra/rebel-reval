@@ -34,11 +34,28 @@ BASE_PROPORTIONS = {
     # Degrees the upper arms rotate around +Z (shoulder fold). Sets elbow
     # breadth: lower values keep elbows wider, higher values glue them to the
     # ribs. The CC0 KayKit clips assume a barrel-wide chibi torso.
-    "arm_relax_degrees": 30.0,
-    # Extra +Z fold applied only on the forearm bones. This swings the
-    # handslots forward without pulling the elbows inward the way a single
-    # shared angle did before.
-    "forearm_relax_degrees": 52.0,
+    "arm_relax_degrees": 25.0,
+    # Extra +Z fold applied only on the forearm bones. Kept small: the clips
+    # carry their own elbow bend (attenuated at clip level in the retarget —
+    # see _remap_arm_swing_delta), and a large constant offset on top of it
+    # pushed the hands up to the face on adult proportions.
+    "forearm_relax_degrees": 15.0,
+}
+
+# Default feature set for the body generator (see generate_hero_body.py).
+# Specs override individual keys to change identity without new code:
+# - hair_style: "full" | "short" | "bald"
+# - beard_style: "full" | "short" | "none"
+# - sleeve_style: "long" (tunic sleeve + undersleeves + cuff) | "bare" (short
+#   tunic sleeve, skin to the wrist)
+# - tunic_length: "long" (knee hem) | "short" (hip hem)
+# - pauldrons: shoulder armor plates baked into the body glb
+BASE_FEATURES = {
+    "hair_style": "full",
+    "beard_style": "full",
+    "sleeve_style": "long",
+    "tunic_length": "long",
+    "pauldrons": False,
 }
 
 BASE_SHAPE = {

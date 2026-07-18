@@ -1,0 +1,1097 @@
+{
+  "budget_summary": {
+    "note": "Hardware observations are evidence, not CI gates. pass=false identifies work the future chunk runtime must avoid or reduce.",
+    "profiles": {
+      "lower_town_pipeline": {
+        "collision_count": {
+          "available": true,
+          "limit": 900.0,
+          "observed": 89.0,
+          "pass": true
+        },
+        "frame_time_ms_p95": {
+          "available": true,
+          "limit": 16.67,
+          "observed": 7.873,
+          "pass": true
+        },
+        "memory_delta_mib": {
+          "available": true,
+          "limit": 256.0,
+          "observed": 9.07184410095215,
+          "pass": true
+        },
+        "navigation_bake_ms": {
+          "available": true,
+          "limit": 25.0,
+          "observed": 5.022,
+          "pass": true
+        },
+        "node_count": {
+          "available": true,
+          "limit": 5000.0,
+          "observed": 1869.0,
+          "pass": true
+        }
+      },
+      "lower_town_scene": {
+        "collision_count": {
+          "available": true,
+          "limit": 900.0,
+          "observed": 118.0,
+          "pass": true
+        },
+        "frame_time_ms_p95": {
+          "available": true,
+          "limit": 16.67,
+          "observed": 7.816,
+          "pass": true
+        },
+        "memory_delta_mib": {
+          "available": true,
+          "limit": 256.0,
+          "observed": 47.869252204895,
+          "pass": true
+        },
+        "navigation_bake_ms": {
+          "available": false,
+          "limit": 25.0
+        },
+        "node_count": {
+          "available": true,
+          "limit": 5000.0,
+          "observed": 4866.0,
+          "pass": true
+        }
+      },
+      "synthetic_128": {
+        "collision_count": {
+          "available": true,
+          "limit": 900.0,
+          "observed": 268.0,
+          "pass": true
+        },
+        "frame_time_ms_p95": {
+          "available": true,
+          "limit": 16.67,
+          "observed": 7.761,
+          "pass": true
+        },
+        "memory_delta_mib": {
+          "available": true,
+          "limit": 256.0,
+          "observed": 23.8231658935547,
+          "pass": true
+        },
+        "navigation_bake_ms": {
+          "available": true,
+          "limit": 25.0,
+          "observed": 68.37,
+          "pass": false
+        },
+        "node_count": {
+          "available": true,
+          "limit": 5000.0,
+          "observed": 6832.0,
+          "pass": false
+        }
+      },
+      "synthetic_256": {
+        "collision_count": {
+          "available": true,
+          "limit": 900.0,
+          "observed": 1044.0,
+          "pass": false
+        },
+        "frame_time_ms_p95": {
+          "available": true,
+          "limit": 16.67,
+          "observed": 7.818,
+          "pass": true
+        },
+        "memory_delta_mib": {
+          "available": true,
+          "limit": 256.0,
+          "observed": 82.6186332702637,
+          "pass": true
+        },
+        "navigation_bake_ms": {
+          "available": true,
+          "limit": 25.0,
+          "observed": 3383.679,
+          "pass": false
+        },
+        "node_count": {
+          "available": true,
+          "limit": 5000.0,
+          "observed": 27180.0,
+          "pass": false
+        }
+      },
+      "synthetic_32": {
+        "chunk_activation_cpu_ms": {
+          "available": true,
+          "limit": 50.0,
+          "observed": 7.205,
+          "pass": true
+        },
+        "collision_count": {
+          "available": true,
+          "limit": 900.0,
+          "observed": 22.0,
+          "pass": true
+        },
+        "frame_time_ms_p95": {
+          "available": true,
+          "limit": 16.67,
+          "observed": 8.365,
+          "pass": true
+        },
+        "memory_delta_mib": {
+          "available": true,
+          "limit": 256.0,
+          "observed": 2.07467269897461,
+          "pass": true
+        },
+        "navigation_bake_ms": {
+          "available": true,
+          "limit": 25.0,
+          "observed": 1.394,
+          "pass": true
+        },
+        "node_count": {
+          "available": true,
+          "limit": 5000.0,
+          "observed": 442.0,
+          "pass": true
+        }
+      },
+      "synthetic_64": {
+        "collision_count": {
+          "available": true,
+          "limit": 900.0,
+          "observed": 72.0,
+          "pass": true
+        },
+        "frame_time_ms_p95": {
+          "available": true,
+          "limit": 16.67,
+          "observed": 8.551,
+          "pass": true
+        },
+        "memory_delta_mib": {
+          "available": true,
+          "limit": 256.0,
+          "observed": 6.04052352905273,
+          "pass": true
+        },
+        "navigation_bake_ms": {
+          "available": true,
+          "limit": 25.0,
+          "observed": 6.29,
+          "pass": true
+        },
+        "node_count": {
+          "available": true,
+          "limit": 5000.0,
+          "observed": 1723.0,
+          "pass": true
+        }
+      }
+    }
+  },
+  "config": {
+    "benchmark": {
+      "building_stride_cells": 8.0,
+      "frame_samples": 120.0,
+      "props_per_chunk": 4.0,
+      "synthetic_profiles": [
+        {
+          "id": "synthetic_32",
+          "size_cells": 32.0
+        },
+        {
+          "id": "synthetic_64",
+          "size_cells": 64.0
+        },
+        {
+          "id": "synthetic_128",
+          "size_cells": 128.0
+        },
+        {
+          "id": "synthetic_256",
+          "size_cells": 256.0
+        }
+      ],
+      "timed_runs": 3.0,
+      "warmup_runs": 1.0
+    },
+    "budgets": {
+      "chunk_activation_cpu_ms_p95": 50.0,
+      "chunk_navigation_bake_ms_p95": 25.0,
+      "main_thread_streaming_ms_per_frame": 4.0,
+      "resident_collision_count": 900.0,
+      "resident_memory_delta_mib": 256.0,
+      "resident_node_count": 5000.0,
+      "steady_frame_time_ms_p95": 16.67,
+      "steady_frame_time_ms_p99": 25.0
+    },
+    "chunk_size_cells": 32.0,
+    "load_radius_chunks": 2.0,
+    "navigation_border_cells": 2.0,
+    "schema_version": 1.0,
+    "simulation_radius_chunks": 1.0,
+    "visual_lod": {
+      "lod0_max_distance_chunks": 1.0,
+      "lod1_max_distance_chunks": 2.0,
+      "lod2_min_distance_chunks": 3.0
+    }
+  },
+  "engine": {
+    "build": "official",
+    "hash": "a13da4feb8d8aefc283c3763d33a2f170a18d541",
+    "hex": 263937,
+    "major": 4,
+    "minor": 7,
+    "patch": 1,
+    "status": "stable",
+    "string": "4.7.1-stable (official)",
+    "timestamp": 0
+  },
+  "environment": {
+    "distribution": "macOS",
+    "headless": true,
+    "os": "macOS",
+    "processor_count": 18,
+    "processor_name": "Apple M5 Pro",
+    "video_adapter": ""
+  },
+  "git_commit": "324c949eea56a78db290ed3baab9fb08ebf8d4a0",
+  "methodology": {
+    "frame_samples": 20,
+    "frame_time_clock": "wall time between SceneTree.process_frame signals",
+    "memory_monitor": "Performance.MEMORY_STATIC",
+    "timed_runs": 1,
+    "warmup_runs": 0
+  },
+  "profiles": [
+    {
+      "id": "lower_town_pipeline",
+      "kind": "production_pipeline",
+      "metrics": {
+        "collision_count": {
+          "max": 89.0,
+          "median": 89.0,
+          "p95": 89.0,
+          "p99": 89.0,
+          "samples": 1
+        },
+        "compile_ms": {
+          "max": 15.927,
+          "median": 15.927,
+          "p95": 15.927,
+          "p99": 15.927,
+          "samples": 1
+        },
+        "frame_time_ms_max": {
+          "max": 7.936,
+          "median": 7.936,
+          "p95": 7.936,
+          "p99": 7.936,
+          "samples": 1
+        },
+        "frame_time_ms_median": {
+          "max": 6.877,
+          "median": 6.877,
+          "p95": 6.877,
+          "p99": 6.877,
+          "samples": 1
+        },
+        "frame_time_ms_p95": {
+          "max": 7.873,
+          "median": 7.873,
+          "p95": 7.873,
+          "p99": 7.873,
+          "samples": 1
+        },
+        "frame_time_ms_p99": {
+          "max": 7.936,
+          "median": 7.936,
+          "p95": 7.936,
+          "p99": 7.936,
+          "samples": 1
+        },
+        "memory_delta_mib": {
+          "max": 9.07184410095215,
+          "median": 9.07184410095215,
+          "p95": 9.07184410095215,
+          "p99": 9.07184410095215,
+          "samples": 1
+        },
+        "memory_static_bytes": {
+          "max": 39257073.0,
+          "median": 39257073.0,
+          "p95": 39257073.0,
+          "p99": 39257073.0,
+          "samples": 1
+        },
+        "navigation_bake_ms": {
+          "max": 5.022,
+          "median": 5.022,
+          "p95": 5.022,
+          "p99": 5.022,
+          "samples": 1
+        },
+        "node_count": {
+          "max": 1869.0,
+          "median": 1869.0,
+          "p95": 1869.0,
+          "p99": 1869.0,
+          "samples": 1
+        },
+        "pipeline_cpu_ms": {
+          "max": 32.649,
+          "median": 32.649,
+          "p95": 32.649,
+          "p99": 32.649,
+          "samples": 1
+        },
+        "terrain_build_ms": {
+          "max": 7.405,
+          "median": 7.405,
+          "p95": 7.405,
+          "p99": 7.405,
+          "samples": 1
+        },
+        "visual_assembly_ms": {
+          "max": 4.295,
+          "median": 4.295,
+          "p95": 4.295,
+          "p99": 4.295,
+          "samples": 1
+        }
+      },
+      "runs": [
+        {
+          "collision_count": 89,
+          "compile_ms": 15.927,
+          "frame_time_ms": {
+            "max": 7.936,
+            "median": 6.877,
+            "p95": 7.873,
+            "p99": 7.936,
+            "samples": 20
+          },
+          "memory_delta_mib": 9.07184410095215,
+          "memory_static_bytes": 39257073,
+          "navigation_bake_ms": 5.022,
+          "node_count": 1869,
+          "pipeline_cpu_ms": 32.649,
+          "semantic_counts": {
+            "anchors": 9,
+            "buildings": 89,
+            "cells": 4928,
+            "props": 14,
+            "transitions": 6,
+            "zones": 36
+          },
+          "terrain_build_ms": 7.405,
+          "visual_assembly_ms": 4.295
+        }
+      ],
+      "semantic_counts": {
+        "anchors": 9,
+        "buildings": 89,
+        "cells": 4928,
+        "props": 14,
+        "transitions": 6,
+        "zones": 36
+      },
+      "size_cells": [
+        88,
+        56
+      ]
+    },
+    {
+      "available": true,
+      "id": "lower_town_scene",
+      "kind": "production_scene_with_3d_view",
+      "metrics": {
+        "collision_count": {
+          "max": 118.0,
+          "median": 118.0,
+          "p95": 118.0,
+          "p99": 118.0,
+          "samples": 1
+        },
+        "frame_time_ms_max": {
+          "max": 7.981,
+          "median": 7.981,
+          "p95": 7.981,
+          "p99": 7.981,
+          "samples": 1
+        },
+        "frame_time_ms_median": {
+          "max": 7.012,
+          "median": 7.012,
+          "p95": 7.012,
+          "p99": 7.012,
+          "samples": 1
+        },
+        "frame_time_ms_p95": {
+          "max": 7.816,
+          "median": 7.816,
+          "p95": 7.816,
+          "p99": 7.816,
+          "samples": 1
+        },
+        "frame_time_ms_p99": {
+          "max": 7.981,
+          "median": 7.981,
+          "p95": 7.981,
+          "p99": 7.981,
+          "samples": 1
+        },
+        "memory_delta_mib": {
+          "max": 47.869252204895,
+          "median": 47.869252204895,
+          "p95": 47.869252204895,
+          "p99": 47.869252204895,
+          "samples": 1
+        },
+        "memory_static_bytes": {
+          "max": 86526522.0,
+          "median": 86526522.0,
+          "p95": 86526522.0,
+          "p99": 86526522.0,
+          "samples": 1
+        },
+        "node_count": {
+          "max": 4866.0,
+          "median": 4866.0,
+          "p95": 4866.0,
+          "p99": 4866.0,
+          "samples": 1
+        },
+        "pipeline_cpu_ms": {
+          "max": 3044.465,
+          "median": 3044.465,
+          "p95": 3044.465,
+          "p99": 3044.465,
+          "samples": 1
+        },
+        "scene_startup_ms": {
+          "max": 3044.465,
+          "median": 3044.465,
+          "p95": 3044.465,
+          "p99": 3044.465,
+          "samples": 1
+        }
+      },
+      "runs": [
+        {
+          "collision_count": 118.0,
+          "frame_time_ms": {
+            "max": 7.981,
+            "median": 7.012,
+            "p95": 7.816,
+            "p99": 7.981,
+            "samples": 20.0
+          },
+          "memory_delta_mib": 47.869252204895,
+          "memory_static_bytes": 86526522.0,
+          "node_count": 4866.0,
+          "pipeline_cpu_ms": 3044.465,
+          "scene_startup_ms": 3044.465
+        }
+      ],
+      "semantic_counts": {},
+      "size_cells": [
+        88,
+        56
+      ]
+    },
+    {
+      "id": "synthetic_32",
+      "kind": "non_production_monolithic_synthetic",
+      "metrics": {
+        "bootstrap_ms": {
+          "max": 7.165,
+          "median": 7.165,
+          "p95": 7.165,
+          "p99": 7.165,
+          "samples": 1
+        },
+        "collision_count": {
+          "max": 22.0,
+          "median": 22.0,
+          "p95": 22.0,
+          "p99": 22.0,
+          "samples": 1
+        },
+        "definition_create_ms": {
+          "max": 0.04,
+          "median": 0.04,
+          "p95": 0.04,
+          "p99": 0.04,
+          "samples": 1
+        },
+        "frame_time_ms_max": {
+          "max": 8.501,
+          "median": 8.501,
+          "p95": 8.501,
+          "p99": 8.501,
+          "samples": 1
+        },
+        "frame_time_ms_median": {
+          "max": 6.879,
+          "median": 6.879,
+          "p95": 6.879,
+          "p99": 6.879,
+          "samples": 1
+        },
+        "frame_time_ms_p95": {
+          "max": 8.365,
+          "median": 8.365,
+          "p95": 8.365,
+          "p99": 8.365,
+          "samples": 1
+        },
+        "frame_time_ms_p99": {
+          "max": 8.501,
+          "median": 8.501,
+          "p95": 8.501,
+          "p99": 8.501,
+          "samples": 1
+        },
+        "memory_delta_mib": {
+          "max": 2.07467269897461,
+          "median": 2.07467269897461,
+          "p95": 2.07467269897461,
+          "p99": 2.07467269897461,
+          "samples": 1
+        },
+        "memory_static_bytes": {
+          "max": 34696711.0,
+          "median": 34696711.0,
+          "p95": 34696711.0,
+          "p99": 34696711.0,
+          "samples": 1
+        },
+        "navigation_bake_ms": {
+          "max": 1.394,
+          "median": 1.394,
+          "p95": 1.394,
+          "p99": 1.394,
+          "samples": 1
+        },
+        "navigation_polygon_count": {
+          "max": 56.0,
+          "median": 56.0,
+          "p95": 56.0,
+          "p99": 56.0,
+          "samples": 1
+        },
+        "node_count": {
+          "max": 442.0,
+          "median": 442.0,
+          "p95": 442.0,
+          "p99": 442.0,
+          "samples": 1
+        },
+        "pipeline_cpu_ms": {
+          "max": 7.205,
+          "median": 7.205,
+          "p95": 7.205,
+          "p99": 7.205,
+          "samples": 1
+        },
+        "terrain_build_ms": {
+          "max": 0.92,
+          "median": 0.92,
+          "p95": 0.92,
+          "p99": 0.92,
+          "samples": 1
+        }
+      },
+      "runs": [
+        {
+          "bootstrap_ms": 7.165,
+          "collision_count": 22,
+          "definition_create_ms": 0.04,
+          "frame_time_ms": {
+            "max": 8.501,
+            "median": 6.879,
+            "p95": 8.365,
+            "p99": 8.501,
+            "samples": 20
+          },
+          "memory_delta_mib": 2.07467269897461,
+          "memory_static_bytes": 34696711,
+          "navigation_bake_ms": 1.394,
+          "navigation_polygon_count": 56,
+          "node_count": 442,
+          "pipeline_cpu_ms": 7.205,
+          "semantic_counts": {
+            "anchors": 0,
+            "buildings": 16,
+            "cells": 1024,
+            "props": 4,
+            "transitions": 0,
+            "zones": 2
+          },
+          "terrain_build_ms": 0.92
+        }
+      ],
+      "semantic_counts": {
+        "anchors": 0,
+        "buildings": 16,
+        "cells": 1024,
+        "props": 4,
+        "transitions": 0,
+        "zones": 2
+      },
+      "size_cells": [
+        32,
+        32
+      ]
+    },
+    {
+      "id": "synthetic_64",
+      "kind": "non_production_monolithic_synthetic",
+      "metrics": {
+        "bootstrap_ms": {
+          "max": 17.593,
+          "median": 17.593,
+          "p95": 17.593,
+          "p99": 17.593,
+          "samples": 1
+        },
+        "collision_count": {
+          "max": 72.0,
+          "median": 72.0,
+          "p95": 72.0,
+          "p99": 72.0,
+          "samples": 1
+        },
+        "definition_create_ms": {
+          "max": 0.2,
+          "median": 0.2,
+          "p95": 0.2,
+          "p99": 0.2,
+          "samples": 1
+        },
+        "frame_time_ms_max": {
+          "max": 8.575,
+          "median": 8.575,
+          "p95": 8.575,
+          "p99": 8.575,
+          "samples": 1
+        },
+        "frame_time_ms_median": {
+          "max": 6.814,
+          "median": 6.814,
+          "p95": 6.814,
+          "p99": 6.814,
+          "samples": 1
+        },
+        "frame_time_ms_p95": {
+          "max": 8.551,
+          "median": 8.551,
+          "p95": 8.551,
+          "p99": 8.551,
+          "samples": 1
+        },
+        "frame_time_ms_p99": {
+          "max": 8.575,
+          "median": 8.575,
+          "p95": 8.575,
+          "p99": 8.575,
+          "samples": 1
+        },
+        "memory_delta_mib": {
+          "max": 6.04052352905273,
+          "median": 6.04052352905273,
+          "p95": 6.04052352905273,
+          "p99": 6.04052352905273,
+          "samples": 1
+        },
+        "memory_static_bytes": {
+          "max": 39483471.0,
+          "median": 39483471.0,
+          "p95": 39483471.0,
+          "p99": 39483471.0,
+          "samples": 1
+        },
+        "navigation_bake_ms": {
+          "max": 6.29,
+          "median": 6.29,
+          "p95": 6.29,
+          "p99": 6.29,
+          "samples": 1
+        },
+        "navigation_polygon_count": {
+          "max": 211.0,
+          "median": 211.0,
+          "p95": 211.0,
+          "p99": 211.0,
+          "samples": 1
+        },
+        "node_count": {
+          "max": 1723.0,
+          "median": 1723.0,
+          "p95": 1723.0,
+          "p99": 1723.0,
+          "samples": 1
+        },
+        "pipeline_cpu_ms": {
+          "max": 17.793,
+          "median": 17.793,
+          "p95": 17.793,
+          "p99": 17.793,
+          "samples": 1
+        },
+        "terrain_build_ms": {
+          "max": 4.645,
+          "median": 4.645,
+          "p95": 4.645,
+          "p99": 4.645,
+          "samples": 1
+        }
+      },
+      "runs": [
+        {
+          "bootstrap_ms": 17.593,
+          "collision_count": 72,
+          "definition_create_ms": 0.2,
+          "frame_time_ms": {
+            "max": 8.575,
+            "median": 6.814,
+            "p95": 8.551,
+            "p99": 8.575,
+            "samples": 20
+          },
+          "memory_delta_mib": 6.04052352905273,
+          "memory_static_bytes": 39483471,
+          "navigation_bake_ms": 6.29,
+          "navigation_polygon_count": 211,
+          "node_count": 1723,
+          "pipeline_cpu_ms": 17.793,
+          "semantic_counts": {
+            "anchors": 0,
+            "buildings": 64,
+            "cells": 4096,
+            "props": 16,
+            "transitions": 0,
+            "zones": 4
+          },
+          "terrain_build_ms": 4.645
+        }
+      ],
+      "semantic_counts": {
+        "anchors": 0,
+        "buildings": 64,
+        "cells": 4096,
+        "props": 16,
+        "transitions": 0,
+        "zones": 4
+      },
+      "size_cells": [
+        64,
+        64
+      ]
+    },
+    {
+      "id": "synthetic_128",
+      "kind": "non_production_monolithic_synthetic",
+      "metrics": {
+        "bootstrap_ms": {
+          "max": 111.047,
+          "median": 111.047,
+          "p95": 111.047,
+          "p99": 111.047,
+          "samples": 1
+        },
+        "collision_count": {
+          "max": 268.0,
+          "median": 268.0,
+          "p95": 268.0,
+          "p99": 268.0,
+          "samples": 1
+        },
+        "definition_create_ms": {
+          "max": 0.292,
+          "median": 0.292,
+          "p95": 0.292,
+          "p99": 0.292,
+          "samples": 1
+        },
+        "frame_time_ms_max": {
+          "max": 7.969,
+          "median": 7.969,
+          "p95": 7.969,
+          "p99": 7.969,
+          "samples": 1
+        },
+        "frame_time_ms_median": {
+          "max": 7.046,
+          "median": 7.046,
+          "p95": 7.046,
+          "p99": 7.046,
+          "samples": 1
+        },
+        "frame_time_ms_p95": {
+          "max": 7.761,
+          "median": 7.761,
+          "p95": 7.761,
+          "p99": 7.761,
+          "samples": 1
+        },
+        "frame_time_ms_p99": {
+          "max": 7.969,
+          "median": 7.969,
+          "p95": 7.969,
+          "p99": 7.969,
+          "samples": 1
+        },
+        "memory_delta_mib": {
+          "max": 23.8231658935547,
+          "median": 23.8231658935547,
+          "p95": 23.8231658935547,
+          "p99": 23.8231658935547,
+          "samples": 1
+        },
+        "memory_static_bytes": {
+          "max": 58476067.0,
+          "median": 58476067.0,
+          "p95": 58476067.0,
+          "p99": 58476067.0,
+          "samples": 1
+        },
+        "navigation_bake_ms": {
+          "max": 68.37,
+          "median": 68.37,
+          "p95": 68.37,
+          "p99": 68.37,
+          "samples": 1
+        },
+        "navigation_polygon_count": {
+          "max": 818.0,
+          "median": 818.0,
+          "p95": 818.0,
+          "p99": 818.0,
+          "samples": 1
+        },
+        "node_count": {
+          "max": 6832.0,
+          "median": 6832.0,
+          "p95": 6832.0,
+          "p99": 6832.0,
+          "samples": 1
+        },
+        "pipeline_cpu_ms": {
+          "max": 111.339,
+          "median": 111.339,
+          "p95": 111.339,
+          "p99": 111.339,
+          "samples": 1
+        },
+        "terrain_build_ms": {
+          "max": 14.438,
+          "median": 14.438,
+          "p95": 14.438,
+          "p99": 14.438,
+          "samples": 1
+        }
+      },
+      "runs": [
+        {
+          "bootstrap_ms": 111.047,
+          "collision_count": 268,
+          "definition_create_ms": 0.292,
+          "frame_time_ms": {
+            "max": 7.969,
+            "median": 7.046,
+            "p95": 7.761,
+            "p99": 7.969,
+            "samples": 20
+          },
+          "memory_delta_mib": 23.8231658935547,
+          "memory_static_bytes": 58476067,
+          "navigation_bake_ms": 68.37,
+          "navigation_polygon_count": 818,
+          "node_count": 6832,
+          "pipeline_cpu_ms": 111.339,
+          "semantic_counts": {
+            "anchors": 0,
+            "buildings": 256,
+            "cells": 16384,
+            "props": 64,
+            "transitions": 0,
+            "zones": 8
+          },
+          "terrain_build_ms": 14.438
+        }
+      ],
+      "semantic_counts": {
+        "anchors": 0,
+        "buildings": 256,
+        "cells": 16384,
+        "props": 64,
+        "transitions": 0,
+        "zones": 8
+      },
+      "size_cells": [
+        128,
+        128
+      ]
+    },
+    {
+      "id": "synthetic_256",
+      "kind": "non_production_monolithic_synthetic",
+      "metrics": {
+        "bootstrap_ms": {
+          "max": 3532.041,
+          "median": 3532.041,
+          "p95": 3532.041,
+          "p99": 3532.041,
+          "samples": 1
+        },
+        "collision_count": {
+          "max": 1044.0,
+          "median": 1044.0,
+          "p95": 1044.0,
+          "p99": 1044.0,
+          "samples": 1
+        },
+        "definition_create_ms": {
+          "max": 0.932,
+          "median": 0.932,
+          "p95": 0.932,
+          "p99": 0.932,
+          "samples": 1
+        },
+        "frame_time_ms_max": {
+          "max": 7.832,
+          "median": 7.832,
+          "p95": 7.832,
+          "p99": 7.832,
+          "samples": 1
+        },
+        "frame_time_ms_median": {
+          "max": 7.017,
+          "median": 7.017,
+          "p95": 7.017,
+          "p99": 7.017,
+          "samples": 1
+        },
+        "frame_time_ms_p95": {
+          "max": 7.818,
+          "median": 7.818,
+          "p95": 7.818,
+          "p99": 7.818,
+          "samples": 1
+        },
+        "frame_time_ms_p99": {
+          "max": 7.832,
+          "median": 7.832,
+          "p95": 7.832,
+          "p99": 7.832,
+          "samples": 1
+        },
+        "memory_delta_mib": {
+          "max": 82.6186332702637,
+          "median": 82.6186332702637,
+          "p95": 82.6186332702637,
+          "p99": 82.6186332702637,
+          "samples": 1
+        },
+        "memory_static_bytes": {
+          "max": 124785351.0,
+          "median": 124785351.0,
+          "p95": 124785351.0,
+          "p99": 124785351.0,
+          "samples": 1
+        },
+        "navigation_bake_ms": {
+          "max": 3383.679,
+          "median": 3383.679,
+          "p95": 3383.679,
+          "p99": 3383.679,
+          "samples": 1
+        },
+        "navigation_polygon_count": {
+          "max": 3205.0,
+          "median": 3205.0,
+          "p95": 3205.0,
+          "p99": 3205.0,
+          "samples": 1
+        },
+        "node_count": {
+          "max": 27180.0,
+          "median": 27180.0,
+          "p95": 27180.0,
+          "p99": 27180.0,
+          "samples": 1
+        },
+        "pipeline_cpu_ms": {
+          "max": 3532.973,
+          "median": 3532.973,
+          "p95": 3532.973,
+          "p99": 3532.973,
+          "samples": 1
+        },
+        "terrain_build_ms": {
+          "max": 58.262,
+          "median": 58.262,
+          "p95": 58.262,
+          "p99": 58.262,
+          "samples": 1
+        }
+      },
+      "runs": [
+        {
+          "bootstrap_ms": 3532.041,
+          "collision_count": 1044,
+          "definition_create_ms": 0.932,
+          "frame_time_ms": {
+            "max": 7.832,
+            "median": 7.017,
+            "p95": 7.818,
+            "p99": 7.832,
+            "samples": 20
+          },
+          "memory_delta_mib": 82.6186332702637,
+          "memory_static_bytes": 124785351,
+          "navigation_bake_ms": 3383.679,
+          "navigation_polygon_count": 3205,
+          "node_count": 27180,
+          "pipeline_cpu_ms": 3532.973,
+          "semantic_counts": {
+            "anchors": 0,
+            "buildings": 1024,
+            "cells": 65536,
+            "props": 256,
+            "transitions": 0,
+            "zones": 16
+          },
+          "terrain_build_ms": 58.262
+        }
+      ],
+      "semantic_counts": {
+        "anchors": 0,
+        "buildings": 1024,
+        "cells": 65536,
+        "props": 256,
+        "transitions": 0,
+        "zones": 16
+      },
+      "size_cells": [
+        256,
+        256
+      ]
+    }
+  ],
+  "recorded_utc": "2026-07-17T23:37:59",
+  "schema_version": 1
+}

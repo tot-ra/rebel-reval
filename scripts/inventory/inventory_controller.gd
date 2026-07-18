@@ -44,6 +44,22 @@ func is_open() -> bool:
 	return _overlay != null and _overlay.is_open()
 
 
+func open() -> void:
+	if _overlay == null or _overlay.is_open():
+		return
+	# Global overlays are mutually exclusive regardless of whether they were
+	# opened from the visible menu or their direct keyboard shortcut.
+	var journal := get_parent().get_node_or_null("JournalController") as JournalController
+	if journal != null:
+		journal.close()
+	_overlay.open()
+
+
+func close() -> void:
+	if _overlay != null and _overlay.is_open():
+		_overlay.close()
+
+
 func get_selected_placement() -> InventoryPlacement:
 	if _overlay == null:
 		return null
@@ -59,9 +75,9 @@ func toggle() -> void:
 	if _overlay == null:
 		return
 	if _overlay.is_open():
-		_overlay.close()
+		close()
 	else:
-		_overlay.open()
+		open()
 
 
 func _is_toggle_event(event: InputEvent) -> bool:

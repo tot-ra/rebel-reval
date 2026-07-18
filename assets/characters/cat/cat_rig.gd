@@ -100,6 +100,8 @@ func _make_idle_animation() -> Animation:
 		[1.0, Vector3(0.0, 0.235, 0.0)],
 		[2.0, Vector3(0.0, 0.23, 0.0)],
 	])
+	_add_value_track(anim, "Model/Body:rotation", [[0.0, Vector3.ZERO]])
+	_add_value_track(anim, "Model/Body/Head:position", [[0.0, Vector3(0.0, 0.1, 0.22)]])
 	_add_value_track(anim, "Model/Body/Head:rotation", [
 		[0.0, Vector3(0.0, 0.0, 0.0)],
 		[0.7, Vector3(0.05, 0.0, 0.0)],
@@ -112,6 +114,8 @@ func _make_idle_animation() -> Animation:
 		[1.5, Vector3(0.0, -0.18, 0.0)],
 		[2.0, Vector3(0.0, 0.0, 0.0)],
 	])
+	for leg in ["FL", "FR", "BL", "BR"]:
+		_add_value_track(anim, "Model/Body/LegPivot%s:rotation" % leg, [[0.0, Vector3.ZERO]])
 	return anim
 
 
@@ -156,6 +160,9 @@ func _make_walk_animation() -> Animation:
 		[0.45, Vector3(0.0, 0.245, 0.0)],
 		[0.6, Vector3(0.0, 0.23, 0.0)],
 	])
+	_add_value_track(anim, "Model/Body:rotation", [[0.0, Vector3.ZERO]])
+	_add_value_track(anim, "Model/Body/Head:position", [[0.0, Vector3(0.0, 0.1, 0.22)]])
+	_add_value_track(anim, "Model/Body/Head:rotation", [[0.0, Vector3.ZERO]])
 	_add_value_track(anim, "Model/Body/TailPivot:rotation", [
 		[0.0, Vector3(0.0, 0.0, 0.0)],
 		[0.2, Vector3(0.0, 0.15, 0.0)],
@@ -211,6 +218,8 @@ func _make_lick_animation() -> Animation:
 	_add_value_track(anim, "Model/Body:position", [
 		[0.0, Vector3(0.0, 0.19, 0.0)],
 	])
+	_add_value_track(anim, "Model/Body:rotation", [[0.0, Vector3.ZERO]])
+	_add_value_track(anim, "Model/Body/Head:position", [[0.0, Vector3(0.0, 0.1, 0.22)]])
 	_add_value_track(anim, "Model/Body/Head:rotation", [
 		[0.0, Vector3(0.55, 0.0, 0.0)],
 		[0.2, Vector3(0.65, 0.1, 0.0)],
@@ -223,6 +232,8 @@ func _make_lick_animation() -> Animation:
 	_add_value_track(anim, "Model/Body/TailPivot:rotation", [
 		[0.0, Vector3(0.0, 0.0, 0.0)],
 	])
+	for leg in ["FL", "FR", "BL", "BR"]:
+		_add_value_track(anim, "Model/Body/LegPivot%s:rotation" % leg, [[0.0, Vector3.ZERO]])
 	return anim
 
 
@@ -251,6 +262,8 @@ func _make_stretch_animation() -> Animation:
 		[1.0, Vector3(-0.55, -0.1, 0.0)],
 		[1.5, Vector3(-0.55, 0.0, 0.0)],
 	])
+	for leg in ["FL", "FR", "BL", "BR"]:
+		_add_value_track(anim, "Model/Body/LegPivot%s:rotation" % leg, [[0.0, Vector3.ZERO]])
 	return anim
 
 

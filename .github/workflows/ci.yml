@@ -85,8 +85,23 @@ jobs:
       - name: Godot headless tests
         run: godot --headless --script tools/run_godot_tests.gd
 
-      - name: Validate registered map blueprints
-        run: godot --headless --path . --script tools/validate_map_blueprints.gd
+      - name: Map parser smoke
+        run: tools/run_map_pipeline_ci.sh parser
+
+      - name: Map compiler and semantic validation smoke
+        run: tools/run_map_pipeline_ci.sh compiler
+
+      - name: Blueprint registry completeness audit
+        run: tools/run_map_pipeline_ci.sh audit
+
+      - name: Stable-ID persistence smoke
+        run: tools/run_map_pipeline_ci.sh persistence
+
+      - name: Map parity, routes, and canonical-consumer smoke
+        run: tools/run_map_pipeline_ci.sh parity
+
+      - name: Large-map benchmark smoke
+        run: tools/run_map_pipeline_ci.sh benchmark-smoke
 
       - name: Seeded Godot test failure fails
         run: |

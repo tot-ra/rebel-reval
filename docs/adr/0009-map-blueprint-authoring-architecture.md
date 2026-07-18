@@ -5,7 +5,7 @@
 
 ## Status
 
-Accepted
+Accepted and implemented
 
 ## Context
 
@@ -67,3 +67,7 @@ Rejected. A general raw entry would quickly become the default and recreate the 
 - Existing direct definitions remain supported during incremental migration, but they are legacy sources and should not receive broad structural growth.
 - The repository must maintain parity tooling until all production maps have migrated.
 - Runtime chunking can evolve independently without forcing authors to split semantic maps or rewrite IDs.
+
+## Implementation status
+
+The typed blueprint API, safe `.rrmap` parser, deterministic compiler, prefab expansion, machine-readable diagnostics, explicit registry completeness audit, editor preview, and representative Lower Town parity migration are implemented. Production gates and the incremental migration policy are normative in [`docs/MAP_AUTHORING.md`](../MAP_AUTHORING.md). Remaining direct `MapDefinition` maps are intentionally not bulk-migrated.

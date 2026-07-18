@@ -17,9 +17,15 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var test_files := _discover_tests(TEST_ROOT)
+	var filter_value := _argument_value("--filter=")
+	if not filter_value.is_empty():
+		test_files = test_files.filter(func(path: String) -> bool:
+			return filter_value in path
+		)
 	test_files.sort()
 	if test_files.is_empty():
-		push_error("No Godot tests found under %s matching %s*%s" % [TEST_ROOT, TEST_PREFIX, TEST_SUFFIX])
+		var filter_suffix := " (filter: %s)" % filter_value if not filter_value.is_empty() else ""
+		push_error("No Godot tests found under %s matching %s*%s%s" % [TEST_ROOT, TEST_PREFIX, TEST_SUFFIX, filter_suffix])
 		quit(1)
 		return
 
@@ -121,3 +127,9 @@ func _get_instance_failures(instance: Object) -> Array[String]:
 	if instance.has_method("_get_failures"):
 		return instance.call("_get_failures")
 	return []
+
+func _argument_value(prefix: String) -> String:
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with(prefix):
+			return argument.trim_prefix(prefix)
+	return ""

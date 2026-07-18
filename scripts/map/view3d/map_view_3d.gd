@@ -44,7 +44,7 @@ const BACKGROUND_NIGHT_COLOR := Color8(12, 14, 22)
 ## or the camera far plane. Tighter distance concentrates shadow-map texels on
 ## the slice the player actually sees.
 const SUN_SHADOW_MAX_DISTANCE := (
-	CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE * 2.0 * 1.35 + 8.0
+	MapViewRuntime.ZOOM_MAX_ORTHOGRAPHIC_SIZE * 1.35 + 8.0
 )
 const SUN_SHADOW_SPLIT_1 := 0.08
 const SUN_SHADOW_SPLIT_2 := 0.22
@@ -249,25 +249,35 @@ func update_active_chunks_from_logic_positions(logic_positions: Array[Vector2]) 
 func _assemble() -> void:
 	add_child(MapViewMeshBuilder.build_surroundings(definition))
 	add_child(MapViewMeshBuilder.build_terrain(definition, grid))
-	add_child(MapViewMeshBuilder.build_scatter(definition, grid))
+
+	_scatter_root = Node3D.new()
+	_scatter_root.name = "Scatter"
+	add_child(_scatter_root)
 
 	var buildings := Node3D.new()
 	buildings.name = "Buildings"
 	add_child(buildings)
-	for building in definition.buildings:
-		buildings.add_child(MapViewMeshBuilder.build_building(building, definition.cell_size))
-
 	var landmarks := Node3D.new()
 	landmarks.name = "Landmarks"
 	add_child(landmarks)
-	var interior_wall_height := MapViewMeshBuilder.interior_shell_wall_height_world(definition)
-	for landmark in definition.view_landmarks:
-		landmarks.add_child(MapViewMeshBuilder.build_landmark(landmark, definition.cell_size, interior_wall_height))
+	var props := Node3D.new()
+	props.name = "Props"
+	add_child(props)
+	var direction_signs := Node3D.new()
+	direction_signs.name = "DirectionSigns"
+	add_child(direction_signs)
 
-	# Buildings and landmarks are the only masses tall enough to hide an actor
-	# from the dimetric camera; their mesh bounds feed is_segment_occluded.
-	_append_mesh_bounds(buildings, buildings.transform, _occluder_bounds)
-	_append_mesh_bounds(landmarks, landmarks.transform, _occluder_bounds)
+	_object_index = MapChunkRuntimeIndex.build(definition, grid.chunk_size_cells)
+	_object_streamer = MapObjectChunkStreamer.new()
+	_object_streamer.name = "ObjectStreamer"
+	add_child(_object_streamer)
+	_object_streamer.configure(_object_index, _create_streamed_object, {
+		&"building": buildings,
+		&"landmark": landmarks,
+		&"prop": props,
+		&"direction_sign": direction_signs,
+	})
+	_update_active_chunks(_initial_active_chunks())
 
 	var transition_markers := Node3D.new()
 	transition_markers.name = "TransitionMarkers"
@@ -284,28 +294,6 @@ func _assemble() -> void:
 			doors.add_child(
 				MapViewMeshBuilder.build_transition_door(transition, definition.cell_size, shell_height)
 			)
-
-	var props := Node3D.new()
-	props.name = "Props"
-	add_child(props)
-	for prop in definition.props:
-		var prop_node := MapViewMeshBuilder.build_prop(prop, definition.cell_size)
-		prop_node.position.y = MapViewMeshBuilder.ground_height(
-			definition,
-			Vector2(prop_node.position.x, prop_node.position.z)
-		)
-		props.add_child(prop_node)
-
-	var direction_signs := Node3D.new()
-	direction_signs.name = "DirectionSigns"
-	add_child(direction_signs)
-	for sign in definition.direction_signs:
-		var sign_node := DirectionSignBuilder.build(sign, definition.cell_size)
-		sign_node.position.y = MapViewMeshBuilder.ground_height(
-			definition,
-			Vector2(sign_node.position.x, sign_node.position.z)
-		)
-		direction_signs.add_child(sign_node)
 
 	var anchors := Node3D.new()
 	anchors.name = "Anchors"
@@ -338,6 +326,84 @@ func _assemble() -> void:
 		_fog_of_war = FOG_OF_WAR_SCRIPT.new()
 		_fog_of_war.call("configure", _camera, definition)
 		add_child(_fog_of_war)
+
+
+func _create_streamed_object(record: Dictionary) -> Node:
+	var source := record["source"] as Dictionary
+	match record["kind"] as StringName:
+		&"building":
+			return MapViewMeshBuilder.build_building(source, definition.cell_size)
+		&"landmark":
+			return MapViewMeshBuilder.build_landmark(source, definition.cell_size)
+		&"prop":
+			var prop_node := MapViewMeshBuilder.build_prop(source, definition.cell_size)
+			prop_node.position.y = MapViewMeshBuilder.ground_height(
+				definition,
+				Vector2(prop_node.position.x, prop_node.position.z)
+			)
+			return prop_node
+		&"direction_sign":
+			var sign_node := DirectionSignBuilder.build(source, definition.cell_size)
+			sign_node.position.y = MapViewMeshBuilder.ground_height(
+				definition,
+				Vector2(sign_node.position.x, sign_node.position.z)
+			)
+			return sign_node
+	return null
+
+
+func _initial_active_chunks() -> Array[Vector2i]:
+	var focus_cell := Vector2i(
+		floori(definition.player_spawn.x / float(definition.cell_size)),
+		floori(definition.player_spawn.y / float(definition.cell_size))
+	)
+	var focus := grid.chunk_for_cell(focus_cell)
+	var chunks: Array[Vector2i] = []
+	for y in range(focus.y - MapTerrainRenderer.DEFAULT_LOAD_RADIUS_CHUNKS, focus.y + MapTerrainRenderer.DEFAULT_LOAD_RADIUS_CHUNKS + 1):
+		for x in range(focus.x - MapTerrainRenderer.DEFAULT_LOAD_RADIUS_CHUNKS, focus.x + MapTerrainRenderer.DEFAULT_LOAD_RADIUS_CHUNKS + 1):
+			var coordinates := Vector2i(x, y)
+			if grid.get_chunk(coordinates) != null:
+				chunks.append(coordinates)
+	return chunks
+
+
+func _update_active_chunks(chunks: Array[Vector2i]) -> void:
+	_active_chunks = chunks.duplicate()
+	_object_streamer.update_active_chunks(chunks)
+	_update_scatter_chunks(chunks)
+	_rebuild_occluder_bounds()
+	_update_chimney_smokes()
+	_update_window_lights()
+
+
+func _update_scatter_chunks(chunks: Array[Vector2i]) -> void:
+	var wanted: Dictionary = {}
+	for coordinates in chunks:
+		wanted[coordinates] = true
+	for coordinates in _loaded_scatter_chunks.keys():
+		if wanted.has(coordinates):
+			continue
+		var stale := _loaded_scatter_chunks[coordinates] as Node3D
+		_loaded_scatter_chunks.erase(coordinates)
+		_scatter_root.remove_child(stale)
+		stale.free()
+	for coordinates in chunks:
+		if _loaded_scatter_chunks.has(coordinates):
+			continue
+		var scatter := MapViewMeshBuilder.build_scatter(definition, grid, grid.chunk_bounds(coordinates))
+		scatter.name = "Chunk_%d_%d" % [coordinates.x, coordinates.y]
+		_scatter_root.add_child(scatter)
+		_loaded_scatter_chunks[coordinates] = scatter
+
+
+func _rebuild_occluder_bounds() -> void:
+	_occluder_bounds.clear()
+	var buildings := get_node_or_null("Buildings") as Node3D
+	var landmarks := get_node_or_null("Landmarks") as Node3D
+	if buildings != null:
+		_append_mesh_bounds(buildings, buildings.transform, _occluder_bounds)
+	if landmarks != null:
+		_append_mesh_bounds(landmarks, landmarks.transform, _occluder_bounds)
 
 
 static func _configure_sun_shadows(sun: DirectionalLight3D) -> void:

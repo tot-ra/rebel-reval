@@ -3,6 +3,10 @@ extends Node2D
 
 ## Streams fixed-size terrain draw nodes around a global camera/player focus.
 
+signal chunk_loaded(coordinates: Vector2i)
+signal chunk_unloaded(coordinates: Vector2i)
+signal active_chunks_changed(coordinates: Array[Vector2i])
+
 const DEFAULT_LOAD_RADIUS_CHUNKS := 2
 
 var grid: MapTerrainGrid
@@ -53,6 +57,7 @@ func load_chunk(coordinates: Vector2i) -> MapTerrainChunkRenderer:
 	chunk_renderer.configure(grid, coordinates, visual_target, time_of_day, debug_chunk_bounds)
 	add_child(chunk_renderer)
 	_loaded_chunks[coordinates] = chunk_renderer
+	chunk_loaded.emit(coordinates)
 	return chunk_renderer
 
 
@@ -63,6 +68,7 @@ func unload_chunk(coordinates: Vector2i) -> bool:
 	_loaded_chunks.erase(coordinates)
 	remove_child(chunk_renderer)
 	chunk_renderer.free()
+	chunk_unloaded.emit(coordinates)
 	return true
 
 
@@ -104,6 +110,7 @@ func update_active_chunks(global_position: Vector2, radius_chunks: int = load_ra
 	)
 	for coordinates in ordered:
 		load_chunk(coordinates)
+	active_chunks_changed.emit(loaded_chunk_coordinates())
 
 
 func chunk_for_world_position(global_position: Vector2) -> Vector2i:

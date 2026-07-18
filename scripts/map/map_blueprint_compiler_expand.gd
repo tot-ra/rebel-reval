@@ -512,5 +512,3 @@ static func register_id(object_id: StringName, path: String, expanded: Dictionar
 		errors.append("%s produces duplicate stable id: %s (first produced by %s)" % [path, String(object_id), resolved_ids[object_id]])
 	else:
 		resolved_ids[object_id] = path
-
-

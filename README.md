@@ -8,7 +8,7 @@ The history cannot be prevented. Who survives it, what each side carries into it
 
 ![Reval Rebel concept banner](./img/banner.jpg)
 
-> Reval Rebel is in pre-production with an early playable Godot prototype. See [`TODO.md`](./TODO.md) for the executable roadmap and [`docs/SETUP.md`](./docs/SETUP.md) to run it. The scope described here was widened from a single-district campaign to a three-act faction RPG by [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md); the playable MVP still ships first.
+> Reval Rebel is in pre-production with an early playable Godot prototype. See [`TODO.md`](./TODO.md) for the executable roadmap, [`docs/SETUP.md`](./docs/SETUP.md) to run it, and [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) for the production compact/chunked map workflow ([ADR 0009](./docs/adr/0009-map-blueprint-authoring-architecture.md), [ADR 0010](./docs/adr/0010-large-map-runtime-chunking.md)). The scope described here was widened from a single-district campaign to a three-act faction RPG by [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md); the playable MVP still ships first.
 
 ## The heart of the game
 
@@ -164,3 +164,11 @@ python3 tools/generate_active_docs_report.py --check
 | [`assets/SOURCES.csv`](./assets/SOURCES.csv) | Asset provenance, rights, and approval metadata |
 
 Root design documents, much of `story/`, and the older faction and location indexes are preserved as research and legacy material. Individual seeds from them (faction hooks, quest ideas, locations) become active only through reconciliation with this README and a strict task in [`TODO.md`](./TODO.md).
+
+## Map pipeline documentation
+
+- [Compact map authoring, validation, migration, scale budgets, and limitations](./docs/MAP_AUTHORING.md)
+- [ADR 0009: canonical MapBlueprint authoring](./docs/adr/0009-map-blueprint-authoring-architecture.md)
+- [ADR 0010: compiled-map runtime chunking and persistence](./docs/adr/0010-large-map-runtime-chunking.md)
+
+Use `tools/run_map_pipeline_ci.sh all` for the production parser/compiler/audit/persistence/parity/benchmark gates. Migrate maps individually and only with reviewed parity protection.
