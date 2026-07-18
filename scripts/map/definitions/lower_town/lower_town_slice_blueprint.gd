@@ -114,7 +114,7 @@ const _ANCHORS: Array = [
 	[&"brewery_door", Rect2i(45, 22, 2, 1)], [&"checkpoint_west", Rect2i(2, 19, 2, 2)],
 	[&"checkpoint_east", Rect2i(63, 19, 2, 2)], [&"katariina_kaik", Rect2i(34, 8, 2, 2)],
 	[&"monastery_gate", Rect2i(27, 6, 2, 2)], [&"karja_gate_south", Rect2i(36, 49, 2, 2)],
-	[&"vene_street_north", Rect2i(14, 1, 2, 2)],
+	[&"vene_street_north", Rect2i(14, 1, 2, 2)], [&"mart_street", Rect2i(44, 20, 2, 2)],
 ]
 
 const _TRANSITIONS: Array = [
