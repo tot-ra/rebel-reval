@@ -45,13 +45,6 @@ func _setup_phase_binder(definition: MapDefinition) -> void:
 		_mart_encounter.register_phase_binder(_phase_binder, definition)
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	if player == null or _view_runtime == null:
-		return
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		player.navigation_agent.set_target_position(_view_runtime.logic_position_at_screen(event.position))
-
-
 func _wire_player_navigation() -> void:
 	var navigation: NavigationRegion2D = _bootstrap.get("navigation")
 	if player != null and navigation != null and player.navigation_agent != null:

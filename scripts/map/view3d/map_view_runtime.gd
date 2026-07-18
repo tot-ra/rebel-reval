@@ -53,6 +53,7 @@ var _last_mouse_position := Vector2.ZERO
 var _last_facing := Vector2.ZERO
 var _actor_rigs: Dictionary = {}
 var _equipment_state: GameState
+var _click_input: MapClickInputController
 
 
 static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasItem, player: CharacterBody2D) -> MapViewRuntime:
@@ -87,7 +88,22 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 	runtime._sync_player(true)
 	runtime.view.apply_cycle_progress(runtime.cycle_progress)
 	runtime._sync_music_cycle()
+	runtime._install_click_input(scene_root)
 	return runtime
+
+
+func configure_click_input(world_items: WorldItemController = null) -> void:
+	if _click_input == null:
+		return
+	if world_items != null:
+		_click_input.set_world_items(world_items)
+
+
+func _install_click_input(scene_root: Node2D) -> void:
+	_click_input = MapClickInputController.new()
+	_click_input.name = "MapClickInput"
+	scene_root.add_child(_click_input)
+	_click_input.setup(_player, self)
 
 
 ## Projects a screen point through the gameplay camera onto the logic plane,

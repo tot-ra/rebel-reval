@@ -22,9 +22,3 @@ func _ready() -> void:
 			player.global_position = definition.player_spawn
 	_view_runtime = MapViewRuntime.install(self, _bootstrap, map_root, player)
 
-
-func _unhandled_input(event: InputEvent) -> void:
-	if player == null or _view_runtime == null:
-		return
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		player.navigation_agent.set_target_position(_view_runtime.logic_position_at_screen(event.position))

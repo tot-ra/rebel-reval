@@ -28,12 +28,6 @@ func _wire_player_navigation(definition: MapDefinition) -> void:
 			player.global_position = definition.player_spawn
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	if player == null or _view_runtime == null:
-		return
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		player.navigation_agent.set_target_position(_view_runtime.logic_position_at_screen(event.position))
-
 
 func _find_player(node: Node) -> Player:
 	if node is Player:

@@ -300,6 +300,18 @@ func movement_direction_for_screen_input(screen_direction: Vector2) -> Vector2:
 	)
 	return logic_direction.normalized() if not logic_direction.is_zero_approx() else Vector2.ZERO
 
+func is_movement_input_blocked() -> bool:
+	return _movement_blocked()
+
+
+func request_navigation_target(logic_position: Vector2) -> void:
+	if navigation_agent == null or _movement_blocked():
+		return
+	if not action_state_machine.allows_movement():
+		return
+	navigation_agent.set_target_position(logic_position)
+
+
 func _movement_blocked() -> bool:
 	if not get_tree().get_nodes_in_group(&"demo_dialogue_active").is_empty():
 		return true
@@ -340,9 +352,8 @@ func _sync_resource_bars() -> void:
 	stamina_bar.max_value = max_stamina
 	stamina_bar.value = stamina
 
-func _on_velocity_computed(safe_velocity):
+func _on_velocity_computed(safe_velocity: Vector2) -> void:
 	velocity = safe_velocity
-	print("Safe velocity computed: ", safe_velocity)
 
 func _get_animation_direction(direction_vector: Vector2) -> String:
 	var direction_suffix = ""

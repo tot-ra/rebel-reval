@@ -128,6 +128,27 @@ func interact(actor: Node) -> bool:
 	return true
 
 
+## Returns the enabled interactable whose radius contains logic_position, preferring
+## the closest center when several overlap.
+static func find_at_logic_position(logic_position: Vector2, tree: SceneTree) -> Interactable:
+	if tree == null:
+		return null
+	var best: Interactable = null
+	var best_distance := INF
+	for node in tree.get_nodes_in_group(&"interactable"):
+		var interactable := node as Interactable
+		if interactable == null or not interactable.is_enabled():
+			continue
+		var distance_sq := interactable.global_position.distance_squared_to(logic_position)
+		var radius := interactable.interaction_radius
+		if distance_sq > radius * radius:
+			continue
+		if distance_sq < best_distance:
+			best_distance = distance_sq
+			best = interactable
+	return best
+
+
 func disable_interaction() -> void:
 	enabled = false
 	if _focused:

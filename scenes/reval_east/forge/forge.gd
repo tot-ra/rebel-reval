@@ -40,6 +40,7 @@ func _ready() -> void:
 	_world_items.name = "WorldItemController"
 	add_child(_world_items)
 	_world_items.setup(self, definition, _view_runtime, player, &"loc.kalev_smithy")
+	_view_runtime.configure_click_input(_world_items)
 	_phase_binder.register_prop(
 		&"spearhead_anvil",
 		func(visible_state: bool) -> void:
@@ -118,18 +119,6 @@ func _wire_cat_navigation() -> void:
 	var navigation: NavigationRegion2D = _bootstrap.get("navigation")
 	if cat != null and navigation != null:
 		cat.configure_navigation(navigation.get_navigation_map())
-
-
-func _unhandled_input(event: InputEvent) -> void:
-	if player == null or _view_runtime == null:
-		return
-	if _world_items != null and _world_items.try_handle_click(event):
-		get_viewport().set_input_as_handled()
-		return
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		player.navigation_agent.set_target_position(_view_runtime.logic_position_at_screen(event.position))
-
-
 func _find_player(node: Node) -> Player:
 	if node is Player:
 		return node
