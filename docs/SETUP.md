@@ -192,7 +192,15 @@ python3 tools/generate_active_docs_report.py
 
 ### Export
 
-The repository contains one preset (`rr`) for macOS export. To perform a headless export:
+The repository contains one preset (`rr`) for macOS export. To build and launch the real release application with the branded Dock icon and without the editor's `(DEBUG)` wrapper:
+
+```bash
+tools/run_macos_release.sh
+```
+
+This requires the matching Godot 4.7 export templates. F5/F6 still runs an editor debug process by design, so use the launcher when validating the release presentation.
+
+To perform only a headless export:
 
 ```bash
 mkdir -p build && godot --headless --export-release "rr" ./build/rr.dmg
