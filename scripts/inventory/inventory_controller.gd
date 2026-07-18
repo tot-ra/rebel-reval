@@ -28,6 +28,17 @@ func is_open() -> bool:
 	return _overlay != null and _overlay.is_open()
 
 
+func get_selected_placement() -> InventoryPlacement:
+	if _overlay == null:
+		return null
+	return _overlay.get_selected_placement()
+
+
+func clear_selection() -> void:
+	if _overlay != null:
+		_overlay.clear_selection()
+
+
 func toggle() -> void:
 	if _overlay == null:
 		return

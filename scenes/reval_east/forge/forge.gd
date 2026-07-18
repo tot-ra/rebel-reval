@@ -10,6 +10,7 @@ const DEFINITION_SCRIPT := preload("res://scripts/map/definitions/lower_town/kal
 
 var _bootstrap: Dictionary = {}
 var _view_runtime: MapViewRuntime
+var _world_items: WorldItemController
 
 
 func _ready() -> void:
@@ -22,6 +23,10 @@ func _ready() -> void:
 	if player == null:
 		player = _find_player(get_tree().root)
 	_view_runtime = MapViewRuntime.install(self, _bootstrap, map_root, player)
+	_world_items = WorldItemController.new()
+	_world_items.name = "WorldItemController"
+	add_child(_world_items)
+	_world_items.setup(self, definition, _view_runtime, player, &"loc.kalev_smithy")
 
 
 func _wire_player_navigation() -> void:
@@ -45,7 +50,10 @@ func _wire_cat_navigation() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if player == null:
+	if player == null or _view_runtime == null:
+		return
+	if _world_items != null and _world_items.try_handle_click(event):
+		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		player.navigation_agent.set_target_position(_view_runtime.logic_position_at_screen(event.position))

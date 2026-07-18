@@ -78,6 +78,15 @@ func is_open() -> bool:
 	return visible
 
 
+func get_selected_placement() -> InventoryPlacement:
+	return _selected
+
+
+func clear_selection() -> void:
+	_selected = null
+	_refresh()
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible or not event is InputEventKey:
 		return

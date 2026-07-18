@@ -99,6 +99,33 @@ func can_place_at(
 	return true
 
 
+func check_add(item_id: StringName, quantity: int = 1) -> AddResult:
+	if item_id.is_empty():
+		return AddResult.UNKNOWN_ITEM
+
+	var profile := _profile_for(item_id)
+	var add_count := maxi(1, quantity)
+
+	if profile.stackable:
+		for placement in placements:
+			if placement.item_id != item_id:
+				continue
+			var next_quantity := placement.quantity + add_count
+			if next_quantity > ItemCarryProfile.MAX_STACK_SIZE:
+				return AddResult.STACK_FULL
+			var added_weight := profile.weight_kg * add_count
+			if get_total_weight() + reserved_weight_kg + added_weight > MAX_WEIGHT_KG + 0.001:
+				return AddResult.OVER_WEIGHT
+			return AddResult.OK
+
+	var added_weight := profile.total_weight(add_count)
+	if get_total_weight() + reserved_weight_kg + added_weight > MAX_WEIGHT_KG + 0.001:
+		return AddResult.OVER_WEIGHT
+	if _find_auto_placement(profile).x < 0:
+		return AddResult.NO_SPACE
+	return AddResult.OK
+
+
 func try_add(item_id: StringName, quantity: int = 1) -> AddResult:
 	if item_id.is_empty():
 		return AddResult.UNKNOWN_ITEM

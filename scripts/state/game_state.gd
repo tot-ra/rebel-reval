@@ -4,7 +4,7 @@ extends RefCounted
 ## Fired after a slot's contents change so the 3D view can mirror the state.
 signal equipment_changed(slot: StringName)
 
-const CURRENT_VERSION := 1
+const CURRENT_VERSION := 2
 
 const PHASE_PROLOGUE_DAY := &"phase.prologue_day"
 
@@ -21,6 +21,7 @@ var version: int = CURRENT_VERSION
 var phase: StringName = PHASE_PROLOGUE_DAY
 var player: PlayerState = PlayerState.new()
 var bag: InventoryBag = InventoryBag.new()
+var map_world_state: MapStableStateStore = MapStableStateStore.new()
 
 var _equipped: Dictionary[StringName, StringName] = {}
 var _facts: Dictionary[StringName, bool] = {}
@@ -31,6 +32,7 @@ var _flags: Dictionary[StringName, bool] = {}
 var _quest_states: Dictionary[StringName, StringName] = {}
 var _location_states: Dictionary[StringName, StringName] = {}
 var _items: Dictionary[StringName, bool] = {}
+var _world_items: Dictionary = {}
 
 
 func _init() -> void:
@@ -81,6 +83,18 @@ func get_location_state(key: StringName) -> StringName:
 
 func set_location_state(key: StringName, value: StringName) -> void:
 	_location_states[key] = value
+
+
+func load_map_world_state(
+	payload: Dictionary,
+	known_archetypes: Array[StringName] = [],
+	expected_fingerprints: Dictionary = {}
+) -> Array[String]:
+	return map_world_state.load_payload(payload, known_archetypes, expected_fingerprints)
+
+
+func save_map_world_state() -> Dictionary:
+	return map_world_state.save_payload()
 
 
 ## --- Equipment placement (see docs/INVENTORY_MECHANICS.md) ---------------
@@ -170,6 +184,66 @@ func add_item(key: StringName) -> bool:
 
 func remove_item(key: StringName) -> bool:
 	return _items.erase(key)
+
+
+## --- World item placement (session-scoped, survives map re-entry) ---------
+## Items on the ground live outside the bag grid until picked up.
+
+func get_world_items(location_id: StringName) -> Array[Dictionary]:
+	var records: Array[Dictionary] = []
+	if location_id.is_empty():
+		return records
+	var bucket: Variant = _world_items.get(String(location_id), {})
+	if not bucket is Dictionary:
+		return records
+	for object_key in bucket:
+		var record: Variant = bucket[object_key]
+		if record is Dictionary:
+			records.append((record as Dictionary).duplicate(true))
+	records.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return String(a.get("object_id", "")) < String(b.get("object_id", ""))
+	)
+	return records
+
+
+func is_world_item_placed(location_id: StringName, object_id: StringName) -> bool:
+	if location_id.is_empty() or object_id.is_empty():
+		return false
+	var bucket: Variant = _world_items.get(String(location_id), {})
+	return bucket is Dictionary and (bucket as Dictionary).has(String(object_id))
+
+
+func place_world_item(
+	location_id: StringName,
+	object_id: StringName,
+	item_id: StringName,
+	position: Vector2
+) -> bool:
+	if location_id.is_empty() or object_id.is_empty() or item_id.is_empty():
+		return false
+	var bucket: Dictionary = _world_items.get(String(location_id), {}) as Dictionary
+	if not _world_items.has(String(location_id)):
+		_world_items[String(location_id)] = bucket
+	bucket[String(object_id)] = {
+		"object_id": object_id,
+		"item_id": item_id,
+		"position": position,
+	}
+	return true
+
+
+func take_world_item(location_id: StringName, object_id: StringName) -> Dictionary:
+	if location_id.is_empty() or object_id.is_empty():
+		return {}
+	var bucket: Variant = _world_items.get(String(location_id), {})
+	if not bucket is Dictionary:
+		return {}
+	var key := String(object_id)
+	var record: Variant = (bucket as Dictionary).get(key, {})
+	if not record is Dictionary:
+		return {}
+	(bucket as Dictionary).erase(key)
+	return (record as Dictionary).duplicate(true)
 
 
 func get_relationship(key: StringName) -> int:
