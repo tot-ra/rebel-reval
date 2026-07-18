@@ -33,9 +33,9 @@ func _ready() -> void:
 	if player == null:
 		player = _find_player(get_tree().root)
 	_view_runtime = MapViewRuntime.install(self, _bootstrap, map_root, player)
+	_build_interaction_prompt()
 	_setup_dialogue_encounter(definition)
 	_setup_phase_binder(definition)
-	_build_interaction_prompt()
 	_world_items = WorldItemController.new()
 	_world_items.name = "WorldItemController"
 	add_child(_world_items)

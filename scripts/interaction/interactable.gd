@@ -77,7 +77,11 @@ func clear_interact_callback() -> void:
 func is_actor_in_range(actor: Node2D) -> bool:
 	if actor == null:
 		return false
-	return _actors_in_range.has(actor.get_instance_id())
+	if _actors_in_range.has(actor.get_instance_id()):
+		return true
+	# Area2D overlap can lag behind gameplay proximity, especially for sensors
+	# parented to moving NPC logic bodies in the 3D presentation maps.
+	return _is_within_interaction_radius(actor.global_position)
 
 
 func register_actor_in_range(actor: Node2D) -> void:
@@ -146,6 +150,35 @@ static func find_at_logic_position(logic_position: Vector2, tree: SceneTree) -> 
 		if distance_sq < best_distance:
 			best_distance = distance_sq
 			best = interactable
+	if best != null:
+		return best
+	return find_talk_interactable_near_actor(logic_position, tree)
+
+
+## Isometric clicks often land on the ground in front of a character instead of
+## on the talk sensor centered at the actor's feet.
+static func find_talk_interactable_near_actor(logic_position: Vector2, tree: SceneTree) -> Interactable:
+	if tree == null:
+		return null
+	var best: Interactable = null
+	var best_distance := INF
+	const ACTOR_CLICK_RADIUS := 72.0
+	for node in tree.get_nodes_in_group(&"map_view_actor"):
+		if not node is Node2D:
+			continue
+		var actor := node as Node2D
+		var actor_distance_sq := actor.global_position.distance_squared_to(logic_position)
+		if actor_distance_sq > ACTOR_CLICK_RADIUS * ACTOR_CLICK_RADIUS:
+			continue
+		for child in actor.get_children():
+			var talk := child as Interactable
+			if talk == null or not talk.is_enabled():
+				continue
+			if talk.get_interaction_kind() != InteractionKinds.TALK:
+				continue
+			if actor_distance_sq < best_distance:
+				best_distance = actor_distance_sq
+				best = talk
 	return best
 
 
@@ -155,6 +188,11 @@ func disable_interaction() -> void:
 		set_focused(false)
 	visible = false
 	monitoring = false
+
+
+func _is_within_interaction_radius(position: Vector2) -> bool:
+	var radius := interaction_radius
+	return global_position.distance_squared_to(position) <= radius * radius
 
 
 func _apply_collision_radius() -> void:

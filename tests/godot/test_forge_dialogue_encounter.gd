@@ -1,5 +1,6 @@
 extends "res://tests/godot/test_case.gd"
 
+const FORGE_SCENE := preload("res://scenes/reval_east/forge/forge.tscn")
 const HENNING_DIALOGUE_ID := &"dialogue.demo.forge_henning"
 const CAT_DIALOGUE_ID := &"dialogue.demo.forge_cat"
 const FLAG_HENNING_SPOKEN := &"flag.demo_forge_henning_spoken"
@@ -174,6 +175,58 @@ func test_dialogue_runner_pauses_host_npc_during_forge_talk() -> void:
 	_cleanup_node(root)
 
 
+func test_forge_scene_starts_henning_dialogue_from_keyboard() -> void:
+	_prepare_forge_dialogue_state()
+	var tree := Engine.get_main_loop() as SceneTree
+	var forge: Node2D = FORGE_SCENE.instantiate()
+	tree.root.add_child(forge)
+
+	var encounter := forge.get_node("ForgeDialogueEncounter") as ForgeDialogueEncounter
+	var player := forge.get_node("Actors/Player") as Player
+	var henning := forge.get_node("Actors/Henning") as SmithyHenning
+	var controller := forge.get_node("InteractionController") as InteractionController
+	var henning_talk := encounter.get_henning_interactable()
+
+	assert_true(henning_talk != null, "forge must expose Henning's talk interactable")
+	assert_true(controller != null, "forge must wire InteractionController before dialogue")
+
+	player.global_position = henning.global_position
+	await tree.physics_frame
+	await tree.physics_frame
+
+	controller._update_focus()
+	assert_eq(
+		controller.get_focused_interactable(),
+		henning_talk,
+		"player standing on Henning must focus his talk prompt"
+	)
+	assert_true(controller.try_interact(), "E interact must start Henning's dialogue")
+	assert_true(encounter.get_dialogue_runner().is_active())
+	forge.queue_free()
+
+
+func test_forge_scene_starts_cat_dialogue_from_click() -> void:
+	_prepare_forge_dialogue_state()
+	var tree := Engine.get_main_loop() as SceneTree
+	var forge: Node2D = FORGE_SCENE.instantiate()
+	tree.root.add_child(forge)
+
+	var encounter := forge.get_node("ForgeDialogueEncounter") as ForgeDialogueEncounter
+	var player := forge.get_node("Actors/Player") as Player
+	var cat := forge.get_node("Actors/Cat") as ForgeCat
+	var runtime := forge.get_node("MapViewRuntime") as MapViewRuntime
+	var click_input := runtime.get_node("MapClickInput") as MapClickInputController
+
+	assert_true(encounter.get_cat_interactable() != null)
+	player.global_position = cat.global_position
+	await tree.physics_frame
+	await tree.physics_frame
+
+	assert_true(click_input.try_handle_logic_click(cat.global_position))
+	assert_true(encounter.get_dialogue_runner().is_active())
+	forge.queue_free()
+
+
 func test_keyboard_advance_works_while_cat_interactable_is_focused() -> void:
 	var root := _make_root()
 	var box := DemoDialogueBox.new()
@@ -215,6 +268,12 @@ func _spawn_interactable(parent: Node) -> Interactable:
 	interactable.interaction_kind = InteractionKinds.TALK
 	parent.add_child(interactable)
 	return interactable
+
+
+func _prepare_forge_dialogue_state() -> void:
+	SessionState.state = GameState.new()
+	SessionState.content_db.load_from_directories(SessionState.DEMO_CONTENT_DIRS)
+	SessionState.state.bag.set_content_db(SessionState.content_db)
 
 
 func _make_root() -> Node:

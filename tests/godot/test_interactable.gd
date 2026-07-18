@@ -46,6 +46,24 @@ func test_suppress_flat_markers_keeps_focus_highlight_hidden() -> void:
 	_cleanup_node(root)
 
 
+func test_callback_runs_when_actor_is_within_interaction_radius() -> void:
+	var root := _make_root()
+	var interactable := _spawn_interactable(root, ID_PICKUP, InteractionKinds.PICKUP, "Pick up")
+	var actor := _spawn_actor(root, Vector2(100, 100))
+	interactable.global_position = Vector2(180, 100)
+	interactable.interaction_radius = 96.0
+
+	var state := {"activated": false}
+	interactable.set_interact_callback(func(_body: Node) -> void:
+		state["activated"] = true
+	)
+
+	assert_true(interactable.is_actor_in_range(actor), "distance fallback should count nearby actors")
+	assert_true(interactable.interact(actor), "interact should succeed")
+	assert_true(state["activated"], "callback should run")
+	_cleanup_node(root)
+
+
 func test_callback_runs_when_actor_is_in_range() -> void:
 	var root := _make_root()
 	var interactable := _spawn_interactable(root, ID_PICKUP, InteractionKinds.PICKUP, "Pick up")

@@ -15,6 +15,24 @@ func test_find_at_logic_position_returns_closest_enabled_interactable() -> void:
 	_cleanup_node(root)
 
 
+func test_find_at_logic_position_selects_talk_interactable_near_actor_click() -> void:
+	var root := _make_root()
+	var actor := CharacterBody2D.new()
+	actor.add_to_group(&"map_view_actor")
+	root.add_child(actor)
+	actor.global_position = Vector2(300, 300)
+
+	var talk: Interactable = INTERACTABLE_SCENE.instantiate()
+	talk.interaction_radius = 48.0
+	talk.interaction_kind = InteractionKinds.TALK
+	actor.add_child(talk)
+
+	# Click offset from the sensor center but still on the actor footprint.
+	var found := Interactable.find_at_logic_position(Vector2(350, 300), root.get_tree())
+	assert_eq(found, talk)
+	_cleanup_node(root)
+
+
 func test_logic_click_sets_navigation_target_on_open_ground() -> void:
 	var harness := _make_click_harness()
 	assert_true(harness.click_input.try_handle_logic_click(Vector2(640, 360)))
