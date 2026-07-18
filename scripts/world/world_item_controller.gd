@@ -6,6 +6,7 @@ extends Node
 ## inventory item when the bag overlay is open.
 
 const WORLD_ITEM_SCENE := preload("res://scenes/world/world_item.tscn")
+const INTERACTABLE_SCENE := preload("res://scenes/interaction/interactable.tscn")
 
 const DEFAULT_PLACEMENTS: Dictionary = {
 	&"loc.kalev_smithy": [
@@ -27,6 +28,7 @@ var _state: GameState
 var _content_db: ContentDB
 var _items_root: Node2D
 var _views: Dictionary = {}
+var _interactables: Dictionary = {}
 var _hovered: WorldItem = null
 var _tooltip: Label
 var _tooltip_layer: CanvasLayer
@@ -62,6 +64,8 @@ func _process(delta: float) -> void:
 		if _feedback_timer <= 0.0:
 			_feedback_text = ""
 	_update_hover()
+	_update_interactable_prompts()
+	_sync_interactable_enabled()
 	_update_tooltip()
 
 
@@ -90,7 +94,10 @@ func get_hovered_item() -> WorldItem:
 func _seed_defaults_if_needed() -> void:
 	if _state == null or _definition == null:
 		return
+	if _state.are_world_defaults_seeded(location_id):
+		return
 	if not _state.get_world_items(location_id).is_empty():
+		_state.mark_world_defaults_seeded(location_id)
 		return
 	var entries: Array = DEFAULT_PLACEMENTS.get(location_id, [])
 	for entry: Dictionary in entries:
@@ -104,6 +111,8 @@ func _seed_defaults_if_needed() -> void:
 		var position := MapVerification.anchor_position(_definition, anchor_id)
 		position += entry.get("offset", Vector2.ZERO)
 		_state.place_world_item(location_id, object_id, item_id, position)
+	if not entries.is_empty():
+		_state.mark_world_defaults_seeded(location_id)
 
 
 func _sync_from_state() -> void:
@@ -134,8 +143,24 @@ func _spawn_item(record: Dictionary) -> void:
 		_view_runtime.add_child(view)
 		_views[item] = view
 
+	_spawn_pickup_interactable(item)
+
+
+func _spawn_pickup_interactable(item: WorldItem) -> void:
+	var interactable: Interactable = INTERACTABLE_SCENE.instantiate()
+	interactable.name = "Pickup_%s" % String(item.get_world_object_id()).replace(".", "_")
+	interactable.interactable_id = StringName("interact.pickup.%s" % String(item.get_world_object_id()))
+	interactable.interaction_kind = InteractionKinds.PICKUP
+	interactable.global_position = item.global_position
+	interactable.set_interact_callback(_on_pickup_interact.bind(item))
+	_items_root.add_child(interactable)
+	_interactables[item] = interactable
+	_refresh_interactable_prompt(interactable, item)
+
 
 func _clear_items() -> void:
+	for item: WorldItem in _interactables.keys():
+		_remove_pickup_interactable(item)
 	for item: WorldItem in _views.keys():
 		var view: WorldItemView = _views[item]
 		if is_instance_valid(view):
@@ -199,6 +224,10 @@ func _try_pickup(item: WorldItem) -> bool:
 		return true
 	_state.add_item(item_id)
 	_state.take_world_item(location_id, item.get_world_object_id())
+	var record := _item_record(item_id)
+	var name_text := String(record.get("name", String(item_id)))
+	_show_feedback("Picked up %s" % name_text)
+	_remove_pickup_interactable(item)
 	var view: WorldItemView = _views.get(item)
 	if view != null and is_instance_valid(view):
 		view.queue_free()
@@ -310,6 +339,50 @@ func _pickup_result_label(result: InventoryBag.AddResult) -> String:
 func _show_feedback(message: String) -> void:
 	_feedback_text = message
 	_feedback_timer = 1.4
+
+
+func _on_pickup_interact(_actor: Node, item: WorldItem) -> void:
+	if _is_inventory_blocking_pickup():
+		return
+	_try_pickup(item)
+
+
+func _remove_pickup_interactable(item: WorldItem) -> void:
+	var interactable: Interactable = _interactables.get(item)
+	if interactable != null and is_instance_valid(interactable):
+		interactable.disable_interaction()
+		interactable.queue_free()
+	_interactables.erase(item)
+
+
+func _refresh_interactable_prompt(interactable: Interactable, item: WorldItem) -> void:
+	if interactable == null or item == null:
+		return
+	var record := _item_record(item.get_item_id())
+	var name_text := String(record.get("name", String(item.get_item_id())))
+	var action := _pickup_hint_for(item.get_item_id())
+	if not _feedback_text.is_empty() and _hovered == item:
+		action = _feedback_text
+	interactable.prompt = "%s - %s" % [name_text, action]
+
+
+func _update_interactable_prompts() -> void:
+	for item: WorldItem in _interactables.keys():
+		if not is_instance_valid(item):
+			continue
+		var interactable: Interactable = _interactables[item]
+		if interactable == null or not is_instance_valid(interactable):
+			continue
+		_refresh_interactable_prompt(interactable, item)
+
+
+func _sync_interactable_enabled() -> void:
+	var blocked := _is_inventory_blocking_pickup()
+	for item: WorldItem in _interactables.keys():
+		var interactable: Interactable = _interactables.get(item)
+		if interactable == null or not is_instance_valid(interactable):
+			continue
+		interactable.enabled = not blocked
 
 
 func _build_ui() -> void:

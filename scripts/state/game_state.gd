@@ -33,6 +33,7 @@ var _quest_states: Dictionary[StringName, StringName] = {}
 var _location_states: Dictionary[StringName, StringName] = {}
 var _items: Dictionary[StringName, bool] = {}
 var _world_items: Dictionary = {}
+var _world_defaults_seeded: Dictionary = {}
 
 
 func _init() -> void:
@@ -230,6 +231,18 @@ func place_world_item(
 		"position": position,
 	}
 	return true
+
+
+func are_world_defaults_seeded(location_id: StringName) -> bool:
+	if location_id.is_empty():
+		return false
+	return bool(_world_defaults_seeded.get(String(location_id), false))
+
+
+func mark_world_defaults_seeded(location_id: StringName) -> void:
+	if location_id.is_empty():
+		return
+	_world_defaults_seeded[String(location_id)] = true
 
 
 func take_world_item(location_id: StringName, object_id: StringName) -> Dictionary:

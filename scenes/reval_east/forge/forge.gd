@@ -11,6 +11,9 @@ const DEFINITION_SCRIPT := preload("res://scripts/map/definitions/lower_town/kal
 var _bootstrap: Dictionary = {}
 var _view_runtime: MapViewRuntime
 var _world_items: WorldItemController
+var _interaction_controller: InteractionController
+var _prompt_layer: CanvasLayer
+var _prompt_label: Label
 
 
 func _ready() -> void:
@@ -24,10 +27,32 @@ func _ready() -> void:
 	if player == null:
 		player = _find_player(get_tree().root)
 	_view_runtime = MapViewRuntime.install(self, _bootstrap, map_root, player)
+	_build_interaction_prompt()
 	_world_items = WorldItemController.new()
 	_world_items.name = "WorldItemController"
 	add_child(_world_items)
 	_world_items.setup(self, definition, _view_runtime, player, &"loc.kalev_smithy")
+
+
+func _build_interaction_prompt() -> void:
+	_prompt_layer = CanvasLayer.new()
+	_prompt_layer.name = "ForgeInteractionPrompt"
+	_prompt_layer.layer = 25
+	add_child(_prompt_layer)
+
+	_prompt_label = Label.new()
+	_prompt_label.position = Vector2(24, 24)
+	_prompt_label.add_theme_color_override("font_color", Color(0.95, 0.95, 0.9, 1.0))
+	_prompt_label.add_theme_color_override("font_outline_color", Color(0.05, 0.06, 0.08, 1.0))
+	_prompt_label.add_theme_constant_override("outline_size", 4)
+	_prompt_label.visible = false
+	_prompt_layer.add_child(_prompt_label)
+
+	_interaction_controller = InteractionController.new()
+	_interaction_controller.name = "InteractionController"
+	_interaction_controller.actor = player
+	_interaction_controller.prompt_label = _prompt_label
+	add_child(_interaction_controller)
 
 
 func _wire_player_navigation() -> void:

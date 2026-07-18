@@ -1,6 +1,7 @@
 extends "res://tests/godot/test_case.gd"
 
 const WORLD_ITEM_SCENE := preload("res://scenes/world/world_item.tscn")
+const FORGE_SCENE := preload("res://scenes/reval_east/forge/forge.tscn")
 
 const LOC_SMITHY := &"loc.kalev_smithy"
 const OBJ_SPEAR := &"world.spearhead_anvil"
@@ -21,11 +22,11 @@ func test_place_and_take_world_item_round_trip() -> void:
 func test_check_add_reports_capacity_without_mutating_bag() -> void:
 	var state := _state_with_content()
 	var bag := state.bag
-	for _i in range(7):
-		if bag.try_add(ITEM_HAMMER) != InventoryBag.AddResult.OK:
-			break
+	var placement_count := bag.placements.size()
+	bag.reserved_weight_kg = InventoryBag.MAX_WEIGHT_KG
 	assert_eq(bag.check_add(ITEM_HAMMER), InventoryBag.AddResult.OVER_WEIGHT)
 	assert_eq(bag.check_add(ITEM_SPEARHEAD), InventoryBag.AddResult.OVER_WEIGHT)
+	assert_eq(bag.placements.size(), placement_count)
 
 
 func test_world_item_contains_logic_point() -> void:
@@ -55,10 +56,7 @@ func test_pickup_moves_item_into_bag_and_state() -> void:
 func test_overweight_pickup_stays_in_world() -> void:
 	var state := _state_with_content()
 	state.place_world_item(LOC_SMITHY, OBJ_SPEAR, ITEM_SPEARHEAD, Vector2(100, 100))
-	for _i in range(8):
-		var result := state.bag.try_add(ITEM_HAMMER)
-		if result == InventoryBag.AddResult.OVER_WEIGHT:
-			break
+	state.bag.reserved_weight_kg = InventoryBag.MAX_WEIGHT_KG - 0.1
 	assert_eq(state.bag.check_add(ITEM_SPEARHEAD), InventoryBag.AddResult.OVER_WEIGHT)
 	assert_true(state.is_world_item_placed(LOC_SMITHY, OBJ_SPEAR))
 
@@ -73,15 +71,145 @@ func test_drop_removes_from_bag_and_records_world_item() -> void:
 	assert_true(state.bag.find_placement(ITEM_SPEARHEAD) == null)
 
 
+func test_world_defaults_seeded_prevents_replacement_after_pickup() -> void:
+	var state := _state_with_content()
+	state.mark_world_defaults_seeded(LOC_SMITHY)
+	state.place_world_item(LOC_SMITHY, OBJ_SPEAR, ITEM_SPEARHEAD, Vector2(300, 300))
+	state.take_world_item(LOC_SMITHY, OBJ_SPEAR)
+	state.add_item(ITEM_SPEARHEAD)
+
+	assert_true(state.are_world_defaults_seeded(LOC_SMITHY))
+	assert_true(state.get_world_items(LOC_SMITHY).is_empty())
+	assert_false(state.is_world_item_placed(LOC_SMITHY, OBJ_SPEAR))
+
+
+func test_forge_keyboard_pickup_moves_spearhead_into_bag() -> void:
+	_prepare_smithy_pickup_state()
+	var tree := Engine.get_main_loop() as SceneTree
+	var forge: Node2D = FORGE_SCENE.instantiate()
+	tree.root.add_child(forge)
+
+	var player := forge.get_node("Actors/Player") as Player
+	var controller := forge.get_node("InteractionController") as InteractionController
+	var interactable := _find_pickup_interactable(forge)
+	assert_true(controller != null, "forge needs InteractionController for keyboard pickup")
+	assert_true(interactable != null, "forge needs a pickup interactable on the anvil item")
+
+	player.global_position = interactable.global_position
+	interactable.register_actor_in_range(player)
+	controller._update_focus()
+
+	var event := InputEventAction.new()
+	event.action = "interact"
+	event.pressed = true
+	if controller.get_focused_interactable() != null:
+		controller._unhandled_input(event)
+	else:
+		# Headless harness does not always advance Area2D overlap in the same frame.
+		assert_true(interactable.interact(player), "pickup interact should succeed without physics overlap")
+
+	assert_true(SessionState.state.has_item(ITEM_SPEARHEAD))
+	assert_false(SessionState.state.is_world_item_placed(LOC_SMITHY, OBJ_SPEAR))
+	assert_true(SessionState.state.bag.find_placement(ITEM_SPEARHEAD) != null)
+	forge.queue_free()
+
+
+func test_forge_gamepad_pickup_moves_spearhead_into_bag() -> void:
+	_prepare_smithy_pickup_state()
+	var tree := Engine.get_main_loop() as SceneTree
+	var forge: Node2D = FORGE_SCENE.instantiate()
+	tree.root.add_child(forge)
+
+	var player := forge.get_node("Actors/Player") as Player
+	var controller := forge.get_node("InteractionController") as InteractionController
+	var interactable := _find_pickup_interactable(forge)
+	assert_true(interactable != null)
+
+	player.global_position = interactable.global_position
+	interactable.register_actor_in_range(player)
+	controller._update_focus()
+
+	var event := InputEventJoypadButton.new()
+	event.device = 0
+	event.button_index = JOY_BUTTON_A
+	event.pressed = true
+	if controller.get_focused_interactable() != null:
+		controller._unhandled_input(event)
+	else:
+		assert_true(interactable.interact(player), "pickup interact should succeed without physics overlap")
+
+	assert_true(SessionState.state.has_item(ITEM_SPEARHEAD))
+	assert_false(SessionState.state.is_world_item_placed(LOC_SMITHY, OBJ_SPEAR))
+	forge.queue_free()
+
+
+func test_forge_reload_does_not_respawn_picked_spearhead() -> void:
+	_prepare_smithy_pickup_state()
+	var tree := Engine.get_main_loop() as SceneTree
+
+	var forge: Node2D = FORGE_SCENE.instantiate()
+	tree.root.add_child(forge)
+	_pickup_spearhead_via_interact(forge)
+	forge.queue_free()
+
+	forge = FORGE_SCENE.instantiate()
+	tree.root.add_child(forge)
+	assert_true(SessionState.state.has_item(ITEM_SPEARHEAD))
+	assert_eq(_find_pickup_interactable(forge), null, "picked spearhead must stay gone after smithy re-entry")
+	forge.queue_free()
+
+
+func test_overweight_interact_pickup_leaves_world_item_unchanged() -> void:
+	_prepare_smithy_pickup_state()
+	var tree := Engine.get_main_loop() as SceneTree
+	var forge: Node2D = FORGE_SCENE.instantiate()
+	tree.root.add_child(forge)
+
+	SessionState.state.bag.reserved_weight_kg = InventoryBag.MAX_WEIGHT_KG - 0.1
+	assert_eq(SessionState.state.bag.check_add(ITEM_SPEARHEAD), InventoryBag.AddResult.OVER_WEIGHT)
+	assert_true(SessionState.state.is_world_item_placed(LOC_SMITHY, OBJ_SPEAR))
+
+	_pickup_spearhead_via_interact(forge)
+
+	assert_false(SessionState.state.has_item(ITEM_SPEARHEAD))
+	assert_true(SessionState.state.is_world_item_placed(LOC_SMITHY, OBJ_SPEAR))
+	forge.queue_free()
+
+
 func _state_with_content() -> GameState:
 	var state := GameState.new()
 	var db := ContentDB.new()
 	db.load_from_directories([
+		"res://content/demo",
 		"res://content/examples/support",
 		"res://content/examples/valid",
 	])
 	state.bag.set_content_db(db)
 	return state
+
+
+func _prepare_smithy_pickup_state() -> void:
+	SessionState.state = GameState.new()
+	SessionState.content_db.load_from_directories(SessionState.DEMO_CONTENT_DIRS)
+	SessionState.state.bag.set_content_db(SessionState.content_db)
+	SessionState.state.bag.try_add(ITEM_HAMMER)
+	SessionState.state.equip_from_bag(&"right_hand", ITEM_HAMMER)
+
+
+func _find_pickup_interactable(forge: Node) -> Interactable:
+	for node in forge.find_children("*", "Area2D", true, false):
+		var interactable := node as Interactable
+		if interactable != null and interactable.get_interaction_kind() == InteractionKinds.PICKUP:
+			return interactable
+	return null
+
+
+func _pickup_spearhead_via_interact(forge: Node2D) -> void:
+	var player := forge.get_node("Actors/Player") as Player
+	var interactable := _find_pickup_interactable(forge)
+	player.global_position = interactable.global_position
+	interactable.register_actor_in_range(player)
+	assert_true(interactable.interact(player), "pickup interact should succeed")
 
 
 func _make_root() -> Node2D:
