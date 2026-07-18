@@ -1,0 +1,19 @@
+{
+  "fixtures": [
+    {
+      "id": "save.demo_fresh_start",
+      "path": "released/save.demo_fresh_start.json",
+      "description": "Demo session after hammer seed; spearhead remains on the anvil."
+    },
+    {
+      "id": "save.demo_post_pickup",
+      "path": "released/save.demo_post_pickup.json",
+      "description": "Demo smithy state after Mart was spoken to and the spearhead was picked up."
+    },
+    {
+      "id": "save.game_state_v1_legacy",
+      "path": "released/save.game_state_v1_legacy.json",
+      "description": "Envelope v1 with game-state schema v1 and no map_world_state block."
+    }
+  ]
+}

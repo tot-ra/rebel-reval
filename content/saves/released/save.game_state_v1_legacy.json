@@ -1,0 +1,34 @@
+{
+  "save_version": 1,
+  "saved_at_unix": 1752700000,
+  "game_state": {
+    "version": 1,
+    "phase": "phase.prologue_day",
+    "player": {
+      "health": 100.0,
+      "max_health": 100.0,
+      "stamina": 100.0,
+      "max_stamina": 100.0,
+      "location_id": "forge",
+      "spawn_id": "main"
+    },
+    "bag": {
+      "placements": []
+    },
+    "equipped": {},
+    "facts": {},
+    "flags": {},
+    "relationships": {},
+    "pressures": {
+      "pressure.suspicion": 0,
+      "pressure.solidarity": 0,
+      "pressure.scarcity": 0
+    },
+    "quest_states": {},
+    "location_states": {},
+    "items": {},
+    "forged_records": [],
+    "world_items": {},
+    "world_defaults_seeded": {}
+  }
+}

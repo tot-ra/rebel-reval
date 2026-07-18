@@ -96,7 +96,7 @@ Expected manual path today: main menu -> game flow into city or forge scenes usi
 | Unit or integration test command | `godot --headless --script tools/run_godot_tests.gd` discovers `tests/godot/test_*.gd`, reports failures, and exits 0/1 | **P1-002** (minimal harness) |
 | Scene transition automated test | **Supported at API level** - `tests/godot/test_transition_manifest.gd`; full scene transition tests remain future work | **P0-022**, **P1-002** |
 | Combat or input state-machine tests | **Not yet available** | **P1-023**, **P1-024** |
-| Save round-trip tests | `godot --headless --script tools/run_godot_tests.gd` (`tests/godot/test_save_service.gd`) | **P1-008** (validation/migration harness) |
+| Save round-trip and validation tests | `godot --headless --script tools/run_godot_tests.gd` (`tests/godot/test_save_service.gd`, `tests/godot/test_save_envelope.gd`) | **P1-008** |
 
 Decision: P1-002 uses a small repository-owned headless GDScript harness instead of adding GUT or another addon. This keeps CI dependency-free while the project only needs discoverable unit/integration tests for early runtime foundations. Add new test scripts under `tests/godot/` with filenames `test_*.gd` and zero-argument methods named `test_*`. Shared assertions live in `tests/godot/test_case.gd`.
 

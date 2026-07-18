@@ -1,10 +1,10 @@
 class_name SaveService
 extends RefCounted
 
-## Atomic one-slot persistence with a single rolling backup. P1-008 will add
-## validation fixtures and version migration; this service only writes v1 envelopes.
+## Atomic one-slot persistence with a single rolling backup. Validation and
+## envelope migration live in SaveEnvelope (P1-008).
 
-const CURRENT_SAVE_VERSION := 1
+const CURRENT_SAVE_VERSION := SaveEnvelope.CURRENT_ENVELOPE_VERSION
 const DEFAULT_SLOT := 0
 
 var save_directory: String = "user://saves"
@@ -28,7 +28,7 @@ func has_save(slot: int = DEFAULT_SLOT) -> bool:
 
 func save_game(state: GameState, slot: int = DEFAULT_SLOT) -> bool:
 	var envelope := {
-		"save_version": CURRENT_SAVE_VERSION,
+		"save_version": SaveEnvelope.CURRENT_ENVELOPE_VERSION,
 		"saved_at_unix": Time.get_unix_time_from_system(),
 		"game_state": state.save_payload(),
 	}
@@ -49,9 +49,8 @@ func load_game(slot: int = DEFAULT_SLOT) -> Dictionary:
 		var parsed := _read_envelope(source_path)
 		if parsed.is_empty():
 			continue
-		var envelope_errors: Variant = parsed.get("errors", PackedStringArray())
-		if envelope_errors is Array and not (envelope_errors as Array).is_empty():
-			for entry in envelope_errors as Array:
+		if not parsed.has("state"):
+			for entry in parsed.get("errors", PackedStringArray()):
 				result["errors"].append(String(entry))
 			continue
 		result["ok"] = true
@@ -65,40 +64,10 @@ func load_game(slot: int = DEFAULT_SLOT) -> Dictionary:
 
 
 func _read_envelope(path: String) -> Dictionary:
-	var file := FileAccess.open(path, FileAccess.READ)
-	if file == null:
-		return {}
-	var text := file.get_as_text()
-	file.close()
-	if text.is_empty():
-		return {}
-
-	var json := JSON.new()
-	if json.parse(text) != OK:
-		return {"errors": ["invalid JSON in %s" % path]}
-
-	var parsed: Variant = json.data
-	if not parsed is Dictionary:
-		return {"errors": ["invalid JSON in %s" % path]}
-
-	var envelope := parsed as Dictionary
-	var save_version := int(envelope.get("save_version", 0))
-	if save_version != CURRENT_SAVE_VERSION:
-		return {
-			"errors": [
-				"unsupported save envelope version %d in %s" % [save_version, path]
-			],
-		}
-
-	var game_payload: Variant = envelope.get("game_state", {})
-	if not game_payload is Dictionary:
-		return {"errors": ["missing game_state dictionary in %s" % path]}
-
-	var state := GameState.new()
-	var load_errors := state.load_payload(game_payload as Dictionary)
-	if not load_errors.is_empty():
-		return {"errors": load_errors}
-	return {"state": state}
+	var parsed := SaveEnvelope.parse_file(path)
+	if not parsed["ok"]:
+		return {"errors": parsed["errors"]}
+	return {"state": parsed["state"]}
 
 
 func _atomic_write(slot: int, json: String) -> bool:
