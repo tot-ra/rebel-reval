@@ -565,7 +565,7 @@ func _build_ui() -> void:
 
 	_backlog_panel = PanelContainer.new()
 	_backlog_panel.visible = false
-	_backlog_panel.custom_minimum_size = Vector2(0, 180)
+	_backlog_panel.custom_minimum_size = Vector2(0, 220)
 	stack.add_child(_backlog_panel)
 
 	var backlog_scroll := ScrollContainer.new()
@@ -577,7 +577,7 @@ func _build_ui() -> void:
 	backlog_scroll.add_child(_backlog_list)
 
 	_root = Control.new()
-	_root.custom_minimum_size = Vector2(0, 220)
+	_root.custom_minimum_size = Vector2(0, TextLayoutScript.DIALOGUE_ROOT_MIN_HEIGHT)
 	stack.add_child(_root)
 
 	_panel = PanelContainer.new()

@@ -3,6 +3,8 @@ extends CanvasLayer
 
 ## Minimal demo-only dialogue panel for D-002. Replaced by P1-012 after the slice.
 
+const TextScaleScript := preload("res://scripts/dialogue/dialogue_text_scale.gd")
+
 var _panel: PanelContainer
 var _speaker_label: Label
 var _text_label: Label
@@ -67,16 +69,19 @@ func _build_ui() -> void:
 
 	_speaker_label = Label.new()
 	_speaker_label.add_theme_color_override("font_color", Color(0.92, 0.78, 0.42, 1.0))
+	_speaker_label.add_theme_font_size_override("font_size", TextScaleScript.speaker_size("normal"))
 	content.add_child(_speaker_label)
 
 	_text_label = Label.new()
 	_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_text_label.custom_minimum_size = Vector2(720, 72)
+	_text_label.custom_minimum_size = Vector2(720, 88)
 	_text_label.add_theme_color_override("font_color", Color(0.95, 0.95, 0.9, 1.0))
+	_text_label.add_theme_font_size_override("font_size", TextScaleScript.body_size("normal"))
 	content.add_child(_text_label)
 
 	_hint_label = Label.new()
 	_hint_label.text = "E or A - continue"
 	_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_hint_label.add_theme_color_override("font_color", Color(0.72, 0.76, 0.82, 1.0))
+	_hint_label.add_theme_font_size_override("font_size", TextScaleScript.hint_size("normal"))
 	content.add_child(_hint_label)

@@ -15,14 +15,14 @@ const OUTER_MARGIN_X := 24
 const PANEL_MARGIN_X := 16
 const PORTRAIT_WIDTH := 96
 const BODY_COLUMN_GAP := 16
-const DIALOGUE_ROOT_MIN_HEIGHT := 220
+const DIALOGUE_ROOT_MIN_HEIGHT := 268
 const PANEL_MARGIN_Y := 12
 const SPEAKER_LINE_HEIGHT_FACTOR := 1.35
 const FOOTER_LINE_HEIGHT_FACTOR := 1.2
 const DISABLED_REASON_LINE_HEIGHT_FACTOR := 1.2
 const CHOICE_LINE_HEIGHT_FACTOR := 1.35
-const BODY_SCROLL_MIN_HEIGHT := 72
-const BODY_SCROLL_MAX_HEIGHT := 120
+const BODY_SCROLL_MIN_HEIGHT := 88
+const BODY_SCROLL_MAX_HEIGHT := 148
 
 
 static func body_text_width(viewport_width: int) -> int:
@@ -42,11 +42,11 @@ static func body_text_max_height(
 	has_disabled_reason: bool = false
 ) -> int:
 	var reserved := (PANEL_MARGIN_Y * 2)
-	reserved += int(round(20.0 * SPEAKER_LINE_HEIGHT_FACTOR))
-	reserved += int(round(13.0 * FOOTER_LINE_HEIGHT_FACTOR))
-	reserved += choice_count * int(round(16.0 * CHOICE_LINE_HEIGHT_FACTOR))
+	reserved += int(round(float(TextScaleScript.BASE_SPEAKER_SIZE) * SPEAKER_LINE_HEIGHT_FACTOR))
+	reserved += int(round(float(TextScaleScript.BASE_HINT_SIZE) * FOOTER_LINE_HEIGHT_FACTOR))
+	reserved += choice_count * int(round(float(TextScaleScript.BASE_CHOICE_SIZE) * CHOICE_LINE_HEIGHT_FACTOR))
 	if has_disabled_reason:
-		reserved += int(round(13.0 * DISABLED_REASON_LINE_HEIGHT_FACTOR))
+		reserved += int(round(float(TextScaleScript.BASE_HINT_SIZE) * DISABLED_REASON_LINE_HEIGHT_FACTOR))
 	var available := viewport_height - reserved - DIALOGUE_ROOT_MIN_HEIGHT
 	return clampi(available, BODY_SCROLL_MIN_HEIGHT, BODY_SCROLL_MAX_HEIGHT)
 
