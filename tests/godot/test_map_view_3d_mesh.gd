@@ -21,6 +21,18 @@ func test_enclosed_interior_suppresses_countryside_surroundings() -> void:
 	view.free()
 
 
+func test_kalev_smithy_floor_is_flat() -> void:
+	var definition := KalevSmithyDefinition.create()
+	var grid := MapBuilder.build(definition)
+	MapViewMeshBuilder.ensure_height_field(definition, grid)
+	for sample in [Vector2(6.5, 7.0), Vector2(20.0, 8.0), Vector2(13.0, 3.0), Vector2(2.0, 11.0)]:
+		assert_eq(
+			MapViewMeshBuilder.ground_height(definition, sample),
+			0.0,
+			"interior smithy floor must stay flat at %s" % sample
+		)
+
+
 func test_kalev_smithy_door_sits_on_south_wall_boundary() -> void:
 	var definition := KalevSmithyDefinition.create()
 	var transition: Dictionary

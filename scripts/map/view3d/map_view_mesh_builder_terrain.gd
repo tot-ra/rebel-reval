@@ -32,6 +32,9 @@ static func ensure_height_field(definition: MapDefinition, grid: MapTerrainGrid)
 		"size": grid.size_cells,
 		"rects": rects,
 		"water": water,
+		# Enclosed interior shells keep gameplay on a flat logic plane; rolling
+		# outdoor relief would lift props and actors off the floor in 3D view.
+		"flat_floor": definition.suppresses_exterior_surroundings(),
 	}
 	_height_fields[key] = field
 	bake_vertices(field)
@@ -52,6 +55,8 @@ static func ground_height(definition: MapDefinition, world_xz: Vector2) -> float
 
 
 static func field_height(field: Dictionary, position: Vector2) -> float:
+	if field.get("flat_floor", false):
+		return 0.0
 	var size: Vector2i = field["size"]
 	if position.x < 0.0 or position.y < 0.0 or position.x > float(size.x) or position.y > float(size.y):
 		return 0.0
@@ -131,14 +136,17 @@ static func bake_vertices(field: Dictionary) -> void:
 	for vy in rows:
 		for vx in columns:
 			var base := Vector2(vx, vy) / float(MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS)
-			var jitter_scale := pad_factor(field, base)
-			var jitter := Vector2(
-				MapViewMeshBuilderPrimitives.hash01(vx, vy, noise_seed + 8887) - 0.5,
-				MapViewMeshBuilderPrimitives.hash01(vx, vy, noise_seed + 9973) - 0.5
-			) * MapViewMeshBuilderConfig.EDGE_JITTER * jitter_scale
-			if vx == 0 or vy == 0 or vx == columns - 1 or vy == rows - 1:
-				jitter = Vector2.ZERO
-			var spot := base + jitter
+			var jitter := Vector2.ZERO
+			var spot := base
+			if not field.get("flat_floor", false):
+				var jitter_scale := pad_factor(field, base)
+				jitter = Vector2(
+					MapViewMeshBuilderPrimitives.hash01(vx, vy, noise_seed + 8887) - 0.5,
+					MapViewMeshBuilderPrimitives.hash01(vx, vy, noise_seed + 9973) - 0.5
+				) * MapViewMeshBuilderConfig.EDGE_JITTER * jitter_scale
+				if vx == 0 or vy == 0 or vx == columns - 1 or vy == rows - 1:
+					jitter = Vector2.ZERO
+				spot = base + jitter
 			var height := -MapViewMeshBuilderConfig.WATER_RECESS if subvertex_touches_water(field, vx, vy) else field_height(field, spot)
 			positions[vy * columns + vx] = Vector3(spot.x, height, spot.y)
 	var normals := PackedVector3Array()
