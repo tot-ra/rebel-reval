@@ -6,7 +6,7 @@ extends CanvasLayer
 
 const PANEL_MARGIN := 24.0
 const HELP_TEXT := (
-	"WASD or arrows - move | Click - travel | E - interact | "
+	"WASD or arrows - move | Click - travel | E - interact | C - camera | "
 	+ "N - map | I - inventory | J - journal"
 )
 

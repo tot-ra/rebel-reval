@@ -29,10 +29,14 @@ const ZOOM_MAX_FACTOR := 1.5
 const ZOOM_MIN_ORTHOGRAPHIC_SIZE := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE * ZOOM_MIN_FACTOR
 const ZOOM_MAX_ORTHOGRAPHIC_SIZE := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE * ZOOM_MAX_FACTOR
 ## Holding Page Up / Page Down, or dragging with the right mouse button, orbits
-## the dimetric camera smoothly around the player so facades the default angle
-## hides stay reachable.
+## the camera around the player. C switches between the default dimetric
+## third-person view and an eye-level first-person view.
 const ROTATE_SPEED_DEGREES := 120.0
 const MOUSE_ROTATE_DEGREES_PER_PIXEL := 0.3
+const FIRST_PERSON_EYE_HEIGHT := 1.65
+const FIRST_PERSON_PITCH_DEGREES := -10.0
+const FIRST_PERSON_FOV_DEGREES := 75.0
+const FIRST_PERSON_NEAR := 0.05
 ## Rig heights (world units, of the frozen 2.0-unit character) probed toward
 ## the camera to decide when the occluded-player silhouette should show.
 const OCCLUSION_PROBE_HEIGHTS: Array[float] = [0.5, 1.1, 1.8]
@@ -51,6 +55,8 @@ var _drag_rotating_view := false
 var _mouse_rotation_armed := false
 var _last_mouse_position := Vector2.ZERO
 var _last_facing := Vector2.ZERO
+var _first_person := false
+var _third_person_size := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
 var _actor_rigs: Dictionary = {}
 var _equipment_state: GameState
 var _click_input: MapClickInputController
@@ -203,6 +209,12 @@ static func _hide_actor_canvas(actor: Node2D) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey:
+		var key_event := event as InputEventKey
+		if key_event.pressed and not key_event.echo and key_event.physical_keycode == KEY_C:
+			toggle_camera_view()
+			get_viewport().set_input_as_handled()
+		return
 	if event is InputEventMouseButton:
 		var mouse_button := event as InputEventMouseButton
 		if not mouse_button.pressed:
@@ -216,9 +228,40 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
+func toggle_camera_view() -> void:
+	set_first_person(not _first_person)
+
+
+func set_first_person(enabled: bool) -> void:
+	if _first_person == enabled:
+		return
+	_first_person = enabled
+	if enabled:
+		_third_person_size = _camera.size
+		_camera.projection = Camera3D.PROJECTION_PERSPECTIVE
+		_camera.fov = FIRST_PERSON_FOV_DEGREES
+		_camera.near = FIRST_PERSON_NEAR
+		_camera.rotation_degrees.x = FIRST_PERSON_PITCH_DEGREES
+	else:
+		_camera.projection = Camera3D.PROJECTION_ORTHOGONAL
+		_camera.size = _third_person_size
+		_camera.near = 0.05
+		_camera.rotation_degrees.x = MapView3D.CAMERA_PITCH_DEGREES
+	_player_rig.visible = not enabled
+	_follow_player(true, 0.0)
+	_configure_screen_relative_movement()
+	_update_occlusion_ghost()
+
+
+func is_first_person() -> bool:
+	return _first_person
+
+
 ## Positive steps zoom in and negative steps zoom out. Exponential scaling
 ## gives mouse wheels and high-resolution trackpads the same proportional feel.
 func zoom_view_steps(steps: float) -> void:
+	if _first_person:
+		return
 	_camera.size = clampf(
 		_camera.size * pow(ZOOM_STEP_FACTOR, steps),
 		ZOOM_MIN_ORTHOGRAPHIC_SIZE,
@@ -357,6 +400,9 @@ func _sync_equipment_slot(slot: StringName) -> void:
 
 
 func _update_occlusion_ghost() -> void:
+	if _first_person:
+		_player_rig.set_occlusion_ghost(false)
+		return
 	var toward_camera := _camera.transform.basis.z * MapView3D.CAMERA_DISTANCE
 	var occluded := false
 	for height in OCCLUSION_PROBE_HEIGHTS:
@@ -384,7 +430,11 @@ func _logic_direction_toward_camera() -> Vector2:
 
 
 func _follow_player(snap: bool, delta: float) -> void:
-	var target := _player_rig.position + _camera.transform.basis.z * MapView3D.CAMERA_DISTANCE
+	var target: Vector3
+	if _first_person:
+		target = _player_rig.position + Vector3.UP * FIRST_PERSON_EYE_HEIGHT
+	else:
+		target = _player_rig.position + _camera.transform.basis.z * MapView3D.CAMERA_DISTANCE
 	if snap or _camera.position.distance_to(target) > SNAP_DISTANCE_WORLD:
 		_camera.position = target
 		return
