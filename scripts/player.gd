@@ -3,9 +3,11 @@ extends CharacterBody2D
 class_name Player
 
 const MeleeAttackResolverScript := preload("res://scripts/combat/melee_attack_resolver.gd")
+const AttackProfileScript := preload("res://scripts/combat/attack_profile.gd")
+const AttackProfileResolverScript := preload("res://scripts/combat/attack_profile_resolver.gd")
 const NpcPushScript := preload("res://scripts/physics/npc_push.gd")
 
-signal unarmed_attack_resolved(targets: Array[Node2D])
+signal melee_attack_resolved(targets: Array[Node2D], profile: AttackProfile)
 signal health_changed(current: float, maximum: float)
 
 # Logic px/s (32 px = 1 world unit): a readable walk and a believable sprint.
@@ -13,9 +15,6 @@ signal health_changed(current: float, maximum: float)
 @export var walk_speed = 100
 @export var run_speed = 240
 @export var combat_input_enabled := true
-@export var unarmed_damage := 8.0
-@export var unarmed_reach_px := 48.0
-@export_range(-1.0, 1.0, 0.01) var unarmed_facing_dot := 0.35
 
 @onready var animation_player: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
 @onready var navigation_agent: NavigationAgent2D = $NavigationAgent2D
@@ -32,6 +31,7 @@ var _screen_right_in_logic := Vector2.RIGHT
 var _screen_down_in_logic := Vector2.DOWN
 var _facing_direction := Vector2.DOWN
 var action_state_machine := PlayerActionStateMachine.new()
+var _active_attack_profile: AttackProfile = AttackProfile.unarmed()
 
 func _ready() -> void:
 	CollisionLayers.apply_player(self)
@@ -39,6 +39,8 @@ func _ready() -> void:
 	_sync_resource_bars()
 	if not action_state_machine.attack_impact.is_connected(_on_attack_impact):
 		action_state_machine.attack_impact.connect(_on_attack_impact)
+	if not action_state_machine.state_changed.is_connected(_on_action_state_changed):
+		action_state_machine.state_changed.connect(_on_action_state_changed)
 	DoorNavigator.on_trigger_player_spawn.connect(_on_spawn)
 	navigation_agent.velocity_computed.connect(Callable(self, "_on_velocity_computed"))
 
@@ -119,9 +121,14 @@ func _process_action_input() -> void:
 	if not combat_input_enabled or _movement_blocked():
 		return
 	for kind in PlayerActionInput.read_pressed_actions():
-		if kind == PlayerActionKind.Kind.ATTACK and _has_right_hand_item():
-			# Equipped-item attacks are introduced by P1-024b. Do not pretend the
-			# unarmed profile can deal weapon damage in the meantime.
+		if kind == PlayerActionKind.Kind.ATTACK:
+			var profile := _resolve_attack_profile()
+			if stamina < profile.stamina_cost:
+				continue
+			_prepare_attack_for_profile(profile)
+			if action_state_machine.try_start_action(kind):
+				stamina = maxf(0.0, stamina - profile.stamina_cost)
+				_sync_resource_bars()
 			continue
 		action_state_machine.try_start_action(kind)
 	action_state_machine.set_guard_held(PlayerActionInput.read_guard_held())
@@ -131,7 +138,7 @@ func apply_hit_stun() -> void:
 	action_state_machine.apply_hit()
 
 
-func take_damage(amount: float, _source: Node = null) -> float:
+func take_damage(amount: float, _source: Node = null, _damage_type: StringName = &"") -> float:
 	if amount <= 0.0 or health <= 0.0 or is_combat_invulnerable():
 		return 0.0
 	var previous := health
@@ -151,7 +158,7 @@ func view_facing() -> Vector2:
 func view_animation() -> StringName:
 	var animation_base := _combat_or_locomotion_animation(_current_locomotion_animation())
 	if animation_base == "attack":
-		return &"unarmed_attack"
+		return _active_attack_profile.animation
 	return StringName(animation_base)
 
 
@@ -168,22 +175,37 @@ func _current_locomotion_animation() -> String:
 
 
 func _on_attack_impact() -> void:
-	# Item attack profiles will replace this fallback in P1-024. An empty right
-	# hand always retains the low-damage punch so the player is never defenseless.
-	if _has_right_hand_item():
-		return
+	var profile := _active_attack_profile
 	var targets: Array[Node2D] = MeleeAttackResolverScript.strike(
 		self,
 		_facing_direction,
-		unarmed_reach_px,
-		unarmed_facing_dot,
-		unarmed_damage
+		profile.reach_px,
+		profile.facing_dot,
+		profile.damage,
+		profile.damage_type
 	)
-	unarmed_attack_resolved.emit(targets)
+	melee_attack_resolved.emit(targets, profile)
 
 
-func _has_right_hand_item() -> bool:
-	return has_node("/root/SessionState") and not SessionState.state.equipped_item(&"right_hand").is_empty()
+func _on_action_state_changed(_previous: PlayerActionState.State, current: PlayerActionState.State) -> void:
+	if current != PlayerActionState.State.ATTACK:
+		_active_attack_profile = _resolve_attack_profile()
+
+
+func _resolve_attack_profile() -> AttackProfile:
+	if not has_node("/root/SessionState"):
+		return AttackProfile.unarmed()
+	return AttackProfileResolverScript.resolve_for_state(SessionState.state, SessionState.content_db)
+
+
+func prepare_attack_profile(profile: AttackProfile) -> void:
+	_prepare_attack_for_profile(profile)
+
+
+func _prepare_attack_for_profile(profile: AttackProfile) -> void:
+	_active_attack_profile = profile
+	action_state_machine.attack_duration_sec = profile.attack_duration_sec
+	action_state_machine.attack_impact_sec = profile.impact_timing_sec
 
 
 func is_combat_invulnerable() -> bool:

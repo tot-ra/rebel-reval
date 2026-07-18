@@ -12,7 +12,8 @@ static func strike(
 	facing: Vector2,
 	reach_px: float,
 	minimum_facing_dot: float,
-	damage: float
+	damage: float,
+	damage_type: StringName = &"blunt"
 ) -> Array[Node2D]:
 	var hits: Array[Node2D] = []
 	if attacker == null or attacker.get_tree() == null or facing.is_zero_approx():
@@ -30,7 +31,7 @@ static func strike(
 			continue
 		if attack_direction.dot(offset.normalized()) < minimum_facing_dot:
 			continue
-		var applied := float(candidate.call("take_damage", damage, attacker))
+		var applied := float(candidate.call("take_damage", damage, attacker, damage_type))
 		if applied > 0.0:
 			hits.append(candidate)
 	return hits

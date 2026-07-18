@@ -11,7 +11,7 @@ func _ready() -> void:
 	add_to_group(&"combat_damageable")
 
 
-func take_damage(amount: float, _source: Node = null) -> float:
+func take_damage(amount: float, _source: Node = null, _damage_type: StringName = &"") -> float:
 	if amount <= 0.0 or health <= 0.0:
 		return 0.0
 	var previous := health

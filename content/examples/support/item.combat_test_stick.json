@@ -1,0 +1,47 @@
+{
+  "type": "item",
+  "id": "item.combat_test_stick",
+  "name": "Combat test stick",
+  "category": "weapon",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "notes": "Support fixture for P1-024a attack-profile contract tests."
+  },
+  "material_grade": "poor",
+  "gameplay": {
+    "visible_in_pouch": false,
+    "stackable": false,
+    "uses": [
+      "Automated combat profile verification only."
+    ],
+    "carry": {
+      "weight_g": 900,
+      "grid_width": 1,
+      "grid_height": 2
+    },
+    "equip": {
+      "slot": "right_hand"
+    },
+    "attack_profile": {
+      "animation": "forge_strike",
+      "damage": 5.0,
+      "reach_px": 40.0,
+      "facing_dot": 0.35,
+      "impact_timing_sec": 0.18,
+      "attack_duration_sec": 0.48,
+      "stamina_cost": 4.0,
+      "damage_type": "slash"
+    }
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Headless combat profile fixture; not used in player-facing content.",
+      "citations": [
+        "TODO.md#p1---tested-runtime-and-content-foundation"
+      ]
+    }
+  ]
+}

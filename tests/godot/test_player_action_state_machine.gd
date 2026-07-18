@@ -142,22 +142,38 @@ func test_take_damage_clamps_health_and_enters_hit_state() -> void:
 	player.free()
 
 
-func test_equipped_right_hand_reserves_attack_for_item_profile() -> void:
+func test_equipped_hammer_uses_content_attack_profile() -> void:
+	_ensure_content_loaded()
 	var player := _create_player()
-	player.combat_input_enabled = true
-	if SessionState.state.equipped_item(&"right_hand").is_empty():
-		SessionState.state.bag.try_add(&"item.forge_hammer")
-		assert_true(SessionState.state.equip_from_bag(&"right_hand", &"item.forge_hammer"))
-	Input.action_press(PlayerActionKind.ACTION_ATTACK)
-	player._physics_process(TEST_DELTA)
-	Input.action_release(PlayerActionKind.ACTION_ATTACK)
+	_equip_item(&"right_hand", &"item.forge_hammer")
+	player.stamina = 100.0
+	var profile := AttackProfileResolver.resolve_for_state(SessionState.state, SessionState.content_db)
+	player.prepare_attack_profile(profile)
+	assert_true(player.action_state_machine.try_start_action(PlayerActionKind.Kind.ATTACK))
 
 	assert_eq(
 		player.action_state_machine.state,
-		PlayerActionState.State.MOVE,
-		"Equipped items must not silently use the unarmed attack profile"
+		PlayerActionState.State.ATTACK,
+		"Equipped weapons with attack profiles must start attacks from content"
 	)
+	assert_eq(player.view_animation(), &"hammer_attack")
 	player.free()
+
+
+func _equip_item(slot: StringName, item_id: StringName) -> void:
+	if SessionState.state.equipped_item(slot) == item_id:
+		return
+	if not SessionState.state.equipped_item(slot).is_empty():
+		assert_true(SessionState.state.unequip_to_bag(slot))
+	if SessionState.state.bag.find_placement(item_id) == null:
+		assert_eq(SessionState.state.bag.try_add(item_id), InventoryBag.AddResult.OK)
+	assert_true(SessionState.state.equip_from_bag(slot, item_id))
+
+
+func _ensure_content_loaded() -> void:
+	if not SessionState.content_db.is_loaded():
+		assert_true(SessionState.content_db.load_from_directories(SessionState.DEMO_CONTENT_DIRS))
+	SessionState.state.bag.set_content_db(SessionState.content_db)
 
 
 func test_player_scene_respects_action_lock_and_recovers() -> void:
@@ -258,9 +274,10 @@ func _create_dummy(position: Vector2):
 
 
 func _create_player() -> Player:
+	_ensure_content_loaded()
 	if SessionState.state == null:
 		SessionState.state = GameState.new()
-	SessionState.state.bag = InventoryBag.new()
+		SessionState.state.bag.set_content_db(SessionState.content_db)
 	var player := PLAYER_SCENE.instantiate() as Player
 	var tree := Engine.get_main_loop() as SceneTree
 	tree.root.add_child(player)

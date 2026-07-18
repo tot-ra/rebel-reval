@@ -25,6 +25,16 @@
     "equip": {
       "slot": "right_hand",
       "scene": "res://assets/characters/shared/hammer.tscn"
+    },
+    "attack_profile": {
+      "animation": "hammer_attack",
+      "damage": 14.0,
+      "reach_px": 56.0,
+      "facing_dot": 0.35,
+      "impact_timing_sec": 0.28,
+      "attack_duration_sec": 0.65,
+      "stamina_cost": 12.0,
+      "damage_type": "blunt"
     }
   },
   "source_notes": [
