@@ -585,7 +585,7 @@ BOOL          = "true" | "false" ;
 
 `placement_row` and arbitrary prefab definitions are intentionally not exposed in v1. They remain typed GDScript capabilities because a safe compact grammar has not demonstrated a readability benefit for them.
 
-Typed style/override keys are closed to the compiler's current semantic fields: `enabled`, `terrain`, `rect`, `wall_height`, `wall_height_scale`, `wall_color`, `roof_color`, `door_side`, `ridge_axis`, `primitive`, `cell`, `facing`, `style_variant`, `visual_offset_px`, `destination_scene_id`, `destination_spawn_id`, `spawn_id`, `spawn_offset_px`, `highlight_area`, `view_landmark_id`, `kind`, `direction`, `top_px`, `door_material`, and `passage_axis`. Each key has one parser type; unknown keys are rejected before compilation.
+Typed style/override keys are closed to the compiler's current semantic fields: `enabled`, `terrain`, `rect`, `wall_height`, `wall_height_scale`, `wall_color`, `roof_color`, `door_side`, `ridge_axis`, `primitive`, `cell`, `facing`, `style_variant`, `visual_offset_px`, `destination_scene_id`, `destination_spawn_id`, `spawn_id`, `spawn_offset_px`, `highlight_area`, `view_landmark_id`, `kind`, `direction`, `top_px`, `door_material`, `passage_axis`, and `tower`. Each key has one parser type; unknown keys are rejected before compilation. The boolean `tower` key on a wall-kind building forces the round limestone tower dressing (drum, conical roof, arrow slits) regardless of footprint size; without it the small-footprint heuristic applies.
 
 ### AI authoring checklist
 

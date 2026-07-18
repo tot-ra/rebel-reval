@@ -15,7 +15,7 @@ const COMMON_STYLE_KEYS: Array[StringName] = [&"enabled"]
 const TERRAIN_KEYS: Array[StringName] = [&"terrain", &"style_variant", &"movement_speed_multiplier"]
 const BUILDING_OVERRIDE_KEYS: Array[StringName] = [
 	&"rect", &"wall_height", &"wall_height_scale", &"wall_color", &"roof_color",
-	&"door_side", &"ridge_axis", &"primitive",
+	&"door_side", &"ridge_axis", &"primitive", &"tower",
 ]
 const PROP_OVERRIDE_KEYS: Array[StringName] = [
 	&"cell", &"rect", &"facing", &"style_variant", &"visual_offset_px", &"primitive",
@@ -39,7 +39,7 @@ const ALL_STYLE_KEYS: Array[StringName] = [
 	&"style_variant", &"visual_offset_px", &"destination_scene_id", &"destination_spawn_id",
 	&"spawn_id", &"spawn_offset_px", &"highlight_area", &"view_landmark_id", &"kind",
 	&"points", &"point_rects", &"text", &"direction", &"top_px", &"door_material", &"passage_axis",
-	&"movement_speed_multiplier",
+	&"movement_speed_multiplier", &"tower",
 ]
 
 

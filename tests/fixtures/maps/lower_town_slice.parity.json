@@ -344,6 +344,7 @@
       ],
       "id": "foregate_tower_north",
       "kind": "wall",
+      "tower": true,
       "wall_color": [
         0.560784340,
         0.549019635,
@@ -361,6 +362,7 @@
       ],
       "id": "foregate_tower_south",
       "kind": "wall",
+      "tower": true,
       "wall_color": [
         0.560784340,
         0.549019635,
@@ -509,6 +511,7 @@
       ],
       "id": "hinke_tower",
       "kind": "wall",
+      "tower": true,
       "wall_color": [
         0.549019635,
         0.541176498,
@@ -646,6 +649,7 @@
       ],
       "id": "karja_gate_east_tower",
       "kind": "wall",
+      "tower": true,
       "wall_color": [
         0.560784340,
         0.549019635,
@@ -687,6 +691,7 @@
       ],
       "id": "karja_gate_west_tower",
       "kind": "wall",
+      "tower": true,
       "wall_color": [
         0.560784340,
         0.549019635,
@@ -1557,6 +1562,7 @@
       ],
       "id": "viru_gate_north_tower",
       "kind": "wall",
+      "tower": true,
       "wall_color": [
         0.560784340,
         0.549019635,
@@ -1574,6 +1580,7 @@
       ],
       "id": "viru_gate_south_tower",
       "kind": "wall",
+      "tower": true,
       "wall_color": [
         0.560784340,
         0.549019635,
@@ -1832,6 +1839,7 @@
       ],
       "id": "wall_tower_north",
       "kind": "wall",
+      "tower": true,
       "wall_color": [
         0.549019635,
         0.541176498,
@@ -1849,6 +1857,7 @@
       ],
       "id": "wall_tower_northeast",
       "kind": "wall",
+      "tower": true,
       "wall_color": [
         0.549019635,
         0.541176498,
@@ -1866,6 +1875,7 @@
       ],
       "id": "wall_tower_south",
       "kind": "wall",
+      "tower": true,
       "wall_color": [
         0.549019635,
         0.541176498,
@@ -1883,6 +1893,7 @@
       ],
       "id": "wall_tower_southeast",
       "kind": "wall",
+      "tower": true,
       "wall_color": [
         0.549019635,
         0.541176498,
@@ -1900,6 +1911,7 @@
       ],
       "id": "wall_tower_southwest",
       "kind": "wall",
+      "tower": true,
       "wall_color": [
         0.549019635,
         0.541176498,

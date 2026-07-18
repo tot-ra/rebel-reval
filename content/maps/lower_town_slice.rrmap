@@ -78,14 +78,14 @@ terrain_rects terrain.09 cobblestone 18,54,34,4|16,64,56,4 layer=0 order=32
 terrain_rects terrain.10 hay 100,56,4,4 layer=0 order=34
 terrain_rects terrain.11 mud 36,92,8,4 layer=0 order=35
 building city_wall_north wall 128 0 4 30 style=wall.plain.h192.00
-building wall_tower_northeast wall 126 4 8 6 style=wall.plain.h240.01
-building wall_tower_north wall 126 18 8 6 style=wall.plain.h240.01
-building viru_gate_north_tower wall 124 30 10 8 style=wall.plain.h256.02
-building viru_gate_south_tower wall 124 44 10 8 style=wall.plain.h256.02
+building wall_tower_northeast wall 126 4 8 6 style=wall.plain.h240.01 tower=true
+building wall_tower_north wall 126 18 8 6 style=wall.plain.h240.01 tower=true
+building viru_gate_north_tower wall 124 30 10 8 style=wall.plain.h256.02 tower=true
+building viru_gate_south_tower wall 124 44 10 8 style=wall.plain.h256.02 tower=true
 building foregate_wall_north wall 134 36 12 2 style=wall.plain.h128.03
 building foregate_wall_south wall 134 44 12 2 style=wall.plain.h128.03
-building foregate_tower_north wall 144 32 6 6 style=wall.plain.h176.04
-building foregate_tower_south wall 144 44 6 6 style=wall.plain.h176.04
+building foregate_tower_north wall 144 32 6 6 style=wall.plain.h176.04 tower=true
+building foregate_tower_south wall 144 44 6 6 style=wall.plain.h176.04 tower=true
 building city_wall_gate_south wall 126 52 4 8 style=wall.plain.h192.00
 building wall_seal_viru_south_west wall 124 52 2 8 style=wall.plain.h192.00
 building wall_seal_viru_south_east wall 130 52 4 8 style=wall.plain.h192.00
@@ -94,16 +94,16 @@ building wall_seal_bend_a_east wall 120 60 2 4 style=wall.plain.h192.00
 building wall_seal_bend_b_north wall 104 60 4 8 style=wall.plain.h192.00
 building wall_seal_bend_c_west wall 88 76 4 4 style=wall.plain.h192.00
 building wall_seal_bend_d_north wall 84 76 4 8 style=wall.plain.h192.00
-building hinke_tower wall 120 58 8 8 style=wall.plain.h240.01
+building hinke_tower wall 120 58 8 8 style=wall.plain.h240.01 tower=true
 building city_wall_bend_a wall 110 60 10 4 style=wall.plain.h192.00
-building wall_tower_southeast wall 104 60 6 8 style=wall.plain.h240.01
+building wall_tower_southeast wall 104 60 6 8 style=wall.plain.h240.01 tower=true
 building city_wall_bend_b wall 104 68 4 10 style=wall.plain.h192.00
-building wall_tower_south wall 100 74 8 8 style=wall.plain.h240.01
+building wall_tower_south wall 100 74 8 8 style=wall.plain.h240.01 tower=true
 building city_wall_bend_c wall 88 76 12 4 style=wall.plain.h192.00
-building wall_tower_southwest wall 84 76 6 8 style=wall.plain.h240.01
+building wall_tower_southwest wall 84 76 6 8 style=wall.plain.h240.01 tower=true
 building city_wall_bend_d wall 84 84 4 12 style=wall.plain.h192.00
-building karja_gate_east_tower wall 78 94 8 8 style=wall.plain.h256.02
-building karja_gate_west_tower wall 64 94 8 8 style=wall.plain.h256.02
+building karja_gate_east_tower wall 78 94 8 8 style=wall.plain.h256.02 tower=true
+building karja_gate_west_tower wall 64 94 8 8 style=wall.plain.h256.02 tower=true
 building city_wall_southwest wall 0 96 64 4 style=wall.plain.h192.00
 building st_catherines_church house 40 2 24 10 style=house.south.h192.05
 building monastery_cloister house 66 0 18 12 style=house.south.h128.06

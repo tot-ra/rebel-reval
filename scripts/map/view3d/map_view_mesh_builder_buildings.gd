@@ -19,11 +19,16 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 	var wall_color := Color(building.get("wall_color", MapViewMeshBuilderConfig.DEFAULT_WALL_COLOR))
 	var fortification := kind == MapTypes.BUILDING_KIND_WALL and authored_height_px >= MapViewMeshBuilderConfig.BATTLEMENT_MIN_HEIGHT_PX
 	var footprint_aspect := minf(size.x, size.y) / maxf(size.x, size.y)
-	var tower := (
-		fortification
-		and size.x <= MapViewMeshBuilderConfig.TOWER_MAX_FOOTPRINT
-		and size.y <= MapViewMeshBuilderConfig.TOWER_MAX_FOOTPRINT
-		and footprint_aspect >= MapViewMeshBuilderConfig.TOWER_MIN_ASPECT
+	# `tower=true` in the map source forces the round-tower dressing for
+	# large-footprint fortifications; the footprint heuristic stays as the
+	# fallback for maps authored before the explicit flag existed.
+	var tower := fortification and (
+		bool(building.get("tower", false))
+		or (
+			size.x <= MapViewMeshBuilderConfig.TOWER_MAX_FOOTPRINT
+			and size.y <= MapViewMeshBuilderConfig.TOWER_MAX_FOOTPRINT
+			and footprint_aspect >= MapViewMeshBuilderConfig.TOWER_MIN_ASPECT
+		)
 	)
 
 	var walls := MeshInstance3D.new()
