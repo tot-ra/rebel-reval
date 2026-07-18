@@ -30,6 +30,9 @@ jobs:
           set -euo pipefail
           test "$(cat .godot-version)" = "$GODOT_VERSION_FAMILY"
           grep -F 'config/features=PackedStringArray("4.7", "GL Compatibility")' project.godot
+          grep -F 'config/icon="res://scenes/menu/logo256.png"' project.godot
+          grep -F 'application/icon="res://scenes/menu/logo256.png"' export_presets.cfg
+          test -s scenes/menu/logo256.png
 
       - name: Set up Godot
         uses: chickensoft-games/setup-godot@v2
@@ -210,6 +213,9 @@ jobs:
           set -euo pipefail
           test "$(cat .godot-version)" = "$GODOT_VERSION_FAMILY"
           grep -F 'config/features=PackedStringArray("4.7", "GL Compatibility")' project.godot
+          grep -F 'config/icon="res://scenes/menu/logo256.png"' project.godot
+          grep -F 'application/icon="res://scenes/menu/logo256.png"' export_presets.cfg
+          test -s scenes/menu/logo256.png
 
       - name: Set up Godot with export templates
         uses: chickensoft-games/setup-godot@v2

@@ -17,7 +17,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 config/name="Reval Rebel"
 run/main_scene="uid://dyl726xerhjhg"
 config/features=PackedStringArray("4.7", "GL Compatibility")
-config/icon="uid://s3dc3n3tlc3s"
+config/icon="res://scenes/menu/logo256.png"
 
 [autoload]
 
