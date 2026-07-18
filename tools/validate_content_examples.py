@@ -29,6 +29,7 @@ SCHEMA_BY_TYPE = {
     "item": "item.schema.json",
     "commission": "commission.schema.json",
     "location": "location.schema.json",
+    "mechanism": "mechanism.schema.json",
 }
 
 TYPE_MAP = {

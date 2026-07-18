@@ -14,6 +14,7 @@ const CONDITION_OPS := [
 	"relationship_at_least",
 	"item_owned",
 	"quest_state_is",
+	"forged_modification_is",
 ]
 
 const EFFECT_OPS := [
@@ -63,6 +64,8 @@ func evaluate_condition(condition: Dictionary, state: GameState) -> bool:
 			return state.has_item(key)
 		"quest_state_is":
 			return state.get_quest_state(key) == StringName(String(condition["value"]))
+		"forged_modification_is":
+			return state.has_forged_modification(key, StringName(String(condition["value"])))
 	return false
 
 
@@ -171,7 +174,21 @@ func _validate_condition(condition: Dictionary, state: GameState) -> String:
 			return _validate_key_only(condition, "item.")
 		"quest_state_is":
 			return _validate_key_value(condition, "quest.", TYPE_STRING)
+		"forged_modification_is":
+			return _validate_forged_modification(condition)
 	return "unsupported condition op: %s" % op
+
+
+func _validate_forged_modification(condition: Dictionary) -> String:
+	var shape_error := _require_shape(condition, ["op", "key", "value"])
+	if not shape_error.is_empty():
+		return shape_error
+	var key_error := _validate_key(condition, "commission.")
+	if not key_error.is_empty():
+		return key_error
+	if typeof(condition["value"]) != TYPE_STRING or String(condition["value"]).is_empty():
+		return "forged_modification_is value must be a non-empty modification id"
+	return ""
 
 
 func _validate_effect(effect: Dictionary, state: GameState) -> String:

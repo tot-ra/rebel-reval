@@ -44,6 +44,31 @@ func test_all_condition_operators() -> void:
 	assert_true(evaluator.evaluate_conditions(conditions, state))
 	assert_eq(evaluator.get_last_error(), "")
 
+	state.add_forged_record(
+		ForgedRecord.new(
+			&"forged.watch_buckle_repair.honest_work",
+			&"commission.watch_buckle_repair",
+			&"item.watch_buckle",
+			&"honest_work"
+		)
+	)
+	var forged_condition := {
+		"op": "forged_modification_is",
+		"key": "commission.watch_buckle_repair",
+		"value": "honest_work",
+	}
+	assert_true(evaluator.evaluate_condition(forged_condition, state))
+	assert_false(
+		evaluator.evaluate_condition(
+			{
+				"op": "forged_modification_is",
+				"key": "commission.watch_buckle_repair",
+				"value": "subtle_defect",
+			},
+			state
+		)
+	)
+
 
 func test_false_condition_is_not_an_error() -> void:
 	var condition := {"op": "flag_is", "key": String(FLAG_INCIDENT), "value": true}

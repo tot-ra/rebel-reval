@@ -126,7 +126,8 @@
             "pressure_at_least",
             "relationship_at_least",
             "item_owned",
-            "quest_state_is"
+            "quest_state_is",
+            "forged_modification_is"
           ]
         },
         "key": {
@@ -185,6 +186,51 @@
         }
       },
       "description": "Declarative allowlisted effect. Content must not embed arbitrary GDScript."
+    },
+    "mechanism_behavior": {
+      "type": "string",
+      "enum": [
+        "idle",
+        "hold",
+        "fail",
+        "release",
+        "jam",
+        "engage",
+        "disengage"
+      ]
+    },
+    "mechanism_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "behavior",
+        "summary"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/local_id"
+        },
+        "behavior": {
+          "$ref": "common.schema.json#/$defs/mechanism_behavior"
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requires": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/condition"
+          }
+        },
+        "effects": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/effect"
+          }
+        }
+      }
     },
     "deterministic_offline": {
       "type": "object",

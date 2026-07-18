@@ -36,6 +36,7 @@ RECORD_TYPE_BY_PREFIX = {
     "item.": "item",
     "commission.": "commission",
     "loc.": "location",
+    "mechanism.": "mechanism",
 }
 
 CONDITION_OPS = {
@@ -48,6 +49,7 @@ CONDITION_OPS = {
     "relationship_at_least",
     "item_owned",
     "quest_state_is",
+    "forged_modification_is",
 }
 
 EFFECT_OPS = {
@@ -81,6 +83,14 @@ CONDITION_RULES: dict[str, dict[str, Any]] = {
         "key_prefix": "quest.",
         "value_type": str,
         "quest_state": True,
+    },
+    "forged_modification_is": {
+        "required": {"key", "value"},
+        "forbidden": {"amount"},
+        "key_prefix": "commission.",
+        "value_type": str,
+        "commission_ref": True,
+        "forging_option": True,
     },
 }
 
@@ -305,6 +315,18 @@ def _quest_state_ids(index: dict[str, tuple[str, Path, dict[str, Any]]], quest_i
     return set(_local_ids(record.get("states")))
 
 
+def _commission_forging_option_ids(index: dict[str, tuple[str, Path, dict[str, Any]]], commission_id: str) -> set[str]:
+    entry = index.get(commission_id)
+    if entry is None:
+        return set()
+    _, _, record = entry
+    return {
+        str(option["id"])
+        for option in (record.get("forging_options") or [])
+        if isinstance(option, dict) and "id" in option
+    }
+
+
 def _location_state_ids(index: dict[str, tuple[str, Path, dict[str, Any]]], location_id: str) -> set[str]:
     entry = index.get(location_id)
     if entry is None:
@@ -453,6 +475,39 @@ def _validate_condition_semantics(
                         path,
                         f"{pointer}.value",
                         f"quest {key!r} has no state {condition['value']!r}",
+                        root=root,
+                    )
+                )
+
+    if rules.get("commission_ref") and isinstance(key, str):
+        _require_record_ref(
+            diagnostics,
+            path=path,
+            pointer=f"{pointer}.key",
+            content_id=key,
+            expected_type="commission",
+            index=index,
+            root=root,
+        )
+
+    if rules.get("forging_option") and isinstance(key, str) and isinstance(condition.get("value"), str):
+        if _record_ref_valid(
+            diagnostics,
+            path=path,
+            pointer=f"{pointer}.key",
+            content_id=key,
+            expected_type="commission",
+            index=index,
+            root=root,
+        ):
+            valid_ids = _commission_forging_option_ids(index, key)
+            if condition["value"] not in valid_ids:
+                diagnostics.append(
+                    _diag(
+                        "UNSUPPORTED_CONDITION",
+                        path,
+                        f"{pointer}.value",
+                        f"commission {key!r} has no forging option {condition['value']!r}",
                         root=root,
                     )
                 )
@@ -937,6 +992,51 @@ def _validate_record_semantics(
             ids=_local_ids(record.get("forging_options")),
             root=root,
         )
+
+    elif record_type == "mechanism":
+        _require_record_ref(
+            diagnostics,
+            path=path,
+            pointer="$.commission_id",
+            content_id=record.get("commission_id"),
+            expected_type="commission",
+            index=index,
+            root=root,
+        )
+        _require_record_ref(
+            diagnostics,
+            path=path,
+            pointer="$.object_item_id",
+            content_id=record.get("object_item_id"),
+            expected_type="item",
+            index=index,
+            root=root,
+        )
+        _require_record_ref(
+            diagnostics,
+            path=path,
+            pointer="$.location_id",
+            content_id=record.get("location_id"),
+            expected_type="location",
+            index=index,
+            root=root,
+        )
+        _check_local_duplicates(
+            diagnostics,
+            path=path,
+            pointer="$.responses",
+            ids=_local_ids(record.get("responses")),
+            root=root,
+        )
+        default_response = record.get("default_response")
+        if isinstance(default_response, dict):
+            _check_local_duplicates(
+                diagnostics,
+                path=path,
+                pointer="$.default_response",
+                ids=[str(default_response.get("id", ""))],
+                root=root,
+            )
 
     elif record_type == "location":
         for conn_index, loc_id in enumerate(record.get("connected_location_ids") or []):

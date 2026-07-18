@@ -335,6 +335,13 @@ func has_forged_record(record_id: StringName) -> bool:
 	return _forged_records.has(record_id)
 
 
+func has_forged_modification(commission_id: StringName, modification_id: StringName) -> bool:
+	for record in get_forged_records():
+		if record.commission_id == commission_id and record.modification_id == modification_id:
+			return true
+	return false
+
+
 func get_forged_record(record_id: StringName) -> ForgedRecord:
 	return _forged_records.get(record_id)
 
