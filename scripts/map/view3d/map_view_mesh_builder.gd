@@ -1310,7 +1310,7 @@ static func build_scatter(
 			var variant := grid.get_style_variant(cell)
 			var profile := TerrainVegetation.scatter_profile(variant)
 			var roll := _hash01(x, y, definition.seed + 4242)
-			var tuft_chance := SCATTER_TUFT_CHANCE.get(terrain, 0.0) * float(profile.get("chance_scale", 1.0))
+			var tuft_chance := float(SCATTER_TUFT_CHANCE.get(terrain, 0.0)) * float(profile.get("chance_scale", 1.0))
 			if roll < tuft_chance:
 				var count := 2 + int(_hash01(x, y, definition.seed + 511) * 2.0)
 				for tuft_index in count:
