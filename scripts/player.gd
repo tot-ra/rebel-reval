@@ -107,7 +107,10 @@ func _movement_blocked() -> bool:
 	if inventory != null and inventory.is_open():
 		return true
 	var journal := get_node_or_null("JournalController") as JournalController
-	return journal != null and journal.is_open()
+	if journal != null and journal.is_open():
+		return true
+	var commission := get_node_or_null("ForgeCommissionController") as ForgeCommissionController
+	return commission != null and commission.is_open()
 
 
 func _get_encumbrance_speed_multiplier() -> float:

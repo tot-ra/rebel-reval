@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://mf6xvrb7vivm" path="res://scenes/elements/UI.tscn" id="2_ui"]
 [ext_resource type="Script" path="res://scripts/inventory/inventory_controller.gd" id="3_inventory"]
 [ext_resource type="Script" path="res://scripts/journal/journal_controller.gd" id="4_journal"]
+[ext_resource type="Script" path="res://scripts/forge/forge_commission_controller.gd" id="5_commission"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_3iwfv"]
 radius = 16.0
@@ -70,3 +71,6 @@ script = ExtResource("3_inventory")
 
 [node name="JournalController" type="Node" parent="."]
 script = ExtResource("4_journal")
+
+[node name="ForgeCommissionController" type="Node" parent="."]
+script = ExtResource("5_commission")
