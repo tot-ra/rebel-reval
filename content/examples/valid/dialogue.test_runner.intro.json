@@ -1,0 +1,76 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.test_runner.intro",
+  "title": "DialogueRunner Intro Fixture",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "P1-011 automated runner fixture only."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "Branching fixture for DialogueRunner tests."
+  },
+  "participants": [
+    "char.mart",
+    "char.kalev"
+  ],
+  "start_node_id": "mart_opens",
+  "word_count_estimate": 42,
+  "nodes": [
+    {
+      "id": "mart_opens",
+      "speaker_id": "char.mart",
+      "text": "Kalev, the street is restless tonight.",
+      "choices": [
+        {
+          "id": "trust_mart",
+          "text": "Tell me what you saw.",
+          "target_node_id": "mart_trusted"
+        },
+        {
+          "id": "doubt_mart",
+          "text": "Keep your rumors to yourself.",
+          "target_node_id": "mart_doubted"
+        }
+      ]
+    },
+    {
+      "id": "mart_trusted",
+      "speaker_id": "char.mart",
+      "text": "Then listen close.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.test_runner_trusted",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "mart_doubted",
+      "speaker_id": "char.mart",
+      "text": "Fine. Waste the night if you want.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.test_runner_doubted",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P1-011 DialogueRunner branching fixture.",
+      "citations": [
+        "docs/adr/0003-authored-offline-dialogue-and-prohibit-runtime-llm.md"
+      ]
+    }
+  ]
+}

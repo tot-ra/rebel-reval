@@ -23,7 +23,7 @@ func test_loads_validated_example_corpus() -> void:
 
 	assert_true(db.is_loaded())
 	assert_eq(db.get_load_errors().size(), 0)
-	assert_eq(db.get_record_count(), 12)
+	assert_eq(db.get_record_count(), 14)
 	assert_true(db.has_record(CHAR_KALEV))
 	assert_true(db.has_record(QUEST_MAKERS_MARK))
 	assert_true(db.has_record(ITEM_SEIZED_SPEARHEAD))

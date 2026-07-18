@@ -34,6 +34,7 @@ var _flags: Dictionary[StringName, bool] = {}
 var _quest_states: Dictionary[StringName, StringName] = {}
 var _location_states: Dictionary[StringName, StringName] = {}
 var _items: Dictionary[StringName, bool] = {}
+var _dialogue_nodes_seen: Dictionary[StringName, bool] = {}
 var _world_items: Dictionary = {}
 var _world_defaults_seeded: Dictionary = {}
 
@@ -191,6 +192,26 @@ func add_item(key: StringName) -> bool:
 
 func remove_item(key: StringName) -> bool:
 	return _items.erase(key)
+
+
+func has_dialogue_node_seen(dialogue_id: StringName, node_id: String) -> bool:
+	if dialogue_id.is_empty() or node_id.is_empty():
+		return false
+	return _dialogue_nodes_seen.has(_dialogue_node_key(dialogue_id, node_id))
+
+
+func mark_dialogue_node_seen(dialogue_id: StringName, node_id: String) -> void:
+	if dialogue_id.is_empty() or node_id.is_empty():
+		return
+	_dialogue_nodes_seen[_dialogue_node_key(dialogue_id, node_id)] = true
+
+
+func get_dialogue_nodes_seen() -> Array[StringName]:
+	var keys: Array[StringName] = []
+	for key: StringName in _dialogue_nodes_seen:
+		keys.append(key)
+	keys.sort()
+	return keys
 
 
 ## --- World item placement (session-scoped, survives map re-entry) ---------
@@ -357,6 +378,7 @@ func save_payload() -> Dictionary:
 		"quest_states": _string_dictionary(_quest_states),
 		"location_states": _string_dictionary(_location_states),
 		"items": _bool_dictionary(_items),
+		"dialogue_nodes_seen": _bool_dictionary(_dialogue_nodes_seen),
 		"forged_records": forged,
 		"world_items": _world_items.duplicate(true),
 		"world_defaults_seeded": _world_defaults_seeded.duplicate(true),
@@ -424,6 +446,11 @@ func load_payload(payload: Dictionary) -> Array[String]:
 	_quest_states = _load_string_dictionary(payload.get("quest_states", {}), errors, "quest_states")
 	_location_states = _load_string_dictionary(payload.get("location_states", {}), errors, "location_states")
 	_items = _load_bool_dictionary(payload.get("items", {}), errors, "items")
+	_dialogue_nodes_seen = _load_bool_dictionary(
+		payload.get("dialogue_nodes_seen", {}),
+		errors,
+		"dialogue_nodes_seen"
+	)
 
 	_forged_records.clear()
 	var forged_rows: Variant = payload.get("forged_records", [])
@@ -546,3 +573,7 @@ func _load_pressure_dictionary(source: Variant, errors: Array[String]) -> Dictio
 		var pressure_key := StringName(String(key))
 		out[pressure_key] = clampi(int(source[key]), PRESSURE_MIN, PRESSURE_MAX)
 	return out
+
+
+func _dialogue_node_key(dialogue_id: StringName, node_id: String) -> StringName:
+	return StringName("%s:%s" % [String(dialogue_id), node_id])

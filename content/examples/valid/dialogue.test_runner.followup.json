@@ -1,0 +1,60 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.test_runner.followup",
+  "title": "DialogueRunner Follow-up Fixture",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "P1-011 automated runner fixture only."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "Follow-up fixture gated by prior dialogue state."
+  },
+  "participants": [
+    "char.mart"
+  ],
+  "start_node_id": "trusted_reunion",
+  "word_count_estimate": 28,
+  "nodes": [
+    {
+      "id": "trusted_reunion",
+      "speaker_id": "char.mart",
+      "text": "You came back. I kept the name you asked about.",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.test_runner_trusted",
+          "value": true
+        }
+      ],
+      "next_node_id": "trusted_once"
+    },
+    {
+      "id": "trusted_once",
+      "speaker_id": "char.mart",
+      "text": "This warning only lands once.",
+      "once": true,
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.test_runner_warning_heard",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P1-011 DialogueRunner follow-up and once-only fixture.",
+      "citations": [
+        "docs/adr/0003-authored-offline-dialogue-and-prohibit-runtime-llm.md"
+      ]
+    }
+  ]
+}
