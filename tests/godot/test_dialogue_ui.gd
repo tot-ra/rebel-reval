@@ -1,6 +1,7 @@
 extends "res://tests/godot/test_case.gd"
 
 const TextScaleScript := preload("res://scripts/dialogue/dialogue_text_scale.gd")
+const SettingsScript := preload("res://scripts/settings/dialogue_settings.gd")
 const RunnerScript := preload("res://scripts/dialogue/dialogue_runner.gd")
 const UiPresenterScript := preload("res://scripts/dialogue/dialogue_ui_presenter.gd")
 const UiScript := preload("res://scripts/dialogue/dialogue_ui.gd")
@@ -118,6 +119,10 @@ func _make_setup(scale_name: String) -> Dictionary:
 	var ui = UiScript.new()
 	root.add_child(ui)
 	ui.set_text_scale(scale_name)
+	var settings = SettingsScript.default_settings()
+	settings.text_scale = scale_name
+	settings.text_speed = "instant"
+	ui.apply_settings(settings)
 
 	var db := ContentDB.new()
 	assert_true(db.load_from_directories(CONTENT_DIRS))

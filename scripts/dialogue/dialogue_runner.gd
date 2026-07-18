@@ -139,12 +139,19 @@ func select_choice(choice_id: String) -> bool:
 func try_advance(event: InputEvent) -> bool:
 	if not _active or _waiting_for_choice or not _input_enabled or not _is_continue_event(event):
 		return false
+	if _presenter != null and _presenter.has_method("consume_line_advance"):
+		if not _presenter.consume_line_advance():
+			return true
 	return advance()
 
 
 func advance_for_test() -> void:
-	if _active and not _waiting_for_choice:
-		advance()
+	if not _active or _waiting_for_choice:
+		return
+	if _presenter != null and _presenter.has_method("consume_line_advance"):
+		if not _presenter.consume_line_advance():
+			return
+	advance()
 
 
 func resolve_bark(

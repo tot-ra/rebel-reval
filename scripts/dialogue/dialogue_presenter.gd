@@ -19,3 +19,7 @@ func present_choices(choices: Array) -> void:
 
 func close() -> void:
 	pass
+
+
+func consume_line_advance() -> bool:
+	return true

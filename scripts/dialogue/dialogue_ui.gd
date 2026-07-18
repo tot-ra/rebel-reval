@@ -3,6 +3,7 @@ extends CanvasLayer
 
 const TextScaleScript := preload("res://scripts/dialogue/dialogue_text_scale.gd")
 const PortraitResolverScript := preload("res://scripts/dialogue/dialogue_portrait_resolver.gd")
+const DialogueSettingsScript := preload("res://scripts/settings/dialogue_settings.gd")
 
 signal choice_selected(choice_id: String)
 signal skip_requested()
@@ -10,7 +11,20 @@ signal skip_requested()
 const FONT_PATH := "res://assets/fonts/NotoSans-Regular.ttf"
 const PORTRAIT_SIZE := 96
 
+const COLOR_BODY_DEFAULT := Color(0.95, 0.95, 0.9, 1.0)
+const COLOR_BODY_HIGH_CONTRAST := Color(1.0, 1.0, 1.0, 1.0)
+const COLOR_SPEAKER_DEFAULT := Color(0.92, 0.78, 0.42, 1.0)
+const COLOR_SPEAKER_HIGH_CONTRAST := Color(1.0, 0.92, 0.35, 1.0)
+const COLOR_HINT_DEFAULT := Color(0.72, 0.76, 0.82, 1.0)
+const COLOR_HINT_HIGH_CONTRAST := Color(0.9, 0.93, 0.98, 1.0)
+const COLOR_DISABLED_DEFAULT := Color(0.86, 0.55, 0.48, 1.0)
+const COLOR_DISABLED_HIGH_CONTRAST := Color(1.0, 0.72, 0.62, 1.0)
+const COLOR_PANEL_DEFAULT := Color(0.08, 0.09, 0.11, 0.88)
+const COLOR_PANEL_HIGH_CONTRAST := Color(0.0, 0.0, 0.0, 0.96)
+const COLOR_SUBTITLE_BACKGROUND := Color(0.0, 0.0, 0.0, 0.72)
+
 var _font: Font
+var _settings = DialogueSettingsScript.default_settings()
 var _text_scale := "normal"
 var _visible_active := false
 var _choice_mode := false
@@ -19,11 +33,16 @@ var _choices: Array = []
 var _choice_buttons: Array[Button] = []
 var _focused_choice_index := 0
 var _backlog_entries: Array[Dictionary] = []
+var _full_line_text := ""
+var _revealed_char_count := 0
+var _reveal_complete := true
+var _reveal_accumulator := 0.0
 
 var _root: Control
 var _panel: PanelContainer
 var _backlog_panel: PanelContainer
 var _backlog_list: VBoxContainer
+var _text_background: ColorRect
 var _portrait_rect: TextureRect
 var _portrait_fallback: Label
 var _speaker_label: Label
@@ -41,6 +60,21 @@ func _ready() -> void:
 	_font = load(FONT_PATH) as Font
 	_build_ui()
 	hide_overlay()
+
+
+func apply_settings(settings) -> void:
+	if settings == null:
+		return
+	_settings = settings.duplicate_settings()
+	_settings.normalize()
+	set_text_scale(_settings.text_scale)
+	_apply_visual_theme()
+	if _visible_active and not _choice_mode:
+		_restart_line_reveal()
+
+
+func get_settings():
+	return _settings.duplicate_settings()
 
 
 func set_text_scale(scale_name: String) -> void:
@@ -74,6 +108,23 @@ func get_backlog_entry_count() -> int:
 	return _backlog_entries.size()
 
 
+func is_reveal_complete() -> bool:
+	return _reveal_complete
+
+
+func get_visible_line_text() -> String:
+	return _text_label.text
+
+
+func consume_line_advance() -> bool:
+	if _choice_mode or _full_line_text.is_empty():
+		return true
+	if not _reveal_complete:
+		_complete_line_reveal()
+		return false
+	return true
+
+
 func get_speaker_label_text() -> String:
 	return _speaker_label.text
 
@@ -82,10 +133,11 @@ func present_line(speaker_id: StringName, speaker_name: String, text: String, _n
 	_append_backlog_entry(speaker_name, text)
 	_set_portrait(speaker_id, speaker_name)
 	_speaker_label.text = speaker_name
-	_text_label.text = text
+	_full_line_text = text
 	_clear_choices()
 	_choice_mode = false
 	_show_overlay()
+	_start_line_reveal()
 	_update_continue_hint()
 	_update_disabled_reason()
 
@@ -114,7 +166,12 @@ func hide_overlay() -> void:
 	_backlog_panel.visible = false
 	_speaker_label.text = ""
 	_text_label.text = ""
+	_full_line_text = ""
+	_revealed_char_count = 0
+	_reveal_complete = true
+	_reveal_accumulator = 0.0
 	_disabled_reason_label.text = ""
+	set_process(false)
 
 
 func select_choice_for_test(choice_id: String) -> void:
@@ -315,9 +372,76 @@ func _handle_skip_input(event: InputEvent) -> bool:
 	if event.is_echo() or _choice_mode or _backlog_open:
 		return false
 	if event.is_action_pressed(&"ui_cancel"):
+		if not _reveal_complete:
+			_complete_line_reveal()
+			return true
 		skip_requested.emit()
 		return true
 	return false
+
+
+func _process(delta: float) -> void:
+	if _reveal_complete or _full_line_text.is_empty():
+		set_process(false)
+		return
+
+	_reveal_accumulator += delta * _settings.chars_per_second()
+	while _reveal_accumulator >= 1.0 and _revealed_char_count < _full_line_text.length():
+		_revealed_char_count += 1
+		_reveal_accumulator -= 1.0
+		_text_label.text = _full_line_text.left(_revealed_char_count)
+
+	if _revealed_char_count >= _full_line_text.length():
+		_complete_line_reveal()
+
+
+func _start_line_reveal() -> void:
+	_revealed_char_count = 0
+	_reveal_accumulator = 0.0
+	if _settings.reveal_instantly() or _full_line_text.is_empty():
+		_complete_line_reveal()
+		return
+	_reveal_complete = false
+	_text_label.text = ""
+	set_process(true)
+
+
+func _restart_line_reveal() -> void:
+	if _full_line_text.is_empty():
+		return
+	_start_line_reveal()
+
+
+func _complete_line_reveal() -> void:
+	_revealed_char_count = _full_line_text.length()
+	_text_label.text = _full_line_text
+	_reveal_complete = true
+	_reveal_accumulator = 0.0
+	set_process(false)
+
+
+func _apply_visual_theme() -> void:
+	var body_color := COLOR_BODY_HIGH_CONTRAST if _settings.high_contrast else COLOR_BODY_DEFAULT
+	var speaker_color := COLOR_SPEAKER_HIGH_CONTRAST if _settings.high_contrast else COLOR_SPEAKER_DEFAULT
+	var hint_color := COLOR_HINT_HIGH_CONTRAST if _settings.high_contrast else COLOR_HINT_DEFAULT
+	var disabled_color := COLOR_DISABLED_HIGH_CONTRAST if _settings.high_contrast else COLOR_DISABLED_DEFAULT
+	var panel_color := COLOR_PANEL_HIGH_CONTRAST if _settings.high_contrast else COLOR_PANEL_DEFAULT
+
+	_speaker_label.add_theme_color_override("font_color", speaker_color)
+	_text_label.add_theme_color_override("font_color", body_color)
+	_continue_hint.add_theme_color_override("font_color", hint_color)
+	_disabled_reason_label.add_theme_color_override("font_color", disabled_color)
+	_portrait_fallback.add_theme_color_override("font_color", speaker_color)
+
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = panel_color
+	panel_style.set_corner_radius_all(6)
+	_panel.add_theme_stylebox_override("panel", panel_style)
+	_backlog_panel.add_theme_stylebox_override("panel", panel_style.duplicate())
+
+	_text_background.visible = _settings.subtitle_background
+	if _settings.subtitle_background:
+		_text_background.color = COLOR_SUBTITLE_BACKGROUND if not _settings.high_contrast else Color(0.0, 0.0, 0.0, 0.88)
 
 
 func _handle_backlog_input(event: InputEvent) -> bool:
@@ -442,10 +566,20 @@ func _build_ui() -> void:
 	_portrait_fallback.add_theme_font_override("font", _font)
 	portrait_stack.add_child(_portrait_fallback)
 
+	var text_wrap := Control.new()
+	text_wrap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.add_child(text_wrap)
+
+	_text_background = ColorRect.new()
+	_text_background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_text_background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	text_wrap.add_child(_text_background)
+
 	var text_column := VBoxContainer.new()
+	text_column.set_anchors_preset(Control.PRESET_FULL_RECT)
 	text_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	text_column.add_theme_constant_override("separation", 8)
-	body.add_child(text_column)
+	text_wrap.add_child(text_column)
 
 	_speaker_label = Label.new()
 	_speaker_label.add_theme_color_override("font_color", Color(0.92, 0.78, 0.42, 1.0))
@@ -493,3 +627,4 @@ func _build_ui() -> void:
 	text_column.add_child(_disabled_reason_label)
 
 	_apply_text_scale()
+	_apply_visual_theme()

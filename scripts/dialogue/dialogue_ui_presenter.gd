@@ -40,6 +40,12 @@ func close() -> void:
 		_ui.close()
 
 
+func consume_line_advance() -> bool:
+	if _ui != null and _ui.has_method("consume_line_advance"):
+		return _ui.consume_line_advance()
+	return true
+
+
 func _on_choice_selected(choice_id: String) -> void:
 	if _runner != null:
 		_runner.select_choice(choice_id)
