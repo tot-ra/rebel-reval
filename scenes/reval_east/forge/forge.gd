@@ -1,6 +1,7 @@
 extends Node2D
 
 const DEFINITION_SCRIPT := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
+const COMMISSION_ANCHOR_SCRIPT := preload("res://scripts/forge/forge_commission_anchor.gd")
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -11,6 +12,7 @@ const DEFINITION_SCRIPT := preload("res://scripts/map/definitions/lower_town/kal
 var _bootstrap: Dictionary = {}
 var _view_runtime: MapViewRuntime
 var _world_items: WorldItemController
+var _commission_anchor: Node
 var _interaction_controller: InteractionController
 var _prompt_layer: CanvasLayer
 var _prompt_label: Label
@@ -32,6 +34,10 @@ func _ready() -> void:
 	_world_items.name = "WorldItemController"
 	add_child(_world_items)
 	_world_items.setup(self, definition, _view_runtime, player, &"loc.kalev_smithy")
+	_commission_anchor = COMMISSION_ANCHOR_SCRIPT.new()
+	_commission_anchor.name = "ForgeCommissionAnchor"
+	add_child(_commission_anchor)
+	_commission_anchor.setup(self, definition, player)
 
 
 func _build_interaction_prompt() -> void:

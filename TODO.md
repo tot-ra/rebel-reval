@@ -27,7 +27,7 @@ Delivery order remains strict: playable demo, vertical-slice MVP, Act 1, Act 2, 
 - P0-055 - done: scene inventory and map conversion plan reconciled with 61 tracked `.tscn` files.
 - P0-054 - done: legacy documentation reconciled with ADR 0008 status headers.
 - P1-007, P1-011, P1-016, P1-019, and P1-023 may proceed in parallel where they own separate files. P1-007 and D-003 both touch `GameState`; P1-011 and P1-019 share content/state contracts; P1-019 and P1-023 must not introduce replacement inventory, map, or interaction frameworks.
-- P1-019a - wire `ForgeCommissionController.open_commission()` to a forge interactable for `commission.watch_buckle_repair` once the prologue commission beat is authored.
+- P1-019a - done: forge ledger interactable opens `commission.watch_buckle_repair` through `ForgeCommissionController`.
 
 ## Demo - MVP playable demo (highest priority)
 
@@ -60,7 +60,7 @@ Goal: a small runnable demo proving the ADR 0007 look and the core interaction l
 - [x] P1-016 | deps: none | deliverable: journal showing current objective and discovered evidence without hidden outcomes | verify: journal updates from quest state and persists through save/load
 - [ ] P1-017 | deps: none | deliverable: authored morning, investigation, night, and reflection phase transitions | verify: phase tests update participating NPC placement, props, barks, patrols, and music hooks
 - [x] P1-019 | deps: none | deliverable: `ForgeCommission` flow displaying customer, object, known purpose, materials, and discovered leverage | verify: one content-defined commission opens and resolves without quest-specific UI code
-- [ ] P1-019a | deps: P1-019,P1-011 | deliverable: forge interactable opens the content-defined `commission.watch_buckle_repair` flow through `ForgeCommissionController` without quest-specific UI code | verify: interacting at the smithy ledger or commission anchor opens the overlay, resolves to a forged record, and blocks movement until closed
+- [x] P1-019a | deps: P1-019,P1-011 | deliverable: forge interactable opens the content-defined `commission.watch_buckle_repair` flow through `ForgeCommissionController` without quest-specific UI code | verify: interacting at the smithy ledger or commission anchor opens the overlay, resolves to a forged record, and blocks movement until closed
 - [ ] P1-020 | deps: P1-019 | deliverable: honest, subtle-defect, and secret-feature modification support gated by facts or materials | verify: tests confirm unavailable options stay locked and chosen modification creates one explicit forged record
 - [ ] P1-021 | deps: P1-020 | deliverable: generic mechanism response to a forged modification | verify: changing content/state alters mechanism behavior without quest-specific branching code
 - [ ] P1-022 | deps: P1-019,P0-040 | deliverable: forge feedback for heat, hammer rhythm, quench, maker stamp, and object reveal | verify: automated scene trace emits the five feedback events in order and the forge scene exposes no temperature, strike-accuracy, or timing-score state

@@ -2,6 +2,7 @@ extends "res://tests/godot/test_case.gd"
 
 const VALID_DIR := "res://content/examples/valid"
 const SUPPORT_DIR := "res://content/examples/support"
+const FORGE_SCENE := preload("res://scenes/reval_east/forge/forge.tscn")
 const RunnerScript := preload("res://scripts/forge/forge_commission_runner.gd")
 const PresenterScript := preload("res://scripts/forge/forge_commission_presenter.gd")
 
@@ -87,6 +88,89 @@ func test_record_id_matches_save_fixture_contract() -> void:
 		ForgeCommissionModel.record_id_for(COMMISSION_ID, "honest_work"),
 		RECORD_HONEST
 	)
+
+
+func test_forge_ledger_interactable_opens_commission_overlay() -> void:
+	_prepare_forge_commission_state()
+	var tree := Engine.get_main_loop() as SceneTree
+	var forge: Node2D = FORGE_SCENE.instantiate()
+	tree.root.add_child(forge)
+
+	var player := forge.get_node("Actors/Player") as Player
+	var commission_controller := player.get_node("ForgeCommissionController") as ForgeCommissionController
+	var ledger := _find_ledger_interactable(forge)
+	assert_true(ledger != null, "forge needs a ledger commission interactable")
+
+	_activate_interactable(player, ledger)
+	assert_true(ledger.interact(player))
+	assert_true(commission_controller.is_open())
+
+	forge.queue_free()
+
+
+func test_forge_ledger_commission_resolves_to_forged_record() -> void:
+	_prepare_forge_commission_state()
+	var tree := Engine.get_main_loop() as SceneTree
+	var forge: Node2D = FORGE_SCENE.instantiate()
+	tree.root.add_child(forge)
+
+	var player := forge.get_node("Actors/Player") as Player
+	var commission_controller := player.get_node("ForgeCommissionController") as ForgeCommissionController
+	var ledger := _find_ledger_interactable(forge)
+	assert_true(ledger != null)
+
+	_activate_interactable(player, ledger)
+	assert_true(ledger.interact(player))
+
+	var overlay := player.find_child("ForgeCommissionOverlay", true, false) as ForgeCommissionOverlay
+	assert_true(overlay != null)
+	overlay.option_selected.emit("honest_work")
+
+	assert_false(commission_controller.is_open())
+	assert_true(SessionState.state.has_forged_record(RECORD_HONEST))
+	assert_false(ledger.is_enabled(), "resolved commission should disable the ledger interactable")
+	forge.queue_free()
+
+
+func test_interaction_controller_blocks_while_commission_open() -> void:
+	_prepare_forge_commission_state()
+	var tree := Engine.get_main_loop() as SceneTree
+	var forge: Node2D = FORGE_SCENE.instantiate()
+	tree.root.add_child(forge)
+
+	var player := forge.get_node("Actors/Player") as Player
+	var controller := forge.get_node("InteractionController") as InteractionController
+	var ledger := _find_ledger_interactable(forge)
+	assert_true(ledger != null)
+
+	_activate_interactable(player, ledger)
+	assert_true(ledger.interact(player))
+	controller._update_focus()
+	assert_false(controller.try_interact(), "interact should stay blocked while commission overlay is open")
+
+	forge.queue_free()
+
+
+func _prepare_forge_commission_state() -> void:
+	SessionState.state = GameState.new()
+	SessionState.content_db.load_from_directories(SessionState.DEMO_CONTENT_DIRS)
+	SessionState.state.bag.set_content_db(SessionState.content_db)
+
+
+func _find_ledger_interactable(forge: Node) -> Interactable:
+	for node in forge.find_children("*", "Area2D", true, false):
+		var interactable := node as Interactable
+		if interactable == null:
+			continue
+		if interactable.get_interaction_kind() == InteractionKinds.USE \
+				and String(interactable.get_interactable_id()).begins_with("interact.commission."):
+			return interactable
+	return null
+
+
+func _activate_interactable(player: Player, interactable: Interactable) -> void:
+	player.global_position = interactable.global_position
+	interactable.register_actor_in_range(player)
 
 
 func _make_runner_setup() -> Dictionary:

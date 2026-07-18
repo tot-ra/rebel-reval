@@ -5,6 +5,8 @@ const OVERLAY_SCENE := preload("res://scenes/ui/forge_commission_overlay.tscn")
 const RunnerScript := preload("res://scripts/forge/forge_commission_runner.gd")
 const PresenterScript := preload("res://scripts/forge/forge_commission_ui_presenter.gd")
 
+signal commission_finished(commission_id: StringName)
+
 var _overlay: ForgeCommissionOverlay
 var _runner: ForgeCommissionRunner
 var _presenter: RefCounted
@@ -58,5 +60,5 @@ func _on_overlay_closed() -> void:
 		_runner.cancel()
 
 
-func _on_runner_finished(_commission_id: StringName) -> void:
-	pass
+func _on_runner_finished(commission_id: StringName) -> void:
+	commission_finished.emit(commission_id)

@@ -33,7 +33,16 @@ func get_focused_interactable() -> Interactable:
 func try_interact() -> bool:
 	if _focused == null or actor == null:
 		return false
+	if _is_actor_input_blocked():
+		return false
 	return _focused.interact(actor)
+
+
+func _is_actor_input_blocked() -> bool:
+	if actor == null:
+		return false
+	var commission := actor.get_node_or_null("ForgeCommissionController") as ForgeCommissionController
+	return commission != null and commission.is_open()
 
 
 func _is_interact_event(event: InputEvent) -> bool:
