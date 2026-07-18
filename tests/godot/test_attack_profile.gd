@@ -86,15 +86,77 @@ func test_equipped_hammer_uses_content_profile_and_drains_stamina() -> void:
 	player.free()
 
 
+func test_resolve_hammer_charged_profile_from_content() -> void:
+	_ensure_content_loaded()
+	var player := _create_player()
+	_equip_item(&"right_hand", ITEM_HAMMER)
+	var light := AttackProfileResolver.resolve_for_state(SessionState.state, SessionState.content_db, false)
+	var charged := AttackProfileResolver.resolve_for_state(SessionState.state, SessionState.content_db, true)
+	assert_eq(light.animation, &"hammer_attack")
+	assert_eq(charged.animation, &"hammer_charged_attack")
+	assert_eq(charged.damage, 24.0)
+	assert_eq(charged.reach_px, 68.0)
+	assert_eq(charged.stamina_cost, 22.0)
+	assert_eq(charged.impact_timing_sec, 0.42)
+	assert_true(charged.damage > light.damage)
+	assert_true(charged.reach_px > light.reach_px)
+	assert_true(charged.stamina_cost > light.stamina_cost)
+	assert_true(charged.impact_timing_sec > light.impact_timing_sec)
+	player.free()
+
+
+func test_hammer_quick_release_uses_light_attack_profile() -> void:
+	_ensure_content_loaded()
+	var player := _create_player()
+	_equip_item(&"right_hand", ITEM_HAMMER)
+	player.stamina = 100.0
+	assert_true(player.commit_attack_from_charge_hold(0.05))
+
+	assert_eq(player.action_state_machine.state, PlayerActionState.State.ATTACK)
+	assert_eq(player.view_animation(), &"hammer_attack")
+	assert_eq(player.stamina, 88.0)
+	player.free()
+
+
+func test_hammer_hold_past_threshold_uses_charged_attack_profile() -> void:
+	_ensure_content_loaded()
+	var player := _create_player()
+	_equip_item(&"right_hand", ITEM_HAMMER)
+	player.stamina = 100.0
+	assert_true(player.commit_attack_from_charge_hold(0.4))
+
+	assert_eq(player.action_state_machine.state, PlayerActionState.State.ATTACK)
+	assert_eq(player.view_animation(), &"hammer_charged_attack")
+	assert_eq(player.stamina, 78.0)
+	player.free()
+
+
+func test_hammer_charged_attack_hits_with_authored_reach_and_damage() -> void:
+	_ensure_content_loaded()
+	var player := _create_player()
+	_equip_item(&"right_hand", ITEM_HAMMER)
+	player.global_position = Vector2.ZERO
+	player._facing_direction = Vector2.RIGHT
+	player.stamina = 100.0
+	var in_reach := _create_dummy(Vector2(60.0, 0.0))
+	var beyond_reach := _create_dummy(Vector2(72.0, 0.0))
+	assert_true(player.commit_attack_from_charge_hold(0.4))
+	_advance(player.action_state_machine, player.action_state_machine.attack_impact_sec)
+
+	assert_eq(in_reach.health, 0.0, "Charged hammer should damage targets inside its longer reach")
+	assert_eq(beyond_reach.health, 20.0, "Charged hammer must still respect its reach cap")
+
+	in_reach.free()
+	beyond_reach.free()
+	player.free()
+
+
 func test_insufficient_stamina_blocks_attack_start() -> void:
 	_ensure_content_loaded()
 	var player := _create_player()
 	_equip_item(&"right_hand", ITEM_HAMMER)
 	player.stamina = 5.0
-	player.combat_input_enabled = true
-	Input.action_press(PlayerActionKind.ACTION_ATTACK)
-	player._physics_process(TEST_DELTA)
-	Input.action_release(PlayerActionKind.ACTION_ATTACK)
+	assert_false(player.commit_attack_from_charge_hold(0.05))
 
 	assert_eq(player.action_state_machine.state, PlayerActionState.State.MOVE)
 	assert_eq(player.stamina, 5.0)

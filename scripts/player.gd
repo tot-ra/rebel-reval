@@ -32,6 +32,8 @@ var _screen_down_in_logic := Vector2.DOWN
 var _facing_direction := Vector2.DOWN
 var action_state_machine := PlayerActionStateMachine.new()
 var _active_attack_profile: AttackProfile = AttackProfile.unarmed()
+var _attack_charge_sec: float = 0.0
+var _attack_charge_active: bool = false
 
 func _ready() -> void:
 	CollisionLayers.apply_player(self)
@@ -61,7 +63,7 @@ func configure_map_movement(definition: MapDefinition, grid: MapTerrainGrid) -> 
 
 func _physics_process(_delta):
 	action_state_machine.tick(_delta)
-	_process_action_input()
+	_process_action_input(_delta)
 
 	if _movement_blocked():
 		velocity = Vector2.ZERO
@@ -117,21 +119,84 @@ func _physics_process(_delta):
 	_apply_npc_pushes(movement_velocity, _delta)
 	update_animation(_combat_or_locomotion_animation(new_animation))
 
-func _process_action_input() -> void:
+func _process_action_input(delta: float) -> void:
 	if not combat_input_enabled or _movement_blocked():
 		return
+	if _supports_charged_attack():
+		_process_charged_attack_input(delta)
+	else:
+		_process_instant_attack_input()
 	for kind in PlayerActionInput.read_pressed_actions():
 		if kind == PlayerActionKind.Kind.ATTACK:
-			var profile := _resolve_attack_profile()
-			if stamina < profile.stamina_cost:
-				continue
-			_prepare_attack_for_profile(profile)
-			if action_state_machine.try_start_action(kind):
-				stamina = maxf(0.0, stamina - profile.stamina_cost)
-				_sync_resource_bars()
 			continue
 		action_state_machine.try_start_action(kind)
 	action_state_machine.set_guard_held(PlayerActionInput.read_guard_held())
+
+
+func _process_instant_attack_input() -> void:
+	for kind in PlayerActionInput.read_pressed_actions():
+		if kind != PlayerActionKind.Kind.ATTACK:
+			continue
+		var profile := _resolve_attack_profile(false)
+		if stamina < profile.stamina_cost:
+			continue
+		_prepare_attack_for_profile(profile)
+		if action_state_machine.try_start_action(kind):
+			stamina = maxf(0.0, stamina - profile.stamina_cost)
+			_sync_resource_bars()
+
+
+func _process_charged_attack_input(delta: float) -> void:
+	if action_state_machine.state != PlayerActionState.State.MOVE:
+		_reset_attack_charge()
+		return
+	if PlayerActionInput.read_attack_just_pressed():
+		_attack_charge_active = true
+		_attack_charge_sec = 0.0
+	if _attack_charge_active and PlayerActionInput.read_attack_held():
+		_attack_charge_sec += delta
+	if PlayerActionInput.read_attack_just_released() and _attack_charge_active:
+		_commit_attack_from_charge_hold(_attack_charge_sec)
+
+
+func commit_attack_from_charge_hold(hold_sec: float) -> bool:
+	return _commit_attack_from_charge_hold(hold_sec)
+
+
+func _commit_attack_from_charge_hold(hold_sec: float) -> bool:
+	if action_state_machine.state != PlayerActionState.State.MOVE:
+		_reset_attack_charge()
+		return false
+	var charged := hold_sec >= _charge_threshold_sec()
+	_reset_attack_charge()
+	var profile := _resolve_attack_profile(charged)
+	if stamina < profile.stamina_cost:
+		return false
+	_prepare_attack_for_profile(profile)
+	if not action_state_machine.try_start_action(PlayerActionKind.Kind.ATTACK):
+		return false
+	stamina = maxf(0.0, stamina - profile.stamina_cost)
+	_sync_resource_bars()
+	return true
+
+
+func _reset_attack_charge() -> void:
+	_attack_charge_active = false
+	_attack_charge_sec = 0.0
+
+
+func _supports_charged_attack() -> bool:
+	return AttackProfileResolverScript.state_supports_charged_attack(
+		SessionState.state,
+		SessionState.content_db
+	)
+
+
+func _charge_threshold_sec() -> float:
+	return AttackProfileResolverScript.charge_threshold_sec_for_state(
+		SessionState.state,
+		SessionState.content_db
+	)
 
 
 func apply_hit_stun() -> void:
@@ -192,10 +257,12 @@ func _on_action_state_changed(_previous: PlayerActionState.State, current: Playe
 		_active_attack_profile = _resolve_attack_profile()
 
 
-func _resolve_attack_profile() -> AttackProfile:
-	if not has_node("/root/SessionState"):
-		return AttackProfile.unarmed()
-	return AttackProfileResolverScript.resolve_for_state(SessionState.state, SessionState.content_db)
+func _resolve_attack_profile(use_charged: bool = false) -> AttackProfile:
+	return AttackProfileResolverScript.resolve_for_state(
+		SessionState.state,
+		SessionState.content_db,
+		use_charged
+	)
 
 
 func prepare_attack_profile(profile: AttackProfile) -> void:

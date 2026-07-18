@@ -10,6 +10,7 @@ const REQUIRED_ANIMATIONS: Array[StringName] = [
 	&"run",
 	&"forge_strike",
 	&"hammer_attack",
+	&"hammer_charged_attack",
 	&"unarmed_attack",
 	&"guard",
 	&"hit",

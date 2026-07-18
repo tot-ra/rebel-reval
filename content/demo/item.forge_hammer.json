@@ -35,7 +35,18 @@
       "attack_duration_sec": 0.65,
       "stamina_cost": 12.0,
       "damage_type": "blunt"
-    }
+    },
+    "charged_attack_profile": {
+      "animation": "hammer_charged_attack",
+      "damage": 24.0,
+      "reach_px": 68.0,
+      "facing_dot": 0.35,
+      "impact_timing_sec": 0.42,
+      "attack_duration_sec": 0.85,
+      "stamina_cost": 22.0,
+      "damage_type": "blunt"
+    },
+    "charge_threshold_sec": 0.35
   },
   "source_notes": [
     {

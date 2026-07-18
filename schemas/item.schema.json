@@ -155,55 +155,14 @@
           }
         },
         "attack_profile": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "animation",
-            "damage",
-            "reach_px",
-            "impact_timing_sec",
-            "stamina_cost",
-            "damage_type"
-          ],
-          "properties": {
-            "animation": {
-              "type": "string",
-              "minLength": 1
-            },
-            "damage": {
-              "type": "number",
-              "exclusiveMinimum": 0
-            },
-            "reach_px": {
-              "type": "number",
-              "exclusiveMinimum": 0
-            },
-            "facing_dot": {
-              "type": "number",
-              "minimum": -1,
-              "maximum": 1
-            },
-            "impact_timing_sec": {
-              "type": "number",
-              "exclusiveMinimum": 0
-            },
-            "attack_duration_sec": {
-              "type": "number",
-              "exclusiveMinimum": 0
-            },
-            "stamina_cost": {
-              "type": "number",
-              "minimum": 0
-            },
-            "damage_type": {
-              "type": "string",
-              "enum": [
-                "blunt",
-                "pierce",
-                "slash"
-              ]
-            }
-          }
+          "$ref": "item.schema.json#/$defs/attack_profile"
+        },
+        "charged_attack_profile": {
+          "$ref": "item.schema.json#/$defs/attack_profile"
+        },
+        "charge_threshold_sec": {
+          "type": "number",
+          "exclusiveMinimum": 0
         }
       }
     },
@@ -212,6 +171,59 @@
       "minItems": 1,
       "items": {
         "$ref": "common.schema.json#/$defs/source_note"
+      }
+    }
+  },
+  "$defs": {
+    "attack_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "animation",
+        "damage",
+        "reach_px",
+        "impact_timing_sec",
+        "stamina_cost",
+        "damage_type"
+      ],
+      "properties": {
+        "animation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "damage": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "reach_px": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "facing_dot": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "impact_timing_sec": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "attack_duration_sec": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "stamina_cost": {
+          "type": "number",
+          "minimum": 0
+        },
+        "damage_type": {
+          "type": "string",
+          "enum": [
+            "blunt",
+            "pierce",
+            "slash"
+          ]
+        }
       }
     }
   }
