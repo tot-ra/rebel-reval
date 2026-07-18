@@ -1,0 +1,61 @@
+{
+  "type": "phase_profile",
+  "id": "slicephase.consequence_night",
+  "phase_id": "phase.consequence_night",
+  "title": "Consequence night",
+  "sequence_index": 3,
+  "presentation": {
+    "cycle_enabled": false,
+    "cycle_progress": "0.08",
+    "music_night_tracks": true
+  },
+  "locations": [
+    {
+      "location_id": "loc.lower_town_slice",
+      "patrols": [
+        {
+          "patrol_id": "viru_watch",
+          "enabled": true
+        }
+      ],
+      "npcs": [
+        {
+          "npc_id": "mart",
+          "anchor_id": "checkpoint_west",
+          "visible": true
+        }
+      ]
+    },
+    {
+      "location_id": "loc.kalev_smithy",
+      "npcs": [
+        {
+          "npc_id": "henning",
+          "visible": false
+        }
+      ],
+      "props": [
+        {
+          "object_id": "spearhead_anvil",
+          "visible": false
+        }
+      ]
+    }
+  ],
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P1-017"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Night consequence encounter state with watch pressure concentrated at the checkpoint.",
+      "citations": [
+        "docs/SCENES/a-bitter-brew.md",
+        "scripts/phase/phase_director.gd"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "type": "location",
+  "id": "loc.lower_town_slice",
+  "name": "Viru Gate Quarter",
+  "district": "Lower Town",
+  "confidence": "plausible composite",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P2-020"
+  },
+  "description": "Support copy of the active Lower Town slice location for example-corpus reference checks.",
+  "gameplay_space": true,
+  "scene_path": "res://scenes/reval_east/reval_east.tscn",
+  "spawn_ids": [
+    "street_start",
+    "forge"
+  ],
+  "connected_location_ids": [
+    "loc.kalev_smithy"
+  ],
+  "pressure_tags": [
+    "Authority",
+    "Community",
+    "Suspicion"
+  ],
+  "phase_states": [
+    {
+      "id": "prologue_day",
+      "description": "Patrols and neighbors move through the street before the night consequence."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "Support reference row for P1-017 phase profiles and barks.",
+      "citations": [
+        "content/locations/loc.lower_town_slice.json"
+      ]
+    }
+  ]
+}

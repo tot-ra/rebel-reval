@@ -81,6 +81,11 @@ func view_facing() -> Vector2:
 	return velocity.normalized() if not velocity.is_zero_approx() else _last_facing
 
 
+func set_phase_visibility(visible_state: bool) -> void:
+	visible = visible_state
+	set_physics_process(visible_state)
+
+
 func _update_walk() -> void:
 	if navigation_agent.is_navigation_finished():
 		_arrive()

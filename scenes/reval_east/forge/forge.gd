@@ -12,6 +12,7 @@ const COMMISSION_ANCHOR_SCRIPT := preload("res://scripts/forge/forge_commission_
 var _bootstrap: Dictionary = {}
 var _view_runtime: MapViewRuntime
 var _world_items: WorldItemController
+var _phase_binder: MapPhaseBinder
 var _commission_anchor: Node
 var _interaction_controller: InteractionController
 var _prompt_layer: CanvasLayer
@@ -29,15 +30,30 @@ func _ready() -> void:
 	if player == null:
 		player = _find_player(get_tree().root)
 	_view_runtime = MapViewRuntime.install(self, _bootstrap, map_root, player)
+	_setup_phase_binder(definition)
 	_build_interaction_prompt()
 	_world_items = WorldItemController.new()
 	_world_items.name = "WorldItemController"
 	add_child(_world_items)
 	_world_items.setup(self, definition, _view_runtime, player, &"loc.kalev_smithy")
+	_phase_binder.register_prop(
+		&"spearhead_anvil",
+		func(visible_state: bool) -> void:
+			_world_items.set_prop_visibility(&"world.spearhead_anvil", visible_state)
+	)
 	_commission_anchor = COMMISSION_ANCHOR_SCRIPT.new()
 	_commission_anchor.name = "ForgeCommissionAnchor"
 	add_child(_commission_anchor)
 	_commission_anchor.setup(self, definition, player)
+
+
+func _setup_phase_binder(definition: MapDefinition) -> void:
+	_phase_binder = MapPhaseBinder.new()
+	_phase_binder.name = "MapPhaseBinder"
+	add_child(_phase_binder)
+	_phase_binder.setup(&"loc.kalev_smithy", definition, _view_runtime)
+	if henning != null:
+		_phase_binder.register_npc(&"henning", henning, &"ledger")
 
 
 func _build_interaction_prompt() -> void:

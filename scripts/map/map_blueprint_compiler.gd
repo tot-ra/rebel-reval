@@ -4,6 +4,9 @@ extends RefCounted
 ## Pure, deterministic expansion from cell-space MapBlueprint semantics to the
 ## existing MapDefinition runtime contract.
 
+const CompilerExpand := preload("res://scripts/map/map_blueprint_compiler_expand.gd")
+const CompilerBuild := preload("res://scripts/map/map_blueprint_compiler_build.gd")
+
 const COMPILER_VERSION := 3
 const ID_PATTERN := "^[a-z0-9_.-]+$"
 

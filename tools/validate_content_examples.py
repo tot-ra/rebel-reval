@@ -30,6 +30,7 @@ SCHEMA_BY_TYPE = {
     "commission": "commission.schema.json",
     "location": "location.schema.json",
     "mechanism": "mechanism.schema.json",
+    "phase_profile": "phase_profile.schema.json",
 }
 
 TYPE_MAP = {

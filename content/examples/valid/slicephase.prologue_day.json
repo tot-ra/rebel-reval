@@ -1,0 +1,62 @@
+{
+  "type": "phase_profile",
+  "id": "slicephase.prologue_day",
+  "phase_id": "phase.prologue_day",
+  "title": "Prologue morning",
+  "sequence_index": 0,
+  "presentation": {
+    "cycle_enabled": false,
+    "cycle_progress": "0.35",
+    "music_night_tracks": false
+  },
+  "locations": [
+    {
+      "location_id": "loc.lower_town_slice",
+      "patrols": [
+        {
+          "patrol_id": "viru_watch",
+          "enabled": false
+        }
+      ],
+      "npcs": [
+        {
+          "npc_id": "mart",
+          "anchor_id": "mart_street",
+          "visible": true
+        }
+      ]
+    },
+    {
+      "location_id": "loc.kalev_smithy",
+      "npcs": [
+        {
+          "npc_id": "henning",
+          "anchor_id": "ledger",
+          "visible": true
+        }
+      ],
+      "props": [
+        {
+          "object_id": "spearhead_anvil",
+          "visible": true
+        }
+      ]
+    }
+  ],
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P1-017"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Opening forge and street state before the maker-mark incident escalates.",
+      "citations": [
+        "docs/SCENES/the-makers-mark.md",
+        "scripts/phase/phase_director.gd"
+      ]
+    }
+  ]
+}

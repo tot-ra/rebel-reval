@@ -14,6 +14,10 @@ func _ready() -> void:
 	_ensure_collision_shape()
 
 
+func set_phase_visibility(visible_state: bool) -> void:
+	visible = visible_state
+
+
 func configure(player: Node2D, position: Vector2, facing: Vector2 = Vector2.DOWN) -> void:
 	_player = player
 	global_position = position

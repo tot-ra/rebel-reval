@@ -23,6 +23,7 @@ config/icon="uid://s3dc3n3tlc3s"
 
 DoorNavigator="*res://scripts/global/doorNavigator.gd"
 MusicDirector="*res://scripts/global/music_director.gd"
+PhaseDirector="*res://scripts/phase/phase_director.gd"
 SessionState="*res://scripts/session/session_state.gd"
 UserSettings="*res://scripts/settings/user_settings.gd"
 

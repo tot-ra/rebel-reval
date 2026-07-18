@@ -53,6 +53,12 @@ func get_mart() -> DemoMartNpc:
 	return _mart
 
 
+func register_phase_binder(binder: MapPhaseBinder, definition: MapDefinition) -> void:
+	if _mart == null:
+		return
+	binder.register_npc(&"mart", _mart, &"mart_street")
+
+
 func get_dialogue_runner() -> DemoDialogueRunner:
 	return _dialogue_runner
 

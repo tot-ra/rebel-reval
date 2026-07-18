@@ -136,6 +136,23 @@ func _sync_from_state() -> void:
 		_spawn_item(record)
 
 
+func set_prop_visibility(object_id: StringName, visible_state: bool) -> void:
+	for item: WorldItem in _views.keys():
+		if item.get_world_object_id() != object_id:
+			continue
+		item.visible = visible_state
+		var view: WorldItemView = _views.get(item)
+		if view != null and is_instance_valid(view):
+			view.visible = visible_state
+		var interactable: Interactable = _interactables.get(item)
+		if interactable != null and is_instance_valid(interactable):
+			interactable.visible = visible_state
+			if visible_state:
+				_refresh_interactable_prompt(interactable, item)
+			else:
+				interactable.disable_interaction()
+
+
 func _spawn_item(record: Dictionary) -> void:
 	var object_id := StringName(String(record.get("object_id", "")))
 	var item_id := StringName(String(record.get("item_id", "")))

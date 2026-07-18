@@ -30,7 +30,6 @@ var _inspector: CanvasLayer
 func _ready() -> void:
 	content_db.load_from_directories(DEMO_CONTENT_DIRS)
 	state.bag.set_content_db(content_db)
-	state.phase_changed.connect(_on_phase_changed)
 	_seed_demo_bag_if_empty()
 	debug_presets.load_manifest()
 	if OS.is_debug_build():
@@ -68,18 +67,8 @@ func has_save(slot: int = SaveService.DEFAULT_SLOT) -> bool:
 
 
 func _apply_loaded_state(loaded: GameState) -> void:
-	if state != null and state.phase_changed.is_connected(_on_phase_changed):
-		state.phase_changed.disconnect(_on_phase_changed)
 	state = loaded
 	state.bag.set_content_db(content_db)
-	if not state.phase_changed.is_connected(_on_phase_changed):
-		state.phase_changed.connect(_on_phase_changed)
-
-
-func _on_phase_changed(_previous: StringName, _next: StringName) -> void:
-	# Phase boundaries are the slice autosave hook until P1-017 owns richer transitions.
-	if not save_service.save_game(state):
-		push_warning("Phase-boundary autosave failed for phase %s" % String(_next))
 
 
 func _seed_demo_bag_if_empty() -> void:

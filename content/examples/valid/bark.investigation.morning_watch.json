@@ -1,0 +1,43 @@
+{
+  "type": "bark_pool",
+  "id": "bark.investigation.morning_watch",
+  "title": "Investigation morning watch barks",
+  "owner_id": "char.henning",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "Representative investigation-morning bark pool for phase transition tests."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "first_valid_in_order"
+  },
+  "selection": "first_valid_in_order",
+  "phase_ids": [
+    "phase.investigation_morning"
+  ],
+  "location_ids": [
+    "loc.lower_town_slice"
+  ],
+  "entries": [
+    {
+      "id": "watch_route",
+      "speaker_id": "char.henning",
+      "text": "Keep your eyes on the well and the brewery door.",
+      "priority": 1
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Phase-scoped patrol bark for investigation morning.",
+      "citations": [
+        "docs/SCENES/a-bitter-brew.md",
+        "scripts/phase/phase_director.gd"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "type": "phase_profile",
+  "id": "slicephase.investigation_morning",
+  "phase_id": "phase.investigation_morning",
+  "title": "Investigation morning",
+  "sequence_index": 1,
+  "presentation": {
+    "cycle_enabled": false,
+    "cycle_progress": "0.42",
+    "music_night_tracks": false
+  },
+  "locations": [
+    {
+      "location_id": "loc.lower_town_slice",
+      "patrols": [
+        {
+          "patrol_id": "viru_watch",
+          "enabled": true
+        }
+      ],
+      "npcs": [
+        {
+          "npc_id": "mart",
+          "anchor_id": "mart_street",
+          "visible": true
+        }
+      ]
+    },
+    {
+      "location_id": "loc.kalev_smithy",
+      "npcs": [
+        {
+          "npc_id": "henning",
+          "anchor_id": "ledger",
+          "visible": false
+        }
+      ],
+      "props": [
+        {
+          "object_id": "spearhead_anvil",
+          "visible": false
+        }
+      ]
+    }
+  ],
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P1-017"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Daytime investigation with watch patrols active and the forge cleared for fieldwork.",
+      "citations": [
+        "docs/SCENES/a-bitter-brew.md",
+        "scripts/phase/phase_director.gd"
+      ]
+    }
+  ]
+}
