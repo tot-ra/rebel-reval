@@ -14,6 +14,8 @@ func test_interactable_exposes_stable_id_prompt_and_kind() -> void:
 	assert_eq(interactable.get_interactable_id(), ID_TALK)
 	assert_eq(interactable.get_prompt(), "Talk")
 	assert_eq(interactable.get_interaction_kind(), InteractionKinds.TALK)
+	var body := interactable.get_node("Body") as CanvasItem
+	assert_false(body.visible, "gameplay interactables must not show the 2D placeholder body")
 	_cleanup_node(root)
 
 

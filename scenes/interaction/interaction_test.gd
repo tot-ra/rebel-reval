@@ -90,6 +90,7 @@ func _spawn_interactable(
 ) -> Interactable:
 	var interactable: Interactable = INTERACTABLE_SCENE.instantiate()
 	interactable.name = String(interactable_id).replace(".", "_")
+	interactable.show_debug_body = true
 	interactable.interactable_id = interactable_id
 	interactable.interaction_kind = kind
 	interactable.prompt = prompt

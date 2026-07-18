@@ -10,11 +10,14 @@ signal interacted(actor: Node)
 @export var interaction_kind: StringName = InteractionKinds.USE
 @export var enabled: bool = true
 @export var interaction_radius: float = 115.0
+## 2D greybox marker for harness scenes only. Gameplay maps use 3D props and prompt UI.
+@export var show_debug_body: bool = false
 
 var _callback: Callable = Callable()
 var _focused: bool = false
 var _actors_in_range: Dictionary[int, Node2D] = {}
 
+@onready var _body: CanvasItem = $Body
 @onready var _focus_highlight: CanvasItem = $FocusHighlight
 
 
@@ -24,6 +27,8 @@ func _ready() -> void:
 	monitoring = true
 	collision_mask = collision_mask if collision_mask != 0 else 1
 	_apply_collision_radius()
+	if _body != null:
+		_body.visible = show_debug_body
 	_set_focused(false)
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
