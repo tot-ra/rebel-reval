@@ -90,6 +90,12 @@
       ]
     }
   ],
+  "journal_evidence": [
+    {
+      "fact_id": "fact.seized_spearhead_seen",
+      "text": "Henning presented a seized spearhead bearing Kalev's maker mark on rejected iron."
+    }
+  ],
   "objectives": [
     {
       "id": "inspect_spearhead",

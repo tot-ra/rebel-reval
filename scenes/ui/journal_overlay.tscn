@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8jrnloverlay1"]
+
+[ext_resource type="Script" path="res://scripts/journal/journal_overlay.gd" id="1_overlay"]
+
+[node name="JournalOverlay" type="CanvasLayer"]
+visible = false
+script = ExtResource("1_overlay")

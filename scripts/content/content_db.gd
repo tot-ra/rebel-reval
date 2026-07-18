@@ -164,6 +164,18 @@ func get_location(content_id: StringName) -> Dictionary:
 	return _lookup_typed(content_id, TYPE_LOCATION)
 
 
+func get_ids_by_type(expected_type: String) -> Array[StringName]:
+	var ids: Array[StringName] = []
+	if not _loaded:
+		return ids
+	for content_id: StringName in _records:
+		var record: Dictionary = _records[content_id]
+		if String(record.get("type", "")) == expected_type:
+			ids.append(content_id)
+	ids.sort()
+	return ids
+
+
 func _lookup_typed(content_id: StringName, expected_type: String) -> Dictionary:
 	var record := lookup(content_id)
 	if record.is_empty():

@@ -103,8 +103,11 @@ func movement_direction_for_screen_input(screen_direction: Vector2) -> Vector2:
 func _movement_blocked() -> bool:
 	if not get_tree().get_nodes_in_group(&"demo_dialogue_active").is_empty():
 		return true
-	var controller := get_node_or_null("InventoryController") as InventoryController
-	return controller != null and controller.is_open()
+	var inventory := get_node_or_null("InventoryController") as InventoryController
+	if inventory != null and inventory.is_open():
+		return true
+	var journal := get_node_or_null("JournalController") as JournalController
+	return journal != null and journal.is_open()
 
 
 func _get_encumbrance_speed_multiplier() -> float:
