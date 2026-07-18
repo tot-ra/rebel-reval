@@ -17,6 +17,7 @@ var _phase_binder: MapPhaseBinder
 var _commission_anchor: Node
 var _rest_anchor: Node
 var _interaction_controller: InteractionController
+var _dialogue_encounter: ForgeDialogueEncounter
 var _prompt_layer: CanvasLayer
 var _prompt_label: Label
 
@@ -32,6 +33,7 @@ func _ready() -> void:
 	if player == null:
 		player = _find_player(get_tree().root)
 	_view_runtime = MapViewRuntime.install(self, _bootstrap, map_root, player)
+	_setup_dialogue_encounter(definition)
 	_setup_phase_binder(definition)
 	_build_interaction_prompt()
 	_world_items = WorldItemController.new()
@@ -51,6 +53,21 @@ func _ready() -> void:
 	_rest_anchor.name = "PhaseRestAnchor"
 	add_child(_rest_anchor)
 	_rest_anchor.setup(self, definition, player)
+
+
+func _setup_dialogue_encounter(definition: MapDefinition) -> void:
+	_dialogue_encounter = ForgeDialogueEncounter.new()
+	_dialogue_encounter.name = "ForgeDialogueEncounter"
+	add_child(_dialogue_encounter)
+	_dialogue_encounter.wire(
+		self,
+		player,
+		henning,
+		cat,
+		_view_runtime,
+		definition,
+		_interaction_controller
+	)
 
 
 func _setup_phase_binder(definition: MapDefinition) -> void:

@@ -1,0 +1,36 @@
+{
+  "type": "character",
+  "id": "char.forge_cat",
+  "name": "Forge Cat",
+  "role": "Kalev's smithy cat",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "forge-dialogue-demo"
+  },
+  "pronunciation": "FORJ kat",
+  "brief": {
+    "want": "Warm stone, quiet corners, and the occasional scrap.",
+    "fear": "Loud hammers and spilled slag.",
+    "contradiction": "Acts aloof but never leaves the forge.",
+    "secret_or_withheld_fact": "Knows every hiding place in the smithy better than Kalev does."
+  },
+  "relationships": [],
+  "voice": {
+    "summary": "Silent, observant, and unimpressed.",
+    "diction": "Described through action rather than spoken lines."
+  },
+  "outcomes": [
+    {
+      "id": "stays",
+      "summary": "The cat remains a fixture of the forge."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Support record for the forge cat interaction demo."
+    }
+  ]
+}

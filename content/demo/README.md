@@ -5,6 +5,8 @@ Authored JSON for the MVP demo interaction loop. These records are schema-valid,
 | ID | File | Used by |
 |----|------|---------|
 | `dialogue.demo.mart_street` | `dialogue.demo.mart_street.json` | D-002 via `DemoMartEncounter` / `DemoDialogueRunner` |
+| `dialogue.demo.forge_henning` | `dialogue.demo.forge_henning.json` | Forge demo via `ForgeDialogueEncounter` |
+| `dialogue.demo.forge_cat` | `dialogue.demo.forge_cat.json` | Forge demo via `ForgeDialogueEncounter` |
 | `item.forge_hammer` | `item.forge_hammer.json` | D-003 forge-hammer pickup and bag overlay (`docs/INVENTORY_MECHANICS.md`) |
 
 Support character records live in `content/examples/support/` so the demo corpus and the validated example corpus share one canon source. Validate the demo slice together with that support pack:
