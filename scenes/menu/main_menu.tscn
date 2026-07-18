@@ -12,15 +12,15 @@ anchors_preset = 0
 
 [node name="City background" type="Sprite2D" parent="."]
 visible = false
-position = Vector2(800, 408)
+position = Vector2(960, 490)
 scale = Vector2(0.544271, 0.496094)
 texture = ExtResource("1_kiqgm")
 
 [node name="AspectRatioContainer" type="AspectRatioContainer" parent="."]
 layout_mode = 0
-offset_right = 1600.0
-offset_bottom = 900.0
-ratio = 1.6
+offset_right = 1920.0
+offset_bottom = 1080.0
+ratio = 1.77778
 stretch_mode = 3
 
 [node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="AspectRatioContainer"]
@@ -31,16 +31,16 @@ expand = true
 loop = true
 
 [node name="Logo" type="Sprite2D" parent="."]
-position = Vector2(767.497, 433)
+position = Vector2(921, 520)
 scale = Vector2(1.01313, 1.01313)
 texture = ExtResource("2_kiqgm")
 
 [node name="Start label" type="RichTextLabel" parent="."]
 layout_mode = 0
-offset_left = 648.0
-offset_top = 589.0
-offset_right = 876.0
-offset_bottom = 663.0
+offset_left = 778.0
+offset_top = 707.0
+offset_right = 1051.0
+offset_bottom = 796.0
 focus_mode = 1
 theme_override_colors/default_color = Color(0.980392, 0.839216, 0.0235294, 1)
 theme_override_font_sizes/normal_font_size = 40
@@ -52,10 +52,10 @@ script = ExtResource("3_i2l1n")
 [node name="Exit label" type="RichTextLabel" parent="."]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 0
-offset_left = 612.497
-offset_top = 666.0
-offset_right = 911.497
-offset_bottom = 714.0
+offset_left = 735.0
+offset_top = 799.0
+offset_right = 1094.0
+offset_bottom = 857.0
 theme_override_colors/default_color = Color(0.980392, 0.839216, 0.0313726, 1)
 theme_override_font_sizes/normal_font_size = 30
 text = "Exit"

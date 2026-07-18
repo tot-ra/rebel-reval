@@ -95,7 +95,7 @@ func test_running_uses_contralateral_arm_swing() -> void:
 
 func test_scale_contract_projects_to_sixty_four_pixels() -> void:
 	assert_true(is_equal_approx(CharacterScale.VISIBLE_HEIGHT_WORLD, 2.0))
-	assert_true(is_equal_approx(CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE, 28.125))
+	assert_true(is_equal_approx(CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE, 33.75))
 	assert_true(is_equal_approx(CharacterScale.projected_height_px(), 64.0))
 	var kalev := _instantiate(KALEV_SCENE)
 	assert_true(

@@ -62,7 +62,7 @@ mesh = SubResource("Mesh_floor")
 [node name="Camera3D" type="Camera3D" parent="."]
 position = Vector3(20, 15, 20)
 projection = 1
-size = 28.125
+size = 33.75
 current = true
 
 [node name="Idle" parent="." instance=ExtResource("2_kalev")]

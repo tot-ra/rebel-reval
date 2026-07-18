@@ -6,6 +6,7 @@ extends RefCounted
 const TextScaleScript := preload("res://scripts/dialogue/dialogue_text_scale.gd")
 
 const TARGET_VIEWPORTS: Array[Vector2i] = [
+	Vector2i(1920, 1080),
 	Vector2i(1600, 900),
 	Vector2i(1280, 720),
 ]
