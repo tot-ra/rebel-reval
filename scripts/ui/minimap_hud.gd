@@ -5,8 +5,48 @@ const TOGGLE_ACTION := &"toggle_minimap"
 const MAX_DISPLAY_SIZE := 280.0
 const PANEL_MARGIN := 24.0
 const INNER_PADDING := 8.0
+const ORNAMENT_INSET := 5.0
 const MARKER_SIZE := Vector2(10.0, 10.0)
 const CIRCULAR_CLIP_SHADER := preload("res://scripts/ui/circular_clip.gdshader")
+
+
+class MinimapOrnament:
+	extends Control
+
+	const OUTER_GOLD := Color(0.72, 0.58, 0.31, 1.0)
+	const INNER_GOLD := Color(0.93, 0.79, 0.48, 0.9)
+	const SHADOW_BRONZE := Color(0.23, 0.13, 0.07, 0.95)
+
+	func _draw() -> void:
+		var center := size * 0.5
+		var radius := minf(size.x, size.y) * 0.5 - ORNAMENT_INSET
+		draw_arc(center, radius + 2.0, 0.0, TAU, 96, SHADOW_BRONZE, 5.0, true)
+		draw_arc(center, radius, 0.0, TAU, 96, OUTER_GOLD, 3.0, true)
+		draw_arc(center, radius - 5.0, 0.0, TAU, 96, INNER_GOLD, 1.0, true)
+
+		# Cardinal fleur-like points and small ring studs make the frame read as
+		# crafted medieval metalwork without requiring resolution-specific art.
+		for index in 4:
+			var angle := float(index) * PI * 0.5
+			_draw_cardinal_flourish(center, radius, angle)
+		for index in 12:
+			var angle := float(index) * TAU / 12.0
+			var stud := center + Vector2.from_angle(angle) * (radius - 8.0)
+			draw_circle(stud, 1.5, INNER_GOLD)
+
+	func _draw_cardinal_flourish(center: Vector2, radius: float, angle: float) -> void:
+		var outward := Vector2.from_angle(angle)
+		var tangent := outward.orthogonal()
+		var tip := center + outward * (radius - 1.0)
+		var base := center + outward * (radius - 12.0)
+		var diamond := PackedVector2Array([
+			tip,
+			base + tangent * 5.0,
+			base - outward * 5.0,
+			base - tangent * 5.0,
+		])
+		draw_colored_polygon(diamond, SHADOW_BRONZE)
+		draw_polyline(PackedVector2Array([tip, base + tangent * 5.0, base - outward * 5.0, base - tangent * 5.0, tip]), INNER_GOLD, 1.5, true)
 
 var _definition: MapDefinition
 var _grid: MapTerrainGrid
@@ -81,10 +121,12 @@ func _build_ui() -> void:
 	_texture_rect.name = "MapTexture"
 	_texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_texture_rect.stretch_mode = TextureRect.STRETCH_SCALE
+	_texture_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var clip_material := ShaderMaterial.new()
 	clip_material.shader = CIRCULAR_CLIP_SHADER
 	_texture_rect.material = clip_material
+	_texture_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_map_host.add_child(_texture_rect)
 
 	_marker = ColorRect.new()
@@ -94,6 +136,12 @@ func _build_ui() -> void:
 	_marker.size = MARKER_SIZE
 	_map_host.add_child(_marker)
 
+	var ornament := MinimapOrnament.new()
+	ornament.name = "MedievalOrnament"
+	ornament.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ornament.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_map_host.add_child(ornament)
+
 
 func _rebuild_map_texture() -> void:
 	if _texture_rect == null or _definition == null or _grid == null:
@@ -102,22 +150,26 @@ func _rebuild_map_texture() -> void:
 	var image := MinimapTextureBuilder.build_image(_definition, _grid)
 	_map_texture = ImageTexture.create_from_image(image)
 	_texture_rect.texture = _map_texture
+	(_texture_rect.material as ShaderMaterial).set_shader_parameter(
+		"map_aspect",
+		float(image.get_width()) / float(image.get_height())
+	)
 
 	_apply_map_layout()
 	_update_marker()
 
 
 func _display_size_for_map() -> Vector2:
-	if _definition == null:
+	return Vector2(MAX_DISPLAY_SIZE, MAX_DISPLAY_SIZE)
+
+
+func _map_uv_for_normalized(normalized: Vector2) -> Vector2:
+	if _definition == null or _definition.size_cells.x <= 0 or _definition.size_cells.y <= 0:
 		return Vector2.ZERO
-	var world_size := _definition.size_cells
-	if world_size.x <= 0 or world_size.y <= 0:
-		return Vector2.ZERO
-	var scale := minf(
-		MAX_DISPLAY_SIZE / float(world_size.x),
-		MAX_DISPLAY_SIZE / float(world_size.y)
-	)
-	return Vector2(float(world_size.x) * scale, float(world_size.y) * scale)
+	var aspect := float(_definition.size_cells.x) / float(_definition.size_cells.y)
+	if aspect > 1.0:
+		return Vector2((normalized.x - 0.5) * aspect + 0.5, normalized.y)
+	return Vector2(normalized.x, (normalized.y - 0.5) / aspect + 0.5)
 
 
 func _update_marker() -> void:
@@ -126,9 +178,7 @@ func _update_marker() -> void:
 		return
 
 	var normalized := MinimapTextureBuilder.world_to_normalized(_definition, _player.global_position)
-	var map_size := _texture_rect.size
-	var map_offset := _map_offset_in_circle()
-	var marker_center := map_offset + normalized * map_size
+	var marker_center := _map_uv_for_normalized(normalized) * _texture_rect.size
 	var circle_center := Vector2(MAX_DISPLAY_SIZE, MAX_DISPLAY_SIZE) * 0.5
 	var marker_inside_circle := marker_center.distance_to(circle_center) <= (MAX_DISPLAY_SIZE * 0.5) - 2.0
 	_marker.visible = visible and marker_inside_circle
@@ -142,23 +192,19 @@ func _is_toggle_event(event: InputEvent) -> bool:
 func _apply_panel_style() -> void:
 	var radius := int(MAX_DISPLAY_SIZE * 0.5) + INNER_PADDING
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.08, 0.07, 0.06, 0.92)
-	style.border_color = Color(0.72, 0.64, 0.46, 1.0)
-	style.set_border_width_all(3)
+	style.bg_color = Color(0.055, 0.035, 0.025, 0.96)
+	style.border_color = Color(0.24, 0.13, 0.06, 1.0)
+	style.set_border_width_all(2)
 	style.set_corner_radius_all(radius)
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.55)
+	style.shadow_size = 8
 	_panel.add_theme_stylebox_override("panel", style)
 
 
 func _apply_map_layout() -> void:
-	var map_size := _display_size_for_map()
 	var host_size := Vector2(MAX_DISPLAY_SIZE, MAX_DISPLAY_SIZE)
 	_map_host.custom_minimum_size = host_size
 	_map_host.size = host_size
-	_texture_rect.custom_minimum_size = map_size
-	_texture_rect.size = map_size
-	_texture_rect.position = _map_offset_in_circle()
-
-
-func _map_offset_in_circle() -> Vector2:
-	var map_size := _display_size_for_map()
-	return (Vector2(MAX_DISPLAY_SIZE, MAX_DISPLAY_SIZE) - map_size) * 0.5
+	_texture_rect.custom_minimum_size = host_size
+	_texture_rect.position = Vector2.ZERO
+	_texture_rect.size = host_size
