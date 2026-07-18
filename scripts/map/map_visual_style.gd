@@ -172,6 +172,8 @@ static func _pixel_role(role: StringName) -> Color:
 		&"character_skin": return Color8(205, 157, 111)
 		&"character_apron": return Color8(79, 91, 91)
 		&"ember": return Color8(214, 98, 42)
+		&"flower": return Color8(196, 108, 132)
+		&"vegetation": return Color8(72, 104, 58)
 		_: return Color.MAGENTA
 
 
@@ -191,6 +193,8 @@ static func _woodcut_role(role: StringName) -> Color:
 		&"character_skin": return Color8(195, 156, 111)
 		&"character_apron": return Color8(69, 75, 68)
 		&"ember": return Color8(196, 88, 38)
+		&"flower": return Color8(176, 96, 118)
+		&"vegetation": return Color8(68, 96, 54)
 		_: return Color.MAGENTA
 
 
@@ -210,4 +214,6 @@ static func _clean_role(role: StringName) -> Color:
 		&"character_skin": return Color8(216, 169, 123)
 		&"character_apron": return Color8(83, 99, 101)
 		&"ember": return Color8(224, 108, 48)
+		&"flower": return Color8(204, 112, 138)
+		&"vegetation": return Color8(78, 112, 64)
 		_: return Color.MAGENTA

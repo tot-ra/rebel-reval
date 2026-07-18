@@ -3,11 +3,18 @@ rrmap 1
 map rrmap_courtyard_example loc.rrmap_courtyard_example 20 14 grass scope=prototype active=false palette=clean_painted seed=42042 cell_size=32
 source "docs/MAP_AUTHORING.md"
 style house.warm wall_height=96 wall_color=806f5cff roof_color=453027ff door_side=south
+style grass.short
+style grass.flowers
+style bush.dense
 terrain yard dirt 2 2 16 10 order=1
+terrain patch.short grass 0 0 4 6 style=grass.short order=3
+terrain patch.flowers grass 16 0 4 5 style=grass.flowers order=3
+terrain scrub.bushes grass 17 10 3 3 style=bush.dense order=3
 stroke path cobblestone 0,7|10,7|10,13 thickness=2 order=2
 building house.main house 4 3 5 3 style=house.warm
 wall wall.north 2 2 17 2 thickness=1 openings=9,2,2,1
 prop prop.well well 10 8
+prop bush.north bush 1 1 rect=2,2
 spawn spawn.main 3 7
 anchor anchor.house 6 6 kind=door
 patrol patrol.watch 3,7|10,7|16,7

@@ -23,9 +23,11 @@ static func pattern_color(
 	local: Vector2,
 	seed: int,
 	target: StringName = MapVisualStyle.TARGET_CLEAN_PAINTED,
-	time_of_day: StringName = MapVisualStyle.TIME_DAY
+	time_of_day: StringName = MapVisualStyle.TIME_DAY,
+	style_variant: StringName = &""
 ) -> Color:
 	var base := base_color(terrain_id, target, time_of_day)
+	base *= TerrainVegetation.ground_color_tint(style_variant)
 	var hash := cell_hash(cell, seed, terrain_id)
 	var strength := 0.06
 	match target:
@@ -38,6 +40,8 @@ static func pattern_color(
 
 	match terrain_id:
 		MapTypes.TERRAIN_GRASS:
+			if style_variant == TerrainVegetation.VARIANT_GRASS_FLOWERS and (hash + int(local.x) + int(local.y * 2.0)) % 11 == 0:
+				return base.lerp(Color8(196, 118, 142), 0.42)
 			return base.lightened(strength) if (hash + int(local.x * 3.0) + int(local.y)) % 5 == 0 else base.darkened(strength * 0.35)
 		MapTypes.TERRAIN_SAND:
 			return base.lightened(strength * 0.75) if (hash + int(local.x + local.y * 2.0)) % 4 == 0 else base.darkened(strength * 0.20)

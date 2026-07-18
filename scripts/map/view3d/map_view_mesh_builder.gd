@@ -345,7 +345,8 @@ static func build_terrain(definition: MapDefinition, grid: MapTerrainGrid) -> No
 			for x in grid.size_cells.x:
 				if grid.get_terrain(Vector2i(x, y)) != terrain_id:
 					continue
-				var tone := 1.0 if water else _cell_tone(x, y, definition.seed)
+				var variant := grid.get_style_variant(Vector2i(x, y))
+				var tone := 1.0 if water else _cell_tone(x, y, definition.seed, variant)
 				_add_cell_quad(surface, field, grid, terrain_id, x, y, definition.seed, tone)
 		var instance := MeshInstance3D.new()
 		instance.name = "Terrain_%s" % String(terrain_id)
@@ -361,7 +362,7 @@ static func build_terrain(definition: MapDefinition, grid: MapTerrainGrid) -> No
 
 
 ## Deterministic per-cell brightness: fine jitter over a broad patch drift.
-static func _cell_tone(x: int, y: int, noise_seed: int) -> float:
+static func _cell_tone(x: int, y: int, noise_seed: int, style_variant: StringName = &"") -> float:
 	var fine := _hash01(x, y, noise_seed)
 	var patch := _hash01(
 		floori(float(x) / TERRAIN_PATCH_CELLS),
@@ -371,6 +372,8 @@ static func _cell_tone(x: int, y: int, noise_seed: int) -> float:
 	var tone := 1.0
 	tone += (fine * 2.0 - 1.0) * TERRAIN_JITTER
 	tone += (patch * 2.0 - 1.0) * TERRAIN_PATCH_STRENGTH
+	var tint := TerrainVegetation.ground_color_tint(style_variant)
+	tone *= (tint.r + tint.g + tint.b) / 3.0
 	return clampf(tone, 0.75, 1.2)
 
 
@@ -1265,6 +1268,10 @@ static func build_prop(prop: Dictionary, cell_size: int) -> Node3D:
 			var controller = CANDLE_LIGHT_SCRIPT.new()
 			controller.configure(candle_light, flame)
 			root.add_child(controller)
+		MapTypes.PROP_KIND_BUSH:
+			_sphere(root, "BushA", 0.42, Vector3(-0.18, 0.28, 0.08), &"vegetation", Vector3(1.0, 0.72, 1.0))
+			_sphere(root, "BushB", 0.36, Vector3(0.22, 0.24, -0.12), &"vegetation", Vector3(1.0, 0.68, 1.0))
+			_sphere(root, "BushC", 0.3, Vector3(0.04, 0.18, 0.16), &"vegetation", Vector3(1.0, 0.66, 1.0))
 		_:
 			_box(root, "Marker", Vector3(0.5, 0.5, 0.5), Vector3(0.0, 0.25, 0.0), &"ink")
 	return root
@@ -1290,6 +1297,8 @@ static func build_scatter(
 
 	var tufts: Array[Transform3D] = []
 	var tuft_colors: Array[Color] = []
+	var bushes: Array[Transform3D] = []
+	var bush_colors: Array[Color] = []
 	var stones: Array[Transform3D] = []
 	var stone_colors: Array[Color] = []
 	for y in range(bounds.position.y, bounds.end.y):
@@ -1298,14 +1307,27 @@ static func build_scatter(
 			if _cell_blocked(cell, blocked):
 				continue
 			var terrain := grid.get_terrain(cell)
+			var variant := grid.get_style_variant(cell)
+			var profile := TerrainVegetation.scatter_profile(variant)
 			var roll := _hash01(x, y, definition.seed + 4242)
-			if roll < SCATTER_TUFT_CHANCE.get(terrain, 0.0):
+			var tuft_chance := SCATTER_TUFT_CHANCE.get(terrain, 0.0) * float(profile.get("chance_scale", 1.0))
+			if roll < tuft_chance:
 				var count := 2 + int(_hash01(x, y, definition.seed + 511) * 2.0)
 				for tuft_index in count:
-					tufts.append(_scatter_transform(field, x, y, definition.seed + 31 * (tuft_index + 1), 0.7, 1.4))
+					var height_min := float(profile.get("height_min", 0.7))
+					var height_max := float(profile.get("height_max", 1.4))
+					tufts.append(_scatter_transform(field, x, y, definition.seed + 31 * (tuft_index + 1), height_min, height_max))
 					var green := 0.86 + _hash01(x + tuft_index, y, definition.seed + 77) * 0.28
-					tuft_colors.append(Color(green * 0.94, green, green * 0.8))
-			elif roll < SCATTER_TUFT_CHANCE.get(terrain, 0.0) + SCATTER_STONE_CHANCE.get(terrain, 0.0):
+					var tint := TerrainVegetation.ground_color_tint(variant)
+					tuft_colors.append(Color(green * 0.94 * tint.r, green * tint.g, green * 0.8 * tint.b))
+					if float(profile.get("flower_chance", 0.0)) > 0.0 and _hash01(x, y, definition.seed + 1200 + tuft_index) < float(profile["flower_chance"]):
+						tufts.append(_scatter_transform(field, x, y, definition.seed + 71 * (tuft_index + 1), 0.35, 0.55))
+						tuft_colors.append(MapVisualStyle.role_color(&"flower", MapVisualStyle.TARGET_CLEAN_PAINTED, MapVisualStyle.TIME_DAY))
+				if float(profile.get("bush_chance", 0.0)) > 0.0 and _hash01(x, y, definition.seed + 1500) < float(profile["bush_chance"]):
+					bushes.append(_scatter_transform(field, x, y, definition.seed + 1700, 0.8, 1.2))
+					var bush_green := MapVisualStyle.role_color(&"vegetation", MapVisualStyle.TARGET_CLEAN_PAINTED, MapVisualStyle.TIME_DAY)
+					bush_colors.append(bush_green)
+			elif roll < tuft_chance + SCATTER_STONE_CHANCE.get(terrain, 0.0):
 				stones.append(_scatter_transform(field, x, y, definition.seed + 913, 0.6, 1.6))
 				var gray := 0.8 + _hash01(x, y, definition.seed + 154) * 0.35
 				stone_colors.append(Color(gray, gray, gray * 0.97))
@@ -1315,6 +1337,14 @@ static func build_scatter(
 	# directional shadow maps flicker on paper-thin blade geometry.
 	grass_tufts.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(grass_tufts)
+
+	if not bushes.is_empty():
+		var bush_mesh := SphereMesh.new()
+		bush_mesh.radius = 0.22
+		bush_mesh.height = 0.34
+		var bush_instances := _multi_mesh("Bushes", bush_mesh, bushes, bush_colors, MapViewMaterials.foliage_tuft(), Vector3(0.0, 0.08, 0.0))
+		bush_instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(bush_instances)
 
 	var stone_mesh := SphereMesh.new()
 	stone_mesh.radius = 0.09

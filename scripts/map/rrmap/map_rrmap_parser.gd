@@ -11,7 +11,7 @@ const _STYLE_NAME_KEYS: Array[String] = [
 	"door_side", "ridge_axis", "primitive", "style_variant", "destination_scene_id",
 	"destination_spawn_id", "spawn_id", "view_landmark_id", "kind", "door_material", "passage_axis",
 ]
-const _STYLE_FLOAT_KEYS: Array[String] = ["wall_height", "wall_height_scale", "top_px"]
+const _STYLE_FLOAT_KEYS: Array[String] = ["wall_height", "wall_height_scale", "top_px", "movement_speed_multiplier"]
 const _STYLE_COLOR_KEYS: Array[String] = ["wall_color", "roof_color"]
 const _STYLE_VECTOR_KEYS: Array[String] = ["visual_offset_px", "spawn_offset_px"]
 const _STYLE_CARDINAL_VECTOR_KEYS: Array[String] = ["facing", "direction"]
@@ -243,11 +243,14 @@ func _parse_camera(tokens: Array[Dictionary], line: int) -> void:
 
 
 func _parse_style(tokens: Array[Dictionary], line: int) -> void:
-	if not _arity(tokens, line, 3, "style <id> [parent=<id>] <typed_key=value> ..."):
+	if not _arity(tokens, line, 2, "style <id> [parent=<id>] [typed_key=value] ..."):
 		return
-	var parsed = _typed_options(tokens, line, 2, true)
-	if parsed == null:
-		return
+	var parsed: Dictionary = {}
+	if tokens.size() >= 3:
+		var options = _typed_options(tokens, line, 2, true)
+		if options == null:
+			return
+		parsed = options
 	var parent: StringName = StringName(parsed["parent"] if parsed.has("parent") else "")
 	parsed.erase("parent")
 	_blueprint.style(StringName(tokens[1]["text"]), parsed, parent)

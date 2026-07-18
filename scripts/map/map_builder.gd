@@ -71,18 +71,34 @@ static func _fill_chunks(grid: MapTerrainGrid, terrain: StringName) -> void:
 static func _apply_zone_to_chunks(grid: MapTerrainGrid, zone: Dictionary) -> void:
 	var zone_rect: Rect2i = zone["rect"]
 	var terrain: StringName = zone["terrain"]
+	var style_variant: StringName = zone.get("style_variant", &"")
+	var speed_multiplier := TerrainVegetation.resolved_zone_speed(
+		style_variant,
+		zone.get("movement_speed_multiplier", null)
+	)
 	for coordinates in grid.chunk_coordinates():
 		var clipped := zone_rect.intersection(grid.chunk_bounds(coordinates))
 		if not clipped.has_area():
 			continue
 		for y in range(clipped.position.y, clipped.end.y):
 			for x in range(clipped.position.x, clipped.end.x):
-				grid.set_terrain(Vector2i(x, y), terrain)
+				var cell := Vector2i(x, y)
+				grid.set_terrain(cell, terrain)
+				if not style_variant.is_empty() or speed_multiplier < 0.999:
+					grid.apply_vegetation_overlay(cell, style_variant, speed_multiplier)
 
 
 static func _apply_zone(grid: MapTerrainGrid, zone: Dictionary) -> void:
 	var rect: Rect2i = zone["rect"]
 	var terrain: StringName = zone["terrain"]
+	var style_variant: StringName = zone.get("style_variant", &"")
+	var speed_multiplier := TerrainVegetation.resolved_zone_speed(
+		style_variant,
+		zone.get("movement_speed_multiplier", null)
+	)
 	for y in range(rect.position.y, rect.end.y):
 		for x in range(rect.position.x, rect.end.x):
-			grid.set_terrain(Vector2i(x, y), terrain)
+			var cell := Vector2i(x, y)
+			grid.set_terrain(cell, terrain)
+			if not style_variant.is_empty() or speed_multiplier < 0.999:
+				grid.apply_vegetation_overlay(cell, style_variant, speed_multiplier)

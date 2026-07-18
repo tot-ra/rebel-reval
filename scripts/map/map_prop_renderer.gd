@@ -42,6 +42,7 @@ static func create_prop(
 		MapTypes.PROP_KIND_HEARTH: _draw_hearth(root, target, time_of_day)
 		MapTypes.PROP_KIND_CHAIR: _draw_chair(root, target, time_of_day)
 		MapTypes.PROP_KIND_CANDLE: _draw_candle(root, target, time_of_day)
+		MapTypes.PROP_KIND_BUSH: _draw_bush(root, target, time_of_day)
 		_: _add_rect(root, "Marker", Vector2(-8, -8), Vector2(16, 16), Color.MAGENTA, target, time_of_day)
 	return root
 
@@ -162,6 +163,13 @@ static func _draw_candle(parent: Node2D, target: StringName, time_of_day: String
 	_add_rect(parent, "Holder", Vector2(-5, 2), Vector2(10, 6), MapVisualStyle.role_color(&"metal", target, time_of_day), target, time_of_day)
 	_add_rect(parent, "Wax", Vector2(-2, -6), Vector2(4, 10), plaster.lightened(0.12), target, time_of_day)
 	_add_circle(parent, "Flame", Vector2(0, -10), 4.0, ember, target, time_of_day)
+
+
+static func _draw_bush(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	var foliage := MapVisualStyle.role_color(&"vegetation", target, time_of_day)
+	_add_circle(parent, "BushA", Vector2(-8, -6), 11.0, foliage.darkened(0.06), target, time_of_day)
+	_add_circle(parent, "BushB", Vector2(7, -8), 10.0, foliage, target, time_of_day)
+	_add_circle(parent, "BushC", Vector2(1, -3), 8.0, foliage.lightened(0.08), target, time_of_day)
 
 
 static func _draw_barrels(parent: Node2D, target: StringName, time_of_day: StringName) -> void:

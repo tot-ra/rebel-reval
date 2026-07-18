@@ -32,6 +32,15 @@ func _on_spawn(position: Vector2, direction: String):
 		animation_player.play("walk_"+direction)
 		animation_player.stop()
 
+var _map_definition: MapDefinition
+var _map_grid: MapTerrainGrid
+
+
+func configure_map_movement(definition: MapDefinition, grid: MapTerrainGrid) -> void:
+	_map_definition = definition
+	_map_grid = grid
+
+
 func _physics_process(_delta):
 	if _movement_blocked():
 		velocity = Vector2.ZERO
@@ -46,11 +55,12 @@ func _physics_process(_delta):
 	
 	if not movement_direction.is_zero_approx():
 		var encumbrance := _get_encumbrance_speed_multiplier()
-		var current_speed = run_speed * encumbrance
+		var terrain_speed := _get_terrain_speed_multiplier()
+		var current_speed = run_speed * encumbrance * terrain_speed
 		
 		if Input.is_action_pressed("ui_shift"):
 			new_animation = "walk"
-			current_speed = walk_speed * encumbrance
+			current_speed = walk_speed * encumbrance * terrain_speed
 		else:
 			new_animation = "run"
 		
@@ -62,7 +72,7 @@ func _physics_process(_delta):
 			var current_agent_position: Vector2 = global_position
 			var next_path_position: Vector2 = navigation_agent.get_next_path_position()
 
-			velocity = run_speed * _get_encumbrance_speed_multiplier() * (next_path_position - current_agent_position).normalized()
+			velocity = run_speed * _get_encumbrance_speed_multiplier() * _get_terrain_speed_multiplier() * (next_path_position - current_agent_position).normalized()
 			
 			navigation_agent.set_velocity(velocity)
 			new_animation = "run"
@@ -91,6 +101,8 @@ func movement_direction_for_screen_input(screen_direction: Vector2) -> Vector2:
 	return logic_direction.normalized() if not logic_direction.is_zero_approx() else Vector2.ZERO
 
 func _movement_blocked() -> bool:
+	if not get_tree().get_nodes_in_group(&"demo_dialogue_active").is_empty():
+		return true
 	var controller := get_node_or_null("InventoryController") as InventoryController
 	return controller != null and controller.is_open()
 
@@ -99,6 +111,12 @@ func _get_encumbrance_speed_multiplier() -> float:
 	if not has_node("/root/SessionState"):
 		return 1.0
 	return SessionState.state.bag.get_speed_multiplier()
+
+
+func _get_terrain_speed_multiplier() -> float:
+	if _map_definition == null or _map_grid == null:
+		return 1.0
+	return MapTerrainMovement.speed_multiplier_at(_map_definition, _map_grid, global_position)
 
 
 func _update_movement_resources(delta: float, is_moving: bool) -> void:

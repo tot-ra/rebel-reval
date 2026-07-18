@@ -633,6 +633,20 @@ surroundings north water east water west town south town
 
 `MapRrmapParser.canonical_print()` emits a deterministic normalized v1 source. Tests require `parse -> canonical print -> parse -> canonical print` stability and an unchanged compiled fingerprint.
 
+### Grass variants and bushes
+
+Terrain rectangles and strokes accept `style=<id>`. When the style id names a reviewed vegetation variant, the compiler stores `style_variant` on the resulting zone and applies default movement penalties for dense bush styles. Supported grass variants: `grass.short`, `grass.tall`, `grass.flowers`, `grass.dry`, `grass.mossy`. Bush terrain variants: `bush.dense`, `bush.scrub`. Authors may override speed with `movement_speed_multiplier` on the style block or inline on a prop.
+
+```rrmap
+style grass.flowers
+style bush.dense movement_speed_multiplier=0.55
+terrain meadow.flowers grass 4 34 18 8 style=grass.flowers order=10
+terrain scrub.bushes grass 62 24 8 6 style=bush.dense order=10
+prop bush.west bush 8 38 rect=2,2
+```
+
+`prop bush` places a slow-down volume over its `rect=` footprint (or around its anchor cell when no rect is given). Visual scatter height, flower accents, and 3D bush clutter are derived from the variant and map seed; they do not change collision or navigation.
+
 ## Production hardening contract
 
 ### One canonical semantic path

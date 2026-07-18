@@ -8,13 +8,14 @@ const COMPILER_VERSION := 3
 const ID_PATTERN := "^[a-z0-9_.-]+$"
 
 const COMMON_STYLE_KEYS: Array[StringName] = [&"enabled"]
-const TERRAIN_KEYS: Array[StringName] = [&"terrain"]
+const TERRAIN_KEYS: Array[StringName] = [&"terrain", &"style_variant", &"movement_speed_multiplier"]
 const BUILDING_OVERRIDE_KEYS: Array[StringName] = [
 	&"rect", &"wall_height", &"wall_height_scale", &"wall_color", &"roof_color",
 	&"door_side", &"ridge_axis", &"primitive",
 ]
 const PROP_OVERRIDE_KEYS: Array[StringName] = [
 	&"cell", &"rect", &"facing", &"style_variant", &"visual_offset_px", &"primitive",
+	&"movement_speed_multiplier",
 ]
 const SPAWN_KEYS: Array[StringName] = [&"cell", &"rect"]
 const TRANSITION_KEYS: Array[StringName] = [
@@ -34,6 +35,7 @@ const ALL_STYLE_KEYS: Array[StringName] = [
 	&"style_variant", &"visual_offset_px", &"destination_scene_id", &"destination_spawn_id",
 	&"spawn_id", &"spawn_offset_px", &"highlight_area", &"view_landmark_id", &"kind",
 	&"points", &"point_rects", &"text", &"direction", &"top_px", &"door_material", &"passage_axis",
+	&"movement_speed_multiplier",
 ]
 
 
@@ -275,9 +277,9 @@ static func _expand_primitives(
 
 		match primitive_kind:
 			&"terrain_rect", &"terrain_rects":
-				_expand_terrain_rects(primitive_id, data, style_values, inline_overrides, blueprint, path, expanded, global_overrides, errors)
+				_expand_terrain_rects(primitive_id, style_id, data, style_values, inline_overrides, blueprint, path, expanded, global_overrides, errors)
 			&"terrain_stroke":
-				_expand_terrain_stroke(primitive_id, data, style_values, inline_overrides, blueprint, path, expanded, global_overrides, errors)
+				_expand_terrain_stroke(primitive_id, style_id, data, style_values, inline_overrides, blueprint, path, expanded, global_overrides, errors)
 			&"structure_rect":
 				_expand_structure(primitive_id, data, style_values, inline_overrides, blueprint, path, expanded, global_overrides, errors)
 			&"wall_run":
@@ -308,13 +310,16 @@ static func _expand_primitives(
 
 
 static func _expand_terrain_rects(
-	object_id: StringName, data: Dictionary, style: Dictionary, inline: Dictionary,
+	object_id: StringName, style_id: StringName, data: Dictionary, style: Dictionary, inline: Dictionary,
 	blueprint: MapBlueprint, path: String, expanded: Dictionary, global: Dictionary, errors: Array[String]
 ) -> void:
 	var values := _resolved_values(object_id, data, style, inline, global, TERRAIN_KEYS, path, errors)
 	_register_id(object_id, path, expanded, errors)
 	if not MapTypes.ALL_TERRAINS.has(values.get("terrain", &"")):
 		errors.append("%s terrain is unknown: %s" % [path, str(values.get("terrain", ""))])
+	var style_variant := TerrainVegetation.resolved_variant(style_id, values)
+	if not TerrainVegetation.is_known_variant(style_variant):
+		errors.append("%s style_variant is unknown: %s" % [path, String(style_variant)])
 	var rects: Variant = data.get("rects")
 	if not rects is Array or rects.is_empty():
 		errors.append("%s.rects must be a non-empty Array[Rect2i]" % path)
@@ -329,24 +334,32 @@ static func _expand_terrain_rects(
 		if values.has("rect") and sorted_rects.size() == 1:
 			rect = values["rect"]
 		_validate_rect(rect, "%s.rects[%d]" % [path, fragment_index], blueprint.size_cells, errors)
-		expanded["terrain"].append({
+		var entry := {
 			"source_id": object_id,
 			"terrain": values.get("terrain", &""),
 			"rect": rect,
 			"layer": int(data.get("layer", 0)),
 			"order": int(data.get("order", 0)),
 			"fragment": fragment_index,
-		})
+		}
+		if not style_variant.is_empty():
+			entry["style_variant"] = style_variant
+		if values.has("movement_speed_multiplier"):
+			entry["movement_speed_multiplier"] = float(values["movement_speed_multiplier"])
+		expanded["terrain"].append(entry)
 
 
 static func _expand_terrain_stroke(
-	object_id: StringName, data: Dictionary, style: Dictionary, inline: Dictionary,
+	object_id: StringName, style_id: StringName, data: Dictionary, style: Dictionary, inline: Dictionary,
 	blueprint: MapBlueprint, path: String, expanded: Dictionary, global: Dictionary, errors: Array[String]
 ) -> void:
 	var values := _resolved_values(object_id, data, style, inline, global, TERRAIN_KEYS, path, errors)
 	_register_id(object_id, path, expanded, errors)
 	if not MapTypes.ALL_TERRAINS.has(values.get("terrain", &"")):
 		errors.append("%s terrain is unknown: %s" % [path, str(values.get("terrain", ""))])
+	var style_variant := TerrainVegetation.resolved_variant(style_id, values)
+	if not TerrainVegetation.is_known_variant(style_variant):
+		errors.append("%s style_variant is unknown: %s" % [path, String(style_variant)])
 	var points: Variant = data.get("points")
 	var thickness := int(data.get("thickness", 0))
 	if not points is Array or points.size() < 2:
@@ -371,14 +384,19 @@ static func _expand_terrain_stroke(
 		else:
 			rect = Rect2i(start.x, mini(start.y, finish.y), thickness, absi(finish.y - start.y) + 1)
 		_validate_rect(rect, "%s.segment[%d]" % [path, index], blueprint.size_cells, errors)
-		expanded["terrain"].append({
+		var entry := {
 			"source_id": object_id,
 			"terrain": values.get("terrain", &""),
 			"rect": rect,
 			"layer": int(data.get("layer", 0)),
 			"order": int(data.get("order", 0)),
 			"fragment": index,
-		})
+		}
+		if not style_variant.is_empty():
+			entry["style_variant"] = style_variant
+		if values.has("movement_speed_multiplier"):
+			entry["movement_speed_multiplier"] = float(values["movement_speed_multiplier"])
+		expanded["terrain"].append(entry)
 
 
 static func _expand_structure(
@@ -739,7 +757,12 @@ static func _build_definition(blueprint: MapBlueprint, expanded: Dictionary) -> 
 	var terrain: Array = expanded["terrain"]
 	terrain.sort_custom(_compare_terrain)
 	for entry in terrain:
-		definition.zones.append({"terrain": entry["terrain"], "rect": entry["rect"]})
+		var zone := {"terrain": entry["terrain"], "rect": entry["rect"]}
+		if entry.has("style_variant"):
+			zone["style_variant"] = entry["style_variant"]
+		if entry.has("movement_speed_multiplier"):
+			zone["movement_speed_multiplier"] = entry["movement_speed_multiplier"]
+		definition.zones.append(zone)
 
 	var buildings: Array = expanded["buildings"]
 	buildings.sort_custom(_compare_id_records)
@@ -823,7 +846,9 @@ static func _compile_prop(values: Dictionary, definition: MapDefinition) -> Dict
 		"kind": values["kind"],
 		"position": _placement_position(values, definition.cell_size),
 	}
-	_copy_fields(values, output, [&"facing", &"style_variant", &"visual_offset_px", &"primitive"])
+	_copy_fields(values, output, [&"facing", &"style_variant", &"visual_offset_px", &"primitive", &"movement_speed_multiplier"])
+	if values.has("rect") and values["rect"] is Rect2i:
+		output["footprint"] = definition.cell_rect_to_world_rect(values["rect"])
 	return output
 
 

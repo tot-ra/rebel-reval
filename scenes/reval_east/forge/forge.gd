@@ -18,6 +18,7 @@ func _ready() -> void:
 	_bootstrap = MapSceneBootstrap.assemble(self, definition, actors, map_root)
 	DoorNavigator.spawn_player_at_pending_spawn(self)
 	_wire_player_navigation()
+	MapSceneBootstrap.configure_player_movement(player, _bootstrap)
 	_wire_henning_navigation()
 	_wire_cat_navigation()
 	if player == null:

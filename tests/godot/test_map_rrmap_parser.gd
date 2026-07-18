@@ -11,7 +11,7 @@ func test_complete_example_parses_and_compiles_through_blueprint_compiler() -> v
 	assert_eq(parsed.blueprint.map_id, &"rrmap_courtyard_example")
 	assert_eq(parsed.definition.map_id, &"rrmap_courtyard_example")
 	assert_eq(parsed.definition.buildings.size(), 3) # House plus two wall fragments.
-	assert_eq(parsed.definition.props.size(), 1)
+	assert_eq(parsed.definition.props.size(), 2)
 	assert_eq(parsed.definition.get_meta("player_spawn_id"), &"spawn.main")
 	assert_eq(parsed.definition.source_references, ["docs/MAP_AUTHORING.md"])
 
@@ -92,8 +92,9 @@ func test_loader_recognizes_rrmap_and_returns_compiled_resource() -> void:
 	assert_eq(loader._get_recognized_extensions(), PackedStringArray(["rrmap"]))
 	assert_eq(loader._get_resource_type(EXAMPLE_PATH), "RrmapResource")
 	var loaded = loader._load(EXAMPLE_PATH, EXAMPLE_PATH, false, ResourceLoader.CACHE_MODE_IGNORE)
-	assert_true(loaded is RrmapResource)
-	if loaded is RrmapResource:
+	assert_true(loaded is Resource)
+	assert_eq(loaded.get_script(), RrmapResource)
+	if loaded is Resource and loaded.get_script() == RrmapResource:
 		assert_true(loaded.is_valid())
 		assert_eq(loaded.definition.map_id, &"rrmap_courtyard_example")
 

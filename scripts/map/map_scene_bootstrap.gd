@@ -20,9 +20,12 @@ static func assemble(
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
 	var assembled := MapAssembler.assemble(host, definition, grid, actors, visual_target, time_of_day)
 	var terrain := assembled.get("terrain") as MapTerrainRenderer
+	var object_streamer := assembled.get("object_streamer") as MapObjectChunkStreamer
 	var terrain_focus := actors.find_child("Player", true, false) as Node2D
 	if terrain != null and terrain_focus != null:
 		terrain.follow(terrain_focus)
+		if object_streamer != null:
+			object_streamer.update_active_chunks(terrain.loaded_chunk_coordinates())
 	var nav := MapNavBuilder.create_navigation_region(definition, grid)
 	nav.name = "Navigation"
 	host.add_child(nav)
@@ -52,13 +55,29 @@ static func assemble(
 	}
 
 
-static func wire_player(player: Node, definition: MapDefinition, navigation: NavigationRegion2D) -> void:
+static func configure_player_movement(player: Node, bootstrap: Dictionary) -> void:
+	if player == null or not player.has_method("configure_map_movement"):
+		return
+	var definition := bootstrap.get("definition") as MapDefinition
+	var grid := bootstrap.get("grid") as MapTerrainGrid
+	if definition != null and grid != null:
+		player.configure_map_movement(definition, grid)
+
+
+static func wire_player(
+	player: Node,
+	definition: MapDefinition,
+	navigation: NavigationRegion2D,
+	grid: MapTerrainGrid = null
+) -> void:
 	if player == null:
 		return
 	player.global_position = definition.player_spawn
 	var terrain := _terrain_renderer_for_player(player)
 	if terrain != null:
 		terrain.follow(player as Node2D)
+	if player.has_method("configure_map_movement") and grid != null:
+		player.configure_map_movement(definition, grid)
 	if player.has_method("set_navigation_map") and navigation != null:
 		player.set_navigation_map(navigation.get_navigation_map())
 	elif player.has_node("navigation_agent"):

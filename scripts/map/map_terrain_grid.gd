@@ -12,6 +12,8 @@ var seed: int = MapTypes.DEFAULT_SEED
 var cells: PackedByteArray = PackedByteArray()
 var terrain_to_index: Dictionary = {}
 var index_to_terrain: Array[StringName] = []
+var variant_to_index: Dictionary = {}
+var index_to_variant: Array[StringName] = [&""]
 var chunk_size_cells: int = DEFAULT_CHUNK_SIZE_CELLS
 var chunks: Dictionary = {}
 
@@ -54,6 +56,48 @@ func set_terrain(cell: Vector2i, terrain_id: StringName) -> void:
 	var chunk := get_chunk(chunk_for_cell(cell))
 	if chunk != null:
 		chunk.set_terrain_index(cell, index)
+
+
+func get_style_variant(cell: Vector2i) -> StringName:
+	var index := _variant_index_at(cell)
+	if index <= 0 or index >= index_to_variant.size():
+		return &""
+	return index_to_variant[index]
+
+
+func set_style_variant(cell: Vector2i, variant: StringName) -> void:
+	if not _is_inside(cell):
+		return
+	var index := _variant_index(variant)
+	var chunk := get_chunk(chunk_for_cell(cell))
+	if chunk != null:
+		chunk.set_variant_index(cell, index)
+
+
+func get_movement_speed_multiplier(cell: Vector2i) -> float:
+	var hundredths := _speed_hundredths_at(cell)
+	if hundredths <= 0:
+		return 1.0
+	return float(hundredths) / 100.0
+
+
+func set_movement_speed_multiplier(cell: Vector2i, multiplier: float) -> void:
+	if not _is_inside(cell):
+		return
+	var clamped := TerrainVegetation.clamp_speed_multiplier(multiplier)
+	var hundredths := 0
+	if clamped < 0.999:
+		hundredths = int(round(clamped * 100.0))
+	var chunk := get_chunk(chunk_for_cell(cell))
+	if chunk != null:
+		chunk.set_speed_hundredths(cell, hundredths)
+
+
+func apply_vegetation_overlay(cell: Vector2i, variant: StringName, speed_multiplier: float) -> void:
+	if not variant.is_empty():
+		set_style_variant(cell, variant)
+	if speed_multiplier < 0.999:
+		set_movement_speed_multiplier(cell, speed_multiplier)
 
 
 func chunk_count() -> Vector2i:
@@ -141,6 +185,35 @@ func _terrain_index(terrain_id: StringName) -> int:
 	terrain_to_index[terrain_id] = next
 	index_to_terrain.append(terrain_id)
 	return next
+
+
+func _variant_index(variant: StringName) -> int:
+	if variant.is_empty():
+		return 0
+	if variant_to_index.has(variant):
+		return int(variant_to_index[variant])
+	var next := index_to_variant.size()
+	variant_to_index[variant] = next
+	index_to_variant.append(variant)
+	return next
+
+
+func _variant_index_at(cell: Vector2i) -> int:
+	if not _is_inside(cell):
+		return 0
+	var chunk := get_chunk(chunk_for_cell(cell))
+	if chunk != null:
+		return chunk.get_variant_index(cell)
+	return 0
+
+
+func _speed_hundredths_at(cell: Vector2i) -> int:
+	if not _is_inside(cell):
+		return 0
+	var chunk := get_chunk(chunk_for_cell(cell))
+	if chunk != null:
+		return chunk.get_speed_hundredths(cell)
+	return 0
 
 
 func _cell_index(cell: Vector2i) -> int:

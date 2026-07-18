@@ -12,12 +12,21 @@ style house.inn wall_height=72 wall_color=6a5f52ff roof_color=3a2f24ff door_side
 style house.gatehouse wall_height=88 wall_color=6e6a62ff roof_color=2a241cff door_side=south
 style wall.quay wall_height=24 wall_color=7a7870ff
 style wall.pier wall_height=18 wall_color=6a665eff
+style grass.short
+style grass.tall
+style grass.flowers
+style grass.dry
+style bush.dense
 terrain water.deep deep_water 0 0 72 9 order=1
 terrain water.shallow shallow_water 0 9 72 3 order=2
 terrain coast.sand coast_sand 0 12 72 3 order=3
 terrain quay.paving castle_paving 4 15 64 5 order=4
 terrain quay.mud mud 2 20 68 3 order=5
 terrain suburb.grass grass 0 23 72 25 order=6
+terrain meadow.flowers grass 4 34 18 8 style=grass.flowers order=10
+terrain meadow.tall grass 30 30 20 10 style=grass.tall order=10
+terrain meadow.short grass 58 32 12 8 style=grass.short order=10
+terrain scrub.bushes grass 62 24 8 6 style=bush.dense order=10
 stroke viru_road cobblestone 0,22|52,22 thickness=3 order=7
 stroke pikk_street cobblestone 54,14|54,42 thickness=3 order=8
 stroke warehouse_lane cobblestone 8,19|40,19 thickness=2 order=9
@@ -33,6 +42,8 @@ prop quay_crane cart 36 16 rect=2,2
 prop cargo_barrels barrels 24 21 rect=2,2
 prop drying_nets barrels 8 21 rect=2,1
 prop gate_cart cart 48 23 rect=2,2
+prop bush.west bush 8 38 rect=2,2
+prop bush.gate bush 46 28 rect=3,2
 landmark viru_road_arch gate_arch 0 20 3 5 wall_color=8c8980ff top_px=140 passage_axis=x door_material=wood
 landmark coast_gate_arch gate_arch 58 16 4 5 wall_color=8c8980ff top_px=176 passage_axis=x door_material=wood
 landmark quay_landmark gate_arch 34 14 4 2 wall_color=8c8980ff top_px=96 passage_axis=z

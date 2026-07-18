@@ -201,6 +201,18 @@ func _validate_zone(zone: Dictionary, index: int) -> Array[String]:
 	elif not _rect_inside_bounds(rect):
 		errors.append("%s.rect is outside world bounds" % prefix)
 
+	var style_variant: Variant = zone.get("style_variant", &"")
+	if style_variant is StringName and not String(style_variant).is_empty():
+		if not TerrainVegetation.is_known_variant(style_variant):
+			errors.append("%s.style_variant is unknown: %s" % [prefix, String(style_variant)])
+
+	if zone.has("movement_speed_multiplier"):
+		var speed := float(zone["movement_speed_multiplier"])
+		if speed < TerrainVegetation.MIN_SPEED_MULTIPLIER or speed > TerrainVegetation.MAX_SPEED_MULTIPLIER:
+			errors.append("%s.movement_speed_multiplier must be between %.2f and %.2f" % [
+				prefix, TerrainVegetation.MIN_SPEED_MULTIPLIER, TerrainVegetation.MAX_SPEED_MULTIPLIER
+			])
+
 	return errors
 
 
@@ -254,6 +266,13 @@ func _validate_prop(prop: Dictionary, index: int, seen_ids: Dictionary) -> Array
 		errors.append("%s.position must be Vector2" % prefix)
 	elif not _point_inside_world_pixels(prop["position"]):
 		errors.append("%s.position is outside world bounds" % prefix)
+
+	if prop.has("movement_speed_multiplier"):
+		var speed := float(prop["movement_speed_multiplier"])
+		if speed < TerrainVegetation.MIN_SPEED_MULTIPLIER or speed > TerrainVegetation.MAX_SPEED_MULTIPLIER:
+			errors.append("%s.movement_speed_multiplier must be between %.2f and %.2f" % [
+				prefix, TerrainVegetation.MIN_SPEED_MULTIPLIER, TerrainVegetation.MAX_SPEED_MULTIPLIER
+			])
 
 	return errors
 

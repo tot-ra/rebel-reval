@@ -45,14 +45,15 @@ func _draw() -> void:
 			var global_cell := Vector2i(global_x, global_y)
 			var local_cell := global_cell - bounds.position
 			var origin := Vector2(local_cell) * cell_size
-			_draw_cell(origin, cell_size, grid.get_terrain(global_cell), global_cell)
+			_draw_cell(origin, cell_size, grid.get_terrain(global_cell), global_cell, grid.get_style_variant(global_cell))
 	if debug_bounds_enabled:
 		var local_size := Vector2(bounds.size * grid.cell_size)
 		draw_rect(Rect2(Vector2.ZERO, local_size), Color(1.0, 0.25, 0.1, 0.9), false, 2.0)
 
 
-func _draw_cell(origin: Vector2, cell_size: float, terrain_id: StringName, global_cell: Vector2i) -> void:
+func _draw_cell(origin: Vector2, cell_size: float, terrain_id: StringName, global_cell: Vector2i, style_variant: StringName = &"") -> void:
 	var base := TerrainPalette.base_color(terrain_id, visual_target, time_of_day)
+	base *= TerrainVegetation.ground_color_tint(style_variant)
 	draw_rect(Rect2(origin, Vector2(cell_size, cell_size)), base)
 
 	var patch_size := MapVisualStyle.terrain_patch_size(visual_target)
@@ -62,16 +63,19 @@ func _draw_cell(origin: Vector2, cell_size: float, terrain_id: StringName, globa
 		for px in patches_x:
 			var local := Vector2(float(px), float(py)) * patch_size
 			var color := TerrainPalette.pattern_color(
-				terrain_id, global_cell, local, grid.seed, visual_target, time_of_day
+				terrain_id, global_cell, local, grid.seed, visual_target, time_of_day, style_variant
 			)
 			draw_rect(Rect2(origin + local, Vector2(patch_size, patch_size)), color)
 
-	_draw_style_marks(origin, cell_size, terrain_id, global_cell)
+	_draw_style_marks(origin, cell_size, terrain_id, global_cell, style_variant)
 
 
-func _draw_style_marks(origin: Vector2, cell_size: float, terrain_id: StringName, global_cell: Vector2i) -> void:
+func _draw_style_marks(origin: Vector2, cell_size: float, terrain_id: StringName, global_cell: Vector2i, style_variant: StringName = &"") -> void:
 	var hash := TerrainPalette.cell_hash(global_cell, grid.seed, terrain_id)
 	var ink := MapVisualStyle.role_color(&"ink", visual_target, time_of_day)
+	if style_variant == TerrainVegetation.VARIANT_GRASS_FLOWERS and hash % 5 == 0:
+		var flower := MapVisualStyle.role_color(&"flower", visual_target, time_of_day)
+		draw_circle(origin + Vector2(float(6 + hash % 20), float(6 + (hash >> 3) % 20)), 2.0, Color(flower, 0.75))
 	match visual_target:
 		MapVisualStyle.TARGET_PIXEL:
 			if hash % 3 == 0:
