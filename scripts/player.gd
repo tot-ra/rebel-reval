@@ -6,6 +6,7 @@ class_name Player
 # MapViewRuntime.RUN_ANIMATION_MIN_SPEED sits midway between these.
 @export var walk_speed = 100
 @export var run_speed = 240
+@export var combat_input_enabled := false
 
 @onready var animation_player: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
 @onready var navigation_agent: NavigationAgent2D = $NavigationAgent2D
@@ -20,6 +21,7 @@ const STAMINA_DRAIN_RATE := 10.0 # per second
 
 var _screen_right_in_logic := Vector2.RIGHT
 var _screen_down_in_logic := Vector2.DOWN
+var action_state_machine := PlayerActionStateMachine.new()
 
 func _ready() -> void:
 	_sync_resource_bars()
@@ -42,11 +44,21 @@ func configure_map_movement(definition: MapDefinition, grid: MapTerrainGrid) -> 
 
 
 func _physics_process(_delta):
+	action_state_machine.tick(_delta)
+	_process_action_input()
+
 	if _movement_blocked():
 		velocity = Vector2.ZERO
 		_sync_resource_bars()
 		move_and_slide()
-		update_animation("idle")
+		update_animation(_combat_or_locomotion_animation("idle"))
+		return
+
+	if not action_state_machine.allows_movement():
+		velocity = Vector2.ZERO
+		_sync_resource_bars()
+		move_and_slide()
+		update_animation(_combat_or_locomotion_animation(action_state_machine.get_animation_base()))
 		return
 
 	var screen_direction := ScreenDirectionInput.read_axis()
@@ -82,7 +94,28 @@ func _physics_process(_delta):
 	_update_movement_resources(_delta, new_animation != "idle")
 	_sync_resource_bars()
 	move_and_slide()
-	update_animation(new_animation)
+	update_animation(_combat_or_locomotion_animation(new_animation))
+
+func _process_action_input() -> void:
+	if not combat_input_enabled or _movement_blocked():
+		return
+	for kind in PlayerActionInput.read_pressed_actions():
+		action_state_machine.try_start_action(kind)
+	action_state_machine.set_guard_held(PlayerActionInput.read_guard_held())
+
+
+func apply_hit_stun() -> void:
+	action_state_machine.apply_hit()
+
+
+func is_combat_invulnerable() -> bool:
+	return action_state_machine.is_invulnerable()
+
+
+func _combat_or_locomotion_animation(locomotion_animation: String) -> String:
+	if not action_state_machine.allows_movement():
+		return action_state_machine.get_animation_base()
+	return locomotion_animation
 
 func set_screen_movement_basis(logic_right: Vector2, logic_down: Vector2) -> void:
 	if logic_right.is_zero_approx() or logic_down.is_zero_approx():
