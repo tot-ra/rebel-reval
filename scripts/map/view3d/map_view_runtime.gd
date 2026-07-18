@@ -86,6 +86,7 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 	runtime._register_view_actors(scene_root)
 	runtime._configure_screen_relative_movement()
 	runtime._sync_player(true)
+	runtime._bind_player_health_ring()
 	runtime.view.apply_cycle_progress(runtime.cycle_progress)
 	runtime._sync_music_cycle()
 	runtime._install_click_input(scene_root)
@@ -174,6 +175,7 @@ func _sync_view_actor(
 	delta: float
 ) -> void:
 	view.sync_actor(rig, actor.global_position)
+	_sync_actor_health_ring(rig, actor)
 	var facing := Vector2.DOWN
 	if actor.has_method("view_facing"):
 		facing = actor.call("view_facing") as Vector2
@@ -302,6 +304,7 @@ func _sync_player(snap: bool, delta: float = 0.0) -> void:
 	if _player_rig.current_canonical_animation() != wanted:
 		_player_rig.play_animation(wanted)
 	_player_rig.set_locomotion_speed(speed * MapViewBridge.world_scale(_definition.cell_size))
+	_sync_actor_health_ring(_player_rig, _player)
 	_update_occlusion_ghost()
 
 
@@ -389,11 +392,33 @@ func _follow_player(snap: bool, delta: float) -> void:
 
 
 static func _hide_player_canvas(player: CharacterBody2D) -> void:
-	# The rig replaces the greybox rectangle; bars re-home to real UI later.
-	for node_name in ["GreyboxVisual", "HealthBar", "StaminaBar"]:
+	# The rig replaces the greybox rectangle; the 3D health ring mirrors logic health.
+	for node_name in ["GreyboxVisual", "HealthRing", "StaminaBar"]:
 		var node := player.get_node_or_null(node_name) as CanvasItem
 		if node != null:
 			node.visible = false
+
+
+func _bind_player_health_ring() -> void:
+	if _player == null or not _player.has_signal("health_changed"):
+		return
+	if not _player.health_changed.is_connected(_on_player_health_changed):
+		_player.health_changed.connect(_on_player_health_changed)
+
+
+func _on_player_health_changed(current: float, maximum: float) -> void:
+	var ring := _player_rig.get_node_or_null("HealthRing") as CharacterHealthRing3D
+	if ring != null:
+		ring.set_health(current, maximum)
+
+
+static func _sync_actor_health_ring(rig: SharedCharacterRig, actor: Node) -> void:
+	var ring := rig.get_node_or_null("HealthRing") as CharacterHealthRing3D
+	if ring == null:
+		return
+	if not ("health" in actor) or not ("max_health" in actor):
+		return
+	ring.set_health(float(actor.health), float(actor.max_health))
 
 
 static func _hide_flat_map_visuals(bootstrap: Dictionary) -> void:

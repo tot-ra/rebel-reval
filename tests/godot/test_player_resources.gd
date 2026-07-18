@@ -16,7 +16,7 @@ func test_movement_input_drains_stamina_only() -> void:
 	Input.action_release("ui_right")
 	_assert_eq(player.health, 60.0, "Movement must not change health")
 	_assert_eq(player.stamina, 70.0, "Movement must drain stamina at the configured rate")
-	_assert_eq(player.health_bar.value, 60.0, "Movement must leave the health bar unchanged")
+	_assert_eq(player.health_ring.get_health_ratio(), 0.6, "Movement must leave the health ring unchanged")
 	_assert_eq(player.stamina_bar.value, 70.0, "The stamina bar must show movement drain")
 	_assert_eq(player.velocity, Vector2(player.run_speed, 0.0), "Resource separation must preserve run movement")
 	player.free()
@@ -44,7 +44,7 @@ func test_idle_changes_neither_health_nor_stamina() -> void:
 
 	_assert_eq(player.health, 60.0, "Idle must not heal health")
 	_assert_eq(player.stamina, 70.0, "Idle must not restore the wrong resource")
-	_assert_eq(player.health_bar.value, 60.0, "Idle must not change the health bar")
+	_assert_eq(player.health_ring.get_health_ratio(), 0.6, "Idle must not change the health ring")
 	_assert_eq(player.stamina_bar.value, 70.0, "Idle must not change the stamina bar")
 	_assert_eq(player.velocity, Vector2.ZERO, "Idle movement must remain unchanged")
 	player.free()

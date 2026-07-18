@@ -18,7 +18,7 @@ signal health_changed(current: float, maximum: float)
 
 @onready var animation_player: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
 @onready var navigation_agent: NavigationAgent2D = $NavigationAgent2D
-@onready var health_bar: ProgressBar = $HealthBar
+@onready var health_ring: CharacterHealthRing = $HealthRing
 @onready var stamina_bar: ProgressBar = $StaminaBar
 
 var health: float = 100.0
@@ -347,8 +347,7 @@ func _update_movement_resources(delta: float, is_moving: bool) -> void:
 		stamina = maxf(0.0, stamina - delta * STAMINA_DRAIN_RATE)
 
 func _sync_resource_bars() -> void:
-	health_bar.max_value = max_health
-	health_bar.value = health
+	health_ring.set_health(health, max_health)
 	stamina_bar.max_value = max_stamina
 	stamina_bar.value = stamina
 

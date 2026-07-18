@@ -1,6 +1,7 @@
 [gd_scene load_steps=8 format=3 uid="uid://bs36kitagkmg5"]
 
 [ext_resource type="Script" uid="uid://qbfohjtotkyu" path="res://scripts/player.gd" id="1_v254c"]
+[ext_resource type="Script" path="res://scripts/ui/character_health_ring.gd" id="7_health_ring"]
 [ext_resource type="PackedScene" uid="uid://mf6xvrb7vivm" path="res://scenes/elements/UI.tscn" id="2_ui"]
 [ext_resource type="Script" path="res://scripts/inventory/inventory_controller.gd" id="3_inventory"]
 [ext_resource type="Script" path="res://scripts/journal/journal_controller.gd" id="4_journal"]
@@ -16,9 +17,6 @@ bg_color = Color(0, 0, 0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pylmc"]
 bg_color = Color(0.74902, 0.654902, 0.27451, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_health"]
-bg_color = Color(0.74902, 0.27451, 0.27451, 1)
 
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_v254c")
@@ -43,16 +41,10 @@ shape = SubResource("CapsuleShape2D_3iwfv")
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
 path_desired_distance = 10.0
 
-[node name="HealthBar" type="ProgressBar" parent="."]
+[node name="HealthRing" type="Node2D" parent="."]
 z_index = 1000
-offset_left = -34.5
-offset_top = -144.26
-offset_right = 40.5
-offset_bottom = -137.26
-theme_override_styles/background = SubResource("StyleBoxFlat_q13i1")
-theme_override_styles/fill = SubResource("StyleBoxFlat_health")
-value = 100.0
-show_percentage = false
+position = Vector2(0, 20)
+script = ExtResource("7_health_ring")
 
 [node name="StaminaBar" type="ProgressBar" parent="."]
 z_index = 1000

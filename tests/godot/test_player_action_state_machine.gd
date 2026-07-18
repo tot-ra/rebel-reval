@@ -137,7 +137,7 @@ func test_take_damage_clamps_health_and_enters_hit_state() -> void:
 
 	assert_eq(player.take_damage(8.0), 5.0, "Damage API should report applied damage")
 	assert_eq(player.health, 0.0, "Damage must clamp health at zero")
-	assert_eq(player.health_bar.value, 0.0, "Health bar should update immediately")
+	assert_eq(player.health_ring.get_health_ratio(), 0.0, "Health ring should update immediately")
 	assert_eq(player.action_state_machine.state, PlayerActionState.State.HIT, "Damage should trigger hit reaction")
 	player.free()
 

@@ -1,6 +1,7 @@
 [gd_scene load_steps=20 format=3 uid="uid://gty6ne6exn21"]
 
 [ext_resource type="Script" uid="uid://bqv0llhneaxaa" path="res://scripts/npc.gd" id="1_8hovi"]
+[ext_resource type="Script" path="res://scripts/ui/character_health_ring.gd" id="3_health_ring"]
 [ext_resource type="Texture2D" uid="uid://bbj6nmr5mjbha" path="res://assets/bandits/woman1.png" id="2_8hovi"]
 [ext_resource type="Texture2D" uid="uid://ec8osmtnqeuq" path="res://characters/forge_folk/old_toomas/old_toomas.png" id="2_mics8"]
 
@@ -116,16 +117,10 @@ texture = ExtResource("2_8hovi")
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
 
-[node name="HealthBar" type="ProgressBar" parent="."]
+[node name="HealthRing" type="Node2D" parent="."]
 z_index = 1000
-offset_left = -40.0
-offset_top = -76.0
-offset_right = 35.0
-offset_bottom = -69.0
-theme_override_styles/background = SubResource("StyleBoxFlat_ca1ny")
-theme_override_styles/fill = SubResource("StyleBoxFlat_t5u8q")
-value = 100.0
-show_percentage = false
+position = Vector2(0, 56)
+script = ExtResource("3_health_ring")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="."]
 occluder = SubResource("OccluderPolygon2D_mics8")
