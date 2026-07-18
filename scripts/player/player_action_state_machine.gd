@@ -2,14 +2,17 @@ class_name PlayerActionStateMachine
 extends RefCounted
 
 signal state_changed(previous: PlayerActionState.State, current: PlayerActionState.State)
+signal attack_impact
 
-const DEFAULT_ATTACK_SEC := 0.35
+const DEFAULT_ATTACK_SEC := 0.55
+const DEFAULT_ATTACK_IMPACT_SEC := 0.22
 const DEFAULT_GUARD_SEC := 8.0
 const DEFAULT_DODGE_SEC := 0.28
 const DEFAULT_HIT_SEC := 0.4
 const DEFAULT_RECOVERY_SEC := 0.18
 
 var attack_duration_sec: float = DEFAULT_ATTACK_SEC
+var attack_impact_sec: float = DEFAULT_ATTACK_IMPACT_SEC
 var guard_max_duration_sec: float = DEFAULT_GUARD_SEC
 var dodge_duration_sec: float = DEFAULT_DODGE_SEC
 var hit_duration_sec: float = DEFAULT_HIT_SEC
@@ -20,11 +23,13 @@ var state_elapsed_sec: float = 0.0
 
 var _input_buffer := PlayerInputBuffer.new()
 var _guard_held := false
+var _attack_impact_emitted := false
 
 
 func reset() -> void:
 	_input_buffer.clear()
 	_guard_held = false
+	_attack_impact_emitted = false
 	_set_state(PlayerActionState.State.MOVE)
 
 
@@ -33,6 +38,9 @@ func tick(delta: float) -> void:
 	state_elapsed_sec += delta
 	match state:
 		PlayerActionState.State.ATTACK:
+			if not _attack_impact_emitted and state_elapsed_sec >= attack_impact_sec:
+				_attack_impact_emitted = true
+				attack_impact.emit()
 			if state_elapsed_sec >= attack_duration_sec:
 				_enter_recovery()
 		PlayerActionState.State.GUARD:
@@ -157,4 +165,6 @@ func _set_state(next: PlayerActionState.State) -> void:
 	var previous := state
 	state = next
 	state_elapsed_sec = 0.0
+	if next == PlayerActionState.State.ATTACK:
+		_attack_impact_emitted = false
 	state_changed.emit(previous, next)

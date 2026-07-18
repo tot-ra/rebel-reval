@@ -43,7 +43,8 @@ character.play_animation(&"walk")
 | `walk` | `Walking_A` | logic-plane locomotion loop |
 | `run` | `Running_B` | faster stride with contralateral arm swing |
 | `forge_strike` | `1H_Melee_Attack_Chop` | downward work strike |
-| `hammer_attack` | `1H_Melee_Attack_Slice_Diagonal` | combat strike |
+| `hammer_attack` | `1H_Melee_Attack_Slice_Diagonal` | equipped hammer combat strike |
+| `unarmed_attack` | `Unarmed_Melee_Attack_Punch_A` | empty-right-hand punch |
 | `guard` | `Blocking` | held guard loop |
 | `hit` | `Hit_A` | damage reaction |
 | `fall` | `Death_A` | non-looping fall |

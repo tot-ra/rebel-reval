@@ -2,11 +2,19 @@ extends CharacterBody2D
 
 class_name Player
 
+const MeleeAttackResolverScript := preload("res://scripts/combat/melee_attack_resolver.gd")
+
+signal unarmed_attack_resolved(targets: Array[Node2D])
+signal health_changed(current: float, maximum: float)
+
 # Logic px/s (32 px = 1 world unit): a readable walk and a believable sprint.
 # MapViewRuntime.RUN_ANIMATION_MIN_SPEED sits midway between these.
 @export var walk_speed = 100
 @export var run_speed = 240
-@export var combat_input_enabled := false
+@export var combat_input_enabled := true
+@export var unarmed_damage := 8.0
+@export var unarmed_reach_px := 48.0
+@export_range(-1.0, 1.0, 0.01) var unarmed_facing_dot := 0.35
 
 @onready var animation_player: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
 @onready var navigation_agent: NavigationAgent2D = $NavigationAgent2D
@@ -21,10 +29,14 @@ const STAMINA_DRAIN_RATE := 10.0 # per second
 
 var _screen_right_in_logic := Vector2.RIGHT
 var _screen_down_in_logic := Vector2.DOWN
+var _facing_direction := Vector2.DOWN
 var action_state_machine := PlayerActionStateMachine.new()
 
 func _ready() -> void:
+	add_to_group(MeleeAttackResolver.DAMAGEABLE_GROUP)
 	_sync_resource_bars()
+	if not action_state_machine.attack_impact.is_connected(_on_attack_impact):
+		action_state_machine.attack_impact.connect(_on_attack_impact)
 	DoorNavigator.on_trigger_player_spawn.connect(_on_spawn)
 	navigation_agent.velocity_computed.connect(Callable(self, "_on_velocity_computed"))
 
@@ -66,6 +78,7 @@ func _physics_process(_delta):
 	var new_animation = "idle"
 	
 	if not movement_direction.is_zero_approx():
+		_facing_direction = movement_direction.normalized()
 		var encumbrance := _get_encumbrance_speed_multiplier()
 		var terrain_speed := _get_terrain_speed_multiplier()
 		var current_speed = run_speed * encumbrance * terrain_speed
@@ -85,6 +98,8 @@ func _physics_process(_delta):
 			var next_path_position: Vector2 = navigation_agent.get_next_path_position()
 
 			velocity = run_speed * _get_encumbrance_speed_multiplier() * _get_terrain_speed_multiplier() * (next_path_position - current_agent_position).normalized()
+			if not velocity.is_zero_approx():
+				_facing_direction = velocity.normalized()
 			
 			navigation_agent.set_velocity(velocity)
 			new_animation = "run"
@@ -100,12 +115,59 @@ func _process_action_input() -> void:
 	if not combat_input_enabled or _movement_blocked():
 		return
 	for kind in PlayerActionInput.read_pressed_actions():
+		if kind == PlayerActionKind.Kind.ATTACK and _has_right_hand_item():
+			# Equipped-item attacks are introduced by P1-024b. Do not pretend the
+			# unarmed profile can deal weapon damage in the meantime.
+			continue
 		action_state_machine.try_start_action(kind)
 	action_state_machine.set_guard_held(PlayerActionInput.read_guard_held())
 
 
 func apply_hit_stun() -> void:
 	action_state_machine.apply_hit()
+
+
+func take_damage(amount: float, _source: Node = null) -> float:
+	if amount <= 0.0 or health <= 0.0 or is_combat_invulnerable():
+		return 0.0
+	var previous := health
+	health = clampf(health - amount, 0.0, max_health)
+	var applied := previous - health
+	_sync_resource_bars()
+	health_changed.emit(health, max_health)
+	if applied > 0.0:
+		apply_hit_stun()
+	return applied
+
+
+func view_facing() -> Vector2:
+	return _facing_direction
+
+
+func view_animation() -> StringName:
+	var animation_base := _combat_or_locomotion_animation("idle")
+	if animation_base == "attack":
+		return &"unarmed_attack"
+	return StringName(animation_base)
+
+
+func _on_attack_impact() -> void:
+	# Item attack profiles will replace this fallback in P1-024. An empty right
+	# hand always retains the low-damage punch so the player is never defenseless.
+	if _has_right_hand_item():
+		return
+	var targets: Array[Node2D] = MeleeAttackResolverScript.strike(
+		self,
+		_facing_direction,
+		unarmed_reach_px,
+		unarmed_facing_dot,
+		unarmed_damage
+	)
+	unarmed_attack_resolved.emit(targets)
+
+
+func _has_right_hand_item() -> bool:
+	return has_node("/root/SessionState") and not SessionState.state.equipped_item(&"right_hand").is_empty()
 
 
 func is_combat_invulnerable() -> bool:

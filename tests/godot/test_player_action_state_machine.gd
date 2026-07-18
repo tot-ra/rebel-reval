@@ -1,6 +1,7 @@
 extends "res://tests/godot/test_case.gd"
 
 const PLAYER_SCENE := preload("res://player.tscn")
+const COMBAT_TEST_DUMMY := preload("res://tests/godot/fixtures/combat_test_dummy.gd")
 const TEST_DELTA := 0.05
 
 
@@ -93,6 +94,72 @@ func test_random_input_sequence_never_stays_locked() -> void:
 			)
 
 
+func test_attack_emits_one_impact_per_action() -> void:
+	var machine := _make_machine()
+	var impacts := [0]
+	machine.attack_impact.connect(func() -> void: impacts[0] += 1)
+
+	assert_true(machine.try_start_action(PlayerActionKind.Kind.ATTACK))
+	_advance(machine, machine.attack_impact_sec)
+	assert_eq(impacts[0], 1, "Attack should emit its impact at the authored moment")
+	_advance(machine, machine.attack_duration_sec + machine.recovery_duration_sec)
+	assert_eq(impacts[0], 1, "One attack must never emit duplicate impacts")
+
+	assert_true(machine.try_start_action(PlayerActionKind.Kind.ATTACK))
+	_advance(machine, machine.attack_impact_sec)
+	assert_eq(impacts[0], 2, "A later attack should emit a fresh impact")
+
+
+func test_unarmed_attack_hits_only_targets_in_front_and_in_reach() -> void:
+	var player := _create_unarmed_player()
+	player.global_position = Vector2.ZERO
+	player._facing_direction = Vector2.RIGHT
+	var front = _create_dummy(Vector2(32.0, 0.0))
+	var behind = _create_dummy(Vector2(-32.0, 0.0))
+	var far = _create_dummy(Vector2(64.0, 0.0))
+
+	assert_true(player.action_state_machine.try_start_action(PlayerActionKind.Kind.ATTACK))
+	_advance(player.action_state_machine, player.action_state_machine.attack_impact_sec)
+
+	assert_eq(front.health, 12.0, "Unarmed punch should apply its base damage in front")
+	assert_eq(front.hit_count, 1, "A punch should damage a target only once")
+	assert_eq(behind.health, 20.0, "Punch must not hit behind the player")
+	assert_eq(far.health, 20.0, "Punch must not exceed its reach")
+	front.free()
+	behind.free()
+	far.free()
+	player.free()
+
+
+func test_take_damage_clamps_health_and_enters_hit_state() -> void:
+	var player := _create_unarmed_player()
+	player.health = 5.0
+
+	assert_eq(player.take_damage(8.0), 5.0, "Damage API should report applied damage")
+	assert_eq(player.health, 0.0, "Damage must clamp health at zero")
+	assert_eq(player.health_bar.value, 0.0, "Health bar should update immediately")
+	assert_eq(player.action_state_machine.state, PlayerActionState.State.HIT, "Damage should trigger hit reaction")
+	player.free()
+
+
+func test_equipped_right_hand_reserves_attack_for_item_profile() -> void:
+	var player := _create_player()
+	player.combat_input_enabled = true
+	if SessionState.state.equipped_item(&"right_hand").is_empty():
+		SessionState.state.bag.try_add(&"item.forge_hammer")
+		assert_true(SessionState.state.equip_from_bag(&"right_hand", &"item.forge_hammer"))
+	Input.action_press(PlayerActionKind.ACTION_ATTACK)
+	player._physics_process(TEST_DELTA)
+	Input.action_release(PlayerActionKind.ACTION_ATTACK)
+
+	assert_eq(
+		player.action_state_machine.state,
+		PlayerActionState.State.MOVE,
+		"Equipped items must not silently use the unarmed attack profile"
+	)
+	player.free()
+
+
 func test_player_scene_respects_action_lock_and_recovers() -> void:
 	var player := _create_player()
 	player.action_state_machine.try_start_action(PlayerActionKind.Kind.ATTACK)
@@ -133,6 +200,21 @@ func _advance(machine: PlayerActionStateMachine, duration_sec: float) -> void:
 		var step := minf(TEST_DELTA, remaining)
 		machine.tick(step)
 		remaining -= step
+
+
+func _create_unarmed_player() -> Player:
+	var player := _create_player()
+	if not SessionState.state.equipped_item(&"right_hand").is_empty():
+		assert_true(SessionState.state.unequip_to_bag(&"right_hand"))
+	return player
+
+
+func _create_dummy(position: Vector2):
+	var dummy = COMBAT_TEST_DUMMY.new()
+	dummy.global_position = position
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(dummy)
+	return dummy
 
 
 func _create_player() -> Player:

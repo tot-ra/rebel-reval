@@ -10,6 +10,7 @@ const REQUIRED_ANIMATIONS: Array[StringName] = [
 	&"run",
 	&"forge_strike",
 	&"hammer_attack",
+	&"unarmed_attack",
 	&"guard",
 	&"hit",
 	&"fall",
@@ -30,6 +31,17 @@ func test_kalev_rig_has_required_skeleton_animations_and_hammer() -> void:
 		assert_true(kalev.play_animation(animation_name), "Animation %s must play" % animation_name)
 
 	kalev.queue_free()
+
+func test_unarmed_attack_uses_punch_clip() -> void:
+	var kalev := _instantiate(KALEV_SCENE)
+	assert_true(kalev.play_animation(&"unarmed_attack"))
+	assert_eq(
+		kalev.animation_player().current_animation,
+		&"Unarmed_Melee_Attack_Punch_A",
+		"An empty-hand attack must visibly use the authored punch clip"
+	)
+	kalev.queue_free()
+
 
 func test_facing_is_transform_driven_without_direction_assets() -> void:
 	var kalev := _instantiate(KALEV_SCENE)

@@ -248,12 +248,18 @@ func _sync_player(snap: bool, delta: float = 0.0) -> void:
 		# Spawn-facing must use the snapped camera offset, not pre-sync positions.
 		_last_facing = _logic_direction_toward_camera()
 	var facing := _player.velocity if moving else _last_facing
+	if _player.has_method("view_facing"):
+		facing = _player.call("view_facing") as Vector2
+		if not facing.is_zero_approx():
+			_last_facing = facing.normalized()
 	if snap or not moving:
 		_player_rig.set_facing(facing)
 	else:
 		_player_rig.face_toward(facing, delta)
 	var wanted: StringName = &"idle"
-	if moving:
+	if _player.has_method("view_animation"):
+		wanted = _player.call("view_animation") as StringName
+	elif moving:
 		wanted = &"run" if speed > RUN_ANIMATION_MIN_SPEED else &"walk"
 	if _player_rig.current_canonical_animation() != wanted:
 		_player_rig.play_animation(wanted)
