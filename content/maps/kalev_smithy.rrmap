@@ -14,15 +14,15 @@ wall wall.west 0 1 0 12 thickness=1 openings=0,6,1,2 kind=interior_wall style=wa
 wall wall.east 25 1 25 12 thickness=1 openings=25,6,1,2 kind=interior_wall style=wall.shell
 wall wall.divider 14 1 14 12 thickness=1 openings=14,7,1,2 kind=interior_wall style=wall.shell
 prop forge_anvil anvil 18 5 rect=3,2
-prop forge_furnace furnace 20 2 rect=2,2
+prop forge_furnace furnace 19 1 rect=3,3
 prop forge_ledger ledger 4 3 rect=2,2
-prop desk_candle candle 5 3 rect=1,1
+prop table_candle candle 6 10 rect=1,1 visual_offset_px=0,-18
 prop quench quench_bucket 16 5 rect=2,2
 prop bed bed 3 9 rect=4,2
 prop chest chest 2 7 rect=2,2
-prop food_table table 5 10 rect=3,2
-prop work_chair chair 8 10 rect=2,2
-prop tool_shelf shelf 21 2 rect=2,2
+prop food_table table 4 9 rect=4,3
+prop work_chair chair 9 10 rect=2,2
+prop tool_shelf shelf 22 2 rect=2,2
 landmark window.north_living interior_window 5 0 1 1 passage_axis=z
 landmark window.north_forge interior_window 20 0 1 1 passage_axis=z
 landmark window.west interior_window 0 6 1 2 passage_axis=x

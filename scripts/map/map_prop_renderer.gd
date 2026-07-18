@@ -12,6 +12,8 @@ static func create_prop(
 	var root := Node2D.new()
 	root.name = "Prop_%s" % String(prop["id"])
 	root.position = prop["position"]
+	if prop.has("visual_offset_px"):
+		root.position += prop["visual_offset_px"] as Vector2
 	root.set_meta("y_sort_anchor", prop["position"])
 	root.set_meta("visual_target", target)
 
@@ -80,9 +82,9 @@ static func _draw_well(parent: Node2D, target: StringName, time_of_day: StringNa
 static func _draw_furnace(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
 	var stone := MapVisualStyle.role_color(&"stone", target, time_of_day)
 	var ember := MapVisualStyle.role_color(&"ember", target, time_of_day)
-	_add_rect(parent, "FurnaceBase", Vector2(-24, -18), Vector2(48, 28), stone.darkened(0.10), target, time_of_day)
-	_add_rect(parent, "FireMouth", Vector2(-14, -10), Vector2(28, 16), ember, target, time_of_day)
-	_add_rect(parent, "Chimney", Vector2(-8, -34), Vector2(16, 18), stone, target, time_of_day)
+	_add_rect(parent, "FurnaceBase", Vector2(-32, -22), Vector2(64, 36), stone.darkened(0.10), target, time_of_day)
+	_add_rect(parent, "FireMouth", Vector2(-18, -12), Vector2(36, 20), ember, target, time_of_day)
+	_add_rect(parent, "Chimney", Vector2(-12, -50), Vector2(24, 30), stone, target, time_of_day)
 
 
 static func _draw_ledger(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
@@ -106,9 +108,9 @@ static func _draw_chest(parent: Node2D, target: StringName, time_of_day: StringN
 
 static func _draw_table(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
 	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
-	_add_rect(parent, "TableTop", Vector2(-24, -8), Vector2(48, 12), wood, target, time_of_day)
-	_add_rect(parent, "LegL", Vector2(-20, 4), Vector2(6, 12), wood.darkened(0.12), target, time_of_day)
-	_add_rect(parent, "LegR", Vector2(14, 4), Vector2(6, 12), wood.darkened(0.12), target, time_of_day)
+	_add_rect(parent, "TableTop", Vector2(-36, -10), Vector2(72, 14), wood, target, time_of_day)
+	_add_rect(parent, "LegL", Vector2(-30, 4), Vector2(7, 14), wood.darkened(0.12), target, time_of_day)
+	_add_rect(parent, "LegR", Vector2(23, 4), Vector2(7, 14), wood.darkened(0.12), target, time_of_day)
 
 
 static func _draw_shelf(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
