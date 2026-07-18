@@ -145,10 +145,22 @@ func view_facing() -> Vector2:
 
 
 func view_animation() -> StringName:
-	var animation_base := _combat_or_locomotion_animation("idle")
+	var animation_base := _combat_or_locomotion_animation(_current_locomotion_animation())
 	if animation_base == "attack":
 		return &"unarmed_attack"
 	return StringName(animation_base)
+
+
+func _current_locomotion_animation() -> String:
+	if _movement_blocked():
+		return "idle"
+	if not action_state_machine.allows_movement():
+		return action_state_machine.get_animation_base()
+	if not velocity.is_zero_approx():
+		if Input.is_action_pressed("ui_shift"):
+			return "walk"
+		return "run"
+	return "idle"
 
 
 func _on_attack_impact() -> void:

@@ -174,6 +174,24 @@ func test_player_scene_respects_action_lock_and_recovers() -> void:
 	player.free()
 
 
+func test_view_animation_reports_run_walk_and_attack() -> void:
+	var player := _create_player()
+	assert_eq(player.view_animation(), &"idle")
+
+	player.velocity = Vector2(player.run_speed, 0.0)
+	assert_eq(player.view_animation(), &"run")
+
+	Input.action_press("ui_shift")
+	player.velocity = Vector2(player.walk_speed, 0.0)
+	assert_eq(player.view_animation(), &"walk")
+	Input.action_release("ui_shift")
+
+	player.velocity = Vector2.ZERO
+	assert_true(player.action_state_machine.try_start_action(PlayerActionKind.Kind.ATTACK))
+	assert_eq(player.view_animation(), &"unarmed_attack")
+	player.free()
+
+
 func test_player_attack_during_ui_block_does_not_start() -> void:
 	var player := _create_player()
 	player.combat_input_enabled = true
