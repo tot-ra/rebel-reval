@@ -34,6 +34,15 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 |-------|------|--------|--------------------------------------|----------------------|-------------------|
 | `game.tscn` | support | `archive` | Obsolete main-menu wrapper | Never active; `project.godot` already starts the menu directly | none - archive |
 | `player.tscn` | actor | `convert` | Shared Kalev actor | Shared by approved maps after P0-037 and P0-040 | not a map definition; P0-034 actor conversion |
+| `assets/characters/cat/cat_rig.tscn` | actor | `retain` | Forge cat ambient actor rig | Smithy interior only; not a player or commission target | not a map definition; P0-037 ambient actor |
+| `assets/characters/kalev/kalev.tscn` | actor | `convert` | Kalev player variant on shared rig | Approved maps after P0-037 and P0-040 | not a map definition; P0-037 actor conversion |
+| `assets/characters/shared/hammer.tscn` | support | `retain` | Shared hammer equipment mesh | Equipment swap on shared rig; combat and forge feedback | not a map definition |
+| `assets/characters/shared/shared_character_rig.tscn` | actor | `convert` | Shared low-poly character rig base | Kalev and NPC variants after P0-037 and P0-040 | not a map definition; P0-037 actor conversion |
+| `assets/characters/shared/spear.tscn` | support | `retain` | Shared spear equipment mesh | Demo forge pickup visual; D-003 and future commissions | not a map definition |
+| `assets/characters/showcase/character_rig_showcase.tscn` | test | `retain` | Character rig animation showcase | Developer-only P0-037 verification; never release-playable | not a map definition |
+| `assets/characters/variants/henning.tscn` | actor | `retain` | Henning NPC variant | Smithy ambient NPC; slice cast after P0-037 | not a map definition; P0-037 actor conversion |
+| `assets/characters/variants/innkeeper.tscn` | actor | `retain` | Innkeeper NPC variant | Future slice cast; texture and equipment swap only | not a map definition; P0-037 actor conversion |
+| `assets/characters/variants/mart.tscn` | actor | `retain` | Mart NPC variant | Demo dialogue target; slice cast after P0-037 | not a map definition; P0-037 actor conversion |
 | `scenes/comparison_room/comparison_room.tscn` | level | `retain` | `dev.comparison_room.baseline` | Developer-only reference; never release-playable | none - retained procedural reference |
 | `scenes/comparison_room/diamond_isometric_8_direction.tscn` | level | `archive` | `dev.comparison_room.legacy_isometric` | Superseded after P0-040; screenshots and report remain | none - archive |
 | `scenes/comparison_room/orthogonal_4_direction.tscn` | level | `retain` | `dev.comparison_room.orthogonal` | Developer-only reference; never release-playable | none - retained procedural reference |
@@ -41,9 +50,12 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `scenes/elements/UI.tscn` | ui | `archive` | Superseded NATURAL aspects HUD | Remove under P0-041; never active afterward | none - archive |
 | `scenes/elements/building.tscn` | support | `convert` | Shared building visual and footprint | Approved-map component only | not a map definition; P0-034 component conversion |
 | `scenes/elements/door.tscn` | support | `convert` | Shared transition and spawn component | Approved destinations only | not a map definition; P0-034 component conversion |
+| `scenes/elements/location_hud.tscn` | ui | `retain` | District location title HUD | Active overlay on approved maps; replaces legacy NATURAL HUD scope | not a map definition |
 | `scenes/elements/npc.tscn` | actor | `convert` | Shared NPC actor | Approved maps after rig conversion | not a map definition; P0-034 actor conversion |
 | `scenes/elements/turret.tscn` | support | `convert` | Shared wall or tower component | Approved-map component only | not a map definition; P0-034 component conversion |
 | `scenes/events/paldiski.tscn` | event | `archive` | `loc.paldiski` legacy pirate outpost concept | Outside campaign scope; never activate | none - archive |
+| `scenes/interaction/interactable.tscn` | support | `retain` | Shared focus and prompt interaction component | Demo and slice interaction loop via `Interactable` | not a map definition |
+| `scenes/interaction/interaction_test.tscn` | test | `retain` | Interaction controller verification scene | Developer-only D-003 and input checks; never release-playable | not a map definition |
 | `scenes/events/pernau.tscn` | event | `archive` | `loc.parnu` legacy battle concept | Playable Pärnu is explicitly excluded; never activate | none - archive |
 | `scenes/events/pskov_arrival_battle.tscn` | event | `archive` | `event.pskov_arrival_battle` | Army battle and playable Pskov are excluded; never activate | none - archive |
 | `scenes/events/rebel_kings.tscn` | event | `archive` | `event.rebel_kings_camp` | Multi-army campaign concept; never activate | none - archive |
@@ -56,16 +68,20 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `scenes/map/map.tscn` | map | `archive` | `ref.estonia_world_map` | Static reference image, not a travel system; runtime import excluded by `scenes/map/.gdignore` (P0-046) | none - archive |
 | `scenes/map_prototype/smithy_courtyard.tscn` | level | `retain` | `loc.smithy_courtyard` authoring spike | Developer-only P0-042 prototype; not an active destination | `scripts/map/smithy_courtyard_definition.gd` |
 | `scenes/menu/main_menu.tscn` | ui | `retain` | Main menu and Start flow | Active UI, not a map | not a map definition |
+| `scenes/ui/inventory_overlay.tscn` | ui | `retain` | Session bag overlay | Demo D-003 inventory UI; persists via `GameState` | not a map definition |
 | `scenes/reval_center/market_civic_quarter/market.tscn` | level | `convert` | `loc.lower_town.market_square` | `active=false` prototype only until separate approval artifact | `scripts/map/definitions/prototypes/market_square_definition.gd` |
 | `scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn` | level | `convert` | `loc.lower_town.st_olafs_guild_hall` | `active=false` prototype only until separate approval artifact | `scripts/map/definitions/prototypes/st_olafs_guild_hall_definition.gd` |
 | `scenes/reval_center/reval_center.tscn` | level | `convert` | `loc.lower_town.market_civic_quarter` | `active=false` prototype only until separate approval artifact | `scripts/map/definitions/prototypes/market_civic_quarter_definition.gd` |
 | `scenes/reval_east/forge/forge.tscn` | level | `convert` | `loc.kalev_smithy` | Approved vertical-slice interior | `scripts/map/definitions/lower_town/kalev_smithy_definition.gd` |
+| `scenes/reval_east/forge/forge_cat.tscn` | actor | `retain` | Smithy ambient cat | `loc.kalev_smithy` interior only; navigation and idle behavior | not a map definition |
+| `scenes/reval_east/forge/smithy_henning.tscn` | actor | `retain` | Smithy apprentice Henning | `loc.kalev_smithy` interior patrol and idle | not a map definition |
 | `scenes/reval_east/reval_east.tscn` | level | `convert` | `loc.lower_town.slice` | Approved vertical-slice exterior; replaces legacy east-district scale | `scripts/map/definitions/lower_town/lower_town_slice_definition.gd` |
 | `scenes/reval_north/reval_north.tscn` | level | `convert` | `loc.lower_town.north_quarter` | `active=false` prototype only until separate approval artifact | `scripts/map/definitions/prototypes/north_quarter_definition.gd` |
 | `scenes/reval_toompea/domberg.tscn` | level | `archive` | `loc.toompea.castle` legacy concept | Toompea is outside the approved district; never activate | none - archive |
 | `scenes/reval_toompea/maria_toomkirik.tscn` | level | `archive` | `loc.toompea.cathedral` legacy concept | Toompea is outside the approved district; never activate | none - archive |
 | `scenes/tests/font_glyph_render_test.tscn` | test | `retain` | Font and diacritic verification | Developer-only test | not a map definition |
 | `scenes/world/haapsalu_castle.tscn` | level | `archive` | `loc.haapsalu_castle` legacy concept | Outside Reval and slice; never activate | none - archive |
+| `scenes/world/world_item.tscn` | support | `retain` | Pickup world-item component | Demo D-003 forge pickup via `WorldItemController` | not a map definition |
 | `scenes/world/harju_village.tscn` | level | `archive` | `loc.harju_village` legacy concept | Open-world countryside is excluded; never activate | none - archive |
 | `scenes/world/karja_fortress.tscn` | level | `archive` | `loc.karja_fortress` legacy concept | Saaremaa battle map is excluded; never activate | none - archive |
 | `scenes/world/maasilinna_castle.tscn` | level | `archive` | `loc.maasilinna_castle` post-uprising legacy concept | Outside campaign timeline and scope; never activate | none - archive |
@@ -75,6 +91,8 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `scenes/world/poide_castle.tscn` | level | `archive` | `loc.poide_castle` legacy concept | Playable Saaremaa is excluded; never activate | none - archive |
 | `scenes/world/sacred_grove.tscn` | level | `archive` | `loc.sacred_grove` speculative folklore concept | Not the approved ambiguous folklore quest; never activate | none - archive |
 | `scenes/world/viljandi_castle.tscn` | level | `archive` | `loc.viljandi_castle` legacy concept | Castle infiltration campaign is excluded; never activate | none - archive |
+| `tools/benchmarks/large_map_benchmark.tscn` | test | `retain` | Large-map CI benchmark host | Developer and CI map-pipeline performance probe; never release-playable | not a map definition |
+| `tools/benchmarks/lower_town_scene_benchmark.tscn` | test | `retain` | Lower Town scene benchmark host | Developer and CI slice scene-load probe; never release-playable | not a map definition |
 
 ## Detailed map, level, and event specifications
 
@@ -209,7 +227,7 @@ python3 -m unittest tests.python.test_verify_map_conversion_plan -v
 
 The verifier compares the disposition index to all repository `.tscn` files, compares both against `docs/reports/scene_inventory.md`, requires one detailed specification for every `level`, `map`, and `event` row, validates statuses and target rules, resolves every source-reference path, and confirms that all map-conversion TODO tasks declare exact allowed files and objective verification.
 
-At this baseline the expected repository scene count is **43**. P0-018 recorded 41 before P0-042 added `scenes/map_prototype/smithy_courtyard.tscn`; ADR 0006 adds `scenes/harbor/warehouse.tscn`.
+At this baseline the expected repository scene count is **61**. P0-018 recorded 41 before P0-042 added `scenes/map_prototype/smithy_courtyard.tscn`; ADR 0006 adds `scenes/harbor/warehouse.tscn`. P0-055 adds character rigs, interaction components, inventory and world-item scenes, smithy ambient actors, and CI benchmark hosts.
 
 ## Review checklist
 
