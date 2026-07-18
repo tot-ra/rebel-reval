@@ -15,6 +15,22 @@ func _ready() -> void:
 	_overlay.configure(SessionState.state.bag, SessionState.content_db)
 	_overlay.configure_state(SessionState.state)
 	_overlay.closed.connect(_on_overlay_closed)
+	if not SessionState.debug_state_applied.is_connected(_on_debug_state_applied):
+		SessionState.debug_state_applied.connect(_on_debug_state_applied)
+
+
+func _exit_tree() -> void:
+	if SessionState.debug_state_applied.is_connected(_on_debug_state_applied):
+		SessionState.debug_state_applied.disconnect(_on_debug_state_applied)
+
+
+func _on_debug_state_applied(_preset_id: StringName) -> void:
+	if _overlay == null:
+		return
+	_overlay.configure(SessionState.state.bag, SessionState.content_db)
+	_overlay.configure_state(SessionState.state)
+	if _overlay.is_open():
+		_overlay.open()
 
 
 func _unhandled_input(event: InputEvent) -> void:

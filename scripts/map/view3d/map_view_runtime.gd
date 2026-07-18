@@ -48,6 +48,7 @@ var _camera: Camera3D
 var _drag_rotating_view := false
 var _last_facing := Vector2.ZERO
 var _actor_rigs: Dictionary = {}
+var _equipment_state: GameState
 
 
 static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasItem, player: CharacterBody2D) -> MapViewRuntime:
@@ -73,6 +74,8 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 
 	scene_root.add_child(runtime)
 	runtime._bind_equipment_state()
+	if not SessionState.debug_state_applied.is_connected(runtime._on_debug_state_applied):
+		SessionState.debug_state_applied.connect(runtime._on_debug_state_applied)
 	runtime._register_view_actors(scene_root)
 	runtime._configure_screen_relative_movement()
 	runtime._sync_player(true)
@@ -261,13 +264,33 @@ func _sync_player(snap: bool, delta: float = 0.0) -> void:
 ## The session GameState owns what Kalev wears; the variant's authored
 ## equipment is only a default for showcase scenes. Mirror the state now and
 ## on every equipment change.
+func _exit_tree() -> void:
+	if SessionState.debug_state_applied.is_connected(_on_debug_state_applied):
+		SessionState.debug_state_applied.disconnect(_on_debug_state_applied)
+	_disconnect_equipment_state()
+
+
+func _on_debug_state_applied(_preset_id: StringName) -> void:
+	_bind_equipment_state()
+
+
 func _bind_equipment_state() -> void:
-	var state := SessionState.state
-	if state == null:
+	_disconnect_equipment_state()
+	_equipment_state = SessionState.state
+	if _equipment_state == null:
 		return
 	for slot: StringName in SharedCharacterRig.EQUIPMENT_SLOTS:
 		_sync_equipment_slot(slot)
-	state.equipment_changed.connect(_sync_equipment_slot)
+	if not _equipment_state.equipment_changed.is_connected(_sync_equipment_slot):
+		_equipment_state.equipment_changed.connect(_sync_equipment_slot)
+
+
+func _disconnect_equipment_state() -> void:
+	if _equipment_state == null:
+		return
+	if _equipment_state.equipment_changed.is_connected(_sync_equipment_slot):
+		_equipment_state.equipment_changed.disconnect(_sync_equipment_slot)
+	_equipment_state = null
 
 
 func _sync_equipment_slot(slot: StringName) -> void:

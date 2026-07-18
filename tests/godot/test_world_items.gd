@@ -159,6 +159,20 @@ func test_forge_reload_does_not_respawn_picked_spearhead() -> void:
 	forge.queue_free()
 
 
+func test_debug_post_pickup_preset_removes_anvil_spearhead_without_reload() -> void:
+	_prepare_smithy_pickup_state()
+	var tree := Engine.get_main_loop() as SceneTree
+	var forge: Node2D = FORGE_SCENE.instantiate()
+	tree.root.add_child(forge)
+
+	assert_true(_find_pickup_interactable(forge) != null, "fresh forge should expose the anvil spearhead")
+	assert_true(SessionState.apply_debug_preset("debug.reset.demo_post_pickup"))
+	assert_true(SessionState.state.has_item(ITEM_SPEARHEAD))
+	assert_false(SessionState.state.is_world_item_placed(LOC_SMITHY, OBJ_SPEAR))
+	assert_eq(_find_pickup_interactable(forge), null, "debug jump must remove the anvil spearhead without reload")
+	forge.queue_free()
+
+
 func test_overweight_interact_pickup_leaves_world_item_unchanged() -> void:
 	_prepare_smithy_pickup_state()
 	var tree := Engine.get_main_loop() as SceneTree

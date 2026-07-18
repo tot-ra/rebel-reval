@@ -56,6 +56,19 @@ func setup(
 	_scene_root.add_child(_items_root)
 	_seed_defaults_if_needed()
 	_sync_from_state()
+	if not SessionState.debug_state_applied.is_connected(_on_debug_state_applied):
+		SessionState.debug_state_applied.connect(_on_debug_state_applied)
+
+
+func _exit_tree() -> void:
+	if SessionState.debug_state_applied.is_connected(_on_debug_state_applied):
+		SessionState.debug_state_applied.disconnect(_on_debug_state_applied)
+
+
+func _on_debug_state_applied(_preset_id: StringName) -> void:
+	# SessionState replaces the live GameState; rebind and rebuild world props in place.
+	_state = SessionState.state
+	_sync_from_state()
 
 
 func _process(delta: float) -> void:
@@ -159,15 +172,20 @@ func _spawn_pickup_interactable(item: WorldItem) -> void:
 
 
 func _clear_items() -> void:
+	_hovered = null
 	for item: WorldItem in _interactables.keys():
-		_remove_pickup_interactable(item)
+		var interactable: Interactable = _interactables.get(item)
+		if interactable != null and is_instance_valid(interactable):
+			interactable.disable_interaction()
+			interactable.free()
+	_interactables.clear()
 	for item: WorldItem in _views.keys():
 		var view: WorldItemView = _views[item]
 		if is_instance_valid(view):
-			view.queue_free()
+			view.free()
 	_views.clear()
 	for child in _items_root.get_children():
-		child.queue_free()
+		child.free()
 
 
 func _update_hover() -> void:
