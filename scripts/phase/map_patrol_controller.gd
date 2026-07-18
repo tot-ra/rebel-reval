@@ -27,6 +27,7 @@ func setup(definition: MapDefinition, patrol: StringName, parent: Node2D) -> voi
 	shape.shape = capsule
 	_body.add_child(shape)
 	CollisionLayers.apply_npc(_body)
+	_body.add_to_group(NpcPush.PUSH_GROUP)
 	parent.add_child(_body)
 	if not _points.is_empty():
 		_body.global_position = _points[0]
@@ -45,6 +46,8 @@ func is_enabled() -> bool:
 
 
 func _physics_process(delta: float) -> void:
+	if NpcPush.apply_queued_push(_body, delta):
+		return
 	if not _enabled or _points.is_empty():
 		return
 	var target := _points[_point_index]
@@ -56,7 +59,10 @@ func _physics_process(delta: float) -> void:
 	if offset.is_zero_approx():
 		return
 	_body.velocity = offset.normalized() * PATROL_SPEED
-	_body.move_and_slide()
+	if not NpcPush.player_blocks_body(_body):
+		_body.move_and_slide()
+	else:
+		_body.velocity = Vector2.ZERO
 
 
 static func _resolve_points(definition: MapDefinition, patrol: StringName) -> PackedVector2Array:

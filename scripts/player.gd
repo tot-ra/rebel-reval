@@ -3,6 +3,7 @@ extends CharacterBody2D
 class_name Player
 
 const MeleeAttackResolverScript := preload("res://scripts/combat/melee_attack_resolver.gd")
+const NpcPushScript := preload("res://scripts/physics/npc_push.gd")
 
 signal unarmed_attack_resolved(targets: Array[Node2D])
 signal health_changed(current: float, maximum: float)
@@ -109,7 +110,9 @@ func _physics_process(_delta):
 
 	_update_movement_resources(_delta, new_animation != "idle")
 	_sync_resource_bars()
+	var movement_velocity := velocity
 	move_and_slide()
+	_apply_npc_pushes(movement_velocity, _delta)
 	update_animation(_combat_or_locomotion_animation(new_animation))
 
 func _process_action_input() -> void:
@@ -231,6 +234,10 @@ func _get_terrain_speed_multiplier() -> float:
 	if _map_definition == null or _map_grid == null:
 		return 1.0
 	return MapTerrainMovement.speed_multiplier_at(_map_definition, _map_grid, global_position)
+
+
+func _apply_npc_pushes(movement_velocity: Vector2, delta: float) -> void:
+	NpcPushScript.apply_player_contact_pushes(self, movement_velocity, delta)
 
 
 func _update_movement_resources(delta: float, is_moving: bool) -> void:

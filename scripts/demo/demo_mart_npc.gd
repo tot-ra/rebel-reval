@@ -12,7 +12,17 @@ var _facing := Vector2.DOWN
 func _ready() -> void:
 	CollisionLayers.apply_npc(self)
 	add_to_group(&"map_view_actor")
+	add_to_group(NpcPush.PUSH_GROUP)
 	_ensure_collision_shape()
+
+
+func is_pushable_by_player() -> bool:
+	return true
+
+
+func _physics_process(delta: float) -> void:
+	if NpcPush.apply_queued_push(self, delta):
+		return
 
 
 func set_phase_visibility(visible_state: bool) -> void:

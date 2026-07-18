@@ -4,12 +4,17 @@ class_name NPC
 
 @export var walk_speed = 200
 @export var run_speed = 400
+@export var hostile := false
 
 @onready var animation_player = $AnimatedSprite2D
 @onready var navigation_agent = $NavigationAgent2D
 
+var _push_recovery_sec := 0.0
+
+
 func _ready():
 	CollisionLayers.apply_npc(self)
+	add_to_group(NpcPush.PUSH_GROUP)
 	navigation_agent.velocity_computed.connect(Callable(self, "_on_velocity_computed"))
 
 func _on_spawn(position: Vector2, direction: String):
@@ -17,7 +22,23 @@ func _on_spawn(position: Vector2, direction: String):
 	animation_player.play("walk_"+direction)
 	animation_player.stop()
 
+
+func is_pushable_by_player() -> bool:
+	return not hostile
+
+
 func _physics_process(_delta):
+	if NpcPush.apply_queued_push(self, _delta):
+		_push_recovery_sec = 0.35
+		update_animation("idle")
+		return
+
+	if _push_recovery_sec > 0.0:
+		_push_recovery_sec -= _delta
+		velocity = Vector2.ZERO
+		update_animation("idle")
+		return
+
 	var new_animation = "idle"
 	
 	if not navigation_agent.is_navigation_finished():
@@ -29,7 +50,10 @@ func _physics_process(_delta):
 		navigation_agent.set_velocity(velocity)
 		new_animation = "run"
 		
-		move_and_slide()
+		if not NpcPush.player_blocks_body(self):
+			move_and_slide()
+		else:
+			velocity = Vector2.ZERO
 		update_animation(new_animation)
 	else:
 		velocity = Vector2.ZERO
