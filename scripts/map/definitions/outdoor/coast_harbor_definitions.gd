@@ -5,7 +5,7 @@ const Factory := preload("res://scripts/map/definitions/outdoor/outdoor_map_fact
 
 
 static func all() -> Array[MapDefinition]:
-	return [reval_harbor(), paldiski_outpost()]
+	return [paldiski_outpost()]
 
 
 static func reval_harbor() -> MapDefinition:

@@ -13,6 +13,7 @@ const MarketSquare := preload("res://scripts/map/definitions/prototypes/market_s
 const StOlafsGuildHall := preload("res://scripts/map/definitions/prototypes/st_olafs_guild_hall_definition.gd")
 const NorthQuarter := preload("res://scripts/map/definitions/prototypes/north_quarter_definition.gd")
 const HarborWarehouse := preload("res://scripts/map/definitions/prototypes/harbor_warehouse_definition.gd")
+const RevalHarbor := preload("res://scripts/map/definitions/outdoor/reval_harbor_definition.gd")
 const Coast := preload("res://scripts/map/definitions/outdoor/coast_harbor_definitions.gd")
 const Villages := preload("res://scripts/map/definitions/outdoor/village_monastery_definitions.gd")
 const Castles := preload("res://scripts/map/definitions/outdoor/castle_definitions.gd")
@@ -29,6 +30,7 @@ static func all() -> Array[MapDefinition]:
 		StOlafsGuildHall.create(),
 		NorthQuarter.create(),
 		HarborWarehouse.create(),
+		RevalHarbor.create(),
 	]
 	definitions.append_array(Coast.all())
 	definitions.append_array(Villages.all())

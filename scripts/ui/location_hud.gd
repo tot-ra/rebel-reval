@@ -10,6 +10,7 @@ const DISPLAY_NAMES_BY_MAP: Dictionary = {
 	&"market_square": "Market Square",
 	&"north_quarter": "Northern District",
 	&"st_olafs_guild_hall": "St. Olaf's Guild Hall",
+	&"reval_harbor": "Reval Harbour",
 	&"harbor_warehouse": "Harbour Warehouse",
 }
 

@@ -6,6 +6,7 @@ extends RefCounted
 
 const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smithy_rrmap_factory.gd")
 const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_blueprint.gd")
+const RevalHarbor := preload("res://scripts/map/definitions/outdoor/reval_harbor_rrmap_factory.gd")
 
 
 static func entries() -> Array[Dictionary]:
@@ -30,6 +31,16 @@ static func entries() -> Array[Dictionary]:
 				&"brewery_door",
 				&"checkpoint_west",
 				&"checkpoint_east",
+			],
+		},
+		{
+			"id": &"reval_harbor",
+			"source": "res://content/maps/reval_harbor_surroundings.rrmap",
+			"factory": RevalHarbor,
+			"required_anchors": [
+				&"from_reval_east",
+				&"quay_plaza",
+				&"coast_gate",
 			],
 		},
 	]

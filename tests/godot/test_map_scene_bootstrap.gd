@@ -21,8 +21,8 @@ func test_bootstrap_adds_current_location_hud() -> void:
 
 func test_location_hud_falls_back_to_humanized_map_id() -> void:
 	var definition := MapDefinition.new()
-	definition.map_id = &"prototype.reval_harbor_surroundings"
-	assert_eq(LocationHud.display_name_for(definition), "Reval Harbor Surroundings")
+	definition.map_id = &"reval_harbor"
+	assert_eq(LocationHud.display_name_for(definition), "Reval Harbour")
 
 
 func test_bootstrap_adds_physics_bounds_for_direct_keyboard_movement() -> void:

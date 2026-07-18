@@ -323,7 +323,7 @@ static func create() -> MapDefinition:
 		definition,
 		&"viru_road_boundary",
 		Rect2i(84, 19, 4, 3),
-		&"harbor_warehouse",
+		&"reval_harbor",
 		&"from_reval_east",
 		&"viru_road_boundary",
 		Vector2(-48.0, 0.0),

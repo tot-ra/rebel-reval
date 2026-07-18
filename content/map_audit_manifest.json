@@ -134,15 +134,21 @@
       "mandatory_transitions": []
     },
     {
-      "id": "prototype.reval_harbor_surroundings",
-      "location_name": "Reval Harbor Surroundings",
+      "id": "reval_harbor",
+      "location_name": "Reval Harbour",
       "scene": "scenes/harbor/harbor.tscn",
-      "definition": "scripts/map/definitions/outdoor/coast_harbor_definitions.gd",
-      "factory": "CoastHarborDefinitions.reval_harbor",
-      "disposition": "archive-prototype",
+      "definition": "scripts/map/definitions/outdoor/reval_harbor_definition.gd",
+      "factory": "RevalHarborDefinition.create",
+      "disposition": "convert",
       "capture": "reval_harbor_surroundings.png",
-      "mandatory_anchors": [],
-      "mandatory_transitions": []
+      "mandatory_anchors": [
+        "from_reval_east",
+        "quay_plaza",
+        "coast_gate"
+      ],
+      "mandatory_transitions": [
+        "to_reval_east"
+      ]
     },
     {
       "id": "prototype.paldiski_coastal_outpost",

@@ -69,6 +69,17 @@
       ]
     },
     {
+      "id": "reval_harbor",
+      "path": "res://scenes/harbor/harbor.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        { "id": "from_reval_east" },
+        { "id": "quay_plaza" },
+        { "id": "coast_gate" }
+      ]
+    },
+    {
       "id": "harbor_warehouse",
       "path": "res://scenes/harbor/warehouse.tscn",
       "active": true,

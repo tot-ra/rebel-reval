@@ -50,7 +50,7 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `scenes/events/saaremaa.tscn` | event | `archive` | `loc.saaremaa` legacy campaign hub | Playable Saaremaa is explicitly excluded; never activate | none - archive |
 | `scenes/events/swedesh_outpost.tscn` | event | `archive` | `loc.swedish_outpost` legacy Finland concept | Playable Sweden is explicitly excluded; never activate | none - archive |
 | `scenes/events/swedish_arrival.tscn` | event | `archive` | `event.swedish_arrival` | Fleet intervention campaign concept; never activate | none - archive |
-| `scenes/harbor/harbor.tscn` | level | `archive` | `loc.reval_harbor` legacy harbor concept | Outside the one-district campaign map; screenshot remains a reference | none - archive |
+| `scenes/harbor/harbor.tscn` | level | `convert` | `loc.reval_harbor` dev-traversal harbor suburbs | `active=false` prototype; rrmap-authored large map with Viru road and Pikk street orientation | `scripts/map/definitions/outdoor/reval_harbor_definition.gd` |
 | `scenes/harbor/warehouse.tscn` | level | `convert` | `loc.reval_harbor.warehouse` | `active=false` prototype only until separate approval artifact (ADR 0006) | `scripts/map/definitions/prototypes/harbor_warehouse_definition.gd` |
 | `scenes/intro/intro.tscn` | support | `archive` | Empty legacy intro shell | Main menu owns intro presentation; never active | none - archive |
 | `scenes/map/map.tscn` | map | `archive` | `ref.estonia_world_map` | Static reference image, not a travel system | none - archive |
@@ -112,7 +112,7 @@ These conversions can preserve layout research without expanding the playable po
 
 | Scene | Status | Terrain palette | World bounds | Required buildings and props | Transitions and spawns | Collision and navigation | Source references | Target declarative definition |
 |-------|--------|-----------------|--------------|------------------------------|------------------------|--------------------------|-------------------|-------------------------------|
-| `scenes/harbor/harbor.tscn` | `archive` | none - archive; retain wet timber, stone quay and Baltic water only as future art notes | none - archive; current screenshot has no gameplay coordinate contract | Preserve notes for quay, warehouses, Great Coast Gate, ships, cranes, nets, barrels and Seamen's Inn | No destination or spawn | No collision or navigation | `scenes/harbor/harbor.tscn`<br>`scenes/harbor/harbor.md`<br>`scenes/harbor/Screenshot 2025-08-24 at 22.46.16.png`<br>`scenes/harbor/warehouses.md`<br>`scenes/harbor/great_coast_gate.md` | none - archive |
+| `scenes/harbor/harbor.tscn` | `convert` | `reval_harbor`: Baltic basin north, Viru road west entry, Pikk street to quay, warehouse row, Great Coast Gate east | 72 x 48 cells | Twin piers, quay crane, Hanseatic warehouses, Seamen's Inn | Dev traversal from `reval_east` via `viru_road_boundary`; return via `to_reval_east` | Water exclusion, quay collision, street navigation | `content/maps/reval_harbor_surroundings.rrmap`<br>`scenes/harbor/harbor.md`<br>`scenes/harbor/great_coast_gate.md`<br>`scenes/harbor/warehouses.md` | `scripts/map/definitions/outdoor/reval_harbor_definition.gd` |
 | `scenes/harbor/warehouse.tscn` | `convert` | `harbor_warehouse_prototype`: timber floor, stone threshold, packed dirt | 40 x 24 cells | Loading bay, crate stacks, cart, quay stairs | Prototype inspection spawn only; no active destination | Closed interior shell, cargo footprints, loading route nav, foreground fade | `scenes/harbor/warehouses.md`<br>`scenes/harbor/harbor.md` | `scripts/map/definitions/prototypes/harbor_warehouse_definition.gd` |
 | `scenes/reval_toompea/domberg.tscn` | `archive` | none - archive; castle stone and timber notes require new approval | none - archive | Preserve notes for castle walls, courtyard, barracks, hall, chapel and dungeon only | No destination or spawn | No collision or navigation | `scenes/reval_toompea/domberg.tscn`<br>`scenes/reval_toompea/domberg.md`<br>`scenes/revel-map.jpg` | none - archive |
 | `scenes/reval_toompea/maria_toomkirik.tscn` | `archive` | none - archive; cathedral stone and interior value notes require new approval | none - archive | Preserve cathedral nave, altar, tomb and service-space notes only | No destination or spawn | No collision or navigation | `scenes/reval_toompea/maria_toomkirik.tscn`<br>`scenes/reval_toompea/cathedral_of_saint_mary.md` | none - archive |
@@ -230,7 +230,7 @@ The archive disposition of the legacy harbor, world, castle, grove, and event `.
 
 | Package | Definitions | Evidence |
 |---|---|---|
-| Coast/harbor | Reval harbor surroundings, Paldiski coastal outpost | `scripts/map/definitions/outdoor/coast_harbor_definitions.gd` |
+| Coast/harbor | Paldiski coastal outpost | `scripts/map/definitions/outdoor/coast_harbor_definitions.gd` |
 | Villages/monasteries | Harju village, Padise monastery with before/after phase metadata | `scripts/map/definitions/outdoor/village_monastery_definitions.gd` |
 | Castles | Haapsalu, Paide, Viljandi, Poide, Maasilinna, Karja | `scripts/map/definitions/outdoor/castle_definitions.gd` |
 | Wilderness/events | Sacred grove, Pärnu, Pskov arrival, rebel kings camp, Saaremaa, Swedish outpost, Swedish arrival | `scripts/map/definitions/outdoor/wilderness_event_definitions.gd` |

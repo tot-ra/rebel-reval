@@ -121,7 +121,7 @@ const _TRANSITIONS: Array = [
 	[&"smithy_door_transition", Rect2i(51, 27, 2, 1), &"forge", &"door_courtyard", &"forge", {"spawn_offset_px": Vector2(0, 48), "highlight_area": true}],
 	[&"vana_turg_boundary", Rect2i(0, 19, 2, 4), &"reval_center", &"from_reval_east", &"vana_turg_boundary", {"spawn_offset_px": Vector2(48, 0), "highlight_area": true, "view_landmark_id": &"vanaturu_kael_arch"}],
 	[&"vene_district_boundary", Rect2i(14, 0, 3, 2), &"reval_north", &"from_reval_east", &"vene_district_boundary", {"spawn_offset_px": Vector2(0, 48), "highlight_area": true, "view_landmark_id": &"vene_district_arch"}],
-	[&"viru_road_boundary", Rect2i(84, 19, 4, 3), &"harbor_warehouse", &"from_reval_east", &"viru_road_boundary", {"spawn_offset_px": Vector2(-48, 0), "highlight_area": true, "view_landmark_id": &"viru_suburb_arch"}],
+	[&"viru_road_boundary", Rect2i(84, 19, 4, 3), &"reval_harbor", &"from_reval_east", &"viru_road_boundary", {"spawn_offset_px": Vector2(-48, 0), "highlight_area": true, "view_landmark_id": &"viru_suburb_arch"}],
 	[&"karja_road_boundary", Rect2i(36, 53, 3, 3), &"reval_center", &"from_reval_east_south", &"karja_road_boundary", {"spawn_offset_px": Vector2(0, -48), "highlight_area": true, "view_landmark_id": &"karja_suburb_arch"}],
 	[&"street_start_spawn", Rect2i(48, 20, 2, 2), &"", &"", &"street_start", {}],
 ]

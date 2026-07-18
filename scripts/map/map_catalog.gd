@@ -37,6 +37,11 @@ const MAPS: Dictionary = {
 		"scope": "prototype",
 		"active": false
 	},
+	"reval_harbor": {
+		"path": "res://scenes/harbor/harbor.tscn",
+		"scope": "prototype",
+		"active": false
+	},
 	"harbor_warehouse": {
 		"path": "res://scenes/harbor/warehouse.tscn",
 		"scope": "prototype",

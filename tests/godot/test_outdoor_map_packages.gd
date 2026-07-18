@@ -9,7 +9,7 @@ const Factory := preload("res://scripts/map/definitions/outdoor/outdoor_map_fact
 
 func test_all_seventeen_definitions_validate_and_are_inactive() -> void:
 	var definitions := _all()
-	assert_eq(definitions.size(), 17)
+	assert_eq(definitions.size(), 16)
 	var ids: Dictionary = {}
 	for definition in definitions:
 		assert_eq(definition.scope, &"prototype")

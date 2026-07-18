@@ -2416,7 +2416,7 @@
       "view_landmark_id": "vene_district_arch"
     },
     {
-      "destination_scene_id": "harbor_warehouse",
+      "destination_scene_id": "reval_harbor",
       "destination_spawn_id": "from_reval_east",
       "highlight_area": true,
       "id": "viru_road_boundary",

@@ -57,9 +57,9 @@ static func create() -> MapDefinition:
 		definition,
 		&"quay_exit",
 		Rect2i(17, 21, 6, 1),
-		&"reval_east",
-		&"viru_road_boundary",
-		&"quay_exit",
+		&"reval_harbor",
+		&"quay_plaza",
+		&"quay_plaza",
 		Vector2.ZERO,
 		false,
 		&"quay_entry_arch"
