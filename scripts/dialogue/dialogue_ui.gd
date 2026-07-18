@@ -6,6 +6,7 @@ const PortraitResolverScript := preload("res://scripts/dialogue/dialogue_portrai
 const DialogueSettingsScript := preload("res://scripts/settings/dialogue_settings.gd")
 const PseudoLocalizationScript := preload("res://scripts/dialogue/dialogue_pseudo_localization.gd")
 const TextLayoutScript := preload("res://scripts/dialogue/dialogue_text_layout.gd")
+const DialogueUiBuilder := preload("res://scripts/dialogue/dialogue_ui_builder.gd")
 
 signal choice_selected(choice_id: String)
 signal skip_requested()
@@ -551,140 +552,28 @@ func _apply_text_scale() -> void:
 
 
 func _build_ui() -> void:
-	var margin := MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 24)
-	margin.add_theme_constant_override("margin_right", 24)
-	margin.add_theme_constant_override("margin_bottom", 24)
-	add_child(margin)
-
-	var stack := VBoxContainer.new()
-	stack.set_anchors_preset(Control.PRESET_FULL_RECT)
-	stack.add_theme_constant_override("separation", 8)
-	margin.add_child(stack)
-
-	_backlog_panel = PanelContainer.new()
-	_backlog_panel.visible = false
-	_backlog_panel.custom_minimum_size = Vector2(0, 220)
-	stack.add_child(_backlog_panel)
-
-	var backlog_scroll := ScrollContainer.new()
-	backlog_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_backlog_panel.add_child(backlog_scroll)
-
-	_backlog_list = VBoxContainer.new()
-	_backlog_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	backlog_scroll.add_child(_backlog_list)
-
-	_root = Control.new()
-	_root.custom_minimum_size = Vector2(0, TextLayoutScript.DIALOGUE_ROOT_MIN_HEIGHT)
-	stack.add_child(_root)
-
-	_panel = PanelContainer.new()
-	_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_root.add_child(_panel)
-
-	var content := MarginContainer.new()
-	content.add_theme_constant_override("margin_left", 16)
-	content.add_theme_constant_override("margin_right", 16)
-	content.add_theme_constant_override("margin_top", 12)
-	content.add_theme_constant_override("margin_bottom", 12)
-	_panel.add_child(content)
-
-	var body := HBoxContainer.new()
-	body.add_theme_constant_override("separation", 16)
-	content.add_child(body)
-
-	var portrait_box := PanelContainer.new()
-	portrait_box.custom_minimum_size = Vector2(PORTRAIT_SIZE, PORTRAIT_SIZE)
-	body.add_child(portrait_box)
-
-	var portrait_stack := Control.new()
-	portrait_stack.custom_minimum_size = Vector2(PORTRAIT_SIZE, PORTRAIT_SIZE)
-	portrait_box.add_child(portrait_stack)
-
-	_portrait_rect = TextureRect.new()
-	_portrait_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_portrait_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	_portrait_rect.custom_minimum_size = Vector2(PORTRAIT_SIZE, PORTRAIT_SIZE)
-	portrait_stack.add_child(_portrait_rect)
-
-	_portrait_fallback = Label.new()
-	_portrait_fallback.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_portrait_fallback.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_portrait_fallback.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_portrait_fallback.add_theme_font_override("font", _font)
-	portrait_stack.add_child(_portrait_fallback)
-
-	var text_wrap := Control.new()
-	text_wrap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body.add_child(text_wrap)
-
-	_text_background = ColorRect.new()
-	_text_background.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_text_background.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	text_wrap.add_child(_text_background)
-
-	var text_column := VBoxContainer.new()
-	text_column.set_anchors_preset(Control.PRESET_FULL_RECT)
-	text_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	text_column.add_theme_constant_override("separation", 8)
-	text_wrap.add_child(text_column)
-
-	_speaker_label = Label.new()
-	_speaker_label.add_theme_color_override("font_color", Color(0.92, 0.78, 0.42, 1.0))
-	_speaker_label.add_theme_font_override("font", _font)
-	text_column.add_child(_speaker_label)
-
-	_text_scroll = ScrollContainer.new()
-	_text_scroll.custom_minimum_size = Vector2(0, TextLayoutScript.BODY_SCROLL_MIN_HEIGHT)
-	_text_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_text_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_text_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	text_column.add_child(_text_scroll)
-
-	_text_label = Label.new()
-	_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_text_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_text_label.add_theme_color_override("font_color", Color(0.95, 0.95, 0.9, 1.0))
-	_text_label.add_theme_font_override("font", _font)
-	_text_scroll.add_child(_text_label)
-
-	_choices_box = VBoxContainer.new()
-	_choices_box.add_theme_constant_override("separation", 4)
-	text_column.add_child(_choices_box)
-
-	var footer := HBoxContainer.new()
-	footer.add_theme_constant_override("separation", 12)
-	text_column.add_child(footer)
-
-	_continue_hint = Label.new()
-	_continue_hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_continue_hint.add_theme_color_override("font_color", Color(0.72, 0.76, 0.82, 1.0))
-	_continue_hint.add_theme_font_override("font", _font)
-	footer.add_child(_continue_hint)
-
-	_backlog_button = Button.new()
-	_backlog_button.text = "Backlog"
-	_backlog_button.add_theme_font_override("font", _font)
-	_backlog_button.pressed.connect(_toggle_backlog)
-	footer.add_child(_backlog_button)
-
-	_skip_button = Button.new()
-	_skip_button.text = "Skip"
-	_skip_button.add_theme_font_override("font", _font)
-	_skip_button.pressed.connect(func() -> void: skip_requested.emit())
-	footer.add_child(_skip_button)
-
-	_disabled_reason_label = Label.new()
-	_disabled_reason_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_disabled_reason_label.add_theme_color_override("font_color", Color(0.86, 0.55, 0.48, 1.0))
-	_disabled_reason_label.add_theme_font_override("font", _font)
-	text_column.add_child(_disabled_reason_label)
-
+	var nodes := DialogueUiBuilder.build(self, _font, {
+		"toggle_backlog": _toggle_backlog,
+		"skip_requested": func() -> void: skip_requested.emit(),
+		"sync_text_label_width": _sync_text_label_width,
+	})
+	_root = nodes["root"]
+	_panel = nodes["panel"]
+	_backlog_panel = nodes["backlog_panel"]
+	_backlog_list = nodes["backlog_list"]
+	_text_background = nodes["text_background"]
+	_portrait_rect = nodes["portrait_rect"]
+	_portrait_fallback = nodes["portrait_fallback"]
+	_speaker_label = nodes["speaker_label"]
+	_text_scroll = nodes["text_scroll"]
+	_text_label = nodes["text_label"]
+	_choices_box = nodes["choices_box"]
+	_continue_hint = nodes["continue_hint"]
+	_disabled_reason_label = nodes["disabled_reason_label"]
+	_skip_button = nodes["skip_button"]
+	_backlog_button = nodes["backlog_button"]
 	_apply_text_scale()
 	_apply_visual_theme()
-	_text_scroll.resized.connect(_sync_text_label_width)
 
 
 func _sync_text_label_width() -> void:

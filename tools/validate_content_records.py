@@ -5,17 +5,19 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from validate_content import (
+from validate_content_common import (
     Diagnostic,
-    _check_local_duplicates,
-    _diag,
-    _local_ids,
-    _require_record_ref,
-    _validate_condition_semantics,
-    _validate_dialogue,
-    _validate_effect_semantics,
-    _walk_conditions,
-    _walk_effects,
+    check_local_duplicates,
+    diag,
+    local_ids,
+    require_record_ref,
+)
+from validate_content_semantics import (
+    validate_condition_semantics,
+    validate_dialogue,
+    validate_effect_semantics,
+    walk_conditions,
+    walk_effects,
 )
 
 def validate_record_semantics(
@@ -32,7 +34,7 @@ def validate_record_semantics(
     if record_type == "character":
         for rel_index, rel in enumerate(record.get("relationships") or []):
             if isinstance(rel, dict):
-                _require_record_ref(
+                require_record_ref(
                     diagnostics,
                     path=path,
                     pointer=f"$.relationships[{rel_index}].target_id",
@@ -41,13 +43,13 @@ def validate_record_semantics(
                     index=index,
                     root=root,
                 )
-        _check_local_duplicates(
-            diagnostics, path=path, pointer="$.outcomes", ids=_local_ids(record.get("outcomes")), root=root
+        check_local_duplicates(
+            diagnostics, path=path, pointer="$.outcomes", ids=local_ids(record.get("outcomes")), root=root
         )
 
     elif record_type == "dialogue":
         for part_index, participant in enumerate(record.get("participants") or []):
-            _require_record_ref(
+            require_record_ref(
                 diagnostics,
                 path=path,
                 pointer=f"$.participants[{part_index}]",
@@ -56,10 +58,10 @@ def validate_record_semantics(
                 index=index,
                 root=root,
             )
-        _validate_dialogue(diagnostics, path=path, record=record, index=index, root=root)
+        validate_dialogue(diagnostics, path=path, record=record, index=index, root=root)
 
     elif record_type == "bark_pool":
-        _require_record_ref(
+        require_record_ref(
             diagnostics,
             path=path,
             pointer="$.owner_id",
@@ -69,7 +71,7 @@ def validate_record_semantics(
             root=root,
         )
         for loc_index, loc_id in enumerate(record.get("location_ids") or []):
-            _require_record_ref(
+            require_record_ref(
                 diagnostics,
                 path=path,
                 pointer=f"$.location_ids[{loc_index}]",
@@ -78,12 +80,12 @@ def validate_record_semantics(
                 index=index,
                 root=root,
             )
-        _check_local_duplicates(
-            diagnostics, path=path, pointer="$.entries", ids=_local_ids(record.get("entries")), root=root
+        check_local_duplicates(
+            diagnostics, path=path, pointer="$.entries", ids=local_ids(record.get("entries")), root=root
         )
         for entry_index, entry in enumerate(record.get("entries") or []):
             if isinstance(entry, dict):
-                _require_record_ref(
+                require_record_ref(
                     diagnostics,
                     path=path,
                     pointer=f"$.entries[{entry_index}].speaker_id",
@@ -94,20 +96,20 @@ def validate_record_semantics(
                 )
 
     elif record_type == "quest":
-        _check_local_duplicates(
-            diagnostics, path=path, pointer="$.states", ids=_local_ids(record.get("states")), root=root
+        check_local_duplicates(
+            diagnostics, path=path, pointer="$.states", ids=local_ids(record.get("states")), root=root
         )
-        _check_local_duplicates(
-            diagnostics, path=path, pointer="$.objectives", ids=_local_ids(record.get("objectives")), root=root
+        check_local_duplicates(
+            diagnostics, path=path, pointer="$.objectives", ids=local_ids(record.get("objectives")), root=root
         )
-        _check_local_duplicates(
-            diagnostics, path=path, pointer="$.outcomes", ids=_local_ids(record.get("outcomes")), root=root
+        check_local_duplicates(
+            diagnostics, path=path, pointer="$.outcomes", ids=local_ids(record.get("outcomes")), root=root
         )
-        state_ids = set(_local_ids(record.get("states")))
+        state_ids = set(local_ids(record.get("states")))
         initial_state = record.get("initial_state")
         if isinstance(initial_state, str) and state_ids and initial_state not in state_ids:
             diagnostics.append(
-                _diag(
+                diag(
                     "REFERENCE",
                     path,
                     "$.initial_state",
@@ -115,11 +117,11 @@ def validate_record_semantics(
                     root=root,
                 )
             )
-        _check_local_duplicates(
+        check_local_duplicates(
             diagnostics,
             path=path,
             pointer="$.transitions",
-            ids=_local_ids(record.get("transitions")),
+            ids=local_ids(record.get("transitions")),
             root=root,
         )
         for transition_index, transition in enumerate(record.get("transitions") or []):
@@ -129,7 +131,7 @@ def validate_record_semantics(
                 state_id = transition.get(field)
                 if isinstance(state_id, str) and state_ids and state_id not in state_ids:
                     diagnostics.append(
-                        _diag(
+                        diag(
                             "REFERENCE",
                             path,
                             f"$.transitions[{transition_index}].{field}",
@@ -144,7 +146,7 @@ def validate_record_semantics(
                     and effect.get("key") == record.get("id")
                 ):
                     diagnostics.append(
-                        _diag(
+                        diag(
                             "UNSUPPORTED_EFFECT",
                             path,
                             f"$.transitions[{transition_index}].effects[{effect_index}]",
@@ -158,7 +160,7 @@ def validate_record_semantics(
             state_id = objective.get("state_id")
             if isinstance(state_id, str) and state_ids and state_id not in state_ids:
                 diagnostics.append(
-                    _diag(
+                    diag(
                         "REFERENCE",
                         path,
                         f"$.objectives[{obj_index}].state_id",
@@ -177,7 +179,7 @@ def validate_record_semantics(
         }
         for field, expected in link_fields.items():
             for link_index, content_id in enumerate(links.get(field) or []):
-                _require_record_ref(
+                require_record_ref(
                     diagnostics,
                     path=path,
                     pointer=f"$.content_links.{field}[{link_index}]",
@@ -188,7 +190,7 @@ def validate_record_semantics(
                 )
 
     elif record_type == "item":
-        _require_record_ref(
+        require_record_ref(
             diagnostics,
             path=path,
             pointer="$.owner_id",
@@ -197,7 +199,7 @@ def validate_record_semantics(
             index=index,
             root=root,
         )
-        _require_record_ref(
+        require_record_ref(
             diagnostics,
             path=path,
             pointer="$.location_id",
@@ -208,7 +210,7 @@ def validate_record_semantics(
         )
 
     elif record_type == "commission":
-        _require_record_ref(
+        require_record_ref(
             diagnostics,
             path=path,
             pointer="$.client_id",
@@ -217,7 +219,7 @@ def validate_record_semantics(
             index=index,
             root=root,
         )
-        _require_record_ref(
+        require_record_ref(
             diagnostics,
             path=path,
             pointer="$.quest_id",
@@ -226,7 +228,7 @@ def validate_record_semantics(
             index=index,
             root=root,
         )
-        _require_record_ref(
+        require_record_ref(
             diagnostics,
             path=path,
             pointer="$.object_item_id",
@@ -235,7 +237,7 @@ def validate_record_semantics(
             index=index,
             root=root,
         )
-        _require_record_ref(
+        require_record_ref(
             diagnostics,
             path=path,
             pointer="$.location_id",
@@ -244,23 +246,23 @@ def validate_record_semantics(
             index=index,
             root=root,
         )
-        _check_local_duplicates(
+        check_local_duplicates(
             diagnostics,
             path=path,
             pointer="$.investigation_clues",
-            ids=_local_ids(record.get("investigation_clues")),
+            ids=local_ids(record.get("investigation_clues")),
             root=root,
         )
-        _check_local_duplicates(
+        check_local_duplicates(
             diagnostics,
             path=path,
             pointer="$.forging_options",
-            ids=_local_ids(record.get("forging_options")),
+            ids=local_ids(record.get("forging_options")),
             root=root,
         )
 
     elif record_type == "mechanism":
-        _require_record_ref(
+        require_record_ref(
             diagnostics,
             path=path,
             pointer="$.commission_id",
@@ -269,7 +271,7 @@ def validate_record_semantics(
             index=index,
             root=root,
         )
-        _require_record_ref(
+        require_record_ref(
             diagnostics,
             path=path,
             pointer="$.object_item_id",
@@ -278,7 +280,7 @@ def validate_record_semantics(
             index=index,
             root=root,
         )
-        _require_record_ref(
+        require_record_ref(
             diagnostics,
             path=path,
             pointer="$.location_id",
@@ -287,16 +289,16 @@ def validate_record_semantics(
             index=index,
             root=root,
         )
-        _check_local_duplicates(
+        check_local_duplicates(
             diagnostics,
             path=path,
             pointer="$.responses",
-            ids=_local_ids(record.get("responses")),
+            ids=local_ids(record.get("responses")),
             root=root,
         )
         default_response = record.get("default_response")
         if isinstance(default_response, dict):
-            _check_local_duplicates(
+            check_local_duplicates(
                 diagnostics,
                 path=path,
                 pointer="$.default_response",
@@ -306,7 +308,7 @@ def validate_record_semantics(
 
     elif record_type == "location":
         for conn_index, loc_id in enumerate(record.get("connected_location_ids") or []):
-            _require_record_ref(
+            require_record_ref(
                 diagnostics,
                 path=path,
                 pointer=f"$.connected_location_ids[{conn_index}]",
@@ -316,7 +318,7 @@ def validate_record_semantics(
                 root=root,
             )
         for occ_index, char_id in enumerate(record.get("occupant_ids") or []):
-            _require_record_ref(
+            require_record_ref(
                 diagnostics,
                 path=path,
                 pointer=f"$.occupant_ids[{occ_index}]",
@@ -325,14 +327,14 @@ def validate_record_semantics(
                 index=index,
                 root=root,
             )
-        _check_local_duplicates(
+        check_local_duplicates(
             diagnostics,
             path=path,
             pointer="$.phase_states",
-            ids=_local_ids(record.get("phase_states")),
+            ids=local_ids(record.get("phase_states")),
             root=root,
         )
-        _check_local_duplicates(
+        check_local_duplicates(
             diagnostics,
             path=path,
             pointer="$.spawn_ids",
@@ -347,7 +349,7 @@ def validate_record_semantics(
                 asset.relative_to(project_root.resolve())
             except ValueError:
                 diagnostics.append(
-                    _diag(
+                    diag(
                         "INPUT",
                         path,
                         "$.scene_path",
@@ -358,7 +360,7 @@ def validate_record_semantics(
             else:
                 if not asset.is_file():
                     diagnostics.append(
-                        _diag(
+                        diag(
                             "MISSING_ASSET",
                             path,
                             "$.scene_path",
@@ -368,15 +370,15 @@ def validate_record_semantics(
                     )
 
     def on_condition(pointer: str, condition: dict[str, Any]) -> None:
-        _validate_condition_semantics(
+        validate_condition_semantics(
             diagnostics, path=path, pointer=pointer, condition=condition, index=index, root=root
         )
 
     def on_effect(pointer: str, effect: dict[str, Any]) -> None:
-        _validate_effect_semantics(
+        validate_effect_semantics(
             diagnostics, path=path, pointer=pointer, effect=effect, index=index, root=root
         )
 
-    _walk_conditions(record, "$", on_condition)
-    _walk_effects(record, "$", on_effect)
+    walk_conditions(record, "$", on_condition)
+    walk_effects(record, "$", on_effect)
 
