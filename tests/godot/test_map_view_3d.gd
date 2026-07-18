@@ -171,6 +171,7 @@ func test_enclosed_interior_suppresses_countryside_surroundings() -> void:
 			var node := view.get_node("Landmarks/Landmark_%s" % String(landmark["id"]))
 			assert_true(node.has_node("InteriorWindowLights"), "interior windows need cycle-driven daylight")
 			assert_true(node.has_node("Window0"), "interior window needs glazed pane")
+			assert_true(node.has_node("WallAbove0"), "interior windows should fill void above the lintel")
 	assert_eq(window_landmarks, 4)
 	var candle := view.get_node("Props/Prop_desk_candle")
 	assert_true(candle.has_node("CandleLight"), "desk candle needs local light controller")
@@ -186,8 +187,13 @@ func test_kalev_smithy_door_sits_on_south_wall_boundary() -> void:
 		if candidate.get("id") == &"door_courtyard":
 			transition = candidate
 			break
-	var door := MapViewMeshBuilder.build_transition_door(transition, definition.cell_size)
+	var door := MapViewMeshBuilder.build_transition_door(
+		transition,
+		definition.cell_size,
+		MapViewMeshBuilder.interior_shell_wall_height_world(definition)
+	)
 	assert_true(door.has_node("Panel"), "smithy door needs a solid panel")
+	assert_true(door.has_node("OpeningHead"), "smithy door should fill the wall headroom")
 	var rect: Rect2 = transition["rect"]
 	var expected_boundary := rect.position.y * MapViewBridge.world_scale(definition.cell_size)
 	assert_true(is_equal_approx(door.position.z, expected_boundary), "smithy door must sit flush with the south wall")

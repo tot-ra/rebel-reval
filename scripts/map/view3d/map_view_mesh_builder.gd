@@ -902,6 +902,19 @@ static func _add_interior_window_landmark(
 	_facade_box(root, "WindowMullionV0", Vector3(HOUSE_WINDOW_MULLION, glass_h, HOUSE_WINDOW_MULLION_DEPTH), 0.0, center_y, side, face_offset, &"timber")
 	_facade_box(root, "WindowLintel0", Vector3(span + 0.12, 0.1, 0.09), 0.0, sill + opening_height + 0.05, side, face_offset, &"timber")
 	_facade_box(root, "WindowSill0", Vector3(span + 0.12, 0.08, 0.12), 0.0, sill - 0.04, side, face_offset, &"timber")
+	var headroom := wall_height_world - sill - opening_height
+	if headroom > 0.08:
+		# Wall segments are omitted around openings; fill the void above the lintel.
+		_facade_box(
+			root,
+			"WallAbove0",
+			Vector3(span + 0.1, headroom, HOUSE_WINDOW_OUTER_DEPTH * 0.65),
+			0.0,
+			sill + opening_height + headroom * 0.5,
+			side,
+			face_offset - 0.04,
+			&"stone"
+		)
 
 
 static func _interior_window_side(landmark: Dictionary, cell_size: int) -> StringName:
@@ -1036,7 +1049,11 @@ static func transition_uses_landmark_visual(definition: MapDefinition, transitio
 ## Functional transitions get a view-only framed door at the edge of their
 ## trigger rectangle. The trigger can stay generously sized for navigation;
 ## the visible door remains at the frozen character scale.
-static func build_transition_door(transition: Dictionary, cell_size: int) -> Node3D:
+static func build_transition_door(
+	transition: Dictionary,
+	cell_size: int,
+	wall_height_world: float = -1.0
+) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Door_%s" % String(transition["id"])
 	root.set_meta("transition_id", transition["id"])
@@ -1054,6 +1071,12 @@ static func build_transition_door(transition: Dictionary, cell_size: int) -> Nod
 	root.position = Vector3(center.x, 0.0, center.y)
 	if not horizontal_wall:
 		root.rotation.y = PI * 0.5
+
+	var resolved_wall_height := wall_height_world
+	if resolved_wall_height <= 0.0:
+		resolved_wall_height = DEFAULT_WALL_HEIGHT_PX[MapTypes.BUILDING_KIND_INTERIOR_WALL] * scale
+	var opening_width := (rect.size.x if horizontal_wall else rect.size.y) * scale
+	_add_transition_opening_infill(root, opening_width, resolved_wall_height)
 
 	_box(
 		root,
@@ -1073,6 +1096,44 @@ static func build_transition_door(transition: Dictionary, cell_size: int) -> Nod
 		_box(root, "Plank%d" % plank_index, Vector3(0.025, DOOR_HEIGHT - 0.12, 0.018), Vector3(plank_x, DOOR_HEIGHT * 0.5, DOOR_THICKNESS * 0.5 + 0.01), &"timber")
 	_sphere(root, "Handle", 0.055, Vector3(DOOR_WIDTH * 0.3, DOOR_HEIGHT * 0.52, DOOR_THICKNESS * 0.5 + 0.06), &"metal")
 	return root
+
+
+## Compiler wall openings leave a full-height void. Fill the leftover width and
+## headroom so doors do not float inside oversized gaps.
+static func _add_transition_opening_infill(
+	root: Node3D,
+	opening_width: float,
+	wall_height_world: float
+) -> void:
+	var frame_height := DOOR_HEIGHT + DOOR_FRAME_THICKNESS
+	var framed_width := DOOR_WIDTH + DOOR_FRAME_THICKNESS * 2.0
+	var side_gap := opening_width - framed_width
+	if side_gap > 0.08:
+		var jamb_width := side_gap * 0.5
+		var jamb_x := framed_width * 0.5 + jamb_width * 0.5
+		_box(
+			root,
+			"OpeningJambL",
+			Vector3(jamb_width, frame_height, DOOR_THICKNESS),
+			Vector3(-jamb_x, frame_height * 0.5, 0.0),
+			&"stone"
+		)
+		_box(
+			root,
+			"OpeningJambR",
+			Vector3(jamb_width, frame_height, DOOR_THICKNESS),
+			Vector3(jamb_x, frame_height * 0.5, 0.0),
+			&"stone"
+		)
+	var headroom := wall_height_world - frame_height
+	if headroom > 0.08:
+		_box(
+			root,
+			"OpeningHead",
+			Vector3(maxf(opening_width, framed_width), headroom, DOOR_THICKNESS),
+			Vector3(0.0, frame_height + headroom * 0.5, 0.0),
+			&"stone"
+		)
 
 
 ## A low translucent patch makes district exits readable without looking like
@@ -1205,18 +1266,26 @@ static func build_prop(prop: Dictionary, cell_size: int) -> Node3D:
 ## tufts on green cells, pebbles on worked ground. Deterministic from the map
 ## seed, skips building footprints, and stays under knee height so it never
 ## suggests collision.
-static func build_scatter(definition: MapDefinition, grid: MapTerrainGrid) -> Node3D:
+static func build_scatter(
+	definition: MapDefinition,
+	grid: MapTerrainGrid,
+	cell_bounds: Rect2i = Rect2i(Vector2i.ZERO, Vector2i.ZERO)
+) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Scatter"
 	var blocked := _building_cell_rects(definition)
 	var field := ensure_height_field(definition, grid)
+	var bounds := cell_bounds
+	if bounds.size == Vector2i.ZERO:
+		bounds = Rect2i(Vector2i.ZERO, grid.size_cells)
+	bounds = bounds.intersection(Rect2i(Vector2i.ZERO, grid.size_cells))
 
 	var tufts: Array[Transform3D] = []
 	var tuft_colors: Array[Color] = []
 	var stones: Array[Transform3D] = []
 	var stone_colors: Array[Color] = []
-	for y in grid.size_cells.y:
-		for x in grid.size_cells.x:
+	for y in range(bounds.position.y, bounds.end.y):
+		for x in range(bounds.position.x, bounds.end.x):
 			var cell := Vector2i(x, y)
 			if _cell_blocked(cell, blocked):
 				continue

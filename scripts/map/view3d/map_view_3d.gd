@@ -280,7 +280,10 @@ func _assemble() -> void:
 			transition_markers.add_child(MapViewMeshBuilder.build_transition_marker(transition, definition.cell_size))
 		if not String(transition.get("destination_scene_id", "")).is_empty() \
 				and not MapViewMeshBuilder.transition_uses_landmark_visual(definition, transition):
-			doors.add_child(MapViewMeshBuilder.build_transition_door(transition, definition.cell_size))
+			var shell_height := MapViewMeshBuilder.interior_shell_wall_height_world(definition)
+			doors.add_child(
+				MapViewMeshBuilder.build_transition_door(transition, definition.cell_size, shell_height)
+			)
 
 	var props := Node3D.new()
 	props.name = "Props"

@@ -81,7 +81,22 @@ func test_kalev_smithy_has_windows_furniture_and_local_lighting() -> void:
 func test_kalev_smithy_door_aligns_with_south_wall_opening() -> void:
 	var definition: MapDefinition = KalevSmithyDefinition.create()
 	var door := MapVerification.transition_rect(definition, &"door_courtyard")
-	assert_eq(door, Rect2(352, 416, 128, 32), "Courtyard door must match the south wall opening")
+	assert_eq(door, Rect2(384, 416, 64, 32), "Courtyard door must match the south wall opening")
+
+
+func test_kalev_smithy_has_work_living_partition_and_floors() -> void:
+	var definition: MapDefinition = KalevSmithyDefinition.create()
+	var has_divider := false
+	for building in definition.buildings:
+		if String(building.get("id", &"")).begins_with("wall.divider"):
+			has_divider = true
+			break
+	assert_true(has_divider, "smithy needs a partition between forge and living quarters")
+	var grid: MapTerrainGrid = MapBuilder.build(definition)
+	var living := grid.get_terrain(Vector2i(6, 8))
+	var forge := grid.get_terrain(Vector2i(20, 8))
+	assert_eq(living, MapTypes.TERRAIN_TIMBER_FLOOR, "living quarter should use timber flooring")
+	assert_eq(forge, MapTypes.TERRAIN_STONE, "forge quarter should use stone flooring")
 
 
 func test_kalev_smithy_full_terrain_coverage() -> void:
