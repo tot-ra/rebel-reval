@@ -41,10 +41,37 @@
     {
       "id": "subtle_defect",
       "label": "Leave a weakness that could fail under strain.",
+      "requires": [
+        {
+          "op": "fact_known",
+          "key": "fact.rejected_blanks_missing"
+        }
+      ],
       "effects": [
         {
           "op": "set_flag",
           "key": "flag.watch_buckle_weakened",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "secret_feature",
+      "label": "Hide a quick-release catch Henning will not notice.",
+      "requires": [
+        {
+          "op": "fact_known",
+          "key": "fact.seized_spearhead_seen"
+        },
+        {
+          "op": "item_owned",
+          "key": "item.seized_spearhead"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.watch_buckle_hidden_release",
           "value": true
         }
       ]

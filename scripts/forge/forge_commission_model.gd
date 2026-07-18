@@ -159,7 +159,7 @@ static func _resolve_forging_options(
 		if not requires.is_empty():
 			enabled = evaluator.evaluate_conditions(_runtime_rules(requires), state)
 			if not enabled:
-				disabled_reason = "Requirements not met."
+				disabled_reason = _locked_reason(requires, state, evaluator)
 		resolved.append({
 			"id": option_id,
 			"label": String(option.get("label", option_id)),
@@ -167,6 +167,27 @@ static func _resolve_forging_options(
 			"disabled_reason": disabled_reason,
 		})
 	return resolved
+
+
+static func _locked_reason(
+	requires: Array,
+	state: GameState,
+	evaluator: StateRuleEvaluator
+) -> String:
+	for condition_value in requires:
+		if typeof(condition_value) != TYPE_DICTIONARY:
+			continue
+		var condition := condition_value as Dictionary
+		if evaluator.evaluate_condition(condition, state):
+			continue
+		match String(condition.get("op", "")):
+			"fact_known":
+				return "Requires discovered leverage."
+			"item_owned":
+				return "Requires materials on hand."
+			_:
+				return "Requirements not met."
+	return "Requirements not met."
 
 
 static func _runtime_rules(authored_rules: Variant) -> Array:
