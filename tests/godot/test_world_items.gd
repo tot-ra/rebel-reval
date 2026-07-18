@@ -39,6 +39,20 @@ func test_world_item_contains_logic_point() -> void:
 	_cleanup_node(root)
 
 
+func test_world_item_shows_idle_outline_and_brightens_on_hover() -> void:
+	var root := _make_root()
+	var item: WorldItem = WORLD_ITEM_SCENE.instantiate()
+	item.configure(OBJ_SPEAR, ITEM_SPEARHEAD, LOC_SMITHY, Vector2(400, 300))
+	root.add_child(item)
+	var outline := item.get_node("FocusOutline") as Line2D
+	assert_true(outline.visible, "pickable items should always show an outline")
+	assert_eq(outline.width, 1.0)
+	item.set_hovered(true)
+	assert_true(outline.visible)
+	assert_eq(outline.width, 2.0)
+	_cleanup_node(root)
+
+
 func test_pickup_moves_item_into_bag_and_state() -> void:
 	var state := _state_with_content()
 	state.place_world_item(LOC_SMITHY, OBJ_SPEAR, ITEM_SPEARHEAD, Vector2(300, 300))

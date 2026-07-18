@@ -12,6 +12,11 @@ signal dropped(item_id: StringName)
 @export var location_id: StringName = &""
 @export var pickup_radius: float = 28.0
 
+const OUTLINE_COLOR_IDLE := Color(0.95, 0.82, 0.35, 0.9)
+const OUTLINE_COLOR_HOVER := Color(1.0, 0.93, 0.5, 1.0)
+const OUTLINE_WIDTH_IDLE := 1.0
+const OUTLINE_WIDTH_HOVER := 2.0
+
 var _hovered := false
 
 @onready var _outline: Line2D = $FocusOutline
@@ -75,6 +80,8 @@ func _apply_collision_radius() -> void:
 
 
 func _set_hovered(value: bool) -> void:
-	if _outline != null:
-		_outline.visible = value
-		_outline.default_color = Color(0.396, 0.694, 0.769, 0.95) if value else Color(0.95, 0.82, 0.35, 0.85)
+	if _outline == null:
+		return
+	_outline.visible = true
+	_outline.default_color = OUTLINE_COLOR_HOVER if value else OUTLINE_COLOR_IDLE
+	_outline.width = OUTLINE_WIDTH_HOVER if value else OUTLINE_WIDTH_IDLE

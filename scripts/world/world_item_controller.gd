@@ -1,9 +1,10 @@
 class_name WorldItemController
 extends Node
 
-## Cursor-driven pickup and drop for world items. Hover shows a contour outline
-## and tooltip; left click picks up when the bag has room, or drops a selected
-## inventory item when the bag overlay is open.
+## Cursor-driven pickup and drop for world items. Pickups show a persistent
+## yellow outline; hover brightens it and shows a tooltip. Left click picks up
+## when the bag has room, or drops a selected inventory item when the bag overlay
+## is open.
 
 const WORLD_ITEM_SCENE := preload("res://scenes/world/world_item.tscn")
 const INTERACTABLE_SCENE := preload("res://scenes/interaction/interactable.tscn")

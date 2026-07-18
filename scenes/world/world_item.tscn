@@ -12,8 +12,8 @@ script = ExtResource("1_world_item")
 shape = SubResource("CircleShape2D_pickup")
 
 [node name="FocusOutline" type="Line2D" parent="."]
-visible = false
+visible = true
 closed = true
-width = 3.0
-default_color = Color(0.396, 0.694, 0.769, 0.95)
+width = 1.0
+default_color = Color(0.95, 0.82, 0.35, 0.9)
 points = PackedVector2Array(-28, -28, 28, -28, 28, 28, -28, 28)
