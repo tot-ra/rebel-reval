@@ -637,13 +637,8 @@ func test_runtime_maps_keyboard_to_screen_axes_and_preserves_facing_on_stop() ->
 	)
 
 	var yaw_before_drag := camera.rotation_degrees.y
-	var right_press := InputEventMouseButton.new()
-	right_press.button_index = MOUSE_BUTTON_RIGHT
-	right_press.pressed = true
-	runtime._unhandled_input(right_press)
-	var drag := InputEventMouseMotion.new()
-	drag.relative = Vector2(-100.0, 0.0)
-	runtime._unhandled_input(drag)
+	runtime._apply_mouse_rotation_from_position(Vector2(100.0, 200.0), true)
+	runtime._apply_mouse_rotation_from_position(Vector2(0.0, 200.0), true)
 	assert_true(
 		is_equal_approx(
 			camera.rotation_degrees.y,
@@ -651,10 +646,7 @@ func test_runtime_maps_keyboard_to_screen_axes_and_preserves_facing_on_stop() ->
 		),
 		"right-click drag must orbit the camera horizontally"
 	)
-	var right_release := InputEventMouseButton.new()
-	right_release.button_index = MOUSE_BUTTON_RIGHT
-	right_release.pressed = false
-	runtime._unhandled_input(right_release)
+	runtime._apply_mouse_rotation_from_position(Vector2(0.0, 200.0), false)
 
 	var default_camera_size := camera.size
 	var wheel_up := InputEventMouseButton.new()

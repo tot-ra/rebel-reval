@@ -46,6 +46,8 @@ var _player: CharacterBody2D
 var _player_rig: SharedCharacterRig
 var _camera: Camera3D
 var _drag_rotating_view := false
+var _mouse_rotation_armed := false
+var _last_mouse_position := Vector2.ZERO
 var _last_facing := Vector2.ZERO
 var _actor_rigs: Dictionary = {}
 var _equipment_state: GameState
@@ -73,6 +75,8 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 	runtime._camera.size = CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
 
 	scene_root.add_child(runtime)
+	# Created at runtime, so enable input explicitly before the first frame.
+	runtime.set_process_unhandled_input(true)
 	runtime._bind_equipment_state()
 	if not SessionState.debug_state_applied.is_connected(runtime._on_debug_state_applied):
 		SessionState.debug_state_applied.connect(runtime._on_debug_state_applied)
@@ -181,10 +185,6 @@ static func _hide_actor_canvas(actor: Node2D) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mouse_button := event as InputEventMouseButton
-		if mouse_button.button_index == MOUSE_BUTTON_RIGHT:
-			_drag_rotating_view = mouse_button.pressed
-			get_viewport().set_input_as_handled()
-			return
 		if not mouse_button.pressed:
 			return
 		if mouse_button.button_index == MOUSE_BUTTON_WHEEL_UP:
@@ -193,12 +193,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			zoom_view_steps(-mouse_button.factor)
 		else:
 			return
-		get_viewport().set_input_as_handled()
-		return
-
-	if event is InputEventMouseMotion and _drag_rotating_view:
-		var mouse_motion := event as InputEventMouseMotion
-		rotate_view_degrees(-mouse_motion.relative.x * MOUSE_ROTATE_DEGREES_PER_PIXEL)
 		get_viewport().set_input_as_handled()
 
 
@@ -213,8 +207,7 @@ func zoom_view_steps(steps: float) -> void:
 
 
 func _apply_view_rotation(delta: float) -> void:
-	if _drag_rotating_view and not Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
-		_drag_rotating_view = false
+	_apply_mouse_rotation_drag()
 	var direction := 0.0
 	if Input.is_key_pressed(KEY_PAGEUP):
 		direction += 1.0
@@ -223,6 +216,33 @@ func _apply_view_rotation(delta: float) -> void:
 	if direction == 0.0:
 		return
 	rotate_view_degrees(direction * ROTATE_SPEED_DEGREES * delta)
+
+
+## Polls mouse position while RMB is held so camera orbit keeps working even
+## when UI nodes or input actions consume the underlying mouse-button events.
+func _apply_mouse_rotation_drag() -> void:
+	_apply_mouse_rotation_from_position(
+		get_viewport().get_mouse_position(),
+		Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
+	)
+
+
+func _apply_mouse_rotation_from_position(mouse_position: Vector2, button_pressed: bool) -> void:
+	if button_pressed:
+		if _mouse_rotation_armed:
+			var delta_x := mouse_position.x - _last_mouse_position.x
+			if not is_zero_approx(delta_x):
+				rotate_view_degrees(-delta_x * MOUSE_ROTATE_DEGREES_PER_PIXEL)
+		_mouse_rotation_armed = true
+		_drag_rotating_view = true
+	else:
+		_mouse_rotation_armed = false
+		_drag_rotating_view = false
+	_last_mouse_position = mouse_position
+
+
+func is_camera_drag_active() -> bool:
+	return _drag_rotating_view
 
 
 ## Orbits the gameplay camera around the player by an arbitrary angle, then
