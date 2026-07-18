@@ -39,9 +39,4 @@ func unbind(interactable: Interactable) -> void:
 
 
 func _hide_flat_marker(interactable: Interactable) -> void:
-	var body := interactable.get_node_or_null("Body") as CanvasItem
-	if body != null:
-		body.visible = false
-	var highlight := interactable.get_node_or_null("FocusHighlight") as CanvasItem
-	if highlight != null:
-		highlight.visible = false
+	interactable.suppress_flat_markers(true)

@@ -34,6 +34,18 @@ func test_focus_highlight_toggles_with_focus_state() -> void:
 	_cleanup_node(root)
 
 
+func test_suppress_flat_markers_keeps_focus_highlight_hidden() -> void:
+	var root := _make_root()
+	var interactable := _spawn_interactable(root, ID_USE, InteractionKinds.USE, "Inspect")
+	var highlight := interactable.get_node("FocusHighlight") as CanvasItem
+	interactable.suppress_flat_markers(true)
+
+	interactable.set_focused(true)
+	assert_true(interactable.is_focused())
+	assert_false(highlight.visible)
+	_cleanup_node(root)
+
+
 func test_callback_runs_when_actor_is_in_range() -> void:
 	var root := _make_root()
 	var interactable := _spawn_interactable(root, ID_PICKUP, InteractionKinds.PICKUP, "Pick up")

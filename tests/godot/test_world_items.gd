@@ -53,6 +53,33 @@ func test_world_item_shows_idle_outline_and_brightens_on_hover() -> void:
 	_cleanup_node(root)
 
 
+func test_forge_hides_flat_pickup_markers_in_3d_view() -> void:
+	_prepare_smithy_pickup_state()
+	var tree := Engine.get_main_loop() as SceneTree
+	var forge: Node2D = FORGE_SCENE.instantiate()
+	tree.root.add_child(forge)
+
+	var world_item := _find_world_item(forge)
+	var interactable := _find_pickup_interactable(forge)
+	assert_true(world_item != null, "forge should spawn the anvil spearhead")
+	assert_true(interactable != null, "forge should expose a pickup interactable")
+
+	var outline := world_item.get_node("FocusOutline") as CanvasItem
+	var highlight := interactable.get_node("FocusHighlight") as CanvasItem
+	assert_false(outline.visible, "3D view should hide the flat pickup outline")
+	assert_false(highlight.visible, "3D view should hide the flat focus rectangle")
+
+	var player := forge.get_node("Actors/Player") as Player
+	player.global_position = interactable.global_position
+	interactable.register_actor_in_range(player)
+	var controller := forge.get_node("InteractionController") as InteractionController
+	controller._update_focus()
+	assert_true(interactable.is_focused())
+	assert_false(highlight.visible, "focused pickup must keep the flat rectangle hidden in 3D")
+
+	forge.queue_free()
+
+
 func test_pickup_moves_item_into_bag_and_state() -> void:
 	var state := _state_with_content()
 	state.place_world_item(LOC_SMITHY, OBJ_SPEAR, ITEM_SPEARHEAD, Vector2(300, 300))
@@ -229,6 +256,14 @@ func _find_pickup_interactable(forge: Node) -> Interactable:
 		var interactable := node as Interactable
 		if interactable != null and interactable.get_interaction_kind() == InteractionKinds.PICKUP:
 			return interactable
+	return null
+
+
+func _find_world_item(forge: Node) -> WorldItem:
+	for node in forge.find_children("*", "Area2D", true, false):
+		var item := node as WorldItem
+		if item != null and item.get_world_object_id() == OBJ_SPEAR:
+			return item
 	return null
 
 

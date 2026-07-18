@@ -30,6 +30,7 @@ var _content_db: ContentDB
 var _items_root: Node2D
 var _views: Dictionary = {}
 var _interactables: Dictionary = {}
+var _interactable_binder: InteractableViewBinder
 var _hovered: WorldItem = null
 var _tooltip: Label
 var _tooltip_layer: CanvasLayer
@@ -55,6 +56,11 @@ func setup(
 	_items_root = Node2D.new()
 	_items_root.name = "WorldItems"
 	_scene_root.add_child(_items_root)
+	if view_runtime != null:
+		_interactable_binder = InteractableViewBinder.new()
+		_interactable_binder.name = "WorldItemInteractableViewBinder"
+		add_child(_interactable_binder)
+		_interactable_binder.setup(view_runtime, definition)
 	_seed_defaults_if_needed()
 	_sync_from_state()
 	if not SessionState.debug_state_applied.is_connected(_on_debug_state_applied):
@@ -164,6 +170,8 @@ func _spawn_item(record: Dictionary) -> void:
 	var item: WorldItem = WORLD_ITEM_SCENE.instantiate()
 	item.configure(object_id, item_id, location_id, position)
 	_items_root.add_child(item)
+	if _view_runtime != null:
+		item.set_3d_presentation(true)
 
 	if _view_runtime != null:
 		var view := WorldItemView.new()
@@ -186,6 +194,8 @@ func _spawn_pickup_interactable(item: WorldItem) -> void:
 	interactable.set_interact_callback(_on_pickup_interact.bind(item))
 	_items_root.add_child(interactable)
 	_interactables[item] = interactable
+	if _interactable_binder != null:
+		_interactable_binder.bind(interactable)
 	_refresh_interactable_prompt(interactable, item)
 
 
@@ -194,6 +204,8 @@ func _clear_items() -> void:
 	for item: WorldItem in _interactables.keys():
 		var interactable: Interactable = _interactables.get(item)
 		if interactable != null and is_instance_valid(interactable):
+			if _interactable_binder != null:
+				_interactable_binder.unbind(interactable)
 			interactable.disable_interaction()
 			interactable.free()
 	_interactables.clear()
@@ -386,6 +398,8 @@ func _on_pickup_interact(_actor: Node, item: WorldItem) -> void:
 func _remove_pickup_interactable(item: WorldItem) -> void:
 	var interactable: Interactable = _interactables.get(item)
 	if interactable != null and is_instance_valid(interactable):
+		if _interactable_binder != null:
+			_interactable_binder.unbind(interactable)
 		interactable.disable_interaction()
 		interactable.queue_free()
 	_interactables.erase(item)

@@ -15,6 +15,7 @@ signal interacted(actor: Node)
 
 var _callback: Callable = Callable()
 var _focused: bool = false
+var _suppress_flat_markers := false
 var _actors_in_range: Dictionary[int, Node2D] = {}
 
 @onready var _body: CanvasItem = $Body
@@ -52,6 +53,17 @@ func is_enabled() -> bool:
 
 func is_focused() -> bool:
 	return _focused
+
+
+## MapViewRuntime owns focus feedback in 3D; keep the harness rectangles hidden.
+func suppress_flat_markers(value: bool) -> void:
+	_suppress_flat_markers = value
+	if not value:
+		return
+	if _body != null:
+		_body.visible = false
+	if _focus_highlight != null:
+		_focus_highlight.visible = false
 
 
 func set_interact_callback(callback: Callable) -> void:
@@ -136,7 +148,7 @@ func _apply_collision_radius() -> void:
 
 
 func _set_focused(value: bool) -> void:
-	if _focus_highlight != null:
+	if _focus_highlight != null and not _suppress_flat_markers:
 		_focus_highlight.visible = value
 
 

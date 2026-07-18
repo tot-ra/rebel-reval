@@ -68,6 +68,15 @@ func configure(
 	name = "WorldItem_%s" % String(object_id).replace(".", "_")
 
 
+## MapViewRuntime mirrors pickups in 3D; hide the flat harness outline so it
+## does not draw yellow rectangles over the orthographic presentation.
+func set_3d_presentation(enabled: bool) -> void:
+	if _outline == null:
+		_outline = get_node_or_null("FocusOutline") as Line2D
+	if _outline != null:
+		_outline.visible = not enabled
+
+
 func _apply_collision_radius() -> void:
 	var collision := get_node_or_null("CollisionShape2D") as CollisionShape2D
 	if collision == null:
