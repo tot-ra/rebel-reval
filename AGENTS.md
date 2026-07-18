@@ -33,7 +33,7 @@ These paths are named in [`README.md`](./README.md) but do not exist in the repo
 - **Main scene:** `scenes/menu/main_menu.tscn`
 - **Playable prototype areas:** forge, `reval_east`, `reval_north`, `reval_center`, plus additional placeholder world and event scenes
 - **Implemented today:** movement, scene transitions, simple NPC navigation, placeholder UI
-- **Not implemented today:** dialogue, quests, combat, inventory, forging, phases, consequence state, save/load, content validation, automated import/test/export checks (see README "Current repository state")
+- **Not implemented today:** complete dialogue/quest/combat/forging loops and a user-facing save-slot service. Map stable-ID world state, content validation, and automated import/test/export checks are implemented; see `docs/MAP_AUTHORING.md` for their boundaries.
 
 ### Coding conventions observed in the repository
 
@@ -96,7 +96,7 @@ Expected manual path today: main menu -> game flow into city or forge scenes usi
 | Unit or integration test command | `godot --headless --script tools/run_godot_tests.gd` discovers `tests/godot/test_*.gd`, reports failures, and exits 0/1 | **P1-002** (minimal harness) |
 | Scene transition automated test | **Supported at API level** - `tests/godot/test_transition_manifest.gd`; full scene transition tests remain future work | **P0-022**, **P1-002** |
 | Combat or input state-machine tests | **Not yet available** | **P1-023**, **P1-024** |
-| Save round-trip tests | **Not yet available** | **P1-007**, **P1-008** |
+| Save round-trip tests | `godot --headless --script tools/run_godot_tests.gd` (`tests/godot/test_save_service.gd`) | **P1-008** (validation/migration harness) |
 
 Decision: P1-002 uses a small repository-owned headless GDScript harness instead of adding GUT or another addon. This keeps CI dependency-free while the project only needs discoverable unit/integration tests for early runtime foundations. Add new test scripts under `tests/godot/` with filenames `test_*.gd` and zero-argument methods named `test_*`. Shared assertions live in `tests/godot/test_case.gd`.
 
@@ -252,3 +252,37 @@ git diff --check
 ```
 
 The first command validates all registered blueprints and fails CI on error diagnostics. Warnings such as `MAP_GEOMETRY_OVERLAP` and `MAP_CHUNK_BOUNDARY_AMBIGUOUS` do not fail CI, but must be reviewed rather than hidden. See [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) for the complete code table and semantic rules.
+
+## Copy-paste AI map workflow
+
+Do not bulk-migrate maps. Scope one map and preserve its stable IDs and parity fixture.
+
+```bash
+# 1. Inspect existing visual vocabulary and reusable compositions before editing.
+sed -n '1,240p' docs/MAP_AUTHORING.md
+sed -n '1,240p' scripts/map/prefabs/urban_prefab_package.gd
+grep -R "define_style\|\.style(" scripts/map/definitions scripts/map/prefabs
+
+# 2. Author one MapBlueprint factory or safe content/maps/<map>.rrmap source.
+# Register its source/factory and required anchors in scripts/map/map_blueprint_registry.gd.
+
+# 3. Validate parser, compiler, semantics, and complete registry headlessly.
+tools/run_map_pipeline_ci.sh parser
+tools/run_map_pipeline_ci.sh compiler
+tools/run_map_pipeline_ci.sh audit
+
+# 4. Open the small host scene in Godot 4.7.1. Rebuild MapBlueprintEditorPreview,
+# enable stable-ID/anchor/navigation/chunk overlays, and review Preview Status.
+
+# 5. Prove canonical output, map parity, required routes, and save compatibility.
+tools/run_map_pipeline_ci.sh persistence
+tools/run_map_pipeline_ci.sh parity
+tools/run_map_pipeline_ci.sh routes
+
+# 6. Review every generated diagnostic and the benchmark report. Warnings need an
+# explicit map decision; do not hide them or regenerate parity just to get green.
+tools/run_map_pipeline_ci.sh benchmark-smoke
+cat build/benchmarks/large-map-ci-smoke.json
+```
+
+Preview, runtime bootstrap, chunk indexing/rendering, navigation, and 3D must receive the same compiled `MapDefinition` fingerprint. Never edit generated preview/runtime nodes as map content. Never serialize chunk coordinates, node paths, or instance IDs as persistent identity. Before switching a runtime adapter, add map-specific parity and route tests and inspect the full fixture diff. See [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) for budgets, limitations, and guarded fixture regeneration.

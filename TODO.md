@@ -48,7 +48,7 @@ Goal: a small runnable demo proving the ADR 0007 look and the core interaction l
 
 ## P1 - Tested runtime and content foundation
 
-- [ ] P1-007 | deps: none | deliverable: atomic one-slot manual save and phase-boundary autosave with one backup | verify: round-trip tests preserve all state and interrupted writes retain a loadable backup
+- [x] P1-007 | deps: none | deliverable: atomic one-slot manual save and phase-boundary autosave with one backup | verify: round-trip tests preserve all state and interrupted writes retain a loadable backup
 - [ ] P1-008 | deps: P1-007 | deliverable: save validation and migration harness | verify: tests cover truncated data, wrong types, unknown versions, and every released fixture
 - [ ] P1-009 | deps: none | deliverable: debug state inspector with deterministic reset and branch/phase jump | verify: a developer reaches every slice phase and valid branch without replaying earlier content
 - [ ] P1-011 | deps: none | deliverable: `DialogueRunner` supporting choices, conditions, effects, once-only lines, and phase barks | verify: content-only test dialogue changes state and the next conversation without custom NPC code
