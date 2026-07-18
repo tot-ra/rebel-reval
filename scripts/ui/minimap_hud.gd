@@ -97,12 +97,12 @@ func _build_ui() -> void:
 	_panel = PanelContainer.new()
 	_panel.name = "MinimapPanel"
 	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+	_panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	_apply_panel_style()
 	_panel.offset_left = -MAX_DISPLAY_SIZE - (INNER_PADDING * 2.0) - PANEL_MARGIN
-	_panel.offset_top = -MAX_DISPLAY_SIZE - (INNER_PADDING * 2.0) - PANEL_MARGIN
+	_panel.offset_top = PANEL_MARGIN
 	_panel.offset_right = -PANEL_MARGIN
-	_panel.offset_bottom = -PANEL_MARGIN
+	_panel.offset_bottom = MAX_DISPLAY_SIZE + (INNER_PADDING * 2.0) + PANEL_MARGIN
 	add_child(_panel)
 
 	var margin := MarginContainer.new()
@@ -126,7 +126,6 @@ func _build_ui() -> void:
 	var clip_material := ShaderMaterial.new()
 	clip_material.shader = CIRCULAR_CLIP_SHADER
 	_texture_rect.material = clip_material
-	_texture_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_map_host.add_child(_texture_rect)
 
 	_marker = ColorRect.new()
@@ -180,7 +179,8 @@ func _update_marker() -> void:
 	var normalized := MinimapTextureBuilder.world_to_normalized(_definition, _player.global_position)
 	var marker_center := _map_uv_for_normalized(normalized) * _texture_rect.size
 	var circle_center := Vector2(MAX_DISPLAY_SIZE, MAX_DISPLAY_SIZE) * 0.5
-	var marker_inside_circle := marker_center.distance_to(circle_center) <= (MAX_DISPLAY_SIZE * 0.5) - 2.0
+	var marker_radius := MARKER_SIZE.length() * 0.5
+	var marker_inside_circle := marker_center.distance_to(circle_center) <= (MAX_DISPLAY_SIZE * 0.5) - marker_radius
 	_marker.visible = visible and marker_inside_circle
 	_marker.position = marker_center - MARKER_SIZE * 0.5
 
