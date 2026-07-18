@@ -192,6 +192,28 @@ func test_view_animation_reports_run_walk_and_attack() -> void:
 	player.free()
 
 
+func test_left_mouse_click_does_not_start_attack() -> void:
+	var player := _create_unarmed_player()
+	player.combat_input_enabled = true
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	Input.parse_input_event(click)
+	Input.action_press(PlayerActionKind.ACTION_ATTACK)
+	player._physics_process(TEST_DELTA)
+	assert_eq(
+		player.action_state_machine.state,
+		PlayerActionState.State.MOVE,
+		"Left click must stay reserved for click-to-move"
+	)
+	var release := InputEventMouseButton.new()
+	release.button_index = MOUSE_BUTTON_LEFT
+	release.pressed = false
+	Input.parse_input_event(release)
+	Input.action_release(PlayerActionKind.ACTION_ATTACK)
+	player.free()
+
+
 func test_player_attack_during_ui_block_does_not_start() -> void:
 	var player := _create_player()
 	player.combat_input_enabled = true
