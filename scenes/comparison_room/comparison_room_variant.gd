@@ -1,5 +1,8 @@
 extends Node2D
 
+const _ProjectionScript := preload("res://scenes/comparison_room/comparison_room_projection.gd")
+const _SpecsScript := preload("res://scenes/comparison_room/comparison_room_specs.gd")
+
 ## P0-035 keeps gameplay content in one logical coordinate system so projection and
 ## direction count are the only intentional differences between the two scenes.
 enum RoomVariant {
@@ -7,31 +10,9 @@ enum RoomVariant {
 	ORTHOGONAL,
 }
 
-const ROOM_SIZE := Vector2(1280, 720)
-const ROOM_CENTER := ROOM_SIZE * 0.5
 const PLAYER_SPEED := 230.0
 const PLAYER_WALK_SPEED := 125.0
 const INTERACT_RANGE := 115.0
-const ISO_X_AXIS := Vector2(0.72, 0.32)
-const ISO_Y_AXIS := Vector2(-0.62, 0.32)
-
-const WALL_SPECS := [
-	{"name": "LeftCollisionWall", "center": Vector2(80, 360), "size": Vector2(60, 600)},
-	{"name": "RightCollisionWall", "center": Vector2(1200, 360), "size": Vector2(60, 600)},
-	{"name": "TopCollisionWallA", "center": Vector2(375, 80), "size": Vector2(590, 55)},
-	{"name": "TopCollisionWallB", "center": Vector2(1015, 80), "size": Vector2(370, 55)},
-	{"name": "BottomCollisionWall", "center": Vector2(640, 650), "size": Vector2(1120, 60)},
-	{"name": "CollisionTable", "center": Vector2(520, 370), "size": Vector2(180, 70)},
-]
-
-const NPC_SPECS := [
-	{"name": "Mart", "position": Vector2(390, 305), "color": Color(0.64, 0.64, 0.68, 1.0), "role": "ambient"},
-	{"name": "Aita", "position": Vector2(615, 280), "color": Color(0.68, 0.44, 0.85, 1.0), "role": "dialogue"},
-	{"name": "Kaja", "position": Vector2(760, 505), "color": Color(0.90, 0.63, 0.33, 1.0), "role": "ambient"},
-	{"name": "Henning", "position": Vector2(965, 345), "color": Color(0.88, 0.25, 0.22, 1.0), "role": "combat"},
-	{"name": "Jürgen", "position": Vector2(995, 515), "color": Color(0.30, 0.70, 0.46, 1.0), "role": "ambient"},
-	{"name": "Greybox Guard", "position": Vector2(325, 535), "color": Color(0.76, 0.76, 0.32, 1.0), "role": "ambient"},
-]
 
 @export_enum("Diamond isometric / 8 directions", "Orthogonal / 4 directions")
 var room_variant: int = RoomVariant.DIAMOND_ISOMETRIC
@@ -58,6 +39,7 @@ var auto_step_started := false
 var auto_move_start := Vector2.ZERO
 var verification_printed := false
 var direction_count := 0
+var _projection
 
 var checks := {
 	"direction_model": false,
@@ -73,11 +55,12 @@ var checks := {
 
 
 func _ready() -> void:
+	_projection = _ProjectionScript.for_orthogonal(room_variant == RoomVariant.ORTHOGONAL)
 	_build_room()
 	auto_mode = DisplayServer.get_name() == "headless"
 	direction_count = _verify_direction_model()
 	checks["direction_model"] = direction_count == _expected_direction_count()
-	checks["npc_bodies"] = get_tree().get_nodes_in_group("p0_035_comparison_npc").size() == NPC_SPECS.size()
+	checks["npc_bodies"] = get_tree().get_nodes_in_group("p0_035_comparison_npc").size() == _SpecsScript.NPC_SPECS.size()
 	_update_status("%s ready. Move with WASD/arrows. E talks, J attacks." % _variant_title())
 	if auto_mode:
 		_update_status("Headless self-check running for %s." % _variant_title())
@@ -110,16 +93,16 @@ func _build_room() -> void:
 
 	var camera := Camera2D.new()
 	camera.name = "Camera2D"
-	camera.position = ROOM_CENTER
+	camera.position = _ProjectionScript.ROOM_CENTER
 	camera.enabled = true
 	add_child(camera)
 
-	_add_surface(self, "Floor", Vector2.ZERO, ROOM_SIZE, Color(0.14, 0.15, 0.17, 1.0), 0)
+	_add_surface(self, "Floor", Vector2.ZERO, _SpecsScript.ROOM_SIZE, Color(0.14, 0.15, 0.17, 1.0), 0)
 	_add_surface(self, "WalkablePlane", Vector2(120, 110), Vector2(1040, 500), Color(0.28, 0.29, 0.31, 1.0), 1)
 	_add_surface(self, "DoorThresholdPaint", Vector2(720, 100), Vector2(110, 70), Color(0.46, 0.40, 0.30, 1.0), 2)
 	_add_surface(self, "ForegroundFadePaint", Vector2(860, 445), Vector2(250, 145), Color(0.23, 0.25, 0.27, 1.0), 2)
 
-	for data in WALL_SPECS:
+	for data in _SpecsScript.WALL_SPECS:
 		var wall_color := Color(0.12, 0.12, 0.13, 1.0)
 		if String(data["name"]) == "CollisionTable":
 			wall_color = Color(0.16, 0.13, 0.10, 1.0)
@@ -137,7 +120,7 @@ func _build_room() -> void:
 	player.name = "PlayerGreyboxBody"
 	player.add_to_group("p0_035_comparison_player")
 
-	for data in NPC_SPECS:
+	for data in _SpecsScript.NPC_SPECS:
 		var npc := _create_body(String(data["name"]), data["position"], data["color"], true)
 		npc.set_meta("comparison_role", data["role"])
 		if String(data["role"]) == "dialogue":
@@ -152,7 +135,7 @@ func _build_room() -> void:
 func _add_surface(parent: Node, node_name: String, top_left: Vector2, size: Vector2, color: Color, layer: int) -> Polygon2D:
 	var polygon := Polygon2D.new()
 	polygon.name = node_name
-	polygon.polygon = _projected_rect_points(top_left + size * 0.5, size)
+	polygon.polygon = _projection.projected_rect_points(top_left + size * 0.5, size)
 	polygon.color = color
 	polygon.z_index = layer
 	parent.add_child(polygon)
@@ -162,10 +145,10 @@ func _add_surface(parent: Node, node_name: String, top_left: Vector2, size: Vect
 func _add_wall(node_name: String, center: Vector2, size: Vector2, color: Color) -> StaticBody2D:
 	var wall := StaticBody2D.new()
 	wall.name = node_name
-	wall.position = _project_point(center)
+	wall.position = _projection.project_point(center)
 	add_child(wall)
 
-	var points := _projected_rect_offsets(center, size)
+	var points := _projection.projected_rect_offsets(center, size)
 	var shape := ConvexPolygonShape2D.new()
 	shape.points = points
 	var collision := CollisionShape2D.new()
@@ -184,7 +167,7 @@ func _add_wall(node_name: String, center: Vector2, size: Vector2, color: Color) 
 func _create_body(label_text: String, logical_position: Vector2, color: Color, is_npc: bool) -> CharacterBody2D:
 	var body := CharacterBody2D.new()
 	body.name = label_text.replace(" ", "") + "Body"
-	body.position = _project_point(logical_position)
+	body.position = _projection.project_point(logical_position)
 	body.set_meta("display_name", label_text)
 	body.set_meta("logical_spawn", logical_position)
 	if is_npc:
@@ -234,12 +217,12 @@ func _create_doorway() -> void:
 	var size := Vector2(95, 105)
 	var door := Area2D.new()
 	door.name = "DoorwayProbe"
-	door.position = _project_point(center)
+	door.position = _projection.project_point(center)
 	door.collision_layer = 0
 	door.collision_mask = CollisionLayers.PLAYER
 	add_child(door)
 
-	var points := _projected_rect_offsets(center, size)
+	var points := _projection.projected_rect_offsets(center, size)
 	var shape := ConvexPolygonShape2D.new()
 	shape.points = points
 	var collision := CollisionShape2D.new()
@@ -262,13 +245,13 @@ func _create_foreground_fade() -> void:
 	var size := Vector2(300, 140)
 	foreground_probe = Area2D.new()
 	foreground_probe.name = "ForegroundFadeProbe"
-	foreground_probe.position = _project_point(center)
+	foreground_probe.position = _projection.project_point(center)
 	foreground_probe.collision_layer = 0
 	foreground_probe.collision_mask = CollisionLayers.PLAYER
 	add_child(foreground_probe)
 
 	var shape := ConvexPolygonShape2D.new()
-	shape.points = _projected_rect_offsets(center, size)
+	shape.points = _projection.projected_rect_offsets(center, size)
 	var collision := CollisionShape2D.new()
 	collision.shape = shape
 	foreground_probe.add_child(collision)
@@ -286,7 +269,7 @@ func _add_world_label(node_name: String, text: String, logical_position: Vector2
 	var label := Label.new()
 	label.name = node_name
 	label.text = text
-	label.position = _project_point(logical_position) - size * 0.5
+	label.position = _projection.project_point(logical_position) - size * 0.5
 	label.size = size
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.z_index = layer
@@ -375,7 +358,7 @@ func _quantize_direction(raw_direction: Vector2) -> Vector2:
 
 func _apply_player_motion(logical_direction: Vector2, speed: float) -> void:
 	if logical_direction.length_squared() > 0.001:
-		player.velocity = _project_vector(logical_direction).normalized() * speed
+		player.velocity = _projection.project_vector(logical_direction).normalized() * speed
 		_update_facing_label(logical_direction)
 	else:
 		player.velocity = Vector2.ZERO
@@ -421,7 +404,7 @@ func _on_doorway_entered(body: Node2D) -> void:
 		return
 	checks["doorway"] = true
 	_update_status("Shared doorway verified; Kalev moved to the same logical comparison marker.")
-	player.global_position = _project_point(Vector2(775, 225))
+	player.global_position = _projection.project_point(Vector2(775, 225))
 	player.velocity = Vector2.ZERO
 
 
@@ -482,7 +465,7 @@ func _all_checks_passed() -> bool:
 
 
 func _reset_actor_state() -> void:
-	player.global_position = _project_point(Vector2(225, 430))
+	player.global_position = _projection.project_point(Vector2(225, 430))
 	player.velocity = Vector2.ZERO
 	player_health = 3
 	guard_health = 3
@@ -543,20 +526,20 @@ func _enter_auto_step(step: int) -> void:
 	auto_step_elapsed = 0.0
 	match step:
 		0:
-			player.global_position = _project_point(Vector2(225, 430))
+			player.global_position = _projection.project_point(Vector2(225, 430))
 			auto_move_start = player.global_position
 		1:
-			player.global_position = _project_point(Vector2(128, 420))
+			player.global_position = _projection.project_point(Vector2(128, 420))
 		2:
-			player.global_position = _project_point(Vector2(612, 230))
+			player.global_position = _projection.project_point(Vector2(612, 230))
 		3:
-			player.global_position = _project_point(Vector2(665, 125))
+			player.global_position = _projection.project_point(Vector2(665, 125))
 		4:
-			player.global_position = _project_point(Vector2(990, 465))
+			player.global_position = _projection.project_point(Vector2(990, 465))
 		5:
-			player.global_position = _project_point(Vector2(680, 280))
+			player.global_position = _projection.project_point(Vector2(680, 280))
 		6:
-			player.global_position = _project_point(Vector2(900, 345))
+			player.global_position = _projection.project_point(Vector2(900, 345))
 		7:
 			player.velocity = Vector2.ZERO
 
@@ -590,48 +573,7 @@ func _expected_direction_count() -> int:
 
 
 func _logical_distance(first: Node2D, second: Node2D) -> float:
-	return _unproject_point(first.global_position).distance_to(_unproject_point(second.global_position))
-
-
-func _project_point(logical_point: Vector2) -> Vector2:
-	if room_variant == RoomVariant.ORTHOGONAL:
-		return logical_point
-	return ROOM_CENTER + _project_vector(logical_point - ROOM_CENTER)
-
-
-func _project_vector(logical_vector: Vector2) -> Vector2:
-	if room_variant == RoomVariant.ORTHOGONAL:
-		return logical_vector
-	return ISO_X_AXIS * logical_vector.x + ISO_Y_AXIS * logical_vector.y
-
-
-func _unproject_point(projected_point: Vector2) -> Vector2:
-	if room_variant == RoomVariant.ORTHOGONAL:
-		return projected_point
-	var projected_offset := projected_point - ROOM_CENTER
-	var determinant := ISO_X_AXIS.x * ISO_Y_AXIS.y - ISO_Y_AXIS.x * ISO_X_AXIS.y
-	var logical_x := (projected_offset.x * ISO_Y_AXIS.y - ISO_Y_AXIS.x * projected_offset.y) / determinant
-	var logical_y := (ISO_X_AXIS.x * projected_offset.y - projected_offset.x * ISO_X_AXIS.y) / determinant
-	return ROOM_CENTER + Vector2(logical_x, logical_y)
-
-
-func _projected_rect_points(center: Vector2, size: Vector2) -> PackedVector2Array:
-	var half_size := size * 0.5
-	return PackedVector2Array([
-		_project_point(center + Vector2(-half_size.x, -half_size.y)),
-		_project_point(center + Vector2(half_size.x, -half_size.y)),
-		_project_point(center + Vector2(half_size.x, half_size.y)),
-		_project_point(center + Vector2(-half_size.x, half_size.y)),
-	])
-
-
-func _projected_rect_offsets(center: Vector2, size: Vector2) -> PackedVector2Array:
-	var projected_center := _project_point(center)
-	var global_points := _projected_rect_points(center, size)
-	var offsets := PackedVector2Array()
-	for point in global_points:
-		offsets.append(point - projected_center)
-	return offsets
+	return _projection.unproject_point(first.global_position).distance_to(_projection.unproject_point(second.global_position))
 
 
 func _direction_name(direction: Vector2) -> String:
@@ -652,9 +594,9 @@ func _variant_title() -> String:
 
 func _content_signature() -> String:
 	var npc_roles: Array[String] = []
-	for data in NPC_SPECS:
+	for data in _SpecsScript.NPC_SPECS:
 		npc_roles.append("%s:%s" % [data["name"], data["role"]])
-	return "walls=%d;npcs=%s;door=775,125;fade=990,555;interaction=Aita;combat=Henning;hp_exchange=1" % [WALL_SPECS.size(), ",".join(npc_roles)]
+	return "walls=%d;npcs=%s;door=775,125;fade=990,555;interaction=Aita;combat=Henning;hp_exchange=1" % [_SpecsScript.WALL_SPECS.size(), ",".join(npc_roles)]
 
 
 func _print_verification_summary() -> void:
