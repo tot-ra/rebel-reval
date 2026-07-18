@@ -231,6 +231,46 @@ func test_overweight_interact_pickup_leaves_world_item_unchanged() -> void:
 	forge.queue_free()
 
 
+func test_pickup_hover_activates_grab_cursor_state() -> void:
+	var root := _make_root()
+	var controller := WorldItemController.new()
+	root.add_child(controller)
+
+	var item: WorldItem = WORLD_ITEM_SCENE.instantiate()
+	item.configure(OBJ_SPEAR, ITEM_SPEARHEAD, LOC_SMITHY, Vector2(400, 300))
+	root.add_child(item)
+
+	controller._hovered = item
+	controller._update_pickup_cursor()
+	assert_true(controller.is_pickup_hover_active())
+
+	controller._hovered = null
+	controller._update_pickup_cursor()
+	assert_false(controller.is_pickup_hover_active())
+	_cleanup_node(root)
+
+
+func test_pickup_feedback_resolves_spearhead_comment() -> void:
+	var root := _make_root()
+	var controller := WorldItemController.new()
+	root.add_child(controller)
+	var db := ContentDB.new()
+	db.load_from_directories([
+		"res://content/demo",
+		"res://content/examples/support",
+		"res://content/examples/valid",
+	])
+	var state := GameState.new()
+	state.bag.set_content_db(db)
+	controller._state = state
+	controller._content_db = db
+
+	var feedback := controller._resolve_pickup_feedback(ITEM_SPEARHEAD)
+	assert_eq(feedback.get("speaker_name"), "Kalev")
+	assert_true(String(feedback.get("text", "")).contains("mark"))
+	_cleanup_node(root)
+
+
 func _state_with_content() -> GameState:
 	var state := GameState.new()
 	var db := ContentDB.new()

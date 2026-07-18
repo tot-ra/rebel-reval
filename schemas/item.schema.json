@@ -133,6 +133,26 @@
               "maximum": 5
             }
           }
+        },
+        "pickup": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "bark_pool_id": {
+              "$ref": "common.schema.json#/$defs/content_id"
+            },
+            "speaker_id": {
+              "$ref": "common.schema.json#/$defs/content_id"
+            },
+            "comment": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sfx_path": {
+              "type": "string",
+              "pattern": "^res://.+\\.(mp3|ogg|wav)$"
+            }
+          }
         }
       }
     },

@@ -8,6 +8,8 @@ extends Node
 
 const WORLD_ITEM_SCENE := preload("res://scenes/world/world_item.tscn")
 const INTERACTABLE_SCENE := preload("res://scenes/interaction/interactable.tscn")
+const DEFAULT_PICKUP_SFX := "res://sounds/door.mp3"
+const PICKUP_BARK_DURATION := 3.5
 
 const DEFAULT_PLACEMENTS: Dictionary = {
 	&"loc.kalev_smithy": [
@@ -36,6 +38,11 @@ var _tooltip: Label
 var _tooltip_layer: CanvasLayer
 var _feedback_timer := 0.0
 var _feedback_text := ""
+var _cursor_over_pickup := false
+var _bark_timer := 0.0
+var _pickup_bark_runner: DialogueRunner
+var _audio_player: AudioStreamPlayer
+var _bark_label: Label
 
 
 func setup(
@@ -70,6 +77,7 @@ func setup(
 func _exit_tree() -> void:
 	if SessionState.debug_state_applied.is_connected(_on_debug_state_applied):
 		SessionState.debug_state_applied.disconnect(_on_debug_state_applied)
+	_restore_default_cursor()
 
 
 func _on_debug_state_applied(_preset_id: StringName) -> void:
@@ -83,7 +91,13 @@ func _process(delta: float) -> void:
 		_feedback_timer = maxf(0.0, _feedback_timer - delta)
 		if _feedback_timer <= 0.0:
 			_feedback_text = ""
+	if _bark_timer > 0.0:
+		_bark_timer = maxf(0.0, _bark_timer - delta)
+		if _bark_timer <= 0.0 and _bark_label != null:
+			_bark_label.visible = false
+			_bark_label.text = ""
 	_update_hover()
+	_update_pickup_cursor()
 	_update_interactable_prompts()
 	_sync_interactable_enabled()
 	_update_tooltip()
@@ -109,6 +123,10 @@ func try_handle_click(event: InputEvent) -> bool:
 
 func get_hovered_item() -> WorldItem:
 	return _hovered
+
+
+func is_pickup_hover_active() -> bool:
+	return _cursor_over_pickup
 
 
 func _seed_defaults_if_needed() -> void:
@@ -275,6 +293,8 @@ func _try_pickup(item: WorldItem) -> bool:
 	var record := _item_record(item_id)
 	var name_text := String(record.get("name", String(item_id)))
 	_show_feedback("Picked up %s" % name_text)
+	_play_pickup_sfx(item_id)
+	_show_pickup_bark(_resolve_pickup_feedback(item_id))
 	_remove_pickup_interactable(item)
 	var view: WorldItemView = _views.get(item)
 	if view != null and is_instance_valid(view):
@@ -445,3 +465,104 @@ func _build_ui() -> void:
 	_tooltip.add_theme_constant_override("outline_size", 4)
 	_tooltip.visible = false
 	_tooltip_layer.add_child(_tooltip)
+
+	_bark_label = Label.new()
+	_bark_label.anchor_left = 0.5
+	_bark_label.anchor_right = 0.5
+	_bark_label.anchor_top = 1.0
+	_bark_label.anchor_bottom = 1.0
+	_bark_label.offset_left = -360.0
+	_bark_label.offset_right = 360.0
+	_bark_label.offset_top = -96.0
+	_bark_label.offset_bottom = -48.0
+	_bark_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_bark_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_bark_label.add_theme_color_override("font_color", Color(0.98, 0.96, 0.9, 1.0))
+	_bark_label.add_theme_color_override("font_outline_color", Color(0.05, 0.06, 0.08, 1.0))
+	_bark_label.add_theme_constant_override("outline_size", 5)
+	_bark_label.visible = false
+	_tooltip_layer.add_child(_bark_label)
+
+	_audio_player = AudioStreamPlayer.new()
+	_audio_player.name = "PickupSfx"
+	add_child(_audio_player)
+
+
+func _update_pickup_cursor() -> void:
+	var wants_grab := _hovered != null and not _is_inventory_blocking_pickup()
+	if wants_grab == _cursor_over_pickup:
+		return
+	_cursor_over_pickup = wants_grab
+	if wants_grab:
+		Input.set_default_cursor_shape(Input.CURSOR_DRAG)
+	else:
+		_restore_default_cursor()
+
+
+func _restore_default_cursor() -> void:
+	_cursor_over_pickup = false
+	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
+
+
+func _resolve_pickup_feedback(item_id: StringName) -> Dictionary:
+	var gameplay: Dictionary = _item_record(item_id).get("gameplay", {})
+	var pickup: Dictionary = gameplay.get("pickup", {})
+	if pickup.is_empty():
+		return {}
+
+	var bark_pool_id := StringName(String(pickup.get("bark_pool_id", "")))
+	if not bark_pool_id.is_empty() and _state != null and _content_db != null:
+		if _pickup_bark_runner == null:
+			_pickup_bark_runner = DialogueRunner.new()
+			_pickup_bark_runner.configure(_content_db, _state, null)
+		var bark := _pickup_bark_runner.resolve_bark(bark_pool_id, _state.get_phase(), location_id)
+		if not bark.is_empty():
+			return bark
+
+	var comment := String(pickup.get("comment", "")).strip_edges()
+	if comment.is_empty():
+		return {}
+
+	var speaker_id := StringName(String(pickup.get("speaker_id", "char.kalev")))
+	return {
+		"speaker_id": speaker_id,
+		"speaker_name": _speaker_name(speaker_id),
+		"text": comment,
+	}
+
+
+func _speaker_name(speaker_id: StringName) -> String:
+	if _content_db != null and _content_db.is_loaded():
+		var character := _content_db.get_character(speaker_id)
+		if not character.is_empty():
+			return String(character.get("name", String(speaker_id)))
+	return String(speaker_id)
+
+
+func _show_pickup_bark(feedback: Dictionary) -> void:
+	if _bark_label == null or feedback.is_empty():
+		return
+	var text := String(feedback.get("text", "")).strip_edges()
+	if text.is_empty():
+		return
+	var speaker := String(feedback.get("speaker_name", "")).strip_edges()
+	_bark_label.text = "%s: %s" % [speaker, text] if not speaker.is_empty() else text
+	_bark_label.visible = true
+	_bark_timer = PICKUP_BARK_DURATION
+
+
+func _play_pickup_sfx(item_id: StringName) -> void:
+	if _audio_player == null:
+		return
+	var gameplay: Dictionary = _item_record(item_id).get("gameplay", {})
+	var pickup: Dictionary = gameplay.get("pickup", {})
+	var path := String(pickup.get("sfx_path", DEFAULT_PICKUP_SFX))
+	if path.is_empty():
+		return
+	var stream := load(path) as AudioStream
+	if stream == null:
+		return
+	_audio_player.stream = stream
+	_audio_player.pitch_scale = 1.35
+	_audio_player.volume_db = -8.0
+	_audio_player.play()

@@ -26,6 +26,11 @@
     "equip": {
       "slot": "left_hand",
       "scene": "res://assets/characters/shared/spear.tscn"
+    },
+    "pickup": {
+      "speaker_id": "char.kalev",
+      "comment": "My mark is still on it. Whoever seized this was not careful.",
+      "sfx_path": "res://sounds/door.mp3"
     }
   },
   "source_notes": [
