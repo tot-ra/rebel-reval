@@ -75,6 +75,7 @@ Goal: a small runnable demo proving the ADR 0007 look and the core interaction l
 - [ ] P1-029 | deps: P0-040 | deliverable: automated asset lint for texture dimensions and seamless tiling, texel density, naming, mesh pivots and character scale, portrait dimensions, and source-manifest provenance rows | verify: valid fixture passes and one seeded error per rule fails CI
 - [ ] P1-030 | deps: P1-024,P1-025 | deliverable: repeatable performance scene and report command | verify: command reports frame time, memory, actor count, and target hardware metadata
 - [ ] P1-031 | deps: none | deliverable: world/scene map overlay showing the current scene and how authored scenes are connected, toggleable with the `M` input action (default keyboard key `M`) | verify: pressing `M` opens and closes the overlay from every playable scene, highlights the current scene, and displays connections matching the active transition manifest with no missing or stale scene nodes
+- [ ] P1-032 | deps: none | deliverable: in-scene minimap HUD for every `MapSceneBootstrap` map showing terrain, blocked areas, exits, and live player position, toggleable with the `toggle_minimap` input action (default keyboard key `N`) | verify: minimap appears in the bottom-right corner on forge and Lower Town maps, tracks player movement, marks transition exits, and toggles with `N`; `godot --headless --path . --script tools/run_godot_tests.gd` includes `tests/godot/test_minimap.gd`
 
 ## P2 - Vertical-slice production (the playable MVP)
 
