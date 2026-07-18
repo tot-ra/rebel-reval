@@ -16,6 +16,11 @@ class_name Door
 @onready var spawn = $Spawn
 @onready var sound = get_node_or_null("OpenSound") as AudioStreamPlayer
 
+
+func _ready() -> void:
+	collision_mask = CollisionLayers.PLAYER
+
+
 func _on_body_entered(body: Node2D) -> void:
 	if not transition_enabled:
 		return

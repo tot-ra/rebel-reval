@@ -33,6 +33,7 @@ var _facing_direction := Vector2.DOWN
 var action_state_machine := PlayerActionStateMachine.new()
 
 func _ready() -> void:
+	CollisionLayers.apply_player(self)
 	add_to_group(MeleeAttackResolver.DAMAGEABLE_GROUP)
 	_sync_resource_bars()
 	if not action_state_machine.attack_impact.is_connected(_on_attack_impact):

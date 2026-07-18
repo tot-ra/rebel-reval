@@ -39,6 +39,7 @@ var _conversation_partner: Node2D = null
 
 
 func _ready() -> void:
+	CollisionLayers.apply_npc(self)
 	add_to_group(&"map_view_actor")
 
 

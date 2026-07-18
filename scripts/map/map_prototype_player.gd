@@ -20,8 +20,7 @@ func configure_style(target: StringName, day_phase: StringName) -> void:
 
 
 func _ready() -> void:
-	collision_layer = 1
-	collision_mask = 1
+	CollisionLayers.apply_player(self)
 	set_meta("pivot", MapVisualStyle.CHARACTER_PIVOT_PX)
 	set_meta("character_height", MapVisualStyle.CHARACTER_HEIGHT_PX)
 

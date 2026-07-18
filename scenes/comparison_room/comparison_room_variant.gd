@@ -187,8 +187,10 @@ func _create_body(label_text: String, logical_position: Vector2, color: Color, i
 	body.position = _project_point(logical_position)
 	body.set_meta("display_name", label_text)
 	body.set_meta("logical_spawn", logical_position)
-	body.collision_layer = 1
-	body.collision_mask = 1
+	if is_npc:
+		CollisionLayers.apply_npc(body)
+	else:
+		CollisionLayers.apply_player(body)
 	actors.add_child(body)
 
 	var shape := RectangleShape2D.new()
@@ -234,7 +236,7 @@ func _create_doorway() -> void:
 	door.name = "DoorwayProbe"
 	door.position = _project_point(center)
 	door.collision_layer = 0
-	door.collision_mask = 1
+	door.collision_mask = CollisionLayers.PLAYER
 	add_child(door)
 
 	var points := _projected_rect_offsets(center, size)
@@ -262,7 +264,7 @@ func _create_foreground_fade() -> void:
 	foreground_probe.name = "ForegroundFadeProbe"
 	foreground_probe.position = _project_point(center)
 	foreground_probe.collision_layer = 0
-	foreground_probe.collision_mask = 1
+	foreground_probe.collision_mask = CollisionLayers.PLAYER
 	add_child(foreground_probe)
 
 	var shape := ConvexPolygonShape2D.new()

@@ -6,6 +6,7 @@ extends Area2D
 var target_node
 
 func _ready():
+	collision_mask = CollisionLayers.PLAYER
 	target_node = get_node_or_null(target_to_fade)
 	if !target_node:
 		print("FadeArea: Target node not found!")

@@ -26,7 +26,7 @@ func _ready() -> void:
 	add_to_group(&"interactable")
 	monitorable = false
 	monitoring = true
-	collision_mask = collision_mask if collision_mask != 0 else 1
+	collision_mask = collision_mask if collision_mask != 0 else CollisionLayers.MASK_ACTORS
 	_apply_collision_radius()
 	if _body != null:
 		_body.visible = show_debug_body

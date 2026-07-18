@@ -10,6 +10,7 @@ var _facing := Vector2.DOWN
 
 
 func _ready() -> void:
+	CollisionLayers.apply_npc(self)
 	add_to_group(&"map_view_actor")
 	_ensure_collision_shape()
 

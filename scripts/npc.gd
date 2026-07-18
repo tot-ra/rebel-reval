@@ -9,6 +9,7 @@ class_name NPC
 @onready var navigation_agent = $NavigationAgent2D
 
 func _ready():
+	CollisionLayers.apply_npc(self)
 	navigation_agent.velocity_computed.connect(Callable(self, "_on_velocity_computed"))
 
 func _on_spawn(position: Vector2, direction: String):

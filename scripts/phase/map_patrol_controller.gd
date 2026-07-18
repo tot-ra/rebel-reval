@@ -26,6 +26,7 @@ func setup(definition: MapDefinition, patrol: StringName, parent: Node2D) -> voi
 	capsule.height = 20.0
 	shape.shape = capsule
 	_body.add_child(shape)
+	CollisionLayers.apply_npc(_body)
 	parent.add_child(_body)
 	if not _points.is_empty():
 		_body.global_position = _points[0]
