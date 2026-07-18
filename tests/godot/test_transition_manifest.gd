@@ -16,7 +16,7 @@ func test_transition_manifest_includes_dev_traversal_scenes() -> void:
 	assert_true(DoorNavigator.has_active_scene(&"market_civic_quarter"), "Market square should be traversable in dev")
 	assert_true(DoorNavigator.has_active_scene(&"st_olafs_guild_hall"), "Guild hall should be traversable in dev")
 	assert_true(DoorNavigator.has_active_scene(&"reval_harbor"), "Harbor surroundings should be traversable in dev")
-	assert_true(DoorNavigator.has_active_scene(&"harbor_warehouse"), "Harbor warehouse should be traversable in dev")
+	assert_false(DoorNavigator.has_active_scene(&"harbor_warehouse"), "Harbor warehouse must be retired from dev traversal")
 
 func test_transition_manifest_resolves_paths_and_spawns() -> void:
 	assert_eq(DoorNavigator.get_scene_path(&"forge"), "res://scenes/reval_east/forge/forge.tscn")

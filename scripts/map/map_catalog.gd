@@ -44,7 +44,7 @@ const MAPS: Dictionary = {
 	},
 	"harbor_warehouse": {
 		"path": "res://scenes/harbor/warehouse.tscn",
-		"scope": "prototype",
+		"scope": "archive",
 		"active": false
 	}
 }
