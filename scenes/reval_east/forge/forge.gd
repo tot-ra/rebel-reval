@@ -2,6 +2,7 @@ extends Node2D
 
 const DEFINITION_SCRIPT := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
 const COMMISSION_ANCHOR_SCRIPT := preload("res://scripts/forge/forge_commission_anchor.gd")
+const PHASE_REST_ANCHOR_SCRIPT := preload("res://scripts/phase/phase_rest_anchor.gd")
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -14,6 +15,7 @@ var _view_runtime: MapViewRuntime
 var _world_items: WorldItemController
 var _phase_binder: MapPhaseBinder
 var _commission_anchor: Node
+var _rest_anchor: Node
 var _interaction_controller: InteractionController
 var _prompt_layer: CanvasLayer
 var _prompt_label: Label
@@ -45,6 +47,10 @@ func _ready() -> void:
 	_commission_anchor.name = "ForgeCommissionAnchor"
 	add_child(_commission_anchor)
 	_commission_anchor.setup(self, definition, player)
+	_rest_anchor = PHASE_REST_ANCHOR_SCRIPT.new()
+	_rest_anchor.name = "PhaseRestAnchor"
+	add_child(_rest_anchor)
+	_rest_anchor.setup(self, definition, player)
 
 
 func _setup_phase_binder(definition: MapDefinition) -> void:

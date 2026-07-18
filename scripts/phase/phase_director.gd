@@ -21,6 +21,14 @@ func sync_current_phase() -> void:
 	apply_profile_for_phase(SessionState.state.get_phase())
 
 
+## Rebind after SessionState replaces its GameState (load, debug preset, etc.).
+func rebind_session_state() -> void:
+	if SessionState.state == null:
+		return
+	_bind_state(SessionState.state)
+	sync_current_phase()
+
+
 func apply_profile_for_phase(phase_id: StringName) -> void:
 	if phase_id.is_empty():
 		return
@@ -63,8 +71,7 @@ func _on_phase_changed(_previous: StringName, next: StringName) -> void:
 
 
 func _on_debug_state_applied(_preset_id: StringName) -> void:
-	_bind_state(SessionState.state)
-	sync_current_phase()
+	rebind_session_state()
 
 
 func _apply_presentation(profile: Dictionary) -> void:

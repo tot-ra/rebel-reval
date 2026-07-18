@@ -69,6 +69,8 @@ func has_save(slot: int = SaveService.DEFAULT_SLOT) -> bool:
 func _apply_loaded_state(loaded: GameState) -> void:
 	state = loaded
 	state.bag.set_content_db(content_db)
+	if has_node("/root/PhaseDirector"):
+		PhaseDirector.rebind_session_state()
 
 
 func _seed_demo_bag_if_empty() -> void:
