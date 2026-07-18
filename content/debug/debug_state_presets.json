@@ -1,0 +1,187 @@
+{
+  "version": 1,
+  "presets": [
+    {
+      "id": "debug.reset.demo_fresh",
+      "label": "Reset: demo fresh start",
+      "category": "reset",
+      "description": "Hammer equipped, spearhead on the anvil, no Mart flag.",
+      "fixture": "released/save.demo_fresh_start.json"
+    },
+    {
+      "id": "debug.reset.demo_post_pickup",
+      "label": "Reset: demo post pickup",
+      "category": "reset",
+      "description": "Mart spoken, spearhead in bag.",
+      "fixture": "released/save.demo_post_pickup.json"
+    },
+    {
+      "id": "debug.phase.prologue_day",
+      "label": "Phase: prologue day",
+      "category": "phase",
+      "description": "Fresh demo state at the prologue morning phase.",
+      "fixture": "released/save.demo_fresh_start.json",
+      "phase": "phase.prologue_day"
+    },
+    {
+      "id": "debug.phase.investigation_morning",
+      "label": "Phase: investigation morning",
+      "category": "phase",
+      "description": "Fresh demo state jumped to investigation morning.",
+      "fixture": "released/save.demo_fresh_start.json",
+      "phase": "phase.investigation_morning"
+    },
+    {
+      "id": "debug.phase.investigation_night",
+      "label": "Phase: investigation night",
+      "category": "phase",
+      "description": "Fresh demo state jumped to investigation night.",
+      "fixture": "released/save.demo_fresh_start.json",
+      "phase": "phase.investigation_night"
+    },
+    {
+      "id": "debug.phase.consequence_night",
+      "label": "Phase: consequence night",
+      "category": "phase",
+      "description": "Fresh demo state jumped to the slice consequence night.",
+      "fixture": "released/save.demo_fresh_start.json",
+      "phase": "phase.consequence_night"
+    },
+    {
+      "id": "debug.phase.reflection_morning",
+      "label": "Phase: reflection morning",
+      "category": "phase",
+      "description": "Fresh demo state jumped to the Hingepuu reflection morning.",
+      "fixture": "released/save.demo_fresh_start.json",
+      "phase": "phase.reflection_morning"
+    },
+    {
+      "id": "debug.branch.makers_mark_incident",
+      "label": "Branch: maker's mark incident known",
+      "category": "branch",
+      "description": "Henning has shown the spearhead; ledger choice is still open.",
+      "fixture": "released/save.demo_fresh_start.json",
+      "phase": "phase.prologue_day",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.makers_mark",
+          "value": "incident_known"
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.prologue_maker_mark_incident",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "debug.branch.makers_mark_preserved",
+      "label": "Branch: ledger preserved",
+      "category": "branch",
+      "description": "Maker's Mark resolved with a truthful ledger entry.",
+      "fixture": "released/save.demo_fresh_start.json",
+      "phase": "phase.prologue_day",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.makers_mark",
+          "value": "ledger_committed"
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.prologue_maker_mark_incident",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.forge_ledger_preserved",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "debug.branch.makers_mark_altered",
+      "label": "Branch: ledger altered",
+      "category": "branch",
+      "description": "Maker's Mark resolved with a falsified ledger entry.",
+      "fixture": "released/save.demo_fresh_start.json",
+      "phase": "phase.prologue_day",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.makers_mark",
+          "value": "ledger_committed"
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.prologue_maker_mark_incident",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.forge_ledger_altered",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "debug.branch.makers_mark_destroyed",
+      "label": "Branch: ledger destroyed",
+      "category": "branch",
+      "description": "Maker's Mark resolved by destroying evidence with Mart missing.",
+      "fixture": "released/save.demo_fresh_start.json",
+      "phase": "phase.prologue_day",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.makers_mark",
+          "value": "ledger_committed"
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.prologue_maker_mark_incident",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.mart_missing",
+          "value": true
+        },
+        {
+          "op": "adjust_pressure",
+          "key": "pressure.suspicion",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "debug.branch.dialogue_trusted",
+      "label": "Branch: Mart trusted (test runner)",
+      "category": "branch",
+      "description": "P1-011 test-runner trusted branch for dialogue follow-up.",
+      "fixture": "released/save.demo_fresh_start.json",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.test_runner_trusted",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "debug.branch.dialogue_doubted",
+      "label": "Branch: Mart doubted (test runner)",
+      "category": "branch",
+      "description": "P1-011 test-runner doubt branch.",
+      "fixture": "released/save.demo_fresh_start.json",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.test_runner_doubted",
+          "value": true
+        }
+      ]
+    }
+  ]
+}

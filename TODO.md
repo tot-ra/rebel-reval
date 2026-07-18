@@ -26,7 +26,7 @@ Delivery order remains strict: playable demo, vertical-slice MVP, Act 1, Act 2, 
 - P0-046 - done: harbor dev traversal reconciled; warehouse retired from manifest; static world map excluded from import.
 - P0-055 - done: scene inventory and map conversion plan reconciled with 61 tracked `.tscn` files.
 - P0-054 - done: legacy documentation reconciled with ADR 0008 status headers.
-- P1-007, P1-009, P1-011, P1-016, P1-019, and P1-023 may proceed in parallel where they own separate files. P1-007 and D-003 both touch `GameState`; P1-011 and P1-019 share content/state contracts; P1-019 and P1-023 must not introduce replacement inventory, map, or interaction frameworks.
+- P1-007, P1-011, P1-016, P1-019, and P1-023 may proceed in parallel where they own separate files. P1-007 and D-003 both touch `GameState`; P1-011 and P1-019 share content/state contracts; P1-019 and P1-023 must not introduce replacement inventory, map, or interaction frameworks.
 
 ## Demo - MVP playable demo (highest priority)
 
@@ -50,8 +50,9 @@ Goal: a small runnable demo proving the ADR 0007 look and the core interaction l
 
 - [x] P1-007 | deps: none | deliverable: atomic one-slot manual save and phase-boundary autosave with one backup | verify: round-trip tests preserve all state and interrupted writes retain a loadable backup
 - [x] P1-008 | deps: P1-007 | deliverable: save validation and migration harness | verify: tests cover truncated data, wrong types, unknown versions, and every released fixture
-- [ ] P1-009 | deps: none | deliverable: debug state inspector with deterministic reset and branch/phase jump | verify: a developer reaches every slice phase and valid branch without replaying earlier content
+- [x] P1-009 | deps: none | deliverable: debug state inspector with deterministic reset and branch/phase jump | verify: a developer reaches every slice phase and valid branch without replaying earlier content
 - [x] P1-011 | deps: none | deliverable: `DialogueRunner` supporting choices, conditions, effects, once-only lines, and phase barks | verify: content-only test dialogue changes state and the next conversation without custom NPC code
+- [ ] P1-009a | deps: P1-009 | deliverable: refresh `WorldItemController` and map overlays when `SessionState.debug_state_applied` fires so debug jumps update visible props without a scene reload | verify: applying `debug.reset.demo_post_pickup` in the forge removes the anvil spearhead immediately
 - [ ] P1-012 | deps: P1-011 | deliverable: dialogue UI with speaker, portrait, text, choices, continue, skip, backlog, and disabled-choice reason | verify: keyboard, mouse, and gamepad complete a branching dialogue at all supported text scales
 - [ ] P1-013 | deps: P1-012 | deliverable: dialogue settings for text speed, font size, contrast, subtitle background, and reduced motion | verify: settings persist across restart and affect the dialogue test scene
 - [ ] P1-014 | deps: P1-012 | deliverable: pseudo-localization and dialogue overflow test | verify: expanded pseudo-localized strings fit or scroll without clipping at target resolutions

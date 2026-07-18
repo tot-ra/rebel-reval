@@ -9,6 +9,18 @@ signal phase_changed(previous: StringName, next: StringName)
 const CURRENT_VERSION := 2
 
 const PHASE_PROLOGUE_DAY := &"phase.prologue_day"
+const PHASE_INVESTIGATION_MORNING := &"phase.investigation_morning"
+const PHASE_INVESTIGATION_NIGHT := &"phase.investigation_night"
+const PHASE_CONSEQUENCE_NIGHT := &"phase.consequence_night"
+const PHASE_REFLECTION_MORNING := &"phase.reflection_morning"
+
+const SLICE_PHASES: Array[StringName] = [
+	PHASE_PROLOGUE_DAY,
+	PHASE_INVESTIGATION_MORNING,
+	PHASE_INVESTIGATION_NIGHT,
+	PHASE_CONSEQUENCE_NIGHT,
+	PHASE_REFLECTION_MORNING,
+]
 
 const PRESSURE_SUSPICION := &"pressure.suspicion"
 const PRESSURE_SOLIDARITY := &"pressure.solidarity"
