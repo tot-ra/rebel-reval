@@ -12,7 +12,7 @@ Delivery order remains strict: playable demo, vertical-slice MVP, Act 1, Act 2, 
 
 ### 1. Finish and package the demo
 
-- D-003 - next: finish the already-started world-item integration by making the anvil pickup focusable from keyboard/gamepad, feeding the existing bag overlay and session `GameState`, and covering scene re-entry. Do not build another inventory UI.
+- D-003 - in progress: finish the already-started world-item integration by making the anvil pickup focusable from keyboard/gamepad, feeding the existing bag overlay and session `GameState`, and covering scene re-entry. Do not build another inventory UI.
 - D-004 - package and capture after D-003 passes together with the completed Mart conversation.
 
 ### 2. Close the visual acceptance gate
@@ -31,7 +31,7 @@ Delivery order remains strict: playable demo, vertical-slice MVP, Act 1, Act 2, 
 
 Goal: a small runnable demo proving the ADR 0007 look and the core interaction loop - one controllable character in the eastern quarter, a conversation with Mart, and one forge item picked up into the existing visible bag. Demo-only dialogue code may later be replaced by P1-011/P1-012, but the demo must reuse `Interactable`, `ContentDB`, session `GameState`, `WorldItemController`, and the current inventory overlay.
 
-- [~] D-003 | deps: none | deliverable: the authored anvil forge item exposed through the existing `WorldItemController`, focus/prompt interaction, pickup feedback, and bag overlay, with placement and ownership stored in session `GameState` | verify: mouse, keyboard, and gamepad can pick up the item; it disappears from the smithy, appears in the bag, survives smithy exit/re-entry, and an over-capacity pickup leaves state unchanged
+- [ ] D-003 | deps: none | deliverable: the authored anvil forge item exposed through the existing `WorldItemController`, focus/prompt interaction, pickup feedback, and bag overlay, with placement and ownership stored in session `GameState` | verify: mouse, keyboard, and gamepad can pick up the item; it disappears from the smithy, appears in the bag, survives smithy exit/re-entry, and an over-capacity pickup leaves state unchanged | status: in progress
 - [ ] D-004 | deps: D-003 | deliverable: packaged demo: desktop export preset producing a runnable build of the demo flow plus a captured walkthrough recording for the README | verify: a clean export from a fresh clone starts, completes move-talk-pickup without errors or debug intervention, and the capture is referenced from `README.md`
 
 ## P0 - Product, canon, and reproducible baseline
