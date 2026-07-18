@@ -74,6 +74,7 @@ Goal: a small runnable demo proving the ADR 0007 look and the core interaction l
 - [ ] P1-028 | deps: P1-024 | deliverable: remappable keyboard/mouse and gamepad actions with focus navigation | verify: all slice actions can be rebound and completed on both input methods
 - [ ] P1-029 | deps: P0-040 | deliverable: automated asset lint for texture dimensions and seamless tiling, texel density, naming, mesh pivots and character scale, portrait dimensions, and source-manifest provenance rows | verify: valid fixture passes and one seeded error per rule fails CI
 - [ ] P1-030 | deps: P1-024,P1-025 | deliverable: repeatable performance scene and report command | verify: command reports frame time, memory, actor count, and target hardware metadata
+- [ ] P1-031 | deps: none | deliverable: world/scene map overlay showing the current scene and how authored scenes are connected, toggleable with the `M` input action (default keyboard key `M`) | verify: pressing `M` opens and closes the overlay from every playable scene, highlights the current scene, and displays connections matching the active transition manifest with no missing or stale scene nodes
 
 ## P2 - Vertical-slice production (the playable MVP)
 
