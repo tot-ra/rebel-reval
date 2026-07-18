@@ -14,7 +14,9 @@ var _pending_interactable: Interactable
 func setup(player: Player, view_runtime: MapViewRuntime) -> void:
 	_player = player
 	_view_runtime = view_runtime
-	set_process_unhandled_input(true)
+	# Gameplay clicks must be observed before passive HUD Controls consume them.
+	# _input still yields to focusable controls such as quick-access buttons.
+	set_process_input(true)
 	set_physics_process(true)
 
 
@@ -52,9 +54,25 @@ func try_handle_logic_click(logic_position: Vector2) -> bool:
 	return true
 
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
+	if not _should_route_to_gameplay(event):
+		return
 	if try_handle_click(event):
 		get_viewport().set_input_as_handled()
+
+
+func _should_route_to_gameplay(event: InputEvent) -> bool:
+	if not _is_left_click(event):
+		return false
+	return not _control_claims_click(get_viewport().gui_get_hovered_control())
+
+
+static func _control_claims_click(control: Control) -> bool:
+	if control == null or control.mouse_filter == Control.MOUSE_FILTER_IGNORE:
+		return false
+	# Containers and labels default to STOP even when they are only decorative.
+	# Focusable widgets are the controls that should retain primary-click ownership.
+	return control.focus_mode != Control.FOCUS_NONE
 
 
 func _physics_process(_delta: float) -> void:

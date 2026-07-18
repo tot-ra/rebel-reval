@@ -44,6 +44,68 @@ func test_logic_click_ignored_while_movement_blocked() -> void:
 	_cleanup_harness(harness)
 
 
+func test_input_routes_left_click_before_passive_hud_can_consume_it() -> void:
+	var harness := _make_click_harness()
+	var target := Vector2(640, 360)
+	_tree().root.push_input(_left_click(target), true)
+	assert_eq(harness.player.navigation_agent.target_position, target)
+	_cleanup_harness(harness)
+
+
+func test_input_prioritizes_world_item_pickup_before_navigation() -> void:
+	var harness := _make_click_harness()
+	var world_items := _StubWorldItems.new()
+	harness.root.add_child(world_items)
+	harness.click_input.set_world_items(world_items)
+	var initial_target := Vector2(320, 240)
+	harness.player.navigation_agent.target_position = initial_target
+	harness.click_input._input(_left_click(Vector2(640, 360)))
+	assert_eq(world_items.handled_clicks, 1)
+	assert_eq(harness.player.navigation_agent.target_position, initial_target)
+	_cleanup_harness(harness)
+
+
+func test_input_click_on_in_range_npc_interacts_without_navigation() -> void:
+	var harness := _make_click_harness()
+	var activated := [false]
+	var interactable := _spawn_interactable(harness.root, Vector2(340, 240), 80.0)
+	interactable.register_actor_in_range(harness.player)
+	interactable.set_interact_callback(func(_actor: Node) -> void:
+		activated[0] = true
+	)
+	var initial_target := Vector2(320, 240)
+	harness.player.navigation_agent.target_position = initial_target
+	_tree().root.push_input(_left_click(interactable.global_position), true)
+	assert_true(activated[0])
+	assert_eq(harness.player.navigation_agent.target_position, initial_target)
+	_cleanup_harness(harness)
+
+
+func test_input_leaves_left_click_for_interactive_ui_control() -> void:
+	var harness := _make_click_harness()
+	var initial_target := Vector2(320, 240)
+	harness.player.navigation_agent.target_position = initial_target
+	var button := Button.new()
+	assert_true(harness.click_input._control_claims_click(button))
+	assert_eq(harness.player.navigation_agent.target_position, initial_target)
+	button.free()
+	_cleanup_harness(harness)
+
+
+func test_passive_hud_control_does_not_claim_gameplay_click() -> void:
+	var label := Label.new()
+	assert_false(MapClickInputController._control_claims_click(label))
+	label.free()
+
+
+func _left_click(position: Vector2) -> InputEventMouseButton:
+	var event := InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.pressed = true
+	event.position = position
+	return event
+
+
 func _make_click_harness() -> Dictionary:
 	var root := _make_root()
 	var player: Player = PLAYER_SCENE.instantiate()
@@ -72,6 +134,16 @@ class _StubViewRuntime:
 
 	func is_camera_drag_active() -> bool:
 		return false
+
+
+class _StubWorldItems:
+	extends WorldItemController
+
+	var handled_clicks := 0
+
+	func try_handle_click(_event: InputEvent) -> bool:
+		handled_clicks += 1
+		return true
 
 
 func _cleanup_harness(harness: Dictionary) -> void:
