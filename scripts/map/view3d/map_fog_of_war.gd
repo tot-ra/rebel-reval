@@ -7,12 +7,7 @@ extends Node3D
 ## distant points on the ground plane.
 
 const FOG_SHADER := preload("res://scripts/map/view3d/map_fog_of_war.gdshader")
-const FIELD_OF_VIEW_DEGREES := 120.0
-const FOV_EDGE_SOFTNESS_DEGREES := 12.0
-## Pulling the cone vertex behind the rig widens the live region immediately
-## around the character. PLAYER_CLEAR_RADIUS_WORLD is the final safeguard for
-## animated extremities that can briefly extend behind the pivot.
-const FOV_ORIGIN_BACK_OFFSET_WORLD := 2.0
+## PLAYER_CLEAR_RADIUS_WORLD keeps animated extremities live around the pivot.
 const PLAYER_CLEAR_RADIUS_WORLD := 1.5
 ## Both the fully clear distance and the blur transition are twice the original
 ## 9 -> 18 range, keeping more of the scene legible with a gentler falloff.
@@ -26,14 +21,12 @@ const OCCLUSION_TARGET_GRACE_WORLD := 0.75
 ## building surface so flat walls do not alternate between live and occluded.
 const OCCLUSION_SURFACE_PADDING_WORLD := 0.25
 const OCCLUSION_MASK_PIXELS_PER_CELL := 8
-const FACING_SMOOTHING_SPEED := 12.0
 const OVERLAY_RENDER_PRIORITY := -127
 
 var _material: ShaderMaterial
 var _camera: Camera3D
 var _definition: MapDefinition
 var _occluders: Array[Rect2] = []
-var _smoothed_facing := Vector2.ZERO
 
 
 func configure(camera: Camera3D, definition: MapDefinition) -> void:
@@ -44,43 +37,25 @@ func configure(camera: Camera3D, definition: MapDefinition) -> void:
 	_assemble()
 
 
-func update_view(player_position: Vector3, facing: Vector2, delta: float = 0.0) -> void:
+func update_view(player_position: Vector3, _facing: Vector2 = Vector2.ZERO, _delta: float = 0.0) -> void:
 	if _material == null or _camera == null:
 		return
-	var normalized_facing := facing.normalized() if not facing.is_zero_approx() else Vector2.DOWN
-	if _smoothed_facing.is_zero_approx() or delta <= 0.0:
-		_smoothed_facing = normalized_facing
-	else:
-		var smoothing_weight := 1.0 - exp(-FACING_SMOOTHING_SPEED * delta)
-		_smoothed_facing = _smoothed_facing.slerp(normalized_facing, smoothing_weight).normalized()
 	var player_ground := Vector2(player_position.x, player_position.z)
 	_material.set_shader_parameter("player_world", player_ground)
-	_material.set_shader_parameter("fov_origin_world", fov_origin(player_ground, _smoothed_facing))
-	_material.set_shader_parameter("facing_world", _smoothed_facing)
 	_update_ground_projection()
 
 
-func visibility_at(world_position: Vector2, player_position: Vector2, facing: Vector2) -> float:
-	var normalized_facing := facing.normalized() if not facing.is_zero_approx() else Vector2.DOWN
+func visibility_at(world_position: Vector2, player_position: Vector2, _facing: Vector2 = Vector2.ZERO) -> float:
 	var offset := world_position - player_position
 	var distance := offset.length()
 	if distance <= PLAYER_CLEAR_RADIUS_WORLD:
 		return 1.0
 	if distance > MEMORY_RADIUS_WORLD:
 		return 0.0
-	var fov_offset := world_position - fov_origin(player_position, normalized_facing)
-	if not fov_offset.is_zero_approx():
-		if normalized_facing.dot(fov_offset.normalized()) < cos(deg_to_rad(FIELD_OF_VIEW_DEGREES * 0.5)):
-			return 0.0
 	for rect in _occluders:
 		if segment_crosses_rect(player_position, world_position, rect):
 			return 0.0
 	return 1.0
-
-
-static func fov_origin(player_position: Vector2, facing: Vector2) -> Vector2:
-	var normalized_facing := facing.normalized() if not facing.is_zero_approx() else Vector2.DOWN
-	return player_position - normalized_facing * FOV_ORIGIN_BACK_OFFSET_WORLD
 
 
 static func segment_crosses_rect(from: Vector2, to: Vector2, rect: Rect2) -> bool:
@@ -132,8 +107,6 @@ func _assemble() -> void:
 	_material.set_shader_parameter("player_clear_radius", PLAYER_CLEAR_RADIUS_WORLD)
 	_material.set_shader_parameter("occlusion_target_grace", OCCLUSION_TARGET_GRACE_WORLD)
 	_material.set_shader_parameter("occlusion_surface_padding", OCCLUSION_SURFACE_PADDING_WORLD)
-	_material.set_shader_parameter("half_fov_cos", cos(deg_to_rad(FIELD_OF_VIEW_DEGREES * 0.5)))
-	_material.set_shader_parameter("soft_fov_cos", cos(deg_to_rad(FIELD_OF_VIEW_DEGREES * 0.5 + FOV_EDGE_SOFTNESS_DEGREES)))
 	_material.set_shader_parameter("map_world_size", Vector2(_definition.size_cells))
 	_material.set_shader_parameter("occlusion_mask", _build_occlusion_mask())
 

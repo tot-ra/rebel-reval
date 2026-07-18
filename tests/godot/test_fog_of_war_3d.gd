@@ -4,17 +4,15 @@ const FogOfWar := preload("res://scripts/map/view3d/map_fog_of_war.gd")
 const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
 
 
-func test_visibility_uses_120_degree_character_facing() -> void:
+func test_visibility_uses_radial_distance_from_player() -> void:
 	var fog = FogOfWar.new()
 	var empty: Array[Rect2] = []
 	fog._occluders = empty
 	var player := Vector2.ZERO
 	var facing := Vector2.RIGHT
-	assert_true(fog.visibility_at(Vector2(5.0, 0.0), player, facing) > 0.5, "content in front must stay alive")
-	assert_true(fog.visibility_at(Vector2(2.5, 4.0), player, facing) > 0.5, "content inside 120 degrees must stay alive")
-	assert_true(fog.visibility_at(Vector2(2.0, 4.0), player, facing) > 0.5, "the rear-shifted vertex must widen the live cone around the character")
-	assert_true(fog.visibility_at(Vector2(0.0, 4.0), player, facing) < 0.5, "content outside the shifted 120 degree cone must become memory")
-	assert_true(fog.visibility_at(Vector2(-5.0, 0.0), player, facing) < 0.5, "content well behind must become memory")
+	assert_true(fog.visibility_at(Vector2(5.0, 0.0), player, facing) > 0.5, "nearby content must stay alive")
+	assert_true(fog.visibility_at(Vector2(0.0, 5.0), player, facing) > 0.5, "content beside the player must stay alive")
+	assert_true(fog.visibility_at(Vector2(-5.0, 0.0), player, facing) > 0.5, "content behind the player must stay alive within memory radius")
 
 
 func test_player_clear_radius_keeps_the_whole_character_live() -> void:
@@ -23,18 +21,13 @@ func test_player_clear_radius_keeps_the_whole_character_live() -> void:
 	fog._occluders = empty
 	var player := Vector2(10.0, 10.0)
 	var facing := Vector2.RIGHT
-	assert_eq(
-		FogOfWar.fov_origin(player, facing),
-		Vector2(10.0 - FogOfWar.FOV_ORIGIN_BACK_OFFSET_WORLD, 10.0),
-		"the widened cone still starts behind the character"
-	)
 	assert_true(
 		fog.visibility_at(player - facing * (FogOfWar.PLAYER_CLEAR_RADIUS_WORLD - 0.05), player, facing) > 0.5,
-		"the entire animated character footprint must remain live even behind its pivot"
+		"the entire animated character footprint must remain live around its pivot"
 	)
 	assert_true(
-		fog.visibility_at(player - facing * (FogOfWar.FOV_ORIGIN_BACK_OFFSET_WORLD + 0.5), player, facing) < 0.5,
-		"the clear bubble must not reveal unrelated content behind the character"
+		fog.visibility_at(player - facing * (FogOfWar.PLAYER_CLEAR_RADIUS_WORLD + 0.05), player, facing) > 0.5,
+		"content just outside the clear bubble must still stay alive within memory radius"
 	)
 
 
@@ -45,7 +38,7 @@ func test_fullscreen_shader_is_not_face_culled() -> void:
 	assert_true("hint_screen_texture" in source, "the overlay must sample the rendered scene")
 	assert_true("hint_depth_texture" in source, "the overlay must preserve real character and building surfaces")
 	assert_true("on_blocking_surface" in source, "facade classification must tolerate footprint-edge precision")
-	assert_true("float desaturation" in source, "unseen areas must be communicated through saturation")
+	assert_false("desaturation" in source, "unseen areas must not be communicated through saturation")
 	assert_false("color.rgb *=" in source, "visibility must not darken scene lighting or real shadows")
 	assert_eq(FogOfWar.OVERLAY_RENDER_PRIORITY, -127, "transparent smoke must render after the opaque-scene overlay")
 

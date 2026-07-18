@@ -12,15 +12,11 @@ uniform vec2 ground_origin;
 uniform vec2 ground_uv_x;
 uniform vec2 ground_uv_y;
 uniform vec2 player_world;
-uniform vec2 fov_origin_world;
-uniform vec2 facing_world = vec2(0.0, 1.0);
 uniform float player_clear_radius = 1.5;
 uniform float clear_radius = 18.0;
 uniform float memory_radius = 36.0;
 uniform float occlusion_target_grace = 0.75;
 uniform float occlusion_surface_padding = 0.25;
-uniform float half_fov_cos = 0.5;
-uniform float soft_fov_cos = 0.309017;
 
 const int OCCLUSION_STEPS = 64;
 
@@ -100,14 +96,7 @@ void fragment() {
 
 	vec2 radial_offset = world - player_world;
 	float distance_to_player = length(radial_offset);
-	vec2 fov_offset = world - fov_origin_world;
-	float distance_to_fov_origin = length(fov_offset);
-	vec2 sight_direction = distance_to_fov_origin > 0.0001 ? fov_offset / distance_to_fov_origin : facing_world;
-
-	float facing_dot = dot(normalize(facing_world), sight_direction);
-	float in_fov = smoothstep(soft_fov_cos, half_fov_cos, facing_dot);
 	float player_clear = 1.0 - smoothstep(player_clear_radius * 0.72, player_clear_radius, distance_to_player);
-	in_fov = max(in_fov, player_clear);
 
 	// A quintic remap removes the visible acceleration change at each end of the
 	// already doubled transition range, making distant blur build progressively.
@@ -116,14 +105,8 @@ void fragment() {
 	float occluded = hidden_behind_mass(player_world, world) ? 1.0 : 0.0;
 	occluded *= 1.0 - player_clear;
 
-	float memory = max(1.0 - in_fov, radial_fog);
-	float blur_lod = clamp(radial_fog * 3.0 + (1.0 - in_fov) * 2.0 + occluded * 4.0, 0.0, 5.5);
+	float blur_lod = clamp(radial_fog * 3.0 + occluded * 4.0, 0.0, 5.5);
 	vec4 color = textureLod(screen_texture, SCREEN_UV, blur_lod);
-	float luminance = dot(color.rgb, vec3(0.299, 0.587, 0.114));
-	float desaturation = clamp(max(memory, occluded), 0.0, 1.0);
-	// Visibility must not act as a second lighting system. Preserve scene
-	// luminance so sunlight, weather, and the day/night cycle remain authoritative.
-	color.rgb = mix(color.rgb, vec3(luminance), desaturation);
 	ALBEDO = color.rgb;
 	ALPHA = 1.0;
 }
