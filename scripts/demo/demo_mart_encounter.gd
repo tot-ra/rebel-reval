@@ -49,14 +49,6 @@ func wire(
 	)
 
 
-func try_handle_input(event: InputEvent) -> bool:
-	if _dialogue_runner != null and _dialogue_runner.is_active():
-		if _dialogue_runner.try_advance(event):
-			get_viewport().set_input_as_handled()
-			return true
-	return false
-
-
 func get_mart() -> DemoMartNpc:
 	return _mart
 

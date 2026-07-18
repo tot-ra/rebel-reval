@@ -29,8 +29,6 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _mart_encounter != null and _mart_encounter.try_handle_input(event):
-		return
 	if player == null or _view_runtime == null:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
