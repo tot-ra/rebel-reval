@@ -1,5 +1,8 @@
 > **Legacy status:** `superseded`  
-> **Reason:** Describes Hope/Fear/Chaos city meters and a Balance of Power race replaced by explicit consequence flags and district pressures.  
+> **Reason:** Describes Hope/Fear/Chaos city meters and a Balance of Power race replaced by the ledger and district-pressure model in [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md).  
+> **Scope reconciliation:** [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md)  
+> **Reactivated seeds:** per-faction ledger standing from explicit recorded events; per-district patrol density, prices, and bark sets; forge-to-consequence loop; act-gated campaign pacing.  
+> **Still superseded:** universal Hope/Fear/Chaos meters; Balance of Power race meter; NPC-allegiance arithmetic; aggregate morality scoring.  
 > **Current source of truth:** [`README.md`](./README.md) - Product decisions (Narrative systems) and Core gameplay loop.
 
 # 🧙 Gameplay Mechanics

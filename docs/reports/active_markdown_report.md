@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `34`
-- Markdown files excluded as archive/reference/out of active scope: `291`
-- Local/external links inspected: `110`
-- Links to active Markdown docs: `79`
-- Links to existing archive/reference/non-active local docs: `10`
+- Active Markdown files scanned: `38`
+- Markdown files excluded as archive/reference/out of active scope: `293`
+- Local/external links inspected: `131`
+- Links to active Markdown docs: `94`
+- Links to existing archive/reference/non-active local docs: `12`
 - External links skipped for reachability: `1`
 - Issues found: `0`
 
@@ -48,10 +48,12 @@ No active Markdown documentation issues found.
 - `docs/adr/0007-ai-generated-isometric-presentation.md`
 - `docs/adr/0008-three-act-campaign-and-faction-scope.md`
 - `docs/adr/0009-map-blueprint-authoring-architecture.md`
+- `docs/adr/0010-large-map-runtime-chunking.md`
 - `docs/ART_BIBLE.md`
 - `docs/ASSET_INVENTORY.md`
 - `docs/ASSET_STORAGE_POLICY.md`
 - `docs/CANON.md`
+- `docs/CHARACTER_GENERATION.md`
 - `docs/CHARACTERS/aita.md`
 - `docs/CHARACTERS/ellen.md`
 - `docs/CHARACTERS/henning.md`
@@ -63,6 +65,8 @@ No active Markdown documentation issues found.
 - `docs/CHARACTERS/README.md`
 - `docs/FONTS.md`
 - `docs/HISTORICAL_AUDIT.md`
+- `docs/INVENTORY_MECHANICS.md`
+- `docs/LARGE_MAP_CHUNKING_PLAN.md`
 - `docs/MAP_AUTHORING.md`
 - `docs/MAP_CONVERSION_PLAN.md`
 - `docs/MATERIAL_STYLE_LOCK_KIT.md`

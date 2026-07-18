@@ -1,5 +1,8 @@
 > **Legacy status:** `superseded`  
-> **Reason:** Tower-capture night loop and district-by-district siege design are explicitly out of scope for the first campaign.  
+> **Reason:** Tower-capture night loop and district-by-district siege design remain excluded; night play is re-scoped under [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md).  
+> **Scope reconciliation:** [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md)  
+> **Reactivated seeds:** content-defined night mission templates (sabotage, theft, escort, defense); St. George's Night act-boundary encounter at Viru Gate; stealth and combat covert routes with ledger consequences.  
+> **Still superseded:** tower-capture strategic loop; one-tower-per-night district siege meta-game; watchtower ownership as city-control mechanic.  
 > **Current source of truth:** [`README.md`](./README.md) - Scope boundaries and Campaign outline (Finale - St. George's Night).
 
 # 🌙 Night Gameplay: The Siege of Reval

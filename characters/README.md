@@ -1,5 +1,8 @@
 > **Legacy status:** `archive`  
-> **Reason:** Fifteen-plus faction roster, ruler/rebel join choice, and linked NPC sheets are research material outside the seven-character slice scope.  
+> **Reason:** Fifteen-plus faction roster and mandatory ruler/rebel join framing are research material; act scope is governed by [ADR 0008](../docs/adr/0008-three-act-campaign-and-faction-scope.md).  
+> **Scope reconciliation:** [ADR 0008](../docs/adr/0008-three-act-campaign-and-faction-scope.md)  
+> **Reactivated seeds:** eight active factions (Danish Crown, Livonian Order, Hanseatic guilds, Harju Kings, Black Cloaks, Cult of Metsik, Pskov/Novgorod emissaries, Vitalienbrüder); extended faction casts and NPC hooks for act production.  
+> **Still superseded:** fifteen-plus faction roster as a simultaneous production target; mandatory ruler/rebel join choice as the primary campaign frame; NPC sheets outside reconciled `docs/CHARACTERS/` briefs.  
 > **Current source of truth:** [`README.md`](../README.md) - Main cast, Product decisions (Narrative systems), and Scope boundaries.
 
 ## ⚔️ Factions

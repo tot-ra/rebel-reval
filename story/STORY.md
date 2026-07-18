@@ -1,5 +1,8 @@
 > **Legacy status:** `superseded`  
-> **Reason:** Pre-1343 timeline, multi-act structure, and plot beats differ from the current five-cycle campaign and historical guardrails.  
+> **Reason:** Pre-1343 timeline and plot beats here differ from the attested 1343-1346 campaign in [ADR 0008](../docs/adr/0008-three-act-campaign-and-faction-scope.md) and `docs/CANON.md`.  
+> **Scope reconciliation:** [ADR 0008](../docs/adr/0008-three-act-campaign-and-faction-scope.md)  
+> **Reactivated seeds:** three-act campaign structure; St. George's Night as Act 1 boundary state; world-location activation from existing prototypes; attested historical milestones on schedule with steerable local cost.  
+> **Still superseded:** pre-1343 opening timeline; legacy single-campaign plot beats that conflict with the five-cycle slice; 1351 plague epilogue (non-canon).  
 > **Current source of truth:** [`README.md`](../README.md) - Historical and lore guardrails, Main cast, and Campaign outline.
 
 ## Storyline / Level progression
