@@ -2317,6 +2317,10 @@
     "scenes/reval_walls_towers/wall-map.png",
     "scenes/revel-map.jpg"
   ],
+  "surroundings_sides": {
+    "north": "town",
+    "west": "town"
+  },
   "surroundings_town_sides": [
     "north",
     "west"

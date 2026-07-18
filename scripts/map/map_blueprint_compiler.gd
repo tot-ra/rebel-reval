@@ -117,12 +117,23 @@ static func _validate_metadata(blueprint: MapBlueprint, errors: Array[String]) -
 		source_paths[path] = true
 
 	var sides: Dictionary = {}
-	for side in blueprint.surroundings_town_sides:
+	for side in blueprint.surroundings_sides.keys():
+		var kind: StringName = blueprint.surroundings_sides[side]
 		if not MapDefinition.WORLD_SIDES.has(side):
 			errors.append("surroundings has unknown side: %s" % String(side))
 		elif sides.has(side):
 			errors.append("surroundings has duplicate side: %s" % String(side))
-		sides[side] = true
+		elif not MapDefinition.SURROUNDINGS_KINDS.has(kind):
+			errors.append("surroundings has unknown kind for %s: %s" % [String(side), String(kind)])
+		else:
+			sides[side] = true
+	for side in blueprint.surroundings_town_sides:
+		if not MapDefinition.WORLD_SIDES.has(side):
+			errors.append("surroundings has unknown side: %s" % String(side))
+		elif sides.has(side) and blueprint.surroundings_sides.get(side) != &"town":
+			errors.append("surroundings town side conflicts with kind on %s" % String(side))
+		elif not sides.has(side):
+			errors.append("surroundings town side missing kind entry: %s" % String(side))
 	if blueprint.has_authored_camera_bounds:
 		_validate_rect(blueprint.authored_camera_bounds, "camera_bounds", blueprint.size_cells, errors)
 
@@ -792,8 +803,8 @@ static func _build_definition(blueprint: MapBlueprint, expanded: Dictionary) -> 
 
 	definition.source_references = blueprint.source_references.duplicate()
 	definition.source_references.sort()
-	definition.surroundings_town_sides = blueprint.surroundings_town_sides.duplicate()
-	definition.surroundings_town_sides.sort_custom(_compare_string_values)
+	definition.surroundings_sides = blueprint.surroundings_sides.duplicate()
+	definition.surroundings_town_sides = _town_sides_from_surroundings(definition.surroundings_sides)
 	var camera_cells := blueprint.authored_camera_bounds if blueprint.has_authored_camera_bounds else Rect2i(Vector2i.ZERO, blueprint.size_cells)
 	definition.camera_bounds = definition.cell_rect_to_world_rect(camera_cells)
 	definition.fingerprint = _fingerprint(definition)
@@ -888,8 +899,18 @@ static func _fingerprint(definition: MapDefinition) -> String:
 		"source_references": definition.source_references,
 		"view_landmarks": definition.view_landmarks,
 		"surroundings_town_sides": definition.surroundings_town_sides,
+		"surroundings_sides": definition.surroundings_sides,
 	}
 	return MapParitySnapshot.serialize_value(payload).sha256_text()
+
+
+static func _town_sides_from_surroundings(sides: Dictionary) -> Array[StringName]:
+	var town_sides: Array[StringName] = []
+	for side in MapDefinition.WORLD_SIDES:
+		if sides.get(side) == &"town":
+			town_sides.append(side)
+	town_sides.sort_custom(_compare_string_values)
+	return town_sides
 
 
 static func _validate_id(value: StringName, path: String, allow_namespace: bool, errors: Array[String]) -> void:

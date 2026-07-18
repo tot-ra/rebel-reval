@@ -173,8 +173,8 @@ func test_enclosed_interior_suppresses_countryside_surroundings() -> void:
 			assert_true(node.has_node("Window0"), "interior window needs glazed pane")
 			assert_true(node.has_node("WallAbove0"), "interior windows should fill void above the lintel")
 	assert_eq(window_landmarks, 4)
-	var candle := view.get_node("Props/Prop_desk_candle")
-	assert_true(candle.has_node("CandleLight"), "desk candle needs local light controller")
+	var candle := view.get_node("Props/Prop_table_candle")
+	assert_true(candle.has_node("CandleLight"), "table candle needs local light controller")
 	view.apply_cycle_progress(0.5)
 	view.apply_cycle_progress(0.0)
 	view.free()
@@ -202,6 +202,7 @@ func test_kalev_smithy_door_sits_on_south_wall_boundary() -> void:
 
 func test_grass_and_tree_detail_use_generated_meshes_and_wind_materials() -> void:
 	var definition := SmithyCourtyard.create()
+	definition.surroundings_sides = {&"east": &"woodland"}
 	var view := MapView3D.create(definition, MapBuilder.build(definition))
 	var tufts := view.get_node("Scatter/Tufts") as MultiMeshInstance3D
 	assert_true(tufts.multimesh.mesh is ArrayMesh, "grass must use blade geometry instead of a cone primitive")

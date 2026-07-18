@@ -33,9 +33,13 @@ var view_landmarks: Array[Dictionary] = []
 ## Sides of the map (&"north"/&"south"/&"east"/&"west") where the view-only
 ## surroundings should read as continuing town instead of open woodland.
 var surroundings_town_sides: Array[StringName] = []
+## Per-side authored view continuation. Values are &"town", &"water", or
+## &"woodland". Unlisted sides render no exterior backdrop.
+var surroundings_sides: Dictionary = {}
 
 const VIEW_LANDMARK_KINDS: Array[StringName] = [&"gate_arch", &"interior_window"]
 const WORLD_SIDES: Array[StringName] = [&"north", &"south", &"east", &"west"]
+const SURROUNDINGS_KINDS: Array[StringName] = [&"town", &"water", &"woodland"]
 
 
 func cell_rect_to_world_rect(cell_rect: Rect2i) -> Rect2:
@@ -113,6 +117,15 @@ func validate() -> Array[String]:
 		if not WORLD_SIDES.has(side):
 			errors.append("surroundings_town_sides has unknown side: %s" % String(side))
 
+	for side in surroundings_sides.keys():
+		if not WORLD_SIDES.has(side):
+			errors.append("surroundings_sides has unknown side: %s" % String(side))
+		elif not SURROUNDINGS_KINDS.has(surroundings_sides[side]):
+			errors.append(
+				"surroundings_sides[%s] has unknown kind: %s"
+				% [String(side), String(surroundings_sides[side])]
+			)
+
 	if camera_bounds.size.x < 0 or camera_bounds.size.y < 0:
 		errors.append("camera_bounds cannot be negative")
 
@@ -128,6 +141,8 @@ func world_size() -> Vector2:
 ## Enclosed room shells (perimeter interior_wall on every side) should not paint
 ## the countryside treeline or meadow apron past the authored walls.
 func suppresses_exterior_surroundings() -> bool:
+	if not surroundings_sides.is_empty():
+		return false
 	if not surroundings_town_sides.is_empty():
 		return false
 	var north := false
@@ -147,6 +162,15 @@ func suppresses_exterior_surroundings() -> bool:
 		if cell_rect.end.x >= size_cells.x:
 			east = true
 	return north and south and west and east
+
+
+func resolved_surroundings_sides() -> Dictionary:
+	if not surroundings_sides.is_empty():
+		return surroundings_sides
+	var derived: Dictionary = {}
+	for side in surroundings_town_sides:
+		derived[side] = &"town"
+	return derived
 
 
 func _world_rect_to_cell_rect(world_rect: Rect2) -> Rect2i:

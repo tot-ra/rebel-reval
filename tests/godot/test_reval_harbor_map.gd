@@ -11,6 +11,17 @@ func test_rrmap_parses_with_historical_street_spine() -> void:
 		return
 	assert_eq(parsed.blueprint.map_id, &"reval_harbor")
 	assert_eq(parsed.definition.size_cells, Vector2i(72, 48))
+	assert_eq(parsed.definition.surroundings_sides.get(&"north"), &"water")
+	assert_eq(parsed.definition.surroundings_sides.get(&"west"), &"town")
+
+
+func test_harbor_extends_open_water_past_northern_edge() -> void:
+	var definition: MapDefinition = HarborDefinition.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition))
+	assert_true(view.has_node("Surroundings/Water_north"), "harbor must continue the Baltic basin northward")
+	assert_false(view.has_node("Surroundings/Apron"), "harbor must not paint a default meadow apron")
+	assert_false(view.has_node("Surroundings/SpruceCanopies"), "harbor must not spawn woodland past the quay")
+	view.free()
 
 
 func test_harbor_connects_back_to_lower_town() -> void:

@@ -138,10 +138,13 @@ const TOWN_KEEP_RATIO := 0.6
 const TOWN_BAND_INNER := 2.5
 const GLACIS_CLEARANCE := 6.0
 
-## View-only landscape ring past the playable bounds: warm meadow apron with a
-## scattered treeline instead of a hard void.
+## View-only landscape ring past the playable bounds. Authors opt in per side via
+## `surroundings_sides`; unlisted sides stay empty instead of default woodland.
 const SURROUNDINGS_SIZE_WORLD := 512.0
 const SURROUNDINGS_COLOR := Color8(74, 88, 60)
+const SURROUNDINGS_WATER_SHALLOW_DEPTH := 10.0
+const SURROUNDINGS_WATER_DEEP_DEPTH := 56.0
+const SURROUNDINGS_WOODLAND_DEPTH := 48.0
 const TREE_BAND_INNER := 1.5
 const TREE_BAND_OUTER := 18.0
 const TREE_GRID_SPACING := 3.0
@@ -1166,6 +1169,11 @@ static func build_prop(prop: Dictionary, cell_size: int) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Prop_%s" % String(prop["id"])
 	root.position = MapViewBridge.logic_to_world(prop["position"], cell_size)
+	if prop.has("visual_offset_px"):
+		var offset: Vector2 = prop["visual_offset_px"]
+		var scale := MapViewBridge.world_scale(cell_size)
+		root.position.x += offset.x * scale
+		root.position.y -= offset.y * scale
 
 	match prop["kind"] as StringName:
 		MapTypes.PROP_KIND_ANVIL:
@@ -1190,9 +1198,9 @@ static func build_prop(prop: Dictionary, cell_size: int) -> Node3D:
 			_cylinder(root, "BarrelA", 0.28, 0.62, Vector3(-0.24, 0.31, 0.05), &"wood")
 			_cylinder(root, "BarrelB", 0.28, 0.62, Vector3(0.3, 0.31, -0.14), &"wood")
 		MapTypes.PROP_KIND_FURNACE:
-			_box(root, "Mass", Vector3(1.0, 1.1, 0.9), Vector3(0.0, 0.55, 0.0), &"stone")
-			_box(root, "Mouth", Vector3(0.42, 0.36, 0.08), Vector3(0.0, 0.35, 0.48), &"ember")
-			_add_chimney_stack(root, "Chimney", 0.26, 0.48, Vector3(0.2, 1.34, -0.15))
+			_box(root, "Mass", Vector3(1.35, 1.35, 1.1), Vector3(0.0, 0.68, 0.0), &"stone")
+			_box(root, "Mouth", Vector3(0.52, 0.42, 0.08), Vector3(0.0, 0.42, 0.58), &"ember")
+			_add_chimney_stack(root, "Chimney", 0.38, 0.72, Vector3(0.25, 1.62, -0.15))
 		MapTypes.PROP_KIND_LEDGER:
 			_box(root, "Stand", Vector3(0.16, 0.9, 0.16), Vector3(0.0, 0.45, 0.0), &"wood")
 			_box(root, "Book", Vector3(0.52, 0.08, 0.42), Vector3(0.0, 0.95, 0.0), &"plaster")
@@ -1204,9 +1212,9 @@ static func build_prop(prop: Dictionary, cell_size: int) -> Node3D:
 			_box(root, "Box", Vector3(0.7, 0.42, 0.46), Vector3(0.0, 0.21, 0.0), &"wood")
 			_box(root, "Lid", Vector3(0.72, 0.14, 0.48), Vector3(0.0, 0.49, 0.0), &"timber")
 		MapTypes.PROP_KIND_TABLE:
-			_box(root, "Top", Vector3(1.1, 0.08, 0.7), Vector3(0.0, 0.56, 0.0), &"wood")
-			_box(root, "LegsLeft", Vector3(0.1, 0.52, 0.6), Vector3(-0.45, 0.26, 0.0), &"timber")
-			_box(root, "LegsRight", Vector3(0.1, 0.52, 0.6), Vector3(0.45, 0.26, 0.0), &"timber")
+			_box(root, "Top", Vector3(1.5, 0.08, 0.95), Vector3(0.0, 0.58, 0.0), &"wood")
+			_box(root, "LegsLeft", Vector3(0.1, 0.54, 0.78), Vector3(-0.62, 0.27, 0.0), &"timber")
+			_box(root, "LegsRight", Vector3(0.1, 0.54, 0.78), Vector3(0.62, 0.27, 0.0), &"timber")
 		MapTypes.PROP_KIND_SHELF:
 			_box(root, "Frame", Vector3(0.9, 1.4, 0.3), Vector3(0.0, 0.7, 0.0), &"timber")
 			for level in 3:
@@ -1358,27 +1366,25 @@ static func _grass_tuft_mesh() -> ArrayMesh:
 	return surface.commit()
 
 
-## Landscape ring outside the playable rectangle: a warm meadow apron plane and
-## a deterministic treeline (spruce and broadleaf) with a few boulders, so map
-## edges read as countryside instead of a void. Everything is unreachable and
-## purely view-side.
+## Landscape ring outside the playable rectangle. Each authored side may
+## continue town silhouettes, open water, or an explicit woodland apron with a
+## treeline. Unlisted sides render nothing so maps define their own horizon.
 static func build_surroundings(definition: MapDefinition) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Surroundings"
 	if definition.suppresses_exterior_surroundings():
 		return root
+	var sides: Dictionary = definition.resolved_surroundings_sides()
+	if sides.is_empty():
+		return root
 	var map_size := Vector2(definition.size_cells)
 
-	var apron := MeshInstance3D.new()
-	apron.name = "Apron"
-	var apron_mesh := PlaneMesh.new()
-	apron_mesh.size = Vector2(SURROUNDINGS_SIZE_WORLD, SURROUNDINGS_SIZE_WORLD)
-	apron_mesh.material = MapViewMaterials.surroundings_ground()
-	apron.mesh = apron_mesh
-	# Below WATER_RECESS: the apron spans under the playable map too, so it must
-	# sit deeper than recessed water cells or moats render invisible.
-	apron.position = Vector3(map_size.x * 0.5, -WATER_RECESS - 0.04, map_size.y * 0.5)
-	root.add_child(apron)
+	for side in MapDefinition.WORLD_SIDES:
+		match sides.get(side):
+			&"water":
+				root.add_child(_water_continuation(definition, map_size, side))
+			&"woodland":
+				root.add_child(_woodland_apron(definition, map_size, side))
 
 	var trunks: Array[Transform3D] = []
 	var trunk_colors: Array[Color] = []
@@ -1405,13 +1411,11 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 			var spot := base + jitter
 			if inner.has_point(spot):
 				continue
-			if not town_sides.is_empty():
-				# Town keeps going on urban sides; open sides keep a cleared
-				# glacis strip before the treeline starts.
-				if town_sides.has(_world_side(spot, map_size)):
-					continue
-				if _distance_outside(spot, map_size) < GLACIS_CLEARANCE:
-					continue
+			var side := _world_side(spot, map_size)
+			if sides.get(side) != &"woodland":
+				continue
+			if _distance_outside(spot, map_size) < GLACIS_CLEARANCE:
+				continue
 			var keep := _hash01(gx, gy, definition.seed + 1201)
 			if keep > TREE_KEEP_RATIO:
 				continue
@@ -1435,25 +1439,96 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 				leaves.append(_placed(spot, tree_scale, Vector3(0.0, 1.5 * tree_scale, 0.0), yaw))
 				leaf_colors.append(Color(tint * 0.96, tint, tint * 0.8))
 
-	var trunk_mesh := CylinderMesh.new()
-	trunk_mesh.top_radius = 0.09
-	trunk_mesh.bottom_radius = 0.15
-	trunk_mesh.height = 1.2
-	trunk_mesh.radial_segments = 7
-	root.add_child(_multi_mesh("Trunks", trunk_mesh, trunks, trunk_colors, MapViewMaterials.bark(), Vector3.ZERO))
+	if not trunks.is_empty() or not spruces.is_empty() or not leaves.is_empty() or not boulders.is_empty():
+		var trunk_mesh := CylinderMesh.new()
+		trunk_mesh.top_radius = 0.09
+		trunk_mesh.bottom_radius = 0.15
+		trunk_mesh.height = 1.2
+		trunk_mesh.radial_segments = 7
+		root.add_child(_multi_mesh("Trunks", trunk_mesh, trunks, trunk_colors, MapViewMaterials.bark(), Vector3.ZERO))
+		root.add_child(_multi_mesh("SpruceCanopies", _spruce_canopy_mesh(), spruces, spruce_colors, MapViewMaterials.canopy(&"spruce"), Vector3.ZERO))
+		root.add_child(_multi_mesh("LeafCanopies", _leaf_canopy_mesh(), leaves, leaf_colors, MapViewMaterials.canopy(&"leaf"), Vector3.ZERO))
+		var boulder_mesh := SphereMesh.new()
+		boulder_mesh.radius = 0.45
+		boulder_mesh.height = 0.6
+		boulder_mesh.radial_segments = 7
+		boulder_mesh.rings = 4
+		root.add_child(_multi_mesh("Boulders", boulder_mesh, boulders, boulder_colors, MapViewMaterials.role(&"stone"), Vector3.ZERO))
 
-	root.add_child(_multi_mesh("SpruceCanopies", _spruce_canopy_mesh(), spruces, spruce_colors, MapViewMaterials.canopy(&"spruce"), Vector3.ZERO))
-	root.add_child(_multi_mesh("LeafCanopies", _leaf_canopy_mesh(), leaves, leaf_colors, MapViewMaterials.canopy(&"leaf"), Vector3.ZERO))
-
-	var boulder_mesh := SphereMesh.new()
-	boulder_mesh.radius = 0.45
-	boulder_mesh.height = 0.6
-	boulder_mesh.radial_segments = 7
-	boulder_mesh.rings = 4
-	root.add_child(_multi_mesh("Boulders", boulder_mesh, boulders, boulder_colors, MapViewMaterials.role(&"stone"), Vector3.ZERO))
 	if not town_sides.is_empty():
 		root.add_child(_town_silhouette(definition, map_size))
 	return root
+
+
+## Meadow apron strip for one explicit woodland side.
+static func _woodland_apron(_definition: MapDefinition, map_size: Vector2, side: StringName) -> MeshInstance3D:
+	var apron := MeshInstance3D.new()
+	apron.name = "WoodlandApron_%s" % side
+	var mesh := PlaneMesh.new()
+	var depth := SURROUNDINGS_WOODLAND_DEPTH
+	mesh.size = _side_band_size(map_size, side, depth)
+	mesh.material = MapViewMaterials.surroundings_ground()
+	apron.mesh = mesh
+	apron.position = _edge_band_center(map_size, side, depth * 0.5, -WATER_RECESS - 0.04)
+	return apron
+
+
+## Shallow then deep animated water past one map edge so harbours read as open sea.
+static func _water_continuation(_definition: MapDefinition, map_size: Vector2, side: StringName) -> Node3D:
+	var root := Node3D.new()
+	root.name = "Water_%s" % side
+	var shallow_depth := SURROUNDINGS_WATER_SHALLOW_DEPTH
+	var deep_depth := SURROUNDINGS_WATER_DEEP_DEPTH
+	var y := -WATER_RECESS
+	root.add_child(_surroundings_water_plane(
+		"Shallow",
+		_side_band_size(map_size, side, shallow_depth),
+		_edge_band_center(map_size, side, shallow_depth * 0.5, y),
+		MapTypes.TERRAIN_SHALLOW_WATER
+	))
+	root.add_child(_surroundings_water_plane(
+		"Deep",
+		_side_band_size(map_size, side, deep_depth),
+		_edge_band_center(map_size, side, shallow_depth + deep_depth * 0.5, y),
+		MapTypes.TERRAIN_DEEP_WATER
+	))
+	return root
+
+
+static func _surroundings_water_plane(
+	plane_name: String,
+	size: Vector2,
+	center: Vector3,
+	terrain_id: StringName
+) -> MeshInstance3D:
+	var instance := MeshInstance3D.new()
+	instance.name = plane_name
+	var mesh := PlaneMesh.new()
+	mesh.size = size
+	instance.mesh = mesh
+	instance.position = center
+	instance.material_override = MapViewMaterials.water_surface(terrain_id)
+	return instance
+
+
+static func _side_band_size(map_size: Vector2, side: StringName, depth: float) -> Vector2:
+	match side:
+		&"north", &"south":
+			return Vector2(map_size.x + TREE_BAND_OUTER * 2.0, depth)
+		_:
+			return Vector2(depth, map_size.y + TREE_BAND_OUTER * 2.0)
+
+
+static func _edge_band_center(map_size: Vector2, side: StringName, outward: float, height: float) -> Vector3:
+	match side:
+		&"north":
+			return Vector3(map_size.x * 0.5, height, -outward)
+		&"south":
+			return Vector3(map_size.x * 0.5, height, map_size.y + outward)
+		&"west":
+			return Vector3(-outward, height, map_size.y * 0.5)
+		_:
+			return Vector3(map_size.x + outward, height, map_size.y * 0.5)
 
 
 ## Which side of the map bounds a surroundings spot falls on.

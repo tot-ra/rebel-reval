@@ -21,6 +21,9 @@ var cell_size: int
 var primitives: Array[Dictionary] = []
 var styles: Array[Dictionary] = []
 var source_references: Array[String] = []
+## Per-side view continuation past the playable bounds. Keys are world sides;
+## values are &"town", &"water", or &"woodland". Unlisted sides stay empty.
+var surroundings_sides: Dictionary = {}
 var surroundings_town_sides: Array[StringName] = []
 var authored_camera_bounds: Rect2i = Rect2i()
 var has_authored_camera_bounds := false
@@ -330,7 +333,19 @@ func view_landmark(
 
 
 func surroundings(sides: Array[StringName]) -> MapBlueprint:
+	surroundings_sides.clear()
 	surroundings_town_sides = sides.duplicate()
+	for side in sides:
+		surroundings_sides[side] = &"town"
+	return self
+
+
+func surroundings_side(side: StringName, kind: StringName) -> MapBlueprint:
+	surroundings_sides[side] = kind
+	if kind == &"town" and not surroundings_town_sides.has(side):
+		surroundings_town_sides.append(side)
+	elif kind != &"town":
+		surroundings_town_sides.erase(side)
 	return self
 
 

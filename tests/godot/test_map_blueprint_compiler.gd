@@ -41,6 +41,7 @@ func test_compiles_metadata_and_every_explicit_primitive() -> void:
 	assert_eq(definition.camera_bounds, Rect2(32, 32, 576, 320))
 	assert_eq(definition.source_references, ["README.md"])
 	assert_eq(definition.surroundings_town_sides, [&"north", &"west"])
+	assert_eq(definition.surroundings_sides, {&"north": &"town", &"west": &"town"})
 	assert_true(definition.validate().is_empty(), "Compiled runtime contract must validate")
 
 

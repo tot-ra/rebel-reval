@@ -40,6 +40,7 @@ static func serialize(definition: MapDefinition, grid: MapTerrainGrid) -> String
 		"exclusions": _sorted_records(definition.excluded_areas),
 		"fade_volumes": _sorted_records(_strip_optional_ids(definition.fade_volumes)),
 		"source_references": _sorted_strings(definition.source_references),
+		"surroundings_sides": _sorted_surroundings_sides(definition.surroundings_sides),
 		"surroundings_town_sides": _sorted_strings(definition.surroundings_town_sides),
 		"navigation": _navigation_snapshot(definition, grid),
 	}
@@ -129,6 +130,15 @@ static func _sorted_strings(source: Array) -> Array[String]:
 		values.append(String(value))
 	values.sort()
 	return values
+
+
+static func _sorted_surroundings_sides(source: Dictionary) -> Dictionary:
+	var sorted: Dictionary = {}
+	var sides := source.keys()
+	sides.sort_custom(_compare_dictionary_keys)
+	for side in sides:
+		sorted[side] = source[side]
+	return sorted
 
 
 static func _compare_id_records(left: Dictionary, right: Dictionary) -> bool:

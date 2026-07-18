@@ -17,4 +17,4 @@ exclude blocked.storage 15 9 2 2
 fade fade.house 4 3 5 3
 landmark landmark.gate gate_arch 9 2 2 1 wall_color=8c8980ff top_px=128 passage_axis=z
 camera 1 1 18 12
-surroundings north west
+surroundings north town west town

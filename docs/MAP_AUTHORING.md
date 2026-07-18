@@ -1,6 +1,6 @@
 # Compact map authoring
 
-This document defines the target authoring contract for programmatic maps. It is normative for new map work and should be read with [ADR 0009](adr/0009-map-blueprint-authoring-architecture.md). The architecture is accepted before implementation: existing maps still construct `MapDefinition` directly until the blueprint model, compiler, and migration checks described below land.
+This document defines the production authoring contract for programmatic maps. It is normative for new map work and should be read with [ADR 0009](adr/0009-map-blueprint-authoring-architecture.md) and [ADR 0010](adr/0010-large-map-runtime-chunking.md). The parser, typed blueprint model, compiler, registry audit, representative parity migration, editor preview, and chunk-safe persistence boundary are implemented. Unmigrated maps may continue to construct `MapDefinition` directly until they are migrated one at a time under the gates below.
 
 ## Goals
 
@@ -89,7 +89,7 @@ The initial vocabulary must cover the existing runtime contract without exposing
 | `fade_rect` | Cell rectangle for roof or foreground fade | `fade_volumes` |
 | `direction_sign` | Stable association, text, placement, outgoing direction | `direction_signs` |
 | `view_landmark` | Stable ID, supported view-only kind, placement and dimensions | `view_landmarks` |
-| `surroundings` | Explicit town-continuation sides | `surroundings_town_sides` |
+| `surroundings` | Explicit per-side view continuation (`town`, `water`, `woodland`) | `surroundings_sides` |
 | `camera_bounds` | Optional cell rectangle, otherwise full map bounds | `camera_bounds` |
 | `prefab_instance` | Stable instance ID, prefab ID/version, origin, supported transform, overrides | Expanded primitives in the fields above |
 
@@ -360,16 +360,20 @@ godot --headless --path . \
 
 After regeneration, review the full fixture diff before accepting it. Confirm every metadata or stable-ID change is intended, inspect changed building footprints/properties and gameplay collections, and treat either terrain or walkability hash changes as a map-layout/navigation change requiring dedicated map review. Then run the Godot suite and verify the existing endpoint, gate-passage, water exclusion, and navigation-polygon tests still pass. Do not regenerate merely to make a failing migration test green.
 
-The compiler implementation is not complete until it adds documented commands or focused test targets that prove all of the following:
+The production gates are executable and may be run independently:
 
-1. blueprint schema and negative-case validation;
-2. deterministic compile output in repeated and fresh runs;
-3. prefab transform, namespace, cycle, and override behavior;
-4. canonical semantic snapshot comparison between legacy and compiled definitions;
-5. collision/navigation/transition/anchor parity for each migration;
-6. stale generated-artifact detection if generated artifacts are checked in.
+```bash
+tools/run_map_pipeline_ci.sh parser            # strict .rrmap parser and loader
+tools/run_map_pipeline_ci.sh compiler          # compiler, prefabs, negative cases, semantics
+tools/run_map_pipeline_ci.sh audit             # registry completeness and every-source compile
+tools/run_map_pipeline_ci.sh persistence       # stable-ID save/load and repartition compatibility
+tools/run_map_pipeline_ci.sh parity            # canonical snapshot, routes, preview/runtime/chunk/nav/3D
+tools/run_map_pipeline_ci.sh benchmark-smoke   # quick large-map structural/performance report
+# Run every gate:
+tools/run_map_pipeline_ci.sh all
+```
 
-Until those checks exist, agents may design or test the compiler but must not declare a production map migrated. Once implementation lands, replace this paragraph with the exact commands and keep `AGENTS.md` synchronized.
+CI runs the same commands. Any `SCRIPT ERROR`, parse error, missing resource, non-zero test result, registry omission, or parity difference fails the wrapper even where Godot itself would return zero.
 
 For visual changes, also run the relevant map scene or capture tool and inspect the deterministic capture. Generated nodes in the running scene are evidence only; edit the blueprint or compiler to fix them.
 
@@ -505,7 +509,7 @@ map_option    = "scope=", ("prototype" | "production" | "archive")
               | "active=", BOOL | "palette=", ID
               | "seed=", INT | "cell_size=", INT ;
 source        = "source", STRING ;
-surroundings  = "surroundings", SIDE, { SIDE } ;
+surroundings  = "surroundings", SIDE, { (SIDE, ("town" | "water" | "woodland")) } ;
 camera        = "camera", RECT ;
 style         = "style", ID, [ "parent=", ID ], typed_option, { typed_option } ;
 
@@ -558,7 +562,7 @@ BOOL          = "true" | "false" ;
 |---|---|
 | `map` | `MapBlueprint.new(...)` plus typed metadata fields |
 | `source` | `add_source_reference()` |
-| `surroundings` | `surroundings()` |
+| `surroundings` | `surroundings()` or repeated `surroundings_side()` |
 | `camera` | `camera_bounds()` |
 | `style` | `style()` |
 | `terrain` | `terrain_rect()` |
@@ -618,7 +622,51 @@ exclude blocked.storage 15 9 2 2
 fade fade.house 4 3 5 3
 landmark landmark.gate gate_arch 9 2 2 1 wall_color=8c8980ff top_px=128 passage_axis=z
 camera 1 1 18 12
-surroundings north west
+surroundings north town west town
+```
+
+Unlisted sides render no exterior backdrop. Use `woodland` only where a meadow treeline is intended; coastal maps should prefer `water` on sea-facing edges (see `content/maps/reval_harbor_surroundings.rrmap`).
+
+```rrmap
+surroundings north water east water west town south town
 ```
 
 `MapRrmapParser.canonical_print()` emits a deterministic normalized v1 source. Tests require `parse -> canonical print -> parse -> canonical print` stability and an unchanged compiled fingerprint.
+
+## Production hardening contract
+
+### One canonical semantic path
+
+`MapBlueprint` is the sole semantic authoring model for migrated maps. Safe `.rrmap` text parses into that same model. `MapBlueprintCompiler` is the only conversion into canonical `MapDefinition`. The editor preview, runtime bootstrap, fixed-size terrain chunk index/renderer, `MapNavBuilder`, parity/routes tooling, and `MapView3D` all consume that compiled definition or its `MapBuilder` grid. They must not reinterpret blueprint primitives. `test_map_pipeline_hardening.gd` compares fingerprints and canonical snapshots before and after these consumers and verifies their semantic counts.
+
+Chunk ownership is derived runtime metadata. `MapChunkRuntimeIndex` indexes stable objects from canonical world-space records and keeps handles as `{location_id, object_id}`. `MapStableStateStore` is the version-2 persistence boundary: entities use stable IDs plus signed `global_cell` and `sub_cell`; static objects store deltas. Chunk coordinates, node paths, instance IDs, local cells, and owner chunks are never save authority. Version 1 loads by preserving existing fields and adding empty `world_state`; unknown record fields survive round trips; unknown archetypes and fingerprint mismatches produce errors rather than data loss.
+
+### Supported scale and budgets
+
+The supported production partition is 32x32 cells per logical chunk, a 2-cell navigation overlap, simulation radius 1, and resident/load radius 2 (at most 25 resident chunks around focus). The checked smoke profiles are 32, 64, 128, and 256 cells square. These are coverage profiles, not a promise that a monolithic 256x256 scene is shippable.
+
+Budgets from `tools/benchmarks/large_map_benchmark_config.json` are: chunk activation p95 <= 50 ms, chunk navigation bake p95 <= 25 ms, main-thread streaming <= 4 ms/frame, <= 5,000 resident nodes, <= 900 resident collision shapes, <= 256 MiB resident delta, and steady frame p95/p99 <= 16.67/25 ms. CI treats timings as reported evidence because shared runners are noisy; structural contracts and counts are hard gates. Preserve `build/benchmarks/large-map-ci-smoke.json` when investigating regressions and run the full benchmark on target hardware before raising scale or budgets.
+
+### Known limitations
+
+- Streaming is fixed-size and definition-derived; it is not a seamless-world authoring system or a network replication format.
+- Coarse prototype routing is not a production world A* graph. Loaded navigation remains authoritative, and cross-chunk portal refinement still needs map-specific evidence.
+- Headless benchmarks do not measure target-GPU cost. Visual LOD and camera-visible performance require a non-headless target-hardware capture.
+- The renderer can amplify static nodes, and water collision remains expensive. Chunk residency bounds these costs but does not replace batching or collision merging.
+- Fingerprint mismatch requires an explicit content migration. The store does not guess renamed IDs, deleted archetypes, or scene-node state.
+- Editor chunk overlays are diagnostics, never authored ownership. Generated preview nodes remain disposable.
+
+## Migration guidance for remaining maps
+
+Do not bulk-migrate maps. For one explicitly scoped map at a time:
+
+1. Freeze its current `MapDefinition`, stable IDs, transitions, required route endpoints, and a canonical parity fixture.
+2. Inspect nearby styles, prefab packages, runtime assets, and source references before authoring.
+3. Author a typed blueprint or safe `.rrmap` source that produces the same semantic IDs. Add the source and factory to `MapBlueprintRegistry` in the same change.
+4. Run parser/compiler/audit headlessly. Resolve errors; review warnings rather than suppressing them generically.
+5. Add map-specific parity and route tests before switching the runtime factory. Include collision, navigation, transitions, anchors, 2D preview, and 3D semantic counts.
+6. Preview in Godot and review diagnostics and captures. Generated nodes are evidence, not content.
+7. Switch only that map's thin runtime adapter after parity is protected. Keep the old fixture until the migration diff is reviewed.
+8. If an intentional semantic change is included, isolate and explain it, update external stable-ID references atomically, and regenerate parity only with the explicit guarded command.
+
+A map is not migrated merely because it compiles. Unregistered sources, unprotected parity, renamed IDs, or batch conversion are release blockers.

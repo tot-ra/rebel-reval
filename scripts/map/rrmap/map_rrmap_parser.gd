@@ -51,11 +51,14 @@ static func canonical_print(blueprint: MapBlueprint) -> String:
 		lines.append("style %s%s" % [style["id"], _option_suffix(options)])
 	for path in blueprint.source_references:
 		lines.append("source %s" % _quote(path))
-	if not blueprint.surroundings_town_sides.is_empty():
-		var sides: Array[String] = []
-		for side in blueprint.surroundings_town_sides:
-			sides.append(String(side))
-		lines.append("surroundings %s" % " ".join(sides))
+	if not blueprint.surroundings_sides.is_empty():
+		var tokens: Array[String] = []
+		var sides := blueprint.surroundings_sides.keys()
+		sides.sort_custom(func(a, b): return String(a) < String(b))
+		for side in sides:
+			tokens.append(String(side))
+			tokens.append(String(blueprint.surroundings_sides[side]))
+		lines.append("surroundings %s" % " ".join(tokens))
 	if blueprint.has_authored_camera_bounds:
 		lines.append("camera %s" % _rect_text(blueprint.authored_camera_bounds))
 	for package in blueprint.prefab_packages:
@@ -205,15 +208,32 @@ func _parse_source(tokens: Array[Dictionary], line: int) -> void:
 
 
 func _parse_surroundings(tokens: Array[Dictionary], line: int) -> void:
-	if not _arity(tokens, line, 2, "surroundings <north|east|south|west> ..."):
+	if tokens.size() < 2:
+		_error(line, tokens[0]["column"], &"invalid_surroundings", "expected surroundings <side> [<kind>] ...")
 		return
-	var sides: Array[StringName] = []
-	for token in tokens.slice(1):
-		if token["text"] not in ["north", "east", "south", "west"]:
-			_error(line, token["column"], &"invalid_side", "expected north, east, south, or west")
-		else:
-			sides.append(StringName(token["text"]))
-	_blueprint.surroundings(sides)
+	var sides: Dictionary = {}
+	var index := 1
+	while index < tokens.size():
+		var side_text: String = tokens[index]["text"]
+		if side_text not in ["north", "east", "south", "west"]:
+			_error(line, tokens[index]["column"], &"invalid_side", "expected north, east, south, or west")
+			return
+		var side := StringName(side_text)
+		if sides.has(side):
+			_error(line, tokens[index]["column"], &"duplicate_side", "duplicate surroundings side: %s" % side_text)
+			return
+		index += 1
+		var kind := &"town"
+		if index < tokens.size() and tokens[index]["text"] in ["town", "water", "woodland"]:
+			kind = StringName(tokens[index]["text"])
+			index += 1
+		sides[side] = kind
+	_blueprint.surroundings_sides = sides
+	_blueprint.surroundings_town_sides = []
+	for side in sides.keys():
+		if sides[side] == &"town":
+			_blueprint.surroundings_town_sides.append(side)
+	_blueprint.surroundings_town_sides.sort_custom(func(a: StringName, b: StringName) -> bool: return String(a) < String(b))
 
 
 func _parse_camera(tokens: Array[Dictionary], line: int) -> void:

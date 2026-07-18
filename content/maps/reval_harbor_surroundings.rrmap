@@ -49,4 +49,4 @@ patrol harbor_watch 4,22|24,22|44,22|54,26|54,34|12,26
 exclude blocked.water 0 0 72 12
 fade fade.quay 12 15 48 4
 camera 0 0 72 48
-surroundings west south
+surroundings north water east water west town south town
