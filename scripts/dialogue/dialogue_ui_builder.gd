@@ -11,9 +11,9 @@ const PORTRAIT_SIZE := 96
 static func build(host: CanvasLayer, font: Font, callbacks: Dictionary) -> Dictionary:
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 24)
-	margin.add_theme_constant_override("margin_right", 24)
-	margin.add_theme_constant_override("margin_bottom", 24)
+	margin.add_theme_constant_override("margin_left", 32)
+	margin.add_theme_constant_override("margin_right", 32)
+	margin.add_theme_constant_override("margin_bottom", 32)
 	host.add_child(margin)
 
 	var stack := VBoxContainer.new()
@@ -24,11 +24,17 @@ static func build(host: CanvasLayer, font: Font, callbacks: Dictionary) -> Dicti
 	var backlog_panel := PanelContainer.new()
 	backlog_panel.visible = false
 	backlog_panel.custom_minimum_size = Vector2(0, 220)
+	var backlog_margin := MarginContainer.new()
+	backlog_margin.add_theme_constant_override("margin_left", 16)
+	backlog_margin.add_theme_constant_override("margin_right", 16)
+	backlog_margin.add_theme_constant_override("margin_top", 12)
+	backlog_margin.add_theme_constant_override("margin_bottom", 12)
+	backlog_panel.add_child(backlog_margin)
 	stack.add_child(backlog_panel)
 
 	var backlog_scroll := ScrollContainer.new()
 	backlog_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	backlog_panel.add_child(backlog_scroll)
+	backlog_margin.add_child(backlog_scroll)
 
 	var backlog_list := VBoxContainer.new()
 	backlog_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -43,10 +49,10 @@ static func build(host: CanvasLayer, font: Font, callbacks: Dictionary) -> Dicti
 	root.add_child(panel)
 
 	var content := MarginContainer.new()
-	content.add_theme_constant_override("margin_left", 16)
-	content.add_theme_constant_override("margin_right", 16)
-	content.add_theme_constant_override("margin_top", 12)
-	content.add_theme_constant_override("margin_bottom", 12)
+	content.add_theme_constant_override("margin_left", 24)
+	content.add_theme_constant_override("margin_right", 24)
+	content.add_theme_constant_override("margin_top", 18)
+	content.add_theme_constant_override("margin_bottom", 18)
 	panel.add_child(content)
 
 	var body := HBoxContainer.new()

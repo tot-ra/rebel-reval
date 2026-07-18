@@ -33,6 +33,7 @@ func test_bootstrap_adds_minimap_hud() -> void:
 	assert_true(minimap != null, "playable maps need a minimap HUD")
 	assert_eq(minimap.get_parent(), root, "minimap must be camera-independent")
 	assert_true(minimap.is_enabled(), "minimap should start visible")
+	assert_eq(minimap.get_location_label().text, "Eastern District")
 	root.free()
 
 
@@ -57,6 +58,33 @@ func test_toggle_hides_and_shows_minimap() -> void:
 	assert_false(hud.is_enabled(), "toggle should hide the minimap")
 	hud.toggle()
 	assert_true(hud.is_enabled(), "second toggle should restore the minimap")
+	hud.free()
+
+
+func test_location_label_sits_below_map_block() -> void:
+	var root := _make_root()
+	var hud := MinimapHud.new()
+	root.add_child(hud)
+	var stack := hud.get_node("MinimapRoot/MinimapStack") as VBoxContainer
+	assert_eq(stack.get_child_count(), 2)
+	assert_eq(stack.get_child(0).name, "MinimapPanel")
+	assert_eq(stack.get_child(1).name, "LocationLabel")
+	_cleanup_root(root)
+
+
+func _make_root() -> Node:
+	var root := Node.new()
+	(_tree().root as Node).add_child(root)
+	return root
+
+
+func _cleanup_root(root: Node) -> void:
+	if is_instance_valid(root):
+		root.free()
+
+
+func _tree() -> SceneTree:
+	return Engine.get_main_loop() as SceneTree
 
 
 func test_texture_marks_transition_exits() -> void:

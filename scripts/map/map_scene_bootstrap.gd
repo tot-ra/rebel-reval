@@ -2,8 +2,8 @@ class_name MapSceneBootstrap
 extends RefCounted
 
 const DOOR_SCENE := preload("res://scenes/elements/door.tscn")
-const LOCATION_HUD_SCENE := preload("res://scenes/elements/location_hud.tscn")
 const MINIMAP_HUD_SCENE := preload("res://scenes/elements/minimap_hud.tscn")
+const GAMEPLAY_HELP_HUD_SCENE := preload("res://scenes/elements/gameplay_help_hud.tscn")
 const GridRegionMergerScript := preload("res://scripts/map/grid_region_merger.gd")
 
 ## Wires declarative maps into playable scenes without legacy TileSets.
@@ -40,8 +40,8 @@ static func assemble(
 	var doors := _create_doors(definition, gameplay)
 	var anchors := _create_anchor_markers(definition, gameplay)
 	var fades := _create_fade_areas(definition, gameplay)
-	var location_hud := _create_location_hud(definition, root)
-	var minimap_hud := _create_minimap_hud(definition, grid, actors, root)
+	var location_hud := _create_minimap_hud(definition, grid, actors, root)
+	var gameplay_help_hud := _create_gameplay_help_hud(root)
 
 	return {
 		"grid": grid,
@@ -53,7 +53,8 @@ static func assemble(
 		"anchors": anchors,
 		"fades": fades,
 		"location_hud": location_hud,
-		"minimap_hud": minimap_hud,
+		"minimap_hud": location_hud,
+		"gameplay_help_hud": gameplay_help_hud,
 		"definition": definition,
 	}
 
@@ -133,13 +134,6 @@ static func _create_doors(definition: MapDefinition, parent: Node2D) -> Array[Ar
 	return doors
 
 
-static func _create_location_hud(definition: MapDefinition, root: Node2D) -> LocationHud:
-	var hud := LOCATION_HUD_SCENE.instantiate() as LocationHud
-	root.add_child(hud)
-	hud.configure(definition)
-	return hud
-
-
 static func _create_minimap_hud(
 	definition: MapDefinition,
 	grid: MapTerrainGrid,
@@ -150,6 +144,12 @@ static func _create_minimap_hud(
 	var hud := MINIMAP_HUD_SCENE.instantiate() as MinimapHud
 	root.add_child(hud)
 	hud.configure(definition, grid, player)
+	return hud
+
+
+static func _create_gameplay_help_hud(root: Node2D) -> GameplayHelpHud:
+	var hud := GAMEPLAY_HELP_HUD_SCENE.instantiate() as GameplayHelpHud
+	root.add_child(hud)
 	return hud
 
 

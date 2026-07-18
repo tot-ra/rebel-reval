@@ -12,10 +12,22 @@ func test_bootstrap_adds_current_location_hud() -> void:
 	var actors := Node2D.new()
 	root.add_child(actors)
 	var bootstrap := MapSceneBootstrap.assemble(root, definition, actors)
-	var hud := bootstrap.get("location_hud") as LocationHud
-	assert_true(hud != null, "playable maps need a location HUD")
+	var hud := bootstrap.get("minimap_hud") as MinimapHud
+	assert_true(hud != null, "playable maps need a minimap HUD")
 	assert_eq(hud.get_parent(), root, "HUD must be camera-independent")
-	assert_eq((hud.get_node("LocationLabel") as Label).text, "Eastern District")
+	assert_eq(hud.get_location_label().text, "Eastern District")
+	root.free()
+
+
+func test_bootstrap_adds_gameplay_help_hud() -> void:
+	var definition: MapDefinition = LowerTownSlice.create()
+	var root := Node2D.new()
+	var actors := Node2D.new()
+	root.add_child(actors)
+	var bootstrap := MapSceneBootstrap.assemble(root, definition, actors)
+	var help_hud := bootstrap.get("gameplay_help_hud") as GameplayHelpHud
+	assert_true(help_hud != null, "playable maps need gameplay help text")
+	assert_eq(help_hud.get_parent(), root)
 	root.free()
 
 

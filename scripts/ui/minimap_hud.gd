@@ -5,6 +5,8 @@ const TOGGLE_ACTION := &"toggle_minimap"
 const MAX_DISPLAY_SIZE := 280.0
 const PANEL_MARGIN := 24.0
 const INNER_PADDING := 8.0
+const LOCATION_GAP := 8.0
+const LOCATION_LABEL_HEIGHT := 32.0
 const ORNAMENT_INSET := 5.0
 const MARKER_SIZE := Vector2(10.0, 10.0)
 const CIRCULAR_CLIP_SHADER := preload("res://scripts/ui/circular_clip.gdshader")
@@ -51,7 +53,9 @@ class MinimapOrnament:
 var _definition: MapDefinition
 var _grid: MapTerrainGrid
 var _player: Node2D
+var _root: Control
 var _panel: PanelContainer
+var _location_label: Label
 var _map_host: Control
 var _texture_rect: TextureRect
 var _marker: ColorRect
@@ -63,7 +67,16 @@ func configure(definition: MapDefinition, grid: MapTerrainGrid, player: Node2D) 
 	_grid = grid
 	_player = player
 	if is_node_ready():
+		_apply_location_label(definition)
 		_rebuild_map_texture()
+
+
+func get_location_label() -> Label:
+	return _location_label
+
+
+static func map_block_height() -> float:
+	return MAX_DISPLAY_SIZE + (INNER_PADDING * 2.0) + PANEL_MARGIN
 
 
 func is_enabled() -> bool:
@@ -94,16 +107,30 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _build_ui() -> void:
+	_root = Control.new()
+	_root.name = "MinimapRoot"
+	_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_root.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	_root.offset_left = -MAX_DISPLAY_SIZE - (INNER_PADDING * 2.0) - PANEL_MARGIN
+	_root.offset_top = PANEL_MARGIN
+	_root.offset_right = -PANEL_MARGIN
+	_root.offset_bottom = (
+		map_block_height() + LOCATION_GAP + LOCATION_LABEL_HEIGHT
+	)
+	add_child(_root)
+
+	var stack := VBoxContainer.new()
+	stack.name = "MinimapStack"
+	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.add_theme_constant_override("separation", LOCATION_GAP)
+	stack.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_root.add_child(stack)
+
 	_panel = PanelContainer.new()
 	_panel.name = "MinimapPanel"
 	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	_apply_panel_style()
-	_panel.offset_left = -MAX_DISPLAY_SIZE - (INNER_PADDING * 2.0) - PANEL_MARGIN
-	_panel.offset_top = PANEL_MARGIN
-	_panel.offset_right = -PANEL_MARGIN
-	_panel.offset_bottom = MAX_DISPLAY_SIZE + (INNER_PADDING * 2.0) + PANEL_MARGIN
-	add_child(_panel)
+	stack.add_child(_panel)
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", INNER_PADDING)
@@ -111,6 +138,17 @@ func _build_ui() -> void:
 	margin.add_theme_constant_override("margin_top", INNER_PADDING)
 	margin.add_theme_constant_override("margin_bottom", INNER_PADDING)
 	_panel.add_child(margin)
+
+	_location_label = Label.new()
+	_location_label.name = "LocationLabel"
+	_location_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_location_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_location_label.add_theme_color_override("font_color", Color(0.96, 0.91, 0.81, 1.0))
+	_location_label.add_theme_color_override("font_shadow_color", Color(0.08, 0.06, 0.05, 0.9))
+	_location_label.add_theme_constant_override("shadow_offset_x", 2)
+	_location_label.add_theme_constant_override("shadow_offset_y", 2)
+	_location_label.add_theme_font_size_override("font_size", 24)
+	stack.add_child(_location_label)
 
 	_map_host = Control.new()
 	_map_host.name = "MapHost"
@@ -155,7 +193,16 @@ func _rebuild_map_texture() -> void:
 	)
 
 	_apply_map_layout()
+	_apply_location_label(_definition)
 	_update_marker()
+
+
+func _apply_location_label(definition: MapDefinition) -> void:
+	if _location_label == null:
+		return
+	var location_name := LocationHud.display_name_for(definition)
+	_location_label.text = location_name
+	_location_label.visible = not location_name.is_empty()
 
 
 func _display_size_for_map() -> Vector2:

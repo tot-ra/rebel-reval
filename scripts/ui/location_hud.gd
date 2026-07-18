@@ -1,8 +1,8 @@
 class_name LocationHud
 extends CanvasLayer
 
-## Player-facing names stay separate from stable map/content IDs so the HUD can
-## use natural district names without leaking implementation identifiers.
+## Location display names for map HUD. The visible label now lives under MinimapHud;
+## this class keeps the curated naming table and humanized fallbacks.
 const DISPLAY_NAMES_BY_MAP: Dictionary = {
 	&"lower_town_slice": "Eastern District",
 	&"kalev_smithy": "Kalev's Smithy",
