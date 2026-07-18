@@ -11,16 +11,16 @@ Reconciled: 2026-07-18 (character rigs, interaction, inventory, world-item, smit
 | `partial` | 17 | Substantial content but incomplete integration or dev-only use |
 | `placeholder` | 3 | Reserved stubs or reference-only visuals, not playable |
 | `archive` | 20 | Out of vertical-slice scope; legacy open-world or event shells |
-| **Total** | **61** | Matches repository `.tscn` count |
+| **Total** | **63** | Matches repository `.tscn` count |
 
 Repository count command:
 
 ```bash
 find . -name '*.tscn' -not -path './.git/*' | wc -l
-# Expected: 61
+# Expected: 63
 ```
 
-Inventory row count (data rows in the table below): **61**.
+Inventory row count (data rows in the table below): **63**.
 
 ## Classification criteria
 
@@ -86,23 +86,25 @@ Inventory row count (data rows in the table below): **61**.
 | 42 | `scenes/reval_toompea/domberg.tscn` | archive | Empty `Node2D`; Toompea district outside slice. |
 | 43 | `scenes/reval_toompea/maria_toomkirik.tscn` | archive | Empty `Node2D`; cathedral shell outside slice. |
 | 44 | `scenes/tests/font_glyph_render_test.tscn` | partial | Dev-only font glyph verification; not player-facing. |
-| 45 | `scenes/ui/inventory_overlay.tscn` | working | Session bag overlay; D-003 pickup and inventory UI. |
-| 46 | `scenes/world/haapsalu_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 47 | `scenes/world/harju_village.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 48 | `scenes/world/karja_fortress.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 49 | `scenes/world/maasilinna_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 50 | `scenes/world/padise/padise_monastery1.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 51 | `scenes/world/padise/padise_monastery2.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 52 | `scenes/world/paide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 53 | `scenes/world/poide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 54 | `scenes/world/sacred_grove.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 55 | `scenes/world/viljandi_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 56 | `scenes/world/world_item.tscn` | working | Pickup world-item component; D-003 anvil spearhead via `WorldItemController`. |
-| 57 | `scenes/comparison_room/comparison_room.tscn` | partial | P0-033 greybox baseline with procedural collisions, HUD, and slice mechanics verification. |
-| 58 | `scenes/comparison_room/orthogonal_4_direction.tscn` | partial | P0-035 proposed orthogonal/four-direction variant; dev verification only. |
-| 59 | `scenes/comparison_room/diamond_isometric_8_direction.tscn` | partial | P0-035 legacy diamond-isometric/eight-direction variant; dev verification only. |
-| 60 | `tools/benchmarks/large_map_benchmark.tscn` | partial | CI large-map pipeline benchmark host; not player-facing. |
-| 61 | `tools/benchmarks/lower_town_scene_benchmark.tscn` | partial | CI Lower Town scene-load benchmark host; not player-facing. |
+| 45 | `scenes/tests/dialogue_ui_test.tscn` | partial | Dev-only dialogue UI and settings review scene (P1-012/P1-013). |
+| 46 | `scenes/tests/dialogue_overflow_test.tscn` | partial | Dev-only pseudo-localization overflow review scene (P1-014). |
+| 47 | `scenes/ui/inventory_overlay.tscn` | working | Session bag overlay; D-003 pickup and inventory UI. |
+| 48 | `scenes/world/haapsalu_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 49 | `scenes/world/harju_village.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 50 | `scenes/world/karja_fortress.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 51 | `scenes/world/maasilinna_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 52 | `scenes/world/padise/padise_monastery1.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 53 | `scenes/world/padise/padise_monastery2.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 54 | `scenes/world/paide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 55 | `scenes/world/poide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 56 | `scenes/world/sacred_grove.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 57 | `scenes/world/viljandi_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 58 | `scenes/world/world_item.tscn` | working | Pickup world-item component; D-003 anvil spearhead via `WorldItemController`. |
+| 59 | `scenes/comparison_room/comparison_room.tscn` | partial | P0-033 greybox baseline with procedural collisions, HUD, and slice mechanics verification. |
+| 60 | `scenes/comparison_room/orthogonal_4_direction.tscn` | partial | P0-035 proposed orthogonal/four-direction variant; dev verification only. |
+| 61 | `scenes/comparison_room/diamond_isometric_8_direction.tscn` | partial | P0-035 legacy diamond-isometric/eight-direction variant; dev verification only. |
+| 62 | `tools/benchmarks/large_map_benchmark.tscn` | partial | CI large-map pipeline benchmark host; not player-facing. |
+| 63 | `tools/benchmarks/lower_town_scene_benchmark.tscn` | partial | CI Lower Town scene-load benchmark host; not player-facing. |
 
 ## Totals by folder
 
@@ -123,11 +125,11 @@ Inventory row count (data rows in the table below): **61**.
 | `scenes/reval_east/` | 4 | 0 | 0 | 0 | 4 |
 | `scenes/reval_north/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/reval_toompea/` | 0 | 0 | 0 | 2 | 2 |
-| `scenes/tests/` | 0 | 1 | 0 | 0 | 1 |
+| `scenes/tests/` | 0 | 3 | 0 | 0 | 3 |
 | `scenes/ui/` | 1 | 0 | 0 | 0 | 1 |
 | `scenes/world/` | 1 | 0 | 0 | 10 | 11 |
 | `tools/benchmarks/` | 0 | 2 | 0 | 0 | 2 |
-| **All** | **21** | **17** | **3** | **20** | **61** |
+| **All** | **21** | **19** | **3** | **20** | **63** |
 
 ## Verification
 
@@ -139,7 +141,7 @@ find . -name '*.tscn' -not -path './.git/*' | wc -l
 grep -E '^\| [0-9]+ \|' docs/reports/scene_inventory.md | wc -l
 ```
 
-Both commands should print `61` on a clean checkout at this revision.
+Both commands should print `63` on a clean checkout at this revision.
 
 ## Related tasks
 

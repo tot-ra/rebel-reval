@@ -80,6 +80,8 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `scenes/reval_toompea/domberg.tscn` | level | `archive` | `loc.toompea.castle` legacy concept | Toompea is outside the approved district; never activate | none - archive |
 | `scenes/reval_toompea/maria_toomkirik.tscn` | level | `archive` | `loc.toompea.cathedral` legacy concept | Toompea is outside the approved district; never activate | none - archive |
 | `scenes/tests/font_glyph_render_test.tscn` | test | `retain` | Font and diacritic verification | Developer-only test | not a map definition |
+| `scenes/tests/dialogue_ui_test.tscn` | test | `retain` | Dialogue UI and settings review | Developer-only P1-012/P1-013 test | not a map definition |
+| `scenes/tests/dialogue_overflow_test.tscn` | test | `retain` | Pseudo-localization overflow review | Developer-only P1-014 layout stress test | not a map definition |
 | `scenes/world/haapsalu_castle.tscn` | level | `archive` | `loc.haapsalu_castle` legacy concept | Outside Reval and slice; never activate | none - archive |
 | `scenes/world/world_item.tscn` | support | `retain` | Pickup world-item component | Demo D-003 forge pickup via `WorldItemController` | not a map definition |
 | `scenes/world/harju_village.tscn` | level | `archive` | `loc.harju_village` legacy concept | Open-world countryside is excluded; never activate | none - archive |

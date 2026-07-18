@@ -4,6 +4,8 @@ extends CanvasLayer
 const TextScaleScript := preload("res://scripts/dialogue/dialogue_text_scale.gd")
 const PortraitResolverScript := preload("res://scripts/dialogue/dialogue_portrait_resolver.gd")
 const DialogueSettingsScript := preload("res://scripts/settings/dialogue_settings.gd")
+const PseudoLocalizationScript := preload("res://scripts/dialogue/dialogue_pseudo_localization.gd")
+const TextLayoutScript := preload("res://scripts/dialogue/dialogue_text_layout.gd")
 
 signal choice_selected(choice_id: String)
 signal skip_requested()
@@ -46,6 +48,7 @@ var _text_background: ColorRect
 var _portrait_rect: TextureRect
 var _portrait_fallback: Label
 var _speaker_label: Label
+var _text_scroll: ScrollContainer
 var _text_label: Label
 var _choices_box: VBoxContainer
 var _continue_hint: Label
@@ -116,6 +119,23 @@ func get_visible_line_text() -> String:
 	return _text_label.text
 
 
+func body_text_fits_or_scrolls(viewport_size: Vector2i) -> bool:
+	return TextLayoutScript.text_fits_or_needs_scroll(
+		_font,
+		_full_line_text,
+		viewport_size,
+		_text_scale,
+		_choice_buttons.size(),
+		not _disabled_reason_label.text.is_empty()
+	)
+
+
+func localize_text_for_display(text: String) -> String:
+	if not _settings.pseudo_localization or text.is_empty():
+		return text
+	return PseudoLocalizationScript.expand(text)
+
+
 func consume_line_advance() -> bool:
 	if _choice_mode or _full_line_text.is_empty():
 		return true
@@ -130,26 +150,30 @@ func get_speaker_label_text() -> String:
 
 
 func present_line(speaker_id: StringName, speaker_name: String, text: String, _node_id: String) -> void:
-	_append_backlog_entry(speaker_name, text)
-	_set_portrait(speaker_id, speaker_name)
-	_speaker_label.text = speaker_name
-	_full_line_text = text
+	var display_speaker := localize_text_for_display(speaker_name)
+	var display_text := localize_text_for_display(text)
+	_append_backlog_entry(display_speaker, display_text)
+	_set_portrait(speaker_id, display_speaker)
+	_speaker_label.text = display_speaker
+	_full_line_text = display_text
 	_clear_choices()
 	_choice_mode = false
 	_show_overlay()
 	_start_line_reveal()
 	_update_continue_hint()
 	_update_disabled_reason()
+	_reset_text_scroll()
 
 
 func present_choices(choices: Array) -> void:
-	_choices = choices.duplicate(true)
+	_choices = _localize_choices(choices)
 	_choice_mode = true
 	_focused_choice_index = _first_enabled_choice_index()
 	_rebuild_choice_buttons()
 	_update_continue_hint()
 	_update_disabled_reason()
 	_focus_current_choice()
+	_reset_text_scroll()
 
 
 func close() -> void:
@@ -242,7 +266,9 @@ func _rebuild_choice_buttons() -> void:
 			continue
 		var choice: Dictionary = choice_value
 		var button := Button.new()
-		button.text = String(choice.get("text", ""))
+		var choice_text := String(choice.get("text", ""))
+		button.text = choice_text
+		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		button.focus_mode = Control.FOCUS_ALL
 		button.disabled = not bool(choice.get("enabled", true))
 		button.add_theme_font_override("font", _font)
@@ -266,6 +292,26 @@ func _rebuild_backlog() -> void:
 		line.add_theme_font_override("font", _font)
 		line.add_theme_font_size_override("font_size", TextScaleScript.backlog_size(_text_scale))
 		_backlog_list.add_child(line)
+
+
+func _localize_choices(choices: Array) -> Array:
+	var localized: Array = []
+	for choice_value in choices:
+		if typeof(choice_value) != TYPE_DICTIONARY:
+			continue
+		var choice: Dictionary = (choice_value as Dictionary).duplicate(true)
+		choice["text"] = localize_text_for_display(String(choice.get("text", "")))
+		var disabled_reason := String(choice.get("disabled_reason", ""))
+		if not disabled_reason.is_empty():
+			choice["disabled_reason"] = localize_text_for_display(disabled_reason)
+		localized.append(choice)
+	return localized
+
+
+func _reset_text_scroll() -> void:
+	if _text_scroll == null:
+		return
+	_text_scroll.scroll_vertical = 0
 
 
 func _first_enabled_choice_index() -> int:
@@ -301,7 +347,9 @@ func _update_disabled_reason() -> void:
 	var choice: Dictionary = _choices[_focused_choice_index]
 	if bool(choice.get("enabled", true)):
 		return
-	_disabled_reason_label.text = String(choice.get("disabled_reason", ""))
+	_disabled_reason_label.text = localize_text_for_display(
+		String(choice.get("disabled_reason", ""))
+	)
 
 
 func _toggle_backlog() -> void:
@@ -320,7 +368,9 @@ func _on_choice_pressed(choice_id: String) -> void:
 		if String(choice.get("id", "")) != choice_id:
 			continue
 		if not bool(choice.get("enabled", true)):
-			_disabled_reason_label.text = String(choice.get("disabled_reason", ""))
+			_disabled_reason_label.text = localize_text_for_display(
+				String(choice.get("disabled_reason", ""))
+			)
 			return
 		choice_selected.emit(choice_id)
 		return
@@ -586,13 +636,19 @@ func _build_ui() -> void:
 	_speaker_label.add_theme_font_override("font", _font)
 	text_column.add_child(_speaker_label)
 
+	_text_scroll = ScrollContainer.new()
+	_text_scroll.custom_minimum_size = Vector2(0, TextLayoutScript.BODY_SCROLL_MIN_HEIGHT)
+	_text_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_text_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_text_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	text_column.add_child(_text_scroll)
+
 	_text_label = Label.new()
 	_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_text_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_text_label.custom_minimum_size = Vector2(640, 72)
+	_text_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_text_label.add_theme_color_override("font_color", Color(0.95, 0.95, 0.9, 1.0))
 	_text_label.add_theme_font_override("font", _font)
-	text_column.add_child(_text_label)
+	_text_scroll.add_child(_text_label)
 
 	_choices_box = VBoxContainer.new()
 	_choices_box.add_theme_constant_override("separation", 4)
@@ -628,3 +684,10 @@ func _build_ui() -> void:
 
 	_apply_text_scale()
 	_apply_visual_theme()
+	_text_scroll.resized.connect(_sync_text_label_width)
+
+
+func _sync_text_label_width() -> void:
+	if _text_scroll == null or _text_label == null:
+		return
+	_text_label.custom_minimum_size.x = maxf(_text_scroll.size.x, 1.0)

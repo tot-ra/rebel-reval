@@ -20,6 +20,7 @@ var text_speed: String = "normal"
 var high_contrast: bool = false
 var subtitle_background: bool = true
 var reduced_motion: bool = false
+var pseudo_localization: bool = false
 
 
 static func default_settings():
@@ -33,6 +34,7 @@ func duplicate_settings():
 	copy.high_contrast = high_contrast
 	copy.subtitle_background = subtitle_background
 	copy.reduced_motion = reduced_motion
+	copy.pseudo_localization = pseudo_localization
 	return copy
 
 
@@ -63,6 +65,7 @@ func to_dict() -> Dictionary:
 		"high_contrast": high_contrast,
 		"subtitle_background": subtitle_background,
 		"reduced_motion": reduced_motion,
+		"pseudo_localization": pseudo_localization,
 	}
 
 
@@ -73,5 +76,6 @@ static func from_dict(data: Dictionary):
 	settings.high_contrast = bool(data.get("high_contrast", false))
 	settings.subtitle_background = bool(data.get("subtitle_background", true))
 	settings.reduced_motion = bool(data.get("reduced_motion", false))
+	settings.pseudo_localization = bool(data.get("pseudo_localization", false))
 	settings.normalize()
 	return settings

@@ -30,6 +30,7 @@ func test_dialogue_settings_round_trip_persists_all_fields() -> void:
 	assert_true(loaded.high_contrast)
 	assert_false(loaded.subtitle_background)
 	assert_true(loaded.reduced_motion)
+	assert_false(loaded.pseudo_localization)
 
 
 func test_invalid_settings_normalize_to_defaults() -> void:

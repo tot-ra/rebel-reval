@@ -20,6 +20,7 @@ var _speed_option: OptionButton
 var _contrast_check: CheckButton
 var _subtitle_check: CheckButton
 var _motion_check: CheckButton
+var _pseudo_check: CheckButton
 
 
 func _ready() -> void:
@@ -84,6 +85,11 @@ func _build_settings_panel() -> void:
 	_contrast_check = _add_toggle_setting(column, "High contrast", UserSettings.dialogue.high_contrast)
 	_subtitle_check = _add_toggle_setting(column, "Subtitle background", UserSettings.dialogue.subtitle_background)
 	_motion_check = _add_toggle_setting(column, "Reduced motion", UserSettings.dialogue.reduced_motion)
+	_pseudo_check = _add_toggle_setting(
+		column,
+		"Pseudo-localization",
+		UserSettings.dialogue.pseudo_localization
+	)
 
 	var apply_button := Button.new()
 	apply_button.text = "Apply and persist"
@@ -131,6 +137,7 @@ func _apply_panel_settings() -> void:
 	settings.high_contrast = _contrast_check.button_pressed
 	settings.subtitle_background = _subtitle_check.button_pressed
 	settings.reduced_motion = _motion_check.button_pressed
+	settings.pseudo_localization = _pseudo_check.button_pressed
 	UserSettings.apply_dialogue_settings(settings)
 
 
