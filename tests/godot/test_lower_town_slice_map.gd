@@ -11,7 +11,7 @@ const PARITY_FIXTURE_PATH := "res://tests/fixtures/maps/lower_town_slice.parity.
 
 func test_lower_town_slice_validates() -> void:
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
-	assert_eq(definition.size_cells, Vector2i(88, 56))
+	assert_eq(definition.size_cells, Vector2i(176, 112))
 	var errors: Array[String] = MapBuilder.validate(definition)
 	assert_true(errors.is_empty(), str(errors))
 
@@ -79,16 +79,16 @@ func test_city_wall_blocks_except_viru_gate() -> void:
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
 	# Wall cells north of the gate and along the south-west bend must block.
-	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(64, 8)), "north wall must block")
-	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(52, 35)), "south-east bend must block")
-	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(42, 45)), "south-west bend must block")
-	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(20, 48)), "south wall must block")
+	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(128, 16)), "north wall must block")
+	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(104, 70)), "south-east bend must block")
+	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(84, 90)), "south-west bend must block")
+	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(40, 96)), "south wall must block")
 	# The moat outside the wall blocks except at the gate causeway.
-	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(71, 8)), "moat must block")
-	assert_true(MapVerification.is_walkable_cell(definition, grid, Vector2i(71, 20)), "causeway must stay open")
+	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(142, 16)), "moat must block")
+	assert_true(MapVerification.is_walkable_cell(definition, grid, Vector2i(142, 40)), "causeway must stay open")
 	# The gate passage itself stays open from Viru street to the east road.
-	var inside := definition.cell_rect_center(Rect2i(60, 20, 1, 1))
-	var outside := definition.cell_rect_center(Rect2i(80, 20, 1, 1))
+	var inside := definition.cell_rect_center(Rect2i(120, 40, 1, 1))
+	var outside := definition.cell_rect_center(Rect2i(160, 40, 1, 1))
 	var region := MapNavBuilder.create_navigation_region(definition, grid)
 	assert_true(
 		MapVerification.route_exists_exact(definition, grid, inside, outside),
@@ -105,11 +105,11 @@ func test_karja_gate_passage_stays_open() -> void:
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
 	# Gate towers flanking the passage must block movement.
-	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(34, 48)), "west gate tower must block")
-	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(40, 48)), "east gate tower must block")
+	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(68, 96)), "west gate tower must block")
+	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(80, 96)), "east gate tower must block")
 	# The passage and the causeway over the south moat stay open to the edge.
-	var inside := definition.cell_rect_center(Rect2i(37, 45, 1, 1))
-	var outside := definition.cell_rect_center(Rect2i(37, 54, 1, 1))
+	var inside := definition.cell_rect_center(Rect2i(74, 90, 1, 1))
+	var outside := definition.cell_rect_center(Rect2i(74, 108, 1, 1))
 	var region := MapNavBuilder.create_navigation_region(definition, grid)
 	assert_true(
 		MapVerification.route_exists_exact(definition, grid, inside, outside),
@@ -145,7 +145,7 @@ func test_navigation_region_builds_despite_overlapping_wall_footprints() -> void
 func test_water_cells_are_not_navigable() -> void:
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
-	var moat_cell := Vector2i(71, 8)
+	var moat_cell := Vector2i(142, 16)
 	assert_true(MapTypes.WATER_TERRAINS.has(grid.get_terrain(moat_cell)), "test cell must be water")
 	var fingerprint_before := definition.fingerprint
 	var grid_fingerprint_before := grid.fingerprint()
@@ -179,7 +179,10 @@ func test_boundary_exits_connect_to_registered_destinations() -> void:
 	]:
 		assert_true(transition_by_id.has(transition_id), "missing boundary transition %s" % transition_id)
 		var transition: Dictionary = transition_by_id[transition_id]
-		assert_true(bool(transition.get("highlight_area", false)), "%s must be visibly marked" % transition_id)
+		assert_false(
+			String(transition.get("view_landmark_id", "")).is_empty(),
+			"%s must keep a visible boundary landmark" % transition_id
+		)
 		assert_false(
 			String(transition.get("destination_scene_id", "")).is_empty(),
 			"%s must route to a registered destination" % transition_id
@@ -201,6 +204,28 @@ func test_courtyard_anvil_does_not_cover_smithy_door() -> void:
 		anvil_position.distance_to(door_position) > float(definition.cell_size * 2),
 		"courtyard anvil must remain visually separate from the smithy door"
 	)
+
+
+func test_smithy_exit_opens_into_a_readable_courtyard() -> void:
+	var definition: MapDefinition = LowerTownSliceDefinition.create()
+	var grid: MapTerrainGrid = MapBuilder.build(definition)
+	var door := MapVerification.anchor_position(definition, &"smithy_door")
+	var spawn := door + Vector2(0, 48)
+	assert_true(MapVerification.is_walkable_point(definition, grid, spawn), "smithy exit spawn must be walkable")
+	# The old layout put the wall bend within roughly three cells of the player.
+	# Keep a broad walkable apron so the default camera shows courtyard and street context.
+	for cell in [
+		Vector2i(103, 56), Vector2i(105, 56), Vector2i(107, 56), Vector2i(109, 56),
+		Vector2i(103, 58), Vector2i(105, 58), Vector2i(107, 58), Vector2i(109, 58),
+	]:
+		assert_true(MapVerification.is_walkable_cell(definition, grid, cell), "smithy courtyard must stay open at %s" % cell)
+	var nearest_wall_distance_cells := INF
+	for building in definition.buildings:
+		if building.get("kind", &"") != MapTypes.BUILDING_KIND_WALL:
+			continue
+		var distance_px: float = building["footprint"].get_center().distance_to(spawn)
+		nearest_wall_distance_cells = minf(nearest_wall_distance_cells, distance_px / definition.cell_size)
+	assert_true(nearest_wall_distance_cells >= 7.0, "city wall must not dominate the smithy exit view")
 
 
 func _navigation_points_connected(nav_polygon: NavigationPolygon, start: Vector2, target: Vector2) -> bool:

@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scenes/reval_east/reval_east.gd" id="1_east"]
 [ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="2_player"]
 [ext_resource type="Script" path="res://scripts/map/map_blueprint_editor_preview.gd" id="3_preview"]
-[ext_resource type="Script" path="res://scripts/map/definitions/lower_town/lower_town_slice_blueprint.gd" id="4_blueprint"]
+[ext_resource type="Script" path="res://scripts/map/definitions/lower_town/lower_town_slice_rrmap_factory.gd" id="4_blueprint"]
 
 [node name="RevalEast" type="Node2D"]
 script = ExtResource("1_east")

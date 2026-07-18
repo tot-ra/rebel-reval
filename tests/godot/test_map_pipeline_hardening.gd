@@ -1,6 +1,6 @@
 extends "res://tests/godot/test_case.gd"
 
-const BLUEPRINT_SCRIPT := preload("res://scripts/map/definitions/lower_town/lower_town_slice_blueprint.gd")
+const BLUEPRINT_SCRIPT := preload("res://scripts/map/definitions/lower_town/lower_town_slice_rrmap_factory.gd")
 const DEFINITION_SCRIPT := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
 
 
@@ -43,6 +43,14 @@ func test_preview_runtime_chunk_navigation_and_3d_share_canonical_definition() -
 	var navigation := MapNavBuilder.create_navigation_region(canonical, grid)
 	assert_true(navigation.navigation_polygon != null)
 	var view := MapView3D.create(canonical, grid)
+	# Large maps stream only nearby chunks initially. Load every indexed consumer
+	# chunk before asserting that the 3D builder can regenerate every map object.
+	var all_chunks: Array[Vector2i] = []
+	for object_id in chunk_index.object_ids():
+		for chunk: Vector2i in chunk_index.record(object_id).get("consumer_chunks", []):
+			if not all_chunks.has(chunk):
+				all_chunks.append(chunk)
+	view._update_active_chunks(all_chunks)
 	assert_eq(view.get_node("Buildings").get_child_count(), canonical.buildings.size())
 	assert_eq(view.get_node("Props").get_child_count(), canonical.props.size())
 	assert_eq(MapParitySnapshot.serialize(canonical, grid), canonical_snapshot, "navigation and 3D consumers must not mutate canonical semantics")
@@ -57,4 +65,5 @@ func _stable_object_count(definition: MapDefinition) -> int:
 		+ definition.transitions.size()
 		+ definition.interaction_anchors.size()
 		+ definition.view_landmarks.size()
+		+ definition.direction_signs.size()
 	)

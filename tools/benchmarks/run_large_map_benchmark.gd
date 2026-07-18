@@ -100,7 +100,7 @@ func _benchmark_lower_town_pipeline() -> Dictionary:
 	var runs: Array[Dictionary] = []
 	for ignored in _timed_runs:
 		runs.append(await _run_lower_town_pipeline_once(true))
-	return _summarize_runs("lower_town_pipeline", "production_pipeline", Vector2i(88, 56), runs)
+	return _summarize_runs("lower_town_pipeline", "production_pipeline", LowerTownDefinitionFactory.create().size_cells, runs)
 
 
 func _run_lower_town_pipeline_once(sample_frames: bool) -> Dictionary:
@@ -157,7 +157,7 @@ func _load_scene_baseline(path: String) -> Dictionary:
 			"metrics": {},
 		}
 	var runs: Array[Dictionary] = [run]
-	var result := _summarize_runs("lower_town_scene", "production_scene_with_3d_view", Vector2i(88, 56), runs)
+	var result := _summarize_runs("lower_town_scene", "production_scene_with_3d_view", LowerTownDefinitionFactory.create().size_cells, runs)
 	result["available"] = true
 	return result
 

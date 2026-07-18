@@ -5,7 +5,7 @@ extends RefCounted
 ## avoided so validation order and CI coverage cannot depend on import ordering.
 
 const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smithy_rrmap_factory.gd")
-const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_blueprint.gd")
+const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_rrmap_factory.gd")
 const RevalHarbor := preload("res://scripts/map/definitions/outdoor/reval_harbor_rrmap_factory.gd")
 
 
@@ -23,7 +23,7 @@ static func entries() -> Array[Dictionary]:
 		},
 		{
 			"id": &"lower_town_slice",
-			"source": "res://scripts/map/definitions/lower_town/lower_town_slice_blueprint.gd",
+			"source": "res://content/maps/lower_town_slice.rrmap",
 			"factory": LowerTownSlice,
 			"required_anchors": [
 				&"street_start",

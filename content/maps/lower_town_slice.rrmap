@@ -1,0 +1,210 @@
+# Expanded Eastern Quarters around Kalev's smithy. Building footprints and
+# street spacing are doubled while doors, props, and character-scale details stay readable.
+rrmap 1
+map lower_town_slice loc.lower_town_slice 176 112 dirt scope=production active=true palette=clean_painted seed=42042 cell_size=32
+style house.east.h104.40 door_side=east roof_color=383029ff wall_color=63594aff wall_height=104
+style house.east.h104.41 door_side=east roof_color=38332bff wall_color=63594dff wall_height=104
+style house.east.h104.42 door_side=east roof_color=383029ff wall_color=61574aff wall_height=104
+style house.east.h112.11 door_side=east roof_color=38332eff wall_color=665c4dff wall_height=112
+style house.east.h112.12 door_side=east roof_color=3b332bff wall_color=695e4fff wall_height=112
+style house.east.h112.14 door_side=east roof_color=383029ff wall_color=665c4dff wall_height=112
+style house.east.h120.17 door_side=east roof_color=403629ff wall_color=756b5cff wall_height=120
+style house.east.h128.24 door_side=east roof_color=42261fff wall_color=807566ff wall_height=128
+style house.east.h96.43 door_side=east roof_color=363029ff wall_color=5e5447ff wall_height=96
+style house.east.h96.52 door_side=east roof_color=38332bff wall_color=63594dff wall_height=96
+style house.none.h128.46 door_side=none roof_color=38332eff wall_color=574d42ff wall_height=128
+style house.north.h104.32 door_side=north roof_color=383029ff wall_color=63594aff wall_height=104
+style house.north.h104.34 door_side=north roof_color=38332bff wall_color=63594dff wall_height=104
+style house.north.h104.35 door_side=north roof_color=383029ff wall_color=61574aff wall_height=104
+style house.north.h104.36 door_side=north roof_color=38332eff wall_color=665c4dff wall_height=104
+style house.north.h104.39 door_side=north roof_color=3b332bff wall_color=665c4dff wall_height=104
+style house.north.h112.19 door_side=north roof_color=3d3329ff wall_color=6b5e4fff wall_height=112
+style house.north.h112.21 door_side=north roof_color=3b332bff wall_color=695e4fff wall_height=112
+style house.north.h112.23 door_side=north roof_color=38332eff wall_color=665c4dff wall_height=112
+style house.north.h112.31 door_side=north roof_color=3b332bff wall_color=6b614fff wall_height=112
+style house.north.h120.20 door_side=north roof_color=423629ff wall_color=756654ff wall_height=120
+style house.north.h120.33 door_side=north roof_color=403629ff wall_color=756b5cff wall_height=120
+style house.north.h120.45 door_side=north roof_color=3d3329ff wall_color=615242ff wall_height=120
+style house.north.h136.22 door_side=north ridge_axis=z roof_color=42241cff wall_color=857a6bff wall_height=136
+style house.north.h96.44 door_side=north roof_color=363029ff wall_color=5e5447ff wall_height=96
+style house.north.h96.49 door_side=north roof_color=383029ff wall_color=61574aff wall_height=96
+style house.north.h96.51 door_side=north roof_color=38332bff wall_color=63594dff wall_height=96
+style house.south.h104.54 door_side=south roof_color=38332eff wall_color=665c4dff wall_height=104
+style house.south.h112.16 door_side=south roof_color=3d3329ff wall_color=6b5e4fff wall_height=112
+style house.south.h112.29 door_side=south roof_color=3b332bff wall_color=695e4fff wall_height=112
+style house.south.h112.38 door_side=south roof_color=3b332bff wall_color=6b614fff wall_height=112
+style house.south.h120.09 door_side=south roof_color=3d3329ff wall_color=706657ff wall_height=120
+style house.south.h120.10 door_side=south roof_color=3b332bff wall_color=6b614fff wall_height=120
+style house.south.h120.18 door_side=south roof_color=3d3329ff wall_color=706352ff wall_height=120
+style house.south.h120.25 door_side=south ridge_axis=z roof_color=3d3329ff wall_color=706657ff wall_height=120
+style house.south.h120.30 door_side=south roof_color=403629ff wall_color=6e614fff wall_height=120
+style house.south.h128.06 door_side=south roof_color=47291fff wall_color=9e998cff wall_height=128
+style house.south.h128.15 door_side=south roof_color=42261fff wall_color=807361ff wall_height=128
+style house.south.h128.26 door_side=south roof_color=42261fff wall_color=7a6e5cff wall_height=128
+style house.south.h128.27 door_side=south ridge_axis=z roof_color=42241cff wall_color=858075ff wall_height=128
+style house.south.h136.28 door_side=south roof_color=42261fff wall_color=807566ff wall_height=136
+style house.south.h192.05 door_side=south roof_color=4d291fff wall_color=a8a394ff wall_height=192
+style house.south.h96.08 door_side=south roof_color=3d3329ff wall_color=706657ff wall_height=96
+style house.south.h96.48 door_side=south roof_color=38332bff wall_color=63594dff wall_height=96
+style house.south.h96.50 door_side=south roof_color=3b332bff wall_color=665c4dff wall_height=96
+style house.west.h120.13 door_side=west roof_color=423629ff wall_color=756654ff wall_height=120
+style house.west.h120.37 door_side=west roof_color=403629ff wall_color=756b5cff wall_height=120
+style house.west.h96.53 door_side=west roof_color=383029ff wall_color=61574aff wall_height=96
+style wall.plain.h128.03 wall_color=918f82ff wall_height=128
+style wall.plain.h176.04 wall_color=8f8c80ff wall_height=176
+style wall.plain.h192.00 wall_color=949185ff wall_height=192
+style wall.plain.h240.01 wall_color=8c8a80ff wall_height=240
+style wall.plain.h256.02 wall_color=8f8c80ff wall_height=256
+style wall.plain.h56.47 wall_color=7a808aff wall_height=56
+style wall.plain.h96.07 wall_color=999487ff wall_height=96
+source "scenes/reval_east/reval_east.tscn"
+source "scenes/revel-map.jpg"
+source "scenes/reval_walls_towers/wall-map.png"
+source "scenes/reval_walls_towers/viru_gate.md"
+source "docs/SCENES/the-makers-mark.md"
+source "docs/SCENES/a-bitter-brew.md"
+source "content/locations/loc.lower_town_slice.json"
+surroundings north town west town
+terrain_rects terrain.00 grass 132,0,44,100|0,100,176,12|36,0,52,14|88,0,32,16|18,76,52,16|8,72,10,20|88,56,12,20|108,64,24,16|88,80,44,20 layer=0 order=0
+terrain_rects terrain.01 water 140,0,6,32|140,28,10,4|146,32,6,20|140,50,10,4|140,54,6,14|128,64,14,6|116,70,14,6|112,76,10,6|104,82,12,6|96,88,10,6|92,94,8,6|88,100,8,6|0,104,176,4 layer=0 order=9
+terrain_rects terrain.02 dirt 132,38,44,6|72,100,6,12 layer=0 order=22
+terrain_rects terrain.03 cobblestone 0,38,116,8 layer=0 order=24
+terrain_rects terrain.04 stone 116,38,18,6 layer=0 order=25
+terrain_rects terrain.05 cobblestone 0,28,18,26|28,0,6,38 layer=0 order=26
+terrain_rects terrain.06 stone 28,16,92,4 layer=0 order=28
+terrain_rects terrain.07 cobblestone 72,46,6,48|66,88,18,6 layer=0 order=29
+terrain_rects terrain.08 stone 72,94,6,6 layer=0 order=31
+terrain_rects terrain.09 cobblestone 18,54,34,4|16,64,56,4 layer=0 order=32
+terrain_rects terrain.10 hay 100,56,4,4 layer=0 order=34
+terrain_rects terrain.11 mud 36,92,8,4 layer=0 order=35
+building city_wall_north wall 128 0 4 30 style=wall.plain.h192.00
+building wall_tower_northeast wall 126 4 8 6 style=wall.plain.h240.01
+building wall_tower_north wall 126 18 8 6 style=wall.plain.h240.01
+building viru_gate_north_tower wall 124 30 10 8 style=wall.plain.h256.02
+building viru_gate_south_tower wall 124 44 10 8 style=wall.plain.h256.02
+building foregate_wall_north wall 134 36 12 2 style=wall.plain.h128.03
+building foregate_wall_south wall 134 44 12 2 style=wall.plain.h128.03
+building foregate_tower_north wall 144 32 6 6 style=wall.plain.h176.04
+building foregate_tower_south wall 144 44 6 6 style=wall.plain.h176.04
+building city_wall_gate_south wall 126 52 4 8 style=wall.plain.h192.00
+building wall_seal_viru_south_west wall 124 52 2 8 style=wall.plain.h192.00
+building wall_seal_viru_south_east wall 130 52 4 8 style=wall.plain.h192.00
+building wall_seal_hinke_north wall 120 52 6 6 style=wall.plain.h192.00
+building wall_seal_bend_a_east wall 120 60 2 4 style=wall.plain.h192.00
+building wall_seal_bend_b_north wall 104 60 4 8 style=wall.plain.h192.00
+building wall_seal_bend_c_west wall 88 76 4 4 style=wall.plain.h192.00
+building wall_seal_bend_d_north wall 84 76 4 8 style=wall.plain.h192.00
+building hinke_tower wall 120 58 8 8 style=wall.plain.h240.01
+building city_wall_bend_a wall 110 60 10 4 style=wall.plain.h192.00
+building wall_tower_southeast wall 104 60 6 8 style=wall.plain.h240.01
+building city_wall_bend_b wall 104 68 4 10 style=wall.plain.h192.00
+building wall_tower_south wall 100 74 8 8 style=wall.plain.h240.01
+building city_wall_bend_c wall 88 76 12 4 style=wall.plain.h192.00
+building wall_tower_southwest wall 84 76 6 8 style=wall.plain.h240.01
+building city_wall_bend_d wall 84 84 4 12 style=wall.plain.h192.00
+building karja_gate_east_tower wall 78 94 8 8 style=wall.plain.h256.02
+building karja_gate_west_tower wall 64 94 8 8 style=wall.plain.h256.02
+building city_wall_southwest wall 0 96 64 4 style=wall.plain.h192.00
+building st_catherines_church house 40 2 24 10 style=house.south.h192.05
+building monastery_cloister house 66 0 18 12 style=house.south.h128.06
+building monastery_precinct_wall_west wall 36 0 2 14 style=wall.plain.h96.07
+building monastery_precinct_wall_south_a wall 36 14 18 2 style=wall.plain.h96.07
+building monastery_precinct_wall_south_b wall 60 14 28 2 style=wall.plain.h96.07
+building monastery_barn house 92 4 8 6 style=house.south.h96.08
+building pikk_corner_house house 0 0 10 8 style=house.south.h120.09
+building vene_row_house house 12 0 10 8 style=house.south.h120.10
+building vene_corner_house house 22 0 6 8 style=house.east.h112.11
+building market_row_house house 0 10 8 10 style=house.east.h112.12
+building saiakang_house house 10 10 10 10 style=house.west.h120.13
+building vene_gate_house house 22 10 6 10 style=house.east.h112.14
+building apothecary_house house 0 20 8 8 style=house.south.h128.15
+building turg_house_north house 10 20 8 8 style=house.south.h112.16
+building moneychangers_house house 20 20 8 8 style=house.east.h120.17
+building vanaturu_kael_house house 18 30 10 8 style=house.south.h120.18
+building kaik_house_west house 36 20 12 8 style=house.north.h112.19
+building kaik_house_mid house 50 20 12 8 style=house.north.h120.20
+building kaik_house_east house 68 20 12 8 style=house.north.h112.21
+building guild_storehouse house 82 20 12 8 style=house.north.h136.22
+building glovers_house house 96 20 10 8 style=house.north.h112.23
+building corner_house_muurivahe house 108 20 10 8 style=house.east.h128.24
+building viru_house_west house 36 30 12 8 style=house.south.h120.25
+building viru_house_mid house 50 28 14 10 style=house.south.h128.26
+building viru_house_stone house 68 30 12 8 style=house.south.h128.27
+building merchants_house house 82 28 12 10 style=house.south.h136.28
+building viru_house_east house 96 30 10 8 style=house.south.h112.29
+building weary_traveler_inn house 108 30 10 8 style=house.south.h120.30
+building saddlers_house house 18 46 10 8 style=house.north.h112.23
+building coopers_house house 30 46 10 8 style=house.north.h112.31
+building sauna_corner_house house 40 46 8 8 style=house.north.h104.32
+building rope_makers_house house 52 46 10 8 style=house.north.h112.21
+building karja_corner_house house 62 46 10 8 style=house.north.h120.33
+building kuninga_house_west house 18 58 10 6 style=house.north.h104.34
+building kuninga_house_mid house 30 58 10 6 style=house.north.h104.35
+building kuninga_house_east house 40 58 8 6 style=house.north.h104.36
+building public_bathhouse house 52 58 10 6 style=house.west.h120.37
+building vaike_karja_house house 62 58 10 6 style=house.south.h112.38
+building tenement_row house 18 68 10 8 style=house.north.h112.23
+building laundress_house house 30 68 10 8 style=house.north.h104.35
+building widows_house house 42 68 10 8 style=house.north.h104.34
+building dyers_house house 54 68 10 8 style=house.north.h104.39
+building karja_gate_house house 66 68 6 8 style=house.east.h104.40
+building turg_south_house house 0 54 8 8 style=house.east.h112.12
+building west_lane_house house 0 64 8 8 style=house.east.h104.41
+building hedge_house house 0 74 8 8 style=house.east.h104.42
+building wall_side_house house 0 84 8 8 style=house.east.h96.43
+building artisan_shed house 88 58 8 6 style=house.north.h96.44
+building potters_house house 88 66 8 6 style=house.north.h104.32
+building glassblowers_house house 78 46 8 8 style=house.north.h112.23
+building foaming_mug_brewery house 88 46 12 8 style=house.north.h120.45
+building kalev_smithy house 100 46 10 8 style=house.none.h128.46
+building smithy_yard_fence_north wall 110 46 4 2 style=wall.plain.h56.47
+building smithy_yard_fence_east wall 118 46 2 10 style=wall.plain.h56.47
+building suburb_house_north_a house 136 32 8 6 style=house.south.h96.48
+building suburb_house_south_a house 136 46 8 6 style=house.north.h96.49
+building suburb_house_north_b house 152 32 8 6 style=house.south.h96.50
+building suburb_house_south_b house 152 46 8 6 style=house.north.h96.51
+building karja_suburb_house_west house 64 106 6 6 style=house.east.h96.52
+building karja_suburb_house_east house 80 106 6 6 style=house.west.h96.53
+building muurivahe_house_north house 116 0 10 6 style=house.south.h104.54
+landmark viru_gate_arch gate_arch 124 38 10 6 door_material=wood top_px=256 wall_color=8f8c80ff
+landmark viru_foregate_arch gate_arch 144 38 6 6 door_material=wood top_px=176 wall_color=8f8c80ff
+landmark karja_gate_arch gate_arch 72 94 6 8 door_material=metal top_px=256 wall_color=8f8c80ff
+landmark vanaturu_kael_arch gate_arch 0 38 4 8 passage_axis=x top_px=160 wall_color=858075ff
+landmark vene_district_arch gate_arch 28 0 6 4 passage_axis=z top_px=160 wall_color=858075ff
+landmark viru_suburb_arch gate_arch 168 38 8 6 door_material=wood passage_axis=x top_px=140 wall_color=858075ff
+landmark karja_suburb_arch gate_arch 72 106 6 6 door_material=wood passage_axis=z top_px=140 wall_color=858075ff
+prop courtyard_anvil anvil 112 48 rect=2,2
+prop courtyard_furnace furnace 110 54 rect=2,2
+prop courtyard_quench quench_bucket 114 56 rect=1,1
+prop hay_store hay_stack 100 56 rect=2,2
+prop cistern well 120 44 rect=2,2
+prop monastery_well well 84 8 rect=2,2
+prop market_stall_gate stall 118 44 rect=2,1
+prop market_stall_turg_north stall 6 32 rect=2,2
+prop market_stall_turg_south stall 12 46 rect=2,2
+prop street_cart cart 56 42 rect=2,2
+prop gate_cart cart 136 40 rect=2,2
+prop yard_cart cart 92 62 rect=2,2
+prop brewery_barrels barrels 88 54 rect=2,1
+prop evidence_barrels barrels 92 56 rect=2,2
+anchor street_start 96 40 rect=2,2
+anchor smithy_door 102 54 rect=2,1
+anchor brewery_door 90 44 rect=2,1
+anchor checkpoint_west 4 38 rect=2,2
+anchor checkpoint_east 126 38 rect=2,2
+anchor katariina_kaik 68 16 rect=2,2
+anchor monastery_gate 54 12 rect=2,2
+anchor karja_gate_south 72 98 rect=2,2
+anchor vene_street_north 28 2 rect=2,2
+anchor mart_street 88 40 rect=2,2
+spawn spawn.street_start 96 40 rect=2,2
+transition smithy_door_transition 102 54 2 1 destination_spawn=door_courtyard spawn=forge spawn_offset_px=0,48 to=forge
+transition vana_turg_boundary 0 38 2 4 destination_spawn=from_reval_east spawn=vana_turg_boundary spawn_offset_px=48,0 to=reval_center view_landmark_id=vanaturu_kael_arch
+transition vene_district_boundary 28 0 3 2 destination_spawn=from_reval_east spawn=vene_district_boundary spawn_offset_px=0,48 to=reval_north view_landmark_id=vene_district_arch
+transition viru_road_boundary 168 38 4 3 destination_spawn=from_reval_east spawn=viru_road_boundary spawn_offset_px=-48,0 to=reval_harbor view_landmark_id=viru_suburb_arch
+transition karja_road_boundary 72 106 3 3 destination_spawn=from_reval_east_south spawn=karja_road_boundary spawn_offset_px=0,-48 to=reval_center view_landmark_id=karja_suburb_arch
+transition street_start_spawn 96 40 2 2 spawn=street_start
+patrol viru_watch 127,39|59,39|7,39|73,59|73,89
+fade fade.viru_street 20 34 88 16
+sign sign.harbour "to harbour" 156 34 east
+sign sign.town_centre "to town centre" 82 102 south

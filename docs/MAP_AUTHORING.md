@@ -209,7 +209,7 @@ Production Lower Town authoring compiles through `LowerTownSliceBlueprint` and t
 
 ```gdscript
 static func create() -> MapBlueprint:
-    var map := MapBlueprint.new(&"lower_town_slice", &"loc.lower_town_slice", Vector2i(88, 56), MapTypes.TERRAIN_DIRT)
+    var map := MapBlueprint.new(&"lower_town_slice", &"loc.lower_town_slice", Vector2i(176, 112), MapTypes.TERRAIN_DIRT)
     map.scope = &"production"
     map.active = true
     map.palette = &"clean_painted"
@@ -396,7 +396,7 @@ Only `blueprint_factory` is stored in the scene. The controls and status are edi
 
 1. Start Godot 4.7.1, open `scenes/reval_east/reval_east.tscn`, select `MapBlueprintPreview`, and click **Rebuild Preview**. Confirm terrain, buildings, props, magenta landmark rectangles, and cyan anchors appear in the 2D viewport. Capture `lower-town-preview-base.png` with the Scene dock, Inspector success status, and full viewport visible.
 2. Enable **Show Stable IDs**, **Show Anchors**, **Show Navigation**, and **Show Chunk Bounds**. Confirm labels follow compiled objects, cyan anchor crosses match the labels, blue navigation avoids blocked footprints/water, and the orange grid says `CHUNK BOUNDS PLACEHOLDER`. Capture `lower-town-preview-overlays.png`.
-3. Temporarily introduce an invalid blueprint value in `lower_town_slice_blueprint.gd`, for example duplicate a stable primitive ID. Click **Validate** and confirm the Inspector status, yellow node warning, and Output error name the compiler problem and tell the author to fix the blueprint. Undo the edit, click **Validate**, and confirm success.
+3. Temporarily introduce an invalid map value in `content/maps/lower_town_slice.rrmap`, for example duplicate a stable primitive ID. Click **Validate** and confirm the Inspector status, yellow node warning, and Output error name the compiler problem and tell the author to fix the blueprint. Undo the edit, click **Validate**, and confirm success.
 4. Before and after toggling every overlay, save the scene and run `git diff -- scenes/reval_east/reval_east.tscn`. Confirm no generated nodes, overlay state, status text, or compiler output is serialized.
 5. Run the scene. Confirm gameplay transitions are created only by `MapSceneBootstrap`, the preview component contains no generated child, and entering a transition changes scenes once rather than being triggered by preview geometry.
 6. Run `godot --headless --path . --script tools/run_godot_tests.gd`. `test_map_blueprint_editor_preview.gd` verifies production-compiler parity, inert runtime behavior, disabled preview physics, packing separation, and the Lower Town scene binding.

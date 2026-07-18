@@ -1,7 +1,7 @@
 extends "res://tests/godot/test_case.gd"
 
 const PREVIEW_SCRIPT := preload("res://scripts/map/map_blueprint_editor_preview.gd")
-const BLUEPRINT_SCRIPT := preload("res://scripts/map/definitions/lower_town/lower_town_slice_blueprint.gd")
+const BLUEPRINT_SCRIPT := preload("res://scripts/map/definitions/lower_town/lower_town_slice_rrmap_factory.gd")
 const REVAL_EAST_SCENE := preload("res://scenes/reval_east/reval_east.tscn")
 
 
