@@ -1,0 +1,72 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.test_ui.branching",
+  "title": "Dialogue UI Branching Fixture",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "P1-012 automated dialogue UI fixture only."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "Branching fixture with a disabled choice for dialogue UI tests."
+  },
+  "participants": [
+    "char.mart",
+    "char.kalev"
+  ],
+  "start_node_id": "mart_opens",
+  "word_count_estimate": 36,
+  "nodes": [
+    {
+      "id": "mart_opens",
+      "speaker_id": "char.mart",
+      "text": "Kalev, the street is restless tonight.",
+      "choices": [
+        {
+          "id": "trust_mart",
+          "text": "Tell me what you saw.",
+          "target_node_id": "mart_trusted"
+        },
+        {
+          "id": "locked_way",
+          "text": "Demand the ledger.",
+          "target_node_id": "mart_locked",
+          "conditions": [
+            {
+              "op": "flag_is",
+              "key": "flag.test_ui_has_ledger",
+              "value": true
+            }
+          ],
+          "disabled_reason": "You do not have the ledger."
+        }
+      ]
+    },
+    {
+      "id": "mart_trusted",
+      "speaker_id": "char.mart",
+      "text": "Then listen close.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.test_ui_trusted",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P1-012 dialogue UI branching fixture.",
+      "citations": [
+        "docs/adr/0003-authored-offline-dialogue-and-prohibit-runtime-llm.md"
+      ]
+    }
+  ]
+}

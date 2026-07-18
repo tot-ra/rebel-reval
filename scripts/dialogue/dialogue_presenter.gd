@@ -1,10 +1,15 @@
 class_name DialoguePresenter
 extends RefCounted
 
-## Minimal presenter contract for P1-011. P1-012 replaces this with the full UI.
+## Presenter contract for DialogueRunner. P1-012 supplies DialogueUiPresenter.
 
 
-func present_line(speaker_name: String, text: String, node_id: String) -> void:
+func present_line(
+	speaker_id: StringName,
+	speaker_name: String,
+	text: String,
+	node_id: String
+) -> void:
 	pass
 
 

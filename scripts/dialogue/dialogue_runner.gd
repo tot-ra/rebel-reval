@@ -217,9 +217,11 @@ func _enter_node(node_id: String, depth: int = 0) -> bool:
 
 	var text := String(node.get("text", ""))
 	var choices := _resolve_choices(node)
+	var speaker_id := StringName(String(node.get("speaker_id", "")))
 	if not text.is_empty():
 		_presenter.present_line(
-			_speaker_name(StringName(String(node.get("speaker_id", "")))),
+			speaker_id,
+			_speaker_name(speaker_id),
 			text,
 			node_id
 		)

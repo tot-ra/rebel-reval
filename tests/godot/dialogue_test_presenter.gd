@@ -8,7 +8,12 @@ var last_choices: Array = []
 var closed := false
 
 
-func present_line(speaker_name: String, text: String, node_id: String) -> void:
+func present_line(
+	speaker_id: StringName,
+	speaker_name: String,
+	text: String,
+	node_id: String
+) -> void:
 	last_speaker = speaker_name
 	last_text = text
 	last_node_id = node_id
