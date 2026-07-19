@@ -1,0 +1,70 @@
+# Northern merchant quarter north of Vene Street. Pikk Street winds north from the
+# eastern district gate toward St. Olaf's silhouette; Great Guild faces the lane west.
+rrmap 1
+map north_quarter loc.lower_town.north_quarter 64 36 cobblestone scope=prototype active=false palette=clean_painted seed=2718 cell_size=32
+source "scenes/reval_north/reval_north.tscn"
+source "scenes/revel-map.jpg"
+source "scenes/reval_north/pikk_street.md"
+source "scenes/reval_north/st_olafs_church.md"
+source "scenes/reval_north/great_guild_hall.md"
+style house.south.h112.16 door_side=south roof_color=3d3329ff wall_color=6b5e4fff wall_height=112
+style house.south.h120.18 door_side=south roof_color=3d3329ff wall_color=706352ff wall_height=120
+style house.north.h112.19 door_side=north roof_color=3d3329ff wall_color=6b5e4fff wall_height=112
+style house.north.h112.21 door_side=north roof_color=3b332bff wall_color=695e4fff wall_height=112
+style house.north.h120.20 door_side=north roof_color=423629ff wall_color=756654ff wall_height=120
+style house.north.h136.22 door_side=north ridge_axis=z roof_color=42241cff wall_color=857a6bff wall_height=136
+style house.east.h112.14 door_side=east roof_color=383029ff wall_color=665c4dff wall_height=112
+style house.west.h120.13 door_side=west roof_color=423629ff wall_color=756654ff wall_height=120
+style house.guild.hall door_side=south roof_color=3d3329ff wall_color=6b5e4fff wall_height=136
+style house.church.silhouette door_side=none roof_color=2e241cff wall_color=807a70ff wall_height=192
+style house.workshop.low door_side=north roof_color=352820ff wall_color=5a4f45ff wall_height=72
+style house.workshop.mid door_side=north roof_color=383029ff wall_color=63594aff wall_height=88
+terrain quarter.base cobblestone 0 0 64 36 order=1
+terrain guild.plaza stone 4 8 18 10 order=2
+terrain lane.dirt dirt 34 18 22 16 order=3
+terrain yard.mud mud 46 24 14 8 order=4
+terrain north.grass grass 48 2 14 10 order=5
+stroke vene_lane cobblestone 30,34|30,30|30,26 thickness=3 order=6
+stroke pikk_spine cobblestone 30,26|30,20|30,16|30,10|30,4 thickness=3 order=7
+stroke guild_lane cobblestone 8,12|16,12|16,16|22,16|22,20|28,20 thickness=2 order=8
+stroke center_lane cobblestone 0,30|8,30|8,28|14,28 thickness=2 order=9
+building south_entry_house_west house 20 32 8 4 style=house.south.h112.16
+building south_entry_house_east house 34 32 8 4 style=house.south.h120.18
+building great_guild_front house 4 8 16 7 style=house.guild.hall
+building guild_annex house 4 17 12 5 style=house.west.h120.13
+building brotherhood_wing house 4 24 10 6 style=house.north.h112.19
+building pikk_merchant_south house 18 24 10 6 style=house.north.h120.20
+building pikk_merchant_mid house 20 14 8 8 style=house.north.h112.21
+building pikk_merchant_north house 18 6 10 6 style=house.north.h112.19
+building west_lane_house_north house 0 10 4 8 style=house.east.h112.14
+building west_lane_house_south house 0 20 4 8 style=house.east.h112.14
+building workshop_row_west house 38 22 12 5 style=house.workshop.mid
+building workshop_row_mid house 40 14 12 5 style=house.workshop.low
+building workshop_row_east house 42 6 12 6 style=house.workshop.mid
+building ropemakers_shed house 48 26 12 5 style=house.workshop.low
+building shipwright_yard house 50 8 12 6 style=house.north.h136.22
+building east_tenement_north house 54 4 8 10 style=house.north.h112.21
+building east_tenement_south house 52 30 10 4 style=house.north.h112.19
+building st_olaf_silhouette house 20 0 16 12 style=house.church.silhouette
+prop rope_props barrels 44 20 rect=2,2
+prop street_cart cart 30 22 rect=2,2
+prop dock_barrels barrels 54 24 rect=2,2
+prop guild_stall stall 14 14 rect=2,2
+landmark vene_entry_arch gate_arch 28 34 4 2 passage_axis=z top_px=160 wall_color=858075ff door_material=wood
+landmark center_entry_arch gate_arch 0 28 2 4 passage_axis=x top_px=160 wall_color=858075ff door_material=wood
+spawn spawn.inspection 30 28 rect=2,2
+anchor inspection_spawn 30 28 rect=2,2
+anchor pikk_street_spine 30 16 rect=2,2
+anchor guild_frontage 24 22 rect=2,2
+anchor from_reval_east 30 34 rect=2,2
+transition to_reval_east 28 34 4 2 to=reval_east destination_spawn=vene_district_boundary spawn=from_reval_east spawn_offset_px=0,48 view_landmark_id=vene_entry_arch
+transition to_reval_center 0 28 2 4 to=reval_center destination_spawn=to_reval_north spawn=from_reval_center spawn_offset_px=48,0 view_landmark_id=center_entry_arch
+sign sign.vene "to vene street" 32 32 south
+sign sign.center "to town square" 4 30 west
+sign sign.guild "great guild" 22 20 west
+sign sign.pikk "pikk street" 32 8 north
+patrol merchant_watch 30,34|30,30|30,26|30,22|30,16
+exclude blocked.church 22 0 16 8
+fade fade.olaf 16 0 24 8
+camera 0 0 64 36
+surroundings north town west town south town
