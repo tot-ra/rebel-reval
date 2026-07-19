@@ -27,6 +27,7 @@ const ZOOM_MIN_ORTHOGRAPHIC_SIZE := RuntimeCamera.ZOOM_MIN_ORTHOGRAPHIC_SIZE
 const ZOOM_MAX_ORTHOGRAPHIC_SIZE := RuntimeCamera.ZOOM_MAX_ORTHOGRAPHIC_SIZE
 const ROTATE_SPEED_DEGREES := RuntimeCamera.ROTATE_SPEED_DEGREES
 const MOUSE_ROTATE_DEGREES_PER_PIXEL := RuntimeCamera.MOUSE_ROTATE_DEGREES_PER_PIXEL
+const PAN_SCROLL_ZOOM_SENSITIVITY := RuntimeCamera.PAN_SCROLL_ZOOM_SENSITIVITY
 const FIRST_PERSON_EYE_HEIGHT := RuntimeCamera.FIRST_PERSON_EYE_HEIGHT
 const FIRST_PERSON_PITCH_DEGREES := RuntimeCamera.FIRST_PERSON_PITCH_DEGREES
 const FIRST_PERSON_FOV_DEGREES := RuntimeCamera.FIRST_PERSON_FOV_DEGREES
@@ -204,16 +205,25 @@ func _unhandled_input(event: InputEvent) -> void:
 			toggle_camera_view()
 			get_viewport().set_input_as_handled()
 		return
+	if event is InputEventMagnifyGesture:
+		_camera_controller.zoom_from_magnify_factor((event as InputEventMagnifyGesture).factor)
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventPanGesture:
+		_camera_controller.zoom_from_pan_delta((event as InputEventPanGesture).delta)
+		get_viewport().set_input_as_handled()
+		return
 	if event is InputEventMouseButton:
 		var mouse_button := event as InputEventMouseButton
-		if not mouse_button.pressed:
-			return
+		var wheel_steps := 0.0
+		var wheel_factor := mouse_button.factor if mouse_button.factor > 0.0 else 1.0
 		if mouse_button.button_index == MOUSE_BUTTON_WHEEL_UP:
-			zoom_view_steps(mouse_button.factor)
+			wheel_steps = wheel_factor
 		elif mouse_button.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			zoom_view_steps(-mouse_button.factor)
+			wheel_steps = -wheel_factor
 		else:
 			return
+		zoom_view_steps(wheel_steps)
 		get_viewport().set_input_as_handled()
 
 

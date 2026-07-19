@@ -106,21 +106,77 @@ func test_runtime_maps_keyboard_to_screen_axes_and_preserves_facing_on_stop() ->
 		"right-click drag must orbit the camera horizontally"
 	)
 	runtime._apply_mouse_rotation_from_position(Vector2(0.0, 200.0), false)
+	scene_root.free()
 
+
+func test_runtime_accepts_mouse_wheel_and_trackpad_zoom_input() -> void:
+	var scene_root := Node2D.new()
+	var map_root := Node2D.new()
+	var actors := Node2D.new()
+	var player := PLAYER_SCENE.instantiate() as Player
+	scene_root.add_child(map_root)
+	scene_root.add_child(actors)
+	actors.add_child(player)
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(scene_root)
+
+	var definition := LowerTownSlice.create()
+	var bootstrap := {
+		"definition": definition,
+		"grid": MapBuilder.build(definition),
+		"assembled": {"buildings": [], "props": []},
+	}
+	var runtime := MapViewRuntime.install(scene_root, bootstrap, map_root, player)
+	var camera := runtime.view.view_camera()
 	var default_camera_size := camera.size
+
 	var wheel_up := InputEventMouseButton.new()
 	wheel_up.button_index = MOUSE_BUTTON_WHEEL_UP
-	wheel_up.pressed = true
+	wheel_up.pressed = false
+	wheel_up.factor = 1.0
 	runtime._unhandled_input(wheel_up)
 	assert_true(camera.size < default_camera_size, "mouse wheel up must zoom toward the player")
 
 	var wheel_down := InputEventMouseButton.new()
 	wheel_down.button_index = MOUSE_BUTTON_WHEEL_DOWN
-	wheel_down.pressed = true
+	wheel_down.pressed = false
+	wheel_down.factor = 1.0
 	runtime._unhandled_input(wheel_down)
 	assert_true(
 		is_equal_approx(camera.size, default_camera_size),
 		"opposite wheel steps must restore the previous zoom level"
+	)
+
+	var magnify_in := InputEventMagnifyGesture.new()
+	magnify_in.factor = 1.1
+	runtime._unhandled_input(magnify_in)
+	assert_true(
+		camera.size < default_camera_size,
+		"trackpad pinch spread must zoom toward the player"
+	)
+
+	var magnify_out := InputEventMagnifyGesture.new()
+	magnify_out.factor = 1.0 / 1.1
+	runtime._unhandled_input(magnify_out)
+	assert_true(
+		is_equal_approx(camera.size, default_camera_size),
+		"opposite pinch steps must restore the previous zoom level"
+	)
+
+	var pan_up := InputEventPanGesture.new()
+	pan_up.delta = Vector2(0.0, -1.0)
+	runtime._unhandled_input(pan_up)
+	assert_true(
+		camera.size < default_camera_size,
+		"trackpad two-finger scroll up must zoom toward the player"
+	)
+
+	var pan_down := InputEventPanGesture.new()
+	pan_down.delta = Vector2(0.0, 1.0)
+	runtime._unhandled_input(pan_down)
+	assert_true(
+		is_equal_approx(camera.size, default_camera_size),
+		"opposite trackpad scroll must restore the previous zoom level"
 	)
 
 	runtime.zoom_view_steps(100.0)

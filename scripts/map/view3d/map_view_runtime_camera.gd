@@ -12,6 +12,9 @@ const ZOOM_MIN_ORTHOGRAPHIC_SIZE := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE * 
 const ZOOM_MAX_ORTHOGRAPHIC_SIZE := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE * ZOOM_MAX_FACTOR
 const ROTATE_SPEED_DEGREES := 120.0
 const MOUSE_ROTATE_DEGREES_PER_PIXEL := 0.3
+## macOS trackpad two-finger scroll arrives as InputEventPanGesture with small
+## deltas (~0.5-1.5 per tick) instead of mouse-wheel buttons.
+const PAN_SCROLL_ZOOM_SENSITIVITY := 1.0
 const FIRST_PERSON_EYE_HEIGHT := 1.65
 const FIRST_PERSON_PITCH_DEGREES := -10.0
 const FIRST_PERSON_FOV_DEGREES := 75.0
@@ -95,13 +98,27 @@ func rotate_view_degrees(delta_degrees: float) -> void:
 
 
 func zoom_view_steps(steps: float) -> void:
-	if first_person:
+	if first_person or is_zero_approx(steps):
 		return
 	camera.size = clampf(
 		camera.size * pow(ZOOM_STEP_FACTOR, steps),
 		ZOOM_MIN_ORTHOGRAPHIC_SIZE,
 		ZOOM_MAX_ORTHOGRAPHIC_SIZE
 	)
+
+
+func zoom_from_magnify_factor(factor: float) -> void:
+	if is_equal_approx(factor, 1.0):
+		return
+	# Pinch spread (factor > 1) must match wheel-up zoom-in semantics.
+	zoom_view_steps(-log(factor) / log(ZOOM_STEP_FACTOR))
+
+
+func zoom_from_pan_delta(delta: Vector2) -> void:
+	if is_zero_approx(delta.y):
+		return
+	# Negative delta.y is trackpad scroll-up on macOS; wheel-up uses positive steps.
+	zoom_view_steps(-delta.y * PAN_SCROLL_ZOOM_SENSITIVITY)
 
 
 func toggle_first_person() -> void:
