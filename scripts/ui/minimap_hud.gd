@@ -10,6 +10,62 @@ const LOCATION_LABEL_HEIGHT := 32.0
 const ORNAMENT_INSET := 5.0
 const MARKER_SIZE := Vector2(10.0, 10.0)
 const CIRCULAR_CLIP_SHADER := preload("res://scripts/ui/circular_clip.gdshader")
+const DayNightCycleScript := preload("res://scripts/global/day_night_cycle.gd")
+const GameCalendarScript := preload("res://scripts/global/game_calendar.gd")
+const CELESTIAL_SIZE := Vector2(52.0, 52.0)
+const DATE_BADGE_HEIGHT := 26.0
+
+
+class MinimapCelestialIndicator:
+	extends Control
+
+	var cycle_progress := DayNightCycleScript.DEFAULT_PROGRESS
+	var target_progress := DayNightCycleScript.DEFAULT_PROGRESS
+	var animation_time := 0.0
+
+	func set_cycle_progress(progress: float) -> void:
+		target_progress = wrapf(progress, 0.0, 1.0)
+		queue_redraw()
+
+	func _process(delta: float) -> void:
+		animation_time += delta
+		var current_angle := cycle_progress * TAU
+		var target_angle := target_progress * TAU
+		cycle_progress = wrapf(lerp_angle(current_angle, target_angle, clampf(delta * 3.5, 0.0, 1.0)) / TAU, 0.0, 1.0)
+		queue_redraw()
+
+	func _draw() -> void:
+		var center := size * 0.5
+		var radius := minf(size.x, size.y) * 0.5 - 2.0
+		var daylight := DayNightCycleScript.day_blend(cycle_progress)
+		var night_sky := Color(0.035, 0.055, 0.11, 0.94)
+		var day_sky := Color(0.27, 0.53, 0.67, 0.94)
+		draw_circle(center, radius, night_sky.lerp(day_sky, daylight))
+		draw_arc(center, radius, 0.0, TAU, 48, Color(0.93, 0.79, 0.48, 0.95), 1.5, true)
+
+		# The miniature orbit mirrors the accelerated world-lighting cycle. The
+		# date remains story-authored, while this disc can animate every frame.
+		var orbit_angle := cycle_progress * TAU + PI
+		var orbit := Vector2(cos(orbit_angle), sin(orbit_angle))
+		var body_position := center + orbit * Vector2(radius * 0.58, radius * 0.42)
+		if daylight >= 0.5:
+			_draw_sun(body_position, daylight)
+		else:
+			_draw_moon(body_position, 1.0 - daylight)
+		var glint_alpha := 0.22 + sin(animation_time * 2.2) * 0.08
+		draw_arc(center, radius - 3.0, orbit_angle - 0.35, orbit_angle + 0.35, 12, Color(1.0, 0.88, 0.55, glint_alpha), 1.0, true)
+
+	func _draw_sun(position: Vector2, strength: float) -> void:
+		var color := Color(1.0, 0.77, 0.24, clampf(0.65 + strength * 0.35, 0.0, 1.0))
+		for ray_index in 8:
+			var ray := Vector2.from_angle(float(ray_index) * TAU / 8.0)
+			draw_line(position + ray * 7.0, position + ray * 10.0, color, 1.5, true)
+		draw_circle(position, 5.5, color)
+
+	func _draw_moon(position: Vector2, strength: float) -> void:
+		var moon := Color(0.91, 0.92, 0.78, clampf(0.65 + strength * 0.35, 0.0, 1.0))
+		draw_circle(position, 6.0, moon)
+		draw_circle(position + Vector2(2.8, -1.4), 5.2, Color(0.07, 0.10, 0.17, moon.a))
 
 
 class MinimapOrnament:
@@ -60,6 +116,8 @@ var _map_host: Control
 var _texture_rect: TextureRect
 var _marker: ColorRect
 var _map_texture: ImageTexture
+var _date_label: Label
+var _celestial_indicator: MinimapCelestialIndicator
 
 
 func configure(definition: MapDefinition, grid: MapTerrainGrid, player: Node2D) -> void:
@@ -73,6 +131,14 @@ func configure(definition: MapDefinition, grid: MapTerrainGrid, player: Node2D) 
 
 func get_location_label() -> Label:
 	return _location_label
+
+
+func get_date_label() -> Label:
+	return _date_label
+
+
+func get_celestial_indicator() -> Control:
+	return _celestial_indicator
 
 
 static func map_block_height() -> float:
@@ -96,7 +162,17 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_build_ui()
 	_rebuild_map_texture()
+	_connect_time_sources()
+	_update_calendar_date(MusicDirector.current_calendar_date())
+	_update_cycle_progress(MusicDirector.get_cycle_progress())
 	set_process(true)
+
+
+func _exit_tree() -> void:
+	if MusicDirector.cycle_progress_changed.is_connected(_update_cycle_progress):
+		MusicDirector.cycle_progress_changed.disconnect(_update_cycle_progress)
+	if MusicDirector.calendar_date_changed.is_connected(_update_calendar_date):
+		MusicDirector.calendar_date_changed.disconnect(_update_calendar_date)
 
 
 func _process(_delta: float) -> void:
@@ -177,11 +253,67 @@ func _build_ui() -> void:
 	_marker.size = MARKER_SIZE
 	_map_host.add_child(_marker)
 
+	_celestial_indicator = MinimapCelestialIndicator.new()
+	_celestial_indicator.name = "DayNightIndicator"
+	_celestial_indicator.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_celestial_indicator.custom_minimum_size = CELESTIAL_SIZE
+	_celestial_indicator.size = CELESTIAL_SIZE
+	_celestial_indicator.position = Vector2(MAX_DISPLAY_SIZE - CELESTIAL_SIZE.x - 10.0, 10.0)
+	_map_host.add_child(_celestial_indicator)
+
+	var date_badge := PanelContainer.new()
+	date_badge.name = "CalendarDateBadge"
+	date_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	date_badge.custom_minimum_size = Vector2(112.0, DATE_BADGE_HEIGHT)
+	date_badge.size = date_badge.custom_minimum_size
+	date_badge.position = Vector2((MAX_DISPLAY_SIZE - date_badge.size.x) * 0.5, MAX_DISPLAY_SIZE - DATE_BADGE_HEIGHT - 14.0)
+	date_badge.add_theme_stylebox_override("panel", _date_badge_style())
+	_map_host.add_child(date_badge)
+
+	_date_label = Label.new()
+	_date_label.name = "CalendarDate"
+	_date_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_date_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_date_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_date_label.add_theme_color_override("font_color", Color(0.96, 0.91, 0.81, 1.0))
+	_date_label.add_theme_color_override("font_shadow_color", Color(0.05, 0.035, 0.025, 0.95))
+	_date_label.add_theme_constant_override("shadow_offset_x", 1)
+	_date_label.add_theme_constant_override("shadow_offset_y", 2)
+	_date_label.add_theme_font_size_override("font_size", 16)
+	date_badge.add_child(_date_label)
+
 	var ornament := MinimapOrnament.new()
 	ornament.name = "MedievalOrnament"
 	ornament.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ornament.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_map_host.add_child(ornament)
+	_map_host.move_child(ornament, 1)
+
+
+func _connect_time_sources() -> void:
+	if not MusicDirector.cycle_progress_changed.is_connected(_update_cycle_progress):
+		MusicDirector.cycle_progress_changed.connect(_update_cycle_progress)
+	if not MusicDirector.calendar_date_changed.is_connected(_update_calendar_date):
+		MusicDirector.calendar_date_changed.connect(_update_calendar_date)
+
+
+func _update_cycle_progress(progress: float) -> void:
+	if _celestial_indicator != null:
+		_celestial_indicator.set_cycle_progress(progress)
+
+
+func _update_calendar_date(date: Dictionary) -> void:
+	if _date_label != null:
+		_date_label.text = GameCalendarScript.format_date(date)
+
+
+func _date_badge_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.09, 0.055, 0.025, 0.84)
+	style.border_color = Color(0.72, 0.58, 0.31, 0.9)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(9)
+	return style
 
 
 func _rebuild_map_texture() -> void:

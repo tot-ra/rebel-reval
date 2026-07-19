@@ -82,3 +82,4 @@ func _apply_presentation(profile: Dictionary) -> void:
 	if bool(presentation.get("music_night_tracks", false)):
 		progress = 0.0
 	MusicDirector.set_cycle_progress(progress)
+	MusicDirector.announce_calendar_date()

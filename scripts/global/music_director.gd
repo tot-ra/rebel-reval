@@ -1,6 +1,7 @@
 extends Node
 
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
+const GameCalendarScript := preload("res://scripts/global/game_calendar.gd")
 
 const DEFAULT_VOLUME_DB := -8.0
 ## At full night the theme plays at 50% linear amplitude (about -6 dB).
@@ -39,6 +40,9 @@ const THEME_NIGHT_DIRS: Dictionary = {
 	&"forge": "res://music/forge/night/",
 	&"town": "res://music/revel_east/night/",
 }
+
+signal cycle_progress_changed(progress: float)
+signal calendar_date_changed(date: Dictionary)
 
 var _player: AudioStreamPlayer
 var _active_scene: Node
@@ -129,8 +133,23 @@ func get_theme_stream(theme_id: StringName, use_night: bool = false) -> AudioStr
 func set_cycle_progress(progress: float) -> void:
 	_cycle_active = true
 	_cycle_progress = wrapf(progress, 0.0, 1.0)
+	cycle_progress_changed.emit(_cycle_progress)
 	_update_volume_from_cycle()
 	_maybe_switch_night_tracks()
+
+
+func get_cycle_progress() -> float:
+	return _cycle_progress
+
+
+func current_calendar_date() -> Dictionary:
+	if SessionState.state == null:
+		return GameCalendarScript.DEFAULT_DATE.duplicate()
+	return GameCalendarScript.date_for_phase(SessionState.state.get_phase())
+
+
+func announce_calendar_date() -> void:
+	calendar_date_changed.emit(current_calendar_date())
 
 
 func clear_cycle_progress() -> void:

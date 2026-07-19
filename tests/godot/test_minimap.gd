@@ -3,6 +3,7 @@ extends "res://tests/godot/test_case.gd"
 const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
 const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
+const GameCalendarScript := preload("res://scripts/global/game_calendar.gd")
 
 
 func test_texture_builder_matches_map_dimensions() -> void:
@@ -23,6 +24,7 @@ func test_world_to_normalized_maps_spawn_to_corner() -> void:
 func test_bootstrap_adds_minimap_hud() -> void:
 	var definition: MapDefinition = LowerTownSlice.create()
 	var root := Node2D.new()
+	(_tree().root as Node).add_child(root)
 	var actors := Node2D.new()
 	var player := CharacterBody2D.new()
 	player.name = "Player"
@@ -40,6 +42,7 @@ func test_bootstrap_adds_minimap_hud() -> void:
 func test_bootstrap_adds_minimap_to_forge_map() -> void:
 	var definition: MapDefinition = KalevSmithy.create()
 	var root := Node2D.new()
+	(_tree().root as Node).add_child(root)
 	var actors := Node2D.new()
 	var player := CharacterBody2D.new()
 	player.name = "Player"
@@ -76,6 +79,31 @@ func test_location_label_sits_above_map_block() -> void:
 		"location label should align with minimap center"
 	)
 	_cleanup_root(root)
+
+func test_minimap_shows_story_date_and_day_night_indicator() -> void:
+	var root := _make_root()
+	var hud := MinimapHud.new()
+	root.add_child(hud)
+	assert_eq(hud.get_date_label().text, "21.04.1343")
+	assert_true(hud.get_celestial_indicator() != null)
+	assert_eq(hud.get_celestial_indicator().name, "DayNightIndicator")
+	_cleanup_root(root)
+
+
+func test_story_calendar_tracks_slice_timeline_without_visual_cycle_days() -> void:
+	assert_eq(
+		GameCalendarScript.formatted_date_for_phase(GameState.PHASE_PROLOGUE_DAY),
+		"21.04.1343"
+	)
+	assert_eq(
+		GameCalendarScript.formatted_date_for_phase(GameState.PHASE_INVESTIGATION_NIGHT),
+		"22.04.1343"
+	)
+	assert_eq(
+		GameCalendarScript.formatted_date_for_phase(GameState.PHASE_REFLECTION_MORNING),
+		"23.04.1343"
+	)
+
 
 
 func _make_root() -> Node:

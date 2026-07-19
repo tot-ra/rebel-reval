@@ -21,6 +21,11 @@ func test_volume_db_follows_cycle_progress() -> void:
 	)
 
 
+
+func test_cycle_progress_is_exposed_for_hud_animation() -> void:
+	assert_true(is_equal_approx(MusicDirector.get_cycle_progress(), DayNightCycle.DEFAULT_PROGRESS))
+
+
 func test_active_themes_have_no_night_tracks_yet() -> void:
 	for theme_id: StringName in [&"forge", &"town"]:
 		assert_true(
