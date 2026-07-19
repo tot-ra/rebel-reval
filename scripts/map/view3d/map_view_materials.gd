@@ -28,6 +28,7 @@ const TERRAIN_TEXTURE_WORLD_SIZE := 4.0
 ## Pattern families for terrain and building surfaces.
 const PATTERN_GRASS := &"grass"
 const PATTERN_SPECKLE := &"speckle"
+const PATTERN_MUD := &"mud"
 const PATTERN_COBBLE := &"cobble"
 const PATTERN_BRICK := &"brick"
 const PATTERN_PLANK := &"plank"
@@ -35,6 +36,8 @@ const PATTERN_LIMESTONE := &"limestone"
 const PATTERN_ROOF_TILE := &"roof_tile"
 const PATTERN_PLASTER := &"plaster"
 const PATTERN_STRAW := &"straw"
+const PATTERN_SHINGLE := &"shingle"
+const PATTERN_LOG := &"log"
 
 const TERRAIN_PATTERN := {
 	MapTypes.TERRAIN_GRASS: PATTERN_GRASS,
@@ -45,7 +48,7 @@ const TERRAIN_PATTERN := {
 	MapTypes.TERRAIN_STRAW: PATTERN_STRAW,
 	MapTypes.TERRAIN_FARM_SOIL: PATTERN_STRAW,
 	MapTypes.TERRAIN_DIRT: PATTERN_SPECKLE,
-	MapTypes.TERRAIN_MUD: PATTERN_SPECKLE,
+	MapTypes.TERRAIN_MUD: PATTERN_MUD,
 	MapTypes.TERRAIN_SAND: PATTERN_SPECKLE,
 	MapTypes.TERRAIN_COAST_SAND: PATTERN_SPECKLE,
 	MapTypes.TERRAIN_ASH: PATTERN_SPECKLE,
@@ -63,6 +66,28 @@ const TERRAIN_UV_SCALE := {
 	MapTypes.TERRAIN_TIMBER_FLOOR: 2.0,
 }
 
+## Stable layer order for the blended-ground texture array. Indices must stay
+## fixed so saved maps and tests do not reshuffle pattern lookups.
+const BLEND_TERRAIN_ORDER: Array[StringName] = [
+	MapTypes.TERRAIN_GRASS,
+	MapTypes.TERRAIN_MEADOW,
+	MapTypes.TERRAIN_FOREST_FLOOR,
+	MapTypes.TERRAIN_BOG,
+	MapTypes.TERRAIN_HAY,
+	MapTypes.TERRAIN_STRAW,
+	MapTypes.TERRAIN_FARM_SOIL,
+	MapTypes.TERRAIN_DIRT,
+	MapTypes.TERRAIN_MUD,
+	MapTypes.TERRAIN_SAND,
+	MapTypes.TERRAIN_COAST_SAND,
+	MapTypes.TERRAIN_ASH,
+	MapTypes.TERRAIN_COBBLESTONE,
+	MapTypes.TERRAIN_CASTLE_PAVING,
+	MapTypes.TERRAIN_STONE,
+	MapTypes.TERRAIN_TIMBER_FLOOR,
+	MapTypes.TERRAIN_PLASTER,
+]
+
 ## BoxMesh and CylinderMesh map UV 0-1 across each face. Without extra
 ## repeats, one procedural tile spans an entire house wall and bricks read
 ## billboard-sized. Values are tuned for typical 3-6 unit footprints at the
@@ -75,6 +100,9 @@ const BUILDING_UV_SCALE := {
 	PATTERN_PLANK: Vector3(5.0, 3.0, 5.0),
 	PATTERN_PLASTER: Vector3(3.5, 2.5, 3.5),
 	PATTERN_ROOF_TILE: Vector3(4.0, 2.5, 4.0),
+	PATTERN_SHINGLE: Vector3(5.0, 3.0, 5.0),
+	PATTERN_LOG: Vector3(4.0, 3.0, 4.0),
+	PATTERN_STRAW: Vector3(3.0, 2.0, 3.0),
 }
 ## Reference box size the fixed BUILDING_UV_SCALE repeats were tuned against.
 ## building_uv_scale() scales repeats proportionally so long fortification
@@ -104,6 +132,50 @@ static func terrain(terrain_id: StringName, noise_seed: int) -> StandardMaterial
 	material.uv1_scale = Vector3(uv, uv, 1.0)
 	if WATER_TERRAINS.has(terrain_id):
 		material.roughness = 0.15
+	_cache[key] = material
+	return material
+
+
+static func terrain_blend_index(terrain_id: StringName) -> int:
+	var index := BLEND_TERRAIN_ORDER.find(terrain_id)
+	return index if index >= 0 else 0
+
+
+static func terrain_pattern_array(noise_seed: int) -> Texture2DArray:
+	var key := "terrain_pattern_array:%d" % noise_seed
+	if _cache.has(key):
+		return _cache[key]
+	var images: Array[Image] = []
+	for terrain_id in BLEND_TERRAIN_ORDER:
+		var pattern: StringName = TERRAIN_PATTERN.get(terrain_id, PATTERN_GRASS)
+		var image := MapViewMaterialPatterns.pattern_texture(pattern, noise_seed + int(terrain_id.hash())).get_image()
+		images.append(image)
+	var array := Texture2DArray.new()
+	array.create_from_images(images)
+	_cache[key] = array
+	return array
+
+
+## Single blended ground material for all dry terrain. Per-vertex CUSTOM0 and
+## COLOR carry splat indices, blend weight, tone, and palette tint.
+static func blended_ground(noise_seed: int) -> ShaderMaterial:
+	var key := "blended_ground:%d" % noise_seed
+	if _cache.has(key):
+		return _cache[key]
+	var material := ShaderMaterial.new()
+	material.shader = MapViewMaterialShaders.shader("terrain_blend", MapViewMaterialShaders.TERRAIN_BLEND_SHADER_CODE)
+	material.set_shader_parameter("terrain_patterns", terrain_pattern_array(noise_seed))
+	material.set_shader_parameter("pattern_layers", float(BLEND_TERRAIN_ORDER.size()))
+	_cache[key] = material
+	return material
+
+
+static func puddle_surface() -> ShaderMaterial:
+	var key := "puddle_surface"
+	if _cache.has(key):
+		return _cache[key]
+	var material := ShaderMaterial.new()
+	material.shader = MapViewMaterialShaders.shader("puddle", MapViewMaterialShaders.PUDDLE_SHADER_CODE)
 	_cache[key] = material
 	return material
 
@@ -159,13 +231,15 @@ static func wall(color: Color) -> StandardMaterial3D:
 
 
 ## Building wall surface in an explicit material family so houses read as
-## built from something: plastered timber frame, brick, plank, or limestone.
+## built from something: plastered timber frame, brick, plank, log, or limestone.
 static func wall_surface(family: StringName, color: Color) -> StandardMaterial3D:
 	match family:
 		&"brick":
 			return _building_surface("wall_brick", color, PATTERN_BRICK)
 		&"plank":
 			return _building_surface("wall_plank", color, PATTERN_PLANK)
+		&"log":
+			return _building_surface("wall_log", color, PATTERN_LOG)
 		&"limestone":
 			return _building_surface("wall_limestone", color, PATTERN_LIMESTONE)
 		_:
@@ -200,6 +274,19 @@ static func wall_for_size(color: Color, size: Vector3) -> StandardMaterial3D:
 
 static func roof(color: Color) -> StandardMaterial3D:
 	return _building_surface("roof", color, PATTERN_ROOF_TILE)
+
+
+## Roof cover in an explicit material family. 1343 Reval roofs were mostly
+## wooden shingle and reed/straw thatch; ceramic tile marked churches and the
+## few rich stone houses, so tile stays the explicit (not default-everywhere) choice.
+static func roof_surface(family: StringName, color: Color) -> StandardMaterial3D:
+	match family:
+		&"shingle":
+			return _building_surface("roof_shingle", color, PATTERN_SHINGLE)
+		&"thatch", &"straw":
+			return _building_surface("roof_thatch", color, PATTERN_STRAW)
+		_:
+			return _building_surface("roof_tile", color, PATTERN_ROOF_TILE)
 
 
 ## UV repeat density per world unit. Triplanar materials use this directly so
