@@ -61,9 +61,20 @@ static func handle_choice_input(ui: DialogueUI, event: InputEvent) -> bool:
 	return false
 
 
+static func handle_continue_click(ui: DialogueUI, event: InputEvent) -> bool:
+	if not ui._visible_active or ui._choice_mode or ui._backlog_open:
+		return false
+	if not is_mouse_continue_event(event):
+		return false
+	ui.request_continue()
+	return true
+
+
 static func is_continue_event(event: InputEvent) -> bool:
 	if not event.is_pressed() or event.is_echo():
 		return false
+	if is_mouse_continue_event(event):
+		return true
 	for action: StringName in [&"interact", &"ui_accept"]:
 		if event.is_action(action):
 			return event.is_action_pressed(action)
@@ -71,6 +82,13 @@ static func is_continue_event(event: InputEvent) -> bool:
 		var button_event := event as InputEventJoypadButton
 		return button_event.pressed and button_event.button_index == JOY_BUTTON_A
 	return is_key_pressed(event, KEY_ENTER) or is_key_pressed(event, KEY_KP_ENTER) or is_key_pressed(event, KEY_SPACE)
+
+
+static func is_mouse_continue_event(event: InputEvent) -> bool:
+	if not event is InputEventMouseButton:
+		return false
+	var mouse_event := event as InputEventMouseButton
+	return mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT
 
 
 static func is_key_pressed(event: InputEvent, keycode: Key) -> bool:

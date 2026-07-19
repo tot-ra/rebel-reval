@@ -87,7 +87,7 @@ func _build_ui() -> void:
 	body.add_child(_text_label)
 
 	_hint_label = Label.new()
-	_hint_label.text = "E or A - continue"
+	_hint_label.text = "Click, E, or A - continue"
 	_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_hint_label.add_theme_color_override("font_color", Color(0.72, 0.76, 0.82, 1.0))
 	_hint_label.add_theme_font_size_override("font_size", TextScaleScript.hint_size("normal"))

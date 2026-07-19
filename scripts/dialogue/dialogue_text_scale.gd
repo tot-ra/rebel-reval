@@ -3,11 +3,11 @@ extends RefCounted
 
 ## Supported dialogue text scales for P1-012. P1-013 persists the player choice.
 
-const BASE_BODY_SIZE := 22
-const BASE_SPEAKER_SIZE := 24
-const BASE_CHOICE_SIZE := 20
-const BASE_HINT_SIZE := 16
-const BASE_BACKLOG_SIZE := 18
+const BASE_BODY_SIZE := 26
+const BASE_SPEAKER_SIZE := 28
+const BASE_CHOICE_SIZE := 24
+const BASE_HINT_SIZE := 18
+const BASE_BACKLOG_SIZE := 20
 
 const SCALE_FACTORS := {
 	"small": 0.85,

@@ -93,7 +93,7 @@ func _advance_line(setup: Dictionary, input_mode: String) -> void:
 		"keyboard":
 			_send_action(setup.runner, &"interact")
 		"mouse":
-			setup.runner.advance_for_test()
+			setup.ui.click_continue_for_test()
 		"gamepad":
 			_send_joy_button(setup.runner, JOY_BUTTON_A)
 		_:

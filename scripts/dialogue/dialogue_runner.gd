@@ -379,6 +379,9 @@ func _unhandled_input(event: InputEvent) -> void:
 func _is_continue_event(event: InputEvent) -> bool:
 	if not event.is_pressed() or event.is_echo():
 		return false
+	if event is InputEventMouseButton:
+		var mouse_event := event as InputEventMouseButton
+		return mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT
 	for action: StringName in CONTINUE_ACTIONS:
 		if event.is_action(action):
 			return event.is_action_pressed(action)

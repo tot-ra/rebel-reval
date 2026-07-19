@@ -13,6 +13,7 @@ const DialogueUiReveal := preload("res://scripts/dialogue/dialogue_ui_reveal.gd"
 const DialogueUiChoices := preload("res://scripts/dialogue/dialogue_ui_choices.gd")
 
 signal choice_selected(choice_id: String)
+signal continue_requested()
 signal skip_requested()
 
 const FONT_PATH := "res://assets/fonts/NotoSans-Regular.ttf"
@@ -136,6 +137,18 @@ func consume_line_advance() -> bool:
 		DialogueUiReveal.complete(self)
 		return false
 	return true
+
+
+func request_continue() -> void:
+	if not _visible_active or _choice_mode or _backlog_open:
+		return
+	if not consume_line_advance():
+		return
+	continue_requested.emit()
+
+
+func click_continue_for_test() -> void:
+	request_continue()
 
 
 func get_speaker_label_text() -> String:
@@ -271,7 +284,7 @@ func _update_continue_hint() -> void:
 	elif _choice_mode:
 		_continue_hint.text = "Arrows or gamepad - choose, Enter or A - confirm"
 	else:
-		_continue_hint.text = "E, Enter, or A - continue | Tab - backlog | Esc - skip"
+		_continue_hint.text = "Click, E, Enter, or A - continue | Tab - backlog | Esc - skip"
 
 
 func _update_disabled_reason() -> void:
@@ -372,8 +385,14 @@ func _build_ui() -> void:
 	_disabled_reason_label = nodes["disabled_reason_label"]
 	_skip_button = nodes["skip_button"]
 	_backlog_button = nodes["backlog_button"]
+	_panel.gui_input.connect(_on_dialogue_panel_gui_input)
 	_apply_text_scale()
 	_apply_visual_theme()
+
+
+func _on_dialogue_panel_gui_input(event: InputEvent) -> void:
+	if DialogueUiInput.handle_continue_click(self, event):
+		get_viewport().set_input_as_handled()
 
 
 func _sync_text_label_width() -> void:

@@ -11,12 +11,15 @@ func configure(ui: Node, runner: Node) -> void:
 	if _ui != null:
 		if _ui.choice_selected.is_connected(_on_choice_selected):
 			_ui.choice_selected.disconnect(_on_choice_selected)
+		if _ui.continue_requested.is_connected(_on_continue_requested):
+			_ui.continue_requested.disconnect(_on_continue_requested)
 		if _ui.skip_requested.is_connected(_on_skip_requested):
 			_ui.skip_requested.disconnect(_on_skip_requested)
 	_ui = ui
 	_runner = runner
 	if _ui != null:
 		_ui.choice_selected.connect(_on_choice_selected)
+		_ui.continue_requested.connect(_on_continue_requested)
 		_ui.skip_requested.connect(_on_skip_requested)
 
 
@@ -49,6 +52,11 @@ func consume_line_advance() -> bool:
 func _on_choice_selected(choice_id: String) -> void:
 	if _runner != null:
 		_runner.select_choice(choice_id)
+
+
+func _on_continue_requested() -> void:
+	if _runner != null and _runner.is_active() and not _runner.is_waiting_for_choice():
+		_runner.advance()
 
 
 func _on_skip_requested() -> void:
