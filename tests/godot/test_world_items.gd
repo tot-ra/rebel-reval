@@ -252,8 +252,6 @@ func test_pickup_hover_activates_grab_cursor_state() -> void:
 
 func test_pickup_feedback_resolves_spearhead_comment() -> void:
 	var root := _make_root()
-	var controller := WorldItemController.new()
-	root.add_child(controller)
 	var db := ContentDB.new()
 	db.load_from_directories([
 		"res://content/demo",
@@ -262,10 +260,17 @@ func test_pickup_feedback_resolves_spearhead_comment() -> void:
 	])
 	var state := GameState.new()
 	state.bag.set_content_db(db)
-	controller._state = state
-	controller._content_db = db
+	var item_record := db.get_item(ITEM_SPEARHEAD)
 
-	var feedback := controller._resolve_pickup_feedback(ITEM_SPEARHEAD)
+	var resolved := WorldItemPickupFeedback.resolve_feedback(
+		ITEM_SPEARHEAD,
+		item_record,
+		db,
+		state,
+		LOC_SMITHY,
+		null
+	)
+	var feedback: Dictionary = resolved.get("feedback", {})
 	assert_eq(feedback.get("speaker_name"), "Kalev")
 	assert_true(String(feedback.get("text", "")).contains("mark"))
 	_cleanup_node(root)

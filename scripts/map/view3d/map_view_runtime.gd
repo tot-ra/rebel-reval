@@ -10,36 +10,28 @@ extends Node3D
 
 const PLAYER_RIG_SCENE := preload("res://assets/characters/kalev/kalev.tscn")
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
+const RuntimeCamera := preload("res://scripts/map/view3d/map_view_runtime_camera.gd")
 
-## Gameplay camera: frozen 64 px character target from CharacterScale, with
-## light smoothing so door spawns snap and walking glides.
-const FOLLOW_LERP_WEIGHT := 8.0
-const SNAP_DISTANCE_WORLD := 6.0
 const WALK_ANIMATION_MIN_SPEED := 5.0
 ## Logic px/s above which locomotion reads as running (midpoint between the
 ## player's walk and run speeds).
 const RUN_ANIMATION_MIN_SPEED := 170.0
 const INPUT_PROJECTION_SAMPLE_PX := 64.0
-## Orthographic zoom keeps the player-centered orbit intact while changing how
-## much of the map is visible. Limits prevent clipping into the character or
-## zooming so far out that gameplay-scale details become unreadable.
-const ZOOM_STEP_FACTOR := 0.9
-const ZOOM_MIN_FACTOR := 0.3
-const ZOOM_MAX_FACTOR := 1.5
-const ZOOM_MIN_ORTHOGRAPHIC_SIZE := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE * ZOOM_MIN_FACTOR
-const ZOOM_MAX_ORTHOGRAPHIC_SIZE := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE * ZOOM_MAX_FACTOR
-## Holding Page Up / Page Down, or dragging with the right mouse button, orbits
-## the camera around the player. C switches between the default dimetric
-## third-person view and an eye-level first-person view.
-const ROTATE_SPEED_DEGREES := 120.0
-const MOUSE_ROTATE_DEGREES_PER_PIXEL := 0.3
-const FIRST_PERSON_EYE_HEIGHT := 1.65
-const FIRST_PERSON_PITCH_DEGREES := -10.0
-const FIRST_PERSON_FOV_DEGREES := 75.0
-const FIRST_PERSON_NEAR := 0.05
-## Rig heights (world units, of the frozen 2.0-unit character) probed toward
-## the camera to decide when the occluded-player silhouette should show.
-const OCCLUSION_PROBE_HEIGHTS: Array[float] = [0.5, 1.1, 1.8]
+## Re-exported for tests and MapView3D preview bounds.
+const FOLLOW_LERP_WEIGHT := RuntimeCamera.FOLLOW_LERP_WEIGHT
+const SNAP_DISTANCE_WORLD := RuntimeCamera.SNAP_DISTANCE_WORLD
+const ZOOM_STEP_FACTOR := RuntimeCamera.ZOOM_STEP_FACTOR
+const ZOOM_MIN_FACTOR := RuntimeCamera.ZOOM_MIN_FACTOR
+const ZOOM_MAX_FACTOR := RuntimeCamera.ZOOM_MAX_FACTOR
+const ZOOM_MIN_ORTHOGRAPHIC_SIZE := RuntimeCamera.ZOOM_MIN_ORTHOGRAPHIC_SIZE
+const ZOOM_MAX_ORTHOGRAPHIC_SIZE := RuntimeCamera.ZOOM_MAX_ORTHOGRAPHIC_SIZE
+const ROTATE_SPEED_DEGREES := RuntimeCamera.ROTATE_SPEED_DEGREES
+const MOUSE_ROTATE_DEGREES_PER_PIXEL := RuntimeCamera.MOUSE_ROTATE_DEGREES_PER_PIXEL
+const FIRST_PERSON_EYE_HEIGHT := RuntimeCamera.FIRST_PERSON_EYE_HEIGHT
+const FIRST_PERSON_PITCH_DEGREES := RuntimeCamera.FIRST_PERSON_PITCH_DEGREES
+const FIRST_PERSON_FOV_DEGREES := RuntimeCamera.FIRST_PERSON_FOV_DEGREES
+const FIRST_PERSON_NEAR := RuntimeCamera.FIRST_PERSON_NEAR
+const OCCLUSION_PROBE_HEIGHTS := RuntimeCamera.OCCLUSION_PROBE_HEIGHTS
 
 var view: MapView3D
 
@@ -51,12 +43,8 @@ var _definition: MapDefinition
 var _player: CharacterBody2D
 var _player_rig: SharedCharacterRig
 var _camera: Camera3D
-var _drag_rotating_view := false
-var _mouse_rotation_armed := false
-var _last_mouse_position := Vector2.ZERO
+var _camera_controller: MapViewRuntimeCamera = RuntimeCamera.new()
 var _last_facing := Vector2.ZERO
-var _first_person := false
-var _third_person_size := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
 var _actor_rigs: Dictionary = {}
 var _equipment_state: GameState
 var _click_input: MapClickInputController
@@ -82,6 +70,7 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 
 	runtime._camera = runtime.view.view_camera()
 	runtime._camera.size = CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
+	runtime._camera_controller.configure(runtime._camera, runtime._player_rig, runtime.view, runtime._player)
 
 	scene_root.add_child(runtime)
 	# Created at runtime, so enable input explicitly before the first frame.
@@ -229,90 +218,43 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func toggle_camera_view() -> void:
-	set_first_person(not _first_person)
+	_camera_controller.toggle_first_person()
+	_configure_screen_relative_movement()
+	_update_occlusion_ghost()
 
 
 func set_first_person(enabled: bool) -> void:
-	if _first_person == enabled:
-		return
-	_first_person = enabled
-	if enabled:
-		_third_person_size = _camera.size
-		_camera.projection = Camera3D.PROJECTION_PERSPECTIVE
-		_camera.fov = FIRST_PERSON_FOV_DEGREES
-		_camera.near = FIRST_PERSON_NEAR
-		_camera.rotation_degrees.x = FIRST_PERSON_PITCH_DEGREES
-	else:
-		_camera.projection = Camera3D.PROJECTION_ORTHOGONAL
-		_camera.size = _third_person_size
-		_camera.near = 0.05
-		_camera.rotation_degrees.x = MapView3D.CAMERA_PITCH_DEGREES
-	_player_rig.visible = not enabled
-	_follow_player(true, 0.0)
+	_camera_controller.set_first_person(enabled)
 	_configure_screen_relative_movement()
 	_update_occlusion_ghost()
 
 
 func is_first_person() -> bool:
-	return _first_person
+	return _camera_controller.first_person
 
 
-## Positive steps zoom in and negative steps zoom out. Exponential scaling
-## gives mouse wheels and high-resolution trackpads the same proportional feel.
 func zoom_view_steps(steps: float) -> void:
-	if _first_person:
-		return
-	_camera.size = clampf(
-		_camera.size * pow(ZOOM_STEP_FACTOR, steps),
-		ZOOM_MIN_ORTHOGRAPHIC_SIZE,
-		ZOOM_MAX_ORTHOGRAPHIC_SIZE
-	)
+	_camera_controller.zoom_view_steps(steps)
 
 
 func _apply_view_rotation(delta: float) -> void:
-	_apply_mouse_rotation_drag()
-	var direction := 0.0
-	if Input.is_key_pressed(KEY_PAGEUP):
-		direction += 1.0
-	if Input.is_key_pressed(KEY_PAGEDOWN):
-		direction -= 1.0
-	if direction == 0.0:
-		return
-	rotate_view_degrees(direction * ROTATE_SPEED_DEGREES * delta)
-
-
-## Polls mouse position while RMB is held so camera orbit keeps working even
-## when UI nodes or input actions consume the underlying mouse-button events.
-func _apply_mouse_rotation_drag() -> void:
-	_apply_mouse_rotation_from_position(
-		get_viewport().get_mouse_position(),
-		Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
-	)
+	_camera_controller.apply_view_rotation(delta)
+	if Input.is_key_pressed(KEY_PAGEUP) or Input.is_key_pressed(KEY_PAGEDOWN):
+		_configure_screen_relative_movement()
 
 
 func _apply_mouse_rotation_from_position(mouse_position: Vector2, button_pressed: bool) -> void:
+	_camera_controller.apply_mouse_rotation_from_position(mouse_position, button_pressed)
 	if button_pressed:
-		if _mouse_rotation_armed:
-			var delta_x := mouse_position.x - _last_mouse_position.x
-			if not is_zero_approx(delta_x):
-				rotate_view_degrees(-delta_x * MOUSE_ROTATE_DEGREES_PER_PIXEL)
-		_mouse_rotation_armed = true
-		_drag_rotating_view = true
-	else:
-		_mouse_rotation_armed = false
-		_drag_rotating_view = false
-	_last_mouse_position = mouse_position
+		_configure_screen_relative_movement()
 
 
 func is_camera_drag_active() -> bool:
-	return _drag_rotating_view
+	return _camera_controller.drag_rotating_view
 
 
-## Orbits the gameplay camera around the player by an arbitrary angle, then
-## re-projects the keyboard axes so screen-relative movement stays intuitive.
 func rotate_view_degrees(delta_degrees: float) -> void:
-	_camera.rotation_degrees.y = wrapf(_camera.rotation_degrees.y + delta_degrees, -180.0, 180.0)
-	_follow_player(true, 0.0)
+	_camera_controller.rotate_view_degrees(delta_degrees)
 	_configure_screen_relative_movement()
 
 
@@ -329,7 +271,7 @@ func _sync_player(snap: bool, delta: float = 0.0) -> void:
 		_last_facing = _player.velocity.normalized()
 	elif _last_facing.is_zero_approx():
 		# Spawn-facing must use the snapped camera offset, not pre-sync positions.
-		_last_facing = _logic_direction_toward_camera()
+		_last_facing = _camera_controller.logic_direction_toward_camera()
 	var facing := _player.velocity if moving else _last_facing
 	if _player.has_method("view_facing"):
 		facing = _player.call("view_facing") as Vector2
@@ -400,17 +342,7 @@ func _sync_equipment_slot(slot: StringName) -> void:
 
 
 func _update_occlusion_ghost() -> void:
-	if _first_person:
-		_player_rig.set_occlusion_ghost(false)
-		return
-	var toward_camera := _camera.transform.basis.z * MapView3D.CAMERA_DISTANCE
-	var occluded := false
-	for height in OCCLUSION_PROBE_HEIGHTS:
-		var from := _player_rig.position + Vector3.UP * height
-		if view.is_segment_occluded(from, from + toward_camera):
-			occluded = true
-			break
-	_player_rig.set_occlusion_ghost(occluded)
+	_camera_controller.update_occlusion_ghost()
 
 
 func _configure_screen_relative_movement() -> void:
@@ -424,21 +356,8 @@ func _configure_screen_relative_movement() -> void:
 	_player.call("set_screen_movement_basis", logic_right, logic_down)
 
 
-func _logic_direction_toward_camera() -> Vector2:
-	var world_offset := _camera.position - _player_rig.position
-	return Vector2(world_offset.x, world_offset.z).normalized()
-
-
 func _follow_player(snap: bool, delta: float) -> void:
-	var target: Vector3
-	if _first_person:
-		target = _player_rig.position + Vector3.UP * FIRST_PERSON_EYE_HEIGHT
-	else:
-		target = _player_rig.position + _camera.transform.basis.z * MapView3D.CAMERA_DISTANCE
-	if snap or _camera.position.distance_to(target) > SNAP_DISTANCE_WORLD:
-		_camera.position = target
-		return
-	_camera.position = _camera.position.lerp(target, clampf(FOLLOW_LERP_WEIGHT * delta, 0.0, 1.0))
+	_camera_controller.follow_player(snap, delta)
 
 
 static func _hide_player_canvas(player: CharacterBody2D) -> void:

@@ -9,6 +9,8 @@ const TextLayoutScript := preload("res://scripts/dialogue/dialogue_text_layout.g
 const DialogueUiBuilder := preload("res://scripts/dialogue/dialogue_ui_builder.gd")
 const DialogueUiTheme := preload("res://scripts/dialogue/dialogue_ui_theme.gd")
 const DialogueUiInput := preload("res://scripts/dialogue/dialogue_ui_input.gd")
+const DialogueUiReveal := preload("res://scripts/dialogue/dialogue_ui_reveal.gd")
+const DialogueUiChoices := preload("res://scripts/dialogue/dialogue_ui_choices.gd")
 
 signal choice_selected(choice_id: String)
 signal skip_requested()
@@ -64,7 +66,7 @@ func apply_settings(settings) -> void:
 	set_text_scale(_settings.text_scale)
 	_apply_visual_theme()
 	if _visible_active and not _choice_mode:
-		_restart_line_reveal()
+		DialogueUiReveal.restart(self)
 
 
 func get_settings():
@@ -131,7 +133,7 @@ func consume_line_advance() -> bool:
 	if _choice_mode or _full_line_text.is_empty():
 		return true
 	if not _reveal_complete:
-		_complete_line_reveal()
+		DialogueUiReveal.complete(self)
 		return false
 	return true
 
@@ -147,23 +149,23 @@ func present_line(speaker_id: StringName, speaker_name: String, text: String, _n
 	_set_portrait(speaker_id, display_speaker)
 	_speaker_label.text = display_speaker
 	_full_line_text = display_text
-	_clear_choices()
+	DialogueUiChoices.clear(self)
 	_choice_mode = false
 	_show_overlay()
-	_start_line_reveal()
+	DialogueUiReveal.start(self)
 	_update_continue_hint()
 	_update_disabled_reason()
 	_reset_text_scroll()
 
 
 func present_choices(choices: Array) -> void:
-	_choices = _localize_choices(choices)
+	_choices = DialogueUiChoices.localize(choices, localize_text_for_display)
 	_choice_mode = true
-	_focused_choice_index = _first_enabled_choice_index()
-	_rebuild_choice_buttons()
+	_focused_choice_index = DialogueUiChoices.first_enabled_index(self)
+	DialogueUiChoices.rebuild_buttons(self)
 	_update_continue_hint()
 	_update_disabled_reason()
-	_focus_current_choice()
+	DialogueUiChoices.focus_current(self)
 	_reset_text_scroll()
 
 
@@ -176,7 +178,7 @@ func hide_overlay() -> void:
 	_choice_mode = false
 	_backlog_open = false
 	_choices.clear()
-	_clear_choices()
+	DialogueUiChoices.clear(self)
 	_root.visible = false
 	_backlog_panel.visible = false
 	_speaker_label.text = ""
@@ -197,7 +199,7 @@ func focus_choice_for_test(index: int) -> void:
 	if index < 0 or index >= _choice_buttons.size():
 		return
 	_focused_choice_index = index
-	_focus_current_choice()
+	DialogueUiChoices.focus_current(self)
 	_update_disabled_reason()
 
 
@@ -243,34 +245,6 @@ func _initials_for(speaker_name: String) -> String:
 	return (parts[0].left(1) + parts[1].left(1)).to_upper()
 
 
-func _clear_choices() -> void:
-	for button in _choice_buttons:
-		if is_instance_valid(button):
-			button.queue_free()
-	_choice_buttons.clear()
-
-
-func _rebuild_choice_buttons() -> void:
-	_clear_choices()
-	for choice_value in _choices:
-		if typeof(choice_value) != TYPE_DICTIONARY:
-			continue
-		var choice: Dictionary = choice_value
-		var button := Button.new()
-		var choice_text := String(choice.get("text", ""))
-		button.text = choice_text
-		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		button.focus_mode = Control.FOCUS_ALL
-		button.disabled = not bool(choice.get("enabled", true))
-		button.add_theme_font_override("font", _font)
-		button.add_theme_font_size_override("font_size", TextScaleScript.choice_size(_text_scale))
-		var choice_id := String(choice.get("id", ""))
-		button.pressed.connect(_on_choice_pressed.bind(choice_id))
-		button.focus_entered.connect(_on_choice_focus.bind(_choice_buttons.size()))
-		_choices_box.add_child(button)
-		_choice_buttons.append(button)
-
-
 func _rebuild_backlog() -> void:
 	for child in _backlog_list.get_children():
 		child.queue_free()
@@ -285,41 +259,10 @@ func _rebuild_backlog() -> void:
 		_backlog_list.add_child(line)
 
 
-func _localize_choices(choices: Array) -> Array:
-	var localized: Array = []
-	for choice_value in choices:
-		if typeof(choice_value) != TYPE_DICTIONARY:
-			continue
-		var choice: Dictionary = (choice_value as Dictionary).duplicate(true)
-		choice["text"] = localize_text_for_display(String(choice.get("text", "")))
-		var disabled_reason := String(choice.get("disabled_reason", ""))
-		if not disabled_reason.is_empty():
-			choice["disabled_reason"] = localize_text_for_display(disabled_reason)
-		localized.append(choice)
-	return localized
-
-
 func _reset_text_scroll() -> void:
 	if _text_scroll == null:
 		return
 	_text_scroll.scroll_vertical = 0
-
-
-func _first_enabled_choice_index() -> int:
-	for index in range(_choices.size()):
-		var choice: Dictionary = _choices[index]
-		if bool(choice.get("enabled", false)):
-			return index
-	return 0
-
-
-func _focus_current_choice() -> void:
-	if _focused_choice_index < 0 or _focused_choice_index >= _choice_buttons.size():
-		return
-	var button := _choice_buttons[_focused_choice_index]
-	if button.disabled:
-		return
-	button.grab_focus()
 
 
 func _update_continue_hint() -> void:
@@ -373,24 +316,11 @@ func _on_choice_focus(index: int) -> void:
 
 
 func _move_choice_focus(delta: int) -> void:
-	if not _choice_mode or _choice_buttons.is_empty():
-		return
-	var count := _choice_buttons.size()
-	_focused_choice_index = posmod(_focused_choice_index + delta, count)
-	_focus_current_choice()
-	if _focused_choice_index < _choice_buttons.size() and _choice_buttons[_focused_choice_index].disabled:
-		_move_choice_focus(delta)
+	DialogueUiChoices.move_focus(self, delta)
 
 
 func _confirm_focused_choice() -> bool:
-	if not _choice_mode or _focused_choice_index < 0 or _focused_choice_index >= _choices.size():
-		return false
-	var choice: Dictionary = _choices[_focused_choice_index]
-	if not bool(choice.get("enabled", true)):
-		_update_disabled_reason()
-		return true
-	choice_selected.emit(String(choice.get("id", "")))
-	return true
+	return DialogueUiChoices.confirm_focused(self)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -399,43 +329,11 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
-	if _reveal_complete or _full_line_text.is_empty():
-		set_process(false)
-		return
-
-	_reveal_accumulator += delta * _settings.chars_per_second()
-	while _reveal_accumulator >= 1.0 and _revealed_char_count < _full_line_text.length():
-		_revealed_char_count += 1
-		_reveal_accumulator -= 1.0
-		_text_label.text = _full_line_text.left(_revealed_char_count)
-
-	if _revealed_char_count >= _full_line_text.length():
-		_complete_line_reveal()
-
-
-func _start_line_reveal() -> void:
-	_revealed_char_count = 0
-	_reveal_accumulator = 0.0
-	if _settings.reveal_instantly() or _full_line_text.is_empty():
-		_complete_line_reveal()
-		return
-	_reveal_complete = false
-	_text_label.text = ""
-	set_process(true)
-
-
-func _restart_line_reveal() -> void:
-	if _full_line_text.is_empty():
-		return
-	_start_line_reveal()
+	DialogueUiReveal.process(self, delta)
 
 
 func _complete_line_reveal() -> void:
-	_revealed_char_count = _full_line_text.length()
-	_text_label.text = _full_line_text
-	_reveal_complete = true
-	_reveal_accumulator = 0.0
-	set_process(false)
+	DialogueUiReveal.complete(self)
 
 
 func _apply_visual_theme() -> void:

@@ -8,7 +8,8 @@ extends Node
 
 const WORLD_ITEM_SCENE := preload("res://scenes/world/world_item.tscn")
 const INTERACTABLE_SCENE := preload("res://scenes/interaction/interactable.tscn")
-const PickupFeedbackScript := preload("res://scripts/world/world_item_pickup_feedback.gd")
+const OverlayScript := preload("res://scripts/world/world_item_overlay.gd")
+const PickupLabelsScript := preload("res://scripts/world/world_item_pickup_labels.gd")
 
 const DEFAULT_PLACEMENTS: Dictionary = {
 	&"loc.kalev_smithy": [
@@ -33,15 +34,7 @@ var _views: Dictionary = {}
 var _interactables: Dictionary = {}
 var _interactable_binder: InteractableViewBinder
 var _hovered: WorldItem = null
-var _tooltip: Label
-var _tooltip_layer: CanvasLayer
-var _feedback_timer := 0.0
-var _feedback_text := ""
-var _cursor_over_pickup := false
-var _bark_timer := 0.0
-var _pickup_bark_runner: DialogueRunner
-var _audio_player: AudioStreamPlayer
-var _bark_label: Label
+var _overlay: WorldItemOverlay
 
 
 func setup(
@@ -58,7 +51,9 @@ func setup(
 	location_id = map_location_id
 	_state = SessionState.state
 	_content_db = SessionState.content_db
-	_build_ui()
+	_overlay = OverlayScript.new()
+	_overlay.name = "WorldItemOverlay"
+	add_child(_overlay)
 	_items_root = Node2D.new()
 	_items_root.name = "WorldItems"
 	_scene_root.add_child(_items_root)
@@ -76,7 +71,8 @@ func setup(
 func _exit_tree() -> void:
 	if SessionState.debug_state_applied.is_connected(_on_debug_state_applied):
 		SessionState.debug_state_applied.disconnect(_on_debug_state_applied)
-	_restore_default_cursor()
+	if _overlay != null:
+		_overlay.restore_cursor()
 
 
 func _on_debug_state_applied(_preset_id: StringName) -> void:
@@ -86,17 +82,11 @@ func _on_debug_state_applied(_preset_id: StringName) -> void:
 
 
 func _process(delta: float) -> void:
-	if _feedback_timer > 0.0:
-		_feedback_timer = maxf(0.0, _feedback_timer - delta)
-		if _feedback_timer <= 0.0:
-			_feedback_text = ""
-	if _bark_timer > 0.0:
-		_bark_timer = maxf(0.0, _bark_timer - delta)
-		if _bark_timer <= 0.0 and _bark_label != null:
-			_bark_label.visible = false
-			_bark_label.text = ""
+	if _overlay != null:
+		_overlay.tick(delta)
 	_update_hover()
-	_update_pickup_cursor()
+	if _overlay != null:
+		_overlay.update_cursor(_hovered != null and not _is_inventory_blocking_pickup())
 	_update_interactable_prompts()
 	_sync_interactable_enabled()
 	_update_tooltip()
@@ -125,7 +115,7 @@ func get_hovered_item() -> WorldItem:
 
 
 func is_pickup_hover_active() -> bool:
-	return _cursor_over_pickup
+	return _overlay != null and _overlay.cursor_over_pickup
 
 
 func _seed_defaults_if_needed() -> void:
@@ -256,27 +246,26 @@ func _set_view_hovered(item: WorldItem, value: bool) -> void:
 
 
 func _update_tooltip() -> void:
-	if _tooltip == null:
+	if _overlay == null or _hovered == null:
+		if _overlay != null:
+			_overlay.update_tooltip(null, _is_inventory_blocking_pickup(), "", "", Vector2.ZERO)
 		return
-	if _hovered == null or _is_inventory_blocking_pickup():
-		_tooltip.visible = false
-		_tooltip.text = ""
-		return
-
 	var record := _item_record(_hovered.get_item_id())
 	var name_text := String(record.get("name", String(_hovered.get_item_id())))
 	var action := _pickup_hint_for(_hovered.get_item_id())
-	if not _feedback_text.is_empty():
-		action = _feedback_text
-	_tooltip.visible = true
-	_tooltip.text = "%s\n%s" % [name_text, action]
-	_tooltip.global_position = get_viewport().get_mouse_position() + Vector2(18.0, 18.0)
+	_overlay.update_tooltip(
+		_hovered,
+		_is_inventory_blocking_pickup(),
+		name_text,
+		action,
+		get_viewport().get_mouse_position()
+	)
 
 
 func _pickup_hint_for(item_id: StringName) -> String:
 	if _state == null:
-		return _pickup_result_label(InventoryBag.AddResult.UNKNOWN_ITEM)
-	return _pickup_result_label(_state.bag.check_add(item_id))
+		return PickupLabelsScript.label_for(InventoryBag.AddResult.UNKNOWN_ITEM)
+	return PickupLabelsScript.label_for(_state.bag.check_add(item_id))
 
 
 func _try_pickup(item: WorldItem) -> bool:
@@ -285,15 +274,17 @@ func _try_pickup(item: WorldItem) -> bool:
 	var item_id := item.get_item_id()
 	var result := _state.bag.try_add(item_id)
 	if result != InventoryBag.AddResult.OK:
-		_show_feedback(_pickup_result_label(result))
+		if _overlay != null:
+			_overlay.show_feedback(PickupLabelsScript.label_for(result))
 		return true
 	_state.add_item(item_id)
 	_state.take_world_item(location_id, item.get_world_object_id())
 	var record := _item_record(item_id)
 	var name_text := String(record.get("name", String(item_id)))
-	_show_feedback("Picked up %s" % name_text)
-	_play_pickup_sfx(item_id)
-	_show_pickup_bark(_resolve_pickup_feedback(item_id))
+	if _overlay != null:
+		_overlay.show_feedback("Picked up %s" % name_text)
+		_overlay.play_pickup_sfx(record)
+		_overlay.show_pickup_bark(_overlay.resolve_pickup_feedback(item_id, record, _content_db, _state, location_id))
 	_remove_pickup_interactable(item)
 	var view: WorldItemView = _views.get(item)
 	if view != null and is_instance_valid(view):
@@ -389,25 +380,6 @@ func _item_record(item_id: StringName) -> Dictionary:
 	return {"name": String(item_id)}
 
 
-func _pickup_result_label(result: InventoryBag.AddResult) -> String:
-	match result:
-		InventoryBag.AddResult.OK:
-			return "Pick up"
-		InventoryBag.AddResult.NO_SPACE:
-			return "Bag is full"
-		InventoryBag.AddResult.OVER_WEIGHT:
-			return "Too heavy to carry"
-		InventoryBag.AddResult.STACK_FULL:
-			return "Stack is full"
-		_:
-			return "Cannot pick up"
-
-
-func _show_feedback(message: String) -> void:
-	_feedback_text = message
-	_feedback_timer = 1.4
-
-
 func _on_pickup_interact(_actor: Node, item: WorldItem) -> void:
 	if _is_inventory_blocking_pickup():
 		return
@@ -430,8 +402,8 @@ func _refresh_interactable_prompt(interactable: Interactable, item: WorldItem) -
 	var record := _item_record(item.get_item_id())
 	var name_text := String(record.get("name", String(item.get_item_id())))
 	var action := _pickup_hint_for(item.get_item_id())
-	if not _feedback_text.is_empty() and _hovered == item:
-		action = _feedback_text
+	if _overlay != null and not _overlay.feedback_text.is_empty() and _hovered == item:
+		action = _overlay.feedback_text
 	interactable.prompt = "%s - %s" % [name_text, action]
 
 
@@ -452,73 +424,3 @@ func _sync_interactable_enabled() -> void:
 		if interactable == null or not is_instance_valid(interactable):
 			continue
 		interactable.enabled = not blocked
-
-
-func _build_ui() -> void:
-	_tooltip_layer = CanvasLayer.new()
-	_tooltip_layer.layer = 30
-	add_child(_tooltip_layer)
-	_tooltip = Label.new()
-	_tooltip.add_theme_color_override("font_color", Color(0.96, 0.95, 0.9, 1.0))
-	_tooltip.add_theme_color_override("font_outline_color", Color(0.05, 0.06, 0.08, 1.0))
-	_tooltip.add_theme_constant_override("outline_size", 4)
-	_tooltip.visible = false
-	_tooltip_layer.add_child(_tooltip)
-
-	_bark_label = Label.new()
-	_bark_label.anchor_left = 0.5
-	_bark_label.anchor_right = 0.5
-	_bark_label.anchor_top = 1.0
-	_bark_label.anchor_bottom = 1.0
-	_bark_label.offset_left = -360.0
-	_bark_label.offset_right = 360.0
-	_bark_label.offset_top = -96.0
-	_bark_label.offset_bottom = -48.0
-	_bark_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_bark_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_bark_label.add_theme_color_override("font_color", Color(0.98, 0.96, 0.9, 1.0))
-	_bark_label.add_theme_color_override("font_outline_color", Color(0.05, 0.06, 0.08, 1.0))
-	_bark_label.add_theme_constant_override("outline_size", 5)
-	_bark_label.visible = false
-	_tooltip_layer.add_child(_bark_label)
-
-	_audio_player = AudioStreamPlayer.new()
-	_audio_player.name = "PickupSfx"
-	add_child(_audio_player)
-
-
-func _update_pickup_cursor() -> void:
-	var wants_grab := _hovered != null and not _is_inventory_blocking_pickup()
-	if wants_grab == _cursor_over_pickup:
-		return
-	_cursor_over_pickup = wants_grab
-	if wants_grab:
-		Input.set_default_cursor_shape(Input.CURSOR_DRAG)
-	else:
-		_restore_default_cursor()
-
-
-func _restore_default_cursor() -> void:
-	_cursor_over_pickup = false
-	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
-
-
-func _resolve_pickup_feedback(item_id: StringName) -> Dictionary:
-	var resolved := PickupFeedbackScript.resolve_feedback(
-		item_id,
-		_item_record(item_id),
-		_content_db,
-		_state,
-		location_id,
-		_pickup_bark_runner
-	)
-	_pickup_bark_runner = resolved.get("bark_runner", _pickup_bark_runner)
-	return resolved.get("feedback", {})
-
-
-func _show_pickup_bark(feedback: Dictionary) -> void:
-	_bark_timer = PickupFeedbackScript.show_bark(_bark_label, feedback)
-
-
-func _play_pickup_sfx(item_id: StringName) -> void:
-	PickupFeedbackScript.play_pickup_sfx(_audio_player, _item_record(item_id))
