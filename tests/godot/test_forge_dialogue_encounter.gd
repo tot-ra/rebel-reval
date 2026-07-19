@@ -100,6 +100,28 @@ func test_forge_encounter_spawns_talk_interactables_on_npc_hosts() -> void:
 	_cleanup_node(root)
 
 
+func test_interactable_world_indicator_positions_glyph_above_cat_height() -> void:
+	var root := _make_root()
+	var cat := ForgeCat.new()
+	root.add_child(cat)
+	var interactable := _spawn_interactable(cat)
+	var indicator := InteractableWorldIndicator.new()
+	root.add_child(indicator)
+	indicator.attach(interactable, MapTypes.DEFAULT_CELL_SIZE)
+
+	var glyph := indicator.get_node("PromptGlyph") as Label3D
+	indicator._process(0.0)
+	assert_true(
+		is_equal_approx(glyph.position.y, CatRig.view_glyph_height()),
+		"Cat talk glyph must sit above the rig, not the human default"
+	)
+	assert_true(
+		glyph.position.y < CharacterScale.VISIBLE_HEIGHT_WORLD,
+		"Cat glyph must stay below human talk-marker height"
+	)
+	_cleanup_node(root)
+
+
 func test_interactable_world_indicator_toggles_focus_ring() -> void:
 	var root := _make_root()
 	var interactable := _spawn_interactable(root)

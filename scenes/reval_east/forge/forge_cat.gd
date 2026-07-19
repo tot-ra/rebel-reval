@@ -94,6 +94,10 @@ func view_facing() -> Vector2:
 	return velocity.normalized() if not velocity.is_zero_approx() else _last_facing
 
 
+func view_glyph_height() -> float:
+	return CatRig.view_glyph_height()
+
+
 func _update_walk() -> void:
 	if navigation_agent.is_navigation_finished():
 		_arrive()

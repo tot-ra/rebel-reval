@@ -17,6 +17,14 @@ const TAIL_SIZE := Vector3(0.06, 0.06, 0.34)
 const EAR_SIZE := Vector3(0.05, 0.08, 0.05)
 
 const WALK_REFERENCE_SPEED_WORLD := 1.5
+## Padding above standing ear tips so the talk glyph clears the procedural rig.
+const PROMPT_GLYPH_PADDING := 0.22
+
+
+static func view_glyph_height() -> float:
+	var head_center_y := 0.23 + 0.10
+	var ear_top := head_center_y + 0.10 + EAR_SIZE.y * 0.5
+	return ear_top + PROMPT_GLYPH_PADDING
 
 
 func _ready() -> void:

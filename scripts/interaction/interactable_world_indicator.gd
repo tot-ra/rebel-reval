@@ -14,6 +14,9 @@ const GLYPH_BY_KIND: Dictionary = {
 	InteractionKinds.USE: "!",
 }
 
+const DEFAULT_GLYPH_HEIGHT := CharacterScale.VISIBLE_HEIGHT_WORLD + 0.05
+const GLYPH_BOB_AMPLITUDE := 0.05
+
 var _interactable: Interactable
 var _cell_size := MapTypes.DEFAULT_CELL_SIZE
 var _glyph: Label3D
@@ -51,8 +54,8 @@ func _process(delta: float) -> void:
 	if _glyph == null:
 		return
 	_bob_phase += delta * 3.2
-	var bob := sin(_bob_phase) * 0.05
-	_glyph.position.y = 2.05 + bob
+	var bob := sin(_bob_phase) * GLYPH_BOB_AMPLITUDE
+	_glyph.position.y = _resolve_glyph_height() + bob
 
 
 func _build_nodes() -> void:
@@ -61,7 +64,7 @@ func _build_nodes() -> void:
 	_glyph.text = "?"
 	_glyph.font_size = 56
 	_glyph.pixel_size = 0.009
-	_glyph.position = Vector3(0.0, 2.05, 0.0)
+	_glyph.position = Vector3(0.0, DEFAULT_GLYPH_HEIGHT, 0.0)
 	_glyph.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_glyph.no_depth_test = true
 	_glyph.outline_size = 8
@@ -86,6 +89,15 @@ func _build_nodes() -> void:
 	_ring.position = Vector3(0.0, 0.05, 0.0)
 	_ring.visible = false
 	add_child(_ring)
+
+
+func _resolve_glyph_height() -> float:
+	if _interactable == null or not is_instance_valid(_interactable):
+		return DEFAULT_GLYPH_HEIGHT
+	var host := _interactable.get_parent()
+	if host != null and host.has_method("view_glyph_height"):
+		return host.call("view_glyph_height") as float
+	return DEFAULT_GLYPH_HEIGHT
 
 
 func _apply_glyph_for_kind(kind: StringName) -> void:
