@@ -89,6 +89,27 @@ func test_interior_walls_skip_segment_caps() -> void:
 		node.free()
 
 
+func test_kalev_smithy_interior_walls_show_period_structure() -> void:
+	var definition := KalevSmithyDefinition.create()
+	var found_plaster := false
+	var found_smoked_plaster := false
+	for building in definition.buildings:
+		if building.get("kind", &"") != MapTypes.BUILDING_KIND_INTERIOR_WALL:
+			continue
+		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
+		assert_true(node.has_node("StonePlinth_south") or node.has_node("StonePlinth_east"), "%s needs a limestone plinth" % building["id"])
+		assert_true(node.has_node("Post_south_00") or node.has_node("Post_east_00"), "%s needs exposed timber posts" % building["id"])
+		var material: StringName = building.get("wall_material", &"")
+		if material == &"plaster":
+			found_plaster = true
+		elif material == &"smoked_plaster":
+			found_smoked_plaster = true
+			assert_true(node.has_node("Soot_south_00") or node.has_node("Soot_east_00"), "%s needs a soot wash" % building["id"])
+		node.free()
+	assert_true(found_plaster, "smithy needs a clean lime-plaster living bay")
+	assert_true(found_smoked_plaster, "smithy needs a smoke-darkened forge bay")
+
+
 func test_town_surroundings_paint_cobble_apron() -> void:
 	var definition := LowerTownSlice.create()
 	var view := MapView3D.create(definition, MapBuilder.build(definition))

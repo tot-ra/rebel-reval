@@ -1,18 +1,24 @@
-# Compact Lower Town smithy interior. Urban stone shell only - no grass surroundings.
+# Compact Lower Town smithy interior. Warm limewash, local limestone, and exposed timber
+# follow the material hierarchy of a fourteenth-century Reval craft dwelling; the forge
+# half is deliberately smoke-darkened while the living half keeps cleaner lime plaster.
 rrmap 1
 map kalev_smithy loc.kalev_smithy 26 14 stone scope=production active=true palette=clean_painted seed=42042 cell_size=32
 source "scenes/reval_east/forge/forge.tscn"
 source "docs/SCENES/the-makers-mark.md"
 source "content/locations/loc.kalev_smithy.json"
-style wall.shell wall_height=88 wall_color=756f66ff
+style wall.living wall_height=120 wall_color=cdb892ff wall_material=plaster
+style wall.forge wall_height=120 wall_color=9b8768ff wall_material=smoked_plaster
+style wall.partition wall_height=120 wall_color=b59d78ff wall_material=plaster
 terrain floor.forge stone 15 1 10 12 order=1
 terrain floor.hearth ash 17 1 8 5 order=2
 terrain floor.living timber_floor 1 1 13 12 order=3
-wall wall.north 0 0 25 0 thickness=1 openings=5,0,1,1|20,0,1,1 kind=interior_wall style=wall.shell
-wall wall.south 0 13 25 13 thickness=1 openings=12,13,2,1 kind=interior_wall style=wall.shell
-wall wall.west 0 1 0 12 thickness=1 openings=0,6,1,2 kind=interior_wall style=wall.shell
-wall wall.east 25 1 25 12 thickness=1 openings=25,6,1,2 kind=interior_wall style=wall.shell
-wall wall.divider 14 1 14 12 thickness=1 openings=14,7,1,2 kind=interior_wall style=wall.shell
+wall wall.north_living 0 0 14 0 thickness=1 openings=5,0,1,1 kind=interior_wall style=wall.living
+wall wall.north_forge 15 0 25 0 thickness=1 openings=20,0,1,1 kind=interior_wall style=wall.forge
+wall wall.south_living 0 13 11 13 thickness=1 kind=interior_wall style=wall.living
+wall wall.south_forge 14 13 25 13 thickness=1 kind=interior_wall style=wall.forge
+wall wall.west 0 1 0 12 thickness=1 openings=0,6,1,2 kind=interior_wall style=wall.living
+wall wall.east 25 1 25 12 thickness=1 openings=25,6,1,2 kind=interior_wall style=wall.forge
+wall wall.divider 14 1 14 12 thickness=1 openings=14,7,1,2 kind=interior_wall style=wall.partition
 prop forge_anvil anvil 18 5 rect=3,2
 prop forge_furnace furnace 19 1 rect=3,3
 prop forge_ledger ledger 4 3 rect=2,2

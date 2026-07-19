@@ -159,6 +159,7 @@ static func _clean_terrain(terrain_id: StringName) -> Color:
 static func _pixel_role(role: StringName) -> Color:
 	match role:
 		&"ink": return Color8(32, 25, 23)
+		&"soot": return Color8(48, 42, 36)
 		&"plaster": return Color8(180, 157, 119)
 		&"timber": return Color8(72, 47, 36)
 		&"roof": return Color8(91, 51, 43)
@@ -180,6 +181,7 @@ static func _pixel_role(role: StringName) -> Color:
 static func _woodcut_role(role: StringName) -> Color:
 	match role:
 		&"ink": return Color8(38, 29, 24)
+		&"soot": return Color8(52, 44, 36)
 		&"plaster": return Color8(205, 184, 142)
 		&"timber": return Color8(62, 45, 34)
 		&"roof": return Color8(83, 53, 40)
@@ -201,6 +203,7 @@ static func _woodcut_role(role: StringName) -> Color:
 static func _clean_role(role: StringName) -> Color:
 	match role:
 		&"ink": return Color8(43, 38, 36)
+		&"soot": return Color8(58, 51, 43)
 		&"plaster": return Color8(205, 184, 146)
 		&"timber": return Color8(83, 55, 42)
 		&"roof": return Color8(111, 59, 49)

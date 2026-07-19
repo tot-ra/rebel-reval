@@ -78,6 +78,23 @@ func test_kalev_smithy_has_windows_furniture_and_local_lighting() -> void:
 	assert_eq(block_count, 0, "interior blocks should be replaced by props and wall openings")
 
 
+
+
+func test_kalev_smithy_uses_tall_period_wall_finishes() -> void:
+	var definition: MapDefinition = KalevSmithyDefinition.create()
+	var living_count := 0
+	var forge_count := 0
+	for building in definition.buildings:
+		if building.get("kind", &"") != MapTypes.BUILDING_KIND_INTERIOR_WALL:
+			continue
+		assert_eq(float(building.get("wall_height", 0.0)), 120.0, "smithy walls need full-storey height")
+		var material: StringName = building.get("wall_material", &"")
+		if material == &"plaster":
+			living_count += 1
+		elif material == &"smoked_plaster":
+			forge_count += 1
+	assert_true(living_count > 0, "living bay needs warm lime plaster")
+	assert_true(forge_count > 0, "working bay needs smoke-darkened plaster")
 func test_kalev_smithy_door_aligns_with_south_wall_opening() -> void:
 	var definition: MapDefinition = KalevSmithyDefinition.create()
 	var door := MapVerification.transition_rect(definition, &"door_courtyard")
