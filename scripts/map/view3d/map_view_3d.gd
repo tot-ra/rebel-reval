@@ -3,6 +3,7 @@ extends Node3D
 
 const DirectionSignBuilder := preload("res://scripts/map/view3d/direction_sign_3d.gd")
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
+const SkyWeather3D := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 
 ## P0-052 3D orthographic view layer (ADR 0007). Assembles terrain, building,
 ## and prop geometry from an immutable MapDefinition, framed by a fixed
@@ -40,6 +41,11 @@ const AMBIENT_NIGHT_COLOR := Color8(52, 66, 100)
 const AMBIENT_NIGHT_ENERGY := 0.5
 const BACKGROUND_NIGHT_COLOR := Color8(12, 14, 22)
 
+## Golden-hour and overcast tints blended onto sun/ambient by SkyWeather3D
+## lighting modifiers (0 amount reproduces the authored day/night look exactly).
+const SUNSET_LIGHT_COLOR := Color8(255, 148, 64)
+const OVERCAST_LIGHT_COLOR := Color8(172, 182, 196)
+
 ## Shadow cascades only need the max-zoom gameplay frustum, not the authored map
 ## or the camera far plane. Tighter distance concentrates shadow-map texels on
 ## the slice the player actually sees.
@@ -58,6 +64,7 @@ var time_of_day: StringName = TIME_DAY
 var cycle_progress: float = DayNightCycle.DEFAULT_PROGRESS
 
 var _sun: DirectionalLight3D
+var _sky_weather: SkyWeather3D
 var _last_chimney_bucket: StringName = TIME_DAY
 var _environment: Environment
 var _camera: Camera3D
@@ -115,10 +122,19 @@ func apply_cycle_progress(progress: float, sweep_sun_yaw: bool = true) -> void:
 	else:
 		_sun.rotation_degrees.y = SUN_NIGHT_ROTATION_DEGREES.y if night else SUN_DAY_ROTATION_DEGREES.y
 	_sun.rotation_degrees.z = 0.0
-	_sun.light_color = SUN_NIGHT_COLOR.lerp(SUN_DAY_COLOR, day_blend)
-	_sun.light_energy = lerpf(SUN_NIGHT_ENERGY, SUN_DAY_ENERGY, day_blend)
-	_environment.ambient_light_color = AMBIENT_NIGHT_COLOR.lerp(AMBIENT_DAY_COLOR, day_blend)
-	_environment.ambient_light_energy = lerpf(AMBIENT_NIGHT_ENERGY, AMBIENT_DAY_ENERGY, day_blend)
+	# Sky dome follows the cycle first; its weather/golden-hour modifiers then
+	# temper the authored day/night lerp so overcast and dusk read in the light.
+	_sky_weather.apply_sky_state(cycle_progress, day_blend, _sun.rotation_degrees.y)
+	var weather := _sky_weather.lighting_modifiers()
+	var sun_color := SUN_NIGHT_COLOR.lerp(SUN_DAY_COLOR, day_blend)
+	sun_color = sun_color.lerp(SUNSET_LIGHT_COLOR, weather["sunset_tint"])
+	sun_color = sun_color.lerp(OVERCAST_LIGHT_COLOR, weather["overcast"])
+	_sun.light_color = sun_color
+	_sun.light_energy = lerpf(SUN_NIGHT_ENERGY, SUN_DAY_ENERGY, day_blend) * weather["sun_energy"]
+	var ambient := AMBIENT_NIGHT_COLOR.lerp(AMBIENT_DAY_COLOR, day_blend)
+	ambient = ambient.lerp(OVERCAST_LIGHT_COLOR, weather["overcast"] * 0.5)
+	_environment.ambient_light_color = ambient
+	_environment.ambient_light_energy = lerpf(AMBIENT_NIGHT_ENERGY, AMBIENT_DAY_ENERGY, day_blend) * weather["ambient_energy"]
 	_environment.background_color = BACKGROUND_NIGHT_COLOR.lerp(BACKGROUND_DAY_COLOR, day_blend)
 
 	var bucket := TIME_NIGHT if night else TIME_DAY
@@ -193,6 +209,10 @@ func is_segment_occluded(from: Vector3, to: Vector3) -> bool:
 
 func sun_light() -> DirectionalLight3D:
 	return _sun
+
+
+func sky_weather() -> SkyWeather3D:
+	return _sky_weather
 
 
 func object_streamer() -> MapObjectChunkStreamer:
@@ -292,6 +312,14 @@ func _assemble() -> void:
 
 	_camera = _create_camera()
 	add_child(_camera)
+
+	# Sky dome + weather cycle; replaces the flat background color with a real
+	# sky the first-person camera can see, and feeds lighting modifiers above.
+	_sky_weather = SkyWeather3D.new()
+	_sky_weather.name = "SkyWeather"
+	add_child(_sky_weather)
+	_sky_weather.configure(_camera, _environment)
+
 	# Headless uses the dummy renderer, which cannot provide the screen texture
 	# sampled by this post-process. Visibility logic remains directly testable.
 	if DisplayServer.get_name() != "headless":
