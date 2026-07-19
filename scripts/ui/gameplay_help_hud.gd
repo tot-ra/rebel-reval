@@ -6,8 +6,8 @@ extends CanvasLayer
 
 const PANEL_MARGIN := 24.0
 const HELP_TEXT := (
-	"WASD or arrows - move | Click - travel | E - interact | C - camera | "
-	+ "N - map | I - inventory | J - journal"
+	"WASD or arrows - move | Click - travel | E - interact | "
+	+ "Quick access or C - camera | N - map | I - inventory | J - journal"
 )
 
 var _label: Label

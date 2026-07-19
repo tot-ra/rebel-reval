@@ -16,6 +16,23 @@ func test_complete_example_parses_and_compiles_through_blueprint_compiler() -> v
 	assert_eq(parsed.definition.source_references, ["docs/MAP_AUTHORING.md"])
 
 
+func test_wall_and_roof_material_style_keys_compile_into_buildings() -> void:
+	var source := """rrmap 1
+map materials loc.materials 12 10 grass
+style house.log wall_height=96 wall_color=806f5cff wall_material=log roof_color=453027ff roof_material=shingle door_side=south
+building house.main house 3 3 4 3 style=house.log
+spawn spawn.main 2 2
+"""
+	var parsed := MapRrmapParser.parse(source, "res://materials.rrmap")
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if not parsed.is_ok():
+		return
+	assert_eq(parsed.definition.buildings.size(), 1)
+	var building: Dictionary = parsed.definition.buildings[0]
+	assert_eq(building.get("wall_material"), &"log")
+	assert_eq(building.get("roof_material"), &"shingle")
+
+
 func test_comments_quoting_and_exact_primitive_mapping() -> void:
 	var source := """rrmap 1 # version
 map syntax_test loc.syntax_test 12 10 grass # map

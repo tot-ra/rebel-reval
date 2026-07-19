@@ -142,3 +142,35 @@ func test_first_person_movement_follows_camera_yaw_via_gameplay_rotation() -> vo
 		"re-projected first-person movement must stay normalized"
 	)
 	scene_root.free()
+
+
+func test_quick_access_camera_button_toggles_first_person() -> void:
+	var scene_root := Node2D.new()
+	var map_root := Node2D.new()
+	var actors := Node2D.new()
+	var player := PLAYER_SCENE.instantiate() as Player
+	scene_root.add_child(map_root)
+	scene_root.add_child(actors)
+	actors.add_child(player)
+	var menu := QuickAccessMenu.new()
+	player.add_child(menu)
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(scene_root)
+
+	var definition := KalevSmithyDefinition.create()
+	var bootstrap := {
+		"definition": definition,
+		"grid": MapBuilder.build(definition),
+		"assembled": {"buildings": [], "props": []},
+	}
+	var runtime := MapViewRuntime.install(scene_root, bootstrap, map_root, player)
+	menu._refresh_availability()
+
+	var camera_button := menu.find_child("CameraButton", true, false) as Button
+	assert_false(camera_button.disabled, "camera button must be available on 3D maps")
+	camera_button.pressed.emit()
+	assert_true(runtime.is_first_person(), "quick access must switch to first-person view")
+
+	camera_button.pressed.emit()
+	assert_false(runtime.is_first_person(), "quick access must restore third-person view")
+	scene_root.free()

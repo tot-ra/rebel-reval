@@ -163,3 +163,28 @@ func test_view_updates_window_lights_through_cycle_progress() -> void:
 	assert_true(dark_at_noon, "noon cycle progress must keep windows dark")
 
 
+func test_clear_weather_preserves_authored_day_night_lighting() -> void:
+	const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
+	var definition := SmithyCourtyard.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_DAY)
+	var sky := view.sky_weather()
+	sky.auto_weather = false
+	sky.set_weather(SkyWeather.WEATHER_CLEAR)
+	view.apply_cycle_progress(0.5)
+	assert_true(
+		is_equal_approx(view.sun_light().light_energy, MapView3D.SUN_DAY_ENERGY),
+		"clear noon must keep the authored sun energy"
+	)
+	var world_env := view.get_node("ViewEnvironment") as WorldEnvironment
+	assert_true(
+		is_equal_approx(world_env.environment.ambient_light_energy, MapView3D.AMBIENT_DAY_ENERGY),
+		"clear noon must keep the authored ambient energy"
+	)
+	view.apply_cycle_progress(0.0)
+	assert_true(
+		view.sun_light().light_energy <= MapView3D.SUN_DAY_ENERGY * 0.8,
+		"clear midnight must stay at least as dark as the authored night baseline"
+	)
+	view.free()
+
+

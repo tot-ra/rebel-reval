@@ -17,6 +17,7 @@ var _save_callback: Callable
 
 var _inventory_button: Button
 var _journal_button: Button
+var _camera_button: Button
 var _save_button: Button
 var _status_label: Label
 
@@ -45,7 +46,7 @@ func _build_ui() -> void:
 	panel.name = "QuickAccessPanel"
 	panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	var panel_top := MinimapHud.PANEL_MARGIN + MinimapHud.total_hud_height() + MINIMAP_GAP
-	panel.offset_left = -506.0
+	panel.offset_left = -626.0
 	panel.offset_top = panel_top
 	panel.offset_right = -PANEL_MARGIN_RIGHT
 	panel.offset_bottom = panel_top + PANEL_HEIGHT
@@ -81,6 +82,10 @@ func _build_ui() -> void:
 	_journal_button = _create_action_button("JournalButton", "Journal [J]", "Open journal")
 	_journal_button.pressed.connect(_on_journal_pressed)
 	actions.add_child(_journal_button)
+
+	_camera_button = _create_action_button("CameraButton", "Camera [C]", "Toggle first-person view")
+	_camera_button.pressed.connect(_on_camera_pressed)
+	actions.add_child(_camera_button)
 
 	_save_button = _create_action_button("SaveButton", "Save game", "Save to the current slot")
 	_save_button.pressed.connect(_on_save_pressed)
@@ -118,6 +123,7 @@ func _refresh_availability() -> void:
 		return
 	_inventory_button.disabled = _inventory_controller == null
 	_journal_button.disabled = _journal_controller == null
+	_camera_button.disabled = _find_map_view_runtime() == null
 	_save_button.disabled = not _save_callback.is_valid()
 
 
@@ -137,6 +143,23 @@ func _on_journal_pressed() -> void:
 		_inventory_controller.close()
 	_journal_controller.toggle()
 	_status_label.text = "Journal opened" if _journal_controller.is_open() else STATUS_READY
+
+
+func _on_camera_pressed() -> void:
+	var runtime := _find_map_view_runtime()
+	if runtime == null:
+		return
+	runtime.toggle_camera_view()
+	_status_label.text = "First-person view" if runtime.is_first_person() else STATUS_READY
+
+
+func _find_map_view_runtime() -> MapViewRuntime:
+	var node: Node = get_parent()
+	while node != null:
+		if node.has_node("MapViewRuntime"):
+			return node.get_node("MapViewRuntime") as MapViewRuntime
+		node = node.get_parent()
+	return null
 
 
 func _on_save_pressed() -> void:

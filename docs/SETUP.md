@@ -166,6 +166,12 @@ godot --headless --script tools/run_godot_tests.gd
 
 To add tests, create a script under `tests/godot/` named `test_<area>.gd`, extend `res://tests/godot/test_case.gd`, and add zero-argument methods named `test_<behavior>`. Use `before_each()` and `after_each()` for per-test setup when needed.
 
+For a narrow iteration loop while working on map view or camera behavior, run the focused helper (subset of integration tests only):
+
+```bash
+godot --headless --script tools/run_focused_godot_tests.gd
+```
+
 ### Validation
 
 Run the schema fixture checks, semantic validator tests, and complete example corpus validation:

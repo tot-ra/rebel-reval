@@ -15,13 +15,16 @@ func test_menu_exposes_named_player_actions() -> void:
 
 	var inventory := menu.find_child("InventoryButton", true, false) as Button
 	var journal := menu.find_child("JournalButton", true, false) as Button
+	var camera := menu.find_child("CameraButton", true, false) as Button
 	var save := menu.find_child("SaveButton", true, false) as Button
 
 	assert_true(inventory != null, "quick access must visibly expose inventory")
 	assert_true(journal != null, "quick access must visibly expose journal")
+	assert_true(camera != null, "quick access must visibly expose camera toggle")
 	assert_true(save != null, "quick access must visibly expose manual save")
 	assert_eq(inventory.text, "Inventory [I]")
 	assert_eq(journal.text, "Journal [J]")
+	assert_eq(camera.text, "Camera [C]")
 	assert_eq(save.text, "Save game")
 	menu.queue_free()
 
@@ -44,6 +47,7 @@ func test_save_button_calls_existing_save_behavior_and_reports_success() -> void
 func test_documented_shortcuts_stay_available() -> void:
 	assert_true(_action_has_physical_key(&"toggle_inventory", KEY_I), "inventory shortcut must remain I")
 	assert_true(_action_has_physical_key(&"toggle_journal", KEY_J), "journal shortcut must remain J")
+	assert_true(_action_has_physical_key(&"toggle_camera_view", KEY_C), "camera shortcut must remain C")
 
 
 func test_inventory_and_journal_buttons_reuse_exclusive_overlays() -> void:
