@@ -159,7 +159,7 @@ func test_chimney_smoke_varies_by_building_and_time_of_day() -> void:
 			assert_eq(
 				smoke.preprocess,
 				ChimneySmoke3D.SMOKE_PREWARM_SECONDS,
-				"%s: smoke must prewarm enough to remain visible when memory freezes it" % building["id"]
+				"%s: smoke must prewarm enough to remain visible at the chimney mouth" % building["id"]
 			)
 			var building_seed := String(building["id"]).hash()
 			var expected_day_amount := (22 + ((building_seed >> 5) % 14)) * 2

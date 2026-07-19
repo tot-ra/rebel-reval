@@ -62,7 +62,6 @@ var _last_chimney_bucket: StringName = TIME_DAY
 var _environment: Environment
 var _camera: Camera3D
 var _fog_of_war: Node3D
-var _memory_animation_state: Dictionary = {}
 var _occluder_bounds: Array[AABB] = []
 var _object_index: MapChunkRuntimeIndex
 var _object_streamer: MapObjectChunkStreamer
@@ -93,32 +92,6 @@ func _process(delta: float) -> void:
 		return
 	var facing := Vector2(sin(player_rig.global_rotation.y), cos(player_rig.global_rotation.y))
 	_fog_of_war.call("update_view", player_rig.global_position, facing, delta)
-	_update_memory_animations(player_rig.global_position, facing)
-
-
-func _update_memory_animations(player_position: Vector3, facing: Vector2) -> void:
-	var player_ground := Vector2(player_position.x, player_position.z)
-	for animated in get_tree().get_nodes_in_group(&"fog_memory_animation"):
-		if not animated is AnimationPlayer:
-			continue
-		var animation := animated as AnimationPlayer
-		var owner := animation.get_parent() as Node3D
-		if owner == null:
-			continue
-		var position := Vector2(owner.global_position.x, owner.global_position.z)
-		var alive := float(_fog_of_war.call("visibility_at", position, player_ground, facing)) > 0.5
-		var key := animation.get_instance_id()
-		if not _memory_animation_state.has(key):
-			_memory_animation_state[key] = animation.active
-		animation.active = bool(_memory_animation_state[key]) if alive else false
-
-	for smoke in get_tree().get_nodes_in_group(&"fog_memory_particles"):
-		if not smoke is GPUParticles3D:
-			continue
-		var particles := smoke as GPUParticles3D
-		var position := Vector2(particles.global_position.x, particles.global_position.z)
-		var alive := float(_fog_of_war.call("visibility_at", position, player_ground, facing)) > 0.5
-		particles.speed_scale = 1.0 if alive else 0.0
 
 
 func set_time_of_day(next_time: StringName) -> void:
@@ -163,7 +136,6 @@ func _update_chimney_smokes() -> void:
 	for building_node in buildings.get_children():
 		var smoke := building_node.get_node_or_null("ChimneySmoke") as ChimneySmoke3D
 		if smoke != null:
-			smoke.add_to_group(&"fog_memory_particles")
 			smoke.apply_time_of_day(time_of_day)
 
 

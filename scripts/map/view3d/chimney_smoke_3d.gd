@@ -7,8 +7,7 @@ extends GPUParticles3D
 enum Schedule { NEVER, DAY_ONLY, NIGHT_ONLY, ALWAYS }
 
 const SMOKE_LIFETIME := 8.5
-## Seed a short plume before memory fog can freeze particle time. This keeps
-## smoke visible at the chimney mouth instead of freezing an empty emitter.
+## Seed a short plume so smoke is visible at the chimney mouth immediately.
 const SMOKE_PREWARM_SECONDS := 1.0
 
 var _building_seed: int = 0
