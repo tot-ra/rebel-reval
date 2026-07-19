@@ -238,8 +238,11 @@ func zoom_view_steps(steps: float) -> void:
 
 
 func _apply_view_rotation(delta: float) -> void:
+	var yaw_before := _camera.rotation_degrees.y
 	_camera_controller.apply_view_rotation(delta)
-	if Input.is_key_pressed(KEY_PAGEUP) or Input.is_key_pressed(KEY_PAGEDOWN):
+	# First-person look can rotate the camera without going through rotate_view_degrees,
+	# so keep keyboard movement tied to the current view every frame.
+	if _camera_controller.first_person or not is_equal_approx(_camera.rotation_degrees.y, yaw_before):
 		_configure_screen_relative_movement()
 
 

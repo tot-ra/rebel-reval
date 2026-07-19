@@ -58,3 +58,44 @@ func test_c_toggles_first_person_and_restores_third_person() -> void:
 	assert_true(is_equal_approx(camera.rotation_degrees.y, third_person_yaw), "returning must preserve yaw")
 	assert_true(rig.visible, "the player rig must return in third-person view")
 	scene_root.free()
+
+
+func test_first_person_movement_follows_camera_yaw_via_gameplay_rotation() -> void:
+	var scene_root := Node2D.new()
+	var map_root := Node2D.new()
+	var actors := Node2D.new()
+	var player := PLAYER_SCENE.instantiate() as Player
+	scene_root.add_child(map_root)
+	scene_root.add_child(actors)
+	actors.add_child(player)
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(scene_root)
+
+	var definition := LowerTownSlice.create()
+	var bootstrap := {
+		"definition": definition,
+		"grid": MapBuilder.build(definition),
+		"assembled": {"buildings": [], "props": []},
+	}
+	var runtime := MapViewRuntime.install(scene_root, bootstrap, map_root, player)
+
+	var camera_toggle := InputEventKey.new()
+	camera_toggle.physical_keycode = KEY_C
+	camera_toggle.pressed = true
+	runtime._unhandled_input(camera_toggle)
+	assert_true(runtime.is_first_person(), "test setup must enter first-person view")
+
+	var screen_up_before := player.movement_direction_for_screen_input(Vector2.UP)
+	runtime._camera_controller.rotate_view_degrees(45.0)
+	runtime._apply_view_rotation(0.016)
+	var screen_up_after := player.movement_direction_for_screen_input(Vector2.UP)
+
+	assert_false(
+		screen_up_after.is_equal_approx(screen_up_before),
+		"first-person keyboard movement must follow camera yaw from the gameplay rotation path"
+	)
+	assert_true(
+		is_equal_approx(screen_up_after.length(), 1.0),
+		"re-projected first-person movement must stay normalized"
+	)
+	scene_root.free()
