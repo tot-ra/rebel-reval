@@ -30,15 +30,17 @@ from mathutils import Matrix, Vector
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 from character_specs import spec as character_spec  # noqa: E402
+from hero_body_mesh_builder import (  # noqa: E402
+    Frame,
+    PartBuilder,
+    bone_head,
+    find_armature,
+)
 
 GARMENT_OUTPUTS = {
     "cape": ROOT / "assets/characters/shared/hero_cape.glb",
     "hat": ROOT / "assets/characters/shared/hero_hat.glb",
 }
-
-# More ring segments than the first P0-037 pass so limbs and the tunic read
-# rounder at portrait distance while staying within the low-poly rig budget.
-RING_SEGMENTS = 16
 
 # Default hero palette aligned with the legacy Kalev pixel sprite (img/user__idle.gif):
 # brown long tunic, tan belt, dark trousers, brown boots, brown hair/beard.
@@ -56,219 +58,6 @@ PALETTE = {
     "cape": (0.42, 0.24, 0.14, 1.0),
     "hat": (0.32, 0.36, 0.28, 1.0),
 }
-
-
-def _find_armature() -> bpy.types.Object:
-    for obj in bpy.data.objects:
-        if obj.type == "ARMATURE":
-            return obj
-    raise RuntimeError("no armature in imported scene")
-
-
-def _bone_head(armature: bpy.types.Object, name: str) -> Vector:
-    bone = armature.data.bones.get(name)
-    if bone is None:
-        raise RuntimeError(f"missing bone {name}")
-    return bone.head_local.copy()
-
-
-class Frame:
-    """Orthonormal body frame derived from the skeleton itself."""
-
-    def __init__(self, armature: bpy.types.Object) -> None:
-        hips = _bone_head(armature, "hips")
-        head = _bone_head(armature, "head")
-        foot = _bone_head(armature, "foot.l")
-        toes = _bone_head(armature, "toes.l")
-        self.up = (head - hips).normalized()
-        forward = toes - foot
-        forward -= self.up * forward.dot(self.up)
-        self.forward = forward.normalized()
-        self.left = self.up.cross(self.forward).normalized()
-
-    def basis_for(self, axis: Vector) -> tuple[Vector, Vector]:
-        """Two directions spanning the plane perpendicular to axis."""
-        reference = self.up if abs(axis.dot(self.up)) < 0.9 else self.forward
-        side = axis.cross(reference).normalized()
-        return side, axis.cross(side).normalized()
-
-
-class PartBuilder:
-    """Accumulates ring-loop tube geometry with per-vertex bone weights.
-
-    `bulk` multiplies every ring radius (mass carriers: torso, limbs); parts
-    whose size is governed separately (the head group) pass bulk 1.0.
-    """
-
-    def __init__(self, name: str, frame: Frame, bulk: float = 1.0) -> None:
-        self.name = name
-        self.frame = frame
-        self.bulk = bulk
-        self.vertices: list[Vector] = []
-        self.weights: list[dict[str, float]] = []
-        self.faces: list[tuple[int, ...]] = []
-        self.face_materials: list[str] = []
-        self._last_ring: list[int] | None = None
-        self._last_ring_material: str | None = None
-
-    def _add_vertex(self, position: Vector, weights: dict[str, float]) -> int:
-        self.vertices.append(position)
-        self.weights.append(weights)
-        return len(self.vertices) - 1
-
-    def start_tube(self) -> None:
-        self._last_ring = None
-        self._last_ring_material = None
-
-    def ring(
-        self,
-        center: Vector,
-        axis: Vector,
-        radius_side: float,
-        radius_forward: float,
-        weights: dict[str, float],
-        material: str,
-    ) -> list[int]:
-        side, forward = self.frame.basis_for(axis.normalized())
-        radius_side *= self.bulk
-        radius_forward *= self.bulk
-        indices: list[int] = []
-        for step in range(RING_SEGMENTS):
-            angle = math.tau * step / RING_SEGMENTS
-            offset = side * (math.cos(angle) * radius_side)
-            offset += forward * (math.sin(angle) * radius_forward)
-            indices.append(self._add_vertex(center + offset, weights))
-        if self._last_ring is not None:
-            for step in range(RING_SEGMENTS):
-                next_step = (step + 1) % RING_SEGMENTS
-                self.faces.append(
-                    (
-                        self._last_ring[step],
-                        self._last_ring[next_step],
-                        indices[next_step],
-                        indices[step],
-                    )
-                )
-                self.face_materials.append(self._last_ring_material or material)
-        self._last_ring = indices
-        self._last_ring_material = material
-        return indices
-
-    def cap(self, center: Vector, weights: dict[str, float], material: str) -> None:
-        if self._last_ring is None:
-            return
-        apex = self._add_vertex(center, weights)
-        for step in range(RING_SEGMENTS):
-            next_step = (step + 1) % RING_SEGMENTS
-            self.faces.append((self._last_ring[step], self._last_ring[next_step], apex))
-            self.face_materials.append(material)
-
-    def box(
-        self,
-        center: Vector,
-        axis_x: Vector,
-        axis_y: Vector,
-        axis_z: Vector,
-        weights: dict[str, float],
-        material: str,
-    ) -> None:
-        corners = []
-        for sx in (-1.0, 1.0):
-            for sy in (-1.0, 1.0):
-                for sz in (-1.0, 1.0):
-                    corners.append(
-                        self._add_vertex(
-                            center + axis_x * sx + axis_y * sy + axis_z * sz, weights
-                        )
-                    )
-        quads = [
-            (0, 1, 3, 2),
-            (6, 7, 5, 4),
-            (0, 2, 6, 4),
-            (5, 7, 3, 1),
-            (2, 3, 7, 6),
-            (4, 5, 1, 0),
-        ]
-        for quad in quads:
-            self.faces.append(tuple(corners[i] for i in quad))
-            self.face_materials.append(material)
-
-    def uv_sphere(
-        self,
-        center: Vector,
-        radius: Vector,
-        weights: dict[str, float],
-        material: str,
-        rings: int = 7,
-    ) -> None:
-        up, forward, left = self.frame.up, self.frame.forward, self.frame.left
-        self.start_tube()
-        self.cap_pending = None
-        bottom = center - up * radius.z
-        top = center + up * radius.z
-        first = True
-        for ring_index in range(1, rings):
-            polar = math.pi * ring_index / rings
-            ring_radius = math.sin(polar)
-            height = -math.cos(polar)
-            ring_center = center + up * (height * radius.z)
-            indices = self.ring(
-                ring_center,
-                up,
-                radius.x * ring_radius,
-                radius.y * ring_radius,
-                weights,
-                material,
-            )
-            if first:
-                apex = self._add_vertex(bottom, weights)
-                for step in range(RING_SEGMENTS):
-                    next_step = (step + 1) % RING_SEGMENTS
-                    self.faces.append((indices[next_step], indices[step], apex))
-                    self.face_materials.append(material)
-                first = False
-        self.cap(top, weights, material)
-
-    def build(self, armature: bpy.types.Object) -> bpy.types.Object:
-        mesh = bpy.data.meshes.new(self.name)
-        mesh.from_pydata([v[:] for v in self.vertices], [], self.faces)
-        mesh.update()
-
-        materials = sorted(set(self.face_materials))
-        material_slots = {}
-        for slot, material_name in enumerate(materials):
-            mesh.materials.append(_material(material_name))
-            material_slots[material_name] = slot
-        for polygon, material_name in zip(mesh.polygons, self.face_materials):
-            polygon.material_index = material_slots[material_name]
-        for polygon in mesh.polygons:
-            polygon.use_smooth = True
-
-        obj = bpy.data.objects.new(self.name, mesh)
-        bpy.context.scene.collection.objects.link(obj)
-
-        groups: dict[str, bpy.types.VertexGroup] = {}
-        for index, weight_map in enumerate(self.weights):
-            for bone_name, weight in weight_map.items():
-                if weight <= 0.0:
-                    continue
-                group = groups.get(bone_name)
-                if group is None:
-                    group = obj.vertex_groups.new(name=bone_name)
-                    groups[bone_name] = group
-                group.add([index], weight, "REPLACE")
-
-        modifier = obj.modifiers.new("Armature", "ARMATURE")
-        modifier.object = armature
-        obj.parent = armature
-
-        # Consistent outward normals.
-        bpy.context.view_layer.objects.active = obj
-        bpy.ops.object.mode_set(mode="EDIT")
-        bpy.ops.mesh.select_all(action="SELECT")
-        bpy.ops.mesh.normals_make_consistent(inside=False)
-        bpy.ops.object.mode_set(mode="OBJECT")
-        return obj
 
 
 # Effective palette for the selected character: PALETTE plus spec overrides.
@@ -314,28 +103,28 @@ def generate(character: str) -> None:
         if obj.type == "MESH":
             bpy.data.objects.remove(obj, do_unlink=True)
 
-    armature = _find_armature()
+    armature = find_armature()
     frame = Frame(armature)
     up, forward, left = frame.up, frame.forward, frame.left
 
-    hips = _bone_head(armature, "hips")
-    head = _bone_head(armature, "head")
-    shoulder_l = _bone_head(armature, "upperarm.l")
-    shoulder_r = _bone_head(armature, "upperarm.r")
-    elbow_l = _bone_head(armature, "lowerarm.l")
-    elbow_r = _bone_head(armature, "lowerarm.r")
-    wrist_l = _bone_head(armature, "wrist.l")
-    wrist_r = _bone_head(armature, "wrist.r")
-    hand_l = _bone_head(armature, "hand.l")
-    hand_r = _bone_head(armature, "hand.r")
-    socket_l = _bone_head(armature, "upperleg.l")
-    socket_r = _bone_head(armature, "upperleg.r")
-    knee_l = _bone_head(armature, "lowerleg.l")
-    knee_r = _bone_head(armature, "lowerleg.r")
-    ankle_l = _bone_head(armature, "foot.l")
-    ankle_r = _bone_head(armature, "foot.r")
-    toes_l = _bone_head(armature, "toes.l")
-    toes_r = _bone_head(armature, "toes.r")
+    hips = bone_head(armature, "hips")
+    head = bone_head(armature, "head")
+    shoulder_l = bone_head(armature, "upperarm.l")
+    shoulder_r = bone_head(armature, "upperarm.r")
+    elbow_l = bone_head(armature, "lowerarm.l")
+    elbow_r = bone_head(armature, "lowerarm.r")
+    wrist_l = bone_head(armature, "wrist.l")
+    wrist_r = bone_head(armature, "wrist.r")
+    hand_l = bone_head(armature, "hand.l")
+    hand_r = bone_head(armature, "hand.r")
+    socket_l = bone_head(armature, "upperleg.l")
+    socket_r = bone_head(armature, "upperleg.r")
+    knee_l = bone_head(armature, "lowerleg.l")
+    knee_r = bone_head(armature, "lowerleg.r")
+    ankle_l = bone_head(armature, "foot.l")
+    ankle_r = bone_head(armature, "foot.r")
+    toes_l = bone_head(armature, "toes.l")
+    toes_r = bone_head(armature, "toes.r")
 
     stature_guess = (head - ankle_l).dot(up) + 0.32
     scale = stature_guess / 1.76  # radii below are tuned for a 1.76 stature
@@ -666,7 +455,7 @@ def generate(character: str) -> None:
         )
         parts.append(boot)
 
-    body_objects = [part.build(armature) for part in parts]
+    body_objects = [part.build(armature, _material) for part in parts]
 
     # Report stature so the rig scene can pin its uniform model scale
     # (model_scale = 2.0 / BODY_STATURE).
@@ -717,7 +506,7 @@ def generate(character: str) -> None:
     for name, builder in garments.items():
         if name not in selected["garments"]:
             continue
-        garment_object = builder.build(armature)
+        garment_object = builder.build(armature, _material)
         _export(GARMENT_OUTPUTS[name], animations=False)
         print(f"Wrote {GARMENT_OUTPUTS[name]}")
         bpy.data.objects.remove(garment_object, do_unlink=True)

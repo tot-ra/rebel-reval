@@ -3,6 +3,7 @@ extends CanvasLayer
 
 const EquipmentSilhouetteScene := preload("res://scripts/inventory/equipment_silhouette.gd")
 const InventoryGridCellScene := preload("res://scripts/inventory/inventory_grid_cell.gd")
+const InventoryOverlayBuilder := preload("res://scripts/inventory/inventory_overlay_builder.gd")
 
 signal closed()
 
@@ -181,143 +182,16 @@ func drop_on_cell(cell_x: int, cell_y: int, data: Dictionary) -> void:
 
 
 func _build_ui() -> void:
-	var root := MarginContainer.new()
-	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	root.add_theme_constant_override("margin_left", 48)
-	root.add_theme_constant_override("margin_right", 48)
-	root.add_theme_constant_override("margin_top", 36)
-	root.add_theme_constant_override("margin_bottom", 36)
-	add_child(root)
-
-	var dim := ColorRect.new()
-	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	dim.color = Color(0.04, 0.05, 0.08, 0.72)
-	dim.mouse_filter = Control.MOUSE_FILTER_STOP
-	root.add_child(dim)
-
-	_panel = PanelContainer.new()
-	_panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	root.add_child(_panel)
-
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", PANEL_PADDING)
-	margin.add_theme_constant_override("margin_right", PANEL_PADDING)
-	margin.add_theme_constant_override("margin_top", PANEL_PADDING)
-	margin.add_theme_constant_override("margin_bottom", PANEL_PADDING)
-	_panel.add_child(margin)
-
-	var layout := VBoxContainer.new()
-	layout.add_theme_constant_override("separation", 12)
-	margin.add_child(layout)
-
-	var title := Label.new()
-	title.text = "Bag"
-	title.add_theme_font_size_override("font_size", 24)
-	layout.add_child(title)
-
-	var hint := Label.new()
-	hint.text = (
-		"I or Esc to close. Arrows or WASD move selection; Enter/Space picks or places. "
-		+ "Drag items between the bag and hand slots, or click cells to move them."
-	)
-	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	hint.add_theme_font_size_override("font_size", 12)
-	hint.modulate = Color(0.82, 0.84, 0.88)
-	layout.add_child(hint)
-
-	_add_meter_row(layout, "Weight", true)
-	_add_meter_row(layout, "Volume", false)
-
-	_speed_label = Label.new()
-	_speed_label.add_theme_font_size_override("font_size", 13)
-	layout.add_child(_speed_label)
-
-	var body_row := HBoxContainer.new()
-	body_row.add_theme_constant_override("separation", 16)
-	layout.add_child(body_row)
-
-	_silhouette = EquipmentSilhouetteScene.new()
-	_silhouette.custom_minimum_size = Vector2(SILHOUETTE_WIDTH, CELL_SIZE * InventoryBag.GRID_HEIGHT + CELL_GAP * (InventoryBag.GRID_HEIGHT - 1))
-	_silhouette.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_silhouette.configure_drop_handlers(
-		Callable(self, "_can_drop_on_slot"),
-		Callable(self, "_drop_on_slot"),
-		Callable(self, "_equipped_item_label"),
-		DRAG_KIND_BAG,
-		DRAG_KIND_EQUIPPED
-	)
-	_silhouette.slot_pressed.connect(_on_equipment_slot_pressed)
-	body_row.add_child(_silhouette)
-
-	var grid_column := VBoxContainer.new()
-	grid_column.add_theme_constant_override("separation", 4)
-	body_row.add_child(grid_column)
-
-	var grid_caption := Label.new()
-	grid_caption.text = "Packed items"
-	grid_caption.add_theme_font_size_override("font_size", 13)
-	grid_caption.modulate = Color(0.78, 0.80, 0.84)
-	grid_column.add_child(grid_caption)
-
-	_grid = GridContainer.new()
-	_grid.columns = InventoryBag.GRID_WIDTH
-	_grid.add_theme_constant_override("h_separation", CELL_GAP)
-	_grid.add_theme_constant_override("v_separation", CELL_GAP)
-	grid_column.add_child(_grid)
-
-	_detail_label = Label.new()
-	_detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_detail_label.add_theme_font_size_override("font_size", 13)
-	layout.add_child(_detail_label)
-
-	_equip_button = Button.new()
-	_equip_button.visible = false
-	_equip_button.focus_mode = Control.FOCUS_NONE
-	_equip_button.pressed.connect(_on_equip_pressed)
-	layout.add_child(_equip_button)
-
-	for cell_y in range(InventoryBag.GRID_HEIGHT):
-		for cell_x in range(InventoryBag.GRID_WIDTH):
-			var button: Button = InventoryGridCellScene.new()
-			button.set("grid_x", cell_x)
-			button.set("grid_y", cell_y)
-			button.set("get_drag_placement", Callable(self, "get_origin_placement_at"))
-			button.set("drag_label", Callable(self, "item_short_label"))
-			button.set("can_drop", Callable(self, "can_drop_on_cell"))
-			button.set("drop", Callable(self, "drop_on_cell"))
-			button.custom_minimum_size = Vector2(CELL_SIZE, CELL_SIZE)
-			button.toggle_mode = false
-			button.focus_mode = Control.FOCUS_NONE
-			var captured_x := cell_x
-			var captured_y := cell_y
-			button.pressed.connect(func() -> void:
-				_on_cell_pressed(captured_x, captured_y)
-			)
-			_grid.add_child(button)
-			_cell_buttons.append(button)
-
-
-func _add_meter_row(parent: VBoxContainer, label_text: String, is_weight: bool) -> void:
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8)
-	parent.add_child(row)
-
-	var label := Label.new()
-	label.text = label_text
-	label.custom_minimum_size = Vector2(64, 0)
-	row.add_child(label)
-
-	var bar := ProgressBar.new()
-	bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	bar.custom_minimum_size = Vector2(320, 18)
-	bar.show_percentage = false
-	row.add_child(bar)
-
-	if is_weight:
-		_weight_bar = bar
-	else:
-		_volume_bar = bar
+	var nodes := InventoryOverlayBuilder.build(self)
+	_panel = nodes["panel"]
+	_grid = nodes["grid"]
+	_silhouette = nodes["silhouette"]
+	_weight_bar = nodes["weight_bar"]
+	_volume_bar = nodes["volume_bar"]
+	_speed_label = nodes["speed_label"]
+	_detail_label = nodes["detail_label"]
+	_equip_button = nodes["equip_button"]
+	_cell_buttons = nodes["cell_buttons"]
 
 
 func _refresh() -> void:

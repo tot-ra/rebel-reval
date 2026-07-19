@@ -7,24 +7,14 @@ const DialogueSettingsScript := preload("res://scripts/settings/dialogue_setting
 const PseudoLocalizationScript := preload("res://scripts/dialogue/dialogue_pseudo_localization.gd")
 const TextLayoutScript := preload("res://scripts/dialogue/dialogue_text_layout.gd")
 const DialogueUiBuilder := preload("res://scripts/dialogue/dialogue_ui_builder.gd")
+const DialogueUiTheme := preload("res://scripts/dialogue/dialogue_ui_theme.gd")
+const DialogueUiInput := preload("res://scripts/dialogue/dialogue_ui_input.gd")
 
 signal choice_selected(choice_id: String)
 signal skip_requested()
 
 const FONT_PATH := "res://assets/fonts/NotoSans-Regular.ttf"
 const PORTRAIT_SIZE := 96
-
-const COLOR_BODY_DEFAULT := Color(0.95, 0.95, 0.9, 1.0)
-const COLOR_BODY_HIGH_CONTRAST := Color(1.0, 1.0, 1.0, 1.0)
-const COLOR_SPEAKER_DEFAULT := Color(0.92, 0.78, 0.42, 1.0)
-const COLOR_SPEAKER_HIGH_CONTRAST := Color(1.0, 0.92, 0.35, 1.0)
-const COLOR_HINT_DEFAULT := Color(0.72, 0.76, 0.82, 1.0)
-const COLOR_HINT_HIGH_CONTRAST := Color(0.9, 0.93, 0.98, 1.0)
-const COLOR_DISABLED_DEFAULT := Color(0.86, 0.55, 0.48, 1.0)
-const COLOR_DISABLED_HIGH_CONTRAST := Color(1.0, 0.72, 0.62, 1.0)
-const COLOR_PANEL_DEFAULT := Color(0.08, 0.09, 0.11, 0.88)
-const COLOR_PANEL_HIGH_CONTRAST := Color(0.0, 0.0, 0.0, 0.96)
-const COLOR_SUBTITLE_BACKGROUND := Color(0.0, 0.0, 0.0, 0.72)
 
 var _font: Font
 var _settings = DialogueSettingsScript.default_settings()
@@ -404,31 +394,8 @@ func _confirm_focused_choice() -> bool:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not _visible_active:
-		return
-
-	if _handle_backlog_input(event):
+	if DialogueUiInput.handle_unhandled_input(self, event):
 		get_viewport().set_input_as_handled()
-		return
-
-	if _handle_skip_input(event):
-		get_viewport().set_input_as_handled()
-		return
-
-	if _choice_mode and _handle_choice_input(event):
-		get_viewport().set_input_as_handled()
-
-
-func _handle_skip_input(event: InputEvent) -> bool:
-	if event.is_echo() or _choice_mode or _backlog_open:
-		return false
-	if event.is_action_pressed(&"ui_cancel"):
-		if not _reveal_complete:
-			_complete_line_reveal()
-			return true
-		skip_requested.emit()
-		return true
-	return false
 
 
 func _process(delta: float) -> void:
@@ -472,72 +439,7 @@ func _complete_line_reveal() -> void:
 
 
 func _apply_visual_theme() -> void:
-	var body_color := COLOR_BODY_HIGH_CONTRAST if _settings.high_contrast else COLOR_BODY_DEFAULT
-	var speaker_color := COLOR_SPEAKER_HIGH_CONTRAST if _settings.high_contrast else COLOR_SPEAKER_DEFAULT
-	var hint_color := COLOR_HINT_HIGH_CONTRAST if _settings.high_contrast else COLOR_HINT_DEFAULT
-	var disabled_color := COLOR_DISABLED_HIGH_CONTRAST if _settings.high_contrast else COLOR_DISABLED_DEFAULT
-	var panel_color := COLOR_PANEL_HIGH_CONTRAST if _settings.high_contrast else COLOR_PANEL_DEFAULT
-
-	_speaker_label.add_theme_color_override("font_color", speaker_color)
-	_text_label.add_theme_color_override("font_color", body_color)
-	_continue_hint.add_theme_color_override("font_color", hint_color)
-	_disabled_reason_label.add_theme_color_override("font_color", disabled_color)
-	_portrait_fallback.add_theme_color_override("font_color", speaker_color)
-
-	var panel_style := StyleBoxFlat.new()
-	panel_style.bg_color = panel_color
-	panel_style.set_corner_radius_all(6)
-	_panel.add_theme_stylebox_override("panel", panel_style)
-	_backlog_panel.add_theme_stylebox_override("panel", panel_style.duplicate())
-
-	_text_background.visible = _settings.subtitle_background
-	if _settings.subtitle_background:
-		_text_background.color = COLOR_SUBTITLE_BACKGROUND if not _settings.high_contrast else Color(0.0, 0.0, 0.0, 0.88)
-
-
-func _handle_backlog_input(event: InputEvent) -> bool:
-	if event.is_echo():
-		return false
-
-	if event.is_action_pressed(&"ui_cancel"):
-		if _backlog_open:
-			_toggle_backlog()
-			return true
-		return false
-
-	if event.is_action_pressed(&"ui_page_up") or _is_key_pressed(event, KEY_TAB):
-		_toggle_backlog()
-		return true
-
-	return false
-
-
-func _handle_choice_input(event: InputEvent) -> bool:
-	if event.is_action_pressed(&"ui_up"):
-		_move_choice_focus(-1)
-		return true
-	if event.is_action_pressed(&"ui_down"):
-		_move_choice_focus(1)
-		return true
-	if _is_continue_event(event):
-		return _confirm_focused_choice()
-	return false
-
-
-func _is_continue_event(event: InputEvent) -> bool:
-	if not event.is_pressed() or event.is_echo():
-		return false
-	for action: StringName in [&"interact", &"ui_accept"]:
-		if event.is_action(action):
-			return event.is_action_pressed(action)
-	if event is InputEventJoypadButton:
-		var button_event := event as InputEventJoypadButton
-		return button_event.pressed and button_event.button_index == JOY_BUTTON_A
-	return _is_key_pressed(event, KEY_ENTER) or _is_key_pressed(event, KEY_KP_ENTER) or _is_key_pressed(event, KEY_SPACE)
-
-
-func _is_key_pressed(event: InputEvent, keycode: Key) -> bool:
-	return event is InputEventKey and (event as InputEventKey).pressed and (event as InputEventKey).keycode == keycode
+	DialogueUiTheme.apply_visual_theme(self)
 
 
 func _apply_text_scale() -> void:

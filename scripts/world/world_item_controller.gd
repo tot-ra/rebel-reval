@@ -8,8 +8,7 @@ extends Node
 
 const WORLD_ITEM_SCENE := preload("res://scenes/world/world_item.tscn")
 const INTERACTABLE_SCENE := preload("res://scenes/interaction/interactable.tscn")
-const DEFAULT_PICKUP_SFX := "res://sounds/door.mp3"
-const PICKUP_BARK_DURATION := 3.5
+const PickupFeedbackScript := preload("res://scripts/world/world_item_pickup_feedback.gd")
 
 const DEFAULT_PLACEMENTS: Dictionary = {
 	&"loc.kalev_smithy": [
@@ -505,64 +504,21 @@ func _restore_default_cursor() -> void:
 
 
 func _resolve_pickup_feedback(item_id: StringName) -> Dictionary:
-	var gameplay: Dictionary = _item_record(item_id).get("gameplay", {})
-	var pickup: Dictionary = gameplay.get("pickup", {})
-	if pickup.is_empty():
-		return {}
-
-	var bark_pool_id := StringName(String(pickup.get("bark_pool_id", "")))
-	if not bark_pool_id.is_empty() and _state != null and _content_db != null:
-		if _pickup_bark_runner == null:
-			_pickup_bark_runner = DialogueRunner.new()
-			_pickup_bark_runner.configure(_content_db, _state, null)
-		var bark := _pickup_bark_runner.resolve_bark(bark_pool_id, _state.get_phase(), location_id)
-		if not bark.is_empty():
-			return bark
-
-	var comment := String(pickup.get("comment", "")).strip_edges()
-	if comment.is_empty():
-		return {}
-
-	var speaker_id := StringName(String(pickup.get("speaker_id", "char.kalev")))
-	return {
-		"speaker_id": speaker_id,
-		"speaker_name": _speaker_name(speaker_id),
-		"text": comment,
-	}
-
-
-func _speaker_name(speaker_id: StringName) -> String:
-	if _content_db != null and _content_db.is_loaded():
-		var character := _content_db.get_character(speaker_id)
-		if not character.is_empty():
-			return String(character.get("name", String(speaker_id)))
-	return String(speaker_id)
+	var resolved := PickupFeedbackScript.resolve_feedback(
+		item_id,
+		_item_record(item_id),
+		_content_db,
+		_state,
+		location_id,
+		_pickup_bark_runner
+	)
+	_pickup_bark_runner = resolved.get("bark_runner", _pickup_bark_runner)
+	return resolved.get("feedback", {})
 
 
 func _show_pickup_bark(feedback: Dictionary) -> void:
-	if _bark_label == null or feedback.is_empty():
-		return
-	var text := String(feedback.get("text", "")).strip_edges()
-	if text.is_empty():
-		return
-	var speaker := String(feedback.get("speaker_name", "")).strip_edges()
-	_bark_label.text = "%s: %s" % [speaker, text] if not speaker.is_empty() else text
-	_bark_label.visible = true
-	_bark_timer = PICKUP_BARK_DURATION
+	_bark_timer = PickupFeedbackScript.show_bark(_bark_label, feedback)
 
 
 func _play_pickup_sfx(item_id: StringName) -> void:
-	if _audio_player == null:
-		return
-	var gameplay: Dictionary = _item_record(item_id).get("gameplay", {})
-	var pickup: Dictionary = gameplay.get("pickup", {})
-	var path := String(pickup.get("sfx_path", DEFAULT_PICKUP_SFX))
-	if path.is_empty():
-		return
-	var stream := load(path) as AudioStream
-	if stream == null:
-		return
-	_audio_player.stream = stream
-	_audio_player.pitch_scale = 1.35
-	_audio_player.volume_db = -8.0
-	_audio_player.play()
+	PickupFeedbackScript.play_pickup_sfx(_audio_player, _item_record(item_id))
