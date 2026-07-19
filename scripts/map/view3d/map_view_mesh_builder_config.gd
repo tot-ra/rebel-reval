@@ -71,6 +71,12 @@ const FLATTEN_START := 0.3
 const FLATTEN_END := 2.4
 const BORDER_FLATTEN_CELLS := 2.5
 const WATER_FLATTEN_CELLS := 3
+## Visible water is reconstructed from a broad center-sampled field rather than
+## the literal cell outline. The multi-cell footprint is large enough to turn the
+## authored 4-6-cell river steps into readable diagonal bends at gameplay zoom.
+const WATER_CONTOUR_SIGMA_CELLS := 1.6
+const WATER_CONTOUR_RADIUS_CELLS := 4
+const WATER_CONTOUR_THRESHOLD := 0.42
 
 ## House construction families: visible building material per dwelling.
 ## 1343 Reval mix: horizontal log construction dominates the lower town, local

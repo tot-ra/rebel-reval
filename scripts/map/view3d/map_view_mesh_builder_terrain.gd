@@ -27,11 +27,16 @@ static func ensure_height_field(definition: MapDefinition, grid: MapTerrainGrid)
 		for x in grid.size_cells.x:
 			if MapViewMaterials.WATER_TERRAINS.has(grid.get_terrain(Vector2i(x, y))):
 				water[Vector2i(x, y)] = true
+	var water_contours := {}
+	for terrain_id in grid.used_terrain_ids():
+		if MapViewMaterials.WATER_TERRAINS.has(terrain_id):
+			water_contours[terrain_id] = bake_water_contour(grid, terrain_id)
 	var field := {
 		"seed": definition.seed,
 		"size": grid.size_cells,
 		"rects": rects,
 		"water": water,
+		"water_contours": water_contours,
 		# Enclosed interior shells keep gameplay on a flat logic plane; rolling
 		# outdoor relief would lift props and actors off the floor in 3D view.
 		"flat_floor": definition.suppresses_exterior_surroundings(),
@@ -196,9 +201,6 @@ static func build_terrain(definition: MapDefinition, grid: MapTerrainGrid) -> No
 	var has_ground := false
 	for y in grid.size_cells.y:
 		for x in grid.size_cells.x:
-			var terrain_id := grid.get_terrain(Vector2i(x, y))
-			if MapViewMaterials.WATER_TERRAINS.has(terrain_id) and not _water_cell_needs_bed(grid, Vector2i(x, y), terrain_id):
-				continue
 			has_ground = true
 			add_blended_cell_quad(dry_surface, field, grid, x, y, definition.seed)
 	if has_ground:
@@ -214,13 +216,15 @@ static func build_terrain(definition: MapDefinition, grid: MapTerrainGrid) -> No
 		surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 		for y in grid.size_cells.y:
 			for x in grid.size_cells.x:
-				if not _cell_near_terrain(grid, Vector2i(x, y), terrain_id):
+				if not _cell_near_terrain(field, Vector2i(x, y), terrain_id):
 					continue
 				add_water_cell_quad(surface, field, grid, x, y, terrain_id)
 		var instance := MeshInstance3D.new()
 		instance.name = "Terrain_%s" % String(terrain_id)
-		surface.generate_tangents()
-		instance.mesh = surface.commit()
+		var mesh := surface.commit()
+		if mesh == null or mesh.get_surface_count() == 0:
+			continue
+		instance.mesh = mesh
 		instance.material_override = MapViewMaterials.water_surface(terrain_id)
 		root.add_child(instance)
 	return root
@@ -318,7 +322,7 @@ static func add_water_cell_quad(
 				var vertex: Vector3 = positions[index]
 				corners.append({
 					"position": vertex,
-					"coverage": water_coverage_at(grid, Vector2(vertex.x, vertex.z), terrain_id),
+					"coverage": water_coverage_at(field, Vector2(vertex.x, vertex.z), terrain_id),
 				})
 			# Alternating diagonals avoid imposing one square-grid direction on long
 			# banks. Clipping these triangles produces the same six-direction visual
@@ -331,16 +335,62 @@ static func add_water_cell_quad(
 				_add_clipped_water_triangle(surface, corners[1], corners[2], corners[3])
 
 
-## Bilinear water influence sampled from cell centers. The 0.5 contour runs
-## between unlike cells and cuts corners diagonally instead of tracing tile edges.
-static func water_coverage_at(grid: MapTerrainGrid, sample: Vector2, terrain_id: StringName) -> float:
+## Build a broad signed water field once per map and terrain family. A separable
+## Gaussian keeps this linear in the map area while rounding authored multi-cell
+## steps over a visibly wide footprint.
+static func bake_water_contour(grid: MapTerrainGrid, terrain_id: StringName) -> Dictionary:
+	var columns := grid.size_cells.x
+	var rows := grid.size_cells.y
+	var sigma := MapViewMeshBuilderConfig.WATER_CONTOUR_SIGMA_CELLS
+	var radius := MapViewMeshBuilderConfig.WATER_CONTOUR_RADIUS_CELLS
+	var kernel := PackedFloat32Array()
+	kernel.resize(radius * 2 + 1)
+	var kernel_total := 0.0
+	for offset in range(-radius, radius + 1):
+		var weight := exp(-float(offset * offset) / (2.0 * sigma * sigma))
+		kernel[offset + radius] = weight
+		kernel_total += weight
+	for index in kernel.size():
+		kernel[index] /= kernel_total
+	var source := PackedFloat32Array()
+	source.resize(columns * rows)
+	for y in rows:
+		for x in columns:
+			source[y * columns + x] = 1.0 if grid.get_terrain(Vector2i(x, y)) == terrain_id else 0.0
+	var horizontal := PackedFloat32Array()
+	horizontal.resize(source.size())
+	for y in rows:
+		for x in columns:
+			var value := 0.0
+			for offset in range(-radius, radius + 1):
+				var sample_x := clampi(x + offset, 0, columns - 1)
+				value += source[y * columns + sample_x] * kernel[offset + radius]
+			horizontal[y * columns + x] = value
+	var values := PackedFloat32Array()
+	values.resize(source.size())
+	var max_coverage := 0.0
+	for y in rows:
+		for x in columns:
+			var value := 0.0
+			for offset in range(-radius, radius + 1):
+				var sample_y := clampi(y + offset, 0, rows - 1)
+				value += horizontal[sample_y * columns + x] * kernel[offset + radius]
+			values[y * columns + x] = value
+			max_coverage = maxf(max_coverage, value)
+	return {"values": values, "source": source, "columns": columns, "rows": rows, "max_coverage": max_coverage}
+
+
+static func water_coverage_at(field: Dictionary, sample: Vector2, terrain_id: StringName) -> float:
+	var contour: Dictionary = field["water_contours"].get(terrain_id, {})
+	if contour.is_empty():
+		return 0.0
 	var centered := sample - Vector2(0.5, 0.5)
 	var base := Vector2i(floori(centered.x), floori(centered.y))
 	var local := centered - Vector2(base)
-	var top_left := _terrain_sample(grid, base, terrain_id)
-	var top_right := _terrain_sample(grid, base + Vector2i.RIGHT, terrain_id)
-	var bottom_left := _terrain_sample(grid, base + Vector2i.DOWN, terrain_id)
-	var bottom_right := _terrain_sample(grid, base + Vector2i(1, 1), terrain_id)
+	var top_left := _water_contour_sample(contour, base)
+	var top_right := _water_contour_sample(contour, base + Vector2i.RIGHT)
+	var bottom_left := _water_contour_sample(contour, base + Vector2i.DOWN)
+	var bottom_right := _water_contour_sample(contour, base + Vector2i(1, 1))
 	return lerpf(
 		lerpf(top_left, top_right, local.x),
 		lerpf(bottom_left, bottom_right, local.x),
@@ -348,40 +398,26 @@ static func water_coverage_at(grid: MapTerrainGrid, sample: Vector2, terrain_id:
 	)
 
 
-static func _terrain_sample(grid: MapTerrainGrid, cell: Vector2i, terrain_id: StringName) -> float:
-	var clamped := Vector2i(
-		clampi(cell.x, 0, grid.size_cells.x - 1),
-		clampi(cell.y, 0, grid.size_cells.y - 1)
-	)
-	return 1.0 if grid.get_terrain(clamped) == terrain_id else 0.0
+static func _water_contour_sample(contour: Dictionary, cell: Vector2i) -> float:
+	var columns: int = contour["columns"]
+	var rows: int = contour["rows"]
+	var clamped := Vector2i(clampi(cell.x, 0, columns - 1), clampi(cell.y, 0, rows - 1))
+	var values: PackedFloat32Array = contour["values"]
+	if float(contour["max_coverage"]) < MapViewMeshBuilderConfig.WATER_CONTOUR_THRESHOLD:
+		values = contour["source"]
+	return values[clamped.y * columns + clamped.x]
 
 
-## Only shoreline water cells need recessed ground beneath them. Interior water
-## stays water-only, keeping mesh size close to the previous square renderer.
-static func _water_cell_needs_bed(grid: MapTerrainGrid, cell: Vector2i, terrain_id: StringName) -> bool:
-	for offset in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
-		var neighbor: Vector2i = cell + offset
-		if neighbor.x < 0 or neighbor.y < 0 or neighbor.x >= grid.size_cells.x or neighbor.y >= grid.size_cells.y:
-			continue
-		if grid.get_terrain(neighbor) != terrain_id:
-			return true
-	return false
-
-
-
-
-static func _cell_near_terrain(grid: MapTerrainGrid, cell: Vector2i, terrain_id: StringName) -> bool:
-	for offset in [
-		Vector2i(-1, -1), Vector2i(0, -1), Vector2i(1, -1),
-		Vector2i(-1, 0), Vector2i.ZERO, Vector2i(1, 0),
-		Vector2i(-1, 1), Vector2i(0, 1), Vector2i(1, 1),
+static func _cell_near_terrain(field: Dictionary, cell: Vector2i, terrain_id: StringName) -> bool:
+	for probe in [
+		Vector2(cell), Vector2(cell) + Vector2(1.0, 0.0), Vector2(cell) + Vector2.ONE,
+		Vector2(cell) + Vector2(0.0, 1.0), Vector2(cell) + Vector2(0.5, 0.5),
 	]:
-		var sample: Vector2i = cell + offset
-		if sample.x < 0 or sample.y < 0 or sample.x >= grid.size_cells.x or sample.y >= grid.size_cells.y:
-			continue
-		if grid.get_terrain(sample) == terrain_id:
+		if water_coverage_at(field, probe, terrain_id) >= MapViewMeshBuilderConfig.WATER_CONTOUR_THRESHOLD:
 			return true
 	return false
+
+
 static func _add_clipped_water_triangle(
 	surface: SurfaceTool,
 	first: Dictionary,
@@ -393,15 +429,16 @@ static func _add_clipped_water_triangle(
 	for index in polygon.size():
 		var current := polygon[index]
 		var previous := polygon[(index + polygon.size() - 1) % polygon.size()]
-		var current_inside := float(current["coverage"]) >= 0.5
-		var previous_inside := float(previous["coverage"]) >= 0.5
+		var threshold := MapViewMeshBuilderConfig.WATER_CONTOUR_THRESHOLD
+		var current_inside := float(current["coverage"]) >= threshold
+		var previous_inside := float(previous["coverage"]) >= threshold
 		if current_inside != previous_inside:
 			var previous_coverage := float(previous["coverage"])
 			var span := float(current["coverage"]) - previous_coverage
-			var weight := (0.5 - previous_coverage) / span
+			var weight := (threshold - previous_coverage) / span
 			clipped.append({
 				"position": (previous["position"] as Vector3).lerp(current["position"] as Vector3, weight),
-				"coverage": 0.5,
+				"coverage": threshold,
 			})
 		if current_inside:
 			clipped.append(current)

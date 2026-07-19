@@ -188,19 +188,39 @@ func test_water_contour_cuts_square_corners_diagonally() -> void:
 	definition.zones = [{"rect": Rect2i(1, 1, 1, 1), "terrain": MapTypes.TERRAIN_WATER}]
 	var grid := MapBuilder.build(definition)
 	var terrain_builder := preload("res://scripts/map/view3d/map_view_mesh_builder_terrain.gd")
-	assert_eq(terrain_builder.water_coverage_at(grid, Vector2(1.5, 1.5), MapTypes.TERRAIN_WATER), 1.0)
+	var field := {"water_contours": {MapTypes.TERRAIN_WATER: terrain_builder.bake_water_contour(grid, MapTypes.TERRAIN_WATER)}}
 	assert_true(
-		terrain_builder.water_coverage_at(grid, Vector2(1.0, 1.0), MapTypes.TERRAIN_WATER) < 0.5,
-		"the visual water contour must cut across a square cell corner"
+		terrain_builder.water_coverage_at(field, Vector2(1.5, 1.5), MapTypes.TERRAIN_WATER) > 0.0,
+		"water center must contribute to the broad visual contour"
 	)
 	assert_true(
-		is_equal_approx(terrain_builder.water_coverage_at(grid, Vector2(1.0, 1.5), MapTypes.TERRAIN_WATER), 0.5),
-		"the visual water contour must pass halfway between dry and water centers"
+		terrain_builder.water_coverage_at(field, Vector2(1.0, 1.0), MapTypes.TERRAIN_WATER)
+		< terrain_builder.water_coverage_at(field, Vector2(1.5, 1.5), MapTypes.TERRAIN_WATER),
+		"the visual water contour must round a square cell corner"
 	)
 	var terrain := MapViewMeshBuilder.build_terrain(definition, grid)
 	assert_true(terrain.has_node("Terrain_water"), "contoured water must still produce an animated surface")
 	assert_true(terrain.has_node("Terrain_Ground"), "clipped shoreline needs a recessed ground bed under its cut corners")
 	terrain.free()
+
+
+func test_lower_town_water_contour_smooths_multiple_authored_cells() -> void:
+	var definition := LowerTownSlice.create()
+	var grid := MapBuilder.build(definition)
+	var terrain_builder := preload("res://scripts/map/view3d/map_view_mesh_builder_terrain.gd")
+	var contour := terrain_builder.bake_water_contour(grid, MapTypes.TERRAIN_WATER)
+	assert_true(float(contour["max_coverage"]) >= MapViewMeshBuilderConfig.WATER_CONTOUR_THRESHOLD)
+	var field := {"water_contours": {MapTypes.TERRAIN_WATER: contour}}
+	var changed_cells := 0
+	for y in grid.size_cells.y:
+		for x in grid.size_cells.x:
+			var authored_water := grid.get_terrain(Vector2i(x, y)) == MapTypes.TERRAIN_WATER
+			var visible_water := terrain_builder.water_coverage_at(
+				field, Vector2(x, y) + Vector2(0.5, 0.5), MapTypes.TERRAIN_WATER
+			) >= MapViewMeshBuilderConfig.WATER_CONTOUR_THRESHOLD
+			if authored_water != visible_water:
+				changed_cells += 1
+	assert_true(changed_cells >= 12, "Lower Town river smoothing must visibly reshape several full cells")
 
 func test_placeholder_materials_cover_every_terrain() -> void:
 	for terrain_id in MapTypes.ALL_TERRAINS:
