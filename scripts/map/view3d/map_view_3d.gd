@@ -309,10 +309,13 @@ func _create_streamed_object(record: Dictionary) -> Node:
 			return MapViewMeshBuilder.build_landmark(source, definition.cell_size)
 		&"prop":
 			var prop_node := MapViewMeshBuilder.build_prop(source, definition.cell_size)
+			# build_prop applies visual_offset_px in world space; keep that lift when
+			# snapping the prop root to sampled terrain height.
+			var visual_elevation := prop_node.position.y
 			prop_node.position.y = MapViewMeshBuilder.ground_height(
 				definition,
 				Vector2(prop_node.position.x, prop_node.position.z)
-			)
+			) + visual_elevation
 			return prop_node
 		&"direction_sign":
 			var sign_node := DirectionSignBuilder.build(source, definition.cell_size)

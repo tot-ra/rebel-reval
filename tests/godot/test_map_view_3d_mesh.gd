@@ -14,8 +14,13 @@ func test_enclosed_interior_suppresses_countryside_surroundings() -> void:
 			assert_true(node.has_node("Window0"), "interior window needs glazed pane")
 			assert_true(node.has_node("WallAbove0"), "interior windows should fill void above the lintel")
 	assert_eq(window_landmarks, 4)
-	var candle := view.get_node("Props/Prop_table_candle")
+	var candle := view.get_node("Props/Prop_table_candle") as Node3D
+	var table := view.get_node("Props/Prop_food_table") as Node3D
 	assert_true(candle.has_node("CandleLight"), "table candle needs local light controller")
+	assert_true(
+		candle.position.y >= table.position.y + 0.45,
+		"table candle must sit on the table surface, not under it"
+	)
 	view.apply_cycle_progress(0.5)
 	view.apply_cycle_progress(0.0)
 	view.free()

@@ -16,12 +16,12 @@ wall wall.divider 14 1 14 12 thickness=1 openings=14,7,1,2 kind=interior_wall st
 prop forge_anvil anvil 18 5 rect=3,2
 prop forge_furnace furnace 19 1 rect=3,3
 prop forge_ledger ledger 4 3 rect=2,2
-prop table_candle candle 6 10 rect=1,1 visual_offset_px=0,-18
+prop table_candle candle 8 11 rect=1,1 visual_offset_px=0,-18
 prop quench quench_bucket 16 5 rect=2,2
 prop bed bed 3 9 rect=4,2
 prop chest chest 2 7 rect=2,2
-prop food_table table 4 9 rect=4,3
-prop work_chair chair 9 10 rect=2,2
+prop food_table table 6 10 rect=4,3
+prop work_chair chair 10 10 rect=2,2
 prop tool_shelf shelf 22 2 rect=2,2
 landmark window.north_living interior_window 5 0 1 1 passage_axis=z
 landmark window.north_forge interior_window 20 0 1 1 passage_axis=z
