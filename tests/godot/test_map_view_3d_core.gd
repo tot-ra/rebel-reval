@@ -174,6 +174,34 @@ func test_terrain_uses_dense_subcell_geometry() -> void:
 	view.free()
 
 
+
+func test_water_contour_cuts_square_corners_diagonally() -> void:
+	var definition := MapDefinition.new()
+	definition.map_id = &"test_water_contour"
+	definition.size_cells = Vector2i(3, 3)
+	definition.base_terrain = MapTypes.TERRAIN_GRASS
+	definition.player_spawn = Vector2(16.0, 16.0)
+	definition.location = &"test"
+	definition.scope = &"prototype"
+	definition.palette = &"spring"
+	definition.fingerprint = "test-water-contour"
+	definition.zones = [{"rect": Rect2i(1, 1, 1, 1), "terrain": MapTypes.TERRAIN_WATER}]
+	var grid := MapBuilder.build(definition)
+	var terrain_builder := preload("res://scripts/map/view3d/map_view_mesh_builder_terrain.gd")
+	assert_eq(terrain_builder.water_coverage_at(grid, Vector2(1.5, 1.5), MapTypes.TERRAIN_WATER), 1.0)
+	assert_true(
+		terrain_builder.water_coverage_at(grid, Vector2(1.0, 1.0), MapTypes.TERRAIN_WATER) < 0.5,
+		"the visual water contour must cut across a square cell corner"
+	)
+	assert_true(
+		is_equal_approx(terrain_builder.water_coverage_at(grid, Vector2(1.0, 1.5), MapTypes.TERRAIN_WATER), 0.5),
+		"the visual water contour must pass halfway between dry and water centers"
+	)
+	var terrain := MapViewMeshBuilder.build_terrain(definition, grid)
+	assert_true(terrain.has_node("Terrain_water"), "contoured water must still produce an animated surface")
+	assert_true(terrain.has_node("Terrain_Ground"), "clipped shoreline needs a recessed ground bed under its cut corners")
+	terrain.free()
+
 func test_placeholder_materials_cover_every_terrain() -> void:
 	for terrain_id in MapTypes.ALL_TERRAINS:
 		var material := MapViewMaterials.terrain(terrain_id, MapTypes.DEFAULT_SEED)

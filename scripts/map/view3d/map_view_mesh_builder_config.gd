@@ -11,6 +11,9 @@ const TRANSITION_MARKER_SCRIPT := preload("res://scripts/map/view3d/transition_m
 ## world units where one logic cell equals one unit (MapViewBridge).
 
 const WATER_RECESS := 0.08
+## Water sits just above the recessed bed. Keeping the lift tiny avoids z-fighting
+## with the continuous ground mesh without making the shoreline look elevated.
+const WATER_SURFACE_LIFT := 0.006
 const ROOF_PITCH := 0.9
 const ROOF_OVERHANG := 0.15
 const CAP_HEIGHT := 0.12

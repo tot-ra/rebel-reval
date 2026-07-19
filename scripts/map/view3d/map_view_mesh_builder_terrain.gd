@@ -193,15 +193,15 @@ static func build_terrain(definition: MapDefinition, grid: MapTerrainGrid) -> No
 	dry_surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	# Splats indices, blend weight, and tone into CUSTOM0 for the terrain_blend shader.
 	dry_surface.set_custom_format(0, SurfaceTool.CUSTOM_RGBA_FLOAT)
-	var has_dry := false
+	var has_ground := false
 	for y in grid.size_cells.y:
 		for x in grid.size_cells.x:
 			var terrain_id := grid.get_terrain(Vector2i(x, y))
-			if MapViewMaterials.WATER_TERRAINS.has(terrain_id):
+			if MapViewMaterials.WATER_TERRAINS.has(terrain_id) and not _water_cell_needs_bed(grid, Vector2i(x, y), terrain_id):
 				continue
-			has_dry = true
+			has_ground = true
 			add_blended_cell_quad(dry_surface, field, grid, x, y, definition.seed)
-	if has_dry:
+	if has_ground:
 		var ground := MeshInstance3D.new()
 		ground.name = "Terrain_Ground"
 		ground.mesh = dry_surface.commit()
@@ -214,9 +214,9 @@ static func build_terrain(definition: MapDefinition, grid: MapTerrainGrid) -> No
 		surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 		for y in grid.size_cells.y:
 			for x in grid.size_cells.x:
-				if grid.get_terrain(Vector2i(x, y)) != terrain_id:
+				if not _cell_near_terrain(grid, Vector2i(x, y), terrain_id):
 					continue
-				add_water_cell_quad(surface, field, grid, x, y)
+				add_water_cell_quad(surface, field, grid, x, y, terrain_id)
 		var instance := MeshInstance3D.new()
 		instance.name = "Terrain_%s" % String(terrain_id)
 		surface.generate_tangents()
@@ -296,11 +296,11 @@ static func add_water_cell_quad(
 	field: Dictionary,
 	grid: MapTerrainGrid,
 	x: int,
-	y: int
+	y: int,
+	terrain_id: StringName
 ) -> void:
 	var columns: int = field["vertex_columns"]
 	var positions: PackedVector3Array = field["positions"]
-	var normals: PackedVector3Array = field["normals"]
 	var origin_x := x * MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS
 	var origin_y := y * MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS
 	for patch_y in MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS:
@@ -313,12 +313,116 @@ static func add_water_cell_quad(
 				(vertex_y + 1) * columns + vertex_x + 1,
 				(vertex_y + 1) * columns + vertex_x,
 			]
-			for index in [0, 1, 2, 0, 2, 3]:
-				var vertex := positions[indices[index]]
-				surface.set_normal(normals[indices[index]])
-				surface.set_uv(Vector2(vertex.x, vertex.z) / MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE)
-				surface.set_color(Color.WHITE)
-				surface.add_vertex(vertex)
+			var corners: Array[Dictionary] = []
+			for index in indices:
+				var vertex: Vector3 = positions[index]
+				corners.append({
+					"position": vertex,
+					"coverage": water_coverage_at(grid, Vector2(vertex.x, vertex.z), terrain_id),
+				})
+			# Alternating diagonals avoid imposing one square-grid direction on long
+			# banks. Clipping these triangles produces the same six-direction visual
+			# vocabulary as a hex mesh while preserving the orthogonal gameplay grid.
+			if (vertex_x + vertex_y) % 2 == 0:
+				_add_clipped_water_triangle(surface, corners[0], corners[1], corners[2])
+				_add_clipped_water_triangle(surface, corners[0], corners[2], corners[3])
+			else:
+				_add_clipped_water_triangle(surface, corners[0], corners[1], corners[3])
+				_add_clipped_water_triangle(surface, corners[1], corners[2], corners[3])
+
+
+## Bilinear water influence sampled from cell centers. The 0.5 contour runs
+## between unlike cells and cuts corners diagonally instead of tracing tile edges.
+static func water_coverage_at(grid: MapTerrainGrid, sample: Vector2, terrain_id: StringName) -> float:
+	var centered := sample - Vector2(0.5, 0.5)
+	var base := Vector2i(floori(centered.x), floori(centered.y))
+	var local := centered - Vector2(base)
+	var top_left := _terrain_sample(grid, base, terrain_id)
+	var top_right := _terrain_sample(grid, base + Vector2i.RIGHT, terrain_id)
+	var bottom_left := _terrain_sample(grid, base + Vector2i.DOWN, terrain_id)
+	var bottom_right := _terrain_sample(grid, base + Vector2i(1, 1), terrain_id)
+	return lerpf(
+		lerpf(top_left, top_right, local.x),
+		lerpf(bottom_left, bottom_right, local.x),
+		local.y
+	)
+
+
+static func _terrain_sample(grid: MapTerrainGrid, cell: Vector2i, terrain_id: StringName) -> float:
+	var clamped := Vector2i(
+		clampi(cell.x, 0, grid.size_cells.x - 1),
+		clampi(cell.y, 0, grid.size_cells.y - 1)
+	)
+	return 1.0 if grid.get_terrain(clamped) == terrain_id else 0.0
+
+
+## Only shoreline water cells need recessed ground beneath them. Interior water
+## stays water-only, keeping mesh size close to the previous square renderer.
+static func _water_cell_needs_bed(grid: MapTerrainGrid, cell: Vector2i, terrain_id: StringName) -> bool:
+	for offset in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+		var neighbor: Vector2i = cell + offset
+		if neighbor.x < 0 or neighbor.y < 0 or neighbor.x >= grid.size_cells.x or neighbor.y >= grid.size_cells.y:
+			continue
+		if grid.get_terrain(neighbor) != terrain_id:
+			return true
+	return false
+
+
+
+
+static func _cell_near_terrain(grid: MapTerrainGrid, cell: Vector2i, terrain_id: StringName) -> bool:
+	for offset in [
+		Vector2i(-1, -1), Vector2i(0, -1), Vector2i(1, -1),
+		Vector2i(-1, 0), Vector2i.ZERO, Vector2i(1, 0),
+		Vector2i(-1, 1), Vector2i(0, 1), Vector2i(1, 1),
+	]:
+		var sample: Vector2i = cell + offset
+		if sample.x < 0 or sample.y < 0 or sample.x >= grid.size_cells.x or sample.y >= grid.size_cells.y:
+			continue
+		if grid.get_terrain(sample) == terrain_id:
+			return true
+	return false
+static func _add_clipped_water_triangle(
+	surface: SurfaceTool,
+	first: Dictionary,
+	second: Dictionary,
+	third: Dictionary
+) -> void:
+	var polygon: Array[Dictionary] = [first, second, third]
+	var clipped: Array[Dictionary] = []
+	for index in polygon.size():
+		var current := polygon[index]
+		var previous := polygon[(index + polygon.size() - 1) % polygon.size()]
+		var current_inside := float(current["coverage"]) >= 0.5
+		var previous_inside := float(previous["coverage"]) >= 0.5
+		if current_inside != previous_inside:
+			var previous_coverage := float(previous["coverage"])
+			var span := float(current["coverage"]) - previous_coverage
+			var weight := (0.5 - previous_coverage) / span
+			clipped.append({
+				"position": (previous["position"] as Vector3).lerp(current["position"] as Vector3, weight),
+				"coverage": 0.5,
+			})
+		if current_inside:
+			clipped.append(current)
+	if clipped.size() < 3:
+		return
+	for index in range(1, clipped.size() - 1):
+		_add_water_vertex(surface, clipped[0]["position"])
+		_add_water_vertex(surface, clipped[index]["position"])
+		_add_water_vertex(surface, clipped[index + 1]["position"])
+
+
+static func _add_water_vertex(surface: SurfaceTool, source: Vector3) -> void:
+	var vertex := Vector3(
+		source.x,
+		-MapViewMeshBuilderConfig.WATER_RECESS + MapViewMeshBuilderConfig.WATER_SURFACE_LIFT,
+		source.z
+	)
+	surface.set_normal(Vector3.UP)
+	surface.set_uv(Vector2(vertex.x, vertex.z) / MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE)
+	surface.set_color(Color.WHITE)
+	surface.add_vertex(vertex)
 
 
 static func terrain_blend_at(
@@ -337,7 +441,7 @@ static func terrain_blend_at(
 	warped.x = clampf(warped.x, 0.0, float(grid.size_cells.x) - 0.001)
 	warped.y = clampf(warped.y, 0.0, float(grid.size_cells.y) - 0.001)
 	var cell := Vector2i(floori(warped.x), floori(warped.y))
-	var primary: StringName = grid.get_terrain(cell)
+	var primary: StringName = _ground_terrain_at(grid, cell)
 	var secondary: StringName = primary
 	var weight := 0.0
 	var local := Vector2(warped.x - float(cell.x), warped.y - float(cell.y))
@@ -356,10 +460,11 @@ static func terrain_blend_at(
 		var neighbor_cell := cell + offset
 		if neighbor_cell.x < 0 or neighbor_cell.y < 0 or neighbor_cell.x >= grid.size_cells.x or neighbor_cell.y >= grid.size_cells.y:
 			continue
-		var neighbor: StringName = grid.get_terrain(neighbor_cell)
+		var neighbor: StringName = _ground_terrain_at(grid, neighbor_cell)
 		if neighbor == primary:
 			continue
 		var candidate := smoothstep(blend_width, 0.0, edge_distance)
+
 		if candidate > weight:
 			weight = candidate
 			secondary = neighbor
@@ -376,6 +481,26 @@ static func terrain_blend_at(
 		"primary_index": MapViewMaterials.terrain_blend_index(primary),
 		"secondary_index": MapViewMaterials.terrain_blend_index(secondary),
 	}
+
+
+## The recessed bank under a clipped water edge must use a dry palette layer.
+## Pick the first adjacent dry terrain deterministically; enclosed water falls
+## back to grass because its bed remains fully hidden by the water surface.
+static func _ground_terrain_at(grid: MapTerrainGrid, cell: Vector2i) -> StringName:
+	var terrain := grid.get_terrain(cell)
+	if not MapViewMaterials.WATER_TERRAINS.has(terrain):
+		return terrain
+	for offset in [
+		Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN,
+		Vector2i(-1, -1), Vector2i(1, -1), Vector2i(-1, 1), Vector2i(1, 1),
+	]:
+		var neighbor: Vector2i = cell + offset
+		if neighbor.x < 0 or neighbor.y < 0 or neighbor.x >= grid.size_cells.x or neighbor.y >= grid.size_cells.y:
+			continue
+		var candidate := grid.get_terrain(neighbor)
+		if not MapViewMaterials.WATER_TERRAINS.has(candidate):
+			return candidate
+	return MapTypes.TERRAIN_GRASS
 
 
 ## Hollow stone stack: four walls plus a recessed ink flue so the mouth reads as
