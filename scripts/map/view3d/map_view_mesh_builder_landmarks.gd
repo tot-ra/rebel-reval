@@ -67,16 +67,16 @@ static func _add_interior_window_landmark(
 	var side := _interior_window_side(landmark, cell_size)
 	var sill := wall_height_world * MapViewMeshBuilderConfig.INTERIOR_WINDOW_SILL_RATIO
 	var max_opening := wall_height_world - sill - MapViewMeshBuilderConfig.INTERIOR_WINDOW_LINTEL
-	var span: float
-	var opening_height: float
-	if side in [&"north", &"south"]:
-		# Horizontal wall runs encode opening width in X and wall thickness in Y.
-		span = size.x
-		opening_height = clampf(wall_height_world * 0.42, MapViewMeshBuilderConfig.INTERIOR_WINDOW_MIN_HEIGHT, max_opening)
-	else:
-		# Vertical wall runs encode thickness in X and opening height along the run in Y.
-		span = maxf(size.x, 0.35)
-		opening_height = clampf(size.y, MapViewMeshBuilderConfig.INTERIOR_WINDOW_MIN_HEIGHT, max_opening)
+	# The landmark rect's long axis runs along the wall: X on north/south walls,
+	# Y on east/west walls. Both spans are horizontal width; the glazed height is
+	# always derived from the wall height so tall openings never become
+	# door-height glass with sky gaps beside it.
+	var span := size.x if side in [&"north", &"south"] else maxf(size.y, 0.35)
+	var opening_height := clampf(
+		wall_height_world * 0.42,
+		MapViewMeshBuilderConfig.INTERIOR_WINDOW_MIN_HEIGHT,
+		max_opening
+	)
 	var frame := MapViewMeshBuilderConfig.HOUSE_WINDOW_FRAME
 	var glass_w := maxf(span - frame * 2.0, 0.25)
 	var glass_h := maxf(opening_height - frame * 2.0, 0.35)
@@ -91,7 +91,7 @@ static func _add_interior_window_landmark(
 			sill * 0.5,
 			side,
 			face_offset - 0.04,
-			&"stone"
+			&"plaster"
 		)
 	MapViewMeshBuilderBuildings.facade_box(root, "WindowFrameT0", Vector3(span, frame, MapViewMeshBuilderConfig.HOUSE_WINDOW_OUTER_DEPTH), 0.0, sill + opening_height - frame * 0.5, side, face_offset, &"timber")
 	MapViewMeshBuilderBuildings.facade_box(root, "WindowFrameB0", Vector3(span, frame, MapViewMeshBuilderConfig.HOUSE_WINDOW_OUTER_DEPTH), 0.0, sill + frame * 0.5, side, face_offset, &"timber")
@@ -112,7 +112,7 @@ static func _add_interior_window_landmark(
 			sill + opening_height + headroom * 0.5,
 			side,
 			face_offset - 0.04,
-			&"stone"
+			&"plaster"
 		)
 
 

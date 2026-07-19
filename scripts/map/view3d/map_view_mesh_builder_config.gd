@@ -29,7 +29,9 @@ const TRANSITION_MARKER_COLOR := Color(0.55, 0.78, 0.48, 0.3)
 const DEFAULT_WALL_HEIGHT_PX := {
 	MapTypes.BUILDING_KIND_HOUSE: 112.0,
 	MapTypes.BUILDING_KIND_WALL: 64.0,
-	MapTypes.BUILDING_KIND_INTERIOR_WALL: 72.0,
+	## Interior walls carry the ceiling directly, so the default must leave
+	## first-person headroom (eye height 1.65) under the exposed beams.
+	MapTypes.BUILDING_KIND_INTERIOR_WALL: 96.0,
 	MapTypes.BUILDING_KIND_INTERIOR_BLOCK: 56.0,
 }
 
@@ -134,10 +136,11 @@ const INTERIOR_WINDOW_LINTEL := 0.12
 const INTERIOR_WINDOW_MIN_HEIGHT := 0.55
 
 ## Enclosed interior shells need a shared ceiling so first-person look-up does
-## not expose the sky dome through open wall tops. The ceiling sits above the
-## wall line so first-person views get breathable headroom; top-down gameplay
-## hides the shell entirely.
-const INTERIOR_CEILING_FIRST_PERSON_HEADROOM := 1.35
+## not expose the sky dome through open wall tops. The ceiling rests directly
+## on the wall line - any offset opens a sky band between wall tops and the
+## ceiling in first-person. Headroom comes from authored wall_height instead;
+## top-down gameplay hides the shell entirely.
+const INTERIOR_CEILING_FIRST_PERSON_HEADROOM := 0.0
 const INTERIOR_CEILING_THICKNESS := 0.1
 const INTERIOR_CEILING_COLOR := Color(0.34, 0.28, 0.22)
 const INTERIOR_BEAM_SPACING := 3.6

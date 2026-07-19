@@ -16,9 +16,10 @@ from mathutils import Vector
 if TYPE_CHECKING:
     pass
 
-# More ring segments than the first P0-037 pass so limbs and the tunic read
-# rounder at portrait distance while staying within the low-poly rig budget.
-RING_SEGMENTS = 16
+# Ring density per tube cross-section. 24 keeps limb and tunic silhouettes
+# round at portrait distance; combined with smooth shading (build() sets
+# use_smooth on every polygon) the body no longer reads as faceted low-poly.
+RING_SEGMENTS = 24
 
 
 def find_armature() -> bpy.types.Object:

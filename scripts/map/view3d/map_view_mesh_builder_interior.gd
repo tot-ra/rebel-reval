@@ -48,15 +48,14 @@ static func build_interior_shell(definition: MapDefinition) -> Node3D:
 	return root
 
 
+## The ceiling must cover the wall strips too: perimeter walls are carved
+## full-height at window openings, and an inset ceiling leaves a sky square
+## visible through the top of each carve from first-person.
 static func _interior_floor_bounds_world(definition: MapDefinition, scale: float) -> Rect2:
 	var logic_bounds := definition.camera_bounds
 	if logic_bounds.size == Vector2.ZERO:
 		logic_bounds = Rect2(Vector2.ZERO, definition.world_size())
-	var inset := float(definition.cell_size) * scale
-	return Rect2(
-		logic_bounds.position * scale + Vector2(inset, inset),
-		logic_bounds.size * scale - Vector2(inset * 2.0, inset * 2.0)
-	)
+	return Rect2(logic_bounds.position * scale, logic_bounds.size * scale)
 
 
 ## Exposed timber beams hang slightly below the plank ceiling so the room reads

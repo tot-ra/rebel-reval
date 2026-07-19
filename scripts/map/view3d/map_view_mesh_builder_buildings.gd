@@ -213,8 +213,9 @@ static func add_interior_wall_structure(
 		add_forge_soot_wash(root, size, height, along_x, faces, face_offset)
 
 
-## Irregular charcoal panels concentrate around the working bay instead of tinting
-## the whole building black. Their low relief avoids z-fighting with lime plaster.
+## Smoke staining reads as one continuous band collected under the ceiling with
+## a few streaks licking down the plaster - detached dark panels read as black
+## windows from first-person. Low relief avoids z-fighting with lime plaster.
 static func add_forge_soot_wash(
 	root: Node3D,
 	size: Vector2,
@@ -224,23 +225,18 @@ static func add_forge_soot_wash(
 	face_offset: float
 ) -> void:
 	var run_length := size.x if along_x else size.y
-	var patches := clampi(ceili(run_length / 2.8), 1, 4)
+	var band_height := clampf(height * 0.16, 0.35, 0.62)
 	for face in faces:
-		for index in patches:
-			var t := (float(index) + 0.5) / float(patches)
-			var along := lerpf(-run_length * 0.42, run_length * 0.42, t)
-			var patch_width := minf(run_length / float(patches) * 0.74, 1.65)
-			var patch_height := height * (0.26 + 0.05 * float(index % 2))
-			facade_box(
-				root,
-				"Soot_%s_%02d" % [String(face), index],
-				Vector3(patch_width, patch_height, INTERIOR_WALL_SOOT_DEPTH),
-				along,
-				height - patch_height * 0.58,
-				face,
-				face_offset + 0.015,
-				&"soot"
-			)
+		facade_box(
+			root,
+			"Soot_%s_00" % String(face),
+			Vector3(run_length, band_height, INTERIOR_WALL_SOOT_DEPTH),
+			0.0,
+			height - band_height * 0.5,
+			face,
+			face_offset + 0.015,
+			&"soot"
+		)
 
 
 

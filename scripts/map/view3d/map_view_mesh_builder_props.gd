@@ -38,7 +38,10 @@ static func build_prop(prop: Dictionary, cell_size: int) -> Node3D:
 		MapTypes.PROP_KIND_FURNACE:
 			MapViewMeshBuilderPrimitives.box(root, "Mass", Vector3(1.35, 1.35, 1.1), Vector3(0.0, 0.68, 0.0), &"stone")
 			MapViewMeshBuilderPrimitives.box(root, "Mouth", Vector3(0.52, 0.42, 0.08), Vector3(0.0, 0.42, 0.58), &"ember")
-			MapViewMeshBuilderPrimitives.add_chimney_stack(root, "Chimney", 0.38, 0.72, Vector3(0.25, 1.62, -0.15))
+			# The flue must rise from the masonry as one breast: it seats into the
+			# mass top and runs past the interior ceiling plane (3.65+) so it never
+			# reads as a floating brick block from first-person.
+			MapViewMeshBuilderPrimitives.add_chimney_stack(root, "Chimney", 0.44, 2.55, Vector3(0.0, 1.25, -0.15))
 		MapTypes.PROP_KIND_LEDGER:
 			MapViewMeshBuilderPrimitives.box(root, "Stand", Vector3(0.16, 0.9, 0.16), Vector3(0.0, 0.45, 0.0), &"wood")
 			MapViewMeshBuilderPrimitives.box(root, "Book", Vector3(0.52, 0.08, 0.42), Vector3(0.0, 0.95, 0.0), &"plaster")

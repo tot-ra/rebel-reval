@@ -154,17 +154,26 @@ render_mode cull_disabled, diffuse_burley;
 uniform sampler2DArray terrain_patterns;
 uniform float pattern_layers = 1.0;
 
-void fragment() {
-	int primary_layer = int(CUSTOM0.x + 0.5);
-	int secondary_layer = int(CUSTOM0.y + 0.5);
-	float blend = clamp(CUSTOM0.z, 0.0, 1.0);
-	float tone = CUSTOM0.w;
+// CUSTOM0 is only readable in vertex(); layer indices must stay flat (an
+// interpolated index would sample arbitrary in-between layers mid-triangle)
+// while weight and tone interpolate for soft terrain borders.
+varying flat ivec2 blend_layers;
+varying vec2 blend_mix;
 
-	vec3 primary = texture(terrain_patterns, vec3(UV, float(primary_layer))).rgb;
-	vec3 secondary = texture(terrain_patterns, vec3(UV, float(secondary_layer))).rgb;
+void vertex() {
+	blend_layers = ivec2(int(CUSTOM0.x + 0.5), int(CUSTOM0.y + 0.5));
+	blend_mix = CUSTOM0.zw;
+}
+
+void fragment() {
+	float blend = clamp(blend_mix.x, 0.0, 1.0);
+	float tone = blend_mix.y;
+
+	vec3 primary = texture(terrain_patterns, vec3(UV, float(blend_layers.x))).rgb;
+	vec3 secondary = texture(terrain_patterns, vec3(UV, float(blend_layers.y))).rgb;
 	vec3 pattern = mix(primary, secondary, blend);
 	ALBEDO = pattern * COLOR.rgb * tone;
-	ROUGHNESS = mix(0.94, 0.82, blend * step(0.5, float(secondary_layer)));
+	ROUGHNESS = mix(0.94, 0.82, blend * step(0.5, float(blend_layers.y)));
 }
 "
 

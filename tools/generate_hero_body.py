@@ -55,6 +55,7 @@ PALETTE = {
     "hair": (0.48, 0.32, 0.20, 1.0),
     "beard": (0.42, 0.28, 0.16, 1.0),
     "eyes": (0.06, 0.05, 0.05, 1.0),
+    "armor": (0.45, 0.47, 0.50, 1.0),
     "cape": (0.42, 0.24, 0.14, 1.0),
     "hat": (0.32, 0.36, 0.28, 1.0),
 }
@@ -92,6 +93,7 @@ def _mix(center_a: Vector, center_b: Vector, t: float) -> Vector:
 def generate(character: str) -> None:
     selected = character_spec(character)
     shape = selected["shape"]
+    features = selected["features"]
     _active_palette.update(selected["palette"])
     source = ROOT / selected["skeleton_intermediate"]
     output = ROOT / selected["output"]
@@ -144,64 +146,87 @@ def generate(character: str) -> None:
     mid_thigh = crotch.lerp(knee_center, 0.55)
 
     torso.start_tube()
-    # Pelvis cap stays pants-colored but is hidden under the long tunic skirt.
+    # Pelvis cap; hidden under a long tunic skirt, visible with a short one.
     torso.ring(
-        crotch, up, 0.085 * scale * belly, 0.070 * scale * belly, {"hips": 1.0}, "pants"
+        crotch, up, 0.095 * scale * belly, 0.078 * scale * belly, {"hips": 1.0}, "pants"
     )
     torso.cap(crotch - up * 0.005 * scale, {"hips": 1.0}, "pants")
     torso.start_tube()
-    # Long tunic hem — flares over the thighs like the legacy sprite silhouette.
-    torso.ring(
-        knee_center + up * 0.04 * scale,
-        up,
-        0.162 * scale,
-        0.098 * scale,
-        {"hips": 1.0},
-        "tunic",
-    )
-    torso.ring(
-        mid_thigh, up, 0.148 * scale, 0.102 * scale, {"hips": 1.0}, "tunic"
-    )
+    if features["tunic_length"] == "long":
+        # Long tunic hem — flares over the thighs like the legacy sprite silhouette.
+        torso.ring(
+            knee_center + up * 0.04 * scale,
+            up,
+            0.175 * scale,
+            0.108 * scale,
+            {"hips": 1.0},
+            "tunic",
+        )
+        torso.ring(
+            mid_thigh, up, 0.160 * scale, 0.112 * scale, {"hips": 1.0}, "tunic"
+        )
+    else:
+        # Short tunic ends in a hip-length hem; the thighs stay pants-covered.
+        torso.ring(
+            hips - up * 0.10 * scale,
+            up,
+            0.152 * scale * belly,
+            0.112 * scale * belly,
+            {"hips": 1.0},
+            "tunic",
+        )
     torso.ring(
         hips - up * 0.03 * scale,
         up,
-        0.132 * scale * belly,
-        0.096 * scale * belly,
+        0.143 * scale * belly,
+        0.104 * scale * belly,
         {"hips": 1.0},
         "tunic",
     )
     torso.ring(
-        hips + up * 0.02, up, 0.120 * scale * belly, 0.092 * scale * belly,
+        hips + up * 0.02, up, 0.130 * scale * belly, 0.100 * scale * belly,
         {"hips": 1.0}, "belt",
     )
     torso.ring(
-        waist, up, 0.108 * scale * belly, 0.085 * scale * belly,
+        waist, up, 0.118 * scale * belly, 0.092 * scale * belly,
         _blend("hips", "spine", 0.5), "tunic",
     )
     torso.ring(
         chest_height,
         up,
-        0.158 * scale * chest_breadth,
-        0.100 * scale,
+        0.172 * scale * chest_breadth,
+        0.110 * scale,
         _blend("spine", "chest", 0.6),
         "tunic",
     )
     torso.ring(
-        shoulder_line, up, 0.180 * scale * chest_breadth, 0.095 * scale,
+        shoulder_line, up, 0.196 * scale * chest_breadth, 0.104 * scale,
         {"chest": 1.0}, "tunic",
     )
-    torso.ring(neck_base, up, 0.055 * scale, 0.050 * scale, {"chest": 1.0}, "tunic")
+    torso.ring(neck_base, up, 0.062 * scale, 0.056 * scale, {"chest": 1.0}, "tunic")
     torso.cap(neck_base + up * 0.02, {"chest": 1.0}, "tunic")
     # Deltoid bulges follow the upper arm so the shoulder joint stays covered
     # when the arms swing.
     for suffix, shoulder in (("l", shoulder_l), ("r", shoulder_r)):
         torso.uv_sphere(
             shoulder + up * 0.012 * scale,
-            Vector((0.068 * scale, 0.062 * scale, 0.066 * scale)),
+            Vector((0.082 * scale, 0.074 * scale, 0.078 * scale)),
             {f"upperarm.{suffix}": 1.0},
             "tunic",
-            rings=7,
+            rings=9,
         )
+        if features["pauldrons"]:
+            # Flattened steel dome riding the deltoid, pushed slightly outward.
+            outward = shoulder - neck_base
+            outward -= up * outward.dot(up)
+            outward = outward.normalized()
+            torso.uv_sphere(
+                shoulder + up * 0.034 * scale + outward * 0.028 * scale,
+                Vector((0.096 * scale, 0.082 * scale, 0.056 * scale)),
+                {f"upperarm.{suffix}": 1.0},
+                "armor",
+                rings=9,
+            )
     parts.append(torso)
 
     # ---- head --------------------------------------------------------------
@@ -215,45 +240,121 @@ def generate(character: str) -> None:
         Vector((0.140 * scale, 0.145 * scale, 0.155 * scale)),
         {"head": 1.0},
         "skin",
-        rings=10,
+        rings=14,
     )
     # neck
     head_part.start_tube()
     head_part.ring(
-        neck_base, up, 0.048 * scale, 0.045 * scale,
+        neck_base, up, 0.056 * scale, 0.052 * scale,
         _blend("chest", "head", 0.35), "skin",
     )
     head_part.ring(
-        head + up * 0.045 * scale, up, 0.050 * scale, 0.047 * scale, {"head": 1.0}, "skin"
+        head + up * 0.045 * scale, up, 0.058 * scale, 0.054 * scale, {"head": 1.0}, "skin"
     )
     head_part.cap(head + up * 0.065 * scale, {"head": 1.0}, "skin")
-    # hair cap: back-top shell, pulled back so the face stays open
-    head_part.uv_sphere(
-        head_center + up * 0.028 * scale - forward * 0.038 * scale,
-        Vector((0.148 * scale, 0.140 * scale, 0.152 * scale)),
-        {"head": 1.0},
-        "hair",
-        rings=9,
-    )
-    # beard wedge
-    head_part.box(
-        head_center + forward * 0.118 * scale - up * 0.095 * scale,
-        left * 0.082 * scale,
-        forward * 0.052 * scale,
-        up * 0.075 * scale,
-        {"head": 1.0},
-        "beard",
-    )
+    # ears: small flattened shells on the skull sides
+    for side in (1.0, -1.0):
+        head_part.uv_sphere(
+            head_center + left * side * 0.134 * scale + up * 0.004 * scale,
+            Vector((0.018 * scale, 0.026 * scale, 0.034 * scale)),
+            {"head": 1.0},
+            "skin",
+            rings=6,
+        )
+    # hair: a back-top shell for every non-bald style, then style geometry
+    hair_style = features["hair_style"]
+    if hair_style != "bald":
+        if hair_style == "short":
+            hair_offset = head_center + up * 0.034 * scale - forward * 0.030 * scale
+            hair_radii = Vector((0.142 * scale, 0.134 * scale, 0.146 * scale))
+        else:
+            hair_offset = head_center + up * 0.028 * scale - forward * 0.038 * scale
+            hair_radii = Vector((0.148 * scale, 0.140 * scale, 0.152 * scale))
+        head_part.uv_sphere(hair_offset, hair_radii, {"head": 1.0}, "hair", rings=13)
+        if hair_style == "ponytail":
+            tail_base = head_center - forward * 0.140 * scale + up * 0.095 * scale
+            head_part.start_tube()
+            head_part.ring(
+                tail_base, up, 0.032 * scale, 0.030 * scale, {"head": 1.0}, "hair"
+            )
+            head_part.ring(
+                tail_base - forward * 0.028 * scale - up * 0.100 * scale,
+                up, 0.027 * scale, 0.025 * scale, {"head": 1.0}, "hair",
+            )
+            head_part.ring(
+                tail_base - forward * 0.036 * scale - up * 0.200 * scale,
+                up, 0.019 * scale, 0.018 * scale, {"head": 1.0}, "hair",
+            )
+            head_part.cap(
+                tail_base - forward * 0.040 * scale - up * 0.245 * scale,
+                {"head": 1.0}, "hair",
+            )
+        elif hair_style == "bun":
+            head_part.uv_sphere(
+                head_center - forward * 0.118 * scale + up * 0.128 * scale,
+                Vector((0.052 * scale, 0.050 * scale, 0.048 * scale)),
+                {"head": 1.0},
+                "hair",
+                rings=8,
+            )
+        elif hair_style == "long":
+            head_part.start_tube()
+            head_part.ring(
+                head_center - forward * 0.115 * scale + up * 0.105 * scale,
+                up, 0.072 * scale, 0.052 * scale, {"head": 1.0}, "hair",
+            )
+            head_part.ring(
+                head_center - forward * 0.132 * scale - up * 0.045 * scale,
+                up, 0.076 * scale, 0.056 * scale, {"head": 1.0}, "hair",
+            )
+            head_part.ring(
+                neck_base - forward * 0.058 * scale,
+                up, 0.062 * scale, 0.046 * scale,
+                _blend("chest", "head", 0.5), "hair",
+            )
+            head_part.cap(
+                neck_base - forward * 0.056 * scale - up * 0.035 * scale,
+                {"head": 1.0}, "hair",
+            )
+    # beard: full wedge + mustache, a tight short wedge, or clean-shaven
+    beard_style = features["beard_style"]
+    if beard_style == "full":
+        head_part.box(
+            head_center + forward * 0.118 * scale - up * 0.095 * scale,
+            left * 0.082 * scale,
+            forward * 0.052 * scale,
+            up * 0.075 * scale,
+            {"head": 1.0},
+            "beard",
+        )
+        # mustache bar under the nose
+        head_part.box(
+            head_center + forward * 0.147 * scale - up * 0.038 * scale,
+            left * 0.048 * scale,
+            forward * 0.012 * scale,
+            up * 0.011 * scale,
+            {"head": 1.0},
+            "beard",
+        )
+    elif beard_style == "short":
+        head_part.box(
+            head_center + forward * 0.110 * scale - up * 0.082 * scale,
+            left * 0.060 * scale,
+            forward * 0.036 * scale,
+            up * 0.048 * scale,
+            {"head": 1.0},
+            "beard",
+        )
     # nose
     head_part.box(
-        head_center + forward * 0.145 * scale - up * 0.005 * scale,
-        left * 0.020 * scale,
-        forward * 0.022 * scale,
-        up * 0.030 * scale,
+        head_center + forward * 0.146 * scale - up * 0.004 * scale,
+        left * 0.024 * scale,
+        forward * 0.026 * scale,
+        up * 0.036 * scale,
         {"head": 1.0},
         "skin",
     )
-    # eyes
+    # eyes and eyebrows
     for side in (1.0, -1.0):
         head_part.box(
             head_center + forward * 0.132 * scale + left * side * 0.052 * scale
@@ -264,80 +365,100 @@ def generate(character: str) -> None:
             {"head": 1.0},
             "eyes",
         )
+        head_part.box(
+            head_center + forward * 0.131 * scale + left * side * 0.052 * scale
+            + up * 0.060 * scale,
+            left * 0.025 * scale,
+            forward * 0.009 * scale,
+            up * 0.007 * scale,
+            {"head": 1.0},
+            "hair",
+        )
     parts.append(head_part)
 
     # ---- arms and hands ----------------------------------------------------
+    # Long sleeves: short brown tunic sleeves over grey undersleeves with blue
+    # cuffs. Bare style: the tunic sleeve ends mid-upper-arm, skin below.
     for suffix, shoulder, elbow, wrist, hand in (
         ("L", shoulder_l, elbow_l, wrist_l, hand_l),
         ("R", shoulder_r, elbow_r, wrist_r, hand_r),
     ):
         bone = lambda base: f"{base}.{suffix.lower()}"
         arm = PartBuilder(f"Hero_Arm{suffix}", frame, bulk=shape["bulk"])
+        long_sleeves = features["sleeve_style"] == "long"
+        forearm_material = "sleeves" if long_sleeves else "skin"
         arm.start_tube()
         axis_upper = (elbow - shoulder).normalized()
         axis_lower = (wrist - elbow).normalized()
-        # Short brown tunic sleeves over long grey undersleeves with blue cuffs.
         arm.ring(
             shoulder - axis_upper * 0.02,
             axis_upper,
-            0.062 * scale,
-            0.062 * scale,
+            0.076 * scale,
+            0.076 * scale,
             {bone("upperarm"): 1.0},
             "tunic",
         )
         arm.ring(
-            _mix(shoulder, elbow, 0.38),
+            _mix(shoulder, elbow, 0.20),
             axis_upper,
-            0.054 * scale,
-            0.054 * scale,
+            0.070 * scale,
+            0.070 * scale,
             {bone("upperarm"): 1.0},
             "tunic",
         )
         arm.ring(
-            _mix(shoulder, elbow, 0.62),
+            _mix(shoulder, elbow, 0.42),
             axis_upper,
-            0.048 * scale,
-            0.048 * scale,
+            0.064 * scale,
+            0.064 * scale,
             {bone("upperarm"): 1.0},
-            "sleeves",
+            "tunic",
+        )
+        arm.ring(
+            _mix(shoulder, elbow, 0.65),
+            axis_upper,
+            0.056 * scale,
+            0.056 * scale,
+            {bone("upperarm"): 1.0},
+            forearm_material,
         )
         arm.ring(
             elbow,
             (axis_upper + axis_lower).normalized(),
-            0.044 * scale,
-            0.044 * scale,
+            0.050 * scale,
+            0.050 * scale,
             _blend(bone("upperarm"), bone("lowerarm"), 0.5),
-            "sleeves",
+            forearm_material,
         )
         arm.ring(
             _mix(elbow, wrist, 0.45),
             axis_lower,
-            0.040 * scale,
-            0.040 * scale,
+            0.046 * scale,
+            0.046 * scale,
             {bone("lowerarm"): 1.0},
-            "sleeves",
+            forearm_material,
         )
         arm.ring(
             _mix(elbow, wrist, 0.78),
             axis_lower,
-            0.036 * scale,
-            0.036 * scale,
+            0.042 * scale,
+            0.042 * scale,
             {bone("lowerarm"): 1.0},
-            "sleeve_band",
+            "sleeve_band" if long_sleeves else "skin",
         )
         arm.ring(
             wrist,
             axis_lower,
-            0.032 * scale,
-            0.032 * scale,
+            0.038 * scale,
+            0.038 * scale,
             _blend(bone("lowerarm"), bone("wrist"), 0.5),
             "skin",
         )
         arm.ring(
             hand,
             (hand - wrist).normalized(),
-            0.028 * scale,
-            0.028 * scale,
+            0.034 * scale,
+            0.034 * scale,
             _blend(bone("wrist"), bone("hand"), 0.6),
             "skin",
         )
@@ -350,19 +471,19 @@ def generate(character: str) -> None:
         hand_side, hand_up = frame.basis_for(hand_axis)
         hand_part = PartBuilder(f"Hero_Hand{suffix}", frame)
         hand_part.box(
-            hand + hand_axis * 0.035 * scale,
-            hand_side * 0.030 * scale,
-            hand_up * 0.045 * scale,
-            hand_axis * 0.058 * scale,
+            hand + hand_axis * 0.038 * scale,
+            hand_side * 0.036 * scale,
+            hand_up * 0.052 * scale,
+            hand_axis * 0.066 * scale,
             {bone("hand"): 1.0},
             "skin",
         )
         # thumb
         hand_part.box(
-            hand + hand_axis * 0.012 * scale + hand_up * 0.050 * scale,
-            hand_side * 0.016 * scale,
-            hand_up * 0.026 * scale,
-            hand_axis * 0.030 * scale,
+            hand + hand_axis * 0.014 * scale + hand_up * 0.056 * scale,
+            hand_side * 0.020 * scale,
+            hand_up * 0.032 * scale,
+            hand_axis * 0.036 * scale,
             {bone("hand"): 1.0},
             "skin",
         )

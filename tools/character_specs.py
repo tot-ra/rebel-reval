@@ -15,9 +15,12 @@ Spec fields (all optional except output):
   animation clip consistently.
 - shape: high-level mesh knobs merged over BASE_SHAPE; consumed by the body
   generator (multipliers on generated geometry, not on bones).
+- features: discrete identity knobs merged over BASE_FEATURES; consumed by
+  the body generator (hair_style, beard_style, sleeve_style, tunic_length,
+  pauldrons).
 - palette: sRGB color overrides merged over the base PALETTE of the
   generator (skin, tunic, sleeves, sleeve_band, pants, boots, belt, hair,
-  beard, eyes, ...).
+  beard, eyes, armor, ...).
 - output: runtime glb path relative to the repo root.
 - garments: garment ids to export as separate skinned glbs next to the
   body ("cape", "hat"). Usually only the shared hero set carries these.
@@ -33,18 +36,19 @@ BASE_PROPORTIONS = {
     "hand_size": 0.85,
     # Degrees the upper arms rotate around +Z (shoulder fold). Sets elbow
     # breadth: lower values keep elbows wider, higher values glue them to the
-    # ribs. The CC0 KayKit clips assume a barrel-wide chibi torso.
-    "arm_relax_degrees": 25.0,
+    # ribs. The CC0 KayKit clips assume a barrel-wide chibi torso; on the
+    # adult frame 25° still read as arms held away from the body.
+    "arm_relax_degrees": 32.0,
     # Extra +Z fold applied only on the forearm bones. Kept small: the clips
     # carry their own elbow bend (attenuated at clip level in the retarget —
     # see _remap_arm_swing_delta), and a large constant offset on top of it
     # pushed the hands up to the face on adult proportions.
-    "forearm_relax_degrees": 15.0,
+    "forearm_relax_degrees": 19.0,
 }
 
 # Default feature set for the body generator (see generate_hero_body.py).
 # Specs override individual keys to change identity without new code:
-# - hair_style: "full" | "short" | "bald"
+# - hair_style: "full" | "short" | "bald" | "ponytail" | "bun" | "long"
 # - beard_style: "full" | "short" | "none"
 # - sleeve_style: "long" (tunic sleeve + undersleeves + cuff) | "bare" (short
 #   tunic sleeve, skin to the wrist)
@@ -112,12 +116,22 @@ CHARACTERS = {
             "hair": (0.29, 0.23, 0.18, 1.0),
             "beard": (0.24, 0.19, 0.15, 1.0),
             "eyes": (0.05, 0.06, 0.07, 1.0),
+            "armor": (0.38, 0.40, 0.44, 1.0),
+        },
+        # A career officer reads clean-cut: cropped hair, no beard, and
+        # pauldrons that widen the already broad shoulder line.
+        "features": {
+            "hair_style": "short",
+            "beard_style": "none",
+            "pauldrons": True,
         },
         "output": "assets/characters/shared/henning.glb",
         "garments": [],
     },
     # Worked example for docs/CHARACTER_GENERATION.md: a stocky innkeeper
-    # frame — shorter legs, broad chest, real belly, heavier bulk.
+    # frame — shorter legs, broad chest, real belly, heavier bulk. Bare
+    # forearms, a hip-length tunic and a bun keep him unmistakable next to
+    # the long-tunicked, full-haired hero.
     "innkeeper": {
         "proportions": {
             "leg_length": 1.60,
@@ -137,6 +151,12 @@ CHARACTERS = {
             "hair": (0.38, 0.30, 0.24, 1.0),
             "beard": (0.32, 0.24, 0.18, 1.0),
         },
+        "features": {
+            "hair_style": "bun",
+            "beard_style": "short",
+            "sleeve_style": "bare",
+            "tunic_length": "short",
+        },
         "output": "assets/characters/shared/innkeeper.glb",
         "garments": [],
     },
@@ -153,6 +173,7 @@ def spec(name: str) -> dict:
         "name": name,
         "proportions": {**BASE_PROPORTIONS, **entry.get("proportions", {})},
         "shape": {**BASE_SHAPE, **entry.get("shape", {})},
+        "features": {**BASE_FEATURES, **entry.get("features", {})},
         "palette": entry.get("palette", {}),
         "output": entry["output"],
         "garments": entry.get("garments", []),

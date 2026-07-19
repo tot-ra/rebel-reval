@@ -242,9 +242,12 @@ def _euler_xyz_degrees_to_quat(euler: np.ndarray) -> np.ndarray:
 
 # Locomotion clips keep large local pitch/roll deltas from the KayKit chibi rig.
 # On the slim adult silhouette that reads as hands flaring left/right instead of
-# swinging along +Z.
+# swinging along +Z. The lateral term is flattened hard: the chibi run cycle
+# spreads the elbows around its barrel torso, which on an adult frame reads as
+# arms held too far apart (review feedback). The forward/back swing itself is
+# kept — tests/godot/test_character_rig.gd asserts the contralateral z-swing.
 _LOCOMOTION_ANIMATIONS = frozenset({"Running_B", "Walking_A"})
-_ARM_SWING_LATERAL_ATTENUATION = 0.22
+_ARM_SWING_LATERAL_ATTENUATION = 0.10
 _ARM_SWING_ROLL_ATTENUATION = 0.35
 
 

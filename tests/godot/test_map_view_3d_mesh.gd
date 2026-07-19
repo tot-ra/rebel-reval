@@ -14,7 +14,7 @@ func test_enclosed_interior_suppresses_countryside_surroundings() -> void:
 			ceiling.position.y,
 			ceiling_plane - MapViewMeshBuilderConfig.INTERIOR_CEILING_THICKNESS * 0.5
 		),
-		"ceiling must sit above interior wall tops for first-person headroom"
+		"ceiling must rest on interior wall tops with no sky band between them"
 	)
 	assert_false(view.is_interior_shell_visible(), "top-down view must start with the ceiling hidden")
 	assert_true(view.get_node("InteriorShell").get_child_count() >= 3, "ceiling needs exposed timber beams")
