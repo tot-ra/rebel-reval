@@ -241,6 +241,7 @@ func update_active_chunks_from_logic_positions(logic_positions: Array[Vector2]) 
 func _assemble() -> void:
 	add_child(MapViewMeshBuilder.build_surroundings(definition))
 	add_child(MapViewMeshBuilder.build_terrain(definition, grid))
+	add_child(MapViewMeshBuilder.build_interior_shell(definition))
 
 	_scatter_root = Node3D.new()
 	_scatter_root.name = "Scatter"
@@ -403,10 +404,13 @@ func _rebuild_occluder_bounds() -> void:
 	_occluder_bounds.clear()
 	var buildings := get_node_or_null("Buildings") as Node3D
 	var landmarks := get_node_or_null("Landmarks") as Node3D
+	var interior_shell := get_node_or_null("InteriorShell") as Node3D
 	if buildings != null:
 		_append_mesh_bounds(buildings, buildings.transform, _occluder_bounds)
 	if landmarks != null:
 		_append_mesh_bounds(landmarks, landmarks.transform, _occluder_bounds)
+	if interior_shell != null:
+		_append_mesh_bounds(interior_shell, interior_shell.transform, _occluder_bounds)
 
 
 static func _configure_sun_shadows(sun: DirectionalLight3D) -> void:

@@ -16,6 +16,7 @@ const _Buildings := preload("res://scripts/map/view3d/map_view_mesh_builder_buil
 const _Landmarks := preload("res://scripts/map/view3d/map_view_mesh_builder_landmarks.gd")
 const _Props := preload("res://scripts/map/view3d/map_view_mesh_builder_props.gd")
 const _Surroundings := preload("res://scripts/map/view3d/map_view_mesh_builder_surroundings.gd")
+const _Interior := preload("res://scripts/map/view3d/map_view_mesh_builder_interior.gd")
 
 # Re-export frequently referenced constants for backward compatibility.
 const TERRAIN_SUBDIVISIONS := _Config.TERRAIN_SUBDIVISIONS
@@ -80,3 +81,7 @@ static func build_scatter(
 
 static func build_surroundings(definition: MapDefinition) -> Node3D:
 	return _Surroundings.build_surroundings(definition)
+
+
+static func build_interior_shell(definition: MapDefinition) -> Node3D:
+	return _Interior.build_interior_shell(definition)

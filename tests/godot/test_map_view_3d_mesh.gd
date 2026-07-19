@@ -5,6 +5,14 @@ func test_enclosed_interior_suppresses_countryside_surroundings() -> void:
 	var view := MapView3D.create(definition, MapBuilder.build(definition))
 	assert_false(view.has_node("Surroundings/Apron"), "interior shell must not paint meadow apron")
 	assert_false(view.has_node("Surroundings/SpruceCanopies"), "interior shell must not spawn treeline")
+	assert_true(view.has_node("InteriorShell/Ceiling"), "enclosed interiors need a shared ceiling for first-person")
+	var ceiling := view.get_node("InteriorShell/Ceiling") as MeshInstance3D
+	var wall_height := MapViewMeshBuilder.interior_shell_wall_height_world(definition)
+	assert_true(
+		is_equal_approx(ceiling.position.y, wall_height - MapViewMeshBuilderConfig.INTERIOR_CEILING_THICKNESS * 0.5),
+		"ceiling must sit flush with interior wall tops"
+	)
+	assert_true(view.get_node("InteriorShell").get_child_count() >= 3, "ceiling needs exposed timber beams")
 	var window_landmarks := 0
 	for landmark in definition.view_landmarks:
 		if landmark.get("kind", &"") == &"interior_window":
@@ -56,6 +64,23 @@ func test_kalev_smithy_door_sits_on_south_wall_boundary() -> void:
 	var expected_boundary := rect.position.y * MapViewBridge.world_scale(definition.cell_size)
 	assert_true(is_equal_approx(door.position.z, expected_boundary), "smithy door must sit flush with the south wall")
 	door.free()
+
+
+func test_outdoor_maps_do_not_spawn_interior_ceiling() -> void:
+	var definition := SmithyCourtyard.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition))
+	assert_false(view.has_node("InteriorShell/Ceiling"), "outdoor maps must stay open to the sky")
+	view.free()
+
+
+func test_interior_walls_skip_segment_caps() -> void:
+	var definition := KalevSmithyDefinition.create()
+	for building in definition.buildings:
+		if building.get("kind", &"") != MapTypes.BUILDING_KIND_INTERIOR_WALL:
+			continue
+		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
+		assert_false(node.has_node("Cap"), "%s: interior walls rely on the shared ceiling" % building["id"])
+		node.free()
 
 
 func test_town_surroundings_paint_cobble_apron() -> void:

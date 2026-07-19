@@ -65,11 +65,26 @@ const BORDER_FLATTEN_CELLS := 2.5
 const WATER_FLATTEN_CELLS := 3
 
 ## House construction families: visible building material per dwelling.
+## 1343 Reval mix: horizontal log construction dominates the lower town, local
+## limestone marks wealthy merchants and church buildings, brick stays rare
+## (Tallinn built in limestone, unlike the brick-Gothic towns further south).
 const HOUSE_STYLE_TIMBER := &"timber_frame"
 const HOUSE_STYLE_BRICK := &"brick"
 const HOUSE_STYLE_PLANK := &"plank"
+const HOUSE_STYLE_LOG := &"log"
+const HOUSE_STYLE_STONE := &"limestone"
 const PLASTER_TONE := Color(0.87, 0.81, 0.67)
 const BRICK_TONE := Color(0.64, 0.36, 0.25)
+const LOG_TONE := Color(0.45, 0.35, 0.25)
+const LIMESTONE_TONE := Color(0.72, 0.70, 0.62)
+
+## Roof cover families and the weathered-straw tint pulled over authored roof
+## colors when a fallback house resolves to thatch (authored dark browns read
+## as rotten reed otherwise).
+const ROOF_STYLE_TILE := &"tile"
+const ROOF_STYLE_SHINGLE := &"shingle"
+const ROOF_STYLE_THATCH := &"thatch"
+const THATCH_TONE := Color(0.55, 0.47, 0.32)
 const FRAME_BEAM_THICKNESS := 0.11
 const PLINTH_HEIGHT := 0.24
 
@@ -114,6 +129,14 @@ const FACADE_RELIEF := 0.05
 const INTERIOR_WINDOW_SILL_RATIO := 0.22
 const INTERIOR_WINDOW_LINTEL := 0.12
 const INTERIOR_WINDOW_MIN_HEIGHT := 0.55
+
+## Enclosed interior shells need a shared ceiling so first-person look-up does
+## not expose the sky dome through open wall tops.
+const INTERIOR_CEILING_THICKNESS := 0.1
+const INTERIOR_CEILING_COLOR := Color(0.34, 0.28, 0.22)
+const INTERIOR_BEAM_SPACING := 3.6
+const INTERIOR_BEAM_THICKNESS := 0.13
+const INTERIOR_BEAM_DEPTH := 0.2
 
 ## Fortification dressing: town-wall segments and towers above this height get
 ## battlements; towers additionally get arrow slits.

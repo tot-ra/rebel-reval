@@ -68,7 +68,7 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 		roof.name = "Roof"
 		roof.mesh = MapViewMeshBuilderPrimitives.gabled_roof_mesh(size, along_ridge_x)
 		roof.position = Vector3(0.0, height, 0.0)
-		roof.material_override = MapViewMaterials.roof(building.get("roof_color", MapViewMeshBuilderConfig.DEFAULT_ROOF_COLOR))
+		roof.material_override = house_roof_material(building)
 		root.add_child(roof)
 		add_chimney(root, building, size, height, along_ridge_x)
 		add_house_structure(root, building, size, height)
@@ -96,7 +96,9 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 		add_tower_roof(root, radius, height)
 		if authored_height_px >= MapViewMeshBuilderConfig.TOWER_MIN_HEIGHT_PX:
 			add_tower_slits(root, radius, height)
-	else:
+	elif kind != MapTypes.BUILDING_KIND_INTERIOR_WALL:
+		# Interior maps close with a shared ceiling shell; per-segment caps would
+		# z-fight and still leave the room open to the sky in first-person.
 		var cap := MeshInstance3D.new()
 		cap.name = "Cap"
 		var cap_mesh := BoxMesh.new()
@@ -123,18 +125,34 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 	return root
 
 
-## Visible construction material per house, deterministic from the id: most are
-## plastered timber frame, the rest brick or plank, so facades stop reading as
-## flat painted boxes.
+## Visible construction material per house. Authors declare it per style via
+## `wall_material`; undeclared houses fall back to a deterministic id-hash mix
+## weighted for 1343 Reval, where the lower town was still mostly log-built,
+## limestone belonged to wealthy merchants, and brick stayed rare.
 
 
 static func house_style(building: Dictionary) -> StringName:
+	match StringName(building.get("wall_material", &"")):
+		&"plaster", &"timber":
+			return MapViewMeshBuilderConfig.HOUSE_STYLE_TIMBER
+		&"brick":
+			return MapViewMeshBuilderConfig.HOUSE_STYLE_BRICK
+		&"plank":
+			return MapViewMeshBuilderConfig.HOUSE_STYLE_PLANK
+		&"log":
+			return MapViewMeshBuilderConfig.HOUSE_STYLE_LOG
+		&"limestone", &"stone":
+			return MapViewMeshBuilderConfig.HOUSE_STYLE_STONE
 	var roll := absi(String(building["id"]).hash()) % 10
 	if roll < 4:
+		return MapViewMeshBuilderConfig.HOUSE_STYLE_LOG
+	if roll < 6:
 		return MapViewMeshBuilderConfig.HOUSE_STYLE_TIMBER
-	if roll < 7:
-		return MapViewMeshBuilderConfig.HOUSE_STYLE_BRICK
-	return MapViewMeshBuilderConfig.HOUSE_STYLE_PLANK
+	if roll < 8:
+		return MapViewMeshBuilderConfig.HOUSE_STYLE_PLANK
+	if roll < 9:
+		return MapViewMeshBuilderConfig.HOUSE_STYLE_STONE
+	return MapViewMeshBuilderConfig.HOUSE_STYLE_BRICK
 
 
 
@@ -145,8 +163,45 @@ static func house_wall_material(building: Dictionary, wall_color: Color, size: V
 			return MapViewMaterials.wall_surface_for_size(&"plaster", wall_color.lerp(MapViewMeshBuilderConfig.PLASTER_TONE, 0.55), size)
 		MapViewMeshBuilderConfig.HOUSE_STYLE_BRICK:
 			return MapViewMaterials.wall_surface_for_size(&"brick", wall_color.lerp(MapViewMeshBuilderConfig.BRICK_TONE, 0.6), size)
+		MapViewMeshBuilderConfig.HOUSE_STYLE_LOG:
+			return MapViewMaterials.wall_surface_for_size(&"log", wall_color.lerp(MapViewMeshBuilderConfig.LOG_TONE, 0.45), size)
+		MapViewMeshBuilderConfig.HOUSE_STYLE_STONE:
+			return MapViewMaterials.wall_surface_for_size(&"limestone", wall_color.lerp(MapViewMeshBuilderConfig.LIMESTONE_TONE, 0.5), size)
 		_:
 			return MapViewMaterials.wall_surface_for_size(&"plank", wall_color, size)
+
+
+## Roof cover per house: declared `roof_material` wins; the fallback follows
+## the wall material the way period fire practice did - ceramic tile caps stone
+## and brick houses, most log dwellings carry thatch, the rest wooden shingle.
+
+
+static func roof_style(building: Dictionary) -> StringName:
+	match StringName(building.get("roof_material", &"")):
+		&"tile":
+			return MapViewMeshBuilderConfig.ROOF_STYLE_TILE
+		&"shingle":
+			return MapViewMeshBuilderConfig.ROOF_STYLE_SHINGLE
+		&"thatch", &"straw":
+			return MapViewMeshBuilderConfig.ROOF_STYLE_THATCH
+	match house_style(building):
+		MapViewMeshBuilderConfig.HOUSE_STYLE_STONE, MapViewMeshBuilderConfig.HOUSE_STYLE_BRICK:
+			return MapViewMeshBuilderConfig.ROOF_STYLE_TILE
+		MapViewMeshBuilderConfig.HOUSE_STYLE_LOG:
+			if absi(String(building["id"]).hash() / 10) % 3 < 2:
+				return MapViewMeshBuilderConfig.ROOF_STYLE_THATCH
+			return MapViewMeshBuilderConfig.ROOF_STYLE_SHINGLE
+		_:
+			return MapViewMeshBuilderConfig.ROOF_STYLE_SHINGLE
+
+
+static func house_roof_material(building: Dictionary) -> StandardMaterial3D:
+	var color := Color(building.get("roof_color", MapViewMeshBuilderConfig.DEFAULT_ROOF_COLOR))
+	var style := roof_style(building)
+	if style == MapViewMeshBuilderConfig.ROOF_STYLE_THATCH and not building.has("roof_material"):
+		# Fallback thatch inherits tile-era dark browns; pull them toward straw.
+		color = color.lerp(MapViewMeshBuilderConfig.THATCH_TONE, 0.55)
+	return MapViewMaterials.roof_surface(style, color)
 
 
 ## Structural dressing that gives every house physical depth: a stone plinth,
@@ -162,7 +217,9 @@ static func add_house_structure(root: Node3D, building: Dictionary, size: Vector
 		Vector3(0.0, MapViewMeshBuilderConfig.PLINTH_HEIGHT * 0.5, 0.0),
 		&"stone"
 	)
-	if style == MapViewMeshBuilderConfig.HOUSE_STYLE_BRICK:
+	# Masonry houses carry only the plinth; corner posts on log houses stand in
+	# for the crossed log ends of Blockbau corners.
+	if style == MapViewMeshBuilderConfig.HOUSE_STYLE_BRICK or style == MapViewMeshBuilderConfig.HOUSE_STYLE_STONE:
 		return
 	var half := size * 0.5
 	var beam := MapViewMeshBuilderConfig.FRAME_BEAM_THICKNESS
