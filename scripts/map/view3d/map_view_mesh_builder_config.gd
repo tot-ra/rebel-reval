@@ -59,6 +59,9 @@ const EDGE_JITTER := 0.26
 ## This visually rounds rectangle-authored roads and banks while the immutable
 ## terrain grid continues to own gameplay semantics.
 const VISUAL_EDGE_WARP := 0.38
+## Width of the soft blend band between neighboring terrain families on the
+## unified ground mesh. Wider bands hide cell-aligned road and yard borders.
+const TERRAIN_BLEND_WIDTH := 0.46
 const FLATTEN_START := 0.3
 const FLATTEN_END := 2.4
 const BORDER_FLATTEN_CELLS := 2.5
@@ -131,7 +134,10 @@ const INTERIOR_WINDOW_LINTEL := 0.12
 const INTERIOR_WINDOW_MIN_HEIGHT := 0.55
 
 ## Enclosed interior shells need a shared ceiling so first-person look-up does
-## not expose the sky dome through open wall tops.
+## not expose the sky dome through open wall tops. The ceiling sits above the
+## wall line so first-person views get breathable headroom; top-down gameplay
+## hides the shell entirely.
+const INTERIOR_CEILING_FIRST_PERSON_HEADROOM := 1.35
 const INTERIOR_CEILING_THICKNESS := 0.1
 const INTERIOR_CEILING_COLOR := Color(0.34, 0.28, 0.22)
 const INTERIOR_BEAM_SPACING := 3.6
@@ -196,4 +202,17 @@ const SCATTER_STONE_CHANCE := {
 	MapTypes.TERRAIN_COAST_SAND: 0.1,
 	MapTypes.TERRAIN_GRASS: 0.05,
 }
+
+## Flat reflective puddles on worked ground and worn paving. Deterministic from
+## map seed; biased toward low relief and near water without affecting walkability.
+const PUDDLE_CHANCE := {
+	MapTypes.TERRAIN_MUD: 0.14,
+	MapTypes.TERRAIN_DIRT: 0.08,
+	MapTypes.TERRAIN_COBBLESTONE: 0.06,
+	MapTypes.TERRAIN_CASTLE_PAVING: 0.05,
+	MapTypes.TERRAIN_FARM_SOIL: 0.06,
+}
+const PUDDLE_LOW_HEIGHT_BIAS := 0.55
+const PUDDLE_SCALE_MIN := 0.28
+const PUDDLE_SCALE_MAX := 0.72
 

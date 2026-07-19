@@ -144,6 +144,102 @@ void fragment() {
 static var _cache: Dictionary = {}
 
 
+## Ground splat: two terrain pattern layers blended per vertex. CUSTOM0 carries
+## pattern indices (x, y), blend weight (z), and brightness tone (w). COLOR.rgb
+## is the palette tint lerp between the two terrain families.
+const TERRAIN_BLEND_SHADER_CODE := "
+shader_type spatial;
+render_mode cull_disabled, diffuse_burley;
+
+uniform sampler2DArray terrain_patterns;
+uniform float pattern_layers = 1.0;
+
+void fragment() {
+	int primary_layer = int(CUSTOM0.x + 0.5);
+	int secondary_layer = int(CUSTOM0.y + 0.5);
+	float blend = clamp(CUSTOM0.z, 0.0, 1.0);
+	float tone = CUSTOM0.w;
+
+	vec3 primary = texture(terrain_patterns, vec3(UV, float(primary_layer))).rgb;
+	vec3 secondary = texture(terrain_patterns, vec3(UV, float(secondary_layer))).rgb;
+	vec3 pattern = mix(primary, secondary, blend);
+	ALBEDO = pattern * COLOR.rgb * tone;
+	ROUGHNESS = mix(0.94, 0.82, blend * step(0.5, float(secondary_layer)));
+}
+"
+
+## Shallow wet patches on worked ground after rain. depth_prepass_alpha keeps
+## soft edges without the speckled dither alpha_hash shows on flat decals.
+const PUDDLE_SHADER_CODE := "
+shader_type spatial;
+render_mode cull_disabled, diffuse_burley, specular_schlick_ggx, depth_draw_opaque, depth_prepass_alpha, blend_mix;
+
+uniform vec3 wet_tint : source_color = vec3(0.72, 0.78, 0.82);
+uniform vec3 sheen_tint : source_color = vec3(0.88, 0.92, 0.94);
+
+float _hash(vec2 p) {
+	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+}
+
+float _noise(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	vec2 u = f * f * (3.0 - 2.0 * f);
+	return mix(
+		mix(_hash(i), _hash(i + vec2(1.0, 0.0)), u.x),
+		mix(_hash(i + vec2(0.0, 1.0)), _hash(i + vec2(1.0, 1.0)), u.x),
+		u.y
+	);
+}
+
+float _fbm(vec2 p) {
+	float value = 0.0;
+	float amplitude = 0.55;
+	value += amplitude * _noise(p);
+	p = p * 2.03 + vec2(1.7);
+	amplitude *= 0.5;
+	value += amplitude * _noise(p);
+	p = p * 2.03 + vec2(-2.3);
+	amplitude *= 0.5;
+	value += amplitude * _noise(p);
+	return value;
+}
+
+varying vec2 world_xz;
+
+void vertex() {
+	vec3 world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	world_xz = world.xz * 0.55;
+}
+
+void fragment() {
+	vec2 centered = UV * 2.0 - 1.0;
+	float blob_warp = _fbm(world_xz * 1.6 + vec2(0.41, 0.67));
+	vec2 warped = centered * (1.0 + vec2(blob_warp - 0.5) * 0.55);
+	float radial = length(warped);
+	float edge_wobble = _fbm(world_xz * 3.4 + vec2(0.19, 0.83)) * 0.22;
+	float organic = _fbm(world_xz * 2.2 + vec2(0.73, 0.11));
+	float mask = smoothstep(1.02 + edge_wobble, 0.34, radial);
+	mask *= smoothstep(0.28, 0.62, organic + 0.18);
+	float rim = smoothstep(0.58, 0.94, radial);
+
+	vec2 ripple_uv = world_xz * 2.4 + vec2(TIME * 0.018, -TIME * 0.013);
+	float ripples = _fbm(ripple_uv) * 0.7 + _fbm(ripple_uv * 1.8 + vec2(TIME * 0.03)) * 0.3;
+
+	vec3 ground = COLOR.rgb;
+	vec3 wet = ground * wet_tint;
+	vec3 sheen = mix(wet, ground * sheen_tint, ripples * 0.08 + rim * 0.05);
+	float fresnel = pow(1.0 - clamp(dot(normalize(NORMAL), normalize(VIEW)), 0.0, 1.0), 3.6);
+	sheen = mix(sheen, ground * sheen_tint, fresnel * 0.10);
+	sheen = mix(sheen, ground * 0.82, smoothstep(0.0, 0.42, radial) * 0.35);
+
+	ALBEDO = sheen;
+	ALPHA = mask * 0.62;
+	ROUGHNESS = mix(0.42, 0.62, ripples);
+	SPECULAR = mix(0.08, 0.16, fresnel);
+}
+"
+
 static func reset() -> void:
 	_cache.clear()
 

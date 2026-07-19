@@ -136,8 +136,14 @@ static func build_scatter(
 	var tuft_colors: Array[Color] = []
 	var bushes: Array[Transform3D] = []
 	var bush_colors: Array[Color] = []
+	var reeds: Array[Transform3D] = []
+	var reed_colors: Array[Color] = []
+	var clovers: Array[Transform3D] = []
+	var clover_colors: Array[Color] = []
 	var stones: Array[Transform3D] = []
 	var stone_colors: Array[Color] = []
+	var puddles: Array[Transform3D] = []
+	var puddle_colors: Array[Color] = []
 	for y in range(bounds.position.y, bounds.end.y):
 		for x in range(bounds.position.x, bounds.end.x):
 			var cell := Vector2i(x, y)
@@ -147,6 +153,19 @@ static func build_scatter(
 			var variant := grid.get_style_variant(cell)
 			var profile := TerrainVegetation.scatter_profile(variant)
 			var roll := MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 4242)
+			var puddle_chance := float(MapViewMeshBuilderConfig.PUDDLE_CHANCE.get(terrain, 0.0))
+			if puddle_chance > 0.0:
+				var height := MapViewMeshBuilderTerrain.field_height(field, Vector2(float(x) + 0.5, float(y) + 0.5))
+				var low_bias := 1.0 - clampf(height / MapViewMeshBuilderConfig.HEIGHT_BROAD_AMPLITUDE, 0.0, 1.0)
+				puddle_chance *= lerpf(0.65, 1.0, low_bias * MapViewMeshBuilderConfig.PUDDLE_LOW_HEIGHT_BIAS)
+				if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1907) < puddle_chance:
+					var scale_span := MapViewMeshBuilderConfig.PUDDLE_SCALE_MAX - MapViewMeshBuilderConfig.PUDDLE_SCALE_MIN
+					var puddle_scale_x := MapViewMeshBuilderConfig.PUDDLE_SCALE_MIN + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1913) * scale_span
+					var puddle_scale_z := MapViewMeshBuilderConfig.PUDDLE_SCALE_MIN + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1919) * scale_span * 0.92
+					puddles.append(_scatter_transform_elliptical(field, x, y, definition.seed + 1921, puddle_scale_x, puddle_scale_z))
+					var ground := OutdoorTerrainPalette.color(terrain)
+					var wetness := 0.82 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1929) * 0.12
+					puddle_colors.append(ground.darkened(0.18).lerp(ground.lightened(0.06), wetness))
 			var tuft_chance := float(MapViewMeshBuilderConfig.SCATTER_TUFT_CHANCE.get(terrain, 0.0)) * float(profile.get("chance_scale", 1.0))
 			if roll < tuft_chance:
 				var count := 2 + int(MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 511) * 2.0)
@@ -164,6 +183,17 @@ static func build_scatter(
 					bushes.append(_scatter_transform(field, x, y, definition.seed + 1700, 0.8, 1.2))
 					var bush_green := MapVisualStyle.role_color(&"vegetation", MapVisualStyle.TARGET_CLEAN_PAINTED, MapVisualStyle.TIME_DAY)
 					bush_colors.append(bush_green)
+				if float(profile.get("reed_chance", 0.0)) > 0.0 and MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1600) < float(profile["reed_chance"]):
+					for reed_index in 2:
+						reeds.append(_scatter_transform(field, x, y, definition.seed + 1800 + reed_index, 0.9, 1.35))
+						var reed_tint := Color(0.72, 0.82, 0.58).lerp(Color(0.58, 0.74, 0.48), MapViewMeshBuilderPrimitives.hash01(x + reed_index, y, definition.seed + 1811))
+						reed_colors.append(reed_tint)
+				if float(profile.get("clover_chance", 0.0)) > 0.0 and MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1400) < float(profile["clover_chance"]):
+					clovers.append(_scatter_transform(field, x, y, definition.seed + 1450, 0.7, 1.0))
+					clover_colors.append(Color(0.62, 0.86, 0.48))
+				if float(profile.get("fern_chance", 0.0)) > 0.0 and MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1300) < float(profile["fern_chance"]):
+					tufts.append(_scatter_transform(field, x, y, definition.seed + 1310, 0.45, 0.75))
+					tuft_colors.append(Color(0.48, 0.72, 0.42))
 			elif roll < tuft_chance + MapViewMeshBuilderConfig.SCATTER_STONE_CHANCE.get(terrain, 0.0):
 				stones.append(_scatter_transform(field, x, y, definition.seed + 913, 0.6, 1.6))
 				var gray := 0.8 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 154) * 0.35
@@ -182,6 +212,46 @@ static func build_scatter(
 		var bush_instances := MapViewMeshBuilderPrimitives.multi_mesh("Bushes", bush_mesh, bushes, bush_colors, MapViewMaterials.foliage_tuft(), Vector3(0.0, 0.08, 0.0))
 		bush_instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(bush_instances)
+
+	if not reeds.is_empty():
+		var reed_instances := MapViewMeshBuilderPrimitives.multi_mesh(
+			"Reeds",
+			MapViewMeshBuilderPrimitives.reed_stem_mesh(),
+			reeds,
+			reed_colors,
+			MapViewMaterials.grass_blades(),
+			Vector3.ZERO
+		)
+		reed_instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(reed_instances)
+
+	if not clovers.is_empty():
+		var clover_instances := MapViewMeshBuilderPrimitives.multi_mesh(
+			"Clovers",
+			MapViewMeshBuilderPrimitives.clover_patch_mesh(),
+			clovers,
+			clover_colors,
+			MapViewMaterials.foliage_tuft(),
+			Vector3(0.0, 0.02, 0.0)
+		)
+		clover_instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(clover_instances)
+
+	if not puddles.is_empty():
+		var puddle_mesh := PlaneMesh.new()
+		puddle_mesh.size = Vector2(0.88, 0.88)
+		var puddle_instances := MapViewMeshBuilderPrimitives.multi_mesh(
+			"Puddles",
+			puddle_mesh,
+			puddles,
+			puddle_colors,
+			MapViewMaterials.puddle_surface(),
+			Vector3(0.0, 0.012, 0.0)
+		)
+		puddle_instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		puddle_instances.transparency = GeometryInstance3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
+		puddle_instances.sorting_offset = 0.5
+		root.add_child(puddle_instances)
 
 	var stone_mesh := SphereMesh.new()
 	stone_mesh.radius = 0.09
@@ -209,3 +279,19 @@ static func _scatter_transform(field: Dictionary, x: int, y: int, noise_seed: in
 	return Transform3D(basis, Vector3(spot.x, MapViewMeshBuilderTerrain.field_height(field, spot), spot.y))
 
 
+static func _scatter_transform_elliptical(
+	field: Dictionary,
+	x: int,
+	y: int,
+	noise_seed: int,
+	scale_x: float,
+	scale_z: float
+) -> Transform3D:
+	var offset := Vector2(
+		MapViewMeshBuilderPrimitives.hash01(x, y, noise_seed + 7) * 0.9 + 0.05,
+		MapViewMeshBuilderPrimitives.hash01(x, y, noise_seed + 13) * 0.9 + 0.05
+	)
+	var yaw := MapViewMeshBuilderPrimitives.hash01(x, y, noise_seed + 41) * TAU
+	var basis := Basis(Vector3.UP, yaw).scaled(Vector3(scale_x, 1.0, scale_z))
+	var spot := Vector2(float(x) + offset.x, float(y) + offset.y)
+	return Transform3D(basis, Vector3(spot.x, MapViewMeshBuilderTerrain.field_height(field, spot), spot.y))
