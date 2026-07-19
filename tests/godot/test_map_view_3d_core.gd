@@ -40,6 +40,21 @@ func test_actor_sync_matches_anchors_within_one_cell() -> void:
 		view.free()
 
 
+func test_gameplay_view_keeps_western_lower_town_frontage_resident() -> void:
+	var definition := LowerTownSlice.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition))
+	var streamer := view.object_streamer()
+	assert_true(
+		streamer.loaded_instance(&"west_lane_house") != null,
+		"the western frontage visible from the start camera must not stream out"
+	)
+	assert_true(
+		streamer.loaded_instance(&"hedge_house") != null,
+		"the south-west frontage visible from the start camera must not stream out"
+	)
+	view.free()
+
+
 func test_view_renders_definitions_without_touching_logic_results() -> void:
 	for definition in _view_definitions():
 		var grid := MapBuilder.build(definition)

@@ -24,6 +24,10 @@ const CAMERA_DISTANCE := 90.0
 const CAMERA_MARGIN := 1.15
 const CAMERA_HEADROOM := 5.0
 const CAMERA_FAR := 400.0
+## The orthographic camera can expose objects more than two 32-cell chunks away,
+## especially on wide viewports and at maximum zoom-out. Keep one extra ring
+## resident so authored district frontages never disappear inside the viewport.
+const VIEW_LOAD_RADIUS_CHUNKS := MapTerrainRenderer.DEFAULT_LOAD_RADIUS_CHUNKS + 1
 
 const SUN_DAY_ROTATION_DEGREES := Vector3(-50.0, -35.0, 0.0)
 const SUN_DAY_COLOR := Color8(255, 243, 222)
@@ -244,8 +248,8 @@ func update_active_chunks_from_logic_positions(logic_positions: Array[Vector2]) 
 			floori(position.y / float(definition.cell_size))
 		)
 		var center := grid.chunk_for_cell(cell)
-		for y in range(center.y - MapTerrainRenderer.DEFAULT_LOAD_RADIUS_CHUNKS, center.y + MapTerrainRenderer.DEFAULT_LOAD_RADIUS_CHUNKS + 1):
-			for x in range(center.x - MapTerrainRenderer.DEFAULT_LOAD_RADIUS_CHUNKS, center.x + MapTerrainRenderer.DEFAULT_LOAD_RADIUS_CHUNKS + 1):
+		for y in range(center.y - VIEW_LOAD_RADIUS_CHUNKS, center.y + VIEW_LOAD_RADIUS_CHUNKS + 1):
+			for x in range(center.x - VIEW_LOAD_RADIUS_CHUNKS, center.x + VIEW_LOAD_RADIUS_CHUNKS + 1):
 				var coordinates := Vector2i(x, y)
 				if grid.get_chunk(coordinates) != null and not chunks.has(coordinates):
 					chunks.append(coordinates)
@@ -392,8 +396,8 @@ func _initial_active_chunks() -> Array[Vector2i]:
 	)
 	var focus := grid.chunk_for_cell(focus_cell)
 	var chunks: Array[Vector2i] = []
-	for y in range(focus.y - MapTerrainRenderer.DEFAULT_LOAD_RADIUS_CHUNKS, focus.y + MapTerrainRenderer.DEFAULT_LOAD_RADIUS_CHUNKS + 1):
-		for x in range(focus.x - MapTerrainRenderer.DEFAULT_LOAD_RADIUS_CHUNKS, focus.x + MapTerrainRenderer.DEFAULT_LOAD_RADIUS_CHUNKS + 1):
+	for y in range(focus.y - VIEW_LOAD_RADIUS_CHUNKS, focus.y + VIEW_LOAD_RADIUS_CHUNKS + 1):
+		for x in range(focus.x - VIEW_LOAD_RADIUS_CHUNKS, focus.x + VIEW_LOAD_RADIUS_CHUNKS + 1):
 			var coordinates := Vector2i(x, y)
 			if grid.get_chunk(coordinates) != null:
 				chunks.append(coordinates)
