@@ -201,6 +201,17 @@ func test_water_contour_cuts_square_corners_diagonally() -> void:
 	var terrain := MapViewMeshBuilder.build_terrain(definition, grid)
 	assert_true(terrain.has_node("Terrain_water"), "contoured water must still produce an animated surface")
 	assert_true(terrain.has_node("Terrain_Ground"), "clipped shoreline needs a recessed ground bed under its cut corners")
+	var water_mesh := terrain.get_node("Terrain_water") as MeshInstance3D
+	var water_arrays := (water_mesh.mesh as ArrayMesh).surface_get_arrays(0)
+	var water_colors := water_arrays[Mesh.ARRAY_COLOR] as PackedColorArray
+	assert_true(not water_colors.is_empty(), "water vertices must carry shoreline distance")
+	var has_shore_vertex := false
+	var has_interior_vertex := false
+	for color in water_colors:
+		has_shore_vertex = has_shore_vertex or color.r <= 0.01
+		has_interior_vertex = has_interior_vertex or color.r > 0.01
+	assert_true(has_shore_vertex, "clipped contour vertices must identify the shoreline for foam")
+	assert_true(has_interior_vertex, "water vertices inside the contour must fade foam away from shore")
 	terrain.free()
 
 
@@ -211,6 +222,7 @@ func test_lower_town_water_contour_smooths_multiple_authored_cells() -> void:
 	var contour := terrain_builder.bake_water_contour(grid, MapTypes.TERRAIN_WATER)
 	assert_true(float(contour["max_coverage"]) >= MapViewMeshBuilderConfig.WATER_CONTOUR_THRESHOLD)
 	var field := {"water_contours": {MapTypes.TERRAIN_WATER: contour}}
+
 	var changed_cells := 0
 	for y in grid.size_cells.y:
 		for x in grid.size_cells.x:
@@ -221,6 +233,20 @@ func test_lower_town_water_contour_smooths_multiple_authored_cells() -> void:
 			if authored_water != visible_water:
 				changed_cells += 1
 	assert_true(changed_cells >= 12, "Lower Town river smoothing must visibly reshape several full cells")
+
+
+func test_water_material_uses_depth_aware_optics() -> void:
+	var material := MapViewMaterials.water_surface(MapTypes.TERRAIN_WATER)
+	assert_true(material is ShaderMaterial, "water must use the animated spatial shader")
+	var source := material.shader.code
+	assert_true("hint_screen_texture" in source, "water must refract the rendered river bed")
+	assert_true("hint_depth_texture" in source, "water must derive absorption from scene depth")
+	assert_true("INV_PROJECTION_MATRIX" in source, "water depth must be reconstructed in view space")
+	assert_true("shore_factor" in source, "water must consume the baked shoreline distance")
+	assert_true("fresnel" in source, "water needs angle-dependent reflection")
+	assert_true("TANGENT" not in source, "procedural water has no tangent basis to perturb safely")
+	assert_true(float(material.get_shader_parameter("wave_height")) > 0.0)
+	assert_true(float(material.get_shader_parameter("depth_absorption")) > 0.0)
 
 func test_placeholder_materials_cover_every_terrain() -> void:
 	for terrain_id in MapTypes.ALL_TERRAINS:

@@ -445,20 +445,29 @@ static func _add_clipped_water_triangle(
 	if clipped.size() < 3:
 		return
 	for index in range(1, clipped.size() - 1):
-		_add_water_vertex(surface, clipped[0]["position"])
-		_add_water_vertex(surface, clipped[index]["position"])
-		_add_water_vertex(surface, clipped[index + 1]["position"])
+		_add_water_vertex(surface, clipped[0]["position"], float(clipped[0]["coverage"]))
+		_add_water_vertex(surface, clipped[index]["position"], float(clipped[index]["coverage"]))
+		_add_water_vertex(
+			surface,
+			clipped[index + 1]["position"],
+			float(clipped[index + 1]["coverage"])
+		)
 
 
-static func _add_water_vertex(surface: SurfaceTool, source: Vector3) -> void:
+static func _add_water_vertex(surface: SurfaceTool, source: Vector3, coverage: float) -> void:
 	var vertex := Vector3(
 		source.x,
 		-MapViewMeshBuilderConfig.WATER_RECESS + MapViewMeshBuilderConfig.WATER_SURFACE_LIFT,
 		source.z
 	)
+	var threshold := MapViewMeshBuilderConfig.WATER_CONTOUR_THRESHOLD
+	# COLOR.r carries normalized distance into the smoothed water contour. The
+	# shader uses it to pin displaced edges and place foam on the actual curved
+	# shoreline instead of exposing the underlying square terrain cells.
+	var interior_coverage := inverse_lerp(threshold, 1.0, coverage)
 	surface.set_normal(Vector3.UP)
 	surface.set_uv(Vector2(vertex.x, vertex.z) / MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE)
-	surface.set_color(Color.WHITE)
+	surface.set_color(Color(interior_coverage, interior_coverage, interior_coverage, 1.0))
 	surface.add_vertex(vertex)
 
 

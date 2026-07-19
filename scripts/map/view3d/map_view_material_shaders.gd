@@ -6,12 +6,24 @@ extends RefCounted
 
 const WATER_SHADER_CODE := "
 shader_type spatial;
-render_mode cull_disabled, diffuse_burley, specular_schlick_ggx;
+render_mode blend_mix, depth_draw_always, cull_disabled, diffuse_burley, specular_schlick_ggx;
 
+// Water stays opaque to sorting, but reads the already-rendered bank and bed to
+// simulate transmission. Depth reconstruction makes absorption and distortion
+// respond to actual geometry instead of painting another animated blue texture.
+uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear_mipmap;
+uniform sampler2D depth_texture : hint_depth_texture, repeat_disable, filter_nearest;
 uniform vec3 shallow_color : source_color = vec3(0.45, 0.62, 0.75);
 uniform vec3 deep_color : source_color = vec3(0.16, 0.30, 0.44);
 uniform vec3 highlight_color : source_color = vec3(0.396, 0.694, 0.769);
-uniform float ripple_scale = 1.15;
+uniform vec3 foam_color : source_color = vec3(0.84, 0.90, 0.86);
+uniform float wave_height = 0.018;
+uniform float depth_absorption = 7.0;
+uniform float refraction_strength = 0.012;
+uniform float foam_intensity = 0.42;
+
+varying vec3 water_world_position;
+varying float shore_factor;
 
 float _hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
@@ -28,57 +40,102 @@ float _noise(vec2 p) {
 	);
 }
 
-float _fbm(vec2 p) {
-	float value = 0.0;
-	float amplitude = 0.55;
-	value += amplitude * _noise(p);
-	p = p * 2.03 + vec2(1.7);
-	amplitude *= 0.5;
-	value += amplitude * _noise(p);
-	p = p * 2.03 + vec2(-2.3);
-	amplitude *= 0.5;
-	value += amplitude * _noise(p);
-	p = p * 2.03 + vec2(0.4);
-	amplitude *= 0.5;
-	value += amplitude * _noise(p);
-	return value;
+// Returns height plus its X/Z derivatives. Several directional components give
+// broad wind waves, crossing ripples, and fine capillary detail without relying
+// on mesh tangents, which procedural water surfaces do not provide.
+vec3 _wave(vec2 position, vec2 direction, float frequency, float speed, float amplitude, float time) {
+	vec2 heading = normalize(direction);
+	float phase = dot(position, heading) * frequency - time * speed;
+	float slope = cos(phase) * frequency * amplitude;
+	return vec3(sin(phase) * amplitude, heading.x * slope, heading.y * slope);
+}
+
+vec3 _water_shape(vec2 position, float time) {
+	vec3 shape = _wave(position, vec2(1.0, 0.28), 1.05, 0.72, 0.50, time);
+	shape += _wave(position, vec2(0.36, 1.0), 2.25, 1.06, 0.22, time);
+	shape += _wave(position, vec2(-0.72, 1.0), 4.60, 1.74, 0.085, time);
+	shape += _wave(position, vec2(1.0, -0.62), 8.20, 2.45, 0.025, time);
+	return shape;
+}
+
+float _view_depth(vec2 screen_uv, float raw_depth, mat4 inverse_projection) {
+	// GL Compatibility uses OpenGL NDC, whose Z range is -1..1.
+	vec3 ndc = vec3(screen_uv * 2.0 - 1.0, raw_depth * 2.0 - 1.0);
+	vec4 view_position = inverse_projection * vec4(ndc, 1.0);
+	return -view_position.z / view_position.w;
+}
+
+void vertex() {
+	water_world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	shore_factor = clamp(COLOR.r, 0.0, 1.0);
+	vec3 shape = _water_shape(water_world_position.xz, TIME);
+	// Pin displacement at the contour so separate clipped patches cannot expose
+	// cracks along the bank, while the same world-space phase joins every cell.
+	float displacement_fade = smoothstep(0.0, 0.45, shore_factor);
+	float displacement = shape.x * wave_height * displacement_fade;
+	VERTEX.y += displacement;
+	water_world_position.y += displacement;
 }
 
 void fragment() {
-	vec2 world_uv = UV * ripple_scale * 8.0;
-	float t = TIME;
-	vec2 flow_a = vec2(t * 0.12, t * 0.08);
-	vec2 flow_b = vec2(-t * 0.09, t * 0.11);
+	vec3 shape = _water_shape(water_world_position.xz, TIME);
+	vec3 world_normal = normalize(vec3(-shape.y * wave_height, 1.0, -shape.z * wave_height));
+	vec3 view_normal = normalize((VIEW_MATRIX * vec4(world_normal, 0.0)).xyz);
+	NORMAL = view_normal;
 
-	float ripples = _fbm(world_uv * 0.85 + flow_a);
-	float fine = _fbm(world_uv * 2.4 + flow_b * 1.3 + ripples * 0.35);
-	float surface = mix(ripples, fine, 0.45);
-	float depth = _fbm(world_uv * 0.35 + vec2(t * 0.02, -t * 0.015));
+	float surface_depth = max(-VERTEX.z, 0.0001);
+	float raw_scene_depth = textureLod(depth_texture, SCREEN_UV, 0.0).r;
+	float scene_depth = _view_depth(SCREEN_UV, raw_scene_depth, INV_PROJECTION_MATRIX);
+	float water_depth = max(scene_depth - surface_depth, 0.0);
 
-	vec3 water_color = mix(
-		deep_color,
-		shallow_color,
-		clamp(surface * 0.65 + depth * 0.35, 0.08, 0.95)
+	// Distort only samples that remain behind the surface. This suppresses the
+	// familiar refraction halo that otherwise pulls dry bank pixels into water.
+	float depth_fade = smoothstep(0.0, 0.11, water_depth);
+	vec2 refracted_uv = clamp(
+		SCREEN_UV + view_normal.xy * refraction_strength * depth_fade,
+		vec2(0.001),
+		vec2(0.999)
 	);
+	float refracted_depth = _view_depth(
+		refracted_uv,
+		textureLod(depth_texture, refracted_uv, 0.0).r,
+		INV_PROJECTION_MATRIX
+	);
+	if (refracted_depth <= surface_depth + 0.002) {
+		refracted_uv = SCREEN_UV;
+	}
+	vec3 floor_color = textureLod(screen_texture, refracted_uv, 0.0).rgb;
 
-	float bright = smoothstep(0.52, 0.82, surface) * smoothstep(0.38, 0.72, fine);
-	water_color = mix(water_color, highlight_color, bright * 0.28);
+	// Beer-Lambert-style attenuation: nearby bed remains visible while deeper
+	// rays lose warm light and converge on the terrain family's deep-water tint.
+	float absorption = 1.0 - exp(-water_depth * depth_absorption);
+	vec3 transmitted = floor_color * mix(vec3(0.94, 0.99, 1.02), shallow_color, 0.22);
+	vec3 water_color = mix(transmitted, deep_color, clamp(absorption * 0.88, 0.0, 0.92));
+	water_color = mix(water_color, shallow_color, 0.10 + absorption * 0.10);
 
-	float glint_field = _noise(world_uv * 5.5 + flow_a * 2.0);
-	float glint = smoothstep(0.88, 0.97, glint_field) * smoothstep(0.55, 0.85, surface);
-	water_color += vec3(0.12, 0.14, 0.10) * glint;
+	// Schlick Fresnel plus the PBR specular lobe produces stable sky reflection
+	// and narrow sun glints at the shallow isometric viewing angle.
+	float facing = clamp(dot(view_normal, normalize(VIEW)), 0.0, 1.0);
+	float fresnel = 0.02 + 0.98 * pow(1.0 - facing, 5.0);
+	vec3 sky_reflection = mix(highlight_color, vec3(0.72, 0.82, 0.88), 0.32);
+	water_color = mix(water_color, sky_reflection, fresnel * 0.68);
 
-	float fresnel = pow(1.0 - clamp(dot(normalize(NORMAL), normalize(VIEW)), 0.0, 1.0), 2.8);
-	ALBEDO = mix(water_color, mix(water_color, highlight_color, 0.35), fresnel * 0.22);
+	// COLOR.r is baked from the same smooth contour that clips the mesh. Foam
+	// therefore hugs curved banks instead of revealing the underlying cell grid.
+	float shore = 1.0 - smoothstep(0.03, 0.62, shore_factor);
+	vec2 foam_uv = water_world_position.xz * 4.3 + vec2(-TIME * 0.32, TIME * 0.13);
+	float foam_noise = _noise(foam_uv + _noise(foam_uv * 0.47) * 2.2);
+	float foam_ribbon = 0.5 + 0.5 * sin(
+		dot(water_world_position.xz, vec2(7.2, 5.1)) - TIME * 1.25 + foam_noise * 4.0
+	);
+	float foam = shore * smoothstep(0.38, 0.79, foam_noise * 0.62 + foam_ribbon * 0.38);
+	foam *= foam_intensity * smoothstep(0.01, 0.07, water_depth);
+	water_color = mix(water_color, foam_color, clamp(foam, 0.0, 0.75));
 
-	float eps = 0.04;
-	vec2 ripple_uv = world_uv * 1.1 + flow_a;
-	float hx = _fbm(ripple_uv + vec2(eps, 0.0)) - _fbm(ripple_uv - vec2(eps, 0.0));
-	float hz = _fbm(ripple_uv + vec2(0.0, eps)) - _fbm(ripple_uv - vec2(0.0, eps));
-	NORMAL = normalize(NORMAL + TANGENT * hx * 0.18 + BINORMAL * hz * 0.18);
-
-	ROUGHNESS = mix(0.08, 0.28, 1.0 - surface);
-	SPECULAR = mix(0.65, 0.35, depth);
+	ALBEDO = water_color;
+	ROUGHNESS = mix(0.09, 0.22, clamp(foam + absorption * 0.18, 0.0, 1.0));
+	// Godot maps SPECULAR to dielectric F0; 0.25 is approximately water's 0.02.
+	SPECULAR = 0.25;
 }
 "
 
