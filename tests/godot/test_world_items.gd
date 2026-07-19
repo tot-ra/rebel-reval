@@ -53,6 +53,19 @@ func test_world_item_shows_idle_outline_and_brightens_on_hover() -> void:
 	_cleanup_node(root)
 
 
+func test_3d_presentation_keeps_outline_hidden_on_hover() -> void:
+	var root := _make_root()
+	var item: WorldItem = WORLD_ITEM_SCENE.instantiate()
+	item.configure(OBJ_SPEAR, ITEM_SPEARHEAD, LOC_SMITHY, Vector2(400, 300))
+	root.add_child(item)
+	item.set_3d_presentation(true)
+	var outline := item.get_node("FocusOutline") as CanvasItem
+	assert_false(outline.visible, "3D view should hide the flat pickup outline")
+	item.set_hovered(true)
+	assert_false(outline.visible, "hover must not reshow the flat harness outline in 3D")
+	_cleanup_node(root)
+
+
 func test_forge_hides_flat_pickup_markers_in_3d_view() -> void:
 	_prepare_smithy_pickup_state()
 	var tree := Engine.get_main_loop() as SceneTree

@@ -18,6 +18,7 @@ const OUTLINE_WIDTH_IDLE := 1.0
 const OUTLINE_WIDTH_HOVER := 2.0
 
 var _hovered := false
+var _suppress_flat_outline := false
 
 @onready var _outline: Line2D = $FocusOutline
 
@@ -71,10 +72,8 @@ func configure(
 ## MapViewRuntime mirrors pickups in 3D; hide the flat harness outline so it
 ## does not draw yellow rectangles over the orthographic presentation.
 func set_3d_presentation(enabled: bool) -> void:
-	if _outline == null:
-		_outline = get_node_or_null("FocusOutline") as Line2D
-	if _outline != null:
-		_outline.visible = not enabled
+	_suppress_flat_outline = enabled
+	_apply_outline_visibility()
 
 
 func _apply_collision_radius() -> void:
@@ -89,8 +88,16 @@ func _apply_collision_radius() -> void:
 
 
 func _set_hovered(value: bool) -> void:
-	if _outline == null:
+	_apply_outline_visibility()
+	if _outline == null or _suppress_flat_outline:
 		return
-	_outline.visible = true
 	_outline.default_color = OUTLINE_COLOR_HOVER if value else OUTLINE_COLOR_IDLE
 	_outline.width = OUTLINE_WIDTH_HOVER if value else OUTLINE_WIDTH_IDLE
+
+
+func _apply_outline_visibility() -> void:
+	if _outline == null:
+		_outline = get_node_or_null("FocusOutline") as Line2D
+	if _outline == null:
+		return
+	_outline.visible = not _suppress_flat_outline
