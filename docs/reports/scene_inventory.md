@@ -1,23 +1,23 @@
 # Scene inventory (P0-018, reconciled P0-055)
 
 Recorded: 2026-07-16
-Reconciled: 2026-07-18 (character rigs, interaction, inventory, world-item, smithy actors, benchmarks)
+Reconciled: 2026-07-19 (gameplay help HUD, minimap HUD, forge commission overlay, journal overlay)
 
 ## Summary
 
 | Classification | Count | Role |
 |----------------|------:|------|
-| `working` | 21 | Active runtime scenes with verified or complete behavior |
-| `partial` | 17 | Substantial content but incomplete integration or dev-only use |
+| `working` | 25 | Active runtime scenes with verified or complete behavior |
+| `partial` | 19 | Substantial content but incomplete integration or dev-only use |
 | `placeholder` | 3 | Reserved stubs or reference-only visuals, not playable |
 | `archive` | 20 | Out of vertical-slice scope; legacy open-world or event shells |
-| **Total** | **63** | Matches repository `.tscn` count |
+| **Total** | **67** | Matches repository `.tscn` count |
 
 Repository count command:
 
 ```bash
 find . -name '*.tscn' -not -path './.git/*' | wc -l
-# Expected: 63
+# Expected: 67
 ```
 
 Inventory row count (data rows in the table below): **63**.
@@ -57,54 +57,58 @@ Inventory row count (data rows in the table below): **63**.
 | 13 | `scenes/elements/door.tscn` | working | Door transitions via `door.gd` and `DoorNavigator`. |
 | 14 | `scenes/elements/FadeArea.tscn` | partial | Instanced in forge; `CollisionPolygon2D` has no polygon yet. |
 | 15 | `scenes/elements/location_hud.tscn` | working | District title overlay; active on approved maps. |
-| 16 | `scenes/elements/npc.tscn` | working | NPC prefab with SpriteFrames, AnimationPlayer, navigation script, and HealthBar. |
-| 17 | `scenes/elements/turret.tscn` | working | Wall/turret prop with collision and occluder; used in districts. |
-| 18 | `scenes/elements/UI.tscn` | partial | Legacy character HUD shell (`visible = false`); still instanced by `player.tscn`. |
-| 19 | `scenes/events/paldiski.tscn` | archive | Empty `Node2D`; campaign location outside slice. |
-| 20 | `scenes/events/pernau.tscn` | archive | Empty `Node2D`; campaign location outside slice. |
-| 21 | `scenes/events/pskov_arrival_battle.tscn` | archive | Empty `Node2D`; battle event outside slice. |
-| 22 | `scenes/events/rebel_kings.tscn` | archive | Empty `Node2D`; campaign event outside slice. |
-| 23 | `scenes/events/saaremaa.tscn` | archive | Empty `Node2D`; campaign location outside slice. |
-| 24 | `scenes/events/swedesh_outpost.tscn` | archive | Empty `Node2D`; campaign location outside slice. |
-| 25 | `scenes/events/swedish_arrival.tscn` | archive | Empty `Node2D`; fleet arrival event outside slice. |
-| 26 | `scenes/harbor/harbor.tscn` | placeholder | Single screenshot sprite; no player, doors, or navigation. |
-| 27 | `scenes/harbor/warehouse.tscn` | partial | Inactive programmatic warehouse interior prototype (`active=false`); ADR 0006 scope expansion. |
-| 28 | `scenes/interaction/interactable.tscn` | working | Shared `Interactable` focus, prompt, and interaction range component. |
-| 29 | `scenes/interaction/interaction_test.tscn` | partial | Developer-only interaction and input verification scene. |
-| 30 | `scenes/intro/intro.tscn` | placeholder | Empty `Node2D`; intro video lives in `main_menu.tscn`. |
-| 31 | `scenes/map/map.tscn` | placeholder | Static map image only; no interaction or travel logic. |
-| 32 | `scenes/map_prototype/smithy_courtyard.tscn` | partial | P0-042 deterministic programmatic map-authoring spike; developer-only and not in the active transition manifest. |
-| 33 | `scenes/menu/main_menu.tscn` | working | `run/main_scene`; Start/Exit UI, video, audio; P0-017 smoke pass. |
-| 34 | `scenes/reval_center/market_civic_quarter/market.tscn` | partial | Inactive programmatic market square prototype; not in active destinations. |
-| 35 | `scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn` | partial | Inactive programmatic guild hall interior prototype; not in active destinations. |
-| 36 | `scenes/reval_center/reval_center.tscn` | partial | Inactive programmatic market civic quarter prototype; removed from active destinations in P2-020. |
-| 37 | `scenes/reval_east/forge/forge.tscn` | working | Programmatic smithy interior; `DoorNavigator` target with stable anchors and courtyard transition. |
-| 38 | `scenes/reval_east/forge/forge_cat.tscn` | working | Ambient smithy cat with navigation and idle behavior. |
-| 39 | `scenes/reval_east/forge/smithy_henning.tscn` | working | Smithy apprentice Henning with patrol and idle behavior. |
-| 40 | `scenes/reval_east/reval_east.tscn` | working | Programmatic bounded Lower Town exterior; default Start destination via manifest. |
-| 41 | `scenes/reval_north/reval_north.tscn` | partial | Inactive programmatic north quarter prototype; removed from active destinations in P2-020. |
-| 42 | `scenes/reval_toompea/domberg.tscn` | archive | Empty `Node2D`; Toompea district outside slice. |
-| 43 | `scenes/reval_toompea/maria_toomkirik.tscn` | archive | Empty `Node2D`; cathedral shell outside slice. |
-| 44 | `scenes/tests/font_glyph_render_test.tscn` | partial | Dev-only font glyph verification; not player-facing. |
-| 45 | `scenes/tests/dialogue_ui_test.tscn` | partial | Dev-only dialogue UI and settings review scene (P1-012/P1-013). |
-| 46 | `scenes/tests/dialogue_overflow_test.tscn` | partial | Dev-only pseudo-localization overflow review scene (P1-014). |
-| 47 | `scenes/ui/inventory_overlay.tscn` | working | Session bag overlay; D-003 pickup and inventory UI. |
-| 48 | `scenes/world/haapsalu_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 49 | `scenes/world/harju_village.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 50 | `scenes/world/karja_fortress.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 51 | `scenes/world/maasilinna_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 52 | `scenes/world/padise/padise_monastery1.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 53 | `scenes/world/padise/padise_monastery2.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 54 | `scenes/world/paide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 55 | `scenes/world/poide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 56 | `scenes/world/sacred_grove.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 57 | `scenes/world/viljandi_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 58 | `scenes/world/world_item.tscn` | working | Pickup world-item component; D-003 anvil spearhead via `WorldItemController`. |
-| 59 | `scenes/comparison_room/comparison_room.tscn` | partial | P0-033 greybox baseline with procedural collisions, HUD, and slice mechanics verification. |
-| 60 | `scenes/comparison_room/orthogonal_4_direction.tscn` | partial | P0-035 proposed orthogonal/four-direction variant; dev verification only. |
-| 61 | `scenes/comparison_room/diamond_isometric_8_direction.tscn` | partial | P0-035 legacy diamond-isometric/eight-direction variant; dev verification only. |
-| 62 | `tools/benchmarks/large_map_benchmark.tscn` | partial | CI large-map pipeline benchmark host; not player-facing. |
-| 63 | `tools/benchmarks/lower_town_scene_benchmark.tscn` | partial | CI Lower Town scene-load benchmark host; not player-facing. |
+| 16 | `scenes/elements/gameplay_help_hud.tscn` | working | Passive control-hint overlay on approved maps; mouse-transparent for click-to-move. |
+| 17 | `scenes/elements/minimap_hud.tscn` | working | In-scene minimap HUD; P1-032 terrain, exits, and player marker; toggles with `N`. |
+| 18 | `scenes/elements/npc.tscn` | working | NPC prefab with SpriteFrames, AnimationPlayer, navigation script, and HealthBar. |
+| 19 | `scenes/elements/turret.tscn` | working | Wall/turret prop with collision and occluder; used in districts. |
+| 20 | `scenes/elements/UI.tscn` | partial | Legacy character HUD shell (`visible = false`); still instanced by `player.tscn`. |
+| 21 | `scenes/events/paldiski.tscn` | archive | Empty `Node2D`; campaign location outside slice. |
+| 22 | `scenes/events/pernau.tscn` | archive | Empty `Node2D`; campaign location outside slice. |
+| 23 | `scenes/events/pskov_arrival_battle.tscn` | archive | Empty `Node2D`; battle event outside slice. |
+| 24 | `scenes/events/rebel_kings.tscn` | archive | Empty `Node2D`; campaign event outside slice. |
+| 25 | `scenes/events/saaremaa.tscn` | archive | Empty `Node2D`; campaign location outside slice. |
+| 26 | `scenes/events/swedesh_outpost.tscn` | archive | Empty `Node2D`; campaign location outside slice. |
+| 27 | `scenes/events/swedish_arrival.tscn` | archive | Empty `Node2D`; fleet arrival event outside slice. |
+| 28 | `scenes/harbor/harbor.tscn` | placeholder | Single screenshot sprite; no player, doors, or navigation. |
+| 29 | `scenes/harbor/warehouse.tscn` | partial | Inactive programmatic warehouse interior prototype (`active=false`); ADR 0006 scope expansion. |
+| 30 | `scenes/interaction/interactable.tscn` | working | Shared `Interactable` focus, prompt, and interaction range component. |
+| 31 | `scenes/interaction/interaction_test.tscn` | partial | Developer-only interaction and input verification scene. |
+| 32 | `scenes/intro/intro.tscn` | placeholder | Empty `Node2D`; intro video lives in `main_menu.tscn`. |
+| 33 | `scenes/map/map.tscn` | placeholder | Static map image only; no interaction or travel logic. |
+| 34 | `scenes/map_prototype/smithy_courtyard.tscn` | partial | P0-042 deterministic programmatic map-authoring spike; developer-only and not in the active transition manifest. |
+| 35 | `scenes/menu/main_menu.tscn` | working | `run/main_scene`; Start/Exit UI, video, audio; P0-017 smoke pass. |
+| 36 | `scenes/reval_center/market_civic_quarter/market.tscn` | partial | Inactive programmatic market square prototype; not in active destinations. |
+| 37 | `scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn` | partial | Inactive programmatic guild hall interior prototype; not in active destinations. |
+| 38 | `scenes/reval_center/reval_center.tscn` | partial | Inactive programmatic market civic quarter prototype; removed from active destinations in P2-020. |
+| 39 | `scenes/reval_east/forge/forge.tscn` | working | Programmatic smithy interior; `DoorNavigator` target with stable anchors and courtyard transition. |
+| 40 | `scenes/reval_east/forge/forge_cat.tscn` | working | Ambient smithy cat with navigation and idle behavior. |
+| 41 | `scenes/reval_east/forge/smithy_henning.tscn` | working | Smithy apprentice Henning with patrol and idle behavior. |
+| 42 | `scenes/reval_east/reval_east.tscn` | working | Programmatic bounded Lower Town exterior; default Start destination via manifest. |
+| 43 | `scenes/reval_north/reval_north.tscn` | partial | Inactive programmatic north quarter prototype; removed from active destinations in P2-020. |
+| 44 | `scenes/reval_toompea/domberg.tscn` | archive | Empty `Node2D`; Toompea district outside slice. |
+| 45 | `scenes/reval_toompea/maria_toomkirik.tscn` | archive | Empty `Node2D`; cathedral shell outside slice. |
+| 46 | `scenes/tests/font_glyph_render_test.tscn` | partial | Dev-only font glyph verification; not player-facing. |
+| 47 | `scenes/tests/dialogue_ui_test.tscn` | partial | Dev-only dialogue UI and settings review scene (P1-012/P1-013). |
+| 48 | `scenes/tests/dialogue_overflow_test.tscn` | partial | Dev-only pseudo-localization overflow review scene (P1-014). |
+| 49 | `scenes/ui/forge_commission_overlay.tscn` | working | Forge commission flow overlay; P1-019a smithy ledger interaction. |
+| 50 | `scenes/ui/inventory_overlay.tscn` | working | Session bag overlay; D-003 pickup and inventory UI. |
+| 51 | `scenes/ui/journal_overlay.tscn` | working | Quest journal overlay; P1-016 objectives and discovered evidence. |
+| 52 | `scenes/world/haapsalu_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 53 | `scenes/world/harju_village.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 54 | `scenes/world/karja_fortress.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 55 | `scenes/world/maasilinna_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 56 | `scenes/world/padise/padise_monastery1.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 57 | `scenes/world/padise/padise_monastery2.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 58 | `scenes/world/paide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 59 | `scenes/world/poide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 60 | `scenes/world/sacred_grove.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 61 | `scenes/world/viljandi_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 62 | `scenes/world/world_item.tscn` | working | Pickup world-item component; D-003 anvil spearhead via `WorldItemController`. |
+| 63 | `scenes/comparison_room/comparison_room.tscn` | partial | P0-033 greybox baseline with procedural collisions, HUD, and slice mechanics verification. |
+| 64 | `scenes/comparison_room/orthogonal_4_direction.tscn` | partial | P0-035 proposed orthogonal/four-direction variant; dev verification only. |
+| 65 | `scenes/comparison_room/diamond_isometric_8_direction.tscn` | partial | P0-035 legacy diamond-isometric/eight-direction variant; dev verification only. |
+| 66 | `tools/benchmarks/large_map_benchmark.tscn` | partial | CI large-map pipeline benchmark host; not player-facing. |
+| 67 | `tools/benchmarks/lower_town_scene_benchmark.tscn` | partial | CI Lower Town scene-load benchmark host; not player-facing. |
 
 ## Totals by folder
 
@@ -113,7 +117,7 @@ Inventory row count (data rows in the table below): **63**.
 | Repository root | 1 | 0 | 0 | 1 | 2 |
 | `assets/characters/` | 8 | 2 | 0 | 0 | 10 |
 | `scenes/comparison_room/` | 0 | 3 | 0 | 0 | 3 |
-| `scenes/elements/` | 5 | 2 | 0 | 0 | 7 |
+| `scenes/elements/` | 7 | 2 | 0 | 0 | 9 |
 | `scenes/events/` | 0 | 0 | 0 | 7 | 7 |
 | `scenes/harbor/` | 0 | 1 | 1 | 0 | 2 |
 | `scenes/interaction/` | 1 | 1 | 0 | 0 | 2 |
@@ -126,10 +130,10 @@ Inventory row count (data rows in the table below): **63**.
 | `scenes/reval_north/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/reval_toompea/` | 0 | 0 | 0 | 2 | 2 |
 | `scenes/tests/` | 0 | 3 | 0 | 0 | 3 |
-| `scenes/ui/` | 1 | 0 | 0 | 0 | 1 |
+| `scenes/ui/` | 3 | 0 | 0 | 0 | 3 |
 | `scenes/world/` | 1 | 0 | 0 | 10 | 11 |
 | `tools/benchmarks/` | 0 | 2 | 0 | 0 | 2 |
-| **All** | **21** | **19** | **3** | **20** | **63** |
+| **All** | **25** | **19** | **3** | **20** | **67** |
 
 ## Verification
 
@@ -141,11 +145,12 @@ find . -name '*.tscn' -not -path './.git/*' | wc -l
 grep -E '^\| [0-9]+ \|' docs/reports/scene_inventory.md | wc -l
 ```
 
-Both commands should print `63` on a clean checkout at this revision.
+Both commands should print `67` on a clean checkout at this revision.
 
 ## Related tasks
 
 - **P0-055** - reconcile this inventory and `docs/MAP_CONVERSION_PLAN.md` with the full `.tscn` set (complete).
+- **P0-057** - reconcile the four UI overlay scenes added after P0-055 (complete).
 - **P0-030** - prune active runtime folders using this inventory.
 - **P0-034** - migration matrix for slice-relevant artifacts (complete; see [`migration_matrix_p0_034.md`](./migration_matrix_p0_034.md)).
 - **P0-022** - fix door tags and stable scene IDs (`DEF-003`, `DEF-004` in [`known_runtime_defects.md`](./known_runtime_defects.md)).

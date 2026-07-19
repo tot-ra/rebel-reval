@@ -50,7 +50,9 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `scenes/elements/UI.tscn` | ui | `archive` | Superseded NATURAL aspects HUD | Remove under P0-041; never active afterward | none - archive |
 | `scenes/elements/building.tscn` | support | `convert` | Shared building visual and footprint | Approved-map component only | not a map definition; P0-034 component conversion |
 | `scenes/elements/door.tscn` | support | `convert` | Shared transition and spawn component | Approved destinations only | not a map definition; P0-034 component conversion |
+| `scenes/elements/gameplay_help_hud.tscn` | ui | `retain` | Passive control-hint overlay | Active on `MapSceneBootstrap` maps; mouse-transparent so click-to-move works underneath | not a map definition |
 | `scenes/elements/location_hud.tscn` | ui | `retain` | District location title HUD | Active overlay on approved maps; replaces legacy NATURAL HUD scope | not a map definition |
+| `scenes/elements/minimap_hud.tscn` | ui | `retain` | In-scene minimap HUD | P1-032 terrain and player overlay on approved maps; toggles with `toggle_minimap` (`N`) | not a map definition |
 | `scenes/elements/npc.tscn` | actor | `convert` | Shared NPC actor | Approved maps after rig conversion | not a map definition; P0-034 actor conversion |
 | `scenes/elements/turret.tscn` | support | `convert` | Shared wall or tower component | Approved-map component only | not a map definition; P0-034 component conversion |
 | `scenes/events/paldiski.tscn` | event | `archive` | `loc.paldiski` legacy pirate outpost concept | Outside campaign scope; never activate | none - archive |
@@ -68,7 +70,9 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `scenes/map/map.tscn` | map | `archive` | `ref.estonia_world_map` | Static reference image, not a travel system; runtime import excluded by `scenes/map/.gdignore` (P0-046) | none - archive |
 | `scenes/map_prototype/smithy_courtyard.tscn` | level | `retain` | `loc.smithy_courtyard` authoring spike | Developer-only P0-042 prototype; not an active destination | `scripts/map/smithy_courtyard_definition.gd` |
 | `scenes/menu/main_menu.tscn` | ui | `retain` | Main menu and Start flow | Active UI, not a map | not a map definition |
+| `scenes/ui/forge_commission_overlay.tscn` | ui | `retain` | Forge commission flow overlay | P1-019a smithy commission UI; blocks movement until closed | not a map definition |
 | `scenes/ui/inventory_overlay.tscn` | ui | `retain` | Session bag overlay | Demo D-003 inventory UI; persists via `GameState` | not a map definition |
+| `scenes/ui/journal_overlay.tscn` | ui | `retain` | Quest journal overlay | P1-016 objective and evidence UI; toggles with quick-access menu or `J` | not a map definition |
 | `scenes/reval_center/market_civic_quarter/market.tscn` | level | `convert` | `loc.lower_town.market_square` | `active=false` prototype only until separate approval artifact | `scripts/map/definitions/prototypes/market_square_definition.gd` |
 | `scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn` | level | `convert` | `loc.lower_town.st_olafs_guild_hall` | `active=false` prototype only until separate approval artifact | `scripts/map/definitions/prototypes/st_olafs_guild_hall_definition.gd` |
 | `scenes/reval_center/reval_center.tscn` | level | `convert` | `loc.lower_town.market_civic_quarter` | `active=false` prototype only until separate approval artifact | `scripts/map/definitions/prototypes/market_civic_quarter_definition.gd` |
