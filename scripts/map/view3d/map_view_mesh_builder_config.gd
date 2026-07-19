@@ -78,6 +78,30 @@ const WATER_CONTOUR_SIGMA_CELLS := 1.6
 const WATER_CONTOUR_RADIUS_CELLS := 4
 const WATER_CONTOUR_THRESHOLD := 0.42
 
+## View-only riparian bands sampled from the same smoothed contour as the water.
+## They replace the abrupt water-to-grass seam with wet mud and a broader sandy
+## bank without changing authored terrain IDs, collision, or movement costs.
+const SHORE_MUD_INNER_COVERAGE := 0.27
+const SHORE_SAND_INNER_COVERAGE := 0.11
+const SHORE_SAND_OUTER_COVERAGE := 0.035
+const SHORE_COVERAGE_WARP := 0.025
+const SHORE_CATTAIL_CHANCE := 0.38
+const SHORE_CATTAIL_MIN_COVERAGE := 0.12
+const SHORE_CATTAIL_MAX_COVERAGE := WATER_CONTOUR_THRESHOLD - 0.015
+
+## Only natural, porous surfaces receive an automatic riparian bank. Stone quay
+## edges and indoor floors keep their authored materials and remain plant-free.
+const NATURAL_SHORE_TERRAINS: Array[StringName] = [
+	MapTypes.TERRAIN_GRASS,
+	MapTypes.TERRAIN_MEADOW,
+	MapTypes.TERRAIN_FOREST_FLOOR,
+	MapTypes.TERRAIN_BOG,
+	MapTypes.TERRAIN_DIRT,
+	MapTypes.TERRAIN_MUD,
+	MapTypes.TERRAIN_SAND,
+	MapTypes.TERRAIN_COAST_SAND,
+]
+
 ## House construction families: visible building material per dwelling.
 ## 1343 Reval mix: horizontal log construction dominates the lower town, local
 ## limestone marks wealthy merchants and church buildings, brick stays rare

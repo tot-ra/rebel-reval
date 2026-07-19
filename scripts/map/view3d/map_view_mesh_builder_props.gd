@@ -149,6 +149,8 @@ static func build_scatter(
 	var leaf_colors: Array[Color] = []
 	var reeds: Array[Transform3D] = []
 	var reed_colors: Array[Color] = []
+	var cattails: Array[Transform3D] = []
+	var cattail_colors: Array[Color] = []
 	var clovers: Array[Transform3D] = []
 	var clover_colors: Array[Color] = []
 	var stones: Array[Transform3D] = []
@@ -166,6 +168,19 @@ static func build_scatter(
 			var profile := TerrainVegetation.scatter_profile(variant)
 			var density := TerrainVegetation.object_density_multiplier(is_urban, variant)
 			var tint := TerrainVegetation.ground_color_tint(variant)
+
+			# Cattails are a view-only riverbank layer driven by the smoothed
+			# shoreline. Authored reed zones remain available for deliberate beds.
+			if (
+				MapViewMeshBuilderTerrain.is_natural_shore_cell(field, grid, cell)
+				and MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 2879)
+				< MapViewMeshBuilderConfig.SHORE_CATTAIL_CHANCE
+			):
+				var cluster_count := 1 + int(MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 2887) > 0.54)
+				for cattail_index in cluster_count:
+					cattails.append(_scatter_transform(field, x, y, definition.seed + 2903 + cattail_index * 31, 0.78, 1.18))
+					var cattail_tint := MapViewMeshBuilderPrimitives.hash01(x + cattail_index, y, definition.seed + 2917)
+					cattail_colors.append(Color(0.72, 0.83, 0.52).lerp(Color(0.49, 0.66, 0.36), cattail_tint))
 
 			var puddle_chance := float(MapViewMeshBuilderConfig.PUDDLE_CHANCE.get(terrain, 0.0))
 			if puddle_chance > 0.0:
@@ -269,6 +284,8 @@ static func build_scatter(
 
 	if not reeds.is_empty():
 		_add_grass_layer(root, "Reeds", reeds, reed_colors, MapViewMeshBuilderPrimitives.reed_stem_mesh())
+	if not cattails.is_empty():
+		_add_cattail_layer(root, cattails, cattail_colors)
 	if not clovers.is_empty():
 		var clover_instances := MapViewMeshBuilderPrimitives.multi_mesh("Clovers", MapViewMeshBuilderPrimitives.clover_patch_mesh(), clovers, clover_colors, MapViewMaterials.foliage_tuft(), Vector3(0.0, 0.02, 0.0))
 		clover_instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -306,9 +323,32 @@ static func _add_grass_layer(root: Node3D, layer_name: String, transforms: Array
 	instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(instances)
 
-## A handful of tapered blades leaning out from a shared root: reads as a real
-## grass clump instead of a cone, and gives the wind shader tips to move.
-## UV.y runs root (0) to tip (1) for both sway weight and shading.
+
+static func _add_cattail_layer(
+	root: Node3D,
+	transforms: Array[Transform3D],
+	colors: Array[Color]
+) -> void:
+	# Unlike generic wind grass, cattails carry per-vertex leaf and seed-head
+	# colors, so a lightweight vertex-colored material preserves both silhouettes.
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color.WHITE
+	material.vertex_color_use_as_albedo = true
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	material.roughness = 0.95
+	var instances := MapViewMeshBuilderPrimitives.multi_mesh(
+		"BankCattails",
+		MapViewMeshBuilderPrimitives.cattail_cluster_mesh(),
+		transforms,
+		colors,
+		material,
+		Vector3.ZERO
+	)
+	instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	root.add_child(instances)
+
+
+## Deterministic placement helpers shared by all terrain scatter layers.
 
 
 static func _scatter_transform(field: Dictionary, x: int, y: int, noise_seed: int, scale_min: float, scale_max: float) -> Transform3D:

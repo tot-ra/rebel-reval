@@ -347,18 +347,94 @@ static func grass_tuft_mesh() -> ArrayMesh:
 static func reed_stem_mesh() -> ArrayMesh:
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-	for side in [-1.0, 1.0]:
+	for side_sign in [-1.0, 1.0]:
 		var half_width := 0.018
 		var quad := [
-			[Vector3(-half_width * side, 0.0, 0.0), Vector2(0.0, 0.0)],
-			[Vector3(half_width * side, 0.0, 0.0), Vector2(1.0, 0.0)],
-			[Vector3(half_width * side * 0.6, 0.95, 0.0), Vector2(1.0, 1.0)],
-			[Vector3(-half_width * side * 0.6, 0.95, 0.0), Vector2(0.0, 1.0)],
+			[Vector3(-half_width * side_sign, 0.0, 0.0), Vector2(0.0, 0.0)],
+			[Vector3(half_width * side_sign, 0.0, 0.0), Vector2(1.0, 0.0)],
+			[Vector3(half_width * side_sign * 0.6, 0.95, 0.0), Vector2(1.0, 1.0)],
+			[Vector3(-half_width * side_sign * 0.6, 0.95, 0.0), Vector2(0.0, 1.0)],
 		]
 		for index in [0, 1, 2, 0, 2, 3]:
 			surface.set_normal(Vector3(0.0, 0.0, 1.0))
 			surface.set_uv(quad[index][1])
 			surface.add_vertex(quad[index][0])
+	return surface.commit()
+
+
+## A riverbank cattail cluster distinct from the simple authored reed stem:
+## crossed narrow leaves surround several tall stalks with dark seed heads.
+## Vertex colors keep the seed heads brown while the instance tint varies the
+## green foliage. UV.y still runs root-to-tip for the shared wind shader.
+static func cattail_cluster_mesh() -> ArrayMesh:
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var stalks := [
+		[Vector2(-0.12, 0.02), 0.92],
+		[Vector2(0.04, -0.08), 1.08],
+		[Vector2(0.15, 0.08), 0.84],
+	]
+	for stalk_index in stalks.size():
+		var stalk: Array = stalks[stalk_index]
+		var stalk_position: Vector2 = stalk[0]
+		var base := Vector3(stalk_position.x, 0.0, stalk_position.y)
+		var height: float = stalk[1]
+		for yaw in [0.0, PI * 0.5]:
+			var side := Vector3(cos(yaw), 0.0, sin(yaw)) * 0.018
+			var stem_top := base + Vector3(0.0, height - 0.16, 0.0)
+			var stem := [
+				[base - side, Vector2(0.0, 0.0)],
+				[base + side, Vector2(1.0, 0.0)],
+				[stem_top + side, Vector2(1.0, 0.82)],
+				[stem_top - side, Vector2(0.0, 0.82)],
+			]
+			for index in [0, 1, 2, 0, 2, 3]:
+				surface.set_color(Color.WHITE)
+				surface.set_normal(Vector3(cos(yaw), 0.15, sin(yaw)).normalized())
+				surface.set_uv(stem[index][1])
+				surface.add_vertex(stem[index][0])
+			var head_bottom := base + Vector3(0.0, height - 0.18, 0.0)
+			var head_top := base + Vector3(0.0, height, 0.0)
+			var head_side := side * 2.25
+			var head := [
+				[head_bottom - head_side, Vector2(0.0, 0.82)],
+				[head_bottom + head_side, Vector2(1.0, 0.82)],
+				[head_top + head_side * 0.72, Vector2(1.0, 1.0)],
+				[head_top - head_side * 0.72, Vector2(0.0, 1.0)],
+			]
+			for index in [0, 1, 2, 0, 2, 3]:
+				# HDR vertex tint counterbalances the green blade base color and
+				# yields a readable dark-brown seed head after instance tinting.
+				surface.set_color(Color(2.25, 0.72, 0.28))
+				surface.set_normal(Vector3(cos(yaw), 0.0, sin(yaw)))
+				surface.set_uv(head[index][1])
+				surface.add_vertex(head[index][0])
+	for leaf_index in 7:
+		var yaw := TAU * float(leaf_index) / 7.0 + hash01(leaf_index, 5, 301) * 0.45
+		var direction := Vector3(sin(yaw), 0.0, cos(yaw))
+		var side := Vector3(cos(yaw), 0.0, -sin(yaw))
+		var leaf_height := 0.48 + hash01(leaf_index, 7, 307) * 0.32
+		var lean := 0.18 + hash01(leaf_index, 11, 311) * 0.18
+		var half_width := 0.022 + hash01(leaf_index, 13, 313) * 0.012
+		var root := direction * 0.035
+		var middle := root + direction * lean * 0.42 + Vector3.UP * leaf_height * 0.58
+		var tip := root + direction * lean + Vector3.UP * leaf_height
+		var leaf := [
+			[root - side * half_width, Vector2(0.0, 0.0)],
+			[root + side * half_width, Vector2(1.0, 0.0)],
+			[middle + side * half_width * 0.55, Vector2(1.0, 0.58)],
+			[middle - side * half_width * 0.55, Vector2(0.0, 0.58)],
+		]
+		for index in [0, 1, 2, 0, 2, 3]:
+			surface.set_color(Color(0.82, 1.0, 0.66))
+			surface.set_normal((direction + Vector3.UP * 0.2).normalized())
+			surface.set_uv(leaf[index][1])
+			surface.add_vertex(leaf[index][0])
+		for point in [leaf[3], leaf[2], [tip, Vector2(0.5, 1.0)]]:
+			surface.set_color(Color(0.82, 1.0, 0.66))
+			surface.set_normal((direction + Vector3.UP * 0.2).normalized())
+			surface.set_uv(point[1])
+			surface.add_vertex(point[0])
 	return surface.commit()
 
 

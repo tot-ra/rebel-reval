@@ -276,7 +276,7 @@ static func add_blended_cell_quad(
 			for index in [0, 1, 2, 0, 2, 3]:
 				var vertex := positions[indices[index]]
 				var spot := Vector2(vertex.x, vertex.z)
-				var blend := terrain_blend_at(grid, spot, noise_seed, x, y)
+				var blend := terrain_blend_at(field, grid, spot, noise_seed, x, y)
 				var primary_tint := OutdoorTerrainPalette.color(blend["primary"])
 				var secondary_tint := OutdoorTerrainPalette.color(blend["secondary"])
 				var tint := primary_tint.lerp(secondary_tint, float(blend["weight"]))
@@ -463,6 +463,7 @@ static func _add_water_vertex(surface: SurfaceTool, source: Vector3) -> void:
 
 
 static func terrain_blend_at(
+	field: Dictionary,
 	grid: MapTerrainGrid,
 	sample: Vector2,
 	noise_seed: int,
@@ -510,6 +511,12 @@ static func terrain_blend_at(
 		weight = clampf(weight + dither, 0.0, 1.0)
 	var variant := grid.get_style_variant(Vector2i(cell_x, cell_y))
 	var tone := cell_tone(cell_x, cell_y, noise_seed, variant)
+	var shore := shore_blend_at(field, grid, sample, noise_seed)
+	if not shore.is_empty():
+		primary = shore["primary"]
+		secondary = shore["secondary"]
+		weight = shore["weight"]
+		tone *= shore["tone"]
 	return {
 		"primary": primary,
 		"secondary": secondary,
@@ -520,6 +527,75 @@ static func terrain_blend_at(
 	}
 
 
+
+
+## Produces a two-stage visual bank from the combined smoothed water field:
+## dark wet mud at the waterline, then warm sand feathered into authored ground.
+## Returning an empty dictionary leaves hard-surface quay edges untouched.
+static func shore_blend_at(
+	field: Dictionary,
+	grid: MapTerrainGrid,
+	sample: Vector2,
+	noise_seed: int
+) -> Dictionary:
+	var cell := Vector2i(
+		clampi(floori(sample.x), 0, grid.size_cells.x - 1),
+		clampi(floori(sample.y), 0, grid.size_cells.y - 1)
+	)
+	var authored_ground := _ground_terrain_at(grid, cell)
+	if authored_ground not in MapViewMeshBuilderConfig.NATURAL_SHORE_TERRAINS:
+		return {}
+	var coverage := combined_water_coverage_at(field, sample)
+	var band_warp := (
+		value_noise(sample * 0.72, noise_seed + 16661) - 0.5
+	) * MapViewMeshBuilderConfig.SHORE_COVERAGE_WARP
+	coverage += band_warp
+	var outer := MapViewMeshBuilderConfig.SHORE_SAND_OUTER_COVERAGE
+	var sand_inner := MapViewMeshBuilderConfig.SHORE_SAND_INNER_COVERAGE
+	var mud_inner := MapViewMeshBuilderConfig.SHORE_MUD_INNER_COVERAGE
+	var waterline := MapViewMeshBuilderConfig.WATER_CONTOUR_THRESHOLD
+	if coverage < outer or coverage >= waterline:
+		return {}
+	if coverage < sand_inner:
+		return {
+			"primary": authored_ground,
+			"secondary": MapTypes.TERRAIN_SAND,
+			"weight": smoothstep(outer, sand_inner, coverage),
+			"tone": 1.02,
+		}
+	if coverage < mud_inner:
+		return {
+			"primary": MapTypes.TERRAIN_SAND,
+			"secondary": MapTypes.TERRAIN_MUD,
+			"weight": smoothstep(sand_inner, mud_inner, coverage),
+			"tone": lerpf(1.02, 0.92, smoothstep(sand_inner, mud_inner, coverage)),
+		}
+	return {
+		"primary": MapTypes.TERRAIN_MUD,
+		"secondary": MapTypes.TERRAIN_MUD,
+		"weight": 0.0,
+		"tone": lerpf(0.92, 0.78, smoothstep(mud_inner, waterline, coverage)),
+	}
+
+
+static func combined_water_coverage_at(field: Dictionary, sample: Vector2) -> float:
+	var coverage := 0.0
+	for terrain_id: StringName in field.get("water_contours", {}).keys():
+		coverage = maxf(coverage, water_coverage_at(field, sample, terrain_id))
+	return coverage
+
+
+static func is_natural_shore_cell(field: Dictionary, grid: MapTerrainGrid, cell: Vector2i) -> bool:
+	if cell.x < 0 or cell.y < 0 or cell.x >= grid.size_cells.x or cell.y >= grid.size_cells.y:
+		return false
+	var terrain := grid.get_terrain(cell)
+	if terrain not in MapViewMeshBuilderConfig.NATURAL_SHORE_TERRAINS:
+		return false
+	var coverage := combined_water_coverage_at(field, Vector2(cell) + Vector2(0.5, 0.5))
+	return (
+		coverage >= MapViewMeshBuilderConfig.SHORE_CATTAIL_MIN_COVERAGE
+		and coverage < MapViewMeshBuilderConfig.SHORE_CATTAIL_MAX_COVERAGE
+	)
 ## The recessed bank under a clipped water edge must use a dry palette layer.
 ## Pick the first adjacent dry terrain deterministically; enclosed water falls
 ## back to grass because its bed remains fully hidden by the water surface.
