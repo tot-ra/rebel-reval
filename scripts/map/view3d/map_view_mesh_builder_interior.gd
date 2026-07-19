@@ -18,7 +18,8 @@ static func build_interior_shell(definition: MapDefinition) -> Node3D:
 	if floor_bounds.size.x <= 0.5 or floor_bounds.size.y <= 0.5:
 		return root
 
-	var ceiling_y := wall_height - MapViewMeshBuilderConfig.INTERIOR_CEILING_THICKNESS * 0.5
+	var ceiling_plane := wall_height + MapViewMeshBuilderConfig.INTERIOR_CEILING_FIRST_PERSON_HEADROOM
+	var ceiling_y := ceiling_plane - MapViewMeshBuilderConfig.INTERIOR_CEILING_THICKNESS * 0.5
 	var center := Vector3(
 		floor_bounds.position.x + floor_bounds.size.x * 0.5,
 		ceiling_y,
@@ -42,7 +43,8 @@ static func build_interior_shell(definition: MapDefinition) -> Node3D:
 		ceiling_size
 	)
 	root.add_child(ceiling)
-	_add_exposed_beams(root, floor_bounds, wall_height)
+	_add_exposed_beams(root, floor_bounds, ceiling_plane)
+	root.visible = false
 	return root
 
 
@@ -61,11 +63,11 @@ static func _interior_floor_bounds_world(definition: MapDefinition, scale: float
 ## as carpentry from both the dimetric camera and first-person look-up.
 
 
-static func _add_exposed_beams(root: Node3D, floor_bounds: Rect2, wall_height: float) -> void:
+static func _add_exposed_beams(root: Node3D, floor_bounds: Rect2, ceiling_plane: float) -> void:
 	var along_x := floor_bounds.size.x >= floor_bounds.size.y
 	var primary_span := floor_bounds.size.x if along_x else floor_bounds.size.y
 	var secondary_span := floor_bounds.size.y if along_x else floor_bounds.size.x
-	var beam_bottom := wall_height - MapViewMeshBuilderConfig.INTERIOR_CEILING_THICKNESS
+	var beam_bottom := ceiling_plane - MapViewMeshBuilderConfig.INTERIOR_CEILING_THICKNESS
 	var beam_center_y := beam_bottom - MapViewMeshBuilderConfig.INTERIOR_BEAM_DEPTH * 0.5
 	var primary_count := maxi(2, int(primary_span / MapViewMeshBuilderConfig.INTERIOR_BEAM_SPACING) + 1)
 	var secondary_count := maxi(2, int(secondary_span / (MapViewMeshBuilderConfig.INTERIOR_BEAM_SPACING * 1.35)) + 1)

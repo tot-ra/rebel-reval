@@ -60,6 +60,49 @@ func test_c_toggles_first_person_and_restores_third_person() -> void:
 	scene_root.free()
 
 
+func test_interior_ceiling_hides_for_top_down_and_shows_in_first_person() -> void:
+	var scene_root := Node2D.new()
+	var map_root := Node2D.new()
+	var actors := Node2D.new()
+	var player := PLAYER_SCENE.instantiate() as Player
+	scene_root.add_child(map_root)
+	scene_root.add_child(actors)
+	actors.add_child(player)
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(scene_root)
+
+	var definition := KalevSmithyDefinition.create()
+	var bootstrap := {
+		"definition": definition,
+		"grid": MapBuilder.build(definition),
+		"assembled": {"buildings": [], "props": []},
+	}
+	var runtime := MapViewRuntime.install(scene_root, bootstrap, map_root, player)
+	assert_true(runtime.view.has_node("InteriorShell/Ceiling"), "smithy must build a shared ceiling shell")
+	assert_false(
+		runtime.view.is_interior_shell_visible(),
+		"top-down gameplay must hide the ceiling for floor readability"
+	)
+
+	var camera_toggle := InputEventKey.new()
+	camera_toggle.physical_keycode = KEY_C
+	camera_toggle.pressed = true
+	runtime._unhandled_input(camera_toggle)
+	assert_true(runtime.is_first_person(), "test setup must enter first-person view")
+	assert_true(
+		runtime.view.is_interior_shell_visible(),
+		"first-person must show the raised ceiling shell"
+	)
+
+	runtime._unhandled_input(camera_toggle)
+	assert_false(runtime.is_first_person(), "pressing C again must restore third-person view")
+	assert_false(
+		runtime.view.is_interior_shell_visible(),
+		"returning to top-down must hide the ceiling again"
+	)
+	scene_root.free()
+
+
 func test_first_person_movement_follows_camera_yaw_via_gameplay_rotation() -> void:
 	var scene_root := Node2D.new()
 	var map_root := Node2D.new()

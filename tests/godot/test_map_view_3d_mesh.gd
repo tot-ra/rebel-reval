@@ -8,10 +8,15 @@ func test_enclosed_interior_suppresses_countryside_surroundings() -> void:
 	assert_true(view.has_node("InteriorShell/Ceiling"), "enclosed interiors need a shared ceiling for first-person")
 	var ceiling := view.get_node("InteriorShell/Ceiling") as MeshInstance3D
 	var wall_height := MapViewMeshBuilder.interior_shell_wall_height_world(definition)
+	var ceiling_plane := wall_height + MapViewMeshBuilderConfig.INTERIOR_CEILING_FIRST_PERSON_HEADROOM
 	assert_true(
-		is_equal_approx(ceiling.position.y, wall_height - MapViewMeshBuilderConfig.INTERIOR_CEILING_THICKNESS * 0.5),
-		"ceiling must sit flush with interior wall tops"
+		is_equal_approx(
+			ceiling.position.y,
+			ceiling_plane - MapViewMeshBuilderConfig.INTERIOR_CEILING_THICKNESS * 0.5
+		),
+		"ceiling must sit above interior wall tops for first-person headroom"
 	)
+	assert_false(view.is_interior_shell_visible(), "top-down view must start with the ceiling hidden")
 	assert_true(view.get_node("InteriorShell").get_child_count() >= 3, "ceiling needs exposed timber beams")
 	var window_landmarks := 0
 	for landmark in definition.view_landmarks:

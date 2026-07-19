@@ -70,6 +70,7 @@ var _environment: Environment
 var _camera: Camera3D
 var _fog_of_war: Node3D
 var _occluder_bounds: Array[AABB] = []
+var _interior_shell_occludes := false
 var _object_index: MapChunkRuntimeIndex
 var _object_streamer: MapObjectChunkStreamer
 var _scatter_root: Node3D
@@ -195,6 +196,22 @@ func anchor_world_position(anchor_id: StringName) -> Vector3:
 
 func view_camera() -> Camera3D:
 	return _camera
+
+
+## Top-down orthographic gameplay hides the interior ceiling so the player can
+## read floor layout; first-person enables the raised shell and occlusion.
+func set_interior_shell_for_first_person(enabled: bool) -> void:
+	var interior_shell := get_node_or_null("InteriorShell") as Node3D
+	if interior_shell == null:
+		return
+	interior_shell.visible = enabled
+	_interior_shell_occludes = enabled
+	_rebuild_occluder_bounds()
+
+
+func is_interior_shell_visible() -> bool:
+	var interior_shell := get_node_or_null("InteriorShell") as Node3D
+	return interior_shell != null and interior_shell.visible
 
 
 ## True when a building or landmark mass crosses the segment. The runtime
@@ -409,7 +426,7 @@ func _rebuild_occluder_bounds() -> void:
 		_append_mesh_bounds(buildings, buildings.transform, _occluder_bounds)
 	if landmarks != null:
 		_append_mesh_bounds(landmarks, landmarks.transform, _occluder_bounds)
-	if interior_shell != null:
+	if interior_shell != null and _interior_shell_occludes:
 		_append_mesh_bounds(interior_shell, interior_shell.transform, _occluder_bounds)
 
 

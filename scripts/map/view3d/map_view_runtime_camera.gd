@@ -141,6 +141,7 @@ func set_first_person(enabled: bool) -> void:
 		camera.near = 0.05
 		camera.rotation_degrees.x = MapView3D.CAMERA_PITCH_DEGREES
 	player_rig.visible = not enabled
+	view.set_interior_shell_for_first_person(enabled)
 	follow_player(true, 0.0)
 
 
