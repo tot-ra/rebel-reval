@@ -315,6 +315,7 @@ func _assemble() -> void:
 		if bool(transition.get("highlight_area", false)):
 			transition_markers.add_child(MapViewMeshBuilder.build_transition_marker(transition, definition.cell_size))
 		if not String(transition.get("destination_scene_id", "")).is_empty() \
+				and transition.get("transition_visual", MapTypes.TRANSITION_VISUAL_DOOR) == MapTypes.TRANSITION_VISUAL_DOOR \
 				and not MapViewMeshBuilder.transition_uses_landmark_visual(definition, transition):
 			var shell_height := MapViewMeshBuilder.interior_shell_wall_height_world(definition)
 			doors.add_child(

@@ -110,13 +110,12 @@ func test_kalev_smithy_interior_walls_show_period_structure() -> void:
 	assert_true(found_smoked_plaster, "smithy needs a smoke-darkened forge bay")
 
 
-func test_town_surroundings_paint_cobble_apron() -> void:
+func test_town_surroundings_use_authored_neighbor_edges() -> void:
 	var definition := LowerTownSlice.create()
 	var view := MapView3D.create(definition, MapBuilder.build(definition))
-	view.activate_all_chunks()
-	assert_true(view.has_node("Surroundings/TownApron_west"), "west town continuation needs ground under silhouettes")
-	assert_true(view.has_node("Surroundings/TownApron_north"), "north town continuation needs ground under silhouettes")
-	assert_true(view.has_node("Surroundings/TownSilhouette"), "town silhouette houses still spawn")
+	for side in ["west", "north", "east", "south"]:
+		assert_true(view.has_node("Surroundings/Neighbor_%s" % side), "%s edge needs a neighbor preview" % side)
+		assert_true(view.has_node("Surroundings/Neighbor_%s/Terrain_Ground" % side) or view.get_node("Surroundings/Neighbor_%s" % side).get_child_count() > 0)
 	view.free()
 
 

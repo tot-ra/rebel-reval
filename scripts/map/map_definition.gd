@@ -317,6 +317,12 @@ func _validate_transition(trans: Dictionary, index: int, seen_ids: Dictionary) -
 	elif not _rect_inside_world_pixels(trans["rect"]):
 		errors.append("%s.rect is outside world bounds" % prefix)
 
+	var transition_visual: StringName = trans.get("transition_visual", MapTypes.TRANSITION_VISUAL_DOOR)
+	if not MapTypes.TRANSITION_VISUALS.has(transition_visual):
+		errors.append("%s.transition_visual is unknown: %s" % [prefix, String(transition_visual)])
+	if bool(trans.get("highlight_area", false)) and transition_visual != MapTypes.TRANSITION_VISUAL_GROUND:
+		errors.append("%s.highlight_area requires transition_visual=ground" % prefix)
+
 	return errors
 
 

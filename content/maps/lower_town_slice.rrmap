@@ -69,7 +69,7 @@ source "scenes/reval_walls_towers/viru_gate.md"
 source "docs/SCENES/the-makers-mark.md"
 source "docs/SCENES/a-bitter-brew.md"
 source "content/locations/loc.lower_town_slice.json"
-surroundings north town west town
+surroundings north town east town south town west town
 terrain_rects terrain.00 grass 132,0,44,100|0,100,176,12|36,0,52,14|88,0,32,16|18,76,52,16|8,72,10,20|88,56,12,20|108,64,24,16|88,80,44,20 layer=0 order=0
 terrain_rects terrain.01 water 140,0,6,32|140,28,10,4|146,32,6,20|140,50,10,4|140,54,6,14|128,64,14,6|116,70,14,6|112,76,10,6|104,82,12,6|96,88,10,6|92,94,8,6|88,100,8,6|0,104,176,4 layer=0 order=9
 terrain_rects terrain.02 dirt 132,38,44,6 layer=0 order=22
@@ -167,20 +167,10 @@ building foaming_mug_brewery house 88 46 12 8 style=house.north.h120.45
 building kalev_smithy house 100 46 10 8 style=house.none.h128.46
 building smithy_yard_fence_north wall 110 46 4 2 style=wall.plain.h56.47
 building smithy_yard_fence_east wall 118 46 2 10 style=wall.plain.h56.47
-building suburb_house_north_a house 136 32 8 6 style=house.south.h96.48
-building suburb_house_south_a house 136 46 8 6 style=house.north.h96.49
-building suburb_house_north_b house 152 32 8 6 style=house.south.h96.50
-building suburb_house_south_b house 152 46 8 6 style=house.north.h96.51
-building karja_suburb_house_west house 64 106 6 6 style=house.east.h96.52
-building karja_suburb_house_east house 80 106 6 6 style=house.west.h96.53
 building muurivahe_house_north house 116 0 10 6 style=house.south.h104.54
 landmark viru_gate_arch gate_arch 124 38 10 6 door_material=wood top_px=256 wall_color=8f8c80ff
 landmark viru_foregate_arch gate_arch 144 38 6 6 door_material=wood top_px=176 wall_color=8f8c80ff
 landmark karja_gate_arch gate_arch 72 94 6 8 door_material=metal top_px=256 wall_color=8f8c80ff
-landmark vanaturu_kael_arch gate_arch 0 38 4 8 passage_axis=x top_px=160 wall_color=858075ff
-landmark vene_district_arch gate_arch 28 0 6 4 passage_axis=z top_px=160 wall_color=858075ff
-landmark viru_suburb_arch gate_arch 168 38 8 6 door_material=wood passage_axis=x top_px=140 wall_color=858075ff
-landmark karja_suburb_arch gate_arch 72 106 6 6 door_material=wood passage_axis=z top_px=140 wall_color=858075ff
 prop courtyard_anvil anvil 112 48 rect=2,2
 prop courtyard_furnace furnace 110 54 rect=2,2
 prop courtyard_quench quench_bucket 114 56 rect=1,1
@@ -207,10 +197,10 @@ anchor vene_street_north 28 2 rect=2,2
 anchor mart_street 88 40 rect=2,2
 spawn spawn.street_start 96 40 rect=2,2
 transition smithy_door_transition 102 54 2 1 destination_spawn=door_courtyard spawn=forge spawn_offset_px=0,48 to=forge
-transition vana_turg_boundary 0 38 2 4 destination_spawn=from_reval_east spawn=vana_turg_boundary spawn_offset_px=48,0 to=reval_center view_landmark_id=vanaturu_kael_arch
-transition vene_district_boundary 28 0 3 2 destination_spawn=from_reval_east spawn=vene_district_boundary spawn_offset_px=0,48 to=reval_north view_landmark_id=vene_district_arch
-transition viru_road_boundary 168 38 4 3 destination_spawn=from_reval_east spawn=viru_road_boundary spawn_offset_px=-48,0 to=reval_harbor view_landmark_id=viru_suburb_arch
-transition karja_road_boundary 72 106 3 3 destination_spawn=from_reval_east_south spawn=karja_road_boundary spawn_offset_px=0,-48 to=reval_center view_landmark_id=karja_suburb_arch
+transition vana_turg_boundary 0 38 2 4 destination_spawn=from_reval_east spawn=vana_turg_boundary spawn_offset_px=48,0 to=reval_center highlight_area=true transition_visual=ground
+transition vene_district_boundary 28 0 3 2 destination_spawn=from_reval_east spawn=vene_district_boundary spawn_offset_px=0,48 to=reval_north highlight_area=true transition_visual=ground
+transition viru_road_boundary 168 38 4 3 destination_spawn=from_reval_east spawn=viru_road_boundary spawn_offset_px=-48,0 to=reval_harbor highlight_area=true transition_visual=ground
+transition karja_road_boundary 72 106 3 3 destination_spawn=from_reval_east_south spawn=karja_road_boundary spawn_offset_px=0,-48 to=reval_center highlight_area=true transition_visual=ground
 transition street_start_spawn 96 40 2 2 spawn=street_start
 patrol viru_watch 127,39|59,39|7,39|73,59|73,89
 fade fade.viru_street 20 34 88 16

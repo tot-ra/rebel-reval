@@ -116,11 +116,14 @@ static func _compile_prop(values: Dictionary, definition: MapDefinition) -> Dict
 
 static func _compile_transition(values: Dictionary, definition: MapDefinition) -> Dictionary:
 	var output := {"id": values["id"], "rect": definition.cell_rect_to_world_rect(values["rect"])}
-	_copy_non_empty_names(values, output, [&"destination_scene_id", &"destination_spawn_id", &"spawn_id", &"view_landmark_id"])
+	_copy_non_empty_names(values, output, [&"destination_scene_id", &"destination_spawn_id", &"spawn_id", &"transition_visual", &"view_landmark_id"])
 	if values.has("spawn_offset_px"):
 		output["spawn_offset"] = values["spawn_offset_px"]
 	if bool(values.get("highlight_area", false)):
 		output["highlight_area"] = true
+	var transition_visual: StringName = values.get("transition_visual", MapTypes.TRANSITION_VISUAL_DOOR)
+	if transition_visual != MapTypes.TRANSITION_VISUAL_DOOR:
+		output["transition_visual"] = transition_visual
 	return output
 
 

@@ -95,7 +95,8 @@ func test_view_renders_definitions_without_touching_logic_results() -> void:
 		for transition in definition.transitions:
 			if not String(transition.get("destination_scene_id", "")).is_empty():
 				functional_transition_count += 1
-				if not MapViewMeshBuilder.transition_uses_landmark_visual(definition, transition):
+				if transition.get("transition_visual", MapTypes.TRANSITION_VISUAL_DOOR) == MapTypes.TRANSITION_VISUAL_DOOR \
+						and not MapViewMeshBuilder.transition_uses_landmark_visual(definition, transition):
 					visible_door_count += 1
 			if bool(transition.get("highlight_area", false)):
 				highlighted_transition_count += 1

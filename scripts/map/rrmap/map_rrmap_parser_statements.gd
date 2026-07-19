@@ -260,7 +260,7 @@ func _parse_building(tokens: Array[Dictionary], line: int) -> void:
 		tokens,
 		line,
 		7,
-		"building <id> <kind> <x> <y> <width> <height> [style=id] [typed overrides]"
+		"building <id> <kind> <x> <y> <width> <height> [style=id] [transition_visual=door|ground|none] [typed overrides]"
 	):
 		return
 	var rect = _tokens.rect_from_tokens(tokens, line, 3)

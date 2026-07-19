@@ -6,15 +6,15 @@ extends RefCounted
 
 const STYLE_NAME_KEYS: Array[String] = [
 	"door_side", "ridge_axis", "primitive", "style_variant", "destination_scene_id",
-	"destination_spawn_id", "spawn_id", "view_landmark_id", "kind", "door_material", "passage_axis",
+	"destination_spawn_id", "spawn_id", "transition_visual", "view_landmark_id", "kind", "door_material", "passage_axis",
 	"wall_material", "roof_material",
 ]
 const STYLE_FLOAT_KEYS: Array[String] = ["wall_height", "wall_height_scale", "top_px", "movement_speed_multiplier"]
 const STYLE_COLOR_KEYS: Array[String] = ["wall_color", "roof_color"]
 const STYLE_VECTOR_KEYS: Array[String] = ["visual_offset_px", "spawn_offset_px"]
 const STYLE_CARDINAL_VECTOR_KEYS: Array[String] = ["facing", "direction"]
-const STYLE_RECT_KEYS: Array[String] = ["rect", "cell", "highlight_area"]
-const STYLE_BOOL_KEYS: Array[String] = ["enabled", "tower"]
+const STYLE_RECT_KEYS: Array[String] = ["rect", "cell"]
+const STYLE_BOOL_KEYS: Array[String] = ["enabled", "tower", "highlight_area"]
 
 var _parser
 func _init(parser) -> void:

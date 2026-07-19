@@ -3,6 +3,12 @@ extends RefCounted
 
 ## Exterior landscape ring outside playable bounds.
 
+const _NeighborRegistry := preload("res://scripts/map/map_neighbor_preview_registry.gd")
+const _Buildings := preload("res://scripts/map/view3d/map_view_mesh_builder_buildings.gd")
+const _Props := preload("res://scripts/map/view3d/map_view_mesh_builder_props.gd")
+const NEIGHBOR_PREVIEW_DEPTH_CELLS := 32
+const NEIGHBOR_GROUND_Y := -0.025
+
 static func build_surroundings(definition: MapDefinition) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Surroundings"
@@ -12,8 +18,22 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 	if sides.is_empty():
 		return root
 	var map_size := Vector2(definition.size_cells)
+	var previewed_sides: Dictionary = {}
+	for transition in definition.transitions:
+		if transition.get("transition_visual", MapTypes.TRANSITION_VISUAL_DOOR) != MapTypes.TRANSITION_VISUAL_GROUND:
+			continue
+		var side := _transition_side(definition, transition)
+		if side.is_empty() or previewed_sides.has(side):
+			continue
+		var neighbor := _NeighborRegistry.create_definition(transition.get("destination_scene_id", &""))
+		if neighbor == null:
+			continue
+		root.add_child(_neighbor_preview(definition, neighbor, transition, side))
+		previewed_sides[side] = true
 
 	for side in MapDefinition.WORLD_SIDES:
+		if previewed_sides.has(side):
+			continue
 		match sides.get(side):
 			&"water":
 				root.add_child(_water_continuation(definition, map_size, side))
@@ -48,6 +68,8 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 			if inner.has_point(spot):
 				continue
 			var side := _world_side(spot, map_size)
+			if previewed_sides.has(side):
+				continue
 			if sides.get(side) != &"woodland":
 				continue
 			if _distance_outside(spot, map_size) < MapViewMeshBuilderConfig.GLACIS_CLEARANCE:
@@ -92,7 +114,7 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 		root.add_child(MapViewMeshBuilderPrimitives.multi_mesh("Boulders", boulder_mesh, boulders, boulder_colors, MapViewMaterials.role(&"stone"), Vector3.ZERO))
 
 	if not town_sides.is_empty():
-		root.add_child(_town_silhouette(definition, map_size))
+		root.add_child(_town_silhouette(definition, map_size, previewed_sides))
 	return root
 
 
@@ -224,7 +246,7 @@ static func _distance_outside(spot: Vector2, map_size: Vector2) -> float:
 ## urban sides, so a walled-city district no longer reads as a forest clearing.
 
 
-static func _town_silhouette(definition: MapDefinition, map_size: Vector2) -> Node3D:
+static func _town_silhouette(definition: MapDefinition, map_size: Vector2, excluded_sides: Dictionary = {}) -> Node3D:
 	var bodies: Array[Transform3D] = []
 	var body_colors: Array[Color] = []
 	var roofs: Array[Transform3D] = []
@@ -244,7 +266,8 @@ static func _town_silhouette(definition: MapDefinition, map_size: Vector2) -> No
 			var spot := base + jitter
 			if inner.has_point(spot):
 				continue
-			if not definition.surroundings_town_sides.has(_world_side(spot, map_size)):
+			var side := _world_side(spot, map_size)
+			if excluded_sides.has(side) or not definition.surroundings_town_sides.has(side):
 				continue
 			if MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 3511) > MapViewMeshBuilderConfig.TOWN_KEEP_RATIO:
 				continue
@@ -273,3 +296,132 @@ static func _town_silhouette(definition: MapDefinition, map_size: Vector2) -> No
 
 ## Unit triangular prism (1 x 1 base, ridge along x at y = 1) scaled per town
 ## silhouette instance.
+
+
+## A preview renders the real terrain and structures from the adjoining map, but
+## never its gameplay bodies or navigation. It is aligned by reciprocal spawn IDs,
+## so changing either authored edge updates both views on the next load.
+static func _neighbor_preview(
+	definition: MapDefinition,
+	neighbor: MapDefinition,
+	transition: Dictionary,
+	side: StringName
+) -> Node3D:
+	var root := Node3D.new()
+	root.name = "Neighbor_%s" % side
+	if neighbor.cell_size != definition.cell_size:
+		return root
+	var reciprocal := _reciprocal_transition(neighbor, transition.get("destination_spawn_id", &""))
+	if reciprocal.is_empty():
+		return root
+	var offset := _neighbor_offset(definition, neighbor, transition, reciprocal, side)
+	var bounds := _neighbor_strip(neighbor.size_cells, side)
+	var grid := MapBuilder.build(neighbor)
+	var surfaces: Dictionary = {}
+	for y in range(bounds.position.y, bounds.end.y):
+		for x in range(bounds.position.x, bounds.end.x):
+			var terrain := grid.get_terrain(Vector2i(x, y))
+			if not surfaces.has(terrain):
+				var surface := SurfaceTool.new()
+				surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+				surfaces[terrain] = surface
+			_add_preview_quad(surfaces[terrain], Vector2(x, y) + offset, terrain)
+	for terrain in surfaces:
+		var instance := MeshInstance3D.new()
+		instance.name = "Terrain_%s" % String(terrain)
+		instance.mesh = (surfaces[terrain] as SurfaceTool).commit()
+		instance.material_override = MapViewMaterials.water_surface(terrain) if MapTypes.WATER_TERRAINS.has(terrain) else MapViewMaterials.terrain(terrain, neighbor.seed)
+		root.add_child(instance)
+	var source_world_bounds := neighbor.cell_rect_to_world_rect(bounds)
+	var offset_px := offset * float(neighbor.cell_size)
+	var buildings := Node3D.new()
+	buildings.name = "Buildings"
+	root.add_child(buildings)
+	for source in neighbor.buildings:
+		if not source_world_bounds.intersects(source["footprint"]):
+			continue
+		var building: Dictionary = source.duplicate(true)
+		building["footprint"] = Rect2(source["footprint"].position + offset_px, source["footprint"].size)
+		buildings.add_child(_Buildings.build_building(building, neighbor.cell_size))
+	var props := Node3D.new()
+	props.name = "Props"
+	root.add_child(props)
+	for source in neighbor.props:
+		if not source_world_bounds.has_point(source["position"]):
+			continue
+		var prop: Dictionary = source.duplicate(true)
+		prop["position"] = source["position"] + offset_px
+		if prop.has("footprint"):
+			prop["footprint"] = Rect2(prop["footprint"].position + offset_px, prop["footprint"].size)
+		props.add_child(_Props.build_prop(prop, neighbor.cell_size))
+	return root
+
+
+static func _add_preview_quad(surface: SurfaceTool, cell: Vector2, terrain: StringName) -> void:
+	var y := -MapViewMeshBuilderConfig.WATER_RECESS if MapTypes.WATER_TERRAINS.has(terrain) else NEIGHBOR_GROUND_Y
+	var points := [cell, cell + Vector2.RIGHT, cell + Vector2.ONE, cell + Vector2.DOWN]
+	for index in [0, 2, 1, 0, 3, 2]:
+		var point: Vector2 = points[index]
+		surface.set_normal(Vector3.UP)
+		surface.set_uv(point / MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE)
+		surface.add_vertex(Vector3(point.x, y, point.y))
+
+
+static func _transition_side(definition: MapDefinition, transition: Dictionary) -> StringName:
+	var rect: Rect2 = transition["rect"]
+	var world := definition.world_size()
+	var distances := {
+		&"west": rect.position.x,
+		&"east": world.x - rect.end.x,
+		&"north": rect.position.y,
+		&"south": world.y - rect.end.y,
+	}
+	var nearest: StringName = &"west"
+	for side: StringName in distances:
+		if float(distances[side]) < float(distances[nearest]):
+			nearest = side
+	# Authored transitions may sit a short approach inside the terrain edge so the
+	# camera can show road beyond a city gate. They still describe that edge.
+	var max_approach := float(definition.cell_size * 12)
+	return nearest if float(distances[nearest]) <= max_approach else &""
+
+
+static func _reciprocal_transition(neighbor: MapDefinition, spawn_id: StringName) -> Dictionary:
+	for transition in neighbor.transitions:
+		if transition.get("spawn_id", &"") == spawn_id:
+			return transition
+	return {}
+
+
+static func _neighbor_offset(
+	definition: MapDefinition,
+	neighbor: MapDefinition,
+	transition: Dictionary,
+	reciprocal: Dictionary,
+	side: StringName
+) -> Vector2:
+	var scale := 1.0 / float(definition.cell_size)
+	var current_center: Vector2 = transition["rect"].get_center() * scale
+	var neighbor_center: Vector2 = reciprocal["rect"].get_center() * scale
+	match side:
+		&"west":
+			return Vector2(-neighbor.size_cells.x, current_center.y - neighbor_center.y)
+		&"east":
+			return Vector2(definition.size_cells.x, current_center.y - neighbor_center.y)
+		&"north":
+			return Vector2(current_center.x - neighbor_center.x, -neighbor.size_cells.y)
+		_:
+			return Vector2(current_center.x - neighbor_center.x, definition.size_cells.y)
+
+
+static func _neighbor_strip(size: Vector2i, side: StringName) -> Rect2i:
+	var depth := NEIGHBOR_PREVIEW_DEPTH_CELLS
+	match side:
+		&"west":
+			return Rect2i(maxi(0, size.x - depth), 0, mini(depth, size.x), size.y)
+		&"east":
+			return Rect2i(0, 0, mini(depth, size.x), size.y)
+		&"north":
+			return Rect2i(0, maxi(0, size.y - depth), size.x, mini(depth, size.y))
+		_:
+			return Rect2i(0, 0, size.x, mini(depth, size.y))

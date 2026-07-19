@@ -179,10 +179,9 @@ func test_boundary_exits_connect_to_registered_destinations() -> void:
 	]:
 		assert_true(transition_by_id.has(transition_id), "missing boundary transition %s" % transition_id)
 		var transition: Dictionary = transition_by_id[transition_id]
-		assert_false(
-			String(transition.get("view_landmark_id", "")).is_empty(),
-			"%s must keep a visible boundary landmark" % transition_id
-		)
+		assert_eq(transition.get("transition_visual"), MapTypes.TRANSITION_VISUAL_GROUND)
+		assert_true(bool(transition.get("highlight_area", false)), "%s needs a ground cue" % transition_id)
+		assert_true(String(transition.get("view_landmark_id", "")).is_empty(), "%s must not invent masonry" % transition_id)
 		assert_false(
 			String(transition.get("destination_scene_id", "")).is_empty(),
 			"%s must route to a registered destination" % transition_id

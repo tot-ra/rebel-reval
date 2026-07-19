@@ -28,6 +28,17 @@ const WATER_TERRAINS: Array[StringName] = [
 	TERRAIN_SHALLOW_WATER,
 	TERRAIN_DEEP_WATER,
 ]
+
+## District exits are continuous streets, unlike doors into interiors. Marking
+## them explicitly lets the view use a ground cue without inventing a door frame.
+const TRANSITION_VISUAL_DOOR := &"door"
+const TRANSITION_VISUAL_GROUND := &"ground"
+const TRANSITION_VISUAL_NONE := &"none"
+const TRANSITION_VISUALS: Array[StringName] = [
+	TRANSITION_VISUAL_DOOR,
+	TRANSITION_VISUAL_GROUND,
+	TRANSITION_VISUAL_NONE,
+]
 const TERRAIN_ASH := &"ash"
 const TERRAIN_TIMBER_FLOOR := &"timber_floor"
 const TERRAIN_PLASTER := &"plaster"

@@ -733,58 +733,6 @@
       "wall_height": 256.000000000
     },
     {
-      "door_side": "west",
-      "footprint": [
-        2560.000000000,
-        3392.000000000,
-        192.000000000,
-        192.000000000
-      ],
-      "id": "karja_suburb_house_east",
-      "kind": "house",
-      "roof_color": [
-        0.435294122,
-        0.376470596,
-        0.270588249,
-        1.000000000
-      ],
-      "roof_material": "thatch",
-      "wall_color": [
-        0.380392164,
-        0.341176480,
-        0.290196091,
-        1.000000000
-      ],
-      "wall_height": 96.000000000,
-      "wall_material": "log"
-    },
-    {
-      "door_side": "east",
-      "footprint": [
-        2048.000000000,
-        3392.000000000,
-        192.000000000,
-        192.000000000
-      ],
-      "id": "karja_suburb_house_west",
-      "kind": "house",
-      "roof_color": [
-        0.458823532,
-        0.403921574,
-        0.290196091,
-        1.000000000
-      ],
-      "roof_material": "thatch",
-      "wall_color": [
-        0.388235301,
-        0.349019617,
-        0.301960796,
-        1.000000000
-      ],
-      "wall_height": 96.000000000,
-      "wall_material": "log"
-    },
-    {
       "door_side": "north",
       "footprint": [
         1280.000000000,
@@ -1336,110 +1284,6 @@
       ],
       "wall_height": 192.000000000,
       "wall_material": "limestone"
-    },
-    {
-      "door_side": "south",
-      "footprint": [
-        4352.000000000,
-        1024.000000000,
-        256.000000000,
-        192.000000000
-      ],
-      "id": "suburb_house_north_a",
-      "kind": "house",
-      "roof_color": [
-        0.419607848,
-        0.360784322,
-        0.250980407,
-        1.000000000
-      ],
-      "roof_material": "thatch",
-      "wall_color": [
-        0.388235301,
-        0.349019617,
-        0.301960796,
-        1.000000000
-      ],
-      "wall_height": 96.000000000,
-      "wall_material": "log"
-    },
-    {
-      "door_side": "south",
-      "footprint": [
-        4864.000000000,
-        1024.000000000,
-        256.000000000,
-        192.000000000
-      ],
-      "id": "suburb_house_north_b",
-      "kind": "house",
-      "roof_color": [
-        0.454901963,
-        0.396078438,
-        0.290196091,
-        1.000000000
-      ],
-      "roof_material": "thatch",
-      "wall_color": [
-        0.400000006,
-        0.360784322,
-        0.301960796,
-        1.000000000
-      ],
-      "wall_height": 96.000000000,
-      "wall_material": "log"
-    },
-    {
-      "door_side": "north",
-      "footprint": [
-        4352.000000000,
-        1472.000000000,
-        256.000000000,
-        192.000000000
-      ],
-      "id": "suburb_house_south_a",
-      "kind": "house",
-      "roof_color": [
-        0.454901963,
-        0.396078438,
-        0.290196091,
-        1.000000000
-      ],
-      "roof_material": "thatch",
-      "wall_color": [
-        0.380392164,
-        0.341176480,
-        0.290196091,
-        1.000000000
-      ],
-      "wall_height": 96.000000000,
-      "wall_material": "log"
-    },
-    {
-      "door_side": "north",
-      "footprint": [
-        4864.000000000,
-        1472.000000000,
-        256.000000000,
-        192.000000000
-      ],
-      "id": "suburb_house_south_b",
-      "kind": "house",
-      "roof_color": [
-        0.435294122,
-        0.376470596,
-        0.270588249,
-        1.000000000
-      ],
-      "roof_material": "thatch",
-      "wall_color": [
-        0.388235301,
-        0.349019617,
-        0.301960796,
-        1.000000000
-      ],
-      "wall_height": 96.000000000,
-      "wall_material": "log"
     },
     {
       "door_side": "north",
@@ -2138,61 +1982,6 @@
     },
     {
       "door_material": "wood",
-      "id": "karja_suburb_arch",
-      "kind": "gate_arch",
-      "passage_axis": "z",
-      "rect": [
-        2304.000000000,
-        3392.000000000,
-        192.000000000,
-        192.000000000
-      ],
-      "top_px": 140.000000000,
-      "wall_color": [
-        0.521568656,
-        0.501960814,
-        0.458823532,
-        1.000000000
-      ]
-    },
-    {
-      "id": "vanaturu_kael_arch",
-      "kind": "gate_arch",
-      "passage_axis": "x",
-      "rect": [
-        0.000000000,
-        1216.000000000,
-        128.000000000,
-        256.000000000
-      ],
-      "top_px": 160.000000000,
-      "wall_color": [
-        0.521568656,
-        0.501960814,
-        0.458823532,
-        1.000000000
-      ]
-    },
-    {
-      "id": "vene_district_arch",
-      "kind": "gate_arch",
-      "passage_axis": "z",
-      "rect": [
-        896.000000000,
-        0.000000000,
-        192.000000000,
-        128.000000000
-      ],
-      "top_px": 160.000000000,
-      "wall_color": [
-        0.521568656,
-        0.501960814,
-        0.458823532,
-        1.000000000
-      ]
-    },
-    {
-      "door_material": "wood",
       "id": "viru_foregate_arch",
       "kind": "gate_arch",
       "rect": [
@@ -2226,25 +2015,6 @@
         0.501960814,
         1.000000000
       ]
-    },
-    {
-      "door_material": "wood",
-      "id": "viru_suburb_arch",
-      "kind": "gate_arch",
-      "passage_axis": "x",
-      "rect": [
-        5376.000000000,
-        1216.000000000,
-        256.000000000,
-        192.000000000
-      ],
-      "top_px": 140.000000000,
-      "wall_color": [
-        0.521568656,
-        0.501960814,
-        0.458823532,
-        1.000000000
-      ]
     }
   ],
   "metadata": {
@@ -2272,8 +2042,8 @@
     ]
   },
   "navigation": {
-    "walkability_sha256": "d858d6ffbdd15b934c5df0b29af1d9ebdb9c30ca7539d04bcaa08983f9b50142",
-    "walkable_cell_count": 12512
+    "walkability_sha256": "b0c01697b5653e40c9ddc5a5c4cf03490e4308ffc93f502632b02ce0b7a4fa19",
+    "walkable_cell_count": 12728
   },
   "patrols": [
     {
@@ -2533,11 +2303,15 @@
     "scenes/revel-map.jpg"
   ],
   "surroundings_sides": {
+    "east": "town",
     "north": "town",
+    "south": "town",
     "west": "town"
   },
   "surroundings_town_sides": [
+    "east",
     "north",
+    "south",
     "west"
   ],
   "terrain": {
@@ -2556,6 +2330,7 @@
     {
       "destination_scene_id": "reval_center",
       "destination_spawn_id": "from_reval_east_south",
+      "highlight_area": true,
       "id": "karja_road_boundary",
       "rect": [
         2304.000000000,
@@ -2568,7 +2343,7 @@
         0.000000000,
         -48.000000000
       ],
-      "view_landmark_id": "karja_suburb_arch"
+      "transition_visual": "ground"
     },
     {
       "destination_scene_id": "forge",
@@ -2599,6 +2374,7 @@
     {
       "destination_scene_id": "reval_center",
       "destination_spawn_id": "from_reval_east",
+      "highlight_area": true,
       "id": "vana_turg_boundary",
       "rect": [
         0.000000000,
@@ -2611,11 +2387,12 @@
         48.000000000,
         0.000000000
       ],
-      "view_landmark_id": "vanaturu_kael_arch"
+      "transition_visual": "ground"
     },
     {
       "destination_scene_id": "reval_north",
       "destination_spawn_id": "from_reval_east",
+      "highlight_area": true,
       "id": "vene_district_boundary",
       "rect": [
         896.000000000,
@@ -2628,11 +2405,12 @@
         0.000000000,
         48.000000000
       ],
-      "view_landmark_id": "vene_district_arch"
+      "transition_visual": "ground"
     },
     {
       "destination_scene_id": "reval_harbor",
       "destination_spawn_id": "from_reval_east",
+      "highlight_area": true,
       "id": "viru_road_boundary",
       "rect": [
         5376.000000000,
@@ -2645,7 +2423,7 @@
         -48.000000000,
         0.000000000
       ],
-      "view_landmark_id": "viru_suburb_arch"
+      "transition_visual": "ground"
     }
   ]
 }
