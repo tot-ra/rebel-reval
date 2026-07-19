@@ -19,6 +19,8 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 				root.add_child(_water_continuation(definition, map_size, side))
 			&"woodland":
 				root.add_child(_woodland_apron(definition, map_size, side))
+			&"town":
+				root.add_child(_town_apron(definition, map_size, side))
 
 	var trunks: Array[Transform3D] = []
 	var trunk_colors: Array[Color] = []
@@ -104,6 +106,22 @@ static func _woodland_apron(_definition: MapDefinition, map_size: Vector2, side:
 	var depth := MapViewMeshBuilderConfig.SURROUNDINGS_WOODLAND_DEPTH
 	mesh.size = _side_band_size(map_size, side, depth)
 	mesh.material = MapViewMaterials.surroundings_ground()
+	apron.mesh = mesh
+	apron.position = _edge_band_center(map_size, side, depth * 0.5, -MapViewMeshBuilderConfig.WATER_RECESS - 0.04)
+	return apron
+
+
+## Cobble apron for town continuation sides so background silhouettes sit on
+## urban ground instead of the empty void past the authored terrain mesh.
+
+
+static func _town_apron(_definition: MapDefinition, map_size: Vector2, side: StringName) -> MeshInstance3D:
+	var apron := MeshInstance3D.new()
+	apron.name = "TownApron_%s" % side
+	var mesh := PlaneMesh.new()
+	var depth := MapViewMeshBuilderConfig.SURROUNDINGS_TOWN_DEPTH
+	mesh.size = _side_band_size(map_size, side, depth)
+	mesh.material = MapViewMaterials.surroundings_town()
 	apron.mesh = mesh
 	apron.position = _edge_band_center(map_size, side, depth * 0.5, -MapViewMeshBuilderConfig.WATER_RECESS - 0.04)
 	return apron

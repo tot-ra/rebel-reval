@@ -9,7 +9,16 @@ const REQUIRED_FLAG := "--write-lower-town-slice-parity-fixture"
 
 
 func _initialize() -> void:
+	call_deferred("_run")
+
+
+func _run() -> void:
 	var args := OS.get_cmdline_user_args()
+	if REQUIRED_FLAG not in args:
+		for argument in OS.get_cmdline_args():
+			if argument == REQUIRED_FLAG:
+				args.append(argument)
+				break
 	if not REQUIRED_FLAG in args:
 		push_error(
 			"Refusing to regenerate parity fixture without explicit %s flag." % REQUIRED_FLAG

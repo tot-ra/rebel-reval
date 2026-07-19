@@ -2429,7 +2429,7 @@
     "west"
   ],
   "terrain": {
-    "terrain_id_grid_sha256": "d03d106d7500591d3671990ce8750bdd11cc1a96859788cef245717954e7c06a",
+    "terrain_id_grid_sha256": "43996d004dde5b9b2e7636bb00bf7f0f9b5fbd8c9ac653c9327ae40939dfa470",
     "used_terrain_ids": [
       "cobblestone",
       "dirt",

@@ -77,6 +77,8 @@ terrain_rects terrain.08 stone 72,94,6,6 layer=0 order=31
 terrain_rects terrain.09 cobblestone 18,54,34,4|16,64,56,4 layer=0 order=32
 terrain_rects terrain.10 hay 100,56,4,4 layer=0 order=34
 terrain_rects terrain.11 mud 36,92,8,4 layer=0 order=35
+terrain_rects terrain.12 cobblestone 0,8,28,2|0,62,18,2 layer=0 order=27
+terrain_rects terrain.13 grass 8,54,10,10|8,64,10,8 layer=0 order=0
 building city_wall_north wall 128 0 4 30 style=wall.plain.h192.00
 building wall_tower_northeast wall 126 4 8 6 style=wall.plain.h240.01 tower=true
 building wall_tower_north wall 126 18 8 6 style=wall.plain.h240.01 tower=true

@@ -285,6 +285,16 @@ static func surroundings_ground() -> StandardMaterial3D:
 	return material
 
 
+static func surroundings_town() -> StandardMaterial3D:
+	var key := "surroundings_town"
+	if _cache.has(key):
+		return _cache[key]
+	var material := _make_material(Color8(118, 112, 102), PATTERN_COBBLE, 8219)
+	material.uv1_scale = Vector3(48.0, 48.0, 1.0)
+	_cache[key] = material
+	return material
+
+
 ## Untextured, unshaded billboard for chimney smoke. Radial vertex alpha on the
 ## puff mesh and the particle color ramp provide tint and lifetime fade.
 ## Untextured, unshaded billboard for chimney smoke. Tint and lifetime fade come

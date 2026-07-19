@@ -147,6 +147,9 @@ const SURROUNDINGS_COLOR := Color8(74, 88, 60)
 const SURROUNDINGS_WATER_SHALLOW_DEPTH := 10.0
 const SURROUNDINGS_WATER_DEEP_DEPTH := 56.0
 const SURROUNDINGS_WOODLAND_DEPTH := 48.0
+## Urban continuation strip on `surroundings_sides` town entries so silhouettes
+## do not float over the void past the playable terrain edge.
+const SURROUNDINGS_TOWN_DEPTH := 48.0
 const TREE_BAND_INNER := 1.5
 const TREE_BAND_OUTER := 18.0
 const TREE_GRID_SPACING := 3.0

@@ -53,6 +53,15 @@ func test_kalev_smithy_door_sits_on_south_wall_boundary() -> void:
 	door.free()
 
 
+func test_town_surroundings_paint_cobble_apron() -> void:
+	var definition := LowerTownSlice.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition))
+	assert_true(view.has_node("Surroundings/TownApron_west"), "west town continuation needs ground under silhouettes")
+	assert_true(view.has_node("Surroundings/TownApron_north"), "north town continuation needs ground under silhouettes")
+	assert_true(view.has_node("Surroundings/TownSilhouette"), "town silhouette houses still spawn")
+	view.free()
+
+
 func test_grass_and_tree_detail_use_generated_meshes_and_wind_materials() -> void:
 	var definition := SmithyCourtyard.create()
 	definition.surroundings_sides = {&"east": &"woodland"}
