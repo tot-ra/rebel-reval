@@ -7,6 +7,9 @@ extends CanvasLayer
 const STATUS_READY := "Choose an action"
 const STATUS_SAVED := "Game saved"
 const STATUS_SAVE_FAILED := "Save failed"
+const PANEL_MARGIN_RIGHT := 20.0
+const MINIMAP_GAP := 12.0
+const PANEL_HEIGHT := 96.0
 
 var _inventory_controller: InventoryController
 var _journal_controller: JournalController
@@ -41,10 +44,11 @@ func _build_ui() -> void:
 	var panel := PanelContainer.new()
 	panel.name = "QuickAccessPanel"
 	panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	var panel_top := MinimapHud.PANEL_MARGIN + MinimapHud.total_hud_height() + MINIMAP_GAP
 	panel.offset_left = -506.0
-	panel.offset_top = 20.0
-	panel.offset_right = -20.0
-	panel.offset_bottom = 116.0
+	panel.offset_top = panel_top
+	panel.offset_right = -PANEL_MARGIN_RIGHT
+	panel.offset_bottom = panel_top + PANEL_HEIGHT
 	add_child(panel)
 
 	var margin := MarginContainer.new()

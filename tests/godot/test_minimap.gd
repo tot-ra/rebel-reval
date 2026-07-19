@@ -61,14 +61,20 @@ func test_toggle_hides_and_shows_minimap() -> void:
 	hud.free()
 
 
-func test_location_label_sits_below_map_block() -> void:
+func test_location_label_sits_above_map_block() -> void:
 	var root := _make_root()
 	var hud := MinimapHud.new()
 	root.add_child(hud)
 	var stack := hud.get_node("MinimapRoot/MinimapStack") as VBoxContainer
 	assert_eq(stack.get_child_count(), 2)
-	assert_eq(stack.get_child(0).name, "MinimapPanel")
-	assert_eq(stack.get_child(1).name, "LocationLabel")
+	assert_eq(stack.get_child(0).name, "LocationLabel")
+	assert_eq(stack.get_child(1).name, "MinimapPanel")
+	var location_label := hud.get_location_label()
+	assert_eq(
+		location_label.horizontal_alignment,
+		HORIZONTAL_ALIGNMENT_CENTER,
+		"location label should align with minimap center"
+	)
 	_cleanup_root(root)
 
 

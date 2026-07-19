@@ -79,6 +79,10 @@ static func map_block_height() -> float:
 	return MAX_DISPLAY_SIZE + (INNER_PADDING * 2.0) + PANEL_MARGIN
 
 
+static func total_hud_height() -> float:
+	return LOCATION_LABEL_HEIGHT + LOCATION_GAP + map_block_height()
+
+
 func is_enabled() -> bool:
 	return visible
 
@@ -114,9 +118,7 @@ func _build_ui() -> void:
 	_root.offset_left = -MAX_DISPLAY_SIZE - (INNER_PADDING * 2.0) - PANEL_MARGIN
 	_root.offset_top = PANEL_MARGIN
 	_root.offset_right = -PANEL_MARGIN
-	_root.offset_bottom = (
-		map_block_height() + LOCATION_GAP + LOCATION_LABEL_HEIGHT
-	)
+	_root.offset_bottom = total_hud_height()
 	add_child(_root)
 
 	var stack := VBoxContainer.new()
@@ -125,6 +127,19 @@ func _build_ui() -> void:
 	stack.add_theme_constant_override("separation", LOCATION_GAP)
 	stack.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_root.add_child(stack)
+
+	_location_label = Label.new()
+	_location_label.name = "LocationLabel"
+	_location_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_location_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_location_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_location_label.custom_minimum_size.y = LOCATION_LABEL_HEIGHT
+	_location_label.add_theme_color_override("font_color", Color(0.96, 0.91, 0.81, 1.0))
+	_location_label.add_theme_color_override("font_shadow_color", Color(0.08, 0.06, 0.05, 0.9))
+	_location_label.add_theme_constant_override("shadow_offset_x", 2)
+	_location_label.add_theme_constant_override("shadow_offset_y", 2)
+	_location_label.add_theme_font_size_override("font_size", 24)
+	stack.add_child(_location_label)
 
 	_panel = PanelContainer.new()
 	_panel.name = "MinimapPanel"
@@ -138,17 +153,6 @@ func _build_ui() -> void:
 	margin.add_theme_constant_override("margin_top", INNER_PADDING)
 	margin.add_theme_constant_override("margin_bottom", INNER_PADDING)
 	_panel.add_child(margin)
-
-	_location_label = Label.new()
-	_location_label.name = "LocationLabel"
-	_location_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_location_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_location_label.add_theme_color_override("font_color", Color(0.96, 0.91, 0.81, 1.0))
-	_location_label.add_theme_color_override("font_shadow_color", Color(0.08, 0.06, 0.05, 0.9))
-	_location_label.add_theme_constant_override("shadow_offset_x", 2)
-	_location_label.add_theme_constant_override("shadow_offset_y", 2)
-	_location_label.add_theme_font_size_override("font_size", 24)
-	stack.add_child(_location_label)
 
 	_map_host = Control.new()
 	_map_host.name = "MapHost"
