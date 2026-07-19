@@ -48,12 +48,21 @@ func test_view_renders_definitions_without_touching_logic_results() -> void:
 		var blocked_before := MapVerification.blocked_cells(definition).hash()
 
 		var view := MapView3D.create(definition, grid)
+		view.activate_all_chunks()
 
 		var terrain := view.get_node("Terrain")
+		var water_layers := 0
+		var dry_used := false
+		for terrain_id in grid.used_terrain_ids():
+			if MapViewMaterials.WATER_TERRAINS.has(terrain_id):
+				water_layers += 1
+			else:
+				dry_used = true
+		var expected_terrain_children := water_layers + (1 if dry_used else 0)
 		assert_eq(
 			terrain.get_child_count(),
-			grid.used_terrain_ids().size(),
-			"%s: one terrain region mesh per used terrain" % definition.map_id
+			expected_terrain_children,
+			"%s: dry terrain uses one blended ground mesh plus one mesh per water family" % definition.map_id
 		)
 		assert_eq(
 			view.get_node("Buildings").get_child_count(),
@@ -119,6 +128,15 @@ func test_view_renders_definitions_without_touching_logic_results() -> void:
 		assert_true(MapVerification.collision_parity(definition), "%s: 2D collision parity must still hold" % definition.map_id)
 		assert_true(definition.validate().is_empty(), "%s: definition must still validate" % definition.map_id)
 		view.free()
+
+
+func test_terrain_uses_blended_ground_mesh() -> void:
+	var definition := LowerTownSlice.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition))
+	var ground := view.get_node("Terrain/Terrain_Ground") as MeshInstance3D
+	assert_true(ground != null, "outdoor maps need a unified blended ground mesh")
+	assert_true(ground.material_override is ShaderMaterial, "ground must use the terrain splat shader")
+	view.free()
 
 
 func test_terrain_uses_dense_subcell_geometry() -> void:

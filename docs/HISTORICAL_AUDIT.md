@@ -51,6 +51,12 @@ This document audits the characters, buildings, weapons, religions, institutions
 * **Watch Checkpoint / Detention Yard**
   * Label: **`plausible composite`**
   * Source Note: The Viru Gate (built in the 14th century) and other city defenses had guard posts, holding areas, and watchmen.
+* **Building Materials Mix (limestone, log, plank, plaster, rare brick)**
+  * Label: **`attested`**
+  * Source Note: Reval was built from local Ordovician limestone (paekivi): the town wall, towers, churches, and the emerging stone houses of wealthy merchants. In 1343 the transition of dwellings to stone was only beginning; most lower-town houses were still wooden, dominated by horizontal log construction (the Estonian and Nordic vernacular; timber framing/Fachwerk was never characteristic of Tallinn), alongside plank-clad and plastered structures. Brick was scarce and reserved for details - unlike the brick-Gothic cities of the southern Baltic. The suburbs outside the wall stayed entirely wooden.
+* **Roof Covers (wooden shingle, reed/straw thatch, ceramic tile)**
+  * Label: **`attested`**
+  * Source Note: Wooden shingle and thatch (straw and coastal reed) were the ordinary roof covers of the 14th-century wooden town; ceramic tile marked churches, monasteries, and rich stone houses. Town councils of Hanseatic cities pushed tile over flammable covers only in later fire ordinances, so in 1343 tile roofs were still the exception. The in-game distribution (thatch/shingle on log and timber houses, tile on limestone buildings) follows this pattern.
 
 ## 3. Weapons
 

@@ -29,8 +29,14 @@ static func pattern_texture(pattern: StringName, noise_seed: int) -> ImageTextur
 			_paint_roof_tile(image, noise_seed)
 		MapViewMaterials.PATTERN_STRAW:
 			_paint_straw(image, noise_seed)
+		MapViewMaterials.PATTERN_SHINGLE:
+			_paint_shingle(image, noise_seed)
+		MapViewMaterials.PATTERN_LOG:
+			_paint_log(image, noise_seed)
 		MapViewMaterials.PATTERN_SPECKLE:
 			_paint_speckle(image, noise_seed)
+		MapViewMaterials.PATTERN_MUD:
+			_paint_mud(image, noise_seed)
 		MapViewMaterials.PATTERN_PLASTER:
 			_paint_plaster(image, noise_seed)
 		_:
@@ -83,6 +89,22 @@ static func _paint_grass(image: Image, noise_seed: int) -> void:
 				value += 0.07
 			elif streak < 0.2:
 				value -= 0.06
+			_fill_value(image, x, y, value)
+
+
+## Darker, clumpy wet soil with shallow ripple troughs for mud and puddle rims.
+static func _paint_mud(image: Image, noise_seed: int) -> void:
+	var size := image.get_width()
+	for y in size:
+		for x in size:
+			var broad := _lattice(float(x) / 14.0, float(y) / 14.0, size / 14, noise_seed)
+			var clump := _lattice(float(x) / 5.0, float(y) / 5.0, size / 5, noise_seed + 61)
+			var trough := _lattice(float(x) / 9.0, float(y) / 11.0, size / 9, noise_seed + 907)
+			var value := 0.68 + broad * 0.12 + clump * 0.10
+			if trough > 0.72:
+				value -= 0.14
+			elif trough < 0.22:
+				value += 0.08
 			_fill_value(image, x, y, value)
 
 
@@ -230,3 +252,50 @@ static func _paint_straw(image: Image, noise_seed: int) -> void:
 			var strand := _lattice(float(x) / 2.0, float(y) / 14.0, size / 2, noise_seed)
 			var broad := _lattice(float(x) / 20.0, float(y) / 20.0, size / 20, noise_seed + 41)
 			_fill_value(image, x, y, 0.74 + strand * 0.20 + broad * 0.08)
+
+
+## Wooden shingle courses: staggered small rectangles with dark drip seams.
+## The dominant historic roof cover of 1343 Reval's timber town.
+static func _paint_shingle(image: Image, noise_seed: int) -> void:
+	var size := image.get_width()
+	var course := 8
+	var shingle_w := 7
+	for y in size:
+		var row := y / course
+		var in_course := y % course
+		for x in size:
+			var offset := (row % 2) * shingle_w / 2
+			var column := (x + offset) / shingle_w
+			var in_shingle := (x + offset) % shingle_w
+			var tone := _hash01(column, row, noise_seed)
+			# Weathered wood: gentle vertical grain per shingle.
+			var value := 0.78 + (tone - 0.5) * 0.22
+			value += _lattice(float(x) / 3.0, float(y) / 9.0, size / 3, noise_seed + 19) * 0.06
+			# Overlap shadow at the bottom edge of each course.
+			value -= clampf(1.0 - float(in_course) / 3.0, 0.0, 1.0) * 0.18
+			if in_shingle < 1:
+				value -= 0.10
+			_fill_value(image, x, y, value)
+
+
+## Horizontal log courses (rõhtpalk): domed log profile with staggered butt
+## joints - the vernacular wall of Estonian and poorer burgher houses.
+static func _paint_log(image: Image, noise_seed: int) -> void:
+	var size := image.get_width()
+	var course := 12
+	for y in size:
+		var row := y / course
+		var in_course := y % course
+		for x in size:
+			# Rounded log profile: brightest at the course center.
+			var profile := sin(float(in_course) / float(course) * PI)
+			var value := 0.62 + profile * 0.30
+			value += _lattice(float(x) / 5.0, float(y) / 16.0, size / 5, noise_seed + row * 57) * 0.10
+			# Dark seam between logs.
+			if in_course < 1:
+				value = 0.38 + _hash01(x, row, noise_seed + 7) * 0.06
+			# Occasional butt joint where two log ends meet inside a course.
+			var joint_x := int(_hash01(row, 0, noise_seed + 13) * float(size))
+			if abs(x - joint_x) < 1:
+				value -= 0.16
+			_fill_value(image, x, y, value)

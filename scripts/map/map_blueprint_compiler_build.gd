@@ -98,7 +98,7 @@ static func build_definition(blueprint: MapBlueprint, expanded: Dictionary) -> M
 
 static func _compile_building(values: Dictionary, definition: MapDefinition) -> Dictionary:
 	var output := {"id": values["id"], "kind": values["kind"], "footprint": definition.cell_rect_to_world_rect(values["rect"])}
-	_copy_fields(values, output, [&"wall_height", &"wall_height_scale", &"wall_color", &"roof_color", &"door_side", &"ridge_axis", &"primitive", &"tower"])
+	_copy_fields(values, output, [&"wall_height", &"wall_height_scale", &"wall_color", &"roof_color", &"door_side", &"ridge_axis", &"primitive", &"tower", &"wall_material", &"roof_material"])
 	return output
 
 

@@ -7,18 +7,21 @@ source "scenes/revel-map.jpg"
 source "scenes/reval_north/pikk_street.md"
 source "scenes/reval_north/st_olafs_church.md"
 source "scenes/reval_north/great_guild_hall.md"
-style house.south.h112.16 door_side=south roof_color=3d3329ff wall_color=6b5e4fff wall_height=112
-style house.south.h120.18 door_side=south roof_color=3d3329ff wall_color=706352ff wall_height=120
-style house.north.h112.19 door_side=north roof_color=3d3329ff wall_color=6b5e4fff wall_height=112
-style house.north.h112.21 door_side=north roof_color=3b332bff wall_color=695e4fff wall_height=112
-style house.north.h120.20 door_side=north roof_color=423629ff wall_color=756654ff wall_height=120
-style house.north.h136.22 door_side=north ridge_axis=z roof_color=42241cff wall_color=857a6bff wall_height=136
-style house.east.h112.14 door_side=east roof_color=383029ff wall_color=665c4dff wall_height=112
-style house.west.h120.13 door_side=west roof_color=423629ff wall_color=756654ff wall_height=120
-style house.guild.hall door_side=south roof_color=3d3329ff wall_color=6b5e4fff wall_height=136
-style house.church.silhouette door_side=none roof_color=2e241cff wall_color=807a70ff wall_height=192
-style house.workshop.low door_side=north roof_color=352820ff wall_color=5a4f45ff wall_height=72
-style house.workshop.mid door_side=north roof_color=383029ff wall_color=63594aff wall_height=88
+# 1343 materials: guild hall and St. Olaf's in limestone with tile; merchant
+# rows plastered or plank under shingle; workshop rows and sheds log-built
+# under thatch and shingle (see docs/HISTORICAL_AUDIT.md).
+style house.south.h112.16 door_side=south roof_color=3d3329ff roof_material=shingle wall_color=6b5e4fff wall_material=log wall_height=112
+style house.south.h120.18 door_side=south roof_color=3d3329ff roof_material=shingle wall_color=706352ff wall_material=plank wall_height=120
+style house.north.h112.19 door_side=north roof_color=3d3329ff roof_material=shingle wall_color=6b5e4fff wall_material=plaster wall_height=112
+style house.north.h112.21 door_side=north roof_color=3b332bff roof_material=shingle wall_color=695e4fff wall_material=plank wall_height=112
+style house.north.h120.20 door_side=north roof_color=423629ff roof_material=shingle wall_color=756654ff wall_material=plank wall_height=120
+style house.north.h136.22 door_side=north ridge_axis=z roof_color=42241cff roof_material=shingle wall_color=857a6bff wall_material=plank wall_height=136
+style house.east.h112.14 door_side=east roof_color=383029ff roof_material=shingle wall_color=665c4dff wall_material=log wall_height=112
+style house.west.h120.13 door_side=west roof_color=423629ff roof_material=shingle wall_color=756654ff wall_material=plaster wall_height=120
+style house.guild.hall door_side=south roof_color=4a2a20ff roof_material=tile wall_color=6b5e4fff wall_material=limestone wall_height=136
+style house.church.silhouette door_side=none roof_color=2e241cff roof_material=tile wall_color=807a70ff wall_material=limestone wall_height=192
+style house.workshop.low door_side=north roof_color=6b5c40ff roof_material=thatch wall_color=5a4f45ff wall_material=log wall_height=72
+style house.workshop.mid door_side=north roof_color=383029ff roof_material=shingle wall_color=63594aff wall_material=log wall_height=88
 terrain quarter.base cobblestone 0 0 64 36 order=1
 terrain guild.plaza stone 4 8 18 10 order=2
 terrain lane.dirt dirt 34 18 22 16 order=3

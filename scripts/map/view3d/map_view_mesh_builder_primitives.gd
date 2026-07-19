@@ -344,6 +344,46 @@ static func grass_tuft_mesh() -> ArrayMesh:
 	return surface.commit()
 
 
+static func reed_stem_mesh() -> ArrayMesh:
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for side in [-1.0, 1.0]:
+		var half_width := 0.018
+		var quad := [
+			[Vector3(-half_width * side, 0.0, 0.0), Vector2(0.0, 0.0)],
+			[Vector3(half_width * side, 0.0, 0.0), Vector2(1.0, 0.0)],
+			[Vector3(half_width * side * 0.6, 0.95, 0.0), Vector2(1.0, 1.0)],
+			[Vector3(-half_width * side * 0.6, 0.95, 0.0), Vector2(0.0, 1.0)],
+		]
+		for index in [0, 1, 2, 0, 2, 3]:
+			surface.set_normal(Vector3(0.0, 0.0, 1.0))
+			surface.set_uv(quad[index][1])
+			surface.add_vertex(quad[index][0])
+	return surface.commit()
+
+
+static func clover_patch_mesh() -> ArrayMesh:
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for leaf in 3:
+		var yaw := TAU * float(leaf) / 3.0
+		var direction := Vector3(cos(yaw), 0.0, sin(yaw))
+		var side := Vector3(-sin(yaw), 0.0, cos(yaw))
+		var center := direction * 0.08
+		var tip := center + direction * 0.16 + Vector3(0.0, 0.02, 0.0)
+		var quad := [
+			[center - side * 0.05, Vector2(0.0, 0.0)],
+			[center + side * 0.05, Vector2(1.0, 0.0)],
+			[tip + side * 0.03, Vector2(1.0, 1.0)],
+			[tip - side * 0.03, Vector2(0.0, 1.0)],
+		]
+		for index in [0, 1, 2, 0, 2, 3]:
+			surface.set_normal(Vector3.UP)
+			surface.set_uv(quad[index][1])
+			surface.add_vertex(quad[index][0])
+	return surface.commit()
+
+
 ## Landscape ring outside the playable rectangle. Each authored side may
 ## continue town silhouettes, open water, or an explicit woodland apron with a
 ## treeline. Unlisted sides render nothing so maps define their own horizon.

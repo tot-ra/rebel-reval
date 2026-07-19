@@ -249,7 +249,6 @@ static func build_scatter(
 			Vector3(0.0, 0.012, 0.0)
 		)
 		puddle_instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		puddle_instances.transparency = GeometryInstance3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
 		puddle_instances.sorting_offset = 0.5
 		root.add_child(puddle_instances)
 

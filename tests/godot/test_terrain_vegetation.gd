@@ -10,6 +10,13 @@ func test_grass_and_bush_variants_resolve_from_style_id() -> void:
 		TerrainVegetation.resolved_variant(&"grass.tall", {"style_variant": &"grass.short"}),
 		&"grass.short"
 	)
+	for variant in [
+		TerrainVegetation.VARIANT_GRASS_CLOVER,
+		TerrainVegetation.VARIANT_GRASS_FERN,
+		TerrainVegetation.VARIANT_REED_SHORE,
+	]:
+		assert_true(TerrainVegetation.is_known_variant(variant))
+		assert_true(TerrainVegetation.scatter_profile(variant).size() > 0)
 
 
 func test_bush_dense_slows_more_than_tall_grass() -> void:

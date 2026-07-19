@@ -7,9 +7,11 @@ source "scenes/harbor/harbor.tscn"
 source "scenes/harbor/harbor.md"
 source "scenes/harbor/great_coast_gate.md"
 source "scenes/harbor/warehouses.md"
-style house.warehouse wall_height=64 wall_color=5a4f45ff roof_color=352820ff door_side=south
-style house.inn wall_height=72 wall_color=6a5f52ff roof_color=3a2f24ff door_side=south
-style house.gatehouse wall_height=88 wall_color=6e6a62ff roof_color=2a241cff door_side=south
+# 1343 harbor suburb: plank warehouses and a log inn under shingle and thatch;
+# only the Great Coast Gate is limestone with a tile cap.
+style house.warehouse wall_height=64 wall_color=5a4f45ff wall_material=plank roof_color=352820ff roof_material=shingle door_side=south
+style house.inn wall_height=72 wall_color=6a5f52ff wall_material=log roof_color=6f6045ff roof_material=thatch door_side=south
+style house.gatehouse wall_height=88 wall_color=6e6a62ff wall_material=limestone roof_color=2a241cff roof_material=tile door_side=south
 style wall.quay wall_height=24 wall_color=7a7870ff
 style wall.pier wall_height=18 wall_color=6a665eff
 style grass.short

@@ -1,55 +1,60 @@
 # Expanded Eastern Quarters around Kalev's smithy. Building footprints and
 # street spacing are doubled while doors, props, and character-scale details stay readable.
 rrmap 1
-map lower_town_slice loc.lower_town_slice 176 112 dirt scope=production active=true palette=clean_painted seed=42042 cell_size=32
-style house.east.h104.40 door_side=east roof_color=383029ff wall_color=63594aff wall_height=104
-style house.east.h104.41 door_side=east roof_color=38332bff wall_color=63594dff wall_height=104
-style house.east.h104.42 door_side=east roof_color=383029ff wall_color=61574aff wall_height=104
-style house.east.h112.11 door_side=east roof_color=38332eff wall_color=665c4dff wall_height=112
-style house.east.h112.12 door_side=east roof_color=3b332bff wall_color=695e4fff wall_height=112
-style house.east.h112.14 door_side=east roof_color=383029ff wall_color=665c4dff wall_height=112
-style house.east.h120.17 door_side=east roof_color=403629ff wall_color=756b5cff wall_height=120
-style house.east.h128.24 door_side=east roof_color=42261fff wall_color=807566ff wall_height=128
-style house.east.h96.43 door_side=east roof_color=363029ff wall_color=5e5447ff wall_height=96
-style house.east.h96.52 door_side=east roof_color=38332bff wall_color=63594dff wall_height=96
-style house.none.h128.46 door_side=none roof_color=38332eff wall_color=574d42ff wall_height=128
-style house.north.h104.32 door_side=north roof_color=383029ff wall_color=63594aff wall_height=104
-style house.north.h104.34 door_side=north roof_color=38332bff wall_color=63594dff wall_height=104
-style house.north.h104.35 door_side=north roof_color=383029ff wall_color=61574aff wall_height=104
-style house.north.h104.36 door_side=north roof_color=38332eff wall_color=665c4dff wall_height=104
-style house.north.h104.39 door_side=north roof_color=3b332bff wall_color=665c4dff wall_height=104
-style house.north.h112.19 door_side=north roof_color=3d3329ff wall_color=6b5e4fff wall_height=112
-style house.north.h112.21 door_side=north roof_color=3b332bff wall_color=695e4fff wall_height=112
-style house.north.h112.23 door_side=north roof_color=38332eff wall_color=665c4dff wall_height=112
-style house.north.h112.31 door_side=north roof_color=3b332bff wall_color=6b614fff wall_height=112
-style house.north.h120.20 door_side=north roof_color=423629ff wall_color=756654ff wall_height=120
-style house.north.h120.33 door_side=north roof_color=403629ff wall_color=756b5cff wall_height=120
-style house.north.h120.45 door_side=north roof_color=3d3329ff wall_color=615242ff wall_height=120
-style house.north.h136.22 door_side=north ridge_axis=z roof_color=42241cff wall_color=857a6bff wall_height=136
-style house.north.h96.44 door_side=north roof_color=363029ff wall_color=5e5447ff wall_height=96
-style house.north.h96.49 door_side=north roof_color=383029ff wall_color=61574aff wall_height=96
-style house.north.h96.51 door_side=north roof_color=38332bff wall_color=63594dff wall_height=96
-style house.south.h104.54 door_side=south roof_color=38332eff wall_color=665c4dff wall_height=104
-style house.south.h112.16 door_side=south roof_color=3d3329ff wall_color=6b5e4fff wall_height=112
-style house.south.h112.29 door_side=south roof_color=3b332bff wall_color=695e4fff wall_height=112
-style house.south.h112.38 door_side=south roof_color=3b332bff wall_color=6b614fff wall_height=112
-style house.south.h120.09 door_side=south roof_color=3d3329ff wall_color=706657ff wall_height=120
-style house.south.h120.10 door_side=south roof_color=3b332bff wall_color=6b614fff wall_height=120
-style house.south.h120.18 door_side=south roof_color=3d3329ff wall_color=706352ff wall_height=120
-style house.south.h120.25 door_side=south ridge_axis=z roof_color=3d3329ff wall_color=706657ff wall_height=120
-style house.south.h120.30 door_side=south roof_color=403629ff wall_color=6e614fff wall_height=120
-style house.south.h128.06 door_side=south roof_color=47291fff wall_color=9e998cff wall_height=128
-style house.south.h128.15 door_side=south roof_color=42261fff wall_color=807361ff wall_height=128
-style house.south.h128.26 door_side=south roof_color=42261fff wall_color=7a6e5cff wall_height=128
-style house.south.h128.27 door_side=south ridge_axis=z roof_color=42241cff wall_color=858075ff wall_height=128
-style house.south.h136.28 door_side=south roof_color=42261fff wall_color=807566ff wall_height=136
-style house.south.h192.05 door_side=south roof_color=4d291fff wall_color=a8a394ff wall_height=192
-style house.south.h96.08 door_side=south roof_color=3d3329ff wall_color=706657ff wall_height=96
-style house.south.h96.48 door_side=south roof_color=38332bff wall_color=63594dff wall_height=96
-style house.south.h96.50 door_side=south roof_color=3b332bff wall_color=665c4dff wall_height=96
-style house.west.h120.13 door_side=west roof_color=423629ff wall_color=756654ff wall_height=120
-style house.west.h120.37 door_side=west roof_color=403629ff wall_color=756b5cff wall_height=120
-style house.west.h96.53 door_side=west roof_color=383029ff wall_color=61574aff wall_height=96
+map lower_town_slice loc.lower_town_slice 176 112 grass scope=production active=true palette=clean_painted seed=42042 cell_size=32
+# 1343 material mix (docs/HISTORICAL_AUDIT.md): church, monastery, and rich
+# merchant houses in local limestone under ceramic tile; middle burgher houses
+# plastered or plank-clad under wooden shingle; poorer lanes and the suburbs
+# outside the wall in horizontal log under reed/straw thatch; brick stays a
+# single rare accent (Reval built limestone, not brick Gothic).
+style house.east.h104.40 door_side=east roof_color=6f6045ff roof_material=thatch wall_color=63594aff wall_material=log wall_height=104
+style house.east.h104.41 door_side=east roof_color=38332bff roof_material=shingle wall_color=63594dff wall_material=log wall_height=104
+style house.east.h104.42 door_side=east roof_color=74654aff roof_material=thatch wall_color=61574aff wall_material=log wall_height=104
+style house.east.h112.11 door_side=east roof_color=38332eff roof_material=shingle wall_color=665c4dff wall_material=plank wall_height=112
+style house.east.h112.12 door_side=east roof_color=3b332bff roof_material=shingle wall_color=695e4fff wall_material=plaster wall_height=112
+style house.east.h112.14 door_side=east roof_color=383029ff roof_material=shingle wall_color=665c4dff wall_material=plank wall_height=112
+style house.east.h120.17 door_side=east roof_color=4a2a20ff roof_material=tile wall_color=756b5cff wall_material=limestone wall_height=120
+style house.east.h128.24 door_side=east roof_color=42261fff roof_material=tile wall_color=807566ff wall_material=brick wall_height=128
+style house.east.h96.43 door_side=east roof_color=6b5c40ff roof_material=thatch wall_color=5e5447ff wall_material=log wall_height=96
+style house.east.h96.52 door_side=east roof_color=75674aff roof_material=thatch wall_color=63594dff wall_material=log wall_height=96
+style house.none.h128.46 door_side=none roof_color=38332eff roof_material=shingle wall_color=574d42ff wall_material=limestone wall_height=128
+style house.north.h104.32 door_side=north roof_color=383029ff roof_material=shingle wall_color=63594aff wall_material=log wall_height=104
+style house.north.h104.34 door_side=north roof_color=6f6045ff roof_material=thatch wall_color=63594dff wall_material=log wall_height=104
+style house.north.h104.35 door_side=north roof_color=383029ff roof_material=shingle wall_color=61574aff wall_material=log wall_height=104
+style house.north.h104.36 door_side=north roof_color=6b5c40ff roof_material=thatch wall_color=665c4dff wall_material=log wall_height=104
+style house.north.h104.39 door_side=north roof_color=3b332bff roof_material=shingle wall_color=665c4dff wall_material=log wall_height=104
+style house.north.h112.19 door_side=north roof_color=3d3329ff roof_material=shingle wall_color=6b5e4fff wall_material=plaster wall_height=112
+style house.north.h112.21 door_side=north roof_color=3b332bff roof_material=shingle wall_color=695e4fff wall_material=plank wall_height=112
+style house.north.h112.23 door_side=north roof_color=38332eff roof_material=shingle wall_color=665c4dff wall_material=plaster wall_height=112
+style house.north.h112.31 door_side=north roof_color=3b332bff roof_material=shingle wall_color=6b614fff wall_material=log wall_height=112
+style house.north.h120.20 door_side=north roof_color=423629ff roof_material=shingle wall_color=756654ff wall_material=plank wall_height=120
+style house.north.h120.33 door_side=north roof_color=403629ff roof_material=shingle wall_color=756b5cff wall_material=plaster wall_height=120
+style house.north.h120.45 door_side=north roof_color=3d3329ff roof_material=shingle wall_color=615242ff wall_material=plank wall_height=120
+style house.north.h136.22 door_side=north ridge_axis=z roof_color=42241cff roof_material=tile wall_color=857a6bff wall_material=limestone wall_height=136
+style house.north.h96.44 door_side=north roof_color=363029ff roof_material=shingle wall_color=5e5447ff wall_material=log wall_height=96
+style house.north.h96.49 door_side=north roof_color=74654aff roof_material=thatch wall_color=61574aff wall_material=log wall_height=96
+style house.north.h96.51 door_side=north roof_color=6f6045ff roof_material=thatch wall_color=63594dff wall_material=log wall_height=96
+style house.south.h104.54 door_side=south roof_color=38332eff roof_material=shingle wall_color=665c4dff wall_material=log wall_height=104
+style house.south.h112.16 door_side=south roof_color=3d3329ff roof_material=shingle wall_color=6b5e4fff wall_material=log wall_height=112
+style house.south.h112.29 door_side=south roof_color=6b5c40ff roof_material=thatch wall_color=695e4fff wall_material=log wall_height=112
+style house.south.h112.38 door_side=south roof_color=3b332bff roof_material=shingle wall_color=6b614fff wall_material=plaster wall_height=112
+style house.south.h120.09 door_side=south roof_color=3d3329ff roof_material=shingle wall_color=706657ff wall_material=plaster wall_height=120
+style house.south.h120.10 door_side=south roof_color=3b332bff roof_material=shingle wall_color=6b614fff wall_material=plank wall_height=120
+style house.south.h120.18 door_side=south roof_color=3d3329ff roof_material=shingle wall_color=706352ff wall_material=plank wall_height=120
+style house.south.h120.25 door_side=south ridge_axis=z roof_color=3d3329ff roof_material=shingle wall_color=706657ff wall_material=plaster wall_height=120
+style house.south.h120.30 door_side=south roof_color=403629ff roof_material=shingle wall_color=6e614fff wall_material=plaster wall_height=120
+style house.south.h128.06 door_side=south roof_color=47291fff roof_material=tile wall_color=9e998cff wall_material=limestone wall_height=128
+style house.south.h128.15 door_side=south roof_color=42261fff roof_material=tile wall_color=807361ff wall_material=limestone wall_height=128
+style house.south.h128.26 door_side=south roof_color=42261fff roof_material=tile wall_color=7a6e5cff wall_material=limestone wall_height=128
+style house.south.h128.27 door_side=south ridge_axis=z roof_color=42241cff roof_material=tile wall_color=858075ff wall_material=limestone wall_height=128
+style house.south.h136.28 door_side=south roof_color=42261fff roof_material=tile wall_color=807566ff wall_material=limestone wall_height=136
+style house.south.h192.05 door_side=south roof_color=4d291fff roof_material=tile wall_color=a8a394ff wall_material=limestone wall_height=192
+style house.south.h96.08 door_side=south roof_color=75674aff roof_material=thatch wall_color=706657ff wall_material=log wall_height=96
+style house.south.h96.48 door_side=south roof_color=6b5c40ff roof_material=thatch wall_color=63594dff wall_material=log wall_height=96
+style house.south.h96.50 door_side=south roof_color=74654aff roof_material=thatch wall_color=665c4dff wall_material=log wall_height=96
+style house.west.h120.13 door_side=west roof_color=423629ff roof_material=shingle wall_color=756654ff wall_material=plaster wall_height=120
+style house.west.h120.37 door_side=west roof_color=403629ff roof_material=shingle wall_color=756b5cff wall_material=plank wall_height=120
+style house.west.h96.53 door_side=west roof_color=6f6045ff roof_material=thatch wall_color=61574aff wall_material=log wall_height=96
 style wall.plain.h128.03 wall_color=918f82ff wall_height=128
 style wall.plain.h176.04 wall_color=8f8c80ff wall_height=176
 style wall.plain.h192.00 wall_color=949185ff wall_height=192
@@ -67,7 +72,8 @@ source "content/locations/loc.lower_town_slice.json"
 surroundings north town west town
 terrain_rects terrain.00 grass 132,0,44,100|0,100,176,12|36,0,52,14|88,0,32,16|18,76,52,16|8,72,10,20|88,56,12,20|108,64,24,16|88,80,44,20 layer=0 order=0
 terrain_rects terrain.01 water 140,0,6,32|140,28,10,4|146,32,6,20|140,50,10,4|140,54,6,14|128,64,14,6|116,70,14,6|112,76,10,6|104,82,12,6|96,88,10,6|92,94,8,6|88,100,8,6|0,104,176,4 layer=0 order=9
-terrain_rects terrain.02 dirt 132,38,44,6|72,100,6,12 layer=0 order=22
+terrain_rects terrain.02 dirt 132,38,44,6 layer=0 order=22
+terrain_rects terrain.02b cobblestone 72,100,6,12 layer=0 order=23
 terrain_rects terrain.03 cobblestone 0,38,116,8 layer=0 order=24
 terrain_rects terrain.04 stone 116,38,18,6 layer=0 order=25
 terrain_rects terrain.05 cobblestone 0,28,18,26|28,0,6,38 layer=0 order=26

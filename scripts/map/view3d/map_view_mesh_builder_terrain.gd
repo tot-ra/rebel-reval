@@ -181,36 +181,47 @@ static func subvertex_touches_water(field: Dictionary, vx: int, vy: int) -> bool
 	return false
 
 
-## One MeshInstance3D per used terrain: every cell of that terrain becomes a
-## textured ground quad over the shared jittered height vertices. Water-family
-## cells sit slightly recessed under an animated surface so shorelines read in
-## the dimetric view without touching walkability.
+## One unified dry-ground mesh with per-vertex terrain splatting plus separate
+## water-family meshes recessed under animated surfaces.
 
 
 static func build_terrain(definition: MapDefinition, grid: MapTerrainGrid) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Terrain"
 	var field := ensure_height_field(definition, grid)
+	var dry_surface := SurfaceTool.new()
+	dry_surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	# Splats indices, blend weight, and tone into CUSTOM0 for the terrain_blend shader.
+	dry_surface.set_custom_format(0, SurfaceTool.CUSTOM_RGBA_FLOAT)
+	var has_dry := false
+	for y in grid.size_cells.y:
+		for x in grid.size_cells.x:
+			var terrain_id := grid.get_terrain(Vector2i(x, y))
+			if MapViewMaterials.WATER_TERRAINS.has(terrain_id):
+				continue
+			has_dry = true
+			add_blended_cell_quad(dry_surface, field, grid, x, y, definition.seed)
+	if has_dry:
+		var ground := MeshInstance3D.new()
+		ground.name = "Terrain_Ground"
+		ground.mesh = dry_surface.commit()
+		ground.material_override = MapViewMaterials.blended_ground(definition.seed)
+		root.add_child(ground)
 	for terrain_id in grid.used_terrain_ids():
+		if not MapViewMaterials.WATER_TERRAINS.has(terrain_id):
+			continue
 		var surface := SurfaceTool.new()
 		surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-		var water := MapViewMaterials.WATER_TERRAINS.has(terrain_id)
 		for y in grid.size_cells.y:
 			for x in grid.size_cells.x:
 				if grid.get_terrain(Vector2i(x, y)) != terrain_id:
 					continue
-				var variant := grid.get_style_variant(Vector2i(x, y))
-				var tone := 1.0 if water else cell_tone(x, y, definition.seed, variant)
-				add_cell_quad(surface, field, grid, terrain_id, x, y, definition.seed, tone)
+				add_water_cell_quad(surface, field, grid, x, y)
 		var instance := MeshInstance3D.new()
 		instance.name = "Terrain_%s" % String(terrain_id)
-		if water:
-			surface.generate_tangents()
+		surface.generate_tangents()
 		instance.mesh = surface.commit()
-		if water:
-			instance.material_override = MapViewMaterials.water_surface(terrain_id)
-		else:
-			instance.material_override = MapViewMaterials.terrain(terrain_id, definition.seed)
+		instance.material_override = MapViewMaterials.water_surface(terrain_id)
 		root.add_child(instance)
 	return root
 
@@ -235,15 +246,13 @@ static func cell_tone(x: int, y: int, noise_seed: int, style_variant: StringName
 
 
 
-static func add_cell_quad(
+static func add_blended_cell_quad(
 	surface: SurfaceTool,
 	field: Dictionary,
 	grid: MapTerrainGrid,
-	terrain_id: StringName,
 	x: int,
 	y: int,
-	noise_seed: int,
-	tone: float = 1.0
+	noise_seed: int
 ) -> void:
 	var columns: int = field["vertex_columns"]
 	var positions: PackedVector3Array = field["positions"]
@@ -252,8 +261,50 @@ static func add_cell_quad(
 	var origin_y := y * MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS
 	for patch_y in MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS:
 		for patch_x in MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS:
-			if visual_patch_terrain(grid, x, y, patch_x, patch_y, noise_seed) != terrain_id:
-				continue
+			var vertex_x := origin_x + patch_x
+			var vertex_y := origin_y + patch_y
+			var indices := [
+				vertex_y * columns + vertex_x,
+				vertex_y * columns + vertex_x + 1,
+				(vertex_y + 1) * columns + vertex_x + 1,
+				(vertex_y + 1) * columns + vertex_x,
+			]
+			for index in [0, 1, 2, 0, 2, 3]:
+				var vertex := positions[indices[index]]
+				var spot := Vector2(vertex.x, vertex.z)
+				var blend := terrain_blend_at(grid, spot, noise_seed, x, y)
+				var primary_tint := OutdoorTerrainPalette.color(blend["primary"])
+				var secondary_tint := OutdoorTerrainPalette.color(blend["secondary"])
+				var tint := primary_tint.lerp(secondary_tint, float(blend["weight"]))
+				surface.set_normal(normals[indices[index]])
+				surface.set_uv(spot / MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE)
+				surface.set_color(Color(tint.r, tint.g, tint.b))
+				surface.set_custom(
+					0,
+					Color(
+						float(blend["primary_index"]),
+						float(blend["secondary_index"]),
+						float(blend["weight"]),
+						float(blend["tone"])
+					)
+				)
+				surface.add_vertex(vertex)
+
+
+static func add_water_cell_quad(
+	surface: SurfaceTool,
+	field: Dictionary,
+	grid: MapTerrainGrid,
+	x: int,
+	y: int
+) -> void:
+	var columns: int = field["vertex_columns"]
+	var positions: PackedVector3Array = field["positions"]
+	var normals: PackedVector3Array = field["normals"]
+	var origin_x := x * MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS
+	var origin_y := y * MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS
+	for patch_y in MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS:
+		for patch_x in MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS:
 			var vertex_x := origin_x + patch_x
 			var vertex_y := origin_y + patch_y
 			var indices := [
@@ -266,35 +317,65 @@ static func add_cell_quad(
 				var vertex := positions[indices[index]]
 				surface.set_normal(normals[indices[index]])
 				surface.set_uv(Vector2(vertex.x, vertex.z) / MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE)
-				surface.set_color(Color(tone, tone, tone))
+				surface.set_color(Color.WHITE)
 				surface.add_vertex(vertex)
 
 
-## Smoothly displaces only the visual material lookup. Geometry, collision,
-## navigation, height pads, and deterministic definition fingerprints remain
-## tied to the authored logic cell.
-
-
-static func visual_patch_terrain(
+static func terrain_blend_at(
 	grid: MapTerrainGrid,
-	x: int,
-	y: int,
-	patch_x: int,
-	patch_y: int,
-	noise_seed: int
-) -> StringName:
-	var center := Vector2(
-		float(x) + (float(patch_x) + 0.5) / float(MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS),
-		float(y) + (float(patch_y) + 0.5) / float(MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS)
-	)
+	sample: Vector2,
+	noise_seed: int,
+	cell_x: int,
+	cell_y: int
+) -> Dictionary:
+	var warped := sample
 	var warp := Vector2(
-		value_noise(center / 2.4, noise_seed + 12101) - 0.5,
-		value_noise(center / 2.4, noise_seed + 12703) - 0.5
-	) * MapViewMeshBuilderConfig.VISUAL_EDGE_WARP * 2.0
-	var sample := center + warp
-	sample.x = clampf(sample.x, 0.0, float(grid.size_cells.x) - 0.001)
-	sample.y = clampf(sample.y, 0.0, float(grid.size_cells.y) - 0.001)
-	return grid.get_terrain(Vector2i(floori(sample.x), floori(sample.y)))
+		value_noise(sample / 2.4, noise_seed + 12101) - 0.5,
+		value_noise(sample / 2.4, noise_seed + 12703) - 0.5
+	) * MapViewMeshBuilderConfig.VISUAL_EDGE_WARP
+	warped += warp
+	warped.x = clampf(warped.x, 0.0, float(grid.size_cells.x) - 0.001)
+	warped.y = clampf(warped.y, 0.0, float(grid.size_cells.y) - 0.001)
+	var cell := Vector2i(floori(warped.x), floori(warped.y))
+	var primary: StringName = grid.get_terrain(cell)
+	var secondary: StringName = primary
+	var weight := 0.0
+	var local := Vector2(warped.x - float(cell.x), warped.y - float(cell.y))
+	var blend_width := MapViewMeshBuilderConfig.TERRAIN_BLEND_WIDTH
+	var neighbors := [
+		[Vector2i(1, 0), local.x, 1.0 - local.x],
+		[Vector2i(-1, 0), 1.0 - local.x, local.x],
+		[Vector2i(0, 1), local.y, 1.0 - local.y],
+		[Vector2i(0, -1), 1.0 - local.y, local.y],
+	]
+	for entry in neighbors:
+		var offset: Vector2i = entry[0]
+		var edge_distance: float = entry[2]
+		if edge_distance > blend_width:
+			continue
+		var neighbor_cell := cell + offset
+		if neighbor_cell.x < 0 or neighbor_cell.y < 0 or neighbor_cell.x >= grid.size_cells.x or neighbor_cell.y >= grid.size_cells.y:
+			continue
+		var neighbor: StringName = grid.get_terrain(neighbor_cell)
+		if neighbor == primary:
+			continue
+		var candidate := smoothstep(blend_width, 0.0, edge_distance)
+		if candidate > weight:
+			weight = candidate
+			secondary = neighbor
+	if weight > 0.01 and weight < 0.99:
+		var dither := value_noise(warped * 7.5, noise_seed + 555) * 0.14 - 0.07
+		weight = clampf(weight + dither, 0.0, 1.0)
+	var variant := grid.get_style_variant(Vector2i(cell_x, cell_y))
+	var tone := cell_tone(cell_x, cell_y, noise_seed, variant)
+	return {
+		"primary": primary,
+		"secondary": secondary,
+		"weight": weight,
+		"tone": tone,
+		"primary_index": MapViewMaterials.terrain_blend_index(primary),
+		"secondary_index": MapViewMaterials.terrain_blend_index(secondary),
+	}
 
 
 ## Hollow stone stack: four walls plus a recessed ink flue so the mouth reads as

@@ -74,6 +74,7 @@ func test_kalev_smithy_door_sits_on_south_wall_boundary() -> void:
 func test_outdoor_maps_do_not_spawn_interior_ceiling() -> void:
 	var definition := SmithyCourtyard.create()
 	var view := MapView3D.create(definition, MapBuilder.build(definition))
+	view.activate_all_chunks()
 	assert_false(view.has_node("InteriorShell/Ceiling"), "outdoor maps must stay open to the sky")
 	view.free()
 
@@ -91,9 +92,23 @@ func test_interior_walls_skip_segment_caps() -> void:
 func test_town_surroundings_paint_cobble_apron() -> void:
 	var definition := LowerTownSlice.create()
 	var view := MapView3D.create(definition, MapBuilder.build(definition))
+	view.activate_all_chunks()
 	assert_true(view.has_node("Surroundings/TownApron_west"), "west town continuation needs ground under silhouettes")
 	assert_true(view.has_node("Surroundings/TownApron_north"), "north town continuation needs ground under silhouettes")
 	assert_true(view.has_node("Surroundings/TownSilhouette"), "town silhouette houses still spawn")
+	view.free()
+
+
+func test_lower_town_scatter_includes_puddles_on_worked_ground() -> void:
+	var definition := LowerTownSlice.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition))
+	view.activate_all_chunks()
+	var found := false
+	for chunk in view.get_node("Scatter").get_children():
+		if chunk.has_node("Puddles"):
+			found = true
+			break
+	assert_true(found, "lower town worked ground should spawn reflective puddles")
 	view.free()
 
 
@@ -101,6 +116,7 @@ func test_grass_and_tree_detail_use_generated_meshes_and_wind_materials() -> voi
 	var definition := SmithyCourtyard.create()
 	definition.surroundings_sides = {&"east": &"woodland"}
 	var view := MapView3D.create(definition, MapBuilder.build(definition))
+	view.activate_all_chunks()
 	var tufts := view.get_node("Scatter/Tufts") as MultiMeshInstance3D
 	assert_true(tufts.multimesh.mesh is ArrayMesh, "grass must use blade geometry instead of a cone primitive")
 	assert_true(tufts.material_override is ShaderMaterial, "grass blades must carry the wind shader")

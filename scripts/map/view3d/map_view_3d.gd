@@ -255,6 +255,18 @@ func update_active_chunks_from_logic_positions(logic_positions: Array[Vector2]) 
 	_update_active_chunks(chunks)
 
 
+## Headless tests and editor preview need every streamed object and scatter
+## chunk resident; gameplay keeps the spawn-radius window from _initial_active_chunks.
+func activate_all_chunks() -> void:
+	var chunks: Array[Vector2i] = []
+	var count := grid.chunk_count()
+	for chunk_y in count.y:
+		for chunk_x in count.x:
+			if grid.get_chunk(Vector2i(chunk_x, chunk_y)) != null:
+				chunks.append(Vector2i(chunk_x, chunk_y))
+	_update_active_chunks(chunks)
+
+
 func _assemble() -> void:
 	add_child(MapViewMeshBuilder.build_surroundings(definition))
 	add_child(MapViewMeshBuilder.build_terrain(definition, grid))

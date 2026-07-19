@@ -10,6 +10,9 @@ const VARIANT_GRASS_TALL := &"grass.tall"
 const VARIANT_GRASS_FLOWERS := &"grass.flowers"
 const VARIANT_GRASS_DRY := &"grass.dry"
 const VARIANT_GRASS_MOSSY := &"grass.mossy"
+const VARIANT_GRASS_CLOVER := &"grass.clover"
+const VARIANT_GRASS_FERN := &"grass.fern"
+const VARIANT_REED_SHORE := &"reed.shore"
 const VARIANT_BUSH_DENSE := &"bush.dense"
 const VARIANT_BUSH_SCRUB := &"bush.scrub"
 
@@ -19,6 +22,9 @@ const ALL_VARIANTS: Array[StringName] = [
 	VARIANT_GRASS_FLOWERS,
 	VARIANT_GRASS_DRY,
 	VARIANT_GRASS_MOSSY,
+	VARIANT_GRASS_CLOVER,
+	VARIANT_GRASS_FERN,
+	VARIANT_REED_SHORE,
 	VARIANT_BUSH_DENSE,
 	VARIANT_BUSH_SCRUB,
 ]
@@ -89,6 +95,12 @@ static func ground_color_tint(variant: StringName) -> Color:
 			return Color(1.12, 1.04, 0.82)
 		VARIANT_GRASS_MOSSY:
 			return Color(0.9, 1.06, 0.92)
+		VARIANT_GRASS_CLOVER:
+			return Color(0.94, 1.08, 0.88)
+		VARIANT_GRASS_FERN:
+			return Color(0.88, 1.04, 0.84)
+		VARIANT_REED_SHORE:
+			return Color(0.92, 1.02, 0.78)
 		VARIANT_BUSH_DENSE, VARIANT_BUSH_SCRUB:
 			return Color(0.86, 1.0, 0.82)
 		_:
@@ -107,6 +119,12 @@ static func scatter_profile(variant: StringName) -> Dictionary:
 			return {"chance_scale": 0.75, "height_min": 0.5, "height_max": 0.9, "flower_chance": 0.0}
 		VARIANT_GRASS_MOSSY:
 			return {"chance_scale": 0.85, "height_min": 0.45, "height_max": 0.8, "flower_chance": 0.0}
+		VARIANT_GRASS_CLOVER:
+			return {"chance_scale": 0.7, "height_min": 0.25, "height_max": 0.45, "flower_chance": 0.08, "clover_chance": 0.35}
+		VARIANT_GRASS_FERN:
+			return {"chance_scale": 0.95, "height_min": 0.55, "height_max": 1.0, "flower_chance": 0.0, "fern_chance": 0.4}
+		VARIANT_REED_SHORE:
+			return {"chance_scale": 0.8, "height_min": 0.9, "height_max": 1.6, "flower_chance": 0.0, "reed_chance": 0.55}
 		VARIANT_BUSH_DENSE:
 			return {"chance_scale": 1.25, "height_min": 0.55, "height_max": 1.1, "flower_chance": 0.0, "bush_chance": 0.65}
 		VARIANT_BUSH_SCRUB:
