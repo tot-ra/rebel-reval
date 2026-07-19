@@ -72,9 +72,16 @@
       "capture": "market_civic_quarter.png",
       "mandatory_anchors": [
         "inspection_spawn",
-        "town_hall_edge"
+        "town_hall_edge",
+        "pikk_street_spine",
+        "vana_turg_neck",
+        "karja_lane"
       ],
-      "mandatory_transitions": []
+      "mandatory_transitions": [
+        "to_reval_east",
+        "to_reval_east_south",
+        "to_reval_north"
+      ]
     },
     {
       "id": "market_square",

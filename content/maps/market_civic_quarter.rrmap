@@ -1,0 +1,75 @@
+# Market and civic quarter around Raekoja plats. The square is a street junction,
+# not a walled courtyard: Pikk continues north, Vana Turg/Viru east, Karja south,
+# and the Niguliste lane west. Town Hall closes the square's southern edge while
+# Holy Spirit church, its hospital, and merchant frontages tighten the north.
+rrmap 1
+map market_civic_quarter loc.lower_town.market_civic_quarter 64 36 dirt scope=prototype active=false palette=clean_painted seed=1343 cell_size=32
+source "scenes/reval_center/reval_center.tscn"
+source "scenes/revel-map.jpg"
+source "scenes/reval_center/market_civic_quarter/town_hall_square.md"
+source "scenes/reval_center/market_civic_quarter/town_hall.md"
+source "scenes/reval_center/market_civic_quarter/church_of_the_holy_spirit.md"
+# 1343 Reval used local limestone for civic, church, and wealthy merchant work.
+# Most surrounding houses remain plastered, plank-clad, or log-built under
+# shingle; later timber framing and the post-1422 Raeapteek identity are avoided.
+style house.town_hall door_side=north ridge_axis=x wall_height=160 wall_color=918b80ff wall_material=limestone roof_color=4a2a20ff roof_material=tile
+style house.church door_side=south ridge_axis=x wall_height=176 wall_color=9e998cff wall_material=limestone roof_color=42261fff roof_material=tile
+style house.hospital door_side=south wall_height=112 wall_color=807a70ff wall_material=limestone roof_color=3d3329ff roof_material=shingle
+style house.guild door_side=south wall_height=136 wall_color=7a7061ff wall_material=limestone roof_color=47291fff roof_material=tile
+style house.merchant.south door_side=south wall_height=120 wall_color=756b5cff wall_material=plaster roof_color=3d3329ff roof_material=shingle
+style house.merchant.north door_side=north wall_height=120 wall_color=706352ff wall_material=plank roof_color=383029ff roof_material=shingle
+style house.merchant.east door_side=east wall_height=112 wall_color=695e4fff wall_material=plaster roof_color=3b332bff roof_material=shingle
+style house.merchant.west door_side=west wall_height=112 wall_color=665c4dff wall_material=plank roof_color=38332eff roof_material=shingle
+style house.artisan door_side=north wall_height=96 wall_color=63594aff wall_material=log roof_color=6b5c40ff roof_material=thatch
+terrain square.cobble cobblestone 16 10 34 18 order=1
+terrain town_hall_forecourt stone 22 26 28 4 order=2
+terrain holy_spirit_close stone 32 8 18 4 order=3
+terrain market_wear mud 18 17 28 7 order=4
+stroke street.pikk cobblestone 42,12|63,12 thickness=3 order=5
+stroke street.vana_turg cobblestone 42,19|52,19|52,20|63,20 thickness=4 order=6
+stroke street.karja cobblestone 30,0|30,20 thickness=4 order=7
+stroke street.niguliste cobblestone 0,21|10,21|10,19|16,19 thickness=3 order=8
+stroke street.king cobblestone 8,32|8,27|14,27|14,24|20,24 thickness=3 order=9
+building town_hall_mass house 24 28 24 8 style=house.town_hall
+building council_chancery house 50 28 12 8 style=house.merchant.north
+building church_silhouette house 34 2 10 8 style=house.church
+building holy_spirit_hospital house 50 2 14 8 style=house.hospital
+building guild_frontage house 8 9 10 8 style=house.guild
+building north_merchant_row_west house 0 2 14 6 style=house.merchant.south
+building north_merchant_row_mid house 16 2 12 6 style=house.merchant.south
+building apothecary_front house 44 2 6 6 style=house.merchant.west
+building east_merchant_row house 54 23 10 5 style=house.merchant.north
+building west_merchant_row house 0 10 8 9 style=house.merchant.east
+building niguliste_corner_house house 0 24 10 7 style=house.merchant.east
+building king_street_house house 0 32 8 4 style=house.artisan
+building karja_corner_house house 20 30 4 6 style=house.merchant.west
+prop civic_well well 40 21 rect=2,2
+prop notice_cart cart 19 20 rect=2,2
+prop guild_stall stall 30 14 rect=3,2
+prop fish_stall stall 23 17 rect=3,2
+prop cloth_stall stall 34 17 rect=3,2
+prop weigh_table table 27 23 rect=3,2
+prop market_barrels barrels 46 23 rect=2,2
+spawn spawn.inspection 32 23 rect=2,2
+anchor inspection_spawn 32 23 rect=2,2
+anchor town_hall_edge 34 26 rect=2,2
+anchor pikk_street_spine 56 12 rect=2,2
+anchor vana_turg_neck 56 19 rect=2,2
+anchor karja_lane 30 4 rect=2,2
+anchor holy_spirit_frontage 40 10 rect=2,2
+anchor market_cross 32 20 rect=2,2
+transition to_reval_east 62 18 2 5 to=reval_east destination_spawn=vana_turg_boundary spawn=from_reval_east spawn_offset_px=-48,0
+transition to_reval_east_south 28 0 4 2 to=reval_east destination_spawn=karja_road_boundary spawn=from_reval_east_south spawn_offset_px=0,48
+transition to_reval_north 62 10 2 4 to=reval_north destination_spawn=from_reval_center spawn=to_reval_north spawn_offset_px=-48,0
+transition to_market 31 18 2 2 to=market_civic_quarter destination_spawn=from_reval_center spawn=to_market
+transition to_guild_hall 12 17 2 2 to=st_olafs_guild_hall destination_spawn=from_reval_center spawn=to_guild_hall
+sign sign.viru "to viru street" 58 17 east
+sign sign.karja "to karja gate" 28 4 north
+sign sign.pikk "to pikk street" 56 10 east
+sign sign.niguliste "to st nicholas" 6 23 west
+sign sign.town_hall "town hall" 34 25 south
+patrol civic_watch 63,12|50,12|42,14|42,24|30,24|30,1
+fade fade.town_hall 20 26 32 10
+fade fade.holy_spirit 32 0 32 11
+camera 0 0 64 36
+surroundings north town east town south town west town

@@ -7,6 +7,7 @@ extends RefCounted
 const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smithy_rrmap_factory.gd")
 const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_rrmap_factory.gd")
 const NorthQuarter := preload("res://scripts/map/definitions/prototypes/north_quarter_rrmap_factory.gd")
+const MarketCivicQuarter := preload("res://scripts/map/definitions/prototypes/market_civic_quarter_rrmap_factory.gd")
 const RevalHarbor := preload("res://scripts/map/definitions/outdoor/reval_harbor_rrmap_factory.gd")
 
 
@@ -32,6 +33,18 @@ static func entries() -> Array[Dictionary]:
 				&"brewery_door",
 				&"checkpoint_west",
 				&"checkpoint_east",
+			],
+		},
+		{
+			"id": &"market_civic_quarter",
+			"source": "res://content/maps/market_civic_quarter.rrmap",
+			"factory": MarketCivicQuarter,
+			"required_anchors": [
+				&"inspection_spawn",
+				&"town_hall_edge",
+				&"pikk_street_spine",
+				&"vana_turg_neck",
+				&"karja_lane",
 			],
 		},
 		{
