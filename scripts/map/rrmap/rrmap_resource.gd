@@ -12,4 +12,9 @@ var diagnostics: Array[MapRrmapDiagnostic] = []
 
 
 func is_valid() -> bool:
-	return blueprint != null and definition != null and diagnostics.is_empty()
+	if blueprint == null or definition == null:
+		return false
+	for diagnostic in diagnostics:
+		if diagnostic.severity == &"error":
+			return false
+	return true

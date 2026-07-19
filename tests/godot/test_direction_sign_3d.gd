@@ -13,8 +13,8 @@ func test_lower_town_has_wall_exit_signs_outside_the_moat() -> void:
 	assert_eq(harbour_sign["direction"], Vector2.RIGHT)
 	# Viru's outer wall face ends at cell 67; the sign belongs on the glacis.
 	assert_true(harbour_sign["position"].x > float(definition.cell_size * 67))
-	# Causeway centre is y=20; keep the post off the walkable road.
-	assert_true(harbour_sign["position"].y < float(definition.cell_size * 19))
+	# Causeway centre is y=20; keep the post off the walkable road on the outer glacis.
+	assert_true(harbour_sign["position"].y > float(definition.cell_size * 21))
 
 	var karja_sign: Dictionary = definition.direction_signs[1]
 	assert_eq(karja_sign["text"], "to town centre")

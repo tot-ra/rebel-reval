@@ -88,13 +88,15 @@
         0.121568628,
         1.000000000
       ],
+      "roof_material": "tile",
       "wall_color": [
         0.501960814,
         0.450980395,
         0.380392164,
         1.000000000
       ],
-      "wall_height": 128.000000000
+      "wall_height": 128.000000000,
+      "wall_material": "limestone"
     },
     {
       "door_side": "north",
@@ -112,13 +114,15 @@
         0.160784319,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.368627459,
         0.329411775,
         0.278431386,
         1.000000000
       ],
-      "wall_height": 96.000000000
+      "wall_height": 96.000000000,
+      "wall_material": "log"
     },
     {
       "footprint": [
@@ -255,13 +259,15 @@
         0.168627456,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.419607848,
         0.380392164,
         0.309803933,
         1.000000000
       ],
-      "wall_height": 112.000000000
+      "wall_height": 112.000000000,
+      "wall_material": "log"
     },
     {
       "door_side": "east",
@@ -279,13 +285,15 @@
         0.121568628,
         1.000000000
       ],
+      "roof_material": "tile",
       "wall_color": [
         0.501960814,
         0.458823532,
         0.400000006,
         1.000000000
       ],
-      "wall_height": 128.000000000
+      "wall_height": 128.000000000,
+      "wall_material": "brick"
     },
     {
       "door_side": "north",
@@ -303,13 +311,15 @@
         0.168627456,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.400000006,
         0.360784322,
         0.301960796,
         1.000000000
       ],
-      "wall_height": 104.000000000
+      "wall_height": 104.000000000,
+      "wall_material": "log"
     },
     {
       "door_side": "north",
@@ -327,13 +337,15 @@
         0.160784319,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.380392164,
         0.321568638,
         0.258823544,
         1.000000000
       ],
-      "wall_height": 120.000000000
+      "wall_height": 120.000000000,
+      "wall_material": "plank"
     },
     {
       "footprint": [
@@ -421,13 +433,15 @@
         0.180392161,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.400000006,
         0.360784322,
         0.301960796,
         1.000000000
       ],
-      "wall_height": 112.000000000
+      "wall_height": 112.000000000,
+      "wall_material": "plaster"
     },
     {
       "door_side": "north",
@@ -445,13 +459,15 @@
         0.180392161,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.400000006,
         0.360784322,
         0.301960796,
         1.000000000
       ],
-      "wall_height": 112.000000000
+      "wall_height": 112.000000000,
+      "wall_material": "plaster"
     },
     {
       "door_side": "north",
@@ -470,13 +486,15 @@
         0.109803922,
         1.000000000
       ],
+      "roof_material": "tile",
       "wall_color": [
         0.521568656,
         0.478431374,
         0.419607848,
         1.000000000
       ],
-      "wall_height": 136.000000000
+      "wall_height": 136.000000000,
+      "wall_material": "limestone"
     },
     {
       "door_side": "east",
@@ -489,18 +507,20 @@
       "id": "hedge_house",
       "kind": "house",
       "roof_color": [
-        0.219607845,
-        0.188235298,
-        0.160784319,
+        0.454901963,
+        0.396078438,
+        0.290196091,
         1.000000000
       ],
+      "roof_material": "thatch",
       "wall_color": [
         0.380392164,
         0.341176480,
         0.290196091,
         1.000000000
       ],
-      "wall_height": 104.000000000
+      "wall_height": 104.000000000,
+      "wall_material": "log"
     },
     {
       "footprint": [
@@ -536,13 +556,15 @@
         0.168627456,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.411764711,
         0.368627459,
         0.309803933,
         1.000000000
       ],
-      "wall_height": 112.000000000
+      "wall_height": 112.000000000,
+      "wall_material": "plank"
     },
     {
       "door_side": "north",
@@ -560,13 +582,15 @@
         0.160784319,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.458823532,
         0.400000006,
         0.329411775,
         1.000000000
       ],
-      "wall_height": 120.000000000
+      "wall_height": 120.000000000,
+      "wall_material": "plank"
     },
     {
       "door_side": "north",
@@ -584,13 +608,15 @@
         0.160784319,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.419607848,
         0.368627459,
         0.309803933,
         1.000000000
       ],
-      "wall_height": 112.000000000
+      "wall_height": 112.000000000,
+      "wall_material": "plaster"
     },
     {
       "door_side": "none",
@@ -608,13 +634,15 @@
         0.180392161,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.341176480,
         0.301960796,
         0.258823544,
         1.000000000
       ],
-      "wall_height": 128.000000000
+      "wall_height": 128.000000000,
+      "wall_material": "limestone"
     },
     {
       "door_side": "north",
@@ -632,13 +660,15 @@
         0.160784319,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.458823532,
         0.419607848,
         0.360784322,
         1.000000000
       ],
-      "wall_height": 120.000000000
+      "wall_height": 120.000000000,
+      "wall_material": "plaster"
     },
     {
       "footprint": [
@@ -669,18 +699,20 @@
       "id": "karja_gate_house",
       "kind": "house",
       "roof_color": [
-        0.219607845,
-        0.188235298,
-        0.160784319,
+        0.435294122,
+        0.376470596,
+        0.270588249,
         1.000000000
       ],
+      "roof_material": "thatch",
       "wall_color": [
         0.388235301,
         0.349019617,
         0.290196091,
         1.000000000
       ],
-      "wall_height": 104.000000000
+      "wall_height": 104.000000000,
+      "wall_material": "log"
     },
     {
       "footprint": [
@@ -711,18 +743,20 @@
       "id": "karja_suburb_house_east",
       "kind": "house",
       "roof_color": [
-        0.219607845,
-        0.188235298,
-        0.160784319,
+        0.435294122,
+        0.376470596,
+        0.270588249,
         1.000000000
       ],
+      "roof_material": "thatch",
       "wall_color": [
         0.380392164,
         0.341176480,
         0.290196091,
         1.000000000
       ],
-      "wall_height": 96.000000000
+      "wall_height": 96.000000000,
+      "wall_material": "log"
     },
     {
       "door_side": "east",
@@ -735,18 +769,20 @@
       "id": "karja_suburb_house_west",
       "kind": "house",
       "roof_color": [
-        0.219607845,
-        0.200000003,
-        0.168627456,
+        0.458823532,
+        0.403921574,
+        0.290196091,
         1.000000000
       ],
+      "roof_material": "thatch",
       "wall_color": [
         0.388235301,
         0.349019617,
         0.301960796,
         1.000000000
       ],
-      "wall_height": 96.000000000
+      "wall_height": 96.000000000,
+      "wall_material": "log"
     },
     {
       "door_side": "north",
@@ -759,18 +795,20 @@
       "id": "kuninga_house_east",
       "kind": "house",
       "roof_color": [
-        0.219607845,
-        0.200000003,
-        0.180392161,
+        0.419607848,
+        0.360784322,
+        0.250980407,
         1.000000000
       ],
+      "roof_material": "thatch",
       "wall_color": [
         0.400000006,
         0.360784322,
         0.301960796,
         1.000000000
       ],
-      "wall_height": 104.000000000
+      "wall_height": 104.000000000,
+      "wall_material": "log"
     },
     {
       "door_side": "north",
@@ -788,13 +826,15 @@
         0.160784319,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.380392164,
         0.341176480,
         0.290196091,
         1.000000000
       ],
-      "wall_height": 104.000000000
+      "wall_height": 104.000000000,
+      "wall_material": "log"
     },
     {
       "door_side": "north",
@@ -807,18 +847,20 @@
       "id": "kuninga_house_west",
       "kind": "house",
       "roof_color": [
-        0.219607845,
-        0.200000003,
-        0.168627456,
+        0.435294122,
+        0.376470596,
+        0.270588249,
         1.000000000
       ],
+      "roof_material": "thatch",
       "wall_color": [
         0.388235301,
         0.349019617,
         0.301960796,
         1.000000000
       ],
-      "wall_height": 104.000000000
+      "wall_height": 104.000000000,
+      "wall_material": "log"
     },
     {
       "door_side": "north",
@@ -836,13 +878,15 @@
         0.160784319,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.380392164,
         0.341176480,
         0.290196091,
         1.000000000
       ],
-      "wall_height": 104.000000000
+      "wall_height": 104.000000000,
+      "wall_material": "log"
     },
     {
       "door_side": "east",
@@ -860,13 +904,15 @@
         0.168627456,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.411764711,
         0.368627459,
         0.309803933,
         1.000000000
       ],
-      "wall_height": 112.000000000
+      "wall_height": 112.000000000,
+      "wall_material": "plaster"
     },
     {
       "door_side": "south",
@@ -884,13 +930,15 @@
         0.121568628,
         1.000000000
       ],
+      "roof_material": "tile",
       "wall_color": [
         0.501960814,
         0.458823532,
         0.400000006,
         1.000000000
       ],
-      "wall_height": 136.000000000
+      "wall_height": 136.000000000,
+      "wall_material": "limestone"
     },
     {
       "door_side": "south",
@@ -903,18 +951,20 @@
       "id": "monastery_barn",
       "kind": "house",
       "roof_color": [
-        0.239215687,
-        0.200000003,
-        0.160784319,
+        0.458823532,
+        0.403921574,
+        0.290196091,
         1.000000000
       ],
+      "roof_material": "thatch",
       "wall_color": [
         0.439215690,
         0.400000006,
         0.341176480,
         1.000000000
       ],
-      "wall_height": 96.000000000
+      "wall_height": 96.000000000,
+      "wall_material": "log"
     },
     {
       "door_side": "south",
@@ -932,13 +982,15 @@
         0.121568628,
         1.000000000
       ],
+      "roof_material": "tile",
       "wall_color": [
         0.619607866,
         0.600000024,
         0.549019635,
         1.000000000
       ],
-      "wall_height": 128.000000000
+      "wall_height": 128.000000000,
+      "wall_material": "limestone"
     },
     {
       "footprint": [
@@ -1002,18 +1054,20 @@
       "id": "moneychangers_house",
       "kind": "house",
       "roof_color": [
-        0.250980407,
-        0.211764708,
-        0.160784319,
+        0.290196091,
+        0.164705887,
+        0.125490203,
         1.000000000
       ],
+      "roof_material": "tile",
       "wall_color": [
         0.458823532,
         0.419607848,
         0.360784322,
         1.000000000
       ],
-      "wall_height": 120.000000000
+      "wall_height": 120.000000000,
+      "wall_material": "limestone"
     },
     {
       "door_side": "south",
@@ -1031,13 +1085,15 @@
         0.180392161,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.400000006,
         0.360784322,
         0.301960796,
         1.000000000
       ],
-      "wall_height": 104.000000000
+      "wall_height": 104.000000000,
+      "wall_material": "log"
     },
     {
       "door_side": "south",
@@ -1055,13 +1111,15 @@
         0.160784319,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.439215690,
         0.400000006,
         0.341176480,
         1.000000000
       ],
-      "wall_height": 120.000000000
+      "wall_height": 120.000000000,
+      "wall_material": "plaster"
     },
     {
       "door_side": "north",
@@ -1079,13 +1137,15 @@
         0.160784319,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.388235301,
         0.349019617,
         0.290196091,
         1.000000000
       ],
-      "wall_height": 104.000000000
+      "wall_height": 104.000000000,
+      "wall_material": "log"
     },
     {
       "door_side": "west",
@@ -1103,13 +1163,15 @@
         0.160784319,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.458823532,
         0.419607848,
         0.360784322,
         1.000000000
       ],
-      "wall_height": 120.000000000
+      "wall_height": 120.000000000,
+      "wall_material": "plank"
     },
     {
       "door_side": "north",
@@ -1127,13 +1189,15 @@
         0.168627456,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.411764711,
         0.368627459,
         0.309803933,
         1.000000000
       ],
-      "wall_height": 112.000000000
+      "wall_height": 112.000000000,
+      "wall_material": "plank"
     },
     {
       "door_side": "north",
@@ -1151,13 +1215,15 @@
         0.180392161,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.400000006,
         0.360784322,
         0.301960796,
         1.000000000
       ],
-      "wall_height": 112.000000000
+      "wall_height": 112.000000000,
+      "wall_material": "plaster"
     },
     {
       "door_side": "west",
@@ -1175,13 +1241,15 @@
         0.160784319,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.458823532,
         0.400000006,
         0.329411775,
         1.000000000
       ],
-      "wall_height": 120.000000000
+      "wall_height": 120.000000000,
+      "wall_material": "plaster"
     },
     {
       "door_side": "north",
@@ -1199,13 +1267,15 @@
         0.160784319,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.388235301,
         0.349019617,
         0.290196091,
         1.000000000
       ],
-      "wall_height": 104.000000000
+      "wall_height": 104.000000000,
+      "wall_material": "log"
     },
     {
       "footprint": [
@@ -1257,13 +1327,15 @@
         0.121568628,
         1.000000000
       ],
+      "roof_material": "tile",
       "wall_color": [
         0.658823550,
         0.639215708,
         0.580392182,
         1.000000000
       ],
-      "wall_height": 192.000000000
+      "wall_height": 192.000000000,
+      "wall_material": "limestone"
     },
     {
       "door_side": "south",
@@ -1276,18 +1348,20 @@
       "id": "suburb_house_north_a",
       "kind": "house",
       "roof_color": [
-        0.219607845,
-        0.200000003,
-        0.168627456,
+        0.419607848,
+        0.360784322,
+        0.250980407,
         1.000000000
       ],
+      "roof_material": "thatch",
       "wall_color": [
         0.388235301,
         0.349019617,
         0.301960796,
         1.000000000
       ],
-      "wall_height": 96.000000000
+      "wall_height": 96.000000000,
+      "wall_material": "log"
     },
     {
       "door_side": "south",
@@ -1300,18 +1374,20 @@
       "id": "suburb_house_north_b",
       "kind": "house",
       "roof_color": [
-        0.231372550,
-        0.200000003,
-        0.168627456,
+        0.454901963,
+        0.396078438,
+        0.290196091,
         1.000000000
       ],
+      "roof_material": "thatch",
       "wall_color": [
         0.400000006,
         0.360784322,
         0.301960796,
         1.000000000
       ],
-      "wall_height": 96.000000000
+      "wall_height": 96.000000000,
+      "wall_material": "log"
     },
     {
       "door_side": "north",
@@ -1324,18 +1400,20 @@
       "id": "suburb_house_south_a",
       "kind": "house",
       "roof_color": [
-        0.219607845,
-        0.188235298,
-        0.160784319,
+        0.454901963,
+        0.396078438,
+        0.290196091,
         1.000000000
       ],
+      "roof_material": "thatch",
       "wall_color": [
         0.380392164,
         0.341176480,
         0.290196091,
         1.000000000
       ],
-      "wall_height": 96.000000000
+      "wall_height": 96.000000000,
+      "wall_material": "log"
     },
     {
       "door_side": "north",
@@ -1348,18 +1426,20 @@
       "id": "suburb_house_south_b",
       "kind": "house",
       "roof_color": [
-        0.219607845,
-        0.200000003,
-        0.168627456,
+        0.435294122,
+        0.376470596,
+        0.270588249,
         1.000000000
       ],
+      "roof_material": "thatch",
       "wall_color": [
         0.388235301,
         0.349019617,
         0.301960796,
         1.000000000
       ],
-      "wall_height": 96.000000000
+      "wall_height": 96.000000000,
+      "wall_material": "log"
     },
     {
       "door_side": "north",
@@ -1377,13 +1457,15 @@
         0.180392161,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.400000006,
         0.360784322,
         0.301960796,
         1.000000000
       ],
-      "wall_height": 112.000000000
+      "wall_height": 112.000000000,
+      "wall_material": "plaster"
     },
     {
       "door_side": "south",
@@ -1401,13 +1483,15 @@
         0.160784319,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.419607848,
         0.368627459,
         0.309803933,
         1.000000000
       ],
-      "wall_height": 112.000000000
+      "wall_height": 112.000000000,
+      "wall_material": "log"
     },
     {
       "door_side": "east",
@@ -1425,13 +1509,15 @@
         0.168627456,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.411764711,
         0.368627459,
         0.309803933,
         1.000000000
       ],
-      "wall_height": 112.000000000
+      "wall_height": 112.000000000,
+      "wall_material": "plaster"
     },
     {
       "door_side": "south",
@@ -1449,13 +1535,15 @@
         0.168627456,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.419607848,
         0.380392164,
         0.309803933,
         1.000000000
       ],
-      "wall_height": 112.000000000
+      "wall_height": 112.000000000,
+      "wall_material": "plaster"
     },
     {
       "door_side": "south",
@@ -1473,13 +1561,15 @@
         0.160784319,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.439215690,
         0.388235301,
         0.321568638,
         1.000000000
       ],
-      "wall_height": 120.000000000
+      "wall_height": 120.000000000,
+      "wall_material": "plank"
     },
     {
       "door_side": "east",
@@ -1497,13 +1587,15 @@
         0.180392161,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.400000006,
         0.360784322,
         0.301960796,
         1.000000000
       ],
-      "wall_height": 112.000000000
+      "wall_height": 112.000000000,
+      "wall_material": "plank"
     },
     {
       "door_side": "east",
@@ -1521,13 +1613,15 @@
         0.160784319,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.400000006,
         0.360784322,
         0.301960796,
         1.000000000
       ],
-      "wall_height": 112.000000000
+      "wall_height": 112.000000000,
+      "wall_material": "plank"
     },
     {
       "door_side": "south",
@@ -1545,13 +1639,15 @@
         0.168627456,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.419607848,
         0.380392164,
         0.309803933,
         1.000000000
       ],
-      "wall_height": 120.000000000
+      "wall_height": 120.000000000,
+      "wall_material": "plank"
     },
     {
       "footprint": [
@@ -1600,18 +1696,20 @@
       "id": "viru_house_east",
       "kind": "house",
       "roof_color": [
-        0.231372550,
-        0.200000003,
-        0.168627456,
+        0.419607848,
+        0.360784322,
+        0.250980407,
         1.000000000
       ],
+      "roof_material": "thatch",
       "wall_color": [
         0.411764711,
         0.368627459,
         0.309803933,
         1.000000000
       ],
-      "wall_height": 112.000000000
+      "wall_height": 112.000000000,
+      "wall_material": "log"
     },
     {
       "door_side": "south",
@@ -1629,13 +1727,15 @@
         0.121568628,
         1.000000000
       ],
+      "roof_material": "tile",
       "wall_color": [
         0.478431374,
         0.431372553,
         0.360784322,
         1.000000000
       ],
-      "wall_height": 128.000000000
+      "wall_height": 128.000000000,
+      "wall_material": "limestone"
     },
     {
       "door_side": "south",
@@ -1654,13 +1754,15 @@
         0.109803922,
         1.000000000
       ],
+      "roof_material": "tile",
       "wall_color": [
         0.521568656,
         0.501960814,
         0.458823532,
         1.000000000
       ],
-      "wall_height": 128.000000000
+      "wall_height": 128.000000000,
+      "wall_material": "limestone"
     },
     {
       "door_side": "south",
@@ -1679,13 +1781,15 @@
         0.160784319,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.439215690,
         0.400000006,
         0.341176480,
         1.000000000
       ],
-      "wall_height": 120.000000000
+      "wall_height": 120.000000000,
+      "wall_material": "plaster"
     },
     {
       "footprint": [
@@ -1817,18 +1921,20 @@
       "id": "wall_side_house",
       "kind": "house",
       "roof_color": [
-        0.211764708,
-        0.188235298,
-        0.160784319,
+        0.419607848,
+        0.360784322,
+        0.250980407,
         1.000000000
       ],
+      "roof_material": "thatch",
       "wall_color": [
         0.368627459,
         0.329411775,
         0.278431386,
         1.000000000
       ],
-      "wall_height": 96.000000000
+      "wall_height": 96.000000000,
+      "wall_material": "log"
     },
     {
       "footprint": [
@@ -1936,13 +2042,15 @@
         0.160784319,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.431372553,
         0.380392164,
         0.309803933,
         1.000000000
       ],
-      "wall_height": 120.000000000
+      "wall_height": 120.000000000,
+      "wall_material": "plaster"
     },
     {
       "door_side": "east",
@@ -1960,13 +2068,15 @@
         0.168627456,
         1.000000000
       ],
+      "roof_material": "shingle",
       "wall_color": [
         0.388235301,
         0.349019617,
         0.301960796,
         1.000000000
       ],
-      "wall_height": 104.000000000
+      "wall_height": 104.000000000,
+      "wall_material": "log"
     },
     {
       "door_side": "north",
@@ -1979,18 +2089,20 @@
       "id": "widows_house",
       "kind": "house",
       "roof_color": [
-        0.219607845,
-        0.200000003,
-        0.168627456,
+        0.435294122,
+        0.376470596,
+        0.270588249,
         1.000000000
       ],
+      "roof_material": "thatch",
       "wall_color": [
         0.388235301,
         0.349019617,
         0.301960796,
         1.000000000
       ],
-      "wall_height": 104.000000000
+      "wall_height": 104.000000000,
+      "wall_material": "log"
     }
   ],
   "exclusions": [],
@@ -2137,7 +2249,7 @@
   ],
   "metadata": {
     "active": true,
-    "base_terrain": "dirt",
+    "base_terrain": "grass",
     "camera_bounds": [
       0.000000000,
       0.000000000,
@@ -2429,7 +2541,7 @@
     "west"
   ],
   "terrain": {
-    "terrain_id_grid_sha256": "43996d004dde5b9b2e7636bb00bf7f0f9b5fbd8c9ac653c9327ae40939dfa470",
+    "terrain_id_grid_sha256": "4311ef77b02e65788ba2280619171aa3b37f8b51152275e22b5b911be7701889",
     "used_terrain_ids": [
       "cobblestone",
       "dirt",

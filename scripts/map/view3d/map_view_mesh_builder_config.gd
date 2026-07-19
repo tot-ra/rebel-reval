@@ -184,15 +184,22 @@ const TREE_BAND_OUTER := 18.0
 const TREE_GRID_SPACING := 3.0
 const TREE_KEEP_RATIO := 0.5
 
-## Ground scatter (grass tufts, pebbles) is decorative only; it never implies
-## collision, so every piece stays well under knee height.
-const SCATTER_TUFT_CHANCE := {
-	MapTypes.TERRAIN_GRASS: 0.85,
-	MapTypes.TERRAIN_MEADOW: 0.9,
-	MapTypes.TERRAIN_FOREST_FLOOR: 0.6,
-	MapTypes.TERRAIN_BOG: 0.4,
-	MapTypes.TERRAIN_HAY: 0.35,
-	MapTypes.TERRAIN_STRAW: 0.3,
+## Grass already reads continuously through the terrain texture. These values are
+## only the sparse small-tuft layer; large grass, shrubs, and trees have separate
+## profile probabilities in TerrainVegetation.
+const SCATTER_SMALL_GRASS_CHANCE := {
+	MapTypes.TERRAIN_GRASS: 0.28,
+	MapTypes.TERRAIN_MEADOW: 0.34,
+	MapTypes.TERRAIN_FOREST_FLOOR: 0.12,
+	MapTypes.TERRAIN_BOG: 0.16,
+	MapTypes.TERRAIN_HAY: 0.08,
+	MapTypes.TERRAIN_STRAW: 0.06,
+}
+const SCATTER_TREE_CHANCE := {
+	MapTypes.TERRAIN_FOREST_FLOOR: 0.075,
+}
+const SCATTER_TREE_SPRUCE_RATIO := {
+	MapTypes.TERRAIN_FOREST_FLOOR: 0.62,
 }
 const SCATTER_STONE_CHANCE := {
 	MapTypes.TERRAIN_DIRT: 0.12,

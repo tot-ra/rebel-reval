@@ -1,9 +1,10 @@
 class_name TerrainVegetation
 extends RefCounted
 
-## Authored grass and bush style variants for terrain zones and vegetation props.
-## Visual tuning lives here; movement penalties are gameplay-relevant and may also
-## be overridden per zone or prop via movement_speed_multiplier in rrmap.
+## Vegetation is layered deliberately: the terrain material supplies continuous
+## ground cover while only a minority of cells receive small grass, large grass,
+## shrubs, or trees. Movement penalties remain gameplay-relevant and may be
+## overridden per zone or prop via movement_speed_multiplier in rrmap.
 
 const VARIANT_GRASS_SHORT := &"grass.short"
 const VARIANT_GRASS_TALL := &"grass.tall"
@@ -15,6 +16,9 @@ const VARIANT_GRASS_FERN := &"grass.fern"
 const VARIANT_REED_SHORE := &"reed.shore"
 const VARIANT_BUSH_DENSE := &"bush.dense"
 const VARIANT_BUSH_SCRUB := &"bush.scrub"
+const VARIANT_TREE_SPRUCE := &"tree.spruce"
+const VARIANT_TREE_DECIDUOUS := &"tree.deciduous"
+const VARIANT_TREE_MIXED := &"tree.mixed"
 
 const ALL_VARIANTS: Array[StringName] = [
 	VARIANT_GRASS_SHORT,
@@ -27,7 +31,16 @@ const ALL_VARIANTS: Array[StringName] = [
 	VARIANT_REED_SHORE,
 	VARIANT_BUSH_DENSE,
 	VARIANT_BUSH_SCRUB,
+	VARIANT_TREE_SPRUCE,
+	VARIANT_TREE_DECIDUOUS,
+	VARIANT_TREE_MIXED,
 ]
+
+## Urban green surfaces remain visible through the terrain texture, but repeated
+## 3D vegetation is intentionally scarce. Explicit authored planting is retained
+## at a moderate density so gardens and landmark trees still read.
+const URBAN_IMPLICIT_OBJECT_DENSITY := 0.08
+const URBAN_AUTHORED_OBJECT_DENSITY := 0.42
 
 const DEFAULT_BUSH_PROP_SPEED := 0.58
 const MIN_SPEED_MULTIPLIER := 0.35
@@ -45,6 +58,16 @@ static func resolved_variant(style_id: StringName, values: Dictionary) -> String
 
 static func is_known_variant(variant: StringName) -> bool:
 	return variant.is_empty() or variant in ALL_VARIANTS
+
+
+static func is_tree_variant(variant: StringName) -> bool:
+	return variant in [VARIANT_TREE_SPRUCE, VARIANT_TREE_DECIDUOUS, VARIANT_TREE_MIXED]
+
+
+static func object_density_multiplier(is_urban: bool, variant: StringName) -> float:
+	if not is_urban:
+		return 1.0
+	return URBAN_IMPLICIT_OBJECT_DENSITY if variant.is_empty() else URBAN_AUTHORED_OBJECT_DENSITY
 
 
 static func default_speed_for_variant(variant: StringName) -> float:
@@ -103,31 +126,44 @@ static func ground_color_tint(variant: StringName) -> Color:
 			return Color(0.92, 1.02, 0.78)
 		VARIANT_BUSH_DENSE, VARIANT_BUSH_SCRUB:
 			return Color(0.86, 1.0, 0.82)
+		VARIANT_TREE_SPRUCE:
+			return Color(0.82, 0.94, 0.82)
+		VARIANT_TREE_DECIDUOUS, VARIANT_TREE_MIXED:
+			return Color(0.9, 1.0, 0.84)
 		_:
 			return Color.WHITE
 
 
+## Per-style object layers. `small_chance_scale` multiplies terrain-family
+## density; all other chances are direct per-cell probabilities before urban
+## suppression. Ground cover itself is always supplied by the terrain material.
 static func scatter_profile(variant: StringName) -> Dictionary:
 	match variant:
 		VARIANT_GRASS_SHORT:
-			return {"chance_scale": 0.55, "height_min": 0.35, "height_max": 0.62, "flower_chance": 0.0}
+			return {"small_chance_scale": 1.0, "small_height_min": 0.3, "small_height_max": 0.55, "large_chance": 0.01}
 		VARIANT_GRASS_TALL:
-			return {"chance_scale": 1.15, "height_min": 0.95, "height_max": 1.55, "flower_chance": 0.0}
+			return {"small_chance_scale": 0.65, "small_height_min": 0.42, "small_height_max": 0.72, "large_chance": 0.24, "large_height_min": 0.95, "large_height_max": 1.5}
 		VARIANT_GRASS_FLOWERS:
-			return {"chance_scale": 0.95, "height_min": 0.65, "height_max": 1.05, "flower_chance": 0.22}
+			return {"small_chance_scale": 0.85, "small_height_min": 0.38, "small_height_max": 0.68, "large_chance": 0.07, "large_height_min": 0.72, "large_height_max": 1.05, "flower_chance": 0.12}
 		VARIANT_GRASS_DRY:
-			return {"chance_scale": 0.75, "height_min": 0.5, "height_max": 0.9, "flower_chance": 0.0}
+			return {"small_chance_scale": 0.7, "small_height_min": 0.34, "small_height_max": 0.62, "large_chance": 0.05, "large_height_min": 0.68, "large_height_max": 0.95}
 		VARIANT_GRASS_MOSSY:
-			return {"chance_scale": 0.85, "height_min": 0.45, "height_max": 0.8, "flower_chance": 0.0}
+			return {"small_chance_scale": 0.45, "small_height_min": 0.28, "small_height_max": 0.5, "large_chance": 0.015}
 		VARIANT_GRASS_CLOVER:
-			return {"chance_scale": 0.7, "height_min": 0.25, "height_max": 0.45, "flower_chance": 0.08, "clover_chance": 0.35}
+			return {"small_chance_scale": 0.3, "small_height_min": 0.25, "small_height_max": 0.45, "large_chance": 0.01, "clover_chance": 0.28}
 		VARIANT_GRASS_FERN:
-			return {"chance_scale": 0.95, "height_min": 0.55, "height_max": 1.0, "flower_chance": 0.0, "fern_chance": 0.4}
+			return {"small_chance_scale": 0.35, "small_height_min": 0.32, "small_height_max": 0.56, "large_chance": 0.025, "fern_chance": 0.24}
 		VARIANT_REED_SHORE:
-			return {"chance_scale": 0.8, "height_min": 0.9, "height_max": 1.6, "flower_chance": 0.0, "reed_chance": 0.55}
+			return {"small_chance_scale": 0.2, "small_height_min": 0.3, "small_height_max": 0.55, "large_chance": 0.0, "reed_chance": 0.34}
 		VARIANT_BUSH_DENSE:
-			return {"chance_scale": 1.25, "height_min": 0.55, "height_max": 1.1, "flower_chance": 0.0, "bush_chance": 0.65}
+			return {"small_chance_scale": 0.18, "large_chance": 0.02, "dense_bush_chance": 0.32}
 		VARIANT_BUSH_SCRUB:
-			return {"chance_scale": 0.9, "height_min": 0.45, "height_max": 0.85, "flower_chance": 0.0, "bush_chance": 0.35}
+			return {"small_chance_scale": 0.28, "large_chance": 0.03, "scrub_bush_chance": 0.24}
+		VARIANT_TREE_SPRUCE:
+			return {"small_chance_scale": 0.2, "large_chance": 0.02, "tree_chance": 0.22, "spruce_ratio": 1.0}
+		VARIANT_TREE_DECIDUOUS:
+			return {"small_chance_scale": 0.25, "large_chance": 0.02, "tree_chance": 0.2, "spruce_ratio": 0.0}
+		VARIANT_TREE_MIXED:
+			return {"small_chance_scale": 0.22, "large_chance": 0.02, "tree_chance": 0.2, "spruce_ratio": 0.55}
 		_:
-			return {"chance_scale": 1.0, "height_min": 0.7, "height_max": 1.4, "flower_chance": 0.0, "bush_chance": 0.0}
+			return {"small_chance_scale": 1.0, "small_height_min": 0.34, "small_height_max": 0.62, "large_chance": 0.025, "large_height_min": 0.75, "large_height_max": 1.05}

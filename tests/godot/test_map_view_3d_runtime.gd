@@ -53,6 +53,7 @@ func test_runtime_maps_keyboard_to_screen_axes_and_preserves_facing_on_stop() ->
 		"assembled": {"buildings": [], "props": []},
 	}
 	var runtime := MapViewRuntime.install(scene_root, bootstrap, map_root, player)
+	var camera := runtime.view.view_camera()
 	var screen_up_in_logic := player.movement_direction_for_screen_input(Vector2.UP)
 	assert_true(
 		screen_up_in_logic.is_equal_approx(Vector2(-1.0, -1.0).normalized()),
@@ -60,16 +61,16 @@ func test_runtime_maps_keyboard_to_screen_axes_and_preserves_facing_on_stop() ->
 	)
 
 	var rig := runtime.get_node("PlayerRig") as SharedCharacterRig
-	var camera := runtime.view.view_camera()
-	var camera_offset := camera.position - rig.position
-	var camera_direction := Vector2(camera_offset.x, camera_offset.z).normalized()
+	runtime._sync_player(true)
+	var expected_spawn := player.view_facing()
 	assert_true(
-		is_equal_approx(rig.rotation.y, atan2(camera_direction.x, camera_direction.y)),
-		"an idle player rig with no movement history must face the gameplay camera"
+		is_equal_approx(rig.rotation.y, atan2(expected_spawn.x, expected_spawn.y)),
+		"an idle player rig with no movement history must follow the player's authored facing"
 	)
 
 	var move_direction := Vector2(1.0, 0.0)
 	player.velocity = move_direction * (MapViewRuntime.WALK_ANIMATION_MIN_SPEED + 1.0)
+	player._facing_direction = move_direction
 	runtime._sync_player(false, 0.016)
 	player.velocity = Vector2.ZERO
 	runtime.rotate_view_degrees(45.0)

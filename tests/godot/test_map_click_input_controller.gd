@@ -5,6 +5,11 @@ const PLAYER_SCENE := preload("res://player.tscn")
 const CLICK_INPUT_SCRIPT := preload("res://scripts/map/map_click_input_controller.gd")
 
 
+func before_each() -> void:
+	_failures.clear()
+	_purge_leaked_map_scenes()
+
+
 func test_find_at_logic_position_returns_closest_enabled_interactable() -> void:
 	var root := _make_root()
 	var near := _spawn_interactable(root, Vector2(200, 200), 80.0)
@@ -190,3 +195,12 @@ func _cleanup_node(node: Node) -> void:
 
 func _tree() -> SceneTree:
 	return Engine.get_main_loop() as SceneTree
+
+
+func _purge_leaked_map_scenes() -> void:
+	var tree := _tree()
+	if tree == null:
+		return
+	for child in tree.root.get_children():
+		if child is Node2D and child.get_node_or_null("Actors/Player") != null:
+			child.free()

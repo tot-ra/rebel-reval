@@ -3,7 +3,7 @@ extends RefCounted
 var _failures: Array[String] = []
 
 func before_each() -> void:
-	pass
+	_failures.clear()
 
 func after_each() -> void:
 	pass

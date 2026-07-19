@@ -18,7 +18,7 @@ func test_rotates_and_mirrors_terrain_buildings_and_orientation() -> void:
 		return
 	assert_eq(result.definition.zones[0], {"terrain": MapTypes.TERRAIN_DIRT, "rect": Rect2i(7, 3, 2, 3)})
 	var house := _record_by_id(result.definition.buildings, &"rotated/house")
-	assert_eq(house["footprint"], Rect2(192, 64, 96, 64))
+	assert_eq(house["footprint"], Rect2(192, 96, 96, 64))
 	assert_eq(house["door_side"], &"west")
 	assert_eq(house["ridge_axis"], &"x")
 

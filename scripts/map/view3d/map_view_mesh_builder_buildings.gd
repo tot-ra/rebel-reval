@@ -165,7 +165,11 @@ static func add_interior_wall_structure(
 	var plinth_height := minf(INTERIOR_WALL_PLINTH_HEIGHT, height * 0.22)
 	var rail_height := minf(INTERIOR_WALL_RAIL_HEIGHT, height * 0.46)
 	var upper_rail_y := maxf(height - INTERIOR_WALL_UPPER_RAIL_DROP, rail_height)
-	var faces: Array[StringName] = [&"south", &"north"] if along_x else [&"east", &"west"]
+	var faces: Array[StringName] = []
+	if along_x:
+		faces.assign([&"south", &"north"])
+	else:
+		faces.assign([&"east", &"west"])
 	for face in faces:
 		facade_box(
 			root,

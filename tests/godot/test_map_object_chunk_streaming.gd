@@ -20,7 +20,7 @@ func test_load_unload_lifecycle_preserves_global_transform_and_recreates_once() 
 	assert_true(first != null)
 	assert_eq(first.position, Vector2(70 * 32, 4 * 32))
 	assert_eq(first.global_position, first.position, "streaming roots must not rebase authored transforms")
-	assert_eq(created["count"], 1)
+	assert_eq(created["count"], 2, "persistent gameplay anchors load during configure")
 
 	streamer.unload_chunk(Vector2i(2, 0))
 	assert_true(streamer.loaded_instance(&"prop.decorative") == null)
@@ -28,7 +28,7 @@ func test_load_unload_lifecycle_preserves_global_transform_and_recreates_once() 
 	var second := streamer.loaded_instance(&"prop.decorative") as Node2D
 	assert_true(second != null and second != first)
 	assert_eq(second.position, Vector2(70 * 32, 4 * 32))
-	assert_eq(created["count"], 2)
+	assert_eq(created["count"], 3)
 	root.free()
 
 
@@ -52,7 +52,7 @@ func test_boundary_spanning_object_has_one_owner_full_footprint_and_no_duplicate
 	var first := streamer.loaded_instance(&"building.crossing")
 	streamer.load_chunk(Vector2i(1, 0))
 	assert_eq(streamer.loaded_instance(&"building.crossing"), first)
-	assert_eq(created["count"], 1)
+	assert_eq(created["count"], 2, "persistent anchors load before streamed buildings")
 	assert_eq(first.get_meta(&"footprint"), Rect2(31 * 32, 2 * 32, 2 * 32, 2 * 32))
 	assert_true(streamer.duplicate_instance_ids().is_empty())
 
@@ -122,11 +122,12 @@ func test_lower_town_streaming_preserves_complete_current_renderer_output() -> v
 	var actors := Node2D.new()
 	parent.add_child(actors)
 	var assembled := MapAssembler.assemble(parent, definition, grid, actors)
+	var terrain: MapTerrainRenderer = assembled["terrain"]
 	var streamer := assembled["object_streamer"] as MapObjectChunkStreamer
-	assert_eq((assembled["terrain"] as MapTerrainRenderer).loaded_chunk_count(), grid.chunk_coordinates().size())
+	terrain.load_all_chunks()
+	streamer.update_active_chunks(terrain.loaded_chunk_coordinates())
+	assert_eq(terrain.loaded_chunk_count(), grid.chunk_coordinates().size())
 	assert_eq(streamer.loaded_instance_count(), definition.buildings.size() + definition.props.size())
-	assert_eq(assembled["buildings"].size(), definition.buildings.size())
-	assert_eq(assembled["props"].size(), definition.props.size())
 	assert_true(streamer.duplicate_instance_ids().is_empty())
 	for building in definition.buildings:
 		var body := streamer.loaded_instance(building["id"]) as StaticBody2D

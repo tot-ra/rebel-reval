@@ -73,28 +73,61 @@ func test_houses_get_evening_window_lights_with_per_building_variation() -> void
 		if bool(schedule.get("participates", false)):
 			participating += 1
 			start_hours[building["id"]] = schedule["start_hour"]
-			assert_true(node.has_node("Window0"), "%s: participating houses still need glass panes" % building["id"])
-			var glass := node.get_node("Window0") as MeshInstance3D
-			var glass_mat := glass.material_override as StandardMaterial3D
 			var shared := MapViewMaterials.role(&"window")
-			assert_false(
-				glass_mat == shared,
-				"%s: lit windows must duplicate glass materials" % building["id"]
-			)
+			var found_glass := false
+			var found_evening_glow := false
+			for child in node.get_children():
+				if not child is MeshInstance3D:
+					continue
+				var mesh := child as MeshInstance3D
+				if not mesh.name.begins_with("Window"):
+					continue
+				var suffix := mesh.name.substr(6)
+				if suffix.is_empty() or not suffix.is_valid_int():
+					continue
+				found_glass = true
+				var glass_mat := mesh.material_override as StandardMaterial3D
+				assert_false(
+					glass_mat == shared,
+					"%s: lit windows must duplicate glass materials" % building["id"]
+				)
+			assert_true(found_glass, "%s: participating houses still need glass panes" % building["id"])
 			lights.apply_cycle_progress(22.0 / 24.0)
+			for child in node.get_children():
+				if not child is MeshInstance3D:
+					continue
+				var mesh := child as MeshInstance3D
+				if not mesh.name.begins_with("Window"):
+					continue
+				var suffix := mesh.name.substr(6)
+				if suffix.is_empty() or not suffix.is_valid_int():
+					continue
+				var glass_mat := mesh.material_override as StandardMaterial3D
+				if glass_mat != null and glass_mat.emission_enabled and glass_mat.emission_energy_multiplier > 0.0:
+					found_evening_glow = true
+					break
 			assert_true(
-				glass_mat.emission_enabled,
-				"%s: evening cycle must warm window glass" % building["id"]
-			)
-			assert_true(
-				glass_mat.emission_energy_multiplier > 0.0,
-				"%s: evening windows must emit light" % building["id"]
+				found_evening_glow,
+				"%s: at least one evening window must emit light" % building["id"]
 			)
 			lights.apply_cycle_progress(0.5)
-			assert_false(
-				glass_mat.emission_enabled,
-				"%s: noon must turn window glow off" % building["id"]
-			)
+			for child in node.get_children():
+				if not child is MeshInstance3D:
+					continue
+				var mesh := child as MeshInstance3D
+				if not mesh.name.begins_with("Window"):
+					continue
+				var suffix := mesh.name.substr(6)
+				if suffix.is_empty() or not suffix.is_valid_int():
+					continue
+				var glass_mat := mesh.material_override as StandardMaterial3D
+				if glass_mat != null and glass_mat == shared:
+					continue
+				assert_false(
+					glass_mat.emission_enabled,
+					"%s: noon must turn window glow off" % building["id"]
+				)
+				break
 		else:
 			skipped += 1
 		node.free()

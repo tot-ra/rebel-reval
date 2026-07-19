@@ -7,6 +7,7 @@ var _manifest: Dictionary = {}
 
 
 func before_each() -> void:
+	_failures.clear()
 	if _manifest.is_empty():
 		_manifest = _load_manifest()
 
@@ -89,17 +90,28 @@ func test_shared_y_sort_policy_for_every_definition() -> void:
 		var parent := Node2D.new()
 		var actors := Node2D.new()
 		parent.add_child(actors)
-		var result := MapAssembler.assemble(parent, definition, MapBuilder.build(definition), actors)
+		var grid := MapBuilder.build(definition)
+		var result := MapAssembler.assemble(parent, definition, grid, actors)
+		var terrain: MapTerrainRenderer = result["terrain"]
+		var streamer: MapObjectChunkStreamer = result["object_streamer"]
+		terrain.load_all_chunks()
+		streamer.update_active_chunks(terrain.loaded_chunk_coordinates())
+		var buildings_root: Node2D = result["building_root"]
+		var props_root: Node2D = result["prop_root"]
 		assert_true(actors.y_sort_enabled, "%s Actors must share Y-sort" % definition.map_id)
-		for index in result["buildings"].size():
-			var body: StaticBody2D = result["buildings"][index]
-			var footprint: Rect2 = definition.buildings[index]["footprint"]
-			assert_eq(body.get_parent(), actors, "%s building outside shared Y-sort" % definition.map_id)
+		assert_true(buildings_root.y_sort_enabled, "%s Buildings layer must Y-sort" % definition.map_id)
+		assert_true(props_root.y_sort_enabled, "%s Props layer must Y-sort" % definition.map_id)
+		for building in definition.buildings:
+			var body := streamer.loaded_instance(building["id"]) as StaticBody2D
+			assert_true(body != null, "%s missing building %s" % [definition.map_id, building["id"]])
+			var footprint: Rect2 = building["footprint"]
+			assert_eq(body.get_parent(), buildings_root, "%s building outside Buildings Y-sort layer" % definition.map_id)
 			assert_eq(body.get_meta("y_sort_anchor"), MapBuildingRenderer.footprint_y_sort_anchor(footprint), "%s building Y-sort anchor" % definition.map_id)
-		for index in result["props"].size():
-			var prop: Node2D = result["props"][index]
-			assert_eq(prop.get_parent(), actors, "%s prop outside shared Y-sort" % definition.map_id)
-			assert_eq(prop.get_meta("y_sort_anchor"), definition.props[index]["position"], "%s prop Y-sort anchor" % definition.map_id)
+		for prop in definition.props:
+			var prop_node := streamer.loaded_instance(prop["id"]) as Node2D
+			assert_true(prop_node != null, "%s missing prop %s" % [definition.map_id, prop["id"]])
+			assert_eq(prop_node.get_parent(), props_root, "%s prop outside Props Y-sort layer" % definition.map_id)
+			assert_eq(prop_node.get_meta("y_sort_anchor"), prop["position"], "%s prop Y-sort anchor" % definition.map_id)
 		parent.free()
 
 

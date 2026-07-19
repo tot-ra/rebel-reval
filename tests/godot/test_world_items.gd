@@ -90,7 +90,7 @@ func test_forge_hides_flat_pickup_markers_in_3d_view() -> void:
 	assert_true(interactable.is_focused())
 	assert_false(highlight.visible, "focused pickup must keep the flat rectangle hidden in 3D")
 
-	forge.queue_free()
+	forge.free()
 
 
 func test_pickup_moves_item_into_bag_and_state() -> void:
@@ -165,7 +165,7 @@ func test_forge_keyboard_pickup_moves_spearhead_into_bag() -> void:
 	assert_true(SessionState.state.has_item(ITEM_SPEARHEAD))
 	assert_false(SessionState.state.is_world_item_placed(LOC_SMITHY, OBJ_SPEAR))
 	assert_true(SessionState.state.bag.find_placement(ITEM_SPEARHEAD) != null)
-	forge.queue_free()
+	forge.free()
 
 
 func test_forge_gamepad_pickup_moves_spearhead_into_bag() -> void:
@@ -194,7 +194,7 @@ func test_forge_gamepad_pickup_moves_spearhead_into_bag() -> void:
 
 	assert_true(SessionState.state.has_item(ITEM_SPEARHEAD))
 	assert_false(SessionState.state.is_world_item_placed(LOC_SMITHY, OBJ_SPEAR))
-	forge.queue_free()
+	forge.free()
 
 
 func test_forge_reload_does_not_respawn_picked_spearhead() -> void:
@@ -204,13 +204,13 @@ func test_forge_reload_does_not_respawn_picked_spearhead() -> void:
 	var forge: Node2D = FORGE_SCENE.instantiate()
 	tree.root.add_child(forge)
 	_pickup_spearhead_via_interact(forge)
-	forge.queue_free()
+	forge.free()
 
 	forge = FORGE_SCENE.instantiate()
 	tree.root.add_child(forge)
 	assert_true(SessionState.state.has_item(ITEM_SPEARHEAD))
 	assert_eq(_find_pickup_interactable(forge), null, "picked spearhead must stay gone after smithy re-entry")
-	forge.queue_free()
+	forge.free()
 
 
 func test_debug_post_pickup_preset_removes_anvil_spearhead_without_reload() -> void:
@@ -224,7 +224,7 @@ func test_debug_post_pickup_preset_removes_anvil_spearhead_without_reload() -> v
 	assert_true(SessionState.state.has_item(ITEM_SPEARHEAD))
 	assert_false(SessionState.state.is_world_item_placed(LOC_SMITHY, OBJ_SPEAR))
 	assert_eq(_find_pickup_interactable(forge), null, "debug jump must remove the anvil spearhead without reload")
-	forge.queue_free()
+	forge.free()
 
 
 func test_overweight_interact_pickup_leaves_world_item_unchanged() -> void:
@@ -241,7 +241,7 @@ func test_overweight_interact_pickup_leaves_world_item_unchanged() -> void:
 
 	assert_false(SessionState.state.has_item(ITEM_SPEARHEAD))
 	assert_true(SessionState.state.is_world_item_placed(LOC_SMITHY, OBJ_SPEAR))
-	forge.queue_free()
+	forge.free()
 
 
 func test_pickup_hover_activates_grab_cursor_state() -> void:
