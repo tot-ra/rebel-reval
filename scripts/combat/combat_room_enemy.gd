@@ -2,10 +2,10 @@ extends Node2D
 
 class_name CombatRoomEnemy
 
-## Scene host for EnemyCombatStateMachine in the P1-024 combat room (P1-025a).
-## Why: P1-025 proved the shared AI in isolation; this wires both archetypes into
-## the smoke host with readable detect/telegraph/attack feedback without forking
-## a second controller.
+## Scene host for EnemyCombatStateMachine in the P1-024 combat room (P1-025a)
+## and the P1-025b night-encounter stub. Why: P1-025 proved the shared AI in
+## isolation; these hosts wire both archetypes with readable detect/telegraph/
+## attack feedback without forking a second controller.
 
 signal feedback_event(text: String)
 signal died

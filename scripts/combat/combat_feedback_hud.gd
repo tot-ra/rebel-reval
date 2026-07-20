@@ -9,15 +9,38 @@ class_name CombatFeedbackHud
 ## enough history so headless room tests can assert readable phase feedback.
 const MAX_LOG_LINES := 16
 
+var _title_label: Label
 var _status_label: Label
 var _log_label: Label
 var _controls_label: Label
 var _log_lines: PackedStringArray = PackedStringArray()
+var _pending_title := ""
+var _pending_controls := ""
 
 
 func _ready() -> void:
 	layer = 40
 	_build_ui()
+	if not _pending_title.is_empty():
+		set_title(_pending_title)
+		_pending_title = ""
+	if not _pending_controls.is_empty():
+		set_controls_text(_pending_controls)
+		_pending_controls = ""
+
+
+func set_title(text: String) -> void:
+	if _title_label == null:
+		_pending_title = text
+		return
+	_title_label.text = text
+
+
+func set_controls_text(text: String) -> void:
+	if _controls_label == null:
+		_pending_controls = text
+		return
+	_controls_label.text = text
 
 
 func set_status(text: String) -> void:
@@ -69,12 +92,13 @@ func _build_ui() -> void:
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(column)
 
-	var title := Label.new()
-	title.text = "Combat room (P1-024 / P1-025a / P1-026)"
-	title.add_theme_font_size_override("font_size", 22)
-	title.add_theme_color_override("font_color", Color(0.95, 0.82, 0.35, 1.0))
-	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	column.add_child(title)
+	_title_label = Label.new()
+	_title_label.name = "TitleLabel"
+	_title_label.text = "Combat room (P1-024 / P1-025a / P1-026)"
+	_title_label.add_theme_font_size_override("font_size", 22)
+	_title_label.add_theme_color_override("font_color", Color(0.95, 0.82, 0.35, 1.0))
+	_title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_child(_title_label)
 
 	_status_label = Label.new()
 	_status_label.name = "StatusLabel"
