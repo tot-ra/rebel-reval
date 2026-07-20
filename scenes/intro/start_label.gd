@@ -1,6 +1,8 @@
 extends RichTextLabel
 
 func _ready():
+	# Clickable menu text should show the hand/pointer cursor on hover.
+	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	self.gui_input.connect(_on_gui_input)
 
 func _on_gui_input(event):
