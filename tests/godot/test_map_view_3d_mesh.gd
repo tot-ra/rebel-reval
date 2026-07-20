@@ -17,16 +17,41 @@ func test_enclosed_interior_suppresses_countryside_surroundings() -> void:
 		"ceiling must rest on interior wall tops with no sky band between them"
 	)
 	assert_false(view.is_interior_shell_visible(), "top-down view must start with the ceiling hidden")
+	assert_true(view.uses_interior_top_down_background(), "top-down interiors must use a black clear color")
+	var world_env := view.get_node("ViewEnvironment") as WorldEnvironment
+	assert_eq(world_env.environment.background_mode, Environment.BG_COLOR)
+	assert_eq(world_env.environment.background_color, MapView3D.BACKGROUND_INTERIOR_TOP_DOWN_COLOR)
+	view.set_interior_shell_for_first_person(true)
+	assert_false(view.uses_interior_top_down_background(), "first-person restores the sky dome behind the ceiling")
+	assert_eq(world_env.environment.background_mode, Environment.BG_SKY)
+	view.set_interior_shell_for_first_person(false)
+	assert_true(view.uses_interior_top_down_background(), "returning to top-down must restore the black void")
+	assert_eq(world_env.environment.background_mode, Environment.BG_COLOR)
 	assert_true(view.get_node("InteriorShell").get_child_count() >= 3, "ceiling needs exposed timber beams")
 	var window_landmarks := 0
+	var day_window: MeshInstance3D = null
+	var day_lights: Node = null
 	for landmark in definition.view_landmarks:
-		if landmark.get("kind", &"") == &"interior_window":
-			window_landmarks += 1
-			var node := view.get_node("Landmarks/Landmark_%s" % String(landmark["id"]))
-			assert_true(node.has_node("InteriorWindowLights"), "interior windows need cycle-driven daylight")
-			assert_true(node.has_node("Window0"), "interior window needs glazed pane")
-			assert_true(node.has_node("WallAbove0"), "interior windows should fill void above the lintel")
+		if landmark.get("kind", &"") != &"interior_window":
+			continue
+		window_landmarks += 1
+		# Build offline: streamed node paths break on dotted stable IDs (window.east).
+		var node := MapViewMeshBuilder.build_landmark(
+			landmark,
+			definition.cell_size,
+			MapViewMeshBuilder.interior_shell_wall_height_world(definition)
+		)
+		assert_true(node.has_node("InteriorWindowLights"), "interior windows need cycle-driven daylight")
+		assert_true(node.has_node("Window0"), "interior window needs glazed pane")
+		assert_true(node.has_node("WallAbove0"), "interior windows should fill void above the lintel")
+		if day_window == null:
+			day_window = node.get_node("Window0") as MeshInstance3D
+			day_lights = node.get_node("InteriorWindowLights")
+			# Keep one built window alive for cycle assertions below.
+			continue
+		node.free()
 	assert_eq(window_landmarks, 4)
+	view.activate_all_chunks()
 	var candle := view.get_node("Props/Prop_table_candle") as Node3D
 	var table := view.get_node("Props/Prop_food_table") as Node3D
 	assert_true(candle.has_node("CandleLight"), "table candle needs local light controller")
@@ -34,8 +59,22 @@ func test_enclosed_interior_suppresses_countryside_surroundings() -> void:
 		candle.position.y >= table.position.y + 0.45,
 		"table candle must sit on the table surface, not under it"
 	)
+	# Day/night still drives sun and window emission while the clear color stays black.
 	view.apply_cycle_progress(0.5)
+	assert_eq(world_env.environment.background_color, MapView3D.BACKGROUND_INTERIOR_TOP_DOWN_COLOR)
+	assert_true(
+		view.sun_light().light_energy > MapView3D.SUN_NIGHT_ENERGY,
+		"noon must keep sun energy for window-side lighting"
+	)
+	assert_true(day_window != null and day_lights != null, "smithy must expose at least one interior window pane")
+	day_lights.call("apply_cycle_progress", 0.5)
+	var day_mat := day_window.material_override as StandardMaterial3D
+	assert_true(day_mat.emission_enabled, "day cycle must drive interior window daylight glow")
 	view.apply_cycle_progress(0.0)
+	day_lights.call("apply_cycle_progress", 0.0)
+	assert_eq(world_env.environment.background_color, MapView3D.BACKGROUND_INTERIOR_TOP_DOWN_COLOR)
+	assert_false(day_mat.emission_enabled, "night cycle must turn interior window daylight off")
+	day_window.get_parent().free()
 	view.free()
 
 
@@ -76,6 +115,9 @@ func test_outdoor_maps_do_not_spawn_interior_ceiling() -> void:
 	var view := MapView3D.create(definition, MapBuilder.build(definition))
 	view.activate_all_chunks()
 	assert_false(view.has_node("InteriorShell/Ceiling"), "outdoor maps must stay open to the sky")
+	assert_false(view.uses_interior_top_down_background(), "outdoor maps keep the sky dome background")
+	var world_env := view.get_node("ViewEnvironment") as WorldEnvironment
+	assert_eq(world_env.environment.background_mode, Environment.BG_SKY)
 	view.free()
 
 

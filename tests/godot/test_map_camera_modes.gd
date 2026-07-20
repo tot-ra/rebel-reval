@@ -83,6 +83,13 @@ func test_interior_ceiling_hides_for_top_down_and_shows_in_first_person() -> voi
 		runtime.view.is_interior_shell_visible(),
 		"top-down gameplay must hide the ceiling for floor readability"
 	)
+	assert_true(
+		runtime.view.uses_interior_top_down_background(),
+		"top-down interiors must clear to black instead of sky"
+	)
+	var world_env := runtime.view.get_node("ViewEnvironment") as WorldEnvironment
+	assert_eq(world_env.environment.background_mode, Environment.BG_COLOR)
+	assert_eq(world_env.environment.background_color, MapView3D.BACKGROUND_INTERIOR_TOP_DOWN_COLOR)
 
 	var camera_toggle := InputEventKey.new()
 	camera_toggle.physical_keycode = KEY_C
@@ -93,6 +100,11 @@ func test_interior_ceiling_hides_for_top_down_and_shows_in_first_person() -> voi
 		runtime.view.is_interior_shell_visible(),
 		"first-person must show the raised ceiling shell"
 	)
+	assert_false(
+		runtime.view.uses_interior_top_down_background(),
+		"first-person must restore the sky dome for window views"
+	)
+	assert_eq(world_env.environment.background_mode, Environment.BG_SKY)
 
 	runtime._unhandled_input(camera_toggle)
 	assert_false(runtime.is_first_person(), "pressing C again must restore third-person view")
@@ -100,6 +112,11 @@ func test_interior_ceiling_hides_for_top_down_and_shows_in_first_person() -> voi
 		runtime.view.is_interior_shell_visible(),
 		"returning to top-down must hide the ceiling again"
 	)
+	assert_true(
+		runtime.view.uses_interior_top_down_background(),
+		"returning to top-down must restore the black void"
+	)
+	assert_eq(world_env.environment.background_mode, Environment.BG_COLOR)
 	scene_root.free()
 
 

@@ -35,6 +35,10 @@ const SUN_DAY_ENERGY := 1.2
 const AMBIENT_DAY_COLOR := Color8(168, 178, 189)
 const AMBIENT_DAY_ENERGY := 0.85
 const BACKGROUND_DAY_COLOR := Color8(31, 30, 28)
+## Top-down interior gameplay hides the ceiling; a flat black clear color keeps
+## the room readable instead of letting the outdoor sky dome read through the
+## open shell. First-person restores BG_SKY so windows can still show sky.
+const BACKGROUND_INTERIOR_TOP_DOWN_COLOR := Color.BLACK
 
 ## Deterministic night state carrying the ART_BIBLE rules forward: at least
 ## 20% darker than day while ambient keeps terrain identities readable.
@@ -140,7 +144,10 @@ func apply_cycle_progress(progress: float, sweep_sun_yaw: bool = true) -> void:
 	ambient = ambient.lerp(OVERCAST_LIGHT_COLOR, weather["overcast"] * 0.5)
 	_environment.ambient_light_color = ambient
 	_environment.ambient_light_energy = lerpf(AMBIENT_NIGHT_ENERGY, AMBIENT_DAY_ENERGY, day_blend) * weather["ambient_energy"]
+	# Outdoor / first-person keep the cycle-tinted clear color under the sky
+	# dome; interior top-down overrides to a flat black void below.
 	_environment.background_color = BACKGROUND_NIGHT_COLOR.lerp(BACKGROUND_DAY_COLOR, day_blend)
+	_sync_interior_top_down_background()
 
 	var bucket := TIME_NIGHT if night else TIME_DAY
 	if bucket != _last_chimney_bucket:
@@ -211,11 +218,33 @@ func set_interior_shell_for_first_person(enabled: bool) -> void:
 	interior_shell.visible = enabled
 	_interior_shell_occludes = enabled
 	_rebuild_occluder_bounds()
+	_sync_interior_top_down_background()
 
 
 func is_interior_shell_visible() -> bool:
 	var interior_shell := get_node_or_null("InteriorShell") as Node3D
 	return interior_shell != null and interior_shell.visible
+
+
+## Enclosed interiors in top-down view: black clear color instead of sky dome.
+## Sun, ambient, and InteriorWindowLights still follow the day/night cycle.
+func uses_interior_top_down_background() -> bool:
+	return (
+		definition != null
+		and definition.suppresses_exterior_surroundings()
+		and has_node("InteriorShell/Ceiling")
+		and not is_interior_shell_visible()
+	)
+
+
+func _sync_interior_top_down_background() -> void:
+	if _environment == null:
+		return
+	if uses_interior_top_down_background():
+		_environment.background_mode = Environment.BG_COLOR
+		_environment.background_color = BACKGROUND_INTERIOR_TOP_DOWN_COLOR
+	else:
+		_environment.background_mode = Environment.BG_SKY
 
 
 ## True when a building or landmark mass crosses the segment. The runtime
