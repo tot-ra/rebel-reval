@@ -244,11 +244,22 @@ def _euler_xyz_degrees_to_quat(euler: np.ndarray) -> np.ndarray:
 # On the slim adult silhouette that reads as hands flaring left/right instead of
 # swinging along +Z. The lateral term is flattened hard: the chibi run cycle
 # spreads the elbows around its barrel torso, which on an adult frame reads as
-# arms held too far apart (review feedback). The forward/back swing itself is
-# kept — tests/godot/test_character_rig.gd asserts the contralateral z-swing.
-_LOCOMOTION_ANIMATIONS = frozenset({"Running_B", "Walking_A"})
-_ARM_SWING_LATERAL_ATTENUATION = 0.10
-_ARM_SWING_ROLL_ATTENUATION = 0.35
+# arms held too far apart (review feedback). Upper-arm roll is only softened:
+# flattening it too hard left elbows parked behind the back. Sagittal swing is
+# kept near full so contralateral stride still reads (test_character_rig.gd).
+# Every Walking_*/Running_* clip is treated, not just the canonical pair,
+# because CharacterVariant.animation_overrides may pick any of them.
+_LOCOMOTION_PREFIXES = ("Walking_", "Running_")
+_ARM_SWING_LATERAL_ATTENUATION = 0.05
+_ARM_SWING_ROLL_ATTENUATION = 0.60
+# Mild upper-arm sagittal soften so the rear elbow does not overshoot, while
+# leaving enough contralateral z-travel for test_character_rig.gd.
+_ARM_SWING_LONGITUDINAL_ATTENUATION = 0.88
+# Forearms keep more of their roll than upper arms: the elbow pump lives
+# partly in this component, so flattening it as hard as the shoulder makes
+# the arms read stiff.
+_FOREARM_SWING_ROLL_ATTENUATION = 0.70
+_FOREARM_SWING_LONGITUDINAL_ATTENUATION = 0.92
 
 
 def _remap_arm_swing_delta(
@@ -258,7 +269,7 @@ def _remap_arm_swing_delta(
     bone_name: str = "",
 ) -> np.ndarray:
     """Preserve clip timing but flatten lateral elbow flare on locomotion."""
-    if animation_name not in _LOCOMOTION_ANIMATIONS:
+    if not animation_name.startswith(_LOCOMOTION_PREFIXES):
         return values
     inv_rest = _quat_inverse(source_rest)
     deltas = _quat_multiply(inv_rest, values)
@@ -266,6 +277,10 @@ def _remap_arm_swing_delta(
     euler[..., 1] *= _ARM_SWING_LATERAL_ATTENUATION
     if bone_name.startswith("upperarm"):
         euler[..., 0] *= _ARM_SWING_ROLL_ATTENUATION
+        euler[..., 2] *= _ARM_SWING_LONGITUDINAL_ATTENUATION
+    elif bone_name.startswith("lowerarm"):
+        euler[..., 0] *= _FOREARM_SWING_ROLL_ATTENUATION
+        euler[..., 2] *= _FOREARM_SWING_LONGITUDINAL_ATTENUATION
     remapped = _quat_multiply(source_rest, _euler_xyz_degrees_to_quat(euler))
     return remapped
 
@@ -361,8 +376,9 @@ def build(character: str) -> None:
         nodes[index]["translation"] = new.tolist()
 
     # 1b. Fold the arms toward +Z. Upper-arm and forearm angles are authored
-    # separately so elbows can stay wide while handslots sit nearer the stride
-    # axis; see arm_relax_degrees / forearm_relax_degrees in character_specs.
+    # separately so elbows can stay nearer the ribs while handslots sit on
+    # the stride axis; see arm_relax_degrees / forearm_relax_degrees in
+    # character_specs.
     rotation_offsets: dict[str, np.ndarray] = {}
     upper_relax = float(p.get("arm_relax_degrees", 0.0))
     lower_relax = float(p.get("forearm_relax_degrees", upper_relax))

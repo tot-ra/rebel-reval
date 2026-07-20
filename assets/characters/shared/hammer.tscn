@@ -23,9 +23,10 @@ radial_segments = 8
 transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0.16, 0.02, 0)
 
 [node name="Handle" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.16, 0)
 mesh = SubResource("Mesh_handle")
 
 [node name="Head" type="MeshInstance3D" parent="."]
-position = Vector3(0, 0.28, 0)
+position = Vector3(0, 0.44, 0)
 mesh = SubResource("Mesh_head")
 

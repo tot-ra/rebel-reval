@@ -37,13 +37,12 @@ BASE_PROPORTIONS = {
     # Degrees the upper arms rotate around +Z (shoulder fold). Sets elbow
     # breadth: lower values keep elbows wider, higher values glue them to the
     # ribs. The CC0 KayKit clips assume a barrel-wide chibi torso; on the
-    # adult frame 25° still read as arms held away from the body.
-    "arm_relax_degrees": 32.0,
-    # Extra +Z fold applied only on the forearm bones. Kept small: the clips
-    # carry their own elbow bend (attenuated at clip level in the retarget —
-    # see _remap_arm_swing_delta), and a large constant offset on top of it
-    # pushed the hands up to the face on adult proportions.
-    "forearm_relax_degrees": 19.0,
+    # adult frame mid-30s still read as hands held too far apart in run.
+    "arm_relax_degrees": 52.0,
+    # Extra +Z fold applied only on the forearm bones. Brings handslots
+    # forward so elbows do not trail behind the torso on locomotion; kept
+    # below ~50° because larger offsets pushed hands up to the face.
+    "forearm_relax_degrees": 45.0,
 }
 
 # Default feature set for the body generator (see generate_hero_body.py).
@@ -158,6 +157,42 @@ CHARACTERS = {
             "tunic_length": "short",
         },
         "output": "assets/characters/shared/innkeeper.glb",
+        "garments": [],
+    },
+    # A slighter townswoman frame: shorter and narrower than the hero, with
+    # long hair and an ankle-length tunic reading as a dress. Base body for
+    # tint variants of the female cast (Aita, Kaja) until P2-004 approves
+    # bespoke briefs.
+    "townswoman": {
+        "proportions": {
+            "leg_length": 1.74,
+            "arm_length": 1.18,
+            "torso_length": 0.86,
+            "shoulder_width": 0.64,
+            "hip_socket_width": 1.05,
+            "head_size": 0.30,
+            "hand_size": 0.72,
+        },
+        "shape": {
+            "bulk": 0.90,
+            "chest_breadth": 0.92,
+            "belly": 0.98,
+            "head_scale": 1.0,
+        },
+        "palette": {
+            "tunic": (0.30, 0.36, 0.30, 1.0),
+            "sleeves": (0.86, 0.84, 0.78, 1.0),
+            "sleeve_band": (0.52, 0.32, 0.24, 1.0),
+            "pants": (0.20, 0.16, 0.14, 1.0),
+            "boots": (0.30, 0.22, 0.15, 1.0),
+            "belt": (0.55, 0.42, 0.26, 1.0),
+            "hair": (0.30, 0.20, 0.12, 1.0),
+        },
+        "features": {
+            "hair_style": "long",
+            "beard_style": "none",
+        },
+        "output": "assets/characters/shared/townswoman.glb",
         "garments": [],
     },
 }
