@@ -28,6 +28,14 @@ REQUIRED_COLUMNS = (
     "approval",
 )
 ID_RE = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
+APPROVED_PROVENANCE_COLUMNS = (
+    "creator_or_tool",
+    "model_version",
+    "prompt_or_url",
+    "seed",
+    "license",
+)
+PROVENANCE_PLACEHOLDERS = {"unknown", "tbd"}
 
 # Font provenance was approved by P0-014 before SOURCES.csv existed. It is not
 # part of the P0-027 image/audio inventory, so keep it explicit here.
@@ -99,6 +107,13 @@ def validate() -> list[str]:
             seen_paths[asset_path] = line_number
         if asset_path and not _asset_file_exists(asset_path):
             errors.append(f"line {line_number}: path does not exist: {asset_path}")
+        if row.get("approval", "").startswith("approved"):
+            for column in APPROVED_PROVENANCE_COLUMNS:
+                value = row.get(column, "").strip()
+                if value.casefold() in PROVENANCE_PLACEHOLDERS:
+                    errors.append(
+                        f"line {line_number}: approved asset {asset_path!r} has placeholder {column}: {value!r}"
+                    )
 
     source_paths = set(seen_paths)
     missing_inventory = sorted(inventory_paths() - source_paths, key=str.casefold)

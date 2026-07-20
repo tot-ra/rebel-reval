@@ -1,8 +1,8 @@
 # Merchant District between the Monastery District and the Great Coast Gate.
-# This preserves the stable north_quarter identity for the northern half of the
-# former map while widening and lengthening its Hanseatic merchant fabric.
+# The 208-cell footprint now matches the Monastery District below it. Its
+# stepped seaward shoulders round the outer wall without moving stable map IDs.
 rrmap 1
-map north_quarter loc.lower_town.north_quarter 173 140 cobblestone scope=prototype active=false palette=clean_painted seed=2718 cell_size=32
+map north_quarter loc.lower_town.north_quarter 208 140 cobblestone scope=prototype active=false palette=clean_painted seed=2718 cell_size=32
 source "scenes/reval_north/reval_north.tscn"
 source "scenes/revel-map.jpg"
 source "scenes/reval_north/pikk_street.md"
@@ -19,74 +19,81 @@ style house.workshop.mid door_side=north roof_color=383029ff roof_material=shing
 style house.warehouse door_side=south roof_color=352820ff roof_material=shingle wall_color=5a4f45ff wall_material=plank wall_height=64
 style wall.city wall_height=192 wall_color=949185ff
 style wall.tower wall_height=240 wall_color=8c8a80ff
-terrain district.base cobblestone 0 0 173 140 order=1
-terrain dock.forecourt mud 48 8 77 36 order=2
-terrain west.green grass 4 8 25 62 order=3
-terrain east.workyard dirt 125 16 42 65 order=4
-terrain merchants.close stone 22 83 41 44 order=5
-stroke pikk_spine cobblestone 86,138|86,109|86,78|86,47|86,8 thickness=4 order=6
-stroke lai_lane cobblestone 120,138|120,106|120,75|120,44|120,16 thickness=3 order=7
-stroke west_merchant_lane cobblestone 24,119|46,119|46,91|65,91|65,70 thickness=3 order=8
-stroke harbor_lane cobblestone 79,8|86,8|93,8 thickness=3 order=9
-stroke east_work_lane cobblestone 130,122|139,122|139,91|151,91|151,60 thickness=3 order=10
-# The merchant ward owns Tallinn's seaward wall. Its north gate opens directly
-# to Trade Harbour, with paired round turrets protecting the harbour passage.
-building city_wall_north_west wall 0 0 77 3 style=wall.city
-building coast_gate_west_tower wall 77 0 8 9 style=wall.tower tower=true
-building coast_gate_east_tower wall 91 0 8 9 style=wall.tower tower=true
-building city_wall_north_east wall 99 0 74 3 style=wall.city
-building merchant_wall_tower_northwest wall 0 0 8 8 style=wall.tower tower=true
-building merchant_wall_tower_northeast wall 165 0 8 8 style=wall.tower tower=true
-building city_wall_west wall 0 0 3 140 style=wall.city
-building merchant_wall_tower_west_mid wall 0 64 8 8 style=wall.tower tower=true
+terrain district.base cobblestone 0 0 208 140 order=1
+terrain_rects outer.shoulders grass 0,0,14,16|194,0,14,16|0,16,7,18|201,16,7,18 order=2
+terrain dock.forecourt mud 65 8 77 36 order=3
+terrain west.green grass 4 34 25 48 order=4
+terrain east.workyard dirt 160 24 42 65 order=5
+terrain merchants.close stone 32 83 41 44 order=6
+stroke pikk_spine cobblestone 104,138|104,109|104,78|104,47|104,8 thickness=4 order=7
+stroke lai_lane cobblestone 138,138|138,106|138,75|138,44|138,16 thickness=3 order=8
+stroke west_merchant_lane cobblestone 34,119|56,119|56,91|75,91|75,70 thickness=3 order=9
+stroke harbor_lane cobblestone 97,8|104,8|111,8 thickness=3 order=10
+stroke east_work_lane cobblestone 165,122|174,122|174,91|186,91|186,60 thickness=3 order=11
+# The seaward wall follows a stepped shoulder around the ward instead of a box.
+# All turns are sealed by circular towers, while the south seam stays a street.
+building city_wall_north_west wall 14 0 82 3 style=wall.city
+building coast_gate_west_tower wall 96 0 8 9 style=wall.tower tower=true
+building coast_gate_east_tower wall 110 0 8 9 style=wall.tower tower=true
+building city_wall_north_east wall 118 0 76 3 style=wall.city
+building merchant_wall_tower_northwest wall 7 8 8 8 style=wall.tower tower=true
+building merchant_wall_tower_northeast wall 193 8 8 8 style=wall.tower tower=true
+building city_wall_west_north wall 7 8 3 26 style=wall.city
+building city_wall_west_shoulder wall 0 31 10 3 style=wall.city
+building city_wall_west wall 0 31 3 109 style=wall.city
+building merchant_wall_tower_west_bend wall 0 27 8 8 style=wall.tower tower=true
+building merchant_wall_tower_west_mid wall 0 78 8 8 style=wall.tower tower=true
 building merchant_wall_tower_southwest wall 0 132 8 8 style=wall.tower tower=true
-building city_wall_east wall 170 0 3 140 style=wall.city
-building merchant_wall_tower_east_mid wall 165 64 8 8 style=wall.tower tower=true
-building merchant_wall_tower_southeast wall 165 132 8 8 style=wall.tower tower=true
-building goldsmiths_row_west house 67 86 8 10 style=house.merchant.gabled
-building goldsmiths_row_east house 94 78 8 10 style=house.merchant.north
-building pikk_merchant_north_west house 67 54 8 10 style=house.merchant.north
-building pikk_merchant_north_east house 94 54 8 10 style=house.merchant.north
-building lai_merchant_north house 125 101 12 10 style=house.merchant.north
-building lai_east_row_north house 142 101 12 10 style=house.merchant.north
-building workshop_row_mid house 106 101 12 6 style=house.workshop.low
-building workshop_row_east house 108 54 12 6 style=house.workshop.mid
-building ropemakers_shed house 115 23 14 6 style=house.workshop.low
-building shipwright_yard house 134 23 22 8 style=house.merchant.south
-building cooperage_shed house 98 31 10 6 style=house.workshop.mid
-building sailmakers_loft house 74 31 12 6 style=house.workshop.low
-building warehouse_north_west house 50 23 12 6 style=house.warehouse
-building warehouse_north_mid house 34 31 10 6 style=house.warehouse
-building warehouse_far_west house 10 44 14 6 style=house.warehouse
-building warehouse_far_east house 146 44 14 6 style=house.warehouse
-building painters_guild house 139 70 10 8 style=house.merchant.north
-building tailors_guild house 125 86 8 8 style=house.merchant.north
-building stonemasons_lodge house 22 93 12 10 style=house.merchant.south
-building counting_house house 34 109 14 8 style=house.merchant.gabled
-building merchant_court_west house 60 114 12 8 style=house.merchant.north
-building merchant_court_east house 98 114 12 8 style=house.merchant.north
-landmark coast_gate_arch gate_arch 84 0 7 9 wall_color=8f8c80ff top_px=240 passage_axis=z door_material=wood
-prop rope_props barrels 118 47 rect=2,2
-prop dock_barrels barrels 98 23 rect=2,2
-prop merchant_stall_a stall 79 96 rect=3,2
-prop merchant_stall_b stall 96 96 rect=3,2
-prop harbor_cart cart 84 16 rect=2,2
-prop east_work_cart cart 142 80 rect=2,2
-spawn spawn.inspection 86 93 rect=2,2
-anchor inspection_spawn 86 93 rect=2,2
-anchor pikk_street_spine 86 70 rect=2,2
-anchor harbor_approach 86 41 rect=2,2
-anchor merchant_court 86 114 rect=2,2
-anchor from_reval_harbor 86 13 rect=2,2
-anchor from_monastery 86 133 rect=2,2
-transition to_reval_harbor 84 0 7 3 to=reval_harbor_north destination_spawn=from_reval_north spawn=to_reval_harbor spawn_offset_px=0,96 highlight_area=true transition_visual=ground view_landmark_id=coast_gate_arch
-transition to_monastery 80 136 12 4 to=reval_monastery destination_spawn=from_reval_north spawn=from_monastery spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
-sign sign.harbour "to trade harbour" 89 31 north
-sign sign.monastery "to monastery district" 84 131 south
-sign sign.pikk "pikk street" 89 54 north
-sign sign.lai "lai street" 123 75 east
-sign sign.goldsmiths "goldsmiths' row" 70 104 west
-patrol merchant_watch 86,133|86,109|86,78|86,47|86,23|120,47|120,78|120,109|86,133
-fade fade.merchant_court 53 104 67 26
-camera 0 0 173 140
+building city_wall_east_north wall 198 8 3 26 style=wall.city
+building city_wall_east_shoulder wall 198 31 10 3 style=wall.city
+building city_wall_east wall 205 31 3 109 style=wall.city
+building merchant_wall_tower_east_bend wall 200 27 8 8 style=wall.tower tower=true
+building merchant_wall_tower_east_mid wall 200 78 8 8 style=wall.tower tower=true
+building merchant_wall_tower_southeast wall 200 132 8 8 style=wall.tower tower=true
+building goldsmiths_row_west house 85 86 8 10 style=house.merchant.gabled
+building goldsmiths_row_east house 112 78 8 10 style=house.merchant.north
+building pikk_merchant_north_west house 85 54 8 10 style=house.merchant.north
+building pikk_merchant_north_east house 112 54 8 10 style=house.merchant.north
+building lai_merchant_north house 143 101 12 10 style=house.merchant.north
+building lai_east_row_north house 177 101 12 10 style=house.merchant.north
+building workshop_row_mid house 124 101 12 6 style=house.workshop.low
+building workshop_row_east house 126 54 12 6 style=house.workshop.mid
+building ropemakers_shed house 133 23 14 6 style=house.workshop.low
+building shipwright_yard house 169 23 22 8 style=house.merchant.south
+building cooperage_shed house 116 31 10 6 style=house.workshop.mid
+building sailmakers_loft house 92 31 12 6 style=house.workshop.low
+building warehouse_north_west house 68 23 12 6 style=house.warehouse
+building warehouse_north_mid house 44 31 10 6 style=house.warehouse
+building warehouse_far_west house 20 48 14 6 style=house.warehouse
+building warehouse_far_east house 181 48 14 6 style=house.warehouse
+building painters_guild house 174 70 10 8 style=house.merchant.north
+building tailors_guild house 143 86 8 8 style=house.merchant.north
+building stonemasons_lodge house 32 93 12 10 style=house.merchant.south
+building counting_house house 44 109 14 8 style=house.merchant.gabled
+building merchant_court_west house 78 114 12 8 style=house.merchant.north
+building merchant_court_east house 116 114 12 8 style=house.merchant.north
+landmark coast_gate_arch gate_arch 103 0 7 9 wall_color=8f8c80ff top_px=240 passage_axis=z door_material=wood
+prop rope_props barrels 136 47 rect=2,2
+prop dock_barrels barrels 116 23 rect=2,2
+prop merchant_stall_a stall 97 96 rect=3,2
+prop merchant_stall_b stall 114 96 rect=3,2
+prop harbor_cart cart 103 16 rect=2,2
+prop east_work_cart cart 177 80 rect=2,2
+spawn spawn.inspection 104 93 rect=2,2
+anchor inspection_spawn 104 93 rect=2,2
+anchor pikk_street_spine 104 70 rect=2,2
+anchor harbor_approach 104 41 rect=2,2
+anchor merchant_court 104 114 rect=2,2
+anchor from_reval_harbor 104 13 rect=2,2
+anchor from_monastery 104 133 rect=2,2
+transition to_reval_harbor 103 0 7 3 to=reval_harbor_north destination_spawn=from_reval_north spawn=to_reval_harbor spawn_offset_px=0,96 highlight_area=true transition_visual=ground view_landmark_id=coast_gate_arch
+transition to_monastery 98 136 12 4 to=reval_monastery destination_spawn=from_reval_north spawn=from_monastery spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
+sign sign.harbour "to trade harbour" 107 31 north
+sign sign.monastery "to monastery district" 102 131 south
+sign sign.pikk "pikk street" 107 54 north
+sign sign.lai "lai street" 141 75 east
+sign sign.goldsmiths "goldsmiths' row" 88 104 west
+patrol merchant_watch 104,133|104,109|104,78|104,47|104,23|138,47|138,78|138,109|104,133
+fade fade.merchant_court 71 104 67 26
+camera 0 0 208 140
 surroundings north water east town south town west town

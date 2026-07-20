@@ -50,13 +50,19 @@ prop bush.road bush 84 50 rect=3,2
 prop bush.east bush 94 56 rect=2,2
 prop fish_barrels barrels 116 31 rect=3,2
 prop drying_nets_east barrels 132 34 rect=2,1
+prop fishing_boat_west_a fishing_boat 33 6 rect=2,6
+prop fishing_boat_west_b fishing_boat 39 9 rect=2,6
+prop fishing_boat_mid_a fishing_boat 67 6 rect=2,6
+prop fishing_boat_mid_b fishing_boat 73 9 rect=2,6
+prop fishing_boat_east_a fishing_boat 115 6 rect=2,6
+prop fishing_boat_east_b fishing_boat 121 9 rect=2,6
 landmark east_quay_marker gate_arch 78 20 5 2 wall_color=8c8980ff top_px=88 passage_axis=z
 spawn spawn.inspection 48 40 rect=2,2
 anchor from_reval_east 5 42 rect=2,2
 anchor from_harbor_north 6 30 rect=2,2
 anchor quay_plaza 58 30 rect=2,2
 anchor east_warehouses 78 30 rect=2,2
-transition to_reval_east 0 39 4 8 to=reval_east destination_spawn=viru_road_boundary spawn=from_reval_east spawn_offset_px=128,0 highlight_area=true transition_visual=ground
+transition to_reval_east 0 39 4 8 to=reval_east destination_spawn=viru_road_boundary spawn=from_reval_east spawn_offset_px=128,0 highlight_area=true transition_visual=ground alignment=travel
 transition to_harbor_north 0 27 4 8 to=reval_harbor_north destination_spawn=from_harbor_east spawn=from_harbor_north spawn_offset_px=128,0 highlight_area=true transition_visual=ground
 sign sign.town "to town" 6 44 west
 sign sign.north_harbor "trade harbour" 8 28 west

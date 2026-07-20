@@ -85,6 +85,27 @@
         "to_reval_east",
         "to_reval_north",
         "to_reval_toompea",
+        "to_reval_south",
+        "to_archbishops_garden"
+      ]
+    },
+    {
+      "id": "archbishops_garden",
+      "location_name": "Archbishop's Garden",
+      "scene": "scenes/reval_archbishops_garden/reval_archbishops_garden.tscn",
+      "definition": "scripts/map/definitions/prototypes/archbishops_garden_definition.gd",
+      "factory": "ArchbishopsGardenDefinition.create",
+      "disposition": "convert",
+      "capture": "archbishops_garden.png",
+      "mandatory_anchors": [
+        "inspection_spawn",
+        "archbishops_garden",
+        "medieval_well",
+        "western_view"
+      ],
+      "mandatory_transitions": [
+        "to_reval_toompea",
+        "to_reval_center",
         "to_reval_south"
       ]
     },
@@ -105,7 +126,7 @@
       "mandatory_transitions": [
         "to_reval_center",
         "to_reval_north",
-        "to_reval_south"
+        "to_archbishops_garden"
       ]
     },
     {
@@ -124,7 +145,7 @@
       "mandatory_transitions": [
         "to_reval_center",
         "to_reval_east",
-        "to_reval_toompea"
+        "to_archbishops_garden"
       ]
     },
     {
@@ -343,7 +364,7 @@
     },
     {
       "id": "prototype.pernau",
-      "location_name": "Pärnu",
+      "location_name": "P\u00e4rnu",
       "scene": "scenes/events/pernau.tscn",
       "definition": "scripts/map/definitions/outdoor/wilderness_event_definitions.gd",
       "factory": "WildernessEventDefinitions.all",

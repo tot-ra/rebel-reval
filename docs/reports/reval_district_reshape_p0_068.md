@@ -6,8 +6,9 @@ The semantic district layout now follows Tallinn's preserved medieval urban
 structure more closely while retaining existing stable map and transition IDs.
 
 - `lower_town_slice` is visibly **Workers' District** and ends at 128 cells high.
-- `south_quarter` is **Knights District**, with denser civic/military fabric and
-  a stepped outer wall instead of a rectangular enclosure.
+- `archbishops_garden` adds the western Toompea **Archbishop's Garden** between Upper Town, Central, and Knights districts. Local excavation evidence places Bishop's Garden on the western plateau; the 1343 layout includes its well and garden plot but omits the Bishop's House first recorded in 1420.
+- `south_quarter` is **Knights District**, expanded west beneath Toompea, with denser civic/military fabric and
+  a fully connected stepped outer wall instead of a rectangular enclosure.
 - The old north ward is split horizontally: a 208 x 112 **Monastery District**
   with fortified west/east edges below a 173 x 140 **Merchant District** with
   west/east/north walls. Round towers follow the Workers' District fortification

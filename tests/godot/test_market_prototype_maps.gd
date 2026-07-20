@@ -4,6 +4,7 @@ const StOlafsGuildHallDefinition := preload("res://scripts/map/definitions/proto
 const MarketCivicQuarterDefinition := preload("res://scripts/map/definitions/prototypes/market_civic_quarter_definition.gd")
 const NorthQuarterDefinition := preload("res://scripts/map/definitions/prototypes/north_quarter_definition.gd")
 const MonasteryQuarterDefinition := preload("res://scripts/map/definitions/prototypes/monastery_quarter_definition.gd")
+const ArchbishopsGardenDefinition := preload("res://scripts/map/definitions/prototypes/archbishops_garden_definition.gd")
 const ToompeaQuarterDefinition := preload("res://scripts/map/definitions/prototypes/toompea_quarter_definition.gd")
 const SouthQuarterDefinition := preload("res://scripts/map/definitions/prototypes/south_quarter_definition.gd")
 const LowerTownSliceDefinition := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
@@ -15,7 +16,7 @@ const MapVerification := preload("res://scripts/map/map_verification.gd")
 
 
 func test_market_prototypes_validate_and_stay_inactive() -> void:
-	for factory in [StOlafsGuildHallDefinition, MarketCivicQuarterDefinition, NorthQuarterDefinition, MonasteryQuarterDefinition, ToompeaQuarterDefinition, SouthQuarterDefinition, HarborWarehouseDefinition]:
+	for factory in [StOlafsGuildHallDefinition, MarketCivicQuarterDefinition, NorthQuarterDefinition, MonasteryQuarterDefinition, ArchbishopsGardenDefinition, ToompeaQuarterDefinition, SouthQuarterDefinition, HarborWarehouseDefinition]:
 		var definition: MapDefinition = factory.create()
 		assert_eq(definition.scope, &"prototype")
 		assert_false(definition.active)
@@ -25,7 +26,7 @@ func test_market_prototypes_validate_and_stay_inactive() -> void:
 func test_central_district_unifies_market_and_historic_street_junction() -> void:
 	var definition: MapDefinition = MarketCivicQuarterDefinition.create()
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
-	assert_eq(definition.size_cells, Vector2i(104, 96))
+	assert_eq(definition.size_cells, Vector2i(114, 128))
 	for anchor_id in [&"town_hall_edge", &"pikk_street_spine", &"vana_turg_neck", &"karja_lane", &"holy_spirit_frontage", &"market_cross", &"weigh_table"]:
 		assert_true(MapVerification.has_anchor(definition, anchor_id), "Missing historic anchor %s" % anchor_id)
 		assert_true(MapVerification.route_exists_exact(definition, grid, definition.player_spawn, MapVerification.anchor_position(definition, anchor_id)), "Historic market route is blocked at %s" % anchor_id)
@@ -76,13 +77,16 @@ func test_market_civic_quarter_edges_are_reciprocal_with_adjacent_districts() ->
 	var north := NorthQuarterDefinition.create()
 	var monastery := MonasteryQuarterDefinition.create()
 	var toompea := ToompeaQuarterDefinition.create()
+	var garden := ArchbishopsGardenDefinition.create()
 	var south := SouthQuarterDefinition.create()
 	_assert_transition_pair(center, &"to_reval_east", east, &"vana_turg_boundary")
 	_assert_transition_pair(center, &"to_reval_north", monastery, &"to_reval_center")
 	_assert_transition_pair(center, &"to_reval_toompea", toompea, &"to_reval_center")
 	_assert_transition_pair(center, &"to_reval_south", south, &"to_reval_center")
 	_assert_transition_pair(east, &"to_reval_south", south, &"to_reval_east")
-	_assert_transition_pair(toompea, &"to_reval_south", south, &"to_reval_toompea")
+	_assert_transition_pair(toompea, &"to_archbishops_garden", garden, &"to_reval_toompea")
+	_assert_transition_pair(center, &"to_archbishops_garden", garden, &"to_reval_center")
+	_assert_transition_pair(garden, &"to_reval_south", south, &"to_archbishops_garden")
 	_assert_transition_pair(toompea, &"to_reval_north", monastery, &"to_reval_toompea")
 	_assert_transition_pair(monastery, &"to_reval_north", north, &"to_monastery")
 	_assert_transition_pair(east, &"vene_district_boundary", monastery, &"to_reval_east")
@@ -92,10 +96,13 @@ func test_market_civic_quarter_edges_are_reciprocal_with_adjacent_districts() ->
 	_assert_edge(center, &"to_reval_south", &"south")
 	_assert_edge(toompea, &"to_reval_center", &"east")
 	_assert_edge(toompea, &"to_reval_north", &"east")
-	_assert_edge(toompea, &"to_reval_south", &"south")
+	_assert_edge(toompea, &"to_archbishops_garden", &"south")
+	_assert_edge(garden, &"to_reval_toompea", &"north")
+	_assert_edge(garden, &"to_reval_center", &"east")
+	_assert_edge(garden, &"to_reval_south", &"south")
 	_assert_edge(south, &"to_reval_center", &"north")
 	_assert_edge(south, &"to_reval_east", &"north")
-	_assert_edge(south, &"to_reval_toompea", &"west")
+	_assert_edge(south, &"to_archbishops_garden", &"north")
 	_assert_edge(east, &"to_reval_south", &"south")
 	assert_true(_transition_by_id(east, &"karja_road_boundary").is_empty())
 
@@ -127,6 +134,7 @@ func test_city_fortifications_wrap_only_outer_district_edges() -> void:
 	var east := LowerTownSliceDefinition.create()
 	var north := NorthQuarterDefinition.create()
 	var toompea := ToompeaQuarterDefinition.create()
+	var garden := ArchbishopsGardenDefinition.create()
 	var south := SouthQuarterDefinition.create()
 	# The wall is distributed across the city's exterior maps. Shared district
 	# seams remain streets, so crossing the Lower Town never requires a gate.
@@ -138,17 +146,17 @@ func test_city_fortifications_wrap_only_outer_district_edges() -> void:
 	assert_true(_transition_by_id(east, &"karja_road_boundary").is_empty())
 
 
-func test_south_quarter_west_gate_and_outer_wall_read_as_authored_edges() -> void:
+func test_south_quarter_garden_gate_and_outer_wall_read_as_authored_edges() -> void:
 	var south := SouthQuarterDefinition.create()
-	var toompea_gate := _transition_by_id(south, &"to_reval_toompea")
-	var gate_landmark := _landmark_by_id(south, &"toompea_slope_gate")
-	assert_false(toompea_gate.is_empty(), "Knights District west wall needs a Toompea transition")
-	assert_false(gate_landmark.is_empty(), "Knights District west transition needs a visible gate arch")
-	assert_eq(toompea_gate.get("view_landmark_id", &""), &"toompea_slope_gate")
-	assert_true((gate_landmark["rect"] as Rect2).encloses(toompea_gate["rect"]), "Toompea gate arch must cover the transition throat")
-	assert_false(_building_by_id(south, &"toompea_gate_north_jamb").is_empty())
-	assert_false(_building_by_id(south, &"toompea_gate_south_jamb").is_empty())
-	assert_eq(south.surroundings_sides.get(&"south"), &"woodland", "outer Karja wall should not spawn town houses outside the wall")
+	var garden_gate := _transition_by_id(south, &"to_archbishops_garden")
+	var gate_landmark := _landmark_by_id(south, &"garden_descent_gate")
+	assert_false(garden_gate.is_empty(), "Knights District needs a guarded Archbishop's Garden descent")
+	assert_false(gate_landmark.is_empty())
+	assert_eq(garden_gate.get("view_landmark_id", &""), &"garden_descent_gate")
+	assert_true((gate_landmark["rect"] as Rect2).encloses(garden_gate["rect"]))
+	for tower_id in [&"garden_gate_west_tower", &"garden_gate_east_tower", &"south_wall_tower_southwest", &"south_wall_tower_southeast"]:
+		assert_true(bool(_building_by_id(south, tower_id).get("tower", false)), "%s must be circular" % tower_id)
+	assert_eq(south.surroundings_sides.get(&"south"), &"woodland")
 
 
 func test_east_and_south_quarter_wall_preview_edges_align() -> void:

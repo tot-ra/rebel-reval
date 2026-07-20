@@ -4,7 +4,7 @@
 
 # Cooper's Guild
 
-![Cooper's Guild](../../assets/buildings/coopers_guild.png)
+![Cooper's Guild](../../quarantine/assets/buildings/coopers_guild.png)
 *Image missing*
 
 The guildhall of the coopers, a powerful and influential guild in the city of Reval.

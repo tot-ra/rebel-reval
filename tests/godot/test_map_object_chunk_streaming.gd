@@ -1,5 +1,9 @@
 extends "res://tests/godot/test_case.gd"
 
+const CHUNK_READINESS_FIXTURE_PATH := "res://tests/fixtures/maps/object_chunk_streaming_readiness_p0_067c.json"
+const KalevSmithyFactory := preload("res://scripts/map/definitions/lower_town/kalev_smithy_rrmap_factory.gd")
+const LowerTownSliceFactory := preload("res://scripts/map/definitions/lower_town/lower_town_slice_rrmap_factory.gd")
+
 
 func test_load_unload_lifecycle_preserves_global_transform_and_recreates_once() -> void:
 	var definition := _definition()
@@ -117,25 +121,151 @@ func test_duplicate_ids_produce_deterministic_diagnostic_without_second_record()
 	assert_eq(index.record(&"building.crossing")["kind"], &"building")
 
 
-func test_lower_town_streaming_preserves_complete_current_renderer_output() -> void:
-	var definition: MapDefinition = preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd").create()
-	var grid := MapBuilder.build(definition)
-	var parent := Node2D.new()
-	var actors := Node2D.new()
-	parent.add_child(actors)
-	var assembled := MapAssembler.assemble(parent, definition, grid, actors)
-	var terrain: MapTerrainRenderer = assembled["terrain"]
-	var streamer := assembled["object_streamer"] as MapObjectChunkStreamer
-	terrain.load_all_chunks()
-	streamer.update_active_chunks(terrain.loaded_chunk_coordinates())
-	assert_eq(terrain.loaded_chunk_count(), grid.chunk_coordinates().size())
-	assert_eq(streamer.loaded_instance_count(), definition.buildings.size() + definition.props.size())
-	assert_true(streamer.duplicate_instance_ids().is_empty())
-	for building in definition.buildings:
-		var body := streamer.loaded_instance(building["id"]) as StaticBody2D
-		assert_eq(body.position, MapBuildingRenderer.footprint_y_sort_anchor(building["footprint"]))
-		assert_eq(body.get_meta(&"footprint"), building["footprint"])
-	parent.free()
+func test_playable_slice_boundary_warnings_have_reviewed_production_ownership() -> void:
+	var fixture_text := FileAccess.get_file_as_string(CHUNK_READINESS_FIXTURE_PATH)
+	assert_false(fixture_text.is_empty(), "Missing chunk-readiness fixture: %s" % CHUNK_READINESS_FIXTURE_PATH)
+	var fixture: Dictionary = JSON.parse_string(fixture_text)
+	var chunk_size := MapTerrainGrid.DEFAULT_CHUNK_SIZE_CELLS
+	assert_eq(chunk_size, 32, "P0-067c review is valid only for ADR 0010's production chunk size")
+	assert_eq(int(fixture.get("chunk_size_cells", 0)), chunk_size)
+
+	for expected_map: Dictionary in fixture.get("maps", []):
+		var map_id := StringName(expected_map.get("map_id", ""))
+		var result := MapBlueprintCompiler.compile_with_diagnostics(_slice_blueprint(map_id))
+		assert_true(result.is_ok(), str(result.formatted_diagnostics()))
+		var definition: MapDefinition = result.definition
+		assert_eq(definition.scope, &"production", "%s must remain production-scoped" % map_id)
+		assert_true(definition.active, "%s must remain release-active" % map_id)
+		var index := MapChunkRuntimeIndex.build(definition, chunk_size)
+		assert_true(index.diagnostics().is_empty(), "%s runtime index must have unique stable IDs" % map_id)
+
+		var actual_records: Array[Dictionary] = []
+		for diagnostic in result.diagnostics:
+			if diagnostic.code == &"MAP_CHUNK_BOUNDARY_AMBIGUOUS":
+				actual_records.append(_boundary_readiness_record(definition, index, diagnostic))
+		var normalized_actual: Array = JSON.parse_string(JSON.stringify(actual_records))
+		assert_eq(
+			normalized_actual,
+			expected_map.get("warning_records", []),
+			"%s boundary inventory or production ownership changed; review the fixture diff before accepting it" % map_id
+		)
+
+		var blocked := MapVerification.blocked_cells(definition)
+		for reviewed: Dictionary in actual_records:
+			var subject := StringName(reviewed["subject"])
+			if reviewed["kind"] == "excluded_area":
+				assert_false(index.has_object(subject), "%s is baked navigation data, not streamable authority" % subject)
+				_assert_exclusion_is_baked(blocked, reviewed["cell_rect"], subject)
+				continue
+			var record := index.record(subject)
+			var consumers: Array = record["consumer_chunks"]
+			assert_false(consumers.is_empty(), "%s needs at least one production consumer chunk" % subject)
+			assert_eq(record["owner_chunk"], consumers[0], "%s owner must be the lexicographically smallest consumer" % subject)
+			for chunk: Vector2i in consumers:
+				var consumer_ids: Array[StringName] = []
+				for consumed: Dictionary in index.records_consumed_by(chunk):
+					consumer_ids.append(consumed["id"])
+				assert_eq(consumer_ids.count(subject), 1, "%s must appear exactly once in consumer %s" % [subject, chunk])
+			if record["kind"] == &"transition":
+				assert_eq(record["residency"], MapChunkRuntimeIndex.RESIDENCY_PERSISTENT)
+			else:
+				assert_eq(record["residency"], MapChunkRuntimeIndex.RESIDENCY_STREAMED)
+
+
+func test_playable_slice_streaming_preserves_complete_current_renderer_output() -> void:
+	for map_id in [&"kalev_smithy", &"lower_town_slice"]:
+		var result := MapBlueprintCompiler.compile_with_diagnostics(_slice_blueprint(map_id))
+		assert_true(result.is_ok(), str(result.formatted_diagnostics()))
+		var definition: MapDefinition = result.definition
+		var grid := MapBuilder.build(definition)
+		var parent := Node2D.new()
+		var actors := Node2D.new()
+		parent.add_child(actors)
+		var assembled := MapAssembler.assemble(parent, definition, grid, actors)
+		var terrain: MapTerrainRenderer = assembled["terrain"]
+		var streamer := assembled["object_streamer"] as MapObjectChunkStreamer
+		terrain.load_all_chunks()
+		streamer.update_active_chunks(terrain.loaded_chunk_coordinates())
+		assert_eq(terrain.loaded_chunk_count(), grid.chunk_coordinates().size())
+		assert_eq(streamer.loaded_instance_count(), definition.buildings.size() + definition.props.size())
+		assert_true(streamer.duplicate_instance_ids().is_empty())
+		for building in definition.buildings:
+			var body := streamer.loaded_instance(building["id"]) as StaticBody2D
+			assert_true(body != null, "%s did not load building %s" % [map_id, building["id"]])
+			assert_eq(body.position, MapBuildingRenderer.footprint_y_sort_anchor(building["footprint"]))
+			assert_eq(body.get_meta(&"footprint"), building["footprint"])
+		parent.free()
+
+
+func _boundary_readiness_record(
+	definition: MapDefinition,
+	index: MapChunkRuntimeIndex,
+	diagnostic: MapBlueprintDiagnostic
+) -> Dictionary:
+	var subject := diagnostic.subject
+	if String(subject).begins_with("excluded."):
+		var excluded_index := int(diagnostic.path.get_slice("[", 1).trim_suffix("]"))
+		return {
+			"subject": String(subject),
+			"kind": "excluded_area",
+			"cell_rect": _rect2i_array(definition.excluded_areas[excluded_index]),
+			"owner_chunk": null,
+			"consumer_chunks": [],
+			"residency": "baked_static",
+		}
+	var record := index.record(subject)
+	assert_false(record.is_empty(), "Reviewed runtime subject is missing: %s" % subject)
+	return {
+		"subject": String(subject),
+		"kind": String(record["kind"]),
+		"cell_rect": _rect2i_array(_world_rect_to_cell_rect(record["bounds"], definition.cell_size)),
+		"owner_chunk": _vector2i_array(record["owner_chunk"]),
+		"consumer_chunks": _chunk_array(record["consumer_chunks"]),
+		"residency": String(record["residency"]),
+	}
+
+
+func _slice_blueprint(map_id: StringName) -> MapBlueprint:
+	match map_id:
+		&"kalev_smithy":
+			return KalevSmithyFactory.create()
+		&"lower_town_slice":
+			return LowerTownSliceFactory.create()
+	fail("Unknown playable slice map: %s" % map_id)
+	return null
+
+
+func _world_rect_to_cell_rect(bounds: Rect2, cell_size: int) -> Rect2i:
+	var first := Vector2i(floori(bounds.position.x / cell_size), floori(bounds.position.y / cell_size))
+	var last := Vector2i(ceili(bounds.end.x / cell_size), ceili(bounds.end.y / cell_size))
+	return Rect2i(first, last - first)
+
+
+func _rect2i_array(rect: Rect2i) -> Array[int]:
+	return [rect.position.x, rect.position.y, rect.size.x, rect.size.y]
+
+
+func _vector2i_array(value: Vector2i) -> Array[int]:
+	return [value.x, value.y]
+
+
+func _chunk_array(chunks: Array) -> Array[Array]:
+	var result: Array[Array] = []
+	for chunk: Vector2i in chunks:
+		result.append(_vector2i_array(chunk))
+	return result
+
+
+func _assert_exclusion_is_baked(blocked: Dictionary, rect_value: Array, subject: StringName) -> void:
+	var rect := Rect2i(
+		int(rect_value[0]),
+		int(rect_value[1]),
+		int(rect_value[2]),
+		int(rect_value[3])
+	)
+	for y in range(rect.position.y, rect.end.y):
+		for x in range(rect.position.x, rect.end.x):
+			assert_true(blocked.has(Vector2i(x, y)), "%s must remain baked into blocked navigation" % subject)
 
 
 func _definition() -> MapDefinition:

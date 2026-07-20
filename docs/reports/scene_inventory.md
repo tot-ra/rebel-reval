@@ -80,6 +80,7 @@ Inventory row count (data rows in the table below): **75**.
 | 34 | `scenes/map_prototype/smithy_courtyard.tscn` | partial | P0-042 deterministic programmatic map-authoring spike; developer-only and not in the active transition manifest. |
 | 35 | `scenes/menu/main_menu.tscn` | working | `run/main_scene`; Start/Exit UI, video, audio; P0-017 smoke pass. |
 | 37 | `scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn` | partial | Inactive programmatic guild hall interior prototype; not in active destinations. |
+| 77 | `scenes/reval_archbishops_garden/reval_archbishops_garden.tscn` | partial | Inactive Archbishop's Garden western Toompea prototype; developer traversal only. |
 | 38 | `scenes/reval_center/reval_center.tscn` | partial | Unified inactive Central District prototype containing Town Hall market square and civic quarter; release-gated. |
 | 39 | `scenes/reval_east/forge/forge.tscn` | working | Programmatic smithy interior; `DoorNavigator` target with stable anchors and courtyard transition. |
 | 40 | `scenes/reval_east/forge/forge_cat.tscn` | working | Ambient smithy cat with navigation and idle behavior. |

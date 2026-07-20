@@ -19,6 +19,8 @@ static func create_prop(
 
 	var shadow := Polygon2D.new()
 	shadow.name = "Shadow"
+	if prop["kind"] == MapTypes.PROP_KIND_FISHING_BOAT:
+		shadow.visible = false
 	shadow.polygon = _ellipse(Vector2(0, 2) + MapVisualStyle.shadow_offset(target) * 0.35, Vector2(26, 9), 16)
 	shadow.color = Color(MapVisualStyle.role_color(&"ink", target, time_of_day), MapVisualStyle.shadow_alpha(target, time_of_day))
 	shadow.z_index = -2
@@ -43,8 +45,16 @@ static func create_prop(
 		MapTypes.PROP_KIND_CHAIR: _draw_chair(root, target, time_of_day)
 		MapTypes.PROP_KIND_CANDLE: _draw_candle(root, target, time_of_day)
 		MapTypes.PROP_KIND_BUSH: _draw_bush(root, target, time_of_day)
+		MapTypes.PROP_KIND_FISHING_BOAT: _draw_fishing_boat(root, target, time_of_day)
 		_: _add_rect(root, "Marker", Vector2(-8, -8), Vector2(16, 16), Color.MAGENTA, target, time_of_day)
+	if prop["kind"] == MapTypes.PROP_KIND_FISHING_BOAT and _has_tall_footprint(prop):
+		root.rotation = PI * 0.5
 	return root
+
+
+static func _has_tall_footprint(prop: Dictionary) -> bool:
+	var footprint: Variant = prop.get("footprint")
+	return footprint is Rect2 and footprint.size.y > footprint.size.x
 
 
 static func _draw_anvil(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
@@ -170,6 +180,48 @@ static func _draw_bush(parent: Node2D, target: StringName, time_of_day: StringNa
 	_add_circle(parent, "BushA", Vector2(-8, -6), 11.0, foliage.darkened(0.06), target, time_of_day)
 	_add_circle(parent, "BushB", Vector2(7, -8), 10.0, foliage, target, time_of_day)
 	_add_circle(parent, "BushC", Vector2(1, -3), 8.0, foliage.lightened(0.08), target, time_of_day)
+
+
+static func _draw_fishing_boat(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
+	var timber := MapVisualStyle.role_color(&"timber", target, time_of_day)
+	var metal := MapVisualStyle.role_color(&"metal", target, time_of_day)
+	_add_polygon(
+		parent,
+		"Hull",
+		PackedVector2Array([
+			Vector2(-54, -5),
+			Vector2(-34, -18),
+			Vector2(34, -18),
+			Vector2(54, -5),
+			Vector2(32, 8),
+			Vector2(-32, 8),
+		]),
+		wood,
+		target,
+		time_of_day
+	)
+	_add_polygon(
+		parent,
+		"Interior",
+		PackedVector2Array([
+			Vector2(-36, -7),
+			Vector2(-27, -13),
+			Vector2(27, -13),
+			Vector2(36, -7),
+			Vector2(25, 1),
+			Vector2(-25, 1),
+		]),
+		wood.darkened(0.22),
+		target,
+		time_of_day
+	)
+	for index in 3:
+		var x := -24.0 + float(index) * 24.0
+		_add_rect(parent, "Bench%d" % index, Vector2(x - 3, -14), Vector2(6, 19), timber, target, time_of_day)
+	_add_rect(parent, "Mast", Vector2(-3, -47), Vector2(6, 35), timber.darkened(0.12), target, time_of_day)
+	_add_line(parent, "Rigging", PackedVector2Array([Vector2(0, -43), Vector2(35, -14)]), target, time_of_day, &"metal")
+	_add_circle(parent, "MooringRing", Vector2(-44, -4), 3.0, metal, target, time_of_day)
 
 
 static func _draw_barrels(parent: Node2D, target: StringName, time_of_day: StringName) -> void:

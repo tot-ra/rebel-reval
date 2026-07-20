@@ -8,8 +8,12 @@
       "active": true,
       "release": true,
       "spawns": [
-        { "id": "door_courtyard" },
-        { "id": "smithy_start" }
+        {
+          "id": "door_courtyard"
+        },
+        {
+          "id": "smithy_start"
+        }
       ]
     },
     {
@@ -18,12 +22,24 @@
       "active": true,
       "release": true,
       "spawns": [
-        { "id": "forge" },
-        { "id": "street_start" },
-        { "id": "vana_turg_boundary" },
-        { "id": "vene_district_boundary" },
-        { "id": "viru_road_boundary" },
-        { "id": "from_reval_south" }
+        {
+          "id": "forge"
+        },
+        {
+          "id": "street_start"
+        },
+        {
+          "id": "vana_turg_boundary"
+        },
+        {
+          "id": "vene_district_boundary"
+        },
+        {
+          "id": "viru_road_boundary"
+        },
+        {
+          "id": "from_reval_south"
+        }
       ]
     },
     {
@@ -32,11 +48,24 @@
       "active": true,
       "release": false,
       "spawns": [
-        { "id": "from_reval_east" },
-        { "id": "to_reval_north" },
-        { "id": "to_reval_toompea" },
-        { "id": "to_reval_south" },
-        { "id": "to_guild_hall" }
+        {
+          "id": "from_reval_east"
+        },
+        {
+          "id": "to_reval_north"
+        },
+        {
+          "id": "to_reval_toompea"
+        },
+        {
+          "id": "to_reval_south"
+        },
+        {
+          "id": "to_guild_hall"
+        },
+        {
+          "id": "to_archbishops_garden"
+        }
       ]
     },
     {
@@ -45,8 +74,12 @@
       "active": true,
       "release": false,
       "spawns": [
-        { "id": "from_monastery" },
-        { "id": "to_reval_harbor" }
+        {
+          "id": "from_monastery"
+        },
+        {
+          "id": "to_reval_harbor"
+        }
       ]
     },
     {
@@ -55,10 +88,18 @@
       "active": true,
       "release": false,
       "spawns": [
-        { "id": "from_reval_north" },
-        { "id": "from_reval_center" },
-        { "id": "from_reval_east" },
-        { "id": "from_reval_toompea" }
+        {
+          "id": "from_reval_north"
+        },
+        {
+          "id": "from_reval_center"
+        },
+        {
+          "id": "from_reval_east"
+        },
+        {
+          "id": "from_reval_toompea"
+        }
       ]
     },
     {
@@ -67,7 +108,9 @@
       "active": true,
       "release": false,
       "spawns": [
-        { "id": "from_reval_center" }
+        {
+          "id": "from_reval_center"
+        }
       ]
     },
     {
@@ -76,8 +119,12 @@
       "active": true,
       "release": false,
       "spawns": [
-        { "id": "from_reval_north" },
-        { "id": "from_harbor_east" }
+        {
+          "id": "from_reval_north"
+        },
+        {
+          "id": "from_harbor_east"
+        }
       ]
     },
     {
@@ -86,8 +133,29 @@
       "active": true,
       "release": false,
       "spawns": [
-        { "id": "from_reval_east" },
-        { "id": "from_harbor_north" }
+        {
+          "id": "from_reval_east"
+        },
+        {
+          "id": "from_harbor_north"
+        }
+      ]
+    },
+    {
+      "id": "reval_archbishops_garden",
+      "path": "res://scenes/reval_archbishops_garden/reval_archbishops_garden.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_toompea"
+        },
+        {
+          "id": "from_reval_center"
+        },
+        {
+          "id": "from_reval_south"
+        }
       ]
     },
     {
@@ -96,9 +164,15 @@
       "active": true,
       "release": false,
       "spawns": [
-        { "id": "from_reval_center" },
-        { "id": "from_reval_north" },
-        { "id": "from_reval_south" }
+        {
+          "id": "from_reval_center"
+        },
+        {
+          "id": "from_reval_north"
+        },
+        {
+          "id": "from_archbishops_garden"
+        }
       ]
     },
     {
@@ -107,9 +181,15 @@
       "active": true,
       "release": false,
       "spawns": [
-        { "id": "from_reval_center" },
-        { "id": "from_reval_east" },
-        { "id": "from_reval_toompea" }
+        {
+          "id": "from_reval_center"
+        },
+        {
+          "id": "from_reval_east"
+        },
+        {
+          "id": "from_archbishops_garden"
+        }
       ]
     }
   ]

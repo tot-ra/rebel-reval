@@ -7,6 +7,7 @@ const MAP_PATHS: PackedStringArray = [
 	"res://content/maps/market_civic_quarter.rrmap",
 	"res://content/maps/south_quarter.rrmap",
 	"res://content/maps/toompea_quarter.rrmap",
+	"res://content/maps/archbishops_garden.rrmap",
 	"res://content/maps/monastery_quarter.rrmap",
 	"res://content/maps/north_quarter.rrmap",
 	"res://content/maps/reval_harbor_north.rrmap",

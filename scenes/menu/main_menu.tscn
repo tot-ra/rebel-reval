@@ -1,4 +1,6 @@
-[gd_scene load_steps=6 format=3 uid="uid://dyl726xerhjhg"]
+[gd_scene load_steps=7 format=3 uid="uid://dyl726xerhjhg"]
+
+[ext_resource type="Script" path="res://scripts/demo/packaged_demo_walkthrough.gd" id="1_packaged_walkthrough"]
 
 [ext_resource type="Texture2D" uid="uid://bysfalwbeyasb" path="res://scenes/menu/intro-hq.jpg" id="1_kiqgm"]
 [ext_resource type="Texture2D" uid="uid://s3dc3n3tlc3s" path="res://scenes/menu/logo256.png" id="2_kiqgm"]
@@ -13,6 +15,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="PackagedDemoWalkthrough" type="Node" parent="."]
+script = ExtResource("1_packaged_walkthrough")
 
 [node name="City background" type="Sprite2D" parent="."]
 visible = false

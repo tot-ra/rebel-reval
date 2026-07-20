@@ -98,6 +98,10 @@ def classify(path: Path) -> tuple[str, str]:
     """Classify one runtime asset using conservative P0-027 rules."""
     p = path.as_posix()
     name = path.name.lower()
+    approval = source_approvals_by_path().get(p, "")
+
+    if approval.startswith("approved"):
+        return "approved", "Source, rights, edits, and approval are documented in assets/SOURCES.csv."
 
     if p.startswith("assets/bestiary/"):
         return "archive", "Folder has legacy-status archive in assets/bestiary/README.md."
@@ -109,12 +113,6 @@ def classify(path: Path) -> tuple[str, str]:
         return "prototype", "P0-030 greybox tile placeholder for district TileMapLayers until P0-040 orthogonal art lands."
 
     if media_type(path) == "audio":
-        approval = source_approvals_by_path().get(p, "")
-        if approval.startswith("approved"):
-            return (
-                "approved",
-                "Maintainer-attested AI-generated audio with documented provenance in assets/SOURCES.csv.",
-            )
         return "unknown rights", "No per-track source, creator, license, or approval manifest exists yet."
 
     if p.startswith("assets/UI/"):
@@ -195,10 +193,10 @@ def render_inventory() -> str:
     lines.append("Priority order:")
     lines.append("")
     lines.append("1. `archive` - `assets/bestiary/` because its README is marked legacy-status `archive`, plus imported `img/` marketing files that are not active runtime candidates.")
-    lines.append("2. `unknown rights` - all audio, generic `download*` art, and wall/reference renders without source/license evidence.")
+    lines.append("2. `unknown rights` - unapproved audio, generic `download*` art, and wall/reference renders without source/license evidence.")
     lines.append("3. `inconsistent` - legacy HUD/system UI, eight-direction player frame sets, and old tile/isometric materials that conflict with the pending P0-040 art direction.")
     lines.append("4. `prototype` - remaining runtime art candidates that may be useful but are not approved and still need P0-028 provenance plus P0-040 style review.")
-    lines.append("5. `approved` - reserved for future assets with documented source, rights, edits, and human approval. Count is currently zero.")
+    lines.append("5. `approved` - assets whose `assets/SOURCES.csv` approval begins with `approved` after source, rights, and edits are documented.")
     lines.append("")
     lines.append("## Counts by classification")
     lines.append("")

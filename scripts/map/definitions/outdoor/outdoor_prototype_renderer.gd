@@ -65,7 +65,7 @@ func _draw_structure(building: Dictionary) -> void:
 
 func _draw_prop(prop: Dictionary) -> void:
 	var point: Vector2 = prop["position"]
-	var primitive: StringName = prop.get("primitive", &"marker")
+	var primitive: StringName = prop.get("primitive", prop.get("kind", &"marker"))
 	var ink := Color8(43, 38, 36)
 	match primitive:
 		&"ancient_tree", &"tree":
@@ -81,6 +81,25 @@ func _draw_prop(prop: Dictionary) -> void:
 			draw_circle(point + Vector2(0, -7), 12.0, Color8(125, 128, 116))
 		&"campfire", &"signal_fire":
 			draw_circle(point + Vector2(0, -4), 10.0, Color8(173, 81, 42))
+		&"fishing_boat":
+			var footprint: Rect2 = prop.get("footprint", Rect2(point - Vector2(16, 48), Vector2(32, 96)))
+			var half_length := maxf(36.0, maxf(footprint.size.x, footprint.size.y) * 0.42)
+			var half_beam := maxf(12.0, minf(footprint.size.x, footprint.size.y) * 0.3)
+			var vertical := footprint.size.y > footprint.size.x
+			var hull := PackedVector2Array([
+				Vector2(-half_beam, -half_length),
+				Vector2(half_beam, -half_length),
+				Vector2(half_beam * 0.82, half_length * 0.55),
+				Vector2(0, half_length),
+				Vector2(-half_beam * 0.82, half_length * 0.55),
+			])
+			if not vertical:
+				for index in hull.size():
+					hull[index] = Vector2(hull[index].y, hull[index].x)
+			for index in hull.size():
+				hull[index] += point
+			draw_colored_polygon(hull, Color8(119, 77, 45))
+			draw_polyline(PackedVector2Array(Array(hull) + [hull[0]]), ink, 2.0)
 		_:
 			draw_rect(Rect2(point + Vector2(-12, -15), Vector2(24, 15)), Color8(119, 77, 45))
 	draw_circle(point, 2.0, ink)

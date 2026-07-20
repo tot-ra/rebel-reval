@@ -344,7 +344,21 @@ Retained warnings on playable slice maps `kalev_smithy` and `lower_town_slice`, 
 - Keep continuous forge walls, city-wall/foregate runs, brewery/smithy footprints, and civic landmarks; do not suppress the warning code.
 - When object chunk streaming is used, owner chunk is the lexicographically smallest intersecting chunk under ADR 0010 section 4 (`MapChunkRuntimeIndex`).
 - Transitions stay persistent residency; stable IDs never encode chunk coordinates.
-- Do not treat object chunk streaming as production-ready on the playable slice maps until a later task splits the listed subjects or re-asserts ownership at the production 32x32 chunk size after human review. Keep `market_civic_quarter` activation blocked until its activation ticket revisits the list.
+- At the P0-067b review, object chunk streaming remained blocked on the playable slice maps until a later task split the listed subjects or re-asserted ownership at the production 32x32 chunk size after human review. P0-067c closes that slice-map gate in the next section. `market_civic_quarter` remains blocked until its own activation ticket revisits the list.
+
+### Playable-slice object chunk streaming readiness (P0-067c)
+
+Object chunk streaming is production-ready on the active playable maps `kalev_smithy` and `lower_town_slice` at the ADR 0010 production size of 32x32 cells. The 16x16 `MAP_CHUNK_BOUNDARY_AMBIGUOUS` warnings remain visible as conservative review signals; they do not block runtime residency on these two maps.
+
+The reviewed contract and current ownership inventory are recorded in [`docs/reports/map_object_chunk_streaming_readiness_p0_067c.md`](./reports/map_object_chunk_streaming_readiness_p0_067c.md) and locked by [`tests/fixtures/maps/object_chunk_streaming_readiness_p0_067c.json`](../tests/fixtures/maps/object_chunk_streaming_readiness_p0_067c.json). In summary:
+
+- Every reviewed building has one lexicographically smallest owner and every half-open intersecting consumer at 32x32.
+- A building remains one complete instance while any consumer chunk is resident; chunks never duplicate authoritative collision or persistent state.
+- Transitions use persistent residency. Excluded areas remain baked static navigation data rather than streamable objects.
+- Full-load tests on both playable maps produce every building and prop exactly once while preserving authored footprints.
+- Existing smithy collision/route checks and Lower Town canonical parity/route checks remain the geometry acceptance gate.
+
+Any change to a retained warning subject, footprint, owner, consumer list, or residency must update the executable fixture only after renewed map review. This readiness does not activate `market_civic_quarter` or any P0-067a prototype, and it does not approve seamless-world streaming or production coarse A*.
 
 Register every new blueprint factory in `scripts/map/map_blueprint_registry.gd`. Registry order is explicit and deterministic; filesystem discovery is forbidden. Put mandatory anchor IDs in the registry entry. The headless command compiles every entry, checks cross-map transitions and exact required-anchor reachability, prints stable codes, and exits `1` when any error exists:
 

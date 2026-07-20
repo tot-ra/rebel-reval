@@ -221,7 +221,7 @@ transition smithy_door_transition 88 73 2 1 destination_spawn=door_courtyard spa
 # city-wall gate rather than forcing district travel outside the fortifications.
 transition vana_turg_boundary 0 51 2 4 destination_spawn=from_reval_east spawn=vana_turg_boundary spawn_offset_px=96,0 to=reval_center highlight_area=true transition_visual=ground
 transition vene_district_boundary 24 0 3 2 destination_spawn=from_reval_east spawn=vene_district_boundary spawn_offset_px=0,96 to=reval_monastery highlight_area=true transition_visual=ground
-transition viru_road_boundary 145 51 4 3 destination_spawn=from_reval_east spawn=viru_road_boundary spawn_offset_px=-128,0 to=reval_harbor_east highlight_area=true transition_visual=ground
+transition viru_road_boundary 145 51 4 3 destination_spawn=from_reval_east spawn=viru_road_boundary spawn_offset_px=-128,0 to=reval_harbor_east highlight_area=true transition_visual=ground alignment=travel
 transition to_reval_south 59 126 14 2 to=reval_south destination_spawn=from_reval_east spawn=from_reval_south spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
 transition street_start_spawn 83 54 2 2 spawn=street_start
 patrol viru_watch 110,53|80,53|65,53|65,75|65,88|65,116

@@ -10,6 +10,7 @@ const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_
 const MarketCivicQuarter := preload("res://scripts/map/definitions/prototypes/market_civic_quarter_definition.gd")
 const NorthQuarter := preload("res://scripts/map/definitions/prototypes/north_quarter_definition.gd")
 const MonasteryQuarter := preload("res://scripts/map/definitions/prototypes/monastery_quarter_definition.gd")
+const ArchbishopsGarden := preload("res://scripts/map/definitions/prototypes/archbishops_garden_definition.gd")
 const ToompeaQuarter := preload("res://scripts/map/definitions/prototypes/toompea_quarter_definition.gd")
 const SouthQuarter := preload("res://scripts/map/definitions/prototypes/south_quarter_definition.gd")
 const RevalHarborNorth := preload("res://scripts/map/definitions/outdoor/reval_harbor_north_definition.gd")
@@ -20,6 +21,7 @@ const DEFINITION_FACTORIES: Dictionary = {
 	&"reval_center": MarketCivicQuarter,
 	&"reval_north": NorthQuarter,
 	&"reval_monastery": MonasteryQuarter,
+	&"reval_archbishops_garden": ArchbishopsGarden,
 	&"reval_toompea": ToompeaQuarter,
 	&"reval_south": SouthQuarter,
 	&"reval_harbor_north": RevalHarborNorth,

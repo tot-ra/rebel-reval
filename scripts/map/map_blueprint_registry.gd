@@ -8,6 +8,7 @@ const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smi
 const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_rrmap_factory.gd")
 const NorthQuarter := preload("res://scripts/map/definitions/prototypes/north_quarter_rrmap_factory.gd")
 const MonasteryQuarter := preload("res://scripts/map/definitions/prototypes/monastery_quarter_rrmap_factory.gd")
+const ArchbishopsGarden := preload("res://scripts/map/definitions/prototypes/archbishops_garden_rrmap_factory.gd")
 const MarketCivicQuarter := preload("res://scripts/map/definitions/prototypes/market_civic_quarter_rrmap_factory.gd")
 const ToompeaQuarter := preload("res://scripts/map/definitions/prototypes/toompea_quarter_rrmap_factory.gd")
 const SouthQuarter := preload("res://scripts/map/definitions/prototypes/south_quarter_rrmap_factory.gd")
@@ -71,6 +72,12 @@ static func entries() -> Array[Dictionary]:
 				&"st_olaf_frontage",
 				&"guild_frontage",
 			],
+		},
+		{
+			"id": &"archbishops_garden",
+			"source": "res://content/maps/archbishops_garden.rrmap",
+			"factory": ArchbishopsGarden,
+			"required_anchors": [&"inspection_spawn", &"archbishops_garden", &"medieval_well", &"western_view"],
 		},
 		{
 			"id": &"toompea_quarter",

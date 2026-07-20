@@ -12,6 +12,7 @@ const MarketCivicQuarter := preload("res://scripts/map/definitions/prototypes/ma
 const StOlafsGuildHall := preload("res://scripts/map/definitions/prototypes/st_olafs_guild_hall_definition.gd")
 const NorthQuarter := preload("res://scripts/map/definitions/prototypes/north_quarter_definition.gd")
 const MonasteryQuarter := preload("res://scripts/map/definitions/prototypes/monastery_quarter_definition.gd")
+const ArchbishopsGarden := preload("res://scripts/map/definitions/prototypes/archbishops_garden_definition.gd")
 const ToompeaQuarter := preload("res://scripts/map/definitions/prototypes/toompea_quarter_definition.gd")
 const SouthQuarter := preload("res://scripts/map/definitions/prototypes/south_quarter_definition.gd")
 const HarborWarehouse := preload("res://scripts/map/definitions/prototypes/harbor_warehouse_definition.gd")
@@ -32,6 +33,7 @@ static func all() -> Array[MapDefinition]:
 		StOlafsGuildHall.create(),
 		NorthQuarter.create(),
 		MonasteryQuarter.create(),
+		ArchbishopsGarden.create(),
 		ToompeaQuarter.create(),
 		SouthQuarter.create(),
 		HarborWarehouse.create(),

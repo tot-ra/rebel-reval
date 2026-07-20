@@ -38,7 +38,7 @@ func test_toompea_landmarks_follow_historic_upper_town_geography() -> void:
 func test_toompea_plateau_routes_connect_landmarks_and_all_three_descents() -> void:
 	var definition: MapDefinition = ToompeaQuarterDefinition.create()
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
-	for anchor_id in [&"castle_courtyard", &"cathedral_frontage", &"luhike_jalg_gate", &"from_reval_north", &"from_reval_south"]:
+	for anchor_id in [&"castle_courtyard", &"cathedral_frontage", &"luhike_jalg_gate", &"from_reval_north", &"from_archbishops_garden"]:
 		assert_true(MapVerification.has_anchor(definition, anchor_id), "Missing Toompea anchor %s" % anchor_id)
 		assert_true(
 			MapVerification.route_exists_exact(

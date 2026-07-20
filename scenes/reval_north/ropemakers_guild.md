@@ -4,7 +4,7 @@
 
 # Ropemaker's Guild
 
-![Ropemaker's Guild](../../assets/buildings/ropemakers_guild.png)
+![Ropemaker's Guild](../../quarantine/assets/buildings/ropemakers_guild.png)
 *Image missing*
 
 The guildhall of the ropemakers, a guild that is known for its tradition and integrity.

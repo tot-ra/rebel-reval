@@ -61,16 +61,17 @@ func test_layout_connected_city_maps_places_every_reciprocal_neighbor() -> void:
 		"res://content/maps/north_quarter.rrmap",
 		"res://content/maps/south_quarter.rrmap",
 		"res://content/maps/toompea_quarter.rrmap",
+		"res://content/maps/archbishops_garden.rrmap",
 	]:
 		var definition := _definition(path)
 		if definition != null:
 			definitions.append(definition)
-	if definitions.size() != 6:
+	if definitions.size() != 7:
 		return
 
 	var layout := MapAlignmentMath.layout_connected_maps(definitions, &"lower_town_slice")
 	var offsets: Dictionary = layout["offsets"]
-	assert_eq(offsets.size(), 6)
+	assert_eq(offsets.size(), 7)
 	assert_true(layout["unplaced"].is_empty())
 	assert_true(layout["seams"].size() >= 5)
 	assert_eq(offsets[&"lower_town_slice"], Vector2.ZERO)
@@ -99,3 +100,30 @@ func test_unlinked_maps_have_no_automatic_transition_pair() -> void:
 	var smithy := _definition("res://content/maps/kalev_smithy.rrmap")
 	if north != null and smithy != null:
 		assert_true(MapAlignmentMath.find_transition_pairs(north, smithy).is_empty())
+
+
+func test_long_distance_travel_transitions_do_not_become_physical_seams() -> void:
+	var town := _definition("res://content/maps/lower_town_slice.rrmap")
+	var harbor := _definition("res://content/maps/reval_harbor_east.rrmap")
+	assert_true(MapAlignmentMath.find_transition_pairs(town, harbor).is_empty())
+
+
+func test_reval_city_cycles_resolve_to_one_physical_offset() -> void:
+	var definitions: Array[MapDefinition] = []
+	for path in [
+		"res://content/maps/lower_town_slice.rrmap",
+		"res://content/maps/market_civic_quarter.rrmap",
+		"res://content/maps/monastery_quarter.rrmap",
+		"res://content/maps/north_quarter.rrmap",
+		"res://content/maps/south_quarter.rrmap",
+		"res://content/maps/toompea_quarter.rrmap",
+		"res://content/maps/archbishops_garden.rrmap",
+	]:
+		definitions.append(_definition(path))
+	var layout := MapAlignmentMath.layout_connected_maps(definitions, &"lower_town_slice")
+	var offsets: Dictionary = layout["offsets"]
+	for seam in layout["seams"]:
+		var base: MapDefinition = definitions.filter(func(d): return d.map_id == seam["base_map_id"])[0]
+		var neighbor: MapDefinition = definitions.filter(func(d): return d.map_id == seam["neighbor_map_id"])[0]
+		var expected := Vector2(offsets[base.map_id]) + MapAlignmentMath.aligned_neighbor_offset(base, neighbor, seam["base"], seam["neighbor"])
+		assert_eq(Vector2(offsets[neighbor.map_id]), expected, "Conflicting map cycle at %s/%s" % [base.map_id, neighbor.map_id])

@@ -34,6 +34,29 @@ func test_harbors_extend_open_water_past_northern_edge() -> void:
 		view.free()
 
 
+func test_fishing_harbor_has_boats_moored_on_water() -> void:
+	var definition: MapDefinition = HarborEastDefinition.create()
+	var grid := MapBuilder.build(definition)
+	var boats: Array[Dictionary] = []
+	for prop in definition.props:
+		if prop.get("kind") == MapTypes.PROP_KIND_FISHING_BOAT:
+			boats.append(prop)
+	assert_eq(boats.size(), 6, "Fishing Harbour needs working boats at its three piers")
+	for boat in boats:
+		assert_true(boat.has("footprint"), "%s must reserve an authored water footprint" % boat["id"])
+		var footprint: Rect2 = boat["footprint"]
+		var cell_rect := Rect2i(
+			Vector2i(footprint.position / float(definition.cell_size)),
+			Vector2i(footprint.size / float(definition.cell_size))
+		)
+		for y in range(cell_rect.position.y, cell_rect.end.y):
+			for x in range(cell_rect.position.x, cell_rect.end.x):
+				assert_true(
+					MapTypes.WATER_TERRAINS.has(grid.get_terrain(Vector2i(x, y))),
+					"%s must stay in the harbour basin" % boat["id"]
+				)
+
+
 func test_east_harbor_connects_back_to_lower_town() -> void:
 	var definition: MapDefinition = HarborEastDefinition.create()
 	var transition_by_id: Dictionary = {}

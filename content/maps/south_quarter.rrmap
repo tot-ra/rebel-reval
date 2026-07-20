@@ -1,10 +1,9 @@
-# Knights District between Rataskaev, Dunkri, Niguliste, and the Karja Gate.
-# King's Street continues north into the civic square, the Karja/Vaike-Karja
-# lanes continue north-east into the Viru quarter inside the walls, and the guarded
-# western slope climbs to Toompea. Karja Gate is now the district's outer south
-# wall instead of being placed on the eastern-district seam.
+# Knights District between Archbishop's Garden, Rataskaev, Niguliste, and Karja Gate.
+# The wider western sector closes the old map-layout void below Toompea. Existing
+# streets and buildings retain their scale in the eastern half, while a continuous
+# stepped wall with round towers now seals the full southern circuit.
 rrmap 1
-map south_quarter loc.lower_town.south_quarter 192 112 grass scope=prototype active=false palette=clean_painted seed=1375 cell_size=32
+map south_quarter loc.lower_town.south_quarter 336 112 grass scope=prototype active=false palette=clean_painted seed=1375 cell_size=32
 source "scenes/reval_south/reval_south.tscn"
 source "scenes/revel-map.jpg"
 source "scenes/reval_south/rataskaev_well.md"
@@ -18,102 +17,124 @@ style house.artisan door_side=north ridge_axis=x wall_height=96 wall_color=63594
 style house.gatehouse door_side=north ridge_axis=x wall_height=136 wall_color=6e6a62ff wall_material=limestone roof_color=2a241cff roof_material=tile
 style wall.city wall_height=192 wall_color=949185ff
 style wall.tower wall_height=240 wall_color=8c8a80ff
-terrain_rects quarter.base cobblestone 0,0,192,25|0,25,190,25|3,50,187,25|6,75,181,15|12,90,166,8|26,98,140,6|54,104,96,8 order=1
-terrain rataskaev_close stone 14 9 31 19 order=2
-terrain niguliste_close stone 17 53 31 19 order=3
-terrain dunkri_yard dirt 58 25 45 22 order=4
-terrain karja_glacis mud 75 100 48 12 order=5
-terrain toompea_slope dirt 0 12 17 75 order=6
-terrain north_rataskaev_yard dirt 7 0 31 12 order=7
-terrain north_civic_threshold stone 82 0 48 16 order=7
-terrain east_viru_threshold stone 158 0 31 12 order=7
-terrain_rects wall_walk_stone stone 12,90,24,6|36,94,28,6|64,98,24,8|118,98,32,8|150,94,16,8|166,88,12,8 order=7
-stroke rataskaev_street cobblestone 0,22|31,22|58,22|82,22 thickness=3 order=8
-stroke dunkri_lane cobblestone 69,0|69,19|69,37|69,56 thickness=3 order=9
-stroke king_street cobblestone 69,0|69,16|89,16|113,16 thickness=4 order=10
-stroke niguliste_lane cobblestone 0,65|27,65|48,65|48,59|69,59 thickness=3 order=11
-stroke karja_lane cobblestone 75,56|75,72|96,72|117,72 thickness=4 order=12
-stroke viru_internal_lane cobblestone 117,72|144,72|184,72|184,56|174,56|174,0 thickness=4 order=13
-stroke karja_gate_road cobblestone 96,72|96,87|96,110 thickness=4 order=14
-building city_wall_west_south_gate_north wall 0 12 3 8 style=wall.city
-building toompea_gate_north_jamb wall 0 20 1 3 style=wall.city
-building toompea_gate_south_jamb wall 0 28 1 3 style=wall.city
-building city_wall_west_south wall 0 31 3 19 style=wall.city
-building city_wall_west_south_b wall 3 50 3 25 style=wall.city
-building city_wall_west_south_c wall 6 75 6 15 style=wall.city
-building city_wall_south_west_a wall 12 90 24 4 style=wall.city
-building city_wall_south_west wall 36 94 28 4 style=wall.city
-building city_wall_south_west_c wall 64 98 20 4 style=wall.city
-building city_wall_south_west_d wall 82 102 2 10 style=wall.city
-building karja_gate_west_tower wall 86 100 8 8 style=wall.tower tower=true
-building karja_gate_east_tower wall 110 100 8 8 style=wall.tower tower=true
-building city_wall_south_east_a wall 123 104 27 4 style=wall.city
-building city_wall_south_east_b wall 150 100 16 4 style=wall.city
-building city_wall_south_east_c wall 166 94 12 4 style=wall.city
-building city_wall_east_north_a wall 187 0 3 25 style=wall.city
-building city_wall_east_north_b wall 187 25 3 25 style=wall.city
-building city_wall_east_north_c wall 187 50 3 25 style=wall.city
-building city_wall_east_bend_a wall 184 75 3 15 style=wall.city
-building city_wall_east_bend_b wall 176 88 8 3 style=wall.city
-building rataskaev_corner house 10 9 12 8 style=house.merchant.south
-building rataskaev_north_frontage house 34 0 12 6 style=house.merchant.south
-building king_street_north_frontage house 86 3 14 6 style=house.merchant.south
-building civic_edge_artisan_house house 113 6 8 8 style=house.artisan
-building dunkri_row_west house 51 25 12 8 style=house.merchant.north
-building dunkri_row_east house 82 25 12 8 style=house.merchant.south
-building knights_quarters_west house 120 19 10 12 style=house.knights
-building knights_quarters_east house 137 19 12 12 style=house.knights
-building king_street_house house 27 12 12 6 style=house.artisan
-building south_merchant_row_west house 134 40 2 8 style=house.merchant.north
-building south_merchant_row_east house 137 40 16 8 style=house.merchant.north
-building niguliste_row house 17 72 16 8 style=house.merchant.north
-building karja_lane_house_west house 51 72 12 8 style=house.artisan
-building karja_lane_house_mid house 82 75 12 8 style=house.merchant.south
-building karja_lane_house_east house 127 75 14 8 style=house.merchant.north
-building viru_corner_house house 165 62 10 8 style=house.merchant.south
-building viru_seam_watch_house house 151 16 8 8 style=house.artisan
-building viru_seam_roofline house 154 37 6 8 style=house.merchant.north
-building knights_hall house 105 38 18 12 style=house.knights
-building knights_dormitory house 126 52 16 10 style=house.knights
-building knights_stable house 101 56 14 8 style=house.artisan
-building swordsmith_row house 146 58 14 8 style=house.artisan
-building karja_merchant_row house 144 76 18 8 style=house.merchant.north
-building niguliste_chapter_house house 34 78 14 10 style=house.knights
-building rataskaev_service_house house 16 42 12 8 style=house.artisan
-building western_slope_house house 12 70 10 8 style=house.merchant.north
-building karja_gate_house_west house 79 87 6 8 style=house.gatehouse
-building karja_gate_house_east house 113 87 6 8 style=house.gatehouse
-landmark karja_gate_arch gate_arch 96 104 8 8 wall_color=8f8c80ff top_px=240 passage_axis=z door_material=metal
-landmark toompea_slope_gate gate_arch 0 20 4 7 wall_color=8f8c80ff top_px=176 passage_axis=x door_material=wood
-prop rataskaev_well_prop well 24 31 rect=2,2
-prop north_threshold_barrels barrels 93 16 rect=2,2
-prop north_threshold_cart cart 117 19 rect=2,2
-prop street_cart cart 106 28 rect=2,2
-prop knight_banner cart 134 22 rect=2,2
-prop karja_cart cart 106 72 rect=2,2
-prop gate_barrels barrels 86 90 rect=2,2
-prop knights_court_cart cart 116 54 rect=2,2
-prop knights_court_barrels barrels 126 44 rect=2,2
-prop swordsmith_cart cart 154 70 rect=2,2
-spawn spawn.inspection 82 56 rect=2,2
-anchor inspection_spawn 82 56 rect=2,2
-anchor rataskaev_well 24 31 rect=2,2
-anchor karja_approach 101 95 rect=2,2
-anchor king_street_climb 69 6 rect=2,2
-anchor from_reval_center 69 3 rect=2,2
-anchor from_reval_east 180 3 rect=2,2
-anchor from_reval_toompea 3 25 rect=2,2
-transition to_reval_center 58 0 12 2 to=reval_center destination_spawn=to_reval_south spawn=from_reval_center spawn_offset_px=0,96 highlight_area=true transition_visual=ground
-transition to_reval_east 174 0 12 2 to=reval_east destination_spawn=from_reval_south spawn=from_reval_east spawn_offset_px=0,96 highlight_area=true transition_visual=ground
-transition to_reval_toompea 0 20 2 7 to=reval_toompea destination_spawn=from_reval_south spawn=from_reval_toompea spawn_offset_px=96,0 highlight_area=true transition_visual=ground view_landmark_id=toompea_slope_gate
-sign sign.town_square "to town square" 65 6 north
-sign sign.rataskaev "rataskaev well" 24 25 west
-sign sign.knights "knights' quarters" 134 22 east
-sign sign.viru "to viru quarter" 171 6 north
-sign sign.toompea "to toompea" 7 25 west
-sign sign.karja "karja gate" 99 100 south
-# Multi-street watch: King's Street, Rataskaev, Dunkri/Karja approach, Viru lane, Karja Gate, Toompea slope.
-patrol south_watch 69,3|69,22|82,56|117,72|182,72|182,56|171,3|144,72|103,72|103,95|48,65|3,25
-fade fade.knights 113 16 52 24
-camera 0 0 192 112
-surroundings north town east town south woodland west town
+terrain_rects quarter.base cobblestone 144,0,192,25|144,25,190,25|147,50,187,25|150,75,181,15|156,90,166,8|170,98,140,6|198,104,96,8 order=1
+terrain rataskaev_close stone 158 9 31 19 order=2
+terrain niguliste_close stone 161 53 31 19 order=3
+terrain dunkri_yard dirt 202 25 45 22 order=4
+terrain karja_glacis mud 219 100 48 12 order=5
+terrain old_hill_foot dirt 144 12 17 75 order=6
+terrain north_rataskaev_yard dirt 151 0 31 12 order=7
+terrain north_civic_threshold stone 226 0 48 16 order=7
+terrain east_viru_threshold stone 302 0 31 12 order=7
+terrain_rects wall_walk_stone stone 156,90,24,6|180,94,28,6|208,98,24,8|262,98,32,8|294,94,16,8|310,88,12,8 order=7
+stroke rataskaev_street cobblestone 144,22|175,22|202,22|226,22 thickness=3 order=8
+stroke dunkri_lane cobblestone 213,0|213,19|213,37|213,56 thickness=3 order=9
+stroke king_street cobblestone 213,0|213,16|233,16|257,16 thickness=4 order=10
+stroke niguliste_lane cobblestone 144,65|171,65|192,65|192,59|213,59 thickness=3 order=11
+stroke karja_lane cobblestone 219,56|219,72|240,72|261,72 thickness=4 order=12
+stroke viru_internal_lane cobblestone 261,72|288,72|328,72|328,56|318,56|318,0 thickness=4 order=13
+stroke karja_gate_road cobblestone 240,72|240,87|240,110 thickness=4 order=14
+building city_wall_west_north wall 0 0 3 36 style=wall.city
+building city_wall_west_mid wall 0 36 6 35 style=wall.city
+building city_wall_west_south wall 3 71 9 16 style=wall.city
+building city_wall_south_far_west wall 9 84 27 4 style=wall.city
+building city_wall_south_west_a wall 36 88 48 4 style=wall.city
+building city_wall_south_west_b wall 84 92 48 4 style=wall.city
+building city_wall_south_west_circuit wall 132 94 48 4 style=wall.city
+building south_wall_tower_northwest wall 0 0 8 8 style=wall.tower tower=true
+building south_wall_tower_west_mid wall 0 34 8 8 style=wall.tower tower=true
+building south_wall_tower_west_bend wall 3 78 8 8 style=wall.tower tower=true
+building south_wall_tower_southwest wall 31 84 8 8 style=wall.tower tower=true
+building south_wall_tower_west_quarter wall 80 88 8 8 style=wall.tower tower=true
+building south_wall_tower_midwest wall 128 90 8 8 style=wall.tower tower=true
+building garden_gate_west_tower wall 18 0 8 8 style=wall.tower tower=true
+building garden_gate_east_tower wall 32 0 8 8 style=wall.tower tower=true
+building city_wall_south_west_join wall 156 90 24 4 style=wall.city
+building south_wall_tower_join wall 176 90 8 8 style=wall.tower tower=true
+building city_wall_south_west wall 180 94 28 4 style=wall.city
+building city_wall_south_west_c wall 208 98 20 4 style=wall.city
+building city_wall_south_west_d wall 226 102 2 10 style=wall.city
+building karja_gate_west_tower wall 230 100 8 8 style=wall.tower tower=true
+building karja_gate_east_tower wall 254 100 8 8 style=wall.tower tower=true
+building karja_gate_east_jamb wall 262 104 5 4 style=wall.city
+building city_wall_south_east_a wall 267 104 27 4 style=wall.city
+building city_wall_south_east_b wall 294 100 16 4 style=wall.city
+building south_wall_tower_southeast_mid wall 290 96 8 8 style=wall.tower tower=true
+building city_wall_south_east_c wall 310 94 12 4 style=wall.city
+building south_wall_tower_southeast wall 306 90 8 8 style=wall.tower tower=true
+building south_wall_tower_east_bend wall 324 82 8 8 style=wall.tower tower=true
+building city_wall_east_north_a wall 331 0 3 25 style=wall.city
+building city_wall_east_north_b wall 331 25 3 25 style=wall.city
+building city_wall_east_north_c wall 331 50 3 25 style=wall.city
+building city_wall_east_bend_a wall 328 75 3 15 style=wall.city
+building city_wall_east_bend_b wall 320 88 8 3 style=wall.city
+building western_watch_lodge house 44 8 14 8 style=house.knights
+building western_canon_house house 72 12 12 8 style=house.merchant.south
+building western_knights_hall house 96 30 18 12 style=house.knights
+building western_stable house 52 46 16 8 style=house.artisan
+building western_chapter_house house 82 66 16 10 style=house.knights
+building garden_slope_house house 116 12 12 8 style=house.merchant.south
+prop western_well well 72 34 rect=2,2
+prop western_cart cart 112 58 rect=2,2
+building rataskaev_corner house 154 9 12 8 style=house.merchant.south
+building rataskaev_north_frontage house 178 0 12 6 style=house.merchant.south
+building king_street_north_frontage house 230 3 14 6 style=house.merchant.south
+building civic_edge_artisan_house house 257 6 8 8 style=house.artisan
+building dunkri_row_west house 195 25 12 8 style=house.merchant.north
+building dunkri_row_east house 226 25 12 8 style=house.merchant.south
+building knights_quarters_west house 264 19 10 12 style=house.knights
+building knights_quarters_east house 281 19 12 12 style=house.knights
+building king_street_house house 171 12 12 6 style=house.artisan
+building south_merchant_row_west house 278 40 2 8 style=house.merchant.north
+building south_merchant_row_east house 281 40 16 8 style=house.merchant.north
+building niguliste_row house 161 72 16 8 style=house.merchant.north
+building karja_lane_house_west house 195 72 12 8 style=house.artisan
+building karja_lane_house_mid house 226 75 12 8 style=house.merchant.south
+building karja_lane_house_east house 271 75 14 8 style=house.merchant.north
+building viru_corner_house house 309 62 10 8 style=house.merchant.south
+building viru_seam_watch_house house 295 16 8 8 style=house.artisan
+building viru_seam_roofline house 298 37 6 8 style=house.merchant.north
+building knights_hall house 249 38 18 12 style=house.knights
+building knights_dormitory house 270 52 16 10 style=house.knights
+building knights_stable house 245 56 14 8 style=house.artisan
+building swordsmith_row house 290 58 14 8 style=house.artisan
+building karja_merchant_row house 288 76 18 8 style=house.merchant.north
+building niguliste_chapter_house house 178 78 14 10 style=house.knights
+building rataskaev_service_house house 160 42 12 8 style=house.artisan
+building western_slope_house house 156 70 10 8 style=house.merchant.north
+building karja_gate_house_west house 223 87 6 8 style=house.gatehouse
+building karja_gate_house_east house 257 87 6 8 style=house.gatehouse
+landmark karja_gate_arch gate_arch 240 104 8 8 wall_color=8f8c80ff top_px=240 passage_axis=z door_material=metal
+landmark garden_descent_gate gate_arch 24 0 10 7 wall_color=8f8c80ff top_px=208 passage_axis=z door_material=wood
+prop rataskaev_well_prop well 168 31 rect=2,2
+prop north_threshold_barrels barrels 237 16 rect=2,2
+prop north_threshold_cart cart 261 19 rect=2,2
+prop street_cart cart 250 28 rect=2,2
+prop knight_banner cart 278 22 rect=2,2
+prop karja_cart cart 250 72 rect=2,2
+prop gate_barrels barrels 230 90 rect=2,2
+prop knights_court_cart cart 260 54 rect=2,2
+prop knights_court_barrels barrels 270 44 rect=2,2
+prop swordsmith_cart cart 298 70 rect=2,2
+spawn spawn.inspection 226 56 rect=2,2
+anchor inspection_spawn 226 56 rect=2,2
+anchor rataskaev_well 168 31 rect=2,2
+anchor karja_approach 245 95 rect=2,2
+anchor king_street_climb 213 6 rect=2,2
+anchor from_reval_center 213 3 rect=2,2
+anchor from_reval_east 324 3 rect=2,2
+anchor from_archbishops_garden 29 5 rect=2,2
+transition to_reval_center 202 0 12 2 to=reval_center destination_spawn=to_reval_south spawn=from_reval_center spawn_offset_px=0,96 highlight_area=true transition_visual=ground
+transition to_reval_east 318 0 12 2 to=reval_east destination_spawn=from_reval_south spawn=from_reval_east spawn_offset_px=0,96 highlight_area=true transition_visual=ground
+transition to_archbishops_garden 24 0 10 2 to=reval_archbishops_garden destination_spawn=from_reval_south spawn=from_archbishops_garden spawn_offset_px=0,96 highlight_area=true transition_visual=ground view_landmark_id=garden_descent_gate
+sign sign.town_square "to town square" 209 6 north
+sign sign.rataskaev "rataskaev well" 168 25 west
+sign sign.knights "knights' quarters" 278 22 east
+sign sign.viru "to viru quarter" 315 6 north
+sign sign.garden "to archbishop's garden" 32 6 north
+sign sign.karja "karja gate" 243 100 south
+# The watch route now includes the western garden descent and full knightly ward.
+patrol south_watch 29,5|29,22|86,22|144,22|213,22|226,56|261,72|326,72|326,56|315,3|288,72|247,72|247,95|192,65|128,58|64,58|29,22
+fade fade.knights 257 16 52 24
+camera 0 0 336 112
+surroundings north town east town south woodland west woodland

@@ -15,6 +15,11 @@ static func find_transition_pairs(base: MapDefinition, neighbor: MapDefinition) 
 		return pairs
 	for base_transition in base.transitions:
 		for neighbor_transition in neighbor.transitions:
+			# Long-distance roads remain reciprocal gameplay transitions but must not
+			# pull non-touching maps together in the physical district layout.
+			if base_transition.get("alignment", &"edge") == &"travel" \
+			or neighbor_transition.get("alignment", &"edge") == &"travel":
+				continue
 			var base_spawn := StringName(base_transition.get("spawn_id", &""))
 			var base_destination := StringName(base_transition.get("destination_spawn_id", &""))
 			var neighbor_spawn := StringName(neighbor_transition.get("spawn_id", &""))

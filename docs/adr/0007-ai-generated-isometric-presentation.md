@@ -13,7 +13,7 @@ Amended by [ADR 0011](0011-optional-first-person-camera.md) (2026-07-20): the de
 
 ## Context
 
-The pre-scope-cut prototype (`quarantine/img/Screenshot 2025-08-26 at 16.42.48.png`, archived after README reverted to `img/banner.jpg`) was an AI-generated painted isometric scene: timber-framed buildings with visible facades and roof mass, textured terrain, dense Fallout/Stoneshard-like mood. That image is the product vision players were shown.
+The pre-scope-cut prototype (`quarantine/img/Screenshot 2025-08-26 at 16.42.48.png`) was an AI-generated painted isometric scene: timber-framed buildings with visible facades and roof mass, textured terrain, dense Fallout/Stoneshard-like mood. That image is the product vision players were shown. The later README banner is also retained under `quarantine/img/banner.jpg` because its provenance remains unresolved.
 
 The scope-reduction chain then degraded the visible game in two steps:
 

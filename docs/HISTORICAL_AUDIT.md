@@ -112,3 +112,8 @@ This document audits the characters, buildings, weapons, religions, institutions
 * **"A Bitter Brew" (Quest)**
   * Label: **`invented`**
   * Source Note: The specific events of the quest involving Aita and the watch are fictional scenarios created for gameplay, illustrating broader themes of the era.
+
+
+## Bishop's Garden chronology (1343 map boundary review)
+
+The Archbishop's Garden gameplay region uses the archaeologically located Bishop's Garden on the western side of the Toompea plateau. Reppo's excavation report (`history/AVE2018_12_Reppo_Toompea.pdf`) records the late medieval Bishop's House only from 1420, so the 1343 map includes the garden plot and medieval well but does not present that later house as contemporary. This site is distinct from Danish King's Garden by Lühike Jalg.

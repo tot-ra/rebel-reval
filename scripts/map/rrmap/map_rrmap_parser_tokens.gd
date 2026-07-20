@@ -6,7 +6,7 @@ extends RefCounted
 
 const STYLE_NAME_KEYS: Array[String] = [
 	"door_side", "ridge_axis", "primitive", "style_variant", "destination_scene_id",
-	"destination_spawn_id", "spawn_id", "transition_visual", "view_landmark_id", "kind", "door_material", "passage_axis",
+	"destination_spawn_id", "spawn_id", "transition_visual", "view_landmark_id", "alignment", "kind", "door_material", "passage_axis",
 	"wall_material", "roof_material",
 ]
 const STYLE_FLOAT_KEYS: Array[String] = ["wall_height", "wall_height_scale", "top_px", "movement_speed_multiplier"]

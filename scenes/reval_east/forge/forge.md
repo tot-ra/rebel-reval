@@ -6,7 +6,7 @@
 
 **Game Scene:** `forge.tscn`
 
-![Forge](../../../assets/buildings/forge.png)
+![Forge](../../../quarantine/assets/buildings/forge.png)
 
 
 ### Music

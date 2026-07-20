@@ -108,11 +108,11 @@ This matrix classifies current slice-relevant artifacts for migration toward the
 | Artifact | Status | Rationale |
 |----------|--------|-----------|
 | `assets/bandits/woman1.png` | `convert` | Prototype NPC portrait/texture; adapt to P0-040 orthogonal style and four-direction rig. |
-| `assets/buildings/*` (24 items) | `convert` | District building sprites; redraw or adapt to orthogonal three-quarter presentation. |
-| `assets/objects/food/*` (3 items) | `convert` | Forge/market food props; restyle for approved scale and palette. |
-| `assets/objects/furniture/*` (7 items) | `convert` | Interior props; restyle for approved scale and palette. |
-| `assets/objects/smith-room/*` (8 items) | `convert` | Forge room props referenced by `forge.tscn`; restyle for approved scale and palette. |
-| `assets/objects/weapons/hammer.png` | `convert` | Weapon prop art; restyle for approved scale and palette. |
+| `assets/buildings/tower.png` | `convert` | Active turret sprite referenced by `scenes/elements/turret.tscn`; replace with approved programmatic geometry or sourced art. |
+| `assets/characters/shared/kaykit_barbarian_barbarian_texture.png` | `retain` | CC0 KayKit source texture extracted from the pinned proof GLB; retained only for the P0-037 retarget pipeline. |
+| `assets/materials/style_lock/*` (8 items) | `retain` | Provenance-backed P0-051 reference textures; keep for style regression while P0-053 regenerates production surfaces. |
+
+The former `assets/objects/food/*`, `assets/objects/furniture/*`, `assets/objects/smith-room/*`, and `assets/objects/weapons/hammer.png` rows are archived at mirrored `quarantine/assets/objects/` paths because their provenance is unresolved. They are outside the active runtime inventory; generated 3D props own the current runtime presentation.
 
 ## Verification
 
@@ -120,4 +120,4 @@ This matrix classifies current slice-relevant artifacts for migration toward the
 python3 tools/verify_migration_matrix.py
 ```
 
-The verifier checks required sections, valid statuses, unique artifacts, resolvable paths/globs, full scene-set coverage, and exact coverage of all 45 image rows in `ASSET_INVENTORY.md`.
+The verifier checks required sections, valid statuses, unique artifacts, resolvable paths/globs, full scene-set coverage, and exact coverage of every active image row in `ASSET_INVENTORY.md`. Quarantined sources remain provenance-tracked in `assets/SOURCES.csv` but are intentionally outside this active migration matrix.

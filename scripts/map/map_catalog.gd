@@ -27,6 +27,11 @@ const MAPS: Dictionary = {
 		"scope": "prototype",
 		"active": false
 	},
+	"reval_archbishops_garden": {
+		"path": "res://scenes/reval_archbishops_garden/reval_archbishops_garden.tscn",
+		"scope": "prototype",
+		"active": false
+	},
 	"reval_toompea": {
 		"path": "res://scenes/reval_toompea/reval_toompea.tscn",
 		"scope": "prototype",

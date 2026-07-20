@@ -24,7 +24,7 @@ const PROP_OVERRIDE_KEYS: Array[StringName] = [
 const SPAWN_KEYS: Array[StringName] = [&"cell", &"rect"]
 const TRANSITION_KEYS: Array[StringName] = [
 	&"rect", &"destination_scene_id", &"destination_spawn_id", &"spawn_id",
-		&"spawn_offset_px", &"highlight_area", &"transition_visual", &"view_landmark_id",
+		&"spawn_offset_px", &"highlight_area", &"transition_visual", &"view_landmark_id", &"alignment",
 ]
 const ANCHOR_KEYS: Array[StringName] = [&"cell", &"rect", &"kind"]
 const PATROL_KEYS: Array[StringName] = [&"points", &"point_rects"]
@@ -37,7 +37,7 @@ const ALL_STYLE_KEYS: Array[StringName] = [
 	&"enabled", &"terrain", &"rect", &"wall_height", &"wall_height_scale", &"wall_color",
 	&"roof_color", &"door_side", &"ridge_axis", &"primitive", &"cell", &"facing",
 	&"style_variant", &"visual_offset_px", &"destination_scene_id", &"destination_spawn_id",
-	&"spawn_id", &"spawn_offset_px", &"highlight_area", &"transition_visual", &"view_landmark_id", &"kind",
+	&"spawn_id", &"spawn_offset_px", &"highlight_area", &"transition_visual", &"view_landmark_id", &"alignment", &"kind",
 	&"points", &"point_rects", &"text", &"direction", &"top_px", &"door_material", &"passage_axis",
 	&"movement_speed_multiplier", &"tower", &"wall_material", &"roof_material",
 ]

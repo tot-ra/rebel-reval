@@ -12,6 +12,9 @@ static func build_prop(prop: Dictionary, cell_size: int) -> Node3D:
 		var scale := MapViewBridge.world_scale(cell_size)
 		root.position.x += offset.x * scale
 		root.position.y -= offset.y * scale
+	if prop["kind"] == MapTypes.PROP_KIND_FISHING_BOAT and _has_tall_footprint(prop):
+		root.rotation.y = PI * 0.5
+		root.position.y = -MapViewMeshBuilderConfig.WATER_RECESS + MapViewMeshBuilderConfig.WATER_SURFACE_LIFT
 
 	match prop["kind"] as StringName:
 		MapTypes.PROP_KIND_ANVIL:
@@ -110,9 +113,41 @@ static func build_prop(prop: Dictionary, cell_size: int) -> Node3D:
 			MapViewMeshBuilderPrimitives.sphere(root, "BushA", 0.42, Vector3(-0.18, 0.28, 0.08), &"vegetation", Vector3(1.0, 0.72, 1.0))
 			MapViewMeshBuilderPrimitives.sphere(root, "BushB", 0.36, Vector3(0.22, 0.24, -0.12), &"vegetation", Vector3(1.0, 0.68, 1.0))
 			MapViewMeshBuilderPrimitives.sphere(root, "BushC", 0.3, Vector3(0.04, 0.18, 0.16), &"vegetation", Vector3(1.0, 0.66, 1.0))
+		MapTypes.PROP_KIND_FISHING_BOAT:
+			_add_fishing_boat(root)
 		_:
 			MapViewMeshBuilderPrimitives.box(root, "Marker", Vector3(0.5, 0.5, 0.5), Vector3(0.0, 0.25, 0.0), &"ink")
 	return root
+
+
+static func _has_tall_footprint(prop: Dictionary) -> bool:
+	var footprint: Variant = prop.get("footprint")
+	return footprint is Rect2 and footprint.size.y > footprint.size.x
+
+
+static func _add_fishing_boat(root: Node3D) -> void:
+	# The low open hull keeps the prop legible as a working inshore boat while
+	# avoiding a generic rectangular placeholder in both audit and gameplay views.
+	var hull := MeshInstance3D.new()
+	hull.name = "Hull"
+	var hull_mesh := PrismMesh.new()
+	hull_mesh.size = Vector3(1.25, 0.48, 3.4)
+	hull.mesh = hull_mesh
+	hull.rotation_degrees.y = 90.0
+	hull.position.y = 0.18
+	hull.material_override = MapViewMeshBuilderPrimitives.role_material(&"wood")
+	root.add_child(hull)
+	MapViewMeshBuilderPrimitives.box(root, "GunwalePort", Vector3(3.0, 0.12, 0.1), Vector3(0.0, 0.48, -0.52), &"timber")
+	MapViewMeshBuilderPrimitives.box(root, "GunwaleStarboard", Vector3(3.0, 0.12, 0.1), Vector3(0.0, 0.48, 0.52), &"timber")
+	for index in 3:
+		var x := -0.8 + float(index) * 0.8
+		MapViewMeshBuilderPrimitives.box(root, "Bench%d" % index, Vector3(0.12, 0.1, 0.94), Vector3(x, 0.5, 0.0), &"timber")
+	MapViewMeshBuilderPrimitives.cylinder(root, "Mast", 0.06, 1.65, Vector3(0.25, 1.28, 0.0), &"timber")
+	var yard := Node3D.new()
+	yard.name = "Yard"
+	yard.rotation_degrees.z = -18.0
+	root.add_child(yard)
+	MapViewMeshBuilderPrimitives.box(yard, "Spar", Vector3(1.25, 0.06, 0.06), Vector3(0.42, 1.7, 0.0), &"timber")
 
 
 ## Layered decorative vegetation and ground clutter. Textured ground cover carries

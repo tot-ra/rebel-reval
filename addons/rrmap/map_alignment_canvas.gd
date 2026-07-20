@@ -24,6 +24,7 @@ const DISPLAY_NAMES: Dictionary = {
 	&"lower_town_slice": "Workers' District",
 	&"market_civic_quarter": "Central District",
 	&"monastery_quarter": "Monastery District",
+	&"archbishops_garden": "Archbishop's Garden",
 	&"north_quarter": "Merchant District",
 	&"south_quarter": "Knights District",
 	&"toompea_quarter": "Toompea",

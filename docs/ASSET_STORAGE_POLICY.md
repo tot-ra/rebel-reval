@@ -78,7 +78,7 @@ git lfs install
 git lfs pull
 ```
 
-CI checkout must enable LFS. If a required object cannot be fetched, import/export must fail rather than silently substitute a pointer. A temporary placeholder may unblock local development, but it must not be committed as the missing source.
+CI checkout must enable LFS. If a required object cannot be fetched, import/export must fail rather than silently substitute a pointer. A temporary placeholder may unblock local development, but it must not be committed as a substitute for the unavailable source.
 
 ## External-storage migration contract
 

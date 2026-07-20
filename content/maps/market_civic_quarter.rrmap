@@ -5,8 +5,10 @@
 # southern wall; do not wire a centre edge to that outside-the-walls exit.
 # Town Hall closes the square's southern edge while Holy Spirit chapel, its
 # almshouse, guild and merchant frontages tighten the northern approaches.
+# Niguliste and Lühike Jalg now meet the western Toompea edge at one level,
+# while the enlarged southern blocks reach the Knights District without a void.
 rrmap 1
-map market_civic_quarter loc.lower_town.market_civic_quarter 104 96 dirt scope=prototype active=false palette=clean_painted seed=1343 cell_size=32
+map market_civic_quarter loc.lower_town.market_civic_quarter 114 128 dirt scope=prototype active=false palette=clean_painted seed=1343 cell_size=32
 source "scenes/reval_center/reval_center.tscn"
 source "scenes/revel-map.jpg"
 source "scenes/reval_center/market_civic_quarter/market.md"
@@ -46,7 +48,11 @@ stroke street.kuninga_branch cobblestone 68,83|68,90|82,90|96,90 thickness=3 ord
 stroke street.karja cobblestone 38,12|38,24|38,36 thickness=4 order=13
 stroke street.niguliste cobblestone 0,44|12,44|12,41|18,41 thickness=3 order=14
 stroke street.rataskaev cobblestone 0,59|12,59|12,53|18,53 thickness=3 order=15
-stroke street.king cobblestone 12,95|12,83|20,83|20,68 thickness=3 order=16
+terrain south.ward dirt 0 96 114 32 order=1
+terrain southern_town_hall stone 6 96 42 20 order=2
+terrain karja.close cobblestone 50 96 38 32 order=3
+stroke street.king cobblestone 12,127|12,115|20,115|20,96|20,83|20,68 thickness=3 order=16
+stroke street.karja_south cobblestone 69,127|69,113|68,113|68,100|68,83 thickness=4 order=17
 building town_hall_mass house 26 69 26 7 style=house.town_hall
 building council_chancery house 60 66 16 7 style=house.merchant.north
 building church_silhouette house 42 3 14 10 style=house.church
@@ -82,6 +88,14 @@ prop pottery_stall stall 51 32 rect=3,2
 prop weigh_table_prop table 31 44 rect=3,2
 prop market_cart cart 45 47 rect=2,2
 prop market_barrels barrels 59 47 rect=2,2
+building south_ward_house_west house 6 101 12 8 style=house.merchant.east
+building south_ward_house_mid house 28 103 14 8 style=house.merchant.north
+building karja_south_row_west house 50 105 10 8 style=house.artisan
+building karja_south_row_east house 78 103 12 8 style=house.merchant.north
+building southern_backstreet_house house 96 104 12 8 style=house.wooden.backstreet
+building south_ward_service_house house 92 118 12 6 style=house.artisan
+prop south_ward_cart cart 42 118 rect=2,2
+prop karja_south_barrels barrels 74 116 rect=2,2
 spawn spawn.inspection 46 53 rect=2,2
 anchor inspection_spawn 46 53 rect=2,2
 anchor town_hall_edge 40 66 rect=2,2
@@ -95,21 +109,22 @@ anchor weigh_table 32 47 rect=2,2
 # quarter (St. Olaf / Great Guild). Pikk passes west of Holy Spirit rather than
 # through its mass. Do not wire any centre edge to Karja Gate's outside-the-walls
 # exit on the eastern map.
-transition to_reval_east 102 42 2 5 to=reval_east destination_spawn=vana_turg_boundary spawn=from_reval_east spawn_offset_px=-96,0
-transition to_reval_north 36 0 10 2 to=reval_monastery destination_spawn=from_reval_center spawn=to_reval_north spawn_offset_px=0,96
-transition to_reval_toompea 0 41 3 5 to=reval_toompea destination_spawn=from_reval_center spawn=to_reval_toompea spawn_offset_px=96,0 highlight_area=true transition_visual=ground
-transition to_reval_south 6 95 12 1 to=reval_south destination_spawn=from_reval_center spawn=to_reval_south spawn_offset_px=0,-96 highlight_area=true transition_visual=ground
+transition to_reval_east 112 51 2 4 to=reval_east destination_spawn=vana_turg_boundary spawn=from_reval_east spawn_offset_px=-96,0
+transition to_reval_north 59 0 10 2 to=reval_monastery destination_spawn=from_reval_center spawn=to_reval_north spawn_offset_px=0,96
+transition to_reval_toompea 0 49 3 8 to=reval_toompea destination_spawn=from_reval_center spawn=to_reval_toompea spawn_offset_px=96,0 highlight_area=true transition_visual=ground
+transition to_archbishops_garden 0 85 3 8 to=reval_archbishops_garden destination_spawn=from_reval_center spawn=to_archbishops_garden spawn_offset_px=96,0 highlight_area=true transition_visual=ground
+transition to_reval_south 58 126 12 2 to=reval_south destination_spawn=from_reval_center spawn=to_reval_south spawn_offset_px=0,-96 highlight_area=true transition_visual=ground
 transition to_guild_hall 16 27 2 2 to=st_olafs_guild_hall destination_spawn=from_reval_center spawn=to_guild_hall spawn_offset_px=96,0
 sign sign.viru "to viru street" 96 42 east
 sign sign.karja "karja street" 36 24 south
 sign sign.pikk "to pikk street" 36 6 north
 sign sign.niguliste "to st nicholas" 6 47 west
-sign sign.toompea "to toompea" 4 42 west
-sign sign.south "to rataskaev" 12 92 south
+sign sign.toompea "lühike jalg to toompea" 4 52 west
+sign sign.south "to rataskaev" 62 123 south
 sign sign.town_hall "town hall" 40 65 south
 sign sign.holy_spirit "holy spirit chapel" 46 21 north
-patrol civic_watch 38,3|38,21|54,21|66,30|84,45|76,45|76,63|76,81|68,83|24,83|24,66|40,66|26,51|20,42|82,45
+patrol civic_watch 64,3|64,21|54,21|66,30|84,45|76,45|76,63|76,81|68,83|68,113|62,123|42,118|20,115|24,83|24,66|40,66|26,51|20,42|82,45
 fade fade.town_hall 22 63 36 18
 fade fade.holy_spirit 34 0 44 20
-camera 0 0 104 96
+camera 0 0 114 128
 surroundings north town east town south town west town
