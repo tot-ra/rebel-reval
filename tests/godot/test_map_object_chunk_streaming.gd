@@ -42,10 +42,12 @@ func test_boundary_spanning_object_has_one_owner_full_footprint_and_no_duplicate
 	var streamer := MapObjectChunkStreamer.new()
 	root.add_child(streamer)
 	var created := {"count": 0}
+	# WHY: configure() also instantiates persistent anchors, which have no
+	# source.footprint. Indexed bounds always describe the authored footprint.
 	streamer.configure(index, func(indexed: Dictionary) -> Node:
 		created["count"] += 1
 		var body := StaticBody2D.new()
-		body.set_meta(&"footprint", (indexed["source"] as Dictionary)["footprint"])
+		body.set_meta(&"footprint", indexed.get("bounds", Rect2()))
 		return body
 	)
 	streamer.load_chunk(Vector2i(0, 0))

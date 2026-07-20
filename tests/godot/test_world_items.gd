@@ -253,12 +253,15 @@ func test_pickup_hover_activates_grab_cursor_state() -> void:
 	item.configure(OBJ_SPEAR, ITEM_SPEARHEAD, LOC_SMITHY, Vector2(400, 300))
 	root.add_child(item)
 
+	# Cursor feedback lives on WorldItemOverlay after the controller/overlay split.
+	controller._overlay = preload("res://scripts/world/world_item_overlay.gd").new()
+	controller.add_child(controller._overlay)
 	controller._hovered = item
-	controller._update_pickup_cursor()
+	controller._overlay.update_cursor(true)
 	assert_true(controller.is_pickup_hover_active())
 
 	controller._hovered = null
-	controller._update_pickup_cursor()
+	controller._overlay.update_cursor(false)
 	assert_false(controller.is_pickup_hover_active())
 	_cleanup_node(root)
 

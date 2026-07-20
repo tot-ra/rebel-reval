@@ -59,7 +59,9 @@ func test_output_is_deterministic_and_row_major() -> void:
 		".##..#",
 		"#...##",
 	])
-	var expected := [
+	# WHY: Typed Array[Rect2i] so _coverage_is_exact accepts the fixture without a
+	# SCRIPT ERROR from Godot's untyped Array vs typed-array argument mismatch.
+	var expected: Array[Rect2i] = [
 		Rect2i(1, 0, 2, 2),
 		Rect2i(5, 0, 1, 2),
 		Rect2i(0, 2, 1, 1),

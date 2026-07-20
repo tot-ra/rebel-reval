@@ -96,10 +96,12 @@ func configure_click_input(world_items: WorldItemController = null) -> void:
 		_click_input.set_world_items(world_items)
 
 
-func _install_click_input(scene_root: Node2D) -> void:
+func _install_click_input(_scene_root: Node2D) -> void:
+	# Own the click controller under the runtime so scene tests and forge wiring
+	# can resolve MapClickInput as a MapViewRuntime child.
 	_click_input = MapClickInputController.new()
 	_click_input.name = "MapClickInput"
-	scene_root.add_child(_click_input)
+	add_child(_click_input)
 	_click_input.setup(_player, self)
 
 
@@ -313,6 +315,9 @@ func _exit_tree() -> void:
 	if SessionState.debug_state_applied.is_connected(_on_debug_state_applied):
 		SessionState.debug_state_applied.disconnect(_on_debug_state_applied)
 	_disconnect_equipment_state()
+	# Actor rigs and the map view share ShaderMaterials; strip before free so the
+	# headless dummy renderer does not emit material_get_instance_shader_parameters.
+	MapView3D._strip_geometry_materials(self)
 
 
 func _on_debug_state_applied(_preset_id: StringName) -> void:

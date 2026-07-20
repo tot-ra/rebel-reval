@@ -170,7 +170,8 @@ func set_prop_visibility(object_id: StringName, visible_state: bool) -> void:
 func _spawn_item(record: Dictionary) -> void:
 	var object_id := StringName(String(record.get("object_id", "")))
 	var item_id := StringName(String(record.get("item_id", "")))
-	var position: Vector2 = record.get("position", Vector2.ZERO)
+	# WHY: save/debug fixtures store Vector2 as {"x":..,"y":..} dictionaries.
+	var position := _coerce_logic_position(record.get("position", Vector2.ZERO))
 	if object_id.is_empty() or item_id.is_empty():
 		return
 
@@ -361,8 +362,20 @@ func _logic_at_screen(screen_position: Vector2) -> Vector2:
 
 
 func _is_inventory_blocking_pickup() -> bool:
+	if _player == null:
+		return false
 	var controller := _player.get_node_or_null("InventoryController") as InventoryController
 	return controller != null and controller.is_open()
+
+
+## Accept Vector2 or JSON-shaped {"x": float, "y": float} from save/debug payloads.
+static func _coerce_logic_position(value: Variant) -> Vector2:
+	if value is Vector2:
+		return value
+	if value is Dictionary:
+		var as_dict := value as Dictionary
+		return Vector2(float(as_dict.get("x", 0.0)), float(as_dict.get("y", 0.0)))
+	return Vector2.ZERO
 
 
 func _item_scene_path(item_id: StringName) -> String:

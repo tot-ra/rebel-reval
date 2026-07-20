@@ -30,7 +30,7 @@ enum RoutineState {
 @export var stable_id: StringName = &"char.forge_cat"
 @export var rig_scene: PackedScene = preload("res://assets/characters/cat/cat_rig.tscn")
 
-@onready var navigation_agent: NavigationAgent2D = $NavigationAgent2D
+@onready var navigation_agent: NavigationAgent2D = get_node_or_null("NavigationAgent2D") as NavigationAgent2D
 
 var _state := RoutineState.IDLE
 var _state_seconds := IDLE_SECONDS
@@ -44,6 +44,9 @@ func _ready() -> void:
 
 
 func configure_navigation(navigation_map: RID) -> void:
+	# Tests may construct the script without the packed scene's NavigationAgent2D.
+	if navigation_agent == null:
+		return
 	navigation_agent.set_navigation_map(navigation_map)
 	_begin_walk(_random_spot_index())
 
@@ -57,7 +60,7 @@ func set_conversation_partner(partner: Node2D) -> void:
 func _physics_process(delta: float) -> void:
 	if _conversation_partner != null and is_instance_valid(_conversation_partner):
 		velocity = Vector2.ZERO
-		move_and_slide()
+		_safe_move_and_slide()
 		return
 	match _state:
 		RoutineState.WALKING:
@@ -67,6 +70,13 @@ func _physics_process(delta: float) -> void:
 			_state_seconds -= delta
 			if _state_seconds <= 0.0:
 				_advance_routine()
+	_safe_move_and_slide()
+
+
+func _safe_move_and_slide() -> void:
+	# Unit tests call _physics_process on out-of-tree hosts; PhysicsServer needs a space.
+	if not is_inside_tree() or get_world_2d() == null:
+		return
 	move_and_slide()
 
 
@@ -99,7 +109,7 @@ func view_glyph_height() -> float:
 
 
 func _update_walk() -> void:
-	if navigation_agent.is_navigation_finished():
+	if navigation_agent == null or navigation_agent.is_navigation_finished():
 		_arrive()
 		return
 	var next_position := navigation_agent.get_next_path_position()
@@ -125,7 +135,8 @@ func _advance_routine() -> void:
 
 func _begin_walk(spot_index: int) -> void:
 	_set_state(RoutineState.WALKING, 0.0)
-	navigation_agent.target_position = SPOTS[spot_index]
+	if navigation_agent != null:
+		navigation_agent.target_position = SPOTS[spot_index]
 
 
 func _set_state(next_state: RoutineState, seconds: float) -> void:

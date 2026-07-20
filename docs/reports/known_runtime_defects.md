@@ -98,6 +98,36 @@ None required for local smoke tests. Investigate with `--verbose` if leaks grow 
 
 ---
 
+## DEF-006 | low | Headless MultiMesh ShaderMaterial teardown ERROR
+
+| Field | Detail |
+|-------|--------|
+| Severity | low |
+| First seen | P0-062 (Godot 4.7.1, 2026-07-20) |
+| Affects | Headless tests that free `MapViewRuntime` / `MapView3D` trees containing `MultiMeshInstance3D` nodes with `ShaderMaterial` and instance colors |
+
+### Reproduction
+
+Build a `MapViewRuntime` (or any map view with grass/canopy MultiMeshes), add it to the scene tree, then `free()` the host without clearing materials first.
+
+### Expected
+
+Quiet teardown under the headless dummy `RenderingServer`.
+
+### Actual
+
+`ERROR: Parameter "material" is null` from `material_get_instance_shader_parameters` while children leave the tree. Godot propagates exit to children before the parent can clear overrides, so a parent `_exit_tree` strip is too late.
+
+### Workaround / mitigation
+
+Call `MapView3D._strip_geometry_materials(root)` while the tree is still live, then free. Camera-mode and click-input tests use `_free_map_scene` / purge helpers for this. Orphan `MapView3D.create()` fixtures that are never entered into the tree do not hit the path.
+
+### Notes
+
+Does not affect editor play or exported builds with a real renderer. Keep the strip helper rather than allowlisting the ERROR so unexpected material failures stay visible.
+
+---
+
 ## DEF-003 | resolved | `reval_south` scene added with dev-traversal wiring
 
 | Field | Detail |

@@ -13,3 +13,13 @@ const BuildingWindowLights3D := preload("res://scripts/map/view3d/building_windo
 
 func _view_definitions() -> Array[MapDefinition]:
 	return [SmithyCourtyard.create(), LowerTownSlice.create()]
+
+
+## Free a runtime-backed scene after detaching MultiMesh/ShaderMaterial RIDs.
+## WHY: Godot's headless dummy renderer emits ERROR on MultiMesh teardown when
+## children leave the tree before a parent can clear materials (DEF-006).
+func _free_map_scene(scene_root: Node) -> void:
+	if scene_root == null or not is_instance_valid(scene_root):
+		return
+	MapView3D._strip_geometry_materials(scene_root)
+	scene_root.free()

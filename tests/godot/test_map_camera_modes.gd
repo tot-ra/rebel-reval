@@ -57,7 +57,7 @@ func test_c_toggles_first_person_and_restores_third_person() -> void:
 	assert_true(is_equal_approx(camera.rotation_degrees.x, MapView3D.CAMERA_PITCH_DEGREES))
 	assert_true(is_equal_approx(camera.rotation_degrees.y, third_person_yaw), "returning must preserve yaw")
 	assert_true(rig.visible, "the player rig must return in third-person view")
-	scene_root.free()
+	_free_map_scene(scene_root)
 
 
 func test_interior_ceiling_hides_for_top_down_and_shows_in_first_person() -> void:
@@ -117,7 +117,7 @@ func test_interior_ceiling_hides_for_top_down_and_shows_in_first_person() -> voi
 		"returning to top-down must restore the black void"
 	)
 	assert_eq(world_env.environment.background_mode, Environment.BG_COLOR)
-	scene_root.free()
+	_free_map_scene(scene_root)
 
 
 func test_first_person_movement_follows_camera_yaw_via_gameplay_rotation() -> void:
@@ -158,7 +158,7 @@ func test_first_person_movement_follows_camera_yaw_via_gameplay_rotation() -> vo
 		is_equal_approx(screen_up_after.length(), 1.0),
 		"re-projected first-person movement must stay normalized"
 	)
-	scene_root.free()
+	_free_map_scene(scene_root)
 
 
 func test_quick_access_camera_button_toggles_first_person() -> void:
@@ -190,4 +190,4 @@ func test_quick_access_camera_button_toggles_first_person() -> void:
 
 	camera_button.pressed.emit()
 	assert_false(runtime.is_first_person(), "quick access must restore third-person view")
-	scene_root.free()
+	_free_map_scene(scene_root)

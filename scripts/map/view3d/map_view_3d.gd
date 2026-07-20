@@ -102,6 +102,28 @@ static func create(
 	return view
 
 
+func _exit_tree() -> void:
+	# WHY: headless/dummy RenderingServer logs ERROR when MultiMeshInstance3D
+	# nodes with ShaderMaterial + instance colors are freed while their material
+	# RIDs are already invalid. Detach first so teardown stays quiet.
+	_strip_geometry_materials(self)
+
+
+static func _strip_geometry_materials(node: Node) -> void:
+	# WHY: nulling material_override while MultiMesh/Mesh still reference the
+	# RenderingServer instance triggers dummy-renderer
+	# material_get_instance_shader_parameters ERROR. Detach geometry first, leave
+	# materials alone so free() does not query a null material RID.
+	if node is MultiMeshInstance3D:
+		(node as MultiMeshInstance3D).multimesh = null
+	elif node is MeshInstance3D:
+		var mesh_instance := node as MeshInstance3D
+		mesh_instance.material_overlay = null
+		mesh_instance.mesh = null
+	for child in node.get_children():
+		_strip_geometry_materials(child)
+
+
 func _process(delta: float) -> void:
 	if _fog_of_war == null:
 		return

@@ -124,12 +124,15 @@ func configure(definition: MapDefinition, grid: MapTerrainGrid, player: Node2D) 
 	_definition = definition
 	_grid = grid
 	_player = player
-	if is_node_ready():
-		_apply_location_label(definition)
-		_rebuild_map_texture()
+	# Headless bootstrap tests add the HUD under an orphan root, so _ready may
+	# not have run yet. Build the UI eagerly so location labels are queryable.
+	_ensure_ui()
+	_apply_location_label(definition)
+	_rebuild_map_texture()
 
 
 func get_location_label() -> Label:
+	_ensure_ui()
 	return _location_label
 
 
@@ -160,12 +163,18 @@ func toggle() -> void:
 func _ready() -> void:
 	layer = 20
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	_build_ui()
+	_ensure_ui()
 	_rebuild_map_texture()
 	_connect_time_sources()
 	_update_calendar_date(MusicDirector.current_calendar_date())
 	_update_cycle_progress(MusicDirector.get_cycle_progress())
 	set_process(true)
+
+
+func _ensure_ui() -> void:
+	if _root != null:
+		return
+	_build_ui()
 
 
 func _exit_tree() -> void:

@@ -349,7 +349,8 @@ static func role(role_name: StringName) -> StandardMaterial3D:
 			material.albedo_color = base.darkened(0.42)
 			material.albedo_color.a = 0.52
 			material.roughness = 0.1
-			material.specular = 0.35
+			# Godot 4 StandardMaterial3D exposes metallic_specular, not specular.
+			material.metallic_specular = 0.35
 			material.cull_mode = BaseMaterial3D.CULL_DISABLED
 		&"water_highlight":
 			material.roughness = 0.15

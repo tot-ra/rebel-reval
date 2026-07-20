@@ -203,4 +203,6 @@ func _purge_leaked_map_scenes() -> void:
 		return
 	for child in tree.root.get_children():
 		if child is Node2D and child.get_node_or_null("Actors/Player") != null:
+			# Strip MultiMesh materials before free to avoid DEF-006 headless ERROR spam.
+			MapView3D._strip_geometry_materials(child)
 			child.free()
