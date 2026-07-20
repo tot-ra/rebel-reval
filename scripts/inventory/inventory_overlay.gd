@@ -7,10 +7,10 @@ const InventoryOverlayBuilder := preload("res://scripts/inventory/inventory_over
 
 signal closed()
 
-const CELL_SIZE := 48
+const CELL_SIZE := 52
 const CELL_GAP := 4
-const PANEL_PADDING := 16
-const SILHOUETTE_WIDTH := 148
+const PANEL_PADDING := 18
+const SILHOUETTE_WIDTH := 176
 
 const DRAG_KIND_BAG := &"bag"
 const DRAG_KIND_EQUIPPED := &"equipped"
@@ -34,7 +34,9 @@ var _panel: PanelContainer
 var _grid: GridContainer
 var _silhouette: Control
 var _weight_bar: ProgressBar
+var _weight_value: Label
 var _volume_bar: ProgressBar
+var _volume_value: Label
 var _speed_label: Label
 var _detail_label: Label
 var _equip_button: Button
@@ -187,7 +189,9 @@ func _build_ui() -> void:
 	_grid = nodes["grid"]
 	_silhouette = nodes["silhouette"]
 	_weight_bar = nodes["weight_bar"]
+	_weight_value = nodes["weight_value"]
 	_volume_bar = nodes["volume_bar"]
+	_volume_value = nodes["volume_value"]
 	_speed_label = nodes["speed_label"]
 	_detail_label = nodes["detail_label"]
 	_equip_button = nodes["equip_button"]
@@ -198,13 +202,20 @@ func _refresh() -> void:
 	if _bag == null or _grid == null:
 		return
 
+	var carried := _bag.get_total_weight() + _bag.reserved_weight_kg
 	_weight_bar.max_value = InventoryBag.MAX_WEIGHT_KG
-	_weight_bar.value = _bag.get_total_weight() + _bag.reserved_weight_kg
-	_volume_bar.max_value = float(_bag.get_total_cells())
-	_volume_bar.value = float(_bag.get_used_cells())
+	_weight_bar.value = carried
+	_weight_value.text = "%.2f / %.0f kg" % [carried, InventoryBag.MAX_WEIGHT_KG]
+
+	var used_cells := _bag.get_used_cells()
+	var total_cells := _bag.get_total_cells()
+	_volume_bar.max_value = float(total_cells)
+	_volume_bar.value = float(used_cells)
+	_volume_value.text = "%d / %d cells" % [used_cells, total_cells]
 
 	var speed_percent := int(round(_bag.get_speed_multiplier() * 100.0))
-	_speed_label.text = "Movement speed: %d%% (heavier loads slow Kalev down)" % speed_percent
+	_speed_label.text = "Movement speed: %d%%" % speed_percent
+	_speed_label.tooltip_text = "Heavier loads slow Kalev down."
 
 	for index in _cell_buttons.size():
 		var cell_x := index % InventoryBag.GRID_WIDTH
@@ -234,10 +245,7 @@ func _refresh_equipment_ui() -> void:
 		var equip_info := _equip_info(_selected.item_id)
 		if not equip_info.is_empty():
 			_equip_button.visible = true
-			_equip_button.text = "Equip %s (%s)" % [
-				String(_item_record(_selected.item_id).get("name", "item")),
-				String(equip_info.get("slot", "")).replace("_", " "),
-			]
+			_equip_button.text = "Equip to %s" % String(equip_info.get("slot", "")).replace("_", " ")
 
 
 func _can_drop_on_slot(slot: StringName, data: Dictionary) -> bool:
@@ -305,6 +313,10 @@ func _equipped_item_label(item_id: StringName) -> String:
 	return String(record.get("name", String(item_id)))
 
 
+func _equipped_slot_short_label(item_id: StringName) -> String:
+	return _short_label(_item_record(item_id), 1)
+
+
 func _on_equip_pressed() -> void:
 	if _state == null or _selected == null:
 		return
@@ -329,31 +341,42 @@ func _style_cell_button(
 	cell_x: int,
 	cell_y: int
 ) -> void:
+	var focused := Vector2i(cell_x, cell_y) == _focus_cell
 	var is_origin := (
 		placement != null
 		and placement.grid_x == cell_x
 		and placement.grid_y == cell_y
 	)
-	if placement == null or not is_origin:
+
+	if placement == null:
 		button.text = ""
+		button.tooltip_text = "Empty cell"
 		button.modulate = Color(0.18, 0.2, 0.24, 0.95)
 		button.add_theme_color_override("font_color", Color.WHITE)
 		if _selected != null:
 			var profile := _profile_for(_selected.item_id)
 			if _bag.can_place_at(cell_x, cell_y, profile.grid_width, profile.grid_height, _selected):
 				button.modulate = Color(0.24, 0.34, 0.28, 0.95)
-		if Vector2i(cell_x, cell_y) == _focus_cell:
-			button.modulate = button.modulate.lightened(0.14)
+				button.tooltip_text = "Valid drop"
+		if focused:
+			button.modulate = button.modulate.lightened(0.18)
 		return
 
 	var record := _item_record(placement.item_id)
 	var category := String(record.get("category", "supply"))
 	var color: Color = CATEGORY_COLORS.get(category, CATEGORY_COLORS["supply"])
-	button.text = _short_label(record, placement.quantity)
-	button.modulate = color
+	# Non-origin cells keep the item footprint readable without repeating text.
+	if is_origin:
+		button.text = _short_label(record, placement.quantity)
+		button.modulate = color
+	else:
+		button.text = ""
+		button.modulate = color.darkened(0.18)
+
+	button.tooltip_text = _item_tooltip(record, placement)
 	if placement == _selected:
 		button.modulate = button.modulate.lightened(0.18)
-	if Vector2i(cell_x, cell_y) == _focus_cell:
+	if focused:
 		button.modulate = button.modulate.lightened(0.14)
 	button.add_theme_color_override("font_color", Color(0.98, 0.98, 0.96))
 	button.custom_minimum_size = Vector2(CELL_SIZE, CELL_SIZE)
@@ -386,23 +409,39 @@ func _update_detail_label() -> void:
 	if _detail_label == null:
 		return
 	if _selected == null:
-		_detail_label.text = (
-			"Select an item to inspect it, drag it onto a hand slot, "
-			+ "or use Enter/Space on a destination cell to move it."
+		var focus_placement := (
+			_bag.get_placement_at_cell(_focus_cell.x, _focus_cell.y) if _bag != null else null
 		)
+		if focus_placement != null:
+			var focus_record := _item_record(focus_placement.item_id)
+			_detail_label.text = _item_detail_text(focus_record, focus_placement)
+			return
+		_detail_label.text = "Select an item to inspect it, then click a free cell or equipment slot."
 		return
 
 	var record := _item_record(_selected.item_id)
-	var profile := _profile_for(_selected.item_id)
-	var name_text := String(record.get("name", String(_selected.item_id)))
+	_detail_label.text = "Selected: " + _item_detail_text(record, _selected)
+
+
+func _item_detail_text(record: Dictionary, placement: InventoryPlacement) -> String:
+	var profile := _profile_for(placement.item_id)
+	var name_text := String(record.get("name", String(placement.item_id)))
 	var equip_hint := ""
-	var equip_info := _equip_info(_selected.item_id)
+	var equip_info := _equip_info(placement.item_id)
 	if not equip_info.is_empty():
-		equip_hint = "\nDrag onto the %s slot to wear it." % String(equip_info.get("slot", "")).replace("_", " ")
-	_detail_label.text = (
-		"%s\n%.2f kg each, %dx%d cells, quantity %d%s"
-		% [name_text, profile.weight_kg, profile.grid_width, profile.grid_height, _selected.quantity, equip_hint]
-	)
+		equip_hint = " · equips to %s" % String(equip_info.get("slot", "")).replace("_", " ")
+	return "%s · %.2f kg · %dx%d%s · qty %d" % [
+		name_text,
+		profile.weight_kg,
+		profile.grid_width,
+		profile.grid_height,
+		equip_hint,
+		placement.quantity,
+	]
+
+
+func _item_tooltip(record: Dictionary, placement: InventoryPlacement) -> String:
+	return _item_detail_text(record, placement)
 
 
 func _item_record(item_id: StringName) -> Dictionary:
@@ -418,9 +457,22 @@ func _profile_for(item_id: StringName) -> ItemCarryProfile:
 
 
 func _short_label(record: Dictionary, quantity: int) -> String:
-	var name_text := String(record.get("name", "Item"))
+	## Keep cell text readable: prefer a short noun, never a 3-letter stump like "Sei".
+	var name_text := String(record.get("name", "Item")).strip_edges()
 	var words := name_text.split(" ", false)
-	var short := words[0].substr(0, 3)
+	var short := name_text
+	if words.size() == 1:
+		short = words[0].substr(0, 7)
+	elif words.size() >= 2:
+		var first := words[0]
+		var second := words[1]
+		# Skip weak openers so "Seized spearhead..." becomes "Spear", not "Sei".
+		if first.to_lower() in ["a", "an", "the", "seized", "broken", "old", "new"]:
+			short = second.substr(0, 6)
+		else:
+			short = "%s %s" % [first.substr(0, 4), second.substr(0, 3)]
+			if short.length() > 8:
+				short = short.substr(0, 8)
 	if quantity > 1:
-		return "%s x%d" % [short, quantity]
-	return short.substr(0, 4)
+		return "%sx%d" % [short, quantity]
+	return short

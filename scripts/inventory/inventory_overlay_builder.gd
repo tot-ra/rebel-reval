@@ -6,12 +6,16 @@ extends RefCounted
 const EquipmentSilhouetteScene := preload("res://scripts/inventory/equipment_silhouette.gd")
 const InventoryGridCellScene := preload("res://scripts/inventory/inventory_grid_cell.gd")
 
-const CELL_SIZE := 48
+const CELL_SIZE := 52
 const CELL_GAP := 4
-const PANEL_PADDING := 16
-const SILHOUETTE_WIDTH := 148
+const PANEL_PADDING := 18
+const SILHOUETTE_WIDTH := 176
 const DRAG_KIND_BAG := &"bag"
 const DRAG_KIND_EQUIPPED := &"equipped"
+const HELP_TOOLTIP := (
+	"I or Esc closes the bag. Arrows or WASD move the cursor; Enter/Space picks or places. "
+	+ "Drag between packed cells and equipment slots, or click twice to move."
+)
 
 
 static func build(host: InventoryOverlay) -> Dictionary:
@@ -32,6 +36,7 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	var panel := PanelContainer.new()
 	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	panel.custom_minimum_size = Vector2(720, 0)
 	root.add_child(panel)
 
 	var margin := MarginContainer.new()
@@ -42,34 +47,62 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	panel.add_child(margin)
 
 	var layout := VBoxContainer.new()
-	layout.add_theme_constant_override("separation", 12)
+	layout.add_theme_constant_override("separation", 10)
 	margin.add_child(layout)
+
+	var header := HBoxContainer.new()
+	header.add_theme_constant_override("separation", 12)
+	layout.add_child(header)
 
 	var title := Label.new()
 	title.text = "Bag"
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.add_theme_font_size_override("font_size", 24)
-	layout.add_child(title)
+	title.add_theme_color_override("font_color", Color(0.92, 0.82, 0.56, 1.0))
+	header.add_child(title)
+
+	var help_button := Button.new()
+	help_button.text = "?"
+	help_button.tooltip_text = HELP_TOOLTIP
+	help_button.focus_mode = Control.FOCUS_NONE
+	help_button.custom_minimum_size = Vector2(32, 28)
+	header.add_child(help_button)
+
+	var close_button := Button.new()
+	close_button.name = "CloseButton"
+	close_button.text = "Close"
+	close_button.tooltip_text = "Close bag (I or Esc)"
+	close_button.focus_mode = Control.FOCUS_NONE
+	close_button.pressed.connect(host.close)
+	header.add_child(close_button)
 
 	var hint := Label.new()
-	hint.text = (
-		"I or Esc to close. Arrows or WASD move selection; Enter/Space picks or places. "
-		+ "Drag items between the bag and hand slots, or click cells to move them."
-	)
+	hint.text = "Click or drag to move. Hover ? for controls."
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.add_theme_font_size_override("font_size", 12)
-	hint.modulate = Color(0.82, 0.84, 0.88)
+	hint.modulate = Color(0.78, 0.80, 0.84)
 	layout.add_child(hint)
 
-	var weight_bar := _add_meter_row(layout, "Weight")
-	var volume_bar := _add_meter_row(layout, "Volume")
+	var weight_meter := _add_meter_row(layout, "Weight")
+	var volume_meter := _add_meter_row(layout, "Volume")
 
 	var speed_label := Label.new()
 	speed_label.add_theme_font_size_override("font_size", 13)
 	layout.add_child(speed_label)
 
 	var body_row := HBoxContainer.new()
-	body_row.add_theme_constant_override("separation", 16)
+	body_row.add_theme_constant_override("separation", 18)
 	layout.add_child(body_row)
+
+	var silhouette_column := VBoxContainer.new()
+	silhouette_column.add_theme_constant_override("separation", 4)
+	body_row.add_child(silhouette_column)
+
+	var silhouette_caption := Label.new()
+	silhouette_caption.text = "Worn"
+	silhouette_caption.add_theme_font_size_override("font_size", 13)
+	silhouette_caption.modulate = Color(0.78, 0.80, 0.84)
+	silhouette_column.add_child(silhouette_caption)
 
 	var silhouette: Control = EquipmentSilhouetteScene.new()
 	silhouette.custom_minimum_size = Vector2(
@@ -81,14 +114,16 @@ static func build(host: InventoryOverlay) -> Dictionary:
 		Callable(host, "_can_drop_on_slot"),
 		Callable(host, "_drop_on_slot"),
 		Callable(host, "_equipped_item_label"),
+		Callable(host, "_equipped_slot_short_label"),
 		DRAG_KIND_BAG,
 		DRAG_KIND_EQUIPPED
 	)
 	silhouette.slot_pressed.connect(host._on_equipment_slot_pressed)
-	body_row.add_child(silhouette)
+	silhouette_column.add_child(silhouette)
 
 	var grid_column := VBoxContainer.new()
 	grid_column.add_theme_constant_override("separation", 4)
+	grid_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body_row.add_child(grid_column)
 
 	var grid_caption := Label.new()
@@ -106,6 +141,7 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	var detail_label := Label.new()
 	detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	detail_label.add_theme_font_size_override("font_size", 13)
+	detail_label.custom_minimum_size = Vector2(0, 48)
 	layout.add_child(detail_label)
 
 	var equip_button := Button.new()
@@ -127,6 +163,8 @@ static func build(host: InventoryOverlay) -> Dictionary:
 			button.custom_minimum_size = Vector2(CELL_SIZE, CELL_SIZE)
 			button.toggle_mode = false
 			button.focus_mode = Control.FOCUS_NONE
+			button.clip_text = true
+			button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			var captured_x := cell_x
 			var captured_y := cell_y
 			button.pressed.connect(func() -> void:
@@ -139,8 +177,10 @@ static func build(host: InventoryOverlay) -> Dictionary:
 		"panel": panel,
 		"grid": grid,
 		"silhouette": silhouette,
-		"weight_bar": weight_bar,
-		"volume_bar": volume_bar,
+		"weight_bar": weight_meter["bar"],
+		"weight_value": weight_meter["value"],
+		"volume_bar": volume_meter["bar"],
+		"volume_value": volume_meter["value"],
 		"speed_label": speed_label,
 		"detail_label": detail_label,
 		"equip_button": equip_button,
@@ -148,7 +188,7 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	}
 
 
-static func _add_meter_row(parent: VBoxContainer, label_text: String) -> ProgressBar:
+static func _add_meter_row(parent: VBoxContainer, label_text: String) -> Dictionary:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 	parent.add_child(row)
@@ -160,7 +200,14 @@ static func _add_meter_row(parent: VBoxContainer, label_text: String) -> Progres
 
 	var bar := ProgressBar.new()
 	bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	bar.custom_minimum_size = Vector2(320, 18)
+	bar.custom_minimum_size = Vector2(280, 18)
 	bar.show_percentage = false
 	row.add_child(bar)
-	return bar
+
+	var value := Label.new()
+	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	value.custom_minimum_size = Vector2(118, 0)
+	value.add_theme_font_size_override("font_size", 12)
+	value.modulate = Color(0.86, 0.88, 0.90)
+	row.add_child(value)
+	return {"bar": bar, "value": value}

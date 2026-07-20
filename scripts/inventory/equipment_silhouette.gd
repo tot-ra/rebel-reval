@@ -21,13 +21,14 @@ var _equipped: Dictionary[StringName, StringName] = {}
 var _slot_accepts_drop: Callable = Callable()
 var _slot_drop: Callable = Callable()
 var _item_label: Callable = Callable()
+var _item_short_label: Callable = Callable()
 var _drag_kind_bag: StringName = &"bag"
 var _drag_kind_equipped: StringName = &"equipped"
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	tooltip_text = "Drag items onto hand slots. Click a worn slot to stow it in the bag."
+	tooltip_text = "Drag items onto slots. Click a worn slot to stow it in the bag."
 	resized.connect(_rebuild_slot_rects)
 	_rebuild_slot_rects()
 
@@ -36,12 +37,14 @@ func configure_drop_handlers(
 	accepts_drop: Callable,
 	on_drop: Callable,
 	item_label: Callable,
+	item_short_label: Callable = Callable(),
 	drag_kind_bag: StringName = &"bag",
 	drag_kind_equipped: StringName = &"equipped"
 ) -> void:
 	_slot_accepts_drop = accepts_drop
 	_slot_drop = on_drop
 	_item_label = item_label
+	_item_short_label = item_short_label
 	_drag_kind_bag = drag_kind_bag
 	_drag_kind_equipped = drag_kind_equipped
 
@@ -56,12 +59,13 @@ func _rebuild_slot_rects() -> void:
 	var h := size.y
 	if w <= 1.0 or h <= 1.0:
 		return
-	var slot_size := Vector2(w * 0.24, h * 0.11)
+	# Wider slots keep item names readable without covering the body silhouette.
+	var slot_size := Vector2(w * 0.34, h * 0.145)
 	_slot_rects = {
-		&"head": Rect2(Vector2(w * 0.5 - slot_size.x * 0.5, h * 0.02), slot_size),
-		&"back": Rect2(Vector2(w * 0.5 - slot_size.x * 0.5, h * 0.34), slot_size),
-		&"left_hand": Rect2(Vector2(w * 0.02, h * 0.24), slot_size),
-		&"right_hand": Rect2(Vector2(w * 0.74, h * 0.24), slot_size),
+		&"head": Rect2(Vector2(w * 0.5 - slot_size.x * 0.5, h * 0.01), slot_size),
+		&"back": Rect2(Vector2(w * 0.5 - slot_size.x * 0.5, h * 0.36), slot_size),
+		&"left_hand": Rect2(Vector2(w * 0.01, h * 0.22), slot_size),
+		&"right_hand": Rect2(Vector2(w * 0.65, h * 0.22), slot_size),
 	}
 	queue_redraw()
 
@@ -110,23 +114,59 @@ func _draw_slots() -> void:
 		draw_rect(rect, base)
 		draw_rect(rect, Color(0.72, 0.76, 0.82, 0.95), false, 1.5)
 
-		var label := String(SLOT_LABELS.get(slot, slot))
-		if occupied and _item_label.is_valid():
-			label = String(_item_label.call(_equipped[slot]))
-		_draw_wrapped_label(rect, label)
+		var slot_name := String(SLOT_LABELS.get(slot, slot))
+		var label := slot_name
+		if occupied:
+			if _item_short_label.is_valid():
+				label = String(_item_short_label.call(_equipped[slot]))
+			elif _item_label.is_valid():
+				label = String(_item_label.call(_equipped[slot]))
+		_draw_slot_label(rect, slot_name if occupied else "", label)
 
 
-func _draw_wrapped_label(rect: Rect2, text: String) -> void:
+func _draw_slot_label(rect: Rect2, caption: String, text: String) -> void:
 	var font := ThemeDB.fallback_font
+	var caption_size := 9
 	var font_size := 11
-	var lines := _wrap_label(text, rect.size.x - 8.0, font, font_size)
+	var max_width := rect.size.x - 8.0
+	var lines := _wrap_label(text, max_width, font, font_size)
 	var line_height := font.get_height(font_size) + 1
-	var total_height := lines.size() * line_height
-	var y := rect.position.y + maxf(4.0, (rect.size.y - total_height) * 0.5)
+	var caption_height := 0.0
+	if not caption.is_empty():
+		caption_height = font.get_height(caption_size) + 1.0
+	var content_height := caption_height + lines.size() * line_height
+	var y := rect.position.y + maxf(4.0, (rect.size.y - content_height) * 0.5)
+	if not caption.is_empty():
+		var caption_width := font.get_string_size(
+			caption, HORIZONTAL_ALIGNMENT_LEFT, -1, caption_size
+		).x
+		var caption_x := rect.position.x + (rect.size.x - caption_width) * 0.5
+		draw_string(
+			font,
+			Vector2(caption_x, y + font.get_ascent(caption_size)),
+			caption,
+			HORIZONTAL_ALIGNMENT_LEFT,
+			-1,
+			caption_size,
+			Color(0.72, 0.76, 0.82, 0.95)
+		)
+		y += caption_height
+	var remaining := rect.end.y - y - 4.0
+	var max_lines := maxi(1, int(remaining / line_height))
+	if lines.size() > max_lines:
+		lines = lines.slice(0, max_lines)
 	for line in lines:
 		var line_width := font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 		var x := rect.position.x + (rect.size.x - line_width) * 0.5
-		draw_string(font, Vector2(x, y + font.get_ascent(font_size)), line, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color(0.95, 0.96, 0.98))
+		draw_string(
+			font,
+			Vector2(x, y + font.get_ascent(font_size)),
+			line,
+			HORIZONTAL_ALIGNMENT_LEFT,
+			-1,
+			font_size,
+			Color(0.95, 0.96, 0.98)
+		)
 		y += line_height
 
 
@@ -161,6 +201,7 @@ func _gui_input(event: InputEvent) -> void:
 		var next_slot := _slot_at(motion.position)
 		if next_slot != _hover_slot:
 			_hover_slot = next_slot
+			_update_hover_tooltip(next_slot)
 			queue_redraw()
 	elif event is InputEventMouseButton:
 		var button := event as InputEventMouseButton
@@ -206,4 +247,19 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_MOUSE_EXIT:
 		if not _hover_slot.is_empty():
 			_hover_slot = &""
+			tooltip_text = "Drag items onto slots. Click a worn slot to stow it in the bag."
 			queue_redraw()
+
+
+func _update_hover_tooltip(slot: StringName) -> void:
+	if slot.is_empty():
+		tooltip_text = "Drag items onto slots. Click a worn slot to stow it in the bag."
+		return
+	var slot_name := String(SLOT_LABELS.get(slot, slot))
+	if _equipped.has(slot) and not String(_equipped[slot]).is_empty() and _item_label.is_valid():
+		tooltip_text = "%s: %s\nClick to stow in the bag." % [
+			slot_name,
+			String(_item_label.call(_equipped[slot])),
+		]
+		return
+	tooltip_text = "%s slot\nDrop a matching item here." % slot_name
