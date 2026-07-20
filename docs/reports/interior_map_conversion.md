@@ -22,7 +22,7 @@ Interior terrain IDs: `ash`, `timber_floor`, `plaster`. Interior prop kinds incl
 | Group | Scenes | Scope |
 |-------|--------|-------|
 | Production | `forge.tscn`, `reval_east.tscn` | `production`, active via existing manifest |
-| Prototypes | `reval_center.tscn`, `market.tscn`, `olaf_guild_hall.tscn`, `reval_north.tscn` | `prototype`, inactive |
+| Prototypes | `reval_center.tscn`, `olaf_guild_hall.tscn`, `reval_north.tscn` | `prototype`, inactive |
 | Harbor expansion | `harbor/warehouse.tscn` | `prototype`, inactive |
 
 Legacy diamond TileSet layers were removed from converted scenes. P2-020 retired the temporary `main` forge spawn alias in favor of stable `door_courtyard`, removed legacy district-edge spawns from the active manifest, and limited active destinations to `forge` and `reval_east` only.

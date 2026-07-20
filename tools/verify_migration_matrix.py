@@ -23,9 +23,9 @@ REQUIRED_SECTIONS = (
     "Runtime Assets",
 )
 VALID_STATUSES = frozenset({"retain", "convert", "archive"})
+# market.tscn was unified into reval_center and removed; keep only the guild hall stub.
 SLICE_PLACEHOLDER_SCENES = frozenset(
     {
-        "scenes/reval_center/market_civic_quarter/market.tscn",
         "scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn",
     }
 )

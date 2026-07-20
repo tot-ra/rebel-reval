@@ -4,7 +4,7 @@
 
 # Reval Market
 
-**Game Scene:** `market.tscn`
+**Game Scene:** `../reval_center.tscn` (unified Central District)
 
 The market is a vibrant, crowded space where goods from all over the known world are bought and sold. It is a place for commerce, but also for espionage, as it is a primary hub for the Pskovian agents operating in the city.
 

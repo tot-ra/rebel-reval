@@ -20,7 +20,7 @@
     "char.kalev"
   ],
   "start_node_id": "mart_opens",
-  "word_count_estimate": 36,
+  "word_count_estimate": 42,
   "nodes": [
     {
       "id": "mart_opens",
@@ -58,6 +58,11 @@
           "value": true
         }
       ]
+    },
+    {
+      "id": "mart_locked",
+      "speaker_id": "char.mart",
+      "text": "You already hold the ledger. Speak carefully."
     }
   ],
   "source_notes": [

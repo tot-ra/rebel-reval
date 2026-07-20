@@ -23,8 +23,7 @@ MINI_SCENE_INVENTORY = """\
 | 1 | `player.tscn` | working | fixture |
 | 2 | `scenes/menu/main_menu.tscn` | working | fixture |
 | 3 | `scenes/reval_east/reval_east.tscn` | partial | fixture |
-| 4 | `scenes/reval_center/market_civic_quarter/market.tscn` | placeholder | fixture |
-| 5 | `scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn` | placeholder | fixture |
+| 4 | `scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn` | placeholder | fixture |
 """
 
 MINI_ASSET_INVENTORY = """\
@@ -48,7 +47,6 @@ MINI_MATRIX = """\
 | `player.tscn` | `retain` | fixture |
 | `scenes/menu/main_menu.tscn` | `retain` | fixture |
 | `scenes/reval_east/reval_east.tscn` | `convert` | fixture |
-| `scenes/reval_center/market_civic_quarter/market.tscn` | `convert` | fixture |
 | `scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn` | `convert` | fixture |
 
 ## TileSets
@@ -95,7 +93,6 @@ class VerifyMigrationMatrixTest(unittest.TestCase):
                     "player.tscn",
                     "scenes/menu/main_menu.tscn",
                     "scenes/reval_east/reval_east.tscn",
-                    "scenes/reval_center/market_civic_quarter/market.tscn",
                     "scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn",
                 },
             )
@@ -210,7 +207,6 @@ class VerifyMigrationMatrixTest(unittest.TestCase):
         (east / "reval_east.tscn").write_text("fixture", encoding="utf-8")
         market_dir = root / "scenes/reval_center/market_civic_quarter"
         market_dir.mkdir(parents=True)
-        (market_dir / "market.tscn").write_text("fixture", encoding="utf-8")
         (market_dir / "olaf_guild_hall.tscn").write_text("fixture", encoding="utf-8")
         (root / "assets/bandits").mkdir(parents=True)
         (root / "assets/bandits/woman1.png").write_text("fixture", encoding="utf-8")

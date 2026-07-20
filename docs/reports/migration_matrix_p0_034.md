@@ -2,13 +2,23 @@
 
 Recorded: 2026-07-16
 
-This matrix classifies current slice-relevant artifacts for migration toward the vertical slice. Scene coverage follows all `working` and `partial` scenes from [`scene_inventory.md`](./scene_inventory.md) plus slice placeholders `market.tscn` and `olaf_guild_hall.tscn`. Asset coverage follows all 45 rows in [`ASSET_INVENTORY.md`](../ASSET_INVENTORY.md). Status values are only `retain`, `convert`, or `archive`.
+This matrix classifies current slice-relevant artifacts for migration toward the vertical slice. Scene coverage follows all `working` and `partial` scenes from [`scene_inventory.md`](./scene_inventory.md) plus the slice placeholder `olaf_guild_hall.tscn`. The retired `market.tscn` stub was unified into `reval_center.tscn` and is no longer required. Asset coverage follows all 45 rows in [`ASSET_INVENTORY.md`](../ASSET_INVENTORY.md). Status values are only `retain`, `convert`, or `archive`.
 
 ## Maps & Scenes
 
 | Artifact | Status | Rationale |
 |----------|--------|-----------|
 | `player.tscn` | `convert` | Greybox player rig still uses legacy district scale and hidden legacy HUD instance; migrate to P0-040 orthogonal/four-direction target. |
+| `assets/characters/cat/cat_rig.tscn` | `convert` | Ambient forge-cat rig; complete animation set under shared-rig production. |
+| `assets/characters/kalev/kalev.tscn` | `convert` | Kalev shared-rig variant; freeze under P0-037/P0-040. |
+| `assets/characters/shared/hammer.tscn` | `retain` | Shared hammer equipment mesh for rig attachment. |
+| `assets/characters/shared/shared_character_rig.tscn` | `convert` | Shared low-poly rig base; production target for P0-037. |
+| `assets/characters/shared/spear.tscn` | `retain` | Shared spear equipment mesh for demo forge pickup. |
+| `assets/characters/showcase/character_rig_showcase.tscn` | `retain` | Developer-only rig verification scene. |
+| `assets/characters/variants/henning.tscn` | `convert` | Henning NPC variant on shared rig. |
+| `assets/characters/variants/innkeeper.tscn` | `convert` | Innkeeper NPC variant on shared rig. |
+| `assets/characters/variants/mart.tscn` | `convert` | Mart NPC variant; demo dialogue target. |
+| `assets/characters/variants/townswoman.tscn` | `convert` | Townswoman shared-rig variant for ambient NPCs. |
 | `scenes/comparison_room/comparison_room.tscn` | `retain` | Verified P0-033 greybox baseline with procedural room content and slice mechanics. |
 | `scenes/comparison_room/orthogonal_4_direction.tscn` | `retain` | P0-035 proposed orthogonal/four-direction comparison variant; keep as migration reference. |
 | `scenes/comparison_room/diamond_isometric_8_direction.tscn` | `archive` | P0-035 legacy diamond-isometric/eight-direction spike; superseded by orthogonal target. |
@@ -16,17 +26,34 @@ This matrix classifies current slice-relevant artifacts for migration toward the
 | `scenes/elements/building.tscn` | `convert` | Reusable district prop; sprite and collision bounds need orthogonal/P0-040 alignment. |
 | `scenes/elements/door.tscn` | `convert` | Transition logic is sound but doorway geometry must match new orthogonal room layouts. |
 | `scenes/elements/FadeArea.tscn` | `convert` | Instanced in forge with empty `CollisionPolygon2D`; needs authored fade polygon for new maps. |
+| `scenes/elements/gameplay_help_hud.tscn` | `retain` | Legacy empty shell; control hints live in `QuickAccessMenu` on `player.tscn`. |
+| `scenes/elements/location_hud.tscn` | `retain` | District title overlay used by map bootstrap. |
+| `scenes/elements/minimap_hud.tscn` | `retain` | In-scene minimap HUD (P1-032). |
 | `scenes/elements/npc.tscn` | `convert` | NPC prefab with SpriteFrames, AnimationPlayer, and HealthBar; refactor to four-direction rig. |
 | `scenes/elements/turret.tscn` | `convert` | Wall/turret prop; sprite and collision bounds need orthogonal/P0-040 alignment. |
 | `scenes/elements/UI.tscn` | `archive` | Hidden legacy NATURAL-element HUD shell; remove with P0-041 HUD cleanup. |
+| `scenes/harbor/warehouse.tscn` | `archive` | Inactive programmatic warehouse interior prototype (`active=false`). |
+| `scenes/interaction/interactable.tscn` | `retain` | Shared focus/prompt interaction component. |
+| `scenes/interaction/interaction_test.tscn` | `retain` | Developer-only interaction verification scene. |
 | `scenes/menu/main_menu.tscn` | `retain` | `run/main_scene` with verified Start/Exit flow (P0-017 smoke pass). |
-| `scenes/reval_center/market_civic_quarter/market.tscn` | `convert` | Slice placeholder stub; populate when market civic quarter lands in the approved district. |
 | `scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn` | `convert` | Slice placeholder stub; populate when guild hall content lands in the approved district. |
-| `scenes/reval_center/reval_center.tscn` | `convert` | Legacy isometric TileMap district; migrate to orthogonal greybox/primitive baseline. |
+| `scenes/reval_center/reval_center.tscn` | `convert` | Unified inactive Central District prototype containing Town Hall market square and civic quarter; release-gated. |
 | `scenes/reval_east/forge/forge.tscn` | `convert` | Slice hub with embedded TileSet and legacy tile layers; migrate layout and forging systems. |
+| `scenes/reval_east/forge/forge_cat.tscn` | `retain` | Ambient smithy cat actor. |
+| `scenes/reval_east/forge/smithy_henning.tscn` | `retain` | Smithy apprentice Henning actor. |
 | `scenes/reval_east/reval_east.tscn` | `convert` | Default Start district on legacy `scenes/tileset.tres`; migrate to orthogonal target. |
-| `scenes/reval_north/reval_north.tscn` | `convert` | Legacy isometric TileMap district; migrate to orthogonal greybox/primitive baseline. |
+| `scenes/reval_north/reval_north.tscn` | `convert` | Inactive programmatic north quarter prototype; developer traversal only. |
+| `scenes/reval_south/reval_south.tscn` | `convert` | Inactive southern quarter prototype; developer traversal only. |
+| `scenes/reval_toompea/reval_toompea.tscn` | `convert` | Inactive Toompea Upper Town prototype; developer traversal only. |
 | `scenes/tests/font_glyph_render_test.tscn` | `retain` | Dev-only font verification scene; independent of map projection style. |
+| `scenes/tests/dialogue_ui_test.tscn` | `retain` | Dev-only dialogue UI and settings review scene. |
+| `scenes/tests/dialogue_overflow_test.tscn` | `retain` | Dev-only pseudo-localization overflow review scene. |
+| `scenes/ui/forge_commission_overlay.tscn` | `retain` | Forge commission flow overlay. |
+| `scenes/ui/inventory_overlay.tscn` | `retain` | Session bag overlay. |
+| `scenes/ui/journal_overlay.tscn` | `retain` | Quest journal overlay. |
+| `scenes/world/world_item.tscn` | `retain` | Pickup world-item component for D-003. |
+| `tools/benchmarks/large_map_benchmark.tscn` | `retain` | CI large-map pipeline benchmark host; not player-facing. |
+| `tools/benchmarks/lower_town_scene_benchmark.tscn` | `retain` | CI Lower Town scene-load benchmark host; not player-facing. |
 
 ## TileSets
 

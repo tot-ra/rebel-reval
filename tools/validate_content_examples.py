@@ -38,6 +38,8 @@ TYPE_MAP = {
     "array": list,
     "string": str,
     "integer": int,
+    # WHY: combat attack_profile fields use JSON Schema "number" (int or float).
+    "number": (int, float),
     "boolean": bool,
 }
 
@@ -83,6 +85,8 @@ def json_type_name(value: Any) -> str:
         return "boolean"
     if isinstance(value, int):
         return "integer"
+    if isinstance(value, float):
+        return "number"
     if isinstance(value, str):
         return "string"
     if isinstance(value, list):
@@ -104,6 +108,10 @@ def validate_type(value: Any, expected: str | list[str], path: str) -> None:
             raise SchemaValidationError(f"{path}: unsupported schema type {expected_type!r}")
         if expected_type == "integer":
             if isinstance(value, int) and not isinstance(value, bool):
+                return
+        elif expected_type == "number":
+            # JSON numbers are int or float; bool must not satisfy number.
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
                 return
         elif isinstance(value, py_type):
             # bool is a subclass of int, but the integer branch above already
@@ -135,11 +143,19 @@ def validate_value(value: Any, schema: dict[str, Any], store: SchemaStore, path:
         if "pattern" in schema and re.search(schema["pattern"], value) is None:
             raise SchemaValidationError(f"{path}: string {value!r} does not match {schema['pattern']!r}")
 
-    if isinstance(value, int) and not isinstance(value, bool):
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
         if "minimum" in schema and value < schema["minimum"]:
             raise SchemaValidationError(f"{path}: {value} is less than minimum {schema['minimum']}")
+        if "exclusiveMinimum" in schema and value <= schema["exclusiveMinimum"]:
+            raise SchemaValidationError(
+                f"{path}: {value} is not greater than exclusiveMinimum {schema['exclusiveMinimum']}"
+            )
         if "maximum" in schema and value > schema["maximum"]:
             raise SchemaValidationError(f"{path}: {value} is greater than maximum {schema['maximum']}")
+        if "exclusiveMaximum" in schema and value >= schema["exclusiveMaximum"]:
+            raise SchemaValidationError(
+                f"{path}: {value} is not less than exclusiveMaximum {schema['exclusiveMaximum']}"
+            )
 
     if isinstance(value, list):
         if "minItems" in schema and len(value) < schema["minItems"]:

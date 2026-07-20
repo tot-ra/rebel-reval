@@ -14,12 +14,12 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `38`
-- Markdown files excluded as archive/reference/out of active scope: `293`
-- Local/external links inspected: `131`
-- Links to active Markdown docs: `94`
+- Active Markdown files scanned: `39`
+- Markdown files excluded as archive/reference/out of active scope: `294`
+- Local/external links inspected: `136`
+- Links to active Markdown docs: `96`
 - Links to existing archive/reference/non-active local docs: `12`
-- External links skipped for reachability: `1`
+- External links skipped for reachability: `4`
 - Issues found: `0`
 
 ## Issue counts
@@ -49,6 +49,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0008-three-act-campaign-and-faction-scope.md`
 - `docs/adr/0009-map-blueprint-authoring-architecture.md`
 - `docs/adr/0010-large-map-runtime-chunking.md`
+- `docs/adr/0011-optional-first-person-camera.md`
 - `docs/ART_BIBLE.md`
 - `docs/ASSET_INVENTORY.md`
 - `docs/ASSET_STORAGE_POLICY.md`

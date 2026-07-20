@@ -26,8 +26,20 @@ jobs:
       - name: Content validator tests
         run: python3 -m unittest tests.python.test_validate_content -v
 
+      - name: Full Python discovery suite
+        run: python3 -m unittest discover -s tests/python -v
+
       - name: Validate complete content example corpus
         run: python3 tools/validate_content.py content/examples/valid content/examples/support
 
       - name: Validate demo content corpus
         run: python3 tools/validate_content.py content/demo content/examples/support content/examples/valid
+
+      - name: Map audit manifest
+        run: python3 tools/verify_map_audit.py
+
+      - name: Migration matrix
+        run: python3 tools/verify_migration_matrix.py
+
+      - name: Map conversion plan
+        run: python3 tools/verify_map_conversion_plan.py
