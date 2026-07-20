@@ -108,6 +108,9 @@ static func add_transition(
 		entry["spawn_offset"] = spawn_offset
 	if highlight_area:
 		entry["highlight_area"] = true
+		# Ground highlight is the only authored district-edge cue; keep it paired
+		# with the visual so MapBuilder validation stays consistent.
+		entry["transition_visual"] = MapTypes.TRANSITION_VISUAL_GROUND
 	if not String(view_landmark_id).is_empty():
 		entry["view_landmark_id"] = view_landmark_id
 	definition.transitions.append(entry)

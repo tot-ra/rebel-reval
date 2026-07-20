@@ -249,6 +249,11 @@ static func create() -> MapDefinition:
 		},
 		{
 			"text": "to town centre",
+			"position": definition.cell_rect_center(Rect2i(2, 18, 1, 1)),
+			"direction": Vector2.LEFT,
+		},
+		{
+			"text": "to south quarter",
 			"position": definition.cell_rect_center(Rect2i(41, 51, 1, 1)),
 			"direction": Vector2.DOWN,
 		},
@@ -334,8 +339,8 @@ static func create() -> MapDefinition:
 		definition,
 		&"karja_road_boundary",
 		Rect2i(36, 53, 3, 3),
-		&"reval_center",
-		&"from_reval_east_south",
+		&"reval_south",
+		&"from_karja_gate",
 		&"karja_road_boundary",
 		Vector2(0.0, -48.0),
 		true,
