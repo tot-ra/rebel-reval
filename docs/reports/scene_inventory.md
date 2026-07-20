@@ -20,7 +20,7 @@ find . -name '*.tscn' -not -path './.git/*' | wc -l
 # Expected: 67
 ```
 
-Inventory row count (data rows in the table below): **63**.
+Inventory row count (data rows in the table below): **64**.
 
 ## Classification criteria
 
@@ -91,27 +91,28 @@ Inventory row count (data rows in the table below): **63**.
 | 48 | `scenes/tests/font_glyph_render_test.tscn` | partial | Dev-only font glyph verification; not player-facing. |
 | 49 | `scenes/tests/dialogue_ui_test.tscn` | partial | Dev-only dialogue UI and settings review scene (P1-012/P1-013). |
 | 50 | `scenes/tests/dialogue_overflow_test.tscn` | partial | Dev-only pseudo-localization overflow review scene (P1-014). |
-| 51 | `scenes/ui/forge_commission_overlay.tscn` | working | Forge commission flow overlay; P1-019a smithy ledger interaction. |
-| 52 | `scenes/ui/inventory_overlay.tscn` | working | Session bag overlay; D-003 pickup and inventory UI. |
-| 53 | `scenes/ui/journal_overlay.tscn` | working | Quest journal overlay; P1-016 objectives and discovered evidence. |
-| 54 | `assets/characters/variants/townswoman.tscn` | partial | Shared-rig townswoman variant used by ambient NPC work. |
-| 55 | `scenes/world/haapsalu_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 56 | `scenes/world/harju_village.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 57 | `scenes/world/karja_fortress.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 58 | `scenes/world/maasilinna_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 59 | `scenes/world/padise/padise_monastery1.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 60 | `scenes/world/padise/padise_monastery2.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 61 | `scenes/world/paide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 62 | `scenes/world/poide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 63 | `scenes/world/sacred_grove.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 64 | `scenes/world/viljandi_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 65 | `scenes/world/world_item.tscn` | working | Pickup world-item component; D-003 anvil spearhead via `WorldItemController`. |
-| 66 | `scenes/comparison_room/comparison_room.tscn` | partial | P0-033 greybox baseline with procedural collisions, HUD, and slice mechanics verification. |
-| 67 | `scenes/comparison_room/orthogonal_4_direction.tscn` | partial | P0-035 proposed orthogonal/four-direction variant; dev verification only. |
-| 68 | `scenes/comparison_room/diamond_isometric_8_direction.tscn` | partial | P0-035 legacy diamond-isometric/eight-direction variant; dev verification only. |
-| 69 | `tools/benchmarks/large_map_benchmark.tscn` | partial | CI large-map pipeline benchmark host; not player-facing. |
-| 70 | `tools/benchmarks/lower_town_scene_benchmark.tscn` | partial | CI Lower Town scene-load benchmark host; not player-facing. |
-| 71 | `tools/capture_demo_walkthrough_host.tscn` | partial | D-004 packaged demo walkthrough capture host; not player-facing. |
+| 51 | `scenes/tests/combat_room.tscn` | partial | Dev-only P1-024 combat integration room with readable feedback. |
+| 52 | `scenes/ui/forge_commission_overlay.tscn` | working | Forge commission flow overlay; P1-019a smithy ledger interaction. |
+| 53 | `scenes/ui/inventory_overlay.tscn` | working | Session bag overlay; D-003 pickup and inventory UI. |
+| 54 | `scenes/ui/journal_overlay.tscn` | working | Quest journal overlay; P1-016 objectives and discovered evidence. |
+| 55 | `assets/characters/variants/townswoman.tscn` | partial | Shared-rig townswoman variant used by ambient NPC work. |
+| 56 | `scenes/world/haapsalu_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 57 | `scenes/world/harju_village.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 58 | `scenes/world/karja_fortress.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 59 | `scenes/world/maasilinna_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 60 | `scenes/world/padise/padise_monastery1.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 61 | `scenes/world/padise/padise_monastery2.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 62 | `scenes/world/paide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 63 | `scenes/world/poide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 64 | `scenes/world/sacred_grove.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 65 | `scenes/world/viljandi_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
+| 66 | `scenes/world/world_item.tscn` | working | Pickup world-item component; D-003 anvil spearhead via `WorldItemController`. |
+| 67 | `scenes/comparison_room/comparison_room.tscn` | partial | P0-033 greybox baseline with procedural collisions, HUD, and slice mechanics verification. |
+| 68 | `scenes/comparison_room/orthogonal_4_direction.tscn` | partial | P0-035 proposed orthogonal/four-direction variant; dev verification only. |
+| 69 | `scenes/comparison_room/diamond_isometric_8_direction.tscn` | partial | P0-035 legacy diamond-isometric/eight-direction variant; dev verification only. |
+| 70 | `tools/benchmarks/large_map_benchmark.tscn` | partial | CI large-map pipeline benchmark host; not player-facing. |
+| 71 | `tools/benchmarks/lower_town_scene_benchmark.tscn` | partial | CI Lower Town scene-load benchmark host; not player-facing. |
+| 72 | `tools/capture_demo_walkthrough_host.tscn` | partial | D-004 packaged demo walkthrough capture host; not player-facing. |
 
 ## Totals by folder
 
@@ -133,12 +134,12 @@ Inventory row count (data rows in the table below): **63**.
 | `scenes/reval_north/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/reval_south/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/reval_toompea/` | 0 | 1 | 0 | 2 | 3 |
-| `scenes/tests/` | 0 | 3 | 0 | 0 | 3 |
+| `scenes/tests/` | 0 | 4 | 0 | 0 | 4 |
 | `scenes/ui/` | 3 | 0 | 0 | 0 | 3 |
 | `scenes/world/` | 1 | 0 | 0 | 10 | 11 |
 | `tools/` | 0 | 1 | 0 | 0 | 1 |
 | `tools/benchmarks/` | 0 | 2 | 0 | 0 | 2 |
-| **All** | **25** | **22** | **3** | **20** | **70** |
+| **All** | **25** | **23** | **3** | **20** | **71** |
 
 ## Verification
 

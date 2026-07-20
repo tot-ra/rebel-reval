@@ -48,6 +48,7 @@ This matrix classifies current slice-relevant artifacts for migration toward the
 | `scenes/tests/font_glyph_render_test.tscn` | `retain` | Dev-only font verification scene; independent of map projection style. |
 | `scenes/tests/dialogue_ui_test.tscn` | `retain` | Dev-only dialogue UI and settings review scene. |
 | `scenes/tests/dialogue_overflow_test.tscn` | `retain` | Dev-only pseudo-localization overflow review scene. |
+| `scenes/tests/combat_room.tscn` | `retain` | Dev-only P1-024 combat integration room with readable feedback. |
 | `scenes/ui/forge_commission_overlay.tscn` | `retain` | Forge commission flow overlay. |
 | `scenes/ui/inventory_overlay.tscn` | `retain` | Session bag overlay. |
 | `scenes/ui/journal_overlay.tscn` | `retain` | Quest journal overlay. |
