@@ -2,24 +2,24 @@
 class_name MapAlignmentCanvas
 extends Control
 
-## Lightweight semantic renderer for aligning two compiled maps. It intentionally
-## draws from MapDefinition rather than exposing generated runtime nodes as source.
+## Semantic multi-map renderer. Compiled definitions remain authoritative; this
+## canvas only stores temporary editor offsets, visibility, and opacity.
 
 signal view_changed
+signal selected_layer_changed(map_id: StringName)
 
-const MARGIN := 96.0
-const MIN_ZOOM := 0.04
-const MAX_ZOOM := 3.0
+const MARGIN := 48.0
+const MIN_ZOOM := 0.01
+const MAX_ZOOM := 4.0
 const GRID_MIN_SCREEN_PX := 10.0
+const ACCENTS: Array[Color] = [
+	Color("f5c451"), Color("55bce8"), Color("e879a9"), Color("79d279"),
+	Color("bc8cff"), Color("ef8d52"), Color("55d6c2"), Color("d3d65a"),
+]
 
-var base_definition: MapDefinition
-var neighbor_definition: MapDefinition
-var _base_grid: MapTerrainGrid
-var _neighbor_grid: MapTerrainGrid
-var base_transition: Dictionary = {}
-var neighbor_transition: Dictionary = {}
-var neighbor_offset_px := Vector2.ZERO
-var neighbor_opacity := 0.55
+var layers: Array[Dictionary] = []
+var seams: Array[Dictionary] = []
+var selected_map_id: StringName = &""
 var show_grid := true
 var show_ids := false
 var show_features := true
@@ -28,49 +28,145 @@ var _zoom := 0.12
 var _pan := Vector2.ZERO
 var _dragging := false
 var _last_mouse := Vector2.ZERO
+var _fit_requested := false
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	clip_contents = true
 	set_process_unhandled_input(true)
+	resized.connect(_on_resized)
 
 
-func configure(base: MapDefinition, neighbor: MapDefinition) -> void:
-	base_definition = base
-	neighbor_definition = neighbor
-	_base_grid = MapBuilder.build(base) if base != null else null
-	_neighbor_grid = MapBuilder.build(neighbor) if neighbor != null else null
+func configure(map_definitions: Array[MapDefinition], offsets: Dictionary, map_seams: Array[Dictionary]) -> void:
+	layers.clear()
+	seams = map_seams
+	for index in map_definitions.size():
+		var definition := map_definitions[index]
+		layers.append({
+			"id": definition.map_id,
+			"definition": definition,
+			"terrain_texture": _build_terrain_texture(definition),
+			"offset": Vector2(offsets.get(definition.map_id, Vector2.ZERO)),
+			"visible": true,
+			"opacity": 1.0,
+			"accent": ACCENTS[index % ACCENTS.size()],
+		})
+	selected_map_id = layers[0]["id"] if not layers.is_empty() else &""
+	request_fit()
 	queue_redraw()
 
 
-func fit_to_maps() -> void:
-	if base_definition == null:
+func clear() -> void:
+	layers.clear()
+	seams.clear()
+	selected_map_id = &""
+	queue_redraw()
+
+
+func layer_ids() -> Array[StringName]:
+	var ids: Array[StringName] = []
+	for layer in layers:
+		ids.append(layer["id"])
+	return ids
+
+
+func layer(map_id: StringName) -> Dictionary:
+	for candidate in layers:
+		if candidate["id"] == map_id:
+			return candidate
+	return {}
+
+
+func select_layer(map_id: StringName) -> void:
+	if layer(map_id).is_empty():
 		return
-	var bounds := Rect2(Vector2.ZERO, base_definition.world_size())
-	if neighbor_definition != null:
-		bounds = bounds.merge(Rect2(neighbor_offset_px, neighbor_definition.world_size()))
-	if bounds.size.x <= 0.0 or bounds.size.y <= 0.0 or size.x <= 0.0 or size.y <= 0.0:
+	selected_map_id = map_id
+	queue_redraw()
+	selected_layer_changed.emit(map_id)
+	view_changed.emit()
+
+
+func set_layer_visible(map_id: StringName, visible: bool) -> void:
+	var target := layer(map_id)
+	if target.is_empty():
+		return
+	target["visible"] = visible
+	queue_redraw()
+	view_changed.emit()
+
+
+func set_selected_opacity(opacity: float) -> void:
+	var target := layer(selected_map_id)
+	if target.is_empty():
+		return
+	target["opacity"] = clampf(opacity, 0.03, 1.0)
+	queue_redraw()
+
+
+func selected_opacity() -> float:
+	var target := layer(selected_map_id)
+	return float(target.get("opacity", 1.0))
+
+
+func nudge_selected(cell_delta: Vector2i) -> void:
+	var target := layer(selected_map_id)
+	if target.is_empty():
+		return
+	var definition: MapDefinition = target["definition"]
+	target["offset"] = Vector2(target["offset"]) + Vector2(cell_delta) * float(definition.cell_size)
+	queue_redraw()
+	view_changed.emit()
+
+
+func selected_offset() -> Vector2:
+	return Vector2(layer(selected_map_id).get("offset", Vector2.ZERO))
+
+
+func request_fit() -> void:
+	_fit_requested = true
+	call_deferred("_apply_requested_fit")
+
+
+func fit_to_maps() -> void:
+	var bounds := visible_world_bounds()
+	if not bounds.has_area() or size.x <= 1.0 or size.y <= 1.0:
+		_fit_requested = true
 		return
 	var available := Vector2(maxf(size.x - MARGIN * 2.0, 1.0), maxf(size.y - MARGIN * 2.0, 1.0))
 	_zoom = clampf(minf(available.x / bounds.size.x, available.y / bounds.size.y), MIN_ZOOM, MAX_ZOOM)
 	_pan = size * 0.5 - bounds.get_center() * _zoom
+	_fit_requested = false
 	queue_redraw()
 	view_changed.emit()
 
 
-func nudge_neighbor(cell_delta: Vector2i) -> void:
-	if neighbor_definition == null:
-		return
-	neighbor_offset_px += Vector2(cell_delta) * float(neighbor_definition.cell_size)
-	queue_redraw()
-	view_changed.emit()
+func visible_world_bounds() -> Rect2:
+	var result := Rect2()
+	var has_bounds := false
+	for candidate in layers:
+		if not bool(candidate["visible"]):
+			continue
+		var definition: MapDefinition = candidate["definition"]
+		var bounds := Rect2(Vector2(candidate["offset"]), definition.world_size())
+		result = result.merge(bounds) if has_bounds else bounds
+		has_bounds = true
+	return result
 
 
-func set_neighbor_offset(offset_px: Vector2) -> void:
-	neighbor_offset_px = offset_px
-	queue_redraw()
-	view_changed.emit()
+func _apply_requested_fit() -> void:
+	if _fit_requested and is_inside_tree():
+		fit_to_maps()
+
+
+func _on_resized() -> void:
+	# The editor main screen receives its final size after plugin construction.
+	# A pending fit must therefore run on resize, not only after maps are parsed.
+	if _fit_requested:
+		call_deferred("_apply_requested_fit")
+	else:
+		queue_redraw()
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -82,7 +178,13 @@ func _gui_input(event: InputEvent) -> void:
 		elif button.button_index == MOUSE_BUTTON_WHEEL_DOWN and button.pressed:
 			_zoom_at(button.position, 1.0 / 1.12)
 			accept_event()
-		elif button.button_index in [MOUSE_BUTTON_MIDDLE, MOUSE_BUTTON_LEFT]:
+		elif button.button_index == MOUSE_BUTTON_LEFT:
+			if button.pressed:
+				_select_layer_at(button.position)
+			_dragging = button.pressed
+			_last_mouse = button.position
+			accept_event()
+		elif button.button_index == MOUSE_BUTTON_MIDDLE:
 			_dragging = button.pressed
 			_last_mouse = button.position
 			accept_event()
@@ -95,7 +197,7 @@ func _gui_input(event: InputEvent) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not is_visible_in_tree() or neighbor_definition == null:
+	if not is_visible_in_tree() or selected_map_id.is_empty():
 		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		var key := event as InputEventKey
@@ -108,8 +210,20 @@ func _unhandled_input(event: InputEvent) -> void:
 		if delta != Vector2i.ZERO:
 			if key.shift_pressed:
 				delta *= 10
-			nudge_neighbor(delta)
+			nudge_selected(delta)
 			get_viewport().set_input_as_handled()
+
+
+func _select_layer_at(screen_point: Vector2) -> void:
+	var world_point := (screen_point - _pan) / _zoom
+	for index in range(layers.size() - 1, -1, -1):
+		var candidate := layers[index]
+		if not bool(candidate["visible"]):
+			continue
+		var definition: MapDefinition = candidate["definition"]
+		if Rect2(Vector2(candidate["offset"]), definition.world_size()).has_point(world_point):
+			select_layer(candidate["id"])
+			return
 
 
 func _zoom_at(screen_point: Vector2, factor: float) -> void:
@@ -122,37 +236,25 @@ func _zoom_at(screen_point: Vector2, factor: float) -> void:
 
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), Color8(26, 28, 32), true)
-	if base_definition == null:
-		_draw_center_message("Select two .rrmap files and click Load maps")
+	if layers.is_empty():
+		_draw_center_message("Select maps and click Load selected, or click Load all maps")
 		return
-	_draw_map(base_definition, _base_grid, Vector2.ZERO, 1.0, Color(1.0, 0.78, 0.28))
-	if neighbor_definition != null:
-		# Draw the neighbor last so opacity/blink works like a conventional image
-		# overlay even when the maps overlap rather than merely touch at a seam.
-		_draw_map(neighbor_definition, _neighbor_grid, neighbor_offset_px, neighbor_opacity, Color(0.35, 0.78, 1.0))
+	for candidate in layers:
+		if bool(candidate["visible"]):
+			_draw_map(candidate)
 	if show_grid:
 		_draw_grid()
-	_draw_seam_markers()
+	_draw_seams()
 
 
-func _draw_map(
-	definition: MapDefinition,
-	grid: MapTerrainGrid,
-	offset: Vector2,
-	opacity: float,
-	accent: Color
-) -> void:
-	if grid == null:
-		return
+func _draw_map(map_layer: Dictionary) -> void:
+	var definition: MapDefinition = map_layer["definition"]
+	var offset := Vector2(map_layer["offset"])
+	var opacity := float(map_layer["opacity"])
+	var accent := Color(map_layer["accent"])
 	var world_rect := _screen_rect(Rect2(offset, definition.world_size()))
-	draw_rect(world_rect, Color(0.05, 0.05, 0.06, opacity), true)
-	var cell_px := float(definition.cell_size)
-	for y in definition.size_cells.y:
-		for x in definition.size_cells.x:
-			var cell := Vector2i(x, y)
-			var terrain := grid.get_terrain(cell)
-			var rect := Rect2(offset + Vector2(cell) * cell_px, Vector2.ONE * cell_px)
-			draw_rect(_screen_rect(rect), Color(OutdoorTerrainPalette.color(terrain), opacity), true)
+	var texture: Texture2D = map_layer["terrain_texture"]
+	draw_texture_rect(texture, world_rect, false, Color(1.0, 1.0, 1.0, opacity))
 	if show_features:
 		for building in definition.buildings:
 			var primitive := StringName(building.get("primitive", &"house"))
@@ -170,12 +272,25 @@ func _draw_map(
 			draw_rect(screen_rect, Color(1.0, 0.25, 0.2, opacity), false, 3.0)
 			if show_ids:
 				_draw_id(String(transition["id"]), screen_rect.get_center(), Color(1.0, 0.38, 0.3), opacity)
-	draw_rect(world_rect, Color(accent, opacity), false, 3.0)
-	_draw_id(String(definition.map_id), world_rect.position + Vector2(8.0, 20.0), accent, opacity, false)
+	var selected: bool = StringName(map_layer["id"]) == selected_map_id
+	draw_rect(world_rect, Color.WHITE if selected else Color(accent, opacity), false, 5.0 if selected else 2.0)
+	_draw_id(String(definition.map_id), world_rect.position + Vector2(8.0, 20.0), Color.WHITE if selected else accent, opacity, false)
+
+
+func _build_terrain_texture(definition: MapDefinition) -> ImageTexture:
+	var grid := MapBuilder.build(definition)
+	var image := Image.create(definition.size_cells.x, definition.size_cells.y, false, Image.FORMAT_RGBA8)
+	for y in definition.size_cells.y:
+		for x in definition.size_cells.x:
+			image.set_pixel(x, y, OutdoorTerrainPalette.color(grid.get_terrain(Vector2i(x, y))))
+	return ImageTexture.create_from_image(image)
 
 
 func _draw_grid() -> void:
-	var cell_size := float(base_definition.cell_size)
+	if layers.is_empty():
+		return
+	var definition: MapDefinition = layers[0]["definition"]
+	var cell_size := float(definition.cell_size)
 	if cell_size * _zoom < GRID_MIN_SCREEN_PX:
 		return
 	var visible_world := Rect2(-_pan / _zoom, size / _zoom)
@@ -191,16 +306,21 @@ func _draw_grid() -> void:
 		y += cell_size
 
 
-func _draw_seam_markers() -> void:
-	if base_transition.is_empty() or neighbor_transition.is_empty():
-		return
-	var base_rect: Rect2 = base_transition["rect"]
-	var neighbor_rect: Rect2 = neighbor_transition["rect"]
-	var base_center := _screen(base_rect.get_center())
-	var neighbor_center := _screen(neighbor_rect.get_center() + neighbor_offset_px)
-	draw_line(base_center, neighbor_center, Color(1.0, 0.95, 0.2), 4.0)
-	draw_circle(base_center, 7.0, Color(1.0, 0.78, 0.28))
-	draw_circle(neighbor_center, 7.0, Color(0.35, 0.78, 1.0))
+func _draw_seams() -> void:
+	for seam in seams:
+		var first := layer(seam["base_map_id"])
+		var second := layer(seam["neighbor_map_id"])
+		if first.is_empty() or second.is_empty() or not bool(first["visible"]) or not bool(second["visible"]):
+			continue
+		var first_rect: Rect2 = seam["base"]["rect"]
+		var second_rect: Rect2 = seam["neighbor"]["rect"]
+		var first_center := _screen(first_rect.get_center() + Vector2(first["offset"]))
+		var second_center := _screen(second_rect.get_center() + Vector2(second["offset"]))
+		var mismatch := not is_equal_approx(float(seam["base_span_cells"]), float(seam["neighbor_span_cells"]))
+		var color := Color(1.0, 0.25, 0.2) if mismatch else Color(1.0, 0.95, 0.2)
+		draw_line(first_center, second_center, color, 4.0)
+		draw_circle(first_center, 6.0, Color(first["accent"]))
+		draw_circle(second_center, 6.0, Color(second["accent"]))
 
 
 func _draw_id(text: String, position: Vector2, color: Color, opacity: float, centered := true) -> void:

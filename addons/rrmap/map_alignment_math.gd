@@ -35,6 +35,118 @@ static func find_transition_pairs(base: MapDefinition, neighbor: MapDefinition) 
 	return pairs
 
 
+static func layout_connected_maps(
+	definitions: Array[MapDefinition],
+	root_map_id: StringName = &""
+) -> Dictionary:
+	var by_id: Dictionary = {}
+	for definition in definitions:
+		if definition != null:
+			by_id[definition.map_id] = definition
+	if by_id.is_empty():
+		return {"offsets": {}, "seams": [], "unplaced": []}
+
+	var root_id := root_map_id if by_id.has(root_map_id) else StringName(by_id.keys()[0])
+	var offsets: Dictionary = {root_id: Vector2.ZERO}
+	var seams: Array[Dictionary] = []
+	var seam_keys: Dictionary = {}
+	var queue: Array[StringName] = [root_id]
+	while not queue.is_empty():
+		var base_id := queue.pop_front()
+		var base: MapDefinition = by_id[base_id]
+		for neighbor_id_value in by_id.keys():
+			var neighbor_id := StringName(neighbor_id_value)
+			if neighbor_id == base_id:
+				continue
+			var neighbor: MapDefinition = by_id[neighbor_id]
+			for pair in find_transition_pairs(base, neighbor):
+				var seam_key := _seam_key(base_id, pair["base"]["id"], neighbor_id, pair["neighbor"]["id"])
+				if not seam_keys.has(seam_key):
+					seam_keys[seam_key] = true
+					seams.append({
+						"base_map_id": base_id,
+						"neighbor_map_id": neighbor_id,
+						"base": pair["base"],
+						"neighbor": pair["neighbor"],
+						"base_side": pair["base_side"],
+						"neighbor_side": pair["neighbor_side"],
+						"base_span_cells": seam_span_cells(base, pair["base"], pair["base_side"]),
+						"neighbor_span_cells": seam_span_cells(neighbor, pair["neighbor"], pair["neighbor_side"]),
+					})
+				if offsets.has(neighbor_id):
+					continue
+				offsets[neighbor_id] = Vector2(offsets[base_id]) + aligned_neighbor_offset(
+					base, neighbor, pair["base"], pair["neighbor"]
+				)
+				queue.append(neighbor_id)
+
+	var unplaced: Array[StringName] = []
+	for map_id_value in by_id.keys():
+		var map_id := StringName(map_id_value)
+		if not offsets.has(map_id):
+			unplaced.append(map_id)
+	unplaced.sort()
+	return {"offsets": offsets, "seams": seams, "unplaced": unplaced}
+
+
+static func layout_all_maps(
+	definitions: Array[MapDefinition],
+	root_map_id: StringName = &""
+) -> Dictionary:
+	var result := layout_connected_maps(definitions, root_map_id)
+	var offsets: Dictionary = result["offsets"]
+	var unplaced: Array = result["unplaced"]
+	if unplaced.is_empty():
+		return result
+
+	# Disconnected interiors/prototypes remain visible in a separate shelf below
+	# the connected city graph rather than silently disappearing from Load all.
+	var bounds := _layout_bounds(definitions, offsets)
+	var shelf_x := bounds.position.x
+	var shelf_y := bounds.end.y + 8.0 * float(MapTypes.DEFAULT_CELL_SIZE)
+	for map_id in unplaced:
+		var definition := _definition_by_id(definitions, map_id)
+		if definition == null:
+			continue
+		offsets[map_id] = Vector2(shelf_x, shelf_y)
+		shelf_x += definition.world_size().x + 8.0 * float(definition.cell_size)
+	result["offsets"] = offsets
+	return result
+
+
+static func _seam_key(
+	first_map_id: StringName,
+	first_transition_id: StringName,
+	second_map_id: StringName,
+	second_transition_id: StringName
+) -> String:
+	var first := "%s/%s" % [first_map_id, first_transition_id]
+	var second := "%s/%s" % [second_map_id, second_transition_id]
+	return "%s|%s" % [first, second] if first < second else "%s|%s" % [second, first]
+
+
+static func _layout_bounds(definitions: Array[MapDefinition], offsets: Dictionary) -> Rect2:
+	var result := Rect2()
+	var has_bounds := false
+	for definition in definitions:
+		if definition == null or not offsets.has(definition.map_id):
+			continue
+		var bounds := Rect2(Vector2(offsets[definition.map_id]), definition.world_size())
+		result = result.merge(bounds) if has_bounds else bounds
+		has_bounds = true
+	return result
+
+
+static func _definition_by_id(
+	definitions: Array[MapDefinition],
+	map_id: StringName
+) -> MapDefinition:
+	for definition in definitions:
+		if definition != null and definition.map_id == map_id:
+			return definition
+	return null
+
+
 static func transition_side(definition: MapDefinition, transition: Dictionary) -> StringName:
 	if definition == null or not transition.get("rect") is Rect2:
 		return &""
