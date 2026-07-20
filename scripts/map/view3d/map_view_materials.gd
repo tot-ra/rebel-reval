@@ -361,6 +361,22 @@ static func role(role_name: StringName) -> StandardMaterial3D:
 	return material
 
 
+## Size-aware role material so gate leaves, jambs, and thresholds keep plank or
+## ashlar courses at house scale instead of stretching one tile across a 6-10 m span.
+static func role_for_size(role_name: StringName, size: Vector3) -> StandardMaterial3D:
+	var material := role(role_name).duplicate()
+	var pattern := PATTERN_PLASTER
+	match role_name:
+		&"wood", &"timber":
+			pattern = PATTERN_PLANK
+		&"stone":
+			pattern = PATTERN_LIMESTONE
+		_:
+			return material
+	material.uv1_scale = building_uv_scale(pattern, size)
+	return material
+
+
 ## Flat vegetation and landscape tints for the view-only scatter and treeline.
 ## Instance colors modulate these through vertex_color_use_as_albedo.
 static func foliage_tuft() -> StandardMaterial3D:

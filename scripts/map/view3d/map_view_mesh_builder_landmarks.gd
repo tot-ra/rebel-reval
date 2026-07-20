@@ -137,6 +137,7 @@ static func _add_gate_arch(root: Node3D, landmark: Dictionary, size: Vector2, sc
 	var top := MapTypes.resolved_landmark_top_px(landmark) * scale
 	var span_height := maxf(top - MapViewMeshBuilderConfig.GATE_ARCH_CLEARANCE, 0.6)
 	var passage_along_x := _gate_passage_along_x(landmark, size)
+	var limestone := MapViewMaterials.wall_surface_triplanar(&"limestone", color)
 
 	var bridge := MeshInstance3D.new()
 	bridge.name = "Bridge"
@@ -144,7 +145,7 @@ static func _add_gate_arch(root: Node3D, landmark: Dictionary, size: Vector2, sc
 	bridge_mesh.size = Vector3(size.x, span_height, size.y)
 	bridge.mesh = bridge_mesh
 	bridge.position = Vector3(0.0, MapViewMeshBuilderConfig.GATE_ARCH_CLEARANCE + span_height * 0.5, 0.0)
-	bridge.material_override = MapViewMaterials.wall_surface_triplanar(&"limestone", color)
+	bridge.material_override = limestone
 	root.add_child(bridge)
 
 	var jamb_height := MapViewMeshBuilderConfig.GATE_ARCH_CLEARANCE
@@ -153,32 +154,40 @@ static func _add_gate_arch(root: Node3D, landmark: Dictionary, size: Vector2, sc
 		for side_index in 2:
 			var side := -1.0 if side_index == 0 else 1.0
 			var z := side * (half.y - MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS * 0.5)
-			MapViewMeshBuilderPrimitives.box(
+			_add_gate_masonry_box(
 				root,
 				"Jamb%d" % side_index,
 				Vector3(size.x, jamb_height, MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS),
 				Vector3(0.0, jamb_height * 0.5, z),
-				&"stone"
+				limestone
 			)
 	else:
 		for side_index in 2:
 			var side := -1.0 if side_index == 0 else 1.0
 			var x := side * (half.x - MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS * 0.5)
-			MapViewMeshBuilderPrimitives.box(
+			_add_gate_masonry_box(
 				root,
 				"Jamb%d" % side_index,
 				Vector3(MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS, jamb_height, size.y),
 				Vector3(x, jamb_height * 0.5, 0.0),
-				&"stone"
+				limestone
 			)
 
-	MapViewMeshBuilderPrimitives.box(
-		root,
-		"Threshold",
-		Vector3(size.x + 0.2, 0.1, size.y + 0.2),
-		Vector3(0.0, 0.05, 0.0),
-		&"stone"
+	# Narrow sill across the opening only - never pave the whole gatehouse floor
+	# with a stretched masonry slab (that read as giant bricks in the passage).
+	var threshold_size := (
+		Vector3(MapViewMeshBuilderConfig.GATE_THRESHOLD_WIDTH, MapViewMeshBuilderConfig.GATE_THRESHOLD_HEIGHT, maxf(size.y - MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS, 1.0))
+		if passage_along_x
+		else Vector3(maxf(size.x - MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS, 1.0), MapViewMeshBuilderConfig.GATE_THRESHOLD_HEIGHT, MapViewMeshBuilderConfig.GATE_THRESHOLD_WIDTH)
 	)
+	var threshold := MeshInstance3D.new()
+	threshold.name = "Threshold"
+	var threshold_mesh := BoxMesh.new()
+	threshold_mesh.size = threshold_size
+	threshold.mesh = threshold_mesh
+	threshold.position = Vector3(0.0, MapViewMeshBuilderConfig.GATE_THRESHOLD_HEIGHT * 0.5, 0.0)
+	threshold.material_override = MapViewMaterials.role_for_size(&"stone", threshold_size)
+	root.add_child(threshold)
 
 	var door_material: StringName = landmark.get("door_material", &"wood")
 	if door_material in [&"wood", &"metal"]:
@@ -187,45 +196,132 @@ static func _add_gate_arch(root: Node3D, landmark: Dictionary, size: Vector2, sc
 	MapViewMeshBuilderBuildings.add_battlements(root, {"id": landmark["id"], "wall_color": color}, size, top - MapViewMeshBuilderConfig.CAP_HEIGHT)
 
 
-## Double gate leaves hinged on the jambs and swung open so the passage stays
-## walkable while the gate reads as an inhabited threshold.
+static func _add_gate_masonry_box(
+	parent: Node3D,
+	name: String,
+	size: Vector3,
+	position: Vector3,
+	material: Material
+) -> void:
+	var instance := MeshInstance3D.new()
+	instance.name = name
+	var mesh := BoxMesh.new()
+	mesh.size = size
+	instance.mesh = mesh
+	instance.position = position
+	instance.material_override = material
+	parent.add_child(instance)
+
+
+## Double gate leaves parked open against the jambs so the passage stays
+## walkable while wood or iron-bound doors remain readable at character scale.
 
 
 static func _add_gate_doors(root: Node3D, size: Vector2, passage_along_x: bool, door_material: StringName) -> void:
 	var door_height := minf(MapViewMeshBuilderConfig.GATE_DOOR_HEIGHT, MapViewMeshBuilderConfig.GATE_ARCH_CLEARANCE - 0.1)
 	var half := size * 0.5
-	var role := door_material
+	# Leaf width follows the opening span (axis across the road), not the
+	# gatehouse depth - the old axis swap hid doors outside the arch.
+	var opening := maxf(
+		(size.y if passage_along_x else size.x) - MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS * 2.0,
+		1.2
+	)
+	var leaf_span := clampf(opening * 0.48, 0.9, MapViewMeshBuilderConfig.GATE_DOOR_MAX_LEAF)
+	var passage_depth := size.x if passage_along_x else size.y
+	var leaf_along := minf(leaf_span, maxf(passage_depth * 0.42, 1.0))
+	var inset := MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS + MapViewMeshBuilderConfig.GATE_DOOR_THICKNESS * 0.5 + 0.04
 
-	if passage_along_x:
-		var leaf_width := maxf((size.x - MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS * 2.4) * 0.5, 0.8)
-		for side_index in 2:
-			var side := -1.0 if side_index == 0 else 1.0
-			var hinge_z := side * (half.y - MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS * 0.5)
-			var door := MeshInstance3D.new()
-			door.name = "GateDoor%d" % side_index
-			var mesh := BoxMesh.new()
-			mesh.size = Vector3(leaf_width, door_height, MapViewMeshBuilderConfig.GATE_DOOR_THICKNESS)
-			door.mesh = mesh
-			door.position = Vector3(0.0, door_height * 0.5, hinge_z + side * leaf_width * 0.5)
-			door.rotation.y = side * deg_to_rad(92.0)
-			door.material_override = MapViewMeshBuilderPrimitives.role_material(role)
-			root.add_child(door)
-	else:
-		var leaf_width := maxf((size.y - MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS * 2.4) * 0.5, 0.8)
-		for side_index in 2:
-			var side := -1.0 if side_index == 0 else 1.0
-			var hinge_x := side * (half.x - MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS * 0.5)
-			var door := MeshInstance3D.new()
-			door.name = "GateDoor%d" % side_index
-			var mesh := BoxMesh.new()
-			mesh.size = Vector3(MapViewMeshBuilderConfig.GATE_DOOR_THICKNESS, door_height, leaf_width)
-			door.mesh = mesh
-			door.position = Vector3(hinge_x + side * leaf_width * 0.5, door_height * 0.5, 0.0)
-			door.rotation.y = side * deg_to_rad(92.0)
-			door.material_override = MapViewMeshBuilderPrimitives.role_material(role)
-			root.add_child(door)
+	for side_index in 2:
+		var side := -1.0 if side_index == 0 else 1.0
+		var door := MeshInstance3D.new()
+		door.name = "GateDoor%d" % side_index
+		var mesh := BoxMesh.new()
+		if passage_along_x:
+			mesh.size = Vector3(leaf_along, door_height, MapViewMeshBuilderConfig.GATE_DOOR_THICKNESS)
+			# Parked against the N/S jamb, on the street face of the arch.
+			door.position = Vector3(
+				-half.x + leaf_along * 0.5 + 0.08,
+				door_height * 0.5,
+				side * (half.y - inset)
+			)
+		else:
+			mesh.size = Vector3(MapViewMeshBuilderConfig.GATE_DOOR_THICKNESS, door_height, leaf_along)
+			door.position = Vector3(
+				side * (half.x - inset),
+				door_height * 0.5,
+				-half.y + leaf_along * 0.5 + 0.08
+			)
+		door.mesh = mesh
+		door.material_override = MapViewMaterials.role_for_size(door_material, mesh.size)
+		root.add_child(door)
+		_add_gate_door_hardware(door, mesh.size, passage_along_x, side, door_material)
 
 
+static func _add_gate_door_hardware(
+	door: MeshInstance3D,
+	leaf_size: Vector3,
+	passage_along_x: bool,
+	side: float,
+	door_material: StringName
+) -> void:
+	var metal := MapViewMaterials.role(&"metal")
+	var strap_h := MapViewMeshBuilderConfig.GATE_DOOR_STRAP_THICKNESS
+	var face := (
+		leaf_size.z * 0.5 + strap_h * 0.5 + 0.005
+		if passage_along_x
+		else leaf_size.x * 0.5 + strap_h * 0.5 + 0.005
+	)
+	# Three horizontal iron bands read as bound city-gate leaves even when the
+	# panel itself is timber; metal doors keep the same silhouette darker.
+	for band_index in 3:
+		var band_y := leaf_size.y * (0.18 + 0.32 * float(band_index)) - leaf_size.y * 0.5
+		var band := MeshInstance3D.new()
+		band.name = "Strap%d" % band_index
+		var band_mesh := BoxMesh.new()
+		if passage_along_x:
+			band_mesh.size = Vector3(leaf_size.x * 0.92, strap_h * 2.2, strap_h)
+			band.position = Vector3(0.0, band_y, -side * face)
+		else:
+			band_mesh.size = Vector3(strap_h, strap_h * 2.2, leaf_size.z * 0.92)
+			band.position = Vector3(-side * face, band_y, 0.0)
+		band.mesh = band_mesh
+		band.material_override = metal
+		door.add_child(band)
+
+	for hinge_index in 2:
+		var hinge := MeshInstance3D.new()
+		hinge.name = "Hinge%d" % hinge_index
+		var hinge_mesh := CylinderMesh.new()
+		hinge_mesh.top_radius = MapViewMeshBuilderConfig.GATE_DOOR_HINGE_RADIUS
+		hinge_mesh.bottom_radius = MapViewMeshBuilderConfig.GATE_DOOR_HINGE_RADIUS
+		hinge_mesh.height = 0.22
+		hinge.mesh = hinge_mesh
+		var hinge_y := leaf_size.y * (0.22 if hinge_index == 0 else 0.72) - leaf_size.y * 0.5
+		if passage_along_x:
+			hinge.position = Vector3(-leaf_size.x * 0.45, hinge_y, -side * face)
+			hinge.rotation_degrees = Vector3(0.0, 0.0, 90.0)
+		else:
+			hinge.position = Vector3(-side * face, hinge_y, -leaf_size.z * 0.45)
+			hinge.rotation_degrees = Vector3(90.0, 0.0, 0.0)
+		hinge.material_override = metal
+		door.add_child(hinge)
+
+	if door_material == &"wood":
+		# Vertical boarding cue so open timber leaves do not read as flat slabs.
+		for plank_index in 3:
+			var plank := MeshInstance3D.new()
+			plank.name = "Plank%d" % plank_index
+			var plank_mesh := BoxMesh.new()
+			var along := -0.28 + 0.28 * float(plank_index)
+			if passage_along_x:
+				plank_mesh.size = Vector3(0.03, leaf_size.y * 0.92, 0.02)
+				plank.position = Vector3(along * leaf_size.x * 0.5, 0.0, -side * face)
+			else:
+				plank_mesh.size = Vector3(0.02, leaf_size.y * 0.92, 0.03)
+				plank.position = Vector3(-side * face, 0.0, along * leaf_size.z * 0.5)
+			plank.mesh = plank_mesh
+			plank.material_override = MapViewMaterials.role(&"timber")
+			door.add_child(plank)
 
 
 static func transition_uses_landmark_visual(definition: MapDefinition, transition: Dictionary) -> bool:

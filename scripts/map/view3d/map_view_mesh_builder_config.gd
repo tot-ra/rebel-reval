@@ -198,6 +198,13 @@ const GATE_ARCH_CLEARANCE := 3.2
 const GATE_JAMB_THICKNESS := 0.55
 const GATE_DOOR_HEIGHT := 2.45
 const GATE_DOOR_THICKNESS := 0.12
+## Open leaves sit against the jambs; keep them character-scale so a deep
+## gatehouse does not stretch one leaf across the whole passage depth.
+const GATE_DOOR_MAX_LEAF := 2.6
+const GATE_THRESHOLD_WIDTH := 0.7
+const GATE_THRESHOLD_HEIGHT := 0.08
+const GATE_DOOR_STRAP_THICKNESS := 0.04
+const GATE_DOOR_HINGE_RADIUS := 0.05
 ## Fortification wall prisms grow slightly past their authored footprint so
 ## thin segments visually seal against wider towers at bends and gate throats.
 const WALL_SEAL_OVERHANG := 0.45

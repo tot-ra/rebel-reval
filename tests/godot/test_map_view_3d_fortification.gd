@@ -50,15 +50,45 @@ func test_town_wall_gets_battlements_and_gate_arch_clears_character() -> void:
 					)
 			node.free()
 	assert_true(definition.view_landmarks.size() >= 1, "Viru Gate needs its arch landmark")
-	var arch := MapViewMeshBuilder.build_landmark(definition.view_landmarks[0], definition.cell_size)
+	var viru_arch_def: Dictionary = {}
+	for landmark in definition.view_landmarks:
+		if landmark["id"] == &"viru_gate_arch":
+			viru_arch_def = landmark
+			break
+	assert_false(viru_arch_def.is_empty(), "Viru Gate needs its arch landmark")
+	var arch := MapViewMeshBuilder.build_landmark(viru_arch_def, definition.cell_size)
 	assert_true(arch.has_node("Bridge"), "gate arch needs a bridging mass")
 	assert_true(arch.has_node("Jamb0"), "gate arch needs stone jambs to close side holes")
 	assert_true(arch.has_node("GateDoor0"), "Viru Gate needs open gate doors")
+	assert_true(arch.has_node("GateDoor0/Strap0"), "gate doors need iron binding straps")
 	var bridge := arch.get_node("Bridge") as MeshInstance3D
 	var bridge_mesh := bridge.mesh as BoxMesh
 	assert_true(
 		bridge.position.y - bridge_mesh.size.y * 0.5 >= 2.0,
 		"the arch must clear the frozen 2.0-unit character"
+	)
+	var viru_door := arch.get_node("GateDoor0") as MeshInstance3D
+	var viru_door_mesh := viru_door.mesh as BoxMesh
+	assert_true(
+		viru_door_mesh.size.x <= MapViewMeshBuilderConfig.GATE_DOOR_MAX_LEAF + 0.05
+		and viru_door_mesh.size.z <= MapViewMeshBuilderConfig.GATE_DOOR_MAX_LEAF + 0.05,
+		"gate leaves must stay character-scale, not span the gatehouse depth"
+	)
+	var wood_mat := MapViewMaterials.role(&"wood")
+	assert_true(
+		(viru_door.material_override as StandardMaterial3D).albedo_color.is_equal_approx(wood_mat.albedo_color),
+		"Viru Gate doors should use wood"
+	)
+	var threshold := arch.get_node("Threshold") as MeshInstance3D
+	var threshold_mesh := threshold.mesh as BoxMesh
+	assert_true(
+		threshold_mesh.size.x < bridge_mesh.size.x * 0.5 or threshold_mesh.size.z < bridge_mesh.size.z * 0.5,
+		"threshold must be a narrow sill, not a masonry slab across the whole passage"
+	)
+	var jamb := arch.get_node("Jamb0") as MeshInstance3D
+	assert_true(
+		(jamb.material_override as StandardMaterial3D).uv1_triplanar,
+		"gate jambs need triplanar limestone so courses stay dense on long faces"
 	)
 	arch.free()
 
