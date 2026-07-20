@@ -30,6 +30,8 @@ Coordination note (2026-07-20 P1-025a in progress): wiring watchman/sergeant int
 
 Coordination note (2026-07-20 P1-025a): watchman/sergeant wired into `scenes/tests/combat_room.tscn` via `CombatRoomEnemy`; readable detect/telegraph/attack feedback; `--filter=test_combat_room` passes 8/8. Next combat step is **P1-026** (surrender/escape/bypass outcomes).
 
+Coordination note (2026-07-20 P1-026): authored surrender/escape/bypass outcomes via `EncounterOutcomeResolver`; non-lethal closes force-disengage without killing and write the same `GameState` quest keys as `kill`; combat-room mouse buttons; `--filter=test_encounter_outcome` passes 5/5. Next combat step is **P1-027** (retry checkpoint after failure).
+
 Coordination note (2026-07-20 P1-024e): quick-access `IronTechniqueButton` equips and clears Iron via mouse; `GameState.equipped_forge_technique()` and attack-profile guard-pierce update; `--filter=test_quick_access_menu` passes 5/5. Next combat step is **P1-024** (integrated combat room).
 
 Delivery order remains strict: playable demo, vertical-slice MVP, Act 1, Act 2, Act 3. D-004 packaging is closed; resume visual acceptance (P0-053 / P0-037) and vertical-slice systems without waiting on further packaging work. Prototype and slice chunk-boundary ownership reviews are closed under P0-067a / P0-067b; production chunk-streaming readiness remains **P0-067c**.
@@ -66,7 +68,7 @@ Required exit condition for the packaging gate: clean clone import, startup smok
 
 ### 5. Resume vertical-slice systems only after the baseline is green
 
-1. **P1-025 through P1-027** - add enemies, non-lethal outcomes, and retry state (enemy state machine is **P1-025**, done; room wiring **P1-025a** is done; next is **P1-026**).
+1. **P1-025 through P1-027** - add enemies, non-lethal outcomes, and retry state (enemy state machine is **P1-025**, done; room wiring **P1-025a** is done; outcomes **P1-026** are done; next is **P1-027**).
 2. **P1-022** follows P0-040; **P1-031** is independent but remains behind demo packaging.
 3. Then build the authored slice in order: P2-006 tutorial, P2-007 investigation, P2-008 forge choice, P2-009 night consequence, P2-010 aftermath, P2-011 reflection, P2-012 end-to-end slice.
 
@@ -133,9 +135,10 @@ Goal: a small runnable demo proving the ADR 0007 look and the core interaction l
 - [x] P1-024 | deps: P1-024d | deliverable: integrate hammer light attack, charged attack, guard/parry, dodge, and Iron technique into one playable combat test room with readable feedback | verify: keyboard/mouse and gamepad combat runs demonstrate damage, stamina costs, invulnerability, parry, Iron behavior, item use, and recovery without stuck states
 - [x] P1-025 | deps: P1-024 | deliverable: shared watchman and sergeant enemy state machine | verify: both archetypes patrol, detect, telegraph, attack, react, and disengage without duplicated controller code
 - [x] P1-025a | deps: none | deliverable: wire watchman/sergeant archetypes into `scenes/tests/combat_room.tscn` (or a night-encounter stub) with readable feedback for detect/telegraph/attack so P1-024 room stays the combat smoke host | verify: headless combat-room (or encounter) tests show both archetypes complete one detect-to-disengage loop without stuck states
-- [ ] P1-026 | deps: none | deliverable: authored surrender, escape, or bypass outcome support | verify: one encounter resolves without killing and updates the same quest state used by combat
+- [x] P1-026 | deps: none | deliverable: authored surrender, escape, or bypass outcome support | verify: one encounter resolves without killing and updates the same quest state used by combat
 - [ ] P1-027 | deps: none | deliverable: combat reset checkpoint after failure | verify: player retries the encounter without replaying completed dialogue or corrupting quest state
 - [ ] P1-025b | deps: P1-025a | deliverable: optional night-encounter stub scene that reuses `CombatRoomEnemy` / `EnemyCombatStateMachine` outside the combat room so P2-009 can host a non-dummy watch route without forking AI | verify: headless encounter stub boots both archetypes through one detect-to-disengage loop and remains unreachable from release demo navigation
+- [ ] P1-026a | deps: P1-026 | deliverable: content-authored encounter outcome package (JSON) for `encounter.watch_checkpoint` loaded through ContentDB so P2-009 / P5-004 can swap quest mappings without code edits | verify: `tools/validate_content.py` accepts a valid fixture; headless test resolves escape from content and rejects an unknown kind without mutating quest state
 - [ ] P1-028 | deps: P1-024 | deliverable: remappable keyboard/mouse and gamepad actions with focus navigation | verify: all slice actions can be rebound and completed on both input methods
 - [ ] P1-029 | deps: P0-040 | deliverable: automated asset lint for texture dimensions and seamless tiling, texel density, naming, mesh pivots and character scale, portrait dimensions, and source-manifest provenance rows | verify: valid fixture passes and one seeded error per rule fails CI
 - [ ] P1-030 | deps: none | deliverable: repeatable performance scene and report command | verify: command reports frame time, memory, actor count, and target hardware metadata

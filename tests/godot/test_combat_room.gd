@@ -28,6 +28,9 @@ func test_combat_room_boots_with_hammer_dummies_and_feedback() -> void:
 	assert_true(room.get_feedback() != null)
 	assert_true(room.get_reset_button() != null)
 	assert_false(room.get_reset_button().disabled, "Reset must be mouse-reachable")
+	assert_true(room.get_surrender_button() != null, "P1-026 surrender must be mouse-reachable")
+	assert_true(room.get_escape_button() != null, "P1-026 escape must be mouse-reachable")
+	assert_true(room.get_bypass_button() != null, "P1-026 bypass must be mouse-reachable")
 	_free_room(room)
 
 

@@ -2,9 +2,9 @@ extends Node2D
 
 class_name CombatRoom
 
-## Playable combat integration room for P1-024 / P1-025a.
+## Playable combat integration room for P1-024 / P1-025a / P1-026.
 ## Hammers light/charged attacks, guard/parry, dodge, Iron, readable feedback,
-## plus wired watchman/sergeant AI hosts that share EnemyCombatStateMachine.
+## wired watchman/sergeant AI hosts, plus authored surrender/escape/bypass closes.
 
 const PLAYER_SCENE := preload("res://player.tscn")
 const DUMMY_SCRIPT := preload("res://scripts/combat/combat_training_dummy.gd")
@@ -25,7 +25,12 @@ var guard_dummy: CombatTestDummy
 var watchman: CombatRoomEnemy
 var sergeant: CombatRoomEnemy
 var feedback: CombatFeedbackHud
+var encounter_definition: EncounterOutcomeDefinition = EncounterOutcomeDefinition.watch_checkpoint()
+var encounter_resolver := EncounterOutcomeResolver.new()
 var _reset_button: Button
+var _surrender_button: Button
+var _escape_button: Button
+var _bypass_button: Button
 var _built := false
 
 
@@ -80,7 +85,38 @@ func reset_room() -> void:
 	if feedback != null:
 		feedback.clear_log()
 		feedback.push_event("Room reset. Hammer equipped. Watchman + Sergeant online.")
+		feedback.push_event("Non-lethal closes: Surrender / Escape / Bypass buttons.")
 	_refresh_status("Ready. Face a dummy or approach an enemy.")
+
+
+## P1-026: resolve an authored outcome against live room enemies and session quest state.
+func resolve_encounter_outcome(kind: StringName) -> bool:
+	ensure_built()
+	_ensure_session()
+	var enemies: Array = []
+	if watchman != null:
+		enemies.append(watchman)
+	if sergeant != null:
+		enemies.append(sergeant)
+	var ok := encounter_resolver.resolve(
+		SessionState.state, encounter_definition, kind, enemies
+	)
+	if ok and feedback != null:
+		feedback.push_event(
+			"Encounter %s -> %s=%s"
+			% [
+				EncounterOutcome.display_name(kind),
+				String(encounter_definition.quest_id),
+				String(encounter_resolver.last_quest_state),
+			]
+		)
+		_refresh_status(
+			"Outcome %s. Quest %s."
+			% [EncounterOutcome.display_name(kind), String(encounter_resolver.last_quest_state)]
+		)
+	elif feedback != null:
+		feedback.push_event("Encounter outcome rejected: %s" % EncounterOutcome.display_name(kind))
+	return ok
 
 
 func get_player() -> Player:
@@ -109,6 +145,22 @@ func get_feedback() -> CombatFeedbackHud:
 
 func get_reset_button() -> Button:
 	return _reset_button
+
+
+func get_surrender_button() -> Button:
+	return _surrender_button
+
+
+func get_escape_button() -> Button:
+	return _escape_button
+
+
+func get_bypass_button() -> Button:
+	return _bypass_button
+
+
+func get_encounter_resolver() -> EncounterOutcomeResolver:
+	return encounter_resolver
 
 
 ## Headless tick for enemy AI + HUD. Prefer this over relying on Node._process.
@@ -279,6 +331,36 @@ func _build_hud() -> void:
 	_reset_button.custom_minimum_size = Vector2(140, 36)
 	_reset_button.pressed.connect(reset_room)
 	actions.add_child(_reset_button)
+
+	# Mouse-reachable non-lethal closes (discoverability policy; no hotkey required).
+	_surrender_button = _make_outcome_button(
+		"SurrenderButton", "Surrender", EncounterOutcome.KIND_SURRENDER, Vector2(170, 640)
+	)
+	_escape_button = _make_outcome_button(
+		"EscapeButton", "Escape", EncounterOutcome.KIND_ESCAPE, Vector2(300, 640)
+	)
+	_bypass_button = _make_outcome_button(
+		"BypassButton", "Bypass", EncounterOutcome.KIND_BYPASS, Vector2(430, 640)
+	)
+	actions.add_child(_surrender_button)
+	actions.add_child(_escape_button)
+	actions.add_child(_bypass_button)
+
+
+func _make_outcome_button(
+	node_name: String, label: String, kind: StringName, pos: Vector2
+) -> Button:
+	var button := Button.new()
+	button.name = node_name
+	button.text = label
+	button.tooltip_text = (
+		"Resolve encounter via %s without killing; updates quest.bitter_brew"
+		% EncounterOutcome.display_name(kind)
+	)
+	button.position = pos
+	button.custom_minimum_size = Vector2(120, 36)
+	button.pressed.connect(func() -> void: resolve_encounter_outcome(kind))
+	return button
 
 
 func _wire_signals() -> void:

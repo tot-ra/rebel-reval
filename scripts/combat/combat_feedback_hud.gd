@@ -70,7 +70,7 @@ func _build_ui() -> void:
 	root.add_child(column)
 
 	var title := Label.new()
-	title.text = "Combat room (P1-024 / P1-025a)"
+	title.text = "Combat room (P1-024 / P1-025a / P1-026)"
 	title.add_theme_font_size_override("font_size", 22)
 	title.add_theme_color_override("font_color", Color(0.95, 0.82, 0.35, 1.0))
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -106,7 +106,8 @@ func _build_ui() -> void:
 		+ "Guard / parry: F or right mouse / gamepad LB\n"
 		+ "Dodge: Q / gamepad RB\n"
 		+ "Iron: Quick-access Iron button (mouse)\n"
-		+ "Enemies: approach Watchman (gold) or Sergeant (magenta)\n"
+		+ 		"Enemies: approach Watchman (gold) or Sergeant (magenta)\n"
+		+ "Non-lethal: Surrender / Escape / Bypass buttons (mouse)\n"
 		+ "Reset: Reset room button"
 	)
 	column.add_child(_controls_label)
