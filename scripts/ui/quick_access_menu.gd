@@ -7,11 +7,14 @@ extends CanvasLayer
 const STATUS_READY := "Choose an action"
 const STATUS_SAVED := "Game saved"
 const STATUS_SAVE_FAILED := "Save failed"
+const STATUS_IRON_EQUIPPED := "Iron equipped"
+const STATUS_IRON_CLEARED := "Iron cleared"
 const PANEL_MARGIN := 24.0
 const PANEL_HEIGHT := 118.0
+const PANEL_WIDTH := 860.0
 const HELP_TEXT := (
 	"WASD or arrows - move | Click - travel | E - interact | "
-	+ "C - camera | N - map | I - inventory | J - journal"
+	+ "C - camera | N - map | I - inventory | J - journal | Iron - technique"
 )
 
 var _inventory_controller: InventoryController
@@ -21,6 +24,7 @@ var _save_callback: Callable
 var _inventory_button: Button
 var _journal_button: Button
 var _camera_button: Button
+var _technique_button: Button
 var _save_button: Button
 var _status_label: Label
 
@@ -42,6 +46,7 @@ func _ready() -> void:
 	_build_ui()
 	_resolve_dependencies()
 	_refresh_availability()
+	_refresh_technique_button()
 
 
 func _build_ui() -> void:
@@ -50,7 +55,7 @@ func _build_ui() -> void:
 	# Ignore on the panel so click-to-move works around the buttons; buttons still STOP.
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
-	panel.offset_left = -720.0
+	panel.offset_left = -PANEL_WIDTH
 	panel.offset_top = -PANEL_HEIGHT - PANEL_MARGIN
 	panel.offset_right = -PANEL_MARGIN
 	panel.offset_bottom = -PANEL_MARGIN
@@ -105,6 +110,15 @@ func _build_ui() -> void:
 	_camera_button.pressed.connect(_on_camera_pressed)
 	actions.add_child(_camera_button)
 
+	# WHY (P1-024e): forge techniques must be mouse-reachable; a hotkey alone is not enough.
+	_technique_button = _create_action_button(
+		"IronTechniqueButton",
+		"Iron",
+		"Equip or clear the Iron forge technique"
+	)
+	_technique_button.pressed.connect(_on_technique_pressed)
+	actions.add_child(_technique_button)
+
 	_save_button = _create_action_button("SaveButton", "Save game", "Save to the current slot")
 	_save_button.pressed.connect(_on_save_pressed)
 	actions.add_child(_save_button)
@@ -143,7 +157,24 @@ func _refresh_availability() -> void:
 	_inventory_button.disabled = _inventory_controller == null
 	_journal_button.disabled = _journal_controller == null
 	_camera_button.disabled = _find_map_view_runtime() == null
+	_technique_button.disabled = not has_node("/root/SessionState")
 	_save_button.disabled = not _save_callback.is_valid()
+
+
+func _refresh_technique_button() -> void:
+	if _technique_button == null:
+		return
+	var equipped := _equipped_technique()
+	if equipped == ForgeTechnique.ID_IRON:
+		_technique_button.text = "Iron: on"
+	else:
+		_technique_button.text = "Iron"
+
+
+func _equipped_technique() -> StringName:
+	if not has_node("/root/SessionState"):
+		return &""
+	return SessionState.state.equipped_forge_technique()
 
 
 func _on_inventory_pressed() -> void:
@@ -170,6 +201,20 @@ func _on_camera_pressed() -> void:
 		return
 	runtime.toggle_camera_view()
 	_status_label.text = "First-person view" if runtime.is_first_person() else STATUS_READY
+
+
+func _on_technique_pressed() -> void:
+	if not has_node("/root/SessionState"):
+		return
+	var state: GameState = SessionState.state
+	if state.equipped_forge_technique() == ForgeTechnique.ID_IRON:
+		state.set_equipped_forge_technique(&"")
+		_status_label.text = STATUS_IRON_CLEARED
+	else:
+		# WHY: clear any other allowlisted technique first so Iron is the sole equip.
+		state.set_equipped_forge_technique(ForgeTechnique.ID_IRON)
+		_status_label.text = STATUS_IRON_EQUIPPED
+	_refresh_technique_button()
 
 
 func _find_map_view_runtime() -> MapViewRuntime:
