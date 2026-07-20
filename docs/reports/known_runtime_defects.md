@@ -90,11 +90,11 @@ Clean shutdown with no leak warnings.
 
 ### Actual
 
-Stderr reports `ObjectDB instances leaked at exit` and `resources still in use at exit`. Exit code remains `0`. Scenes load successfully.
+Stderr reports `ObjectDB instances leaked at exit`, `resources still in use at exit`, and on larger headless suite runs additional shutdown-only lines such as `RID allocations of type '...' were leaked at exit` and `Pages in use exist at exit in PagedAllocator: ...`. Exit code remains `0`. Scenes load successfully.
 
 ### Workaround
 
-None required for local smoke tests. Investigate with `--verbose` if leaks grow or affect long-running sessions.
+None required for local smoke tests. `tools/run_godot_checked.sh` allowlists only these shutdown-only DEF-002 lines so they do not fail CI; investigate with `--verbose` if leaks grow or affect long-running sessions.
 
 ---
 

@@ -148,7 +148,9 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 	if not world_items_payload is Dictionary:
 		errors.append("world_items must be a dictionary")
 	else:
-		state._world_items = (world_items_payload as Dictionary).duplicate(true)
+		# WHY: JSON fixtures encode Vector2 as {"x":..,"y":..}; normalize on load
+		# so WorldItemController never sees a Dictionary where Vector2 is required.
+		state._world_items = _normalize_world_items(world_items_payload as Dictionary)
 
 	var seeded_payload: Variant = payload.get("world_defaults_seeded", {})
 	if not seeded_payload is Dictionary:
@@ -171,6 +173,36 @@ static func _string_dictionary(source: Dictionary) -> Dictionary:
 	for key in source:
 		out[String(key)] = String(source[key])
 	return out
+
+
+## Convert JSON-shaped world item positions into Vector2 for runtime consumers.
+static func _normalize_world_items(source: Dictionary) -> Dictionary:
+	var out: Dictionary = {}
+	for location_key in source:
+		var bucket_variant: Variant = source[location_key]
+		if not bucket_variant is Dictionary:
+			out[String(location_key)] = bucket_variant
+			continue
+		var normalized_bucket: Dictionary = {}
+		for object_key in bucket_variant as Dictionary:
+			var record_variant: Variant = (bucket_variant as Dictionary)[object_key]
+			if not record_variant is Dictionary:
+				normalized_bucket[String(object_key)] = record_variant
+				continue
+			var record := (record_variant as Dictionary).duplicate(true)
+			record["position"] = _coerce_vector2(record.get("position", Vector2.ZERO))
+			normalized_bucket[String(object_key)] = record
+		out[String(location_key)] = normalized_bucket
+	return out
+
+
+static func _coerce_vector2(value: Variant) -> Vector2:
+	if value is Vector2:
+		return value
+	if value is Dictionary:
+		var as_dict := value as Dictionary
+		return Vector2(float(as_dict.get("x", 0.0)), float(as_dict.get("y", 0.0)))
+	return Vector2.ZERO
 
 
 static func _bool_dictionary(source: Dictionary) -> Dictionary:

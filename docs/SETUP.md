@@ -165,7 +165,7 @@ tools/run_godot_checked.sh --require-test-summary full-suite \
   godot --headless --script tools/run_godot_tests.gd
 ```
 
-`tools/run_godot_checked.sh` rejects nonzero commands, `SCRIPT ERROR`, parser/load failures, and all unexpected `ERROR:` lines. Its only allowlist is the exact shutdown-only DEF-002 resource-summary error; leak warnings remain visible. `--require-test-summary` additionally rejects empty or interrupted test runs. Run `GODOT_BIN=godot tools/test_godot_harness.sh` to seed runtime and parser exceptions and prove that both failure classes exit nonzero.
+`tools/run_godot_checked.sh` rejects nonzero commands, `SCRIPT ERROR`, parser/load failures, and all unexpected `ERROR:` lines. Its only allowlist is the documented shutdown-only DEF-002 family (`resources still in use at exit`, RID allocation leaks at exit, and `PagedAllocator` pages-in-use at exit); leak warnings remain visible. `--require-test-summary` additionally rejects empty or interrupted test runs. Run `GODOT_BIN=godot tools/test_godot_harness.sh` to seed runtime and parser exceptions and prove that both failure classes exit nonzero.
 
 To add tests, create a script under `tests/godot/` named `test_<area>.gd`, extend `res://tests/godot/test_case.gd`, and add zero-argument methods named `test_<behavior>`. Use `before_each()` and `after_each()` for per-test setup when needed.
 

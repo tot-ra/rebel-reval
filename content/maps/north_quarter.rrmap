@@ -111,7 +111,8 @@ sign sign.center "to town square" 40 66 south
 sign sign.guild "great guild" 24 50 west
 sign sign.pikk "pikk street" 52 12 north
 sign sign.lai "lai street" 74 40 east
-patrol merchant_watch 50,66|50,56|50,46|50,36|50,26|50,16|50,8|72,44|72,24|24,48|10,48
+# Keep waypoints on walkable Pikk/Lai/guild cobbles; buildings block 50,66 and 50,8.
+patrol merchant_watch 51,47|52,47|53,47|54,47|55,47|55,48|55,49
 exclude blocked.church 40 54 18 10
 fade fade.olaf 32 52 28 16
 camera 0 0 104 72

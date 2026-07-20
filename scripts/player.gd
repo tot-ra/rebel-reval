@@ -17,9 +17,10 @@ signal health_changed(current: float, maximum: float)
 @export var combat_input_enabled := true
 
 @onready var animation_player: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
-@onready var navigation_agent: NavigationAgent2D = $NavigationAgent2D
-@onready var health_ring: CharacterHealthRing = $HealthRing
-@onready var stamina_bar: ProgressBar = $StaminaBar
+# Optional so headless unit tests can construct Player.new() without the full scene.
+@onready var navigation_agent: NavigationAgent2D = get_node_or_null("NavigationAgent2D")
+@onready var health_ring: CharacterHealthRing = get_node_or_null("HealthRing")
+@onready var stamina_bar: ProgressBar = get_node_or_null("StaminaBar")
 
 var health: float = 100.0
 var max_health: float = 100.0
@@ -44,7 +45,8 @@ func _ready() -> void:
 	if not action_state_machine.state_changed.is_connected(_on_action_state_changed):
 		action_state_machine.state_changed.connect(_on_action_state_changed)
 	DoorNavigator.on_trigger_player_spawn.connect(_on_spawn)
-	navigation_agent.velocity_computed.connect(Callable(self, "_on_velocity_computed"))
+	if navigation_agent != null:
+		navigation_agent.velocity_computed.connect(Callable(self, "_on_velocity_computed"))
 
 func _on_spawn(position: Vector2, direction: String):
 	global_position=position
@@ -95,11 +97,12 @@ func _physics_process(_delta):
 		else:
 			new_animation = "run"
 		
-		navigation_agent.set_target_position(global_position)
+		if navigation_agent != null:
+			navigation_agent.set_target_position(global_position)
 		velocity = movement_direction * current_speed
 		
 	else:
-		if not navigation_agent.is_navigation_finished():
+		if navigation_agent != null and not navigation_agent.is_navigation_finished():
 			var current_agent_position: Vector2 = global_position
 			var next_path_position: Vector2 = navigation_agent.get_next_path_position()
 
@@ -347,9 +350,11 @@ func _update_movement_resources(delta: float, is_moving: bool) -> void:
 		stamina = maxf(0.0, stamina - delta * STAMINA_DRAIN_RATE)
 
 func _sync_resource_bars() -> void:
-	health_ring.set_health(health, max_health)
-	stamina_bar.max_value = max_stamina
-	stamina_bar.value = stamina
+	if health_ring != null:
+		health_ring.set_health(health, max_health)
+	if stamina_bar != null:
+		stamina_bar.max_value = max_stamina
+		stamina_bar.value = stamina
 
 func _on_velocity_computed(safe_velocity: Vector2) -> void:
 	velocity = safe_velocity
