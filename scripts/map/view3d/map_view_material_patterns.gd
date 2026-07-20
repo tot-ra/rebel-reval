@@ -12,10 +12,24 @@ static func reset() -> void:
 
 
 static func pattern_texture(pattern: StringName, noise_seed: int) -> ImageTexture:
-	var key := "pattern:%s:%d" % [String(pattern), noise_seed]
+	var texture_size := MapViewMaterials.TEXTURE_SIZE
+	if pattern == MapViewMaterials.PATTERN_COBBLE:
+		texture_size = MapViewMaterials.COBBLE_TEXTURE_SIZE
+	return _pattern_texture_at_size(pattern, noise_seed, texture_size)
+
+
+## Terrain splatting keeps its general-purpose array compact and binds the two
+## cobble layers separately at high resolution. Explicit sizing also guarantees
+## that every image inside a Texture2DArray has matching dimensions.
+static func pattern_texture_at_size(pattern: StringName, noise_seed: int, texture_size: int) -> ImageTexture:
+	return _pattern_texture_at_size(pattern, noise_seed, texture_size)
+
+
+static func _pattern_texture_at_size(pattern: StringName, noise_seed: int, texture_size: int) -> ImageTexture:
+	var key := "pattern:%s:%d:%d" % [String(pattern), noise_seed, texture_size]
 	if _cache.has(key):
 		return _cache[key]
-	var image := Image.create(MapViewMaterials.TEXTURE_SIZE, MapViewMaterials.TEXTURE_SIZE, false, Image.FORMAT_RGB8)
+	var image := Image.create(texture_size, texture_size, false, Image.FORMAT_RGB8)
 	match pattern:
 		MapViewMaterials.PATTERN_COBBLE:
 			_paint_cobble(image, noise_seed)
@@ -131,14 +145,19 @@ static func _paint_plaster(image: Image, noise_seed: int) -> void:
 			_fill_value(image, x, y, 0.88 + broad * 0.09 + fine * 0.05)
 
 
-## Rounded field stones packed on a jittered grid with dark seams (Worley-ish).
+## Rounded field stones packed on a jittered grid with crisp joints and fine
+## surface grain. Distances stay normalized to each stone cell so the layout is
+## identical at 128 and 512 pixels while the larger texture gains real detail.
 static func _paint_cobble(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
 	var stones := 8
 	var cell := float(size) / float(stones)
+	var broad_span := maxi(size / 32, 2)
+	var fine_span := maxi(size / 128, 1)
 	for y in size:
 		for x in size:
 			var best := 10.0
+			var second_best := 10.0
 			var tone := 0.0
 			var gx := floori(float(x) / cell)
 			var gy := floori(float(y) / cell)
@@ -150,10 +169,28 @@ static func _paint_cobble(image: Image, noise_seed: int) -> void:
 					var jy := (float(gy + oy) + 0.25 + _hash01(sx, sy, noise_seed + 13) * 0.5) * cell
 					var distance := Vector2(x - jx, y - jy).length() / cell
 					if distance < best:
+						second_best = best
 						best = distance
 						tone = _hash01(sx, sy, noise_seed + 29)
+					elif distance < second_best:
+						second_best = distance
 			var dome := clampf(1.0 - best * best * 1.4, 0.0, 1.0)
+			var joint := smoothstep(0.015, 0.095, second_best - best)
+			var broad := _lattice(
+				float(x) / float(broad_span),
+				float(y) / float(broad_span),
+				size / broad_span,
+				noise_seed + 47
+			)
+			var fine := _lattice(
+				float(x) / float(fine_span),
+				float(y) / float(fine_span),
+				size / fine_span,
+				noise_seed + 83
+			)
 			var value := 0.55 + dome * 0.42 + (tone - 0.5) * 0.14
+			value += (broad - 0.5) * 0.08 + (fine - 0.5) * 0.035
+			value *= lerpf(0.62, 1.0, joint)
 			_fill_value(image, x, y, value)
 
 

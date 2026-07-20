@@ -211,7 +211,10 @@ shader_type spatial;
 render_mode cull_disabled, diffuse_burley;
 
 uniform sampler2DArray terrain_patterns;
+uniform sampler2DArray cobble_patterns;
 uniform float pattern_layers = 1.0;
+uniform int cobblestone_layer = 12;
+uniform int castle_paving_layer = 13;
 
 // CUSTOM0 is only readable in vertex(); layer indices must stay flat (an
 // interpolated index would sample arbitrary in-between layers mid-triangle)
@@ -224,14 +227,24 @@ void vertex() {
 	blend_mix = CUSTOM0.zw;
 }
 
+float sample_terrain_pattern(int layer, vec2 uv) {
+	if (layer == cobblestone_layer) {
+		return texture(cobble_patterns, vec3(uv, 0.0)).r;
+	}
+	if (layer == castle_paving_layer) {
+		return texture(cobble_patterns, vec3(uv, 1.0)).r;
+	}
+	return texture(terrain_patterns, vec3(uv, float(layer))).r;
+}
+
 void fragment() {
 	float blend = clamp(blend_mix.x, 0.0, 1.0);
 	float tone = blend_mix.y;
 
-	vec3 primary = texture(terrain_patterns, vec3(UV, float(blend_layers.x))).rgb;
-	vec3 secondary = texture(terrain_patterns, vec3(UV, float(blend_layers.y))).rgb;
-	vec3 pattern = mix(primary, secondary, blend);
-	ALBEDO = pattern * COLOR.rgb * tone;
+	float primary = sample_terrain_pattern(blend_layers.x, UV);
+	float secondary = sample_terrain_pattern(blend_layers.y, UV);
+	float pattern = mix(primary, secondary, blend);
+	ALBEDO = vec3(pattern) * COLOR.rgb * tone;
 	ROUGHNESS = mix(0.94, 0.82, blend * step(0.5, float(blend_layers.y)));
 }
 "

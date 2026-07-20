@@ -11,6 +11,9 @@ extends RefCounted
 ## this class keeps the public API stable for callers and tests.
 
 const TEXTURE_SIZE := 128
+## Cobblestone fills most of the gameplay frame at street level, so it needs a
+## denser source than secondary materials to keep joints and stone grain sharp.
+const COBBLE_TEXTURE_SIZE := 512
 const EMBER_COLOR := Color8(224, 108, 48)
 const EMBER_ENERGY := 1.6
 
@@ -148,8 +151,32 @@ static func terrain_pattern_array(noise_seed: int) -> Texture2DArray:
 	var images: Array[Image] = []
 	for terrain_id in BLEND_TERRAIN_ORDER:
 		var pattern: StringName = TERRAIN_PATTERN.get(terrain_id, PATTERN_GRASS)
-		var image := MapViewMaterialPatterns.pattern_texture(pattern, noise_seed + int(terrain_id.hash())).get_image()
+		var image := MapViewMaterialPatterns.pattern_texture_at_size(
+			pattern,
+			noise_seed + int(terrain_id.hash()),
+			TEXTURE_SIZE
+		).get_image()
 		images.append(image)
+	var array := Texture2DArray.new()
+	array.create_from_images(images)
+	_cache[key] = array
+	return array
+
+
+## High-resolution paving layers are kept in a focused array so increasing
+## cobble fidelity does not multiply the memory cost of every terrain family.
+static func cobble_pattern_array(_noise_seed: int) -> Texture2DArray:
+	var key := "cobble_pattern_array"
+	if _cache.has(key):
+		return _cache[key]
+	var image := MapViewMaterialPatterns.pattern_texture_at_size(
+		PATTERN_COBBLE,
+		8219,
+		COBBLE_TEXTURE_SIZE
+	).get_image()
+	# Cobble is a seamless material family rather than authored map state. Reuse
+	# one high-resolution source so transitions do not regenerate it per map seed.
+	var images: Array[Image] = [image, image]
 	var array := Texture2DArray.new()
 	array.create_from_images(images)
 	_cache[key] = array
@@ -165,7 +192,10 @@ static func blended_ground(noise_seed: int) -> ShaderMaterial:
 	var material := ShaderMaterial.new()
 	material.shader = MapViewMaterialShaders.shader("terrain_blend", MapViewMaterialShaders.TERRAIN_BLEND_SHADER_CODE)
 	material.set_shader_parameter("terrain_patterns", terrain_pattern_array(noise_seed))
+	material.set_shader_parameter("cobble_patterns", cobble_pattern_array(noise_seed))
 	material.set_shader_parameter("pattern_layers", float(BLEND_TERRAIN_ORDER.size()))
+	material.set_shader_parameter("cobblestone_layer", terrain_blend_index(MapTypes.TERRAIN_COBBLESTONE))
+	material.set_shader_parameter("castle_paving_layer", terrain_blend_index(MapTypes.TERRAIN_CASTLE_PAVING))
 	_cache[key] = material
 	return material
 
