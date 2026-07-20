@@ -129,12 +129,13 @@ Ideas outside this boundary are reference material, not promised features. A maj
 
 The repository currently has:
 
-- a Godot 4.7 project with a main menu, player movement, scene transitions, the converted Lower Town slice rendering through the 3D orthographic view layer, and placeholder UI;
-- a demo track in flight: walkable slice with the Kalev rig (done), conversation and item pickup (next), packaged demo build (after);
-- 17 inactive contract-tested outdoor map prototypes plus market and north-quarter prototypes, awaiting act-gated activation;
-- documented headless import and playable-room smoke checks, a repository-owned GDScript test harness, schemas and Python validation for authored content, and CI for the engine pin, content, tests, imports, and export smoke.
+- a Godot 4.7 project with a main menu, player movement, scene transitions, the converted Lower Town slice rendering through the 3D orthographic view layer, and the persistent quick-access menu;
+- **D-003 complete:** walkable eastern slice with the Kalev rig, Mart conversation, anvil spearhead pickup into the bag UI, and session re-entry that keeps placement/ownership in `GameState`;
+- **D-004 open:** package that demo flow through the desktop export preset and capture a walkthrough linked from this README (export smoke alone is not enough);
+- inactive contract-tested outdoor map prototypes (market/civic, north, south, Toompea, and others) awaiting act-gated activation;
+- documented headless import and playable-room smoke checks, a hardened Godot test harness, schemas and Python validation for authored content, map-pipeline gates, and CI for the engine pin, content, tests, imports, and export smoke.
 
-Production dialogue, quests, combat, inventory, narrative forging, phase state, faction ledger, and save/load are not playable yet. Delivery order is strict: **playable demo → vertical-slice MVP → Act 1 → Act 2 → Act 3**, and the next work is deliberately ordered in [`TODO.md`](./TODO.md); legacy documents do not silently expand that scope.
+Vertical-slice systems beyond the demo loop (full combat room, enemies, night consequence, faction ledger) remain incomplete. Delivery order is strict: **playable demo → vertical-slice MVP → Act 1 → Act 2 → Act 3**, and the next work is deliberately ordered in [`TODO.md`](./TODO.md); legacy documents do not silently expand that scope.
 
 ## Run the project
 

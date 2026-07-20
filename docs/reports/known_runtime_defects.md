@@ -1,10 +1,25 @@
-# Known runtime defects (P0-019)
+# Known runtime defects (P0-019 / P0-060)
 
-Severity scale: `critical` (blocks core play), `high` (major feature broken; workaround may exist), `medium`, `low`.
+Severity scale: `critical` (blocks core play), `high` (major feature broken; workaround may exist), `medium`, `low`, `resolved`.
 
-Recorded during **P0-017** seed and expanded under **P0-019** on 2026-07-16.
+Recorded during **P0-017** seed and expanded under **P0-019** on 2026-07-16. Re-triaged under **P0-060** on 2026-07-20 against current `main` (transition manifest + programmatic district scenes).
 
-## Test scope (P0-019)
+## P0-060 re-triage summary (2026-07-20)
+
+| ID | Prior | Decision | Evidence |
+|----|-------|----------|----------|
+| DEF-001 | high | **Retained** (high) | `godot --headless --check-only` still hangs (>12s, engine banner only) on Godot 4.7.1 |
+| DEF-002 | low | **Retained** (low) | Headless quit still reports ObjectDB/resource leak lines; allowlisted in `tools/run_godot_checked.sh` |
+| DEF-003 | high | **Resolved** | `scenes/reval_south/reval_south.tscn` exists; wired as inactive prototype via transition manifest |
+| DEF-004 | high | **Resolved** | No `revel_east` `destination_level_tag` remains in `.tscn` files; forge/north use manifest scene ids |
+| DEF-005 | high | **Resolved** | `reval_center.tscn` is a programmatic MapScene host; no `revel_walls_towers/wall-map.png` ext_resource |
+| DEF-006 | low | **Retained** (low) | MultiMesh ShaderMaterial teardown ERROR still mitigated by strip-before-free helpers |
+
+Replacing navigation system for DEF-003/004/005 era reports: hard-coded `DoorNavigator.scene_paths` and district TileMap `.tscn` door exports were superseded by `content/transitions/active_destinations.json` consumed by `scripts/global/doorNavigator.gd`, plus `MapSceneBootstrap` district hosts.
+
+## Test scope
+
+### Original P0-019 seed
 
 | Field | Value |
 |-------|-------|
@@ -19,7 +34,14 @@ Recorded during **P0-017** seed and expanded under **P0-019** on 2026-07-16.
 | Door tags | Manual review of `destination_level_tag` in district `.tscn` files and `scripts/global/doorNavigator.gd` |
 | Transition simulation | Headless GDScript repro of `DoorNavigator.go_to_scene` failure modes |
 
-**Result:** One pre-existing `high` headless defect (`DEF-001`) reconfirmed. Three additional `high` defects found in district navigation and `reval_center` loading (`DEF-003` through `DEF-005`). No new `critical` defects observed. Default Start flow (`main_menu` -> `reval_east`) and headless loads of `reval_east`, `reval_north`, and `forge` pass without parser or missing-resource errors.
+### P0-060 reconfirm
+
+| Field | Value |
+|-------|-------|
+| Host OS | macOS (darwin arm64) |
+| Godot binary | `/Applications/Godot.app/Contents/MacOS/Godot` |
+| Godot version | `4.7.1.stable.official.a13da4feb` |
+| Checks | `--check-only` hang (12s); `rg` for `revel_east` / wall-map refs; forge `--quit-after 3` smoke; south scene path existence |
 
 Commands reference: [`docs/SETUP.md`](../SETUP.md), baseline: [`startup_baseline.md`](./startup_baseline.md).
 
@@ -31,7 +53,7 @@ Commands reference: [`docs/SETUP.md`](../SETUP.md), baseline: [`startup_baseline
 |-------|--------|
 | Severity | high |
 | First seen | P0-017 baseline (Godot 4.4.1 and 4.7.1) |
-| Reconfirmed | P0-019 (Godot 4.7.1, 2026-07-16) |
+| Reconfirmed | P0-019 (2026-07-16); **P0-060 (2026-07-20)** |
 | Affects | Headless CI parser check documented in `docs/SETUP.md` |
 
 ### Reproduction
@@ -43,7 +65,7 @@ cd rebel-reval-clean
 /Applications/Godot.app/Contents/MacOS/Godot --headless --check-only
 ```
 
-Wait at least 15 seconds.
+Wait at least 12 seconds.
 
 ### Expected
 
@@ -51,7 +73,7 @@ Process exits within a few seconds with code `0` and no script parse errors.
 
 ### Actual
 
-Process prints the engine banner to stdout and does not exit (observed >15s; terminated by watchdog). No stderr output.
+Process prints the engine banner to stdout and does not exit (observed >12s on 2026-07-20; terminated by watchdog). No stderr output.
 
 ### Workaround
 
@@ -75,7 +97,8 @@ Does not block editor F5 play or headless scene load. Blocks relying on `--check
 |-------|--------|
 | Severity | low |
 | First seen | P0-017 baseline (Godot 4.7.1) |
-| Affects | Headless `--quit-after` shutdown for main menu and `reval_east` |
+| Reconfirmed | **P0-060 (2026-07-20)** via forge `--quit-after` smoke |
+| Affects | Headless `--quit-after` shutdown for main menu, forge, and `reval_east` |
 
 ### Reproduction
 
@@ -134,6 +157,7 @@ Does not affect editor play or exported builds with a real renderer. Keep the st
 |-------|--------|
 | Severity | resolved (was high) |
 | Resolved | 2026-07-20 |
+| Replacing system | `content/transitions/active_destinations.json` + `scenes/reval_south/reval_south.tscn` (inactive prototype) |
 | Affects | South district transitions from `reval_east` (Karja Gate) and `reval_center` |
 
 `reval_south` now ships as an `active=false` developer prototype at `scenes/reval_south/reval_south.tscn`, wired reciprocally from `karja_road_boundary` on the Lower Town slice and `to_reval_south` on the civic centre.
@@ -162,40 +186,50 @@ Does not affect editor play or exported builds with a real renderer. Keep the st
 2. Walk the player into a door whose `destination_level_tag` is `reval_south` (south edge doors in `scenes/reval_east/reval_east.tscn`).
 3. Alternatively, reach `reval_center` and use its south door (`scenes/reval_center/reval_center.tscn`).
 
-`DoorNavigator` maps `reval_south` to `res://scenes/reval_south/reval_south.tscn`, but that file is not in the repository.
+`DoorNavigator` mapped `reval_south` to `res://scenes/reval_south/reval_south.tscn`, but that file was not in the repository at the time of the report.
 
 ### Expected
 
-Scene changes to the south district; player spawns at the matching `Doors/door_<tag>` marker.
+Scene changes to the south district; player spawns at the matching spawn marker.
 
-### Actual
+### Actual (historical)
 
-Headless direct load:
+Headless direct load failed with missing scene resource errors; runtime `change_scene_to_packed(null)` left the player in place.
 
-```text
-ERROR: Cannot open file 'res://scenes/reval_south/reval_south.tscn'.
-ERROR: Failed loading resource: res://scenes/reval_south/reval_south.tscn.
-```
+### Resolution
 
-At runtime, `load()` returns `null` and `change_scene_to_packed(null)` logs:
-
-```text
-ERROR: Can't change to a null scene. Use unload_current_scene() if you wish to unload it.
-```
-
-The player remains in the current scene after the door sound finishes.
-
-### Workaround
-
-Avoid south-bound doors. Use east/north/center/forge doors that reference existing scenes. Remove or stub `reval_south` in `DoorNavigator` until a scene lands (**P0-022** / slice district work).
-
-### Notes
-
-Referenced by `scripts/global/doorNavigator.gd` and doors in `scenes/reval_east/reval_east.tscn` and `scenes/reval_center/reval_center.tscn`. Out of vertical-slice scope per README, but still breaks navigation when encountered.
+South quarter prototype scene landed; transitions use the active destinations manifest. See resolved entry above.
 
 ---
 
-## DEF-004 | high | `revel_east` typo in door `destination_level_tag`
+## DEF-004 | resolved | `revel_east` typo retired with manifest transitions
+
+| Field | Detail |
+|-------|--------|
+| Severity | resolved (was high) |
+| First seen | P0-019 (Godot 4.7.1) |
+| Resolved | P0-060 re-triage (2026-07-20) |
+| Replacing system | `content/transitions/active_destinations.json` scene ids (`reval_east`, `forge`, ...) via `DoorNavigator.go_to_scene` |
+| Affects | Historical forge exit / north-return doors that exported `destination_level_tag = "revel_east"` |
+
+### Historical reproduction (no longer present)
+
+```bash
+grep -n 'destination_level_tag = "revel_east"' scenes/reval_east/forge/forge.tscn scenes/reval_north/reval_north.tscn
+```
+
+### P0-060 reconfirm
+
+```bash
+rg -n 'revel_east' scenes --glob '*.tscn'
+# no matches
+```
+
+Forge and north district hosts no longer embed the typo tag. Transitions resolve through the manifest.
+
+---
+
+## DEF-004 (archived text) | high | `revel_east` typo in door `destination_level_tag`
 
 | Field | Detail |
 |-------|--------|
@@ -217,27 +251,52 @@ Referenced by `scripts/global/doorNavigator.gd` and doors in `scenes/reval_east/
 grep -n 'destination_level_tag = "revel_east"' scenes/reval_east/forge/forge.tscn scenes/reval_north/reval_north.tscn
 ```
 
-`DoorNavigator.scene_paths` only defines `reval_east`, not `revel_east`.
+`DoorNavigator.scene_paths` only defined `reval_east`, not `revel_east`.
 
 ### Expected
 
 Scene changes to `reval_east` at the destination door spawn.
 
-### Actual
+### Actual (historical)
 
-`DoorNavigator.go_to_scene` prints `scene does not have level tagrevel_east` to stdout and returns without changing scenes. No stderr error. Player stays in the current scene after the door sound.
+`DoorNavigator.go_to_scene` printed a missing-level-tag message and returned without changing scenes.
 
-### Workaround
+### Resolution
 
-Use other doors (for example, alternate `reval_north` doors tagged `reval_east`, or restart from main menu). Fix by renaming the tag to `reval_east` in the affected `.tscn` files (**P0-022**).
-
-### Notes
-
-Typo is in scene exports only; the correct scene path `res://scenes/reval_east/reval_east.tscn` exists and loads cleanly.
+Typo exports removed; manifest-backed scene ids replaced district door-tag routing. See resolved entry above.
 
 ---
 
-## DEF-005 | high | `reval_center` references missing `revel_walls_towers/wall-map.png`
+## DEF-005 | resolved | `reval_center` missing wall-map texture retired with programmatic host
+
+| Field | Detail |
+|-------|--------|
+| Severity | resolved (was high) |
+| First seen | P0-019 (Godot 4.7.1) |
+| Resolved | P0-060 re-triage (2026-07-20) |
+| Replacing system | Programmatic `MapSceneBootstrap` / market-civic quarter definition driving `scenes/reval_center/reval_center.tscn` (no TileMap wall-map ext_resource) |
+| Affects | Historical TileMap `reval_center` that referenced `res://scenes/revel_walls_towers/wall-map.png` |
+
+### Historical reproduction
+
+```bash
+/Applications/Godot.app/Contents/MacOS/Godot --headless --quit-after 5 scenes/reval_center/reval_center.tscn
+```
+
+Expected missing-resource errors for the typo path `revel_walls_towers` while the file lived at `reval_walls_towers`.
+
+### P0-060 reconfirm
+
+```bash
+rg -n 'wall-map|revel_walls' scenes/reval_center/
+# no matches
+```
+
+Current `reval_center.tscn` is a slim host (`reval_center.gd` + player); ground art comes from the compiled map view, not the legacy wall-map texture.
+
+---
+
+## DEF-005 (archived text) | high | `reval_center` references missing `revel_walls_towers/wall-map.png`
 
 | Field | Detail |
 |-------|--------|
@@ -257,22 +316,18 @@ Or run the project and transition to `reval_center` via any east/north door tagg
 
 `reval_center` loads with the wall-map ground texture applied. No missing-resource errors.
 
-### Actual
+### Actual (historical)
 
 ```text
 ERROR: Resource file not found: res://scenes/revel_walls_towers/wall-map.png (expected type: Texture2D)
 ERROR: res://scenes/reval_center/reval_center.tscn:74 - Parse Error: [ext_resource] referenced non-existent resource at: res://scenes/revel_walls_towers/wall-map.png.
 ```
 
-The texture exists at `res://scenes/reval_walls_towers/wall-map.png` (typo: `revel_` vs `reval_`). Process still exits `0`, but the tile map layer loses its texture.
+The texture existed at `res://scenes/reval_walls_towers/wall-map.png` (typo: `revel_` vs `reval_`). Process still exited `0`, but the tile map layer lost its texture.
 
-### Workaround
+### Resolution
 
-Stay in `reval_east` / `reval_north` for smoke testing. Fix the `ext_resource` path in `scenes/reval_center/reval_center.tscn` line 4 to `res://scenes/reval_walls_towers/wall-map.png`.
-
-### Notes
-
-Only scene in the P0-019 sweep that emitted missing-resource errors. Other `reval_center` assets (music under `music/revel_east/`, `revel-map.jpg`) resolve correctly.
+Center district converted to a programmatic map host without that ext_resource. See resolved entry above.
 
 ---
 
@@ -280,6 +335,6 @@ Only scene in the P0-019 sweep that emitted missing-resource errors. Other `reva
 
 | Observation | Severity | Reason |
 |-------------|----------|--------|
-| Headless macOS export (`godot --headless --export-release "rr"`) | n/a (environment) | Fails on missing export templates and ETC2 ASTC project setting on the test host; not a player-runtime defect in the vertical slice. |
+| Headless macOS export (`godot --headless --export-release "rr"`) | n/a (environment) | Historically failed on missing export templates on some hosts; CI macOS export smoke now covers the preset. |
 | Godot 4.4.1 missing `run` animation errors in `reval_east` | n/a (resolved) | Did not reproduce under Godot 4.7.1 (see `startup_baseline.md`). |
 | Per-frame player velocity `print` in `scripts/player.gd` | tracked as **P0-020** | Debug noise, not a blocking runtime failure. |

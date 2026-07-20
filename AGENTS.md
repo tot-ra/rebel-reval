@@ -29,11 +29,12 @@ These paths are named in [`README.md`](./README.md) but do not exist in the repo
 
 ### Current runtime surface (evidence-based)
 
-- **Autoload:** `DoorNavigator` (`scripts/global/doorNavigator.gd`) - scene cache and transitions via hard-coded `scene_paths` and `Doors/door_<tag>` spawn tags
+- **Autoload:** `DoorNavigator` (`scripts/global/doorNavigator.gd`) - scene cache and transitions via `content/transitions/active_destinations.json` (stable scene/spawn ids), not hard-coded `scene_paths`
 - **Main scene:** `scenes/menu/main_menu.tscn`
-- **Playable prototype areas:** forge, `reval_east`, `reval_north`, `reval_center`, plus additional placeholder world and event scenes
-- **Implemented today:** movement, scene transitions, simple NPC navigation, placeholder UI
-- **Not implemented today:** complete dialogue/quest/combat/forging loops and a user-facing save-slot service. Map stable-ID world state, content validation, and automated import/test/export checks are implemented; see `docs/MAP_AUTHORING.md` for their boundaries.
+- **Playable demo path:** main menu → Lower Town (`reval_east`) → forge; Mart conversation and anvil spearhead pickup (D-003) work on that loop
+- **Implemented today:** movement, manifest transitions, Interactable focus/prompt, session `GameState`, inventory/journal overlays, quick-access menu, phase director hooks, content validation, map pipeline, save service APIs with tests
+- **Not packaged yet:** D-004 desktop walkthrough of move-talk-pickup without debug intervention
+- **Not complete for vertical slice:** full combat room, enemies, night consequence, faction ledger; see `TODO.md`
 
 ### Coding conventions observed in the repository
 
@@ -87,7 +88,7 @@ Godot generates import metadata for binary assets. The repository tracks `*.impo
 | Headless parser or startup check | Documented shell command that reaches a playable room without errors | **Supported** with workaround - `--check-only` hangs (`DEF-001`); use playable-room smoke in [`docs/SETUP.md`](./docs/SETUP.md) |
 | Known-defect reproduction list | `docs/` or report with repro steps | **Supported** - [`docs/reports/known_runtime_defects.md`](./docs/reports/known_runtime_defects.md) (P0-019; critical/high defects with repro steps) |
 
-Expected manual path today: main menu -> game flow into city or forge scenes using existing `DoorNavigator` transitions. Do not assume dialogue, combat, or save systems work.
+Expected manual path today: main menu → Lower Town → forge using `DoorNavigator` manifest transitions. D-003 demo interaction (Mart talk + spearhead pickup into the bag) works on that path. Do not assume full combat, night consequence, or faction-ledger loops are complete.
 
 ## Tests
 
