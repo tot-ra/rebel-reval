@@ -16,14 +16,15 @@ static func house_style(building: Dictionary) -> StringName:
 			return MapViewMeshBuilderConfig.HOUSE_STYLE_LOG
 		&"limestone", &"stone":
 			return MapViewMeshBuilderConfig.HOUSE_STYLE_STONE
-	var roll := absi(String(building["id"]).hash()) % 10
-	if roll < 4:
-		return MapViewMeshBuilderConfig.HOUSE_STYLE_LOG
-	if roll < 6:
-		return MapViewMeshBuilderConfig.HOUSE_STYLE_TIMBER
-	if roll < 8:
-		return MapViewMeshBuilderConfig.HOUSE_STYLE_PLANK
+	var roll := absi(String(building["id"]).hash()) % 20
+	# 1343 mix: log dominates, plaster/plank common, limestone emerging, brick rare.
 	if roll < 9:
+		return MapViewMeshBuilderConfig.HOUSE_STYLE_LOG
+	if roll < 13:
+		return MapViewMeshBuilderConfig.HOUSE_STYLE_TIMBER
+	if roll < 17:
+		return MapViewMeshBuilderConfig.HOUSE_STYLE_PLANK
+	if roll < 19:
 		return MapViewMeshBuilderConfig.HOUSE_STYLE_STONE
 	return MapViewMeshBuilderConfig.HOUSE_STYLE_BRICK
 
@@ -69,7 +70,13 @@ static func house_roof_material(building: Dictionary) -> StandardMaterial3D:
 	return MapViewMaterials.roof_surface(style, color)
 
 
-static func add_house_structure(root: Node3D, building: Dictionary, size: Vector2, height: float) -> void:
+static func add_house_structure(
+	root: Node3D,
+	building: Dictionary,
+	size: Vector2,
+	height: float,
+	along_ridge_x: bool
+) -> void:
 	var style := house_style(building)
 	MapViewMeshBuilderPrimitives.box(
 		root,
@@ -78,8 +85,216 @@ static func add_house_structure(root: Node3D, building: Dictionary, size: Vector
 		Vector3(0.0, MapViewMeshBuilderConfig.PLINTH_HEIGHT * 0.5, 0.0),
 		&"stone"
 	)
-	if style == MapViewMeshBuilderConfig.HOUSE_STYLE_BRICK or style == MapViewMeshBuilderConfig.HOUSE_STYLE_STONE:
-		return
+	match style:
+		MapViewMeshBuilderConfig.HOUSE_STYLE_STONE, MapViewMeshBuilderConfig.HOUSE_STYLE_BRICK:
+			_add_masonry_dressing(root, size, height)
+		MapViewMeshBuilderConfig.HOUSE_STYLE_LOG:
+			_add_log_corner_ends(root, size, height)
+		MapViewMeshBuilderConfig.HOUSE_STYLE_PLANK:
+			_add_plank_battens(root, size, height)
+		MapViewMeshBuilderConfig.HOUSE_STYLE_TIMBER:
+			# Plastered wall with corner posts and wall plates only. Diagonal
+			# Fachwerk braces are omitted: they were never characteristic of
+			# 1343 Reval (see docs/HISTORICAL_AUDIT.md Building Materials Mix).
+			_add_plaster_timber_posts(root, size, height)
+	add_roof_trim(root, size, height, along_ridge_x)
+
+
+## Bargeboards on gable ends, eaves fascia on the long sides, and a thin ridge
+## board break the pure prism roof silhouette at dimetric distance.
+static func add_roof_trim(root: Node3D, size: Vector2, height: float, along_ridge_x: bool) -> void:
+	var half := size * 0.5
+	var overhang := MapViewMeshBuilderConfig.ROOF_OVERHANG
+	var rise := ((size.y if along_ridge_x else size.x) * 0.5 + overhang) * MapViewMeshBuilderConfig.ROOF_PITCH
+	var barge := MapViewMeshBuilderConfig.HOUSE_BARGEBOARD_THICKNESS
+	var fascia_h := MapViewMeshBuilderConfig.HOUSE_EAVES_FASCIA_HEIGHT
+	if along_ridge_x:
+		var gable_span := size.y + overhang * 2.0
+		var rake := sqrt(pow(gable_span * 0.5, 2.0) + pow(rise, 2.0))
+		for side_x in [-1.0, 1.0]:
+			for slope in [-1.0, 1.0]:
+				var board := MeshInstance3D.new()
+				board.name = "Bargeboard_%d_%d" % [int(side_x), int(slope)]
+				var board_mesh := BoxMesh.new()
+				board_mesh.size = Vector3(barge, barge * 0.85, rake)
+				board.mesh = board_mesh
+				board.position = Vector3(
+					side_x * (half.x + overhang * 0.35),
+					height + rise * 0.5,
+					slope * gable_span * 0.25
+				)
+				board.rotation.x = slope * atan2(rise, gable_span * 0.5)
+				board.material_override = MapViewMaterials.role(&"timber")
+				root.add_child(board)
+		for side_z in [-1.0, 1.0]:
+			MapViewMeshBuilderPrimitives.box(
+				root,
+				"EavesFascia_%d" % int(side_z),
+				Vector3(size.x + overhang * 2.0, fascia_h, barge),
+				Vector3(0.0, height + fascia_h * 0.35, side_z * (half.y + overhang * 0.55)),
+				&"timber"
+			)
+		MapViewMeshBuilderPrimitives.box(
+			root,
+			"RidgeBoard",
+			Vector3(size.x + overhang * 2.0, MapViewMeshBuilderConfig.HOUSE_RIDGE_BOARD_HEIGHT, barge),
+			Vector3(0.0, height + rise + MapViewMeshBuilderConfig.HOUSE_RIDGE_BOARD_HEIGHT * 0.35, 0.0),
+			&"timber"
+		)
+	else:
+		var gable_span := size.x + overhang * 2.0
+		var rake := sqrt(pow(gable_span * 0.5, 2.0) + pow(rise, 2.0))
+		for side_z in [-1.0, 1.0]:
+			for slope in [-1.0, 1.0]:
+				var board := MeshInstance3D.new()
+				board.name = "Bargeboard_%d_%d" % [int(side_z), int(slope)]
+				var board_mesh := BoxMesh.new()
+				board_mesh.size = Vector3(rake, barge * 0.85, barge)
+				board.mesh = board_mesh
+				board.position = Vector3(
+					slope * gable_span * 0.25,
+					height + rise * 0.5,
+					side_z * (half.y + overhang * 0.35)
+				)
+				board.rotation.z = -slope * atan2(rise, gable_span * 0.5)
+				board.material_override = MapViewMaterials.role(&"timber")
+				root.add_child(board)
+		for side_x in [-1.0, 1.0]:
+			MapViewMeshBuilderPrimitives.box(
+				root,
+				"EavesFascia_%d" % int(side_x),
+				Vector3(barge, fascia_h, size.y + overhang * 2.0),
+				Vector3(side_x * (half.x + overhang * 0.55), height + fascia_h * 0.35, 0.0),
+				&"timber"
+			)
+		MapViewMeshBuilderPrimitives.box(
+			root,
+			"RidgeBoard",
+			Vector3(barge, MapViewMeshBuilderConfig.HOUSE_RIDGE_BOARD_HEIGHT, size.y + overhang * 2.0),
+			Vector3(0.0, height + rise + MapViewMeshBuilderConfig.HOUSE_RIDGE_BOARD_HEIGHT * 0.35, 0.0),
+			&"timber"
+		)
+
+
+static func _add_masonry_dressing(root: Node3D, size: Vector2, height: float) -> void:
+	var half := size * 0.5
+	var qw := MapViewMeshBuilderConfig.HOUSE_QUOIN_WIDTH
+	var qd := MapViewMeshBuilderConfig.HOUSE_QUOIN_DEPTH
+	var course := 0
+	var y := MapViewMeshBuilderConfig.PLINTH_HEIGHT + qw * 0.55
+	while y + qw * 0.4 < height - 0.15:
+		for corner in [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)]:
+			MapViewMeshBuilderPrimitives.box(
+				root,
+				"Quoin_%d_%d_%d" % [course, int(corner.x), int(corner.y)],
+				Vector3(qw, qw * 0.85, qd),
+				Vector3(corner.x * (half.x - qw * 0.15), y, corner.y * (half.y + qd * 0.35)),
+				&"stone"
+			)
+			MapViewMeshBuilderPrimitives.box(
+				root,
+				"QuoinSide_%d_%d_%d" % [course, int(corner.x), int(corner.y)],
+				Vector3(qd, qw * 0.85, qw),
+				Vector3(corner.x * (half.x + qd * 0.35), y, corner.y * (half.y - qw * 0.15)),
+				&"stone"
+			)
+		course += 1
+		y += qw * 1.15
+	var cornice_h := MapViewMeshBuilderConfig.HOUSE_CORNICE_HEIGHT
+	var cornice_d := MapViewMeshBuilderConfig.HOUSE_CORNICE_DEPTH
+	MapViewMeshBuilderPrimitives.box(
+		root,
+		"Cornice",
+		Vector3(size.x + cornice_d * 2.0, cornice_h, size.y + cornice_d * 2.0),
+		Vector3(0.0, height - cornice_h * 0.35, 0.0),
+		&"stone"
+	)
+
+
+static func _add_log_corner_ends(root: Node3D, size: Vector2, height: float) -> void:
+	var half := size * 0.5
+	var thick := MapViewMeshBuilderConfig.HOUSE_LOG_END_THICKNESS
+	var protrude := MapViewMeshBuilderConfig.HOUSE_LOG_END_PROTRUSION
+	var spacing := MapViewMeshBuilderConfig.HOUSE_LOG_END_SPACING
+	var row := 0
+	var y := MapViewMeshBuilderConfig.PLINTH_HEIGHT + thick * 0.55
+	while y + thick * 0.4 < height - 0.1:
+		for corner in [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)]:
+			# Alternating axis per course mimics notched log corners without
+			# inventing a full log mesh (reads from dimetric distance).
+			if row % 2 == 0:
+				MapViewMeshBuilderPrimitives.box(
+					root,
+					"LogEnd_%d_%d_%d" % [row, int(corner.x), int(corner.y)],
+					Vector3(thick * 1.15, thick, protrude),
+					Vector3(corner.x * half.x, y, corner.y * (half.y + protrude * 0.35)),
+					&"timber"
+				)
+			else:
+				MapViewMeshBuilderPrimitives.box(
+					root,
+					"LogEnd_%d_%d_%d" % [row, int(corner.x), int(corner.y)],
+					Vector3(protrude, thick, thick * 1.15),
+					Vector3(corner.x * (half.x + protrude * 0.35), y, corner.y * half.y),
+					&"timber"
+				)
+		row += 1
+		y += spacing
+
+
+static func _add_plank_battens(root: Node3D, size: Vector2, height: float) -> void:
+	var half := size * 0.5
+	var bw := MapViewMeshBuilderConfig.HOUSE_PLANK_BATTEN_WIDTH
+	var bd := MapViewMeshBuilderConfig.HOUSE_PLANK_BATTEN_DEPTH
+	var post_h := height - MapViewMeshBuilderConfig.PLINTH_HEIGHT
+	var post_y := MapViewMeshBuilderConfig.PLINTH_HEIGHT + post_h * 0.5
+	for corner in [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)]:
+		MapViewMeshBuilderPrimitives.box(
+			root,
+			"CornerBoard_%d_%d" % [int(corner.x), int(corner.y)],
+			Vector3(bw * 1.4, post_h, bw * 1.4),
+			Vector3(corner.x * half.x, post_y, corner.y * half.y),
+			&"timber"
+		)
+	# Mid-wall vertical battens on the longer street faces only.
+	var along_x := size.x >= size.y
+	var face_len := size.x if along_x else size.y
+	var count := clampi(int(face_len / 1.6), 1, 4)
+	for index in count:
+		var along := (float(index + 1) / float(count + 1) - 0.5) * face_len
+		if along_x:
+			MapViewMeshBuilderPrimitives.box(
+				root,
+				"BattenN%d" % index,
+				Vector3(bw, post_h * 0.92, bd),
+				Vector3(along, post_y, half.y),
+				&"timber"
+			)
+			MapViewMeshBuilderPrimitives.box(
+				root,
+				"BattenS%d" % index,
+				Vector3(bw, post_h * 0.92, bd),
+				Vector3(along, post_y, -half.y),
+				&"timber"
+			)
+		else:
+			MapViewMeshBuilderPrimitives.box(
+				root,
+				"BattenE%d" % index,
+				Vector3(bd, post_h * 0.92, bw),
+				Vector3(half.x, post_y, along),
+				&"timber"
+			)
+			MapViewMeshBuilderPrimitives.box(
+				root,
+				"BattenW%d" % index,
+				Vector3(bd, post_h * 0.92, bw),
+				Vector3(-half.x, post_y, along),
+				&"timber"
+			)
+
+
+static func _add_plaster_timber_posts(root: Node3D, size: Vector2, height: float) -> void:
 	var half := size * 0.5
 	var beam := MapViewMeshBuilderConfig.FRAME_BEAM_THICKNESS
 	for corner in [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)]:
@@ -90,33 +305,40 @@ static func add_house_structure(root: Node3D, building: Dictionary, size: Vector
 			Vector3(corner.x * half.x, height * 0.5, corner.y * half.y),
 			&"timber"
 		)
-	if style != MapViewMeshBuilderConfig.HOUSE_STYLE_TIMBER:
-		return
-	var beam_heights := [MapViewMeshBuilderConfig.PLINTH_HEIGHT + beam * 0.5, height * 0.55, height - beam * 0.5]
+	var beam_heights := [
+		MapViewMeshBuilderConfig.PLINTH_HEIGHT + beam * 0.5,
+		height * 0.55,
+		height - beam * 0.5,
+	]
 	for beam_y: float in beam_heights:
-		MapViewMeshBuilderPrimitives.box(root, "BeamNS%d" % int(beam_y * 100.0), Vector3(size.x + beam, beam, beam), Vector3(0.0, beam_y, half.y), &"timber")
-		MapViewMeshBuilderPrimitives.box(root, "BeamNS%dB" % int(beam_y * 100.0), Vector3(size.x + beam, beam, beam), Vector3(0.0, beam_y, -half.y), &"timber")
-		MapViewMeshBuilderPrimitives.box(root, "BeamEW%d" % int(beam_y * 100.0), Vector3(beam, beam, size.y + beam), Vector3(half.x, beam_y, 0.0), &"timber")
-		MapViewMeshBuilderPrimitives.box(root, "BeamEW%dB" % int(beam_y * 100.0), Vector3(beam, beam, size.y + beam), Vector3(-half.x, beam_y, 0.0), &"timber")
-	var brace_length := (height * 0.55 - MapViewMeshBuilderConfig.PLINTH_HEIGHT) * 1.35
-	var along_x := size.x >= size.y
-	var brace_offset := (size.x if along_x else size.y) * 0.28
-	for flip in [-1.0, 1.0]:
-		var brace := MeshInstance3D.new()
-		brace.name = "Brace%d" % int(flip)
-		var brace_mesh := BoxMesh.new()
-		brace_mesh.size = Vector3(brace_length, beam * 0.9, beam * 0.6)
-		brace.mesh = brace_mesh
-		var mid_y := (MapViewMeshBuilderConfig.PLINTH_HEIGHT + height * 0.55) * 0.5
-		if along_x:
-			brace.position = Vector3(flip * brace_offset, mid_y, half.y)
-			brace.rotation.z = flip * 0.7
-		else:
-			brace.position = Vector3(half.x, mid_y, flip * brace_offset)
-			brace.rotation.y = PI * 0.5
-			brace.rotation.z = flip * 0.7
-		brace.material_override = MapViewMaterials.role(&"timber")
-		root.add_child(brace)
+		MapViewMeshBuilderPrimitives.box(
+			root,
+			"BeamNS%d" % int(beam_y * 100.0),
+			Vector3(size.x + beam, beam, beam),
+			Vector3(0.0, beam_y, half.y),
+			&"timber"
+		)
+		MapViewMeshBuilderPrimitives.box(
+			root,
+			"BeamNS%dB" % int(beam_y * 100.0),
+			Vector3(size.x + beam, beam, beam),
+			Vector3(0.0, beam_y, -half.y),
+			&"timber"
+		)
+		MapViewMeshBuilderPrimitives.box(
+			root,
+			"BeamEW%d" % int(beam_y * 100.0),
+			Vector3(beam, beam, size.y + beam),
+			Vector3(half.x, beam_y, 0.0),
+			&"timber"
+		)
+		MapViewMeshBuilderPrimitives.box(
+			root,
+			"BeamEW%dB" % int(beam_y * 100.0),
+			Vector3(beam, beam, size.y + beam),
+			Vector3(-half.x, beam_y, 0.0),
+			&"timber"
+		)
 
 
 static func add_historic_building_details(

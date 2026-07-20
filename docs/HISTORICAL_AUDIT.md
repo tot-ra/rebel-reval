@@ -51,9 +51,16 @@ This document audits the characters, buildings, weapons, religions, institutions
 * **Watch Checkpoint / Detention Yard**
   * Label: **`plausible composite`**
   * Source Note: The Viru Gate (built in the 14th century) and other city defenses had guard posts, holding areas, and watchmen.
+* **Town Hall and Market Square (1343 state)**
+  * Label: **`attested`**
+  * Source Note: Tallinn Town Hall is first mentioned in 1322 and its building history reaches the late 13th century. The current medieval appearance and tower date to 1402-1404, so the 1343 model uses the earlier elongated limestone hall with a tile roof and omits the later tower. Sources: [Tallinn Town Hall - The building](https://raekoda.tallinn.ee/en/the-building), [Medieval Heritage - Tallinn Town Hall](https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-town-hall).
+* **Holy Spirit Chapel and Almshouse (1343 state)**
+  * Label: **`attested`**
+  * Source Note: The chapel is indirectly recorded in 1316 beside its almshouse; its larger Gothic rebuilding belongs mainly to the later 14th century. The 1343 model therefore uses a modest chapel-almshouse complex and omits both the later tower and the seventeenth-century public clock. Source: [Medieval Heritage - Holy Spirit Church](https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-holy-spirit-church-puha-vaimu-kirik).
 * **Building Materials Mix (limestone, log, plank, plaster, rare brick)**
   * Label: **`attested`**
   * Source Note: Reval was built from local Ordovician limestone (paekivi): the town wall, towers, churches, and the emerging stone houses of wealthy merchants. In 1343 the transition of dwellings to stone was only beginning; most lower-town houses were still wooden, dominated by horizontal log construction (the Estonian and Nordic vernacular; timber framing/Fachwerk was never characteristic of Tallinn), alongside plank-clad and plastered structures. Brick was scarce and reserved for details - unlike the brick-Gothic cities of the southern Baltic. The suburbs outside the wall stayed entirely wooden.
+  * Visual decision (2026-07-20): procedural house dressing follows this mix. Log houses show protruding corner heads; plastered houses keep corner posts and wall plates without diagonal Fachwerk braces; limestone houses get shallow quoins and a cornice; every house gets bargeboards/eaves fascia, open timber shutters, and iron-bound street doors.
 * **Roof Covers (wooden shingle, reed/straw thatch, ceramic tile)**
   * Label: **`attested`**
   * Source Note: Wooden shingle and thatch (straw and coastal reed) were the ordinary roof covers of the 14th-century wooden town; ceramic tile marked churches, monasteries, and rich stone houses. Town councils of Hanseatic cities pushed tile over flammable covers only in later fire ordinances, so in 1343 tile roofs were still the exception. The in-game distribution (thatch/shingle on log and timber houses, tile on limestone buildings) follows this pattern.

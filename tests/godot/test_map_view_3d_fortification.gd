@@ -10,13 +10,29 @@ func test_houses_get_facade_doors_and_windows() -> void:
 			assert_false(node.has_node("Door"), "%s: door_side none must suppress the plain door" % building["id"])
 		else:
 			assert_true(node.has_node("Door"), "%s: every house needs a street door" % building["id"])
+			assert_true(node.has_node("DoorStrap0"), "%s: street doors need iron binding straps" % building["id"])
 		assert_true(node.has_node("Window0"), "%s: every house needs at least one window" % building["id"])
 		assert_true(node.has_node("WindowFrameL0"), "%s: windows need an outer timber frame" % building["id"])
 		assert_true(node.has_node("WindowMullionV0"), "%s: windows need inner mullions" % building["id"])
+		assert_true(node.has_node("ShutterL0"), "%s: windows need open timber shutters" % building["id"])
+		assert_true(node.has_node("RidgeBoard"), "%s: roofs need a ridge board" % building["id"])
+		assert_true(node.has_node("Plinth"), "%s: houses need a stone plinth" % building["id"])
 		var glass := node.get_node("Window0") as MeshInstance3D
 		var glass_mat := glass.material_override as StandardMaterial3D
 		assert_true(glass_mat.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA, "%s: window glass must be translucent" % building["id"])
 		assert_true(glass_mat.albedo_color.a < 0.75, "%s: window glass must not read as opaque bright panels" % building["id"])
+		# Style-specific dressing must stay historically grounded (no Fachwerk braces).
+		assert_false(node.has_node("Brace-1") or node.has_node("Brace1"), "%s: diagonal Fachwerk braces are not Tallinn vernacular" % building["id"])
+		var style := MapViewMeshBuilderBuildingHouses.house_style(building)
+		match style:
+			MapViewMeshBuilderConfig.HOUSE_STYLE_LOG:
+				assert_true(node.has_node("LogEnd_0_-1_-1") or node.has_node("LogEnd_0_1_1"), "%s: log houses need corner heads" % building["id"])
+			MapViewMeshBuilderConfig.HOUSE_STYLE_STONE, MapViewMeshBuilderConfig.HOUSE_STYLE_BRICK:
+				assert_true(node.has_node("Cornice"), "%s: masonry houses need an eaves cornice" % building["id"])
+			MapViewMeshBuilderConfig.HOUSE_STYLE_PLANK:
+				assert_true(node.has_node("CornerBoard_-1_-1") or node.has_node("CornerBoard_1_1"), "%s: plank houses need corner boards" % building["id"])
+			MapViewMeshBuilderConfig.HOUSE_STYLE_TIMBER:
+				assert_true(node.has_node("CornerPost_-1_-1") or node.has_node("CornerPost_1_1"), "%s: plastered houses keep timber posts" % building["id"])
 		node.free()
 
 

@@ -166,6 +166,32 @@ const HOUSE_WINDOW_GLASS_DEPTH := 0.035
 const HOUSE_WINDOW_MULLION := 0.045
 const HOUSE_WINDOW_MULLION_DEPTH := 0.09
 const FACADE_RELIEF := 0.05
+## Open shutters parked beside the frame (1343 dwellings used timber shutters;
+## glass stayed rare). Depth stays thin so they read as boards, not boxes.
+const HOUSE_SHUTTER_WIDTH := 0.28
+const HOUSE_SHUTTER_THICKNESS := 0.045
+const HOUSE_SHUTTER_GAP := 0.04
+## Bound door leaves: two iron straps plus a simple latch block.
+const HOUSE_DOOR_STRAP_THICKNESS := 0.035
+const HOUSE_DOOR_STRAP_COUNT := 2
+## Roof trim: bargeboards on gable ends and a fascia under the eaves keep the
+## Nordic/Estonian wooden-town silhouette without inventing German Fachwerk.
+const HOUSE_BARGEBOARD_THICKNESS := 0.07
+const HOUSE_EAVES_FASCIA_HEIGHT := 0.1
+const HOUSE_RIDGE_BOARD_HEIGHT := 0.08
+## Log-house corner heads protrude past the wall plane (horizontal log
+## vernacular of 14th-century Reval lower town).
+const HOUSE_LOG_END_PROTRUSION := 0.18
+const HOUSE_LOG_END_THICKNESS := 0.16
+const HOUSE_LOG_END_SPACING := 0.34
+## Limestone merchant houses: shallow quoins and a cornice under the eaves.
+const HOUSE_QUOIN_WIDTH := 0.28
+const HOUSE_QUOIN_DEPTH := 0.1
+const HOUSE_CORNICE_HEIGHT := 0.12
+const HOUSE_CORNICE_DEPTH := 0.14
+## Plank houses: vertical corner boards and sparse mid-wall battens.
+const HOUSE_PLANK_BATTEN_WIDTH := 0.08
+const HOUSE_PLANK_BATTEN_DEPTH := 0.05
 ## Interior glazing sits above a low sill and below a stone/timber lintel band.
 const INTERIOR_WINDOW_SILL_RATIO := 0.22
 const INTERIOR_WINDOW_LINTEL := 0.12

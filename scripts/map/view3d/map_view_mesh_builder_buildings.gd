@@ -72,7 +72,7 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 		roof.material_override = MapViewMeshBuilderBuildingHouses.house_roof_material(building)
 		root.add_child(roof)
 		MapViewMeshBuilderBuildingHouses.add_chimney(root, building, size, height, along_ridge_x)
-		MapViewMeshBuilderBuildingHouses.add_house_structure(root, building, size, height)
+		MapViewMeshBuilderBuildingHouses.add_house_structure(root, building, size, height, along_ridge_x)
 		MapViewMeshBuilderBuildingFacade.add_house_facade(root, building, size, height)
 		MapViewMeshBuilderBuildingHouses.add_historic_building_details(root, building, size, height, along_ridge_x)
 		MapViewMeshBuilderBuildingHouses.add_window_lights(root, building["id"])
