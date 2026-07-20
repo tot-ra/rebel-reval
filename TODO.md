@@ -12,8 +12,6 @@ Coordination note (2026-07-20 P0-062b): restored multi-street walkable patrols o
 
 Coordination note (2026-07-20 D-004 closeout): packaged demo gate closed. Verified: `--filter=test_demo_walkthrough` (2/2), `tools/verify_packaged_demo.sh` export + packaged launch, and frame walkthrough linked from `README.md` / `docs/reports/demo_walkthrough_d004.md`. Follow-ups: D-004a (release-only defect notes) and optional D-004b (human video capture).
 
-Coordination note (2026-07-20 D-004a): no release-only move-talk-pickup defects remain. Packaged `--quit-after` launch is green without `--path`; `verify_packaged_demo.sh` no longer probes release binaries with path overrides; triage in `docs/reports/d004a_release_only_triage.md`. Optional follow-ups: D-004b (human video), D-004c (in-binary packaged walkthrough).
-
 Coordination note (2026-07-20 P1-031): district/world map overlay on every `player.tscn` host; `toggle_world_map` (M) plus quick-access `Districts [M]`; graph nodes/edges match `DoorNavigator` active manifest; `--filter=test_world_map_overlay` passes 5/5. Optional click-to-travel is **P1-031a**.
 
 Coordination note (2026-07-20 P0-067a): retained `MAP_CHUNK_BOUNDARY_AMBIGUOUS` warnings on `north_quarter`, `south_quarter`, `toompea_quarter`, and `reval_harbor` are owned in `docs/reports/map_chunk_boundary_review_p0_067a.md` with ADR 0010 ownership; audit still prints the warnings. Slice-map follow-up is **P0-067b**.
