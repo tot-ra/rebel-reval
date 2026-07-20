@@ -175,6 +175,7 @@ func test_boundary_exits_connect_to_registered_destinations() -> void:
 		&"vana_turg_boundary",
 		&"vene_district_boundary",
 		&"viru_road_boundary",
+		&"to_reval_south",
 	]:
 		assert_true(transition_by_id.has(transition_id), "missing boundary transition %s" % transition_id)
 		var transition: Dictionary = transition_by_id[transition_id]
@@ -189,14 +190,15 @@ func test_boundary_exits_connect_to_registered_destinations() -> void:
 			String(transition.get("destination_spawn_id", "")).is_empty(),
 			"%s must target a stable destination spawn" % transition_id
 		)
-	# Karja Gate opens south into the southern lower-town quarter.
-	assert_true(transition_by_id.has(&"karja_road_boundary"), "missing Karja Gate exit")
-	var karja: Dictionary = transition_by_id[&"karja_road_boundary"]
-	assert_eq(karja.get("transition_visual"), MapTypes.TRANSITION_VISUAL_GROUND)
-	assert_true(bool(karja.get("highlight_area", false)))
-	assert_eq(karja.get("spawn_id"), &"karja_road_boundary")
-	assert_eq(karja.get("destination_scene_id"), &"reval_south")
-	assert_eq(karja.get("destination_spawn_id"), &"from_karja_gate")
+	# Karja Gate remains the exterior city gate. District travel uses the internal
+	# south-west lane and must never be wired through the gate or moat.
+	assert_false(transition_by_id.has(&"karja_road_boundary"), "Karja Gate must not be a district shortcut")
+	var south: Dictionary = transition_by_id[&"to_reval_south"]
+	assert_eq(south.get("transition_visual"), MapTypes.TRANSITION_VISUAL_GROUND)
+	assert_true(bool(south.get("highlight_area", false)))
+	assert_eq(south.get("spawn_id"), &"from_reval_south")
+	assert_eq(south.get("destination_scene_id"), &"reval_south")
+	assert_eq(south.get("destination_spawn_id"), &"from_reval_east")
 
 
 func test_courtyard_anvil_does_not_cover_smithy_door() -> void:

@@ -59,7 +59,11 @@
       ],
       "mandatory_transitions": [
         "smithy_door_transition",
-        "street_start_spawn"
+        "street_start_spawn",
+        "vana_turg_boundary",
+        "vene_district_boundary",
+        "viru_road_boundary",
+        "to_reval_south"
       ]
     },
     {
@@ -99,7 +103,9 @@
         "luhike_jalg_gate"
       ],
       "mandatory_transitions": [
-        "to_reval_center"
+        "to_reval_center",
+        "to_reval_north",
+        "to_reval_south"
       ]
     },
     {
@@ -117,7 +123,8 @@
       ],
       "mandatory_transitions": [
         "to_reval_center",
-        "to_reval_east"
+        "to_reval_east",
+        "to_reval_toompea"
       ]
     },
     {
@@ -147,7 +154,12 @@
         "pikk_street_spine",
         "guild_frontage"
       ],
-      "mandatory_transitions": []
+      "mandatory_transitions": [
+        "to_reval_harbor",
+        "to_reval_center",
+        "to_reval_east",
+        "to_reval_toompea"
+      ]
     },
     {
       "id": "harbor_warehouse",
@@ -177,7 +189,8 @@
         "coast_gate"
       ],
       "mandatory_transitions": [
-        "to_reval_east"
+        "to_reval_east",
+        "to_reval_north"
       ]
     },
     {

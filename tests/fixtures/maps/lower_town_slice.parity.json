@@ -57,6 +57,13 @@
       ]
     },
     {
+      "id": "south_quarter_lane",
+      "position": [
+        160.000000000,
+        2528.000000000
+      ]
+    },
+    {
       "id": "street_start",
       "position": [
         3104.000000000,
@@ -499,7 +506,7 @@
     {
       "door_side": "east",
       "footprint": [
-        0.000000000,
+        256.000000000,
         2368.000000000,
         256.000000000,
         256.000000000
@@ -1340,7 +1347,7 @@
     {
       "door_side": "east",
       "footprint": [
-        0.000000000,
+        256.000000000,
         1728.000000000,
         256.000000000,
         256.000000000
@@ -1757,7 +1764,7 @@
     {
       "door_side": "east",
       "footprint": [
-        0.000000000,
+        256.000000000,
         2688.000000000,
         256.000000000,
         256.000000000
@@ -1899,7 +1906,7 @@
     {
       "door_side": "east",
       "footprint": [
-        0.000000000,
+        256.000000000,
         2048.000000000,
         256.000000000,
         256.000000000
@@ -2042,7 +2049,7 @@
     ]
   },
   "navigation": {
-    "walkability_sha256": "b0c01697b5653e40c9ddc5a5c4cf03490e4308ffc93f502632b02ce0b7a4fa19",
+    "walkability_sha256": "52848f8f0b0f23f7194672af3a39925085c77761846512dc665a8e8f6cac947b",
     "walkable_cell_count": 12728
   },
   "patrols": [
@@ -2283,6 +2290,17 @@
     },
     {
       "direction": [
+        -1.000000000,
+        0.000000000
+      ],
+      "position": [
+        144.000000000,
+        2384.000000000
+      ],
+      "text": "to south quarter"
+    },
+    {
+      "direction": [
         0.000000000,
         1.000000000
       ],
@@ -2290,7 +2308,7 @@
         2640.000000000,
         3280.000000000
       ],
-      "text": "to south quarter"
+      "text": "karja gate"
     },
     {
       "direction": [
@@ -2326,7 +2344,7 @@
     "west"
   ],
   "terrain": {
-    "terrain_id_grid_sha256": "4311ef77b02e65788ba2280619171aa3b37f8b51152275e22b5b911be7701889",
+    "terrain_id_grid_sha256": "0a7572b886fe369fbd377ef04241b00cfdff1bb20a3ae36d1e9765fb0ddfd646",
     "used_terrain_ids": [
       "cobblestone",
       "dirt",
@@ -2338,24 +2356,6 @@
     ]
   },
   "transitions": [
-    {
-      "destination_scene_id": "reval_south",
-      "destination_spawn_id": "from_karja_gate",
-      "highlight_area": true,
-      "id": "karja_road_boundary",
-      "rect": [
-        2304.000000000,
-        3392.000000000,
-        96.000000000,
-        96.000000000
-      ],
-      "spawn_id": "karja_road_boundary",
-      "spawn_offset": [
-        0.000000000,
-        -96.000000000
-      ],
-      "transition_visual": "ground"
-    },
     {
       "destination_scene_id": "forge",
       "destination_spawn_id": "door_courtyard",
@@ -2381,6 +2381,24 @@
         64.000000000
       ],
       "spawn_id": "street_start"
+    },
+    {
+      "destination_scene_id": "reval_south",
+      "destination_spawn_id": "from_reval_east",
+      "highlight_area": true,
+      "id": "to_reval_south",
+      "rect": [
+        0.000000000,
+        2400.000000000,
+        64.000000000,
+        224.000000000
+      ],
+      "spawn_id": "from_reval_south",
+      "spawn_offset": [
+        96.000000000,
+        0.000000000
+      ],
+      "transition_visual": "ground"
     },
     {
       "destination_scene_id": "reval_center",

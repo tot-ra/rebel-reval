@@ -10,6 +10,8 @@ func _definition_loaders() -> Array[Callable]:
 		preload("res://scripts/map/definitions/outdoor/reval_harbor_definition.gd").create,
 		preload("res://scripts/map/definitions/prototypes/north_quarter_definition.gd").create,
 		preload("res://scripts/map/definitions/prototypes/market_civic_quarter_definition.gd").create,
+		preload("res://scripts/map/definitions/prototypes/south_quarter_definition.gd").create,
+		preload("res://scripts/map/definitions/prototypes/toompea_quarter_definition.gd").create,
 		preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd").create,
 		preload("res://scripts/map/definitions/prototypes/st_olafs_guild_hall_definition.gd").create,
 	]

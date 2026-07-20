@@ -23,7 +23,7 @@
         { "id": "vana_turg_boundary" },
         { "id": "vene_district_boundary" },
         { "id": "viru_road_boundary" },
-        { "id": "karja_road_boundary" }
+        { "id": "from_reval_south" }
       ]
     },
     {
@@ -47,7 +47,7 @@
       "spawns": [
         { "id": "from_reval_east" },
         { "id": "from_reval_center" },
-        { "id": "from_reval_harbor" },
+        { "id": "from_reval_toompea" },
         { "id": "to_reval_harbor" }
       ]
     },
@@ -67,8 +67,7 @@
       "release": false,
       "spawns": [
         { "id": "from_reval_east" },
-        { "id": "from_reval_north" },
-        { "id": "to_reval_harbor" }
+        { "id": "from_reval_north" }
       ]
     },
     {
@@ -77,7 +76,9 @@
       "active": true,
       "release": false,
       "spawns": [
-        { "id": "from_reval_center" }
+        { "id": "from_reval_center" },
+        { "id": "from_reval_north" },
+        { "id": "from_reval_south" }
       ]
     },
     {
@@ -87,7 +88,8 @@
       "release": false,
       "spawns": [
         { "id": "from_reval_center" },
-        { "id": "from_karja_gate" }
+        { "id": "from_reval_east" },
+        { "id": "from_reval_toompea" }
       ]
     }
   ]

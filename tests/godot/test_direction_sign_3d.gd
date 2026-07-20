@@ -6,7 +6,7 @@ const LowerTownSliceDefinition := preload("res://scripts/map/definitions/lower_t
 
 func test_lower_town_has_wall_exit_signs_outside_the_moat() -> void:
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
-	assert_eq(definition.direction_signs.size(), 3)
+	assert_eq(definition.direction_signs.size(), 4)
 
 	var harbour_sign := _sign_by_text(definition, "to harbour")
 	assert_false(harbour_sign.is_empty())
@@ -22,13 +22,13 @@ func test_lower_town_has_wall_exit_signs_outside_the_moat() -> void:
 	# West exit is Vana Turg into the civic centre, not Karja Gate.
 	assert_true(town_centre_sign["position"].x < float(definition.cell_size * 8))
 
-	var karja_sign := _sign_by_text(definition, "to south quarter")
-	assert_false(karja_sign.is_empty())
-	assert_eq(karja_sign["direction"], Vector2.DOWN)
-	# South wall mass ends at cell 50; the sign sits on the outer glacis.
-	assert_true(karja_sign["position"].y > float(definition.cell_size * 50))
-	# Karja causeway centre is x=37.5; keep the post east of the road.
-	assert_true(karja_sign["position"].x > float(definition.cell_size * 39))
+	var south_sign := _sign_by_text(definition, "to south quarter")
+	assert_false(south_sign.is_empty())
+	assert_eq(south_sign["direction"], Vector2.LEFT)
+	# The southern quarter now joins through an internal lane west of the smithy,
+	# so district travel never crosses Karja Gate or the moat.
+	assert_true(south_sign["position"].x < float(definition.cell_size * 8))
+	assert_true(south_sign["position"].y > float(definition.cell_size * 70))
 
 	assert_true(MapBuilder.validate(definition).is_empty())
 
@@ -47,15 +47,15 @@ func test_direction_sign_builds_wooden_arrow_with_two_sided_text() -> void:
 	node.free()
 
 
-func test_karja_sign_points_south_along_outgoing_road() -> void:
+func test_south_quarter_sign_points_along_internal_lane() -> void:
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
 	var sign := _sign_by_text(definition, "to south quarter")
 	var node := DirectionSign3D.build(sign, definition.cell_size)
 	assert_eq((node.get_node("TextFront") as Label3D).text, "to south quarter")
 	var world_arrow_direction := (node.transform.basis * Vector3.RIGHT).normalized()
 	assert_true(
-		world_arrow_direction.is_equal_approx(Vector3.BACK),
-		"Karja gate sign must point south along the causeway"
+		world_arrow_direction.is_equal_approx(Vector3.LEFT),
+		"south-quarter sign must point west along the internal lane"
 	)
 	node.free()
 

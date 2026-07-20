@@ -1,7 +1,7 @@
-# Southern Lower Town between Rataskaev, Dunkri, and the Karja Gate approach.
-# North climbs King's Street into the civic square; south continues the Karja
-# Gate road from the eastern district's wall exit. This keeps district adjacency
-# aligned with medieval Reval: centre is north, Karja Gate traffic is south.
+# Southern Lower Town between Rataskaev, Dunkri, and the Karja Gate.
+# King's Street continues north into the civic square, an interior lane continues
+# east into the Viru quarter, and the guarded western slope climbs to Toompea.
+# Karja Gate remains on the outer southern wall and is not a district shortcut.
 rrmap 1
 map south_quarter loc.lower_town.south_quarter 72 40 cobblestone scope=prototype active=false palette=clean_painted seed=1375 cell_size=32
 source "scenes/reval_south/reval_south.tscn"
@@ -15,14 +15,22 @@ style house.merchant.north door_side=north ridge_axis=x wall_height=120 wall_col
 style house.knights door_side=south ridge_axis=x wall_height=128 wall_color=7a7061ff wall_material=limestone roof_color=47291fff roof_material=tile
 style house.artisan door_side=north ridge_axis=x wall_height=96 wall_color=63594aff wall_material=log roof_color=6b5c40ff roof_material=thatch
 style house.gatehouse door_side=north ridge_axis=x wall_height=136 wall_color=6e6a62ff wall_material=limestone roof_color=2a241cff roof_material=tile
+style wall.city wall_height=192 wall_color=949185ff
+style wall.tower wall_height=240 wall_color=8c8a80ff
 terrain quarter.base cobblestone 0 0 72 40 order=1
 terrain rataskaev_close stone 8 4 12 8 order=2
 terrain dunkri_yard dirt 24 12 20 8 order=3
 terrain karja_glacis mud 28 34 16 6 order=4
-stroke rataskaev_street cobblestone 6,8|18,8|30,8|42,8 thickness=3 order=5
+stroke rataskaev_street cobblestone 0,8|18,8|30,8|42,8 thickness=3 order=5
 stroke dunkri_lane cobblestone 30,8|30,16|30,24 thickness=3 order=6
-stroke king_street cobblestone 6,2|18,2|30,2|42,2|54,2 thickness=3 order=7
-stroke karja_road cobblestone 34,24|34,30|34,38 thickness=4 order=8
+stroke king_street cobblestone 30,0|30,8|42,8|54,8 thickness=4 order=7
+stroke karja_road cobblestone 34,24|34,30|34,39 thickness=4 order=8
+stroke viru_internal_lane cobblestone 34,30|52,30|71,30 thickness=4 order=9
+building city_wall_west_south wall 0 12 2 24 style=wall.city
+building city_wall_south_west wall 0 36 28 4 style=wall.city
+building karja_gate_west_tower wall 28 34 6 6 style=wall.tower tower=true
+building karja_gate_east_tower wall 40 34 6 6 style=wall.tower tower=true
+building city_wall_south_east wall 46 36 26 4 style=wall.city
 building rataskaev_corner house 4 4 10 8 style=house.merchant.south
 building dunkri_row_west house 22 12 10 8 style=house.merchant.north
 building dunkri_row_east house 40 12 10 8 style=house.merchant.south
@@ -30,6 +38,8 @@ building knights_quarters house 52 10 16 10 style=house.knights
 building king_street_house house 14 6 10 6 style=house.artisan
 building south_merchant_row house 58 18 12 8 style=house.merchant.north
 building karja_gate_house house 30 26 8 8 style=house.gatehouse
+landmark karja_gate_arch gate_arch 34 34 6 6 wall_color=8f8c80ff top_px=240 passage_axis=z door_material=wood
+landmark toompea_slope_gate gate_arch 0 5 4 6 wall_color=8f8c80ff top_px=176 passage_axis=x door_material=wood
 prop rataskaev_well_prop well 12 14 rect=2,2
 prop street_cart cart 46 14 rect=2,2
 prop knight_banner cart 58 12 rect=2,2
@@ -39,13 +49,17 @@ anchor rataskaev_well 12 14 rect=2,2
 anchor karja_approach 34 36 rect=2,2
 anchor king_street_climb 30 4 rect=2,2
 anchor from_reval_center 30 2 rect=2,2
-anchor from_karja_gate 34 36 rect=2,2
-transition to_reval_center 24 0 16 2 to=reval_center destination_spawn=to_reval_south spawn=from_reval_center spawn_offset_px=0,96 highlight_area=true transition_visual=ground
-transition to_reval_east 30 37 12 3 to=reval_east destination_spawn=karja_road_boundary spawn=from_karja_gate spawn_offset_px=0,-96 highlight_area=true transition_visual=ground
+anchor from_reval_east 68 30 rect=2,2
+anchor from_reval_toompea 2 8 rect=2,2
+transition to_reval_center 24 0 12 2 to=reval_center destination_spawn=to_reval_south spawn=from_reval_center spawn_offset_px=0,96 highlight_area=true transition_visual=ground
+transition to_reval_east 70 27 2 7 to=reval_east destination_spawn=from_reval_south spawn=from_reval_east spawn_offset_px=-96,0 highlight_area=true transition_visual=ground
+transition to_reval_toompea 0 5 2 7 to=reval_toompea destination_spawn=from_reval_south spawn=from_reval_toompea spawn_offset_px=96,0 highlight_area=true transition_visual=ground
 sign sign.town_square "to town square" 28 4 north
 sign sign.rataskaev "rataskaev well" 12 10 west
 sign sign.knights "knights' quarters" 58 12 east
-sign sign.karja "karja gate road" 36 34 south
+sign sign.viru "to viru quarter" 66 28 east
+sign sign.toompea "to toompea" 4 6 west
+sign sign.karja "karja gate" 36 34 south
 patrol south_watch 30,2|28,4|26,6|24,8
 fade fade.knights 48 8 22 14
 camera 0 0 72 40

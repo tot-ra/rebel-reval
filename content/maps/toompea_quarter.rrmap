@@ -1,6 +1,6 @@
-# Toompea (Upper Town) plateau west of the Lower Town. Lühike Jalg on the east
-# slope connects to St Nicholas (Niguliste) and the civic square; Pikk Jalg runs
-# north-east toward the merchant quarter. Castle and cathedral anchor the hill.
+# Toompea (Upper Town) wraps the western Lower Town. Lühike Jalg descends east
+# to the civic centre, the southern slope reaches the Rataskaev/Karja quarter,
+# and Pikk Jalg descends north-east toward the northern merchant quarter.
 rrmap 1
 map toompea_quarter loc.toompea.quarter 56 44 grass scope=prototype active=false palette=clean_painted seed=1219 cell_size=32
 source "scenes/reval_toompea/reval_toompea.tscn"
@@ -16,18 +16,25 @@ style house.barracks door_side=north ridge_axis=x wall_height=112 wall_color=706
 style house.noble door_side=south ridge_axis=z wall_height=128 wall_color=756b5cff wall_material=limestone roof_color=4a2a20ff roof_material=tile
 style house.chancery door_side=west ridge_axis=x wall_height=104 wall_color=7a7061ff wall_material=plaster roof_color=383029ff roof_material=shingle
 style house.gatehouse door_side=west ridge_axis=x wall_height=144 wall_color=6e6a62ff wall_material=limestone roof_color=2a241cff roof_material=tile
+style wall.city wall_height=192 wall_color=949185ff
+style wall.tower wall_height=240 wall_color=8c8a80ff
 terrain plateau.grass grass 0 0 56 44 order=1
 terrain castle_close stone 2 18 24 12 order=2
 terrain cathedral_close stone 24 6 20 10 order=3
 terrain slope.dirt dirt 44 24 12 16 order=4
-stroke pikk_jalg cobblestone 30,6|38,6|46,6|52,6 thickness=3 order=5
-stroke luhike_jalg cobblestone 52,24|52,30|52,36 thickness=4 order=6
+stroke pikk_jalg cobblestone 30,6|38,6|46,6|52,6|55,6 thickness=3 order=5
+stroke luhike_jalg cobblestone 52,24|52,30|55,30 thickness=4 order=6
+stroke south_slope cobblestone 18,42|18,36|28,36|38,36 thickness=3 order=7
+building city_wall_west wall 0 0 3 18 style=wall.city
+building city_wall_north_west wall 3 0 42 3 style=wall.city
+building pikk_jalg_gate_tower wall 45 0 7 6 style=wall.tower tower=true
 building castle_mass house 4 20 20 10 style=house.castle
 building cathedral_silhouette house 28 8 16 10 style=house.cathedral
 building order_barracks house 8 10 12 8 style=house.barracks
 building noble_residence house 34 22 10 8 style=house.noble
 building chancery_wing house 20 32 12 6 style=house.chancery
 building luhike_gate_tower house 46 28 6 8 style=house.gatehouse
+landmark pikk_jalg_gate gate_arch 49 0 6 6 wall_color=8f8c80ff top_px=208 passage_axis=z door_material=wood
 prop castle_banner cart 12 24 rect=2,2
 prop cathedral_steps table 34 18 rect=3,2
 prop garden_bench table 6 36 rect=2,1
@@ -36,12 +43,17 @@ anchor inspection_spawn 42 34 rect=2,2
 anchor castle_courtyard 26 24 rect=2,2
 anchor cathedral_frontage 36 20 rect=2,2
 anchor luhike_jalg_gate 48 26 rect=2,2
-anchor from_reval_center 52 26 rect=2,2
-transition to_reval_center 54 28 2 8 to=reval_center destination_spawn=to_reval_toompea spawn=from_reval_center spawn_offset_px=-96,0 highlight_area=true transition_visual=ground
+anchor from_reval_center 52 30 rect=2,2
+anchor from_reval_north 52 4 rect=2,2
+anchor from_reval_south 18 40 rect=2,2
+transition to_reval_center 54 27 2 7 to=reval_center destination_spawn=to_reval_toompea spawn=from_reval_center spawn_offset_px=-96,0 highlight_area=true transition_visual=ground
+transition to_reval_north 49 0 7 2 to=reval_north destination_spawn=from_reval_toompea spawn=from_reval_north spawn_offset_px=0,96 highlight_area=true transition_visual=ground
+transition to_reval_south 14 42 9 2 to=reval_south destination_spawn=from_reval_toompea spawn=from_reval_south spawn_offset_px=0,-96 highlight_area=true transition_visual=ground
 sign sign.luhike "to lower town" 50 34 east
 sign sign.castle "toompea castle" 14 22 west
 sign sign.cathedral "st mary's cathedral" 36 14 north
-sign sign.pikk "to pikk jalg" 48 8 north
+sign sign.pikk "pikk jalg to merchant quarter" 48 8 north
+sign sign.south "to rataskaev" 18 38 south
 patrol castle_watch 43,35|44,35|45,35|45,36|46,36|47,36|48,36
 fade fade.castle 0 18 28 14
 fade fade.cathedral 24 4 24 14

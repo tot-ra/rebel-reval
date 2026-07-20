@@ -60,15 +60,21 @@ func test_market_civic_quarter_edges_are_reciprocal_with_adjacent_districts() ->
 	_assert_transition_pair(center, &"to_reval_north", north, &"to_reval_center")
 	_assert_transition_pair(center, &"to_reval_toompea", toompea, &"to_reval_center")
 	_assert_transition_pair(center, &"to_reval_south", south, &"to_reval_center")
-	_assert_transition_pair(east, &"karja_road_boundary", south, &"to_reval_east")
+	_assert_transition_pair(east, &"to_reval_south", south, &"to_reval_east")
+	_assert_transition_pair(toompea, &"to_reval_south", south, &"to_reval_toompea")
+	_assert_transition_pair(toompea, &"to_reval_north", north, &"to_reval_toompea")
 	_assert_edge(center, &"to_reval_east", &"east")
 	_assert_edge(center, &"to_reval_north", &"north")
 	_assert_edge(center, &"to_reval_toompea", &"west")
 	_assert_edge(center, &"to_reval_south", &"south")
 	_assert_edge(toompea, &"to_reval_center", &"east")
+	_assert_edge(toompea, &"to_reval_north", &"north")
+	_assert_edge(toompea, &"to_reval_south", &"south")
 	_assert_edge(south, &"to_reval_center", &"north")
-	_assert_edge(south, &"to_reval_east", &"south")
-	assert_true(_transition_by_id(center, &"to_reval_east_south").is_empty())
+	_assert_edge(south, &"to_reval_east", &"east")
+	_assert_edge(south, &"to_reval_toompea", &"west")
+	_assert_edge(east, &"to_reval_south", &"west")
+	assert_true(_transition_by_id(east, &"karja_road_boundary").is_empty())
 
 
 func test_north_quarter_edges_are_reciprocal_with_adjacent_districts() -> void:
@@ -83,6 +89,22 @@ func test_north_quarter_edges_are_reciprocal_with_adjacent_districts() -> void:
 	_assert_edge(north, &"to_reval_center", &"south")
 	_assert_edge(north, &"to_reval_east", &"south")
 	_assert_edge(harbor, &"to_reval_north", &"south")
+
+
+func test_city_fortifications_wrap_only_outer_district_edges() -> void:
+	var center := MarketCivicQuarterDefinition.create()
+	var east := LowerTownSliceDefinition.create()
+	var north := NorthQuarterDefinition.create()
+	var toompea := ToompeaQuarterDefinition.create()
+	var south := SouthQuarterDefinition.create()
+	# The wall is distributed across the city's exterior maps. Shared district
+	# seams remain streets, so crossing the Lower Town never requires a gate.
+	assert_false(_building_by_id(east, &"city_wall_north").is_empty())
+	assert_false(_building_by_id(north, &"city_wall_north_west").is_empty())
+	assert_false(_building_by_id(toompea, &"city_wall_north_west").is_empty())
+	assert_false(_building_by_id(south, &"city_wall_south_west").is_empty())
+	assert_true(_building_by_id(center, &"city_wall_north").is_empty())
+	assert_true(_transition_by_id(east, &"karja_road_boundary").is_empty())
 
 
 func test_guild_hall_assembly_nav_and_anchors() -> void:

@@ -83,7 +83,7 @@ terrain_rects terrain.08 stone 72,94,6,6 layer=0 order=31
 terrain_rects terrain.09 cobblestone 18,54,34,4|16,64,56,4 layer=0 order=32
 terrain_rects terrain.10 hay 100,56,4,4 layer=0 order=34
 terrain_rects terrain.11 mud 36,92,8,4 layer=0 order=35
-terrain_rects terrain.12 cobblestone 0,8,28,2|0,62,18,2 layer=0 order=27
+terrain_rects terrain.12 cobblestone 0,8,28,2|0,62,18,2|0,76,18,6 layer=0 order=27
 terrain_rects terrain.13 grass 8,54,10,10|8,64,10,8 layer=0 order=0
 building city_wall_north wall 128 0 4 30 style=wall.plain.h192.00
 building wall_tower_northeast wall 126 4 8 6 style=wall.plain.h240.01 tower=true
@@ -156,10 +156,10 @@ building laundress_house house 30 68 10 8 style=house.north.h104.35
 building widows_house house 42 68 10 8 style=house.north.h104.34
 building dyers_house house 54 68 10 8 style=house.north.h104.39
 building karja_gate_house house 66 68 6 8 style=house.east.h104.40
-building turg_south_house house 0 54 8 8 style=house.east.h112.12
-building west_lane_house house 0 64 8 8 style=house.east.h104.41
-building hedge_house house 0 74 8 8 style=house.east.h104.42
-building wall_side_house house 0 84 8 8 style=house.east.h96.43
+building turg_south_house house 8 54 8 8 style=house.east.h112.12
+building west_lane_house house 8 64 8 8 style=house.east.h104.41
+building hedge_house house 8 74 8 8 style=house.east.h104.42
+building wall_side_house house 8 84 8 8 style=house.east.h96.43
 building artisan_shed house 88 58 8 6 style=house.north.h96.44
 building potters_house house 88 66 8 6 style=house.north.h104.32
 building glassblowers_house house 78 46 8 8 style=house.north.h112.23
@@ -194,6 +194,7 @@ anchor katariina_kaik 68 16 rect=2,2
 anchor monastery_gate 54 12 rect=2,2
 anchor karja_gate_south 72 98 rect=2,2
 anchor vene_street_north 28 2 rect=2,2
+anchor south_quarter_lane 4 78 rect=2,2
 anchor mart_street 88 40 rect=2,2
 spawn spawn.street_start 96 40 rect=2,2
 transition smithy_door_transition 102 54 2 1 destination_spawn=door_courtyard spawn=forge spawn_offset_px=0,64 to=forge
@@ -201,15 +202,17 @@ transition smithy_door_transition 102 54 2 1 destination_spawn=door_courtyard sp
 # so arrivals do not immediately re-fire the green transition volumes.
 # District adjacency follows medieval Reval (Tallinn Old Town):
 # west = Vana Turg into the civic centre, north = Vene/Pikk into the north
-# quarter, east = Viru Gate suburb toward the harbour. South through Karja Gate
-# continues into the southern lower-town quarter.
+# quarter, east = Viru Gate road to the harbour, and the south-west interior lane
+# continues directly into the southern quarter. Karja Gate remains an exterior
+# city-wall gate rather than forcing district travel outside the fortifications.
 transition vana_turg_boundary 0 38 2 4 destination_spawn=from_reval_east spawn=vana_turg_boundary spawn_offset_px=96,0 to=reval_center highlight_area=true transition_visual=ground
 transition vene_district_boundary 28 0 3 2 destination_spawn=from_reval_east spawn=vene_district_boundary spawn_offset_px=0,96 to=reval_north highlight_area=true transition_visual=ground
 transition viru_road_boundary 168 38 4 3 destination_spawn=from_reval_east spawn=viru_road_boundary spawn_offset_px=-128,0 to=reval_harbor highlight_area=true transition_visual=ground
-transition karja_road_boundary 72 106 3 3 to=reval_south destination_spawn=from_karja_gate spawn=karja_road_boundary spawn_offset_px=0,-96 highlight_area=true transition_visual=ground
+transition to_reval_south 0 75 2 7 to=reval_south destination_spawn=from_reval_east spawn=from_reval_south spawn_offset_px=96,0 highlight_area=true transition_visual=ground
 transition street_start_spawn 96 40 2 2 spawn=street_start
 patrol viru_watch 127,39|59,39|7,39|73,59|73,89
 fade fade.viru_street 20 34 88 16
 sign sign.harbour "to harbour" 156 34 east
 sign sign.town_centre "to town centre" 4 36 west
-sign sign.karja_suburb "to south quarter" 82 102 south
+sign sign.south_quarter "to south quarter" 4 74 west
+sign sign.karja_gate "karja gate" 82 102 south

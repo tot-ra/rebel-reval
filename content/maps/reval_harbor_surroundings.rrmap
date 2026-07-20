@@ -1,6 +1,7 @@
-# Reval harbor suburbs east of Viru Gate. Viru road continues west-east from the
-# eastern district; Pikk street runs south-north to the stone quay, warehouses,
-# and the Great Coast Gate beside the Baltic basin.
+# Reval harbor foreland outside the city walls. Viru road reaches it from the
+# eastern Viru Gate, while the independent Great Coast Gate road arrives from
+# Pikk Street in the northern district. Both roads meet at the quay without
+# pretending that the harbor itself lies inside the fortified city.
 rrmap 1
 map reval_harbor loc.reval_harbor 72 48 meadow scope=prototype active=false palette=clean_painted seed=1384 cell_size=32
 source "scenes/harbor/harbor.tscn"
@@ -55,7 +56,7 @@ anchor quay_plaza 18 24 rect=2,2
 anchor coast_gate 52 22 rect=2,2
 # Keep arrival east of the 3-cell Viru trigger so east <-> harbor cannot loop.
 transition to_reval_east 0 20 3 5 to=reval_east destination_spawn=viru_road_boundary spawn=from_reval_east spawn_offset_px=96,0 highlight_area=true transition_visual=ground
-transition to_reval_north 46 44 10 4 to=reval_north destination_spawn=to_reval_harbor spawn=from_reval_north spawn_offset_px=0,128 highlight_area=true transition_visual=ground
+transition to_reval_north 52 44 8 4 to=reval_north destination_spawn=to_reval_harbor spawn=from_reval_north spawn_offset_px=0,128 highlight_area=true transition_visual=ground
 sign sign.town "to town" 4 23 west
 sign sign.pikk "to pikk street" 50 42 south
 sign sign.quay "to quay" 54 16 north
