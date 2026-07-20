@@ -199,12 +199,17 @@ spawn spawn.street_start 96 40 rect=2,2
 transition smithy_door_transition 102 54 2 1 destination_spawn=door_courtyard spawn=forge spawn_offset_px=0,64 to=forge
 # Spawn offsets must clear trigger half-size plus player capsule (r=16,h=32)
 # so arrivals do not immediately re-fire the green transition volumes.
+# District adjacency follows medieval Reval (Tallinn Old Town):
+# west = Vana Turg into the civic centre, north = Vene/Pikk into the north
+# quarter, east = Viru Gate suburb toward the harbour. South through Karja Gate
+# continues into the southern lower-town quarter.
 transition vana_turg_boundary 0 38 2 4 destination_spawn=from_reval_east spawn=vana_turg_boundary spawn_offset_px=96,0 to=reval_center highlight_area=true transition_visual=ground
 transition vene_district_boundary 28 0 3 2 destination_spawn=from_reval_east spawn=vene_district_boundary spawn_offset_px=0,96 to=reval_north highlight_area=true transition_visual=ground
 transition viru_road_boundary 168 38 4 3 destination_spawn=from_reval_east spawn=viru_road_boundary spawn_offset_px=-128,0 to=reval_harbor highlight_area=true transition_visual=ground
-transition karja_road_boundary 72 106 3 3 destination_spawn=from_reval_east_south spawn=karja_road_boundary spawn_offset_px=0,-96 to=reval_center highlight_area=true transition_visual=ground
+transition karja_road_boundary 72 106 3 3 to=reval_south destination_spawn=from_karja_gate spawn=karja_road_boundary spawn_offset_px=0,-96 highlight_area=true transition_visual=ground
 transition street_start_spawn 96 40 2 2 spawn=street_start
 patrol viru_watch 127,39|59,39|7,39|73,59|73,89
 fade fade.viru_street 20 34 88 16
 sign sign.harbour "to harbour" 156 34 east
-sign sign.town_centre "to town centre" 82 102 south
+sign sign.town_centre "to town centre" 4 36 west
+sign sign.karja_suburb "to south quarter" 82 102 south

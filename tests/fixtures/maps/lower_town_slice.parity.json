@@ -2272,6 +2272,17 @@
   "signs": [
     {
       "direction": [
+        -1.000000000,
+        0.000000000
+      ],
+      "position": [
+        144.000000000,
+        1168.000000000
+      ],
+      "text": "to town centre"
+    },
+    {
+      "direction": [
         0.000000000,
         1.000000000
       ],
@@ -2279,7 +2290,7 @@
         2640.000000000,
         3280.000000000
       ],
-      "text": "to town centre"
+      "text": "to south quarter"
     },
     {
       "direction": [
@@ -2328,8 +2339,8 @@
   },
   "transitions": [
     {
-      "destination_scene_id": "reval_center",
-      "destination_spawn_id": "from_reval_east_south",
+      "destination_scene_id": "reval_south",
+      "destination_spawn_id": "from_karja_gate",
       "highlight_area": true,
       "id": "karja_road_boundary",
       "rect": [

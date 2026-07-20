@@ -9,12 +9,16 @@ extends RefCounted
 const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
 const MarketCivicQuarter := preload("res://scripts/map/definitions/prototypes/market_civic_quarter_definition.gd")
 const NorthQuarter := preload("res://scripts/map/definitions/prototypes/north_quarter_definition.gd")
+const ToompeaQuarter := preload("res://scripts/map/definitions/prototypes/toompea_quarter_definition.gd")
+const SouthQuarter := preload("res://scripts/map/definitions/prototypes/south_quarter_definition.gd")
 const RevalHarbor := preload("res://scripts/map/definitions/outdoor/reval_harbor_definition.gd")
 
 const DEFINITION_FACTORIES: Dictionary = {
 	&"reval_east": LowerTownSlice,
 	&"reval_center": MarketCivicQuarter,
 	&"reval_north": NorthQuarter,
+	&"reval_toompea": ToompeaQuarter,
+	&"reval_south": SouthQuarter,
 	&"reval_harbor": RevalHarbor,
 }
 

@@ -8,6 +8,8 @@ const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smi
 const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_rrmap_factory.gd")
 const NorthQuarter := preload("res://scripts/map/definitions/prototypes/north_quarter_rrmap_factory.gd")
 const MarketCivicQuarter := preload("res://scripts/map/definitions/prototypes/market_civic_quarter_rrmap_factory.gd")
+const ToompeaQuarter := preload("res://scripts/map/definitions/prototypes/toompea_quarter_rrmap_factory.gd")
+const SouthQuarter := preload("res://scripts/map/definitions/prototypes/south_quarter_rrmap_factory.gd")
 const RevalHarbor := preload("res://scripts/map/definitions/outdoor/reval_harbor_rrmap_factory.gd")
 
 
@@ -55,6 +57,27 @@ static func entries() -> Array[Dictionary]:
 				&"inspection_spawn",
 				&"pikk_street_spine",
 				&"guild_frontage",
+			],
+		},
+		{
+			"id": &"toompea_quarter",
+			"source": "res://content/maps/toompea_quarter.rrmap",
+			"factory": ToompeaQuarter,
+			"required_anchors": [
+				&"inspection_spawn",
+				&"castle_courtyard",
+				&"cathedral_frontage",
+				&"luhike_jalg_gate",
+			],
+		},
+		{
+			"id": &"south_quarter",
+			"source": "res://content/maps/south_quarter.rrmap",
+			"factory": SouthQuarter,
+			"required_anchors": [
+				&"inspection_spawn",
+				&"rataskaev_well",
+				&"karja_approach",
 			],
 		},
 		{

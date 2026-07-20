@@ -175,7 +175,6 @@ func test_boundary_exits_connect_to_registered_destinations() -> void:
 		&"vana_turg_boundary",
 		&"vene_district_boundary",
 		&"viru_road_boundary",
-		&"karja_road_boundary",
 	]:
 		assert_true(transition_by_id.has(transition_id), "missing boundary transition %s" % transition_id)
 		var transition: Dictionary = transition_by_id[transition_id]
@@ -190,6 +189,14 @@ func test_boundary_exits_connect_to_registered_destinations() -> void:
 			String(transition.get("destination_spawn_id", "")).is_empty(),
 			"%s must target a stable destination spawn" % transition_id
 		)
+	# Karja Gate opens south into the southern lower-town quarter.
+	assert_true(transition_by_id.has(&"karja_road_boundary"), "missing Karja Gate exit")
+	var karja: Dictionary = transition_by_id[&"karja_road_boundary"]
+	assert_eq(karja.get("transition_visual"), MapTypes.TRANSITION_VISUAL_GROUND)
+	assert_true(bool(karja.get("highlight_area", false)))
+	assert_eq(karja.get("spawn_id"), &"karja_road_boundary")
+	assert_eq(karja.get("destination_scene_id"), &"reval_south")
+	assert_eq(karja.get("destination_spawn_id"), &"from_karja_gate")
 
 
 func test_courtyard_anvil_does_not_cover_smithy_door() -> void:

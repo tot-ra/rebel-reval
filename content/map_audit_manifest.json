@@ -79,23 +79,46 @@
       ],
       "mandatory_transitions": [
         "to_reval_east",
-        "to_reval_east_south",
-        "to_reval_north"
+        "to_reval_north",
+        "to_reval_toompea",
+        "to_reval_south"
       ]
     },
     {
-      "id": "market_square",
-      "location_name": "Market Square",
-      "scene": "scenes/reval_center/market_civic_quarter/market.tscn",
-      "definition": "scripts/map/definitions/prototypes/market_square_definition.gd",
-      "factory": "MarketSquareDefinition.create",
+      "id": "toompea_quarter",
+      "location_name": "Toompea Quarter",
+      "scene": "scenes/reval_toompea/reval_toompea.tscn",
+      "definition": "scripts/map/definitions/prototypes/toompea_quarter_definition.gd",
+      "factory": "ToompeaQuarterDefinition.create",
       "disposition": "convert",
-      "capture": "market_square.png",
+      "capture": "toompea_quarter.png",
       "mandatory_anchors": [
         "inspection_spawn",
-        "weigh_table"
+        "castle_courtyard",
+        "cathedral_frontage",
+        "luhike_jalg_gate"
       ],
-      "mandatory_transitions": []
+      "mandatory_transitions": [
+        "to_reval_center"
+      ]
+    },
+    {
+      "id": "south_quarter",
+      "location_name": "South Quarter",
+      "scene": "scenes/reval_south/reval_south.tscn",
+      "definition": "scripts/map/definitions/prototypes/south_quarter_definition.gd",
+      "factory": "SouthQuarterDefinition.create",
+      "disposition": "convert",
+      "capture": "south_quarter.png",
+      "mandatory_anchors": [
+        "inspection_spawn",
+        "rataskaev_well",
+        "karja_approach"
+      ],
+      "mandatory_transitions": [
+        "to_reval_center",
+        "to_reval_east"
+      ]
     },
     {
       "id": "st_olafs_guild_hall",
@@ -132,7 +155,7 @@
       "scene": "scenes/harbor/warehouse.tscn",
       "definition": "scripts/map/definitions/prototypes/harbor_warehouse_definition.gd",
       "factory": "HarborWarehouseDefinition.create",
-      "disposition": "convert",
+      "disposition": "archive-prototype",
       "capture": "harbor_warehouse.png",
       "mandatory_anchors": [
         "inspection_spawn",

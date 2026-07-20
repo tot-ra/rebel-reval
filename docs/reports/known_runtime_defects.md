@@ -98,7 +98,19 @@ None required for local smoke tests. Investigate with `--verbose` if leaks grow 
 
 ---
 
-## DEF-003 | high | `reval_south` scene missing but registered in `DoorNavigator`
+## DEF-003 | resolved | `reval_south` scene added with dev-traversal wiring
+
+| Field | Detail |
+|-------|--------|
+| Severity | resolved (was high) |
+| Resolved | 2026-07-20 |
+| Affects | South district transitions from `reval_east` (Karja Gate) and `reval_center` |
+
+`reval_south` now ships as an `active=false` developer prototype at `scenes/reval_south/reval_south.tscn`, wired reciprocally from `karja_road_boundary` on the Lower Town slice and `to_reval_south` on the civic centre.
+
+---
+
+## DEF-003 (archived text) | high | `reval_south` scene missing but registered in `DoorNavigator`
 
 | Field | Detail |
 |-------|--------|

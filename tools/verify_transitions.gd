@@ -19,7 +19,6 @@ const RETIRED_SPAWN_IDS := [
 	"east_5",
 ]
 const RETIRED_SCENE_IDS := [
-	"reval_south",
 	"harbor_warehouse",
 ]
 const SOURCE_FILES_WITHOUT_LEGACY_DOOR_PATHS := [

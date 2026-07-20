@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=3 uid="uid://bqmsouth00001"]
+
+[ext_resource type="Script" path="res://scenes/reval_south/reval_south.gd" id="1_south"]
+[ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="2_player"]
+
+[node name="RevalSouth" type="Node2D"]
+script = ExtResource("1_south")
+
+[node name="MapRoot" type="Node2D" parent="."]
+
+[node name="Actors" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Player" parent="Actors" instance=ExtResource("2_player")]
+y_sort_enabled = true
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(1152, 640)
+limit_left = 0
+limit_top = 0
+limit_right = 2304
+limit_bottom = 1280

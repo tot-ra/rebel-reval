@@ -16,5 +16,11 @@ func test_map_catalog() -> void:
 	var toompea = MapCatalog.get_map("reval_toompea")
 	if toompea.is_empty():
 		_failures.append("Expected 'reval_toompea' in catalog")
-	elif toompea.get("scope") != "archive":
-		_failures.append("Expected 'reval_toompea' to be archive")
+	elif toompea.get("scope") != "prototype":
+		_failures.append("Expected 'reval_toompea' to be prototype")
+
+	var south = MapCatalog.get_map("reval_south")
+	if south.is_empty():
+		_failures.append("Expected 'reval_south' in catalog")
+	elif south.get("scope") != "prototype":
+		_failures.append("Expected 'reval_south' to be prototype")

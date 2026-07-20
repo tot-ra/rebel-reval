@@ -24,11 +24,11 @@ const MAPS: Dictionary = {
 	},
 	"reval_toompea": {
 		"path": "res://scenes/reval_toompea/reval_toompea.tscn",
-		"scope": "archive",
+		"scope": "prototype",
 		"active": false
 	},
-	"market_civic_quarter": {
-		"path": "res://scenes/reval_center/market_civic_quarter/market.tscn",
+	"reval_south": {
+		"path": "res://scenes/reval_south/reval_south.tscn",
 		"scope": "prototype",
 		"active": false
 	},
