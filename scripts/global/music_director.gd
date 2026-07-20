@@ -11,6 +11,14 @@ const SCENE_THEME_ROUTES: Dictionary = {
 	"res://scenes/menu/main_menu.tscn": &"menu",
 	"res://scenes/reval_east/forge/forge.tscn": &"forge",
 	"res://scenes/reval_east/reval_east.tscn": &"town",
+	"res://scenes/reval_center/reval_center.tscn": &"center",
+	"res://scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn": &"center",
+	"res://scenes/reval_north/reval_north.tscn": &"north",
+	"res://scenes/reval_monastery/reval_monastery.tscn": &"monastery",
+	"res://scenes/harbor/harbor_north.tscn": &"harbor",
+	"res://scenes/harbor/harbor_east.tscn": &"harbor",
+	"res://scenes/reval_toompea/reval_toompea.tscn": &"toompea",
+	"res://scenes/reval_south/reval_south.tscn": &"south",
 }
 
 const MENU_TRACK := "res://music/menu/Menu.mp3"
@@ -36,9 +44,19 @@ const TOWN_TRACKS: Array[String] = [
 	"res://music/revel_east/The Shaman's Trance (1).mp3",
 ]
 
+const THEME_DAY_DIRS: Dictionary = {
+	&"center": "res://music/revel_center/",
+	&"north": "res://music/revel_north/",
+	&"monastery": "res://music/revel_east/monastery/",
+	&"harbor": "res://music/harbor/",
+	&"toompea": "res://music/domberg/day/",
+	&"south": "res://music/revel_south/",
+}
+
 const THEME_NIGHT_DIRS: Dictionary = {
 	&"forge": "res://music/forge/night/",
 	&"town": "res://music/revel_east/night/",
+	&"toompea": "res://music/domberg/night/",
 }
 
 signal cycle_progress_changed(progress: float)
@@ -79,7 +97,7 @@ static func theme_for_scene(scene_path: String) -> StringName:
 
 
 static func has_theme(theme_id: StringName) -> bool:
-	return theme_id in [&"menu", &"forge", &"town"]
+	return theme_id in [&"menu", &"forge", &"town"] or THEME_DAY_DIRS.has(theme_id)
 
 
 static func theme_track_paths(theme_id: StringName, use_night: bool = false) -> PackedStringArray:
@@ -99,7 +117,10 @@ static func day_track_paths_for_theme(theme_id: StringName) -> PackedStringArray
 		&"town":
 			return PackedStringArray(TOWN_TRACKS)
 		_:
-			return PackedStringArray()
+			var day_dir: String = THEME_DAY_DIRS.get(theme_id, "")
+			if day_dir.is_empty():
+				return PackedStringArray()
+			return _discover_tracks_in_dir(day_dir)
 
 
 static func night_track_paths_for_theme(theme_id: StringName) -> PackedStringArray:
@@ -143,9 +164,11 @@ func get_cycle_progress() -> float:
 
 
 func current_calendar_date() -> Dictionary:
-	if SessionState.state == null:
+	var session_state := get_node_or_null("/root/SessionState")
+	var state: Variant = session_state.get("state") if session_state != null else null
+	if state == null:
 		return GameCalendarScript.DEFAULT_DATE.duplicate()
-	return GameCalendarScript.date_for_phase(SessionState.state.get_phase())
+	return GameCalendarScript.date_for_phase(state.get_phase())
 
 
 func announce_calendar_date() -> void:
@@ -215,15 +238,13 @@ func _build_theme_stream(theme_id: StringName, use_night: bool) -> AudioStream:
 			for track_index in range(track_paths.size()):
 				randomizer.set_stream(track_index, load(track_paths[track_index]) as AudioStream)
 			return randomizer
-		&"town":
+		_:
 			var playlist := AudioStreamPlaylist.new()
 			playlist.shuffle = true
 			playlist.stream_count = track_paths.size()
 			for track_index in range(track_paths.size()):
 				playlist.set_list_stream(track_index, load(track_paths[track_index]) as AudioStream)
 			return playlist
-		_:
-			return null
 
 
 func _load_looping_mp3(path: String) -> AudioStream:

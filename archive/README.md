@@ -6,9 +6,9 @@ This directory stores approved legacy assets that are not wired into the current
 
 ## Current contents
 
-- `archive/music/` - district ambient and battle tracks restored by P0-031 but not yet routed by `MusicDirector`
+- `archive/music/` - battle and location-specific district tracks restored by P0-031 but not yet routed by `MusicDirector`
 
-Active runtime audio remains under `music/` and `sounds/` for menu, forge, town, and door SFX.
+Active runtime audio remains under `music/` and `sounds/` for menu, forge, district ambience, and door SFX. The restored district playlists cover Workers', Market/Civic, Merchant, Monastery, Harbour, Toompea, and Knights locations; see `docs/reports/music_recovery_p0_031.md` for the routing table.
 
 ## Restore to runtime
 

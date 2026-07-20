@@ -1,10 +1,10 @@
 [
   {
-    "path": "archive/music/domberg/night/Ghosts of the Crown (1).mp3",
+    "path": "music/domberg/night/Ghosts of the Crown (1).mp3",
     "size_bytes": 11213221,
     "sha256": "deb3602c3a5fe9d81e1106c6bd8c584dbc6bb185dd948820d105c4473dd85b97",
-    "owner": "audio archive",
-    "rationale": "Approved inactive soundtrack source; preserve provenance and restoration access.",
+    "owner": "runtime audio",
+    "rationale": "Active approved Toompea night soundtrack source; migrate only after authenticated LFS and CI retrieval proof.",
     "follow_up": "P0-070"
   },
   {
@@ -66,7 +66,7 @@
   {
     "path": "story/image-4.png",
     "size_bytes": 13067362,
-    "sha256": "710598cee3261abceeda0a124d7d7dbecbcb1ada2d51cea201b7441ef10b16",
+    "sha256": "710598cee3261abceeda0a124d7d7dbecbcbcb1ada2d51cea201b7441ef10b16",
     "owner": "narrative archive",
     "rationale": "Legacy narrative image needs classification and a stable external source before migration.",
     "follow_up": "P0-070"

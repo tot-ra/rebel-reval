@@ -30,6 +30,14 @@ func _check_routes(failures: Array[String]) -> void:
 		"res://scenes/menu/main_menu.tscn": &"menu",
 		"res://scenes/reval_east/forge/forge.tscn": &"forge",
 		"res://scenes/reval_east/reval_east.tscn": &"town",
+		"res://scenes/reval_center/reval_center.tscn": &"center",
+		"res://scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn": &"center",
+		"res://scenes/reval_north/reval_north.tscn": &"north",
+		"res://scenes/reval_monastery/reval_monastery.tscn": &"monastery",
+		"res://scenes/harbor/harbor_north.tscn": &"harbor",
+		"res://scenes/harbor/harbor_east.tscn": &"harbor",
+		"res://scenes/reval_toompea/reval_toompea.tscn": &"toompea",
+		"res://scenes/reval_south/reval_south.tscn": &"south",
 	}
 	for scene_path: String in expected_routes:
 		var actual: StringName = MusicDirectorScript.theme_for_scene(scene_path)
@@ -43,14 +51,21 @@ func _check_routes(failures: Array[String]) -> void:
 
 func _check_streams(failures: Array[String]) -> void:
 	var director := MusicDirectorScript.new()
-	for theme_id: StringName in [&"menu", &"forge", &"town"]:
+	for theme_id: StringName in [&"menu", &"forge", &"town", &"center", &"north", &"monastery", &"harbor", &"toompea", &"south"]:
 		if not MusicDirectorScript.has_theme(theme_id):
 			failures.append("Theme %s is routed but not configured" % theme_id)
 			continue
 
-		for track_path: String in MusicDirectorScript.day_track_paths_for_theme(theme_id):
+		var day_tracks := MusicDirectorScript.day_track_paths_for_theme(theme_id)
+		if day_tracks.is_empty():
+			failures.append("Theme %s has no approved day tracks" % theme_id)
+		for track_path: String in day_tracks:
 			if not ResourceLoader.exists(track_path):
 				failures.append("Missing approved track for %s: %s" % [theme_id, track_path])
+
+		for track_path: String in MusicDirectorScript.night_track_paths_for_theme(theme_id):
+			if not ResourceLoader.exists(track_path):
+				failures.append("Missing approved night track for %s: %s" % [theme_id, track_path])
 
 		var stream: AudioStream = director.get_theme_stream(theme_id)
 		if stream == null:
@@ -65,9 +80,9 @@ func _check_streams(failures: Array[String]) -> void:
 			&"forge":
 				if not stream is AudioStreamRandomizer:
 					failures.append("Forge theme should use AudioStreamRandomizer")
-			&"town":
+			_:
 				if not stream is AudioStreamPlaylist:
-					failures.append("Town theme should use AudioStreamPlaylist")
+					failures.append("District theme %s should use AudioStreamPlaylist" % theme_id)
 
 	_check_cycle_volume(failures)
 	director.free()

@@ -3,6 +3,35 @@ extends "res://tests/godot/test_case.gd"
 const MusicDirectorScript = preload("res://scripts/global/music_director.gd")
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 
+const DISTRICT_SCENE_THEMES: Dictionary = {
+	"res://scenes/reval_east/reval_east.tscn": &"town",
+	"res://scenes/reval_center/reval_center.tscn": &"center",
+	"res://scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn": &"center",
+	"res://scenes/reval_north/reval_north.tscn": &"north",
+	"res://scenes/reval_monastery/reval_monastery.tscn": &"monastery",
+	"res://scenes/harbor/harbor_north.tscn": &"harbor",
+	"res://scenes/harbor/harbor_east.tscn": &"harbor",
+	"res://scenes/reval_toompea/reval_toompea.tscn": &"toompea",
+	"res://scenes/reval_south/reval_south.tscn": &"south",
+}
+
+
+func test_all_traversable_districts_route_to_restored_themes() -> void:
+	for scene_path: String in DISTRICT_SCENE_THEMES:
+		assert_eq(
+			MusicDirectorScript.theme_for_scene(scene_path),
+			DISTRICT_SCENE_THEMES[scene_path],
+			"traversable district should use its location-specific theme"
+		)
+
+
+func test_all_district_themes_have_loadable_day_tracks() -> void:
+	for theme_id: StringName in DISTRICT_SCENE_THEMES.values():
+		var track_paths := MusicDirectorScript.day_track_paths_for_theme(theme_id)
+		assert_false(track_paths.is_empty(), "district theme %s should have restored tracks" % theme_id)
+		for track_path: String in track_paths:
+			assert_true(ResourceLoader.exists(track_path), "restored track should load: %s" % track_path)
+
 
 func test_volume_fades_to_half_at_midnight() -> void:
 	var noon_linear := MusicDirectorScript.volume_linear_for_day_blend(DayNightCycle.day_blend(0.5))
@@ -26,12 +55,20 @@ func test_cycle_progress_is_exposed_for_hud_animation() -> void:
 	assert_true(is_equal_approx(MusicDirector.get_cycle_progress(), DayNightCycle.DEFAULT_PROGRESS))
 
 
-func test_active_themes_have_no_night_tracks_yet() -> void:
+func test_active_slice_themes_have_no_night_tracks_yet() -> void:
 	for theme_id: StringName in [&"forge", &"town"]:
 		assert_true(
 			MusicDirectorScript.night_track_paths_for_theme(theme_id).is_empty(),
 			"active slice themes have no approved night folders yet"
 		)
+
+
+func test_toompea_has_distinct_day_and_night_playlists() -> void:
+	var day_paths := MusicDirectorScript.day_track_paths_for_theme(&"toompea")
+	var night_paths := MusicDirectorScript.night_track_paths_for_theme(&"toompea")
+	assert_false(day_paths.is_empty(), "Toompea should have restored daytime music")
+	assert_false(night_paths.is_empty(), "Toompea should have restored nighttime music")
+	assert_ne(day_paths, night_paths, "Toompea day and night playlists should stay distinct")
 
 
 func test_night_track_paths_fallback_to_day_when_missing() -> void:
