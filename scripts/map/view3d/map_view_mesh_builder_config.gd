@@ -79,12 +79,15 @@ const WATER_CONTOUR_RADIUS_CELLS := 4
 const WATER_CONTOUR_THRESHOLD := 0.42
 
 ## View-only riparian bands sampled from the same smoothed contour as the water.
-## They replace the abrupt water-to-grass seam with wet mud and a broader sandy
-## bank without changing authored terrain IDs, collision, or movement costs.
-const SHORE_MUD_INNER_COVERAGE := 0.27
-const SHORE_SAND_INNER_COVERAGE := 0.11
-const SHORE_SAND_OUTER_COVERAGE := 0.035
-const SHORE_COVERAGE_WARP := 0.025
+## Inland banks use a wide damp-dirt → muted-silt → wet-mud ramp so grass never
+## meets a hard bright sand stripe. Authored terrain IDs stay unchanged.
+const SHORE_MUD_INNER_COVERAGE := 0.31
+const SHORE_SAND_INNER_COVERAGE := 0.17
+const SHORE_SAND_OUTER_COVERAGE := 0.01
+const SHORE_COVERAGE_WARP := 0.045
+## Cap how fully silt/mud replace authored ground so the bank stays mixed.
+const SHORE_SILT_BLEND_CAP := 0.48
+const SHORE_MUD_BLEND_CAP := 0.82
 const SHORE_CATTAIL_CHANCE := 0.38
 const SHORE_CATTAIL_MIN_COVERAGE := 0.12
 const SHORE_CATTAIL_MAX_COVERAGE := WATER_CONTOUR_THRESHOLD - 0.015

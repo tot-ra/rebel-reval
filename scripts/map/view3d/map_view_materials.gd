@@ -195,20 +195,21 @@ static func water_surface(terrain_id: StringName) -> ShaderMaterial:
 	material.set_shader_parameter("deep_color", base.darkened(0.42))
 	# ART_BIBLE highlight #65B1C4 blended toward the terrain palette entry.
 	material.set_shader_parameter("highlight_color", base.lerp(Color8(101, 177, 196), 0.55))
-	material.set_shader_parameter("foam_color", base.lerp(Color8(221, 232, 222), 0.82))
+	# Keep foam close to the water tint so the shoreline does not flash white.
+	material.set_shader_parameter("foam_color", base.lerp(Color8(188, 208, 206), 0.48))
 	match terrain_id:
 		MapTypes.TERRAIN_SHALLOW_WATER:
 			material.set_shader_parameter("depth_absorption", 5.0)
 			material.set_shader_parameter("wave_height", 0.014)
-			material.set_shader_parameter("foam_intensity", 0.34)
+			material.set_shader_parameter("foam_intensity", 0.18)
 		MapTypes.TERRAIN_DEEP_WATER:
 			material.set_shader_parameter("depth_absorption", 9.0)
 			material.set_shader_parameter("wave_height", 0.026)
-			material.set_shader_parameter("foam_intensity", 0.22)
+			material.set_shader_parameter("foam_intensity", 0.12)
 		_:
 			material.set_shader_parameter("depth_absorption", 7.0)
 			material.set_shader_parameter("wave_height", 0.018)
-			material.set_shader_parameter("foam_intensity", 0.42)
+			material.set_shader_parameter("foam_intensity", 0.20)
 	_cache[key] = material
 	return material
 

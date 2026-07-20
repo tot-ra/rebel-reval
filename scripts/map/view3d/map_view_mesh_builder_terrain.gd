@@ -538,8 +538,8 @@ static func terrain_blend_at(
 
 
 
-## Produces a two-stage visual bank from the combined smoothed water field:
-## dark wet mud at the waterline, then warm sand feathered into authored ground.
+## Soft inland bank from the combined smoothed water field:
+## damp dirt into muted coast silt, then wet mud with only mild darkening.
 ## Returning an empty dictionary leaves hard-surface quay edges untouched.
 static func shore_blend_at(
 	field: Dictionary,
@@ -560,30 +560,41 @@ static func shore_blend_at(
 	) * MapViewMeshBuilderConfig.SHORE_COVERAGE_WARP
 	coverage += band_warp
 	var outer := MapViewMeshBuilderConfig.SHORE_SAND_OUTER_COVERAGE
-	var sand_inner := MapViewMeshBuilderConfig.SHORE_SAND_INNER_COVERAGE
+	var silt_inner := MapViewMeshBuilderConfig.SHORE_SAND_INNER_COVERAGE
 	var mud_inner := MapViewMeshBuilderConfig.SHORE_MUD_INNER_COVERAGE
 	var waterline := MapViewMeshBuilderConfig.WATER_CONTOUR_THRESHOLD
 	if coverage < outer or coverage >= waterline:
 		return {}
-	if coverage < sand_inner:
+	# Outer: authored grass/meadow keeps reading through a damp dirt veil.
+	if coverage < silt_inner:
+		var outer_t := smoothstep(outer, silt_inner, coverage)
 		return {
 			"primary": authored_ground,
-			"secondary": MapTypes.TERRAIN_SAND,
-			"weight": smoothstep(outer, sand_inner, coverage),
-			"tone": 1.02,
+			"secondary": MapTypes.TERRAIN_DIRT,
+			"weight": outer_t * MapViewMeshBuilderConfig.SHORE_SILT_BLEND_CAP,
+			"tone": lerpf(1.0, 0.97, outer_t),
 		}
+	# Mid: damp dirt feathers straight into wet mud. Bright sand is avoided so
+	# the bank stays value-matched with grass instead of flashing a beach stripe.
 	if coverage < mud_inner:
+		var mid_t := smoothstep(silt_inner, mud_inner, coverage)
 		return {
-			"primary": MapTypes.TERRAIN_SAND,
+			"primary": MapTypes.TERRAIN_DIRT,
 			"secondary": MapTypes.TERRAIN_MUD,
-			"weight": smoothstep(sand_inner, mud_inner, coverage),
-			"tone": lerpf(1.02, 0.92, smoothstep(sand_inner, mud_inner, coverage)),
+			"weight": lerpf(
+				MapViewMeshBuilderConfig.SHORE_SILT_BLEND_CAP * 0.55,
+				MapViewMeshBuilderConfig.SHORE_MUD_BLEND_CAP,
+				mid_t
+			),
+			"tone": lerpf(0.97, 0.91, mid_t),
 		}
+	# Waterline: wet mud with a little leftover silt so the rim stays soft.
+	var wet_t := smoothstep(mud_inner, waterline, coverage)
 	return {
 		"primary": MapTypes.TERRAIN_MUD,
-		"secondary": MapTypes.TERRAIN_MUD,
-		"weight": 0.0,
-		"tone": lerpf(0.92, 0.78, smoothstep(mud_inner, waterline, coverage)),
+		"secondary": MapTypes.TERRAIN_COAST_SAND,
+		"weight": (1.0 - wet_t) * 0.28,
+		"tone": lerpf(0.91, 0.86, wet_t),
 	}
 
 

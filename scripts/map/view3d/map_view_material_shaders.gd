@@ -16,11 +16,11 @@ uniform sampler2D depth_texture : hint_depth_texture, repeat_disable, filter_nea
 uniform vec3 shallow_color : source_color = vec3(0.45, 0.62, 0.75);
 uniform vec3 deep_color : source_color = vec3(0.16, 0.30, 0.44);
 uniform vec3 highlight_color : source_color = vec3(0.396, 0.694, 0.769);
-uniform vec3 foam_color : source_color = vec3(0.84, 0.90, 0.86);
+uniform vec3 foam_color : source_color = vec3(0.72, 0.80, 0.78);
 uniform float wave_height = 0.018;
 uniform float depth_absorption = 7.0;
 uniform float refraction_strength = 0.012;
-uniform float foam_intensity = 0.42;
+uniform float foam_intensity = 0.22;
 
 varying vec3 water_world_position;
 varying float shore_factor;
@@ -122,15 +122,17 @@ void fragment() {
 
 	// COLOR.r is baked from the same smooth contour that clips the mesh. Foam
 	// therefore hugs curved banks instead of revealing the underlying cell grid.
-	float shore = 1.0 - smoothstep(0.03, 0.62, shore_factor);
-	vec2 foam_uv = water_world_position.xz * 4.3 + vec2(-TIME * 0.32, TIME * 0.13);
+	// Soft inland rivers need a wide, sparse foam falloff so the waterline is
+	// not a bright chalk line against the wet mud bank.
+	float shore = 1.0 - smoothstep(0.0, 0.88, shore_factor);
+	vec2 foam_uv = water_world_position.xz * 3.4 + vec2(-TIME * 0.22, TIME * 0.09);
 	float foam_noise = _noise(foam_uv + _noise(foam_uv * 0.47) * 2.2);
 	float foam_ribbon = 0.5 + 0.5 * sin(
-		dot(water_world_position.xz, vec2(7.2, 5.1)) - TIME * 1.25 + foam_noise * 4.0
+		dot(water_world_position.xz, vec2(5.4, 3.8)) - TIME * 0.85 + foam_noise * 3.0
 	);
-	float foam = shore * smoothstep(0.38, 0.79, foam_noise * 0.62 + foam_ribbon * 0.38);
-	foam *= foam_intensity * smoothstep(0.01, 0.07, water_depth);
-	water_color = mix(water_color, foam_color, clamp(foam, 0.0, 0.75));
+	float foam = shore * smoothstep(0.52, 0.88, foam_noise * 0.70 + foam_ribbon * 0.30);
+	foam *= foam_intensity * smoothstep(0.02, 0.10, water_depth);
+	water_color = mix(water_color, foam_color, clamp(foam, 0.0, 0.38));
 
 	ALBEDO = water_color;
 	ROUGHNESS = mix(0.09, 0.22, clamp(foam + absorption * 0.18, 0.0, 1.0));

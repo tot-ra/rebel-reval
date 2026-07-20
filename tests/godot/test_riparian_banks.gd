@@ -3,15 +3,19 @@ extends "res://tests/godot/map_view_3d_test_base.gd"
 const TerrainBuilder := preload("res://scripts/map/view3d/map_view_mesh_builder_terrain.gd")
 
 
-func test_natural_riverbank_adds_sand_and_mud_without_changing_grid() -> void:
+func test_natural_riverbank_adds_damp_bands_without_changing_grid() -> void:
 	var definition := _shore_definition(MapTypes.TERRAIN_GRASS)
 	var grid := MapBuilder.build(definition)
 	var fingerprint_before := grid.fingerprint()
 	var field := TerrainBuilder.ensure_height_field(definition, grid)
 	var samples := _shore_samples(field, grid)
 
-	assert_true(samples.has("sand"), "a natural river edge needs a sandy transition band")
+	assert_true(samples.has("damp"), "a natural river edge needs a damp dirt/silt transition band")
 	assert_true(samples.has("mud"), "a natural river edge needs wet mud at the waterline")
+	assert_true(
+		float(samples.get("min_tone", 1.0)) >= 0.84,
+		"wet-bank tone must stay soft instead of collapsing into a dark rim"
+	)
 	assert_eq(grid.fingerprint(), fingerprint_before, "visual shoreline bands must not alter gameplay terrain")
 
 
@@ -62,7 +66,7 @@ func _shore_definition(base_terrain: StringName) -> MapDefinition:
 
 
 func _shore_samples(field: Dictionary, grid: MapTerrainGrid) -> Dictionary:
-	var found := {}
+	var found := {"min_tone": 1.0}
 	for y in grid.size_cells.y:
 		for x in grid.size_cells.x:
 			for patch_y in MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS:
@@ -71,10 +75,16 @@ func _shore_samples(field: Dictionary, grid: MapTerrainGrid) -> Dictionary:
 					var blend := TerrainBuilder.shore_blend_at(field, grid, sample, 317)
 					if blend.is_empty():
 						continue
+					found["min_tone"] = minf(float(found["min_tone"]), float(blend["tone"]))
 					if blend["primary"] == MapTypes.TERRAIN_MUD:
 						found["mud"] = true
-					if blend["primary"] == MapTypes.TERRAIN_SAND or blend["secondary"] == MapTypes.TERRAIN_SAND:
-						found["sand"] = true
+					var silt_ids: Array[StringName] = [
+						MapTypes.TERRAIN_DIRT,
+						MapTypes.TERRAIN_COAST_SAND,
+						MapTypes.TERRAIN_SAND,
+					]
+					if blend["primary"] in silt_ids or blend["secondary"] in silt_ids:
+						found["damp"] = true
 	return found
 
 
