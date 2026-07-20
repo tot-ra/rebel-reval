@@ -17,6 +17,8 @@ const MOUSE_ROTATE_DEGREES_PER_PIXEL := 0.3
 const PAN_SCROLL_ZOOM_SENSITIVITY := 1.0
 const FIRST_PERSON_EYE_HEIGHT := 1.65
 const FIRST_PERSON_PITCH_DEGREES := -10.0
+const FIRST_PERSON_MIN_PITCH_DEGREES := -80.0
+const FIRST_PERSON_MAX_PITCH_DEGREES := 80.0
 const FIRST_PERSON_FOV_DEGREES := 75.0
 const FIRST_PERSON_NEAR := 0.05
 const OCCLUSION_PROBE_HEIGHTS: Array[float] = [0.5, 1.1, 1.8]
@@ -81,9 +83,11 @@ func apply_mouse_rotation_drag() -> void:
 func apply_mouse_rotation_from_position(mouse_position: Vector2, button_pressed: bool) -> void:
 	if button_pressed:
 		if _mouse_rotation_armed:
-			var delta_x := mouse_position.x - _last_mouse_position.x
-			if not is_zero_approx(delta_x):
-				rotate_view_degrees(-delta_x * MOUSE_ROTATE_DEGREES_PER_PIXEL)
+			var mouse_delta := mouse_position - _last_mouse_position
+			if not is_zero_approx(mouse_delta.x):
+				rotate_view_degrees(-mouse_delta.x * MOUSE_ROTATE_DEGREES_PER_PIXEL)
+			if first_person and not is_zero_approx(mouse_delta.y):
+				look_first_person_degrees(-mouse_delta.y * MOUSE_ROTATE_DEGREES_PER_PIXEL)
 		_mouse_rotation_armed = true
 		drag_rotating_view = true
 	else:
@@ -95,6 +99,17 @@ func apply_mouse_rotation_from_position(mouse_position: Vector2, button_pressed:
 func rotate_view_degrees(delta_degrees: float) -> void:
 	camera.rotation_degrees.y = wrapf(camera.rotation_degrees.y + delta_degrees, -180.0, 180.0)
 	follow_player(true, 0.0)
+
+
+func look_first_person_degrees(delta_degrees: float) -> void:
+	if not first_person:
+		return
+	# Avoid crossing the vertical poles, which would make yaw and movement flip.
+	camera.rotation_degrees.x = clampf(
+		camera.rotation_degrees.x + delta_degrees,
+		FIRST_PERSON_MIN_PITCH_DEGREES,
+		FIRST_PERSON_MAX_PITCH_DEGREES
+	)
 
 
 func zoom_view_steps(steps: float) -> void:

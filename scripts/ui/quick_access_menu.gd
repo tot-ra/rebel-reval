@@ -14,7 +14,7 @@ const PANEL_HEIGHT := 118.0
 const PANEL_WIDTH := 980.0
 const HELP_TEXT := (
 	"WASD or arrows - move | Click - travel | E - interact | "
-	+ "C - camera | N - minimap | M - map | I - inventory | J - journal | Iron - technique"
+	+ "C - camera | Right-drag - look | N - minimap | M - map | I - inventory | J - journal | Iron - technique"
 )
 
 var _inventory_controller: InventoryController
@@ -117,7 +117,7 @@ func _build_ui() -> void:
 	_world_map_button.pressed.connect(_on_world_map_pressed)
 	actions.add_child(_world_map_button)
 
-	_camera_button = _create_action_button("CameraButton", "Camera [C]", "Toggle first-person view")
+	_camera_button = _create_action_button("CameraButton", "Camera [C]", "Toggle first-person view; right-drag to look around")
 	_camera_button.pressed.connect(_on_camera_pressed)
 	actions.add_child(_camera_button)
 

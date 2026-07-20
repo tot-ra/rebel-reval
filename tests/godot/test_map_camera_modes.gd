@@ -161,6 +161,76 @@ func test_first_person_movement_follows_camera_yaw_via_gameplay_rotation() -> vo
 	_free_map_scene(scene_root)
 
 
+func test_first_person_mouse_drag_looks_vertically_and_clamps_pitch() -> void:
+	var scene_root := Node2D.new()
+	var map_root := Node2D.new()
+	var actors := Node2D.new()
+	var player := PLAYER_SCENE.instantiate() as Player
+	scene_root.add_child(map_root)
+	scene_root.add_child(actors)
+	actors.add_child(player)
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(scene_root)
+
+	var definition := LowerTownSlice.create()
+	var bootstrap := {
+		"definition": definition,
+		"grid": MapBuilder.build(definition),
+		"assembled": {"buildings": [], "props": []},
+	}
+	var runtime := MapViewRuntime.install(scene_root, bootstrap, map_root, player)
+	var camera := runtime.view.view_camera()
+	runtime.set_first_person(true)
+	var yaw_before := camera.rotation_degrees.y
+	var screen_up_before_pitch := player.movement_direction_for_screen_input(Vector2.UP)
+
+	# The first sample arms right-drag; separate vertical and horizontal samples
+	# prove that each mouse axis controls only its matching camera axis.
+	runtime._apply_mouse_rotation_from_position(Vector2(100.0, 200.0), true)
+	runtime._apply_mouse_rotation_from_position(Vector2(100.0, 100.0), true)
+	assert_true(
+		is_equal_approx(
+			camera.rotation_degrees.x,
+			MapViewRuntime.FIRST_PERSON_PITCH_DEGREES + 100.0 * MapViewRuntime.MOUSE_ROTATE_DEGREES_PER_PIXEL
+		),
+		"first-person right-drag must look up and down"
+	)
+	assert_true(
+		player.movement_direction_for_screen_input(Vector2.UP).is_equal_approx(screen_up_before_pitch),
+		"vertical look must not change ground-plane movement"
+	)
+
+	runtime._apply_mouse_rotation_from_position(Vector2(60.0, 100.0), true)
+	assert_true(
+		is_equal_approx(
+			camera.rotation_degrees.y,
+			wrapf(yaw_before + 40.0 * MapViewRuntime.MOUSE_ROTATE_DEGREES_PER_PIXEL, -180.0, 180.0)
+		),
+		"first-person right-drag must keep horizontal look"
+	)
+
+	runtime._apply_mouse_rotation_from_position(Vector2(60.0, -1000.0), true)
+	assert_true(
+		is_equal_approx(camera.rotation_degrees.x, MapViewRuntime.FIRST_PERSON_MAX_PITCH_DEGREES),
+		"looking up must stop before the camera flips"
+	)
+	runtime._apply_mouse_rotation_from_position(Vector2(60.0, 2000.0), true)
+	assert_true(
+		is_equal_approx(camera.rotation_degrees.x, MapViewRuntime.FIRST_PERSON_MIN_PITCH_DEGREES),
+		"looking down must stop before the camera flips"
+	)
+
+	runtime._apply_mouse_rotation_from_position(Vector2(60.0, 2000.0), false)
+	runtime.set_first_person(false)
+	runtime._apply_mouse_rotation_from_position(Vector2(60.0, 100.0), true)
+	runtime._apply_mouse_rotation_from_position(Vector2(60.0, 0.0), true)
+	assert_true(
+		is_equal_approx(camera.rotation_degrees.x, MapView3D.CAMERA_PITCH_DEGREES),
+		"third-person right-drag must keep the authored dimetric pitch"
+	)
+	_free_map_scene(scene_root)
+
+
 func test_quick_access_camera_button_toggles_first_person() -> void:
 	var scene_root := Node2D.new()
 	var map_root := Node2D.new()
