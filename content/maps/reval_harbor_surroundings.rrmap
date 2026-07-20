@@ -55,7 +55,7 @@ anchor quay_plaza 18 24 rect=2,2
 anchor coast_gate 52 22 rect=2,2
 # Keep arrival east of the 3-cell Viru trigger so east <-> harbor cannot loop.
 transition to_reval_east 0 20 3 5 to=reval_east destination_spawn=viru_road_boundary spawn=from_reval_east spawn_offset_px=96,0 highlight_area=true transition_visual=ground
-transition to_reval_north 46 44 10 4 to=reval_north destination_spawn=to_reval_harbor spawn=from_reval_north spawn_offset_px=0,96 highlight_area=true transition_visual=ground
+transition to_reval_north 46 44 10 4 to=reval_north destination_spawn=to_reval_harbor spawn=from_reval_north spawn_offset_px=0,128 highlight_area=true transition_visual=ground
 sign sign.town "to town" 4 23 west
 sign sign.pikk "to pikk street" 50 42 south
 sign sign.quay "to quay" 54 16 north

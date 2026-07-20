@@ -71,7 +71,9 @@ func _on_phase_changed(_previous: StringName, next: StringName) -> void:
 
 
 func _on_debug_state_applied(_preset_id: StringName) -> void:
-	rebind_session_state()
+	# SessionState.apply_debug_preset now rebinds PhaseDirector after world-item
+	# sync. Keep this as a no-op so we do not apply prop visibility too early.
+	pass
 
 
 func _apply_presentation(profile: Dictionary) -> void:

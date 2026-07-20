@@ -43,9 +43,14 @@ func apply_debug_preset(preset_id: String) -> bool:
 			"Debug preset %s failed: %s" % [preset_id, String(result.get("error", ""))]
 		)
 		return false
-	_apply_loaded_state(result["state"] as GameState)
+	# Replace state first, then rebuild world props, then apply phase visibility.
+	# PhaseDirector must run after WorldItemController syncs on debug_state_applied.
+	state = result["state"] as GameState
+	state.bag.set_content_db(content_db)
 	_demo_seeded = true
 	debug_state_applied.emit(StringName(preset_id))
+	if has_node("/root/PhaseDirector"):
+		PhaseDirector.rebind_session_state()
 	return true
 
 
