@@ -55,7 +55,10 @@ func test_overlay_highlights_current_scene_and_lists_manifest_nodes() -> void:
 	assert_eq(current.modulate, Color(1.0, 0.86, 0.42, 1.0))
 	var subtitle := overlay.find_child("Subtitle", true, false) as Label
 	assert_true(subtitle != null)
-	assert_true(subtitle.text.contains("Eastern District"))
+	assert_true(
+		subtitle.text.contains(LocationHud.display_name_for_scene(&"reval_east")),
+		"subtitle must use the currently curated scene display name"
+	)
 	overlay.queue_free()
 
 
@@ -247,6 +250,22 @@ func test_focus_neighbor_ui_accept_records_same_travel_as_click() -> void:
 	var forge_button := overlay.get_node_button(&"forge")
 	assert_true(forge_button != null)
 	assert_eq(tree.root.get_viewport().gui_get_focus_owner(), forge_button)
+	assert_true(forge_button.has_focus(), "focused neighbor must own GUI focus")
+	var focus_style := forge_button.get_theme_stylebox("focus") as StyleBoxFlat
+	var normal_style := forge_button.get_theme_stylebox("normal") as StyleBox
+	assert_true(focus_style != null, "focused neighbor must expose an explicit focus style")
+	assert_ne(
+		focus_style,
+		normal_style,
+		"focused neighbor style must differ from an unfocused travelable node"
+	)
+	assert_eq(focus_style.border_color, WorldMapOverlay.TRAVEL_FOCUS_COLOR)
+	assert_eq(focus_style.border_width_left, 4, "focus ring must remain visibly thick")
+	assert_eq(
+		current.modulate,
+		Color(1.0, 0.86, 0.42, 1.0),
+		"travel focus must not change the current-scene highlight"
+	)
 
 	var accept := InputEventAction.new()
 	accept.action = &"ui_accept"

@@ -4,12 +4,15 @@ extends CanvasLayer
 ## Full-screen district graph for authored scene transitions (P1-031).
 ## Click-to-travel on connected neighbors is P1-031a.
 ## Keyboard/gamepad focus + ui_accept travel is P1-031b.
+## Visible keyboard/gamepad focus styling is P1-031c.
 
 signal closed()
 signal travel_requested(scene_id: StringName, spawn_id: StringName)
 
 const PANEL_SIZE := Vector2(760, 520)
 const NODE_SIZE := Vector2(132, 44)
+const TRAVEL_NODE_COLOR := Color(0.92, 0.96, 1.0, 1.0)
+const TRAVEL_FOCUS_COLOR := Color(1.0, 0.78, 0.28, 1.0)
 
 var _current_scene_id: StringName = &""
 var _scene_ids: Array[StringName] = []
@@ -268,7 +271,11 @@ func _rebuild_graph() -> void:
 			button.disabled = false
 			button.focus_mode = Control.FOCUS_ALL
 			button.mouse_filter = Control.MOUSE_FILTER_STOP
-			button.modulate = Color(0.92, 0.96, 1.0, 1.0)
+			button.modulate = TRAVEL_NODE_COLOR
+			# WHY (P1-031c): the default theme focus can be too subtle against the
+			# dim map. A thick warm outline makes the Confirm destination explicit
+			# without reusing the current-scene node's gold fill.
+			button.add_theme_stylebox_override("focus", _travel_focus_style())
 			button.pressed.connect(_on_node_pressed.bind(scene_id))
 			travelable_buttons.append(button)
 		else:
@@ -354,6 +361,19 @@ func _subtitle_for_current() -> String:
 		"You are here: %s - select a linked district (click or Confirm)"
 		% LocationHud.display_name_for_scene(_current_scene_id)
 	)
+
+
+func _travel_focus_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.16, 0.20, 0.28, 0.98)
+	style.border_color = TRAVEL_FOCUS_COLOR
+	style.set_border_width_all(4)
+	style.set_corner_radius_all(6)
+	style.expand_margin_left = 3
+	style.expand_margin_right = 3
+	style.expand_margin_top = 3
+	style.expand_margin_bottom = 3
+	return style
 
 
 func _place_node(button: Button, scene_id: StringName) -> void:
