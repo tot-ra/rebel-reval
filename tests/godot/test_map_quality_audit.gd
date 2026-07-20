@@ -2,6 +2,13 @@ extends "res://tests/godot/test_case.gd"
 
 const Registry := preload("res://scripts/map/map_audit_registry.gd")
 const MANIFEST_PATH := "res://content/map_audit_manifest.json"
+## P0-062b: temporary spawn-adjacent loops must not regress on these prototypes.
+## Span is measured in cells so short courtyard laps fail while multi-street routes pass.
+const MULTI_STREET_PATROL_REQUIREMENTS := {
+	"north_quarter": {"min_points": 6, "min_span_x": 20, "min_span_y": 20},
+	"south_quarter": {"min_points": 6, "min_span_x": 20, "min_span_y": 20},
+	"toompea_quarter": {"min_points": 6, "min_span_x": 20, "min_span_y": 20},
+}
 
 var _manifest: Dictionary = {}
 
@@ -83,6 +90,8 @@ func test_required_spawns_transitions_and_mandatory_points_are_reachable() -> vo
 			var points: Array = patrol.get("points", [])
 			for index in range(1, points.size()):
 				assert_true(MapVerification.route_exists_exact(definition, grid, points[index - 1], points[index]), "%s patrol segment %d is blocked" % [map_id, index])
+			if MULTI_STREET_PATROL_REQUIREMENTS.has(map_id):
+				_assert_multi_street_patrol_coverage(map_id, definition, points)
 
 
 func test_shared_y_sort_policy_for_every_definition() -> void:
@@ -134,6 +143,22 @@ func test_capture_policy_and_pngs_are_present() -> void:
 	for row in _manifest.get("maps", []):
 		var path := "res://%s/%s" % [capture.get("directory", ""), row.get("capture", "")]
 		assert_true(FileAccess.file_exists(path), "Missing map audit capture: %s" % path)
+
+
+func _assert_multi_street_patrol_coverage(map_id: String, definition: MapDefinition, points: Array) -> void:
+	var requirement: Dictionary = MULTI_STREET_PATROL_REQUIREMENTS[map_id]
+	assert_true(points.size() >= int(requirement["min_points"]), "%s patrol needs multi-street coverage (>= %d points)" % [map_id, int(requirement["min_points"])])
+	assert_false(points.is_empty(), "%s patrol points missing" % map_id)
+	var min_cell := Vector2i(9999, 9999)
+	var max_cell := Vector2i(-9999, -9999)
+	var cell_size := float(definition.cell_size)
+	for point in points:
+		var cell := Vector2i(int(floor(float(point.x) / cell_size)), int(floor(float(point.y) / cell_size)))
+		min_cell = Vector2i(mini(min_cell.x, cell.x), mini(min_cell.y, cell.y))
+		max_cell = Vector2i(maxi(max_cell.x, cell.x), maxi(max_cell.y, cell.y))
+	var span := max_cell - min_cell
+	assert_true(span.x >= int(requirement["min_span_x"]), "%s patrol span.x %d below multi-street minimum %d" % [map_id, span.x, int(requirement["min_span_x"])])
+	assert_true(span.y >= int(requirement["min_span_y"]), "%s patrol span.y %d below multi-street minimum %d" % [map_id, span.y, int(requirement["min_span_y"])])
 
 
 func _load_manifest() -> Dictionary:

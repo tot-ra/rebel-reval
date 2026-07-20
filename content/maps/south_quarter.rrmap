@@ -60,7 +60,8 @@ sign sign.knights "knights' quarters" 58 12 east
 sign sign.viru "to viru quarter" 66 28 east
 sign sign.toompea "to toompea" 4 6 west
 sign sign.karja "karja gate" 36 34 south
-patrol south_watch 30,2|28,4|26,6|24,8
+# Multi-street watch: King's Street, Dunkri/Karja approach, Viru lane, Karja Gate, Toompea slope.
+patrol south_watch 30,2|30,8|54,8|34,24|52,30|68,30|34,36|2,8
 fade fade.knights 48 8 22 14
 camera 0 0 72 40
 surroundings north town east town south town west town

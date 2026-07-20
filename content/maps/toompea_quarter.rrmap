@@ -54,7 +54,8 @@ sign sign.castle "toompea castle" 14 22 west
 sign sign.cathedral "st mary's cathedral" 36 14 north
 sign sign.pikk "pikk jalg to merchant quarter" 48 8 north
 sign sign.south "to rataskaev" 18 38 south
-patrol castle_watch 43,35|44,35|45,35|45,36|46,36|47,36|48,36
+# Multi-street watch: Lühike Jalg, south slope to Rataskaev, Pikk Jalg, castle courtyard.
+patrol castle_watch 52,30|52,24|38,36|18,36|18,40|30,6|46,6|52,6|26,24|16,32
 fade fade.castle 0 18 28 14
 fade fade.cathedral 24 4 24 14
 camera 0 0 56 44

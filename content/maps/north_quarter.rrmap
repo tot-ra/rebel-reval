@@ -121,8 +121,9 @@ sign sign.guild "great guild" 24 50 west
 sign sign.pikk "pikk street" 52 12 north
 sign sign.toompea "pikk jalg to toompea" 14 66 south
 sign sign.lai "lai street" 74 40 east
-# Keep waypoints on walkable Pikk/Lai/guild cobbles; buildings block 50,66 and 50,8.
-patrol merchant_watch 51,47|52,47|53,47|54,47|55,47|55,48|55,49
+# Multi-street watch: Pikk spine, harbour approach, Lai lane, Great Guild frontage.
+# Keep waypoints on walkable cobbles; buildings block 50,66 and 50,8.
+patrol merchant_watch 51,48|51,38|51,28|51,18|54,8|72,24|72,44|26,50
 exclude blocked.church 40 54 18 10
 fade fade.olaf 32 52 28 16
 camera 0 0 104 72
