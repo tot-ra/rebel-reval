@@ -71,3 +71,47 @@ func test_sky_shader_covers_required_features() -> void:
 	assert_true("sunset_factor" in source, "dawn and dusk must warm the horizon")
 	assert_true("cloud_coverage" in source, "weather must drive procedural cloud coverage")
 	assert_true("moon_direction" in source, "the night sky must place a moon disk")
+
+
+func test_catalog_contains_real_naked_eye_stars() -> void:
+	assert_eq(SkyWeather.STAR_CATALOG.STARS.size(), 1627, "the sky must use the committed Hipparcos magnitude <= 5 catalog")
+	var polaris: Vector4
+	var sirius: Vector4
+	for star in SkyWeather.STAR_CATALOG.STARS:
+		if is_equal_approx(star.x, 37.9545) and is_equal_approx(star.y, 89.2641):
+			polaris = star
+		if is_equal_approx(star.x, 101.2872) and is_equal_approx(star.y, -16.7161):
+			sirius = star
+	assert_true(polaris != Vector4.ZERO, "Polaris must anchor the northern constellations")
+	assert_true(sirius != Vector4.ZERO, "Sirius must anchor the spring/winter constellation field")
+
+
+func test_catalog_is_precessed_to_campaign_year() -> void:
+	var polaris_1343 := SkyWeather.precess_equatorial(
+		Vector4(37.9545, 89.2641, 1.97, 0.636),
+		SkyWeather.STAR_CATALOG.CATALOG_EPOCH,
+		SkyWeather.SKY_EPOCH_YEAR
+	)
+	assert_true(absf(polaris_1343.x - 1.28) < 0.02, "1343 Polaris right ascension must reflect precession")
+	assert_true(absf(polaris_1343.y - 85.71) < 0.02, "1343 Polaris declination must reflect precession")
+	assert_eq(SkyWeather.REFERENCE_DATE, "1343-04-23", "the sky must follow the canonical St George's Night date")
+
+
+func test_star_brightness_and_color_follow_catalog_photometry() -> void:
+	assert_true(
+		SkyWeather.magnitude_to_luminance(1.0) > SkyWeather.magnitude_to_luminance(4.0),
+		"lower apparent magnitude must render brighter"
+	)
+	var blue := SkyWeather.bv_to_rgb(-0.2)
+	var red := SkyWeather.bv_to_rgb(1.6)
+	assert_true(blue.b > blue.r, "negative B-V stars must render blue-white")
+	assert_true(red.r > red.b, "high B-V stars must render warm")
+
+
+func test_shader_projects_stars_for_tallinn_and_weather() -> void:
+	var source: String = SkyWeather.SKY_SHADER.code
+	assert_true("star_map" in source, "the sky must sample the real star catalog texture")
+	assert_true("observer_latitude" in source, "star altitude must use Tallinn latitude")
+	assert_true("sidereal_angle" in source, "stars must rotate with the day/night clock")
+	assert_true("equatorial_uv" in source, "catalog coordinates must project into the local horizon")
+	assert_true("(1.0 - clouds)" in source, "weather must occlude stars")

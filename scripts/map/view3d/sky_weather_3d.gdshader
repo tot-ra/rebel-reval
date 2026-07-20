@@ -1,9 +1,10 @@
 shader_type sky;
 
 // Sky dome for the 3D map view (ADR 0007 view layer): day/night gradient,
-// sun disk with halo, moon, procedural cloud layer, and a warm horizon band
-// for sunrise/sunset. All dynamics are script-driven uniforms (no TIME), so
-// the sky stays deterministic and testable like the rest of the view.
+// Hipparcos stars positioned for Reval in 1343, sun disk with halo, moon,
+// procedural clouds, and a warm horizon band for sunrise/sunset. All dynamics
+// are script-driven uniforms (no TIME), so the sky stays deterministic and
+// testable like the rest of the view.
 
 uniform vec4 day_top_color : source_color = vec4(0.24, 0.51, 0.88, 1.0);
 uniform vec4 day_horizon_color : source_color = vec4(0.62, 0.78, 0.93, 1.0);
@@ -25,6 +26,13 @@ uniform float cloud_coverage : hint_range(0.0, 1.0) = 0.22;
 uniform float cloud_darken : hint_range(0.0, 1.0) = 0.0;
 uniform vec2 cloud_offset = vec2(0.0);
 
+// Hipparcos stars live in equatorial coordinates in this nearest-filtered map.
+// The observer transform below turns each sky ray into right ascension and
+// declination for Reval's latitude and the canonical 23 April 1343 sidereal sky.
+uniform sampler2D star_map : filter_nearest, repeat_enable;
+uniform float observer_latitude = 1.0371;
+uniform float sidereal_angle = 3.8101;
+
 
 float cloud_density(vec3 dir) {
 	if (dir.y < 0.02) {
@@ -38,6 +46,23 @@ float cloud_density(vec3 dir) {
 	float horizon_fade = smoothstep(0.02, 0.28, dir.y);
 	float edge = 1.0 - cloud_coverage;
 	return smoothstep(edge, edge + 0.28, noise_value) * horizon_fade;
+}
+
+
+// Convert an ENU horizon ray to equatorial coordinates. World -Z is map north,
+// +X east, and +Y zenith. The latitude makes Polaris sit 59.4 degrees above the
+// north horizon and removes stars that can never rise over Estonia.
+vec2 equatorial_uv(vec3 dir) {
+	float north = -dir.z;
+	float east = dir.x;
+	float up = dir.y;
+	float sin_lat = sin(observer_latitude);
+	float cos_lat = cos(observer_latitude);
+	float sin_dec = clamp(up * sin_lat + north * cos_lat, -1.0, 1.0);
+	float declination = asin(sin_dec);
+	float hour_angle = atan(-east, up * cos_lat - north * sin_lat);
+	float right_ascension = sidereal_angle - hour_angle;
+	return vec2(fract(right_ascension / TAU), 0.5 - declination / PI);
 }
 
 
@@ -56,6 +81,12 @@ void sky() {
 	color = mix(color, horizon * 0.55, clamp(-height * 3.0, 0.0, 1.0));
 
 	float clouds = cloud_density(dir);
+
+	// Real stars fade with twilight and are occluded by the procedural weather.
+	// Nearest sampling keeps each catalog texel crisp in the sky dome.
+	vec3 stars = texture(star_map, equatorial_uv(dir)).rgb;
+	float star_visibility = pow(1.0 - day_blend, 3.0) * smoothstep(-0.01, 0.05, height);
+	color += stars * star_visibility * (1.0 - clouds) * 0.32;
 
 	// Sun disk plus halo, hidden once the sun dips below the horizon.
 	float sun_visibility = smoothstep(-0.05, 0.05, sun_direction.y);

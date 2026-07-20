@@ -1,14 +1,16 @@
 class_name SkyWeather3D
 extends Node3D
 
-## Sky dome, sun/moon placement, and a deterministic weather cycle for the
-## MapView3D view layer. Owns the Environment sky (gradient + procedural
-## clouds via sky_weather_3d.gdshader), blends clear/cloudy/rain profiles, and
-## reports lighting multipliers back to MapView3D so sun and ambient follow
-## the sky. Weather randomness comes from a fixed seed: the sequence repeats
-## identically every run, keeping the deterministic-state rule intact.
+## Sky dome, sun/moon placement, real stars for medieval Reval, and a
+## deterministic weather cycle for the MapView3D view layer. Owns the
+## Environment sky (gradient + procedural clouds via sky_weather_3d.gdshader),
+## blends clear/cloudy/rain profiles, and reports lighting multipliers back to
+## MapView3D so sun and ambient follow the sky. Weather randomness comes from a
+## fixed seed: the sequence repeats identically every run, keeping the
+## deterministic-state rule intact.
 
 const SKY_SHADER := preload("res://scripts/map/view3d/sky_weather_3d.gdshader")
+const STAR_CATALOG := preload("res://scripts/map/view3d/estonia_star_catalog.gd")
 
 const WEATHER_CLEAR := &"clear"
 const WEATHER_CLOUDY := &"cloudy"
@@ -32,6 +34,18 @@ const SUNSET_TINT_STRENGTH := 0.65
 ## Keep in sync with MapView3D.SUN_NIGHT_ROTATION_DEGREES: the moon disk shares
 ## the night light's direction so sky and shadows never disagree.
 const MOON_ROTATION_DEGREES := Vector3(-36.0, 142.0, 0.0)
+
+## Astronomical reference for Reval (Tallinn) on St George's Night. The catalog
+## is J2000, then precessed to the canonical campaign year so even Polaris and
+## the circumpolar constellations sit where a 1343 observer would see them.
+const OBSERVER_LATITUDE_DEGREES := 59.437
+const SKY_EPOCH_YEAR := 1343.0
+const REFERENCE_DATE := "1343-04-23"
+## Local apparent sidereal angle at midnight on 1343-04-23 (Julian calendar).
+## The day/night cycle advances it by one full celestial turn per in-game day.
+const MIDNIGHT_SIDEREAL_DEGREES := 218.31
+const STAR_MAP_WIDTH := 2048
+const STAR_MAP_HEIGHT := 1024
 
 ## Per-weather visual targets blended during transitions.
 const PROFILES: Dictionary = {
@@ -99,6 +113,8 @@ func configure(camera: Camera3D, environment: Environment) -> void:
 	_material = ShaderMaterial.new()
 	_material.shader = SKY_SHADER
 	_material.set_shader_parameter(&"cloud_noise", _build_cloud_noise())
+	_material.set_shader_parameter(&"star_map", _build_star_map())
+	_material.set_shader_parameter(&"observer_latitude", deg_to_rad(OBSERVER_LATITUDE_DEGREES))
 	var sky := Sky.new()
 	sky.sky_material = _material
 	environment.sky = sky
@@ -123,6 +139,110 @@ func _build_cloud_noise() -> NoiseTexture2D:
 	texture.seamless = true
 	texture.noise = noise
 	return texture
+
+
+
+
+## Bakes the real star catalog into an equatorial equirectangular map. A texture
+## keeps the sky shader to one sample per pixel instead of looping over 1,600
+## stars, while preserving exact catalog positions, brightness, and B-V color.
+func _build_star_map() -> ImageTexture:
+	var image := Image.create(STAR_MAP_WIDTH, STAR_MAP_HEIGHT, false, Image.FORMAT_RGBAH)
+	image.fill(Color.TRANSPARENT)
+	for j2000_star in STAR_CATALOG.STARS:
+		var star: Vector4 = precess_equatorial(j2000_star, STAR_CATALOG.CATALOG_EPOCH, SKY_EPOCH_YEAR)
+		var x := wrapi(roundi(star.x / 360.0 * float(STAR_MAP_WIDTH)), 0, STAR_MAP_WIDTH)
+		var y := clampi(roundi((90.0 - star.y) / 180.0 * float(STAR_MAP_HEIGHT - 1)), 0, STAR_MAP_HEIGHT - 1)
+		var luminosity := magnitude_to_luminance(star.z)
+		var color := bv_to_rgb(star.w) * luminosity
+		# Brighter stars receive a compact cross-shaped bloom. Dim stars remain a
+		# single texel so recognisable constellation geometry is not distorted.
+		_set_star_texel(image, x, y, color)
+		if star.z <= 2.5:
+			for offset in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+				_set_star_texel(image, x + offset.x, y + offset.y, color * 0.28)
+	return ImageTexture.create_from_image(image)
+
+
+func _set_star_texel(image: Image, x: int, y: int, color: Color) -> void:
+	var wrapped_x := wrapi(x, 0, STAR_MAP_WIDTH)
+	var clamped_y := clampi(y, 0, STAR_MAP_HEIGHT - 1)
+	var existing := image.get_pixel(wrapped_x, clamped_y)
+	image.set_pixel(wrapped_x, clamped_y, Color(
+		maxf(existing.r, color.r),
+		maxf(existing.g, color.g),
+		maxf(existing.b, color.b),
+		1.0
+	))
+
+
+static func magnitude_to_luminance(magnitude: float) -> float:
+	# Pogson's relation: five magnitudes equal a factor of 100 in brightness.
+	return clampf(pow(10.0, -0.4 * (magnitude - STAR_CATALOG.LIMITING_MAGNITUDE)), 1.0, 180.0)
+
+
+static func bv_to_rgb(bv: float) -> Color:
+	# Ballesteros temperature approximation followed by a black-body RGB fit.
+	# This preserves blue Rigel/Vega and warm Betelgeuse/Arcturus at a glance.
+	var clamped_bv := clampf(bv, -0.4, 2.0)
+	var temperature := 4600.0 * (
+		1.0 / (0.92 * clamped_bv + 1.7) + 1.0 / (0.92 * clamped_bv + 0.62)
+	)
+	var scaled := temperature / 100.0
+	var red: float
+	var green: float
+	var blue: float
+	if scaled <= 66.0:
+		red = 1.0
+		green = clampf((99.4708025861 * log(scaled) - 161.1195681661) / 255.0, 0.0, 1.0)
+	else:
+		red = clampf(329.698727446 * pow(scaled - 60.0, -0.1332047592) / 255.0, 0.0, 1.0)
+		green = clampf(288.1221695283 * pow(scaled - 60.0, -0.0755148492) / 255.0, 0.0, 1.0)
+	if scaled >= 66.0:
+		blue = 1.0
+	elif scaled <= 19.0:
+		blue = 0.0
+	else:
+		blue = clampf((138.5177312231 * log(scaled - 10.0) - 305.0447927307) / 255.0, 0.0, 1.0)
+	return Color(red, green, blue)
+
+
+## IAU 1976 precession is sufficiently accurate across the 657-year offset and
+## moves the entire constellation pattern together from J2000 to spring 1343.
+static func precess_equatorial(star: Vector4, from_epoch: float, to_epoch: float) -> Vector4:
+	var centuries := (to_epoch - from_epoch) / 100.0
+	var zeta := deg_to_rad((
+		2306.2181 * centuries
+		+ 0.30188 * centuries * centuries
+		+ 0.017998 * centuries * centuries * centuries
+	) / 3600.0)
+	var z := deg_to_rad((
+		2306.2181 * centuries
+		+ 1.09468 * centuries * centuries
+		+ 0.018203 * centuries * centuries * centuries
+	) / 3600.0)
+	var theta := deg_to_rad((
+		2004.3109 * centuries
+		- 0.42665 * centuries * centuries
+		- 0.041833 * centuries * centuries * centuries
+	) / 3600.0)
+	var right_ascension := deg_to_rad(star.x)
+	var declination := deg_to_rad(star.y)
+	var a := cos(declination) * sin(right_ascension + zeta)
+	var b := (
+		cos(theta) * cos(declination) * cos(right_ascension + zeta)
+		- sin(theta) * sin(declination)
+	)
+	var c := (
+		sin(theta) * cos(declination) * cos(right_ascension + zeta)
+		+ cos(theta) * sin(declination)
+	)
+	return Vector4(
+		wrapf(rad_to_deg(atan2(a, b) + z), 0.0, 360.0),
+		rad_to_deg(asin(clampf(c, -1.0, 1.0))),
+		star.z,
+		star.w
+	)
 
 
 func _build_rain() -> GPUParticles3D:
@@ -204,6 +324,7 @@ func apply_sky_state(progress: float, day_blend: float, sun_yaw_degrees: float) 
 	_material.set_shader_parameter(&"moon_direction", moon_direction)
 	_material.set_shader_parameter(&"day_blend", day_blend)
 	_material.set_shader_parameter(&"sunset_factor", sunset_factor)
+	_material.set_shader_parameter(&"sidereal_angle", deg_to_rad(MIDNIGHT_SIDEREAL_DEGREES) + progress * TAU)
 
 
 ## Multipliers/tints MapView3D applies on top of its day/night lerp. Overcast
