@@ -24,8 +24,9 @@ Operational guide for AI agents and contributors working on **Reval Rebel**. Pro
 
 These paths are named in [`README.md`](./README.md) but do not exist in the repository yet:
 
-- `docs/CANON.md`, `docs/ART_BIBLE.md`, `docs/WRITING_GUIDE.md`, `docs/ARCHITECTURE.md`, `docs/DECISIONS/` - see **P0-008**, **P0-040**, **P0-003** through **P0-005**
-- `content/` - validated JSON for dialogue, quests, characters, items - see **P1-003**
+- `docs/WRITING_GUIDE.md`, `docs/DECISIONS/` - see **P0-003** through **P0-005**
+
+Current architecture boundaries and file ownership are documented in [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md). Canon and the current candidate visual baseline are documented in `docs/CANON.md` and `docs/ART_BIBLE.md`.
 
 ### Current runtime surface (evidence-based)
 

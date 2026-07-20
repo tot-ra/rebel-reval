@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `40`
+- Active Markdown files scanned: `41`
 - Markdown files excluded as archive/reference/out of active scope: `298`
-- Local/external links inspected: `147`
-- Links to active Markdown docs: `97`
+- Local/external links inspected: `149`
+- Links to active Markdown docs: `98`
 - Links to existing archive/reference/non-active local docs: `19`
 - External links skipped for reachability: `7`
 - Issues found: `0`
@@ -50,6 +50,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0009-map-blueprint-authoring-architecture.md`
 - `docs/adr/0010-large-map-runtime-chunking.md`
 - `docs/adr/0011-optional-first-person-camera.md`
+- `docs/ARCHITECTURE.md`
 - `docs/ART_BIBLE.md`
 - `docs/ASSET_INVENTORY.md`
 - `docs/ASSET_STORAGE_POLICY.md`

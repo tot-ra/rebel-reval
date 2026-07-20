@@ -13,6 +13,7 @@ TOOLS = ROOT / "tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
+from active_docs_report_checks import check_missing_references  # noqa: E402
 from active_docs_report_common import collect_active_docs  # noqa: E402
 
 
@@ -41,6 +42,26 @@ class ActiveDocsReportCommonTest(unittest.TestCase):
             self.assertNotIn(docs_cache_doc, excluded_docs)
             self.assertNotIn(tool_cache_doc, active_docs)
             self.assertNotIn(tool_cache_doc, excluded_docs)
+
+    def test_missing_reference_check_only_matches_explicit_placeholders(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            docs = root / "docs"
+            docs.mkdir()
+            policy = docs / "policy.md"
+            policy.write_text(
+                "# Policy\n\n"
+                "A temporary file must not replace the missing source.\n",
+                encoding="utf-8",
+            )
+            draft = docs / "draft.md"
+            draft.write_text("# Draft\n\n- Evidence: source needed.\n", encoding="utf-8")
+
+            issues = check_missing_references([policy, draft], root)
+
+            self.assertEqual(len(issues), 1)
+            self.assertEqual(issues[0].path, "docs/draft.md")
+            self.assertEqual(issues[0].code, "MISSING_REFERENCE")
 
 
 if __name__ == "__main__":

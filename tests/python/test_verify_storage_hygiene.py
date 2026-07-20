@@ -112,7 +112,7 @@ class VerifyStorageHygieneTest(unittest.TestCase):
             generated.parent.mkdir()
             generated.write_text("{}\n", encoding="utf-8")
             self._write_manifest(root, [])
-            subprocess.run(["git", "add", "-f", "build/result.json", "docs/storage_binary_exceptions.csv"], cwd=root, check=True)
+            subprocess.run(["git", "add", "-f", "build/result.json", "docs/storage_binary_exceptions.json"], cwd=root, check=True)
 
             self.assertEqual(verifier.main(["--root", str(root)]), 1)
 

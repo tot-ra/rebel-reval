@@ -13,7 +13,9 @@ EXCLUDED_ACTIVE_SUBDIRS = ("docs/reports",)
 TOOL_CACHE_DIRS = frozenset({"__pycache__"})
 LEGACY_STATUSES = {"archive", "reference", "superseded"}
 REFERENCE_MARKER_RE = re.compile(
-    r"\b(source needed|citation needed|reference needed|missing source|missing reference)\b",
+    # Match explicit authoring placeholders, not descriptive prose such as
+    # "the missing source could not be fetched" in an operational policy.
+    r"\b(source needed|citation needed|reference needed)\b",
     re.IGNORECASE,
 )
 
