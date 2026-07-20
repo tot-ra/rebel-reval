@@ -28,7 +28,7 @@ func _ready() -> void:
 
 	_view_runtime = MapViewRuntime.install(self, _bootstrap, map_root, player)
 	_setup_phase_binder(definition)
-	_mart_encounter.wire(self, definition, player)
+	_mart_encounter.wire(self, definition, player, _view_runtime)
 
 
 func _setup_phase_binder(definition: MapDefinition) -> void:

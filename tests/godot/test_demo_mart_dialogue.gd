@@ -108,6 +108,35 @@ func test_mart_encounter_spawns_at_mart_street_anchor() -> void:
 	_cleanup_node(root)
 
 
+func test_mart_talk_hides_flat_yellow_highlight_in_3d_view() -> void:
+	var root := _make_root()
+	var actors := Node2D.new()
+	actors.name = "Actors"
+	root.add_child(actors)
+
+	var definition: MapDefinition = preload(
+		"res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
+	).create()
+	var encounter := DemoMartEncounter.new()
+	root.add_child(encounter)
+	var mart := encounter.spawn_mart(actors, definition)
+
+	var view_runtime := MapViewRuntime.new()
+	view_runtime.name = "MapViewRuntime"
+	root.add_child(view_runtime)
+	encounter.wire(root, definition, null, view_runtime)
+
+	var talk := encounter.get_interactable()
+	assert_true(talk != null, "Mart talk interactable must exist")
+	assert_true(talk.get_parent() == mart, "Talk sensor must parent to Mart")
+	var highlight := talk.get_node("FocusHighlight") as CanvasItem
+	assert_false(highlight.visible, "3D binder must hide the flat yellow rectangle")
+	talk.set_focused(true)
+	assert_true(talk.is_focused())
+	assert_false(highlight.visible, "Focused Mart talk must keep the flat yellow rectangle hidden")
+	_cleanup_node(root)
+
+
 func _make_root() -> Node:
 	var root := Node.new()
 	_tree().root.add_child(root)

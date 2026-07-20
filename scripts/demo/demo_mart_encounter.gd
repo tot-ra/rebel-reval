@@ -14,6 +14,7 @@ var _interactable: Interactable
 var _interaction_controller: InteractionController
 var _dialogue_runner: DemoDialogueRunner
 var _dialogue_box: DemoDialogueBox
+var _view_binder: InteractableViewBinder
 var _prompt_layer: CanvasLayer
 var _prompt_label: Label
 
@@ -30,14 +31,16 @@ func spawn_mart(actors: Node2D, definition: MapDefinition) -> DemoMartNpc:
 func wire(
 	scene_root: Node,
 	definition: MapDefinition,
-	player: Player
+	player: Player,
+	view_runtime: MapViewRuntime = null
 ) -> void:
 	_player = player
 	if _mart != null and player != null:
 		_mart.configure(player, _mart.global_position, Vector2.RIGHT)
 
 	_build_ui(scene_root)
-	_build_interaction(definition)
+	_build_interaction()
+	_build_view_binder(view_runtime, definition)
 	_dialogue_runner = DemoDialogueRunner.new()
 	_dialogue_runner.name = "DemoDialogueRunner"
 	add_child(_dialogue_runner)
@@ -51,6 +54,10 @@ func wire(
 
 func get_mart() -> DemoMartNpc:
 	return _mart
+
+
+func get_interactable() -> Interactable:
+	return _interactable
 
 
 func register_phase_binder(binder: MapPhaseBinder, definition: MapDefinition) -> void:
@@ -86,14 +93,14 @@ func _build_ui(scene_root: Node) -> void:
 	scene_root.add_child(_dialogue_box)
 
 
-func _build_interaction(definition: MapDefinition) -> void:
+func _build_interaction() -> void:
+	# Parent to Mart so click-near-actor lookup and 3D markers track the NPC.
 	_interactable = INTERACTABLE_SCENE.instantiate()
 	_interactable.name = "MartTalk"
 	_interactable.interactable_id = INTERACTABLE_ID
 	_interactable.interaction_kind = InteractionKinds.TALK
 	_interactable.prompt = "Talk to Mart"
-	_interactable.global_position = _mart.global_position
-	_mart.get_parent().add_child(_interactable)
+	_mart.add_child(_interactable)
 	_interactable.set_interact_callback(Callable(self, "_on_talk_pressed"))
 
 	_interaction_controller = InteractionController.new()
@@ -101,6 +108,16 @@ func _build_interaction(definition: MapDefinition) -> void:
 	_interaction_controller.actor = _player
 	_interaction_controller.prompt_label = _prompt_label
 	add_child(_interaction_controller)
+
+
+func _build_view_binder(view_runtime: MapViewRuntime, definition: MapDefinition) -> void:
+	# Without the binder, focus shows the 2D yellow ColorRect over the 3D map.
+	_view_binder = InteractableViewBinder.new()
+	_view_binder.name = "InteractableViewBinder"
+	add_child(_view_binder)
+	_view_binder.setup(view_runtime, definition)
+	if _interactable != null:
+		_view_binder.bind(_interactable)
 
 
 func _on_talk_pressed(_actor: Node) -> void:
