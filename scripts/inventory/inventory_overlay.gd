@@ -4,6 +4,7 @@ extends CanvasLayer
 const EquipmentSilhouetteScene := preload("res://scripts/inventory/equipment_silhouette.gd")
 const InventoryGridCellScene := preload("res://scripts/inventory/inventory_grid_cell.gd")
 const InventoryOverlayBuilder := preload("res://scripts/inventory/inventory_overlay_builder.gd")
+const InventoryUiThemeScene := preload("res://scripts/inventory/inventory_ui_theme.gd")
 
 signal closed()
 
@@ -14,15 +15,6 @@ const SILHOUETTE_WIDTH := 176
 
 const DRAG_KIND_BAG := &"bag"
 const DRAG_KIND_EQUIPPED := &"equipped"
-
-const CATEGORY_COLORS := {
-	"weapon": Color(0.72, 0.38, 0.28, 0.92),
-	"evidence": Color(0.55, 0.62, 0.74, 0.92),
-	"commission_object": Color(0.78, 0.66, 0.34, 0.92),
-	"material": Color(0.42, 0.58, 0.36, 0.92),
-	"supply": Color(0.38, 0.62, 0.58, 0.92),
-	"quest_tool": Color(0.58, 0.42, 0.72, 0.92),
-}
 
 var _bag: InventoryBag
 var _content_db: ContentDB
@@ -206,15 +198,23 @@ func _refresh() -> void:
 	_weight_bar.max_value = InventoryBag.MAX_WEIGHT_KG
 	_weight_bar.value = carried
 	_weight_value.text = "%.2f / %.0f kg" % [carried, InventoryBag.MAX_WEIGHT_KG]
+	InventoryUiThemeScene.set_meter_fill_color(
+		_weight_bar,
+		carried >= InventoryBag.MAX_WEIGHT_KG * 0.75
+	)
 
 	var used_cells := _bag.get_used_cells()
 	var total_cells := _bag.get_total_cells()
 	_volume_bar.max_value = float(total_cells)
 	_volume_bar.value = float(used_cells)
 	_volume_value.text = "%d / %d cells" % [used_cells, total_cells]
+	InventoryUiThemeScene.set_meter_fill_color(
+		_volume_bar,
+		used_cells >= int(ceil(float(total_cells) * 0.75))
+	)
 
 	var speed_percent := int(round(_bag.get_speed_multiplier() * 100.0))
-	_speed_label.text = "Movement speed: %d%%" % speed_percent
+	_speed_label.text = "Pace: %d%%" % speed_percent
 	_speed_label.tooltip_text = "Heavier loads slow Kalev down."
 
 	for index in _cell_buttons.size():
@@ -350,35 +350,33 @@ func _style_cell_button(
 
 	if placement == null:
 		button.text = ""
-		button.tooltip_text = "Empty cell"
-		button.modulate = Color(0.18, 0.2, 0.24, 0.95)
-		button.add_theme_color_override("font_color", Color.WHITE)
+		button.tooltip_text = "Empty pouch cell"
+		var empty_bg := InventoryUiThemeScene.LEATHER_EMPTY
 		if _selected != null:
 			var profile := _profile_for(_selected.item_id)
 			if _bag.can_place_at(cell_x, cell_y, profile.grid_width, profile.grid_height, _selected):
-				button.modulate = Color(0.24, 0.34, 0.28, 0.95)
+				empty_bg = InventoryUiThemeScene.LEATHER_VALID
 				button.tooltip_text = "Valid drop"
-		if focused:
-			button.modulate = button.modulate.lightened(0.18)
+		InventoryUiThemeScene.apply_cell_button(button, empty_bg, focused, false)
+		button.custom_minimum_size = Vector2(CELL_SIZE, CELL_SIZE)
 		return
 
 	var record := _item_record(placement.item_id)
 	var category := String(record.get("category", "supply"))
-	var color: Color = CATEGORY_COLORS.get(category, CATEGORY_COLORS["supply"])
+	var color: Color = InventoryUiThemeScene.CATEGORY_COLORS.get(
+		category,
+		InventoryUiThemeScene.CATEGORY_COLORS["supply"]
+	)
 	# Non-origin cells keep the item footprint readable without repeating text.
+	var selected := placement == _selected
 	if is_origin:
 		button.text = _short_label(record, placement.quantity)
-		button.modulate = color
+		InventoryUiThemeScene.apply_cell_button(button, color, focused, selected)
 	else:
 		button.text = ""
-		button.modulate = color.darkened(0.18)
+		InventoryUiThemeScene.apply_cell_button(button, color.darkened(0.18), focused, selected)
 
 	button.tooltip_text = _item_tooltip(record, placement)
-	if placement == _selected:
-		button.modulate = button.modulate.lightened(0.18)
-	if focused:
-		button.modulate = button.modulate.lightened(0.14)
-	button.add_theme_color_override("font_color", Color(0.98, 0.98, 0.96))
 	button.custom_minimum_size = Vector2(CELL_SIZE, CELL_SIZE)
 
 
@@ -416,11 +414,11 @@ func _update_detail_label() -> void:
 			var focus_record := _item_record(focus_placement.item_id)
 			_detail_label.text = _item_detail_text(focus_record, focus_placement)
 			return
-		_detail_label.text = "Select an item to inspect it, then click a free cell or equipment slot."
+		_detail_label.text = "Choose a good to inspect, then click a free cell or gear slot."
 		return
 
 	var record := _item_record(_selected.item_id)
-	_detail_label.text = "Selected: " + _item_detail_text(record, _selected)
+	_detail_label.text = "In hand: " + _item_detail_text(record, _selected)
 
 
 func _item_detail_text(record: Dictionary, placement: InventoryPlacement) -> String:

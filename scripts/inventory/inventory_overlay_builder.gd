@@ -5,10 +5,11 @@ extends RefCounted
 
 const EquipmentSilhouetteScene := preload("res://scripts/inventory/equipment_silhouette.gd")
 const InventoryGridCellScene := preload("res://scripts/inventory/inventory_grid_cell.gd")
+const InventoryUiThemeScene := preload("res://scripts/inventory/inventory_ui_theme.gd")
 
 const CELL_SIZE := 52
 const CELL_GAP := 4
-const PANEL_PADDING := 18
+const PANEL_PADDING := 20
 const SILHOUETTE_WIDTH := 176
 const DRAG_KIND_BAG := &"bag"
 const DRAG_KIND_EQUIPPED := &"equipped"
@@ -29,14 +30,16 @@ static func build(host: InventoryOverlay) -> Dictionary:
 
 	var dim := ColorRect.new()
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	dim.color = Color(0.04, 0.05, 0.08, 0.72)
+	dim.color = InventoryUiThemeScene.DIM_SCRIM
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.add_child(dim)
 
 	var panel := PanelContainer.new()
+	panel.name = "BagPanel"
 	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	panel.custom_minimum_size = Vector2(720, 0)
+	panel.custom_minimum_size = Vector2(740, 0)
+	InventoryUiThemeScene.apply_panel(panel)
 	root.add_child(panel)
 
 	var margin := MarginContainer.new()
@@ -55,10 +58,10 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	layout.add_child(header)
 
 	var title := Label.new()
-	title.text = "Bag"
+	title.name = "BagTitle"
+	title.text = "Satchel"
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title.add_theme_font_size_override("font_size", 24)
-	title.add_theme_color_override("font_color", Color(0.92, 0.82, 0.56, 1.0))
+	InventoryUiThemeScene.apply_title(title)
 	header.add_child(title)
 
 	var help_button := Button.new()
@@ -66,6 +69,7 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	help_button.tooltip_text = HELP_TOOLTIP
 	help_button.focus_mode = Control.FOCUS_NONE
 	help_button.custom_minimum_size = Vector2(32, 28)
+	InventoryUiThemeScene.apply_action_button(help_button)
 	header.add_child(help_button)
 
 	var close_button := Button.new()
@@ -73,35 +77,36 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	close_button.text = "Close"
 	close_button.tooltip_text = "Close bag (I or Esc)"
 	close_button.focus_mode = Control.FOCUS_NONE
+	InventoryUiThemeScene.apply_action_button(close_button)
 	close_button.pressed.connect(host.close)
 	header.add_child(close_button)
 
+	layout.add_child(InventoryUiThemeScene.make_brass_rule())
+
 	var hint := Label.new()
-	hint.text = "Click or drag to move. Hover ? for controls."
+	hint.text = "Click or drag to stow. Hover ? for controls."
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	hint.add_theme_font_size_override("font_size", 12)
-	hint.modulate = Color(0.78, 0.80, 0.84)
+	InventoryUiThemeScene.apply_hint(hint)
 	layout.add_child(hint)
 
-	var weight_meter := _add_meter_row(layout, "Weight")
-	var volume_meter := _add_meter_row(layout, "Volume")
+	var weight_meter := _add_meter_row(layout, "Burden")
+	var volume_meter := _add_meter_row(layout, "Stowage")
 
 	var speed_label := Label.new()
-	speed_label.add_theme_font_size_override("font_size", 13)
+	InventoryUiThemeScene.apply_body(speed_label)
 	layout.add_child(speed_label)
 
 	var body_row := HBoxContainer.new()
-	body_row.add_theme_constant_override("separation", 18)
+	body_row.add_theme_constant_override("separation", 20)
 	layout.add_child(body_row)
 
 	var silhouette_column := VBoxContainer.new()
-	silhouette_column.add_theme_constant_override("separation", 4)
+	silhouette_column.add_theme_constant_override("separation", 6)
 	body_row.add_child(silhouette_column)
 
 	var silhouette_caption := Label.new()
-	silhouette_caption.text = "Worn"
-	silhouette_caption.add_theme_font_size_override("font_size", 13)
-	silhouette_caption.modulate = Color(0.78, 0.80, 0.84)
+	silhouette_caption.text = "Worn gear"
+	InventoryUiThemeScene.apply_caption(silhouette_caption)
 	silhouette_column.add_child(silhouette_caption)
 
 	var silhouette: Control = EquipmentSilhouetteScene.new()
@@ -122,14 +127,13 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	silhouette_column.add_child(silhouette)
 
 	var grid_column := VBoxContainer.new()
-	grid_column.add_theme_constant_override("separation", 4)
+	grid_column.add_theme_constant_override("separation", 6)
 	grid_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body_row.add_child(grid_column)
 
 	var grid_caption := Label.new()
-	grid_caption.text = "Packed items"
-	grid_caption.add_theme_font_size_override("font_size", 13)
-	grid_caption.modulate = Color(0.78, 0.80, 0.84)
+	grid_caption.text = "Packed goods"
+	InventoryUiThemeScene.apply_caption(grid_caption)
 	grid_column.add_child(grid_caption)
 
 	var grid := GridContainer.new()
@@ -138,15 +142,18 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	grid.add_theme_constant_override("v_separation", CELL_GAP)
 	grid_column.add_child(grid)
 
+	layout.add_child(InventoryUiThemeScene.make_brass_rule())
+
 	var detail_label := Label.new()
 	detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	detail_label.add_theme_font_size_override("font_size", 13)
 	detail_label.custom_minimum_size = Vector2(0, 48)
+	InventoryUiThemeScene.apply_body(detail_label)
 	layout.add_child(detail_label)
 
 	var equip_button := Button.new()
 	equip_button.visible = false
 	equip_button.focus_mode = Control.FOCUS_NONE
+	InventoryUiThemeScene.apply_action_button(equip_button)
 	equip_button.pressed.connect(host._on_equip_pressed)
 	layout.add_child(equip_button)
 
@@ -165,6 +172,12 @@ static func build(host: InventoryOverlay) -> Dictionary:
 			button.focus_mode = Control.FOCUS_NONE
 			button.clip_text = true
 			button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			InventoryUiThemeScene.apply_cell_button(
+				button,
+				InventoryUiThemeScene.LEATHER_EMPTY,
+				false,
+				false
+			)
 			var captured_x := cell_x
 			var captured_y := cell_y
 			button.pressed.connect(func() -> void:
@@ -195,19 +208,20 @@ static func _add_meter_row(parent: VBoxContainer, label_text: String) -> Diction
 
 	var label := Label.new()
 	label.text = label_text
-	label.custom_minimum_size = Vector2(64, 0)
+	label.custom_minimum_size = Vector2(72, 0)
+	InventoryUiThemeScene.apply_meter_label(label)
 	row.add_child(label)
 
 	var bar := ProgressBar.new()
 	bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bar.custom_minimum_size = Vector2(280, 18)
 	bar.show_percentage = false
+	InventoryUiThemeScene.apply_progress_bar(bar)
 	row.add_child(bar)
 
 	var value := Label.new()
 	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	value.custom_minimum_size = Vector2(118, 0)
-	value.add_theme_font_size_override("font_size", 12)
-	value.modulate = Color(0.86, 0.88, 0.90)
+	InventoryUiThemeScene.apply_meter_value(value)
 	row.add_child(value)
 	return {"bar": bar, "value": value}

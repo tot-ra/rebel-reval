@@ -15,7 +15,7 @@ Items occupy rectangular footprints on the grid (`grid_width` x `grid_height`). 
 
 **Encumbrance:** movement speed scales linearly from 100% at empty load to 65% at the weight cap. Volume does not slow the player directly, but a full grid blocks new pickups.
 
-Open the bag with **I**; close with **I**, **Esc**, or the overlay Close button. While open, movement is paused so the player can rearrange items. Move the grid selection with arrow keys or **WASD**; **Enter** or **Space** picks up or places the focused item (same as clicking a cell). The overlay shows exact weight (`kg`) and volume (`cells`), short item labels on the grid, tooltips with full names, and a Worn silhouette for equipment slots.
+Open the bag with **I**; close with **I**, **Esc**, or the overlay Close button. While open, movement is paused so the player can rearrange items. Move the grid selection with arrow keys or **WASD**; **Enter** or **Space** picks up or places the focused item (same as clicking a cell). The overlay shows exact burden (`kg`) and stowage (`cells`), short item labels on the grid, tooltips with full names, and a worn-gear silhouette for equipment slots. Visual styling follows the oak/brass/parchment HUD tokens in `InventoryUiTheme` so the satchel matches the minimap date badge family without new texture assets.
 
 ## Relationship to other systems
 
@@ -79,6 +79,8 @@ Stackable items (`gameplay.stackable: true`) share one grid cell and stack up to
 | `scripts/state/inventory_bag.gd` | Placement, limits, encumbrance multiplier |
 | `scripts/state/item_carry_profile.gd` | Resolve carry stats from content or defaults |
 | `scripts/inventory/inventory_overlay.gd` | Bag UI (grid, meters, move-by-click) |
+| `scripts/inventory/inventory_overlay_builder.gd` | Overlay node tree and chrome |
+| `scripts/inventory/inventory_ui_theme.gd` | Oak/brass/parchment style tokens |
 | `scripts/inventory/inventory_controller.gd` | `toggle_inventory` input on the player |
 | `scripts/session/session_state.gd` | Session `GameState` and demo content load |
 | `scripts/player.gd` | Applies encumbrance to walk/run speeds; blocks movement while bag is open |

@@ -1,6 +1,7 @@
 extends "res://tests/godot/test_case.gd"
 
 const ITEM_SPEARHEAD := &"item.seized_spearhead"
+const InventoryUiThemeScene := preload("res://scripts/inventory/inventory_ui_theme.gd")
 
 
 func test_overlay_shows_numeric_meters_and_readable_labels() -> void:
@@ -43,3 +44,39 @@ func test_short_label_for_forge_hammer_keeps_both_words() -> void:
 	var short: String = overlay._short_label(record, 1)
 	assert_true(short.to_lower().contains("forg") or short.to_lower().contains("hamm"))
 	assert_true(short.length() >= 4)
+
+
+func test_overlay_uses_historical_satchel_theme() -> void:
+	var overlay := InventoryOverlay.new()
+	var bag := InventoryBag.new()
+	var db := ContentDB.new()
+	db.load_from_directories(["res://content/examples/valid", "res://content/demo"])
+	bag.set_content_db(db)
+
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(overlay)
+	overlay.configure(bag, db)
+	overlay.open()
+
+	var title := overlay.find_child("BagTitle", true, false) as Label
+	assert_true(title != null, "title label must exist")
+	assert_eq(title.text, "Satchel")
+	assert_eq(
+		title.get_theme_color("font_color"),
+		InventoryUiThemeScene.BRASS_BRIGHT,
+		"title should use brass parchment gold from the Reval HUD family"
+	)
+
+	var panel := overlay.find_child("BagPanel", true, false) as PanelContainer
+	assert_true(panel != null, "bag panel must exist")
+	var panel_style := panel.get_theme_stylebox("panel") as StyleBoxFlat
+	assert_true(panel_style != null, "panel must use a flat stylebox")
+	assert_eq(panel_style.bg_color, InventoryUiThemeScene.PANEL_BG)
+	assert_eq(panel_style.border_color, InventoryUiThemeScene.PANEL_BORDER)
+
+	assert_true(overlay._cell_buttons.size() > 0, "grid cells must exist")
+	var empty_style := overlay._cell_buttons[0].get_theme_stylebox("normal") as StyleBoxFlat
+	assert_true(empty_style != null, "cells must use leather styleboxes")
+	assert_eq(empty_style.bg_color, InventoryUiThemeScene.LEATHER_EMPTY)
+
+	overlay.queue_free()

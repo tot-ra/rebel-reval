@@ -2,9 +2,11 @@ class_name EquipmentSilhouette
 extends Control
 
 ## Human silhouette with equipment drop zones for the bag overlay.
-## Hand slots accept drag-and-drop; head and back accept click-to-unequip.
+## Drawn as a leather paper-doll with brass fittings to match InventoryUiTheme.
 
 signal slot_pressed(slot: StringName)
+
+const InventoryUiThemeScene := preload("res://scripts/inventory/inventory_ui_theme.gd")
 
 const SLOT_ORDER: Array[StringName] = [&"head", &"back", &"left_hand", &"right_hand"]
 
@@ -79,21 +81,36 @@ func _draw_body() -> void:
 	var w := size.x
 	var h := size.y
 	var cx := w * 0.5
-	var fill := Color(0.30, 0.33, 0.38, 0.92)
-	var stroke := Color(0.18, 0.20, 0.24, 0.95)
+	var fill := InventoryUiThemeScene.SILHOUETTE_FILL
+	var stroke := InventoryUiThemeScene.SILHOUETTE_STROKE
+	var brass := InventoryUiThemeScene.BRASS
 
+	# Soft leather stand-in so the doll reads as a craft bench mannequin, not a UI stick figure.
+	draw_circle(Vector2(cx + 1.5, h * 0.13 + 1.5), h * 0.078, Color(0.0, 0.0, 0.0, 0.28))
 	draw_circle(Vector2(cx, h * 0.13), h * 0.075, fill)
-	draw_arc(Vector2(cx, h * 0.13), h * 0.075, 0.0, TAU, 24, stroke, 2.0)
+	draw_arc(Vector2(cx, h * 0.13), h * 0.075, 0.0, TAU, 24, brass, 1.5)
 
 	var torso := Rect2(cx - w * 0.13, h * 0.22, w * 0.26, h * 0.30)
+	draw_rect(Rect2(torso.position + Vector2(2, 2), torso.size), Color(0.0, 0.0, 0.0, 0.22))
 	draw_rect(torso, fill)
 	draw_rect(torso, stroke, false, 2.0)
+	# Apron band: smithing context without covering slot labels.
+	var apron := Rect2(cx - w * 0.11, h * 0.34, w * 0.22, h * 0.14)
+	draw_rect(apron, fill.darkened(0.12))
+	draw_line(
+		Vector2(apron.position.x, apron.position.y),
+		Vector2(apron.end.x, apron.position.y),
+		brass,
+		1.5
+	)
 
 	var shoulder_y := h * 0.26
 	draw_line(Vector2(cx - w * 0.13, shoulder_y), Vector2(w * 0.10, h * 0.30), fill, 9.0)
 	draw_line(Vector2(cx + w * 0.13, shoulder_y), Vector2(w * 0.90, h * 0.30), fill, 9.0)
 	draw_circle(Vector2(w * 0.10, h * 0.30), 7.0, fill)
 	draw_circle(Vector2(w * 0.90, h * 0.30), 7.0, fill)
+	draw_arc(Vector2(w * 0.10, h * 0.30), 7.0, 0.0, TAU, 16, brass, 1.2)
+	draw_arc(Vector2(w * 0.90, h * 0.30), 7.0, 0.0, TAU, 16, brass, 1.2)
 
 	var hip_y := h * 0.52
 	draw_line(Vector2(cx - w * 0.07, hip_y), Vector2(cx - w * 0.10, h * 0.88), fill, 11.0)
@@ -106,13 +123,17 @@ func _draw_slots() -> void:
 			continue
 		var rect: Rect2 = _slot_rects[slot]
 		var occupied := _equipped.has(slot) and not String(_equipped[slot]).is_empty()
-		var base := Color(0.16, 0.18, 0.22, 0.82)
+		var base := InventoryUiThemeScene.SLOT_EMPTY
 		if occupied:
-			base = Color(0.42, 0.48, 0.56, 0.92)
+			base = InventoryUiThemeScene.SLOT_FILLED
 		if slot == _hover_slot:
-			base = base.lightened(0.16)
+			base = base.lightened(0.14)
 		draw_rect(rect, base)
-		draw_rect(rect, Color(0.72, 0.76, 0.82, 0.95), false, 1.5)
+		var border := (
+			InventoryUiThemeScene.BRASS_BRIGHT if slot == _hover_slot
+			else InventoryUiThemeScene.BRASS
+		)
+		draw_rect(rect, border, false, 1.8)
 
 		var slot_name := String(SLOT_LABELS.get(slot, slot))
 		var label := slot_name
@@ -148,7 +169,7 @@ func _draw_slot_label(rect: Rect2, caption: String, text: String) -> void:
 			HORIZONTAL_ALIGNMENT_LEFT,
 			-1,
 			caption_size,
-			Color(0.72, 0.76, 0.82, 0.95)
+			InventoryUiThemeScene.INK_MUTED
 		)
 		y += caption_height
 	var remaining := rect.end.y - y - 4.0
@@ -165,7 +186,7 @@ func _draw_slot_label(rect: Rect2, caption: String, text: String) -> void:
 			HORIZONTAL_ALIGNMENT_LEFT,
 			-1,
 			font_size,
-			Color(0.95, 0.96, 0.98)
+			InventoryUiThemeScene.PARCHMENT
 		)
 		y += line_height
 
