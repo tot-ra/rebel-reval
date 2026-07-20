@@ -3,28 +3,19 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 GODOT_BIN="${GODOT_BIN:-godot}"
+GODOT_CHECKED="$ROOT/tools/run_godot_checked.sh"
 MODE="${1:-all}"
 
 run_godot() {
   local name="$1"
   shift
-  local log
-  log="$(mktemp -t "map-pipeline-${name}").log"
-  set +e
-  "$@" 2>&1 | tee "$log"
-  local status=${PIPESTATUS[0]}
-  set -e
-  if [[ "$status" -ne 0 ]] || grep -Eiq 'SCRIPT ERROR|Parse Error|Resource file not found|Failed loading resource|Can.t open file' "$log"; then
-    echo "Map pipeline command failed: $name" >&2
-    rm -f "$log"
-    return 1
-  fi
-  rm -f "$log"
+  "$GODOT_CHECKED" "$name" "$@"
 }
 
 run_tests() {
   local filter="$1"
-  run_godot "test-${filter}" "$GODOT_BIN" --headless --path "$ROOT" --script res://tools/run_godot_tests.gd -- --filter="$filter"
+  "$GODOT_CHECKED" --require-test-summary "test-${filter}" \
+    "$GODOT_BIN" --headless --path "$ROOT" --script res://tools/run_godot_tests.gd -- --filter="$filter"
 }
 
 case "$MODE" in

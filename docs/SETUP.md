@@ -107,10 +107,10 @@ The local equivalent of the CI validation job is:
 ```bash
 godot --version
 python3 --version
-godot --headless --editor --quit
-godot --headless --quit-after 5
-godot --headless --quit-after 5 scenes/reval_east/reval_east.tscn
-godot --headless --script tools/run_godot_tests.gd
+tools/run_godot_checked.sh clean-import godot --headless --editor --quit
+tools/run_godot_checked.sh main-scene godot --headless --quit-after 5
+tools/run_godot_checked.sh playable-room godot --headless --quit-after 5 scenes/reval_east/reval_east.tscn
+tools/run_godot_checked.sh --require-test-summary full-suite godot --headless --script tools/run_godot_tests.gd
 python3 tools/generate_active_docs_report.py --check
 python3 tools/generate_active_docs_report.py --fixture clean
 python3 tools/generate_active_docs_report.py --fixture invalid  # expected to fail
@@ -158,18 +158,23 @@ Recorded results: [`docs/reports/startup_baseline.md`](./reports/startup_baselin
 
 ### Tests
 
-The project uses a minimal repository-owned headless harness rather than an external addon. The command recursively discovers `tests/godot/test_*.gd`, runs zero-argument `test_*` methods, reports `PASS` and `FAIL` lines, and exits nonzero on failures or harness errors.
+The project uses a minimal repository-owned headless harness rather than an external addon. The harness recursively discovers `tests/godot/test_*.gd`, runs zero-argument `test_*` methods, and uses a Godot `Logger` to reject parser, load, engine, and runtime diagnostics during setup, test, and teardown. Always invoke it through the checked runner: Godot can still emit shutdown diagnostics after the harness exits, and it can return exit code `0` after some parser failures.
 
 ```bash
-godot --headless --script tools/run_godot_tests.gd
+tools/run_godot_checked.sh full-suite \
+  godot --headless --script tools/run_godot_tests.gd
 ```
+
+`tools/run_godot_checked.sh` rejects nonzero commands, `SCRIPT ERROR`, parser/load failures, and all unexpected `ERROR:` lines. Its only allowlist is the exact shutdown-only DEF-002 resource-summary error; leak warnings remain visible. `--require-test-summary` additionally rejects empty or interrupted test runs. Run `GODOT_BIN=godot tools/test_godot_harness.sh` to seed runtime and parser exceptions and prove that both failure classes exit nonzero.
 
 To add tests, create a script under `tests/godot/` named `test_<area>.gd`, extend `res://tests/godot/test_case.gd`, and add zero-argument methods named `test_<behavior>`. Use `before_each()` and `after_each()` for per-test setup when needed.
 
-For a narrow iteration loop while working on map view or camera behavior, run the focused helper (subset of integration tests only):
+For a narrow iteration loop while working on map view or camera behavior, use comma-separated filters with the same hardened harness:
 
 ```bash
-godot --headless --script tools/run_focused_godot_tests.gd
+tools/run_godot_checked.sh --require-test-summary focused-map-view \
+  godot --headless --script tools/run_godot_tests.gd -- \
+  --filter=test_map_view_3d_mesh,test_map_camera_modes
 ```
 
 ### Validation

@@ -48,46 +48,20 @@ jobs:
           godot --version
           python3 --version
 
-      - name: Create Godot smoke helper
-        run: |
-          cat > "$RUNNER_TEMP/run_godot_smoke.sh" <<'BASH'
-          #!/usr/bin/env bash
-          set -euo pipefail
-
-          name="$1"
-          shift
-          log="$RUNNER_TEMP/${name}.log"
-
-          set +e
-          "$@" 2>&1 | tee "$log"
-          status=${PIPESTATUS[0]}
-          set -e
-
-          if [[ "$status" -ne 0 ]]; then
-            echo "Command failed with status $status: $*" >&2
-            exit "$status"
-          fi
-
-          # DEF-002 allows shutdown leak messages. These patterns are startup,
-          # parser, or missing-resource failures that should fail CI.
-          if grep -Eiq 'SCRIPT ERROR|Parse Error|Resource file not found|Failed loading resource|Can.t open file' "$log"; then
-            echo "Godot smoke log contains parser or missing-resource errors: $log" >&2
-            exit 1
-          fi
-          BASH
-          chmod +x "$RUNNER_TEMP/run_godot_smoke.sh"
+      - name: Verify checked Godot runner
+        run: test -x tools/run_godot_checked.sh
 
       - name: Clean headless import
-        run: $RUNNER_TEMP/run_godot_smoke.sh clean-import godot --headless --editor --quit
+        run: tools/run_godot_checked.sh clean-import godot --headless --editor --quit
 
       - name: Main scene startup smoke
-        run: $RUNNER_TEMP/run_godot_smoke.sh main-scene godot --headless --quit-after 5
+        run: tools/run_godot_checked.sh main-scene godot --headless --quit-after 5
 
       - name: Playable room parser/startup smoke
-        run: $RUNNER_TEMP/run_godot_smoke.sh playable-room godot --headless --quit-after 5 scenes/reval_east/reval_east.tscn
+        run: tools/run_godot_checked.sh playable-room godot --headless --quit-after 5 scenes/reval_east/reval_east.tscn
 
       - name: Godot headless tests
-        run: godot --headless --script tools/run_godot_tests.gd
+        run: tools/run_godot_checked.sh --require-test-summary full-suite godot --headless --script tools/run_godot_tests.gd
 
       - name: Map parser smoke
         run: tools/run_map_pipeline_ci.sh parser
@@ -123,7 +97,8 @@ jobs:
               fail("Seeded CI failure must make the harness exit nonzero")
           GDSCRIPT
 
-          if godot --headless --script tools/run_godot_tests.gd; then
+          if tools/run_godot_checked.sh --require-test-summary seeded-assertion \
+            godot --headless --script tools/run_godot_tests.gd -- --filter=test_seeded_failure; then
             echo "Seeded Godot test failure unexpectedly passed" >&2
             exit 1
           fi
@@ -173,29 +148,8 @@ jobs:
           restore_manifest
           trap - EXIT
 
-      - name: Seeded parser error fails
-        run: |
-          set -euo pipefail
-          cat > "$RUNNER_TEMP/seeded_parser_error.gd" <<'GDSCRIPT'
-          extends SceneTree
-
-          func _initialize() -> void:
-              this is not valid gdscript
-          GDSCRIPT
-
-          set +e
-          godot --headless --script "$RUNNER_TEMP/seeded_parser_error.gd" > "$RUNNER_TEMP/seeded_parser_error.log" 2>&1
-          status=$?
-          set -e
-
-          # Godot can return 0 for --script parser diagnostics, so CI must
-          # assert on the log patterns used by the startup smoke helper.
-          if ! grep -Eiq 'SCRIPT ERROR|Parse Error' "$RUNNER_TEMP/seeded_parser_error.log"; then
-            cat "$RUNNER_TEMP/seeded_parser_error.log"
-            echo "Seeded parser error did not produce the expected parser diagnostics" >&2
-            exit 1
-          fi
-          echo "Seeded parser diagnostics detected; Godot exit status was $status."
+      - name: Verify Godot harness error gates
+        run: GODOT_BIN=godot tools/test_godot_harness.sh
 
   desktop-export-smoke:
     name: macOS desktop export smoke
