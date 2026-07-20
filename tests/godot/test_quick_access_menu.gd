@@ -17,6 +17,8 @@ func test_menu_exposes_named_player_actions() -> void:
 	var journal := menu.find_child("JournalButton", true, false) as Button
 	var camera := menu.find_child("CameraButton", true, false) as Button
 	var save := menu.find_child("SaveButton", true, false) as Button
+	var help := menu.find_child("HelpLabel", true, false) as Label
+	var panel := menu.find_child("QuickAccessPanel", true, false) as PanelContainer
 
 	assert_true(inventory != null, "quick access must visibly expose inventory")
 	assert_true(journal != null, "quick access must visibly expose journal")
@@ -26,6 +28,10 @@ func test_menu_exposes_named_player_actions() -> void:
 	assert_eq(journal.text, "Journal [J]")
 	assert_eq(camera.text, "Camera [C]")
 	assert_eq(save.text, "Save game")
+	assert_true(help != null, "quick access must show keyboard shortcut help")
+	assert_eq(help.text, QuickAccessMenu.HELP_TEXT)
+	assert_true(panel != null)
+	assert_eq(panel.anchor_top, 1.0, "unified quick access must stay at the bottom")
 	menu.queue_free()
 
 

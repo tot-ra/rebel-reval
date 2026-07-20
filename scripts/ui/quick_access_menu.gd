@@ -1,15 +1,18 @@
 class_name QuickAccessMenu
 extends CanvasLayer
 
-## Persistent entry point for player-facing systems. New global features should
-## join this surface instead of relying on undocumented hotkeys.
+## Persistent bottom entry point for player-facing systems plus passive shortcut
+## hints. New global features should join this surface instead of undocumented hotkeys.
 
 const STATUS_READY := "Choose an action"
 const STATUS_SAVED := "Game saved"
 const STATUS_SAVE_FAILED := "Save failed"
-const PANEL_MARGIN_RIGHT := 20.0
-const MINIMAP_GAP := 12.0
-const PANEL_HEIGHT := 96.0
+const PANEL_MARGIN := 24.0
+const PANEL_HEIGHT := 118.0
+const HELP_TEXT := (
+	"WASD or arrows - move | Click - travel | E - interact | "
+	+ "C - camera | N - map | I - inventory | J - journal"
+)
 
 var _inventory_controller: InventoryController
 var _journal_controller: JournalController
@@ -44,15 +47,17 @@ func _ready() -> void:
 func _build_ui() -> void:
 	var panel := PanelContainer.new()
 	panel.name = "QuickAccessPanel"
-	panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-	var panel_top := MinimapHud.PANEL_MARGIN + MinimapHud.total_hud_height() + MINIMAP_GAP
-	panel.offset_left = -626.0
-	panel.offset_top = panel_top
-	panel.offset_right = -PANEL_MARGIN_RIGHT
-	panel.offset_bottom = panel_top + PANEL_HEIGHT
+	# Ignore on the panel so click-to-move works around the buttons; buttons still STOP.
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+	panel.offset_left = -720.0
+	panel.offset_top = -PANEL_HEIGHT - PANEL_MARGIN
+	panel.offset_right = -PANEL_MARGIN
+	panel.offset_bottom = -PANEL_MARGIN
 	add_child(panel)
 
 	var margin := MarginContainer.new()
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_theme_constant_override("margin_left", 12)
 	margin.add_theme_constant_override("margin_right", 12)
 	margin.add_theme_constant_override("margin_top", 8)
@@ -60,18 +65,31 @@ func _build_ui() -> void:
 	panel.add_child(margin)
 
 	var layout := VBoxContainer.new()
+	layout.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layout.add_theme_constant_override("separation", 6)
 	margin.add_child(layout)
 
 	var header := Label.new()
 	header.name = "Header"
 	header.text = "Quick access"
+	header.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	header.add_theme_font_size_override("font_size", 14)
 	header.add_theme_color_override("font_color", Color(0.92, 0.82, 0.56, 1.0))
 	layout.add_child(header)
 
+	# WHY: keep mouse-transparent help so click-to-move still works beside buttons.
+	var help := Label.new()
+	help.name = "HelpLabel"
+	help.text = HELP_TEXT
+	help.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	help.add_theme_font_size_override("font_size", 12)
+	help.add_theme_color_override("font_color", Color(0.82, 0.86, 0.9, 0.92))
+	layout.add_child(help)
+
 	var actions := HBoxContainer.new()
 	actions.name = "Actions"
+	actions.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	actions.add_theme_constant_override("separation", 8)
 	layout.add_child(actions)
 
@@ -94,6 +112,7 @@ func _build_ui() -> void:
 	_status_label = Label.new()
 	_status_label.name = "StatusLabel"
 	_status_label.text = STATUS_READY
+	_status_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_status_label.add_theme_font_size_override("font_size", 12)
 	_status_label.add_theme_color_override("font_color", Color(0.72, 0.75, 0.78, 1.0))
 	layout.add_child(_status_label)

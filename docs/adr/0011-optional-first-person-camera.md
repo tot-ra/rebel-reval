@@ -17,7 +17,7 @@ Maintainers confirmed on 2026-07-20 that first-person mode is a **release featur
 ## Decision
 
 1. **Default gameplay remains the fixed orthographic dimetric camera** from ADR 0007. First-person mode is an optional alternate view; it does not replace the authored isometric presentation for combat, navigation, or slice readability.
-2. **Players toggle first-person with `C` or the Quick access "Camera [C]" button.** The shortcut and the visible button must stay in sync. The passive gameplay-help strip documents the shortcut; the Quick access menu provides the required mouse entry point.
+2. **Players toggle first-person with `C` or the Quick access "Camera [C]" button.** The shortcut and the visible button must stay in sync. The bottom Quick access panel documents the shortcut and provides the required mouse entry point.
 3. **First-person enables interior ceiling shells and sky visibility** already implemented in `MapView3D` and `MapViewRuntimeCamera`. Returning to third-person restores the top-down readability defaults (hidden ceiling shell, orthographic zoom).
 4. **No free camera rotation in release builds.** Yaw follows the existing gameplay orbit; wheel zoom applies only in third-person orthographic mode.
 
@@ -29,5 +29,5 @@ Maintainers confirmed on 2026-07-20 that first-person mode is a **release featur
 ## Consequences
 
 - ADR 0007 rule 3 is amended: the slice keeps a fixed orthographic dimetric default, with an optional first-person toggle for inspection. P0-040 may still freeze orthographic size, pitch, and grade parameters; first-person FOV and eye height are documented beside those constants in `MapViewRuntimeCamera`.
-- Quick access, gameplay help, and headless tests must cover both keyboard and mouse activation.
+- Bottom Quick access (buttons plus shortcut help) and headless tests must cover both keyboard and mouse activation.
 - Future camera features (photo mode, free look) require a new ADR and TODO entry; they are out of scope for this amendment.
