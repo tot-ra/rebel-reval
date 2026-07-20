@@ -6,10 +6,23 @@ const DEFAULT_CHARGE_THRESHOLD_SEC := 0.35
 
 
 ## Picks the first equipped hand with a content attack profile, otherwise unarmed.
+## Equipped forge techniques layer onto the resolved profile (P1-024d).
 static func resolve_for_state(
 	state: GameState,
 	content_db: ContentDB,
 	use_charged: bool = false
+) -> AttackProfile:
+	var profile := _resolve_item_profile(state, content_db, use_charged)
+	var technique_id := &""
+	if state != null:
+		technique_id = state.equipped_forge_technique()
+	return ForgeTechnique.apply_equipped(profile, technique_id)
+
+
+static func _resolve_item_profile(
+	state: GameState,
+	content_db: ContentDB,
+	use_charged: bool
 ) -> AttackProfile:
 	var item_id := equipped_attack_item_id(state, content_db)
 	if item_id.is_empty():

@@ -45,13 +45,14 @@ func take_damage(
 	amount: float,
 	_source: Node = null,
 	_damage_type: StringName = &"",
-	swing_id: int = 0
+	swing_id: int = 0,
+	pierces_guard: bool = false
 ) -> float:
 	combat_vitals.health = health
 	combat_vitals.max_health = max_health
 	combat_vitals.stamina = stamina
 	combat_vitals.max_stamina = max_stamina
-	var result := combat_vitals.resolve_hit(amount, defense_pose, swing_id)
+	var result := combat_vitals.resolve_hit(amount, defense_pose, swing_id, pierces_guard)
 	last_result = result
 	health = combat_vitals.health
 	stamina = combat_vitals.stamina

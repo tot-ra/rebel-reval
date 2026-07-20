@@ -17,7 +17,8 @@ static func strike(
 	reach_px: float,
 	minimum_facing_dot: float,
 	damage: float,
-	damage_type: StringName = &"blunt"
+	damage_type: StringName = &"blunt",
+	pierces_guard: bool = false
 ) -> Array[Node2D]:
 	var hits: Array[Node2D] = []
 	if attacker == null or attacker.get_tree() == null or facing.is_zero_approx():
@@ -36,10 +37,36 @@ static func strike(
 			continue
 		if attack_direction.dot(offset.normalized()) < minimum_facing_dot:
 			continue
-		var applied := float(candidate.call("take_damage", damage, attacker, damage_type, swing_id))
+		var applied := float(candidate.call(
+			"take_damage",
+			damage,
+			attacker,
+			damage_type,
+			swing_id,
+			pierces_guard
+		))
 		if applied > 0.0:
 			hits.append(candidate)
 	return hits
+
+
+## Convenience wrapper so callers with an AttackProfile keep technique flags.
+static func strike_with_profile(
+	attacker: Node2D,
+	facing: Vector2,
+	profile: AttackProfile
+) -> Array[Node2D]:
+	if profile == null:
+		return []
+	return strike(
+		attacker,
+		facing,
+		profile.reach_px,
+		profile.facing_dot,
+		profile.damage,
+		profile.damage_type,
+		profile.pierces_guard
+	)
 
 
 static func _allocate_swing_id() -> int:

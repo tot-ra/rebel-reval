@@ -215,7 +215,8 @@ func take_damage(
 	amount: float,
 	_source: Node = null,
 	_damage_type: StringName = &"",
-	swing_id: int = 0
+	swing_id: int = 0,
+	pierces_guard: bool = false
 ) -> float:
 	_sync_vitals_from_fields()
 	var pose := CombatDefensePose.from_action_machine(
@@ -226,7 +227,7 @@ func take_damage(
 	# tracks post-hit i-frames so both player and combat actors share one rule.
 	if action_state_machine.is_invulnerable():
 		pose.is_action_invulnerable = true
-	var result := combat_vitals.resolve_hit(amount, pose, swing_id)
+	var result := combat_vitals.resolve_hit(amount, pose, swing_id, pierces_guard)
 	_last_hit_result = result
 	_sync_fields_from_vitals()
 	_sync_resource_bars()
@@ -272,13 +273,10 @@ func _current_locomotion_animation() -> String:
 
 func _on_attack_impact() -> void:
 	var profile := _active_attack_profile
-	var targets: Array[Node2D] = MeleeAttackResolverScript.strike(
+	var targets: Array[Node2D] = MeleeAttackResolverScript.strike_with_profile(
 		self,
 		_facing_direction,
-		profile.reach_px,
-		profile.facing_dot,
-		profile.damage,
-		profile.damage_type
+		profile
 	)
 	melee_attack_resolved.emit(targets, profile)
 

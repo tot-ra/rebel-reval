@@ -51,6 +51,8 @@ var _items: Dictionary[StringName, bool] = {}
 var _dialogue_nodes_seen: Dictionary[StringName, bool] = {}
 var _world_items: Dictionary = {}
 var _world_defaults_seeded: Dictionary = {}
+## One equipped forge technique (Iron / Ember / Root) or empty when none.
+var _equipped_forge_technique: StringName = &""
 
 
 func _init() -> void:
@@ -89,6 +91,22 @@ func get_flag(key: StringName) -> bool:
 
 func set_flag(key: StringName, value: bool) -> void:
 	_flags[key] = value
+
+
+func equipped_forge_technique() -> StringName:
+	return _equipped_forge_technique
+
+
+## Equips an allowlisted forge technique, or clears it when empty. Returns false
+## when the id is not one of the three authored techniques.
+func set_equipped_forge_technique(technique_id: StringName) -> bool:
+	if technique_id.is_empty():
+		_equipped_forge_technique = &""
+		return true
+	if not ForgeTechnique.is_allowed(technique_id):
+		return false
+	_equipped_forge_technique = technique_id
+	return true
 
 
 func get_quest_state(key: StringName) -> StringName:

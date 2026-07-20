@@ -14,6 +14,8 @@ var health_damage: float = 0.0
 var stamina_damage: float = 0.0
 var died: bool = false
 var swing_id: int = 0
+## True when a guard-pierce technique converted a braced guard into an open hit.
+var guard_pierced: bool = false
 
 
 static func make(
@@ -22,7 +24,8 @@ static func make(
 	health: float = 0.0,
 	stamina: float = 0.0,
 	is_dead: bool = false,
-	id: int = 0
+	id: int = 0,
+	pierced_guard: bool = false
 ) -> CombatHitResult:
 	var result := CombatHitResult.new()
 	result.outcome = outcome_name
@@ -31,4 +34,5 @@ static func make(
 	result.stamina_damage = stamina
 	result.died = is_dead
 	result.swing_id = id
+	result.guard_pierced = pierced_guard
 	return result

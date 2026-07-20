@@ -39,6 +39,7 @@ static func save_payload(state: GameState) -> Dictionary:
 			"placements": placements,
 		},
 		"equipped": _string_dictionary(state._equipped),
+		"equipped_forge_technique": String(state.equipped_forge_technique()),
 		"facts": _bool_dictionary(state._facts),
 		"flags": _bool_dictionary(state._flags),
 		"relationships": _int_dictionary(state._relationships),
@@ -107,6 +108,12 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 			state.bag._rebuild_occupancy()
 
 	state._equipped = _load_string_dictionary(payload.get("equipped", {}), errors, "equipped")
+	# Optional for older saves; empty means no technique equipped.
+	var technique_raw := String(payload.get("equipped_forge_technique", ""))
+	if technique_raw.is_empty():
+		state._equipped_forge_technique = &""
+	elif not state.set_equipped_forge_technique(StringName(technique_raw)):
+		errors.append("unsupported equipped_forge_technique %s" % technique_raw)
 	state._facts = _load_bool_dictionary(payload.get("facts", {}), errors, "facts")
 	state._flags = _load_bool_dictionary(payload.get("flags", {}), errors, "flags")
 	state._relationships = _load_int_dictionary(payload.get("relationships", {}), errors, "relationships")

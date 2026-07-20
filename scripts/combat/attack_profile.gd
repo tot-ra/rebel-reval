@@ -18,10 +18,29 @@ var impact_timing_sec: float = DEFAULT_IMPACT_TIMING_SEC
 var attack_duration_sec: float = DEFAULT_ATTACK_DURATION_SEC
 var stamina_cost: float = DEFAULT_STAMINA_COST
 var damage_type: StringName = DEFAULT_DAMAGE_TYPE
+## Equipped forge technique layered onto this strike (empty when none).
+var technique: StringName = &""
+## When true, a guarding foe outside the parry window takes an open hit.
+var pierces_guard: bool = false
 
 
 static func unarmed() -> AttackProfile:
 	return AttackProfile.new()
+
+
+func duplicate_profile() -> AttackProfile:
+	var copy := AttackProfile.new()
+	copy.animation = animation
+	copy.damage = damage
+	copy.reach_px = reach_px
+	copy.facing_dot = facing_dot
+	copy.impact_timing_sec = impact_timing_sec
+	copy.attack_duration_sec = attack_duration_sec
+	copy.stamina_cost = stamina_cost
+	copy.damage_type = damage_type
+	copy.technique = technique
+	copy.pierces_guard = pierces_guard
+	return copy
 
 
 static func from_content(data: Dictionary) -> AttackProfile:

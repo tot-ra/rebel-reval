@@ -66,7 +66,8 @@ func reset_swing_tracking() -> void:
 func resolve_hit(
 	amount: float,
 	pose: CombatDefensePose = null,
-	swing_id: int = 0
+	swing_id: int = 0,
+	pierces_guard: bool = false
 ) -> CombatHitResult:
 	var defense := pose if pose != null else CombatDefensePose.open()
 	if amount <= 0.0:
@@ -97,6 +98,11 @@ func resolve_hit(
 			false,
 			swing_id
 		))
+
+	# Iron (and future jam techniques): a braced guard outside the parry window
+	# is forced open. Timed parries above still beat the jam.
+	if pierces_guard and defense.is_guarding:
+		return _resolve_open_hit(amount, swing_id, true)
 
 	if defense.is_guarding:
 		return _resolve_guarded(amount, swing_id)
@@ -132,7 +138,7 @@ func _resolve_guarded(amount: float, swing_id: int) -> CombatHitResult:
 	))
 
 
-func _resolve_open_hit(amount: float, swing_id: int) -> CombatHitResult:
+func _resolve_open_hit(amount: float, swing_id: int, pierced_guard: bool = false) -> CombatHitResult:
 	var previous_health := health
 	health = clampf(health - amount, 0.0, max_health)
 	var health_taken := previous_health - health
@@ -146,7 +152,8 @@ func _resolve_open_hit(amount: float, swing_id: int) -> CombatHitResult:
 		health_taken,
 		0.0,
 		became_dead,
-		swing_id
+		swing_id,
+		pierced_guard
 	))
 
 
