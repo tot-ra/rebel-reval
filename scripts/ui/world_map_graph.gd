@@ -64,6 +64,54 @@ static func connections() -> Array[Dictionary]:
 	return edges
 
 
+## Directed travel for P1-031a: spawn comes from the current scene's authored
+## transition into the destination, never from undirected graph display edges.
+static func resolve_travel_spawn(from_scene_id: StringName, to_scene_id: StringName) -> StringName:
+	if from_scene_id.is_empty() or to_scene_id.is_empty():
+		return &""
+	if from_scene_id == to_scene_id:
+		return &""
+	if not DoorNavigator.has_active_scene(to_scene_id):
+		return &""
+	var definition := create_definition(from_scene_id)
+	if definition == null:
+		return &""
+	for transition in definition.transitions:
+		var destination := StringName(String(transition.get("destination_scene_id", "")))
+		if destination != to_scene_id:
+			continue
+		var spawn := StringName(String(transition.get("destination_spawn_id", "")))
+		if spawn.is_empty():
+			continue
+		if not DoorNavigator.has_spawn(to_scene_id, spawn):
+			continue
+		return spawn
+	return &""
+
+
+static func plan_travel(from_scene_id: StringName, to_scene_id: StringName) -> Dictionary:
+	var spawn := resolve_travel_spawn(from_scene_id, to_scene_id)
+	if spawn.is_empty():
+		return {}
+	return {
+		"scene_id": to_scene_id,
+		"spawn_id": spawn,
+	}
+
+
+static func travelable_neighbors(from_scene_id: StringName) -> Array[StringName]:
+	var neighbors: Array[StringName] = []
+	if from_scene_id.is_empty():
+		return neighbors
+	for scene_id in active_scene_ids():
+		if scene_id == from_scene_id:
+			continue
+		if resolve_travel_spawn(from_scene_id, scene_id).is_empty():
+			continue
+		neighbors.append(scene_id)
+	return neighbors
+
+
 static func layout_positions(scene_ids: Array[StringName]) -> Dictionary:
 	var positions: Dictionary = {}
 	var fallback_index := 0

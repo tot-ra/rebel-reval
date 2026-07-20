@@ -115,6 +115,101 @@ func test_resolve_current_scene_id_from_scene_path() -> void:
 	unknown.free()
 
 
+func test_travel_spawn_resolves_edge_for_reval_east_and_forge() -> void:
+	var east_to_forge := WorldMapGraph.resolve_travel_spawn(&"reval_east", &"forge")
+	assert_eq(east_to_forge, &"door_courtyard")
+	assert_true(
+		DoorNavigator.has_spawn(&"forge", east_to_forge),
+		"reval_east -> forge spawn must be registered in the active manifest"
+	)
+
+	var forge_to_east := WorldMapGraph.resolve_travel_spawn(&"forge", &"reval_east")
+	assert_eq(forge_to_east, &"forge")
+	assert_true(
+		DoorNavigator.has_spawn(&"reval_east", forge_to_east),
+		"forge -> reval_east spawn must be registered in the active manifest"
+	)
+
+	assert_true(
+		WorldMapGraph.resolve_travel_spawn(&"reval_east", &"archive_only").is_empty(),
+		"unknown destinations must not resolve a travel spawn"
+	)
+	assert_true(
+		WorldMapGraph.resolve_travel_spawn(&"reval_east", &"reval_east").is_empty(),
+		"current scene must not resolve travel to itself"
+	)
+	assert_true(
+		WorldMapGraph.plan_travel(&"reval_east", &"st_olafs_guild_hall").is_empty(),
+		"disconnected active scenes must not travel"
+	)
+
+
+func test_click_neighbor_records_go_to_scene_without_traveling_current() -> void:
+	var overlay := WorldMapOverlay.new()
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(overlay)
+	overlay.configure(&"reval_east")
+	overlay.open()
+
+	var current := overlay.get_node_button(&"reval_east")
+	assert_true(current != null)
+	assert_true(current.disabled, "current-scene node stays non-interactive")
+	assert_eq(current.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+
+	var forge_button := overlay.get_node_button(&"forge")
+	assert_true(forge_button != null)
+	assert_false(forge_button.disabled, "forge neighbor must be clickable from reval_east")
+
+	var recorded: Array = []
+	overlay.travel_requested.connect(
+		func(scene_id: StringName, spawn_id: StringName) -> void:
+			recorded.append({"scene_id": scene_id, "spawn_id": spawn_id})
+	)
+	forge_button.pressed.emit()
+	assert_eq(recorded.size(), 1, "neighbor click must request travel")
+	assert_eq(recorded[0]["scene_id"], &"forge")
+	assert_eq(recorded[0]["spawn_id"], &"door_courtyard")
+	assert_true(DoorNavigator.has_spawn(&"forge", recorded[0]["spawn_id"]))
+
+	assert_false(
+		overlay.request_travel_to(&"reval_east"),
+		"current scene must not travel"
+	)
+	assert_false(
+		overlay.request_travel_to(&"archive_only"),
+		"unknown nodes must not travel"
+	)
+	assert_false(
+		overlay.request_travel_to(&"st_olafs_guild_hall"),
+		"disconnected nodes must not travel from reval_east"
+	)
+	assert_eq(recorded.size(), 1, "rejected destinations must not emit travel")
+
+	var controller := WorldMapController.new()
+	controller.name = "WorldMapController"
+	tree.root.add_child(controller)
+	controller.get_overlay().configure(&"reval_east")
+	var plan := controller.travel_to_scene(&"forge", false)
+	assert_eq(plan.get("scene_id", &""), &"forge")
+	assert_eq(plan.get("spawn_id", &""), &"door_courtyard")
+	assert_eq(controller.last_travel_request.get("scene_id", &""), &"forge")
+	assert_eq(controller.last_travel_request.get("spawn_id", &""), &"door_courtyard")
+	assert_true(
+		DoorNavigator.has_spawn(
+			controller.last_travel_request["scene_id"],
+			controller.last_travel_request["spawn_id"]
+		),
+		"recorded go_to_scene args must use an active manifest spawn"
+	)
+	assert_true(
+		controller.travel_to_scene(&"archive_only", false).is_empty(),
+		"controller must refuse unknown destinations"
+	)
+
+	overlay.queue_free()
+	controller.queue_free()
+
+
 func _action_has_physical_key(action: StringName, keycode: Key) -> bool:
 	for event in InputMap.action_get_events(action):
 		if event is InputEventKey and (event as InputEventKey).physical_keycode == keycode:

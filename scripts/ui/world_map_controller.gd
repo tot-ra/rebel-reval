@@ -2,10 +2,13 @@ class_name WorldMapController
 extends Node
 
 ## Persistent world/district map entry point on every playable player host (P1-031).
+## Click-to-travel through DoorNavigator is P1-031a.
 
 const TOGGLE_ACTION := &"toggle_world_map"
 
 var _overlay: WorldMapOverlay
+## Last planned go_to_scene args for headless verification (scene_id + spawn_id).
+var last_travel_request: Dictionary = {}
 
 
 func _ready() -> void:
@@ -15,6 +18,7 @@ func _ready() -> void:
 	_overlay.visible = false
 	add_child(_overlay)
 	_overlay.closed.connect(_on_overlay_closed)
+	_overlay.travel_requested.connect(_on_travel_requested)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -54,6 +58,29 @@ func get_overlay() -> WorldMapOverlay:
 	return _overlay
 
 
+## Plan and optionally execute a district-map travel. Tests pass execute=false to
+## record go_to_scene args without changing the SceneTree.
+func travel_to_scene(destination_scene_id: StringName, execute: bool = true) -> Dictionary:
+	last_travel_request.clear()
+	if _overlay == null:
+		return {}
+	var plan := _overlay.plan_travel_to(destination_scene_id)
+	if plan.is_empty():
+		# WHY: prefer the overlay's configured scene so headless plans stay stable
+		# even when SceneTree.current_scene is a test harness root.
+		var from_id := _overlay.get_current_scene_id()
+		if from_id.is_empty():
+			from_id = _resolve_current_scene_id()
+		plan = WorldMapGraph.plan_travel(from_id, destination_scene_id)
+	if plan.is_empty():
+		return {}
+	last_travel_request = plan.duplicate(true)
+	if execute:
+		DoorNavigator.go_to_scene(plan["scene_id"], plan["spawn_id"])
+		close()
+	return last_travel_request
+
+
 func _resolve_current_scene_id() -> StringName:
 	var tree := get_tree()
 	if tree == null:
@@ -80,3 +107,12 @@ func _is_toggle_event(event: InputEvent) -> bool:
 
 func _on_overlay_closed() -> void:
 	pass
+
+
+func _on_travel_requested(scene_id: StringName, spawn_id: StringName) -> void:
+	last_travel_request = {
+		"scene_id": scene_id,
+		"spawn_id": spawn_id,
+	}
+	DoorNavigator.go_to_scene(scene_id, spawn_id)
+	close()
