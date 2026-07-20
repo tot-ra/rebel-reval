@@ -199,11 +199,15 @@ static func pad_factor(field: Dictionary, position: Vector2) -> float:
 
 static func water_factor(field: Dictionary, position: Vector2) -> float:
 	var size: Vector2i = field["size"]
+	var factors: PackedFloat32Array = field["water_factors"]
+	# Invalid map definitions produce an empty terrain grid. Keep water flattening
+	# neutral so the mesh builder can skip that grid without indexing cell -1.
+	if size.x <= 0 or size.y <= 0 or factors.size() != size.x * size.y:
+		return 1.0
 	var cell := Vector2i(
 		clampi(floori(position.x), 0, size.x - 1),
 		clampi(floori(position.y), 0, size.y - 1)
 	)
-	var factors: PackedFloat32Array = field["water_factors"]
 	return factors[cell.y * size.x + cell.x]
 
 

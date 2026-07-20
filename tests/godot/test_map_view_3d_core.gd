@@ -270,6 +270,13 @@ func test_height_field_cache_distinguishes_same_map_id_grid_rebuilds() -> void:
 	second_terrain.free()
 
 
+func test_empty_terrain_grid_skips_ground_mesh_without_index_errors() -> void:
+	var definition := _flat_terrain_definition(&"test_empty_terrain_grid", Vector2i(4, 3))
+	var terrain := MapViewMeshBuilder.build_terrain(definition, MapTerrainGrid.new())
+	assert_eq(terrain.get_child_count(), 0, "empty terrain grids must not produce geometry")
+	terrain.free()
+
+
 func test_authored_ground_elevation_creates_a_tapered_plateau() -> void:
 	var definition := _flat_terrain_definition(&"test_elevated_plateau", Vector2i(24, 24))
 	definition.ground_elevation = 3.0
