@@ -161,6 +161,29 @@ func test_town_surroundings_use_authored_neighbor_edges() -> void:
 	view.free()
 
 
+func test_town_surroundings_keep_deep_apron_past_neighbor_previews() -> void:
+	# Neighbor strips are only ~32 cells deep. Without a deeper view-only apron
+	# the max-zoom dimetric camera shows sky void past the playable edge.
+	var definition := LowerTownSlice.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition))
+	var min_depth := MapViewMeshBuilderConfig.SURROUNDINGS_TOWN_DEPTH
+	for side in ["west", "north", "east", "south"]:
+		assert_true(
+			view.has_node("Surroundings/TownApron_%s" % side),
+			"%s needs continuation ground under and past the neighbor preview" % side
+		)
+		var apron := view.get_node("Surroundings/TownApron_%s" % side) as MeshInstance3D
+		var mesh := apron.mesh as PlaneMesh
+		# Side bands store depth on the outward axis: west/east use X, north/south use Y.
+		var depth := mesh.size.x if side in ["west", "east"] else mesh.size.y
+		assert_true(
+			depth >= min_depth - 0.01,
+			"%s apron depth %.1f must cover max zoom (need >= %.1f)" % [side, depth, min_depth]
+		)
+	assert_true(view.has_node("Surroundings/TownSilhouette"), "town silhouette houses still spawn")
+	view.free()
+
+
 func test_lower_town_scatter_includes_puddles_on_worked_ground() -> void:
 	var definition := LowerTownSlice.create()
 	var view := MapView3D.create(definition, MapBuilder.build(definition))

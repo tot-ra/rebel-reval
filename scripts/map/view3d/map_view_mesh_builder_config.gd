@@ -217,14 +217,18 @@ const GLACIS_CLEARANCE := 6.0
 
 ## View-only landscape ring past the playable bounds. Authors opt in per side via
 ## `surroundings_sides`; unlisted sides stay empty instead of default woodland.
+## Depth must exceed the max-zoom dimetric frustum past a map edge (ortho size
+## ~50, pitch -30, yaw 45) so the sky never reads as a blue void. Movement stays
+## clamped to authored collision/nav; these meshes are view-only.
 const SURROUNDINGS_SIZE_WORLD := 512.0
+const SURROUNDINGS_CONTINUATION_DEPTH := 192.0
 const SURROUNDINGS_COLOR := Color8(74, 88, 60)
 const SURROUNDINGS_WATER_SHALLOW_DEPTH := 10.0
-const SURROUNDINGS_WATER_DEEP_DEPTH := 56.0
-const SURROUNDINGS_WOODLAND_DEPTH := 48.0
+const SURROUNDINGS_WATER_DEEP_DEPTH := SURROUNDINGS_CONTINUATION_DEPTH - SURROUNDINGS_WATER_SHALLOW_DEPTH
+const SURROUNDINGS_WOODLAND_DEPTH := SURROUNDINGS_CONTINUATION_DEPTH
 ## Urban continuation strip on `surroundings_sides` town entries so silhouettes
 ## do not float over the void past the playable terrain edge.
-const SURROUNDINGS_TOWN_DEPTH := 48.0
+const SURROUNDINGS_TOWN_DEPTH := SURROUNDINGS_CONTINUATION_DEPTH
 const TREE_BAND_INNER := 1.5
 const TREE_BAND_OUTER := 18.0
 const TREE_GRID_SPACING := 3.0

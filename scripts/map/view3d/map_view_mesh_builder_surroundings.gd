@@ -31,9 +31,10 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 		root.add_child(_neighbor_preview(definition, neighbor, transition, side))
 		previewed_sides[side] = true
 
+	# Always paint continuation ground for authored sides. Neighbor previews
+	# overlay the near strip; skipping the apron left sky void past that strip
+	# at max zoom-out.
 	for side in MapDefinition.WORLD_SIDES:
-		if previewed_sides.has(side):
-			continue
 		match sides.get(side):
 			&"water":
 				root.add_child(_water_continuation(definition, map_size, side))
@@ -194,11 +195,14 @@ static func _surroundings_water_plane(
 
 
 static func _side_band_size(map_size: Vector2, side: StringName, depth: float) -> Vector2:
+	# Lateral overhang matches continuation depth so 45-degree corners stay
+	# covered when the gameplay camera looks diagonally past a map edge.
+	var overhang := maxf(depth, MapViewMeshBuilderConfig.TREE_BAND_OUTER)
 	match side:
 		&"north", &"south":
-			return Vector2(map_size.x + MapViewMeshBuilderConfig.TREE_BAND_OUTER * 2.0, depth)
+			return Vector2(map_size.x + overhang * 2.0, depth)
 		_:
-			return Vector2(depth, map_size.y + MapViewMeshBuilderConfig.TREE_BAND_OUTER * 2.0)
+			return Vector2(depth, map_size.y + overhang * 2.0)
 
 
 

@@ -23,7 +23,9 @@ const CAMERA_YAW_DEGREES := 45.0
 const CAMERA_DISTANCE := 90.0
 const CAMERA_MARGIN := 1.15
 const CAMERA_HEADROOM := 5.0
-const CAMERA_FAR := 400.0
+## Far plane must clear the view-only surroundings ring past map edges at max
+## zoom; keep it above SURROUNDINGS_CONTINUATION_DEPTH plus CAMERA_DISTANCE.
+const CAMERA_FAR := 800.0
 ## The orthographic camera can expose objects more than two 32-cell chunks away,
 ## especially on wide viewports and at maximum zoom-out. Keep one extra ring
 ## resident so authored district frontages never disappear inside the viewport.
