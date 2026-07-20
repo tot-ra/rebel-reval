@@ -54,6 +54,7 @@ func test_swapping_equipped_items_changes_attack_behavior_without_item_id_branch
 	assert_eq(target.health, 12.0, "Unarmed profile should apply default punch damage")
 
 	# Hammer from content
+	_clear_hit_invulnerability(target)
 	_equip_item(&"right_hand", ITEM_HAMMER)
 	player.stamina = 100.0
 	_start_attack(player)
@@ -61,6 +62,7 @@ func test_swapping_equipped_items_changes_attack_behavior_without_item_id_branch
 
 	# Test stick from content
 	target.health = 20.0
+	_clear_hit_invulnerability(target)
 	_equip_item(&"right_hand", ITEM_TEST_STICK)
 	player.stamina = 100.0
 	_start_attack(player)
@@ -177,6 +179,12 @@ func _start_attack(player: Player) -> void:
 	assert_true(player.action_state_machine.try_start_action(PlayerActionKind.Kind.ATTACK))
 	player.stamina = maxf(0.0, player.stamina - profile.stamina_cost)
 	_advance(player.action_state_machine, player.action_state_machine.attack_impact_sec)
+
+
+func _clear_hit_invulnerability(actor: CombatTestDummy) -> void:
+	# Sequential profile checks are separate swings; expire post-hit i-frames first.
+	actor.combat_vitals.tick(actor.combat_vitals.hit_invulnerability_sec + 0.05)
+	actor.combat_vitals.reset_swing_tracking()
 
 
 func _equip_item(slot: StringName, item_id: StringName) -> void:

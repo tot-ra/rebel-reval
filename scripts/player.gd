@@ -9,6 +9,7 @@ const NpcPushScript := preload("res://scripts/physics/npc_push.gd")
 
 signal melee_attack_resolved(targets: Array[Node2D], profile: AttackProfile)
 signal health_changed(current: float, maximum: float)
+signal died
 
 # Logic px/s (32 px = 1 world unit): a readable walk and a believable sprint.
 # MapViewRuntime.RUN_ANIMATION_MIN_SPEED sits midway between these.
@@ -32,13 +33,16 @@ var _screen_right_in_logic := Vector2.RIGHT
 var _screen_down_in_logic := Vector2.DOWN
 var _facing_direction := Vector2.DOWN
 var action_state_machine := PlayerActionStateMachine.new()
+var combat_vitals := CombatVitals.new()
 var _active_attack_profile: AttackProfile = AttackProfile.unarmed()
 var _attack_charge_sec: float = 0.0
 var _attack_charge_active: bool = false
+var _last_hit_result: CombatHitResult
 
 func _ready() -> void:
 	CollisionLayers.apply_player(self)
 	add_to_group(MeleeAttackResolver.DAMAGEABLE_GROUP)
+	_configure_combat_vitals()
 	_sync_resource_bars()
 	if not action_state_machine.attack_impact.is_connected(_on_attack_impact):
 		action_state_machine.attack_impact.connect(_on_attack_impact)
@@ -65,6 +69,7 @@ func configure_map_movement(definition: MapDefinition, grid: MapTerrainGrid) -> 
 
 func _physics_process(_delta):
 	action_state_machine.tick(_delta)
+	combat_vitals.tick(_delta)
 	_process_action_input(_delta)
 
 	if _movement_blocked():
@@ -206,17 +211,40 @@ func apply_hit_stun() -> void:
 	action_state_machine.apply_hit()
 
 
-func take_damage(amount: float, _source: Node = null, _damage_type: StringName = &"") -> float:
-	if amount <= 0.0 or health <= 0.0 or is_combat_invulnerable():
-		return 0.0
-	var previous := health
-	health = clampf(health - amount, 0.0, max_health)
-	var applied := previous - health
+func take_damage(
+	amount: float,
+	_source: Node = null,
+	_damage_type: StringName = &"",
+	swing_id: int = 0
+) -> float:
+	_sync_vitals_from_fields()
+	var pose := CombatDefensePose.from_action_machine(
+		action_state_machine,
+		combat_vitals.parry_window_sec
+	)
+	# Dodge invulnerability remains owned by the action machine; vitals also
+	# tracks post-hit i-frames so both player and combat actors share one rule.
+	if action_state_machine.is_invulnerable():
+		pose.is_action_invulnerable = true
+	var result := combat_vitals.resolve_hit(amount, pose, swing_id)
+	_last_hit_result = result
+	_sync_fields_from_vitals()
 	_sync_resource_bars()
-	health_changed.emit(health, max_health)
-	if applied > 0.0:
+	if result.health_damage > 0.0:
+		health_changed.emit(health, max_health)
 		apply_hit_stun()
-	return applied
+	elif result.outcome == CombatHitResult.OUTCOME_HIT:
+		# Zero-amount open hits should not happen, but keep stun aligned with HIT.
+		apply_hit_stun()
+	return result.health_damage
+
+
+func last_hit_result() -> CombatHitResult:
+	return _last_hit_result
+
+
+func is_combat_dead() -> bool:
+	return combat_vitals.is_dead()
 
 
 func view_facing() -> Vector2:
@@ -279,7 +307,31 @@ func _prepare_attack_for_profile(profile: AttackProfile) -> void:
 
 
 func is_combat_invulnerable() -> bool:
-	return action_state_machine.is_invulnerable()
+	return action_state_machine.is_invulnerable() or combat_vitals.is_hit_invulnerable()
+
+
+func _configure_combat_vitals() -> void:
+	combat_vitals.configure(health, max_health, stamina, max_stamina)
+	if not combat_vitals.died.is_connected(_on_combat_vitals_died):
+		combat_vitals.died.connect(_on_combat_vitals_died)
+
+
+func _on_combat_vitals_died() -> void:
+	died.emit()
+
+
+func _sync_vitals_from_fields() -> void:
+	combat_vitals.health = health
+	combat_vitals.max_health = max_health
+	combat_vitals.stamina = stamina
+	combat_vitals.max_stamina = max_stamina
+
+
+func _sync_fields_from_vitals() -> void:
+	health = combat_vitals.health
+	max_health = combat_vitals.max_health
+	stamina = combat_vitals.stamina
+	max_stamina = combat_vitals.max_stamina
 
 
 func _combat_or_locomotion_animation(locomotion_animation: String) -> String:

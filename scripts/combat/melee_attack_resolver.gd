@@ -3,6 +3,10 @@ extends RefCounted
 
 const DAMAGEABLE_GROUP := &"combat_damageable"
 
+## Monotonic id shared by every take_damage call from one strike pulse.
+## CombatVitals uses it so one swing cannot damage the same actor twice.
+static var _next_swing_id: int = 1
+
 
 ## Resolves one deterministic melee pulse on the 2D logic plane. Presentation
 ## rigs stay visual-only, so combat uses the same stable positions as movement,
@@ -18,6 +22,7 @@ static func strike(
 	var hits: Array[Node2D] = []
 	if attacker == null or attacker.get_tree() == null or facing.is_zero_approx():
 		return hits
+	var swing_id := _allocate_swing_id()
 	var attack_direction := facing.normalized()
 	var reach_squared := reach_px * reach_px
 	for candidate_node: Node in attacker.get_tree().get_nodes_in_group(DAMAGEABLE_GROUP):
@@ -31,7 +36,13 @@ static func strike(
 			continue
 		if attack_direction.dot(offset.normalized()) < minimum_facing_dot:
 			continue
-		var applied := float(candidate.call("take_damage", damage, attacker, damage_type))
+		var applied := float(candidate.call("take_damage", damage, attacker, damage_type, swing_id))
 		if applied > 0.0:
 			hits.append(candidate)
 	return hits
+
+
+static func _allocate_swing_id() -> int:
+	var swing_id := _next_swing_id
+	_next_swing_id += 1
+	return swing_id

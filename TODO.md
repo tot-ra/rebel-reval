@@ -16,6 +16,8 @@ Coordination note (2026-07-20 P0-067a): retained `MAP_CHUNK_BOUNDARY_AMBIGUOUS` 
 
 Coordination note (2026-07-20 P0-067b): retained `MAP_CHUNK_BOUNDARY_AMBIGUOUS` warnings on playable slice maps `kalev_smithy` and `lower_town_slice`, plus registry leftover `market_civic_quarter`, are owned in `docs/reports/map_chunk_boundary_review_p0_067b.md` with ADR 0010 ownership; audit still prints the warnings. Object chunk streaming on slice maps stays non-production until **P0-067c**.
 
+Coordination note (2026-07-20 P1-024c): shared health/death/guard/parry/dodge resolution landed in `CombatVitals` for player and combat actors; `--filter=test_combat_vitals` passes 10/10. Next combat step is **P1-024d** (Iron technique).
+
 Delivery order remains strict: playable demo, vertical-slice MVP, Act 1, Act 2, Act 3. D-004 packaging is closed; resume visual acceptance (P0-053 / P0-037) and vertical-slice systems without waiting on further packaging work. Prototype and slice chunk-boundary ownership reviews are closed under P0-067a / P0-067b; production chunk-streaming readiness remains **P0-067c**.
 
 Player-facing discoverability is part of every feature's definition of done. Any new player action, screen, or overlay must add a visible entry point to the persistent quick-access menu or an equally visible contextual prompt; a hotkey alone is not sufficient. Its verification must cover both mouse activation and the documented shortcut so players and developers can find shipped functionality without reading source code.
@@ -50,7 +52,7 @@ Required exit condition for the packaging gate: clean clone import, startup smok
 
 ### 5. Resume vertical-slice systems only after the baseline is green
 
-1. **P1-024c, P1-024d, P1-024** - finish shared damage/defense/dodge, Iron technique, and the integrated combat room.
+1. **P1-024d, P1-024** - finish Iron technique and the integrated combat room.
 2. **P1-025 through P1-027** - add enemies, non-lethal outcomes, and retry state.
 3. **P1-022** follows P0-040; **P1-031** is independent but remains behind demo packaging.
 4. Then build the authored slice in order: P2-006 tutorial, P2-007 investigation, P2-008 forge choice, P2-009 night consequence, P2-010 aftermath, P2-011 reflection, P2-012 end-to-end slice.
@@ -112,9 +114,9 @@ Goal: a small runnable demo proving the ADR 0007 look and the core interaction l
 - [x] P1-023a | deps: P1-023 | deliverable: player movement can gently push non-hostile NPCs out of blocked pathways and entrances while respecting world collision and NPC navigation | verify: automated movement scenes confirm the player can clear a narrow route blocked by an NPC, cannot push the NPC through walls or closed doors, and the displaced NPC resumes its normal idle or navigation behavior without either actor becoming stuck
 - [x] P1-024a | deps: P1-023b | deliverable: data-driven attack profile contract selecting animation, damage, reach, impact timing, stamina cost, and damage type from the item equipped in either hand, with the unarmed profile as fallback | verify: swapping empty hand, hammer, and a test item changes combat behavior from content/state without branching on item IDs
 - [x] P1-024b | deps: P1-024a | deliverable: hammer light attack and charged attack using the shared rig and equipped forge hammer | verify: combat tests demonstrate distinct telegraph, impact timing, damage, reach, and stamina costs while release-before-threshold remains a light attack
-- [ ] P1-024c | deps: P1-024a | deliverable: shared health, death, guard/parry, and dodge resolution for player and combat actors | verify: tests cover damage clamping, invulnerability windows, guarded stamina loss, parry timing, death notification, and no duplicate hit per swing
-- [ ] P1-024d | deps: P1-024b,P1-024c | deliverable: Iron technique layered onto the same attack and damage contracts | verify: combat test demonstrates the authored Iron behavior without a parallel state machine or item-specific enemy code
-- [ ] P1-024 | deps: P1-024b,P1-024c,P1-024d | deliverable: integrate hammer light attack, charged attack, guard/parry, dodge, and Iron technique into one playable combat test room with readable feedback | verify: keyboard/mouse and gamepad combat runs demonstrate damage, stamina costs, invulnerability, parry, Iron behavior, item use, and recovery without stuck states
+- [x] P1-024c | deps: P1-024a | deliverable: shared health, death, guard/parry, and dodge resolution for player and combat actors | verify: tests cover damage clamping, invulnerability windows, guarded stamina loss, parry timing, death notification, and no duplicate hit per swing
+- [ ] P1-024d | deps: none | deliverable: Iron technique layered onto the same attack and damage contracts | verify: combat test demonstrates the authored Iron behavior without a parallel state machine or item-specific enemy code
+- [ ] P1-024 | deps: P1-024d | deliverable: integrate hammer light attack, charged attack, guard/parry, dodge, and Iron technique into one playable combat test room with readable feedback | verify: keyboard/mouse and gamepad combat runs demonstrate damage, stamina costs, invulnerability, parry, Iron behavior, item use, and recovery without stuck states
 - [ ] P1-025 | deps: P1-024 | deliverable: shared watchman and sergeant enemy state machine | verify: both archetypes patrol, detect, telegraph, attack, react, and disengage without duplicated controller code
 - [ ] P1-026 | deps: P1-025 | deliverable: authored surrender, escape, or bypass outcome support | verify: one encounter resolves without killing and updates the same quest state used by combat
 - [ ] P1-027 | deps: P1-024,P1-025 | deliverable: combat reset checkpoint after failure | verify: player retries the encounter without replaying completed dialogue or corrupting quest state
