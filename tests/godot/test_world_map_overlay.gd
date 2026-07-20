@@ -210,6 +210,60 @@ func test_click_neighbor_records_go_to_scene_without_traveling_current() -> void
 	controller.queue_free()
 
 
+func test_focus_neighbor_ui_accept_records_same_travel_as_click() -> void:
+	var overlay := WorldMapOverlay.new()
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(overlay)
+	overlay.configure(&"reval_east")
+	overlay.open()
+
+	var current := overlay.get_node_button(&"reval_east")
+	assert_true(current != null)
+	assert_eq(current.focus_mode, Control.FOCUS_NONE, "current-scene node must stay out of the focus ring")
+	assert_true(current.disabled, "current-scene node stays non-interactive")
+	assert_false(
+		overlay.focus_travel_node(&"reval_east"),
+		"focus API must refuse the current scene"
+	)
+
+	# WHY: open() seeds focus on the first travelable neighbor; clear it before
+	# asserting that ui_accept without a travelable focus owner is a no-op.
+	tree.root.get_viewport().gui_release_focus()
+	assert_false(
+		overlay.activate_focused_travel(),
+		"ui_accept must not travel when focus is not on a travelable neighbor"
+	)
+
+	var recorded: Array = []
+	overlay.travel_requested.connect(
+		func(scene_id: StringName, spawn_id: StringName) -> void:
+			recorded.append({"scene_id": scene_id, "spawn_id": spawn_id})
+	)
+
+	assert_true(
+		overlay.focus_travel_node(&"forge"),
+		"forge neighbor must accept keyboard/gamepad focus from reval_east"
+	)
+	var forge_button := overlay.get_node_button(&"forge")
+	assert_true(forge_button != null)
+	assert_eq(tree.root.get_viewport().gui_get_focus_owner(), forge_button)
+
+	var accept := InputEventAction.new()
+	accept.action = &"ui_accept"
+	accept.pressed = true
+	overlay._unhandled_input(accept)
+
+	assert_eq(recorded.size(), 1, "ui_accept on a focused neighbor must request travel")
+	assert_eq(recorded[0]["scene_id"], &"forge")
+	assert_eq(recorded[0]["spawn_id"], &"door_courtyard")
+	assert_true(
+		DoorNavigator.has_spawn(&"forge", recorded[0]["spawn_id"]),
+		"focused ui_accept must use the same active manifest spawn as mouse click"
+	)
+
+	overlay.queue_free()
+
+
 func _action_has_physical_key(action: StringName, keycode: Key) -> bool:
 	for event in InputMap.action_get_events(action):
 		if event is InputEventKey and (event as InputEventKey).physical_keycode == keycode:

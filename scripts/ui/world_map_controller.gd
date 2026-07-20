@@ -3,6 +3,7 @@ extends Node
 
 ## Persistent world/district map entry point on every playable player host (P1-031).
 ## Click-to-travel through DoorNavigator is P1-031a.
+## Keyboard/gamepad focus travel is P1-031b.
 
 const TOGGLE_ACTION := &"toggle_world_map"
 
