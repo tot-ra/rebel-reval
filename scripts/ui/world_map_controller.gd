@@ -37,7 +37,7 @@ func open() -> void:
 	if _overlay == null or _overlay.is_open():
 		return
 	_close_sibling_overlays()
-	_overlay.configure(_resolve_current_scene_id())
+	_overlay.configure(_resolve_current_scene_id(), _resolve_local_map())
 	_overlay.open()
 
 
@@ -87,6 +87,13 @@ func _resolve_current_scene_id() -> StringName:
 	if tree == null:
 		return &""
 	return WorldMapGraph.resolve_current_scene_id(tree.current_scene)
+
+
+func _resolve_local_map() -> MinimapHud:
+	var tree := get_tree()
+	if tree == null or tree.current_scene == null:
+		return null
+	return tree.current_scene.find_child("MinimapHud", true, false) as MinimapHud
 
 
 func _close_sibling_overlays() -> void:

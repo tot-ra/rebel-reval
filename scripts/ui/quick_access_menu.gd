@@ -14,7 +14,7 @@ const PANEL_HEIGHT := 118.0
 const PANEL_WIDTH := 980.0
 const HELP_TEXT := (
 	"WASD or arrows - move | Click - travel | E - interact | "
-	+ "C - camera | N - minimap | M - districts | I - inventory | J - journal | Iron - technique"
+	+ "C - camera | N - minimap | M - map | I - inventory | J - journal | Iron - technique"
 )
 
 var _inventory_controller: InventoryController
@@ -108,11 +108,11 @@ func _build_ui() -> void:
 	_journal_button.pressed.connect(_on_journal_pressed)
 	actions.add_child(_journal_button)
 
-	# WHY (P1-031): district map must be mouse-reachable; M alone is not enough.
+	# WHY: map mode must be mouse-reachable; M alone is not enough.
 	_world_map_button = _create_action_button(
 		"WorldMapButton",
-		"Districts [M]",
-		"Open the authored scene connection map"
+		"Map [M]",
+		"Open the local map and fast-travel options"
 	)
 	_world_map_button.pressed.connect(_on_world_map_pressed)
 	actions.add_child(_world_map_button)
@@ -217,7 +217,7 @@ func _on_world_map_pressed() -> void:
 	if _world_map_controller == null:
 		return
 	_world_map_controller.toggle()
-	_status_label.text = "District map opened" if _world_map_controller.is_open() else STATUS_READY
+	_status_label.text = "Map opened" if _world_map_controller.is_open() else STATUS_READY
 
 
 func _on_camera_pressed() -> void:

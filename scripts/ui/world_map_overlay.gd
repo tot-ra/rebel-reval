@@ -1,16 +1,17 @@
 class_name WorldMapOverlay
 extends CanvasLayer
 
-## Full-screen district graph for authored scene transitions (P1-031).
-## Click-to-travel on connected neighbors is P1-031a.
-## Keyboard/gamepad focus + ui_accept travel is P1-031b.
-## Visible keyboard/gamepad focus styling is P1-031c.
+## Full-screen map mode. It opens on the current local map; the existing
+## district graph remains available as an explicit fast-travel option.
 
 signal closed()
 signal travel_requested(scene_id: StringName, spawn_id: StringName)
 
-const PANEL_SIZE := Vector2(760, 520)
+const MODE_LOCAL := &"local"
+const MODE_FAST_TRAVEL := &"fast_travel"
+const PANEL_SIZE := Vector2(820, 600)
 const NODE_SIZE := Vector2(132, 44)
+const LOCAL_MARKER_SIZE := Vector2(16, 16)
 const TRAVEL_NODE_COLOR := Color(0.92, 0.96, 1.0, 1.0)
 const TRAVEL_FOCUS_COLOR := Color(1.0, 0.78, 0.28, 1.0)
 
@@ -19,17 +20,28 @@ var _scene_ids: Array[StringName] = []
 var _connections: Array[Dictionary] = []
 var _positions: Dictionary = {}
 var _travelable: Dictionary = {}
+var _mode: StringName = MODE_LOCAL
+var _local_map: MinimapHud
+var _local_texture: ImageTexture
 
 var _dim: ColorRect
 var _title: Label
 var _subtitle: Label
+var _content_host: Control
+var _local_host: Control
+var _local_texture_rect: TextureRect
+var _local_marker: Panel
+var _local_unavailable: Label
 var _graph_host: Control
+var _local_tab: Button
+var _fast_travel_tab: Button
 var _close_button: Button
 var _help: Label
 
 
-func configure(current_scene_id: StringName = &"") -> void:
+func configure(current_scene_id: StringName = &"", local_map: MinimapHud = null) -> void:
 	_current_scene_id = current_scene_id
+	_local_map = local_map
 	_scene_ids = WorldMapGraph.active_scene_ids()
 	_connections = WorldMapGraph.connections()
 	_positions = WorldMapGraph.layout_positions(_scene_ids)
@@ -40,20 +52,31 @@ func configure(current_scene_id: StringName = &"") -> void:
 			neighbor_id
 		)
 	if is_node_ready():
+		_rebuild_local_map()
 		_rebuild_graph()
+		_apply_mode()
 
 
 func _ready() -> void:
 	layer = 22
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_build_ui()
+	_rebuild_local_map()
 	_rebuild_graph()
+	_apply_mode()
+	set_process(true)
+
+
+func _process(_delta: float) -> void:
+	if visible and _mode == MODE_LOCAL:
+		_update_local_marker()
 
 
 func open() -> void:
 	visible = true
+	_rebuild_local_map()
 	_rebuild_graph()
-	_grab_initial_focus()
+	show_local_map()
 
 
 func close() -> void:
@@ -63,6 +86,26 @@ func close() -> void:
 
 func is_open() -> bool:
 	return visible
+
+
+func get_mode() -> StringName:
+	return _mode
+
+
+func show_local_map() -> void:
+	_set_mode(MODE_LOCAL)
+
+
+func show_fast_travel() -> void:
+	_set_mode(MODE_FAST_TRAVEL)
+
+
+func get_local_map_marker() -> Control:
+	return _local_marker
+
+
+func get_local_map_texture() -> TextureRect:
+	return _local_texture_rect
 
 
 func get_scene_ids() -> Array[StringName]:
@@ -202,7 +245,7 @@ func _build_ui() -> void:
 
 	_title = Label.new()
 	_title.name = "Title"
-	_title.text = "District map"
+	_title.text = "Map"
 	_title.add_theme_font_size_override("font_size", 22)
 	_title.add_theme_color_override("font_color", Color(0.92, 0.82, 0.56, 1.0))
 	titles.add_child(_title)
@@ -220,26 +263,180 @@ func _build_ui() -> void:
 	_close_button.pressed.connect(close)
 	header.add_child(_close_button)
 
+	var tabs := HBoxContainer.new()
+	tabs.name = "MapOptions"
+	tabs.add_theme_constant_override("separation", 8)
+	layout.add_child(tabs)
+
+	_local_tab = Button.new()
+	_local_tab.name = "LocalMapButton"
+	_local_tab.text = "Local map"
+	_local_tab.tooltip_text = "Show your position in the current location"
+	_local_tab.pressed.connect(show_local_map)
+	tabs.add_child(_local_tab)
+
+	_fast_travel_tab = Button.new()
+	_fast_travel_tab.name = "FastTravelButton"
+	_fast_travel_tab.text = "Fast travel"
+	_fast_travel_tab.tooltip_text = "Travel to a connected district"
+	_fast_travel_tab.pressed.connect(show_fast_travel)
+	tabs.add_child(_fast_travel_tab)
+
+	_local_host = Control.new()
+	_local_host.name = "LocalMapHost"
+	_local_host.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_local_host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_local_host.custom_minimum_size = Vector2(0, 420)
+	layout.add_child(_local_host)
+
+	_local_texture_rect = TextureRect.new()
+	_local_texture_rect.name = "LocalMapTexture"
+	_local_texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_local_texture_rect.stretch_mode = TextureRect.STRETCH_SCALE
+	_local_texture_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_local_texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_local_host.add_child(_local_texture_rect)
+
+	_local_marker = Panel.new()
+	_local_marker.name = "PlayerLocationMarker"
+	_local_marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_local_marker.custom_minimum_size = LOCAL_MARKER_SIZE
+	_local_marker.size = LOCAL_MARKER_SIZE
+	_local_marker.add_theme_stylebox_override("panel", _local_marker_style())
+	_local_host.add_child(_local_marker)
+
+	_local_unavailable = Label.new()
+	_local_unavailable.name = "LocalMapUnavailable"
+	_local_unavailable.text = "A local map is not available for this location."
+	_local_unavailable.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_local_unavailable.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_local_unavailable.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_local_unavailable.add_theme_color_override("font_color", Color(0.68, 0.72, 0.76, 1.0))
+	_local_host.add_child(_local_unavailable)
+
 	_graph_host = Control.new()
 	_graph_host.name = "GraphHost"
 	_graph_host.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_graph_host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_graph_host.custom_minimum_size = Vector2(0, 400)
+	_graph_host.custom_minimum_size = Vector2(0, 420)
 	_graph_host.draw.connect(_draw_connections)
 	layout.add_child(_graph_host)
 
 	_help = Label.new()
 	_help.name = "HelpLabel"
-	_help.text = (
-		"Click or focus a connected district, then Confirm to travel. "
-		+ "Arrow keys / D-pad move focus between linked districts. "
-		+ "Your current district stays marked and cannot be selected. "
-		+ "Press M or Escape to close."
-	)
 	_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_help.add_theme_font_size_override("font_size", 12)
 	_help.add_theme_color_override("font_color", Color(0.68, 0.72, 0.76, 1.0))
 	layout.add_child(_help)
+
+
+func _set_mode(mode: StringName) -> void:
+	if mode != MODE_LOCAL and mode != MODE_FAST_TRAVEL:
+		return
+	_mode = mode
+	_apply_mode()
+
+
+func _apply_mode() -> void:
+	if _local_host == null or _graph_host == null:
+		return
+	var local_selected := _mode == MODE_LOCAL
+	_local_host.visible = local_selected
+	_graph_host.visible = not local_selected
+	_local_tab.disabled = local_selected
+	_fast_travel_tab.disabled = not local_selected
+	if local_selected:
+		_title.text = "Local map"
+		_subtitle.text = _local_subtitle()
+		_help.text = "Your live position is marked in red. Choose Fast travel for connected districts. Press M or Escape to close."
+		_update_local_marker()
+		if visible:
+			_fast_travel_tab.grab_focus()
+	else:
+		_title.text = "Fast travel"
+		_subtitle.text = _subtitle_for_current()
+		_help.text = (
+			"Click or focus a connected district, then Confirm to travel. "
+			+ "Arrow keys / D-pad move focus between linked districts. "
+			+ "Your current district stays marked and cannot be selected. "
+			+ "Choose Local map to return, or press M / Escape to close."
+		)
+		_grab_initial_focus()
+
+
+func _rebuild_local_map() -> void:
+	if _local_texture_rect == null:
+		return
+	_local_texture = null
+	_local_texture_rect.texture = null
+	var available := _local_map != null and is_instance_valid(_local_map) and _local_map.has_map_data()
+	_local_unavailable.visible = not available
+	_local_texture_rect.visible = available
+	_local_marker.visible = available
+	if not available:
+		return
+	var image := _local_map.get_local_map_image()
+	if image == null or image.is_empty():
+		_local_unavailable.visible = true
+		_local_texture_rect.visible = false
+		_local_marker.visible = false
+		return
+	_local_texture = ImageTexture.create_from_image(image)
+	_local_texture_rect.texture = _local_texture
+	var area := _local_host.size
+	if area.x < 8.0 or area.y < 8.0:
+		area = Vector2(PANEL_SIZE.x - 40.0, 420.0)
+	var scale_factor := minf(area.x / float(image.get_width()), area.y / float(image.get_height()))
+	var display_size := Vector2(image.get_width(), image.get_height()) * scale_factor
+	_local_texture_rect.position = (area - display_size) * 0.5
+	_local_texture_rect.size = display_size
+	_update_local_marker()
+
+
+func _update_local_marker() -> void:
+	if _local_marker == null or _local_texture_rect == null:
+		return
+	var available := (
+		_mode == MODE_LOCAL
+		and _local_map != null
+		and is_instance_valid(_local_map)
+		and _local_map.has_map_data()
+		and _local_texture_rect.texture != null
+	)
+	if not available:
+		_local_marker.visible = false
+		return
+	var normalized := _local_map.get_player_map_position()
+	if normalized.x < 0.0 or normalized.y < 0.0:
+		_local_marker.visible = false
+		return
+	_local_marker.visible = true
+	_local_marker.position = (
+		_local_texture_rect.position
+		+ normalized * _local_texture_rect.size
+		- LOCAL_MARKER_SIZE * 0.5
+	)
+
+
+func _local_subtitle() -> String:
+	if _local_map != null and is_instance_valid(_local_map):
+		var location_name := _local_map.get_location_name()
+		if not location_name.is_empty():
+			return "You are here: %s" % location_name
+	if not _current_scene_id.is_empty():
+		return "You are here: %s" % LocationHud.display_name_for_scene(_current_scene_id)
+	return "Current location is outside the active map registry."
+
+
+func _local_marker_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.95, 0.22, 0.18, 1.0)
+	style.border_color = Color(1.0, 0.92, 0.72, 1.0)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(int(LOCAL_MARKER_SIZE.x * 0.5))
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.75)
+	style.shadow_size = 4
+	return style
 
 
 func _rebuild_graph() -> void:

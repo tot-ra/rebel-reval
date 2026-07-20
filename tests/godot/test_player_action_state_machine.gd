@@ -243,6 +243,20 @@ func test_player_attack_during_ui_block_does_not_start() -> void:
 	player.free()
 
 
+func test_player_attack_during_map_mode_does_not_start() -> void:
+	var player := _create_player()
+	player.combat_input_enabled = true
+	var world_map := player.get_node("WorldMapController") as WorldMapController
+	world_map.open()
+	Input.action_press(PlayerActionKind.ACTION_ATTACK)
+	player._physics_process(TEST_DELTA)
+	Input.action_release(PlayerActionKind.ACTION_ATTACK)
+	assert_eq(player.action_state_machine.state, PlayerActionState.State.MOVE, "Map mode should block movement and combat input")
+	assert_eq(player.velocity, Vector2.ZERO)
+	world_map.close()
+	player.free()
+
+
 func _make_machine() -> PlayerActionStateMachine:
 	var machine := PlayerActionStateMachine.new()
 	machine.guard_max_duration_sec = 0.5

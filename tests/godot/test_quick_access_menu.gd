@@ -37,7 +37,7 @@ func test_menu_exposes_named_player_actions() -> void:
 	assert_true(save != null, "quick access must visibly expose manual save")
 	assert_eq(inventory.text, "Inventory [I]")
 	assert_eq(journal.text, "Journal [J]")
-	assert_eq(world_map.text, "Districts [M]")
+	assert_eq(world_map.text, "Map [M]")
 	assert_eq(camera.text, "Camera [C]")
 	assert_eq(iron.text, "Iron")
 	assert_eq(save.text, "Save game")

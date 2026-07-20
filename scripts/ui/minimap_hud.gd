@@ -144,6 +144,30 @@ func get_celestial_indicator() -> Control:
 	return _celestial_indicator
 
 
+## Exposes the same authored map data to the full-screen map mode. Keeping the
+## image and marker conversion here prevents the minimap and overlay drifting.
+func has_map_data() -> bool:
+	return _definition != null and _grid != null
+
+
+func get_local_map_image() -> Image:
+	if not has_map_data():
+		return null
+	return MinimapTextureBuilder.build_image(_definition, _grid)
+
+
+func get_player_map_position() -> Vector2:
+	if not has_map_data() or _player == null or not is_instance_valid(_player):
+		return Vector2(-1.0, -1.0)
+	return MinimapTextureBuilder.world_to_normalized(_definition, _player.global_position)
+
+
+func get_location_name() -> String:
+	if _definition == null:
+		return ""
+	return LocationHud.display_name_for(_definition)
+
+
 static func map_block_height() -> float:
 	return MAX_DISPLAY_SIZE + (INNER_PADDING * 2.0) + PANEL_MARGIN
 

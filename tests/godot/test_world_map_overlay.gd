@@ -1,6 +1,8 @@
 extends "res://tests/godot/test_case.gd"
 
 ## P1-031: world/district map overlay matches the active transition manifest.
+const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
+const MapBuilder := preload("res://scripts/map/map_builder.gd")
 
 
 func before_each() -> void:
@@ -45,6 +47,7 @@ func test_overlay_highlights_current_scene_and_lists_manifest_nodes() -> void:
 	tree.root.add_child(overlay)
 	overlay.configure(&"reval_east")
 	overlay.open()
+	overlay.show_fast_travel()
 
 	assert_true(overlay.is_open())
 	assert_eq(overlay.get_current_scene_id(), &"reval_east")
@@ -60,7 +63,41 @@ func test_overlay_highlights_current_scene_and_lists_manifest_nodes() -> void:
 		"subtitle must use the currently curated scene display name"
 	)
 	overlay.queue_free()
+func test_map_mode_opens_on_local_position_with_fast_travel_as_separate_option() -> void:
+	var definition: MapDefinition = LowerTownSlice.create()
+	var grid: MapTerrainGrid = MapBuilder.build(definition)
+	var player := Node2D.new()
+	player.name = "Player"
+	player.global_position = definition.player_spawn
+	var local_map := MinimapHud.new()
+	var overlay := WorldMapOverlay.new()
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(player)
+	tree.root.add_child(local_map)
+	local_map.configure(definition, grid, player)
+	tree.root.add_child(overlay)
+	overlay.configure(&"reval_east", local_map)
+	overlay.open()
 
+	assert_eq(overlay.get_mode(), WorldMapOverlay.MODE_LOCAL, "M map mode must open on the local map")
+	assert_true(overlay.get_local_map_texture().texture != null, "local map must reuse compiled minimap data")
+	assert_true(overlay.get_local_map_marker().visible, "local map must mark the player's current position")
+	var local_button := overlay.find_child("LocalMapButton", true, false) as Button
+	var travel_button := overlay.find_child("FastTravelButton", true, false) as Button
+	assert_true(local_button != null, "local map must be a visible option")
+	assert_true(travel_button != null, "fast travel must be an extra visible option")
+	assert_eq(local_button.text, "Local map")
+	assert_eq(travel_button.text, "Fast travel")
+
+	travel_button.pressed.emit()
+	assert_eq(overlay.get_mode(), WorldMapOverlay.MODE_FAST_TRAVEL)
+	assert_true(overlay.get_node_button(&"forge") != null, "fast-travel option must expose the existing district graph")
+	local_button.pressed.emit()
+	assert_eq(overlay.get_mode(), WorldMapOverlay.MODE_LOCAL)
+
+	overlay.free()
+	local_map.free()
+	player.free()
 
 func test_controller_toggles_with_action_and_quick_access_button() -> void:
 	assert_true(
@@ -79,8 +116,8 @@ func test_controller_toggles_with_action_and_quick_access_button() -> void:
 	tree.root.add_child(host)
 
 	var button := menu.find_child("WorldMapButton", true, false) as Button
-	assert_true(button != null, "quick access must expose Districts [M]")
-	assert_eq(button.text, "Districts [M]")
+	assert_true(button != null, "quick access must expose Map [M]")
+	assert_eq(button.text, "Map [M]")
 	assert_false(button.disabled)
 
 	button.pressed.emit()
@@ -153,6 +190,7 @@ func test_click_neighbor_records_go_to_scene_without_traveling_current() -> void
 	tree.root.add_child(overlay)
 	overlay.configure(&"reval_east")
 	overlay.open()
+	overlay.show_fast_travel()
 
 	var current := overlay.get_node_button(&"reval_east")
 	assert_true(current != null)
@@ -219,6 +257,7 @@ func test_focus_neighbor_ui_accept_records_same_travel_as_click() -> void:
 	tree.root.add_child(overlay)
 	overlay.configure(&"reval_east")
 	overlay.open()
+	overlay.show_fast_travel()
 
 	var current := overlay.get_node_button(&"reval_east")
 	assert_true(current != null)

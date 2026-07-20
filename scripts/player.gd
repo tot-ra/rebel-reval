@@ -374,6 +374,9 @@ func _movement_blocked() -> bool:
 	var journal := get_node_or_null("JournalController") as JournalController
 	if journal != null and journal.is_open():
 		return true
+	var world_map := get_node_or_null("WorldMapController") as WorldMapController
+	if world_map != null and world_map.is_open():
+		return true
 	var commission := get_node_or_null("ForgeCommissionController") as ForgeCommissionController
 	return commission != null and commission.is_open()
 
