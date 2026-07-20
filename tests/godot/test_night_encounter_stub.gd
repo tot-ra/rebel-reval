@@ -1,9 +1,10 @@
 extends "res://tests/godot/test_case.gd"
 
-## P1-025b / P1-027a: night-encounter stub reuses CombatRoomEnemy /
+## P1-025b / P1-026b / P1-027a: night-encounter stub reuses CombatRoomEnemy /
 ## EnemyCombatStateMachine outside the combat smoke room, boots both archetypes
 ## through one detect-to-disengage loop, wires EncounterCheckpoint Retry on
-## player death, and stays unreachable from release demo navigation.
+## player death, exposes ContentDB surrender/escape/bypass closes, and stays
+## unreachable from release demo navigation.
 
 const STUB_SCENE := preload("res://scenes/tests/night_encounter_stub.tscn")
 const STUB_PATH := "res://scenes/tests/night_encounter_stub.tscn"
@@ -12,6 +13,7 @@ const DIALOGUE_ID := &"dialogue.mart_demo"
 const DIALOGUE_NODE := "greeting"
 const QUEST_ID := &"quest.bitter_brew"
 const PRIOR_QUEST_STATE := &"investigation_ready"
+const ENCOUNTER_ID := &"encounter.watch_checkpoint"
 
 
 func test_night_stub_boots_watchman_and_sergeant_on_shared_machine() -> void:
@@ -104,6 +106,69 @@ func test_night_stub_death_retry_preserves_dialogue_and_quest() -> void:
 	var log_label := stub.get_feedback().find_child("EventLog", true, false) as Label
 	assert_true(log_label != null)
 	assert_true("Retry from checkpoint" in log_label.text)
+	_free_stub(stub)
+
+
+func test_night_stub_mouse_buttons_resolve_escape_from_content_without_killing() -> void:
+	# Why: P1-026b verify - Escape comes from ContentDB via mouse-reachable UI.
+	var stub: NightEncounterStub = _mount_stub()
+	SessionState.state.set_quest_state(QUEST_ID, &"active")
+	SessionState.state.set_flag(&"flag.watch_checkpoint_resolved", false)
+
+	assert_true(stub.get_surrender_button() != null)
+	assert_true(stub.get_escape_button() != null)
+	assert_true(stub.get_bypass_button() != null)
+	assert_false(stub.get_escape_button().disabled, "Escape must be mouse-reachable")
+	assert_eq(stub.encounter_definition.encounter_id, ENCOUNTER_ID)
+	assert_true(
+		SessionState.content_db.has_record(ENCOUNTER_ID),
+		"Night stub must resolve outcomes from ContentDB package"
+	)
+
+	var watchman: CombatRoomEnemy = stub.get_watchman()
+	var sergeant: CombatRoomEnemy = stub.get_sergeant()
+	watchman.get_machine().set_perception(true, 40.0)
+	sergeant.get_machine().set_perception(true, 40.0)
+	stub.advance_enemies(0.6)
+	var watch_hp := watchman.health
+	var sarge_hp := sergeant.health
+
+	stub.get_escape_button().pressed.emit()
+	assert_eq(SessionState.state.get_quest_state(QUEST_ID), &"night_escaped")
+	assert_true(SessionState.state.get_flag(&"flag.watch_checkpoint_resolved"))
+	assert_false(watchman.get_machine().is_dead())
+	assert_false(sergeant.get_machine().is_dead())
+	assert_eq(watchman.health, watch_hp, "Escape must not change HP")
+	assert_eq(sergeant.health, sarge_hp)
+	assert_eq(watchman.get_machine().state, EnemyCombatState.State.DISENGAGE)
+	assert_eq(sergeant.get_machine().state, EnemyCombatState.State.DISENGAGE)
+
+	var log_label := stub.get_feedback().find_child("EventLog", true, false) as Label
+	assert_true(log_label != null)
+	assert_true("Encounter escape" in log_label.text, "Stub must log the outcome")
+	_free_stub(stub)
+
+
+func test_night_stub_unknown_outcome_rejects_without_mutating_quest_state() -> void:
+	# Why: P1-026b verify - unknown kind must not mutate quest via stub resolver.
+	var stub: NightEncounterStub = _mount_stub()
+	SessionState.state.set_quest_state(QUEST_ID, &"active")
+	SessionState.state.set_flag(&"flag.watch_checkpoint_resolved", false)
+	var watch_hp := stub.get_watchman().health
+	var sarge_hp := stub.get_sergeant().health
+
+	var ok := stub.resolve_encounter_outcome(&"bribe")
+	assert_false(ok, "Unknown kind must be rejected")
+	assert_eq(SessionState.state.get_quest_state(QUEST_ID), &"active")
+	assert_false(SessionState.state.get_flag(&"flag.watch_checkpoint_resolved"))
+	assert_eq(stub.get_watchman().health, watch_hp)
+	assert_eq(stub.get_sergeant().health, sarge_hp)
+	assert_false(stub.get_watchman().get_machine().is_dead())
+	assert_false(stub.get_sergeant().get_machine().is_dead())
+
+	var log_label := stub.get_feedback().find_child("EventLog", true, false) as Label
+	assert_true(log_label != null)
+	assert_true("Encounter outcome rejected" in log_label.text)
 	_free_stub(stub)
 
 
