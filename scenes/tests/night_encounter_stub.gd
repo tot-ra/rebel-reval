@@ -2,11 +2,12 @@ extends Node2D
 
 class_name NightEncounterStub
 
-## Optional night-encounter host for P1-025b / P2-009.
+## Optional night-encounter host for P1-025b / P1-027a / P2-009.
 ## Why: keep watchman/sergeant AI on CombatRoomEnemy outside the combat smoke
 ## room so night consequence can reuse the same machine without forking AI.
 ## Remains unreachable from release demo navigation (not in the transition
-## manifest). Checkpoint retry wiring stays P1-027a.
+## manifest). Player death exposes the same EncounterCheckpoint Retry path as
+## the combat room without dialogue replay or quest corruption.
 
 const PLAYER_SCENE := preload("res://player.tscn")
 const ENEMY_SCRIPT := preload("res://scripts/combat/combat_room_enemy.gd")
@@ -17,11 +18,14 @@ const WATCHMAN_POS := Vector2(420.0, 480.0)
 const SERGEANT_POS := Vector2(860.0, 240.0)
 ## Stable scene path used by reachability assertions; keep out of the manifest.
 const SCENE_PATH := "res://scenes/tests/night_encounter_stub.tscn"
+const ENCOUNTER_ID := &"encounter.watch_checkpoint"
 
 var player: Player
 var watchman: CombatRoomEnemy
 var sergeant: CombatRoomEnemy
 var feedback: CombatFeedbackHud
+var encounter_checkpoint := EncounterCheckpoint.new()
+var _retry_button: Button
 var _built := false
 
 
@@ -45,27 +49,49 @@ func ensure_built() -> void:
 func reset_stub() -> void:
 	ensure_built()
 	_ensure_session()
-	if player != null:
-		player.global_position = PLAYER_SPAWN
-		player._facing_direction = Vector2.RIGHT
-		player.health = player.max_health
-		player.stamina = player.max_stamina
-		player.combat_vitals.configure(
-			player.health, player.max_health, player.stamina, player.max_stamina
-		)
-		player.action_state_machine.reset()
-	if watchman != null:
-		watchman.global_position = WATCHMAN_POS
-		watchman.reset_actor()
-		watchman.set_ai_target(player)
-	if sergeant != null:
-		sergeant.global_position = SERGEANT_POS
-		sergeant.reset_actor()
-		sergeant.set_ai_target(player)
+	_reset_combat_actors()
+	# Why: arm after actors are live so a later death restores this narrative
+	# snapshot rather than a mid-fight corrupted quest/dialogue payload.
+	arm_encounter_checkpoint()
 	if feedback != null:
 		feedback.clear_log()
 		feedback.push_event("Night stub ready. Watchman + Sergeant online.")
+		feedback.push_event("Checkpoint armed. Death enables Retry without dialogue replay.")
 		feedback.set_status("Night route host. Approach an enemy to start AI.")
+	_set_retry_visible(false)
+
+
+## P1-027a: snapshot session GameState so failure can restore quest/dialogue.
+func arm_encounter_checkpoint() -> bool:
+	ensure_built()
+	_ensure_session()
+	return encounter_checkpoint.arm(SessionState.state, ENCOUNTER_ID)
+
+
+## P1-027a: restore armed GameState and combat actors after player failure.
+## Completed dialogue and prior quest progress from arm time are preserved;
+## mid-fight quest writes are discarded.
+func retry_from_checkpoint() -> bool:
+	ensure_built()
+	_ensure_session()
+	if not encounter_checkpoint.is_armed:
+		if feedback != null:
+			feedback.push_event("Retry rejected: no armed checkpoint.")
+		return false
+	if not encounter_checkpoint.restore(SessionState.state):
+		if feedback != null:
+			feedback.push_event("Retry rejected: checkpoint restore failed.")
+		return false
+	_reset_combat_actors()
+	# Re-arm from the restored narrative so a second failure still retries cleanly.
+	arm_encounter_checkpoint()
+	_set_retry_visible(false)
+	if feedback != null:
+		feedback.push_event(
+			"Retry from checkpoint %s. Dialogue and quest restored." % String(ENCOUNTER_ID)
+		)
+		feedback.set_status("Retried. Checkpoint restored.")
+	return true
 
 
 func get_player() -> Player:
@@ -82,6 +108,14 @@ func get_sergeant() -> CombatRoomEnemy:
 
 func get_feedback() -> CombatFeedbackHud:
 	return feedback
+
+
+func get_retry_button() -> Button:
+	return _retry_button
+
+
+func get_encounter_checkpoint() -> EncounterCheckpoint:
+	return encounter_checkpoint
 
 
 ## Headless tick for enemy AI + HUD. Prefer this over relying on Node._process.
@@ -204,16 +238,36 @@ func _build_hud() -> void:
 	feedback = FEEDBACK_HUD_SCRIPT.new()
 	feedback.name = "CombatFeedbackHud"
 	add_child(feedback)
-	feedback.set_title("Night encounter stub (P1-025b)")
+	feedback.set_title("Night encounter stub (P1-025b / P1-027a)")
 	feedback.set_controls_text(
 		"Developer night host for watchman/sergeant AI.\n"
 		+ "Not reachable from Start / release demo navigation.\n"
 		+ "Approach Watchman (gold) or Sergeant (magenta).\n"
-		+ "Checkpoint retry wiring: P1-027a."
+		+ "Death enables mouse-reachable Retry (checkpoint restore)."
 	)
+
+	var actions := CanvasLayer.new()
+	actions.name = "NightStubActions"
+	actions.layer = 41
+	add_child(actions)
+
+	# Mouse-reachable failure retry (discoverability policy; no hotkey required).
+	_retry_button = Button.new()
+	_retry_button.name = "RetryCheckpointButton"
+	_retry_button.text = "Retry"
+	_retry_button.tooltip_text = (
+		"Restore the armed encounter checkpoint: keep completed dialogue and prior quest state"
+	)
+	_retry_button.position = Vector2(560, 640)
+	_retry_button.custom_minimum_size = Vector2(120, 36)
+	_retry_button.visible = false
+	_retry_button.pressed.connect(func() -> void: retry_from_checkpoint())
+	actions.add_child(_retry_button)
 
 
 func _wire_signals() -> void:
+	if player != null and not player.died.is_connected(_on_player_died):
+		player.died.connect(_on_player_died)
 	for enemy in [watchman, sergeant]:
 		if enemy == null:
 			continue
@@ -221,6 +275,48 @@ func _wire_signals() -> void:
 			enemy.feedback_event.connect(_on_enemy_feedback)
 
 
+func _reset_combat_actors() -> void:
+	if player != null:
+		player.global_position = PLAYER_SPAWN
+		player._facing_direction = Vector2.RIGHT
+		player.health = player.max_health
+		player.stamina = player.max_stamina
+		player.combat_vitals.configure(
+			player.health, player.max_health, player.stamina, player.max_stamina
+		)
+		player.action_state_machine.reset()
+	if watchman != null:
+		watchman.global_position = WATCHMAN_POS
+		watchman.reset_actor()
+		watchman.set_ai_target(player)
+	if sergeant != null:
+		sergeant.global_position = SERGEANT_POS
+		sergeant.reset_actor()
+		sergeant.set_ai_target(player)
+
+
+func _on_player_died() -> void:
+	# Why: failure must not write an encounter outcome; Retry restores the arm
+	# snapshot so completed dialogue and prior quest state stay intact.
+	if encounter_checkpoint.mark_failed():
+		_set_retry_visible(true)
+		if feedback != null:
+			feedback.push_event("Player down. Retry restores the armed checkpoint.")
+			feedback.set_status("Failed. Use Retry to restore checkpoint.")
+
+
+func _set_retry_visible(visible: bool) -> void:
+	if _retry_button != null:
+		_retry_button.visible = visible
+		_retry_button.disabled = not visible
+
+
 func _on_enemy_feedback(text: String) -> void:
 	if feedback != null:
 		feedback.push_event(text)
+
+
+func _process(delta: float) -> void:
+	if player == null:
+		return
+	advance_enemies(delta)

@@ -1,12 +1,17 @@
 extends "res://tests/godot/test_case.gd"
 
-## P1-025b: night-encounter stub reuses CombatRoomEnemy / EnemyCombatStateMachine
-## outside the combat smoke room, boots both archetypes through one
-## detect-to-disengage loop, and stays unreachable from release demo navigation.
+## P1-025b / P1-027a: night-encounter stub reuses CombatRoomEnemy /
+## EnemyCombatStateMachine outside the combat smoke room, boots both archetypes
+## through one detect-to-disengage loop, wires EncounterCheckpoint Retry on
+## player death, and stays unreachable from release demo navigation.
 
 const STUB_SCENE := preload("res://scenes/tests/night_encounter_stub.tscn")
 const STUB_PATH := "res://scenes/tests/night_encounter_stub.tscn"
 const MANIFEST_PATH := "res://content/transitions/active_destinations.json"
+const DIALOGUE_ID := &"dialogue.mart_demo"
+const DIALOGUE_NODE := "greeting"
+const QUEST_ID := &"quest.bitter_brew"
+const PRIOR_QUEST_STATE := &"investigation_ready"
 
 
 func test_night_stub_boots_watchman_and_sergeant_on_shared_machine() -> void:
@@ -56,6 +61,49 @@ func test_night_stub_feedback_covers_detect_telegraph_and_attack() -> void:
 	assert_array_contains(trail, "detect")
 	assert_array_contains(trail, "telegraph")
 	assert_array_contains(trail, "attack")
+	_free_stub(stub)
+
+
+func test_night_stub_death_retry_preserves_dialogue_and_quest() -> void:
+	var stub: NightEncounterStub = _mount_stub()
+	SessionState.state.set_quest_state(QUEST_ID, PRIOR_QUEST_STATE)
+	SessionState.state.set_flag(&"flag.watch_checkpoint_resolved", false)
+	SessionState.state.mark_dialogue_node_seen(DIALOGUE_ID, DIALOGUE_NODE)
+	assert_true(stub.arm_encounter_checkpoint())
+
+	var player: Player = stub.get_player()
+	assert_true(player != null)
+	var retry_button: Button = stub.get_retry_button()
+	assert_true(retry_button != null)
+	assert_false(retry_button.visible, "Retry stays hidden until failure")
+
+	# Simulate lethal hit without writing an encounter outcome.
+	player.health = 1.0
+	player.combat_vitals.configure(1.0, player.max_health, player.stamina, player.max_stamina)
+	player.take_damage(50.0, null, &"", 4242, false)
+	assert_true(player.is_combat_dead())
+	assert_true(stub.get_encounter_checkpoint().failure_pending)
+	assert_true(retry_button.visible, "Retry must be mouse-reachable after death")
+	assert_false(retry_button.disabled)
+
+	# Corrupt quest as a false failure path would; retry must undo it.
+	SessionState.state.set_quest_state(QUEST_ID, &"night_fought")
+	SessionState.state.set_flag(&"flag.watch_checkpoint_resolved", true)
+	SessionState.state._dialogue_nodes_seen.clear()
+
+	retry_button.pressed.emit()
+	assert_false(player.is_combat_dead(), "Retry must revive the player actor")
+	assert_eq(player.health, player.max_health)
+	assert_eq(SessionState.state.get_quest_state(QUEST_ID), PRIOR_QUEST_STATE)
+	assert_false(SessionState.state.get_flag(&"flag.watch_checkpoint_resolved"))
+	assert_true(SessionState.state.has_dialogue_node_seen(DIALOGUE_ID, DIALOGUE_NODE))
+	assert_false(retry_button.visible, "Retry hides after a successful restore")
+	assert_false(stub.get_watchman().get_machine().is_dead())
+	assert_false(stub.get_sergeant().get_machine().is_dead())
+
+	var log_label := stub.get_feedback().find_child("EventLog", true, false) as Label
+	assert_true(log_label != null)
+	assert_true("Retry from checkpoint" in log_label.text)
 	_free_stub(stub)
 
 
