@@ -1,11 +1,10 @@
 class_name CharacterHealthRing
 extends Node2D
 
-## Overhead horizontal health bar for 2D logic actors. Depletes left-to-right
-## and shifts green -> yellow -> red by percentage.
+## Overhead horizontal health bar for 2D logic actors. Depletes left-to-right.
+## Stays green until critical; no yellow mid-band (that read as skeleton tint).
 
 const COLOR_HEALTHY := Color(0.278431, 0.74902, 0.27451, 1.0)
-const COLOR_WARN := Color(0.95, 0.78, 0.2, 1.0)
 const COLOR_CRITICAL := Color(0.85, 0.22, 0.22, 1.0)
 const COLOR_BACKGROUND := Color(0.05, 0.05, 0.05, 0.82)
 
@@ -29,10 +28,8 @@ func get_health_ratio() -> float:
 
 
 static func color_for_ratio(ratio: float) -> Color:
-	if ratio > 0.5:
-		return COLOR_HEALTHY
 	if ratio > 0.25:
-		return COLOR_WARN
+		return COLOR_HEALTHY
 	return COLOR_CRITICAL
 
 

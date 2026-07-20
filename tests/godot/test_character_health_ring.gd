@@ -14,8 +14,8 @@ func test_health_ring_color_thresholds() -> void:
 	)
 	assert_eq(
 		CharacterHealthRing.color_for_ratio(0.4),
-		CharacterHealthRing.COLOR_WARN,
-		"Mid health should turn yellow"
+		CharacterHealthRing.COLOR_HEALTHY,
+		"Mid health should stay green (no yellow warn band)"
 	)
 	assert_eq(
 		CharacterHealthRing.color_for_ratio(0.1),
