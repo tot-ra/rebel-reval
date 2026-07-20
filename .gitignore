@@ -7,7 +7,15 @@
 # Documentation manifest generated/imported by Godot as a translation CSV; keep only the source CSV.
 /assets/SOURCES.csv.import
 /assets/SOURCES.*.translation
-# Local export artifacts
-build/
+# Local export artifacts and generated benchmark reports
+/build/
+/bin/
+
+# Language and test-tool caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 # Character pipeline build intermediates (regenerate with tools/rebuild_hero_character.sh)
 tools/character_build/

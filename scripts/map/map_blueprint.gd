@@ -17,6 +17,10 @@ var palette: StringName
 var size_cells: Vector2i
 var base_terrain: StringName
 var cell_size: int
+## Authored vertical offset for outdoor terrain in 3D world units. Zero keeps
+## legacy maps flat at their existing datum; elevated districts ease down at
+## their map edge so transitions remain on the shared gameplay plane.
+var ground_elevation: float = 0.0
 
 var primitives: Array[Dictionary] = []
 var styles: Array[Dictionary] = []

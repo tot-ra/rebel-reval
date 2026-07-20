@@ -1,62 +1,120 @@
-# Toompea (Upper Town) wraps the western Lower Town. Lühike Jalg descends east
-# to the civic centre, the southern slope reaches the Rataskaev/Karja quarter,
-# and Pikk Jalg descends north-east toward the northern merchant quarter.
+# Toompea uses the full north-south footprint of the walled Upper Town visible
+# on the Reval reference map. The 144 x 192 planning grid includes the plateau,
+# castle approaches, and both long fortified slopes at district scale. The castle occupies the south-western
+# corner, St Mary's and the ecclesiastical close stand north of the main cross,
+# Pikk Jalg descends north-east, and Lühike Jalg descends east to Lower Town.
 rrmap 1
-map toompea_quarter loc.toompea.quarter 56 44 grass scope=prototype active=false palette=clean_painted seed=1219 cell_size=32
+map toompea_quarter loc.toompea.quarter 144 192 grass scope=prototype active=false palette=clean_painted seed=1219 cell_size=32 elevation=2.8
 source "scenes/reval_toompea/reval_toompea.tscn"
 source "scenes/revel-map.jpg"
 source "scenes/reval_toompea/domberg.md"
 source "scenes/reval_toompea/cathedral_of_saint_mary.md"
+source "scenes/reval_toompea/dome_school.md"
 source "scenes/reval_toompea/danish_kings_garden.md"
 source "scenes/reval_walls_towers/luhike_jalg_gate.md"
+source "history/AVE2018_12_Reppo_Toompea.pdf"
 source "docs/HISTORICAL_AUDIT.md"
-style house.castle door_side=east ridge_axis=x primitive=town_hall_1343 wall_height=176 wall_color=8a8278ff wall_material=limestone roof_color=3a2218ff roof_material=tile
+# The 1343 skyline predates later palace facades and the modern cathedral forms.
+# Limestone institutions dominate, with smaller noble/canonical houses in
+# plaster, plank, and shingle around the broad ecclesiastical plots.
+style house.castle door_side=east ridge_axis=x wall_height=176 wall_color=8a8278ff wall_material=limestone roof_color=3a2218ff roof_material=tile
 style house.cathedral door_side=south ridge_axis=x primitive=holy_spirit_chapel_1343 wall_height=192 wall_color=9e998cff wall_material=limestone roof_color=42261fff roof_material=tile
 style house.barracks door_side=north ridge_axis=x wall_height=112 wall_color=70685eff wall_material=limestone roof_color=3d3329ff roof_material=shingle
 style house.noble door_side=south ridge_axis=z wall_height=128 wall_color=756b5cff wall_material=limestone roof_color=4a2a20ff roof_material=tile
 style house.chancery door_side=west ridge_axis=x wall_height=104 wall_color=7a7061ff wall_material=plaster roof_color=383029ff roof_material=shingle
+style house.canonical door_side=south ridge_axis=x wall_height=104 wall_color=766d60ff wall_material=plaster roof_color=3d3329ff roof_material=shingle
+style house.school door_side=west ridge_axis=x wall_height=112 wall_color=80786aff wall_material=limestone roof_color=423229ff roof_material=shingle
+style house.stable door_side=north ridge_axis=x wall_height=80 wall_color=63594aff wall_material=plank roof_color=6b5c40ff roof_material=thatch
 style house.gatehouse door_side=west ridge_axis=x wall_height=144 wall_color=6e6a62ff wall_material=limestone roof_color=2a241cff roof_material=tile
 style wall.city wall_height=192 wall_color=949185ff
+style wall.castle wall_height=224 wall_color=8a877dff
 style wall.tower wall_height=240 wall_color=8c8a80ff
-terrain plateau.grass grass 0 0 56 44 order=1
-terrain castle_close stone 2 18 24 12 order=2
-terrain cathedral_close stone 24 6 20 10 order=3
-terrain slope.dirt dirt 44 24 12 16 order=4
-stroke pikk_jalg cobblestone 30,6|38,6|46,6|52,6|55,6 thickness=3 order=5
-stroke luhike_jalg cobblestone 52,24|52,30|55,30 thickness=4 order=6
-stroke south_slope cobblestone 18,42|18,36|28,36|38,36 thickness=3 order=7
-building city_wall_west wall 0 0 3 18 style=wall.city
-building city_wall_north_west wall 3 0 42 3 style=wall.city
-building pikk_jalg_gate_tower wall 45 0 7 6 style=wall.tower tower=true
-building castle_mass house 4 20 20 10 style=house.castle
-building cathedral_silhouette house 28 8 16 10 style=house.cathedral
-building order_barracks house 8 10 12 8 style=house.barracks
-building noble_residence house 34 22 10 8 style=house.noble
-building chancery_wing house 20 32 12 6 style=house.chancery
-building luhike_gate_tower house 46 28 6 8 style=house.gatehouse
-landmark pikk_jalg_gate gate_arch 49 0 6 6 wall_color=8f8c80ff top_px=208 passage_axis=z door_material=wood
-prop castle_banner cart 12 24 rect=2,2
-prop cathedral_steps table 34 18 rect=3,2
-prop garden_bench table 6 36 rect=2,1
-spawn spawn.inspection 42 34 rect=2,2
-anchor inspection_spawn 42 34 rect=2,2
-anchor castle_courtyard 26 24 rect=2,2
-anchor cathedral_frontage 36 20 rect=2,2
-anchor luhike_jalg_gate 48 26 rect=2,2
-anchor from_reval_center 52 30 rect=2,2
-anchor from_reval_north 52 4 rect=2,2
-anchor from_reval_south 18 40 rect=2,2
-transition to_reval_center 54 27 2 7 to=reval_center destination_spawn=to_reval_toompea spawn=from_reval_center spawn_offset_px=-96,0 highlight_area=true transition_visual=ground
-transition to_reval_north 49 0 7 2 to=reval_north destination_spawn=from_reval_toompea spawn=from_reval_north spawn_offset_px=0,96 highlight_area=true transition_visual=ground
-transition to_reval_south 14 42 9 2 to=reval_south destination_spawn=from_reval_toompea spawn=from_reval_south spawn_offset_px=0,-96 highlight_area=true transition_visual=ground
-sign sign.luhike "to lower town" 50 34 east
-sign sign.castle "toompea castle" 14 22 west
-sign sign.cathedral "st mary's cathedral" 36 14 north
-sign sign.pikk "pikk jalg to merchant quarter" 48 8 north
-sign sign.south "to rataskaev" 18 38 south
-# Multi-street watch: Lühike Jalg, south slope to Rataskaev, Pikk Jalg, castle courtyard.
-patrol castle_watch 52,30|52,24|38,36|18,36|18,40|30,6|46,6|52,6|26,24|16,32
-fade fade.castle 0 18 28 14
-fade fade.cathedral 24 4 24 14
-camera 0 0 56 44
-surroundings north town east town south town west town
+terrain plateau.grass grass 0 0 144 192 order=1
+terrain bishop_garden grass 4 12 28 84 order=2
+terrain cathedral_close stone 32 24 78 78 order=3
+terrain castle_close stone 4 102 40 84 order=4
+terrain eastern_slope dirt 112 9 32 174 order=5
+terrain southern_slope dirt 18 156 22 36 order=6
+# The street graph reads as a hilltop circuit instead of three disconnected
+# stubs: Toom-Kooli links the cathedral close to Lossi plats and both descents.
+stroke pikk_jalg cobblestone 143,34|126,34|126,48|110,48|110,108|78,108 thickness=4 order=7
+stroke luhike_jalg cobblestone 143,129|122,129|122,108|78,108 thickness=4 order=8
+stroke lossi_plats cobblestone 78,108|50,108|50,126|40,126|40,150|30,150 thickness=4 order=9
+stroke toom_kooli cobblestone 42,108|42,84|42,42 thickness=3 order=10
+stroke cathedral_lane cobblestone 28,90|92,90|92,108|110,108 thickness=3 order=11
+stroke cathedral_north_lane cobblestone 28,42|110,42|110,48 thickness=3 order=12
+stroke bishop_garden_lane cobblestone 12,84|28,84|28,90 thickness=2 order=13
+stroke south_slope cobblestone 29,189|29,150|40,150 thickness=3 order=14
+# Toompea had its own fortified perimeter. Gate openings stay aligned with the
+# three stable district transitions while the western edge reads as a cliff wall.
+building city_wall_west wall 0 0 3 192 style=wall.city
+building city_wall_north_west wall 3 0 139 3 style=wall.city
+building pikk_jalg_gate_tower wall 134 22 8 7 style=wall.tower tower=true
+building pikk_jalg_gate_east_tower wall 134 40 8 7 style=wall.tower tower=true
+building city_wall_north_east wall 141 0 3 28 style=wall.city
+building city_wall_east_mid wall 141 40 3 77 style=wall.city
+building city_wall_east_south wall 141 141 3 51 style=wall.city
+building city_wall_south_west wall 0 183 24 3 style=wall.city
+building city_wall_south_mid_west wall 34 183 30 3 style=wall.city
+building city_wall_south_mid_east wall 64 183 16 3 style=wall.city
+building city_wall_south_east wall 80 183 64 3 style=wall.city
+# The castle is a walled south-west compound rather than one oversized civic
+# hall. The retained IDs still identify the original castle, barracks, and gate.
+building castle_curtain_west wall 4 102 3 81 style=wall.castle
+building castle_curtain_north wall 4 102 36 3 style=wall.castle
+building castle_curtain_south_west wall 4 174 20 3 style=wall.castle
+building castle_curtain_south_east wall 34 174 6 3 style=wall.castle
+building castle_curtain_east_north wall 37 102 3 36 style=wall.castle
+building castle_curtain_east_south wall 37 162 3 21 style=wall.castle
+building castle_mass house 8 117 16 14 style=house.castle
+building castle_keep_tower wall 25 114 9 9 style=wall.tower tower=true
+building order_barracks house 8 159 14 5 style=house.barracks
+# Large ecclesiastical plots and lower-density noble residences distinguish the
+# upper town from the tight merchant rows of the neighbouring Lower Town maps.
+building cathedral_silhouette house 44 48 20 12 style=house.cathedral
+building bishop_house house 16 30 14 10 style=house.noble
+building cathedral_school house 66 48 10 8 style=house.school
+building canon_residence_west house 16 66 12 7 style=house.canonical
+building canon_residence_north house 34 12 14 7 style=house.canonical
+building canon_residence_east house 66 12 14 7 style=house.canonical
+building noble_residence house 66 120 12 9 style=house.noble
+building chancery_wing house 44 120 14 8 style=house.chancery
+building castle_stables house 60 153 15 7 style=house.stable
+building eastern_canon_house house 80 144 10 8 style=house.canonical
+building east_noble_residence house 96 62 14 10 style=house.noble
+building eastern_chapter_house house 96 120 14 9 style=house.canonical
+building upper_town_stable house 112 150 14 7 style=house.stable
+building luhike_gate_tower house 132 96 8 8 style=house.gatehouse
+building luhike_gate_guardhouse house 132 141 9 7 style=house.gatehouse
+landmark pikk_jalg_gate gate_arch 138 28 6 12 wall_color=8f8c80ff top_px=240 passage_axis=x door_material=wood
+landmark castle_gate_arch gate_arch 37 138 4 8 wall_color=858177ff top_px=224 passage_axis=x door_material=wood
+landmark luhike_jalg_gate_arch gate_arch 138 117 6 8 wall_color=8f8c80ff top_px=208 passage_axis=x door_material=wood
+prop castle_banner cart 27 144 rect=2,2
+prop cathedral_steps table 53 87 rect=3,1
+prop garden_bench table 10 72 rect=2,1
+prop bishop_garden_bench table 22 18 rect=2,1
+prop stable_cart cart 76 162 rect=2,2
+spawn spawn.inspection 76 102 rect=2,2
+anchor inspection_spawn 76 102 rect=2,2
+anchor castle_courtyard 30 150 rect=2,2
+anchor cathedral_frontage 54 90 rect=2,2
+anchor luhike_jalg_gate 136 129 rect=2,2
+anchor from_reval_center 136 129 rect=2,2
+anchor from_reval_north 136 34 rect=2,2
+anchor from_reval_south 29 177 rect=2,1
+transition to_reval_center 142 117 2 8 to=reval_center destination_spawn=to_reval_toompea spawn=from_reval_center spawn_offset_px=-96,0 highlight_area=true transition_visual=ground view_landmark_id=luhike_jalg_gate_arch
+transition to_reval_north 142 28 2 12 to=reval_monastery destination_spawn=from_reval_toompea spawn=from_reval_north spawn_offset_px=-96,0 highlight_area=true transition_visual=ground view_landmark_id=pikk_jalg_gate
+transition to_reval_south 24 190 10 2 to=reval_south destination_spawn=from_reval_toompea spawn=from_reval_south spawn_offset_px=0,-96 highlight_area=true transition_visual=ground
+sign sign.luhike "lühike jalg to lower town" 136 135 east
+sign sign.castle "toompea castle" 31 144 west
+sign sign.cathedral "st mary's cathedral" 54 93 north
+sign sign.pikk "pikk jalg to monastery district" 136 42 east
+sign sign.south "to rataskaev" 31 174 south
+sign sign.school "cathedral school" 68 75 north
+# Multi-street watch: Lühike Jalg, Lossi plats, castle court, Toom-Kooli,
+# cathedral close, Pikk Jalg, and the southern slope.
+patrol castle_watch 136,129|110,108|78,108|60,108|40,126|40,150|30,150|29,174|29,150|40,150|40,108|42,90|42,42|92,42|110,42|126,42|136,34
+fade fade.castle 4 102 40 84
+fade fade.cathedral 32 24 46 72
+camera 0 0 144 192
+surroundings north town east town south town west woodland

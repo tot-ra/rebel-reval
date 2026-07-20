@@ -114,6 +114,7 @@ tools/run_godot_checked.sh --require-test-summary full-suite godot --headless --
 python3 tools/generate_active_docs_report.py --check
 python3 tools/generate_active_docs_report.py --fixture clean
 python3 tools/generate_active_docs_report.py --fixture invalid  # expected to fail
+python3 tools/verify_storage_hygiene.py
 python3 tools/validate_asset_sources.py
 ```
 

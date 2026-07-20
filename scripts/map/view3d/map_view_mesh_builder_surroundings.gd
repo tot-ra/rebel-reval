@@ -115,7 +115,7 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 		root.add_child(MapViewMeshBuilderPrimitives.multi_mesh("Boulders", boulder_mesh, boulders, boulder_colors, MapViewMaterials.role(&"stone"), Vector3.ZERO))
 
 	if not town_sides.is_empty():
-		root.add_child(_town_silhouette(definition, map_size, previewed_sides))
+		root.add_child(_town_silhouette(definition, map_size, previewed_sides, MapViewMeshBuilderConfig.GLACIS_CLEARANCE))
 	return root
 
 
@@ -250,16 +250,22 @@ static func _distance_outside(spot: Vector2, map_size: Vector2) -> float:
 ## urban sides, so a walled-city district no longer reads as a forest clearing.
 
 
-static func _town_silhouette(definition: MapDefinition, map_size: Vector2, excluded_sides: Dictionary = {}) -> Node3D:
+static func _town_silhouette(
+	definition: MapDefinition,
+	map_size: Vector2,
+	previewed_sides: Dictionary = {},
+	preview_depth_cells: float = 0.0
+) -> Node3D:
 	var bodies: Array[Transform3D] = []
 	var body_colors: Array[Color] = []
 	var roofs: Array[Transform3D] = []
 	var roof_colors: Array[Color] = []
 	var inner := Rect2(Vector2.ZERO, map_size).grow(MapViewMeshBuilderConfig.TOWN_BAND_INNER)
-	var start_x := int(-MapViewMeshBuilderConfig.TREE_BAND_OUTER / MapViewMeshBuilderConfig.TOWN_GRID_SPACING)
-	var end_x := int((map_size.x + MapViewMeshBuilderConfig.TREE_BAND_OUTER) / MapViewMeshBuilderConfig.TOWN_GRID_SPACING)
-	var start_y := int(-MapViewMeshBuilderConfig.TREE_BAND_OUTER / MapViewMeshBuilderConfig.TOWN_GRID_SPACING)
-	var end_y := int((map_size.y + MapViewMeshBuilderConfig.TREE_BAND_OUTER) / MapViewMeshBuilderConfig.TOWN_GRID_SPACING)
+	var outer := MapViewMeshBuilderConfig.TOWN_BAND_OUTER
+	var start_x := int(-outer / MapViewMeshBuilderConfig.TOWN_GRID_SPACING)
+	var end_x := int((map_size.x + outer) / MapViewMeshBuilderConfig.TOWN_GRID_SPACING)
+	var start_y := int(-outer / MapViewMeshBuilderConfig.TOWN_GRID_SPACING)
+	var end_y := int((map_size.y + outer) / MapViewMeshBuilderConfig.TOWN_GRID_SPACING)
 	for gy in range(start_y, end_y + 1):
 		for gx in range(start_x, end_x + 1):
 			var base := Vector2(gx, gy) * MapViewMeshBuilderConfig.TOWN_GRID_SPACING
@@ -271,7 +277,9 @@ static func _town_silhouette(definition: MapDefinition, map_size: Vector2, exclu
 			if inner.has_point(spot):
 				continue
 			var side := _world_side(spot, map_size)
-			if excluded_sides.has(side) or not definition.surroundings_town_sides.has(side):
+			if not definition.surroundings_town_sides.has(side):
+				continue
+			if previewed_sides.has(side) and _distance_outside(spot, map_size) < preview_depth_cells:
 				continue
 			if MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 3511) > MapViewMeshBuilderConfig.TOWN_KEEP_RATIO:
 				continue

@@ -243,6 +243,58 @@ func test_ground_mesh_reuses_indexed_subcell_vertices() -> void:
 	terrain.free()
 
 
+func test_height_field_cache_distinguishes_same_map_id_grid_rebuilds() -> void:
+	var first := _flat_terrain_definition(&"test_height_cache_rebuild", Vector2i(4, 3))
+	var first_terrain := MapViewMeshBuilder.build_terrain(first, MapBuilder.build(first))
+	first_terrain.free()
+
+	var second := _flat_terrain_definition(&"test_height_cache_rebuild", Vector2i(7, 5))
+	var second_grid := MapBuilder.build(second)
+	var second_terrain := MapViewMeshBuilder.build_terrain(second, second_grid)
+	var ground := second_terrain.get_node("Terrain_Ground") as MeshInstance3D
+	var mesh := ground.mesh as ArrayMesh
+	var subdivisions := MapViewMeshBuilder.TERRAIN_SUBDIVISIONS
+	var expected_vertices := (
+		(second_grid.size_cells.x * subdivisions + 1)
+		* (second_grid.size_cells.y * subdivisions + 1)
+	)
+	assert_eq(
+		mesh.surface_get_array_len(0),
+		expected_vertices,
+		"same-map-id terrain rebuilds must not reuse a stale baked vertex field"
+	)
+	assert_true(
+		MapViewMeshBuilder.ground_height(second, Vector2(6.5, 4.5)) != 0.0,
+		"actor terrain sampling must resolve the rebuilt field for the current definition"
+	)
+	second_terrain.free()
+
+
+func test_authored_ground_elevation_creates_a_tapered_plateau() -> void:
+	var definition := _flat_terrain_definition(&"test_elevated_plateau", Vector2i(24, 24))
+	definition.ground_elevation = 3.0
+	var terrain := MapViewMeshBuilder.build_terrain(definition, MapBuilder.build(definition))
+	var center_height := MapViewMeshBuilder.ground_height(definition, Vector2(12.0, 12.0))
+	var edge_height := MapViewMeshBuilder.ground_height(definition, Vector2(0.0, 12.0))
+	assert_true(center_height > 2.5, "authored elevation must lift the map interior")
+	assert_true(absf(edge_height) < 0.1, "elevation must taper at map boundaries for connected approaches")
+	terrain.free()
+
+
+func _flat_terrain_definition(map_id: StringName, size_cells: Vector2i) -> MapDefinition:
+	var definition := MapDefinition.new()
+	definition.map_id = map_id
+	definition.size_cells = size_cells
+	definition.base_terrain = MapTypes.TERRAIN_GRASS
+	definition.player_spawn = Vector2(16.0, 16.0)
+	definition.location = &"test"
+	definition.scope = &"prototype"
+	definition.palette = &"spring"
+	definition.seed = 8101
+	definition.fingerprint = "test-height-cache-%s" % size_cells
+	return definition
+
+
 func test_lower_town_water_contour_smooths_multiple_authored_cells() -> void:
 	var definition := LowerTownSlice.create()
 	var grid := MapBuilder.build(definition)

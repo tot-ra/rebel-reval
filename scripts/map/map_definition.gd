@@ -8,6 +8,9 @@ var seed: int = MapTypes.DEFAULT_SEED
 var cell_size: int = MapTypes.DEFAULT_CELL_SIZE
 var size_cells: Vector2i = Vector2i.ZERO
 var base_terrain: StringName = MapTypes.TERRAIN_GRASS
+## Outdoor terrain datum in 3D world units. This is view geometry only: 2D
+## collision/navigation remain on the canonical X/Y gameplay plane.
+var ground_elevation: float = 0.0
 var zones: Array[Dictionary] = []
 var buildings: Array[Dictionary] = []
 var props: Array[Dictionary] = []
@@ -61,6 +64,8 @@ func validate() -> Array[String]:
 		errors.append("cell_size must be positive")
 	if size_cells.x <= 0 or size_cells.y <= 0:
 		errors.append("size_cells must be positive")
+	if not is_finite(ground_elevation) or ground_elevation < 0.0 or ground_elevation > 8.0:
+		errors.append("ground_elevation must be finite and between 0 and 8 world units")
 
 	if not MapTypes.ALL_TERRAINS.has(base_terrain):
 		errors.append("unknown base_terrain: %s" % String(base_terrain))

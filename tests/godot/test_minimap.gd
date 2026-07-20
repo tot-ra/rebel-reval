@@ -35,7 +35,7 @@ func test_bootstrap_adds_minimap_hud() -> void:
 	assert_true(minimap != null, "playable maps need a minimap HUD")
 	assert_eq(minimap.get_parent(), root, "minimap must be camera-independent")
 	assert_true(minimap.is_enabled(), "minimap should start visible")
-	assert_eq(minimap.get_location_label().text, "Eastern District")
+	assert_eq(minimap.get_location_label().text, "Workers' District")
 	root.free()
 
 

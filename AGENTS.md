@@ -77,7 +77,7 @@ Godot generates import metadata for binary assets. The repository tracks `*.impo
 | Import via editor | Open `project.godot` in Godot 4.7; the editor imports resources on load | Supported (manual) |
 | Headless import on clean clone | Documented copy-paste shell command | **Supported** - see [`docs/SETUP.md`](./docs/SETUP.md) and [`docs/reports/startup_baseline.md`](./docs/reports/startup_baseline.md) |
 | Import cache policy | Documented `.godot/` regeneration rules | **Not yet available** - dependency **P0-023** |
-| Large binary sources | Follow [`docs/ASSET_STORAGE_POLICY.md`](./docs/ASSET_STORAGE_POLICY.md) | **Supported** - **P0-025** |
+| Large binary sources | Follow [`docs/ASSET_STORAGE_POLICY.md`](./docs/ASSET_STORAGE_POLICY.md); enforce with `python3 tools/verify_storage_hygiene.py` | **Supported** - **P0-025**, **P0-064** |
 
 ## Startup
 

@@ -330,7 +330,7 @@ Errors reject compiler output and make headless validation exit non-zero. Warnin
 
 The 16x16 planning grid is a review aid (`MapBlueprintSemanticValidator.FUTURE_CHUNK_SIZE_CELLS`). It is not authored chunk identity and is not the runtime default chunk size (32x32 cells per [ADR 0010](./adr/0010-large-map-runtime-chunking.md) and `MapTerrainGrid.DEFAULT_CHUNK_SIZE_CELLS`).
 
-Retained warnings on inactive/dev-gated prototypes `north_quarter`, `south_quarter`, `toompea_quarter`, and `reval_harbor` are intentional. Each subject ID, planning-grid span, and ownership policy is recorded in [`docs/reports/map_chunk_boundary_review_p0_067a.md`](./reports/map_chunk_boundary_review_p0_067a.md). Summary of the owned decision:
+Retained warnings on inactive/dev-gated prototypes `north_quarter`, `monastery_quarter`, `south_quarter`, `toompea_quarter`, `reval_harbor_north`, and `reval_harbor_east` are intentional. The P0-068 Tallinn district reshape was re-audited under the same ADR 0010 ownership policy recorded in [`docs/reports/map_chunk_boundary_review_p0_067a.md`](./reports/map_chunk_boundary_review_p0_067a.md); the report's P0-068 note supersedes its earlier geometry counts. Summary of the owned decision:
 
 - Keep continuous historical footprints; do not suppress the warning code.
 - When object chunk streaming is used, owner chunk is the lexicographically smallest intersecting chunk under ADR 0010 section 4 (`MapChunkRuntimeIndex`).
@@ -527,7 +527,8 @@ map           = "map", ID, ID, INT, INT, ID,
                 { map_option } ;
 map_option    = "scope=", ("prototype" | "production" | "archive")
               | "active=", BOOL | "palette=", ID
-              | "seed=", INT | "cell_size=", INT ;
+              | "seed=", INT | "cell_size=", INT
+              | "elevation=", NUMBER ;
 source        = "source", STRING ;
 surroundings  = "surroundings", SIDE, { (SIDE, ("town" | "water" | "woodland")) } ;
 camera        = "camera", RECT ;
@@ -574,7 +575,15 @@ RECT_LIST     = INT, ",", INT, ",", INT, ",", INT,
                 { "|", INT, ",", INT, ",", INT, ",", INT } ;
 SIDE          = "north" | "east" | "south" | "west" ;
 BOOL          = "true" | "false" ;
+NUMBER        = [ "-" ], INT, [ ".", INT ] ;
 ```
+
+`elevation` is an authored view-layer plateau height in 3D world units. It must
+be finite and between `0` and `8`; the terrain mesh tapers the value to zero
+near map boundaries so connected streets remain readable. It does not change
+2D collision, navigation, stable IDs, transition placement, or save identity.
+The compiler version is `4` because elevation participates in the canonical
+fingerprint. Toompea currently uses `elevation=2.8`.
 
 ### Exact primitive mappings
 
@@ -647,7 +656,7 @@ camera 1 1 18 12
 surroundings north town west town
 ```
 
-Unlisted sides render no exterior backdrop. Use `woodland` only where a meadow treeline is intended; coastal maps should prefer `water` on sea-facing edges (see `content/maps/reval_harbor_surroundings.rrmap`).
+Unlisted sides render no exterior backdrop. Use `woodland` only where a meadow treeline is intended; coastal maps should prefer `water` on sea-facing edges (see `content/maps/reval_harbor_north.rrmap` and `content/maps/reval_harbor_east.rrmap`).
 
 ```rrmap
 surroundings north water east water west town south town

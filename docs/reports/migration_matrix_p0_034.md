@@ -32,6 +32,8 @@ This matrix classifies current slice-relevant artifacts for migration toward the
 | `scenes/elements/npc.tscn` | `convert` | NPC prefab with SpriteFrames, AnimationPlayer, and HealthBar; refactor to four-direction rig. |
 | `scenes/elements/turret.tscn` | `convert` | Wall/turret prop; sprite and collision bounds need orthogonal/P0-040 alignment. |
 | `scenes/elements/UI.tscn` | `archive` | Hidden legacy NATURAL-element HUD shell; remove with P0-041 HUD cleanup. |
+| `scenes/harbor/harbor_north.tscn` | `convert` | Inactive Trade Harbour prototype; developer traversal only. |
+| `scenes/harbor/harbor_east.tscn` | `convert` | Inactive Fishing Harbour prototype; developer traversal only. |
 | `scenes/harbor/warehouse.tscn` | `archive` | Inactive programmatic warehouse interior prototype (`active=false`). |
 | `scenes/interaction/interactable.tscn` | `retain` | Shared focus/prompt interaction component. |
 | `scenes/interaction/interaction_test.tscn` | `retain` | Developer-only interaction verification scene. |
@@ -42,6 +44,7 @@ This matrix classifies current slice-relevant artifacts for migration toward the
 | `scenes/reval_east/forge/forge_cat.tscn` | `retain` | Ambient smithy cat actor. |
 | `scenes/reval_east/forge/smithy_henning.tscn` | `retain` | Smithy apprentice Henning actor. |
 | `scenes/reval_east/reval_east.tscn` | `convert` | Default Start district on legacy `scenes/tileset.tres`; migrate to orthogonal target. |
+| `scenes/reval_monastery/reval_monastery.tscn` | `convert` | Inactive Monastery District prototype splitting the historic northern ward; developer traversal only. |
 | `scenes/reval_north/reval_north.tscn` | `convert` | Inactive programmatic north quarter prototype; developer traversal only. |
 | `scenes/reval_south/reval_south.tscn` | `convert` | Inactive southern quarter prototype; developer traversal only. |
 | `scenes/reval_toompea/reval_toompea.tscn` | `convert` | Inactive Toompea Upper Town prototype; developer traversal only. |

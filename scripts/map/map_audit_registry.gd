@@ -11,10 +11,12 @@ const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_
 const MarketCivicQuarter := preload("res://scripts/map/definitions/prototypes/market_civic_quarter_definition.gd")
 const StOlafsGuildHall := preload("res://scripts/map/definitions/prototypes/st_olafs_guild_hall_definition.gd")
 const NorthQuarter := preload("res://scripts/map/definitions/prototypes/north_quarter_definition.gd")
+const MonasteryQuarter := preload("res://scripts/map/definitions/prototypes/monastery_quarter_definition.gd")
 const ToompeaQuarter := preload("res://scripts/map/definitions/prototypes/toompea_quarter_definition.gd")
 const SouthQuarter := preload("res://scripts/map/definitions/prototypes/south_quarter_definition.gd")
 const HarborWarehouse := preload("res://scripts/map/definitions/prototypes/harbor_warehouse_definition.gd")
-const RevalHarbor := preload("res://scripts/map/definitions/outdoor/reval_harbor_definition.gd")
+const RevalHarborNorth := preload("res://scripts/map/definitions/outdoor/reval_harbor_north_definition.gd")
+const RevalHarborEast := preload("res://scripts/map/definitions/outdoor/reval_harbor_east_definition.gd")
 const Coast := preload("res://scripts/map/definitions/outdoor/coast_harbor_definitions.gd")
 const Villages := preload("res://scripts/map/definitions/outdoor/village_monastery_definitions.gd")
 const Castles := preload("res://scripts/map/definitions/outdoor/castle_definitions.gd")
@@ -29,10 +31,12 @@ static func all() -> Array[MapDefinition]:
 		MarketCivicQuarter.create(),
 		StOlafsGuildHall.create(),
 		NorthQuarter.create(),
+		MonasteryQuarter.create(),
 		ToompeaQuarter.create(),
 		SouthQuarter.create(),
 		HarborWarehouse.create(),
-		RevalHarbor.create(),
+		RevalHarborNorth.create(),
+		RevalHarborEast.create(),
 	]
 	definitions.append_array(Coast.all())
 	definitions.append_array(Villages.all())

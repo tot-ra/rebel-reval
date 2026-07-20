@@ -420,16 +420,26 @@ func _create_streamed_object(record: Dictionary) -> Node:
 	var source := record["source"] as Dictionary
 	match record["kind"] as StringName:
 		&"building":
-			return MapViewMeshBuilder.build_building(source, definition.cell_size)
+			var building_node := MapViewMeshBuilder.build_building(source, definition.cell_size)
+			building_node.position.y = MapViewMeshBuilder.ground_height(
+				definition,
+				Vector2(building_node.position.x, building_node.position.z)
+			)
+			return building_node
 		&"landmark":
 			# Interior windows size their opening infill from the wall height;
 			# without it they fall back to the default and leave a sky gap
 			# between the infill top and the ceiling on taller walls.
-			return MapViewMeshBuilder.build_landmark(
+			var landmark_node := MapViewMeshBuilder.build_landmark(
 				source,
 				definition.cell_size,
 				MapViewMeshBuilder.interior_shell_wall_height_world(definition)
 			)
+			landmark_node.position.y = MapViewMeshBuilder.ground_height(
+				definition,
+				Vector2(landmark_node.position.x, landmark_node.position.z)
+			)
+			return landmark_node
 		&"prop":
 			var prop_node := MapViewMeshBuilder.build_prop(source, definition.cell_size)
 			# build_prop applies visual_offset_px in world space; keep that lift when

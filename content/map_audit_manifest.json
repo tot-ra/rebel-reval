@@ -44,7 +44,7 @@
     },
     {
       "id": "lower_town_slice",
-      "location_name": "Lower Town Slice",
+      "location_name": "Workers' District",
       "scene": "scenes/reval_east/reval_east.tscn",
       "definition": "scripts/map/definitions/lower_town/lower_town_slice_definition.gd",
       "factory": "LowerTownSliceDefinition.create",
@@ -110,7 +110,7 @@
     },
     {
       "id": "south_quarter",
-      "location_name": "South Quarter",
+      "location_name": "Knights District",
       "scene": "scenes/reval_south/reval_south.tscn",
       "definition": "scripts/map/definitions/prototypes/south_quarter_definition.gd",
       "factory": "SouthQuarterDefinition.create",
@@ -143,7 +143,7 @@
     },
     {
       "id": "north_quarter",
-      "location_name": "North Quarter",
+      "location_name": "Merchant District",
       "scene": "scenes/reval_north/reval_north.tscn",
       "definition": "scripts/map/definitions/prototypes/north_quarter_definition.gd",
       "factory": "NorthQuarterDefinition.create",
@@ -152,10 +152,29 @@
       "mandatory_anchors": [
         "inspection_spawn",
         "pikk_street_spine",
-        "guild_frontage"
+        "merchant_court"
       ],
       "mandatory_transitions": [
         "to_reval_harbor",
+        "to_monastery"
+      ]
+    },
+    {
+      "id": "monastery_quarter",
+      "location_name": "Monastery District",
+      "scene": "scenes/reval_monastery/reval_monastery.tscn",
+      "definition": "scripts/map/definitions/prototypes/monastery_quarter_definition.gd",
+      "factory": "MonasteryQuarterDefinition.create",
+      "disposition": "convert",
+      "capture": "monastery_quarter.png",
+      "mandatory_anchors": [
+        "inspection_spawn",
+        "monastery_close",
+        "st_olaf_frontage",
+        "guild_frontage"
+      ],
+      "mandatory_transitions": [
+        "to_reval_north",
         "to_reval_center",
         "to_reval_east",
         "to_reval_toompea"
@@ -176,21 +195,40 @@
       "mandatory_transitions": []
     },
     {
-      "id": "reval_harbor",
-      "location_name": "Reval Harbour",
-      "scene": "scenes/harbor/harbor.tscn",
-      "definition": "scripts/map/definitions/outdoor/reval_harbor_definition.gd",
-      "factory": "RevalHarborDefinition.create",
+      "id": "reval_harbor_north",
+      "location_name": "Trade Harbour",
+      "scene": "scenes/harbor/harbor_north.tscn",
+      "definition": "scripts/map/definitions/outdoor/reval_harbor_north_definition.gd",
+      "factory": "RevalHarborNorthDefinition.create",
       "disposition": "convert",
-      "capture": "reval_harbor_surroundings.png",
+      "capture": "reval_harbor_north.png",
       "mandatory_anchors": [
-        "from_reval_east",
+        "from_reval_north",
+        "from_harbor_east",
         "quay_plaza",
         "coast_gate"
       ],
       "mandatory_transitions": [
+        "to_reval_north",
+        "to_harbor_east"
+      ]
+    },
+    {
+      "id": "reval_harbor_east",
+      "location_name": "Fishing Harbour",
+      "scene": "scenes/harbor/harbor_east.tscn",
+      "definition": "scripts/map/definitions/outdoor/reval_harbor_east_definition.gd",
+      "factory": "RevalHarborEastDefinition.create",
+      "disposition": "convert",
+      "capture": "reval_harbor_east.png",
+      "mandatory_anchors": [
+        "from_reval_east",
+        "from_harbor_north",
+        "quay_plaza"
+      ],
+      "mandatory_transitions": [
         "to_reval_east",
-        "to_reval_north"
+        "to_harbor_north"
       ]
     },
     {

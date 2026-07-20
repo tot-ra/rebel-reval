@@ -118,6 +118,9 @@ jobs:
             exit 1
           fi
 
+      - name: Repository storage hygiene
+        run: python3 tools/verify_storage_hygiene.py
+
       - name: Asset source manifest coverage
         run: python3 tools/validate_asset_sources.py
 

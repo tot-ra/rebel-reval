@@ -34,8 +34,8 @@ func test_finds_reciprocal_harbor_transition_and_aligns_touching_edges() -> void
 	var pair: Dictionary = pairs[0]
 	assert_eq(pair["base"]["id"], &"to_harbor_east")
 	assert_eq(pair["neighbor"]["id"], &"to_harbor_north")
-	assert_eq(pair["base_side"], &"south")
-	assert_eq(pair["neighbor_side"], &"north")
+	assert_eq(pair["base_side"], &"east")
+	assert_eq(pair["neighbor_side"], &"west")
 
 	var offset := MapAlignmentMath.aligned_neighbor_offset(
 		north,
@@ -43,13 +43,13 @@ func test_finds_reciprocal_harbor_transition_and_aligns_touching_edges() -> void
 		pair["base"],
 		pair["neighbor"]
 	)
-	assert_eq(offset, Vector2(31 * 32, 72 * 32))
+	assert_eq(offset, Vector2(160 * 32, 0))
 	assert_eq(
 		MapAlignmentMath.offset_in_neighbor_cells(east, offset),
-		Vector2(31, 72)
+		Vector2(160, 0)
 	)
-	assert_eq(MapAlignmentMath.seam_span_cells(north, pair["base"], &"south"), 12.0)
-	assert_eq(MapAlignmentMath.seam_span_cells(east, pair["neighbor"], &"north"), 10.0)
+	assert_eq(MapAlignmentMath.seam_span_cells(north, pair["base"], &"east"), 8.0)
+	assert_eq(MapAlignmentMath.seam_span_cells(east, pair["neighbor"], &"west"), 8.0)
 
 
 func test_layout_connected_city_maps_places_every_reciprocal_neighbor() -> void:
@@ -57,6 +57,7 @@ func test_layout_connected_city_maps_places_every_reciprocal_neighbor() -> void:
 	for path in [
 		"res://content/maps/lower_town_slice.rrmap",
 		"res://content/maps/market_civic_quarter.rrmap",
+		"res://content/maps/monastery_quarter.rrmap",
 		"res://content/maps/north_quarter.rrmap",
 		"res://content/maps/south_quarter.rrmap",
 		"res://content/maps/toompea_quarter.rrmap",
@@ -64,14 +65,14 @@ func test_layout_connected_city_maps_places_every_reciprocal_neighbor() -> void:
 		var definition := _definition(path)
 		if definition != null:
 			definitions.append(definition)
-	if definitions.size() != 5:
+	if definitions.size() != 6:
 		return
 
 	var layout := MapAlignmentMath.layout_connected_maps(definitions, &"lower_town_slice")
 	var offsets: Dictionary = layout["offsets"]
-	assert_eq(offsets.size(), 5)
+	assert_eq(offsets.size(), 6)
 	assert_true(layout["unplaced"].is_empty())
-	assert_true(layout["seams"].size() >= 4)
+	assert_true(layout["seams"].size() >= 5)
 	assert_eq(offsets[&"lower_town_slice"], Vector2.ZERO)
 
 

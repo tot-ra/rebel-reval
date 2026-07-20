@@ -54,6 +54,10 @@ const HEIGHT_BROAD_AMPLITUDE := 0.38
 const HEIGHT_FINE_AMPLITUDE := 0.09
 const HEIGHT_BROAD_PERIOD := 9.0
 const HEIGHT_FINE_PERIOD := 3.1
+## Authored elevated districts taper into their neighboring map datum over a
+## broad edge band. Gameplay transitions remain at the edge while the interior
+## reads as a raised plateau.
+const ELEVATION_SLOPE_CELLS := 10.0
 ## Each logic cell becomes a 3 x 3 visual patch (18 triangles). Gameplay stays
 ## on the original grid while relief and surface borders gain finer curvature.
 const TERRAIN_SUBDIVISIONS := 3
@@ -239,6 +243,7 @@ const WALL_SEAL_OVERHANG := 0.45
 const TOWN_GRID_SPACING := 6.5
 const TOWN_KEEP_RATIO := 0.6
 const TOWN_BAND_INNER := 2.5
+const TOWN_BAND_OUTER := 96.0
 const GLACIS_CLEARANCE := 6.0
 
 ## View-only landscape ring past the playable bounds. Authors opt in per side via
@@ -298,4 +303,3 @@ const PUDDLE_CHANCE := {
 const PUDDLE_LOW_HEIGHT_BIAS := 0.55
 const PUDDLE_SCALE_MIN := 0.28
 const PUDDLE_SCALE_MAX := 0.72
-

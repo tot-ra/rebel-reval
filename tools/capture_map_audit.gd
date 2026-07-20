@@ -20,10 +20,13 @@ func _run() -> void:
 	var definitions := Registry.by_id()
 	var viewport_size := _vector2i(capture["viewport_px"])
 	var panel_size := Vector2(_vector2i(capture["panel_world_px"]))
-	var world_scale := float(capture["world_scale"])
+	var maximum_world_scale := float(capture["world_scale"])
+	var selected_maps := _selected_map_ids()
 
 	for row in manifest["maps"]:
 		var map_id := String(row["id"])
+		if not selected_maps.is_empty() and map_id not in selected_maps:
+			continue
 		if not definitions.has(map_id):
 			push_error("Capture manifest map is not executable: %s" % map_id)
 			quit(1)
@@ -36,8 +39,9 @@ func _run() -> void:
 		viewport.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
 		root.add_child(viewport)
 		_add_background(viewport, viewport_size)
-		_add_map(viewport, definition, world_scale, panel_size)
-		_add_overlay(viewport, row, definition, world_scale)
+		var render_scale := _fit_scale(definition, maximum_world_scale, panel_size)
+		_add_map(viewport, definition, render_scale)
+		_add_overlay(viewport, row, definition, render_scale)
 
 		await process_frame
 		await process_frame
@@ -71,14 +75,17 @@ func _add_background(viewport: SubViewport, viewport_size: Vector2i) -> void:
 	viewport.add_child(map_background)
 
 
-func _add_map(viewport: SubViewport, definition: MapDefinition, world_scale: float, panel_size: Vector2) -> void:
+func _add_map(viewport: SubViewport, definition: MapDefinition, world_scale: float) -> void:
 	var renderer := Renderer.new()
 	renderer.configure(definition, MapBuilder.build(definition))
 	renderer.scale = Vector2.ONE * world_scale
 	renderer.position = Vector2(32, 100)
 	viewport.add_child(renderer)
-	var rendered_size := definition.world_size() * world_scale
-	assert(rendered_size.x <= panel_size.x and rendered_size.y <= panel_size.y)
+
+
+func _fit_scale(definition: MapDefinition, maximum_world_scale: float, panel_size: Vector2) -> float:
+	var world_size := definition.world_size()
+	return minf(maximum_world_scale, minf(panel_size.x / world_size.x, panel_size.y / world_size.y))
 
 
 func _add_overlay(
@@ -93,7 +100,7 @@ func _add_overlay(
 	_add_label(overlay, row["location_name"], Vector2(32, 24), 30, Color8(239, 227, 204), 1000.0)
 	_add_label(
 		overlay,
-		"%s  |  %d x %d cells  |  fixed world scale %.2f"
+		"%s  |  %d x %d cells  |  fitted world scale %.3f"
 			% [definition.map_id, definition.size_cells.x, definition.size_cells.y, world_scale],
 		Vector2(34, 64),
 		17,
@@ -151,3 +158,10 @@ func _load_manifest() -> Dictionary:
 
 func _vector2i(values: Array) -> Vector2i:
 	return Vector2i(int(values[0]), int(values[1]))
+
+
+func _selected_map_ids() -> PackedStringArray:
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--maps="):
+			return argument.trim_prefix("--maps=").split(",", false)
+	return PackedStringArray()

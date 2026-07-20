@@ -22,13 +22,12 @@ func test_lower_town_has_wall_exit_signs_outside_the_moat() -> void:
 	# West exit is Vana Turg into the civic centre, not Karja Gate.
 	assert_true(town_centre_sign["position"].x < float(definition.cell_size * 8))
 
-	var south_sign := _sign_by_text(definition, "to south quarter")
+	var south_sign := _sign_by_text(definition, "to knights district")
 	assert_false(south_sign.is_empty())
-	assert_eq(south_sign["direction"], Vector2.LEFT)
-	# The southern quarter now joins through an internal lane west of the smithy,
-	# so district travel never crosses Karja Gate or the moat.
-	assert_true(south_sign["position"].x < float(definition.cell_size * 8))
-	assert_true(south_sign["position"].y > float(definition.cell_size * 70))
+	assert_eq(south_sign["direction"], Vector2.DOWN)
+	# The southern quarter joins at the south edge, away from the Karja Gate moat.
+	assert_true(south_sign["position"].x > float(definition.cell_size * 55))
+	assert_true(south_sign["position"].y > float(definition.cell_size * 100))
 
 	assert_true(MapBuilder.validate(definition).is_empty())
 
@@ -47,15 +46,15 @@ func test_direction_sign_builds_wooden_arrow_with_two_sided_text() -> void:
 	node.free()
 
 
-func test_south_quarter_sign_points_along_internal_lane() -> void:
+func test_south_quarter_sign_points_toward_south_edge() -> void:
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
-	var sign := _sign_by_text(definition, "to south quarter")
+	var sign := _sign_by_text(definition, "to knights district")
 	var node := DirectionSign3D.build(sign, definition.cell_size)
-	assert_eq((node.get_node("TextFront") as Label3D).text, "to south quarter")
+	assert_eq((node.get_node("TextFront") as Label3D).text, "to knights district")
 	var world_arrow_direction := (node.transform.basis * Vector3.RIGHT).normalized()
 	assert_true(
-		world_arrow_direction.is_equal_approx(Vector3.LEFT),
-		"south-quarter sign must point west along the internal lane"
+		world_arrow_direction.is_equal_approx(Vector3.BACK),
+		"south-quarter sign must point toward the south edge"
 	)
 	node.free()
 
@@ -100,7 +99,7 @@ func test_map_view_assembles_direction_signs_without_logic_geometry() -> void:
 		texts.append(String(child.get_meta("direction_text")))
 	assert_array_contains(texts, "to harbour")
 	assert_array_contains(texts, "to town centre")
-	assert_array_contains(texts, "to south quarter")
+	assert_array_contains(texts, "to knights district")
 	view.free()
 
 

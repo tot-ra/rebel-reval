@@ -181,6 +181,11 @@ func test_town_surroundings_keep_deep_apron_past_neighbor_previews() -> void:
 			"%s apron depth %.1f must cover max zoom (need >= %.1f)" % [side, depth, min_depth]
 		)
 	assert_true(view.has_node("Surroundings/TownSilhouette"), "town silhouette houses still spawn")
+	var bodies := view.get_node("Surroundings/TownSilhouette/TownBodies") as MultiMeshInstance3D
+	assert_true(
+		bodies.multimesh.instance_count > 0,
+		"previewed town edges need distant building silhouettes beyond the edge gap"
+	)
 	view.free()
 
 
@@ -262,7 +267,7 @@ func test_building_uv_scale_grows_with_wall_span() -> void:
 func test_city_wall_masonry_uses_direction_independent_triplanar_scale() -> void:
 	var definition := LowerTownSlice.create()
 	var expected_density := MapViewMaterials.building_uv_density(MapViewMaterials.PATTERN_LIMESTONE)
-	var wall_ids: Array[StringName] = [&"city_wall_north", &"city_wall_southwest"]
+	var wall_ids: Array[StringName] = [&"city_wall_north", &"city_wall_bend_d"]
 	var checked := 0
 	for building in definition.buildings:
 		if building["id"] not in wall_ids:
@@ -417,5 +422,3 @@ func test_every_prop_kind_builds_parametric_geometry() -> void:
 		assert_false(node.has_node("Marker"), "%s: prop must not fall back to the unknown-kind marker" % kind)
 		assert_eq(node.position, Vector3(2.0, 0.0, 2.0), "%s: prop anchors at the definition position" % kind)
 		node.free()
-
-

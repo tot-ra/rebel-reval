@@ -9,10 +9,10 @@ static func canonical_print(blueprint: MapBlueprint, format_version: int = 1) ->
 	if blueprint == null:
 		return ""
 	var lines: Array[String] = ["rrmap %d" % format_version]
-	lines.append("map %s %s %d %d %s scope=%s active=%s palette=%s seed=%d cell_size=%d" % [
+	lines.append("map %s %s %d %d %s scope=%s active=%s palette=%s seed=%d cell_size=%d elevation=%s" % [
 		blueprint.map_id, blueprint.location, blueprint.size_cells.x, blueprint.size_cells.y,
 		blueprint.base_terrain, blueprint.scope, str(blueprint.active).to_lower(), blueprint.palette,
-		blueprint.seed, blueprint.cell_size,
+		blueprint.seed, blueprint.cell_size, _number_text(blueprint.ground_elevation),
 	])
 	var styles := blueprint.styles.duplicate(true)
 	styles.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return String(a["id"]) < String(b["id"]))

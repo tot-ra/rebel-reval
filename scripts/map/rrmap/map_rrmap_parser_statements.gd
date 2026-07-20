@@ -108,7 +108,7 @@ func _parse_map(tokens: Array[Dictionary], line: int) -> void:
 	var size = _tokens.vector_from_tokens(tokens, line, 3)
 	if size == null:
 		return
-	var options = _tokens.options(tokens, line, 6, ["scope", "active", "palette", "seed", "cell_size"])
+	var options = _tokens.options(tokens, line, 6, ["scope", "active", "palette", "seed", "cell_size", "elevation"])
 	if options == null:
 		return
 	_parser._blueprint = MapBlueprint.new(
@@ -131,6 +131,10 @@ func _parse_map(tokens: Array[Dictionary], line: int) -> void:
 		var cell_size = _tokens.int_value(options["cell_size"], line, _tokens.option_column(tokens, "cell_size"))
 		if cell_size != null:
 			_parser._blueprint.cell_size = cell_size
+	if options.has("elevation"):
+		var elevation = _tokens.float_value(options["elevation"], line, _tokens.option_column(tokens, "elevation"))
+		if elevation != null:
+			_parser._blueprint.ground_elevation = elevation
 
 
 func _parse_source(tokens: Array[Dictionary], line: int) -> void:

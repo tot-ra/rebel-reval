@@ -22,6 +22,11 @@ const MAPS: Dictionary = {
 		"scope": "prototype",
 		"active": false
 	},
+	"reval_monastery": {
+		"path": "res://scenes/reval_monastery/reval_monastery.tscn",
+		"scope": "prototype",
+		"active": false
+	},
 	"reval_toompea": {
 		"path": "res://scenes/reval_toompea/reval_toompea.tscn",
 		"scope": "prototype",
@@ -37,9 +42,19 @@ const MAPS: Dictionary = {
 		"scope": "prototype",
 		"active": false
 	},
+	"reval_harbor_north": {
+		"path": "res://scenes/harbor/harbor_north.tscn",
+		"scope": "prototype",
+		"active": false
+	},
+	"reval_harbor_east": {
+		"path": "res://scenes/harbor/harbor_east.tscn",
+		"scope": "prototype",
+		"active": false
+	},
 	"reval_harbor": {
 		"path": "res://scenes/harbor/harbor.tscn",
-		"scope": "prototype",
+		"scope": "archive",
 		"active": false
 	},
 	"harbor_warehouse": {

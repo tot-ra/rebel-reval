@@ -15,7 +15,7 @@ func test_bootstrap_adds_current_location_hud() -> void:
 	var hud := bootstrap.get("minimap_hud") as MinimapHud
 	assert_true(hud != null, "playable maps need a minimap HUD")
 	assert_eq(hud.get_parent(), root, "HUD must be camera-independent")
-	assert_eq(hud.get_location_label().text, "Eastern District")
+	assert_eq(hud.get_location_label().text, "Workers' District")
 	root.free()
 
 

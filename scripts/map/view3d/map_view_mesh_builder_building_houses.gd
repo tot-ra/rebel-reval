@@ -359,31 +359,78 @@ static func add_historic_building_details(
 
 static func _add_early_town_hall_details(root: Node3D, size: Vector2, height: float) -> void:
 	var facade_z := -size.y * 0.5 - 0.13
-	var bay_count := clampi(int(size.x / 2.15), 4, 8)
-	var bay_width := minf(1.55, size.x / float(bay_count) * 0.68)
+	var rear_z := size.y * 0.5 + 0.11
+	var bay_count := clampi(int(size.x / 1.95), 5, 9)
+	var bay_width := minf(1.35, size.x / float(bay_count) * 0.62)
 	for index in bay_count:
 		var x := (float(index + 1) / float(bay_count + 1) - 0.5) * size.x
+		var arch_height := minf(1.45, height * 0.40)
 		MapViewMeshBuilderPrimitives.box(
 			root,
 			"ArcadePier%02d" % index,
-			Vector3(0.22, minf(1.7, height * 0.46), 0.24),
-			Vector3(x - bay_width * 0.5, minf(1.7, height * 0.46) * 0.5, facade_z),
+			Vector3(0.20, arch_height, 0.26),
+			Vector3(x - bay_width * 0.5, arch_height * 0.5, facade_z),
 			&"stone"
 		)
 		MapViewMeshBuilderPrimitives.box(
 			root,
 			"ArcadeLintel%02d" % index,
-			Vector3(bay_width, 0.18, 0.24),
-			Vector3(x, minf(1.7, height * 0.46), facade_z),
+			Vector3(bay_width, 0.18, 0.26),
+			Vector3(x, arch_height, facade_z),
 			&"stone"
+		)
+		MapViewMeshBuilderPrimitives.box(
+			root,
+			"ArcadeShadow%02d" % index,
+			Vector3(maxf(0.24, bay_width - 0.26), maxf(0.45, arch_height - 0.28), 0.04),
+			Vector3(x, maxf(0.45, arch_height - 0.28) * 0.5, facade_z - 0.05),
+			&"window"
 		)
 	MapViewMeshBuilderPrimitives.box(
 		root,
 		"CouncilDoorSurround",
-		Vector3(1.32, minf(2.35, height * 0.62), 0.12),
-		Vector3(size.x * 0.30, minf(2.35, height * 0.62) * 0.5, facade_z - 0.08),
+		Vector3(1.18, minf(2.05, height * 0.56), 0.14),
+		Vector3(size.x * 0.28, minf(2.05, height * 0.56) * 0.5, facade_z - 0.09),
 		&"stone"
 	)
+	for side_x in [-size.x * 0.5 + 0.55, size.x * 0.5 - 0.55]:
+		MapViewMeshBuilderPrimitives.box(
+			root,
+			"TownHallCornerButtress%.0f" % side_x,
+			Vector3(0.34, height * 0.92, 0.34),
+			Vector3(side_x, height * 0.46, facade_z + 0.05),
+			&"stone"
+		)
+	var step_count := 5
+	for index in step_count:
+		var step_width := size.y * (0.55 - float(index) * 0.075)
+		var step_height := height + 0.18 + float(index) * 0.24
+		for x_side in [-1.0, 1.0]:
+			MapViewMeshBuilderPrimitives.box(
+				root,
+				"TownHallGableStep%02d_%s" % [index, "E" if x_side > 0.0 else "W"],
+				Vector3(0.24, 0.22, maxf(0.32, step_width)),
+				Vector3(x_side * (size.x * 0.5 + 0.05), step_height, 0.0),
+				&"stone"
+			)
+	var dais_height := minf(0.24, height * 0.08)
+	MapViewMeshBuilderPrimitives.box(
+		root,
+		"TownHallMarketStoop",
+		Vector3(size.x * 0.72, dais_height, 0.78),
+		Vector3(0.0, dais_height * 0.5, facade_z - 0.42),
+		&"stone"
+	)
+	var rear_window_count := clampi(int(size.x / 3.2), 3, 6)
+	for index in rear_window_count:
+		var x := (float(index + 1) / float(rear_window_count + 1) - 0.5) * size.x
+		MapViewMeshBuilderPrimitives.box(
+			root,
+			"TownHallRearLancet%02d" % index,
+			Vector3(0.36, minf(1.25, height * 0.34), 0.05),
+			Vector3(x, height * 0.55, rear_z),
+			&"window"
+		)
 
 
 static func _add_holy_spirit_chapel_details(root: Node3D, size: Vector2, height: float) -> void:

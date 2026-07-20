@@ -6,9 +6,10 @@ extends RefCounted
 ## Deterministic per-map height field shared by the terrain mesh, scatter,
 ## trees, and actor sync so everything sits on the same rolling ground.
 static var _height_fields: Dictionary = {}
+static var _height_field_keys_by_definition: Dictionary = {}
 
 static func ensure_height_field(definition: MapDefinition, grid: MapTerrainGrid) -> Dictionary:
-	var key := String(definition.map_id)
+	var key := _height_field_key(definition, grid)
 	if _height_fields.has(key):
 		return _height_fields[key]
 	var scale := MapViewBridge.world_scale(definition.cell_size)
@@ -34,6 +35,7 @@ static func ensure_height_field(definition: MapDefinition, grid: MapTerrainGrid)
 			water_contours[terrain_id] = MapViewMeshBuilderTerrainWater.bake_water_contour(grid, terrain_id)
 	var field := {
 		"seed": definition.seed,
+		"ground_elevation": definition.ground_elevation,
 		"size": grid.size_cells,
 		"rects": rects,
 		"rects_by_cell": _index_flatten_rects(rects, grid.size_cells),
@@ -45,8 +47,26 @@ static func ensure_height_field(definition: MapDefinition, grid: MapTerrainGrid)
 		"flat_floor": definition.suppresses_exterior_surroundings(),
 	}
 	_height_fields[key] = field
+	_height_field_keys_by_definition[_definition_height_key(definition)] = key
 	bake_vertices(field)
 	return field
+
+
+static func _height_field_key(definition: MapDefinition, grid: MapTerrainGrid) -> String:
+	return "%s:%s:%s" % [
+		_definition_height_key(definition),
+		grid.size_cells,
+		grid.fingerprint(),
+	]
+
+
+static func _definition_height_key(definition: MapDefinition) -> String:
+	return "%s:%s:%s:%d" % [
+		String(definition.map_id),
+		String(definition.fingerprint),
+		definition.size_cells,
+		definition.seed,
+	]
 
 ## Index level pads by the only cells they can influence. Height sampling runs for
 ## every terrain subvertex, so scanning every building and transition there made
@@ -96,7 +116,8 @@ static func _bake_water_factors(water: Dictionary, size: Vector2i) -> PackedFloa
 
 
 static func ground_height(definition: MapDefinition, world_xz: Vector2) -> float:
-	var field: Dictionary = _height_fields.get(String(definition.map_id), {})
+	var field_key := String(_height_field_keys_by_definition.get(_definition_height_key(definition), ""))
+	var field: Dictionary = _height_fields.get(field_key, {})
 	if field.is_empty():
 		return 0.0
 	return field_height(field, world_xz)
@@ -116,8 +137,23 @@ static func field_height(field: Dictionary, position: Vector2) -> float:
 	var noise_seed: int = field["seed"]
 	var broad := value_noise(position / MapViewMeshBuilderConfig.HEIGHT_BROAD_PERIOD, noise_seed + 7717)
 	var fine := value_noise(position / MapViewMeshBuilderConfig.HEIGHT_FINE_PERIOD, noise_seed + 8317)
-	var height := broad * MapViewMeshBuilderConfig.HEIGHT_BROAD_AMPLITUDE + fine * MapViewMeshBuilderConfig.HEIGHT_FINE_AMPLITUDE
-	return height * minf(pad_factor(field, position), water_factor(field, position))
+	var relief := broad * MapViewMeshBuilderConfig.HEIGHT_BROAD_AMPLITUDE + fine * MapViewMeshBuilderConfig.HEIGHT_FINE_AMPLITUDE
+	var base_elevation := float(field.get("ground_elevation", 0.0)) * elevation_factor(field, position)
+	return base_elevation + relief * minf(pad_factor(field, position), water_factor(field, position))
+
+
+## Elevated outdoor maps share a zero-height datum at their authored bounds so
+## reciprocal transition edges still meet. The interior rises smoothly into a
+## broad plateau instead of lifting collision or changing 2D map coordinates.
+static func elevation_factor(field: Dictionary, position: Vector2) -> float:
+	if field.get("flat_floor", false):
+		return 0.0
+	var size: Vector2i = field["size"]
+	var border := minf(
+		minf(position.x, float(size.x) - position.x),
+		minf(position.y, float(size.y) - position.y)
+	)
+	return smoothstep(0.0, MapViewMeshBuilderConfig.ELEVATION_SLOPE_CELLS, border)
 
 
 ## Smooth value noise in [0, 1] over an integer lattice.

@@ -1,0 +1,74 @@
+[
+  {
+    "path": "archive/music/domberg/night/Ghosts of the Crown (1).mp3",
+    "size_bytes": 11213221,
+    "sha256": "deb3602c3a5fe9d81e1106c6bd8c584dbc6bb185dd948820d105c4473dd85b97",
+    "owner": "audio archive",
+    "rationale": "Approved inactive soundtrack source; preserve provenance and restoration access.",
+    "follow_up": "P0-070"
+  },
+  {
+    "path": "archive/music/dome_school/night/Midnight Bells (1).mp3",
+    "size_bytes": 11026669,
+    "sha256": "e443db933168dd750f76fc03e0c039b909ce1d242208a26de093a4527f148165",
+    "owner": "audio archive",
+    "rationale": "Approved inactive soundtrack source; preserve provenance and restoration access.",
+    "follow_up": "P0-070"
+  },
+  {
+    "path": "history/AVE2009_V.Kadakasjt.pdf",
+    "size_bytes": 14515885,
+    "sha256": "ec721e849f8f5b1739b26c105be6c8afc6e3c6ea421c5be5ee1da908034fd1d4",
+    "owner": "historical research",
+    "rationale": "Research source requires an immutable external citation before migration.",
+    "follow_up": "P0-070"
+  },
+  {
+    "path": "history/AVE2011_Kadakas_Padise.pdf",
+    "size_bytes": 11240999,
+    "sha256": "cb0d1031bfbb36aa93131c94afc02cb65e684e258450dff1313d690524cfadfd",
+    "owner": "historical research",
+    "rationale": "Research source requires an immutable external citation before migration.",
+    "follow_up": "P0-070"
+  },
+  {
+    "path": "history/AVE2011_Valkjt_Karksi.pdf",
+    "size_bytes": 13081696,
+    "sha256": "fca507e5ba5987d0727c4027ce1f398c336102322f3bbcc2970d8dc8c1759a2e",
+    "owner": "historical research",
+    "rationale": "Research source requires an immutable external citation before migration.",
+    "follow_up": "P0-070"
+  },
+  {
+    "path": "history/AVE2015_15_Roiojt_Kadriorg.pdf",
+    "size_bytes": 10922139,
+    "sha256": "8365b96829059e05455db6a34856067422051c48438e8616efff847369897ff3",
+    "owner": "historical research",
+    "rationale": "Research source requires an immutable external citation before migration.",
+    "follow_up": "P0-070"
+  },
+  {
+    "path": "history/AVE2022_15.pdf",
+    "size_bytes": 18962824,
+    "sha256": "680881f5af226796276f173d408bea341d6f3ad04864c92c9d6c7c4997e46ea2",
+    "owner": "historical research",
+    "rationale": "Research source requires an immutable external citation before migration.",
+    "follow_up": "P0-070"
+  },
+  {
+    "path": "music/revel_east/monastery/battle/Catherine's Prayer.mp3",
+    "size_bytes": 11445881,
+    "sha256": "c4e0a2ae6d6caa5dac57c1040dc38cd0a082e5c10a69c4383004ebb126c833bb",
+    "owner": "runtime audio",
+    "rationale": "Active approved soundtrack source; migrate only after authenticated LFS and CI retrieval proof.",
+    "follow_up": "P0-070"
+  },
+  {
+    "path": "story/image-4.png",
+    "size_bytes": 13067362,
+    "sha256": "710598cee3261abceeda0a124d7d7dbecbcb1ada2d51cea201b7441ef10b16",
+    "owner": "narrative archive",
+    "rationale": "Legacy narrative image needs classification and a stable external source before migration.",
+    "follow_up": "P0-070"
+  }
+]

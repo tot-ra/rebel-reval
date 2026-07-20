@@ -45,10 +45,20 @@
       "active": true,
       "release": false,
       "spawns": [
-        { "id": "from_reval_east" },
-        { "id": "from_reval_center" },
-        { "id": "from_reval_toompea" },
+        { "id": "from_monastery" },
         { "id": "to_reval_harbor" }
+      ]
+    },
+    {
+      "id": "reval_monastery",
+      "path": "res://scenes/reval_monastery/reval_monastery.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        { "id": "from_reval_north" },
+        { "id": "from_reval_center" },
+        { "id": "from_reval_east" },
+        { "id": "from_reval_toompea" }
       ]
     },
     {
@@ -61,13 +71,23 @@
       ]
     },
     {
-      "id": "reval_harbor",
-      "path": "res://scenes/harbor/harbor.tscn",
+      "id": "reval_harbor_north",
+      "path": "res://scenes/harbor/harbor_north.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        { "id": "from_reval_north" },
+        { "id": "from_harbor_east" }
+      ]
+    },
+    {
+      "id": "reval_harbor_east",
+      "path": "res://scenes/harbor/harbor_east.tscn",
       "active": true,
       "release": false,
       "spawns": [
         { "id": "from_reval_east" },
-        { "id": "from_reval_north" }
+        { "id": "from_harbor_north" }
       ]
     },
     {

@@ -1,26 +1,26 @@
 # Scene inventory (P0-018, reconciled P0-055)
 
 Recorded: 2026-07-16
-Reconciled: 2026-07-20 (exact repository coverage through P0-069)
+Reconciled: 2026-07-20 (exact repository coverage through P0-069 plus P0-068 district additions)
 
 ## Summary
 
 | Classification | Count | Role |
 |----------------|------:|------|
 | `working` | 25 | Active runtime scenes with verified or complete behavior |
-| `partial` | 24 | Substantial content but incomplete integration or dev-only use |
+| `partial` | 27 | Substantial content but incomplete integration or dev-only use |
 | `placeholder` | 3 | Reserved stubs or reference-only visuals, not playable |
 | `archive` | 20 | Out of vertical-slice scope; legacy open-world or event shells |
-| **Total** | **72** | Matches repository `.tscn` count |
+| **Total** | **75** | Matches repository `.tscn` count |
 
 Repository count command:
 
 ```bash
 find . -name '*.tscn' -not -path './.git/*' | wc -l
-# Expected: 72
+# Expected: 75
 ```
 
-Inventory row count (data rows in the table below): **72**.
+Inventory row count (data rows in the table below): **75**.
 
 ## Classification criteria
 
@@ -70,6 +70,8 @@ Inventory row count (data rows in the table below): **72**.
 | 26 | `scenes/events/swedesh_outpost.tscn` | archive | Empty `Node2D`; campaign location outside slice. |
 | 27 | `scenes/events/swedish_arrival.tscn` | archive | Empty `Node2D`; fleet arrival event outside slice. |
 | 28 | `scenes/harbor/harbor.tscn` | placeholder | Single screenshot sprite; no player, doors, or navigation. |
+| 74 | `scenes/harbor/harbor_north.tscn` | partial | Inactive Trade Harbour prototype; developer traversal only. |
+| 75 | `scenes/harbor/harbor_east.tscn` | partial | Inactive Fishing Harbour prototype; developer traversal only. |
 | 29 | `scenes/harbor/warehouse.tscn` | partial | Inactive programmatic warehouse interior prototype (`active=false`); ADR 0006 scope expansion. |
 | 30 | `scenes/interaction/interactable.tscn` | working | Shared `Interactable` focus, prompt, and interaction range component. |
 | 31 | `scenes/interaction/interaction_test.tscn` | partial | Developer-only interaction and input verification scene. |
@@ -83,6 +85,7 @@ Inventory row count (data rows in the table below): **72**.
 | 40 | `scenes/reval_east/forge/forge_cat.tscn` | working | Ambient smithy cat with navigation and idle behavior. |
 | 41 | `scenes/reval_east/forge/smithy_henning.tscn` | working | Smithy apprentice Henning with patrol and idle behavior. |
 | 42 | `scenes/reval_east/reval_east.tscn` | working | Programmatic bounded Lower Town exterior; default Start destination via manifest. |
+| 73 | `scenes/reval_monastery/reval_monastery.tscn` | partial | Inactive Monastery District prototype; developer traversal only. |
 | 43 | `scenes/reval_north/reval_north.tscn` | partial | Inactive programmatic north quarter prototype; developer traversal only. |
 | 44 | `scenes/reval_south/reval_south.tscn` | partial | Inactive southern quarter prototype (Rataskaev / Karja approach); developer traversal only. |
 | 45 | `scenes/reval_toompea/reval_toompea.tscn` | partial | Inactive Toompea Upper Town prototype; developer traversal via Lühike Jalg. |
@@ -92,7 +95,7 @@ Inventory row count (data rows in the table below): **72**.
 | 49 | `scenes/tests/dialogue_ui_test.tscn` | partial | Dev-only dialogue UI and settings review scene (P1-012/P1-013). |
 | 50 | `scenes/tests/dialogue_overflow_test.tscn` | partial | Dev-only pseudo-localization overflow review scene (P1-014). |
 | 51 | `scenes/tests/combat_room.tscn` | partial | Dev-only P1-024 combat integration room with readable feedback. |
-| 73 | `scenes/tests/night_encounter_stub.tscn` | partial | Dev-only P1-025b/P1-027a night consequence integration host. |
+| 76 | `scenes/tests/night_encounter_stub.tscn` | partial | Dev-only P1-025b/P1-027a night consequence integration host. |
 | 52 | `scenes/ui/forge_commission_overlay.tscn` | working | Forge commission flow overlay; P1-019a smithy ledger interaction. |
 | 53 | `scenes/ui/inventory_overlay.tscn` | working | Session bag overlay; D-003 pickup and inventory UI. |
 | 54 | `scenes/ui/journal_overlay.tscn` | working | Quest journal overlay; P1-016 objectives and discovered evidence. |
@@ -124,7 +127,7 @@ Inventory row count (data rows in the table below): **72**.
 | `scenes/comparison_room/` | 0 | 3 | 0 | 0 | 3 |
 | `scenes/elements/` | 7 | 2 | 0 | 0 | 9 |
 | `scenes/events/` | 0 | 0 | 0 | 7 | 7 |
-| `scenes/harbor/` | 0 | 1 | 1 | 0 | 2 |
+| `scenes/harbor/` | 0 | 3 | 1 | 0 | 4 |
 | `scenes/interaction/` | 1 | 1 | 0 | 0 | 2 |
 | `scenes/intro/` | 0 | 0 | 1 | 0 | 1 |
 | `scenes/map/` | 0 | 0 | 1 | 0 | 1 |
@@ -132,6 +135,7 @@ Inventory row count (data rows in the table below): **72**.
 | `scenes/menu/` | 1 | 0 | 0 | 0 | 1 |
 | `scenes/reval_center/` | 0 | 3 | 0 | 0 | 3 |
 | `scenes/reval_east/` | 4 | 0 | 0 | 0 | 4 |
+| `scenes/reval_monastery/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/reval_north/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/reval_south/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/reval_toompea/` | 0 | 1 | 0 | 2 | 3 |
@@ -140,7 +144,7 @@ Inventory row count (data rows in the table below): **72**.
 | `scenes/world/` | 1 | 0 | 0 | 10 | 11 |
 | `tools/` | 0 | 1 | 0 | 0 | 1 |
 | `tools/benchmarks/` | 0 | 2 | 0 | 0 | 2 |
-| **All** | **25** | **24** | **3** | **20** | **72** |
+| **All** | **25** | **27** | **3** | **20** | **75** |
 
 ## Verification
 
@@ -152,7 +156,7 @@ find . -name '*.tscn' -not -path './.git/*' | wc -l
 grep -E '^\| [0-9]+ \|' docs/reports/scene_inventory.md | wc -l
 ```
 
-Both commands should print `72` on a clean checkout at this revision.
+Both commands should print `75` on a clean checkout at this revision.
 
 ## Related tasks
 

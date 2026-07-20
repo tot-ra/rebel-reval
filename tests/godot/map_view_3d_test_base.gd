@@ -5,6 +5,7 @@ extends "res://tests/godot/test_case.gd"
 const SmithyCourtyard := preload("res://scripts/map/smithy_courtyard_definition.gd")
 const KalevSmithyDefinition := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
 const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
+const SouthQuarterDefinition := preload("res://scripts/map/definitions/prototypes/south_quarter_definition.gd")
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const PLAYER_SCENE := preload("res://player.tscn")
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")

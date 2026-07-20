@@ -29,6 +29,9 @@ jobs:
       - name: Full Python discovery suite
         run: python3 -m unittest discover -s tests/python -v
 
+      - name: Repository storage hygiene
+        run: python3 tools/verify_storage_hygiene.py
+
       - name: Validate complete content example corpus
         run: python3 tools/validate_content.py content/examples/valid content/examples/support
 

@@ -8,7 +8,7 @@ extends RefCounted
 ## this class keeps validation helpers and the public compile entry points.
 
 
-const COMPILER_VERSION := 3
+const COMPILER_VERSION := 4
 const ID_PATTERN := "^[a-z0-9_.-]+$"
 
 const COMMON_STYLE_KEYS: Array[StringName] = [&"enabled"]
@@ -105,6 +105,8 @@ static func _validate_metadata(blueprint: MapBlueprint, errors: Array[String]) -
 		errors.append("map.size_cells must be positive")
 	if blueprint.cell_size <= 0:
 		errors.append("map.cell_size must be positive")
+	if not is_finite(blueprint.ground_elevation) or blueprint.ground_elevation < 0.0 or blueprint.ground_elevation > 8.0:
+		errors.append("map.ground_elevation must be finite and between 0 and 8 world units")
 	if not MapTypes.ALL_TERRAINS.has(blueprint.base_terrain):
 		errors.append("map.base_terrain is unknown: %s" % String(blueprint.base_terrain))
 

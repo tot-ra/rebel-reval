@@ -4,15 +4,16 @@ extends CanvasLayer
 ## Location display names for map HUD. The visible label now lives under MinimapHud;
 ## this class keeps the curated naming table and humanized fallbacks.
 const DISPLAY_NAMES_BY_MAP: Dictionary = {
-	&"lower_town_slice": "Eastern District",
+	&"lower_town_slice": "Workers' District",
 	&"kalev_smithy": "Kalev's Smithy",
 	&"market_civic_quarter": "Central District",
-	&"north_quarter": "Northern District",
-	&"south_quarter": "Southern District",
+	&"north_quarter": "Merchant District",
+	&"monastery_quarter": "Monastery District",
+	&"south_quarter": "Knights District",
 	&"toompea_quarter": "Toompea",
 	&"st_olafs_guild_hall": "St. Olaf's Guild Hall",
-	&"reval_harbor_north": "North Harbour",
-	&"reval_harbor_east": "East Harbour",
+	&"reval_harbor_north": "Trade Harbour",
+	&"reval_harbor_east": "Fishing Harbour",
 	&"reval_harbor": "Reval Harbour",
 	&"harbor_warehouse": "Harbour Warehouse",
 }
@@ -20,14 +21,15 @@ const DISPLAY_NAMES_BY_MAP: Dictionary = {
 ## Transition-manifest scene IDs (DoorNavigator) mapped to the same curated labels.
 const DISPLAY_NAMES_BY_SCENE: Dictionary = {
 	&"forge": "Kalev's Smithy",
-	&"reval_east": "Eastern District",
+	&"reval_east": "Workers' District",
 	&"reval_center": "Central District",
-	&"reval_north": "Northern District",
-	&"reval_south": "Southern District",
+	&"reval_north": "Merchant District",
+	&"reval_monastery": "Monastery District",
+	&"reval_south": "Knights District",
 	&"reval_toompea": "Toompea",
 	&"st_olafs_guild_hall": "St. Olaf's Guild Hall",
-	&"reval_harbor_north": "North Harbour",
-	&"reval_harbor_east": "East Harbour",
+	&"reval_harbor_north": "Trade Harbour",
+	&"reval_harbor_east": "Fishing Harbour",
 	&"reval_harbor": "Reval Harbour",
 	&"harbor_warehouse": "Harbour Warehouse",
 }

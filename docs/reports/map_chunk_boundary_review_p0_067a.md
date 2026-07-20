@@ -2,12 +2,21 @@
 
 Recorded: 2026-07-20  
 Task: `P0-067a`  
-Maps: `north_quarter`, `south_quarter`, `toompea_quarter`, `reval_harbor`  
+Maps: `north_quarter`, `monastery_quarter`, `south_quarter`, `toompea_quarter`, `reval_harbor_north`, `reval_harbor_east`
 Audit evidence: `GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot tools/run_map_pipeline_ci.sh audit` (0 errors; warnings retained below)
+
+P0-068 re-audit note (2026-07-20): the Tallinn district reshape split the old
+northern ward, widened both harbours and Toompea, and replaced the southern
+rectangular wall with a stepped circuit. Blueprint validation completed with
+zero errors and reviewable warnings still visible. Every newly emitted
+`MAP_CHUNK_BOUNDARY_AMBIGUOUS` subject on the six maps named above inherits the
+ADR 0010 lexicographically-smallest intersecting-chunk ownership decision below.
+The older subject inventory is retained as change history, not as the current
+warning count; no prototype may be activated on that inventory alone.
 
 ## Decision
 
-Retain every listed `MAP_CHUNK_BOUNDARY_AMBIGUOUS` warning on these four maps. Do not suppress the diagnostic code, and do not rewrite historically grounded continuous footprints solely to quiet the 16x16 planning-grid review.
+Retain every listed `MAP_CHUNK_BOUNDARY_AMBIGUOUS` warning on these six maps. Do not suppress the diagnostic code, and do not rewrite historically grounded continuous footprints solely to quiet the 16x16 planning-grid review.
 
 Ownership when object chunk streaming is used follows [ADR 0010](../adr/0010-large-map-runtime-chunking.md) section 4 and `MapChunkRuntimeIndex`:
 
@@ -90,19 +99,31 @@ Planning-grid chunk spans are `(first_chunk)-(last_chunk)` at 16x16 cells, copie
 | `to_reval_center` | transition | `(1, 0)-(2, 0)` | ADR 0010 lex-smallest intersecting chunk |
 | `to_reval_east` | transition | `(4, 1)-(4, 2)` | ADR 0010 lex-smallest intersecting chunk |
 
-### `toompea_quarter` (9 retained warnings)
+### `toompea_quarter` (21 retained warnings)
 
 | Subject | Kind | Planning chunks (16x16) | Owner policy |
 |---|---|---|---|
-| `castle_mass` | building | `(0, 1)-(1, 1)` | ADR 0010 lex-smallest intersecting chunk |
-| `cathedral_silhouette` | building | `(1, 0)-(2, 1)` | ADR 0010 lex-smallest intersecting chunk |
-| `city_wall_north_west` | building | `(0, 0)-(2, 0)` | ADR 0010 lex-smallest intersecting chunk |
-| `city_wall_west` | building | `(0, 0)-(0, 1)` | ADR 0010 lex-smallest intersecting chunk |
-| `luhike_gate_tower` | building | `(2, 1)-(3, 2)` | ADR 0010 lex-smallest intersecting chunk |
-| `order_barracks` | building | `(0, 0)-(1, 1)` | ADR 0010 lex-smallest intersecting chunk |
-| `pikk_jalg_gate_tower` | building | `(2, 0)-(3, 0)` | ADR 0010 lex-smallest intersecting chunk |
-| `to_reval_center` | transition | `(3, 1)-(3, 2)` | ADR 0010 lex-smallest intersecting chunk |
-| `to_reval_south` | transition | `(0, 2)-(1, 2)` | ADR 0010 lex-smallest intersecting chunk |
+| `bishop_house` | building | `(1, 0)-(1, 1)` | ADR 0010 lex-smallest intersecting chunk |
+| `castle_curtain_north` | building | `(0, 2)-(2, 2)` | ADR 0010 lex-smallest intersecting chunk |
+| `castle_curtain_south_west` | building | `(0, 3)-(1, 3)` | ADR 0010 lex-smallest intersecting chunk |
+| `castle_curtain_west` | building | `(0, 2)-(0, 3)` | ADR 0010 lex-smallest intersecting chunk |
+| `castle_keep_tower` | building | `(1, 2)-(2, 2)` | ADR 0010 lex-smallest intersecting chunk |
+| `castle_mass` | building | `(0, 2)-(1, 3)` | ADR 0010 lex-smallest intersecting chunk |
+| `castle_stables` | building | `(3, 3)-(4, 3)` | ADR 0010 lex-smallest intersecting chunk |
+| `cathedral_silhouette` | building | `(2, 1)-(3, 1)` | ADR 0010 lex-smallest intersecting chunk |
+| `chancery_wing` | building | `(2, 2)-(3, 2)` | ADR 0010 lex-smallest intersecting chunk |
+| `city_wall_east_south` | building | `(6, 2)-(6, 3)` | ADR 0010 lex-smallest intersecting chunk |
+| `city_wall_north_east` | building | `(6, 0)-(6, 2)` | ADR 0010 lex-smallest intersecting chunk |
+| `city_wall_north_west` | building | `(0, 0)-(5, 0)` | ADR 0010 lex-smallest intersecting chunk |
+| `city_wall_south_east` | building | `(5, 3)-(6, 3)` | ADR 0010 lex-smallest intersecting chunk |
+| `city_wall_south_mid_west` | building | `(2, 3)-(3, 3)` | ADR 0010 lex-smallest intersecting chunk |
+| `city_wall_south_west` | building | `(0, 3)-(1, 3)` | ADR 0010 lex-smallest intersecting chunk |
+| `city_wall_west` | building | `(0, 0)-(0, 3)` | ADR 0010 lex-smallest intersecting chunk |
+| `luhike_gate_guardhouse` | building | `(5, 2)-(6, 3)` | ADR 0010 lex-smallest intersecting chunk |
+| `luhike_gate_tower` | building | `(5, 2)-(6, 2)` | ADR 0010 lex-smallest intersecting chunk |
+| `noble_residence` | building | `(4, 2)-(4, 3)` | ADR 0010 lex-smallest intersecting chunk |
+| `order_barracks` | building | `(0, 3)-(1, 3)` | ADR 0010 lex-smallest intersecting chunk |
+| `to_reval_south` | transition | `(1, 3)-(2, 3)` | ADR 0010 lex-smallest intersecting chunk |
 
 ### `reval_harbor` (8 retained warnings)
 

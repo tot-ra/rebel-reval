@@ -108,13 +108,14 @@ func test_town_wall_gets_battlements_and_gate_arch_clears_character() -> void:
 	)
 	arch.free()
 
+	var south_definition := SouthQuarterDefinition.create()
 	var karja_arch_def: Dictionary = {}
-	for landmark in definition.view_landmarks:
+	for landmark in south_definition.view_landmarks:
 		if landmark["id"] == &"karja_gate_arch":
 			karja_arch_def = landmark
 			break
 	assert_false(karja_arch_def.is_empty(), "Karja Gate needs its arch landmark")
-	var karja_arch := MapViewMeshBuilder.build_landmark(karja_arch_def, definition.cell_size)
+	var karja_arch := MapViewMeshBuilder.build_landmark(karja_arch_def, south_definition.cell_size)
 	assert_true(karja_arch.has_node("GateDoor0"), "Karja Gate needs open metal doors")
 	var karja_door := karja_arch.get_node("GateDoor0") as MeshInstance3D
 	var metal_mat := MapViewMaterials.role(&"metal")

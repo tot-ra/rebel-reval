@@ -20,6 +20,16 @@ const ACCENTS: Array[Color] = [
 	Color("f5c451"), Color("55bce8"), Color("e879a9"), Color("79d279"),
 	Color("bc8cff"), Color("ef8d52"), Color("55d6c2"), Color("d3d65a"),
 ]
+const DISPLAY_NAMES: Dictionary = {
+	&"lower_town_slice": "Workers' District",
+	&"market_civic_quarter": "Central District",
+	&"monastery_quarter": "Monastery District",
+	&"north_quarter": "Merchant District",
+	&"south_quarter": "Knights District",
+	&"toompea_quarter": "Toompea",
+	&"reval_harbor_north": "Trade Harbour",
+	&"reval_harbor_east": "Fishing Harbour",
+}
 
 var layers: Array[Dictionary] = []
 var seams: Array[Dictionary] = []
@@ -378,7 +388,7 @@ func _draw_map(map_layer: Dictionary) -> void:
 				_draw_id(String(transition["id"]), screen_rect.get_center(), Color(1.0, 0.38, 0.3), opacity)
 	var selected: bool = StringName(map_layer["id"]) == selected_map_id
 	draw_rect(world_rect, Color.WHITE if selected else Color(accent, opacity), false, 5.0 if selected else 2.0)
-	_draw_id(String(definition.map_id), world_rect.position + Vector2(8.0, 20.0), Color.WHITE if selected else accent, opacity, false)
+	_draw_id(String(DISPLAY_NAMES.get(definition.map_id, definition.map_id)), world_rect.position + Vector2(8.0, 20.0), Color.WHITE if selected else accent, opacity, false)
 
 
 func _build_terrain_texture(definition: MapDefinition) -> ImageTexture:

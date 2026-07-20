@@ -11,7 +11,8 @@ const PARITY_FIXTURE_PATH := "res://tests/fixtures/maps/lower_town_slice.parity.
 
 func test_lower_town_slice_validates() -> void:
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
-	assert_eq(definition.size_cells, Vector2i(176, 112))
+	assert_eq(definition.size_cells, Vector2i(152, 128))
+	assert_eq(definition.camera_bounds, definition.cell_rect_to_world_rect(Rect2i(0, 0, 152, 128)))
 	var errors: Array[String] = MapBuilder.validate(definition)
 	assert_true(errors.is_empty(), str(errors))
 
@@ -78,17 +79,18 @@ func test_lower_town_required_route_endpoints_reachable() -> void:
 func test_city_wall_blocks_except_viru_gate() -> void:
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
-	# Wall cells north of the gate and along the south-west bend must block.
-	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(128, 16)), "north wall must block")
-	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(104, 70)), "south-east bend must block")
-	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(84, 90)), "south-west bend must block")
-	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(40, 96)), "south wall must block")
+	# Wall cells north of the gate and along the south-east bend must block.
+	# The south-west edge is a district seam to the Knights District, not the
+	# city's exterior wall.
+	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(111, 22)), "north wall must block")
+	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(90, 95)), "south-east bend must block")
+	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(73, 122)), "south-west bend must block")
 	# The moat outside the wall blocks except at the gate causeway.
-	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(142, 16)), "moat must block")
-	assert_true(MapVerification.is_walkable_cell(definition, grid, Vector2i(142, 40)), "causeway must stay open")
+	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(123, 22)), "moat must block")
+	assert_true(MapVerification.is_walkable_cell(definition, grid, Vector2i(123, 54)), "causeway must stay open")
 	# The gate passage itself stays open from Viru street to the east road.
-	var inside := definition.cell_rect_center(Rect2i(120, 40, 1, 1))
-	var outside := definition.cell_rect_center(Rect2i(160, 40, 1, 1))
+	var inside := definition.cell_rect_center(Rect2i(104, 54, 1, 1))
+	var outside := definition.cell_rect_center(Rect2i(140, 54, 1, 1))
 	var region := MapNavBuilder.create_navigation_region(definition, grid)
 	assert_true(
 		MapVerification.route_exists_exact(definition, grid, inside, outside),
@@ -101,25 +103,36 @@ func test_city_wall_blocks_except_viru_gate() -> void:
 	region.free()
 
 
-func test_karja_gate_passage_stays_open() -> void:
+func test_south_quarter_seam_stays_inside_the_city_wall() -> void:
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
-	# Gate towers flanking the passage must block movement.
-	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(68, 96)), "west gate tower must block")
-	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(80, 96)), "east gate tower must block")
-	# The passage and the causeway over the south moat stay open to the edge.
-	var inside := definition.cell_rect_center(Rect2i(74, 90, 1, 1))
-	var outside := definition.cell_rect_center(Rect2i(74, 108, 1, 1))
+	assert_true(MapVerification.is_walkable_cell(definition, grid, Vector2i(62, 124)), "Karja/Vaike-Karja seam must stay walkable")
+	assert_true(MapVerification.is_walkable_cell(definition, grid, Vector2i(65, 127)), "knights-district transition must be street terrain")
+	var inside := definition.cell_rect_center(Rect2i(64, 116, 1, 1))
+	var outside := definition.cell_rect_center(Rect2i(64, 127, 1, 1))
 	var region := MapNavBuilder.create_navigation_region(definition, grid)
 	assert_true(
 		MapVerification.route_exists_exact(definition, grid, inside, outside),
-		"Suur-Karja must pass through Karja Gate to the south road"
+		"Karja/Vaike-Karja must continue from Workers' District into Knights District inside the walls"
 	)
 	assert_true(
 		_navigation_points_connected(region.navigation_polygon, inside, outside),
-		"merged water obstructions must keep Karja causeway connected in the baked navigation mesh"
+		"district seam must stay connected in the baked navigation mesh"
 	)
 	region.free()
+
+
+func test_worker_district_ends_at_the_knights_district_seam() -> void:
+	var definition: MapDefinition = LowerTownSliceDefinition.create()
+	var grid: MapTerrainGrid = MapBuilder.build(definition)
+	assert_true(not MapVerification.is_walkable_cell(definition, grid, Vector2i(73, 124)), "southern wall continuation must block the district edge")
+	var found := false
+	for building in definition.buildings:
+		if building["id"] != &"city_wall_south_continuation":
+			continue
+		found = true
+		assert_eq(building["footprint"], definition.cell_rect_to_world_rect(Rect2i(73, 121, 4, 7)))
+	assert_true(found, "Workers' District needs a continuation wall toward Knights District")
 
 
 func test_navigation_region_builds_despite_overlapping_wall_footprints() -> void:
@@ -145,7 +158,7 @@ func test_navigation_region_builds_despite_overlapping_wall_footprints() -> void
 func test_water_cells_are_not_navigable() -> void:
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
-	var moat_cell := Vector2i(142, 16)
+	var moat_cell := Vector2i(123, 22)
 	assert_true(MapTypes.WATER_TERRAINS.has(grid.get_terrain(moat_cell)), "test cell must be water")
 	var fingerprint_before := definition.fingerprint
 	var grid_fingerprint_before := grid.fingerprint()

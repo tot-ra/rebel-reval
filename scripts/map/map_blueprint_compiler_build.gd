@@ -15,6 +15,7 @@ static func build_definition(blueprint: MapBlueprint, expanded: Dictionary) -> M
 	definition.size_cells = blueprint.size_cells
 	definition.base_terrain = blueprint.base_terrain
 	definition.cell_size = blueprint.cell_size
+	definition.ground_elevation = blueprint.ground_elevation
 
 	var terrain: Array = expanded["terrain"]
 	terrain.sort_custom(MapBlueprintCompiler._compare_terrain)
@@ -174,6 +175,7 @@ static func _fingerprint(definition: MapDefinition) -> String:
 		"size_cells": definition.size_cells,
 		"cell_size": definition.cell_size,
 		"base_terrain": definition.base_terrain,
+		"ground_elevation": definition.ground_elevation,
 		"zones": definition.zones,
 		"buildings": definition.buildings,
 		"props": definition.props,

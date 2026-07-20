@@ -64,6 +64,9 @@ This document audits the characters, buildings, weapons, religions, institutions
 * **Roof Covers (wooden shingle, reed/straw thatch, ceramic tile)**
   * Label: **`attested`**
   * Source Note: Wooden shingle and thatch (straw and coastal reed) were the ordinary roof covers of the 14th-century wooden town; ceramic tile marked churches, monasteries, and rich stone houses. Town councils of Hanseatic cities pushed tile over flammable covers only in later fire ordinances, so in 1343 tile roofs were still the exception. The in-game distribution (thatch/shingle on log and timber houses, tile on limestone buildings) follows this pattern.
+* **Reval district silhouette and Toompea relief (1343-inspired layout)**
+  * Label: **`plausible reconstruction`**
+  * Source Note: Tallinn's official history places the later town-wall circuit in the 14th century, while the heritage authority identifies the preserved medieval street/property network as a defining Old Town value. The district map therefore uses an irregular, stepped southern wall rather than a modern rectangle, keeps a denser southern ward, and separates the broad monastery/guild precinct from the merchant ward toward the coast. Toompea is a distinct fortified hill and is rendered as a wider plateau elevated above the Lower Town. The Workers, Knights, Merchant, Monastery, Trade Harbour, and Fishing Harbour labels are gameplay-facing functional names, not claimed medieval administrative district names. Sources: [History of Tallinn](https://www.tallinn.ee/en/history-tallinn), [Tallinn heritage protection](https://www.tallinn.ee/en/ehitus/heritage-protection), [Toompea wall restoration notice](https://www.tallinn.ee/en/news/patkuli-stairs-closed-due-restoration-toompea-wall-until-27-june).
 
 ## 3. Weapons
 

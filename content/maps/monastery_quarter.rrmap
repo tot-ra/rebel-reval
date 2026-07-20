@@ -1,0 +1,109 @@
+# Monastery District between the civic market and the northern merchant ward.
+# St. Olaf's precinct, St. Michael's Cistercian convent, guild frontages, and
+# the Pikk/Lai approaches form a broad lower half of the former north quarter.
+rrmap 1
+map monastery_quarter loc.lower_town.monastery_quarter 208 112 cobblestone scope=prototype active=false palette=clean_painted seed=2721 cell_size=32
+source "scenes/reval_monastery/reval_monastery.tscn"
+source "scenes/revel-map.jpg"
+source "scenes/reval_north/st_olafs_church.md"
+source "scenes/reval_north/great_guild_hall.md"
+source "scenes/reval_north/brotherhood_of_blackheads_house.md"
+source "docs/HISTORICAL_AUDIT.md"
+style house.merchant.south door_side=south roof_color=3d3329ff roof_material=shingle wall_color=706352ff wall_material=plank wall_height=120
+style house.merchant.north door_side=north roof_color=3b332bff roof_material=shingle wall_color=756654ff wall_material=plaster wall_height=120
+style house.guild door_side=south roof_color=4a2a20ff roof_material=tile wall_color=6b5e4fff wall_material=limestone wall_height=136
+style house.church door_side=south roof_color=2e241cff roof_material=tile wall_color=807a70ff wall_material=limestone wall_height=192
+style house.convent door_side=east ridge_axis=x roof_color=42261fff roof_material=tile wall_color=8c867aff wall_material=limestone wall_height=128
+style house.service door_side=north roof_color=6b5c40ff roof_material=thatch wall_color=5a4f45ff wall_material=log wall_height=88
+style wall.precinct wall_height=112 wall_color=8d897fff
+style wall.city wall_height=192 wall_color=949185ff
+style wall.tower wall_height=240 wall_color=8c8a80ff
+terrain district.base cobblestone 0 0 208 112 order=1
+terrain convent.garden grass 5 8 55 62 order=2
+terrain convent.close stone 10 14 52 36 order=3
+terrain olaf.close stone 70 50 70 38 order=4
+terrain guild.plaza stone 23 18 55 40 order=5
+terrain service.yard dirt 146 12 52 50 order=6
+stroke pikk_spine cobblestone 101,0|101,24|101,52|101,80|101,110 thickness=4 order=7
+stroke lai_lane cobblestone 135,0|135,28|135,58|135,88|135,110 thickness=3 order=8
+stroke guild_lane cobblestone 23,54|49,54|49,72|75,72|75,88|101,88 thickness=3 order=9
+stroke convent_lane cobblestone 0,34|23,34|23,54|49,54 thickness=3 order=10
+stroke vene_lane cobblestone 153,110|153,94|164,94|179,94|179,110 thickness=3 order=11
+stroke civic_lane cobblestone 86,110|86,98|94,98|101,98 thickness=3 order=12
+# Tallinn's medieval wall circuit continues along the exposed west and east
+# sides. The open north/south district seams remain streets rather than walls.
+building monastery_city_wall_west_north wall 0 0 3 20 style=wall.city
+building monastery_wall_tower_northwest wall 0 0 8 8 style=wall.tower tower=true
+building monastery_west_gate_north_tower wall 0 20 8 8 style=wall.tower tower=true
+building monastery_west_gate_south_tower wall 0 40 8 8 style=wall.tower tower=true
+building monastery_city_wall_west_south wall 0 48 3 64 style=wall.city
+building monastery_wall_tower_west_mid wall 0 72 8 8 style=wall.tower tower=true
+building monastery_wall_tower_southwest wall 0 104 8 8 style=wall.tower tower=true
+building monastery_city_wall_east wall 205 0 3 112 style=wall.city
+building monastery_wall_tower_northeast wall 200 0 8 8 style=wall.tower tower=true
+building monastery_wall_tower_east_mid wall 200 52 8 8 style=wall.tower tower=true
+building monastery_wall_tower_southeast wall 200 104 8 8 style=wall.tower tower=true
+building st_michaels_convent house 16 16 22 14 style=house.convent
+building convent_chapel house 16 36 14 10 style=house.church
+building convent_service_wing house 44 16 10 22 style=house.service
+building convent_precinct_wall_north wall 10 10 52 2 style=wall.precinct
+building convent_precinct_wall_west wall 10 10 2 48 style=wall.precinct
+building convent_precinct_wall_south wall 10 56 36 2 style=wall.precinct
+building st_olaf_silhouette house 83 58 22 14 style=house.church
+building olaf_precinct_west house 68 76 10 8 style=house.merchant.south
+building olaf_precinct_east house 117 70 12 8 style=house.merchant.north
+building great_guild_front house 44 22 20 8 style=house.guild
+building guild_annex house 44 52 16 6 style=house.merchant.north
+building brotherhood_wing house 44 76 14 6 style=house.merchant.north
+building blackheads_corner house 73 28 8 8 style=house.guild
+building guild_storehouse house 73 58 10 6 style=house.merchant.north
+building west_lane_house_north house 36 10 6 10 style=house.merchant.south
+building west_lane_house_mid house 36 46 6 10 style=house.merchant.south
+building west_lane_house_south house 36 82 6 8 style=house.merchant.south
+building pikk_merchant_south_west house 81 70 8 8 style=house.merchant.north
+building pikk_merchant_south_east house 109 70 8 8 style=house.merchant.north
+building pikk_merchant_mid_west house 81 34 8 10 style=house.merchant.north
+building pikk_merchant_mid_east house 109 28 8 10 style=house.merchant.north
+building lai_merchant_south house 135 70 10 8 style=house.merchant.north
+building lai_merchant_mid house 138 28 12 10 style=house.merchant.north
+building lai_corner_tenement house 151 46 14 10 style=house.merchant.north
+building lai_east_row_mid house 172 16 10 10 style=house.merchant.south
+building lai_east_row_south house 172 82 10 8 style=house.merchant.north
+building workshop_row_west house 120 10 12 6 style=house.service
+building workshop_row_mid house 122 46 12 6 style=house.service
+building netmakers_loft house 120 76 10 6 style=house.service
+building shoemakers_guild house 151 34 10 8 style=house.merchant.north
+building market_house_east house 185 66 12 9 style=house.merchant.south
+building convent_almonry house 13 66 14 8 style=house.service
+landmark monastery_west_gate_arch gate_arch 0 28 8 12 wall_color=8f8c80ff top_px=240 passage_axis=x door_material=wood
+prop convent_well well 47 44 rect=2,2
+prop garden_bench table 29 48 rect=2,1
+prop guild_stall stall 62 40 rect=2,2
+prop merchant_stall stall 96 48 rect=3,2
+prop street_cart cart 101 84 rect=2,2
+prop service_barrels barrels 161 54 rect=2,2
+spawn spawn.inspection 101 52 rect=2,2
+anchor inspection_spawn 101 52 rect=2,2
+anchor monastery_close 26 52 rect=2,2
+anchor st_olaf_frontage 99 74 rect=2,2
+anchor guild_frontage 68 49 rect=2,2
+anchor pikk_street_spine 101 56 rect=2,2
+anchor from_reval_north 101 6 rect=2,2
+anchor from_reval_center 94 104 rect=2,2
+anchor from_reval_east 159 104 rect=2,2
+anchor from_reval_toompea 8 34 rect=2,2
+transition to_reval_north 95 0 12 2 to=reval_north destination_spawn=from_monastery spawn=from_reval_north spawn_offset_px=0,96 highlight_area=true transition_visual=ground
+transition to_reval_center 88 108 12 4 to=reval_center destination_spawn=to_reval_north spawn=from_reval_center spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
+transition to_reval_east 153 108 12 4 to=reval_east destination_spawn=vene_district_boundary spawn=from_reval_east spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
+transition to_reval_toompea 0 28 3 12 to=reval_toompea destination_spawn=from_reval_north spawn=from_reval_toompea spawn_offset_px=96,0 highlight_area=true transition_visual=ground view_landmark_id=monastery_west_gate_arch
+sign sign.merchant "to merchant district" 103 6 north
+sign sign.center "to town square" 91 103 south
+sign sign.vene "to workers' district" 156 103 south
+sign sign.toompea "pikk jalg to toompea" 8 32 west
+sign sign.convent "st michael's convent" 49 47 west
+sign sign.olaf "st olaf's" 99 80 north
+patrol monastery_watch 101,6|101,30|101,56|101,88|94,104|135,88|159,104|135,56|68,54|26,54|8,34
+fade fade.convent 10 10 55 58
+fade fade.olaf 75 50 65 42
+camera 0 0 208 112
+surroundings north town east town south town west town

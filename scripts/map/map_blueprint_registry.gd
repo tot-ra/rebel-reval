@@ -7,10 +7,12 @@ extends RefCounted
 const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smithy_rrmap_factory.gd")
 const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_rrmap_factory.gd")
 const NorthQuarter := preload("res://scripts/map/definitions/prototypes/north_quarter_rrmap_factory.gd")
+const MonasteryQuarter := preload("res://scripts/map/definitions/prototypes/monastery_quarter_rrmap_factory.gd")
 const MarketCivicQuarter := preload("res://scripts/map/definitions/prototypes/market_civic_quarter_rrmap_factory.gd")
 const ToompeaQuarter := preload("res://scripts/map/definitions/prototypes/toompea_quarter_rrmap_factory.gd")
 const SouthQuarter := preload("res://scripts/map/definitions/prototypes/south_quarter_rrmap_factory.gd")
-const RevalHarbor := preload("res://scripts/map/definitions/outdoor/reval_harbor_rrmap_factory.gd")
+const RevalHarborNorth := preload("res://scripts/map/definitions/outdoor/reval_harbor_north_rrmap_factory.gd")
+const RevalHarborEast := preload("res://scripts/map/definitions/outdoor/reval_harbor_east_rrmap_factory.gd")
 
 
 static func entries() -> Array[Dictionary]:
@@ -56,6 +58,17 @@ static func entries() -> Array[Dictionary]:
 			"required_anchors": [
 				&"inspection_spawn",
 				&"pikk_street_spine",
+				&"merchant_court",
+			],
+		},
+		{
+			"id": &"monastery_quarter",
+			"source": "res://content/maps/monastery_quarter.rrmap",
+			"factory": MonasteryQuarter,
+			"required_anchors": [
+				&"inspection_spawn",
+				&"monastery_close",
+				&"st_olaf_frontage",
 				&"guild_frontage",
 			],
 		},
@@ -81,13 +94,24 @@ static func entries() -> Array[Dictionary]:
 			],
 		},
 		{
-			"id": &"reval_harbor",
-			"source": "res://content/maps/reval_harbor_surroundings.rrmap",
-			"factory": RevalHarbor,
+			"id": &"reval_harbor_north",
+			"source": "res://content/maps/reval_harbor_north.rrmap",
+			"factory": RevalHarborNorth,
 			"required_anchors": [
-				&"from_reval_east",
+				&"from_reval_north",
+				&"from_harbor_east",
 				&"quay_plaza",
 				&"coast_gate",
+			],
+		},
+		{
+			"id": &"reval_harbor_east",
+			"source": "res://content/maps/reval_harbor_east.rrmap",
+			"factory": RevalHarborEast,
+			"required_anchors": [
+				&"from_reval_east",
+				&"from_harbor_north",
+				&"quay_plaza",
 			],
 		},
 	]

@@ -51,6 +51,24 @@ sign sign.south "quoted # text" 3 3 south
 	assert_eq(parsed.definition.direction_signs[0]["text"], "quoted # text")
 
 
+func test_map_elevation_round_trips_into_compiled_metadata() -> void:
+	var source := """rrmap 1
+map elevated loc.elevated 24 24 grass elevation=2.8
+spawn spawn.main 12 12
+"""
+	var parsed := MapRrmapParser.parse(source, "res://elevated.rrmap")
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if not parsed.is_ok():
+		return
+	assert_eq(parsed.blueprint.ground_elevation, 2.8)
+	assert_eq(parsed.definition.ground_elevation, 2.8)
+	var canonical := MapRrmapParser.canonical_print(parsed.blueprint)
+	assert_true("elevation=2.8" in canonical)
+	var reparsed := MapRrmapParser.parse(canonical, "res://elevated.canonical.rrmap")
+	assert_true(reparsed.is_ok(), str(reparsed.formatted_diagnostics()))
+	assert_eq(reparsed.definition.ground_elevation, 2.8)
+
+
 func test_malformed_input_reports_file_line_column_and_code() -> void:
 	var source := """rrmap 1
 map malformed loc.malformed twelve 10 grass
