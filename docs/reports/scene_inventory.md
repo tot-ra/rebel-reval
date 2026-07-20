@@ -1,26 +1,26 @@
 # Scene inventory (P0-018, reconciled P0-055)
 
 Recorded: 2026-07-16
-Reconciled: 2026-07-19 (gameplay help HUD, minimap HUD, forge commission overlay, journal overlay)
+Reconciled: 2026-07-20 (exact repository coverage through P0-069)
 
 ## Summary
 
 | Classification | Count | Role |
 |----------------|------:|------|
 | `working` | 25 | Active runtime scenes with verified or complete behavior |
-| `partial` | 19 | Substantial content but incomplete integration or dev-only use |
+| `partial` | 24 | Substantial content but incomplete integration or dev-only use |
 | `placeholder` | 3 | Reserved stubs or reference-only visuals, not playable |
 | `archive` | 20 | Out of vertical-slice scope; legacy open-world or event shells |
-| **Total** | **67** | Matches repository `.tscn` count |
+| **Total** | **72** | Matches repository `.tscn` count |
 
 Repository count command:
 
 ```bash
 find . -name '*.tscn' -not -path './.git/*' | wc -l
-# Expected: 67
+# Expected: 72
 ```
 
-Inventory row count (data rows in the table below): **64**.
+Inventory row count (data rows in the table below): **72**.
 
 ## Classification criteria
 
@@ -92,6 +92,7 @@ Inventory row count (data rows in the table below): **64**.
 | 49 | `scenes/tests/dialogue_ui_test.tscn` | partial | Dev-only dialogue UI and settings review scene (P1-012/P1-013). |
 | 50 | `scenes/tests/dialogue_overflow_test.tscn` | partial | Dev-only pseudo-localization overflow review scene (P1-014). |
 | 51 | `scenes/tests/combat_room.tscn` | partial | Dev-only P1-024 combat integration room with readable feedback. |
+| 73 | `scenes/tests/night_encounter_stub.tscn` | partial | Dev-only P1-025b/P1-027a night consequence integration host. |
 | 52 | `scenes/ui/forge_commission_overlay.tscn` | working | Forge commission flow overlay; P1-019a smithy ledger interaction. |
 | 53 | `scenes/ui/inventory_overlay.tscn` | working | Session bag overlay; D-003 pickup and inventory UI. |
 | 54 | `scenes/ui/journal_overlay.tscn` | working | Quest journal overlay; P1-016 objectives and discovered evidence. |
@@ -134,12 +135,12 @@ Inventory row count (data rows in the table below): **64**.
 | `scenes/reval_north/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/reval_south/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/reval_toompea/` | 0 | 1 | 0 | 2 | 3 |
-| `scenes/tests/` | 0 | 4 | 0 | 0 | 4 |
+| `scenes/tests/` | 0 | 5 | 0 | 0 | 5 |
 | `scenes/ui/` | 3 | 0 | 0 | 0 | 3 |
 | `scenes/world/` | 1 | 0 | 0 | 10 | 11 |
 | `tools/` | 0 | 1 | 0 | 0 | 1 |
 | `tools/benchmarks/` | 0 | 2 | 0 | 0 | 2 |
-| **All** | **25** | **23** | **3** | **20** | **71** |
+| **All** | **25** | **24** | **3** | **20** | **72** |
 
 ## Verification
 
@@ -151,7 +152,7 @@ find . -name '*.tscn' -not -path './.git/*' | wc -l
 grep -E '^\| [0-9]+ \|' docs/reports/scene_inventory.md | wc -l
 ```
 
-Both commands should print `70` on a clean checkout at this revision.
+Both commands should print `72` on a clean checkout at this revision.
 
 ## Related tasks
 

@@ -89,6 +89,7 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `scenes/tests/dialogue_ui_test.tscn` | test | `retain` | Dialogue UI and settings review | Developer-only P1-012/P1-013 test | not a map definition |
 | `scenes/tests/dialogue_overflow_test.tscn` | test | `retain` | Pseudo-localization overflow review | Developer-only P1-014 layout stress test | not a map definition |
 | `scenes/tests/combat_room.tscn` | test | `retain` | Combat integration room | Developer-only P1-024 hammer/guard/Iron smoke host | not a map definition |
+| `scenes/tests/night_encounter_stub.tscn` | test | `retain` | Night consequence integration stub | Developer-only P1-025b/P1-027a host; never release-playable | not a map definition |
 | `scenes/world/haapsalu_castle.tscn` | level | `archive` | `loc.haapsalu_castle` legacy concept | Outside Reval and slice; never activate | none - archive |
 | `scenes/world/world_item.tscn` | support | `retain` | Pickup world-item component | Demo D-003 forge pickup via `WorldItemController` | not a map definition |
 | `scenes/world/harju_village.tscn` | level | `archive` | `loc.harju_village` legacy concept | Open-world countryside is excluded; never activate | none - archive |

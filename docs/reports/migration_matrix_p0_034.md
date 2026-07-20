@@ -49,6 +49,7 @@ This matrix classifies current slice-relevant artifacts for migration toward the
 | `scenes/tests/dialogue_ui_test.tscn` | `retain` | Dev-only dialogue UI and settings review scene. |
 | `scenes/tests/dialogue_overflow_test.tscn` | `retain` | Dev-only pseudo-localization overflow review scene. |
 | `scenes/tests/combat_room.tscn` | `retain` | Dev-only P1-024 combat integration room with readable feedback. |
+| `scenes/tests/night_encounter_stub.tscn` | `retain` | Dev-only P1-025b/P1-027a night consequence integration host. |
 | `scenes/ui/forge_commission_overlay.tscn` | `retain` | Forge commission flow overlay. |
 | `scenes/ui/inventory_overlay.tscn` | `retain` | Session bag overlay. |
 | `scenes/ui/journal_overlay.tscn` | `retain` | Quest journal overlay. |
