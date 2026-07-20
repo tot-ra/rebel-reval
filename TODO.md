@@ -12,6 +12,8 @@ Coordination note (2026-07-20 P0-062b): restored multi-street walkable patrols o
 
 Coordination note (2026-07-20 D-004 closeout): packaged demo gate closed. Verified: `--filter=test_demo_walkthrough` (2/2), `tools/verify_packaged_demo.sh` export + packaged launch, and frame walkthrough linked from `README.md` / `docs/reports/demo_walkthrough_d004.md`. Follow-ups: D-004a (release-only defect notes) and optional D-004b (human video capture).
 
+Coordination note (2026-07-20 D-004a): no release-only move-talk-pickup defects remain. Packaged `--quit-after` launch is green without `--path`; `verify_packaged_demo.sh` no longer probes release binaries with path overrides; triage in `docs/reports/d004a_release_only_triage.md`. Optional follow-ups: D-004b (human video), D-004c (in-binary packaged walkthrough).
+
 Coordination note (2026-07-20 P1-031): district/world map overlay on every `player.tscn` host; `toggle_world_map` (M) plus quick-access `Districts [M]`; graph nodes/edges match `DoorNavigator` active manifest; `--filter=test_world_map_overlay` passes 5/5. Optional click-to-travel is **P1-031a**.
 
 Coordination note (2026-07-20 P0-067a): retained `MAP_CHUNK_BOUNDARY_AMBIGUOUS` warnings on `north_quarter`, `south_quarter`, `toompea_quarter`, and `reval_harbor` are owned in `docs/reports/map_chunk_boundary_review_p0_067a.md` with ADR 0010 ownership; audit still prints the warnings. Slice-map follow-up is **P0-067b**.
@@ -79,7 +81,7 @@ Required exit condition for the packaging gate: clean clone import, startup smok
 
 - **D-003 is complete:** movement, Mart conversation, anvil spearhead pickup, bag UI, and session re-entry exist on the current slice.
 - **D-004 is complete:** `tools/verify_packaged_demo.sh` exports the macOS `rr` build, proves packaged launch, runs the headless move-talk-pickup proof, and links the frame walkthrough from `README.md`.
-- **D-004a remains open:** note any release-build-only defects found during packaged play that do not reproduce under editor/`--path .` play.
+- **D-004a is complete:** no release-only move-talk-pickup defects remain; see `docs/reports/d004a_release_only_triage.md`. Optional: D-004b human video; D-004c in-binary packaged walkthrough.
 
 ### 4. Close the visual acceptance gate
 
@@ -98,8 +100,9 @@ Goal: a small runnable demo proving the ADR 0007 look and the core interaction l
 
 - [x] D-003 | deps: none | deliverable: the authored anvil forge item exposed through the existing `WorldItemController`, focus/prompt interaction, pickup feedback, and bag overlay, with placement and ownership stored in session `GameState` | verify: mouse, keyboard, and gamepad can pick up the item; it disappears from the smithy, appears in the bag, survives smithy exit/re-entry, and an over-capacity pickup leaves state unchanged
 - [x] D-004 | deps: none | deliverable: packaged demo: desktop export preset producing a runnable build of the demo flow plus a captured walkthrough recording for the README | verify: a clean export from a fresh clone starts, completes move-talk-pickup without errors or debug intervention, and the capture is referenced from `README.md`
-- [ ] D-004a | deps: none | deliverable: after the packaged demo walkthrough lands, capture a short failure-mode note for any release-build-only defect found during move-talk-pickup that does not reproduce under editor/`--path .` play, with repro steps and owner | verify: either no release-only defects remain, or `docs/reports/known_runtime_defects.md` lists each with packaged-build repro and a follow-up TODO ID
+- [x] D-004a | deps: none | deliverable: after the packaged demo walkthrough lands, capture a short failure-mode note for any release-build-only defect found during move-talk-pickup that does not reproduce under editor/`--path .` play, with repro steps and owner | verify: either no release-only defects remain, or `docs/reports/known_runtime_defects.md` lists each with packaged-build repro and a follow-up TODO ID
 - [ ] D-004b | deps: none | deliverable: optional human-narrated screen recording of the packaged `Reval Rebel.app` move-talk-pickup path for marketing/README embed, complementing the existing frame sequence in `docs/reports/demo_walkthrough_d004.md` | verify: README links a playable video or animated capture that shows Start, Mart talk, and bag pickup in the release binary
+- [ ] D-004c | deps: D-004a | deliverable: in-binary packaged move-talk-pickup automation that runs inside `Reval Rebel.app` without editor `--path` or scene CLI args (release templates reject path overrides), writing a pass/fail artifact under `user://` or stdout via the console wrapper | verify: `tools/verify_packaged_demo.sh` (or a sibling) proves Start-Mart-pickup inside the extracted release app with exit 0 and no editor binary driving the loop
 ## P0 - Product, canon, and reproducible baseline
 
 - [x] P0-056 | deps: none | deliverable: green headless test baseline: triage of the 427 test failures recorded on 2026-07-19 (393 in `tests/godot/test_map_quality_audit.gd` after the Eastern Quarters, Lower Town, and north-quarter map edits; the remainder across `test_map_view_3d_lighting.gd`, `test_map_object_chunk_streaming.gd`, `test_world_items.gd`, `test_map_click_input_controller.gd`, `test_map_rrmap_parser.gd`, `test_map_prefabs.gd`, `test_map_view_3d_runtime.gd`, `test_map_view_3d_core.gd`, and `test_direction_sign_3d.gd`), fixing map data or updating stale test contracts case by case without deleting audit coverage or weakening assertions | verify: `godot --headless --path . --script tools/run_godot_tests.gd` reports zero failures on a clean clone and the CI "Godot headless tests" step passes on `main`
