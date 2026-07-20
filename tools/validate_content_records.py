@@ -10,6 +10,7 @@ from validate_content_common import (
     check_local_duplicates,
     diag,
     local_ids,
+    quest_state_ids,
     require_record_ref,
 )
 from validate_content_semantics import (
@@ -305,6 +306,61 @@ def validate_record_semantics(
                 ids=[str(default_response.get("id", ""))],
                 root=root,
             )
+
+    elif record_type == "encounter":
+        require_record_ref(
+            diagnostics,
+            path=path,
+            pointer="$.quest_id",
+            content_id=record.get("quest_id"),
+            expected_type="quest",
+            index=index,
+            root=root,
+        )
+        resolved_flag = record.get("resolved_flag")
+        if isinstance(resolved_flag, str) and not resolved_flag.startswith("flag."):
+            diagnostics.append(
+                diag(
+                    "REFERENCE",
+                    path,
+                    "$.resolved_flag",
+                    f"resolved_flag must use flag. prefix, got {resolved_flag!r}",
+                    root=root,
+                )
+            )
+        kind_ids: list[str] = []
+        quest_id = record.get("quest_id")
+        known_states = (
+            quest_state_ids(index, quest_id) if isinstance(quest_id, str) else set()
+        )
+        for outcome_index, outcome in enumerate(record.get("outcomes") or []):
+            if not isinstance(outcome, dict):
+                continue
+            kind = outcome.get("kind")
+            if isinstance(kind, str):
+                kind_ids.append(kind)
+            quest_state = outcome.get("quest_state")
+            if (
+                isinstance(quest_state, str)
+                and known_states
+                and quest_state not in known_states
+            ):
+                diagnostics.append(
+                    diag(
+                        "REFERENCE",
+                        path,
+                        f"$.outcomes[{outcome_index}].quest_state",
+                        f"unknown quest state id {quest_state!r} for {quest_id!r}",
+                        root=root,
+                    )
+                )
+        check_local_duplicates(
+            diagnostics,
+            path=path,
+            pointer="$.outcomes",
+            ids=kind_ids,
+            root=root,
+        )
 
     elif record_type == "location":
         for conn_index, loc_id in enumerate(record.get("connected_location_ids") or []):

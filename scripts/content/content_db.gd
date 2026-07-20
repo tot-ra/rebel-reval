@@ -17,6 +17,7 @@ const TYPE_ITEM := "item"
 const TYPE_COMMISSION := "commission"
 const TYPE_LOCATION := "location"
 const TYPE_MECHANISM := "mechanism"
+const TYPE_ENCOUNTER := "encounter"
 const TYPE_PHASE_PROFILE := "phase_profile"
 
 const CONTENT_ID_REGEX := "^[a-z][a-z0-9]*(\\.[a-z0-9_]+)+$"
@@ -30,6 +31,7 @@ const _TYPE_BY_PREFIX := {
 	"commission.": TYPE_COMMISSION,
 	"loc.": TYPE_LOCATION,
 	"mechanism.": TYPE_MECHANISM,
+	"encounter.": TYPE_ENCOUNTER,
 	"phase_profile.": TYPE_PHASE_PROFILE,
 	"slicephase.": TYPE_PHASE_PROFILE,
 }
@@ -171,6 +173,10 @@ func get_location(content_id: StringName) -> Dictionary:
 
 func get_mechanism(content_id: StringName) -> Dictionary:
 	return _lookup_typed(content_id, TYPE_MECHANISM)
+
+
+func get_encounter(content_id: StringName) -> Dictionary:
+	return _lookup_typed(content_id, TYPE_ENCOUNTER)
 
 
 func get_phase_profile(content_id: StringName) -> Dictionary:

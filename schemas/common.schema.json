@@ -282,6 +282,33 @@
           "type": "string"
         }
       }
+    },
+    "encounter_outcome_kind": {
+      "type": "string",
+      "enum": [
+        "surrender",
+        "escape",
+        "bypass",
+        "kill"
+      ],
+      "description": "Shared encounter close vocabulary for combat and non-combat routes (P1-026 / P1-026a)."
+    },
+    "encounter_outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "quest_state"
+      ],
+      "properties": {
+        "kind": {
+          "$ref": "common.schema.json#/$defs/encounter_outcome_kind"
+        },
+        "quest_state": {
+          "$ref": "common.schema.json#/$defs/local_id"
+        }
+      },
+      "description": "Maps one authored encounter close kind to a quest.local_id state write."
     }
   }
 }

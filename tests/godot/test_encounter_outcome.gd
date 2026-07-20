@@ -1,20 +1,67 @@
 extends "res://tests/godot/test_case.gd"
 
-## P1-026: authored surrender, escape, or bypass encounter outcomes.
+## P1-026 / P1-026a: authored surrender, escape, or bypass encounter outcomes.
 ## One encounter must resolve without killing and update the same GameState
-## quest keys that a lethal combat close uses.
+## quest keys that a lethal combat close uses. P1-026a loads mappings from
+## ContentDB so quest remaps do not require code edits.
 
 const COMBAT_ROOM_SCENE := preload("res://scenes/tests/combat_room.tscn")
 const TEST_DELTA := 0.05
+const ENCOUNTER_ID := &"encounter.watch_checkpoint"
 
 
 func test_definition_maps_all_outcome_kinds_to_quest_states() -> void:
 	var definition := EncounterOutcomeDefinition.watch_checkpoint()
-	assert_eq(definition.encounter_id, &"encounter.watch_checkpoint")
+	assert_eq(definition.encounter_id, ENCOUNTER_ID)
 	assert_eq(definition.quest_id, &"quest.bitter_brew")
 	for kind in EncounterOutcome.ALL_KINDS:
 		assert_true(definition.supports(kind), "Definition must support %s" % String(kind))
 		assert_false(definition.quest_state_for(kind).is_empty())
+
+
+func test_content_db_escape_resolves_from_authored_package() -> void:
+	# Why: P1-026a verify - escape comes from ContentDB, not the hardcoded mirror.
+	var db := ContentDB.new()
+	assert_true(db.load_from_directories(SessionState.DEMO_CONTENT_DIRS))
+	var record := db.get_encounter(ENCOUNTER_ID)
+	assert_false(record.is_empty(), "encounter.watch_checkpoint must load via ContentDB")
+	assert_eq(String(record.get("type", "")), ContentDB.TYPE_ENCOUNTER)
+
+	var definition := EncounterOutcomeDefinition.from_content_db(db, ENCOUNTER_ID)
+	assert_eq(definition.encounter_id, ENCOUNTER_ID)
+	assert_eq(definition.quest_id, &"quest.bitter_brew")
+	assert_true(definition.supports(EncounterOutcome.KIND_ESCAPE))
+	assert_eq(definition.quest_state_for(EncounterOutcome.KIND_ESCAPE), &"night_escaped")
+
+	var state := GameState.new()
+	state.set_quest_state(&"quest.bitter_brew", &"active")
+	var resolver := EncounterOutcomeResolver.new()
+	var watch := EnemyCombatStateMachine.new()
+	watch.configure(EnemyArchetype.watchman())
+	watch.set_perception(true, 40.0)
+	_advance_until(watch, EnemyCombatState.State.TELEGRAPH, 2.0)
+
+	assert_true(
+		resolver.resolve(state, definition, EncounterOutcome.KIND_ESCAPE, [watch]),
+		"Escape from content package must resolve"
+	)
+	assert_eq(state.get_quest_state(&"quest.bitter_brew"), &"night_escaped")
+	assert_true(state.get_flag(&"flag.watch_checkpoint_resolved"))
+	assert_false(watch.is_dead())
+	assert_eq(watch.state, EnemyCombatState.State.DISENGAGE)
+
+
+func test_content_db_unknown_kind_rejects_without_mutating_quest_state() -> void:
+	var db := ContentDB.new()
+	assert_true(db.load_from_directories(SessionState.DEMO_CONTENT_DIRS))
+	var definition := EncounterOutcomeDefinition.from_content_db(db, ENCOUNTER_ID)
+	var state := GameState.new()
+	state.set_quest_state(&"quest.bitter_brew", &"active")
+	var resolver := EncounterOutcomeResolver.new()
+	var ok := resolver.resolve(state, definition, &"bribe", [])
+	assert_false(ok, "Unknown kind must be rejected")
+	assert_eq(state.get_quest_state(&"quest.bitter_brew"), &"active")
+	assert_false(state.get_flag(&"flag.watch_checkpoint_resolved"))
 
 
 func test_non_lethal_outcomes_resolve_without_killing_and_update_quest_state() -> void:
@@ -85,6 +132,11 @@ func test_combat_room_mouse_buttons_resolve_escape_without_killing() -> void:
 	assert_true(room.get_escape_button() != null)
 	assert_true(room.get_bypass_button() != null)
 	assert_false(room.get_escape_button().disabled, "Escape must be mouse-reachable")
+	assert_eq(room.encounter_definition.encounter_id, ENCOUNTER_ID)
+	assert_true(
+		SessionState.content_db.has_record(ENCOUNTER_ID),
+		"Combat room must resolve outcomes from ContentDB package"
+	)
 
 	var watchman: CombatRoomEnemy = room.get_watchman()
 	var sergeant: CombatRoomEnemy = room.get_sergeant()

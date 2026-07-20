@@ -1,0 +1,23 @@
+{
+  "type": "encounter",
+  "id": "encounter.bad_kind",
+  "title": "Bad encounter kind fixture",
+  "quest_id": "quest.bitter_brew",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft"
+  },
+  "outcomes": [
+    {
+      "kind": "bribe",
+      "quest_state": "night_escaped"
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Invalid kind must fail schema validation."
+    }
+  ]
+}

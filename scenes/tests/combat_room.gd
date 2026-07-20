@@ -26,7 +26,7 @@ var guard_dummy: CombatTestDummy
 var watchman: CombatRoomEnemy
 var sergeant: CombatRoomEnemy
 var feedback: CombatFeedbackHud
-var encounter_definition: EncounterOutcomeDefinition = EncounterOutcomeDefinition.watch_checkpoint()
+var encounter_definition: EncounterOutcomeDefinition = EncounterOutcomeDefinition.new()
 var encounter_resolver := EncounterOutcomeResolver.new()
 var encounter_checkpoint := EncounterCheckpoint.new()
 var _reset_button: Button
@@ -263,6 +263,10 @@ func _ensure_session() -> void:
 	if SessionState.state == null:
 		SessionState.state = GameState.new()
 	SessionState.state.bag.set_content_db(SessionState.content_db)
+	# Why: P1-026a loads quest mappings from content so P2-009 can remap without code edits.
+	encounter_definition = EncounterOutcomeDefinition.from_content_db(
+		SessionState.content_db, EncounterOutcomeDefinition.WATCH_CHECKPOINT_ID
+	)
 
 
 func _equip_hammer() -> void:

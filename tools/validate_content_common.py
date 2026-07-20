@@ -15,6 +15,7 @@ RECORD_TYPE_BY_PREFIX = {
     "commission.": "commission",
     "loc.": "location",
     "mechanism.": "mechanism",
+    "encounter.": "encounter",
     "phase_profile.": "phase_profile",
     "slicephase.": "phase_profile",
 }

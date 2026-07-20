@@ -1,0 +1,138 @@
+{
+  "type": "quest",
+  "id": "quest.bitter_brew",
+  "title": "A Bitter Brew",
+  "summary": "Night consequence at the watch checkpoint after the bitter-brew commission; combat and non-combat closes share one quest state contract.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P1-026a",
+    "notes": "Minimal quest shell so encounter.watch_checkpoint can reference stable night outcome states before P2-007/P2-009 author the full investigation."
+  },
+  "entry_conditions": [],
+  "initial_state": "active",
+  "states": [
+    {
+      "id": "active",
+      "label": "Night encounter armed"
+    },
+    {
+      "id": "night_surrendered",
+      "label": "Surrendered at the checkpoint",
+      "terminal": true
+    },
+    {
+      "id": "night_escaped",
+      "label": "Escaped the checkpoint",
+      "terminal": true
+    },
+    {
+      "id": "night_bypassed",
+      "label": "Bypassed the checkpoint",
+      "terminal": true
+    },
+    {
+      "id": "night_fought",
+      "label": "Fought through the checkpoint",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "resolve_surrender",
+      "from_state": "active",
+      "to_state": "night_surrendered",
+      "effects": []
+    },
+    {
+      "id": "resolve_escape",
+      "from_state": "active",
+      "to_state": "night_escaped",
+      "effects": []
+    },
+    {
+      "id": "resolve_bypass",
+      "from_state": "active",
+      "to_state": "night_bypassed",
+      "effects": []
+    },
+    {
+      "id": "resolve_kill",
+      "from_state": "active",
+      "to_state": "night_fought",
+      "effects": []
+    }
+  ],
+  "objectives": [
+    {
+      "id": "survive_checkpoint",
+      "text": "Resolve the watch checkpoint by combat or a non-lethal close.",
+      "state_id": "active"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "surrendered",
+      "summary": "Kalev surrenders at the checkpoint.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.bitter_brew",
+          "value": "night_surrendered"
+        }
+      ]
+    },
+    {
+      "id": "escaped",
+      "summary": "Kalev escapes the checkpoint.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.bitter_brew",
+          "value": "night_escaped"
+        }
+      ]
+    },
+    {
+      "id": "bypassed",
+      "summary": "Kalev bypasses the checkpoint without a fight.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.bitter_brew",
+          "value": "night_bypassed"
+        }
+      ]
+    },
+    {
+      "id": "fought",
+      "summary": "Kalev fights through the checkpoint.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.bitter_brew",
+          "value": "night_fought"
+        }
+      ]
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.kalev"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Shell quest for P1-026a encounter outcome package; full bitter-brew investigation remains P2-007+.",
+      "citations": [
+        "docs/SCENES/a-bitter-brew.md",
+        "scripts/combat/encounter_outcome_definition.gd"
+      ]
+    }
+  ]
+}

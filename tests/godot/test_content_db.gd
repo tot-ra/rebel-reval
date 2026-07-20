@@ -23,10 +23,12 @@ func test_loads_validated_example_corpus() -> void:
 
 	assert_true(db.is_loaded())
 	assert_eq(db.get_load_errors().size(), 0)
-	assert_eq(db.get_record_count(), 26)
+	assert_eq(db.get_record_count(), 28)
 	assert_true(db.has_record(CHAR_KALEV))
 	assert_true(db.has_record(QUEST_MAKERS_MARK))
 	assert_true(db.has_record(ITEM_SEIZED_SPEARHEAD))
+	assert_true(db.has_record(&"encounter.watch_checkpoint"))
+	assert_true(db.has_record(&"quest.bitter_brew"))
 
 
 func test_lookup_returns_known_records() -> void:
@@ -45,6 +47,12 @@ func test_lookup_returns_known_records() -> void:
 	var item := db.get_item(ITEM_SEIZED_SPEARHEAD)
 	assert_eq(db.get_last_lookup_result(), ContentDB.LookupResult.OK)
 	assert_eq(String(item.get("category", "")), "evidence")
+
+	var encounter := db.get_encounter(&"encounter.watch_checkpoint")
+	assert_eq(db.get_last_lookup_result(), ContentDB.LookupResult.OK)
+	assert_eq(String(encounter.get("type", "")), ContentDB.TYPE_ENCOUNTER)
+	assert_eq(String(encounter.get("quest_id", "")), "quest.bitter_brew")
+	assert_true((encounter.get("outcomes", []) as Array).size() >= 4)
 
 
 func test_lookup_returns_read_only_copies() -> void:
