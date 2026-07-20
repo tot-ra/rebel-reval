@@ -71,7 +71,7 @@ character.equip_garment(&"cape", SharedCharacterRig.GARMENT_SCENES[&"cape"])
 character.unequip_garment(&"cape")
 ```
 
-`CharacterVariant` resources drive both at spawn: `equipment` goes to the right hand, `show_cape`/`show_hat` mount the generated garments.
+`CharacterVariant` resources drive both at spawn: `equipment` goes to the right hand, `show_cape`/`show_hat` mount the generated garments, and `animation_overrides` remaps canonical animations to alternate source clips (`&"walk": &"Walking_C"`) so each character carries its own gait without new assets.
 
 ## Variant procedure (many characters from one pipeline)
 

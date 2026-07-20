@@ -4,6 +4,7 @@ const KALEV_SCENE := preload("res://assets/characters/kalev/kalev.tscn")
 const MART_SCENE := preload("res://assets/characters/variants/mart.tscn")
 const INNKEEPER_SCENE := preload("res://assets/characters/variants/innkeeper.tscn")
 const HENNING_SCENE := preload("res://assets/characters/variants/henning.tscn")
+const TOWNSWOMAN_SCENE := preload("res://assets/characters/variants/townswoman.tscn")
 const REQUIRED_ANIMATIONS: Array[StringName] = [
 	&"idle",
 	&"walk",
@@ -251,6 +252,74 @@ func test_henning_body_has_an_authoritative_silhouette_and_social_animations() -
 
 	kalev.queue_free()
 	henning.queue_free()
+
+
+func test_variants_walk_with_their_own_gait_overrides() -> void:
+	var kalev := _instantiate(KALEV_SCENE)
+	var henning := _instantiate(HENNING_SCENE)
+	var innkeeper := _instantiate(INNKEEPER_SCENE)
+
+	assert_true(kalev.play_animation(&"walk"))
+	assert_eq(kalev.animation_player().current_animation, &"Walking_A",
+		"a variant without overrides keeps the shared default gait")
+	assert_true(henning.play_animation(&"walk"))
+	assert_eq(henning.animation_player().current_animation, &"Walking_B",
+		"Henning's override must select his disciplined march clip")
+	assert_true(innkeeper.play_animation(&"walk"))
+	assert_eq(innkeeper.animation_player().current_animation, &"Walking_C",
+		"the innkeeper's override must select his heavier walk clip")
+	assert_eq(innkeeper.current_canonical_animation(), &"walk",
+		"an overridden clip must still resolve to its canonical name")
+	assert_true(innkeeper.play_animation(&"run"))
+	assert_eq(innkeeper.animation_player().current_animation, &"Running_A")
+
+	kalev.queue_free()
+	henning.queue_free()
+	innkeeper.queue_free()
+
+
+func test_animation_override_validation_rejects_unknown_names() -> void:
+	var henning := _instantiate(HENNING_SCENE)
+	assert_eq(henning.validation_errors(), [], "authored overrides must validate cleanly")
+
+	var broken := CharacterVariant.new()
+	broken.stable_id = &"char.test_broken"
+	broken.animation_overrides = {&"walk": &"No_Such_Clip", &"saunter": &"Walking_B"}
+	henning.variant = broken
+	var errors := henning.validation_errors()
+	assert_true(
+		errors.any(func(error: String) -> bool: return error.contains("No_Such_Clip")),
+		"an override pointing at a missing clip must fail validation"
+	)
+	assert_true(
+		errors.any(func(error: String) -> bool: return error.contains("saunter")),
+		"an override for an unknown canonical animation must fail validation"
+	)
+	henning.queue_free()
+
+
+func test_townswoman_body_spec_fulfills_the_rig_contract() -> void:
+	var kalev := _instantiate(KALEV_SCENE)
+	var townswoman := _instantiate(TOWNSWOMAN_SCENE)
+
+	assert_eq(townswoman.validation_errors(), [], "the townswoman must satisfy the shared rig contract")
+	assert_eq(townswoman.variant_id(), &"char.townswoman")
+	assert_eq(
+		townswoman.skeleton().get_bone_count(),
+		kalev.skeleton().get_bone_count(),
+		"all generated bodies share the retargeted skeleton layout"
+	)
+	var kalev_head := kalev.skeleton().get_bone_global_rest(kalev.skeleton().find_bone("head")).origin.y
+	var townswoman_head := townswoman.skeleton().get_bone_global_rest(townswoman.skeleton().find_bone("head")).origin.y
+	assert_true(
+		townswoman_head < kalev_head,
+		"the townswoman's generated skeleton must read shorter than Kalev"
+	)
+	assert_true(townswoman.play_animation(&"walk"))
+	assert_eq(townswoman.animation_player().current_animation, &"Walking_B")
+
+	kalev.queue_free()
+	townswoman.queue_free()
 
 
 func _instantiate(scene: PackedScene) -> SharedCharacterRig:

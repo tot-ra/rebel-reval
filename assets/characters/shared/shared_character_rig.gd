@@ -102,7 +102,11 @@ func canonical_animation_names() -> Array[StringName]:
 		names.append(canonical_name)
 	return names
 
+## Variant overrides win over the shared defaults so each character can
+## carry its own gait/idle from the clips every generated body ships with.
 func source_animation_name(canonical_name: StringName) -> StringName:
+	if variant != null and variant.animation_overrides.has(canonical_name):
+		return variant.animation_overrides[canonical_name] as StringName
 	return CANONICAL_ANIMATIONS.get(canonical_name, &"") as StringName
 
 func has_animation(canonical_name: StringName) -> bool:
@@ -161,7 +165,7 @@ func current_canonical_animation() -> StringName:
 		return &""
 	var source_name := _animation_player.current_animation
 	for canonical_name: StringName in CANONICAL_ANIMATIONS:
-		if CANONICAL_ANIMATIONS[canonical_name] == source_name:
+		if source_animation_name(canonical_name) == source_name:
 			return canonical_name
 	return &""
 
@@ -181,6 +185,10 @@ func validation_errors() -> Array[String]:
 			])
 	if variant == null:
 		errors.append("Rig has no CharacterVariant resource")
+	else:
+		for overridden: StringName in variant.animation_overrides:
+			if not CANONICAL_ANIMATIONS.has(overridden):
+				errors.append("Override targets unknown canonical animation %s" % overridden)
 	return errors
 
 ## Shows a translucent silhouette wherever view geometry hides this rig so the

@@ -18,8 +18,14 @@ if TYPE_CHECKING:
 
 # Ring density per tube cross-section. 24 keeps limb and tunic silhouettes
 # round at portrait distance; combined with smooth shading (build() sets
-# use_smooth on every polygon) the body no longer reads as faceted low-poly.
+# use_smooth on every polygon) and one Catmull-Clark subdivision applied at
+# build time the body no longer reads as faceted low-poly.
 RING_SEGMENTS = 24
+
+# Applying one subdivision level pulls box corners toward the limit surface;
+# box() pre-scales its axes by this factor so hands, boots, and face features
+# keep their authored footprint while gaining rounded corners.
+BOX_SUBDIVISION_COMPENSATION = 1.22
 
 
 def find_armature() -> bpy.types.Object:
@@ -64,10 +70,13 @@ class PartBuilder:
     whose size is governed separately (the head group) pass bulk 1.0.
     """
 
-    def __init__(self, name: str, frame: Frame, bulk: float = 1.0) -> None:
+    def __init__(
+        self, name: str, frame: Frame, bulk: float = 1.0, subdivision: int = 1
+    ) -> None:
         self.name = name
         self.frame = frame
         self.bulk = bulk
+        self.subdivision = subdivision
         self.vertices: list[Vector] = []
         self.weights: list[dict[str, float]] = []
         self.faces: list[tuple[int, ...]] = []
@@ -136,6 +145,10 @@ class PartBuilder:
         weights: dict[str, float],
         material: str,
     ) -> None:
+        if self.subdivision > 0:
+            axis_x = axis_x * BOX_SUBDIVISION_COMPENSATION
+            axis_y = axis_y * BOX_SUBDIVISION_COMPENSATION
+            axis_z = axis_z * BOX_SUBDIVISION_COMPENSATION
         corners = []
         for sx in (-1.0, 1.0):
             for sy in (-1.0, 1.0):
@@ -225,6 +238,16 @@ class PartBuilder:
                     group = obj.vertex_groups.new(name=bone_name)
                     groups[bone_name] = group
                 group.add([index], weight, "REPLACE")
+
+        # One applied Catmull-Clark level rounds box corners and smooths the
+        # sparse longitudinal rings. Applied after vertex groups exist (their
+        # weights interpolate through the apply, so deterministic skinning
+        # survives) and before the armature modifier joins the stack.
+        if self.subdivision > 0:
+            bpy.context.view_layer.objects.active = obj
+            subsurf = obj.modifiers.new("Subsurf", "SUBSURF")
+            subsurf.levels = self.subdivision
+            bpy.ops.object.modifier_apply(modifier=subsurf.name)
 
         modifier = obj.modifiers.new("Armature", "ARMATURE")
         modifier.object = armature

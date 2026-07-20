@@ -6,3 +6,7 @@
 script = ExtResource("1_variant")
 stable_id = &"char.innkeeper"
 material_tint = Color(1, 0.96, 0.9, 1)
+animation_overrides = {
+&"run": &"Running_A",
+&"walk": &"Walking_C"
+}

@@ -17,7 +17,7 @@ Never start at a higher tier than the game visibly needs at 64 px gameplay scale
 
 ## Tier 1 — variant (tint + equipment + garments)
 
-1. Duplicate a `.tres` in `assets/characters/kalev/` or `variants/`; set `stable_id` (`char.<name>`), `material_tint`, optional `equipment` scene, `show_cape` / `show_hat`.
+1. Duplicate a `.tres` in `assets/characters/kalev/` or `variants/`; set `stable_id` (`char.<name>`), `material_tint`, optional `equipment` scene, `show_cape` / `show_hat`, and optional `animation_overrides` (canonical name → alternate source clip, e.g. `&"walk": &"Walking_C"` — every generated body ships all 76 clips, so gait/idle variety is data-only; the committed walks are hero `Walking_A`, henning `Walking_B`, innkeeper `Walking_C`).
 2. Create a thin `.tscn` instancing `shared_character_rig.tscn` with your variant resource (see `mart.tscn`).
 3. Run the rig tests. Done.
 
@@ -55,13 +55,14 @@ Then:
 3. Add a SOURCES.csv provenance row (creator `project maintainer`, tool chain, "generated in-repo").
 4. Add/extend a rig-contract test (see `test_innkeeper_body_spec_fulfills_the_rig_contract`).
 
-The committed worked example is **`innkeeper`**: shorter legs, broad chest, `belly 1.35`, homespun palette — a completely different silhouette from ~20 spec lines.
+The committed worked examples are **`innkeeper`** (shorter legs, broad chest, `belly 1.35`, homespun palette) and **`townswoman`** (narrow shoulders, slighter bulk, long hair, no beard — the base female frame) — completely different silhouettes from ~20 spec lines each.
 
 ## Tier 4 — new geometry
 
 New body parts (skirts, hoods, animal shapes) are new `PartBuilder` sections in the generator. Rules that keep the output animatable:
 
 - Size and place everything **from bone positions** (`_bone_head`), never absolute coordinates, so all specs inherit the part.
+- `PartBuilder` applies **one Catmull-Clark subdivision** at build time (smooth-shaded, weights interpolate through the apply): tubes and spheres round out, and `box()` pre-scales by `BOX_SUBDIVISION_COMPENSATION` so hands, boots, and face features keep their authored footprint while gaining rounded corners. Pass `subdivision=0` for parts that must stay hard-edged.
 - Assign weights at creation: interior rings weight 1.0 to their bone, joint rings blend 50/50 between the adjacent bones (`_blend`).
 - Rings around a nearly-horizontal axis (hands in the A-pose rest) must build their frame with `frame.basis_for(axis)`, not the body frame — degenerate frames collapse geometry (this bug produced sliver hands once).
 - Close every tube (`cap`) — open meshes show their backfaces in motion.

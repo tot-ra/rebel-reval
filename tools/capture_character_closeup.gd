@@ -17,6 +17,8 @@ const VIEWS: Array[Dictionary] = [
 	{"slug": "front_idle", "animation": &"idle", "yaw_degrees": 0.0, "camera": "front"},
 	{"slug": "profile_idle", "animation": &"idle", "yaw_degrees": 90.0, "camera": "front"},
 	{"slug": "iso_walk", "animation": &"walk", "yaw_degrees": 0.0, "camera": "iso"},
+	{"slug": "front_run", "animation": &"run", "yaw_degrees": 0.0, "camera": "front"},
+	{"slug": "iso_run", "animation": &"run", "yaw_degrees": 0.0, "camera": "iso"},
 ]
 
 
