@@ -4,18 +4,19 @@ extends "res://tests/godot/test_case.gd"
 ## markers, or reciprocal maps (east <-> harbor, etc.) loop on arrival.
 
 
-const DEFINITION_LOADERS: Array[Callable] = [
-	preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd").create,
-	preload("res://scripts/map/definitions/outdoor/reval_harbor_definition.gd").create,
-	preload("res://scripts/map/definitions/prototypes/north_quarter_definition.gd").create,
-	preload("res://scripts/map/definitions/prototypes/market_civic_quarter_definition.gd").create,
-	preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd").create,
-	preload("res://scripts/map/definitions/prototypes/st_olafs_guild_hall_definition.gd").create,
-]
+func _definition_loaders() -> Array[Callable]:
+	return [
+		preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd").create,
+		preload("res://scripts/map/definitions/outdoor/reval_harbor_definition.gd").create,
+		preload("res://scripts/map/definitions/prototypes/north_quarter_definition.gd").create,
+		preload("res://scripts/map/definitions/prototypes/market_civic_quarter_definition.gd").create,
+		preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd").create,
+		preload("res://scripts/map/definitions/prototypes/st_olafs_guild_hall_definition.gd").create,
+	]
 
 
 func test_active_transition_spawns_clear_their_triggers() -> void:
-	for loader in DEFINITION_LOADERS:
+	for loader in _definition_loaders():
 		var definition: MapDefinition = loader.call()
 		for transition in definition.transitions:
 			if String(transition.get("destination_scene_id", "")).is_empty():
@@ -56,6 +57,31 @@ func test_east_harbor_pair_uses_inward_offsets() -> void:
 	)
 	assert_true(MapVerification.spawn_clears_transition_trigger(viru))
 	assert_true(MapVerification.spawn_clears_transition_trigger(to_east))
+
+
+func test_center_north_pair_uses_inward_offsets() -> void:
+	# Regression: after north_quarter grew a 14x4 southern edge, spawn_offset
+	# 0,-96 left the capsule on the trigger and bounced arrivals back to center.
+	var center: MapDefinition = preload(
+		"res://scripts/map/definitions/prototypes/market_civic_quarter_definition.gd"
+	).create()
+	var north: MapDefinition = preload(
+		"res://scripts/map/definitions/prototypes/north_quarter_definition.gd"
+	).create()
+	var to_north := _transition(center, &"to_reval_north")
+	var to_center := _transition(north, &"to_reval_center")
+	assert_true(to_north.has("spawn_offset"), "center to_reval_north must declare spawn_offset")
+	assert_true(to_center.has("spawn_offset"), "north to_reval_center must declare spawn_offset")
+	assert_true(
+		(to_north["spawn_offset"] as Vector2).y > 0.0,
+		"arrival from north must land south of the center north-edge trigger"
+	)
+	assert_true(
+		(to_center["spawn_offset"] as Vector2).y < 0.0,
+		"arrival from center must land north of the north-quarter south-edge trigger"
+	)
+	assert_true(MapVerification.spawn_clears_transition_trigger(to_north))
+	assert_true(MapVerification.spawn_clears_transition_trigger(to_center))
 
 
 func _transition(definition: MapDefinition, transition_id: StringName) -> Dictionary:

@@ -101,8 +101,10 @@ anchor from_reval_east 78 68 rect=2,2
 anchor from_reval_center 44 68 rect=2,2
 anchor from_reval_harbor 50 4 rect=2,2
 transition to_reval_harbor 46 0 10 3 to=reval_harbor destination_spawn=from_reval_north spawn=to_reval_harbor spawn_offset_px=0,96 highlight_area=true transition_visual=ground
-transition to_reval_center 38 68 14 4 to=reval_center destination_spawn=to_reval_north spawn=from_reval_center spawn_offset_px=0,-96 highlight_area=true transition_visual=ground
-transition to_reval_east 72 66 10 6 to=reval_east destination_spawn=vene_district_boundary spawn=from_reval_east spawn_offset_px=0,-96 highlight_area=true transition_visual=ground
+# South-edge arrivals need offsets past trigger half-height plus the player
+# capsule (r=16,h=32). 14x4 / 10x6 volumes reject -96 and bounce center/east.
+transition to_reval_center 38 68 14 4 to=reval_center destination_spawn=to_reval_north spawn=from_reval_center spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
+transition to_reval_east 72 66 10 6 to=reval_east destination_spawn=vene_district_boundary spawn=from_reval_east spawn_offset_px=0,-160 highlight_area=true transition_visual=ground
 sign sign.harbour "to harbour" 52 4 north
 sign sign.vene "to vene street" 80 66 south
 sign sign.center "to town square" 40 66 south
