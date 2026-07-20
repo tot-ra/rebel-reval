@@ -7,7 +7,7 @@ const MapVerification := preload("res://scripts/map/map_verification.gd")
 
 func test_north_quarter_prototype_bounds_and_spine() -> void:
 	var definition: MapDefinition = NorthQuarterDefinition.create()
-	assert_eq(definition.size_cells, Vector2i(64, 36))
+	assert_eq(definition.size_cells, Vector2i(104, 72))
 	assert_true(MapBuilder.validate(definition).is_empty())
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
 	assert_true(MapVerification.has_anchor(definition, &"pikk_street_spine"))
@@ -44,3 +44,15 @@ func test_north_quarter_connects_to_lower_town_and_center() -> void:
 	var to_center: Dictionary = transition_by_id[&"to_reval_center"]
 	assert_eq(to_center["destination_scene_id"], &"reval_center")
 	assert_eq(to_center["destination_spawn_id"], &"to_reval_north")
+
+
+func test_north_quarter_connects_to_harbor() -> void:
+	var definition: MapDefinition = NorthQuarterDefinition.create()
+	var transition_by_id: Dictionary = {}
+	for transition in definition.transitions:
+		transition_by_id[transition["id"]] = transition
+	assert_true(transition_by_id.has(&"to_reval_harbor"))
+	var to_harbor: Dictionary = transition_by_id[&"to_reval_harbor"]
+	assert_eq(to_harbor["destination_scene_id"], &"reval_harbor")
+	assert_eq(to_harbor["destination_spawn_id"], &"from_reval_north")
+	assert_eq(to_harbor["spawn_id"], &"to_reval_harbor")

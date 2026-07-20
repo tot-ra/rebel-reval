@@ -33,9 +33,9 @@
       "release": false,
       "spawns": [
         { "id": "from_reval_east" },
-        { "id": "from_reval_east_south" },
         { "id": "to_reval_north" },
-        { "id": "to_market" },
+        { "id": "to_reval_toompea" },
+        { "id": "to_reval_south" },
         { "id": "to_guild_hall" }
       ]
     },
@@ -46,17 +46,9 @@
       "release": false,
       "spawns": [
         { "id": "from_reval_east" },
-        { "id": "from_reval_center" }
-      ]
-    },
-    {
-      "id": "market_civic_quarter",
-      "path": "res://scenes/reval_center/market_civic_quarter/market.tscn",
-      "active": true,
-      "release": false,
-      "spawns": [
-        { "id": "from_reval_east" },
-        { "id": "from_reval_center" }
+        { "id": "from_reval_center" },
+        { "id": "from_reval_harbor" },
+        { "id": "to_reval_harbor" }
       ]
     },
     {
@@ -74,7 +66,28 @@
       "active": true,
       "release": false,
       "spawns": [
-        { "id": "from_reval_east" }
+        { "id": "from_reval_east" },
+        { "id": "from_reval_north" },
+        { "id": "to_reval_harbor" }
+      ]
+    },
+    {
+      "id": "reval_toompea",
+      "path": "res://scenes/reval_toompea/reval_toompea.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        { "id": "from_reval_center" }
+      ]
+    },
+    {
+      "id": "reval_south",
+      "path": "res://scenes/reval_south/reval_south.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        { "id": "from_reval_center" },
+        { "id": "from_karja_gate" }
       ]
     }
   ]
