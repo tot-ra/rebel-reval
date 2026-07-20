@@ -25,7 +25,7 @@ var _prompt_label: Label
 func _ready() -> void:
 	var definition: MapDefinition = DEFINITION_SCRIPT.create()
 	_bootstrap = MapSceneBootstrap.assemble(self, definition, actors, map_root)
-	DoorNavigator.spawn_player_at_pending_spawn(self)
+	MapSceneBootstrap.place_player(self, player, definition)
 	_wire_player_navigation()
 	MapSceneBootstrap.configure_player_movement(player, _bootstrap)
 	_wire_henning_navigation()
@@ -105,8 +105,6 @@ func _wire_player_navigation() -> void:
 	var navigation: NavigationRegion2D = _bootstrap.get("navigation")
 	if player != null and navigation != null and player.navigation_agent != null:
 		player.navigation_agent.set_navigation_map(navigation.get_navigation_map())
-		if DoorNavigator.pending_spawn_id.is_empty():
-			player.global_position = (_bootstrap["definition"] as MapDefinition).player_spawn
 
 
 func _wire_henning_navigation() -> void:

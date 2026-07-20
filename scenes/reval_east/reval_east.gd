@@ -17,7 +17,7 @@ func _ready() -> void:
 	super()
 	var definition: MapDefinition = DEFINITION_SCRIPT.create()
 	_bootstrap = MapSceneBootstrap.assemble(self, definition, actors, map_root)
-	DoorNavigator.spawn_player_at_pending_spawn(self)
+	MapSceneBootstrap.place_player(self, player, definition)
 	_wire_player_navigation()
 	MapSceneBootstrap.configure_player_movement(player, _bootstrap)
 

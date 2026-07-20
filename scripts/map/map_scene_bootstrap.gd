@@ -68,6 +68,17 @@ static func configure_player_movement(player: Node, bootstrap: Dictionary) -> vo
 		player.configure_map_movement(definition, grid)
 
 
+## Place at a pending door spawn when set; otherwise use authored player_spawn.
+## WHY: spawn_player_at_pending_spawn clears pending IDs on success, so scenes must
+## not treat an empty pending_spawn_id as "use default spawn" after a door transition.
+static func place_player(level: Node, player: Node2D, definition: MapDefinition) -> bool:
+	if DoorNavigator.spawn_player_at_pending_spawn(level):
+		return true
+	if player != null and definition != null:
+		player.global_position = definition.player_spawn
+	return false
+
+
 static func wire_player(
 	player: Node,
 	definition: MapDefinition,

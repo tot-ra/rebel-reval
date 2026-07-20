@@ -13,19 +13,17 @@ var _view_runtime: MapViewRuntime
 func _ready() -> void:
 	var definition: MapDefinition = DEFINITION_SCRIPT.create()
 	_bootstrap = MapSceneBootstrap.assemble(self, definition, actors, map_root)
-	DoorNavigator.spawn_player_at_pending_spawn(self)
-	_wire_player_navigation(definition)
+	MapSceneBootstrap.place_player(self, player, definition)
+	_wire_player_navigation()
 	if player == null:
 		player = _find_player(get_tree().root)
 	_view_runtime = MapViewRuntime.install(self, _bootstrap, map_root, player)
 
 
-func _wire_player_navigation(definition: MapDefinition) -> void:
+func _wire_player_navigation() -> void:
 	var navigation: NavigationRegion2D = _bootstrap.get("navigation")
 	if player != null and navigation != null and player.navigation_agent != null:
 		player.navigation_agent.set_navigation_map(navigation.get_navigation_map())
-		if DoorNavigator.pending_spawn_id.is_empty():
-			player.global_position = definition.player_spawn
 
 
 
