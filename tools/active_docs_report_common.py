@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import dataclasses
+import os
 import re
 from pathlib import Path
 
 ACTIVE_ROOT_DOCS = ("README.md", "AGENTS.md", "TODO.md")
 ACTIVE_DOC_DIRS = ("docs",)
 EXCLUDED_ACTIVE_SUBDIRS = ("docs/reports",)
+TOOL_CACHE_DIRS = frozenset({"__pycache__"})
 LEGACY_STATUSES = {"archive", "reference", "superseded"}
 REFERENCE_MARKER_RE = re.compile(
     r"\b(source needed|citation needed|reference needed|missing source|missing reference)\b",
@@ -100,7 +102,16 @@ def is_under(path: Path, parent: Path) -> bool:
 
 
 def iter_markdown_files(root: Path) -> list[Path]:
-    return sorted((path for path in root.rglob("*.md") if ".git" not in path.parts), key=lambda p: rel(p, root).casefold())
+    discovered: list[Path] = []
+    for current_dir, dirnames, filenames in os.walk(root):
+        dirnames[:] = [
+            dirname
+            for dirname in dirnames
+            if not dirname.startswith(".") and dirname not in TOOL_CACHE_DIRS
+        ]
+        directory = Path(current_dir)
+        discovered.extend(directory / filename for filename in filenames if filename.endswith(".md"))
+    return sorted(discovered, key=lambda path: rel(path, root).casefold())
 
 
 def collect_active_docs(root: Path) -> tuple[list[Path], list[Path]]:
@@ -118,7 +129,7 @@ def collect_active_docs(root: Path) -> tuple[list[Path], list[Path]]:
     for dirname in ACTIVE_DOC_DIRS:
         base = root / dirname
         if base.exists():
-            candidates.update(base.rglob("*.md"))
+            candidates.update(iter_markdown_files(base))
 
     active: list[Path] = []
     excluded: set[Path] = set(iter_markdown_files(root))
