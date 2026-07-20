@@ -2,6 +2,11 @@ class_name MapViewMeshBuilderPrimitives
 extends RefCounted
 
 ## Low-level mesh primitives shared by 3D map view builders.
+## Procedural primitives are immutable after construction. Reusing their Mesh
+## resources avoids rebuilding identical roofs and foliage for every streamed
+## chunk and adjoining-district preview.
+
+static var _mesh_cache: Dictionary = {}
 
 static func hash01(x: int, y: int, noise_seed: int) -> float:
 	var hashed := ((x * 374761393) + (y * 668265263) + noise_seed * 69069) & 0x7fffffff
@@ -56,6 +61,9 @@ static func cell_blocked(cell: Vector2i, rects: Array[Rect2]) -> bool:
 
 
 static func unit_roof_prism() -> ArrayMesh:
+	const CACHE_KEY := &"unit_roof_prism"
+	if _mesh_cache.has(CACHE_KEY):
+		return _mesh_cache[CACHE_KEY]
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var a := Vector3(-0.5, 0.0, -0.5)
@@ -68,7 +76,9 @@ static func unit_roof_prism() -> ArrayMesh:
 	MapViewMeshBuilderPrimitives.add_roof_quad(surface, r0, r1, c, d, Vector3(0.0, 0.5, 1.0).normalized())
 	MapViewMeshBuilderPrimitives.add_roof_triangle(surface, a, r0, d, Vector3.LEFT)
 	MapViewMeshBuilderPrimitives.add_roof_triangle(surface, b, c, r1, Vector3.RIGHT)
-	return surface.commit()
+	var mesh := surface.commit()
+	_mesh_cache[CACHE_KEY] = mesh
+	return mesh
 
 
 
@@ -84,6 +94,9 @@ static func placed(spot: Vector2, scale: float, lift: Vector3, yaw: float) -> Tr
 
 
 static func spruce_canopy_mesh() -> ArrayMesh:
+	const CACHE_KEY := &"spruce_canopy"
+	if _mesh_cache.has(CACHE_KEY):
+		return _mesh_cache[CACHE_KEY]
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var tiers := [
@@ -106,7 +119,9 @@ static func spruce_canopy_mesh() -> ArrayMesh:
 			(MapViewMeshBuilderPrimitives.hash01(tier_index, 5, 131) - 0.5) * 0.12
 		)
 		surface.append_from(cone, 0, Transform3D(Basis.IDENTITY, offset))
-	return surface.commit()
+	var mesh := surface.commit()
+	_mesh_cache[CACHE_KEY] = mesh
+	return mesh
 
 
 ## Broadleaf canopy: several overlapping lobes merged into one lumpy crown
@@ -114,6 +129,9 @@ static func spruce_canopy_mesh() -> ArrayMesh:
 
 
 static func leaf_canopy_mesh() -> ArrayMesh:
+	const CACHE_KEY := &"leaf_canopy"
+	if _mesh_cache.has(CACHE_KEY):
+		return _mesh_cache[CACHE_KEY]
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var lobes := [
@@ -131,7 +149,9 @@ static func leaf_canopy_mesh() -> ArrayMesh:
 		sphere.radial_segments = 10
 		sphere.rings = 6
 		surface.append_from(sphere, 0, Transform3D(Basis.IDENTITY, lobe[0]))
-	return surface.commit()
+	var mesh := surface.commit()
+	_mesh_cache[CACHE_KEY] = mesh
+	return mesh
 
 
 
@@ -182,6 +202,9 @@ static func add_chimney_stack(parent: Node3D, node_name: String, outer_size: flo
 
 
 static func gabled_roof_mesh(base: Vector2, ridge_along_x: bool = true) -> ArrayMesh:
+	var cache_key := "gabled_roof:%s:%s" % [base, ridge_along_x]
+	if _mesh_cache.has(cache_key):
+		return _mesh_cache[cache_key]
 	var half_w := base.x * 0.5 + MapViewMeshBuilderConfig.ROOF_OVERHANG
 	var half_d := base.y * 0.5 + MapViewMeshBuilderConfig.ROOF_OVERHANG
 	var narrow := half_d if ridge_along_x else half_w
@@ -215,7 +238,9 @@ static func gabled_roof_mesh(base: Vector2, ridge_along_x: bool = true) -> Array
 		MapViewMeshBuilderPrimitives.add_roof_quad(surface, r0, b, c, r1, east)
 		MapViewMeshBuilderPrimitives.add_roof_triangle(surface, a, b, r0, Vector3.FORWARD)
 		MapViewMeshBuilderPrimitives.add_roof_triangle(surface, d, r1, c, Vector3.BACK)
-	return surface.commit()
+	var mesh := surface.commit()
+	_mesh_cache[cache_key] = mesh
+	return mesh
 
 
 
@@ -307,6 +332,9 @@ static func role_material(role: StringName) -> StandardMaterial3D:
 
 
 static func grass_tuft_mesh() -> ArrayMesh:
+	const CACHE_KEY := &"grass_tuft"
+	if _mesh_cache.has(CACHE_KEY):
+		return _mesh_cache[CACHE_KEY]
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var blade_count := 7
@@ -341,10 +369,15 @@ static func grass_tuft_mesh() -> ArrayMesh:
 			surface.set_normal(normal)
 			surface.set_uv(point[1])
 			surface.add_vertex(point[0])
-	return surface.commit()
+	var mesh := surface.commit()
+	_mesh_cache[CACHE_KEY] = mesh
+	return mesh
 
 
 static func reed_stem_mesh() -> ArrayMesh:
+	const CACHE_KEY := &"reed_stem"
+	if _mesh_cache.has(CACHE_KEY):
+		return _mesh_cache[CACHE_KEY]
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	for side_sign in [-1.0, 1.0]:
@@ -359,7 +392,9 @@ static func reed_stem_mesh() -> ArrayMesh:
 			surface.set_normal(Vector3(0.0, 0.0, 1.0))
 			surface.set_uv(quad[index][1])
 			surface.add_vertex(quad[index][0])
-	return surface.commit()
+	var mesh := surface.commit()
+	_mesh_cache[CACHE_KEY] = mesh
+	return mesh
 
 
 ## A riverbank cattail cluster distinct from the simple authored reed stem:
@@ -367,6 +402,9 @@ static func reed_stem_mesh() -> ArrayMesh:
 ## Vertex colors keep the seed heads brown while the instance tint varies the
 ## green foliage. UV.y still runs root-to-tip for the shared wind shader.
 static func cattail_cluster_mesh() -> ArrayMesh:
+	const CACHE_KEY := &"cattail_cluster"
+	if _mesh_cache.has(CACHE_KEY):
+		return _mesh_cache[CACHE_KEY]
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var stalks := [
@@ -435,10 +473,15 @@ static func cattail_cluster_mesh() -> ArrayMesh:
 			surface.set_normal((direction + Vector3.UP * 0.2).normalized())
 			surface.set_uv(point[1])
 			surface.add_vertex(point[0])
-	return surface.commit()
+	var mesh := surface.commit()
+	_mesh_cache[CACHE_KEY] = mesh
+	return mesh
 
 
 static func clover_patch_mesh() -> ArrayMesh:
+	const CACHE_KEY := &"clover_patch"
+	if _mesh_cache.has(CACHE_KEY):
+		return _mesh_cache[CACHE_KEY]
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	for leaf in 3:
@@ -457,7 +500,9 @@ static func clover_patch_mesh() -> ArrayMesh:
 			surface.set_normal(Vector3.UP)
 			surface.set_uv(quad[index][1])
 			surface.add_vertex(quad[index][0])
-	return surface.commit()
+	var mesh := surface.commit()
+	_mesh_cache[CACHE_KEY] = mesh
+	return mesh
 
 
 ## Landscape ring outside the playable rectangle. Each authored side may
