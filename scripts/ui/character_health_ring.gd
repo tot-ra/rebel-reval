@@ -1,18 +1,16 @@
 class_name CharacterHealthRing
 extends Node2D
 
-## Floor-level circular health indicator for 2D logic actors. The arc depletes
-## clockwise from the top and shifts green -> yellow -> red by percentage.
+## Overhead horizontal health bar for 2D logic actors. Depletes left-to-right
+## and shifts green -> yellow -> red by percentage.
 
 const COLOR_HEALTHY := Color(0.278431, 0.74902, 0.27451, 1.0)
 const COLOR_WARN := Color(0.95, 0.78, 0.2, 1.0)
 const COLOR_CRITICAL := Color(0.85, 0.22, 0.22, 1.0)
 const COLOR_BACKGROUND := Color(0.05, 0.05, 0.05, 0.82)
 
-const RING_RADIUS := 14.0
-const RING_WIDTH := 3.5
-const ARC_SEGMENTS := 64
-const ARC_START := -PI * 0.5
+const BAR_WIDTH := 42.0
+const BAR_HEIGHT := 5.0
 
 var current_health := 100.0
 var max_health := 100.0
@@ -40,18 +38,9 @@ static func color_for_ratio(ratio: float) -> Color:
 
 func _draw() -> void:
 	var ratio := get_health_ratio()
-	draw_arc(Vector2.ZERO, RING_RADIUS, 0.0, TAU, ARC_SEGMENTS, COLOR_BACKGROUND, RING_WIDTH, true)
+	var background := Rect2(-BAR_WIDTH * 0.5, -BAR_HEIGHT * 0.5, BAR_WIDTH, BAR_HEIGHT)
+	draw_rect(background, COLOR_BACKGROUND, true)
 	if ratio <= 0.0:
 		return
-	var end_angle := ARC_START + TAU * ratio
-	var segment_count := maxi(3, int(float(ARC_SEGMENTS) * ratio))
-	draw_arc(
-		Vector2.ZERO,
-		RING_RADIUS,
-		ARC_START,
-		end_angle,
-		segment_count,
-		color_for_ratio(ratio),
-		RING_WIDTH,
-		true
-	)
+	var fill := Rect2(-BAR_WIDTH * 0.5, -BAR_HEIGHT * 0.5, BAR_WIDTH * ratio, BAR_HEIGHT)
+	draw_rect(fill, color_for_ratio(ratio), true)

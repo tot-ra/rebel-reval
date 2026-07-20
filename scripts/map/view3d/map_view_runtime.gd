@@ -374,7 +374,7 @@ func _follow_player(snap: bool, delta: float) -> void:
 
 
 static func _hide_player_canvas(player: CharacterBody2D) -> void:
-	# The rig replaces the greybox rectangle; the 3D health ring mirrors logic health.
+	# The rig replaces the greybox rectangle; the 3D overhead health bar mirrors logic health.
 	for node_name in ["GreyboxVisual", "HealthRing", "StaminaBar"]:
 		var node := player.get_node_or_null(node_name) as CanvasItem
 		if node != null:

@@ -43,7 +43,7 @@ path_desired_distance = 10.0
 
 [node name="HealthRing" type="Node2D" parent="."]
 z_index = 1000
-position = Vector2(0, 20)
+position = Vector2(0, -58)
 script = ExtResource("7_health_ring")
 
 [node name="StaminaBar" type="ProgressBar" parent="."]
