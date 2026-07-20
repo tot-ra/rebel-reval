@@ -118,6 +118,30 @@ static func transition_rect(definition: MapDefinition, transition_id: StringName
 	return Rect2()
 
 
+## Player capsule half-extents (player.tscn CapsuleShape2D radius=16 height=32).
+## Spawn markers must sit outside the door Area2D or arrivals immediately re-trigger.
+const PLAYER_COLLISION_HALF := Vector2(16.0, 32.0)
+
+
+static func spawn_clears_transition_trigger(transition: Dictionary) -> bool:
+	if not transition.has("spawn_id") or not transition.has("spawn_offset"):
+		return true
+	if String(transition.get("destination_scene_id", "")).is_empty():
+		return true
+	var rect: Rect2 = transition["rect"]
+	var offset: Vector2 = transition["spawn_offset"]
+	var half := rect.size * 0.5
+	var clearance := Vector2(
+		absf(offset.x) - half.x - PLAYER_COLLISION_HALF.x,
+		absf(offset.y) - half.y - PLAYER_COLLISION_HALF.y
+	)
+	# Offset axis that actually pushes inward must clear the volume; the other
+	# axis may stay near zero for edge-aligned district doors.
+	if absf(offset.x) >= absf(offset.y):
+		return clearance.x > 0.0
+	return clearance.y > 0.0
+
+
 static func has_anchor(definition: MapDefinition, anchor_id: StringName) -> bool:
 	return anchor_position(definition, anchor_id) != Vector2.ZERO
 

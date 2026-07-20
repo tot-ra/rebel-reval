@@ -2341,7 +2341,7 @@
       "spawn_id": "karja_road_boundary",
       "spawn_offset": [
         0.000000000,
-        -48.000000000
+        -96.000000000
       ],
       "transition_visual": "ground"
     },
@@ -2358,7 +2358,7 @@
       "spawn_id": "forge",
       "spawn_offset": [
         0.000000000,
-        48.000000000
+        64.000000000
       ]
     },
     {
@@ -2384,7 +2384,7 @@
       ],
       "spawn_id": "vana_turg_boundary",
       "spawn_offset": [
-        48.000000000,
+        96.000000000,
         0.000000000
       ],
       "transition_visual": "ground"
@@ -2403,7 +2403,7 @@
       "spawn_id": "vene_district_boundary",
       "spawn_offset": [
         0.000000000,
-        48.000000000
+        96.000000000
       ],
       "transition_visual": "ground"
     },
@@ -2420,7 +2420,7 @@
       ],
       "spawn_id": "viru_road_boundary",
       "spawn_offset": [
-        -48.000000000,
+        -128.000000000,
         0.000000000
       ],
       "transition_visual": "ground"

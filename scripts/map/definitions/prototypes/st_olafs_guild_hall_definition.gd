@@ -44,7 +44,8 @@ static func create() -> MapDefinition:
 		&"reval_center",
 		&"to_guild_hall",
 		&"from_reval_center",
-		Vector2(0.0, -48.0),
+		# Clear the 4x2 door volume plus player capsule so return trips do not loop.
+		Vector2(0.0, -96.0),
 		true
 	)
 	InteriorMapFactory.add_fade_volume(definition, Rect2i(10, 3, 12, 3))
