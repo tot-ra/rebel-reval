@@ -337,7 +337,14 @@ Retained warnings on inactive/dev-gated prototypes `north_quarter`, `south_quart
 - Transitions stay persistent residency; stable IDs never encode chunk coordinates.
 - Do not activate these maps as chunk-streaming-dependent playable content until a later task splits the listed subjects or re-asserts ownership after human review.
 
-Slice maps `kalev_smithy` and `lower_town_slice` are outside P0-067a and remain follow-up `P0-067b`.
+### Owned `MAP_CHUNK_BOUNDARY_AMBIGUOUS` decisions (P0-067b)
+
+Retained warnings on playable slice maps `kalev_smithy` and `lower_town_slice`, plus the remaining registry prototype `market_civic_quarter`, are intentional. Each subject ID, planning-grid span, and ownership policy is recorded in [`docs/reports/map_chunk_boundary_review_p0_067b.md`](./reports/map_chunk_boundary_review_p0_067b.md). Summary of the owned decision:
+
+- Keep continuous forge walls, city-wall/foregate runs, brewery/smithy footprints, and civic landmarks; do not suppress the warning code.
+- When object chunk streaming is used, owner chunk is the lexicographically smallest intersecting chunk under ADR 0010 section 4 (`MapChunkRuntimeIndex`).
+- Transitions stay persistent residency; stable IDs never encode chunk coordinates.
+- Do not treat object chunk streaming as production-ready on the playable slice maps until a later task splits the listed subjects or re-asserts ownership at the production 32x32 chunk size after human review. Keep `market_civic_quarter` activation blocked until its activation ticket revisits the list.
 
 Register every new blueprint factory in `scripts/map/map_blueprint_registry.gd`. Registry order is explicit and deterministic; filesystem discovery is forbidden. Put mandatory anchor IDs in the registry entry. The headless command compiles every entry, checks cross-map transitions and exact required-anchor reachability, prints stable codes, and exits `1` when any error exists:
 
