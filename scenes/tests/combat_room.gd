@@ -2,9 +2,10 @@ extends Node2D
 
 class_name CombatRoom
 
-## Playable combat integration room for P1-024 / P1-025a / P1-026.
+## Playable combat integration room for P1-024 / P1-025a / P1-026 / P1-027.
 ## Hammers light/charged attacks, guard/parry, dodge, Iron, readable feedback,
-## wired watchman/sergeant AI hosts, plus authored surrender/escape/bypass closes.
+## wired watchman/sergeant AI hosts, authored surrender/escape/bypass closes,
+## and failure retry via EncounterCheckpoint.
 
 const PLAYER_SCENE := preload("res://player.tscn")
 const DUMMY_SCRIPT := preload("res://scripts/combat/combat_training_dummy.gd")
@@ -27,7 +28,9 @@ var sergeant: CombatRoomEnemy
 var feedback: CombatFeedbackHud
 var encounter_definition: EncounterOutcomeDefinition = EncounterOutcomeDefinition.watch_checkpoint()
 var encounter_resolver := EncounterOutcomeResolver.new()
+var encounter_checkpoint := EncounterCheckpoint.new()
 var _reset_button: Button
+var _retry_button: Button
 var _surrender_button: Button
 var _escape_button: Button
 var _bypass_button: Button
@@ -54,39 +57,53 @@ func ensure_built() -> void:
 func reset_room() -> void:
 	ensure_built()
 	_ensure_session()
-	SessionState.state.set_equipped_forge_technique(&"")
-	_equip_hammer()
-	if player != null:
-		player.global_position = PLAYER_SPAWN
-		player._facing_direction = Vector2.RIGHT
-		player.health = player.max_health
-		player.stamina = player.max_stamina
-		player.combat_vitals.configure(player.health, player.max_health, player.stamina, player.max_stamina)
-		player.action_state_machine.reset()
-	if open_dummy != null:
-		open_dummy.global_position = OPEN_DUMMY_POS
-		open_dummy.configure_resources(40.0, 40.0, 40.0, 40.0)
-		open_dummy.set_guarding(false)
-		open_dummy.display_name = "Open dummy"
-	if guard_dummy != null:
-		guard_dummy.global_position = GUARD_DUMMY_POS
-		guard_dummy.configure_resources(40.0, 40.0, 40.0, 40.0)
-		# Braced past the parry window so Iron jams are visible.
-		guard_dummy.set_guarding(true, 1.0)
-		guard_dummy.display_name = "Guard dummy"
-	if watchman != null:
-		watchman.global_position = WATCHMAN_POS
-		watchman.reset_actor()
-		watchman.set_ai_target(player)
-	if sergeant != null:
-		sergeant.global_position = SERGEANT_POS
-		sergeant.reset_actor()
-		sergeant.set_ai_target(player)
+	_reset_combat_actors()
+	# Why: arm after actors are live so a later death restores this narrative
+	# snapshot rather than a mid-fight corrupted quest/dialogue payload.
+	arm_encounter_checkpoint()
 	if feedback != null:
 		feedback.clear_log()
 		feedback.push_event("Room reset. Hammer equipped. Watchman + Sergeant online.")
 		feedback.push_event("Non-lethal closes: Surrender / Escape / Bypass buttons.")
+		feedback.push_event("Checkpoint armed. Death enables Retry without dialogue replay.")
+	_set_retry_visible(false)
 	_refresh_status("Ready. Face a dummy or approach an enemy.")
+
+
+## P1-027: snapshot session GameState so failure can restore quest/dialogue.
+func arm_encounter_checkpoint() -> bool:
+	ensure_built()
+	_ensure_session()
+	return encounter_checkpoint.arm(
+		SessionState.state, encounter_definition.encounter_id
+	)
+
+
+## P1-027: restore armed GameState and combat actors after player failure.
+## Completed dialogue and prior quest progress from arm time are preserved;
+## mid-fight quest writes are discarded.
+func retry_from_checkpoint() -> bool:
+	ensure_built()
+	_ensure_session()
+	if not encounter_checkpoint.is_armed:
+		if feedback != null:
+			feedback.push_event("Retry rejected: no armed checkpoint.")
+		return false
+	if not encounter_checkpoint.restore(SessionState.state):
+		if feedback != null:
+			feedback.push_event("Retry rejected: checkpoint restore failed.")
+		return false
+	_reset_combat_actors()
+	# Re-arm from the restored narrative so a second failure still retries cleanly.
+	arm_encounter_checkpoint()
+	_set_retry_visible(false)
+	if feedback != null:
+		feedback.push_event(
+			"Retry from checkpoint %s. Dialogue and quest restored."
+			% String(encounter_definition.encounter_id)
+		)
+	_refresh_status("Retried. Checkpoint restored.")
+	return true
 
 
 ## P1-026: resolve an authored outcome against live room enemies and session quest state.
@@ -101,19 +118,23 @@ func resolve_encounter_outcome(kind: StringName) -> bool:
 	var ok := encounter_resolver.resolve(
 		SessionState.state, encounter_definition, kind, enemies
 	)
-	if ok and feedback != null:
-		feedback.push_event(
-			"Encounter %s -> %s=%s"
-			% [
-				EncounterOutcome.display_name(kind),
-				String(encounter_definition.quest_id),
-				String(encounter_resolver.last_quest_state),
-			]
-		)
-		_refresh_status(
-			"Outcome %s. Quest %s."
-			% [EncounterOutcome.display_name(kind), String(encounter_resolver.last_quest_state)]
-		)
+	if ok:
+		# Successful close ends the fight; drop the failure retry snapshot.
+		encounter_checkpoint.clear()
+		_set_retry_visible(false)
+		if feedback != null:
+			feedback.push_event(
+				"Encounter %s -> %s=%s"
+				% [
+					EncounterOutcome.display_name(kind),
+					String(encounter_definition.quest_id),
+					String(encounter_resolver.last_quest_state),
+				]
+			)
+			_refresh_status(
+				"Outcome %s. Quest %s."
+				% [EncounterOutcome.display_name(kind), String(encounter_resolver.last_quest_state)]
+			)
 	elif feedback != null:
 		feedback.push_event("Encounter outcome rejected: %s" % EncounterOutcome.display_name(kind))
 	return ok
@@ -145,6 +166,14 @@ func get_feedback() -> CombatFeedbackHud:
 
 func get_reset_button() -> Button:
 	return _reset_button
+
+
+func get_retry_button() -> Button:
+	return _retry_button
+
+
+func get_encounter_checkpoint() -> EncounterCheckpoint:
+	return encounter_checkpoint
 
 
 func get_surrender_button() -> Button:
@@ -332,6 +361,19 @@ func _build_hud() -> void:
 	_reset_button.pressed.connect(reset_room)
 	actions.add_child(_reset_button)
 
+	# Mouse-reachable failure retry (discoverability policy; no hotkey required).
+	_retry_button = Button.new()
+	_retry_button.name = "RetryCheckpointButton"
+	_retry_button.text = "Retry"
+	_retry_button.tooltip_text = (
+		"Restore the armed encounter checkpoint: keep completed dialogue and prior quest state"
+	)
+	_retry_button.position = Vector2(560, 640)
+	_retry_button.custom_minimum_size = Vector2(120, 36)
+	_retry_button.visible = false
+	_retry_button.pressed.connect(func() -> void: retry_from_checkpoint())
+	actions.add_child(_retry_button)
+
 	# Mouse-reachable non-lethal closes (discoverability policy; no hotkey required).
 	_surrender_button = _make_outcome_button(
 		"SurrenderButton", "Surrender", EncounterOutcome.KIND_SURRENDER, Vector2(170, 640)
@@ -369,6 +411,8 @@ func _wire_signals() -> void:
 			player.melee_attack_resolved.connect(_on_player_melee_resolved)
 		if not player.health_changed.is_connected(_on_player_health_changed):
 			player.health_changed.connect(_on_player_health_changed)
+		if not player.died.is_connected(_on_player_died):
+			player.died.connect(_on_player_died)
 	for dummy in [open_dummy, guard_dummy]:
 		if dummy != null and not dummy.hit_resolved.is_connected(_on_dummy_hit_resolved.bind(dummy)):
 			dummy.hit_resolved.connect(_on_dummy_hit_resolved.bind(dummy))
@@ -379,6 +423,55 @@ func _wire_signals() -> void:
 			enemy.feedback_event.connect(_on_enemy_feedback)
 		if not enemy.hit_resolved.is_connected(_on_enemy_hit_resolved.bind(enemy)):
 			enemy.hit_resolved.connect(_on_enemy_hit_resolved.bind(enemy))
+
+
+func _reset_combat_actors() -> void:
+	SessionState.state.set_equipped_forge_technique(&"")
+	_equip_hammer()
+	if player != null:
+		player.global_position = PLAYER_SPAWN
+		player._facing_direction = Vector2.RIGHT
+		player.health = player.max_health
+		player.stamina = player.max_stamina
+		player.combat_vitals.configure(
+			player.health, player.max_health, player.stamina, player.max_stamina
+		)
+		player.action_state_machine.reset()
+	if open_dummy != null:
+		open_dummy.global_position = OPEN_DUMMY_POS
+		open_dummy.configure_resources(40.0, 40.0, 40.0, 40.0)
+		open_dummy.set_guarding(false)
+		open_dummy.display_name = "Open dummy"
+	if guard_dummy != null:
+		guard_dummy.global_position = GUARD_DUMMY_POS
+		guard_dummy.configure_resources(40.0, 40.0, 40.0, 40.0)
+		# Braced past the parry window so Iron jams are visible.
+		guard_dummy.set_guarding(true, 1.0)
+		guard_dummy.display_name = "Guard dummy"
+	if watchman != null:
+		watchman.global_position = WATCHMAN_POS
+		watchman.reset_actor()
+		watchman.set_ai_target(player)
+	if sergeant != null:
+		sergeant.global_position = SERGEANT_POS
+		sergeant.reset_actor()
+		sergeant.set_ai_target(player)
+
+
+func _on_player_died() -> void:
+	# Why: failure must not write an encounter outcome; Retry restores the arm
+	# snapshot so completed dialogue and prior quest state stay intact.
+	if encounter_checkpoint.mark_failed():
+		_set_retry_visible(true)
+		if feedback != null:
+			feedback.push_event("Player down. Retry restores the armed checkpoint.")
+		_refresh_status("Failed. Use Retry to restore checkpoint.")
+
+
+func _set_retry_visible(visible: bool) -> void:
+	if _retry_button != null:
+		_retry_button.visible = visible
+		_retry_button.disabled = not visible
 
 
 func _on_player_melee_resolved(targets: Array[Node2D], profile: AttackProfile) -> void:
