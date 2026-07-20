@@ -29,7 +29,8 @@ func test_place_player_keeps_courtyard_door_spawn_after_pending_clears() -> void
 		player.global_position = position
 	DoorNavigator.on_trigger_player_spawn.connect(on_spawn)
 
-	var used_door := MapSceneBootstrap.place_player(root, player, definition)
+	# Scenes call the autoload helper (not MapSceneBootstrap.place_player via class_name).
+	var used_door := DoorNavigator.place_player(root, player, definition.player_spawn)
 	assert_true(used_door, "courtyard arrival must resolve through the door spawn")
 	assert_true(DoorNavigator.pending_spawn_id.is_empty(), "successful door spawn clears pending IDs")
 	assert_ne(
@@ -58,7 +59,19 @@ func test_place_player_falls_back_to_authored_spawn_without_pending() -> void:
 	actors.add_child(player)
 	root.add_child(actors)
 
-	var used_door := MapSceneBootstrap.place_player(root, player, definition)
+	var used_door := DoorNavigator.place_player(root, player, definition.player_spawn)
 	assert_false(used_door, "cold start without pending spawn must use authored spawn")
 	assert_eq(player.global_position, definition.player_spawn)
 	root.free()
+
+
+func test_map_scene_bootstrap_place_player_delegates_to_door_navigator() -> void:
+	DoorNavigator.load_manifest(true)
+	DoorNavigator.clear_pending_spawn()
+	var definition: MapDefinition = KalevSmithy.create()
+	var player := Node2D.new()
+	player.global_position = Vector2(-1000, -1000)
+	var used_door := MapSceneBootstrap.place_player(Node2D.new(), player, definition)
+	assert_false(used_door)
+	assert_eq(player.global_position, definition.player_spawn)
+	player.free()

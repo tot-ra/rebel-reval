@@ -25,7 +25,7 @@ var _prompt_label: Label
 func _ready() -> void:
 	var definition: MapDefinition = DEFINITION_SCRIPT.create()
 	_bootstrap = MapSceneBootstrap.assemble(self, definition, actors, map_root)
-	MapSceneBootstrap.place_player(self, player, definition)
+	DoorNavigator.place_player(self, player, definition.player_spawn)
 	_wire_player_navigation()
 	MapSceneBootstrap.configure_player_movement(player, _bootstrap)
 	_wire_henning_navigation()

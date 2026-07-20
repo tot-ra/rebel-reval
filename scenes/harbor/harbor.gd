@@ -14,7 +14,7 @@ func _ready() -> void:
 	super()
 	var definition: MapDefinition = DEFINITION_SCRIPT.create()
 	_bootstrap = MapSceneBootstrap.assemble(self, definition, actors, map_root)
-	MapSceneBootstrap.place_player(self, player, definition)
+	DoorNavigator.place_player(self, player, definition.player_spawn)
 	MapSceneBootstrap.configure_player_movement(player, _bootstrap)
 	if player != null and player.navigation_agent != null:
 		var navigation: NavigationRegion2D = _bootstrap.get("navigation")

@@ -3,7 +3,6 @@ extends RefCounted
 
 const DOOR_SCENE := preload("res://scenes/elements/door.tscn")
 const MINIMAP_HUD_SCENE := preload("res://scenes/elements/minimap_hud.tscn")
-const GAMEPLAY_HELP_HUD_SCENE := preload("res://scenes/elements/gameplay_help_hud.tscn")
 const GridRegionMergerScript := preload("res://scripts/map/grid_region_merger.gd")
 
 ## Wires declarative maps into playable scenes without legacy TileSets.
@@ -41,7 +40,6 @@ static func assemble(
 	var anchors := _create_anchor_markers(definition, gameplay)
 	var fades := _create_fade_areas(definition, gameplay)
 	var location_hud := _create_minimap_hud(definition, grid, actors, root)
-	var gameplay_help_hud := _create_gameplay_help_hud(root)
 
 	return {
 		"grid": grid,
@@ -54,7 +52,6 @@ static func assemble(
 		"fades": fades,
 		"location_hud": location_hud,
 		"minimap_hud": location_hud,
-		"gameplay_help_hud": gameplay_help_hud,
 		"definition": definition,
 	}
 
@@ -68,15 +65,11 @@ static func configure_player_movement(player: Node, bootstrap: Dictionary) -> vo
 		player.configure_map_movement(definition, grid)
 
 
-## Place at a pending door spawn when set; otherwise use authored player_spawn.
-## WHY: spawn_player_at_pending_spawn clears pending IDs on success, so scenes must
-## not treat an empty pending_spawn_id as "use default spawn" after a door transition.
+## Thin wrapper so map tests can place without depending on scene scripts.
+## Prefer DoorNavigator.place_player from playable scenes (autoload, always live).
 static func place_player(level: Node, player: Node2D, definition: MapDefinition) -> bool:
-	if DoorNavigator.spawn_player_at_pending_spawn(level):
-		return true
-	if player != null and definition != null:
-		player.global_position = definition.player_spawn
-	return false
+	var default_spawn := definition.player_spawn if definition != null else Vector2.ZERO
+	return DoorNavigator.place_player(level, player, default_spawn)
 
 
 static func wire_player(
@@ -155,12 +148,6 @@ static func _create_minimap_hud(
 	var hud := MINIMAP_HUD_SCENE.instantiate() as MinimapHud
 	root.add_child(hud)
 	hud.configure(definition, grid, player)
-	return hud
-
-
-static func _create_gameplay_help_hud(root: Node2D) -> GameplayHelpHud:
-	var hud := GAMEPLAY_HELP_HUD_SCENE.instantiate() as GameplayHelpHud
-	root.add_child(hud)
 	return hud
 
 

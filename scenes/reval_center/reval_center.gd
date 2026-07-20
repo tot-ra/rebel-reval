@@ -13,7 +13,7 @@ var _view_runtime: MapViewRuntime
 func _ready() -> void:
 	var definition: MapDefinition = DEFINITION_SCRIPT.create()
 	_bootstrap = MapSceneBootstrap.assemble(self, definition, actors, map_root)
-	MapSceneBootstrap.place_player(self, player, definition)
+	DoorNavigator.place_player(self, player, definition.player_spawn)
 	if player != null and player.navigation_agent != null:
 		var navigation: NavigationRegion2D = _bootstrap.get("navigation")
 		if navigation != null:

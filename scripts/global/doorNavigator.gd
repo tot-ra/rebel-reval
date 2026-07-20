@@ -149,6 +149,17 @@ func spawn_player_at_pending_spawn(level: Node) -> bool:
 	clear_pending_spawn()
 	return true
 
+## Place at a pending door spawn when set; otherwise use authored default_spawn.
+## WHY: spawn_player_at_pending_spawn clears pending IDs on success, so scenes must
+## not treat an empty pending_spawn_id as "use default spawn" after a door transition.
+## Call only after map doors exist (after MapSceneBootstrap.assemble).
+func place_player(level: Node, player: Node2D, default_spawn: Vector2) -> bool:
+	if spawn_player_at_pending_spawn(level):
+		return true
+	if player != null:
+		player.global_position = default_spawn
+	return false
+
 func clear_pending_spawn() -> void:
 	pending_spawn_scene_id = &""
 	pending_spawn_id = &""
