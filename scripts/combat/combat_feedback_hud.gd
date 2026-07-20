@@ -5,7 +5,9 @@ class_name CombatFeedbackHud
 ## Readable combat feedback for the P1-024 test room. Always visible in that
 ## scene so outcomes do not rely on a hotkey alone.
 
-const MAX_LOG_LINES := 8
+## P1-025a enemy loops emit detect/telegraph/attack/react/disengage lines; keep
+## enough history so headless room tests can assert readable phase feedback.
+const MAX_LOG_LINES := 16
 
 var _status_label: Label
 var _log_label: Label
@@ -68,7 +70,7 @@ func _build_ui() -> void:
 	root.add_child(column)
 
 	var title := Label.new()
-	title.text = "Combat room (P1-024)"
+	title.text = "Combat room (P1-024 / P1-025a)"
 	title.add_theme_font_size_override("font_size", 22)
 	title.add_theme_color_override("font_color", Color(0.95, 0.82, 0.35, 1.0))
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -104,6 +106,7 @@ func _build_ui() -> void:
 		+ "Guard / parry: F or right mouse / gamepad LB\n"
 		+ "Dodge: Q / gamepad RB\n"
 		+ "Iron: Quick-access Iron button (mouse)\n"
+		+ "Enemies: approach Watchman (gold) or Sergeant (magenta)\n"
 		+ "Reset: Reset room button"
 	)
 	column.add_child(_controls_label)

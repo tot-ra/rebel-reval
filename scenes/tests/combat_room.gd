@@ -2,21 +2,28 @@ extends Node2D
 
 class_name CombatRoom
 
-## Playable combat integration room for P1-024.
-## Hammers light/charged attacks, guard/parry, dodge, Iron, and readable feedback.
+## Playable combat integration room for P1-024 / P1-025a.
+## Hammers light/charged attacks, guard/parry, dodge, Iron, readable feedback,
+## plus wired watchman/sergeant AI hosts that share EnemyCombatStateMachine.
 
 const PLAYER_SCENE := preload("res://player.tscn")
 const DUMMY_SCRIPT := preload("res://scripts/combat/combat_training_dummy.gd")
+const ENEMY_SCRIPT := preload("res://scripts/combat/combat_room_enemy.gd")
 const FEEDBACK_HUD_SCRIPT := preload("res://scripts/combat/combat_feedback_hud.gd")
 const ITEM_HAMMER := &"item.forge_hammer"
 
 const PLAYER_SPAWN := Vector2(640.0, 400.0)
 const OPEN_DUMMY_POS := Vector2(780.0, 400.0)
 const GUARD_DUMMY_POS := Vector2(780.0, 280.0)
+## Left of the attack lane so P1-024 dummy smokes stay clear.
+const WATCHMAN_POS := Vector2(420.0, 520.0)
+const SERGEANT_POS := Vector2(420.0, 200.0)
 
 var player: Player
 var open_dummy: CombatTestDummy
 var guard_dummy: CombatTestDummy
+var watchman: CombatRoomEnemy
+var sergeant: CombatRoomEnemy
 var feedback: CombatFeedbackHud
 var _reset_button: Button
 var _built := false
@@ -62,10 +69,18 @@ func reset_room() -> void:
 		# Braced past the parry window so Iron jams are visible.
 		guard_dummy.set_guarding(true, 1.0)
 		guard_dummy.display_name = "Guard dummy"
+	if watchman != null:
+		watchman.global_position = WATCHMAN_POS
+		watchman.reset_actor()
+		watchman.set_ai_target(player)
+	if sergeant != null:
+		sergeant.global_position = SERGEANT_POS
+		sergeant.reset_actor()
+		sergeant.set_ai_target(player)
 	if feedback != null:
 		feedback.clear_log()
-		feedback.push_event("Room reset. Hammer equipped.")
-	_refresh_status("Ready. Face a dummy and attack.")
+		feedback.push_event("Room reset. Hammer equipped. Watchman + Sergeant online.")
+	_refresh_status("Ready. Face a dummy or approach an enemy.")
 
 
 func get_player() -> Player:
@@ -80,12 +95,85 @@ func get_guard_dummy() -> CombatTestDummy:
 	return guard_dummy
 
 
+func get_watchman() -> CombatRoomEnemy:
+	return watchman
+
+
+func get_sergeant() -> CombatRoomEnemy:
+	return sergeant
+
+
 func get_feedback() -> CombatFeedbackHud:
 	return feedback
 
 
 func get_reset_button() -> Button:
 	return _reset_button
+
+
+## Headless tick for enemy AI + HUD. Prefer this over relying on Node._process.
+func advance_enemies(delta: float) -> void:
+	ensure_built()
+	for enemy in [watchman, sergeant]:
+		if enemy != null:
+			enemy.tick_ai(delta, player)
+
+
+## Drive one wired archetype through detect → telegraph → attack → react →
+## disengage → patrol using the room actor + feedback path (P1-025a verify).
+func run_enemy_detect_to_disengage_loop(enemy: CombatRoomEnemy) -> Array:
+	ensure_built()
+	if enemy == null:
+		return []
+	var profile := enemy.get_machine().archetype
+	var trail: Array = []
+	var on_state := func(
+		_previous: EnemyCombatState.State, current: EnemyCombatState.State
+	) -> void:
+		trail.append(EnemyCombatState.display_name(current))
+	enemy.get_machine().state_changed.connect(on_state)
+	enemy.reset_actor()
+	enemy.set_ai_target(player)
+
+	# Enter detect outside engage so the first finished swing can leave combat.
+	var approach := minf(profile.detect_radius * 0.8, profile.engage_radius + 8.0)
+	if approach <= profile.engage_radius:
+		approach = profile.engage_radius + 4.0
+	_place_relative(enemy, approach)
+	_advance_enemy_until(enemy, EnemyCombatState.State.DETECT, 1.5)
+
+	_place_relative(enemy, profile.engage_radius * 0.4)
+	_advance_enemy_until(enemy, EnemyCombatState.State.TELEGRAPH, 2.0)
+	_advance_enemy_until(enemy, EnemyCombatState.State.ATTACK, 2.0)
+
+	enemy.get_machine().apply_hit()
+	_advance_enemy_until(enemy, EnemyCombatState.State.TELEGRAPH, 2.0)
+	_advance_enemy_until(enemy, EnemyCombatState.State.ATTACK, 2.0)
+
+	enemy.tick_ai(profile.attack_impact_sec + 0.05, player)
+	_place_relative(enemy, profile.lose_sight_radius + 20.0)
+	_advance_enemy_until(enemy, EnemyCombatState.State.DISENGAGE, 2.0)
+	_advance_enemy_until(enemy, EnemyCombatState.State.PATROL, 2.0)
+
+	if enemy.get_machine().state_changed.is_connected(on_state):
+		enemy.get_machine().state_changed.disconnect(on_state)
+	return trail
+
+
+func _place_relative(enemy: CombatRoomEnemy, distance: float) -> void:
+	# Keep enemy east of the player so facing/readability stay consistent.
+	enemy.global_position = player.global_position + Vector2(distance, 0.0)
+	enemy.set_ai_target(player)
+
+
+func _advance_enemy_until(
+	enemy: CombatRoomEnemy, desired: EnemyCombatState.State, budget_sec: float
+) -> void:
+	var elapsed := 0.0
+	const STEP := 0.05
+	while enemy.get_machine().state != desired and elapsed < budget_sec:
+		enemy.tick_ai(STEP, player)
+		elapsed += STEP
 
 
 func _ensure_session() -> void:
@@ -133,6 +221,12 @@ func _spawn_actors() -> void:
 
 	open_dummy = _make_dummy("OpenDummy", OPEN_DUMMY_POS, Color(0.78, 0.32, 0.28, 1.0))
 	guard_dummy = _make_dummy("GuardDummy", GUARD_DUMMY_POS, Color(0.32, 0.55, 0.78, 1.0))
+	watchman = _make_enemy(
+		"Watchman", WATCHMAN_POS, EnemyArchetype.watchman(), Color(0.62, 0.58, 0.34, 1.0)
+	)
+	sergeant = _make_enemy(
+		"Sergeant", SERGEANT_POS, EnemyArchetype.sergeant(), Color(0.55, 0.28, 0.42, 1.0)
+	)
 
 
 func _make_dummy(node_name: String, pos: Vector2, tint: Color) -> CombatTestDummy:
@@ -156,6 +250,17 @@ func _make_dummy(node_name: String, pos: Vector2, tint: Color) -> CombatTestDumm
 	return dummy
 
 
+func _make_enemy(
+	node_name: String, pos: Vector2, profile: EnemyArchetype, tint: Color
+) -> CombatRoomEnemy:
+	var enemy: CombatRoomEnemy = ENEMY_SCRIPT.new()
+	enemy.name = node_name
+	enemy.position = pos
+	enemy.configure(profile, tint)
+	add_child(enemy)
+	return enemy
+
+
 func _build_hud() -> void:
 	feedback = FEEDBACK_HUD_SCRIPT.new()
 	feedback.name = "CombatFeedbackHud"
@@ -169,7 +274,7 @@ func _build_hud() -> void:
 	_reset_button = Button.new()
 	_reset_button.name = "ResetRoomButton"
 	_reset_button.text = "Reset room"
-	_reset_button.tooltip_text = "Restore HP, stamina, postures, and clear Iron"
+	_reset_button.tooltip_text = "Restore HP, stamina, postures, enemies, and clear Iron"
 	_reset_button.position = Vector2(16, 640)
 	_reset_button.custom_minimum_size = Vector2(140, 36)
 	_reset_button.pressed.connect(reset_room)
@@ -185,6 +290,13 @@ func _wire_signals() -> void:
 	for dummy in [open_dummy, guard_dummy]:
 		if dummy != null and not dummy.hit_resolved.is_connected(_on_dummy_hit_resolved.bind(dummy)):
 			dummy.hit_resolved.connect(_on_dummy_hit_resolved.bind(dummy))
+	for enemy in [watchman, sergeant]:
+		if enemy == null:
+			continue
+		if not enemy.feedback_event.is_connected(_on_enemy_feedback):
+			enemy.feedback_event.connect(_on_enemy_feedback)
+		if not enemy.hit_resolved.is_connected(_on_enemy_hit_resolved.bind(enemy)):
+			enemy.hit_resolved.connect(_on_enemy_hit_resolved.bind(enemy))
 
 
 func _on_player_melee_resolved(targets: Array[Node2D], profile: AttackProfile) -> void:
@@ -192,6 +304,8 @@ func _on_player_melee_resolved(targets: Array[Node2D], profile: AttackProfile) -
 	for target in targets:
 		if target is CombatTestDummy:
 			names.append((target as CombatTestDummy).display_name)
+		elif target is CombatRoomEnemy:
+			names.append((target as CombatRoomEnemy).display_name)
 		elif target != null:
 			names.append(target.name)
 	var hit_text := "none" if names.is_empty() else ", ".join(names)
@@ -214,15 +328,34 @@ func _on_dummy_hit_resolved(result: CombatHitResult, dummy: CombatTestDummy) -> 
 	_refresh_status("%s HP %.0f STA %.0f" % [dummy.display_name, dummy.health, dummy.stamina])
 
 
+func _on_enemy_hit_resolved(result: CombatHitResult, enemy: CombatRoomEnemy) -> void:
+	feedback.push_event(feedback.describe_hit_result(enemy.display_name, result))
+	_refresh_status(
+		"%s HP %.0f state=%s"
+		% [enemy.display_name, enemy.health, EnemyCombatState.display_name(enemy.get_machine().state)]
+	)
+
+
+func _on_enemy_feedback(text: String) -> void:
+	if feedback != null:
+		feedback.push_event(text)
+
+
 func _refresh_status(note: String) -> void:
 	if feedback == null or player == null:
 		return
 	var technique := SessionState.state.equipped_forge_technique()
 	var tech_label := "off" if technique.is_empty() else String(technique)
 	var item := SessionState.state.equipped_item(&"right_hand")
+	var watch_state := (
+		EnemyCombatState.display_name(watchman.get_machine().state) if watchman else "-"
+	)
+	var sarge_state := (
+		EnemyCombatState.display_name(sergeant.get_machine().state) if sergeant else "-"
+	)
 	feedback.set_status(
 		(
-			"%s | Player HP %.0f STA %.0f | state=%s | item=%s | Iron=%s | Open %.0f | Guard %.0f"
+			"%s | Player HP %.0f STA %.0f | state=%s | item=%s | Iron=%s | Open %.0f | Guard %.0f | Watch %s | Sarge %s"
 			% [
 				note,
 				player.health,
@@ -232,12 +365,15 @@ func _refresh_status(note: String) -> void:
 				tech_label,
 				open_dummy.health if open_dummy else 0.0,
 				guard_dummy.health if guard_dummy else 0.0,
+				watch_state,
+				sarge_state,
 			]
 		)
 	)
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if player == null:
 		return
+	advance_enemies(delta)
 	_refresh_status("Live")

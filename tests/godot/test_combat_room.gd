@@ -1,7 +1,8 @@
 extends "res://tests/godot/test_case.gd"
 
-## P1-024: integrated combat room - keyboard, mouse, and gamepad runs covering
-## damage, stamina, invulnerability, parry, Iron, item use, and recovery.
+## P1-024 / P1-025a: integrated combat room - keyboard, mouse, and gamepad runs
+## covering damage, stamina, invulnerability, parry, Iron, item use, recovery,
+## plus watchman/sergeant detect-to-disengage loops through the room hosts.
 
 const COMBAT_ROOM_SCENE := preload("res://scenes/tests/combat_room.tscn")
 const TEST_DELTA := 0.05
@@ -15,9 +16,43 @@ func test_combat_room_boots_with_hammer_dummies_and_feedback() -> void:
 	assert_true(room.get_open_dummy() != null)
 	assert_true(room.get_guard_dummy() != null)
 	assert_true(room.get_guard_dummy().defense_pose.is_guarding)
+	assert_true(room.get_watchman() != null)
+	assert_true(room.get_sergeant() != null)
+	assert_eq(room.get_watchman().get_machine().archetype.id, EnemyArchetype.ID_WATCHMAN)
+	assert_eq(room.get_sergeant().get_machine().archetype.id, EnemyArchetype.ID_SERGEANT)
+	assert_eq(
+		room.get_watchman().get_machine().get_script(),
+		room.get_sergeant().get_machine().get_script(),
+		"Both room enemies must share EnemyCombatStateMachine"
+	)
 	assert_true(room.get_feedback() != null)
 	assert_true(room.get_reset_button() != null)
 	assert_false(room.get_reset_button().disabled, "Reset must be mouse-reachable")
+	_free_room(room)
+
+
+func test_watchman_completes_detect_to_disengage_in_combat_room() -> void:
+	_assert_room_enemy_loop(func(room: CombatRoom) -> CombatRoomEnemy: return room.get_watchman())
+
+
+func test_sergeant_completes_detect_to_disengage_in_combat_room() -> void:
+	_assert_room_enemy_loop(func(room: CombatRoom) -> CombatRoomEnemy: return room.get_sergeant())
+
+
+func test_enemy_feedback_covers_detect_telegraph_and_attack() -> void:
+	var room: CombatRoom = _mount_room()
+	var enemy: CombatRoomEnemy = room.get_watchman()
+	var trail: Array = room.run_enemy_detect_to_disengage_loop(enemy)
+	var log_label := room.get_feedback().find_child("EventLog", true, false) as Label
+	assert_true(log_label != null)
+	var log_text: String = log_label.text
+	assert_true("Watchman: detect" in log_text, "Room must log detect feedback")
+	assert_true("Watchman: telegraph" in log_text, "Room must log telegraph feedback")
+	assert_true("Watchman: attack" in log_text, "Room must log attack feedback")
+	assert_true("Watchman: disengage" in log_text, "Room must log disengage feedback")
+	assert_array_contains(trail, "detect")
+	assert_array_contains(trail, "telegraph")
+	assert_array_contains(trail, "attack")
 	_free_room(room)
 
 
@@ -179,6 +214,8 @@ func test_mouse_paths_equip_iron_and_hold_guard() -> void:
 	room.get_reset_button().pressed.emit()
 	assert_eq(SessionState.state.equipped_forge_technique(), &"")
 	assert_eq(room.get_open_dummy().health, 40.0)
+	assert_eq(room.get_watchman().get_machine().state, EnemyCombatState.State.PATROL)
+	assert_eq(room.get_sergeant().get_machine().state, EnemyCombatState.State.PATROL)
 
 	_free_room(room)
 
@@ -219,6 +256,26 @@ func test_combat_room_sequence_never_stays_locked() -> void:
 				PlayerActionState.allows_movement(machine.state),
 				"Combat room player stuck in %s" % PlayerActionState.display_name(machine.state)
 			)
+	_free_room(room)
+
+
+func _assert_room_enemy_loop(pick_enemy: Callable) -> void:
+	var room: CombatRoom = _mount_room()
+	var enemy: CombatRoomEnemy = pick_enemy.call(room) as CombatRoomEnemy
+	assert_true(enemy != null)
+	var trail := room.run_enemy_detect_to_disengage_loop(enemy)
+	assert_eq(enemy.get_machine().state, EnemyCombatState.State.PATROL)
+	for required in ["detect", "telegraph", "attack", "react", "disengage", "patrol"]:
+		assert_array_contains(
+			trail,
+			required,
+			"%s room trail missing %s" % [enemy.display_name, required]
+		)
+	# No stuck combat state after the authored loop.
+	assert_false(
+		EnemyCombatState.is_combat_engaged(enemy.get_machine().state),
+		"%s must leave combat engagement" % enemy.display_name
+	)
 	_free_room(room)
 
 
