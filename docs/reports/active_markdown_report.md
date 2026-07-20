@@ -14,8 +14,8 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `39`
-- Markdown files excluded as archive/reference/out of active scope: `297`
+- Active Markdown files scanned: `40`
+- Markdown files excluded as archive/reference/out of active scope: `298`
 - Local/external links inspected: `148`
 - Links to active Markdown docs: `97`
 - Links to existing archive/reference/non-active local docs: `23`
@@ -68,6 +68,7 @@ No active Markdown documentation issues found.
 - `docs/HISTORICAL_AUDIT.md`
 - `docs/INVENTORY_MECHANICS.md`
 - `docs/LARGE_MAP_CHUNKING_PLAN.md`
+- `docs/MAP_ALIGNMENT_EDITOR.md`
 - `docs/MAP_AUTHORING.md`
 - `docs/MAP_CONVERSION_PLAN.md`
 - `docs/MATERIAL_STYLE_LOCK_KIT.md`

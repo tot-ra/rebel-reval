@@ -331,6 +331,20 @@ Center district converted to a programmatic map host without that ext_resource. 
 
 ---
 
+## D-004a packaged release triage (2026-07-20)
+
+| Field | Detail |
+|-------|--------|
+| Scope | Release-build-only defects during packaged move-talk-pickup that do not reproduce under editor / `godot --path .` |
+| Evidence | [`d004a_release_only_triage.md`](./d004a_release_only_triage.md) |
+| Verdict | **No release-only gameplay defects remain** |
+| Tooling note | Pre-fix `tools/verify_packaged_demo.sh` passed `--path` to the release binary; official templates abort (`compiled without support for path overrides`). Fixed to launch with `--quit-after` only. |
+| Shared with editor | Packaged `--quit-after` still prints DEF-002 ObjectDB / resource leak lines |
+
+No new DEF IDs were opened for D-004a. Optional follow-ups: **D-004b** (human video), **D-004c** (in-binary packaged walkthrough without editor `--path`).
+
+---
+
 ## Defects considered but not elevated
 
 | Observation | Severity | Reason |
@@ -338,3 +352,4 @@ Center district converted to a programmatic map host without that ext_resource. 
 | Headless macOS export (`godot --headless --export-release "rr"`) | n/a (environment) | Historically failed on missing export templates on some hosts; CI macOS export smoke now covers the preset. |
 | Godot 4.4.1 missing `run` animation errors in `reval_east` | n/a (resolved) | Did not reproduce under Godot 4.7.1 (see `startup_baseline.md`). |
 | Per-frame player velocity `print` in `scripts/player.gd` | tracked as **P0-020** | Debug noise, not a blocking runtime failure. |
+| Release template rejects CLI `--path` / scene args | n/a (template limit) | Expected for official macOS release exports; players launch the `.app` without overrides. Documented under D-004a; verification script must not rely on path overrides. |

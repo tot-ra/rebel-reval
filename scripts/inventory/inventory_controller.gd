@@ -52,6 +52,9 @@ func open() -> void:
 	var journal := get_parent().get_node_or_null("JournalController") as JournalController
 	if journal != null:
 		journal.close()
+	var world_map := get_parent().get_node_or_null("WorldMapController") as WorldMapController
+	if world_map != null:
+		world_map.close()
 	_overlay.open()
 
 

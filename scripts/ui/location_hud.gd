@@ -11,6 +11,23 @@ const DISPLAY_NAMES_BY_MAP: Dictionary = {
 	&"south_quarter": "Southern District",
 	&"toompea_quarter": "Toompea",
 	&"st_olafs_guild_hall": "St. Olaf's Guild Hall",
+	&"reval_harbor_north": "North Harbour",
+	&"reval_harbor_east": "East Harbour",
+	&"reval_harbor": "Reval Harbour",
+	&"harbor_warehouse": "Harbour Warehouse",
+}
+
+## Transition-manifest scene IDs (DoorNavigator) mapped to the same curated labels.
+const DISPLAY_NAMES_BY_SCENE: Dictionary = {
+	&"forge": "Kalev's Smithy",
+	&"reval_east": "Eastern District",
+	&"reval_center": "Central District",
+	&"reval_north": "Northern District",
+	&"reval_south": "Southern District",
+	&"reval_toompea": "Toompea",
+	&"st_olafs_guild_hall": "St. Olaf's Guild Hall",
+	&"reval_harbor_north": "North Harbour",
+	&"reval_harbor_east": "East Harbour",
 	&"reval_harbor": "Reval Harbour",
 	&"harbor_warehouse": "Harbour Warehouse",
 }
@@ -33,6 +50,13 @@ static func display_name_for(definition: MapDefinition) -> String:
 	# Prototype and future maps still get a useful label until a curated HUD name
 	# is added above. Map IDs are preferred because they describe the current scene.
 	return _humanize_id(definition.map_id)
+
+
+static func display_name_for_scene(scene_id: StringName) -> String:
+	var authored_name := String(DISPLAY_NAMES_BY_SCENE.get(scene_id, ""))
+	if not authored_name.is_empty():
+		return authored_name
+	return _humanize_id(scene_id)
 
 
 static func _humanize_id(value: StringName) -> String:

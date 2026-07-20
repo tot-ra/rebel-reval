@@ -50,6 +50,9 @@ func open() -> void:
 	var inventory := get_parent().get_node_or_null("InventoryController") as InventoryController
 	if inventory != null:
 		inventory.close()
+	var world_map := get_parent().get_node_or_null("WorldMapController") as WorldMapController
+	if world_map != null:
+		world_map.close()
 	_overlay.configure(SessionState.state, SessionState.content_db)
 	_overlay.open()
 

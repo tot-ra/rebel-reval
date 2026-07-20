@@ -22,6 +22,7 @@ func test_menu_exposes_named_player_actions() -> void:
 
 	var inventory := menu.find_child("InventoryButton", true, false) as Button
 	var journal := menu.find_child("JournalButton", true, false) as Button
+	var world_map := menu.find_child("WorldMapButton", true, false) as Button
 	var camera := menu.find_child("CameraButton", true, false) as Button
 	var iron := menu.find_child("IronTechniqueButton", true, false) as Button
 	var save := menu.find_child("SaveButton", true, false) as Button
@@ -30,11 +31,13 @@ func test_menu_exposes_named_player_actions() -> void:
 
 	assert_true(inventory != null, "quick access must visibly expose inventory")
 	assert_true(journal != null, "quick access must visibly expose journal")
+	assert_true(world_map != null, "quick access must visibly expose district map")
 	assert_true(camera != null, "quick access must visibly expose camera toggle")
 	assert_true(iron != null, "quick access must visibly expose Iron technique toggle")
 	assert_true(save != null, "quick access must visibly expose manual save")
 	assert_eq(inventory.text, "Inventory [I]")
 	assert_eq(journal.text, "Journal [J]")
+	assert_eq(world_map.text, "Districts [M]")
 	assert_eq(camera.text, "Camera [C]")
 	assert_eq(iron.text, "Iron")
 	assert_eq(save.text, "Save game")
@@ -64,6 +67,7 @@ func test_documented_shortcuts_stay_available() -> void:
 	assert_true(_action_has_physical_key(&"toggle_inventory", KEY_I), "inventory shortcut must remain I")
 	assert_true(_action_has_physical_key(&"toggle_journal", KEY_J), "journal shortcut must remain J")
 	assert_true(_action_has_physical_key(&"toggle_camera_view", KEY_C), "camera shortcut must remain C")
+	assert_true(_action_has_physical_key(&"toggle_world_map", KEY_M), "district map shortcut must remain M")
 
 
 func test_inventory_and_journal_buttons_reuse_exclusive_overlays() -> void:

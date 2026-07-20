@@ -12,6 +12,10 @@ Coordination note (2026-07-20 P0-062b): restored multi-street walkable patrols o
 
 Coordination note (2026-07-20 D-004 closeout): packaged demo gate closed. Verified: `--filter=test_demo_walkthrough` (2/2), `tools/verify_packaged_demo.sh` export + packaged launch, and frame walkthrough linked from `README.md` / `docs/reports/demo_walkthrough_d004.md`. Follow-ups: D-004a (release-only defect notes) and optional D-004b (human video capture).
 
+Coordination note (2026-07-20 D-004a): no release-only move-talk-pickup defects remain. Packaged `--quit-after` launch is green without `--path`; `verify_packaged_demo.sh` no longer probes release binaries with path overrides; triage in `docs/reports/d004a_release_only_triage.md`. Optional follow-ups: D-004b (human video), D-004c (in-binary packaged walkthrough).
+
+Coordination note (2026-07-20 P1-031): district/world map overlay on every `player.tscn` host; `toggle_world_map` (M) plus quick-access `Districts [M]`; graph nodes/edges match `DoorNavigator` active manifest; `--filter=test_world_map_overlay` passes 5/5. Optional click-to-travel is **P1-031a**.
+
 Coordination note (2026-07-20 P0-067a): retained `MAP_CHUNK_BOUNDARY_AMBIGUOUS` warnings on `north_quarter`, `south_quarter`, `toompea_quarter`, and `reval_harbor` are owned in `docs/reports/map_chunk_boundary_review_p0_067a.md` with ADR 0010 ownership; audit still prints the warnings. Slice-map follow-up is **P0-067b**.
 
 Coordination note (2026-07-20 P0-067b): retained `MAP_CHUNK_BOUNDARY_AMBIGUOUS` warnings on playable slice maps `kalev_smithy` and `lower_town_slice`, plus registry leftover `market_civic_quarter`, are owned in `docs/reports/map_chunk_boundary_review_p0_067b.md` with ADR 0010 ownership; audit still prints the warnings. Object chunk streaming on slice maps stays non-production until **P0-067c**.
@@ -87,7 +91,7 @@ Required exit condition for the packaging gate: clean clone import, startup smok
 ### 5. Resume vertical-slice systems only after the baseline is green
 
 1. **P1-025 through P1-027** - add enemies, non-lethal outcomes, and retry state (enemy state machine is **P1-025**, done; room wiring **P1-025a** is done; night stub **P1-025b** is done; outcomes **P1-026** are done; retry checkpoint **P1-027** is done; night-scene retry wiring **P1-027a** is done; content outcome package **P1-026a** is done; night-stub outcome UI from content **P1-026b** is done).
-2. **P1-022** follows P0-040; **P1-031** is independent but remains behind demo packaging.
+2. **P1-022** follows P0-040; **P1-031** district map overlay is done; click-to-travel polish is **P1-031a**.
 3. Then build the authored slice in order: P2-006 tutorial, P2-007 investigation, P2-008 forge choice, P2-009 night consequence, P2-010 aftermath, P2-011 reflection, P2-012 end-to-end slice.
 
 ## Demo - MVP playable demo (highest priority)
@@ -162,7 +166,8 @@ Goal: a small runnable demo proving the ADR 0007 look and the core interaction l
 - [ ] P1-028 | deps: P1-024 | deliverable: remappable keyboard/mouse and gamepad actions with focus navigation | verify: all slice actions can be rebound and completed on both input methods
 - [ ] P1-029 | deps: P0-040 | deliverable: automated asset lint for texture dimensions and seamless tiling, texel density, naming, mesh pivots and character scale, portrait dimensions, and source-manifest provenance rows | verify: valid fixture passes and one seeded error per rule fails CI
 - [ ] P1-030 | deps: none | deliverable: repeatable performance scene and report command | verify: command reports frame time, memory, actor count, and target hardware metadata
-- [ ] P1-031 | deps: none | deliverable: world/scene map overlay showing the current scene and how authored scenes are connected, toggleable with the `M` input action (default keyboard key `M`) | verify: pressing `M` opens and closes the overlay from every playable scene, highlights the current scene, and displays connections matching the active transition manifest with no missing or stale scene nodes
+- [x] P1-031 | deps: none | deliverable: world/scene map overlay showing the current scene and how authored scenes are connected, toggleable with the `M` input action (default keyboard key `M`) | verify: pressing `M` opens and closes the overlay from every playable scene, highlights the current scene, and displays connections matching the active transition manifest with no missing or stale scene nodes
+- [ ] P1-031a | deps: P1-031 | deliverable: mouse click on a connected district-map node travels through `DoorNavigator` to a registered default spawn for that edge while the current-scene node stays non-interactive | verify: headless test selects a neighbor of `reval_east` or `forge` and records `go_to_scene` with an active manifest spawn; unknown/disconnected nodes do not travel
 - [x] P1-032 | deps: none | deliverable: in-scene minimap HUD for every `MapSceneBootstrap` map showing terrain, blocked areas, exits, and live player position, toggleable with the `toggle_minimap` input action (default keyboard key `N`) | verify: minimap appears in the bottom-right corner on forge and Lower Town maps, tracks player movement, marks transition exits, and toggles with `N`; `godot --headless --path . --script tools/run_godot_tests.gd` includes `tests/godot/test_minimap.gd`
 - [x] P1-033 | deps: none | deliverable: persistent in-game quick-access menu exposing the existing inventory, journal, and manual save through visible mouse controls while retaining the `I` and `J` shortcuts | verify: every scene using `player.tscn` displays Inventory, Journal, and Save game actions; mouse activation opens or saves the existing systems, direct shortcuts remain functional, and inventory and journal cannot overlap
 

@@ -25,6 +25,10 @@ godot --path . res://tools/capture_demo_walkthrough_host.tscn
 ## Automated checks
 
 - Headless flow: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_demo_walkthrough`
-- Packaged macOS build: `tools/verify_packaged_demo.sh` exports `build/rr.dmg`, extracts `build/Reval Rebel.app`, and confirms the binary launches.
+- Packaged macOS build: `tools/verify_packaged_demo.sh` exports `build/rr.dmg`, extracts `build/Reval Rebel.app`, and launches the binary with `--quit-after` only (release templates reject `--path` and scene CLI args).
 
 Release builds omit the debug inspector (`OS.is_debug_build()` is false), so this loop matches packaged play without debug presets.
+
+## D-004a release-only triage
+
+No release-only move-talk-pickup defects remain. Method, packaged launch log, and tooling fix notes: [`d004a_release_only_triage.md`](./d004a_release_only_triage.md).

@@ -11,18 +11,20 @@ const STATUS_IRON_EQUIPPED := "Iron equipped"
 const STATUS_IRON_CLEARED := "Iron cleared"
 const PANEL_MARGIN := 24.0
 const PANEL_HEIGHT := 118.0
-const PANEL_WIDTH := 860.0
+const PANEL_WIDTH := 980.0
 const HELP_TEXT := (
 	"WASD or arrows - move | Click - travel | E - interact | "
-	+ "C - camera | N - map | I - inventory | J - journal | Iron - technique"
+	+ "C - camera | N - minimap | M - districts | I - inventory | J - journal | Iron - technique"
 )
 
 var _inventory_controller: InventoryController
 var _journal_controller: JournalController
+var _world_map_controller: WorldMapController
 var _save_callback: Callable
 
 var _inventory_button: Button
 var _journal_button: Button
+var _world_map_button: Button
 var _camera_button: Button
 var _technique_button: Button
 var _save_button: Button
@@ -106,6 +108,15 @@ func _build_ui() -> void:
 	_journal_button.pressed.connect(_on_journal_pressed)
 	actions.add_child(_journal_button)
 
+	# WHY (P1-031): district map must be mouse-reachable; M alone is not enough.
+	_world_map_button = _create_action_button(
+		"WorldMapButton",
+		"Districts [M]",
+		"Open the authored scene connection map"
+	)
+	_world_map_button.pressed.connect(_on_world_map_pressed)
+	actions.add_child(_world_map_button)
+
 	_camera_button = _create_action_button("CameraButton", "Camera [C]", "Toggle first-person view")
 	_camera_button.pressed.connect(_on_camera_pressed)
 	actions.add_child(_camera_button)
@@ -147,6 +158,8 @@ func _resolve_dependencies() -> void:
 		_inventory_controller = owner_node.get_node_or_null("InventoryController") as InventoryController
 	if _journal_controller == null:
 		_journal_controller = owner_node.get_node_or_null("JournalController") as JournalController
+	if _world_map_controller == null:
+		_world_map_controller = owner_node.get_node_or_null("WorldMapController") as WorldMapController
 	if not _save_callback.is_valid() and has_node("/root/SessionState"):
 		_save_callback = Callable(SessionState, "save_game")
 
@@ -156,6 +169,7 @@ func _refresh_availability() -> void:
 		return
 	_inventory_button.disabled = _inventory_controller == null
 	_journal_button.disabled = _journal_controller == null
+	_world_map_button.disabled = _world_map_controller == null
 	_camera_button.disabled = _find_map_view_runtime() == null
 	_technique_button.disabled = not has_node("/root/SessionState")
 	_save_button.disabled = not _save_callback.is_valid()
@@ -182,6 +196,8 @@ func _on_inventory_pressed() -> void:
 		return
 	if _journal_controller != null:
 		_journal_controller.close()
+	if _world_map_controller != null:
+		_world_map_controller.close()
 	_inventory_controller.toggle()
 	_status_label.text = "Inventory opened" if _inventory_controller.is_open() else STATUS_READY
 
@@ -191,8 +207,17 @@ func _on_journal_pressed() -> void:
 		return
 	if _inventory_controller != null:
 		_inventory_controller.close()
+	if _world_map_controller != null:
+		_world_map_controller.close()
 	_journal_controller.toggle()
 	_status_label.text = "Journal opened" if _journal_controller.is_open() else STATUS_READY
+
+
+func _on_world_map_pressed() -> void:
+	if _world_map_controller == null:
+		return
+	_world_map_controller.toggle()
+	_status_label.text = "District map opened" if _world_map_controller.is_open() else STATUS_READY
 
 
 func _on_camera_pressed() -> void:

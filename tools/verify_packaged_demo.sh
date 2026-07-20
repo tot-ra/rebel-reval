@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# D-004: export the macOS release build, prove it launches, and run the
-# automated move-talk-pickup checks plus optional frame capture.
+# D-004 / D-004a: export the macOS release build, prove it launches without
+# path overrides, and run the automated move-talk-pickup checks plus optional
+# frame capture.
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -8,6 +9,7 @@ BUILD_DIR="$ROOT_DIR/build"
 DMG_PATH="$BUILD_DIR/rr.dmg"
 APP_PATH="$BUILD_DIR/Reval Rebel.app"
 MOUNT_DIR="$(mktemp -d "${TMPDIR:-/tmp}/reval-rebel-d004.XXXXXX")"
+LAUNCH_LOG="$(mktemp "${TMPDIR:-/tmp}/reval-rebel-d004-launch.XXXXXX.log")"
 SKIP_CAPTURE="${SKIP_CAPTURE:-0}"
 SKIP_EXPORT="${SKIP_EXPORT:-0}"
 
@@ -25,6 +27,7 @@ fi
 cleanup() {
   hdiutil detach "$MOUNT_DIR" -quiet 2>/dev/null || true
   rmdir "$MOUNT_DIR" 2>/dev/null || true
+  rm -f "$LAUNCH_LOG"
 }
 trap cleanup EXIT
 
@@ -55,8 +58,10 @@ if [[ ! -d "$SOURCE_APP" ]]; then
 fi
 rm -rf "$APP_PATH"
 ditto "$SOURCE_APP" "$APP_PATH"
-cleanup
-trap - EXIT
+# Detach the DMG early; keep LAUNCH_LOG until the packaged probe finishes.
+hdiutil detach "$MOUNT_DIR" -quiet 2>/dev/null || true
+rmdir "$MOUNT_DIR" 2>/dev/null || true
+trap 'rm -f "$LAUNCH_LOG"' EXIT
 
 BINARY="$APP_PATH/Contents/MacOS/Reval Rebel"
 if [[ ! -x "$BINARY" ]]; then
@@ -64,24 +69,43 @@ if [[ ! -x "$BINARY" ]]; then
   exit 1
 fi
 
-echo "==> Launching packaged binary briefly (no debug inspector in release builds)"
-"$BINARY" --path "$ROOT_DIR" --quit-after 4 >/tmp/reval-rebel-d004-launch.log 2>&1 || true
-if ! grep -q "Godot Engine" /tmp/reval-rebel-d004-launch.log && ! grep -qi "Reval" /tmp/reval-rebel-d004-launch.log; then
-  # Packaged apps often write little to stdout; accept a live process launch instead.
-  open "$APP_PATH"
+# WHY: Official Godot macOS release templates compile with path overrides
+# disabled. Passing --path or a scene path aborts before the main scene loads.
+# Probe the packaged binary the same way a player launches it.
+echo "==> Launching packaged binary briefly (no --path / scene args; release templates reject path overrides)"
+set +e
+"$BINARY" --quit-after 6 >"$LAUNCH_LOG" 2>&1
+LAUNCH_EXIT=$?
+set -e
+
+if grep -q "compiled without support for path overrides" "$LAUNCH_LOG"; then
+  echo "Packaged launch incorrectly used path overrides (see $LAUNCH_LOG)." >&2
+  cat "$LAUNCH_LOG" >&2
+  exit 1
+fi
+
+if [[ "$LAUNCH_EXIT" -eq 0 ]] && grep -q "Godot Engine" "$LAUNCH_LOG"; then
+  echo "Packaged app launch ok: $APP_PATH"
+elif open "$APP_PATH"; then
+  # Some hosts suppress console output from .app binaries; accept a live process.
   sleep 4
   if ! pgrep -f "Reval Rebel.app/Contents/MacOS/Reval Rebel" >/dev/null; then
     echo "Packaged app failed to stay running after open." >&2
     exit 1
   fi
   pkill -f "Reval Rebel.app/Contents/MacOS/Reval Rebel" >/dev/null 2>&1 || true
+  echo "Packaged app launch ok via open: $APP_PATH"
+else
+  echo "Packaged app launch failed (exit $LAUNCH_EXIT). Log:" >&2
+  cat "$LAUNCH_LOG" >&2
+  exit 1
 fi
-echo "Packaged app launch ok: $APP_PATH"
 
 if [[ "$SKIP_CAPTURE" != "1" ]]; then
-  echo "==> Capturing walkthrough frames (rendering run)"
+  echo "==> Capturing walkthrough frames (rendering run via editor binary)"
   "$GODOT" --path "$ROOT_DIR" res://tools/capture_demo_walkthrough_host.tscn
 fi
 
 echo "D-004 packaged demo verification passed."
 echo "Walkthrough report: docs/reports/demo_walkthrough_d004.md"
+echo "Release-only triage: docs/reports/d004a_release_only_triage.md"
