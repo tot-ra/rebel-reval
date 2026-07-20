@@ -111,6 +111,7 @@ Inventory row count (data rows in the table below): **63**.
 | 68 | `scenes/comparison_room/diamond_isometric_8_direction.tscn` | partial | P0-035 legacy diamond-isometric/eight-direction variant; dev verification only. |
 | 69 | `tools/benchmarks/large_map_benchmark.tscn` | partial | CI large-map pipeline benchmark host; not player-facing. |
 | 70 | `tools/benchmarks/lower_town_scene_benchmark.tscn` | partial | CI Lower Town scene-load benchmark host; not player-facing. |
+| 71 | `tools/capture_demo_walkthrough_host.tscn` | partial | D-004 packaged demo walkthrough capture host; not player-facing. |
 
 ## Totals by folder
 
@@ -135,6 +136,7 @@ Inventory row count (data rows in the table below): **63**.
 | `scenes/tests/` | 0 | 3 | 0 | 0 | 3 |
 | `scenes/ui/` | 3 | 0 | 0 | 0 | 3 |
 | `scenes/world/` | 1 | 0 | 0 | 10 | 11 |
+| `tools/` | 0 | 1 | 0 | 0 | 1 |
 | `tools/benchmarks/` | 0 | 2 | 0 | 0 | 2 |
 | **All** | **25** | **22** | **3** | **20** | **70** |
 

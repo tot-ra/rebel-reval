@@ -326,6 +326,19 @@ Errors reject compiler output and make headless validation exit non-zero. Warnin
 | `MAP_CHUNK_BOUNDARY_AMBIGUOUS` | warning | Gameplay/blocking geometry crosses the future 16x16-cell planning grid without explicit ownership. |
 | `MAP_COMPILE_ERROR`, `MAP_RUNTIME_CONTRACT`, `MAP_TRANSITION_REGISTRY_INVALID` | error | A lower-level compiler/runtime contract or validation registry failed. |
 
+### Owned `MAP_CHUNK_BOUNDARY_AMBIGUOUS` decisions (P0-067a)
+
+The 16x16 planning grid is a review aid (`MapBlueprintSemanticValidator.FUTURE_CHUNK_SIZE_CELLS`). It is not authored chunk identity and is not the runtime default chunk size (32x32 cells per [ADR 0010](./adr/0010-large-map-runtime-chunking.md) and `MapTerrainGrid.DEFAULT_CHUNK_SIZE_CELLS`).
+
+Retained warnings on inactive/dev-gated prototypes `north_quarter`, `south_quarter`, `toompea_quarter`, and `reval_harbor` are intentional. Each subject ID, planning-grid span, and ownership policy is recorded in [`docs/reports/map_chunk_boundary_review_p0_067a.md`](./reports/map_chunk_boundary_review_p0_067a.md). Summary of the owned decision:
+
+- Keep continuous historical footprints; do not suppress the warning code.
+- When object chunk streaming is used, owner chunk is the lexicographically smallest intersecting chunk under ADR 0010 section 4 (`MapChunkRuntimeIndex`).
+- Transitions stay persistent residency; stable IDs never encode chunk coordinates.
+- Do not activate these maps as chunk-streaming-dependent playable content until a later task splits the listed subjects or re-asserts ownership after human review.
+
+Slice maps `kalev_smithy` and `lower_town_slice` are outside P0-067a and remain follow-up `P0-067b`.
+
 Register every new blueprint factory in `scripts/map/map_blueprint_registry.gd`. Registry order is explicit and deterministic; filesystem discovery is forbidden. Put mandatory anchor IDs in the registry entry. The headless command compiles every entry, checks cross-map transitions and exact required-anchor reachability, prints stable codes, and exits `1` when any error exists:
 
 ```bash

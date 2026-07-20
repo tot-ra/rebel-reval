@@ -54,6 +54,7 @@ This matrix classifies current slice-relevant artifacts for migration toward the
 | `scenes/world/world_item.tscn` | `retain` | Pickup world-item component for D-003. |
 | `tools/benchmarks/large_map_benchmark.tscn` | `retain` | CI large-map pipeline benchmark host; not player-facing. |
 | `tools/benchmarks/lower_town_scene_benchmark.tscn` | `retain` | CI Lower Town scene-load benchmark host; not player-facing. |
+| `tools/capture_demo_walkthrough_host.tscn` | `retain` | D-004 packaged demo walkthrough capture host; not player-facing. |
 
 ## TileSets
 
