@@ -17,6 +17,17 @@ The `RRMap Alignment` Godot editor plugin provides a read-only visual workspace 
 - Maps without a reciprocal link, such as interiors or isolated prototypes, remain visible on a separate shelf below the connected graph.
 - **Fit all** frames every visible layer. Fit is reapplied after the Godot main screen receives its final size, avoiding the small top-of-canvas result caused by fitting during plugin construction.
 
+## Add a reference background
+
+1. Click **Add background** in the toolbar or **Choose image** under **Reference background**.
+2. Choose a PNG, JPEG, WebP, SVG, or BMP image. It is rendered below every loaded map, so the `.rrmap` layers remain visible on top.
+3. Adjust **BG opacity** and **Scale**, then use the numeric **X** and **Y** fields for exact placement in world pixels.
+4. Enable **Move background** to left-drag the image or move it with the arrow keys. Shift+arrow moves it by ten pixels. While this mode is enabled, middle-drag still pans the complete canvas.
+5. Toggle **Background visible** to compare with and without the target, or click **Clear** to remove it.
+6. **Fit all** frames the visible background together with all visible maps. **Export PNG** includes the background.
+
+The selected image and its transform are temporary workspace state and are not copied into the project or written to `.rrmap` sources.
+
 ## Inspect and adjust layers
 
 1. Select a loaded layer from the sidebar or click its map rectangle on the canvas.

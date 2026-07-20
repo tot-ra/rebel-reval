@@ -3,14 +3,18 @@ class_name MapAlignmentCanvas
 extends Control
 
 ## Semantic multi-map renderer. Compiled definitions remain authoritative; this
-## canvas only stores temporary editor offsets, visibility, and opacity.
+## canvas only stores temporary editor offsets, visibility, opacity, and an
+## optional reference background transform.
 
 signal view_changed
 signal selected_layer_changed(map_id: StringName)
+signal background_changed
 
 const MARGIN := 48.0
 const MIN_ZOOM := 0.01
 const MAX_ZOOM := 4.0
+const MIN_BACKGROUND_SCALE := 0.01
+const MAX_BACKGROUND_SCALE := 100.0
 const GRID_MIN_SCREEN_PX := 10.0
 const ACCENTS: Array[Color] = [
 	Color("f5c451"), Color("55bce8"), Color("e879a9"), Color("79d279"),
@@ -23,10 +27,17 @@ var selected_map_id: StringName = &""
 var show_grid := true
 var show_ids := false
 var show_features := true
+var background_texture: Texture2D
+var background_path := ""
+var background_offset := Vector2.ZERO
+var background_scale := 1.0
+var background_opacity := 0.55
+var background_visible := true
+var edit_background := false
 
 var _zoom := 0.12
 var _pan := Vector2.ZERO
-var _dragging := false
+var _drag_mode := &""
 var _last_mouse := Vector2.ZERO
 var _fit_requested := false
 
@@ -124,6 +135,71 @@ func selected_offset() -> Vector2:
 	return Vector2(layer(selected_map_id).get("offset", Vector2.ZERO))
 
 
+func set_background(texture: Texture2D, path: String) -> void:
+	background_texture = texture
+	background_path = path
+	background_offset = Vector2.ZERO
+	background_scale = 1.0
+	background_visible = true
+	queue_redraw()
+	background_changed.emit()
+	view_changed.emit()
+
+
+func clear_background() -> void:
+	background_texture = null
+	background_path = ""
+	background_offset = Vector2.ZERO
+	background_scale = 1.0
+	edit_background = false
+	queue_redraw()
+	background_changed.emit()
+	view_changed.emit()
+
+
+func has_background() -> bool:
+	return background_texture != null
+
+
+func set_background_visible(visible: bool) -> void:
+	background_visible = visible
+	queue_redraw()
+	background_changed.emit()
+	view_changed.emit()
+
+
+func set_background_opacity(opacity: float) -> void:
+	background_opacity = clampf(opacity, 0.0, 1.0)
+	queue_redraw()
+	background_changed.emit()
+
+
+func set_background_scale(scale_value: float) -> void:
+	background_scale = clampf(scale_value, MIN_BACKGROUND_SCALE, MAX_BACKGROUND_SCALE)
+	queue_redraw()
+	background_changed.emit()
+	view_changed.emit()
+
+
+func set_background_offset(offset: Vector2) -> void:
+	background_offset = offset
+	queue_redraw()
+	background_changed.emit()
+	view_changed.emit()
+
+
+func nudge_background(delta: Vector2) -> void:
+	if not has_background():
+		return
+	set_background_offset(background_offset + delta)
+
+
+func background_world_rect() -> Rect2:
+	if not has_background():
+		return Rect2()
+	return Rect2(background_offset, background_texture.get_size() * background_scale)
+
+
 func request_fit() -> void:
 	_fit_requested = true
 	call_deferred("_apply_requested_fit")
@@ -145,6 +221,9 @@ func fit_to_maps() -> void:
 func visible_world_bounds() -> Rect2:
 	var result := Rect2()
 	var has_bounds := false
+	if has_background() and background_visible:
+		result = background_world_rect()
+		has_bounds = result.has_area()
 	for candidate in layers:
 		if not bool(candidate["visible"]):
 			continue
@@ -180,24 +259,34 @@ func _gui_input(event: InputEvent) -> void:
 			accept_event()
 		elif button.button_index == MOUSE_BUTTON_LEFT:
 			if button.pressed:
-				_select_layer_at(button.position)
-			_dragging = button.pressed
+				if edit_background and has_background():
+					_drag_mode = &"background"
+				else:
+					_select_layer_at(button.position)
+					_drag_mode = &"pan"
+			else:
+				_drag_mode = &""
 			_last_mouse = button.position
 			accept_event()
 		elif button.button_index == MOUSE_BUTTON_MIDDLE:
-			_dragging = button.pressed
+			_drag_mode = &"pan" if button.pressed else &""
 			_last_mouse = button.position
 			accept_event()
-	elif event is InputEventMouseMotion and _dragging:
+	elif event is InputEventMouseMotion and not _drag_mode.is_empty():
 		var motion := event as InputEventMouseMotion
-		_pan += motion.position - _last_mouse
+		var screen_delta := motion.position - _last_mouse
+		if _drag_mode == &"background":
+			# Background geometry uses world pixels, so compensate for view zoom.
+			set_background_offset(background_offset + screen_delta / _zoom)
+		else:
+			_pan += screen_delta
+			queue_redraw()
+			view_changed.emit()
 		_last_mouse = motion.position
-		queue_redraw()
-		view_changed.emit()
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not is_visible_in_tree() or selected_map_id.is_empty():
+	if not is_visible_in_tree():
 		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		var key := event as InputEventKey
@@ -210,7 +299,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		if delta != Vector2i.ZERO:
 			if key.shift_pressed:
 				delta *= 10
-			nudge_selected(delta)
+			if edit_background and has_background():
+				nudge_background(Vector2(delta))
+			elif not selected_map_id.is_empty():
+				nudge_selected(delta)
+			else:
+				return
 			get_viewport().set_input_as_handled()
 
 
@@ -236,8 +330,11 @@ func _zoom_at(screen_point: Vector2, factor: float) -> void:
 
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), Color8(26, 28, 32), true)
+	if has_background() and background_visible:
+		_draw_background()
 	if layers.is_empty():
-		_draw_center_message("Select maps and click Load selected, or click Load all maps")
+		if not has_background():
+			_draw_center_message("Add a background or load maps to start aligning")
 		return
 	for candidate in layers:
 		if bool(candidate["visible"]):
@@ -245,6 +342,13 @@ func _draw() -> void:
 	if show_grid:
 		_draw_grid()
 	_draw_seams()
+
+
+func _draw_background() -> void:
+	var screen_rect := _screen_rect(background_world_rect())
+	draw_texture_rect(background_texture, screen_rect, false, Color(1.0, 1.0, 1.0, background_opacity))
+	if edit_background:
+		draw_rect(screen_rect, Color(0.25, 0.75, 1.0, 0.95), false, 3.0)
 
 
 func _draw_map(map_layer: Dictionary) -> void:

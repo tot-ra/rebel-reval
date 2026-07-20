@@ -3,7 +3,7 @@ class_name MapAlignmentWorkspace
 extends VBoxContainer
 
 ## Main-screen multi-map workspace. Source files remain authoritative and the
-## editor stores only temporary layout, visibility, and opacity state.
+## editor stores only temporary map-layer and reference-background state.
 
 const DEFAULT_EXPORT_DIR := "res://build/map_alignment"
 
@@ -17,6 +17,15 @@ var _status: Label
 var _canvas: MapAlignmentCanvas
 var _blink_timer: Timer
 var _export_dialog: FileDialog
+var _background_dialog: FileDialog
+var _background_path_label: Label
+var _background_visible_toggle: CheckButton
+var _background_move_toggle: CheckButton
+var _background_opacity_slider: HSlider
+var _background_opacity_label: Label
+var _background_scale_spin: SpinBox
+var _background_x_spin: SpinBox
+var _background_y_spin: SpinBox
 var _blink_enabled := false
 var _blink_visible := true
 var _map_paths: Array[String] = []
@@ -41,6 +50,7 @@ func _build_ui() -> void:
 	add_child(toolbar)
 	_add_button(toolbar, "Load selected", _load_selected_maps, "Load every map selected in the source list")
 	_add_button(toolbar, "Load all maps", _load_all_maps, "Load and arrange every .rrmap source")
+	_add_button(toolbar, "Add background", _choose_background, "Choose a reference image to render beneath every map")
 	_add_button(toolbar, "Refresh files", _refresh_maps)
 	_add_button(toolbar, "Auto-layout", _auto_layout, "Rebuild the connected map graph from reciprocal transitions")
 	_add_button(toolbar, "Fit all", func() -> void: _canvas.request_fit())
@@ -56,17 +66,22 @@ func _build_ui() -> void:
 	split.split_offset = 290
 	add_child(split)
 
+	var sidebar_scroll := ScrollContainer.new()
+	sidebar_scroll.custom_minimum_size.x = 250.0
+	sidebar_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	sidebar_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	split.add_child(sidebar_scroll)
 	var sidebar := VBoxContainer.new()
 	sidebar.custom_minimum_size.x = 250.0
+	sidebar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	sidebar.add_theme_constant_override("separation", 6)
-	split.add_child(sidebar)
+	sidebar_scroll.add_child(sidebar)
 	var source_title := Label.new()
 	source_title.text = "Map sources (Cmd/Ctrl or Shift to multi-select)"
 	source_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	sidebar.add_child(source_title)
 	_source_list = ItemList.new()
 	_source_list.select_mode = ItemList.SELECT_MULTI
-	_source_list.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_source_list.custom_minimum_size.y = 180.0
 	sidebar.add_child(_source_list)
 
@@ -134,6 +149,7 @@ func _build_ui() -> void:
 		_canvas.queue_redraw()
 	)
 	sidebar.add_child(id_toggle)
+	_build_background_controls(sidebar)
 
 	_canvas = MapAlignmentCanvas.new()
 	_canvas.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -141,6 +157,7 @@ func _build_ui() -> void:
 	_canvas.custom_minimum_size = Vector2(480, 300)
 	_canvas.view_changed.connect(_update_status)
 	_canvas.selected_layer_changed.connect(_on_canvas_layer_selected)
+	_canvas.background_changed.connect(_sync_background_controls)
 	split.add_child(_canvas)
 
 	_status = Label.new()
@@ -159,6 +176,13 @@ func _build_ui() -> void:
 	_export_dialog.add_filter("*.png", "PNG image")
 	_export_dialog.file_selected.connect(_export_png)
 	add_child(_export_dialog)
+	_background_dialog = FileDialog.new()
+	_background_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+	_background_dialog.access = FileDialog.ACCESS_FILESYSTEM
+	_background_dialog.add_filter("*.png,*.jpg,*.jpeg,*.webp,*.svg,*.bmp", "Image files")
+	_background_dialog.file_selected.connect(_load_background)
+	add_child(_background_dialog)
+	_sync_background_controls()
 
 
 func _add_button(parent: Control, text: String, action: Callable, tooltip := "") -> void:
@@ -167,6 +191,100 @@ func _add_button(parent: Control, text: String, action: Callable, tooltip := "")
 	button.tooltip_text = tooltip
 	button.pressed.connect(action)
 	parent.add_child(button)
+
+
+func _build_background_controls(sidebar: VBoxContainer) -> void:
+	var separator := HSeparator.new()
+	sidebar.add_child(separator)
+	var title := Label.new()
+	title.text = "Reference background"
+	sidebar.add_child(title)
+	_background_path_label = Label.new()
+	_background_path_label.text = "No image selected"
+	_background_path_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	_background_path_label.tooltip_text = "No image selected"
+	sidebar.add_child(_background_path_label)
+
+	var actions := HBoxContainer.new()
+	sidebar.add_child(actions)
+	_add_button(actions, "Choose image", _choose_background)
+	_add_button(actions, "Clear", _clear_background)
+
+	_background_visible_toggle = CheckButton.new()
+	_background_visible_toggle.text = "Background visible"
+	_background_visible_toggle.button_pressed = true
+	_background_visible_toggle.toggled.connect(func(value: bool) -> void:
+		_canvas.set_background_visible(value)
+	)
+	sidebar.add_child(_background_visible_toggle)
+	_background_move_toggle = CheckButton.new()
+	_background_move_toggle.text = "Move background"
+	_background_move_toggle.tooltip_text = "Left-drag or use arrows to move the background; middle-drag still pans"
+	_background_move_toggle.toggled.connect(func(value: bool) -> void:
+		_canvas.edit_background = value
+		_canvas.queue_redraw()
+		_update_status()
+	)
+	sidebar.add_child(_background_move_toggle)
+
+	var opacity_row := HBoxContainer.new()
+	sidebar.add_child(opacity_row)
+	var opacity_text := Label.new()
+	opacity_text.text = "BG opacity"
+	opacity_row.add_child(opacity_text)
+	_background_opacity_slider = HSlider.new()
+	_background_opacity_slider.min_value = 0.0
+	_background_opacity_slider.max_value = 1.0
+	_background_opacity_slider.step = 0.05
+	_background_opacity_slider.value = 0.55
+	_background_opacity_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_background_opacity_slider.value_changed.connect(func(value: float) -> void:
+		_canvas.set_background_opacity(value)
+		_background_opacity_label.text = "%d%%" % roundi(value * 100.0)
+	)
+	opacity_row.add_child(_background_opacity_slider)
+	_background_opacity_label = Label.new()
+	_background_opacity_label.text = "55%"
+	opacity_row.add_child(_background_opacity_label)
+
+	var transform_grid := GridContainer.new()
+	transform_grid.columns = 2
+	sidebar.add_child(transform_grid)
+	_background_scale_spin = _add_background_spin(transform_grid, "Scale", 0.01, 100.0, 0.01, 1.0)
+	_background_scale_spin.value_changed.connect(func(value: float) -> void:
+		_canvas.set_background_scale(value)
+	)
+	_background_x_spin = _add_background_spin(transform_grid, "X", -1000000.0, 1000000.0, 1.0, 0.0)
+	_background_x_spin.value_changed.connect(func(value: float) -> void:
+		_canvas.set_background_offset(Vector2(value, _background_y_spin.value))
+	)
+	_background_y_spin = _add_background_spin(transform_grid, "Y", -1000000.0, 1000000.0, 1.0, 0.0)
+	_background_y_spin.value_changed.connect(func(value: float) -> void:
+		_canvas.set_background_offset(Vector2(_background_x_spin.value, value))
+	)
+
+
+func _add_background_spin(
+	parent: GridContainer,
+	label_text: String,
+	minimum: float,
+	maximum: float,
+	step: float,
+	initial_value: float
+) -> SpinBox:
+	var label := Label.new()
+	label.text = label_text
+	parent.add_child(label)
+	var spin := SpinBox.new()
+	spin.min_value = minimum
+	spin.max_value = maximum
+	spin.step = step
+	spin.value = initial_value
+	spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	spin.allow_greater = true
+	spin.allow_lesser = true
+	parent.add_child(spin)
+	return spin
 
 
 func _refresh_maps() -> void:
@@ -303,8 +421,60 @@ func _blink_tick() -> void:
 	_canvas.set_selected_opacity(_opacity_slider.value if _blink_visible else 0.03)
 
 
+func _choose_background() -> void:
+	_background_dialog.popup_centered_ratio(0.75)
+
+
+func _load_background(path: String) -> void:
+	var image := Image.new()
+	var error := image.load(path)
+	if error != OK or image.is_empty():
+		_status.text = "Could not load background image %s: %s" % [path, error_string(error)]
+		return
+	_canvas.set_background(ImageTexture.create_from_image(image), path)
+	_canvas.request_fit()
+	_status.text = "Loaded reference background %s (%d x %d px)." % [path.get_file(), image.get_width(), image.get_height()]
+
+
+func _clear_background() -> void:
+	_canvas.clear_background()
+	_sync_background_controls()
+	_update_status()
+
+
+func _sync_background_controls() -> void:
+	if _canvas == null:
+		return
+	var has_image := _canvas.has_background()
+	var display_path := _canvas.background_path if has_image else "No image selected"
+	_background_path_label.text = display_path.get_file() if has_image else display_path
+	_background_path_label.tooltip_text = display_path
+	_background_visible_toggle.disabled = not has_image
+	_background_move_toggle.disabled = not has_image
+	_background_opacity_slider.editable = has_image
+	_background_scale_spin.editable = has_image
+	_background_x_spin.editable = has_image
+	_background_y_spin.editable = has_image
+	_background_visible_toggle.set_pressed_no_signal(_canvas.background_visible)
+	_background_move_toggle.set_pressed_no_signal(_canvas.edit_background)
+	_background_opacity_slider.set_value_no_signal(_canvas.background_opacity)
+	_background_opacity_label.text = "%d%%" % roundi(_canvas.background_opacity * 100.0)
+	_background_scale_spin.set_value_no_signal(_canvas.background_scale)
+	_background_x_spin.set_value_no_signal(_canvas.background_offset.x)
+	_background_y_spin.set_value_no_signal(_canvas.background_offset.y)
+
+
 func _update_status() -> void:
+	var background_summary := "no background"
+	if _canvas.has_background():
+		background_summary = "background %s at (%.0f, %.0f), scale %.3f" % [
+			_canvas.background_path.get_file(),
+			_canvas.background_offset.x,
+			_canvas.background_offset.y,
+			_canvas.background_scale,
+		]
 	if _definitions.is_empty():
+		_status.text = "%s. Add/load maps, or adjust the background with its controls." % background_summary
 		return
 	var mismatch_count := 0
 	for seam in _seams:
@@ -315,8 +485,10 @@ func _update_status() -> void:
 	if not selected.is_empty():
 		var definition: MapDefinition = selected["definition"]
 		offset_cells = Vector2(selected["offset"]) / float(definition.cell_size)
-	_status.text = "%d maps | %d reciprocal seams | %d width mismatches | selected: %s at (%.1f, %.1f) cells. Wheel: zoom, drag: pan, arrows: move selected (Shift: 10)." % [
-		_definitions.size(), _seams.size(), mismatch_count, _canvas.selected_map_id, offset_cells.x, offset_cells.y,
+	var interaction_hint := "left-drag/arrows: move background; middle-drag: pan" if _canvas.edit_background else "drag: pan; arrows: move selected"
+	_status.text = "%d maps | %d reciprocal seams | %d width mismatches | %s | selected: %s at (%.1f, %.1f) cells. Wheel: zoom, %s (Shift: 10)." % [
+		_definitions.size(), _seams.size(), mismatch_count, background_summary,
+		_canvas.selected_map_id, offset_cells.x, offset_cells.y, interaction_hint,
 	]
 
 
