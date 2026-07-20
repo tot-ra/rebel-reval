@@ -131,11 +131,15 @@ The repository currently has:
 
 - a Godot 4.7 project with a main menu, player movement, scene transitions, the converted Lower Town slice rendering through the 3D orthographic view layer, and the persistent quick-access menu;
 - **D-003 complete:** walkable eastern slice with the Kalev rig, Mart conversation, anvil spearhead pickup into the bag UI, and session re-entry that keeps placement/ownership in `GameState`;
-- **D-004 open:** package that demo flow through the desktop export preset and capture a walkthrough linked from this README (export smoke alone is not enough);
+- **D-004 complete:** macOS `rr` export produces a runnable `build/rr.dmg` / `Reval Rebel.app`, the move-talk-pickup loop is proven without debug presets, and the frame walkthrough is linked below;
 - inactive contract-tested outdoor map prototypes (market/civic, north, south, Toompea, and others) awaiting act-gated activation;
 - documented headless import and playable-room smoke checks, a hardened Godot test harness, schemas and Python validation for authored content, map-pipeline gates, and CI for the engine pin, content, tests, imports, and export smoke.
 
 Vertical-slice systems beyond the demo loop (full combat room, enemies, night consequence, faction ledger) remain incomplete. Delivery order is strict: **playable demo → vertical-slice MVP → Act 1 → Act 2 → Act 3**, and the next work is deliberately ordered in [`TODO.md`](./TODO.md); legacy documents do not silently expand that scope.
+
+### Demo walkthrough (D-004)
+
+Packaged macOS demo proof and frame sequence: [`docs/reports/demo_walkthrough_d004.md`](./docs/reports/demo_walkthrough_d004.md). Reproduce with `tools/verify_packaged_demo.sh`.
 
 ## Run the project
 

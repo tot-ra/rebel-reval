@@ -216,3 +216,13 @@ To perform only a headless export:
 ```bash
 mkdir -p build && godot --headless --export-release "rr" ./build/rr.dmg
 ```
+
+### Packaged demo walkthrough (D-004)
+
+Export the macOS build, prove packaged launch, run the headless move-talk-pickup proof, and refresh the frame walkthrough:
+
+```bash
+tools/verify_packaged_demo.sh
+```
+
+Frame report: [`docs/reports/demo_walkthrough_d004.md`](./reports/demo_walkthrough_d004.md). Set `SKIP_EXPORT=1` or `SKIP_CAPTURE=1` to reuse an existing DMG or skip PNG regeneration.

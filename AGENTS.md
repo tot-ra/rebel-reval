@@ -32,9 +32,8 @@ These paths are named in [`README.md`](./README.md) but do not exist in the repo
 - **Autoload:** `DoorNavigator` (`scripts/global/doorNavigator.gd`) - scene cache and transitions via `content/transitions/active_destinations.json` (stable scene/spawn ids), not hard-coded `scene_paths`
 - **Main scene:** `scenes/menu/main_menu.tscn`
 - **Playable demo path:** main menu → Lower Town (`reval_east`) → forge; Mart conversation and anvil spearhead pickup (D-003) work on that loop
-- **Implemented today:** movement, manifest transitions, Interactable focus/prompt, session `GameState`, inventory/journal overlays, quick-access menu, phase director hooks, content validation, map pipeline, save service APIs with tests
-- **Not packaged yet:** D-004 desktop walkthrough of move-talk-pickup without debug intervention
-- **Not complete for vertical slice:** full combat room, enemies, night consequence, faction ledger; see `TODO.md`
+- **Implemented today:** movement, manifest transitions, Interactable focus/prompt, session `GameState`, inventory/journal overlays, quick-access menu, phase director hooks, content validation, map pipeline, save service APIs with tests, packaged macOS demo export with D-004 walkthrough proof
+- **Open after packaging:** D-004a release-only defect notes; vertical-slice combat/enemies/night/faction work remains incomplete
 
 ### Coding conventions observed in the repository
 
