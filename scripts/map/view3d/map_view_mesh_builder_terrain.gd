@@ -27,6 +27,7 @@ static func ensure_height_field(definition: MapDefinition, grid: MapTerrainGrid)
 		for x in grid.size_cells.x:
 			if MapViewMaterials.WATER_TERRAINS.has(grid.get_terrain(Vector2i(x, y))):
 				water[Vector2i(x, y)] = true
+	var water_factors := _bake_water_factors(water, grid.size_cells)
 	var water_contours := {}
 	for terrain_id in grid.used_terrain_ids():
 		if MapViewMaterials.WATER_TERRAINS.has(terrain_id):
@@ -35,7 +36,9 @@ static func ensure_height_field(definition: MapDefinition, grid: MapTerrainGrid)
 		"seed": definition.seed,
 		"size": grid.size_cells,
 		"rects": rects,
+		"rects_by_cell": _index_flatten_rects(rects, grid.size_cells),
 		"water": water,
+		"water_factors": water_factors,
 		"water_contours": water_contours,
 		# Enclosed interior shells keep gameplay on a flat logic plane; rolling
 		# outdoor relief would lift props and actors off the floor in 3D view.
@@ -44,6 +47,48 @@ static func ensure_height_field(definition: MapDefinition, grid: MapTerrainGrid)
 	_height_fields[key] = field
 	bake_vertices(field)
 	return field
+
+## Index level pads by the only cells they can influence. Height sampling runs for
+## every terrain subvertex, so scanning every building and transition there made
+## district startup O(vertices * map objects) even though the flatten radius is local.
+static func _index_flatten_rects(rects: Array[Rect2], size: Vector2i) -> Dictionary:
+	var indexed := {}
+	var influence := MapViewMeshBuilderConfig.FLATTEN_END
+	for rect in rects:
+		var affected := rect.grow(influence)
+		var start := Vector2i(
+			clampi(floori(affected.position.x), 0, size.x - 1),
+			clampi(floori(affected.position.y), 0, size.y - 1)
+		)
+		var finish := Vector2i(
+			clampi(ceili(affected.end.x), 0, size.x),
+			clampi(ceili(affected.end.y), 0, size.y)
+		)
+		for y in range(start.y, finish.y):
+			for x in range(start.x, finish.x):
+				var cell := Vector2i(x, y)
+				if not indexed.has(cell):
+					indexed[cell] = []
+				(indexed[cell] as Array).append(rect)
+	return indexed
+
+static func _bake_water_factors(water: Dictionary, size: Vector2i) -> PackedFloat32Array:
+	var factors := PackedFloat32Array()
+	factors.resize(size.x * size.y)
+	if water.is_empty():
+		factors.fill(1.0)
+		return factors
+	var radius := MapViewMeshBuilderConfig.WATER_FLATTEN_CELLS
+	for y in size.y:
+		for x in size.x:
+			var nearest := float(radius + 1)
+			var cell := Vector2i(x, y)
+			for oy in range(-radius, radius + 1):
+				for ox in range(-radius, radius + 1):
+					if water.has(cell + Vector2i(ox, oy)):
+						nearest = minf(nearest, maxf(absf(float(ox)), absf(float(oy))))
+			factors[y * size.x + x] = smoothstep(0.6, float(radius), nearest)
+	return factors
 
 
 ## Ground height (world units) of the visible terrain at a world XZ position.
@@ -103,7 +148,10 @@ static func pad_factor(field: Dictionary, position: Vector2) -> float:
 		minf(position.y, float(size.y) - position.y)
 	)
 	var factor := clampf(border / MapViewMeshBuilderConfig.BORDER_FLATTEN_CELLS, 0.0, 1.0)
-	for rect: Rect2 in field["rects"]:
+	var rects_by_cell: Dictionary = field.get("rects_by_cell", {})
+	var position_cell := Vector2i(floori(position.x), floori(position.y))
+	var nearby_rects: Array = rects_by_cell.get(position_cell, [])
+	for rect: Rect2 in nearby_rects:
 		var dx := maxf(maxf(rect.position.x - position.x, position.x - rect.end.x), 0.0)
 		var dy := maxf(maxf(rect.position.y - position.y, position.y - rect.end.y), 0.0)
 		var distance := Vector2(dx, dy).length()
@@ -114,16 +162,13 @@ static func pad_factor(field: Dictionary, position: Vector2) -> float:
 
 
 static func water_factor(field: Dictionary, position: Vector2) -> float:
-	var cell := Vector2i(floori(position.x), floori(position.y))
-	var water: Dictionary = field["water"]
-	if water.is_empty():
-		return 1.0
-	var nearest := float(MapViewMeshBuilderConfig.WATER_FLATTEN_CELLS + 1)
-	for oy in range(-MapViewMeshBuilderConfig.WATER_FLATTEN_CELLS, MapViewMeshBuilderConfig.WATER_FLATTEN_CELLS + 1):
-		for ox in range(-MapViewMeshBuilderConfig.WATER_FLATTEN_CELLS, MapViewMeshBuilderConfig.WATER_FLATTEN_CELLS + 1):
-			if water.has(cell + Vector2i(ox, oy)):
-				nearest = minf(nearest, maxf(absf(float(ox)), absf(float(oy))))
-	return smoothstep(0.6, float(MapViewMeshBuilderConfig.WATER_FLATTEN_CELLS), nearest)
+	var size: Vector2i = field["size"]
+	var cell := Vector2i(
+		clampi(floori(position.x), 0, size.x - 1),
+		clampi(floori(position.y), 0, size.y - 1)
+	)
+	var factors: PackedFloat32Array = field["water_factors"]
+	return factors[cell.y * size.x + cell.x]
 
 
 ## Shared sub-cell vertex positions and normals: lateral jitter bends terrain
@@ -194,19 +239,11 @@ static func build_terrain(definition: MapDefinition, grid: MapTerrainGrid) -> No
 	var root := Node3D.new()
 	root.name = "Terrain"
 	var field := ensure_height_field(definition, grid)
-	var dry_surface := SurfaceTool.new()
-	dry_surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-	# Splats indices, blend weight, and tone into CUSTOM0 for the terrain_blend shader.
-	dry_surface.set_custom_format(0, SurfaceTool.CUSTOM_RGBA_FLOAT)
-	var has_ground := false
-	for y in grid.size_cells.y:
-		for x in grid.size_cells.x:
-			has_ground = true
-			add_blended_cell_quad(dry_surface, field, grid, x, y, definition.seed)
-	if has_ground:
+	var ground_mesh := _build_blended_ground_mesh(field, grid, definition.seed)
+	if ground_mesh != null:
 		var ground := MeshInstance3D.new()
 		ground.name = "Terrain_Ground"
-		ground.mesh = dry_surface.commit()
+		ground.mesh = ground_mesh
 		ground.material_override = MapViewMaterials.blended_ground(definition.seed)
 		root.add_child(ground)
 	for terrain_id in grid.used_terrain_ids():
@@ -250,49 +287,80 @@ static func cell_tone(x: int, y: int, noise_seed: int, style_variant: StringName
 
 
 
-static func add_blended_cell_quad(
-	surface: SurfaceTool,
+## Build the continuous ground as packed indexed arrays. The old SurfaceTool path
+## emitted every triangle corner separately and recalculated its terrain blend,
+## turning a 176 x 112 map into more than one million vertices during every scene
+## change. The visual 3 x 3 grid is unchanged; each shared vertex is evaluated once.
+static func _build_blended_ground_mesh(
 	field: Dictionary,
 	grid: MapTerrainGrid,
-	x: int,
-	y: int,
 	noise_seed: int
-) -> void:
+) -> ArrayMesh:
+	if grid.size_cells.x <= 0 or grid.size_cells.y <= 0:
+		return null
 	var columns: int = field["vertex_columns"]
 	var positions: PackedVector3Array = field["positions"]
 	var normals: PackedVector3Array = field["normals"]
-	var origin_x := x * MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS
-	var origin_y := y * MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS
-	for patch_y in MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS:
-		for patch_x in MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS:
-			var vertex_x := origin_x + patch_x
-			var vertex_y := origin_y + patch_y
-			var indices := [
-				vertex_y * columns + vertex_x,
-				vertex_y * columns + vertex_x + 1,
-				(vertex_y + 1) * columns + vertex_x + 1,
-				(vertex_y + 1) * columns + vertex_x,
-			]
-			for index in [0, 1, 2, 0, 2, 3]:
-				var vertex := positions[indices[index]]
-				var spot := Vector2(vertex.x, vertex.z)
-				var blend := terrain_blend_at(field, grid, spot, noise_seed, x, y)
-				var primary_tint := OutdoorTerrainPalette.color(blend["primary"])
-				var secondary_tint := OutdoorTerrainPalette.color(blend["secondary"])
-				var tint := primary_tint.lerp(secondary_tint, float(blend["weight"]))
-				surface.set_normal(normals[indices[index]])
-				surface.set_uv(spot / MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE)
-				surface.set_color(Color(tint.r, tint.g, tint.b))
-				surface.set_custom(
-					0,
-					Color(
-						float(blend["primary_index"]),
-						float(blend["secondary_index"]),
-						float(blend["weight"]),
-						float(blend["tone"])
-					)
-				)
-				surface.add_vertex(vertex)
+	var rows := grid.size_cells.y * MapViewMeshBuilderConfig.TERRAIN_SUBDIVISIONS + 1
+	var vertex_count := columns * rows
+	var colors := PackedColorArray()
+	var uvs := PackedVector2Array()
+	var custom := PackedFloat32Array()
+	colors.resize(vertex_count)
+	uvs.resize(vertex_count)
+	custom.resize(vertex_count * 4)
+	for vertex_y in rows:
+		for vertex_x in columns:
+			var vertex_index := vertex_y * columns + vertex_x
+			var vertex := positions[vertex_index]
+			var spot := Vector2(vertex.x, vertex.z)
+			var source_cell := Vector2i(
+				clampi(floori(spot.x), 0, grid.size_cells.x - 1),
+				clampi(floori(spot.y), 0, grid.size_cells.y - 1)
+			)
+			var blend := terrain_blend_at(
+				field,
+				grid,
+				spot,
+				noise_seed,
+				source_cell.x,
+				source_cell.y
+			)
+			var primary_tint := OutdoorTerrainPalette.color(blend["primary"])
+			var secondary_tint := OutdoorTerrainPalette.color(blend["secondary"])
+			colors[vertex_index] = primary_tint.lerp(secondary_tint, float(blend["weight"]))
+			uvs[vertex_index] = spot / MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE
+			var custom_index := vertex_index * 4
+			custom[custom_index] = float(blend["primary_index"])
+			custom[custom_index + 1] = float(blend["secondary_index"])
+			custom[custom_index + 2] = float(blend["weight"])
+			custom[custom_index + 3] = float(blend["tone"])
+	var indices := PackedInt32Array()
+	indices.resize((rows - 1) * (columns - 1) * 6)
+	var write_index := 0
+	for patch_y in rows - 1:
+		for patch_x in columns - 1:
+			var top_left := patch_y * columns + patch_x
+			var bottom_left := top_left + columns
+			indices[write_index] = top_left
+			indices[write_index + 1] = top_left + 1
+			indices[write_index + 2] = bottom_left + 1
+			indices[write_index + 3] = top_left
+			indices[write_index + 4] = bottom_left + 1
+			indices[write_index + 5] = bottom_left
+			write_index += 6
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = positions
+	arrays[Mesh.ARRAY_NORMAL] = normals
+	arrays[Mesh.ARRAY_COLOR] = colors
+	arrays[Mesh.ARRAY_TEX_UV] = uvs
+	arrays[Mesh.ARRAY_CUSTOM0] = custom
+	arrays[Mesh.ARRAY_INDEX] = indices
+	var mesh := ArrayMesh.new()
+	var custom_format := RenderingServer.ARRAY_CUSTOM_RGBA_FLOAT << RenderingServer.ARRAY_FORMAT_CUSTOM0_SHIFT
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, custom_format)
+	return mesh
 
 
 static func terrain_blend_at(

@@ -217,6 +217,32 @@ func test_water_contour_cuts_square_corners_diagonally() -> void:
 	terrain.free()
 
 
+func test_ground_mesh_reuses_indexed_subcell_vertices() -> void:
+	var definition := MapDefinition.new()
+	definition.map_id = &"test_indexed_ground"
+	definition.size_cells = Vector2i(4, 3)
+	definition.base_terrain = MapTypes.TERRAIN_GRASS
+	definition.player_spawn = Vector2(16.0, 16.0)
+	definition.location = &"test"
+	definition.scope = &"prototype"
+	definition.palette = &"spring"
+	definition.fingerprint = "test-indexed-ground"
+	var grid := MapBuilder.build(definition)
+	var terrain := MapViewMeshBuilder.build_terrain(definition, grid)
+	var ground := terrain.get_node("Terrain_Ground") as MeshInstance3D
+	var mesh := ground.mesh as ArrayMesh
+	var subdivisions := MapViewMeshBuilder.TERRAIN_SUBDIVISIONS
+	var expected_vertices := (
+		(grid.size_cells.x * subdivisions + 1)
+		* (grid.size_cells.y * subdivisions + 1)
+	)
+	var expected_indices := grid.size_cells.x * grid.size_cells.y * subdivisions * subdivisions * 6
+	assert_eq(mesh.surface_get_array_len(0), expected_vertices, "ground must store each shared grid vertex once")
+	assert_eq(mesh.surface_get_array_index_len(0), expected_indices, "ground must retain every dense terrain triangle")
+	assert_true(expected_vertices * 3 < expected_indices, "indexed storage must avoid the old duplicated-vertex cost")
+	terrain.free()
+
+
 func test_lower_town_water_contour_smooths_multiple_authored_cells() -> void:
 	var definition := LowerTownSlice.create()
 	var grid := MapBuilder.build(definition)
