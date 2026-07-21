@@ -78,9 +78,9 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 	scene_root.add_child(runtime)
 	# Created at runtime, so enable input explicitly before the first frame.
 	runtime.set_process_unhandled_input(true)
-	runtime._bind_equipment_state()
-	if not SessionState.debug_state_applied.is_connected(runtime._on_debug_state_applied):
-		SessionState.debug_state_applied.connect(runtime._on_debug_state_applied)
+	runtime._bind_equipment_state(SessionState.state)
+	if not SessionState.state_replaced.is_connected(runtime._on_state_replaced):
+		SessionState.state_replaced.connect(runtime._on_state_replaced)
 	runtime._register_view_actors(scene_root)
 	runtime._configure_screen_relative_movement()
 	runtime._sync_player(true)
@@ -203,11 +203,11 @@ static func _hide_actor_canvas(actor: Node2D) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(&"toggle_camera_view") and not event.is_echo():
+		toggle_camera_view()
+		get_viewport().set_input_as_handled()
+		return
 	if event is InputEventKey:
-		var key_event := event as InputEventKey
-		if key_event.pressed and not key_event.echo and key_event.physical_keycode == KEY_C:
-			toggle_camera_view()
-			get_viewport().set_input_as_handled()
 		return
 	if event is InputEventMagnifyGesture:
 		_camera_controller.zoom_from_magnify_factor((event as InputEventMagnifyGesture).factor)
@@ -314,21 +314,21 @@ func _sync_player(snap: bool, delta: float = 0.0) -> void:
 ## equipment is only a default for showcase scenes. Mirror the state now and
 ## on every equipment change.
 func _exit_tree() -> void:
-	if SessionState.debug_state_applied.is_connected(_on_debug_state_applied):
-		SessionState.debug_state_applied.disconnect(_on_debug_state_applied)
+	if SessionState.state_replaced.is_connected(_on_state_replaced):
+		SessionState.state_replaced.disconnect(_on_state_replaced)
 	_disconnect_equipment_state()
 	# Actor rigs and the map view share ShaderMaterials; strip before free so the
 	# headless dummy renderer does not emit material_get_instance_shader_parameters.
 	MapView3D._strip_geometry_materials(self)
 
 
-func _on_debug_state_applied(_preset_id: StringName) -> void:
-	_bind_equipment_state()
+func _on_state_replaced(_previous: GameState, current: GameState, _reason: StringName) -> void:
+	_bind_equipment_state(current)
 
 
-func _bind_equipment_state() -> void:
+func _bind_equipment_state(current: GameState = null) -> void:
 	_disconnect_equipment_state()
-	_equipment_state = SessionState.state
+	_equipment_state = current if current != null else SessionState.state
 	if _equipment_state == null:
 		return
 	for slot: StringName in SharedCharacterRig.EQUIPMENT_SLOTS:
@@ -346,7 +346,9 @@ func _disconnect_equipment_state() -> void:
 
 
 func _sync_equipment_slot(slot: StringName) -> void:
-	var state := SessionState.state
+	var state := _equipment_state
+	if state == null:
+		return
 	var item_id := state.equipped_item(slot)
 	if item_id.is_empty():
 		_player_rig.unequip(slot)

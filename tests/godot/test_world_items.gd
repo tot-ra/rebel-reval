@@ -1,6 +1,6 @@
 extends "res://tests/godot/test_case.gd"
 
-const WORLD_ITEM_SCENE := preload("res://scenes/world/world_item.tscn")
+const WORLD_ITEM_SCENE := preload("res://scenes/interaction/world_item.tscn")
 const FORGE_SCENE := preload("res://scenes/reval_east/forge/forge.tscn")
 
 const LOC_SMITHY := &"loc.kalev_smithy"

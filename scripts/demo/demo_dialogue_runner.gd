@@ -178,7 +178,4 @@ func _is_continue_event(event: InputEvent) -> bool:
 	for action: StringName in CONTINUE_ACTIONS:
 		if event.is_action(action):
 			return event.is_action_pressed(action)
-	if event is InputEventJoypadButton:
-		var button_event := event as InputEventJoypadButton
-		return button_event.pressed and button_event.button_index == JOY_BUTTON_A
 	return false

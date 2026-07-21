@@ -14,3 +14,4 @@ tools/run_map_pipeline_ci.sh persistence
 tools/run_map_pipeline_ci.sh parity
 tools/run_map_pipeline_ci.sh routes
 tools/run_map_pipeline_ci.sh benchmark-smoke
+tools/run_performance_report.sh build/benchmarks/performance-report.json

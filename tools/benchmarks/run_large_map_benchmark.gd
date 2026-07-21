@@ -11,6 +11,7 @@ const MapSceneBootstrapScript := preload("res://scripts/map/map_scene_bootstrap.
 const ChunkPrototype := preload("res://tools/benchmarks/large_map_chunk_prototype.gd")
 
 const DEFAULT_OUTPUT := "user://large_map_benchmark.json"
+const DEFAULT_TARGET_HARDWARE := "res://tools/benchmarks/target_hardware.json"
 const MIB := 1024.0 * 1024.0
 
 var _config: Dictionary = {}
@@ -28,6 +29,11 @@ func _run() -> void:
 	if _config.is_empty():
 		get_tree().quit(1)
 		return
+	var target_hardware_path := _argument_value("--target-hardware=", DEFAULT_TARGET_HARDWARE)
+	var target_hardware := _load_target_hardware(target_hardware_path)
+	if target_hardware.is_empty():
+		get_tree().quit(1)
+		return
 	var benchmark_config := _config.get("benchmark", {}) as Dictionary
 	_timed_runs = int(benchmark_config.get("timed_runs", 3))
 	_warmup_runs = int(benchmark_config.get("warmup_runs", 1))
@@ -38,10 +44,14 @@ func _run() -> void:
 		_frame_samples = mini(_frame_samples, 20)
 
 	var report := {
-		"schema_version": 1,
+		"schema_version": 2,
 		"recorded_utc": Time.get_datetime_string_from_system(true),
 		"engine": Engine.get_version_info(),
-		"environment": {
+		# Keep the declared measurement target separate from the detected host so a
+		# fast developer machine cannot be mistaken for minimum-hardware evidence.
+		"target_hardware": target_hardware,
+		"target_hardware_source": target_hardware_path,
+		"measurement_host": {
 			"os": OS.get_name(),
 			"distribution": OS.get_distribution_name(),
 			"processor_count": OS.get_processor_count(),
@@ -52,9 +62,11 @@ func _run() -> void:
 		"git_commit": _git_commit(),
 		"config": _config,
 		"methodology": {
+			"performance_scene": "res://tools/benchmarks/lower_town_scene_benchmark.tscn",
 			"warmup_runs": _warmup_runs,
 			"timed_runs": _timed_runs,
 			"frame_samples": _frame_samples,
+			"actor_count_source": "CharacterBody descendants of the production Actors branch",
 			"memory_monitor": "Performance.MEMORY_STATIC",
 			"frame_time_clock": "wall time between SceneTree.process_frame signals",
 		},
@@ -81,6 +93,7 @@ func _run() -> void:
 		report["profiles"].append(await _benchmark_synthetic(String(profile_config.get("id", "synthetic")), size_cells))
 
 	report["budget_summary"] = _budget_summary(report["profiles"])
+	report["headline"] = _headline_metrics(report["profiles"])
 	var output_path := _argument_value("--output=", DEFAULT_OUTPUT)
 	var file := FileAccess.open(output_path, FileAccess.WRITE)
 	if file == null:
@@ -90,6 +103,7 @@ func _run() -> void:
 	file.store_string(JSON.stringify(report, "  ") + "\n")
 	file.close()
 	print("BENCHMARK report: %s" % output_path)
+	print("BENCHMARK headline: %s" % JSON.stringify(report["headline"]))
 	print(JSON.stringify(report["budget_summary"], "  "))
 	get_tree().quit(0)
 
@@ -358,6 +372,47 @@ func _distribution(input_values: Array[float]) -> Dictionary:
 
 func _percentile(sorted_values: Array[float], fraction: float) -> float:
 	return sorted_values[clampi(ceili(float(sorted_values.size()) * fraction) - 1, 0, sorted_values.size() - 1)]
+
+
+func _headline_metrics(profiles: Array) -> Dictionary:
+	for profile in profiles:
+		if String(profile.get("id", "")) != "lower_town_scene":
+			continue
+		var metrics := profile.get("metrics", {}) as Dictionary
+		return {
+			"profile_id": "lower_town_scene",
+			"frame_time_ms_p95": _metric_value(metrics, "frame_time_ms_p95", "median"),
+			"memory_static_bytes": roundi(_metric_value(metrics, "memory_static_bytes", "median")),
+			"memory_delta_mib": _metric_value(metrics, "memory_delta_mib", "median"),
+			"actor_count": roundi(_metric_value(metrics, "actor_count", "median")),
+		}
+	return {
+		"profile_id": "lower_town_scene",
+		"available": false,
+	}
+
+
+func _metric_value(metrics: Dictionary, metric: String, statistic: String) -> float:
+	if not metrics.has(metric):
+		return 0.0
+	return float((metrics[metric] as Dictionary).get(statistic, 0.0))
+
+
+func _load_target_hardware(path: String) -> Dictionary:
+	var source := FileAccess.get_file_as_string(path)
+	if source.is_empty():
+		push_error("Target-hardware profile is missing or empty: %s" % path)
+		return {}
+	var parsed: Variant = JSON.parse_string(source)
+	if not parsed is Dictionary:
+		push_error("Target-hardware profile must contain a JSON object: %s" % path)
+		return {}
+	var profile := parsed as Dictionary
+	for key in ["profile_id", "status", "platform", "architecture", "cpu", "gpu", "memory_gib", "display"]:
+		if not profile.has(key):
+			push_error("Target-hardware profile is missing `%s`: %s" % [key, path])
+			return {}
+	return profile
 
 
 func _budget_summary(profiles: Array) -> Dictionary:

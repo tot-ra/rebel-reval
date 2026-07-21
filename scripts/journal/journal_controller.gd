@@ -14,19 +14,19 @@ func _ready() -> void:
 	add_child(_overlay)
 	_overlay.configure(SessionState.state, SessionState.content_db)
 	_overlay.closed.connect(_on_overlay_closed)
-	if not SessionState.debug_state_applied.is_connected(_on_debug_state_applied):
-		SessionState.debug_state_applied.connect(_on_debug_state_applied)
+	if not SessionState.state_replaced.is_connected(_on_state_replaced):
+		SessionState.state_replaced.connect(_on_state_replaced)
 
 
 func _exit_tree() -> void:
-	if SessionState.debug_state_applied.is_connected(_on_debug_state_applied):
-		SessionState.debug_state_applied.disconnect(_on_debug_state_applied)
+	if SessionState.state_replaced.is_connected(_on_state_replaced):
+		SessionState.state_replaced.disconnect(_on_state_replaced)
 
 
-func _on_debug_state_applied(_preset_id: StringName) -> void:
+func _on_state_replaced(_previous: GameState, current: GameState, _reason: StringName) -> void:
 	if _overlay == null:
 		return
-	_overlay.configure(SessionState.state, SessionState.content_db)
+	_overlay.configure(current, SessionState.content_db)
 	if _overlay.is_open():
 		_overlay.open()
 
@@ -76,9 +76,8 @@ func _is_toggle_event(event: InputEvent) -> bool:
 		return false
 	if event.is_action(TOGGLE_ACTION):
 		return event.is_action_pressed(TOGGLE_ACTION)
-	if event is InputEventKey:
-		var key_event := event as InputEventKey
-		return key_event.pressed and key_event.keycode == KEY_ESCAPE and _overlay.is_open()
+	if event.is_action(&"ui_cancel") and event.is_action_pressed(&"ui_cancel"):
+		return _overlay.is_open()
 	return false
 
 

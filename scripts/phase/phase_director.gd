@@ -15,13 +15,20 @@ func _ready() -> void:
 	call_deferred("_connect_session")
 
 
+func _exit_tree() -> void:
+	if SessionState.state_replaced.is_connected(_on_state_replaced):
+		SessionState.state_replaced.disconnect(_on_state_replaced)
+	_unbind_state()
+
+
 func sync_current_phase() -> void:
 	if SessionState.state == null:
 		return
 	apply_profile_for_phase(SessionState.state.get_phase())
 
 
-## Rebind after SessionState replaces its GameState (load, debug preset, etc.).
+## Compatibility entry point for scene tests and callers that repair a direct
+## test-only SessionState.state assignment. Production replacement is signal-driven.
 func rebind_session_state() -> void:
 	if SessionState.state == null:
 		return
@@ -48,20 +55,25 @@ func advance_to_next_phase() -> bool:
 
 
 func _connect_session() -> void:
+	if not SessionState.state_replaced.is_connected(_on_state_replaced):
+		SessionState.state_replaced.connect(_on_state_replaced)
 	if SessionState.state == null:
 		return
 	_bind_state(SessionState.state)
-	if not SessionState.debug_state_applied.is_connected(_on_debug_state_applied):
-		SessionState.debug_state_applied.connect(_on_debug_state_applied)
 	sync_current_phase()
 
 
 func _bind_state(state: GameState) -> void:
-	if _connected_state != null and _connected_state.phase_changed.is_connected(_on_phase_changed):
-		_connected_state.phase_changed.disconnect(_on_phase_changed)
+	_unbind_state()
 	_connected_state = state
 	if not _connected_state.phase_changed.is_connected(_on_phase_changed):
 		_connected_state.phase_changed.connect(_on_phase_changed)
+
+
+func _unbind_state() -> void:
+	if _connected_state != null and _connected_state.phase_changed.is_connected(_on_phase_changed):
+		_connected_state.phase_changed.disconnect(_on_phase_changed)
+	_connected_state = null
 
 
 func _on_phase_changed(_previous: StringName, next: StringName) -> void:
@@ -70,10 +82,10 @@ func _on_phase_changed(_previous: StringName, next: StringName) -> void:
 	apply_profile_for_phase(next)
 
 
-func _on_debug_state_applied(_preset_id: StringName) -> void:
-	# SessionState.apply_debug_preset now rebinds PhaseDirector after world-item
-	# sync. Keep this as a no-op so we do not apply prop visibility too early.
-	pass
+func _on_state_replaced(_previous: GameState, current: GameState, _reason: StringName) -> void:
+	# SessionState applies the profile after every listener has rebound, so map
+	# props are rebuilt before phase visibility rules run.
+	_bind_state(current)
 
 
 func _apply_presentation(profile: Dictionary) -> void:

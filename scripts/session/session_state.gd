@@ -16,12 +16,18 @@ const DEMO_CONTENT_DIRS: Array[String] = [
 const DebugStatePresetsScript := preload("res://scripts/debug/debug_state_presets.gd")
 const DebugStateInspectorScript := preload("res://scripts/debug/debug_state_inspector.gd")
 
+const STATE_REPLACE_REASON_MANUAL_LOAD := &"manual_load"
+const STATE_REPLACE_REASON_DEBUG_PRESET := &"debug_preset"
+
 var state: GameState = GameState.new()
 var content_db: ContentDB = ContentDB.new()
 var save_service: SaveService = SaveService.new()
 var debug_presets = DebugStatePresetsScript.new()
 
-signal debug_state_applied(preset_id: StringName)
+## Emitted exactly once after the canonical state and its bag ContentDB binding
+## are installed. Long-lived consumers must disconnect from `previous` and bind
+## to `current` before this ordered notification returns.
+signal state_replaced(previous: GameState, current: GameState, reason: StringName)
 
 var _demo_seeded := false
 var _inspector: CanvasLayer
@@ -43,14 +49,8 @@ func apply_debug_preset(preset_id: String) -> bool:
 			"Debug preset %s failed: %s" % [preset_id, String(result.get("error", ""))]
 		)
 		return false
-	# Replace state first, then rebuild world props, then apply phase visibility.
-	# PhaseDirector must run after WorldItemController syncs on debug_state_applied.
-	state = result["state"] as GameState
-	state.bag.set_content_db(content_db)
 	_demo_seeded = true
-	debug_state_applied.emit(StringName(preset_id))
-	if has_node("/root/PhaseDirector"):
-		PhaseDirector.rebind_session_state()
+	replace_state(result["state"] as GameState, STATE_REPLACE_REASON_DEBUG_PRESET)
 	return true
 
 
@@ -63,7 +63,7 @@ func load_game(slot: int = SaveService.DEFAULT_SLOT) -> bool:
 	if not result["ok"]:
 		push_warning("Save load failed: %s" % ", ".join(result["errors"]))
 		return false
-	_apply_loaded_state(result["state"] as GameState)
+	replace_state(result["state"] as GameState, STATE_REPLACE_REASON_MANUAL_LOAD)
 	return true
 
 
@@ -71,11 +71,21 @@ func has_save(slot: int = SaveService.DEFAULT_SLOT) -> bool:
 	return save_service.has_save(slot)
 
 
-func _apply_loaded_state(loaded: GameState) -> void:
-	state = loaded
+## The only live-state replacement path. Installing the canonical reference and
+## bag dependency before notifying listeners prevents consumers from observing a
+## half-bound state. Phase presentation runs last because it may hide props that
+## WorldItemController recreates in its state_replaced handler.
+func replace_state(replacement: GameState, reason: StringName) -> bool:
+	if replacement == null:
+		push_warning("Cannot replace SessionState with a null GameState")
+		return false
+	var previous := state
+	state = replacement
 	state.bag.set_content_db(content_db)
+	state_replaced.emit(previous, state, reason)
 	if has_node("/root/PhaseDirector"):
-		PhaseDirector.rebind_session_state()
+		PhaseDirector.sync_current_phase()
+	return true
 
 
 func _seed_demo_bag_if_empty() -> void:

@@ -34,12 +34,16 @@ func _record() -> void:
 		previous = current
 
 	var scene_root := get_parent().get_node("LowerTown")
+	var actors_root := scene_root.get_node_or_null("Actors")
 	var memory_after := int(Performance.get_monitor(Performance.MEMORY_STATIC))
 	var report := {
 		"scene_startup_ms": startup_ms,
 		"pipeline_cpu_ms": startup_ms,
 		"node_count": _count_nodes(scene_root),
 		"collision_count": _count_collisions(scene_root),
+		# The production Actors branch is authoritative for simulation workload;
+		# counting named nodes would silently miss future actor archetypes.
+		"actor_count": _count_actors(actors_root),
 		"memory_static_bytes": memory_after,
 		"memory_delta_mib": maxf(0.0, float(memory_after - _memory_before) / MIB),
 		"frame_time_ms": _distribution(frame_times),
@@ -69,6 +73,15 @@ func _count_collisions(node: Node) -> int:
 	var count := 1 if node is CollisionShape2D or node is CollisionPolygon2D else 0
 	for child in node.get_children():
 		count += _count_collisions(child)
+	return count
+
+
+func _count_actors(actors_root: Node) -> int:
+	if actors_root == null:
+		return 0
+	var count := 1 if actors_root is CharacterBody2D or actors_root is CharacterBody3D else 0
+	for child in actors_root.get_children():
+		count += _count_actors(child)
 	return count
 
 

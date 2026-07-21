@@ -20,8 +20,8 @@ func setup(scene_root: Node2D, definition: MapDefinition, player: Player) -> voi
 	_player = player
 	_connect_commission_controller()
 	_spawn_interactable(definition)
-	if not SessionState.debug_state_applied.is_connected(_on_debug_state_applied):
-		SessionState.debug_state_applied.connect(_on_debug_state_applied)
+	if not SessionState.state_replaced.is_connected(_on_state_replaced):
+		SessionState.state_replaced.connect(_on_state_replaced)
 
 
 func _connect_commission_controller() -> void:
@@ -43,11 +43,11 @@ func _exit_tree() -> void:
 		var controller := _player.get_node_or_null("ForgeCommissionController") as ForgeCommissionController
 		if controller != null and controller.commission_finished.is_connected(_on_commission_finished):
 			controller.commission_finished.disconnect(_on_commission_finished)
-	if SessionState.debug_state_applied.is_connected(_on_debug_state_applied):
-		SessionState.debug_state_applied.disconnect(_on_debug_state_applied)
+	if SessionState.state_replaced.is_connected(_on_state_replaced):
+		SessionState.state_replaced.disconnect(_on_state_replaced)
 
 
-func _on_debug_state_applied(_preset_id: StringName) -> void:
+func _on_state_replaced(_previous: GameState, _current: GameState, _reason: StringName) -> void:
 	_sync_enabled()
 
 

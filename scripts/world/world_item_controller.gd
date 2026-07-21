@@ -6,7 +6,7 @@ extends Node
 ## when the bag has room, or drops a selected inventory item when the bag overlay
 ## is open.
 
-const WORLD_ITEM_SCENE := preload("res://scenes/world/world_item.tscn")
+const WORLD_ITEM_SCENE := preload("res://scenes/interaction/world_item.tscn")
 const INTERACTABLE_SCENE := preload("res://scenes/interaction/interactable.tscn")
 const OverlayScript := preload("res://scripts/world/world_item_overlay.gd")
 const PickupLabelsScript := preload("res://scripts/world/world_item_pickup_labels.gd")
@@ -64,20 +64,19 @@ func setup(
 		_interactable_binder.setup(view_runtime, definition)
 	_seed_defaults_if_needed()
 	_sync_from_state()
-	if not SessionState.debug_state_applied.is_connected(_on_debug_state_applied):
-		SessionState.debug_state_applied.connect(_on_debug_state_applied)
+	if not SessionState.state_replaced.is_connected(_on_state_replaced):
+		SessionState.state_replaced.connect(_on_state_replaced)
 
 
 func _exit_tree() -> void:
-	if SessionState.debug_state_applied.is_connected(_on_debug_state_applied):
-		SessionState.debug_state_applied.disconnect(_on_debug_state_applied)
+	if SessionState.state_replaced.is_connected(_on_state_replaced):
+		SessionState.state_replaced.disconnect(_on_state_replaced)
 	if _overlay != null:
 		_overlay.restore_cursor()
 
 
-func _on_debug_state_applied(_preset_id: StringName) -> void:
-	# SessionState replaces the live GameState; rebind and rebuild world props in place.
-	_state = SessionState.state
+func _on_state_replaced(_previous: GameState, current: GameState, _reason: StringName) -> void:
+	_state = current
 	_sync_from_state()
 
 

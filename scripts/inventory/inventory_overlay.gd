@@ -83,36 +83,30 @@ func clear_selection() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not visible or not event is InputEventKey:
-		return
-	var key_event := event as InputEventKey
-	if not key_event.pressed or key_event.is_echo():
+	if not visible or not event.is_pressed() or event.is_echo():
 		return
 
-	var delta := _navigation_delta_for_key(key_event.keycode)
+	var delta := _navigation_delta_for_event(event)
 	if delta != Vector2i.ZERO:
 		_move_focus(delta)
 		get_viewport().set_input_as_handled()
 		return
 
-	match key_event.keycode:
-		KEY_ENTER, KEY_KP_ENTER, KEY_SPACE:
-			_on_cell_pressed(_focus_cell.x, _focus_cell.y)
-			get_viewport().set_input_as_handled()
+	if event.is_action_pressed(&"ui_accept"):
+		_on_cell_pressed(_focus_cell.x, _focus_cell.y)
+		get_viewport().set_input_as_handled()
 
 
-func _navigation_delta_for_key(keycode: Key) -> Vector2i:
-	match keycode:
-		KEY_UP, KEY_W:
-			return Vector2i(0, -1)
-		KEY_DOWN, KEY_S:
-			return Vector2i(0, 1)
-		KEY_LEFT, KEY_A:
-			return Vector2i(-1, 0)
-		KEY_RIGHT, KEY_D:
-			return Vector2i(1, 0)
-		_:
-			return Vector2i.ZERO
+func _navigation_delta_for_event(event: InputEvent) -> Vector2i:
+	if event.is_action_pressed(&"ui_up"):
+		return Vector2i(0, -1)
+	if event.is_action_pressed(&"ui_down"):
+		return Vector2i(0, 1)
+	if event.is_action_pressed(&"ui_left"):
+		return Vector2i(-1, 0)
+	if event.is_action_pressed(&"ui_right"):
+		return Vector2i(1, 0)
+	return Vector2i.ZERO
 
 
 func _move_focus(delta: Vector2i) -> void:

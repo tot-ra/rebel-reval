@@ -25,7 +25,9 @@ godot --path . res://tools/capture_demo_walkthrough_host.tscn
 ## Automated checks
 
 - Headless flow: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_demo_walkthrough`
-- Packaged macOS build: `tools/verify_packaged_demo.sh` exports `build/rr.dmg`, extracts `build/Reval Rebel.app`, and launches the binary with `--quit-after` only (release templates reject `--path` and scene CLI args).
+- Packaged macOS build: `tools/verify_packaged_demo.sh` exports `build/rr.dmg`, extracts `build/Reval Rebel.app`, and runs `Reval Rebel.app/Contents/MacOS/Reval Rebel -- --verify-packaged-demo`.
+- The user argument activates a verifier shipped in the normal main scene. It triggers the real Start control, proves player input moves Kalev, traverses registered `DoorNavigator` destinations, completes Mart's `Interactable`, and picks up the spearhead through its world-item `Interactable`.
+- Verification requires process exit 0 plus `D-004C_PACKAGED_WALKTHROUGH_PASS` on stdout. It rejects failure markers, unexpected engine/script errors, path-override diagnostics, timeouts, and exits without the pass marker. No editor binary chooses scenes or drives the packaged loop.
 
 Release builds omit the debug inspector (`OS.is_debug_build()` is false), so this loop matches packaged play without debug presets.
 

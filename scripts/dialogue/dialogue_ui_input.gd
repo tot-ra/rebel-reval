@@ -42,7 +42,7 @@ static func handle_backlog_input(ui: DialogueUI, event: InputEvent) -> bool:
 			return true
 		return false
 
-	if event.is_action_pressed(&"ui_page_up") or is_key_pressed(event, KEY_TAB):
+	if event.is_action_pressed(&"ui_page_up"):
 		ui._toggle_backlog()
 		return true
 
@@ -78,10 +78,7 @@ static func is_continue_event(event: InputEvent) -> bool:
 	for action: StringName in [&"interact", &"ui_accept"]:
 		if event.is_action(action):
 			return event.is_action_pressed(action)
-	if event is InputEventJoypadButton:
-		var button_event := event as InputEventJoypadButton
-		return button_event.pressed and button_event.button_index == JOY_BUTTON_A
-	return is_key_pressed(event, KEY_ENTER) or is_key_pressed(event, KEY_KP_ENTER) or is_key_pressed(event, KEY_SPACE)
+	return false
 
 
 static func is_mouse_continue_event(event: InputEvent) -> bool:

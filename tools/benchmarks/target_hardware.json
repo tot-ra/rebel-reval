@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "profile_id": "development-baseline-m5-pro",
+  "status": "development_baseline_not_minimum",
+  "platform": "macOS 26.3",
+  "architecture": "arm64",
+  "cpu": "Apple M5 Pro, 18 logical cores",
+  "gpu": "Apple M5 Pro, 20 cores",
+  "memory_gib": 48,
+  "display": "3456x2234 built-in display",
+  "notes": "This reproducible development target is not a minimum supported-hardware declaration. P3-011 owns the minimum target and release budget. Run a non-headless capture on that profile before using GPU frame time as acceptance evidence."
+}

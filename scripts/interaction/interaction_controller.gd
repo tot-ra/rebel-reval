@@ -59,9 +59,6 @@ func _is_interact_event(event: InputEvent) -> bool:
 		return false
 	if event.is_action(INTERACT_ACTION):
 		return event.is_action_pressed(INTERACT_ACTION)
-	if event is InputEventJoypadButton:
-		var button_event := event as InputEventJoypadButton
-		return button_event.pressed and button_event.button_index == JOY_BUTTON_A
 	return false
 
 

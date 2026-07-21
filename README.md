@@ -137,7 +137,7 @@ Vertical-slice systems beyond the demo loop (full combat room, enemies, night co
 
 ### Demo walkthrough (D-004)
 
-Packaged macOS demo proof and frame sequence: [`docs/reports/demo_walkthrough_d004.md`](./docs/reports/demo_walkthrough_d004.md). Reproduce with `tools/verify_packaged_demo.sh`.
+Packaged macOS demo proof, in-binary Start-Mart-pickup verification, and frame sequence: [`docs/reports/demo_walkthrough_d004.md`](./docs/reports/demo_walkthrough_d004.md). Reproduce with `tools/verify_packaged_demo.sh`.
 
 ## Run the project
 
@@ -150,6 +150,7 @@ godot --headless --script tools/run_godot_tests.gd
 python3 tools/validate_content.py content/examples/valid content/examples/support
 python3 tools/validate_asset_sources.py
 python3 tools/generate_active_docs_report.py --check
+tools/run_performance_report.sh build/benchmarks/performance-smoke.json --quick
 ```
 
 ## Project guide

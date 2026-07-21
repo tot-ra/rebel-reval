@@ -186,12 +186,7 @@ func activate_focused_travel() -> bool:
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible:
 		return
-	if event.is_action_pressed(&"ui_cancel") or (
-		event is InputEventKey
-		and (event as InputEventKey).pressed
-		and not (event as InputEventKey).is_echo()
-		and (event as InputEventKey).keycode == KEY_ESCAPE
-	):
+	if event.is_action_pressed(&"ui_cancel"):
 		close()
 		get_viewport().set_input_as_handled()
 		return

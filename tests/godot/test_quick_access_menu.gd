@@ -25,6 +25,7 @@ func test_menu_exposes_named_player_actions() -> void:
 	var world_map := menu.find_child("WorldMapButton", true, false) as Button
 	var camera := menu.find_child("CameraButton", true, false) as Button
 	var iron := menu.find_child("IronTechniqueButton", true, false) as Button
+	var controls := menu.find_child("ControlsButton", true, false) as Button
 	var save := menu.find_child("SaveButton", true, false) as Button
 	var help := menu.find_child("HelpLabel", true, false) as Label
 	var panel := menu.find_child("QuickAccessPanel", true, false) as PanelContainer
@@ -34,6 +35,8 @@ func test_menu_exposes_named_player_actions() -> void:
 	assert_true(world_map != null, "quick access must visibly expose district map")
 	assert_true(camera != null, "quick access must visibly expose camera toggle")
 	assert_true(iron != null, "quick access must visibly expose Iron technique toggle")
+	assert_true(controls != null, "quick access must visibly expose remappable controls")
+	assert_eq(controls.focus_mode, Control.FOCUS_ALL)
 	assert_true(save != null, "quick access must visibly expose manual save")
 	assert_eq(inventory.text, "Inventory [I]")
 	assert_eq(journal.text, "Journal [J]")

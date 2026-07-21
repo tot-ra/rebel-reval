@@ -13,16 +13,16 @@ const DEFAULT_ANCHOR_ID := &"bed_alcove"
 var _player: Player
 var _interactable: Interactable
 var _scene_root: Node2D
+var _connected_state: GameState
 
 
 func setup(scene_root: Node2D, definition: MapDefinition, player: Player) -> void:
 	_scene_root = scene_root
 	_player = player
 	_spawn_interactable(definition)
-	if not SessionState.debug_state_applied.is_connected(_on_debug_state_applied):
-		SessionState.debug_state_applied.connect(_on_debug_state_applied)
-	if SessionState.state != null and not SessionState.state.phase_changed.is_connected(_on_phase_changed):
-		SessionState.state.phase_changed.connect(_on_phase_changed)
+	if not SessionState.state_replaced.is_connected(_on_state_replaced):
+		SessionState.state_replaced.connect(_on_state_replaced)
+	_bind_phase_signal(SessionState.state)
 
 
 func get_interactable() -> Interactable:
@@ -30,14 +30,13 @@ func get_interactable() -> Interactable:
 
 
 func _exit_tree() -> void:
-	if SessionState.state != null and SessionState.state.phase_changed.is_connected(_on_phase_changed):
-		SessionState.state.phase_changed.disconnect(_on_phase_changed)
-	if SessionState.debug_state_applied.is_connected(_on_debug_state_applied):
-		SessionState.debug_state_applied.disconnect(_on_debug_state_applied)
+	_unbind_phase_signal()
+	if SessionState.state_replaced.is_connected(_on_state_replaced):
+		SessionState.state_replaced.disconnect(_on_state_replaced)
 
 
-func _on_debug_state_applied(_preset_id: StringName) -> void:
-	_rebind_phase_signal()
+func _on_state_replaced(_previous: GameState, current: GameState, _reason: StringName) -> void:
+	_bind_phase_signal(current)
 	_sync_enabled()
 
 
@@ -45,12 +44,17 @@ func _on_phase_changed(_previous: StringName, _next: StringName) -> void:
 	_sync_enabled()
 
 
-func _rebind_phase_signal() -> void:
-	if SessionState.state == null:
-		return
-	if SessionState.state.phase_changed.is_connected(_on_phase_changed):
-		SessionState.state.phase_changed.disconnect(_on_phase_changed)
-	SessionState.state.phase_changed.connect(_on_phase_changed)
+func _bind_phase_signal(current: GameState) -> void:
+	_unbind_phase_signal()
+	_connected_state = current
+	if _connected_state != null and not _connected_state.phase_changed.is_connected(_on_phase_changed):
+		_connected_state.phase_changed.connect(_on_phase_changed)
+
+
+func _unbind_phase_signal() -> void:
+	if _connected_state != null and _connected_state.phase_changed.is_connected(_on_phase_changed):
+		_connected_state.phase_changed.disconnect(_on_phase_changed)
+	_connected_state = null
 
 
 func _spawn_interactable(definition: MapDefinition) -> void:

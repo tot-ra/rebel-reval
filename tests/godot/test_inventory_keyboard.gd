@@ -59,5 +59,6 @@ func test_wasd_moves_focus_for_placement() -> void:
 func _send_key(overlay: InventoryOverlay, keycode: Key) -> void:
 	var key_event := InputEventKey.new()
 	key_event.keycode = keycode
+	key_event.physical_keycode = keycode
 	key_event.pressed = true
 	overlay._unhandled_input(key_event)

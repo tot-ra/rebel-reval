@@ -11,10 +11,11 @@ const STATUS_IRON_EQUIPPED := "Iron equipped"
 const STATUS_IRON_CLEARED := "Iron cleared"
 const PANEL_MARGIN := 24.0
 const PANEL_HEIGHT := 118.0
-const PANEL_WIDTH := 980.0
+const PANEL_WIDTH := 1120.0
+const ControlsOverlayScript := preload("res://scripts/ui/controls_overlay.gd")
 const HELP_TEXT := (
 	"WASD or arrows - move | Click - travel | E - interact | "
-	+ "C - camera | Right-drag - look | N - minimap | M - map | I - inventory | J - journal | Iron - technique"
+	+ "C - camera | Right-drag - look | N - minimap | M - map | I - inventory | J - journal | K - controls"
 )
 
 var _inventory_controller: InventoryController
@@ -26,6 +27,8 @@ var _inventory_button: Button
 var _journal_button: Button
 var _world_map_button: Button
 var _camera_button: Button
+var _controls_button: Button
+var _controls_overlay
 var _technique_button: Button
 var _save_button: Button
 var _status_label: Label
@@ -49,6 +52,24 @@ func _ready() -> void:
 	_resolve_dependencies()
 	_refresh_availability()
 	_refresh_technique_button()
+	_refresh_binding_hints()
+	if has_node("/root/UserSettings") and not UserSettings.input_bindings_changed.is_connected(_on_input_bindings_changed):
+		UserSettings.input_bindings_changed.connect(_on_input_bindings_changed)
+
+
+func _exit_tree() -> void:
+	if has_node("/root/UserSettings") and UserSettings.input_bindings_changed.is_connected(_on_input_bindings_changed):
+		UserSettings.input_bindings_changed.disconnect(_on_input_bindings_changed)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not event.is_action_pressed(&"toggle_controls") or event.is_echo():
+		return
+	get_viewport().set_input_as_handled()
+	if _controls_overlay != null and _controls_overlay.is_open():
+		_controls_overlay.close()
+	else:
+		_on_controls_pressed()
 
 
 func _build_ui() -> void:
@@ -121,6 +142,10 @@ func _build_ui() -> void:
 	_camera_button.pressed.connect(_on_camera_pressed)
 	actions.add_child(_camera_button)
 
+	_controls_button = _create_action_button("ControlsButton", "Controls [K]", "Remap keyboard, mouse, and gamepad controls")
+	_controls_button.pressed.connect(_on_controls_pressed)
+	actions.add_child(_controls_button)
+
 	# WHY (P1-024e): forge techniques must be mouse-reachable; a hotkey alone is not enough.
 	_technique_button = _create_action_button(
 		"IronTechniqueButton",
@@ -141,6 +166,12 @@ func _build_ui() -> void:
 	_status_label.add_theme_font_size_override("font_size", 12)
 	_status_label.add_theme_color_override("font_color", Color(0.72, 0.75, 0.78, 1.0))
 	layout.add_child(_status_label)
+
+	_controls_overlay = ControlsOverlayScript.new()
+	_controls_overlay.name = "ControlsOverlay"
+	_controls_overlay.configure(UserSettings if has_node("/root/UserSettings") else null)
+	_controls_overlay.closed.connect(_on_controls_closed)
+	add_child(_controls_overlay)
 
 
 func _create_action_button(node_name: String, label: String, tooltip: String) -> Button:
@@ -171,6 +202,7 @@ func _refresh_availability() -> void:
 	_journal_button.disabled = _journal_controller == null
 	_world_map_button.disabled = _world_map_controller == null
 	_camera_button.disabled = _find_map_view_runtime() == null
+	_controls_button.disabled = not has_node("/root/UserSettings")
 	_technique_button.disabled = not has_node("/root/SessionState")
 	_save_button.disabled = not _save_callback.is_valid()
 
@@ -226,6 +258,45 @@ func _on_camera_pressed() -> void:
 		return
 	runtime.toggle_camera_view()
 	_status_label.text = "First-person view" if runtime.is_first_person() else STATUS_READY
+
+
+func _on_controls_pressed() -> void:
+	if _controls_overlay == null:
+		return
+	if _inventory_controller != null:
+		_inventory_controller.close()
+	if _journal_controller != null:
+		_journal_controller.close()
+	if _world_map_controller != null:
+		_world_map_controller.close()
+	_controls_overlay.open()
+	_status_label.text = "Controls opened"
+
+
+func _on_controls_closed() -> void:
+	_status_label.text = STATUS_READY
+	if _controls_button != null:
+		_controls_button.grab_focus()
+
+
+func _on_input_bindings_changed(_bindings) -> void:
+	_refresh_binding_hints()
+
+
+func _refresh_binding_hints() -> void:
+	if not has_node("/root/UserSettings") or UserSettings.input_bindings == null:
+		return
+	var bindings = UserSettings.input_bindings
+	if _inventory_button != null:
+		_inventory_button.text = "Inventory [%s]" % bindings.binding_text(&"toggle_inventory", &"keyboard_mouse")
+	if _journal_button != null:
+		_journal_button.text = "Journal [%s]" % bindings.binding_text(&"toggle_journal", &"keyboard_mouse")
+	if _world_map_button != null:
+		_world_map_button.text = "Map [%s]" % bindings.binding_text(&"toggle_world_map", &"keyboard_mouse")
+	if _camera_button != null:
+		_camera_button.text = "Camera [%s]" % bindings.binding_text(&"toggle_camera_view", &"keyboard_mouse")
+	if _controls_button != null:
+		_controls_button.text = "Controls [%s]" % bindings.binding_text(&"toggle_controls", &"keyboard_mouse")
 
 
 func _on_technique_pressed() -> void:

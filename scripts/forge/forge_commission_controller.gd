@@ -27,17 +27,19 @@ func _ready() -> void:
 	_overlay.closed.connect(_on_overlay_closed)
 	_runner.finished.connect(_on_runner_finished)
 
-	if not SessionState.debug_state_applied.is_connected(_on_debug_state_applied):
-		SessionState.debug_state_applied.connect(_on_debug_state_applied)
+	if not SessionState.state_replaced.is_connected(_on_state_replaced):
+		SessionState.state_replaced.connect(_on_state_replaced)
 
 
 func _exit_tree() -> void:
-	if SessionState.debug_state_applied.is_connected(_on_debug_state_applied):
-		SessionState.debug_state_applied.disconnect(_on_debug_state_applied)
+	if SessionState.state_replaced.is_connected(_on_state_replaced):
+		SessionState.state_replaced.disconnect(_on_state_replaced)
 
 
-func _on_debug_state_applied(_preset_id: StringName) -> void:
-	_runner.configure(SessionState.content_db, SessionState.state, _presenter)
+func _on_state_replaced(_previous: GameState, current: GameState, _reason: StringName) -> void:
+	if _runner.is_active():
+		_runner.cancel()
+	_runner.configure(SessionState.content_db, current, _presenter)
 
 
 func is_open() -> bool:

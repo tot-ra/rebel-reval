@@ -8,10 +8,10 @@ Reconciled: 2026-07-20 (exact repository coverage through P0-069 plus P0-068 dis
 | Classification | Count | Role |
 |----------------|------:|------|
 | `working` | 25 | Active runtime scenes with verified or complete behavior |
-| `partial` | 27 | Substantial content but incomplete integration or dev-only use |
+| `partial` | 28 | Substantial content but incomplete integration or dev-only use |
 | `placeholder` | 3 | Reserved stubs or reference-only visuals, not playable |
 | `archive` | 20 | Out of vertical-slice scope; legacy open-world or event shells |
-| **Total** | **75** | Matches repository `.tscn` count |
+| **Total** | **76** | Matches repository `.tscn` count |
 
 Repository count command:
 
@@ -20,7 +20,7 @@ find . -name '*.tscn' -not -path './.git/*' | wc -l
 # Expected: 75
 ```
 
-Inventory row count (data rows in the table below): **75**.
+Inventory row count (data rows in the table below): **76**.
 
 ## Classification criteria
 
@@ -111,7 +111,7 @@ Inventory row count (data rows in the table below): **75**.
 | 63 | `scenes/world/poide_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
 | 64 | `scenes/world/sacred_grove.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
 | 65 | `scenes/world/viljandi_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
-| 66 | `scenes/world/world_item.tscn` | working | Pickup world-item component; D-003 anvil spearhead via `WorldItemController`. |
+| 66 | `scenes/interaction/world_item.tscn` | working | Pickup world-item component; D-003 anvil spearhead via `WorldItemController`. |
 | 67 | `scenes/comparison_room/comparison_room.tscn` | partial | P0-033 greybox baseline with procedural collisions, HUD, and slice mechanics verification. |
 | 68 | `scenes/comparison_room/orthogonal_4_direction.tscn` | partial | P0-035 proposed orthogonal/four-direction variant; dev verification only. |
 | 69 | `scenes/comparison_room/diamond_isometric_8_direction.tscn` | partial | P0-035 legacy diamond-isometric/eight-direction variant; dev verification only. |
@@ -124,17 +124,18 @@ Inventory row count (data rows in the table below): **75**.
 | Folder | working | partial | placeholder | archive | Total |
 |--------|--------:|--------:|------------:|--------:|------:|
 | Repository root | 1 | 0 | 0 | 1 | 2 |
-| `assets/characters/` | 8 | 3 | 0 | 0 | 11 |
+| `assets/characters/` | 7 | 3 | 0 | 0 | 10 |
 | `scenes/comparison_room/` | 0 | 3 | 0 | 0 | 3 |
 | `scenes/elements/` | 7 | 2 | 0 | 0 | 9 |
 | `scenes/events/` | 0 | 0 | 0 | 7 | 7 |
 | `scenes/harbor/` | 0 | 3 | 1 | 0 | 4 |
-| `scenes/interaction/` | 1 | 1 | 0 | 0 | 2 |
+| `scenes/interaction/` | 2 | 1 | 0 | 0 | 3 |
 | `scenes/intro/` | 0 | 0 | 1 | 0 | 1 |
 | `scenes/map/` | 0 | 0 | 1 | 0 | 1 |
 | `scenes/map_prototype/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/menu/` | 1 | 0 | 0 | 0 | 1 |
-| `scenes/reval_center/` | 0 | 3 | 0 | 0 | 3 |
+| `scenes/reval_archbishops_garden/` | 0 | 1 | 0 | 0 | 1 |
+| `scenes/reval_center/` | 0 | 2 | 0 | 0 | 2 |
 | `scenes/reval_east/` | 4 | 0 | 0 | 0 | 4 |
 | `scenes/reval_monastery/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/reval_north/` | 0 | 1 | 0 | 0 | 1 |
@@ -142,10 +143,10 @@ Inventory row count (data rows in the table below): **75**.
 | `scenes/reval_toompea/` | 0 | 1 | 0 | 2 | 3 |
 | `scenes/tests/` | 0 | 5 | 0 | 0 | 5 |
 | `scenes/ui/` | 3 | 0 | 0 | 0 | 3 |
-| `scenes/world/` | 1 | 0 | 0 | 10 | 11 |
+| `scenes/world/` | 0 | 0 | 0 | 10 | 10 |
 | `tools/` | 0 | 1 | 0 | 0 | 1 |
 | `tools/benchmarks/` | 0 | 2 | 0 | 0 | 2 |
-| **All** | **25** | **27** | **3** | **20** | **75** |
+| **All** | **25** | **28** | **3** | **20** | **76** |
 
 ## Verification
 
@@ -157,7 +158,7 @@ find . -name '*.tscn' -not -path './.git/*' | wc -l
 grep -E '^\| [0-9]+ \|' docs/reports/scene_inventory.md | wc -l
 ```
 
-Both commands should print `75` on a clean checkout at this revision.
+Both commands should print `76` on a clean checkout at this revision.
 
 ## Related tasks
 

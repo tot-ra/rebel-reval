@@ -118,7 +118,10 @@ static func _validate_metadata(blueprint: MapBlueprint, errors: Array[String]) -
 			errors.append("%s must not be empty" % prefix)
 		elif path.is_absolute_path() or path.contains(".."):
 			errors.append("%s must be a project-relative path: %s" % [prefix, path])
-		elif not FileAccess.file_exists("res://" + path):
+		elif OS.has_feature("editor") and not FileAccess.file_exists("res://" + path):
+			# Source references are authoring provenance, not runtime dependencies.
+			# Release packs intentionally omit Markdown/PDF evidence and remap imported
+			# resources, so enforce filesystem coverage only in editor/CI binaries.
 			errors.append("%s does not exist: %s" % [prefix, path])
 		if source_paths.has(path):
 			errors.append("duplicate source reference: %s" % path)

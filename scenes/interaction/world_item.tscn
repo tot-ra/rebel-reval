@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://cworlditem01"]
+[gd_scene format=3 uid="uid://cworlditem01"]
 
 [ext_resource type="Script" path="res://scripts/world/world_item.gd" id="1_world_item"]
 

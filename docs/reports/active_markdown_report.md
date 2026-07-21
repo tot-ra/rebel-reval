@@ -14,19 +14,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `41`
-- Markdown files excluded as archive/reference/out of active scope: `299`
-- Local/external links inspected: `151`
-- Links to active Markdown docs: `98`
-- Links to existing archive/reference/non-active local docs: `20`
-- External links skipped for reachability: `7`
-- Issues found: `0`
+- Active Markdown files scanned: `43`
+- Markdown files excluded as archive/reference/out of active scope: `300`
+- Local/external links inspected: `172`
+- Links to active Markdown docs: `99`
+- Links to existing archive/reference/non-active local docs: `21`
+- External links skipped for reachability: `22`
+- Issues found: `1`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 0 |
+| `BROKEN_LINK` | 1 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -34,7 +34,9 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Issues
 
-No active Markdown documentation issues found.
+| Code | Location | Detail |
+| --- | --- | --- |
+| `BROKEN_LINK` | `README.md:9` | Local Markdown link target does not exist: `./img/banner.jpg` |
 
 ## Active files scanned
 
@@ -50,6 +52,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0009-map-blueprint-authoring-architecture.md`
 - `docs/adr/0010-large-map-runtime-chunking.md`
 - `docs/adr/0011-optional-first-person-camera.md`
+- `docs/adr/0012-first-person-mouse-free-look.md`
 - `docs/ARCHITECTURE.md`
 - `docs/ART_BIBLE.md`
 - `docs/ASSET_INVENTORY.md`
@@ -73,6 +76,7 @@ No active Markdown documentation issues found.
 - `docs/MAP_AUTHORING.md`
 - `docs/MAP_CONVERSION_PLAN.md`
 - `docs/MATERIAL_STYLE_LOCK_KIT.md`
+- `docs/PERFORMANCE_REPORT.md`
 - `docs/SCENES/a-bitter-brew.md`
 - `docs/SCENES/the-makers-mark-branch-map.md`
 - `docs/SCENES/the-makers-mark.md`

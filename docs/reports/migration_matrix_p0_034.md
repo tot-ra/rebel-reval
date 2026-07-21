@@ -38,6 +38,7 @@ This matrix classifies current slice-relevant artifacts for migration toward the
 | `scenes/interaction/interactable.tscn` | `retain` | Shared focus/prompt interaction component. |
 | `scenes/interaction/interaction_test.tscn` | `retain` | Developer-only interaction verification scene. |
 | `scenes/menu/main_menu.tscn` | `retain` | `run/main_scene` with verified Start/Exit flow (P0-017 smoke pass). |
+| `scenes/reval_archbishops_garden/reval_archbishops_garden.tscn` | `convert` | Inactive Archbishop's Garden western Toompea prototype; developer traversal only and release-gated. |
 | `scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn` | `convert` | Slice placeholder stub; populate when guild hall content lands in the approved district. |
 | `scenes/reval_center/reval_center.tscn` | `convert` | Unified inactive Central District prototype containing Town Hall market square and civic quarter; release-gated. |
 | `scenes/reval_east/forge/forge.tscn` | `convert` | Slice hub with embedded TileSet and legacy tile layers; migrate layout and forging systems. |
@@ -56,7 +57,7 @@ This matrix classifies current slice-relevant artifacts for migration toward the
 | `scenes/ui/forge_commission_overlay.tscn` | `retain` | Forge commission flow overlay. |
 | `scenes/ui/inventory_overlay.tscn` | `retain` | Session bag overlay. |
 | `scenes/ui/journal_overlay.tscn` | `retain` | Quest journal overlay. |
-| `scenes/world/world_item.tscn` | `retain` | Pickup world-item component for D-003. |
+| `scenes/interaction/world_item.tscn` | `retain` | Pickup world-item component for D-003. |
 | `tools/benchmarks/large_map_benchmark.tscn` | `retain` | CI large-map pipeline benchmark host; not player-facing. |
 | `tools/benchmarks/lower_town_scene_benchmark.tscn` | `retain` | CI Lower Town scene-load benchmark host; not player-facing. |
 | `tools/capture_demo_walkthrough_host.tscn` | `retain` | D-004 packaged demo walkthrough capture host; not player-facing. |
