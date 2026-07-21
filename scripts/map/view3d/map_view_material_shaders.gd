@@ -183,20 +183,29 @@ void fragment() {
 	vec3 sky_reflection = mix(night_sky, day_sky, day_blend);
 	water_color = mix(water_color, sky_reflection, fresnel * mix(0.35, 0.68, day_blend));
 
-	// Reflect the view ray about the animated world normal. Sampling the shared
-	// catalog with that ray turns point stars into broken, wave-driven streaks.
+	// WHY: DayNightCycle packs a solar day into 60s. Reflecting the catalog and
+	// sun/moon through fully animated wave normals turns that race into frantic
+	// pre-dawn sparkles on open sea. Celestial samples use a calmer normal so
+	// waves still displace while glints stay readable instead of strobing.
 	vec3 world_view = normalize((INV_VIEW_MATRIX * vec4(normalize(VIEW), 0.0)).xyz);
-	vec3 reflected_sky_ray = normalize(reflect(-world_view, world_normal));
+	vec3 calm_normal = normalize(mix(vec3(0.0, 1.0, 0.0), world_normal, 0.38));
+	vec3 reflected_sky_ray = normalize(reflect(-world_view, calm_normal));
 	float reflected_above_horizon = smoothstep(-0.01, 0.06, reflected_sky_ray.y);
 	vec3 reflected_stars = texture(star_map, _equatorial_uv(reflected_sky_ray)).rgb;
-	water_color += reflected_stars * star_visibility * reflected_above_horizon * fresnel * 0.42;
+	// Drop star glitter as soon as the sun disk begins to rise so dawn does not
+	// stack racing constellations on top of the emerging sun path.
+	float night_sparkle = star_visibility * (1.0 - sun_reflection_visibility);
+	water_color += reflected_stars * night_sparkle * reflected_above_horizon * fresnel * 0.16;
 
 	// Explicit celestial glints remain visible in GL Compatibility, where the
 	// environment prefilter alone does not reliably preserve tiny sky disks.
 	float sun_alignment = max(dot(reflected_sky_ray, normalize(sun_direction)), 0.0);
-	float sun_glint = pow(sun_alignment, 360.0) * sun_reflection_visibility;
+	// Low sun elongates the glitter path; keep a warm dawn cue without a racing
+	// sparkle highway while the disk skims the horizon on a compressed day cycle.
+	float low_sun_glitter = smoothstep(-0.02, 0.22, sun_direction.y);
+	float sun_glint = pow(sun_alignment, 220.0) * sun_reflection_visibility * mix(0.2, 1.0, low_sun_glitter);
 	float moon_alignment = max(dot(reflected_sky_ray, normalize(moon_direction)), 0.0);
-	float moon_glint = pow(moon_alignment, 520.0) * moon_visibility;
+	float moon_glint = pow(moon_alignment, 320.0) * moon_visibility;
 	water_color += sun_reflection_color * sun_glint * (0.45 + fresnel * 1.2);
 	water_color += vec3(0.66, 0.72, 0.86) * moon_glint * (0.25 + fresnel * 0.75);
 

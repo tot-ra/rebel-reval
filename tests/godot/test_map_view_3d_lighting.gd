@@ -295,6 +295,8 @@ func test_water_reflections_follow_sky_catalog_cycle_and_weather() -> void:
 	(Engine.get_main_loop() as SceneTree).root.add_child(view)
 	var sky := view.sky_weather()
 	sky.auto_weather = false
+	sky.set_weather(SkyWeather3D.WEATHER_CLEAR)
+	sky.advance(SkyWeather3D.TRANSITION_SECONDS)
 	var water := MapViewMaterials.water_surface(MapTypes.TERRAIN_DEEP_WATER)
 
 	var full_moon := {"day": 10, "month": 5, "year": 1343}
@@ -305,12 +307,14 @@ func test_water_reflections_follow_sky_catalog_cycle_and_weather() -> void:
 		sky.star_map_texture(),
 		"water and sky must share one Hipparcos catalog texture"
 	)
+	# Clear weather is intentionally partly cloudy (coverage ~0.34), so reflected
+	# star/moon visibility sits near 0.66 rather than near 1.0.
 	assert_true(
-		float(water.get_shader_parameter("star_visibility")) > 0.7,
+		float(water.get_shader_parameter("star_visibility")) > 0.6,
 		"clear midnight must reflect stars through light cloud cover"
 	)
 	assert_true(
-		float(water.get_shader_parameter("moon_visibility")) > 0.7,
+		float(water.get_shader_parameter("moon_visibility")) > 0.6,
 		"a high full moon must reflect through light cloud cover"
 	)
 	assert_true(
