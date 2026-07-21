@@ -1,7 +1,9 @@
 shader_type canvas_item;
 
 uniform float feather : hint_range(0.0, 0.1) = 0.004;
-uniform float map_aspect : hint_range(0.01, 100.0) = 1.0;
+uniform vec2 center_uv = vec2(0.5, 0.5);
+uniform float view_cells = 56.0;
+uniform vec2 map_cells = vec2(1.0, 1.0);
 
 void fragment() {
 	vec2 centered = UV - vec2(0.5);
@@ -10,16 +12,15 @@ void fragment() {
 		discard;
 	}
 
-	// Cover the square viewport without distorting rectangular maps. The excess
-	// is cropped symmetrically, keeping every visible pixel inside the circle.
-	vec2 map_uv = UV;
-	if (map_aspect > 1.0) {
-		map_uv.x = centered.x / map_aspect + 0.5;
-	} else {
-		map_uv.y = centered.y * map_aspect + 0.5;
-	}
-
-	vec4 tex_color = texture(TEXTURE, map_uv);
+	// Player-centered follow: the circular diameter spans view_cells in world
+	// cells so the texture pans under a fixed marker. Full district overview
+	// stays on the M local-map overlay.
 	float edge_alpha = 1.0 - smoothstep(0.5 - feather, 0.5, dist);
-	COLOR = vec4(tex_color.rgb, tex_color.a * edge_alpha);
+	vec2 safe_cells = max(map_cells, vec2(1.0, 1.0));
+	vec2 map_uv = center_uv + (centered * view_cells) / safe_cells;
+	bool outside_map = map_uv.x < 0.0 || map_uv.x > 1.0 || map_uv.y < 0.0 || map_uv.y > 1.0;
+	vec4 tex_color = texture(TEXTURE, clamp(map_uv, vec2(0.0, 0.0), vec2(1.0, 1.0)));
+	vec4 outside_color = vec4(0.03, 0.02, 0.015, 0.92);
+	vec4 sample_color = mix(tex_color, outside_color, float(outside_map));
+	COLOR = vec4(sample_color.rgb, sample_color.a * edge_alpha);
 }

@@ -90,6 +90,48 @@ func test_minimap_shows_story_date_and_day_night_indicator() -> void:
 	_cleanup_root(root)
 
 
+func test_minimap_follow_pans_with_player() -> void:
+	var definition: MapDefinition = LowerTownSlice.create()
+	var grid: MapTerrainGrid = MapBuilder.build(definition)
+	var root := _make_root()
+	var player := Node2D.new()
+	player.name = "Player"
+	player.global_position = definition.player_spawn
+	root.add_child(player)
+	var hud := MinimapHud.new()
+	root.add_child(hud)
+	hud.configure(definition, grid, player)
+
+	var first := MinimapTextureBuilder.world_to_normalized(definition, player.global_position)
+	assert_eq(hud.get_follow_view_cells(), 56.0, "follow zoom must stay fixed for local radar scale")
+	assert_true(
+		hud.get_follow_center_uv().distance_to(first) < 0.001,
+		"minimap texture must center on the player"
+	)
+	var marker := hud.find_child("PlayerMarker", true, false) as ColorRect
+	assert_true(marker != null)
+	assert_true(marker.visible, "follow mode keeps the marker fixed at the circle center")
+	var expected_marker := Vector2(MinimapHud.MAX_DISPLAY_SIZE, MinimapHud.MAX_DISPLAY_SIZE) * 0.5 - MinimapHud.MARKER_SIZE * 0.5
+	assert_true(
+		marker.position.distance_to(expected_marker) < 0.01,
+		"player marker stays centered while the map pans"
+	)
+
+	player.global_position = definition.player_spawn + Vector2(definition.cell_size * 24.0, definition.cell_size * 18.0)
+	hud._process(0.0)
+	var second := MinimapTextureBuilder.world_to_normalized(definition, player.global_position)
+	assert_true(second.distance_to(first) > 0.01, "test must move the player enough to pan")
+	assert_true(
+		hud.get_follow_center_uv().distance_to(second) < 0.001,
+		"minimap content must pan with the character"
+	)
+	assert_true(
+		marker.position.distance_to(expected_marker) < 0.01,
+		"marker must stay centered after the player moves"
+	)
+	_cleanup_root(root)
+
+
 func test_story_calendar_tracks_slice_timeline_without_visual_cycle_days() -> void:
 	assert_eq(
 		GameCalendarScript.formatted_date_for_phase(GameState.PHASE_PROLOGUE_DAY),

@@ -9,6 +9,9 @@ const LOCATION_GAP := 8.0
 const LOCATION_LABEL_HEIGHT := 32.0
 const ORNAMENT_INSET := 5.0
 const MARKER_SIZE := Vector2(10.0, 10.0)
+## Cells spanned by the circular diameter. Large districts pan under the player;
+## maps smaller than this still follow, with empty fill outside authored bounds.
+const FOLLOW_VIEW_CELLS := 56.0
 const CIRCULAR_CLIP_SHADER := preload("res://scripts/ui/circular_clip.gdshader")
 const DayNightCycleScript := preload("res://scripts/global/day_night_cycle.gd")
 const GameCalendarScript := preload("res://scripts/global/game_calendar.gd")
@@ -356,10 +359,7 @@ func _rebuild_map_texture() -> void:
 	var image := MinimapTextureBuilder.build_image(_definition, _grid)
 	_map_texture = ImageTexture.create_from_image(image)
 	_texture_rect.texture = _map_texture
-	(_texture_rect.material as ShaderMaterial).set_shader_parameter(
-		"map_aspect",
-		float(image.get_width()) / float(image.get_height())
-	)
+	_apply_follow_shader_statics()
 
 	_apply_map_layout()
 	_apply_location_label(_definition)
@@ -378,27 +378,48 @@ func _display_size_for_map() -> Vector2:
 	return Vector2(MAX_DISPLAY_SIZE, MAX_DISPLAY_SIZE)
 
 
-func _map_uv_for_normalized(normalized: Vector2) -> Vector2:
-	if _definition == null or _definition.size_cells.x <= 0 or _definition.size_cells.y <= 0:
-		return Vector2.ZERO
-	var aspect := float(_definition.size_cells.x) / float(_definition.size_cells.y)
-	if aspect > 1.0:
-		return Vector2((normalized.x - 0.5) * aspect + 0.5, normalized.y)
-	return Vector2(normalized.x, (normalized.y - 0.5) / aspect + 0.5)
+func get_follow_center_uv() -> Vector2:
+	if _texture_rect == null:
+		return Vector2(-1.0, -1.0)
+	var material := _texture_rect.material as ShaderMaterial
+	if material == null:
+		return Vector2(-1.0, -1.0)
+	return material.get_shader_parameter("center_uv") as Vector2
+
+
+func get_follow_view_cells() -> float:
+	return FOLLOW_VIEW_CELLS
+
+
+func _apply_follow_shader_statics() -> void:
+	if _texture_rect == null or _definition == null:
+		return
+	var material := _texture_rect.material as ShaderMaterial
+	if material == null:
+		return
+	material.set_shader_parameter("view_cells", FOLLOW_VIEW_CELLS)
+	material.set_shader_parameter(
+		"map_cells",
+		Vector2(float(_definition.size_cells.x), float(_definition.size_cells.y))
+	)
 
 
 func _update_marker() -> void:
 	if _marker == null or _player == null or _definition == null or not is_instance_valid(_player):
-		_marker.visible = false
+		if _marker != null:
+			_marker.visible = false
 		return
 
 	var normalized := MinimapTextureBuilder.world_to_normalized(_definition, _player.global_position)
-	var marker_center := _map_uv_for_normalized(normalized) * _texture_rect.size
+	var material := _texture_rect.material as ShaderMaterial
+	if material != null:
+		# Pan the authored map under a fixed center marker so local travel reads
+		# clearly; the M overlay still shows the full district.
+		material.set_shader_parameter("center_uv", normalized)
+
 	var circle_center := Vector2(MAX_DISPLAY_SIZE, MAX_DISPLAY_SIZE) * 0.5
-	var marker_radius := MARKER_SIZE.length() * 0.5
-	var marker_inside_circle := marker_center.distance_to(circle_center) <= (MAX_DISPLAY_SIZE * 0.5) - marker_radius
-	_marker.visible = visible and marker_inside_circle
-	_marker.position = marker_center - MARKER_SIZE * 0.5
+	_marker.visible = visible
+	_marker.position = circle_center - MARKER_SIZE * 0.5
 
 
 func _is_toggle_event(event: InputEvent) -> bool:
