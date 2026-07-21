@@ -9,6 +9,7 @@ extends Node3D
 ## logic to view, through MapViewBridge.
 
 const PLAYER_RIG_SCENE := preload("res://assets/characters/kalev/kalev.tscn")
+const CLICK_INPUT_SCRIPT_PATH := "res://scripts/map/map_click_input_controller.gd"
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 const RuntimeCamera := preload("res://scripts/map/view3d/map_view_runtime_camera.gd")
 
@@ -50,7 +51,9 @@ var _camera_controller: MapViewRuntimeCamera = RuntimeCamera.new()
 var _last_facing := Vector2.ZERO
 var _actor_rigs: Dictionary = {}
 var _equipment_state: GameState
-var _click_input: MapClickInputController
+var _session_state: Node
+var _session_content_db: ContentDB
+var _click_input: Node
 
 
 static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasItem, player: CharacterBody2D) -> MapViewRuntime:
@@ -78,9 +81,7 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 	scene_root.add_child(runtime)
 	# Created at runtime, so enable input explicitly before the first frame.
 	runtime.set_process_unhandled_input(true)
-	runtime._bind_equipment_state(SessionState.state)
-	if not SessionState.state_replaced.is_connected(runtime._on_state_replaced):
-		SessionState.state_replaced.connect(runtime._on_state_replaced)
+	runtime._bind_session_state()
 	runtime._register_view_actors(scene_root)
 	runtime._configure_screen_relative_movement()
 	runtime._sync_player(true)
@@ -91,20 +92,24 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 	return runtime
 
 
-func configure_click_input(world_items: WorldItemController = null) -> void:
+func configure_click_input(world_items: Node = null) -> void:
 	if _click_input == null:
 		return
 	if world_items != null:
-		_click_input.set_world_items(world_items)
+		_click_input.call("set_world_items", world_items)
 
 
 func _install_click_input(_scene_root: Node2D) -> void:
-	# Own the click controller under the runtime so scene tests and forge wiring
-	# can resolve MapClickInput as a MapViewRuntime child.
-	_click_input = MapClickInputController.new()
+	# Keep gameplay click routing out of the editor-time map dependency graph.
+	# MapViewRuntime is loaded by import tooling before gameplay autoloads exist.
+	var click_input_script := load(CLICK_INPUT_SCRIPT_PATH) as Script
+	if click_input_script == null:
+		push_error("MapViewRuntime could not load the click input controller")
+		return
+	_click_input = click_input_script.new() as Node
 	_click_input.name = "MapClickInput"
 	add_child(_click_input)
-	_click_input.setup(_player, self)
+	_click_input.call("setup", _player, self)
 
 
 ## Projects a screen point through the gameplay camera onto the logic plane,
@@ -276,7 +281,9 @@ func rotate_view_degrees(delta_degrees: float) -> void:
 
 
 func _sync_music_cycle() -> void:
-	MusicDirector.set_cycle_progress(cycle_progress)
+	var music_director := get_node_or_null("/root/MusicDirector")
+	if music_director != null:
+		music_director.call("set_cycle_progress", cycle_progress)
 
 
 func _sync_player(snap: bool, delta: float = 0.0) -> void:
@@ -314,12 +321,22 @@ func _sync_player(snap: bool, delta: float = 0.0) -> void:
 ## equipment is only a default for showcase scenes. Mirror the state now and
 ## on every equipment change.
 func _exit_tree() -> void:
-	if SessionState.state_replaced.is_connected(_on_state_replaced):
-		SessionState.state_replaced.disconnect(_on_state_replaced)
+	if _session_state != null and _session_state.is_connected(&"state_replaced", _on_state_replaced):
+		_session_state.disconnect(&"state_replaced", _on_state_replaced)
 	_disconnect_equipment_state()
 	# Actor rigs and the map view share ShaderMaterials; strip before free so the
 	# headless dummy renderer does not emit material_get_instance_shader_parameters.
 	MapView3D._strip_geometry_materials(self)
+
+
+func _bind_session_state() -> void:
+	_session_state = get_node_or_null("/root/SessionState")
+	if _session_state == null:
+		return
+	_session_content_db = _session_state.get("content_db") as ContentDB
+	_bind_equipment_state(_session_state.get("state") as GameState)
+	if not _session_state.is_connected(&"state_replaced", _on_state_replaced):
+		_session_state.connect(&"state_replaced", _on_state_replaced)
 
 
 func _on_state_replaced(_previous: GameState, current: GameState, _reason: StringName) -> void:
@@ -328,7 +345,7 @@ func _on_state_replaced(_previous: GameState, current: GameState, _reason: Strin
 
 func _bind_equipment_state(current: GameState = null) -> void:
 	_disconnect_equipment_state()
-	_equipment_state = current if current != null else SessionState.state
+	_equipment_state = current
 	if _equipment_state == null:
 		return
 	for slot: StringName in SharedCharacterRig.EQUIPMENT_SLOTS:
@@ -353,7 +370,7 @@ func _sync_equipment_slot(slot: StringName) -> void:
 	if item_id.is_empty():
 		_player_rig.unequip(slot)
 		return
-	var record: Dictionary = SessionState.content_db.get_item(item_id)
+	var record: Dictionary = _session_content_db.get_item(item_id) if _session_content_db != null else {}
 	var gameplay: Dictionary = record.get("gameplay", {})
 	var equip_info: Dictionary = gameplay.get("equip", {})
 	var scene_path := String(equip_info.get("scene", ""))
