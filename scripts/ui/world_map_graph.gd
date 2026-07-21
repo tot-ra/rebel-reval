@@ -8,6 +8,12 @@ extends RefCounted
 const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
 const StOlafsGuildHall := preload("res://scripts/map/definitions/prototypes/st_olafs_guild_hall_definition.gd")
 
+## WHY: temporary debug unlock so designers can jump to any active district without
+## walking adjacency. Release builds keep authored-neighbor travel only.
+static func allow_all_active_travel() -> bool:
+	return OS.is_debug_build()
+
+
 ## Geographic-ish normalized positions so the overlay reads as Reval districts.
 ## Unknown active scenes fall back to a bottom row so nothing is silently dropped.
 const LAYOUT_BY_SCENE: Dictionary = {
@@ -68,6 +74,7 @@ static func connections() -> Array[Dictionary]:
 
 ## Directed travel for P1-031a: spawn comes from the current scene's authored
 ## transition into the destination, never from undirected graph display edges.
+## Debug builds may fall back to a destination default spawn for non-adjacent hops.
 static func resolve_travel_spawn(from_scene_id: StringName, to_scene_id: StringName) -> StringName:
 	if from_scene_id.is_empty() or to_scene_id.is_empty():
 		return &""
@@ -76,19 +83,28 @@ static func resolve_travel_spawn(from_scene_id: StringName, to_scene_id: StringN
 	if not DoorNavigator.has_active_scene(to_scene_id):
 		return &""
 	var definition := create_definition(from_scene_id)
-	if definition == null:
-		return &""
-	for transition in definition.transitions:
-		var destination := StringName(String(transition.get("destination_scene_id", "")))
-		if destination != to_scene_id:
-			continue
-		var spawn := StringName(String(transition.get("destination_spawn_id", "")))
-		if spawn.is_empty():
-			continue
-		if not DoorNavigator.has_spawn(to_scene_id, spawn):
-			continue
-		return spawn
+	if definition != null:
+		for transition in definition.transitions:
+			var destination := StringName(String(transition.get("destination_scene_id", "")))
+			if destination != to_scene_id:
+				continue
+			var spawn := StringName(String(transition.get("destination_spawn_id", "")))
+			if spawn.is_empty():
+				continue
+			if not DoorNavigator.has_spawn(to_scene_id, spawn):
+				continue
+			return spawn
+	if allow_all_active_travel():
+		return resolve_debug_fallback_spawn(to_scene_id)
 	return &""
+
+
+## Deterministic landing spawn when no authored edge exists (debug unlock only).
+static func resolve_debug_fallback_spawn(to_scene_id: StringName) -> StringName:
+	var spawns := DoorNavigator.get_scene_spawn_ids(to_scene_id)
+	if spawns.is_empty():
+		return &""
+	return spawns[0]
 
 
 static func plan_travel(from_scene_id: StringName, to_scene_id: StringName) -> Dictionary:

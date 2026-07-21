@@ -108,8 +108,13 @@ func subtitle() -> String:
 	if _current_scene_id.is_empty():
 		return "Current scene is outside the active transition registry."
 	if _travelable.is_empty():
-		return "You are here: %s (no travelable neighbors)" % LocationHud.display_name_for_scene(
+		return "You are here: %s (no travelable destinations)" % LocationHud.display_name_for_scene(
 			_current_scene_id
+		)
+	if WorldMapGraph.allow_all_active_travel():
+		return (
+			"You are here: %s - debug: select any active district (click or Confirm)"
+			% LocationHud.display_name_for_scene(_current_scene_id)
 		)
 	return (
 		"You are here: %s - select a linked district (click or Confirm)"
@@ -118,6 +123,13 @@ func subtitle() -> String:
 
 
 func help_text() -> String:
+	if WorldMapGraph.allow_all_active_travel():
+		return (
+			"Debug unlock: click or focus any active district, then Confirm to travel. "
+			+ "Arrow keys / D-pad move focus between destinations. "
+			+ "Your current district stays marked and cannot be selected. "
+			+ "Choose Local map to return, or press M / Escape to close."
+		)
 	return (
 		"Click or focus a connected district, then Confirm to travel. "
 		+ "Arrow keys / D-pad move focus between linked districts. "

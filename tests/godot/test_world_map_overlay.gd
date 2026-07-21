@@ -188,10 +188,22 @@ func test_travel_spawn_resolves_edge_for_reval_east_and_forge() -> void:
 		WorldMapGraph.resolve_travel_spawn(&"reval_east", &"reval_east").is_empty(),
 		"current scene must not resolve travel to itself"
 	)
-	assert_true(
-		WorldMapGraph.plan_travel(&"reval_east", &"st_olafs_guild_hall").is_empty(),
-		"disconnected active scenes must not travel"
-	)
+	var guild_plan := WorldMapGraph.plan_travel(&"reval_east", &"st_olafs_guild_hall")
+	if WorldMapGraph.allow_all_active_travel():
+		assert_eq(guild_plan.get("scene_id", &""), &"st_olafs_guild_hall")
+		assert_false(
+			String(guild_plan.get("spawn_id", &"")).is_empty(),
+			"debug unlock must resolve a fallback spawn for non-adjacent active scenes"
+		)
+		assert_true(
+			DoorNavigator.has_spawn(&"st_olafs_guild_hall", guild_plan["spawn_id"]),
+			"debug fallback spawn must be registered in the active manifest"
+		)
+	else:
+		assert_true(
+			guild_plan.is_empty(),
+			"release builds must refuse non-adjacent travel"
+		)
 
 
 func test_click_neighbor_records_go_to_scene_without_traveling_current() -> void:
@@ -230,11 +242,23 @@ func test_click_neighbor_records_go_to_scene_without_traveling_current() -> void
 		overlay.request_travel_to(&"archive_only"),
 		"unknown nodes must not travel"
 	)
-	assert_false(
-		overlay.request_travel_to(&"st_olafs_guild_hall"),
-		"disconnected nodes must not travel from reval_east"
-	)
-	assert_eq(recorded.size(), 1, "rejected destinations must not emit travel")
+	if WorldMapGraph.allow_all_active_travel():
+		assert_true(
+			overlay.request_travel_to(&"st_olafs_guild_hall"),
+			"debug unlock must allow travel to non-adjacent active scenes"
+		)
+		assert_eq(recorded.size(), 2, "debug non-adjacent travel must emit once")
+		assert_eq(recorded[1]["scene_id"], &"st_olafs_guild_hall")
+		assert_true(
+			DoorNavigator.has_spawn(&"st_olafs_guild_hall", recorded[1]["spawn_id"]),
+			"debug non-adjacent travel must use a registered spawn"
+		)
+	else:
+		assert_false(
+			overlay.request_travel_to(&"st_olafs_guild_hall"),
+			"release builds must refuse disconnected nodes from reval_east"
+		)
+		assert_eq(recorded.size(), 1, "rejected destinations must not emit travel")
 
 	var controller := WorldMapController.new()
 	controller.name = "WorldMapController"
@@ -256,6 +280,13 @@ func test_click_neighbor_records_go_to_scene_without_traveling_current() -> void
 		controller.travel_to_scene(&"archive_only", false).is_empty(),
 		"controller must refuse unknown destinations"
 	)
+	if WorldMapGraph.allow_all_active_travel():
+		var guild_plan := controller.travel_to_scene(&"st_olafs_guild_hall", false)
+		assert_eq(guild_plan.get("scene_id", &""), &"st_olafs_guild_hall")
+		assert_true(
+			DoorNavigator.has_spawn(guild_plan["scene_id"], guild_plan["spawn_id"]),
+			"controller debug unlock must use a registered spawn for non-adjacent hops"
+		)
 
 	overlay.queue_free()
 	controller.queue_free()
