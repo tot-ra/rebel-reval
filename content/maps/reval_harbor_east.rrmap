@@ -1,74 +1,104 @@
-# Fishing Harbour foreland. Viru road arrives here from the Lower Town
-# eastern district, while the west harbour lane leads to Trade Harbour.
+# Kalamaja/Kalarand-inspired fishing shore north-west of Reval. Fishing activity
+# belongs here more plausibly than at Pirita/Kose in 1343. The map keeps its stable
+# legacy ID but now joins the merchant landing on its east edge.
 rrmap 1
-map reval_harbor_east loc.reval_harbor.east 144 80 meadow scope=prototype active=false palette=clean_painted seed=1386 cell_size=32
+map reval_harbor_east loc.reval_harbor.kalamaja 144 80 meadow scope=prototype active=false palette=clean_painted seed=1386 cell_size=32
 source "scenes/harbor/harbor_east.tscn"
 source "scenes/harbor/harbor.md"
 source "scenes/harbor/warehouses.md"
-style house.warehouse wall_height=68 wall_color=5a4f45ff wall_material=plank roof_color=352820ff roof_material=shingle door_side=south
-style house.inn wall_height=76 wall_color=6a5f52ff wall_material=log roof_color=6f6045ff roof_material=thatch door_side=south
-style wall.quay wall_height=22 wall_color=7a7870ff
-style wall.pier wall_height=18 wall_color=6a665eff
+source "docs/reports/reval_harbour_1343_research.md"
+style house.shed wall_height=52 wall_color=62584aff wall_material=plank roof_color=6f6045ff roof_material=thatch door_side=south
+style house.hut wall_height=60 wall_color=6a5f52ff wall_material=log roof_color=51402eff roof_material=thatch door_side=south
+style house.store wall_height=62 wall_color=554b40ff wall_material=plank roof_color=352820ff roof_material=shingle door_side=south
+style wall.fence wall_height=28 wall_color=5a4938ff wall_material=plank
 style grass.short
 style grass.tall
 style grass.dry
 style bush.dense
-terrain water.deep deep_water 0 0 144 28 order=1
-terrain water.shallow shallow_water 0 28 144 4 order=2
-terrain coast.sand coast_sand 0 32 144 4 order=3
-terrain quay.paving castle_paving 18 36 118 7 order=4
-terrain quay.mud mud 6 43 130 7 order=5
-terrain suburb.grass grass 0 50 144 30 order=6
-terrain road.mud mud 0 55 34 8 order=7
-terrain meadow.tall grass 42 58 24 12 style=grass.tall order=10
-terrain meadow.short grass 72 56 36 12 style=grass.short order=10
-terrain scrub.bushes grass 110 68 28 7 style=bush.dense order=10
-stroke viru_road cobblestone 0,58|16,58|32,58|32,54|48,54|48,48|58,48|58,40 thickness=4 order=8
-stroke trade_harbor_lane cobblestone 0,46|18,46|38,46|58,46 thickness=3 order=9
-stroke warehouse_lane cobblestone 20,44|38,44|56,44|76,44|94,44|116,44|136,44 thickness=3 order=10
-stroke meadow_lane cobblestone 44,70|58,70|58,66|74,66|74,64|94,64|116,64|134,64 thickness=2 order=11
-building warehouse_west house 20 37 12 5 style=house.warehouse
-building warehouse_mid house 40 37 12 5 style=house.warehouse
-building warehouse_east house 72 37 14 5 style=house.warehouse
-building customs_store house 88 44 10 5 style=house.warehouse
-building seamens_inn house 60 52 12 6 style=house.inn
-building fisher_sheds house 16 50 12 5 style=house.warehouse
-building cart_shed house 34 62 10 5 style=house.warehouse
-building fishing_shed_east house 108 38 14 5 style=house.warehouse
-building net_house_east house 126 44 12 5 style=house.warehouse
-building fisher_hut_east house 112 56 12 6 style=house.inn
-wall stone_quay_west 18 35 50 35 thickness=1 kind=wall style=wall.quay
-wall stone_quay_east 60 35 98 35 thickness=1 kind=wall style=wall.quay
-wall pier_east 70 28 70 39 thickness=2 kind=wall style=wall.pier
-wall pier_small 36 28 36 38 thickness=2 kind=wall style=wall.pier
-wall fishing_pier_east 118 28 118 40 thickness=2 kind=wall style=wall.pier
-prop cargo_barrels barrels 44 47 rect=2,2
-prop drying_nets barrels 22 50 rect=2,1
-prop road_cart cart 18 59 rect=2,2
-prop quay_crane cart 80 40 rect=2,2
-prop bush.road bush 84 66 rect=3,2
-prop bush.east bush 94 72 rect=2,2
-prop fish_barrels barrels 116 47 rect=3,2
-prop drying_nets_east barrels 132 50 rect=2,1
-prop fishing_boat_west_a fishing_boat 33 22 rect=2,6
-prop fishing_boat_west_b fishing_boat 39 25 rect=2,6
-prop fishing_boat_mid_a fishing_boat 67 22 rect=2,6
-prop fishing_boat_mid_b fishing_boat 73 25 rect=2,6
-prop fishing_boat_east_a fishing_boat 115 22 rect=2,6
-prop fishing_boat_east_b fishing_boat 121 25 rect=2,6
-landmark east_quay_marker gate_arch 78 36 5 2 wall_color=8c8980ff top_px=88 passage_axis=z
-spawn spawn.inspection 48 56 rect=2,2
-anchor from_reval_east 5 58 rect=2,2
-anchor from_harbor_north 6 46 rect=2,2
-anchor quay_plaza 58 46 rect=2,2
-anchor east_warehouses 78 46 rect=2,2
-transition to_reval_east 0 55 4 8 to=reval_east destination_spawn=viru_road_boundary spawn=from_reval_east spawn_offset_px=128,0 highlight_area=true transition_visual=ground alignment=travel
-transition to_harbor_north 0 43 4 8 to=reval_harbor_north destination_spawn=from_harbor_east spawn=from_harbor_north spawn_offset_px=128,0 highlight_area=true transition_visual=ground
-sign sign.town "to town" 6 60 west
-sign sign.north_harbor "trade harbour" 8 44 west
-sign sign.quay "east quay" 80 43 north
-patrol harbor_east_watch 6,58|24,58|42,54|58,46|38,46|18,46|58,46|76,46
-exclude blocked.water 0 0 144 32
-fade fade.quay 20 36 116 6
+style bush.scrub
+style reed.shore
+style tree.mixed
+style tree.spruce
+terrain water.deep deep_water 0 0 144 24 order=1
+terrain water.shallow shallow_water 0 24 144 10 order=2
+terrain shore.sand coast_sand 0 34 144 10 order=3
+terrain shore.sand_west coast_sand 0 33 42 2 order=4
+terrain shore.sand_mid coast_sand 50 32 36 3 order=4
+terrain shore.sand_east coast_sand 104 33 40 2 order=4
+terrain shore.mud mud 0 44 144 11 order=5
+terrain village.grass grass 0 55 144 25 style=grass.tall order=6
+terrain yard.west dirt 8 48 30 18 order=7
+terrain yard.mid mud 44 48 35 18 order=7
+terrain yard.east dirt 84 48 38 18 order=7
+terrain boatyard.mud mud 122 47 22 16 order=7
+# Walkable timber beach landings replace blocking pier walls. Players can walk
+# the plank decks out to moored working boats; open water stays impassable.
+terrain pier.west timber_floor 26 24 2 20 order=12
+terrain pier.mid timber_floor 64 26 2 19 order=12
+terrain pier.east timber_floor 111 27 2 18 order=12
+terrain reedbed.west grass 0 53 10 13 style=reed.shore order=8
+terrain reedbed.mid grass 72 43 10 9 style=reed.shore order=8
+terrain boundary.wood_west forest_floor 0 65 37 15 style=tree.mixed order=9
+terrain boundary.wood_mid forest_floor 44 70 55 10 style=tree.mixed order=9
+terrain boundary.wood_east forest_floor 108 64 36 16 style=tree.spruce order=9
+terrain boundary.scrub_west grass 34 62 15 10 style=bush.dense order=10
+terrain boundary.scrub_mid grass 94 65 17 10 style=bush.scrub order=10
+stroke shore_track dirt 0,50|16,50|16,52|30,52|30,50|46,50|46,51|62,51|62,49|78,49|78,51|94,51|94,50|112,50|128,50|128,49|143,49 thickness=3 order=11
+stroke village_track dirt 18,64|30,64|30,61|44,61|44,58|62,58|62,55|78,55|78,52|94,52|94,51 thickness=2 order=11
+stroke netyard_track dirt 54,66|62,66|62,60|62,55|78,55|78,52 thickness=2 order=11
+building fisher_hut_west house 12 53 10 6 style=house.hut
+building smoke_shed_west house 27 48 8 5 style=house.shed
+building net_house_mid house 46 46 12 5 style=house.store
+building fisher_hut_mid house 61 56 10 6 style=house.hut
+building fish_shed_mid house 75 48 9 5 style=house.shed
+building boatwright_shed house 90 54 15 5 style=house.shed
+building fisher_hut_east house 109 49 10 6 style=house.hut
+building salt_shed_east house 124 47 10 5 style=house.store
+wall west_netyard_north 8 47 38 47 thickness=1 kind=wall style=wall.fence openings=21,47,6,1
+wall west_netyard_west 8 47 8 65 thickness=1 kind=wall style=wall.fence openings=8,54,1,5
+wall west_netyard_south 8 65 38 65 thickness=1 kind=wall style=wall.fence openings=24,65,6,1
+wall mid_netyard_west 43 47 43 67 thickness=1 kind=wall style=wall.fence openings=43,54,1,5
+wall mid_netyard_south 43 67 82 67 thickness=1 kind=wall style=wall.fence openings=58,67,7,1
+wall east_boatyard_west 84 47 84 65 thickness=1 kind=wall style=wall.fence openings=84,54,1,5
+wall east_boatyard_south 84 65 122 65 thickness=1 kind=wall style=wall.fence openings=98,65,7,1
+prop fish_barrels_west barrels 19 51 rect=3,2
+prop drying_nets_west barrels 34 54 rect=2,1
+prop smokehouse_barrels barrels 28 58 rect=2,2
+prop fish_barrels_mid barrels 55 53 rect=3,2
+prop drying_nets_mid barrels 72 59 rect=3,1
+prop boatwright_cart cart 95 50 rect=2,2
+prop fish_barrels_east barrels 115 57 rect=3,2
+prop drying_nets_east barrels 132 54 rect=2,1
+prop scrub.west bush 38 68 rect=3,2 style=bush.dense
+prop scrub.mid bush 99 70 rect=3,2 style=bush.scrub
+prop scrub.east bush 136 65 rect=3,2 style=bush.dense
+# Working boats stay on water beside the timber decks so players can walk up to
+# them from the pier tips without boarding open Baltic cells.
+prop fishing_boat_west_a fishing_boat 23 24 rect=2,5
+prop fishing_boat_west_b fishing_boat 29 25 rect=2,5
+prop fishing_boat_mid_a fishing_boat 61 26 rect=2,5
+prop fishing_boat_mid_b fishing_boat 67 27 rect=2,5
+prop fishing_boat_east_a fishing_boat 108 27 rect=2,5
+prop fishing_boat_east_b fishing_boat 114 28 rect=2,5
+landmark kalarand_marker gate_arch 68 42 5 2 wall_color=6f6254ff top_px=68 passage_axis=z
+spawn spawn.inspection 68 53 rect=2,2
+anchor from_harbor_north 138 51 rect=2,2
+anchor quay_plaza 68 53 rect=2,2
+anchor kalamaja_shore 55 54 rect=2,2
+transition to_harbor_north 140 47 4 8 to=reval_harbor_north destination_spawn=from_harbor_east spawn=from_harbor_north spawn_offset_px=-128,0 highlight_area=true transition_visual=ground
+sign sign.merchant_landing "merchant landing" 136 49 east
+sign sign.shore "kalamaja fishing shore" 70 49 north
+patrol harbor_east_watch 62,62|62,55|46,51|28,52|46,51|76,51|96,51|118,50|138,51|118,50
+# Carve pier columns out of the water exclusion so timber decks remain walkable.
+exclude blocked.water.deep 0 0 144 24
+exclude blocked.water.shallow_a 0 24 26 10
+exclude blocked.water.shallow_b 28 24 36 10
+exclude blocked.water.shallow_c 66 24 45 10
+exclude blocked.water.shallow_d 113 24 31 10
+exclude blocked.wood_west 0 65 37 15
+exclude blocked.wood_mid_west 44 70 22 10
+exclude blocked.wood_mid_east 82 70 17 10
+exclude blocked.wood_east 108 64 36 16
+fade fade.shore 8 43 128 10
 camera 0 0 144 80
-surroundings north water east water west woodland south woodland
+surroundings north water east woodland west water south woodland
