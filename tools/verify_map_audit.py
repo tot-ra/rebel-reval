@@ -52,7 +52,8 @@ def _resolves(root: Path, value: str) -> bool:
 def _declarative_scene_links(root: Path) -> dict[str, str]:
     links: dict[str, str] = {}
     for scene_path in root.rglob("*.tscn"):
-        if any(part in {".git", ".godot", "tools"} for part in scene_path.parts):
+        # Keep local agent worktree mirrors out of inventory/audit discovery.
+        if any(part in {".git", ".godot", "tools", ".a2gent-worktrees"} for part in scene_path.parts):
             continue
         scene_text = scene_path.read_text(encoding="utf-8")
         script_match = re.search(r'path="res://(?P<script>[^"\n]+\.gd)"', scene_text)

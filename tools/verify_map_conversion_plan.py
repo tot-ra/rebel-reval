@@ -17,6 +17,8 @@ TODO = ROOT / "TODO.md"
 VALID_ROLES = frozenset({"level", "map", "event", "support", "actor", "ui", "test"})
 VALID_STATUSES = frozenset({"convert", "archive", "retain"})
 DETAILED_ROLES = frozenset({"level", "map", "event"})
+# Local agent/worktree mirrors must not pollute repository scene discovery.
+SKIP_TREE_PARTS = frozenset({".git", ".godot", ".a2gent-worktrees"})
 REQUIRED_TASK_IDS = tuple(f"P0-{number:03d}" for number in range(43, 47)) + tuple(
     f"P2-{number:03d}" for number in range(18, 22)
 ) + ("P4-014", "P4-015")
@@ -72,7 +74,7 @@ def repository_scenes(root: Path) -> set[str]:
     return {
         path.relative_to(root).as_posix()
         for path in root.rglob("*.tscn")
-        if ".git" not in path.parts and ".godot" not in path.parts
+        if SKIP_TREE_PARTS.isdisjoint(path.parts)
     }
 
 

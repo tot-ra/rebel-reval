@@ -45,6 +45,7 @@ This matrix classifies current slice-relevant artifacts for migration toward the
 | `scenes/reval_east/forge/forge_cat.tscn` | `retain` | Ambient smithy cat actor. |
 | `scenes/reval_east/forge/smithy_henning.tscn` | `retain` | Smithy apprentice Henning actor. |
 | `scenes/reval_east/reval_east.tscn` | `convert` | Default Start district on legacy `scenes/tileset.tres`; migrate to orthogonal target. |
+| `scenes/reval_east/viru_gate_foreland/viru_gate_foreland.tscn` | `convert` | Inactive Viru Gate road foreland prototype; developer traversal only and release-gated. |
 | `scenes/reval_monastery/reval_monastery.tscn` | `convert` | Inactive Monastery District prototype splitting the historic northern ward; developer traversal only. |
 | `scenes/reval_north/reval_north.tscn` | `convert` | Inactive programmatic north quarter prototype; developer traversal only. |
 | `scenes/reval_south/reval_south.tscn` | `convert` | Inactive southern quarter prototype; developer traversal only. |

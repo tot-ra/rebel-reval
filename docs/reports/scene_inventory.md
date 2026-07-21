@@ -1,26 +1,26 @@
 # Scene inventory (P0-018, reconciled P0-055)
 
 Recorded: 2026-07-16
-Reconciled: 2026-07-20 (exact repository coverage through P0-069 plus P0-068 district additions)
+Reconciled: 2026-07-21 (exact repository coverage through P0-074)
 
 ## Summary
 
 | Classification | Count | Role |
 |----------------|------:|------|
 | `working` | 25 | Active runtime scenes with verified or complete behavior |
-| `partial` | 28 | Substantial content but incomplete integration or dev-only use |
+| `partial` | 29 | Substantial content but incomplete integration or dev-only use |
 | `placeholder` | 3 | Reserved stubs or reference-only visuals, not playable |
 | `archive` | 20 | Out of vertical-slice scope; legacy open-world or event shells |
-| **Total** | **76** | Matches repository `.tscn` count |
+| **Total** | **77** | Matches repository `.tscn` count |
 
 Repository count command:
 
 ```bash
-find . -name '*.tscn' -not -path './.git/*' | wc -l
-# Expected: 75
+find . -name '*.tscn' -not -path './.git/*' -not -path './.godot/*' -not -path './.a2gent-worktrees/*' | wc -l
+# Expected: 77
 ```
 
-Inventory row count (data rows in the table below): **76**.
+Inventory row count (data rows in the table below): **77**.
 
 ## Classification criteria
 
@@ -86,6 +86,7 @@ Inventory row count (data rows in the table below): **76**.
 | 40 | `scenes/reval_east/forge/forge_cat.tscn` | working | Ambient smithy cat with navigation and idle behavior. |
 | 41 | `scenes/reval_east/forge/smithy_henning.tscn` | working | Smithy apprentice Henning with patrol and idle behavior. |
 | 42 | `scenes/reval_east/reval_east.tscn` | working | Programmatic bounded Lower Town exterior; default Start destination via manifest. |
+| 78 | `scenes/reval_east/viru_gate_foreland/viru_gate_foreland.tscn` | partial | Inactive Viru Gate road foreland prototype; developer traversal only and release-gated. |
 | 73 | `scenes/reval_monastery/reval_monastery.tscn` | partial | Inactive Monastery District prototype; developer traversal only. |
 | 43 | `scenes/reval_north/reval_north.tscn` | partial | Inactive programmatic north quarter prototype; developer traversal only. |
 | 44 | `scenes/reval_south/reval_south.tscn` | partial | Inactive southern quarter prototype (Rataskaev / Karja approach); developer traversal only. |
@@ -136,7 +137,7 @@ Inventory row count (data rows in the table below): **76**.
 | `scenes/menu/` | 1 | 0 | 0 | 0 | 1 |
 | `scenes/reval_archbishops_garden/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/reval_center/` | 0 | 2 | 0 | 0 | 2 |
-| `scenes/reval_east/` | 4 | 0 | 0 | 0 | 4 |
+| `scenes/reval_east/` | 4 | 1 | 0 | 0 | 5 |
 | `scenes/reval_monastery/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/reval_north/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/reval_south/` | 0 | 1 | 0 | 0 | 1 |
@@ -146,19 +147,19 @@ Inventory row count (data rows in the table below): **76**.
 | `scenes/world/` | 0 | 0 | 0 | 10 | 10 |
 | `tools/` | 0 | 1 | 0 | 0 | 1 |
 | `tools/benchmarks/` | 0 | 2 | 0 | 0 | 2 |
-| **All** | **25** | **28** | **3** | **20** | **76** |
+| **All** | **25** | **29** | **3** | **20** | **77** |
 
 ## Verification
 
 ```bash
 # Repository scene count
-find . -name '*.tscn' -not -path './.git/*' | wc -l
+find . -name '*.tscn' -not -path './.git/*' -not -path './.godot/*' -not -path './.a2gent-worktrees/*' | wc -l
 
 # Inventory data rows (excludes header/separator lines)
 grep -E '^\| [0-9]+ \|' docs/reports/scene_inventory.md | wc -l
 ```
 
-Both commands should print `76` on a clean checkout at this revision.
+Both commands should print `77` on a clean checkout at this revision.
 
 ## Related tasks
 
