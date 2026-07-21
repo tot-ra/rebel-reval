@@ -118,12 +118,14 @@ anchor from_archbishops_garden 29 177 rect=2,1
 transition to_reval_center 142 161 2 8 to=reval_center destination_spawn=to_reval_toompea spawn=from_reval_center spawn_offset_px=-96,0 highlight_area=true transition_visual=ground view_landmark_id=luhike_jalg_gate_arch
 transition to_reval_north 142 28 2 12 to=reval_monastery destination_spawn=from_reval_toompea spawn=from_reval_north spawn_offset_px=-96,0 highlight_area=true transition_visual=ground view_landmark_id=pikk_jalg_gate
 transition to_archbishops_garden 24 190 10 2 to=reval_archbishops_garden destination_spawn=from_reval_toompea spawn=from_archbishops_garden spawn_offset_px=0,-96 highlight_area=true transition_visual=ground
+transition to_world_padise 0 148 3 10 to=world_padise destination_spawn=from_reval_west spawn=from_world_padise spawn_offset_px=96,0 highlight_area=true transition_visual=ground
 sign sign.luhike "lühike jalg to lower town" 136 159 east
 sign sign.castle "toompea castle" 31 144 west
 sign sign.cathedral "st mary's cathedral" 54 93 north
 sign sign.pikk "pikk jalg to monastery district" 136 42 east
 sign sign.garden "to archbishop's garden" 31 174 south
 sign sign.school "cathedral school" 68 75 north
+sign sign.padise "west road" 4 152 west
 # Multi-street watch: Lühike Jalg, Lossi plats, castle court, Toom-Kooli,
 # cathedral close, Pikk Jalg, and the southern slope.
 patrol castle_watch 136,129|110,108|78,108|60,108|40,126|40,150|30,150|29,174|29,150|40,150|40,108|42,90|42,42|92,42|110,42|126,42|136,34

@@ -6,6 +6,7 @@ extends RefCounted
 
 const LocalView := preload("res://scripts/ui/world_map_local_view.gd")
 const FastTravelView := preload("res://scripts/ui/world_map_fast_travel_view.gd")
+const GlobalView := preload("res://scripts/ui/world_map_global_view.gd")
 
 const PANEL_SIZE := Vector2(820, 600)
 const NODE_SIZE := Vector2(132, 44)
@@ -89,10 +90,17 @@ static func build(host: CanvasLayer, callbacks: Dictionary) -> Dictionary:
 
 	var fast_travel_tab := Button.new()
 	fast_travel_tab.name = "FastTravelButton"
-	fast_travel_tab.text = "Fast travel"
-	fast_travel_tab.tooltip_text = "Travel to a connected district"
+	fast_travel_tab.text = "District map"
+	fast_travel_tab.tooltip_text = "Travel between Reval districts"
 	fast_travel_tab.pressed.connect(callbacks["show_fast_travel"])
 	tabs.add_child(fast_travel_tab)
+
+	var global_tab := Button.new()
+	global_tab.name = "GlobalMapButton"
+	global_tab.text = "Estonia map"
+	global_tab.tooltip_text = "Travel to distant placeholder roads outside Reval"
+	global_tab.pressed.connect(callbacks["show_global_map"])
+	tabs.add_child(global_tab)
 
 	var local_view := LocalView.new()
 	local_view.name = "LocalMapHost"
@@ -108,6 +116,13 @@ static func build(host: CanvasLayer, callbacks: Dictionary) -> Dictionary:
 	fast_travel_view.custom_minimum_size = Vector2(0, 420)
 	layout.add_child(fast_travel_view)
 
+	var global_view := GlobalView.new()
+	global_view.name = "GlobalMapHost"
+	global_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	global_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	global_view.custom_minimum_size = Vector2(0, 420)
+	layout.add_child(global_view)
+
 	var help := Label.new()
 	help.name = "HelpLabel"
 	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -120,8 +135,10 @@ static func build(host: CanvasLayer, callbacks: Dictionary) -> Dictionary:
 		"subtitle": subtitle,
 		"local_view": local_view,
 		"fast_travel_view": fast_travel_view,
+		"global_view": global_view,
 		"local_tab": local_tab,
 		"fast_travel_tab": fast_travel_tab,
+		"global_tab": global_tab,
 		"close_button": close_button,
 		"help": help,
 	}

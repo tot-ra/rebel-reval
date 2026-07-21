@@ -18,6 +18,10 @@ const DISPLAY_NAMES_BY_MAP: Dictionary = {
 	&"reval_harbor_east": "Kalamaja Fishing Shore",
 	&"reval_harbor": "Reval Harbour",
 	&"harbor_warehouse": "Harbour Warehouse",
+	&"world.sacred_grove": "Sacred Grove",
+	&"world.harju": "Harju Village",
+	&"world.padise": "Padise Monastery",
+	&"world.saaremaa": "Saaremaa",
 }
 
 ## Transition-manifest scene IDs (DoorNavigator) mapped to the same curated labels.
@@ -36,6 +40,10 @@ const DISPLAY_NAMES_BY_SCENE: Dictionary = {
 	&"reval_harbor_east": "Kalamaja Fishing Shore",
 	&"reval_harbor": "Reval Harbour",
 	&"harbor_warehouse": "Harbour Warehouse",
+	&"world_sacred_grove": "Sacred Grove",
+	&"world_harju": "Harju Village",
+	&"world_padise": "Padise Monastery",
+	&"world_saaremaa": "Saaremaa",
 }
 
 

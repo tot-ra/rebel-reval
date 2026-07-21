@@ -136,12 +136,14 @@ anchor from_archbishops_garden 29 5 rect=2,2
 transition to_reval_center 202 0 12 2 to=reval_center destination_spawn=to_reval_south spawn=from_reval_center spawn_offset_px=0,96 highlight_area=true transition_visual=ground
 transition to_reval_east 318 0 12 2 to=reval_east destination_spawn=from_reval_south spawn=from_reval_east spawn_offset_px=0,96 highlight_area=true transition_visual=ground
 transition to_archbishops_garden 24 0 10 2 to=reval_archbishops_garden destination_spawn=from_reval_south spawn=from_archbishops_garden spawn_offset_px=0,96 highlight_area=true transition_visual=ground view_landmark_id=garden_descent_gate
+transition to_world_sacred_grove 240 108 14 4 to=world_sacred_grove destination_spawn=from_reval_south spawn=from_world_sacred_grove spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
 sign sign.town_square "to town square" 209 6 north
 sign sign.rataskaev "rataskaev well" 168 25 west
 sign sign.knights "knights' quarters" 278 22 east
 sign sign.viru "to viru quarter" 315 6 north
 sign sign.garden "to archbishop's garden" 32 6 north
 sign sign.karja "karja gate" 243 100 south
+sign sign.grove "south road" 246 104 south
 # The watch route now includes the western garden descent and full knightly ward.
 patrol south_watch 29,5|29,22|86,22|144,22|213,22|226,56|261,72|326,72|326,56|315,3|288,72|247,72|247,95|192,65|128,58|64,58|29,22
 fade fade.knights 257 16 52 24

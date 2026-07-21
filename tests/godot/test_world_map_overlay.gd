@@ -14,13 +14,22 @@ func before_each() -> void:
 func test_graph_nodes_match_active_transition_manifest() -> void:
 	var scene_ids := WorldMapGraph.active_scene_ids()
 	var manifest_ids := DoorNavigator.get_active_scene_ids()
-	assert_eq(scene_ids.size(), manifest_ids.size())
-	for index in scene_ids.size():
-		assert_eq(scene_ids[index], manifest_ids[index])
+	assert_true(scene_ids.size() <= manifest_ids.size(), "district graph is a filter of the active manifest")
+	for scene_id in scene_ids:
+		assert_true(manifest_ids.has(scene_id), "district nodes must stay in the active manifest")
+		assert_false(
+			GlobalMapCatalog.is_distant_scene(scene_id),
+			"global placeholders must stay off the Reval district graph"
+		)
 	assert_array_contains(scene_ids, &"forge")
 	assert_array_contains(scene_ids, &"reval_east")
 	assert_false(scene_ids.has(&"harbor_warehouse"), "retired scenes must not appear on the district map")
 	assert_false(scene_ids.has(&"archive_only"), "unknown scenes must not appear on the district map")
+	assert_false(scene_ids.has(&"world_sacred_grove"), "distant roads belong on the Estonia map tab")
+	assert_true(
+		DoorNavigator.has_active_scene(&"world_sacred_grove"),
+		"global placeholders remain registered for DoorNavigator travel"
+	)
 
 
 func test_graph_connections_stay_within_active_manifest() -> void:
@@ -54,7 +63,7 @@ func test_overlay_highlights_current_scene_and_lists_manifest_nodes() -> void:
 	assert_true(overlay.is_open())
 	assert_eq(overlay.get_current_scene_id(), &"reval_east")
 	var scene_ids := overlay.get_scene_ids()
-	assert_eq(scene_ids, DoorNavigator.get_active_scene_ids())
+	assert_eq(scene_ids, WorldMapGraph.active_scene_ids())
 	var current := overlay.get_node_button(&"reval_east")
 	assert_true(current != null, "current scene must render as a node")
 	assert_eq(current.modulate, Color(1.0, 0.86, 0.42, 1.0))
@@ -86,10 +95,13 @@ func test_map_mode_opens_on_local_position_with_fast_travel_as_separate_option()
 	assert_true(overlay.get_local_map_marker().visible, "local map must mark the player's current position")
 	var local_button := overlay.find_child("LocalMapButton", true, false) as Button
 	var travel_button := overlay.find_child("FastTravelButton", true, false) as Button
+	var global_button := overlay.find_child("GlobalMapButton", true, false) as Button
 	assert_true(local_button != null, "local map must be a visible option")
-	assert_true(travel_button != null, "fast travel must be an extra visible option")
+	assert_true(travel_button != null, "district map must be a visible option")
+	assert_true(global_button != null, "estonia map must be a visible option")
 	assert_eq(local_button.text, "Local map")
-	assert_eq(travel_button.text, "Fast travel")
+	assert_eq(travel_button.text, "District map")
+	assert_eq(global_button.text, "Estonia map")
 	assert_true(
 		overlay.find_child("LocalMapHost", true, false).get_script() == LocalMapView,
 		"stable LocalMapHost must delegate rendering to the focused local-map view"
@@ -98,16 +110,68 @@ func test_map_mode_opens_on_local_position_with_fast_travel_as_separate_option()
 		overlay.find_child("GraphHost", true, false).get_script() == FastTravelView,
 		"stable GraphHost must delegate rendering and focus to the fast-travel view"
 	)
+	assert_true(
+		overlay.find_child("GlobalMapHost", true, false) != null,
+		"stable GlobalMapHost must exist for the Estonia map tab"
+	)
 
 	travel_button.pressed.emit()
 	assert_eq(overlay.get_mode(), WorldMapOverlay.MODE_FAST_TRAVEL)
-	assert_true(overlay.get_node_button(&"forge") != null, "fast-travel option must expose the existing district graph")
+	assert_true(overlay.get_node_button(&"forge") != null, "district option must expose the existing Reval graph")
+	global_button.pressed.emit()
+	assert_eq(overlay.get_mode(), WorldMapOverlay.MODE_GLOBAL)
+	assert_true(
+		overlay.get_global_node_button(&"world_sacred_grove") != null,
+		"estonia map must expose the sacred grove placeholder"
+	)
+	assert_true(
+		overlay.get_global_node_button(GlobalMapCatalog.REVAL_HUB_ID) != null,
+		"estonia map must mark Reval as the hub"
+	)
 	local_button.pressed.emit()
 	assert_eq(overlay.get_mode(), WorldMapOverlay.MODE_LOCAL)
 
 	overlay.free()
 	local_map.free()
 	player.free()
+
+
+func test_global_map_plans_distant_travel_and_return_gate() -> void:
+	var overlay := WorldMapOverlay.new()
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(overlay)
+	overlay.configure(&"reval_east")
+	overlay.open()
+	overlay.show_global_map()
+
+	assert_array_contains(overlay.get_global_travelable_marker_ids(), &"world_sacred_grove")
+	assert_array_contains(overlay.get_global_travelable_marker_ids(), &"world_saaremaa")
+	assert_false(
+		overlay.get_global_travelable_marker_ids().has(GlobalMapCatalog.REVAL_HUB_ID),
+		"Reval hub stays non-travel while already inside the town"
+	)
+
+	var recorded: Array = []
+	overlay.travel_requested.connect(
+		func(scene_id: StringName, spawn_id: StringName) -> void:
+			recorded.append({"scene_id": scene_id, "spawn_id": spawn_id})
+	)
+	assert_true(overlay.request_travel_to(&"world_sacred_grove"))
+	assert_eq(recorded.size(), 1)
+	assert_eq(recorded[0]["scene_id"], &"world_sacred_grove")
+	assert_eq(recorded[0]["spawn_id"], &"from_reval_south")
+
+	overlay.configure(&"world_sacred_grove")
+	overlay.show_global_map()
+	assert_true(
+		overlay.get_global_travelable_marker_ids().has(GlobalMapCatalog.REVAL_HUB_ID),
+		"distant placeholders must offer a Reval return marker"
+	)
+	assert_true(overlay.request_travel_to(GlobalMapCatalog.REVAL_HUB_ID))
+	assert_eq(recorded.size(), 2)
+	assert_eq(recorded[1]["scene_id"], &"reval_south")
+	assert_eq(recorded[1]["spawn_id"], &"from_world_sacred_grove")
+	overlay.queue_free()
 
 func test_controller_toggles_with_action_and_quick_access_button() -> void:
 	assert_true(

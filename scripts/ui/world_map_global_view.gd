@@ -1,35 +1,25 @@
-class_name WorldMapFastTravelView
+class_name WorldMapGlobalView
 extends Control
 
-## Focused fast-travel presentation owned by WorldMapOverlay. It renders and
-## focuses graph nodes, then emits a destination intent. The overlay validates
-## the plan and WorldMapController remains the only DoorNavigator caller.
+## Estonia-wide travel presentation owned by WorldMapOverlay. Renders the
+## basemap plus distant markers and emits destination intent only.
 
 signal destination_requested(scene_id: StringName)
 
 const PANEL_SIZE := Vector2(820, 600)
-const NODE_SIZE := Vector2(132, 44)
+const NODE_SIZE := Vector2(140, 40)
 const TRAVEL_NODE_COLOR := Color(0.92, 0.96, 1.0, 1.0)
 const TRAVEL_FOCUS_COLOR := Color(1.0, 0.78, 0.28, 1.0)
+const HUB_COLOR := Color(1.0, 0.86, 0.42, 1.0)
 
 var _current_scene_id: StringName = &""
-var _scene_ids: Array[StringName] = []
-var _connections: Array[Dictionary] = []
-var _positions: Dictionary = {}
 var _travelable: Dictionary = {}
+var _map_rect: TextureRect
+var _marker_host: Control
 
 
-func configure(
-	current_scene_id: StringName,
-	scene_ids: Array[StringName],
-	connections: Array[Dictionary],
-	positions: Dictionary,
-	travelable: Dictionary
-) -> void:
+func configure(current_scene_id: StringName, travelable: Dictionary) -> void:
 	_current_scene_id = current_scene_id
-	_scene_ids = scene_ids.duplicate()
-	_connections = connections.duplicate(true)
-	_positions = positions.duplicate(true)
 	_travelable = travelable.duplicate(true)
 	if is_node_ready():
 		rebuild()
@@ -41,32 +31,61 @@ func _ready() -> void:
 
 func rebuild() -> void:
 	for child in get_children():
-		# WHY: free immediately so rebuilt Node_<id> names stay unique in-frame
-		# and facade lookups/focus wiring see only the new buttons.
 		child.free()
 
+	_map_rect = TextureRect.new()
+	_map_rect.name = "EstoniaMap"
+	_map_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_map_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_map_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	_map_rect.texture = GlobalMapCatalog.load_map_texture()
+	_map_rect.modulate = Color(0.92, 0.94, 0.96, 1.0)
+	_map_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_map_rect)
+
+	var dim := ColorRect.new()
+	dim.name = "MapDim"
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	dim.color = Color(0.03, 0.05, 0.08, 0.28)
+	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(dim)
+
+	_marker_host = Control.new()
+	_marker_host.name = "MarkerHost"
+	_marker_host.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_marker_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_marker_host)
+
 	var travelable_buttons: Array[Button] = []
-	for scene_id in _scene_ids:
+	for scene_id in GlobalMapCatalog.location_ids():
+		var row := GlobalMapCatalog.get_location(scene_id)
 		var button := Button.new()
-		button.name = "Node_%s" % String(scene_id)
-		button.text = LocationHud.display_name_for_scene(scene_id)
-		button.tooltip_text = String(scene_id)
+		button.name = "GlobalNode_%s" % String(scene_id)
+		button.text = String(row.get("display_name", String(scene_id)))
+		button.tooltip_text = String(row.get("blurb", ""))
 		button.custom_minimum_size = NODE_SIZE
-		if scene_id == _current_scene_id:
+		var is_hub := bool(row.get("is_hub", false))
+		var is_current := _is_current_marker(scene_id)
+		if is_current:
 			_configure_current_button(button)
 		elif _travelable.has(scene_id):
 			_configure_travelable_button(button, scene_id)
 			travelable_buttons.append(button)
+		elif is_hub:
+			_configure_hub_button(button, scene_id)
+			if _travelable.has(scene_id):
+				travelable_buttons.append(button)
 		else:
 			_configure_unavailable_button(button)
-		add_child(button)
+		_marker_host.add_child(button)
 		_place_node(button, scene_id)
 	_wire_focus_neighbors(travelable_buttons)
-	queue_redraw()
 
 
 func get_node_button(scene_id: StringName) -> Button:
-	return get_node_or_null("Node_%s" % String(scene_id)) as Button
+	if _marker_host == null:
+		return null
+	return _marker_host.get_node_or_null("GlobalNode_%s" % String(scene_id)) as Button
 
 
 func focus_travel_node(destination_scene_id: StringName) -> bool:
@@ -81,7 +100,7 @@ func focus_travel_node(destination_scene_id: StringName) -> bool:
 
 func activate_focused_travel() -> bool:
 	var focused := get_viewport().gui_get_focus_owner() as Button
-	if focused == null or not is_ancestor_of(focused):
+	if focused == null or _marker_host == null or not _marker_host.is_ancestor_of(focused):
 		return false
 	var scene_id := _scene_id_from_button(focused)
 	if scene_id.is_empty() or not _travelable.has(scene_id):
@@ -105,60 +124,51 @@ func grab_initial_focus(fallback: Control = null) -> void:
 
 
 func subtitle() -> String:
-	if _current_scene_id.is_empty():
-		return "Current scene is outside the active transition registry."
-	if _travelable.is_empty():
-		return "You are here: %s (no travelable destinations)" % LocationHud.display_name_for_scene(
-			_current_scene_id
-		)
-	if WorldMapGraph.allow_all_active_travel():
+	if GlobalMapCatalog.is_distant_scene(_current_scene_id):
 		return (
-			"You are here: %s - debug: select any active district (click or Confirm)"
-			% LocationHud.display_name_for_scene(_current_scene_id)
+			"You are outside Reval at %s - choose Reval or stay on the road home"
+			% GlobalMapCatalog.display_name(_current_scene_id)
 		)
+	if _current_scene_id.is_empty():
+		return "Estonia overview - select a distant road or sea route"
 	return (
-		"You are here: %s - select a linked district (click or Confirm)"
+		"You are in Reval (%s) - choose a distant placeholder road"
 		% LocationHud.display_name_for_scene(_current_scene_id)
 	)
 
 
 func help_text() -> String:
-	if WorldMapGraph.allow_all_active_travel():
-		return (
-			"Debug unlock: click or focus any active district, then Confirm to travel. "
-			+ "Arrow keys / D-pad move focus between destinations. "
-			+ "Your current district stays marked and cannot be selected. "
-			+ "Choose Local map or Estonia map for the other layers, or press M / Escape to close."
-		)
 	return (
-		"Click or focus a connected district, then Confirm to travel. "
-		+ "Arrow keys / D-pad move focus between linked districts. "
-		+ "Your current district stays marked and cannot be selected. "
-		+ "Choose Local map or Estonia map for the other layers, or press M / Escape to close."
+		"Global map: click or focus a linked distant place, then Confirm to travel. "
+		+ "Each placeholder returns through a Tallinn gate (south, east, west, or harbour). "
+		+ "District fast travel stays on the Reval graph. Press M / Escape to close."
 	)
 
 
-func _draw() -> void:
-	for edge in _connections:
-		var from_id: StringName = edge.get("from", &"")
-		var to_id: StringName = edge.get("to", &"")
-		var from_button := get_node_button(from_id)
-		var to_button := get_node_button(to_id)
-		if from_button == null or to_button == null:
-			continue
-		var a := from_button.position + from_button.size * 0.5
-		var b := to_button.position + to_button.size * 0.5
-		draw_line(a, b, Color(0.72, 0.58, 0.31, 0.85), 2.0, true)
+func _is_current_marker(scene_id: StringName) -> bool:
+	if scene_id == GlobalMapCatalog.REVAL_HUB_ID:
+		return not GlobalMapCatalog.is_distant_scene(_current_scene_id) and not _current_scene_id.is_empty()
+	return scene_id == _current_scene_id
 
 
 func _configure_current_button(button: Button) -> void:
-	# Current scene stays visible but never enters the mouse or focus travel path.
 	button.disabled = true
 	button.focus_mode = Control.FOCUS_NONE
 	button.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_theme_color_override("font_color", Color(0.12, 0.10, 0.06, 1.0))
 	button.add_theme_color_override("font_disabled_color", Color(0.12, 0.10, 0.06, 1.0))
-	button.modulate = Color(1.0, 0.86, 0.42, 1.0)
+	button.modulate = HUB_COLOR
+
+
+func _configure_hub_button(button: Button, scene_id: StringName) -> void:
+	if _travelable.has(scene_id):
+		_configure_travelable_button(button, scene_id)
+		button.modulate = HUB_COLOR
+		return
+	button.disabled = true
+	button.focus_mode = Control.FOCUS_NONE
+	button.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.modulate = HUB_COLOR
 
 
 func _configure_travelable_button(button: Button, scene_id: StringName) -> void:
@@ -178,7 +188,7 @@ func _configure_unavailable_button(button: Button) -> void:
 
 
 func _place_node(button: Button, scene_id: StringName) -> void:
-	var normalized: Vector2 = _positions.get(scene_id, Vector2(0.5, 0.5))
+	var normalized: Vector2 = GlobalMapCatalog.layout_positions().get(scene_id, Vector2(0.5, 0.5))
 	var area := size
 	if area.x < 8.0 or area.y < 8.0:
 		area = Vector2(PANEL_SIZE.x - 40.0, 400.0)
@@ -190,8 +200,6 @@ func _place_node(button: Button, scene_id: StringName) -> void:
 
 
 func _wire_focus_neighbors(buttons: Array[Button]) -> void:
-	# Absolute-positioned graph nodes need explicit focus neighbors because
-	# Godot's default search is unreliable in a free Control.
 	if buttons.size() < 2:
 		return
 	for button in buttons:
@@ -229,9 +237,9 @@ func _nearest_focus_path(
 
 func _scene_id_from_button(button: Button) -> StringName:
 	var button_name := String(button.name)
-	if not button_name.begins_with("Node_"):
+	if not button_name.begins_with("GlobalNode_"):
 		return &""
-	return StringName(button_name.substr(5))
+	return StringName(button_name.substr(11))
 
 
 func _on_node_pressed(scene_id: StringName) -> void:

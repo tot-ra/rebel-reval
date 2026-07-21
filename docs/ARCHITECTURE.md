@@ -170,7 +170,7 @@ mesh builder -> MapDefinition mutation
 UI follows a controller/presentation split where one already exists:
 
 - `InventoryController`, `JournalController`, and `WorldMapController` own overlay lifetime, visible entry points, and cross-system effects.
-- `WorldMapOverlay` preserves the map facade and emits `travel_requested`; its `WorldMapLocalView` and `WorldMapFastTravelView` children own mode-specific rendering/focus, while `WorldMapController` executes travel through `DoorNavigator`.
+- `WorldMapOverlay` preserves the map facade and emits `travel_requested`; its `WorldMapLocalView`, `WorldMapFastTravelView`, and `WorldMapGlobalView` children own mode-specific rendering/focus (local position, Reval district graph, Estonia distant roads), while `WorldMapController` executes travel through `DoorNavigator`. `GlobalMapCatalog` keeps distant placeholders off the district graph.
 - `DialogueRunner` owns dialogue progression and state effects. `DialogueUI` presents lines/choices and emits user intent through `DialogueUiPresenter`.
 - `QuickAccessMenu` is the persistent discovery surface. It coordinates existing controllers and does not become a second inventory, journal, map, or combat model.
 - `MinimapHud` derives its image and marker from `MapDefinition`, `MapTerrainGrid`, and player position. The full-screen local map reuses that data rather than rebuilding a competing map model.

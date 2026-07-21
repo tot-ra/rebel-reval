@@ -66,13 +66,15 @@ func travel_to_scene(destination_scene_id: StringName, execute: bool = true) -> 
 	if _overlay == null:
 		return {}
 	var plan := _overlay.plan_travel_to(destination_scene_id)
+	# WHY: prefer the overlay's configured scene so headless plans stay stable
+	# even when SceneTree.current_scene is a test harness root.
+	var from_id := _overlay.get_current_scene_id()
+	if from_id.is_empty():
+		from_id = _resolve_current_scene_id()
 	if plan.is_empty():
-		# WHY: prefer the overlay's configured scene so headless plans stay stable
-		# even when SceneTree.current_scene is a test harness root.
-		var from_id := _overlay.get_current_scene_id()
-		if from_id.is_empty():
-			from_id = _resolve_current_scene_id()
 		plan = WorldMapGraph.plan_travel(from_id, destination_scene_id)
+	if plan.is_empty():
+		plan = GlobalMapCatalog.plan_travel(from_id, destination_scene_id)
 	if plan.is_empty():
 		return {}
 	last_travel_request = plan.duplicate(true)

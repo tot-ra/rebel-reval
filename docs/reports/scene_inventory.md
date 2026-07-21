@@ -102,6 +102,10 @@ Inventory row count (data rows in the table below): **77**.
 | 53 | `scenes/ui/inventory_overlay.tscn` | working | Session bag overlay; D-003 pickup and inventory UI. |
 | 54 | `scenes/ui/journal_overlay.tscn` | working | Quest journal overlay; P1-016 objectives and discovered evidence. |
 | 55 | `assets/characters/variants/townswoman.tscn` | partial | Shared-rig townswoman variant used by ambient NPC work. |
+| 79 | `scenes/world_travel/world_sacred_grove.tscn` | partial | Developer global-map placeholder; south road via Karja Gate; `release=false`. |
+| 80 | `scenes/world_travel/world_harju.tscn` | partial | Developer global-map placeholder; east road via Viru Gate Foreland; `release=false`. |
+| 81 | `scenes/world_travel/world_padise.tscn` | partial | Developer global-map placeholder; west road via Toompea; `release=false`. |
+| 82 | `scenes/world_travel/world_saaremaa.tscn` | partial | Developer global-map placeholder; island ferry via Trade Harbour; `release=false`. |
 | 56 | `scenes/world/haapsalu_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
 | 57 | `scenes/world/harju_village.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
 | 58 | `scenes/world/karja_fortress.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
@@ -145,9 +149,10 @@ Inventory row count (data rows in the table below): **77**.
 | `scenes/tests/` | 0 | 5 | 0 | 0 | 5 |
 | `scenes/ui/` | 3 | 0 | 0 | 0 | 3 |
 | `scenes/world/` | 0 | 0 | 0 | 10 | 10 |
+| `scenes/world_travel/` | 0 | 4 | 0 | 0 | 4 |
 | `tools/` | 0 | 1 | 0 | 0 | 1 |
 | `tools/benchmarks/` | 0 | 2 | 0 | 0 | 2 |
-| **All** | **25** | **29** | **3** | **20** | **77** |
+| **All** | **25** | **33** | **3** | **20** | **81** |
 
 ## Verification
 
@@ -159,7 +164,7 @@ find . -name '*.tscn' -not -path './.git/*' -not -path './.godot/*' -not -path '
 grep -E '^\| [0-9]+ \|' docs/reports/scene_inventory.md | wc -l
 ```
 
-Both commands should print `77` on a clean checkout at this revision.
+Both commands should print `81` on a clean checkout at this revision.
 
 ## Related tasks
 

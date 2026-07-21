@@ -7,6 +7,9 @@ extends RefCounted
 
 const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
 const StOlafsGuildHall := preload("res://scripts/map/definitions/prototypes/st_olafs_guild_hall_definition.gd")
+const DistantLocationDefinitions := preload(
+	"res://scripts/map/definitions/outdoor/distant_location_definitions.gd"
+)
 
 ## WHY: temporary debug unlock so designers can jump to any active district without
 ## walking adjacency. Release builds keep authored-neighbor travel only.
@@ -33,7 +36,14 @@ const LAYOUT_BY_SCENE: Dictionary = {
 
 
 static func active_scene_ids() -> Array[StringName]:
-	return DoorNavigator.get_active_scene_ids()
+	# WHY: distant Estonia placeholders stay on the global map tab only so the
+	# Reval district graph does not absorb island/road destinations.
+	var ids: Array[StringName] = []
+	for scene_id in DoorNavigator.get_active_scene_ids():
+		if GlobalMapCatalog.is_distant_scene(scene_id):
+			continue
+		ids.append(scene_id)
+	return ids
 
 
 static func create_definition(scene_id: StringName) -> MapDefinition:
@@ -43,6 +53,8 @@ static func create_definition(scene_id: StringName) -> MapDefinition:
 		&"st_olafs_guild_hall":
 			return StOlafsGuildHall.create()
 		_:
+			if GlobalMapCatalog.is_distant_scene(scene_id):
+				return DistantLocationDefinitions.create(scene_id)
 			return MapNeighborPreviewRegistry.create_definition(scene_id)
 
 
@@ -82,6 +94,9 @@ static func resolve_travel_spawn(from_scene_id: StringName, to_scene_id: StringN
 		return &""
 	if not DoorNavigator.has_active_scene(to_scene_id):
 		return &""
+	# District fast-travel never jumps onto the global placeholder layer.
+	if GlobalMapCatalog.is_distant_scene(to_scene_id):
+		return &""
 	var definition := create_definition(from_scene_id)
 	if definition != null:
 		for transition in definition.transitions:
@@ -94,7 +109,7 @@ static func resolve_travel_spawn(from_scene_id: StringName, to_scene_id: StringN
 			if not DoorNavigator.has_spawn(to_scene_id, spawn):
 				continue
 			return spawn
-	if allow_all_active_travel():
+	if allow_all_active_travel() and not GlobalMapCatalog.is_distant_scene(from_scene_id):
 		return resolve_debug_fallback_spawn(to_scene_id)
 	return &""
 

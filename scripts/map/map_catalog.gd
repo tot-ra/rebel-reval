@@ -71,6 +71,26 @@ const MAPS: Dictionary = {
 		"path": "res://scenes/harbor/warehouse.tscn",
 		"scope": "archive",
 		"active": false
+	},
+	"world_sacred_grove": {
+		"path": "res://scenes/world_travel/world_sacred_grove.tscn",
+		"scope": "prototype",
+		"active": false
+	},
+	"world_harju": {
+		"path": "res://scenes/world_travel/world_harju.tscn",
+		"scope": "prototype",
+		"active": false
+	},
+	"world_padise": {
+		"path": "res://scenes/world_travel/world_padise.tscn",
+		"scope": "prototype",
+		"active": false
+	},
+	"world_saaremaa": {
+		"path": "res://scenes/world_travel/world_saaremaa.tscn",
+		"scope": "prototype",
+		"active": false
 	}
 }
 

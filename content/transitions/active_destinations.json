@@ -121,6 +121,9 @@
       "spawns": [
         {
           "id": "from_reval_east"
+        },
+        {
+          "id": "from_world_harju"
         }
       ]
     },
@@ -135,6 +138,9 @@
         },
         {
           "id": "from_harbor_east"
+        },
+        {
+          "id": "from_world_saaremaa"
         }
       ]
     },
@@ -180,6 +186,9 @@
         },
         {
           "id": "from_archbishops_garden"
+        },
+        {
+          "id": "from_world_padise"
         }
       ]
     },
@@ -197,6 +206,53 @@
         },
         {
           "id": "from_archbishops_garden"
+        },
+        {
+          "id": "from_world_sacred_grove"
+        }
+      ]
+    },
+    {
+      "id": "world_sacred_grove",
+      "path": "res://scenes/world_travel/world_sacred_grove.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_south"
+        }
+      ]
+    },
+    {
+      "id": "world_harju",
+      "path": "res://scenes/world_travel/world_harju.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_east"
+        }
+      ]
+    },
+    {
+      "id": "world_padise",
+      "path": "res://scenes/world_travel/world_padise.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_west"
+        }
+      ]
+    },
+    {
+      "id": "world_saaremaa",
+      "path": "res://scenes/world_travel/world_saaremaa.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_harbor"
         }
       ]
     }
