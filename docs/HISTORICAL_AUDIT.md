@@ -101,6 +101,24 @@ This document audits the characters, buildings, weapons, religions, institutions
   * Label: **`attested`**
   * Source Note: The defense structures of Reval, including the Viru Gate and its defenders, existed in the 14th century.
 
+## 5b. Faction cloth symbols (map heraldry)
+
+* **Danish Crown, Livonian Order, Hanseatic pale**
+  * Label: **`attested`**
+  * Source Note: Period arms used on tower pennants and merchant cloth.
+* **Pskov lynx / "fierce beast"**
+  * Label: **`plausible`**
+  * Source Note: Pskov civic seals and 15th-c. coins show a feline "лютый зверь"; later descriptions call it leopard or lynx. Slightly early as fixed 1343 cloth, but the strongest animal identity for Pskov.
+* **Novgorod bear**
+  * Label: **`invented`** for 1343 cloth (later **`attested`** from 1565)
+  * Source Note: Republican Novgorod seals used Christ, horseman, warrior, eagle. The bear (with lynx) enters Ivan IV's 1565 governor seal. Game maps use the bear so Novgorod trade cloth reads at distance.
+* **Black Cloaks swallow**
+  * Label: **`invented`**
+  * Source Note: Urban rebel faction cloth. Barn swallow evokes Estonian home identity; not the historical Brotherhood of Blackheads (Mustpeade), whose emblem is St Maurice's head.
+* **Vitalienbrüder**
+  * Label: **`attested`** (no flag)
+  * Source Note: Pirate company flies no municipal standard in game heraldry.
+
 ## 6. Events
 
 * **St. George's Night Uprising (April 23, 1343)**
@@ -324,7 +342,7 @@ The numeric ranges below use these definitions:
 The following current blueprint treatments are not accepted as the P0-072 historical baseline. Later composition tasks own the geometry changes:
 
 1. A map-wide `cobblestone` base on `north_quarter` or `monastery_quarter`, and broad blanket-cobble regions on other maps, must be replaced by map-specific stone/earth/grass shares. Decision (2026-07-21): `monastery_quarter` prototype base is now packed earth with cobble limited to Pikk/Lai/civic/vene street spines, mud secondary lanes, compact stone closes, and expanded garden/margin grass (`TODO` **P4-023a** owns remaining density/drainage polish; `north_quarter` still needs the same correction).
-2. Viru foregate/barbican towers, mature Karja barbican forms, Fat Margaret, the current Great Guild Hall, Blackheads institutional frontage, Raeapteek identity, the later monumental St Olaf silhouette, the completed later Holy Spirit church, the later Cathedral west tower/chapels, and the post-1420 Bishop's House may not appear as contemporary 1343 fabric.
+2. Viru foregate/barbican towers, mature Karja barbican forms, Fat Margaret, the current Great Guild Hall, Blackheads institutional frontage, Raeapteek identity, the later monumental St Olaf silhouette, the completed later Holy Spirit church, the later Cathedral west tower/chapels, and the post-1420 Bishop's House may not appear as contemporary 1343 fabric. The dated tower decision, conservative four-position Lower Town registry, construction candidates, and future enterable-tower plan are recorded in [`docs/reports/reval_fortifications_1343.md`](reports/reval_fortifications_1343.md).
 3. Regular long stone harbour quays and piers remain unsupported for 1343 in the reviewed evidence. They are reversible placeholders, not required landmarks.
 4. Functional labels such as Workers, Knights, Merchant, Monastery, Trade Harbour and Fishing Harbour remain gameplay navigation names, not attested administrative districts.
 5. Numeric ranges in this dossier may guide mockups, but P1-036 and district quality passes must not enforce them until the review below is signed.

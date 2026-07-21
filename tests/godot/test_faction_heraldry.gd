@@ -9,6 +9,10 @@ func test_faction_heraldry_patterns_and_vitalien_fly_no_flag() -> void:
 	assert_eq(FactionHeraldry.pattern_for(FactionHeraldry.DANISH_CROWN), FactionHeraldry.PATTERN_CROSS)
 	assert_eq(FactionHeraldry.pattern_for(FactionHeraldry.LIVONIAN_ORDER), FactionHeraldry.PATTERN_CROSS)
 	assert_eq(FactionHeraldry.pattern_for(FactionHeraldry.HANSEATIC), FactionHeraldry.PATTERN_PALE)
+	assert_eq(FactionHeraldry.pattern_for(FactionHeraldry.NOVGOROD), FactionHeraldry.PATTERN_BEAR)
+	assert_eq(FactionHeraldry.pattern_for(FactionHeraldry.PSKOV), FactionHeraldry.PATTERN_LYNX)
+	assert_eq(FactionHeraldry.pattern_for(FactionHeraldry.BLACK_CLOAKS), FactionHeraldry.PATTERN_SWALLOW)
+	assert_eq(FactionHeraldry.pattern_for(FactionHeraldry.PSKOV_NOVGOROD), FactionHeraldry.PATTERN_FESS)
 	assert_false(FactionHeraldry.shows_flag(FactionHeraldry.VITALIENBRUDER))
 	var danish_field := FactionHeraldry.color_at(FactionHeraldry.DANISH_CROWN, Vector2(0.9, 0.15))
 	var danish_cross := FactionHeraldry.color_at(FactionHeraldry.DANISH_CROWN, Vector2(0.36, 0.5))
@@ -19,6 +23,30 @@ func test_faction_heraldry_patterns_and_vitalien_fly_no_flag() -> void:
 	assert_true(
 		danish_cross.is_equal_approx(FactionHeraldry.charge_color(FactionHeraldry.DANISH_CROWN)),
 		"Danish hoist arm must stay the white cross"
+	)
+	assert_true(
+		FactionHeraldry.color_at(FactionHeraldry.NOVGOROD, Vector2(0.46, 0.58)).is_equal_approx(
+			FactionHeraldry.charge_color(FactionHeraldry.NOVGOROD)
+		),
+		"Novgorod body UV must hit the bear charge"
+	)
+	assert_true(
+		FactionHeraldry.color_at(FactionHeraldry.PSKOV, Vector2(0.66, 0.34)).is_equal_approx(
+			FactionHeraldry.charge_color(FactionHeraldry.PSKOV)
+		),
+		"Pskov head UV must hit the lynx charge"
+	)
+	assert_true(
+		FactionHeraldry.color_at(FactionHeraldry.BLACK_CLOAKS, Vector2(0.48, 0.48)).is_equal_approx(
+			FactionHeraldry.charge_color(FactionHeraldry.BLACK_CLOAKS)
+		),
+		"Black Cloaks body UV must hit the swallow charge"
+	)
+	assert_true(
+		FactionHeraldry.color_at(FactionHeraldry.NOVGOROD, Vector2(0.08, 0.08)).is_equal_approx(
+			FactionHeraldry.field_color(FactionHeraldry.NOVGOROD)
+		),
+		"Novgorod corner UV must stay the azure field"
 	)
 
 
@@ -83,6 +111,44 @@ func test_merchant_cog_flies_hanseatic_masthead_pennant() -> void:
 	assert_true(root.has_node("MastheadPennant"), "Hanse cogs need a masthead identity cloth")
 	assert_eq(root.get_node("MastheadPennant").get_meta(&"faction"), FactionHeraldry.HANSEATIC)
 	root.free()
+
+
+func test_market_eastern_trade_banners_use_animal_charges() -> void:
+	var source := FileAccess.get_file_as_string("res://content/maps/market_civic_quarter.rrmap")
+	var parsed := MapRrmapParser.parse(source, "res://content/maps/market_civic_quarter.rrmap")
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if not parsed.is_ok():
+		return
+	var by_id: Dictionary = {}
+	for prop in parsed.definition.props:
+		by_id[prop["id"]] = prop
+	assert_eq(by_id[&"novgorod_trade_banner"].get("faction"), FactionHeraldry.NOVGOROD)
+	assert_eq(by_id[&"pskov_trade_banner"].get("faction"), FactionHeraldry.PSKOV)
+	var novgorod := MapViewMeshBuilder.build_prop(by_id[&"novgorod_trade_banner"], parsed.definition.cell_size, parsed.definition)
+	var pskov := MapViewMeshBuilder.build_prop(by_id[&"pskov_trade_banner"], parsed.definition.cell_size, parsed.definition)
+	assert_eq(novgorod.get_node("BannerCloth").get_meta(&"faction"), FactionHeraldry.NOVGOROD)
+	assert_eq(pskov.get_node("BannerCloth").get_meta(&"faction"), FactionHeraldry.PSKOV)
+	novgorod.free()
+	pskov.free()
+
+
+func test_forge_cloak_banner_flies_swallow_cloth() -> void:
+	var source := FileAccess.get_file_as_string("res://content/maps/kalev_smithy.rrmap")
+	var parsed := MapRrmapParser.parse(source, "res://content/maps/kalev_smithy.rrmap")
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if not parsed.is_ok():
+		return
+	var banner: Dictionary = {}
+	for prop in parsed.definition.props:
+		if prop["id"] == &"cloak_banner":
+			banner = prop
+			break
+	assert_false(banner.is_empty(), "forge needs cloak_banner")
+	assert_eq(FactionHeraldry.resolve(banner), FactionHeraldry.BLACK_CLOAKS)
+	assert_eq(FactionHeraldry.pattern_for(FactionHeraldry.BLACK_CLOAKS), FactionHeraldry.PATTERN_SWALLOW)
+	var node := MapViewMeshBuilder.build_prop(banner, parsed.definition.cell_size, parsed.definition)
+	assert_eq(node.get_node("BannerCloth").get_meta(&"faction"), FactionHeraldry.BLACK_CLOAKS)
+	node.free()
 
 
 func test_unknown_faction_fails_map_validation() -> void:

@@ -1,9 +1,20 @@
 class_name FactionHeraldry
 extends RefCounted
 
-## Readable 1343-era faction cloth for towers, courtyard banners, and ship
-## mastheads. Patterns stay simple (cross / pale / solid) so small pennants
-## remain legible without heraldic textures. Vitalienbrüder fly no flag.
+## Readable faction cloth for towers, courtyard banners, and ship mastheads.
+## Geometric charges stay legible on small pennants without heraldic textures.
+##
+## Historical confidence (1343 framing):
+## - danish_crown / livonian_order / hanseatic: high (period arms).
+## - pskov lynx: medium - Pskov's "fierce beast" (лютый зверь) is a feline
+##   on 15th-c. seals/coins; later texts call it leopard or lynx. Slightly
+##   early for 1343, but the strongest civic animal identity for Pskov.
+## - novgorod bear: low for 1343 - republican seals used Christ, horseman,
+##   warrior, eagle; the bear (with lynx) enters the governor seal of 1565.
+##   Used here as later popular identity so Novgorod cloth reads at distance.
+## - black_cloaks swallow: invented - barn swallow evokes Estonian home/rebel
+##   identity. Not the historical Brotherhood of Blackheads (St Maurice head).
+## - vitalienbruder: no flag by design.
 
 const DANISH_CROWN := &"danish_crown"
 const LIVONIAN_ORDER := &"livonian_order"
@@ -11,7 +22,11 @@ const HANSEATIC := &"hanseatic"
 const HARJU_KINGS := &"harju_kings"
 const BLACK_CLOAKS := &"black_cloaks"
 const CULT_METSIK := &"cult_metsik"
+## Ledger umbrella for eastern emissaries. Prefer `novgorod` / `pskov` when
+## the map should show the animal charge.
 const PSKOV_NOVGOROD := &"pskov_novgorod"
+const NOVGOROD := &"novgorod"
+const PSKOV := &"pskov"
 const VITALIENBRUDER := &"vitalienbruder"
 
 const ALL_FACTIONS: Array[StringName] = [
@@ -22,6 +37,8 @@ const ALL_FACTIONS: Array[StringName] = [
 	BLACK_CLOAKS,
 	CULT_METSIK,
 	PSKOV_NOVGOROD,
+	NOVGOROD,
+	PSKOV,
 	VITALIENBRUDER,
 ]
 
@@ -29,6 +46,9 @@ const PATTERN_SOLID := &"solid"
 const PATTERN_CROSS := &"cross"
 const PATTERN_PALE := &"pale"
 const PATTERN_FESS := &"fess"
+const PATTERN_BEAR := &"bear"
+const PATTERN_LYNX := &"lynx"
+const PATTERN_SWALLOW := &"swallow"
 const PATTERN_NONE := &"none"
 
 ## Stable building IDs that should fly a faction even when the map omits
@@ -72,7 +92,14 @@ static func pattern_for(faction_id: StringName) -> StringName:
 		HANSEATIC:
 			return PATTERN_PALE
 		PSKOV_NOVGOROD:
+			# Joint emissary cloth when the author does not split Novgorod/Pskov.
 			return PATTERN_FESS
+		NOVGOROD:
+			return PATTERN_BEAR
+		PSKOV:
+			return PATTERN_LYNX
+		BLACK_CLOAKS:
+			return PATTERN_SWALLOW
 		VITALIENBRUDER:
 			return PATTERN_NONE
 		_:
@@ -90,10 +117,10 @@ static func field_color(faction_id: StringName) -> Color:
 		HARJU_KINGS:
 			return Color8(52, 98, 58)
 		BLACK_CLOAKS:
-			return Color8(36, 34, 40)
+			return Color8(28, 28, 32)
 		CULT_METSIK:
 			return Color8(64, 78, 42)
-		PSKOV_NOVGOROD:
+		PSKOV_NOVGOROD, NOVGOROD, PSKOV:
 			return Color8(48, 78, 148)
 		VITALIENBRUDER:
 			return Color8(42, 40, 38)
@@ -113,10 +140,11 @@ static func charge_color(faction_id: StringName) -> Color:
 		HARJU_KINGS:
 			return Color8(212, 176, 72)
 		BLACK_CLOAKS:
-			return Color8(88, 84, 92)
+			# Barn-swallow white on black cloak cloth.
+			return Color8(232, 230, 226)
 		CULT_METSIK:
 			return Color8(120, 92, 48)
-		PSKOV_NOVGOROD:
+		PSKOV_NOVGOROD, NOVGOROD, PSKOV:
 			return Color8(228, 198, 72)
 		_:
 			return Color8(232, 228, 220)
@@ -139,20 +167,27 @@ static func color_at(faction_id: StringName, uv: Vector2) -> Color:
 			return charge if uv.x < 0.5 else field
 		PATTERN_FESS:
 			return charge if uv.y < 0.5 else field
+		PATTERN_BEAR:
+			return charge if _in_bear(uv) else field
+		PATTERN_LYNX:
+			return charge if _in_lynx(uv) else field
+		PATTERN_SWALLOW:
+			return charge if _in_swallow(uv) else field
 		_:
 			return field
 
 
 ## Triangular tower / mast pennant. UV.x = 0 at the hoist for cloth wind.
-## Subdivided so cross / pale charges stay readable after vertex-color interp.
+## Subdivided so cross / pale / beast charges stay readable after vertex-color interp.
 static func pennant_mesh(faction_id: StringName) -> ArrayMesh:
+	var density := _mesh_density(faction_id)
+	var cols := density.x
+	var rows := density.y
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var hoist_top := Vector3(0.0, 0.12, 0.0)
 	var hoist_bottom := Vector3(0.0, -0.42, 0.0)
 	var fly := Vector3(0.95, -0.12, 0.0)
-	var rows := 6
-	var cols := 5
 	for col in cols:
 		var u0 := float(col) / float(cols)
 		var u1 := float(col + 1) / float(cols)
@@ -187,10 +222,11 @@ static func pennant_mesh(faction_id: StringName) -> ArrayMesh:
 
 ## Rectangular courtyard or facade banner hung from a vertical staff.
 static func banner_mesh(faction_id: StringName, width: float = 0.72, height: float = 1.05) -> ArrayMesh:
+	var density := _mesh_density(faction_id)
+	var cols := density.x
+	var rows := density.y
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var cols := 6
-	var rows := 8
 	for col in cols:
 		var u0 := float(col) / float(cols)
 		var u1 := float(col + 1) / float(cols)
@@ -219,6 +255,16 @@ static func banner_mesh(faction_id: StringName, width: float = 0.72, height: flo
 	return surface.commit()
 
 
+static func _mesh_density(faction_id: StringName) -> Vector2i:
+	match pattern_for(faction_id):
+		PATTERN_BEAR, PATTERN_LYNX, PATTERN_SWALLOW:
+			return Vector2i(10, 12)
+		PATTERN_CROSS:
+			return Vector2i(5, 6)
+		_:
+			return Vector2i(4, 5)
+
+
 static func _add_colored_quad(
 	surface: SurfaceTool,
 	faction_id: StringName,
@@ -244,3 +290,81 @@ static func _add_colored_vertex(
 	surface.set_color(color_at(faction_id, uv))
 	surface.set_uv(uv)
 	surface.add_vertex(vertex)
+
+
+## Simplified rampant bear facing the fly edge. Tuned for ~10x12 pennant grids.
+static func _in_bear(uv: Vector2) -> bool:
+	if _in_ellipse(uv, Vector2(0.46, 0.58), Vector2(0.17, 0.20)):
+		return true
+	if _in_ellipse(uv, Vector2(0.62, 0.30), Vector2(0.11, 0.10)):
+		return true
+	if _in_ellipse(uv, Vector2(0.72, 0.33), Vector2(0.07, 0.045)):
+		return true
+	if _in_ellipse(uv, Vector2(0.57, 0.20), Vector2(0.045, 0.05)):
+		return true
+	if _in_ellipse(uv, Vector2(0.66, 0.21), Vector2(0.04, 0.045)):
+		return true
+	# Raised foreleg and planted legs.
+	if _in_oriented_box(uv, Vector2(0.58, 0.48), Vector2(0.16, 0.05), -0.55):
+		return true
+	if _in_oriented_box(uv, Vector2(0.40, 0.78), Vector2(0.05, 0.14), 0.15):
+		return true
+	if _in_oriented_box(uv, Vector2(0.52, 0.78), Vector2(0.05, 0.14), -0.1):
+		return true
+	return false
+
+
+## Feline "fierce beast" facing the fly: longer legs, tufted ears, short tail.
+static func _in_lynx(uv: Vector2) -> bool:
+	if _in_ellipse(uv, Vector2(0.48, 0.55), Vector2(0.18, 0.14)):
+		return true
+	if _in_ellipse(uv, Vector2(0.66, 0.34), Vector2(0.10, 0.09)):
+		return true
+	# Tufted ears.
+	if _in_ellipse(uv, Vector2(0.60, 0.22), Vector2(0.035, 0.06)):
+		return true
+	if _in_ellipse(uv, Vector2(0.70, 0.22), Vector2(0.035, 0.06)):
+		return true
+	if _in_oriented_box(uv, Vector2(0.40, 0.76), Vector2(0.04, 0.16), 0.05):
+		return true
+	if _in_oriented_box(uv, Vector2(0.50, 0.76), Vector2(0.04, 0.16), -0.05):
+		return true
+	if _in_oriented_box(uv, Vector2(0.58, 0.74), Vector2(0.035, 0.14), -0.2):
+		return true
+	# Short lynx tail.
+	if _in_ellipse(uv, Vector2(0.30, 0.58), Vector2(0.06, 0.035)):
+		return true
+	return false
+
+
+## Swallow in flight: forked tail, swept wings, small head toward the fly.
+static func _in_swallow(uv: Vector2) -> bool:
+	# Body.
+	if _in_ellipse(uv, Vector2(0.48, 0.48), Vector2(0.10, 0.055)):
+		return true
+	# Head.
+	if _in_ellipse(uv, Vector2(0.62, 0.44), Vector2(0.055, 0.045)):
+		return true
+	# Wings (upper and lower sweeps).
+	if _in_oriented_box(uv, Vector2(0.42, 0.30), Vector2(0.22, 0.045), -0.55):
+		return true
+	if _in_oriented_box(uv, Vector2(0.42, 0.66), Vector2(0.22, 0.045), 0.55):
+		return true
+	# Forked tail toward the hoist.
+	if _in_oriented_box(uv, Vector2(0.28, 0.38), Vector2(0.14, 0.035), -0.7):
+		return true
+	if _in_oriented_box(uv, Vector2(0.28, 0.58), Vector2(0.14, 0.035), 0.7):
+		return true
+	return false
+
+
+static func _in_ellipse(uv: Vector2, center: Vector2, radii: Vector2) -> bool:
+	if radii.x <= 0.0 or radii.y <= 0.0:
+		return false
+	var d := (uv - center) / radii
+	return d.length_squared() <= 1.0
+
+
+static func _in_oriented_box(uv: Vector2, center: Vector2, half_extents: Vector2, angle: float) -> bool:
+	var local := (uv - center).rotated(-angle)
+	return absf(local.x) <= half_extents.x and absf(local.y) <= half_extents.y

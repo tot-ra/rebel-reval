@@ -22,6 +22,8 @@ wall wall.divider 14 1 14 12 thickness=1 openings=14,7,1,2 kind=interior_wall st
 prop forge_anvil anvil 18 5 rect=3,2
 prop forge_furnace furnace 19 1 rect=3,3
 prop forge_ledger ledger 4 3 rect=2,2
+# Coded Black Cloak swallow cloth in the living bay - not municipal heraldry.
+prop cloak_banner banner 5 2 rect=2,2 faction=black_cloaks
 prop table_candle candle 8 11 rect=1,1 visual_offset_px=0,-18
 prop quench quench_bucket 16 5 rect=2,2
 prop bed bed 3 9 rect=4,2
