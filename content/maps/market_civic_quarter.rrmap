@@ -105,25 +105,26 @@ anchor karja_lane 38 27 rect=2,2
 anchor holy_spirit_frontage 46 18 rect=2,2
 anchor market_cross 46 44 rect=2,2
 anchor weigh_table 32 47 rect=2,2
-# East = Vana Turg into the Viru/eastern district. North = Pikk into the north
-# quarter (St. Olaf / Great Guild). Pikk passes west of Holy Spirit rather than
-# through its mass. Do not wire any centre edge to Karja Gate's outside-the-walls
-# exit on the eastern map.
+# East = Vana Turg into the Viru/eastern district. North = Pikk into the
+# Monastery District (St. Olaf / Great Guild approach). Pikk passes west of
+# Holy Spirit rather than through its mass - keep to_reval_north on that corridor
+# so arrivals land on walkable street cells, not inside holy_spirit_hospital.
+# Do not wire any centre edge to Karja Gate's outside-the-walls exit on the eastern map.
 transition to_reval_east 112 51 2 4 to=reval_east destination_spawn=vana_turg_boundary spawn=from_reval_east spawn_offset_px=-96,0
-transition to_reval_north 59 0 10 2 to=reval_monastery destination_spawn=from_reval_center spawn=to_reval_north spawn_offset_px=0,96
+transition to_reval_north 34 0 10 2 to=reval_monastery destination_spawn=from_reval_center spawn=to_reval_north spawn_offset_px=0,96 highlight_area=true transition_visual=ground
 transition to_reval_toompea 0 49 3 8 to=reval_toompea destination_spawn=from_reval_center spawn=to_reval_toompea spawn_offset_px=96,0 highlight_area=true transition_visual=ground
 transition to_archbishops_garden 0 85 3 8 to=reval_archbishops_garden destination_spawn=from_reval_center spawn=to_archbishops_garden spawn_offset_px=96,0 highlight_area=true transition_visual=ground
 transition to_reval_south 58 126 12 2 to=reval_south destination_spawn=from_reval_center spawn=to_reval_south spawn_offset_px=0,-96 highlight_area=true transition_visual=ground
 transition to_guild_hall 16 27 2 2 to=st_olafs_guild_hall destination_spawn=from_reval_center spawn=to_guild_hall spawn_offset_px=96,0
 sign sign.viru "to viru street" 96 42 east
 sign sign.karja "karja street" 36 24 south
-sign sign.pikk "to pikk street" 36 6 north
+sign sign.pikk "to monastery district" 36 6 north
 sign sign.niguliste "to st nicholas" 6 47 west
 sign sign.toompea "lühike jalg to toompea" 4 52 west
 sign sign.south "to rataskaev" 62 123 south
 sign sign.town_hall "town hall" 40 65 south
 sign sign.holy_spirit "holy spirit chapel" 46 21 north
-patrol civic_watch 64,3|64,21|54,21|66,30|84,45|76,45|76,63|76,81|68,83|68,113|62,123|42,118|20,115|24,83|24,66|40,66|26,51|20,42|82,45
+patrol civic_watch 38,6|38,21|54,21|66,30|84,45|76,45|76,63|76,81|68,83|68,113|62,123|42,118|20,115|24,83|24,66|40,66|26,51|20,42|82,45
 fade fade.town_hall 22 63 36 18
 fade fade.holy_spirit 34 0 44 20
 camera 0 0 114 128
