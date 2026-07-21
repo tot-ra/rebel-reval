@@ -19,7 +19,7 @@ func test_split_harbor_rrmaps_parse_and_are_larger() -> void:
 		assert_eq(east.blueprint.map_id, &"reval_harbor_east")
 		assert_eq(east.definition.size_cells, Vector2i(144, 64))
 		assert_eq(east.definition.surroundings_sides.get(&"north"), &"water")
-		assert_eq(east.definition.surroundings_sides.get(&"west"), &"town")
+		assert_eq(east.definition.surroundings_sides.get(&"west"), &"woodland")
 
 
 func test_harbors_extend_open_water_past_northern_edge() -> void:
@@ -30,7 +30,9 @@ func test_harbors_extend_open_water_past_northern_edge() -> void:
 			"%s must continue the Baltic basin northward" % String(definition.map_id)
 		)
 		assert_false(view.has_node("Surroundings/Apron"), "%s must not paint a default meadow apron" % String(definition.map_id))
-		assert_false(view.has_node("Surroundings/SpruceCanopies"), "%s must not spawn woodland past the quay" % String(definition.map_id))
+		# Landward harbour edges are grassland (woodland apron), not a fake town skyline.
+		assert_false(view.has_node("Surroundings/TownSilhouette"), "%s must not fake a town skyline past the quay" % String(definition.map_id))
+		assert_true(view.has_node("Surroundings/WoodlandApron_south"), "%s must green its landward edges with grassland" % String(definition.map_id))
 		view.free()
 
 
