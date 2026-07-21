@@ -129,7 +129,15 @@ const LIMESTONE_TONE := Color(0.72, 0.70, 0.62)
 const ROOF_STYLE_TILE := &"tile"
 const ROOF_STYLE_SHINGLE := &"shingle"
 const ROOF_STYLE_THATCH := &"thatch"
-const THATCH_TONE := Color(0.55, 0.47, 0.32)
+## Weathered Baltic reed: golden-olive straw, not rotten brown or flat yellow.
+const THATCH_TONE := Color(0.58, 0.50, 0.34)
+## Extra eaves hang so thatch reads thicker than shingle/tile at dimetric range.
+const THATCH_ROOF_OVERHANG := 0.28
+## Soft reed ridge roll and eaves fringe dimensions.
+const THATCH_RIDGE_RADIUS := 0.14
+const THATCH_EDGE_ROLL := 0.10
+const THATCH_EAVES_FRINGE_HEIGHT := 0.16
+const THATCH_EAVES_FRINGE_DEPTH := 0.08
 const FRAME_BEAM_THICKNESS := 0.11
 const PLINTH_HEIGHT := 0.24
 

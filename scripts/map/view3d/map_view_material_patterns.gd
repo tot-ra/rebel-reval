@@ -43,6 +43,8 @@ static func _pattern_texture_at_size(pattern: StringName, noise_seed: int, textu
 			_paint_roof_tile(image, noise_seed)
 		MapViewMaterials.PATTERN_STRAW:
 			_paint_straw(image, noise_seed)
+		MapViewMaterials.PATTERN_THATCH:
+			_paint_thatch(image, noise_seed)
 		MapViewMaterials.PATTERN_SHINGLE:
 			_paint_shingle(image, noise_seed)
 		MapViewMaterials.PATTERN_LOG:
@@ -289,6 +291,36 @@ static func _paint_straw(image: Image, noise_seed: int) -> void:
 			var strand := _lattice(float(x) / 2.0, float(y) / 14.0, size / 2, noise_seed)
 			var broad := _lattice(float(x) / 20.0, float(y) / 20.0, size / 20, noise_seed + 41)
 			_fill_value(image, x, y, 0.74 + strand * 0.20 + broad * 0.08)
+
+
+## Reed/straw thatch courses for roofs: layered bundles with vertical reed
+## strands, soft drip shadows at each course edge, and irregular bindings so
+## coastal huts read as bundled reed rather than flat hay terrain.
+static func _paint_thatch(image: Image, noise_seed: int) -> void:
+	var size := image.get_width()
+	var course := 12
+	for y in size:
+		var row := y / course
+		var in_course := y % course
+		# Wobble the course seam so thatch layers do not read as machine rows.
+		var seam_wobble := int(_hash01(row, 3, noise_seed + 11) * 3.0) - 1
+		var local_y := posmod(in_course - seam_wobble, course)
+		for x in size:
+			var tone := _hash01(x / 5, row, noise_seed)
+			# Tight vertical reed strands within each course.
+			var strand := _lattice(float(x) / 1.6, float(y) / 10.0, size / 2, noise_seed + 7)
+			var clump := _lattice(float(x) / 7.0, float(row), maxi(size / 7, 1), noise_seed + 29)
+			var value := 0.68 + strand * 0.24 + (tone - 0.5) * 0.12 + clump * 0.06
+			# Overlap shadow where the course above hangs over this one.
+			var drip := clampf(1.0 - float(local_y) / 4.5, 0.0, 1.0)
+			value -= drip * 0.26
+			# Occasional dark binding / weathered patch across a course.
+			if local_y < 1:
+				value -= 0.08 + _hash01(x, row, noise_seed + 53) * 0.05
+			# Sparse reed tips catching light near the mid-course crown.
+			if local_y > course / 2 and strand > 0.72:
+				value += 0.06
+			_fill_value(image, x, y, value)
 
 
 ## Wooden shingle courses: staggered small rectangles with dark drip seams.

@@ -145,12 +145,18 @@ static func add_chimney_stack(parent: Node3D, node_name: String, outer_size: flo
 ## vary deterministically.
 
 
-static func gabled_roof_mesh(base: Vector2, ridge_along_x: bool = true) -> ArrayMesh:
-	var cache_key := "gabled_roof:%s:%s" % [base, ridge_along_x]
+static func gabled_roof_mesh(
+	base: Vector2,
+	ridge_along_x: bool = true,
+	overhang: float = -1.0
+) -> ArrayMesh:
+	if overhang < 0.0:
+		overhang = MapViewMeshBuilderConfig.ROOF_OVERHANG
+	var cache_key := "gabled_roof:%s:%s:%.3f" % [base, ridge_along_x, overhang]
 	if _mesh_cache.has(cache_key):
 		return _mesh_cache[cache_key]
-	var half_w := base.x * 0.5 + MapViewMeshBuilderConfig.ROOF_OVERHANG
-	var half_d := base.y * 0.5 + MapViewMeshBuilderConfig.ROOF_OVERHANG
+	var half_w := base.x * 0.5 + overhang
+	var half_d := base.y * 0.5 + overhang
 	var narrow := half_d if ridge_along_x else half_w
 	var rise := narrow * MapViewMeshBuilderConfig.ROOF_PITCH
 
