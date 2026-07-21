@@ -11,7 +11,7 @@ func test_split_harbor_rrmaps_parse_and_match_1343_geography() -> void:
 	assert_true(north.is_ok(), str(north.formatted_diagnostics()))
 	if north.is_ok():
 		assert_eq(north.blueprint.map_id, &"reval_harbor_north")
-		assert_eq(north.definition.size_cells, Vector2i(160, 88))
+		assert_eq(north.definition.size_cells, Vector2i(160, 108))
 		assert_eq(north.definition.surroundings_sides.get(&"north"), &"water")
 		assert_eq(north.definition.surroundings_sides.get(&"east"), &"water")
 	var east := MapRrmapParser.parse_file(EAST_RRMAP_PATH)
@@ -33,8 +33,9 @@ func test_harbors_keep_open_water_and_shallow_working_shores() -> void:
 			MapTypes.TERRAIN_DEEP_WATER,
 			"%s must keep open Baltic water for roadstead vessels" % String(definition.map_id)
 		)
+		var shallow_sample_y := 47 if definition.map_id == &"reval_harbor_north" else 27
 		assert_eq(
-			grid.get_terrain(Vector2i(definition.size_cells.x / 2, 27)),
+			grid.get_terrain(Vector2i(definition.size_cells.x / 2, shallow_sample_y)),
 			MapTypes.TERRAIN_SHALLOW_WATER,
 			"%s must approach the beach through authored shallows" % String(definition.map_id)
 		)
@@ -105,15 +106,15 @@ func test_harbor_timber_landings_are_walkable_to_moored_boats() -> void:
 
 	var north: MapDefinition = HarborNorthDefinition.create()
 	var north_grid := MapBuilder.build(north)
-	for cell in [Vector2i(57, 44), Vector2i(57, 27), Vector2i(113, 29)]:
+	for cell in [Vector2i(57, 64), Vector2i(57, 47), Vector2i(113, 49)]:
 		assert_eq(north_grid.get_terrain(cell), MapTypes.TERRAIN_TIMBER_FLOOR, "Landing pier cell %s" % cell)
 		assert_true(MapVerification.is_walkable_cell(north, north_grid, cell), "Landing pier must be walkable at %s" % cell)
 	assert_true(
 		MapVerification.route_exists_exact(
 			north,
 			north_grid,
-			MapVerification.cell_center(north, Vector2i(57, 44)),
-			MapVerification.cell_center(north, Vector2i(57, 27))
+			MapVerification.cell_center(north, Vector2i(57, 64)),
+			MapVerification.cell_center(north, Vector2i(57, 47))
 		),
 		"Player must walk the west merchant landing from shore to tip"
 	)

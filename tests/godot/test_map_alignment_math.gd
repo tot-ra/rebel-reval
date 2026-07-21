@@ -21,7 +21,7 @@ func _definition(path: String) -> MapDefinition:
 	return definition
 
 
-func test_finds_reciprocal_harbor_transition_and_aligns_touching_edges() -> void:
+func test_finds_reciprocal_harbor_transition_and_aligns_kalamaja_to_west() -> void:
 	var north := _definition(NORTH_PATH)
 	var east := _definition(EAST_PATH)
 	if north == null or east == null:
@@ -34,8 +34,8 @@ func test_finds_reciprocal_harbor_transition_and_aligns_touching_edges() -> void
 	var pair: Dictionary = pairs[0]
 	assert_eq(pair["base"]["id"], &"to_harbor_east")
 	assert_eq(pair["neighbor"]["id"], &"to_harbor_north")
-	assert_eq(pair["base_side"], &"east")
-	assert_eq(pair["neighbor_side"], &"west")
+	assert_eq(pair["base_side"], &"west")
+	assert_eq(pair["neighbor_side"], &"east")
 
 	var offset := MapAlignmentMath.aligned_neighbor_offset(
 		north,
@@ -43,13 +43,14 @@ func test_finds_reciprocal_harbor_transition_and_aligns_touching_edges() -> void
 		pair["base"],
 		pair["neighbor"]
 	)
-	assert_eq(offset, Vector2(160 * 32, 0))
+	# Kalamaja is the fishing shore north-west of the walled town.
+	assert_eq(offset, Vector2(-144 * 32, 20 * 32))
 	assert_eq(
 		MapAlignmentMath.offset_in_neighbor_cells(east, offset),
-		Vector2(160, 0)
+		Vector2(-144, 20)
 	)
-	assert_eq(MapAlignmentMath.seam_span_cells(north, pair["base"], &"east"), 8.0)
-	assert_eq(MapAlignmentMath.seam_span_cells(east, pair["neighbor"], &"west"), 8.0)
+	assert_eq(MapAlignmentMath.seam_span_cells(north, pair["base"], &"west"), 8.0)
+	assert_eq(MapAlignmentMath.seam_span_cells(east, pair["neighbor"], &"east"), 8.0)
 
 
 func test_layout_connected_city_maps_places_every_reciprocal_neighbor() -> void:

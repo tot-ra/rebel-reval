@@ -1,8 +1,9 @@
 # Coastal Gate merchant landing below Reval's northern wall. The 1343 shore is
 # modelled as open sand/mud work ground with short timber landings, not a later
 # continuous masonry quay. Stable map/transition IDs are retained for saves.
+# The northern deep-water band is widened for a more open Baltic roadstead view.
 rrmap 1
-map reval_harbor_north loc.reval_harbor.north 160 88 meadow scope=prototype active=false palette=clean_painted seed=1385 cell_size=32
+map reval_harbor_north loc.reval_harbor.north 160 108 meadow scope=prototype active=false palette=clean_painted seed=1385 cell_size=32
 source "scenes/harbor/harbor_north.tscn"
 source "scenes/harbor/harbor.md"
 source "scenes/harbor/great_coast_gate.md"
@@ -20,89 +21,89 @@ style bush.dense
 style bush.scrub
 style tree.mixed
 style tree.spruce
-terrain water.deep deep_water 0 0 160 26 order=1
-terrain water.shallow shallow_water 0 26 160 8 order=2
-terrain shore.sand coast_sand 0 34 160 9 order=3
-terrain shore.sand_west coast_sand 0 33 38 2 order=4
-terrain shore.sand_mid coast_sand 44 32 36 3 order=4
-terrain shore.sand_east coast_sand 104 33 56 2 order=4
-terrain shore.mud mud 0 43 160 12 order=5
-terrain foreland.grass grass 0 55 160 33 style=grass.tall order=6
-terrain landing.rubble_west stone 48 40 22 5 order=7
-terrain landing.rubble_east stone 104 40 20 5 order=7
-terrain yard.west dirt 10 49 34 19 order=7
-terrain yard.mid mud 46 50 42 18 order=7
-terrain yard.east dirt 92 48 31 21 order=7
-terrain ropeyard.mud mud 124 50 32 19 order=7
-terrain gate.forecourt stone 88 68 31 14 order=8
-terrain shore.scrub_west grass 0 55 12 12 style=bush.scrub order=9
-terrain shore.scrub_east grass 150 55 10 13 style=bush.scrub order=9
-terrain boundary.wood_west forest_floor 0 70 42 18 style=tree.mixed order=10
-terrain boundary.wood_east forest_floor 122 68 38 20 style=tree.spruce order=10
-terrain boundary.scrub_west grass 36 67 12 9 style=bush.dense order=11
-terrain boundary.scrub_east grass 116 65 12 9 style=bush.scrub order=11
+terrain water.deep deep_water 0 0 160 46 order=1
+terrain water.shallow shallow_water 0 46 160 8 order=2
+terrain shore.sand coast_sand 0 54 160 9 order=3
+terrain shore.sand_west coast_sand 0 53 38 2 order=4
+terrain shore.sand_mid coast_sand 44 52 36 3 order=4
+terrain shore.sand_east coast_sand 104 53 56 2 order=4
+terrain shore.mud mud 0 63 160 12 order=5
+terrain foreland.grass grass 0 75 160 33 style=grass.tall order=6
+terrain landing.rubble_west stone 48 60 22 5 order=7
+terrain landing.rubble_east stone 104 60 20 5 order=7
+terrain yard.west dirt 10 69 34 19 order=7
+terrain yard.mid mud 46 70 42 18 order=7
+terrain yard.east dirt 92 68 31 21 order=7
+terrain ropeyard.mud mud 124 70 32 19 order=7
+terrain gate.forecourt stone 88 88 31 14 order=8
+terrain shore.scrub_west grass 0 75 12 12 style=bush.scrub order=9
+terrain shore.scrub_east grass 150 75 10 13 style=bush.scrub order=9
+terrain boundary.wood_west forest_floor 0 90 42 18 style=tree.mixed order=10
+terrain boundary.wood_east forest_floor 122 88 38 20 style=tree.spruce order=10
+terrain boundary.scrub_west grass 36 87 12 9 style=bush.dense order=11
+terrain boundary.scrub_east grass 116 85 12 9 style=bush.scrub order=11
 # Short timber landings are walkable plank decks. Large roadstead cogs stay
 # offshore scenery; small boats at the jetty tips are the approachable craft.
-terrain pier.west timber_floor 57 27 2 18 order=13
-terrain pier.east timber_floor 113 29 2 16 order=13
-stroke coast_gate_road cobblestone 103,86|103,80|103,74|103,68|103,61|96,61|96,56|84,56|84,53|70,53|70,51 thickness=4 order=12
-stroke shore_work_track dirt 4,51|20,51|20,53|34,53|34,51|52,51|70,51|70,53|86,53|86,51|104,51|104,52|122,52|122,51|142,51|142,50|158,50 thickness=3 order=12
-stroke west_yard_track dirt 18,63|30,63|30,61|44,61|44,58|58,58|58,55|70,55|70,51 thickness=2 order=12
-stroke ropeyard_track dirt 103,62|118,62|118,60|134,60|134,58|150,58|150,57 thickness=2 order=12
-building cargo_shed_west house 14 47 11 5 style=house.shed
-building salt_store_west house 30 52 9 5 style=house.shed
-building warehouse_mid house 52 46 13 6 style=house.warehouse
-building tally_shed house 70 54 9 5 style=house.shed
-building seamens_inn house 78 62 11 6 style=house.inn
-building great_coast_gate house 96 72 14 7 style=house.gatehouse
-building gate_yard_store house 112 64 10 5 style=house.warehouse
-building ropewalk_shed house 126 54 18 5 style=house.shed
-building chandlers_shed house 145 47 10 6 style=house.shed
-wall landing_rubble_west 48 41 70 41 thickness=1 kind=wall style=wall.rubble
-wall landing_rubble_east 104 41 124 41 thickness=1 kind=wall style=wall.rubble
-wall cargo_yard_fence_north 10 48 43 48 thickness=1 kind=wall style=wall.fence openings=18,48,5,1|35,48,4,1
-wall cargo_yard_fence_west 10 48 10 67 thickness=1 kind=wall style=wall.fence openings=10,57,1,5
-wall cargo_yard_fence_south 10 67 43 67 thickness=1 kind=wall style=wall.fence openings=25,67,5,1
-wall ropeyard_fence_west 123 52 123 68 thickness=1 kind=wall style=wall.fence openings=123,57,1,5
-wall ropeyard_fence_south 123 68 156 68 thickness=1 kind=wall style=wall.fence openings=137,68,6,1
-prop quay_crane cart 66 45 rect=2,2
-prop cargo_barrels_west barrels 26 57 rect=3,2
-prop cargo_barrels_mid barrels 60 53 rect=3,2
-prop tally_barrels barrels 73 60 rect=2,2
-prop gate_cart cart 112 77 rect=2,2
-prop rope_bales_west barrels 130 61 rect=3,2
-prop rope_bales_east barrels 142 61 rect=3,2
-prop merchants_cart cart 119 53 rect=2,2
-prop scrub.gate bush 88 78 rect=3,2 style=bush.scrub
-prop scrub.west bush 42 63 rect=3,2 style=bush.dense
-prop scrub.east bush 151 70 rect=3,2 style=bush.dense
-prop merchant_cog_west merchant_boat 13 6 rect=4,12
-prop merchant_cog_central merchant_boat 49 4 rect=4,12
-prop merchant_cog_east merchant_boat 91 7 rect=4,12
-prop merchant_cog_far_east merchant_boat 133 3 rect=4,12
-prop landing_boat_west fishing_boat 54 27 rect=2,5
-prop landing_boat_east fishing_boat 116 29 rect=2,4
-landmark coast_gate_arch gate_arch 99 72 8 7 wall_color=8c8980ff top_px=184 passage_axis=z door_material=wood
-landmark landing_marker gate_arch 63 40 5 2 wall_color=81796eff top_px=72 passage_axis=z
-spawn spawn.inspection 103 62 rect=2,2
-anchor from_reval_north 103 82 rect=2,2
-anchor from_harbor_east 5 50 rect=2,2
-anchor quay_plaza 70 52 rect=2,2
-anchor coast_gate 92 75 rect=2,2
-anchor ropeyard 136 60 rect=2,2
-transition to_reval_north 100 84 7 4 to=reval_north destination_spawn=to_reval_harbor spawn=from_reval_north spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
-transition to_harbor_east 0 47 4 8 to=reval_harbor_east destination_spawn=from_harbor_north spawn=from_harbor_east spawn_offset_px=128,0 highlight_area=true transition_visual=ground
-sign sign.pikk "to pikk street" 106 83 south
-sign sign.fishing_shore "kalamaja fishing shore" 7 49 west
-sign sign.landing "merchant landing" 72 49 north
-sign sign.gate "coastal gate" 106 74 south
-patrol harbor_north_watch 103,81|103,71|96,61|84,54|70,52|56,54|70,52|103,62|133,58
-exclude blocked.water.deep 0 0 160 26
-exclude blocked.water.shallow_a 0 26 57 8
-exclude blocked.water.shallow_b 59 26 54 8
-exclude blocked.water.shallow_c 115 26 45 8
-exclude blocked.wood_west 0 70 42 18
-exclude blocked.wood_east 122 68 38 20
-fade fade.landing 12 43 144 8
-camera 0 0 160 88
+terrain pier.west timber_floor 57 47 2 18 order=13
+terrain pier.east timber_floor 113 49 2 16 order=13
+stroke coast_gate_road cobblestone 103,106|103,100|103,94|103,88|103,81|96,81|96,76|84,76|84,73|70,73|70,71 thickness=4 order=12
+stroke shore_work_track dirt 4,71|20,71|20,73|34,73|34,71|52,71|70,71|70,73|86,73|86,71|104,71|104,72|122,72|122,71|142,71|142,70|158,70 thickness=3 order=12
+stroke west_yard_track dirt 18,83|30,83|30,81|44,81|44,78|58,78|58,75|70,75|70,71 thickness=2 order=12
+stroke ropeyard_track dirt 103,82|118,82|118,80|134,80|134,78|150,78|150,77 thickness=2 order=12
+building cargo_shed_west house 14 67 11 5 style=house.shed
+building salt_store_west house 30 72 9 5 style=house.shed
+building warehouse_mid house 52 66 13 6 style=house.warehouse
+building tally_shed house 70 74 9 5 style=house.shed
+building seamens_inn house 78 82 11 6 style=house.inn
+building great_coast_gate house 96 92 14 7 style=house.gatehouse
+building gate_yard_store house 112 84 10 5 style=house.warehouse
+building ropewalk_shed house 126 74 18 5 style=house.shed
+building chandlers_shed house 145 67 10 6 style=house.shed
+wall landing_rubble_west 48 61 70 61 thickness=1 kind=wall style=wall.rubble
+wall landing_rubble_east 104 61 124 61 thickness=1 kind=wall style=wall.rubble
+wall cargo_yard_fence_north 10 68 43 68 thickness=1 kind=wall style=wall.fence openings=18,68,5,1|35,68,4,1
+wall cargo_yard_fence_west 10 68 10 87 thickness=1 kind=wall style=wall.fence openings=10,77,1,5
+wall cargo_yard_fence_south 10 87 43 87 thickness=1 kind=wall style=wall.fence openings=25,87,5,1
+wall ropeyard_fence_west 123 72 123 88 thickness=1 kind=wall style=wall.fence openings=123,77,1,5
+wall ropeyard_fence_south 123 88 156 88 thickness=1 kind=wall style=wall.fence openings=137,88,6,1
+prop quay_crane cart 66 65 rect=2,2
+prop cargo_barrels_west barrels 26 77 rect=3,2
+prop cargo_barrels_mid barrels 60 73 rect=3,2
+prop tally_barrels barrels 73 80 rect=2,2
+prop gate_cart cart 112 97 rect=2,2
+prop rope_bales_west barrels 130 81 rect=3,2
+prop rope_bales_east barrels 142 81 rect=3,2
+prop merchants_cart cart 119 73 rect=2,2
+prop scrub.gate bush 88 98 rect=3,2 style=bush.scrub
+prop scrub.west bush 42 83 rect=3,2 style=bush.dense
+prop scrub.east bush 151 90 rect=3,2 style=bush.dense
+prop merchant_cog_west merchant_boat 13 26 rect=4,12
+prop merchant_cog_central merchant_boat 49 24 rect=4,12
+prop merchant_cog_east merchant_boat 91 27 rect=4,12
+prop merchant_cog_far_east merchant_boat 133 23 rect=4,12
+prop landing_boat_west fishing_boat 54 47 rect=2,5
+prop landing_boat_east fishing_boat 116 49 rect=2,4
+landmark coast_gate_arch gate_arch 99 92 8 7 wall_color=8c8980ff top_px=184 passage_axis=z door_material=wood
+landmark landing_marker gate_arch 63 60 5 2 wall_color=81796eff top_px=72 passage_axis=z
+spawn spawn.inspection 103 82 rect=2,2
+anchor from_reval_north 103 102 rect=2,2
+anchor from_harbor_east 5 70 rect=2,2
+anchor quay_plaza 70 72 rect=2,2
+anchor coast_gate 92 95 rect=2,2
+anchor ropeyard 136 80 rect=2,2
+transition to_reval_north 100 104 7 4 to=reval_north destination_spawn=to_reval_harbor spawn=from_reval_north spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
+transition to_harbor_east 0 67 4 8 to=reval_harbor_east destination_spawn=from_harbor_north spawn=from_harbor_east spawn_offset_px=128,0 highlight_area=true transition_visual=ground
+sign sign.pikk "to pikk street" 106 103 south
+sign sign.fishing_shore "kalamaja fishing shore" 7 69 west
+sign sign.landing "merchant landing" 72 69 north
+sign sign.gate "coastal gate" 106 94 south
+patrol harbor_north_watch 103,101|103,91|96,81|84,74|70,72|56,74|70,72|103,82|142,71
+exclude blocked.water.deep 0 0 160 46
+exclude blocked.water.shallow_a 0 46 57 8
+exclude blocked.water.shallow_b 59 46 54 8
+exclude blocked.water.shallow_c 115 46 45 8
+exclude blocked.wood_west 0 90 42 18
+exclude blocked.wood_east 122 88 38 20
+fade fade.landing 12 63 144 8
+camera 0 0 160 108
 surroundings north water east water west woodland south woodland
