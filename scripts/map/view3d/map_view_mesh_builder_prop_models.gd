@@ -330,28 +330,30 @@ static func _add_authored_tree(root: Node3D, prop: Dictionary) -> void:
 		size_class = MapViewTreeSpecies.SIZE_MEDIUM
 	var scale_range := MapViewTreeSpecies.scale_range(size_class)
 	var scale := (scale_range.x + scale_range.y) * 0.5
-	var silhouette := MapViewTreeSpecies.silhouette_for(species)
 	var bark_kind := MapViewTreeSpecies.bark_kind_for(species)
 
 	var trunk := MeshInstance3D.new()
 	trunk.name = "Trunk"
-	var trunk_mesh := CylinderMesh.new()
-	trunk_mesh.top_radius = 0.09
-	trunk_mesh.bottom_radius = 0.15
-	trunk_mesh.height = MapViewTreeSpecies.trunk_height()
-	trunk_mesh.radial_segments = 7
-	trunk.mesh = trunk_mesh
-	trunk.position = Vector3(0.0, MapViewTreeSpecies.trunk_lift() * scale, 0.0)
+	trunk.mesh = MapViewMeshBuilderPrimitives.tree_wood_mesh(species)
 	trunk.scale = Vector3.ONE * scale
 	trunk.material_override = MapViewMaterials.bark(bark_kind)
 	root.add_child(trunk)
 
 	var canopy := MeshInstance3D.new()
 	canopy.name = "Canopy"
-	canopy.mesh = MapViewMeshBuilderPrimitives.canopy_mesh_for(silhouette)
-	canopy.position = Vector3(0.0, MapViewTreeSpecies.canopy_lift(species) * scale, 0.0)
+	canopy.mesh = MapViewMeshBuilderPrimitives.tree_canopy_mesh(species)
 	canopy.scale = Vector3.ONE * scale
 	canopy.material_override = MapViewMaterials.canopy(MapViewTreeSpecies.canopy_material_kind(species))
 	root.add_child(canopy)
+
+	var fruit_mesh := MapViewMeshBuilderPrimitives.tree_fruit_mesh(species)
+	if fruit_mesh != null:
+		var fruit := MeshInstance3D.new()
+		fruit.name = "Fruit"
+		fruit.mesh = fruit_mesh
+		fruit.scale = Vector3.ONE * scale
+		fruit.material_override = MapViewMaterials.tree_fruit()
+		fruit.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(fruit)
 	root.set_meta(&"tree_species", species)
 	root.set_meta(&"tree_size", size_class)

@@ -193,7 +193,9 @@ static func _is_urban_map(definition: MapDefinition) -> bool:
 	return false
 
 
-## Collect one procedural tree into silhouette/bark MultiMesh buckets.
+## Collect one procedural tree into species MultiMesh buckets. Species-specific
+## cached geometry preserves branch architecture while keeping three draw calls
+## at most per visible species: wood, leaves, and optional fruit.
 static func _append_scattered_tree(
 	batches: Dictionary,
 	field: Dictionary,
@@ -245,18 +247,22 @@ static func _push_tree_instance(
 	bark_roll: float,
 	canopy_roll: float
 ) -> void:
-	var bark_kind := MapViewTreeSpecies.bark_kind_for(species)
-	var silhouette := MapViewTreeSpecies.silhouette_for(species)
-	var trunk_key := "trunk:%s" % String(bark_kind)
-	var canopy_key := "canopy:%s" % String(silhouette)
+	var species_key := String(species)
+	var trunk_key := "tree_wood:%s" % species_key
+	var canopy_key := "tree_canopy:%s" % species_key
 	if not batches.has(trunk_key):
-		batches[trunk_key] = {"transforms": [] as Array[Transform3D], "colors": [] as Array[Color], "bark": bark_kind}
+		batches[trunk_key] = {
+			"transforms": [] as Array[Transform3D],
+			"colors": [] as Array[Color],
+			"layer": &"wood",
+			"species": species,
+		}
 	if not batches.has(canopy_key):
 		batches[canopy_key] = {
 			"transforms": [] as Array[Transform3D],
 			"colors": [] as Array[Color],
-			"silhouette": silhouette,
-			"material": MapViewTreeSpecies.canopy_material_kind(species),
+			"layer": &"canopy",
+			"species": species,
 		}
 	var trunk_batch: Dictionary = batches[trunk_key]
 	(trunk_batch["transforms"] as Array).append(tree_transform)
@@ -264,14 +270,24 @@ static func _push_tree_instance(
 	var canopy_batch: Dictionary = batches[canopy_key]
 	(canopy_batch["transforms"] as Array).append(tree_transform)
 	(canopy_batch["colors"] as Array).append(MapViewTreeSpecies.canopy_tint(species, canopy_roll))
+	var fruit_mesh := MapViewMeshBuilderPrimitives.tree_fruit_mesh(species)
+	if fruit_mesh != null:
+		var fruit_key := "tree_fruit:%s" % species_key
+		if not batches.has(fruit_key):
+			batches[fruit_key] = {
+				"transforms": [] as Array[Transform3D],
+				"colors": [] as Array[Color],
+				"layer": &"fruit",
+				"species": species,
+			}
+		var fruit_batch: Dictionary = batches[fruit_key]
+		(fruit_batch["transforms"] as Array).append(tree_transform)
+		(fruit_batch["colors"] as Array).append(Color.WHITE)
 
 
 static func _emit_tree_batches(root: Node3D, batches: Dictionary) -> void:
-	var trunk_mesh := CylinderMesh.new()
-	trunk_mesh.top_radius = 0.09
-	trunk_mesh.bottom_radius = 0.15
-	trunk_mesh.height = MapViewTreeSpecies.trunk_height()
-	trunk_mesh.radial_segments = 7
+	var emitted_default_trunk := false
+	var emitted_birch_trunk := false
 	for key: Variant in batches.keys():
 		var batch: Dictionary = batches[key]
 		var transforms: Array = batch["transforms"]
@@ -282,41 +298,44 @@ static func _emit_tree_batches(root: Node3D, batches: Dictionary) -> void:
 		for index in transforms.size():
 			typed_transforms.append(transforms[index])
 			typed_colors.append(batch["colors"][index])
-		if String(key).begins_with("trunk:"):
-			var bark_kind: StringName = batch["bark"]
-			var node_name := "TreeTrunksBirch" if bark_kind == MapViewTreeSpecies.BARK_BIRCH else "TreeTrunks"
-			root.add_child(
-				MapViewMeshBuilderPrimitives.multi_mesh(
-					node_name,
-					trunk_mesh,
-					typed_transforms,
-					typed_colors,
-					MapViewMaterials.bark(bark_kind),
-					Vector3(0.0, MapViewTreeSpecies.trunk_lift(), 0.0)
-				)
-			)
-		else:
-			var silhouette: StringName = batch["silhouette"]
-			var material_kind: StringName = batch["material"]
-			var lift := 1.55
-			match silhouette:
-				MapViewTreeSpecies.SILHOUETTE_SPRUCE:
-					lift = 0.4
-				MapViewTreeSpecies.SILHOUETTE_PINE:
-					lift = 0.55
-				MapViewTreeSpecies.SILHOUETTE_COLUMN:
-					lift = 1.35
-			var layer_name := "Trees_%s" % String(silhouette).capitalize()
-			root.add_child(
-				MapViewMeshBuilderPrimitives.multi_mesh(
-					layer_name,
-					MapViewMeshBuilderPrimitives.canopy_mesh_for(silhouette),
-					typed_transforms,
-					typed_colors,
-					MapViewMaterials.canopy(material_kind),
-					Vector3(0.0, lift, 0.0)
-				)
-			)
+		var species: StringName = batch["species"]
+		var layer: StringName = batch["layer"]
+		var mesh: Mesh
+		var material: Material
+		var layer_name: String
+		match layer:
+			&"wood":
+				mesh = MapViewMeshBuilderPrimitives.tree_wood_mesh(species)
+				var bark_kind := MapViewTreeSpecies.bark_kind_for(species)
+				material = MapViewMaterials.bark(bark_kind)
+				if bark_kind == MapViewTreeSpecies.BARK_BIRCH and not emitted_birch_trunk:
+					layer_name = "TreeTrunksBirch"
+					emitted_birch_trunk = true
+				elif bark_kind != MapViewTreeSpecies.BARK_BIRCH and not emitted_default_trunk:
+					layer_name = "TreeTrunks"
+					emitted_default_trunk = true
+				else:
+					layer_name = "TreeTrunks_%s" % String(species).capitalize()
+			&"fruit":
+				mesh = MapViewMeshBuilderPrimitives.tree_fruit_mesh(species)
+				material = MapViewMaterials.tree_fruit()
+				layer_name = "TreeFruit_%s" % String(species).capitalize()
+			_:
+				mesh = MapViewMeshBuilderPrimitives.tree_canopy_mesh(species)
+				material = MapViewMaterials.canopy(MapViewTreeSpecies.canopy_material_kind(species))
+				layer_name = "Trees_%s" % String(species).capitalize()
+		var instances := MapViewMeshBuilderPrimitives.multi_mesh(
+			layer_name,
+			mesh,
+			typed_transforms,
+			typed_colors,
+			material,
+			Vector3.ZERO
+		)
+		if layer == &"fruit":
+			instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(instances)
+
 
 static func _add_grass_layer(root: Node3D, layer_name: String, transforms: Array[Transform3D], colors: Array[Color], mesh: Mesh) -> void:
 	if transforms.is_empty():

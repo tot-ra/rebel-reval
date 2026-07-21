@@ -24,6 +24,9 @@ const VARIANT_TREE_ALDER := &"tree.alder"
 const VARIANT_TREE_ASPEN := &"tree.aspen"
 const VARIANT_TREE_MAPLE := &"tree.maple"
 const VARIANT_TREE_LINDEN := &"tree.linden"
+const VARIANT_TREE_APPLE := &"tree.apple"
+const VARIANT_TREE_CHERRY := &"tree.cherry"
+const VARIANT_TREE_ORCHARD := &"tree.orchard"
 const VARIANT_TREE_DECIDUOUS := &"tree.deciduous"
 const VARIANT_TREE_MIXED := &"tree.mixed"
 
@@ -46,6 +49,9 @@ const ALL_VARIANTS: Array[StringName] = [
 	VARIANT_TREE_ASPEN,
 	VARIANT_TREE_MAPLE,
 	VARIANT_TREE_LINDEN,
+	VARIANT_TREE_APPLE,
+	VARIANT_TREE_CHERRY,
+	VARIANT_TREE_ORCHARD,
 	VARIANT_TREE_DECIDUOUS,
 	VARIANT_TREE_MIXED,
 ]
@@ -151,6 +157,8 @@ static func ground_color_tint(variant: StringName) -> Color:
 			return Color(0.82, 0.94, 0.82)
 		VARIANT_TREE_ALDER:
 			return Color(0.86, 0.98, 0.84)
+		VARIANT_TREE_APPLE, VARIANT_TREE_CHERRY, VARIANT_TREE_ORCHARD:
+			return Color(0.94, 1.04, 0.82)
 		_:
 			if is_tree_variant(variant):
 				return Color(0.9, 1.0, 0.84)
@@ -164,7 +172,10 @@ static func scatter_profile(variant: StringName) -> Dictionary:
 	var tree_parsed: Dictionary = MapViewTreeSpecies.parse_variant(variant)
 	if not tree_parsed.is_empty():
 		var tree_chance := 0.2
-		if tree_parsed.get("group", &"") == &"mixed" or variant == VARIANT_TREE_MIXED:
+		if tree_parsed.get("group", &"") == &"orchard" or variant == VARIANT_TREE_ORCHARD:
+			# Orchard rows need readable individual crowns without becoming forest.
+			tree_chance = 0.18
+		elif tree_parsed.get("group", &"") == &"mixed" or variant == VARIANT_TREE_MIXED:
 			tree_chance = 0.22
 		elif tree_parsed.has("species"):
 			tree_chance = 0.24

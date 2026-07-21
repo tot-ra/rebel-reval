@@ -1,10 +1,9 @@
 class_name MapViewTreeSpecies
 extends RefCounted
 
-## Estonian roadside and woodland trees for Reval latitudes. Species drive
-## silhouette family, bark, and canopy tint; size classes scale the same mesh
-## so MultiMesh batches stay cheap. Terrain styles such as tree.mixed pick from
-## weighted tables; authored props may pin one species and size.
+## Estonian roadside, woodland, and orchard trees for Reval latitudes. Species
+## drive a bounded fractal growth profile, bark, foliage tint, and optional fruit;
+## size classes scale cached meshes so MultiMesh batches remain cheap.
 
 const SPECIES_SPRUCE := &"spruce"
 const SPECIES_PINE := &"pine"
@@ -14,6 +13,8 @@ const SPECIES_ALDER := &"alder"
 const SPECIES_ASPEN := &"aspen"
 const SPECIES_MAPLE := &"maple"
 const SPECIES_LINDEN := &"linden"
+const SPECIES_APPLE := &"apple"
+const SPECIES_CHERRY := &"cherry"
 
 const ALL_SPECIES: Array[StringName] = [
 	SPECIES_SPRUCE,
@@ -24,6 +25,8 @@ const ALL_SPECIES: Array[StringName] = [
 	SPECIES_ASPEN,
 	SPECIES_MAPLE,
 	SPECIES_LINDEN,
+	SPECIES_APPLE,
+	SPECIES_CHERRY,
 ]
 
 const SIZE_SMALL := &"small"
@@ -36,9 +39,11 @@ const SILHOUETTE_SPRUCE := &"spruce"
 const SILHOUETTE_PINE := &"pine"
 const SILHOUETTE_BROAD := &"broad"
 const SILHOUETTE_COLUMN := &"column"
+const SILHOUETTE_ORCHARD := &"orchard"
 
 const BARK_DEFAULT := &"bark"
 const BARK_BIRCH := &"birch"
+const BARK_CHERRY := &"cherry"
 
 ## Local Estonian mix for mixed woodland and exterior treelines: spruce and pine
 ## dominate the north Baltic canopy, with birch and aspen common on margins.
@@ -60,6 +65,13 @@ const DECIDUOUS_WEIGHTS: Dictionary = {
 	SPECIES_ALDER: 0.14,
 	SPECIES_MAPLE: 0.12,
 	SPECIES_LINDEN: 0.12,
+}
+
+## Orchard stands deliberately exclude woodland species. Apple dominates the
+## historical northern orchard mix, with sour cherry providing smaller crowns.
+const ORCHARD_WEIGHTS: Dictionary = {
+	SPECIES_APPLE: 0.68,
+	SPECIES_CHERRY: 0.32,
 }
 
 ## Size distribution for procedural scatter: medium trees carry the silhouette;
@@ -100,7 +112,7 @@ static func parse_variant(variant: StringName) -> Dictionary:
 	if parts.size() >= 3 and is_known_size(StringName(parts[2])):
 		size_class = StringName(parts[2])
 	match token:
-		&"mixed", &"deciduous":
+		&"mixed", &"deciduous", &"orchard":
 			return {"group": token, "size": size_class}
 		_:
 			if is_known_species(token):
@@ -116,12 +128,20 @@ static func silhouette_for(species: StringName) -> StringName:
 			return SILHOUETTE_PINE
 		SPECIES_BIRCH, SPECIES_ASPEN:
 			return SILHOUETTE_COLUMN
+		SPECIES_APPLE, SPECIES_CHERRY:
+			return SILHOUETTE_ORCHARD
 		_:
 			return SILHOUETTE_BROAD
 
 
 static func bark_kind_for(species: StringName) -> StringName:
-	return BARK_BIRCH if species == SPECIES_BIRCH else BARK_DEFAULT
+	match species:
+		SPECIES_BIRCH:
+			return BARK_BIRCH
+		SPECIES_CHERRY:
+			return BARK_CHERRY
+		_:
+			return BARK_DEFAULT
 
 
 static func canopy_material_kind(species: StringName) -> StringName:
@@ -132,6 +152,8 @@ static func canopy_material_kind(species: StringName) -> StringName:
 			return &"pine"
 		SILHOUETTE_COLUMN:
 			return &"column"
+		SILHOUETTE_ORCHARD:
+			return &"orchard"
 		_:
 			return &"leaf"
 
@@ -157,6 +179,10 @@ static func canopy_tint(species: StringName, roll: float) -> Color:
 			return Color(variance * 0.92, variance * 1.0, variance * 0.68)
 		SPECIES_LINDEN:
 			return Color(variance * 0.96, variance * 1.02, variance * 0.76)
+		SPECIES_APPLE:
+			return Color(variance * 0.84, variance * 1.02, variance * 0.70)
+		SPECIES_CHERRY:
+			return Color(variance * 0.92, variance * 1.04, variance * 0.74)
 		_:
 			return Color(variance * 0.96, variance, variance * 0.78)
 
@@ -171,6 +197,10 @@ static func bark_tint(species: StringName, roll: float) -> Color:
 		return Color(shade * 1.05, shade * 0.88, shade * 0.72)
 	if species == SPECIES_ALDER:
 		return Color(shade * 0.92, shade * 0.86, shade * 0.78)
+	if species == SPECIES_CHERRY:
+		return Color(shade * 0.78, shade * 0.48, shade * 0.42)
+	if species == SPECIES_APPLE:
+		return Color(shade * 0.92, shade * 0.78, shade * 0.62)
 	return Color(shade, shade * 0.96, shade * 0.9)
 
 
@@ -181,6 +211,8 @@ static func weights_for_variant(variant: StringName) -> Dictionary:
 	match parsed.get("group", &""):
 		&"deciduous":
 			return DECIDUOUS_WEIGHTS
+		&"orchard":
+			return ORCHARD_WEIGHTS
 		&"mixed":
 			return MIXED_WEIGHTS
 	# Unstyled forest floor and exterior bands default to the full Estonian mix.
@@ -217,23 +249,15 @@ static func scale_range(size_class: StringName) -> Vector2:
 	return SIZE_SCALE.get(size_class, SIZE_SCALE[SIZE_MEDIUM])
 
 
-## Trunk cylinder height in mesh-local units before instance scale. Canopy lift
-## keeps the crown seated on top of that trunk for each silhouette family.
+## The new procedural meshes are rooted at local y = 0. These compatibility
+## accessors remain for older callers while new tree builders use zero lift.
 static func trunk_height() -> float:
 	return 1.2
 
 
-static func canopy_lift(species: StringName) -> float:
-	match silhouette_for(species):
-		SILHOUETTE_SPRUCE:
-			return 0.4
-		SILHOUETTE_PINE:
-			return 0.55
-		SILHOUETTE_COLUMN:
-			return 1.35
-		_:
-			return 1.55
+static func canopy_lift(_species: StringName) -> float:
+	return 0.0
 
 
 static func trunk_lift() -> float:
-	return trunk_height() * 0.5
+	return 0.0

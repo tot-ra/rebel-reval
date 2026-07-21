@@ -47,6 +47,9 @@ const PATTERN_STRAW := &"straw"
 const PATTERN_THATCH := &"thatch"
 const PATTERN_SHINGLE := &"shingle"
 const PATTERN_LOG := &"log"
+const PATTERN_BARK := &"bark"
+const PATTERN_BIRCH_BARK := &"birch_bark"
+const PATTERN_CHERRY_BARK := &"cherry_bark"
 
 const TERRAIN_PATTERN := {
 	MapTypes.TERRAIN_GRASS: PATTERN_GRASS,
@@ -336,6 +339,7 @@ static func _wind_materials() -> Array[ShaderMaterial]:
 		canopy(&"pine"),
 		canopy(&"leaf"),
 		canopy(&"column"),
+		canopy(&"orchard"),
 		sail_cloth(),
 		flag_cloth(),
 	]
@@ -369,6 +373,9 @@ static func canopy(kind: StringName) -> ShaderMaterial:
 		&"column":
 			material.set_shader_parameter("base_color", Color8(108, 132, 62))
 			material.set_shader_parameter("sway_strength", 0.07)
+		&"orchard":
+			material.set_shader_parameter("base_color", Color8(92, 128, 60))
+			material.set_shader_parameter("sway_strength", 0.075)
 		_:
 			material.set_shader_parameter("base_color", Color8(96, 118, 60))
 			material.set_shader_parameter("sway_strength", 0.06)
@@ -590,8 +597,18 @@ static func foliage_leaf() -> StandardMaterial3D:
 
 static func bark(kind: StringName = &"bark") -> StandardMaterial3D:
 	if kind == &"birch":
-		return _patterned("bark_birch", Color8(214, 208, 196), PATTERN_PLANK)
-	return _patterned("bark", Color8(74, 56, 42), PATTERN_PLANK)
+		return _patterned("bark_birch", Color8(214, 208, 196), PATTERN_BIRCH_BARK)
+	if kind == &"cherry":
+		return _patterned("bark_cherry", Color8(91, 51, 43), PATTERN_CHERRY_BARK)
+	return _patterned("bark", Color8(74, 56, 42), PATTERN_BARK)
+
+
+## Fruit mesh carries apple/cherry color per vertex; this neutral material keeps
+## both species in the same cheap material family and avoids tiny cast shadows.
+static func tree_fruit() -> StandardMaterial3D:
+	var material := _patterned("tree_fruit", Color.WHITE, PATTERN_SPECKLE)
+	material.roughness = 0.76
+	return material
 
 
 static func surroundings_ground() -> StandardMaterial3D:
