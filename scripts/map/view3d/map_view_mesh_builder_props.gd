@@ -489,7 +489,7 @@ static func build_scatter(
 		stone_mesh.height = 0.11
 		stone_mesh.radial_segments = 8
 		stone_mesh.rings = 4
-		root.add_child(MapViewMeshBuilderPrimitives.multi_mesh("Stones", stone_mesh, stones, stone_colors, MapViewMaterials.role(&"stone"), Vector3(0.0, 0.03, 0.0)))
+		root.add_child(MapViewMeshBuilderPrimitives.multi_mesh("Stones", stone_mesh, stones, stone_colors, MapViewMaterials.natural_rock(), Vector3(0.0, 0.03, 0.0)))
 	Shoreline3D.add_to(root, definition, grid, bounds)
 	return root
 

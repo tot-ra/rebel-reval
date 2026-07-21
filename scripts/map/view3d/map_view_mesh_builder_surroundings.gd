@@ -112,7 +112,7 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 		boulder_mesh.height = 0.6
 		boulder_mesh.radial_segments = 7
 		boulder_mesh.rings = 4
-		root.add_child(MapViewMeshBuilderPrimitives.multi_mesh("Boulders", boulder_mesh, boulders, boulder_colors, MapViewMaterials.role(&"stone"), Vector3.ZERO))
+		root.add_child(MapViewMeshBuilderPrimitives.multi_mesh("Boulders", boulder_mesh, boulders, boulder_colors, MapViewMaterials.natural_rock(), Vector3.ZERO))
 
 	if not town_sides.is_empty():
 		root.add_child(_town_silhouette(definition, map_size, previewed_sides, MapViewMeshBuilderConfig.GLACIS_CLEARANCE))

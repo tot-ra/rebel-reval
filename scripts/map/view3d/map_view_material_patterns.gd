@@ -39,6 +39,8 @@ static func _pattern_texture_at_size(pattern: StringName, noise_seed: int, textu
 			_paint_plank(image, noise_seed)
 		MapViewMaterials.PATTERN_LIMESTONE:
 			_paint_limestone(image, noise_seed)
+		MapViewMaterials.PATTERN_ROCK:
+			_paint_rock(image, noise_seed)
 		MapViewMaterials.PATTERN_ROOF_TILE:
 			_paint_roof_tile(image, noise_seed)
 		MapViewMaterials.PATTERN_STRAW:
@@ -235,6 +237,28 @@ static func _paint_plank(image: Image, noise_seed: int) -> void:
 			# Occasional butt joint inside a course.
 			if posmod(x + int(_hash01(row, 0, noise_seed) * 100.0), 96) < 1:
 				value = 0.55
+			_fill_value(image, x, y, value)
+
+
+## Weathered coastal boulder: mottled grain, lichen flecks, and diagonal
+## fissures without ashlar courses or brick-like horizontal bands.
+static func _paint_rock(image: Image, noise_seed: int) -> void:
+	var size := image.get_width()
+	for y in size:
+		for x in size:
+			var broad := _lattice(float(x) / 18.0, float(y) / 18.0, size / 18, noise_seed)
+			var medium := _lattice(float(x) / 7.0, float(y) / 7.0, size / 7, noise_seed + 31)
+			var fine := _lattice(float(x) / 2.5, float(y) / 2.5, size / 3, noise_seed + 67)
+			var speckle := _hash01(x, y, noise_seed + 11)
+			var value := 0.70 + broad * 0.14 + medium * 0.10 + fine * 0.06
+			value += (speckle - 0.5) * 0.08
+			if speckle > 0.93:
+				value += 0.10
+			elif speckle < 0.04:
+				value -= 0.12
+			var fissure := _lattice(float(x + y) / 5.0, float(x - y) / 8.0, size / 5, noise_seed + 103)
+			if fissure > 0.88:
+				value -= 0.14
 			_fill_value(image, x, y, value)
 
 

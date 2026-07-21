@@ -36,6 +36,9 @@ const PATTERN_COBBLE := &"cobble"
 const PATTERN_BRICK := &"brick"
 const PATTERN_PLANK := &"plank"
 const PATTERN_LIMESTONE := &"limestone"
+## Weathered boulders and shoreline scatter: organic mottling without ashlar
+## courses so sphere meshes do not read as brick bands at lake/sea edges.
+const PATTERN_ROCK := &"rock"
 const PATTERN_ROOF_TILE := &"roof_tile"
 const PATTERN_PLASTER := &"plaster"
 const PATTERN_STRAW := &"straw"
@@ -495,6 +498,8 @@ static func role(role_name: StringName) -> StandardMaterial3D:
 			pattern = PATTERN_PLANK
 		&"stone":
 			pattern = PATTERN_LIMESTONE
+		&"rock":
+			pattern = PATTERN_ROCK
 		&"hay":
 			pattern = PATTERN_STRAW
 	var material := _make_material(base, pattern, int(role_name.hash()))
@@ -523,6 +528,21 @@ static func role(role_name: StringName) -> StandardMaterial3D:
 
 ## Size-aware role material so gate leaves, jambs, and thresholds keep plank or
 ## ashlar courses at house scale instead of stretching one tile across a 6-10 m span.
+## Natural weathered rock for shoreline boulders and field scatter. Triplanar
+## mapping keeps grain organic on stretched sphere instances.
+static func natural_rock() -> StandardMaterial3D:
+	var key := "natural_rock"
+	if _cache.has(key):
+		return _cache[key]
+	var base := MapVisualStyle.role_color(&"stone", MapVisualStyle.TARGET_CLEAN_PAINTED, MapVisualStyle.TIME_DAY)
+	var material := _make_material(base, PATTERN_ROCK, 9041)
+	material.uv1_triplanar = true
+	material.uv1_world_triplanar = false
+	material.uv1_scale = Vector3(2.4, 2.4, 2.4)
+	_cache[key] = material
+	return material
+
+
 static func role_for_size(role_name: StringName, size: Vector3) -> StandardMaterial3D:
 	var material := role(role_name).duplicate()
 	var pattern := PATTERN_PLASTER

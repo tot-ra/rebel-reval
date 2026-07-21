@@ -65,7 +65,7 @@ static func add_to(
 		mesh,
 		transforms,
 		colors,
-		MapViewMaterials.role(&"stone"),
+		MapViewMaterials.natural_rock(),
 		Vector3.ZERO
 	))
 
