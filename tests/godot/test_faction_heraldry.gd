@@ -12,7 +12,7 @@ func test_faction_heraldry_patterns_and_vitalien_fly_no_flag() -> void:
 	assert_eq(FactionHeraldry.pattern_for(FactionHeraldry.NOVGOROD), FactionHeraldry.PATTERN_BEAR)
 	assert_eq(FactionHeraldry.pattern_for(FactionHeraldry.PSKOV), FactionHeraldry.PATTERN_LYNX)
 	assert_eq(FactionHeraldry.pattern_for(FactionHeraldry.BLACK_CLOAKS), FactionHeraldry.PATTERN_SWALLOW)
-	assert_eq(FactionHeraldry.pattern_for(FactionHeraldry.PSKOV_NOVGOROD), FactionHeraldry.PATTERN_FESS)
+	assert_eq(FactionHeraldry.pattern_for(FactionHeraldry.PSKOV_NOVGOROD), FactionHeraldry.PATTERN_BEAR_LYNX)
 	assert_false(FactionHeraldry.shows_flag(FactionHeraldry.VITALIENBRUDER))
 	var danish_field := FactionHeraldry.color_at(FactionHeraldry.DANISH_CROWN, Vector2(0.9, 0.15))
 	var danish_cross := FactionHeraldry.color_at(FactionHeraldry.DANISH_CROWN, Vector2(0.36, 0.5))
@@ -28,25 +28,44 @@ func test_faction_heraldry_patterns_and_vitalien_fly_no_flag() -> void:
 		FactionHeraldry.color_at(FactionHeraldry.NOVGOROD, Vector2(0.46, 0.58)).is_equal_approx(
 			FactionHeraldry.charge_color(FactionHeraldry.NOVGOROD)
 		),
-		"Novgorod body UV must hit the bear charge"
+		"Novgorod body UV must hit the black bear charge from the logo"
 	)
 	assert_true(
 		FactionHeraldry.color_at(FactionHeraldry.PSKOV, Vector2(0.66, 0.34)).is_equal_approx(
 			FactionHeraldry.charge_color(FactionHeraldry.PSKOV)
 		),
-		"Pskov head UV must hit the lynx charge"
+		"Pskov head UV must hit the gold lynx charge from the logo"
 	)
 	assert_true(
 		FactionHeraldry.color_at(FactionHeraldry.BLACK_CLOAKS, Vector2(0.48, 0.48)).is_equal_approx(
 			FactionHeraldry.charge_color(FactionHeraldry.BLACK_CLOAKS)
 		),
-		"Black Cloaks body UV must hit the swallow charge"
+		"Black Cloaks body UV must hit the dark swallow charge from the logo"
+	)
+	assert_true(
+		FactionHeraldry.color_at(FactionHeraldry.BLACK_CLOAKS, Vector2(0.08, 0.08)).is_equal_approx(
+			FactionHeraldry.field_color(FactionHeraldry.BLACK_CLOAKS)
+		),
+		"Black Cloaks corner UV must stay the logo white field"
 	)
 	assert_true(
 		FactionHeraldry.color_at(FactionHeraldry.NOVGOROD, Vector2(0.08, 0.08)).is_equal_approx(
 			FactionHeraldry.field_color(FactionHeraldry.NOVGOROD)
 		),
 		"Novgorod corner UV must stay the azure field"
+	)
+	# Joint east cloth: lynx in front (gold), bear behind (black), matching logo BR.
+	assert_true(
+		FactionHeraldry.color_at(FactionHeraldry.PSKOV_NOVGOROD, Vector2(0.70, 0.32)).is_equal_approx(
+			FactionHeraldry.charge_color(FactionHeraldry.PSKOV_NOVGOROD)
+		),
+		"Joint cloth lynx UV must stay gold"
+	)
+	assert_true(
+		FactionHeraldry.color_at(FactionHeraldry.PSKOV_NOVGOROD, Vector2(0.34, 0.70)).is_equal_approx(
+			FactionHeraldry.secondary_charge_color(FactionHeraldry.PSKOV_NOVGOROD)
+		),
+		"Joint cloth bear UV must stay black behind the lynx"
 	)
 
 

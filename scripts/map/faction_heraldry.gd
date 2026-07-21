@@ -4,17 +4,14 @@ extends RefCounted
 ## Readable faction cloth for towers, courtyard banners, and ship mastheads.
 ## Geometric charges stay legible on small pennants without heraldic textures.
 ##
-## Historical confidence (1343 framing):
-## - danish_crown / livonian_order / hanseatic: high (period arms).
-## - pskov lynx: medium - Pskov's "fierce beast" (лютый зверь) is a feline
-##   on 15th-c. seals/coins; later texts call it leopard or lynx. Slightly
-##   early for 1343, but the strongest civic animal identity for Pskov.
-## - novgorod bear: low for 1343 - republican seals used Christ, horseman,
-##   warrior, eagle; the bear (with lynx) enters the governor seal of 1565.
-##   Used here as later popular identity so Novgorod cloth reads at distance.
-## - black_cloaks swallow: invented - barn swallow evokes Estonian home/rebel
-##   identity. Not the historical Brotherhood of Blackheads (St Maurice head).
-## - vitalienbruder: no flag by design.
+## Brand source of truth: `scenes/menu/logo.png` (Rebel Reval shield).
+## Quadrants map to cloth ids as follows:
+## - TL red + white cross -> danish_crown
+## - BL white + black cross -> livonian_order
+## - TR white + dark swallow -> black_cloaks
+## - BR azure + black bear + gold lynx -> novgorod / pskov (joint: pskov_novgorod)
+## Hanseatic pale is period merchant cloth, not a logo quadrant.
+## vitalienbruder: no flag by design.
 
 const DANISH_CROWN := &"danish_crown"
 const LIVONIAN_ORDER := &"livonian_order"
@@ -48,6 +45,8 @@ const PATTERN_PALE := &"pale"
 const PATTERN_FESS := &"fess"
 const PATTERN_BEAR := &"bear"
 const PATTERN_LYNX := &"lynx"
+## Logo BR quadrant: black bear behind a gold lynx on one azure field.
+const PATTERN_BEAR_LYNX := &"bear_lynx"
 const PATTERN_SWALLOW := &"swallow"
 const PATTERN_NONE := &"none"
 
@@ -92,8 +91,8 @@ static func pattern_for(faction_id: StringName) -> StringName:
 		HANSEATIC:
 			return PATTERN_PALE
 		PSKOV_NOVGOROD:
-			# Joint emissary cloth when the author does not split Novgorod/Pskov.
-			return PATTERN_FESS
+			# Logo BR quadrant: both animals on one azure cloth.
+			return PATTERN_BEAR_LYNX
 		NOVGOROD:
 			return PATTERN_BEAR
 		PSKOV:
@@ -117,7 +116,8 @@ static func field_color(faction_id: StringName) -> Color:
 		HARJU_KINGS:
 			return Color8(52, 98, 58)
 		BLACK_CLOAKS:
-			return Color8(28, 28, 32)
+			# Logo TR: white field behind the swallow.
+			return Color8(242, 242, 240)
 		CULT_METSIK:
 			return Color8(64, 78, 42)
 		PSKOV_NOVGOROD, NOVGOROD, PSKOV:
@@ -140,14 +140,25 @@ static func charge_color(faction_id: StringName) -> Color:
 		HARJU_KINGS:
 			return Color8(212, 176, 72)
 		BLACK_CLOAKS:
-			# Barn-swallow white on black cloak cloth.
-			return Color8(232, 230, 226)
+			# Logo TR: dark swallow on white field.
+			return Color8(28, 42, 78)
 		CULT_METSIK:
 			return Color8(120, 92, 48)
-		PSKOV_NOVGOROD, NOVGOROD, PSKOV:
+		NOVGOROD:
+			# Logo BR: black bear.
+			return Color8(28, 28, 30)
+		PSKOV, PSKOV_NOVGOROD:
+			# Logo BR: gold lynx (primary charge when both animals share cloth).
 			return Color8(228, 198, 72)
 		_:
 			return Color8(232, 228, 220)
+
+
+## Secondary charge for joint east cloth (logo black bear behind the lynx).
+static func secondary_charge_color(faction_id: StringName) -> Color:
+	if faction_id == PSKOV_NOVGOROD:
+		return Color8(28, 28, 30)
+	return charge_color(faction_id)
 
 
 static func color_at(faction_id: StringName, uv: Vector2) -> Color:
@@ -171,6 +182,13 @@ static func color_at(faction_id: StringName, uv: Vector2) -> Color:
 			return charge if _in_bear(uv) else field
 		PATTERN_LYNX:
 			return charge if _in_lynx(uv) else field
+		PATTERN_BEAR_LYNX:
+			# Logo stacking: lynx in front wins over the bear silhouette.
+			if _in_lynx(uv, Vector2(0.04, -0.02)):
+				return charge
+			if _in_bear(uv, Vector2(-0.06, 0.04)):
+				return secondary_charge_color(faction_id)
+			return field
 		PATTERN_SWALLOW:
 			return charge if _in_swallow(uv) else field
 		_:
@@ -293,7 +311,9 @@ static func _add_colored_vertex(
 
 
 ## Simplified rampant bear facing the fly edge. Tuned for ~10x12 pennant grids.
-static func _in_bear(uv: Vector2) -> bool:
+## Optional offset shifts the silhouette (joint east cloth puts the bear back-left).
+static func _in_bear(uv: Vector2, offset: Vector2 = Vector2.ZERO) -> bool:
+	uv -= offset
 	if _in_ellipse(uv, Vector2(0.46, 0.58), Vector2(0.17, 0.20)):
 		return true
 	if _in_ellipse(uv, Vector2(0.62, 0.30), Vector2(0.11, 0.10)):
@@ -315,7 +335,8 @@ static func _in_bear(uv: Vector2) -> bool:
 
 
 ## Feline "fierce beast" facing the fly: longer legs, tufted ears, short tail.
-static func _in_lynx(uv: Vector2) -> bool:
+static func _in_lynx(uv: Vector2, offset: Vector2 = Vector2.ZERO) -> bool:
+	uv -= offset
 	if _in_ellipse(uv, Vector2(0.48, 0.55), Vector2(0.18, 0.14)):
 		return true
 	if _in_ellipse(uv, Vector2(0.66, 0.34), Vector2(0.10, 0.09)):

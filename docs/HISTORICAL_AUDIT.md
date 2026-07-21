@@ -103,18 +103,29 @@ This document audits the characters, buildings, weapons, religions, institutions
 
 ## 5b. Faction cloth symbols (map heraldry)
 
+Brand source of truth: `scenes/menu/logo.png` (Rebel Reval shield quadrants).
+Map cloth reuses those charges so towers, banners, and cogs read as the same
+factions as the title mark. Historical notes below are secondary context only.
+
 * **Danish Crown, Livonian Order, Hanseatic pale**
-  * Label: **`attested`**
-  * Source Note: Period arms used on tower pennants and merchant cloth.
+  * Label: **`attested`** (Danish/Order also match logo TL / BL)
+  * Source Note: Period arms used on tower pennants and merchant cloth. Hanseatic
+    pale is period merchant cloth and is not a logo quadrant.
 * **Pskov lynx / "fierce beast"**
-  * Label: **`plausible`**
-  * Source Note: Pskov civic seals and 15th-c. coins show a feline "лютый зверь"; later descriptions call it leopard or lynx. Slightly early as fixed 1343 cloth, but the strongest animal identity for Pskov.
+  * Label: **`brand`** (logo BR gold lynx); historically **`plausible`**
+  * Source Note: Logo charge is canonical for game cloth. Pskov civic seals and
+    15th-c. coins show a feline "лютый зверь"; later texts call it leopard or lynx.
 * **Novgorod bear**
-  * Label: **`invented`** for 1343 cloth (later **`attested`** from 1565)
-  * Source Note: Republican Novgorod seals used Christ, horseman, warrior, eagle. The bear (with lynx) enters Ivan IV's 1565 governor seal. Game maps use the bear so Novgorod trade cloth reads at distance.
+  * Label: **`brand`** (logo BR black bear); historically late for 1343
+  * Source Note: Logo charge is canonical for game cloth. Republican seals used
+    Christ, horseman, warrior, eagle; the bear enters the 1565 governor seal.
 * **Black Cloaks swallow**
-  * Label: **`invented`**
-  * Source Note: Urban rebel faction cloth. Barn swallow evokes Estonian home identity; not the historical Brotherhood of Blackheads (Mustpeade), whose emblem is St Maurice's head.
+  * Label: **`brand`** (logo TR dark swallow on white)
+  * Source Note: Logo charge is canonical rebel cloth. Distinct from the historical
+    Brotherhood of Blackheads (Mustpeade / St Maurice head).
+* **Joint Pskov-Novgorod cloth**
+  * Label: **`brand`** (logo BR both animals on azure)
+  * Source Note: `faction=pskov_novgorod` stacks black bear behind gold lynx.
 * **Vitalienbrüder**
   * Label: **`attested`** (no flag)
   * Source Note: Pirate company flies no municipal standard in game heraldry.
