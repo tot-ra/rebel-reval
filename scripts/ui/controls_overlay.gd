@@ -11,6 +11,8 @@ const PANEL_MIN_SIZE := Vector2(1040, 760)
 var _settings_owner: Node
 var _binding_buttons: Dictionary = {}
 var _first_binding_button: Button
+var _restore_defaults_button: Button
+var _close_button: Button
 var _status_label: Label
 var _waiting_action: StringName = &""
 var _waiting_device: StringName = &""
@@ -74,18 +76,25 @@ func begin_capture(action: StringName, device: StringName, button: Button = null
 	)
 
 
+func _input(event: InputEvent) -> void:
+	if not visible or _waiting_action.is_empty() or not event.is_pressed() or event.is_echo():
+		return
+	if event is InputEventKey and (event as InputEventKey).keycode == KEY_ESCAPE:
+		_cancel_capture()
+		get_viewport().set_input_as_handled()
+		return
+	if not BindingSettingsScript.is_supported_event(event, _waiting_device):
+		return
+	# Capture before GUI dispatch so mouse buttons can be rebound instead of being
+	# consumed as a click on the currently focused binding button.
+	_commit_capture(event)
+	get_viewport().set_input_as_handled()
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible or not event.is_pressed() or event.is_echo():
 		return
 	if not _waiting_action.is_empty():
-		if event is InputEventKey and (event as InputEventKey).keycode == KEY_ESCAPE:
-			_cancel_capture()
-			get_viewport().set_input_as_handled()
-			return
-		if not BindingSettingsScript.is_supported_event(event, _waiting_device):
-			return
-		_commit_capture(event)
-		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed(&"ui_cancel"):
 		close()
@@ -180,13 +189,13 @@ func _build_ui() -> void:
 	title.add_theme_color_override("font_color", Color(0.94, 0.81, 0.5, 1.0))
 	header.add_child(title)
 
-	var reset := _make_button("RestoreDefaultsButton", "Restore defaults")
-	reset.pressed.connect(_on_restore_defaults)
-	header.add_child(reset)
+	_restore_defaults_button = _make_button("RestoreDefaultsButton", "Restore defaults")
+	_restore_defaults_button.pressed.connect(_on_restore_defaults)
+	header.add_child(_restore_defaults_button)
 
-	var close_button := _make_button("CloseButton", "Close")
-	close_button.pressed.connect(close)
-	header.add_child(close_button)
+	_close_button = _make_button("CloseButton", "Close")
+	_close_button.pressed.connect(close)
+	header.add_child(_close_button)
 
 	var intro := Label.new()
 	intro.text = "Every vertical-slice action has separate keyboard/mouse and gamepad bindings. Changes save outside campaign slots."
@@ -225,6 +234,8 @@ func _build_ui() -> void:
 			previous_category = category
 		_add_binding_row(rows, definition)
 
+	_wire_focus_neighbors()
+
 	_status_label = Label.new()
 	_status_label.name = "StatusLabel"
 	_status_label.text = "Select a binding, then press the replacement input."
@@ -251,6 +262,44 @@ func _add_binding_row(parent: VBoxContainer, definition: Dictionary) -> void:
 		_binding_buttons[_binding_key(action, device)] = button
 		if _first_binding_button == null:
 			_first_binding_button = button
+
+
+
+
+func _wire_focus_neighbors() -> void:
+	var rows: Array = []
+	for definition: Dictionary in BindingSettingsScript.action_definitions():
+		var action: StringName = definition["id"]
+		rows.append([
+			_button_for(action, BindingSettingsScript.DEVICE_KEYBOARD_MOUSE),
+			_button_for(action, BindingSettingsScript.DEVICE_GAMEPAD),
+		])
+	for row_index in range(rows.size()):
+		for column_index in range(2):
+			var button := rows[row_index][column_index] as Button
+			if button == null:
+				continue
+			var other := rows[row_index][1 - column_index] as Button
+			if column_index == 0:
+				button.focus_neighbor_right = button.get_path_to(other)
+			else:
+				button.focus_neighbor_left = button.get_path_to(other)
+			if row_index > 0:
+				var above := rows[row_index - 1][column_index] as Button
+				button.focus_neighbor_top = button.get_path_to(above)
+			elif column_index == 0 and _restore_defaults_button != null:
+				button.focus_neighbor_top = button.get_path_to(_restore_defaults_button)
+			elif column_index == 1 and _close_button != null:
+				button.focus_neighbor_top = button.get_path_to(_close_button)
+			if row_index + 1 < rows.size():
+				var below := rows[row_index + 1][column_index] as Button
+				button.focus_neighbor_bottom = button.get_path_to(below)
+			elif _restore_defaults_button != null:
+				button.focus_neighbor_bottom = button.get_path_to(_restore_defaults_button)
+	if _restore_defaults_button != null and _first_binding_button != null:
+		_restore_defaults_button.focus_neighbor_bottom = _restore_defaults_button.get_path_to(_first_binding_button)
+	if _close_button != null and _first_binding_button != null:
+		_close_button.focus_neighbor_bottom = _close_button.get_path_to(_first_binding_button)
 
 
 func _make_button(node_name: String, text: String) -> Button:
