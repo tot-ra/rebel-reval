@@ -288,3 +288,53 @@ func test_water_specular_dies_with_sun_disk_after_sunset() -> void:
 	MapViewMaterials.reset()
 
 
+func test_water_reflections_follow_sky_catalog_cycle_and_weather() -> void:
+	MapViewMaterials.reset()
+	var definition := SmithyCourtyard.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_NIGHT)
+	(Engine.get_main_loop() as SceneTree).root.add_child(view)
+	var sky := view.sky_weather()
+	sky.auto_weather = false
+	var water := MapViewMaterials.water_surface(MapTypes.TERRAIN_DEEP_WATER)
+
+	var full_moon := {"day": 10, "month": 5, "year": 1343}
+	view.set_calendar_date(full_moon)
+	view.apply_cycle_progress(0.0)
+	assert_eq(
+		water.get_shader_parameter("star_map"),
+		sky.star_map_texture(),
+		"water and sky must share one Hipparcos catalog texture"
+	)
+	assert_true(
+		float(water.get_shader_parameter("star_visibility")) > 0.7,
+		"clear midnight must reflect stars through light cloud cover"
+	)
+	assert_true(
+		float(water.get_shader_parameter("moon_visibility")) > 0.7,
+		"a high full moon must reflect through light cloud cover"
+	)
+	assert_true(
+		(water.get_shader_parameter("moon_direction") as Vector3).is_equal_approx(
+			SkyWeather3D.lunar_direction(0.0, full_moon)
+		),
+		"the water moon path must match the visible moon"
+	)
+	var midnight_sidereal := float(water.get_shader_parameter("sidereal_angle"))
+	view.apply_cycle_progress(3.0 / 24.0)
+	assert_false(
+		is_equal_approx(float(water.get_shader_parameter("sidereal_angle")), midnight_sidereal),
+		"reflected constellations must rotate with the visible sky"
+	)
+
+	sky.set_weather(SkyWeather3D.WEATHER_RAIN)
+	sky.advance(SkyWeather3D.TRANSITION_SECONDS)
+	view.apply_cycle_progress(0.0)
+	assert_true(
+		float(water.get_shader_parameter("star_visibility")) < 0.1,
+		"rain clouds must occlude reflected stars"
+	)
+	view.queue_free()
+	await (Engine.get_main_loop() as SceneTree).process_frame
+	MapViewMaterials.reset()
+
+

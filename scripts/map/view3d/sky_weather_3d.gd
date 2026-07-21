@@ -100,6 +100,7 @@ var _state_duration := 60.0
 var _rng := RandomNumberGenerator.new()
 var _cloud_offset := Vector2.ZERO
 var _material: ShaderMaterial
+var _star_map: ImageTexture
 var _camera: Camera3D
 var _rain: GPUParticles3D
 
@@ -122,7 +123,8 @@ func configure(camera: Camera3D, environment: Environment) -> void:
 	_material = ShaderMaterial.new()
 	_material.shader = SKY_SHADER
 	_material.set_shader_parameter(&"cloud_noise", _build_cloud_noise())
-	_material.set_shader_parameter(&"star_map", _build_star_map())
+	_star_map = _build_star_map()
+	_material.set_shader_parameter(&"star_map", _star_map)
 	_material.set_shader_parameter(&"observer_latitude", deg_to_rad(OBSERVER_LATITUDE_DEGREES))
 	var sky := Sky.new()
 	sky.sky_material = _material
@@ -446,7 +448,7 @@ func apply_sky_state(progress: float, day_blend: float, sun_direction: Vector3) 
 	_material.set_shader_parameter(&"moon_phase", phase)
 	_material.set_shader_parameter(&"day_blend", day_blend)
 	_material.set_shader_parameter(&"sunset_factor", sunset_factor)
-	_material.set_shader_parameter(&"sidereal_angle", deg_to_rad(MIDNIGHT_SIDEREAL_DEGREES) + progress * TAU)
+	_material.set_shader_parameter(&"sidereal_angle", sidereal_angle_for_progress(progress))
 
 
 ## Multipliers/tints MapView3D applies on top of its day/night lerp. Overcast
@@ -476,6 +478,17 @@ func wind_strength() -> float:
 ## hulls lean the same way as the sky weather field.
 func wind_direction_xz() -> Vector2:
 	return CLOUD_DRIFT_PER_SECOND.normalized()
+
+
+## Returns the exact catalog texture bound to the sky shader. Water reuses this
+## resource so reflected constellations cannot drift from their visible source.
+func star_map_texture() -> Texture2D:
+	return _star_map
+
+
+## Sky and water use the same sidereal rotation for the current cycle progress.
+static func sidereal_angle_for_progress(progress: float) -> float:
+	return deg_to_rad(MIDNIGHT_SIDEREAL_DEGREES) + wrapf(progress, 0.0, 1.0) * TAU
 
 
 func _pick_next_weather() -> void:

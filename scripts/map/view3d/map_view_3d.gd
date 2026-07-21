@@ -197,6 +197,19 @@ func apply_cycle_progress(progress: float, _sweep_sun_yaw: bool = true) -> void:
 		SkyWeather3D.sun_disk_visibility(sun_direction),
 		day_blend
 	)
+	var cloud_occlusion := 1.0 - _sky_weather.cloud_coverage()
+	var sun_reflection_color := SUN_DAY_COLOR.lerp(SUNSET_LIGHT_COLOR, weather["sunset_tint"])
+	MapViewMaterials.apply_water_sky_reflection(
+		_sky_weather.star_map_texture(),
+		sun_direction,
+		moon_direction,
+		SkyWeather3D.sun_disk_visibility(sun_direction) * cloud_occlusion,
+		moonlight * cloud_occlusion,
+		pow(1.0 - day_blend, 3.0) * cloud_occlusion,
+		deg_to_rad(SkyWeather3D.OBSERVER_LATITUDE_DEGREES),
+		SkyWeather3D.sidereal_angle_for_progress(cycle_progress),
+		sun_reflection_color
+	)
 
 	var bucket := TIME_NIGHT if night else TIME_DAY
 	if bucket != _last_chimney_bucket:

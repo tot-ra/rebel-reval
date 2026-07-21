@@ -271,6 +271,33 @@ static func apply_water_lighting(sun_visibility: float, day_blend: float) -> voi
 		material.set_shader_parameter("day_blend", blend)
 
 
+## Pushes the sky state shared by the dome and cached water materials. Reusing
+## the catalog texture and astronomical frame keeps reflected stars and celestial
+## glints aligned with the visible sky rather than inventing a second night map.
+static func apply_water_sky_reflection(
+	star_map: Texture2D,
+	sun_direction: Vector3,
+	moon_direction: Vector3,
+	sun_visibility: float,
+	moon_visibility: float,
+	star_visibility: float,
+	observer_latitude: float,
+	sidereal_angle: float,
+	sun_color: Color
+) -> void:
+	for terrain_id in WATER_WAVE_BASE.keys():
+		var material := water_surface(terrain_id as StringName)
+		material.set_shader_parameter("star_map", star_map)
+		material.set_shader_parameter("sun_direction", sun_direction)
+		material.set_shader_parameter("moon_direction", moon_direction)
+		material.set_shader_parameter("sun_reflection_visibility", clampf(sun_visibility, 0.0, 1.0))
+		material.set_shader_parameter("moon_visibility", clampf(moon_visibility, 0.0, 1.0))
+		material.set_shader_parameter("star_visibility", clampf(star_visibility, 0.0, 1.0))
+		material.set_shader_parameter("observer_latitude", observer_latitude)
+		material.set_shader_parameter("sidereal_angle", sidereal_angle)
+		material.set_shader_parameter("sun_reflection_color", sun_color)
+
+
 ## Pushes the shared world wind field into grass, canopy, sail, and flag cloth.
 ## Call alongside apply_sea_weather so vegetation and cloth match harbor boats.
 static func apply_world_wind(direction: Vector2, strength: float) -> void:

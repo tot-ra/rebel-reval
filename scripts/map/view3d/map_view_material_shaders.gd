@@ -25,7 +25,18 @@ uniform float foam_intensity = 0.22;
 // Matches sky sun-disk fade / MapView3D day_blend. Defaults keep daytime look
 // until apply_water_lighting() pushes the live cycle values.
 uniform float sun_visibility = 1.0;
+uniform float sun_reflection_visibility = 1.0;
 uniform float day_blend = 1.0;
+// The water samples the same catalog texture and celestial directions as the
+// sky dome. This is cheaper than a planar reflection and stays deterministic.
+uniform sampler2D star_map : filter_nearest, repeat_enable;
+uniform vec3 sun_direction = vec3(0.0, 1.0, 0.0);
+uniform vec3 moon_direction = vec3(0.0, 1.0, 0.0);
+uniform vec3 sun_reflection_color : source_color = vec3(1.0, 0.92, 0.74);
+uniform float moon_visibility = 0.0;
+uniform float star_visibility = 0.0;
+uniform float observer_latitude = 1.0371;
+uniform float sidereal_angle = 3.8101;
 
 varying vec3 water_world_position;
 varying float shore_factor;
@@ -97,6 +108,21 @@ float _view_depth(vec2 screen_uv, float raw_depth, mat4 inverse_projection) {
 	return -view_position.z / view_position.w;
 }
 
+// Kept identical to the sky shader projection so constellations reflected in
+// the water occupy the same astronomical positions as the visible sky dome.
+vec2 _equatorial_uv(vec3 direction) {
+	float north = -direction.z;
+	float east = direction.x;
+	float up = direction.y;
+	float sin_lat = sin(observer_latitude);
+	float cos_lat = cos(observer_latitude);
+	float sin_dec = clamp(up * sin_lat + north * cos_lat, -1.0, 1.0);
+	float declination = asin(sin_dec);
+	float hour_angle = atan(-east, up * cos_lat - north * sin_lat);
+	float right_ascension = sidereal_angle - hour_angle;
+	return vec2(fract(right_ascension / TAU), 0.5 - declination / PI);
+}
+
 void vertex() {
 	water_world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	shore_factor = clamp(COLOR.r, 0.0, 1.0);
@@ -153,6 +179,23 @@ void fragment() {
 	vec3 night_sky = vec3(0.05, 0.07, 0.12);
 	vec3 sky_reflection = mix(night_sky, day_sky, day_blend);
 	water_color = mix(water_color, sky_reflection, fresnel * mix(0.35, 0.68, day_blend));
+
+	// Reflect the view ray about the animated world normal. Sampling the shared
+	// catalog with that ray turns point stars into broken, wave-driven streaks.
+	vec3 world_view = normalize((INV_VIEW_MATRIX * vec4(normalize(VIEW), 0.0)).xyz);
+	vec3 reflected_sky_ray = normalize(reflect(-world_view, world_normal));
+	float reflected_above_horizon = smoothstep(-0.01, 0.06, reflected_sky_ray.y);
+	vec3 reflected_stars = texture(star_map, _equatorial_uv(reflected_sky_ray)).rgb;
+	water_color += reflected_stars * star_visibility * reflected_above_horizon * fresnel * 0.42;
+
+	// Explicit celestial glints remain visible in GL Compatibility, where the
+	// environment prefilter alone does not reliably preserve tiny sky disks.
+	float sun_alignment = max(dot(reflected_sky_ray, normalize(sun_direction)), 0.0);
+	float sun_glint = pow(sun_alignment, 360.0) * sun_reflection_visibility;
+	float moon_alignment = max(dot(reflected_sky_ray, normalize(moon_direction)), 0.0);
+	float moon_glint = pow(moon_alignment, 520.0) * moon_visibility;
+	water_color += sun_reflection_color * sun_glint * (0.45 + fresnel * 1.2);
+	water_color += vec3(0.66, 0.72, 0.86) * moon_glint * (0.25 + fresnel * 0.75);
 
 	// COLOR.r is baked from the same smooth contour that clips the mesh. Foam
 	// therefore hugs curved banks instead of revealing the underlying cell grid.
