@@ -122,7 +122,10 @@ jobs:
         run: python3 tools/verify_storage_hygiene.py
 
       - name: Asset source manifest coverage
-        run: python3 tools/validate_asset_sources.py
+        run: |
+          python3 tools/validate_asset_sources.py
+          python3 tools/quarantine_assets.py --check
+          python3 tools/generate_asset_inventory.py --check
 
       - name: Seeded manifest coverage error fails
         run: |

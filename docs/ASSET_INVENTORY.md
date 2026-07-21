@@ -24,25 +24,25 @@ Priority order:
 
 | Classification | Count |
 | --- | ---: |
-| approved | 111 |
-| prototype | 3 |
+| approved | 112 |
+| prototype | 0 |
 | unknown rights | 0 |
 | inconsistent | 0 |
 | archive | 0 |
-| **Total** | **114** |
+| **Total** | **112** |
 
 ## Counts by media type
 
 | Media type | Count |
 | --- | ---: |
-| image | 12 |
+| image | 10 |
 | audio | 102 |
-| **Total** | **114** |
+| **Total** | **112** |
 
 ## Verification summary
 
-- Inventory row count: `114`
-- Runtime source files found under `assets/`, `music/`, and `sounds/`: `114`
+- Inventory row count: `112`
+- Runtime source files found under `assets/`, `music/`, and `sounds/`: `112`
 - Imported `img/` marketing source files included as archive: `0`
 - Rows missing Godot `.import` sidecar: `0`
 - Orphan `.import` sidecars with no source file, not counted as runtime assets: `0`
@@ -53,8 +53,6 @@ Priority order:
 
 | Path | Media | Classification | Imported by Godot | Rationale |
 | --- | --- | --- | --- | --- |
-| `assets/bandits/woman1.png` | image | prototype | yes | Pre-art-bible runtime art candidate; provenance and approval are still pending P0-028/P0-040. |
-| `assets/buildings/tower.png` | image | prototype | yes | Pre-art-bible runtime art candidate; provenance and approval are still pending P0-028/P0-040. |
 | `assets/characters/shared/kaykit_barbarian_barbarian_texture.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `assets/materials/style_lock/cobble.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `assets/materials/style_lock/hay.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
@@ -64,7 +62,7 @@ Priority order:
 | `assets/materials/style_lock/stone.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `assets/materials/style_lock/timber.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `assets/materials/style_lock/water.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
-| `assets/tiles/greybox_floor.png` | image | prototype | yes | P0-030 greybox tile placeholder for district TileMapLayers until P0-040 orthogonal art lands. |
+| `assets/tiles/greybox_floor.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/domberg/day/Baltic Wind (1).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/domberg/day/Baltic Wind.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/domberg/day/Crown of Stone.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |

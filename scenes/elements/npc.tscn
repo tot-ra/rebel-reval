@@ -1,8 +1,7 @@
-[gd_scene load_steps=20 format=3 uid="uid://gty6ne6exn21"]
+[gd_scene load_steps=19 format=3 uid="uid://gty6ne6exn21"]
 
 [ext_resource type="Script" uid="uid://bqv0llhneaxaa" path="res://scripts/npc.gd" id="1_8hovi"]
 [ext_resource type="Script" path="res://scripts/ui/character_health_ring.gd" id="3_health_ring"]
-[ext_resource type="Texture2D" uid="uid://bbj6nmr5mjbha" path="res://assets/bandits/woman1.png" id="2_8hovi"]
 [ext_resource type="Texture2D" uid="uid://ec8osmtnqeuq" path="res://characters/forge_folk/old_toomas/old_toomas.png" id="2_mics8"]
 
 [sub_resource type="Animation" id="Animation_i3pqv"]
@@ -110,10 +109,6 @@ shape = SubResource("CapsuleShape2D_3iwfv")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_tu6h0")
 frame = 4
-
-[node name="Sprite2D" type="Sprite2D" parent="."]
-visible = false
-texture = ExtResource("2_8hovi")
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
 

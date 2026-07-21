@@ -6,8 +6,6 @@ It is spring 1343 in Reval — present-day Tallinn — days before the St. Georg
 
 The history cannot be prevented. Who survives it, what each side carries into it, and what Kalev becomes — that is the game.
 
-![Reval Rebel concept banner](./img/banner.jpg)
-
 > Reval Rebel is in pre-production with an early playable Godot prototype. See [`TODO.md`](./TODO.md) for the executable roadmap, [`docs/SETUP.md`](./docs/SETUP.md) to run it, and [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) for the production compact/chunked map workflow ([ADR 0009](./docs/adr/0009-map-blueprint-authoring-architecture.md), [ADR 0010](./docs/adr/0010-large-map-runtime-chunking.md)). The scope described here was widened from a single-district campaign to a three-act faction RPG by [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md); the playable MVP still ships first.
 
 ## The heart of the game

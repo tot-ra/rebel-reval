@@ -23,14 +23,8 @@ QUARANTINE_GDIGNORE = QUARANTINE_ROOT / ".gdignore"
 REFERENCE_FILE_SUFFIXES = {".tscn", ".tres", ".gd", ".godot"}
 REFERENCE_RE = re.compile(r"res://((?:assets|music|sounds|img)/[^\"\n\)\]]+)")
 
-# Visual prototype assets can still be required by active scenes.
-# They are not approved for commercial builds, but replacing/removing them is
-# deferred to P0-040 to avoid breaking current playable scene loading.
-# Inconsistent legacy assets are hard-quarantined by P0-030.
-SOFT_APPROVAL_MARKERS = (
-    "prototype pending provenance/style review",
-    "inconsistent prototype pending P0-040",
-)
+# P0-071 removes the temporary runtime-exception policy. Unapproved files
+# must stay in quarantine until provenance and approval are complete.
 HARD_QUARANTINE_MARKERS = (
     "unknown rights",
     "archive - not active runtime",
@@ -74,30 +68,19 @@ def approval_bucket(approval: str) -> str:
         return "approved"
     if any(marker in approval for marker in HARD_QUARANTINE_MARKERS):
         return "hard"
-    if any(marker in approval for marker in SOFT_APPROVAL_MARKERS):
-        return "soft"
     return "other_not_approved"
 
 
-def candidate_paths(rows: list[dict[str, str]], refs: set[str]) -> tuple[set[str], set[str]]:
-    """Return (must_quarantine, runtime_exception) original paths."""
+def candidate_paths(rows: list[dict[str, str]]) -> set[str]:
+    """Return every unapproved runtime asset path that must be quarantined."""
     must_quarantine: set[str] = set()
-    runtime_exception: set[str] = set()
     for row in rows:
         original = row["path"]
         if not is_runtime_asset_path(original):
             continue
-        bucket = approval_bucket(row["approval"])
-        if bucket == "approved":
-            continue
-        if bucket == "hard":
+        if approval_bucket(row["approval"]) != "approved":
             must_quarantine.add(original)
-            continue
-        if original in refs:
-            runtime_exception.add(original)
-        else:
-            must_quarantine.add(original)
-    return must_quarantine, runtime_exception
+    return must_quarantine
 
 
 def iter_import_sidecars(original: Path) -> list[Path]:
@@ -123,7 +106,7 @@ def apply_quarantine(paths: set[str]) -> None:
                 move_one(sidecar, target_sidecar)
 
 
-def check_quarantine(paths: set[str], exceptions: set[str], refs: set[str]) -> list[str]:
+def check_quarantine(paths: set[str], refs: set[str]) -> list[str]:
     errors: list[str] = []
     if not QUARANTINE_GDIGNORE.is_file():
         errors.append("missing quarantine/.gdignore")
@@ -145,11 +128,6 @@ def check_quarantine(paths: set[str], exceptions: set[str], refs: set[str]) -> l
             errors.append(f"import sidecar left in active import path: {original_str}.import")
         if target.is_file() and not target_sidecar.is_file():
             errors.append(f"missing quarantined import sidecar: quarantine/{original_str}.import")
-    for original_str in sorted(exceptions, key=str.casefold):
-        if not (ROOT / original_str).is_file():
-            errors.append(f"runtime exception missing from active path: {original_str}")
-        if original_str not in refs:
-            errors.append(f"runtime exception is no longer referenced and should be quarantined: {original_str}")
     return errors
 
 
@@ -163,29 +141,29 @@ def main() -> int:
 
     rows = read_sources()
     refs = referenced_runtime_paths()
-    paths, exceptions = candidate_paths(rows, refs)
+    paths = candidate_paths(rows)
 
     if args.apply:
         apply_quarantine(paths)
         print(
             f"quarantined candidates: {len(paths)}; "
-            f"active visual exceptions: {len(exceptions)}"
+            "active visual exceptions: 0"
         )
         return 0
 
-    errors = check_quarantine(paths, exceptions, refs)
+    errors = check_quarantine(paths, refs)
     if errors:
         for error in errors:
             print(f"ERROR: {error}", file=sys.stderr)
         print(
             f"checked quarantine candidates: {len(paths)}; "
-            f"active visual exceptions: {len(exceptions)}",
+            "active visual exceptions: 0",
             file=sys.stderr,
         )
         return 1
     print(
         f"quarantine ok; {len(paths)} candidates outside Godot import path; "
-        f"{len(exceptions)} active visual exceptions documented"
+        "0 active visual exceptions"
     )
     return 0
 

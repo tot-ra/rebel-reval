@@ -44,7 +44,6 @@ The world of Reval Rebel is populated by a host of dangerous foes, each with uni
 ![alt text](image-57.png)
 ![alt text](image-56.png)
 ![](image-51.png)
-![](../bandits/woman1.png)
 ![](../bandits/thug.png)
 ![](../bandits/thug2.png)
 ![](../bandits/thug3.png)

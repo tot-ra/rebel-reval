@@ -107,8 +107,6 @@ This matrix classifies current slice-relevant artifacts for migration toward the
 
 | Artifact | Status | Rationale |
 |----------|--------|-----------|
-| `assets/bandits/woman1.png` | `convert` | Prototype NPC portrait/texture; adapt to P0-040 orthogonal style and four-direction rig. |
-| `assets/buildings/tower.png` | `convert` | Active turret sprite referenced by `scenes/elements/turret.tscn`; replace with approved programmatic geometry or sourced art. |
 | `assets/characters/shared/kaykit_barbarian_barbarian_texture.png` | `retain` | CC0 KayKit source texture extracted from the pinned proof GLB; retained only for the P0-037 retarget pipeline. |
 | `assets/materials/style_lock/*` (8 items) | `retain` | Provenance-backed P0-051 reference textures; keep for style regression while P0-053 regenerates production surfaces. |
 
