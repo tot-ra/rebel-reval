@@ -24,7 +24,11 @@ uniform vec3 moon_direction = vec3(0.0, 1.0, 0.0);
 // 0 = new, 0.25 = first quarter, 0.5 = full, 0.75 = last quarter.
 uniform float moon_phase : hint_range(0.0, 1.0) = 0.5;
 
+// cloud_noise is FBM used only to erode edges; cloud_shape is cellular (Worley)
+// noise whose rounded cells form the puffy cumulus body. The silhouette must
+// come from the cellular texture: FBM thresholds swirl like marbled ink.
 uniform sampler2D cloud_noise : filter_linear_mipmap, repeat_enable;
+uniform sampler2D cloud_shape : filter_linear_mipmap, repeat_enable;
 uniform float cloud_coverage : hint_range(0.0, 1.0) = 0.22;
 uniform float cloud_darken : hint_range(0.0, 1.0) = 0.0;
 // Primary bank drift. Detail offset advances faster so edges churn while
@@ -48,82 +52,83 @@ uniform float observer_latitude = 1.0371;
 uniform float sidereal_angle = 3.8101;
 
 
-// Layered cloud field sampled per view ray. Returns:
+float remap(float v, float lo, float hi, float nlo, float nhi) {
+	return nlo + (clamp(v, lo, hi) - lo) / max(hi - lo, 1e-4) * (nhi - nlo);
+}
+
+
+// Raw cumulus opacity at a projected cloud-plane point. The silhouette is built
+// from rounded cellular heaps; FBM only erodes the boundary. That order is the
+// whole trick: cellular gives lumpy cauliflower, never the marbled ink swirl a
+// domain-warped FBM threshold produces.
+float cloud_opacity(vec2 uv, float cover) {
+	// Two cellular scales: large discrete banks with open sky between them, and
+	// the smaller heaps that pile up inside each bank.
+	float banks = 1.0 - texture(cloud_shape, uv * 0.42 + vec2(0.13, 0.61)).r;
+	float heaps = 1.0 - texture(cloud_shape, uv).r;
+	float bank_mask = smoothstep(0.30, 0.72, banks);
+	float base = heaps * mix(0.45, 1.0, bank_mask);
+
+	// Coverage raises the cloud floor: low coverage keeps only the densest cores,
+	// high coverage lets the whole heap field become solid overcast.
+	float floor_thr = mix(0.66, 0.04, cover);
+	float cloud = remap(base, floor_thr, floor_thr + 0.30, 0.0, 1.0);
+
+	// Erode the edges with a few FBM octaves so heap boundaries are torn and
+	// lumpy. cloud_chaos widens the erosion so storms shred harder than clear.
+	float detail = texture(cloud_noise, uv * 1.9 + cloud_detail_offset).r * 0.55
+		+ texture(cloud_noise, uv * 4.6 - cloud_detail_offset * 0.6).r * 0.30
+		+ texture(cloud_noise, uv * 9.4 + cloud_detail_offset * 0.3).r * 0.15;
+	cloud = remap(cloud, detail * mix(0.30, 0.72, cloud_chaos), 1.0, 0.0, 1.0);
+	return clamp(cloud, 0.0, 1.0);
+}
+
+
+// Cloud field sampled per view ray. Returns:
 //   x = opacity of cloud along this ray (0..1),
-//   y = sunlit "crown" amount for anvil tops and silver linings (0..1).
-// Three strata are projected onto overhead planes at different virtual
-// altitudes so they parallax against each other instead of reading as one
-// fluid sheet: low storm wall, mid cumulus banks, and high cirrus streaks.
+//   y = light factor (0 = shadowed underside, 1 = sunlit top / anvil crown).
 vec2 cloud_field(vec3 dir) {
 	if (dir.y < 0.02) {
 		return vec2(0.0);
 	}
-	float horizon_fade = smoothstep(0.02, 0.24, dir.y);
+	float horizon_fade = smoothstep(0.02, 0.20, dir.y);
 
 	// A storm stacks a dark wall of cloud toward the horizon rather than thinning
 	// out like fair-weather cumulus, and leans into the upwind quarter so the
-	// squall line reads as marching in. This raises the effective coverage the
-	// cumulus thresholds see, filling the lower sky as the anvil approaches.
+	// squall line reads as marching in, raising the effective coverage there.
 	vec2 ground = normalize(vec2(dir.x, -dir.z) + vec2(0.0001));
 	float upwind = 0.5 + 0.5 * dot(ground, -wind_dir);
 	float storm_wall = storm_intensity * smoothstep(0.55, 0.05, dir.y) * mix(0.55, 1.0, upwind);
 	float cover = clamp(cloud_coverage + storm_wall * 0.4, 0.0, 1.0);
 
-	// --- Mid layer: puffy cumulus banks (the main body) ---
-	// Planar projection of the view ray onto an overhead cloud layer.
-	vec2 uv = dir.xz / (dir.y + 0.22) * 0.32 + cloud_offset;
-	// WHY: domain warp breaks the regular FBM lattice so banks look like
-	// torn weather fronts instead of a uniform noise threshold across the sky.
-	vec2 warp_sample = texture(cloud_noise, uv * 0.62 + cloud_detail_offset * 0.45).rg;
-	vec2 warped_uv = uv + (warp_sample - vec2(0.5)) * (0.18 + cloud_chaos * 0.42);
+	// Planar projection of the view ray onto an overhead cumulus layer.
+	vec2 uv = dir.xz / (dir.y + 0.26) * 0.30 + cloud_offset;
+	float density = cloud_opacity(uv, cover);
 
-	// Large-scale bank mask: open blue gaps between discrete cloud masses so
-	// "clear" and mid coverage read as partly cloudy, not a thin haze.
-	float banks = texture(cloud_noise, warped_uv * 0.34 + cloud_offset * 0.28).r;
-	float bank_edge = mix(0.62, 0.12, cover);
-	float bank_mask = smoothstep(bank_edge, bank_edge + 0.24, banks);
-
-	float base = texture(cloud_noise, warped_uv * 1.05).r;
-	float detail = texture(
-		cloud_noise,
-		warped_uv * 3.1 + vec2(0.37, 0.71) + cloud_detail_offset
-	).r;
-	float filament = texture(
-		cloud_noise,
-		warped_uv * 5.4 + vec2(0.81, 0.19) - cloud_detail_offset * 0.65
-	).r;
-	// Ridged octave: 1 - |2n-1| folds the noise into cauliflower billows so heap
-	// tops bulge instead of smearing into the fluid look they had before.
-	float billow = 1.0 - abs(2.0 * detail - 1.0);
-	float body = base * 0.5 + detail * 0.22 + billow * 0.18 + filament * 0.10;
-	float body_edge = mix(0.6, 0.12, cover);
-	float cumulus = smoothstep(body_edge, body_edge + 0.26, body) * bank_mask;
-	// Sharpen: crisp puff edges at low coverage, softening as the sky closes over.
-	cumulus = pow(cumulus, mix(1.7, 0.85, cover));
-
-	// --- High layer: thin cirrus, combed into streaks along the wind ---
-	// A farther plane (smaller y bias) compresses it toward the horizon and it
-	// drifts slower, so it parallaxes behind the cumulus. Sampling low-frequency
-	// along the wind and high-frequency across it yields long parallel filaments.
+	// Thin cirrus veil combed along the wind on a farther plane, so wispy high
+	// cloud parallaxes behind the cumulus at moderate coverage.
 	vec2 high_uv = dir.xz / (dir.y + 0.05) * 0.55 + cloud_detail_offset * 0.3;
 	vec2 wind_perp = vec2(-wind_dir.y, wind_dir.x);
-	float along = dot(high_uv, wind_dir);
-	float across = dot(high_uv, wind_perp);
-	float cirrus_noise = texture(cloud_noise, vec2(along * 0.4, across * 2.4)).r;
-	float cirrus = smoothstep(0.58, 0.9, cirrus_noise)
-		* smoothstep(0.32, 0.68, cloud_coverage)
-		* (1.0 - storm_intensity * 0.6) * 0.55;
+	float cirrus = texture(cloud_noise, vec2(dot(high_uv, wind_dir) * 0.4, dot(high_uv, wind_perp) * 2.4)).r;
+	cirrus = smoothstep(0.62, 0.92, cirrus) * smoothstep(0.4, 0.75, cloud_coverage)
+		* (1.0 - storm_intensity * 0.7) * 0.4;
+	density = max(density, cirrus) * horizon_fade;
 
-	float density = max(cumulus, cirrus) * horizon_fade;
+	// Puff shading: sample the field again a short step toward the sun. Where
+	// cloud lies between here and the sun this point is shadowed; edges opening
+	// toward the sun light up. That self-shadow is what makes heaps read as 3D
+	// volume instead of flat marbling.
+	vec2 sun_xz = vec2(sun_direction.x, -sun_direction.z);
+	vec2 light_step = (length(sun_xz) > 0.001 ? normalize(sun_xz) : vec2(1.0, 0.0)) * 0.02;
+	float toward_sun = cloud_opacity(uv + light_step, cover);
+	float self_shadow = clamp((density - toward_sun) * 2.5 + 0.55, 0.0, 1.0);
 
-	// Anvil crown / silver lining: cloud edges facing the sun catch light. The
-	// effect peaks where the cloud is thinning (density near 0.5) and is far
-	// stronger on towering storm cells, giving the classic bright anvil rim.
+	// Anvil crown / silver lining: thin sun-facing edges flare, hardest on storms.
 	float edge = clamp(density * (1.0 - density) * 4.0, 0.0, 1.0);
 	float sun_facing = max(dot(normalize(dir), sun_direction), 0.0);
-	float crown = edge * pow(sun_facing, 1.5) * (0.3 + 0.7 * storm_intensity);
+	float light = clamp(self_shadow + edge * pow(sun_facing, 2.0) * (0.3 + 0.7 * storm_intensity), 0.0, 1.0);
 
-	return vec2(density, crown);
+	return vec2(density, light);
 }
 
 
@@ -160,7 +165,7 @@ void sky() {
 
 	vec2 cloud_sample = cloud_field(dir);
 	float clouds = cloud_sample.x;
-	float cloud_crown = cloud_sample.y;
+	float cloud_light = cloud_sample.y;
 
 	// Real stars fade with twilight and are occluded by the procedural weather.
 	// Nearest sampling keeps each catalog texel crisp in the sky dome.
@@ -221,16 +226,16 @@ void sky() {
 	float moon_halo = smoothstep(cos(moon_radius * 4.0), moon_edge, moon_dot) * (1.0 - moon_disk);
 	color += moon_color.rgb * moon_halo * moon_visibility * moon_lighting * 0.08;
 
-	// Cloud layer: bright by day, dark at night, warm around the low sun.
-	vec3 cloud_base = mix(vec3(0.055, 0.065, 0.095), vec3(1.0, 1.0, 1.0), day_blend);
-	cloud_base = mix(cloud_base, sunset_color.rgb * 1.05, sunset_factor * pow(sun_amount, 2.0) * 0.75);
-	// Storm bases are far darker and flatter than a fair-weather cloud underside.
-	float base_darkness = mix(0.42, 0.18, storm_intensity);
-	vec3 cloud_shaded = mix(cloud_base, cloud_base * base_darkness, cloud_darken);
-	// Sunlit anvil crown / silver lining rimming the cloud toward the sun.
-	vec3 crown_color = mix(cloud_base, sun_color.rgb * 1.25, 0.7);
-	cloud_shaded = mix(cloud_shaded, crown_color, clamp(cloud_crown, 0.0, 1.0) * sun_visibility);
-	color = mix(color, cloud_shaded, clouds * 0.94);
+	// Cloud layer: sunlit tops versus shadowed undersides give the heaps real
+	// volume. cloud_light comes from the sun-relative self-shadow above.
+	vec3 cloud_top = mix(vec3(0.10, 0.11, 0.14), vec3(1.0, 1.0, 1.0), day_blend);
+	cloud_top = mix(cloud_top, sunset_color.rgb * 1.1, sunset_factor * pow(sun_amount, 2.0) * 0.8);
+	// Storm undersides are far darker and flatter than a fair-weather base.
+	vec3 cloud_shadow = cloud_top * mix(0.5, 0.24, storm_intensity);
+	vec3 cloud_col = mix(cloud_shadow, cloud_top, cloud_light);
+	// Overcast fronts flatten the heaps toward a dim, uniform gray sheet.
+	cloud_col = mix(cloud_col, cloud_top * 0.45, cloud_darken * 0.8);
+	color = mix(color, cloud_col, clouds * 0.96);
 
 	COLOR = color;
 }

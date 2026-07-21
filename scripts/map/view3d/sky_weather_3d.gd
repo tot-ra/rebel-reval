@@ -152,6 +152,7 @@ func configure(camera: Camera3D, environment: Environment) -> void:
 	_material = ShaderMaterial.new()
 	_material.shader = SKY_SHADER
 	_material.set_shader_parameter(&"cloud_noise", _build_cloud_noise())
+	_material.set_shader_parameter(&"cloud_shape", _build_cloud_shape())
 	_star_map = _build_star_map()
 	_material.set_shader_parameter(&"star_map", _star_map)
 	_material.set_shader_parameter(&"observer_latitude", deg_to_rad(OBSERVER_LATITUDE_DEGREES))
@@ -165,8 +166,9 @@ func configure(camera: Camera3D, environment: Environment) -> void:
 	_push_cloud_uniforms()
 
 
-## Deterministic 256px seamless noise; authored in code so no runtime art
-## assets are added while the asset pipeline freeze (P0-040) is in effect.
+## Deterministic seamless FBM noise used only to erode cloud edges and add
+## surface texture. Authored in code so no runtime art assets are added while
+## the asset pipeline freeze (P0-040) is in effect.
 func _build_cloud_noise() -> NoiseTexture2D:
 	var noise := FastNoiseLite.new()
 	noise.seed = WEATHER_SEED
@@ -176,6 +178,27 @@ func _build_cloud_noise() -> NoiseTexture2D:
 	var texture := NoiseTexture2D.new()
 	texture.width = 256
 	texture.height = 256
+	texture.seamless = true
+	texture.noise = noise
+	return texture
+
+
+## Cellular (Worley) noise baked to a seamless tile. Its rounded cells are the
+## puffy body of cumulus heaps. FBM alone reads as fluid smoke under thresholding,
+## so the cloud silhouette comes from here; cloud_noise only carves the edges.
+func _build_cloud_shape() -> NoiseTexture2D:
+	var noise := FastNoiseLite.new()
+	noise.seed = WEATHER_SEED + 7
+	noise.noise_type = FastNoiseLite.TYPE_CELLULAR
+	noise.frequency = 0.018
+	noise.cellular_distance_function = FastNoiseLite.DISTANCE_EUCLIDEAN
+	noise.cellular_return_type = FastNoiseLite.RETURN_DISTANCE
+	noise.fractal_type = FastNoiseLite.FRACTAL_FBM
+	noise.fractal_octaves = 3
+	noise.fractal_gain = 0.5
+	var texture := NoiseTexture2D.new()
+	texture.width = 512
+	texture.height = 512
 	texture.seamless = true
 	texture.noise = noise
 	return texture
