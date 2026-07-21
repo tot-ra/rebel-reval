@@ -323,7 +323,7 @@ The numeric ranges below use these definitions:
 
 The following current blueprint treatments are not accepted as the P0-072 historical baseline. Later composition tasks own the geometry changes:
 
-1. A map-wide `cobblestone` base on `north_quarter` or `monastery_quarter`, and broad blanket-cobble regions on other maps, must be replaced by map-specific stone/earth/grass shares.
+1. A map-wide `cobblestone` base on `north_quarter` or `monastery_quarter`, and broad blanket-cobble regions on other maps, must be replaced by map-specific stone/earth/grass shares. Decision (2026-07-21): `monastery_quarter` prototype base is now packed earth with cobble limited to Pikk/Lai/civic/vene street spines, mud secondary lanes, compact stone closes, and expanded garden/margin grass (`TODO` **P4-023a** owns remaining density/drainage polish; `north_quarter` still needs the same correction).
 2. Viru foregate/barbican towers, mature Karja barbican forms, Fat Margaret, the current Great Guild Hall, Blackheads institutional frontage, Raeapteek identity, the later monumental St Olaf silhouette, the completed later Holy Spirit church, the later Cathedral west tower/chapels, and the post-1420 Bishop's House may not appear as contemporary 1343 fabric.
 3. Regular long stone harbour quays and piers remain unsupported for 1343 in the reviewed evidence. They are reversible placeholders, not required landmarks.
 4. Functional labels such as Workers, Knights, Merchant, Monastery, Trade Harbour and Fishing Harbour remain gameplay navigation names, not attested administrative districts.

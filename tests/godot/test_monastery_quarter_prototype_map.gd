@@ -12,6 +12,37 @@ func test_monastery_district_is_the_wide_lower_half_of_the_northern_ward() -> vo
 		assert_true(MapVerification.has_anchor(definition, anchor_id), "Missing Monastery District anchor %s" % anchor_id)
 
 
+func test_monastery_district_uses_earth_base_and_street_spines_not_blanket_cobble() -> void:
+	# HISTORICAL_AUDIT monastery ground ranges + cross-map exclusion 1 forbid map-wide cobble.
+	var definition: MapDefinition = MonasteryQuarterDefinition.create()
+	assert_eq(definition.base_terrain, MapTypes.TERRAIN_DIRT)
+	var grid := MapBuilder.build(definition)
+	var cobble := 0
+	var dirt_or_mud := 0
+	var grass := 0
+	var stone := 0
+	var total: int = definition.size_cells.x * definition.size_cells.y
+	for y in range(definition.size_cells.y):
+		for x in range(definition.size_cells.x):
+			match grid.get_terrain(Vector2i(x, y)):
+				MapTypes.TERRAIN_COBBLESTONE:
+					cobble += 1
+				MapTypes.TERRAIN_DIRT, MapTypes.TERRAIN_MUD:
+					dirt_or_mud += 1
+				MapTypes.TERRAIN_GRASS:
+					grass += 1
+				MapTypes.TERRAIN_STONE:
+					stone += 1
+	assert_true(cobble < int(total * 0.45), "Cobble share must stay under the 45%% monastery stone/cobble/pebble ceiling")
+	assert_true(dirt_or_mud >= int(total * 0.25), "Earth/mud/service yard share must reach the 25%% monastery floor")
+	assert_true(grass >= int(total * 0.20), "Garden/grass share must remain substantial outside street spines")
+	assert_true(stone < int(total * 0.20), "Stone closes must stay compact, not district-scale plazas")
+	assert_true(
+		MapVerification.has_anchor(definition, &"pikk_street_spine"),
+		"Primary Pikk spine anchor must survive the street-surface pass"
+	)
+
+
 func test_monastery_district_has_tallinn_walls_and_round_turrets_on_both_sides() -> void:
 	var definition: MapDefinition = MonasteryQuarterDefinition.create()
 	for wall_id in [&"monastery_city_wall_west_north", &"monastery_city_wall_west_south", &"monastery_city_wall_east"]:
