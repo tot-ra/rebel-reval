@@ -71,6 +71,9 @@ func test_sky_shader_covers_required_features() -> void:
 	assert_true("sunset_factor" in source, "dawn and dusk must warm the horizon")
 	assert_true("cloud_coverage" in source, "weather must drive procedural cloud coverage")
 	assert_true("moon_direction" in source, "the night sky must place a moon disk")
+	assert_true("moon_normal" in source, "the moon disk must shade as a sphere")
+	assert_true("lunar_albedo" in source, "the moon must include stable surface detail")
+	assert_true("moon_halo" in source, "the moon must have a restrained atmospheric halo")
 
 
 func test_catalog_contains_real_naked_eye_stars() -> void:

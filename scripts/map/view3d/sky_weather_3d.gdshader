@@ -12,7 +12,7 @@ uniform vec4 night_top_color : source_color = vec4(0.010, 0.016, 0.045, 1.0);
 uniform vec4 night_horizon_color : source_color = vec4(0.045, 0.060, 0.105, 1.0);
 uniform vec4 sunset_color : source_color = vec4(0.98, 0.45, 0.18, 1.0);
 uniform vec4 sun_color : source_color = vec4(1.0, 0.92, 0.74, 1.0);
-uniform vec4 moon_color : source_color = vec4(0.78, 0.84, 0.95, 1.0);
+uniform vec4 moon_color : source_color = vec4(0.82, 0.84, 0.86, 1.0);
 
 // 0 = midnight, 1 = noon (matches DayNightCycle.day_blend).
 uniform float day_blend : hint_range(0.0, 1.0) = 1.0;
@@ -95,10 +95,38 @@ void sky() {
 	float halo = pow(sun_amount, 90.0) * 0.4;
 	color += sun_tint * (disk * 2.4 + halo) * sun_visibility * (1.0 - clouds * 0.95);
 
-	// Moon: simple pale disk shown while the night blend dominates.
-	float moon_amount = max(dot(dir, moon_direction), 0.0);
-	float moon_disk = smoothstep(0.99955, 0.99985, moon_amount);
-	color += moon_color.rgb * moon_disk * (1.0 - day_blend) * 1.6 * (1.0 - clouds);
+	// Moon: a softly glowing sphere with a stable procedural albedo map. Project
+	// the disk onto a local tangent plane so maria and craters follow its surface
+	// instead of looking like screen-space noise pasted over a white circle.
+	float moon_dot = dot(dir, moon_direction);
+	float moon_radius = 0.031;
+	float moon_edge = cos(moon_radius);
+	float moon_disk = smoothstep(moon_edge - 0.00006, moon_edge + 0.000025, moon_dot);
+	vec3 moon_up_axis = abs(moon_direction.y) > 0.96 ? vec3(0.0, 0.0, 1.0) : vec3(0.0, 1.0, 0.0);
+	vec3 moon_right = normalize(cross(moon_up_axis, moon_direction));
+	vec3 moon_up = normalize(cross(moon_direction, moon_right));
+	vec2 moon_uv = vec2(dot(dir, moon_right), dot(dir, moon_up)) / sin(moon_radius);
+	float moon_r2 = dot(moon_uv, moon_uv);
+	float moon_z = sqrt(max(1.0 - moon_r2, 0.0));
+	vec3 moon_normal = normalize(vec3(moon_uv, moon_z));
+	vec3 moon_light = normalize(vec3(-0.32, 0.16, 0.94));
+	float moon_lighting = 0.30 + 0.70 * max(dot(moon_normal, moon_light), 0.0);
+	float moon_limb = 0.72 + 0.28 * moon_z;
+	float maria = 0.0;
+	maria += (1.0 - smoothstep(0.04, 0.34, length(moon_uv - vec2(-0.28, 0.20)))) * 0.24;
+	maria += (1.0 - smoothstep(0.03, 0.29, length(moon_uv - vec2(0.24, 0.12)))) * 0.18;
+	maria += (1.0 - smoothstep(0.03, 0.24, length(moon_uv - vec2(-0.02, -0.30)))) * 0.15;
+	maria += (1.0 - smoothstep(0.02, 0.17, length(moon_uv - vec2(0.42, -0.22)))) * 0.10;
+	float craters = 0.0;
+	craters += (1.0 - smoothstep(0.07, 0.10, abs(length(moon_uv - vec2(-0.42, -0.20)) - 0.10))) * 0.14;
+	craters += (1.0 - smoothstep(0.045, 0.065, abs(length(moon_uv - vec2(0.18, 0.42)) - 0.065))) * 0.10;
+	craters += (1.0 - smoothstep(0.028, 0.045, abs(length(moon_uv - vec2(0.47, 0.28)) - 0.045))) * 0.08;
+	float lunar_noise = texture(cloud_noise, moon_uv * 0.17 + vec2(0.31, 0.73)).r;
+	float lunar_albedo = clamp((1.0 - maria - craters) * mix(0.90, 1.04, lunar_noise), 0.55, 1.0);
+	float moon_visibility = (1.0 - day_blend) * (1.0 - clouds);
+	color += moon_color.rgb * lunar_albedo * moon_lighting * moon_limb * moon_disk * moon_visibility * 0.90;
+	float moon_halo = smoothstep(cos(moon_radius * 4.0), moon_edge, moon_dot) * (1.0 - moon_disk);
+	color += moon_color.rgb * moon_halo * moon_visibility * 0.08;
 
 	// Cloud layer: bright by day, dark at night, warm around the low sun.
 	vec3 cloud_base = mix(vec3(0.055, 0.065, 0.095), vec3(1.0, 1.0, 1.0), day_blend);
