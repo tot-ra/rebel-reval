@@ -42,6 +42,26 @@ func wire(
 	_build_dialogue_runner()
 
 
+func _exit_tree() -> void:
+	if SessionState.state_replaced.is_connected(_on_state_replaced):
+		SessionState.state_replaced.disconnect(_on_state_replaced)
+
+
+func _on_state_replaced(_previous: GameState, current: GameState, _reason: StringName) -> void:
+	if _dialogue_runner == null:
+		return
+	# Replacement invalidates an in-flight conversation rather than allowing its
+	# remaining effects to mutate the retired GameState.
+	if _dialogue_runner.is_active():
+		_dialogue_runner.cancel()
+	_dialogue_runner.configure(
+		SessionState.content_db,
+		current,
+		_dialogue_box,
+		_interaction_controller
+	)
+
+
 func get_dialogue_runner() -> DemoDialogueRunner:
 	return _dialogue_runner
 
@@ -118,6 +138,8 @@ func _build_dialogue_runner() -> void:
 		_dialogue_box,
 		_interaction_controller
 	)
+	if not SessionState.state_replaced.is_connected(_on_state_replaced):
+		SessionState.state_replaced.connect(_on_state_replaced)
 
 
 func _on_talk_pressed(_actor: Node, dialogue_id: StringName, host: Node2D) -> void:

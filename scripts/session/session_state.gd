@@ -84,7 +84,9 @@ func replace_state(replacement: GameState, reason: StringName) -> bool:
 	state.bag.set_content_db(content_db)
 	state_replaced.emit(previous, state, reason)
 	if has_node("/root/PhaseDirector"):
-		PhaseDirector.sync_current_phase()
+		# PhaseDirector normally receives the signal above, but explicit rebinding
+		# also repairs startup/test ordering where it has not connected yet.
+		PhaseDirector.rebind_session_state()
 	return true
 
 

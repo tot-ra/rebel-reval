@@ -128,6 +128,12 @@ func _speaker_name(speaker_id: StringName) -> String:
 	return String(character.get("name", speaker_id))
 
 
+func cancel() -> void:
+	if not _active:
+		return
+	_close()
+
+
 func _close() -> void:
 	_active = false
 	_input_enabled = false

@@ -68,7 +68,7 @@ The scene script is the normal composition root for map-local nodes. `SessionSta
 
 ### Autoload replacement rule
 
-`SessionState.load_game()` and debug presets replace the live `GameState` object. Long-lived listeners must therefore rebind when replacement occurs. Today `PhaseDirector` is explicitly rebound for both paths, while `MapViewRuntime` and `WorldItemController` listen only to the debug-specific signal and can retain the old state after a manual load. P1-035 owns one ordered `state_replaced` contract for every replacement path. Until it lands, holding an unrefreshed `SessionState.state` reference across replacement remains a known boundary defect.
+`SessionState.load_game()` and debug presets replace the live `GameState` object through the single `SessionState.replace_state()` entry point. It installs the canonical reference, binds the replacement bag to `ContentDB`, and then emits one ordered `state_replaced(previous, current, reason)` notification. Long-lived consumers must disconnect from the previous state and bind to the supplied current state; `PhaseDirector` receives an explicit post-signal rebind as a startup-order safeguard before phase presentation is synchronized. Direct assignment to `SessionState.state` is test scaffolding only and must not be used by production replacement flows.
 
 ## State, persistence, and content
 
