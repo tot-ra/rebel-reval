@@ -12,31 +12,49 @@ style house.service door_side=north ridge_axis=x wall_height=72 wall_color=63594
 style wall.city wall_height=192 wall_color=949185ff
 style wall.garden wall_height=80 wall_color=8d897fff
 style wall.tower wall_height=240 wall_color=8c8a80ff
-terrain garden.lawn grass 0 0 144 48 order=1
-terrain orchard grass 12 8 58 30 order=2
-terrain cathedral.close stone 72 4 66 18 order=3
-terrain south.terrace dirt 48 28 90 18 order=4
-stroke toom_kooli cobblestone 29,0|29,12|29,24|29,47 thickness=3 order=5
-stroke garden_walk stone 29,12|48,12|66,12|84,12|104,12|138,12|138,9 thickness=2 order=6
-stroke terrace_walk cobblestone 29,29|52,29|78,29|104,29|126,29 thickness=3 order=7
+style grass.tall
+style grass.flowers
+style grass.mossy
+style bush.dense
+style bush.scrub
+style tree.mixed
+style tree.deciduous
+terrain garden.lawn grass 0 0 144 48 style=grass.flowers order=1
+terrain orchard grass 12 8 58 30 style=tree.mixed order=2
+terrain orchard.understory grass 14 30 52 8 style=bush.scrub order=3
+terrain western.woodland forest_floor 0 0 14 48 style=tree.mixed order=4
+terrain western.scrub grass 10 6 6 36 style=bush.dense order=5
+terrain well.grove grass 46 14 24 12 style=grass.mossy order=6
+terrain south.terrace grass 48 28 90 18 style=grass.tall order=7
+terrain terrace.scrub grass 50 30 48 8 style=bush.scrub order=8
+terrain cathedral.close stone 72 4 66 18 order=9
+stroke toom_kooli cobblestone 29,0|29,12|29,24|29,47 thickness=3 order=10
+stroke garden_walk dirt 29,12|48,12|66,12|84,12|104,12|138,12|138,9 thickness=2 order=11
+stroke terrace_walk dirt 29,29|52,29|78,29|104,29|126,29 thickness=2 order=12
 # Western cliff walls use short stepped runs and round towers rather than a box.
 building garden_city_wall_west_north wall 4 0 3 18 style=wall.city
 building garden_city_wall_west_mid wall 1 16 6 3 style=wall.city
 building garden_city_wall_west_south wall 1 16 3 25 style=wall.city
 building garden_city_wall_southwest_shoulder wall 1 39 12 3 style=wall.city
 building garden_city_wall_south_west wall 10 42 14 3 style=wall.city
-building garden_wall_tower_northwest wall 1 0 8 8 style=wall.tower tower=true
-building garden_wall_tower_west_bend wall 0 14 8 8 style=wall.tower tower=true
-building garden_wall_tower_southwest wall 5 38 8 8 style=wall.tower tower=true
+# The visual-only south gate needs collision-bearing throats along its full
+# north-south depth; otherwise the player can slip around either arch jamb.
+building garden_south_gate_west_throat wall 21 40 4 8 style=wall.city
+building garden_south_gate_east_throat wall 33 40 4 8 style=wall.city
+building garden_wall_tower_northwest wall 1 0 8 8 style=wall.tower tower=true door_side=east
+building garden_wall_tower_west_bend wall 0 14 8 8 style=wall.tower tower=true door_side=east
+building garden_wall_tower_southwest wall 5 38 8 8 style=wall.tower tower=true door_side=east
 # The east edge is the fortified Upper/Lower Town boundary. A guarded opening
 # leads into Central District, while the north/south throats remain hill roads.
 building garden_city_wall_east_north wall 141 0 3 5 style=wall.city
 building garden_city_wall_east_south wall 141 13 3 35 style=wall.city
-building center_gate_north_tower wall 136 0 6 5 style=wall.tower tower=true
-building center_gate_south_tower wall 136 13 6 5 style=wall.tower tower=true
+building center_gate_north_tower wall 136 0 6 5 style=wall.tower tower=true door_side=west
+building center_gate_south_tower wall 136 13 6 5 style=wall.tower tower=true door_side=west
+building center_gate_north_jamb wall 138 4 6 2 style=wall.city
+building center_gate_south_jamb wall 138 12 6 2 style=wall.city
 building garden_city_wall_south_mid wall 34 45 72 3 style=wall.city
 building garden_city_wall_south_east wall 106 42 35 3 style=wall.city
-building garden_wall_tower_south_mid wall 102 40 8 8 style=wall.tower tower=true
+building garden_wall_tower_south_mid wall 102 40 8 8 style=wall.tower tower=true door_side=north
 building cathedral_garden_wall_north wall 70 3 60 2 style=wall.garden
 building cathedral_garden_wall_south wall 70 21 60 2 style=wall.garden
 building canon_lodging house 92 6 14 8 style=house.canonical
@@ -47,6 +65,23 @@ prop medieval_well_prop well 54 18 rect=2,2
 prop orchard_bench table 36 18 rect=2,1
 prop terrace_bench table 88 31 rect=2,1
 prop gardener_cart cart 70 32 rect=2,2
+prop orchard_canopy_west bush 16 12 rect=3,2 style=bush.scrub
+prop orchard_canopy_mid bush 34 14 rect=3,2 style=bush.dense
+prop orchard_canopy_east bush 50 20 rect=2,2 style=bush.scrub
+prop orchard_edge_south bush 26 34 rect=3,2 style=bush.dense
+prop orchard_edge_north bush 20 10 rect=2,2 style=bush.scrub
+prop well_grove_north bush 48 15 rect=2,2 style=bush.scrub
+prop well_grove_south bush 62 22 rect=2,2 style=bush.dense
+prop western_scrub_low bush 8 30 rect=3,2 style=bush.dense
+prop western_scrub_high bush 8 16 rect=2,2 style=bush.scrub
+prop terrace_shrub_west bush 56 33 rect=2,2 style=bush.scrub
+prop terrace_shrub_mid bush 82 35 rect=3,2 style=bush.dense
+prop terrace_shrub_east bush 108 33 rect=2,2 style=bush.scrub
+prop south_lawn_scrub bush 40 41 rect=2,2 style=bush.scrub
+prop path_edge_scrub bush 68 11 rect=2,2 style=bush.scrub
+prop canon_close_shrub bush 88 20 rect=2,2 style=bush.dense
+prop cathedral_border_shrub bush 74 19 rect=2,2 style=bush.scrub
+prop orchard_hay hay_stack 58 33 rect=2,2
 spawn spawn.inspection 58 24 rect=2,2
 anchor inspection_spawn 58 24 rect=2,2
 anchor archbishops_garden 44 18 rect=2,2
@@ -63,6 +98,7 @@ sign sign.center "to town square" 136 11 east
 sign sign.south "to knights district" 32 42 south
 sign sign.garden "archbishop's garden" 48 16 west
 patrol garden_watch 29,5|29,18|54,18|84,12|118,12|136,9|104,29|70,29|29,29|29,42
+exclude blocked.west_woodland 0 0 9 48
 fade fade.canon_close 70 3 60 20
 camera 0 0 144 48
 surroundings north town east town south town west woodland
