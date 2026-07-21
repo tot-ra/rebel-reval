@@ -58,6 +58,17 @@ func test_harbors_keep_open_water_and_shallow_working_shores() -> void:
 		view.free()
 
 
+func test_harbor_shores_do_not_scatter_reeds_or_cattails() -> void:
+	for definition: MapDefinition in [HarborNorthDefinition.create(), HarborEastDefinition.create()]:
+		var grid := MapBuilder.build(definition)
+		var scatter := MapViewMeshBuilder.build_scatter(definition, grid)
+		var reeds := scatter.get_node_or_null("Reeds") as MultiMeshInstance3D
+		var cattails := scatter.get_node_or_null("BankCattails") as MultiMeshInstance3D
+		assert_true(reeds == null or reeds.multimesh.instance_count == 0, "%s must not grow reed beds on the Baltic shore" % String(definition.map_id))
+		assert_true(cattails == null or cattails.multimesh.instance_count == 0, "%s must not grow cattails on the Baltic shore" % String(definition.map_id))
+		scatter.free()
+
+
 func test_trade_harbor_has_merchant_boats_moored_on_water() -> void:
 	var definition: MapDefinition = HarborNorthDefinition.create()
 	var boats := _props_of_kind(definition, MapTypes.PROP_KIND_MERCHANT_BOAT)

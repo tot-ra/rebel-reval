@@ -541,6 +541,27 @@ static func is_natural_shore_cell(field: Dictionary, grid: MapTerrainGrid, cell:
 		coverage >= MapViewMeshBuilderConfig.SHORE_CATTAIL_MIN_COVERAGE
 		and coverage < MapViewMeshBuilderConfig.SHORE_CATTAIL_MAX_COVERAGE
 	)
+
+
+## Cattails and authored reed beds belong on enclosed freshwater margins (ponds,
+## moats, rivers), not on open Baltic beach strips that use coast sand and
+## deep/shallow sea water.
+static func is_inland_water_shore_cell(field: Dictionary, grid: MapTerrainGrid, cell: Vector2i) -> bool:
+	if cell.x < 0 or cell.y < 0 or cell.x >= grid.size_cells.x or cell.y >= grid.size_cells.y:
+		return false
+	var terrain := grid.get_terrain(cell)
+	if terrain == MapTypes.TERRAIN_COAST_SAND:
+		return false
+	if terrain not in MapViewMeshBuilderConfig.NATURAL_SHORE_TERRAINS:
+		return false
+	var sample := Vector2(cell) + Vector2(0.5, 0.5)
+	var inland_coverage := MapViewMeshBuilderTerrainWater.water_coverage_at(
+		field, sample, MapTypes.TERRAIN_WATER
+	)
+	return (
+		inland_coverage >= MapViewMeshBuilderConfig.SHORE_CATTAIL_MIN_COVERAGE
+		and inland_coverage < MapViewMeshBuilderConfig.SHORE_CATTAIL_MAX_COVERAGE
+	)
 ## The recessed bank under a clipped water edge must use a dry palette layer.
 ## Pick the first adjacent dry terrain deterministically; enclosed water falls
 ## back to grass because its bed remains fully hidden by the water surface.

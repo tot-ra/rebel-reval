@@ -16,7 +16,6 @@ style grass.tall
 style grass.dry
 style bush.dense
 style bush.scrub
-style reed.shore
 style tree.mixed
 style tree.spruce
 terrain water.deep deep_water 0 0 144 24 order=1
@@ -36,8 +35,8 @@ terrain boatyard.mud mud 122 47 22 16 order=7
 terrain pier.west timber_floor 26 24 2 20 order=12
 terrain pier.mid timber_floor 64 26 2 19 order=12
 terrain pier.east timber_floor 111 27 2 18 order=12
-terrain reedbed.west grass 0 53 10 13 style=reed.shore order=8
-terrain reedbed.mid grass 72 43 10 9 style=reed.shore order=8
+terrain shore.scrub_west grass 0 53 10 13 style=bush.scrub order=8
+terrain shore.scrub_mid grass 72 43 10 9 style=bush.scrub order=8
 terrain boundary.wood_west forest_floor 0 65 37 15 style=tree.mixed order=9
 terrain boundary.wood_mid forest_floor 44 70 55 10 style=tree.mixed order=9
 terrain boundary.wood_east forest_floor 108 64 36 16 style=tree.spruce order=9

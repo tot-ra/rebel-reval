@@ -97,7 +97,7 @@ func _seed_with_cattails(definition: MapDefinition) -> int:
 		for y in grid.size_cells.y:
 			for x in grid.size_cells.x:
 				if (
-					TerrainBuilder.is_natural_shore_cell(field, grid, Vector2i(x, y))
+					TerrainBuilder.is_inland_water_shore_cell(field, grid, Vector2i(x, y))
 					and MapViewMeshBuilderPrimitives.hash01(x, y, candidate_seed + 2879)
 					< MapViewMeshBuilderConfig.SHORE_CATTAIL_CHANCE
 				):
