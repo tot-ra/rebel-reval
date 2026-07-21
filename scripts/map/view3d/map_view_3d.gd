@@ -43,7 +43,6 @@ const BACKGROUND_INTERIOR_TOP_DOWN_COLOR := Color.BLACK
 
 ## Deterministic night state carrying the ART_BIBLE rules forward: at least
 ## 20% darker than day while ambient keeps terrain identities readable.
-const SUN_NIGHT_ROTATION_DEGREES := Vector3(-36.0, 142.0, 0.0)
 const SUN_NIGHT_COLOR := Color8(142, 162, 210)
 const SUN_NIGHT_ENERGY := 0.42
 const AMBIENT_NIGHT_COLOR := Color8(52, 66, 100)
@@ -157,13 +156,12 @@ func apply_cycle_progress(progress: float, _sweep_sun_yaw: bool = true) -> void:
 	var night := day_blend < 0.5
 
 	# DirectionalLight3D emits along local -Z, so local +Z points back toward
-	# the celestial body. Below the horizon the authored moon blends in during
-	# civil twilight; while the sun is visible, disk and shadows match exactly.
-	var moon_direction := Basis.from_euler(Vector3(
-		deg_to_rad(SUN_NIGHT_ROTATION_DEGREES.x),
-		deg_to_rad(SUN_NIGHT_ROTATION_DEGREES.y),
-		0.0
-	)).z
+	# the celestial body. During twilight the light smoothly hands off between
+	# the moving sun and the date-driven moon shown by the sky shader.
+	var moon_direction := SkyWeather3D.lunar_direction(
+		cycle_progress,
+		_sky_weather.calendar_date
+	)
 	var sun_elevation := SkyWeather3D.solar_elevation_degrees(
 		cycle_progress,
 		_sky_weather.calendar_date
@@ -179,7 +177,9 @@ func apply_cycle_progress(progress: float, _sweep_sun_yaw: bool = true) -> void:
 	sun_color = sun_color.lerp(SUNSET_LIGHT_COLOR, weather["sunset_tint"])
 	sun_color = sun_color.lerp(OVERCAST_LIGHT_COLOR, weather["overcast"])
 	_sun.light_color = sun_color
-	_sun.light_energy = lerpf(SUN_NIGHT_ENERGY, SUN_DAY_ENERGY, day_blend) * weather["sun_energy"]
+	var moonlight := SkyWeather3D.moonlight_strength(cycle_progress, _sky_weather.calendar_date)
+	var celestial_energy := lerpf(SUN_NIGHT_ENERGY * moonlight, SUN_DAY_ENERGY, day_blend)
+	_sun.light_energy = celestial_energy * weather["sun_energy"]
 	var ambient := AMBIENT_NIGHT_COLOR.lerp(AMBIENT_DAY_COLOR, day_blend)
 	ambient = ambient.lerp(OVERCAST_LIGHT_COLOR, weather["overcast"] * 0.5)
 	_environment.ambient_light_color = ambient

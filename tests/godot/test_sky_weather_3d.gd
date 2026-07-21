@@ -74,6 +74,7 @@ func test_sky_shader_covers_required_features() -> void:
 	assert_true("sunset_factor" in source, "dawn and dusk must warm the horizon")
 	assert_true("cloud_coverage" in source, "weather must drive procedural cloud coverage")
 	assert_true("moon_direction" in source, "the night sky must place a moon disk")
+	assert_true("moon_phase" in source, "the campaign date must drive weekly lunar lighting phases")
 	assert_true("moon_normal" in source, "the moon disk must shade as a sphere")
 	assert_true("lunar_albedo" in source, "the moon must include stable surface detail")
 	assert_true("moon_halo" in source, "the moon must have a restrained atmospheric halo")
@@ -173,3 +174,41 @@ func test_campaign_calendar_drives_daylight_thresholds() -> void:
 		SkyWeather.daylight_blend(7.0 / 24.0, winter) < 0.5,
 		"07:00 must still be night in a Reval winter"
 	)
+
+
+func test_moon_crosses_the_sky_from_east_to_west() -> void:
+	var full_moon := {"day": 10, "month": 5, "year": 1343}
+	var evening := SkyWeather.lunar_direction(18.0 / 24.0, full_moon)
+	var midnight := SkyWeather.lunar_direction(0.0, full_moon)
+	var morning := SkyWeather.lunar_direction(6.0 / 24.0, full_moon)
+	assert_true(evening.x > 0.0, "the evening full moon must rise in the eastern (+X) sky")
+	assert_true(midnight.y > evening.y, "the full moon must climb after rising")
+	assert_true(morning.x < 0.0, "the morning full moon must set in the western (-X) sky")
+
+
+func test_lunar_phase_changes_in_weekly_quarters() -> void:
+	var new_moon := {"day": 25, "month": 4, "year": 1343}
+	var first_quarter := {"day": 2, "month": 5, "year": 1343}
+	var full_moon := {"day": 10, "month": 5, "year": 1343}
+	var last_quarter := {"day": 17, "month": 5, "year": 1343}
+	assert_true(SkyWeather.lunar_illumination(SkyWeather.lunar_phase(new_moon)) < 0.01, "25 April must be near new moon")
+	assert_true(absf(SkyWeather.lunar_illumination(SkyWeather.lunar_phase(first_quarter)) - 0.5) < 0.1, "one week after new moon must approach first quarter")
+	assert_true(SkyWeather.lunar_illumination(SkyWeather.lunar_phase(full_moon)) > 0.99, "two weeks after new moon must approach full moon")
+	assert_true(absf(SkyWeather.lunar_illumination(SkyWeather.lunar_phase(last_quarter)) - 0.5) < 0.1, "three weeks after new moon must approach last quarter")
+	var phase_step := fposmod(
+		SkyWeather.lunar_phase({"day": 26, "month": 4, "year": 1343}) - SkyWeather.lunar_phase(new_moon),
+		1.0
+	)
+	assert_true(
+		phase_step > 0.03 and phase_step < 0.04,
+		"the phase must advance by about one synodic day with each campaign date"
+	)
+
+
+func test_lunar_phase_shifts_rise_time_through_the_month() -> void:
+	var new_moon := {"day": 25, "month": 4, "year": 1343}
+	var full_moon := {"day": 10, "month": 5, "year": 1343}
+	var new_moon_midnight := SkyWeather.lunar_elevation_degrees(0.0, new_moon)
+	var full_moon_midnight := SkyWeather.lunar_elevation_degrees(0.0, full_moon)
+	assert_true(new_moon_midnight < 0.0, "a new moon must share the sun's below-horizon midnight position")
+	assert_true(full_moon_midnight > 0.0, "a full moon must be above the midnight horizon")

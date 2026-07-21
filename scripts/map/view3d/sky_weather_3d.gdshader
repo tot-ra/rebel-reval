@@ -20,6 +20,8 @@ uniform float day_blend : hint_range(0.0, 1.0) = 1.0;
 uniform float sunset_factor : hint_range(0.0, 1.0) = 0.0;
 uniform vec3 sun_direction = vec3(0.0, 1.0, 0.0);
 uniform vec3 moon_direction = vec3(0.0, 1.0, 0.0);
+// 0 = new, 0.25 = first quarter, 0.5 = full, 0.75 = last quarter.
+uniform float moon_phase : hint_range(0.0, 1.0) = 0.5;
 
 uniform sampler2D cloud_noise : filter_linear_mipmap, repeat_enable;
 uniform float cloud_coverage : hint_range(0.0, 1.0) = 0.22;
@@ -109,8 +111,13 @@ void sky() {
 	float moon_r2 = dot(moon_uv, moon_uv);
 	float moon_z = sqrt(max(1.0 - moon_r2, 0.0));
 	vec3 moon_normal = normalize(vec3(moon_uv, moon_z));
-	vec3 moon_light = normalize(vec3(-0.32, 0.16, 0.94));
-	float moon_lighting = 0.30 + 0.70 * max(dot(moon_normal, moon_light), 0.0);
+	// Rotate the sunlight direction through one synodic month. Its projected X
+	// component produces waxing/waning crescents while Z yields the weekly
+	// new/quarter/full/quarter sequence; a slight Y tilt keeps the terminator
+	// from reading as mechanically vertical.
+	float phase_angle = moon_phase * TAU;
+	vec3 moon_light = normalize(vec3(sin(phase_angle), 0.10, -cos(phase_angle)));
+	float moon_lighting = max(dot(moon_normal, moon_light), 0.0);
 	float moon_limb = 0.72 + 0.28 * moon_z;
 	float maria = 0.0;
 	maria += (1.0 - smoothstep(0.04, 0.34, length(moon_uv - vec2(-0.28, 0.20)))) * 0.24;
@@ -123,10 +130,10 @@ void sky() {
 	craters += (1.0 - smoothstep(0.028, 0.045, abs(length(moon_uv - vec2(0.47, 0.28)) - 0.045))) * 0.08;
 	float lunar_noise = texture(cloud_noise, moon_uv * 0.17 + vec2(0.31, 0.73)).r;
 	float lunar_albedo = clamp((1.0 - maria - craters) * mix(0.90, 1.04, lunar_noise), 0.55, 1.0);
-	float moon_visibility = (1.0 - day_blend) * (1.0 - clouds);
+	float moon_visibility = smoothstep(-0.04, 0.03, moon_direction.y) * (1.0 - clouds);
 	color += moon_color.rgb * lunar_albedo * moon_lighting * moon_limb * moon_disk * moon_visibility * 0.90;
 	float moon_halo = smoothstep(cos(moon_radius * 4.0), moon_edge, moon_dot) * (1.0 - moon_disk);
-	color += moon_color.rgb * moon_halo * moon_visibility * 0.08;
+	color += moon_color.rgb * moon_halo * moon_visibility * moon_lighting * 0.08;
 
 	// Cloud layer: bright by day, dark at night, warm around the low sun.
 	vec3 cloud_base = mix(vec3(0.055, 0.065, 0.095), vec3(1.0, 1.0, 1.0), day_blend);

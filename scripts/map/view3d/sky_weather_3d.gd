@@ -35,9 +35,12 @@ const SUNSET_ENERGY_DIM := 0.30
 const SUNSET_AMBIENT_DIM := 0.15
 const SUNSET_TINT_STRENGTH := 0.65
 
-## Keep in sync with MapView3D.SUN_NIGHT_ROTATION_DEGREES: the moon disk shares
-## the night light's direction so sky and shadows never disagree.
-const MOON_ROTATION_DEGREES := Vector3(-36.0, 142.0, 0.0)
+## Mean lunar orbit used for daily rise/set timing and phase lighting. One
+## synodic month naturally divides into four roughly weekly phase quarters.
+## The epoch is the 2000-01-06 18:14 UTC new moon (Julian day), projected back
+## deterministically onto the campaign's Julian calendar.
+const SYNODIC_MONTH_DAYS := 29.530588853
+const NEW_MOON_EPOCH_JULIAN_DAY := 2451550.25972
 
 ## Astronomical reference for Reval (Tallinn) on St George's Night. The catalog
 ## is J2000, then precessed to the canonical campaign year so even Polaris and
@@ -362,23 +365,75 @@ static func daylight_blend(progress: float, date: Dictionary = {}) -> float:
 	return smoothstep(-6.0, 6.0, solar_elevation_degrees(progress, date))
 
 
+## Converts a Julian-calendar campaign date to astronomical Julian day at
+## midnight for the deterministic lunar-phase calculation below.
+static func julian_day(date: Dictionary) -> float:
+	var year := int(date.get("year", GAME_CALENDAR.DEFAULT_DATE["year"]))
+	var month := clampi(int(date.get("month", GAME_CALENDAR.DEFAULT_DATE["month"])), 1, 12)
+	var day := clampi(
+		int(date.get("day", GAME_CALENDAR.DEFAULT_DATE["day"])),
+		1,
+		GAME_CALENDAR.days_in_month(month, year)
+	)
+	if month <= 2:
+		year -= 1
+		month += 12
+	return (
+		floor(365.25 * float(year + 4716))
+		+ floor(30.6001 * float(month + 1))
+		+ float(day)
+		- 1524.5
+	)
+
+
+## 0 is new moon, 0.25 first quarter, 0.5 full moon, and 0.75 last
+## quarter. The campaign date owns the phase because the accelerated visual day
+## intentionally loops without advancing story time.
+static func lunar_phase(date: Dictionary = {}) -> float:
+	var effective_date := GAME_CALENDAR.DEFAULT_DATE if date.is_empty() else date
+	var days_since_epoch := julian_day(effective_date) - NEW_MOON_EPOCH_JULIAN_DAY
+	return fposmod(days_since_epoch / SYNODIC_MONTH_DAYS, 1.0)
+
+
+static func lunar_illumination(phase: float) -> float:
+	return (1.0 - cos(wrapf(phase, 0.0, 1.0) * TAU)) * 0.5
+
+
+static func moonlight_strength(progress: float, date: Dictionary = {}) -> float:
+	var effective_date := GAME_CALENDAR.DEFAULT_DATE if date.is_empty() else date
+	var horizon_visibility := smoothstep(-0.04, 0.03, lunar_direction(progress, effective_date).y)
+	return lunar_illumination(lunar_phase(effective_date)) * horizon_visibility
+
+
+## Uses the same local horizon frame and seasonal declination model as the sun.
+## The phase shifts lunar transit around the clock: new moon follows the sun,
+## first quarter is highest near sunset, and full moon is highest near midnight.
+static func lunar_direction(progress: float, date: Dictionary = {}) -> Vector3:
+	var effective_date := GAME_CALENDAR.DEFAULT_DATE if date.is_empty() else date
+	var phase := lunar_phase(effective_date)
+	var lunar_progress := wrapf(progress - phase, 0.0, 1.0)
+	return solar_direction(lunar_progress, effective_date)
+
+
+static func lunar_elevation_degrees(progress: float, date: Dictionary = {}) -> float:
+	return rad_to_deg(asin(clampf(lunar_direction(progress, date).y, -1.0, 1.0)))
+
+
 func set_calendar_date(date: Dictionary) -> void:
 	calendar_date = date.duplicate()
 
 
-## Pushes a shared physical sun direction and cycle tints into the sky shader.
-## MapView3D uses the same vector for its directional light, keeping the disk,
-## moving shadows, sunrise in the east, and sunset in the west in agreement.
+## Pushes shared physical sun/moon directions and cycle tints into the sky
+## shader. MapView3D uses the same vectors for directional lighting, keeping
+## disks, moving shadows, and east-to-west travel in agreement.
 func apply_sky_state(progress: float, day_blend: float, sun_direction: Vector3) -> void:
 	var elevation := rad_to_deg(asin(clampf(sun_direction.y, -1.0, 1.0)))
 	sunset_factor = clampf(1.0 - absf(elevation) / SUNSET_ELEVATION_BAND_DEG, 0.0, 1.0)
-	var moon_direction := Basis.from_euler(Vector3(
-		deg_to_rad(MOON_ROTATION_DEGREES.x),
-		deg_to_rad(MOON_ROTATION_DEGREES.y),
-		0.0
-	)).z
+	var phase := lunar_phase(calendar_date)
+	var moon_direction := lunar_direction(progress, calendar_date)
 	_material.set_shader_parameter(&"sun_direction", sun_direction)
 	_material.set_shader_parameter(&"moon_direction", moon_direction)
+	_material.set_shader_parameter(&"moon_phase", phase)
 	_material.set_shader_parameter(&"day_blend", day_blend)
 	_material.set_shader_parameter(&"sunset_factor", sunset_factor)
 	_material.set_shader_parameter(&"sidereal_angle", deg_to_rad(MIDNIGHT_SIDEREAL_DEGREES) + progress * TAU)

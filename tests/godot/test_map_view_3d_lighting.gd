@@ -63,6 +63,44 @@ func test_view_uses_calendar_sun_direction_and_seasonal_daylight() -> void:
 	view.free()
 
 
+func test_night_directional_light_follows_the_moon() -> void:
+	var definition := SmithyCourtyard.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_NIGHT)
+	var full_moon := {"day": 10, "month": 5, "year": 1343}
+	view.set_calendar_date(full_moon)
+	view.apply_cycle_progress(0.0)
+	var expected := SkyWeather3D.lunar_direction(0.0, full_moon)
+	assert_true(
+		view.sun_light().basis.z.is_equal_approx(expected),
+		"night shadows must point back toward the visible moon"
+	)
+	var midnight_direction := view.sun_light().basis.z
+	view.apply_cycle_progress(3.0 / 24.0)
+	assert_false(
+		view.sun_light().basis.z.is_equal_approx(midnight_direction),
+		"moonlight and night shadows must move as the moon crosses the sky"
+	)
+	view.free()
+
+
+func test_night_directional_light_follows_lunar_phase_and_horizon() -> void:
+	var definition := SmithyCourtyard.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_NIGHT)
+	view.set_calendar_date({"day": 25, "month": 4, "year": 1343})
+	view.apply_cycle_progress(0.0)
+	var new_moon_energy := view.sun_light().light_energy
+	view.set_calendar_date({"day": 10, "month": 5, "year": 1343})
+	view.apply_cycle_progress(0.0)
+	var full_moon_energy := view.sun_light().light_energy
+	assert_true(full_moon_energy > new_moon_energy, "full moon must cast more directional light than new moon")
+	assert_true(
+		SkyWeather3D.moonlight_strength(0.0, {"day": 10, "month": 5, "year": 1343})
+			> SkyWeather3D.moonlight_strength(0.5, {"day": 10, "month": 5, "year": 1343}),
+		"physical moonlight must fade after the moon sets"
+	)
+	view.free()
+
+
 func test_evening_window_schedule_is_deterministic_and_bounded() -> void:
 	var seed := String(&"house_test_lane").hash()
 	var first: Dictionary = BuildingWindowLights3D.evening_schedule_for(seed)
