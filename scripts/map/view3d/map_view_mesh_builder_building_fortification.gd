@@ -87,8 +87,9 @@ static func add_tower_roof(root: Node3D, radius: float, height: float, building:
 	finial.position = Vector3(0.0, finial_y, 0.0)
 	finial.material_override = MapViewMaterials.role(&"metal")
 	root.add_child(finial)
-	# WHY: tower pennants make world wind readable on fortified maps that have
-	# little grass; faction cloth also marks Danish, Order, and Hanse seats.
+	# WHY: tower pennants mark only faction seats (explicit faction= or the
+	# sparse BUILDING_DEFAULTS allowlist). Ordinary wall towers stay bare so
+	# the skyline is not a forest of empty poles.
 	var faction := FactionHeraldry.resolve(building)
 	if FactionHeraldry.shows_flag(faction):
 		_add_tower_pennant(root, finial_y, faction)

@@ -224,7 +224,10 @@ const HOUSE_DOOR_STRAP_THICKNESS := 0.035
 const HOUSE_DOOR_STRAP_COUNT := 2
 ## Roof trim: bargeboards on gable ends and a fascia under the eaves keep the
 ## Nordic/Estonian wooden-town silhouette without inventing German Fachwerk.
-const HOUSE_BARGEBOARD_THICKNESS := 0.07
+## Width is the board face; thickness is the thin edge. A near-square stick
+## silhouette reads as empty flagpoles against the sky - keep face >> edge.
+const HOUSE_BARGEBOARD_WIDTH := 0.15
+const HOUSE_BARGEBOARD_THICKNESS := 0.035
 const HOUSE_EAVES_FASCIA_HEIGHT := 0.1
 const HOUSE_RIDGE_BOARD_HEIGHT := 0.08
 ## Log-house corner heads protrude past the wall plane (horizontal log

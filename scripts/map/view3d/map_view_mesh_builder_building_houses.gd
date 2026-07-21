@@ -118,22 +118,26 @@ static func add_roof_trim(
 	var half := size * 0.5
 	var overhang := MapViewMeshBuilderConfig.ROOF_OVERHANG
 	var rise := ((size.y if along_ridge_x else size.x) * 0.5 + overhang) * MapViewMeshBuilderConfig.ROOF_PITCH
-	var barge := MapViewMeshBuilderConfig.HOUSE_BARGEBOARD_THICKNESS
+	# Flat board face (width) with a thin edge (thickness). Near-square sticks
+	# silhouette as empty flagpoles from the dimetric camera.
+	var barge_w := MapViewMeshBuilderConfig.HOUSE_BARGEBOARD_WIDTH
+	var barge_t := MapViewMeshBuilderConfig.HOUSE_BARGEBOARD_THICKNESS
 	var fascia_h := MapViewMeshBuilderConfig.HOUSE_EAVES_FASCIA_HEIGHT
 	if along_ridge_x:
 		var gable_span := size.y + overhang * 2.0
-		var rake := sqrt(pow(gable_span * 0.5, 2.0) + pow(rise, 2.0))
+		# Inset from the apex so boards hug the rake instead of poking into the sky.
+		var rake := sqrt(pow(gable_span * 0.5, 2.0) + pow(rise, 2.0)) * 0.94
 		for side_x in [-1.0, 1.0]:
 			for slope in [-1.0, 1.0]:
 				var board := MeshInstance3D.new()
 				board.name = "Bargeboard_%d_%d" % [int(side_x), int(slope)]
 				var board_mesh := BoxMesh.new()
-				board_mesh.size = Vector3(barge, barge * 0.85, rake)
+				board_mesh.size = Vector3(barge_t, barge_w, rake)
 				board.mesh = board_mesh
 				board.position = Vector3(
-					side_x * (half.x + overhang * 0.35),
-					height + rise * 0.5,
-					slope * gable_span * 0.25
+					side_x * (half.x + overhang * 0.12),
+					height + rise * 0.48,
+					slope * gable_span * 0.24
 				)
 				board.rotation.x = slope * atan2(rise, gable_span * 0.5)
 				board.material_override = MapViewMaterials.role(&"timber")
@@ -142,31 +146,31 @@ static func add_roof_trim(
 			MapViewMeshBuilderPrimitives.box(
 				root,
 				"EavesFascia_%d" % int(side_z),
-				Vector3(size.x + overhang * 2.0, fascia_h, barge),
+				Vector3(size.x + overhang * 2.0, fascia_h, barge_t),
 				Vector3(0.0, height + fascia_h * 0.35, side_z * (half.y + overhang * 0.55)),
 				&"timber"
 			)
 		MapViewMeshBuilderPrimitives.box(
 			root,
 			"RidgeBoard",
-			Vector3(size.x + overhang * 2.0, MapViewMeshBuilderConfig.HOUSE_RIDGE_BOARD_HEIGHT, barge),
+			Vector3(size.x + overhang * 2.0, MapViewMeshBuilderConfig.HOUSE_RIDGE_BOARD_HEIGHT, barge_w * 0.55),
 			Vector3(0.0, height + rise + MapViewMeshBuilderConfig.HOUSE_RIDGE_BOARD_HEIGHT * 0.35, 0.0),
 			&"timber"
 		)
 	else:
 		var gable_span := size.x + overhang * 2.0
-		var rake := sqrt(pow(gable_span * 0.5, 2.0) + pow(rise, 2.0))
+		var rake := sqrt(pow(gable_span * 0.5, 2.0) + pow(rise, 2.0)) * 0.94
 		for side_z in [-1.0, 1.0]:
 			for slope in [-1.0, 1.0]:
 				var board := MeshInstance3D.new()
 				board.name = "Bargeboard_%d_%d" % [int(side_z), int(slope)]
 				var board_mesh := BoxMesh.new()
-				board_mesh.size = Vector3(rake, barge * 0.85, barge)
+				board_mesh.size = Vector3(rake, barge_w, barge_t)
 				board.mesh = board_mesh
 				board.position = Vector3(
-					slope * gable_span * 0.25,
-					height + rise * 0.5,
-					side_z * (half.y + overhang * 0.35)
+					slope * gable_span * 0.24,
+					height + rise * 0.48,
+					side_z * (half.y + overhang * 0.12)
 				)
 				board.rotation.z = -slope * atan2(rise, gable_span * 0.5)
 				board.material_override = MapViewMaterials.role(&"timber")
@@ -175,14 +179,14 @@ static func add_roof_trim(
 			MapViewMeshBuilderPrimitives.box(
 				root,
 				"EavesFascia_%d" % int(side_x),
-				Vector3(barge, fascia_h, size.y + overhang * 2.0),
+				Vector3(barge_t, fascia_h, size.y + overhang * 2.0),
 				Vector3(side_x * (half.x + overhang * 0.55), height + fascia_h * 0.35, 0.0),
 				&"timber"
 			)
 		MapViewMeshBuilderPrimitives.box(
 			root,
 			"RidgeBoard",
-			Vector3(barge, MapViewMeshBuilderConfig.HOUSE_RIDGE_BOARD_HEIGHT, size.y + overhang * 2.0),
+			Vector3(barge_w * 0.55, MapViewMeshBuilderConfig.HOUSE_RIDGE_BOARD_HEIGHT, size.y + overhang * 2.0),
 			Vector3(0.0, height + rise + MapViewMeshBuilderConfig.HOUSE_RIDGE_BOARD_HEIGHT * 0.35, 0.0),
 			&"timber"
 		)

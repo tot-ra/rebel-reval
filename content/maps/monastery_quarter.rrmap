@@ -23,7 +23,7 @@ style house.convent door_side=east ridge_axis=x roof_color=42261fff roof_materia
 style house.service door_side=north roof_color=6b5c40ff roof_material=thatch wall_color=5a4f45ff wall_material=log wall_height=88
 style wall.precinct wall_height=112 wall_color=8d897fff
 style wall.city wall_height=192 wall_color=949185ff
-style wall.tower wall_height=240 wall_color=8c8a80ff faction=danish_crown
+style wall.tower wall_height=240 wall_color=8c8a80ff
 terrain district.base dirt 0 0 208 112 order=1
 terrain convent.garden grass 5 8 58 68 order=2
 terrain wall.margin.west grass 3 8 8 96 order=3

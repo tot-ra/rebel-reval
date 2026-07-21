@@ -13,7 +13,7 @@ style house.canonical door_side=east ridge_axis=x wall_height=96 wall_color=766d
 style house.service door_side=north ridge_axis=x wall_height=72 wall_color=63594aff wall_material=plank roof_color=6b5c40ff roof_material=thatch
 style wall.city wall_height=192 wall_color=949185ff
 style wall.garden wall_height=80 wall_color=8d897fff
-style wall.tower wall_height=240 wall_color=8c8a80ff faction=danish_crown
+style wall.tower wall_height=240 wall_color=8c8a80ff
 style grass.tall
 style grass.flowers
 style grass.mossy

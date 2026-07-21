@@ -27,7 +27,7 @@ style house.workshop.mid door_side=north roof_color=383029ff roof_material=shing
 style house.warehouse door_side=south ridge_axis=x roof_color=352820ff roof_material=shingle wall_color=5a4f45ff wall_material=plank wall_height=96
 style house.warehouse.gabled door_side=south ridge_axis=z primitive=stepped_gable_merchant roof_color=3e2f25ff roof_material=tile wall_color=6c6253ff wall_material=limestone wall_height=132
 style wall.city wall_height=192 wall_color=949185ff
-style wall.tower wall_height=240 wall_color=8c8a80ff faction=danish_crown
+style wall.tower wall_height=240 wall_color=8c8a80ff
 style wall.tower.merchant wall_height=240 wall_color=8c8a80ff faction=hanseatic
 # Packed earth is the ward-wide substrate. Stone is reserved for primary streets,
 # loading aprons and compact closes; wet work yards and green wall margins remain visible.

@@ -112,15 +112,62 @@ func test_south_quarter_knight_banner_is_livonian_cloth() -> void:
 	var definition := SouthQuarter.create()
 	var banner: Dictionary = {}
 	for prop in definition.props:
-		if prop["id"] == &"knight_banner":
+		if prop["id"] == &"knights_hall_banner":
 			banner = prop
 			break
-	assert_false(banner.is_empty(), "south quarter needs knight_banner")
+	assert_false(banner.is_empty(), "south quarter needs knights_hall_banner on the hall")
 	assert_eq(banner.get("kind"), MapTypes.PROP_KIND_BANNER)
 	assert_eq(FactionHeraldry.resolve(banner), FactionHeraldry.LIVONIAN_ORDER)
 	var node := MapViewMeshBuilder.build_prop(banner, definition.cell_size, definition)
 	assert_true(node.has_node("BannerCloth"))
+	assert_true(node.has_node("BannerArm"), "courtyard banners hang from a wall arm, not a freestanding mast")
+	assert_false(node.has_node("BannerStaff"), "freestanding banner masts were removed as empty-pole clutter")
 	assert_eq(node.get_node("BannerCloth").get_meta(&"faction"), FactionHeraldry.LIVONIAN_ORDER)
+	node.free()
+
+
+func test_ordinary_wall_towers_do_not_fly_pennants_without_faction() -> void:
+	# Garden mid-wall towers used to inherit style faction=danish_crown and fill
+	# the skyline with poles. Unmarked wall.tower must stay bare.
+	var building := {
+		"id": &"garden_wall_tower_south_mid",
+		"kind": MapTypes.BUILDING_KIND_WALL,
+		"footprint": Rect2(0, 0, 64, 64),
+		"tower": true,
+		"door_side": &"north",
+		"wall_height": 240.0,
+	}
+	assert_eq(FactionHeraldry.resolve(building), &"")
+	assert_false(FactionHeraldry.shows_flag(&""))
+	var node := MapViewMeshBuilder.build_building(building, 32.0)
+	assert_true(node.has_node("TowerRoof"))
+	assert_false(node.has_node("Pennant"), "unmarked wall towers must not sprout pennant staffs")
+	assert_false(node.has_node("PennantStaff"))
+	node.free()
+
+
+func test_house_bargeboards_are_flat_boards_not_stick_poles() -> void:
+	var building := {
+		"id": &"artisan_house",
+		"kind": MapTypes.BUILDING_KIND_HOUSE,
+		"footprint": Rect2(0, 0, 96, 64),
+		"wall_height": 96.0,
+		"wall_material": &"plank",
+		"roof_material": &"shingle",
+		"door_side": &"south",
+		"ridge_axis": &"x",
+	}
+	var node := MapViewMeshBuilder.build_building(building, 32.0)
+	assert_true(node.has_node("Bargeboard_1_1"), "tiled roofs keep bargeboards")
+	var board := node.get_node("Bargeboard_1_1") as MeshInstance3D
+	var mesh := board.mesh as BoxMesh
+	var size := mesh.size
+	var cross_min := minf(size.x, minf(size.y, size.z))
+	var cross_mid := size.x + size.y + size.z - maxf(size.x, maxf(size.y, size.z)) - cross_min
+	assert_true(
+		cross_mid > cross_min * 2.5,
+		"bargeboard face must be much wider than thickness so it reads as a board, not a pole"
+	)
 	node.free()
 
 

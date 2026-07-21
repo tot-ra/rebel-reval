@@ -50,20 +50,20 @@ const PATTERN_BEAR_LYNX := &"bear_lynx"
 const PATTERN_SWALLOW := &"swallow"
 const PATTERN_NONE := &"none"
 
-## Stable building IDs that should fly a faction even when the map omits
-## faction=. Keep this list short and historical; prefer authored faction=.
+## Sparse allowlist: only landmark towers fly cloth when the map omits faction=.
+## Ordinary wall.tower styles stay bare so the skyline is not a forest of poles.
+## Prefer explicit faction= on the few seats that need identity (keep, gate, guild).
 const BUILDING_DEFAULTS: Dictionary = {
 	&"castle_keep_tower": DANISH_CROWN,
 	&"pikk_jalg_gate_tower": DANISH_CROWN,
 	&"pikk_jalg_gate_east_tower": DANISH_CROWN,
-	&"toompea_garden_gate_west_tower": DANISH_CROWN,
-	&"toompea_garden_gate_east_tower": DANISH_CROWN,
 	&"monastery_wall_tower_northwest": DANISH_CROWN,
-	&"monastery_wall_tower_west_mid": DANISH_CROWN,
 	&"coast_gate_west_tower": DANISH_CROWN,
 	&"merchant_wall_tower_northwest": HANSEATIC,
 	&"viru_gate_north_tower": DANISH_CROWN,
 	&"viru_gate_south_tower": DANISH_CROWN,
+	&"center_gate_north_tower": DANISH_CROWN,
+	&"center_gate_south_tower": DANISH_CROWN,
 }
 
 
@@ -81,6 +81,9 @@ static func resolve(source: Dictionary) -> StringName:
 
 
 static func shows_flag(faction_id: StringName) -> bool:
+	# Empty / unknown ids must not plant bare staffs or municipal cloth.
+	if String(faction_id).is_empty():
+		return false
 	return pattern_for(faction_id) != PATTERN_NONE
 
 
@@ -99,10 +102,10 @@ static func pattern_for(faction_id: StringName) -> StringName:
 			return PATTERN_LYNX
 		BLACK_CLOAKS:
 			return PATTERN_SWALLOW
-		VITALIENBRUDER:
-			return PATTERN_NONE
-		_:
+		HARJU_KINGS, CULT_METSIK:
 			return PATTERN_SOLID
+		VITALIENBRUDER, _:
+			return PATTERN_NONE
 
 
 static func field_color(faction_id: StringName) -> Color:

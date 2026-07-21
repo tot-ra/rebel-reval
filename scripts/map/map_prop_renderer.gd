@@ -94,18 +94,20 @@ static func _draw_banner(parent: Node2D, prop: Dictionary, target: StringName, t
 	var faction := FactionHeraldry.resolve(prop)
 	var field := FactionHeraldry.field_color(faction)
 	var charge := FactionHeraldry.charge_color(faction)
-	_add_rect(parent, "Staff", Vector2(-3, -54), Vector2(6, 58), wood.darkened(0.08), target, time_of_day)
 	if not FactionHeraldry.shows_flag(faction):
 		return
-	_add_rect(parent, "BannerField", Vector2(2, -52), Vector2(28, 36), field, target, time_of_day)
+	# Short wall arm + hanging cloth; matches the 3D wall-mount banner.
+	_add_rect(parent, "BannerMount", Vector2(-4, -48), Vector2(8, 8), wood.darkened(0.12), target, time_of_day)
+	_add_rect(parent, "BannerArm", Vector2(2, -46), Vector2(22, 4), wood.darkened(0.08), target, time_of_day)
+	_add_rect(parent, "BannerField", Vector2(4, -44), Vector2(26, 34), field, target, time_of_day)
 	match FactionHeraldry.pattern_for(faction):
 		FactionHeraldry.PATTERN_CROSS:
-			_add_rect(parent, "BannerCrossV", Vector2(12, -52), Vector2(6, 36), charge, target, time_of_day)
-			_add_rect(parent, "BannerCrossH", Vector2(2, -38), Vector2(28, 6), charge, target, time_of_day)
+			_add_rect(parent, "BannerCrossV", Vector2(14, -44), Vector2(6, 34), charge, target, time_of_day)
+			_add_rect(parent, "BannerCrossH", Vector2(4, -30), Vector2(26, 6), charge, target, time_of_day)
 		FactionHeraldry.PATTERN_PALE:
-			_add_rect(parent, "BannerPale", Vector2(2, -52), Vector2(14, 36), charge, target, time_of_day)
+			_add_rect(parent, "BannerPale", Vector2(4, -44), Vector2(13, 34), charge, target, time_of_day)
 		FactionHeraldry.PATTERN_FESS:
-			_add_rect(parent, "BannerFess", Vector2(2, -52), Vector2(28, 18), charge, target, time_of_day)
+			_add_rect(parent, "BannerFess", Vector2(4, -44), Vector2(26, 17), charge, target, time_of_day)
 		FactionHeraldry.PATTERN_BEAR:
 			_draw_banner_bear(parent, charge, target, time_of_day)
 		FactionHeraldry.PATTERN_LYNX:
