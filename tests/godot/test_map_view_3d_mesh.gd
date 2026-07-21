@@ -302,13 +302,36 @@ func test_chimney_smoke_varies_by_building_and_time_of_day() -> void:
 		house_ids.append(building["id"])
 		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
 		assert_true(node.has_node("Chimney"), "%s: every house keeps a chimney stack" % building["id"])
-		var chimney := node.get_node("Chimney")
+		var chimney := node.get_node("Chimney") as Node3D
 		assert_true(chimney.has_node("Flue"), "%s: chimney must expose a dark flue" % building["id"])
 		var flue := chimney.get_node("Flue") as MeshInstance3D
 		var flue_material := flue.material_override as StandardMaterial3D
 		assert_true(
 			flue_material.albedo_color.v < 0.2,
 			"%s: flue interior must read darker than stone walls" % building["id"]
+		)
+		var scale := MapViewBridge.world_scale(definition.cell_size)
+		var footprint: Rect2 = building["footprint"]
+		var size := footprint.size * scale
+		var height := MapTypes.resolved_wall_height_px(building) * scale
+		var along_ridge_x := MapViewMeshBuilderBuildingFacade.ridge_along_x(building, size)
+		var half_span := (size.y if along_ridge_x else size.x) * 0.5 + MapViewMeshBuilderConfig.ROOF_OVERHANG
+		var rise := half_span * MapViewMeshBuilderConfig.ROOF_PITCH
+		var ridge_y := height + rise
+		var chimney_half_h := MapViewMeshBuilderConfig.CHIMNEY_STACK_HEIGHT * 0.5
+		var stack_bottom := chimney.position.y - chimney_half_h
+		assert_true(
+			stack_bottom < ridge_y - MapViewMeshBuilderConfig.CHIMNEY_STACK_EMBED * 0.5,
+			"%s: chimney must pierce below the ridge instead of sitting on top" % building["id"]
+		)
+		var across := chimney.position.z if along_ridge_x else chimney.position.x
+		assert_true(
+			absf(across) >= MapViewMeshBuilderConfig.CHIMNEY_SIZE * 0.5,
+			"%s: chimney must sit on one roof face, not balance on the ridge" % building["id"]
+		)
+		assert_true(
+			MapViewMeshBuilderConfig.CHIMNEY_STACK_HEIGHT > MapViewMeshBuilderConfig.CHIMNEY_SIZE * 1.5,
+			"%s: chimney shaft must read taller than a roof-top cube" % building["id"]
 		)
 		if node.has_node("ChimneySmoke"):
 			with_smoke += 1

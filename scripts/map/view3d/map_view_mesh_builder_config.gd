@@ -154,14 +154,20 @@ const WALL_WALK_ACCESS_TREAD_THICKNESS := 0.1
 const WALL_WALK_ACCESS_RAIL_HEIGHT := 1.0
 const WALL_WALK_ACCESS_MAX_TARGET_DISTANCE_CELLS := 5.0
 
-const CHIMNEY_SIZE := 0.5
-const CHIMNEY_WALL_THICKNESS := 0.09
+## Narrow shaft - cube-sized stacks read as roof ornaments, not chimneys.
+const CHIMNEY_SIZE := 0.36
+const CHIMNEY_WALL_THICKNESS := 0.07
 ## Stone lip above the flue so the mouth reads as a tube, not a flat cube top.
 const CHIMNEY_FLUE_LIP := 0.05
-## Fixed stack height on the ridge - must not scale with roof span or chimneys
-## tower above the whole building.
-const CHIMNEY_STACK_HEIGHT := 0.58
-const CHIMNEY_STACK_EMBED := 0.16
+## Fixed stack height - must not scale with roof span or chimneys tower above
+## the whole building. Tall enough that after roof penetration a clear shaft
+## remains above the tiles.
+const CHIMNEY_STACK_HEIGHT := 1.35
+## Depth below the downhill roof intersection so the stack goes through the
+## slope instead of sitting on the ridge like a block.
+const CHIMNEY_STACK_EMBED := 0.45
+## Lateral clearance past the ridge so the chimney sits fully on one roof face.
+const CHIMNEY_RIDGE_CLEARANCE := 0.06
 const CHIMNEY_SMOKE_SCRIPT := preload("res://scripts/map/view3d/chimney_smoke_3d.gd")
 const WINDOW_LIGHTS_SCRIPT := preload("res://scripts/map/view3d/building_window_lights_3d.gd")
 const INTERIOR_WINDOW_LIGHTS_SCRIPT := preload("res://scripts/map/view3d/interior_window_lights_3d.gd")

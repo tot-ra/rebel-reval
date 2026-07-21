@@ -502,18 +502,36 @@ static func _add_stepped_merchant_gable(
 
 static func add_chimney(root: Node3D, building: Dictionary, size: Vector2, wall_height: float, ridge_along_x: bool) -> void:
 	var building_id: StringName = building["id"]
-	var rise := ((size.y if ridge_along_x else size.x) * 0.5 + MapViewMeshBuilderConfig.ROOF_OVERHANG) * MapViewMeshBuilderConfig.ROOF_PITCH
-	var along := ((size.x if ridge_along_x else size.y) * 0.5 - MapViewMeshBuilderConfig.CHIMNEY_SIZE) * 0.62
-	if String(building_id).hash() % 2 == 0:
+	var seed := String(building_id).hash()
+	var chimney_size := MapViewMeshBuilderConfig.CHIMNEY_SIZE
+	var chimney_half := chimney_size * 0.5
+	var half_span := (size.y if ridge_along_x else size.x) * 0.5 + MapViewMeshBuilderConfig.ROOF_OVERHANG
+	var rise := half_span * MapViewMeshBuilderConfig.ROOF_PITCH
+	# Near one ridge end, fully on one slope face so the shaft pierces tiles
+	# instead of balancing on the peak like a cube.
+	var along := ((size.x if ridge_along_x else size.y) * 0.5 - chimney_size) * 0.62
+	if seed % 2 == 0:
 		along = -along
-	var offset := Vector3(along, 0.0, 0.0) if ridge_along_x else Vector3(0.0, 0.0, along)
-	var ridge_y := wall_height + rise
-	var stack_bottom := ridge_y - MapViewMeshBuilderConfig.CHIMNEY_STACK_EMBED
-	var stack_center_y := stack_bottom + MapViewMeshBuilderConfig.CHIMNEY_STACK_HEIGHT * 0.5
-	var top := stack_bottom + MapViewMeshBuilderConfig.CHIMNEY_STACK_HEIGHT
-	MapViewMeshBuilderPrimitives.add_chimney_stack(root, "Chimney", MapViewMeshBuilderConfig.CHIMNEY_SIZE, MapViewMeshBuilderConfig.CHIMNEY_STACK_HEIGHT, offset + Vector3(0.0, stack_center_y, 0.0))
+	var slope_side := 1.0 if (seed >> 1) % 2 == 0 else -1.0
+	var across := slope_side * (chimney_half + MapViewMeshBuilderConfig.CHIMNEY_RIDGE_CLEARANCE)
+	var offset := Vector3(along, 0.0, across) if ridge_along_x else Vector3(across, 0.0, along)
+	# Embed from the downhill roof edge under the footprint so the whole stack
+	# volume intersects the roof plane.
+	var across_edge := minf(absf(across) + chimney_half, half_span)
+	var roof_y_edge := wall_height + rise * (1.0 - across_edge / half_span)
+	var stack_bottom := roof_y_edge - MapViewMeshBuilderConfig.CHIMNEY_STACK_EMBED
+	var stack_height := MapViewMeshBuilderConfig.CHIMNEY_STACK_HEIGHT
+	var stack_center_y := stack_bottom + stack_height * 0.5
+	var top := stack_bottom + stack_height
+	MapViewMeshBuilderPrimitives.add_chimney_stack(
+		root,
+		"Chimney",
+		chimney_size,
+		stack_height,
+		offset + Vector3(0.0, stack_center_y, 0.0)
+	)
 
-	if ChimneySmoke3D.schedule_for(String(building_id).hash()) == ChimneySmoke3D.Schedule.NEVER:
+	if ChimneySmoke3D.schedule_for(seed) == ChimneySmoke3D.Schedule.NEVER:
 		return
 	var smoke: ChimneySmoke3D = MapViewMeshBuilderConfig.CHIMNEY_SMOKE_SCRIPT.new()
 	smoke.position = offset + Vector3(0.0, top + 0.1, 0.0)
