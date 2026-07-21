@@ -378,10 +378,12 @@ const TERRAIN_DETAIL_VEGETATION: Array[StringName] = [
 	MapTypes.TERRAIN_FOREST_FLOOR,
 	MapTypes.TERRAIN_BOG,
 ]
-const TOP_DOWN_COBBLES_PER_CELL := 2
-const FIRST_PERSON_COBBLES_PER_CELL := 6
-const FIRST_PERSON_DETAIL_RANGE := 28.0
-const FIRST_PERSON_DETAIL_RANGE_MARGIN := 5.0
+## Packed rectangular grid per logic cell. Top-down keeps a shallow silhouette;
+## first-person fills the cell like worn Tallinn paving while staying range-culled.
+const TOP_DOWN_COBBLE_GRID := Vector2i(4, 3)
+const FIRST_PERSON_COBBLE_GRID := Vector2i(5, 4)
+const FIRST_PERSON_DETAIL_RANGE := 24.0
+const FIRST_PERSON_DETAIL_RANGE_MARGIN := 4.0
 const PUDDLE_LOW_HEIGHT_BIAS := 0.55
 const PUDDLE_SCALE_MIN := 0.28
 const PUDDLE_SCALE_MAX := 0.72

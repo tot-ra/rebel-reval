@@ -8,13 +8,13 @@ extends RefCounted
 const DETAIL_TOP_DOWN := &"top_down"
 const DETAIL_FIRST_PERSON := &"first_person"
 
-const COBBLE_COLUMNS := 2
-const COBBLE_LENGTH := 0.39
-const COBBLE_WIDTH := 0.24
-const COBBLE_HEIGHT := 0.11
-const TOP_DOWN_COBBLE_HEIGHT_SCALE := 0.58
-const COBBLE_GAP := 0.075
-const COBBLE_RADIUS := 0.045
+const COBBLE_LENGTH := 0.19
+const COBBLE_WIDTH := 0.13
+const COBBLE_HEIGHT := 0.072
+const TOP_DOWN_COBBLE_HEIGHT_SCALE := 0.42
+const COBBLE_EDGE_INSET := 0.018
+const COBBLE_MORTAR_JITTER := 0.012
+const COBBLE_RADIUS := 0.028
 const COBBLE_BEVEL_SEGMENTS := 2
 const DETAIL_LIFT := 0.002
 const GROUND_COVER_LIFT := 0.006
@@ -45,7 +45,7 @@ static func build_chunk(
 		grid,
 		cell_bounds,
 		DETAIL_TOP_DOWN,
-		MapViewMeshBuilderConfig.TOP_DOWN_COBBLES_PER_CELL
+		MapViewMeshBuilderConfig.TOP_DOWN_COBBLE_GRID
 	)
 	top_down.name = "TopDown"
 	root.add_child(top_down)
@@ -54,7 +54,7 @@ static func build_chunk(
 		grid,
 		cell_bounds,
 		DETAIL_FIRST_PERSON,
-		MapViewMeshBuilderConfig.FIRST_PERSON_COBBLES_PER_CELL
+		MapViewMeshBuilderConfig.FIRST_PERSON_COBBLE_GRID
 	)
 	first_person.name = "FirstPerson"
 	first_person.visible = false
@@ -144,7 +144,7 @@ static func _build_detail_level(
 	grid: MapTerrainGrid,
 	cell_bounds: Rect2i,
 	level: StringName,
-	cobbles_per_cell: int
+	cobble_grid: Vector2i
 ) -> Node3D:
 	var root := Node3D.new()
 	var bounds := cell_bounds.intersection(Rect2i(Vector2i.ZERO, grid.size_cells))
@@ -173,7 +173,7 @@ static func _build_detail_level(
 					field,
 					cell,
 					definition.seed,
-					cobbles_per_cell,
+					cobble_grid,
 					level == DETAIL_FIRST_PERSON,
 					terrain
 				)
@@ -213,39 +213,64 @@ static func _append_cobbles(
 	field: Dictionary,
 	cell: Vector2i,
 	map_seed: int,
-	count: int,
+	cobble_grid: Vector2i,
 	high_detail: bool,
 	terrain: StringName
 ) -> void:
-	var rows := ceili(float(count) / float(COBBLE_COLUMNS))
-	var cell_rotation := (MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, map_seed + 6101) - 0.5) * 0.12
-	for index in count:
-		var column := index % COBBLE_COLUMNS
-		var row := index / COBBLE_COLUMNS
-		var base_offset := Vector2(
-			(float(column) + 0.5) / float(COBBLE_COLUMNS),
-			(float(row) + 0.5) / float(rows)
-		)
-		if row % 2 == 1:
-			base_offset.x = wrapf(base_offset.x + 0.17, 0.06, 0.94)
-		var jitter := Vector2(
-			MapViewMeshBuilderPrimitives.hash01(cell.x * 17 + index, cell.y, map_seed + 6113) - 0.5,
-			MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y * 17 + index, map_seed + 6121) - 0.5
-		) * COBBLE_GAP
-		var spot := Vector2(cell) + base_offset + jitter
-		var length_scale := 0.92 + MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y + index, map_seed + 6131) * 0.20
-		var width_scale := 0.88 + MapViewMeshBuilderPrimitives.hash01(cell.x + index, cell.y, map_seed + 6143) * 0.22
-		var height_scale := 0.78 + MapViewMeshBuilderPrimitives.hash01(cell.x + index, cell.y + index, map_seed + 6151) * 0.42
-		if not high_detail:
-			height_scale *= TOP_DOWN_COBBLE_HEIGHT_SCALE
-		var yaw := cell_rotation + (MapViewMeshBuilderPrimitives.hash01(cell.x + index, cell.y, map_seed + 6163) - 0.5) * 0.18
-		var basis := Basis(Vector3.UP, yaw).scaled(Vector3(length_scale, height_scale, width_scale))
-		var ground := MapViewMeshBuilderTerrain.field_height(field, spot)
-		transforms.append(Transform3D(basis, Vector3(spot.x, ground + COBBLE_HEIGHT * height_scale * 0.5 + DETAIL_LIFT, spot.y)))
-		var tone := 0.78 + MapViewMeshBuilderPrimitives.hash01(cell.x + index, cell.y - index, map_seed + 6173) * 0.28
-		if terrain == MapTypes.TERRAIN_CASTLE_PAVING:
-			tone *= 1.08
-		colors.append(Color(tone * 0.98, tone, tone * 1.01))
+	var columns := maxi(cobble_grid.x, 1)
+	var rows := maxi(cobble_grid.y, 1)
+	var cell_rotation := (MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, map_seed + 6101) - 0.5) * 0.08
+	for row in rows:
+		for column in columns:
+			var index := row * columns + column
+			var base_offset := Vector2(
+				(float(column) + 0.5) / float(columns),
+				(float(row) + 0.5) / float(rows)
+			)
+			if row % 2 == 1:
+				base_offset.x += 0.5 / float(columns)
+			var jitter := Vector2(
+				MapViewMeshBuilderPrimitives.hash01(cell.x * 17 + index, cell.y, map_seed + 6113) - 0.5,
+				MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y * 17 + index, map_seed + 6121) - 0.5
+			) * COBBLE_MORTAR_JITTER
+			var usable := 1.0 - COBBLE_EDGE_INSET * 2.0
+			var spot := Vector2(cell) + Vector2(COBBLE_EDGE_INSET, COBBLE_EDGE_INSET) \
+				+ base_offset * usable + jitter
+			var length_scale := 0.94 + MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y + index, map_seed + 6131) * 0.10
+			var width_scale := 0.92 + MapViewMeshBuilderPrimitives.hash01(cell.x + index, cell.y, map_seed + 6143) * 0.12
+			var height_scale := 0.82 + MapViewMeshBuilderPrimitives.hash01(cell.x + index, cell.y + index, map_seed + 6151) * 0.28
+			if not high_detail:
+				height_scale *= TOP_DOWN_COBBLE_HEIGHT_SCALE
+			var yaw := cell_rotation + (MapViewMeshBuilderPrimitives.hash01(cell.x + index, cell.y, map_seed + 6163) - 0.5) * 0.14
+			var basis := Basis(Vector3.UP, yaw).scaled(Vector3(length_scale, height_scale, width_scale))
+			var ground := MapViewMeshBuilderTerrain.field_height(field, spot)
+			transforms.append(
+				Transform3D(
+					basis,
+					Vector3(spot.x, ground + COBBLE_HEIGHT * height_scale * 0.5 + DETAIL_LIFT, spot.y)
+				)
+			)
+			colors.append(_cobble_tint(cell, index, map_seed, terrain))
+
+
+## Worn Tallinn paving mixes gray granite, bluish limestone, and iron-stained
+## purple-gray cobbles. Instance colors keep the variation inside one MultiMesh.
+static func _cobble_tint(cell: Vector2i, index: int, map_seed: int, terrain: StringName) -> Color:
+	var roll := MapViewMeshBuilderPrimitives.hash01(cell.x + index, cell.y - index, map_seed + 6173)
+	var shade := 0.88 + MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y + index, map_seed + 6181) * 0.18
+	var gray := Color(0.54, 0.55, 0.58)
+	var blue_gray := Color(0.36, 0.42, 0.52)
+	var purple_gray := Color(0.40, 0.34, 0.46)
+	var tint: Color
+	if roll < 0.52:
+		tint = gray
+	elif roll < 0.82:
+		tint = blue_gray
+	else:
+		tint = purple_gray
+	if terrain == MapTypes.TERRAIN_CASTLE_PAVING:
+		tint = tint.lerp(Color(0.62, 0.60, 0.64), 0.22)
+	return Color(tint.r * shade, tint.g * shade, tint.b * shade)
 
 
 static func _append_ground_cover(
@@ -354,4 +379,6 @@ static func _add_layer(
 ) -> void:
 	if transforms.is_empty():
 		return
-	root.add_child(MapViewMeshBuilderPrimitives.multi_mesh(name, mesh, transforms, colors, material, Vector3.ZERO))
+	var layer := MapViewMeshBuilderPrimitives.multi_mesh(name, mesh, transforms, colors, material, Vector3.ZERO)
+	layer.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	root.add_child(layer)

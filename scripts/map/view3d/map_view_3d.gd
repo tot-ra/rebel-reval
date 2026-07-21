@@ -61,6 +61,18 @@ const LIGHTNING_LIGHT_COLOR := Color8(206, 220, 255)
 const LIGHTNING_SUN_ENERGY := 1.6
 const LIGHTNING_AMBIENT_ENERGY := 0.9
 
+## Morning ground mist: a low, cool haze that gathers in the still cool air before
+## dawn and burns off a couple of hours after sunrise. Basic engine fog (the GL
+## Compatibility renderer has no volumetric fog), height-biased so it hugs the
+## ground and water rather than clouding the whole sky.
+const FOG_MORNING_COLOR := Color8(200, 210, 220)
+const FOG_MAX_DENSITY := 0.018
+const FOG_HEIGHT := 3.5
+const FOG_MAX_HEIGHT_DENSITY := 1.1
+## Hours before sunrise the mist begins, and hours after which it has burned off.
+const FOG_HOURS_BEFORE_SUNRISE := 3.0
+const FOG_HOURS_AFTER_SUNRISE := 2.5
+
 ## Shadow cascades only need the max-zoom gameplay frustum, not the authored map
 ## or the camera far plane. Tighter distance concentrates shadow-map texels on
 ## the slice the player actually sees.
@@ -201,6 +213,10 @@ func apply_cycle_progress(progress: float, _sweep_sun_yaw: bool = true) -> void:
 	# buildings flash with the sky, not just the dome.
 	var lightning := float(weather.get("lightning", 0.0))
 	_sun.light_energy = celestial_energy * weather["sun_energy"] + lightning * LIGHTNING_SUN_ENERGY
+	# Cloud cover diffuses the sun: under a grey overcast the ground casts almost
+	# no hard shadow, while clear skies (and a storm's blue-sky gaps) keep crisp
+	# ones. Overcast greyness drives how much the shadow fades.
+	_sun.shadow_opacity = clampf(1.0 - float(weather["overcast"]) * 0.85, 0.12, 1.0)
 	var ambient := AMBIENT_NIGHT_COLOR.lerp(AMBIENT_DAY_COLOR, day_blend)
 	ambient = ambient.lerp(OVERCAST_LIGHT_COLOR, weather["overcast"] * 0.5)
 	ambient = ambient.lerp(LIGHTNING_LIGHT_COLOR, lightning * 0.7)
@@ -213,6 +229,7 @@ func apply_cycle_progress(progress: float, _sweep_sun_yaw: bool = true) -> void:
 	# dome; interior top-down overrides to a flat black void below.
 	_environment.background_color = BACKGROUND_NIGHT_COLOR.lerp(BACKGROUND_DAY_COLOR, day_blend)
 	_sync_interior_top_down_background()
+	_apply_ground_mist(cycle_progress)
 	# Water specular follows the sky sun disk, not civil-twilight light weight,
 	# so sea cannot keep a sun glint after the disk has set.
 	MapViewMaterials.apply_water_lighting(
@@ -336,6 +353,47 @@ func is_interior_shell_visible() -> bool:
 
 ## Enclosed interiors in top-down view: black clear color instead of sky dome.
 ## Sun, ambient, and InteriorWindowLights still follow the day/night cycle.
+## Low morning mist. Gathers in the still, cool air a few hours before sunrise,
+## peaks at first light, and burns off by mid-morning; calm air holds it while
+## wind tears it apart. Height-biased engine fog, so it settles over the ground
+## and harbour water rather than clouding the sky. Off indoors.
+func _apply_ground_mist(progress: float) -> void:
+	if _environment == null:
+		return
+	if uses_interior_top_down_background():
+		_environment.fog_enabled = false
+		return
+	var hour := DayNightCycle.progress_to_hour(progress)
+	var sunrise := float(SkyWeather3D.sunrise_sunset_hours(_sky_weather.calendar_date)["sunrise"])
+	var mist := _morning_mist_factor(hour, sunrise)
+	# Still air holds the mist; a fresh breeze or storm wind disperses it.
+	mist *= clampf(1.0 - _sky_weather.wind_strength() * 0.7, 0.0, 1.0)
+	if mist <= 0.001:
+		_environment.fog_enabled = false
+		return
+	_environment.fog_enabled = true
+	_environment.fog_mode = Environment.FOG_MODE_EXPONENTIAL
+	_environment.fog_light_color = FOG_MORNING_COLOR
+	_environment.fog_sun_scatter = 0.2
+	_environment.fog_sky_affect = 0.08
+	_environment.fog_aerial_perspective = 0.0
+	_environment.fog_density = FOG_MAX_DENSITY * mist
+	_environment.fog_height = FOG_HEIGHT
+	_environment.fog_height_density = FOG_MAX_HEIGHT_DENSITY * mist
+
+
+## Mist envelope over the day: rises through the pre-dawn, peaks at sunrise, and
+## fades a couple of hours after. Static so it is trivially testable.
+static func _morning_mist_factor(hour: float, sunrise: float) -> float:
+	var start := sunrise - FOG_HOURS_BEFORE_SUNRISE
+	var stop := sunrise + FOG_HOURS_AFTER_SUNRISE
+	if hour <= start or hour >= stop:
+		return 0.0
+	if hour < sunrise:
+		return smoothstep(start, sunrise, hour)
+	return 1.0 - smoothstep(sunrise, stop, hour)
+
+
 func uses_interior_top_down_background() -> bool:
 	return (
 		definition != null
