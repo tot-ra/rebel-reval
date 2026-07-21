@@ -118,3 +118,55 @@ func test_shader_projects_stars_for_tallinn_and_weather() -> void:
 	assert_true("sidereal_angle" in source, "stars must rotate with the day/night clock")
 	assert_true("equatorial_uv" in source, "catalog coordinates must project into the local horizon")
 	assert_true("(1.0 - clouds)" in source, "weather must occlude stars")
+
+
+func test_sun_crosses_the_sky_from_east_to_west() -> void:
+	var spring_date := {"day": 21, "month": 4, "year": 1343}
+	var morning := SkyWeather.solar_direction(6.0 / 24.0, spring_date)
+	var evening := SkyWeather.solar_direction(18.0 / 24.0, spring_date)
+	assert_true(morning.y > 0.0, "the spring morning sun must be above the horizon")
+	assert_true(morning.x > 0.0, "the morning sun must rise in the eastern (+X) sky")
+	assert_true(evening.y > 0.0, "the spring evening sun must still be above the horizon")
+	assert_true(evening.x < 0.0, "the evening sun must set in the western (-X) sky")
+
+
+func test_day_length_and_noon_height_follow_the_calendar() -> void:
+	var winter := {"day": 21, "month": 12, "year": 1343}
+	var spring := {"day": 21, "month": 4, "year": 1343}
+	var summer := {"day": 21, "month": 6, "year": 1343}
+	var winter_times := SkyWeather.sunrise_sunset_hours(winter)
+	var spring_times := SkyWeather.sunrise_sunset_hours(spring)
+	var summer_times := SkyWeather.sunrise_sunset_hours(summer)
+	assert_true(
+		float(winter_times["day_length"]) < float(spring_times["day_length"]),
+		"Reval's April day must be longer than its December day"
+	)
+	assert_true(
+		float(spring_times["day_length"]) < float(summer_times["day_length"]),
+		"Reval's June day must be longer than its April day"
+	)
+	assert_true(
+		float(summer_times["sunrise"]) < float(winter_times["sunrise"]),
+		"summer sunrise must occur earlier than winter sunrise"
+	)
+	assert_true(
+		float(summer_times["sunset"]) > float(winter_times["sunset"]),
+		"summer sunset must occur later than winter sunset"
+	)
+	assert_true(
+		SkyWeather.solar_elevation_degrees(0.5, summer) > SkyWeather.solar_elevation_degrees(0.5, winter),
+		"the summer noon sun must climb higher than the winter noon sun"
+	)
+
+
+func test_campaign_calendar_drives_daylight_thresholds() -> void:
+	var winter := {"day": 21, "month": 12, "year": 1343}
+	var summer := {"day": 21, "month": 6, "year": 1343}
+	assert_true(
+		SkyWeather.daylight_blend(7.0 / 24.0, summer) > 0.5,
+		"07:00 must be daylight in a Reval summer"
+	)
+	assert_true(
+		SkyWeather.daylight_blend(7.0 / 24.0, winter) < 0.5,
+		"07:00 must still be night in a Reval winter"
+	)

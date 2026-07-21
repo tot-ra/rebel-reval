@@ -13,6 +13,38 @@ const PHASE_DATES := {
 	GameState.PHASE_CONSEQUENCE_NIGHT: {"day": 22, "month": 4, "year": 1343},
 	GameState.PHASE_REFLECTION_MORNING: {"day": 23, "month": 4, "year": 1343},
 }
+const MONTH_LENGTHS: Array[int] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+
+## Reval still used the Julian calendar in 1343, where every fourth year is a
+## leap year. Keeping this here lets all date-driven world systems share one rule.
+static func is_leap_year(year: int) -> bool:
+	return posmod(year, 4) == 0
+
+
+static func days_in_year(year: int) -> int:
+	return 366 if is_leap_year(year) else 365
+
+
+static func days_in_month(month: int, year: int) -> int:
+	var valid_month := clampi(month, 1, 12)
+	if valid_month == 2 and is_leap_year(year):
+		return 29
+	return MONTH_LENGTHS[valid_month - 1]
+
+
+static func day_of_year(date: Dictionary) -> int:
+	var year := int(date.get("year", DEFAULT_DATE["year"]))
+	var month := clampi(int(date.get("month", DEFAULT_DATE["month"])), 1, 12)
+	var day := clampi(
+		int(date.get("day", DEFAULT_DATE["day"])),
+		1,
+		days_in_month(month, year)
+	)
+	var ordinal := day
+	for preceding_month in range(1, month):
+		ordinal += days_in_month(preceding_month, year)
+	return ordinal
 
 
 static func date_for_phase(phase_id: StringName) -> Dictionary:

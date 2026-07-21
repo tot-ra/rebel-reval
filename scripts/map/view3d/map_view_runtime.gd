@@ -11,6 +11,7 @@ extends Node3D
 const PLAYER_RIG_SCENE := preload("res://assets/characters/kalev/kalev.tscn")
 const CLICK_INPUT_SCRIPT_PATH := "res://scripts/map/map_click_input_controller.gd"
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
+const GameCalendarScript := preload("res://scripts/global/game_calendar.gd")
 const RuntimeCamera := preload("res://scripts/map/view3d/map_view_runtime_camera.gd")
 
 const WALK_ANIMATION_MIN_SPEED := 5.0
@@ -343,15 +344,23 @@ func _on_state_replaced(_previous: GameState, current: GameState, _reason: Strin
 	_bind_equipment_state(current)
 
 
+func _on_phase_changed(_previous: StringName, next: StringName) -> void:
+	view.set_calendar_date(GameCalendarScript.date_for_phase(next))
+
+
 func _bind_equipment_state(current: GameState = null) -> void:
 	_disconnect_equipment_state()
 	_equipment_state = current
 	if _equipment_state == null:
+		view.set_calendar_date(GameCalendarScript.DEFAULT_DATE)
 		return
+	view.set_calendar_date(GameCalendarScript.date_for_phase(_equipment_state.get_phase()))
 	for slot: StringName in SharedCharacterRig.EQUIPMENT_SLOTS:
 		_sync_equipment_slot(slot)
 	if not _equipment_state.equipment_changed.is_connected(_sync_equipment_slot):
 		_equipment_state.equipment_changed.connect(_sync_equipment_slot)
+	if not _equipment_state.phase_changed.is_connected(_on_phase_changed):
+		_equipment_state.phase_changed.connect(_on_phase_changed)
 
 
 func _disconnect_equipment_state() -> void:
@@ -359,6 +368,8 @@ func _disconnect_equipment_state() -> void:
 		return
 	if _equipment_state.equipment_changed.is_connected(_sync_equipment_slot):
 		_equipment_state.equipment_changed.disconnect(_sync_equipment_slot)
+	if _equipment_state.phase_changed.is_connected(_on_phase_changed):
+		_equipment_state.phase_changed.disconnect(_on_phase_changed)
 	_equipment_state = null
 
 

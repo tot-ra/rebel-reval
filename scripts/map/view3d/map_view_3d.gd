@@ -31,7 +31,6 @@ const CAMERA_FAR := 800.0
 ## resident so authored district frontages never disappear inside the viewport.
 const VIEW_LOAD_RADIUS_CHUNKS := MapTerrainRenderer.DEFAULT_LOAD_RADIUS_CHUNKS + 1
 
-const SUN_DAY_ROTATION_DEGREES := Vector3(-50.0, -35.0, 0.0)
 const SUN_DAY_COLOR := Color8(255, 243, 222)
 const SUN_DAY_ENERGY := 1.2
 const AMBIENT_DAY_COLOR := Color8(168, 178, 189)
@@ -139,25 +138,35 @@ func set_time_of_day(next_time: StringName) -> void:
 	apply_cycle_progress(0.5 if next_time == TIME_DAY else 0.0, false)
 
 
-func apply_cycle_progress(progress: float, sweep_sun_yaw: bool = true) -> void:
+func set_calendar_date(date: Dictionary) -> void:
+	_sky_weather.set_calendar_date(date)
+	apply_cycle_progress(cycle_progress)
+
+
+func apply_cycle_progress(progress: float, _sweep_sun_yaw: bool = true) -> void:
 	cycle_progress = wrapf(progress, 0.0, 1.0)
-	var day_blend := DayNightCycle.day_blend(cycle_progress)
+	var sun_direction := SkyWeather3D.solar_direction(cycle_progress, _sky_weather.calendar_date)
+	var day_blend := SkyWeather3D.daylight_blend(cycle_progress, _sky_weather.calendar_date)
 	var night := day_blend < 0.5
 
-	_sun.rotation_degrees.x = lerpf(SUN_NIGHT_ROTATION_DEGREES.x, SUN_DAY_ROTATION_DEGREES.x, day_blend)
-	if sweep_sun_yaw:
-		# Sweep the sun across the map so shadow direction changes through the loop.
-		_sun.rotation_degrees.y = lerpf(
-			SUN_DAY_ROTATION_DEGREES.y - 70.0,
-			SUN_DAY_ROTATION_DEGREES.y + 110.0,
-			cycle_progress
-		)
-	else:
-		_sun.rotation_degrees.y = SUN_NIGHT_ROTATION_DEGREES.y if night else SUN_DAY_ROTATION_DEGREES.y
-	_sun.rotation_degrees.z = 0.0
+	# DirectionalLight3D emits along local -Z, so local +Z points back toward
+	# the celestial body. Below the horizon the authored moon blends in during
+	# civil twilight; while the sun is visible, disk and shadows match exactly.
+	var moon_direction := Basis.from_euler(Vector3(
+		deg_to_rad(SUN_NIGHT_ROTATION_DEGREES.x),
+		deg_to_rad(SUN_NIGHT_ROTATION_DEGREES.y),
+		0.0
+	)).z
+	var sun_elevation := SkyWeather3D.solar_elevation_degrees(
+		cycle_progress,
+		_sky_weather.calendar_date
+	)
+	var sun_light_weight := smoothstep(-6.0, 0.0, sun_elevation)
+	var light_direction := moon_direction.slerp(sun_direction, sun_light_weight).normalized()
+	_sun.basis = Basis.looking_at(-light_direction, Vector3.UP)
 	# Sky dome follows the cycle first; its weather/golden-hour modifiers then
 	# temper the authored day/night lerp so overcast and dusk read in the light.
-	_sky_weather.apply_sky_state(cycle_progress, day_blend, _sun.rotation_degrees.y)
+	_sky_weather.apply_sky_state(cycle_progress, day_blend, sun_direction)
 	var weather := _sky_weather.lighting_modifiers()
 	var sun_color := SUN_NIGHT_COLOR.lerp(SUN_DAY_COLOR, day_blend)
 	sun_color = sun_color.lerp(SUNSET_LIGHT_COLOR, weather["sunset_tint"])

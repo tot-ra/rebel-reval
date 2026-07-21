@@ -45,6 +45,24 @@ func test_cycle_progress_interpolates_lighting_and_advances() -> void:
 	view.free()
 
 
+func test_view_uses_calendar_sun_direction_and_seasonal_daylight() -> void:
+	var definition := SmithyCourtyard.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_DAY)
+	view.set_calendar_date({"day": 21, "month": 4, "year": 1343})
+	view.apply_cycle_progress(6.0 / 24.0)
+	assert_true(view.sun_light().basis.z.x > 0.0, "morning light must come from the eastern (+X) sky")
+	view.apply_cycle_progress(18.0 / 24.0)
+	assert_true(view.sun_light().basis.z.x < 0.0, "evening light must come from the western (-X) sky")
+
+	view.set_calendar_date({"day": 21, "month": 12, "year": 1343})
+	view.apply_cycle_progress(7.0 / 24.0)
+	assert_eq(view.time_of_day, MapView3D.TIME_NIGHT, "07:00 must still be winter night in Reval")
+	view.set_calendar_date({"day": 21, "month": 6, "year": 1343})
+	view.apply_cycle_progress(7.0 / 24.0)
+	assert_eq(view.time_of_day, MapView3D.TIME_DAY, "07:00 must be summer daylight in Reval")
+	view.free()
+
+
 func test_evening_window_schedule_is_deterministic_and_bounded() -> void:
 	var seed := String(&"house_test_lane").hash()
 	var first: Dictionary = BuildingWindowLights3D.evening_schedule_for(seed)

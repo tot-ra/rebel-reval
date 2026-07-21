@@ -11,6 +11,7 @@ extends Node3D
 
 const SKY_SHADER := preload("res://scripts/map/view3d/sky_weather_3d.gdshader")
 const STAR_CATALOG := preload("res://scripts/map/view3d/estonia_star_catalog.gd")
+const GAME_CALENDAR := preload("res://scripts/global/game_calendar.gd")
 
 const WEATHER_CLEAR := &"clear"
 const WEATHER_CLOUDY := &"cloudy"
@@ -22,10 +23,13 @@ const WEATHER_SEED := 24217
 const TRANSITION_SECONDS := 5.0
 const CLOUD_DRIFT_PER_SECOND := Vector2(0.0045, 0.0018)
 
-## Sun path: elevation swings from -58 deg (midnight) to +58 deg (noon), so the
-## disk visibly rises at 06:00 and sets at 18:00 of the cycle.
-const SUN_PATH_MAX_ELEVATION_DEG := 58.0
-## Elevation window (degrees above/below the horizon) that counts as golden hour.
+## Approximate solar orbit used for the visible sun and directional light. World
+## +X is east, -Z north, and +Y zenith, matching the star projection below.
+## The axial tilt changes declination through the calendar year and therefore
+## changes both the noon elevation and the sunrise/sunset times in Reval.
+const EARTH_AXIAL_TILT_DEGREES := 23.44
+## In 1343 the Julian calendar was about eight days behind the seasonal equinox.
+const CAMPAIGN_VERNAL_EQUINOX_DAY_OF_YEAR := 72.0
 const SUNSET_ELEVATION_BAND_DEG := 16.0
 const SUNSET_ENERGY_DIM := 0.30
 const SUNSET_AMBIENT_DIM := 0.15
@@ -82,6 +86,7 @@ var weather: StringName = WEATHER_CLEAR
 var auto_weather := true
 ## 1 while the sun hugs the horizon (golden hour), 0 the rest of the cycle.
 var sunset_factor := 0.0
+var calendar_date: Dictionary = GAME_CALENDAR.DEFAULT_DATE.duplicate()
 
 var _current: Dictionary = (PROFILES[WEATHER_CLEAR] as Dictionary).duplicate()
 var _from: Dictionary = (PROFILES[WEATHER_CLEAR] as Dictionary).duplicate()
@@ -304,17 +309,68 @@ func set_weather(next_weather: StringName) -> void:
 	_state_duration = _roll_duration(next_weather)
 
 
-## Pushes sun/moon placement and cycle tints into the sky shader. The sun disk
-## azimuth follows the gameplay light so sky and shadows agree, while the
-## elevation comes from the sun path so dawn/dusk actually reach the horizon.
-func apply_sky_state(progress: float, day_blend: float, sun_yaw_degrees: float) -> void:
-	var elevation := sin((progress - 0.25) * TAU) * SUN_PATH_MAX_ELEVATION_DEG
+## Solar declination follows the campaign's Julian calendar. The approximation is
+## intentionally deterministic and is accurate enough to reproduce Reval's long
+## summer days, short winter days, and east-to-west daily traversal.
+static func solar_declination_degrees(date: Dictionary) -> float:
+	var year := int(date.get("year", GAME_CALENDAR.DEFAULT_DATE["year"]))
+	var year_length := float(GAME_CALENDAR.days_in_year(year))
+	var ordinal := float(GAME_CALENDAR.day_of_year(date))
+	return EARTH_AXIAL_TILT_DEGREES * sin(TAU * (ordinal - CAMPAIGN_VERNAL_EQUINOX_DAY_OF_YEAR) / year_length)
+
+
+## Returns the observer-to-sun direction in the sky shader's ENU world frame:
+## +X east, -Z north, and +Y up. Local solar noon is progress 0.5.
+static func solar_direction(progress: float, date: Dictionary = {}) -> Vector3:
+	var effective_date := GAME_CALENDAR.DEFAULT_DATE if date.is_empty() else date
+	var latitude := deg_to_rad(OBSERVER_LATITUDE_DEGREES)
+	var declination := deg_to_rad(solar_declination_degrees(effective_date))
+	var hour_angle := (wrapf(progress, 0.0, 1.0) - 0.5) * TAU
+	var east := -cos(declination) * sin(hour_angle)
+	var north := (
+		cos(latitude) * sin(declination)
+		- sin(latitude) * cos(declination) * cos(hour_angle)
+	)
+	var up := (
+		sin(latitude) * sin(declination)
+		+ cos(latitude) * cos(declination) * cos(hour_angle)
+	)
+	return Vector3(east, up, -north).normalized()
+
+
+static func solar_elevation_degrees(progress: float, date: Dictionary = {}) -> float:
+	return rad_to_deg(asin(clampf(solar_direction(progress, date).y, -1.0, 1.0)))
+
+
+static func sunrise_sunset_hours(date: Dictionary = {}) -> Dictionary:
+	var effective_date := GAME_CALENDAR.DEFAULT_DATE if date.is_empty() else date
+	var latitude := deg_to_rad(OBSERVER_LATITUDE_DEGREES)
+	var declination := deg_to_rad(solar_declination_degrees(effective_date))
+	var horizon_hour_angle := acos(clampf(-tan(latitude) * tan(declination), -1.0, 1.0))
+	var half_day_hours := rad_to_deg(horizon_hour_angle) / 15.0
+	return {
+		"sunrise": 12.0 - half_day_hours,
+		"sunset": 12.0 + half_day_hours,
+		"day_length": half_day_hours * 2.0,
+	}
+
+
+static func daylight_blend(progress: float, date: Dictionary = {}) -> float:
+	# Civil twilight keeps dawn/dusk gradual while 0.5 still marks the geometric
+	# horizon, so the day bucket spans exactly the date-dependent daylight hours.
+	return smoothstep(-6.0, 6.0, solar_elevation_degrees(progress, date))
+
+
+func set_calendar_date(date: Dictionary) -> void:
+	calendar_date = date.duplicate()
+
+
+## Pushes a shared physical sun direction and cycle tints into the sky shader.
+## MapView3D uses the same vector for its directional light, keeping the disk,
+## moving shadows, sunrise in the east, and sunset in the west in agreement.
+func apply_sky_state(progress: float, day_blend: float, sun_direction: Vector3) -> void:
+	var elevation := rad_to_deg(asin(clampf(sun_direction.y, -1.0, 1.0)))
 	sunset_factor = clampf(1.0 - absf(elevation) / SUNSET_ELEVATION_BAND_DEG, 0.0, 1.0)
-	var sun_direction := Basis.from_euler(Vector3(
-		deg_to_rad(-elevation),
-		deg_to_rad(sun_yaw_degrees),
-		0.0
-	)).z
 	var moon_direction := Basis.from_euler(Vector3(
 		deg_to_rad(MOON_ROTATION_DEGREES.x),
 		deg_to_rad(MOON_ROTATION_DEGREES.y),
