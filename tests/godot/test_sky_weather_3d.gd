@@ -75,6 +75,10 @@ func test_sky_shader_covers_required_features() -> void:
 	assert_true("cloud_coverage" in source, "weather must drive procedural cloud coverage")
 	assert_true("moon_direction" in source, "the night sky must place a moon disk")
 	assert_true("moon_phase" in source, "the campaign date must drive weekly lunar lighting phases")
+	assert_true(
+		"-dot(sun_direction, moon_direction)" in source,
+		"moon disk shading must use the live sun direction, not a phase-only fake light"
+	)
 	assert_true("moon_normal" in source, "the moon disk must shade as a sphere")
 	assert_true("lunar_albedo" in source, "the moon must include stable surface detail")
 	assert_true("moon_halo" in source, "the moon must have a restrained atmospheric halo")

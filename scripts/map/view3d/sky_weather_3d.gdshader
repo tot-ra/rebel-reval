@@ -20,6 +20,7 @@ uniform float day_blend : hint_range(0.0, 1.0) = 1.0;
 uniform float sunset_factor : hint_range(0.0, 1.0) = 0.0;
 uniform vec3 sun_direction = vec3(0.0, 1.0, 0.0);
 uniform vec3 moon_direction = vec3(0.0, 1.0, 0.0);
+// Kept for earthshine strength; the lit crescent itself follows sun_direction.
 // 0 = new, 0.25 = first quarter, 0.5 = full, 0.75 = last quarter.
 uniform float moon_phase : hint_range(0.0, 1.0) = 0.5;
 
@@ -111,13 +112,21 @@ void sky() {
 	float moon_r2 = dot(moon_uv, moon_uv);
 	float moon_z = sqrt(max(1.0 - moon_r2, 0.0));
 	vec3 moon_normal = normalize(vec3(moon_uv, moon_z));
-	// Rotate the sunlight direction through one synodic month. Its projected X
-	// component produces waxing/waning crescents while Z yields the weekly
-	// new/quarter/full/quarter sequence; a slight Y tilt keeps the terminator
-	// from reading as mechanically vertical.
-	float phase_angle = moon_phase * TAU;
-	vec3 moon_light = normalize(vec3(sin(phase_angle), 0.10, -cos(phase_angle)));
-	float moon_lighting = max(dot(moon_normal, moon_light), 0.0);
+	// WHY: Moon phases are sunlight on a sphere. moon_normal is in a disk frame
+	// where +Z faces the camera (along -moon_direction in world), so project the
+	// live sun the same way. That keeps the terminator locked to solar position
+	// and consistent with lunar_direction vs solar_direction, instead of a
+	// phase-only fake light vector.
+	vec3 moon_light = normalize(vec3(
+		dot(sun_direction, moon_right),
+		dot(sun_direction, moon_up),
+		-dot(sun_direction, moon_direction)
+	));
+	float moon_lit = max(dot(moon_normal, moon_light), 0.0);
+	// Soft earthshine on the night side; stronger near new moon when sunlight
+	// leaves only the Earth-lit face visible from Reval.
+	float earthshine = 0.045 * (0.5 + 0.5 * cos(moon_phase * TAU));
+	float moon_lighting = max(moon_lit, earthshine);
 	float moon_limb = 0.72 + 0.28 * moon_z;
 	float maria = 0.0;
 	maria += (1.0 - smoothstep(0.04, 0.34, length(moon_uv - vec2(-0.28, 0.20)))) * 0.24;
