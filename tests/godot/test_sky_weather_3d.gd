@@ -48,6 +48,30 @@ func test_transition_blends_toward_rain_profile() -> void:
 	sky.free()
 
 
+func test_time_scale_freezes_and_accelerates_the_sky() -> void:
+	# _process applies time_scale, so a paused clock (scale 0) freezes cloud drift
+	# and the weather machine, while a higher scale advances the sky faster.
+	var frozen = SkyWeather.new()
+	frozen.time_scale = 0.0
+	var frozen_start := frozen.cloud_offset()
+	frozen._process(20.0)
+	assert_true(frozen.cloud_offset() == frozen_start, "time_scale 0 must hold the whole sky still")
+
+	var fast = SkyWeather.new()
+	fast.time_scale = 3.0
+	fast._process(1.0)
+	var normal = SkyWeather.new()
+	normal.time_scale = 1.0
+	normal._process(1.0)
+	assert_true(
+		fast.cloud_offset().length() > normal.cloud_offset().length() * 2.0,
+		"a higher time_scale must drift the clouds proportionally faster"
+	)
+	frozen.free()
+	fast.free()
+	normal.free()
+
+
 func test_manual_weather_holds_when_auto_disabled() -> void:
 	var sky = SkyWeather.new()
 	sky.auto_weather = false
@@ -56,15 +80,69 @@ func test_manual_weather_holds_when_auto_disabled() -> void:
 	sky.free()
 
 
-func test_rain_only_follows_cloudy() -> void:
+func test_rain_never_starts_from_a_clear_sky() -> void:
+	# Clouds must gather first, so rain is only ever entered through a cloudy or
+	# overcast deck — never straight off clear or a passing shower with no build-up.
+	var wet_predecessors: Array[StringName] = [SkyWeather.WEATHER_CLOUDY, SkyWeather.WEATHER_OVERCAST]
 	var sky = SkyWeather.new()
 	var previous: StringName = sky.weather
-	for step in 3_000:
+	for step in 4_000:
 		sky.advance(1.0)
 		if sky.weather != previous:
 			if sky.weather == SkyWeather.WEATHER_RAIN:
-				assert_eq(previous, SkyWeather.WEATHER_CLOUDY, "rain must never start from a clear sky")
+				assert_true(previous in wet_predecessors, "rain must be preceded by cloudy or overcast, not clear")
 			previous = sky.weather
+	sky.free()
+
+
+func test_weather_reaches_every_regime() -> void:
+	# A short seeded run must be able to show all five regimes so the player can
+	# actually catch clear, cloudy, overcast, widespread rain, and isolated storms.
+	var sky = SkyWeather.new()
+	var seen := {}
+	for step in 4_000:
+		sky.advance(1.0)
+		seen[sky.weather] = true
+	for regime in SkyWeather.ALL_WEATHERS:
+		assert_true(seen.has(regime), "the weather cycle must reach %s within a short run" % regime)
+	sky.free()
+
+
+func test_isolated_storm_is_localized_while_rain_front_is_uniform() -> void:
+	var sky = SkyWeather.new()
+	sky.auto_weather = false
+	sky.set_weather(SkyWeather.WEATHER_STORM)
+	sky.advance(SkyWeather.TRANSITION_SECONDS)
+	assert_true(sky.storm_intensity() > 0.9, "an isolated storm still towers a heavy cell")
+	assert_true(sky.storm_locality() > 0.7, "an isolated storm must concentrate into a few cells")
+	assert_true(sky.cloud_coverage() < 0.6, "an isolated storm must leave open sky around the cell")
+	sky.set_weather(SkyWeather.WEATHER_RAIN)
+	sky.advance(SkyWeather.TRANSITION_SECONDS)
+	assert_true(sky.storm_locality() < 0.3, "a rain front must spread across the whole deck, not cluster")
+	assert_true(sky.cloud_coverage() > 0.85, "a rain front must cover the sky")
+	sky.free()
+
+
+func test_storms_throw_lightning_that_flashes_and_decays() -> void:
+	var sky = SkyWeather.new()
+	sky.auto_weather = false
+	assert_eq(sky.lightning_flash(), 0.0, "a clear sky must not flash")
+	sky.set_weather(SkyWeather.WEATHER_STORM)
+	sky.advance(SkyWeather.TRANSITION_SECONDS)
+	# Drive time until a strike fires, then confirm it flashes bright and decays.
+	var peak := 0.0
+	for step in 2_000:
+		sky.advance(0.05)
+		peak = maxf(peak, sky.lightning_flash())
+	assert_true(peak > 0.5, "a thunderstorm must throw bright lightning strikes")
+	assert_true(sky.lightning_direction().length() > 0.9, "each strike must have a bearing to light a cell")
+	# Once the storm has fully passed to clear, the sky holds no charge: after the
+	# transition blend and the last flash decay, lightning must stay at zero.
+	sky.set_weather(SkyWeather.WEATHER_CLEAR)
+	sky.advance(SkyWeather.TRANSITION_SECONDS + 2.0)
+	for step in 200:
+		sky.advance(0.1)
+		assert_eq(sky.lightning_flash(), 0.0, "a settled clear sky must never flash lightning")
 	sky.free()
 
 
@@ -83,6 +161,9 @@ func test_sky_shader_covers_required_features() -> void:
 	assert_true("cloud_light" in source, "sunlit tops and shadowed undersides must shade the clouds")
 	assert_true("wind_dir" in source, "cirrus and the squall wall must follow the prevailing wind")
 	assert_true("rain_shafts" in source, "storms must hang distant rain curtains under the cloud deck")
+	assert_true("storm_locality" in source, "storms must localize into cells instead of always covering the sky")
+	assert_true("local_storm" in source, "storminess must vary across the sky so one cloud can rain while others do not")
+	assert_true("lightning" in source, "thunderstorms must throw lightning that lights their cell")
 	assert_true("moon_direction" in source, "the night sky must place a moon disk")
 	assert_true("moon_phase" in source, "the campaign date must drive weekly lunar lighting phases")
 	assert_true(

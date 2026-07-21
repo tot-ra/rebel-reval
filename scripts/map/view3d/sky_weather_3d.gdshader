@@ -38,8 +38,16 @@ uniform vec2 cloud_detail_offset = vec2(0.0);
 // Domain-warp strength. Clear weather keeps mild chaos; storms tear harder.
 uniform float cloud_chaos : hint_range(0.0, 1.0) = 0.35;
 // Cumulonimbus development: 0 = fair-weather heaps, 1 = towering anvil storm.
-// Drives the horizon squall wall, darkened bases, and sunlit anvil crowns.
+// Drives the squall wall, darkened bases, sunlit anvil crowns, and rain curtains.
 uniform float storm_intensity : hint_range(0.0, 1.0) = 0.0;
+// How concentrated the storm is across the sky. 0 spreads it over the whole deck
+// (a rain front); 1 isolates it into a few heavy convective cells that tower and
+// rain while the sky around them stays open — the "one raining cloud" look.
+uniform float storm_locality : hint_range(0.0, 1.0) = 0.0;
+// Lightning flash level and the ground bearing (x = east, y = north) of the cell
+// currently striking, so the flash lights that cloud rather than the whole dome.
+uniform float lightning : hint_range(0.0, 1.0) = 0.0;
+uniform vec2 lightning_dir = vec2(1.0, 0.0);
 // Prevailing wind on the ground plane, used to comb cirrus streaks and to lean
 // the storm wall into the upwind quarter so the front reads as approaching.
 uniform vec2 wind_dir = vec2(0.928, 0.371);
@@ -54,6 +62,18 @@ uniform float sidereal_angle = 3.8101;
 
 float remap(float v, float lo, float hi, float nlo, float nhi) {
 	return nlo + (clamp(v, lo, hi) - lo) / max(hi - lo, 1e-4) * (nhi - nlo);
+}
+
+
+// Storm strength at a projected cloud point. A large-scale cell field marks where
+// convection sits; storm_locality blends between spreading the storm evenly over
+// the whole deck (0) and packing it into a few high-cell cores (1). That single
+// field lets one storm read as a solid rain front or as an isolated raining cell
+// in open sky, and lets rain curtains hang under exactly those cells.
+float local_storm_at(vec2 uv) {
+	float cell = 1.0 - texture(cloud_shape, uv * 0.16 + vec2(0.37, 0.71)).r;
+	float mask = mix(1.0, smoothstep(0.5, 0.82, cell), storm_locality);
+	return storm_intensity * mask;
 }
 
 
@@ -90,23 +110,27 @@ float cloud_opacity(vec2 uv, float cover) {
 
 // Cloud field sampled per view ray. Returns:
 //   x = opacity of cloud along this ray (0..1),
-//   y = light factor (0 = shadowed underside, 1 = sunlit top / anvil crown).
-vec2 cloud_field(vec3 dir) {
+//   y = light factor (0 = shadowed underside, 1 = sunlit top / anvil crown),
+//   z = local storm strength here (drives shadow depth and rain association).
+vec3 cloud_field(vec3 dir) {
 	if (dir.y < 0.02) {
-		return vec2(0.0);
+		return vec3(0.0);
 	}
 	float horizon_fade = smoothstep(0.02, 0.20, dir.y);
 
-	// A storm stacks a dark wall of cloud toward the horizon rather than thinning
-	// out like fair-weather cumulus, and leans into the upwind quarter so the
-	// squall line reads as marching in, raising the effective coverage there.
-	vec2 ground = normalize(vec2(dir.x, -dir.z) + vec2(0.0001));
-	float upwind = 0.5 + 0.5 * dot(ground, -wind_dir);
-	float storm_wall = storm_intensity * smoothstep(0.55, 0.05, dir.y) * mix(0.55, 1.0, upwind);
-	float cover = clamp(cloud_coverage + storm_wall * 0.4, 0.0, 1.0);
-
 	// Planar projection of the view ray onto an overhead cumulus layer.
 	vec2 uv = dir.xz / (dir.y + 0.26) * 0.30 + cloud_offset;
+
+	// Storm strength here can be an isolated cell or a full front (storm_locality).
+	// A cell towers and darkens: it raises coverage locally so a heavy raining
+	// cloud can stand in an otherwise open sky, and it stacks a wall toward the
+	// upwind horizon so widespread storms read as marching in.
+	float local_storm = local_storm_at(uv);
+	vec2 ground = normalize(vec2(dir.x, -dir.z) + vec2(0.0001));
+	float upwind = 0.5 + 0.5 * dot(ground, -wind_dir);
+	float storm_wall = local_storm * smoothstep(0.55, 0.05, dir.y) * mix(0.55, 1.0, upwind);
+	float cover = clamp(cloud_coverage + local_storm * 0.5 + storm_wall * 0.2, 0.0, 1.0);
+
 	float density = cloud_opacity(uv, cover);
 
 	// Thin cirrus veil combed along the wind on a farther plane, so wispy high
@@ -131,42 +155,51 @@ vec2 cloud_field(vec3 dir) {
 		+ cloud_bulk(uv + light_dir * 0.09, cover) * 0.45
 		+ cloud_bulk(uv + light_dir * 0.15, cover) * 0.25;
 	float self_shadow = exp(-march * 1.25);
-	// Ambient fill stops shadowed sides crushing to black; storms sit darker.
-	float ambient = mix(0.46, 0.22, storm_intensity);
+	// Ambient fill stops shadowed sides crushing to black; storm cells sit darker.
+	float ambient = mix(0.46, 0.22, local_storm);
 	float light = mix(ambient, 1.0, self_shadow);
 
 	// Anvil crown / silver lining: thin sun-facing edges flare, hardest on storms.
 	float edge = clamp(density * (1.0 - density) * 4.0, 0.0, 1.0);
 	float sun_facing = max(dot(normalize(dir), sun_direction), 0.0);
-	light = clamp(light + edge * pow(sun_facing, 3.0) * (0.35 + 0.65 * storm_intensity), 0.0, 1.0);
+	light = clamp(light + edge * pow(sun_facing, 3.0) * (0.35 + 0.65 * local_storm), 0.0, 1.0);
 
-	return vec2(density, light);
+	return vec3(density, light, local_storm);
 }
 
 
-// Distant rain falling from the storm deck: soft vertical curtains hanging under
-// the low sky toward the horizon, drifting with the wind. Returns a 0..1 veil
-// strength that later greys the sky, so a storm reads as actively raining out
-// there even beyond the near-camera particle rain. Only storms trigger it.
+// Distant rain: soft vertical curtains that hang *below* a raining cell, drifting
+// with the wind. Returns a 0..1 veil strength that later greys (and, when lit,
+// brightens) the sky. Rain falls beneath its cloud, so the curtain is anchored by
+// marching a little way up this same bearing and only appears where a storm cell
+// actually sits overhead — never floating in open sky the way a fixed horizon
+// band did. The caller also keeps it out of the opaque cloud body itself.
 float rain_shafts(vec3 dir) {
-	float storm = smoothstep(0.35, 1.0, storm_intensity);
-	if (storm < 0.01 || dir.y > 0.5) {
+	if (storm_intensity < 0.05 || dir.y > 0.6 || dir.y < 0.01) {
 		return 0.0;
 	}
-	// A band hugging the lower sky, fading out at the very horizon and up under
-	// the cloud base, so curtains hang rather than fill the whole dome.
-	float band = smoothstep(0.5, 0.08, dir.y) * smoothstep(0.015, 0.09, dir.y);
-	// Streak coordinates: azimuth around the horizon (many narrow columns) and
-	// altitude (long vertical fall). Drift the columns along the wind.
+	// March up the bearing: is there a heavy raining cell above this ray? Keeping
+	// x and z fixed while raising y and renormalising holds the azimuth, so this
+	// samples the cloud directly overhead, which is what the rain hangs from.
+	float source = 0.0;
+	for (int i = 1; i <= 3; i++) {
+		vec3 up = normalize(vec3(dir.x, dir.y + float(i) * 0.13, dir.z));
+		vec2 up_uv = up.xz / (up.y + 0.26) * 0.30 + cloud_offset;
+		float ls = local_storm_at(up_uv);
+		float cover = clamp(cloud_coverage + ls * 0.5, 0.0, 1.0);
+		source = max(source, smoothstep(0.45, 0.95, ls) * cloud_bulk(up_uv, cover));
+	}
+	if (source < 0.02) {
+		return 0.0;
+	}
+	// Vertical streaks, drifting with the wind, fading out at the very horizon.
 	float azimuth = atan(dir.x, -dir.z);
 	vec2 suv = vec2(azimuth * 2.4 + cloud_offset.x * 8.0, dir.y * 1.6 - cloud_detail_offset.y * 2.0);
 	float streak = texture(cloud_noise, vec2(suv.x * 1.3, suv.y * 0.35)).r;
 	float fall = texture(cloud_noise, vec2(suv.x * 3.1, suv.y * 0.18) + vec2(0.4, 0.0)).r;
-	streak = smoothstep(0.46, 0.86, streak * 0.6 + fall * 0.4);
-	// Heavier where the storm wall is thickest (upwind) so the curtain has a source.
-	vec2 ground = normalize(vec2(dir.x, -dir.z) + vec2(0.0001));
-	float upwind = 0.5 + 0.5 * dot(ground, -wind_dir);
-	return streak * band * storm * mix(0.6, 1.0, upwind);
+	streak = smoothstep(0.44, 0.85, streak * 0.6 + fall * 0.4);
+	float hang = smoothstep(0.01, 0.09, dir.y);
+	return streak * source * hang;
 }
 
 
@@ -201,9 +234,10 @@ void sky() {
 	// Below the horizon fade into darker haze so the map edge reads as ground fog.
 	color = mix(color, horizon * 0.55, clamp(-height * 3.0, 0.0, 1.0));
 
-	vec2 cloud_sample = cloud_field(dir);
+	vec3 cloud_sample = cloud_field(dir);
 	float clouds = cloud_sample.x;
 	float cloud_light = cloud_sample.y;
+	float local_storm = cloud_sample.z;
 
 	// Real stars fade with twilight and are occluded by the procedural weather.
 	// Nearest sampling keeps each catalog texel crisp in the sky dome.
@@ -270,22 +304,40 @@ void sky() {
 	vec3 sun_lit = mix(vec3(1.0, 1.0, 1.0), sun_color.rgb, 0.3);
 	sun_lit = mix(sun_lit, sunset_color.rgb * 1.2, sunset_factor * 0.75);
 	vec3 cloud_top = mix(vec3(0.09, 0.11, 0.16), sun_lit, day_blend);
-	// Shadowed sides are darker, cooler, and bluer; storms darken further still.
-	vec3 cloud_shadow = cloud_top * mix(0.6, 0.26, storm_intensity) * vec3(0.88, 0.95, 1.12);
+	// Shadowed sides are darker, cooler, and bluer; storm cells darken further
+	// still, so a heavy raining cell reads dark even in an otherwise bright sky.
+	vec3 cloud_shadow = cloud_top * mix(0.6, 0.26, local_storm) * vec3(0.88, 0.95, 1.12);
 	vec3 cloud_col = mix(cloud_shadow, cloud_top, cloud_light);
 	// Warm directional rim where a lit cloud faces the low sun (sunrise/sunset).
 	vec3 sun_glow = mix(sun_color.rgb, sunset_color.rgb, sunset_factor);
 	cloud_col += sun_glow * pow(sun_amount, 6.0) * cloud_light * (0.35 + 0.9 * sunset_factor) * sun_visibility;
 	// Overcast fronts flatten the heaps toward a dim, cool, uniform sheet; storm
 	// decks go darker and a touch bluer than a plain grey overcast.
-	vec3 overcast = cloud_top * mix(0.5, 0.4, storm_intensity) * vec3(0.94, 0.98, 1.06);
+	vec3 overcast = cloud_top * mix(0.5, 0.4, local_storm) * vec3(0.94, 0.98, 1.06);
 	cloud_col = mix(cloud_col, overcast, cloud_darken * 0.72);
 	color = mix(color, cloud_col, clouds * 0.96);
 
-	// Distant rain curtains hanging under the storm deck, greying the low sky.
+	// Distant rain curtains hanging under a heavy cell. They grey the low sky, but
+	// catch sunlight — brighter and a touch warm toward the sun — so a sunlit
+	// distant shower glows as a luminous wall of water rather than flat grey.
 	float shafts = rain_shafts(dir);
-	vec3 rain_veil = mix(vec3(0.34, 0.38, 0.46), vec3(0.58, 0.62, 0.70), day_blend);
-	color = mix(color, rain_veil, shafts * 0.5);
+	float veil_sun = max(dot(normalize(dir), sun_direction), 0.0);
+	vec3 rain_veil = mix(vec3(0.34, 0.38, 0.46), vec3(0.60, 0.64, 0.72), day_blend);
+	rain_veil = mix(rain_veil, sun_color.rgb * 1.15, veil_sun * 0.45 * sun_visibility);
+	rain_veil = mix(rain_veil, sunset_color.rgb * 1.1, sunset_factor * veil_sun * 0.6);
+	// Only in the clear air under the cloud, not painted over the opaque cloud body.
+	color = mix(color, rain_veil, shafts * 0.6 * (1.0 - clouds));
+
+	// Lightning: a strike lights its own cell and rains, glows the nearby sky, and
+	// throws a faint flicker across the whole dome. Localised to lightning_dir so
+	// a single thundercloud flashes on its side of the sky, not everywhere.
+	if (lightning > 0.001) {
+		vec2 strike_ground = normalize(vec2(dir.x, -dir.z) + vec2(0.0001));
+		float aim = max(dot(strike_ground, lightning_dir), 0.0);
+		float near_strike = pow(aim, 3.0) * smoothstep(0.75, 0.0, dir.y);
+		vec3 flash_col = vec3(0.90, 0.94, 1.10);
+		color += flash_col * lightning * (near_strike * (0.5 + clouds * 1.6 + shafts * 1.3) + 0.03);
+	}
 
 	COLOR = color;
 }

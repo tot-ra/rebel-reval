@@ -55,6 +55,12 @@ const BACKGROUND_NIGHT_COLOR := Color8(12, 14, 22)
 const SUNSET_LIGHT_COLOR := Color8(255, 148, 64)
 const OVERCAST_LIGHT_COLOR := Color8(172, 182, 196)
 
+## Cold, hard flash a lightning strike adds to sun and ambient (SkyWeather3D
+## drives the 0..1 `lightning` level and its short decay).
+const LIGHTNING_LIGHT_COLOR := Color8(206, 220, 255)
+const LIGHTNING_SUN_ENERGY := 1.6
+const LIGHTNING_AMBIENT_ENERGY := 0.9
+
 ## Shadow cascades only need the max-zoom gameplay frustum, not the authored map
 ## or the camera far plane. Tighter distance concentrates shadow-map texels on
 ## the slice the player actually sees.
@@ -154,6 +160,13 @@ func set_calendar_date(date: Dictionary) -> void:
 	apply_cycle_progress(cycle_progress)
 
 
+## Scales (or, at 0, pauses) the sky's own time so clouds, weather, and lightning
+## keep step with the day/night clock under the shared time controls.
+func set_weather_time_scale(scale: float) -> void:
+	if _sky_weather != null:
+		_sky_weather.time_scale = maxf(scale, 0.0)
+
+
 func apply_cycle_progress(progress: float, _sweep_sun_yaw: bool = true) -> void:
 	cycle_progress = wrapf(progress, 0.0, 1.0)
 	var sun_direction := SkyWeather3D.solar_direction(cycle_progress, _sky_weather.calendar_date)
@@ -184,11 +197,18 @@ func apply_cycle_progress(progress: float, _sweep_sun_yaw: bool = true) -> void:
 	_sun.light_color = sun_color
 	var moonlight := SkyWeather3D.moonlight_strength(cycle_progress, _sky_weather.calendar_date)
 	var celestial_energy := lerpf(SUN_NIGHT_ENERGY * moonlight, SUN_DAY_ENERGY, day_blend)
-	_sun.light_energy = celestial_energy * weather["sun_energy"]
+	# A lightning strike briefly floods the scene with cold light so the ground and
+	# buildings flash with the sky, not just the dome.
+	var lightning := float(weather.get("lightning", 0.0))
+	_sun.light_energy = celestial_energy * weather["sun_energy"] + lightning * LIGHTNING_SUN_ENERGY
 	var ambient := AMBIENT_NIGHT_COLOR.lerp(AMBIENT_DAY_COLOR, day_blend)
 	ambient = ambient.lerp(OVERCAST_LIGHT_COLOR, weather["overcast"] * 0.5)
+	ambient = ambient.lerp(LIGHTNING_LIGHT_COLOR, lightning * 0.7)
 	_environment.ambient_light_color = ambient
-	_environment.ambient_light_energy = lerpf(AMBIENT_NIGHT_ENERGY, AMBIENT_DAY_ENERGY, day_blend) * weather["ambient_energy"]
+	_environment.ambient_light_energy = (
+		lerpf(AMBIENT_NIGHT_ENERGY, AMBIENT_DAY_ENERGY, day_blend) * weather["ambient_energy"]
+		+ lightning * LIGHTNING_AMBIENT_ENERGY
+	)
 	# Outdoor / first-person keep the cycle-tinted clear color under the sky
 	# dome; interior top-down overrides to a flat black void below.
 	_environment.background_color = BACKGROUND_NIGHT_COLOR.lerp(BACKGROUND_DAY_COLOR, day_blend)

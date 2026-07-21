@@ -42,6 +42,12 @@ func test_cycle_progress_interpolates_lighting_and_advances() -> void:
 	var progress := DayNightCycle.DEFAULT_PROGRESS
 	progress = DayNightCycle.advance(progress, DayNightCycle.CYCLE_DURATION_SECONDS)
 	assert_true(is_equal_approx(progress, DayNightCycle.DEFAULT_PROGRESS), "one full cycle must wrap to the start")
+	var midnight_crossing := DayNightCycle.advance_clock(23.5 / 24.0, 2.0)
+	assert_eq(midnight_crossing["completed_days"], 1, "clock advance must report a crossed midnight")
+	assert_true(
+		is_equal_approx(float(midnight_crossing["progress"]), 0.3 / 24.0),
+		"clock must retain the local time after midnight"
+	)
 	view.free()
 
 

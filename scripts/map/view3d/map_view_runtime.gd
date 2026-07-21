@@ -38,11 +38,26 @@ const FIRST_PERSON_FOV_DEGREES := RuntimeCamera.FIRST_PERSON_FOV_DEGREES
 const FIRST_PERSON_NEAR := RuntimeCamera.FIRST_PERSON_NEAR
 const OCCLUSION_PROBE_HEIGHTS := RuntimeCamera.OCCLUSION_PROBE_HEIGHTS
 
+## Emitted whenever the time controls change, so a HUD can show the current
+## speed or a paused indicator. Carries the effective multiplier (0 while paused)
+## and the paused flag.
+signal time_flow_changed(speed: float, paused: bool)
+
 var view: MapView3D
 
 ## Dev pacing: one in-game day every DayNightCycle.CYCLE_DURATION_SECONDS.
 var cycle_enabled := true
 var cycle_progress := DayNightCycle.DEFAULT_PROGRESS
+var cycle_elapsed_days := 0
+
+## Shared time controls for the day/night clock and the sky (sun, clouds, weather,
+## lightning). `time_speed` is the chosen multiplier; `time_paused` freezes flow
+## without losing the chosen speed. The ladder gives predictable slow-mo and
+## fast-forward steps; 1.0 must stay on it as the neutral default.
+const TIME_SPEED_LADDER: Array[float] = [0.1, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0, 20.0]
+const TIME_SPEED_DEFAULT := 1.0
+var time_speed := TIME_SPEED_DEFAULT
+var time_paused := false
 
 var _definition: MapDefinition
 var _player: CharacterBody2D
@@ -89,8 +104,10 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 	runtime._bind_player_health_ring()
 	# WHY: Each district used to restart at DEFAULT_PROGRESS, so harbor kept a
 	# moving sun while Workers' District (and any fresh map) snapped morning.
-	# MusicDirector is the shared clock while a gameplay cycle is active.
+	# MusicDirector holds both clock fractions and completed solar days so scene
+	# transitions cannot rewind the date or lunar phase.
 	runtime._restore_cycle_from_music_director()
+	runtime.view.set_calendar_date(runtime._current_calendar_date())
 	runtime.view.apply_cycle_progress(runtime.cycle_progress)
 	runtime._sync_music_cycle()
 	runtime._install_click_input(scene_root)
@@ -135,9 +152,84 @@ func set_time_of_day(next_time: StringName) -> void:
 	_sync_music_cycle()
 
 
+## The multiplier actually applied this frame: 0 while paused, otherwise the
+## chosen speed.
+func effective_time_speed() -> float:
+	return 0.0 if time_paused else time_speed
+
+
+## Freezes or resumes the flow of time without discarding the chosen speed.
+func toggle_time_pause() -> void:
+	set_time_paused(not time_paused)
+
+
+func set_time_paused(paused: bool) -> void:
+	if time_paused == paused:
+		return
+	time_paused = paused
+	_notify_time_flow()
+
+
+## Steps one rung up the speed ladder (faster). Snaps an off-ladder speed to the
+## next rung above it. Resumes if paused, so tapping faster always does something.
+func time_speed_up() -> void:
+	_step_time_speed(1)
+
+
+## Steps one rung down the speed ladder (slower).
+func time_speed_down() -> void:
+	_step_time_speed(-1)
+
+
+func set_time_speed(speed: float) -> void:
+	time_speed = clampf(speed, TIME_SPEED_LADDER[0], TIME_SPEED_LADDER[-1])
+	_notify_time_flow()
+
+
+## Returns to real-time pacing and unpauses.
+func reset_time_flow() -> void:
+	time_speed = TIME_SPEED_DEFAULT
+	time_paused = false
+	_notify_time_flow()
+
+
+func _step_time_speed(direction: int) -> void:
+	time_paused = false
+	var index := _nearest_ladder_index()
+	index = clampi(index + direction, 0, TIME_SPEED_LADDER.size() - 1)
+	time_speed = TIME_SPEED_LADDER[index]
+	_notify_time_flow()
+
+
+func _nearest_ladder_index() -> int:
+	var best := 0
+	var best_gap := absf(TIME_SPEED_LADDER[0] - time_speed)
+	for i in range(1, TIME_SPEED_LADDER.size()):
+		var gap := absf(TIME_SPEED_LADDER[i] - time_speed)
+		if gap < best_gap:
+			best_gap = gap
+			best = i
+	return best
+
+
+func _notify_time_flow() -> void:
+	if view != null:
+		view.set_weather_time_scale(effective_time_speed())
+	time_flow_changed.emit(effective_time_speed(), time_paused)
+
+
 func _process(delta: float) -> void:
+	# The time controls scale (or pause) the world clock and, through the view,
+	# the sky's own cloud/weather/lightning stepping so they stay in lockstep.
+	var scaled_delta := delta * effective_time_speed()
+	view.set_weather_time_scale(effective_time_speed())
 	if cycle_enabled:
-		cycle_progress = DayNightCycle.advance(cycle_progress, delta)
+		var clock_advance := DayNightCycle.advance_clock(cycle_progress, scaled_delta)
+		cycle_progress = float(clock_advance["progress"])
+		var completed_days := int(clock_advance["completed_days"])
+		if completed_days > 0:
+			cycle_elapsed_days += completed_days
+			view.set_calendar_date(_current_calendar_date())
 		view.apply_cycle_progress(cycle_progress)
 		_sync_music_cycle()
 	if _player == null or not is_instance_valid(_player):
@@ -223,6 +315,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		toggle_camera_view()
 		get_viewport().set_input_as_handled()
 		return
+	if event is InputEventKey and event.is_pressed() and not event.is_echo():
+		if _handle_time_control_key((event as InputEventKey).keycode):
+			get_viewport().set_input_as_handled()
+			return
 	if event is InputEventKey:
 		return
 	if event is InputEventMagnifyGesture:
@@ -245,6 +341,24 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		zoom_view_steps(wheel_steps)
 		get_viewport().set_input_as_handled()
+
+
+## Dev/playtest time controls, handled as raw keys so they need no input-map
+## entries: comma/period slow down/speed up the world clock and sky, P pauses and
+## resumes, backslash restores real-time. Returns true when the key was a control.
+func _handle_time_control_key(keycode: Key) -> bool:
+	match keycode:
+		KEY_COMMA:
+			time_speed_down()
+		KEY_PERIOD:
+			time_speed_up()
+		KEY_P:
+			toggle_time_pause()
+		KEY_BACKSLASH:
+			reset_time_flow()
+		_:
+			return false
+	return true
 
 
 func toggle_camera_view() -> void:
@@ -300,12 +414,16 @@ func _restore_cycle_from_music_director() -> void:
 	if not music_director.has_method(&"get_cycle_progress"):
 		return
 	cycle_progress = float(music_director.call(&"get_cycle_progress"))
+	if music_director.has_method(&"get_cycle_elapsed_days"):
+		cycle_elapsed_days = int(music_director.call(&"get_cycle_elapsed_days"))
 
 
 func _sync_music_cycle() -> void:
 	var music_director := get_node_or_null("/root/MusicDirector")
 	if music_director != null:
 		music_director.call("set_cycle_progress", cycle_progress)
+		if music_director.has_method(&"set_cycle_elapsed_days"):
+			music_director.call(&"set_cycle_elapsed_days", cycle_elapsed_days)
 
 
 func _sync_player(snap: bool, delta: float = 0.0) -> void:
@@ -366,16 +484,27 @@ func _on_state_replaced(_previous: GameState, current: GameState, _reason: Strin
 
 
 func _on_phase_changed(_previous: StringName, next: StringName) -> void:
+	cycle_elapsed_days = 0
 	view.set_calendar_date(GameCalendarScript.date_for_phase(next))
+	var music_director := get_node_or_null("/root/MusicDirector")
+	if music_director != null and music_director.has_method(&"set_cycle_elapsed_days"):
+		music_director.call(&"set_cycle_elapsed_days", cycle_elapsed_days)
+
+
+func _current_calendar_date() -> Dictionary:
+	var base_date := GameCalendarScript.DEFAULT_DATE
+	if _equipment_state != null:
+		base_date = GameCalendarScript.date_for_phase(_equipment_state.get_phase())
+	return GameCalendarScript.add_days(base_date, cycle_elapsed_days)
 
 
 func _bind_equipment_state(current: GameState = null) -> void:
 	_disconnect_equipment_state()
 	_equipment_state = current
 	if _equipment_state == null:
-		view.set_calendar_date(GameCalendarScript.DEFAULT_DATE)
+		view.set_calendar_date(GameCalendarScript.add_days(GameCalendarScript.DEFAULT_DATE, cycle_elapsed_days))
 		return
-	view.set_calendar_date(GameCalendarScript.date_for_phase(_equipment_state.get_phase()))
+	view.set_calendar_date(_current_calendar_date())
 	for slot: StringName in SharedCharacterRig.EQUIPMENT_SLOTS:
 		_sync_equipment_slot(slot)
 	if not _equipment_state.equipment_changed.is_connected(_sync_equipment_slot):

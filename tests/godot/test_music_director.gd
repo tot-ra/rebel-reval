@@ -66,6 +66,26 @@ func test_is_cycle_active_tracks_set_and_clear() -> void:
 	assert_false(MusicDirector.is_cycle_active())
 
 
+
+func test_elapsed_solar_days_advance_calendar_and_reset_with_cycle() -> void:
+	MusicDirector.clear_cycle_progress()
+	var initial_phase := SkyWeather3D.lunar_phase(MusicDirector.current_calendar_date())
+	MusicDirector.set_cycle_progress(0.0)
+	MusicDirector.set_cycle_elapsed_days(1)
+	assert_eq(MusicDirector.current_calendar_date(), {"day": 22, "month": 4, "year": 1343})
+	assert_eq(MusicDirector.get_cycle_elapsed_days(), 1)
+	var phase_step := fposmod(
+		SkyWeather3D.lunar_phase(MusicDirector.current_calendar_date()) - initial_phase,
+		1.0
+	)
+	assert_true(
+		phase_step > 0.03 and phase_step < 0.04,
+		"one completed solar day must advance the lunar phase by one synodic day"
+	)
+	MusicDirector.clear_cycle_progress()
+	assert_eq(MusicDirector.get_cycle_elapsed_days(), 0)
+	assert_eq(MusicDirector.current_calendar_date(), {"day": 21, "month": 4, "year": 1343})
+
 func test_active_slice_themes_have_no_night_tracks_yet() -> void:
 	for theme_id: StringName in [&"forge", &"town"]:
 		assert_true(

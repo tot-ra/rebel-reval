@@ -69,6 +69,7 @@ var _active_theme := &""
 var _playing_night := false
 var _cycle_active := false
 var _cycle_progress := DayNightCycle.DEFAULT_PROGRESS
+var _cycle_elapsed_days := 0
 var _stream_cache: Dictionary = {}
 
 
@@ -164,6 +165,18 @@ func get_cycle_progress() -> float:
 	return _cycle_progress
 
 
+func set_cycle_elapsed_days(elapsed_days: int) -> void:
+	var next_days := maxi(elapsed_days, 0)
+	if next_days == _cycle_elapsed_days:
+		return
+	_cycle_elapsed_days = next_days
+	calendar_date_changed.emit(current_calendar_date())
+
+
+func get_cycle_elapsed_days() -> int:
+	return _cycle_elapsed_days
+
+
 ## True while a gameplay map is driving the shared day/night clock. Menu
 ## clears this so a later Start does not inherit a leftover sun angle.
 func is_cycle_active() -> bool:
@@ -173,9 +186,10 @@ func is_cycle_active() -> bool:
 func current_calendar_date() -> Dictionary:
 	var session_state := get_node_or_null("/root/SessionState")
 	var state: Variant = session_state.get("state") if session_state != null else null
-	if state == null:
-		return GameCalendarScript.DEFAULT_DATE.duplicate()
-	return GameCalendarScript.date_for_phase(state.get_phase())
+	var base_date: Dictionary = GameCalendarScript.DEFAULT_DATE.duplicate()
+	if state != null:
+		base_date = GameCalendarScript.date_for_phase(state.get_phase())
+	return GameCalendarScript.add_days(base_date, _cycle_elapsed_days)
 
 
 func announce_calendar_date() -> void:
@@ -185,6 +199,7 @@ func announce_calendar_date() -> void:
 func clear_cycle_progress() -> void:
 	_cycle_active = false
 	_cycle_progress = DayNightCycle.DEFAULT_PROGRESS
+	_cycle_elapsed_days = 0
 	_player.volume_db = DEFAULT_VOLUME_DB
 	_maybe_switch_night_tracks()
 

@@ -196,6 +196,7 @@ func test_runtime_accepts_mouse_wheel_and_trackpad_zoom_input() -> void:
 func test_runtime_restores_shared_cycle_from_music_director() -> void:
 	var tree := Engine.get_main_loop() as SceneTree
 	MusicDirector.set_cycle_progress(0.77)
+	MusicDirector.set_cycle_elapsed_days(2)
 	var runtime := MapViewRuntime.new()
 	tree.root.add_child(runtime)
 	runtime._restore_cycle_from_music_director()
@@ -203,6 +204,7 @@ func test_runtime_restores_shared_cycle_from_music_director() -> void:
 		is_equal_approx(runtime.cycle_progress, 0.77),
 		"new districts must continue the shared sky clock"
 	)
+	assert_eq(runtime.cycle_elapsed_days, 2, "new districts must keep completed calendar days")
 	runtime.free()
 	MusicDirector.clear_cycle_progress()
 	var idle := MapViewRuntime.new()
@@ -213,3 +215,101 @@ func test_runtime_restores_shared_cycle_from_music_director() -> void:
 		"inactive MusicDirector must leave the runtime at its default morning"
 	)
 	idle.free()
+
+
+func test_runtime_midnight_advances_view_date_and_lunar_phase() -> void:
+	var definition := SmithyCourtyard.create()
+	var runtime := MapViewRuntime.new()
+	runtime.view = MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_NIGHT)
+	runtime.add_child(runtime.view)
+	runtime.cycle_progress = 23.5 / 24.0
+	runtime.view.set_calendar_date(runtime._current_calendar_date())
+	var previous_phase := SkyWeather3D.lunar_phase(runtime.view.sky_weather().calendar_date)
+
+	runtime._process(2.0)
+
+	assert_eq(runtime.cycle_elapsed_days, 1, "crossing midnight must count a completed solar day")
+	assert_eq(
+		runtime.view.sky_weather().calendar_date,
+		{"day": 22, "month": 4, "year": 1343},
+		"the rendered sky must receive the next campaign date at midnight"
+	)
+	var phase_step := fposmod(
+		SkyWeather3D.lunar_phase(runtime.view.sky_weather().calendar_date) - previous_phase,
+		1.0
+	)
+	assert_true(phase_step > 0.03 and phase_step < 0.04, "the visible moon phase must advance with the date")
+	assert_true(
+		is_equal_approx(runtime.cycle_progress, 0.3 / 24.0),
+		"the sun clock must continue after midnight without losing elapsed time"
+	)
+	runtime.free()
+	MusicDirector.clear_cycle_progress()
+
+
+func test_time_speed_ladder_steps_up_and_down_and_clamps() -> void:
+	var runtime := MapViewRuntime.new()
+	assert_true(is_equal_approx(runtime.effective_time_speed(), 1.0), "time must default to real-time pacing")
+	runtime.time_speed_up()
+	assert_true(is_equal_approx(runtime.time_speed, 2.0), "speeding up must step one rung faster")
+	runtime.time_speed_down()
+	runtime.time_speed_down()
+	assert_true(is_equal_approx(runtime.time_speed, 0.5), "slowing down must step below real-time")
+	# The ladder must clamp at both ends instead of running off.
+	for step in 20:
+		runtime.time_speed_up()
+	assert_true(is_equal_approx(runtime.time_speed, MapViewRuntime.TIME_SPEED_LADDER[-1]), "fastest speed must clamp")
+	for step in 20:
+		runtime.time_speed_down()
+	assert_true(is_equal_approx(runtime.time_speed, MapViewRuntime.TIME_SPEED_LADDER[0]), "slowest speed must clamp")
+	runtime.free()
+
+
+func test_pause_freezes_flow_but_keeps_the_chosen_speed() -> void:
+	var runtime := MapViewRuntime.new()
+	runtime.time_speed_up()
+	runtime.time_speed_up()
+	assert_true(is_equal_approx(runtime.time_speed, 4.0), "precondition: a fast speed is chosen")
+	runtime.toggle_time_pause()
+	assert_true(runtime.time_paused, "pausing must set the paused flag")
+	assert_true(is_equal_approx(runtime.effective_time_speed(), 0.0), "a paused clock must not advance")
+	assert_true(is_equal_approx(runtime.time_speed, 4.0), "pausing must not discard the chosen speed")
+	runtime.toggle_time_pause()
+	assert_false(runtime.time_paused, "toggling again must resume")
+	assert_true(is_equal_approx(runtime.effective_time_speed(), 4.0), "resuming must restore the chosen speed")
+	runtime.free()
+
+
+func test_speeding_up_while_paused_resumes_and_reset_returns_to_realtime() -> void:
+	var runtime := MapViewRuntime.new()
+	runtime.set_time_paused(true)
+	runtime.time_speed_up()
+	assert_false(runtime.time_paused, "nudging the speed must resume a paused clock so the key always does something")
+	runtime.set_time_speed(8.0)
+	runtime.set_time_paused(true)
+	runtime.reset_time_flow()
+	assert_false(runtime.time_paused, "reset must unpause")
+	assert_true(is_equal_approx(runtime.effective_time_speed(), 1.0), "reset must return to real-time pacing")
+	runtime.free()
+
+
+func test_pausing_holds_the_sun_and_sky_still() -> void:
+	var definition := SmithyCourtyard.create()
+	var tree := Engine.get_main_loop() as SceneTree
+	var runtime := MapViewRuntime.new()
+	tree.root.add_child(runtime)
+	runtime.view = MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_DAY)
+	runtime.add_child(runtime.view)
+	runtime.set_time_paused(true)
+	var frozen_progress := runtime.cycle_progress
+	for step in 30:
+		runtime._process(1.0)
+	assert_true(
+		is_equal_approx(runtime.cycle_progress, frozen_progress),
+		"a paused clock must hold the sun still no matter how many frames pass"
+	)
+	assert_true(
+		is_equal_approx(runtime.view.sky_weather().time_scale, 0.0),
+		"pausing must also freeze the sky's clouds, weather, and lightning"
+	)
+	runtime.free()

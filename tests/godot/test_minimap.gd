@@ -109,7 +109,15 @@ func test_minimap_date_tracks_local_clock_as_sun_moves() -> void:
 	assert_eq(
 		hud.get_date_label().text,
 		"21.04.1343 18:00",
-		"evening sun progress must keep the story date and update HH:MM"
+		"evening sun progress must keep the calendar day and update HH:MM"
+	)
+
+	MusicDirector.set_cycle_progress(0.0)
+	MusicDirector.set_cycle_elapsed_days(1)
+	assert_eq(
+		hud.get_date_label().text,
+		"22.04.1343 00:00",
+		"crossing midnight must advance the displayed calendar date"
 	)
 
 	MusicDirector.clear_cycle_progress()
@@ -158,7 +166,7 @@ func test_minimap_follow_pans_with_player() -> void:
 	_cleanup_root(root)
 
 
-func test_story_calendar_tracks_slice_timeline_without_visual_cycle_days() -> void:
+func test_story_calendar_tracks_slice_timeline_and_solar_day_offsets() -> void:
 	assert_eq(
 		GameCalendarScript.formatted_date_for_phase(GameState.PHASE_PROLOGUE_DAY),
 		"21.04.1343"
@@ -177,7 +185,22 @@ func test_story_calendar_tracks_slice_timeline_without_visual_cycle_days() -> vo
 			0.25
 		),
 		"21.04.1343 06:00",
-		"local clock must decorate the story date without changing it"
+		"local clock must decorate the current calendar date"
+	)
+	assert_eq(
+		GameCalendarScript.add_days({"day": 30, "month": 4, "year": 1343}, 1),
+		{"day": 1, "month": 5, "year": 1343},
+		"solar days must advance through month boundaries"
+	)
+	assert_eq(
+		GameCalendarScript.add_days({"day": 31, "month": 12, "year": 1343}, 1),
+		{"day": 1, "month": 1, "year": 1344},
+		"solar days must advance through year boundaries"
+	)
+	assert_eq(
+		GameCalendarScript.add_days({"day": 28, "month": 2, "year": 1344}, 1),
+		{"day": 29, "month": 2, "year": 1344},
+		"campaign calendar must keep Julian leap days"
 	)
 	assert_eq(
 		DayNightCycle.format_clock(0.0),

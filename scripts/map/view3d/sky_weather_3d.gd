@@ -15,8 +15,16 @@ const GAME_CALENDAR := preload("res://scripts/global/game_calendar.gd")
 
 const WEATHER_CLEAR := &"clear"
 const WEATHER_CLOUDY := &"cloudy"
+## Full grey cover with no blue showing through — the "you can't see the sky" case.
+const WEATHER_OVERCAST := &"overcast"
+## Widespread overcast rain: the whole deck rains, with thunder.
 const WEATHER_RAIN := &"rain"
-const ALL_WEATHERS: Array[StringName] = [WEATHER_CLEAR, WEATHER_CLOUDY, WEATHER_RAIN]
+## Isolated convection: mostly blue sky with one or a few heavy cells that tower,
+## rain in distant walls, and throw lightning — the "specific raining cloud" case.
+const WEATHER_STORM := &"storm"
+const ALL_WEATHERS: Array[StringName] = [
+	WEATHER_CLEAR, WEATHER_CLOUDY, WEATHER_OVERCAST, WEATHER_RAIN, WEATHER_STORM
+]
 
 ## Fixed seed: same weather sequence on every launch (deterministic, reviewable).
 const WEATHER_SEED := 24217
@@ -65,24 +73,42 @@ const STAR_MAP_HEIGHT := 1024
 ## `wind` drives harbor boat heel/heave and water-shader sea state (0..1).
 ## `chaos` domain-warps cloud banks so clear weather stays partly cloudy with
 ## torn edges while storms shred into denser, more chaotic cover.
-## `storm` drives cumulonimbus development in the shader: the horizon squall
-## wall, darkened flat bases, and sunlit anvil crowns. Fair-weather cumulus keep
-## it near zero; only the rain profile towers into a full anvil.
+## `storm` drives cumulonimbus development in the shader: the squall wall,
+## darkened flat bases, sunlit anvil crowns, and rain curtains. `locality`
+## concentrates the storm into isolated cells (1) versus spreading it across the
+## whole deck (0), so the same storm strength reads either as one raining
+## thundercloud in blue sky or as a solid rain front. `thunder` scales how often
+## lightning strikes. Fair-weather states keep all three near zero.
 const PROFILES: Dictionary = {
 	WEATHER_CLEAR: {
-		"coverage": 0.34, "darken": 0.08,
+		"coverage": 0.30, "darken": 0.06,
 		"sun_energy": 1.0, "ambient_energy": 1.0,
-		"gray": 0.0, "rain": 0.0, "wind": 0.22, "chaos": 0.32, "storm": 0.0,
+		"gray": 0.0, "rain": 0.0, "wind": 0.20, "chaos": 0.30,
+		"storm": 0.0, "locality": 0.0, "thunder": 0.0,
 	},
 	WEATHER_CLOUDY: {
-		"coverage": 0.72, "darken": 0.45,
-		"sun_energy": 0.60, "ambient_energy": 0.85,
-		"gray": 0.35, "rain": 0.0, "wind": 0.58, "chaos": 0.58, "storm": 0.18,
+		"coverage": 0.66, "darken": 0.40,
+		"sun_energy": 0.62, "ambient_energy": 0.86,
+		"gray": 0.32, "rain": 0.0, "wind": 0.52, "chaos": 0.55,
+		"storm": 0.16, "locality": 0.35, "thunder": 0.0,
+	},
+	WEATHER_OVERCAST: {
+		"coverage": 0.98, "darken": 0.72,
+		"sun_energy": 0.44, "ambient_energy": 0.80,
+		"gray": 0.75, "rain": 0.0, "wind": 0.58, "chaos": 0.58,
+		"storm": 0.30, "locality": 0.0, "thunder": 0.0,
 	},
 	WEATHER_RAIN: {
-		"coverage": 0.92, "darken": 0.80,
+		"coverage": 0.94, "darken": 0.82,
 		"sun_energy": 0.32, "ambient_energy": 0.70,
-		"gray": 0.60, "rain": 1.0, "wind": 0.92, "chaos": 0.86, "storm": 1.0,
+		"gray": 0.62, "rain": 1.0, "wind": 0.92, "chaos": 0.86,
+		"storm": 1.0, "locality": 0.18, "thunder": 0.55,
+	},
+	WEATHER_STORM: {
+		"coverage": 0.40, "darken": 0.34,
+		"sun_energy": 0.74, "ambient_energy": 0.90,
+		"gray": 0.18, "rain": 0.22, "wind": 0.70, "chaos": 0.82,
+		"storm": 1.0, "locality": 0.9, "thunder": 1.0,
 	},
 }
 ## Seconds each weather state holds before the Markov step picks the next one.
@@ -91,11 +117,18 @@ const PROFILES: Dictionary = {
 const DURATIONS: Dictionary = {
 	WEATHER_CLEAR: Vector2(22.0, 45.0),
 	WEATHER_CLOUDY: Vector2(16.0, 30.0),
+	WEATHER_OVERCAST: Vector2(25.0, 45.0),
 	WEATHER_RAIN: Vector2(22.0, 45.0),
+	WEATHER_STORM: Vector2(20.0, 40.0),
 }
-## Most cloudy spells now build into rain so a storm is easy to catch in a short
-## session; rain also lingers long enough (above) to actually watch it fall.
-const RAIN_FROM_CLOUDY_CHANCE := 0.7
+## Cumulative odds for what a cloudy spell becomes next. Weighted so every regime
+## — widespread rain, an isolated thunderstorm, full overcast, or clearing — is
+## easy to catch in a short session. The remainder falls back to clearing.
+const CLOUDY_TO_RAIN_CHANCE := 0.28
+const CLOUDY_TO_STORM_CHANCE := 0.56
+const CLOUDY_TO_OVERCAST_CHANCE := 0.78
+## An overcast deck often breaks into rain before clearing.
+const OVERCAST_TO_RAIN_CHANCE := 0.55
 
 ## Gust front: a real squall is preceded by a shove of wind ahead of the rain.
 ## When the machine commits to rain we fire a transient gust that spikes the wind
@@ -104,6 +137,13 @@ const RAIN_FROM_CLOUDY_CHANCE := 0.7
 const GUST_PEAK := 0.4
 const GUST_RISE_SECONDS := 1.0
 const GUST_DECAY_SECONDS := 5.0
+
+## Lightning. A storm's `thunder` factor scales the strike rate between these mean
+## gaps (seconds); each strike picks a bearing (a cell to light up) and fires a
+## short, flickering flash envelope that brightens that cell, glows the sky, and
+## briefly lifts scene lighting. Deterministic off the weather RNG.
+const LIGHTNING_GAP_SECONDS := Vector2(2.5, 9.0)
+const LIGHTNING_FLASH_SECONDS := 0.42
 
 const RAIN_EMITTER_HEIGHT := 11.0
 
@@ -115,6 +155,10 @@ const WIND_DRIFT_GAIN := 1.6
 var weather: StringName = WEATHER_CLEAR
 ## When false the current state holds until set_weather() is called.
 var auto_weather := true
+## Multiplies the per-frame step, so the shared time controls speed up, slow down,
+## or (at 0) pause the whole sky together with the sun: cloud drift, the weather
+## machine, gusts, and lightning. Tests call advance() directly and are unaffected.
+var time_scale := 1.0
 ## 1 while the sun hugs the horizon (golden hour), 0 the rest of the cycle.
 var sunset_factor := 0.0
 var calendar_date: Dictionary = GAME_CALENDAR.DEFAULT_DATE.duplicate()
@@ -130,6 +174,14 @@ var _cloud_detail_offset := Vector2.ZERO
 ## Transient gust magnitude on top of the profile wind. `_gust_time` < 0 is idle.
 var _gust := 0.0
 var _gust_time := -1.0
+## Lightning flash level (0..1), the bearing of the flashing cell, elapsed flash
+## time (< 0 while idle), and the countdown to the next strike.
+var _lightning := 0.0
+var _lightning_dir := Vector2(1.0, 0.0)
+var _lightning_time := -1.0
+var _time_to_strike := 0.0
+## Separate stream so lightning draws never perturb the weather sequence.
+var _lightning_rng := RandomNumberGenerator.new()
 var _material: ShaderMaterial
 var _star_map: ImageTexture
 var _camera: Camera3D
@@ -140,11 +192,13 @@ var _rain: GPUParticles3D
 ## weather machine without building any rendering resources.
 func _init() -> void:
 	_rng.seed = WEATHER_SEED
+	_lightning_rng.seed = WEATHER_SEED + 101
+	_time_to_strike = _lightning_rng.randf_range(LIGHTNING_GAP_SECONDS.x, LIGHTNING_GAP_SECONDS.y)
 	_state_duration = _roll_duration(weather)
 
 
 func _process(delta: float) -> void:
-	advance(delta)
+	advance(delta * maxf(time_scale, 0.0))
 
 
 ## Replaces the environment's flat background with the sky dome and builds the
@@ -345,6 +399,7 @@ func _build_rain() -> GPUParticles3D:
 ## can drive time without a scene tree; _process is the only other caller.
 func advance(delta: float) -> void:
 	_advance_gust(delta)
+	_advance_lightning(delta)
 	# Wind carries the clouds: gusts race the sky, calm clear days barely stir.
 	# Bank and detail drift share the multiplier so detail keeps outpacing banks.
 	var wind_scale := WIND_DRIFT_FLOOR + wind_strength() * WIND_DRIFT_GAIN
@@ -526,6 +581,7 @@ func lighting_modifiers() -> Dictionary:
 		"ambient_energy": float(_current["ambient_energy"]) * (1.0 - SUNSET_AMBIENT_DIM * sunset_factor),
 		"sunset_tint": sunset_factor * SUNSET_TINT_STRENGTH * float(_current["sun_energy"]),
 		"overcast": float(_current["gray"]),
+		"lightning": _lightning,
 	}
 
 
@@ -569,6 +625,23 @@ func storm_intensity() -> float:
 	return float(_current["storm"])
 
 
+## How concentrated the storm is: 0 spreads it across the whole deck (a rain
+## front), 1 isolates it into a few heavy cells in otherwise open sky.
+func storm_locality() -> float:
+	return float(_current.get("locality", 0.0))
+
+
+## Current lightning flash level (0..1). Exposed so scene lighting and audio can
+## react to the same strike the sky shader draws.
+func lightning_flash() -> float:
+	return _lightning
+
+
+## Ground bearing (unit vec2, x = east, y = north) of the cell currently flashing.
+func lightning_direction() -> Vector2:
+	return _lightning_dir
+
+
 ## Prevailing wind follows the authored cloud drift so smoke, sails, and floating
 ## hulls lean the same way as the sky weather field.
 func wind_direction_xz() -> Vector2:
@@ -590,16 +663,32 @@ static func sidereal_angle_for_progress(progress: float) -> float:
 	)
 
 
+## Clouds must gather before rain, so wet regimes are only ever reached through
+## cloudy or overcast — never straight off a clear sky. From cloudy the roll
+## fans out into every regime for variety; storms and overcast settle back down
+## through cloudy.
 func _pick_next_weather() -> void:
 	match weather:
 		WEATHER_CLEAR:
 			set_weather(WEATHER_CLOUDY)
 		WEATHER_CLOUDY:
-			if _rng.randf() < RAIN_FROM_CLOUDY_CHANCE:
+			var roll := _rng.randf()
+			if roll < CLOUDY_TO_RAIN_CHANCE:
 				set_weather(WEATHER_RAIN)
+			elif roll < CLOUDY_TO_STORM_CHANCE:
+				set_weather(WEATHER_STORM)
+			elif roll < CLOUDY_TO_OVERCAST_CHANCE:
+				set_weather(WEATHER_OVERCAST)
 			else:
 				set_weather(WEATHER_CLEAR)
+		WEATHER_OVERCAST:
+			if _rng.randf() < OVERCAST_TO_RAIN_CHANCE:
+				set_weather(WEATHER_RAIN)
+			else:
+				set_weather(WEATHER_CLOUDY)
 		WEATHER_RAIN:
+			set_weather(WEATHER_CLOUDY)
+		WEATHER_STORM:
 			set_weather(WEATHER_CLOUDY)
 
 
@@ -624,6 +713,41 @@ func _advance_gust(delta: float) -> void:
 		_gust_time = -1.0
 
 
+## Runs the lightning: decays any flash in progress, then, while the current
+## state has thunder, counts down (faster the stronger the thunder) to the next
+## strike and fires one at a fresh bearing. An in-flight flash always finishes,
+## even if the storm ends mid-stroke.
+func _advance_lightning(delta: float) -> void:
+	if _lightning_time >= 0.0:
+		_lightning_time += delta
+		_lightning = _lightning_envelope(_lightning_time)
+		if _lightning_time >= LIGHTNING_FLASH_SECONDS:
+			_lightning = 0.0
+			_lightning_time = -1.0
+	else:
+		_lightning = 0.0
+	var thunder := float(_current.get("thunder", 0.0))
+	if thunder <= 0.01:
+		return
+	_time_to_strike -= delta * thunder
+	if _time_to_strike <= 0.0 and _lightning_time < 0.0:
+		var angle := _lightning_rng.randf() * TAU
+		_lightning_dir = Vector2(cos(angle), sin(angle))
+		_lightning_time = 0.0
+		_lightning = _lightning_envelope(0.0)
+		_time_to_strike = _lightning_rng.randf_range(LIGHTNING_GAP_SECONDS.x, LIGHTNING_GAP_SECONDS.y)
+
+
+## Flash shape: a sharp leader stroke plus a fast return-stroke flicker, both
+## decaying within a few tenths of a second so lightning reads as a flicker.
+func _lightning_envelope(t: float) -> float:
+	var leader := exp(-t / 0.09)
+	var flicker := 0.0
+	if t > 0.11:
+		flicker = 0.75 * exp(-(t - 0.11) / 0.06)
+	return clampf(maxf(leader, flicker), 0.0, 1.0)
+
+
 func _update_rain() -> void:
 	# Headless tests drive advance() without configure(); no emitter exists then.
 	if _rain == null:
@@ -645,4 +769,7 @@ func _push_cloud_uniforms() -> void:
 	_material.set_shader_parameter(&"cloud_detail_offset", _cloud_detail_offset)
 	_material.set_shader_parameter(&"cloud_chaos", cloud_chaos())
 	_material.set_shader_parameter(&"storm_intensity", storm_intensity())
+	_material.set_shader_parameter(&"storm_locality", storm_locality())
+	_material.set_shader_parameter(&"lightning", _lightning)
+	_material.set_shader_parameter(&"lightning_dir", _lightning_dir)
 	_material.set_shader_parameter(&"wind_dir", wind_direction_xz())

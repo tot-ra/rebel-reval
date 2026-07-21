@@ -13,7 +13,18 @@ const DEFAULT_PROGRESS := 0.25
 
 
 static func advance(progress: float, delta_seconds: float) -> float:
-	return wrapf(progress + delta_seconds / CYCLE_DURATION_SECONDS, 0.0, 1.0)
+	return float(advance_clock(progress, delta_seconds)["progress"])
+
+
+## Returns both the wrapped local time and every midnight crossed by this tick.
+## Rendering needs the fraction, while calendar and lunar systems need the whole
+## day count that wrapf alone would otherwise discard.
+static func advance_clock(progress: float, delta_seconds: float) -> Dictionary:
+	var unwrapped_progress := wrapf(progress, 0.0, 1.0) + maxf(delta_seconds, 0.0) / CYCLE_DURATION_SECONDS
+	return {
+		"progress": wrapf(unwrapped_progress, 0.0, 1.0),
+		"completed_days": int(floor(unwrapped_progress)),
+	}
 
 
 static func day_blend(progress: float) -> float:
