@@ -179,8 +179,9 @@ void fragment() {
 }
 "
 
-## Grass blades: instance color carries the tint, UV.y runs root(0) to tip(1)
-## and weights a two-frequency wind sway so tips travel and roots hold.
+## Grass blades: instance color carries the tint, UV.y runs root(0) to tip(1).
+## World wind (direction + strength from SkyWeather) leans tips downwind; a
+## lighter cross-flutter keeps the field alive even in a steady breeze.
 const GRASS_SHADER_CODE := "
 shader_type spatial;
 // depth_draw_opaque keeps stacked blade layers sorted; cull_disabled shows both
@@ -190,16 +191,23 @@ render_mode cull_disabled, depth_draw_opaque;
 
 uniform vec3 base_color : source_color = vec3(0.38, 0.48, 0.24);
 uniform float sway_strength = 0.10;
+uniform vec2 wind_direction = vec2(0.9285, 0.3714);
+uniform float wind_strength = 0.22;
 
 void vertex() {
 	vec3 world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	float phase = world.x * 1.9 + world.z * 1.4;
-	float gust = sin(TIME * 0.9 + phase * 0.23);
-	float sway = sin(TIME * 2.0 + phase) * (0.55 + 0.45 * gust)
+	float power = mix(0.35, 1.4, clamp(wind_strength, 0.0, 1.0));
+	float gust = sin(TIME * (0.75 + wind_strength * 0.55) + phase * 0.23);
+	float flutter = sin(TIME * 2.0 + phase) * (0.55 + 0.45 * gust)
 		+ 0.4 * sin(TIME * 3.4 + phase * 1.7);
 	float weight = UV.y * UV.y;
-	VERTEX.x += sway * sway_strength * weight;
-	VERTEX.z += cos(TIME * 1.5 + phase * 1.2) * sway_strength * 0.6 * weight;
+	vec2 wind = normalize(wind_direction);
+	vec2 across = vec2(-wind.y, wind.x);
+	vec2 displace = wind * (power * (0.65 + 0.35 * gust) + flutter * 0.4)
+		+ across * flutter * 0.45;
+	VERTEX.x += displace.x * sway_strength * weight;
+	VERTEX.z += displace.y * sway_strength * weight;
 }
 
 void fragment() {
@@ -212,8 +220,8 @@ void fragment() {
 }
 "
 
-## Tree canopies: same wind idea, far gentler, weighted by height above the
-## canopy base so trunks stay planted.
+## Tree canopies: same world-wind field as grass, far gentler, weighted by height
+## above the canopy base so trunks stay planted.
 const CANOPY_SHADER_CODE := "
 shader_type spatial;
 render_mode cull_disabled;
@@ -221,13 +229,22 @@ render_mode cull_disabled;
 uniform vec3 base_color : source_color = vec3(0.30, 0.42, 0.26);
 uniform float sway_strength = 0.05;
 uniform float shade_bottom = 0.62;
+uniform vec2 wind_direction = vec2(0.9285, 0.3714);
+uniform float wind_strength = 0.22;
 
 void vertex() {
 	vec3 world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	float phase = world.x * 0.9 + world.z * 0.7;
+	float power = mix(0.4, 1.25, clamp(wind_strength, 0.0, 1.0));
 	float weight = clamp(VERTEX.y * 0.4 + 0.4, 0.0, 1.0);
-	VERTEX.x += sin(TIME * 1.3 + phase) * sway_strength * weight;
-	VERTEX.z += cos(TIME * 1.05 + phase * 1.3) * sway_strength * 0.8 * weight;
+	float gust = sin(TIME * (1.05 + wind_strength * 0.4) + phase);
+	float flutter = cos(TIME * 1.35 + phase * 1.3) * 0.55;
+	vec2 wind = normalize(wind_direction);
+	vec2 across = vec2(-wind.y, wind.x);
+	vec2 displace = wind * (power * (0.7 + 0.3 * gust) + flutter * 0.35)
+		+ across * flutter * 0.5;
+	VERTEX.x += displace.x * sway_strength * weight;
+	VERTEX.z += displace.y * sway_strength * weight;
 }
 
 void fragment() {
@@ -235,6 +252,48 @@ void fragment() {
 	float shade = mix(1.05, shade_bottom, clamp(UV.y, 0.0, 1.0));
 	ALBEDO = base_color * COLOR.rgb * shade;
 	ROUGHNESS = 0.95;
+}
+"
+
+## Soft cloth for square sails and tower pennants. free_edge selects which UV
+## axis is free (sail hangs from the yard via UV.y; flags fly from the hoist via
+## UV.x). COLOR keeps sail panel striping without a dedicated texture.
+const CLOTH_SHADER_CODE := "
+shader_type spatial;
+render_mode cull_disabled, depth_draw_opaque;
+
+uniform vec3 base_color : source_color = vec3(0.86, 0.84, 0.76);
+uniform float sway_strength = 0.22;
+uniform vec2 wind_direction = vec2(0.9285, 0.3714);
+uniform float wind_strength = 0.22;
+uniform vec2 free_edge = vec2(0.0, 1.0);
+
+void vertex() {
+	vec3 world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	float phase = world.x * 1.1 + world.z * 0.85;
+	float power = mix(0.3, 1.55, clamp(wind_strength, 0.0, 1.0));
+	float free_t = clamp(UV.x * free_edge.x + UV.y * free_edge.y, 0.0, 1.0);
+	float weight = free_t * free_t;
+	float gust = sin(TIME * (1.1 + wind_strength * 0.7) + phase);
+	float ripple = sin(TIME * 3.2 + phase * 2.1 + UV.x * 6.0) * 0.55
+		+ sin(TIME * 5.1 + phase * 1.4 + UV.y * 4.5) * 0.3;
+	vec2 wind = normalize(wind_direction);
+	vec2 across = vec2(-wind.y, wind.x);
+	vec2 displace = wind * (power * (0.75 + 0.25 * gust) + ripple * 0.35)
+		+ across * ripple * 0.65;
+	// Convert world XZ sway into model space so rotated boats and poles still
+	// billow downwind instead of shearing along local axes.
+	vec3 world_delta = vec3(displace.x, ripple * 0.12 * power, displace.y)
+		* sway_strength * weight;
+	VERTEX += (inverse(MODEL_MATRIX) * vec4(world_delta, 0.0)).xyz;
+}
+
+void fragment() {
+	if (!FRONT_FACING) {
+		NORMAL = -NORMAL;
+	}
+	ALBEDO = base_color * COLOR.rgb;
+	ROUGHNESS = 0.92;
 }
 "
 

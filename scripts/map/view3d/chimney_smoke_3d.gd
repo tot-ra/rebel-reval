@@ -1,8 +1,9 @@
 class_name ChimneySmoke3D
 extends GPUParticles3D
 
-## Per-chimney smoke plume: simple rounded billboards with building-specific
-## wind bias, gust-driven sway, and day/night emission schedules.
+## Per-chimney smoke plume: simple rounded billboards with world wind from
+## SkyWeather, a tiny building-specific bias, gust-driven sway, and day/night
+## emission schedules.
 
 enum Schedule { NEVER, DAY_ONLY, NIGHT_ONLY, ALWAYS }
 
@@ -35,8 +36,10 @@ func configure(building_id: StringName) -> void:
 	_building_seed = String(building_id).hash()
 	_schedule = schedule_for(_building_seed)
 	_phase = float((_building_seed & 0xffff) % 6283) / 1000.0
+	# Seed a tiny local bias so adjacent chimneys do not lock into one ribbon;
+	# prevailing direction still comes from SkyWeather every frame.
 	var wind_angle := fmod(float((_building_seed >> 3) % 6283) / 1000.0, TAU)
-	_horizontal_wind = Vector3(cos(wind_angle), 0.0, sin(wind_angle)).normalized()
+	_horizontal_wind = Vector3(cos(wind_angle), 0.0, sin(wind_angle)).normalized() * 0.18
 	_day_amount = (22 + ((_building_seed >> 5) % 14)) * 2
 	_night_amount = (30 + ((_building_seed >> 7) % 16)) * 2
 	_setup_particles(building_id)
@@ -173,10 +176,26 @@ func _process(_delta: float) -> void:
 	if process == null:
 		return
 	var t := Time.get_ticks_msec() * 0.001
+	var sky := _find_sky_weather()
+	var wind_dir := Vector2(_horizontal_wind.x, _horizontal_wind.z)
+	var wind_power := 0.28
+	if sky != null:
+		wind_dir = sky.wind_direction_xz()
+		wind_power = sky.wind_strength()
 	var gust := Vector2(
 		sin(t * 0.43 + _phase) * 0.42 + sin(t * 1.65 + _phase * 2.1) * 0.18,
 		cos(t * 0.39 + _phase * 1.15) * 0.40 + cos(t * 1.95 + _phase * 0.7) * 0.16
 	)
-	var sway := _horizontal_wind + Vector3(gust.x, 0.0, gust.y)
+	var prevailing := Vector3(wind_dir.x, 0.0, wind_dir.y) * lerpf(0.55, 1.45, wind_power)
+	var sway := prevailing + _horizontal_wind + Vector3(gust.x, 0.0, gust.y) * lerpf(0.45, 1.1, wind_power)
 	# Gravity bends the rising column; new puffs still launch upward from the chimney.
 	process.gravity = Vector3(sway.x * 0.38, -0.03 + sin(t * 0.55 + _phase) * 0.02, sway.z * 0.38)
+
+
+func _find_sky_weather() -> SkyWeather3D:
+	var node: Node = self
+	while node != null:
+		if node.has_method(&"sky_weather"):
+			return node.call(&"sky_weather") as SkyWeather3D
+		node = node.get_parent()
+	return null

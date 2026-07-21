@@ -46,10 +46,8 @@ static func _add_rig(root: Node3D) -> void:
 	sail.mesh = _sail_mesh()
 	# Cloth must stay visible when the map camera rotates behind it, while vertex
 	# colors provide subtle alternating panels without a ship-specific texture.
-	var sail_material := MapViewMeshBuilderPrimitives.role_material(&"plaster").duplicate() as StandardMaterial3D
-	sail_material.vertex_color_use_as_albedo = true
-	sail_material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	sail.material_override = sail_material
+	# Wind-driven billow comes from the shared world wind cloth shader.
+	sail.material_override = MapViewMaterials.sail_cloth()
 	root.add_child(sail)
 
 	var rigging := Node3D.new()

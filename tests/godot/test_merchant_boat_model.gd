@@ -27,9 +27,12 @@ func test_merchant_boat_uses_a_shaped_cog_hull_and_working_rig() -> void:
 
 	var sail := boat.get_node("SquareSail") as MeshInstance3D
 	assert_true(sail.mesh is ArrayMesh, "square sail must be a shaped cloth mesh, not a flat box")
-	var sail_material := sail.material_override as StandardMaterial3D
-	assert_true(sail_material.vertex_color_use_as_albedo, "square sail must show its alternating cloth panels")
-	assert_eq(sail_material.cull_mode, BaseMaterial3D.CULL_DISABLED, "square sail must stay visible from both sides")
+	var sail_material := sail.material_override as ShaderMaterial
+	assert_true(sail_material != null, "square sail must use the shared wind cloth shader")
+	assert_true(
+		sail_material.get_shader_parameter("free_edge") == Vector2(0.0, 1.0),
+		"square sail must hang free from the yard (UV.y)"
+	)
 	var sail_vertices := sail.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX] as PackedVector3Array
 	var min_bulge := INF
 	var max_bulge := -INF

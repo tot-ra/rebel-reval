@@ -77,3 +77,22 @@ func test_sea_weather_scales_water_wave_height() -> void:
 	assert_true(calm > 0.0 and clear_height > 0.0, "water waves must stay active in calm weather")
 	# Restore a near-clear sea state so later mesh tests keep stable uniforms.
 	MapViewMaterials.apply_sea_weather(0.22, 0.0)
+
+
+func test_world_wind_drives_vegetation_and_cloth_uniforms() -> void:
+	var calm_dir := Vector2(1.0, 0.0)
+	var storm_dir := Vector2(0.0, 1.0)
+	MapViewMaterials.apply_world_wind(calm_dir, 0.22)
+	var grass := MapViewMaterials.grass_blades()
+	var canopy := MapViewMaterials.canopy(&"leaf")
+	var sail := MapViewMaterials.sail_cloth()
+	var flag := MapViewMaterials.flag_cloth()
+	assert_eq(grass.get_shader_parameter("wind_strength"), 0.22, "calm wind must reach grass")
+	assert_eq(canopy.get_shader_parameter("wind_direction"), calm_dir, "canopy must share calm wind heading")
+	assert_eq(sail.get_shader_parameter("wind_direction"), calm_dir, "sails must share calm wind heading")
+	MapViewMaterials.apply_world_wind(storm_dir, 0.92)
+	assert_eq(grass.get_shader_parameter("wind_strength"), 0.92, "storm wind must raise grass sway power")
+	assert_eq(flag.get_shader_parameter("wind_direction"), storm_dir, "flags must turn with storm wind")
+	assert_eq(sail.get_shader_parameter("wind_strength"), 0.92, "sails must stiffen with storm wind")
+	# Restore calm defaults for later material-sensitive tests.
+	MapViewMaterials.apply_world_wind(Vector2(0.9285, 0.3714), 0.22)

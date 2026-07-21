@@ -271,6 +271,30 @@ static func apply_water_lighting(sun_visibility: float, day_blend: float) -> voi
 		material.set_shader_parameter("day_blend", blend)
 
 
+## Pushes the shared world wind field into grass, canopy, sail, and flag cloth.
+## Call alongside apply_sea_weather so vegetation and cloth match harbor boats.
+static func apply_world_wind(direction: Vector2, strength: float) -> void:
+	var dir := direction
+	if dir.length_squared() < 0.0001:
+		dir = Vector2(0.9285, 0.3714)
+	else:
+		dir = dir.normalized()
+	var wind := clampf(strength, 0.0, 1.0)
+	for material in _wind_materials():
+		material.set_shader_parameter("wind_direction", dir)
+		material.set_shader_parameter("wind_strength", wind)
+
+
+static func _wind_materials() -> Array[ShaderMaterial]:
+	return [
+		grass_blades(),
+		canopy(&"spruce"),
+		canopy(&"leaf"),
+		sail_cloth(),
+		flag_cloth(),
+	]
+
+
 ## Wind-swaying grass blade material; instance colors modulate the tint.
 static func grass_blades() -> ShaderMaterial:
 	var key := "grass_blades"
@@ -296,6 +320,34 @@ static func canopy(kind: StringName) -> ShaderMaterial:
 		_:
 			material.set_shader_parameter("base_color", Color8(96, 118, 60))
 			material.set_shader_parameter("sway_strength", 0.06)
+	_cache[key] = material
+	return material
+
+
+## Merchant square sail: hangs free along UV.y from the yard, billows with wind.
+static func sail_cloth() -> ShaderMaterial:
+	var key := "sail_cloth"
+	if _cache.has(key):
+		return _cache[key]
+	var material := ShaderMaterial.new()
+	material.shader = MapViewMaterialShaders.shader("cloth", MapViewMaterialShaders.CLOTH_SHADER_CODE)
+	material.set_shader_parameter("base_color", Color8(214, 208, 190))
+	material.set_shader_parameter("sway_strength", 0.28)
+	material.set_shader_parameter("free_edge", Vector2(0.0, 1.0))
+	_cache[key] = material
+	return material
+
+
+## Tower pennants and other hoist-fixed cloth: free along UV.x toward the fly.
+static func flag_cloth() -> ShaderMaterial:
+	var key := "flag_cloth"
+	if _cache.has(key):
+		return _cache[key]
+	var material := ShaderMaterial.new()
+	material.shader = MapViewMaterialShaders.shader("cloth", MapViewMaterialShaders.CLOTH_SHADER_CODE)
+	material.set_shader_parameter("base_color", Color8(168, 52, 48))
+	material.set_shader_parameter("sway_strength", 0.42)
+	material.set_shader_parameter("free_edge", Vector2(1.0, 0.0))
 	_cache[key] = material
 	return material
 

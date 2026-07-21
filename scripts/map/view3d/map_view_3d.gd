@@ -137,6 +137,9 @@ func _sync_sea_weather() -> void:
 	if _sky_weather == null:
 		return
 	MapViewMaterials.apply_sea_weather(_sky_weather.wind_strength(), _sky_weather.rain_intensity())
+	# Vegetation, sails, and tower pennants share the same weather wind field as
+	# floating hulls so a storm leans the whole harbor one way.
+	MapViewMaterials.apply_world_wind(_sky_weather.wind_direction_xz(), _sky_weather.wind_strength())
 
 
 func set_time_of_day(next_time: StringName) -> void:
@@ -350,6 +353,7 @@ func activate_all_chunks() -> void:
 func _assemble() -> void:
 	add_child(MapViewMeshBuilder.build_surroundings(definition))
 	add_child(MapViewMeshBuilder.build_terrain(definition, grid))
+	add_child(MapViewMeshBuilder.build_shoreline_details(definition, grid))
 	add_child(MapViewMeshBuilder.build_interior_shell(definition))
 
 	_scatter_root = Node3D.new()
