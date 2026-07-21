@@ -44,6 +44,8 @@ Coordination note (2026-07-21 P0-064): storage ownership policy and CI validator
 
 Coordination note (2026-07-21 P0-071 in progress): reconcile active visual-source quarantine drift by approving only entries with verifiable provenance and quarantining any unresolved source with its sidecars without leaving broken runtime references.
 
+Coordination note (2026-07-21 P0-072 in progress): sourced research draft landed for all ten retained urban map blueprints, separating attested evidence, bounded reconstruction, later-survival analogy, gameplay invention, and explicit unknowns. It remains in progress until the independent human historical review table in `docs/HISTORICAL_AUDIT.md` signs or amends the ranges for P1-036 / district acceptance use.
+
 Coordination note (2026-07-20 P1-024c): shared health/death/guard/parry/dodge resolution landed in `CombatVitals` for player and combat actors; `--filter=test_combat_vitals` passes 10/10. Next combat step is **P1-024d** (Iron technique).
 
 Coordination note (2026-07-20 P1-024d): Iron forge technique layers onto AttackProfile / CombatVitals - equipped Iron jams braced guards into open hits (parry and dodge still win); `--filter=test_forge_technique_iron` passes 5/5. Next combat step is **P1-024** (integrated combat room). Technique equip UI discoverability is **P1-024e**.
