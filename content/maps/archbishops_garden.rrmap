@@ -2,6 +2,8 @@
 # and the guarded descent to the Knights District. The gameplay name follows the
 # requested district label; the cited excavation calls the site Bishop's Garden.
 # The 1343 map deliberately omits the Bishop's House, first recorded only in 1420.
+# Ground shares target HISTORICAL_AUDIT: stone/cobble ~10-20%, earth ~15-25%,
+# grass/orchard/garden ~60-75%, with timber orchard edges rather than brick fill.
 rrmap 1
 map archbishops_garden loc.toompea.archbishops_garden 144 48 grass scope=prototype active=false palette=clean_painted seed=1344 cell_size=32 elevation=2.8
 source "scenes/reval_archbishops_garden/reval_archbishops_garden.tscn"
@@ -15,22 +17,44 @@ style wall.tower wall_height=240 wall_color=8c8a80ff
 style grass.tall
 style grass.flowers
 style grass.mossy
+style grass.clover
+style grass.fern
+style grass.dry
 style bush.dense
 style bush.scrub
 style tree.mixed
 style tree.deciduous
+style tree.spruce
+# Flowered lawn is the default open ground; stone is limited to a compact close.
 terrain garden.lawn grass 0 0 144 48 style=grass.flowers order=1
+# Mixed orchard mass with deciduous fruit rows overlaid for readable canopy.
 terrain orchard grass 12 8 58 30 style=tree.mixed order=2
-terrain orchard.understory grass 14 30 52 8 style=bush.scrub order=3
-terrain western.woodland forest_floor 0 0 14 48 style=tree.mixed order=4
-terrain western.scrub grass 10 6 6 36 style=bush.dense order=5
-terrain well.grove grass 46 14 24 12 style=grass.mossy order=6
-terrain south.terrace grass 48 28 90 18 style=grass.tall order=7
-terrain terrace.scrub grass 50 30 48 8 style=bush.scrub order=8
-terrain cathedral.close stone 72 4 66 18 order=9
-stroke toom_kooli cobblestone 29,0|29,12|29,24|29,47 thickness=3 order=10
-stroke garden_walk dirt 29,12|48,12|66,12|84,12|104,12|138,12|138,9 thickness=2 order=11
-stroke terrace_walk dirt 29,29|52,29|78,29|104,29|126,29 thickness=2 order=12
+terrain orchard.rows grass 16 10 44 16 style=tree.deciduous order=3
+terrain orchard.understory grass 14 28 50 10 style=bush.scrub order=4
+# Western cliff keeps spruce woodland and dense scrub outside the playable plot.
+terrain western.woodland forest_floor 0 0 14 48 style=tree.spruce order=5
+terrain western.scrub grass 10 6 6 36 style=bush.dense order=6
+# Soft planting beds: mossy well grove, clover kitchen plots, fern wall margins.
+terrain well.grove grass 46 14 24 12 style=grass.mossy order=7
+terrain kitchen.beds grass 40 20 20 8 style=grass.clover order=8
+terrain wall.fern.south grass 70 22 60 5 style=grass.fern order=9
+terrain wall.fern.west grass 68 4 4 18 style=grass.fern order=10
+terrain south.terrace grass 48 28 90 18 style=grass.tall order=11
+terrain terrace.scrub grass 50 30 48 8 style=bush.scrub order=12
+terrain terrace.dry grass 98 28 36 8 style=grass.dry order=13
+# Earth/terrace and quarry fill keep the historical non-grass share without brick.
+terrain terrace.fill dirt 96 34 46 12 order=14
+terrain quarry.edge dirt 10 34 24 10 order=15
+terrain path.apron dirt 64 10 22 6 order=16
+# Clover precinct replaces the former district-scale stone plaza.
+terrain cathedral.precinct grass 72 4 66 18 style=grass.clover order=17
+# Paths first, then compact stone so walks do not erase the lodging close.
+stroke toom_kooli cobblestone 29,0|29,12|29,24|29,47 thickness=2 order=18
+stroke garden_walk dirt 29,12|48,12|66,12|82,12 thickness=2 order=19
+stroke garden_walk_east dirt 122,12|132,12|138,12|138,9 thickness=2 order=20
+stroke terrace_walk dirt 29,29|52,29|78,29|104,29|126,29 thickness=2 order=21
+terrain cathedral.close stone 86 5 38 14 order=22
+terrain center_gate.threshold stone 130 5 12 8 order=23
 # Western cliff walls use short stepped runs and round towers rather than a box.
 building garden_city_wall_west_north wall 4 0 3 18 style=wall.city
 building garden_city_wall_west_mid wall 1 16 6 3 style=wall.city
@@ -39,8 +63,8 @@ building garden_city_wall_southwest_shoulder wall 1 39 12 3 style=wall.city
 building garden_city_wall_south_west wall 10 42 14 3 style=wall.city
 # The visual-only south gate needs collision-bearing throats along its full
 # north-south depth; otherwise the player can slip around either arch jamb.
-building garden_south_gate_west_throat wall 21 40 4 8 style=wall.city
-building garden_south_gate_east_throat wall 33 40 4 8 style=wall.city
+building garden_south_gate_west_throat wall 21 40 4 8 style=wall.city tower=false
+building garden_south_gate_east_throat wall 33 40 4 8 style=wall.city tower=false
 building garden_wall_tower_northwest wall 1 0 8 8 style=wall.tower tower=true door_side=east
 building garden_wall_tower_west_bend wall 0 14 8 8 style=wall.tower tower=true door_side=east
 building garden_wall_tower_southwest wall 5 38 8 8 style=wall.tower tower=true door_side=east
@@ -50,13 +74,14 @@ building garden_city_wall_east_north wall 141 0 3 5 style=wall.city
 building garden_city_wall_east_south wall 141 13 3 35 style=wall.city
 building center_gate_north_tower wall 136 0 6 5 style=wall.tower tower=true door_side=west
 building center_gate_south_tower wall 136 13 6 5 style=wall.tower tower=true door_side=west
-building center_gate_north_jamb wall 138 4 6 2 style=wall.city
-building center_gate_south_jamb wall 138 12 6 2 style=wall.city
+building center_gate_north_jamb wall 138 4 6 2 style=wall.city tower=false
+building center_gate_south_jamb wall 138 12 6 2 style=wall.city tower=false
 building garden_city_wall_south_mid wall 34 45 72 3 style=wall.city
 building garden_city_wall_south_east wall 106 42 35 3 style=wall.city
 building garden_wall_tower_south_mid wall 102 40 8 8 style=wall.tower tower=true door_side=north
-building cathedral_garden_wall_north wall 70 3 60 2 style=wall.garden
-building cathedral_garden_wall_south wall 70 21 60 2 style=wall.garden
+# Low garden walls frame only the compact lodging close, not a brick plaza.
+building cathedral_garden_wall_north wall 86 4 38 2 style=wall.garden
+building cathedral_garden_wall_south wall 86 19 38 2 style=wall.garden
 building canon_lodging house 92 6 14 8 style=house.canonical
 building orchard_store house 52 31 10 6 style=house.service
 landmark center_gate_arch gate_arch 138 5 6 8 wall_color=8f8c80ff top_px=208 passage_axis=x door_material=wood
@@ -65,22 +90,38 @@ prop medieval_well_prop well 54 18 rect=2,2
 prop orchard_bench table 36 18 rect=2,1
 prop terrace_bench table 88 31 rect=2,1
 prop gardener_cart cart 70 32 rect=2,2
+# Timber orchard edges replace long brick plot walls inside the garden.
+prop orchard_plot_fence_north timber_fence 18 9 rect=38,1
+prop orchard_plot_fence_south timber_fence 18 27 rect=38,1
+prop orchard_plot_fence_west timber_fence 18 10 rect=1,8
+prop kitchen_plot_fence timber_fence 40 19 rect=20,1
 prop orchard_canopy_west bush 16 12 rect=3,2 style=bush.scrub
 prop orchard_canopy_mid bush 34 14 rect=3,2 style=bush.dense
 prop orchard_canopy_east bush 50 20 rect=2,2 style=bush.scrub
+prop orchard_row_north bush 22 11 rect=2,2 style=bush.dense
+prop orchard_row_mid bush 40 16 rect=3,2 style=bush.scrub
+prop orchard_row_south bush 30 24 rect=2,2 style=bush.dense
 prop orchard_edge_south bush 26 34 rect=3,2 style=bush.dense
 prop orchard_edge_north bush 20 10 rect=2,2 style=bush.scrub
 prop well_grove_north bush 48 15 rect=2,2 style=bush.scrub
 prop well_grove_south bush 62 22 rect=2,2 style=bush.dense
+prop well_grove_east bush 66 18 rect=2,2 style=bush.scrub
+prop kitchen_hedge_west bush 41 21 rect=2,2 style=bush.dense
+prop kitchen_hedge_east bush 56 24 rect=2,2 style=bush.scrub
 prop western_scrub_low bush 8 30 rect=3,2 style=bush.dense
 prop western_scrub_high bush 8 16 rect=2,2 style=bush.scrub
+prop western_scrub_mid bush 11 22 rect=2,2 style=bush.dense
 prop terrace_shrub_west bush 56 33 rect=2,2 style=bush.scrub
 prop terrace_shrub_mid bush 82 35 rect=3,2 style=bush.dense
 prop terrace_shrub_east bush 108 33 rect=2,2 style=bush.scrub
+prop terrace_shrub_far bush 120 36 rect=3,2 style=bush.dense
 prop south_lawn_scrub bush 40 41 rect=2,2 style=bush.scrub
 prop path_edge_scrub bush 68 11 rect=2,2 style=bush.scrub
+prop path_edge_flowers bush 84 13 rect=2,2 style=bush.scrub
 prop canon_close_shrub bush 88 20 rect=2,2 style=bush.dense
 prop cathedral_border_shrub bush 74 19 rect=2,2 style=bush.scrub
+prop cathedral_precinct_hedge bush 78 8 rect=3,2 style=bush.dense
+prop lodging_entry_shrub bush 106 14 rect=2,2 style=bush.scrub
 prop orchard_hay hay_stack 58 33 rect=2,2
 spawn spawn.inspection 58 24 rect=2,2
 anchor inspection_spawn 58 24 rect=2,2
@@ -99,6 +140,6 @@ sign sign.south "to knights district" 32 42 south
 sign sign.garden "archbishop's garden" 48 16 west
 patrol garden_watch 29,5|29,18|54,18|84,12|118,12|136,9|104,29|70,29|29,29|29,42
 exclude blocked.west_woodland 0 0 9 48
-fade fade.canon_close 70 3 60 20
+fade fade.canon_close 86 4 38 16
 camera 0 0 144 48
 surroundings north town east town south town west woodland
