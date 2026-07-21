@@ -65,21 +65,24 @@ const STAR_MAP_HEIGHT := 1024
 ## `wind` drives harbor boat heel/heave and water-shader sea state (0..1).
 ## `chaos` domain-warps cloud banks so clear weather stays partly cloudy with
 ## torn edges while storms shred into denser, more chaotic cover.
+## `storm` drives cumulonimbus development in the shader: the horizon squall
+## wall, darkened flat bases, and sunlit anvil crowns. Fair-weather cumulus keep
+## it near zero; only the rain profile towers into a full anvil.
 const PROFILES: Dictionary = {
 	WEATHER_CLEAR: {
 		"coverage": 0.34, "darken": 0.08,
 		"sun_energy": 1.0, "ambient_energy": 1.0,
-		"gray": 0.0, "rain": 0.0, "wind": 0.22, "chaos": 0.32,
+		"gray": 0.0, "rain": 0.0, "wind": 0.22, "chaos": 0.32, "storm": 0.0,
 	},
 	WEATHER_CLOUDY: {
 		"coverage": 0.72, "darken": 0.45,
 		"sun_energy": 0.60, "ambient_energy": 0.85,
-		"gray": 0.35, "rain": 0.0, "wind": 0.58, "chaos": 0.58,
+		"gray": 0.35, "rain": 0.0, "wind": 0.58, "chaos": 0.58, "storm": 0.18,
 	},
 	WEATHER_RAIN: {
 		"coverage": 0.92, "darken": 0.80,
 		"sun_energy": 0.32, "ambient_energy": 0.70,
-		"gray": 0.60, "rain": 1.0, "wind": 0.92, "chaos": 0.86,
+		"gray": 0.60, "rain": 1.0, "wind": 0.92, "chaos": 0.86, "storm": 1.0,
 	},
 }
 ## Seconds each weather state holds before the Markov step picks the next one.
@@ -92,7 +95,20 @@ const DURATIONS: Dictionary = {
 }
 const RAIN_FROM_CLOUDY_CHANCE := 0.45
 
+## Gust front: a real squall is preceded by a shove of wind ahead of the rain.
+## When the machine commits to rain we fire a transient gust that spikes the wind
+## (and, through it, cloud drift, sails, and sea state) then decays back to the
+## sustained storm wind. Added on top of the profile wind and clamped to 1.
+const GUST_PEAK := 0.4
+const GUST_RISE_SECONDS := 1.0
+const GUST_DECAY_SECONDS := 5.0
+
 const RAIN_EMITTER_HEIGHT := 11.0
+
+## Cloud drift scales with wind so a gust visibly accelerates the sky and storms
+## race while clear days barely stir. Base drift is the light fair-weather rate.
+const WIND_DRIFT_FLOOR := 0.5
+const WIND_DRIFT_GAIN := 1.6
 
 var weather: StringName = WEATHER_CLEAR
 ## When false the current state holds until set_weather() is called.
@@ -109,6 +125,9 @@ var _state_duration := 60.0
 var _rng := RandomNumberGenerator.new()
 var _cloud_offset := Vector2.ZERO
 var _cloud_detail_offset := Vector2.ZERO
+## Transient gust magnitude on top of the profile wind. `_gust_time` < 0 is idle.
+var _gust := 0.0
+var _gust_time := -1.0
 var _material: ShaderMaterial
 var _star_map: ImageTexture
 var _camera: Camera3D
@@ -300,8 +319,12 @@ func _build_rain() -> GPUParticles3D:
 ## Steps the weather state machine and cloud drift. Public so headless tests
 ## can drive time without a scene tree; _process is the only other caller.
 func advance(delta: float) -> void:
-	_cloud_offset += CLOUD_DRIFT_PER_SECOND * delta
-	_cloud_detail_offset += CLOUD_DETAIL_DRIFT_PER_SECOND * delta
+	_advance_gust(delta)
+	# Wind carries the clouds: gusts race the sky, calm clear days barely stir.
+	# Bank and detail drift share the multiplier so detail keeps outpacing banks.
+	var wind_scale := WIND_DRIFT_FLOOR + wind_strength() * WIND_DRIFT_GAIN
+	_cloud_offset += CLOUD_DRIFT_PER_SECOND * wind_scale * delta
+	_cloud_detail_offset += CLOUD_DETAIL_DRIFT_PER_SECOND * wind_scale * delta
 	if _blend < 1.0:
 		_blend = minf(1.0, _blend + delta / TRANSITION_SECONDS)
 		for key in _current:
@@ -319,6 +342,9 @@ func set_weather(next_weather: StringName) -> void:
 	assert(next_weather in ALL_WEATHERS)
 	if next_weather == weather:
 		return
+	# A gust front shoves ahead of the rain, so arm the pulse as the storm commits.
+	if next_weather == WEATHER_RAIN:
+		_gust_time = 0.0
 	_from = _current.duplicate()
 	weather = next_weather
 	_blend = 0.0
@@ -500,8 +526,22 @@ func rain_intensity() -> float:
 	return float(_current["rain"])
 
 
+## Sustained profile wind plus any transient gust front, clamped to the 0..1
+## range the sea-state and world-wind materials expect.
 func wind_strength() -> float:
-	return float(_current["wind"])
+	return clampf(float(_current["wind"]) + _gust, 0.0, 1.0)
+
+
+## The transient gust component alone (0 when no squall is rolling in). Exposed so
+## callers can react to the shove of wind that precedes rain, not just steady wind.
+func wind_gust() -> float:
+	return _gust
+
+
+## Cumulonimbus development, 0 (fair weather) to 1 (towering anvil). Mirrors the
+## `storm_intensity` uniform the sky shader uses for the squall wall and crowns.
+func storm_intensity() -> float:
+	return float(_current["storm"])
 
 
 ## Prevailing wind follows the authored cloud drift so smoke, sails, and floating
@@ -543,6 +583,22 @@ func _roll_duration(for_weather: StringName) -> float:
 	return _rng.randf_range(span.x, span.y)
 
 
+## Envelopes the gust front: a quick rise to the peak, then an exponential decay
+## back to calm. Deterministic in delta, so the seeded weather run stays reviewable.
+func _advance_gust(delta: float) -> void:
+	if _gust_time < 0.0:
+		_gust = 0.0
+		return
+	_gust_time += delta
+	if _gust_time < GUST_RISE_SECONDS:
+		_gust = GUST_PEAK * (_gust_time / GUST_RISE_SECONDS)
+	else:
+		_gust = GUST_PEAK * exp(-(_gust_time - GUST_RISE_SECONDS) / GUST_DECAY_SECONDS)
+	if _gust < 0.005:
+		_gust = 0.0
+		_gust_time = -1.0
+
+
 func _update_rain() -> void:
 	# Headless tests drive advance() without configure(); no emitter exists then.
 	if _rain == null:
@@ -563,3 +619,5 @@ func _push_cloud_uniforms() -> void:
 	_material.set_shader_parameter(&"cloud_offset", _cloud_offset)
 	_material.set_shader_parameter(&"cloud_detail_offset", _cloud_detail_offset)
 	_material.set_shader_parameter(&"cloud_chaos", cloud_chaos())
+	_material.set_shader_parameter(&"storm_intensity", storm_intensity())
+	_material.set_shader_parameter(&"wind_dir", wind_direction_xz())

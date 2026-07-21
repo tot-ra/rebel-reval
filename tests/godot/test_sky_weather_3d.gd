@@ -76,6 +76,9 @@ func test_sky_shader_covers_required_features() -> void:
 	assert_true("cloud_detail_offset" in source, "cloud edges must drift independently of bank masses")
 	assert_true("cloud_chaos" in source, "cloud banks must domain-warp for torn edges")
 	assert_true("bank_mask" in source, "partial cloudiness must leave open sky between cloud masses")
+	assert_true("storm_intensity" in source, "storms must tower into cumulonimbus, not just thicken flat cloud")
+	assert_true("cloud_crown" in source, "sunlit anvil crowns and silver linings must rim storm clouds")
+	assert_true("wind_dir" in source, "cirrus and the squall wall must follow the prevailing wind")
 	assert_true("moon_direction" in source, "the night sky must place a moon disk")
 	assert_true("moon_phase" in source, "the campaign date must drive weekly lunar lighting phases")
 	assert_true(
@@ -116,12 +119,55 @@ func test_storm_clouds_are_denser_and_more_chaotic_than_clear() -> void:
 	var sky = SkyWeather.new()
 	var clear_coverage := sky.cloud_coverage()
 	var clear_chaos := sky.cloud_chaos()
+	var clear_storm := sky.storm_intensity()
 	sky.auto_weather = false
 	sky.set_weather(SkyWeather.WEATHER_RAIN)
 	sky.advance(SkyWeather.TRANSITION_SECONDS)
 	assert_true(sky.cloud_coverage() > clear_coverage, "rain must thicken cloud cover")
 	assert_true(sky.cloud_chaos() > clear_chaos, "rain must tear cloud edges harder")
+	assert_true(sky.storm_intensity() > clear_storm, "rain must tower clear cumulus into a storm anvil")
+	assert_true(sky.storm_intensity() > 0.9, "the rain profile must reach full cumulonimbus development")
 	sky.free()
+
+
+func test_gust_front_shoves_ahead_of_the_rain() -> void:
+	var sky = SkyWeather.new()
+	sky.auto_weather = false
+	var calm_wind := sky.wind_strength()
+	assert_eq(sky.wind_gust(), 0.0, "a clear sky must have no gust")
+	sky.set_weather(SkyWeather.WEATHER_RAIN)
+	# The gust peaks early, while the rain profile is still only fading in.
+	sky.advance(SkyWeather.GUST_RISE_SECONDS)
+	var peak_gust := sky.wind_gust()
+	assert_true(peak_gust > 0.2, "a gust front must shove the wind ahead of the rain")
+	assert_true(
+		sky.wind_strength() > calm_wind + 0.2,
+		"the gust must lift the felt wind above the calm-weather breeze"
+	)
+	assert_true(sky.rain_intensity() < 0.9, "the gust must arrive before the rain fully lands")
+	# ... and then decays back down toward the sustained storm wind.
+	sky.advance(SkyWeather.GUST_DECAY_SECONDS * 3.0)
+	assert_true(sky.wind_gust() < peak_gust * 0.5, "the gust must decay after the front passes")
+	assert_true(sky.wind_strength() <= 1.0, "felt wind must stay within the material range")
+	sky.free()
+
+
+func test_cloud_drift_accelerates_with_the_wind() -> void:
+	var calm = SkyWeather.new()
+	var storm = SkyWeather.new()
+	calm.auto_weather = false
+	storm.auto_weather = false
+	storm.set_weather(SkyWeather.WEATHER_RAIN)
+	storm.advance(SkyWeather.TRANSITION_SECONDS)
+	var calm_start := calm.cloud_offset()
+	var storm_start := storm.cloud_offset()
+	calm.advance(2.0)
+	storm.advance(2.0)
+	var calm_moved := (calm.cloud_offset() - calm_start).length()
+	var storm_moved := (storm.cloud_offset() - storm_start).length()
+	assert_true(storm_moved > calm_moved, "storm wind must drive clouds across the sky faster than a calm breeze")
+	calm.free()
+	storm.free()
 
 
 func test_catalog_contains_real_naked_eye_stars() -> void:
