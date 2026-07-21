@@ -46,8 +46,13 @@ static func create_prop(
 		MapTypes.PROP_KIND_CANDLE: _draw_candle(root, target, time_of_day)
 		MapTypes.PROP_KIND_BUSH: _draw_bush(root, target, time_of_day)
 		MapTypes.PROP_KIND_FISHING_BOAT: _draw_fishing_boat(root, target, time_of_day)
+		MapTypes.PROP_KIND_CARGO_CRATES: _draw_cargo_crates(root, target, time_of_day)
+		MapTypes.PROP_KIND_TRADE_GOODS: _draw_trade_goods(root, target, time_of_day)
+		MapTypes.PROP_KIND_TIMBER_FENCE: _draw_timber_fence(root, prop, target, time_of_day)
+		MapTypes.PROP_KIND_CATTLE: _draw_cattle(root, target, time_of_day)
+		MapTypes.PROP_KIND_SHEEP: _draw_sheep(root, target, time_of_day)
 		_: _add_rect(root, "Marker", Vector2(-8, -8), Vector2(16, 16), Color.MAGENTA, target, time_of_day)
-	if prop["kind"] == MapTypes.PROP_KIND_FISHING_BOAT and _has_tall_footprint(prop):
+	if prop["kind"] in MapTypes.BOAT_PROP_KINDS and _has_tall_footprint(prop):
 		root.rotation = PI * 0.5
 	return root
 
@@ -222,6 +227,70 @@ static func _draw_fishing_boat(parent: Node2D, target: StringName, time_of_day: 
 	_add_rect(parent, "Mast", Vector2(-3, -47), Vector2(6, 35), timber.darkened(0.12), target, time_of_day)
 	_add_line(parent, "Rigging", PackedVector2Array([Vector2(0, -43), Vector2(35, -14)]), target, time_of_day, &"metal")
 	_add_circle(parent, "MooringRing", Vector2(-44, -4), 3.0, metal, target, time_of_day)
+
+static func _draw_cargo_crates(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
+	var timber := MapVisualStyle.role_color(&"timber", target, time_of_day)
+	_add_rect(parent, "CrateLarge", Vector2(-25, -24), Vector2(29, 29), wood, target, time_of_day)
+	_add_rect(parent, "CrateSmall", Vector2(7, -17), Vector2(22, 22), timber, target, time_of_day)
+	for brace in [
+		["LargeBraceH", Vector2(-25, -12), Vector2(29, 4)],
+		["LargeBraceV", Vector2(-12, -24), Vector2(4, 29)],
+		["SmallBraceH", Vector2(7, -7), Vector2(22, 3)],
+	]:
+		_add_rect(parent, brace[0], brace[1], brace[2], timber.darkened(0.12), target, time_of_day)
+
+
+static func _draw_trade_goods(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	var plaster := MapVisualStyle.role_color(&"plaster", target, time_of_day)
+	var hay := MapVisualStyle.role_color(&"hay", target, time_of_day)
+	_add_polygon(parent, "WoolSackA", PackedVector2Array([Vector2(-25, 4), Vector2(-22, -20), Vector2(-10, -28), Vector2(2, -18), Vector2(0, 5)]), plaster.darkened(0.08), target, time_of_day)
+	_add_polygon(parent, "WoolSackB", PackedVector2Array([Vector2(3, 5), Vector2(5, -17), Vector2(16, -23), Vector2(28, -13), Vector2(27, 5)]), plaster, target, time_of_day)
+	_add_rect(parent, "ClothBale", Vector2(-9, -13), Vector2(26, 18), hay.darkened(0.08), target, time_of_day)
+	_add_line(parent, "BaleCordA", PackedVector2Array([Vector2(-2, -13), Vector2(-2, 5)]), target, time_of_day, &"timber")
+	_add_line(parent, "BaleCordB", PackedVector2Array([Vector2(10, -13), Vector2(10, 5)]), target, time_of_day, &"timber")
+
+
+static func _draw_timber_fence(parent: Node2D, prop: Dictionary, target: StringName, time_of_day: StringName) -> void:
+	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
+	var footprint: Rect2 = prop.get("footprint", Rect2(Vector2.ZERO, Vector2(96, 32)))
+	var horizontal := footprint.size.x >= footprint.size.y
+	var length := maxf(maxf(footprint.size.x, footprint.size.y) - 12.0, 38.0)
+	var post_count := maxi(2, ceili(length / 48.0) + 1)
+	if horizontal:
+		_add_rect(parent, "RailTop", Vector2(-length * 0.5, -19), Vector2(length, 5), wood, target, time_of_day)
+		_add_rect(parent, "RailBottom", Vector2(-length * 0.5, -7), Vector2(length, 5), wood.darkened(0.08), target, time_of_day)
+		for index in post_count:
+			var x := lerpf(-length * 0.5, length * 0.5 - 5.0, float(index) / float(post_count - 1))
+			_add_rect(parent, "Post%d" % index, Vector2(x, -27), Vector2(5, 32), wood.darkened(0.15), target, time_of_day)
+	else:
+		_add_rect(parent, "RailLeft", Vector2(-12, -length * 0.5), Vector2(5, length), wood, target, time_of_day)
+		_add_rect(parent, "RailRight", Vector2(5, -length * 0.5), Vector2(5, length), wood.darkened(0.08), target, time_of_day)
+		for index in post_count:
+			var y := lerpf(-length * 0.5, length * 0.5 - 5.0, float(index) / float(post_count - 1))
+			_add_rect(parent, "Post%d" % index, Vector2(-17, y), Vector2(32, 5), wood.darkened(0.15), target, time_of_day)
+
+
+static func _draw_cattle(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	var hide := MapVisualStyle.role_color(&"wood", target, time_of_day).darkened(0.12)
+	var horn := MapVisualStyle.role_color(&"hay", target, time_of_day).lightened(0.12)
+	_add_polygon(parent, "Body", _ellipse(Vector2(-3, -10), Vector2(26, 16), 16), hide, target, time_of_day)
+	_add_polygon(parent, "Head", PackedVector2Array([Vector2(17, -19), Vector2(34, -15), Vector2(36, -4), Vector2(18, -3)]), hide.darkened(0.06), target, time_of_day)
+	_add_line(parent, "HornNorth", PackedVector2Array([Vector2(25, -17), Vector2(34, -25)]), target, time_of_day, &"hay")
+	_add_line(parent, "HornSouth", PackedVector2Array([Vector2(27, -5), Vector2(36, 1)]), target, time_of_day, &"hay")
+	for leg in [-17.0, 11.0]:
+		_add_rect(parent, "Leg%d" % int(leg), Vector2(leg, 0), Vector2(5, 15), hide.darkened(0.18), target, time_of_day)
+	_add_circle(parent, "Muzzle", Vector2(36, -8), 5.0, horn.darkened(0.18), target, time_of_day)
+
+
+static func _draw_sheep(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	var wool := MapVisualStyle.role_color(&"plaster", target, time_of_day)
+	var hide := MapVisualStyle.role_color(&"wood", target, time_of_day).darkened(0.22)
+	for tuft in [Vector2(-13, -11), Vector2(0, -16), Vector2(13, -10), Vector2(-3, -4)]:
+		_add_circle(parent, "Wool%d" % parent.get_child_count(), tuft, 12.0, wool.darkened(absf(tuft.x) * 0.002), target, time_of_day)
+	_add_polygon(parent, "Head", PackedVector2Array([Vector2(17, -14), Vector2(31, -11), Vector2(30, 0), Vector2(17, -2)]), hide, target, time_of_day)
+	_add_rect(parent, "LegA", Vector2(-13, -1), Vector2(4, 13), hide, target, time_of_day)
+	_add_rect(parent, "LegB", Vector2(10, -1), Vector2(4, 13), hide, target, time_of_day)
 
 
 static func _draw_barrels(parent: Node2D, target: StringName, time_of_day: StringName) -> void:

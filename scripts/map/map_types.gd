@@ -98,6 +98,11 @@ const PROP_KIND_CANDLE := &"candle"
 const PROP_KIND_BUSH := &"bush"
 const PROP_KIND_FISHING_BOAT := &"fishing_boat"
 const PROP_KIND_MERCHANT_BOAT := &"merchant_boat"
+const PROP_KIND_CARGO_CRATES := &"cargo_crates"
+const PROP_KIND_TRADE_GOODS := &"trade_goods"
+const PROP_KIND_TIMBER_FENCE := &"timber_fence"
+const PROP_KIND_CATTLE := &"cattle"
+const PROP_KIND_SHEEP := &"sheep"
 const BOAT_PROP_KINDS: Array[StringName] = [PROP_KIND_FISHING_BOAT, PROP_KIND_MERCHANT_BOAT]
 
 const ALL_PROP_KINDS: Array[StringName] = [
@@ -121,6 +126,11 @@ const ALL_PROP_KINDS: Array[StringName] = [
 	PROP_KIND_BUSH,
 	PROP_KIND_FISHING_BOAT,
 	PROP_KIND_MERCHANT_BOAT,
+	PROP_KIND_CARGO_CRATES,
+	PROP_KIND_TRADE_GOODS,
+	PROP_KIND_TIMBER_FENCE,
+	PROP_KIND_CATTLE,
+	PROP_KIND_SHEEP,
 ]
 
 const DEFAULT_CELL_SIZE := 32

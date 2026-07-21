@@ -2,7 +2,7 @@
 # The 208-cell footprint now matches the Monastery District below it. Its
 # stepped seaward shoulders round the outer wall without moving stable map IDs.
 rrmap 1
-map north_quarter loc.lower_town.north_quarter 208 140 cobblestone scope=prototype active=false palette=clean_painted seed=2718 cell_size=32
+map north_quarter loc.lower_town.north_quarter 208 140 dirt scope=prototype active=false palette=clean_painted seed=2718 cell_size=32
 source "scenes/reval_north/reval_north.tscn"
 source "scenes/revel-map.jpg"
 source "scenes/reval_north/pikk_street.md"
@@ -11,74 +11,194 @@ source "scenes/reval_north/shipwrights_yard.md"
 source "scenes/reval_north/ropemakers_guild.md"
 source "scenes/harbor/great_coast_gate.md"
 source "docs/HISTORICAL_AUDIT.md"
+# Affluent fronts, ordinary dwellings, rear houses, sheds and tall storehouses
+# intentionally coexist; a uniform late-medieval stone-gable street is excluded.
 style house.merchant.south door_side=south roof_color=3d3329ff roof_material=shingle wall_color=756654ff wall_material=plank wall_height=120
 style house.merchant.north door_side=north roof_color=3b332bff roof_material=shingle wall_color=695e4fff wall_material=plaster wall_height=120
 style house.merchant.gabled door_side=south ridge_axis=z primitive=stepped_gable_merchant wall_height=144 wall_color=756b5cff wall_material=limestone roof_color=4a2a20ff roof_material=tile
+style house.merchant.timber door_side=north ridge_axis=x wall_height=112 wall_color=665746ff wall_material=timber roof_color=44362bff roof_material=shingle
+style house.merchant.stone door_side=south ridge_axis=z primitive=stepped_gable_merchant wall_height=132 wall_color=847c6cff wall_material=limestone roof_color=543329ff roof_material=tile
+style house.dwelling door_side=north ridge_axis=x wall_height=96 wall_color=6d604eff wall_material=plaster roof_color=59462fff roof_material=shingle
+style house.dwelling.thatch door_side=south ridge_axis=z wall_height=82 wall_color=5b5145ff wall_material=log roof_color=76623dff roof_material=thatch
+style house.dwelling.plank door_side=south ridge_axis=x wall_height=88 wall_color=665947ff wall_material=plank roof_color=745f3cff roof_material=thatch
+style house.rear door_side=north ridge_axis=x wall_height=76 wall_color=594f43ff wall_material=log roof_color=45372bff roof_material=shingle
 style house.workshop.low door_side=north roof_color=6b5c40ff roof_material=thatch wall_color=5a4f45ff wall_material=log wall_height=72
 style house.workshop.mid door_side=north roof_color=383029ff roof_material=shingle wall_color=63594aff wall_material=log wall_height=88
-style house.warehouse door_side=south roof_color=352820ff roof_material=shingle wall_color=5a4f45ff wall_material=plank wall_height=64
+style house.warehouse door_side=south ridge_axis=x roof_color=352820ff roof_material=shingle wall_color=5a4f45ff wall_material=plank wall_height=96
+style house.warehouse.gabled door_side=south ridge_axis=z primitive=stepped_gable_merchant roof_color=3e2f25ff roof_material=tile wall_color=6c6253ff wall_material=limestone wall_height=132
 style wall.city wall_height=192 wall_color=949185ff
 style wall.tower wall_height=240 wall_color=8c8a80ff
-terrain district.base cobblestone 0 0 208 140 order=1
+# Packed earth is the ward-wide substrate. Stone is reserved for primary streets,
+# loading aprons and compact closes; wet work yards and green wall margins remain visible.
+terrain district.base dirt 0 0 208 140 order=1
 terrain_rects outer.shoulders grass 0,0,14,16|194,0,14,16|0,16,7,18|201,16,7,18 order=2
-terrain dock.forecourt mud 65 8 77 36 order=3
-terrain west.green grass 4 34 25 48 order=4
-terrain east.workyard dirt 160 24 42 65 order=5
-terrain merchants.close stone 32 83 41 44 order=6
-stroke pikk_spine cobblestone 104,138|104,109|104,78|104,47|104,8 thickness=4 order=7
-stroke lai_lane cobblestone 138,138|138,106|138,75|138,44|138,16 thickness=3 order=8
-stroke west_merchant_lane cobblestone 34,119|56,119|56,91|75,91|75,70 thickness=3 order=9
-stroke harbor_lane cobblestone 97,8|104,8|111,8 thickness=3 order=10
-stroke east_work_lane cobblestone 165,122|174,122|174,91|186,91|186,60 thickness=3 order=11
+terrain_rects wall.verges grass 3,35,15,97|190,35,15,97 order=3
+terrain_rects west.court.greens grass 8,55,16,28|8,86,18,24 order=4
+terrain_rects north.wet.margins grass 10,8,30,18|171,8,23,13 order=5
+terrain dock.forecourt mud 65 8 77 36 order=6
+terrain east.workyard mud 151 47 51 47 order=7
+terrain_rects service.yards dirt 18,17,64,55|145,17,57,28|18,103,72,34|145,97,57,40 order=8
+terrain_rects loading.aprons stone 35,14,48,31|108,12,45,33|154,18,44,28 order=9
+terrain merchants.close stone 72 103 69 31 order=10
+terrain goldsmiths.close stone 75 82 68 18 order=11
+stroke pikk_spine cobblestone 104,138|104,109|104,78|104,47|104,8 thickness=8 order=12
+stroke lai_lane cobblestone 138,138|138,106|138,75|138,44|138,16 thickness=6 order=13
+stroke west_merchant_lane cobblestone 34,119|56,119|56,91|75,91|75,70 thickness=5 order=14
+stroke harbor_lane cobblestone 75,44|104,44|138,44|186,44 thickness=6 order=15
+stroke goldsmith_lane cobblestone 75,91|104,91|138,91|174,91 thickness=5 order=16
+stroke east_work_lane cobblestone 165,122|174,122|174,91|186,91|186,60 thickness=5 order=17
+stroke gate_approach cobblestone 97,8|104,8|111,8 thickness=7 order=18
 # The seaward wall follows a stepped shoulder around the ward instead of a box.
 # All turns are sealed by circular towers, while the south seam stays a street.
 building city_wall_north_west wall 14 0 82 3 style=wall.city
-building coast_gate_west_tower wall 96 0 8 9 style=wall.tower tower=true
-building coast_gate_east_tower wall 110 0 8 9 style=wall.tower tower=true
+building coast_gate_west_tower wall 96 0 8 9 style=wall.tower tower=true door_side=south
+building coast_gate_east_tower wall 110 0 8 9 style=wall.tower tower=true door_side=south
+building coast_gate_west_jamb wall 102 0 2 9 style=wall.city
+building coast_gate_east_jamb wall 109 0 2 9 style=wall.city
 building city_wall_north_east wall 118 0 76 3 style=wall.city
-building merchant_wall_tower_northwest wall 7 8 8 8 style=wall.tower tower=true
-building merchant_wall_tower_northeast wall 193 8 8 8 style=wall.tower tower=true
+building merchant_wall_tower_northwest wall 7 8 8 8 style=wall.tower tower=true door_side=south
+building merchant_wall_tower_northeast wall 193 8 8 8 style=wall.tower tower=true door_side=south
 building city_wall_west_north wall 7 8 3 26 style=wall.city
 building city_wall_west_shoulder wall 0 31 10 3 style=wall.city
 building city_wall_west wall 0 31 3 109 style=wall.city
-building merchant_wall_tower_west_bend wall 0 27 8 8 style=wall.tower tower=true
-building merchant_wall_tower_west_mid wall 0 78 8 8 style=wall.tower tower=true
-building merchant_wall_tower_southwest wall 0 132 8 8 style=wall.tower tower=true
+building merchant_wall_tower_west_bend wall 0 27 8 8 style=wall.tower tower=true door_side=east
+building merchant_wall_tower_west_mid wall 0 78 8 8 style=wall.tower tower=true door_side=east
+building merchant_wall_tower_southwest wall 0 132 8 8 style=wall.tower tower=true door_side=east
 building city_wall_east_north wall 198 8 3 26 style=wall.city
 building city_wall_east_shoulder wall 198 31 10 3 style=wall.city
 building city_wall_east wall 205 31 3 109 style=wall.city
-building merchant_wall_tower_east_bend wall 200 27 8 8 style=wall.tower tower=true
-building merchant_wall_tower_east_mid wall 200 78 8 8 style=wall.tower tower=true
-building merchant_wall_tower_southeast wall 200 132 8 8 style=wall.tower tower=true
-building goldsmiths_row_west house 85 86 8 10 style=house.merchant.gabled
-building goldsmiths_row_east house 112 78 8 10 style=house.merchant.north
+building merchant_wall_tower_east_bend wall 200 27 8 8 style=wall.tower tower=true door_side=west
+building merchant_wall_tower_east_mid wall 200 78 8 8 style=wall.tower tower=true door_side=west
+building merchant_wall_tower_southeast wall 200 132 8 8 style=wall.tower tower=true door_side=west
+# Pikk and Lai use narrow street-facing plots with rear houses and work buildings.
+building pikk_front_west_gate house 84 40 14 10 style=house.merchant.stone
 building pikk_merchant_north_west house 85 54 8 10 style=house.merchant.north
+building pikk_front_west_mid_a house 84 67 14 8 style=house.merchant.timber
+building pikk_front_west_mid_b house 84 78 14 7 style=house.dwelling
+building goldsmiths_row_west house 85 86 8 10 style=house.merchant.gabled
+building pikk_front_west_south house 84 99 14 10 style=house.merchant.south
+building merchant_court_west house 78 114 12 8 style=house.merchant.north
+building merchant_court_west_annex house 90 113 8 9 style=house.rear
+building pikk_front_west_monastery house 84 125 14 9 style=house.dwelling.thatch
+building pikk_front_east_gate house 111 40 14 10 style=house.warehouse.gabled
 building pikk_merchant_north_east house 112 54 8 10 style=house.merchant.north
-building lai_merchant_north house 143 101 12 10 style=house.merchant.north
-building lai_east_row_north house 177 101 12 10 style=house.merchant.north
-building workshop_row_mid house 124 101 12 6 style=house.workshop.low
+building pikk_front_east_mid_a house 111 66 13 9 style=house.merchant.timber
+building goldsmiths_row_east house 112 78 8 10 style=house.merchant.north
+building pikk_front_east_mid_b house 111 90 13 9 style=house.dwelling
+building pikk_front_east_south house 111 101 11 10 style=house.merchant.south
+building merchant_court_east house 116 114 12 8 style=house.merchant.north
+building pikk_front_east_monastery house 111 125 14 9 style=house.dwelling
 building workshop_row_east house 126 54 12 6 style=house.workshop.mid
-building ropemakers_shed house 133 23 14 6 style=house.workshop.low
-building shipwright_yard house 169 23 22 8 style=house.merchant.south
-building cooperage_shed house 116 31 10 6 style=house.workshop.mid
-building sailmakers_loft house 92 31 12 6 style=house.workshop.low
+building lai_west_rear_a house 125 63 9 9 style=house.rear
+building lai_west_rear_b house 125 75 9 9 style=house.workshop.low
+building lai_west_rear_c house 125 87 9 10 style=house.dwelling.thatch
+building workshop_row_mid house 124 101 12 6 style=house.workshop.low
+building lai_west_rear_d house 129 110 5 10 style=house.rear
+building lai_west_rear_e house 126 123 8 11 style=house.dwelling.thatch
+building lai_east_gate_store house 143 34 8 10 style=house.warehouse.gabled
+building lai_east_front_a house 143 47 15 10 style=house.merchant.timber
+building lai_east_front_b house 143 60 13 10 style=house.dwelling
+building lai_east_front_c house 143 73 10 10 style=house.merchant.south
+building tailors_guild house 143 86 8 8 style=house.merchant.north
+building tailors_rear_house house 169 86 9 8 style=house.rear
+building lai_merchant_north house 143 101 12 10 style=house.merchant.north
+building lai_merchant_rear house 158 98 12 12 style=house.dwelling.thatch
+building lai_east_front_south house 143 114 12 10 style=house.merchant.timber
+building lai_east_rear_south house 158 113 12 10 style=house.rear
+building lai_east_monastery house 143 127 15 8 style=house.dwelling
+# Seaward storehouses and marine-trade buildings grow larger toward the gate.
+building warehouse_gate_west house 18 18 18 9 style=house.warehouse.gabled
+building warehouse_gate_mid_west house 39 18 18 9 style=house.warehouse
+building warehouse_gate_mid house 58 15 20 7 style=house.warehouse.gabled
 building warehouse_north_west house 68 23 12 6 style=house.warehouse
 building warehouse_north_mid house 44 31 10 6 style=house.warehouse
+building warehouse_west_court_a house 18 31 20 10 style=house.warehouse
+building warehouse_west_court_b house 58 32 20 9 style=house.workshop.mid
 building warehouse_far_west house 20 48 14 6 style=house.warehouse
+building warehouse_west_rear_a house 37 46 18 9 style=house.warehouse
+building warehouse_west_rear_b house 58 46 18 10 style=house.rear
+building warehouse_west_row_a house 18 59 18 10 style=house.dwelling.thatch
+building warehouse_west_row_b house 40 59 18 10 style=house.workshop.low
+building warehouse_west_row_c house 61 59 14 9 style=house.rear
+building sailmakers_loft house 92 31 12 6 style=house.workshop.low
+building cooperage_shed house 116 31 10 6 style=house.workshop.mid
+building ropemakers_shed house 133 23 14 6 style=house.workshop.low
+building warehouse_gate_east house 151 18 14 10 style=house.warehouse.gabled
+building shipwright_yard house 169 23 22 8 style=house.merchant.south
+building warehouse_east_court_a house 151 31 16 10 style=house.warehouse
+building warehouse_east_court_b house 171 34 16 10 style=house.workshop.mid
+building warehouse_east_court_c house 189 35 10 9 style=house.rear
+building warehouse_east_row_a house 160 47 17 10 style=house.warehouse
 building warehouse_far_east house 181 48 14 6 style=house.warehouse
-building painters_guild house 174 70 10 8 style=house.merchant.north
-building tailors_guild house 143 86 8 8 style=house.merchant.north
+building east_workshop_north house 160 60 12 9 style=house.workshop.low
+building east_storehouse_north house 189 59 11 9 style=house.warehouse
+# Irregular western and eastern service plots leave green wall margins and fenced yards.
+building west_dwelling_row_a house 18 72 18 10 style=house.dwelling.thatch
+building west_dwelling_row_b house 39 72 17 9 style=house.dwelling
+building west_rear_row_a house 59 72 13 9 style=house.rear
+building west_dwelling_row_c house 18 84 12 7 style=house.rear
+building west_workshop_row_a house 41 84 14 7 style=house.workshop.low
+building west_rear_row_b house 59 84 13 7 style=house.rear
 building stonemasons_lodge house 32 93 12 10 style=house.merchant.south
+building west_workshop_row_b house 45 94 10 11 style=house.workshop.mid
+building west_dwelling_row_d house 59 95 13 10 style=house.dwelling.thatch
+building west_dwelling_south_a house 18 106 13 10 style=house.dwelling
+building west_rear_south_a house 32 106 10 10 style=house.rear
 building counting_house house 44 109 14 8 style=house.merchant.gabled
-building merchant_court_west house 78 114 12 8 style=house.merchant.north
-building merchant_court_east house 116 114 12 8 style=house.merchant.north
+building west_dwelling_south_b house 60 108 12 10 style=house.dwelling
+building west_monastery_row_a house 18 122 14 12 style=house.dwelling.thatch
+building west_monastery_row_b house 35 123 18 11 style=house.dwelling.plank
+building west_monastery_row_c house 57 122 15 12 style=house.workshop.low
+building west_monastery_row_d house 75 125 8 9 style=house.rear
+building west_lane_front_a house 76 52 7 11 style=house.rear
+building west_lane_front_b house 76 67 6 9 style=house.workshop.low
+building west_lane_front_c house 76 79 6 10 style=house.dwelling.thatch
+building west_lane_front_d house 76 94 7 12 style=house.rear
+building east_workshop_mid_a house 153 72 14 9 style=house.workshop.low
+building painters_guild house 174 70 10 8 style=house.merchant.north
+building east_storehouse_mid_a house 188 71 11 8 style=house.warehouse
+building east_workshop_mid_b house 153 84 16 9 style=house.workshop.mid
+building east_rear_mid_a house 176 82 8 7 style=house.rear
+building east_rear_mid_b house 190 82 10 8 style=house.rear
+building east_storehouse_mid_b house 190 93 10 8 style=house.warehouse
+building lai_east_row_north house 177 101 12 10 style=house.merchant.north
+building east_dwelling_south_a house 191 104 10 10 style=house.dwelling
+building east_workshop_south_a house 171 113 6 9 style=house.workshop.low
+building east_dwelling_south_b house 180 114 12 9 style=house.dwelling
+building east_rear_south_a house 194 116 8 10 style=house.rear
+building east_workshop_monastery house 166 125 9 10 style=house.dwelling.thatch
+building east_dwelling_monastery house 176 126 16 10 style=house.dwelling
+building east_rear_monastery house 194 129 8 8 style=house.rear
 landmark coast_gate_arch gate_arch 103 0 7 9 wall_color=8f8c80ff top_px=240 passage_axis=z door_material=wood
-prop rope_props barrels 136 47 rect=2,2
+# Cargo, trade goods and livestock make the work yards legible without inventing gameplay NPCs.
 prop dock_barrels barrels 116 23 rect=2,2
+prop dock_crates_west cargo_crates 82 22 rect=3,2
+prop dock_crates_east cargo_crates 152 43 rect=3,2
+prop imported_goods_bales trade_goods 88 27 rect=3,2
+prop sailcloth_goods trade_goods 145 30 rect=3,2
+prop rope_props barrels 136 47 rect=2,2
+prop cooperage_crates cargo_crates 121 39 rect=3,2
+prop west_warehouse_goods trade_goods 57 43 rect=3,2
+prop east_warehouse_goods cargo_crates 181 57 rect=3,2
 prop merchant_stall_a stall 97 96 rect=3,2
 prop merchant_stall_b stall 114 96 rect=3,2
+prop market_crates cargo_crates 94 102 rect=3,2
+prop market_goods trade_goods 116 102 rect=3,2
 prop harbor_cart cart 103 16 rect=2,2
 prop east_work_cart cart 177 80 rect=2,2
+prop west_work_cart cart 67 70 rect=2,2
+prop west_cattle cattle 12 67 rect=3,3 facing=east
+prop west_pen_sheep sheep 13 96 rect=3,3 facing=south
+prop cattle_pen_north timber_fence 8 58 rect=11,1
+prop cattle_pen_south timber_fence 8 77 rect=11,1
+prop cattle_pen_west timber_fence 8 59 rect=1,18
+prop cattle_pen_east timber_fence 18 59 rect=1,18
+prop sheep_pen_north timber_fence 8 86 rect=11,1
+prop sheep_pen_south timber_fence 8 108 rect=11,1
+prop sheep_pen_west timber_fence 8 87 rect=1,21
+prop sheep_pen_east timber_fence 18 87 rect=1,21
+prop ropeyard_fence timber_fence 128 31 rect=1,18
+prop cargo_yard_fence timber_fence 158 17 rect=1,25
 spawn spawn.inspection 104 93 rect=2,2
 anchor inspection_spawn 104 93 rect=2,2
 anchor pikk_street_spine 104 70 rect=2,2
@@ -86,7 +206,7 @@ anchor harbor_approach 104 41 rect=2,2
 anchor merchant_court 104 114 rect=2,2
 anchor from_reval_harbor 104 13 rect=2,2
 anchor from_monastery 104 133 rect=2,2
-transition to_reval_harbor 103 0 7 3 to=reval_harbor_north destination_spawn=from_reval_north spawn=to_reval_harbor spawn_offset_px=0,96 highlight_area=true transition_visual=ground view_landmark_id=coast_gate_arch
+transition to_reval_harbor 103 0 7 3 to=reval_harbor_north destination_spawn=from_reval_north spawn=to_reval_harbor spawn_offset_px=-48,400 highlight_area=true transition_visual=ground view_landmark_id=coast_gate_arch
 transition to_monastery 98 136 12 4 to=reval_monastery destination_spawn=from_reval_north spawn=from_monastery spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
 sign sign.harbour "to trade harbour" 107 31 north
 sign sign.monastery "to monastery district" 102 131 south

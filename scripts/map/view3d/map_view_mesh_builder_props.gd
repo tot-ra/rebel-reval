@@ -176,6 +176,16 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			MapViewMeshBuilderPrimitives.sphere(root, "BushA", 0.42, Vector3(-0.18, 0.28, 0.08), &"vegetation", Vector3(1.0, 0.72, 1.0))
 			MapViewMeshBuilderPrimitives.sphere(root, "BushB", 0.36, Vector3(0.22, 0.24, -0.12), &"vegetation", Vector3(1.0, 0.68, 1.0))
 			MapViewMeshBuilderPrimitives.sphere(root, "BushC", 0.3, Vector3(0.04, 0.18, 0.16), &"vegetation", Vector3(1.0, 0.66, 1.0))
+		MapTypes.PROP_KIND_CARGO_CRATES:
+			_add_cargo_crates(root)
+		MapTypes.PROP_KIND_TRADE_GOODS:
+			_add_trade_goods(root)
+		MapTypes.PROP_KIND_TIMBER_FENCE:
+			_add_timber_fence(root, prop, cell_size)
+		MapTypes.PROP_KIND_CATTLE:
+			_add_cattle(root)
+		MapTypes.PROP_KIND_SHEEP:
+			_add_sheep(root)
 		MapTypes.PROP_KIND_FISHING_BOAT:
 			_add_fishing_boat(root)
 		MapTypes.PROP_KIND_MERCHANT_BOAT:
@@ -196,6 +206,67 @@ static func _add_fishing_boat(root: Node3D) -> void:
 
 static func _add_merchant_boat(root: Node3D) -> void:
 	MerchantBoatBuilder.add_to(root)
+
+
+static func _add_cargo_crates(root: Node3D) -> void:
+	_add_crate(root, "CrateLarge", Vector3(0.68, 0.62, 0.62), Vector3(-0.34, 0.31, 0.03))
+	_add_crate(root, "CrateSmall", Vector3(0.5, 0.46, 0.5), Vector3(0.34, 0.23, -0.16))
+
+
+static func _add_crate(root: Node3D, node_name: String, size: Vector3, position: Vector3) -> void:
+	var crate := Node3D.new()
+	crate.name = node_name
+	crate.position = position
+	root.add_child(crate)
+	MapViewMeshBuilderPrimitives.box(crate, "Boards", size, Vector3.ZERO, &"wood")
+	var brace_depth := size.z + 0.012
+	MapViewMeshBuilderPrimitives.box(crate, "BraceTop", Vector3(size.x + 0.035, 0.075, brace_depth), Vector3(0.0, size.y * 0.33, 0.0), &"timber")
+	MapViewMeshBuilderPrimitives.box(crate, "BraceBottom", Vector3(size.x + 0.035, 0.075, brace_depth), Vector3(0.0, -size.y * 0.33, 0.0), &"timber")
+	MapViewMeshBuilderPrimitives.box(crate, "BraceVertical", Vector3(0.075, size.y, brace_depth), Vector3.ZERO, &"timber")
+
+
+static func _add_trade_goods(root: Node3D) -> void:
+	# Baltic cargo is represented generically as wool/flour sacks and bound cloth
+	# bales, avoiding unsupported claims about exact goods on a given plot.
+	MapViewMeshBuilderPrimitives.sphere(root, "SackA", 0.34, Vector3(-0.34, 0.34, 0.03), &"plaster", Vector3(0.72, 1.15, 0.78))
+	MapViewMeshBuilderPrimitives.sphere(root, "SackB", 0.31, Vector3(0.14, 0.31, -0.16), &"plaster", Vector3(0.78, 1.12, 0.72))
+	MapViewMeshBuilderPrimitives.box(root, "ClothBale", Vector3(0.72, 0.38, 0.54), Vector3(0.34, 0.19, 0.25), &"hay")
+	MapViewMeshBuilderPrimitives.box(root, "BaleCordA", Vector3(0.07, 0.4, 0.56), Vector3(0.17, 0.2, 0.25), &"timber")
+	MapViewMeshBuilderPrimitives.box(root, "BaleCordB", Vector3(0.07, 0.4, 0.56), Vector3(0.51, 0.2, 0.25), &"timber")
+
+
+static func _add_timber_fence(root: Node3D, prop: Dictionary, cell_size: int) -> void:
+	var footprint: Rect2 = prop.get("footprint", Rect2(Vector2.ZERO, Vector2(cell_size * 3, cell_size)))
+	var scale := MapViewBridge.world_scale(cell_size)
+	var horizontal := footprint.size.x >= footprint.size.y
+	var length := maxf(maxf(footprint.size.x, footprint.size.y) * scale - 0.25, 0.75)
+	var post_count := maxi(2, ceili(length / 1.4) + 1)
+	for index in post_count:
+		var along := lerpf(-length * 0.5, length * 0.5, float(index) / float(post_count - 1))
+		var position := Vector3(along, 0.48, 0.0) if horizontal else Vector3(0.0, 0.48, along)
+		MapViewMeshBuilderPrimitives.box(root, "Post%d" % index, Vector3(0.12, 0.96, 0.12), position, &"timber")
+	for rail_index in 2:
+		var rail_y := 0.32 + float(rail_index) * 0.34
+		var rail_size := Vector3(length, 0.1, 0.1) if horizontal else Vector3(0.1, 0.1, length)
+		MapViewMeshBuilderPrimitives.box(root, "Rail%d" % rail_index, rail_size, Vector3(0.0, rail_y, 0.0), &"wood")
+
+
+static func _add_cattle(root: Node3D) -> void:
+	MapViewMeshBuilderPrimitives.sphere(root, "Body", 0.62, Vector3(-0.1, 0.72, 0.0), &"wood", Vector3(1.45, 0.75, 0.68))
+	MapViewMeshBuilderPrimitives.sphere(root, "Head", 0.34, Vector3(0.83, 0.78, 0.0), &"wood", Vector3(0.85, 0.95, 0.78))
+	MapViewMeshBuilderPrimitives.box(root, "Muzzle", Vector3(0.28, 0.2, 0.34), Vector3(1.1, 0.69, 0.0), &"hay")
+	for leg_spec in [["LegFL", 0.46, 0.27], ["LegFR", 0.46, -0.27], ["LegBL", -0.52, 0.27], ["LegBR", -0.52, -0.27]]:
+		MapViewMeshBuilderPrimitives.box(root, leg_spec[0], Vector3(0.13, 0.7, 0.13), Vector3(leg_spec[1], 0.35, leg_spec[2]), &"timber")
+	for horn_z in [-0.21, 0.21]:
+		var horn_name := "HornL" if horn_z > 0.0 else "HornR"
+		MapViewMeshBuilderPrimitives.cylinder(root, horn_name, 0.045, 0.34, Vector3(0.91, 1.04, horn_z), &"hay", true)
+
+
+static func _add_sheep(root: Node3D) -> void:
+	MapViewMeshBuilderPrimitives.sphere(root, "Fleece", 0.55, Vector3(-0.08, 0.58, 0.0), &"plaster", Vector3(1.28, 0.88, 0.82))
+	MapViewMeshBuilderPrimitives.sphere(root, "Head", 0.27, Vector3(0.68, 0.57, 0.0), &"wood", Vector3(0.82, 1.0, 0.76))
+	for leg_spec in [["LegFL", 0.3, 0.2], ["LegFR", 0.3, -0.2], ["LegBL", -0.42, 0.2], ["LegBR", -0.42, -0.2]]:
+		MapViewMeshBuilderPrimitives.box(root, leg_spec[0], Vector3(0.09, 0.46, 0.09), Vector3(leg_spec[1], 0.23, leg_spec[2]), &"timber")
 
 
 ## Layered decorative vegetation and ground clutter. Textured ground cover carries
@@ -252,10 +323,10 @@ static func build_scatter(
 			var density := TerrainVegetation.object_density_multiplier(is_urban, variant)
 			var tint := TerrainVegetation.ground_color_tint(variant)
 
-			# Cattails are a view-only riverbank layer driven by the smoothed
-			# shoreline. Authored reed zones remain available for deliberate beds.
+			# Cattails are a view-only inland-bank layer driven by the smoothed
+			# freshwater shoreline. Authored reed.shore zones cover moat ditches.
 			if (
-				MapViewMeshBuilderTerrain.is_natural_shore_cell(field, grid, cell)
+				MapViewMeshBuilderTerrain.is_inland_water_shore_cell(field, grid, cell)
 				and MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 2879)
 				< MapViewMeshBuilderConfig.SHORE_CATTAIL_CHANCE
 			):

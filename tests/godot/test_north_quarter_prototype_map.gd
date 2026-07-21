@@ -30,6 +30,57 @@ func test_north_quarter_prototype_bounds_and_spine() -> void:
 	)
 
 
+func test_merchant_district_uses_historical_streets_instead_of_blanket_cobble() -> void:
+	# HISTORICAL_AUDIT north-quarter ranges explicitly prohibit the old all-cobble base.
+	var definition: MapDefinition = NorthQuarterDefinition.create()
+	assert_eq(definition.base_terrain, MapTypes.TERRAIN_DIRT)
+	var grid := MapBuilder.build(definition)
+	var cobble_or_stone := 0
+	var dirt_or_mud := 0
+	var grass := 0
+	var total: int = definition.size_cells.x * definition.size_cells.y
+	for y in range(definition.size_cells.y):
+		for x in range(definition.size_cells.x):
+			match grid.get_terrain(Vector2i(x, y)):
+				MapTypes.TERRAIN_COBBLESTONE, MapTypes.TERRAIN_STONE:
+					cobble_or_stone += 1
+				MapTypes.TERRAIN_DIRT, MapTypes.TERRAIN_MUD:
+					dirt_or_mud += 1
+				MapTypes.TERRAIN_GRASS:
+					grass += 1
+	assert_true(cobble_or_stone >= int(total * 0.25), "Pikk, Lai and loading aprons need a readable paved network")
+	assert_true(cobble_or_stone <= int(total * 0.45), "Stone/cobble share must stay below the north-quarter historical ceiling")
+	assert_true(dirt_or_mud >= int(total * 0.35), "Earth, mud and work yards must reach the historical floor")
+	assert_true(grass >= int(total * 0.10), "Wall verges and rear court greenery must remain visible")
+
+
+func test_merchant_district_has_dense_varied_houses_warehouses_and_yards() -> void:
+	var definition: MapDefinition = NorthQuarterDefinition.create()
+	var ordinary_buildings := 0
+	var warehouse_buildings := 0
+	var material_pairs: Dictionary = {}
+	for building in definition.buildings:
+		if building.get("kind") != MapTypes.BUILDING_KIND_HOUSE:
+			continue
+		ordinary_buildings += 1
+		if String(building["id"]).contains("warehouse") or String(building["id"]).contains("storehouse"):
+			warehouse_buildings += 1
+		var pair := "%s/%s" % [building.get("wall_material", &""), building.get("roof_material", &"")]
+		material_pairs[pair] = true
+	assert_true(ordinary_buildings >= 70, "Merchant ward should read as property rows, not isolated houses in a plaza")
+	assert_true(warehouse_buildings >= 12, "Warehousing should become conspicuous toward the Coastal Gate")
+	assert_true(material_pairs.size() >= 7, "Stone, plaster, timber/log and varied roofs must break repeated facade runs")
+
+	for prop_kind in [
+		MapTypes.PROP_KIND_CARGO_CRATES,
+		MapTypes.PROP_KIND_TRADE_GOODS,
+		MapTypes.PROP_KIND_TIMBER_FENCE,
+		MapTypes.PROP_KIND_CATTLE,
+		MapTypes.PROP_KIND_SHEEP,
+	]:
+		assert_true(_has_prop_kind(definition, prop_kind), "Missing merchant-yard prop kind %s" % prop_kind)
+
+
 func test_merchant_district_has_three_sided_walls_round_turrets_and_harbor_gate() -> void:
 	var definition: MapDefinition = NorthQuarterDefinition.create()
 	for wall_id in [&"city_wall_north_west", &"city_wall_north_east", &"city_wall_west", &"city_wall_east"]:
@@ -89,3 +140,10 @@ func _landmark_by_id(definition: MapDefinition, landmark_id: StringName) -> Dict
 		if landmark["id"] == landmark_id:
 			return landmark
 	return {}
+
+
+func _has_prop_kind(definition: MapDefinition, prop_kind: StringName) -> bool:
+	for prop in definition.props:
+		if prop["kind"] == prop_kind:
+			return true
+	return false
