@@ -25,6 +25,15 @@ static func progress_to_hour(progress: float) -> float:
 	return wrapf(progress, 0.0, 1.0) * 24.0
 
 
+## Local solar clock for the shared day/night loop. Progress 0.0 is midnight,
+## 0.5 is noon; minutes are floored so the HUD does not jitter every frame.
+static func format_clock(progress: float) -> String:
+	var total_minutes := int(floor(progress_to_hour(progress) * 60.0)) % (24 * 60)
+	var hour := total_minutes / 60
+	var minute := total_minutes % 60
+	return "%02d:%02d" % [hour, minute]
+
+
 ## Soft on/off ramp for evening window glow. fade_hours is in-game hours.
 static func evening_glow_strength(
 	hour: float,

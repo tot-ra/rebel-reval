@@ -60,5 +60,12 @@ static func format_date(date: Dictionary) -> String:
 	]
 
 
+## Story date plus the accelerated local solar clock. Campaign day still comes
+## from phases; HH:MM follows DayNightCycle progress so the minimap stays in
+## sync with the moving sun without advancing story time.
+static func format_date_and_local_time(date: Dictionary, cycle_progress: float) -> String:
+	return "%s %s" % [format_date(date), DayNightCycle.format_clock(cycle_progress)]
+
+
 static func formatted_date_for_phase(phase_id: StringName) -> String:
 	return format_date(date_for_phase(phase_id))

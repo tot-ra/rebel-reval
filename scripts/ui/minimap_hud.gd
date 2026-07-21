@@ -47,7 +47,7 @@ class MinimapCelestialIndicator:
 		draw_arc(center, radius, 0.0, TAU, 48, Color(0.93, 0.79, 0.48, 0.95), 1.5, true)
 
 		# The miniature orbit mirrors the accelerated world-lighting cycle. The
-		# date remains story-authored, while this disc can animate every frame.
+		# badge below keeps the story date and refreshes local clock time.
 		var orbit_angle := cycle_progress * TAU + PI
 		var orbit := Vector2(cos(orbit_angle), sin(orbit_angle))
 		var body_position := center + orbit * Vector2(radius * 0.58, radius * 0.42)
@@ -120,6 +120,8 @@ var _texture_rect: TextureRect
 var _marker: ColorRect
 var _map_texture: ImageTexture
 var _date_label: Label
+var _date_badge: PanelContainer
+var _calendar_date: Dictionary = GameCalendarScript.DEFAULT_DATE.duplicate()
 var _celestial_indicator: MinimapCelestialIndicator
 
 
@@ -193,7 +195,7 @@ func _ready() -> void:
 	_ensure_ui()
 	_rebuild_map_texture()
 	_connect_time_sources()
-	_update_calendar_date(MusicDirector.current_calendar_date())
+	_calendar_date = MusicDirector.current_calendar_date()
 	_update_cycle_progress(MusicDirector.get_cycle_progress())
 	set_process(true)
 
@@ -297,14 +299,18 @@ func _build_ui() -> void:
 	_celestial_indicator.position = Vector2(MAX_DISPLAY_SIZE - CELESTIAL_SIZE.x - 10.0, 10.0)
 	_map_host.add_child(_celestial_indicator)
 
-	var date_badge := PanelContainer.new()
-	date_badge.name = "CalendarDateBadge"
-	date_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	date_badge.custom_minimum_size = Vector2(112.0, DATE_BADGE_HEIGHT)
-	date_badge.size = date_badge.custom_minimum_size
-	date_badge.position = Vector2((MAX_DISPLAY_SIZE - date_badge.size.x) * 0.5, MAX_DISPLAY_SIZE - DATE_BADGE_HEIGHT - 14.0)
-	date_badge.add_theme_stylebox_override("panel", _date_badge_style())
-	_map_host.add_child(date_badge)
+	_date_badge = PanelContainer.new()
+	_date_badge.name = "CalendarDateBadge"
+	_date_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Wide enough for "DD.MM.YYYY HH:MM" without clipping the oak badge.
+	_date_badge.custom_minimum_size = Vector2(148.0, DATE_BADGE_HEIGHT)
+	_date_badge.size = _date_badge.custom_minimum_size
+	_date_badge.position = Vector2(
+		(MAX_DISPLAY_SIZE - _date_badge.size.x) * 0.5,
+		MAX_DISPLAY_SIZE - DATE_BADGE_HEIGHT - 14.0
+	)
+	_date_badge.add_theme_stylebox_override("panel", _date_badge_style())
+	_map_host.add_child(_date_badge)
 
 	_date_label = Label.new()
 	_date_label.name = "CalendarDate"
@@ -315,8 +321,8 @@ func _build_ui() -> void:
 	_date_label.add_theme_color_override("font_shadow_color", Color(0.05, 0.035, 0.025, 0.95))
 	_date_label.add_theme_constant_override("shadow_offset_x", 1)
 	_date_label.add_theme_constant_override("shadow_offset_y", 2)
-	_date_label.add_theme_font_size_override("font_size", 16)
-	date_badge.add_child(_date_label)
+	_date_label.add_theme_font_size_override("font_size", 15)
+	_date_badge.add_child(_date_label)
 
 	var ornament := MinimapOrnament.new()
 	ornament.name = "MedievalOrnament"
@@ -336,11 +342,23 @@ func _connect_time_sources() -> void:
 func _update_cycle_progress(progress: float) -> void:
 	if _celestial_indicator != null:
 		_celestial_indicator.set_cycle_progress(progress)
+	# WHY: Sun motion already drives the celestial disc; the badge must refresh
+	# local HH:MM from the same shared clock so date and sky stay aligned.
+	_refresh_date_label(progress)
 
 
 func _update_calendar_date(date: Dictionary) -> void:
-	if _date_label != null:
-		_date_label.text = GameCalendarScript.format_date(date)
+	_calendar_date = date.duplicate()
+	_refresh_date_label(MusicDirector.get_cycle_progress())
+
+
+func _refresh_date_label(progress: float) -> void:
+	if _date_label == null:
+		return
+	var text := GameCalendarScript.format_date_and_local_time(_calendar_date, progress)
+	if _date_label.text == text:
+		return
+	_date_label.text = text
 
 
 func _date_badge_style() -> StyleBoxFlat:

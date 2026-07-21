@@ -81,12 +81,38 @@ func test_location_label_sits_above_map_block() -> void:
 	_cleanup_root(root)
 
 func test_minimap_shows_story_date_and_day_night_indicator() -> void:
+	MusicDirector.clear_cycle_progress()
 	var root := _make_root()
 	var hud := MinimapHud.new()
 	root.add_child(hud)
-	assert_eq(hud.get_date_label().text, "21.04.1343")
+	assert_eq(hud.get_date_label().text, "21.04.1343 06:00")
 	assert_true(hud.get_celestial_indicator() != null)
 	assert_eq(hud.get_celestial_indicator().name, "DayNightIndicator")
+	_cleanup_root(root)
+
+
+func test_minimap_date_tracks_local_clock_as_sun_moves() -> void:
+	MusicDirector.clear_cycle_progress()
+	var root := _make_root()
+	var hud := MinimapHud.new()
+	root.add_child(hud)
+	assert_eq(hud.get_date_label().text, "21.04.1343 06:00")
+
+	MusicDirector.set_cycle_progress(0.5)
+	assert_eq(
+		hud.get_date_label().text,
+		"21.04.1343 12:00",
+		"noon sun progress must refresh the minimap local clock"
+	)
+
+	MusicDirector.set_cycle_progress(18.0 / 24.0)
+	assert_eq(
+		hud.get_date_label().text,
+		"21.04.1343 18:00",
+		"evening sun progress must keep the story date and update HH:MM"
+	)
+
+	MusicDirector.clear_cycle_progress()
 	_cleanup_root(root)
 
 
@@ -144,6 +170,24 @@ func test_story_calendar_tracks_slice_timeline_without_visual_cycle_days() -> vo
 	assert_eq(
 		GameCalendarScript.formatted_date_for_phase(GameState.PHASE_REFLECTION_MORNING),
 		"23.04.1343"
+	)
+	assert_eq(
+		GameCalendarScript.format_date_and_local_time(
+			GameCalendarScript.DEFAULT_DATE,
+			0.25
+		),
+		"21.04.1343 06:00",
+		"local clock must decorate the story date without changing it"
+	)
+	assert_eq(
+		DayNightCycle.format_clock(0.0),
+		"00:00",
+		"midnight progress is local midnight"
+	)
+	assert_eq(
+		DayNightCycle.format_clock(0.5),
+		"12:00",
+		"half-cycle progress is local noon"
 	)
 
 
