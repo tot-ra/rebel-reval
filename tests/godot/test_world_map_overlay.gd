@@ -3,6 +3,8 @@ extends "res://tests/godot/test_case.gd"
 ## P1-031: world/district map overlay matches the active transition manifest.
 const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
+const LocalMapView := preload("res://scripts/ui/world_map_local_view.gd")
+const FastTravelView := preload("res://scripts/ui/world_map_fast_travel_view.gd")
 
 
 func before_each() -> void:
@@ -88,6 +90,14 @@ func test_map_mode_opens_on_local_position_with_fast_travel_as_separate_option()
 	assert_true(travel_button != null, "fast travel must be an extra visible option")
 	assert_eq(local_button.text, "Local map")
 	assert_eq(travel_button.text, "Fast travel")
+	assert_true(
+		overlay.find_child("LocalMapHost", true, false).get_script() == LocalMapView,
+		"stable LocalMapHost must delegate rendering to the focused local-map view"
+	)
+	assert_true(
+		overlay.find_child("GraphHost", true, false).get_script() == FastTravelView,
+		"stable GraphHost must delegate rendering and focus to the fast-travel view"
+	)
 
 	travel_button.pressed.emit()
 	assert_eq(overlay.get_mode(), WorldMapOverlay.MODE_FAST_TRAVEL)

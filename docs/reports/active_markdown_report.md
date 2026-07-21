@@ -16,17 +16,17 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 - Active Markdown files scanned: `43`
 - Markdown files excluded as archive/reference/out of active scope: `300`
-- Local/external links inspected: `172`
+- Local/external links inspected: `171`
 - Links to active Markdown docs: `99`
 - Links to existing archive/reference/non-active local docs: `21`
 - External links skipped for reachability: `22`
-- Issues found: `1`
+- Issues found: `0`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 1 |
+| `BROKEN_LINK` | 0 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -34,9 +34,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Issues
 
-| Code | Location | Detail |
-| --- | --- | --- |
-| `BROKEN_LINK` | `README.md:9` | Local Markdown link target does not exist: `./img/banner.jpg` |
+No active Markdown documentation issues found.
 
 ## Active files scanned
 
