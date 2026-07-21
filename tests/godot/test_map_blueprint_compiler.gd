@@ -201,7 +201,7 @@ func test_rejects_duplicate_ids_unknown_styles_and_unknown_kinds() -> void:
 	_assert_compile_error(bad_building, "building kind is unknown")
 
 	var bad_prop := _base_blueprint()
-	bad_prop.prop(&"bad.prop", &"tree", Vector2i(3, 3))
+	bad_prop.prop(&"bad.prop", &"bonsai", Vector2i(3, 3))
 	_assert_compile_error(bad_prop, "prop kind is unknown")
 
 	var bad_landmark := _base_blueprint()

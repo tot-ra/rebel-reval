@@ -217,10 +217,15 @@ func test_grass_and_tree_detail_use_generated_meshes_and_wind_materials() -> voi
 		GeometryInstance3D.SHADOW_CASTING_SETTING_OFF,
 		"grass must not cast shadows while vertex wind animates"
 	)
-	for path in ["Surroundings/SpruceCanopies", "Surroundings/LeafCanopies"]:
-		var canopy := view.get_node(path) as MultiMeshInstance3D
+	var found_canopy := false
+	for path in ["Surroundings/SpruceCanopies", "Surroundings/LeafCanopies", "Surroundings/Trees_Pine", "Surroundings/Trees_Column"]:
+		var canopy := view.get_node_or_null(path) as MultiMeshInstance3D
+		if canopy == null:
+			continue
 		assert_true(canopy.multimesh.mesh is ArrayMesh, "%s must use a multi-lobed generated mesh" % path)
 		assert_true(canopy.material_override is ShaderMaterial, "%s must carry canopy sway" % path)
+		found_canopy = true
+	assert_true(found_canopy, "woodland surroundings must spawn at least one Estonian canopy batch")
 	view.free()
 
 
@@ -400,15 +405,23 @@ func test_transition_door_has_readable_frame_panel_and_handle() -> void:
 			transition = candidate
 			break
 	assert_false(transition.is_empty(), "smithy door must stay a framed building entry")
-	var door := MapViewMeshBuilder.build_transition_door(transition, definition.cell_size)
+	var smithy: Dictionary = {}
+	for building in definition.buildings:
+		if building.get("id") == &"kalev_smithy":
+			smithy = building
+			break
+	assert_false(smithy.is_empty(), "smithy entrance needs its owning building")
+	var door := MapViewMeshBuilder.build_transition_door(transition, definition.cell_size, -1.0, smithy)
 	assert_true(door.has_node("Panel"), "door needs a solid panel")
 	assert_true(door.has_node("FrameLeft"), "door needs a left frame")
 	assert_true(door.has_node("FrameRight"), "door needs a right frame")
 	assert_true(door.has_node("Lintel"), "door needs a lintel")
 	assert_true(door.has_node("Handle"), "door needs a visible handle")
-	var rect: Rect2 = transition["rect"]
-	var expected_boundary := rect.position.y * MapViewBridge.world_scale(definition.cell_size)
-	assert_true(is_equal_approx(door.position.z, expected_boundary), "door must sit flush with the smithy wall")
+	var footprint: Rect2 = smithy["footprint"]
+	var expected_boundary := footprint.end.y * MapViewBridge.world_scale(definition.cell_size)
+	assert_true(is_equal_approx(door.position.z, expected_boundary), "door must sit flush with the smithy facade")
+	assert_eq(door.get_meta("building_id"), &"kalev_smithy")
+	assert_false(door.has_node("OpeningHead"), "an attached entrance must reuse the building wall, not grow a freestanding infill")
 	door.free()
 
 

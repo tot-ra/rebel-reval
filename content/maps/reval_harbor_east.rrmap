@@ -18,6 +18,9 @@ style bush.dense
 style bush.scrub
 style tree.mixed
 style tree.spruce
+style tree.birch
+style tree.alder
+style tree.pine
 terrain water.deep deep_water 0 0 144 24 order=1
 terrain water.shallow shallow_water 0 24 144 10 order=2
 terrain shore.sand coast_sand 0 34 144 10 order=3
@@ -77,6 +80,9 @@ prop drying_nets_east barrels 132 54 rect=2,1
 prop scrub.west bush 38 68 rect=3,2 style=bush.dense
 prop scrub.mid bush 99 70 rect=3,2 style=bush.scrub
 prop scrub.east bush 136 65 rect=3,2 style=bush.dense
+prop shore.birch_west tree 12 62 style=tree.birch
+prop shore.alder_mid tree 78 66 style=tree.alder
+prop shore.pine_east tree 128 62 style=tree.pine
 # Working boats stay on water beside the timber decks so players can walk up to
 # them from the pier tips without boarding open Baltic cells.
 prop fishing_boat_west_a fishing_boat 23 24 rect=2,5

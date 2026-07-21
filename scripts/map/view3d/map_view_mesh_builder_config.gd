@@ -142,15 +142,34 @@ const FRAME_BEAM_THICKNESS := 0.11
 const PLINTH_HEIGHT := 0.24
 
 ## Tallinn town-wall dressing: round limestone towers wear tall conical
-## red-tile roofs, and wall walks carry a red saddle roof on timber posts.
+## red-tile roofs, while a character-height timber gallery carries the wall-walk
+## roof. The gallery keeps a full two-metre actor clear beneath its eaves.
 const TOWER_MAX_FOOTPRINT := 5.2
 const TOWER_MIN_ASPECT := 0.65
+## Ground-level access is visual-only, but it must stay character-scale and
+## clearly separate from the much larger gate leaves.
+const TOWER_DOOR_WIDTH := 1.1
+const TOWER_DOOR_HEIGHT := 2.2
+const TOWER_DOOR_FRAME_WIDTH := 0.16
+const TOWER_DOOR_FRAME_DEPTH := 0.18
+const TOWER_DOOR_STEP_DEPTH := 0.38
 const TOWER_RADIUS_FACTOR := 0.48
 const TOWER_ROOF_COLOR := Color8(158, 64, 44)
 const WALL_ROOF_COLOR := Color8(150, 66, 48)
 const TOWER_ROOF_PITCH := 1.45
-const WALL_WALK_ROOF_LIFT := 0.75
+const WALL_WALK_CLEAR_HEIGHT := 2.35
+const WALL_WALK_MIN_WIDTH := 2.4
 const WALL_WALK_TIMBER_TONE := Color(0.50, 0.36, 0.24)
+const WALL_WALK_POST_SPACING := 1.8
+const WALL_WALK_POST_SIZE := 0.11
+const WALL_WALK_RAIL_HEIGHT := 0.86
+const WALL_WALK_RAIL_SIZE := 0.09
+const WALL_WALK_BRACKET_DROP := 0.62
+const WALL_BASE_ARCADE_BAY_WIDTH := 2.0
+const WALL_BASE_ARCADE_DEPTH := 0.24
+const WALL_BASE_ARCADE_STONE_WIDTH := 0.2
+const WALL_BASE_ARCADE_SPRING_HEIGHT := 0.62
+const WALL_BASE_ARCADE_MAX_RADIUS := 0.92
 
 ## Large authored stair props opt into wall-walk access with
 ## primitive=wall_walk_access. Most of their footprint climbs; the final band is
@@ -302,7 +321,9 @@ const SCATTER_SMALL_GRASS_CHANCE := {
 	MapTypes.TERRAIN_STRAW: 0.06,
 }
 const SCATTER_TREE_CHANCE := {
-	MapTypes.TERRAIN_FOREST_FLOOR: 0.075,
+	MapTypes.TERRAIN_FOREST_FLOOR: 0.09,
+	MapTypes.TERRAIN_MEADOW: 0.02,
+	MapTypes.TERRAIN_GRASS: 0.006,
 }
 const SCATTER_TREE_SPRUCE_RATIO := {
 	MapTypes.TERRAIN_FOREST_FLOOR: 0.62,

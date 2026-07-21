@@ -330,7 +330,9 @@ static func _wind_materials() -> Array[ShaderMaterial]:
 	return [
 		grass_blades(),
 		canopy(&"spruce"),
+		canopy(&"pine"),
 		canopy(&"leaf"),
+		canopy(&"column"),
 		sail_cloth(),
 		flag_cloth(),
 	]
@@ -358,6 +360,12 @@ static func canopy(kind: StringName) -> ShaderMaterial:
 		&"spruce":
 			material.set_shader_parameter("base_color", Color8(58, 84, 56))
 			material.set_shader_parameter("sway_strength", 0.035)
+		&"pine":
+			material.set_shader_parameter("base_color", Color8(72, 96, 52))
+			material.set_shader_parameter("sway_strength", 0.03)
+		&"column":
+			material.set_shader_parameter("base_color", Color8(108, 132, 62))
+			material.set_shader_parameter("sway_strength", 0.07)
 		_:
 			material.set_shader_parameter("base_color", Color8(96, 118, 60))
 			material.set_shader_parameter("sway_strength", 0.06)
@@ -543,7 +551,9 @@ static func foliage_leaf() -> StandardMaterial3D:
 	return _patterned("foliage_leaf", Color8(94, 116, 58), PATTERN_GRASS)
 
 
-static func bark() -> StandardMaterial3D:
+static func bark(kind: StringName = &"bark") -> StandardMaterial3D:
+	if kind == &"birch":
+		return _patterned("bark_birch", Color8(214, 208, 196), PATTERN_PLANK)
 	return _patterned("bark", Color8(74, 56, 42), PATTERN_PLANK)
 
 

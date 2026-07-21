@@ -72,6 +72,79 @@ static func leaf_canopy_mesh() -> ArrayMesh:
 	_mesh_cache[CACHE_KEY] = mesh
 	return mesh
 
+
+## Scots pine: fewer, lofted umbrella tiers with a clearer stem gap than spruce.
+## Local y spans roughly 0.35 (lowest skirt) to 2.7 (tip).
+static func pine_canopy_mesh() -> ArrayMesh:
+	const CACHE_KEY := &"pine_canopy"
+	if _mesh_cache.has(CACHE_KEY):
+		return _mesh_cache[CACHE_KEY]
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var tiers := [
+		[0.78, 0.35, 0.85],
+		[0.62, 0.95, 0.78],
+		[0.4, 1.55, 0.7],
+		[0.18, 2.1, 0.55],
+	]
+	for tier_index in tiers.size():
+		var tier: Array = tiers[tier_index]
+		var cone := CylinderMesh.new()
+		cone.top_radius = 0.0
+		cone.bottom_radius = tier[0]
+		cone.height = tier[2]
+		cone.radial_segments = 8
+		cone.rings = 1
+		var offset := Vector3(
+			(MeshMath.hash01(tier_index, 3, 101) - 0.5) * 0.16,
+			float(tier[1]) + float(tier[2]) * 0.5,
+			(MeshMath.hash01(tier_index, 7, 149) - 0.5) * 0.16
+		)
+		surface.append_from(cone, 0, Transform3D(Basis.IDENTITY, offset))
+	var mesh := surface.commit()
+	_mesh_cache[CACHE_KEY] = mesh
+	return mesh
+
+
+## Birch/aspen column: taller stacked lobes, narrower than the oak/maple crown.
+static func column_canopy_mesh() -> ArrayMesh:
+	const CACHE_KEY := &"column_canopy"
+	if _mesh_cache.has(CACHE_KEY):
+		return _mesh_cache[CACHE_KEY]
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var lobes := [
+		[Vector3(0.0, 0.05, 0.0), 0.48],
+		[Vector3(0.22, 0.35, 0.08), 0.38],
+		[Vector3(-0.2, 0.55, -0.1), 0.36],
+		[Vector3(0.06, 0.95, 0.12), 0.34],
+		[Vector3(-0.08, 1.25, -0.06), 0.3],
+		[Vector3(0.04, 1.55, 0.02), 0.24],
+	]
+	for lobe: Array in lobes:
+		var sphere := SphereMesh.new()
+		sphere.radius = lobe[1]
+		sphere.height = float(lobe[1]) * 2.05
+		sphere.radial_segments = 9
+		sphere.rings = 5
+		surface.append_from(sphere, 0, Transform3D(Basis.IDENTITY, lobe[0]))
+	var mesh := surface.commit()
+	_mesh_cache[CACHE_KEY] = mesh
+	return mesh
+
+
+static func canopy_mesh_for(silhouette: StringName) -> ArrayMesh:
+	match silhouette:
+		&"spruce":
+			return spruce_canopy_mesh()
+		&"pine":
+			return pine_canopy_mesh()
+		&"column":
+			return column_canopy_mesh()
+		_:
+			return leaf_canopy_mesh()
+
+
 static func grass_tuft_mesh() -> ArrayMesh:
 	const CACHE_KEY := &"grass_tuft"
 	if _mesh_cache.has(CACHE_KEY):

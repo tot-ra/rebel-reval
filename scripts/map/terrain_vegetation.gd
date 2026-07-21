@@ -17,6 +17,13 @@ const VARIANT_REED_SHORE := &"reed.shore"
 const VARIANT_BUSH_DENSE := &"bush.dense"
 const VARIANT_BUSH_SCRUB := &"bush.scrub"
 const VARIANT_TREE_SPRUCE := &"tree.spruce"
+const VARIANT_TREE_PINE := &"tree.pine"
+const VARIANT_TREE_BIRCH := &"tree.birch"
+const VARIANT_TREE_OAK := &"tree.oak"
+const VARIANT_TREE_ALDER := &"tree.alder"
+const VARIANT_TREE_ASPEN := &"tree.aspen"
+const VARIANT_TREE_MAPLE := &"tree.maple"
+const VARIANT_TREE_LINDEN := &"tree.linden"
 const VARIANT_TREE_DECIDUOUS := &"tree.deciduous"
 const VARIANT_TREE_MIXED := &"tree.mixed"
 
@@ -32,6 +39,13 @@ const ALL_VARIANTS: Array[StringName] = [
 	VARIANT_BUSH_DENSE,
 	VARIANT_BUSH_SCRUB,
 	VARIANT_TREE_SPRUCE,
+	VARIANT_TREE_PINE,
+	VARIANT_TREE_BIRCH,
+	VARIANT_TREE_OAK,
+	VARIANT_TREE_ALDER,
+	VARIANT_TREE_ASPEN,
+	VARIANT_TREE_MAPLE,
+	VARIANT_TREE_LINDEN,
 	VARIANT_TREE_DECIDUOUS,
 	VARIANT_TREE_MIXED,
 ]
@@ -43,6 +57,7 @@ const URBAN_IMPLICIT_OBJECT_DENSITY := 0.08
 const URBAN_AUTHORED_OBJECT_DENSITY := 0.42
 
 const DEFAULT_BUSH_PROP_SPEED := 0.58
+const DEFAULT_TREE_PROP_SPEED := 0.9
 const MIN_SPEED_MULTIPLIER := 0.35
 const MAX_SPEED_MULTIPLIER := 1.0
 
@@ -57,11 +72,15 @@ static func resolved_variant(style_id: StringName, values: Dictionary) -> String
 
 
 static func is_known_variant(variant: StringName) -> bool:
-	return variant.is_empty() or variant in ALL_VARIANTS
+	if variant.is_empty() or variant in ALL_VARIANTS:
+		return true
+	# tree.oak.large / tree.birch.small are valid authored size pins.
+	var parsed: Dictionary = MapViewTreeSpecies.parse_variant(variant)
+	return not parsed.is_empty()
 
 
 static func is_tree_variant(variant: StringName) -> bool:
-	return variant in [VARIANT_TREE_SPRUCE, VARIANT_TREE_DECIDUOUS, VARIANT_TREE_MIXED]
+	return not MapViewTreeSpecies.parse_variant(variant).is_empty()
 
 
 static func object_density_multiplier(is_urban: bool, variant: StringName) -> float:
@@ -85,6 +104,8 @@ static func default_speed_for_variant(variant: StringName) -> float:
 static func default_speed_for_prop_kind(kind: StringName) -> float:
 	if kind == MapTypes.PROP_KIND_BUSH:
 		return DEFAULT_BUSH_PROP_SPEED
+	if kind == MapTypes.PROP_KIND_TREE:
+		return DEFAULT_TREE_PROP_SPEED
 	return 1.0
 
 
@@ -126,11 +147,13 @@ static func ground_color_tint(variant: StringName) -> Color:
 			return Color(0.92, 1.02, 0.78)
 		VARIANT_BUSH_DENSE, VARIANT_BUSH_SCRUB:
 			return Color(0.86, 1.0, 0.82)
-		VARIANT_TREE_SPRUCE:
+		VARIANT_TREE_SPRUCE, VARIANT_TREE_PINE:
 			return Color(0.82, 0.94, 0.82)
-		VARIANT_TREE_DECIDUOUS, VARIANT_TREE_MIXED:
-			return Color(0.9, 1.0, 0.84)
+		VARIANT_TREE_ALDER:
+			return Color(0.86, 0.98, 0.84)
 		_:
+			if is_tree_variant(variant):
+				return Color(0.9, 1.0, 0.84)
 			return Color.WHITE
 
 
@@ -138,11 +161,34 @@ static func ground_color_tint(variant: StringName) -> Color:
 ## density; all other chances are direct per-cell probabilities before urban
 ## suppression. Ground cover itself is always supplied by the terrain material.
 static func scatter_profile(variant: StringName) -> Dictionary:
+	var tree_parsed: Dictionary = MapViewTreeSpecies.parse_variant(variant)
+	if not tree_parsed.is_empty():
+		var tree_chance := 0.2
+		if tree_parsed.get("group", &"") == &"mixed" or variant == VARIANT_TREE_MIXED:
+			tree_chance = 0.22
+		elif tree_parsed.has("species"):
+			tree_chance = 0.24
+		return {
+			"small_chance_scale": 0.22,
+			"large_chance": 0.02,
+			"tree_chance": tree_chance,
+			"tree_variant": variant,
+		}
 	match variant:
 		VARIANT_GRASS_SHORT:
 			return {"small_chance_scale": 1.0, "small_height_min": 0.3, "small_height_max": 0.55, "large_chance": 0.01}
 		VARIANT_GRASS_TALL:
-			return {"small_chance_scale": 0.65, "small_height_min": 0.42, "small_height_max": 0.72, "large_chance": 0.24, "large_height_min": 0.95, "large_height_max": 1.5}
+			# Sparse pasture trees outside town: saplings along meadow edges.
+			return {
+				"small_chance_scale": 0.65,
+				"small_height_min": 0.42,
+				"small_height_max": 0.72,
+				"large_chance": 0.24,
+				"large_height_min": 0.95,
+				"large_height_max": 1.5,
+				"tree_chance": 0.012,
+				"tree_variant": VARIANT_TREE_MIXED,
+			}
 		VARIANT_GRASS_FLOWERS:
 			return {"small_chance_scale": 0.85, "small_height_min": 0.38, "small_height_max": 0.68, "large_chance": 0.07, "large_height_min": 0.72, "large_height_max": 1.05, "flower_chance": 0.12}
 		VARIANT_GRASS_DRY:
@@ -159,11 +205,5 @@ static func scatter_profile(variant: StringName) -> Dictionary:
 			return {"small_chance_scale": 0.18, "large_chance": 0.02, "dense_bush_chance": 0.32}
 		VARIANT_BUSH_SCRUB:
 			return {"small_chance_scale": 0.28, "large_chance": 0.03, "scrub_bush_chance": 0.24}
-		VARIANT_TREE_SPRUCE:
-			return {"small_chance_scale": 0.2, "large_chance": 0.02, "tree_chance": 0.22, "spruce_ratio": 1.0}
-		VARIANT_TREE_DECIDUOUS:
-			return {"small_chance_scale": 0.25, "large_chance": 0.02, "tree_chance": 0.2, "spruce_ratio": 0.0}
-		VARIANT_TREE_MIXED:
-			return {"small_chance_scale": 0.22, "large_chance": 0.02, "tree_chance": 0.2, "spruce_ratio": 0.55}
 		_:
 			return {"small_chance_scale": 1.0, "small_height_min": 0.34, "small_height_max": 0.62, "large_chance": 0.025, "large_height_min": 0.75, "large_height_max": 1.05}

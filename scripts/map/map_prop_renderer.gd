@@ -45,6 +45,7 @@ static func create_prop(
 		MapTypes.PROP_KIND_CHAIR: _draw_chair(root, target, time_of_day)
 		MapTypes.PROP_KIND_CANDLE: _draw_candle(root, target, time_of_day)
 		MapTypes.PROP_KIND_BUSH: _draw_bush(root, target, time_of_day)
+		MapTypes.PROP_KIND_TREE: _draw_tree(root, prop, target, time_of_day)
 		MapTypes.PROP_KIND_FISHING_BOAT: _draw_fishing_boat(root, target, time_of_day)
 		MapTypes.PROP_KIND_MERCHANT_BOAT: _draw_merchant_boat(root, target, time_of_day)
 		MapTypes.PROP_KIND_CARGO_CRATES: _draw_cargo_crates(root, target, time_of_day)
@@ -108,6 +109,9 @@ static func _draw_banner(parent: Node2D, prop: Dictionary, target: StringName, t
 		FactionHeraldry.PATTERN_BEAR:
 			_draw_banner_bear(parent, charge, target, time_of_day)
 		FactionHeraldry.PATTERN_LYNX:
+			_draw_banner_lynx(parent, charge, target, time_of_day)
+		FactionHeraldry.PATTERN_BEAR_LYNX:
+			_draw_banner_bear(parent, FactionHeraldry.secondary_charge_color(faction), target, time_of_day)
 			_draw_banner_lynx(parent, charge, target, time_of_day)
 		FactionHeraldry.PATTERN_SWALLOW:
 			_draw_banner_swallow(parent, charge, target, time_of_day)
@@ -298,6 +302,60 @@ static func _draw_bush(parent: Node2D, target: StringName, time_of_day: StringNa
 	_add_circle(parent, "BushA", Vector2(-8, -6), 11.0, foliage.darkened(0.06), target, time_of_day)
 	_add_circle(parent, "BushB", Vector2(7, -8), 10.0, foliage, target, time_of_day)
 	_add_circle(parent, "BushC", Vector2(1, -3), 8.0, foliage.lightened(0.08), target, time_of_day)
+
+
+static func _draw_tree(parent: Node2D, prop: Dictionary, target: StringName, time_of_day: StringName) -> void:
+	var foliage := MapVisualStyle.role_color(&"vegetation", target, time_of_day)
+	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
+	var variant: StringName = prop.get("style_variant", &"tree.mixed")
+	var parsed: Dictionary = MapViewTreeSpecies.parse_variant(variant)
+	var species: StringName = parsed.get("species", MapViewTreeSpecies.SPECIES_OAK)
+	var size_class: StringName = parsed.get("size", MapViewTreeSpecies.SIZE_MEDIUM)
+	var parts := String(variant).split(".")
+	if parts.size() < 3:
+		size_class = MapViewTreeSpecies.SIZE_MEDIUM
+	var scale := 1.0
+	match size_class:
+		MapViewTreeSpecies.SIZE_SMALL:
+			scale = 0.72
+		MapViewTreeSpecies.SIZE_LARGE:
+			scale = 1.35
+	var trunk_color := wood.darkened(0.12)
+	if species == MapViewTreeSpecies.SPECIES_BIRCH:
+		trunk_color = Color(0.9, 0.88, 0.82)
+	_add_rect(parent, "Trunk", Vector2(-3 * scale, -8 * scale), Vector2(6 * scale, 18 * scale), trunk_color, target, time_of_day)
+	match MapViewTreeSpecies.silhouette_for(species):
+		MapViewTreeSpecies.SILHOUETTE_SPRUCE, MapViewTreeSpecies.SILHOUETTE_PINE:
+			_add_polygon(
+				parent,
+				"Canopy",
+				PackedVector2Array([
+					Vector2(0, -42 * scale),
+					Vector2(16 * scale, -12 * scale),
+					Vector2(-16 * scale, -12 * scale),
+				]),
+				foliage.darkened(0.08),
+				target,
+				time_of_day
+			)
+			_add_polygon(
+				parent,
+				"CanopyMid",
+				PackedVector2Array([
+					Vector2(0, -28 * scale),
+					Vector2(20 * scale, -2 * scale),
+					Vector2(-20 * scale, -2 * scale),
+				]),
+				foliage,
+				target,
+				time_of_day
+			)
+		MapViewTreeSpecies.SILHOUETTE_COLUMN:
+			_add_circle(parent, "CrownLow", Vector2(0, -14 * scale), 11.0 * scale, foliage.darkened(0.04), target, time_of_day)
+			_add_circle(parent, "CrownHigh", Vector2(2 * scale, -28 * scale), 9.0 * scale, foliage.lightened(0.05), target, time_of_day)
+		_:
+			_add_circle(parent, "Crown", Vector2(0, -22 * scale), 18.0 * scale, foliage, target, time_of_day)
+			_add_circle(parent, "CrownSide", Vector2(10 * scale, -16 * scale), 11.0 * scale, foliage.darkened(0.05), target, time_of_day)
 
 
 static func _draw_fishing_boat(parent: Node2D, target: StringName, time_of_day: StringName) -> void:

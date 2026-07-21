@@ -100,6 +100,18 @@ static func leaf_canopy_mesh() -> ArrayMesh:
 	return FoliageMeshes.leaf_canopy_mesh()
 
 
+static func pine_canopy_mesh() -> ArrayMesh:
+	return FoliageMeshes.pine_canopy_mesh()
+
+
+static func column_canopy_mesh() -> ArrayMesh:
+	return FoliageMeshes.column_canopy_mesh()
+
+
+static func canopy_mesh_for(silhouette: StringName) -> ArrayMesh:
+	return FoliageMeshes.canopy_mesh_for(silhouette)
+
+
 static func add_chimney_stack(parent: Node3D, node_name: String, outer_size: float, height: float, position: Vector3) -> Node3D:
 	var chimney := Node3D.new()
 	chimney.name = node_name

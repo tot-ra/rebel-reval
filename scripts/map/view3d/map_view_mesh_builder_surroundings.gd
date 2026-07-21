@@ -43,12 +43,7 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 			&"town":
 				root.add_child(_town_apron(definition, map_size, side))
 
-	var trunks: Array[Transform3D] = []
-	var trunk_colors: Array[Color] = []
-	var spruces: Array[Transform3D] = []
-	var spruce_colors: Array[Color] = []
-	var leaves: Array[Transform3D] = []
-	var leaf_colors: Array[Color] = []
+	var tree_batches: Dictionary = {}
 	var boulders: Array[Transform3D] = []
 	var boulder_colors: Array[Color] = []
 
@@ -85,28 +80,33 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 				var gray := 0.85 + MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 1801) * 0.25
 				boulder_colors.append(Color(gray, gray, gray))
 				continue
-			var tree_scale := 0.75 + MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 1907) * 0.7
+			var size_class := MapViewTreeSpecies.pick_size(
+				MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 1907)
+			)
+			var scale_range := MapViewTreeSpecies.scale_range(size_class)
+			var tree_scale := scale_range.x + MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 1913) * (scale_range.y - scale_range.x)
 			var yaw := MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 2003) * TAU
-			trunks.append(MapViewMeshBuilderPrimitives.placed(spot, tree_scale, Vector3(0.0, 0.6 * tree_scale, 0.0), yaw))
-			var bark := 0.85 + MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 2111) * 0.3
-			trunk_colors.append(Color(bark, bark, bark))
-			var tint := 0.8 + MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 2221) * 0.4
-			if kind_roll < 0.6:
-				spruces.append(MapViewMeshBuilderPrimitives.placed(spot, tree_scale, Vector3(0.0, 0.4 * tree_scale, 0.0), yaw))
-				spruce_colors.append(Color(tint * 0.9, tint, tint * 0.88))
-			else:
-				leaves.append(MapViewMeshBuilderPrimitives.placed(spot, tree_scale, Vector3(0.0, 1.5 * tree_scale, 0.0), yaw))
-				leaf_colors.append(Color(tint * 0.96, tint, tint * 0.8))
+			var species := MapViewTreeSpecies.pick_species(
+				MapViewTreeSpecies.MIXED_WEIGHTS,
+				MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 1499)
+			)
+			var tree_transform := MapViewMeshBuilderPrimitives.placed(spot, tree_scale, Vector3.ZERO, yaw)
+			MapViewMeshBuilderProps._push_tree_instance(
+				tree_batches,
+				species,
+				tree_transform,
+				MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 2111),
+				MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 2221)
+			)
 
-	if not trunks.is_empty() or not spruces.is_empty() or not leaves.is_empty() or not boulders.is_empty():
-		var trunk_mesh := CylinderMesh.new()
-		trunk_mesh.top_radius = 0.09
-		trunk_mesh.bottom_radius = 0.15
-		trunk_mesh.height = 1.2
-		trunk_mesh.radial_segments = 7
-		root.add_child(MapViewMeshBuilderPrimitives.multi_mesh("Trunks", trunk_mesh, trunks, trunk_colors, MapViewMaterials.bark(), Vector3.ZERO))
-		root.add_child(MapViewMeshBuilderPrimitives.multi_mesh("SpruceCanopies", MapViewMeshBuilderPrimitives.spruce_canopy_mesh(), spruces, spruce_colors, MapViewMaterials.canopy(&"spruce"), Vector3.ZERO))
-		root.add_child(MapViewMeshBuilderPrimitives.multi_mesh("LeafCanopies", MapViewMeshBuilderPrimitives.leaf_canopy_mesh(), leaves, leaf_colors, MapViewMaterials.canopy(&"leaf"), Vector3.ZERO))
+	if not tree_batches.is_empty():
+		MapViewMeshBuilderProps._emit_tree_batches(root, tree_batches)
+		# Stable names expected by mesh/wind regression tests.
+		_alias_tree_layer(root, "Trees_Spruce", "SpruceCanopies")
+		_alias_tree_layer(root, "Trees_Broad", "LeafCanopies")
+		_alias_tree_layer(root, "TreeTrunks", "Trunks")
+
+	if not boulders.is_empty():
 		var boulder_mesh := SphereMesh.new()
 		boulder_mesh.radius = 0.45
 		boulder_mesh.height = 0.6
@@ -117,6 +117,12 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 	if not town_sides.is_empty():
 		root.add_child(_town_silhouette(definition, map_size, previewed_sides, MapViewMeshBuilderConfig.GLACIS_CLEARANCE))
 	return root
+
+
+static func _alias_tree_layer(root: Node3D, from_name: String, to_name: String) -> void:
+	var node := root.get_node_or_null(from_name)
+	if node != null:
+		node.name = to_name
 
 
 ## Meadow apron strip for one explicit woodland side.

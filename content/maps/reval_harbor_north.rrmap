@@ -21,6 +21,8 @@ style bush.dense
 style bush.scrub
 style tree.mixed
 style tree.spruce
+style tree.birch
+style tree.oak
 terrain water.deep deep_water 0 0 160 46 order=1
 terrain water.shallow shallow_water 0 46 160 8 order=2
 terrain shore.sand coast_sand 0 54 160 9 order=3
@@ -87,6 +89,9 @@ prop merchants_cart cart 119 73 rect=2,2
 prop scrub.gate bush 88 98 rect=3,2 style=bush.scrub
 prop scrub.west bush 42 83 rect=3,2 style=bush.dense
 prop scrub.east bush 151 90 rect=3,2 style=bush.dense
+prop gate.oak tree 96 92 style=tree.oak
+prop shore.birch tree 54 78 style=tree.birch
+prop yard.spruce tree 128 86 style=tree.spruce
 prop merchant_cog_west merchant_boat 13 26 rect=4,12 faction=hanseatic
 prop merchant_cog_central merchant_boat 49 24 rect=4,12 faction=hanseatic
 prop merchant_cog_east merchant_boat 91 27 rect=4,12 faction=hanseatic

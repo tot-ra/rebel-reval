@@ -69,7 +69,7 @@ static func expand_primitives(
 			&"placement_row":
 				ExpandGeometry.expand_row(primitive_id, data, style_values, blueprint, path, expanded, global_overrides, errors)
 			&"prop":
-				_expand_prop(primitive_id, data, style_values, inline_overrides, blueprint, path, expanded, global_overrides, errors)
+				_expand_prop(primitive_id, style_id, data, style_values, inline_overrides, blueprint, path, expanded, global_overrides, errors)
 			&"player_spawn":
 				_expand_point_record(&"spawn", primitive_id, data, style_values, inline_overrides, MapBlueprintCompiler.SPAWN_KEYS, blueprint, path, expanded["spawns"], expanded, global_overrides, errors)
 			&"transition":
@@ -92,10 +92,18 @@ static func expand_primitives(
 
 
 static func _expand_prop(
-	object_id: StringName, data: Dictionary, style: Dictionary, inline: Dictionary,
+	object_id: StringName, style_id: StringName, data: Dictionary, style: Dictionary, inline: Dictionary,
 	blueprint: MapBlueprint, path: String, expanded: Dictionary, global: Dictionary, errors: Array[String]
 ) -> void:
 	var values := resolved_values(object_id, data, style, inline, global, MapBlueprintCompiler.PROP_OVERRIDE_KEYS, path, errors)
+	# Vegetation styles such as tree.oak / bush.scrub pin scatter and mesh choice
+	# through style_variant, matching terrain paint resolution.
+	var style_variant := TerrainVegetation.resolved_variant(style_id, values)
+	if not style_variant.is_empty():
+		if not TerrainVegetation.is_known_variant(style_variant):
+			errors.append("%s style_variant is unknown: %s" % [path, String(style_variant)])
+		else:
+			values["style_variant"] = style_variant
 	append_prop(object_id, values, blueprint, path, expanded, errors)
 
 

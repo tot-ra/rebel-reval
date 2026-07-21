@@ -177,6 +177,8 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			MapViewMeshBuilderPrimitives.sphere(root, "BushA", 0.42, Vector3(-0.18, 0.28, 0.08), &"vegetation", Vector3(1.0, 0.72, 1.0))
 			MapViewMeshBuilderPrimitives.sphere(root, "BushB", 0.36, Vector3(0.22, 0.24, -0.12), &"vegetation", Vector3(1.0, 0.68, 1.0))
 			MapViewMeshBuilderPrimitives.sphere(root, "BushC", 0.3, Vector3(0.04, 0.18, 0.16), &"vegetation", Vector3(1.0, 0.66, 1.0))
+		MapTypes.PROP_KIND_TREE:
+			_add_authored_tree(root, prop)
 		MapTypes.PROP_KIND_CARGO_CRATES:
 			_add_cargo_crates(root)
 		MapTypes.PROP_KIND_TRADE_GOODS:
@@ -330,12 +332,8 @@ static func build_scatter(
 	var dense_bush_colors: Array[Color] = []
 	var scrub_bushes: Array[Transform3D] = []
 	var scrub_bush_colors: Array[Color] = []
-	var tree_trunks: Array[Transform3D] = []
-	var tree_trunk_colors: Array[Color] = []
-	var spruce_canopies: Array[Transform3D] = []
-	var spruce_colors: Array[Color] = []
-	var leaf_canopies: Array[Transform3D] = []
-	var leaf_colors: Array[Color] = []
+	# Batched by silhouette/bark so MultiMesh stays shared across species tints.
+	var tree_batches: Dictionary = {}
 	var reeds: Array[Transform3D] = []
 	var reed_colors: Array[Color] = []
 	var cattails: Array[Transform3D] = []
@@ -423,18 +421,19 @@ static func build_scatter(
 
 			var tree_chance := float(profile.get("tree_chance", MapViewMeshBuilderConfig.SCATTER_TREE_CHANCE.get(terrain, 0.0))) * density
 			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 2309) < tree_chance:
-				var tree_transform := _scatter_transform(field, x, y, definition.seed + 2311, 0.72, 1.12)
-				tree_trunks.append(tree_transform)
-				var bark := 0.82 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 2333) * 0.25
-				tree_trunk_colors.append(Color(bark, bark, bark))
-				var spruce_ratio := float(profile.get("spruce_ratio", MapViewMeshBuilderConfig.SCATTER_TREE_SPRUCE_RATIO.get(terrain, 0.5)))
-				var foliage_tint := 0.82 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 2357) * 0.28
-				if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 2371) < spruce_ratio:
-					spruce_canopies.append(tree_transform)
-					spruce_colors.append(Color(foliage_tint * 0.88, foliage_tint, foliage_tint * 0.86))
-				else:
-					leaf_canopies.append(tree_transform)
-					leaf_colors.append(Color(foliage_tint * 0.96, foliage_tint, foliage_tint * 0.78))
+				var tree_variant: StringName = profile.get("tree_variant", variant)
+				if tree_variant.is_empty() and TerrainVegetation.is_tree_variant(variant):
+					tree_variant = variant
+				elif tree_variant.is_empty():
+					tree_variant = TerrainVegetation.VARIANT_TREE_MIXED
+				_append_scattered_tree(
+					tree_batches,
+					field,
+					x,
+					y,
+					definition.seed,
+					tree_variant
+				)
 
 			var stone_chance := float(MapViewMeshBuilderConfig.SCATTER_STONE_CHANCE.get(terrain, 0.0))
 			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 913) < stone_chance:
@@ -459,17 +458,8 @@ static func build_scatter(
 		scrub_instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(scrub_instances)
 
-	if not tree_trunks.is_empty():
-		var trunk_mesh := CylinderMesh.new()
-		trunk_mesh.top_radius = 0.09
-		trunk_mesh.bottom_radius = 0.15
-		trunk_mesh.height = 1.2
-		trunk_mesh.radial_segments = 7
-		root.add_child(MapViewMeshBuilderPrimitives.multi_mesh("TreeTrunks", trunk_mesh, tree_trunks, tree_trunk_colors, MapViewMaterials.bark(), Vector3(0.0, 0.6, 0.0)))
-	if not spruce_canopies.is_empty():
-		root.add_child(MapViewMeshBuilderPrimitives.multi_mesh("SpruceTrees", MapViewMeshBuilderPrimitives.spruce_canopy_mesh(), spruce_canopies, spruce_colors, MapViewMaterials.canopy(&"spruce"), Vector3(0.0, 0.4, 0.0)))
-	if not leaf_canopies.is_empty():
-		root.add_child(MapViewMeshBuilderPrimitives.multi_mesh("DeciduousTrees", MapViewMeshBuilderPrimitives.leaf_canopy_mesh(), leaf_canopies, leaf_colors, MapViewMaterials.canopy(&"leaf"), Vector3(0.0, 1.55, 0.0)))
+	if not tree_batches.is_empty():
+		_emit_tree_batches(root, tree_batches)
 
 	if not reeds.is_empty():
 		_add_grass_layer(root, "Reeds", reeds, reed_colors, MapViewMeshBuilderPrimitives.reed_stem_mesh())
@@ -504,6 +494,174 @@ static func _is_urban_map(definition: MapDefinition) -> bool:
 		if kind == &"town":
 			return true
 	return false
+
+
+## Collect one procedural tree into silhouette/bark MultiMesh buckets.
+static func _append_scattered_tree(
+	batches: Dictionary,
+	field: Dictionary,
+	x: int,
+	y: int,
+	map_seed: int,
+	tree_variant: StringName
+) -> void:
+	var parsed: Dictionary = MapViewTreeSpecies.parse_variant(tree_variant)
+	var weights := MapViewTreeSpecies.weights_for_variant(tree_variant)
+	var species := MapViewTreeSpecies.pick_species(
+		weights,
+		MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 2371)
+	)
+	var pinned_size: StringName = parsed.get("size", &"")
+	# Pinned size from tree.oak.large; otherwise roll the natural size mix.
+	if pinned_size == MapViewTreeSpecies.SIZE_MEDIUM and not String(tree_variant).ends_with(".medium"):
+		# Default parse size is medium; treat as unpinned unless the author
+		# wrote an explicit size suffix.
+		var parts := String(tree_variant).split(".")
+		if parts.size() < 3:
+			pinned_size = &""
+	var size_class := MapViewTreeSpecies.pick_size(
+		MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 2393),
+		pinned_size
+	)
+	var scale_range := MapViewTreeSpecies.scale_range(size_class)
+	var tree_transform := _scatter_transform(
+		field,
+		x,
+		y,
+		map_seed + 2311,
+		scale_range.x,
+		scale_range.y
+	)
+	_push_tree_instance(
+		batches,
+		species,
+		tree_transform,
+		MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 2333),
+		MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 2357)
+	)
+
+
+static func _push_tree_instance(
+	batches: Dictionary,
+	species: StringName,
+	tree_transform: Transform3D,
+	bark_roll: float,
+	canopy_roll: float
+) -> void:
+	var bark_kind := MapViewTreeSpecies.bark_kind_for(species)
+	var silhouette := MapViewTreeSpecies.silhouette_for(species)
+	var trunk_key := "trunk:%s" % String(bark_kind)
+	var canopy_key := "canopy:%s" % String(silhouette)
+	if not batches.has(trunk_key):
+		batches[trunk_key] = {"transforms": [] as Array[Transform3D], "colors": [] as Array[Color], "bark": bark_kind}
+	if not batches.has(canopy_key):
+		batches[canopy_key] = {
+			"transforms": [] as Array[Transform3D],
+			"colors": [] as Array[Color],
+			"silhouette": silhouette,
+			"material": MapViewTreeSpecies.canopy_material_kind(species),
+		}
+	var trunk_batch: Dictionary = batches[trunk_key]
+	(trunk_batch["transforms"] as Array).append(tree_transform)
+	(trunk_batch["colors"] as Array).append(MapViewTreeSpecies.bark_tint(species, bark_roll))
+	var canopy_batch: Dictionary = batches[canopy_key]
+	(canopy_batch["transforms"] as Array).append(tree_transform)
+	(canopy_batch["colors"] as Array).append(MapViewTreeSpecies.canopy_tint(species, canopy_roll))
+
+
+static func _emit_tree_batches(root: Node3D, batches: Dictionary) -> void:
+	var trunk_mesh := CylinderMesh.new()
+	trunk_mesh.top_radius = 0.09
+	trunk_mesh.bottom_radius = 0.15
+	trunk_mesh.height = MapViewTreeSpecies.trunk_height()
+	trunk_mesh.radial_segments = 7
+	for key: Variant in batches.keys():
+		var batch: Dictionary = batches[key]
+		var transforms: Array = batch["transforms"]
+		if transforms.is_empty():
+			continue
+		var typed_transforms: Array[Transform3D] = []
+		var typed_colors: Array[Color] = []
+		for index in transforms.size():
+			typed_transforms.append(transforms[index])
+			typed_colors.append(batch["colors"][index])
+		if String(key).begins_with("trunk:"):
+			var bark_kind: StringName = batch["bark"]
+			var node_name := "TreeTrunksBirch" if bark_kind == MapViewTreeSpecies.BARK_BIRCH else "TreeTrunks"
+			root.add_child(
+				MapViewMeshBuilderPrimitives.multi_mesh(
+					node_name,
+					trunk_mesh,
+					typed_transforms,
+					typed_colors,
+					MapViewMaterials.bark(bark_kind),
+					Vector3(0.0, MapViewTreeSpecies.trunk_lift(), 0.0)
+				)
+			)
+		else:
+			var silhouette: StringName = batch["silhouette"]
+			var material_kind: StringName = batch["material"]
+			var lift := 1.55
+			match silhouette:
+				MapViewTreeSpecies.SILHOUETTE_SPRUCE:
+					lift = 0.4
+				MapViewTreeSpecies.SILHOUETTE_PINE:
+					lift = 0.55
+				MapViewTreeSpecies.SILHOUETTE_COLUMN:
+					lift = 1.35
+			var layer_name := "Trees_%s" % String(silhouette).capitalize()
+			root.add_child(
+				MapViewMeshBuilderPrimitives.multi_mesh(
+					layer_name,
+					MapViewMeshBuilderPrimitives.canopy_mesh_for(silhouette),
+					typed_transforms,
+					typed_colors,
+					MapViewMaterials.canopy(material_kind),
+					Vector3(0.0, lift, 0.0)
+				)
+			)
+
+
+static func _add_authored_tree(root: Node3D, prop: Dictionary) -> void:
+	var variant: StringName = prop.get("style_variant", &"")
+	if variant.is_empty():
+		variant = TerrainVegetation.VARIANT_TREE_MIXED
+	var parsed: Dictionary = MapViewTreeSpecies.parse_variant(variant)
+	var species: StringName = parsed.get(
+		"species",
+		MapViewTreeSpecies.pick_species(MapViewTreeSpecies.weights_for_variant(variant), 0.37)
+	)
+	var size_class: StringName = parsed.get("size", MapViewTreeSpecies.SIZE_MEDIUM)
+	var parts := String(variant).split(".")
+	if parts.size() < 3:
+		size_class = MapViewTreeSpecies.SIZE_MEDIUM
+	var scale_range := MapViewTreeSpecies.scale_range(size_class)
+	var scale := (scale_range.x + scale_range.y) * 0.5
+	var silhouette := MapViewTreeSpecies.silhouette_for(species)
+	var bark_kind := MapViewTreeSpecies.bark_kind_for(species)
+
+	var trunk := MeshInstance3D.new()
+	trunk.name = "Trunk"
+	var trunk_mesh := CylinderMesh.new()
+	trunk_mesh.top_radius = 0.09
+	trunk_mesh.bottom_radius = 0.15
+	trunk_mesh.height = MapViewTreeSpecies.trunk_height()
+	trunk_mesh.radial_segments = 7
+	trunk.mesh = trunk_mesh
+	trunk.position = Vector3(0.0, MapViewTreeSpecies.trunk_lift() * scale, 0.0)
+	trunk.scale = Vector3.ONE * scale
+	trunk.material_override = MapViewMaterials.bark(bark_kind)
+	root.add_child(trunk)
+
+	var canopy := MeshInstance3D.new()
+	canopy.name = "Canopy"
+	canopy.mesh = MapViewMeshBuilderPrimitives.canopy_mesh_for(silhouette)
+	canopy.position = Vector3(0.0, MapViewTreeSpecies.canopy_lift(species) * scale, 0.0)
+	canopy.scale = Vector3.ONE * scale
+	canopy.material_override = MapViewMaterials.canopy(MapViewTreeSpecies.canopy_material_kind(species))
+	root.add_child(canopy)
+	root.set_meta(&"tree_species", species)
+	root.set_meta(&"tree_size", size_class)
 
 
 static func _add_grass_layer(root: Node3D, layer_name: String, transforms: Array[Transform3D], colors: Array[Color], mesh: Mesh) -> void:

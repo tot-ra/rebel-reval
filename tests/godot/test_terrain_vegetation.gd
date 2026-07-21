@@ -28,3 +28,28 @@ func test_bush_dense_slows_more_than_tall_grass() -> void:
 
 func test_bush_prop_defaults_to_penalty() -> void:
 	assert_true(TerrainVegetation.default_speed_for_prop_kind(MapTypes.PROP_KIND_BUSH) < 1.0)
+
+
+func test_tree_prop_defaults_to_mild_penalty() -> void:
+	assert_true(TerrainVegetation.default_speed_for_prop_kind(MapTypes.PROP_KIND_TREE) < 1.0)
+	assert_true(
+		TerrainVegetation.default_speed_for_prop_kind(MapTypes.PROP_KIND_TREE)
+		> TerrainVegetation.default_speed_for_prop_kind(MapTypes.PROP_KIND_BUSH)
+	)
+
+
+func test_species_tree_variants_are_known() -> void:
+	for variant in [
+		&"tree.pine",
+		&"tree.birch",
+		&"tree.oak",
+		&"tree.alder",
+		&"tree.aspen",
+		&"tree.maple",
+		&"tree.linden",
+		&"tree.oak.large",
+	]:
+		assert_true(TerrainVegetation.is_known_variant(variant), String(variant))
+		assert_true(TerrainVegetation.is_tree_variant(variant), String(variant))
+		assert_true(TerrainVegetation.scatter_profile(variant).has("tree_chance"))
+
