@@ -68,6 +68,7 @@ const MIDNIGHT_SIDEREAL_DEGREES := 218.31
 const SIDEREAL_ROTATIONS_PER_SOLAR_DAY := 1.00273790935
 const STAR_MAP_WIDTH := 2048
 const STAR_MAP_HEIGHT := 1024
+const LUNAR_ALBEDO_MAP_SIZE := 512
 
 ## Per-weather visual targets blended during transitions.
 ## `wind` drives harbor boat heel/heave and water-shader sea state (0..1).
@@ -124,9 +125,9 @@ const DURATIONS: Dictionary = {
 ## Cumulative odds for what a cloudy spell becomes next. Weighted so every regime
 ## — widespread rain, an isolated thunderstorm, full overcast, or clearing — is
 ## easy to catch in a short session. The remainder falls back to clearing.
-const CLOUDY_TO_RAIN_CHANCE := 0.28
-const CLOUDY_TO_STORM_CHANCE := 0.56
-const CLOUDY_TO_OVERCAST_CHANCE := 0.78
+const CLOUDY_TO_RAIN_CHANCE := 0.24
+const CLOUDY_TO_STORM_CHANCE := 0.62
+const CLOUDY_TO_OVERCAST_CHANCE := 0.82
 ## An overcast deck often breaks into rain before clearing.
 const OVERCAST_TO_RAIN_CHANCE := 0.55
 
@@ -209,6 +210,7 @@ func configure(camera: Camera3D, environment: Environment) -> void:
 	_material.shader = SKY_SHADER
 	_material.set_shader_parameter(&"cloud_noise", _build_cloud_noise())
 	_material.set_shader_parameter(&"cloud_shape", _build_cloud_shape())
+	_material.set_shader_parameter(&"lunar_albedo_map", _build_lunar_albedo_map())
 	_star_map = _build_star_map()
 	_material.set_shader_parameter(&"star_map", _star_map)
 	_material.set_shader_parameter(&"observer_latitude", deg_to_rad(OBSERVER_LATITUDE_DEGREES))
@@ -260,6 +262,121 @@ func _build_cloud_shape() -> NoiseTexture2D:
 	return texture
 
 
+## Bakes a near-side lunar albedo disk in code so the sky shader can sample
+## rich mare, crater, and ray detail without adding frozen pipeline texture assets.
+func _build_lunar_albedo_map() -> ImageTexture:
+	var size := LUNAR_ALBEDO_MAP_SIZE
+	var image := Image.create(size, size, false, Image.FORMAT_RGBAF)
+	image.fill(Color.TRANSPARENT)
+
+	var crater_fine := FastNoiseLite.new()
+	crater_fine.seed = WEATHER_SEED + 101
+	crater_fine.noise_type = FastNoiseLite.TYPE_CELLULAR
+	crater_fine.frequency = 0.11
+	crater_fine.cellular_return_type = FastNoiseLite.RETURN_DISTANCE
+
+	var crater_mid := FastNoiseLite.new()
+	crater_mid.seed = WEATHER_SEED + 102
+	crater_mid.noise_type = FastNoiseLite.TYPE_CELLULAR
+	crater_mid.frequency = 0.042
+	crater_mid.cellular_return_type = FastNoiseLite.RETURN_DISTANCE
+
+	var crater_large := FastNoiseLite.new()
+	crater_large.seed = WEATHER_SEED + 103
+	crater_large.noise_type = FastNoiseLite.TYPE_CELLULAR
+	crater_large.frequency = 0.018
+	crater_large.cellular_return_type = FastNoiseLite.RETURN_DISTANCE
+
+	var regolith := FastNoiseLite.new()
+	regolith.seed = WEATHER_SEED + 104
+	regolith.frequency = 0.06
+	regolith.fractal_type = FastNoiseLite.FRACTAL_FBM
+	regolith.fractal_octaves = 3
+
+	# Major near-side maria in normalized disk space (center 0,0; radius 1).
+	const MARIA: Array[Dictionary] = [
+		{"c": Vector2(-0.44, 0.02), "r": Vector2(0.30, 0.24), "a": 0.18, "d": 0.24},
+		{"c": Vector2(-0.24, 0.36), "r": Vector2(0.20, 0.17), "a": -0.28, "d": 0.22},
+		{"c": Vector2(0.08, 0.40), "r": Vector2(0.14, 0.12), "a": 0.10, "d": 0.18},
+		{"c": Vector2(0.16, 0.14), "r": Vector2(0.16, 0.11), "a": -0.12, "d": 0.16},
+		{"c": Vector2(0.30, -0.18), "r": Vector2(0.12, 0.10), "a": 0.22, "d": 0.14},
+		{"c": Vector2(0.54, 0.34), "r": Vector2(0.09, 0.08), "a": 0.0, "d": 0.13},
+		{"c": Vector2(-0.08, -0.22), "r": Vector2(0.11, 0.09), "a": 0.35, "d": 0.12},
+		{"c": Vector2(0.36, 0.02), "r": Vector2(0.10, 0.08), "a": -0.15, "d": 0.11},
+	]
+
+	for y in size:
+		for x in size:
+			var nx := (float(x) + 0.5) / float(size) * 2.0 - 1.0
+			var ny := (float(y) + 0.5) / float(size) * 2.0 - 1.0
+			var disk_r2 := nx * nx + ny * ny
+			if disk_r2 > 1.0:
+				continue
+			var uv := Vector2(nx, ny)
+
+			var albedo := 0.80
+			for mare in MARIA:
+				albedo -= _lunar_mare_darkness(uv, mare)
+
+			var fine := crater_fine.get_noise_2d(uv.x * 42.0, uv.y * 42.0)
+			var mid := crater_mid.get_noise_2d(uv.x * 17.0, uv.y * 17.0)
+			var large := crater_large.get_noise_2d(uv.x * 7.0, uv.y * 7.0)
+			albedo -= _lunar_crater_depth(fine, 0.10, 0.55)
+			albedo -= _lunar_crater_depth(mid, 0.14, 0.62)
+			albedo -= _lunar_crater_depth(large, 0.18, 0.70)
+
+			albedo += regolith.get_noise_2d(uv.x * 9.0, uv.y * 9.0) * 0.035
+			albedo += _lunar_tycho_rays(uv)
+
+			var limb := sqrt(maxf(1.0 - disk_r2, 0.0))
+			albedo *= 0.86 + 0.14 * limb
+			albedo = clampf(albedo, 0.34, 0.96)
+			image.set_pixel(
+				x,
+				y,
+				Color(albedo, albedo * 0.985, albedo * 0.94, 1.0)
+			)
+
+	return ImageTexture.create_from_image(image)
+
+
+static func _lunar_mare_darkness(uv: Vector2, mare: Dictionary) -> float:
+	var center: Vector2 = mare["c"]
+	var radii: Vector2 = mare["r"]
+	var angle: float = mare["a"]
+	var depth: float = mare["d"]
+	var offset := uv - center
+	var ca := cos(angle)
+	var sa := sin(angle)
+	var rotated := Vector2(offset.x * ca + offset.y * sa, -offset.x * sa + offset.y * ca)
+	var normalized := (
+		(rotated.x * rotated.x) / maxf(radii.x * radii.x, 1e-4)
+		+ (rotated.y * rotated.y) / maxf(radii.y * radii.y, 1e-4)
+	)
+	if normalized >= 1.0:
+		return 0.0
+	return depth * (1.0 - smoothstep(0.25, 1.0, normalized))
+
+
+static func _lunar_crater_depth(cell_distance: float, rim_boost: float, threshold: float) -> float:
+	var bowl := 1.0 - clampf(cell_distance, 0.0, 1.0)
+	if bowl < threshold:
+		return 0.0
+	var t := (bowl - threshold) / maxf(1.0 - threshold, 1e-4)
+	return t * t * rim_boost
+
+
+static func _lunar_tycho_rays(uv: Vector2) -> float:
+	var tycho := Vector2(0.05, -0.53)
+	var from_tycho := uv - tycho
+	var dist := from_tycho.length()
+	if dist > 0.72 or dist < 0.018:
+		return 0.0
+	var angle := atan2(from_tycho.y, from_tycho.x)
+	var spokes := absf(sin(angle * 7.0 + dist * 11.0))
+	spokes = pow(spokes, 10.0)
+	var falloff := 1.0 - dist / 0.72
+	return spokes * falloff * falloff * 0.16
 
 
 ## Bakes the real star catalog into an equatorial equirectangular map. A texture
@@ -526,6 +643,18 @@ static func lunar_phase(date: Dictionary = {}) -> float:
 
 static func lunar_illumination(phase: float) -> float:
 	return (1.0 - cos(wrapf(phase, 0.0, 1.0) * TAU)) * 0.5
+
+
+## Whether the pre-dawn air is primed for radiation fog on a given date: a
+## deterministic per-day stand-in for the humidity and overnight temperature drop
+## that morning mist needs. 0 is a dry, well-mixed night; 1 is damp, still, and
+## fog-prone. Only some mornings clear the bar in MapView3D, so fog stays an
+## occasional event rather than a daily one, and repeats identically per the
+## deterministic-state rule since it is keyed to the calendar day.
+static func morning_fog_potential(date: Dictionary = {}) -> float:
+	var effective_date := GAME_CALENDAR.DEFAULT_DATE if date.is_empty() else date
+	var day := julian_day(effective_date)
+	return fract(sin(day * 12.9898 + 4.1) * 43758.5453)
 
 
 static func moonlight_strength(progress: float, date: Dictionary = {}) -> float:

@@ -12,7 +12,7 @@ uniform vec4 night_top_color : source_color = vec4(0.020, 0.045, 0.130, 1.0);
 uniform vec4 night_horizon_color : source_color = vec4(0.050, 0.100, 0.220, 1.0);
 uniform vec4 sunset_color : source_color = vec4(0.98, 0.45, 0.18, 1.0);
 uniform vec4 sun_color : source_color = vec4(1.0, 0.92, 0.74, 1.0);
-uniform vec4 moon_color : source_color = vec4(0.82, 0.84, 0.86, 1.0);
+uniform vec4 moon_color : source_color = vec4(0.88, 0.86, 0.82, 1.0);
 
 // 0 = midnight, 1 = noon (matches DayNightCycle.day_blend).
 uniform float day_blend : hint_range(0.0, 1.0) = 1.0;
@@ -29,6 +29,8 @@ uniform float moon_phase : hint_range(0.0, 1.0) = 0.5;
 // come from the cellular texture: FBM thresholds swirl like marbled ink.
 uniform sampler2D cloud_noise : filter_linear_mipmap, repeat_enable;
 uniform sampler2D cloud_shape : filter_linear_mipmap, repeat_enable;
+// Baked near-side albedo disk generated in SkyWeather3D at configure time.
+uniform sampler2D lunar_albedo_map : filter_linear_mipmap, repeat_disable;
 uniform float cloud_coverage : hint_range(0.0, 1.0) = 0.22;
 uniform float cloud_darken : hint_range(0.0, 1.0) = 0.0;
 // Primary bank drift. Detail offset advances faster so edges churn while
@@ -71,8 +73,10 @@ float remap(float v, float lo, float hi, float nlo, float nhi) {
 // field lets one storm read as a solid rain front or as an isolated raining cell
 // in open sky, and lets rain curtains hang under exactly those cells.
 float local_storm_at(vec2 uv) {
-	float cell = 1.0 - texture(cloud_shape, uv * 0.16 + vec2(0.37, 0.71)).r;
-	float mask = mix(1.0, smoothstep(0.5, 0.82, cell), storm_locality);
+	// Low frequency: a storm cell is a large mass, so an isolated one towers into
+	// a single big thunderhead rather than a field of small dark blobs.
+	float cell = 1.0 - texture(cloud_shape, uv * 0.12 + vec2(0.37, 0.71)).r;
+	float mask = mix(1.0, smoothstep(0.48, 0.8, cell), storm_locality);
 	return storm_intensity * mask;
 }
 
@@ -133,11 +137,19 @@ vec3 cloud_field(vec3 dir) {
 
 	float density = cloud_opacity(uv, cover);
 
-	// Thin cirrus veil combed along the wind on a farther plane, so wispy high
-	// cloud parallaxes behind the cumulus at moderate coverage.
+	// Thin cirrus veil combed along the HIGH-altitude wind on a farther plane, so
+	// wispy high cloud parallaxes behind the cumulus at moderate coverage. Cirrus
+	// really does run in parallel bands along the wind aloft, but that wind is
+	// sheared from the surface wind, so the wisps cross the low cloud drift at an
+	// angle instead of running dead parallel to it.
 	vec2 high_uv = dir.xz / (dir.y + 0.05) * 0.55 + cloud_detail_offset * 0.3;
-	vec2 wind_perp = vec2(-wind_dir.y, wind_dir.x);
-	float cirrus = texture(cloud_noise, vec2(dot(high_uv, wind_dir) * 0.4, dot(high_uv, wind_perp) * 2.4)).r;
+	const float CIRRUS_SHEAR = 0.6; // ~34 degrees off the surface wind
+	vec2 high_wind = vec2(
+		wind_dir.x * cos(CIRRUS_SHEAR) - wind_dir.y * sin(CIRRUS_SHEAR),
+		wind_dir.x * sin(CIRRUS_SHEAR) + wind_dir.y * cos(CIRRUS_SHEAR)
+	);
+	vec2 wind_perp = vec2(-high_wind.y, high_wind.x);
+	float cirrus = texture(cloud_noise, vec2(dot(high_uv, high_wind) * 0.4, dot(high_uv, wind_perp) * 2.4)).r;
 	cirrus = smoothstep(0.62, 0.92, cirrus) * smoothstep(0.4, 0.75, cloud_coverage)
 		* (1.0 - storm_intensity * 0.7) * 0.4;
 	density = max(density, cirrus) * horizon_fade;
@@ -178,28 +190,64 @@ float rain_shafts(vec3 dir) {
 	if (storm_intensity < 0.05 || dir.y > 0.6 || dir.y < 0.01) {
 		return 0.0;
 	}
-	// March up the bearing: is there a heavy raining cell above this ray? Keeping
-	// x and z fixed while raising y and renormalising holds the azimuth, so this
-	// samples the cloud directly overhead, which is what the rain hangs from.
+	// March up the bearing to find the raining cell overhead AND how far below its
+	// base this ray sits. Keeping x and z fixed while raising y and renormalising
+	// holds the azimuth, so this samples the cloud directly overhead — what the
+	// rain hangs from. `base_gap` is the distance up to the nearest cloud.
 	float source = 0.0;
-	for (int i = 1; i <= 3; i++) {
-		vec3 up = normalize(vec3(dir.x, dir.y + float(i) * 0.13, dir.z));
+	float base_gap = 1.0;
+	for (int i = 1; i <= 6; i++) {
+		float offset = float(i) * 0.07;
+		vec3 up = normalize(vec3(dir.x, dir.y + offset, dir.z));
 		vec2 up_uv = up.xz / (up.y + 0.26) * 0.30 + cloud_offset;
 		float ls = local_storm_at(up_uv);
 		float cover = clamp(cloud_coverage + ls * 0.5, 0.0, 1.0);
-		source = max(source, smoothstep(0.45, 0.95, ls) * cloud_bulk(up_uv, cover));
+		float hit = smoothstep(0.45, 0.95, ls) * cloud_bulk(up_uv, cover);
+		source = max(source, hit);
+		if (hit > 0.15 && offset < base_gap) {
+			base_gap = offset;
+		}
 	}
-	if (source < 0.02) {
+	if (source < 0.05) {
 		return 0.0;
 	}
-	// Vertical streaks, drifting with the wind, fading out at the very horizon.
+	// Vertical streaks, drifting with the wind.
 	float azimuth = atan(dir.x, -dir.z);
 	vec2 suv = vec2(azimuth * 2.4 + cloud_offset.x * 8.0, dir.y * 1.6 - cloud_detail_offset.y * 2.0);
 	float streak = texture(cloud_noise, vec2(suv.x * 1.3, suv.y * 0.35)).r;
 	float fall = texture(cloud_noise, vec2(suv.x * 3.1, suv.y * 0.18) + vec2(0.4, 0.0)).r;
 	streak = smoothstep(0.44, 0.85, streak * 0.6 + fall * 0.4);
+	// Soft top: the curtain fades IN over the first stretch below the cloud base
+	// (larger base_gap = further below = denser), so rain emerges gradually from
+	// the cloud instead of starting at a hard horizontal edge. Fades out at the
+	// horizon too. A little vertical noise breaks up any residual banding.
+	float base_noise = texture(cloud_noise, vec2(azimuth * 3.0 + cloud_offset.x * 6.0, 0.5)).r * 0.05;
+	float top_fade = smoothstep(0.04, 0.30, base_gap + base_noise);
 	float hang = smoothstep(0.01, 0.09, dir.y);
-	return streak * source * hang;
+	return streak * source * hang * top_fade;
+}
+
+
+// A visible strike: a thin, jagged, brilliant channel at the flashing cell's
+// bearing, descending from high in the sky toward the horizon. Only drawn near
+// the peak of a flash so it reads as a bolt, not a steady line; it wanders
+// uniquely per strike and is naturally only seen when facing that quarter.
+float lightning_bolt(vec3 dir) {
+	if (lightning < 0.35 || dir.y < 0.015 || dir.y > 0.62) {
+		return 0.0;
+	}
+	vec2 g = normalize(vec2(dir.x, -dir.z) + vec2(0.0001));
+	// Signed horizontal angle between this ray and the strike bearing.
+	float ang = atan(g.x * lightning_dir.y - g.y * lightning_dir.x, dot(g, lightning_dir));
+	// Jagged channel: the horizontal offset wanders with height, unique per strike.
+	float seed = lightning_dir.x * 5.3 + lightning_dir.y * 2.1 + 0.5;
+	float jag = (texture(cloud_noise, vec2(dir.y * 3.5 + seed, seed * 0.37)).r - 0.5) * 0.13;
+	jag += (texture(cloud_noise, vec2(dir.y * 12.0 + seed, 0.6)).r - 0.5) * 0.035;
+	float d = abs(ang - jag);
+	float core = smoothstep(0.010, 0.0, d);
+	float glow = smoothstep(0.06, 0.0, d) * 0.3;
+	float taper = smoothstep(0.015, 0.08, dir.y);
+	return (core + glow) * taper * smoothstep(0.35, 0.9, lightning);
 }
 
 
@@ -252,13 +300,14 @@ void sky() {
 	float halo = pow(sun_amount, 90.0) * 0.4;
 	color += sun_tint * (disk * 2.4 + halo) * sun_visibility * (1.0 - clouds * 0.95);
 
-	// Moon: a softly glowing sphere with a stable procedural albedo map. Project
-	// the disk onto a local tangent plane so maria and craters follow its surface
-	// instead of looking like screen-space noise pasted over a white circle.
+	// Moon: shaded sphere with a baked near-side albedo map, Minnaert limb darkening,
+	// and a cool earthshine fill on the night side. The disk is projected onto a
+	// local tangent plane so maria and craters follow the surface instead of
+	// looking like screen-space noise pasted over a white circle.
 	float moon_dot = dot(dir, moon_direction);
 	float moon_radius = 0.031;
 	float moon_edge = cos(moon_radius);
-	float moon_disk = smoothstep(moon_edge - 0.00006, moon_edge + 0.000025, moon_dot);
+	float moon_disk = smoothstep(moon_edge - 0.00005, moon_edge + 0.00002, moon_dot);
 	vec3 moon_up_axis = abs(moon_direction.y) > 0.96 ? vec3(0.0, 0.0, 1.0) : vec3(0.0, 1.0, 0.0);
 	vec3 moon_right = normalize(cross(moon_up_axis, moon_direction));
 	vec3 moon_up = normalize(cross(moon_direction, moon_right));
@@ -277,40 +326,59 @@ void sky() {
 		-dot(sun_direction, moon_direction)
 	));
 	float moon_lit = max(dot(moon_normal, moon_light), 0.0);
-	// Soft earthshine on the night side; stronger near new moon when sunlight
-	// leaves only the Earth-lit face visible from Reval.
-	float earthshine = 0.045 * (0.5 + 0.5 * cos(moon_phase * TAU));
-	float moon_lighting = max(moon_lit, earthshine);
-	float moon_limb = 0.72 + 0.28 * moon_z;
-	float maria = 0.0;
-	maria += (1.0 - smoothstep(0.04, 0.34, length(moon_uv - vec2(-0.28, 0.20)))) * 0.24;
-	maria += (1.0 - smoothstep(0.03, 0.29, length(moon_uv - vec2(0.24, 0.12)))) * 0.18;
-	maria += (1.0 - smoothstep(0.03, 0.24, length(moon_uv - vec2(-0.02, -0.30)))) * 0.15;
-	maria += (1.0 - smoothstep(0.02, 0.17, length(moon_uv - vec2(0.42, -0.22)))) * 0.10;
-	float craters = 0.0;
-	craters += (1.0 - smoothstep(0.07, 0.10, abs(length(moon_uv - vec2(-0.42, -0.20)) - 0.10))) * 0.14;
-	craters += (1.0 - smoothstep(0.045, 0.065, abs(length(moon_uv - vec2(0.18, 0.42)) - 0.065))) * 0.10;
-	craters += (1.0 - smoothstep(0.028, 0.045, abs(length(moon_uv - vec2(0.47, 0.28)) - 0.045))) * 0.08;
-	float lunar_noise = texture(cloud_noise, moon_uv * 0.17 + vec2(0.31, 0.73)).r;
-	float lunar_albedo = clamp((1.0 - maria - craters) * mix(0.90, 1.04, lunar_noise), 0.55, 1.0);
+	vec2 lunar_uv = moon_uv * 0.5 + 0.5;
+	vec3 lunar_albedo = texture(lunar_albedo_map, lunar_uv).rgb;
+	// Regolith scatters with a slightly forward-bright lobe and a soft terminator.
+	float regolith_lobe = pow(moon_lit, 0.72);
+	float terminator = smoothstep(-0.015, 0.06, moon_lit);
+	// Minnaert limb darkening: real lunar disks darken toward the edge.
+	float minnaert_k = 0.58;
+	float minnaert = pow(max(moon_lit, 1e-4), minnaert_k - 1.0) * pow(max(moon_z, 1e-4), minnaert_k);
+	float moon_limb = 0.68 + 0.32 * moon_z;
+	// Earthshine is cooler and strongest near new moon when only the Earth-lit
+	// face remains visible from Reval.
+	float earthshine_strength = 0.055 * (0.5 + 0.5 * cos(moon_phase * TAU));
+	vec3 earthshine_col = vec3(0.42, 0.48, 0.62) * lunar_albedo;
+	vec3 sunlight_col = lunar_albedo * moon_color.rgb * (0.92 + 0.14 * pow(moon_lit, 5.0));
+	vec3 moon_surface = mix(
+		earthshine_col * earthshine_strength,
+		sunlight_col * regolith_lobe,
+		terminator
+	);
+	moon_surface *= minnaert * moon_limb;
 	float moon_visibility = smoothstep(-0.04, 0.03, moon_direction.y) * (1.0 - clouds);
-	color += moon_color.rgb * lunar_albedo * moon_lighting * moon_limb * moon_disk * moon_visibility * 0.90;
-	float moon_halo = smoothstep(cos(moon_radius * 4.0), moon_edge, moon_dot) * (1.0 - moon_disk);
-	color += moon_color.rgb * moon_halo * moon_visibility * moon_lighting * 0.08;
+	color += moon_surface * moon_disk * moon_visibility;
+	// Thin aureole from atmospheric forward scatter; much subtler than a glowy disk.
+	float moon_halo = smoothstep(cos(moon_radius * 3.2), moon_edge, moon_dot) * (1.0 - moon_disk);
+	color += vec3(0.78, 0.80, 0.86) * moon_halo * moon_visibility * (0.03 + moon_lit * 0.05);
 
-	// Cloud layer. The lit tone carries the sun's own colour and warms toward the
-	// horizon, so clouds are gilded at dawn/dusk and cool white at noon; the
-	// bright flank (from the light-march in cloud_light) tracks the sun's bearing.
+	// Cloud layer. By day the lit tone carries the sun's colour; at dawn and dusk
+	// it becomes a warm ramp — gold where it points at the sun, cooling through
+	// orange to a pink-violet away from it — while shadowed sides turn a dusky
+	// violet lit by skylight, and the sun-facing rim flares hottest. That
+	// graduation is what makes a real sunset glow instead of tinting every cloud
+	// the same flat orange.
 	vec3 sun_lit = mix(vec3(1.0, 1.0, 1.0), sun_color.rgb, 0.3);
-	sun_lit = mix(sun_lit, sunset_color.rgb * 1.2, sunset_factor * 0.75);
+	float sun_prox = pow(sun_amount, 1.5);
+	vec3 dusk_hot = vec3(1.15, 0.92, 0.60);
+	vec3 dusk_far = vec3(0.74, 0.44, 0.56);
+	vec3 dusk_lit = mix(dusk_far, sunset_color.rgb, smoothstep(0.12, 0.5, sun_prox));
+	dusk_lit = mix(dusk_lit, dusk_hot, smoothstep(0.55, 0.95, sun_prox));
+	sun_lit = mix(sun_lit, dusk_lit * 1.15, sunset_factor);
 	vec3 cloud_top = mix(vec3(0.09, 0.11, 0.16), sun_lit, day_blend);
-	// Shadowed sides are darker, cooler, and bluer; storm cells darken further
-	// still, so a heavy raining cell reads dark even in an otherwise bright sky.
-	vec3 cloud_shadow = cloud_top * mix(0.6, 0.26, local_storm) * vec3(0.88, 0.95, 1.12);
+	// Shadowed sides: cool blue by day, dusky violet at sunset (skylight, not sun).
+	// Storm cells darken further so a heavy raining cell reads dark under the sky.
+	vec3 day_shadow = cloud_top * mix(0.6, 0.26, local_storm) * vec3(0.88, 0.95, 1.12);
+	vec3 dusk_shadow = mix(vec3(0.30, 0.26, 0.40), vec3(0.46, 0.40, 0.52), day_blend) * mix(1.0, 0.5, local_storm);
+	vec3 cloud_shadow = mix(day_shadow, dusk_shadow, sunset_factor);
 	vec3 cloud_col = mix(cloud_shadow, cloud_top, cloud_light);
-	// Warm directional rim where a lit cloud faces the low sun (sunrise/sunset).
-	vec3 sun_glow = mix(sun_color.rgb, sunset_color.rgb, sunset_factor);
-	cloud_col += sun_glow * pow(sun_amount, 6.0) * cloud_light * (0.35 + 0.9 * sunset_factor) * sun_visibility;
+	// Hot rim where a lit cloud faces the low sun — the fiery sunset edge.
+	vec3 rim = mix(sun_color.rgb, dusk_hot, sunset_factor);
+	cloud_col += rim * pow(sun_amount, 5.0) * cloud_light * (0.4 + 1.3 * sunset_factor) * sun_visibility;
+	// Anvil crown: the icy top of a tall storm cell catches light as a bright,
+	// cool-white cap high over its dark base — the giveaway of a thunderhead.
+	float anvil = local_storm * smoothstep(0.32, 0.62, dir.y) * cloud_light * smoothstep(0.25, 0.6, clouds);
+	cloud_col = mix(cloud_col, vec3(1.05, 1.08, 1.16), anvil * 0.45);
 	// Overcast fronts flatten the heaps toward a dim, cool, uniform sheet; storm
 	// decks go darker and a touch bluer than a plain grey overcast.
 	vec3 overcast = cloud_top * mix(0.5, 0.4, local_storm) * vec3(0.94, 0.98, 1.06);
@@ -337,6 +405,8 @@ void sky() {
 		float near_strike = pow(aim, 3.0) * smoothstep(0.75, 0.0, dir.y);
 		vec3 flash_col = vec3(0.90, 0.94, 1.10);
 		color += flash_col * lightning * (near_strike * (0.5 + clouds * 1.6 + shafts * 1.3) + 0.03);
+		// The bolt itself, a searing white-blue channel drawn over the flash.
+		color += vec3(0.95, 0.97, 1.25) * lightning_bolt(dir) * 4.0;
 	}
 
 	COLOR = color;
