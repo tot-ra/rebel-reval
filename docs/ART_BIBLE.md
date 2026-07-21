@@ -115,7 +115,7 @@ At gameplay scale, a grayscale/squint pass must preserve tiers 1-3. Texture mark
 
 Before changing this status to `Approved`:
 
-1. P0-037 proves the shared cutout rig at the frozen 64 px character scale.
+1. P0-037 proves the shared low-poly rig at the frozen 64 px character scale.
 2. P0-038 records performance and production measurements for the compared approach.
 3. P0-039 runs a blind gameplay-scale readability test with at least five participants.
 4. A human approver records accept/reject and any rule changes in ADR 0004.

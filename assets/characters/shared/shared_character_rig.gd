@@ -13,6 +13,7 @@ const CANONICAL_ANIMATIONS: Dictionary = {
 	&"guard": &"Blocking",
 	&"hit": &"Hit_A",
 	&"fall": &"Death_A",
+	&"pickup": &"PickUp",
 	&"talk_gesture": &"Interact",
 	&"sit_down": &"Sit_Chair_Down",
 	&"sit_idle": &"Sit_Chair_Idle",
@@ -85,6 +86,24 @@ func _ready() -> void:
 	_apply_variant()
 	_install_head_scale()
 	play_animation(start_animation)
+
+
+func _exit_tree() -> void:
+	# WHY: Godot's headless dummy renderer can free a shared/imported material
+	# before its MeshInstance3D RID during queued character teardown. Detaching
+	# geometry first prevents false material_get_instance_shader_parameters
+	# errors, while the guard preserves geometry during a live reparent.
+	if is_queued_for_deletion():
+		_detach_render_geometry(self)
+
+
+static func _detach_render_geometry(root: Node) -> void:
+	if root is MeshInstance3D:
+		var mesh_instance := root as MeshInstance3D
+		mesh_instance.material_overlay = null
+		mesh_instance.mesh = null
+	for child: Node in root.get_children():
+		_detach_render_geometry(child)
 
 ## Adult proportions are baked into the generated heroic_humanoid.glb; the
 ## modifier stays neutral by default and exists as a per-variant fine-tune

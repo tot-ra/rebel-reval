@@ -16,6 +16,7 @@ const REQUIRED_ANIMATIONS: Array[StringName] = [
 	&"guard",
 	&"hit",
 	&"fall",
+	&"pickup",
 	&"talk_gesture",
 	&"sit_down",
 	&"sit_idle",
@@ -41,6 +42,17 @@ func test_unarmed_attack_uses_punch_clip() -> void:
 		kalev.animation_player().current_animation,
 		&"Unarmed_Melee_Attack_Punch_A",
 		"An empty-hand attack must visibly use the authored punch clip"
+	)
+	kalev.queue_free()
+
+func test_pickup_uses_shared_retargeted_clip() -> void:
+	var kalev := _instantiate(KALEV_SCENE)
+	assert_true(kalev.play_animation(&"pickup"))
+	assert_eq(kalev.animation_player().current_animation, &"PickUp")
+	assert_eq(
+		kalev.animation_player().get_animation(&"PickUp").loop_mode,
+		Animation.LOOP_NONE,
+		"pickup must be a one-shot shared-rig action"
 	)
 	kalev.queue_free()
 

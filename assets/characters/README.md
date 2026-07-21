@@ -1,8 +1,9 @@
 # Shared character rig (P0-037)
 
-Status: **generated in-repo body on retargeted adult skeleton; final art direction pending P0-040/P2-004**  
-Recorded: 2026-07-17  
+Status: **production-ready shared rig and retarget pipeline; final art direction pending P0-040/P2-004**
+Recorded: 2026-07-17
 Evidence: [`docs/reports/images/p0_037_character_rig.png`](../../docs/reports/images/p0_037_character_rig.png)
+Production proof: [`docs/reports/character_rig_production_p0_037.md`](../../docs/reports/character_rig_production_p0_037.md)
 
 This folder owns the shared humanoid rig contract used by Kalev and NPC variants. It deliberately does not edit the 2D player controller, map definitions, collision, navigation, or the P0-052 view layer.
 
@@ -24,7 +25,7 @@ which chains three stages:
 2. **Body generation** — [`tools/generate_hero_body.py`](../../tools/generate_hero_body.py) runs headless in Blender (build-time only; `brew install --cask blender`). It strips the placeholder meshes and models our own low-poly body (torso, head with face/hair/beard, arms, mitt hands, legs, boots) sized **from the bone positions**, so proportion changes in stage 1 flow through automatically. Skinning is deterministic — each vertex ring is weighted to its bones at creation, joints blend 50/50. It also exports skinned garments (`hero_cape.glb`, `hero_hat.glb`) bound to the same skeleton. Palette lives in its `PALETTE` dict (authored in sRGB).
 3. **Godot reimport** — a headless `--import` pass so captures and tests see the new assets.
 
-The generator prints `BODY_STATURE`; `SharedCharacterRig.HEROIC_MODEL_SCALE` must equal `2.0 / hero stature` (uniform — the old anisotropic squash is gone) to keep the 2.0 world-unit height contract. Non-hero bodies share the same uniform scale so relative statures hold. `CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE` (`28.125`) still projects that to 64 px in the 1600×900 viewport.
+The generator prints `BODY_STATURE`; `SharedCharacterRig.HEROIC_MODEL_SCALE` must equal `2.0 / hero stature` (uniform - the old anisotropic squash is gone) to keep the 2.0 world-unit height contract. Non-hero bodies share the same uniform scale so relative statures hold. `CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE` (`33.75`) projects that to 64 px in the 1920x1080 viewport.
 
 The runtime `RealisticProportions` skeleton modifier is now **neutral by default** and exists only as a per-variant fine-tune hook (a stockier or lankier NPC without new meshes).
 
@@ -49,6 +50,7 @@ character.play_animation(&"walk")
 | `guard` | `Blocking` | held guard loop |
 | `hit` | `Hit_A` | damage reaction |
 | `fall` | `Death_A` | non-looping fall |
+| `pickup` | `PickUp` | non-looping ground-item pickup |
 | `talk_gesture` | `Interact` | conversational hand gesture |
 | `sit_down` | `Sit_Chair_Down` | transition from standing to a seat |
 | `sit_idle` | `Sit_Chair_Idle` | seated idle loop |

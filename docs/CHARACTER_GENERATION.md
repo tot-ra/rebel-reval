@@ -55,7 +55,7 @@ Then:
 3. Add a SOURCES.csv provenance row (creator `project maintainer`, tool chain, "generated in-repo").
 4. Add/extend a rig-contract test (see `test_innkeeper_body_spec_fulfills_the_rig_contract`).
 
-The committed worked examples are **`innkeeper`** (shorter legs, broad chest, `belly 1.35`, homespun palette) and **`townswoman`** (narrow shoulders, slighter bulk, long hair, no beard — the base female frame) — completely different silhouettes from ~20 spec lines each.
+The committed worked examples are **`innkeeper`** (shorter legs, broad chest, `belly 1.35`, homespun palette) and **`townswoman`** (narrow shoulders, slighter bulk, long hair, no beard - the base female frame) - completely different silhouettes from ~20 spec lines each. The measured P0-037 production proof, including the end-to-end rebuild timing and new-motion retarget checklist, is in [`docs/reports/character_rig_production_p0_037.md`](reports/character_rig_production_p0_037.md).
 
 ## Tier 4 — new geometry
 
