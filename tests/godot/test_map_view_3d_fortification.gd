@@ -166,3 +166,69 @@ func test_fortification_walls_render_150_percent_taller_than_authored() -> void:
 	)
 	wall_node.free()
 	fence_node.free()
+
+func test_viru_gate_wall_walk_access_is_visible_and_traversable() -> void:
+	var definition := LowerTownSlice.create()
+	var stairs: Dictionary = {}
+	var platform: Dictionary = {}
+	for prop in definition.props:
+		if prop["id"] == &"viru_wall_walk_stairs":
+			stairs = prop
+		elif prop["id"] == &"viru_wall_walk_platform":
+			platform = prop
+	assert_false(stairs.is_empty(), "Viru Gate needs an authored wall stair")
+	assert_false(platform.is_empty(), "Viru Gate needs a walkable wall-top corridor")
+	var stair_node := MapViewMeshBuilder.build_prop(stairs, definition.cell_size, definition)
+	var platform_node := MapViewMeshBuilder.build_prop(platform, definition.cell_size, definition)
+	assert_true(stair_node.has_node("WallStairStep0"), "wall access must render wooden treads")
+	assert_true(stair_node.has_node("WallStairLanding"), "wall access needs a level top landing")
+	assert_true(stair_node.has_node("WallStairRail1"), "wall stairs need timber handrails")
+	assert_true(platform_node.has_node("WallWalkPlatform"), "the elevated patrol corridor needs a plank deck")
+	var stair_rect: Rect2 = stairs["footprint"]
+	var platform_rect: Rect2 = platform["footprint"]
+	var bottom := Vector2(stair_rect.position.x + 1.0, stair_rect.get_center().y)
+	var top := Vector2(stair_rect.end.x - 1.0, stair_rect.get_center().y)
+	assert_true(MapWallWalkAccess.elevation_at(definition, top) > MapWallWalkAccess.elevation_at(definition, bottom))
+	var wall: Dictionary = {}
+	for building in definition.buildings:
+		if building["id"] == &"city_wall_north":
+			wall = building
+			break
+	assert_false(wall.is_empty())
+	var grid := MapBuilder.build(definition)
+	var landing := Vector2(platform_rect.position.x + 1.0, stair_rect.get_center().y)
+	var wall_rect: Rect2 = wall["footprint"]
+	var entry := platform_rect.intersection(wall_rect).get_center()
+	var north_walk := Vector2(entry.x, platform_rect.position.y + float(definition.cell_size) * 0.5)
+	var south_walk := Vector2(entry.x, platform_rect.end.y - float(definition.cell_size) * 0.5)
+	assert_true(MapVerification.is_walkable_point(definition, grid, bottom))
+	assert_true(MapVerification.is_walkable_point(definition, grid, landing))
+	assert_true(MapVerification.is_walkable_point(definition, grid, entry), "stair landing must enter the wall gallery")
+	assert_true(MapVerification.is_walkable_point(definition, grid, platform_rect.get_center()))
+	assert_true(
+		MapVerification.route_exists_exact(definition, grid, entry, north_walk),
+		"the opened gallery must allow movement north along the wall"
+	)
+	assert_true(
+		MapVerification.route_exists_exact(definition, grid, entry, south_walk),
+		"the opened gallery must allow movement south along the wall"
+	)
+	assert_false(MapWallWalkAccess.point_blocked_by_building(definition, wall, entry))
+	assert_true(
+		MapWallWalkAccess.point_blocked_by_building(
+			definition,
+			wall,
+			Vector2(wall_rect.get_center().x, platform_rect.position.y - 1.0)
+		),
+		"the fortification outside the authored gallery must remain sealed"
+	)
+	var wall_body := MapBuildingRenderer.create_building(
+		wall,
+		MapVisualStyle.TARGET_CLEAN_PAINTED,
+		MapVisualStyle.TIME_DAY,
+		definition
+	)
+	assert_false(MapBuildingRenderer.footprint_blocks_point(wall_body, entry))
+	wall_body.free()
+	stair_node.free()
+	platform_node.free()

@@ -67,8 +67,12 @@ static func build_transition_marker(transition: Dictionary, cell_size: int) -> N
 	return _Landmarks.build_transition_marker(transition, cell_size)
 
 
-static func build_prop(prop: Dictionary, cell_size: int) -> Node3D:
-	return _Props.build_prop(prop, cell_size)
+static func build_prop(
+	prop: Dictionary,
+	cell_size: int,
+	definition: MapDefinition = null
+) -> Node3D:
+	return _Props.build_prop(prop, cell_size, definition)
 
 
 static func build_scatter(

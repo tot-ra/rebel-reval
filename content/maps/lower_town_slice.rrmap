@@ -187,6 +187,10 @@ prop courtyard_quench quench_bucket 98 76 rect=1,1
 prop hay_store hay_stack 86 76 rect=2,2
 prop cistern well 104 60 rect=2,2
 prop monastery_well well 73 11 rect=2,2
+# The west-side gate stair climbs east into a patrol corridor spanning the wall
+# thickness. Its overlap explicitly opens the otherwise solid wall collision.
+prop viru_wall_walk_stairs stairs 104 33 rect=6,4 facing=east primitive=wall_walk_access
+prop viru_wall_walk_platform stairs 110 30 rect=4,11 facing=north primitive=wall_walk_platform
 prop market_stall_gate stall 102 60 rect=2,1
 prop market_stall_turg_north stall 5 43 rect=2,2
 prop market_stall_turg_south stall 10 62 rect=2,2

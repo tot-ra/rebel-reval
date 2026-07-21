@@ -218,11 +218,12 @@ func world_position(logic_position: Vector2, height: float = 0.0) -> Vector3:
 
 func sync_actor(actor: Node3D, logic_position: Vector2) -> void:
 	MapViewBridge.sync_actor(actor, logic_position, definition.cell_size)
-	# Actors ride the visible terrain relief; the logic plane stays flat.
+	# Actors ride the visible terrain relief; authored access zones add only a
+	# derived view elevation while the flat logic position stays authoritative.
 	actor.position.y = MapViewMeshBuilder.ground_height(
 		definition,
 		Vector2(actor.position.x, actor.position.z)
-	)
+	) + MapWallWalkAccess.elevation_at(definition, logic_position)
 
 
 func anchor_world_position(anchor_id: StringName) -> Vector3:
@@ -441,7 +442,7 @@ func _create_streamed_object(record: Dictionary) -> Node:
 			)
 			return landmark_node
 		&"prop":
-			var prop_node := MapViewMeshBuilder.build_prop(source, definition.cell_size)
+			var prop_node := MapViewMeshBuilder.build_prop(source, definition.cell_size, definition)
 			# build_prop applies visual_offset_px in world space; keep that lift when
 			# snapping the prop root to sampled terrain height.
 			var visual_elevation := prop_node.position.y

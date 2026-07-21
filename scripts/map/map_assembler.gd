@@ -45,7 +45,12 @@ static func assemble(
 		var source := record["source"] as Dictionary
 		match record["kind"] as StringName:
 			&"building":
-				return MapBuildingRenderer.create_building(source, visual_target, time_of_day)
+				return MapBuildingRenderer.create_building(
+					source,
+					visual_target,
+					time_of_day,
+					definition
+				)
 			&"prop":
 				return MapPropRenderer.create_prop(source, visual_target, time_of_day)
 		return null

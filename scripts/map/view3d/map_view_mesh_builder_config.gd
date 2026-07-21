@@ -144,6 +144,16 @@ const TOWER_ROOF_PITCH := 1.45
 const WALL_WALK_ROOF_LIFT := 0.75
 const WALL_WALK_TIMBER_TONE := Color(0.50, 0.36, 0.24)
 
+## Large authored stair props opt into wall-walk access with
+## primitive=wall_walk_access. Most of their footprint climbs; the final band is
+## a level logical corridor mirrored onto the wall cap by the 3D view.
+const WALL_WALK_ACCESS_CLIMB_FRACTION := 0.72
+const WALL_WALK_ACCESS_STEP_RISE := 0.24
+const WALL_WALK_ACCESS_STAIR_WIDTH := 1.65
+const WALL_WALK_ACCESS_TREAD_THICKNESS := 0.1
+const WALL_WALK_ACCESS_RAIL_HEIGHT := 1.0
+const WALL_WALK_ACCESS_MAX_TARGET_DISTANCE_CELLS := 5.0
+
 const CHIMNEY_SIZE := 0.5
 const CHIMNEY_WALL_THICKNESS := 0.09
 ## Stone lip above the flue so the mouth reads as a tube, not a flat cube top.

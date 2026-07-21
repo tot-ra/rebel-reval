@@ -11,7 +11,8 @@ static func footprint_y_sort_anchor(footprint: Rect2) -> Vector2:
 static func create_building(
 	building: Dictionary,
 	target: StringName = MapVisualStyle.TARGET_CLEAN_PAINTED,
-	time_of_day: StringName = MapVisualStyle.TIME_DAY
+	time_of_day: StringName = MapVisualStyle.TIME_DAY,
+	definition: MapDefinition = null
 ) -> StaticBody2D:
 	var footprint: Rect2 = building["footprint"]
 	var anchor := footprint_y_sort_anchor(footprint)
@@ -27,13 +28,18 @@ static func create_building(
 	body.set_meta("y_sort_anchor", anchor)
 	body.set_meta("visual_target", target)
 
-	# Collision is always derived from the shared footprint, never from target art.
-	var collision_shape := RectangleShape2D.new()
-	collision_shape.size = local_footprint.size
-	var collision := CollisionShape2D.new()
-	collision.shape = collision_shape
-	collision.position = local_footprint.position + local_footprint.size * 0.5
-	body.add_child(collision)
+	# Collision is normally the shared footprint. Explicit wall-walk platforms
+	# subtract only their wall overlap so the stair can enter the elevated gallery.
+	var collision_rects := MapWallWalkAccess.collision_rects(definition, building)
+	for index in collision_rects.size():
+		var collision_rect: Rect2 = collision_rects[index]
+		var collision_shape := RectangleShape2D.new()
+		collision_shape.size = collision_rect.size
+		var collision := CollisionShape2D.new()
+		collision.name = "CollisionShape2D" if index == 0 else "CollisionShape2D%d" % index
+		collision.shape = collision_shape
+		collision.position = collision_rect.get_center() - anchor
+		body.add_child(collision)
 
 	var visuals := Node2D.new()
 	visuals.name = "Visuals"
@@ -52,8 +58,20 @@ static func create_building(
 
 
 static func footprint_blocks_point(body: StaticBody2D, point: Vector2) -> bool:
-	var footprint: Variant = body.get_meta("footprint", null)
-	return footprint is Rect2 and (footprint as Rect2).has_point(point)
+	for child in body.get_children():
+		var collision := child as CollisionShape2D
+		if collision == null:
+			continue
+		var shape := collision.shape as RectangleShape2D
+		if shape == null:
+			continue
+		var collision_rect := Rect2(
+			body.position + collision.position - shape.size * 0.5,
+			shape.size
+		)
+		if collision_rect.has_point(point):
+			return true
+	return false
 
 
 static func _draw_house(

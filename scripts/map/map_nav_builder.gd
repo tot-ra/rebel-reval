@@ -22,7 +22,8 @@ static func create_navigation_region(definition: MapDefinition, grid: MapTerrain
 	var source := NavigationMeshSourceGeometryData2D.new()
 	source.add_traversable_outline(_rect_outline(Rect2(Vector2.ZERO, definition.world_size())))
 	for building in definition.buildings:
-		source.add_obstruction_outline(_rect_outline(building["footprint"]))
+		for collision_rect in MapWallWalkAccess.collision_rects(definition, building):
+			source.add_obstruction_outline(_rect_outline(collision_rect))
 	for rect in definition.excluded_areas:
 		source.add_obstruction_outline(_rect_outline(definition.cell_rect_to_world_rect(rect)))
 	var water_rects := GridRegionMergerScript.merge_matching_cells(

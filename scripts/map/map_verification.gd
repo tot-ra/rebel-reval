@@ -7,18 +7,18 @@ extends RefCounted
 static func blocked_cells(definition: MapDefinition) -> Dictionary:
 	var blocked: Dictionary = {}
 	for building in definition.buildings:
-		var footprint: Rect2 = building["footprint"]
-		var start_cell := Vector2i(
-			int(floor(footprint.position.x / definition.cell_size)),
-			int(floor(footprint.position.y / definition.cell_size))
-		)
-		var end_cell := Vector2i(
-			int(ceil(footprint.end.x / definition.cell_size)),
-			int(ceil(footprint.end.y / definition.cell_size))
-		)
-		for y in range(start_cell.y, end_cell.y):
-			for x in range(start_cell.x, end_cell.x):
-				blocked[Vector2i(x, y)] = true
+		for collision_rect in MapWallWalkAccess.collision_rects(definition, building):
+			var start_cell := Vector2i(
+				int(floor(collision_rect.position.x / definition.cell_size)),
+				int(floor(collision_rect.position.y / definition.cell_size))
+			)
+			var end_cell := Vector2i(
+				int(ceil(collision_rect.end.x / definition.cell_size)),
+				int(ceil(collision_rect.end.y / definition.cell_size))
+			)
+			for y in range(start_cell.y, end_cell.y):
+				for x in range(start_cell.x, end_cell.x):
+					blocked[Vector2i(x, y)] = true
 	for rect in definition.excluded_areas:
 		for y in range(rect.position.y, rect.end.y):
 			for x in range(rect.position.x, rect.end.x):
