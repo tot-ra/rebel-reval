@@ -4,14 +4,16 @@ extends CanvasLayer
 ## Full-screen map mode. It opens on the current local map; the existing
 ## district graph remains available as an explicit fast-travel option.
 
+const WorldMapOverlayBuilder := preload("res://scripts/ui/world_map_overlay_builder.gd")
+
 signal closed()
 signal travel_requested(scene_id: StringName, spawn_id: StringName)
 
 const MODE_LOCAL := &"local"
 const MODE_FAST_TRAVEL := &"fast_travel"
-const PANEL_SIZE := Vector2(820, 600)
-const NODE_SIZE := Vector2(132, 44)
-const LOCAL_MARKER_SIZE := Vector2(16, 16)
+const PANEL_SIZE := WorldMapOverlayBuilder.PANEL_SIZE
+const NODE_SIZE := WorldMapOverlayBuilder.NODE_SIZE
+const LOCAL_MARKER_SIZE := WorldMapOverlayBuilder.LOCAL_MARKER_SIZE
 const TRAVEL_NODE_COLOR := Color(0.92, 0.96, 1.0, 1.0)
 const TRAVEL_FOCUS_COLOR := Color(1.0, 0.78, 0.28, 1.0)
 
@@ -24,10 +26,8 @@ var _mode: StringName = MODE_LOCAL
 var _local_map: MinimapHud
 var _local_texture: ImageTexture
 
-var _dim: ColorRect
 var _title: Label
 var _subtitle: Label
-var _content_host: Control
 var _local_host: Control
 var _local_texture_rect: TextureRect
 var _local_marker: Panel
@@ -201,133 +201,23 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _build_ui() -> void:
-	var root := Control.new()
-	root.name = "WorldMapRoot"
-	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	root.mouse_filter = Control.MOUSE_FILTER_STOP
-	add_child(root)
-
-	_dim = ColorRect.new()
-	_dim.name = "Dim"
-	_dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_dim.color = Color(0.04, 0.05, 0.08, 0.78)
-	_dim.mouse_filter = Control.MOUSE_FILTER_STOP
-	root.add_child(_dim)
-
-	var panel := PanelContainer.new()
-	panel.name = "WorldMapPanel"
-	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	panel.custom_minimum_size = PANEL_SIZE
-	panel.offset_left = -PANEL_SIZE.x * 0.5
-	panel.offset_top = -PANEL_SIZE.y * 0.5
-	panel.offset_right = PANEL_SIZE.x * 0.5
-	panel.offset_bottom = PANEL_SIZE.y * 0.5
-	root.add_child(panel)
-
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 20)
-	margin.add_theme_constant_override("margin_right", 20)
-	margin.add_theme_constant_override("margin_top", 16)
-	margin.add_theme_constant_override("margin_bottom", 16)
-	panel.add_child(margin)
-
-	var layout := VBoxContainer.new()
-	layout.add_theme_constant_override("separation", 10)
-	margin.add_child(layout)
-
-	var header := HBoxContainer.new()
-	header.add_theme_constant_override("separation", 12)
-	layout.add_child(header)
-
-	var titles := VBoxContainer.new()
-	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.add_child(titles)
-
-	_title = Label.new()
-	_title.name = "Title"
-	_title.text = "Map"
-	_title.add_theme_font_size_override("font_size", 22)
-	_title.add_theme_color_override("font_color", Color(0.92, 0.82, 0.56, 1.0))
-	titles.add_child(_title)
-
-	_subtitle = Label.new()
-	_subtitle.name = "Subtitle"
-	_subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_subtitle.add_theme_font_size_override("font_size", 13)
-	_subtitle.add_theme_color_override("font_color", Color(0.78, 0.82, 0.86, 0.95))
-	titles.add_child(_subtitle)
-
-	_close_button = Button.new()
-	_close_button.name = "CloseButton"
-	_close_button.text = "Close"
-	_close_button.pressed.connect(close)
-	header.add_child(_close_button)
-
-	var tabs := HBoxContainer.new()
-	tabs.name = "MapOptions"
-	tabs.add_theme_constant_override("separation", 8)
-	layout.add_child(tabs)
-
-	_local_tab = Button.new()
-	_local_tab.name = "LocalMapButton"
-	_local_tab.text = "Local map"
-	_local_tab.tooltip_text = "Show your position in the current location"
-	_local_tab.pressed.connect(show_local_map)
-	tabs.add_child(_local_tab)
-
-	_fast_travel_tab = Button.new()
-	_fast_travel_tab.name = "FastTravelButton"
-	_fast_travel_tab.text = "Fast travel"
-	_fast_travel_tab.tooltip_text = "Travel to a connected district"
-	_fast_travel_tab.pressed.connect(show_fast_travel)
-	tabs.add_child(_fast_travel_tab)
-
-	_local_host = Control.new()
-	_local_host.name = "LocalMapHost"
-	_local_host.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_local_host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_local_host.custom_minimum_size = Vector2(0, 420)
-	layout.add_child(_local_host)
-
-	_local_texture_rect = TextureRect.new()
-	_local_texture_rect.name = "LocalMapTexture"
-	_local_texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_local_texture_rect.stretch_mode = TextureRect.STRETCH_SCALE
-	_local_texture_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_local_texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_local_host.add_child(_local_texture_rect)
-
-	_local_marker = Panel.new()
-	_local_marker.name = "PlayerLocationMarker"
-	_local_marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_local_marker.custom_minimum_size = LOCAL_MARKER_SIZE
-	_local_marker.size = LOCAL_MARKER_SIZE
-	_local_marker.add_theme_stylebox_override("panel", _local_marker_style())
-	_local_host.add_child(_local_marker)
-
-	_local_unavailable = Label.new()
-	_local_unavailable.name = "LocalMapUnavailable"
-	_local_unavailable.text = "A local map is not available for this location."
-	_local_unavailable.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_local_unavailable.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_local_unavailable.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_local_unavailable.add_theme_color_override("font_color", Color(0.68, 0.72, 0.76, 1.0))
-	_local_host.add_child(_local_unavailable)
-
-	_graph_host = Control.new()
-	_graph_host.name = "GraphHost"
-	_graph_host.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_graph_host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_graph_host.custom_minimum_size = Vector2(0, 420)
-	_graph_host.draw.connect(_draw_connections)
-	layout.add_child(_graph_host)
-
-	_help = Label.new()
-	_help.name = "HelpLabel"
-	_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_help.add_theme_font_size_override("font_size", 12)
-	_help.add_theme_color_override("font_color", Color(0.68, 0.72, 0.76, 1.0))
-	layout.add_child(_help)
+	var nodes := WorldMapOverlayBuilder.build(self, {
+		"close": close,
+		"show_local_map": show_local_map,
+		"show_fast_travel": show_fast_travel,
+		"draw_connections": _draw_connections,
+	})
+	_title = nodes["title"]
+	_subtitle = nodes["subtitle"]
+	_local_host = nodes["local_host"]
+	_local_texture_rect = nodes["local_texture_rect"]
+	_local_marker = nodes["local_marker"]
+	_local_unavailable = nodes["local_unavailable"]
+	_graph_host = nodes["graph_host"]
+	_local_tab = nodes["local_tab"]
+	_fast_travel_tab = nodes["fast_travel_tab"]
+	_close_button = nodes["close_button"]
+	_help = nodes["help"]
 
 
 func _set_mode(mode: StringName) -> void:
@@ -426,17 +316,6 @@ func _local_subtitle() -> String:
 	if not _current_scene_id.is_empty():
 		return "You are here: %s" % LocationHud.display_name_for_scene(_current_scene_id)
 	return "Current location is outside the active map registry."
-
-
-func _local_marker_style() -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.95, 0.22, 0.18, 1.0)
-	style.border_color = Color(1.0, 0.92, 0.72, 1.0)
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(int(LOCAL_MARKER_SIZE.x * 0.5))
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.75)
-	style.shadow_size = 4
-	return style
 
 
 func _rebuild_graph() -> void:
