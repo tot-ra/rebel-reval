@@ -194,9 +194,21 @@ func test_city_wall_base_arcades_and_timber_gallery_are_character_scale() -> voi
 	for building in definition.buildings:
 		if building["id"] != &"city_wall_north":
 			continue
-		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
+		var node := MapViewMeshBuilder.build_building(
+			building, definition.cell_size, [], Rect2(Vector2.ZERO, definition.world_size())
+		)
 		assert_true(node.has_node("BaseArcades"), "town walls need protective blind arches at their base")
 		assert_true(node.has_node("BaseArcadePiers"), "base arches need stone springing piers")
+		assert_true(MapViewMeshBuilderConfig.WALL_BASE_ARCADE_MAX_RADIUS > 1.0, "blind arches must be visibly larger")
+		# WHY: headless/dummy MultiMesh ignores set_instance_transform, so assert the
+		# authored city-face heuristic instead of reading instance origins.
+		var wall_size: Vector2 = (building["footprint"] as Rect2).size * MapViewBridge.world_scale(definition.cell_size)
+		var arcade_side := MapViewMeshBuilderBuildingFortification._interior_arcade_side(
+			building,
+			wall_size.x >= wall_size.y,
+			Rect2(Vector2.ZERO, definition.world_size())
+		)
+		assert_true(arcade_side < 0.0, "east boundary arcades must stay on the protected west/city face")
 		assert_true(node.has_node("GalleryRail-1_86"), "covered wall walks need timber guard rails")
 		assert_true(node.has_node("GalleryEaves1"), "wall roofs need continuous timber eaves beams")
 		var roof := node.get_node("WalkRoof") as MeshInstance3D
@@ -208,6 +220,36 @@ func test_city_wall_base_arcades_and_timber_gallery_are_character_scale() -> voi
 		node.free()
 		return
 	assert_true(false, "Lower Town fixture must contain city_wall_north")
+
+
+func test_workers_district_wall_walk_crosses_round_towers_to_the_wall_end() -> void:
+	var definition := LowerTownSlice.create()
+	var grid := MapBuilder.build(definition)
+	var entry := Vector2(112.5, 35.5) * float(definition.cell_size)
+	var wall_end := Vector2(74.5, 126.5) * float(definition.cell_size)
+	assert_true(MapVerification.is_walkable_point(definition, grid, entry))
+	assert_true(MapVerification.is_walkable_point(definition, grid, wall_end))
+	assert_true(MapVerification.route_exists_exact(definition, grid, entry, wall_end), "the wall walk must remain connected through every round tower")
+	var expected_axes := {
+		&"wall_tower_northeast": &"z", &"wall_tower_north": &"z",
+		&"viru_gate_north_tower": &"z", &"viru_gate_south_tower": &"z",
+		&"hinke_tower": &"z", &"wall_tower_southeast": &"x",
+		&"wall_tower_south": &"x", &"wall_tower_southwest": &"x",
+	}
+	var seen := 0
+	for building in definition.buildings:
+		if not expected_axes.has(building["id"]):
+			continue
+		assert_true(MapWallWalkAccess.is_round_tower(building), "%s must render circular" % building["id"])
+		assert_eq(MapWallWalkAccess.passage_axis(building), expected_axes[building["id"]])
+		var passage := MapWallWalkAccess.tower_passage_rect(building)
+		assert_false(MapWallWalkAccess.point_blocked_by_building(definition, building, passage.get_center()))
+		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
+		assert_true((node.get_node("Walls") as MeshInstance3D).mesh is CylinderMesh)
+		assert_true(node.has_node("TowerUpperDrum/WallWalkPassage"), "%s needs a visible upper passage" % building["id"])
+		seen += 1
+		node.free()
+	assert_eq(seen, expected_axes.size())
 
 
 func test_viru_gate_wall_walk_access_is_visible_and_traversable() -> void:
@@ -257,11 +299,14 @@ func test_viru_gate_wall_walk_access_is_visible_and_traversable() -> void:
 		"the opened gallery must allow movement south along the wall"
 	)
 	assert_false(MapWallWalkAccess.point_blocked_by_building(definition, wall, entry))
+	# WHY: the platform opens the wall-walk corridor through the wall thickness.
+	# Probe remaining solid masonry on the outer east edge, not a point north of
+	# the map (platform_rect.position.y - 1) that never intersects the building.
 	assert_true(
 		MapWallWalkAccess.point_blocked_by_building(
 			definition,
 			wall,
-			Vector2(wall_rect.get_center().x, platform_rect.position.y - 1.0)
+			Vector2(wall_rect.end.x - 1.0, wall_rect.get_center().y)
 		),
 		"the fortification outside the authored gallery must remain sealed"
 	)

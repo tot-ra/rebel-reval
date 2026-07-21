@@ -165,11 +165,25 @@ const WALL_WALK_POST_SIZE := 0.11
 const WALL_WALK_RAIL_HEIGHT := 0.86
 const WALL_WALK_RAIL_SIZE := 0.09
 const WALL_WALK_BRACKET_DROP := 0.62
-const WALL_BASE_ARCADE_BAY_WIDTH := 2.0
-const WALL_BASE_ARCADE_DEPTH := 0.24
-const WALL_BASE_ARCADE_STONE_WIDTH := 0.2
-const WALL_BASE_ARCADE_SPRING_HEIGHT := 0.62
-const WALL_BASE_ARCADE_MAX_RADIUS := 0.92
+## Tallinn town-wall blind arcades are defensive buttressing on the protected
+## city face, not trim repeated outside the circuit. Their openings must read at
+## human scale from the dimetric camera.
+const WALL_BASE_ARCADE_BAY_WIDTH := 3.4
+const WALL_BASE_ARCADE_DEPTH := 0.32
+const WALL_BASE_ARCADE_STONE_WIDTH := 0.26
+const WALL_BASE_ARCADE_SPRING_HEIGHT := 0.9
+const WALL_BASE_ARCADE_MAX_RADIUS := 1.4
+
+## Tower wall-walk passages are gameplay-authoritative at the curtain-wall top.
+## Matching visual portals replace the upper drum band at the same elevation.
+const WALL_WALK_PASSAGE_WIDTH := 1.6
+const WALL_WALK_PASSAGE_WIDTH_PX := WALL_WALK_PASSAGE_WIDTH * float(MapTypes.DEFAULT_CELL_SIZE)
+## World-unit floor of the upper portal. Matches an authored 192 px curtain top
+## after FORTIFICATION_HEIGHT_SCALE so round-tower tunnels align with the wall walk.
+const WALL_WALK_PASSAGE_FLOOR_HEIGHT := 192.0 * MapTypes.FORTIFICATION_HEIGHT_SCALE / float(MapTypes.DEFAULT_CELL_SIZE)
+## The boolean cut starts below the timber deck so a 2.0-unit actor keeps full
+## headroom beneath the tower cap even where the tower barely clears the curtain.
+const WALL_WALK_PASSAGE_CUT_DROP := 0.55
 
 ## Large authored stair props opt into wall-walk access with
 ## primitive=wall_walk_access. Most of their footprint climbs; the final band is

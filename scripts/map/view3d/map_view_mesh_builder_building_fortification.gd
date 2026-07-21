@@ -10,6 +10,51 @@ static func sealed_wall_size(size: Vector3) -> Vector3:
 	return Vector3(size.x, size.y, size.z + MapViewMeshBuilderConfig.WALL_SEAL_OVERHANG * 2.0)
 
 
+static func add_tower_wall_walk_passage(
+	root: Node3D,
+	radius: float,
+	passage_floor_y: float,
+	tower_top_y: float,
+	axis: StringName,
+	wall_color: Color
+) -> void:
+	if axis not in [&"x", &"z"] or tower_top_y <= passage_floor_y:
+		return
+	var upper_height := tower_top_y - passage_floor_y
+	var clear_width := minf(
+		MapViewMeshBuilderConfig.WALL_WALK_PASSAGE_WIDTH,
+		radius * 1.45
+	)
+	var clear_height := upper_height + MapViewMeshBuilderConfig.WALL_WALK_PASSAGE_CUT_DROP
+
+	# WHY: primitive meshes cannot receive a doorway cut. CSG is limited to the
+	# upper band so the dominant tower mass stays a cheap cylinder while the wall
+	# walk gets a real tunnel through both sides of the circular drum.
+	var upper_drum := CSGCylinder3D.new()
+	upper_drum.name = "TowerUpperDrum"
+	upper_drum.radius = radius
+	upper_drum.height = upper_height
+	upper_drum.sides = 24
+	upper_drum.smooth_faces = true
+	upper_drum.position.y = passage_floor_y + upper_height * 0.5
+	upper_drum.material = MapViewMaterials.wall_surface_triplanar(
+		&"limestone",
+		wall_color.lightened(0.08)
+	)
+	root.add_child(upper_drum)
+
+	var opening := CSGBox3D.new()
+	opening.name = "WallWalkPassage"
+	opening.operation = CSGShape3D.OPERATION_SUBTRACTION
+	opening.size = (
+		Vector3(radius * 2.4, clear_height, clear_width)
+		if axis == &"x"
+		else Vector3(clear_width, clear_height, radius * 2.4)
+	)
+	opening.position.y = -upper_height * 0.5 + clear_height * 0.5 - MapViewMeshBuilderConfig.WALL_WALK_PASSAGE_CUT_DROP
+	upper_drum.add_child(opening)
+
+
 static func add_tower_door(
 	root: Node3D,
 	radius: float,
@@ -230,13 +275,18 @@ static func add_wall_walk_roof(root: Node3D, size: Vector2, height: float) -> vo
 			_add_timber_beam(root, "GalleryBracket%d_%d" % [int(end), int(side)], lower, upper, 0.1)
 
 
-static func add_base_arcades(root: Node3D, building: Dictionary, size: Vector2) -> void:
+static func add_base_arcades(
+	root: Node3D,
+	building: Dictionary,
+	size: Vector2,
+	world_bounds: Rect2 = Rect2()
+) -> void:
 	var along_x := size.x >= size.y
 	var length := size.x if along_x else size.y
 	var depth := size.y if along_x else size.x
 	var bay_count := maxi(1, floori(length / MapViewMeshBuilderConfig.WALL_BASE_ARCADE_BAY_WIDTH))
 	var bay_width := length / float(bay_count)
-	var radius := minf(bay_width * 0.38, MapViewMeshBuilderConfig.WALL_BASE_ARCADE_MAX_RADIUS)
+	var radius := minf(bay_width * 0.42, MapViewMeshBuilderConfig.WALL_BASE_ARCADE_MAX_RADIUS)
 	var spring_y := MapViewMeshBuilderConfig.WALL_BASE_ARCADE_SPRING_HEIGHT
 	var face_offset := depth * 0.5 + MapViewMeshBuilderConfig.WALL_BASE_ARCADE_DEPTH * 0.5
 	var stone_color := Color(building.get("wall_color", MapViewMeshBuilderConfig.DEFAULT_WALL_COLOR)).lightened(0.1)
@@ -245,26 +295,26 @@ static func add_base_arcades(root: Node3D, building: Dictionary, size: Vector2) 
 	var pier_colors: Array[Color] = []
 	var arc_transforms: Array[Transform3D] = []
 	var arc_colors: Array[Color] = []
-	var segment_count := 7
-	var segment_length := PI * radius / float(segment_count) * 1.14
+	var segment_count := 9
+	var segment_length := PI * radius / float(segment_count) * 1.12
+	var side := _interior_arcade_side(building, along_x, world_bounds)
+	var normal := Vector3(0.0, 0.0, side) if along_x else Vector3(side, 0.0, 0.0)
 
-	for side in [-1.0, 1.0]:
-		var normal := Vector3(0.0, 0.0, side) if along_x else Vector3(side, 0.0, 0.0)
-		for pier_index in bay_count + 1:
-			var along := -length * 0.5 + float(pier_index) * bay_width
-			var pier_position := Vector3(along, spring_y * 0.5, side * face_offset) if along_x else Vector3(side * face_offset, spring_y * 0.5, along)
-			pier_transforms.append(Transform3D(Basis.IDENTITY, pier_position))
-			pier_colors.append(Color.WHITE)
-		for bay_index in bay_count:
-			var center := -length * 0.5 + (float(bay_index) + 0.5) * bay_width
-			for segment_index in segment_count:
-				var angle := (float(segment_index) + 0.5) / float(segment_count) * PI
-				var along := center + cos(angle) * radius
-				var position := Vector3(along, spring_y + sin(angle) * radius, side * face_offset) if along_x else Vector3(side * face_offset, spring_y + sin(angle) * radius, along)
-				var tangent := ((Vector3.RIGHT if along_x else Vector3.BACK) * -sin(angle) + Vector3.UP * cos(angle)).normalized()
-				var radial := normal.cross(tangent).normalized()
-				arc_transforms.append(Transform3D(Basis(tangent, radial, normal), position))
-				arc_colors.append(Color.WHITE)
+	for pier_index in bay_count + 1:
+		var along := -length * 0.5 + float(pier_index) * bay_width
+		var pier_position := Vector3(along, spring_y * 0.5, side * face_offset) if along_x else Vector3(side * face_offset, spring_y * 0.5, along)
+		pier_transforms.append(Transform3D(Basis.IDENTITY, pier_position))
+		pier_colors.append(Color.WHITE)
+	for bay_index in bay_count:
+		var center := -length * 0.5 + (float(bay_index) + 0.5) * bay_width
+		for segment_index in segment_count:
+			var angle := (float(segment_index) + 0.5) / float(segment_count) * PI
+			var along := center + cos(angle) * radius
+			var position := Vector3(along, spring_y + sin(angle) * radius, side * face_offset) if along_x else Vector3(side * face_offset, spring_y + sin(angle) * radius, along)
+			var tangent := ((Vector3.RIGHT if along_x else Vector3.BACK) * -sin(angle) + Vector3.UP * cos(angle)).normalized()
+			var radial := normal.cross(tangent).normalized()
+			arc_transforms.append(Transform3D(Basis(tangent, radial, normal), position))
+			arc_colors.append(Color.WHITE)
 
 	var pier_mesh := BoxMesh.new()
 	pier_mesh.size = (
@@ -276,6 +326,22 @@ static func add_base_arcades(root: Node3D, building: Dictionary, size: Vector2) 
 	var arc_mesh := BoxMesh.new()
 	arc_mesh.size = Vector3(segment_length, MapViewMeshBuilderConfig.WALL_BASE_ARCADE_STONE_WIDTH, MapViewMeshBuilderConfig.WALL_BASE_ARCADE_DEPTH)
 	root.add_child(MapViewMeshBuilderPrimitives.multi_mesh("BaseArcades", arc_mesh, arc_transforms, arc_colors, material, Vector3.ZERO))
+
+
+static func _interior_arcade_side(building: Dictionary, along_x: bool, world_bounds: Rect2) -> float:
+	var authored_side := StringName(building.get("interior_side", &""))
+	if along_x and authored_side in [&"north", &"south"]:
+		return -1.0 if authored_side == &"north" else 1.0
+	if not along_x and authored_side in [&"west", &"east"]:
+		return -1.0 if authored_side == &"west" else 1.0
+	if world_bounds.has_area():
+		var footprint: Rect2 = building["footprint"]
+		var center := footprint.get_center()
+		var map_center := world_bounds.get_center()
+		# WHY: boundary city walls face the playable city toward the map centre.
+		# Ambiguous interior circuits may author interior_side instead.
+		return 1.0 if (center.y < map_center.y if along_x else center.x < map_center.x) else -1.0
+	return 1.0
 
 
 static func _add_timber_beam(root: Node3D, name: String, from: Vector3, to: Vector3, thickness: float) -> void:
@@ -292,6 +358,7 @@ static func _add_timber_beam(root: Node3D, name: String, from: Vector3, to: Vect
 	beam.basis = Basis.looking_at(direction.normalized(), up)
 	beam.material_override = MapViewMaterials.role(&"timber")
 	root.add_child(beam)
+
 
 static func add_battlements(root: Node3D, building: Dictionary, size: Vector2, height: float) -> void:
 	var transforms: Array[Transform3D] = []
