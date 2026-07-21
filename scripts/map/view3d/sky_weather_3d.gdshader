@@ -144,6 +144,32 @@ vec2 cloud_field(vec3 dir) {
 }
 
 
+// Distant rain falling from the storm deck: soft vertical curtains hanging under
+// the low sky toward the horizon, drifting with the wind. Returns a 0..1 veil
+// strength that later greys the sky, so a storm reads as actively raining out
+// there even beyond the near-camera particle rain. Only storms trigger it.
+float rain_shafts(vec3 dir) {
+	float storm = smoothstep(0.35, 1.0, storm_intensity);
+	if (storm < 0.01 || dir.y > 0.5) {
+		return 0.0;
+	}
+	// A band hugging the lower sky, fading out at the very horizon and up under
+	// the cloud base, so curtains hang rather than fill the whole dome.
+	float band = smoothstep(0.5, 0.08, dir.y) * smoothstep(0.015, 0.09, dir.y);
+	// Streak coordinates: azimuth around the horizon (many narrow columns) and
+	// altitude (long vertical fall). Drift the columns along the wind.
+	float azimuth = atan(dir.x, -dir.z);
+	vec2 suv = vec2(azimuth * 2.4 + cloud_offset.x * 8.0, dir.y * 1.6 - cloud_detail_offset.y * 2.0);
+	float streak = texture(cloud_noise, vec2(suv.x * 1.3, suv.y * 0.35)).r;
+	float fall = texture(cloud_noise, vec2(suv.x * 3.1, suv.y * 0.18) + vec2(0.4, 0.0)).r;
+	streak = smoothstep(0.46, 0.86, streak * 0.6 + fall * 0.4);
+	// Heavier where the storm wall is thickest (upwind) so the curtain has a source.
+	vec2 ground = normalize(vec2(dir.x, -dir.z) + vec2(0.0001));
+	float upwind = 0.5 + 0.5 * dot(ground, -wind_dir);
+	return streak * band * storm * mix(0.6, 1.0, upwind);
+}
+
+
 // Convert an ENU horizon ray to equatorial coordinates. World -Z is map north,
 // +X east, and +Y zenith. The latitude makes Polaris sit 59.4 degrees above the
 // north horizon and removes stars that can never rise over Estonia.
@@ -250,9 +276,16 @@ void sky() {
 	// Warm directional rim where a lit cloud faces the low sun (sunrise/sunset).
 	vec3 sun_glow = mix(sun_color.rgb, sunset_color.rgb, sunset_factor);
 	cloud_col += sun_glow * pow(sun_amount, 6.0) * cloud_light * (0.35 + 0.9 * sunset_factor) * sun_visibility;
-	// Overcast fronts flatten the heaps toward a dim, uniform sheet.
-	cloud_col = mix(cloud_col, cloud_top * 0.5, cloud_darken * 0.7);
+	// Overcast fronts flatten the heaps toward a dim, cool, uniform sheet; storm
+	// decks go darker and a touch bluer than a plain grey overcast.
+	vec3 overcast = cloud_top * mix(0.5, 0.4, storm_intensity) * vec3(0.94, 0.98, 1.06);
+	cloud_col = mix(cloud_col, overcast, cloud_darken * 0.72);
 	color = mix(color, cloud_col, clouds * 0.96);
+
+	// Distant rain curtains hanging under the storm deck, greying the low sky.
+	float shafts = rain_shafts(dir);
+	vec3 rain_veil = mix(vec3(0.34, 0.38, 0.46), vec3(0.58, 0.62, 0.70), day_blend);
+	color = mix(color, rain_veil, shafts * 0.5);
 
 	COLOR = color;
 }

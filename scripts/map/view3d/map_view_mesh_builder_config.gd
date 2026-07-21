@@ -363,6 +363,25 @@ const PUDDLE_CHANCE := {
 	MapTypes.TERRAIN_CASTLE_PAVING: 0.05,
 	MapTypes.TERRAIN_FARM_SOIL: 0.06,
 }
+
+## Camera-dependent surface detail. Top-down keeps only a cheap cobble silhouette;
+## first-person swaps in denser stones and layered ground cover. The high-detail
+## batches are also range-limited so a street-level camera never draws an entire
+## district's micro-geometry.
+const TERRAIN_DETAIL_PAVING: Array[StringName] = [
+	MapTypes.TERRAIN_COBBLESTONE,
+	MapTypes.TERRAIN_CASTLE_PAVING,
+]
+const TERRAIN_DETAIL_VEGETATION: Array[StringName] = [
+	MapTypes.TERRAIN_GRASS,
+	MapTypes.TERRAIN_MEADOW,
+	MapTypes.TERRAIN_FOREST_FLOOR,
+	MapTypes.TERRAIN_BOG,
+]
+const TOP_DOWN_COBBLES_PER_CELL := 2
+const FIRST_PERSON_COBBLES_PER_CELL := 6
+const FIRST_PERSON_DETAIL_RANGE := 28.0
+const FIRST_PERSON_DETAIL_RANGE_MARGIN := 5.0
 const PUDDLE_LOW_HEIGHT_BIAS := 0.55
 const PUDDLE_SCALE_MIN := 0.28
 const PUDDLE_SCALE_MAX := 0.72

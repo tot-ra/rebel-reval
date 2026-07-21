@@ -27,6 +27,7 @@ func test_weather_sequence_is_deterministic() -> void:
 		second_sequence.append(second.weather)
 	assert_eq(first_sequence, second_sequence, "the fixed seed must reproduce the same weather run")
 	assert_array_contains(first_sequence, SkyWeather.WEATHER_CLOUDY, "clouds must roll in within ten in-game days")
+	assert_array_contains(first_sequence, SkyWeather.WEATHER_RAIN, "rain must be reachable, and frequent enough to catch in a short run")
 	first.free()
 	second.free()
 
@@ -81,6 +82,7 @@ func test_sky_shader_covers_required_features() -> void:
 	assert_true("storm_intensity" in source, "storms must tower into cumulonimbus, not just thicken flat cloud")
 	assert_true("cloud_light" in source, "sunlit tops and shadowed undersides must shade the clouds")
 	assert_true("wind_dir" in source, "cirrus and the squall wall must follow the prevailing wind")
+	assert_true("rain_shafts" in source, "storms must hang distant rain curtains under the cloud deck")
 	assert_true("moon_direction" in source, "the night sky must place a moon disk")
 	assert_true("moon_phase" in source, "the campaign date must drive weekly lunar lighting phases")
 	assert_true(

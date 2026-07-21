@@ -4,6 +4,7 @@ extends Node3D
 const DirectionSignBuilder := preload("res://scripts/map/view3d/direction_sign_3d.gd")
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 const SkyWeather3D := preload("res://scripts/map/view3d/sky_weather_3d.gd")
+const TerrainDetails := preload("res://scripts/map/view3d/map_view_terrain_details.gd")
 
 ## P0-052 3D orthographic view layer (ADR 0007). Assembles terrain, building,
 ## and prop geometry from an immutable MapDefinition, framed by a fixed
@@ -84,6 +85,7 @@ var _object_streamer: MapObjectChunkStreamer
 var _scatter_root: Node3D
 var _loaded_scatter_chunks: Dictionary = {}
 var _active_chunks: Array[Vector2i] = []
+var _first_person_terrain_detail := false
 
 
 static func create(
@@ -280,6 +282,7 @@ func view_camera() -> Camera3D:
 ## Top-down orthographic gameplay hides the interior ceiling so the player can
 ## read floor layout; first-person enables the raised shell and occlusion.
 func set_interior_shell_for_first_person(enabled: bool) -> void:
+	set_terrain_detail_for_first_person(enabled)
 	var interior_shell := get_node_or_null("InteriorShell") as Node3D
 	if interior_shell == null:
 		return
@@ -287,6 +290,23 @@ func set_interior_shell_for_first_person(enabled: bool) -> void:
 	_interior_shell_occludes = enabled
 	_rebuild_occluder_bounds()
 	_sync_interior_top_down_background()
+
+
+## Surface micro-geometry is deliberately camera-dependent: first-person needs
+## parallax and silhouettes near the player, while top-down keeps sparse paving
+## only and relies on the continuous terrain texture for broad readability.
+func set_terrain_detail_for_first_person(enabled: bool) -> void:
+	_first_person_terrain_detail = enabled
+	for chunk in _loaded_scatter_chunks.values():
+		TerrainDetails.set_first_person(chunk.get_node_or_null("TerrainDetails"), enabled)
+
+
+func uses_first_person_terrain_detail() -> bool:
+	for chunk in _loaded_scatter_chunks.values():
+		var detail := chunk.get_node_or_null("TerrainDetails/FirstPerson") as Node3D
+		if detail != null:
+			return detail.visible
+	return false
 
 
 func is_interior_shell_visible() -> bool:
@@ -561,6 +581,9 @@ func _update_scatter_chunks(chunks: Array[Vector2i]) -> void:
 			continue
 		var scatter := MapViewMeshBuilder.build_scatter(definition, grid, grid.chunk_bounds(coordinates))
 		scatter.name = "Chunk_%d_%d" % [coordinates.x, coordinates.y]
+		var terrain_details := TerrainDetails.build_chunk(definition, grid, grid.chunk_bounds(coordinates))
+		TerrainDetails.set_first_person(terrain_details, _first_person_terrain_detail)
+		scatter.add_child(terrain_details)
 		_scatter_root.add_child(scatter)
 		_loaded_scatter_chunks[coordinates] = scatter
 

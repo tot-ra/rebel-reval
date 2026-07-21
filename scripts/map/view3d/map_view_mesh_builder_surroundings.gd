@@ -5,7 +5,8 @@ extends RefCounted
 
 const _NeighborRegistry := preload("res://scripts/map/map_neighbor_preview_registry.gd")
 const _Buildings := preload("res://scripts/map/view3d/map_view_mesh_builder_buildings.gd")
-const _Props := preload("res://scripts/map/view3d/map_view_mesh_builder_props.gd")
+const _PropModels := preload("res://scripts/map/view3d/map_view_mesh_builder_prop_models.gd")
+const _Scatter := preload("res://scripts/map/view3d/map_view_mesh_builder_scatter.gd")
 const NEIGHBOR_PREVIEW_DEPTH_CELLS := 32
 const NEIGHBOR_GROUND_Y := -0.025
 
@@ -91,7 +92,7 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 				MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 1499)
 			)
 			var tree_transform := MapViewMeshBuilderPrimitives.placed(spot, tree_scale, Vector3.ZERO, yaw)
-			MapViewMeshBuilderProps._push_tree_instance(
+			_Scatter._push_tree_instance(
 				tree_batches,
 				species,
 				tree_transform,
@@ -100,7 +101,7 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 			)
 
 	if not tree_batches.is_empty():
-		MapViewMeshBuilderProps._emit_tree_batches(root, tree_batches)
+		_Scatter._emit_tree_batches(root, tree_batches)
 		# Stable names expected by mesh/wind regression tests.
 		_alias_tree_layer(root, "Trees_Spruce", "SpruceCanopies")
 		_alias_tree_layer(root, "Trees_Broad", "LeafCanopies")
@@ -371,7 +372,7 @@ static func _neighbor_preview(
 		prop["position"] = source["position"] + offset_px
 		if prop.has("footprint"):
 			prop["footprint"] = Rect2(prop["footprint"].position + offset_px, prop["footprint"].size)
-		props.add_child(_Props.build_prop(prop, neighbor.cell_size))
+		props.add_child(_PropModels.build_prop(prop, neighbor.cell_size))
 	return root
 
 

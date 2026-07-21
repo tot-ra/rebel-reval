@@ -89,11 +89,13 @@ const PROFILES: Dictionary = {
 ## Sized against DayNightCycle.CYCLE_DURATION_SECONDS (60s days) so weather
 ## visibly turns over within one in-game day.
 const DURATIONS: Dictionary = {
-	WEATHER_CLEAR: Vector2(40.0, 80.0),
-	WEATHER_CLOUDY: Vector2(25.0, 50.0),
-	WEATHER_RAIN: Vector2(15.0, 35.0),
+	WEATHER_CLEAR: Vector2(22.0, 45.0),
+	WEATHER_CLOUDY: Vector2(16.0, 30.0),
+	WEATHER_RAIN: Vector2(22.0, 45.0),
 }
-const RAIN_FROM_CLOUDY_CHANCE := 0.45
+## Most cloudy spells now build into rain so a storm is easy to catch in a short
+## session; rain also lingers long enough (above) to actually watch it fall.
+const RAIN_FROM_CLOUDY_CHANCE := 0.7
 
 ## Gust front: a real squall is preceded by a shove of wind ahead of the rain.
 ## When the machine commits to rain we fire a transient gust that spikes the wind
@@ -311,7 +313,7 @@ static func precess_equatorial(star: Vector4, from_epoch: float, to_epoch: float
 func _build_rain() -> GPUParticles3D:
 	var rain := GPUParticles3D.new()
 	rain.name = "Rain"
-	rain.amount = 1400
+	rain.amount = 2200
 	rain.lifetime = 1.1
 	# World-space particles so camera motion does not drag the rain volume along.
 	rain.local_coords = false
@@ -328,11 +330,11 @@ func _build_rain() -> GPUParticles3D:
 	rain.process_material = process
 	# Stretched unshaded streaks; built from primitives, no texture assets.
 	var streak := BoxMesh.new()
-	streak.size = Vector3(0.014, 0.3, 0.014)
+	streak.size = Vector3(0.018, 0.5, 0.018)
 	var streak_material := StandardMaterial3D.new()
 	streak_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	streak_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	streak_material.albedo_color = Color(0.65, 0.74, 0.86, 0.38)
+	streak_material.albedo_color = Color(0.68, 0.76, 0.88, 0.5)
 	streak.material = streak_material
 	rain.draw_pass_1 = streak
 	rain.visible = false

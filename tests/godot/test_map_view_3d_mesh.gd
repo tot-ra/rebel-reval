@@ -450,10 +450,11 @@ func test_transition_marker_is_translucent_and_covers_trigger() -> void:
 
 func test_every_prop_kind_builds_parametric_geometry() -> void:
 	for kind in MapTypes.ALL_PROP_KINDS:
-		var node := MapViewMeshBuilder.build_prop(
-			{"id": kind, "kind": kind, "position": Vector2(64.0, 64.0)},
-			MapTypes.DEFAULT_CELL_SIZE
-		)
+		var prop := {"id": kind, "kind": kind, "position": Vector2(64.0, 64.0)}
+		if kind == MapTypes.PROP_KIND_BANNER:
+			# Banners without faction cloth intentionally leave an empty footprint.
+			prop["faction"] = FactionHeraldry.DANISH_CROWN
+		var node := MapViewMeshBuilder.build_prop(prop, MapTypes.DEFAULT_CELL_SIZE)
 		assert_true(node.get_child_count() >= 1, "%s: prop must produce geometry" % kind)
 		assert_false(node.has_node("Marker"), "%s: prop must not fall back to the unknown-kind marker" % kind)
 		assert_eq(node.position, Vector3(2.0, 0.0, 2.0), "%s: prop anchors at the definition position" % kind)

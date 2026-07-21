@@ -543,6 +543,23 @@ static func natural_rock() -> StandardMaterial3D:
 	return material
 
 
+## Rounded paving detail uses a neutral, triplanar stone grain and instance tone.
+## It remains separate from the flat splat material because each stone needs real
+## lighting across its domed top and rounded corners.
+static func cobble_detail() -> StandardMaterial3D:
+	var key := "cobble_detail"
+	if _cache.has(key):
+		return _cache[key]
+	var base := OutdoorTerrainPalette.color(MapTypes.TERRAIN_COBBLESTONE)
+	var material := _make_material(base, PATTERN_ROCK, 8219)
+	material.uv1_triplanar = true
+	material.uv1_world_triplanar = false
+	material.uv1_scale = Vector3(6.0, 6.0, 6.0)
+	material.roughness = 0.92
+	_cache[key] = material
+	return material
+
+
 static func role_for_size(role_name: StringName, size: Vector3) -> StandardMaterial3D:
 	var material := role(role_name).duplicate()
 	var pattern := PATTERN_PLASTER

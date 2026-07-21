@@ -319,6 +319,63 @@ static func clover_patch_mesh() -> ArrayMesh:
 	return mesh
 
 
+## Seed-bearing grass reads as a second vegetation family at eye level instead
+## of merely recoloring the same tuft silhouette.
+static func grass_seed_head_mesh() -> ArrayMesh:
+	const CACHE_KEY := &"grass_seed_head"
+	if _mesh_cache.has(CACHE_KEY):
+		return _mesh_cache[CACHE_KEY]
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for stem in 5:
+		var yaw := TAU * float(stem) / 5.0 + MeshMath.hash01(stem, 19, 401) * 0.7
+		var side := Vector3(cos(yaw), 0.0, -sin(yaw))
+		var direction := Vector3(sin(yaw), 0.0, cos(yaw))
+		var height := 0.34 + MeshMath.hash01(stem, 23, 409) * 0.18
+		var root := direction * (0.02 + MeshMath.hash01(stem, 29, 419) * 0.06)
+		var top := root + direction * 0.09 + Vector3.UP * height
+		var half_width := 0.012
+		var stem_vertices := [root - side * half_width, root + side * half_width, top + side * half_width * 0.55, root - side * half_width, top + side * half_width * 0.55, top - side * half_width * 0.55]
+		for index in stem_vertices.size():
+			surface.set_uv(Vector2(float(index % 3) * 0.5, 0.0 if index < 2 else 0.82))
+			surface.add_vertex(stem_vertices[index])
+		var head_height := 0.10
+		var head_width := 0.028
+		var head_top := top + Vector3.UP * head_height
+		for vertex in [top - side * head_width, top + side * head_width, head_top, top - side * head_width, head_top, top - side * head_width * 0.3 + Vector3.UP * head_height * 0.55]:
+			surface.set_uv(Vector2(0.5, 1.0))
+			surface.add_vertex(vertex)
+	surface.generate_normals()
+	var mesh := surface.commit()
+	_mesh_cache[CACHE_KEY] = mesh
+	return mesh
+
+
+## Low radial fern fronds create broad non-flat undergrowth distinct from both
+## blade grass and clover.
+static func fern_frond_mesh() -> ArrayMesh:
+	const CACHE_KEY := &"fern_frond"
+	if _mesh_cache.has(CACHE_KEY):
+		return _mesh_cache[CACHE_KEY]
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for frond in 6:
+		var yaw := TAU * float(frond) / 6.0
+		var direction := Vector3(cos(yaw), 0.0, sin(yaw))
+		var side := Vector3(-sin(yaw), 0.0, cos(yaw))
+		var root := Vector3.UP * 0.035
+		var middle := direction * 0.18 + Vector3.UP * 0.19
+		var tip := direction * 0.38 + Vector3.UP * 0.28
+		var width := 0.055
+		for vertex in [root - side * width, root + side * width, middle + side * width * 0.72, root - side * width, middle + side * width * 0.72, middle - side * width * 0.72, middle - side * width * 0.72, middle + side * width * 0.72, tip]:
+			surface.set_uv(Vector2(0.5, clampf(vertex.y / 0.28, 0.0, 1.0)))
+			surface.add_vertex(vertex)
+	surface.generate_normals()
+	var mesh := surface.commit()
+	_mesh_cache[CACHE_KEY] = mesh
+	return mesh
+
+
 ## Landscape ring outside the playable rectangle. Each authored side may
 ## continue town silhouettes, open water, or an explicit woodland apron with a
 ## treeline. Unlisted sides render nothing so maps define their own horizon.
