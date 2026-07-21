@@ -31,7 +31,7 @@ rig.equip(&"right_hand", preload("res://assets/characters/shared/hammer.tscn"))
 
 Slots: `right_hand` / `left_hand` (the `handslot.*` grip bones), `head`, `back`. Author the prop so that **the slot origin is the grip point**. Slot axes at the grip (verified by probe): **+Y runs backward along the fist's grip barrel, +X points down the leg in idle, +Z outward**. A handle-down carry is therefore a rotation of the handle onto +X — see the transform in `hammer.tscn`. When placing a new prop, use the axis-probe method: temporarily swap the prop scene for three colored axis sticks, capture with `tools/capture_character_closeup.gd`, read the axes, set the transform.
 
-**Garments** (clothes that deform with the body) are skinned glbs generated in `tools/generate_hero_body.py`: add a `PartBuilder` section in its garment block, register the output path in `GARMENT_OUTPUTS` and the rig's `GARMENT_SCENES`, list the garment id in the owning spec's `garments`. Mount at runtime with `rig.equip_garment(&"cape", ...)`.
+**Garments** (clothes that deform with the body) are skinned glbs coordinated by `tools/generate_hero_body.py`: add a `PartBuilder` section in `tools/hero_garment_builder.py`, register the output path in `GARMENT_OUTPUTS` and the rig's `GARMENT_SCENES`, list the garment id in the owning spec's `garments`. Mount at runtime with `rig.equip_garment(&"cape", ...)`.
 
 ## Tier 3 — a new body
 
@@ -59,7 +59,7 @@ The committed worked examples are **`innkeeper`** (shorter legs, broad chest, `b
 
 ## Tier 4 — new geometry
 
-New body parts (skirts, hoods, animal shapes) are new `PartBuilder` sections in the generator. Rules that keep the output animatable:
+New body parts (skirts, hoods, animal shapes) are new `PartBuilder` sections in the focused `tools/hero_body_*_builder.py` module matching that responsibility. Rules that keep the output animatable:
 
 - Size and place everything **from bone positions** (`_bone_head`), never absolute coordinates, so all specs inherit the part.
 - `PartBuilder` applies **one Catmull-Clark subdivision** at build time (smooth-shaded, weights interpolate through the apply): tubes and spheres round out, and `box()` pre-scales by `BOX_SUBDIVISION_COMPENSATION` so hands, boots, and face features keep their authored footprint while gaining rounded corners. Pass `subdivision=0` for parts that must stay hard-edged.

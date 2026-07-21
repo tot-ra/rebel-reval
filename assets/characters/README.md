@@ -22,7 +22,7 @@ tools/rebuild_hero_character.sh [spec_name]   # default: hero
 which chains three stages:
 
 1. **Skeleton retarget** — [`tools/build_heroic_humanoid_glb.py`](../../tools/build_heroic_humanoid_glb.py) reads `shared/kaykit_barbarian.glb`, scales bone rest translations to the spec's adult proportions (legs ≈ 48 % of stature, ~5 head-heights), lifts the hips to match the longer legs, folds the arms toward the body (`arm_relax_degrees`, rest pose and every rotation track — the source clips were authored around a barrel-wide chibi), recomputes inverse bind matrices, and rescales every animation translation track with the same per-node factors. Output: `tools/character_build/<spec>_skeleton.glb` (gitignored intermediate).
-2. **Body generation** — [`tools/generate_hero_body.py`](../../tools/generate_hero_body.py) runs headless in Blender (build-time only; `brew install --cask blender`). It strips the placeholder meshes and models our own low-poly body (torso, head with face/hair/beard, arms, mitt hands, legs, boots) sized **from the bone positions**, so proportion changes in stage 1 flow through automatically. Skinning is deterministic — each vertex ring is weighted to its bones at creation, joints blend 50/50. It also exports skinned garments (`hero_cape.glb`, `hero_hat.glb`) bound to the same skeleton. Palette lives in its `PALETTE` dict (authored in sRGB).
+2. **Body generation** - [`tools/generate_hero_body.py`](../../tools/generate_hero_body.py) runs headless in Blender (build-time only; `brew install --cask blender`). It coordinates focused builders for the torso, head, limbs, and garments, all sized **from the bone positions**, so proportion changes in stage 1 flow through automatically. Skinning is deterministic - each vertex ring is weighted to its bones at creation, joints blend 50/50. It also exports skinned garments (`hero_cape.glb`, `hero_hat.glb`) bound to the same skeleton. Palette lives in its `PALETTE` dict (authored in sRGB).
 3. **Godot reimport** — a headless `--import` pass so captures and tests see the new assets.
 
 The generator prints `BODY_STATURE`; `SharedCharacterRig.HEROIC_MODEL_SCALE` must equal `2.0 / hero stature` (uniform - the old anisotropic squash is gone) to keep the 2.0 world-unit height contract. Non-hero bodies share the same uniform scale so relative statures hold. `CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE` (`33.75`) projects that to 64 px in the 1920x1080 viewport.
@@ -66,7 +66,7 @@ character.unequip(&"right_hand")
 character.equipped(&"left_hand")  # -> Node3D or null
 ```
 
-Skinned clothes deform with the body; they are glbs whose meshes are skinned to the shared skeleton (generate more in `tools/generate_hero_body.py`):
+Skinned clothes deform with the body; they are glbs whose meshes are skinned to the shared skeleton (add new garment geometry in `tools/hero_garment_builder.py`, then export it through `tools/generate_hero_body.py`):
 
 ```gdscript
 character.equip_garment(&"cape", SharedCharacterRig.GARMENT_SCENES[&"cape"])

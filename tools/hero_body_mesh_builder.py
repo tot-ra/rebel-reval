@@ -1,7 +1,8 @@
-"""Low-level mesh primitives for tools/generate_hero_body.py.
+"""Low-level mesh primitives for generated hero body builders.
 
 Keeps ring-loop tube geometry and skeleton frame math separate from the
-character-specific part assembly in the main generator script.
+character-specific assembly in the focused torso, head, limb, and garment
+modules.
 """
 
 from __future__ import annotations
