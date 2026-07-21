@@ -260,6 +260,17 @@ static func apply_sea_weather(wind: float, rain: float) -> void:
 		material.set_shader_parameter("wave_chaos", float(wave["chaos"]) * chaos_mul)
 
 
+## Pushes sky sun-disk visibility and day/night blend into cached water
+## materials so specular sun glints die with the visible sun.
+static func apply_water_lighting(sun_visibility: float, day_blend: float) -> void:
+	var visibility := clampf(sun_visibility, 0.0, 1.0)
+	var blend := clampf(day_blend, 0.0, 1.0)
+	for terrain_id in WATER_WAVE_BASE.keys():
+		var material := water_surface(terrain_id as StringName)
+		material.set_shader_parameter("sun_visibility", visibility)
+		material.set_shader_parameter("day_blend", blend)
+
+
 ## Wind-swaying grass blade material; instance colors modulate the tint.
 static func grass_blades() -> ShaderMaterial:
 	var key := "grass_blades"

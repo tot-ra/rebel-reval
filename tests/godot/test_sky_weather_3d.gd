@@ -134,6 +134,18 @@ func test_sun_crosses_the_sky_from_east_to_west() -> void:
 	assert_true(evening.x < 0.0, "the evening sun must set in the western (-X) sky")
 
 
+func test_sun_disk_visibility_matches_sky_shader_fade() -> void:
+	assert_true(
+		is_equal_approx(SkyWeather.sun_disk_visibility(Vector3(0.0, 0.2, 0.0)), 1.0),
+		"sun above the fade band must be fully visible"
+	)
+	assert_true(
+		is_equal_approx(SkyWeather.sun_disk_visibility(Vector3(0.0, -0.2, 0.0)), 0.0),
+		"sun below the fade band must be fully hidden"
+	)
+	var mid := SkyWeather.sun_disk_visibility(Vector3(0.0, 0.0, 1.0))
+	assert_true(mid > 0.4 and mid < 0.6, "horizon sun must be mid-fade like the sky shader")
+
 func test_day_length_and_noon_height_follow_the_calendar() -> void:
 	var winter := {"day": 21, "month": 12, "year": 1343}
 	var spring := {"day": 21, "month": 4, "year": 1343}

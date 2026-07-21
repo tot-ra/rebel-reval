@@ -188,6 +188,12 @@ func apply_cycle_progress(progress: float, _sweep_sun_yaw: bool = true) -> void:
 	# dome; interior top-down overrides to a flat black void below.
 	_environment.background_color = BACKGROUND_NIGHT_COLOR.lerp(BACKGROUND_DAY_COLOR, day_blend)
 	_sync_interior_top_down_background()
+	# Water specular follows the sky sun disk, not civil-twilight light weight,
+	# so sea cannot keep a sun glint after the disk has set.
+	MapViewMaterials.apply_water_lighting(
+		SkyWeather3D.sun_disk_visibility(sun_direction),
+		day_blend
+	)
 
 	var bucket := TIME_NIGHT if night else TIME_DAY
 	if bucket != _last_chimney_bucket:

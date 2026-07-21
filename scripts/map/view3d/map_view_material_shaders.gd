@@ -22,6 +22,10 @@ uniform float wave_chaos = 1.0;
 uniform float depth_absorption = 7.0;
 uniform float refraction_strength = 0.012;
 uniform float foam_intensity = 0.22;
+// Matches sky sun-disk fade / MapView3D day_blend. Defaults keep daytime look
+// until apply_water_lighting() pushes the live cycle values.
+uniform float sun_visibility = 1.0;
+uniform float day_blend = 1.0;
 
 varying vec3 water_world_position;
 varying float shore_factor;
@@ -145,8 +149,10 @@ void fragment() {
 	// and narrow sun glints at the shallow isometric viewing angle.
 	float facing = clamp(dot(view_normal, normalize(VIEW)), 0.0, 1.0);
 	float fresnel = 0.02 + 0.98 * pow(1.0 - facing, 5.0);
-	vec3 sky_reflection = mix(highlight_color, vec3(0.72, 0.82, 0.88), 0.32);
-	water_color = mix(water_color, sky_reflection, fresnel * 0.68);
+	vec3 day_sky = mix(highlight_color, vec3(0.72, 0.82, 0.88), 0.32);
+	vec3 night_sky = vec3(0.05, 0.07, 0.12);
+	vec3 sky_reflection = mix(night_sky, day_sky, day_blend);
+	water_color = mix(water_color, sky_reflection, fresnel * mix(0.35, 0.68, day_blend));
 
 	// COLOR.r is baked from the same smooth contour that clips the mesh. Foam
 	// therefore hugs curved banks instead of revealing the underlying cell grid.
@@ -163,9 +169,13 @@ void fragment() {
 	water_color = mix(water_color, foam_color, clamp(foam, 0.0, 0.38));
 
 	ALBEDO = water_color;
-	ROUGHNESS = mix(0.09, 0.22, clamp(foam + absorption * 0.18, 0.0, 1.0));
+	float day_roughness = mix(0.09, 0.22, clamp(foam + absorption * 0.18, 0.0, 1.0));
+	// WHY: DirectionalLight still tracks the sun a few degrees past the visual
+	// disk fade (civil twilight). Without gating specular on sun_visibility the
+	// PBR lobe keeps painting a false sun reflection onto sea after sunset.
+	ROUGHNESS = mix(mix(0.32, 0.42, clamp(foam, 0.0, 1.0)), day_roughness, sun_visibility);
 	// Godot maps SPECULAR to dielectric F0; 0.25 is approximately water's 0.02.
-	SPECULAR = 0.25;
+	SPECULAR = mix(0.05, 0.25, sun_visibility);
 }
 "
 

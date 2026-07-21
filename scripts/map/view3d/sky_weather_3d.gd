@@ -346,6 +346,16 @@ static func solar_elevation_degrees(progress: float, date: Dictionary = {}) -> f
 	return rad_to_deg(asin(clampf(solar_direction(progress, date).y, -1.0, 1.0)))
 
 
+## Matches `sun_visibility` in sky_weather_3d.gdshader. Water specular uses the
+## same fade so open water cannot keep a sun glint after the disk has set.
+const SUN_DISK_FADE_START := -0.05
+const SUN_DISK_FADE_END := 0.05
+
+
+static func sun_disk_visibility(sun_direction: Vector3) -> float:
+	return smoothstep(SUN_DISK_FADE_START, SUN_DISK_FADE_END, sun_direction.y)
+
+
 static func sunrise_sunset_hours(date: Dictionary = {}) -> Dictionary:
 	var effective_date := GAME_CALENDAR.DEFAULT_DATE if date.is_empty() else date
 	var latitude := deg_to_rad(OBSERVER_LATITUDE_DEGREES)

@@ -244,3 +244,47 @@ func test_clear_weather_preserves_authored_day_night_lighting() -> void:
 	view.free()
 
 
+func test_water_specular_dies_with_sun_disk_after_sunset() -> void:
+	MapViewMaterials.reset()
+	var definition := SmithyCourtyard.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_DAY)
+	var date := {"day": 23, "month": 4, "year": 1343}
+	view.set_calendar_date(date)
+	view.apply_cycle_progress(0.5)
+	var water := MapViewMaterials.water_surface(MapTypes.TERRAIN_DEEP_WATER)
+	assert_true(
+		float(water.get_shader_parameter("sun_visibility")) > 0.99,
+		"noon water must keep full sun specular"
+	)
+	assert_true(
+		float(water.get_shader_parameter("day_blend")) > 0.99,
+		"noon water sky reflection must stay day-tinted"
+	)
+
+	view.apply_cycle_progress(0.0)
+	assert_true(
+		float(water.get_shader_parameter("sun_visibility")) < 0.01,
+		"midnight must kill sun specular on water"
+	)
+
+	# Civil twilight: sun disk already gone, directional light still sun-weighted.
+	var twilight_progress := -1.0
+	for step in 240:
+		var progress := float(step) / 240.0
+		var sun_direction := SkyWeather3D.solar_direction(progress, date)
+		var elevation := SkyWeather3D.solar_elevation_degrees(progress, date)
+		var disk := SkyWeather3D.sun_disk_visibility(sun_direction)
+		var light_weight := smoothstep(-6.0, 0.0, elevation)
+		if disk < 0.05 and light_weight > 0.2 and elevation < 0.0:
+			twilight_progress = progress
+			break
+	assert_true(twilight_progress >= 0.0, "must find a post-sunset civil-twilight sample")
+	view.apply_cycle_progress(twilight_progress)
+	assert_true(
+		float(water.get_shader_parameter("sun_visibility")) < 0.05,
+		"after the sun disk sets, water must not keep a sun specular glint"
+	)
+	view.free()
+	MapViewMaterials.reset()
+
+
