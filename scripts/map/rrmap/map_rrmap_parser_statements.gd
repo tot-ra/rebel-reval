@@ -375,7 +375,7 @@ func _parse_transition(tokens: Array[Dictionary], line: int) -> void:
 		tokens,
 		line,
 		6,
-		"transition <id> <x> <y> <width> <height> [to=id] [destination_spawn=id] [spawn=id] [style=id] [typed overrides]"
+		"transition <id> <x> <y> <width> <height> [to=id] [destination_spawn=id] [spawn=id] [building_id=id] [style=id] [typed overrides]"
 	):
 		return
 	var rect = _tokens.rect_from_tokens(tokens, line, 2)

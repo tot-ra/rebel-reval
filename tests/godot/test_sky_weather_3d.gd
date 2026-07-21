@@ -242,6 +242,44 @@ func test_moon_crosses_the_sky_from_east_to_west() -> void:
 	assert_true(morning.x < 0.0, "the morning full moon must set in the western (-X) sky")
 
 
+func test_celestial_motion_uses_distinct_astronomical_rates() -> void:
+	var date := {"day": 21, "month": 4, "year": 1343}
+	var start := 0.10
+	var interval := 0.10
+	var finish := start + interval
+	var sun_rotation := fposmod(
+		_hour_angle(SkyWeather.solar_direction(finish, date))
+		- _hour_angle(SkyWeather.solar_direction(start, date)),
+		TAU
+	)
+	var moon_rotation := fposmod(
+		_hour_angle(SkyWeather.lunar_direction(finish, date))
+		- _hour_angle(SkyWeather.lunar_direction(start, date)),
+		TAU
+	)
+	var star_rotation := (
+		SkyWeather.sidereal_angle_for_progress(finish)
+		- SkyWeather.sidereal_angle_for_progress(start)
+	)
+
+	assert_true(moon_rotation < sun_rotation, "the moon must move west more slowly than the sun")
+	assert_true(sun_rotation < star_rotation, "the sidereal sky must move west faster than the sun")
+	assert_true(
+		absf(rad_to_deg(moon_rotation / interval) - 347.81) < 0.02,
+		"the moon must lose about 12.2 degrees per solar day to its eastward orbit"
+	)
+	assert_true(
+		absf(rad_to_deg(star_rotation / interval) - 360.986) < 0.002,
+		"the stars must gain about 0.986 degrees per solar day"
+	)
+
+
+func _hour_angle(direction: Vector3) -> float:
+	var latitude := deg_to_rad(SkyWeather.OBSERVER_LATITUDE_DEGREES)
+	var north := -direction.z
+	return atan2(-direction.x, direction.y * cos(latitude) - north * sin(latitude))
+
+
 func test_lunar_phase_changes_in_weekly_quarters() -> void:
 	var new_moon := {"day": 25, "month": 4, "year": 1343}
 	var first_quarter := {"day": 2, "month": 5, "year": 1343}

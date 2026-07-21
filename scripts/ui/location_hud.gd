@@ -13,8 +13,9 @@ const DISPLAY_NAMES_BY_MAP: Dictionary = {
 	&"toompea_quarter": "Toompea",
 	&"archbishops_garden": "Archbishop's Garden",
 	&"st_olafs_guild_hall": "St. Olaf's Guild Hall",
-	&"reval_harbor_north": "Trade Harbour",
-	&"reval_harbor_east": "Fishing Harbour",
+	&"viru_gate_foreland": "Viru Gate Foreland",
+	&"reval_harbor_north": "Coastal Gate Landing",
+	&"reval_harbor_east": "Kalamaja Fishing Shore",
 	&"reval_harbor": "Reval Harbour",
 	&"harbor_warehouse": "Harbour Warehouse",
 }
@@ -30,8 +31,9 @@ const DISPLAY_NAMES_BY_SCENE: Dictionary = {
 	&"reval_toompea": "Toompea",
 	&"reval_archbishops_garden": "Archbishop's Garden",
 	&"st_olafs_guild_hall": "St. Olaf's Guild Hall",
-	&"reval_harbor_north": "Trade Harbour",
-	&"reval_harbor_east": "Fishing Harbour",
+	&"viru_gate_foreland": "Viru Gate Foreland",
+	&"reval_harbor_north": "Coastal Gate Landing",
+	&"reval_harbor_east": "Kalamaja Fishing Shore",
 	&"reval_harbor": "Reval Harbour",
 	&"harbor_warehouse": "Harbour Warehouse",
 }

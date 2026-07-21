@@ -76,6 +76,22 @@ func test_lower_town_required_route_endpoints_reachable() -> void:
 		)
 
 
+func test_smithy_entrance_is_attached_to_kalev_south_facade() -> void:
+	var definition: MapDefinition = LowerTownSliceDefinition.create()
+	var transition: Dictionary = {}
+	var smithy: Dictionary = {}
+	for candidate in definition.transitions:
+		if candidate.get("id") == &"smithy_door_transition":
+			transition = candidate
+	for candidate in definition.buildings:
+		if candidate.get("id") == &"kalev_smithy":
+			smithy = candidate
+	assert_eq(transition.get("building_id"), &"kalev_smithy")
+	assert_eq(MapBuildingEntrance.attachment_side(smithy, transition), &"south")
+	assert_eq(MapBuildingEntrance.facade_position(smithy, transition), Vector2(2848, 2240))
+	assert_true(MapBuildingEntrance.approach_aligns_with_facade(smithy, transition, definition.cell_size))
+
+
 func test_city_wall_blocks_except_viru_gate() -> void:
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
 	var grid: MapTerrainGrid = MapBuilder.build(definition)

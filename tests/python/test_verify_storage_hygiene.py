@@ -18,6 +18,7 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 import verify_storage_hygiene as verifier  # noqa: E402
+import manage_lfs_assets  # noqa: E402
 
 
 class VerifyStorageHygieneTest(unittest.TestCase):
@@ -115,6 +116,87 @@ class VerifyStorageHygieneTest(unittest.TestCase):
             subprocess.run(["git", "add", "-f", "build/result.json", "docs/storage_binary_exceptions.json"], cwd=root, check=True)
 
             self.assertEqual(verifier.main(["--root", str(root)]), 1)
+
+    def test_lfs_manifest_rejects_oid_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            subprocess.run(["git", "config", "user.name", "Storage Test"], cwd=root, check=True)
+            subprocess.run(["git", "config", "user.email", "storage@example.invalid"], cwd=root, check=True)
+            payload = root / "assets" / "large.bin"
+            payload.parent.mkdir(parents=True)
+            payload.write_bytes(b"content")
+            subprocess.run(["git", "lfs", "install", "--local"], cwd=root, check=True, capture_output=True)
+            subprocess.run(["git", "lfs", "track", "assets/large.bin"], cwd=root, check=True, capture_output=True)
+            self._write_lfs_manifest(root, payload, sha256="0" * 64)
+            subprocess.run(
+                ["git", "add", ".gitattributes", "assets/large.bin", "docs/lfs_assets.json"],
+                cwd=root,
+                check=True,
+            )
+
+            errors = manage_lfs_assets.validate(root, root / "docs/lfs_assets.json")
+
+        self.assertTrue(any("OID does not match" in error for error in errors))
+
+    def test_lfs_manifest_accepts_expected_pointer_and_materialized_file(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            subprocess.run(["git", "config", "user.name", "Storage Test"], cwd=root, check=True)
+            subprocess.run(["git", "config", "user.email", "storage@example.invalid"], cwd=root, check=True)
+            payload = root / "assets" / "large.bin"
+            payload.parent.mkdir(parents=True)
+            payload.write_bytes(b"content")
+            subprocess.run(["git", "lfs", "install", "--local"], cwd=root, check=True, capture_output=True)
+            subprocess.run(["git", "lfs", "track", "assets/large.bin"], cwd=root, check=True, capture_output=True)
+            self._write_lfs_manifest(root, payload)
+            subprocess.run(
+                ["git", "add", ".gitattributes", "assets/large.bin", "docs/lfs_assets.json"],
+                cwd=root,
+                check=True,
+            )
+
+            errors = manage_lfs_assets.validate(
+                root,
+                root / "docs/lfs_assets.json",
+                require_materialized=True,
+            )
+
+        self.assertEqual(errors, [])
+
+    @staticmethod
+    def _write_lfs_manifest(root: Path, payload: Path, sha256: str | None = None) -> None:
+        digest = sha256 or hashlib.sha256(payload.read_bytes()).hexdigest()
+        lfs_digest = hashlib.sha256(payload.read_bytes()).hexdigest()
+        manifest = root / "docs" / "lfs_assets.json"
+        manifest.parent.mkdir(parents=True, exist_ok=True)
+        manifest.write_text(
+            json.dumps(
+                {
+                    "version": 1,
+                    "repository": "test/repository",
+                    "remote": "origin",
+                    "storage": "github-lfs",
+                    "objects": [
+                        {
+                            "path": payload.relative_to(root).as_posix(),
+                            "size_bytes": payload.stat().st_size,
+                            "sha256": digest,
+                            "lfs_oid": f"sha256:{lfs_digest}",
+                            "owner": "test owner",
+                            "license": "test license",
+                            "approval": "test approval",
+                            "source_reference": "test fixture",
+                            "scope": "runtime",
+                        }
+                    ],
+                },
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
 
     @staticmethod
     def _write_manifest(root: Path, rows: list[dict[str, object]]) -> None:

@@ -81,10 +81,11 @@ func _draw_prop(prop: Dictionary) -> void:
 			draw_circle(point + Vector2(0, -7), 12.0, Color8(125, 128, 116))
 		&"campfire", &"signal_fire":
 			draw_circle(point + Vector2(0, -4), 10.0, Color8(173, 81, 42))
-		&"fishing_boat":
+		&"fishing_boat", &"merchant_boat":
 			var footprint: Rect2 = prop.get("footprint", Rect2(point - Vector2(16, 48), Vector2(32, 96)))
-			var half_length := maxf(36.0, maxf(footprint.size.x, footprint.size.y) * 0.42)
-			var half_beam := maxf(12.0, minf(footprint.size.x, footprint.size.y) * 0.3)
+			var merchant_scale := 1.35 if primitive == &"merchant_boat" else 1.0
+			var half_length := maxf(36.0, maxf(footprint.size.x, footprint.size.y) * 0.42) * merchant_scale
+			var half_beam := maxf(12.0, minf(footprint.size.x, footprint.size.y) * 0.3) * merchant_scale
 			var vertical := footprint.size.y > footprint.size.x
 			var hull := PackedVector2Array([
 				Vector2(-half_beam, -half_length),

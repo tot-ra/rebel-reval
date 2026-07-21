@@ -43,6 +43,8 @@ static func _wall_tower_segment() -> MapPrefab:
 	prefab.structure_rect(&"tower", MapTypes.BUILDING_KIND_WALL, Rect2i(7, 0, 3, 3), &"", {
 		"wall_height": 224.0,
 		"wall_color": MapPrefab.parameter(&"wall_color"),
+		"tower": true,
+		"door_side": &"south",
 	})
 	return prefab
 

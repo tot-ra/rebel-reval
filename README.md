@@ -99,6 +99,8 @@ This game is produced end to end by AI agents — code, content, art, music cura
 - **Dialogue is authored offline.** Agents write and validate it at development time; there is no runtime LLM, generated quest, or free-text NPC chat in the shipped game ([ADR 0003](./docs/adr/0003-authored-offline-dialogue-and-prohibit-runtime-llm.md)).
 - **Every task is verifiable.** Work enters [`TODO.md`](./TODO.md) as `ID | deps | deliverable | verify` and closes only against its verification line, per the task contract in [`AGENTS.md`](./AGENTS.md).
 
+The spring 1343 fortification snapshot uses a conservative four-position completed Lower Town tower registry rather than the later 1355/1373 or fifteenth-century circuit. Named placement, construction candidates, excluded later towers, and the future one-map-per-tower mini-dungeon plan are documented in [`docs/reports/reval_fortifications_1343.md`](./docs/reports/reval_fortifications_1343.md).
+
 ## Scope
 
 The three-act campaign includes:
@@ -137,7 +139,9 @@ Vertical-slice systems beyond the demo loop (full combat room, enemies, night co
 
 ### Demo walkthrough (D-004)
 
-Packaged macOS demo proof, in-binary Start-Mart-pickup verification, and frame sequence: [`docs/reports/demo_walkthrough_d004.md`](./docs/reports/demo_walkthrough_d004.md). Reproduce with `tools/verify_packaged_demo.sh`.
+![Packaged Reval Rebel demo: Start, Mart talk, and spearhead pickup](./docs/reports/images/demo_walkthrough/demo_walkthrough.gif)
+
+Packaged macOS demo proof, in-binary Start-Mart-pickup verification, animated capture, and source frame sequence: [`docs/reports/demo_walkthrough_d004.md`](./docs/reports/demo_walkthrough_d004.md). Reproduce with `tools/verify_packaged_demo.sh`.
 
 ## Run the project
 

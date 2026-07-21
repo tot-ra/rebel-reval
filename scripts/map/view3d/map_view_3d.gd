@@ -371,7 +371,6 @@ func activate_all_chunks() -> void:
 func _assemble() -> void:
 	add_child(MapViewMeshBuilder.build_surroundings(definition))
 	add_child(MapViewMeshBuilder.build_terrain(definition, grid))
-	add_child(MapViewMeshBuilder.build_shoreline_details(definition, grid))
 	add_child(MapViewMeshBuilder.build_interior_shell(definition))
 
 	_scatter_root = Node3D.new()
@@ -415,9 +414,17 @@ func _assemble() -> void:
 		if not String(transition.get("destination_scene_id", "")).is_empty() \
 				and transition.get("transition_visual", MapTypes.TRANSITION_VISUAL_DOOR) == MapTypes.TRANSITION_VISUAL_DOOR \
 				and not MapViewMeshBuilder.transition_uses_landmark_visual(definition, transition):
-			var shell_height := MapViewMeshBuilder.interior_shell_wall_height_world(definition)
+			var attached_building := MapBuildingEntrance.find_building(definition, transition)
+			var wall_height := MapViewMeshBuilder.interior_shell_wall_height_world(definition)
+			if not attached_building.is_empty():
+				wall_height = MapTypes.resolved_wall_height_px(attached_building) * MapViewBridge.world_scale(definition.cell_size)
 			doors.add_child(
-				MapViewMeshBuilder.build_transition_door(transition, definition.cell_size, shell_height)
+				MapViewMeshBuilder.build_transition_door(
+					transition,
+					definition.cell_size,
+					wall_height,
+					attached_building
+				)
 			)
 
 	var anchors := Node3D.new()
@@ -465,7 +472,11 @@ func _create_streamed_object(record: Dictionary) -> Node:
 	var source := record["source"] as Dictionary
 	match record["kind"] as StringName:
 		&"building":
-			var building_node := MapViewMeshBuilder.build_building(source, definition.cell_size)
+			var entrances: Array[Dictionary] = []
+			for transition in definition.transitions:
+				if transition.get("building_id", &"") == source.get("id", &""):
+					entrances.append(transition)
+			var building_node := MapViewMeshBuilder.build_building(source, definition.cell_size, entrances)
 			building_node.position.y = MapViewMeshBuilder.ground_height(
 				definition,
 				Vector2(building_node.position.x, building_node.position.z)

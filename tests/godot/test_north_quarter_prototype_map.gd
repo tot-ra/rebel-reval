@@ -81,16 +81,18 @@ func test_merchant_district_has_dense_varied_houses_warehouses_and_yards() -> vo
 		assert_true(_has_prop_kind(definition, prop_kind), "Missing merchant-yard prop kind %s" % prop_kind)
 
 
-func test_merchant_district_has_three_sided_walls_round_turrets_and_harbor_gate() -> void:
+func test_merchant_district_has_three_sided_walls_dated_towers_and_harbor_gate() -> void:
 	var definition: MapDefinition = NorthQuarterDefinition.create()
 	for wall_id in [&"city_wall_north_west", &"city_wall_north_east", &"city_wall_west", &"city_wall_east"]:
 		assert_false(_building_by_id(definition, wall_id).is_empty(), "Missing Merchant District wall %s" % wall_id)
-	for tower_id in [&"coast_gate_west_tower", &"coast_gate_east_tower", &"merchant_wall_tower_west_mid", &"merchant_wall_tower_east_mid"]:
+	for tower_id in [&"coast_gate_west_tower", &"merchant_wall_tower_northwest"]:
 		var tower := _building_by_id(definition, tower_id)
-		assert_true(bool(tower.get("tower", false)), "%s must use the round fortification-tower renderer" % tower_id)
+		assert_true(bool(tower.get("tower", false)), "%s must be completed in the conservative 1343 registry" % tower_id)
 		var node := MapViewMeshBuilder.build_building(tower, definition.cell_size)
-		assert_true((node.get_node("Walls") as MeshInstance3D).mesh is CylinderMesh, "%s must be circular like Workers' District towers" % tower_id)
+		assert_true((node.get_node("Walls") as MeshInstance3D).mesh is CylinderMesh)
 		node.free()
+	for unfinished_id in [&"coast_gate_east_tower", &"merchant_wall_tower_west_mid", &"merchant_wall_tower_east_mid"]:
+		assert_false(bool(_building_by_id(definition, unfinished_id).get("tower", true)), "%s must not render as completed 1343 fabric" % unfinished_id)
 	var harbor_transition := _transition_by_id(definition, &"to_reval_harbor")
 	var coast_gate := _landmark_by_id(definition, &"coast_gate_arch")
 	assert_eq(harbor_transition.get("view_landmark_id", &""), &"coast_gate_arch")

@@ -16,6 +16,7 @@ const ArchbishopsGarden := preload("res://scripts/map/definitions/prototypes/arc
 const ToompeaQuarter := preload("res://scripts/map/definitions/prototypes/toompea_quarter_definition.gd")
 const SouthQuarter := preload("res://scripts/map/definitions/prototypes/south_quarter_definition.gd")
 const HarborWarehouse := preload("res://scripts/map/definitions/prototypes/harbor_warehouse_definition.gd")
+const ViruGateForeland := preload("res://scripts/map/definitions/outdoor/viru_gate_foreland_definition.gd")
 const RevalHarborNorth := preload("res://scripts/map/definitions/outdoor/reval_harbor_north_definition.gd")
 const RevalHarborEast := preload("res://scripts/map/definitions/outdoor/reval_harbor_east_definition.gd")
 const Coast := preload("res://scripts/map/definitions/outdoor/coast_harbor_definitions.gd")
@@ -37,6 +38,7 @@ static func all() -> Array[MapDefinition]:
 		ToompeaQuarter.create(),
 		SouthQuarter.create(),
 		HarborWarehouse.create(),
+		ViruGateForeland.create(),
 		RevalHarborNorth.create(),
 		RevalHarborEast.create(),
 	]

@@ -216,8 +216,26 @@
       "mandatory_transitions": []
     },
     {
+      "id": "viru_gate_foreland",
+      "location_name": "Viru Gate Foreland",
+      "scene": "scenes/reval_east/viru_gate_foreland/viru_gate_foreland.tscn",
+      "definition": "scripts/map/definitions/outdoor/viru_gate_foreland_definition.gd",
+      "factory": "ViruGateForelandDefinition.create",
+      "disposition": "convert",
+      "capture": "viru_gate_foreland.png",
+      "mandatory_anchors": [
+        "from_reval_east",
+        "viru_road",
+        "wayside_inn",
+        "eastern_road"
+      ],
+      "mandatory_transitions": [
+        "to_reval_east"
+      ]
+    },
+    {
       "id": "reval_harbor_north",
-      "location_name": "Trade Harbour",
+      "location_name": "Coastal Gate Landing",
       "scene": "scenes/harbor/harbor_north.tscn",
       "definition": "scripts/map/definitions/outdoor/reval_harbor_north_definition.gd",
       "factory": "RevalHarborNorthDefinition.create",
@@ -236,19 +254,18 @@
     },
     {
       "id": "reval_harbor_east",
-      "location_name": "Fishing Harbour",
+      "location_name": "Kalamaja Fishing Shore",
       "scene": "scenes/harbor/harbor_east.tscn",
       "definition": "scripts/map/definitions/outdoor/reval_harbor_east_definition.gd",
       "factory": "RevalHarborEastDefinition.create",
       "disposition": "convert",
       "capture": "reval_harbor_east.png",
       "mandatory_anchors": [
-        "from_reval_east",
         "from_harbor_north",
-        "quay_plaza"
+        "quay_plaza",
+        "kalamaja_shore"
       ],
       "mandatory_transitions": [
-        "to_reval_east",
         "to_harbor_north"
       ]
     },

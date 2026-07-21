@@ -12,6 +12,7 @@ const ArchbishopsGarden := preload("res://scripts/map/definitions/prototypes/arc
 const MarketCivicQuarter := preload("res://scripts/map/definitions/prototypes/market_civic_quarter_rrmap_factory.gd")
 const ToompeaQuarter := preload("res://scripts/map/definitions/prototypes/toompea_quarter_rrmap_factory.gd")
 const SouthQuarter := preload("res://scripts/map/definitions/prototypes/south_quarter_rrmap_factory.gd")
+const ViruGateForeland := preload("res://scripts/map/definitions/outdoor/viru_gate_foreland_rrmap_factory.gd")
 const RevalHarborNorth := preload("res://scripts/map/definitions/outdoor/reval_harbor_north_rrmap_factory.gd")
 const RevalHarborEast := preload("res://scripts/map/definitions/outdoor/reval_harbor_east_rrmap_factory.gd")
 
@@ -101,6 +102,17 @@ static func entries() -> Array[Dictionary]:
 			],
 		},
 		{
+			"id": &"viru_gate_foreland",
+			"source": "res://content/maps/viru_gate_foreland.rrmap",
+			"factory": ViruGateForeland,
+			"required_anchors": [
+				&"from_reval_east",
+				&"viru_road",
+				&"wayside_inn",
+				&"eastern_road",
+			],
+		},
+		{
 			"id": &"reval_harbor_north",
 			"source": "res://content/maps/reval_harbor_north.rrmap",
 			"factory": RevalHarborNorth,
@@ -116,9 +128,9 @@ static func entries() -> Array[Dictionary]:
 			"source": "res://content/maps/reval_harbor_east.rrmap",
 			"factory": RevalHarborEast,
 			"required_anchors": [
-				&"from_reval_east",
 				&"from_harbor_north",
 				&"quay_plaza",
+				&"kalamaja_shore",
 			],
 		},
 	]

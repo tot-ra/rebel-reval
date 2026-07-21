@@ -43,6 +43,9 @@ const SUNSET_TINT_STRENGTH := 0.65
 ## deterministically onto the campaign's Julian calendar.
 const SYNODIC_MONTH_DAYS := 29.530588853
 const NEW_MOON_EPOCH_JULIAN_DAY := 2451550.25972
+## The moon moves east against the stars during each solar day, so its apparent
+## westward crossing is slower than the sun's instead of sharing its rotation.
+const LUNAR_APPARENT_ROTATIONS_PER_SOLAR_DAY := 1.0 - 1.0 / SYNODIC_MONTH_DAYS
 
 ## Astronomical reference for Reval (Tallinn) on St George's Night. The catalog
 ## is J2000, then precessed to the canonical campaign year so even Polaris and
@@ -51,8 +54,10 @@ const OBSERVER_LATITUDE_DEGREES := 59.437
 const SKY_EPOCH_YEAR := 1343.0
 const REFERENCE_DATE := "1343-04-23"
 ## Local apparent sidereal angle at midnight on 1343-04-23 (Julian calendar).
-## The day/night cycle advances it by one full celestial turn per in-game day.
+## Earth turns once relative to the stars in a sidereal day (23h 56m), slightly
+## faster than its once-per-solar-day turn relative to the sun.
 const MIDNIGHT_SIDEREAL_DEGREES := 218.31
+const SIDEREAL_ROTATIONS_PER_SOLAR_DAY := 1.00273790935
 const STAR_MAP_WIDTH := 2048
 const STAR_MAP_HEIGHT := 1024
 
@@ -424,12 +429,17 @@ static func moonlight_strength(progress: float, date: Dictionary = {}) -> float:
 
 
 ## Uses the same local horizon frame and seasonal declination model as the sun.
-## The phase shifts lunar transit around the clock: new moon follows the sun,
-## first quarter is highest near sunset, and full moon is highest near midnight.
+## The date phase sets the rise time, while the eastward lunar orbit makes the
+## moon cross about 12.2 degrees less sky than the sun during each solar day.
 static func lunar_direction(progress: float, date: Dictionary = {}) -> Vector3:
 	var effective_date := GAME_CALENDAR.DEFAULT_DATE if date.is_empty() else date
+	var wrapped_progress := wrapf(progress, 0.0, 1.0)
 	var phase := lunar_phase(effective_date)
-	var lunar_progress := wrapf(progress - phase, 0.0, 1.0)
+	var lunar_progress := wrapf(
+		wrapped_progress * LUNAR_APPARENT_ROTATIONS_PER_SOLAR_DAY - phase,
+		0.0,
+		1.0
+	)
 	return solar_direction(lunar_progress, effective_date)
 
 
@@ -506,9 +516,13 @@ func star_map_texture() -> Texture2D:
 	return _star_map
 
 
-## Sky and water use the same sidereal rotation for the current cycle progress.
+## Sky and water use the same sidereal rotation. The small excess over one turn
+## per solar day keeps stars moving faster than the sun instead of locked to it.
 static func sidereal_angle_for_progress(progress: float) -> float:
-	return deg_to_rad(MIDNIGHT_SIDEREAL_DEGREES) + wrapf(progress, 0.0, 1.0) * TAU
+	return (
+		deg_to_rad(MIDNIGHT_SIDEREAL_DEGREES)
+		+ wrapf(progress, 0.0, 1.0) * TAU * SIDEREAL_ROTATIONS_PER_SOLAR_DAY
+	)
 
 
 func _pick_next_weather() -> void:

@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scenes/reval_east/viru_gate_foreland/viru_gate_foreland.gd" id="1_foreland"]
+[ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="2_player"]
+[ext_resource type="Script" path="res://scripts/map/map_blueprint_editor_preview.gd" id="3_preview"]
+[ext_resource type="Script" path="res://scripts/map/definitions/outdoor/viru_gate_foreland_rrmap_factory.gd" id="4_factory"]
+
+[node name="ViruGateForeland" type="Node2D"]
+script = ExtResource("1_foreland")
+
+[node name="MapBlueprintPreview" type="Node2D" parent="."]
+script = ExtResource("3_preview")
+blueprint_factory = ExtResource("4_factory")
+
+[node name="MapRoot" type="Node2D" parent="."]
+
+[node name="Actors" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Player" parent="Actors" instance=ExtResource("2_player")]
+y_sort_enabled = true
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(1792, 1280)
+limit_left = 0
+limit_top = 0
+limit_right = 3584
+limit_bottom = 2560

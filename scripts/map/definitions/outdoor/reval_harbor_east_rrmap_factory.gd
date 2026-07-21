@@ -1,7 +1,7 @@
 class_name RevalHarborEastRrmapFactory
 extends RefCounted
 
-## Blueprint factory for editor preview of the eastern harbour .rrmap source.
+## Blueprint factory for editor preview of the Kalamaja fishing-shore .rrmap source.
 
 
 const RRMAP_PATH := "res://content/maps/reval_harbor_east.rrmap"

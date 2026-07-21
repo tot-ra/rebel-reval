@@ -35,8 +35,12 @@ static func build_terrain(definition: MapDefinition, grid: MapTerrainGrid) -> No
 	return _Terrain.build_terrain(definition, grid)
 
 
-static func build_building(building: Dictionary, cell_size: int) -> Node3D:
-	return _Buildings.build_building(building, cell_size)
+static func build_building(
+	building: Dictionary,
+	cell_size: int,
+	entrances: Array[Dictionary] = []
+) -> Node3D:
+	return _Buildings.build_building(building, cell_size, entrances)
 
 
 static func interior_shell_wall_height_world(definition: MapDefinition) -> float:
@@ -58,9 +62,10 @@ static func transition_uses_landmark_visual(definition: MapDefinition, transitio
 static func build_transition_door(
 	transition: Dictionary,
 	cell_size: int,
-	wall_height_world: float = -1.0
+	wall_height_world: float = -1.0,
+	building: Dictionary = {}
 ) -> Node3D:
-	return _Landmarks.build_transition_door(transition, cell_size, wall_height_world)
+	return _Landmarks.build_transition_door(transition, cell_size, wall_height_world, building)
 
 
 static func build_transition_marker(transition: Dictionary, cell_size: int) -> Node3D:

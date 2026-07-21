@@ -13,6 +13,7 @@ const MonasteryQuarter := preload("res://scripts/map/definitions/prototypes/mona
 const ArchbishopsGarden := preload("res://scripts/map/definitions/prototypes/archbishops_garden_definition.gd")
 const ToompeaQuarter := preload("res://scripts/map/definitions/prototypes/toompea_quarter_definition.gd")
 const SouthQuarter := preload("res://scripts/map/definitions/prototypes/south_quarter_definition.gd")
+const ViruGateForeland := preload("res://scripts/map/definitions/outdoor/viru_gate_foreland_definition.gd")
 const RevalHarborNorth := preload("res://scripts/map/definitions/outdoor/reval_harbor_north_definition.gd")
 const RevalHarborEast := preload("res://scripts/map/definitions/outdoor/reval_harbor_east_definition.gd")
 
@@ -24,6 +25,7 @@ const DEFINITION_FACTORIES: Dictionary = {
 	&"reval_archbishops_garden": ArchbishopsGarden,
 	&"reval_toompea": ToompeaQuarter,
 	&"reval_south": SouthQuarter,
+	&"viru_gate_foreland": ViruGateForeland,
 	&"reval_harbor_north": RevalHarborNorth,
 	&"reval_harbor_east": RevalHarborEast,
 }

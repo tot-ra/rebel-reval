@@ -226,4 +226,4 @@ Export the macOS build, prove packaged launch, run the headless move-talk-pickup
 tools/verify_packaged_demo.sh
 ```
 
-Frame report: [`docs/reports/demo_walkthrough_d004.md`](./reports/demo_walkthrough_d004.md). Set `SKIP_EXPORT=1` or `SKIP_CAPTURE=1` to reuse an existing DMG or skip PNG regeneration.
+Frame report and README animation: [`docs/reports/demo_walkthrough_d004.md`](./reports/demo_walkthrough_d004.md). `tools/verify_packaged_demo.sh` refreshes both from frames written by the packaged binary, or run `tools/build_demo_walkthrough_gif.sh` to rebuild only the GIF from existing PNG frames (requires ImageMagick; `brew install imagemagick`). Set `SKIP_EXPORT=1` to reuse an existing DMG or `SKIP_CAPTURE=1` to skip PNG/GIF regeneration.

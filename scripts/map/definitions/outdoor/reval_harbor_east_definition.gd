@@ -1,8 +1,9 @@
 class_name RevalHarborEastDefinition
 extends RefCounted
 
-## Dev-traversal eastern harbour authored in .rrmap. Viru road arrives from the
-## eastern Lower Town district, while a separate west-edge lane joins Trade Harbour.
+## Dev-traversal Kalamaja fishing shore authored in .rrmap. The stable legacy map
+## ID remains `reval_harbor_east`, but its only cityward link follows the shore to
+## the Coastal Gate landing; the topologically false Viru road link is removed.
 
 
 const RRMAP_PATH := "res://content/maps/reval_harbor_east.rrmap"

@@ -8,6 +8,7 @@ extends Node
 
 const OUTPUT_DIR := "res://docs/reports/images/demo_walkthrough"
 const REPORT_PATH := "res://docs/reports/demo_walkthrough_d004.md"
+const MAIN_MENU_PATH := "res://scenes/menu/main_menu.tscn"
 const SETTLE_FRAMES := 20
 const ITEM_SPEARHEAD := &"item.seized_spearhead"
 const FLAG_DEMO_MART_SPOKEN := &"flag.demo_mart_spoken"
@@ -28,8 +29,19 @@ func _run() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	_reset_session()
 
-	if not await _goto(&"forge", &"smithy_start"):
-		push_error("Failed to reach forge start scene")
+	if not await _goto_main_menu():
+		push_error("Failed to reach the main menu")
+		get_tree().quit(1)
+		return
+	if not await _capture("00_main_menu", "Packaged app opens on the real Start menu"):
+		get_tree().quit(1)
+		return
+	if not _activate_start():
+		push_error("Failed to activate the main-menu Start control")
+		get_tree().quit(1)
+		return
+	if not await _wait_for_scene(&"forge"):
+		push_error("Main-menu Start did not reach forge/smithy_start")
 		get_tree().quit(1)
 		return
 	if not await _capture("01_forge_start", "Start lands at smithy_start"):
@@ -130,6 +142,49 @@ func _reset_session() -> void:
 	SessionState.state.equip_from_bag(&"right_hand", &"item.forge_hammer")
 
 
+func _goto_main_menu() -> bool:
+	var error := get_tree().change_scene_to_file(MAIN_MENU_PATH)
+	if error != OK:
+		push_error("change_scene_to_file failed for %s (%s)" % [MAIN_MENU_PATH, error_string(error)])
+		return false
+	for _frame in 180:
+		var scene := get_tree().current_scene
+		if scene != null and String(scene.scene_file_path) == MAIN_MENU_PATH:
+			await _settle(SETTLE_FRAMES)
+			return true
+		await get_tree().process_frame
+	return false
+
+
+func _activate_start() -> bool:
+	var menu := get_tree().current_scene
+	if menu == null:
+		return false
+	var start_label := menu.get_node_or_null("Start label") as Control
+	if start_label == null:
+		return false
+	# Exercise the same GUI signal and handler as a player's mouse click, matching
+	# the in-binary packaged verifier rather than jumping directly to the forge.
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	start_label.gui_input.emit(click)
+	return true
+
+
+func _wait_for_scene(scene_id: StringName) -> bool:
+	var path := DoorNavigator.get_scene_path(scene_id)
+	if path.is_empty():
+		return false
+	for _frame in 180:
+		var scene := get_tree().current_scene
+		if scene != null and String(scene.scene_file_path) == path:
+			await _settle(SETTLE_FRAMES)
+			return true
+		await get_tree().process_frame
+	return false
+
+
 func _goto(scene_id: StringName, spawn_id: StringName) -> bool:
 	# Mirror DoorNavigator spawn bookkeeping, but change scenes immediately so the
 	# capture host can wait on a real current_scene path instead of a deferred swap.
@@ -193,20 +248,28 @@ func _write_report() -> void:
 		"",
 		"```bash",
 		"tools/verify_packaged_demo.sh",
-		"# or capture frames only:",
+		"# or refresh frames and the animated capture only:",
 		"godot --path . res://tools/capture_demo_walkthrough_host.tscn",
+		"tools/build_demo_walkthrough_gif.sh",
 		"```",
+		"",
+		"## Animated capture",
+		"",
+		"[![Packaged Reval Rebel demo: Start, Mart talk, and spearhead pickup](images/demo_walkthrough/demo_walkthrough.gif)](images/demo_walkthrough/demo_walkthrough.gif)",
+		"",
+		"The animation is assembled from frames written by the packaged release binary during the in-binary walkthrough below. The editor capture host is only a local regeneration fallback.",
 		"",
 		"## Frame sequence",
 		"",
 		"| Step | Capture | What it shows |",
 		"|------|---------|---------------|",
-		"| 1 | ![forge start](images/demo_walkthrough/01_forge_start.png) | Main-menu Start lands at `smithy_start` |",
-		"| 2 | ![forge move](images/demo_walkthrough/02_forge_move.png) | Player can move in the forge |",
-		"| 3 | ![lower town](images/demo_walkthrough/03_lower_town_arrive.png) | Courtyard door reaches Lower Town |",
-		"| 4 | ![mart talk](images/demo_walkthrough/04_mart_talk.png) | Talk to Mart opens demo dialogue |",
-		"| 5 | ![mart done](images/demo_walkthrough/05_mart_done.png) | Conversation completes and sets `flag.demo_mart_spoken` |",
-		"| 6 | ![pickup](images/demo_walkthrough/06_spearhead_pickup.png) | Anvil spearhead is taken into the bag |",
+		"| 1 | ![main menu](images/demo_walkthrough/00_main_menu.png) | Packaged app opens on the real Start menu |",
+		"| 2 | ![forge start](images/demo_walkthrough/01_forge_start.png) | Main-menu Start lands at `smithy_start` |",
+		"| 3 | ![forge move](images/demo_walkthrough/02_forge_move.png) | Player can move in the forge |",
+		"| 4 | ![lower town](images/demo_walkthrough/03_lower_town_arrive.png) | Courtyard door reaches Lower Town |",
+		"| 5 | ![mart talk](images/demo_walkthrough/04_mart_talk.png) | Talk to Mart opens demo dialogue |",
+		"| 6 | ![mart done](images/demo_walkthrough/05_mart_done.png) | Conversation completes and sets `flag.demo_mart_spoken` |",
+		"| 7 | ![pickup](images/demo_walkthrough/06_spearhead_pickup.png) | Anvil spearhead is taken into the open bag |",
 		"",
 		"## Automated checks",
 		"",
@@ -215,6 +278,10 @@ func _write_report() -> void:
 		"- The shipped main-scene verifier triggers Start, proves movement, completes Mart's interaction, picks up the spearhead, and must print `D-004C_PACKAGED_WALKTHROUGH_PASS` with exit 0. No editor binary chooses scenes or drives the packaged loop.",
 		"",
 		"Release builds omit the debug inspector (`OS.is_debug_build()` is false), so this loop matches packaged play without debug presets.",
+		"",
+		"## D-004a release-only triage",
+		"",
+		"No release-only move-talk-pickup defects remain. Method, packaged launch log, and tooling fix notes: [`d004a_release_only_triage.md`](./d004a_release_only_triage.md).",
 		"",
 	]
 	var file := FileAccess.open(ProjectSettings.globalize_path(REPORT_PATH), FileAccess.WRITE)

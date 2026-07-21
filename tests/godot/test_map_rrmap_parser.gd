@@ -33,6 +33,19 @@ spawn spawn.main 2 2
 	assert_eq(building.get("roof_material"), &"shingle")
 
 
+func test_transition_building_id_compiles_for_reusable_facade_entrances() -> void:
+	var source := """rrmap 1
+map entrance loc.entrance 12 10 grass
+building smithy house 3 3 4 3 door_side=none
+spawn spawn.main 2 2
+transition enter 4 6 2 1 to=forge destination_spawn=door_courtyard spawn=outside building_id=smithy
+"""
+	var parsed := MapRrmapParser.parse(source, "res://entrance.rrmap")
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if parsed.is_ok():
+		assert_eq(parsed.definition.transitions[0].get("building_id"), &"smithy")
+
+
 func test_comments_quoting_and_exact_primitive_mapping() -> void:
 	var source := """rrmap 1 # version
 map syntax_test loc.syntax_test 12 10 grass # map

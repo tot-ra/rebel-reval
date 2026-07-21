@@ -53,9 +53,19 @@ static func facade_box(
 	MapViewMeshBuilderPrimitives.box(root, name, size, position, role)
 
 
-static func add_house_facade(root: Node3D, building: Dictionary, size: Vector2, height: float) -> void:
+static func add_house_facade(
+	root: Node3D,
+	building: Dictionary,
+	size: Vector2,
+	height: float,
+	cell_size: int,
+	entrances: Array[Dictionary] = []
+) -> void:
 	var declared: StringName = building.get("door_side", &"south")
 	var side := declared if declared != &"none" else &"south"
+	var entrance_along: Array[float] = []
+	for transition in entrances:
+		entrance_along.append(MapBuildingEntrance.facade_along_world(building, transition, cell_size))
 	var along_x := side == &"north" or side == &"south"
 	var facade_length := size.x if along_x else size.y
 	var face_offset := (size.y if along_x else size.x) * 0.5
@@ -67,7 +77,7 @@ static func add_house_facade(root: Node3D, building: Dictionary, size: Vector2, 
 
 	var door_height := minf(MapViewMeshBuilderConfig.HOUSE_DOOR_HEIGHT, height - 0.2)
 	var door_along := (float(id_hash % 100) / 99.0 - 0.5) * maxf(facade_length - MapViewMeshBuilderConfig.HOUSE_DOOR_WIDTH - 1.2, 0.0) * 0.5
-	if declared != &"none":
+	if declared != &"none" and entrance_along.is_empty():
 		facade_box(root, "Door", Vector3(MapViewMeshBuilderConfig.HOUSE_DOOR_WIDTH, door_height, MapViewMeshBuilderConfig.DOOR_THICKNESS), door_along, door_height * 0.5, side, face_offset, &"wood")
 		var lintel_role: StringName = &"stone" if masonry else &"timber"
 		facade_box(root, "DoorLintel", Vector3(MapViewMeshBuilderConfig.HOUSE_DOOR_WIDTH + 0.24, MapViewMeshBuilderConfig.DOOR_FRAME_THICKNESS, MapViewMeshBuilderConfig.DOOR_THICKNESS + 0.02), door_along, door_height + MapViewMeshBuilderConfig.DOOR_FRAME_THICKNESS * 0.5, side, face_offset, lintel_role)
@@ -81,10 +91,20 @@ static func add_house_facade(root: Node3D, building: Dictionary, size: Vector2, 
 	for face in faces:
 		for window in window_count:
 			var along := (float(window + 1) / float(window_count + 1) - 0.5) * facade_length
-			if face == side and absf(along - door_along) < (MapViewMeshBuilderConfig.HOUSE_DOOR_WIDTH + MapViewMeshBuilderConfig.HOUSE_WINDOW_SIZE.x) * 0.62:
-				continue
+			if face == side:
+				if declared != &"none" and entrance_along.is_empty() and absf(along - door_along) < (MapViewMeshBuilderConfig.HOUSE_DOOR_WIDTH + MapViewMeshBuilderConfig.HOUSE_WINDOW_SIZE.x) * 0.62:
+					continue
+				if _overlaps_entrance(along, entrance_along):
+					continue
 			add_house_window(root, index, along, window_sill, face, face_offset, masonry)
 			index += 1
+
+
+static func _overlaps_entrance(along: float, entrances: Array[float]) -> bool:
+	for entrance_along in entrances:
+		if absf(along - entrance_along) < (MapViewMeshBuilderConfig.DOOR_WIDTH + MapViewMeshBuilderConfig.HOUSE_WINDOW_SIZE.x) * 0.62:
+			return true
+	return false
 
 
 static func _add_house_door_hardware(

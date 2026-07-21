@@ -114,6 +114,17 @@
       ]
     },
     {
+      "id": "viru_gate_foreland",
+      "path": "res://scenes/reval_east/viru_gate_foreland/viru_gate_foreland.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_east"
+        }
+      ]
+    },
+    {
       "id": "reval_harbor_north",
       "path": "res://scenes/harbor/harbor_north.tscn",
       "active": true,
@@ -133,9 +144,6 @@
       "active": true,
       "release": false,
       "spawns": [
-        {
-          "id": "from_reval_east"
-        },
         {
           "id": "from_harbor_north"
         }

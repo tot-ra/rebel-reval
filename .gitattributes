@@ -1,2 +1,9 @@
 # Normalize EOL for all files that Git considers text files.
 * text=auto eol=lf
+archive/music/**/*.mp3 filter=lfs diff=lfs merge=lfs -text
+music/domberg/night/Ghosts[[:space:]]of[[:space:]]the[[:space:]]Crown[[:space:]](1).mp3 filter=lfs diff=lfs merge=lfs -text
+music/revel_east/monastery/battle/Catherine's[[:space:]]Prayer.mp3 filter=lfs diff=lfs merge=lfs -text
+history/**/*.pdf filter=lfs diff=lfs merge=lfs -text
+history/**/*.jpg filter=lfs diff=lfs merge=lfs -text
+history/**/*.png filter=lfs diff=lfs merge=lfs -text
+story/**/*.png filter=lfs diff=lfs merge=lfs -text

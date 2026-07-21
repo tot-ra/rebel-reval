@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - name: Checkout
+      - name: Checkout LFS pointers
         uses: actions/checkout@v4
 
       - name: Verify Python
@@ -30,7 +30,9 @@ jobs:
         run: python3 -m unittest discover -s tests/python -v
 
       - name: Repository storage hygiene
-        run: python3 tools/verify_storage_hygiene.py
+        run: |
+          python3 tools/manage_lfs_assets.py verify
+          python3 tools/verify_storage_hygiene.py
 
       - name: Validate complete content example corpus
         run: python3 tools/validate_content.py content/examples/valid content/examples/support

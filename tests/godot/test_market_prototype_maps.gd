@@ -129,6 +129,43 @@ func test_north_quarter_edges_are_reciprocal_with_adjacent_districts() -> void:
 	_assert_edge(harbor_east, &"to_harbor_north", &"west")
 
 
+func test_fortification_gate_arches_seal_to_collision_walls_on_both_sides() -> void:
+	var gate_sets: Array = [
+		[LowerTownSliceDefinition.create(), [&"viru_gate_arch", &"viru_foregate_arch"]],
+		[NorthQuarterDefinition.create(), [&"coast_gate_arch"]],
+		[MonasteryQuarterDefinition.create(), [&"monastery_west_gate_arch"]],
+		[ArchbishopsGardenDefinition.create(), [&"center_gate_arch", &"garden_south_gate_arch"]],
+		[ToompeaQuarterDefinition.create(), [&"pikk_jalg_gate", &"castle_gate_arch", &"luhike_jalg_gate_arch"]],
+		[SouthQuarterDefinition.create(), [&"karja_gate_arch", &"garden_descent_gate"]],
+	]
+	for gate_set in gate_sets:
+		var definition: MapDefinition = gate_set[0]
+		var grid: MapTerrainGrid = MapBuilder.build(definition)
+		for gate_id: StringName in gate_set[1]:
+			var landmark := _landmark_by_id(definition, gate_id)
+			assert_false(landmark.is_empty(), "%s is missing gate %s" % [definition.map_id, gate_id])
+			if landmark.is_empty():
+				continue
+			var rect: Rect2 = landmark["rect"]
+			var passage_axis: StringName = landmark.get(
+				"passage_axis",
+				&"x" if rect.size.x >= rect.size.y else &"z"
+			)
+			assert_true(
+				MapVerification.is_walkable_point(definition, grid, rect.get_center()),
+				"%s must keep the centre of gate %s walkable" % [definition.map_id, gate_id]
+			)
+			for side: StringName in [&"low", &"high"]:
+				assert_true(
+					_gate_jamb_is_blocked(definition, grid, rect, passage_axis, side),
+					"%s gate %s has a passable gap at its %s jamb" % [
+						definition.map_id,
+						gate_id,
+						side,
+					]
+				)
+
+
 func test_city_fortifications_wrap_only_outer_district_edges() -> void:
 	var center := MarketCivicQuarterDefinition.create()
 	var east := LowerTownSliceDefinition.create()
@@ -154,8 +191,10 @@ func test_south_quarter_garden_gate_and_outer_wall_read_as_authored_edges() -> v
 	assert_false(gate_landmark.is_empty())
 	assert_eq(garden_gate.get("view_landmark_id", &""), &"garden_descent_gate")
 	assert_true((gate_landmark["rect"] as Rect2).encloses(garden_gate["rect"]))
-	for tower_id in [&"garden_gate_west_tower", &"garden_gate_east_tower", &"south_wall_tower_southwest", &"south_wall_tower_southeast"]:
-		assert_true(bool(_building_by_id(south, tower_id).get("tower", false)), "%s must be circular" % tower_id)
+	for construction_position_id in [&"garden_gate_west_tower", &"garden_gate_east_tower", &"south_wall_tower_southwest", &"south_wall_tower_southeast"]:
+		var position := _building_by_id(south, construction_position_id)
+		assert_true(position.has("tower"), "%s needs an explicit dated-state override" % construction_position_id)
+		assert_false(bool(position["tower"]), "%s must not render as a completed 1343 tower" % construction_position_id)
 	assert_eq(south.surroundings_sides.get(&"south"), &"woodland")
 
 
@@ -187,6 +226,29 @@ func test_guild_hall_assembly_nav_and_anchors() -> void:
 	assert_true(MapVerification.has_anchor(definition, &"dais"))
 	assert_true(MapVerification.route_exists(definition, grid, definition.player_spawn, MapVerification.anchor_position(definition, &"dais")))
 	assert_true(MapVerification.collision_parity(definition))
+
+
+func _gate_jamb_is_blocked(
+	definition: MapDefinition,
+	grid: MapTerrainGrid,
+	gate_rect: Rect2,
+	passage_axis: StringName,
+	side: StringName
+) -> bool:
+	var cell_size := float(definition.cell_size)
+	var sample_count := roundi(
+		(gate_rect.size.x if passage_axis == &"x" else gate_rect.size.y) / cell_size
+	)
+	for sample_index in sample_count:
+		var sample_offset := (float(sample_index) + 0.5) * cell_size
+		var probe := gate_rect.get_center()
+		if passage_axis == &"x":
+			probe = Vector2(gate_rect.position.x + sample_offset, gate_rect.position.y + cell_size * 0.5 if side == &"low" else gate_rect.end.y - cell_size * 0.5)
+		else:
+			probe = Vector2(gate_rect.position.x + cell_size * 0.5 if side == &"low" else gate_rect.end.x - cell_size * 0.5, gate_rect.position.y + sample_offset)
+		if MapVerification.is_walkable_point(definition, grid, probe):
+			return false
+	return true
 
 
 func _assert_transition_pair(from_definition: MapDefinition, from_id: StringName, to_definition: MapDefinition, to_id: StringName) -> void:

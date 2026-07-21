@@ -47,6 +47,11 @@ const MAPS: Dictionary = {
 		"scope": "prototype",
 		"active": false
 	},
+	"viru_gate_foreland": {
+		"path": "res://scenes/reval_east/viru_gate_foreland/viru_gate_foreland.tscn",
+		"scope": "prototype",
+		"active": false
+	},
 	"reval_harbor_north": {
 		"path": "res://scenes/harbor/harbor_north.tscn",
 		"scope": "prototype",

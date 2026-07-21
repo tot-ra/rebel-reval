@@ -349,7 +349,8 @@ static func transition_uses_landmark_visual(definition: MapDefinition, transitio
 static func build_transition_door(
 	transition: Dictionary,
 	cell_size: int,
-	wall_height_world: float = -1.0
+	wall_height_world: float = -1.0,
+	building: Dictionary = {}
 ) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Door_%s" % String(transition["id"])
@@ -359,12 +360,19 @@ static func build_transition_door(
 	var rect: Rect2 = transition["rect"]
 	var horizontal_wall := rect.size.x >= rect.size.y
 	var center := rect.get_center() * scale
-	if horizontal_wall:
-		# Transition rectangles begin at the wall boundary and extend into the
-		# walkable approach, so use the leading edge rather than the center.
-		center.y = rect.position.y * scale
+	if not building.is_empty():
+		var facade_position := MapBuildingEntrance.facade_position(building, transition) * scale
+		center = facade_position
+		var side := MapBuildingEntrance.attachment_side(building, transition)
+		horizontal_wall = side in [&"north", &"south"]
+		root.set_meta("building_id", building.get("id", &""))
 	else:
-		center.x = rect.position.x * scale
+		if horizontal_wall:
+			# Interior transition rectangles begin at the wall boundary and extend
+			# into the approach, so use the leading edge rather than the center.
+			center.y = rect.position.y * scale
+		else:
+			center.x = rect.position.x * scale
 	root.position = Vector3(center.x, 0.0, center.y)
 	if not horizontal_wall:
 		root.rotation.y = PI * 0.5
@@ -372,8 +380,9 @@ static func build_transition_door(
 	var resolved_wall_height := wall_height_world
 	if resolved_wall_height <= 0.0:
 		resolved_wall_height = MapViewMeshBuilderConfig.DEFAULT_WALL_HEIGHT_PX[MapTypes.BUILDING_KIND_INTERIOR_WALL] * scale
-	var opening_width := (rect.size.x if horizontal_wall else rect.size.y) * scale
-	_add_transition_opening_infill(root, opening_width, resolved_wall_height)
+	if building.is_empty():
+		var opening_width := (rect.size.x if horizontal_wall else rect.size.y) * scale
+		_add_transition_opening_infill(root, opening_width, resolved_wall_height)
 
 	MapViewMeshBuilderPrimitives.box(
 		root,

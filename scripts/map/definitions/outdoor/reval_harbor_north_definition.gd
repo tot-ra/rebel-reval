@@ -1,9 +1,9 @@
 class_name RevalHarborNorthDefinition
 extends RefCounted
 
-## Dev-traversal northern harbour authored in .rrmap. Pikk Street exits through
-## the Great Coast Gate to this map, with an eastward connection to the Viru road
-## harbour foreland.
+## Dev-traversal Coastal Gate merchant landing authored in .rrmap. Pikk Street
+## descends to the shore here; the west-edge seam continues into Kalamaja's fishing
+## shore while the east side remains open Tallinn Bay.
 
 
 const RRMAP_PATH := "res://content/maps/reval_harbor_north.rrmap"

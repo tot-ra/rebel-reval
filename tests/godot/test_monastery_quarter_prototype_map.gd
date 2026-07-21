@@ -43,16 +43,18 @@ func test_monastery_district_uses_earth_base_and_street_spines_not_blanket_cobbl
 	)
 
 
-func test_monastery_district_has_tallinn_walls_and_round_turrets_on_both_sides() -> void:
+func test_monastery_district_has_dated_early_towers_and_later_wall_positions() -> void:
 	var definition: MapDefinition = MonasteryQuarterDefinition.create()
 	for wall_id in [&"monastery_city_wall_west_north", &"monastery_city_wall_west_south", &"monastery_city_wall_east"]:
 		assert_false(_building_by_id(definition, wall_id).is_empty(), "Missing Monastery District wall %s" % wall_id)
-	for tower_id in [&"monastery_wall_tower_northwest", &"monastery_wall_tower_west_mid", &"monastery_wall_tower_northeast", &"monastery_wall_tower_east_mid"]:
+	for tower_id in [&"monastery_wall_tower_northwest", &"monastery_wall_tower_west_mid"]:
 		var tower := _building_by_id(definition, tower_id)
-		assert_true(bool(tower.get("tower", false)), "%s must use the round fortification-tower renderer" % tower_id)
+		assert_true(bool(tower.get("tower", false)), "%s must be completed in the conservative 1343 registry" % tower_id)
 		var node := MapViewMeshBuilder.build_building(tower, definition.cell_size)
-		assert_true((node.get_node("Walls") as MeshInstance3D).mesh is CylinderMesh, "%s must be circular like Workers' District towers" % tower_id)
+		assert_true((node.get_node("Walls") as MeshInstance3D).mesh is CylinderMesh)
 		node.free()
+	for unfinished_id in [&"monastery_wall_tower_northeast", &"monastery_wall_tower_east_mid"]:
+		assert_false(bool(_building_by_id(definition, unfinished_id).get("tower", true)), "%s must not render as a completed 1343 tower" % unfinished_id)
 
 
 func test_monastery_district_links_the_merchant_civic_worker_and_toompea_maps() -> void:

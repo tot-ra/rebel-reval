@@ -6,6 +6,7 @@ extends Node
 ## Godot's user-argument segment avoids release-template path overrides.
 
 const USER_ARGUMENT := "--verify-packaged-demo"
+const CAPTURE_ARGUMENT_PREFIX := "--capture-demo-dir="
 const START_MARKER := "D-004C_PACKAGED_WALKTHROUGH_START"
 const PASS_MARKER := "D-004C_PACKAGED_WALKTHROUGH_PASS"
 const FAIL_MARKER := "D-004C_PACKAGED_WALKTHROUGH_FAIL"
@@ -19,12 +20,15 @@ const ITEM_SPEARHEAD := &"item.seized_spearhead"
 const FLAG_DEMO_MART_SPOKEN := &"flag.demo_mart_spoken"
 
 var _finished := false
+var _capture_dir := ""
 
 
 func _ready() -> void:
-	if not is_requested(OS.get_cmdline_user_args()):
+	var user_args := OS.get_cmdline_user_args()
+	if not is_requested(user_args):
 		queue_free()
 		return
+	_capture_dir = capture_directory(user_args)
 	call_deferred("_activate")
 
 
@@ -43,6 +47,13 @@ func _activate() -> void:
 
 static func is_requested(user_args: PackedStringArray) -> bool:
 	return user_args.has(USER_ARGUMENT)
+
+
+static func capture_directory(user_args: PackedStringArray) -> String:
+	for argument in user_args:
+		if argument.begins_with(CAPTURE_ARGUMENT_PREFIX):
+			return argument.substr(CAPTURE_ARGUMENT_PREFIX.length())
+	return ""
 
 
 func _run() -> void:
@@ -64,6 +75,9 @@ func _run() -> void:
 	if start_label == null:
 		_fail("main menu Start control is missing")
 		return
+	if not await _capture("00_main_menu"):
+		_fail("could not capture the packaged main menu")
+		return
 
 	# Exercise the same GUI signal and handler used by a player's mouse click.
 	var click := InputEventMouseButton.new()
@@ -79,14 +93,23 @@ func _run() -> void:
 	if player == null:
 		_fail("forge player is missing")
 		return
+	if not await _capture("01_forge_start"):
+		_fail("could not capture packaged forge start")
+		return
 	if not await _prove_player_movement(player):
 		_fail("ui_right input did not move the player in the forge")
+		return
+	if not await _capture("02_forge_move"):
+		_fail("could not capture packaged forge movement")
 		return
 
 	DoorNavigator.go_to_scene(&"reval_east", &"forge")
 	var east: Node = await _wait_for_scene(&"reval_east")
 	if east == null:
 		_fail("forge transition did not reach Lower Town")
+		return
+	if not await _capture("03_lower_town_arrive"):
+		_fail("could not capture packaged Lower Town arrival")
 		return
 	if not await _complete_mart_dialogue(east):
 		_fail("Mart interaction did not complete or set its state flag")
@@ -130,13 +153,19 @@ func _complete_mart_dialogue(east: Node) -> bool:
 	talk.register_actor_in_range(player)
 	if not talk.interact(player) or not runner.is_active():
 		return false
+	for _frame in SETTLE_FRAMES:
+		await get_tree().process_frame
+	if not await _capture("04_mart_talk"):
+		return false
 
 	var advances := 0
 	while runner.is_active() and advances < 16:
 		runner.advance_for_test()
 		advances += 1
 		await get_tree().process_frame
-	return not runner.is_active() and bool(SessionState.state.get_flag(FLAG_DEMO_MART_SPOKEN))
+	if runner.is_active() or not bool(SessionState.state.get_flag(FLAG_DEMO_MART_SPOKEN)):
+		return false
+	return await _capture("05_mart_done")
 
 
 func _pickup_spearhead(forge: Node) -> bool:
@@ -150,11 +179,33 @@ func _pickup_spearhead(forge: Node) -> bool:
 		return false
 	for _frame in 4:
 		await get_tree().process_frame
-	return (
+	if not (
 		SessionState.state.has_item(ITEM_SPEARHEAD)
 		and not SessionState.state.is_world_item_placed(LOC_SMITHY, OBJ_SPEAR)
 		and SessionState.state.bag.find_placement(ITEM_SPEARHEAD) != null
-	)
+	):
+		return false
+	var inventory := player.get_node_or_null("InventoryController") as InventoryController
+	if inventory == null:
+		return false
+	inventory.open()
+	for _frame in SETTLE_FRAMES:
+		await get_tree().process_frame
+	return await _capture("06_spearhead_pickup")
+
+
+func _capture(stem: String) -> bool:
+	if _capture_dir.is_empty():
+		return true
+	var directory_error := DirAccess.make_dir_recursive_absolute(_capture_dir)
+	if directory_error != OK:
+		return false
+	await RenderingServer.frame_post_draw
+	var path := _capture_dir.path_join("%s.png" % stem)
+	var error := get_viewport().get_texture().get_image().save_png(path)
+	if error == OK:
+		print("D-004B_PACKAGED_CAPTURE %s" % path)
+	return error == OK
 
 
 func _wait_for_scene(scene_id: StringName) -> Node:

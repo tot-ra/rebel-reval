@@ -13,6 +13,16 @@ func test_packaged_walkthrough_requires_explicit_user_argument() -> void:
 	)
 
 
+func test_packaged_walkthrough_extracts_optional_capture_directory() -> void:
+	assert_eq(PackagedWalkthroughScript.capture_directory(PackedStringArray()), "")
+	assert_eq(
+		PackagedWalkthroughScript.capture_directory(
+			PackedStringArray(["--capture-demo-dir=/tmp/reval demo"])
+		),
+		"/tmp/reval demo"
+	)
+
+
 func test_main_menu_ships_packaged_walkthrough_entrypoint() -> void:
 	var menu_scene := load("res://scenes/menu/main_menu.tscn") as PackedScene
 	assert_true(menu_scene != null)

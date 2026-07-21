@@ -66,6 +66,8 @@ style wall.plain.h56.47 wall_color=7a808aff wall_height=56
 style wall.plain.h96.07 wall_color=999487ff wall_height=96
 style veg.grass.tall style_variant=grass.tall
 style veg.tree.mixed style_variant=tree.mixed
+style veg.tree.oak style_variant=tree.oak
+style veg.tree.linden style_variant=tree.linden
 style veg.bush.scrub style_variant=bush.scrub
 style veg.bush.dense style_variant=bush.dense
 source "scenes/reval_east/reval_east.tscn"
@@ -96,15 +98,24 @@ terrain_rects terrain.15 stone 71,112,7,16 layer=0 order=37
 terrain_rects terrain.16 dirt 41,112,13,16|78,112,17,16 layer=0 order=38 style=veg.grass.tall
 terrain_rects terrain.17 meadow 95,112,36,16 layer=0 order=39 style=veg.tree.mixed
 building city_wall_north wall 111 0 4 41 style=wall.plain.h192.00
-building wall_tower_northeast wall 109 5 8 6 style=wall.plain.h240.01 tower=true
-building wall_tower_north wall 109 24 8 6 style=wall.plain.h240.01 tower=true
-building viru_gate_north_tower wall 107 41 10 8 style=wall.plain.h256.02 tower=true
-building viru_gate_south_tower wall 107 60 10 8 style=wall.plain.h256.02 tower=true
+building wall_tower_northeast wall 109 5 8 6 style=wall.plain.h240.01 tower=false
+building wall_tower_north wall 109 24 8 6 style=wall.plain.h240.01 tower=false
+building viru_gate_north_tower wall 107 41 10 8 style=wall.plain.h256.02 tower=false
+building viru_gate_south_tower wall 107 60 10 8 style=wall.plain.h256.02 tower=false
+# Gate arches are view-only, so collision-bearing throat walls must meet their
+# side jambs while leaving the east-west road open through the middle.
+building viru_gate_north_jamb wall 107 49 10 3 style=wall.plain.h256.02 tower=false
+building viru_gate_south_jamb wall 107 56 10 4 style=wall.plain.h256.02 tower=false
 building foregate_wall_north wall 116 49 10 2 style=wall.plain.h128.03
 building foregate_wall_south wall 116 60 10 2 style=wall.plain.h128.03
-building foregate_tower_north wall 124 43 6 6 style=wall.plain.h176.04 tower=true
-building foregate_tower_south wall 124 60 6 6 style=wall.plain.h176.04 tower=true
-building city_wall_gate_south wall 109 70 4 11 style=wall.plain.h192.00
+building foregate_tower_north wall 124 43 6 6 style=wall.plain.h176.04 tower=false
+building foregate_tower_south wall 124 60 6 6 style=wall.plain.h176.04 tower=false
+building foregate_north_jamb wall 124 49 6 3 style=wall.plain.h176.04
+building foregate_south_jamb wall 124 56 6 4 style=wall.plain.h176.04
+building city_wall_gate_south wall 109 70 4 11 style=wall.plain.h192.00 tower=false
+# Seal the two-cell vertical seam below the Viru gate tower. The east-west gate
+# passage remains open between its north and south jambs.
+building wall_seal_viru_south_join wall 109 68 4 2 style=wall.plain.h192.00
 building wall_seal_viru_south_west wall 107 70 2 11 style=wall.plain.h192.00
 building wall_seal_viru_south_east wall 112 70 4 11 style=wall.plain.h192.00
 building wall_seal_hinke_north wall 104 70 5 6 style=wall.plain.h192.00
@@ -112,13 +123,13 @@ building wall_seal_bend_a_east wall 104 81 2 6 style=wall.plain.h192.00
 building wall_seal_bend_b_north wall 90 81 4 11 style=wall.plain.h192.00
 building wall_seal_bend_c_west wall 76 103 3 4 style=wall.plain.h192.00
 building wall_seal_bend_d_north wall 73 103 4 11 style=wall.plain.h192.00
-building hinke_tower wall 104 79 8 8 style=wall.plain.h240.01 tower=true
+building hinke_tower wall 104 79 8 8 style=wall.plain.h240.01 tower=false
 building city_wall_bend_a wall 95 81 9 4 style=wall.plain.h192.00
-building wall_tower_southeast wall 90 81 6 8 style=wall.plain.h240.01 tower=true
+building wall_tower_southeast wall 90 81 6 8 style=wall.plain.h240.01 tower=false
 building city_wall_bend_b wall 90 92 4 14 style=wall.plain.h192.00
-building wall_tower_south wall 86 100 8 8 style=wall.plain.h240.01 tower=true
+building wall_tower_south wall 86 100 8 8 style=wall.plain.h240.01 tower=false
 building city_wall_bend_c wall 76 103 10 4 style=wall.plain.h192.00
-building wall_tower_southwest wall 73 103 6 8 style=wall.plain.h240.01 tower=true
+building wall_tower_southwest wall 73 103 6 8 style=wall.plain.h240.01 tower=false
 building city_wall_bend_d wall 73 107 4 14 style=wall.plain.h192.00
 building city_wall_south_continuation wall 73 121 4 7 style=wall.plain.h192.00
 building st_catherines_church house 35 3 24 10 style=house.south.h192.05
@@ -203,6 +214,8 @@ prop south_apron_cart cart 57 118 rect=2,2
 prop south_apron_barrels barrels 78 116 rect=2,2
 prop south_apron_scrub_a bush 43 121 rect=2,2 style=veg.bush.scrub
 prop south_apron_scrub_b bush 92 121 rect=2,2 style=veg.bush.dense
+prop south_apron_oak tree 48 120 style=veg.tree.oak
+prop monastery_yard_linden tree 68 18 style=veg.tree.linden
 anchor street_start 83 54 rect=2,2
 anchor smithy_door 88 73 rect=2,1
 anchor brewery_door 78 60 rect=2,1
@@ -220,18 +233,18 @@ transition smithy_door_transition 88 73 2 1 destination_spawn=door_courtyard spa
 # so arrivals do not immediately re-fire the green transition volumes.
 # District adjacency follows medieval Reval (Tallinn Old Town):
 # west = Vana Turg into the civic centre, north = Vene/Pikk into the north
-# quarter, east = Viru Gate road to the harbour, and the south-west interior lane
-# continues directly into the southern quarter. Karja Gate remains an exterior
-# city-wall gate rather than forcing district travel outside the fortifications.
+# quarter, east = Viru Gate road into its exterior foreland, and the south-west
+# interior lane continues directly into the southern quarter. Karja Gate remains
+# an exterior city-wall gate rather than forcing travel outside the fortifications.
 transition vana_turg_boundary 0 51 2 4 destination_spawn=from_reval_east spawn=vana_turg_boundary spawn_offset_px=96,0 to=reval_center highlight_area=true transition_visual=ground
 transition vene_district_boundary 24 0 3 2 destination_spawn=from_reval_east spawn=vene_district_boundary spawn_offset_px=0,96 to=reval_monastery highlight_area=true transition_visual=ground
-transition viru_road_boundary 145 51 4 3 destination_spawn=from_reval_east spawn=viru_road_boundary spawn_offset_px=-128,0 to=reval_harbor_east highlight_area=true transition_visual=ground alignment=travel
+transition viru_road_boundary 145 51 4 3 destination_spawn=from_reval_east spawn=viru_road_boundary spawn_offset_px=-128,0 to=viru_gate_foreland highlight_area=true transition_visual=ground
 transition to_reval_south 59 126 14 2 to=reval_south destination_spawn=from_reval_east spawn=from_reval_south spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
 transition street_start_spawn 83 54 2 2 spawn=street_start
 patrol viru_watch 110,53|80,53|65,53|65,75|65,88|65,116
 fade fade.viru_street 17 46 76 22
 camera 0 0 152 128
-sign sign.harbour "to harbour" 135 46 east
+sign sign.viru_road "viru gate and eastern road" 135 46 east
 sign sign.town_centre "to town centre" 3 49 west
 sign sign.south_quarter "to knights district" 64 122 south
 sign sign.karja_gate "karja gate" 71 116 south

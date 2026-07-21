@@ -12,6 +12,7 @@ const MAP_PATHS: PackedStringArray = [
 	"res://content/maps/north_quarter.rrmap",
 	"res://content/maps/reval_harbor_north.rrmap",
 	"res://content/maps/reval_harbor_east.rrmap",
+	"res://content/maps/viru_gate_foreland.rrmap",
 ]
 
 

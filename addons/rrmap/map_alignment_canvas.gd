@@ -28,8 +28,9 @@ const DISPLAY_NAMES: Dictionary = {
 	&"north_quarter": "Merchant District",
 	&"south_quarter": "Knights District",
 	&"toompea_quarter": "Toompea",
-	&"reval_harbor_north": "Trade Harbour",
-	&"reval_harbor_east": "Fishing Harbour",
+	&"viru_gate_foreland": "Viru Gate Foreland",
+	&"reval_harbor_north": "Coastal Gate Landing",
+	&"reval_harbor_east": "Kalamaja Fishing Shore",
 }
 
 var layers: Array[Dictionary] = []

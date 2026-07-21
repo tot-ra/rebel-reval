@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# D-004 / D-004a / D-004c: export the macOS release build, run the real
-# move-talk-pickup flow inside that app, and optionally refresh walkthrough frames.
+# D-004 / D-004a / D-004b / D-004c: export the macOS release build, run
+# and capture the real move-talk-pickup flow inside that app.
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -11,6 +11,8 @@ MOUNT_DIR="$(mktemp -d "${TMPDIR:-/tmp}/reval-rebel-d004.XXXXXX")"
 LAUNCH_LOG="$(mktemp "${TMPDIR:-/tmp}/reval-rebel-d004-launch.XXXXXX")"
 PRESERVE_LOG=0
 TIMEOUT_SENTINEL="$(mktemp "${TMPDIR:-/tmp}/reval-rebel-d004-timeout.XXXXXX")"
+CAPTURE_TMP="$(mktemp -d "${TMPDIR:-/tmp}/reval-rebel-d004-capture.XXXXXX")"
+FRAME_DIR="$ROOT_DIR/docs/reports/images/demo_walkthrough"
 SKIP_CAPTURE="${SKIP_CAPTURE:-0}"
 SKIP_EXPORT="${SKIP_EXPORT:-0}"
 APP_PID=""
@@ -47,6 +49,7 @@ cleanup() {
     rm -f "$LAUNCH_LOG" "$LAUNCH_LOG.unexpected"
   fi
   rm -f "$TIMEOUT_SENTINEL"
+  rm -rf "$CAPTURE_TMP"
 }
 trap cleanup EXIT
 
@@ -97,7 +100,11 @@ fi
 # user-argument segment, allowing the normal main scene to opt into its shipped
 # verifier without an editor binary selecting or driving any gameplay scene.
 echo "==> Running packaged Start-Mart-pickup walkthrough (no --path / scene args)"
-"$BINARY" -- --verify-packaged-demo >"$LAUNCH_LOG" 2>&1 &
+PACKAGED_ARGS=(-- --verify-packaged-demo)
+if [[ "$SKIP_CAPTURE" != "1" ]]; then
+  PACKAGED_ARGS+=("--capture-demo-dir=$CAPTURE_TMP")
+fi
+"$BINARY" "${PACKAGED_ARGS[@]}" >"$LAUNCH_LOG" 2>&1 &
 APP_PID=$!
 (
   sleep "$WALKTHROUGH_TIMEOUT_SECONDS"
@@ -152,8 +159,16 @@ rm -f "$UNEXPECTED_LOG"
 echo "Packaged in-binary walkthrough passed: $APP_PATH"
 
 if [[ "$SKIP_CAPTURE" != "1" ]]; then
-  echo "==> Capturing walkthrough frames (rendering run via editor binary)"
-  "$GODOT" --path "$ROOT_DIR" res://tools/capture_demo_walkthrough_host.tscn
+  echo "==> Publishing packaged walkthrough frames and README animation"
+  mkdir -p "$FRAME_DIR"
+  for frame in 00_main_menu 01_forge_start 02_forge_move 03_lower_town_arrive 04_mart_talk 05_mart_done 06_spearhead_pickup; do
+    if [[ ! -s "$CAPTURE_TMP/$frame.png" ]]; then
+      echo "Packaged walkthrough did not capture $frame.png." >&2
+      exit 1
+    fi
+    cp "$CAPTURE_TMP/$frame.png" "$FRAME_DIR/$frame.png"
+  done
+  "$ROOT_DIR/tools/build_demo_walkthrough_gif.sh"
 fi
 
 echo "D-004c packaged demo verification passed."
