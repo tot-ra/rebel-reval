@@ -18,6 +18,7 @@ uniform vec3 deep_color : source_color = vec3(0.16, 0.30, 0.44);
 uniform vec3 highlight_color : source_color = vec3(0.396, 0.694, 0.769);
 uniform vec3 foam_color : source_color = vec3(0.72, 0.80, 0.78);
 uniform float wave_height = 0.018;
+uniform float wave_chaos = 1.0;
 uniform float depth_absorption = 7.0;
 uniform float refraction_strength = 0.012;
 uniform float foam_intensity = 0.22;
@@ -40,21 +41,48 @@ float _noise(vec2 p) {
 	);
 }
 
-// Returns height plus its X/Z derivatives. Several directional components give
-// broad wind waves, crossing ripples, and fine capillary detail without relying
-// on mesh tangents, which procedural water surfaces do not provide.
-vec3 _wave(vec2 position, vec2 direction, float frequency, float speed, float amplitude, float time) {
+// Returns height plus its X/Z derivatives. Position-dependent phase warping
+// bends otherwise regular wave trains, while the local amplitude field breaks
+// up long repeating crests without introducing a visibly scrolling noise tile.
+vec3 _wave(
+	vec2 position,
+	vec2 direction,
+	float frequency,
+	float speed,
+	float amplitude,
+	float time,
+	vec2 warp,
+	float phase_offset
+) {
 	vec2 heading = normalize(direction);
-	float phase = dot(position, heading) * frequency - time * speed;
+	float phase = dot(position + warp, heading) * frequency - time * speed + phase_offset;
 	float slope = cos(phase) * frequency * amplitude;
 	return vec3(sin(phase) * amplitude, heading.x * slope, heading.y * slope);
 }
 
 vec3 _water_shape(vec2 position, float time) {
-	vec3 shape = _wave(position, vec2(1.0, 0.28), 1.05, 0.72, 0.50, time);
-	shape += _wave(position, vec2(0.36, 1.0), 2.25, 1.06, 0.22, time);
-	shape += _wave(position, vec2(-0.72, 1.0), 4.60, 1.74, 0.085, time);
-	shape += _wave(position, vec2(1.0, -0.62), 8.20, 2.45, 0.025, time);
+	// Two unrelated, slowly drifting noise fields domain-warp all wave scales.
+	// Their non-integer scales and offsets avoid a shared repeat interval across
+	// the large uninterrupted water regions visible from the isometric camera.
+	vec2 drift = vec2(time * 0.035, -time * 0.021);
+	vec2 warp_position = position * 0.115 + drift;
+	vec2 warp = vec2(
+		_noise(warp_position + vec2(17.2, -8.4)),
+		_noise(warp_position * 0.83 + vec2(-11.7, 23.9))
+	) - vec2(0.5);
+	vec2 fine_warp = vec2(
+		_noise(position * 0.31 + vec2(-time * 0.052, time * 0.018) + vec2(43.1, 7.6)),
+		_noise(position * 0.27 + vec2(time * 0.024, time * 0.047) + vec2(-19.4, 31.8))
+	) - vec2(0.5);
+	warp = (warp * 2.8 + fine_warp * 0.65) * wave_chaos;
+
+	float amplitude_noise = _noise(position * 0.16 + drift * 1.7 + vec2(5.3, 41.2));
+	float amplitude_variation = mix(0.72, 1.22, amplitude_noise);
+	vec3 shape = _wave(position, vec2(1.0, 0.28), 0.97, 0.68, 0.46, time, warp, 0.3);
+	shape += _wave(position, vec2(0.36, 1.0), 2.11, 1.03, 0.23, time, warp * 0.72, 2.1);
+	shape += _wave(position, vec2(-0.72, 1.0), 4.37, 1.67, 0.09, time, fine_warp * wave_chaos, 4.7);
+	shape += _wave(position, vec2(1.0, -0.62), 7.79, 2.31, 0.028, time, warp * 0.24, 1.4);
+	shape *= amplitude_variation;
 	return shape;
 }
 

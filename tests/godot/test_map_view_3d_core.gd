@@ -331,8 +331,11 @@ func test_water_material_uses_depth_aware_optics() -> void:
 	assert_true("INV_PROJECTION_MATRIX" in source, "water depth must be reconstructed in view space")
 	assert_true("shore_factor" in source, "water must consume the baked shoreline distance")
 	assert_true("fresnel" in source, "water needs angle-dependent reflection")
+	assert_true("warp_position" in source, "water waves must warp their phase to avoid repeating bands")
+	assert_true("amplitude_variation" in source, "water needs spatially varied wave strength")
 	assert_true("TANGENT" not in source, "procedural water has no tangent basis to perturb safely")
 	assert_true(float(material.get_shader_parameter("wave_height")) > 0.0)
+	assert_true(float(material.get_shader_parameter("wave_chaos")) > 0.0)
 	assert_true(float(material.get_shader_parameter("depth_absorption")) > 0.0)
 
 func test_placeholder_materials_cover_every_terrain() -> void:

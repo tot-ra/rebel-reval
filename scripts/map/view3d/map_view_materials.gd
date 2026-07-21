@@ -231,14 +231,17 @@ static func water_surface(terrain_id: StringName) -> ShaderMaterial:
 		MapTypes.TERRAIN_SHALLOW_WATER:
 			material.set_shader_parameter("depth_absorption", 5.0)
 			material.set_shader_parameter("wave_height", 0.014)
+			material.set_shader_parameter("wave_chaos", 0.78)
 			material.set_shader_parameter("foam_intensity", 0.18)
 		MapTypes.TERRAIN_DEEP_WATER:
 			material.set_shader_parameter("depth_absorption", 9.0)
 			material.set_shader_parameter("wave_height", 0.026)
+			material.set_shader_parameter("wave_chaos", 1.18)
 			material.set_shader_parameter("foam_intensity", 0.12)
 		_:
 			material.set_shader_parameter("depth_absorption", 7.0)
 			material.set_shader_parameter("wave_height", 0.018)
+			material.set_shader_parameter("wave_chaos", 0.96)
 			material.set_shader_parameter("foam_intensity", 0.20)
 	_cache[key] = material
 	return material
