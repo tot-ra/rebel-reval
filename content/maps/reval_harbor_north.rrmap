@@ -24,6 +24,12 @@ style tree.spruce
 terrain water.deep deep_water 0 0 160 46 order=1
 terrain water.shallow shallow_water 0 46 160 8 order=2
 terrain shore.sand coast_sand 0 54 160 9 order=3
+# Low headlands and narrow inlets break the former ruler-straight Baltic edge.
+# Water stays blocked; these are deterministic authored silhouette changes only.
+terrain_rects shore.headlands coast_sand 0,51,18,3|25,53,16,2|48,50,24,4|81,53,14,2|103,51,27,3|142,52,18,2 order=4
+terrain_rects shore.coves shallow_water 18,54,7,3|41,54,7,2|72,54,9,4|95,54,8,2|130,54,12,3 order=5
+# Keep the landing craft afloat where the natural beach wraps around jetty tips.
+terrain_rects boat.berths shallow_water 54,47,2,5|116,49,2,4 order=6
 terrain shore.sand_west coast_sand 0 53 38 2 order=4
 terrain shore.sand_mid coast_sand 44 52 36 3 order=4
 terrain shore.sand_east coast_sand 104 53 56 2 order=4

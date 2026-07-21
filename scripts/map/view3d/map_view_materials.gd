@@ -217,9 +217,9 @@ static func puddle_surface() -> ShaderMaterial:
 ## Base wave heights are scaled at runtime by apply_sea_weather() so storms
 ## raise both the water mesh and floating hulls together.
 const WATER_WAVE_BASE := {
-	MapTypes.TERRAIN_SHALLOW_WATER: {"height": 0.014, "chaos": 0.78, "foam": 0.18, "absorption": 5.0},
-	MapTypes.TERRAIN_DEEP_WATER: {"height": 0.026, "chaos": 1.18, "foam": 0.12, "absorption": 9.0},
-	MapTypes.TERRAIN_WATER: {"height": 0.018, "chaos": 0.96, "foam": 0.20, "absorption": 7.0},
+	MapTypes.TERRAIN_SHALLOW_WATER: {"height": 0.026, "chaos": 0.78, "foam": 0.24, "breakers": 0.52, "absorption": 5.0},
+	MapTypes.TERRAIN_DEEP_WATER: {"height": 0.044, "chaos": 1.18, "foam": 0.12, "breakers": 0.10, "absorption": 9.0},
+	MapTypes.TERRAIN_WATER: {"height": 0.030, "chaos": 0.96, "foam": 0.18, "breakers": 0.22, "absorption": 7.0},
 }
 
 
@@ -244,6 +244,7 @@ static func water_surface(terrain_id: StringName) -> ShaderMaterial:
 	material.set_shader_parameter("wave_height", float(wave["height"]))
 	material.set_shader_parameter("wave_chaos", float(wave["chaos"]))
 	material.set_shader_parameter("foam_intensity", float(wave["foam"]))
+	material.set_shader_parameter("breaker_intensity", float(wave["breakers"]))
 	_cache[key] = material
 	return material
 
@@ -251,13 +252,20 @@ static func water_surface(terrain_id: StringName) -> ShaderMaterial:
 ## Scales cached water materials from SkyWeather wind/rain. Safe to call every
 ## frame; only shader uniforms change, never the cached material instances.
 static func apply_sea_weather(wind: float, rain: float) -> void:
-	var height_mul := lerpf(0.9, 1.55, wind) * lerpf(1.0, 1.4, rain)
-	var chaos_mul := lerpf(0.95, 1.35, wind) * lerpf(1.0, 1.25, rain)
+	var wind_state := clampf(wind, 0.0, 1.0)
+	var rain_state := clampf(rain, 0.0, 1.0)
+	var height_mul := lerpf(0.82, 2.15, wind_state) * lerpf(1.0, 1.45, rain_state)
+	var chaos_mul := lerpf(0.88, 1.65, wind_state) * lerpf(1.0, 1.35, rain_state)
+	var speed := lerpf(0.72, 1.62, wind_state) * lerpf(1.0, 1.18, rain_state)
+	var breaker_mul := lerpf(0.72, 1.75, wind_state) * lerpf(1.0, 1.45, rain_state)
 	for terrain_id in WATER_WAVE_BASE.keys():
 		var material := water_surface(terrain_id as StringName)
 		var wave: Dictionary = WATER_WAVE_BASE[terrain_id]
 		material.set_shader_parameter("wave_height", float(wave["height"]) * height_mul)
 		material.set_shader_parameter("wave_chaos", float(wave["chaos"]) * chaos_mul)
+		material.set_shader_parameter("wave_speed", speed)
+		material.set_shader_parameter("breaker_intensity", float(wave["breakers"]) * breaker_mul)
+		material.set_shader_parameter("foam_intensity", float(wave["foam"]) * lerpf(0.9, 1.35, rain_state))
 
 
 ## Pushes sky sun-disk visibility and day/night blend into cached water

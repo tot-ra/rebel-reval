@@ -3,6 +3,7 @@ extends RefCounted
 
 const FishingBoatBuilder := preload("res://scripts/map/view3d/map_view_fishing_boat_builder.gd")
 const MerchantBoatBuilder := preload("res://scripts/map/view3d/map_view_merchant_boat_builder.gd")
+const Shoreline3D := preload("res://scripts/map/view3d/map_view_shoreline_3d.gd")
 
 ## Prop meshes and ground scatter.
 
@@ -463,12 +464,14 @@ static func build_scatter(
 		puddle_instances.sorting_offset = 0.5
 		root.add_child(puddle_instances)
 
-	var stone_mesh := SphereMesh.new()
-	stone_mesh.radius = 0.09
-	stone_mesh.height = 0.11
-	stone_mesh.radial_segments = 8
-	stone_mesh.rings = 4
-	root.add_child(MapViewMeshBuilderPrimitives.multi_mesh("Stones", stone_mesh, stones, stone_colors, MapViewMaterials.role(&"stone"), Vector3(0.0, 0.03, 0.0)))
+	if not stones.is_empty():
+		var stone_mesh := SphereMesh.new()
+		stone_mesh.radius = 0.09
+		stone_mesh.height = 0.11
+		stone_mesh.radial_segments = 8
+		stone_mesh.rings = 4
+		root.add_child(MapViewMeshBuilderPrimitives.multi_mesh("Stones", stone_mesh, stones, stone_colors, MapViewMaterials.role(&"stone"), Vector3(0.0, 0.03, 0.0)))
+	Shoreline3D.add_to(root, definition, grid, bounds)
 	return root
 
 

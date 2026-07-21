@@ -21,6 +21,12 @@ style tree.spruce
 terrain water.deep deep_water 0 0 144 24 order=1
 terrain water.shallow shallow_water 0 24 144 10 order=2
 terrain shore.sand coast_sand 0 34 144 10 order=3
+# Kalamaja's working beach alternates shallow coves with sand spits instead of
+# following one ruler-straight band across the entire map.
+terrain_rects shore.headlands coast_sand 0,31,17,3|26,33,15,2|49,30,22,4|82,33,15,2|104,31,25,3|137,32,7,2 order=4
+terrain_rects shore.coves shallow_water 17,34,9,3|41,34,8,2|71,34,11,4|97,34,7,2|129,34,8,3 order=5
+# Preserve water beneath the authored hull footprints where a spit reaches a pier.
+terrain_rects boat.berths shallow_water 61,26,2,5|67,27,2,5|108,27,2,5|114,28,2,5 order=6
 terrain shore.sand_west coast_sand 0 33 42 2 order=4
 terrain shore.sand_mid coast_sand 50 32 36 3 order=4
 terrain shore.sand_east coast_sand 104 33 40 2 order=4

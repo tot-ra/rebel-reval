@@ -17,11 +17,13 @@ uniform vec3 shallow_color : source_color = vec3(0.45, 0.62, 0.75);
 uniform vec3 deep_color : source_color = vec3(0.16, 0.30, 0.44);
 uniform vec3 highlight_color : source_color = vec3(0.396, 0.694, 0.769);
 uniform vec3 foam_color : source_color = vec3(0.72, 0.80, 0.78);
-uniform float wave_height = 0.018;
+uniform float wave_height = 0.032;
 uniform float wave_chaos = 1.0;
+uniform float wave_speed = 1.0;
 uniform float depth_absorption = 7.0;
 uniform float refraction_strength = 0.012;
 uniform float foam_intensity = 0.22;
+uniform float breaker_intensity = 0.35;
 // Matches sky sun-disk fade / MapView3D day_blend. Defaults keep daytime look
 // until apply_water_lighting() pushes the live cycle values.
 uniform float sun_visibility = 1.0;
@@ -126,17 +128,18 @@ vec2 _equatorial_uv(vec3 direction) {
 void vertex() {
 	water_world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	shore_factor = clamp(COLOR.r, 0.0, 1.0);
-	vec3 shape = _water_shape(water_world_position.xz, TIME);
-	// Pin displacement at the contour so separate clipped patches cannot expose
-	// cracks along the bank, while the same world-space phase joins every cell.
-	float displacement_fade = smoothstep(0.0, 0.45, shore_factor);
-	float displacement = shape.x * wave_height * displacement_fade;
+	vec3 shape = _water_shape(water_world_position.xz, TIME * wave_speed);
+	// Keep clipped patch seams pinned, but let the crest rise almost all the way
+	// into the shallows. The old broad fade erased waves before they reached land.
+	float displacement_fade = smoothstep(0.0, 0.16, shore_factor);
+	float shoaling = mix(1.32, 1.0, smoothstep(0.0, 0.65, shore_factor));
+	float displacement = shape.x * wave_height * displacement_fade * shoaling;
 	VERTEX.y += displacement;
 	water_world_position.y += displacement;
 }
 
 void fragment() {
-	vec3 shape = _water_shape(water_world_position.xz, TIME);
+	vec3 shape = _water_shape(water_world_position.xz, TIME * wave_speed);
 	vec3 world_normal = normalize(vec3(-shape.y * wave_height, 1.0, -shape.z * wave_height));
 	vec3 view_normal = normalize((VIEW_MATRIX * vec4(world_normal, 0.0)).xyz);
 	NORMAL = view_normal;
@@ -197,19 +200,24 @@ void fragment() {
 	water_color += sun_reflection_color * sun_glint * (0.45 + fresnel * 1.2);
 	water_color += vec3(0.66, 0.72, 0.86) * moon_glint * (0.25 + fresnel * 0.75);
 
-	// COLOR.r is baked from the same smooth contour that clips the mesh. Foam
-	// therefore hugs curved banks instead of revealing the underlying cell grid.
-	// Soft inland rivers need a wide, sparse foam falloff so the waterline is
-	// not a bright chalk line against the wet mud bank.
+	// COLOR.r is baked from the same smooth contour that clips the mesh. A pair
+	// of advancing breaker bands now travels into that contour, crests, and fades
+	// at the bank. This reads as surf arriving at shore rather than static edge foam.
 	float shore = 1.0 - smoothstep(0.0, 0.88, shore_factor);
-	vec2 foam_uv = water_world_position.xz * 3.4 + vec2(-TIME * 0.22, TIME * 0.09);
+	float breaker_phase = shore_factor * 18.0 + TIME * (1.45 * wave_speed);
+	float breaker_warp = (_noise(water_world_position.xz * 0.42 + vec2(TIME * 0.08, -TIME * 0.04)) - 0.5) * 3.4;
+	float breaker_a = pow(max(sin(breaker_phase + breaker_warp), 0.0), 5.0);
+	float breaker_b = pow(max(sin(breaker_phase * 0.62 + breaker_warp * 0.7 + 2.4), 0.0), 7.0);
+	float breaker_band = (breaker_a + breaker_b * 0.55) * smoothstep(0.04, 0.92, shore);
+	vec2 foam_uv = water_world_position.xz * 3.4 + vec2(-TIME * 0.22, TIME * 0.09) * wave_speed;
 	float foam_noise = _noise(foam_uv + _noise(foam_uv * 0.47) * 2.2);
 	float foam_ribbon = 0.5 + 0.5 * sin(
-		dot(water_world_position.xz, vec2(5.4, 3.8)) - TIME * 0.85 + foam_noise * 3.0
+		dot(water_world_position.xz, vec2(5.4, 3.8)) - TIME * 0.85 * wave_speed + foam_noise * 3.0
 	);
-	float foam = shore * smoothstep(0.52, 0.88, foam_noise * 0.70 + foam_ribbon * 0.30);
-	foam *= foam_intensity * smoothstep(0.02, 0.10, water_depth);
-	water_color = mix(water_color, foam_color, clamp(foam, 0.0, 0.38));
+	float edge_foam = shore * smoothstep(0.52, 0.88, foam_noise * 0.70 + foam_ribbon * 0.30);
+	float foam = edge_foam * foam_intensity + breaker_band * breaker_intensity;
+	foam *= smoothstep(0.012, 0.08, water_depth);
+	water_color = mix(water_color, foam_color, clamp(foam, 0.0, 0.72));
 
 	ALBEDO = water_color;
 	float day_roughness = mix(0.09, 0.22, clamp(foam + absorption * 0.18, 0.0, 1.0));
