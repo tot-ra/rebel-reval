@@ -85,6 +85,89 @@ func test_profile_presentation_drives_music_night_selection() -> void:
 	assert_true(MUSIC_DIRECTOR_SCRIPT.is_night_period(progress))
 
 
+func test_day_profiles_enable_the_shared_sun_cycle() -> void:
+	# Workers' District binds phase presentation; frozen day profiles made the
+	# sun sit still while harbor (no binder) kept moving.
+	for phase_id in [
+		GameState.PHASE_PROLOGUE_DAY,
+		GameState.PHASE_INVESTIGATION_MORNING,
+		GameState.PHASE_REFLECTION_MORNING,
+	]:
+		var presentation := PhaseProfileModelScript.presentation(
+			PhaseProfileModelScript.resolve_profile(phase_id, db)
+		)
+		assert_true(
+			bool(presentation.get("cycle_enabled", false)),
+			"%s must keep the outdoor sun moving" % String(phase_id)
+		)
+
+
+func test_night_profiles_freeze_the_sun_cycle() -> void:
+	for phase_id in [
+		GameState.PHASE_INVESTIGATION_NIGHT,
+		GameState.PHASE_CONSEQUENCE_NIGHT,
+	]:
+		var presentation := PhaseProfileModelScript.presentation(
+			PhaseProfileModelScript.resolve_profile(phase_id, db)
+		)
+		assert_false(
+			bool(presentation.get("cycle_enabled", true)),
+			"%s must freeze night lighting for investigation pacing" % String(phase_id)
+		)
+
+
+func test_map_phase_binder_continues_live_cycle_when_enabled() -> void:
+	MusicDirector.set_cycle_progress(0.61)
+	var definition := MapDefinition.new()
+	var scene_root := Node2D.new()
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(scene_root)
+
+	var runtime := MapViewRuntime.new()
+	runtime.name = "MapViewRuntime"
+	scene_root.add_child(runtime)
+
+	var binder := MapPhaseBinderScript.new()
+	scene_root.add_child(binder)
+	binder.setup(LOC_LOWER_TOWN, definition, runtime, false)
+	var morning := PhaseProfileModelScript.resolve_profile(GameState.PHASE_INVESTIGATION_MORNING, db)
+	binder.apply_authored_profile(morning)
+
+	assert_true(runtime.cycle_enabled, "day profiles must leave the runtime cycle running")
+	assert_true(
+		is_equal_approx(runtime.cycle_progress, 0.61),
+		"binder must keep the shared MusicDirector clock instead of rewinding"
+	)
+	scene_root.free()
+	MusicDirector.clear_cycle_progress()
+
+
+func test_map_phase_binder_freezes_night_to_authored_progress() -> void:
+	MusicDirector.set_cycle_progress(0.61)
+	var definition := MapDefinition.new()
+	var scene_root := Node2D.new()
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(scene_root)
+
+	var runtime := MapViewRuntime.new()
+	runtime.name = "MapViewRuntime"
+	scene_root.add_child(runtime)
+
+	var binder := MapPhaseBinderScript.new()
+	scene_root.add_child(binder)
+	binder.setup(LOC_LOWER_TOWN, definition, runtime, false)
+	var night := PhaseProfileModelScript.resolve_profile(GameState.PHASE_INVESTIGATION_NIGHT, db)
+	binder.apply_authored_profile(night)
+
+	assert_false(runtime.cycle_enabled, "night profiles must freeze the outdoor cycle")
+	assert_true(
+		is_equal_approx(runtime.cycle_progress, 0.02),
+		"frozen night must snap to the authored phase progress"
+	)
+	scene_root.free()
+	MusicDirector.clear_cycle_progress()
+
+
 func test_location_rules_toggle_patrols_npcs_and_props() -> void:
 	var morning := PhaseProfileModelScript.resolve_profile(GameState.PHASE_INVESTIGATION_MORNING, db)
 	var town_rules := PhaseProfileModelScript.location_rules(morning, LOC_LOWER_TOWN)

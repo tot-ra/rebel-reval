@@ -5,6 +5,7 @@ const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 
 const DISTRICT_SCENE_THEMES: Dictionary = {
 	"res://scenes/reval_east/reval_east.tscn": &"town",
+	"res://scenes/reval_east/viru_gate_foreland/viru_gate_foreland.tscn": &"town",
 	"res://scenes/reval_center/reval_center.tscn": &"center",
 	"res://scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn": &"center",
 	"res://scenes/reval_north/reval_north.tscn": &"north",
@@ -53,6 +54,16 @@ func test_volume_db_follows_cycle_progress() -> void:
 
 func test_cycle_progress_is_exposed_for_hud_animation() -> void:
 	assert_true(is_equal_approx(MusicDirector.get_cycle_progress(), DayNightCycle.DEFAULT_PROGRESS))
+
+
+func test_is_cycle_active_tracks_set_and_clear() -> void:
+	MusicDirector.clear_cycle_progress()
+	assert_false(MusicDirector.is_cycle_active())
+	MusicDirector.set_cycle_progress(0.4)
+	assert_true(MusicDirector.is_cycle_active())
+	assert_true(is_equal_approx(MusicDirector.get_cycle_progress(), 0.4))
+	MusicDirector.clear_cycle_progress()
+	assert_false(MusicDirector.is_cycle_active())
 
 
 func test_active_slice_themes_have_no_night_tracks_yet() -> void:

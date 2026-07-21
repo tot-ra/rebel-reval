@@ -5,7 +5,7 @@
   "title": "Investigation morning",
   "sequence_index": 1,
   "presentation": {
-    "cycle_enabled": false,
+    "cycle_enabled": true,
     "cycle_progress": "0.42",
     "music_night_tracks": false
   },

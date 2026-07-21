@@ -5,7 +5,7 @@
   "title": "Prologue morning",
   "sequence_index": 0,
   "presentation": {
-    "cycle_enabled": false,
+    "cycle_enabled": true,
     "cycle_progress": "0.35",
     "music_night_tracks": false
   },

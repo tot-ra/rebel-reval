@@ -5,7 +5,7 @@
   "title": "Reflection morning",
   "sequence_index": 4,
   "presentation": {
-    "cycle_enabled": false,
+    "cycle_enabled": true,
     "cycle_progress": "0.28",
     "music_night_tracks": false
   },

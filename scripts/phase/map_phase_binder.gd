@@ -76,9 +76,29 @@ func _apply_presentation(profile: Dictionary) -> void:
 	var presentation := PhaseProfileModelScript.presentation(profile)
 	if presentation.is_empty():
 		return
-	_view_runtime.cycle_enabled = bool(presentation.get("cycle_enabled", false))
-	_view_runtime.cycle_progress = float(presentation.get("cycle_progress", _view_runtime.cycle_progress))
-	_view_runtime.view.apply_cycle_progress(_view_runtime.cycle_progress)
+	# Day profiles keep the shared clock running; night profiles freeze so a
+	# 60s in-game day cannot dawn mid-investigation. Default true so outdoor
+	# exploration keeps a moving sun when content omits the flag.
+	var cycle_enabled := bool(presentation.get("cycle_enabled", true))
+	_view_runtime.cycle_enabled = cycle_enabled
+	var music_director := get_node_or_null("/root/MusicDirector")
+	if (
+		cycle_enabled
+		and music_director != null
+		and music_director.has_method(&"is_cycle_active")
+		and bool(music_director.call(&"is_cycle_active"))
+	):
+		# Continue the live global clock instead of rewinding to the authored
+		# phase start every time this map's binder re-applies.
+		_view_runtime.cycle_progress = float(music_director.call(&"get_cycle_progress"))
+	else:
+		_view_runtime.cycle_progress = float(
+			presentation.get("cycle_progress", _view_runtime.cycle_progress)
+		)
+	if _view_runtime.view != null:
+		_view_runtime.view.apply_cycle_progress(_view_runtime.cycle_progress)
+	if music_director != null and music_director.has_method(&"set_cycle_progress"):
+		music_director.call(&"set_cycle_progress", _view_runtime.cycle_progress)
 
 
 func _apply_npc_rules(entries: Array) -> void:

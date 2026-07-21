@@ -8,6 +8,9 @@ const PhaseProfileModelScript := preload("res://scripts/phase/phase_profile_mode
 signal profile_applied(profile: Dictionary, phase_id: StringName)
 
 var _connected_state: GameState
+## Presentation (sun angle / music night bias) snaps only when the phase id
+## changes. Re-entering Workers' District must not rewind the shared clock.
+var _presentation_phase_id: StringName = &""
 
 
 func _ready() -> void:
@@ -40,7 +43,12 @@ func apply_profile_for_phase(phase_id: StringName) -> void:
 	if phase_id.is_empty():
 		return
 	var profile := PhaseProfileModelScript.resolve_profile(phase_id, SessionState.content_db)
-	_apply_presentation(profile)
+	# WHY: MapPhaseBinder.setup() re-syncs on every district enter. Snapping
+	# MusicDirector there made the sun jump backward whenever the player left
+	# harbor (moving sky) and returned to Lower Town.
+	if phase_id != _presentation_phase_id:
+		_apply_presentation(profile)
+		_presentation_phase_id = phase_id
 	profile_applied.emit(profile, phase_id)
 
 
@@ -84,7 +92,10 @@ func _on_phase_changed(_previous: StringName, next: StringName) -> void:
 
 func _on_state_replaced(_previous: GameState, current: GameState, _reason: StringName) -> void:
 	# SessionState applies the profile after every listener has rebound, so map
-	# props are rebuilt before phase visibility rules run.
+	# props are rebuilt before phase visibility rules run. Clear the presentation
+	# gate so a new session (or loaded save) can snap the authored sun angle even
+	# when the phase id matches the previous playthrough.
+	_presentation_phase_id = &""
 	_bind_state(current)
 
 

@@ -191,3 +191,25 @@ func test_runtime_accepts_mouse_wheel_and_trackpad_zoom_input() -> void:
 		"zooming out must stop at the overview limit"
 	)
 	scene_root.free()
+
+
+func test_runtime_restores_shared_cycle_from_music_director() -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	MusicDirector.set_cycle_progress(0.77)
+	var runtime := MapViewRuntime.new()
+	tree.root.add_child(runtime)
+	runtime._restore_cycle_from_music_director()
+	assert_true(
+		is_equal_approx(runtime.cycle_progress, 0.77),
+		"new districts must continue the shared sky clock"
+	)
+	runtime.free()
+	MusicDirector.clear_cycle_progress()
+	var idle := MapViewRuntime.new()
+	tree.root.add_child(idle)
+	idle._restore_cycle_from_music_director()
+	assert_true(
+		is_equal_approx(idle.cycle_progress, DayNightCycle.DEFAULT_PROGRESS),
+		"inactive MusicDirector must leave the runtime at its default morning"
+	)
+	idle.free()

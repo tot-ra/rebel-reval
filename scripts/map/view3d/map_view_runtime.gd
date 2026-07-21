@@ -87,6 +87,10 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 	runtime._configure_screen_relative_movement()
 	runtime._sync_player(true)
 	runtime._bind_player_health_ring()
+	# WHY: Each district used to restart at DEFAULT_PROGRESS, so harbor kept a
+	# moving sun while Workers' District (and any fresh map) snapped morning.
+	# MusicDirector is the shared clock while a gameplay cycle is active.
+	runtime._restore_cycle_from_music_director()
 	runtime.view.apply_cycle_progress(runtime.cycle_progress)
 	runtime._sync_music_cycle()
 	runtime._install_click_input(scene_root)
@@ -279,6 +283,17 @@ func is_camera_drag_active() -> bool:
 func rotate_view_degrees(delta_degrees: float) -> void:
 	_camera_controller.rotate_view_degrees(delta_degrees)
 	_configure_screen_relative_movement()
+
+
+func _restore_cycle_from_music_director() -> void:
+	var music_director := get_node_or_null("/root/MusicDirector")
+	if music_director == null:
+		return
+	if music_director.has_method(&"is_cycle_active") and not bool(music_director.call(&"is_cycle_active")):
+		return
+	if not music_director.has_method(&"get_cycle_progress"):
+		return
+	cycle_progress = float(music_director.call(&"get_cycle_progress"))
 
 
 func _sync_music_cycle() -> void:
