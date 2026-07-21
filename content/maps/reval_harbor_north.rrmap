@@ -1,7 +1,7 @@
 # Trade Harbour outside the Great Coast Gate. This map owns the Pikk
 # Street harbour approach, the defended gate, and the main quay basin.
 rrmap 1
-map reval_harbor_north loc.reval_harbor.north 160 72 meadow scope=prototype active=false palette=clean_painted seed=1385 cell_size=32
+map reval_harbor_north loc.reval_harbor.north 160 88 meadow scope=prototype active=false palette=clean_painted seed=1385 cell_size=32
 source "scenes/harbor/harbor_north.tscn"
 source "scenes/harbor/harbor.md"
 source "scenes/harbor/great_coast_gate.md"
@@ -14,61 +14,61 @@ style wall.pier wall_height=18 wall_color=6a665eff
 style grass.short
 style grass.tall
 style bush.dense
-terrain water.deep deep_water 0 0 160 14 order=1
-terrain water.shallow shallow_water 0 14 160 5 order=2
-terrain coast.sand coast_sand 0 19 160 4 order=3
-terrain quay.paving castle_paving 8 23 144 8 order=4
-terrain quay.mud mud 4 31 150 7 order=5
-terrain suburb.grass grass 0 38 160 34 order=6
-terrain ropeyard.mud mud 72 44 72 14 order=7
-terrain gate.forecourt stone 42 52 28 10 order=8
-stroke pikk_gate_road cobblestone 54,70|54,62|54,54|54,46|54,38|54,30|54,24 thickness=4 order=9
-stroke quay_lane cobblestone 12,31|28,31|44,31|60,31|78,31|98,31|122,31|148,31 thickness=3 order=10
-stroke east_harbor_lane cobblestone 82,60|96,60|96,56|112,56|112,52|132,52|132,48|148,48|148,31|158,31 thickness=3 order=11
-stroke west_quay_lane cobblestone 20,44|34,44|48,44|48,38|54,38 thickness=3 order=12
-building warehouse_west house 12 24 12 5 style=house.warehouse
-building warehouse_mid house 30 24 12 5 style=house.warehouse
-building warehouse_east house 72 24 14 5 style=house.warehouse
-building customs_shed house 88 25 10 5 style=house.warehouse
-building seamens_inn house 28 48 12 6 style=house.inn
-building great_coast_gate house 48 56 14 7 style=house.gatehouse
-building gate_yard_store house 64 54 10 6 style=house.warehouse
-building ropewalk_shed house 76 46 18 5 style=house.warehouse
-building fish_shed_west house 8 42 10 5 style=house.warehouse
-building fish_shed_east house 92 38 12 5 style=house.warehouse
-building warehouse_far_east house 116 24 14 5 style=house.warehouse
-building merchants_storehouse house 136 24 16 6 style=house.warehouse
-building chandlers_shed house 122 42 14 5 style=house.warehouse
-wall stone_quay 8 22 152 22 thickness=1 kind=wall style=wall.quay
-wall pier_west 16 14 16 26 thickness=2 kind=wall style=wall.pier
-wall pier_central 44 14 44 26 thickness=2 kind=wall style=wall.pier
-wall pier_east 76 14 76 26 thickness=2 kind=wall style=wall.pier
-wall pier_far_east 132 14 132 27 thickness=2 kind=wall style=wall.pier
-prop quay_crane cart 62 27 rect=2,2
-prop cargo_barrels barrels 38 33 rect=2,2
-prop drying_nets barrels 14 35 rect=2,1
-prop gate_cart cart 66 62 rect=2,2
-prop rope_bales barrels 80 52 rect=3,2
-prop dock_cart cart 94 31 rect=2,2
-prop eastern_cargo barrels 126 33 rect=3,2
-prop merchants_cart cart 142 32 rect=2,2
-prop bush.gate bush 42 62 rect=3,2
-landmark coast_gate_arch gate_arch 52 56 6 7 wall_color=8c8980ff top_px=192 passage_axis=z door_material=wood
-landmark quay_landmark gate_arch 58 22 6 2 wall_color=8c8980ff top_px=96 passage_axis=z
-spawn spawn.inspection 54 46 rect=2,2
-anchor from_reval_north 54 66 rect=2,2
-anchor from_harbor_east 154 31 rect=2,2
-anchor quay_plaza 58 34 rect=2,2
-anchor coast_gate 44 58 rect=2,2
-anchor ropeyard 84 52 rect=2,2
-transition to_reval_north 52 68 7 4 to=reval_north destination_spawn=to_reval_harbor spawn=from_reval_north spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
-transition to_harbor_east 156 27 4 8 to=reval_harbor_east destination_spawn=from_harbor_north spawn=from_harbor_east spawn_offset_px=-128,0 highlight_area=true transition_visual=ground
-sign sign.pikk "to pikk street" 56 66 south
-sign sign.east_harbor "fishing harbour" 152 29 east
-sign sign.quay "main quay" 60 33 north
-sign sign.gate "coast gate" 56 58 south
-patrol harbor_north_watch 54,64|54,54|54,44|62,34|84,34|84,52|54,64
-exclude blocked.water 0 0 112 19
-fade fade.quay 12 23 136 6
-camera 0 0 160 72
+terrain water.deep deep_water 0 0 160 30 order=1
+terrain water.shallow shallow_water 0 30 160 5 order=2
+terrain coast.sand coast_sand 0 35 160 4 order=3
+terrain quay.paving castle_paving 8 39 144 8 order=4
+terrain quay.mud mud 4 47 150 7 order=5
+terrain suburb.grass grass 0 54 160 34 order=6
+terrain ropeyard.mud mud 72 60 72 14 order=7
+terrain gate.forecourt stone 42 68 28 10 order=8
+stroke pikk_gate_road cobblestone 54,86|54,78|54,70|54,62|54,54|54,46|54,40 thickness=4 order=9
+stroke quay_lane cobblestone 12,47|28,47|44,47|60,47|78,47|98,47|122,47|148,47 thickness=3 order=10
+stroke east_harbor_lane cobblestone 82,76|96,76|96,72|112,72|112,68|132,68|132,64|148,64|148,47|158,47 thickness=3 order=11
+stroke west_quay_lane cobblestone 20,60|34,60|48,60|48,54|54,54 thickness=3 order=12
+building warehouse_west house 12 40 12 5 style=house.warehouse
+building warehouse_mid house 30 40 12 5 style=house.warehouse
+building warehouse_east house 72 40 14 5 style=house.warehouse
+building customs_shed house 88 41 10 5 style=house.warehouse
+building seamens_inn house 28 64 12 6 style=house.inn
+building great_coast_gate house 48 72 14 7 style=house.gatehouse
+building gate_yard_store house 64 70 10 6 style=house.warehouse
+building ropewalk_shed house 76 62 18 5 style=house.warehouse
+building fish_shed_west house 8 58 10 5 style=house.warehouse
+building fish_shed_east house 92 54 12 5 style=house.warehouse
+building warehouse_far_east house 116 40 14 5 style=house.warehouse
+building merchants_storehouse house 136 40 16 6 style=house.warehouse
+building chandlers_shed house 122 58 14 5 style=house.warehouse
+wall stone_quay 8 38 152 38 thickness=1 kind=wall style=wall.quay
+wall pier_west 16 30 16 42 thickness=2 kind=wall style=wall.pier
+wall pier_central 44 30 44 42 thickness=2 kind=wall style=wall.pier
+wall pier_east 76 30 76 42 thickness=2 kind=wall style=wall.pier
+wall pier_far_east 132 30 132 43 thickness=2 kind=wall style=wall.pier
+prop quay_crane cart 62 43 rect=2,2
+prop cargo_barrels barrels 38 49 rect=2,2
+prop drying_nets barrels 14 51 rect=2,1
+prop gate_cart cart 66 78 rect=2,2
+prop rope_bales barrels 80 68 rect=3,2
+prop dock_cart cart 94 47 rect=2,2
+prop eastern_cargo barrels 126 49 rect=3,2
+prop merchants_cart cart 142 48 rect=2,2
+prop bush.gate bush 42 78 rect=3,2
+landmark coast_gate_arch gate_arch 52 72 6 7 wall_color=8c8980ff top_px=192 passage_axis=z door_material=wood
+landmark quay_landmark gate_arch 58 38 6 2 wall_color=8c8980ff top_px=96 passage_axis=z
+spawn spawn.inspection 54 62 rect=2,2
+anchor from_reval_north 54 82 rect=2,2
+anchor from_harbor_east 154 47 rect=2,2
+anchor quay_plaza 58 50 rect=2,2
+anchor coast_gate 44 74 rect=2,2
+anchor ropeyard 84 68 rect=2,2
+transition to_reval_north 52 84 7 4 to=reval_north destination_spawn=to_reval_harbor spawn=from_reval_north spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
+transition to_harbor_east 156 43 4 8 to=reval_harbor_east destination_spawn=from_harbor_north spawn=from_harbor_east spawn_offset_px=-128,0 highlight_area=true transition_visual=ground
+sign sign.pikk "to pikk street" 56 82 south
+sign sign.east_harbor "fishing harbour" 152 45 east
+sign sign.quay "main quay" 60 49 north
+sign sign.gate "coast gate" 56 74 south
+patrol harbor_north_watch 54,80|54,70|54,60|62,50|84,50|84,68|54,80
+exclude blocked.water 0 0 112 35
+fade fade.quay 12 39 136 6
+camera 0 0 160 88
 surroundings north water east woodland west water south woodland

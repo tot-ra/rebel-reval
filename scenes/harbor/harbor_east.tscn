@@ -21,8 +21,8 @@ y_sort_enabled = true
 y_sort_enabled = true
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(1664, 1024)
+position = Vector2(1664, 1280)
 limit_left = 0
 limit_top = 0
 limit_right = 3328
-limit_bottom = 2048
+limit_bottom = 2560
