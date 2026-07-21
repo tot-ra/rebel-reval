@@ -168,6 +168,33 @@ func test_split_harbor_maps_connect_to_each_other() -> void:
 	assert_eq(east_transitions[&"to_harbor_north"]["destination_spawn_id"], &"from_harbor_east")
 
 
+func test_coastal_gate_outer_face_flanks_arch_not_one_house() -> void:
+	# A single house over the throat renders as a roofed shed with a wall in it.
+	var definition: MapDefinition = HarborNorthDefinition.create()
+	var west := _building_by_id(definition, &"great_coast_gate")
+	var east := _building_by_id(definition, &"great_coast_gate_east")
+	var arch := _landmark_by_id(definition, &"coast_gate_arch")
+	assert_false(west.is_empty(), "stable west gate flank must remain")
+	assert_false(east.is_empty(), "east gate flank must seal the opposite jamb")
+	assert_false(arch.is_empty(), "coastal gate arch landmark must remain")
+	var west_rect: Rect2 = west["footprint"]
+	var east_rect: Rect2 = east["footprint"]
+	var arch_rect: Rect2 = arch["rect"]
+	assert_true(west_rect.end.x <= arch_rect.end.x, "west flank must not cover the full arch throat")
+	assert_true(east_rect.position.x >= arch_rect.position.x, "east flank must not cover the full arch throat")
+	assert_true(west_rect.intersects(arch_rect) or is_equal_approx(west_rect.end.x, arch_rect.position.x))
+	assert_true(east_rect.intersects(arch_rect) or is_equal_approx(east_rect.position.x, arch_rect.end.x))
+	var passage_center := Vector2(arch_rect.get_center().x, arch_rect.get_center().y)
+	assert_false(west_rect.has_point(passage_center), "gate passage center must stay clear of west house")
+	assert_false(east_rect.has_point(passage_center), "gate passage center must stay clear of east house")
+	var grid := MapBuilder.build(definition)
+	var passage_cell := Vector2i(passage_center / float(definition.cell_size))
+	assert_true(
+		MapVerification.is_walkable_cell(definition, grid, passage_cell),
+		"Coastal Gate throat must stay walkable at %s" % passage_cell
+	)
+
+
 func test_lower_town_routes_to_viru_foreland_not_kalamaja() -> void:
 	var definition: MapDefinition = preload(
 		"res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
@@ -177,3 +204,17 @@ func test_lower_town_routes_to_viru_foreland_not_kalamaja() -> void:
 			assert_eq(transition["destination_scene_id"], &"viru_gate_foreland")
 			return
 	push_error("viru_road_boundary transition missing")
+
+
+func _building_by_id(definition: MapDefinition, building_id: StringName) -> Dictionary:
+	for building in definition.buildings:
+		if building.get("id", &"") == building_id:
+			return building
+	return {}
+
+
+func _landmark_by_id(definition: MapDefinition, landmark_id: StringName) -> Dictionary:
+	for landmark in definition.view_landmarks:
+		if landmark.get("id", &"") == landmark_id:
+			return landmark
+	return {}

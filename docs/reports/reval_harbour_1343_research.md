@@ -47,6 +47,16 @@ Decision:
 3. Large merchant cogs stay in the roadstead as scenery. Do not treat them as boardable ships. Approachable craft at the merchant landing are the small boats at the jetty tips.
 4. Do not invent a boarding mechanic for deep-water vessels in this pass.
 
+### Gameplay decision (2026-07-21): Coastal Gate outer face
+
+Player report: Coastal Gate Landing had a weird house with a wall in it.
+
+Decision:
+
+1. Do not author the outer Great Coastal Gate as one `house` footprint covering the throat. That meshes as a roofed shed with the `gate_arch` punched through it.
+2. Split the stable west ID `great_coast_gate` and a new east flank `great_coast_gate_east` around the walkable `coast_gate_arch`, matching the north_quarter / Karja gate pattern.
+3. Keep cargo-yard fences outside shed footprints (`cargo_shed_west` sits inside the yard, not on the north fence line).
+
 ### Off-limits boundary treatment
 
 - Water and dense southern woodland pockets are explicit excluded areas.

@@ -50,12 +50,16 @@ stroke coast_gate_road cobblestone 103,106|103,100|103,94|103,88|103,81|96,81|96
 stroke shore_work_track dirt 4,71|20,71|20,73|34,73|34,71|52,71|70,71|70,73|86,73|86,71|104,71|104,72|122,72|122,71|142,71|142,70|158,70 thickness=3 order=12
 stroke west_yard_track dirt 18,83|30,83|30,81|44,81|44,78|58,78|58,75|70,75|70,71 thickness=2 order=12
 stroke ropeyard_track dirt 103,82|118,82|118,80|134,80|134,78|150,78|150,77 thickness=2 order=12
-building cargo_shed_west house 14 67 11 5 style=house.shed
+building cargo_shed_west house 14 69 11 5 style=house.shed
 building salt_store_west house 30 72 9 5 style=house.shed
 building warehouse_mid house 52 66 13 6 style=house.warehouse
 building tally_shed house 70 74 9 5 style=house.shed
 building seamens_inn house 78 82 11 6 style=house.inn
-building great_coast_gate house 96 92 14 7 style=house.gatehouse
+# Outer face of the Great Coastal Gate: flank the walkable arch with masonry.
+# A single house over the throat rendered as a roofed shed with a wall punched
+# through it; keep the stable west ID and mirror the north_quarter gate split.
+building great_coast_gate house 96 92 4 7 style=house.gatehouse
+building great_coast_gate_east house 106 92 4 7 style=house.gatehouse
 building gate_yard_store house 112 84 10 5 style=house.warehouse
 building ropewalk_shed house 126 74 18 5 style=house.shed
 building chandlers_shed house 145 67 10 6 style=house.shed
