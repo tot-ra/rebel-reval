@@ -64,6 +64,10 @@ const HEROIC_MODEL_SCALE := Vector3(1.1621, 1.1621, 1.1621)
 @export var model_scale: Vector3 = HEROIC_MODEL_SCALE
 const OCCLUDED_SILHOUETTE_SHADER := preload("res://assets/characters/shared/occluded_silhouette.gdshader")
 const HEAD_SCALE_MODIFIER := preload("res://assets/characters/shared/head_scale_modifier.gd")
+## Head bone origin is mid-skull; this clears crown / helmet before the talk glyph.
+const HEAD_CROWN_OFFSET := 0.30
+## Gap between crown and the bottom of the billboard talk glyph.
+const PROMPT_GLYPH_PADDING := 0.14
 
 static var _occluded_silhouette_material: ShaderMaterial
 
@@ -318,6 +322,53 @@ func skeleton() -> Skeleton3D:
 
 func animation_player() -> AnimationPlayer:
 	return _animation_player
+
+
+## Local Y for InteractableWorldIndicator: sits just above the posed crown so
+## short bodies (innkeeper) and tall/helmeted ones (Henning) both clear the head.
+func view_glyph_height() -> float:
+	return _resolve_crown_height() + PROMPT_GLYPH_PADDING
+
+
+func _resolve_crown_height() -> float:
+	if _skeleton != null:
+		var head_bone := _find_head_bone_index(_skeleton)
+		if head_bone >= 0:
+			# Pose-aware: sitting / bowing lowers the glyph with the head.
+			var head_origin := _skeleton.to_global(
+				_skeleton.get_bone_global_pose(head_bone).origin
+			)
+			return to_local(head_origin).y + HEAD_CROWN_OFFSET
+	var mesh_top := _measure_mesh_top_y()
+	if mesh_top > 0.01:
+		return mesh_top
+	return visible_height_world
+
+
+func _find_head_bone_index(skeleton: Skeleton3D) -> int:
+	var exact := skeleton.find_bone("head")
+	if exact >= 0:
+		return exact
+	for bone_index: int in skeleton.get_bone_count():
+		if skeleton.get_bone_name(bone_index).to_lower().contains("head"):
+			return bone_index
+	return -1
+
+
+func _measure_mesh_top_y() -> float:
+	var top := 0.0
+	var model := get_node_or_null("Model") as Node3D
+	var search_root: Node = model if model != null else self
+	for found: Node in search_root.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := found as MeshInstance3D
+		if mesh_instance.mesh == null:
+			continue
+		var local_xf := global_transform.affine_inverse() * mesh_instance.global_transform
+		var aabb := mesh_instance.get_aabb()
+		for endpoint_index: int in 8:
+			top = maxf(top, (local_xf * aabb.get_endpoint(endpoint_index)).y)
+	return top
+
 
 func _find_animation_player(root: Node) -> AnimationPlayer:
 	if root is AnimationPlayer:

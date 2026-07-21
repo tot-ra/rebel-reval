@@ -206,6 +206,12 @@ func _sync_view_actor(
 	rig.set_locomotion_speed(actor_velocity.length() * MapViewBridge.world_scale(_definition.cell_size))
 
 
+func get_actor_rig(actor: Node2D) -> SharedCharacterRig:
+	if actor == null:
+		return null
+	return _actor_rigs.get(actor) as SharedCharacterRig
+
+
 static func _hide_actor_canvas(actor: Node2D) -> void:
 	for child: Node in actor.get_children():
 		if child is CanvasItem and not child is CollisionShape2D and not child is NavigationAgent2D:

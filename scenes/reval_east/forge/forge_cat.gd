@@ -105,7 +105,7 @@ func view_facing() -> Vector2:
 
 
 func view_glyph_height() -> float:
-	return CatRig.view_glyph_height()
+	return CatRig.standing_glyph_height()
 
 
 func _update_walk() -> void:

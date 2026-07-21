@@ -23,7 +23,7 @@ func bind(interactable: Interactable) -> InteractableWorldIndicator:
 	var indicator := InteractableWorldIndicator.new()
 	indicator.name = "Indicator_%s" % interactable.name
 	_view_runtime.add_child(indicator)
-	indicator.attach(interactable, _cell_size)
+	indicator.attach(interactable, _cell_size, _view_runtime)
 	_indicators[interactable] = indicator
 	_hide_flat_marker(interactable)
 	return indicator

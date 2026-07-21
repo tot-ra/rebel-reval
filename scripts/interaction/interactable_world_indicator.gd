@@ -14,8 +14,14 @@ const GLYPH_BY_KIND: Dictionary = {
 	InteractionKinds.USE: "!",
 }
 
-const DEFAULT_GLYPH_HEIGHT := CharacterScale.VISIBLE_HEIGHT_WORLD + 0.05
+## Fallback when the host has no height hook and no mirrored 3D rig is available.
+## Padding matches SharedCharacterRig so the bottom-aligned glyph clears a 2.0 body.
+const DEFAULT_GLYPH_HEIGHT := (
+	CharacterScale.VISIBLE_HEIGHT_WORLD + SharedCharacterRig.PROMPT_GLYPH_PADDING
+)
 const GLYPH_BOB_AMPLITUDE := 0.05
+## Ground pickups stay near the item instead of floating at adult head height.
+const PICKUP_GLYPH_HEIGHT := 0.55
 
 var _interactable: Interactable
 var _cell_size := MapTypes.DEFAULT_CELL_SIZE
@@ -24,11 +30,13 @@ var _ring: MeshInstance3D
 var _bob_phase := 0.0
 var _focused := false
 var _enabled := true
+var _view_runtime: Node
 
 
-func attach(interactable: Interactable, cell_size: int) -> void:
+func attach(interactable: Interactable, cell_size: int, view_runtime: Node = null) -> void:
 	_interactable = interactable
 	_cell_size = cell_size
+	_view_runtime = view_runtime
 	_build_nodes()
 	_apply_glyph_for_kind(interactable.get_interaction_kind())
 	set_enabled(interactable.is_enabled())
@@ -64,6 +72,10 @@ func _build_nodes() -> void:
 	_glyph.text = "?"
 	_glyph.font_size = 56
 	_glyph.pixel_size = 0.009
+	# WHY: center alignment buried half the tall "?" inside the head; bottom
+	# alignment keeps the whole glyph above the resolved crown height.
+	_glyph.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	_glyph.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_glyph.position = Vector3(0.0, DEFAULT_GLYPH_HEIGHT, 0.0)
 	_glyph.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_glyph.no_depth_test = true
@@ -94,10 +106,26 @@ func _build_nodes() -> void:
 func _resolve_glyph_height() -> float:
 	if _interactable == null or not is_instance_valid(_interactable):
 		return DEFAULT_GLYPH_HEIGHT
+	if _interactable.get_interaction_kind() == InteractionKinds.PICKUP:
+		return PICKUP_GLYPH_HEIGHT
 	var host := _interactable.get_parent()
 	if host != null and host.has_method("view_glyph_height"):
 		return host.call("view_glyph_height") as float
+	var rig := _resolve_actor_rig(host)
+	if rig != null and rig.has_method("view_glyph_height"):
+		return rig.call("view_glyph_height") as float
 	return DEFAULT_GLYPH_HEIGHT
+
+
+func _resolve_actor_rig(host: Node) -> Node:
+	if host == null or not (host is Node2D):
+		return null
+	var runtime := _view_runtime
+	if runtime == null:
+		runtime = get_parent()
+	if runtime != null and runtime.has_method("get_actor_rig"):
+		return runtime.call("get_actor_rig", host) as Node
+	return null
 
 
 func _apply_glyph_for_kind(kind: StringName) -> void:

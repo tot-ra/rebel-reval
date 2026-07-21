@@ -111,13 +111,43 @@ func test_interactable_world_indicator_positions_glyph_above_cat_height() -> voi
 
 	var glyph := indicator.get_node("PromptGlyph") as Label3D
 	indicator._process(0.0)
+	assert_eq(glyph.vertical_alignment, VERTICAL_ALIGNMENT_BOTTOM)
 	assert_true(
-		is_equal_approx(glyph.position.y, CatRig.view_glyph_height()),
+		is_equal_approx(glyph.position.y, CatRig.standing_glyph_height()),
 		"Cat talk glyph must sit above the rig, not the human default"
 	)
 	assert_true(
 		glyph.position.y < CharacterScale.VISIBLE_HEIGHT_WORLD,
 		"Cat glyph must stay below human talk-marker height"
+	)
+	_cleanup_node(root)
+
+
+func test_interactable_world_indicator_uses_actor_rig_height_for_humans() -> void:
+	var root := _make_root()
+	var henning := SmithyHenning.new()
+	root.add_child(henning)
+	var interactable := _spawn_interactable(henning)
+
+	var runtime = load("res://tests/godot/fixtures/fake_map_view_runtime_for_glyph.gd").new()
+	root.add_child(runtime)
+	var rig: SharedCharacterRig = load("res://assets/characters/variants/henning.tscn").instantiate()
+	root.add_child(rig)
+	runtime.register_actor_rig(henning, rig)
+
+	var indicator := InteractableWorldIndicator.new()
+	root.add_child(indicator)
+	indicator.attach(interactable, MapTypes.DEFAULT_CELL_SIZE, runtime)
+	indicator._process(0.0)
+
+	var glyph := indicator.get_node("PromptGlyph") as Label3D
+	assert_true(
+		is_equal_approx(glyph.position.y, rig.view_glyph_height()),
+		"Human talk glyph must follow the mirrored rig crown height"
+	)
+	assert_true(
+		glyph.position.y > CharacterScale.VISIBLE_HEIGHT_WORLD,
+		"Adult glyph bottom must clear the 2.0 visible-height contract"
 	)
 	_cleanup_node(root)
 

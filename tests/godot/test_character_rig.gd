@@ -131,6 +131,28 @@ func test_scale_contract_projects_to_sixty_four_pixels() -> void:
 	kalev.queue_free()
 
 
+func test_view_glyph_height_clears_posed_crown() -> void:
+	var kalev := _instantiate(KALEV_SCENE)
+	var innkeeper := _instantiate(INNKEEPER_SCENE)
+	var henning := _instantiate(HENNING_SCENE)
+
+	assert_true(
+		kalev.view_glyph_height() > CharacterScale.VISIBLE_HEIGHT_WORLD,
+		"Hero talk glyph must clear the 2.0 crown contract"
+	)
+	assert_true(
+		henning.view_glyph_height() > CharacterScale.VISIBLE_HEIGHT_WORLD,
+		"Helmeted bodies still clear their posed head"
+	)
+	assert_true(
+		innkeeper.view_glyph_height() < kalev.view_glyph_height(),
+		"Shorter authored bodies must place the talk glyph lower"
+	)
+	kalev.queue_free()
+	innkeeper.queue_free()
+	henning.queue_free()
+
+
 func test_proportions_modifier_installed_and_neutral_by_default() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
 	var modifier := kalev.skeleton().get_node_or_null("RealisticProportions")
