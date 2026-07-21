@@ -256,12 +256,17 @@ func world_position(logic_position: Vector2, height: float = 0.0) -> Vector3:
 
 func sync_actor(actor: Node3D, logic_position: Vector2) -> void:
 	MapViewBridge.sync_actor(actor, logic_position, definition.cell_size)
-	# Actors ride the visible terrain relief; authored access zones add only a
-	# derived view elevation while the flat logic position stays authoritative.
+	# Actors ride the visible terrain relief; authored wall-walk access and
+	# climbable low props add only a derived view elevation while the flat
+	# logic position stays authoritative.
+	var surface_elevation := maxf(
+		MapWallWalkAccess.elevation_at(definition, logic_position),
+		MapClimbableProps.elevation_at(definition, logic_position)
+	)
 	actor.position.y = MapViewMeshBuilder.ground_height(
 		definition,
 		Vector2(actor.position.x, actor.position.z)
-	) + MapWallWalkAccess.elevation_at(definition, logic_position)
+	) + surface_elevation
 
 
 func anchor_world_position(anchor_id: StringName) -> Vector3:
