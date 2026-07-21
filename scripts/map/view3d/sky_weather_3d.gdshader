@@ -27,7 +27,12 @@ uniform float moon_phase : hint_range(0.0, 1.0) = 0.5;
 uniform sampler2D cloud_noise : filter_linear_mipmap, repeat_enable;
 uniform float cloud_coverage : hint_range(0.0, 1.0) = 0.22;
 uniform float cloud_darken : hint_range(0.0, 1.0) = 0.0;
+// Primary bank drift. Detail offset advances faster so edges churn while
+// whole cloud masses still cross the dome from one horizon to the other.
 uniform vec2 cloud_offset = vec2(0.0);
+uniform vec2 cloud_detail_offset = vec2(0.0);
+// Domain-warp strength. Clear weather keeps mild chaos; storms tear harder.
+uniform float cloud_chaos : hint_range(0.0, 1.0) = 0.35;
 
 // Hipparcos stars live in equatorial coordinates in this nearest-filtered map.
 // The observer transform below turns each sky ray into right ascension and
@@ -43,12 +48,31 @@ float cloud_density(vec3 dir) {
 	}
 	// Planar projection of the view ray onto an overhead cloud layer.
 	vec2 uv = dir.xz / (dir.y + 0.22) * 0.32 + cloud_offset;
-	float base = texture(cloud_noise, uv).r;
-	float detail = texture(cloud_noise, uv * 2.7 + vec2(0.37, 0.71)).r;
-	float noise_value = base * 0.68 + detail * 0.32;
+	// WHY: domain warp breaks the regular FBM lattice so banks look like
+	// torn weather fronts instead of a uniform noise threshold across the sky.
+	vec2 warp_sample = texture(cloud_noise, uv * 0.62 + cloud_detail_offset * 0.45).rg;
+	vec2 warped_uv = uv + (warp_sample - vec2(0.5)) * (0.18 + cloud_chaos * 0.42);
+
+	// Large-scale bank mask: open blue gaps between discrete cloud masses so
+	// "clear" and mid coverage read as partly cloudy, not a thin haze.
+	float banks = texture(cloud_noise, warped_uv * 0.34 + cloud_offset * 0.28).r;
+	float bank_edge = mix(0.62, 0.18, cloud_coverage);
+	float bank_mask = smoothstep(bank_edge, bank_edge + 0.26, banks);
+
+	float base = texture(cloud_noise, warped_uv * 1.05).r;
+	float detail = texture(
+		cloud_noise,
+		warped_uv * 3.1 + vec2(0.37, 0.71) + cloud_detail_offset
+	).r;
+	float filament = texture(
+		cloud_noise,
+		warped_uv * 5.4 + vec2(0.81, 0.19) - cloud_detail_offset * 0.65
+	).r;
+	float body = base * 0.55 + detail * 0.30 + filament * 0.15;
+	float body_edge = mix(0.58, 0.16, cloud_coverage);
+	float density = smoothstep(body_edge, body_edge + 0.34, body) * bank_mask;
 	float horizon_fade = smoothstep(0.02, 0.28, dir.y);
-	float edge = 1.0 - cloud_coverage;
-	return smoothstep(edge, edge + 0.28, noise_value) * horizon_fade;
+	return density * horizon_fade;
 }
 
 

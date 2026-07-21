@@ -73,6 +73,9 @@ func test_sky_shader_covers_required_features() -> void:
 	assert_true("day_blend" in source, "the sky must follow the day/night cycle")
 	assert_true("sunset_factor" in source, "dawn and dusk must warm the horizon")
 	assert_true("cloud_coverage" in source, "weather must drive procedural cloud coverage")
+	assert_true("cloud_detail_offset" in source, "cloud edges must drift independently of bank masses")
+	assert_true("cloud_chaos" in source, "cloud banks must domain-warp for torn edges")
+	assert_true("bank_mask" in source, "partial cloudiness must leave open sky between cloud masses")
 	assert_true("moon_direction" in source, "the night sky must place a moon disk")
 	assert_true("moon_phase" in source, "the campaign date must drive weekly lunar lighting phases")
 	assert_true(
@@ -82,6 +85,43 @@ func test_sky_shader_covers_required_features() -> void:
 	assert_true("moon_normal" in source, "the moon disk must shade as a sphere")
 	assert_true("lunar_albedo" in source, "the moon must include stable surface detail")
 	assert_true("moon_halo" in source, "the moon must have a restrained atmospheric halo")
+
+
+func test_clear_weather_is_partly_cloudy_with_moving_banks() -> void:
+	var sky = SkyWeather.new()
+	assert_true(
+		sky.cloud_coverage() > 0.2 and sky.cloud_coverage() < 0.5,
+		"clear weather must keep discrete cloud banks, not an empty or fully overcast sky"
+	)
+	assert_true(sky.cloud_chaos() > 0.0, "even clear banks need mild edge chaos")
+	var start_offset := sky.cloud_offset()
+	var start_detail := sky.cloud_detail_offset()
+	sky.advance(10.0)
+	assert_true(
+		sky.cloud_offset() != start_offset,
+		"cloud banks must translate across the sky over time"
+	)
+	assert_true(
+		sky.cloud_detail_offset() != start_detail,
+		"cloud detail must churn while banks translate"
+	)
+	assert_true(
+		sky.cloud_detail_offset().length() > sky.cloud_offset().length(),
+		"detail drift must outpace bank drift so edges look chaotic"
+	)
+	sky.free()
+
+
+func test_storm_clouds_are_denser_and_more_chaotic_than_clear() -> void:
+	var sky = SkyWeather.new()
+	var clear_coverage := sky.cloud_coverage()
+	var clear_chaos := sky.cloud_chaos()
+	sky.auto_weather = false
+	sky.set_weather(SkyWeather.WEATHER_RAIN)
+	sky.advance(SkyWeather.TRANSITION_SECONDS)
+	assert_true(sky.cloud_coverage() > clear_coverage, "rain must thicken cloud cover")
+	assert_true(sky.cloud_chaos() > clear_chaos, "rain must tear cloud edges harder")
+	sky.free()
 
 
 func test_catalog_contains_real_naked_eye_stars() -> void:

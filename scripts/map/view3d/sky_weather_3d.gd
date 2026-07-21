@@ -21,7 +21,9 @@ const ALL_WEATHERS: Array[StringName] = [WEATHER_CLEAR, WEATHER_CLOUDY, WEATHER_
 ## Fixed seed: same weather sequence on every launch (deterministic, reviewable).
 const WEATHER_SEED := 24217
 const TRANSITION_SECONDS := 5.0
+## Bank masses cross the dome at this rate; detail churns faster for edge chaos.
 const CLOUD_DRIFT_PER_SECOND := Vector2(0.0045, 0.0018)
+const CLOUD_DETAIL_DRIFT_PER_SECOND := Vector2(0.0078, -0.0031)
 
 ## Approximate solar orbit used for the visible sun and directional light. World
 ## +X is east, -Z north, and +Y zenith, matching the star projection below.
@@ -56,21 +58,23 @@ const STAR_MAP_HEIGHT := 1024
 
 ## Per-weather visual targets blended during transitions.
 ## `wind` drives harbor boat heel/heave and water-shader sea state (0..1).
+## `chaos` domain-warps cloud banks so clear weather stays partly cloudy with
+## torn edges while storms shred into denser, more chaotic cover.
 const PROFILES: Dictionary = {
 	WEATHER_CLEAR: {
-		"coverage": 0.22, "darken": 0.05,
+		"coverage": 0.34, "darken": 0.08,
 		"sun_energy": 1.0, "ambient_energy": 1.0,
-		"gray": 0.0, "rain": 0.0, "wind": 0.22,
+		"gray": 0.0, "rain": 0.0, "wind": 0.22, "chaos": 0.32,
 	},
 	WEATHER_CLOUDY: {
-		"coverage": 0.68, "darken": 0.45,
+		"coverage": 0.72, "darken": 0.45,
 		"sun_energy": 0.60, "ambient_energy": 0.85,
-		"gray": 0.35, "rain": 0.0, "wind": 0.58,
+		"gray": 0.35, "rain": 0.0, "wind": 0.58, "chaos": 0.58,
 	},
 	WEATHER_RAIN: {
 		"coverage": 0.92, "darken": 0.80,
 		"sun_energy": 0.32, "ambient_energy": 0.70,
-		"gray": 0.60, "rain": 1.0, "wind": 0.92,
+		"gray": 0.60, "rain": 1.0, "wind": 0.92, "chaos": 0.86,
 	},
 }
 ## Seconds each weather state holds before the Markov step picks the next one.
@@ -99,6 +103,7 @@ var _time_in_state := 0.0
 var _state_duration := 60.0
 var _rng := RandomNumberGenerator.new()
 var _cloud_offset := Vector2.ZERO
+var _cloud_detail_offset := Vector2.ZERO
 var _material: ShaderMaterial
 var _star_map: ImageTexture
 var _camera: Camera3D
@@ -291,6 +296,7 @@ func _build_rain() -> GPUParticles3D:
 ## can drive time without a scene tree; _process is the only other caller.
 func advance(delta: float) -> void:
 	_cloud_offset += CLOUD_DRIFT_PER_SECOND * delta
+	_cloud_detail_offset += CLOUD_DETAIL_DRIFT_PER_SECOND * delta
 	if _blend < 1.0:
 		_blend = minf(1.0, _blend + delta / TRANSITION_SECONDS)
 		for key in _current:
@@ -466,6 +472,20 @@ func cloud_coverage() -> float:
 	return float(_current["coverage"])
 
 
+func cloud_chaos() -> float:
+	return float(_current["chaos"])
+
+
+## Bank-layer UV drift. Exposed for tests that prove clouds translate across
+## the dome instead of only changing a global coverage threshold.
+func cloud_offset() -> Vector2:
+	return _cloud_offset
+
+
+func cloud_detail_offset() -> Vector2:
+	return _cloud_detail_offset
+
+
 func rain_intensity() -> float:
 	return float(_current["rain"])
 
@@ -527,3 +547,5 @@ func _push_cloud_uniforms() -> void:
 	_material.set_shader_parameter(&"cloud_coverage", cloud_coverage())
 	_material.set_shader_parameter(&"cloud_darken", float(_current["darken"]))
 	_material.set_shader_parameter(&"cloud_offset", _cloud_offset)
+	_material.set_shader_parameter(&"cloud_detail_offset", _cloud_detail_offset)
+	_material.set_shader_parameter(&"cloud_chaos", cloud_chaos())
