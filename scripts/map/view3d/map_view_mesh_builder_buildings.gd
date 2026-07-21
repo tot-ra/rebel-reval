@@ -6,7 +6,11 @@ extends RefCounted
 ## API stable for callers and tests.
 
 
-static func build_building(building: Dictionary, cell_size: int) -> Node3D:
+static func build_building(
+	building: Dictionary,
+	cell_size: int,
+	entrances: Array[Dictionary] = []
+) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Building_%s" % String(building["id"])
 	var scale := MapViewBridge.world_scale(cell_size)
@@ -22,14 +26,15 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 	var wall_color := Color(building.get("wall_color", MapViewMeshBuilderConfig.DEFAULT_WALL_COLOR))
 	var fortification := kind == MapTypes.BUILDING_KIND_WALL and authored_height_px >= MapViewMeshBuilderConfig.BATTLEMENT_MIN_HEIGHT_PX
 	var footprint_aspect := minf(size.x, size.y) / maxf(size.x, size.y)
-	var tower := fortification and (
-		bool(building.get("tower", false))
-		or (
-			size.x <= MapViewMeshBuilderConfig.TOWER_MAX_FOOTPRINT
-			and size.y <= MapViewMeshBuilderConfig.TOWER_MAX_FOOTPRINT
-			and footprint_aspect >= MapViewMeshBuilderConfig.TOWER_MIN_ASPECT
-		)
-	)
+	var explicitly_completed_tower := bool(building.get("tower", false))
+	var inferred_tower := not building.has("tower") \
+		and size.x <= MapViewMeshBuilderConfig.TOWER_MAX_FOOTPRINT \
+		and size.y <= MapViewMeshBuilderConfig.TOWER_MAX_FOOTPRINT \
+		and footprint_aspect >= MapViewMeshBuilderConfig.TOWER_MIN_ASPECT
+	# WHY: tower=false marks a historically real or planned tower position that
+	# must remain curtain masonry in the selected year. Only absent metadata uses
+	# the legacy small-footprint inference for unmigrated maps.
+	var tower := fortification and (explicitly_completed_tower or inferred_tower)
 
 	var walls := MeshInstance3D.new()
 	walls.name = "Walls"
@@ -65,15 +70,26 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 
 	if kind == MapTypes.BUILDING_KIND_HOUSE:
 		var along_ridge_x := MapViewMeshBuilderBuildingFacade.ridge_along_x(building, size)
+		var roof_style := MapViewMeshBuilderBuildingHouses.roof_style(building)
+		var roof_overhang := MapViewMeshBuilderConfig.ROOF_OVERHANG
+		if roof_style == MapViewMeshBuilderConfig.ROOF_STYLE_THATCH:
+			roof_overhang = MapViewMeshBuilderConfig.THATCH_ROOF_OVERHANG
 		var roof := MeshInstance3D.new()
 		roof.name = "Roof"
-		roof.mesh = MapViewMeshBuilderPrimitives.gabled_roof_mesh(size, along_ridge_x)
+		roof.mesh = MapViewMeshBuilderPrimitives.gabled_roof_mesh(size, along_ridge_x, roof_overhang)
 		roof.position = Vector3(0.0, height, 0.0)
 		roof.material_override = MapViewMeshBuilderBuildingHouses.house_roof_material(building)
 		root.add_child(roof)
 		MapViewMeshBuilderBuildingHouses.add_chimney(root, building, size, height, along_ridge_x)
 		MapViewMeshBuilderBuildingHouses.add_house_structure(root, building, size, height, along_ridge_x)
-		MapViewMeshBuilderBuildingFacade.add_house_facade(root, building, size, height)
+		MapViewMeshBuilderBuildingFacade.add_house_facade(
+			root,
+			building,
+			size,
+			height,
+			cell_size,
+			entrances
+		)
 		MapViewMeshBuilderBuildingHouses.add_historic_building_details(root, building, size, height, along_ridge_x)
 		MapViewMeshBuilderBuildingHouses.add_window_lights(root, building["id"])
 	elif kind == MapTypes.BUILDING_KIND_INTERIOR_WALL:
@@ -95,7 +111,13 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 			Vector3(TAU * ring.top_radius, ring.height, TAU * ring.top_radius)
 		)
 		root.add_child(cap)
-		MapViewMeshBuilderBuildingFortification.add_tower_roof(root, radius, height)
+		MapViewMeshBuilderBuildingFortification.add_tower_door(
+			root,
+			radius,
+			height,
+			StringName(building.get("door_side", &""))
+		)
+		MapViewMeshBuilderBuildingFortification.add_tower_roof(root, radius, height, building)
 		if authored_height_px >= MapViewMeshBuilderConfig.TOWER_MIN_HEIGHT_PX:
 			MapViewMeshBuilderBuildingFortification.add_tower_slits(root, radius, height)
 	elif kind != MapTypes.BUILDING_KIND_INTERIOR_WALL:
@@ -119,6 +141,7 @@ static func build_building(building: Dictionary, cell_size: int) -> Node3D:
 			)
 		root.add_child(cap)
 		if fortification:
+			MapViewMeshBuilderBuildingFortification.add_base_arcades(root, building, size)
 			MapViewMeshBuilderBuildingFortification.add_battlements(root, building, size, height)
 			MapViewMeshBuilderBuildingFortification.add_wall_walk_roof(root, size, height)
 	return root

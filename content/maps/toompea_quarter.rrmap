@@ -28,7 +28,8 @@ style house.stable door_side=north ridge_axis=x wall_height=80 wall_color=63594a
 style house.gatehouse door_side=west ridge_axis=x wall_height=144 wall_color=6e6a62ff wall_material=limestone roof_color=2a241cff roof_material=tile
 style wall.city wall_height=192 wall_color=949185ff
 style wall.castle wall_height=224 wall_color=8a877dff
-style wall.tower wall_height=240 wall_color=8c8a80ff
+style wall.tower wall_height=240 wall_color=8c8a80ff faction=danish_crown
+style wall.tower.castle wall_height=240 wall_color=8c8a80ff faction=danish_crown
 terrain plateau.grass grass 0 0 144 192 order=1
 terrain cathedral_orchard grass 4 12 28 84 order=2
 terrain cathedral_close stone 32 24 78 78 order=3
@@ -49,15 +50,21 @@ stroke south_slope cobblestone 29,189|29,150|40,150 thickness=3 order=14
 # three stable district transitions while the western edge reads as a cliff wall.
 building city_wall_west wall 0 0 3 192 style=wall.city
 building city_wall_north_west wall 3 0 139 3 style=wall.city
-building pikk_jalg_gate_tower wall 134 22 8 7 style=wall.tower tower=true
-building pikk_jalg_gate_east_tower wall 134 40 8 7 style=wall.tower tower=true
+building pikk_jalg_gate_tower wall 134 22 8 7 style=wall.tower tower=true door_side=west
+building pikk_jalg_gate_east_tower wall 134 40 8 7 style=wall.tower tower=true door_side=west
+building pikk_jalg_north_jamb wall 138 27 6 2 style=wall.city
+building pikk_jalg_south_jamb wall 138 39 6 2 style=wall.city
 building city_wall_north_east wall 141 0 3 28 style=wall.city
 building city_wall_east_mid wall 141 40 3 77 style=wall.city
 building city_wall_east_south_north wall 141 141 3 20 style=wall.city
+# Lühike Jalg's gatehouses cover only half the visual arch depth. Complete both
+# collision throats up to the jambs while keeping the east-west road open.
+building luhike_jalg_north_jamb wall 138 160 6 2 style=wall.city
+building luhike_jalg_south_jamb wall 138 168 6 2 style=wall.city
 building city_wall_east_south_south wall 141 169 3 23 style=wall.city
 building city_wall_south_west wall 0 183 24 3 style=wall.city
-building toompea_garden_gate_west_tower wall 18 181 8 8 style=wall.tower tower=true
-building toompea_garden_gate_east_tower wall 32 181 8 8 style=wall.tower tower=true
+building toompea_garden_gate_west_tower wall 18 181 8 8 style=wall.tower tower=true door_side=north
+building toompea_garden_gate_east_tower wall 32 181 8 8 style=wall.tower tower=true door_side=north
 building city_wall_south_mid_west wall 34 183 30 3 style=wall.city
 building city_wall_south_mid_east wall 64 183 16 3 style=wall.city
 building city_wall_south_east wall 80 183 64 3 style=wall.city
@@ -68,9 +75,13 @@ building castle_curtain_north wall 4 102 36 3 style=wall.castle
 building castle_curtain_south_west wall 4 174 20 3 style=wall.castle
 building castle_curtain_south_east wall 34 174 6 3 style=wall.castle
 building castle_curtain_east_north wall 37 102 3 36 style=wall.castle
+# The gate arch does not collide; carry the curtain to both visual jambs while
+# preserving the east-west castle entrance through the centre.
+building castle_gate_north_jamb wall 37 137 4 2 style=wall.castle tower=false
+building castle_gate_south_jamb wall 37 145 4 17 style=wall.castle tower=false
 building castle_curtain_east_south wall 37 162 3 21 style=wall.castle
 building castle_mass house 8 117 16 14 style=house.castle
-building castle_keep_tower wall 25 114 9 9 style=wall.tower tower=true
+building castle_keep_tower wall 25 114 9 9 style=wall.tower.castle tower=true door_side=south
 building order_barracks house 8 159 14 5 style=house.barracks
 # Large ecclesiastical plots and lower-density noble residences distinguish the
 # upper town from the tight merchant rows of the neighbouring Lower Town maps.
@@ -92,7 +103,7 @@ building luhike_gate_guardhouse house 132 169 9 7 style=house.gatehouse
 landmark pikk_jalg_gate gate_arch 138 28 6 12 wall_color=8f8c80ff top_px=240 passage_axis=x door_material=wood
 landmark castle_gate_arch gate_arch 37 138 4 8 wall_color=858177ff top_px=224 passage_axis=x door_material=wood
 landmark luhike_jalg_gate_arch gate_arch 138 161 6 8 wall_color=8f8c80ff top_px=208 passage_axis=x door_material=wood
-prop castle_banner cart 27 144 rect=2,2
+prop castle_banner banner 27 144 rect=2,2 faction=danish_crown
 prop cathedral_steps table 53 87 rect=3,1
 prop garden_bench table 10 72 rect=2,1
 prop cathedral_orchard_bench table 22 18 rect=2,1

@@ -33,6 +33,8 @@ func test_merchant_boat_uses_a_shaped_cog_hull_and_working_rig() -> void:
 		sail_material.get_shader_parameter("free_edge") == Vector2(0.0, 1.0),
 		"square sail must hang free from the yard (UV.y)"
 	)
+	assert_true(boat.has_node("MastheadPennant"), "merchant cogs need a Hanseatic masthead pennant")
+	assert_eq(boat.get_node("MastheadPennant").get_meta(&"faction"), FactionHeraldry.HANSEATIC)
 	var sail_vertices := sail.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX] as PackedVector3Array
 	var min_bulge := INF
 	var max_bulge := -INF

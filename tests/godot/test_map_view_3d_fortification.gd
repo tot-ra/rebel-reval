@@ -15,7 +15,16 @@ func test_houses_get_facade_doors_and_windows() -> void:
 		assert_true(node.has_node("WindowFrameL0"), "%s: windows need an outer timber frame" % building["id"])
 		assert_true(node.has_node("WindowMullionV0"), "%s: windows need inner mullions" % building["id"])
 		assert_true(node.has_node("ShutterL0"), "%s: windows need open timber shutters" % building["id"])
-		assert_true(node.has_node("RidgeBoard"), "%s: roofs need a ridge board" % building["id"])
+		var roof_style := MapViewMeshBuilderBuildingHouses.roof_style(building)
+		if roof_style == MapViewMeshBuilderConfig.ROOF_STYLE_THATCH:
+			assert_true(node.has_node("ThatchRidge"), "%s: thatch roofs need a reed ridge roll" % building["id"])
+			assert_true(
+				node.has_node("ThatchEavesFringe_-1") or node.has_node("ThatchEavesFringe_1"),
+				"%s: thatch roofs need a hanging eaves fringe" % building["id"]
+			)
+			assert_false(node.has_node("RidgeBoard"), "%s: thatch must not keep a timber ridge board" % building["id"])
+		else:
+			assert_true(node.has_node("RidgeBoard"), "%s: roofs need a ridge board" % building["id"])
 		assert_true(node.has_node("Plinth"), "%s: houses need a stone plinth" % building["id"])
 		var glass := node.get_node("Window0") as MeshInstance3D
 		var glass_mat := glass.material_override as StandardMaterial3D
@@ -61,6 +70,10 @@ func test_town_wall_gets_battlements_and_gate_arch_clears_character() -> void:
 					assert_true(
 						pennant.material_override is ShaderMaterial,
 						"%s pennant must use flag cloth wind" % building["id"]
+					)
+					assert_true(
+						pennant.has_meta(&"faction"),
+						"%s pennant must record its faction for heraldry checks" % building["id"]
 					)
 					assert_true((node.get_node("Walls") as MeshInstance3D).mesh is CylinderMesh, "%s must be round" % building["id"])
 					if float(building.get("wall_height", 0.0)) >= 220.0:
@@ -174,6 +187,28 @@ func test_fortification_walls_render_150_percent_taller_than_authored() -> void:
 	)
 	wall_node.free()
 	fence_node.free()
+
+
+func test_city_wall_base_arcades_and_timber_gallery_are_character_scale() -> void:
+	var definition := LowerTownSlice.create()
+	for building in definition.buildings:
+		if building["id"] != &"city_wall_north":
+			continue
+		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
+		assert_true(node.has_node("BaseArcades"), "town walls need protective blind arches at their base")
+		assert_true(node.has_node("BaseArcadePiers"), "base arches need stone springing piers")
+		assert_true(node.has_node("GalleryRail-1_86"), "covered wall walks need timber guard rails")
+		assert_true(node.has_node("GalleryEaves1"), "wall roofs need continuous timber eaves beams")
+		var roof := node.get_node("WalkRoof") as MeshInstance3D
+		var wall_height := MapTypes.resolved_wall_height_px(building) / float(definition.cell_size)
+		assert_true(
+			roof.position.y - wall_height >= CharacterScale.VISIBLE_HEIGHT_WORLD + 0.3,
+			"the covered wall walk must leave full character headroom"
+		)
+		node.free()
+		return
+	assert_true(false, "Lower Town fixture must contain city_wall_north")
+
 
 func test_viru_gate_wall_walk_access_is_visible_and_traversable() -> void:
 	var definition := LowerTownSlice.create()

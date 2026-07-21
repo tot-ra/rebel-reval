@@ -19,7 +19,7 @@ static func create_prop(
 
 	var shadow := Polygon2D.new()
 	shadow.name = "Shadow"
-	if prop["kind"] == MapTypes.PROP_KIND_FISHING_BOAT:
+	if prop["kind"] in MapTypes.BOAT_PROP_KINDS:
 		shadow.visible = false
 	shadow.polygon = _ellipse(Vector2(0, 2) + MapVisualStyle.shadow_offset(target) * 0.35, Vector2(26, 9), 16)
 	shadow.color = Color(MapVisualStyle.role_color(&"ink", target, time_of_day), MapVisualStyle.shadow_alpha(target, time_of_day))
@@ -46,11 +46,13 @@ static func create_prop(
 		MapTypes.PROP_KIND_CANDLE: _draw_candle(root, target, time_of_day)
 		MapTypes.PROP_KIND_BUSH: _draw_bush(root, target, time_of_day)
 		MapTypes.PROP_KIND_FISHING_BOAT: _draw_fishing_boat(root, target, time_of_day)
+		MapTypes.PROP_KIND_MERCHANT_BOAT: _draw_merchant_boat(root, target, time_of_day)
 		MapTypes.PROP_KIND_CARGO_CRATES: _draw_cargo_crates(root, target, time_of_day)
 		MapTypes.PROP_KIND_TRADE_GOODS: _draw_trade_goods(root, target, time_of_day)
 		MapTypes.PROP_KIND_TIMBER_FENCE: _draw_timber_fence(root, prop, target, time_of_day)
 		MapTypes.PROP_KIND_CATTLE: _draw_cattle(root, target, time_of_day)
 		MapTypes.PROP_KIND_SHEEP: _draw_sheep(root, target, time_of_day)
+		MapTypes.PROP_KIND_BANNER: _draw_banner(root, prop, target, time_of_day)
 		_: _add_rect(root, "Marker", Vector2(-8, -8), Vector2(16, 16), Color.MAGENTA, target, time_of_day)
 	if prop["kind"] in MapTypes.BOAT_PROP_KINDS and _has_tall_footprint(prop):
 		root.rotation = PI * 0.5
@@ -84,6 +86,25 @@ static func _draw_cart(parent: Node2D, target: StringName, time_of_day: StringNa
 	_add_circle(parent, "WheelL", Vector2(-20, 4), 9.0, wood.darkened(0.28), target, time_of_day)
 	_add_circle(parent, "WheelR", Vector2(20, 4), 9.0, wood.darkened(0.28), target, time_of_day)
 	_add_rect(parent, "Shaft", Vector2(26, -6), Vector2(25, 4), wood.darkened(0.12), target, time_of_day)
+
+
+static func _draw_banner(parent: Node2D, prop: Dictionary, target: StringName, time_of_day: StringName) -> void:
+	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
+	var faction := FactionHeraldry.resolve(prop)
+	var field := FactionHeraldry.field_color(faction)
+	var charge := FactionHeraldry.charge_color(faction)
+	_add_rect(parent, "Staff", Vector2(-3, -54), Vector2(6, 58), wood.darkened(0.08), target, time_of_day)
+	if not FactionHeraldry.shows_flag(faction):
+		return
+	_add_rect(parent, "BannerField", Vector2(2, -52), Vector2(28, 36), field, target, time_of_day)
+	match FactionHeraldry.pattern_for(faction):
+		FactionHeraldry.PATTERN_CROSS:
+			_add_rect(parent, "BannerCrossV", Vector2(12, -52), Vector2(6, 36), charge, target, time_of_day)
+			_add_rect(parent, "BannerCrossH", Vector2(2, -38), Vector2(28, 6), charge, target, time_of_day)
+		FactionHeraldry.PATTERN_PALE:
+			_add_rect(parent, "BannerPale", Vector2(2, -52), Vector2(14, 36), charge, target, time_of_day)
+		FactionHeraldry.PATTERN_FESS:
+			_add_rect(parent, "BannerFess", Vector2(2, -52), Vector2(28, 18), charge, target, time_of_day)
 
 
 static func _draw_well(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
@@ -227,6 +248,49 @@ static func _draw_fishing_boat(parent: Node2D, target: StringName, time_of_day: 
 	_add_rect(parent, "Mast", Vector2(-3, -47), Vector2(6, 35), timber.darkened(0.12), target, time_of_day)
 	_add_line(parent, "Rigging", PackedVector2Array([Vector2(0, -43), Vector2(35, -14)]), target, time_of_day, &"metal")
 	_add_circle(parent, "MooringRing", Vector2(-44, -4), 3.0, metal, target, time_of_day)
+
+
+
+static func _draw_merchant_boat(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	# Trade-harbour vessels need a broader high-sided silhouette than the open
+	# inshore boats, so they remain distinguishable at district-map scale.
+	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
+	var timber := MapVisualStyle.role_color(&"timber", target, time_of_day)
+	var plaster := MapVisualStyle.role_color(&"plaster", target, time_of_day)
+	_add_polygon(
+		parent,
+		"Hull",
+		PackedVector2Array([
+			Vector2(-126, -12),
+			Vector2(-94, -38),
+			Vector2(94, -38),
+			Vector2(126, -12),
+			Vector2(92, 25),
+			Vector2(-92, 25),
+		]),
+		wood,
+		target,
+		time_of_day
+	)
+	_add_polygon(
+		parent,
+		"Deck",
+		PackedVector2Array([
+			Vector2(-88, -19),
+			Vector2(88, -19),
+			Vector2(73, 10),
+			Vector2(-73, 10),
+		]),
+		wood.darkened(0.18),
+		target,
+		time_of_day
+	)
+	_add_rect(parent, "Aftcastle", Vector2(-90, -34), Vector2(45, 52), timber, target, time_of_day)
+	_add_rect(parent, "Forecastle", Vector2(48, -31), Vector2(42, 46), timber, target, time_of_day)
+	_add_rect(parent, "Mast", Vector2(-4, -118), Vector2(8, 101), timber.darkened(0.12), target, time_of_day)
+	_add_rect(parent, "SquareSail", Vector2(-42, -100), Vector2(84, 58), plaster, target, time_of_day)
+	_add_line(parent, "Yard", PackedVector2Array([Vector2(-50, -103), Vector2(50, -103)]), target, time_of_day, &"timber")
+
 
 static func _draw_cargo_crates(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
 	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)

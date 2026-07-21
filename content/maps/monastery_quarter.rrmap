@@ -23,7 +23,7 @@ style house.convent door_side=east ridge_axis=x roof_color=42261fff roof_materia
 style house.service door_side=north roof_color=6b5c40ff roof_material=thatch wall_color=5a4f45ff wall_material=log wall_height=88
 style wall.precinct wall_height=112 wall_color=8d897fff
 style wall.city wall_height=192 wall_color=949185ff
-style wall.tower wall_height=240 wall_color=8c8a80ff
+style wall.tower wall_height=240 wall_color=8c8a80ff faction=danish_crown
 terrain district.base dirt 0 0 208 112 order=1
 terrain convent.garden grass 5 8 58 68 order=2
 terrain wall.margin.west grass 3 8 8 96 order=3
@@ -47,17 +47,19 @@ stroke convent_lane mud 0,34|23,34|23,54|49,54 thickness=3 order=14
 # sides. The open north/south district seams remain streets rather than walls.
 building monastery_city_wall_west_north wall 0 0 3 20 style=wall.city
 building monastery_wall_tower_northwest wall 0 0 8 8 style=wall.tower tower=true door_side=east
-building monastery_west_gate_north_tower wall 0 20 8 8 style=wall.tower tower=true door_side=east
-building monastery_west_gate_south_tower wall 0 40 8 8 style=wall.tower tower=true door_side=east
-building monastery_west_gate_north_jamb wall 0 27 8 2 style=wall.city
-building monastery_west_gate_south_jamb wall 0 39 8 2 style=wall.city
+# The western gate cut is retained for inter-district travel, but later paired
+# gate-tower silhouettes are deliberately suppressed in the 1343 snapshot.
+building monastery_west_gate_north_tower wall 0 20 8 8 style=wall.tower tower=false
+building monastery_west_gate_south_tower wall 0 40 8 8 style=wall.tower tower=false
+building monastery_west_gate_north_jamb wall 0 27 8 2 style=wall.city tower=false
+building monastery_west_gate_south_jamb wall 0 39 8 2 style=wall.city tower=false
 building monastery_city_wall_west_south wall 0 48 3 64 style=wall.city
 building monastery_wall_tower_west_mid wall 0 72 8 8 style=wall.tower tower=true door_side=east
-building monastery_wall_tower_southwest wall 0 104 8 8 style=wall.tower tower=true door_side=east
+building monastery_wall_tower_southwest wall 0 104 8 8 style=wall.tower tower=false
 building monastery_city_wall_east wall 205 0 3 112 style=wall.city
-building monastery_wall_tower_northeast wall 200 0 8 8 style=wall.tower tower=true door_side=west
-building monastery_wall_tower_east_mid wall 200 52 8 8 style=wall.tower tower=true door_side=west
-building monastery_wall_tower_southeast wall 200 104 8 8 style=wall.tower tower=true door_side=west
+building monastery_wall_tower_northeast wall 200 0 8 8 style=wall.tower tower=false
+building monastery_wall_tower_east_mid wall 200 52 8 8 style=wall.tower tower=false
+building monastery_wall_tower_southeast wall 200 104 8 8 style=wall.tower tower=false
 building st_michaels_convent house 16 16 22 14 style=house.convent
 building convent_chapel house 16 36 14 10 style=house.church
 building convent_service_wing house 44 16 10 22 style=house.service

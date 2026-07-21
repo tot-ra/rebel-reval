@@ -246,6 +246,14 @@ func _validate_building(building: Dictionary, index: int, seen_ids: Dictionary) 
 		errors.append("%s.footprint must have positive size" % prefix)
 	if not _rect_inside_world_pixels(footprint):
 		errors.append("%s.footprint is outside world bounds" % prefix)
+	if bool(building.get("tower", false)):
+		var door_side := StringName(String(building.get("door_side", "")))
+		if not WORLD_SIDES.has(door_side):
+			errors.append("%s.tower requires door_side north, south, east, or west" % prefix)
+	elif building.has("tower") and building["tower"] != false:
+		errors.append("%s.tower must be a boolean" % prefix)
+	if building.has("faction") and not FactionHeraldry.is_known(StringName(building["faction"])):
+		errors.append("%s.faction is unknown: %s" % [prefix, str(building["faction"])])
 
 	return errors
 
@@ -278,6 +286,8 @@ func _validate_prop(prop: Dictionary, index: int, seen_ids: Dictionary) -> Array
 			errors.append("%s.movement_speed_multiplier must be between %.2f and %.2f" % [
 				prefix, TerrainVegetation.MIN_SPEED_MULTIPLIER, TerrainVegetation.MAX_SPEED_MULTIPLIER
 			])
+	if prop.has("faction") and not FactionHeraldry.is_known(StringName(prop["faction"])):
+		errors.append("%s.faction is unknown: %s" % [prefix, str(prop["faction"])])
 
 	return errors
 
@@ -327,6 +337,20 @@ func _validate_transition(trans: Dictionary, index: int, seen_ids: Dictionary) -
 		errors.append("%s.transition_visual is unknown: %s" % [prefix, String(transition_visual)])
 	if bool(trans.get("highlight_area", false)) and transition_visual != MapTypes.TRANSITION_VISUAL_GROUND:
 		errors.append("%s.highlight_area requires transition_visual=ground" % prefix)
+
+	var building_id := StringName(String(trans.get("building_id", "")))
+	if not building_id.is_empty():
+		var building: Dictionary = {}
+		for candidate in buildings:
+			if candidate.get("id", &"") == building_id:
+				building = candidate
+				break
+		if building.is_empty():
+			errors.append("%s.building_id references unknown building: %s" % [prefix, String(building_id)])
+		elif transition_visual != MapTypes.TRANSITION_VISUAL_DOOR:
+			errors.append("%s.building_id requires transition_visual=door" % prefix)
+		elif not MapBuildingEntrance.approach_aligns_with_facade(building, trans, cell_size):
+			errors.append("%s approach does not align with building facade: %s" % [prefix, String(building_id)])
 
 	return errors
 

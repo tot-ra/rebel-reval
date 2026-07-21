@@ -39,6 +39,9 @@ const PATTERN_LIMESTONE := &"limestone"
 const PATTERN_ROOF_TILE := &"roof_tile"
 const PATTERN_PLASTER := &"plaster"
 const PATTERN_STRAW := &"straw"
+## Layered reed/straw thatch courses for roofs. Distinct from PATTERN_STRAW so
+## hay/terrain scatter keeps its soft field look while roofs read as bundled reed.
+const PATTERN_THATCH := &"thatch"
 const PATTERN_SHINGLE := &"shingle"
 const PATTERN_LOG := &"log"
 
@@ -106,6 +109,9 @@ const BUILDING_UV_SCALE := {
 	PATTERN_SHINGLE: Vector3(5.0, 3.0, 5.0),
 	PATTERN_LOG: Vector3(4.0, 3.0, 4.0),
 	PATTERN_STRAW: Vector3(3.0, 2.0, 3.0),
+	## Dense along-slope repeats so reed courses stay readable on fishing-hut
+	## roofs at the dimetric gameplay distance.
+	PATTERN_THATCH: Vector3(4.5, 5.5, 4.5),
 }
 ## Reference box size the fixed BUILDING_UV_SCALE repeats were tuned against.
 ## building_uv_scale() scales repeats proportionally so long fortification
@@ -374,13 +380,14 @@ static func sail_cloth() -> ShaderMaterial:
 
 
 ## Tower pennants and other hoist-fixed cloth: free along UV.x toward the fly.
+## Vertex COLOR carries faction heraldry; base stays near-white so charges read.
 static func flag_cloth() -> ShaderMaterial:
 	var key := "flag_cloth"
 	if _cache.has(key):
 		return _cache[key]
 	var material := ShaderMaterial.new()
 	material.shader = MapViewMaterialShaders.shader("cloth", MapViewMaterialShaders.CLOTH_SHADER_CODE)
-	material.set_shader_parameter("base_color", Color8(168, 52, 48))
+	material.set_shader_parameter("base_color", Color8(248, 246, 240))
 	material.set_shader_parameter("sway_strength", 0.42)
 	material.set_shader_parameter("free_edge", Vector2(1.0, 0.0))
 	_cache[key] = material
@@ -445,7 +452,7 @@ static func roof_surface(family: StringName, color: Color) -> StandardMaterial3D
 		&"shingle":
 			return _building_surface("roof_shingle", color, PATTERN_SHINGLE)
 		&"thatch", &"straw":
-			return _building_surface("roof_thatch", color, PATTERN_STRAW)
+			return _building_surface("roof_thatch", color, PATTERN_THATCH)
 		_:
 			return _building_surface("roof_tile", color, PATTERN_ROOF_TILE)
 

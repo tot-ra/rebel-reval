@@ -1,7 +1,7 @@
 # Knights District between Archbishop's Garden, Rataskaev, Niguliste, and Karja Gate.
 # The wider western sector closes the old map-layout void below Toompea. Existing
 # streets and buildings retain their scale in the eastern half, while a continuous
-# stepped wall with round towers now seals the full southern circuit.
+# stepped curtain and dated tower-position masses now seal the full southern circuit.
 rrmap 1
 map south_quarter loc.lower_town.south_quarter 336 112 grass scope=prototype active=false palette=clean_painted seed=1375 cell_size=32
 source "scenes/reval_south/reval_south.tscn"
@@ -12,11 +12,11 @@ source "scenes/reval_center/market_civic_quarter/market.md"
 source "docs/HISTORICAL_AUDIT.md"
 style house.merchant.south door_side=south ridge_axis=x wall_height=112 wall_color=706352ff wall_material=plank roof_color=383029ff roof_material=shingle
 style house.merchant.north door_side=north ridge_axis=x wall_height=120 wall_color=756654ff wall_material=plaster roof_color=3d3329ff roof_material=shingle
-style house.knights door_side=south ridge_axis=x wall_height=128 wall_color=7a7061ff wall_material=limestone roof_color=47291fff roof_material=tile
+style house.knights door_side=south ridge_axis=x wall_height=128 wall_color=7a7061ff wall_material=limestone roof_color=47291fff roof_material=tile faction=livonian_order
 style house.artisan door_side=north ridge_axis=x wall_height=96 wall_color=63594aff wall_material=log roof_color=6b5c40ff roof_material=thatch
 style house.gatehouse door_side=north ridge_axis=x wall_height=136 wall_color=6e6a62ff wall_material=limestone roof_color=2a241cff roof_material=tile
 style wall.city wall_height=192 wall_color=949185ff
-style wall.tower wall_height=240 wall_color=8c8a80ff
+style wall.tower wall_height=240 wall_color=8c8a80ff faction=danish_crown
 terrain_rects quarter.base cobblestone 144,0,192,25|144,25,190,25|147,50,187,25|150,75,181,15|156,90,166,8|170,98,140,6|198,104,96,8 order=1
 terrain rataskaev_close stone 158 9 31 19 order=2
 terrain niguliste_close stone 161 53 31 19 order=3
@@ -41,28 +41,37 @@ building city_wall_south_far_west wall 9 84 27 4 style=wall.city
 building city_wall_south_west_a wall 36 88 48 4 style=wall.city
 building city_wall_south_west_b wall 84 92 48 4 style=wall.city
 building city_wall_south_west_circuit wall 132 94 48 4 style=wall.city
-building south_wall_tower_northwest wall 0 0 8 8 style=wall.tower tower=true
-building south_wall_tower_west_mid wall 0 34 8 8 style=wall.tower tower=true
-building south_wall_tower_west_bend wall 3 78 8 8 style=wall.tower tower=true
-building south_wall_tower_southwest wall 31 84 8 8 style=wall.tower tower=true
-building south_wall_tower_west_quarter wall 80 88 8 8 style=wall.tower tower=true
-building south_wall_tower_midwest wall 128 90 8 8 style=wall.tower tower=true
-building garden_gate_west_tower wall 18 0 8 8 style=wall.tower tower=true
-building garden_gate_east_tower wall 32 0 8 8 style=wall.tower tower=true
+building south_wall_tower_northwest wall 0 0 8 8 style=wall.tower tower=false
+building south_wall_tower_west_mid wall 0 34 8 8 style=wall.tower tower=false
+building south_wall_tower_west_bend wall 3 78 8 8 style=wall.tower tower=false
+building south_wall_tower_southwest wall 31 84 8 8 style=wall.tower tower=false
+building south_wall_tower_west_quarter wall 80 88 8 8 style=wall.tower tower=false
+building south_wall_tower_midwest wall 128 90 8 8 style=wall.tower tower=false
+building garden_gate_west_tower wall 18 0 8 8 style=wall.tower tower=false
+building garden_gate_east_tower wall 32 0 8 8 style=wall.tower tower=false
 building city_wall_south_west_join wall 156 90 24 4 style=wall.city
-building south_wall_tower_join wall 176 90 8 8 style=wall.tower tower=true
+building south_wall_tower_join wall 176 90 8 8 style=wall.tower tower=false
 building city_wall_south_west wall 180 94 28 4 style=wall.city
 building city_wall_south_west_c wall 208 98 20 4 style=wall.city
 building city_wall_south_west_d wall 226 102 2 10 style=wall.city
-building karja_gate_west_tower wall 230 100 8 8 style=wall.tower tower=true
-building karja_gate_east_tower wall 254 100 8 8 style=wall.tower tower=true
-building karja_gate_east_jamb wall 262 104 5 4 style=wall.city
+# Short seal blocks close cell-scale holes between stepped curtains. They do not
+# cross the authored Karja road opening.
+building city_wall_south_west_gate_join wall 228 102 2 6 style=wall.city
+building karja_gate_west_tower wall 230 100 8 8 style=wall.tower tower=false
+building karja_gate_east_tower wall 254 100 8 8 style=wall.tower tower=false
+# The arch is visual-only. These throat walls carry the south-wall collision to
+# both jambs without narrowing the authored north-south gate passage.
+building karja_gate_west_throat wall 238 104 3 8 style=wall.city tower=false
+building karja_gate_east_throat wall 247 104 7 8 style=wall.city tower=false
+building karja_gate_east_jamb wall 262 104 5 4 style=wall.city tower=false
 building city_wall_south_east_a wall 267 104 27 4 style=wall.city
 building city_wall_south_east_b wall 294 100 16 4 style=wall.city
-building south_wall_tower_southeast_mid wall 290 96 8 8 style=wall.tower tower=true
+building south_wall_tower_southeast_mid wall 290 96 8 8 style=wall.tower tower=false
+building city_wall_south_east_step_join wall 306 98 4 2 style=wall.city
 building city_wall_south_east_c wall 310 94 12 4 style=wall.city
-building south_wall_tower_southeast wall 306 90 8 8 style=wall.tower tower=true
-building south_wall_tower_east_bend wall 324 82 8 8 style=wall.tower tower=true
+building south_wall_tower_southeast wall 306 90 8 8 style=wall.tower tower=false
+building south_wall_tower_east_bend wall 324 82 8 8 style=wall.tower tower=false
+building city_wall_southeast_bend_join wall 320 91 4 3 style=wall.city
 building city_wall_east_north_a wall 331 0 3 25 style=wall.city
 building city_wall_east_north_b wall 331 25 3 25 style=wall.city
 building city_wall_east_north_c wall 331 50 3 25 style=wall.city
@@ -110,10 +119,11 @@ prop rataskaev_well_prop well 168 31 rect=2,2
 prop north_threshold_barrels barrels 237 16 rect=2,2
 prop north_threshold_cart cart 261 19 rect=2,2
 prop street_cart cart 250 28 rect=2,2
-prop knight_banner cart 278 22 rect=2,2
+prop knight_banner banner 278 22 rect=2,2 faction=livonian_order
 prop karja_cart cart 250 72 rect=2,2
 prop gate_barrels barrels 230 90 rect=2,2
 prop knights_court_cart cart 260 54 rect=2,2
+prop knights_hall_banner banner 258 42 rect=2,2 faction=livonian_order
 prop knights_court_barrels barrels 270 44 rect=2,2
 prop swordsmith_cart cart 298 70 rect=2,2
 spawn spawn.inspection 226 56 rect=2,2

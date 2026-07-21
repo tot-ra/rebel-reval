@@ -191,6 +191,8 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			_add_fishing_boat(root, prop)
 		MapTypes.PROP_KIND_MERCHANT_BOAT:
 			_add_merchant_boat(root, prop)
+		MapTypes.PROP_KIND_BANNER:
+			_add_banner(root, prop)
 		_:
 			MapViewMeshBuilderPrimitives.box(root, "Marker", Vector3(0.5, 0.5, 0.5), Vector3(0.0, 0.25, 0.0), &"ink")
 	return root
@@ -208,9 +210,31 @@ static func _add_fishing_boat(root: Node3D, prop: Dictionary) -> void:
 
 
 static func _add_merchant_boat(root: Node3D, prop: Dictionary) -> void:
-	MerchantBoatBuilder.add_to(root)
+	# Harbor cogs default to Hanseatic cloth when the map omits faction=.
+	var faction := FactionHeraldry.resolve(prop)
+	if String(faction).is_empty():
+		faction = FactionHeraldry.HANSEATIC
+	MerchantBoatBuilder.add_to(root, faction)
 	# Heavy cogs damp the same wave field so they do not bounce like dinghies.
 	_attach_boat_float(root, prop, 0.55)
+
+
+static func _add_banner(root: Node3D, prop: Dictionary) -> void:
+	var faction := FactionHeraldry.resolve(prop)
+	if not FactionHeraldry.shows_flag(faction):
+		# Still plant a bare staff so the prop footprint stays occupied.
+		MapViewMeshBuilderPrimitives.cylinder(root, "BannerStaff", 0.04, 2.4, Vector3(0.0, 1.2, 0.0), &"timber")
+		return
+	MapViewMeshBuilderPrimitives.cylinder(root, "BannerStaff", 0.045, 2.55, Vector3(0.0, 1.28, 0.0), &"timber")
+	MapViewMeshBuilderPrimitives.box(root, "BannerBase", Vector3(0.42, 0.12, 0.42), Vector3(0.0, 0.06, 0.0), &"stone")
+	var cloth := MeshInstance3D.new()
+	cloth.name = "BannerCloth"
+	cloth.mesh = FactionHeraldry.banner_mesh(faction)
+	cloth.position = Vector3(0.08, 1.55, 0.0)
+	cloth.set_meta(&"faction", faction)
+	cloth.material_override = MapViewMaterials.flag_cloth()
+	cloth.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	root.add_child(cloth)
 
 
 static func _attach_boat_float(root: Node3D, prop: Dictionary, motion_scale: float) -> void:

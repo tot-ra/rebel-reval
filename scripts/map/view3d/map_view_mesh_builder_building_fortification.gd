@@ -64,7 +64,7 @@ static func add_tower_door(
 	)
 
 
-static func add_tower_roof(root: Node3D, radius: float, height: float) -> void:
+static func add_tower_roof(root: Node3D, radius: float, height: float, building: Dictionary = {}) -> void:
 	var roof_radius := radius + 0.34
 	var roof := MeshInstance3D.new()
 	roof.name = "TowerRoof"
@@ -88,11 +88,13 @@ static func add_tower_roof(root: Node3D, radius: float, height: float) -> void:
 	finial.material_override = MapViewMaterials.role(&"metal")
 	root.add_child(finial)
 	# WHY: tower pennants make world wind readable on fortified maps that have
-	# little grass; the cloth shader shares SkyWeather direction and strength.
-	_add_tower_pennant(root, finial_y)
+	# little grass; faction cloth also marks Danish, Order, and Hanse seats.
+	var faction := FactionHeraldry.resolve(building)
+	if FactionHeraldry.shows_flag(faction):
+		_add_tower_pennant(root, finial_y, faction)
 
 
-static func _add_tower_pennant(root: Node3D, finial_y: float) -> void:
+static func _add_tower_pennant(root: Node3D, finial_y: float, faction_id: StringName) -> void:
 	var staff := MeshInstance3D.new()
 	staff.name = "PennantStaff"
 	var staff_mesh := CylinderMesh.new()
@@ -107,40 +109,12 @@ static func _add_tower_pennant(root: Node3D, finial_y: float) -> void:
 
 	var pennant := MeshInstance3D.new()
 	pennant.name = "Pennant"
-	pennant.mesh = _pennant_mesh()
+	pennant.mesh = FactionHeraldry.pennant_mesh(faction_id)
 	pennant.position = Vector3(0.0, finial_y + 0.58, 0.0)
+	pennant.set_meta(&"faction", faction_id)
 	pennant.material_override = MapViewMaterials.flag_cloth()
 	pennant.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(pennant)
-
-
-## Triangular fly with UV.x = 0 at the hoist so the cloth shader keeps the pole
-## edge planted while the tip ripples downwind.
-static func _pennant_mesh() -> ArrayMesh:
-	var surface := SurfaceTool.new()
-	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var hoist_top := Vector3(0.0, 0.12, 0.0)
-	var hoist_bottom := Vector3(0.0, -0.42, 0.0)
-	var fly := Vector3(0.95, -0.12, 0.0)
-	for vertex_uv in [
-		[hoist_top, Vector2(0.0, 0.0)],
-		[hoist_bottom, Vector2(0.0, 1.0)],
-		[fly, Vector2(1.0, 0.5)],
-	]:
-		surface.set_color(Color.WHITE)
-		surface.set_uv(vertex_uv[1])
-		surface.add_vertex(vertex_uv[0])
-	# Back face so the pennant stays readable from either side of the tower.
-	for vertex_uv in [
-		[hoist_top, Vector2(0.0, 0.0)],
-		[fly, Vector2(1.0, 0.5)],
-		[hoist_bottom, Vector2(0.0, 1.0)],
-	]:
-		surface.set_color(Color.WHITE)
-		surface.set_uv(vertex_uv[1])
-		surface.add_vertex(vertex_uv[0])
-	surface.generate_normals()
-	return surface.commit()
 
 
 static func add_tower_slits(root: Node3D, radius: float, height: float) -> void:

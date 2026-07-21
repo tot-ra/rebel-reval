@@ -99,7 +99,7 @@ static func build_definition(blueprint: MapBlueprint, expanded: Dictionary) -> M
 
 static func _compile_building(values: Dictionary, definition: MapDefinition) -> Dictionary:
 	var output := {"id": values["id"], "kind": values["kind"], "footprint": definition.cell_rect_to_world_rect(values["rect"])}
-	_copy_fields(values, output, [&"wall_height", &"wall_height_scale", &"wall_color", &"roof_color", &"door_side", &"ridge_axis", &"primitive", &"tower", &"wall_material", &"roof_material"])
+	_copy_fields(values, output, [&"wall_height", &"wall_height_scale", &"wall_color", &"roof_color", &"door_side", &"ridge_axis", &"primitive", &"tower", &"wall_material", &"roof_material", &"faction"])
 	return output
 
 
@@ -109,7 +109,7 @@ static func _compile_prop(values: Dictionary, definition: MapDefinition) -> Dict
 		"kind": values["kind"],
 		"position": MapBlueprintCompiler._placement_position(values, definition.cell_size),
 	}
-	_copy_fields(values, output, [&"facing", &"style_variant", &"visual_offset_px", &"primitive", &"movement_speed_multiplier"])
+	_copy_fields(values, output, [&"facing", &"style_variant", &"visual_offset_px", &"primitive", &"movement_speed_multiplier", &"faction"])
 	if values.has("rect") and values["rect"] is Rect2i:
 		output["footprint"] = definition.cell_rect_to_world_rect(values["rect"])
 	return output
@@ -117,7 +117,7 @@ static func _compile_prop(values: Dictionary, definition: MapDefinition) -> Dict
 
 static func _compile_transition(values: Dictionary, definition: MapDefinition) -> Dictionary:
 	var output := {"id": values["id"], "rect": definition.cell_rect_to_world_rect(values["rect"])}
-	_copy_non_empty_names(values, output, [&"destination_scene_id", &"destination_spawn_id", &"spawn_id", &"transition_visual", &"view_landmark_id", &"alignment"])
+	_copy_non_empty_names(values, output, [&"destination_scene_id", &"destination_spawn_id", &"spawn_id", &"building_id", &"transition_visual", &"view_landmark_id", &"alignment"])
 	if values.has("spawn_offset_px"):
 		output["spawn_offset"] = values["spawn_offset_px"]
 	if bool(values.get("highlight_area", false)):

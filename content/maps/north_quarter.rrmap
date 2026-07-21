@@ -27,7 +27,8 @@ style house.workshop.mid door_side=north roof_color=383029ff roof_material=shing
 style house.warehouse door_side=south ridge_axis=x roof_color=352820ff roof_material=shingle wall_color=5a4f45ff wall_material=plank wall_height=96
 style house.warehouse.gabled door_side=south ridge_axis=z primitive=stepped_gable_merchant roof_color=3e2f25ff roof_material=tile wall_color=6c6253ff wall_material=limestone wall_height=132
 style wall.city wall_height=192 wall_color=949185ff
-style wall.tower wall_height=240 wall_color=8c8a80ff
+style wall.tower wall_height=240 wall_color=8c8a80ff faction=danish_crown
+style wall.tower.merchant wall_height=240 wall_color=8c8a80ff faction=hanseatic
 # Packed earth is the ward-wide substrate. Stone is reserved for primary streets,
 # loading aprons and compact closes; wet work yards and green wall margins remain visible.
 terrain district.base dirt 0 0 208 140 order=1
@@ -49,27 +50,34 @@ stroke goldsmith_lane cobblestone 75,91|104,91|138,91|174,91 thickness=5 order=1
 stroke east_work_lane cobblestone 165,122|174,122|174,91|186,91|186,60 thickness=5 order=17
 stroke gate_approach cobblestone 97,8|104,8|111,8 thickness=7 order=18
 # The seaward wall follows a stepped shoulder around the ward instead of a box.
-# All turns are sealed by circular towers, while the south seam stays a street.
+# All turns are sealed by curtain masses; only source-backed 1343 positions become completed towers.
 building city_wall_north_west wall 14 0 82 3 style=wall.city
 building coast_gate_west_tower wall 96 0 8 9 style=wall.tower tower=true door_side=south
-building coast_gate_east_tower wall 110 0 8 9 style=wall.tower tower=true door_side=south
-building coast_gate_west_jamb wall 102 0 2 9 style=wall.city
-building coast_gate_east_jamb wall 109 0 2 9 style=wall.city
+building coast_gate_east_tower wall 110 0 8 9 style=wall.tower tower=false
+# A single 1343 gate tower is the conservative archaeological reading. The
+# eastern mass stays low curtain masonry instead of becoming Fat Margaret or a
+# later paired barbican tower.
+building coast_gate_west_jamb wall 102 0 2 9 style=wall.city tower=false
+building coast_gate_east_jamb wall 109 0 2 9 style=wall.city tower=false
 building city_wall_north_east wall 118 0 76 3 style=wall.city
-building merchant_wall_tower_northwest wall 7 8 8 8 style=wall.tower tower=true door_side=south
-building merchant_wall_tower_northeast wall 193 8 8 8 style=wall.tower tower=true door_side=south
+building merchant_wall_tower_northwest wall 7 8 8 8 style=wall.tower.merchant tower=true door_side=south
+building merchant_wall_tower_northeast wall 193 8 8 8 style=wall.tower tower=false
+# Vertical returns close the stepped seaward corners. The 3D overhang hides
+# sub-cell seams, while these authored blocks also close collision at full depth.
+building city_wall_northwest_return wall 12 3 3 5 style=wall.city
+building city_wall_northeast_return wall 193 3 3 5 style=wall.city
 building city_wall_west_north wall 7 8 3 26 style=wall.city
 building city_wall_west_shoulder wall 0 31 10 3 style=wall.city
 building city_wall_west wall 0 31 3 109 style=wall.city
-building merchant_wall_tower_west_bend wall 0 27 8 8 style=wall.tower tower=true door_side=east
-building merchant_wall_tower_west_mid wall 0 78 8 8 style=wall.tower tower=true door_side=east
-building merchant_wall_tower_southwest wall 0 132 8 8 style=wall.tower tower=true door_side=east
+building merchant_wall_tower_west_bend wall 0 27 8 8 style=wall.tower tower=false
+building merchant_wall_tower_west_mid wall 0 78 8 8 style=wall.tower tower=false
+building merchant_wall_tower_southwest wall 0 132 8 8 style=wall.tower tower=false
 building city_wall_east_north wall 198 8 3 26 style=wall.city
 building city_wall_east_shoulder wall 198 31 10 3 style=wall.city
 building city_wall_east wall 205 31 3 109 style=wall.city
-building merchant_wall_tower_east_bend wall 200 27 8 8 style=wall.tower tower=true door_side=west
-building merchant_wall_tower_east_mid wall 200 78 8 8 style=wall.tower tower=true door_side=west
-building merchant_wall_tower_southeast wall 200 132 8 8 style=wall.tower tower=true door_side=west
+building merchant_wall_tower_east_bend wall 200 27 8 8 style=wall.tower tower=false
+building merchant_wall_tower_east_mid wall 200 78 8 8 style=wall.tower tower=false
+building merchant_wall_tower_southeast wall 200 132 8 8 style=wall.tower tower=false
 # Pikk and Lai use narrow street-facing plots with rear houses and work buildings.
 building pikk_front_west_gate house 84 40 14 10 style=house.merchant.stone
 building pikk_merchant_north_west house 85 54 8 10 style=house.merchant.north

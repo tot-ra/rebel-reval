@@ -8,7 +8,7 @@ extends RefCounted
 ## this class keeps validation helpers and the public compile entry points.
 
 
-const COMPILER_VERSION := 4
+const COMPILER_VERSION := 5
 const ID_PATTERN := "^[a-z0-9_.-]+$"
 
 const COMMON_STYLE_KEYS: Array[StringName] = [&"enabled"]
@@ -16,14 +16,15 @@ const TERRAIN_KEYS: Array[StringName] = [&"terrain", &"style_variant", &"movemen
 const BUILDING_OVERRIDE_KEYS: Array[StringName] = [
 	&"rect", &"wall_height", &"wall_height_scale", &"wall_color", &"roof_color",
 	&"door_side", &"ridge_axis", &"primitive", &"tower", &"wall_material", &"roof_material",
+	&"faction",
 ]
 const PROP_OVERRIDE_KEYS: Array[StringName] = [
 	&"cell", &"rect", &"facing", &"style_variant", &"visual_offset_px", &"primitive",
-	&"movement_speed_multiplier",
+	&"movement_speed_multiplier", &"faction",
 ]
 const SPAWN_KEYS: Array[StringName] = [&"cell", &"rect"]
 const TRANSITION_KEYS: Array[StringName] = [
-	&"rect", &"destination_scene_id", &"destination_spawn_id", &"spawn_id",
+	&"rect", &"destination_scene_id", &"destination_spawn_id", &"spawn_id", &"building_id",
 		&"spawn_offset_px", &"highlight_area", &"transition_visual", &"view_landmark_id", &"alignment",
 ]
 const ANCHOR_KEYS: Array[StringName] = [&"cell", &"rect", &"kind"]
@@ -37,9 +38,9 @@ const ALL_STYLE_KEYS: Array[StringName] = [
 	&"enabled", &"terrain", &"rect", &"wall_height", &"wall_height_scale", &"wall_color",
 	&"roof_color", &"door_side", &"ridge_axis", &"primitive", &"cell", &"facing",
 	&"style_variant", &"visual_offset_px", &"destination_scene_id", &"destination_spawn_id",
-	&"spawn_id", &"spawn_offset_px", &"highlight_area", &"transition_visual", &"view_landmark_id", &"alignment", &"kind",
+	&"spawn_id", &"building_id", &"spawn_offset_px", &"highlight_area", &"transition_visual", &"view_landmark_id", &"alignment", &"kind",
 	&"points", &"point_rects", &"text", &"direction", &"top_px", &"door_material", &"passage_axis",
-	&"movement_speed_multiplier", &"tower", &"wall_material", &"roof_material",
+	&"movement_speed_multiplier", &"tower", &"wall_material", &"roof_material", &"faction",
 ]
 
 

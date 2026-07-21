@@ -82,7 +82,7 @@ The initial vocabulary must cover the existing runtime contract without exposing
 | `wall_run` | Stable ID, endpoints or cell rectangle, thickness, openings, style | One or more canonical `buildings` entries |
 | `prop` | Stable ID, supported prop kind, cell placement, optional facing/style | `props` |
 | `player_spawn` | Named or primary spawn placement | `player_spawn` and any supported spawn metadata |
-| `transition` | Stable ID, cell rectangle, destination scene/spawn IDs, optional local spawn metadata | `transitions` |
+| `transition` | Stable ID, cell rectangle, destination scene/spawn IDs, optional local spawn metadata, and optional `building_id` for a door attached to a facade | `transitions` |
 | `interaction_anchor` | Stable ID, cell placement, optional kind | `interaction_anchors` |
 | `patrol_path` | Stable ID and ordered cell points | `patrols` |
 | `excluded_rect` | Cell rectangle blocked from traversal | `excluded_areas` |
@@ -94,6 +94,8 @@ The initial vocabulary must cover the existing runtime contract without exposing
 | `prefab_instance` | Stable instance ID, prefab ID/version, origin, supported transform, overrides | Expanded primitives in the fields above |
 
 New reusable behavior must be added as a reviewed typed primitive with validation, compilation, and tests. Do not bypass the vocabulary with a generic `raw_definition_entry` or embedded `MapDefinition` dictionary.
+
+For an enterable building, keep the transition rectangle on the walkable approach and set `building_id=<stable building id>`. The 2D trigger remains independently sized for reliable traversal, while the 3D renderer snaps the entrance to the nearest aligned facade and suppresses conflicting procedural facade details. Omit `building_id` for interior wall doors and freestanding gates.
 
 ## Stable-ID rules
 
@@ -628,7 +630,7 @@ fingerprint. Toompea currently uses `elevation=2.8`.
 
 `placement_row` and arbitrary prefab definitions are intentionally not exposed in v1. They remain typed GDScript capabilities because a safe compact grammar has not demonstrated a readability benefit for them.
 
-Typed style/override keys are closed to the compiler's current semantic fields: `enabled`, `terrain`, `rect`, `wall_height`, `wall_height_scale`, `wall_color`, `roof_color`, `wall_material`, `roof_material`, `door_side`, `ridge_axis`, `primitive`, `cell`, `facing`, `style_variant`, `visual_offset_px`, `destination_scene_id`, `destination_spawn_id`, `spawn_id`, `spawn_offset_px`, `highlight_area`, `view_landmark_id`, `kind`, `direction`, `top_px`, `door_material`, `passage_axis`, and `tower`. Each key has one parser type; unknown keys are rejected before compilation. The boolean `tower` key on a wall-kind building forces the round limestone tower dressing (drum, conical roof, arrow slits) regardless of footprint size; without it the small-footprint heuristic applies.
+Typed style/override keys are closed to the compiler's current semantic fields: `enabled`, `terrain`, `rect`, `wall_height`, `wall_height_scale`, `wall_color`, `roof_color`, `wall_material`, `roof_material`, `door_side`, `ridge_axis`, `primitive`, `cell`, `facing`, `style_variant`, `visual_offset_px`, `destination_scene_id`, `destination_spawn_id`, `spawn_id`, `spawn_offset_px`, `highlight_area`, `view_landmark_id`, `kind`, `direction`, `top_px`, `door_material`, `passage_axis`, `tower`, and `faction`. Each key has one parser type; unknown keys are rejected before compilation. The boolean `tower` key on a wall-kind building forces the round limestone tower dressing (drum, conical roof, arrow slits) regardless of footprint size; without it the small-footprint heuristic applies. The optional `faction` name selects readable 1343 heraldry for tower pennants, courtyard `banner` props, and merchant-cog mastheads (`danish_crown`, `livonian_order`, `hanseatic`, `harju_kings`, `black_cloaks`, `cult_metsik`, `pskov_novgorod`, `vitalienbruder`). `vitalienbruder` flies no flag.
 
 `wall_material` and `roof_material` are optional string keys on house `style` blocks. They select the 3D mesh-builder surface family for walls and roofs. Allowed `wall_material` values: `plaster`, `timber`, `smoked_plaster`, `brick`, `plank`, `log`, `limestone`, and `stone`. Allowed `roof_material` values: `tile`, `shingle`, `thatch`, and `straw`. When omitted, houses fall back to a deterministic id-hash mix documented in `map_view_mesh_builder_buildings.gd`. Interior partition styles may use `wall_material` without `roof_material`.
 

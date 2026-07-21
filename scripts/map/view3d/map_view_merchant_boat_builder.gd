@@ -4,7 +4,7 @@ extends RefCounted
 ## Procedural fourteenth-century Baltic trading cog used by the 3D map view.
 
 
-static func add_to(root: Node3D) -> void:
+static func add_to(root: Node3D, faction_id: StringName = FactionHeraldry.HANSEATIC) -> void:
 	# A deep clinker-built hull and open timber castles preserve the period
 	# silhouette while keeping the working cargo deck visible from above.
 	var hull := MeshInstance3D.new()
@@ -18,7 +18,7 @@ static func add_to(root: Node3D) -> void:
 	_add_castle(root, "Aftcastle", -2.35, -1.5, 1.42, 1.02)
 	_add_castle(root, "Forecastle", 1.95, 2.85, 1.38, 0.88)
 	_add_cargo(root)
-	_add_rig(root)
+	_add_rig(root, faction_id)
 
 	_add_spar(root, "Bowsprit", Vector3(2.66, 1.25, 0.0), Vector3(4.18, 1.83, 0.0), 0.07, &"timber")
 	MapViewMeshBuilderPrimitives.box(root, "Rudder", Vector3(0.12, 0.9, 0.52), Vector3(-3.4, 0.32, 0.0), &"timber")
@@ -36,7 +36,7 @@ static func _add_cargo(root: Node3D) -> void:
 	MapViewMeshBuilderPrimitives.box(root, "CargoCrateSmall", Vector3(0.52, 0.46, 0.5), Vector3(-0.84, 1.26, 0.42), &"timber")
 
 
-static func _add_rig(root: Node3D) -> void:
+static func _add_rig(root: Node3D, faction_id: StringName = FactionHeraldry.HANSEATIC) -> void:
 	# One mast and one broad square sail are defining cog features. The sail bows
 	# in front of the mast and uses panel value changes instead of a flat box.
 	_add_spar(root, "Mast", Vector3(-0.18, 0.76, 0.0), Vector3(-0.18, 6.25, 0.0), 0.105, &"timber")
@@ -49,6 +49,8 @@ static func _add_rig(root: Node3D) -> void:
 	# Wind-driven billow comes from the shared world wind cloth shader.
 	sail.material_override = MapViewMaterials.sail_cloth()
 	root.add_child(sail)
+	if FactionHeraldry.shows_flag(faction_id):
+		_add_masthead_pennant(root, faction_id)
 
 	var rigging := Node3D.new()
 	rigging.name = "Rigging"
@@ -61,6 +63,31 @@ static func _add_rig(root: Node3D) -> void:
 		_add_spar(rigging, "Shroud%sB" % side_name, Vector3(-0.18, 5.0, 0.0), Vector3(0.18, 1.02, side * 1.4), 0.018, &"ink")
 		_add_spar(rigging, "YardLift%s" % side_name, Vector3(-0.18, 6.12, 0.0), Vector3(-0.14, 5.48, side * 2.18), 0.014, &"ink")
 		_add_spar(rigging, "Sheet%s" % side_name, Vector3(0.1, 2.96, side * 1.62), Vector3(-2.22, 1.48, side * 0.86), 0.014, &"ink")
+
+
+static func _add_masthead_pennant(root: Node3D, faction_id: StringName) -> void:
+	# WHY: Hanse and crown cogs flew a small masthead identity cloth above the
+	# yard; it reuses tower pennant wind cloth so harbor weather stays coherent.
+	var staff := MeshInstance3D.new()
+	staff.name = "PennantStaff"
+	var staff_mesh := CylinderMesh.new()
+	staff_mesh.top_radius = 0.014
+	staff_mesh.bottom_radius = 0.018
+	staff_mesh.height = 0.55
+	staff_mesh.radial_segments = 6
+	staff.mesh = staff_mesh
+	staff.position = Vector3(-0.18, 6.52, 0.0)
+	staff.material_override = MapViewMaterials.role(&"timber")
+	root.add_child(staff)
+	var pennant := MeshInstance3D.new()
+	pennant.name = "MastheadPennant"
+	pennant.mesh = FactionHeraldry.pennant_mesh(faction_id)
+	pennant.position = Vector3(-0.18, 6.68, 0.0)
+	pennant.scale = Vector3(0.72, 0.72, 0.72)
+	pennant.set_meta(&"faction", faction_id)
+	pennant.material_override = MapViewMaterials.flag_cloth()
+	pennant.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	root.add_child(pennant)
 
 
 ## A faceted station-built shell gives the ship a full cargo-carrying midsection,
