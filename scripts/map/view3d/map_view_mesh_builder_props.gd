@@ -1,6 +1,8 @@
 class_name MapViewMeshBuilderProps
 extends RefCounted
 
+const FishingBoatBuilder := preload("res://scripts/map/view3d/map_view_fishing_boat_builder.gd")
+
 ## Prop meshes and ground scatter.
 
 const BARREL_HEIGHT := 0.72
@@ -183,29 +185,7 @@ static func _has_tall_footprint(prop: Dictionary) -> bool:
 
 
 static func _add_fishing_boat(root: Node3D) -> void:
-	# The low open hull keeps the prop legible as a working inshore boat while
-	# avoiding a generic rectangular placeholder in both audit and gameplay views.
-	var hull := MeshInstance3D.new()
-	hull.name = "Hull"
-	var hull_mesh := PrismMesh.new()
-	hull_mesh.size = Vector3(1.25, 0.48, 3.4)
-	hull.mesh = hull_mesh
-	hull.rotation_degrees.y = 90.0
-	hull.position.y = 0.18
-	hull.material_override = MapViewMeshBuilderPrimitives.role_material(&"wood")
-	root.add_child(hull)
-	MapViewMeshBuilderPrimitives.box(root, "GunwalePort", Vector3(3.0, 0.12, 0.1), Vector3(0.0, 0.48, -0.52), &"timber")
-	MapViewMeshBuilderPrimitives.box(root, "GunwaleStarboard", Vector3(3.0, 0.12, 0.1), Vector3(0.0, 0.48, 0.52), &"timber")
-	for index in 3:
-		var x := -0.8 + float(index) * 0.8
-		MapViewMeshBuilderPrimitives.box(root, "Bench%d" % index, Vector3(0.12, 0.1, 0.94), Vector3(x, 0.5, 0.0), &"timber")
-	MapViewMeshBuilderPrimitives.cylinder(root, "Mast", 0.06, 1.65, Vector3(0.25, 1.28, 0.0), &"timber")
-	var yard := Node3D.new()
-	yard.name = "Yard"
-	yard.rotation_degrees.z = -18.0
-	root.add_child(yard)
-	MapViewMeshBuilderPrimitives.box(yard, "Spar", Vector3(1.25, 0.06, 0.06), Vector3(0.42, 1.7, 0.0), &"timber")
-
+	FishingBoatBuilder.add_to(root)
 
 ## Layered decorative vegetation and ground clutter. Textured ground cover carries
 ## most of the grass; sparse small/large tufts, shrubs, and trees add silhouette
