@@ -52,21 +52,22 @@ const STAR_MAP_WIDTH := 2048
 const STAR_MAP_HEIGHT := 1024
 
 ## Per-weather visual targets blended during transitions.
+## `wind` drives harbor boat heel/heave and water-shader sea state (0..1).
 const PROFILES: Dictionary = {
 	WEATHER_CLEAR: {
 		"coverage": 0.22, "darken": 0.05,
 		"sun_energy": 1.0, "ambient_energy": 1.0,
-		"gray": 0.0, "rain": 0.0,
+		"gray": 0.0, "rain": 0.0, "wind": 0.22,
 	},
 	WEATHER_CLOUDY: {
 		"coverage": 0.68, "darken": 0.45,
 		"sun_energy": 0.60, "ambient_energy": 0.85,
-		"gray": 0.35, "rain": 0.0,
+		"gray": 0.35, "rain": 0.0, "wind": 0.58,
 	},
 	WEATHER_RAIN: {
 		"coverage": 0.92, "darken": 0.80,
 		"sun_energy": 0.32, "ambient_energy": 0.70,
-		"gray": 0.60, "rain": 1.0,
+		"gray": 0.60, "rain": 1.0, "wind": 0.92,
 	},
 }
 ## Seconds each weather state holds before the Markov step picks the next one.
@@ -400,6 +401,16 @@ func cloud_coverage() -> float:
 
 func rain_intensity() -> float:
 	return float(_current["rain"])
+
+
+func wind_strength() -> float:
+	return float(_current["wind"])
+
+
+## Prevailing wind follows the authored cloud drift so smoke, sails, and floating
+## hulls lean the same way as the sky weather field.
+func wind_direction_xz() -> Vector2:
+	return CLOUD_DRIFT_PER_SECOND.normalized()
 
 
 func _pick_next_weather() -> void:

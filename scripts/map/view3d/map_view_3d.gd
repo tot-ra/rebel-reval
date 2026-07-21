@@ -124,6 +124,7 @@ static func _strip_geometry_materials(node: Node) -> void:
 
 
 func _process(delta: float) -> void:
+	_sync_sea_weather()
 	if _fog_of_war == null:
 		return
 	var player_rig := get_tree().get_first_node_in_group(&"player_view_rig") as Node3D
@@ -131,6 +132,12 @@ func _process(delta: float) -> void:
 		return
 	var facing := Vector2(sin(player_rig.global_rotation.y), cos(player_rig.global_rotation.y))
 	_fog_of_war.call("update_view", player_rig.global_position, facing, delta)
+
+
+func _sync_sea_weather() -> void:
+	if _sky_weather == null:
+		return
+	MapViewMaterials.apply_sea_weather(_sky_weather.wind_strength(), _sky_weather.rain_intensity())
 
 
 func set_time_of_day(next_time: StringName) -> void:

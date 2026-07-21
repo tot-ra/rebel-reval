@@ -10,6 +10,8 @@ func test_starts_clear_with_full_lighting() -> void:
 	assert_eq(modifiers["sun_energy"], 1.0, "clear noon must not dim the authored sun")
 	assert_eq(modifiers["ambient_energy"], 1.0, "clear noon must not dim the authored ambient")
 	assert_eq(sky.rain_intensity(), 0.0, "clear weather must not rain")
+	assert_true(sky.wind_strength() > 0.0 and sky.wind_strength() < 0.4, "clear weather keeps a light harbor breeze")
+	assert_true(sky.wind_direction_xz().length() > 0.9, "wind direction must stay unit-length")
 	sky.free()
 
 
@@ -38,6 +40,7 @@ func test_transition_blends_toward_rain_profile() -> void:
 	assert_true(mid > 0.0 and mid < 1.0, "rain must fade in through the transition, not snap")
 	sky.advance(SkyWeather.TRANSITION_SECONDS)
 	assert_eq(sky.rain_intensity(), 1.0, "the completed transition must reach the full rain profile")
+	assert_true(sky.wind_strength() > 0.8, "storm wind must rise with the rain profile")
 	var modifiers: Dictionary = sky.lighting_modifiers()
 	assert_true(modifiers["sun_energy"] < 0.5, "storm light must be visibly dimmer than clear light")
 	assert_true(modifiers["overcast"] > 0.5, "storm light must desaturate toward overcast gray")

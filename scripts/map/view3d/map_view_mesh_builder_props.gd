@@ -187,9 +187,9 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 		MapTypes.PROP_KIND_SHEEP:
 			_add_sheep(root)
 		MapTypes.PROP_KIND_FISHING_BOAT:
-			_add_fishing_boat(root)
+			_add_fishing_boat(root, prop)
 		MapTypes.PROP_KIND_MERCHANT_BOAT:
-			_add_merchant_boat(root)
+			_add_merchant_boat(root, prop)
 		_:
 			MapViewMeshBuilderPrimitives.box(root, "Marker", Vector3(0.5, 0.5, 0.5), Vector3(0.0, 0.25, 0.0), &"ink")
 	return root
@@ -200,12 +200,22 @@ static func _has_tall_footprint(prop: Dictionary) -> bool:
 	return footprint is Rect2 and footprint.size.y > footprint.size.x
 
 
-static func _add_fishing_boat(root: Node3D) -> void:
+static func _add_fishing_boat(root: Node3D, prop: Dictionary) -> void:
 	FishingBoatBuilder.add_to(root)
+	# Inshore boats are lively on chop; motion_scale 1 keeps them readable.
+	_attach_boat_float(root, prop, 1.0)
 
 
-static func _add_merchant_boat(root: Node3D) -> void:
+static func _add_merchant_boat(root: Node3D, prop: Dictionary) -> void:
 	MerchantBoatBuilder.add_to(root)
+	# Heavy cogs damp the same wave field so they do not bounce like dinghies.
+	_attach_boat_float(root, prop, 0.55)
+
+
+static func _attach_boat_float(root: Node3D, prop: Dictionary, motion_scale: float) -> void:
+	var floater = MapViewMeshBuilderConfig.BOAT_FLOAT_SCRIPT.new()
+	floater.configure(root, motion_scale, String(prop.get("id", root.name)).hash())
+	root.add_child(floater)
 
 
 static func _add_cargo_crates(root: Node3D) -> void:

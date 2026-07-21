@@ -166,6 +166,7 @@ const CHIMNEY_SMOKE_SCRIPT := preload("res://scripts/map/view3d/chimney_smoke_3d
 const WINDOW_LIGHTS_SCRIPT := preload("res://scripts/map/view3d/building_window_lights_3d.gd")
 const INTERIOR_WINDOW_LIGHTS_SCRIPT := preload("res://scripts/map/view3d/interior_window_lights_3d.gd")
 const CANDLE_LIGHT_SCRIPT := preload("res://scripts/map/view3d/candle_light_3d.gd")
+const BOAT_FLOAT_SCRIPT := preload("res://scripts/map/view3d/boat_float_3d.gd")
 
 ## House facades: every house gets a street door and shuttered windows so the
 ## dwellings read as inhabited from the dimetric camera.
