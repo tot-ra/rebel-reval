@@ -2,6 +2,7 @@ class_name MapViewMeshBuilderProps
 extends RefCounted
 
 const FishingBoatBuilder := preload("res://scripts/map/view3d/map_view_fishing_boat_builder.gd")
+const MerchantBoatBuilder := preload("res://scripts/map/view3d/map_view_merchant_boat_builder.gd")
 
 ## Prop meshes and ground scatter.
 
@@ -71,7 +72,7 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 		var scale := MapViewBridge.world_scale(cell_size)
 		root.position.x += offset.x * scale
 		root.position.y -= offset.y * scale
-	if prop["kind"] == MapTypes.PROP_KIND_FISHING_BOAT and _has_tall_footprint(prop):
+	if prop["kind"] in MapTypes.BOAT_PROP_KINDS and _has_tall_footprint(prop):
 		root.rotation.y = PI * 0.5
 		root.position.y = -MapViewMeshBuilderConfig.WATER_RECESS + MapViewMeshBuilderConfig.WATER_SURFACE_LIFT
 	if MapWallWalkAccess.is_access_prop(prop) or MapWallWalkAccess.is_platform_prop(prop):
@@ -177,6 +178,8 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			MapViewMeshBuilderPrimitives.sphere(root, "BushC", 0.3, Vector3(0.04, 0.18, 0.16), &"vegetation", Vector3(1.0, 0.66, 1.0))
 		MapTypes.PROP_KIND_FISHING_BOAT:
 			_add_fishing_boat(root)
+		MapTypes.PROP_KIND_MERCHANT_BOAT:
+			_add_merchant_boat(root)
 		_:
 			MapViewMeshBuilderPrimitives.box(root, "Marker", Vector3(0.5, 0.5, 0.5), Vector3(0.0, 0.25, 0.0), &"ink")
 	return root
@@ -189,6 +192,11 @@ static func _has_tall_footprint(prop: Dictionary) -> bool:
 
 static func _add_fishing_boat(root: Node3D) -> void:
 	FishingBoatBuilder.add_to(root)
+
+
+static func _add_merchant_boat(root: Node3D) -> void:
+	MerchantBoatBuilder.add_to(root)
+
 
 ## Layered decorative vegetation and ground clutter. Textured ground cover carries
 ## most of the grass; sparse small/large tufts, shrubs, and trees add silhouette

@@ -97,6 +97,8 @@ const PROP_KIND_CHAIR := &"chair"
 const PROP_KIND_CANDLE := &"candle"
 const PROP_KIND_BUSH := &"bush"
 const PROP_KIND_FISHING_BOAT := &"fishing_boat"
+const PROP_KIND_MERCHANT_BOAT := &"merchant_boat"
+const BOAT_PROP_KINDS: Array[StringName] = [PROP_KIND_FISHING_BOAT, PROP_KIND_MERCHANT_BOAT]
 
 const ALL_PROP_KINDS: Array[StringName] = [
 	PROP_KIND_ANVIL,
@@ -118,6 +120,7 @@ const ALL_PROP_KINDS: Array[StringName] = [
 	PROP_KIND_CANDLE,
 	PROP_KIND_BUSH,
 	PROP_KIND_FISHING_BOAT,
+	PROP_KIND_MERCHANT_BOAT,
 ]
 
 const DEFAULT_CELL_SIZE := 32
