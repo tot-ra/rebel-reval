@@ -15,6 +15,15 @@ uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_l
 uniform sampler2D depth_texture : hint_depth_texture, repeat_disable, filter_nearest;
 uniform vec3 shallow_color : source_color = vec3(0.45, 0.62, 0.75);
 uniform vec3 deep_color : source_color = vec3(0.16, 0.30, 0.44);
+// The rendered terrain remains the physical bed. These tints layer sediment,
+// stones and vegetation over it in stable world space instead of requiring a
+// second authored mesh for every underwater material transition.
+uniform vec3 sand_bed_color : source_color = vec3(0.62, 0.51, 0.30);
+uniform vec3 stone_bed_color : source_color = vec3(0.32, 0.36, 0.35);
+uniform vec3 algae_bed_color : source_color = vec3(0.14, 0.28, 0.20);
+uniform vec3 deep_bed_color : source_color = vec3(0.035, 0.08, 0.11);
+uniform float optical_depth = 0.075;
+uniform float caustic_strength = 0.14;
 uniform vec3 highlight_color : source_color = vec3(0.396, 0.694, 0.769);
 uniform vec3 foam_color : source_color = vec3(0.72, 0.80, 0.78);
 uniform float wave_height = 0.032;
@@ -103,6 +112,30 @@ vec3 _water_shape(vec2 position, float time) {
 	return shape;
 }
 
+// Deterministic world-space masks keep the bed continuous across authored water
+// terrain borders. The weights always sum to one, so depth changes material
+// dominance instead of stacking four opaque color filters.
+vec4 _seabed_layers(vec2 position, float water_depth) {
+	float broad = _noise(position * 0.12 + vec2(31.7, -14.2));
+	float broken = _noise(position * 0.46 + vec2(-9.3, 27.1));
+	float detail = _noise(position * 1.85 + vec2(4.6, 18.8));
+	float deep_weight = smoothstep(0.20, 0.34, water_depth);
+	float shallow_weight = 1.0 - deep_weight;
+	float stone_weight = smoothstep(0.56, 0.78, broken * 0.72 + detail * 0.28) * shallow_weight;
+	float algae_depth = smoothstep(0.06, 0.16, water_depth) * (1.0 - smoothstep(0.30, 0.46, water_depth));
+	float algae_weight = smoothstep(0.48, 0.72, broad * 0.68 + broken * 0.32) * algae_depth;
+	float sand_weight = max(shallow_weight - stone_weight - algae_weight, 0.08 * shallow_weight);
+	float shallow_total = max(sand_weight + stone_weight + algae_weight, 0.0001);
+	vec3 shallow_layers = vec3(sand_weight, stone_weight, algae_weight) / shallow_total;
+	return vec4(shallow_layers * shallow_weight, deep_weight);
+}
+
+float _bed_caustics(vec2 position, float time) {
+	vec2 flow = position * 2.35 + vec2(time * 0.10, -time * 0.065);
+	float crossing = sin(flow.x + sin(flow.y * 1.37)) + cos(flow.y + sin(flow.x * 1.19));
+	return pow(clamp(1.0 - abs(crossing) * 0.56, 0.0, 1.0), 5.0);
+}
+
 float _view_depth(vec2 screen_uv, float raw_depth, mat4 inverse_projection) {
 	// GL Compatibility uses OpenGL NDC, whose Z range is -1..1.
 	vec3 ndc = vec3(screen_uv * 2.0 - 1.0, raw_depth * 2.0 - 1.0);
@@ -147,11 +180,17 @@ void fragment() {
 	float surface_depth = max(-VERTEX.z, 0.0001);
 	float raw_scene_depth = textureLod(depth_texture, SCREEN_UV, 0.0).r;
 	float scene_depth = _view_depth(SCREEN_UV, raw_scene_depth, INV_PROJECTION_MATRIX);
-	float water_depth = max(scene_depth - surface_depth, 0.0);
+	float geometric_depth = max(scene_depth - surface_depth, 0.0);
+	// Authored water cells share a flat gameplay bed. Their existing absorption
+	// profiles also select a minimum optical column, so shallow/river/deep water
+	// remain distinct while geometric depth still controls bank intersections,
+	// refraction safety and edge foam.
+	float terrain_optical_depth = optical_depth + max(depth_absorption - 5.0, 0.0) * 0.055;
+	float water_depth = max(geometric_depth, terrain_optical_depth);
 
 	// Distort only samples that remain behind the surface. This suppresses the
 	// familiar refraction halo that otherwise pulls dry bank pixels into water.
-	float depth_fade = smoothstep(0.0, 0.11, water_depth);
+	float depth_fade = smoothstep(0.0, 0.11, geometric_depth);
 	vec2 refracted_uv = clamp(
 		SCREEN_UV + view_normal.xy * refraction_strength * depth_fade,
 		vec2(0.001),
@@ -167,12 +206,34 @@ void fragment() {
 	}
 	vec3 floor_color = textureLod(screen_texture, refracted_uv, 0.0).rgb;
 
-	// Beer-Lambert-style attenuation: nearby bed remains visible while deeper
-	// rays lose warm light and converge on the terrain family's deep-water tint.
-	float absorption = 1.0 - exp(-water_depth * depth_absorption);
-	vec3 transmitted = floor_color * mix(vec3(0.94, 0.99, 1.02), shallow_color, 0.22);
-	vec3 water_color = mix(transmitted, deep_color, clamp(absorption * 0.88, 0.0, 0.92));
-	water_color = mix(water_color, shallow_color, 0.10 + absorption * 0.10);
+	// Sand dominates illuminated shallows, stones break it into cool patches,
+	// algae occupies sheltered mid-depth water, and the final layer suppresses
+	// all bed detail once little daylight reaches the floor. The actual rendered
+	// floor remains visible below the tint, preserving quays, props and authored
+	// bank materials seen through the surface.
+	vec4 bed_layers = _seabed_layers(water_world_position.xz, water_depth);
+	vec3 shallow_bed = (
+		sand_bed_color * bed_layers.x
+		+ stone_bed_color * bed_layers.y
+		+ algae_bed_color * bed_layers.z
+	);
+	vec3 layered_bed = mix(shallow_bed, deep_bed_color, bed_layers.w);
+	float bed_detail_visibility = exp(-water_depth * 4.2);
+	vec3 seabed = mix(layered_bed, floor_color * layered_bed * 1.55, bed_detail_visibility * 0.72);
+
+	// Wavelength-dependent transmission removes red first and blue last. This
+	// creates depth lighting variation rather than uniformly darkening RGB.
+	vec3 spectral_transmission = exp(-water_depth * depth_absorption * vec3(1.28, 0.72, 0.40));
+	float absorption = 1.0 - dot(spectral_transmission, vec3(0.333333));
+	vec3 transmitted = seabed * spectral_transmission;
+	vec3 water_color = transmitted + deep_color * (vec3(1.0) - spectral_transmission) * 0.82;
+	water_color = mix(water_color, shallow_color, (1.0 - absorption) * 0.12);
+
+	// Caustics belong to the floor, so they fade with both depth and night. Keeping
+	// the pattern in world space avoids UV seams between separate water materials.
+	float caustic_visibility = exp(-water_depth * 7.0) * (1.0 - bed_layers.w) * day_blend;
+	float caustics = _bed_caustics(water_world_position.xz, TIME * wave_speed);
+	water_color += highlight_color * caustics * caustic_visibility * caustic_strength;
 
 	// Schlick Fresnel plus the PBR specular lobe produces stable sky reflection
 	// and narrow sun glints at the shallow isometric viewing angle.
@@ -225,7 +286,7 @@ void fragment() {
 	);
 	float edge_foam = shore * smoothstep(0.52, 0.88, foam_noise * 0.70 + foam_ribbon * 0.30);
 	float foam = edge_foam * foam_intensity + breaker_band * breaker_intensity;
-	foam *= smoothstep(0.012, 0.08, water_depth);
+	foam *= smoothstep(0.012, 0.08, geometric_depth);
 	water_color = mix(water_color, foam_color, clamp(foam, 0.0, 0.72));
 
 	ALBEDO = water_color;

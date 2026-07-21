@@ -8,14 +8,14 @@ extends RefCounted
 ## this class keeps validation helpers and the public compile entry points.
 
 
-const COMPILER_VERSION := 5
+const COMPILER_VERSION := 6
 const ID_PATTERN := "^[a-z0-9_.-]+$"
 
 const COMMON_STYLE_KEYS: Array[StringName] = [&"enabled"]
 const TERRAIN_KEYS: Array[StringName] = [&"terrain", &"style_variant", &"movement_speed_multiplier"]
 const BUILDING_OVERRIDE_KEYS: Array[StringName] = [
 	&"rect", &"wall_height", &"wall_height_scale", &"wall_color", &"roof_color",
-	&"door_side", &"ridge_axis", &"primitive", &"tower", &"wall_material", &"roof_material",
+	&"door_side", &"ridge_axis", &"wall_walk_axis", &"interior_side", &"primitive", &"tower", &"round_tower", &"wall_material", &"roof_material",
 	&"faction",
 ]
 const PROP_OVERRIDE_KEYS: Array[StringName] = [
@@ -36,11 +36,11 @@ const LANDMARK_OVERRIDE_KEYS: Array[StringName] = [
 ]
 const ALL_STYLE_KEYS: Array[StringName] = [
 	&"enabled", &"terrain", &"rect", &"wall_height", &"wall_height_scale", &"wall_color",
-	&"roof_color", &"door_side", &"ridge_axis", &"primitive", &"cell", &"facing",
+	&"roof_color", &"door_side", &"ridge_axis", &"wall_walk_axis", &"interior_side", &"primitive", &"cell", &"facing",
 	&"style_variant", &"visual_offset_px", &"destination_scene_id", &"destination_spawn_id",
 	&"spawn_id", &"building_id", &"spawn_offset_px", &"highlight_area", &"transition_visual", &"view_landmark_id", &"alignment", &"kind",
 	&"points", &"point_rects", &"text", &"direction", &"top_px", &"door_material", &"passage_axis",
-	&"movement_speed_multiplier", &"tower", &"wall_material", &"roof_material", &"faction",
+	&"movement_speed_multiplier", &"tower", &"round_tower", &"wall_material", &"roof_material", &"faction",
 ]
 
 

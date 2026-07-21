@@ -33,6 +33,22 @@ spawn spawn.main 2 2
 	assert_eq(building.get("roof_material"), &"shingle")
 
 
+func test_round_tower_wall_walk_fields_compile_into_buildings() -> void:
+	var source := """rrmap 1
+map tower_walk loc.tower_walk 12 10 grass
+building tower wall 3 3 4 4 wall_height=240 tower=false round_tower=true wall_walk_axis=x interior_side=south
+spawn spawn.main 2 2
+"""
+	var parsed := MapRrmapParser.parse(source, "res://tower_walk.rrmap")
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if not parsed.is_ok():
+		return
+	var building: Dictionary = parsed.definition.buildings[0]
+	assert_true(bool(building.get("round_tower", false)))
+	assert_eq(building.get("wall_walk_axis"), &"x")
+	assert_eq(building.get("interior_side"), &"south")
+
+
 func test_transition_building_id_compiles_for_reusable_facade_entrances() -> void:
 	var source := """rrmap 1
 map entrance loc.entrance 12 10 grass

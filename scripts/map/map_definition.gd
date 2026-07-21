@@ -252,6 +252,16 @@ func _validate_building(building: Dictionary, index: int, seen_ids: Dictionary) 
 			errors.append("%s.tower requires door_side north, south, east, or west" % prefix)
 	elif building.has("tower") and building["tower"] != false:
 		errors.append("%s.tower must be a boolean" % prefix)
+	if building.has("round_tower") and not (building["round_tower"] is bool):
+		errors.append("%s.round_tower must be a boolean" % prefix)
+	var wall_walk_axis := StringName(building.get("wall_walk_axis", &""))
+	if wall_walk_axis != &"" and wall_walk_axis not in [&"x", &"z"]:
+		errors.append("%s.wall_walk_axis must be x or z" % prefix)
+	if wall_walk_axis != &"" and not MapWallWalkAccess.is_round_tower(building):
+		errors.append("%s.wall_walk_axis requires a round tower" % prefix)
+	var interior_side := StringName(building.get("interior_side", &""))
+	if interior_side != &"" and not WORLD_SIDES.has(interior_side):
+		errors.append("%s.interior_side must be north, south, east, or west" % prefix)
 	if building.has("faction") and not FactionHeraldry.is_known(StringName(building["faction"])):
 		errors.append("%s.faction is unknown: %s" % [prefix, str(building["faction"])])
 

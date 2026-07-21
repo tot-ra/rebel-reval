@@ -75,12 +75,12 @@ static func _transform_dictionary(
 			&"direction", &"step":
 				if value is Vector2i:
 					values[key_value] = transform.transform_cell(value)
-			&"facing", &"door_side":
+			&"facing", &"door_side", &"interior_side":
 				if value is StringName or value is String:
 					values[key_value] = transform.transform_cardinal(StringName(value))
 				elif value is Vector2:
 					values[key_value] = transform.transform_vector(value)
-			&"ridge_axis", &"passage_axis":
+			&"ridge_axis", &"passage_axis", &"wall_walk_axis":
 				if value is StringName or value is String:
 					values[key_value] = transform.transform_axis(StringName(value))
 			&"visual_offset_px", &"spawn_offset_px":

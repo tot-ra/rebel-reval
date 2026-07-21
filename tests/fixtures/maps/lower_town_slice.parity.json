@@ -573,6 +573,7 @@
       ],
       "id": "hinke_tower",
       "kind": "wall",
+      "round_tower": true,
       "tower": false,
       "wall_color": [
         0.549019635,
@@ -580,7 +581,8 @@
         0.501960814,
         1.000000000
       ],
-      "wall_height": 240.000000000
+      "wall_height": 240.000000000,
+      "wall_walk_axis": "z"
     },
     {
       "door_side": "north",
@@ -1604,6 +1606,7 @@
       ],
       "id": "viru_gate_north_tower",
       "kind": "wall",
+      "round_tower": true,
       "tower": false,
       "wall_color": [
         0.560784340,
@@ -1611,7 +1614,8 @@
         0.501960814,
         1.000000000
       ],
-      "wall_height": 256.000000000
+      "wall_height": 256.000000000,
+      "wall_walk_axis": "z"
     },
     {
       "footprint": [
@@ -1640,6 +1644,7 @@
       ],
       "id": "viru_gate_south_tower",
       "kind": "wall",
+      "round_tower": true,
       "tower": false,
       "wall_color": [
         0.560784340,
@@ -1647,7 +1652,8 @@
         0.501960814,
         1.000000000
       ],
-      "wall_height": 256.000000000
+      "wall_height": 256.000000000,
+      "wall_walk_axis": "z"
     },
     {
       "door_side": "south",
@@ -1926,6 +1932,7 @@
       ],
       "id": "wall_tower_north",
       "kind": "wall",
+      "round_tower": true,
       "tower": false,
       "wall_color": [
         0.549019635,
@@ -1933,7 +1940,8 @@
         0.501960814,
         1.000000000
       ],
-      "wall_height": 240.000000000
+      "wall_height": 240.000000000,
+      "wall_walk_axis": "z"
     },
     {
       "footprint": [
@@ -1944,6 +1952,7 @@
       ],
       "id": "wall_tower_northeast",
       "kind": "wall",
+      "round_tower": true,
       "tower": false,
       "wall_color": [
         0.549019635,
@@ -1951,7 +1960,8 @@
         0.501960814,
         1.000000000
       ],
-      "wall_height": 240.000000000
+      "wall_height": 240.000000000,
+      "wall_walk_axis": "z"
     },
     {
       "footprint": [
@@ -1962,6 +1972,7 @@
       ],
       "id": "wall_tower_south",
       "kind": "wall",
+      "round_tower": true,
       "tower": false,
       "wall_color": [
         0.549019635,
@@ -1969,7 +1980,8 @@
         0.501960814,
         1.000000000
       ],
-      "wall_height": 240.000000000
+      "wall_height": 240.000000000,
+      "wall_walk_axis": "x"
     },
     {
       "footprint": [
@@ -1980,6 +1992,7 @@
       ],
       "id": "wall_tower_southeast",
       "kind": "wall",
+      "round_tower": true,
       "tower": false,
       "wall_color": [
         0.549019635,
@@ -1987,7 +2000,8 @@
         0.501960814,
         1.000000000
       ],
-      "wall_height": 240.000000000
+      "wall_height": 240.000000000,
+      "wall_walk_axis": "x"
     },
     {
       "footprint": [
@@ -1998,6 +2012,7 @@
       ],
       "id": "wall_tower_southwest",
       "kind": "wall",
+      "round_tower": true,
       "tower": false,
       "wall_color": [
         0.549019635,
@@ -2005,7 +2020,8 @@
         0.501960814,
         1.000000000
       ],
-      "wall_height": 240.000000000
+      "wall_height": 240.000000000,
+      "wall_walk_axis": "x"
     },
     {
       "door_side": "south",
@@ -2161,8 +2177,8 @@
     ]
   },
   "navigation": {
-    "walkability_sha256": "b4082c31c74b9269312b6b2cad1e904fed5308cf563298ee70323e2446e186d6",
-    "walkable_cell_count": 13430
+    "walkability_sha256": "2939749630f9bd1ea1dc775c32147af812b1515277edf8899908d19361ce352b",
+    "walkable_cell_count": 13778
   },
   "patrols": [
     {
@@ -2455,20 +2471,39 @@
     },
     {
       "facing": [
+        1,
+        0
+      ],
+      "footprint": [
+        3520.000000000,
+        1056.000000000,
+        128.000000000,
+        128.000000000
+      ],
+      "id": "viru_wall_walk_entry",
+      "kind": "stairs",
+      "position": [
+        3584.000000000,
+        1120.000000000
+      ],
+      "primitive": "wall_walk_platform"
+    },
+    {
+      "facing": [
         0,
         -1
       ],
       "footprint": [
-        3520.000000000,
-        960.000000000,
-        128.000000000,
-        352.000000000
+        3584.000000000,
+        0.000000000,
+        64.000000000,
+        2592.000000000
       ],
       "id": "viru_wall_walk_platform",
       "kind": "stairs",
       "position": [
-        3584.000000000,
-        1136.000000000
+        3616.000000000,
+        1296.000000000
       ],
       "primitive": "wall_walk_platform"
     },
@@ -2490,6 +2525,101 @@
         1120.000000000
       ],
       "primitive": "wall_walk_access"
+    },
+    {
+      "facing": [
+        -1,
+        0
+      ],
+      "footprint": [
+        2880.000000000,
+        2688.000000000,
+        576.000000000,
+        64.000000000
+      ],
+      "id": "wall_walk_east_bend",
+      "kind": "stairs",
+      "position": [
+        3168.000000000,
+        2720.000000000
+      ],
+      "primitive": "wall_walk_platform"
+    },
+    {
+      "facing": [
+        0,
+        1
+      ],
+      "footprint": [
+        3424.000000000,
+        2240.000000000,
+        128.000000000,
+        544.000000000
+      ],
+      "id": "wall_walk_hinke_corner",
+      "kind": "stairs",
+      "position": [
+        3488.000000000,
+        2512.000000000
+      ],
+      "primitive": "wall_walk_platform"
+    },
+    {
+      "facing": [
+        -1,
+        0
+      ],
+      "footprint": [
+        2368.000000000,
+        3360.000000000,
+        640.000000000,
+        96.000000000
+      ],
+      "id": "wall_walk_south_bend",
+      "kind": "stairs",
+      "position": [
+        2688.000000000,
+        3408.000000000
+      ],
+      "primitive": "wall_walk_platform"
+    },
+    {
+      "facing": [
+        0,
+        1
+      ],
+      "footprint": [
+        2912.000000000,
+        2688.000000000,
+        64.000000000,
+        768.000000000
+      ],
+      "id": "wall_walk_southeast_bend",
+      "kind": "stairs",
+      "position": [
+        2944.000000000,
+        3072.000000000
+      ],
+      "primitive": "wall_walk_platform"
+    },
+    {
+      "facing": [
+        0,
+        1
+      ],
+      "footprint": [
+        2368.000000000,
+        3360.000000000,
+        64.000000000,
+        736.000000000
+      ],
+      "id": "wall_walk_southwest",
+      "kind": "stairs",
+      "position": [
+        2400.000000000,
+        3728.000000000
+      ],
+      "primitive": "wall_walk_platform"
     },
     {
       "footprint": [

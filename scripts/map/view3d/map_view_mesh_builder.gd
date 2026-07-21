@@ -38,9 +38,10 @@ static func build_terrain(definition: MapDefinition, grid: MapTerrainGrid) -> No
 static func build_building(
 	building: Dictionary,
 	cell_size: int,
-	entrances: Array[Dictionary] = []
+	entrances: Array[Dictionary] = [],
+	map_bounds: Rect2 = Rect2()
 ) -> Node3D:
-	return _Buildings.build_building(building, cell_size, entrances)
+	return _Buildings.build_building(building, cell_size, entrances, map_bounds)
 
 
 static func interior_shell_wall_height_world(definition: MapDefinition) -> float:

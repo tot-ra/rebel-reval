@@ -26,6 +26,38 @@ static func is_platform_prop(prop: Dictionary) -> bool:
 	)
 
 
+static func has_tower_passage(building: Dictionary) -> bool:
+	return is_round_tower(building) and passage_axis(building) != &""
+
+
+static func is_round_tower(building: Dictionary) -> bool:
+	return bool(building.get("round_tower", building.get("tower", false)))
+
+
+static func passage_axis(building: Dictionary) -> StringName:
+	var axis := StringName(building.get("wall_walk_axis", &""))
+	return axis if axis in [&"x", &"z"] else &""
+
+
+static func tower_passage_rect(building: Dictionary) -> Rect2:
+	if not has_tower_passage(building):
+		return Rect2()
+	var footprint: Rect2 = building["footprint"]
+	var width := minf(
+		MapViewMeshBuilderConfig.WALL_WALK_PASSAGE_WIDTH_PX,
+		minf(footprint.size.x, footprint.size.y)
+	)
+	if passage_axis(building) == &"x":
+		return Rect2(
+			Vector2(footprint.position.x, footprint.get_center().y - width * 0.5),
+			Vector2(footprint.size.x, width)
+		)
+	return Rect2(
+		Vector2(footprint.get_center().x - width * 0.5, footprint.position.y),
+		Vector2(width, footprint.size.y)
+	)
+
+
 static func collision_rects(definition: MapDefinition, building: Dictionary) -> Array[Rect2]:
 	var footprint_value: Variant = building.get("footprint")
 	if not (footprint_value is Rect2):
@@ -34,15 +66,20 @@ static func collision_rects(definition: MapDefinition, building: Dictionary) -> 
 	if definition == null or building.get("kind", &"") != MapTypes.BUILDING_KIND_WALL:
 		return rects
 
-	# WHY: wall geometry remains a solid visual mass, but an explicitly authored
-	# platform is the gameplay contract for a walkable wall-top corridor. Subtract
-	# only its overlap so unrelated fortification footprints remain sealed.
+	# WHY: wall geometry remains a solid visual mass, but explicitly authored
+	# platforms and tower axes are the gameplay contract for a walkable wall-top
+	# corridor. Subtract only those overlaps so unrelated fortifications stay sealed.
+	var openings: Array[Rect2] = []
+	if has_tower_passage(building):
+		openings.append(tower_passage_rect(building))
 	for prop in definition.props:
 		if not is_platform_prop(prop):
 			continue
 		var opening := (prop["footprint"] as Rect2).intersection(footprint_value as Rect2)
-		if not opening.has_area():
-			continue
+		if opening.has_area():
+			openings.append(opening)
+
+	for opening in openings:
 		var remaining: Array[Rect2] = []
 		for rect in rects:
 			remaining.append_array(_subtract_rect(rect, opening))
@@ -70,7 +107,7 @@ static func target_height(definition: MapDefinition, prop: Dictionary) -> float:
 	for building in definition.buildings:
 		if building.get("kind", &"") != MapTypes.BUILDING_KIND_WALL:
 			continue
-		if bool(building.get("tower", false)):
+		if is_round_tower(building):
 			continue
 		var authored_height := float(building.get("wall_height", 0.0))
 		if authored_height < MapViewMeshBuilderConfig.BATTLEMENT_MIN_HEIGHT_PX:

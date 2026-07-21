@@ -9,7 +9,8 @@ extends RefCounted
 static func build_building(
 	building: Dictionary,
 	cell_size: int,
-	entrances: Array[Dictionary] = []
+	entrances: Array[Dictionary] = [],
+	map_bounds: Rect2 = Rect2()
 ) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Building_%s" % String(building["id"])
@@ -27,29 +28,45 @@ static func build_building(
 	var fortification := kind == MapTypes.BUILDING_KIND_WALL and authored_height_px >= MapViewMeshBuilderConfig.BATTLEMENT_MIN_HEIGHT_PX
 	var footprint_aspect := minf(size.x, size.y) / maxf(size.x, size.y)
 	var explicitly_completed_tower := bool(building.get("tower", false))
-	var inferred_tower := not building.has("tower") \
+	var explicitly_round_tower := bool(building.get("round_tower", false))
+	var inferred_tower := not building.has("tower") and not building.has("round_tower") \
 		and size.x <= MapViewMeshBuilderConfig.TOWER_MAX_FOOTPRINT \
 		and size.y <= MapViewMeshBuilderConfig.TOWER_MAX_FOOTPRINT \
 		and footprint_aspect >= MapViewMeshBuilderConfig.TOWER_MIN_ASPECT
-	# WHY: tower=false marks a historically real or planned tower position that
-	# must remain curtain masonry in the selected year. Only absent metadata uses
-	# the legacy small-footprint inference for unmigrated maps.
-	var tower := fortification and (explicitly_completed_tower or inferred_tower)
+	# WHY: tower tracks completion in the 1343 historical snapshot. round_tower
+	# can preserve the characteristic circular Tallinn footprint without inventing
+	# a completed roof, pennant, door, or fighting-stage dressing.
+	var round_tower := fortification and (explicitly_completed_tower or explicitly_round_tower or inferred_tower)
 
 	var walls := MeshInstance3D.new()
 	walls.name = "Walls"
-	if tower:
+	if round_tower:
 		var drum := CylinderMesh.new()
 		drum.top_radius = minf(size.x, size.y) * MapViewMeshBuilderConfig.TOWER_RADIUS_FACTOR
 		drum.bottom_radius = drum.top_radius * 1.06
-		drum.height = height
-		drum.radial_segments = 18
+		var tower_passage := MapWallWalkAccess.has_tower_passage(building)
+		var passage_floor_y := minf(
+			height,
+			MapViewMeshBuilderConfig.WALL_WALK_PASSAGE_FLOOR_HEIGHT
+		)
+		drum.height = passage_floor_y if tower_passage else height
+		drum.radial_segments = 24
 		walls.mesh = drum
 		walls.material_override = MapViewMaterials.wall_surface_for_size(
 			&"limestone",
 			wall_color.lightened(0.08),
-			Vector3(TAU * drum.top_radius, height, TAU * drum.top_radius)
+			Vector3(TAU * drum.top_radius, drum.height, TAU * drum.top_radius)
 		)
+		walls.position = Vector3(0.0, drum.height * 0.5, 0.0)
+		if tower_passage:
+			MapViewMeshBuilderBuildingFortification.add_tower_wall_walk_passage(
+				root,
+				drum.top_radius,
+				passage_floor_y,
+				height,
+				MapWallWalkAccess.passage_axis(building),
+				wall_color
+			)
 	else:
 		var wall_mesh := BoxMesh.new()
 		var mesh_size := Vector3(size.x, height, size.y)
@@ -65,7 +82,7 @@ static func build_building(
 			walls.material_override = MapViewMeshBuilderBuildingInteriorWalls.interior_wall_material(building, wall_color)
 		else:
 			walls.material_override = MapViewMaterials.wall_for_size(wall_color, wall_mesh.size)
-	walls.position = Vector3(0.0, height * 0.5, 0.0)
+		walls.position = Vector3(0.0, height * 0.5, 0.0)
 	root.add_child(walls)
 
 	if kind == MapTypes.BUILDING_KIND_HOUSE:
@@ -94,7 +111,7 @@ static func build_building(
 		MapViewMeshBuilderBuildingHouses.add_window_lights(root, building["id"])
 	elif kind == MapTypes.BUILDING_KIND_INTERIOR_WALL:
 		MapViewMeshBuilderBuildingInteriorWalls.add_interior_wall_structure(root, building, size, height)
-	elif tower:
+	elif round_tower:
 		var radius := minf(size.x, size.y) * MapViewMeshBuilderConfig.TOWER_RADIUS_FACTOR
 		var cap := MeshInstance3D.new()
 		cap.name = "Cap"
@@ -111,15 +128,16 @@ static func build_building(
 			Vector3(TAU * ring.top_radius, ring.height, TAU * ring.top_radius)
 		)
 		root.add_child(cap)
-		MapViewMeshBuilderBuildingFortification.add_tower_door(
-			root,
-			radius,
-			height,
-			StringName(building.get("door_side", &""))
-		)
-		MapViewMeshBuilderBuildingFortification.add_tower_roof(root, radius, height, building)
-		if authored_height_px >= MapViewMeshBuilderConfig.TOWER_MIN_HEIGHT_PX:
-			MapViewMeshBuilderBuildingFortification.add_tower_slits(root, radius, height)
+		if explicitly_completed_tower:
+			MapViewMeshBuilderBuildingFortification.add_tower_door(
+				root,
+				radius,
+				height,
+				StringName(building.get("door_side", &""))
+			)
+			MapViewMeshBuilderBuildingFortification.add_tower_roof(root, radius, height, building)
+			if authored_height_px >= MapViewMeshBuilderConfig.TOWER_MIN_HEIGHT_PX:
+				MapViewMeshBuilderBuildingFortification.add_tower_slits(root, radius, height)
 	elif kind != MapTypes.BUILDING_KIND_INTERIOR_WALL:
 		var cap := MeshInstance3D.new()
 		cap.name = "Cap"
@@ -141,7 +159,7 @@ static func build_building(
 			)
 		root.add_child(cap)
 		if fortification:
-			MapViewMeshBuilderBuildingFortification.add_base_arcades(root, building, size)
+			MapViewMeshBuilderBuildingFortification.add_base_arcades(root, building, size, map_bounds)
 			MapViewMeshBuilderBuildingFortification.add_battlements(root, building, size, height)
 			MapViewMeshBuilderBuildingFortification.add_wall_walk_roof(root, size, height)
 	return root

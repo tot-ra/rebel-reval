@@ -476,7 +476,12 @@ func _create_streamed_object(record: Dictionary) -> Node:
 			for transition in definition.transitions:
 				if transition.get("building_id", &"") == source.get("id", &""):
 					entrances.append(transition)
-			var building_node := MapViewMeshBuilder.build_building(source, definition.cell_size, entrances)
+			var building_node := MapViewMeshBuilder.build_building(
+				source,
+				definition.cell_size,
+				entrances,
+				Rect2(Vector2.ZERO, definition.world_size())
+			)
 			building_node.position.y = MapViewMeshBuilder.ground_height(
 				definition,
 				Vector2(building_node.position.x, building_node.position.z)

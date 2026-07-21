@@ -63,3 +63,32 @@ func test_water_shader_contains_advancing_shore_breakers() -> void:
 	assert_true("breaker_phase" in source, "surf bands must advance through the shoreline contour")
 	assert_true("shoaling" in source, "waves must rise as they enter shallow water")
 	assert_true("TIME * wave_speed" in source, "weather must control visible wave speed")
+
+
+func test_water_shader_layers_seabed_materials_by_depth() -> void:
+	var source := MapViewMaterialShaders.WATER_SHADER_CODE
+	for uniform_name in ["sand_bed_color", "stone_bed_color", "algae_bed_color", "deep_bed_color"]:
+		assert_true(uniform_name in source, "water needs a %s seabed layer" % uniform_name)
+	assert_true("_seabed_layers" in source, "seabed masks must be stable procedural layers")
+	assert_true("bed_layers.w" in source, "deep water must replace shallow bed detail")
+	assert_true("floor_color" in source, "authored underwater geometry must remain visible")
+	assert_true("spectral_transmission" in source, "water lighting must attenuate wavelengths by depth")
+	assert_true("_bed_caustics" in source, "sunlit shallows need moving floor light")
+	assert_true("day_blend" in source, "floor caustics must fade at night")
+
+
+func test_authored_water_families_keep_distinct_optical_depths() -> void:
+	var shallow := MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
+	var river := MapViewMaterials.water_surface(MapTypes.TERRAIN_WATER)
+	var deep := MapViewMaterials.water_surface(MapTypes.TERRAIN_DEEP_WATER)
+	assert_true(
+		float(shallow.get_shader_parameter("depth_absorption"))
+		< float(river.get_shader_parameter("depth_absorption")),
+		"river water must hide more bed light than shallow coastal water"
+	)
+	assert_true(
+		float(river.get_shader_parameter("depth_absorption"))
+		< float(deep.get_shader_parameter("depth_absorption")),
+		"deep water must hide more bed light than river water"
+	)
+	assert_true("terrain_optical_depth" in deep.shader.code, "flat gameplay beds need visual depth per terrain family")

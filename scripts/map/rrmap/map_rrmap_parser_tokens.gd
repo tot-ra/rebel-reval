@@ -5,7 +5,7 @@ extends RefCounted
 ## statement dispatcher stays readable and tokenizer tests can load less code.
 
 const STYLE_NAME_KEYS: Array[String] = [
-	"door_side", "ridge_axis", "primitive", "style_variant", "destination_scene_id",
+	"door_side", "ridge_axis", "wall_walk_axis", "interior_side", "primitive", "style_variant", "destination_scene_id",
 	"destination_spawn_id", "spawn_id", "building_id", "transition_visual", "view_landmark_id", "alignment", "kind", "door_material", "passage_axis",
 	"wall_material", "roof_material", "faction",
 ]
@@ -14,7 +14,7 @@ const STYLE_COLOR_KEYS: Array[String] = ["wall_color", "roof_color"]
 const STYLE_VECTOR_KEYS: Array[String] = ["visual_offset_px", "spawn_offset_px"]
 const STYLE_CARDINAL_VECTOR_KEYS: Array[String] = ["facing", "direction"]
 const STYLE_RECT_KEYS: Array[String] = ["rect", "cell"]
-const STYLE_BOOL_KEYS: Array[String] = ["enabled", "tower", "highlight_area"]
+const STYLE_BOOL_KEYS: Array[String] = ["enabled", "tower", "round_tower", "highlight_area"]
 
 var _parser
 func _init(parser) -> void:

@@ -8,8 +8,8 @@ shader_type sky;
 
 uniform vec4 day_top_color : source_color = vec4(0.24, 0.51, 0.88, 1.0);
 uniform vec4 day_horizon_color : source_color = vec4(0.62, 0.78, 0.93, 1.0);
-uniform vec4 night_top_color : source_color = vec4(0.010, 0.016, 0.045, 1.0);
-uniform vec4 night_horizon_color : source_color = vec4(0.045, 0.060, 0.105, 1.0);
+uniform vec4 night_top_color : source_color = vec4(0.020, 0.045, 0.130, 1.0);
+uniform vec4 night_horizon_color : source_color = vec4(0.050, 0.100, 0.220, 1.0);
 uniform vec4 sunset_color : source_color = vec4(0.98, 0.45, 0.18, 1.0);
 uniform vec4 sun_color : source_color = vec4(1.0, 0.92, 0.74, 1.0);
 uniform vec4 moon_color : source_color = vec4(0.82, 0.84, 0.86, 1.0);
@@ -57,11 +57,10 @@ float remap(float v, float lo, float hi, float nlo, float nhi) {
 }
 
 
-// Raw cumulus opacity at a projected cloud-plane point. The silhouette is built
-// from rounded cellular heaps; FBM only erodes the boundary. That order is the
-// whole trick: cellular gives lumpy cauliflower, never the marbled ink swirl a
-// domain-warped FBM threshold produces.
-float cloud_opacity(vec2 uv, float cover) {
+// Coarse cumulus body from rounded cellular heaps, before edge erosion. The
+// silhouette must come from cellular noise: FBM thresholds swirl like marbled
+// ink, cellular gives lumpy cauliflower. Cheap enough to march for self-shadow.
+float cloud_bulk(vec2 uv, float cover) {
 	// Two cellular scales: large discrete banks with open sky between them, and
 	// the smaller heaps that pile up inside each bank.
 	float banks = 1.0 - texture(cloud_shape, uv * 0.42 + vec2(0.13, 0.61)).r;
@@ -72,14 +71,19 @@ float cloud_opacity(vec2 uv, float cover) {
 	// Coverage raises the cloud floor: low coverage keeps only the densest cores,
 	// high coverage lets the whole heap field become solid overcast.
 	float floor_thr = mix(0.66, 0.04, cover);
-	float cloud = remap(base, floor_thr, floor_thr + 0.30, 0.0, 1.0);
+	return clamp(remap(base, floor_thr, floor_thr + 0.30, 0.0, 1.0), 0.0, 1.0);
+}
 
-	// Erode the edges with a few FBM octaves so heap boundaries are torn and
-	// lumpy. cloud_chaos widens the erosion so storms shred harder than clear.
-	float detail = texture(cloud_noise, uv * 1.9 + cloud_detail_offset).r * 0.55
-		+ texture(cloud_noise, uv * 4.6 - cloud_detail_offset * 0.6).r * 0.30
-		+ texture(cloud_noise, uv * 9.4 + cloud_detail_offset * 0.3).r * 0.15;
-	cloud = remap(cloud, detail * mix(0.30, 0.72, cloud_chaos), 1.0, 0.0, 1.0);
+
+// Full opacity: the cellular body with its edges eroded by a few FBM octaves so
+// heap boundaries are torn and lumpy. cloud_chaos widens the erosion so storms
+// shred harder than clear skies.
+float cloud_opacity(vec2 uv, float cover) {
+	float cloud = cloud_bulk(uv, cover);
+	float detail = texture(cloud_noise, uv * 1.9 + cloud_detail_offset).r * 0.5
+		+ texture(cloud_noise, uv * 4.6 - cloud_detail_offset * 0.6).r * 0.32
+		+ texture(cloud_noise, uv * 9.4 + cloud_detail_offset * 0.3).r * 0.18;
+	cloud = remap(cloud, detail * mix(0.32, 0.72, cloud_chaos), 1.0, 0.0, 1.0);
 	return clamp(cloud, 0.0, 1.0);
 }
 
@@ -114,19 +118,27 @@ vec2 cloud_field(vec3 dir) {
 		* (1.0 - storm_intensity * 0.7) * 0.4;
 	density = max(density, cirrus) * horizon_fade;
 
-	// Puff shading: sample the field again a short step toward the sun. Where
-	// cloud lies between here and the sun this point is shadowed; edges opening
-	// toward the sun light up. That self-shadow is what makes heaps read as 3D
-	// volume instead of flat marbling.
+	// Volumetric self-shadow by a short light-march toward the sun. Accumulate the
+	// cloud body along a few steps and apply Beer's law: the sun-facing flank of
+	// each heap stays bright while light falls off smoothly deeper into its body.
+	// Because the march direction comes from the sun, the bright side tracks the
+	// sun across the day. Unlike a local-gradient normal this leaves no dark
+	// emboss rim, and unlike a single tap it is a smooth gradient, not two tones.
 	vec2 sun_xz = vec2(sun_direction.x, -sun_direction.z);
-	vec2 light_step = (length(sun_xz) > 0.001 ? normalize(sun_xz) : vec2(1.0, 0.0)) * 0.02;
-	float toward_sun = cloud_opacity(uv + light_step, cover);
-	float self_shadow = clamp((density - toward_sun) * 2.5 + 0.55, 0.0, 1.0);
+	vec2 light_dir = length(sun_xz) > 0.001 ? normalize(sun_xz) : vec2(1.0, 0.0);
+	float march = cloud_bulk(uv + light_dir * 0.02, cover)
+		+ cloud_bulk(uv + light_dir * 0.05, cover) * 0.7
+		+ cloud_bulk(uv + light_dir * 0.09, cover) * 0.45
+		+ cloud_bulk(uv + light_dir * 0.15, cover) * 0.25;
+	float self_shadow = exp(-march * 1.25);
+	// Ambient fill stops shadowed sides crushing to black; storms sit darker.
+	float ambient = mix(0.46, 0.22, storm_intensity);
+	float light = mix(ambient, 1.0, self_shadow);
 
 	// Anvil crown / silver lining: thin sun-facing edges flare, hardest on storms.
 	float edge = clamp(density * (1.0 - density) * 4.0, 0.0, 1.0);
 	float sun_facing = max(dot(normalize(dir), sun_direction), 0.0);
-	float light = clamp(self_shadow + edge * pow(sun_facing, 2.0) * (0.3 + 0.7 * storm_intensity), 0.0, 1.0);
+	light = clamp(light + edge * pow(sun_facing, 3.0) * (0.35 + 0.65 * storm_intensity), 0.0, 1.0);
 
 	return vec2(density, light);
 }
@@ -226,15 +238,20 @@ void sky() {
 	float moon_halo = smoothstep(cos(moon_radius * 4.0), moon_edge, moon_dot) * (1.0 - moon_disk);
 	color += moon_color.rgb * moon_halo * moon_visibility * moon_lighting * 0.08;
 
-	// Cloud layer: sunlit tops versus shadowed undersides give the heaps real
-	// volume. cloud_light comes from the sun-relative self-shadow above.
-	vec3 cloud_top = mix(vec3(0.10, 0.11, 0.14), vec3(1.0, 1.0, 1.0), day_blend);
-	cloud_top = mix(cloud_top, sunset_color.rgb * 1.1, sunset_factor * pow(sun_amount, 2.0) * 0.8);
-	// Storm undersides are far darker and flatter than a fair-weather base.
-	vec3 cloud_shadow = cloud_top * mix(0.5, 0.24, storm_intensity);
+	// Cloud layer. The lit tone carries the sun's own colour and warms toward the
+	// horizon, so clouds are gilded at dawn/dusk and cool white at noon; the
+	// bright flank (from the light-march in cloud_light) tracks the sun's bearing.
+	vec3 sun_lit = mix(vec3(1.0, 1.0, 1.0), sun_color.rgb, 0.3);
+	sun_lit = mix(sun_lit, sunset_color.rgb * 1.2, sunset_factor * 0.75);
+	vec3 cloud_top = mix(vec3(0.09, 0.11, 0.16), sun_lit, day_blend);
+	// Shadowed sides are darker, cooler, and bluer; storms darken further still.
+	vec3 cloud_shadow = cloud_top * mix(0.6, 0.26, storm_intensity) * vec3(0.88, 0.95, 1.12);
 	vec3 cloud_col = mix(cloud_shadow, cloud_top, cloud_light);
-	// Overcast fronts flatten the heaps toward a dim, uniform gray sheet.
-	cloud_col = mix(cloud_col, cloud_top * 0.45, cloud_darken * 0.8);
+	// Warm directional rim where a lit cloud faces the low sun (sunrise/sunset).
+	vec3 sun_glow = mix(sun_color.rgb, sunset_color.rgb, sunset_factor);
+	cloud_col += sun_glow * pow(sun_amount, 6.0) * cloud_light * (0.35 + 0.9 * sunset_factor) * sun_visibility;
+	// Overcast fronts flatten the heaps toward a dim, uniform sheet.
+	cloud_col = mix(cloud_col, cloud_top * 0.5, cloud_darken * 0.7);
 	color = mix(color, cloud_col, clouds * 0.96);
 
 	COLOR = color;

@@ -102,7 +102,7 @@ func test_every_completed_tower_has_one_visible_door_on_its_authored_interior_si
 
 func test_tower_false_overrides_small_footprint_inference() -> void:
 	var definition: MapDefinition = LowerTownSlice.create()
-	var construction_position := _building_by_id(definition, &"viru_gate_north_tower")
+	var construction_position := _building_by_id(definition, &"foregate_tower_north")
 	assert_true(construction_position.has("tower"))
 	assert_false(bool(construction_position["tower"]))
 	var node := MapViewMeshBuilderBuildings.build_building(construction_position, definition.cell_size)

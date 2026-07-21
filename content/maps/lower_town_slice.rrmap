@@ -98,10 +98,10 @@ terrain_rects terrain.15 stone 71,112,7,16 layer=0 order=37
 terrain_rects terrain.16 dirt 41,112,13,16|78,112,17,16 layer=0 order=38 style=veg.grass.tall
 terrain_rects terrain.17 meadow 95,112,36,16 layer=0 order=39 style=veg.tree.mixed
 building city_wall_north wall 111 0 4 41 style=wall.plain.h192.00
-building wall_tower_northeast wall 109 5 8 6 style=wall.plain.h240.01 tower=false
-building wall_tower_north wall 109 24 8 6 style=wall.plain.h240.01 tower=false
-building viru_gate_north_tower wall 107 41 10 8 style=wall.plain.h256.02 tower=false
-building viru_gate_south_tower wall 107 60 10 8 style=wall.plain.h256.02 tower=false
+building wall_tower_northeast wall 109 5 8 6 style=wall.plain.h240.01 tower=false round_tower=true wall_walk_axis=z
+building wall_tower_north wall 109 24 8 6 style=wall.plain.h240.01 tower=false round_tower=true wall_walk_axis=z
+building viru_gate_north_tower wall 107 41 10 8 style=wall.plain.h256.02 tower=false round_tower=true wall_walk_axis=z
+building viru_gate_south_tower wall 107 60 10 8 style=wall.plain.h256.02 tower=false round_tower=true wall_walk_axis=z
 # Gate arches are view-only, so collision-bearing throat walls must meet their
 # side jambs while leaving the east-west road open through the middle.
 building viru_gate_north_jamb wall 107 49 10 3 style=wall.plain.h256.02 tower=false
@@ -123,13 +123,13 @@ building wall_seal_bend_a_east wall 104 81 2 6 style=wall.plain.h192.00
 building wall_seal_bend_b_north wall 90 81 4 11 style=wall.plain.h192.00
 building wall_seal_bend_c_west wall 76 103 3 4 style=wall.plain.h192.00
 building wall_seal_bend_d_north wall 73 103 4 11 style=wall.plain.h192.00
-building hinke_tower wall 104 79 8 8 style=wall.plain.h240.01 tower=false
+building hinke_tower wall 104 79 8 8 style=wall.plain.h240.01 tower=false round_tower=true wall_walk_axis=z
 building city_wall_bend_a wall 95 81 9 4 style=wall.plain.h192.00
-building wall_tower_southeast wall 90 81 6 8 style=wall.plain.h240.01 tower=false
+building wall_tower_southeast wall 90 81 6 8 style=wall.plain.h240.01 tower=false round_tower=true wall_walk_axis=x
 building city_wall_bend_b wall 90 92 4 14 style=wall.plain.h192.00
-building wall_tower_south wall 86 100 8 8 style=wall.plain.h240.01 tower=false
+building wall_tower_south wall 86 100 8 8 style=wall.plain.h240.01 tower=false round_tower=true wall_walk_axis=x
 building city_wall_bend_c wall 76 103 10 4 style=wall.plain.h192.00
-building wall_tower_southwest wall 73 103 6 8 style=wall.plain.h240.01 tower=false
+building wall_tower_southwest wall 73 103 6 8 style=wall.plain.h240.01 tower=false round_tower=true wall_walk_axis=x
 building city_wall_bend_d wall 73 107 4 14 style=wall.plain.h192.00
 building city_wall_south_continuation wall 73 121 4 7 style=wall.plain.h192.00
 building st_catherines_church house 35 3 24 10 style=house.south.h192.05
@@ -198,10 +198,17 @@ prop courtyard_quench quench_bucket 98 76 rect=1,1
 prop hay_store hay_stack 86 76 rect=2,2
 prop cistern well 104 60 rect=2,2
 prop monastery_well well 73 11 rect=2,2
-# The west-side gate stair climbs east into a patrol corridor spanning the wall
-# thickness. Its overlap explicitly opens the otherwise solid wall collision.
+# The west-side gate stair climbs east into a patrol corridor that follows the
+# complete wall circuit. Each wall or tower platform both draws the elevated deck
+# and explicitly opens only the matching fortification collision.
 prop viru_wall_walk_stairs stairs 104 33 rect=6,4 facing=east primitive=wall_walk_access
-prop viru_wall_walk_platform stairs 110 30 rect=4,11 facing=north primitive=wall_walk_platform
+prop viru_wall_walk_platform stairs 112 0 rect=2,81 facing=north primitive=wall_walk_platform
+prop viru_wall_walk_entry stairs 110 33 rect=4,4 facing=east primitive=wall_walk_platform
+prop wall_walk_hinke_corner stairs 107 70 rect=4,17 facing=south primitive=wall_walk_platform
+prop wall_walk_east_bend stairs 90 84 rect=18,2 facing=west primitive=wall_walk_platform
+prop wall_walk_southeast_bend stairs 91 84 rect=2,24 facing=south primitive=wall_walk_platform
+prop wall_walk_south_bend stairs 74 105 rect=20,3 facing=west primitive=wall_walk_platform
+prop wall_walk_southwest stairs 74 105 rect=2,23 facing=south primitive=wall_walk_platform
 prop market_stall_gate stall 102 60 rect=2,1
 prop market_stall_turg_north stall 5 43 rect=2,2
 prop market_stall_turg_south stall 10 62 rect=2,2
