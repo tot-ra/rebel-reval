@@ -422,3 +422,33 @@ func test_every_prop_kind_builds_parametric_geometry() -> void:
 		assert_false(node.has_node("Marker"), "%s: prop must not fall back to the unknown-kind marker" % kind)
 		assert_eq(node.position, Vector3(2.0, 0.0, 2.0), "%s: prop anchors at the definition position" % kind)
 		node.free()
+
+
+func test_barrels_have_coopered_bodies_heads_and_iron_hoops() -> void:
+	var pair := MapViewMeshBuilder.build_prop(
+		{"id": &"barrel_pair", "kind": MapTypes.PROP_KIND_BARRELS, "position": Vector2.ZERO},
+		MapTypes.DEFAULT_CELL_SIZE
+	)
+	for barrel_name in ["BarrelA", "BarrelB"]:
+		var barrel := pair.get_node(barrel_name) as Node3D
+		assert_true(barrel.has_node("Staves"), "%s needs a coopered stave body" % barrel_name)
+		assert_true(barrel.has_node("TopHead"), "%s needs a recessed top head" % barrel_name)
+		assert_true(barrel.has_node("BottomHead"), "%s needs a recessed bottom head" % barrel_name)
+		for hoop_index in MapViewMeshBuilderProps.BARREL_HOOP_PROFILE.size():
+			var hoop := barrel.get_node("Hoop%d" % hoop_index) as MeshInstance3D
+			assert_true(hoop.mesh is TorusMesh, "%s hoop %d must be an open iron strap" % [barrel_name, hoop_index])
+
+		var staves := barrel.get_node("Staves") as MeshInstance3D
+		assert_true(staves.mesh is ArrayMesh, "%s must not fall back to a straight CylinderMesh" % barrel_name)
+		var arrays := staves.mesh.surface_get_arrays(0)
+		var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+		var end_radius := 0.0
+		var belly_radius := 0.0
+		for vertex in vertices:
+			var radial_distance := Vector2(vertex.x, vertex.z).length()
+			if vertex.y <= 0.01 or vertex.y >= MapViewMeshBuilderProps.BARREL_HEIGHT - 0.01:
+				end_radius = maxf(end_radius, radial_distance)
+			if vertex.y >= MapViewMeshBuilderProps.BARREL_HEIGHT * 0.4 and vertex.y <= MapViewMeshBuilderProps.BARREL_HEIGHT * 0.6:
+				belly_radius = maxf(belly_radius, radial_distance)
+		assert_true(belly_radius > end_radius * 1.15, "%s needs a visibly convex bilge" % barrel_name)
+	pair.free()

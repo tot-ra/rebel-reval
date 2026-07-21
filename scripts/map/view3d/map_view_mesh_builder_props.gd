@@ -3,6 +3,63 @@ extends RefCounted
 
 ## Prop meshes and ground scatter.
 
+const BARREL_HEIGHT := 0.72
+const BARREL_BELLY_RADIUS := 0.29
+const BARREL_HEAD_RADIUS := BARREL_BELLY_RADIUS * 0.78
+const BARREL_HEAD_THICKNESS := 0.028
+## Hoop height and radius follow the coopered body profile. Paired rings around
+## the bilge and quarter sections make the silhouette read as a bound vessel,
+## rather than as a cylinder with decorative stripes.
+const BARREL_HOOP_PROFILE: Array[Vector2] = [
+	Vector2(0.06, 0.88),
+	Vector2(0.22, 0.965),
+	Vector2(0.40, 0.998),
+	Vector2(0.60, 0.998),
+	Vector2(0.78, 0.965),
+	Vector2(0.94, 0.88),
+]
+
+
+static func _add_barrel(parent: Node3D, node_name: String, position: Vector3, yaw: float) -> Node3D:
+	var barrel := Node3D.new()
+	barrel.name = node_name
+	barrel.position = position
+	barrel.rotation.y = yaw
+	parent.add_child(barrel)
+
+	var staves := MeshInstance3D.new()
+	staves.name = "Staves"
+	staves.mesh = MapViewMeshBuilderPrimitives.barrel_stave_mesh(BARREL_BELLY_RADIUS, BARREL_HEIGHT)
+	staves.material_override = MapViewMeshBuilderPrimitives.role_material(&"wood")
+	barrel.add_child(staves)
+
+	# Barrel heads sit just below the stave ends, leaving a narrow protective lip.
+	# That recess is especially important in the top-down camera, where it turns a
+	# flat cylinder cap into a visibly assembled coopered vessel.
+	for head_spec in [
+		{"name": "BottomHead", "y": BARREL_HEAD_THICKNESS * 0.75},
+		{"name": "TopHead", "y": BARREL_HEIGHT - BARREL_HEAD_THICKNESS * 0.75},
+	]:
+		var head := MeshInstance3D.new()
+		head.name = head_spec["name"]
+		head.mesh = MapViewMeshBuilderPrimitives.barrel_head_mesh(BARREL_HEAD_RADIUS, BARREL_HEAD_THICKNESS)
+		head.position = Vector3(0.0, float(head_spec["y"]), 0.0)
+		head.material_override = MapViewMeshBuilderPrimitives.role_material(&"wood")
+		barrel.add_child(head)
+
+	for hoop_index in BARREL_HOOP_PROFILE.size():
+		var hoop_spec := BARREL_HOOP_PROFILE[hoop_index]
+		var hoop := MeshInstance3D.new()
+		hoop.name = "Hoop%d" % hoop_index
+		hoop.mesh = MapViewMeshBuilderPrimitives.barrel_hoop_mesh(BARREL_BELLY_RADIUS * hoop_spec.y)
+		hoop.position = Vector3(0.0, BARREL_HEIGHT * hoop_spec.x, 0.0)
+		# A flattened torus gives each hoop the broad vertical face and thin radial
+		# edge of forged strap iron without filling the barrel like a solid disc.
+		hoop.scale.y = 1.55
+		hoop.material_override = MapViewMeshBuilderPrimitives.role_material(&"metal")
+		barrel.add_child(hoop)
+	return barrel
+
 static func build_prop(prop: Dictionary, cell_size: int) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Prop_%s" % String(prop["id"])
@@ -36,8 +93,8 @@ static func build_prop(prop: Dictionary, cell_size: int) -> Node3D:
 			MapViewMeshBuilderPrimitives.box(root, "PostRight", Vector3(0.1, 1.0, 0.1), Vector3(0.5, 0.75, 0.0), &"wood")
 			MapViewMeshBuilderPrimitives.box(root, "RoofBeam", Vector3(1.3, 0.1, 0.5), Vector3(0.0, 1.3, 0.0), &"roof")
 		MapTypes.PROP_KIND_BARRELS:
-			MapViewMeshBuilderPrimitives.cylinder(root, "BarrelA", 0.28, 0.62, Vector3(-0.24, 0.31, 0.05), &"wood")
-			MapViewMeshBuilderPrimitives.cylinder(root, "BarrelB", 0.28, 0.62, Vector3(0.3, 0.31, -0.14), &"wood")
+			_add_barrel(root, "BarrelA", Vector3(-0.26, 0.0, 0.08), -0.12)
+			_add_barrel(root, "BarrelB", Vector3(0.32, 0.0, -0.16), 0.19)
 		MapTypes.PROP_KIND_FURNACE:
 			MapViewMeshBuilderPrimitives.box(root, "Mass", Vector3(1.35, 1.35, 1.1), Vector3(0.0, 0.68, 0.0), &"stone")
 			MapViewMeshBuilderPrimitives.box(root, "Mouth", Vector3(0.52, 0.42, 0.08), Vector3(0.0, 0.42, 0.58), &"ember")
