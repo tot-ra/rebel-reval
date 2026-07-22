@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scripts/forge/forge_commission_controller.gd" id="5_commission"]
 [ext_resource type="Script" path="res://scripts/ui/quick_access_menu.gd" id="6_quick_access"]
 [ext_resource type="Script" uid="uid://ckkqw3ra0222m" path="res://scripts/ui/world_map_controller.gd" id="8_world_map"]
+[ext_resource type="Script" path="res://scripts/reflection/reflection_controller.gd" id="9_reflection"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_3iwfv"]
 radius = 16.0
@@ -71,6 +72,9 @@ script = ExtResource("8_world_map")
 
 [node name="ForgeCommissionController" type="Node" parent="."]
 script = ExtResource("5_commission")
+
+[node name="ReflectionController" type="Node" parent="."]
+script = ExtResource("9_reflection")
 
 [node name="QuickAccessMenu" type="CanvasLayer" parent="."]
 script = ExtResource("6_quick_access")

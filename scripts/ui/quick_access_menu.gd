@@ -21,10 +21,12 @@ const HELP_TEXT := (
 var _inventory_controller: InventoryController
 var _journal_controller: JournalController
 var _world_map_controller: WorldMapController
+var _reflection_controller: ReflectionController
 var _save_callback: Callable
 
 var _inventory_button: Button
 var _journal_button: Button
+var _reflection_button: Button
 var _world_map_button: Button
 var _camera_button: Button
 var _controls_button: Button
@@ -129,6 +131,14 @@ func _build_ui() -> void:
 	_journal_button.pressed.connect(_on_journal_pressed)
 	actions.add_child(_journal_button)
 
+	_reflection_button = _create_action_button(
+		"ReflectionButton",
+		"Reflect",
+		"Open the Hingepuu reflection when the soul-tree calls"
+	)
+	_reflection_button.pressed.connect(_on_reflection_pressed)
+	actions.add_child(_reflection_button)
+
 	# WHY: map mode must be mouse-reachable; M alone is not enough.
 	_world_map_button = _create_action_button(
 		"WorldMapButton",
@@ -191,8 +201,16 @@ func _resolve_dependencies() -> void:
 		_journal_controller = owner_node.get_node_or_null("JournalController") as JournalController
 	if _world_map_controller == null:
 		_world_map_controller = owner_node.get_node_or_null("WorldMapController") as WorldMapController
+	if _reflection_controller == null:
+		_reflection_controller = owner_node.get_node_or_null("ReflectionController") as ReflectionController
 	if not _save_callback.is_valid() and has_node("/root/SessionState"):
 		_save_callback = Callable(SessionState, "save_game")
+
+
+func refresh_action_availability() -> void:
+	_resolve_dependencies()
+	_refresh_availability()
+	_refresh_technique_button()
 
 
 func _refresh_availability() -> void:
@@ -200,6 +218,7 @@ func _refresh_availability() -> void:
 		return
 	_inventory_button.disabled = _inventory_controller == null
 	_journal_button.disabled = _journal_controller == null
+	_reflection_button.disabled = _reflection_controller == null or not _reflection_controller.is_available()
 	_world_map_button.disabled = _world_map_controller == null
 	_camera_button.disabled = _find_map_view_runtime() == null
 	_controls_button.disabled = not has_node("/root/UserSettings")
@@ -230,6 +249,8 @@ func _on_inventory_pressed() -> void:
 		_journal_controller.close()
 	if _world_map_controller != null:
 		_world_map_controller.close()
+	if _reflection_controller != null:
+		_reflection_controller.close()
 	_inventory_controller.toggle()
 	_status_label.text = "Inventory opened" if _inventory_controller.is_open() else STATUS_READY
 
@@ -241,13 +262,31 @@ func _on_journal_pressed() -> void:
 		_inventory_controller.close()
 	if _world_map_controller != null:
 		_world_map_controller.close()
+	if _reflection_controller != null:
+		_reflection_controller.close()
 	_journal_controller.toggle()
 	_status_label.text = "Journal opened" if _journal_controller.is_open() else STATUS_READY
+
+
+func _on_reflection_pressed() -> void:
+	if _reflection_controller == null or not _reflection_controller.is_available():
+		return
+	if _inventory_controller != null:
+		_inventory_controller.close()
+	if _journal_controller != null:
+		_journal_controller.close()
+	if _world_map_controller != null:
+		_world_map_controller.close()
+	_reflection_controller.open()
+	_refresh_availability()
+	_status_label.text = "Hingepuu reflection opened"
 
 
 func _on_world_map_pressed() -> void:
 	if _world_map_controller == null:
 		return
+	if _reflection_controller != null:
+		_reflection_controller.close()
 	_world_map_controller.toggle()
 	_status_label.text = "Map opened" if _world_map_controller.is_open() else STATUS_READY
 

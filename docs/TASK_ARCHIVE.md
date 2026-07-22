@@ -12,6 +12,10 @@ Git history remains the source of truth for exact closeout evidence.
 - [x] D-004b | deps: none | deliverable: optional human-narrated screen recording of the packaged `Reval Rebel.app` move-talk-pickup path for marketing/README embed, complementing the existing frame sequence in `docs/reports/demo_walkthrough_d004.md` | verify: README links a playable video or animated capture that shows Start, Mart talk, and bag pickup in the release binary
 - [x] D-004c | deps: none | deliverable: in-binary packaged move-talk-pickup automation that runs inside `Reval Rebel.app` without editor `--path` or scene CLI args (release templates reject path overrides), writing a pass/fail artifact under `user://` or stdout via the console wrapper | verify: `tools/verify_packaged_demo.sh` (or a sibling) proves Start-Mart-pickup inside the extracted release app with exit 0 and no editor binary driving the loop
 
+## P2
+
+- [x] P2-011 | deps: none | deliverable: Hingepuu reflection screen with Duty, Fury, Mercy, and visual consequence marks | verify: reflection reacts to prior state, applies one allowlisted effect, and provides equivalent plain-text information; `--filter=test_reflection_overlay` passes 5/5
+
 ## P0
 
 - [x] P0-037 | deps: none | deliverable: shared low-poly character rig proven on Kalev with retargeted idle, walk, forge strike, hammer attack, guard, hit, and fall animations, per-character variation via texture and equipment swaps, and a documented retarget procedure with speed budget (new NPC variant with core set under one working day; single new animation under one hour) | verify: one rig plays every required animation in-engine at the frozen character scale from any facing without per-direction assets, a second character variant is produced by swap only, and recorded production times meet the budget

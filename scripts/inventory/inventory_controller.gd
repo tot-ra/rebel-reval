@@ -55,6 +55,9 @@ func open() -> void:
 	var world_map := get_parent().get_node_or_null("WorldMapController") as WorldMapController
 	if world_map != null:
 		world_map.close()
+	var reflection := get_parent().get_node_or_null("ReflectionController") as ReflectionController
+	if reflection != null:
+		reflection.close()
 	_overlay.open()
 
 

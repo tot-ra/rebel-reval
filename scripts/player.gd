@@ -377,6 +377,9 @@ func _movement_blocked() -> bool:
 	var world_map := get_node_or_null("WorldMapController") as WorldMapController
 	if world_map != null and world_map.is_open():
 		return true
+	var reflection := get_node_or_null("ReflectionController") as ReflectionController
+	if reflection != null and reflection.is_open():
+		return true
 	if not get_tree().get_nodes_in_group(&"modal_input_overlay").is_empty():
 		return true
 	var commission := get_node_or_null("ForgeCommissionController") as ForgeCommissionController
