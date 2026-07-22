@@ -300,7 +300,7 @@ void sky() {
 	float halo = pow(sun_amount, 90.0) * 0.4;
 	color += sun_tint * (disk * 2.4 + halo) * sun_visibility * (1.0 - clouds * 0.95);
 
-	// Moon: opaque shaded sphere with a baked near-side albedo/height map.
+	// Moon: opaque shaded sphere sampled from a NASA near-side albedo photo.
 	// WHY: Additive `color += surface` lets the bright blue night sky leak through
 	// the disk and reads as a cyan moon. The lunar body is optically thick, so
 	// the surface must replace the background inside the disk mask.
@@ -335,22 +335,23 @@ void sky() {
 	vec3 lunar_albedo = texture(lunar_albedo_map, lunar_uv).rgb;
 	// Keep limb samples on the crust color if filtering reaches empty texels.
 	lunar_albedo = max(lunar_albedo, vec3(0.08));
-	// Relief from albedo luminance slopes (alpha is opaque; height-in-A broke mipmaps).
-	float texel = 1.0 / 512.0;
+	// Mild relief from photo luminance slopes. The NASA mosaic already carries
+	// maria/crater contrast, so keep bump weaker than the old procedural map.
+	float texel = 1.0 / max(float(textureSize(lunar_albedo_map, 0).x), 1.0);
 	float h_c = dot(lunar_albedo, vec3(0.333333));
 	float h_x = dot(texture(lunar_albedo_map, lunar_uv + vec2(texel, 0.0)).rgb, vec3(0.333333))
 		- dot(texture(lunar_albedo_map, lunar_uv - vec2(texel, 0.0)).rgb, vec3(0.333333));
 	float h_y = dot(texture(lunar_albedo_map, lunar_uv + vec2(0.0, texel)).rgb, vec3(0.333333))
 		- dot(texture(lunar_albedo_map, lunar_uv - vec2(0.0, texel)).rgb, vec3(0.333333));
-	vec3 moon_shaded_n = normalize(moon_normal + vec3(-h_x, -h_y, 0.0) * 2.4);
+	vec3 moon_shaded_n = normalize(moon_normal + vec3(-h_x, -h_y, 0.0) * 1.35);
 	float relief_lit = max(dot(moon_shaded_n, moon_light), 0.0);
 	float terminator = smoothstep(-0.10, 0.05, moon_ndotl);
 	// Lommel-Seeliger approximates dusty regolith better than a Lambertian disk.
-	float cos_i = max(mix(moon_lit, relief_lit, 0.65), 1e-4);
+	float cos_i = max(mix(moon_lit, relief_lit, 0.45), 1e-4);
 	float cos_e = max(moon_z, 1e-4);
 	float lommel = cos_i / (cos_i + cos_e);
-	float opposition = 1.0 + 0.28 * pow(moon_lit, 10.0);
-	float moon_limb = mix(0.78, 1.0, pow(moon_z, 0.42));
+	float opposition = 1.0 + 0.22 * pow(moon_lit, 10.0);
+	float moon_limb = mix(0.82, 1.0, pow(moon_z, 0.42));
 	// WHY: A daytime moon is still fully sunlit rock and appears pale silver
 	// against blue sky. Fading to 0.42 made sunlight_col darker than
 	// day_top_color and read as a muddy sticker. Keep near-full photometry by
@@ -362,11 +363,11 @@ void sky() {
 		* (1.0 - day_blend);
 	vec3 earthshine_col = lunar_albedo * vec3(0.62, 0.64, 0.68);
 	vec3 sunlight_col = lunar_albedo * moon_color.rgb
-		* (0.55 + 1.35 * lommel * opposition)
+		* (0.58 + 1.25 * lommel * opposition)
 		* moon_limb
 		* day_moon_fade;
 	vec3 moon_surface = mix(earthshine_col * earthshine_strength, sunlight_col, terminator);
-	moon_surface *= 0.94 + 0.12 * h_c;
+	moon_surface *= 0.96 + 0.10 * h_c;
 	// Soft daytime haze lifts dark maria toward a pale sky-adjacent tone without
 	// crushing overall luminance back below the blue dome.
 	moon_surface = mix(
