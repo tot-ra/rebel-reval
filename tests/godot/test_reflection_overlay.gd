@@ -81,7 +81,38 @@ func test_overlay_plain_summary_matches_snapshot_marks() -> void:
 		assert_true(plain.contains(String(mark.get("label", ""))))
 	for label in overlay.get_mark_labels():
 		assert_true(plain.contains(label), "plain summary must include every visual mark label")
-	overlay.queue_free()
+	overlay.free()
+
+
+func test_closed_overlay_does_not_join_modal_input_group() -> void:
+	# WHY: permanent modal_input_overlay membership blocked all player locomotion.
+	var overlay := OverlayScene.instantiate() as ReflectionOverlay
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(overlay)
+	assert_false(overlay.visible)
+	assert_false(
+		overlay.is_in_group(&"modal_input_overlay"),
+		"closed reflection overlay must not block Player movement via modal group"
+	)
+	overlay.present(ModelScript.build_snapshot(SessionState.state))
+	assert_true(overlay.is_in_group(&"modal_input_overlay"))
+	overlay.close()
+	assert_false(overlay.is_in_group(&"modal_input_overlay"))
+	overlay.free()
+
+
+func test_player_movement_unblocked_while_reflection_closed() -> void:
+	const PLAYER_SCENE := preload("res://player.tscn")
+	SessionState.state.set_phase(GameState.PHASE_PROLOGUE_DAY)
+	SessionState.state.set_flag(ModelScript.FLAG_COMPLETED, false)
+	var player := PLAYER_SCENE.instantiate() as Player
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(player)
+	assert_false(
+		player.is_movement_input_blocked(),
+		"ReflectionController host must not block locomotion while overlay is closed"
+	)
+	player.free()
 
 
 func test_duty_applies_one_allowlisted_relationship_effect() -> void:

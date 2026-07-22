@@ -380,8 +380,14 @@ func _movement_blocked() -> bool:
 	var reflection := get_node_or_null("ReflectionController") as ReflectionController
 	if reflection != null and reflection.is_open():
 		return true
-	if not get_tree().get_nodes_in_group(&"modal_input_overlay").is_empty():
-		return true
+	# WHY: only visible modal hosts block locomotion. Closed overlays must leave
+	# the group (see ControlsOverlay / ReflectionOverlay), but ignore invisible
+	# members so a stale membership cannot freeze the player.
+	for node in get_tree().get_nodes_in_group(&"modal_input_overlay"):
+		if node is CanvasLayer and (node as CanvasLayer).visible:
+			return true
+		if node is CanvasItem and (node as CanvasItem).visible:
+			return true
 	var commission := get_node_or_null("ForgeCommissionController") as ForgeCommissionController
 	return commission != null and commission.is_open()
 

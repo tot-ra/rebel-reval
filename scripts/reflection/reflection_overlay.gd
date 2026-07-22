@@ -16,7 +16,9 @@ var _snapshot: Dictionary = {}
 func _ready() -> void:
 	layer = 23
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	add_to_group(&"modal_input_overlay")
+	visible = false
+	# WHY: stay out of modal_input_overlay until present(); a permanent group
+	# membership permanently blocks Player locomotion via _movement_blocked().
 	_build_ui()
 
 
@@ -27,11 +29,15 @@ func is_open() -> bool:
 func present(snapshot: Dictionary) -> void:
 	_snapshot = snapshot.duplicate(true)
 	visible = true
+	add_to_group(&"modal_input_overlay")
 	_refresh()
 
 
 func close() -> void:
+	if not visible:
+		return
 	visible = false
+	remove_from_group(&"modal_input_overlay")
 	_snapshot = {}
 	_clear_options()
 	closed.emit()
