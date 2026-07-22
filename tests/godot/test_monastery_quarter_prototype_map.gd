@@ -68,6 +68,24 @@ func test_monastery_district_links_the_merchant_civic_worker_and_toompea_maps() 
 	assert_eq(destinations[&"reval_toompea"], &"from_reval_north")
 
 
+func test_monastery_guild_rowfronts_avoid_later_monument_styles() -> void:
+	# P4-023e: later Great Guild / Blackheads monuments must not read as 1343 fabric.
+	var definition: MapDefinition = MonasteryQuarterDefinition.create()
+	for building_id in [&"great_guild_front", &"blackheads_corner", &"brotherhood_wing"]:
+		var building := _building_by_id(definition, building_id)
+		assert_false(building.is_empty(), "Missing guild-row building %s" % building_id)
+		assert_eq(
+			building.get("wall_material", &""),
+			&"plaster",
+			"%s must use ordinary merchant plaster, not monumental guild limestone" % building_id
+		)
+		assert_eq(
+			int(building.get("wall_height", 0)),
+			120,
+			"%s must stay at merchant-house height, not guild-hall scale" % building_id
+		)
+
+
 func _building_by_id(definition: MapDefinition, building_id: StringName) -> Dictionary:
 	for building in definition.buildings:
 		if building["id"] == building_id:

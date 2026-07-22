@@ -2,6 +2,11 @@
 # St. Olaf's precinct, St. Michael's Cistercian convent, guild frontages, and
 # the Pikk/Lai approaches form a broad lower half of the former north quarter.
 #
+# P4-023e: great_guild_front, blackheads_corner, and brotherhood_wing keep stable
+# IDs but render as generic merchant masses. Later Great Guild Hall (1407-10) and
+# Brotherhood/Blackheads institutional frontages are excluded (HISTORICAL_AUDIT
+# cross-map exclusion 2; monastery landmark row).
+#
 # Surface policy (docs/HISTORICAL_AUDIT.md monastery_quarter + MAP_AUTHORING):
 # packed-earth base, garden/grass precincts and margins, small stone closes only,
 # cobble limited to primary street spines. Secondary lanes use mud/earth wear.
@@ -11,13 +16,10 @@ map monastery_quarter loc.lower_town.monastery_quarter 208 112 dirt scope=protot
 source "scenes/reval_monastery/reval_monastery.tscn"
 source "scenes/revel-map.jpg"
 source "scenes/reval_north/st_olafs_church.md"
-source "scenes/reval_north/great_guild_hall.md"
-source "scenes/reval_north/brotherhood_of_blackheads_house.md"
 source "docs/HISTORICAL_AUDIT.md"
 source "docs/MAP_AUTHORING.md"
 style house.merchant.south door_side=south roof_color=3d3329ff roof_material=shingle wall_color=706352ff wall_material=plank wall_height=120
 style house.merchant.north door_side=north roof_color=3b332bff roof_material=shingle wall_color=756654ff wall_material=plaster wall_height=120
-style house.guild door_side=south roof_color=4a2a20ff roof_material=tile wall_color=6b5e4fff wall_material=limestone wall_height=136
 style house.church door_side=south roof_color=2e241cff roof_material=tile wall_color=807a70ff wall_material=limestone wall_height=192
 style house.convent door_side=east ridge_axis=x roof_color=42261fff roof_material=tile wall_color=8c867aff wall_material=limestone wall_height=128
 style house.service door_side=north roof_color=6b5c40ff roof_material=thatch wall_color=5a4f45ff wall_material=log wall_height=88
@@ -69,10 +71,10 @@ building convent_precinct_wall_south wall 10 56 36 2 style=wall.precinct
 building st_olaf_silhouette house 83 58 22 14 style=house.church
 building olaf_precinct_west house 68 76 10 8 style=house.merchant.south
 building olaf_precinct_east house 117 70 12 8 style=house.merchant.north
-building great_guild_front house 44 22 20 8 style=house.guild
+building great_guild_front house 44 22 20 8 style=house.merchant.north
 building guild_annex house 44 52 16 6 style=house.merchant.north
 building brotherhood_wing house 44 76 14 6 style=house.merchant.north
-building blackheads_corner house 73 28 8 8 style=house.guild
+building blackheads_corner house 73 28 8 8 style=house.merchant.north
 building guild_storehouse house 73 58 10 6 style=house.merchant.north
 building west_lane_house_north house 36 10 6 10 style=house.merchant.south
 building west_lane_house_mid house 36 46 6 10 style=house.merchant.south
