@@ -24,25 +24,25 @@ Priority order:
 
 | Classification | Count |
 | --- | ---: |
-| approved | 112 |
+| approved | 113 |
 | prototype | 0 |
 | unknown rights | 0 |
 | inconsistent | 0 |
 | archive | 0 |
-| **Total** | **112** |
+| **Total** | **113** |
 
 ## Counts by media type
 
 | Media type | Count |
 | --- | ---: |
-| image | 10 |
+| image | 11 |
 | audio | 102 |
-| **Total** | **112** |
+| **Total** | **113** |
 
 ## Verification summary
 
-- Inventory row count: `112`
-- Runtime source files found under `assets/`, `music/`, and `sounds/`: `112`
+- Inventory row count: `113`
+- Runtime source files found under `assets/`, `music/`, and `sounds/`: `113`
 - Imported `img/` marketing source files included as archive: `0`
 - Rows missing Godot `.import` sidecar: `0`
 - Orphan `.import` sidecars with no source file, not counted as runtime assets: `0`
@@ -63,6 +63,7 @@ Priority order:
 | `assets/materials/style_lock/timber.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `assets/materials/style_lock/water.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `assets/tiles/greybox_floor.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `assets/UI/estonia_world_map.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/domberg/day/Baltic Wind (1).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/domberg/day/Baltic Wind.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/domberg/day/Crown of Stone.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |

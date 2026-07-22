@@ -23,10 +23,24 @@ class VerifyOutdoorPrototypesTest(unittest.TestCase):
     def test_active_destination_leak_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             active = Path(temp_dir) / "active.json"
-            active.write_text('{"destination":"saaremaa"}', encoding="utf-8")
+            active.write_text(
+                '{"scenes":[{"id":"saaremaa","active":true,"release":true}]}',
+                encoding="utf-8",
+            )
             with mock.patch.object(verifier, "ACTIVE_DESTINATIONS", active):
                 errors = verifier.validate()
             self.assertTrue(any("saaremaa" in error and "active flow" in error for error in errors))
+
+    def test_release_false_developer_destination_is_allowed(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            active = Path(temp_dir) / "active.json"
+            active.write_text(
+                '{"scenes":[{"id":"saaremaa","active":true,"release":false}]}',
+                encoding="utf-8",
+            )
+            with mock.patch.object(verifier, "ACTIVE_DESTINATIONS", active):
+                errors = verifier.validate()
+            self.assertFalse(any("saaremaa" in error and "active flow" in error for error in errors))
 
     def test_missing_capture_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

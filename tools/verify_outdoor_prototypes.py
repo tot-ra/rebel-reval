@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -31,35 +32,51 @@ EXPECTED_IDS = {
     "swedish_outpost",
     "swedish_arrival",
 }
+# P1-037/P1-037a deliberately adapt inactive definitions into developer-only
+# global-map hosts. Other outdoor packages must remain transition-free.
+TRANSITION_ADAPTERS = {"distant_location_definitions.gd"}
 
 
 def definition_text() -> str:
     return "\n".join(path.read_text(encoding="utf-8") for path in sorted(DEFINITION_DIR.glob("*.gd")))
 
 
+def _release_destination_ids() -> set[str]:
+    payload = json.loads(ACTIVE_DESTINATIONS.read_text(encoding="utf-8"))
+    scenes = payload.get("scenes", []) if isinstance(payload, dict) else []
+    return {
+        str(scene.get("id", ""))
+        for scene in scenes
+        if isinstance(scene, dict) and scene.get("active") is True and scene.get("release") is True
+    }
+
+
 def validate() -> list[str]:
     errors: list[str] = []
     text = definition_text()
-    declared = set(re.findall(r'"map_id"\s*:\s*(?:StringName\()?&?"prototype\.([^"%]+)"', text))
     # Generated castle/event IDs are verified by their slug literals.
     for slug in EXPECTED_IDS:
         if slug not in text and f'&"{slug.split("_")[0]}"' not in text:
             errors.append(f"missing outdoor definition evidence: {slug}")
 
-    forbidden = ACTIVE_DESTINATIONS.read_text(encoding="utf-8") + START_FLOW.read_text(encoding="utf-8")
+    try:
+        release_destinations = _release_destination_ids()
+    except (OSError, json.JSONDecodeError, TypeError) as exc:
+        errors.append(f"cannot read active destination policy: {exc}")
+        release_destinations = set()
+    start_flow = START_FLOW.read_text(encoding="utf-8")
     for prototype_id in EXPECTED_IDS:
-        if prototype_id in forbidden:
+        if prototype_id in release_destinations or prototype_id in start_flow:
             errors.append(f"outdoor prototype leaked into active flow: {prototype_id}")
 
     if 'definition.scope = &"prototype"' not in text:
         errors.append("shared outdoor factory does not force prototype scope")
     if "definition.active = false" not in text:
         errors.append("shared outdoor factory does not force active=false")
-    if "definition.transitions" in text and "transitions.is_empty" not in text:
-        # No location file should assign gameplay transitions.
-        for path in DEFINITION_DIR.glob("*_definitions.gd"):
-            if ".transitions" in path.read_text(encoding="utf-8"):
-                errors.append(f"outdoor location assigns transitions: {path.name}")
+
+    for path in DEFINITION_DIR.glob("*_definitions.gd"):
+        if ".transitions" in path.read_text(encoding="utf-8") and path.name not in TRANSITION_ADAPTERS:
+            errors.append(f"outdoor location assigns transitions: {path.name}")
 
     if CAPTURE_DIR.exists():
         captures = {path.stem for path in CAPTURE_DIR.glob("*.png")}

@@ -10,6 +10,28 @@ const Wilderness := preload("res://scripts/map/definitions/outdoor/wilderness_ev
 const Villages := preload("res://scripts/map/definitions/outdoor/village_monastery_definitions.gd")
 const Castles := preload("res://scripts/map/definitions/outdoor/castle_definitions.gd")
 
+const SCENE_IDS: Array[StringName] = [
+	&"world_sacred_grove",
+	&"world_harju",
+	&"world_padise",
+	&"world_saaremaa",
+	&"world_rebel_kings",
+	&"world_kanavere",
+	&"world_sojamae",
+	&"world_paide",
+	&"world_parnu",
+	&"world_poide",
+]
+
+
+static func all() -> Array[MapDefinition]:
+	var definitions: Array[MapDefinition] = []
+	for scene_id in SCENE_IDS:
+		var definition := create(scene_id)
+		if definition != null:
+			definitions.append(definition)
+	return definitions
+
 
 static func create(scene_id: StringName) -> MapDefinition:
 	match scene_id:

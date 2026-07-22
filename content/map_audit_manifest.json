@@ -381,7 +381,7 @@
     },
     {
       "id": "prototype.pernau",
-      "location_name": "P\u00e4rnu",
+      "location_name": "Pärnu",
       "scene": "scenes/events/pernau.tscn",
       "definition": "scripts/map/definitions/outdoor/wilderness_event_definitions.gd",
       "factory": "WildernessEventDefinitions.all",
@@ -444,6 +444,152 @@
       "capture": "swedish_arrival.png",
       "mandatory_anchors": [],
       "mandatory_transitions": []
+    },
+    {
+      "id": "world.sacred_grove",
+      "location_name": "Sacred Grove developer route",
+      "scene": "scenes/world_travel/world_sacred_grove.tscn",
+      "definition": "scripts/map/definitions/outdoor/distant_location_definitions.gd",
+      "factory": "DistantLocationDefinitions.create(world_sacred_grove)",
+      "disposition": "convert",
+      "capture": "world_sacred_grove.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": [
+        "to_reval",
+        "road_to_harju"
+      ]
+    },
+    {
+      "id": "world.harju",
+      "location_name": "Harju Village developer route",
+      "scene": "scenes/world_travel/world_harju.tscn",
+      "definition": "scripts/map/definitions/outdoor/distant_location_definitions.gd",
+      "factory": "DistantLocationDefinitions.create(world_harju)",
+      "disposition": "convert",
+      "capture": "world_harju.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": [
+        "road_to_reval",
+        "road_to_sacred_grove",
+        "road_to_rebel_kings",
+        "road_to_kanavere",
+        "road_to_sojamae"
+      ]
+    },
+    {
+      "id": "world.padise",
+      "location_name": "Padise Monastery developer route",
+      "scene": "scenes/world_travel/world_padise.tscn",
+      "definition": "scripts/map/definitions/outdoor/distant_location_definitions.gd",
+      "factory": "DistantLocationDefinitions.create(world_padise)",
+      "disposition": "convert",
+      "capture": "world_padise.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": [
+        "road_to_reval",
+        "road_to_parnu"
+      ]
+    },
+    {
+      "id": "world.saaremaa",
+      "location_name": "Saaremaa developer route",
+      "scene": "scenes/world_travel/world_saaremaa.tscn",
+      "definition": "scripts/map/definitions/outdoor/distant_location_definitions.gd",
+      "factory": "DistantLocationDefinitions.create(world_saaremaa)",
+      "disposition": "convert",
+      "capture": "world_saaremaa.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": [
+        "ferry_to_reval",
+        "ferry_to_parnu",
+        "road_to_poide"
+      ]
+    },
+    {
+      "id": "world.rebel_kings",
+      "location_name": "Rebel Kings Camp developer route",
+      "scene": "scenes/world_travel/world_rebel_kings.tscn",
+      "definition": "scripts/map/definitions/outdoor/distant_location_definitions.gd",
+      "factory": "DistantLocationDefinitions.create(world_rebel_kings)",
+      "disposition": "convert",
+      "capture": "world_rebel_kings.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": [
+        "road_to_harju",
+        "road_to_kanavere"
+      ]
+    },
+    {
+      "id": "world.kanavere",
+      "location_name": "Kanavere Bog developer route",
+      "scene": "scenes/world_travel/world_kanavere.tscn",
+      "definition": "scripts/map/definitions/outdoor/distant_location_definitions.gd",
+      "factory": "DistantLocationDefinitions.create(world_kanavere)",
+      "disposition": "convert",
+      "capture": "world_kanavere.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": [
+        "road_to_harju",
+        "road_to_rebel_kings",
+        "road_to_paide"
+      ]
+    },
+    {
+      "id": "world.sojamae",
+      "location_name": "Sõjamäe Battlefield developer route",
+      "scene": "scenes/world_travel/world_sojamae.tscn",
+      "definition": "scripts/map/definitions/outdoor/distant_location_definitions.gd",
+      "factory": "DistantLocationDefinitions.create(world_sojamae)",
+      "disposition": "convert",
+      "capture": "world_sojamae.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": [
+        "road_to_harju",
+        "road_to_paide"
+      ]
+    },
+    {
+      "id": "world.paide",
+      "location_name": "Paide Castle developer route",
+      "scene": "scenes/world_travel/world_paide.tscn",
+      "definition": "scripts/map/definitions/outdoor/distant_location_definitions.gd",
+      "factory": "DistantLocationDefinitions.create(world_paide)",
+      "disposition": "convert",
+      "capture": "world_paide.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": [
+        "road_to_kanavere",
+        "road_to_sojamae",
+        "road_to_parnu"
+      ]
+    },
+    {
+      "id": "world.parnu",
+      "location_name": "Pärnu developer route",
+      "scene": "scenes/world_travel/world_parnu.tscn",
+      "definition": "scripts/map/definitions/outdoor/distant_location_definitions.gd",
+      "factory": "DistantLocationDefinitions.create(world_parnu)",
+      "disposition": "convert",
+      "capture": "world_parnu.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": [
+        "road_to_padise",
+        "road_to_paide",
+        "ferry_to_saaremaa"
+      ]
+    },
+    {
+      "id": "world.poide",
+      "location_name": "Pöide Castle developer route",
+      "scene": "scenes/world_travel/world_poide.tscn",
+      "definition": "scripts/map/definitions/outdoor/distant_location_definitions.gd",
+      "factory": "DistantLocationDefinitions.create(world_poide)",
+      "disposition": "convert",
+      "capture": "world_poide.png",
+      "mandatory_anchors": [],
+      "mandatory_transitions": [
+        "road_to_saaremaa"
+      ]
     }
   ]
 }

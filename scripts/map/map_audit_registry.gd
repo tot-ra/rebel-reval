@@ -23,6 +23,7 @@ const Coast := preload("res://scripts/map/definitions/outdoor/coast_harbor_defin
 const Villages := preload("res://scripts/map/definitions/outdoor/village_monastery_definitions.gd")
 const Castles := preload("res://scripts/map/definitions/outdoor/castle_definitions.gd")
 const Wilderness := preload("res://scripts/map/definitions/outdoor/wilderness_event_definitions.gd")
+const DistantLocations := preload("res://scripts/map/definitions/outdoor/distant_location_definitions.gd")
 
 
 static func all() -> Array[MapDefinition]:
@@ -46,6 +47,7 @@ static func all() -> Array[MapDefinition]:
 	definitions.append_array(Villages.all())
 	definitions.append_array(Castles.all())
 	definitions.append_array(Wilderness.all())
+	definitions.append_array(DistantLocations.all())
 	return definitions
 
 

@@ -20,6 +20,17 @@ class AssetSourcePolicyTest(unittest.TestCase):
     def test_repository_asset_sources_pass(self) -> None:
         self.assertEqual(validator.validate(), [])
 
+    def test_estonia_world_map_records_embedded_c2pa_provenance(self) -> None:
+        row = next(
+            source
+            for source in validator.read_sources()
+            if source["path"] == "assets/UI/estonia_world_map.png"
+        )
+        self.assertTrue(row["approval"].startswith("approved"))
+        self.assertIn("OpenAI API", row["creator_or_tool"])
+        self.assertIn("GPT-4o", row["model_version"])
+        self.assertIn("C2PA", row["prompt_or_url"])
+
     def test_approved_asset_rejects_placeholder_provenance(self) -> None:
         row = {
             "asset_id": "assets.test.approved",
