@@ -100,6 +100,9 @@ static func apply_cycle_progress(
 		SkyWeather3D.sun_disk_visibility(sun_direction),
 		day_blend
 	)
+	MapViewMaterials.apply_coastal_tide(
+		SkyWeather3D.tide_level(progress, sky_weather.calendar_date)
+	)
 	var cloud_occlusion := 1.0 - sky_weather.cloud_coverage()
 	var sun_reflection_color := SUN_DAY_COLOR.lerp(SUNSET_LIGHT_COLOR, weather["sunset_tint"])
 	MapViewMaterials.apply_water_sky_reflection(

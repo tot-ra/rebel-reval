@@ -231,17 +231,25 @@ static func puddle_surface() -> ShaderMaterial:
 ## Base wave heights are scaled at runtime by apply_sea_weather() so storms
 ## raise both the water mesh and floating hulls together.
 const WATER_WAVE_BASE := {
-	MapTypes.TERRAIN_SHALLOW_WATER: {"height": 0.026, "chaos": 0.78, "foam": 0.24, "breakers": 0.52, "absorption": 5.0},
-	MapTypes.TERRAIN_DEEP_WATER: {"height": 0.044, "chaos": 1.18, "foam": 0.12, "breakers": 0.10, "absorption": 9.0},
+	MapTypes.TERRAIN_SHALLOW_WATER: {
+		"height": 0.026, "chaos": 0.78, "foam": 0.24, "breakers": 0.52, "absorption": 5.0,
+		"tide_height": 0.004, "tide_shore_retreat": 0.13, "tide_optical_depth": 0.055,
+	},
+	MapTypes.TERRAIN_DEEP_WATER: {
+		"height": 0.044, "chaos": 1.18, "foam": 0.12, "breakers": 0.10, "absorption": 9.0,
+		"tide_height": 0.004, "tide_shore_retreat": 0.0, "tide_optical_depth": 0.025,
+	},
 	MapTypes.TERRAIN_WATER: {
 		"height": 0.030, "chaos": 0.96, "foam": 0.18, "breakers": 0.22, "absorption": 7.0,
 		"bed_vegetation": 1.0,
+		"tide_height": 0.0, "tide_shore_retreat": 0.0, "tide_optical_depth": 0.0,
 	},
 	# Fast river water keeps the physical bed visible without the sheltered-water
 	# algae layer and uses tighter, livelier ripples than ponds or open sea.
 	MapTypes.TERRAIN_RIVER_WATER: {
 		"height": 0.024, "chaos": 0.72, "foam": 0.12, "breakers": 0.08, "absorption": 4.8,
 		"bed_vegetation": 0.0,
+		"tide_height": 0.0, "tide_shore_retreat": 0.0, "tide_optical_depth": 0.0,
 	},
 }
 
@@ -269,6 +277,9 @@ static func water_surface(terrain_id: StringName) -> ShaderMaterial:
 	material.set_shader_parameter("foam_intensity", float(wave["foam"]))
 	material.set_shader_parameter("breaker_intensity", float(wave["breakers"]))
 	material.set_shader_parameter("bed_vegetation", float(wave.get("bed_vegetation", 1.0)))
+	material.set_shader_parameter("tide_height", float(wave["tide_height"]))
+	material.set_shader_parameter("tide_shore_retreat", float(wave["tide_shore_retreat"]))
+	material.set_shader_parameter("tide_optical_depth", float(wave["tide_optical_depth"]))
 	# WHY: Fast rivers need a pale sand/gravel bed instead of the shared coastal
 	# sand+algae look. Without this, low absorption shows a green meadow cast
 	# through the default seabed tint even when bed_vegetation is zero.
@@ -309,6 +320,18 @@ static func apply_water_lighting(sun_visibility: float, day_blend: float) -> voi
 		var material := water_surface(terrain_id as StringName)
 		material.set_shader_parameter("sun_visibility", visibility)
 		material.set_shader_parameter("day_blend", blend)
+
+
+## Applies a shared astronomical tide to coastal water families. The generic
+## TERRAIN_WATER family represents rivers and enclosed water, so its material
+## profile intentionally has zero visual tide response.
+static func apply_coastal_tide(level: float) -> void:
+	var normalized_level := clampf(level, -1.0, 1.0)
+	for terrain_id in WATER_WAVE_BASE.keys():
+		water_surface(terrain_id as StringName).set_shader_parameter(
+			"tide_level",
+			normalized_level
+		)
 
 
 ## Pushes the sky state shared by the dome and cached water materials. Reusing

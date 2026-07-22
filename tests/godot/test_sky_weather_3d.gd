@@ -496,3 +496,41 @@ func test_lunar_phase_shifts_rise_time_through_the_month() -> void:
 	var full_moon_midnight := SkyWeather.lunar_elevation_degrees(0.0, full_moon)
 	assert_true(new_moon_midnight < 0.0, "a new moon must share the sun's below-horizon midnight position")
 	assert_true(full_moon_midnight > 0.0, "a full moon must be above the midnight horizon")
+
+
+func test_tide_has_two_daily_highs_and_follows_lunar_phase() -> void:
+	var new_moon := {"day": 25, "month": 4, "year": 1343}
+	var first_quarter := {"day": 2, "month": 5, "year": 1343}
+	var spring_min := 1.0
+	var spring_max := -1.0
+	var neap_min := 1.0
+	var neap_max := -1.0
+	var spring_highs := 0
+	var samples := 192
+	var spring_levels: Array[float] = []
+	for index in samples:
+		var progress := float(index) / float(samples)
+		var spring := SkyWeather.tide_level(progress, new_moon)
+		var neap := SkyWeather.tide_level(progress, first_quarter)
+		spring_levels.append(spring)
+		spring_min = minf(spring_min, spring)
+		spring_max = maxf(spring_max, spring)
+		neap_min = minf(neap_min, neap)
+		neap_max = maxf(neap_max, neap)
+	for index in samples:
+		if (
+			spring_levels[index] > spring_levels[(index + samples - 1) % samples]
+			and spring_levels[index] > spring_levels[(index + 1) % samples]
+		):
+			spring_highs += 1
+	assert_eq(spring_highs, 2, "the lunar/solar tide must produce two high waters per day")
+	assert_true(
+		(spring_max - spring_min) > (neap_max - neap_min) * 1.35,
+		"new/full moon spring tides must exceed quarter-moon neap tides"
+	)
+	var first_sample := SkyWeather.tide_level(0.25, new_moon)
+	var second_sample := SkyWeather.tide_level(0.25, new_moon)
+	assert_true(
+		is_equal_approx(first_sample, second_sample),
+		"the tide must be deterministic for the same date and clock time"
+	)

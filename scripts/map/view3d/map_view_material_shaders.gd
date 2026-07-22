@@ -49,6 +49,12 @@ uniform float moon_visibility = 0.0;
 uniform float star_visibility = 0.0;
 uniform float observer_latitude = 1.0371;
 uniform float sidereal_angle = 3.8101;
+// Coastal terrain receives the live equilibrium tide. River water keeps zero
+// response, while shallow/deep sea tune shoreline retreat and optical depth.
+uniform float tide_level = 0.0;
+uniform float tide_height = 0.0;
+uniform float tide_shore_retreat = 0.0;
+uniform float tide_optical_depth = 0.0;
 
 varying vec3 water_world_position;
 varying float shore_factor;
@@ -163,16 +169,23 @@ void vertex() {
 	water_world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	shore_factor = clamp(COLOR.r, 0.0, 1.0);
 	vec3 shape = _water_shape(water_world_position.xz, TIME * wave_speed);
+	// Low tide withdraws the clipped coastal edge instead of requiring a second
+	// authored shoreline mesh. High tide reaches the original maximum contour.
+	// The fragment stage clips the retreat band; vertices only change elevation.
 	// Keep clipped patch seams pinned, but let the crest rise almost all the way
 	// into the shallows. The old broad fade erased waves before they reached land.
 	float displacement_fade = smoothstep(0.0, 0.16, shore_factor);
 	float shoaling = mix(1.32, 1.0, smoothstep(0.0, 0.65, shore_factor));
 	float displacement = shape.x * wave_height * displacement_fade * shoaling;
-	VERTEX.y += displacement;
-	water_world_position.y += displacement;
+	VERTEX.y += tide_height * tide_level + displacement;
+	water_world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 }
 
 void fragment() {
+	float tide_coverage = tide_shore_retreat * max(-tide_level, 0.0);
+	if (shore_factor < tide_coverage) {
+		discard;
+	}
 	vec3 shape = _water_shape(water_world_position.xz, TIME * wave_speed);
 	vec3 world_normal = normalize(vec3(-shape.y * wave_height, 1.0, -shape.z * wave_height));
 	vec3 view_normal = normalize((VIEW_MATRIX * vec4(world_normal, 0.0)).xyz);
@@ -187,6 +200,9 @@ void fragment() {
 	// remain distinct while geometric depth still controls bank intersections,
 	// refraction safety and edge foam.
 	float terrain_optical_depth = optical_depth + max(depth_absorption - 5.0, 0.0) * 0.055;
+	// Rising coastal water hides more of the layered bed; ebbing water exposes it.
+	// Rivers use a zero tide_optical_depth profile and remain unchanged.
+	terrain_optical_depth = max(terrain_optical_depth + tide_level * tide_optical_depth, 0.018);
 	float water_depth = max(geometric_depth, terrain_optical_depth);
 
 	// Distort only samples that remain behind the surface. This suppresses the

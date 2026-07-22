@@ -55,6 +55,11 @@ const NEW_MOON_EPOCH_JULIAN_DAY := 2451550.25972
 ## The moon moves east against the stars during each solar day, so its apparent
 ## westward crossing is slower than the sun's instead of sharing its rotation.
 const LUNAR_APPARENT_ROTATIONS_PER_SOLAR_DAY := 1.0 - 1.0 / SYNODIC_MONTH_DAYS
+## Equilibrium tide approximation. Lunar forcing dominates, while solar forcing
+## reinforces it at new/full moon and opposes it at quarter moons. Reval's real
+## Baltic range is small; rendering applies a restrained visual scale separately.
+const SOLAR_TIDE_FORCE_RATIO := 0.46
+const TIDE_BASIN_LAG_PROGRESS := 1.5 / 24.0
 
 ## Astronomical reference for Reval (Tallinn) on St George's Night. The catalog
 ## is J2000, then precessed to the canonical campaign year so even Polaris and
@@ -413,6 +418,29 @@ static func lunar_direction(progress: float, date: Dictionary = {}) -> Vector3:
 
 static func lunar_elevation_degrees(progress: float, date: Dictionary = {}) -> float:
 	return rad_to_deg(asin(clampf(lunar_direction(progress, date).y, -1.0, 1.0)))
+
+
+## Normalized equilibrium tide in [-1, 1]. Using the sub-lunar and sub-solar
+## longitudes produces two highs per day. Their relative phase makes spring tides
+## stronger near new/full moon and neap tides weaker near the quarter moons.
+static func tide_level(progress: float, date: Dictionary = {}) -> float:
+	var effective_date := GAME_CALENDAR.DEFAULT_DATE if date.is_empty() else date
+	var delayed_progress := wrapf(progress - TIDE_BASIN_LAG_PROGRESS, 0.0, 1.0)
+	var lunar_transit := wrapf(
+		delayed_progress * LUNAR_APPARENT_ROTATIONS_PER_SOLAR_DAY
+		- lunar_phase(effective_date),
+		0.0,
+		1.0
+	)
+	var solar_transit := wrapf(delayed_progress - 0.5, 0.0, 1.0)
+	var lunar_tide := cos(lunar_transit * TAU * 2.0)
+	var solar_tide := cos(solar_transit * TAU * 2.0)
+	return clampf(
+		(lunar_tide + solar_tide * SOLAR_TIDE_FORCE_RATIO)
+		/ (1.0 + SOLAR_TIDE_FORCE_RATIO),
+		-1.0,
+		1.0
+	)
 
 
 func set_calendar_date(date: Dictionary) -> void:

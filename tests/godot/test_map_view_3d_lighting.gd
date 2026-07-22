@@ -107,6 +107,22 @@ func test_night_directional_light_follows_lunar_phase_and_horizon() -> void:
 	view.free()
 
 
+func test_cycle_pushes_calendar_tide_into_coastal_water() -> void:
+	var definition := SmithyCourtyard.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_DAY)
+	var date := {"day": 25, "month": 4, "year": 1343}
+	var progress := 8.0 / 24.0
+	view.set_calendar_date(date)
+	view.apply_cycle_progress(progress)
+	var expected := SkyWeather3D.tide_level(progress, date)
+	var shallow := MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
+	assert_true(
+		is_equal_approx(float(shallow.get_shader_parameter("tide_level")), expected),
+		"lighting cycle must synchronize coastal tide with calendar and time"
+	)
+	view.free()
+
+
 func test_evening_window_schedule_is_deterministic_and_bounded() -> void:
 	var seed := String(&"house_test_lane").hash()
 	var first: Dictionary = BuildingWindowLights3D.evening_schedule_for(seed)

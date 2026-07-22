@@ -133,11 +133,19 @@ const ROOF_STYLE_THATCH := &"thatch"
 const THATCH_TONE := Color(0.58, 0.50, 0.34)
 ## Extra eaves hang so thatch reads thicker than shingle/tile at dimetric range.
 const THATCH_ROOF_OVERHANG := 0.28
-## Soft reed ridge roll and eaves fringe dimensions.
+## Soft flush ridge plus merged stem relief. About one stem every 8 cm keeps
+## individual reeds legible at gameplay distance without one node per stem.
 const THATCH_RIDGE_RADIUS := 0.14
-const THATCH_EDGE_ROLL := 0.10
-const THATCH_EAVES_FRINGE_HEIGHT := 0.16
-const THATCH_EAVES_FRINGE_DEPTH := 0.08
+const THATCH_STEM_SPACING := 0.085
+const THATCH_STEM_WIDTH := 0.055
+const THATCH_STEM_RELIEF := 0.026
+const THATCH_STEM_EAVES_VARIATION := 0.11
+const THATCH_STEM_DRIFT := 0.018
+## The timber gable sits behind the roof's broad verge and is framed with flat
+## boards. This replaces the former cylinder rolls that read as projecting poles.
+const THATCH_GABLE_RECESS := 0.035
+const THATCH_GABLE_BOARD_WIDTH := 0.095
+const THATCH_GABLE_BOARD_THICKNESS := 0.045
 const FRAME_BEAM_THICKNESS := 0.11
 const PLINTH_HEIGHT := 0.24
 

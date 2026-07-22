@@ -99,7 +99,12 @@ static func build_building(
 			roof_overhang = MapViewMeshBuilderConfig.THATCH_ROOF_OVERHANG
 		var roof := MeshInstance3D.new()
 		roof.name = "Roof"
-		roof.mesh = MapViewMeshBuilderPrimitives.gabled_roof_mesh(size, along_ridge_x, roof_overhang)
+		roof.mesh = MapViewMeshBuilderPrimitives.gabled_roof_mesh(
+			size,
+			along_ridge_x,
+			roof_overhang,
+			roof_style != MapViewMeshBuilderConfig.ROOF_STYLE_THATCH
+		)
 		roof.position = Vector3(0.0, height, 0.0)
 		roof.material_override = MapViewMeshBuilderBuildingHouses.house_roof_material(building)
 		root.add_child(roof)

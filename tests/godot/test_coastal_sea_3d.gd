@@ -92,3 +92,37 @@ func test_authored_water_families_keep_distinct_optical_depths() -> void:
 		"deep water must hide more bed light than river water"
 	)
 	assert_true("terrain_optical_depth" in deep.shader.code, "flat gameplay beds need visual depth per terrain family")
+
+
+func test_coastal_tide_changes_shore_and_depth_without_affecting_rivers() -> void:
+	var source := MapViewMaterialShaders.WATER_SHADER_CODE
+	for feature in ["tide_level", "tide_shore_retreat", "tide_optical_depth", "discard"]:
+		assert_true(feature in source, "coastal water shader needs %s tide behavior" % feature)
+	MapViewMaterials.apply_coastal_tide(-0.72)
+	var shallow := MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
+	var deep := MapViewMaterials.water_surface(MapTypes.TERRAIN_DEEP_WATER)
+	var river := MapViewMaterials.water_surface(MapTypes.TERRAIN_WATER)
+	assert_true(
+		float(shallow.get_shader_parameter("tide_shore_retreat")) > 0.0,
+		"shallow sea must expose its layered bed at low tide"
+	)
+	assert_true(
+		float(deep.get_shader_parameter("tide_optical_depth")) > 0.0,
+		"deep coastal water must change light attenuation with tide"
+	)
+	assert_eq(
+		float(river.get_shader_parameter("tide_shore_retreat")),
+		0.0,
+		"river shorelines must not move with the coastal tide"
+	)
+	assert_eq(
+		float(river.get_shader_parameter("tide_height")),
+		0.0,
+		"river levels must remain independent of the coastal tide"
+	)
+	for material: ShaderMaterial in [shallow, deep, river]:
+		assert_true(
+			is_equal_approx(float(material.get_shader_parameter("tide_level")), -0.72),
+			"all cached water materials must receive one synchronized tide phase"
+		)
+	MapViewMaterials.apply_coastal_tide(0.0)

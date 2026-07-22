@@ -194,17 +194,20 @@ static func add_chimney_stack(parent: Node3D, node_name: String, outer_size: flo
 static func gabled_roof_mesh(
 	base: Vector2,
 	ridge_along_x: bool = true,
-	overhang: float = -1.0
+	overhang: float = -1.0,
+	close_gables: bool = true
 ) -> ArrayMesh:
 	if overhang < 0.0:
 		overhang = MapViewMeshBuilderConfig.ROOF_OVERHANG
-	var cache_key := "gabled_roof:%s:%s:%.3f" % [base, ridge_along_x, overhang]
+	var cache_key := "gabled_roof:%s:%s:%.3f:%s" % [base, ridge_along_x, overhang, close_gables]
 	if _mesh_cache.has(cache_key):
 		return _mesh_cache[cache_key]
 	var half_w := base.x * 0.5 + overhang
 	var half_d := base.y * 0.5 + overhang
 	var narrow := half_d if ridge_along_x else half_w
 	var rise := narrow * MapViewMeshBuilderConfig.ROOF_PITCH
+	var slope_length := sqrt(narrow * narrow + rise * rise)
+	var ridge_half := half_w if ridge_along_x else half_d
 
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -217,10 +220,22 @@ static func gabled_roof_mesh(
 		var r1 := Vector3(half_w, rise, 0.0)
 		var north := Vector3(0.0, half_d, -rise).normalized()
 		var south := Vector3(0.0, half_d, rise).normalized()
-		MapViewMeshBuilderPrimitives.add_roof_quad(surface, a, b, r1, r0, north)
-		MapViewMeshBuilderPrimitives.add_roof_quad(surface, r0, r1, c, d, south)
-		MapViewMeshBuilderPrimitives.add_roof_triangle(surface, a, r0, d, Vector3.LEFT)
-		MapViewMeshBuilderPrimitives.add_roof_triangle(surface, b, c, r1, Vector3.RIGHT)
+		# U follows the ridge; V always runs from ridge (0) down to eave
+		# (slope_length). Reed/shingle patterns therefore follow water runoff rather
+		# than the arbitrary world-Y projection used by the former mapping.
+		MapViewMeshBuilderPrimitives.add_roof_quad_uv(
+			surface, a, b, r1, r0, north,
+			Vector2(-ridge_half, slope_length), Vector2(ridge_half, slope_length),
+			Vector2(ridge_half, 0.0), Vector2(-ridge_half, 0.0)
+		)
+		MapViewMeshBuilderPrimitives.add_roof_quad_uv(
+			surface, r0, r1, c, d, south,
+			Vector2(-ridge_half, 0.0), Vector2(ridge_half, 0.0),
+			Vector2(ridge_half, slope_length), Vector2(-ridge_half, slope_length)
+		)
+		if close_gables:
+			MapViewMeshBuilderPrimitives.add_roof_triangle(surface, a, r0, d, Vector3.LEFT)
+			MapViewMeshBuilderPrimitives.add_roof_triangle(surface, b, c, r1, Vector3.RIGHT)
 	else:
 		var a := Vector3(-half_w, 0.0, -half_d)
 		var b := Vector3(half_w, 0.0, -half_d)
@@ -230,13 +245,42 @@ static func gabled_roof_mesh(
 		var r1 := Vector3(0.0, rise, half_d)
 		var west := Vector3(-rise, half_w, 0.0).normalized()
 		var east := Vector3(rise, half_w, 0.0).normalized()
-		MapViewMeshBuilderPrimitives.add_roof_quad(surface, a, r0, r1, d, west)
-		MapViewMeshBuilderPrimitives.add_roof_quad(surface, r0, b, c, r1, east)
-		MapViewMeshBuilderPrimitives.add_roof_triangle(surface, a, b, r0, Vector3.FORWARD)
-		MapViewMeshBuilderPrimitives.add_roof_triangle(surface, d, r1, c, Vector3.BACK)
+		MapViewMeshBuilderPrimitives.add_roof_quad_uv(
+			surface, a, r0, r1, d, west,
+			Vector2(-ridge_half, slope_length), Vector2(-ridge_half, 0.0),
+			Vector2(ridge_half, 0.0), Vector2(ridge_half, slope_length)
+		)
+		MapViewMeshBuilderPrimitives.add_roof_quad_uv(
+			surface, r0, b, c, r1, east,
+			Vector2(-ridge_half, 0.0), Vector2(-ridge_half, slope_length),
+			Vector2(ridge_half, slope_length), Vector2(ridge_half, 0.0)
+		)
+		if close_gables:
+			MapViewMeshBuilderPrimitives.add_roof_triangle(surface, a, b, r0, Vector3.FORWARD)
+			MapViewMeshBuilderPrimitives.add_roof_triangle(surface, d, r1, c, Vector3.BACK)
 	var mesh := surface.commit()
 	_mesh_cache[cache_key] = mesh
 	return mesh
+
+
+static func add_roof_quad_uv(
+	surface: SurfaceTool,
+	a: Vector3,
+	b: Vector3,
+	c: Vector3,
+	d: Vector3,
+	normal: Vector3,
+	uv_a: Vector2,
+	uv_b: Vector2,
+	uv_c: Vector2,
+	uv_d: Vector2
+) -> void:
+	var vertices := [a, b, c, a, c, d]
+	var uvs := [uv_a, uv_b, uv_c, uv_a, uv_c, uv_d]
+	for index in vertices.size():
+		surface.set_normal(normal)
+		surface.set_uv(uvs[index])
+		surface.add_vertex(vertices[index])
 
 
 

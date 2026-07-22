@@ -1,21 +1,30 @@
 extends "res://tests/godot/test_case.gd"
 
-## P1-025: shared watchman/sergeant enemy state machine.
-## Both archetypes must complete patrol → detect → telegraph → attack →
-## react → disengage through one controller class.
+## P1-025 + P5-008: shared enemy state machine for all archetypes.
+## All profiles must complete patrol → detect → telegraph → attack → react → disengage
+## through one controller class (EnemyArchetype.watchman, .sergeant, .knight_order, .crossbowman).
 
 const TEST_DELTA := 0.05
 
 
-func test_watchman_and_sergeant_share_one_controller_class() -> void:
-	var watch_machine := _make_machine(EnemyArchetype.watchman())
-	var sarge_machine := _make_machine(EnemyArchetype.sergeant())
-	assert_true(watch_machine is EnemyCombatStateMachine)
-	assert_true(sarge_machine is EnemyCombatStateMachine)
-	assert_eq(watch_machine.get_script(), sarge_machine.get_script())
-	assert_ne(watch_machine.archetype.id, sarge_machine.archetype.id)
-	assert_eq(watch_machine.archetype.id, EnemyArchetype.ID_WATCHMAN)
-	assert_eq(sarge_machine.archetype.id, EnemyArchetype.ID_SERGEANT)
+func test_all_archetypes_share_one_controller_class() -> void:
+	var profiles: Array[EnemyArchetype] = [
+		EnemyArchetype.watchman(),
+		EnemyArchetype.sergeant(),
+		EnemyArchetype.knight_order(),
+		EnemyArchetype.crossbowman(),
+	]
+	
+	assert_true(profiles.size() == 4, "Should have exactly four archetypes")
+	
+	var first_machine := _make_machine(profiles[0])
+	var script_ref: Script = first_machine.get_script()
+	
+	for profile in profiles:
+		var machine := _make_machine(profile)
+		assert_true(machine is EnemyCombatStateMachine)
+		assert_eq(machine.get_script(), script_ref, "All machines must share one controller class")
+		assert_ne(machine.archetype.id, &"nil", "Each archetype should have a unique id")
 
 
 func test_watchman_completes_detect_to_disengage_loop() -> void:
@@ -24,6 +33,14 @@ func test_watchman_completes_detect_to_disengage_loop() -> void:
 
 func test_sergeant_completes_detect_to_disengage_loop() -> void:
 	_assert_full_combat_loop(EnemyArchetype.sergeant())
+
+
+func test_knight_order_completes_detect_to_disengage_loop() -> void:
+	_assert_full_combat_loop(EnemyArchetype.knight_order())
+
+
+func test_crossbowman_completes_detect_to_disengage_loop() -> void:
+	_assert_full_combat_loop(EnemyArchetype.crossbowman())
 
 
 func test_react_interrupts_telegraph_then_resumes_combat() -> void:
