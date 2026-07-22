@@ -8,13 +8,13 @@ func test_lower_town_has_wall_exit_signs_outside_the_moat() -> void:
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
 	assert_eq(definition.direction_signs.size(), 4)
 
-	var harbour_sign := _sign_by_text(definition, "to harbour")
-	assert_false(harbour_sign.is_empty())
-	assert_eq(harbour_sign["direction"], Vector2.RIGHT)
+	var viru_road_sign := _sign_by_text(definition, "viru gate and eastern road")
+	assert_false(viru_road_sign.is_empty())
+	assert_eq(viru_road_sign["direction"], Vector2.RIGHT)
 	# Viru's outer wall face ends at cell 67; the sign belongs on the glacis.
-	assert_true(harbour_sign["position"].x > float(definition.cell_size * 67))
+	assert_true(viru_road_sign["position"].x > float(definition.cell_size * 67))
 	# Causeway centre is y=20; keep the post off the walkable road on the outer glacis.
-	assert_true(harbour_sign["position"].y > float(definition.cell_size * 21))
+	assert_true(viru_road_sign["position"].y > float(definition.cell_size * 21))
 
 	var town_centre_sign := _sign_by_text(definition, "to town centre")
 	assert_false(town_centre_sign.is_empty())
@@ -29,18 +29,24 @@ func test_lower_town_has_wall_exit_signs_outside_the_moat() -> void:
 	assert_true(south_sign["position"].x > float(definition.cell_size * 55))
 	assert_true(south_sign["position"].y > float(definition.cell_size * 100))
 
+	var karja_gate_sign := _sign_by_text(definition, "karja gate")
+	assert_false(karja_gate_sign.is_empty())
+	assert_eq(karja_gate_sign["direction"], Vector2.DOWN)
+	assert_true(karja_gate_sign["position"].x > float(definition.cell_size * 55))
+	assert_true(karja_gate_sign["position"].y > float(definition.cell_size * 100))
+
 	assert_true(MapBuilder.validate(definition).is_empty())
 
 
 func test_direction_sign_builds_wooden_arrow_with_two_sided_text() -> void:
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
-	var sign := _sign_by_text(definition, "to harbour")
+	var sign := _sign_by_text(definition, "viru gate and eastern road")
 	var node := DirectionSign3D.build(sign, definition.cell_size)
 	assert_true(node.has_node("Post"))
 	assert_true(node.has_node("ArrowBody"))
 	assert_true(node.has_node("ArrowHead"))
-	assert_eq((node.get_node("TextFront") as Label3D).text, "to harbour")
-	assert_eq((node.get_node("TextBack") as Label3D).text, "to harbour")
+	assert_eq((node.get_node("TextFront") as Label3D).text, "viru gate and eastern road")
+	assert_eq((node.get_node("TextBack") as Label3D).text, "viru gate and eastern road")
 	assert_eq(node.get_meta("outside_direction"), Vector2.RIGHT)
 	assert_true(is_zero_approx(node.rotation.y), "right-pointing sign must face world +X")
 	node.free()
@@ -97,9 +103,10 @@ func test_map_view_assembles_direction_signs_without_logic_geometry() -> void:
 	var texts: Array[String] = []
 	for child in signs.get_children():
 		texts.append(String(child.get_meta("direction_text")))
-	assert_array_contains(texts, "to harbour")
+	assert_array_contains(texts, "viru gate and eastern road")
 	assert_array_contains(texts, "to town centre")
 	assert_array_contains(texts, "to knights district")
+	assert_array_contains(texts, "karja gate")
 	view.free()
 
 

@@ -4,14 +4,17 @@ Format: `- [ ] ID | deps: unresolved ID,ID or none | deliverable: concrete artif
 
 Dependency policy: `deps` lists unresolved blockers only. Remove a dependency when it completes; use Git history for completed work. Completed rows remain at the end only when repository validators require their exact task contracts.
 
+
 <!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
-| P0       |  ~8  |  34  | Baseline, storage, materials, historical audit |
-| P1       |  ~9  |  43  | Runtime systems, content foundation |
-| P2       |  31  |   0  | Vertical-slice production (playable MVP) |
-| P3       |  15  |   0  | Validation, accessibility, performance |
-| P4-P6    |  ~20 |   0  | Act content |
+| D |     0  |     5  | Demo / packaging |
+| P0 |     7  |    35  | Baseline, storage, materials, historical audit |
+| P1 |     3  |    44  | Runtime systems, content foundation |
+| P2 |    26  |     3  | Vertical-slice production (playable MVP) |
+| P3+ |    80  |     2  | Validation, accessibility, performance |
+
+
 
 
 ## Immediate priorities
@@ -70,6 +73,10 @@ Coordination note (2026-07-21 P1-028 in progress): auditing every vertical-slice
 Coordination note (2026-07-21 P0-073): Archbishop's Garden map-audit/conversion baseline is reconciled without release activation; its scene target, explicit `active=false` gate, scene inventory, migration matrix, conversion plan, and canonical 1600x900 audit capture now agree, and all four contract checks pass.
 
 Coordination note (2026-07-21 P0-075): sky/weather compile regression closed. `_advance_gust()` restores the rain-front gust envelope; weather profiles push `storm_intensity` and wind-scaled cloud drift into the sky shader; `--filter=test_sky_weather_3d` passes 22/22 with zero script compile errors.
+
+Coordination note (2026-07-22 P0-078 in progress): direction-sign contract drift from the Lower Town `.rrmap` migration is closed on current work: tests now assert the four authored signs (`viru gate and eastern road`, `to town centre`, `to knights district`, `karja gate`) and `--filter=test_direction_sign_3d` is green. Remaining P0-078 buckets: smithy entrance/courtyard assertions, rebound mouse-confirm focus, prototype route/adjacency drift, banner geometry, and generated fixture UID cleanup.
+
+Coordination note (2026-07-22 P0-080): `tools/update_todo_counts.py` regenerates the TODO quick-reference table from task rows, including suffix IDs such as `D-004a` and `P1-031a`; `python3 -m unittest tests.python.test_update_todo_counts -v` passes and the summary table is refreshed.
 
 Coordination note (2026-07-22 P0-079): procedural sky resource baking (cloud noise, lunar albedo, star catalog, rain particles) now lives in `SkyWeatherResources`; `SkyWeather3D` keeps weather simulation and astronomy facades. `--filter=test_sky_weather_3d` passes 27/27 and `--filter=test_map_view_3d_lighting` passes 12/12 with zero behavior regressions.
 
@@ -215,6 +222,7 @@ Goal: a small runnable demo proving the ADR 0007 look and the core interaction l
 - [x] P0-074 | deps: none | deliverable: reconcile the Viru Gate Foreland prototype across the map audit manifest, conversion plan, scene inventory, migration matrix, and canonical audit capture without enabling release traversal | verify: `python3 -m unittest discover -s tests/python -v`, `python3 tools/verify_map_audit.py`, `python3 tools/verify_map_conversion_plan.py`, `python3 tools/verify_migration_matrix.py`, and `python3 tools/verify_map_activation.py` pass
 - [x] P0-076 | deps: none | deliverable: finish tower wall-walk passage wiring (`round_tower` / `wall_walk_axis` allowlist, CSG passages, collision openings, builder call sites, and Lower Town parity) without regressing map pipeline or fortification tests | verify: `--filter=test_map_view_3d_fortification`, `--filter=test_map_tower_doors`, `--filter=test_map_rrmap_parser`, and `tools/run_map_pipeline_ci.sh audit` pass with zero unknown-typed-field diagnostics
 - [ ] P0-078 | deps: none | deliverable: restore the clean-clone Godot baseline after current map/view/input drift: clear direction-sign runtime diagnostics, rebound mouse-confirm focus flow, remaining prototype transition/patrol reachability and adjacency failures, banner parametric geometry, Lower Town entrance/chunk-ownership assertions left after P0-076, and generated untracked fixture UIDs without weakening coverage | verify: after `rm -rf .godot`, `tools/run_godot_checked.sh clean-import Godot --headless --editor --quit` and `tools/run_godot_checked.sh --require-test-summary full-suite Godot --headless --script tools/run_godot_tests.gd` complete all 713 or more tests with zero failures, zero unallowlisted errors, and no generated untracked files
+- [x] P0-080 | deps: none | deliverable: `tools/update_todo_counts.py` regenerates the TODO.md quick-reference priority table from actual open/done task rows (including suffix IDs such as `D-004a` and `P1-031a`) without editing task contracts | verify: `python3 tools/update_todo_counts.py` prints accurate bucket counts; `python3 -m unittest tests.python.test_update_todo_counts -v` passes; `python3 tools/update_todo_counts.py --write` refreshes the summary table and leaves task rows unchanged
 - [x] P0-077 | deps: none | deliverable: allowed files `TODO.md`, `scripts/map/view3d/map_view_material_shaders.gd`, `tests/godot/test_coastal_sea_3d.gd`, and `docs/reports/images/view3d/reval_harbor_north_water_layers.png`; layer the existing 3D water material with deterministic sand, stone, algae, and deep-bed treatments plus depth-dependent spectral light attenuation and shallow caustics; preserve gameplay geometry, navigation, authored water IDs, weather waves, and celestial reflections | verify: focused water/material Godot tests pass with zero shader or script errors, and the committed rendering-capable harbour capture visibly separates shallow bed detail from dark deep water
 - [x] P0-075 | deps: none | deliverable: repair the staged `sky_weather_3d.gd` compile regression by restoring or replacing the missing `_advance_gust()` implementation without regressing cloud or weather behavior | verify: the focused sky/weather tests and the full Godot suite load with zero script compile errors
 - [x] P0-079 | deps: P0-065 | deliverable: allowed files `scripts/map/view3d/sky_weather_3d.gd`, `scripts/map/view3d/sky_weather_resources.gd`, `docs/ARCHITECTURE.md`, and `TODO.md`; extract deterministic procedural sky resource baking (cloud noise/shape, lunar albedo, star catalog map, rain particles, and shared photometry helpers) from `SkyWeather3D` into `SkyWeatherResources` while preserving the public `SkyWeather3D` weather and astronomy API | verify: `--filter=test_sky_weather_3d` passes 27/27, `--filter=test_map_view_3d_lighting` passes 12/12, and `docs/ARCHITECTURE.md` records the split with the listed regression gates
