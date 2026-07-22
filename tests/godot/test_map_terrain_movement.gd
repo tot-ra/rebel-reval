@@ -11,6 +11,31 @@ func test_rrmap_grass_variants_compile_into_zones_and_grid() -> void:
 	assert_true(grid.get_movement_speed_multiplier(Vector2i(18, 11)) < 1.0)
 
 
+func test_water_overlays_clear_inherited_land_vegetation() -> void:
+	var definition := MapDefinition.new()
+	definition.map_id = &"water_overlay_test"
+	definition.location = &"loc.water_overlay_test"
+	definition.scope = &"prototype"
+	definition.palette = &"clean_painted"
+	definition.fingerprint = "water_overlay_test"
+	definition.size_cells = Vector2i(6, 6)
+	definition.cell_size = 32
+	definition.base_terrain = MapTypes.TERRAIN_GRASS
+	definition.player_spawn = Vector2(16, 16)
+	definition.zones = [
+		{
+			"terrain": MapTypes.TERRAIN_MEADOW,
+			"rect": Rect2i(0, 0, 6, 6),
+			"style_variant": TerrainVegetation.VARIANT_GRASS_TALL,
+		},
+		{"terrain": MapTypes.TERRAIN_RIVER_WATER, "rect": Rect2i(2, 0, 2, 6)},
+	]
+	var grid := MapBuilder.build(definition)
+	assert_eq(grid.get_style_variant(Vector2i(1, 1)), TerrainVegetation.VARIANT_GRASS_TALL)
+	assert_true(grid.get_style_variant(Vector2i(2, 1)).is_empty())
+	assert_eq(grid.get_movement_speed_multiplier(Vector2i(2, 1)), 1.0)
+
+
 func test_bush_prop_slows_player_position_inside_footprint() -> void:
 	var definition := MapDefinition.new()
 	definition.map_id = &"movement_test"

@@ -21,6 +21,7 @@ uniform vec3 deep_color : source_color = vec3(0.16, 0.30, 0.44);
 uniform vec3 sand_bed_color : source_color = vec3(0.62, 0.51, 0.30);
 uniform vec3 stone_bed_color : source_color = vec3(0.32, 0.36, 0.35);
 uniform vec3 algae_bed_color : source_color = vec3(0.14, 0.28, 0.20);
+uniform float bed_vegetation = 1.0;
 uniform vec3 deep_bed_color : source_color = vec3(0.035, 0.08, 0.11);
 uniform float optical_depth = 0.075;
 uniform float caustic_strength = 0.14;
@@ -123,7 +124,7 @@ vec4 _seabed_layers(vec2 position, float water_depth) {
 	float shallow_weight = 1.0 - deep_weight;
 	float stone_weight = smoothstep(0.56, 0.78, broken * 0.72 + detail * 0.28) * shallow_weight;
 	float algae_depth = smoothstep(0.06, 0.16, water_depth) * (1.0 - smoothstep(0.30, 0.46, water_depth));
-	float algae_weight = smoothstep(0.48, 0.72, broad * 0.68 + broken * 0.32) * algae_depth;
+	float algae_weight = smoothstep(0.48, 0.72, broad * 0.68 + broken * 0.32) * algae_depth * bed_vegetation;
 	float sand_weight = max(shallow_weight - stone_weight - algae_weight, 0.08 * shallow_weight);
 	float shallow_total = max(sand_weight + stone_weight + algae_weight, 0.0001);
 	vec3 shallow_layers = vec3(sand_weight, stone_weight, algae_weight) / shallow_total;

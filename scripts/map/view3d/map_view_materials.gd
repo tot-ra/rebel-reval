@@ -19,6 +19,7 @@ const EMBER_ENERGY := 1.6
 
 const WATER_TERRAINS: Array[StringName] = [
 	MapTypes.TERRAIN_WATER,
+	MapTypes.TERRAIN_RIVER_WATER,
 	MapTypes.TERRAIN_SHALLOW_WATER,
 	MapTypes.TERRAIN_DEEP_WATER,
 ]
@@ -232,7 +233,16 @@ static func puddle_surface() -> ShaderMaterial:
 const WATER_WAVE_BASE := {
 	MapTypes.TERRAIN_SHALLOW_WATER: {"height": 0.026, "chaos": 0.78, "foam": 0.24, "breakers": 0.52, "absorption": 5.0},
 	MapTypes.TERRAIN_DEEP_WATER: {"height": 0.044, "chaos": 1.18, "foam": 0.12, "breakers": 0.10, "absorption": 9.0},
-	MapTypes.TERRAIN_WATER: {"height": 0.030, "chaos": 0.96, "foam": 0.18, "breakers": 0.22, "absorption": 7.0},
+	MapTypes.TERRAIN_WATER: {
+		"height": 0.030, "chaos": 0.96, "foam": 0.18, "breakers": 0.22, "absorption": 7.0,
+		"bed_vegetation": 1.0,
+	},
+	# Fast river water keeps the physical bed visible without the sheltered-water
+	# algae layer and uses tighter, livelier ripples than ponds or open sea.
+	MapTypes.TERRAIN_RIVER_WATER: {
+		"height": 0.024, "chaos": 0.72, "foam": 0.12, "breakers": 0.08, "absorption": 4.2,
+		"bed_vegetation": 0.0,
+	},
 }
 
 
@@ -258,6 +268,7 @@ static func water_surface(terrain_id: StringName) -> ShaderMaterial:
 	material.set_shader_parameter("wave_chaos", float(wave["chaos"]))
 	material.set_shader_parameter("foam_intensity", float(wave["foam"]))
 	material.set_shader_parameter("breaker_intensity", float(wave["breakers"]))
+	material.set_shader_parameter("bed_vegetation", float(wave.get("bed_vegetation", 1.0)))
 	_cache[key] = material
 	return material
 

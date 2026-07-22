@@ -84,7 +84,12 @@ static func _apply_zone_to_chunks(grid: MapTerrainGrid, zone: Dictionary) -> voi
 			for x in range(clipped.position.x, clipped.end.x):
 				var cell := Vector2i(x, y)
 				grid.set_terrain(cell, terrain)
-				if not style_variant.is_empty() or speed_multiplier < 0.999:
+				# Water overlays must erase inherited meadow/reed metadata. Otherwise a
+				# later water zone still scatters the vegetation painted by the dry base.
+				if MapTypes.WATER_TERRAINS.has(terrain):
+					grid.set_style_variant(cell, &"")
+					grid.set_movement_speed_multiplier(cell, 1.0)
+				elif not style_variant.is_empty() or speed_multiplier < 0.999:
 					grid.apply_vegetation_overlay(cell, style_variant, speed_multiplier)
 
 
@@ -100,5 +105,10 @@ static func _apply_zone(grid: MapTerrainGrid, zone: Dictionary) -> void:
 		for x in range(rect.position.x, rect.end.x):
 			var cell := Vector2i(x, y)
 			grid.set_terrain(cell, terrain)
-			if not style_variant.is_empty() or speed_multiplier < 0.999:
+			# Water overlays must erase inherited meadow/reed metadata. Otherwise a
+			# later water zone still scatters the vegetation painted by the dry base.
+			if MapTypes.WATER_TERRAINS.has(terrain):
+				grid.set_style_variant(cell, &"")
+				grid.set_movement_speed_multiplier(cell, 1.0)
+			elif not style_variant.is_empty() or speed_multiplier < 0.999:
 				grid.apply_vegetation_overlay(cell, style_variant, speed_multiplier)

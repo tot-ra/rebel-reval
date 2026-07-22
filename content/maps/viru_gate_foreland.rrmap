@@ -38,10 +38,11 @@ terrain east.hay_meadow hay 104 75 52 31 style=grass.dry order=3
 terrain future_convent_meadow grass 102 10 51 38 style=grass.flowers order=4
 terrain west.croft_yard dirt 18 20 39 27 order=5
 terrain east.farm_yard dirt 104 70 53 28 order=5
-terrain river.west_bank mud 70 0 7 120 style=reed.shore order=6
-terrain river.shallows shallow_water 76 0 18 120 order=7
-terrain river.deep_channel deep_water 82 0 7 120 order=8
-terrain river.east_bank mud 94 0 7 120 style=reed.shore order=6
+# The Pirita is a quick, clear river rather than a tidal Baltic inlet. Short
+# overlapping bands give both banks a broad natural meander while the smoothed
+# 3D contour removes the authored cell steps.
+terrain_rects river.banks mud 70,0,31,6|69,6,31,6|67,12,31,6|65,18,31,6|64,24,31,6|65,30,31,6|67,36,31,6|70,42,31,6|72,48,31,6|71,54,31,6|70,60,31,9|70,69,31,6|72,75,31,6|74,81,31,6|75,87,31,6|73,93,31,6|70,99,31,6|67,105,31,6|65,111,31,5|66,116,31,4 style=reed.shore order=6
+terrain_rects river.current river_water 76,0,19,6|75,6,19,6|73,12,19,6|71,18,19,6|70,24,19,6|71,30,19,6|73,36,19,6|76,42,19,6|78,48,19,6|77,54,19,6|76,60,19,9|76,69,19,6|78,75,19,6|80,81,19,6|81,87,19,6|79,93,19,6|76,99,19,6|73,105,19,6|71,111,19,5|72,116,19,4 order=7
 terrain road.west dirt 0 60 72 8 order=9
 terrain road.east dirt 98 60 70 8 order=9
 terrain road.wear_west mud 30 63 36 4 order=10

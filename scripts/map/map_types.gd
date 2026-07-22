@@ -9,6 +9,7 @@ const TERRAIN_HAY := &"hay"
 const TERRAIN_DIRT := &"dirt"
 const TERRAIN_COBBLESTONE := &"cobblestone"
 const TERRAIN_WATER := &"water"
+const TERRAIN_RIVER_WATER := &"river_water"
 const TERRAIN_STONE := &"stone"
 const TERRAIN_MEADOW := &"meadow"
 const TERRAIN_COAST_SAND := &"coast_sand"
@@ -25,6 +26,7 @@ const TERRAIN_DEEP_WATER := &"deep_water"
 ## mechanic exists.
 const WATER_TERRAINS: Array[StringName] = [
 	TERRAIN_WATER,
+	TERRAIN_RIVER_WATER,
 	TERRAIN_SHALLOW_WATER,
 	TERRAIN_DEEP_WATER,
 ]
@@ -50,6 +52,7 @@ const ALL_TERRAINS: Array[StringName] = [
 	TERRAIN_DIRT,
 	TERRAIN_COBBLESTONE,
 	TERRAIN_WATER,
+	TERRAIN_RIVER_WATER,
 	TERRAIN_STONE,
 	TERRAIN_MEADOW,
 	TERRAIN_COAST_SAND,

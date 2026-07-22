@@ -52,7 +52,7 @@ static func pattern_color(
 		MapTypes.TERRAIN_COBBLESTONE:
 			var phase := (hash + int(local.x / 4.0) * 3 + int(local.y / 4.0) * 5) % 7
 			return base.lightened(strength * 0.60) if phase < 2 else base.darkened(strength * 0.35)
-		MapTypes.TERRAIN_WATER:
+		MapTypes.TERRAIN_WATER, MapTypes.TERRAIN_RIVER_WATER:
 			return base.lightened(strength) if (int(local.y) + hash) % 5 < 2 else base.darkened(strength * 0.25)
 		MapTypes.TERRAIN_STONE:
 			return base.darkened(strength * 0.70) if (int(local.x + local.y) + hash) % 6 == 0 else base.lightened(strength * 0.20)
