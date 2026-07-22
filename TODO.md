@@ -167,6 +167,7 @@ References:
 
 ### Small
 
+- [ ] P0-109 | deps: none | deliverable: historical context and daily life research report: deep dive into 1343 Reval ordinary life, domestic routines, craft, and authentic social relations to realistically anchor the game | verify: report is compiled and signed off, with at least 5 new actionable context entries added to docs/CANON.md
 - [ ] P0-039 | deps: P0-053 | deliverable: blind gameplay-scale readability test of the 3D isometric candidate with at least five participants | verify: results record silhouette, interaction, depth, and motion recognition per target
 ### Medium
 

@@ -173,6 +173,22 @@ tools/run_performance_report.sh build/benchmarks/performance-smoke.json --quick
 
 Root design documents, much of `story/`, and the older faction and location indexes are preserved as research and legacy material. Individual seeds from them (faction hooks, quest ideas, locations) become active only through reconciliation with this README and a strict task in [`TODO.md`](./TODO.md).
 
+### Legacy Design & Research Material
+
+The following scattered documents contain older concepts, mechanics, and lore. They are preserved for reference and inspiration:
+
+**Core Gameplay & Vision**
+- [`GAME-PILLARS.md`](./GAME-PILLARS.md), [`GAMEPLAY.md`](./GAMEPLAY.md), [`GAMEPLAY-NIGHT.md`](./GAMEPLAY-NIGHT.md)
+- [`MINI_GAMES.md`](./MINI_GAMES.md), [`QUESTS.md`](./QUESTS.md), [`RANDOM-IDEAS.md`](./RANDOM-IDEAS.md)
+
+**Story & World Context**
+- [`history/HISTORY.md`](./history/HISTORY.md), [`history/TIMELINE.md`](./history/TIMELINE.md)
+- [`story/STORY.md`](./story/STORY.md)
+- [`assets/bestiary/README.md`](./assets/bestiary/README.md) (Folklore and creatures)
+
+**Character & Mechanics Concepts**
+- [`character/BUILD.md`](./character/BUILD.md), [`character/COMBAT.md`](./character/COMBAT.md), [`character/PSYCHE.md`](./character/PSYCHE.md)
+- [`character/MAGIC-ELEMENTS.md`](./character/MAGIC-ELEMENTS.md), [`character/CHRISTIAN-MAGIC.md`](./character/CHRISTIAN-MAGIC.md), [`character/PAGAN-MAGIC.md`](./character/PAGAN-MAGIC.md)
 ## Map pipeline documentation
 
 - [Compact map authoring, validation, migration, scale budgets, and limitations](./docs/MAP_AUTHORING.md)
