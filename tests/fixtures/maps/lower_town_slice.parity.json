@@ -1619,9 +1619,9 @@
     },
     {
       "footprint": [
-        3424.000000000,
+        3520.000000000,
         1792.000000000,
-        320.000000000,
+        224.000000000,
         128.000000000
       ],
       "id": "viru_gate_south_jamb",
@@ -2177,8 +2177,8 @@
     ]
   },
   "navigation": {
-    "walkability_sha256": "2939749630f9bd1ea1dc775c32147af812b1515277edf8899908d19361ce352b",
-    "walkable_cell_count": 13778
+    "walkability_sha256": "2bec2cc1b3a84273fe379ded923544a816ee89672bd014739ad1a759e0479bb2",
+    "walkable_cell_count": 13790
   },
   "patrols": [
     {
@@ -2718,6 +2718,7 @@
   },
   "transitions": [
     {
+      "building_id": "kalev_smithy",
       "destination_scene_id": "forge",
       "destination_spawn_id": "door_courtyard",
       "id": "smithy_door_transition",
@@ -2731,7 +2732,8 @@
       "spawn_offset": [
         0.000000000,
         64.000000000
-      ]
+      ],
+      "transition_visual": "door"
     },
     {
       "id": "street_start_spawn",

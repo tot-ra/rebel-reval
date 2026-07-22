@@ -105,7 +105,8 @@ building viru_gate_south_tower wall 107 60 10 8 style=wall.plain.h256.02 tower=f
 # Gate arches are view-only, so collision-bearing throat walls must meet their
 # side jambs while leaving the east-west road open through the middle.
 building viru_gate_north_jamb wall 107 49 10 3 style=wall.plain.h256.02 tower=false
-building viru_gate_south_jamb wall 107 56 10 4 style=wall.plain.h256.02 tower=false
+# Keep the eastern gate seal while leaving the smithy courtyard apron open west of x=110.
+building viru_gate_south_jamb wall 110 56 7 4 style=wall.plain.h256.02 tower=false
 building foregate_wall_north wall 116 49 10 2 style=wall.plain.h128.03
 building foregate_wall_south wall 116 60 10 2 style=wall.plain.h128.03
 building foregate_tower_north wall 124 43 6 6 style=wall.plain.h176.04 tower=false
@@ -235,7 +236,7 @@ anchor vene_street_north 24 3 rect=2,2
 anchor south_quarter_lane 62 122 rect=2,2
 anchor mart_street 76 54 rect=2,2
 spawn spawn.street_start 83 54 rect=2,2
-transition smithy_door_transition 88 73 2 1 destination_spawn=door_courtyard spawn=forge spawn_offset_px=0,64 to=forge
+transition smithy_door_transition 88 73 2 1 destination_spawn=door_courtyard spawn=forge spawn_offset_px=0,64 to=forge building_id=kalev_smithy transition_visual=door
 # Spawn offsets must clear trigger half-size plus player capsule (r=16,h=32)
 # so arrivals do not immediately re-fire the green transition volumes.
 # District adjacency follows medieval Reval (Tallinn Old Town):
