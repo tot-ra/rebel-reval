@@ -30,10 +30,13 @@ class VerifyTouristLandmarksTest(unittest.TestCase):
     def test_repository_catalog_passes_contract(self) -> None:
         self.assertEqual(self.validate(), [])
 
-    def test_missing_1343_status_rows_are_rejected(self) -> None:
-        stripped = self.landmarks.replace("* **1343 Status:**", "* **Status:**")
+    def test_missing_catalog_rows_are_rejected(self) -> None:
+        stripped = self.landmarks.replace("| Landmark | Modern Status | 1343 Status | Map Location | Lore Tie-in |", "| Removed |")
+        stripped = "\n".join(
+            line for line in stripped.splitlines() if not line.startswith(tuple(f"| {number}." for number in range(1, 209)))
+        )
         errors = self.validate(landmarks=stripped)
-        self.assertTrue(any("1343 status" in error for error in errors))
+        self.assertTrue(any("complete landmark table rows" in error for error in errors))
 
     def test_missing_canon_backlink_is_rejected(self) -> None:
         errors = self.validate(canon=self.canon.replace("TOURIST_LANDMARKS", "MISSING_LINK"))

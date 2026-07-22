@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 from tourist_landmarks import (
@@ -38,6 +39,33 @@ def render_featured_section() -> list[str]:
         lines.append(f"| {name} | {snapshot} | {map_binding} | {canon} |")
     lines.append("")
     return lines
+
+
+def _table_cell(value: str) -> str:
+    return value.replace("|", "\\|").replace("\n", " ")
+
+
+def render_catalog_table(
+    items: list[tuple[str, str, str, str]],
+    map_location: str,
+    start_number: int,
+) -> tuple[list[str], int]:
+    lines = [
+        "| Landmark | Modern Status | 1343 Status | Map Location | Lore Tie-in |",
+        "|---|---|---|---|---|",
+    ]
+    number = start_number
+    for name, modern, status, lore in items:
+        cells = (
+            f"{number}. {name}",
+            modern,
+            status,
+            map_location,
+            lore,
+        )
+        lines.append("| " + " | ".join(_table_cell(cell) for cell in cells) + " |")
+        number += 1
+    return lines, number
 
 
 def render() -> str:
@@ -82,14 +110,8 @@ def render() -> str:
         lines.append("")
         lines.append(f"*District map binding:* {map_location}")
         lines.append("")
-        for name, modern, status, lore in items:
-            lines.append(f"### {n}. {name}")
-            lines.append(f"* **Modern Status:** {modern}")
-            lines.append(f"* **1343 Status:** {status}")
-            lines.append(f"* **Map Location:** {map_location}")
-            lines.append(f"* **Lore Tie-in:** {lore}")
-            lines.append("")
-            n += 1
+        table, n = render_catalog_table(items, map_location, n)
+        lines.extend(table)
 
     lines.extend(
         [
@@ -107,14 +129,8 @@ def render() -> str:
         lines.append("")
         lines.append(f"*Region map binding:* {map_location}")
         lines.append("")
-        for name, modern, status, lore in items:
-            lines.append(f"### {m}. {name}")
-            lines.append(f"* **Modern Status:** {modern}")
-            lines.append(f"* **1343 Status:** {status}")
-            lines.append(f"* **Map Location:** {map_location}")
-            lines.append(f"* **Lore Tie-in:** {lore}")
-            lines.append("")
-            m += 1
+        table, m = render_catalog_table(items, map_location, m)
+        lines.extend(table)
 
     lines.extend(
         [
@@ -135,15 +151,39 @@ def render() -> str:
     return "\n".join(lines)
 
 
-def main() -> None:
+def rendered_catalog() -> str:
     t, e = count_entries()
     if t < 95:
         raise SystemExit(f"Tallinn count too low: {t}")
     if e < 95:
         raise SystemExit(f"Estonia count too low: {e}")
-    OUT.write_text(render(), encoding="utf-8")
+    return render()
+
+
+def main() -> int:
+    check = "--check" in sys.argv[1:]
+    unknown = [arg for arg in sys.argv[1:] if arg != "--check"]
+    if unknown:
+        print(f"unknown argument(s): {' '.join(unknown)}", file=sys.stderr)
+        return 2
+
+    catalog = rendered_catalog()
+    if check:
+        actual = OUT.read_text(encoding="utf-8") if OUT.is_file() else ""
+        if actual != catalog:
+            print(
+                f"stale generated tourist landmarks catalog: {OUT.relative_to(ROOT)}",
+                file=sys.stderr,
+            )
+            return 1
+        print("tourist landmarks catalog is up to date")
+        return 0
+
+    OUT.write_text(catalog, encoding="utf-8")
+    t, e = count_entries()
     print(f"Wrote {OUT} ({t} Tallinn + {e} Estonia landmarks)")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

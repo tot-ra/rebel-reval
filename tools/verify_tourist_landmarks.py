@@ -14,8 +14,7 @@ GENERATOR = ROOT / "tools" / "generate_tourist_landmarks.py"
 
 MIN_LANDMARKS = 10
 MIN_FEATURED = 10
-STATUS_LINE = re.compile(r"^\* \*\*1343 Status:\*\* ", re.MULTILINE)
-MAP_LINE = re.compile(r"^\* \*\*Map Location:\*\* ", re.MULTILINE)
+CATALOG_ROW = re.compile(r"^\| \d+\. [^|]+ \| [^|]+ \| [^|]+ \| [^|]+ \| [^|]+ \|$", re.MULTILINE)
 FEATURED_ROW = re.compile(r"^\| [^|]+ \| [^|]+ \| `", re.MULTILINE)
 TASK_ROW = re.compile(r"^- \[([ x])\] (P0-113)\b", re.MULTILINE)
 
@@ -40,16 +39,10 @@ def validate(
         else:
             canon_text = CANON.read_text(encoding="utf-8")
 
-    status_count = len(STATUS_LINE.findall(landmarks_text))
-    if status_count < MIN_LANDMARKS:
+    catalog_count = len(CATALOG_ROW.findall(landmarks_text))
+    if catalog_count < MIN_LANDMARKS:
         errors.append(
-            f"need at least {MIN_LANDMARKS} landmarks with 1343 status, found {status_count}"
-        )
-
-    map_count = len(MAP_LINE.findall(landmarks_text))
-    if map_count < MIN_LANDMARKS:
-        errors.append(
-            f"need at least {MIN_LANDMARKS} map location bindings, found {map_count}"
+            f"need at least {MIN_LANDMARKS} complete landmark table rows, found {catalog_count}"
         )
 
     if "CANON.md" not in landmarks_text:

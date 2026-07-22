@@ -110,6 +110,14 @@ jobs:
       - name: Verify historical environment dossier
         run: python3 tools/verify_historical_dossier.py
 
+      - name: Verify tourist landmarks and narrative manifests
+        run: |
+          set -euo pipefail
+          python3 tools/generate_tourist_landmarks.py --check
+          python3 tools/verify_tourist_landmarks.py
+          python3 tools/generate_landmark_narrative.py --check
+          python3 tools/verify_landmark_narrative.py
+
       - name: Active Markdown links and validation
         run: python3 tools/generate_active_docs_report.py --check
 
