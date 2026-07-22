@@ -2,7 +2,7 @@
 
 Recorded: 2026-07-16
 
-This matrix classifies current slice-relevant artifacts for migration toward the vertical slice. Scene coverage follows all `working` and `partial` scenes from [`scene_inventory.md`](./scene_inventory.md) plus the slice placeholder `olaf_guild_hall.tscn`. The retired `market.tscn` stub was unified into `reval_center.tscn` and is no longer required. Asset coverage follows all 45 rows in [`ASSET_INVENTORY.md`](../ASSET_INVENTORY.md). Status values are only `retain`, `convert`, or `archive`.
+This matrix classifies current slice-relevant artifacts for migration toward the vertical slice. Scene coverage follows all `working` and `partial` scenes from [`scene_inventory.md`](./scene_inventory.md) plus the slice placeholder `olaf_guild_hall.tscn`. The retired `market.tscn` stub was unified into `reval_center.tscn` and is no longer required. Asset coverage follows all 11 image rows in [`ASSET_INVENTORY.md`](../ASSET_INVENTORY.md). Status values are only `retain`, `convert`, or `archive`.
 
 ## Maps & Scenes
 
@@ -120,6 +120,7 @@ This matrix classifies current slice-relevant artifacts for migration toward the
 | Artifact | Status | Rationale |
 |----------|--------|-----------|
 | `assets/characters/shared/kaykit_barbarian_barbarian_texture.png` | `retain` | CC0 KayKit source texture extracted from the pinned proof GLB; retained only for the P0-037 retarget pipeline. |
+| `assets/UI/estonia_world_map.png` | `retain` | P1-037 developer Estonia basemap for `WorldMapOverlay`; release-false global map tab only, with C2PA provenance in `assets/SOURCES.csv`. |
 | `assets/materials/style_lock/*` (8 items) | `retain` | Provenance-backed P0-051 reference textures; keep for style regression while P0-053 regenerates production surfaces. |
 
 The former `assets/objects/food/*`, `assets/objects/furniture/*`, `assets/objects/smith-room/*`, and `assets/objects/weapons/hammer.png` rows are archived at mirrored `quarantine/assets/objects/` paths because their provenance is unresolved. They are outside the active runtime inventory; generated 3D props own the current runtime presentation.

@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `45`
-- Markdown files excluded as archive/reference/out of active scope: `303`
-- Local/external links inspected: `180`
-- Links to active Markdown docs: `104`
-- Links to existing archive/reference/non-active local docs: `23`
+- Active Markdown files scanned: `46`
+- Markdown files excluded as archive/reference/out of active scope: `361`
+- Local/external links inspected: `200`
+- Links to active Markdown docs: `105`
+- Links to existing archive/reference/non-active local docs: `42`
 - External links skipped for reachability: `22`
 - Issues found: `0`
 
@@ -66,6 +66,7 @@ No active Markdown documentation issues found.
 - `docs/CHARACTERS/kalev.md`
 - `docs/CHARACTERS/mart.md`
 - `docs/CHARACTERS/README.md`
+- `docs/FLORA_FAUNA.md`
 - `docs/FONTS.md`
 - `docs/HISTORICAL_AUDIT.md`
 - `docs/INVENTORY_MECHANICS.md`

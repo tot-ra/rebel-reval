@@ -170,6 +170,7 @@ tools/run_performance_report.sh build/benchmarks/performance-smoke.json --quick
 | [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) | Compact map-blueprint primitives, stable IDs, compiler architecture, validation, and migration policy |
 | [`docs/adr/`](./docs/adr/) | Product and technical decisions |
 | [`assets/SOURCES.csv`](./assets/SOURCES.csv) | Asset provenance, rights, and approval metadata |
+| [`docs/FLORA_FAUNA.md`](./docs/FLORA_FAUNA.md) | Sourced 1343 native vegetation and animal species reference |
 
 Root design documents, much of `story/`, and the older faction and location indexes are preserved as research and legacy material. Individual seeds from them (faction hooks, quest ideas, locations) become active only through reconciliation with this README and a strict task in [`TODO.md`](./TODO.md).
 

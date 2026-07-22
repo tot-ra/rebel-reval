@@ -12,7 +12,7 @@ References:
 <!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
-| P0 |    16  |     5  | Baseline, storage, materials, historical audit |
+| P0 |    15  |     6  | Baseline, storage, materials, historical audit |
 | P1 |     3  |     0  | Runtime systems, content foundation |
 | P2 |    18  |     3  | Vertical-slice production (playable MVP) |
 | P3+ |    79  |     2  | Validation, accessibility, performance |
@@ -170,7 +170,7 @@ References:
 
 ### Small
 
-- [ ] P0-110 | deps: none | deliverable: restore documentation validator consistency after the TODO/roadmap reorganization and Estonia world-map audit additions by covering `assets/UI/estonia_world_map.png` in the active migration matrix and regenerating the active Markdown report without dropping historical task evidence | verify: `python3 -m unittest discover -s tests/python -v`, `python3 tools/verify_migration_matrix.py`, and `python3 tools/generate_active_docs_report.py --check` pass
+- [x] P0-110 | deps: none | deliverable: restore documentation validator consistency after the TODO/roadmap reorganization and Estonia world-map audit additions by covering `assets/UI/estonia_world_map.png` in the active migration matrix and regenerating the active Markdown report without dropping historical task evidence | verify: `python3 -m unittest discover -s tests/python -v`, `python3 tools/verify_migration_matrix.py`, and `python3 tools/generate_active_docs_report.py --check` pass
 
 - [x] P0-109 | deps: none | deliverable: historical context and daily life research report: deep dive into 1343 Reval ordinary life, domestic routines, craft, and authentic social relations to realistically anchor the game | verify: report is compiled and signed off, with at least 5 new actionable context entries added to docs/CANON.md
 - [ ] P0-039 | deps: P0-053 | deliverable: blind gameplay-scale readability test of the 3D isometric candidate with at least five participants | verify: results record silhouette, interaction, depth, and motion recognition per target
