@@ -82,7 +82,7 @@ These factions represent the native Estonian resistance.
 They represent rebellion, decentralization, grassroot nature powers, flexibility.
 They are outgunned and outmaneuvered, but they have the support of the people and a deep connection to the land itself.
 
-#### 7. [**The Harju Kings**](./characters/rebels/)
+#### 7. [**The Harju Kings** ✊](./characters/rebels/)
 -   **Motivation:** Freedom. The main, rural-based military force of the uprising, born in the fields of Harju County. They are farmers and villagers who have taken up arms against their oppressors. They are the heart of the rebellion's military power, fighting in open battles.
 -   **Core NPCs:** 
     - [Lembit Helme](rebels/lembit_helme.md)
@@ -93,7 +93,7 @@ They are outgunned and outmaneuvered, but they have the support of the people an
 
 
 
-#### 8. **The Black Cloaks** 🌃
+#### 8. **The Black Cloaks** 🐦
 -   **Motivation:** Liberation from the inside. Radicals / terrorists. The urban guerilla arm of the rebellion within Reval's walls. Composed of smiths, artisans, and the city's underclass, they specialize in stealth, sabotage, intelligence, and street-level warfare.
 -   **Core NPC:** [martin_the_blacksmith](rebels/martin_the_blacksmith.md)
 -   **Presence:** [The Smith's Forge](../../scenes/lower_town/the_smiths_forge.md), [Reval Market](../../scenes/lower_town/market.md), [Reval Harbor](../../scenes/lower_town/harbor.md).
@@ -120,7 +120,7 @@ These factions are not directly involved in the conflict between the Rulers and 
     - [Sergius of Radonezh](novgorod/radonezhski.md)
 -   **Presence:** [Reval Market](../../scenes/lower_town/market.md), [St. Olaf's Guild Hall](../../scenes/lower_town/st_olafs_guild_hall.md).
 
-#### 11. **The Republic of Pskov** 🐺
+#### 11. **The Republic of Pskov** 🐆
 -   **Core Value:** Independence
 -   **Ideal:** To forge their own path, free from the shadows of both Novgorod and the Livonian Order.
 -   **Shadow:** Their fierce desire for independence can lead to isolationism and paranoia, making them mistrustful of potential allies.

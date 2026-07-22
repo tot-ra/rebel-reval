@@ -39,19 +39,20 @@ const ALL_FACTIONS: Array[StringName] = [
 	VITALIENBRUDER,
 ]
 
-## Color-coded roster markers for docs and UI. Field/charge colors follow
-## `field_color` / `charge_color` / `pattern_for` above; Vitalienbrüder fly none.
+## Roster markers for docs and UI. Vocabulary matches `characters/README.md`
+## and charge motifs from `pattern_for` (cross, swallow, bear, lynx). Vitalienbrüder
+## fly no in-game cloth but use the pirate roster emoji in text.
 const FACTION_FLAG_EMOJI: Dictionary = {
-	DANISH_CROWN: "🇩🇰", # red field + white cross
-	LIVONIAN_ORDER: "⬜", # white field + black cross
-	HANSEATIC: "🟥⬜", # red field + white hoist pale
-	HARJU_KINGS: "🟩", # green field
-	BLACK_CLOAKS: "⬜🐦", # white field + swallow charge
-	CULT_METSIK: "🟢", # olive field
-	PSKOV_NOVGOROD: "🟦🐻🐆", # azure + bear + lynx
-	NOVGOROD: "🟦🐻", # azure + bear
-	PSKOV: "🟦🐆", # azure + lynx
-	VITALIENBRUDER: "", # no cloth by design
+	DANISH_CROWN: "🇩🇰",
+	LIVONIAN_ORDER: "✠", # Teutonic cross (characters/README)
+	HANSEATIC: "🇪🇺", # Hanseatic league (characters/README)
+	HARJU_KINGS: "✊", # rural rebellion (characters/README rebel block)
+	BLACK_CLOAKS: "🐦", # swallow charge on white field
+	CULT_METSIK: "🍀", # old ways / sacred groves (characters/README)
+	PSKOV_NOVGOROD: "🐻🐆", # joint east emissaries: bear + lynx charges
+	NOVGOROD: "🐻", # bear charge
+	PSKOV: "🐆", # lynx charge
+	VITALIENBRUDER: "🏴‍☠️", # no cloth by design; roster marker only
 }
 
 const PATTERN_SOLID := &"solid"
