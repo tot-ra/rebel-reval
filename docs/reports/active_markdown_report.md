@@ -15,18 +15,18 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 ## Summary
 
 - Active Markdown files scanned: `55`
-- Markdown files excluded as archive/reference/out of active scope: `356`
+- Markdown files excluded as archive/reference/out of active scope: `355`
 - Local/external links inspected: `216`
-- Links to active Markdown docs: `117`
+- Links to active Markdown docs: `118`
 - Links to existing archive/reference/non-active local docs: `41`
 - External links skipped for reachability: `25`
-- Issues found: `1`
+- Issues found: `0`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 1 |
+| `BROKEN_LINK` | 0 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -34,9 +34,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Issues
 
-| Code | Location | Detail |
-| --- | --- | --- |
-| `BROKEN_LINK` | `README.md:185` | Local Markdown link target does not exist: `./RANDOM-IDEAS.md` |
+No active Markdown documentation issues found.
 
 ## Active files scanned
 

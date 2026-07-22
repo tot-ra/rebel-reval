@@ -182,7 +182,7 @@ The following scattered documents contain older concepts, mechanics, and lore. T
 
 **Core Gameplay & Vision**
 - [`GAME-PILLARS.md`](./docs/GAME-PILLARS.md), [`GAMEPLAY.md`](./docs/GAMEPLAY.md), [`GAMEPLAY-NIGHT.md`](./docs/GAMEPLAY-NIGHT.md)
-- [`MINI_GAMES.md`](./docs/MINI_GAMES.md), [`QUESTS.md`](./QUESTS.md), [`IDEAS_RESEARCH.md`](./docs/IDEAS_RESEARCH.md)
+- [`MINI_GAMES.md`](./docs/MINI_GAMES.md), [`QUESTS.md`](./docs/QUESTS.md), [`IDEAS_RESEARCH.md`](./docs/IDEAS_RESEARCH.md)
 
 **Story & World Context**
 - [`history/HISTORY.md`](./history/HISTORY.md), [`history/TIMELINE.md`](./history/TIMELINE.md)
