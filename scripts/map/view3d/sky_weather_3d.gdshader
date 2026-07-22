@@ -307,9 +307,9 @@ void sky() {
 	float moon_dot = dot(dir, moon_direction);
 	float moon_radius = 0.031;
 	float moon_edge = cos(moon_radius);
-	// Soft limb without a long outer skirt - a wide skirt sampled empty albedo
-	// as black and read as a dark sticker outline.
-	float moon_disk = smoothstep(moon_edge - 0.00008, moon_edge + 0.00003, moon_dot);
+	// Thin AA only. A wide outer skirt used to sample empty black albedo and
+	// read as a dark sticker outline against the night sky.
+	float moon_disk = smoothstep(moon_edge - 0.00012, moon_edge + 0.00004, moon_dot);
 	vec3 moon_up_axis = abs(moon_direction.y) > 0.96 ? vec3(0.0, 0.0, 1.0) : vec3(0.0, 1.0, 0.0);
 	vec3 moon_right = normalize(cross(moon_up_axis, moon_direction));
 	vec3 moon_up = normalize(cross(moon_direction, moon_right));
@@ -331,27 +331,34 @@ void sky() {
 	// Clamping first made smoothstep(...) collapse into a flat lit fill.
 	float moon_ndotl = dot(moon_normal, moon_light);
 	float moon_lit = max(moon_ndotl, 0.0);
-	vec2 lunar_uv = clamp(moon_uv * 0.5 + 0.5, vec2(0.001), vec2(0.999));
+	// WHY inset 0.485: unit-disk UV lands inside the authored crust, while the
+	// opaque filter-safe skirt outside r~1 keeps bilinear taps off black.
+	vec2 lunar_uv = clamp(moon_uv * 0.485 + 0.5, vec2(0.002), vec2(0.998));
 	vec3 lunar_albedo = texture(lunar_albedo_map, lunar_uv).rgb;
-	// Keep limb samples on the crust color if filtering reaches empty texels.
-	lunar_albedo = max(lunar_albedo, vec3(0.08));
-	// Mild relief from photo luminance slopes. The NASA mosaic already carries
-	// maria/crater contrast, so keep bump weaker than the old procedural map.
+	// Mild relief from photo luminance slopes. Keep taps inside the disk so the
+	// limb never differences against the exterior skirt and darkens into a rim.
 	float texel = 1.0 / max(float(textureSize(lunar_albedo_map, 0).x), 1.0);
+	vec2 relief_uv_x = clamp(lunar_uv + vec2(texel, 0.0), vec2(0.002), vec2(0.998));
+	vec2 relief_uv_nx = clamp(lunar_uv - vec2(texel, 0.0), vec2(0.002), vec2(0.998));
+	vec2 relief_uv_y = clamp(lunar_uv + vec2(0.0, texel), vec2(0.002), vec2(0.998));
+	vec2 relief_uv_ny = clamp(lunar_uv - vec2(0.0, texel), vec2(0.002), vec2(0.998));
 	float h_c = dot(lunar_albedo, vec3(0.333333));
-	float h_x = dot(texture(lunar_albedo_map, lunar_uv + vec2(texel, 0.0)).rgb, vec3(0.333333))
-		- dot(texture(lunar_albedo_map, lunar_uv - vec2(texel, 0.0)).rgb, vec3(0.333333));
-	float h_y = dot(texture(lunar_albedo_map, lunar_uv + vec2(0.0, texel)).rgb, vec3(0.333333))
-		- dot(texture(lunar_albedo_map, lunar_uv - vec2(0.0, texel)).rgb, vec3(0.333333));
-	vec3 moon_shaded_n = normalize(moon_normal + vec3(-h_x, -h_y, 0.0) * 1.35);
+	float h_x = dot(texture(lunar_albedo_map, relief_uv_x).rgb, vec3(0.333333))
+		- dot(texture(lunar_albedo_map, relief_uv_nx).rgb, vec3(0.333333));
+	float h_y = dot(texture(lunar_albedo_map, relief_uv_y).rgb, vec3(0.333333))
+		- dot(texture(lunar_albedo_map, relief_uv_ny).rgb, vec3(0.333333));
+	float relief_fade = smoothstep(0.08, 0.35, moon_z);
+	vec3 moon_shaded_n = normalize(moon_normal + vec3(-h_x, -h_y, 0.0) * (1.1 * relief_fade));
 	float relief_lit = max(dot(moon_shaded_n, moon_light), 0.0);
 	float terminator = smoothstep(-0.10, 0.05, moon_ndotl);
 	// Lommel-Seeliger approximates dusty regolith better than a Lambertian disk.
-	float cos_i = max(mix(moon_lit, relief_lit, 0.45), 1e-4);
+	float cos_i = max(mix(moon_lit, relief_lit, 0.40 * relief_fade), 1e-4);
 	float cos_e = max(moon_z, 1e-4);
 	float lommel = cos_i / (cos_i + cos_e);
 	float opposition = 1.0 + 0.22 * pow(moon_lit, 10.0);
-	float moon_limb = mix(0.82, 1.0, pow(moon_z, 0.42));
+	// Keep limb nearly flat - strong geometric darkening plus photo limb read as
+	// a black border on the small sky disk.
+	float moon_limb = mix(0.94, 1.0, pow(moon_z, 0.35));
 	// WHY: A daytime moon is still fully sunlit rock and appears pale silver
 	// against blue sky. Fading to 0.42 made sunlight_col darker than
 	// day_top_color and read as a muddy sticker. Keep near-full photometry by

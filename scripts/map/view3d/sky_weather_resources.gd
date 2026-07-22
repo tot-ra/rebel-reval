@@ -8,8 +8,8 @@ extends RefCounted
 const STAR_MAP_WIDTH := 2048
 const STAR_MAP_HEIGHT := 1024
 const LUNAR_ALBEDO_MAP_SIZE := 1024
-## NASA LRO near-side mosaic, cropped and graded into an opaque disk map.
-## Public-domain US Government work; provenance in assets/SOURCES.csv.
+## NASA LRO near-side mosaic, cropped to an opaque RGB disk with a filter-safe
+## limb fill (no black exterior). Public-domain US Government work; see SOURCES.
 const LUNAR_ALBEDO_NEAR_SIDE := preload("res://assets/sky/lunar_albedo_nearside.png")
 
 

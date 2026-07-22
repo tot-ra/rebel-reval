@@ -201,6 +201,18 @@ func test_sky_shader_covers_required_features() -> void:
 	assert_true("moon_normal" in source, "the moon disk must shade as a sphere")
 	assert_true("lunar_albedo" in source, "the moon must include stable surface detail")
 	assert_true("textureSize(lunar_albedo_map" in source, "lunar albedo sampling must follow the authored map resolution")
+	assert_true(
+		"moon_uv * 0.485" in source,
+		"lunar UV must inset inside the crust so limb filtering cannot pick up exterior black"
+	)
+	assert_true(
+		"max(lunar_albedo, vec3(0.08))" not in source,
+		"a dark albedo floor turns filter fringes into a visible black moon border"
+	)
+	assert_true(
+		"mix(0.94, 1.0" in source,
+		"limb darkening must stay mild so the small sky disk does not grow a dark rim"
+	)
 	assert_true("lommel" in source, "dusty regolith must use a Lommel-Seeliger lobe, not flat Lambertian fill")
 	assert_true(
 		"mix(color, moon_surface, moon_opacity)" in source,
