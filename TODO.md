@@ -22,6 +22,7 @@ References:
 
 
 
+
 <!-- P0-120 completed in current session -->
 
 
@@ -32,6 +33,8 @@ References:
 
 - [ ] P6-006 | deps: P6-005 | deliverable: full-campaign branch traversal and cross-act save compatibility suite | verify: every intended ending is reachable and every published save fixture loads or migrates
 - [ ] P6-008 | deps: P6-007 | deliverable: full-campaign release candidate | verify: clean-clone CI, supported-platform smoke tests, license report, accessibility checklist, and campaign acceptance matrix all pass (BACKLOG)
+
+*Added tests for `release_candidate_check.py` to validate release candidate verification checks.*
 ### Medium
 
 - [ ] P6-007 | deps: P6-006 | deliverable: external full-campaign playtest and critical/high issue closure | verify: report contains completion, comprehension, pacing, combat, choice, and continuity results with no unresolved critical/high issue
