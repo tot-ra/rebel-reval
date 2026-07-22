@@ -57,11 +57,21 @@ func test_pirita_current_is_clear_and_plant_free() -> void:
 			assert_true(grid.get_style_variant(cell).is_empty(), "flowing water must clear inherited meadow plants")
 	var river := MapViewMaterials.water_surface(MapTypes.TERRAIN_RIVER_WATER)
 	var pond := MapViewMaterials.water_surface(MapTypes.TERRAIN_WATER)
+	var river_base := OutdoorTerrainPalette.color(MapTypes.TERRAIN_RIVER_WATER)
 	assert_eq(float(river.get_shader_parameter("bed_vegetation")), 0.0)
 	assert_true(
 		float(river.get_shader_parameter("depth_absorption"))
 		< float(pond.get_shader_parameter("depth_absorption")),
 		"fast Pirita water should transmit more bed light than sheltered water"
+	)
+	assert_true(
+		river_base.g / maxf(river_base.b, 0.001) < 0.82,
+		"clear Pirita current must stay cooler than a cyan-green algae cast"
+	)
+	var river_sand: Color = river.get_shader_parameter("sand_bed_color")
+	assert_true(
+		river_sand.is_equal_approx(Color(0.58, 0.50, 0.38)),
+		"fast river bed should use pale sand/gravel instead of coastal algae sand"
 	)
 	for target in MapVisualStyle.ALL_TARGETS:
 		assert_ne(MapVisualStyle.terrain_color(MapTypes.TERRAIN_RIVER_WATER, target, MapVisualStyle.TIME_DAY), Color.MAGENTA)

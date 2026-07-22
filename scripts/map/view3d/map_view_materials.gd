@@ -240,7 +240,7 @@ const WATER_WAVE_BASE := {
 	# Fast river water keeps the physical bed visible without the sheltered-water
 	# algae layer and uses tighter, livelier ripples than ponds or open sea.
 	MapTypes.TERRAIN_RIVER_WATER: {
-		"height": 0.024, "chaos": 0.72, "foam": 0.12, "breakers": 0.08, "absorption": 4.2,
+		"height": 0.024, "chaos": 0.72, "foam": 0.12, "breakers": 0.08, "absorption": 4.8,
 		"bed_vegetation": 0.0,
 	},
 }
@@ -269,6 +269,14 @@ static func water_surface(terrain_id: StringName) -> ShaderMaterial:
 	material.set_shader_parameter("foam_intensity", float(wave["foam"]))
 	material.set_shader_parameter("breaker_intensity", float(wave["breakers"]))
 	material.set_shader_parameter("bed_vegetation", float(wave.get("bed_vegetation", 1.0)))
+	# WHY: Fast rivers need a pale sand/gravel bed instead of the shared coastal
+	# sand+algae look. Without this, low absorption shows a green meadow cast
+	# through the default seabed tint even when bed_vegetation is zero.
+	if terrain_id == MapTypes.TERRAIN_RIVER_WATER:
+		material.set_shader_parameter("sand_bed_color", Color(0.58, 0.50, 0.38))
+		material.set_shader_parameter("stone_bed_color", Color(0.36, 0.39, 0.42))
+		material.set_shader_parameter("deep_bed_color", Color(0.03, 0.07, 0.12))
+		material.set_shader_parameter("foam_color", base.lerp(Color8(186, 204, 214), 0.52))
 	_cache[key] = material
 	return material
 

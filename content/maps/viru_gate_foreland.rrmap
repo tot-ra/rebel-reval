@@ -30,7 +30,6 @@ style tree.birch.large
 style tree.oak.small
 style plant.reed
 style plant.cattail
-style plant.water_lily
 terrain pirita.meadow meadow 0 0 168 120 style=grass.tall order=1
 terrain west.pasture grass 11 13 48 32 style=grass.short order=2
 terrain west.field_north farm_soil 14 80 46 9 order=3
@@ -46,10 +45,10 @@ terrain east.farm_yard dirt 104 70 53 28 order=5
 # 3D contour removes the authored cell steps.
 terrain_rects river.banks mud 70,0,31,6|69,6,31,6|67,12,31,6|65,18,31,6|64,24,31,6|65,30,31,6|67,36,31,6|70,42,31,6|72,48,31,6|71,54,31,6|70,60,31,9|70,69,31,6|72,75,31,6|74,81,31,6|75,87,31,6|73,93,31,6|70,99,31,6|67,105,31,6|65,111,31,5|66,116,31,4 style=reed.shore order=6
 terrain_rects river.current river_water 76,0,19,6|75,6,19,6|73,12,19,6|71,18,19,6|70,24,19,6|71,30,19,6|73,36,19,6|76,42,19,6|78,48,19,6|77,54,19,6|76,60,19,9|76,69,19,6|78,75,19,6|80,81,19,6|81,87,19,6|79,93,19,6|76,99,19,6|73,105,19,6|71,111,19,5|72,116,19,4 order=7
-# Concrete wetland species occupy quiet bank pockets; Baltic maps intentionally omit them.
+# Concrete wetland species occupy quiet bank pockets; Baltic maps intentionally
+# omit them. Keep lilies off the Pirita current - fast clear water stays plant-free.
 terrain river.reed mud 67 36 6 10 style=plant.reed order=8
 terrain river.cattail mud 96 75 6 10 style=plant.cattail order=8
-terrain river.water_lily river_water 79 77 5 7 style=plant.water_lily order=8
 terrain road.west dirt 0 60 72 8 order=9
 terrain road.east dirt 98 60 70 8 order=9
 terrain road.wear_west mud 30 63 36 4 order=10
