@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dnjybmrki76y3"
-path="res://.godot/imported/ellen_luik.png-94ae0a4d33831ca92f3006c67ee4394f.ctex"
+path="res://.godot/imported/ellen_luik.png-856185e8528b29a75ec23ef084959a0e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/metsik_cult/ellen_luik.png"
-dest_files=["res://.godot/imported/ellen_luik.png-94ae0a4d33831ca92f3006c67ee4394f.ctex"]
+source_file="res://characters/metsik_cult/img/ellen_luik.png"
+dest_files=["res://.godot/imported/ellen_luik.png-856185e8528b29a75ec23ef084959a0e.ctex"]
 
 [params]
 

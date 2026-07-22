@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dtasq8h08pw3s"
-path="res://.godot/imported/captain.png-f41d2b767fdbef5f36d17dffcfc3bb8e.ctex"
+path="res://.godot/imported/captain.png-dcf4759b93ae7f8539e694a9257c7c52.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/denmark/town_guard/captain.png"
-dest_files=["res://.godot/imported/captain.png-f41d2b767fdbef5f36d17dffcfc3bb8e.ctex"]
+source_file="res://characters/denmark/town_guard/img/captain.png"
+dest_files=["res://.godot/imported/captain.png-dcf4759b93ae7f8539e694a9257c7c52.ctex"]
 
 [params]
 

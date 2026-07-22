@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://xqfjygty0d4y"
-path="res://.godot/imported/lembit.png-44dca13541cb285b64e52a527a77e54b.ctex"
+path="res://.godot/imported/lembit.png-cf7b3131307fb5520b9060df0504bff5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/workers_quarter/lembit/lembit.png"
-dest_files=["res://.godot/imported/lembit.png-44dca13541cb285b64e52a527a77e54b.ctex"]
+source_file="res://characters/workers_quarter/lembit/img/lembit.png"
+dest_files=["res://.godot/imported/lembit.png-cf7b3131307fb5520b9060df0504bff5.ctex"]
 
 [params]
 

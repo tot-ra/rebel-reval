@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c4l27ndpcavja"
-path="res://.godot/imported/metsik-2.png-9f65f733cd5764e287146ba38b39a48b.ctex"
+path="res://.godot/imported/metsik-2.png-9da09e7411a5f1d67fc24f39d7dd0117.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/metsik_cult/metsik-2.png"
-dest_files=["res://.godot/imported/metsik-2.png-9f65f733cd5764e287146ba38b39a48b.ctex"]
+source_file="res://characters/metsik_cult/img/metsik-2.png"
+dest_files=["res://.godot/imported/metsik-2.png-9da09e7411a5f1d67fc24f39d7dd0117.ctex"]
 
 [params]
 

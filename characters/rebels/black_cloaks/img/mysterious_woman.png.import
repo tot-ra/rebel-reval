@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dbw05r0w7nxgl"
-path="res://.godot/imported/mysterious_woman.png-a97235153ce8d7924dfd1df036c1e1c5.ctex"
+path="res://.godot/imported/mysterious_woman.png-1aa55fa48b41141f2da173da3703986f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/rebels/black_cloaks/mysterious_woman.png"
-dest_files=["res://.godot/imported/mysterious_woman.png-a97235153ce8d7924dfd1df036c1e1c5.ctex"]
+source_file="res://characters/rebels/black_cloaks/img/mysterious_woman.png"
+dest_files=["res://.godot/imported/mysterious_woman.png-1aa55fa48b41141f2da173da3703986f.ctex"]
 
 [params]
 

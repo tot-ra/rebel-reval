@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d0dlbww15rc0l"
-path="res://.godot/imported/apotheka.png-01fb5bd7a177c0acf9f3cb87a3a3b3ee.ctex"
+path="res://.godot/imported/apotheka.png-108a09dca3fa4822c3836a99116414eb.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/workers_quarter/apotheka.png"
-dest_files=["res://.godot/imported/apotheka.png-01fb5bd7a177c0acf9f3cb87a3a3b3ee.ctex"]
+source_file="res://characters/workers_quarter/img/apotheka.png"
+dest_files=["res://.godot/imported/apotheka.png-108a09dca3fa4822c3836a99116414eb.ctex"]
 
 [params]
 

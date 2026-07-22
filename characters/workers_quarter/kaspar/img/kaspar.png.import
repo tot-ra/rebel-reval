@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bdqmk8iv18up2"
-path="res://.godot/imported/kaspar.png-b3b2d7ff8b6727a2cdfa977ed2f1c453.ctex"
+path="res://.godot/imported/kaspar.png-5da81f053bc416f83e136e6bb548232c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/workers_quarter/kaspar/kaspar.png"
-dest_files=["res://.godot/imported/kaspar.png-b3b2d7ff8b6727a2cdfa977ed2f1c453.ctex"]
+source_file="res://characters/workers_quarter/kaspar/img/kaspar.png"
+dest_files=["res://.godot/imported/kaspar.png-5da81f053bc416f83e136e6bb548232c.ctex"]
 
 [params]
 

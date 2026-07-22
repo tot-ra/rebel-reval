@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b6f1gxrgf1cgt"
-path="res://.godot/imported/elder.png-5952ca108312a090ba42a70a01f14f6f.ctex"
+path="res://.godot/imported/elder.png-adf6ea3ad5eafda97f5b294667ff03fb.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/rebels/elder.png"
-dest_files=["res://.godot/imported/elder.png-5952ca108312a090ba42a70a01f14f6f.ctex"]
+source_file="res://characters/rebels/img/elder.png"
+dest_files=["res://.godot/imported/elder.png-adf6ea3ad5eafda97f5b294667ff03fb.ctex"]
 
 [params]
 

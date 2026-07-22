@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bk24b1w1elg77"
-path="res://.godot/imported/elsa.png-12d2d302b1ee1f7554b87282c7d7e027.ctex"
+path="res://.godot/imported/elsa.png-05c6cb09a6362523a8c934c9dd580405.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/workers_quarter/elsa/elsa.png"
-dest_files=["res://.godot/imported/elsa.png-12d2d302b1ee1f7554b87282c7d7e027.ctex"]
+source_file="res://characters/workers_quarter/elsa/img/elsa.png"
+dest_files=["res://.godot/imported/elsa.png-05c6cb09a6362523a8c934c9dd580405.ctex"]
 
 [params]
 

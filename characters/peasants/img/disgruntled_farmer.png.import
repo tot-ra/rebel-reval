@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cia2ra18gjdj8"
-path="res://.godot/imported/disgruntled_farmer.png-486db880dd9c0c90e134dd37466149ba.ctex"
+path="res://.godot/imported/disgruntled_farmer.png-9df2b71bd6cd2663a990d3c0918c7c6c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/peasants/disgruntled_farmer.png"
-dest_files=["res://.godot/imported/disgruntled_farmer.png-486db880dd9c0c90e134dd37466149ba.ctex"]
+source_file="res://characters/peasants/img/disgruntled_farmer.png"
+dest_files=["res://.godot/imported/disgruntled_farmer.png-9df2b71bd6cd2663a990d3c0918c7c6c.ctex"]
 
 [params]
 

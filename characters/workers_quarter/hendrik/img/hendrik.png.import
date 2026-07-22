@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://25rv2fxgxhjd"
-path="res://.godot/imported/hendrik.png-73643fa579583f935e4a8efba148b5f1.ctex"
+path="res://.godot/imported/hendrik.png-ecae36141a48d25618bceb7fa9b3d977.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/workers_quarter/hendrik/hendrik.png"
-dest_files=["res://.godot/imported/hendrik.png-73643fa579583f935e4a8efba148b5f1.ctex"]
+source_file="res://characters/workers_quarter/hendrik/img/hendrik.png"
+dest_files=["res://.godot/imported/hendrik.png-ecae36141a48d25618bceb7fa9b3d977.ctex"]
 
 [params]
 

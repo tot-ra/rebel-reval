@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cdiugf8qeba5h"
-path="res://.godot/imported/hermann.png-2f6b0848bd849b8cdf5b6963e78a4539.ctex"
+path="res://.godot/imported/hermann.png-e8bb6c3df926f7ac5592d85f7cca6820.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/bishopric_osel_wiek/hermann.png"
-dest_files=["res://.godot/imported/hermann.png-2f6b0848bd849b8cdf5b6963e78a4539.ctex"]
+source_file="res://characters/bishopric_osel_wiek/img/hermann.png"
+dest_files=["res://.godot/imported/hermann.png-e8bb6c3df926f7ac5592d85f7cca6820.ctex"]
 
 [params]
 

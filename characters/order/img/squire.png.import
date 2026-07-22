@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ccnht6b4t4iup"
-path="res://.godot/imported/squire.png-59210d36d7c728ae8b9c09798ef8c214.ctex"
+path="res://.godot/imported/squire.png-aafc18438ad67737cfad6c44393229a3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/order/squire.png"
-dest_files=["res://.godot/imported/squire.png-59210d36d7c728ae8b9c09798ef8c214.ctex"]
+source_file="res://characters/order/img/squire.png"
+dest_files=["res://.godot/imported/squire.png-aafc18438ad67737cfad6c44393229a3.ctex"]
 
 [params]
 

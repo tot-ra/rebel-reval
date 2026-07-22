@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dksj0q23nq05v"
-path="res://.godot/imported/emissary.png-6847d909ef74c3e53a8ff545ac943f05.ctex"
+path="res://.godot/imported/emissary.png-a1ca94d7b8309a7ed7577290ebcff651.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/clergy/emissary.png"
-dest_files=["res://.godot/imported/emissary.png-6847d909ef74c3e53a8ff545ac943f05.ctex"]
+source_file="res://characters/clergy/img/emissary.png"
+dest_files=["res://.godot/imported/emissary.png-a1ca94d7b8309a7ed7577290ebcff651.ctex"]
 
 [params]
 

@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://1lmynp6dvw1o"
-path="res://.godot/imported/grigory.png-cf05acb177e6a1424a1452486a8ed60d.ctex"
+path="res://.godot/imported/grigory.png-f51f0b67426df0d06f7020d6eb7ac043.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/bishopric_dorpat/grigory.png"
-dest_files=["res://.godot/imported/grigory.png-cf05acb177e6a1424a1452486a8ed60d.ctex"]
+source_file="res://characters/bishopric_dorpat/img/grigory.png"
+dest_files=["res://.godot/imported/grigory.png-f51f0b67426df0d06f7020d6eb7ac043.ctex"]
 
 [params]
 

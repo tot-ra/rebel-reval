@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://co2g6whtgbqlx"
-path="res://.godot/imported/innkeeper.png-abfe25f731641cd54bf5a4ceb4bbef15.ctex"
+path="res://.godot/imported/innkeeper.png-78d1641cd579fd663aed480c1f8cddfd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/streets/innkeeper.png"
-dest_files=["res://.godot/imported/innkeeper.png-abfe25f731641cd54bf5a4ceb4bbef15.ctex"]
+source_file="res://characters/streets/img/innkeeper.png"
+dest_files=["res://.godot/imported/innkeeper.png-78d1641cd579fd663aed480c1f8cddfd.ctex"]
 
 [params]
 

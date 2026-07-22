@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dgeqbk6f5mic2"
-path="res://.godot/imported/ingrid.png-3083cb6b77c2f5fe59e7e89395495f0b.ctex"
+path="res://.godot/imported/ingrid.png-aba5655495d58fde7ff141562c06c910.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/workers_quarter/ingrid/ingrid.png"
-dest_files=["res://.godot/imported/ingrid.png-3083cb6b77c2f5fe59e7e89395495f0b.ctex"]
+source_file="res://characters/workers_quarter/ingrid/img/ingrid.png"
+dest_files=["res://.godot/imported/ingrid.png-aba5655495d58fde7ff141562c06c910.ctex"]
 
 [params]
 

@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://brkcpac7g0bef"
-path="res://.godot/imported/scout.png-3e44ff5b67f693808711596353d88857.ctex"
+path="res://.godot/imported/scout.png-47c708def847b78b01d3735a05a10df7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/rebels/black_cloaks/scout.png"
-dest_files=["res://.godot/imported/scout.png-3e44ff5b67f693808711596353d88857.ctex"]
+source_file="res://characters/rebels/black_cloaks/img/scout.png"
+dest_files=["res://.godot/imported/scout.png-47c708def847b78b01d3735a05a10df7.ctex"]
 
 [params]
 

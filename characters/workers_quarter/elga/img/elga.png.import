@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://csb8heynmkpvg"
-path="res://.godot/imported/elga.png-4491997c9790d3a13edc514624a866e4.ctex"
+path="res://.godot/imported/elga.png-ed8493e5cfe77ecde01584fce3148cfd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/workers_quarter/elga/elga.png"
-dest_files=["res://.godot/imported/elga.png-4491997c9790d3a13edc514624a866e4.ctex"]
+source_file="res://characters/workers_quarter/elga/img/elga.png"
+dest_files=["res://.godot/imported/elga.png-ed8493e5cfe77ecde01584fce3148cfd.ctex"]
 
 [params]
 

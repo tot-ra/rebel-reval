@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ddfqfqcs628nc"
-path="res://.godot/imported/blind.png-cddd33aac07979fa61ff1d6d5d84384f.ctex"
+path="res://.godot/imported/blind.png-46fcad6c8c0fbc83cc0f67a1c6fe7bda.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/streets/blind.png"
-dest_files=["res://.godot/imported/blind.png-cddd33aac07979fa61ff1d6d5d84384f.ctex"]
+source_file="res://characters/streets/img/blind.png"
+dest_files=["res://.godot/imported/blind.png-46fcad6c8c0fbc83cc0f67a1c6fe7bda.ctex"]
 
 [params]
 

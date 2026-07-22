@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cqeor7xcdohu4"
-path="res://.godot/imported/image.png-9a512c944ff9b4ad0fd3291cab769642.ctex"
+path="res://.godot/imported/image.png-b0a945281b422f2aaabcc384b25e7627.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/lizard_union/image.png"
-dest_files=["res://.godot/imported/image.png-9a512c944ff9b4ad0fd3291cab769642.ctex"]
+source_file="res://characters/lizard_union/img/image.png"
+dest_files=["res://.godot/imported/image.png-b0a945281b422f2aaabcc384b25e7627.ctex"]
 
 [params]
 

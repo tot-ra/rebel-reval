@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bymkwoc2aehjq"
-path="res://.godot/imported/farmer_broken_plow.png-5762bc903e06c6ac8e78356353a804f4.ctex"
+path="res://.godot/imported/farmer_broken_plow.png-dffd1d07a8c93c54d78e197a3fc1ded8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/peasants/farmer_broken_plow.png"
-dest_files=["res://.godot/imported/farmer_broken_plow.png-5762bc903e06c6ac8e78356353a804f4.ctex"]
+source_file="res://characters/peasants/img/farmer_broken_plow.png"
+dest_files=["res://.godot/imported/farmer_broken_plow.png-dffd1d07a8c93c54d78e197a3fc1ded8.ctex"]
 
 [params]
 

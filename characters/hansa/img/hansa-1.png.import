@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dg6314nc67iki"
-path="res://.godot/imported/hansa-1.png-7101fa5c0a939ebad0a324ef9b6b6c34.ctex"
+path="res://.godot/imported/hansa-1.png-45d2571668b6447b463230dff94c548f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/hansa/hansa-1.png"
-dest_files=["res://.godot/imported/hansa-1.png-7101fa5c0a939ebad0a324ef9b6b6c34.ctex"]
+source_file="res://characters/hansa/img/hansa-1.png"
+dest_files=["res://.godot/imported/hansa-1.png-45d2571668b6447b463230dff94c548f.ctex"]
 
 [params]
 

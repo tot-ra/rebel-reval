@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cyw72w0py2jqm"
-path="res://.godot/imported/marek_carpenter.png-ca3b809283e9b123e6a4fcd2c57152fa.ctex"
+path="res://.godot/imported/marek_carpenter.png-d94ce815eff5804dbdc10ffef3de1b5c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/workers_quarter/marek/marek_carpenter.png"
-dest_files=["res://.godot/imported/marek_carpenter.png-ca3b809283e9b123e6a4fcd2c57152fa.ctex"]
+source_file="res://characters/workers_quarter/marek/img/marek_carpenter.png"
+dest_files=["res://.godot/imported/marek_carpenter.png-d94ce815eff5804dbdc10ffef3de1b5c.ctex"]
 
 [params]
 

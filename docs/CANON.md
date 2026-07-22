@@ -94,6 +94,9 @@ The playable narrative focuses on the days immediately preceding and during the 
 * **Kanavere** - KAH-nah-veh-reh
 * **Harjumaa** - HAR-yoo-mah
 
+### Notable Landmarks (1343 vs Modern Tallinn)
+*For a catalog of how popular modern tourist spots (like the Town Hall, Toompea Castle, and St. Olaf's Church) existed during the uprising and how they tie into the factional conflicts, see the [Tourist Landmarks Catalog](./TOURIST_LANDMARKS.md).*
+
 ---
 ## Daily Life & Social Relations (14th Century Reval)
 

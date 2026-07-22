@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://i5hxiph08xcx"
-path="res://.godot/imported/kaja_lahekivi.png-0d097534ff734c0754053626238367ed.ctex"
+path="res://.godot/imported/kaja_lahekivi.png-523ff2e95853402e43c7418ac0b0e85b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/rebels/kaja_lahekivi.png"
-dest_files=["res://.godot/imported/kaja_lahekivi.png-0d097534ff734c0754053626238367ed.ctex"]
+source_file="res://characters/rebels/img/kaja_lahekivi.png"
+dest_files=["res://.godot/imported/kaja_lahekivi.png-523ff2e95853402e43c7418ac0b0e85b.ctex"]
 
 [params]
 

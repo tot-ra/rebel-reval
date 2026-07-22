@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://usu24bnxq0rh"
-path="res://.godot/imported/goytan.png-3b7bfe931aff5c1ad9cf0eb0b570f608.ctex"
+path="res://.godot/imported/goytan.png-0b75a386e65f2234ca93af0da83e779b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/novgorod/goytan.png"
-dest_files=["res://.godot/imported/goytan.png-3b7bfe931aff5c1ad9cf0eb0b570f608.ctex"]
+source_file="res://characters/novgorod/img/goytan.png"
+dest_files=["res://.godot/imported/goytan.png-0b75a386e65f2234ca93af0da83e779b.ctex"]
 
 [params]
 

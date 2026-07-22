@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://5yc7a5g8yyg"
-path="res://.godot/imported/albrecht.png-0cb1747094de505bd459245d6b65089d.ctex"
+path="res://.godot/imported/albrecht.png-99f0acd42b63b692407cd111829e4b65.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/workers_quarter/albrecht/albrecht.png"
-dest_files=["res://.godot/imported/albrecht.png-0cb1747094de505bd459245d6b65089d.ctex"]
+source_file="res://characters/workers_quarter/albrecht/img/albrecht.png"
+dest_files=["res://.godot/imported/albrecht.png-99f0acd42b63b692407cd111829e4b65.ctex"]
 
 [params]
 

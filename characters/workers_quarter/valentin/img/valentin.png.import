@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bhnjs17ivc30g"
-path="res://.godot/imported/valentin.png-6578fd5a6fdbfcbfdb961284ffac5a58.ctex"
+path="res://.godot/imported/valentin.png-164f7450f3c0fc62c46773ff6aa31bbe.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/workers_quarter/valentin/valentin.png"
-dest_files=["res://.godot/imported/valentin.png-6578fd5a6fdbfcbfdb961284ffac5a58.ctex"]
+source_file="res://characters/workers_quarter/valentin/img/valentin.png"
+dest_files=["res://.godot/imported/valentin.png-164f7450f3c0fc62c46773ff6aa31bbe.ctex"]
 
 [params]
 

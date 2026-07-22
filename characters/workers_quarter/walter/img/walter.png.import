@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c00fb8uq76cx2"
-path="res://.godot/imported/walter.png-39941a6ecf43e70de2f5107afca5dedd.ctex"
+path="res://.godot/imported/walter.png-fcc10d46046d0fa8c040f7948b2b66ec.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/workers_quarter/walter/walter.png"
-dest_files=["res://.godot/imported/walter.png-39941a6ecf43e70de2f5107afca5dedd.ctex"]
+source_file="res://characters/workers_quarter/walter/img/walter.png"
+dest_files=["res://.godot/imported/walter.png-fcc10d46046d0fa8c040f7948b2b66ec.ctex"]
 
 [params]
 

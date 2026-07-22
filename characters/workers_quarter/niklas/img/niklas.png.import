@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://jp8b26e3flmy"
-path="res://.godot/imported/niklas.png-99540c09021035595b2d0222923f3e1a.ctex"
+path="res://.godot/imported/niklas.png-73b95d7904ef1058ba81f79189603cbe.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/workers_quarter/niklas/niklas.png"
-dest_files=["res://.godot/imported/niklas.png-99540c09021035595b2d0222923f3e1a.ctex"]
+source_file="res://characters/workers_quarter/niklas/img/niklas.png"
+dest_files=["res://.godot/imported/niklas.png-73b95d7904ef1058ba81f79189603cbe.ctex"]
 
 [params]
 

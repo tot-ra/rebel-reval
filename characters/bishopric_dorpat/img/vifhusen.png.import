@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dmtgqx54jrwk8"
-path="res://.godot/imported/vifhusen.png-8e4f52a2bd60446c99744bee00fd2afa.ctex"
+path="res://.godot/imported/vifhusen.png-0e614948c975e04ce64a6906a56e3fdd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/bishopric_dorpat/vifhusen.png"
-dest_files=["res://.godot/imported/vifhusen.png-8e4f52a2bd60446c99744bee00fd2afa.ctex"]
+source_file="res://characters/bishopric_dorpat/img/vifhusen.png"
+dest_files=["res://.godot/imported/vifhusen.png-0e614948c975e04ce64a6906a56e3fdd.ctex"]
 
 [params]
 
