@@ -23,9 +23,9 @@ The playable narrative focuses on the days immediately preceding and during the 
   * The "Four Kings" (Neli kuningat) are elected by the rebels.
 * **Late April 1343** - **`attested`** (Source: Historical accounts of the siege)
   * Rebel forces from Harju County lay siege to Reval (Tallinn), demanding surrender from the Danish-held city.
-* **May 11, 1343 (Battle of Kanavere Bog)** - **`attested`** (Source: Livonian Order records)
+* **May 11, 1343 ([Battle of Kanavere Bog](../wiki/events/battle_of_kanavere_bog.md))** - **`attested`** (Source: Livonian Order records)
   * A minor victory for the Estonian rebels against the forces of the Livonian Order.
-* **May 14, 1343 (Battle of Sõjamäe)** - **`attested`** (Source: Livonian Chronicle of Hermann de Wartberge; later chronicle tradition)
+* **May 14, 1343 ([Battle of Sõjamäe](../wiki/events/battle_of_sõjamäe.md))** - **`attested`** (Source: Livonian Chronicle of Hermann de Wartberge; later chronicle tradition)
   * The decisive defeat of the main rebel army by Master Burchard von Dreileben’s Livonian Order forces near Lake Ülemiste. The mainland rebellion is largely crushed.
 
 ---
@@ -80,7 +80,7 @@ The playable narrative focuses on the days immediately preceding and during the 
 
 ### Historical Figures (Mentioned/Background)
 
-* **Valdemar IV Atterdag** - **`attested`**
+* **[Valdemar IV Atterdag](../wiki/people/valdemar_iv_atterdag.md)** - **`attested`**
   * *Pronunciation:* VAL-deh-mar (At-ter-dag)
   * *Notes:* King of Denmark in 1343; distant ruler of the Duchy of Estonia.
 * **Burchard von Dreileben** - **`attested`**
