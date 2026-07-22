@@ -1,0 +1,24 @@
+# Sõjamäe battlefield greybox for the attested May 14 milestone.
+rrmap 1
+map world.sojamae loc.world_sojamae 54 30 meadow scope=prototype active=false palette=clean_painted_outdoor seed=1349 cell_size=32
+source "scenes/world_travel/world_sojamae.tscn"
+source "wiki/events/battle_of_sõjamäe.md"
+source "docs/CANON.md"
+source "docs/reports/global_map_mockups.md"
+terrain wet_north bog 0 0 54 8 order=1
+terrain churned_margin mud 0 8 54 5 order=2
+terrain battle_ridge dirt 2 13 50 6 order=3
+terrain south_meadow meadow 0 19 54 11 order=4
+building west_fieldworks wall 8 10 1 11 primitive=ditch_edge wall_height=18
+building east_fieldworks wall 45 10 1 11 primitive=ditch_edge wall_height=18
+building field_shelter house 23 20 8 4 primitive=work_shed wall_height=42
+prop broken_cart cart 18 17 primitive=cart
+prop signal_fire barrels 27 15 primitive=signal_fire
+prop field_standard banner 36 17 primitive=standard
+anchor landmark_battle_ridge 27 15 kind=battle_ridge
+anchor landmark_west_fieldworks 9 17 kind=fieldworks
+anchor landmark_east_fieldworks 44 17 kind=fieldworks
+spawn prototype_inspection 4 25
+patrol prototype_inspection_route 4,25|15,24|27,24|39,24|50,25
+transition road_to_harju 0 24 4 4 to=world_harju destination_spawn=from_world_sojamae spawn=from_world_harju spawn_offset_px=128,0 highlight_area=true transition_visual=ground alignment=travel
+transition road_to_paide 50 24 4 4 to=world_paide destination_spawn=from_world_sojamae spawn=from_world_paide spawn_offset_px=-128,0 highlight_area=true transition_visual=ground alignment=travel

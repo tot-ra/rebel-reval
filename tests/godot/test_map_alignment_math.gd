@@ -128,3 +128,27 @@ func test_reval_city_cycles_resolve_to_one_physical_offset() -> void:
 		var neighbor: MapDefinition = definitions.filter(func(d): return d.map_id == seam["neighbor_map_id"])[0]
 		var expected := Vector2(offsets[base.map_id]) + MapAlignmentMath.aligned_neighbor_offset(base, neighbor, seam["base"], seam["neighbor"])
 		assert_eq(Vector2(offsets[neighbor.map_id]), expected, "Conflicting map cycle at %s/%s" % [base.map_id, neighbor.map_id])
+
+
+func test_editor_portfolio_contains_accepted_campaign_greyboxes() -> void:
+	var expected_sizes := {
+		"st_olafs_guild_hall": Vector2i(32, 20),
+		"world_harju": Vector2i(52, 30),
+		"world_kanavere": Vector2i(54, 30),
+		"world_padise": Vector2i(50, 30),
+		"world_paide": Vector2i(50, 30),
+		"world_parnu": Vector2i(50, 28),
+		"world_poide": Vector2i(50, 30),
+		"world_rebel_kings": Vector2i(50, 28),
+		"world_saaremaa": Vector2i(50, 28),
+		"world_sacred_grove": Vector2i(46, 28),
+		"world_sojamae": Vector2i(54, 30),
+	}
+	for source_name in expected_sizes:
+		var definition := _definition("res://content/maps/%s.rrmap" % source_name)
+		if definition == null:
+			continue
+		assert_eq(definition.size_cells, expected_sizes[source_name], source_name)
+		assert_true(definition.interaction_anchors.size() >= 2, "%s needs working landmarks" % source_name)
+		assert_eq(definition.scope, &"prototype")
+		assert_false(definition.active)

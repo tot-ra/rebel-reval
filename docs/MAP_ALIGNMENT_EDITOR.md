@@ -39,3 +39,33 @@ The selected image and its transform are temporary workspace state and are not c
 7. Use **Export PNG** to save the visible multi-map canvas for review.
 
 The workspace never rewrites a map. Apply intended coordinate or width changes to the authoritative `.rrmap`, reload the maps, and rerun the normal parser, audit, parity, route, and visual checks. This avoids creating a second map contract or treating editor-generated pixels as source data.
+
+## Authored location portfolio
+
+`content/maps` is the editor-facing source portfolio. In addition to the Reval
+districts, harbour, Pirita, and Kalev's smithy, it contains these developer-only
+greyboxes derived from the accepted campaign documents:
+
+| RRMap | Working size (cells) | Main layout cues |
+|---|---:|---|
+| `st_olafs_guild_hall` | 32 x 20 | guild dais, long tables, hearth, return door |
+| `world_sacred_grove` | 46 x 28 | oak ring, offering stone, bog spring |
+| `world_harju` | 52 x 30 | split fields, farmsteads, well, road junction |
+| `world_padise` | 50 x 30 | church, cloister, gatehouse, work yard |
+| `world_saaremaa` | 50 x 28 | coastal water, camps, ferry/road junction |
+| `world_rebel_kings` | 50 x 28 | council camp, supply shelter, two roads |
+| `world_kanavere` | 54 x 30 | bog causeway, fieldworks, May 11 battlefield |
+| `world_sojamae` | 54 x 30 | battle ridge, fieldworks, May 14 battlefield |
+| `world_paide` | 50 x 30 | curtain walls, passable gatehouse, keep |
+| `world_parnu` | 50 x 28 | town barricade, road and ferry junction |
+| `world_poide` | 50 x 30 | curtain walls, passable gatehouse, island chapel |
+
+The world transitions use `alignment=travel`. They remain visible as map exits,
+but auto-layout does not pretend distant campaign locations physically touch one
+another. Consequently **Load all maps** places these maps on the disconnected
+prototype shelf; select the `world_*` sources together for a focused review.
+
+This portfolio follows `docs/reports/global_map_mockups.md` and ADR 0008. Haapsalu,
+Viljandi, Paldiski, Karja, Maasilinna, Swedish/Pskov event shells, and other legacy
+concepts are intentionally not added to Map Alignment until an accepted campaign
+or mission document promotes them.

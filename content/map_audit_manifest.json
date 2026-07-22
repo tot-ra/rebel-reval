@@ -160,7 +160,9 @@
         "inspection_spawn",
         "dais"
       ],
-      "mandatory_transitions": []
+      "mandatory_transitions": [
+        "to_reval_center"
+      ]
     },
     {
       "id": "north_quarter",
@@ -454,7 +456,11 @@
       "factory": "DistantLocationDefinitions.create(world_sacred_grove)",
       "disposition": "convert",
       "capture": "world_sacred_grove.png",
-      "mandatory_anchors": [],
+      "mandatory_anchors": [
+        "landmark_ancient_oak",
+        "landmark_offering_stone",
+        "landmark_bog_spring"
+      ],
       "mandatory_transitions": [
         "to_reval",
         "road_to_harju"
@@ -468,7 +474,11 @@
       "factory": "DistantLocationDefinitions.create(world_harju)",
       "disposition": "convert",
       "capture": "world_harju.png",
-      "mandatory_anchors": [],
+      "mandatory_anchors": [
+        "landmark_village_well",
+        "landmark_threshing_barn",
+        "landmark_split_fields"
+      ],
       "mandatory_transitions": [
         "road_to_reval",
         "road_to_sacred_grove",
@@ -485,7 +495,12 @@
       "factory": "DistantLocationDefinitions.create(world_padise)",
       "disposition": "convert",
       "capture": "world_padise.png",
-      "mandatory_anchors": [],
+      "mandatory_anchors": [
+        "landmark_church",
+        "landmark_cloister",
+        "landmark_gatehouse",
+        "landmark_work_yard"
+      ],
       "mandatory_transitions": [
         "road_to_reval",
         "road_to_parnu"
@@ -499,7 +514,11 @@
       "factory": "DistantLocationDefinitions.create(world_saaremaa)",
       "disposition": "convert",
       "capture": "world_saaremaa.png",
-      "mandatory_anchors": [],
+      "mandatory_anchors": [
+        "landmark_island_coast",
+        "landmark_west_camp",
+        "landmark_east_camp"
+      ],
       "mandatory_transitions": [
         "ferry_to_reval",
         "ferry_to_parnu",
@@ -514,7 +533,11 @@
       "factory": "DistantLocationDefinitions.create(world_rebel_kings)",
       "disposition": "convert",
       "capture": "world_rebel_kings.png",
-      "mandatory_anchors": [],
+      "mandatory_anchors": [
+        "landmark_council_camp",
+        "landmark_west_camp",
+        "landmark_east_camp"
+      ],
       "mandatory_transitions": [
         "road_to_harju",
         "road_to_kanavere"
@@ -528,7 +551,11 @@
       "factory": "DistantLocationDefinitions.create(world_kanavere)",
       "disposition": "convert",
       "capture": "world_kanavere.png",
-      "mandatory_anchors": [],
+      "mandatory_anchors": [
+        "landmark_bog_causeway",
+        "landmark_west_fieldworks",
+        "landmark_east_fieldworks"
+      ],
       "mandatory_transitions": [
         "road_to_harju",
         "road_to_rebel_kings",
@@ -543,7 +570,11 @@
       "factory": "DistantLocationDefinitions.create(world_sojamae)",
       "disposition": "convert",
       "capture": "world_sojamae.png",
-      "mandatory_anchors": [],
+      "mandatory_anchors": [
+        "landmark_battle_ridge",
+        "landmark_west_fieldworks",
+        "landmark_east_fieldworks"
+      ],
       "mandatory_transitions": [
         "road_to_harju",
         "road_to_paide"
@@ -557,7 +588,11 @@
       "factory": "DistantLocationDefinitions.create(world_paide)",
       "disposition": "convert",
       "capture": "world_paide.png",
-      "mandatory_anchors": [],
+      "mandatory_anchors": [
+        "landmark_gatehouse",
+        "landmark_central_keep",
+        "landmark_limestone_tower"
+      ],
       "mandatory_transitions": [
         "road_to_kanavere",
         "road_to_sojamae",
@@ -572,7 +607,11 @@
       "factory": "DistantLocationDefinitions.create(world_parnu)",
       "disposition": "convert",
       "capture": "world_parnu.png",
-      "mandatory_anchors": [],
+      "mandatory_anchors": [
+        "landmark_town_barricade",
+        "landmark_west_quarter",
+        "landmark_east_quarter"
+      ],
       "mandatory_transitions": [
         "road_to_padise",
         "road_to_paide",
@@ -587,7 +626,11 @@
       "factory": "DistantLocationDefinitions.create(world_poide)",
       "disposition": "convert",
       "capture": "world_poide.png",
-      "mandatory_anchors": [],
+      "mandatory_anchors": [
+        "landmark_gatehouse",
+        "landmark_central_keep",
+        "landmark_island_chapel"
+      ],
       "mandatory_transitions": [
         "road_to_saaremaa"
       ]

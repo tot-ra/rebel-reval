@@ -1,0 +1,30 @@
+# Padise Monastery campaign greybox. Phase damage remains content metadata work;
+# this source establishes one shared footprint rather than duplicate locations.
+rrmap 1
+map world.padise loc.world_padise 50 30 meadow scope=prototype active=false palette=clean_painted_outdoor seed=1345 cell_size=32
+source "scenes/world_travel/world_padise.tscn"
+source "scenes/world/padise/padise_monastery.md"
+source "docs/reports/global_map_mockups.md"
+terrain west_fields farm_soil 2 3 12 9 order=1
+terrain precinct castle_paving 16 6 27 19 order=2
+terrain south_road dirt 0 24 50 4 order=3
+terrain east_mud mud 43 12 7 8 order=4
+building monastery_church house 20 7 10 6 primitive=stone_church wall_height=82
+building cloister_west house 17 14 5 8 primitive=monastic_range wall_height=58
+building cloister_east house 34 14 6 8 primitive=monastic_range wall_height=58
+building gatehouse house 26 23 6 3 primitive=gatehouse wall_height=68
+building work_yard_barn house 4 16 9 5 primitive=barn wall_height=52
+building precinct_wall_north wall 15 5 29 1 primitive=wall wall_height=40
+building precinct_wall_west wall 15 5 1 20 primitive=wall wall_height=40
+building precinct_wall_east wall 43 5 1 20 primitive=wall wall_height=40
+prop cloister_well well 28 18 primitive=well
+prop work_cart cart 10 23 primitive=cart
+prop herb_beds barrels 39 10 primitive=garden
+anchor landmark_church 25 13 kind=stone_church
+anchor landmark_cloister 28 18 kind=cloister
+anchor landmark_gatehouse 29 26 kind=gatehouse
+anchor landmark_work_yard 10 23 kind=work_yard
+spawn prototype_inspection 4 25
+patrol prototype_inspection_route 4,25|14,25|23,26|33,26|42,26
+transition road_to_reval 46 24 4 3 to=reval_toompea destination_spawn=from_world_padise spawn=from_reval_west spawn_offset_px=-128,0 highlight_area=true transition_visual=ground alignment=travel
+transition road_to_parnu 0 24 4 3 to=world_parnu destination_spawn=from_world_padise spawn=from_world_parnu spawn_offset_px=128,0 highlight_area=true transition_visual=ground alignment=travel

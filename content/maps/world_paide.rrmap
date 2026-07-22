@@ -1,0 +1,33 @@
+# Paide Castle greybox for the Four Kings campaign finale.
+rrmap 1
+map world.paide loc.world_paide 50 30 meadow scope=prototype active=false palette=clean_painted_outdoor seed=1350 cell_size=32
+source "scenes/world_travel/world_paide.tscn"
+source "scenes/world/paide_castle.md"
+source "wiki/events/paide_negotiations.md"
+source "docs/reports/global_map_mockups.md"
+terrain outer_ditch mud 5 4 40 23 order=1
+terrain castle_yard castle_paving 9 7 32 17 order=2
+terrain keep_base stone 20 10 11 8 order=3
+terrain south_road dirt 0 25 50 4 order=4
+exclude ditch_north 5 4 40 2
+exclude ditch_south_west 5 25 17 2
+exclude ditch_south_east 28 25 17 2
+building curtain_north wall 7 5 36 1 primitive=wall wall_height=56
+building curtain_west wall 7 5 1 21 primitive=wall wall_height=56
+building curtain_east wall 42 5 1 21 primitive=wall wall_height=56
+# Two gatehouse masses preserve a walkable central passage into the yard.
+building gatehouse_west house 22 24 2 3 primitive=gatehouse wall_height=76
+building gatehouse_east house 26 24 2 3 primitive=gatehouse wall_height=76
+building keep house 20 9 11 8 primitive=stone_keep wall_height=92
+building chapel_or_hall house 10 9 7 6 primitive=stone_hall wall_height=68
+building storehouse house 33 16 7 5 primitive=storehouse wall_height=54
+prop yard_well well 27 20 primitive=well
+prop supply_cart cart 15 20 primitive=cart
+anchor landmark_gatehouse 25 28 kind=gatehouse
+anchor landmark_central_keep 25 17 kind=stone_keep
+anchor landmark_limestone_tower 13 15 kind=limestone_tower
+spawn prototype_inspection 4 26
+patrol prototype_inspection_route 4,26|15,27|25,28|36,27|45,26
+transition road_to_kanavere 0 25 4 4 to=world_kanavere destination_spawn=from_world_paide spawn=from_world_kanavere spawn_offset_px=128,0 highlight_area=true transition_visual=ground alignment=travel
+transition road_to_sojamae 24 25 4 4 to=world_sojamae destination_spawn=from_world_paide spawn=from_world_sojamae spawn_offset_px=0,128 highlight_area=true transition_visual=ground alignment=travel
+transition road_to_parnu 46 25 4 4 to=world_parnu destination_spawn=from_world_paide spawn=from_world_parnu spawn_offset_px=-128,0 highlight_area=true transition_visual=ground alignment=travel

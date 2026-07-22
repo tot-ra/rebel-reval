@@ -1,0 +1,29 @@
+# Harju Village campaign junction, kept compact for developer traversal.
+rrmap 1
+map world.harju loc.world_harju 52 30 meadow scope=prototype active=false palette=clean_painted_outdoor seed=1344 cell_size=32
+source "scenes/world_travel/world_harju.tscn"
+source "scenes/world/harju_village.md"
+source "docs/reports/global_map_mockups.md"
+terrain west_fields farm_soil 2 2 15 9 order=1
+terrain east_fields farm_soil 35 3 14 8 order=2
+terrain hay_field hay 4 23 10 5 order=3
+terrain village_road dirt 0 13 52 5 order=4
+terrain muddy_common mud 20 16 8 4 order=5
+terrain east_wood forest_floor 43 18 9 12 order=6
+building elder_farmstead house 18 7 8 4 primitive=farmhouse wall_height=54
+building threshing_barn house 30 7 9 4 primitive=barn wall_height=58
+building west_croft house 6 18 7 4 primitive=farmhouse wall_height=50
+building cattle_fence wall 28 21 12 1 primitive=palisade wall_height=20
+prop village_well well 25 15 primitive=well
+prop hay_rick hay_stack 9 25 primitive=hay_stack
+prop field_cart cart 40 14 primitive=cart
+anchor landmark_village_well 25 15 kind=well
+anchor landmark_threshing_barn 34 11 kind=barn
+anchor landmark_split_fields 42 6 kind=farm_fields
+spawn prototype_inspection 3 15
+patrol prototype_inspection_route 3,15|14,15|25,15|38,15|48,16
+transition road_to_reval 0 13 4 4 to=viru_gate_foreland destination_spawn=from_world_harju spawn=from_reval_east spawn_offset_px=128,0 highlight_area=true transition_visual=ground alignment=travel
+transition road_to_sacred_grove 16 26 4 4 to=world_sacred_grove destination_spawn=from_world_harju spawn=from_world_sacred_grove spawn_offset_px=0,-128 highlight_area=true transition_visual=ground alignment=travel
+transition road_to_rebel_kings 48 7 4 4 to=world_rebel_kings destination_spawn=from_world_harju spawn=from_world_rebel_kings spawn_offset_px=-128,0 highlight_area=true transition_visual=ground alignment=travel
+transition road_to_kanavere 48 20 4 4 to=world_kanavere destination_spawn=from_world_harju spawn=from_world_kanavere spawn_offset_px=-128,0 highlight_area=true transition_visual=ground alignment=travel
+transition road_to_sojamae 27 0 4 4 to=world_sojamae destination_spawn=from_world_harju spawn=from_world_sojamae spawn_offset_px=0,128 highlight_area=true transition_visual=ground alignment=travel

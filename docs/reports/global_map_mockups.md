@@ -33,7 +33,21 @@ Reval -- Sacred Grove -- Harju -- Rebel Kings' Camp
 ## Implementation contract
 
 - `GlobalMapCatalog` owns marker positions, adjacency, and travel planning.
-- `DistantLocationDefinitions` adapts inactive outdoor definitions into developer-playable mockups and adds reciprocal transition doors.
+- `content/maps/world_*.rrmap` owns the visible greybox geometry, working dimensions, landmarks, and reciprocal transition doors.
+- `DistantLocationDefinitions` parses those same sources for scene assembly, preventing Map Alignment and developer traversal from drifting apart.
 - `DoorNavigator` remains the sole scene/spawn registry through `content/transitions/active_destinations.json`.
 - All world scenes are `release=false`; release Start flow is unchanged.
 - Tests verify adjacency-only travel, reciprocal definition doors, manifest spawns, transition clearance, and a traversable route from each inspection spawn to its exits.
+
+## Map Alignment authoring baseline
+
+The ten accepted global nodes now have compact `.rrmap` sources under
+`content/maps`, with working bounds of 46-54 by 28-30 cells. Each source includes
+terrain regions, at least three named landmarks, a traversable inspection route,
+and the accepted road/ferry exits. These are planning greyboxes, not final mission
+layouts, and all remain `scope=prototype`, `active=false`, and `release=false`.
+
+St. Olaf's Guild Hall is also represented as a 32 x 20 interior source because it
+is an accepted Act 1 developer destination. Archive-only Haapsalu, Viljandi,
+Paldiski, Karja, Maasilinna, Swedish/Pskov shells, and other legacy concepts remain
+outside the editor portfolio until a later accepted scope decision promotes them.

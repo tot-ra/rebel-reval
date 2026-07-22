@@ -134,12 +134,73 @@ static func entries() -> Array[Dictionary]:
 				&"kalamaja_shore",
 			],
 		},
+		{
+			"id": &"st_olafs_guild_hall",
+			"source": "res://content/maps/st_olafs_guild_hall.rrmap",
+			"required_anchors": [&"inspection_spawn", &"dais"],
+		},
+		{
+			"id": &"world.sacred_grove",
+			"source": "res://content/maps/world_sacred_grove.rrmap",
+			"required_anchors": [&"landmark_ancient_oak", &"landmark_offering_stone", &"landmark_bog_spring"],
+		},
+		{
+			"id": &"world.harju",
+			"source": "res://content/maps/world_harju.rrmap",
+			"required_anchors": [&"landmark_village_well", &"landmark_threshing_barn", &"landmark_split_fields"],
+		},
+		{
+			"id": &"world.padise",
+			"source": "res://content/maps/world_padise.rrmap",
+			"required_anchors": [&"landmark_church", &"landmark_cloister", &"landmark_gatehouse", &"landmark_work_yard"],
+		},
+		{
+			"id": &"world.saaremaa",
+			"source": "res://content/maps/world_saaremaa.rrmap",
+			"required_anchors": [&"landmark_island_coast", &"landmark_west_camp", &"landmark_east_camp"],
+		},
+		{
+			"id": &"world.rebel_kings",
+			"source": "res://content/maps/world_rebel_kings.rrmap",
+			"required_anchors": [&"landmark_council_camp", &"landmark_west_camp", &"landmark_east_camp"],
+		},
+		{
+			"id": &"world.kanavere",
+			"source": "res://content/maps/world_kanavere.rrmap",
+			"required_anchors": [&"landmark_bog_causeway", &"landmark_west_fieldworks", &"landmark_east_fieldworks"],
+		},
+		{
+			"id": &"world.sojamae",
+			"source": "res://content/maps/world_sojamae.rrmap",
+			"required_anchors": [&"landmark_battle_ridge", &"landmark_west_fieldworks", &"landmark_east_fieldworks"],
+		},
+		{
+			"id": &"world.paide",
+			"source": "res://content/maps/world_paide.rrmap",
+			"required_anchors": [&"landmark_gatehouse", &"landmark_central_keep", &"landmark_limestone_tower"],
+		},
+		{
+			"id": &"world.parnu",
+			"source": "res://content/maps/world_parnu.rrmap",
+			"required_anchors": [&"landmark_town_barricade", &"landmark_west_quarter", &"landmark_east_quarter"],
+		},
+		{
+			"id": &"world.poide",
+			"source": "res://content/maps/world_poide.rrmap",
+			"required_anchors": [&"landmark_gatehouse", &"landmark_central_keep", &"landmark_island_chapel"],
+		},
 	]
 
 
 static func create_blueprint(entry: Dictionary) -> MapBlueprint:
 	var factory: Script = entry.get("factory")
-	if factory == null or not factory.has_method("create"):
-		return null
-	var value: Variant = factory.call("create")
-	return value as MapBlueprint if value is MapBlueprint else null
+	if factory != null and factory.has_method("create"):
+		var value: Variant = factory.call("create")
+		return value as MapBlueprint if value is MapBlueprint else null
+	# RRMap-only entries do not need one wrapper script per source. The explicit
+	# registry still owns discovery order and semantic anchor requirements.
+	var source := String(entry.get("source", ""))
+	if source.ends_with(".rrmap"):
+		var parsed := MapRrmapParser.parse_file(source)
+		return parsed.blueprint if parsed.is_ok() else null
+	return null

@@ -31,6 +31,17 @@ const DISPLAY_NAMES: Dictionary = {
 	&"viru_gate_foreland": "Pirita",
 	&"reval_harbor_north": "Coastal Gate Landing",
 	&"reval_harbor_east": "Kalamaja Fishing Shore",
+	&"st_olafs_guild_hall": "St. Olaf's Guild Hall",
+	&"world.sacred_grove": "Sacred Grove",
+	&"world.harju": "Harju Village",
+	&"world.padise": "Padise Monastery",
+	&"world.saaremaa": "Saaremaa",
+	&"world.rebel_kings": "Rebel Kings' Camp",
+	&"world.kanavere": "Kanavere Bog",
+	&"world.sojamae": "Sõjamäe",
+	&"world.paide": "Paide Castle",
+	&"world.parnu": "Pärnu",
+	&"world.poide": "Pöide Castle",
 }
 
 var layers: Array[Dictionary] = []
