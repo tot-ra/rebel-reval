@@ -33,16 +33,23 @@ PRIORITY_MAP: dict[str, tuple[str, str]] = {
     "P0": ("P0", "Baseline, storage, materials, historical audit"),
     "P1": ("P1", "Runtime systems, content foundation"),
     "P2": ("P2", "Vertical-slice production (playable MVP)"),
+    "P3": ("P3", "Validation, accessibility, performance"),
+    "P4": ("P4", "Act 1: The Simmering City"),
+    "P5": ("P5", "Act 2: The Fire of Rebellion"),
+    "P6": ("P6", "Act 3: The Iron Harvest and full release"),
 }
 
-# Everything else (P3..P9) collapses into one bucket.
-OTHER_PREFIX = "P"
+# Everything above P6 collapses into one bucket.
+OTHER_PREFIX = "P7+"
 
 
 def _bucket_for(priority: str) -> str:
     if priority in PRIORITY_MAP:
         return priority
-    return OTHER_PREFIX
+    # Strip numeric suffix letter (e.g. "P4-027a" → "P4") to map correctly.
+    import re as _re
+    base = _re.sub(r"\d+[a-z]*$", "", priority) if len(priority) > 2 else priority
+    return _bucket_for(base) if base in PRIORITY_MAP or base == "D" else OTHER_PREFIX
 
 
 def scan_todo(path: Path) -> dict[str, Counters]:
@@ -72,8 +79,7 @@ def scan_todo(path: Path) -> dict[str, Counters]:
 
 def build_table(counts: dict[str, Counters]) -> str:
     lines = ["| Priority | Open | Done | Notes |", "|----------|-----:|-----:|-------|"]
-    # Print in the canonical order, then any leftover buckets.
-    for prefix in ("D", "P0", "P1", "P2"):
+    for prefix in PRIORITY_MAP:
         c = counts.get(prefix)
         if not c:
             continue
@@ -83,8 +89,8 @@ def build_table(counts: dict[str, Counters]) -> str:
     other = counts.get(OTHER_PREFIX)
     if other and (other.open_count or other.done_count):
         lines.append(
-            f"| P3+ |  {other.open_count:>4}  |  {other.done_count:>4}  | "
-            f"{'Reserved for future tasks; add items when created' if not other.open_count else 'Validation, accessibility, performance'} |"
+            f"| P7+ |  {other.open_count:>4}  |  {other.done_count:>4}  | "
+            "Reserved for future priority bands |"
         )
 
     return "\n".join(lines)

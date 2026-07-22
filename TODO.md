@@ -11,10 +11,17 @@ References:
 <!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
-| P0 |    18  |    12  | Baseline, storage, materials, historical audit |
+| P0 |    18  |    13  | Baseline, storage, materials, historical audit |
 | P1 |     3  |     2  | Runtime systems, content foundation |
 | P2 |    17  |     4  | Vertical-slice production (playable MVP) |
-| P3+ |    76  |     6  | Validation, accessibility, performance |
+| P3 |    15  |     0  | Validation, accessibility, performance |
+| P4 |    43  |     5  | Act 1: The Simmering City |
+| P5 |     9  |     1  | Act 2: The Fire of Rebellion |
+| P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
+
+
+
+<!-- P0-120 completed in current session -->
 
 
 
@@ -176,6 +183,7 @@ References:
 - [ ] P0-039 | deps: P0-053 | deliverable: blind gameplay-scale readability test of the 3D isometric candidate with at least five participants | verify: results record silhouette, interaction, depth, and motion recognition per target
 - [x] P0-113 | deps: none | deliverable: compile a linked set of markdown documents (e.g. `docs/TOURIST_LANDMARKS.md` or a `docs/landmarks/` folder) cataloging notable buildings and locations that tourists typically visit in Reval (Tallinn), mapping them to their 1343 status and organically tying them to in-game lore, factions, and specific map locations | verify: `python3 tools/verify_tourist_landmarks.py` and `python3 -m unittest tests.python.test_verify_tourist_landmarks -v` pass; document contains at least 10 major tourist landmarks with 1343 status notes and links directly to `docs/CANON.md` lore entries
 - [x] P0-119 | deps: P0-113 | deliverable: refactor the P0-113 tourist landmarks catalog to scannable district tables and add generator `--check` parity with the P1-037 landmark narrative tooling | allowed files: `docs/TOURIST_LANDMARKS.md`, `tools/generate_tourist_landmarks.py`, `tools/verify_tourist_landmarks.py`, `tests/python/test_generate_tourist_landmarks.py`, `tests/python/test_verify_tourist_landmarks.py`, `.github/workflows/ci.yml`, `TODO.md` | verify: `python3 tools/generate_tourist_landmarks.py --check`, `python3 tools/verify_tourist_landmarks.py`, and `python3 -m unittest tests.python.test_generate_tourist_landmarks tests.python.test_verify_tourist_landmarks -v` pass; every district catalog row exposes modern status, 1343 status, map binding, and lore tie-in in one table row
+- [x] P0-120 | deps: none | deliverable: extend `tools/update_todo_counts.py` to report separate open/done counts for P3 through P6 act bands instead of collapsing them into one P3+ row | allowed files: `tools/update_todo_counts.py`, `tests/python/test_update_todo_counts.py`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 tools/update_todo_counts.py` lists accurate P0-P6 rows; `python3 -m unittest tests.python.test_update_todo_counts -v` passes; `python3 tools/update_todo_counts.py --write` refreshes the summary table without editing task contracts
 ### Medium
 
 - [ ] P0-038 | deps: P0-053 | deliverable: comparison report for import time, frame time, texture memory, navigation defects, animation reuse, and NPC-variant production time measured on the 3D view layer with the P0-053 surface kit, including minimum-hardware frame-time results and renderer-setting escalation if budgets are missed | verify: report contains repeatable procedure, hardware, raw measurements, and result
