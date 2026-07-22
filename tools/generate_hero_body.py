@@ -39,7 +39,7 @@ GARMENT_OUTPUTS = {
 }
 
 # Default palette aligned with the legacy Kalev pixel sprite
-# (img/user__idle.gif). Character specs override selected colors.
+# (character/inspiration/user__idle.gif). Character specs override selected colors.
 PALETTE = {
     "skin": (0.80, 0.58, 0.42, 1.0),
     "tunic": (0.38, 0.24, 0.14, 1.0),

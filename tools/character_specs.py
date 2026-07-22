@@ -74,7 +74,7 @@ BASE_SHAPE = {
 
 CHARACTERS = {
     # The shared hero body used by Kalev, Mart, and current NPC variants.
-    # Palette matches the legacy Kalev pixel sprite (img/user__idle.gif).
+    # Palette matches the legacy Kalev pixel sprite (character/inspiration/user__idle.gif).
     "hero": {
         "palette": {
             "tunic": (0.38, 0.24, 0.14, 1.0),

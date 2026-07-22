@@ -68,7 +68,7 @@ Target length is 15–20 hours across the three acts, with replay value in branc
 ## Characters
 
 <p align="center">
-  <img src="./img/user__idle.gif" width="112" alt="Prototype pixel art of Kalev">
+  <img src="./character/inspiration/user__idle.gif" width="112" alt="Prototype pixel art of Kalev">
   <img src="./characters/rebels/kaja_lahekivi.png" width="112" alt="Prototype pixel art of Kaja">
   <img src="./characters/metsik_cult/ellen_luik.png" width="112" alt="Prototype pixel art of Ellen">
 </p>
