@@ -17,7 +17,8 @@ style house.knights door_side=south ridge_axis=x wall_height=128 wall_color=7a70
 style house.artisan door_side=north ridge_axis=x wall_height=96 wall_color=63594aff wall_material=log roof_color=6b5c40ff roof_material=thatch
 style house.gatehouse door_side=north ridge_axis=x wall_height=136 wall_color=6e6a62ff wall_material=limestone roof_color=2a241cff roof_material=tile
 style wall.city wall_height=192 wall_color=949185ff
-style wall.tower wall_height=240 wall_color=8c8a80ff
+# round_tower keeps the Tallinn circular drum while tower=false marks incomplete 1343 fabric.
+style wall.tower wall_height=240 wall_color=8c8a80ff round_tower=true
 terrain_rects quarter.base cobblestone 144,0,192,25|144,9,190,25|147,34,187,25|150,59,181,15|156,74,166,8|170,82,140,6|198,88,96,8 order=1
 terrain rataskaev_close stone 158 9 31 19 order=2
 terrain niguliste_close stone 161 37 31 19 order=3

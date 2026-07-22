@@ -100,14 +100,18 @@ func test_every_completed_tower_has_one_visible_door_on_its_authored_interior_si
 			node.free()
 
 
-func test_tower_false_overrides_small_footprint_inference() -> void:
+func test_tower_false_keeps_round_drum_without_completed_dressing() -> void:
+	# tower=false marks an incomplete 1343 position. The Tallinn plan is still
+	# circular via round_tower; only conical roof / door / slits stay suppressed.
 	var definition: MapDefinition = LowerTownSlice.create()
 	var construction_position := _building_by_id(definition, &"foregate_tower_north")
 	assert_true(construction_position.has("tower"))
 	assert_false(bool(construction_position["tower"]))
+	assert_true(bool(construction_position.get("round_tower", false)))
 	var node := MapViewMeshBuilderBuildings.build_building(construction_position, definition.cell_size)
-	assert_true((node.get_node("Walls") as MeshInstance3D).mesh is BoxMesh)
+	assert_true((node.get_node("Walls") as MeshInstance3D).mesh is CylinderMesh)
 	assert_false(node.has_node("TowerRoof"), "a possible 1343 construction site must not render as a finished tower")
+	assert_false(node.has_node("TowerDoor"), "incomplete towers must not invent ground doors")
 	node.free()
 
 

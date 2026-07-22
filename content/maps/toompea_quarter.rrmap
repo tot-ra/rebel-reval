@@ -28,8 +28,9 @@ style house.stable door_side=north ridge_axis=x wall_height=80 wall_color=63594a
 style house.gatehouse door_side=west ridge_axis=x wall_height=144 wall_color=6e6a62ff wall_material=limestone roof_color=2a241cff roof_material=tile
 style wall.city wall_height=192 wall_color=949185ff
 style wall.castle wall_height=224 wall_color=8a877dff
-style wall.tower wall_height=240 wall_color=8c8a80ff
-style wall.tower.castle wall_height=240 wall_color=8c8a80ff faction=danish_crown
+# round_tower keeps the Tallinn circular drum; tower=true still adds completed-tower dressing.
+style wall.tower wall_height=240 wall_color=8c8a80ff round_tower=true
+style wall.tower.castle wall_height=240 wall_color=8c8a80ff round_tower=true faction=danish_crown
 terrain plateau.grass grass 0 0 144 192 order=1
 terrain cathedral_orchard grass 4 12 28 84 order=2
 terrain cathedral_close stone 32 24 78 78 order=3

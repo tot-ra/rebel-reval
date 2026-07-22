@@ -25,7 +25,8 @@ style house.convent door_side=east ridge_axis=x roof_color=42261fff roof_materia
 style house.service door_side=north roof_color=6b5c40ff roof_material=thatch wall_color=5a4f45ff wall_material=log wall_height=88
 style wall.precinct wall_height=112 wall_color=8d897fff
 style wall.city wall_height=192 wall_color=949185ff
-style wall.tower wall_height=240 wall_color=8c8a80ff
+# round_tower keeps the Tallinn circular drum while tower=false marks incomplete 1343 fabric.
+style wall.tower wall_height=240 wall_color=8c8a80ff round_tower=true
 style plant.nettle
 style plant.yarrow
 style plant.dandelion

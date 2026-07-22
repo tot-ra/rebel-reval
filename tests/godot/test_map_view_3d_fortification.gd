@@ -222,6 +222,34 @@ func test_city_wall_base_arcades_and_timber_gallery_are_character_scale() -> voi
 	assert_true(false, "Lower Town fixture must contain city_wall_north")
 
 
+func test_district_wall_towers_render_as_circular_drums() -> void:
+	# Incomplete 1343 towers (tower=false) still use the Tallinn round plan via
+	# round_tower on the shared wall.tower style. Keep curtain boxes rectangular.
+	var south := SouthQuarterDefinition.create()
+	var seen := 0
+	for building in south.buildings:
+		var id := StringName(building["id"])
+		if not String(id).contains("tower"):
+			continue
+		assert_true(MapWallWalkAccess.is_round_tower(building), "%s must be circular" % id)
+		var node := MapViewMeshBuilder.build_building(building, south.cell_size)
+		assert_true((node.get_node("Walls") as MeshInstance3D).mesh is CylinderMesh, "%s needs a drum" % id)
+		assert_false(node.has_node("WalkRoof"), "%s must not wear a rectangular gallery roof" % id)
+		assert_false(node.has_node("Merlons"), "%s must not wear box battlements" % id)
+		seen += 1
+		node.free()
+	assert_true(seen >= 8, "Knights District must expose its authored wall towers")
+	for building in south.buildings:
+		if building["id"] != &"city_wall_south_west":
+			continue
+		var curtain := MapViewMeshBuilder.build_building(building, south.cell_size)
+		assert_true((curtain.get_node("Walls") as MeshInstance3D).mesh is BoxMesh)
+		assert_true(curtain.has_node("WalkRoof"), "curtain walls keep the timber gallery")
+		curtain.free()
+		return
+	assert_true(false, "south curtain fixture missing")
+
+
 func test_workers_district_wall_walk_crosses_round_towers_to_the_wall_end() -> void:
 	var definition := LowerTownSlice.create()
 	var grid := MapBuilder.build(definition)
