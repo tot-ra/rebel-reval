@@ -57,8 +57,10 @@ func follow_player(snap: bool, delta: float) -> void:
 		target = player_rig.position + camera.transform.basis.z * MapView3D.CAMERA_DISTANCE
 	if snap or camera.position.distance_to(target) > SNAP_DISTANCE_WORLD:
 		camera.position = target
+		view.update_terrain_detail_focus(target)
 		return
 	camera.position = camera.position.lerp(target, clampf(FOLLOW_LERP_WEIGHT * delta, 0.0, 1.0))
+	view.update_terrain_detail_focus(target)
 
 
 func apply_view_rotation(delta: float) -> void:

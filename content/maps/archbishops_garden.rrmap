@@ -22,14 +22,15 @@ style grass.fern
 style grass.dry
 style bush.dense
 style bush.scrub
-style tree.mixed
-style tree.deciduous
+style tree.orchard
+style tree.apple
+style tree.cherry
 style tree.spruce
 # Flowered lawn is the default open ground; stone is limited to a compact close.
 terrain garden.lawn grass 0 0 144 48 style=grass.flowers order=1
 # Mixed orchard mass with deciduous fruit rows overlaid for readable canopy.
-terrain orchard grass 12 8 58 30 style=tree.mixed order=2
-terrain orchard.rows grass 16 10 44 16 style=tree.deciduous order=3
+terrain orchard grass 12 8 58 30 style=tree.orchard order=2
+terrain orchard.rows grass 16 10 44 16 style=tree.orchard order=3
 terrain orchard.understory grass 14 28 50 10 style=bush.scrub order=4
 # Western cliff keeps spruce woodland and dense scrub outside the playable plot.
 terrain western.woodland forest_floor 0 0 14 48 style=tree.spruce order=5

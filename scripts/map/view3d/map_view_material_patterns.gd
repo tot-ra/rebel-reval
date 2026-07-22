@@ -35,6 +35,12 @@ static func _pattern_texture_at_size(pattern: StringName, noise_seed: int, textu
 			_paint_cobble(image, noise_seed)
 		MapViewMaterials.PATTERN_BRICK:
 			_paint_brick(image, noise_seed)
+		MapViewMaterials.PATTERN_BARK:
+			_paint_bark(image, noise_seed)
+		MapViewMaterials.PATTERN_BIRCH_BARK:
+			_paint_birch_bark(image, noise_seed)
+		MapViewMaterials.PATTERN_CHERRY_BARK:
+			_paint_cherry_bark(image, noise_seed)
 		MapViewMaterials.PATTERN_PLANK:
 			_paint_plank(image, noise_seed)
 		MapViewMaterials.PATTERN_LIMESTONE:
@@ -138,6 +144,40 @@ static func _paint_speckle(image: Image, noise_seed: int) -> void:
 			elif fine < 0.02:
 				value += 0.12
 			_fill_value(image, x, y, value)
+
+
+## Tree bark uses organic vertical grain instead of the construction-plank grid.
+static func _paint_bark(image: Image, noise_seed: int) -> void:
+	var size := image.get_width()
+	for y in size:
+		for x in size:
+			var furrow := absf(sin(float(x) * 0.31 + _lattice(float(x) / 7.0, float(y) / 19.0, maxi(size / 7, 2), noise_seed) * 3.0))
+			var grain := _lattice(float(x) / 5.0, float(y) / 24.0, maxi(size / 5, 2), noise_seed + 41)
+			_fill_value(image, x, y, 0.62 + furrow * 0.27 + grain * 0.09)
+
+
+## Pale birch paper bark with dark horizontal lenticels and irregular peeling.
+static func _paint_birch_bark(image: Image, noise_seed: int) -> void:
+	var size := image.get_width()
+	for y in size:
+		for x in size:
+			var paper := 0.88 + _lattice(float(x) / 18.0, float(y) / 22.0, maxi(size / 18, 2), noise_seed) * 0.10
+			var band_row := posmod(y + int(_hash01(y / 5, 3, noise_seed) * 7.0), 17)
+			var lenticel := band_row < 2 and _hash01(x / 7, y / 17, noise_seed + 83) > 0.43
+			if lenticel:
+				paper *= 0.30 + _hash01(x, y, noise_seed + 97) * 0.20
+			_fill_value(image, x, y, paper)
+
+
+## Cherry bark has smooth reddish bands and fine pale horizontal pores.
+static func _paint_cherry_bark(image: Image, noise_seed: int) -> void:
+	var size := image.get_width()
+	for y in size:
+		for x in size:
+			var smooth := 0.72 + _lattice(float(x) / 24.0, float(y) / 16.0, maxi(size / 24, 2), noise_seed) * 0.20
+			if posmod(y + int(_hash01(y / 9, 4, noise_seed) * 5.0), 13) == 0 and _hash01(x / 5, y, noise_seed + 109) > 0.34:
+				smooth += 0.16
+			_fill_value(image, x, y, smooth)
 
 
 static func _paint_plaster(image: Image, noise_seed: int) -> void:

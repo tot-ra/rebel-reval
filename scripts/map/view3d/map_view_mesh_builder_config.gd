@@ -364,10 +364,10 @@ const PUDDLE_CHANCE := {
 	MapTypes.TERRAIN_FARM_SOIL: 0.06,
 }
 
-## Camera-dependent surface detail. Top-down keeps only a cheap cobble silhouette;
-## first-person swaps in denser stones and layered ground cover. The high-detail
-## batches are also range-limited so a street-level camera never draws an entire
-## district's micro-geometry.
+## Camera-dependent surface detail. Top-down relies on the continuous high-resolution
+## cobble/grass terrain materials; first-person adds real silhouettes and layered
+## ground cover. The high-detail batches are range-limited so a street-level
+## camera never draws an entire district's micro-geometry.
 const TERRAIN_DETAIL_PAVING: Array[StringName] = [
 	MapTypes.TERRAIN_COBBLESTONE,
 	MapTypes.TERRAIN_CASTLE_PAVING,
@@ -378,12 +378,19 @@ const TERRAIN_DETAIL_VEGETATION: Array[StringName] = [
 	MapTypes.TERRAIN_FOREST_FLOOR,
 	MapTypes.TERRAIN_BOG,
 ]
-## Packed rectangular grid per logic cell. Top-down keeps a shallow silhouette;
-## first-person fills the cell like worn Tallinn paving while staying range-culled.
-const TOP_DOWN_COBBLE_GRID := Vector2i(4, 3)
-const FIRST_PERSON_COBBLE_GRID := Vector2i(5, 4)
-const FIRST_PERSON_DETAIL_RANGE := 24.0
-const FIRST_PERSON_DETAIL_RANGE_MARGIN := 4.0
+## Five stones across and seven courses deep leave roughly 1-2 cm joints in one
+## world-metre cell. Removing redundant top-down instances and shortening the
+## first-person range offsets the denser layout instead of growing the draw budget.
+const TOP_DOWN_COBBLE_GRID := Vector2i.ZERO
+const FIRST_PERSON_COBBLE_GRID := Vector2i(5, 7)
+const FIRST_PERSON_DETAIL_RANGE := 14.0
+const FIRST_PERSON_DETAIL_RANGE_MARGIN := 3.0
+const FIRST_PERSON_DETAIL_REBUILD_STEP_CELLS := 4
+const FIRST_PERSON_DETAIL_BUILD_RADIUS_CELLS := 18
+## Hard structural gates: 35 stones * at most 36 triangles and range^2 weighted
+## instances stay below the previous 20-stone, 24-metre implementation.
+const FIRST_PERSON_COBBLE_TRIANGLE_BUDGET_PER_CELL := 1300
+const FIRST_PERSON_COBBLE_INSTANCE_AREA_BUDGET := 7000.0
 const PUDDLE_LOW_HEIGHT_BIAS := 0.55
 const PUDDLE_SCALE_MIN := 0.28
 const PUDDLE_SCALE_MAX := 0.72

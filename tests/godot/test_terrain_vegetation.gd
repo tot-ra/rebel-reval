@@ -47,6 +47,9 @@ func test_species_tree_variants_are_known() -> void:
 		&"tree.aspen",
 		&"tree.maple",
 		&"tree.linden",
+		&"tree.apple",
+		&"tree.cherry",
+		&"tree.orchard",
 		&"tree.oak.large",
 	]:
 		assert_true(TerrainVegetation.is_known_variant(variant), String(variant))

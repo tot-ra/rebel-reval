@@ -72,6 +72,10 @@ const FOG_MAX_HEIGHT_DENSITY := 1.1
 ## Hours before sunrise the mist begins, and hours after which it has burned off.
 const FOG_HOURS_BEFORE_SUNRISE := 3.0
 const FOG_HOURS_AFTER_SUNRISE := 2.5
+## Only mornings whose humidity/temperature potential clears this band grow mist,
+## ramping to full above the top of it — so fog is an occasional, varied event.
+const FOG_POTENTIAL_MIN := 0.6
+const FOG_POTENTIAL_FULL := 0.85
 
 ## Shadow cascades only need the max-zoom gameplay frustum, not the authored map
 ## or the camera far plane. Tighter distance concentrates shadow-map texels on
@@ -104,6 +108,7 @@ var _scatter_root: Node3D
 var _loaded_scatter_chunks: Dictionary = {}
 var _active_chunks: Array[Vector2i] = []
 var _first_person_terrain_detail := false
+var _terrain_detail_focus_cell := Vector2i(2147483647, 2147483647)
 
 
 static func create(
@@ -330,20 +335,38 @@ func set_interior_shell_for_first_person(enabled: bool) -> void:
 
 
 ## Surface micro-geometry is deliberately camera-dependent: first-person needs
-## parallax and silhouettes near the player, while top-down keeps sparse paving
-## only and relies on the continuous terrain texture for broad readability.
+## parallax and silhouettes near the player, while top-down relies on the
+## continuous high-resolution ground material. Detail roots are rebuilt instead
+## of retaining hidden duplicate MultiMeshes for every streamed chunk.
 func set_terrain_detail_for_first_person(enabled: bool) -> void:
+	if _first_person_terrain_detail == enabled:
+		return
 	_first_person_terrain_detail = enabled
-	for chunk in _loaded_scatter_chunks.values():
-		TerrainDetails.set_first_person(chunk.get_node_or_null("TerrainDetails"), enabled)
+	_terrain_detail_focus_cell = Vector2i(2147483647, 2147483647)
+	_rebuild_terrain_details()
+
+
+## Keep first-person micro geometry in a bounded cell window around the camera.
+## Moving within a small bucket does no work; crossing it rebuilds only detail,
+## not terrain, props, collisions, or rrmap-derived gameplay state.
+func update_terrain_detail_focus(world_position: Vector3) -> void:
+	if not _first_person_terrain_detail:
+		return
+	var focus_cell := Vector2i(floori(world_position.x), floori(world_position.z))
+	var step := MapViewMeshBuilderConfig.FIRST_PERSON_DETAIL_REBUILD_STEP_CELLS
+	var bucket := Vector2i(floori(float(focus_cell.x) / step), floori(float(focus_cell.y) / step))
+	var previous_bucket := Vector2i(
+		floori(float(_terrain_detail_focus_cell.x) / step),
+		floori(float(_terrain_detail_focus_cell.y) / step)
+	)
+	if bucket == previous_bucket:
+		return
+	_terrain_detail_focus_cell = focus_cell
+	_rebuild_terrain_details()
 
 
 func uses_first_person_terrain_detail() -> bool:
-	for chunk in _loaded_scatter_chunks.values():
-		var detail := chunk.get_node_or_null("TerrainDetails/FirstPerson") as Node3D
-		if detail != null:
-			return detail.visible
-	return false
+	return _first_person_terrain_detail
 
 
 func is_interior_shell_visible() -> bool:
@@ -366,6 +389,9 @@ func _apply_ground_mist(progress: float) -> void:
 	var hour := DayNightCycle.progress_to_hour(progress)
 	var sunrise := float(SkyWeather3D.sunrise_sunset_hours(_sky_weather.calendar_date)["sunrise"])
 	var mist := _morning_mist_factor(hour, sunrise)
+	# Not every morning is foggy: it takes the right damp, still, cool-night setup.
+	# The per-day potential decides whether (and how thickly) mist forms at all.
+	mist *= smoothstep(FOG_POTENTIAL_MIN, FOG_POTENTIAL_FULL, SkyWeather3D.morning_fog_potential(_sky_weather.calendar_date))
 	# Still air holds the mist; a fresh breeze or storm wind disperses it.
 	mist *= clampf(1.0 - _sky_weather.wind_strength() * 0.7, 0.0, 1.0)
 	if mist <= 0.001:
@@ -659,11 +685,31 @@ func _update_scatter_chunks(chunks: Array[Vector2i]) -> void:
 			continue
 		var scatter := MapViewMeshBuilder.build_scatter(definition, grid, grid.chunk_bounds(coordinates))
 		scatter.name = "Chunk_%d_%d" % [coordinates.x, coordinates.y]
-		var terrain_details := TerrainDetails.build_chunk(definition, grid, grid.chunk_bounds(coordinates))
-		TerrainDetails.set_first_person(terrain_details, _first_person_terrain_detail)
-		scatter.add_child(terrain_details)
 		_scatter_root.add_child(scatter)
 		_loaded_scatter_chunks[coordinates] = scatter
+	_rebuild_terrain_details()
+
+
+func _rebuild_terrain_details() -> void:
+	for coordinates in _loaded_scatter_chunks:
+		var scatter := _loaded_scatter_chunks[coordinates] as Node3D
+		var current := scatter.get_node_or_null("TerrainDetails") as Node3D
+		if current != null:
+			scatter.remove_child(current)
+			current.free()
+		# Top-down needs no per-cell detail nodes: the high-resolution seamless
+		# terrain material carries the paving and grass pattern at that distance.
+		if not _first_person_terrain_detail:
+			continue
+		var radius := MapViewMeshBuilderConfig.FIRST_PERSON_DETAIL_BUILD_RADIUS_CELLS
+		var focus_bounds := Rect2i(
+			_terrain_detail_focus_cell - Vector2i(radius, radius),
+			Vector2i(radius * 2 + 1, radius * 2 + 1)
+		)
+		var bounds := grid.chunk_bounds(coordinates).intersection(focus_bounds)
+		if bounds.size == Vector2i.ZERO:
+			continue
+		scatter.add_child(TerrainDetails.build_chunk(definition, grid, bounds, true))
 
 
 func _rebuild_occluder_bounds() -> void:

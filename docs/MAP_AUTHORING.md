@@ -14,6 +14,27 @@ This document defines the production authoring contract for programmatic maps. I
 
 Non-goals for the first implementation are a visual level editor, a new runtime map contract, a custom YAML/JSON grammar, arbitrary procedural generation, seamless-world streaming, and a universal raw `Dictionary` escape hatch.
 
+## City terrain presentation in RRMap
+
+City surface detail is automatic and requires no scene nodes, imported meshes, or
+per-map installation. Paint the normal terrain IDs in `.rrmap`; the 3D view uses a
+cheap seamless material in top-down mode and builds range-limited micro geometry
+only in first-person mode:
+
+```text
+terrain market_street cobblestone 12 18 30 5 order=10
+terrain guild_lawn grass 12 24 18 8 order=11 style=veg.grass.flowers
+style veg.grass.flowers style_variant=grass.flowers
+```
+
+`cobblestone` and `castle_paving` receive rounded paving. `grass`, `meadow`,
+`forest_floor`, and `bog` receive mixed blade grass, seed heads, clover, and ferns.
+Use an optional vegetation style (`grass.short`, `grass.tall`, `grass.flowers`,
+`grass.dry`, `grass.mossy`, `grass.clover`, or `grass.fern`) to bias the mix. The
+RRMap editor/plugin only needs to be enabled as documented in
+[`MAP_ALIGNMENT_EDITOR.md`](MAP_ALIGNMENT_EDITOR.md); runtime detail remains a
+derived view and never changes collision, navigation, or the map fingerprint.
+
 ## Architecture and terminology
 
 ```text
@@ -684,7 +705,7 @@ surroundings north water east water west town south town
 
 ### Grass, bushes, and Estonian trees
 
-Terrain rectangles and strokes accept `style=<id>`. When the style id names a reviewed vegetation variant, the compiler stores `style_variant` on the resulting zone and applies default movement penalties for dense bush styles. Supported grass variants: `grass.short`, `grass.tall`, `grass.flowers`, `grass.dry`, `grass.mossy`. Bush terrain variants: `bush.dense`, `bush.scrub`. Tree stand variants: `tree.mixed`, `tree.deciduous`, `tree.spruce`, `tree.pine`, `tree.birch`, `tree.oak`, `tree.alder`, `tree.aspen`, `tree.maple`, `tree.linden`. Optional size pins use a third segment (`tree.oak.small`, `tree.birch.large`); the default size is medium. Authors may override speed with `movement_speed_multiplier` on the style block or inline on a prop.
+Terrain rectangles and strokes accept `style=<id>`. When the style id names a reviewed vegetation variant, the compiler stores `style_variant` on the resulting zone and applies default movement penalties for dense bush styles. Supported grass variants: `grass.short`, `grass.tall`, `grass.flowers`, `grass.dry`, `grass.mossy`. Bush terrain variants: `bush.dense`, `bush.scrub`. Tree stand variants: `tree.mixed`, `tree.deciduous`, `tree.spruce`, `tree.pine`, `tree.birch`, `tree.oak`, `tree.alder`, `tree.aspen`, `tree.maple`, `tree.linden`, `tree.apple`, `tree.cherry`, `tree.orchard`. Optional size pins use a third segment (`tree.oak.small`, `tree.birch.large`); the default size is medium. Authors may override speed with `movement_speed_multiplier` on the style block or inline on a prop.
 
 ```rrmap
 style grass.flowers
@@ -699,7 +720,7 @@ prop yard.oak tree 42 18 style=tree.oak
 prop road.birch tree 90 44 style=tree.birch.large
 ```
 
-`prop bush` and `prop tree` place slow-down volumes over their `rect=` footprint (or around the anchor cell when no rect is given). Tree props resolve one of eight Estonian species (spruce, pine, birch, oak, alder, aspen, maple, linden) at small, medium, or large scale. Visual scatter for woodland zones and exterior `woodland` surroundings uses the same species catalog and map seed; they do not change collision or navigation.
+`prop bush` and `prop tree` place slow-down volumes over their `rect=` footprint (or around the anchor cell when no rect is given). Tree props resolve one of ten local woodland and orchard species (spruce, pine, birch, oak, alder, aspen, maple, linden, apple, cherry) at small, medium, or large scale. Visual scatter for woodland zones and exterior `woodland` surroundings uses the same species catalog and map seed; they do not change collision or navigation.
 
 ## Production hardening contract
 

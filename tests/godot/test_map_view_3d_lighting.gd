@@ -348,3 +348,19 @@ func test_water_reflections_follow_sky_catalog_cycle_and_weather() -> void:
 	MapViewMaterials.reset()
 
 
+
+
+func test_morning_mist_gathers_before_dawn_and_burns_off() -> void:
+	var sunrise := 5.0
+	# Deep night and full midday are clear; the pre-dawn and sunrise hours are misty.
+	assert_true(MapView3D._morning_mist_factor(1.0, sunrise) == 0.0, "the small hours before the mist window must be clear")
+	assert_true(MapView3D._morning_mist_factor(12.0, sunrise) == 0.0, "midday must be clear of morning mist")
+	assert_true(MapView3D._morning_mist_factor(sunrise, sunrise) > 0.9, "the mist must be thickest at first light")
+	var pre_dawn := MapView3D._morning_mist_factor(sunrise - 1.5, sunrise)
+	assert_true(pre_dawn > 0.0 and pre_dawn < 1.0, "the mist must build through the pre-dawn, not snap on")
+	var burning_off := MapView3D._morning_mist_factor(sunrise + 1.5, sunrise)
+	assert_true(burning_off > 0.0 and burning_off < 1.0, "the mist must burn off gradually after sunrise")
+	assert_true(
+		MapView3D._morning_mist_factor(sunrise + 1.0, sunrise) < MapView3D._morning_mist_factor(sunrise - 0.5, sunrise) + 1.0,
+		"the mist envelope must be continuous across sunrise"
+	)

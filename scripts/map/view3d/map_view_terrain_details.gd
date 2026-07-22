@@ -11,9 +11,8 @@ const DETAIL_FIRST_PERSON := &"first_person"
 const COBBLE_LENGTH := 0.19
 const COBBLE_WIDTH := 0.13
 const COBBLE_HEIGHT := 0.072
-const TOP_DOWN_COBBLE_HEIGHT_SCALE := 0.42
-const COBBLE_EDGE_INSET := 0.018
-const COBBLE_MORTAR_JITTER := 0.012
+const COBBLE_EDGE_INSET := 0.01
+const COBBLE_MORTAR_JITTER := 0.004
 const COBBLE_RADIUS := 0.028
 const COBBLE_BEVEL_SEGMENTS := 2
 const DETAIL_LIFT := 0.002
@@ -36,41 +35,25 @@ static var _mesh_cache: Dictionary = {}
 static func build_chunk(
 	definition: MapDefinition,
 	grid: MapTerrainGrid,
-	cell_bounds: Rect2i
+	cell_bounds: Rect2i,
+	first_person: bool = false
 ) -> Node3D:
 	var root := Node3D.new()
 	root.name = "TerrainDetails"
-	var top_down := _build_detail_level(
-		definition,
-		grid,
-		cell_bounds,
-		DETAIL_TOP_DOWN,
-		MapViewMeshBuilderConfig.TOP_DOWN_COBBLE_GRID
-	)
-	top_down.name = "TopDown"
-	root.add_child(top_down)
-	var first_person := _build_detail_level(
-		definition,
-		grid,
-		cell_bounds,
-		DETAIL_FIRST_PERSON,
+	var level := DETAIL_FIRST_PERSON if first_person else DETAIL_TOP_DOWN
+	var cobble_grid := (
 		MapViewMeshBuilderConfig.FIRST_PERSON_COBBLE_GRID
+		if first_person
+		else MapViewMeshBuilderConfig.TOP_DOWN_COBBLE_GRID
 	)
-	first_person.name = "FirstPerson"
-	first_person.visible = false
-	root.add_child(first_person)
+	var detail := _build_detail_level(definition, grid, cell_bounds, level, cobble_grid)
+	detail.name = "FirstPerson" if first_person else "TopDown"
+	root.add_child(detail)
 	return root
 
 
-static func set_first_person(root: Node, enabled: bool) -> void:
-	if root == null:
-		return
-	var top_down := root.get_node_or_null("TopDown") as Node3D
-	var first_person := root.get_node_or_null("FirstPerson") as Node3D
-	if top_down != null:
-		top_down.visible = not enabled
-	if first_person != null:
-		first_person.visible = enabled
+static func is_first_person(root: Node) -> bool:
+	return root != null and root.get_node_or_null("FirstPerson") != null
 
 
 static func cobble_mesh() -> ArrayMesh:
@@ -79,10 +62,11 @@ static func cobble_mesh() -> ArrayMesh:
 		return _mesh_cache[CACHE_KEY]
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	# Two rings plus a raised top fan preserve the rounded 3D silhouette at 36
+	# triangles instead of 60 per stone. That saving pays for the tighter courses.
 	var rings: Array[Dictionary] = [
 		{"y": -COBBLE_HEIGHT * 0.5, "inset": COBBLE_RADIUS * 0.42},
-		{"y": COBBLE_HEIGHT * 0.18, "inset": 0.0},
-		{"y": COBBLE_HEIGHT * 0.42, "inset": COBBLE_RADIUS * 0.18},
+		{"y": COBBLE_HEIGHT * 0.38, "inset": COBBLE_RADIUS * 0.12},
 	]
 	var ring_points: Array[PackedVector3Array] = []
 	for ring in rings:
@@ -98,11 +82,6 @@ static func cobble_mesh() -> ArrayMesh:
 	for index in top.size():
 		var next := (index + 1) % top.size()
 		_add_triangle(surface, top[index], top[next], top_center)
-	var bottom := ring_points[0]
-	var bottom_center := Vector3(0.0, -COBBLE_HEIGHT * 0.5, 0.0)
-	for index in bottom.size():
-		var next := (index + 1) % bottom.size()
-		_add_triangle(surface, bottom[next], bottom[index], bottom_center)
 	surface.generate_normals()
 	var mesh := surface.commit()
 	_mesh_cache[CACHE_KEY] = mesh
@@ -214,21 +193,27 @@ static func _append_cobbles(
 	cell: Vector2i,
 	map_seed: int,
 	cobble_grid: Vector2i,
-	high_detail: bool,
+	_high_detail: bool,
 	terrain: StringName
 ) -> void:
-	var columns := maxi(cobble_grid.x, 1)
-	var rows := maxi(cobble_grid.y, 1)
-	var cell_rotation := (MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y, map_seed + 6101) - 0.5) * 0.08
+	var columns := maxi(cobble_grid.x, 0)
+	var rows := maxi(cobble_grid.y, 0)
+	if columns == 0 or rows == 0:
+		return
+	# Keep neighboring logic cells on one continuous running-bond lattice. This
+	# avoids the conspicuous cell-border gutters made by rotating every metre.
+	var cell_rotation := (MapViewMeshBuilderPrimitives.hash01(0, 0, map_seed + 6101) - 0.5) * 0.025
 	for row in rows:
 		for column in columns:
 			var index := row * columns + column
+			var global_row := cell.y * rows + row
 			var base_offset := Vector2(
 				(float(column) + 0.5) / float(columns),
 				(float(row) + 0.5) / float(rows)
 			)
-			if row % 2 == 1:
+			if global_row % 2 == 1:
 				base_offset.x += 0.5 / float(columns)
+			base_offset.x = fposmod(base_offset.x, 1.0)
 			var jitter := Vector2(
 				MapViewMeshBuilderPrimitives.hash01(cell.x * 17 + index, cell.y, map_seed + 6113) - 0.5,
 				MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y * 17 + index, map_seed + 6121) - 0.5
@@ -236,12 +221,10 @@ static func _append_cobbles(
 			var usable := 1.0 - COBBLE_EDGE_INSET * 2.0
 			var spot := Vector2(cell) + Vector2(COBBLE_EDGE_INSET, COBBLE_EDGE_INSET) \
 				+ base_offset * usable + jitter
-			var length_scale := 0.94 + MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y + index, map_seed + 6131) * 0.10
-			var width_scale := 0.92 + MapViewMeshBuilderPrimitives.hash01(cell.x + index, cell.y, map_seed + 6143) * 0.12
-			var height_scale := 0.82 + MapViewMeshBuilderPrimitives.hash01(cell.x + index, cell.y + index, map_seed + 6151) * 0.28
-			if not high_detail:
-				height_scale *= TOP_DOWN_COBBLE_HEIGHT_SCALE
-			var yaw := cell_rotation + (MapViewMeshBuilderPrimitives.hash01(cell.x + index, cell.y, map_seed + 6163) - 0.5) * 0.14
+			var length_scale := 0.96 + MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y + index, map_seed + 6131) * 0.07
+			var width_scale := 0.96 + MapViewMeshBuilderPrimitives.hash01(cell.x + index, cell.y, map_seed + 6143) * 0.07
+			var height_scale := 0.84 + MapViewMeshBuilderPrimitives.hash01(cell.x + index, cell.y + index, map_seed + 6151) * 0.24
+			var yaw := cell_rotation + (MapViewMeshBuilderPrimitives.hash01(cell.x + index, cell.y, map_seed + 6163) - 0.5) * 0.08
 			var basis := Basis(Vector3.UP, yaw).scaled(Vector3(length_scale, height_scale, width_scale))
 			var ground := MapViewMeshBuilderTerrain.field_height(field, spot)
 			transforms.append(
@@ -258,9 +241,9 @@ static func _append_cobbles(
 static func _cobble_tint(cell: Vector2i, index: int, map_seed: int, terrain: StringName) -> Color:
 	var roll := MapViewMeshBuilderPrimitives.hash01(cell.x + index, cell.y - index, map_seed + 6173)
 	var shade := 0.88 + MapViewMeshBuilderPrimitives.hash01(cell.x, cell.y + index, map_seed + 6181) * 0.18
-	var gray := Color(0.54, 0.55, 0.58)
-	var blue_gray := Color(0.36, 0.42, 0.52)
-	var purple_gray := Color(0.40, 0.34, 0.46)
+	var gray := Color(0.76, 0.77, 0.78)
+	var blue_gray := Color(0.65, 0.70, 0.76)
+	var purple_gray := Color(0.69, 0.65, 0.72)
 	var tint: Color
 	if roll < 0.52:
 		tint = gray

@@ -71,8 +71,7 @@ func test_archbishops_garden_favors_orchard_vegetation_over_brick_plazas() -> vo
 		&"grass.tall",
 		&"bush.dense",
 		&"bush.scrub",
-		&"tree.deciduous",
-		&"tree.mixed",
+		&"tree.orchard",
 		&"tree.spruce",
 	]:
 		assert_true(vegetation_styles.has(required), "Garden needs vegetation style %s" % required)
