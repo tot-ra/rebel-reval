@@ -114,10 +114,10 @@ static func build_scatter(
 					reeds.append(_scatter_transform(field, x, y, definition.seed + 1800 + reed_index, 0.9, 1.35))
 					reed_colors.append(Color(0.72, 0.82, 0.58).lerp(Color(0.58, 0.74, 0.48), MapViewMeshBuilderPrimitives.hash01(x + reed_index, y, definition.seed + 1811)))
 
-				var plant_chance := float(profile.get("plant_chance", 0.0)) * density
-				if plant_chance > 0.0 and MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1867) < plant_chance:
-					var plant_species: StringName = profile.get("plant_species", &"")
-					_append_scattered_plant(plant_batches, field, x, y, definition.seed, plant_species)
+			var plant_chance := float(profile.get("plant_chance", 0.0)) * density
+			if plant_chance > 0.0 and MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1867) < plant_chance:
+				var plant_species: StringName = profile.get("plant_species", &"")
+				_append_scattered_plant(plant_batches, field, x, y, definition.seed, plant_species)
 
 			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1500) < float(profile.get("dense_bush_chance", 0.0)) * density:
 				dense_bushes.append(_scatter_transform(field, x, y, definition.seed + 1700, 0.62, 0.95))
@@ -291,14 +291,16 @@ static func _append_scattered_tree(
 		MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 2393),
 		pinned_size
 	)
-	var scale_range := MapViewTreeSpecies.scale_range(size_class)
-	var tree_transform := _scatter_transform(
+	var scale_vec := MapViewTreeSpecies.instance_scale(
+		size_class,
+		MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 2311 + 29)
+	)
+	var tree_transform := _scatter_transform_scaled(
 		field,
 		x,
 		y,
 		map_seed + 2311,
-		scale_range.x,
-		scale_range.y
+		scale_vec
 	)
 	_push_tree_instance(
 		batches,
@@ -443,13 +445,23 @@ static func _add_cattail_layer(
 
 
 static func _scatter_transform(field: Dictionary, x: int, y: int, noise_seed: int, scale_min: float, scale_max: float) -> Transform3D:
+	var scale := scale_min + MapViewMeshBuilderPrimitives.hash01(x, y, noise_seed + 29) * (scale_max - scale_min)
+	return _scatter_transform_scaled(field, x, y, noise_seed, Vector3.ONE * scale)
+
+
+static func _scatter_transform_scaled(
+	field: Dictionary,
+	x: int,
+	y: int,
+	noise_seed: int,
+	scale: Vector3
+) -> Transform3D:
 	var offset := Vector2(
 		MapViewMeshBuilderPrimitives.hash01(x, y, noise_seed + 7) * 0.9 + 0.05,
 		MapViewMeshBuilderPrimitives.hash01(x, y, noise_seed + 13) * 0.9 + 0.05
 	)
-	var scale := scale_min + MapViewMeshBuilderPrimitives.hash01(x, y, noise_seed + 29) * (scale_max - scale_min)
 	var yaw := MapViewMeshBuilderPrimitives.hash01(x, y, noise_seed + 41) * TAU
-	var basis := Basis(Vector3.UP, yaw).scaled(Vector3.ONE * scale)
+	var basis := Basis(Vector3.UP, yaw).scaled(scale)
 	var spot := Vector2(float(x) + offset.x, float(y) + offset.y)
 	return Transform3D(basis, Vector3(spot.x, MapViewMeshBuilderTerrain.field_height(field, spot), spot.y))
 

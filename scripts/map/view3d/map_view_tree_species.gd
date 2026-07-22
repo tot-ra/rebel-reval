@@ -116,15 +116,25 @@ const ORCHARD_WEIGHTS: Dictionary = {
 ## Size distribution for procedural scatter: medium trees carry the silhouette;
 ## saplings and veterans stay rare so stands read natural rather than uniform.
 const SIZE_WEIGHTS: Dictionary = {
-	SIZE_SMALL: 0.28,
-	SIZE_MEDIUM: 0.52,
-	SIZE_LARGE: 0.20,
+	SIZE_SMALL: 0.26,
+	SIZE_MEDIUM: 0.50,
+	SIZE_LARGE: 0.24,
 }
 
+## Uniform footprint scale range (XZ and base Y) per size class. Large veterans
+## also get SIZE_HEIGHT_MULTIPLIER so they read much taller than medium crowns.
 const SIZE_SCALE: Dictionary = {
-	SIZE_SMALL: Vector2(0.52, 0.72),
-	SIZE_MEDIUM: Vector2(0.88, 1.12),
-	SIZE_LARGE: Vector2(1.28, 1.62),
+	SIZE_SMALL: Vector2(0.40, 0.58),
+	SIZE_MEDIUM: Vector2(0.82, 1.08),
+	SIZE_LARGE: Vector2(1.45, 1.90),
+}
+
+## Extra vertical stretch. Large trees push well above the medium canopy line
+## without becoming comically thick trunks.
+const SIZE_HEIGHT_MULTIPLIER: Dictionary = {
+	SIZE_SMALL: 0.92,
+	SIZE_MEDIUM: 1.0,
+	SIZE_LARGE: 1.48,
 }
 
 
@@ -322,6 +332,19 @@ static func pick_size(roll: float, pinned: StringName = &"") -> StringName:
 
 static func scale_range(size_class: StringName) -> Vector2:
 	return SIZE_SCALE.get(size_class, SIZE_SCALE[SIZE_MEDIUM])
+
+
+static func height_multiplier(size_class: StringName) -> float:
+	return float(SIZE_HEIGHT_MULTIPLIER.get(size_class, 1.0))
+
+
+## Non-uniform instance scale: roll picks within SIZE_SCALE, then height bias
+## stretches Y so large trees tower over the stand.
+static func instance_scale(size_class: StringName, roll: float = 0.5) -> Vector3:
+	var range := scale_range(size_class)
+	var uniform := range.x + clampf(roll, 0.0, 1.0) * (range.y - range.x)
+	var height := uniform * height_multiplier(size_class)
+	return Vector3(uniform, height, uniform)
 
 
 ## The new procedural meshes are rooted at local y = 0. These compatibility

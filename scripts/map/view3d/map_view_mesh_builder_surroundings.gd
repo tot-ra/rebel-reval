@@ -84,14 +84,19 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 			var size_class := MapViewTreeSpecies.pick_size(
 				MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 1907)
 			)
-			var scale_range := MapViewTreeSpecies.scale_range(size_class)
-			var tree_scale := scale_range.x + MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 1913) * (scale_range.y - scale_range.x)
+			var scale_vec := MapViewTreeSpecies.instance_scale(
+				size_class,
+				MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 1913)
+			)
 			var yaw := MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 2003) * TAU
 			var species := MapViewTreeSpecies.pick_species(
 				MapViewTreeSpecies.MIXED_WEIGHTS,
 				MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 1499)
 			)
-			var tree_transform := MapViewMeshBuilderPrimitives.placed(spot, tree_scale, Vector3.ZERO, yaw)
+			var tree_transform := Transform3D(
+				Basis(Vector3.UP, yaw).scaled(scale_vec),
+				Vector3(spot.x, 0.0, spot.y)
+			)
 			_Scatter._push_tree_instance(
 				tree_batches,
 				species,

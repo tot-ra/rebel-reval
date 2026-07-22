@@ -10,8 +10,8 @@ func test_local_species_catalog_covers_woodland_and_orchard_trees() -> void:
 		assert_true(MapViewMeshBuilderPrimitives.tree_wood_mesh(species) is ArrayMesh)
 		assert_true(MapViewMeshBuilderPrimitives.tree_canopy_mesh(species) is ArrayMesh)
 		var stats := MapViewMeshBuilderPrimitives.tree_geometry_stats(species)
-		assert_true(int(stats.get("wood_segments", 0)) > 6, "%s needs visible branching" % species)
-		assert_true(int(stats.get("leaf_count", 0)) >= 25, "%s needs terminal leaf sprays" % species)
+		assert_true(int(stats.get("wood_segments", 0)) > 12, "%s needs visible branching" % species)
+		assert_true(int(stats.get("leaf_count", 0)) >= 80, "%s needs terminal leaf sprays" % species)
 		assert_true(int(stats.get("wood_segments", 999)) <= MapViewTreeMeshes.MAX_WOOD_SEGMENTS, "%s exceeds branch budget" % species)
 		assert_true(int(stats.get("leaf_sprays", 999)) <= MapViewTreeMeshes.MAX_LEAF_SPRAYS, "%s exceeds foliage budget" % species)
 		assert_true(int(stats.get("fruit_count", 999)) <= MapViewTreeMeshes.MAX_FRUIT_COUNT, "%s exceeds fruit budget" % species)
@@ -68,14 +68,25 @@ func test_birch_and_oak_use_distinct_growth_architecture() -> void:
 	var birch := MapViewMeshBuilderPrimitives.tree_geometry_stats(MapViewTreeSpecies.SPECIES_BIRCH)
 	var oak := MapViewMeshBuilderPrimitives.tree_geometry_stats(MapViewTreeSpecies.SPECIES_OAK)
 	assert_true(int(birch["wood_segments"]) != int(oak["wood_segments"]))
-	assert_true(int(birch["leaf_count"]) >= 300, "birch crown needs dense leaf coverage")
+	assert_true(int(birch["leaf_count"]) >= 500, "birch crown needs dense leaf coverage")
 	assert_true(int(birch["leaf_count"]) > int(oak["leaf_count"]), "birch should carry more, smaller leaves than oak")
+	assert_true(int(birch["wood_segments"]) >= 40, "birch needs a deeper branch skeleton")
 	var birch_radii: Array = birch["trunk_radii"]
 	assert_true(
 		float(birch_radii[0]) * 2.0 < float(birch["trunk_height"]) * 0.08,
 		"birch should retain a slender height-to-diameter ratio"
 	)
 	assert_true(MapViewTreeSpecies.bark_kind_for(MapViewTreeSpecies.SPECIES_BIRCH) == MapViewTreeSpecies.BARK_BIRCH)
+
+
+func test_size_classes_make_large_trees_much_taller() -> void:
+	var small := MapViewTreeSpecies.instance_scale(MapViewTreeSpecies.SIZE_SMALL, 0.5)
+	var medium := MapViewTreeSpecies.instance_scale(MapViewTreeSpecies.SIZE_MEDIUM, 0.5)
+	var large := MapViewTreeSpecies.instance_scale(MapViewTreeSpecies.SIZE_LARGE, 0.5)
+	assert_true(small.y < medium.y, "saplings must sit below medium crowns")
+	assert_true(large.y > medium.y * 1.7, "large veterans must tower well above medium trees")
+	assert_true(large.y > large.x, "large trees stretch taller than they widen")
+	assert_true(small.y < small.x * 1.05, "saplings stay compact rather than lanky")
 
 
 func test_mixed_weights_sum_to_one() -> void:
