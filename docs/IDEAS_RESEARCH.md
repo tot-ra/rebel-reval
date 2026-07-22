@@ -29,12 +29,6 @@ This document tracks brainstorming concepts, narrative ideas, and mechanics that
 - **Linguistics:** Implement the Novgorod dialect (e.g., substituting "ч" with "ц").
 - **Economy:** Introduce a trade/slave-trade dynamic between Pskov and Novgorod.
 
-### Padise
-- **Inhabitants:** Include "White brothers" (monks) and "Grey brothers".
-- **Atmosphere:** Emphasize Latin prayers, masses, and chants.
-- **Structures:** Add a hospital, a brewery, and a prominent well.
-- **Architecture:** Design multi-level areas featuring vaults, columns, and narrow windows.
-
 ## Player Archetypes & Mechanics (Bartle Taxonomy)
 Ensure the game loop caters to the 4 main gamer types:
 - **Achievers:** Focus on metrics and XP scaling.

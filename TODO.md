@@ -8,12 +8,14 @@ Format: `- [ ] ID | deps: unresolved ID,ID or none | deliverable: ... | verify: 
 References:
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) - delivery order, coordination notes, current focus
 
+<!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
-| P0 |    23  |     6  | Baseline, storage, materials, historical audit |
+| P0 |    20  |     9  | Baseline, storage, materials, historical audit |
 | P1 |     4  |     0  | Runtime systems, content foundation |
 | P2 |    17  |     4  | Vertical-slice production (playable MVP) |
-| P3+ |    79  |     2  | Validation, accessibility, performance |
+| P3+ |    81  |     2  | Validation, accessibility, performance |
+
 
 
 ## P6 - Act 3: The Iron Harvest and full release (lowest priority)
@@ -35,7 +37,8 @@ References:
 - [ ] P6-004 | deps: P5-005,P6-002,P6-003 | deliverable: Saaremaa campaign: authored Pöide siege event where player-forged siege materiel and prior records shape the encounter | verify: at least three distinct Pöide outcomes are reachable from differing Act 1-2 states
 - [ ] P6-003 | deps: P6-001 | deliverable: forced-forge arc: coerced commissions with inspection risk and quiet-sabotage options built on the P1-020 modification system | verify: a content-only coerced commission supports compliant, flawed, and secret-feature outcomes with distinct discovered and undiscovered consequences
 - [ ] P6-005 | deps: P6-004 | deliverable: final choice and ending families with epilogues for the seven core characters, the active factions, the forge, and the district, closing at the 1346 sale of Estonia | verify: automated matrix finds no impossible combination, no missing core character, and no universal morality score
-- [ ] P6-002 | deps: P6-001 | deliverable: world activation wave 2: Padise monastery (both phases) and the Act 3 castle and event locations from existing prototypes through the parity and activation gates (approval artifact: ADR 0008) | verify: activation guard, transition verifier, and traversal/collision tests pass and day/night captures pass parity review
+- [ ] P6-002 | deps: P6-001,P6-009 | deliverable: world activation wave 2: Padise monastery (both phases) and the Act 3 castle and event locations from existing prototypes through the parity and activation gates (approval artifact: ADR 0008) | verify: activation guard, transition verifier, and traversal/collision tests pass and day/night captures pass parity review
+- [ ] P6-009 | deps: P6-001 | deliverable: Padise monastery scene implementation for both phases, with distinct White Brother choir monks and Grey Brother lay monks, a Latin prayer/mass/chant soundscape, navigable hospital, brewery, and landmark well, plus multi-level vaulted routes with columns and narrow windows | verify: scene inventory and automated traversal/collision checks cover every landmark and level connection, NPC placement distinguishes both brother communities, and before/after captures plus an audio review confirm the architectural and liturgical direction
 - [ ] P6-001 | deps: P5-010 | deliverable: approved Act 3 design: occupation state model, forced-forge arc, location list (Padise phases, Paide, Pöide/Saaremaa, Maasilinna concept metadata), ending families for Kalev, the forge, the people, and the land, and `docs/CANON.md` entries through the attested 1346 sale of the Duchy of Estonia | verify: design reuses existing systems or names tasks in this file and every named event carries a canon confidence label
 
 ## P5 - Act 2: The Fire of Rebellion

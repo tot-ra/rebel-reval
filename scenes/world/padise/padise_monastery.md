@@ -8,6 +8,13 @@
 
 A Cistercian monastery that was a significant landholder and a target of the rebellion. The historical massacre of 28 monks here is a key event of the uprising. The monastery can be explored before and after this event.
 
+## Scene Direction
+
+- **Inhabitants:** Include the "White brothers" (choir monks) and "Grey brothers" (lay brothers), with clothing, routines, and work areas that make the communities legible in play.
+- **Atmosphere:** Use audible Latin prayers, masses, and chants to mark the monastery's liturgical rhythm, especially before the massacre.
+- **Structures:** Make the hospital, brewery, and a prominent well distinct navigable landmarks.
+- **Architecture:** Build multi-level routes through vaulted spaces with columns and narrow windows.
+
 ## Factions Present
 
 ### The Livonian Order ✠ 
