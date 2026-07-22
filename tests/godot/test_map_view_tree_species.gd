@@ -2,7 +2,7 @@ extends "res://tests/godot/test_case.gd"
 
 
 func test_local_species_catalog_covers_woodland_and_orchard_trees() -> void:
-	assert_eq(MapViewTreeSpecies.ALL_SPECIES.size(), 10)
+	assert_eq(MapViewTreeSpecies.ALL_SPECIES.size(), 20)
 	for species in MapViewTreeSpecies.ALL_SPECIES:
 		assert_true(MapViewTreeSpecies.is_known_species(species))
 		var silhouette := MapViewTreeSpecies.silhouette_for(species)
@@ -15,6 +15,17 @@ func test_local_species_catalog_covers_woodland_and_orchard_trees() -> void:
 		assert_true(int(stats.get("wood_segments", 999)) <= MapViewTreeMeshes.MAX_WOOD_SEGMENTS, "%s exceeds branch budget" % species)
 		assert_true(int(stats.get("leaf_sprays", 999)) <= MapViewTreeMeshes.MAX_LEAF_SPRAYS, "%s exceeds foliage budget" % species)
 		assert_true(int(stats.get("fruit_count", 999)) <= MapViewTreeMeshes.MAX_FRUIT_COUNT, "%s exceeds fruit budget" % species)
+		var trunk_radii: Array = stats.get("trunk_radii", [])
+		assert_eq(trunk_radii.size(), 4, "%s needs a radius at every trunk joint" % species)
+		for radius_index in range(1, trunk_radii.size()):
+			assert_true(
+				float(trunk_radii[radius_index]) < float(trunk_radii[radius_index - 1]),
+				"%s trunk must narrow continuously with height" % species
+			)
+		assert_true(
+			float(trunk_radii[0]) * 2.0 < float(stats.get("trunk_height", 0.0)) * 0.22,
+			"%s trunk is too thick for its height" % species
+		)
 
 
 func test_species_geometry_is_cached_for_multimesh_reuse() -> void:
@@ -57,6 +68,13 @@ func test_birch_and_oak_use_distinct_growth_architecture() -> void:
 	var birch := MapViewMeshBuilderPrimitives.tree_geometry_stats(MapViewTreeSpecies.SPECIES_BIRCH)
 	var oak := MapViewMeshBuilderPrimitives.tree_geometry_stats(MapViewTreeSpecies.SPECIES_OAK)
 	assert_true(int(birch["wood_segments"]) != int(oak["wood_segments"]))
+	assert_true(int(birch["leaf_count"]) >= 300, "birch crown needs dense leaf coverage")
+	assert_true(int(birch["leaf_count"]) > int(oak["leaf_count"]), "birch should carry more, smaller leaves than oak")
+	var birch_radii: Array = birch["trunk_radii"]
+	assert_true(
+		float(birch_radii[0]) * 2.0 < float(birch["trunk_height"]) * 0.08,
+		"birch should retain a slender height-to-diameter ratio"
+	)
 	assert_true(MapViewTreeSpecies.bark_kind_for(MapViewTreeSpecies.SPECIES_BIRCH) == MapViewTreeSpecies.BARK_BIRCH)
 
 

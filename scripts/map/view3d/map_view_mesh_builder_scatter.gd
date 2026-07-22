@@ -2,6 +2,8 @@ class_name MapViewMeshBuilderScatter
 extends RefCounted
 
 const Shoreline3D := preload("res://scripts/map/view3d/map_view_shoreline_3d.gd")
+const PlantSpecies := preload("res://scripts/map/view3d/map_view_plant_species.gd")
+const PlantMeshes := preload("res://scripts/map/view3d/map_view_plant_meshes.gd")
 
 ## Layered decorative vegetation and ground clutter. Textured ground cover carries
 ## most of the grass; sparse small/large tufts, shrubs, and trees add silhouette
@@ -37,6 +39,9 @@ static func build_scatter(
 	var cattail_colors: Array[Color] = []
 	var clovers: Array[Transform3D] = []
 	var clover_colors: Array[Color] = []
+	# Concrete plant variants batch by species so each botanical profile keeps its
+	# own cached silhouette while authored beds remain cheap to render.
+	var plant_batches: Dictionary = {}
 	var stones: Array[Transform3D] = []
 	var stone_colors: Array[Color] = []
 	var puddles: Array[Transform3D] = []
@@ -109,6 +114,11 @@ static func build_scatter(
 					reeds.append(_scatter_transform(field, x, y, definition.seed + 1800 + reed_index, 0.9, 1.35))
 					reed_colors.append(Color(0.72, 0.82, 0.58).lerp(Color(0.58, 0.74, 0.48), MapViewMeshBuilderPrimitives.hash01(x + reed_index, y, definition.seed + 1811)))
 
+				var plant_chance := float(profile.get("plant_chance", 0.0)) * density
+				if plant_chance > 0.0 and MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1867) < plant_chance:
+					var plant_species: StringName = profile.get("plant_species", &"")
+					_append_scattered_plant(plant_batches, field, x, y, definition.seed, plant_species)
+
 			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1500) < float(profile.get("dense_bush_chance", 0.0)) * density:
 				dense_bushes.append(_scatter_transform(field, x, y, definition.seed + 1700, 0.62, 0.95))
 				dense_bush_colors.append(Color(0.78, 0.94, 0.68))
@@ -167,6 +177,9 @@ static func build_scatter(
 		clover_instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(clover_instances)
 
+	if not plant_batches.is_empty():
+		_emit_plant_batches(root, plant_batches)
+
 	if not puddles.is_empty():
 		var puddle_mesh := PlaneMesh.new()
 		puddle_mesh.size = Vector2(0.88, 0.88)
@@ -191,6 +204,62 @@ static func _is_urban_map(definition: MapDefinition) -> bool:
 		if kind == &"town":
 			return true
 	return false
+
+
+## Collect one concrete botanical species into its own cached MultiMesh batch.
+static func _append_scattered_plant(
+	batches: Dictionary,
+	field: Dictionary,
+	x: int,
+	y: int,
+	map_seed: int,
+	species: StringName
+) -> void:
+	if not PlantSpecies.is_known_species(species):
+		return
+	var key := String(species)
+	if not batches.has(key):
+		batches[key] = {
+			"transforms": [] as Array[Transform3D],
+			"colors": [] as Array[Color],
+			"species": species,
+		}
+	var scale_range := PlantSpecies.scale_range(species)
+	var batch: Dictionary = batches[key]
+	(batch["transforms"] as Array).append(
+		_scatter_transform(field, x, y, map_seed + 1879, scale_range.x, scale_range.y)
+	)
+	(batch["colors"] as Array).append(
+		PlantSpecies.instance_tint(
+			species,
+			MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 1889)
+		)
+	)
+
+
+static func _emit_plant_batches(root: Node3D, batches: Dictionary) -> void:
+	for key: Variant in batches.keys():
+		var batch: Dictionary = batches[key]
+		var transforms: Array[Transform3D] = []
+		var colors: Array[Color] = []
+		for transform: Variant in batch["transforms"]:
+			transforms.append(transform as Transform3D)
+		for color: Variant in batch["colors"]:
+			colors.append(color as Color)
+		if transforms.is_empty():
+			continue
+		var species: StringName = batch["species"]
+		var instances := MapViewMeshBuilderPrimitives.multi_mesh(
+			"Plants_%s" % String(species).to_pascal_case(),
+			PlantMeshes.mesh_for(species),
+			transforms,
+			colors,
+			MapViewMaterials.grass_blades(),
+			Vector3.ZERO
+		)
+		instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		instances.set_meta(&"plant_species", species)
+		root.add_child(instances)
 
 
 ## Collect one procedural tree into species MultiMesh buckets. Species-specific

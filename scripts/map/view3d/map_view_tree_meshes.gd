@@ -8,8 +8,11 @@ extends RefCounted
 
 const WOOD_RADIAL_SEGMENTS := 5
 const MAX_WOOD_SEGMENTS := 52
-const MAX_LEAF_SPRAYS := 34
+const MAX_LEAF_SPRAYS := 44
 const MAX_FRUIT_COUNT := 18
+const TRUNK_BASE_FLARE := 1.08
+const TRUNK_TIP_RATIO := 0.16
+const MIN_BRANCH_TIP_RADIUS := 0.004
 
 static var _geometry_cache: Dictionary = {}
 
@@ -49,6 +52,8 @@ static func _geometry_for(species: StringName) -> Dictionary:
 		"fruit_count": int(canopy_data["fruit_count"]),
 		"wood_triangles": int(skeleton["segments"].size()) * WOOD_RADIAL_SEGMENTS * 2,
 		"canopy_triangles": int(canopy_data["leaf_count"]) * 2,
+		"trunk_radii": (skeleton["trunk_radii"] as Array).duplicate(),
+		"trunk_height": float(profile["trunk_height"]),
 	}
 	var geometry := {"wood": wood, "canopy": canopy_data["mesh"], "fruit": fruit, "stats": stats}
 	_geometry_cache[species] = geometry
@@ -61,27 +66,47 @@ static func _geometry_for(species: StringName) -> Dictionary:
 static func _profile_for(species: StringName) -> Dictionary:
 	match species:
 		&"spruce":
-			return _profile(3.0, 0.20, 0.48, 2.55, 12, 1, 1.18, -0.10, 0.48, 0.48, 0.52, 0.08, 32, 7, 0.15, 0.22)
+			return _profile(3.0, 0.16, 0.48, 2.55, 12, 1, 1.18, -0.10, 0.48, 0.48, 0.52, 0.08, 32, 7, 0.15, 0.22)
 		&"pine":
-			return _profile(2.85, 0.19, 1.42, 2.58, 8, 1, 1.08, 0.12, 0.58, 0.56, 0.54, 0.02, 28, 7, 0.17, 0.20)
+			return _profile(2.85, 0.155, 1.42, 2.58, 8, 1, 1.08, 0.12, 0.58, 0.56, 0.54, 0.02, 28, 7, 0.17, 0.20)
 		&"birch":
-			return _profile(2.82, 0.135, 0.84, 2.48, 9, 1, 0.72, 0.34, 0.56, 0.55, 0.50, 0.24, 32, 5, 0.18, 0.46)
+			return _profile(3.05, 0.09, 0.76, 2.82, 13, 1, 0.78, 0.32, 0.54, 0.54, 0.46, 0.22, 44, 8, 0.19, 0.42)
 		&"oak":
-			return _profile(2.28, 0.235, 0.76, 1.88, 6, 2, 0.98, 0.20, 0.62, 0.59, 0.58, 0.08, 34, 6, 0.21, 0.40)
+			return _profile(2.28, 0.195, 0.76, 1.88, 6, 2, 0.98, 0.20, 0.62, 0.59, 0.58, 0.08, 34, 6, 0.21, 0.40)
 		&"alder":
-			return _profile(2.42, 0.18, 0.62, 2.04, 7, 2, 0.78, 0.31, 0.56, 0.57, 0.53, 0.13, 32, 6, 0.18, 0.34)
+			return _profile(2.42, 0.15, 0.62, 2.04, 7, 2, 0.78, 0.31, 0.56, 0.57, 0.53, 0.13, 32, 6, 0.18, 0.34)
 		&"aspen":
-			return _profile(2.92, 0.145, 1.05, 2.63, 8, 1, 0.58, 0.48, 0.48, 0.53, 0.49, 0.05, 30, 5, 0.16, 0.36)
+			return _profile(2.92, 0.115, 1.05, 2.63, 8, 1, 0.58, 0.48, 0.48, 0.53, 0.49, 0.05, 30, 5, 0.16, 0.36)
 		&"maple":
-			return _profile(2.38, 0.205, 0.72, 2.02, 7, 2, 0.88, 0.27, 0.60, 0.58, 0.56, 0.06, 34, 6, 0.20, 0.42)
+			return _profile(2.38, 0.17, 0.72, 2.02, 7, 2, 0.88, 0.27, 0.60, 0.58, 0.56, 0.06, 34, 6, 0.20, 0.42)
 		&"linden":
-			return _profile(2.55, 0.185, 0.68, 2.20, 8, 1, 0.78, 0.38, 0.54, 0.55, 0.52, 0.08, 32, 6, 0.19, 0.38)
+			return _profile(2.55, 0.15, 0.68, 2.20, 8, 1, 0.78, 0.38, 0.54, 0.55, 0.52, 0.08, 32, 6, 0.19, 0.38)
 		&"apple":
-			return _profile(1.82, 0.21, 0.50, 1.47, 6, 2, 0.78, 0.18, 0.67, 0.61, 0.60, 0.12, 32, 6, 0.19, 0.44, 14)
+			return _profile(1.82, 0.175, 0.50, 1.47, 6, 2, 0.78, 0.18, 0.67, 0.61, 0.60, 0.12, 32, 6, 0.19, 0.44, 14)
 		&"cherry":
-			return _profile(2.02, 0.17, 0.58, 1.72, 7, 2, 0.72, 0.36, 0.62, 0.59, 0.57, 0.08, 32, 5, 0.17, 0.42, 18)
+			return _profile(2.02, 0.14, 0.58, 1.72, 7, 2, 0.72, 0.36, 0.62, 0.59, 0.57, 0.08, 32, 5, 0.17, 0.42, 18)
+		&"ash":
+			return _profile(2.95, 0.14, 1.05, 2.64, 9, 1, 0.76, 0.46, 0.50, 0.54, 0.48, 0.04, 34, 6, 0.19, 0.34)
+		&"elm":
+			return _profile(2.58, 0.18, 0.82, 2.28, 8, 2, 0.92, 0.32, 0.58, 0.56, 0.54, 0.08, 34, 6, 0.20, 0.38)
+		&"willow":
+			return _profile(2.36, 0.16, 0.66, 2.16, 10, 1, 0.88, 0.18, 0.54, 0.58, 0.48, 0.42, 40, 7, 0.20, 0.38)
+		&"rowan":
+			return _profile(2.34, 0.11, 0.88, 2.12, 9, 1, 0.62, 0.44, 0.50, 0.54, 0.48, 0.05, 36, 7, 0.16, 0.31)
+		&"hazel":
+			return _profile(1.58, 0.12, 0.34, 1.38, 9, 1, 0.68, 0.34, 0.62, 0.58, 0.52, 0.10, 34, 6, 0.19, 0.36)
+		&"juniper":
+			return _profile(1.84, 0.10, 0.18, 1.78, 11, 1, 0.46, 0.22, 0.44, 0.50, 0.46, 0.05, 34, 6, 0.12, 0.20)
+		&"plum":
+			return _profile(1.92, 0.16, 0.48, 1.62, 7, 2, 0.76, 0.24, 0.62, 0.58, 0.56, 0.10, 32, 6, 0.18, 0.40, 12)
+		&"pear":
+			return _profile(2.30, 0.15, 0.72, 2.08, 8, 1, 0.62, 0.50, 0.48, 0.54, 0.50, 0.04, 32, 6, 0.18, 0.34, 10)
+		&"hawthorn":
+			return _profile(1.72, 0.14, 0.42, 1.48, 8, 1, 0.72, 0.30, 0.66, 0.58, 0.54, 0.08, 34, 6, 0.16, 0.34, 12)
+		&"blackthorn":
+			return _profile(1.58, 0.13, 0.34, 1.36, 9, 1, 0.70, 0.24, 0.68, 0.58, 0.54, 0.10, 32, 6, 0.15, 0.32, 12)
 		_:
-			return _profile(2.38, 0.19, 0.72, 2.02, 7, 2, 0.84, 0.28, 0.58, 0.58, 0.55, 0.08, 32, 6, 0.19, 0.40)
+			return _profile(2.38, 0.16, 0.72, 2.02, 7, 2, 0.84, 0.28, 0.58, 0.58, 0.55, 0.08, 32, 6, 0.19, 0.40)
 
 
 static func _profile(
@@ -136,13 +161,18 @@ static func _build_skeleton(species: StringName, profile: Dictionary) -> Diction
 		var lean_x := (_hash(section, species_seed, 11) - 0.5) * trunk_radius * section_t
 		var lean_z := (_hash(section, species_seed, 23) - 0.5) * trunk_radius * section_t
 		trunk_points.append(Vector3(lean_x, trunk_height * section_t, lean_z))
+	var trunk_radii: Array[float] = []
+	for section in 4:
+		trunk_radii.append(_trunk_radius_at_height(trunk_radius, float(section) / 3.0))
 	for section in 3:
+		# Shared radii at section joints prevent the trunk from widening again
+		# above a seam. Every species now narrows continuously into its leader.
 		_append_segment(
 			segments,
 			trunk_points[section],
 			trunk_points[section + 1],
-			trunk_radius * lerpf(1.12, 0.72, float(section) / 3.0),
-			trunk_radius * lerpf(0.92, 0.48, float(section + 1) / 3.0),
+			trunk_radii[section],
+			trunk_radii[section + 1],
 			0
 		)
 
@@ -169,13 +199,15 @@ static func _build_skeleton(species: StringName, profile: Dictionary) -> Diction
 			attach_y,
 			(trunk_points[3].z / trunk_height) * attach_y
 		)
+		var attach_height_t := clampf(attach_y / trunk_height, 0.0, 1.0)
+		var local_trunk_radius := _trunk_radius_at_height(trunk_radius, attach_height_t)
 		_grow_branch(
 			segments,
 			leaf_candidates,
 			start,
 			direction,
 			length,
-			trunk_radius * lerpf(0.42, 0.20, t),
+			local_trunk_radius * lerpf(0.46, 0.30, t),
 			int(profile["depth"]),
 			profile,
 			species_seed + branch_index * 101,
@@ -184,7 +216,11 @@ static func _build_skeleton(species: StringName, profile: Dictionary) -> Diction
 
 	# The leader tip closes columnar and conifer crowns without a spherical cap.
 	leaf_candidates.append({"position": trunk_points[3], "direction": Vector3.UP, "seed": species_seed + 997})
-	return {"segments": segments, "leaf_candidates": leaf_candidates}
+	return {
+		"segments": segments,
+		"leaf_candidates": leaf_candidates,
+		"trunk_radii": trunk_radii,
+	}
 
 
 static func _grow_branch(
@@ -207,7 +243,7 @@ static func _grow_branch(
 	var droop := float(profile["droop"]) * lerpf(0.3, 1.0, 1.0 - float(depth) / 3.0)
 	var end_direction := (direction + side * bend - Vector3.UP * droop).normalized()
 	var end := start + (direction * 0.56 + end_direction * 0.44).normalized() * length
-	var end_radius := maxf(radius * float(profile["radius_decay"]), 0.012)
+	var end_radius := maxf(radius * float(profile["radius_decay"]), MIN_BRANCH_TIP_RADIUS)
 	_append_segment(segments, start, end, radius, end_radius, depth + 1)
 	leaf_candidates.append({"position": end, "direction": end_direction, "seed": seed})
 	if depth <= 0:
@@ -238,6 +274,13 @@ static func _grow_branch(
 			seed + 211 + child_index * 43,
 			branch_index * 3 + child_index + 1
 		)
+
+
+static func _trunk_radius_at_height(base_radius: float, height_t: float) -> float:
+	# A slightly convex taper keeps a grounded root flare while making the upper
+	# leader visibly slender instead of carrying the base diameter to the crown.
+	var t := clampf(height_t, 0.0, 1.0)
+	return base_radius * lerpf(TRUNK_BASE_FLARE, TRUNK_TIP_RATIO, pow(t, 0.78))
 
 
 static func _append_segment(
@@ -303,7 +346,7 @@ static func _build_canopy_mesh(species: StringName, profile: Dictionary, skeleto
 			var center := anchor + radial * spread + branch_direction * spread * 0.28
 			var leaf_direction := (radial * 0.72 + branch_direction * 0.42 + Vector3.UP * 0.20).normalized()
 			var leaf_length := float(profile["leaf_length"]) * lerpf(0.72, 1.16, _hash(leaf_index, seed, 419))
-			var width_ratio := 0.16 if species in [&"spruce", &"pine"] else 0.52
+			var width_ratio := 0.16 if species in [&"spruce", &"pine", &"juniper"] else 0.52
 			var light := lerpf(0.78, 1.12, _hash(leaf_index, seed, 431))
 			var color := _leaf_vertex_color(species, light)
 			_append_leaf(surface, center, leaf_direction, leaf_length, leaf_length * width_ratio, color)
@@ -332,12 +375,19 @@ static func _build_fruit_mesh(species: StringName, profile: Dictionary, anchors:
 		var direction: Vector3 = anchor["direction"]
 		var side := _radial_around(direction, _hash(fruit_index, seed, 449) * TAU)
 		position += side * 0.10 + Vector3.DOWN * (0.07 + _hash(fruit_index, seed, 457) * 0.08)
-		if species == &"cherry":
-			_append_octahedron(surface, position, 0.038, Color(0.62, 0.035, 0.045))
-			_append_octahedron(surface, position + side * 0.065 + Vector3.DOWN * 0.025, 0.035, Color(0.82, 0.055, 0.07))
-		else:
-			var apple_color := Color(0.76, 0.10, 0.055).lerp(Color(0.66, 0.72, 0.10), _hash(fruit_index, seed, 461) * 0.46)
-			_append_octahedron(surface, position, 0.065, apple_color)
+		match species:
+			&"cherry":
+				_append_octahedron(surface, position, 0.038, Color(0.62, 0.035, 0.045))
+				_append_octahedron(surface, position + side * 0.065 + Vector3.DOWN * 0.025, 0.035, Color(0.82, 0.055, 0.07))
+			&"plum", &"blackthorn":
+				_append_octahedron(surface, position, 0.052, Color(0.30, 0.12, 0.42))
+			&"pear":
+				_append_octahedron(surface, position + Vector3.DOWN * 0.025, 0.058, Color(0.62, 0.72, 0.16))
+			&"hawthorn", &"rowan":
+				_append_octahedron(surface, position, 0.034, Color(0.78, 0.08, 0.05))
+			_:
+				var apple_color := Color(0.76, 0.10, 0.055).lerp(Color(0.66, 0.72, 0.10), _hash(fruit_index, seed, 461) * 0.46)
+				_append_octahedron(surface, position, 0.065, apple_color)
 	return surface.commit()
 
 
@@ -449,11 +499,17 @@ static func _crown_envelope(species: StringName, t: float) -> float:
 			return lerpf(1.15, 0.30, t)
 		&"pine":
 			return lerpf(0.66, 1.05, sin(t * PI * 0.72))
-		&"birch", &"aspen":
+		&"birch", &"aspen", &"ash", &"elm", &"rowan", &"pear":
 			return 0.54 + sin(t * PI) * 0.42
+		&"willow":
+			return 0.72 + sin(t * PI) * 0.38
+		&"hazel", &"hawthorn", &"blackthorn":
+			return 0.92 + sin(t * PI) * 0.24
+		&"juniper":
+			return lerpf(0.92, 0.28, t)
 		&"linden":
 			return lerpf(1.0, 0.42, t) + sin(t * PI) * 0.16
-		&"apple", &"cherry":
+		&"apple", &"cherry", &"plum":
 			return 0.80 + sin(t * PI) * 0.25
 		_:
 			return 0.68 + sin(t * PI) * 0.46
@@ -475,6 +531,18 @@ static func _leaf_vertex_color(species: StringName, light: float) -> Color:
 			return Color(light * 0.74, light * 0.94, light * 0.62)
 		&"cherry":
 			return Color(light * 0.88, light * 0.96, light * 0.68)
+		&"willow":
+			return Color(light * 0.92, light, light * 0.62)
+		&"rowan", &"hawthorn":
+			return Color(light * 0.82, light * 0.96, light * 0.62)
+		&"juniper":
+			return Color(light * 0.58, light * 0.78, light * 0.68)
+		&"hazel", &"blackthorn":
+			return Color(light * 0.70, light * 0.90, light * 0.60)
+		&"plum":
+			return Color(light * 0.72, light * 0.92, light * 0.62)
+		&"ash", &"elm", &"pear":
+			return Color(light * 0.82, light * 0.98, light * 0.66)
 		_:
 			return Color(light * 0.88, light, light * 0.70)
 

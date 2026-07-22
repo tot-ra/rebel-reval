@@ -23,6 +23,10 @@ style tree.mixed
 style tree.spruce
 style tree.birch
 style tree.oak
+style tree.hawthorn
+style tree.rowan
+style plant.plantain
+style plant.mugwort
 terrain water.deep deep_water 0 0 160 46 order=1
 terrain water.shallow shallow_water 0 46 160 8 order=2
 terrain shore.sand coast_sand 0 54 160 9 order=3
@@ -50,6 +54,8 @@ terrain boundary.wood_west forest_floor 0 90 42 18 style=tree.mixed order=10
 terrain boundary.wood_east forest_floor 122 88 38 20 style=tree.spruce order=10
 terrain boundary.scrub_west grass 36 87 12 9 style=bush.dense order=11
 terrain boundary.scrub_east grass 116 85 12 9 style=bush.scrub order=11
+terrain track.plantain grass 46 76 8 5 style=plant.plantain order=11
+terrain ropeyard.mugwort grass 146 89 8 5 style=plant.mugwort order=11
 # Short timber landings are walkable plank decks. Large roadstead cogs stay
 # offshore scenery; small boats at the jetty tips are the approachable craft.
 terrain pier.west timber_floor 57 47 2 18 order=13
@@ -92,6 +98,8 @@ prop scrub.east bush 151 90 rect=3,2 style=bush.dense
 prop gate.oak tree 96 92 style=tree.oak
 prop shore.birch tree 54 78 style=tree.birch
 prop yard.spruce tree 128 86 style=tree.spruce
+prop boundary.hawthorn tree 116 98 style=tree.hawthorn
+prop boundary.rowan tree 36 98 style=tree.rowan
 prop merchant_cog_west merchant_boat 13 26 rect=4,12 faction=hanseatic
 prop merchant_cog_central merchant_boat 49 24 rect=4,12 faction=hanseatic
 prop merchant_cog_east merchant_boat 91 27 rect=4,12 faction=hanseatic

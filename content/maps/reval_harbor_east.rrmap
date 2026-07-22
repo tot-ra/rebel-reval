@@ -21,6 +21,12 @@ style tree.spruce
 style tree.birch
 style tree.alder
 style tree.pine
+style tree.aspen
+style tree.willow
+style tree.juniper
+style tree.blackthorn
+style plant.burdock
+style plant.thistle
 terrain water.deep deep_water 0 0 144 24 order=1
 terrain water.shallow shallow_water 0 24 144 10 order=2
 terrain shore.sand coast_sand 0 34 144 10 order=3
@@ -51,6 +57,8 @@ terrain boundary.wood_mid forest_floor 44 70 55 10 style=tree.mixed order=9
 terrain boundary.wood_east forest_floor 108 64 36 16 style=tree.spruce order=9
 terrain boundary.scrub_west grass 34 62 15 10 style=bush.dense order=10
 terrain boundary.scrub_mid grass 94 65 17 10 style=bush.scrub order=10
+terrain village.burdock grass 18 60 8 5 style=plant.burdock order=10
+terrain village.thistle grass 110 58 8 5 style=plant.thistle order=10
 stroke shore_track dirt 0,50|16,50|16,52|30,52|30,50|46,50|46,51|62,51|62,49|78,49|78,51|94,51|94,50|112,50|128,50|128,49|143,49 thickness=3 order=11
 stroke village_track dirt 18,64|30,64|30,61|44,61|44,58|62,58|62,55|78,55|78,52|94,52|94,51 thickness=2 order=11
 stroke netyard_track dirt 54,66|62,66|62,60|62,55|78,55|78,52 thickness=2 order=11
@@ -83,6 +91,10 @@ prop scrub.east bush 136 65 rect=3,2 style=bush.dense
 prop shore.birch_west tree 12 62 style=tree.birch
 prop shore.alder_mid tree 78 66 style=tree.alder
 prop shore.pine_east tree 128 62 style=tree.pine
+prop shore.aspen tree 24 69 style=tree.aspen
+prop shore.willow tree 62 67 style=tree.willow
+prop shore.juniper tree 106 74 style=tree.juniper
+prop shore.blackthorn tree 118 70 style=tree.blackthorn
 # Working boats stay on water beside the timber decks so players can walk up to
 # them from the pier tips without boarding open Baltic cells.
 prop fishing_boat_west_a fishing_boat 23 24 rect=2,5

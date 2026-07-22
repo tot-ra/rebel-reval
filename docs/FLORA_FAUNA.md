@@ -1,176 +1,125 @@
 # Flora and Fauna of Reval (Estonia, 1343)
 
-This document tracks the native vegetation and animals present in the game engine versus the target historical scope for the 1343 Reval environment. It serves as a reference for environment authoring, prop creation, and ambient wildlife systems.
+This is the implementation ledger for Reval vegetation. It distinguishes concrete botanical models from generic terrain-cover styles and links every status to runtime code and authored locations.
 
-## Currently Implemented
+## System status
 
-**Trees (10 types)**
-Supported in `MapViewTreeSpecies` (`scripts/map/view3d/map_view_tree_species.gd`):
-- Spruce (`tree.spruce`)
-- Pine (`tree.pine`)
-- Birch (`tree.birch`)
-- Oak (`tree.oak`)
-- Alder (`tree.alder`)
-- Aspen (`tree.aspen`)
-- Maple (`tree.maple`)
-- Linden (`tree.linden`)
-- Apple (`tree.apple`)
-- Cherry (`tree.cherry`)
+- **Trees: 20/20 target species modeled and authored.** Catalog and visual traits: [`map_view_tree_species.gd`](../scripts/map/view3d/map_view_tree_species.gd). Bounded branching, leaves, and fruit: [`map_view_tree_meshes.gd`](../scripts/map/view3d/map_view_tree_meshes.gd).
+- **Plants, herbs, and crops: 30/30 target species modeled and authored.** Catalog and growth profiles: [`map_view_plant_species.gd`](../scripts/map/view3d/map_view_plant_species.gd). Procedural meshes: [`map_view_plant_meshes.gd`](../scripts/map/view3d/map_view_plant_meshes.gd).
+- **Ground-cover styles: 8/8 supported.** These are visual/ecological cover presets, not eight botanical species. Registration and density rules: [`terrain_vegetation.gd`](../scripts/map/terrain_vegetation.gd).
+- **Rendering: complete for the scoped flora system.** [`map_view_mesh_builder_scatter.gd`](../scripts/map/view3d/map_view_mesh_builder_scatter.gd) batches each tree or plant species with cached meshes and `MultiMesh`; [`map_view_terrain_details.gd`](../scripts/map/view3d/map_view_terrain_details.gd) adds first-person grass, dry seed heads, clover, and fern detail.
+- **Imported 3D flora assets: none by design.** Runtime vegetation is deterministic procedural geometry. Images under [`archive/2d_sprites_inspiration/assets/trees/`](../archive/2d_sprites_inspiration/assets/trees/) are references only and are not gameplay models.
+- **Fauna: out of scope for this completion pass.** Ambient birds and animals remain unimplemented; folklore bestiary content is not an ambient-fauna system.
 
-**Bushes and Shrubs (2 types)**
-Supported in `TerrainVegetation` (`scripts/map/terrain_vegetation.gd`):
-- Dense Bush (`bush.dense`)
-- Scrub Bush (`bush.scrub`)
+Status vocabulary:
+- `modeled + used` - registered, produces a concrete cached mesh, and has an authored location below.
+- `cover style` - controls terrain tint/density and may reuse a generic/detail mesh; it is not a species model.
 
-**Plants and Grasses (8 types)**
-Supported in `TerrainVegetation` (`scripts/map/terrain_vegetation.gd`):
-- Short Grass (`grass.short`)
-- Tall Grass (`grass.tall`)
-- Flowers (`grass.flowers`)
-- Dry Grass (`grass.dry`)
-- Mossy Grass (`grass.mossy`)
-- Clover (`grass.clover`)
-- Fern (`grass.fern`)
-- Shore Reed (`reed.shore`)
+## Tree model ledger (20/20)
 
-**Animals and Birds (0 types)**
-- None currently implemented in the ambient or combat systems (beyond legacy bestiary folklore enemies like Kratt and Puuk).
+All tree IDs accept optional `.small`, `.medium`, or `.large` suffixes. Group variants `tree.mixed`, `tree.deciduous`, and `tree.orchard` select weighted species pools.
 
----
+| Tree | Runtime ID | Status | Concrete authored evidence |
+|---|---|---|---|
+| Norway spruce | `tree.spruce` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap), [`reval_harbor_east.rrmap`](../content/maps/reval_harbor_east.rrmap) |
+| Scots pine | `tree.pine` | modeled + used | [`reval_harbor_east.rrmap`](../content/maps/reval_harbor_east.rrmap) |
+| Silver birch | `tree.birch` | modeled + used | [`reval_harbor_east.rrmap`](../content/maps/reval_harbor_east.rrmap) |
+| Pedunculate oak | `tree.oak` | modeled + used | [`reval_harbor_north.rrmap`](../content/maps/reval_harbor_north.rrmap) |
+| Alder | `tree.alder` | modeled + used | [`reval_harbor_east.rrmap`](../content/maps/reval_harbor_east.rrmap) |
+| Eurasian aspen | `tree.aspen` | modeled + used | [`reval_harbor_east.rrmap`](../content/maps/reval_harbor_east.rrmap) |
+| Norway maple | `tree.maple` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap) |
+| Small-leaved linden | `tree.linden` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap) |
+| Apple | `tree.apple` | modeled + fruit + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Sour cherry | `tree.cherry` | modeled + fruit + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| European ash | `tree.ash` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap) |
+| Wych elm | `tree.elm` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap) |
+| Willow | `tree.willow` | modeled + used | [`reval_harbor_east.rrmap`](../content/maps/reval_harbor_east.rrmap) |
+| Rowan | `tree.rowan` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap), [`reval_harbor_north.rrmap`](../content/maps/reval_harbor_north.rrmap) |
+| Common hazel | `tree.hazel` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Common juniper | `tree.juniper` | modeled + used | [`reval_harbor_east.rrmap`](../content/maps/reval_harbor_east.rrmap) |
+| Plum / damson | `tree.plum` | modeled + fruit + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| European pear | `tree.pear` | modeled + fruit + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Common hawthorn | `tree.hawthorn` | modeled + fruit + used | [`reval_harbor_north.rrmap`](../content/maps/reval_harbor_north.rrmap) |
+| Blackthorn | `tree.blackthorn` | modeled + fruit + used | [`reval_harbor_east.rrmap`](../content/maps/reval_harbor_east.rrmap) |
 
-## Target Historical Scope (1343 Native Species)
+Tree tests: [`test_map_view_tree_species.gd`](../tests/godot/test_map_view_tree_species.gd). They enforce the catalog target, cache reuse, bounded geometry, tapered trunks, size pins, and authored species use.
 
-Below is the sourced listing of native flora and fauna for expansion to reach the ~20 tree, ~20 bush, ~30 plant, ~30 bird, and animal targets. Ensure mapped vegetation and spawned entities draw from this regional palette rather than generic fantasy stand-ins.
+## Plant, herb, and crop model ledger (30/30)
 
-### Trees (~20 types target)
-The northern Baltic canopy is dominated by conifers and cold-hardy broadleaves.
-1. **Scots Pine** (*Mänd*) - Dominant in sandy soils and bogs. [IMPLEMENTED]
-2. **Norway Spruce** (*Kuusk*) - Common in dense, dark forests. [IMPLEMENTED]
-3. **Silver Birch** (*Kask*) - Ubiquitous, pioneers clearings. [IMPLEMENTED]
-4. **Eurasian Aspen** (*Haab*) - Common in mixed woodlands. [IMPLEMENTED]
-5. **Grey/Black Alder** (*Lepp*) - Thrives in wet soils. [IMPLEMENTED]
-6. **Pedunculate Oak** (*Tamm*) - Rare but massive. [IMPLEMENTED]
-7. **Small-leaved Linden** (*Pärn*) - Richer soils. [IMPLEMENTED]
-8. **Norway Maple** (*Vaher*) - Mixed broadleaf forests. [IMPLEMENTED]
-9. **Wild/Orchard Apple** (*Õunapuu*) - Gardens. [IMPLEMENTED]
-10. **Sour Cherry** (*Kirsipuu*) - Cultivated. [IMPLEMENTED]
-11. **European Ash** (*Saar*) - Coastal and nutrient-rich soils.
-12. **Wych Elm** (*Jalakas*) - River valleys.
-13. **White/Goat Willow** (*Paju*) - Near water bodies.
-14. **Rowan** (*Pihlakas*) - Common understory, culturally significant.
-15. **Common Hazel** (*Sarapuu*) - Understory, historically managed for nuts.
-16. **Common Juniper** (*Kadakas*) - Abundant on coastal alvars.
-17. **Primitive Plum / Damson** (*Ploomipuu*) - Brought by monks/traders.
-18. **European Pear** (*Pirnipuu*) - Rare, high-status gardens.
-19. **Common Hawthorn** (*Viirpuu*) - Hedgerows and forest edges.
-20. **Blackthorn** (*Laukapuu*) - Coastal thickets.
+`plant.*` identifies wild/medicinal/wetland plants; `crop.*` identifies cultivated food and fibre rows. Every entry has a species-specific profile using one of twelve geometry families, including rosette, broadleaf, flowering herb, frond, moss, reed, cattail, aquatic pad, cereal, stalk, and vine forms.
 
-### Bushes and Shrubs (~20 types target)
-1. **Red Raspberry** (*Vaarikas*) - Forest edges.
-2. **European Blueberry / Bilberry** (*Mustikas*) - Pine/spruce forest floor.
-3. **Lingonberry** (*Pohl*) - Dry pine forests.
-4. **Cranberry** (*Jõhvikas*) - Bogs and mires.
-5. **Cloudberry** (*Murakas*) - Bogs.
-6. **Wild Gooseberry** (*Karusmari*) - Forest margins.
-7. **Redcurrant** (*Punane sõstar*) - Damp woodlands.
-8. **Blackcurrant** (*Must sõstar*) - Wet forests.
-9. **Guelder-rose** (*Koerakoolpuu*) - Understory.
-10. **European Spindle** (*Kikkapuu*) - Rare woodland shrub.
-11. **Alder Buckthorn** (*Paakspuu*) - Wet scrubland.
-12. **Sea-buckthorn** (*Astelpaju*) - Coastal dunes.
-13. **Dog Rose / Rosehip** (*Kibuvits*) - Coastal areas, hedges.
-14. **Fly Honeysuckle** (*Kuslapuu*) - Forest understory.
-15. **Elderberry** (*Leeder*) - Near human settlements.
-16. **Bog-myrtle** (*Raba-porss*) - Wetlands, used in beer brewing.
-17. **Common Heather** (*Kanarbik*) - Bogs and poor sandy soils.
-18. **Crowberry** (*Kukemari*) - Bogs.
-19. **Wild Blackberry** (*Põldmari*) - Scrublands.
-20. **Dwarf Birch** (*Vaevakask*) - Bogs.
+| Plant | Runtime ID | Status | Concrete authored evidence |
+|---|---|---|---|
+| Stinging nettle | `plant.nettle` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap) |
+| Mugwort | `plant.mugwort` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap), [`reval_harbor_north.rrmap`](../content/maps/reval_harbor_north.rrmap) |
+| Yarrow | `plant.yarrow` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap) |
+| Broadleaf plantain | `plant.plantain` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap), [`reval_harbor_north.rrmap`](../content/maps/reval_harbor_north.rrmap) |
+| Dandelion | `plant.dandelion` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap) |
+| Burdock | `plant.burdock` | modeled + used | [`reval_harbor_east.rrmap`](../content/maps/reval_harbor_east.rrmap) |
+| Creeping thistle | `plant.thistle` | modeled + used | [`reval_harbor_east.rrmap`](../content/maps/reval_harbor_east.rrmap) |
+| Red/white clover | `plant.clover` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) as a concrete bed; `grass.clover` remains a legacy cover alias |
+| Bracken / male fern | `plant.fern` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) as a concrete bed; `grass.fern` remains a legacy cover alias |
+| Sphagnum moss | `plant.moss` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) as a concrete bed; `grass.mossy` remains a legacy cover alias |
+| Common reed | `plant.reed` | modeled + used | [`viru_gate_foreland.rrmap`](../content/maps/viru_gate_foreland.rrmap) |
+| Bulrush / cattail | `plant.cattail` | modeled + used | [`viru_gate_foreland.rrmap`](../content/maps/viru_gate_foreland.rrmap) |
+| White water lily | `plant.water_lily` | modeled + used | [`viru_gate_foreland.rrmap`](../content/maps/viru_gate_foreland.rrmap) |
+| Cabbage | `crop.cabbage` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Turnip | `crop.turnip` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Onion | `crop.onion` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Garlic | `crop.garlic` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Pea | `crop.pea` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Broad bean | `crop.broad_bean` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Rye | `crop.rye` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Wheat | `crop.wheat` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Barley | `crop.barley` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Oat | `crop.oat` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Flax | `crop.flax` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Hemp | `crop.hemp` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Hops | `crop.hops` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Mint | `plant.mint` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Caraway | `plant.caraway` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap) |
+| Chamomile | `plant.chamomile` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap) |
+| St. John's wort | `plant.st_johns_wort` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap) |
 
-### Plants, Herbs, and Crops (~30 types target)
-1. **Stinging Nettle** (*Nõges*) - Around settlements, used for fiber/soup.
-2. **Mugwort** (*Puju*) - Weedy areas, medicinal/magical use.
-3. **Yarrow** (*Raudrohi*) - Meadows, wound healing.
-4. **Broadleaf Plantain** (*Teeleht*) - Paths, disturbed ground.
-5. **Dandelion** (*Võilill*) - Meadows.
-6. **Burdock** (*Takjas*) - Near habitations.
-7. **Creeping Thistle** (*Ohakas*) - Fields.
-8. **Red/White Clover** (*Ristik*) - Pastures. [IMPLEMENTED]
-9. **Bracken / Male Fern** (*Sõnajalg*) - Forest floor. [IMPLEMENTED]
-10. **Sphagnum Moss** (*Turbasammal*) - Bogs.
-11. **Common Reed** (*Pilliroog*) - Coast, thatching. [IMPLEMENTED]
-12. **Bulrush** (*Hundinui*) - Shallow waters.
-13. **White Water Lily** (*Vesiroos*) - Lakes.
-14. **Cabbage** (*Kapsas*) - Primary garden crop.
-15. **Turnip** (*Naeris*) - Staple root crop.
-16. **Onion** (*Sibul*) - Gardens.
-17. **Garlic** (*Küüslauk*) - Gardens, medicinal.
-18. **Peas** (*Hernes*) - Field crop.
-19. **Broad Beans** (*Oad*) - Field crop.
-20. **Rye** (*Rukis*) - Dominant cereal, winter crop.
-21. **Wheat** (*Nisu*) - High-status cereal.
-22. **Barley** (*Oder*) - Used for bread and ale.
-23. **Oats** (*Kaer*) - Animal feed, porridge.
-24. **Flax** (*Lina*) - Crucial for linen clothing.
-25. **Hemp** (*Kanep*) - Ropes, coarse cloth.
-26. **Hops** (*Humal*) - Brewing.
-27. **Mint** (*Münt*) - Gardens.
-28. **Caraway** (*Köömne*) - Meadows, seasoning.
-29. **Chamomile** (*Kummel*) - Medicinal.
-30. **St. John's Wort** (*Naistepuna*) - Medicinal, protective herb.
+Plant tests: [`test_map_view_plant_species.gd`](../tests/godot/test_map_view_plant_species.gd). They enforce 30 registered models, cache reuse, geometry-family diversity, valid scatter profiles, and authored location coverage for all 20 trees and 30 plants.
 
-### Birds (~30 types target)
-1. **White Stork** (*Valge-toonekurg*) - Nests near settlements.
-2. **Black Stork** (*Must-toonekurg*) - Deep old-growth forests.
-3. **Common Crane** (*Sookurg*) - Bogs and fields.
-4. **Grey Heron** (*Hallhaigur*) - Wetlands.
-5. **Mute Swan** (*Kühmnokk-luik*) - Coastal waters.
-6. **Mallard** (*Sinikael-part*) - Ponds, lakes.
-7. **Black-headed Gull** (*Naerukajakas*) - Coastline.
-8. **Arctic Tern** (*Randtiir*) - Coastal.
-9. **Western Capercaillie** (*Metsis*) - Pine forests, hunted.
-10. **Black Grouse** (*Teder*) - Bogs and clearings.
-11. **Hazel Grouse** (*Laanepüü*) - Dense mixed woods.
-12. **Grey Partridge** (*Nurmkana*) - Farmland.
-13. **Great Spotted Woodpecker** (*Suur-kirjurähn*) - Forests.
-14. **Black Woodpecker** (*Musträhn*) - Old-growth forests.
-15. **Eurasian Eagle-Owl** (*Kassikakk*) - Large predator.
-16. **Tawny Owl** (*Kodukakk*) - Woods and ruins.
-17. **Northern Goshawk** (*Kanakull*) - Forest predator.
-18. **Peregrine Falcon** (*Rabapistrik*) - Bogs/cliffs.
-19. **White-tailed Eagle** (*Merikotkas*) - Coasts and large lakes.
-20. **Common Raven** (*Kaaren* / *Ronk*) - Scavenger, battlefield presence.
-21. **Hooded Crow** (*Vares*) - Common.
-22. **Eurasian Magpie** (*Harakas*) - Thickets and farms.
-23. **Eurasian Jay** (*Pasknäär*) - Oak/mixed woods.
-24. **House Sparrow** (*Koduvarblane*) - Urban Reval.
-25. **Great Tit** (*Rasvatihane*) - Woodlands, gardens.
-26. **Common Chaffinch** (*Metsvint*) - Common songbird.
-27. **Barn Swallow** (*Suitsupääsuke*) - Barns and eaves.
-28. **Eurasian Skylark** (*Põldlõoke*) - Open fields.
-29. **Thrush** (various) (*Rästas*) - Woodlands.
-30. **Thrush Nightingale** (*Ööbik*) - Famous singer in dense bushes.
+## Legacy ground-cover styles
 
-### Mammals (Target)
-1. **Brown Bear** (*Pruunkaru*) - Apex predator, deep forests.
-2. **Grey Wolf** (*Hunt*) - Highly feared, threatens livestock.
-3. **Red Fox** (*Rebane*) - Common predator.
-4. **Eurasian Lynx** (*Ilves*) - Stealthy forest predator.
-5. **Elk / Moose** (*Põder*) - Largest herbivore, bogs and forests.
-6. **Roe Deer** (*Metskits*) - Forest edges.
-7. **Wild Boar** (*Metssead*) - Deciduous and mixed forests.
-8. **Eurasian Beaver** (*Kobras*) - Rivers, hunted for fur and castoreum.
-9. **European River Otter** (*Saarmas*) - Clean rivers and lakes.
-10. **European Badger** (*Mäger*) - Woodlands.
-11. **Wolverine** (*Ahm*) - Dense northern forests (historically present).
-12. **Pine Marten** (*Metsnugis*) - Tree canopy predator.
-13. **European Polecat** (*Tuhkur*) - Near farms, kills poultry.
-14. **Stoat / Ermine** (*Kärp*) - Important fur source.
-15. **Least Weasel** (*Nirk*) - Smallest carnivore.
-16. **Brown Hare** (*Halljänes*) - Fields and meadows.
-17. **Mountain Hare** (*Valgejänes*) - Forests, white in winter.
-18. **Red Squirrel** (*Orav*) - Pine forests.
-19. **European Hedgehog** (*Siil*) - Gardens and edges.
-20. **Grey Seal** (*Hallhüljes*) - Hunted on the coastal ice.
-21. **Ringed Seal** (*Viigerhüljes*) - Coastal.
-22. **Various Bats, Voles, Mice, and Shrews.**
+These remain valid for broad area dressing and backwards compatibility. Authors should use concrete `plant.*` / `crop.*` variants when a named species matters.
+
+| Cover ID | Meaning | Mesh/render evidence | Status |
+|---|---|---|---|
+| `grass.short` | grazed/short cover | generic grass tuft in [`map_view_foliage_meshes.gd`](../scripts/map/view3d/map_view_foliage_meshes.gd) | cover style |
+| `grass.tall` | tall meadow cover | generic tuft plus large layer | cover style |
+| `grass.flowers` | mixed flowering meadow | generic tuft with flower tint | cover style |
+| `grass.dry` | dry seed-bearing cover | `grass_seed_head_mesh()` | cover style |
+| `grass.mossy` | low damp cover | ground tint/detail | cover style; concrete model is `plant.moss` |
+| `grass.clover` | clover-rich cover | `clover_patch_mesh()` | cover style; concrete model is `plant.clover` |
+| `grass.fern` | fern-rich understory | `fern_frond_mesh()` | cover style; concrete model is `plant.fern` |
+| `reed.shore` | legacy freshwater bank mix | reed stems and cattail bank layer | cover style; concrete models are `plant.reed` and `plant.cattail` |
+
+## Authoring contract
+
+```rrmap
+style tree.rowan
+style herb.bed style_variant=plant.yarrow
+style crop.row style_variant=crop.rye
+
+terrain medicinal_bed grass 10 12 8 5 style=herb.bed order=3
+terrain rye_strip grass 20 12 12 5 style=crop.row order=3
+prop landmark_rowan tree 32 18 style=tree.rowan.large
+```
+
+- Use direct IDs (`style=plant.yarrow`) or a named style whose `style_variant` resolves to that ID.
+- Use tree props for guaranteed landmark specimens; terrain styles scatter deterministic stands/beds.
+- Keep wetland species on freshwater banks. Harbor tests deliberately reject reeds/cattails on open Baltic shores.
+- Do not add a species to documentation without adding its catalog profile, concrete mesh test, and authored location.
+
+## What is still absent
+
+The scoped tree/herb model system is complete at the target catalog size. Remaining environment work is separate:
+
+- seasonal states, harvest interactions, inventory items, and regrowth simulation;
+- species-specific collision or movement beyond current zone/prop multipliers;
+- ambient birds, mammals, insects, fish, and their behavior/audio systems;
+- art-direction review from gameplay camera and performance profiling on target hardware.

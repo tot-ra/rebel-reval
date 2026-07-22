@@ -26,6 +26,27 @@ style tree.orchard
 style tree.apple
 style tree.cherry
 style tree.spruce
+style tree.plum
+style tree.pear
+style tree.rowan
+style tree.hazel
+style crop.cabbage
+style crop.turnip
+style crop.onion
+style crop.garlic
+style crop.pea
+style crop.broad_bean
+style crop.rye
+style crop.wheat
+style crop.barley
+style crop.oat
+style crop.flax
+style crop.hemp
+style crop.hops
+style plant.mint
+style plant.clover
+style plant.fern
+style plant.moss
 # Flowered lawn is the default open ground; stone is limited to a compact close.
 terrain garden.lawn grass 0 0 144 48 style=grass.flowers order=1
 # Mixed orchard mass with deciduous fruit rows overlaid for readable canopy.
@@ -38,6 +59,24 @@ terrain western.scrub grass 10 6 6 36 style=bush.dense order=6
 # Soft planting beds: mossy well grove, clover kitchen plots, fern wall margins.
 terrain well.grove grass 46 14 24 12 style=grass.mossy order=7
 terrain kitchen.beds grass 40 20 20 8 style=grass.clover order=8
+# Concrete crop rows exercise the species meshes instead of using generic grass labels.
+terrain kitchen.cabbage grass 41 21 4 3 style=crop.cabbage order=9
+terrain kitchen.turnip grass 46 21 4 3 style=crop.turnip order=9
+terrain kitchen.onion grass 51 21 4 3 style=crop.onion order=9
+terrain kitchen.garlic grass 56 21 3 3 style=crop.garlic order=9
+terrain kitchen.pea grass 41 25 4 2 style=crop.pea order=9
+terrain kitchen.bean grass 46 25 4 2 style=crop.broad_bean order=9
+terrain kitchen.mint grass 51 25 4 2 style=plant.mint order=9
+terrain kitchen.clover grass 40 28 5 3 style=plant.clover order=9
+terrain well.fern grass 64 24 5 3 style=plant.fern order=9
+terrain well.moss grass 46 15 5 3 style=plant.moss order=9
+terrain kitchen.hops grass 56 25 3 2 style=crop.hops order=9
+terrain terrace.rye grass 50 37 7 4 style=crop.rye order=12
+terrain terrace.wheat grass 58 37 7 4 style=crop.wheat order=12
+terrain terrace.barley grass 66 37 7 4 style=crop.barley order=12
+terrain terrace.oat grass 74 37 7 4 style=crop.oat order=12
+terrain terrace.flax grass 82 37 7 4 style=crop.flax order=12
+terrain terrace.hemp grass 90 37 7 4 style=crop.hemp order=12
 terrain wall.fern.south grass 70 22 60 5 style=grass.fern order=9
 terrain wall.fern.west grass 68 4 4 18 style=grass.fern order=10
 terrain south.terrace grass 48 28 90 18 style=grass.tall order=11
@@ -91,6 +130,13 @@ prop medieval_well_prop well 54 18 rect=2,2
 prop orchard_bench table 36 18 rect=2,1
 prop terrace_bench table 88 31 rect=2,1
 prop gardener_cart cart 70 32 rect=2,2
+# Named specimens guarantee every orchard/understory profile is visible in authoring.
+prop orchard.apple tree 20 15 style=tree.apple
+prop orchard.cherry tree 29 23 style=tree.cherry
+prop orchard.plum tree 43 14 style=tree.plum
+prop orchard.pear tree 53 25 style=tree.pear
+prop orchard.hazel tree 63 15 style=tree.hazel
+prop garden.rowan tree 72 27 style=tree.rowan
 # Timber orchard edges replace long brick plot walls inside the garden.
 prop orchard_plot_fence_north timber_fence 18 9 rect=38,1
 prop orchard_plot_fence_south timber_fence 18 27 rect=38,1

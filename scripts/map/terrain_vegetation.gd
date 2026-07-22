@@ -1,6 +1,8 @@
 class_name TerrainVegetation
 extends RefCounted
 
+const PlantSpecies := preload("res://scripts/map/view3d/map_view_plant_species.gd")
+
 ## Vegetation is layered deliberately: the terrain material supplies continuous
 ## ground cover while only a minority of cells receive small grass, large grass,
 ## shrubs, or trees. Movement penalties remain gameplay-relevant and may be
@@ -78,7 +80,7 @@ static func resolved_variant(style_id: StringName, values: Dictionary) -> String
 
 
 static func is_known_variant(variant: StringName) -> bool:
-	if variant.is_empty() or variant in ALL_VARIANTS:
+	if variant.is_empty() or variant in ALL_VARIANTS or PlantSpecies.is_known_variant(variant):
 		return true
 	# tree.oak.large / tree.birch.small are valid authored size pins.
 	var parsed: Dictionary = MapViewTreeSpecies.parse_variant(variant)
@@ -134,6 +136,14 @@ static func resolved_prop_speed(kind: StringName, authored: Variant) -> float:
 
 
 static func ground_color_tint(variant: StringName) -> Color:
+	var plant_parsed := PlantSpecies.parse_variant(variant)
+	if not plant_parsed.is_empty():
+		var plant_color: Color = PlantSpecies.profile_for(plant_parsed["species"])["color"]
+		return Color(
+			lerpf(0.88, 1.04, plant_color.r),
+			lerpf(0.96, 1.08, plant_color.g),
+			lerpf(0.82, 1.0, plant_color.b)
+		)
 	match variant:
 		VARIANT_GRASS_SHORT:
 			return Color(1.04, 1.02, 0.94)
@@ -169,6 +179,15 @@ static func ground_color_tint(variant: StringName) -> Color:
 ## density; all other chances are direct per-cell probabilities before urban
 ## suppression. Ground cover itself is always supplied by the terrain material.
 static func scatter_profile(variant: StringName) -> Dictionary:
+	var plant_parsed: Dictionary = PlantSpecies.parse_variant(variant)
+	if not plant_parsed.is_empty():
+		var plant_species: StringName = plant_parsed["species"]
+		return {
+			"small_chance_scale": 0.12,
+			"large_chance": 0.0,
+			"plant_chance": PlantSpecies.scatter_density(plant_species),
+			"plant_species": plant_species,
+		}
 	var tree_parsed: Dictionary = MapViewTreeSpecies.parse_variant(variant)
 	if not tree_parsed.is_empty():
 		var tree_chance := 0.2
