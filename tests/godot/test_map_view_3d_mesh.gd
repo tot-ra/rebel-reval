@@ -152,39 +152,30 @@ func test_kalev_smithy_interior_walls_show_period_structure() -> void:
 	assert_true(found_smoked_plaster, "smithy needs a smoke-darkened forge bay")
 
 
-func test_town_surroundings_use_authored_neighbor_edges() -> void:
+func test_town_surroundings_cover_visible_authored_neighbor_area() -> void:
 	var definition := LowerTownSlice.create()
 	var view := MapView3D.create(definition, MapBuilder.build(definition))
 	for side in ["west", "north", "east", "south"]:
 		assert_true(view.has_node("Surroundings/Neighbor_%s" % side), "%s edge needs a neighbor preview" % side)
 		assert_true(view.has_node("Surroundings/Neighbor_%s/Terrain_Ground" % side) or view.get_node("Surroundings/Neighbor_%s" % side).get_child_count() > 0)
+	assert_true(
+		view.has_node("Surroundings/Neighbor_west/Buildings/Building_town_hall_mass"),
+		"the western seam must keep authored civic buildings throughout the visible camera footprint"
+	)
 	view.free()
 
 
-func test_town_surroundings_keep_deep_apron_past_neighbor_previews() -> void:
-	# Neighbor strips are only ~32 cells deep. Without a deeper view-only apron
-	# the max-zoom dimetric camera shows sky void past the playable edge.
+func test_town_surroundings_do_not_add_urban_fillers() -> void:
 	var definition := LowerTownSlice.create()
 	var view := MapView3D.create(definition, MapBuilder.build(definition))
-	var min_depth := MapViewMeshBuilderConfig.SURROUNDINGS_TOWN_DEPTH
 	for side in ["west", "north", "east", "south"]:
-		assert_true(
+		assert_false(
 			view.has_node("Surroundings/TownApron_%s" % side),
-			"%s needs continuation ground under and past the neighbor preview" % side
+			"%s urban edge must not add invented continuation ground" % side
 		)
-		var apron := view.get_node("Surroundings/TownApron_%s" % side) as MeshInstance3D
-		var mesh := apron.mesh as PlaneMesh
-		# Side bands store depth on the outward axis: west/east use X, north/south use Y.
-		var depth := mesh.size.x if side in ["west", "east"] else mesh.size.y
-		assert_true(
-			depth >= min_depth - 0.01,
-			"%s apron depth %.1f must cover max zoom (need >= %.1f)" % [side, depth, min_depth]
-		)
-	assert_true(view.has_node("Surroundings/TownSilhouette"), "town silhouette houses still spawn")
-	var bodies := view.get_node("Surroundings/TownSilhouette/TownBodies") as MultiMeshInstance3D
-	assert_true(
-		bodies.multimesh.instance_count > 0,
-		"previewed town edges need distant building silhouettes beyond the edge gap"
+	assert_false(
+		view.has_node("Surroundings/TownSilhouette"),
+		"urban edges must not invent filler houses beyond authored neighboring maps"
 	)
 	view.free()
 

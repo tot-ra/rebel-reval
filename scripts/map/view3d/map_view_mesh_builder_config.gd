@@ -308,11 +308,7 @@ const GATE_DOOR_HINGE_RADIUS := 0.05
 ## thin segments visually seal against wider towers at bends and gate throats.
 const WALL_SEAL_OVERHANG := 0.45
 
-## Background town silhouette on `surroundings_town_sides`.
-const TOWN_GRID_SPACING := 6.5
-const TOWN_KEEP_RATIO := 0.6
-const TOWN_BAND_INNER := 2.5
-const TOWN_BAND_OUTER := 96.0
+## Background scatter clearance outside authored woodland edges.
 const GLACIS_CLEARANCE := 6.0
 
 ## View-only landscape ring past the playable bounds. Authors opt in per side via
@@ -326,9 +322,6 @@ const SURROUNDINGS_COLOR := Color8(74, 88, 60)
 const SURROUNDINGS_WATER_SHALLOW_DEPTH := 10.0
 const SURROUNDINGS_WATER_DEEP_DEPTH := SURROUNDINGS_CONTINUATION_DEPTH - SURROUNDINGS_WATER_SHALLOW_DEPTH
 const SURROUNDINGS_WOODLAND_DEPTH := SURROUNDINGS_CONTINUATION_DEPTH
-## Urban continuation strip on `surroundings_sides` town entries so silhouettes
-## do not float over the void past the playable terrain edge.
-const SURROUNDINGS_TOWN_DEPTH := SURROUNDINGS_CONTINUATION_DEPTH
 const TREE_BAND_INNER := 1.5
 const TREE_BAND_OUTER := 18.0
 const TREE_GRID_SPACING := 3.0

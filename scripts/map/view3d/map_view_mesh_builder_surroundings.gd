@@ -7,7 +7,10 @@ const _NeighborRegistry := preload("res://scripts/map/map_neighbor_preview_regis
 const _Buildings := preload("res://scripts/map/view3d/map_view_mesh_builder_buildings.gd")
 const _PropModels := preload("res://scripts/map/view3d/map_view_mesh_builder_prop_models.gd")
 const _Scatter := preload("res://scripts/map/view3d/map_view_mesh_builder_scatter.gd")
-const NEIGHBOR_PREVIEW_DEPTH_CELLS := 32
+## At max zoom-out the rotated orthographic ground footprint reaches about 66
+## cells past an edge on a 16:9 viewport. Keep a generous margin for wider
+## viewports so every visible urban structure comes from the authored neighbor.
+const NEIGHBOR_VISIBLE_DEPTH_CELLS := 96
 const NEIGHBOR_GROUND_Y := -0.025
 
 static func build_surroundings(definition: MapDefinition) -> Node3D:
@@ -29,26 +32,25 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 		var neighbor := _NeighborRegistry.create_definition(transition.get("destination_scene_id", &""))
 		if neighbor == null:
 			continue
-		root.add_child(_neighbor_preview(definition, neighbor, transition, side))
+		var preview := _neighbor_preview(definition, neighbor, transition, side)
+		if preview == null:
+			continue
+		root.add_child(preview)
 		previewed_sides[side] = true
 
-	# Always paint continuation ground for authored sides. Neighbor previews
-	# overlay the near strip; skipping the apron left sky void past that strip
-	# at max zoom-out.
+	# Natural and water backdrops may extend beyond authored maps. Urban sides do
+	# not receive any filler: their visible continuation must come from a neighbor.
 	for side in MapDefinition.WORLD_SIDES:
 		match sides.get(side):
 			&"water":
 				root.add_child(_water_continuation(definition, map_size, side))
 			&"woodland":
 				root.add_child(_woodland_apron(definition, map_size, side))
-			&"town":
-				root.add_child(_town_apron(definition, map_size, side))
 
 	var tree_batches: Dictionary = {}
 	var boulders: Array[Transform3D] = []
 	var boulder_colors: Array[Color] = []
 
-	var town_sides := definition.surroundings_town_sides
 	var inner := Rect2(Vector2.ZERO, map_size).grow(MapViewMeshBuilderConfig.TREE_BAND_INNER)
 	var start_x := int(-MapViewMeshBuilderConfig.TREE_BAND_OUTER / MapViewMeshBuilderConfig.TREE_GRID_SPACING)
 	var end_x := int((map_size.x + MapViewMeshBuilderConfig.TREE_BAND_OUTER) / MapViewMeshBuilderConfig.TREE_GRID_SPACING)
@@ -119,9 +121,6 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 		boulder_mesh.radial_segments = 7
 		boulder_mesh.rings = 4
 		root.add_child(MapViewMeshBuilderPrimitives.multi_mesh("Boulders", boulder_mesh, boulders, boulder_colors, MapViewMaterials.natural_rock(), Vector3.ZERO))
-
-	if not town_sides.is_empty():
-		root.add_child(_town_silhouette(definition, map_size, previewed_sides, MapViewMeshBuilderConfig.GLACIS_CLEARANCE))
 	return root
 
 
@@ -141,22 +140,6 @@ static func _woodland_apron(_definition: MapDefinition, map_size: Vector2, side:
 	var depth := MapViewMeshBuilderConfig.SURROUNDINGS_WOODLAND_DEPTH
 	mesh.size = _side_band_size(map_size, side, depth)
 	mesh.material = MapViewMaterials.surroundings_ground()
-	apron.mesh = mesh
-	apron.position = _edge_band_center(map_size, side, depth * 0.5, -MapViewMeshBuilderConfig.WATER_RECESS - 0.04)
-	return apron
-
-
-## Cobble apron for town continuation sides so background silhouettes sit on
-## urban ground instead of the empty void past the authored terrain mesh.
-
-
-static func _town_apron(_definition: MapDefinition, map_size: Vector2, side: StringName) -> MeshInstance3D:
-	var apron := MeshInstance3D.new()
-	apron.name = "TownApron_%s" % side
-	var mesh := PlaneMesh.new()
-	var depth := MapViewMeshBuilderConfig.SURROUNDINGS_TOWN_DEPTH
-	mesh.size = _side_band_size(map_size, side, depth)
-	mesh.material = MapViewMaterials.surroundings_town()
 	apron.mesh = mesh
 	apron.position = _edge_band_center(map_size, side, depth * 0.5, -MapViewMeshBuilderConfig.WATER_RECESS - 0.04)
 	return apron
@@ -258,86 +241,26 @@ static func _distance_outside(spot: Vector2, map_size: Vector2) -> float:
 	)
 
 
-## Background house masses continuing the town past the playable bounds on the
-## urban sides, so a walled-city district no longer reads as a forest clearing.
 
 
-static func _town_silhouette(
-	definition: MapDefinition,
-	map_size: Vector2,
-	previewed_sides: Dictionary = {},
-	preview_depth_cells: float = 0.0
-) -> Node3D:
-	var bodies: Array[Transform3D] = []
-	var body_colors: Array[Color] = []
-	var roofs: Array[Transform3D] = []
-	var roof_colors: Array[Color] = []
-	var inner := Rect2(Vector2.ZERO, map_size).grow(MapViewMeshBuilderConfig.TOWN_BAND_INNER)
-	var outer := MapViewMeshBuilderConfig.TOWN_BAND_OUTER
-	var start_x := int(-outer / MapViewMeshBuilderConfig.TOWN_GRID_SPACING)
-	var end_x := int((map_size.x + outer) / MapViewMeshBuilderConfig.TOWN_GRID_SPACING)
-	var start_y := int(-outer / MapViewMeshBuilderConfig.TOWN_GRID_SPACING)
-	var end_y := int((map_size.y + outer) / MapViewMeshBuilderConfig.TOWN_GRID_SPACING)
-	for gy in range(start_y, end_y + 1):
-		for gx in range(start_x, end_x + 1):
-			var base := Vector2(gx, gy) * MapViewMeshBuilderConfig.TOWN_GRID_SPACING
-			var jitter := Vector2(
-				MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 3301) - 0.5,
-				MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 3407) - 0.5
-			) * MapViewMeshBuilderConfig.TOWN_GRID_SPACING * 0.55
-			var spot := base + jitter
-			if inner.has_point(spot):
-				continue
-			var side := _world_side(spot, map_size)
-			if not definition.surroundings_town_sides.has(side):
-				continue
-			if previewed_sides.has(side) and _distance_outside(spot, map_size) < preview_depth_cells:
-				continue
-			if MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 3511) > MapViewMeshBuilderConfig.TOWN_KEEP_RATIO:
-				continue
-			var width := 2.6 + MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 3607) * 2.6
-			var depth := 2.2 + MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 3701) * 2.0
-			var body_height := 1.7 + MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 3803) * 1.3
-			var yaw := (MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 3907) - 0.5) * 0.24
-			var body_basis := Basis(Vector3.UP, yaw).scaled(Vector3(width, body_height, depth))
-			bodies.append(Transform3D(body_basis, Vector3(spot.x, body_height * 0.5, spot.y)))
-			var tone := 0.8 + MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 4001) * 0.3
-			body_colors.append(Color(tone, tone * 0.97, tone * 0.9))
-			var rise := depth * (0.42 + MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 4111) * 0.14)
-			var roof_basis := Basis(Vector3.UP, yaw).scaled(Vector3(width + 0.25, rise, depth + 0.25))
-			roofs.append(Transform3D(roof_basis, Vector3(spot.x, body_height, spot.y)))
-			var warmth := 0.72 + MapViewMeshBuilderPrimitives.hash01(gx, gy, definition.seed + 4211) * 0.4
-			roof_colors.append(Color(warmth, warmth * 0.86, warmth * 0.8))
-
-	var root := Node3D.new()
-	root.name = "TownSilhouette"
-	var body_mesh := BoxMesh.new()
-	body_mesh.size = Vector3.ONE
-	root.add_child(MapViewMeshBuilderPrimitives.multi_mesh("TownBodies", body_mesh, bodies, body_colors, MapViewMaterials.role(&"plaster"), Vector3.ZERO))
-	root.add_child(MapViewMeshBuilderPrimitives.multi_mesh("TownRoofs", MapViewMeshBuilderPrimitives.unit_roof_prism(), roofs, roof_colors, MapViewMeshBuilderPrimitives.role_material(&"roof"), Vector3.ZERO))
-	return root
-
-
-## Unit triangular prism (1 x 1 base, ridge along x at y = 1) scaled per town
-## silhouette instance.
-
-
-## A preview renders the real terrain and structures from the adjoining map, but
-## never its gameplay bodies or navigation. It is aligned by reciprocal spawn IDs,
-## so changing either authored edge updates both views on the next load.
+## A preview renders the complete visible terrain and structures from the
+## adjoining map, but never its gameplay bodies or navigation. It is aligned by
+## reciprocal spawn IDs, so changing either authored district updates the seam on
+## next load. WHY: the old shallow strip exposed procedural filler houses at
+## normal zoom; the preview now covers the maximum gameplay camera footprint.
 static func _neighbor_preview(
 	definition: MapDefinition,
 	neighbor: MapDefinition,
 	transition: Dictionary,
 	side: StringName
 ) -> Node3D:
-	var root := Node3D.new()
-	root.name = "Neighbor_%s" % side
 	if neighbor.cell_size != definition.cell_size:
-		return root
+		return null
 	var reciprocal := _reciprocal_transition(neighbor, transition.get("destination_spawn_id", &""))
 	if reciprocal.is_empty():
-		return root
+		return null
+	var root := Node3D.new()
+	root.name = "Neighbor_%s" % side
 	var offset := _neighbor_offset(definition, neighbor, transition, reciprocal, side)
 	var bounds := _neighbor_strip(neighbor.size_cells, side)
 	var grid := MapBuilder.build(neighbor)
@@ -439,7 +362,7 @@ static func _neighbor_offset(
 
 
 static func _neighbor_strip(size: Vector2i, side: StringName) -> Rect2i:
-	var depth := NEIGHBOR_PREVIEW_DEPTH_CELLS
+	var depth := NEIGHBOR_VISIBLE_DEPTH_CELLS
 	match side:
 		&"west":
 			return Rect2i(maxi(0, size.x - depth), 0, mini(depth, size.x), size.y)
