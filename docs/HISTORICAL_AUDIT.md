@@ -247,22 +247,22 @@ The numeric ranges below use these definitions:
 | Topography | Gentle coastal-lowland fall toward north-east/east with visibly lower wet ground near defensive waterworks; exact cell heights **U** - **A/B/U** | H08-H10 |
 | Landmarks | St Catherine: retain late-13th-century church/east-wing core, omit later enlargement (**A/C**). Viru gate: show a simple mid-14th-century gate/main wall at most; 1370s+ barbicans/foregates are excluded and construction-in-progress is acceptable (**B/U**). Karja gate: early-14th-century wall/gate is plausible, but 1365 name and later barbican/watermill forms are not 1343 facts (**B/U**). Kalev's smithy, brewery and checkpoint are **D** | H09-H10, H15 |
 
-#### `viru_gate_foreland` - eastern road, crofts and wet outer margin
+#### `viru_gate_foreland` - Pirita River crossing (stable legacy ID)
 
 | Category | 1343 target | Evidence |
 |---|---|---|
-| Street/property layout | Continue the Viru road east as a compacted track with sparse road-aligned crofts, irregular service yards and open land between compounds. Exact lanes, plot limits and a wayside inn are **D/U** - **B/D/U** | H08-H10; current compression and compound assignments are gameplay choices |
-| Density | Built 5-15%, open 85-95% of developable land; keep a clear difference from the dense ward inside the wall - **B/U** | H08-H10 support a looser suburb/foreland but provide no measured 1343 ratio |
-| Ordinary / exceptional buildings | Small log/plank crofts, sheds and a reversible inn/stable mass; no stone merchant row. At the west edge, use only the conservative Viru gate/wall state - **B/D/U** | H04-H05, H08-H10 |
-| Roof covers | Thatch/reed 40-60%, shingle 30-50%, tile 0-10%; tile is reserved for any reviewed gate fabric - **B/U** | Shared roof rule; no foreland-specific share survives |
-| Ground surfaces | Stone/pebble gate apron 5-15%; packed earth/mud road and yards 25-40%; grass/meadow/pasture/woodland floor 50-70% - **B/U** | H08-H10; exact shares are reconstructed |
-| Drainage | Road crown and yard fall feed open roadside ditches, wet hollows and the defensive water system; no covered sewer or copied later watermill channel - **A/B/U** | H08-H10 |
-| Fences / plot edges | Wattle/timber croft and livestock boundaries, intermittent hedges, open meadow edges and no formal glacis lawn or continuous stone plot walls - **B/U** | H05, H08-H10 |
-| Vegetation species | Meadow grasses, ditch reeds/sedges, low scrub and mixed woodland edge are required functional groups. Pine/spruce/birch/alder forms are regional candidates only; the exact 1343 species mix is **U** - **B/U** | H17 documents the sampling limit; `FLORA_FAUNA.md` is an implementation palette only |
-| Garden / agricultural use | Croft/kitchen plots: 5-15%; field/fallow strips: 10-25%; meadow/pasture: 20-40%; woodland/scrub margin: 15-30% of developable land, with roads, yards and wet ground occupying the balance - **B/U** | H10, H17; no site-specific acreage survives |
-| Domestic / wild fauna | Domestic `moderate`: contained chickens/geese/ducks, small pig/sheep/goat groups, and tethered horse/ox use near crofts. Wild mammals `trace` only at signed woodland margins; wild/open-ground birds `low`; predators never occupy required routes - **B/U** | H18-H19; live-animal locations and counts are unknown |
-| Topography | Low, gently falling coastal foreland with wet ditch lines and shallow depressions; avoid a level meadow plane. Exact cell elevations are **U** - **A/B/U** | H08-H10 |
-| Landmarks | Viru Gate appears only as the conservative simple wall/gate edge, potentially under construction and without later barbicans (**B/U**). Viru road is retained as an attested route direction (**A/B**); wayside inn and named crofts are **D** | H09; current blueprint contract |
+| Street/property layout | Rural Reval-Iru/Harju road crossing the Pirita River, with sparse farm compounds and open land. The exact road, timber bridge and plot limits are **B/D/U** | H18; `reports/pirita_1343_research.md`; river valley is a long-lived movement corridor, but no reviewed source establishes the 1343 bridge plan |
+| Density | Built 3-8%, open 92-97% of non-water developable land; visibly distinct from dense Reval - **B/U** | Pirita Kloostri 16 archaeology found movement traces but no pre-convent building on the excavated plot |
+| Ordinary / exceptional buildings | Small log/plank crofts, stable and barn; no stone merchant row and no exceptional religious mass - **B/D/U** | H04-H05; site-specific buildings are unknown |
+| Roof covers | Thatch/reed 50-75%, shingle 25-50%, tile `none` - **B/U** | Shared roof rule; no site-specific share survives |
+| Ground surfaces | River/wet bank 15-25%; packed earth/mud road and yards 15-25%; meadow/pasture/field/woodland 50-70%; timber only at the reconstructed crossing - **B/D/U** | Pirita river sand, reeds, clay and river mud are archaeologically observed; exact shares are reconstructed |
+| Drainage | Pirita River flows south-to-north through the map with wet reed/alder banks; no copied later mill channel - **A/B/U** | `reports/pirita_1343_research.md` |
+| Fences / plot edges | Timber croft and livestock boundaries, open field/meadow edges and no continuous stone plot walls - **B/U** | H05; exact boundaries unknown |
+| Vegetation species | Meadow grasses, bank reeds/sedges, alder/birch candidates, low scrub and mixed woodland edge - **B/U** | H17 and Pirita Kloostri 16; exact 1343 species mix unknown |
+| Garden / agricultural use | Field/fallow strips 10-20%; hay meadow/pasture 25-40%; open river meadow and woodland occupy the balance - **B/U** | H17; acreage is reconstructed |
+| Domestic / wild fauna | Domestic `low`: one small sheep group and two working/tethered horses. Wild mammals `trace` only at woodland margins - **B/U** | H18; live-animal locations and counts are unknown |
+| Topography | Low river valley and wet banks rather than a level city foreland; exact cell elevations **U** - **A/B/U** | `reports/pirita_1343_research.md` |
+| Landmarks | Pirita River is the attested identity. The timber bridge is **D/U**. St Bridget's convent/church is explicitly absent: initiative ca. 1400, advisers 1407, construction 1417, consecration 1436 - **A** | Pirita Convent history; `reports/pirita_1343_research.md` |
 
 #### `market_civic_quarter` - Town Hall market and Holy Spirit close
 

@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/map/map_blueprint_editor_preview.gd" id="3_preview"]
 [ext_resource type="Script" path="res://scripts/map/definitions/outdoor/viru_gate_foreland_rrmap_factory.gd" id="4_factory"]
 
-[node name="ViruGateForeland" type="Node2D"]
+[node name="Pirita" type="Node2D"]
 script = ExtResource("1_foreland")
 
 [node name="MapBlueprintPreview" type="Node2D" parent="."]
@@ -21,8 +21,8 @@ y_sort_enabled = true
 y_sort_enabled = true
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(1792, 1280)
+position = Vector2(2688, 1920)
 limit_left = 0
 limit_top = 0
-limit_right = 3584
-limit_bottom = 2560
+limit_right = 5376
+limit_bottom = 3840

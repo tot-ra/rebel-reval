@@ -107,8 +107,9 @@ static func entries() -> Array[Dictionary]:
 			"factory": ViruGateForeland,
 			"required_anchors": [
 				&"from_reval_east",
-				&"viru_road",
-				&"wayside_inn",
+				&"pirita_bridge",
+				&"river_meadow",
+				&"farmstead",
 				&"eastern_road",
 			],
 		},

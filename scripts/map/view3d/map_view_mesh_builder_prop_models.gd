@@ -189,6 +189,8 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			_add_cattle(root)
 		MapTypes.PROP_KIND_SHEEP:
 			_add_sheep(root)
+		MapTypes.PROP_KIND_HORSE:
+			_add_horse(root)
 		MapTypes.PROP_KIND_FISHING_BOAT:
 			_add_fishing_boat(root, prop)
 		MapTypes.PROP_KIND_MERCHANT_BOAT:
@@ -309,6 +311,20 @@ static func _add_sheep(root: Node3D) -> void:
 	MapViewMeshBuilderPrimitives.sphere(root, "Head", 0.27, Vector3(0.68, 0.57, 0.0), &"wood", Vector3(0.82, 1.0, 0.76))
 	for leg_spec in [["LegFL", 0.3, 0.2], ["LegFR", 0.3, -0.2], ["LegBL", -0.42, 0.2], ["LegBR", -0.42, -0.2]]:
 		MapViewMeshBuilderPrimitives.box(root, leg_spec[0], Vector3(0.09, 0.46, 0.09), Vector3(leg_spec[1], 0.23, leg_spec[2]), &"timber")
+
+
+static func _add_horse(root: Node3D) -> void:
+	# A restrained pack-horse silhouette is enough for rural traffic; tack and load
+	# distinguish it from cattle without introducing an ambient actor dependency.
+	MapViewMeshBuilderPrimitives.sphere(root, "Body", 0.58, Vector3(-0.1, 0.93, 0.0), &"wood", Vector3(1.55, 0.68, 0.62))
+	MapViewMeshBuilderPrimitives.box(root, "Neck", Vector3(0.38, 0.82, 0.34), Vector3(0.66, 1.22, 0.0), &"wood")
+	MapViewMeshBuilderPrimitives.sphere(root, "Head", 0.3, Vector3(0.89, 1.53, 0.0), &"wood", Vector3(1.2, 0.72, 0.72))
+	MapViewMeshBuilderPrimitives.box(root, "Muzzle", Vector3(0.36, 0.2, 0.3), Vector3(1.15, 1.47, 0.0), &"timber")
+	for leg_spec in [["LegFL", 0.43, 0.22], ["LegFR", 0.43, -0.22], ["LegBL", -0.56, 0.22], ["LegBR", -0.56, -0.22]]:
+		MapViewMeshBuilderPrimitives.box(root, leg_spec[0], Vector3(0.1, 0.9, 0.1), Vector3(leg_spec[1], 0.45, leg_spec[2]), &"timber")
+	MapViewMeshBuilderPrimitives.box(root, "PackBlanket", Vector3(0.78, 0.09, 0.78), Vector3(-0.05, 1.42, 0.0), &"hay")
+	MapViewMeshBuilderPrimitives.box(root, "PackLeft", Vector3(0.46, 0.42, 0.26), Vector3(-0.12, 1.28, 0.47), &"wood")
+	MapViewMeshBuilderPrimitives.box(root, "PackRight", Vector3(0.46, 0.42, 0.26), Vector3(-0.12, 1.28, -0.47), &"wood")
 
 
 ## Layered decorative vegetation and ground clutter. Textured ground cover carries

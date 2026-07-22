@@ -1,7 +1,7 @@
 class_name ViruGateForelandRrmapFactory
 extends RefCounted
 
-## Blueprint factory for editor preview of the Viru Gate foreland .rrmap source.
+## Blueprint factory for editor preview of Pirita. The legacy file ID is stable for saves/transitions.
 
 
 const RRMAP_PATH := "res://content/maps/viru_gate_foreland.rrmap"

@@ -86,7 +86,7 @@ Inventory row count (data rows in the table below): **88**.
 | 40 | `scenes/reval_east/forge/forge_cat.tscn` | working | Ambient smithy cat with navigation and idle behavior. |
 | 41 | `scenes/reval_east/forge/smithy_henning.tscn` | working | Smithy apprentice Henning with patrol and idle behavior. |
 | 42 | `scenes/reval_east/reval_east.tscn` | working | Programmatic bounded Lower Town exterior; default Start destination via manifest. |
-| 78 | `scenes/reval_east/viru_gate_foreland/viru_gate_foreland.tscn` | partial | Inactive Viru Gate road foreland prototype; developer traversal only and release-gated. |
+| 78 | `scenes/reval_east/viru_gate_foreland/viru_gate_foreland.tscn` | partial | Inactive Pirita River crossing prototype (stable ID `viru_gate_foreland`); developer traversal only and release-gated. |
 | 73 | `scenes/reval_monastery/reval_monastery.tscn` | partial | Inactive Monastery District prototype; developer traversal only. |
 | 43 | `scenes/reval_north/reval_north.tscn` | partial | Inactive programmatic north quarter prototype; developer traversal only. |
 | 44 | `scenes/reval_south/reval_south.tscn` | partial | Inactive southern quarter prototype (Rataskaev / Karja approach); developer traversal only. |
@@ -104,7 +104,7 @@ Inventory row count (data rows in the table below): **88**.
 | 89 | `scenes/ui/reflection_overlay.tscn` | working | Hingepuu reflection overlay; P2-011 Duty/Fury/Mercy conviction choice. |
 | 55 | `assets/characters/variants/townswoman.tscn` | partial | Shared-rig townswoman variant used by ambient NPC work. |
 | 79 | `scenes/world_travel/world_sacred_grove.tscn` | partial | Developer global-map placeholder; south road via Karja Gate; `release=false`. |
-| 80 | `scenes/world_travel/world_harju.tscn` | partial | Developer global-map placeholder; east road via Viru Gate Foreland; `release=false`. |
+| 80 | `scenes/world_travel/world_harju.tscn` | partial | Developer global-map placeholder; east road via Pirita (`viru_gate_foreland`); `release=false`. |
 | 81 | `scenes/world_travel/world_padise.tscn` | partial | Developer global-map placeholder; west road via Toompea; `release=false`. |
 | 82 | `scenes/world_travel/world_saaremaa.tscn` | partial | Developer global-map placeholder; island ferry via Trade Harbour; `release=false`. |
 | 83 | `scenes/world_travel/world_rebel_kings.tscn` | partial | Developer global-map placeholder; Act 2 Harju command camp; `release=false`. |

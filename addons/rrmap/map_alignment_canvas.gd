@@ -28,7 +28,7 @@ const DISPLAY_NAMES: Dictionary = {
 	&"north_quarter": "Merchant District",
 	&"south_quarter": "Knights District",
 	&"toompea_quarter": "Toompea",
-	&"viru_gate_foreland": "Viru Gate Foreland",
+	&"viru_gate_foreland": "Pirita",
 	&"reval_harbor_north": "Coastal Gate Landing",
 	&"reval_harbor_east": "Kalamaja Fishing Shore",
 }

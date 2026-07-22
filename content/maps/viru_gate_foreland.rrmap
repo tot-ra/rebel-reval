@@ -1,17 +1,20 @@
-# Viru Gate road foreland east of the Workers' District. The gate and main road
-# are plausible mid-fourteenth-century works; the sparse roadside compounds,
-# ditches and plot geometry remain conservative reconstruction.
+# Pirita River crossing east of Reval in spring 1343. The river valley and its
+# long-lived movement corridor are evidence-led; the exact bridge, farm plots and
+# road geometry are a conservative gameplay reconstruction. The Bridgettine
+# convent was not conceived until about 1400 and no convent fabric appears here.
 rrmap 1
-map viru_gate_foreland loc.reval.viru_gate_foreland 112 80 meadow scope=prototype active=false palette=clean_painted seed=1343 cell_size=32
+map viru_gate_foreland loc.reval.pirita 168 120 meadow scope=prototype active=false palette=clean_painted seed=1343 cell_size=32
 source "scenes/reval_east/viru_gate_foreland/viru_gate_foreland.tscn"
 source "docs/HISTORICAL_AUDIT.md"
+source "docs/reports/pirita_1343_research.md"
 style house.croft wall_height=62 wall_color=675b4dff wall_material=log roof_color=756548ff roof_material=thatch door_side=south
 style house.shed wall_height=50 wall_color=5e5143ff wall_material=plank roof_color=493b2cff roof_material=shingle door_side=south
-style house.inn wall_height=68 wall_color=706457ff wall_material=log roof_color=51402eff roof_material=shingle door_side=south
+style house.farm wall_height=68 wall_color=706457ff wall_material=log roof_color=51402eff roof_material=thatch door_side=south
 style wall.fence wall_height=28 wall_color=594737ff wall_material=plank
 style grass.short
 style grass.tall
 style grass.dry
+style grass.flowers
 style bush.dense
 style bush.scrub
 style reed.shore
@@ -25,73 +28,94 @@ style tree.maple
 style tree.linden
 style tree.birch.large
 style tree.oak.small
-terrain foreland.grass grass 0 0 112 80 style=grass.tall order=1
-terrain gate.approach stone 0 46 17 14 order=2
-terrain road.west dirt 14 49 42 8 order=3
-terrain road.east dirt 52 47 60 10 order=3
-terrain road.wear mud 35 51 18 5 order=4
-terrain north.ditch mud 12 38 88 5 style=reed.shore order=5
-terrain south.ditch mud 14 60 82 5 style=reed.shore order=5
-terrain yard.north dirt 25 22 27 16 order=6
-terrain yard.south dirt 24 65 30 12 order=6
-terrain yard.east dirt 67 19 27 17 order=6
-terrain pasture.short grass 58 62 34 13 style=grass.short order=6
-terrain boundary.north forest_floor 0 0 112 16 style=tree.mixed order=7
-terrain boundary.north_scrub grass 0 15 18 15 style=bush.dense order=8
-terrain boundary.north_scrub_east grass 96 15 16 23 style=bush.scrub order=8
-terrain boundary.south_west forest_floor 0 65 20 15 style=tree.mixed order=7
-terrain boundary.south_east forest_floor 58 75 54 5 style=tree.spruce order=7
-terrain boundary.east_north forest_floor 100 16 12 27 style=tree.spruce order=7
-terrain boundary.east_south forest_floor 96 60 16 20 style=tree.mixed order=7
-stroke viru_road_surface dirt 0,52|18,52|18,53|38,53|38,51|56,51|56,49|76,49|76,52|96,52|111,52 thickness=4 order=9
-stroke north_yard_track dirt 38,51|38,43|38,36|44,36|44,30 thickness=2 order=9
-stroke south_yard_track dirt 42,54|42,62|42,70 thickness=2 order=9
-stroke east_yard_track dirt 78,49|78,42|78,34|82,34|82,28 thickness=2 order=9
-building wayside_inn_house house 19 43 12 6 style=house.inn
-building north_croft house 28 25 10 6 style=house.croft
-building north_shed house 41 30 8 5 style=house.shed
-building south_croft house 27 67 11 6 style=house.croft
-building cart_shed house 43 67 8 5 style=house.shed
-building east_croft house 69 22 11 6 style=house.croft
-building east_stable house 83 28 9 5 style=house.shed
-wall north_yard_fence_west 24 21 24 39 thickness=1 kind=wall style=wall.fence openings=24,30,1,5
-wall north_yard_fence_north 24 21 53 21 thickness=1 kind=wall style=wall.fence openings=35,21,6,1
-wall north_yard_fence_east 53 21 53 39 thickness=1 kind=wall style=wall.fence openings=53,29,1,5
-wall south_yard_fence_north 23 64 55 64 thickness=1 kind=wall style=wall.fence openings=38,64,6,1
-wall south_yard_fence_east 55 64 55 78 thickness=1 kind=wall style=wall.fence openings=55,69,1,5
-wall east_yard_fence_west 66 18 66 37 thickness=1 kind=wall style=wall.fence openings=66,26,1,5
-wall east_yard_fence_south 66 37 95 37 thickness=1 kind=wall style=wall.fence openings=78,37,6,1
-prop inn_cart cart 21 52 rect=2,2
-prop north_barrels barrels 39 27 rect=2,2
-prop south_hay hay_stack 47 73 rect=2,2
-prop east_cart cart 87 35 rect=2,2
-prop road_scrub_west bush 8 33 rect=3,2 style=bush.scrub
-prop road_scrub_east bush 101 43 rect=3,2 style=bush.dense
-prop ditch_scrub bush 63 40 rect=3,2 style=bush.scrub
-prop road.oak_west tree 22 45 style=tree.oak
-prop road.birch_mid tree 48 44 style=tree.birch.large
-prop road.pine_east tree 88 42 style=tree.pine
-prop yard.north_linden tree 34 36 style=tree.linden
-prop yard.east_maple tree 74 28 style=tree.maple
-prop pasture.alder tree 64 68 style=tree.alder
-landmark viru_gate_frame gate_arch 5 46 6 12 wall_color=807b72ff top_px=104 passage_axis=x door_material=wood
-spawn spawn.inspection 18 53 rect=2,2
-anchor from_reval_east 5 52 rect=2,2
-anchor viru_road 58 51 rect=2,2
-anchor wayside_inn 25 51 rect=2,2
-anchor eastern_road 104 52 rect=2,2
-transition to_reval_east 0 51 4 3 to=reval_east destination_spawn=viru_road_boundary spawn=from_reval_east spawn_offset_px=128,0 highlight_area=true transition_visual=ground
-transition to_world_harju 108 50 4 4 to=world_harju destination_spawn=from_reval_east spawn=from_world_harju spawn_offset_px=-128,0 highlight_area=true transition_visual=ground
-sign sign.town "viru gate and reval" 7 49 west
-sign sign.east "eastern road" 102 49 east
-sign sign.harju "to harju road" 106 48 east
-patrol viru_foreland_watch 6,52|20,52|38,53|56,51|76,49|96,52|76,49|56,51|38,53|20,52
-exclude blocked.north 0 0 112 16
-exclude blocked.north_west 0 15 18 23
-exclude blocked.north_east 96 15 16 28
-exclude blocked.south_west 0 65 20 15
-exclude blocked.south_east 58 75 54 5
-exclude blocked.east_south 96 60 16 20
-fade fade.gate 0 46 17 14
-camera 0 0 112 80
-surroundings north woodland east woodland south woodland west town
+terrain pirita.meadow meadow 0 0 168 120 style=grass.tall order=1
+terrain west.pasture grass 11 13 48 32 style=grass.short order=2
+terrain west.field_north farm_soil 14 80 46 9 order=3
+terrain west.field_middle farm_soil 12 91 50 8 order=3
+terrain west.field_south farm_soil 17 101 43 9 order=3
+terrain west.field_fallow straw 62 82 8 27 style=grass.dry order=4
+terrain east.hay_meadow hay 104 75 52 31 style=grass.dry order=3
+terrain future_convent_meadow grass 102 10 51 38 style=grass.flowers order=4
+terrain west.croft_yard dirt 18 20 39 27 order=5
+terrain east.farm_yard dirt 104 70 53 28 order=5
+terrain river.west_bank mud 70 0 7 120 style=reed.shore order=6
+terrain river.shallows shallow_water 76 0 18 120 order=7
+terrain river.deep_channel deep_water 82 0 7 120 order=8
+terrain river.east_bank mud 94 0 7 120 style=reed.shore order=6
+terrain road.west dirt 0 60 72 8 order=9
+terrain road.east dirt 98 60 70 8 order=9
+terrain road.wear_west mud 30 63 36 4 order=10
+terrain road.wear_east mud 102 63 38 4 order=10
+terrain bridge.deck timber_floor 71 59 28 10 order=22
+terrain west.track dirt 37 43 5 18 order=11
+terrain east.farm_track dirt 116 67 5 12 order=11
+terrain boundary.north_west forest_floor 0 0 68 12 style=tree.mixed order=12
+terrain boundary.north_east forest_floor 101 0 67 10 style=tree.spruce order=12
+terrain boundary.south_west forest_floor 0 111 69 9 style=tree.mixed order=12
+terrain boundary.south_east forest_floor 101 109 67 11 style=tree.mixed order=12
+terrain boundary.west_north forest_floor 0 12 10 40 style=tree.mixed order=12
+terrain boundary.west_south forest_floor 0 74 10 37 style=tree.mixed order=12
+terrain boundary.east_north forest_floor 158 10 10 42 style=tree.spruce order=12
+terrain boundary.east_south forest_floor 158 74 10 35 style=tree.mixed order=12
+stroke reval_iru_road dirt 0,63|71,63|99,63|167,63 thickness=3 order=21
+stroke west_croft_track dirt 39,61|39,39 thickness=2 order=21
+stroke east_farm_track dirt 118,65|118,82 thickness=2 order=21
+building west_farmhouse house 23 25 12 7 style=house.croft
+building west_shed house 41 32 10 6 style=house.shed
+building east_farmhouse house 108 74 13 8 style=house.farm
+building east_stable house 128 76 11 7 style=house.shed
+building east_barn house 141 83 12 8 style=house.farm
+wall west_yard_north 17 19 58 19 thickness=1 kind=wall style=wall.fence openings=35,19,6,1
+wall west_yard_east 58 19 58 48 thickness=1 kind=wall style=wall.fence openings=58,34,1,6
+wall west_yard_south 17 48 58 48 thickness=1 kind=wall style=wall.fence openings=36,48,7,1
+wall east_yard_west 103 69 103 99 thickness=1 kind=wall style=wall.fence openings=103,80,1,7
+wall east_yard_north 103 69 157 69 thickness=1 kind=wall style=wall.fence openings=115,69,7,1
+wall east_yard_south 103 99 157 99 thickness=1 kind=wall style=wall.fence openings=119,99,7,1
+prop bridge.north_rail timber_fence 72 59 rect=27,1
+prop bridge.south_rail timber_fence 72 68 rect=27,1
+prop west.well well 49 41 rect=2,2
+prop west.cart cart 31 45 rect=2,2
+prop west.hay hay_stack 55 84 rect=2,2
+prop east.cart cart 122 72 rect=2,2
+prop east.hay_north hay_stack 146 74 rect=2,2
+prop east.hay_south hay_stack 151 94 rect=2,2
+prop east.tethered_horse horse 133 86 rect=3,2
+prop bridge.pack_horse horse 107 57 rect=3,2
+prop pasture.sheep_a sheep 25 16 rect=2,2
+prop pasture.sheep_b sheep 39 17 rect=2,2
+prop pasture.sheep_c sheep 50 28 rect=2,2
+prop river.alder_south tree 67 92 style=tree.alder
+prop river.alder_north tree 99 30 style=tree.alder
+prop river.birch_west tree 66 21 style=tree.birch.large
+prop river.birch_east tree 102 103 style=tree.birch
+prop meadow.oak tree 116 29 style=tree.oak.small
+prop meadow.linden tree 143 42 style=tree.linden
+prop west.maple tree 20 38 style=tree.maple
+prop east.pine tree 154 54 style=tree.pine
+prop road.scrub_west bush 12 54 rect=3,2 style=bush.scrub
+prop road.scrub_east bush 148 70 rect=3,2 style=bush.dense
+prop river.scrub bush 67 51 rect=3,2 style=bush.scrub
+spawn spawn.inspection 12 63 rect=2,2
+anchor from_reval_east 4 63 rect=2,2
+anchor pirita_bridge 85 63 rect=2,2
+anchor river_meadow 121 31 rect=2,2
+anchor farmstead 116 82 rect=2,2
+anchor eastern_road 157 63 rect=2,2
+transition to_reval_east 0 62 4 3 to=reval_east destination_spawn=viru_road_boundary spawn=from_reval_east spawn_offset_px=128,0 highlight_area=true transition_visual=ground
+transition to_world_harju 164 61 4 4 to=world_harju destination_spawn=from_reval_east spawn=from_world_harju spawn_offset_px=-128,0 highlight_area=true transition_visual=ground
+sign sign.reval "west to reval and viru gate" 9 59 west
+sign sign.river "pirita river" 101 58 west
+sign sign.iru "east to iru and harju" 158 59 east
+patrol pirita_crossing_watch 12,63|38,64|64,63|75,63|85,63|96,63|118,64|118,72|117,82|118,72|118,64|143,63|160,63
+exclude blocked.north_west 0 0 68 12
+exclude blocked.north_east 101 0 67 10
+exclude blocked.south_west 0 111 69 9
+exclude blocked.south_east 101 109 67 11
+exclude blocked.west_north 0 12 10 40
+exclude blocked.west_south 0 74 10 37
+exclude blocked.east_north 158 10 10 42
+exclude blocked.east_south 158 74 10 35
+fade fade.west 0 57 10 14
+fade fade.east 158 57 10 17
+camera 0 0 168 120
+surroundings north woodland east woodland south woodland west woodland

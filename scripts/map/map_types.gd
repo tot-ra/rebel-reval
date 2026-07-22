@@ -104,6 +104,7 @@ const PROP_KIND_TRADE_GOODS := &"trade_goods"
 const PROP_KIND_TIMBER_FENCE := &"timber_fence"
 const PROP_KIND_CATTLE := &"cattle"
 const PROP_KIND_SHEEP := &"sheep"
+const PROP_KIND_HORSE := &"horse"
 const PROP_KIND_BANNER := &"banner"
 const BOAT_PROP_KINDS: Array[StringName] = [PROP_KIND_FISHING_BOAT, PROP_KIND_MERCHANT_BOAT]
 
@@ -134,6 +135,7 @@ const ALL_PROP_KINDS: Array[StringName] = [
 	PROP_KIND_TIMBER_FENCE,
 	PROP_KIND_CATTLE,
 	PROP_KIND_SHEEP,
+	PROP_KIND_HORSE,
 	PROP_KIND_BANNER,
 ]
 

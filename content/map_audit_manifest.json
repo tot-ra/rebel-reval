@@ -217,7 +217,7 @@
     },
     {
       "id": "viru_gate_foreland",
-      "location_name": "Viru Gate Foreland",
+      "location_name": "Pirita",
       "scene": "scenes/reval_east/viru_gate_foreland/viru_gate_foreland.tscn",
       "definition": "scripts/map/definitions/outdoor/viru_gate_foreland_definition.gd",
       "factory": "ViruGateForelandDefinition.create",
@@ -225,8 +225,9 @@
       "capture": "viru_gate_foreland.png",
       "mandatory_anchors": [
         "from_reval_east",
-        "viru_road",
-        "wayside_inn",
+        "pirita_bridge",
+        "river_meadow",
+        "farmstead",
         "eastern_road"
       ],
       "mandatory_transitions": [

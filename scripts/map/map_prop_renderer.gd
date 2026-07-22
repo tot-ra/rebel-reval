@@ -53,6 +53,7 @@ static func create_prop(
 		MapTypes.PROP_KIND_TIMBER_FENCE: _draw_timber_fence(root, prop, target, time_of_day)
 		MapTypes.PROP_KIND_CATTLE: _draw_cattle(root, target, time_of_day)
 		MapTypes.PROP_KIND_SHEEP: _draw_sheep(root, target, time_of_day)
+		MapTypes.PROP_KIND_HORSE: _draw_horse(root, target, time_of_day)
 		MapTypes.PROP_KIND_BANNER: _draw_banner(root, prop, target, time_of_day)
 		_: _add_rect(root, "Marker", Vector2(-8, -8), Vector2(16, 16), Color.MAGENTA, target, time_of_day)
 	if prop["kind"] in MapTypes.BOAT_PROP_KINDS and _has_tall_footprint(prop):
@@ -507,7 +508,17 @@ static func _draw_sheep(parent: Node2D, target: StringName, time_of_day: StringN
 	_add_polygon(parent, "Head", PackedVector2Array([Vector2(17, -14), Vector2(31, -11), Vector2(30, 0), Vector2(17, -2)]), hide, target, time_of_day)
 	_add_rect(parent, "LegA", Vector2(-13, -1), Vector2(4, 13), hide, target, time_of_day)
 	_add_rect(parent, "LegB", Vector2(10, -1), Vector2(4, 13), hide, target, time_of_day)
-
+static func _draw_horse(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	var coat := MapVisualStyle.role_color(&"wood", target, time_of_day).darkened(0.04)
+	var dark := coat.darkened(0.2)
+	_add_polygon(parent, "Body", _ellipse(Vector2(-5, -13), Vector2(27, 14), 16), coat, target, time_of_day)
+	_add_polygon(parent, "Neck", PackedVector2Array([Vector2(13, -21), Vector2(25, -33), Vector2(34, -27), Vector2(22, -8)]), coat.darkened(0.04), target, time_of_day)
+	_add_polygon(parent, "Head", PackedVector2Array([Vector2(24, -36), Vector2(43, -35), Vector2(46, -27), Vector2(31, -24)]), coat, target, time_of_day)
+	_add_polygon(parent, "Ear", PackedVector2Array([Vector2(28, -35), Vector2(28, -45), Vector2(34, -36)]), dark, target, time_of_day)
+	for leg in [-18.0, -4.0, 10.0, 19.0]:
+		_add_rect(parent, "Leg%d" % int(leg), Vector2(leg, -4), Vector2(4, 19), dark, target, time_of_day)
+	_add_line(parent, "Tail", PackedVector2Array([Vector2(-30, -18), Vector2(-39, -8), Vector2(-37, 4)]), target, time_of_day, &"ink")
+	_add_rect(parent, "PackCloth", Vector2(-13, -27), Vector2(20, 12), MapVisualStyle.role_color(&"hay", target, time_of_day).darkened(0.12), target, time_of_day)
 
 static func _draw_barrels(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
 	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
