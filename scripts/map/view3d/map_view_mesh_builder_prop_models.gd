@@ -382,15 +382,18 @@ static func _add_authored_tree(root: Node3D, prop: Dictionary) -> void:
 
 
 static func _add_ancient_oak(root: Node3D) -> void:
+	var landmark_scale := Vector3.ONE * MapViewAncientOakMeshes.LANDMARK_SCALE
 	var trunk := MeshInstance3D.new()
 	trunk.name = "Trunk"
 	trunk.mesh = MapViewMeshBuilderPrimitives.ancient_oak_wood_mesh()
+	trunk.scale = landmark_scale
 	trunk.material_override = MapViewMaterials.bark(MapViewTreeSpecies.BARK_DEFAULT)
 	root.add_child(trunk)
 
 	var canopy := MeshInstance3D.new()
 	canopy.name = "Canopy"
 	canopy.mesh = MapViewMeshBuilderPrimitives.ancient_oak_canopy_mesh()
+	canopy.scale = landmark_scale
 	canopy.material_override = MapViewMaterials.canopy(&"leaf")
 	root.add_child(canopy)
 
@@ -399,6 +402,7 @@ static func _add_ancient_oak(root: Node3D) -> void:
 		var moss := MeshInstance3D.new()
 		moss.name = "Moss"
 		moss.mesh = moss_mesh
+		moss.scale = landmark_scale
 		moss.material_override = MapViewMaterials.canopy(&"leaf")
 		moss.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(moss)

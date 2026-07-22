@@ -5,12 +5,13 @@ extends RefCounted
 ## WHY: MultiMesh woodland oaks stay cheap and generic. The grove's soul-tree is a
 ## single authored landmark, so it can carry a thicker trunk, buttress roots, long
 ## primary limbs, deeper branching, and hanging moss without exploding draw calls.
-## Scale is intentionally huge next to a player (~11 m trunk) but far below Avatar
+## Scale is intentionally huge next to a player (~22 m trunk) but far below Avatar
 ## Hometree fantasy - a veteran oak shrine, not a floating mountain.
 
-const WOOD_RADIAL_SEGMENTS := 7
-const MAX_WOOD_SEGMENTS := 320
-const MAX_LEAF_SPRAYS := 180
+const LANDMARK_SCALE := 2.0
+const WOOD_RADIAL_SEGMENTS := 9
+const MAX_WOOD_SEGMENTS := 900
+const MAX_LEAF_SPRAYS := 280
 const MAX_MOSS_STRANDS := 48
 const MIN_BRANCH_TIP_RADIUS := 0.012
 const TRUNK_BASE_FLARE := 1.18
@@ -52,8 +53,17 @@ static func _geometry() -> Dictionary:
 		"leaf_count": int(canopy_data["leaf_count"]),
 		"moss_strands": int(skeleton["moss_anchors"].size()),
 		"trunk_height": float(skeleton["trunk_height"]),
+		"visual_trunk_height": float(skeleton["trunk_height"]) * LANDMARK_SCALE,
 		"trunk_base_radius": float(skeleton["trunk_base_radius"]),
+		"visual_trunk_base_radius": float(skeleton["trunk_base_radius"]) * LANDMARK_SCALE,
+		"landmark_scale": LANDMARK_SCALE,
 		"root_buttresses": int(skeleton["root_count"]),
+		"trunk_path_sections": int(skeleton["trunk_path_sections"]),
+		"leader_segments": int(skeleton["leader_segments"]),
+		"terminal_branch_tips": int(skeleton["terminal_branch_tips"]),
+		"curved_branch_paths": int(skeleton["growth_stats"].get("curved_branch_paths", 0)),
+		"interior_branch_junctions": int(skeleton["growth_stats"].get("interior_branch_junctions", 0)),
+		"primary_attachment_heights": (skeleton["primary_attachment_heights"] as Array).duplicate(),
 	}
 	_geometry_cache = {
 		"wood": wood,
@@ -68,20 +78,27 @@ static func _build_skeleton() -> Dictionary:
 	var segments: Array[Dictionary] = []
 	var leaf_candidates: Array[Dictionary] = []
 	var moss_anchors: Array[Dictionary] = []
+	var growth_stats := {
+		"curved_branch_paths": 0,
+		"interior_branch_junctions": 0,
+	}
 	var species_seed := 1343 + 9041
 	var trunk_height := 11.2
 	var trunk_radius := 0.92
+	var trunk_section_count := 9
 	var trunk_points: Array[Vector3] = [Vector3.ZERO]
-	for section in 5:
-		var section_t := float(section + 1) / 5.0
-		# Gentle spiral lean keeps the trunk from reading as a telephone pole.
-		var lean_x := sin(section_t * 1.7) * trunk_radius * 0.18 * section_t
-		var lean_z := cos(section_t * 1.3) * trunk_radius * 0.14 * section_t
-		trunk_points.append(Vector3(lean_x, trunk_height * section_t, lean_z))
+	for section in trunk_section_count:
+		var section_t := float(section + 1) / float(trunk_section_count)
+		# Wind and crown weight bend the whole leader. The quadratic drift makes the
+		# upper trunk visibly off-axis without moving the ancient root flare.
+		var wind_drift := Vector3(-0.42, 0.0, 0.26) * pow(section_t, 1.65)
+		var lean_x := sin(section_t * 2.15) * trunk_radius * 0.16 * section_t
+		var lean_z := cos(section_t * 1.55) * trunk_radius * 0.12 * section_t
+		trunk_points.append(Vector3(lean_x, trunk_height * section_t, lean_z) + wind_drift)
 	var trunk_radii: Array[float] = []
-	for section in 6:
-		trunk_radii.append(_trunk_radius_at_height(trunk_radius, float(section) / 5.0))
-	for section in 5:
+	for section in trunk_section_count + 1:
+		trunk_radii.append(_trunk_radius_at_height(trunk_radius, float(section) / float(trunk_section_count)))
+	for section in trunk_section_count:
 		_append_segment(
 			segments,
 			trunk_points[section],
@@ -104,48 +121,70 @@ static func _build_skeleton() -> Dictionary:
 		_append_segment(segments, start, mid, root_radius, root_radius * 0.55, 1)
 		_append_segment(segments, mid, tip, root_radius * 0.55, root_radius * 0.18, 1)
 
-	# Giant primary limbs: long, thick, and mostly horizontal like an old oak hall.
-	var primary_count := 11
+	# Primary limbs keep a loose phyllotaxis, but broad seeded offsets prevent the
+	# crown from reading as evenly spaced spokes or a staircase up the trunk.
+	var primary_count := 12
 	var crown_start := 3.4
 	var crown_end := 10.4
+	var primary_attachment_heights: Array[float] = []
 	for branch_index in primary_count:
 		if segments.size() >= MAX_WOOD_SEGMENTS:
 			break
-		var t := (float(branch_index) + 0.28) / float(primary_count)
+		var nominal_t := (float(branch_index) + 0.5) / float(primary_count)
+		var t := clampf(
+			nominal_t + (_hash(branch_index, species_seed, 31) - 0.5) * 0.82 / float(primary_count),
+			0.02,
+			0.98
+		)
 		var attach_y := lerpf(crown_start, crown_end, t)
-		var yaw := float(branch_index) * 2.399963 + (_hash(branch_index, species_seed, 37) - 0.5) * 0.55
+		primary_attachment_heights.append(attach_y)
+		var yaw := float(branch_index) * 2.399963 + (_hash(branch_index, species_seed, 37) - 0.5) * 1.18
 		# Lower limbs sweep widest; upper ones shorten into the crown dome.
-		var length := lerpf(7.4, 3.6, t) * lerpf(0.92, 1.12, _hash(branch_index, species_seed, 41))
-		var rise := lerpf(0.08, 0.42, t) + (_hash(branch_index, species_seed, 53) - 0.5) * 0.12
+		var length := lerpf(7.4, 3.6, t) * lerpf(0.88, 1.16, _hash(branch_index, species_seed, 41))
+		var rise := lerpf(0.04, 0.40, t) + (_hash(branch_index, species_seed, 53) - 0.5) * 0.24
 		var horizontal := sqrt(maxf(1.0 - rise * rise, 0.08))
 		var direction := Vector3(cos(yaw) * horizontal, rise, sin(yaw) * horizontal).normalized()
-		var lean := trunk_points[mini(5, trunk_points.size() - 1)]
-		var start := Vector3(
-			(lean.x / trunk_height) * attach_y,
-			attach_y,
-			(lean.z / trunk_height) * attach_y
-		)
+		var start := _point_on_path_at_height(trunk_points, attach_y)
 		var attach_t := clampf(attach_y / trunk_height, 0.0, 1.0)
 		var local_trunk_radius := _trunk_radius_at_height(trunk_radius, attach_t)
 		_grow_branch(
 			segments,
 			leaf_candidates,
 			moss_anchors,
+			growth_stats,
 			start,
 			direction,
 			length,
 			local_trunk_radius * lerpf(0.62, 0.34, t),
-			3,
+			2,
 			species_seed + branch_index * 131,
 			branch_index,
 			true
 		)
 
-	leaf_candidates.append({
-		"position": trunk_points[trunk_points.size() - 1],
-		"direction": Vector3.UP,
-		"seed": species_seed + 997,
-	})
+	# Continue the trunk into a narrowing, wind-shaped crown leader. Growing it through
+	# the same recursive branch path avoids the blunt sawn-off "pipe" silhouette.
+	var leader_start := trunk_points[trunk_points.size() - 1]
+	var leader_direction := (
+		(trunk_points[trunk_points.size() - 1] - trunk_points[trunk_points.size() - 2]).normalized()
+		+ Vector3(-0.22, 0.18, 0.13)
+	).normalized()
+	var leader_start_segment := segments.size()
+	_grow_branch(
+		segments,
+		leaf_candidates,
+		moss_anchors,
+		growth_stats,
+		leader_start,
+		leader_direction,
+		3.4,
+		trunk_radii[trunk_radii.size() - 1] * 1.05,
+		3,
+		species_seed + 997,
+		primary_count + 1,
+		true
+	)
+	var leader_segments := segments.size() - leader_start_segment
 	return {
 		"segments": segments,
 		"leaf_candidates": leaf_candidates,
@@ -153,6 +192,11 @@ static func _build_skeleton() -> Dictionary:
 		"trunk_height": trunk_height,
 		"trunk_base_radius": trunk_radius * TRUNK_BASE_FLARE,
 		"root_count": root_count,
+		"trunk_path_sections": trunk_section_count,
+		"leader_segments": leader_segments,
+		"terminal_branch_tips": leaf_candidates.size(),
+		"growth_stats": growth_stats,
+		"primary_attachment_heights": primary_attachment_heights,
 	}
 
 
@@ -160,6 +204,7 @@ static func _grow_branch(
 	segments: Array[Dictionary],
 	leaf_candidates: Array[Dictionary],
 	moss_anchors: Array[Dictionary],
+	growth_stats: Dictionary,
 	start: Vector3,
 	direction: Vector3,
 	length: float,
@@ -172,46 +217,148 @@ static func _grow_branch(
 	if segments.size() >= MAX_WOOD_SEGMENTS or length < 0.22:
 		leaf_candidates.append({"position": start, "direction": direction, "seed": seed})
 		return
-	var side := _perpendicular(direction)
-	var bend := (_hash(branch_index, seed, 67) - 0.5) * length * (0.18 if is_primary else 0.12)
-	# Ancient oak limbs droop slightly at the tips without collapsing into willow.
-	var droop := 0.16 if is_primary else 0.28
-	var end_direction := (direction + side * bend - Vector3.UP * droop * (1.0 - float(depth) / 4.0)).normalized()
-	var end := start + (direction * 0.52 + end_direction * 0.48).normalized() * length
+
+	# A branch is a flowing path, not one rigid cylinder. Persistent curvature gives
+	# each limb a readable sweep, while smaller per-section changes avoid sharp,
+	# mechanically repeated elbows.
+	var piece_count := 6 if is_primary else (4 if depth >= 2 else 3)
+	var path_points: Array[Vector3] = [start]
+	var path_directions: Array[Vector3] = [direction.normalized()]
+	var path_radii: Array[float] = [radius]
+	var current_position := start
+	var current_direction := direction.normalized()
+	var curve_axis := _radial_around(direction, TAU * _hash(branch_index, seed, 61))
+	var curve_strength := lerpf(-0.20, 0.20, _hash(branch_index, seed, 67))
 	var end_radius := maxf(radius * 0.58, MIN_BRANCH_TIP_RADIUS)
-	_append_segment(segments, start, end, radius, end_radius, 4 - depth)
-	leaf_candidates.append({"position": end, "direction": end_direction, "seed": seed})
+	for piece_index in piece_count:
+		if segments.size() >= MAX_WOOD_SEGMENTS:
+			break
+		var piece_t := float(piece_index + 1) / float(piece_count)
+		var meander := _radial_around(current_direction, TAU * _hash(piece_index, seed, 71))
+		var meander_strength := lerpf(-0.07, 0.07, _hash(piece_index, seed, 73))
+		# Old oak limbs rise from the collar, settle under their own weight, and then
+		# turn toward open light. The blend produces a soft arc instead of fixed pitch.
+		var vertical_flow := lerpf(0.08, -0.14 if is_primary else -0.20, piece_t)
+		vertical_flow += (_hash(piece_index, seed, 76) - 0.5) * 0.08
+		var target_direction := (
+			current_direction * 0.82
+			+ curve_axis * curve_strength
+			+ meander * meander_strength
+			+ Vector3.UP * vertical_flow
+		).normalized()
+		var next_direction := (current_direction * 0.52 + target_direction * 0.48).normalized()
+		var section_length := length / float(piece_count) * lerpf(0.92, 1.08, _hash(piece_index, seed, 77))
+		var next_position := current_position + (current_direction + next_direction).normalized() * section_length
+		var next_radius := lerpf(radius, end_radius, pow(piece_t, 0.82))
+		_append_segment(segments, current_position, next_position, path_radii[path_radii.size() - 1], next_radius, 4 - depth)
+		current_position = next_position
+		current_direction = next_direction
+		path_points.append(current_position)
+		path_directions.append(current_direction)
+		path_radii.append(next_radius)
+
+	if path_points.size() <= 1:
+		leaf_candidates.append({"position": start, "direction": direction, "seed": seed})
+		return
+	growth_stats["curved_branch_paths"] = int(growth_stats["curved_branch_paths"]) + 1
+	leaf_candidates.append({"position": current_position, "direction": current_direction, "seed": seed})
+	# Interior foliage pads the crown around fork shoulders instead of leaving all
+	# leaves at the outermost tips.
+	if depth >= 1 and path_points.size() >= 4:
+		var foliage_index := clampi(int(round(float(path_points.size() - 1) * 0.62)), 1, path_points.size() - 2)
+		leaf_candidates.append({
+			"position": path_points[foliage_index],
+			"direction": path_directions[foliage_index],
+			"seed": seed + 11,
+		})
+	if is_primary:
+		# A second spray along the giant limb avoids concentrating every leaf at a fork.
+		var shoulder_index := maxi(1, path_points.size() - 2)
+		leaf_candidates.append({
+			"position": path_points[shoulder_index],
+			"direction": path_directions[shoulder_index],
+			"seed": seed + 13,
+		})
+		moss_anchors.append({
+			"position": path_points[shoulder_index],
+			"direction": path_directions[shoulder_index],
+			"seed": seed + 19,
+		})
 	if is_primary or depth >= 2:
-		moss_anchors.append({"position": end, "direction": end_direction, "seed": seed + 17})
+		moss_anchors.append({"position": current_position, "direction": current_direction, "seed": seed + 17})
 	if depth <= 0:
 		return
-	var child_count := 3 if is_primary and depth >= 3 else 2
+
+	var child_count := 4 if is_primary and depth >= 3 else (3 if depth >= 2 else 2)
 	for child_index in child_count:
 		if segments.size() >= MAX_WOOD_SEGMENTS:
 			break
-		var split_yaw := float(child_index) * (TAU / float(child_count)) + (_hash(child_index, seed, 79) - 0.5) * 0.7
-		var split_angle := lerpf(0.55, 0.95, _hash(child_index, seed, 83))
-		var child_direction := _split_direction(end_direction, split_yaw, split_angle)
-		child_direction = (child_direction + Vector3.UP * 0.18).normalized()
-		var child_length := length * lerpf(0.52, 0.72, _hash(child_index, seed, 97))
+		var continuation := child_index == 0
+		var attach_t := lerpf(0.88, 0.98, _hash(child_index, seed, 79)) if continuation else lerpf(
+			0.24 + 0.15 * float(child_index - 1),
+			0.58 + 0.13 * float(child_index - 1),
+			_hash(child_index, seed, 81)
+		)
+		var path_position := attach_t * float(path_points.size() - 1)
+		var path_index := mini(int(floor(path_position)), path_points.size() - 2)
+		var path_t := path_position - float(path_index)
+		var child_start := path_points[path_index].lerp(path_points[path_index + 1], path_t)
+		var parent_direction := path_directions[path_index].lerp(path_directions[path_index + 1], path_t).normalized()
+		var parent_radius := lerpf(path_radii[path_index], path_radii[path_index + 1], path_t)
+		if attach_t < 0.90:
+			growth_stats["interior_branch_junctions"] = int(growth_stats["interior_branch_junctions"]) + 1
+		var split_yaw := TAU * _hash(child_index, seed, 83) + (_hash(branch_index, seed, 89) - 0.5) * 0.55
+		var split_angle := lerpf(0.12, 0.34, _hash(child_index, seed, 97)) if continuation else lerpf(
+			0.40,
+			1.02,
+			_hash(child_index, seed, 101)
+		)
+		var child_direction := _split_direction(parent_direction, split_yaw, split_angle)
+		child_direction = (child_direction + Vector3.UP * lerpf(0.04, 0.20, _hash(child_index, seed, 103))).normalized()
+		var child_length := length * (lerpf(0.54, 0.68, _hash(child_index, seed, 107)) if continuation else lerpf(
+			0.42,
+			0.62,
+			_hash(child_index, seed, 109)
+		))
+		var child_radius := parent_radius * (0.72 if continuation else lerpf(0.46, 0.62, _hash(child_index, seed, 113)))
+		# A short overlapping collar softens the Y-junction. It deliberately sinks into
+		# the parent wood so primary/secondary limbs do not look glued onto cylinders.
+		_append_segment(
+			segments,
+			child_start - parent_direction * parent_radius * 0.20,
+			child_start + child_direction * child_radius * 0.32,
+			child_radius * 1.16,
+			child_radius,
+			4 - depth
+		)
 		_grow_branch(
 			segments,
 			leaf_candidates,
 			moss_anchors,
-			end - end_direction * length * (0.06 + child_index * 0.05),
+			growth_stats,
+			child_start,
 			child_direction,
 			child_length,
-			end_radius,
+			maxf(child_radius, MIN_BRANCH_TIP_RADIUS),
 			depth - 1,
 			seed + 211 + child_index * 43,
 			branch_index * 5 + child_index + 1,
 			false
 		)
 
-
 static func _trunk_radius_at_height(base_radius: float, height_t: float) -> float:
 	var t := clampf(height_t, 0.0, 1.0)
 	return base_radius * lerpf(TRUNK_BASE_FLARE, TRUNK_TIP_RATIO, pow(t, 0.72))
+
+
+static func _point_on_path_at_height(points: Array[Vector3], target_y: float) -> Vector3:
+	for index in points.size() - 1:
+		var start := points[index]
+		var end := points[index + 1]
+		if target_y <= end.y:
+			var span := maxf(end.y - start.y, 0.0001)
+			return start.lerp(end, clampf((target_y - start.y) / span, 0.0, 1.0))
+	return points[points.size() - 1]
 
 
 static func _append_segment(
@@ -258,7 +405,7 @@ static func _build_canopy_mesh(skeleton: Dictionary) -> Dictionary:
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var candidates: Array = skeleton["leaf_candidates"]
 	var spray_count := mini(MAX_LEAF_SPRAYS, candidates.size())
-	var leaves_per_spray := 11
+	var leaves_per_spray := 15
 	var leaf_count := 0
 	for spray_index in spray_count:
 		var candidate_index := int(floor(float(spray_index) * float(candidates.size()) / float(spray_count)))
@@ -269,7 +416,7 @@ static func _build_canopy_mesh(skeleton: Dictionary) -> Dictionary:
 		for leaf_index in leaves_per_spray:
 			var yaw := TAU * float(leaf_index) / float(leaves_per_spray) + _hash(leaf_index, seed, 401) * 0.8
 			var radial := _radial_around(branch_direction, yaw)
-			var spread := lerpf(0.28, 0.72, _hash(leaf_index, seed, 409))
+			var spread := lerpf(0.30, 0.84, _hash(leaf_index, seed, 409))
 			var center := anchor + radial * spread + branch_direction * spread * 0.22
 			var leaf_direction := (radial * 0.68 + branch_direction * 0.38 + Vector3.UP * 0.22).normalized()
 			var leaf_length := lerpf(0.28, 0.48, _hash(leaf_index, seed, 419))
