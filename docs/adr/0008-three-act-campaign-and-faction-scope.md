@@ -89,5 +89,5 @@ entire game with AI agents.
   approval artifact but must still pass the existing activation and parity gates.
 - `docs/CANON.md` needs Act 2/3 timeline entries (Paide, Pöide, the 1346 sale) before those acts
   enter content production.
-- Legacy documents (`GAME-PILLARS.md`, `QUESTS.md`, `characters/README.md`, `story/STORY.md`)
+- Legacy documents (`docs/GAME-PILLARS.md`, `QUESTS.md`, `characters/README.md`, `story/STORY.md`)
   remain reference material; individual seeds are reactivated only through reconciled TODO tasks.

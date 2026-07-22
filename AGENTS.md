@@ -18,7 +18,7 @@ Operational guide for AI agents and contributors working on **Reval Rebel**. Pro
 | `story/`, `history/` | Narrative and research markdown | Mixed canon status; reconcile before implementing |
 | `img/` | README and marketing images | Not runtime gameplay assets |
 | `bin/` | Build artifact storage | Contains `rr.zip`; not a documented toolchain |
-| Root legacy docs | `GAME-PILLARS.md`, `GAMEPLAY.md`, `QUESTS.md`, etc. | Reference only unless reconciled in README and added to `TODO.md` |
+| Root legacy docs | `docs/GAME-PILLARS.md`, `GAMEPLAY.md`, `QUESTS.md`, etc. | Reference only unless reconciled in README and added to `TODO.md` |
 
 ### Planned but not present yet
 

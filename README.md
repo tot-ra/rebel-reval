@@ -181,8 +181,8 @@ Root design documents, much of `story/`, and the older faction and location inde
 The following scattered documents contain older concepts, mechanics, and lore. They are preserved for reference and inspiration:
 
 **Core Gameplay & Vision**
-- [`GAME-PILLARS.md`](./GAME-PILLARS.md), [`GAMEPLAY.md`](./GAMEPLAY.md), [`GAMEPLAY-NIGHT.md`](./GAMEPLAY-NIGHT.md)
-- [`MINI_GAMES.md`](./MINI_GAMES.md), [`QUESTS.md`](./QUESTS.md), [`RANDOM-IDEAS.md`](./RANDOM-IDEAS.md)
+- [`GAME-PILLARS.md`](./docs/GAME-PILLARS.md), [`GAMEPLAY.md`](./GAMEPLAY.md), [`GAMEPLAY-NIGHT.md`](./GAMEPLAY-NIGHT.md)
+- [`MINI_GAMES.md`](./docs/MINI_GAMES.md), [`QUESTS.md`](./QUESTS.md), [`RANDOM-IDEAS.md`](./RANDOM-IDEAS.md)
 
 **Story & World Context**
 - [`history/HISTORY.md`](./history/HISTORY.md), [`history/TIMELINE.md`](./history/TIMELINE.md)
