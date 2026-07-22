@@ -10,6 +10,7 @@ from .metadata import (
     FEATURED_LANDMARKS,
     REGION_MAP_LOCATION,
 )
+from .narrative import SECTION_PLANS, build_integrations
 from .tallinn_monastery_harbor_walls import TALLINN_MONASTERY_HARBOR_WALLS
 from .tallinn_quarters import TALLINN_QUARTERS
 from .tallinn_upper_civic import TALLINN_UPPER_CIVIC
@@ -31,5 +32,7 @@ __all__ = [
     "EXCLUDED",
     "FEATURED_LANDMARKS",
     "REGION_MAP_LOCATION",
+    "SECTION_PLANS",
     "TALLINN",
+    "build_integrations",
 ]

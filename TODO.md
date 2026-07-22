@@ -12,8 +12,12 @@ References:
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
 | P0 |    20  |     9  | Baseline, storage, materials, historical audit |
-| P1 |     4  |     0  | Runtime systems, content foundation |
+| P1 |     4  |     1  | Runtime systems, content foundation |
 | P2 |    17  |     4  | Vertical-slice production (playable MVP) |
+| P3 |    15  |     0  | Slice validation, accessibility, performance, release |
+| P4 |    44  |     4  | Act 1: The Simmering City |
+| P5 |    10  |     0  | Act 2: The Fire of Rebellion |
+| P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
 
 ## P6 - Act 3: The Iron Harvest and full release (lowest priority)
 
@@ -161,7 +165,8 @@ References:
 ### Large
 
 - [ ] P1-036 | deps: P0-040,P0-072,P1-029 | deliverable: evidence-driven urban map composition audit that reports street/road surface ratios by material, built-footprint and open-space density, repeated building style/material usage, terrain/vegetation coverage, local elevation range, empty contiguous regions, and required landmark presence against the map-specific P0-072 ranges without treating cobblestone as the default ground fill | verify: valid Lower Town and prototype fixtures pass at their documented ranges; one seeded excess-cobble, sparse-building, missing-landmark, flat-relief, and repeated-style violation each fails with map ID, measured value, expected range, and source-decision reference
-- [ ] P1-037 | deps: P0-113 | deliverable: integrate notable landmarks from `P0-113` into narrative design, associating them with specific discovery events, NPC dialogue, and quests so that tourist-recognizable locations are organically tied to in-game lore | verify: every landmark documented in `P0-113` has at least one associated quest, event, or lore fragment referenced in the narrative documentation and map anchors
+- [x] P1-037 | deps: P0-113 | deliverable: integrate notable landmarks from `P0-113` into narrative design, associating them with specific discovery events, NPC dialogue, and quests so that tourist-recognizable locations are organically tied to in-game lore | allowed files: `docs/LANDMARK_NARRATIVE_INTEGRATION.md`, `docs/data/landmark_integrations.json`, `tools/generate_landmark_narrative.py`, `tools/verify_landmark_narrative.py`, `tools/tourist_landmarks/narrative.py`, `tests/python/test_landmark_narrative.py`, `TODO.md` | verify: every landmark documented in `P0-113` has at least one associated quest, event, or lore fragment referenced in the narrative documentation and map anchors; `python3 tools/generate_landmark_narrative.py --check`, `python3 tools/verify_landmark_narrative.py`, and `python3 -m unittest tests.python.test_landmark_narrative -v` pass
+- [ ] P1-038 | deps: P1-037,P4-018 | deliverable: quest package generator consumes `docs/data/landmark_integrations.json` stable `beat.landmark.*` IDs when emitting branch-traversal tests | verify: one example quest package references at least one landmark beat ID and its generated traversal test fails when that beat binding is removed
 
 ## P0 - Baseline, storage, materials, historical audit (highest priority)
 
