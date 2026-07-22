@@ -3,6 +3,7 @@ extends Node3D
 
 const DirectionSignBuilder := preload("res://scripts/map/view3d/direction_sign_3d.gd")
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
+const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
 const SkyWeather3D := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const TerrainDetails := preload("res://scripts/map/view3d/map_view_terrain_details.gd")
 
@@ -32,50 +33,32 @@ const CAMERA_FAR := 800.0
 ## resident so authored district frontages never disappear inside the viewport.
 const VIEW_LOAD_RADIUS_CHUNKS := MapTerrainRenderer.DEFAULT_LOAD_RADIUS_CHUNKS + 1
 
-const SUN_DAY_COLOR := Color8(255, 243, 222)
-const SUN_DAY_ENERGY := 1.2
-const AMBIENT_DAY_COLOR := Color8(168, 178, 189)
-const AMBIENT_DAY_ENERGY := 0.85
-const BACKGROUND_DAY_COLOR := Color8(31, 30, 28)
-## Top-down interior gameplay hides the ceiling; a flat black clear color keeps
-## the room readable instead of letting the outdoor sky dome read through the
-## open shell. First-person restores BG_SKY so windows can still show sky.
-const BACKGROUND_INTERIOR_TOP_DOWN_COLOR := Color.BLACK
-
-## Deterministic night state carrying the ART_BIBLE rules forward: at least
-## 20% darker than day while ambient keeps terrain identities readable.
-const SUN_NIGHT_COLOR := Color8(142, 162, 210)
-const SUN_NIGHT_ENERGY := 0.42
-const AMBIENT_NIGHT_COLOR := Color8(52, 66, 100)
-const AMBIENT_NIGHT_ENERGY := 0.5
-const BACKGROUND_NIGHT_COLOR := Color8(12, 14, 22)
-
-## Golden-hour and overcast tints blended onto sun/ambient by SkyWeather3D
-## lighting modifiers (0 amount reproduces the authored day/night look exactly).
-const SUNSET_LIGHT_COLOR := Color8(255, 148, 64)
-const OVERCAST_LIGHT_COLOR := Color8(172, 182, 196)
-
-## Cold, hard flash a lightning strike adds to sun and ambient (SkyWeather3D
-## drives the 0..1 `lightning` level and its short decay).
-const LIGHTNING_LIGHT_COLOR := Color8(206, 220, 255)
-const LIGHTNING_SUN_ENERGY := 1.6
-const LIGHTNING_AMBIENT_ENERGY := 0.9
-
-## Morning ground mist: a low, cool haze that gathers in the still cool air before
-## dawn and burns off a couple of hours after sunrise. Basic engine fog (the GL
-## Compatibility renderer has no volumetric fog), height-biased so it hugs the
-## ground and water rather than clouding the whole sky.
-const FOG_MORNING_COLOR := Color8(200, 210, 220)
-const FOG_MAX_DENSITY := 0.018
-const FOG_HEIGHT := 3.5
-const FOG_MAX_HEIGHT_DENSITY := 1.1
-## Hours before sunrise the mist begins, and hours after which it has burned off.
-const FOG_HOURS_BEFORE_SUNRISE := 3.0
-const FOG_HOURS_AFTER_SUNRISE := 2.5
-## Only mornings whose humidity/temperature potential clears this band grow mist,
-## ramping to full above the top of it — so fog is an occasional, varied event.
-const FOG_POTENTIAL_MIN := 0.6
-const FOG_POTENTIAL_FULL := 0.85
+## Compatibility aliases keep MapView3D's public lighting constants stable while
+## the focused lighting module owns their implementation.
+const SUN_DAY_COLOR := Lighting.SUN_DAY_COLOR
+const SUN_DAY_ENERGY := Lighting.SUN_DAY_ENERGY
+const AMBIENT_DAY_COLOR := Lighting.AMBIENT_DAY_COLOR
+const AMBIENT_DAY_ENERGY := Lighting.AMBIENT_DAY_ENERGY
+const BACKGROUND_DAY_COLOR := Lighting.BACKGROUND_DAY_COLOR
+const BACKGROUND_INTERIOR_TOP_DOWN_COLOR := Lighting.BACKGROUND_INTERIOR_TOP_DOWN_COLOR
+const SUN_NIGHT_COLOR := Lighting.SUN_NIGHT_COLOR
+const SUN_NIGHT_ENERGY := Lighting.SUN_NIGHT_ENERGY
+const AMBIENT_NIGHT_COLOR := Lighting.AMBIENT_NIGHT_COLOR
+const AMBIENT_NIGHT_ENERGY := Lighting.AMBIENT_NIGHT_ENERGY
+const BACKGROUND_NIGHT_COLOR := Lighting.BACKGROUND_NIGHT_COLOR
+const SUNSET_LIGHT_COLOR := Lighting.SUNSET_LIGHT_COLOR
+const OVERCAST_LIGHT_COLOR := Lighting.OVERCAST_LIGHT_COLOR
+const LIGHTNING_LIGHT_COLOR := Lighting.LIGHTNING_LIGHT_COLOR
+const LIGHTNING_SUN_ENERGY := Lighting.LIGHTNING_SUN_ENERGY
+const LIGHTNING_AMBIENT_ENERGY := Lighting.LIGHTNING_AMBIENT_ENERGY
+const FOG_MORNING_COLOR := Lighting.FOG_MORNING_COLOR
+const FOG_MAX_DENSITY := Lighting.FOG_MAX_DENSITY
+const FOG_HEIGHT := Lighting.FOG_HEIGHT
+const FOG_MAX_HEIGHT_DENSITY := Lighting.FOG_MAX_HEIGHT_DENSITY
+const FOG_HOURS_BEFORE_SUNRISE := Lighting.FOG_HOURS_BEFORE_SUNRISE
+const FOG_HOURS_AFTER_SUNRISE := Lighting.FOG_HOURS_AFTER_SUNRISE
+const FOG_POTENTIAL_MIN := Lighting.FOG_POTENTIAL_MIN
+const FOG_POTENTIAL_FULL := Lighting.FOG_POTENTIAL_FULL
 
 ## Shadow cascades only need the max-zoom gameplay frustum, not the authored map
 ## or the camera far plane. Tighter distance concentrates shadow-map texels on
@@ -186,75 +169,13 @@ func set_weather_time_scale(scale: float) -> void:
 
 func apply_cycle_progress(progress: float, _sweep_sun_yaw: bool = true) -> void:
 	cycle_progress = wrapf(progress, 0.0, 1.0)
-	var sun_direction := SkyWeather3D.solar_direction(cycle_progress, _sky_weather.calendar_date)
-	var day_blend := SkyWeather3D.daylight_blend(cycle_progress, _sky_weather.calendar_date)
-	var night := day_blend < 0.5
-
-	# DirectionalLight3D emits along local -Z, so local +Z points back toward
-	# the celestial body. During twilight the light smoothly hands off between
-	# the moving sun and the date-driven moon shown by the sky shader.
-	var moon_direction := SkyWeather3D.lunar_direction(
+	var night := Lighting.apply_cycle_progress(
 		cycle_progress,
-		_sky_weather.calendar_date
+		_sun,
+		_environment,
+		_sky_weather,
+		uses_interior_top_down_background()
 	)
-	var sun_elevation := SkyWeather3D.solar_elevation_degrees(
-		cycle_progress,
-		_sky_weather.calendar_date
-	)
-	var sun_light_weight := smoothstep(-6.0, 0.0, sun_elevation)
-	var light_direction := moon_direction.slerp(sun_direction, sun_light_weight).normalized()
-	_sun.basis = Basis.looking_at(-light_direction, Vector3.UP)
-	# Sky dome follows the cycle first; its weather/golden-hour modifiers then
-	# temper the authored day/night lerp so overcast and dusk read in the light.
-	_sky_weather.apply_sky_state(cycle_progress, day_blend, sun_direction)
-	var weather := _sky_weather.lighting_modifiers()
-	var sun_color := SUN_NIGHT_COLOR.lerp(SUN_DAY_COLOR, day_blend)
-	sun_color = sun_color.lerp(SUNSET_LIGHT_COLOR, weather["sunset_tint"])
-	sun_color = sun_color.lerp(OVERCAST_LIGHT_COLOR, weather["overcast"])
-	_sun.light_color = sun_color
-	var moonlight := SkyWeather3D.moonlight_strength(cycle_progress, _sky_weather.calendar_date)
-	var celestial_energy := lerpf(SUN_NIGHT_ENERGY * moonlight, SUN_DAY_ENERGY, day_blend)
-	# A lightning strike briefly floods the scene with cold light so the ground and
-	# buildings flash with the sky, not just the dome.
-	var lightning := float(weather.get("lightning", 0.0))
-	_sun.light_energy = celestial_energy * weather["sun_energy"] + lightning * LIGHTNING_SUN_ENERGY
-	# Cloud cover diffuses the sun: under a grey overcast the ground casts almost
-	# no hard shadow, while clear skies (and a storm's blue-sky gaps) keep crisp
-	# ones. Overcast greyness drives how much the shadow fades.
-	_sun.shadow_opacity = clampf(1.0 - float(weather["overcast"]) * 0.85, 0.12, 1.0)
-	var ambient := AMBIENT_NIGHT_COLOR.lerp(AMBIENT_DAY_COLOR, day_blend)
-	ambient = ambient.lerp(OVERCAST_LIGHT_COLOR, weather["overcast"] * 0.5)
-	ambient = ambient.lerp(LIGHTNING_LIGHT_COLOR, lightning * 0.7)
-	_environment.ambient_light_color = ambient
-	_environment.ambient_light_energy = (
-		lerpf(AMBIENT_NIGHT_ENERGY, AMBIENT_DAY_ENERGY, day_blend) * weather["ambient_energy"]
-		+ lightning * LIGHTNING_AMBIENT_ENERGY
-	)
-	# Outdoor / first-person keep the cycle-tinted clear color under the sky
-	# dome; interior top-down overrides to a flat black void below.
-	_environment.background_color = BACKGROUND_NIGHT_COLOR.lerp(BACKGROUND_DAY_COLOR, day_blend)
-	_sync_interior_top_down_background()
-	_apply_ground_mist(cycle_progress)
-	# Water specular follows the sky sun disk, not civil-twilight light weight,
-	# so sea cannot keep a sun glint after the disk has set.
-	MapViewMaterials.apply_water_lighting(
-		SkyWeather3D.sun_disk_visibility(sun_direction),
-		day_blend
-	)
-	var cloud_occlusion := 1.0 - _sky_weather.cloud_coverage()
-	var sun_reflection_color := SUN_DAY_COLOR.lerp(SUNSET_LIGHT_COLOR, weather["sunset_tint"])
-	MapViewMaterials.apply_water_sky_reflection(
-		_sky_weather.star_map_texture(),
-		sun_direction,
-		moon_direction,
-		SkyWeather3D.sun_disk_visibility(sun_direction) * cloud_occlusion,
-		moonlight * cloud_occlusion,
-		pow(1.0 - day_blend, 3.0) * cloud_occlusion,
-		deg_to_rad(SkyWeather3D.OBSERVER_LATITUDE_DEGREES),
-		SkyWeather3D.sidereal_angle_for_progress(cycle_progress),
-		sun_reflection_color
-	)
-
 	var bucket := TIME_NIGHT if night else TIME_DAY
 	if bucket != _last_chimney_bucket:
 		_last_chimney_bucket = bucket
@@ -374,50 +295,9 @@ func is_interior_shell_visible() -> bool:
 	return interior_shell != null and interior_shell.visible
 
 
-## Enclosed interiors in top-down view: black clear color instead of sky dome.
-## Sun, ambient, and InteriorWindowLights still follow the day/night cycle.
-## Low morning mist. Gathers in the still, cool air a few hours before sunrise,
-## peaks at first light, and burns off by mid-morning; calm air holds it while
-## wind tears it apart. Height-biased engine fog, so it settles over the ground
-## and harbour water rather than clouding the sky. Off indoors.
-func _apply_ground_mist(progress: float) -> void:
-	if _environment == null:
-		return
-	if uses_interior_top_down_background():
-		_environment.fog_enabled = false
-		return
-	var hour := DayNightCycle.progress_to_hour(progress)
-	var sunrise := float(SkyWeather3D.sunrise_sunset_hours(_sky_weather.calendar_date)["sunrise"])
-	var mist := _morning_mist_factor(hour, sunrise)
-	# Not every morning is foggy: it takes the right damp, still, cool-night setup.
-	# The per-day potential decides whether (and how thickly) mist forms at all.
-	mist *= smoothstep(FOG_POTENTIAL_MIN, FOG_POTENTIAL_FULL, SkyWeather3D.morning_fog_potential(_sky_weather.calendar_date))
-	# Still air holds the mist; a fresh breeze or storm wind disperses it.
-	mist *= clampf(1.0 - _sky_weather.wind_strength() * 0.7, 0.0, 1.0)
-	if mist <= 0.001:
-		_environment.fog_enabled = false
-		return
-	_environment.fog_enabled = true
-	_environment.fog_mode = Environment.FOG_MODE_EXPONENTIAL
-	_environment.fog_light_color = FOG_MORNING_COLOR
-	_environment.fog_sun_scatter = 0.2
-	_environment.fog_sky_affect = 0.08
-	_environment.fog_aerial_perspective = 0.0
-	_environment.fog_density = FOG_MAX_DENSITY * mist
-	_environment.fog_height = FOG_HEIGHT
-	_environment.fog_height_density = FOG_MAX_HEIGHT_DENSITY * mist
-
-
-## Mist envelope over the day: rises through the pre-dawn, peaks at sunrise, and
-## fades a couple of hours after. Static so it is trivially testable.
+## Compatibility wrapper retained for focused tests and existing callers.
 static func _morning_mist_factor(hour: float, sunrise: float) -> float:
-	var start := sunrise - FOG_HOURS_BEFORE_SUNRISE
-	var stop := sunrise + FOG_HOURS_AFTER_SUNRISE
-	if hour <= start or hour >= stop:
-		return 0.0
-	if hour < sunrise:
-		return smoothstep(start, sunrise, hour)
-	return 1.0 - smoothstep(sunrise, stop, hour)
+	return Lighting.morning_mist_factor(hour, sunrise)
 
 
 func uses_interior_top_down_background() -> bool:
@@ -430,13 +310,7 @@ func uses_interior_top_down_background() -> bool:
 
 
 func _sync_interior_top_down_background() -> void:
-	if _environment == null:
-		return
-	if uses_interior_top_down_background():
-		_environment.background_mode = Environment.BG_COLOR
-		_environment.background_color = BACKGROUND_INTERIOR_TOP_DOWN_COLOR
-	else:
-		_environment.background_mode = Environment.BG_SKY
+	Lighting.sync_background(_environment, uses_interior_top_down_background())
 
 
 ## True when a building or landmark mass crosses the segment. The runtime
