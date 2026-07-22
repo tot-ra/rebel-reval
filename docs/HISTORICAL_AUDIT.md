@@ -281,6 +281,23 @@ The numeric ranges below use these definitions:
 | Topography | Lower Town ground rises west toward Toompea and falls east toward Viru; retain uneven thresholds/cellar necks without blocking routes - **A/B** | H01, H04, H09 |
 | Landmarks | Town Hall: first-quarter-14th-century elongated local-limestone hall/warehouse, shorter than post-1371 mass and without 1402-04 upper storey/tower (**A/B**). Holy Spirit: modest pre-enlargement chapel-almshouse, no later tower/clock (**A/B**). Current Great Guild Hall (1407-10), Blackheads institution (1399), and Raeapteek identity (post-1422) are excluded; generic earlier merchant/guild meeting fabric may remain **U/B** | H06-H07 and H04 chronology |
 
+#### `st_olafs_guild_hall` - merchant guild meeting interior (prototype)
+
+| Category | 1343 target | Evidence |
+|---|---|---|
+| Street/property layout | One compact merchant guild meeting interior: long hall with raised dais, audience floor, hearth/service zone and street-door threshold. Exact room count, dimensions and street address are **D/U** | H04-H06 support merchant meeting halls and affluent stone/timber houses; St Olaf craft-guild use is first attested 1363, not 1343 |
+| Density | Built footprint is 100% because this blueprint is an interior. Within the footprint, circulation/open floor should remain 50-65% and fixed furnishings/platforms 35-50% - **B/D** | H04-H06; gameplay clearance remains authoritative |
+| Ordinary / exceptional buildings | Timber and plastered-timber hall fabric with local limestone at hearth, dais base and threshold; no monumental civic cathedral or later guild monument mass - **B/D/U** | H04-H06; present Great Guild Hall (1407-10) is excluded |
+| Roof covers | Roof is not normally visible. If exposed by inspection view, use shingle or tile on a modest merchant hall; thatch is acceptable only on a rear service wing not modeled here - **B/U** | H04 and shared roof rule |
+| Ground surfaces | Timber boards 40-55%; stone/flag dais and hearth zone 15-25%; packed earth or plaster service strips 20-35% - **B/D** | H05 records wooden floors and affluent merchant interiors; exact guild-hall surfacing unknown |
+| Drainage | Hearth ash/soot runoff uses a short gutter or hearth pit; no invented sewer - **B/U** | H05; exact interior drainage unknown |
+| Fences / plot edges | Interior partitions are timber/plaster. No rooted vegetation inside the hall - **B/U** | Interior scope |
+| Vegetation species | No rooted vegetation required indoors. Optional dried goods or garlands may appear as generic merchant feast props; exact species are **U/D** | H17 supports medieval plant use but not guild inventory |
+| Garden / agricultural use | None inside this blueprint. All produce and feast supplies are off-map trade props - **D/U** | H17; interior scope |
+| Domestic / wild fauna | Resident livestock and wild fauna: `none`. At most one commensal rodent or cat cue may be `trace` and **D/U** | H18; exact guild-hall fauna unknown |
+| Topography | Nearly level usable floor with small hearth/dais fall; no exterior hill claim - **D** | Interior gameplay abstraction |
+| Landmarks | Guild dais, long tables, hearth and return door remain stable gameplay anchors; faction NPC roster and exact guild identity are **D**, while present Great Guild Hall (1407-10) and Blackheads institution (1399) must not be presented as attested 1343 occupants | H06-H07, H14 and market_civic_quarter exclusions |
+
 #### `north_quarter` - northern merchant ward and Coastal Gate approach
 
 | Category | 1343 target | Evidence |
@@ -417,7 +434,7 @@ Required reviewer: a maintainer or consulted historian who did not author these 
 | Review item | Decision | Reviewer | Date | Notes |
 |---|---|---|---|---|
 | Evidence-class separation is clear and no later survival is presented as 1343 fact | `pending` |  |  |  |
-| Eleven map cards match the registry and cover layout, density, buildings/materials, roofs, ground, drainage, fences, vegetation species, garden/agricultural use, fauna, topography and landmark state | `pending` |  |  |  |
+| Twelve map cards match the registry and cover layout, density, buildings/materials, roofs, ground, drainage, fences, vegetation species, garden/agricultural use, fauna, topography and landmark state | `pending` |  |  |  |
 | Built/open and surface bands are acceptable as bounded production targets | `pending` |  |  |  |
 | Landmark exclusions and unknowns are historically conservative | `pending` |  |  |  |
 | Approved for P1-036 and district quality-pass acceptance thresholds | `pending` |  |  |  |

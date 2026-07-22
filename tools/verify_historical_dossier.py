@@ -40,7 +40,7 @@ REQUIRED_CATEGORIES = (
 )
 REQUIRED_REVIEW_ITEMS = (
     "Evidence-class separation is clear and no later survival is presented as 1343 fact",
-    "Eleven map cards match the registry and cover layout, density, buildings/materials, roofs, ground, drainage, fences, vegetation species, garden/agricultural use, fauna, topography and landmark state",
+    "Twelve map cards match the registry and cover layout, density, buildings/materials, roofs, ground, drainage, fences, vegetation species, garden/agricultural use, fauna, topography and landmark state",
     "Built/open and surface bands are acceptable as bounded production targets",
     "Landmark exclusions and unknowns are historically conservative",
     "Approved for P1-036 and district quality-pass acceptance thresholds",
