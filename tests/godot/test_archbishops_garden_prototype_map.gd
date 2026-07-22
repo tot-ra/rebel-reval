@@ -90,6 +90,21 @@ func test_archbishops_garden_favors_orchard_vegetation_over_brick_plazas() -> vo
 	assert_false(_prop_by_id(definition, &"kitchen_plot_fence").is_empty())
 
 
+func test_archbishops_garden_renders_apple_and_cherry_orchard_batches() -> void:
+	var definition: MapDefinition = ArchbishopsGardenDefinition.create()
+	var scatter := MapViewMeshBuilder.build_scatter(definition, MapBuilder.build(definition))
+	for species in [MapViewTreeSpecies.SPECIES_APPLE, MapViewTreeSpecies.SPECIES_CHERRY]:
+		var label := String(species).capitalize()
+		var canopy := scatter.get_node_or_null("Trees_%s" % label) as MultiMeshInstance3D
+		var fruit := scatter.get_node_or_null("TreeFruit_%s" % label) as MultiMeshInstance3D
+		assert_true(canopy != null, "Garden must render %s crowns" % species)
+		assert_true(fruit != null, "Garden must render visible %s fruit" % species)
+		if canopy != null and fruit != null:
+			assert_true(canopy.multimesh.instance_count > 0)
+			assert_eq(fruit.multimesh.instance_count, canopy.multimesh.instance_count)
+	scatter.free()
+
+
 func _building_by_id(definition: MapDefinition, building_id: StringName) -> Dictionary:
 	for building in definition.buildings:
 		if building["id"] == building_id:

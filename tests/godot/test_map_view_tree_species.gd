@@ -12,7 +12,23 @@ func test_local_species_catalog_covers_woodland_and_orchard_trees() -> void:
 		var stats := MapViewMeshBuilderPrimitives.tree_geometry_stats(species)
 		assert_true(int(stats.get("wood_segments", 0)) > 6, "%s needs visible branching" % species)
 		assert_true(int(stats.get("leaf_count", 0)) >= 25, "%s needs terminal leaf sprays" % species)
-		assert_true(int(stats.get("wood_segments", 999)) <= 52, "%s exceeds branch budget" % species)
+		assert_true(int(stats.get("wood_segments", 999)) <= MapViewTreeMeshes.MAX_WOOD_SEGMENTS, "%s exceeds branch budget" % species)
+		assert_true(int(stats.get("leaf_sprays", 999)) <= MapViewTreeMeshes.MAX_LEAF_SPRAYS, "%s exceeds foliage budget" % species)
+		assert_true(int(stats.get("fruit_count", 999)) <= MapViewTreeMeshes.MAX_FRUIT_COUNT, "%s exceeds fruit budget" % species)
+
+
+func test_species_geometry_is_cached_for_multimesh_reuse() -> void:
+	for species in MapViewTreeSpecies.ALL_SPECIES:
+		assert_true(
+			MapViewMeshBuilderPrimitives.tree_wood_mesh(species)
+			== MapViewMeshBuilderPrimitives.tree_wood_mesh(species),
+			"%s wood mesh must be shared between instances" % species
+		)
+		assert_true(
+			MapViewMeshBuilderPrimitives.tree_canopy_mesh(species)
+			== MapViewMeshBuilderPrimitives.tree_canopy_mesh(species),
+			"%s canopy mesh must be shared between instances" % species
+		)
 
 
 func test_variant_pins_species_and_optional_size() -> void:
