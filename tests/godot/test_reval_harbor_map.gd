@@ -51,12 +51,21 @@ func test_harbors_keep_open_water_and_shallow_working_shores() -> void:
 		# transition side may preview its neighbor instead of adding exterior trees,
 		# so inspect full-map scatter rather than requiring Surroundings/Trunks.
 		var scatter := MapViewMeshBuilder.build_scatter(definition, grid)
-		var authored_trunks := scatter.get_node_or_null("TreeTrunks") as MultiMeshInstance3D
-		assert_true(authored_trunks != null, "%s must mask off-limits land with authored trees" % String(definition.map_id))
-		if authored_trunks != null:
-			assert_true(authored_trunks.multimesh.instance_count > 40, "%s needs a substantial forest screen, not a sparse border row" % String(definition.map_id))
+		var authored_tree_count := _tree_instance_count(scatter)
+		assert_true(authored_tree_count > 0, "%s must mask off-limits land with authored trees" % String(definition.map_id))
+		assert_true(authored_tree_count > 40, "%s needs a substantial forest screen, not a sparse border row" % String(definition.map_id))
 		scatter.free()
 		view.free()
+
+
+func _tree_instance_count(root: Node) -> int:
+	# Species-aware foliage splits trunks into deterministic MultiMesh batches;
+	# count the complete screen instead of only the legacy mixed-tree batch.
+	var total := 0
+	for child in root.get_children():
+		if child is MultiMeshInstance3D and String(child.name).begins_with("TreeTrunks"):
+			total += (child as MultiMeshInstance3D).multimesh.instance_count
+	return total
 
 
 func test_harbor_shores_do_not_scatter_reeds_or_cattails() -> void:

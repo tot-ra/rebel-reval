@@ -128,7 +128,7 @@ sign sign.school "cathedral school" 68 75 north
 sign sign.padise "west road" 4 152 west
 # Multi-street watch: Lühike Jalg, Lossi plats, castle court, Toom-Kooli,
 # cathedral close, Pikk Jalg, and the southern slope.
-patrol castle_watch 136,129|110,108|78,108|60,108|40,126|40,150|30,150|29,174|29,150|40,150|40,108|42,90|42,42|92,42|110,42|126,42|136,34
+patrol castle_watch 136,129|110,108|78,108|60,108|40,126|36,150|30,150|29,174|29,150|36,150|40,108|42,90|42,42|92,42|110,42|126,42|136,34
 fade fade.castle 4 102 40 84
 fade fade.cathedral 32 24 46 72
 camera 0 0 144 192

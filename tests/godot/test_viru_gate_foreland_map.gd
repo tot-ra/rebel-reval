@@ -47,11 +47,18 @@ func test_foreland_masks_off_limits_edges_with_dense_woodland() -> void:
 	assert_true(view.has_node("Surroundings/WoodlandApron_north"))
 	assert_true(view.has_node("Surroundings/WoodlandApron_east"))
 	assert_true(view.has_node("Surroundings/WoodlandApron_south"))
-	var trunks := view.get_node_or_null("Surroundings/Trunks") as MultiMeshInstance3D
-	assert_true(trunks != null)
-	if trunks != null:
-		assert_true(trunks.multimesh.instance_count > 100)
+	assert_true(_tree_instance_count(view.get_node("Surroundings")) > 100)
 	view.free()
+
+
+func _tree_instance_count(root: Node) -> int:
+	# Species-aware foliage uses one deterministic trunk batch per silhouette;
+	# the woodland density contract applies to their combined forest screen.
+	var total := 0
+	for child in root.get_children():
+		if child is MultiMeshInstance3D and String(child.name).begins_with("TreeTrunks"):
+			total += (child as MultiMeshInstance3D).multimesh.instance_count
+	return total
 
 
 func _transition(definition: MapDefinition, transition_id: StringName) -> Dictionary:

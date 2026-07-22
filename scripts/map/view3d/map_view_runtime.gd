@@ -405,8 +405,17 @@ func rotate_view_degrees(delta_degrees: float) -> void:
 	_configure_screen_relative_movement()
 
 
+func _music_director() -> Node:
+	# Unit-level runtime instances can advance their local clock before entering a
+	# SceneTree. Resolve the autoload through the tree root only when one exists,
+	# instead of issuing an invalid absolute NodePath lookup on a detached node.
+	if not is_inside_tree():
+		return null
+	return get_tree().root.get_node_or_null("MusicDirector")
+
+
 func _restore_cycle_from_music_director() -> void:
-	var music_director := get_node_or_null("/root/MusicDirector")
+	var music_director := _music_director()
 	if music_director == null:
 		return
 	if music_director.has_method(&"is_cycle_active") and not bool(music_director.call(&"is_cycle_active")):
@@ -419,7 +428,7 @@ func _restore_cycle_from_music_director() -> void:
 
 
 func _sync_music_cycle() -> void:
-	var music_director := get_node_or_null("/root/MusicDirector")
+	var music_director := _music_director()
 	if music_director != null:
 		music_director.call("set_cycle_progress", cycle_progress)
 		if music_director.has_method(&"set_cycle_elapsed_days"):
@@ -486,7 +495,7 @@ func _on_state_replaced(_previous: GameState, current: GameState, _reason: Strin
 func _on_phase_changed(_previous: StringName, next: StringName) -> void:
 	cycle_elapsed_days = 0
 	view.set_calendar_date(GameCalendarScript.date_for_phase(next))
-	var music_director := get_node_or_null("/root/MusicDirector")
+	var music_director := _music_director()
 	if music_director != null and music_director.has_method(&"set_cycle_elapsed_days"):
 		music_director.call(&"set_cycle_elapsed_days", cycle_elapsed_days)
 

@@ -99,7 +99,7 @@ anchor kalamaja_shore 55 54 rect=2,2
 transition to_harbor_north 140 47 4 8 to=reval_harbor_north destination_spawn=from_harbor_east spawn=from_harbor_north spawn_offset_px=-128,0 highlight_area=true transition_visual=ground
 sign sign.merchant_landing "merchant landing" 136 49 east
 sign sign.shore "kalamaja fishing shore" 70 49 north
-patrol harbor_east_watch 62,62|62,55|46,51|28,52|46,51|76,51|96,51|118,50|138,51|118,50
+patrol harbor_east_watch 62,62|62,55|46,52|36,55|46,52|72,55|86,51|106,51|138,51|106,51
 # Carve pier columns out of the water exclusion so timber decks remain walkable.
 exclude blocked.water.deep 0 0 144 24
 exclude blocked.water.shallow_a 0 24 26 10

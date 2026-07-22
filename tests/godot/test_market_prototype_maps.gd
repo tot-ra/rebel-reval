@@ -125,8 +125,8 @@ func test_north_quarter_edges_are_reciprocal_with_adjacent_districts() -> void:
 	_assert_edge(monastery, &"to_reval_center", &"south")
 	_assert_edge(monastery, &"to_reval_east", &"south")
 	_assert_edge(harbor_north, &"to_reval_north", &"south")
-	_assert_edge(harbor_north, &"to_harbor_east", &"east")
-	_assert_edge(harbor_east, &"to_harbor_north", &"west")
+	_assert_edge(harbor_north, &"to_harbor_east", &"west")
+	_assert_edge(harbor_east, &"to_harbor_north", &"east")
 
 
 func test_fortification_gate_arches_seal_to_collision_walls_on_both_sides() -> void:
@@ -246,9 +246,20 @@ func _gate_jamb_is_blocked(
 			probe = Vector2(gate_rect.position.x + sample_offset, gate_rect.position.y + cell_size * 0.5 if side == &"low" else gate_rect.end.y - cell_size * 0.5)
 		else:
 			probe = Vector2(gate_rect.position.x + cell_size * 0.5 if side == &"low" else gate_rect.end.x - cell_size * 0.5, gate_rect.position.y + sample_offset)
+		if _is_authored_wall_walk_probe(definition, probe):
+			continue
 		if MapVerification.is_walkable_point(definition, grid, probe):
 			return false
 	return true
+
+
+func _is_authored_wall_walk_probe(definition: MapDefinition, probe: Vector2) -> bool:
+	# The 2D authority flattens elevated wall walks. A reviewed platform crossing a
+	# gate jamb is not a ground-level breach, so gate sealing checks skip that lane.
+	for prop in definition.props:
+		if MapWallWalkAccess.is_platform_prop(prop) and (prop["footprint"] as Rect2).has_point(probe):
+			return true
+	return false
 
 
 func _assert_transition_pair(from_definition: MapDefinition, from_id: StringName, to_definition: MapDefinition, to_id: StringName) -> void:

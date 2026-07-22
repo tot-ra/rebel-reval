@@ -265,6 +265,31 @@ func test_smithy_exit_opens_into_a_readable_courtyard() -> void:
 	assert_true(nearest_wall_distance_cells >= 7.0, "city wall must not dominate the smithy exit view")
 
 
+func test_viru_gate_arch_matches_collision_jamb_span() -> void:
+	var definition: MapDefinition = LowerTownSliceDefinition.create()
+	var arch: Dictionary = {}
+	var north_jamb: Dictionary = {}
+	var south_jamb: Dictionary = {}
+	for landmark in definition.view_landmarks:
+		if landmark.get("id") == &"viru_gate_arch":
+			arch = landmark
+	for building in definition.buildings:
+		match building.get("id"):
+			&"viru_gate_north_jamb": north_jamb = building
+			&"viru_gate_south_jamb": south_jamb = building
+	assert_false(arch.is_empty())
+	assert_false(north_jamb.is_empty())
+	assert_false(south_jamb.is_empty())
+	if arch.is_empty() or north_jamb.is_empty() or south_jamb.is_empty():
+		return
+	# The gate arch is view-only. Its longitudinal span must stay over both
+	# collision jambs without visually claiming the open smithy apron to the west.
+	var arch_rect: Rect2 = arch["rect"]
+	assert_eq(arch_rect.position.x, (south_jamb["footprint"] as Rect2).position.x)
+	assert_eq(arch_rect.end.x, (south_jamb["footprint"] as Rect2).end.x)
+	assert_true((north_jamb["footprint"] as Rect2).encloses(Rect2(arch_rect.position.x, (north_jamb["footprint"] as Rect2).position.y, arch_rect.size.x, (north_jamb["footprint"] as Rect2).size.y)))
+
+
 func _navigation_points_connected(nav_polygon: NavigationPolygon, start: Vector2, target: Vector2) -> bool:
 	var vertices := nav_polygon.get_vertices()
 	var start_polygon := -1

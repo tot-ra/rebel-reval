@@ -5,14 +5,13 @@ Executable open work stays in [`TODO.md`](../TODO.md).
 
 ## Current focus (2026-07-22)
 
-1. **P0-078** - green clean-clone Godot baseline.
-2. **P0-072** - sourced 1343 Reval environment dossier per retained map.
-3. **P0-053** - slice surface and weathering kit.
-4. **P0-038 / P0-039 / P0-040** - measure, blind-read, and freeze ART_BIBLE v2.
-5. **P2-003 / P1-029 / P1-036** - modular environment kit, asset lint, composition audit.
-6. **P2-022 / P2-023 / P2-021** - Lower Town realism, landmark pass, parity gate.
-7. **P2-025 through P2-031** - district-life dressing, vegetation, fauna.
-8. Slice quest authoring (**P2-006** through **P2-012**) stays below environment realism until Lower Town reads as historically grounded Reval.
+1. **P0-072** - sourced 1343 Reval environment dossier per retained map.
+2. **P0-053** - slice surface and weathering kit.
+3. **P0-038 / P0-039 / P0-040** - measure, blind-read, and freeze ART_BIBLE v2.
+4. **P2-003 / P1-029 / P1-036** - modular environment kit, asset lint, composition audit.
+5. **P2-022 / P2-023 / P2-021** - Lower Town realism, landmark pass, parity gate.
+6. **P2-025 through P2-031** - district-life dressing, vegetation, fauna.
+7. Slice quest authoring (**P2-006** through **P2-012**) stays below environment realism until Lower Town reads as historically grounded Reval.
 
 Maintainer decision: environmental realism is the top production priority after **P0-078**.
 Sky/weather (**P0-075**) is accepted; do not reopen unless fixing a defect.
@@ -56,6 +55,7 @@ Coordination note (2026-07-21 P0-073): Archbishop's Garden map-audit/conversion 
 Coordination note (2026-07-21 P0-075): sky/weather compile regression closed. `_advance_gust()` restores the rain-front gust envelope; weather profiles push `storm_intensity` and wind-scaled cloud drift into the sky shader; `--filter=test_sky_weather_3d` passes 22/22 with zero script compile errors.
 Coordination note (2026-07-22 P0-078 in progress): direction-sign contract drift from the Lower Town `.rrmap` migration is closed on current work: tests now assert the four authored signs (`viru gate and eastern road`, `to town centre`, `to knights district`, `karja gate`) and `--filter=test_direction_sign_3d` is green. Rebound mouse-confirm focus is green under `--filter=test_input_bindings`. Smithy entrance/courtyard bucket is closed: `smithy_door_transition` now carries `building_id=kalev_smithy` with `transition_visual=door`, and `viru_gate_south_jamb` shifts east so the courtyard apron stays walkable at the tested cells; `--filter=test_lower_town_slice_map` passes 14/14 and the parity fixture is refreshed. Remaining P0-078 buckets: prototype route/adjacency drift, banner geometry, and generated fixture UID cleanup.
 Coordination note (2026-07-22 P0-078 active implementation): selected as the highest-priority dependency-free high-complexity task on current `HEAD`; running the required clean import and complete Godot suite first, then fixing every remaining failure by root cause without weakening assertions.
+Coordination note (2026-07-22 P0-078): clean-clone Godot baseline is green. Verified: `tools/run_godot_checked.sh clean-import` and `--require-test-summary full-suite` pass 742/742 tests with zero failures. Closed the remaining prototype adjacency/patrol drift (harbor north/east reciprocal edges, Toompea and Kalamaja patrols), Viru Gate arch/jamb geometry, species-aware woodland density assertions, rebound mouse `ui_accept` focus flow in `UserSettings`, and detached-runtime `MusicDirector` lookup in `MapViewRuntime`. **P0-070** closeout is unblocked.
 Coordination note (2026-07-22 P0-080): `tools/update_todo_counts.py` regenerates the TODO quick-reference table from task rows, including suffix IDs such as `D-004a` and `P1-031a`; `python3 -m unittest tests.python.test_update_todo_counts -v` passes and the summary table is refreshed.
 Coordination note (2026-07-22 P0-079): procedural sky resource baking (cloud noise, lunar albedo, star catalog, rain particles) now lives in `SkyWeatherResources`; `SkyWeather3D` keeps weather simulation and astronomy facades. `--filter=test_sky_weather_3d` passes 27/27 and `--filter=test_map_view_3d_lighting` passes 12/12 with zero behavior regressions.
 Coordination note (2026-07-22 P0-081): all ten P1-037/P1-037a Estonia `world_travel` developer wrappers are reconciled with map audit, migration matrix, outdoor-prototype policy, and `assets/UI/estonia_world_map.png` C2PA provenance while every destination stays `release=false`; `MapAuditRegistry` executes every `world.*` definition and audit captures exist for each wrapper.
@@ -110,19 +110,18 @@ Required exit condition for the packaging gate: clean clone import, startup smok
 - **D-004a is complete:** no release-only move-talk-pickup defects remain; see `docs/reports/d004a_release_only_triage.md`. Optional: D-004b human video; D-004c in-binary packaged walkthrough.
 ### 4. Close the visual acceptance gate and rebuild Reval environments in evidence-first order
 Maintainer priority (2026-07-22): realism of place and daily life over slice quest content. Weather is frozen at **P0-075**; do not spend cycles on sky/weather unless fixing a regression.
-1. **P0-078** - unblock all environment work with a green clean-clone test baseline.
-2. **P0-072** - first establish sourced, map-specific 1343 Reval targets for street layout, property density, ordinary and exceptional architecture, relief, vegetation species mixes, agricultural land use, domestic and wild fauna ranges, and landmark states; do not encode the current cobblestone coverage as the historical baseline.
-3. **P0-053** - finish the surface/weathering kit; P0-037 shared-rig production evidence is complete.
-4. **P0-038, then P0-039 and P0-040** - measure the candidate, run human readability review, and freeze ART_BIBLE v2 before broader production art.
-5. **P2-003, P1-029, and P1-036** - after the art gate, build and lint the historically grounded modular environment kit and enforce the sourced composition ranges with a map-quality audit.
-6. **P2-022, then P2-023** - highest player-visible realism pass on the playable Lower Town: historically correct streets and plot pattern, dense property footprints, period architecture and materials, relief, and sparse plausible vegetation. **P2-021** visual parity follows these passes.
-7. **P2-027, then P2-028** - replace decorative tree silhouettes with species-accurate Estonian trees, then expand ground-cover to at least twenty historically plausible grasses, herbs, and meadow plants for urban margins and open ground.
-8. **P2-025 and P2-026** - land the shared district-life static prop kit, then dress the playable Lower Town slice so yards and street frontages read as specific trades without NPC actors.
-9. **P2-030** - rural and agricultural static-life kit for forelands, garden plots, hay meadows, pastures, and peri-urban margins so life outside the wall reads as 1343 Estonian countryside rather than empty filler.
-10. **P2-024, then P2-031** - urban ambient fauna (cats, dogs, horses, rats) first; then domestic stock (chickens, ducks, geese, pigs, cows) and cautious wild margins (hares, foxes, wolves, bears) with flee/tether behavior and no navigation blocking.
-11. **P2-029** - ambient bird flight and song after core layout and fauna budgets are stable.
-12. **P4-022 through P4-026** - apply the same sourced quality bar district by district after slice approval. Central, then North (**P4-023**) and Monastery (**P4-023a** through **P4-023e**), precede their activation gates; south, Toompea/garden, and harbor remain inactive prototypes unless separately approved.
-13. **P4-028a through P4-028h** and **P4-029** - per-district static life dressing, then foreland/rural perimeter passes using the agricultural and fauna kits.
+1. **P0-072** - first establish sourced, map-specific 1343 Reval targets for street layout, property density, ordinary and exceptional architecture, relief, vegetation species mixes, agricultural land use, domestic and wild fauna ranges, and landmark states; do not encode the current cobblestone coverage as the historical baseline.
+2. **P0-053** - finish the surface/weathering kit; P0-037 shared-rig production evidence is complete.
+3. **P0-038, then P0-039 and P0-040** - measure the candidate, run human readability review, and freeze ART_BIBLE v2 before broader production art.
+4. **P2-003, P1-029, and P1-036** - after the art gate, build and lint the historically grounded modular environment kit and enforce the sourced composition ranges with a map-quality audit.
+5. **P2-022, then P2-023** - highest player-visible realism pass on the playable Lower Town: historically correct streets and plot pattern, dense property footprints, period architecture and materials, relief, and sparse plausible vegetation. **P2-021** visual parity follows these passes.
+6. **P2-027, then P2-028** - replace decorative tree silhouettes with species-accurate Estonian trees, then expand ground-cover to at least twenty historically plausible grasses, herbs, and meadow plants for urban margins and open ground.
+7. **P2-025 and P2-026** - land the shared district-life static prop kit, then dress the playable Lower Town slice so yards and street frontages read as specific trades without NPC actors.
+8. **P2-030** - rural and agricultural static-life kit for forelands, garden plots, hay meadows, pastures, and peri-urban margins so life outside the wall reads as 1343 Estonian countryside rather than empty filler.
+9. **P2-024, then P2-031** - urban ambient fauna (cats, dogs, horses, rats) first; then domestic stock (chickens, ducks, geese, pigs, cows) and cautious wild margins (hares, foxes, wolves, bears) with flee/tether behavior and no navigation blocking.
+10. **P2-029** - ambient bird flight and song after core layout and fauna budgets are stable.
+11. **P4-022 through P4-026** - apply the same sourced quality bar district by district after slice approval. Central, then North (**P4-023**) and Monastery (**P4-023a** through **P4-023e**), precede their activation gates; south, Toompea/garden, and harbor remain inactive prototypes unless separately approved.
+12. **P4-028a through P4-028h** and **P4-029** - per-district static life dressing, then foreland/rural perimeter passes using the agricultural and fauna kits.
 ### 5. Resume vertical-slice systems only after the environment baseline is credible
 1. **P1-025 through P1-027** - add enemies, non-lethal outcomes, and retry state (enemy state machine is **P1-025**, done; room wiring **P1-025a** is done; night stub **P1-025b** is done; outcomes **P1-026** are done; retry checkpoint **P1-027** is done; night-scene retry wiring **P1-027a** is done; content outcome package **P1-026a** is done; night-stub outcome UI from content **P1-026b** is done).
 2. **P1-022** follows P0-040; **P1-031** district map overlay is done; click-to-travel polish is **P1-031a** (done); keyboard/gamepad focus travel is **P1-031b** (done).

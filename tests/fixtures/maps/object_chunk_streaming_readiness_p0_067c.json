@@ -177,6 +177,56 @@
           "subject": "foaming_mug_brewery"
         },
         {
+          "subject": "foregate_north_jamb",
+          "kind": "building",
+          "cell_rect": [
+            124,
+            49,
+            6,
+            3
+          ],
+          "owner_chunk": [
+            3,
+            1
+          ],
+          "consumer_chunks": [
+            [
+              3,
+              1
+            ],
+            [
+              4,
+              1
+            ]
+          ],
+          "residency": "streamed"
+        },
+        {
+          "subject": "foregate_south_jamb",
+          "kind": "building",
+          "cell_rect": [
+            124,
+            56,
+            6,
+            4
+          ],
+          "owner_chunk": [
+            3,
+            1
+          ],
+          "consumer_chunks": [
+            [
+              3,
+              1
+            ],
+            [
+              4,
+              1
+            ]
+          ],
+          "residency": "streamed"
+        },
+        {
           "cell_rect": [
             124,
             43,
@@ -261,6 +311,27 @@
         },
         {
           "cell_rect": [
+            76,
+            79,
+            8,
+            6
+          ],
+          "consumer_chunks": [
+            [
+              2,
+              2
+            ]
+          ],
+          "kind": "building",
+          "owner_chunk": [
+            2,
+            2
+          ],
+          "residency": "streamed",
+          "subject": "artisan_shed"
+        },
+        {
+          "cell_rect": [
             83,
             27,
             10,
@@ -308,27 +379,6 @@
           ],
           "residency": "streamed",
           "subject": "guild_storehouse"
-        },
-        {
-          "cell_rect": [
-            76,
-            79,
-            8,
-            6
-          ],
-          "consumer_chunks": [
-            [
-              2,
-              2
-            ]
-          ],
-          "kind": "building",
-          "owner_chunk": [
-            2,
-            2
-          ],
-          "residency": "streamed",
-          "subject": "artisan_shed"
         },
         {
           "cell_rect": [
@@ -519,6 +569,31 @@
         },
         {
           "cell_rect": [
+            95,
+            81,
+            9,
+            4
+          ],
+          "consumer_chunks": [
+            [
+              2,
+              2
+            ],
+            [
+              3,
+              2
+            ]
+          ],
+          "kind": "building",
+          "owner_chunk": [
+            2,
+            2
+          ],
+          "residency": "streamed",
+          "subject": "city_wall_bend_a"
+        },
+        {
+          "cell_rect": [
             35,
             79,
             8,
@@ -562,31 +637,6 @@
           ],
           "residency": "streamed",
           "subject": "kuninga_house_mid"
-        },
-        {
-          "cell_rect": [
-            95,
-            81,
-            9,
-            4
-          ],
-          "consumer_chunks": [
-            [
-              2,
-              2
-            ],
-            [
-              3,
-              2
-            ]
-          ],
-          "kind": "building",
-          "owner_chunk": [
-            2,
-            2
-          ],
-          "residency": "streamed",
-          "subject": "city_wall_bend_a"
         },
         {
           "cell_rect": [
@@ -782,6 +832,31 @@
         },
         {
           "cell_rect": [
+            90,
+            92,
+            4,
+            14
+          ],
+          "consumer_chunks": [
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              3
+            ]
+          ],
+          "kind": "building",
+          "owner_chunk": [
+            2,
+            2
+          ],
+          "residency": "streamed",
+          "subject": "city_wall_bend_b"
+        },
+        {
+          "cell_rect": [
             31,
             0,
             2,
@@ -829,31 +904,6 @@
           ],
           "residency": "streamed",
           "subject": "moneychangers_house"
-        },
-        {
-          "cell_rect": [
-            90,
-            92,
-            4,
-            14
-          ],
-          "consumer_chunks": [
-            [
-              2,
-              2
-            ],
-            [
-              2,
-              3
-            ]
-          ],
-          "kind": "building",
-          "owner_chunk": [
-            2,
-            2
-          ],
-          "residency": "streamed",
-          "subject": "city_wall_bend_b"
         },
         {
           "cell_rect": [
@@ -995,6 +1045,27 @@
         },
         {
           "cell_rect": [
+            76,
+            103,
+            10,
+            4
+          ],
+          "consumer_chunks": [
+            [
+              2,
+              3
+            ]
+          ],
+          "kind": "building",
+          "owner_chunk": [
+            2,
+            3
+          ],
+          "residency": "streamed",
+          "subject": "city_wall_bend_c"
+        },
+        {
+          "cell_rect": [
             102,
             62,
             2,
@@ -1042,27 +1113,6 @@
           ],
           "residency": "streamed",
           "subject": "smithy_yard_fence_north"
-        },
-        {
-          "cell_rect": [
-            76,
-            103,
-            10,
-            4
-          ],
-          "consumer_chunks": [
-            [
-              2,
-              3
-            ]
-          ],
-          "kind": "building",
-          "owner_chunk": [
-            2,
-            3
-          ],
-          "residency": "streamed",
-          "subject": "city_wall_bend_c"
         },
         {
           "cell_rect": [
@@ -1179,27 +1229,6 @@
         },
         {
           "cell_rect": [
-            16,
-            41,
-            10,
-            8
-          ],
-          "consumer_chunks": [
-            [
-              0,
-              1
-            ]
-          ],
-          "kind": "building",
-          "owner_chunk": [
-            0,
-            1
-          ],
-          "residency": "streamed",
-          "subject": "vanaturu_kael_house"
-        },
-        {
-          "cell_rect": [
             73,
             107,
             4,
@@ -1218,6 +1247,27 @@
           ],
           "residency": "streamed",
           "subject": "city_wall_bend_d"
+        },
+        {
+          "cell_rect": [
+            16,
+            41,
+            10,
+            8
+          ],
+          "consumer_chunks": [
+            [
+              0,
+              1
+            ]
+          ],
+          "kind": "building",
+          "owner_chunk": [
+            0,
+            1
+          ],
+          "residency": "streamed",
+          "subject": "vanaturu_kael_house"
         },
         {
           "cell_rect": [
@@ -1262,6 +1312,27 @@
           "subject": "vene_row_house"
         },
         {
+          "subject": "viru_gate_north_jamb",
+          "kind": "building",
+          "cell_rect": [
+            107,
+            49,
+            10,
+            3
+          ],
+          "owner_chunk": [
+            3,
+            1
+          ],
+          "consumer_chunks": [
+            [
+              3,
+              1
+            ]
+          ],
+          "residency": "streamed"
+        },
+        {
           "cell_rect": [
             107,
             41,
@@ -1281,6 +1352,27 @@
           ],
           "residency": "streamed",
           "subject": "viru_gate_north_tower"
+        },
+        {
+          "subject": "viru_gate_south_jamb",
+          "kind": "building",
+          "cell_rect": [
+            110,
+            56,
+            7,
+            4
+          ],
+          "owner_chunk": [
+            3,
+            1
+          ],
+          "consumer_chunks": [
+            [
+              3,
+              1
+            ]
+          ],
+          "residency": "streamed"
         },
         {
           "cell_rect": [
@@ -1351,6 +1443,27 @@
         },
         {
           "cell_rect": [
+            109,
+            70,
+            4,
+            11
+          ],
+          "consumer_chunks": [
+            [
+              3,
+              2
+            ]
+          ],
+          "kind": "building",
+          "owner_chunk": [
+            3,
+            2
+          ],
+          "residency": "streamed",
+          "subject": "city_wall_gate_south"
+        },
+        {
+          "cell_rect": [
             59,
             41,
             12,
@@ -1401,27 +1514,6 @@
         },
         {
           "cell_rect": [
-            109,
-            70,
-            4,
-            11
-          ],
-          "consumer_chunks": [
-            [
-              3,
-              2
-            ]
-          ],
-          "kind": "building",
-          "owner_chunk": [
-            3,
-            2
-          ],
-          "residency": "streamed",
-          "subject": "city_wall_gate_south"
-        },
-        {
-          "cell_rect": [
             73,
             103,
             4,
@@ -1463,6 +1555,27 @@
           "subject": "wall_seal_viru_south_east"
         },
         {
+          "subject": "wall_seal_viru_south_join",
+          "kind": "building",
+          "cell_rect": [
+            109,
+            68,
+            4,
+            2
+          ],
+          "owner_chunk": [
+            3,
+            2
+          ],
+          "consumer_chunks": [
+            [
+              3,
+              2
+            ]
+          ],
+          "residency": "streamed"
+        },
+        {
           "cell_rect": [
             107,
             70,
@@ -1482,6 +1595,31 @@
           ],
           "residency": "streamed",
           "subject": "wall_seal_viru_south_west"
+        },
+        {
+          "cell_rect": [
+            111,
+            0,
+            4,
+            41
+          ],
+          "consumer_chunks": [
+            [
+              3,
+              0
+            ],
+            [
+              3,
+              1
+            ]
+          ],
+          "kind": "building",
+          "owner_chunk": [
+            3,
+            0
+          ],
+          "residency": "streamed",
+          "subject": "city_wall_north"
         },
         {
           "cell_rect": [
@@ -1524,31 +1662,6 @@
           ],
           "residency": "streamed",
           "subject": "wall_tower_northeast"
-        },
-        {
-          "cell_rect": [
-            111,
-            0,
-            4,
-            41
-          ],
-          "consumer_chunks": [
-            [
-              3,
-              0
-            ],
-            [
-              3,
-              1
-            ]
-          ],
-          "kind": "building",
-          "owner_chunk": [
-            3,
-            0
-          ],
-          "residency": "streamed",
-          "subject": "city_wall_north"
         },
         {
           "cell_rect": [

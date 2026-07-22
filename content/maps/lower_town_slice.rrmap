@@ -191,7 +191,8 @@ building muurivahe_house_north house 100 0 10 6 style=house.south.h104.54
 building south_apron_wall_walk_hut house 50 116 8 6 style=house.east.h96.52
 building south_apron_timber_house house 81 114 8 6 style=house.north.h96.49
 building south_apron_far_roofs house 100 118 10 6 style=house.north.h96.51
-landmark viru_gate_arch gate_arch 107 51 10 6 door_material=wood top_px=256 wall_color=8f8c80ff
+# Match the visible arch to the narrowed collision jambs so the smithy apron stays open.
+landmark viru_gate_arch gate_arch 110 51 7 6 door_material=wood top_px=256 wall_color=8f8c80ff
 landmark viru_foregate_arch gate_arch 124 51 6 6 door_material=wood top_px=176 wall_color=8f8c80ff
 prop courtyard_anvil anvil 97 65 rect=2,2
 prop courtyard_furnace furnace 95 73 rect=2,2

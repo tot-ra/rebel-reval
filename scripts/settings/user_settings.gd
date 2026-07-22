@@ -19,6 +19,23 @@ func _ready() -> void:
 	reload_input_bindings()
 
 
+func _input(event: InputEvent) -> void:
+	if not event is InputEventMouseButton:
+		return
+	var mouse_button := event as InputEventMouseButton
+	if mouse_button.button_index == MOUSE_BUTTON_LEFT or not mouse_button.is_action(&"ui_accept"):
+		return
+	# Godot's GUI activates focused controls for key/gamepad ui_accept events, but
+	# treats other mouse buttons only as positional clicks. Mirror a rebound mouse
+	# confirm into the same action path so remapping does not silently break focus UI.
+	var accept := InputEventAction.new()
+	accept.action = &"ui_accept"
+	accept.pressed = mouse_button.pressed
+	accept.strength = 1.0 if mouse_button.pressed else 0.0
+	get_viewport().push_input(accept, true)
+	get_viewport().set_input_as_handled()
+
+
 func reload_dialogue_settings() -> void:
 	dialogue = store.load_dialogue_settings()
 	dialogue_settings_changed.emit(dialogue)
