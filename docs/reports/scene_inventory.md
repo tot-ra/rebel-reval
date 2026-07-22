@@ -106,6 +106,12 @@ Inventory row count (data rows in the table below): **77**.
 | 80 | `scenes/world_travel/world_harju.tscn` | partial | Developer global-map placeholder; east road via Viru Gate Foreland; `release=false`. |
 | 81 | `scenes/world_travel/world_padise.tscn` | partial | Developer global-map placeholder; west road via Toompea; `release=false`. |
 | 82 | `scenes/world_travel/world_saaremaa.tscn` | partial | Developer global-map placeholder; island ferry via Trade Harbour; `release=false`. |
+| 83 | `scenes/world_travel/world_rebel_kings.tscn` | partial | Developer global-map placeholder; Act 2 Harju command camp; `release=false`. |
+| 84 | `scenes/world_travel/world_kanavere.tscn` | partial | Developer global-map placeholder; May 11 battlefield; `release=false`. |
+| 85 | `scenes/world_travel/world_sojamae.tscn` | partial | Developer global-map placeholder; May 14 battlefield; `release=false`. |
+| 86 | `scenes/world_travel/world_paide.tscn` | partial | Developer global-map placeholder; Act 2 Paide Castle; `release=false`. |
+| 87 | `scenes/world_travel/world_parnu.tscn` | partial | Developer global-map placeholder; southern campaign town; `release=false`. |
+| 88 | `scenes/world_travel/world_poide.tscn` | partial | Developer global-map placeholder; Act 3 Saaremaa castle; `release=false`. |
 | 56 | `scenes/world/haapsalu_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
 | 57 | `scenes/world/harju_village.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
 | 58 | `scenes/world/karja_fortress.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
@@ -149,10 +155,10 @@ Inventory row count (data rows in the table below): **77**.
 | `scenes/tests/` | 0 | 5 | 0 | 0 | 5 |
 | `scenes/ui/` | 3 | 0 | 0 | 0 | 3 |
 | `scenes/world/` | 0 | 0 | 0 | 10 | 10 |
-| `scenes/world_travel/` | 0 | 4 | 0 | 0 | 4 |
+| `scenes/world_travel/` | 0 | 10 | 0 | 0 | 10 |
 | `tools/` | 0 | 1 | 0 | 0 | 1 |
 | `tools/benchmarks/` | 0 | 2 | 0 | 0 | 2 |
-| **All** | **25** | **33** | **3** | **20** | **81** |
+| **All** | **25** | **39** | **3** | **20** | **87** |
 
 ## Verification
 
@@ -164,7 +170,7 @@ find . -name '*.tscn' -not -path './.git/*' -not -path './.godot/*' -not -path '
 grep -E '^\| [0-9]+ \|' docs/reports/scene_inventory.md | wc -l
 ```
 
-Both commands should print `81` on a clean checkout at this revision.
+Both commands should print `87` on a clean checkout at this revision.
 
 ## Related tasks
 

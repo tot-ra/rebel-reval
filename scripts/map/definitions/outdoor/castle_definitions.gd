@@ -6,13 +6,40 @@ const Factory := preload("res://scripts/map/definitions/outdoor/outdoor_map_fact
 
 static func all() -> Array[MapDefinition]:
 	return [
-		_castle(&"haapsalu", &"loc.haapsalu_castle", &"coastal_bishop_castle", MapTypes.TERRAIN_MEADOW, ["res://scenes/world/haapsalu_castle.md"]),
-		_castle(&"paide", &"loc.paide_castle", &"limestone_tower", MapTypes.TERRAIN_MEADOW, ["res://scenes/world/paide_castle.md"]),
-		_castle(&"viljandi", &"loc.viljandi_castle", &"order_storehouse", MapTypes.TERRAIN_FARM_SOIL, ["res://scenes/world/viljandi_castle.md"]),
-		_castle(&"poide", &"loc.poide_castle", &"island_chapel", MapTypes.TERRAIN_MUD, ["res://scenes/world/poide_castle.md"]),
-		_castle(&"maasilinna", &"loc.maasilinna_castle", &"coastal_atonement_keep", MapTypes.TERRAIN_COAST_SAND, ["res://scenes/world/maasilinna_castle.md"], &"post_uprising_concept"),
+		haapsalu_castle(),
+		paide_castle(),
+		viljandi_castle(),
+		poide_castle(),
+		maasilinna_castle(),
 		karja_fortress(),
 	]
+
+
+static func haapsalu_castle() -> MapDefinition:
+	return _castle(&"haapsalu", &"loc.haapsalu_castle", &"coastal_bishop_castle", MapTypes.TERRAIN_MEADOW, ["res://scenes/world/haapsalu_castle.md"])
+
+
+static func paide_castle() -> MapDefinition:
+	return _castle(&"paide", &"loc.paide_castle", &"limestone_tower", MapTypes.TERRAIN_MEADOW, ["res://scenes/world/paide_castle.md"])
+
+
+static func viljandi_castle() -> MapDefinition:
+	return _castle(&"viljandi", &"loc.viljandi_castle", &"order_storehouse", MapTypes.TERRAIN_FARM_SOIL, ["res://scenes/world/viljandi_castle.md"])
+
+
+static func poide_castle() -> MapDefinition:
+	return _castle(&"poide", &"loc.poide_castle", &"island_chapel", MapTypes.TERRAIN_MUD, ["res://scenes/world/poide_castle.md"])
+
+
+static func maasilinna_castle() -> MapDefinition:
+	return _castle(
+		&"maasilinna",
+		&"loc.maasilinna_castle",
+		&"coastal_atonement_keep",
+		MapTypes.TERRAIN_COAST_SAND,
+		["res://scenes/world/maasilinna_castle.md"],
+		&"post_uprising_concept"
+	)
 
 
 static func karja_fortress() -> MapDefinition:

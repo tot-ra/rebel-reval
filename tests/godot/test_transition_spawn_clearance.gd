@@ -113,6 +113,20 @@ func test_center_monastery_pair_lands_on_walkable_street_cells() -> void:
 	)
 
 
+func test_global_mockup_transition_spawns_are_clear_and_reachable() -> void:
+	for scene_id in GlobalMapCatalog.distant_scene_ids():
+		var definition := DistantLocationDefinitions.create(scene_id)
+		assert_true(definition != null, "%s needs a playable mockup definition" % scene_id)
+		var grid := MapBuilder.build(definition)
+		for transition in definition.transitions:
+			assert_true(MapVerification.spawn_clears_transition_trigger(transition))
+			var arrival: Vector2 = transition["rect"].get_center() + transition.get("spawn_offset", Vector2.ZERO)
+			assert_true(
+				MapVerification.route_exists(definition, grid, definition.player_spawn, arrival),
+				"%s must route from its inspection spawn to %s" % [scene_id, transition["id"]]
+			)
+
+
 func _transition(definition: MapDefinition, transition_id: StringName) -> Dictionary:
 	for transition in definition.transitions:
 		if transition["id"] == transition_id:

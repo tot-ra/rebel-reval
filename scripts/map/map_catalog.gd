@@ -91,6 +91,36 @@ const MAPS: Dictionary = {
 		"path": "res://scenes/world_travel/world_saaremaa.tscn",
 		"scope": "prototype",
 		"active": false
+	},
+	"world_rebel_kings": {
+		"path": "res://scenes/world_travel/world_rebel_kings.tscn",
+		"scope": "prototype",
+		"active": false
+	},
+	"world_kanavere": {
+		"path": "res://scenes/world_travel/world_kanavere.tscn",
+		"scope": "prototype",
+		"active": false
+	},
+	"world_sojamae": {
+		"path": "res://scenes/world_travel/world_sojamae.tscn",
+		"scope": "prototype",
+		"active": false
+	},
+	"world_paide": {
+		"path": "res://scenes/world_travel/world_paide.tscn",
+		"scope": "prototype",
+		"active": false
+	},
+	"world_parnu": {
+		"path": "res://scenes/world_travel/world_parnu.tscn",
+		"scope": "prototype",
+		"active": false
+	},
+	"world_poide": {
+		"path": "res://scenes/world_travel/world_poide.tscn",
+		"scope": "prototype",
+		"active": false
 	}
 }
 

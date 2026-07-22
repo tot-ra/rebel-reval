@@ -173,6 +173,62 @@ func test_global_map_plans_distant_travel_and_return_gate() -> void:
 	assert_eq(recorded[1]["spawn_id"], &"from_world_sacred_grove")
 	overlay.queue_free()
 
+
+func test_global_map_follows_authored_roads_between_mockups() -> void:
+	var overlay := WorldMapOverlay.new()
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(overlay)
+	overlay.configure(&"world_harju")
+	overlay.open()
+	overlay.show_global_map()
+
+	var neighbors := overlay.get_global_travelable_marker_ids()
+	assert_array_contains(neighbors, GlobalMapCatalog.REVAL_HUB_ID)
+	assert_array_contains(neighbors, &"world_rebel_kings")
+	assert_array_contains(neighbors, &"world_kanavere")
+	assert_array_contains(neighbors, &"world_sojamae")
+	assert_false(neighbors.has(&"world_paide"), "Paide requires a connecting battlefield road")
+	var camp_plan := overlay.plan_travel_to(&"world_rebel_kings")
+	assert_eq(camp_plan.get("spawn_id", &""), &"from_world_harju")
+
+	overlay.configure(&"world_saaremaa")
+	overlay.show_global_map()
+	assert_array_contains(overlay.get_global_travelable_marker_ids(), &"world_poide")
+	assert_array_contains(overlay.get_global_travelable_marker_ids(), &"world_parnu")
+	assert_eq(
+		overlay.plan_travel_to(&"world_poide").get("spawn_id", &""),
+		&"from_world_saaremaa"
+	)
+	overlay.queue_free()
+
+
+func test_global_catalog_edges_have_reciprocal_doors_and_manifest_spawns() -> void:
+	for edge in GlobalMapCatalog.connections():
+		var from_id: StringName = edge["from"]
+		var to_id: StringName = edge["to"]
+		if from_id == GlobalMapCatalog.REVAL_HUB_ID or to_id == GlobalMapCatalog.REVAL_HUB_ID:
+			continue
+		var forward := GlobalMapCatalog.plan_travel(from_id, to_id)
+		var reverse := GlobalMapCatalog.plan_travel(to_id, from_id)
+		assert_false(forward.is_empty(), "%s -> %s needs a travel plan" % [from_id, to_id])
+		assert_false(reverse.is_empty(), "%s -> %s needs a travel plan" % [to_id, from_id])
+		assert_true(DoorNavigator.has_spawn(to_id, forward.get("spawn_id", &"")))
+		assert_true(DoorNavigator.has_spawn(from_id, reverse.get("spawn_id", &"")))
+
+		var from_definition := DistantLocationDefinitions.create(from_id)
+		var to_definition := DistantLocationDefinitions.create(to_id)
+		assert_true(_has_destination(from_definition, to_id))
+		assert_true(_has_destination(to_definition, from_id))
+
+
+func _has_destination(definition: MapDefinition, destination_scene_id: StringName) -> bool:
+	if definition == null:
+		return false
+	for transition in definition.transitions:
+		if transition.get("destination_scene_id", &"") == destination_scene_id:
+			return true
+	return false
+
 func test_controller_toggles_with_action_and_quick_access_button() -> void:
 	assert_true(
 		_action_has_physical_key(&"toggle_world_map", KEY_M),

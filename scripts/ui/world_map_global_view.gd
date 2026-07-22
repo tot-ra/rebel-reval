@@ -15,6 +15,7 @@ const HUB_COLOR := Color(1.0, 0.86, 0.42, 1.0)
 var _current_scene_id: StringName = &""
 var _travelable: Dictionary = {}
 var _map_rect: TextureRect
+var _route_host: Control
 var _marker_host: Control
 
 
@@ -50,6 +51,13 @@ func rebuild() -> void:
 	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(dim)
 
+	_route_host = Control.new()
+	_route_host.name = "RouteHost"
+	_route_host.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_route_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_route_host)
+	_route_host.draw.connect(_draw_routes)
+
 	_marker_host = Control.new()
 	_marker_host.name = "MarkerHost"
 	_marker_host.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -80,6 +88,26 @@ func rebuild() -> void:
 		_marker_host.add_child(button)
 		_place_node(button, scene_id)
 	_wire_focus_neighbors(travelable_buttons)
+	_route_host.queue_redraw()
+
+
+func _draw_routes() -> void:
+	if _route_host == null:
+		return
+	for edge in GlobalMapCatalog.connections():
+		var from_id: StringName = edge.get("from", &"")
+		var to_id: StringName = edge.get("to", &"")
+		var from_point := _marker_center(from_id)
+		var to_point := _marker_center(to_id)
+		_route_host.draw_dashed_line(from_point, to_point, Color(0.86, 0.76, 0.50, 0.82), 3.0, 10.0)
+
+
+func _marker_center(scene_id: StringName) -> Vector2:
+	var normalized: Vector2 = GlobalMapCatalog.layout_positions().get(scene_id, Vector2(0.5, 0.5))
+	var area := size
+	if area.x < 8.0 or area.y < 8.0:
+		area = Vector2(PANEL_SIZE.x - 40.0, 400.0)
+	return normalized * area
 
 
 func get_node_button(scene_id: StringName) -> Button:
@@ -126,7 +154,7 @@ func grab_initial_focus(fallback: Control = null) -> void:
 func subtitle() -> String:
 	if GlobalMapCatalog.is_distant_scene(_current_scene_id):
 		return (
-			"You are outside Reval at %s - choose Reval or stay on the road home"
+			"You are outside Reval at %s - choose a connected road, ferry, or the road home"
 			% GlobalMapCatalog.display_name(_current_scene_id)
 		)
 	if _current_scene_id.is_empty():
@@ -139,8 +167,8 @@ func subtitle() -> String:
 
 func help_text() -> String:
 	return (
-		"Global map: click or focus a linked distant place, then Confirm to travel. "
-		+ "Each placeholder returns through a Tallinn gate (south, east, west, or harbour). "
+		"Global map: click or focus a linked place, then Confirm to travel. "
+		+ "Roads and ferries connect the campaign mockups; Reval links through its four gates. "
 		+ "District fast travel stays on the Reval graph. Press M / Escape to close."
 	)
 

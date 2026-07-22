@@ -7,13 +7,57 @@ const Factory := preload("res://scripts/map/definitions/outdoor/outdoor_map_fact
 static func all() -> Array[MapDefinition]:
 	return [
 		sacred_grove(),
-		_event(&"pernau", &"loc.parnu", &"town_barricade", MapTypes.TERRAIN_MUD, ["res://scenes/events/pernau.md"]),
-		_event(&"pskov_arrival_battle", &"event.pskov_arrival_battle", &"opposing_field_camps", MapTypes.TERRAIN_MEADOW, ["res://scenes/events/pskov_arrival_battle.md"]),
-		_event(&"rebel_kings_camp", &"event.rebel_kings_camp", &"council_camp", MapTypes.TERRAIN_MEADOW, ["res://scenes/events/rebel_kings.md"]),
-		_event(&"saaremaa", &"loc.saaremaa", &"island_coast_reference", MapTypes.TERRAIN_BOG, ["res://scenes/events/saaremaa.md"]),
-		_event(&"swedish_outpost", &"loc.swedish_outpost", &"timber_stockade", MapTypes.TERRAIN_FOREST_FLOOR, ["res://scenes/events/swedesh_outpost.md"]),
-		_event(&"swedish_arrival", &"event.swedish_arrival", &"fleet_signal_shore", MapTypes.TERRAIN_COAST_SAND, ["res://scenes/events/swedish_arrival.md"]),
+		pernau(),
+		pskov_arrival_battle(),
+		rebel_kings_camp(),
+		saaremaa(),
+		swedish_outpost(),
+		swedish_arrival(),
 	]
+
+
+static func pernau() -> MapDefinition:
+	return _event(&"pernau", &"loc.parnu", &"town_barricade", MapTypes.TERRAIN_MUD, ["res://scenes/events/pernau.md"])
+
+
+static func pskov_arrival_battle() -> MapDefinition:
+	return _event(&"pskov_arrival_battle", &"event.pskov_arrival_battle", &"opposing_field_camps", MapTypes.TERRAIN_MEADOW, ["res://scenes/events/pskov_arrival_battle.md"])
+
+
+static func rebel_kings_camp() -> MapDefinition:
+	return _event(&"rebel_kings_camp", &"event.rebel_kings_camp", &"council_camp", MapTypes.TERRAIN_MEADOW, ["res://scenes/events/rebel_kings.md"])
+
+
+static func kanavere_bog() -> MapDefinition:
+	return _battlefield(
+		&"kanavere_bog",
+		&"event.kanavere_bog",
+		&"bog_causeway",
+		MapTypes.TERRAIN_BOG,
+		["res://docs/CANON.md", "res://docs/adr/0008-three-act-campaign-and-faction-scope.md"]
+	)
+
+
+static func sojamae_battlefield() -> MapDefinition:
+	return _battlefield(
+		&"sojamae_battlefield",
+		&"event.sojamae_battlefield",
+		&"battle_ridge",
+		MapTypes.TERRAIN_MEADOW,
+		["res://docs/CANON.md", "res://docs/adr/0008-three-act-campaign-and-faction-scope.md"]
+	)
+
+
+static func saaremaa() -> MapDefinition:
+	return _event(&"saaremaa", &"loc.saaremaa", &"island_coast_reference", MapTypes.TERRAIN_BOG, ["res://scenes/events/saaremaa.md"])
+
+
+static func swedish_outpost() -> MapDefinition:
+	return _event(&"swedish_outpost", &"loc.swedish_outpost", &"timber_stockade", MapTypes.TERRAIN_FOREST_FLOOR, ["res://scenes/events/swedesh_outpost.md"])
+
+
+static func swedish_arrival() -> MapDefinition:
+	return _event(&"swedish_arrival", &"event.swedish_arrival", &"fleet_signal_shore", MapTypes.TERRAIN_COAST_SAND, ["res://scenes/events/swedish_arrival.md"])
 
 
 static func sacred_grove() -> MapDefinition:
@@ -50,6 +94,46 @@ static func sacred_grove() -> MapDefinition:
 		"route": [Vector2i(4, 23), Vector2i(12, 23), Vector2i(18, 18), Vector2i(23, 14), Vector2i(28, 10)],
 	})
 
+
+
+static func _battlefield(
+	slug: StringName,
+	location: StringName,
+	landmark_kind: StringName,
+	base: StringName,
+	sources: Array
+) -> MapDefinition:
+	return Factory.create({
+		"package": &"wilderness_events",
+		"map_id": StringName("prototype.%s" % String(slug)),
+		"location": location,
+		"size": Vector2i(54, 30),
+		"base": base,
+		"spawn": Vector2i(4, 25),
+		"sources": sources,
+		"zones": [
+			Factory.zone(MapTypes.TERRAIN_BOG, Rect2i(0, 0, 54, 8)),
+			Factory.zone(MapTypes.TERRAIN_MUD, Rect2i(0, 8, 54, 5)),
+			Factory.zone(MapTypes.TERRAIN_DIRT, Rect2i(2, 13, 50, 6)),
+			Factory.zone(MapTypes.TERRAIN_MEADOW, Rect2i(0, 19, 54, 11)),
+		],
+		"structures": [
+			Factory.structure(&"west_fieldworks", &"ditch_edge", Rect2i(8, 10, 1, 11), 18.0),
+			Factory.structure(&"east_fieldworks", &"ditch_edge", Rect2i(45, 10, 1, 11), 18.0),
+			Factory.structure(&"field_shelter", &"work_shed", Rect2i(23, 20, 8, 4), 42.0),
+		],
+		"props": [
+			Factory.prop(&"broken_cart", &"cart", Vector2i(18, 17)),
+			Factory.prop(&"signal_fire", &"signal_fire", Vector2i(27, 15)),
+			Factory.prop(&"field_standard", &"standard", Vector2i(36, 17)),
+		],
+		"landmarks": [
+			Factory.landmark(&"primary", landmark_kind, Vector2i(27, 15)),
+			Factory.landmark(&"west_fieldworks", &"fieldworks", Vector2i(9, 17)),
+			Factory.landmark(&"east_fieldworks", &"fieldworks", Vector2i(45, 17)),
+		],
+		"route": [Vector2i(4, 25), Vector2i(15, 24), Vector2i(27, 24), Vector2i(39, 24), Vector2i(50, 25)],
+	})
 
 static func _event(
 	slug: StringName,

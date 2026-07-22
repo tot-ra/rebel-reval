@@ -22,6 +22,12 @@ const DISPLAY_NAMES_BY_MAP: Dictionary = {
 	&"world.harju": "Harju Village",
 	&"world.padise": "Padise Monastery",
 	&"world.saaremaa": "Saaremaa",
+	&"world.rebel_kings": "Rebel Kings' Camp",
+	&"world.kanavere": "Kanavere Bog",
+	&"world.sojamae": "Sõjamäe",
+	&"world.paide": "Paide Castle",
+	&"world.parnu": "Pärnu",
+	&"world.poide": "Pöide Castle",
 }
 
 ## Transition-manifest scene IDs (DoorNavigator) mapped to the same curated labels.
@@ -44,6 +50,12 @@ const DISPLAY_NAMES_BY_SCENE: Dictionary = {
 	&"world_harju": "Harju Village",
 	&"world_padise": "Padise Monastery",
 	&"world_saaremaa": "Saaremaa",
+	&"world_rebel_kings": "Rebel Kings' Camp",
+	&"world_kanavere": "Kanavere Bog",
+	&"world_sojamae": "Sõjamäe",
+	&"world_paide": "Paide Castle",
+	&"world_parnu": "Pärnu",
+	&"world_poide": "Pöide Castle",
 }
 
 

@@ -218,9 +218,8 @@
       "active": true,
       "release": false,
       "spawns": [
-        {
-          "id": "from_reval_south"
-        }
+        { "id": "from_reval_south" },
+        { "id": "from_world_harju" }
       ]
     },
     {
@@ -229,9 +228,11 @@
       "active": true,
       "release": false,
       "spawns": [
-        {
-          "id": "from_reval_east"
-        }
+        { "id": "from_reval_east" },
+        { "id": "from_world_sacred_grove" },
+        { "id": "from_world_rebel_kings" },
+        { "id": "from_world_kanavere" },
+        { "id": "from_world_sojamae" }
       ]
     },
     {
@@ -240,9 +241,8 @@
       "active": true,
       "release": false,
       "spawns": [
-        {
-          "id": "from_reval_west"
-        }
+        { "id": "from_reval_west" },
+        { "id": "from_world_parnu" }
       ]
     },
     {
@@ -251,9 +251,71 @@
       "active": true,
       "release": false,
       "spawns": [
-        {
-          "id": "from_reval_harbor"
-        }
+        { "id": "from_reval_harbor" },
+        { "id": "from_world_parnu" },
+        { "id": "from_world_poide" }
+      ]
+    },
+    {
+      "id": "world_rebel_kings",
+      "path": "res://scenes/world_travel/world_rebel_kings.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        { "id": "from_world_harju" },
+        { "id": "from_world_kanavere" }
+      ]
+    },
+    {
+      "id": "world_kanavere",
+      "path": "res://scenes/world_travel/world_kanavere.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        { "id": "from_world_harju" },
+        { "id": "from_world_rebel_kings" },
+        { "id": "from_world_paide" }
+      ]
+    },
+    {
+      "id": "world_sojamae",
+      "path": "res://scenes/world_travel/world_sojamae.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        { "id": "from_world_harju" },
+        { "id": "from_world_paide" }
+      ]
+    },
+    {
+      "id": "world_paide",
+      "path": "res://scenes/world_travel/world_paide.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        { "id": "from_world_kanavere" },
+        { "id": "from_world_sojamae" },
+        { "id": "from_world_parnu" }
+      ]
+    },
+    {
+      "id": "world_parnu",
+      "path": "res://scenes/world_travel/world_parnu.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        { "id": "from_world_padise" },
+        { "id": "from_world_paide" },
+        { "id": "from_world_saaremaa" }
+      ]
+    },
+    {
+      "id": "world_poide",
+      "path": "res://scenes/world_travel/world_poide.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        { "id": "from_world_saaremaa" }
       ]
     }
   ]
