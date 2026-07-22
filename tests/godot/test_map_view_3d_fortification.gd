@@ -62,9 +62,11 @@ func test_town_wall_gets_battlements_and_gate_arch_clears_character() -> void:
 					"wall walk deck must use plank timber, not limestone coping"
 				)
 			else:
-				# hinke_tower is authored tower=false (stub mass); only true towers get roofs.
+				# Round drums always wear the conical red-tile roof. Pennants,
+				# ground doors, and arrow slits stay on tower=true completion.
+				assert_true((node.get_node("Walls") as MeshInstance3D).mesh is CylinderMesh, "%s must be round" % building["id"])
+				assert_true(node.has_node("TowerRoof"), "%s needs a conical red-tile roof" % building["id"])
 				if bool(building.get("tower", false)):
-					assert_true(node.has_node("TowerRoof"), "%s needs a conical red-tile roof" % building["id"])
 					assert_true(node.has_node("Pennant"), "%s needs a wind-readable tower pennant" % building["id"])
 					var pennant := node.get_node("Pennant") as MeshInstance3D
 					assert_true(
@@ -75,7 +77,6 @@ func test_town_wall_gets_battlements_and_gate_arch_clears_character() -> void:
 						pennant.has_meta(&"faction"),
 						"%s pennant must record its faction for heraldry checks" % building["id"]
 					)
-					assert_true((node.get_node("Walls") as MeshInstance3D).mesh is CylinderMesh, "%s must be round" % building["id"])
 					if float(building.get("wall_height", 0.0)) >= 220.0:
 						assert_true(node.has_node("SlitFrame0"), "%s needs brick-framed arrow slits" % building["id"])
 						var slit := node.get_node("Slit0") as MeshInstance3D
@@ -85,6 +86,8 @@ func test_town_wall_gets_battlements_and_gate_arch_clears_character() -> void:
 							slit_mat.albedo_color.is_equal_approx(window_mat.albedo_color),
 							"%s arrow slits must not reuse glazed house window tint" % building["id"]
 						)
+				else:
+					assert_false(node.has_node("TowerDoor"), "%s stub must stay doorless" % building["id"])
 			node.free()
 	assert_true(definition.view_landmarks.size() >= 1, "Viru Gate needs its arch landmark")
 	var viru_arch_def: Dictionary = {}
@@ -224,7 +227,8 @@ func test_city_wall_base_arcades_and_timber_gallery_are_character_scale() -> voi
 
 func test_district_wall_towers_render_as_circular_drums() -> void:
 	# Incomplete 1343 towers (tower=false) still use the Tallinn round plan via
-	# round_tower on the shared wall.tower style. Keep curtain boxes rectangular.
+	# round_tower on the shared wall.tower style, with conical red-tile roofs.
+	# Keep curtain boxes rectangular.
 	var south := SouthQuarterDefinition.create()
 	var seen := 0
 	for building in south.buildings:
@@ -234,6 +238,7 @@ func test_district_wall_towers_render_as_circular_drums() -> void:
 		assert_true(MapWallWalkAccess.is_round_tower(building), "%s must be circular" % id)
 		var node := MapViewMeshBuilder.build_building(building, south.cell_size)
 		assert_true((node.get_node("Walls") as MeshInstance3D).mesh is CylinderMesh, "%s needs a drum" % id)
+		assert_true(node.has_node("TowerRoof"), "%s needs a conical red-tile roof" % id)
 		assert_false(node.has_node("WalkRoof"), "%s must not wear a rectangular gallery roof" % id)
 		assert_false(node.has_node("Merlons"), "%s must not wear box battlements" % id)
 		seen += 1

@@ -100,9 +100,10 @@ func test_every_completed_tower_has_one_visible_door_on_its_authored_interior_si
 			node.free()
 
 
-func test_tower_false_keeps_round_drum_without_completed_dressing() -> void:
+func test_tower_false_keeps_round_drum_with_cone_roof_without_door() -> void:
 	# tower=false marks an incomplete 1343 position. The Tallinn plan is still
-	# circular via round_tower; only conical roof / door / slits stay suppressed.
+	# circular via round_tower and wears the conical red-tile roof; only door
+	# and arrow-slit fighting-stage dressing stay suppressed.
 	var definition: MapDefinition = LowerTownSlice.create()
 	var construction_position := _building_by_id(definition, &"foregate_tower_north")
 	assert_true(construction_position.has("tower"))
@@ -110,8 +111,9 @@ func test_tower_false_keeps_round_drum_without_completed_dressing() -> void:
 	assert_true(bool(construction_position.get("round_tower", false)))
 	var node := MapViewMeshBuilderBuildings.build_building(construction_position, definition.cell_size)
 	assert_true((node.get_node("Walls") as MeshInstance3D).mesh is CylinderMesh)
-	assert_false(node.has_node("TowerRoof"), "a possible 1343 construction site must not render as a finished tower")
+	assert_true(node.has_node("TowerRoof"), "circular drums need the conical red-tile roof")
 	assert_false(node.has_node("TowerDoor"), "incomplete towers must not invent ground doors")
+	assert_false(node.has_node("SlitFrame0"), "incomplete towers must not invent arrow slits")
 	node.free()
 
 

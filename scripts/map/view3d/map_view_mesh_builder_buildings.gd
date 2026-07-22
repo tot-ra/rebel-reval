@@ -39,9 +39,9 @@ static func build_building(
 		and size.x <= MapViewMeshBuilderConfig.TOWER_MAX_FOOTPRINT \
 		and size.y <= MapViewMeshBuilderConfig.TOWER_MAX_FOOTPRINT \
 		and footprint_aspect >= MapViewMeshBuilderConfig.TOWER_MIN_ASPECT
-	# WHY: tower tracks completion in the 1343 historical snapshot. round_tower
-	# can preserve the characteristic circular Tallinn footprint without inventing
-	# a completed roof, pennant, door, or fighting-stage dressing.
+	# WHY: tower tracks completion in the 1343 historical snapshot (door, slits,
+	# fighting stage). round_tower keeps the Tallinn circular drum and always
+	# wears the conical red-tile roof silhouette; incomplete stubs stay doorless.
 	var round_tower := fortification and (explicitly_completed_tower or explicitly_round_tower or inferred_tower)
 
 	var walls := MeshInstance3D.new()
@@ -134,6 +134,9 @@ static func build_building(
 			Vector3(TAU * ring.top_radius, ring.height, TAU * ring.top_radius)
 		)
 		root.add_child(cap)
+		# Conical red-tile roof is the Tallinn skyline for every circular drum,
+		# including incomplete tower=false stubs that still read as wall towers.
+		MapViewMeshBuilderBuildingFortification.add_tower_roof(root, radius, height, building)
 		if explicitly_completed_tower:
 			MapViewMeshBuilderBuildingFortification.add_tower_door(
 				root,
@@ -141,7 +144,6 @@ static func build_building(
 				height,
 				StringName(building.get("door_side", &""))
 			)
-			MapViewMeshBuilderBuildingFortification.add_tower_roof(root, radius, height, building)
 			if authored_height_px >= MapViewMeshBuilderConfig.TOWER_MIN_HEIGHT_PX:
 				MapViewMeshBuilderBuildingFortification.add_tower_slits(root, radius, height)
 	elif kind != MapTypes.BUILDING_KIND_INTERIOR_WALL:

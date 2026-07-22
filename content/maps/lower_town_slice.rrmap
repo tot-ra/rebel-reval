@@ -115,7 +115,8 @@ building viru_gate_north_jamb wall 107 49 10 3 style=wall.plain.h256.02 tower=fa
 building viru_gate_south_jamb wall 110 56 7 4 style=wall.plain.h256.02 tower=false
 building foregate_wall_north wall 116 49 10 2 style=wall.plain.h128.03
 building foregate_wall_south wall 116 60 10 2 style=wall.plain.h128.03
-# Foregate stubs stay incomplete (no conical roof) but read as circular drums.
+# Foregate stubs stay doorless incomplete fabric but still wear the conical
+# red-tile roof on a circular drum.
 building foregate_tower_north wall 124 43 6 6 style=wall.plain.h176.04 tower=false round_tower=true
 building foregate_tower_south wall 124 60 6 6 style=wall.plain.h176.04 tower=false round_tower=true
 building foregate_north_jamb wall 124 49 6 3 style=wall.plain.h176.04
