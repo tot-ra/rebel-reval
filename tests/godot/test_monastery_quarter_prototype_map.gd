@@ -33,7 +33,7 @@ func test_monastery_district_uses_earth_base_and_street_spines_not_blanket_cobbl
 					grass += 1
 				MapTypes.TERRAIN_STONE:
 					stone += 1
-	assert_true(cobble < int(total * 0.45), "Cobble share must stay under the 45%% monastery stone/cobble/pebble ceiling")
+	assert_true(cobble <= int(total * 0.03), "Cobble must be limited to the primary Pikk spine")
 	assert_true(dirt_or_mud >= int(total * 0.25), "Earth/mud/service yard share must reach the 25%% monastery floor")
 	assert_true(grass >= int(total * 0.20), "Garden/grass share must remain substantial outside street spines")
 	assert_true(stone < int(total * 0.20), "Stone closes must stay compact, not district-scale plazas")
@@ -41,6 +41,8 @@ func test_monastery_district_uses_earth_base_and_street_spines_not_blanket_cobbl
 		MapVerification.has_anchor(definition, &"pikk_street_spine"),
 		"Primary Pikk spine anchor must survive the street-surface pass"
 	)
+	assert_eq(grid.get_terrain(Vector2i(101, 50)), MapTypes.TERRAIN_COBBLESTONE, "Pikk remains the paved primary spine")
+	assert_eq(grid.get_terrain(Vector2i(135, 50)), MapTypes.TERRAIN_DIRT, "Lai remains an unpaved secondary lane")
 
 
 func test_monastery_district_has_dated_early_towers_and_later_wall_positions() -> void:

@@ -19,23 +19,26 @@ style house.gatehouse door_side=north ridge_axis=x wall_height=136 wall_color=6e
 style wall.city wall_height=192 wall_color=949185ff
 # round_tower keeps the Tallinn circular drum while tower=false marks incomplete 1343 fabric.
 style wall.tower wall_height=240 wall_color=8c8a80ff round_tower=true
-terrain_rects quarter.base cobblestone 144,0,192,25|144,9,190,25|147,34,187,25|150,59,181,15|156,74,166,8|170,82,140,6|198,88,96,8 order=1
-terrain rataskaev_close stone 158 9 31 19 order=2
-terrain niguliste_close stone 161 37 31 19 order=3
+# Grass and packed earth fill ordinary plots and yards. Cobble is reserved for
+# the Rataskaev/King approach and the Karja/Viru gate axis; minor lanes use mud
+# or dirt, with compact stone only at institutional thresholds and wall walks.
+terrain_rects quarter.base dirt 144,0,192,25|144,9,190,25|147,34,187,25|150,59,181,15|156,74,166,8|170,82,140,6|198,88,96,8 order=1
+terrain rataskaev_close grass 158 9 31 19 order=2
+terrain niguliste_close grass 161 37 31 19 order=3
 terrain dunkri_yard dirt 202 9 45 22 order=4
 terrain karja_glacis mud 219 84 48 12 order=5
 terrain old_hill_foot dirt 144 12 17 75 order=6
 terrain north_rataskaev_yard dirt 151 0 31 12 order=7
-terrain north_civic_threshold stone 226 0 48 16 order=7
-terrain east_viru_threshold stone 302 0 31 12 order=7
+terrain north_civic_threshold dirt 226 0 48 16 order=7
+terrain east_viru_threshold sand 302 0 31 12 order=7
 terrain_rects wall_walk_stone stone 156,74,24,6|180,78,28,6|208,82,24,8|262,82,32,8|294,78,16,8|310,72,12,8 order=7
 stroke rataskaev_street cobblestone 144,6|175,6|202,6|226,6 thickness=3 order=8
-stroke dunkri_lane cobblestone 213,0|213,3|213,21|213,40 thickness=3 order=9
-stroke king_street cobblestone 213,0|213,8|233,8|257,8 thickness=4 order=10
-stroke niguliste_lane cobblestone 144,49|171,49|192,49|192,43|213,43 thickness=3 order=11
-stroke karja_lane cobblestone 219,40|219,56|240,56|261,56 thickness=4 order=12
-stroke viru_internal_lane cobblestone 261,56|288,56|328,56|328,40|318,40|318,0 thickness=4 order=13
-stroke karja_gate_road cobblestone 240,56|240,71|240,94 thickness=4 order=14
+stroke dunkri_lane mud 213,0|213,3|213,21|213,40 thickness=2 order=9
+stroke king_street cobblestone 213,0|213,8|233,8|257,8 thickness=3 order=10
+stroke niguliste_lane dirt 144,49|171,49|192,49|192,43|213,43 thickness=3 order=11
+stroke karja_lane cobblestone 219,40|219,56|240,56|261,56 thickness=3 order=12
+stroke viru_internal_lane cobblestone 261,56|288,56|328,56|328,40|318,40|318,0 thickness=3 order=13
+stroke karja_gate_road cobblestone 240,56|240,71|240,94 thickness=3 order=14
 building city_wall_west_north wall 0 0 3 36 style=wall.city
 building south_wall_tower_northwest wall 0 0 8 8 style=wall.tower tower=false
 building south_wall_tower_southwest wall 31 68 8 8 style=wall.tower tower=false

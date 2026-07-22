@@ -33,20 +33,20 @@ style wall.tower wall_height=240 wall_color=8c8a80ff round_tower=true
 style wall.tower.castle wall_height=240 wall_color=8c8a80ff round_tower=true faction=danish_crown
 terrain plateau.grass grass 0 0 144 192 order=1
 terrain cathedral_orchard grass 4 12 28 84 order=2
-terrain cathedral_close stone 32 24 78 78 order=3
-terrain castle_close stone 4 102 40 84 order=4
+terrain cathedral_close dirt 32 24 78 78 order=3
+terrain castle_close dirt 4 102 40 84 order=4
 terrain eastern_slope dirt 112 9 32 174 order=5
 terrain southern_slope dirt 18 156 22 36 order=6
-# The street graph reads as a hilltop circuit instead of three disconnected
-# stubs: Toom-Kooli links the cathedral close to Lossi plats and both descents.
+# Pikk Jalg, Lühike Jalg, and Lossi plats are the exceptional paved routes. The
+# cathedral and orchard lanes remain packed earth or mud within grassy compounds.
 stroke pikk_jalg cobblestone 143,34|126,34|126,48|110,48|110,108|78,108 thickness=4 order=7
 stroke luhike_jalg cobblestone 143,165|122,165|122,108|78,108 thickness=4 order=8
 stroke lossi_plats cobblestone 78,108|50,108|50,126|40,126|40,150|30,150 thickness=4 order=9
-stroke toom_kooli cobblestone 42,108|42,84|42,42 thickness=3 order=10
-stroke cathedral_lane cobblestone 28,90|92,90|92,108|110,108 thickness=3 order=11
-stroke cathedral_north_lane cobblestone 28,42|110,42|110,48 thickness=3 order=12
-stroke cathedral_orchard_lane cobblestone 12,84|28,84|28,90 thickness=2 order=13
-stroke south_slope cobblestone 29,189|29,150|40,150 thickness=3 order=14
+stroke toom_kooli dirt 42,108|42,84|42,42 thickness=3 order=10
+stroke cathedral_lane dirt 28,90|92,90|92,108|110,108 thickness=3 order=11
+stroke cathedral_north_lane mud 28,42|110,42|110,48 thickness=3 order=12
+stroke cathedral_orchard_lane dirt 12,84|28,84|28,90 thickness=2 order=13
+stroke south_slope dirt 29,189|29,150|40,150 thickness=3 order=14
 # Toompea had its own fortified perimeter. Gate openings stay aligned with the
 # three stable district transitions while the western edge reads as a cliff wall.
 building city_wall_west wall 0 0 3 192 style=wall.city

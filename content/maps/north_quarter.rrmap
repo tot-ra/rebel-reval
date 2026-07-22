@@ -30,8 +30,9 @@ style wall.city wall_height=192 wall_color=949185ff
 # round_tower keeps the Tallinn circular drum while tower=false marks incomplete 1343 fabric.
 style wall.tower wall_height=240 wall_color=8c8a80ff round_tower=true
 style wall.tower.merchant wall_height=240 wall_color=8c8a80ff round_tower=true faction=hanseatic
-# Packed earth is the ward-wide substrate. Stone is reserved for primary streets,
-# loading aprons and compact closes; wet work yards and green wall margins remain visible.
+# Packed earth is the ward-wide substrate. Cobble is reserved for Pikk and the
+# Coastal Gate approach; loading and service areas use compacted earth, sand,
+# mud, or grass rather than large dressed-stone aprons.
 terrain district.base dirt 0 0 208 140 order=1
 terrain_rects outer.shoulders grass 0,0,14,16|194,0,14,16|0,16,7,18|201,16,7,18 order=2
 terrain_rects wall.verges grass 3,35,15,97|190,35,15,97 order=3
@@ -40,16 +41,16 @@ terrain_rects north.wet.margins grass 10,8,30,18|171,8,23,13 order=5
 terrain dock.forecourt mud 65 8 77 36 order=6
 terrain east.workyard mud 151 47 51 47 order=7
 terrain_rects service.yards dirt 18,17,64,55|145,17,57,28|18,103,72,34|145,97,57,40 order=8
-terrain_rects loading.aprons stone 35,14,48,31|108,12,45,33|154,18,44,28 order=9
-terrain merchants.close stone 72 103 69 31 order=10
-terrain goldsmiths.close stone 75 82 68 18 order=11
-stroke pikk_spine cobblestone 104,138|104,109|104,78|104,47|104,8 thickness=8 order=12
-stroke lai_lane cobblestone 138,138|138,106|138,75|138,44|138,16 thickness=6 order=13
-stroke west_merchant_lane cobblestone 34,119|56,119|56,91|75,91|75,70 thickness=5 order=14
-stroke harbor_lane cobblestone 75,44|104,44|138,44|186,44 thickness=6 order=15
-stroke goldsmith_lane cobblestone 75,91|104,91|138,91|174,91 thickness=5 order=16
-stroke east_work_lane cobblestone 165,122|174,122|174,91|186,91|186,60 thickness=5 order=17
-stroke gate_approach cobblestone 97,8|104,8|111,8 thickness=7 order=18
+terrain_rects loading.aprons sand 35,14,48,31|108,12,45,33|154,18,44,28 order=9
+terrain merchants.close dirt 72 103 69 31 order=10
+terrain goldsmiths.close dirt 75 82 68 18 order=11
+stroke pikk_spine cobblestone 104,138|104,109|104,78|104,47|104,8 thickness=5 order=12
+stroke lai_lane dirt 138,138|138,106|138,75|138,44|138,16 thickness=4 order=13
+stroke west_merchant_lane mud 34,119|56,119|56,91|75,91|75,70 thickness=3 order=14
+stroke harbor_lane dirt 75,44|104,44|138,44|186,44 thickness=4 order=15
+stroke goldsmith_lane dirt 75,91|104,91|138,91|174,91 thickness=3 order=16
+stroke east_work_lane mud 165,122|174,122|174,91|186,91|186,60 thickness=3 order=17
+stroke gate_approach cobblestone 101,8|104,8|107,8 thickness=5 order=18
 # The seaward wall follows a stepped shoulder around the ward instead of a box.
 # All turns are sealed by curtain masses; only source-backed 1343 positions become completed towers.
 building city_wall_north_west wall 14 0 82 3 style=wall.city

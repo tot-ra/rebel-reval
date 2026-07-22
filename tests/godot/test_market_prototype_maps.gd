@@ -38,12 +38,32 @@ func test_central_district_square_and_edges_do_not_stop_abruptly() -> void:
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
 	var east_transition := _transition_by_id(definition, &"to_reval_east")
 	var town_hall_footprint := _building_by_id(definition, &"town_hall_mass")["footprint"] as Rect2
-	assert_eq(grid.get_terrain(Vector2i(74, 60)), MapTypes.TERRAIN_COBBLESTONE, "Raekoja plats needs playable cobble into the expanded east side")
-	assert_eq(grid.get_terrain(Vector2i(38, 83)), MapTypes.TERRAIN_COBBLESTONE, "Town Hall needs a southern border street")
+	assert_eq(grid.get_terrain(Vector2i(74, 60)), MapTypes.TERRAIN_DIRT, "The east side of Raekoja plats stays trampled earth")
+	assert_eq(grid.get_terrain(Vector2i(38, 83)), MapTypes.TERRAIN_DIRT, "The Town Hall's secondary border street stays unpaved")
 	assert_true(float(83 * definition.cell_size) > town_hall_footprint.end.y)
 	assert_eq(east_transition["rect"].end.x, definition.world_size().x)
 	assert_eq(definition.surroundings_sides.get(&"north"), &"town")
 	assert_eq(definition.surroundings_sides.get(&"east"), &"town")
+
+
+func test_central_and_south_districts_limit_cobble_to_main_routes() -> void:
+	var center: MapDefinition = MarketCivicQuarterDefinition.create()
+	var center_grid := MapBuilder.build(center)
+	var center_counts := _surface_counts(center, center_grid)
+	var center_total: int = center.size_cells.x * center.size_cells.y
+	assert_true(int(center_counts[MapTypes.TERRAIN_COBBLESTONE]) <= int(center_total * 0.05), "Market cobble must stay on Pikk, Vana Turg, and Karja")
+	assert_true(_permeable_count(center_counts) >= int(center_total * 0.85), "Raekoja plats and its service lanes must remain earth, mud, sand, or grass")
+	assert_eq(center_grid.get_terrain(Vector2i(38, 15)), MapTypes.TERRAIN_COBBLESTONE, "Pikk remains a paved primary street")
+	assert_eq(center_grid.get_terrain(Vector2i(46, 44)), MapTypes.TERRAIN_MUD, "The market interior remains churned earth")
+
+	var south: MapDefinition = SouthQuarterDefinition.create()
+	var south_grid := MapBuilder.build(south)
+	var south_counts := _surface_counts(south, south_grid)
+	var south_total: int = south.size_cells.x * south.size_cells.y
+	assert_true(int(south_counts[MapTypes.TERRAIN_COBBLESTONE]) <= int(south_total * 0.05), "South-quarter cobble must stay on gate and through-road axes")
+	assert_true(_permeable_count(south_counts) >= int(south_total * 0.85), "Ordinary southern plots and lanes must remain permeable")
+	assert_eq(south_grid.get_terrain(Vector2i(240, 56)), MapTypes.TERRAIN_COBBLESTONE, "Karja Gate keeps a paved major approach")
+	assert_eq(south_grid.get_terrain(Vector2i(213, 21)), MapTypes.TERRAIN_MUD, "Dunkri remains a muddy secondary lane")
 
 
 func test_central_district_has_unique_period_building_models() -> void:
@@ -311,6 +331,26 @@ func _preview_offset(
 		_:
 			return Vector2(current_center.x - neighbor_center.x, definition.size_cells.y)
 
+
+func _surface_counts(definition: MapDefinition, grid: MapTerrainGrid) -> Dictionary:
+	var counts: Dictionary = {}
+	for terrain in MapTypes.ALL_TERRAINS:
+		counts[terrain] = 0
+	for y in range(definition.size_cells.y):
+		for x in range(definition.size_cells.x):
+			var terrain := grid.get_terrain(Vector2i(x, y))
+			counts[terrain] = int(counts.get(terrain, 0)) + 1
+	return counts
+
+
+func _permeable_count(counts: Dictionary) -> int:
+	return (
+		int(counts.get(MapTypes.TERRAIN_DIRT, 0))
+		+ int(counts.get(MapTypes.TERRAIN_MUD, 0))
+		+ int(counts.get(MapTypes.TERRAIN_SAND, 0))
+		+ int(counts.get(MapTypes.TERRAIN_GRASS, 0))
+		+ int(counts.get(MapTypes.TERRAIN_MEADOW, 0))
+	)
 
 func _transition_by_id(definition: MapDefinition, transition_id: StringName) -> Dictionary:
 	for transition in definition.transitions:

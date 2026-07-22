@@ -18,6 +18,29 @@ func test_toompea_matches_reference_map_footprint() -> void:
 	)
 
 
+func test_toompea_limits_cobble_to_gate_descents_and_lossi_plats() -> void:
+	var definition: MapDefinition = ToompeaQuarterDefinition.create()
+	var grid := MapBuilder.build(definition)
+	var cobble := 0
+	var earth := 0
+	var grass := 0
+	var total: int = definition.size_cells.x * definition.size_cells.y
+	for y in range(definition.size_cells.y):
+		for x in range(definition.size_cells.x):
+			match grid.get_terrain(Vector2i(x, y)):
+				MapTypes.TERRAIN_COBBLESTONE:
+					cobble += 1
+				MapTypes.TERRAIN_DIRT, MapTypes.TERRAIN_MUD, MapTypes.TERRAIN_SAND:
+					earth += 1
+				MapTypes.TERRAIN_GRASS:
+					grass += 1
+	assert_true(cobble <= int(total * 0.05), "Upper Town cobble must remain limited to major fortified routes")
+	assert_true(earth >= int(total * 0.50), "Closes and secondary lanes must remain packed earth or mud")
+	assert_true(grass >= int(total * 0.40), "Plateau compounds and orchard ground must remain green")
+	assert_eq(grid.get_terrain(Vector2i(126, 40)), MapTypes.TERRAIN_COBBLESTONE, "Pikk Jalg remains a paved main descent")
+	assert_eq(grid.get_terrain(Vector2i(60, 60)), MapTypes.TERRAIN_DIRT, "The cathedral close remains packed earth")
+
+
 func test_toompea_landmarks_follow_historic_upper_town_geography() -> void:
 	var definition: MapDefinition = ToompeaQuarterDefinition.create()
 	var castle := _building_by_id(definition, &"castle_mass")

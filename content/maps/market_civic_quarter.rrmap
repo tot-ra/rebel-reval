@@ -33,26 +33,30 @@ style house.merchant.west door_side=west ridge_axis=z wall_height=112 wall_color
 style house.artisan door_side=north ridge_axis=x wall_height=96 wall_color=63594aff wall_material=log roof_color=6b5c40ff roof_material=thatch
 style house.merchant.backstreet door_side=south ridge_axis=x wall_height=104 wall_color=6f6658ff wall_material=plaster roof_color=3a312aff roof_material=shingle
 style house.wooden.backstreet door_side=west ridge_axis=z wall_height=88 wall_color=5d5447ff wall_material=log roof_color=6b5c40ff roof_material=thatch
-terrain square.cobble cobblestone 18 18 58 51 order=1
+# Raekoja plats is a trampled market ground, not a single paved slab. Keep only
+# the primary Pikk, Vana Turg/Viru, and Karja corridors cobbled; stalls, closes,
+# service lanes, and the southern ward remain permeable earth, mud, and sand.
+terrain square.cobble dirt 18 18 58 51 order=1
 terrain town_hall_forecourt stone 24 63 34 6 order=2
-terrain holy_spirit_close stone 36 15 28 6 order=3
+terrain holy_spirit_close dirt 36 15 28 6 order=3
 terrain market_wear mud 22 32 42 19 order=4
-terrain guild_forecourt stone 14 26 6 12 order=5
+terrain guild_forecourt dirt 14 26 6 12 order=5
 stroke street.pikk cobblestone 54,21|42,21|38,21|38,0 thickness=3 order=6
-stroke street.pikk_continuation cobblestone 38,0|38,21|72,21|72,0 thickness=3 order=7
-stroke street.vana_turg cobblestone 58,39|76,39|76,45|103,45 thickness=4 order=8
-stroke street.apothecary_lane cobblestone 66,18|66,30|76,30|88,30|88,45 thickness=3 order=9
-stroke street.east_market_lane cobblestone 72,57|88,57|88,78|103,78 thickness=3 order=10
-stroke street.southern_town_hall cobblestone 14,83|24,83|38,83|54,83|68,83 thickness=3 order=11
-stroke street.kuninga_branch cobblestone 68,83|68,90|82,90|96,90 thickness=3 order=12
-stroke street.karja cobblestone 38,12|38,24|38,36 thickness=4 order=13
-stroke street.niguliste cobblestone 0,44|12,44|12,41|18,41 thickness=3 order=14
-stroke street.rataskaev cobblestone 0,59|12,59|12,53|18,53 thickness=3 order=15
+stroke street.pikk_continuation dirt 38,0|38,21|72,21|72,0 thickness=3 order=7
+stroke street.vana_turg cobblestone 58,39|76,39|76,45|103,45 thickness=3 order=8
+stroke street.apothecary_lane mud 66,18|66,30|76,30|88,30|88,45 thickness=2 order=9
+stroke street.east_market_lane dirt 72,57|88,57|88,78|103,78 thickness=3 order=10
+stroke street.southern_town_hall dirt 14,83|24,83|38,83|54,83|68,83 thickness=3 order=11
+stroke street.kuninga_branch mud 68,83|68,90|82,90|96,90 thickness=2 order=12
+stroke street.karja cobblestone 38,12|38,24|38,36 thickness=3 order=13
+stroke street.niguliste dirt 0,44|12,44|12,41|18,41 thickness=3 order=14
+stroke street.rataskaev mud 0,59|12,59|12,53|18,53 thickness=3 order=15
 terrain south.ward dirt 0 96 114 32 order=1
-terrain southern_town_hall stone 6 96 42 20 order=2
-terrain karja.close cobblestone 50 96 38 32 order=3
-stroke street.king cobblestone 12,127|12,115|20,115|20,96|20,83|20,68 thickness=3 order=16
-stroke street.karja_south cobblestone 69,127|69,113|68,113|68,100|68,83 thickness=4 order=17
+terrain southern_town_hall dirt 6 96 42 20 order=2
+terrain karja.close grass 50 96 38 32 order=3
+terrain karja.wear sand 62 96 14 32 order=4
+stroke street.king dirt 12,127|12,115|20,115|20,96|20,83|20,68 thickness=3 order=16
+stroke street.karja_south cobblestone 69,127|69,113|68,113|68,100|68,83 thickness=3 order=17
 building town_hall_mass house 26 69 26 7 style=house.town_hall
 building council_chancery house 60 66 16 7 style=house.merchant.north
 building church_silhouette house 42 3 14 10 style=house.church

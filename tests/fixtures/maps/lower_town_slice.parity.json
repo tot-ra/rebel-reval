@@ -398,6 +398,7 @@
       ],
       "id": "foregate_tower_north",
       "kind": "wall",
+      "round_tower": true,
       "tower": false,
       "wall_color": [
         0.560784340,
@@ -416,6 +417,7 @@
       ],
       "id": "foregate_tower_south",
       "kind": "wall",
+      "round_tower": true,
       "tower": false,
       "wall_color": [
         0.560784340,
@@ -2704,7 +2706,7 @@
     "west"
   ],
   "terrain": {
-    "terrain_id_grid_sha256": "9a3ba3ffebe2973e5203d02bae8c1d702b83d7c1adce7dd27a3a89f7ec9021ca",
+    "terrain_id_grid_sha256": "6e39501959447c8216167571d0c27dac03d4140774ee67adf641e37045b8b927",
     "used_terrain_ids": [
       "cobblestone",
       "dirt",
@@ -2712,7 +2714,7 @@
       "hay",
       "meadow",
       "mud",
-      "stone",
+      "sand",
       "water"
     ]
   },

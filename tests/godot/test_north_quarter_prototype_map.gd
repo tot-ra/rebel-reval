@@ -30,28 +30,30 @@ func test_north_quarter_prototype_bounds_and_spine() -> void:
 	)
 
 
-func test_merchant_district_uses_historical_streets_instead_of_blanket_cobble() -> void:
-	# HISTORICAL_AUDIT north-quarter ranges explicitly prohibit the old all-cobble base.
+func test_merchant_district_uses_cobble_only_on_the_primary_port_road() -> void:
 	var definition: MapDefinition = NorthQuarterDefinition.create()
 	assert_eq(definition.base_terrain, MapTypes.TERRAIN_DIRT)
 	var grid := MapBuilder.build(definition)
-	var cobble_or_stone := 0
-	var dirt_or_mud := 0
+	var cobble := 0
+	var earth := 0
 	var grass := 0
 	var total: int = definition.size_cells.x * definition.size_cells.y
 	for y in range(definition.size_cells.y):
 		for x in range(definition.size_cells.x):
 			match grid.get_terrain(Vector2i(x, y)):
-				MapTypes.TERRAIN_COBBLESTONE, MapTypes.TERRAIN_STONE:
-					cobble_or_stone += 1
-				MapTypes.TERRAIN_DIRT, MapTypes.TERRAIN_MUD:
-					dirt_or_mud += 1
+				MapTypes.TERRAIN_COBBLESTONE:
+					cobble += 1
+				MapTypes.TERRAIN_DIRT, MapTypes.TERRAIN_MUD, MapTypes.TERRAIN_SAND:
+					earth += 1
 				MapTypes.TERRAIN_GRASS:
 					grass += 1
-	assert_true(cobble_or_stone >= int(total * 0.25), "Pikk, Lai and loading aprons need a readable paved network")
-	assert_true(cobble_or_stone <= int(total * 0.45), "Stone/cobble share must stay below the north-quarter historical ceiling")
-	assert_true(dirt_or_mud >= int(total * 0.35), "Earth, mud and work yards must reach the historical floor")
+	assert_true(cobble > 0, "Pikk and the Coastal Gate approach still need a paved primary road")
+	assert_true(cobble <= int(total * 0.05), "Cobble must be rare rather than a merchant-ward default")
+	assert_true(earth >= int(total * 0.80), "Earth, mud, and compacted sand must dominate streets and work yards")
 	assert_true(grass >= int(total * 0.10), "Wall verges and rear court greenery must remain visible")
+	assert_eq(grid.get_terrain(Vector2i(104, 100)), MapTypes.TERRAIN_COBBLESTONE, "Pikk remains the paved port spine")
+	assert_eq(grid.get_terrain(Vector2i(138, 100)), MapTypes.TERRAIN_DIRT, "Lai remains an unpaved secondary lane")
+	assert_eq(grid.get_terrain(Vector2i(50, 20)), MapTypes.TERRAIN_SAND, "Loading aprons use compacted sand rather than dressed stone")
 
 
 func test_merchant_district_has_dense_varied_houses_warehouses_and_yards() -> void:

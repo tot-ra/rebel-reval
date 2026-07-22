@@ -78,25 +78,31 @@ source "docs/SCENES/the-makers-mark.md"
 source "docs/SCENES/a-bitter-brew.md"
 source "content/locations/loc.lower_town_slice.json"
 surroundings north town east town south town west town
+# The production slice uses packed earth, mud, and sand as ordinary street and
+# yard surfaces. Cobble is overlaid below only on the Pikk, Viru, and Karja
+# through-routes; it must never return as a district-wide substrate.
 terrain_rects terrain.00 grass 114,0,38,128|31,0,45,19|76,0,28,22|16,103,44,22|7,98,9,27|76,76,10,27|93,87,21,21|76,108,38,20 layer=0 order=0
 terrain_rects terrain.01 water 121,0,5,43|121,38,9,5|126,43,5,27|121,68,9,5|121,73,5,19|111,87,12,8|100,95,12,8|97,103,8,8|90,111,10,8|83,119,9,8 layer=0 order=9
 terrain_rects terrain.02 dirt 114,51,38,9 layer=0 order=22
-terrain_rects terrain.02b cobblestone 59,112,12,16 layer=0 order=23
-terrain_rects terrain.03 cobblestone 0,51,100,11 layer=0 order=24
-terrain_rects terrain.04 stone 100,51,16,9 layer=0 order=25
-terrain_rects terrain.05 cobblestone 0,38,16,35|24,0,5,51 layer=0 order=26
-terrain_rects terrain.06 stone 24,22,80,5 layer=0 order=28
-terrain_rects terrain.07 cobblestone 62,62,5,65|57,119,16,8 layer=0 order=29
-terrain_rects terrain.08 stone 62,127,5,1 layer=0 order=31
-terrain_rects terrain.09 cobblestone 16,73,29,6|14,87,48,5 layer=0 order=32
+terrain_rects terrain.02b sand 59,112,12,16 layer=0 order=23
+terrain_rects terrain.03 dirt 0,51,100,11 layer=0 order=24
+terrain_rects terrain.04 dirt 100,51,16,9 layer=0 order=25
+terrain_rects terrain.05 dirt 0,38,16,35|24,0,5,51 layer=0 order=26
+terrain_rects terrain.06 mud 24,22,80,5 layer=0 order=28
+terrain_rects terrain.07 dirt 62,62,5,65|57,119,16,8 layer=0 order=29
+terrain_rects terrain.08 dirt 62,127,5,1 layer=0 order=31
+terrain_rects terrain.09 mud 16,73,29,6|14,87,48,5 layer=0 order=32
 terrain_rects terrain.10 hay 86,76,4,5 layer=0 order=34
 terrain_rects terrain.11 mud 31,125,7,3 layer=0 order=35
-terrain_rects terrain.12 cobblestone 0,11,24,3|0,84,16,3|0,103,16,8 layer=0 order=27
+terrain_rects terrain.12 dirt 0,11,24,3|0,84,16,3|0,103,16,8 layer=0 order=27
 terrain_rects terrain.13 grass 7,73,9,14|7,87,9,11 layer=0 order=0
-terrain_rects terrain.14 cobblestone 54,112,17,16|71,112,5,16 layer=0 order=36
-terrain_rects terrain.15 stone 71,112,7,16 layer=0 order=37
+terrain_rects terrain.14 sand 54,112,17,16|71,112,5,16 layer=0 order=36
+terrain_rects terrain.15 dirt 71,112,7,16 layer=0 order=37
 terrain_rects terrain.16 dirt 41,112,13,16|78,112,17,16 layer=0 order=38 style=veg.grass.tall
 terrain_rects terrain.17 meadow 95,112,36,16 layer=0 order=39 style=veg.tree.mixed
+stroke road.pikk cobblestone 26,0|26,55 thickness=3 order=40
+stroke road.viru cobblestone 0,55|64,55|100,55 thickness=3 order=41
+stroke road.karja cobblestone 64,55|64,92|64,127 thickness=3 order=42
 building city_wall_north wall 111 0 4 41 style=wall.plain.h192.00
 building wall_tower_northeast wall 109 5 8 6 style=wall.plain.h240.01 tower=false round_tower=true wall_walk_axis=z
 building wall_tower_north wall 109 24 8 6 style=wall.plain.h240.01 tower=false round_tower=true wall_walk_axis=z

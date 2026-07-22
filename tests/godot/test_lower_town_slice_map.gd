@@ -29,6 +29,30 @@ func test_lower_town_slice_matches_canonical_parity_fixture() -> void:
 	)
 
 
+func test_lower_town_limits_cobble_to_primary_roads() -> void:
+	var definition: MapDefinition = LowerTownSliceDefinition.create()
+	var grid := MapBuilder.build(definition)
+	var cobble := 0
+	var earth := 0
+	var permeable := 0
+	var total: int = definition.size_cells.x * definition.size_cells.y
+	for y in range(definition.size_cells.y):
+		for x in range(definition.size_cells.x):
+			match grid.get_terrain(Vector2i(x, y)):
+				MapTypes.TERRAIN_COBBLESTONE:
+					cobble += 1
+				MapTypes.TERRAIN_DIRT, MapTypes.TERRAIN_MUD, MapTypes.TERRAIN_SAND:
+					earth += 1
+				MapTypes.TERRAIN_GRASS, MapTypes.TERRAIN_MEADOW, MapTypes.TERRAIN_HAY:
+					permeable += 1
+	permeable += earth
+	assert_true(cobble <= int(total * 0.05), "Cobble must remain a rare primary-road surface")
+	assert_true(earth >= int(total * 0.15), "Ordinary Lower Town streets and yards need visible earth, mud, and sand")
+	assert_true(permeable >= int(total * 0.85), "Permeable ground must dominate the production slice")
+	assert_eq(grid.get_terrain(Vector2i(26, 10)), MapTypes.TERRAIN_COBBLESTONE, "Pikk remains a paved main road")
+	assert_eq(grid.get_terrain(Vector2i(20, 75)), MapTypes.TERRAIN_MUD, "Secondary worker lanes remain muddy")
+
+
 func test_parity_serializer_normalizes_dictionary_order_and_floats() -> void:
 	var first := {
 		"z": -0.0,
