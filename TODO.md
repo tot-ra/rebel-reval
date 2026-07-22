@@ -10,14 +10,11 @@ Dependency policy: `deps` lists unresolved blockers only. Remove a dependency wh
 | P0       |  ~8  |  33  | Baseline, storage, materials, historical audit |
 | P1       |  ~9  |  43  | Runtime systems, content foundation |
 | P2       |  31  |   0  | Vertical-slice production (playable MVP) |
+| P3       |  15  |   0  | Validation, accessibility, performance |
+| P4-P6    |  ~20 |   0  | Act content |
+
 
 ## Immediate priorities
-
-
-Dependency policy: `deps` lists unresolved blockers only. Remove a dependency when it completes; use Git history for completed work. Completed rows remain at the end only when repository validators require their exact task contracts.
-
-## Immediate priorities
-
 Coordination note (2026-07-20 evening re-audit, committed `HEAD` `606a6e5`): the morning audit's trust findings (13 masked `SCRIPT ERROR` exceptions behind 482 "passes", 2 Python contract failures, failing content corpora, stale report, audit/matrix drift) are resolved history - P0-061 made the harness fail on runtime exceptions, and P0-062/P0-062a/P0-063 cleared the errors and reconciled the validators. Verified on this HEAD: `python3 -m unittest discover -s tests/python`, `verify_map_audit.py`, `verify_migration_matrix.py`, `verify_map_conversion_plan.py`, `verify_map_activation.py`, and `generate_active_docs_report.py --check` all pass, and `--filter=test_character_rig` passes 15/15. The macOS export evidence (414 MiB `rr.dmg`) still proves package generation only, not packaged play - that remains D-004.
 
 Coordination note (2026-07-20 P0-062b): restored multi-street walkable patrols on `north_quarter`, `south_quarter`, and `toompea_quarter` after the P0-062a spawn-adjacent temporary loops. Open baseline packaging step remains D-004; reviewable chunk-boundary warnings stay under P0-067a.
