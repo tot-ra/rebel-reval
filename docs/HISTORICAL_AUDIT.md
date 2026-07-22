@@ -149,9 +149,9 @@ The Archbishop's Garden gameplay region uses the archaeologically located Bishop
 
 ## P0-072: 1343 Reval environment target dossier
 
-Status: **draft production baseline - pending human historical sign-off**
-Recorded: 2026-07-21
-Scope: the ten retained urban `MapBlueprint` sources listed explicitly in `scripts/map/map_blueprint_registry.gd`
+Status: **research baseline complete - pending independent human historical sign-off**
+Recorded: 2026-07-21; expanded to the full registry and living-world categories: 2026-07-22
+Scope: all eleven retained urban and immediate-foreland `MapBlueprint` sources listed explicitly in `scripts/map/map_blueprint_registry.gd`
 
 ### How to use this dossier
 
@@ -192,6 +192,9 @@ The numeric ranges below use these definitions:
 | H14 | [St Olaf's Church](https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-st-olafs-church-oleviste-kirik/) | Church recorded in 1267; vault work dated 1330; northern settlement incorporated in first half of 14th century | Large 15th-century basilica, chancel and high spire are excluded |
 | H15 | [Dominican Friary of St Catherine](https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-monastery-of-st-catherine-puha-katariina-klooster/) | Current site from 1246; stone church and east wing begun in 1260s and substantially present by end of 13th century; courtyard well and small garden | Late-14th/15th-century enlargements are excluded from the 1343 mass |
 | H16 | [Roio et al., medieval ship finds](../history/AVE2015_15_Roiojt_Kadriorg.pdf) | A ship wrecked around the second quarter of the 14th century east of the Hanseatic town; coast has since moved and been deeply filled | Proves maritime activity, not the exact harbour edge, quay material, or district zoning in 1343 |
+| H17 | [Johanson, Unt and Hiie, Archaeobotany in Estonia](https://doi.org/10.3176/arch.2025.1.02) | Medieval town occupation layers in Tallinn and other Estonian towns preserve plant remains; cultivated grains and other macroremains are documented regionally | Sampling is extremely uneven and context reporting is often weak; it does not establish an exact 1343 species mix or planted-area share for any retained map |
+| H18 | [Rannamäe and Aguraiuja-Lätti, Livestock and game in medieval and early modern Estonia](https://doi.org/10.3176/arch.2023.3S.03) | Cattle, sheep, goats, pigs and horses dominate studied domestic mammal assemblages; cattle are most abundant; Tallinn suburban sites are included; wild mammals are proportionally scarce | Aggregates 13th-18th-century consumption and husbandry evidence; bones do not prove live-animal density or a particular 1343 plot assignment |
+| H19 | [Ehrlich, Aguraiuja-Lätti and Haak, Bird exploitation in medieval and early modern Estonia](https://doi.org/10.3176/arch.2023.3S.05) | Chicken is the most common bird across most sites, followed broadly by goose and duck; Tallinn urban/suburban material is represented and coastal assemblages contain more waterfowl | Broad ca. 1200-1800 assemblages, with Tallinn material mainly suburban; does not establish exact pen locations, flock sizes, or a 1343 district ratio |
 
 ### Shared 1343 constraints
 
@@ -203,8 +206,10 @@ The numeric ranges below use these definitions:
 6. **Ground - A/B.** Paved routes existed, including flat limestone, erratic/rubble stone and pebble road surfaces (H04, H09-H10). This supports paving of primary routes and important closes, not a blanket cobblestone ground fill. Secondary lanes, yards and exterior roads use packed earth, sand, chips, dung-darkened soil and seasonally muddy wear; grass survives in gardens, margins and lightly used ground.
 7. **Drainage - A/B/U.** Shape streets and yards to shed water toward open ditches, wall moats, coast, wells/soakage points, or localized stone/wood gutters. Covered stone drainage is allowed where attested, especially at the Coastal Gate (H11). Do not infer a citywide underground sewer from later timber pipes (H09).
 8. **Fences and plot edges - B/C.** Use timber boards, wattle, hedges, service-building edges, and limited limestone plot walls. The later-medieval 3 m wall described for wealthy strip plots (H04) is an upper-bound analogy, not the default for ordinary 1343 yards.
-9. **Vegetation - A/B/U.** Retain kitchen/fruit gardens in monastic and selected household plots (H05, H15), orchard/garden use on western Toompea where supported by H12, scrub/grass on wet or lightly developed margins, and sparse working vegetation in compact merchant streets. Exact species and planting geometry are unknown unless separately sourced; avoid formal early-modern park layouts.
-10. **Topography - A/B.** Toompea is a high limestone plateau; the Lower Town lies at its foot; the Coastal Gate sits above lower harbour ground; southern and eastern edges include low/wet coastal terrain (H01, H08, H10-H12). Maps must express local slope and drainage rather than flattening every district. Terrain scale is a gameplay abstraction and must not be labelled a measured elevation model.
+9. **Vegetation species - A/B/U.** Retain fruit and kitchen planting in monastic and selected household plots (H05, H15), orchard/garden use on western Toompea where H12 supports the land use, wet-margin reeds/scrub, and sparse disturbed-ground plants in compact streets. H17 confirms the value and presence of medieval urban plant remains but also documents uneven sampling. Exact 1343 species proportions are therefore **U**. [`FLORA_FAUNA.md`](FLORA_FAUNA.md) is a provisional implementation palette, not independent historical evidence.
+10. **Garden and agricultural land use - A/B/U.** Garden, orchard, pasture, meadow, field-strip, and fallow shares below are bounded composition hypotheses. Monastic/household gardens and some crop use are supported in kind (H05, H15, H17), but no reviewed source supplies map-level acreage for 1343. Keep all food production physically plausible, reversible, and subordinate to attested routes and institutions.
+11. **Fauna presence bands - B/U.** `none` means no resident authored placement; `trace` means a transient/scavenger or at most one small context-specific group; `low` means one small pen, tether, working group, or recurring ambient cluster; `moderate` means several small controlled groups without blanket scatter. H18-H19 support livestock and fowl in medieval Estonia, but consumption remains do not locate live animals. Wild mammals remain `none` inside dense urban maps and at most `trace` on signed outer margins; no predator may occupy a required route.
+12. **Topography - A/B.** Toompea is a high limestone plateau; the Lower Town lies at its foot; the Coastal Gate sits above lower harbour ground; southern and eastern edges include low/wet coastal terrain (H01, H08, H10-H12). Maps must express local slope and drainage rather than flattening every district. Terrain scale is a gameplay abstraction and must not be labelled a measured elevation model.
 
 ### Map-specific target cards
 
@@ -215,12 +220,15 @@ The numeric ranges below use these definitions:
 | Street/property layout | One compact front/rear craft-house interior divided into living, storage and hot-work zones; exact location and plan are **D** | H04-H05 support combined residence/work/service uses, but Kalev and this floor plan are invented |
 | Density | Built footprint is 100% because this blueprint is an interior. Within the footprint, circulation/open floor should remain 45-60% and fixed work/storage/furnishing zones 40-55% - **B/D** | H04-H05; gameplay clearance remains authoritative |
 | Ordinary / exceptional buildings | Timber or lime-plastered living fabric with local limestone at hearth, foundation, drain and fire-risk surfaces; no exceptional civic mass - **B/D** | H04-H05 |
-| Roof cover | Roof is not normally visible. If exposed by inspection view, use shingle or thatch with a protected hearth/chimney zone; exact cover is **U** | H04 and shared roof rule |
+| Roof covers | Roof is not normally visible. If exposed by inspection view, use shingle or thatch with a protected hearth/chimney zone; exact cover is **U** | H04 and shared roof rule |
 | Ground surfaces | Timber boards 35-50%; stone/flag or compacted mineral floor 20-30%; clay/dirt/ash working floor 20-35% - **B** | H05 records wooden floors, dirt floors, fieldstone threshold and damp mitigation |
 | Drainage | Quench and hearth runoff uses a short gutter or soakage point; no invented sewer - **B/U** | H05; exact forge drainage unknown |
-| Fences / vegetation | Internal partitions are timber/plaster. No decorative vegetation; stored herbs/food are optional **D** props - **B/D/U** | H05; exact interior planting and storage are unknown |
+| Fences / plot edges | Internal partitions are timber/plaster. No decorative vegetation; stored herbs/food are optional **D** props - **B/D/U** | H05; exact interior planting and storage are unknown |
+| Vegetation species | No rooted vegetation is required indoors. Stored culinary or medicinal plants may appear only as generic dried goods; exact species are **U/D** | H17 supports medieval plant use but not Kalev's inventory |
+| Garden / agricultural use | None inside this blueprint. All crop production is off-map; a food or fibre supply prop records trade/use, not a local field - **D/U** | H17; interior scope |
+| Domestic / wild fauna | Resident livestock and wild fauna: `none`. At most one transient cat or rodent cue may be `trace` and **D/U**, with no pen or stable inside the forge | H18; exact household fauna unknown |
 | Topography | Nearly level usable floor with small hearth/drain fall; no exterior hill claim - **D** | Interior gameplay abstraction |
-| Landmarks | Anvil, ledger and bed alcove remain stable gameplay anchors; all are **D plausible craft fixtures**, not attested occupants or coordinates | Current blueprint contract |
+| Landmarks | Anvil, ledger and bed alcove remain stable gameplay anchors; all are plausible craft fixtures but **D**, not attested occupants or coordinates | Current blueprint contract |
 
 #### `lower_town_slice` - eastern artisan ward, Dominican edge, Viru and Karja approaches
 
@@ -228,13 +236,33 @@ The numeric ranges below use these definitions:
 |---|---|---|
 | Street/property layout | Preserve Vana Turg/Viru, Vene, Müürivahe, Karja and Dominican approach directions as a compressed medieval network. Use tight street frontages and rear work/service yards; exterior-road frontage becomes looser beyond a gate - **A/B/D** | H01-H05, H09-H10, H15; map compression and named worker zoning are gameplay choices |
 | Density | Inside-wall developable ground: built 45-60%, open 40-55%. Gate aprons and any outside-wall edge: built 15-30%, open 70-85% - **B** | H03-H05 and H10 show dense core plus road-aligned suburb, without a measured 1343 ratio |
-| Ordinary buildings | Majority mixed timber, plastered timber and plank craft houses; selected limestone merchant/cellar/workshop fabric near primary streets; rear sheds, yards and fire-separated hot trades - **A/B** | H04-H05 |
-| Roofs | Shingle 40-60%, thatch/reed 20-40%, tile 10-25% of ordinary roof area; tile may exceed this only on named church/monastic/wealthy stone masses - **B/U** | Shared roof rule; exact shares unknown |
+| Ordinary / exceptional buildings | Majority mixed timber, plastered timber and plank craft houses; selected limestone merchant/cellar/workshop fabric near primary streets; rear sheds, yards and fire-separated hot trades - **A/B** | H04-H05 |
+| Roof covers | Shingle 40-60%, thatch/reed 20-40%, tile 10-25% of ordinary roof area; tile may exceed this only on named church/monastic/wealthy stone masses - **B/U** | Shared roof rule; exact shares unknown |
 | Ground surfaces | Stone/cobble/pebble 25-40%; packed earth/dirt/mud/chips 35-50%; grass/hay/service vegetation 15-30% - **B** | H04-H05, H09-H10 |
 | Drainage | Shallow street-side or yard channels fall east/south-east toward moat/wet ground; wells and soakage points are local. Do not use the later Viru timber pipe as 1343 infrastructure - **B/U** | H05, H08-H10 |
-| Fences / vegetation | Wattle/timber yard boundaries and service-building edges dominate; limited stone precinct walls at St Catherine and affluent plots. Kitchen plants, sparse yard grass, wall-margin scrub and outside-gate pasture are allowed; formal gardens are not - **B** | H05, H10, H15 |
+| Fences / plot edges | Wattle/timber yard boundaries and service-building edges dominate; limited stone precinct walls at St Catherine and affluent plots. Kitchen plants, sparse yard grass, wall-margin scrub and outside-gate pasture are allowed; formal gardens are not - **B** | H05, H10, H15 |
+| Vegetation species | Use generic disturbed-ground herbs/grass in yards, wet-margin reed/scrub by ditches, and fruit-tree forms only inside selected household or monastic plots. Exact species and proportions are **U** - **B/U** | H05, H15, H17 |
+| Garden / agricultural use | Inside-wall kitchen/fruit plots: 3-10% of developable land; crop fields: 0-3%. Any retained outside-gate edge may use garden/pasture/meadow on 15-35% of developable land - **B/U** | H05, H10, H15, H17; no measured 1343 acreage |
+| Domestic / wild fauna | Domestic `low`: contained chickens are preferred; one tethered horse/ox or one small pig/sheep/goat yard is allowed where routes permit. Wild mammals `none` inside and `trace` only at an outside-gate margin; ambient wild birds `trace` - **B/U** | H18-H19; live-animal locations are unknown |
 | Topography | Gentle coastal-lowland fall toward north-east/east with visibly lower wet ground near defensive waterworks; exact cell heights **U** - **A/B/U** | H08-H10 |
 | Landmarks | St Catherine: retain late-13th-century church/east-wing core, omit later enlargement (**A/C**). Viru gate: show a simple mid-14th-century gate/main wall at most; 1370s+ barbicans/foregates are excluded and construction-in-progress is acceptable (**B/U**). Karja gate: early-14th-century wall/gate is plausible, but 1365 name and later barbican/watermill forms are not 1343 facts (**B/U**). Kalev's smithy, brewery and checkpoint are **D** | H09-H10, H15 |
+
+#### `viru_gate_foreland` - eastern road, crofts and wet outer margin
+
+| Category | 1343 target | Evidence |
+|---|---|---|
+| Street/property layout | Continue the Viru road east as a compacted track with sparse road-aligned crofts, irregular service yards and open land between compounds. Exact lanes, plot limits and a wayside inn are **D/U** - **B/D/U** | H08-H10; current compression and compound assignments are gameplay choices |
+| Density | Built 5-15%, open 85-95% of developable land; keep a clear difference from the dense ward inside the wall - **B/U** | H08-H10 support a looser suburb/foreland but provide no measured 1343 ratio |
+| Ordinary / exceptional buildings | Small log/plank crofts, sheds and a reversible inn/stable mass; no stone merchant row. At the west edge, use only the conservative Viru gate/wall state - **B/D/U** | H04-H05, H08-H10 |
+| Roof covers | Thatch/reed 40-60%, shingle 30-50%, tile 0-10%; tile is reserved for any reviewed gate fabric - **B/U** | Shared roof rule; no foreland-specific share survives |
+| Ground surfaces | Stone/pebble gate apron 5-15%; packed earth/mud road and yards 25-40%; grass/meadow/pasture/woodland floor 50-70% - **B/U** | H08-H10; exact shares are reconstructed |
+| Drainage | Road crown and yard fall feed open roadside ditches, wet hollows and the defensive water system; no covered sewer or copied later watermill channel - **A/B/U** | H08-H10 |
+| Fences / plot edges | Wattle/timber croft and livestock boundaries, intermittent hedges, open meadow edges and no formal glacis lawn or continuous stone plot walls - **B/U** | H05, H08-H10 |
+| Vegetation species | Meadow grasses, ditch reeds/sedges, low scrub and mixed woodland edge are required functional groups. Pine/spruce/birch/alder forms are regional candidates only; the exact 1343 species mix is **U** - **B/U** | H17 documents the sampling limit; `FLORA_FAUNA.md` is an implementation palette only |
+| Garden / agricultural use | Croft/kitchen plots: 5-15%; field/fallow strips: 10-25%; meadow/pasture: 20-40%; woodland/scrub margin: 15-30% of developable land, with roads, yards and wet ground occupying the balance - **B/U** | H10, H17; no site-specific acreage survives |
+| Domestic / wild fauna | Domestic `moderate`: contained chickens/geese/ducks, small pig/sheep/goat groups, and tethered horse/ox use near crofts. Wild mammals `trace` only at signed woodland margins; wild/open-ground birds `low`; predators never occupy required routes - **B/U** | H18-H19; live-animal locations and counts are unknown |
+| Topography | Low, gently falling coastal foreland with wet ditch lines and shallow depressions; avoid a level meadow plane. Exact cell elevations are **U** - **A/B/U** | H08-H10 |
+| Landmarks | Viru Gate appears only as the conservative simple wall/gate edge, potentially under construction and without later barbicans (**B/U**). Viru road is retained as an attested route direction (**A/B**); wayside inn and named crofts are **D** | H09; current blueprint contract |
 
 #### `market_civic_quarter` - Town Hall market and Holy Spirit close
 
@@ -242,11 +270,14 @@ The numeric ranges below use these definitions:
 |---|---|---|
 | Street/property layout | Preserve Town Hall market as the central open node with Pikk, Vana Turg/Viru, Kuninga/Karja, Niguliste and hill approaches feeding it. Surround it with narrow merchant plots and service lanes rather than a modern rectangular plaza - **A/B** | H01-H04, H06-H07, H09 |
 | Density | Built 50-65%, open 35-50%, measured outside the market-square reserve. Market square itself stays predominantly open and temporary stalls do not count as buildings - **B** | H01-H07 |
-| Ordinary buildings | Street-facing timber/stone coexistence, with more limestone cellars, rear houses, warehouses and affluent merchant fabric than the artisan ward - **A/B** | H04-H06 |
-| Roofs | Shingle 30-50%, tile 25-45%, thatch 10-25%; Town Hall and selected affluent/religious stone masses use tile - **B/U** | H04, H06-H07 |
+| Ordinary / exceptional buildings | Street-facing timber/stone coexistence, with more limestone cellars, rear houses, warehouses and affluent merchant fabric than the artisan ward - **A/B** | H04-H06 |
+| Roof covers | Shingle 30-50%, tile 25-45%, thatch 10-25%; Town Hall and selected affluent/religious stone masses use tile - **B/U** | H04, H06-H07 |
 | Ground surfaces | Stone/cobble/pebble 40-55%; packed earth/mud 30-40%; grass/service margins 10-20% - **B** | H04, H09; no evidence supports 100% cobble |
 | Drainage | Crown or cross-fall busy routes toward side gutters and wells; allow limestone slab drains only as localized reconstruction. A full underground civic drain is **U** - **B/U** | H05, H09 |
-| Fences / vegetation | Building edges and selective stone/timber plot walls close merchant yards. Market vegetation is sparse; small rear gardens are allowed but no tree-lined formal square - **B/U** | H04-H05 |
+| Fences / plot edges | Building edges and selective stone/timber plot walls close merchant yards. Market vegetation is sparse; small rear gardens are allowed but no tree-lined formal square - **B/U** | H04-H05 |
+| Vegetation species | No planted street-tree scheme. Use `trace` disturbed-ground herbs at edges and generic fruit/herb planting only in enclosed rear plots; exact species are **U** - **B/U** | H04-H05, H17 |
+| Garden / agricultural use | Enclosed household gardens: 0-5% of developable land outside the market reserve; crop fields and pasture: `none`. Market produce does not imply on-map cultivation - **B/U** | H04-H05, H17 |
+| Domestic / wild fauna | Domestic `low`: working horse/ox traffic and a small contained chicken group may appear, but no free livestock herd in the square. Wild mammals `none`; commensal or wild birds `trace` - **B/U** | H18-H19; exact market presence unknown |
 | Topography | Lower Town ground rises west toward Toompea and falls east toward Viru; retain uneven thresholds/cellar necks without blocking routes - **A/B** | H01, H04, H09 |
 | Landmarks | Town Hall: first-quarter-14th-century elongated local-limestone hall/warehouse, shorter than post-1371 mass and without 1402-04 upper storey/tower (**A/B**). Holy Spirit: modest pre-enlargement chapel-almshouse, no later tower/clock (**A/B**). Current Great Guild Hall (1407-10), Blackheads institution (1399), and Raeapteek identity (post-1422) are excluded; generic earlier merchant/guild meeting fabric may remain **U/B** | H06-H07 and H04 chronology |
 
@@ -256,11 +287,14 @@ The numeric ranges below use these definitions:
 |---|---|---|
 | Street/property layout | Pikk remains the main market-to-port spine, with Lai and irregular strip plots; warehousing and marine trades increase toward the gate. Exact guild/trade zoning is **D** - **A/B/D** | H01-H04, H11, H14 |
 | Density | Built 45-60%, open 40-55%; retain larger rear courts/workyards near the gate and wet edge - **B** | H04, H08, H11 |
-| Ordinary buildings | Mixed merchant front houses, timber/stone rear houses, plank/log sheds and modest warehouses; later uniform stone-gabled streetscape is prohibited - **A/B/C** | H04-H05 |
-| Roofs | Shingle 35-55%, tile 20-40%, thatch 10-25%; service sheds favor shingle/thatch, affluent stone houses favor tile - **B/U** | H04 and shared roof rule |
+| Ordinary / exceptional buildings | Mixed merchant front houses, timber/stone rear houses, plank/log sheds and modest warehouses; later uniform stone-gabled streetscape is prohibited - **A/B/C** | H04-H05 |
+| Roof covers | Shingle 35-55%, tile 20-40%, thatch 10-25%; service sheds favor shingle/thatch, affluent stone houses favor tile - **B/U** | H04 and shared roof rule |
 | Ground surfaces | Stone/cobble/pebble 30-45%; packed earth/mud/workyard 35-50%; grass/wet margin 15-25% - **B** | H04, H08, H11 |
 | Drainage | Primary street falls toward Coastal Gate; open workyard drains and a gate-area channel may carry water toward harbour. Do not extend the attested gate channel as a district sewer - **A/B/U** | H11 |
-| Fences / vegetation | Narrow plot walls/fences inside the ward, timber yard fences near workshops, sparse street vegetation, and grass/scrub only in larger courts or low margins - **B** | H04-H05, H08 |
+| Fences / plot edges | Narrow plot walls/fences inside the ward, timber yard fences near workshops, sparse street vegetation, and grass/scrub only in larger courts or low margins - **B** | H04-H05, H08 |
+| Vegetation species | Sparse disturbed-ground herbs in compact streets; generic wet-grass/reed/scrub at the northern low edge; fruit trees only in enclosed rear plots. Exact taxa and shares are **U** - **B/U** | H05, H08, H17 |
+| Garden / agricultural use | Household garden plots: 3-10% of developable land; crop fields and pasture: `none` inside this ward. Cargo or fodder stacks do not count as cultivation - **B/U** | H04-H05, H17 |
+| Domestic / wild fauna | Domestic `low`: tethered cargo horse/ox and contained chickens are allowed in workyards. Wild mammals `none`; coastal/urban wild birds `low` only near the gate/harbour edge - **B/U** | H18-H19; district-specific counts unknown |
 | Topography | Ground descends toward the north/east harbour lowland while the gate occupies a sandstone rise; avoid a flat all-cobble platform - **A/B** | H08, H11 |
 | Landmarks | Coastal Gate: low curtain and gate opening certainly by mid-century, probable initial gate tower 1311-40; for 1343 use a simple gate/tower with no later barbican or Fat Margaret (**B/U**). Named ropemakers, shipwrights, goldsmith rows and merchant court are **D** functional zoning | H11 |
 
@@ -271,10 +305,13 @@ The numeric ranges below use these definitions:
 | Street/property layout | Continue Pikk/Lai routes through merchant frontage, but preserve large enclosed religious plots with gardens/service courts. Do not fill precinct interiors with generic houses - **A/B** | H03-H05, H14 |
 | Density | Built 35-50%, open 50-65%; merchant street strips may be dense while convent/church precincts remain substantially open - **B** | H03-H05, H14 |
 | Ordinary / exceptional buildings | Merchant and service mix follows H04. St Michael's precinct uses limestone/timber religious and service masses; St Olaf uses its early church form. Generic guild frontage is allowed, but current monumental guild halls are later - **A/B/C/U** | H03-H05, H14 |
-| Roofs | Shingle 30-45%, tile 25-45%, thatch 10-25%, with tile concentrated on religious/wealthy stone masses - **B/U** | Shared roof rule |
+| Roof covers | Shingle 30-45%, tile 25-45%, thatch 10-25%, with tile concentrated on religious/wealthy stone masses - **B/U** | Shared roof rule |
 | Ground surfaces | Stone/cobble/pebble 30-45%; earth/mud/service yard 25-40%; garden/grass 25-40% - **B** | H04-H05, H14 |
 | Drainage | Precinct wells/soakage and open lane/yard gutters; exact 1343 network is **U** and must remain localized - **B/U** | H05, H15 as monastic analogy |
-| Fences / vegetation | Stone/timber precinct walls, internal wattle/timber service divisions, and substantial vegetable/fruit garden ground at St Michael; sparse greenery on merchant lanes - **A/B** | H05 |
+| Fences / plot edges | Stone/timber precinct walls, internal wattle/timber service divisions, and substantial vegetable/fruit garden ground at St Michael; sparse greenery on merchant lanes - **A/B** | H05 |
+| Vegetation species | Generic orchard fruit trees, kitchen herbs/vegetables and disturbed-ground plants belong inside precincts; wet-margin grass/scrub belongs at wall edges. Exact species list is **U** - **A/B/U** | H05, H15, H17 |
+| Garden / agricultural use | Enclosed kitchen/orchard beds: 10-25% of developable land, concentrated in the St Michael precinct; crop fields: 0-5%; no formal ornamental garden - **B/U** | H05, H15, H17; acreage is reconstructed |
+| Domestic / wild fauna | Domestic `low`: contained chickens/geese/ducks and at most one small livestock or tether group in service courts. Wild mammals `none`; wild birds `trace` - **B/U** | H18-H19; no St Michael-specific 1343 count survives |
 | Topography | Uneven Lower Town ground falls generally toward the north/east; preserve wall-edge low ground and route continuity - **B/U** | H08 |
 | Landmarks | St Olaf: retain compact older church with massive west tower and completed 1330-era vault work; omit 15th-century chancel, basilica and giant spire (**A/B**). St Michael's Cistercian convent is attested in this northern expansion, but its exact 1343 above-ground mass is **U**. Present Great Guild Hall (1407-10) and Brotherhood/Blackheads buildings are later; label any retained facades generic merchant or St Olaf craft-guild use, the latter first recorded in 1363 and therefore **U** for 1343 | H03-H05, H08, H14 |
 
@@ -284,11 +321,14 @@ The numeric ranges below use these definitions:
 |---|---|---|
 | Street/property layout | Dense irregular lanes and strip/square artisan plots inside the expanding wall; road-aligned, much looser development outside the gate. The broad western "Knights District" identity is **D**, not a documented medieval district - **A/B/D** | H01-H04, H08, H10 |
 | Density | Inside-wall built 40-55%, open 45-60%; outside-wall/glacis built 10-25%, open 75-90% - **B** | H08-H10 |
-| Ordinary buildings | Timber craft houses and service sheds dominate ordinary fabric, with selective limestone merchant/cellar/institutional houses and gate work. A repeated limestone knights compound is not supported - **A/B/D** | H04-H05, H10 |
-| Roofs | Shingle 35-55%, thatch 20-40%, tile 10-25%; gate and selected wealthy stone buildings may use tile - **B/U** | Shared roof rule |
+| Ordinary / exceptional buildings | Timber craft houses and service sheds dominate ordinary fabric, with selective limestone merchant/cellar/institutional houses and gate work. A repeated limestone knights compound is not supported - **A/B/D** | H04-H05, H10 |
+| Roof covers | Shingle 35-55%, thatch 20-40%, tile 10-25%; gate and selected wealthy stone buildings may use tile - **B/U** | Shared roof rule |
 | Ground surfaces | Stone/pebble 25-40%; packed earth/mud 40-55%; grass/pasture/margin 15-30% - **B** | H10 directly records early pebble/rubble road and later limestone slabs |
 | Drainage | Express coastal-lowland fall, wet depressions, open roadside ditches and the wall/moat system. Millpond/watermill geometry is not accepted as exactly 1343 - **A/B/U** | H08, H10 |
-| Fences / vegetation | Timber/wattle yard fences inside, hedges/pasture boundaries outside, sparse kitchen gardens and wall-margin grass. No formal glacis lawn - **B** | H05, H10 |
+| Fences / plot edges | Timber/wattle yard fences inside, hedges/pasture boundaries outside, sparse kitchen gardens and wall-margin grass. No formal glacis lawn - **B** | H05, H10 |
+| Vegetation species | Inside: generic disturbed-ground plants and rare enclosed fruit/herb plots. Outside: meadow grass, ditch reed/sedge forms and low scrub; exact species mix is **U** - **B/U** | H05, H10, H17 |
+| Garden / agricultural use | Inside-wall kitchen plots: 3-10% of developable land. Outside-wall garden/field/fallow: 10-25%; meadow/pasture: 20-40%, while roads, moat and wet ground remain separate - **B/U** | H05, H10, H17; no measured 1343 shares |
+| Domestic / wild fauna | Domestic `low` inside and `moderate` outside: chickens plus small contained pig/sheep/goat groups and tethered horse/ox traffic. Wild mammals `none` inside and `trace` outside; open-ground birds `trace` - **B/U** | H18-H19; placements remain reversible |
 | Topography | Gentle north-east fall on marine sand, with 2-3 m of later urban accumulation explicitly not represented as 1343 ground; wet depressions remain visible - **A/B** | H10 |
 | Landmarks | Karja Gate: simple early-14th-century wall/gate is plausible, but first written mention is 1365 and later barbican/mill composition is excluded (**B/U**). Rataskaev well is first mentioned after 1343 (1375 in later summaries); a 1343 well at that exact anchor remains **U**, so keep a generic water-source placeholder until reviewed. "Knights' quarters" and western canonical halls are **D** | H10; exact Rataskaev 1343 evidence not established in reviewed sources |
 
@@ -299,10 +339,13 @@ The numeric ranges below use these definitions:
 | Street/property layout | Sparse compounds and narrow routes converge on cathedral, episcopal/canonical plots, castle and the Long/Short Leg descents; do not use dense Lower Town strip rows - **A/B** | H01, H12-H13 |
 | Density | Built 20-35%, open 65-80%; castle and cathedral compounds may be locally dense inside their walls while the plateau remains broadly open - **B** | H01, H12-H13 |
 | Ordinary / exceptional buildings | Limestone castle/cathedral and selected curiae; smaller canonical/noble/service buildings mix limestone, plastered timber and plank. Exact noble-house allocation is **U/D** - **A/B/U/D** | H12-H13 |
-| Roofs | Tile 35-55%, shingle 25-40%, thatch 10-25%; tile concentrates on cathedral, castle and elite stone fabric - **B/U** | H13 and shared roof rule |
+| Roof covers | Tile 35-55%, shingle 25-40%, thatch 10-25%; tile concentrates on cathedral, castle and elite stone fabric - **B/U** | H13 and shared roof rule |
 | Ground surfaces | Stone/cobble/pebble 25-40%; earth/quarry fill 20-35%; grass/garden/open close 35-50% - **B** | H12-H13 |
 | Drainage | Surface fall follows plateau/quarry cuts toward cliff edges and descents; wells and localized stone channels are allowed. Exact network is **U** - **A/B/U** | H12 |
-| Fences / vegetation | Stone compound walls around castle/ecclesiastical precincts; timber/wattle service divisions; orchard/kitchen garden/open grass in lower-intensity plots, not a formal palace park - **B** | H12-H13 |
+| Fences / plot edges | Stone compound walls around castle/ecclesiastical precincts; timber/wattle service divisions; orchard/kitchen garden/open grass in lower-intensity plots, not a formal palace park - **B** | H12-H13 |
+| Vegetation species | Generic orchard fruit trees, kitchen herbs and short/tall grass may occur in enclosed compounds; cliff scrub stays sparse. Exact taxa and planting geometry are **U** - **B/U** | H12, H17 |
+| Garden / agricultural use | Orchard/kitchen garden: 10-25% of developable land outside fortified building footprints; crop fields and broad pasture: `none`; open close/grass remains non-agricultural - **B/U** | H12-H13, H17 |
+| Domestic / wild fauna | Domestic `low`: elite/service horse use and contained chickens are allowed; other livestock only as one service-yard group. Wild mammals `none`; wild birds `trace` at cliff/open-close edges - **B/U** | H18-H19; compound-specific records unknown |
 | Topography | Highest retained district: preserve plateau edge, quarry hollows/cuts, stepped descent and local level changes. The current `elevation=2.8` is a gameplay scale, not metres - **A/B/D** | H01, H12 |
 | Landmarks | Cathedral: an under-construction second-quarter-14th-century basilica with early Gothic chancel, no west tower or later chapels (**A/B/U**). Danish castle: retain fortified south-west compound and seat-of-power function; exact 1343 tower/palace arrangement is **U**, so avoid later palace facade and Teutonic-era additions. Lühike/Pikk Jalg routes are retained, but gate superstructures require separate dating review **C/U** | H01, H12-H13 |
 
@@ -313,10 +356,13 @@ The numeric ranges below use these definitions:
 | Street/property layout | Predominantly enclosed open ecclesiastical plot tied to Toom-Kooli/cathedral approaches; exact internal path geometry is **U/B** | H12 |
 | Density | Built 5-15%, open 85-95% - **B** | H12; no 1343 Bishop's House is supported |
 | Ordinary / exceptional buildings | At most small timber/plaster service or canonical structures at reviewed edges. Omit the large Bishop's House first recorded in 1420 - **A/B/U** | H12 |
-| Roofs | If a small service roof is used: shingle/thatch 70-100%, tile 0-30%; exact cover **U** | Shared roof rule |
+| Roof covers | If a small service roof is used: shingle/thatch 70-100%, tile 0-30%; exact cover **U** | Shared roof rule |
 | Ground surfaces | Stone path/close 10-20%; earth/terrace/quarry fill 15-25%; grass/orchard/garden 60-75% - **B** | H12 |
 | Drainage | Maintain natural rock fall and localized drain to protect path/well; modern park drainage is not copied - **A/B/U** | H12 was exposed during modern drainage work but records medieval geology/well |
-| Fences / vegetation | Enclosed orchard/kitchen garden with non-formal rows, grass and limited scrub; wall/hedge/timber internal edges. Exact 1343 species and planting plan are **U** - **B/U** | H12 plus H05 monastic-garden analogy |
+| Fences / plot edges | Enclosed orchard/kitchen garden with non-formal rows, grass and limited scrub; wall/hedge/timber internal edges. Exact 1343 species and planting plan are **U** - **B/U** | H12 plus H05 monastic-garden analogy |
+| Vegetation species | Use generic orchard fruit-tree forms, kitchen herbs/vegetables, meadow grass and sparse cliff scrub. Every exact species assignment remains **U** pending site review - **B/U** | H05, H12, H17 |
+| Garden / agricultural use | Orchard/kitchen beds: 35-60% of developable land; meadow/open grass: 20-40%; crop field: 0-5%. Values must fit inside the ground-surface bands above - **B/U** | H05, H12, H17; acreage is reconstructed |
+| Domestic / wild fauna | Domestic `low`: contained fowl or one small service-yard/tether group only. Wild mammals `none` within the garden and `trace` at the cliff margin; garden/wild birds `trace` - **B/U** | H18-H19; no 1343 garden inventory survives |
 | Topography | Strong western plateau/cliff edge, exposed quarry cuts and uneven rock level; preserve western view without modern platform geometry - **A/B** | H12 |
 | Landmarks | Medieval rock-cut/stone well and Bishop's Garden location retained (**A**). `canon_lodging` and orchard store are reversible **B/U** placeholders. Bishop's House is explicitly absent; Danish King's Garden must not be conflated with this site | H12 |
 
@@ -326,11 +372,14 @@ The numeric ranges below use these definitions:
 |---|---|---|
 | Street/property layout | One main gate-to-landing route with irregular warehouse/work plots on firmer ground; broad cargo handling and shore access remain open. Exact "Trade Harbour" zoning is **D** - **A/B/D/U** | H11, H16 |
 | Density | On non-water developable land built 20-35%, open 65-80% - **B** | H11-H16 support harbour activity and low ground, not measured density |
-| Ordinary buildings | Timber/plank sheds, modest warehouses, rope/cargo shelters and limited stone gate/customs fabric. Large permanent stone warehouse rows are not established for 1343 - **B/U/D** | H04, H11, H16 |
-| Roofs | Shingle 45-65%, thatch/reed 20-40%, tile 5-20%; tile limited to gate or exceptional stone fabric - **B/U** | Shared roof rule |
+| Ordinary / exceptional buildings | Timber/plank sheds, modest warehouses, rope/cargo shelters and limited stone gate/customs fabric. Large permanent stone warehouse rows are not established for 1343 - **B/U/D** | H04, H11, H16 |
+| Roof covers | Shingle 45-65%, thatch/reed 20-40%, tile 5-20%; tile limited to gate or exceptional stone fabric - **B/U** | Shared roof rule |
 | Ground surfaces | On unbuilt land: stone/pebble 15-30%; packed sand/earth/mud 45-60%; grass/scrub 20-35%. Water and tidal/shallow shore are reported separately - **B** | H08, H11, H16 |
 | Drainage | Gate rainwater channel drains toward sea; open ditches and permeable work ground manage runoff below. Do not turn the channel into a district sewer - **A/B** | H11 |
-| Fences / vegetation | Timber cargo-yard fences and removable barriers; no dense stone plot-wall grid. Salt/wet grass and scrub on unused margins; no ornamental planting - **B/U** | H08, H11 |
+| Fences / plot edges | Timber cargo-yard fences and removable barriers; no dense stone plot-wall grid. Salt/wet grass and scrub on unused margins; no ornamental planting - **B/U** | H08, H11 |
+| Vegetation species | Generic salt/wet grass, reed/sedge forms and low scrub only on unused margins; working plots stay trampled. Exact coastal taxa are **U** - **B/U** | H08, H16-H17 |
+| Garden / agricultural use | Kitchen plots: 0-3% of developable land; crop field and orchard: `none`; rough hay/pasture margin: 0-10%. Cargo goods never count as local production - **B/U** | H11, H16-H17 |
+| Domestic / wild fauna | Domestic `low`: tethered cargo horse/ox and contained fowl only. Wild mammals `none`; coastal waterfowl/gulls `low` on water/margins and never as a dense route-blocking flock - **B/U** | H18-H19; exact harbour counts unknown |
 | Topography | Coastal Gate sandstone cliff is 5-8 m above historical harbour lowland; show a clear descent and lower wet work ground. Exact 1343 shoreline is **U** - **A/U** | H11, H16 |
 | Landmarks | Simple Coastal Gate above the harbour approach, not Fat Margaret or later barbicans (**B/U**). Replace blanket dressed-stone quay and regular long stone piers with reversible timber/rubble landing structures unless human review supplies direct 1343 quay evidence (**U/B**). Crane/customs/ropeyard assignments are **D** | H11, H16 |
 
@@ -340,11 +389,14 @@ The numeric ranges below use these definitions:
 |---|---|---|
 | Street/property layout | Irregular road/track from Viru side to beach landings with scattered fish-processing sheds and open net/boat ground. Exact fishing-district boundary and lane graph are **D/U** - **B/D/U** | H08, H10, H15-H16 |
 | Density | On non-water developable land built 10-25%, open 75-90% - **B** | H16 proves maritime use but not a dense fixed harbour quarter |
-| Ordinary buildings | Small timber/log/plank huts, open sheds and reversible storage; stone limited to anchors, hearth/fire surfaces or exceptionally supported fabric - **B/U/D** | H04-H05, H16 |
-| Roofs | Thatch/reed 35-55%, shingle 35-55%, tile 0-10% - **B/U** | Shared roof rule; no site-specific share survives |
+| Ordinary / exceptional buildings | Small timber/log/plank huts, open sheds and reversible storage; stone limited to anchors, hearth/fire surfaces or exceptionally supported fabric - **B/U/D** | H04-H05, H16 |
+| Roof covers | Thatch/reed 35-55%, shingle 35-55%, tile 0-10% - **B/U** | Shared roof rule; no site-specific share survives |
 | Ground surfaces | Stone/pebble 10-20%; sand/packed earth/mud 40-55%; grass/reed/scrub 30-45%, excluding water - **B** | H08, H16 |
 | Drainage | Natural shore fall, shallow roadside/work ditches and permeable sand/mud; no covered sewer or formal quay drainage - **B/U** | H08, H16 |
-| Fences / vegetation | Light timber/wattle net-yard or animal boundaries; broad open shore grass/reed/scrub. Exact species **U** - **B/U** | H08, H16 |
+| Fences / plot edges | Light timber/wattle net-yard or animal boundaries; broad open shore grass/reed/scrub. Exact species **U** - **B/U** | H08, H16 |
+| Vegetation species | Generic dune/shore grass, reeds/sedges and scrub dominate; fruit/herb plants appear only beside a croft. Exact taxa and relative abundance are **U** - **B/U** | H16-H17 |
+| Garden / agricultural use | Croft/kitchen plots: 3-10% of non-water developable land; meadow/pasture: 15-30%; crop fields: 0-10%. Shore work ground remains separate - **B/U** | H16-H17; no site-specific acreage survives |
+| Domestic / wild fauna | Domestic `moderate`: contained chickens/geese/ducks and one small pig/sheep/goat or tether group near crofts. Wild mammals `trace` only at the outer margin; coastal wild birds `low` - **B/U** | H18-H19; domestic versus wild waterfowl cannot always be separated |
 | Topography | Low coastal plain with moving shoreline and shallow/wet margins. Modern coast and filled Kadriorg levels cannot be copied as 1343 - **A/B/U** | H16 |
 | Landmarks | Fishing boats and net-drying are plausible functional markers, but exact types/counts and this district assignment are **D/B**. Regular stone quay, stone piers and customs store are **U** and should be replaced by reversible timber/rubble landings before historical acceptance | H16 |
 
@@ -365,9 +417,9 @@ Required reviewer: a maintainer or consulted historian who did not author these 
 | Review item | Decision | Reviewer | Date | Notes |
 |---|---|---|---|---|
 | Evidence-class separation is clear and no later survival is presented as 1343 fact | `pending` |  |  |  |
-| Ten map cards cover layout, density, buildings/materials, roofs, ground, drainage, fences, vegetation, topography and landmark state | `pending` |  |  |  |
+| Eleven map cards match the registry and cover layout, density, buildings/materials, roofs, ground, drainage, fences, vegetation species, garden/agricultural use, fauna, topography and landmark state | `pending` |  |  |  |
 | Built/open and surface bands are acceptable as bounded production targets | `pending` |  |  |  |
 | Landmark exclusions and unknowns are historically conservative | `pending` |  |  |  |
 | Approved for P1-036 and district quality-pass acceptance thresholds | `pending` |  |  |  |
 
-Until every row is accepted or amended with a source note, this dossier is complete as a research draft but **not signed for automated acceptance use**.
+Until every row is accepted or amended with a source note, this dossier is complete as a research baseline but **not signed for automated acceptance use**. `python3 tools/verify_historical_dossier.py` checks registry/category/source coverage and keeps a completed P0-072 or P1-036 closeout from passing while this gate is pending.

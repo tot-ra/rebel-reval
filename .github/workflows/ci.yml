@@ -107,6 +107,9 @@ jobs:
           cleanup_seeded_test
           trap - EXIT
 
+      - name: Verify historical environment dossier
+        run: python3 tools/verify_historical_dossier.py
+
       - name: Active Markdown links and validation
         run: python3 tools/generate_active_docs_report.py --check
 
