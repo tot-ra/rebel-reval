@@ -207,6 +207,18 @@ func test_sky_shader_covers_required_features() -> void:
 	)
 	assert_true("moon_ndotl" in source, "the terminator must use the signed sun cosine, not a pre-clamped light term")
 	assert_true("moon_halo" in source, "the moon must have a restrained atmospheric halo")
+	assert_true(
+		"mix(1.0, 1.08, day_blend)" in source,
+		"daytime moon photometry must stay pale-silver instead of fading into a dark sticker"
+	)
+	assert_true(
+		"mix(1.0, 0.42, day_blend)" not in source,
+		"daytime moon must not crush luminance below the blue day sky"
+	)
+	assert_true(
+		"terminator * terminator" in source,
+		"daytime crescents must hide the unlit nightside against bright sky"
+	)
 
 
 func test_clear_weather_is_partly_cloudy_with_moving_banks() -> void:

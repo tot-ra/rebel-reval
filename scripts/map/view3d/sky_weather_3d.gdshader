@@ -351,7 +351,11 @@ void sky() {
 	float lommel = cos_i / (cos_i + cos_e);
 	float opposition = 1.0 + 0.28 * pow(moon_lit, 10.0);
 	float moon_limb = mix(0.78, 1.0, pow(moon_z, 0.42));
-	float day_moon_fade = mix(1.0, 0.42, day_blend);
+	// WHY: A daytime moon is still fully sunlit rock and appears pale silver
+	// against blue sky. Fading to 0.42 made sunlight_col darker than
+	// day_top_color and read as a muddy sticker. Keep near-full photometry by
+	// day; soft haze below only reduces crater contrast the way real air does.
+	float day_moon_fade = mix(1.0, 1.08, day_blend);
 	// Earthshine is faint, barely cool, and only meaningful at night near new moon.
 	float earthshine_strength = 0.014
 		* (0.55 + 0.45 * cos(moon_phase * TAU))
@@ -363,12 +367,25 @@ void sky() {
 		* day_moon_fade;
 	vec3 moon_surface = mix(earthshine_col * earthshine_strength, sunlight_col, terminator);
 	moon_surface *= 0.94 + 0.12 * h_c;
+	// Soft daytime haze lifts dark maria toward a pale sky-adjacent tone without
+	// crushing overall luminance back below the blue dome.
+	moon_surface = mix(
+		moon_surface,
+		mix(moon_surface, vec3(0.86, 0.87, 0.90), 0.42),
+		day_blend * 0.38
+	);
 	float moon_visibility = smoothstep(-0.04, 0.03, moon_direction.y) * (1.0 - clouds);
 	float moon_opacity = moon_disk * moon_visibility;
+	// WHY: The unlit nightside is effectively invisible against daytime sky.
+	// Opaque black replacement would leave a dark round sticker beside the lit
+	// crescent; fade that nightside out as day_blend rises.
+	moon_opacity *= mix(1.0, terminator * terminator, day_blend * 0.92);
 	color = mix(color, moon_surface, moon_opacity);
 	// Thin aureole from atmospheric forward scatter; much subtler than a glowy disk.
+	// Daytime air is already bright, so keep most of the aureole nocturnal.
 	float moon_halo = smoothstep(cos(moon_radius * 3.0), moon_edge, moon_dot) * (1.0 - moon_disk);
-	color += vec3(0.82, 0.83, 0.86) * moon_halo * moon_visibility * (0.018 + moon_lit * 0.028);
+	color += vec3(0.82, 0.83, 0.86) * moon_halo * moon_visibility
+		* (0.018 + moon_lit * 0.028) * mix(1.0, 0.35, day_blend);
 
 	// Cloud layer. By day the lit tone carries the sun's colour; at dawn and dusk
 	// it becomes a warm ramp — gold where it points at the sun, cooling through
