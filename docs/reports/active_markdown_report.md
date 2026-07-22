@@ -14,19 +14,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `47`
-- Markdown files excluded as archive/reference/out of active scope: `358`
-- Local/external links inspected: `204`
-- Links to active Markdown docs: `106`
-- Links to existing archive/reference/non-active local docs: `42`
+- Active Markdown files scanned: `55`
+- Markdown files excluded as archive/reference/out of active scope: `356`
+- Local/external links inspected: `207`
+- Links to active Markdown docs: `108`
+- Links to existing archive/reference/non-active local docs: `41`
 - External links skipped for reachability: `25`
-- Issues found: `0`
+- Issues found: `1`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 0 |
+| `BROKEN_LINK` | 1 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -34,7 +34,9 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Issues
 
-No active Markdown documentation issues found.
+| Code | Location | Detail |
+| --- | --- | --- |
+| `BROKEN_LINK` | `README.md:185` | Local Markdown link target does not exist: `./RANDOM-IDEAS.md` |
 
 ## Active files scanned
 
@@ -57,6 +59,7 @@ No active Markdown documentation issues found.
 - `docs/ASSET_STORAGE_POLICY.md`
 - `docs/CANON.md`
 - `docs/CHARACTER_GENERATION.md`
+- `docs/CHARACTERS/_template.md`
 - `docs/CHARACTERS/aita.md`
 - `docs/CHARACTERS/ellen.md`
 - `docs/CHARACTERS/henning.md`
@@ -69,6 +72,7 @@ No active Markdown documentation issues found.
 - `docs/FLORA_FAUNA.md`
 - `docs/FONTS.md`
 - `docs/HISTORICAL_AUDIT.md`
+- `docs/IDEAS_RESEARCH.md`
 - `docs/INVENTORY_MECHANICS.md`
 - `docs/LARGE_MAP_CHUNKING_PLAN.md`
 - `docs/MAP_ALIGNMENT_EDITOR.md`
@@ -76,6 +80,12 @@ No active Markdown documentation issues found.
 - `docs/MAP_CONVERSION_PLAN.md`
 - `docs/MATERIAL_STYLE_LOCK_KIT.md`
 - `docs/PERFORMANCE_REPORT.md`
+- `docs/quests/bandits.md`
+- `docs/quests/estonian_rebels.md`
+- `docs/quests/hanseatic_merchants.md`
+- `docs/quests/livonian_order.md`
+- `docs/quests/miscellaneous.md`
+- `docs/quests/pskov_faction.md`
 - `docs/ROADMAP.md`
 - `docs/SCENES/a-bitter-brew.md`
 - `docs/SCENES/the-makers-mark-branch-map.md`
