@@ -1,5 +1,7 @@
 # Reval Rebel
 
+![Reval Rebel Banner](./docs/img/banner.jpg)
+
 **Reval Rebel** is a 2D narrative action RPG about a blacksmith caught in the middle of a war his own hands supply.
 
 It is spring 1343 in Reval — present-day Tallinn — days before the St. George's Night Uprising. Kalev, a lower-town smith, takes commissions from every side of the coming conflict: knights, merchants, rebels, spies. He can do honest work, hide a useful feature, or introduce a flaw. What he forges comes back — as protection, evidence, betrayal, or a blade at someone's throat — through the uprising, the siege of Reval, the crushing of the rebellion, and the years of iron-fisted aftermath that end with the land itself being sold.
