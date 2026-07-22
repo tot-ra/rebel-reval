@@ -13,6 +13,7 @@ Executable open work stays in [`TODO.md`](../TODO.md).
 6. **P2-025 through P2-031** - district-life dressing, vegetation, fauna.
 7. Slice quest authoring (**P2-006** through **P2-012**) stays below environment realism until Lower Town reads as historically grounded Reval.
 
+Coordination note (2026-07-22 P5-008): Order knight and crossbowman archetypes now resolve through `EnemyArchetype.from_id()` and reuse `EnemyCombatStateMachine`; mission allies use `MissionAllyScript` plus `MissionAllyController` for scripted in-range support without party-control UI; `--filter=test_enemy_archetype_p5_008` passes 7/7.
 Coordination note (2026-07-22 P4-018 / P1-038): quest package manifests, branch maps, and landmark beat bindings now live under `content/packages/`; `tools/verify_quest_packages.py` and `tools/generate_quest_package_tests.py --check` validate beat IDs against `docs/data/landmark_integrations.json` and emit Godot traversal tests under `tests/godot/generated/`; the `act1_south_quarter_probe` example passes content validation and `--filter=test_quest_package_act1_south_quarter_probe` (2/2).
 
 Maintainer decision: environmental realism is the top production priority after **P0-078**.

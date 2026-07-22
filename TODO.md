@@ -11,13 +11,11 @@ References:
 <!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
-| P0 |    20  |     6  | Baseline, storage, materials, historical audit |
+| P0 |    18  |    12  | Baseline, storage, materials, historical audit |
 | P1 |     3  |     2  | Runtime systems, content foundation |
-| P2 |    17  |     0  | Vertical-slice production (playable MVP) |
-| P3 |    15  |     0  | Validation, accessibility, performance |
-| P4 |    43  |     3  | Act 1: The Simmering City |
-| P5 |    10  |     0  | Act 2: The Fire of Rebellion |
-| P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
+| P2 |    17  |     4  | Vertical-slice production (playable MVP) |
+| P3+ |    76  |     6  | Validation, accessibility, performance |
+
 
 
 ## P6 - Act 3: The Iron Harvest and full release (lowest priority)
@@ -40,7 +38,7 @@ References:
 
 ### Medium
 
-- [ ] P5-008 | deps: none | deliverable: two additional enemy archetypes (Order knight, crossbowman) and scripted allied NPC support inside missions | verify: archetypes reuse the shared enemy state machine and allies never require party-control UI
+- [x] P5-008 | deps: none | deliverable: two additional enemy archetypes (Order knight, crossbowman) and scripted allied NPC support inside missions | verify: archetypes reuse the shared enemy state machine and allies never require party-control UI
 - [ ] P5-007 | deps: P5-006 | deliverable: authored Kanavere Bog and Sõjamäe event missions with attested outcomes and steerable local cost | verify: battle outcomes match `docs/CANON.md` while named survivor and casualty states differ across branches
 - [ ] P5-004 | deps: P5-001 | deliverable: night mission framework: sabotage, theft, escort, and defense templates as content-defined packages with combat and non-combat routes | verify: one content-only mission per template completes both routes and writes ledger events
 - [ ] P5-006 | deps: P5-003,P5-004 | deliverable: playable siege arc: investment, sortie/supply, and assault phases each offering rebel-aligned and ruler-aligned missions | verify: both allegiance paths complete every phase and attested milestones occur on schedule on all paths
