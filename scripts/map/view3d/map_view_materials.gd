@@ -244,10 +244,12 @@ const WATER_WAVE_BASE := {
 		"bed_vegetation": 1.0,
 		"tide_height": 0.0, "tide_shore_retreat": 0.0, "tide_optical_depth": 0.0,
 	},
-	# Fast river water keeps the physical bed visible without the sheltered-water
-	# algae layer and uses tighter, livelier ripples than ponds or open sea.
+	# Fast river water uses tighter, livelier ripples than ponds or open sea and
+	# drops the sheltered-water algae layer. Absorption sits higher than the old
+	# clear-shallow tuning so the blue water column, not the warm bed, dominates
+	# the surface colour - the Pirita should read as a river, not a green shallow.
 	MapTypes.TERRAIN_RIVER_WATER: {
-		"height": 0.024, "chaos": 0.72, "foam": 0.12, "breakers": 0.08, "absorption": 4.8,
+		"height": 0.024, "chaos": 0.72, "foam": 0.12, "breakers": 0.08, "absorption": 6.0,
 		"bed_vegetation": 0.0,
 		"tide_height": 0.0, "tide_shore_retreat": 0.0, "tide_optical_depth": 0.0,
 	},
@@ -288,6 +290,11 @@ static func water_surface(terrain_id: StringName) -> ShaderMaterial:
 		material.set_shader_parameter("stone_bed_color", Color(0.36, 0.39, 0.42))
 		material.set_shader_parameter("deep_bed_color", Color(0.03, 0.07, 0.12))
 		material.set_shader_parameter("foam_color", base.lerp(Color8(186, 204, 214), 0.52))
+		# The Pirita flows from south (+Z) to north (-Z). A non-zero flow advects
+		# the wave field and drives downstream foam ribbons so the surface reads as
+		# a moving current; still water (sea/pond) keeps the default zero flow.
+		material.set_shader_parameter("flow_direction", Vector2(0.0, -1.0))
+		material.set_shader_parameter("flow_strength", 0.6)
 	_cache[key] = material
 	return material
 

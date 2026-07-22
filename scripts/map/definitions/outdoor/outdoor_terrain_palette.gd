@@ -22,9 +22,10 @@ static func color(terrain: StringName) -> Color:
 		MapTypes.TERRAIN_COBBLESTONE: return Color8(86, 84, 78)
 		MapTypes.TERRAIN_CASTLE_PAVING: return Color8(94, 92, 86)
 		MapTypes.TERRAIN_WATER: return Color8(58, 116, 143)
-		# Clear fast rivers stay cooler than sheltered pond water; avoid the
-		# cyan-green cast that read as algae on wide Pirita meanders.
-		MapTypes.TERRAIN_RIVER_WATER: return Color8(72, 128, 164)
+		# The Pirita must read as a proper blue river, not a green-tinted shallow.
+		# Pull green well below blue so neither the palette nor the bed seen through
+		# the clear current casts an algae-like hue on the wide meanders.
+		MapTypes.TERRAIN_RIVER_WATER: return Color8(54, 110, 168)
 		MapTypes.TERRAIN_SHALLOW_WATER: return Color8(75, 137, 155)
 		MapTypes.TERRAIN_DEEP_WATER: return Color8(44, 86, 116)
 		MapTypes.TERRAIN_STONE: return Color8(126, 127, 118)

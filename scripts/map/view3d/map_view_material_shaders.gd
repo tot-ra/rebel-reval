@@ -34,6 +34,11 @@ uniform float depth_absorption = 7.0;
 uniform float refraction_strength = 0.012;
 uniform float foam_intensity = 0.22;
 uniform float breaker_intensity = 0.35;
+// River current: world-XZ flow direction and strength. Zero for still water, so
+// sea and pond surfaces are unaffected. Non-zero advects the wave field
+// downstream and spawns drifting foam ribbons so a river reads as moving water.
+uniform vec2 flow_direction = vec2(0.0, 0.0);
+uniform float flow_strength = 0.0;
 // Matches sky sun-disk fade / MapView3D day_blend. Defaults keep daytime look
 // until apply_water_lighting() pushes the live cycle values.
 uniform float sun_visibility = 1.0;
@@ -168,7 +173,9 @@ vec2 _equatorial_uv(vec3 direction) {
 void vertex() {
 	water_world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	shore_factor = clamp(COLOR.r, 0.0, 1.0);
-	vec3 shape = _water_shape(water_world_position.xz, TIME * wave_speed);
+	// Advect the wave field downstream so ripples travel along the current.
+	vec2 flow_advection = flow_direction * (flow_strength * TIME * wave_speed * 0.6);
+	vec3 shape = _water_shape(water_world_position.xz - flow_advection, TIME * wave_speed);
 	// Low tide withdraws the clipped coastal edge instead of requiring a second
 	// authored shoreline mesh. High tide reaches the original maximum contour.
 	// The fragment stage clips the retreat band; vertices only change elevation.
@@ -186,7 +193,9 @@ void fragment() {
 	if (shore_factor < tide_coverage) {
 		discard;
 	}
-	vec3 shape = _water_shape(water_world_position.xz, TIME * wave_speed);
+	// Advect the wave field downstream so ripples travel along the current.
+	vec2 flow_advection = flow_direction * (flow_strength * TIME * wave_speed * 0.6);
+	vec3 shape = _water_shape(water_world_position.xz - flow_advection, TIME * wave_speed);
 	vec3 world_normal = normalize(vec3(-shape.y * wave_height, 1.0, -shape.z * wave_height));
 	vec3 view_normal = normalize((VIEW_MATRIX * vec4(world_normal, 0.0)).xyz);
 	NORMAL = view_normal;
@@ -304,6 +313,22 @@ void fragment() {
 	float edge_foam = shore * smoothstep(0.52, 0.88, foam_noise * 0.70 + foam_ribbon * 0.30);
 	float foam = edge_foam * foam_intensity + breaker_band * breaker_intensity;
 	foam *= smoothstep(0.012, 0.08, geometric_depth);
+
+	// Downstream foam streaks for flowing rivers. The along-current coordinate
+	// scrolls with time so the ribbons travel toward the far bank, while the
+	// cross-current axis stays tight so the foam elongates into streaks rather
+	// than round blobs. flow_strength == 0 leaves still water untouched.
+	if (flow_strength > 0.0) {
+		vec2 flow_dir = normalize(flow_direction + vec2(0.0001, 0.0));
+		vec2 flow_cross = vec2(-flow_dir.y, flow_dir.x);
+		float along = dot(water_world_position.xz, flow_dir) - TIME * wave_speed * flow_strength * 1.6;
+		float across = dot(water_world_position.xz, flow_cross);
+		vec2 streak_uv = vec2(across * 2.1, along * 0.55);
+		float streak = _noise(streak_uv + _noise(streak_uv * 0.6 + vec2(9.1, 2.3)) * 1.4);
+		float current_foam = smoothstep(0.60, 0.92, streak) * flow_strength;
+		current_foam *= smoothstep(0.012, 0.08, geometric_depth);
+		foam += current_foam * 0.30;
+	}
 	water_color = mix(water_color, foam_color, clamp(foam, 0.0, 0.72));
 
 	ALBEDO = water_color;

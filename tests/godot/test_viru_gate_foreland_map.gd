@@ -30,7 +30,9 @@ func test_pirita_river_meanders_south_to_north_with_one_dry_bridge_crossing() ->
 		for x in definition.size_cells.x:
 			if MapTypes.WATER_TERRAINS.has(grid.get_terrain(Vector2i(x, y))):
 				water_xs.append(x)
-		if y >= 59 and y < 69:
+		# The single-lane deck only spans rows 62-66; the Pirita keeps flowing in the
+		# open rows on either side of the narrow crossing instead of under a wide platform.
+		if y >= 62 and y < 67:
 			assert_true(water_xs.is_empty(), "bridge row %d must stay dry" % y)
 			continue
 		assert_true(water_xs.size() >= 15, "river channel must continue through row %d" % y)
