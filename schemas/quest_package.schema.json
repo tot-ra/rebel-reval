@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quest_package.schema.json",
+  "title": "Reval Rebel agent-authorable quest package",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "id",
+    "schema_version",
+    "title",
+    "quest",
+    "branch_map",
+    "bindings",
+    "source_notes"
+  ],
+  "properties": {
+    "type": {
+      "const": "quest_package"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/content_id"
+    },
+    "schema_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "quest": {
+      "type": "string",
+      "minLength": 1
+    },
+    "dialogue": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "support": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "branch_map": {
+      "type": "string",
+      "minLength": 1
+    },
+    "bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "landmark_beats",
+        "map_anchors"
+      ],
+      "properties": {
+        "landmark_beats": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^beat\\.landmark\\."
+          }
+        },
+        "map_anchors": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "map_id",
+              "anchor_id"
+            ],
+            "properties": {
+              "map_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "anchor_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "source_notes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "common.schema.json#/$defs/source_note"
+      }
+    }
+  }
+}

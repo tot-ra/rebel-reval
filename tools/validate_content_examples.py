@@ -32,6 +32,7 @@ SCHEMA_BY_TYPE = {
     "mechanism": "mechanism.schema.json",
     "encounter": "encounter.schema.json",
     "phase_profile": "phase_profile.schema.json",
+    "quest_package": "quest_package.schema.json",
 }
 
 TYPE_MAP = {

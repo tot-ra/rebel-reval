@@ -13,6 +13,8 @@ Executable open work stays in [`TODO.md`](../TODO.md).
 6. **P2-025 through P2-031** - district-life dressing, vegetation, fauna.
 7. Slice quest authoring (**P2-006** through **P2-012**) stays below environment realism until Lower Town reads as historically grounded Reval.
 
+Coordination note (2026-07-22 P4-018 / P1-038): quest package manifests, branch maps, and landmark beat bindings now live under `content/packages/`; `tools/verify_quest_packages.py` and `tools/generate_quest_package_tests.py --check` validate beat IDs against `docs/data/landmark_integrations.json` and emit Godot traversal tests under `tests/godot/generated/`; the `act1_south_quarter_probe` example passes content validation and `--filter=test_quest_package_act1_south_quarter_probe` (2/2).
+
 Maintainer decision: environmental realism is the top production priority after **P0-078**.
 Sky/weather (**P0-075**) is accepted; do not reopen unless fixing a defect.
 

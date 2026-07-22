@@ -117,6 +117,8 @@ jobs:
           python3 tools/verify_tourist_landmarks.py
           python3 tools/generate_landmark_narrative.py --check
           python3 tools/verify_landmark_narrative.py
+          python3 tools/verify_quest_packages.py
+          python3 tools/generate_quest_package_tests.py --check
 
       - name: Active Markdown links and validation
         run: python3 tools/generate_active_docs_report.py --check

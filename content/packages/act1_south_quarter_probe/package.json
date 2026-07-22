@@ -1,0 +1,35 @@
+{
+  "type": "quest_package",
+  "id": "package.act1_south_quarter_probe",
+  "schema_version": 1,
+  "title": "Act 1 south quarter intelligence probe",
+  "quest": "content/quest.json",
+  "dialogue": [
+    "content/dialogue.karja_gate_probe.json"
+  ],
+  "support": [
+    "../../examples/support/character.henning.json"
+  ],
+  "branch_map": "branch_map.json",
+  "bindings": {
+    "landmark_beats": [
+      "beat.landmark.tallinn.karja_gate_karja_varav"
+    ],
+    "map_anchors": [
+      {
+        "map_id": "south_quarter",
+        "anchor_id": "karja_approach"
+      }
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Representative P4-018 quest package exercising landmark beat bindings for generated traversal tests.",
+      "citations": [
+        "docs/data/landmark_integrations.json",
+        "TODO.md#P1-038"
+      ]
+    }
+  ]
+}

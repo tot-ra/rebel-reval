@@ -12,19 +12,17 @@ References:
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
 | P0 |    20  |    10  | Baseline, storage, materials, historical audit |
-| P1 |     4  |     1  | Runtime systems, content foundation |
+| P1 |     3  |     2  | Runtime systems, content foundation |
 | P2 |    17  |     4  | Vertical-slice production (playable MVP) |
-| P3 |    15  |     0  | Slice validation, accessibility, performance, release |
-| P4 |    44  |     4  | Act 1: The Simmering City |
-| P5 |    10  |     0  | Act 2: The Fire of Rebellion |
-| P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
+| P3+ |    77  |     5  | Validation, accessibility, performance |
+
 
 ## P6 - Act 3: The Iron Harvest and full release (lowest priority)
 
 ### Small
 
 - [ ] P6-006 | deps: P6-005 | deliverable: full-campaign branch traversal and cross-act save compatibility suite | verify: every intended ending is reachable and every published save fixture loads or migrates
-- [ ] P6-008 | deps: P6-007 | deliverable: full-campaign release candidate | verify: clean-clone CI, supported-platform smoke tests, license report, accessibility checklist, and campaign acceptance matrix all pass
+- [ ] P6-008 | deps: P6-007 | deliverable: full-campaign release candidate | verify: clean-clone CI, supported-platform smoke tests, license report, accessibility checklist, and campaign acceptance matrix all pass (BACKLOG)
 ### Medium
 
 - [ ] P6-007 | deps: P6-006 | deliverable: external full-campaign playtest and critical/high issue closure | verify: report contains completion, comprehension, pacing, combat, choice, and continuity results with no unresolved critical/high issue
@@ -74,7 +72,7 @@ References:
 - [ ] P4-027c | deps: P4-027a | deliverable: dedicated `Kuldjala` interior map and boss package using the two-level circa-1310 horseshoe form and wall-walk relationship | verify: historical/art review signs the floor plan; reciprocal door, all floors, boss outcomes, persistence and retry tests pass
 - [ ] P4-027b | deps: P4-027a | deliverable: dedicated `Nunnatorn` interior map and boss package using its open-backed early-14th-century form rather than a later horseshoe rebuild | verify: historical/art review signs the floor plan; reciprocal door, all floors, boss outcomes, persistence and retry tests pass
 - [ ] P4-027e | deps: P4-027a,P4-023f | deliverable: dedicated Great Coastal Gate tower interior map and boss package for the probable 1311-1340 first tower, excluding later barbicans and Fat Margaret | verify: archaeology review signs the gate phase; reciprocal door, gate route, boss outcomes, persistence and retry tests pass
-- [ ] P4-018 | deps: P3-014 | deliverable: quest content pipeline: agent-authorable quest package format (quest JSON, dialogue, branch map, spawn/anchor bindings) plus a generator that emits branch-traversal tests from the package | verify: an example quest added as pure content passes `tools/validate_content.py` and its generated traversal test without engine code changes
+- [x] P4-018 | deps: P3-014 | deliverable: quest content pipeline: agent-authorable quest package format (quest JSON, dialogue, branch map, spawn/anchor bindings) plus a generator that emits branch-traversal tests from the package | verify: an example quest added as pure content passes `tools/validate_content.py` and its generated traversal test without engine code changes
 - [ ] P4-019 | deps: P0-040,P2-021,P3-014,P4-022 | deliverable: unified Central District and Town Hall market square activation from the P4-014 prototype through the parity and activation gates (approval artifact: ADR 0008) | verify: `python3 tools/verify_map_activation.py`, the transition verifier, and traversal/collision tests pass with the new destinations, and day/night captures pass parity review
 - [ ] P4-008 | deps: P4-002,P4-004,P4-006,P4-007,P4-021 | deliverable: St. George's Night climax at Viru Gate reusing all earlier forged objects, ledger standing, and character states; Open, Seal, and Break resolve to a recorded act-boundary state instead of a game ending | verify: all three act-boundary families are reachable through visible prior decisions and each writes a distinct validated act-transition record
 - [ ] P4-021 | deps: P4-016,P4-018,P4-019 | deliverable: two Act 1 faction quest lines (Livonian Order and Black Cloaks), three quests each, authored as P4-018 content packages reusing slice systems | verify: both lines complete via generated traversal tests, every quest writes ledger events, and at least one quest per line resolves through a night consequence encounter with combat and non-combat routes
@@ -163,7 +161,7 @@ References:
 
 - [ ] P1-036 | deps: P0-040,P0-072,P1-029 | deliverable: evidence-driven urban map composition audit that reports street/road surface ratios by material, built-footprint and open-space density, repeated building style/material usage, terrain/vegetation coverage, local elevation range, empty contiguous regions, and required landmark presence against the map-specific P0-072 ranges without treating cobblestone as the default ground fill | verify: valid Lower Town and prototype fixtures pass at their documented ranges; one seeded excess-cobble, sparse-building, missing-landmark, flat-relief, and repeated-style violation each fails with map ID, measured value, expected range, and source-decision reference
 - [x] P1-037 | deps: P0-113 | deliverable: integrate notable landmarks from `P0-113` into narrative design, associating them with specific discovery events, NPC dialogue, and quests so that tourist-recognizable locations are organically tied to in-game lore | allowed files: `docs/LANDMARK_NARRATIVE_INTEGRATION.md`, `docs/data/landmark_integrations.json`, `tools/generate_landmark_narrative.py`, `tools/verify_landmark_narrative.py`, `tools/tourist_landmarks/narrative.py`, `tests/python/test_landmark_narrative.py`, `TODO.md` | verify: every landmark documented in `P0-113` has at least one associated quest, event, or lore fragment referenced in the narrative documentation and map anchors; `python3 tools/generate_landmark_narrative.py --check`, `python3 tools/verify_landmark_narrative.py`, and `python3 -m unittest tests.python.test_landmark_narrative -v` pass
-- [ ] P1-038 | deps: P1-037,P4-018 | deliverable: quest package generator consumes `docs/data/landmark_integrations.json` stable `beat.landmark.*` IDs when emitting branch-traversal tests | verify: one example quest package references at least one landmark beat ID and its generated traversal test fails when that beat binding is removed
+- [x] P1-038 | deps: P1-037,P4-018 | deliverable: quest package generator consumes `docs/data/landmark_integrations.json` stable `beat.landmark.*` IDs when emitting branch-traversal tests | verify: one example quest package references at least one landmark beat ID and its generated traversal test fails when that beat binding is removed
 
 ## P0 - Baseline, storage, materials, historical audit (highest priority)
 

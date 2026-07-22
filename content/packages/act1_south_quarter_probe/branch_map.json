@@ -1,0 +1,21 @@
+{
+  "quest_id": "quest.act1_south_quarter_probe",
+  "branches": [
+    {
+      "id": "karja_patrol_gap",
+      "transitions": [
+        "observe_gate",
+        "record_intelligence"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "intelligence_recorded",
+        "flags": {
+          "flag.act1_karja_gate_observed": true,
+          "flag.act1_south_quarter_intelligence": true
+        }
+      }
+    }
+  ]
+}
