@@ -9,7 +9,8 @@ This is the implementation ledger for Reval vegetation. It distinguishes concret
 - **Ground-cover styles: 8/8 supported.** These are visual/ecological cover presets, not eight botanical species. Registration and density rules: [`terrain_vegetation.gd`](../scripts/map/terrain_vegetation.gd).
 - **Rendering: complete for the scoped flora system.** [`map_view_mesh_builder_scatter.gd`](../scripts/map/view3d/map_view_mesh_builder_scatter.gd) batches each tree or plant species with cached meshes and `MultiMesh`; [`map_view_terrain_details.gd`](../scripts/map/view3d/map_view_terrain_details.gd) adds first-person grass, dry seed heads, clover, and fern detail.
 - **Imported 3D flora assets: none by design.** Runtime vegetation is deterministic procedural geometry. Images under [`archive/2d_sprites_inspiration/assets/trees/`](../archive/2d_sprites_inspiration/assets/trees/) are references only and are not gameplay models.
-- **Fauna: out of scope for this completion pass.** Ambient birds and animals remain unimplemented; folklore bestiary content is not an ambient-fauna system.
+- **Birds: 30/30 target species cataloged with procedural reference meshes.** Catalog, acoustic stubs, and district spawn weights: [`map_view_bird_species.gd`](../scripts/map/view3d/map_view_bird_species.gd). Cached low-poly meshes: [`map_view_bird_meshes.gd`](../scripts/map/view3d/map_view_bird_meshes.gd). Reference sheet: [`p0_117_bird_reference_sheet.png`](reports/images/fauna/p0_117_bird_reference_sheet.png). Runtime spawning, flight, and song playback remain **P0-105**.
+- **Other fauna: not yet modeled.** Ambient mammals and penned livestock are **P0-118** / **P0-106**; folklore bestiary content is not an ambient-fauna system.
 
 Status vocabulary:
 - `modeled + used` - registered, produces a concrete cached mesh, and has an authored location below.
@@ -85,6 +86,45 @@ Tree tests: [`test_map_view_tree_species.gd`](../tests/godot/test_map_view_tree_
 
 Plant tests: [`test_map_view_plant_species.gd`](../tests/godot/test_map_view_plant_species.gd). They enforce 30 registered models, cache reuse, geometry-family diversity, valid scatter profiles, and authored location coverage for all 20 trees and 30 plants.
 
+## Bird model ledger (30/30)
+
+`bird.*` IDs identify north-Baltic ambient species. Optional pose suffixes `.standing`, `.perched`, and `.gliding` select cached reference meshes. Song metadata is a stub only; playback and spawn selection belong to **P0-105**.
+
+| Bird | Runtime ID | Group | Status |
+|---|---|---|---|
+| Herring gull | `bird.herring_gull` | gull | modeled (catalog) |
+| Common gull | `bird.common_gull` | gull | modeled (catalog) |
+| Common tern | `bird.common_tern` | tern | modeled (catalog) |
+| Mute swan | `bird.mute_swan` | waterfowl | modeled (catalog) |
+| Mallard | `bird.mallard` | waterfowl | modeled (catalog) |
+| Greylag goose | `bird.greylag_goose` | waterfowl | modeled (catalog) |
+| Great cormorant | `bird.great_cormorant` | waterfowl | modeled (catalog) |
+| Grey heron | `bird.grey_heron` | wader | modeled (catalog) |
+| Northern lapwing | `bird.northern_lapwing` | wader | modeled (catalog) |
+| Common snipe | `bird.common_snipe` | wader | modeled (catalog) |
+| White-tailed eagle | `bird.white_tailed_eagle` | raptor | modeled (catalog) |
+| Osprey | `bird.osprey` | raptor | modeled (catalog) |
+| Common buzzard | `bird.common_buzzard` | raptor | modeled (catalog) |
+| Common kestrel | `bird.common_kestrel` | raptor | modeled (catalog) |
+| Tawny owl | `bird.tawny_owl` | owl | modeled (catalog) |
+| House sparrow | `bird.house_sparrow` | songbird | modeled (catalog) |
+| Hooded crow | `bird.hooded_crow` | corvid | modeled (catalog) |
+| Rook | `bird.rook` | corvid | modeled (catalog) |
+| Western jackdaw | `bird.western_jackdaw` | corvid | modeled (catalog) |
+| Eurasian magpie | `bird.eurasian_magpie` | corvid | modeled (catalog) |
+| Barn swallow | `bird.barn_swallow` | swallow | modeled (catalog) |
+| Skylark | `bird.skylark` | songbird | modeled (catalog) |
+| Yellowhammer | `bird.yellowhammer` | songbird | modeled (catalog) |
+| Common chaffinch | `bird.common_chaffinch` | songbird | modeled (catalog) |
+| Great tit | `bird.great_tit` | songbird | modeled (catalog) |
+| European robin | `bird.european_robin` | songbird | modeled (catalog) |
+| Common blackbird | `bird.common_blackbird` | songbird | modeled (catalog) |
+| Song thrush | `bird.song_thrush` | songbird | modeled (catalog) |
+| Common nightingale | `bird.common_nightingale` | songbird | modeled (catalog) |
+| Great spotted woodpecker | `bird.great_spotted_woodpecker` | woodpecker | modeled (catalog) |
+
+Bird tests: [`test_map_view_bird_species.gd`](../tests/godot/test_map_view_bird_species.gd). They enforce 30 registered profiles, ten silhouette-group families, cached pose variants, bounded triangle budgets, district spawn weights for every context, and at least ten distinct default-pose envelopes.
+
 ## Legacy ground-cover styles
 
 These remain valid for broad area dressing and backwards compatibility. Authors should use concrete `plant.*` / `crop.*` variants when a named species matters.
@@ -123,5 +163,5 @@ The scoped tree/herb model system is complete at the target catalog size. Remain
 
 - seasonal states, harvest interactions, inventory items, and regrowth simulation;
 - species-specific collision or movement beyond current zone/prop multipliers;
-- ambient birds, mammals, insects, fish, and their behavior/audio systems;
+- ambient bird spawning/flight/song playback (**P0-105**), mammals, insects, fish, and their behavior/audio systems;
 - art-direction review from gameplay camera and performance profiling on target hardware.
