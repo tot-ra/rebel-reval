@@ -209,11 +209,11 @@ static func _paint_cobble(image: Image, noise_seed: int) -> void:
 			var stone_tone := sample.a
 			var broad := _lattice(float(x) / 41.0, float(y) / 47.0, maxi(size / 47, 2), noise_seed + 47)
 			var fine := _lattice(float(x) / 5.0, float(y) / 5.0, maxi(size / 5, 2), noise_seed + 83)
-			# Earth-filled joints are deliberately lighter and warmer in the tint map;
-			# the shader supplies their actual brown hue using the encoded joint mask.
-			var stone := 0.69 + stone_tone * 0.17 + height * 0.10
-			stone += (broad - 0.5) * 0.10 + (fine - 0.5) * 0.035
-			var earth := 0.64 + broad * 0.09 + fine * 0.035
+			# Earth-filled joints stay darker than stone faces so the shader dirt
+			# veil reads as compacted mud, not bright sand between clean tiles.
+			var stone := 0.58 + stone_tone * 0.14 + height * 0.08
+			stone += (broad - 0.5) * 0.08 + (fine - 0.5) * 0.03
+			var earth := 0.48 + broad * 0.08 + fine * 0.03
 			_fill_value(image, x, y, lerpf(earth, stone, joint))
 
 

@@ -511,13 +511,17 @@ void fragment() {
 	float palette = surface.a;
 
 	// Broad dirt settles across many stones rather than repeating at tile scale.
+	// Keep hues near-neutral and dark so streets read as worn city stone, not
+	// fresh linoleum with purple/orange setts.
 	float age = cobble_noise(terrain_world_xz * 0.17 + vec2(13.7, 4.3));
 	age = age * 0.68 + cobble_noise(terrain_world_xz * 0.43 - vec2(2.1, 7.9)) * 0.32;
-	vec3 earth = mix(vec3(0.30, 0.235, 0.16), vec3(0.43, 0.34, 0.23), age);
-	vec3 gray = vec3(0.57, 0.58, 0.57);
-	vec3 blue_gray = vec3(0.49, 0.55, 0.59);
-	vec3 purple_gray = vec3(0.55, 0.50, 0.57);
-	vec3 warm_gray = vec3(0.60, 0.55, 0.48);
+	float grit = cobble_noise(terrain_world_xz * 1.15 + vec2(8.4, 19.2));
+	float mud_film = cobble_noise(terrain_world_xz * 0.29 - vec2(5.6, 1.8));
+	vec3 earth = mix(vec3(0.20, 0.17, 0.13), vec3(0.32, 0.27, 0.20), age);
+	vec3 gray = vec3(0.40, 0.39, 0.38);
+	vec3 blue_gray = vec3(0.36, 0.38, 0.39);
+	vec3 purple_gray = vec3(0.38, 0.36, 0.38);
+	vec3 warm_gray = vec3(0.41, 0.38, 0.34);
 	vec3 stone_color = gray;
 	if (palette > 0.78) {
 		stone_color = purple_gray;
@@ -526,18 +530,22 @@ void fragment() {
 	} else if (palette < 0.14) {
 		stone_color = warm_gray;
 	}
-	stone_color *= mix(0.83, 1.04, pattern);
-	// Dirt veils the lower stones and fills every joint. Keeping the contrast low
-	// makes the whole road read as one old compacted surface, not floating props.
-	stone_color = mix(stone_color, earth, (1.0 - stone) * 0.32 + (1.0 - age) * 0.08);
-	vec3 cobble_albedo = mix(earth, stone_color, stone);
+	// Cap highlight so dome tops stay dusty instead of clean bright caps.
+	stone_color *= mix(0.70, 0.92, pattern);
+	stone_color = mix(stone_color, gray, 0.22);
+	// Dirt fills joints, veils low stones, and leaves irregular mud patches on faces.
+	float dirt_amount = (1.0 - stone) * 0.58 + (1.0 - age) * 0.20 + grit * 0.10 + mud_film * 0.14;
+	stone_color = mix(stone_color, earth, clamp(dirt_amount, 0.0, 0.72));
+	// Pull the whole road toward compacted earth so setts never float as clean tiles.
+	vec3 cobble_albedo = mix(earth, stone_color, stone * 0.82 + 0.06);
 	ALBEDO = mix(terrain_albedo, cobble_albedo * tone, cobble_weight);
 
 	vec2 normal_xy = surface.rg * 2.0 - 1.0;
 	vec3 cobble_normal = vec3(normal_xy, sqrt(max(1.0 - dot(normal_xy, normal_xy), 0.0)));
 	NORMAL_MAP = cobble_normal * 0.5 + 0.5;
 	NORMAL_MAP_DEPTH = 0.55 * cobble_weight;
-	ROUGHNESS = mix(0.94, mix(0.98, 0.88, stone), cobble_weight);
+	// High roughness kills the linoleum sheen on dry medieval paving.
+	ROUGHNESS = mix(0.96, mix(0.99, 0.93, stone), cobble_weight);
 }
 "
 

@@ -18,8 +18,9 @@ static func color(terrain: StringName) -> Color:
 		MapTypes.TERRAIN_MUD: return Color8(78, 63, 49)
 		MapTypes.TERRAIN_FOREST_FLOOR: return Color8(76, 82, 54)
 		MapTypes.TERRAIN_BOG: return Color8(73, 91, 69)
-		MapTypes.TERRAIN_COBBLESTONE: return Color8(105, 106, 100)
-		MapTypes.TERRAIN_CASTLE_PAVING: return Color8(120, 120, 111)
+		# Muted dusty stone - bright clean greys read as linoleum at street scale.
+		MapTypes.TERRAIN_COBBLESTONE: return Color8(86, 84, 78)
+		MapTypes.TERRAIN_CASTLE_PAVING: return Color8(94, 92, 86)
 		MapTypes.TERRAIN_WATER: return Color8(58, 116, 143)
 		# Clear fast rivers stay cooler than sheltered pond water; avoid the
 		# cyan-green cast that read as algae on wide Pirita meanders.

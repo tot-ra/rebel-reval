@@ -651,7 +651,7 @@ static func surroundings_town() -> StandardMaterial3D:
 	var key := "surroundings_town"
 	if _cache.has(key):
 		return _cache[key]
-	var material := _make_material(Color8(118, 112, 102), PATTERN_COBBLE, 8219)
+	var material := _make_material(Color8(90, 86, 78), PATTERN_COBBLE, 8219)
 	material.uv1_scale = Vector3(48.0, 48.0, 1.0)
 	_cache[key] = material
 	return material
