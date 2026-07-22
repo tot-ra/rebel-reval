@@ -95,6 +95,25 @@ The playable narrative focuses on the days immediately preceding and during the 
 * **Harjumaa** - HAR-yoo-mah
 
 ---
+## Daily Life & Social Relations (14th Century Reval)
+
+* **Gothic Tenement Layouts (Dual-Purpose Homes)** - **`attested`**
+  * *Context:* Stone houses in Reval's lower town combined residential and commercial/storage uses. Ground floors served as a workshop and living space, while upper floors under high gables were granaries accessed via a winch.
+  * *Actionable hook:* Kalev’s smithy features an upper storage loft accessed by a winch, providing a plausible mechanic to hide contraband, rebel supplies, or illicit weapons from the city watch.
+* **Dietary Stratification** - **`attested`**
+  * *Context:* The basic 1340s diet relied heavily on seasonal grains (rye/barley bread, pottage), root vegetables, and Baltic herring. Fresh meat was a luxury for wealthy Hanseatic merchants; poorer citizens utilized offal. Ale was the ubiquitous safe drink.
+  * *Actionable hook:* Food acts as a social indicator and bribery tool in-game. Offering rare meat or imported goods can buy silence or favor from a hungry watchman or indebted apprentice.
+* **Ethnic and Class Divisions (All-linn vs. Toompea)** - **`attested`**
+  * *Context:* Reval was sharply divided physically and socially. The upper town (Toompea) housed Danish and German aristocracy, while the lower town (All-linn) was run by German Hanseatic merchants. Native Estonians formed a large underclass (laborers, lesser artisans) facing increasing exclusion.
+  * *Actionable hook:* Kalev encounters systemic prejudice from German guildsmen but can leverage his essential craft to bypass social barriers. The physical division between the towns dictates where and how openly rebel sympathizers can meet.
+* **The Blacksmith's Mundane Indispensability** - **`attested`**
+  * *Context:* A blacksmith’s primary income came from everyday necessities—horseshoes, nails, agricultural tools, locks, and cooking utensils—not just military weapons. 
+  * *Actionable hook:* Side commissions involve repairing mundane items (e.g., a merchant's strongbox lock or an alewife's cauldron), giving Kalev unique conversational access to secrets and rumors from all social strata.
+* **Rural Resentment and Weaponization of Tools** - **`attested`**
+  * *Context:* The St. George's Night Uprising was fueled by oppressive taxes and forced labor imposed on the Estonian peasantry by German vassals. 
+  * *Actionable hook:* Rural contacts like Kaja bring news of escalating abuses, allowing Kalev the choice to covertly modify everyday agricultural tools (like scythes or billhooks) into rebel polearms right under the authorities' noses.
+
+---
 
 ## Superseded narrative (non-canon)
 
