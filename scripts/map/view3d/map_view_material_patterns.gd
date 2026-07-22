@@ -31,10 +31,37 @@ static func pattern_texture_at_size(pattern: StringName, noise_seed: int, textur
 	return _pattern_texture_at_size(pattern, noise_seed, texture_size)
 
 
+## Building surfaces need per-instance wear so adjacent houses do not share one
+## baked albedo map. Weathering stays deterministic from the stable building ID.
+static func pattern_texture_weathered(
+	pattern: StringName,
+	noise_seed: int,
+	weathering: StringName,
+	texture_size: int = MapViewMaterials.TEXTURE_SIZE
+) -> ImageTexture:
+	var key := "pattern:%s:%d:%s:%d" % [String(pattern), noise_seed, String(weathering), texture_size]
+	if _cache.has(key):
+		return _cache[key]
+	var image := _pattern_image_at_size(pattern, noise_seed, texture_size)
+	_apply_surface_weathering(image, weathering, noise_seed)
+	image.generate_mipmaps()
+	var texture := ImageTexture.create_from_image(image)
+	_cache[key] = texture
+	return texture
+
+
 static func _pattern_texture_at_size(pattern: StringName, noise_seed: int, texture_size: int) -> ImageTexture:
 	var key := "pattern:%s:%d:%d" % [String(pattern), noise_seed, texture_size]
 	if _cache.has(key):
 		return _cache[key]
+	var image := _pattern_image_at_size(pattern, noise_seed, texture_size)
+	image.generate_mipmaps()
+	var texture := ImageTexture.create_from_image(image)
+	_cache[key] = texture
+	return texture
+
+
+static func _pattern_image_at_size(pattern: StringName, noise_seed: int, texture_size: int) -> Image:
 	var image := Image.create(texture_size, texture_size, false, Image.FORMAT_RGB8)
 	match pattern:
 		MapViewMaterials.PATTERN_COBBLE:
@@ -71,10 +98,33 @@ static func _pattern_texture_at_size(pattern: StringName, noise_seed: int, textu
 			_paint_plaster(image, noise_seed)
 		_:
 			_paint_grass(image, noise_seed)
-	image.generate_mipmaps()
-	var texture := ImageTexture.create_from_image(image)
-	_cache[key] = texture
-	return texture
+	return image
+
+
+## Post-process a painted grayscale pattern with deterministic wear, damp,
+## repair, or fresh treatments. Keeps palette-led tinting in MapViewMaterials.
+static func _apply_surface_weathering(image: Image, weathering: StringName, noise_seed: int) -> void:
+	if weathering == MapViewMaterials.WEATHER_FRESH:
+		return
+	var size := image.get_width()
+	for y in size:
+		for x in size:
+			var value := image.get_pixel(x, y).r
+			match weathering:
+				MapViewMaterials.WEATHER_WORN:
+					value = clampf(value * 0.95 + 0.03, 0.0, 1.0)
+					if _hash01(x, y, noise_seed + 401) > 0.93:
+						value += 0.07
+				MapViewMaterials.WEATHER_DAMP:
+					value *= 0.9
+					if _hash01(x / 7, y / 9, noise_seed + 503) > 0.58:
+						value -= 0.07
+				MapViewMaterials.WEATHER_REPAIRED:
+					if _hash01(x / 11, y / 9, noise_seed + 607) > 0.78:
+						value = lerpf(value, 0.94, 0.62)
+				_:
+					pass
+			_fill_value(image, x, y, value)
 
 
 static func _hash01(x: int, y: int, noise_seed: int) -> float:

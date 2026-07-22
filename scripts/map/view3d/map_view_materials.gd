@@ -52,6 +52,19 @@ const PATTERN_BARK := &"bark"
 const PATTERN_BIRCH_BARK := &"birch_bark"
 const PATTERN_CHERRY_BARK := &"cherry_bark"
 
+## Deterministic building-surface weathering bands for P0-053. Each stable
+## building ID maps to one variant so adjacent houses do not share treatment.
+const WEATHER_FRESH := &"fresh"
+const WEATHER_WORN := &"worn"
+const WEATHER_DAMP := &"damp"
+const WEATHER_REPAIRED := &"repaired"
+const BUILDING_WEATHER_VARIANTS: Array[StringName] = [
+	WEATHER_WORN,
+	WEATHER_FRESH,
+	WEATHER_DAMP,
+	WEATHER_REPAIRED,
+]
+
 const TERRAIN_PATTERN := {
 	MapTypes.TERRAIN_GRASS: PATTERN_GRASS,
 	MapTypes.TERRAIN_MEADOW: PATTERN_GRASS,
@@ -490,6 +503,64 @@ static func wall_surface_for_size(family: StringName, color: Color, size: Vector
 	return material
 
 
+## Per-building wall material with unique pattern seed and weathering band.
+static func wall_surface_for_building(
+	surface_id: StringName,
+	family: StringName,
+	color: Color,
+	size: Vector3
+) -> StandardMaterial3D:
+	var pattern := _wall_pattern(family)
+	var weathering := surface_weathering_variant(surface_id)
+	var material := _building_surface_weathered(
+		"wall_building",
+		surface_id,
+		_weathered_albedo(color, weathering),
+		pattern,
+		weathering
+	)
+	material.uv1_scale = building_uv_scale(pattern, size)
+	return material
+
+
+## Per-building roof material with unique pattern seed and weathering band.
+static func roof_surface_for_building(
+	surface_id: StringName,
+	family: StringName,
+	color: Color
+) -> StandardMaterial3D:
+	var pattern := PATTERN_ROOF_TILE
+	match family:
+		&"shingle":
+			pattern = PATTERN_SHINGLE
+		&"thatch", &"straw":
+			pattern = PATTERN_THATCH
+	var weathering := surface_weathering_variant(surface_id)
+	return _building_surface_weathered(
+		"roof_building",
+		surface_id,
+		_weathered_albedo(color, weathering),
+		pattern,
+		weathering
+	)
+
+
+## Stable weathering band from a building or landmark ID.
+static func surface_weathering_variant(surface_id: StringName) -> StringName:
+	var roll := absi(String(surface_id).hash()) % 20
+	if roll < 8:
+		return WEATHER_WORN
+	if roll < 13:
+		return WEATHER_FRESH
+	if roll < 17:
+		return WEATHER_DAMP
+	return WEATHER_REPAIRED
+
+
+static func building_pattern_seed(surface_id: StringName, pattern: StringName) -> int:
+	return int(StringName("%s:%s" % [surface_id, pattern]).hash())
+
+
 ## Object-space triplanar mapping keeps masonry density independent of whether a
 ## BoxMesh wall runs along X or Z. Regular BoxMesh UVs only use uv1_scale.x/y,
 ## which makes Z-aligned walls derive their visible repeat count from thickness.
@@ -699,6 +770,59 @@ static func _patterned(prefix: String, color: Color, pattern: StringName) -> Sta
 static func _building_surface(prefix: String, color: Color, pattern: StringName) -> StandardMaterial3D:
 	var material := _patterned(prefix, color, pattern)
 	material.uv1_scale = building_uv_scale(pattern, BUILDING_UV_REFERENCE_SIZE)
+	return material
+
+
+static func _building_surface_weathered(
+	prefix: String,
+	surface_id: StringName,
+	color: Color,
+	pattern: StringName,
+	weathering: StringName
+) -> StandardMaterial3D:
+	var key := "%s:%s:%s:%s:%s" % [
+		prefix,
+		String(surface_id),
+		color.to_html(),
+		String(pattern),
+		String(weathering),
+	]
+	if _cache.has(key):
+		return _cache[key]
+	var seed := building_pattern_seed(surface_id, pattern)
+	var material := _make_weathered_material(color, pattern, seed, weathering)
+	material.uv1_scale = building_uv_scale(pattern, BUILDING_UV_REFERENCE_SIZE)
+	_cache[key] = material
+	return material
+
+
+static func _weathered_albedo(base: Color, weathering: StringName) -> Color:
+	match weathering:
+		WEATHER_WORN:
+			return base.lightened(0.04).lerp(Color(0.76, 0.74, 0.69), 0.08)
+		WEATHER_DAMP:
+			return base.darkened(0.08)
+		_:
+			return base
+
+
+static func _make_weathered_material(
+	base: Color,
+	pattern: StringName,
+	noise_seed: int,
+	weathering: StringName
+) -> StandardMaterial3D:
+	var material := StandardMaterial3D.new()
+	material.albedo_color = base
+	material.albedo_texture = MapViewMaterialPatterns.pattern_texture_weathered(
+		pattern,
+		noise_seed,
+		weathering
+	)
+	material.roughness = 1.0
+	material.metallic = 0.0
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	material.vertex_color_use_as_albedo = true
 	return material
 
 
