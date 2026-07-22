@@ -7,12 +7,12 @@ Format: `- [ ] ID | deps: unresolved ID,ID or none | deliverable: ... | verify: 
 
 References:
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) - delivery order, coordination notes, current focus
-- [`docs/TASK_ARCHIVE.md`](docs/TASK_ARCHIVE.md) - completed tasks removed from this file
-
-<!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
-| P0 |    17  |     6  | Baseline, storage, materials, historical audit |
+| P0 |    18  |     6  | Baseline, storage, materials, historical audit |
+| P1 |     4  |     0  | Runtime systems, content foundation |
+| P2 |    17  |     4  | Vertical-slice production (playable MVP) |
+| P3+ |    79  |     2  | Validation, accessibility, performance |
 | P1 |     3  |     0  | Runtime systems, content foundation |
 | P2 |    17  |     4  | Vertical-slice production (playable MVP) |
 | P3+ |    79  |     2  | Validation, accessibility, performance |
@@ -165,6 +165,7 @@ References:
 ### Large
 
 - [ ] P1-036 | deps: P0-040,P0-072,P1-029 | deliverable: evidence-driven urban map composition audit that reports street/road surface ratios by material, built-footprint and open-space density, repeated building style/material usage, terrain/vegetation coverage, local elevation range, empty contiguous regions, and required landmark presence against the map-specific P0-072 ranges without treating cobblestone as the default ground fill | verify: valid Lower Town and prototype fixtures pass at their documented ranges; one seeded excess-cobble, sparse-building, missing-landmark, flat-relief, and repeated-style violation each fails with map ID, measured value, expected range, and source-decision reference
+- [ ] P1-037 | deps: P0-113 | deliverable: integrate notable landmarks from `P0-113` into narrative design, associating them with specific discovery events, NPC dialogue, and quests so that tourist-recognizable locations are organically tied to in-game lore | verify: every landmark documented in `P0-113` has at least one associated quest, event, or lore fragment referenced in the narrative documentation and map anchors
 
 ## P0 - Baseline, storage, materials, historical audit (highest priority)
 
@@ -176,6 +177,7 @@ References:
 - [ ] P0-111 | deps: none | deliverable: independent maintainer or consulted-historian review of the P0-072 environment dossier, accepting or source-amending every human-review row without using its author as reviewer | verify: every review row in `docs/HISTORICAL_AUDIT.md` records `accepted` or `amended`, a reviewer, date, and source-backed notes for amendments; `python3 tools/verify_historical_dossier.py` reports `human review signed`
 - [ ] P0-112 | deps: none | deliverable: restore shared validation baseline after concurrent character-image and P2-011 scene additions by fixing README character image targets and reconciling `scenes/ui/reflection_overlay.tscn` in the scene inventory and map conversion plan | verify: `python3 tools/generate_active_docs_report.py --check`, `python3 tools/verify_map_conversion_plan.py`, and `python3 -m unittest discover -s tests/python -v` pass
 - [ ] P0-039 | deps: P0-053 | deliverable: blind gameplay-scale readability test of the 3D isometric candidate with at least five participants | verify: results record silhouette, interaction, depth, and motion recognition per target
+- [ ] P0-113 | deps: none | deliverable: compile a linked set of markdown documents (e.g. `docs/TOURIST_LANDMARKS.md` or a `docs/landmarks/` folder) cataloging notable buildings and locations that tourists typically visit in Reval (Tallinn), mapping them to their 1343 status and organically tying them to in-game lore, factions, and specific map locations | verify: document exists, contains at least 10 major tourist landmarks with 1343 status notes, and links directly to `docs/CANON.md` lore entries
 ### Medium
 
 - [ ] P0-038 | deps: P0-053 | deliverable: comparison report for import time, frame time, texture memory, navigation defects, animation reuse, and NPC-variant production time measured on the 3D view layer with the P0-053 surface kit, including minimum-hardware frame-time results and renderer-setting escalation if budgets are missed | verify: report contains repeatable procedure, hardware, raw measurements, and result
