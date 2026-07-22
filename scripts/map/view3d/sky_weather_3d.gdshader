@@ -300,14 +300,16 @@ void sky() {
 	float halo = pow(sun_amount, 90.0) * 0.4;
 	color += sun_tint * (disk * 2.4 + halo) * sun_visibility * (1.0 - clouds * 0.95);
 
-	// Moon: shaded sphere with a baked near-side albedo map, Minnaert limb darkening,
-	// and a cool earthshine fill on the night side. The disk is projected onto a
-	// local tangent plane so maria and craters follow the surface instead of
-	// looking like screen-space noise pasted over a white circle.
+	// Moon: opaque shaded sphere with a baked near-side albedo/height map.
+	// WHY: Additive `color += surface` lets the bright blue night sky leak through
+	// the disk and reads as a cyan moon. The lunar body is optically thick, so
+	// the surface must replace the background inside the disk mask.
 	float moon_dot = dot(dir, moon_direction);
 	float moon_radius = 0.031;
 	float moon_edge = cos(moon_radius);
-	float moon_disk = smoothstep(moon_edge - 0.00005, moon_edge + 0.00002, moon_dot);
+	// Soft limb without a long outer skirt - a wide skirt sampled empty albedo
+	// as black and read as a dark sticker outline.
+	float moon_disk = smoothstep(moon_edge - 0.00008, moon_edge + 0.00003, moon_dot);
 	vec3 moon_up_axis = abs(moon_direction.y) > 0.96 ? vec3(0.0, 0.0, 1.0) : vec3(0.0, 1.0, 0.0);
 	vec3 moon_right = normalize(cross(moon_up_axis, moon_direction));
 	vec3 moon_up = normalize(cross(moon_direction, moon_right));
@@ -325,32 +327,48 @@ void sky() {
 		dot(sun_direction, moon_up),
 		-dot(sun_direction, moon_direction)
 	));
-	float moon_lit = max(dot(moon_normal, moon_light), 0.0);
-	vec2 lunar_uv = moon_uv * 0.5 + 0.5;
+	// Keep the signed cosine so the terminator can soften across the dark side.
+	// Clamping first made smoothstep(...) collapse into a flat lit fill.
+	float moon_ndotl = dot(moon_normal, moon_light);
+	float moon_lit = max(moon_ndotl, 0.0);
+	vec2 lunar_uv = clamp(moon_uv * 0.5 + 0.5, vec2(0.001), vec2(0.999));
 	vec3 lunar_albedo = texture(lunar_albedo_map, lunar_uv).rgb;
-	// Regolith scatters with a slightly forward-bright lobe and a soft terminator.
-	float regolith_lobe = pow(moon_lit, 0.72);
-	float terminator = smoothstep(-0.015, 0.06, moon_lit);
-	// Minnaert limb darkening: real lunar disks darken toward the edge.
-	float minnaert_k = 0.58;
-	float minnaert = pow(max(moon_lit, 1e-4), minnaert_k - 1.0) * pow(max(moon_z, 1e-4), minnaert_k);
-	float moon_limb = 0.68 + 0.32 * moon_z;
-	// Earthshine is cooler and strongest near new moon when only the Earth-lit
-	// face remains visible from Reval.
-	float earthshine_strength = 0.055 * (0.5 + 0.5 * cos(moon_phase * TAU));
-	vec3 earthshine_col = vec3(0.42, 0.48, 0.62) * lunar_albedo;
-	vec3 sunlight_col = lunar_albedo * moon_color.rgb * (0.92 + 0.14 * pow(moon_lit, 5.0));
-	vec3 moon_surface = mix(
-		earthshine_col * earthshine_strength,
-		sunlight_col * regolith_lobe,
-		terminator
-	);
-	moon_surface *= minnaert * moon_limb;
+	// Keep limb samples on the crust color if filtering reaches empty texels.
+	lunar_albedo = max(lunar_albedo, vec3(0.08));
+	// Relief from albedo luminance slopes (alpha is opaque; height-in-A broke mipmaps).
+	float texel = 1.0 / 512.0;
+	float h_c = dot(lunar_albedo, vec3(0.333333));
+	float h_x = dot(texture(lunar_albedo_map, lunar_uv + vec2(texel, 0.0)).rgb, vec3(0.333333))
+		- dot(texture(lunar_albedo_map, lunar_uv - vec2(texel, 0.0)).rgb, vec3(0.333333));
+	float h_y = dot(texture(lunar_albedo_map, lunar_uv + vec2(0.0, texel)).rgb, vec3(0.333333))
+		- dot(texture(lunar_albedo_map, lunar_uv - vec2(0.0, texel)).rgb, vec3(0.333333));
+	vec3 moon_shaded_n = normalize(moon_normal + vec3(-h_x, -h_y, 0.0) * 2.4);
+	float relief_lit = max(dot(moon_shaded_n, moon_light), 0.0);
+	float terminator = smoothstep(-0.10, 0.05, moon_ndotl);
+	// Lommel-Seeliger approximates dusty regolith better than a Lambertian disk.
+	float cos_i = max(mix(moon_lit, relief_lit, 0.65), 1e-4);
+	float cos_e = max(moon_z, 1e-4);
+	float lommel = cos_i / (cos_i + cos_e);
+	float opposition = 1.0 + 0.28 * pow(moon_lit, 10.0);
+	float moon_limb = mix(0.78, 1.0, pow(moon_z, 0.42));
+	float day_moon_fade = mix(1.0, 0.42, day_blend);
+	// Earthshine is faint, barely cool, and only meaningful at night near new moon.
+	float earthshine_strength = 0.014
+		* (0.55 + 0.45 * cos(moon_phase * TAU))
+		* (1.0 - day_blend);
+	vec3 earthshine_col = lunar_albedo * vec3(0.62, 0.64, 0.68);
+	vec3 sunlight_col = lunar_albedo * moon_color.rgb
+		* (0.55 + 1.35 * lommel * opposition)
+		* moon_limb
+		* day_moon_fade;
+	vec3 moon_surface = mix(earthshine_col * earthshine_strength, sunlight_col, terminator);
+	moon_surface *= 0.94 + 0.12 * h_c;
 	float moon_visibility = smoothstep(-0.04, 0.03, moon_direction.y) * (1.0 - clouds);
-	color += moon_surface * moon_disk * moon_visibility;
+	float moon_opacity = moon_disk * moon_visibility;
+	color = mix(color, moon_surface, moon_opacity);
 	// Thin aureole from atmospheric forward scatter; much subtler than a glowy disk.
-	float moon_halo = smoothstep(cos(moon_radius * 3.2), moon_edge, moon_dot) * (1.0 - moon_disk);
-	color += vec3(0.78, 0.80, 0.86) * moon_halo * moon_visibility * (0.03 + moon_lit * 0.05);
+	float moon_halo = smoothstep(cos(moon_radius * 3.0), moon_edge, moon_dot) * (1.0 - moon_disk);
+	color += vec3(0.82, 0.83, 0.86) * moon_halo * moon_visibility * (0.018 + moon_lit * 0.028);
 
 	// Cloud layer. By day the lit tone carries the sun's colour; at dawn and dusk
 	// it becomes a warm ramp — gold where it points at the sun, cooling through

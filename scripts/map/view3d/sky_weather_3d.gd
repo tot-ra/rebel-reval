@@ -263,46 +263,57 @@ func _build_cloud_shape() -> NoiseTexture2D:
 
 
 ## Bakes a near-side lunar albedo disk in code so the sky shader can sample
-## rich mare, crater, and ray detail without adding frozen pipeline texture assets.
+## maria, craters, and rays without frozen pipeline texture assets.
+## WHY alpha stays 1 inside the disk: packing height into A made mipmaps /
+## filtering premultiply RGB and turned the Moon into a dark blotchy disk.
 func _build_lunar_albedo_map() -> ImageTexture:
 	var size := LUNAR_ALBEDO_MAP_SIZE
-	var image := Image.create(size, size, false, Image.FORMAT_RGBAF)
-	image.fill(Color.TRANSPARENT)
+	var image := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	image.fill(Color(0, 0, 0, 0))
 
 	var crater_fine := FastNoiseLite.new()
 	crater_fine.seed = WEATHER_SEED + 101
 	crater_fine.noise_type = FastNoiseLite.TYPE_CELLULAR
-	crater_fine.frequency = 0.11
+	crater_fine.frequency = 0.14
+	crater_fine.cellular_jitter = 0.85
 	crater_fine.cellular_return_type = FastNoiseLite.RETURN_DISTANCE
 
 	var crater_mid := FastNoiseLite.new()
 	crater_mid.seed = WEATHER_SEED + 102
 	crater_mid.noise_type = FastNoiseLite.TYPE_CELLULAR
-	crater_mid.frequency = 0.042
+	crater_mid.frequency = 0.055
+	crater_mid.cellular_jitter = 0.9
 	crater_mid.cellular_return_type = FastNoiseLite.RETURN_DISTANCE
 
 	var crater_large := FastNoiseLite.new()
 	crater_large.seed = WEATHER_SEED + 103
 	crater_large.noise_type = FastNoiseLite.TYPE_CELLULAR
-	crater_large.frequency = 0.018
+	crater_large.frequency = 0.022
+	crater_large.cellular_jitter = 0.8
 	crater_large.cellular_return_type = FastNoiseLite.RETURN_DISTANCE
 
 	var regolith := FastNoiseLite.new()
 	regolith.seed = WEATHER_SEED + 104
-	regolith.frequency = 0.06
+	regolith.frequency = 0.08
 	regolith.fractal_type = FastNoiseLite.FRACTAL_FBM
-	regolith.fractal_octaves = 3
+	regolith.fractal_octaves = 5
+
+	var highland := FastNoiseLite.new()
+	highland.seed = WEATHER_SEED + 105
+	highland.frequency = 0.035
+	highland.fractal_type = FastNoiseLite.FRACTAL_FBM
+	highland.fractal_octaves = 3
 
 	# Major near-side maria in normalized disk space (center 0,0; radius 1).
 	const MARIA: Array[Dictionary] = [
-		{"c": Vector2(-0.44, 0.02), "r": Vector2(0.30, 0.24), "a": 0.18, "d": 0.24},
-		{"c": Vector2(-0.24, 0.36), "r": Vector2(0.20, 0.17), "a": -0.28, "d": 0.22},
-		{"c": Vector2(0.08, 0.40), "r": Vector2(0.14, 0.12), "a": 0.10, "d": 0.18},
-		{"c": Vector2(0.16, 0.14), "r": Vector2(0.16, 0.11), "a": -0.12, "d": 0.16},
-		{"c": Vector2(0.30, -0.18), "r": Vector2(0.12, 0.10), "a": 0.22, "d": 0.14},
-		{"c": Vector2(0.54, 0.34), "r": Vector2(0.09, 0.08), "a": 0.0, "d": 0.13},
-		{"c": Vector2(-0.08, -0.22), "r": Vector2(0.11, 0.09), "a": 0.35, "d": 0.12},
-		{"c": Vector2(0.36, 0.02), "r": Vector2(0.10, 0.08), "a": -0.15, "d": 0.11},
+		{"c": Vector2(-0.44, 0.02), "r": Vector2(0.32, 0.26), "a": 0.18, "d": 0.38},
+		{"c": Vector2(-0.24, 0.36), "r": Vector2(0.22, 0.18), "a": -0.28, "d": 0.34},
+		{"c": Vector2(0.08, 0.40), "r": Vector2(0.15, 0.13), "a": 0.10, "d": 0.28},
+		{"c": Vector2(0.16, 0.14), "r": Vector2(0.17, 0.12), "a": -0.12, "d": 0.26},
+		{"c": Vector2(0.30, -0.18), "r": Vector2(0.13, 0.11), "a": 0.22, "d": 0.22},
+		{"c": Vector2(0.54, 0.34), "r": Vector2(0.10, 0.09), "a": 0.0, "d": 0.20},
+		{"c": Vector2(-0.08, -0.22), "r": Vector2(0.12, 0.10), "a": 0.35, "d": 0.18},
+		{"c": Vector2(0.36, 0.02), "r": Vector2(0.11, 0.09), "a": -0.15, "d": 0.17},
 	]
 
 	for y in size:
@@ -310,37 +321,54 @@ func _build_lunar_albedo_map() -> ImageTexture:
 			var nx := (float(x) + 0.5) / float(size) * 2.0 - 1.0
 			var ny := (float(y) + 0.5) / float(size) * 2.0 - 1.0
 			var disk_r2 := nx * nx + ny * ny
-			if disk_r2 > 1.0:
+			# Fill slightly past the unit disk so linear filtering at the limb
+			# never samples transparent black and paints a dark sticker outline.
+			if disk_r2 > 1.06:
 				continue
 			var uv := Vector2(nx, ny)
+			var sample_uv := uv / maxf(sqrt(disk_r2), 1e-4) * minf(sqrt(disk_r2), 1.0)
+			if disk_r2 > 1.0:
+				uv = sample_uv
+			var regolith_n := regolith.get_noise_2d(uv.x * 14.0, uv.y * 14.0)
+			var highland_n := highland.get_noise_2d(uv.x * 5.5, uv.y * 5.5)
 
-			var albedo := 0.80
+			# Bright highland crust; maria carve much darker basins (high contrast
+			# is what reads at the tiny on-sky disk size).
+			var albedo := 0.78 + highland_n * 0.07
+			var mare_amount := 0.0
 			for mare in MARIA:
-				albedo -= _lunar_mare_darkness(uv, mare)
+				var darkness := _lunar_mare_darkness(uv, mare, regolith_n)
+				mare_amount = maxf(mare_amount, darkness / maxf(float(mare["d"]), 1e-4))
+				albedo -= darkness
 
-			var fine := crater_fine.get_noise_2d(uv.x * 42.0, uv.y * 42.0)
-			var mid := crater_mid.get_noise_2d(uv.x * 17.0, uv.y * 17.0)
-			var large := crater_large.get_noise_2d(uv.x * 7.0, uv.y * 7.0)
-			albedo -= _lunar_crater_depth(fine, 0.10, 0.55)
-			albedo -= _lunar_crater_depth(mid, 0.14, 0.62)
-			albedo -= _lunar_crater_depth(large, 0.18, 0.70)
+			var fine := _lunar_cellular_distance(crater_fine.get_noise_2d(uv.x * 52.0, uv.y * 52.0))
+			var mid := _lunar_cellular_distance(crater_mid.get_noise_2d(uv.x * 21.0, uv.y * 21.0))
+			var large := _lunar_cellular_distance(crater_large.get_noise_2d(uv.x * 9.0, uv.y * 9.0))
+			var crater := _lunar_crater_albedo(fine, 0.10, 0.22)
+			crater += _lunar_crater_albedo(mid, 0.16, 0.26)
+			crater += _lunar_crater_albedo(large, 0.24, 0.32)
+			# Fewer sharp bowls inside deep maria; highlands keep denser cratering.
+			crater *= lerpf(1.0, 0.22, clampf(mare_amount, 0.0, 1.0))
+			albedo += crater
 
-			albedo += regolith.get_noise_2d(uv.x * 9.0, uv.y * 9.0) * 0.035
+			albedo += regolith_n * 0.07
 			albedo += _lunar_tycho_rays(uv)
 
+			# Mild center brightening only; keep the disk from reading as a flat sticker.
 			var limb := sqrt(maxf(1.0 - disk_r2, 0.0))
-			albedo *= 0.86 + 0.14 * limb
-			albedo = clampf(albedo, 0.34, 0.96)
+			albedo *= 0.94 + 0.06 * limb
+			albedo = clampf(albedo, 0.22, 0.96)
+			# Neutral-warm regolith (brownish grey), not cool blue-grey.
 			image.set_pixel(
 				x,
 				y,
-				Color(albedo, albedo * 0.985, albedo * 0.94, 1.0)
+				Color(albedo * 1.03, albedo * 0.995, albedo * 0.92, 1.0)
 			)
 
 	return ImageTexture.create_from_image(image)
 
 
-static func _lunar_mare_darkness(uv: Vector2, mare: Dictionary) -> float:
+static func _lunar_mare_darkness(uv: Vector2, mare: Dictionary, edge_noise: float) -> float:
 	var center: Vector2 = mare["c"]
 	var radii: Vector2 = mare["r"]
 	var angle: float = mare["a"]
@@ -349,34 +377,49 @@ static func _lunar_mare_darkness(uv: Vector2, mare: Dictionary) -> float:
 	var ca := cos(angle)
 	var sa := sin(angle)
 	var rotated := Vector2(offset.x * ca + offset.y * sa, -offset.x * sa + offset.y * ca)
+	# Noise-warped coastlines so maria are not hard geometric ellipses.
+	var warp := 1.0 + edge_noise * 0.18
 	var normalized := (
-		(rotated.x * rotated.x) / maxf(radii.x * radii.x, 1e-4)
-		+ (rotated.y * rotated.y) / maxf(radii.y * radii.y, 1e-4)
+		(rotated.x * rotated.x) / maxf(radii.x * radii.x * warp, 1e-4)
+		+ (rotated.y * rotated.y) / maxf(radii.y * radii.y * warp, 1e-4)
 	)
-	if normalized >= 1.0:
+	if normalized >= 1.05:
 		return 0.0
-	return depth * (1.0 - smoothstep(0.25, 1.0, normalized))
+	var interior := 1.0 - smoothstep(0.35, 1.05, normalized)
+	var mottling := 0.88 + 0.12 * sin(uv.x * 17.0 + uv.y * 13.0)
+	return depth * interior * mottling
 
 
-static func _lunar_crater_depth(cell_distance: float, rim_boost: float, threshold: float) -> float:
-	var bowl := 1.0 - clampf(cell_distance, 0.0, 1.0)
-	if bowl < threshold:
+## FastNoiseLite cellular distance is encoded in roughly [-1, 1], with values
+## near -1 at feature centers. Map that to 0..1 before crater shaping.
+static func _lunar_cellular_distance(raw: float) -> float:
+	return clampf(raw * 0.5 + 0.5, 0.0, 1.0)
+
+
+## Dark bowl + bright rim from a 0..1 cellular distance field (0 at centers).
+static func _lunar_crater_albedo(cell_distance: float, strength: float, rim_start: float) -> float:
+	var d := clampf(cell_distance, 0.0, 1.0)
+	if d > rim_start:
 		return 0.0
-	var t := (bowl - threshold) / maxf(1.0 - threshold, 1e-4)
-	return t * t * rim_boost
+	var rim := smoothstep(rim_start, rim_start * 0.70, d) * (1.0 - smoothstep(rim_start * 0.70, rim_start * 0.42, d))
+	var floor_t := 1.0 - smoothstep(0.0, rim_start * 0.48, d)
+	return rim * strength * 0.65 - floor_t * strength * 0.9
 
 
 static func _lunar_tycho_rays(uv: Vector2) -> float:
+	# Soft southern bright ejecta, not a hard geometric starburst. A few wide
+	# angular lobes + noise read as rays at sky scale without a wagon-wheel look.
 	var tycho := Vector2(0.05, -0.53)
 	var from_tycho := uv - tycho
 	var dist := from_tycho.length()
-	if dist > 0.72 or dist < 0.018:
+	if dist > 0.58 or dist < 0.03:
 		return 0.0
 	var angle := atan2(from_tycho.y, from_tycho.x)
-	var spokes := absf(sin(angle * 7.0 + dist * 11.0))
-	spokes = pow(spokes, 10.0)
-	var falloff := 1.0 - dist / 0.72
-	return spokes * falloff * falloff * 0.16
+	var lobes := pow(maxf(sin(angle * 3.0), 0.0), 2.4)
+	lobes += 0.35 * pow(maxf(sin(angle * 3.0 + 2.1), 0.0), 2.8)
+	var grit := 0.55 + 0.45 * sin(uv.x * 37.0 + uv.y * 29.0)
+	var falloff := 1.0 - dist / 0.58
+	return lobes * falloff * falloff * grit * 0.07
 
 
 ## Bakes the real star catalog into an equatorial equirectangular map. A texture
@@ -654,7 +697,7 @@ static func lunar_illumination(phase: float) -> float:
 static func morning_fog_potential(date: Dictionary = {}) -> float:
 	var effective_date := GAME_CALENDAR.DEFAULT_DATE if date.is_empty() else date
 	var day := julian_day(effective_date)
-	return fract(sin(day * 12.9898 + 4.1) * 43758.5453)
+	return fposmod(sin(day * 12.9898 + 4.1) * 43758.5453, 1.0)
 
 
 static func moonlight_strength(progress: float, date: Dictionary = {}) -> float:

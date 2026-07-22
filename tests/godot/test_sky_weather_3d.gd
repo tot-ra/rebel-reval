@@ -48,6 +48,33 @@ func test_transition_blends_toward_rain_profile() -> void:
 	sky.free()
 
 
+func test_morning_fog_potential_is_deterministic_daily_and_occasional() -> void:
+	var may_10 := {"day": 10, "month": 5, "year": 1343}
+	# Deterministic per calendar day: the same date always gives the same potential.
+	assert_true(
+		is_equal_approx(SkyWeather.morning_fog_potential(may_10), SkyWeather.morning_fog_potential(may_10)),
+		"a given morning must repeat its fog potential exactly"
+	)
+	var above := 0
+	var below := 0
+	var last := -1.0
+	var varied := false
+	for day in range(1, 31):
+		var potential: float = SkyWeather.morning_fog_potential({"day": day, "month": 5, "year": 1343})
+		assert_true(potential >= 0.0 and potential <= 1.0, "fog potential must be a 0..1 value")
+		if potential > 0.6:
+			above += 1
+		else:
+			below += 1
+		if last >= 0.0 and not is_equal_approx(potential, last):
+			varied = true
+		last = potential
+	assert_true(varied, "fog potential must vary from day to day, not sit constant")
+	assert_true(below > 0, "some mornings must be too dry or breezy for fog — it is not a daily event")
+	assert_true(above > 0, "some mornings must be primed for fog across a month")
+	assert_true(below > above, "fog-prone mornings must be the minority, not the norm")
+
+
 func test_time_scale_freezes_and_accelerates_the_sky() -> void:
 	# _process applies time_scale, so a paused clock (scale 0) freezes cloud drift
 	# and the weather machine, while a higher scale advances the sky faster.
@@ -164,6 +191,7 @@ func test_sky_shader_covers_required_features() -> void:
 	assert_true("storm_locality" in source, "storms must localize into cells instead of always covering the sky")
 	assert_true("local_storm" in source, "storminess must vary across the sky so one cloud can rain while others do not")
 	assert_true("lightning" in source, "thunderstorms must throw lightning that lights their cell")
+	assert_true("lightning_bolt" in source, "a strike must draw a visible jagged bolt, not only a flash")
 	assert_true("moon_direction" in source, "the night sky must place a moon disk")
 	assert_true("moon_phase" in source, "the campaign date must drive weekly lunar lighting phases")
 	assert_true(
@@ -172,6 +200,12 @@ func test_sky_shader_covers_required_features() -> void:
 	)
 	assert_true("moon_normal" in source, "the moon disk must shade as a sphere")
 	assert_true("lunar_albedo" in source, "the moon must include stable surface detail")
+	assert_true("lommel" in source, "dusty regolith must use a Lommel-Seeliger lobe, not flat Lambertian fill")
+	assert_true(
+		"mix(color, moon_surface, moon_opacity)" in source,
+		"the moon disk must occlude the sky opaquely instead of additively tinting blue through the surface"
+	)
+	assert_true("moon_ndotl" in source, "the terminator must use the signed sun cosine, not a pre-clamped light term")
 	assert_true("moon_halo" in source, "the moon must have a restrained atmospheric halo")
 
 
