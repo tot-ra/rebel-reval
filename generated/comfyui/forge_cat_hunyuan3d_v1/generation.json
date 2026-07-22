@@ -1,0 +1,26 @@
+{
+  "prompt_id": "7ab9a90e-d913-42b5-adb1-ffedd45cc58f",
+  "comfyui_output": "3d/forge_cat_hunyuan3d_v1_00001_.glb",
+  "workflow": "workflow_api.json",
+  "input_image": "forge_cat_reference.png",
+  "mode": "single-image",
+  "seed": 184726391,
+  "steps": 24,
+  "cfg": 7.0,
+  "sampler": "euler",
+  "scheduler": "normal",
+  "latent_resolution": 3072,
+  "octree_resolution": 256,
+  "mesh_algorithm": "surface net",
+  "mesh_threshold": 0.6,
+  "runtime_seconds": 595.49,
+  "sha256": "4bc3afac5c2473965e116a07a1d681b9dae10b49ab60f9fd7b1f5b61fba56a98",
+  "visual_approval": {
+    "status": "approved_base_shape",
+    "approved_on": "2026-07-23",
+    "approved_prompt_id": "7ab9a90e-d913-42b5-adb1-ffedd45cc58f",
+    "scope": "silhouette, proportions, neutral quadruped pose, separated limbs, and tail",
+    "required_follow_up": "Remodel rounded cuff-like paws during retopology; raw topology is not game-ready.",
+    "integrated_into_game": false
+  }
+}

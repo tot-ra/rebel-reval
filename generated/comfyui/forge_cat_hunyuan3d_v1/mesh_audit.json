@@ -1,0 +1,40 @@
+{
+  "source": "forge_cat_hunyuan3d_v1.glb",
+  "object_count": 1,
+  "mesh_object_count": 1,
+  "bounds_min": [
+    -0.9791135787963867,
+    -0.3177170753479004,
+    -0.6998012065887451
+  ],
+  "bounds_max": [
+    0.9876213669776917,
+    0.3532845377922058,
+    0.6982508301734924
+  ],
+  "dimensions": [
+    1.9667348861694336,
+    0.6710016131401062,
+    1.3980519771575928
+  ],
+  "meshes": [
+    {
+      "name": "Mesh_0",
+      "vertices": 92761,
+      "edges": 279425,
+      "polygons": 187036,
+      "triangles": 187036,
+      "connected_components": 1,
+      "components": [
+        {
+          "vertices": 92761,
+          "faces": 187036
+        }
+      ],
+      "loose_vertices": 0,
+      "loose_edges": 0,
+      "boundary_edges": 6,
+      "non_manifold_edges": 2169
+    }
+  ]
+}

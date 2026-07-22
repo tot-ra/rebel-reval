@@ -1,0 +1,81 @@
+{
+  "3": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": ["70", 0],
+      "seed": 184726391,
+      "steps": 24,
+      "cfg": 7.0,
+      "sampler_name": "euler",
+      "scheduler": "normal",
+      "positive": ["65", 0],
+      "negative": ["65", 1],
+      "latent_image": ["66", 0],
+      "denoise": 1.0
+    }
+  },
+  "51": {
+    "class_type": "CLIPVisionEncode",
+    "inputs": {
+      "clip_vision": ["54", 1],
+      "image": ["56", 0],
+      "crop": "none"
+    }
+  },
+  "54": {
+    "class_type": "ImageOnlyCheckpointLoader",
+    "inputs": {
+      "ckpt_name": "hunyuan3d-dit-v2-mv_fp16.safetensors"
+    }
+  },
+  "56": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "forge_cat_reference.png"
+    }
+  },
+  "61": {
+    "class_type": "VAEDecodeHunyuan3D",
+    "inputs": {
+      "samples": ["3", 0],
+      "vae": ["54", 2],
+      "num_chunks": 8000,
+      "octree_resolution": 256
+    }
+  },
+  "65": {
+    "class_type": "Hunyuan3Dv2Conditioning",
+    "inputs": {
+      "clip_vision_output": ["51", 0]
+    }
+  },
+  "66": {
+    "class_type": "EmptyLatentHunyuan3Dv2",
+    "inputs": {
+      "resolution": 3072,
+      "batch_size": 1
+    }
+  },
+  "70": {
+    "class_type": "ModelSamplingAuraFlow",
+    "inputs": {
+      "model": ["54", 0],
+      "shift": 1.0
+    }
+  },
+  "82": {
+    "class_type": "VoxelToMesh",
+    "inputs": {
+      "voxel": ["61", 0],
+      "algorithm": "surface net",
+      "threshold": 0.6
+    }
+  },
+  "83": {
+    "class_type": "SaveGLB",
+    "inputs": {
+      "mesh": ["82", 0],
+      "filename_prefix": "3d/forge_cat_hunyuan3d_v1"
+    }
+  }
+}

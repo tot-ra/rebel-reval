@@ -1,0 +1,30 @@
+{
+  "image": "forge_cat_reference.png",
+  "dimensions": [
+    1024,
+    1024
+  ],
+  "object_count": 1,
+  "pose": "neutral standing quadruped, front three-quarter",
+  "uniform_background": true,
+  "floor_or_shadow": false,
+  "silhouette_bbox": [
+    164,
+    220,
+    858,
+    822
+  ],
+  "empty_margins_px": {
+    "left": 164,
+    "top": 220,
+    "right": 166,
+    "bottom": 202
+  },
+  "visible_leg_audit_pixels": {
+    "near_front": 16547,
+    "far_front": 6516,
+    "near_rear": 18687,
+    "far_rear": 11612
+  },
+  "accepted_for_single_image_hunyuan3d": true
+}
