@@ -86,6 +86,7 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `scenes/ui/forge_commission_overlay.tscn` | ui | `retain` | Forge commission flow overlay | P1-019a smithy commission UI; blocks movement until closed | not a map definition |
 | `scenes/ui/inventory_overlay.tscn` | ui | `retain` | Session bag overlay | Demo D-003 inventory UI; persists via `GameState` | not a map definition |
 | `scenes/ui/journal_overlay.tscn` | ui | `retain` | Quest journal overlay | P1-016 objective and evidence UI; toggles with quick-access menu or `J` | not a map definition |
+| `scenes/ui/reflection_overlay.tscn` | ui | `retain` | Hingepuu reflection overlay | P2-011 morning reflection; Duty/Fury/Mercy conviction choice | not a map definition |
 | `scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn` | level | `convert` | `loc.lower_town.st_olafs_guild_hall` | `active=false` prototype only until separate approval artifact | `scripts/map/definitions/prototypes/st_olafs_guild_hall_definition.gd` |
 | `scenes/reval_archbishops_garden/reval_archbishops_garden.tscn` | level | `convert` | `loc.toompea.archbishops_garden` | `active=false` western Toompea prototype; developer traversal only until a separate approval artifact | `scripts/map/definitions/prototypes/archbishops_garden_definition.gd` |
 | `scenes/reval_center/reval_center.tscn` | level | `convert` | `loc.lower_town.market_civic_quarter` | `active=false` prototype only until separate approval artifact | `scripts/map/definitions/prototypes/market_civic_quarter_definition.gd` |

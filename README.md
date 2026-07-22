@@ -69,8 +69,8 @@ Target length is 15–20 hours across the three acts, with replay value in branc
 
 <p align="center">
   <img src="./character/inspiration/user__idle.gif" width="112" alt="Prototype pixel art of Kalev">
-  <img src="./characters/rebels/kaja_lahekivi.png" width="112" alt="Prototype pixel art of Kaja">
-  <img src="./characters/metsik_cult/ellen_luik.png" width="112" alt="Prototype pixel art of Ellen">
+  <img src="./characters/rebels/img/kaja_lahekivi.png" width="112" alt="Prototype pixel art of Kaja">
+  <img src="./characters/metsik_cult/img/ellen_luik.png" width="112" alt="Prototype pixel art of Ellen">
 </p>
 
 The story follows seven core characters across all three acts: [Kalev](./docs/CHARACTERS/kalev.md), [Mart](./docs/CHARACTERS/mart.md), [Aita](./docs/CHARACTERS/aita.md), [Kaja](./docs/CHARACTERS/kaja.md), [Captain Henning](./docs/CHARACTERS/henning.md), [Jürgen Witte](./docs/CHARACTERS/jurgen.md), and [Ellen Luik](./docs/CHARACTERS/ellen.md). Around them, each active faction contributes a small cast of named figures promoted from the [legacy roster](./characters/README.md) through the character-brief process in [`docs/CHARACTERS/`](./docs/CHARACTERS/README.md).

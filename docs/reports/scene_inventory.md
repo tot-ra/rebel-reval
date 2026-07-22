@@ -1,26 +1,26 @@
 # Scene inventory (P0-018, reconciled P0-055)
 
 Recorded: 2026-07-16
-Reconciled: 2026-07-21 (exact repository coverage through P0-074)
+Reconciled: 2026-07-22 (exact repository coverage through P0-112)
 
 ## Summary
 
 | Classification | Count | Role |
 |----------------|------:|------|
-| `working` | 25 | Active runtime scenes with verified or complete behavior |
+| `working` | 26 | Active runtime scenes with verified or complete behavior |
 | `partial` | 29 | Substantial content but incomplete integration or dev-only use |
 | `placeholder` | 3 | Reserved stubs or reference-only visuals, not playable |
 | `archive` | 20 | Out of vertical-slice scope; legacy open-world or event shells |
-| **Total** | **77** | Matches repository `.tscn` count |
+| **Total** | **88** | Matches repository `.tscn` count |
 
 Repository count command:
 
 ```bash
 find . -name '*.tscn' -not -path './.git/*' -not -path './.godot/*' -not -path './.a2gent-worktrees/*' | wc -l
-# Expected: 77
+# Expected: 88
 ```
 
-Inventory row count (data rows in the table below): **77**.
+Inventory row count (data rows in the table below): **88**.
 
 ## Classification criteria
 
@@ -101,6 +101,7 @@ Inventory row count (data rows in the table below): **77**.
 | 52 | `scenes/ui/forge_commission_overlay.tscn` | working | Forge commission flow overlay; P1-019a smithy ledger interaction. |
 | 53 | `scenes/ui/inventory_overlay.tscn` | working | Session bag overlay; D-003 pickup and inventory UI. |
 | 54 | `scenes/ui/journal_overlay.tscn` | working | Quest journal overlay; P1-016 objectives and discovered evidence. |
+| 89 | `scenes/ui/reflection_overlay.tscn` | working | Hingepuu reflection overlay; P2-011 Duty/Fury/Mercy conviction choice. |
 | 55 | `assets/characters/variants/townswoman.tscn` | partial | Shared-rig townswoman variant used by ambient NPC work. |
 | 79 | `scenes/world_travel/world_sacred_grove.tscn` | partial | Developer global-map placeholder; south road via Karja Gate; `release=false`. |
 | 80 | `scenes/world_travel/world_harju.tscn` | partial | Developer global-map placeholder; east road via Viru Gate Foreland; `release=false`. |
@@ -153,12 +154,12 @@ Inventory row count (data rows in the table below): **77**.
 | `scenes/reval_south/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/reval_toompea/` | 0 | 1 | 0 | 2 | 3 |
 | `scenes/tests/` | 0 | 5 | 0 | 0 | 5 |
-| `scenes/ui/` | 3 | 0 | 0 | 0 | 3 |
+| `scenes/ui/` | 4 | 0 | 0 | 0 | 4 |
 | `scenes/world/` | 0 | 0 | 0 | 10 | 10 |
 | `scenes/world_travel/` | 0 | 10 | 0 | 0 | 10 |
 | `tools/` | 0 | 1 | 0 | 0 | 1 |
 | `tools/benchmarks/` | 0 | 2 | 0 | 0 | 2 |
-| **All** | **25** | **39** | **3** | **20** | **87** |
+| **All** | **26** | **39** | **3** | **20** | **88** |
 
 ## Verification
 
@@ -170,12 +171,13 @@ find . -name '*.tscn' -not -path './.git/*' -not -path './.godot/*' -not -path '
 grep -E '^\| [0-9]+ \|' docs/reports/scene_inventory.md | wc -l
 ```
 
-Both commands should print `87` on a clean checkout at this revision.
+Both commands should print `88` on a clean checkout at this revision.
 
 ## Related tasks
 
 - **P0-055** - reconcile this inventory and `docs/MAP_CONVERSION_PLAN.md` with the full `.tscn` set (complete).
 - **P0-057** - reconcile the four UI overlay scenes added after P0-055 (complete).
+- **P0-112** - reconcile `scenes/ui/reflection_overlay.tscn` after P2-011 (complete).
 - **P0-030** - prune active runtime folders using this inventory.
 - **P0-034** - migration matrix for slice-relevant artifacts (complete; see [`migration_matrix_p0_034.md`](./migration_matrix_p0_034.md)).
 - **P0-022** - fix door tags and stable scene IDs (`DEF-003`, `DEF-004` in [`known_runtime_defects.md`](./known_runtime_defects.md)).

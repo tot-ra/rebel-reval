@@ -14,12 +14,12 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `46`
-- Markdown files excluded as archive/reference/out of active scope: `361`
-- Local/external links inspected: `200`
-- Links to active Markdown docs: `105`
+- Active Markdown files scanned: `47`
+- Markdown files excluded as archive/reference/out of active scope: `358`
+- Local/external links inspected: `204`
+- Links to active Markdown docs: `106`
 - Links to existing archive/reference/non-active local docs: `42`
-- External links skipped for reachability: `22`
+- External links skipped for reachability: `25`
 - Issues found: `0`
 
 ## Issue counts
@@ -82,6 +82,7 @@ No active Markdown documentation issues found.
 - `docs/SCENES/the-makers-mark.md`
 - `docs/SETUP.md`
 - `docs/TASK_ARCHIVE.md`
+- `docs/TOURIST_LANDMARKS.md`
 - `README.md`
 - `TODO.md`
 

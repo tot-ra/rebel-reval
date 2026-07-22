@@ -68,6 +68,7 @@ This matrix classifies current slice-relevant artifacts for migration toward the
 | `scenes/ui/forge_commission_overlay.tscn` | `retain` | Forge commission flow overlay. |
 | `scenes/ui/inventory_overlay.tscn` | `retain` | Session bag overlay. |
 | `scenes/ui/journal_overlay.tscn` | `retain` | Quest journal overlay. |
+| `scenes/ui/reflection_overlay.tscn` | `retain` | Hingepuu reflection overlay; P2-011 conviction choice. |
 | `scenes/interaction/world_item.tscn` | `retain` | Pickup world-item component for D-003. |
 | `tools/benchmarks/large_map_benchmark.tscn` | `retain` | CI large-map pipeline benchmark host; not player-facing. |
 | `tools/benchmarks/lower_town_scene_benchmark.tscn` | `retain` | CI Lower Town scene-load benchmark host; not player-facing. |
