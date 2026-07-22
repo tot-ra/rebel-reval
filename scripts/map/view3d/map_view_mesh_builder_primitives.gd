@@ -5,6 +5,7 @@ extends RefCounted
 const BarrelMeshes := preload("res://scripts/map/view3d/map_view_barrel_meshes.gd")
 const FoliageMeshes := preload("res://scripts/map/view3d/map_view_foliage_meshes.gd")
 const TreeMeshes := preload("res://scripts/map/view3d/map_view_tree_meshes.gd")
+const AncientOakMeshes := preload("res://scripts/map/view3d/map_view_ancient_oak_meshes.gd")
 const MeshMath := preload("res://scripts/map/view3d/map_view_mesh_builder_math.gd")
 
 ## Procedural primitives are immutable after construction. Reusing their Mesh
@@ -127,6 +128,22 @@ static func tree_fruit_mesh(species: StringName) -> ArrayMesh:
 
 static func tree_geometry_stats(species: StringName) -> Dictionary:
 	return TreeMeshes.geometry_stats(species)
+
+
+static func ancient_oak_wood_mesh() -> ArrayMesh:
+	return AncientOakMeshes.wood_mesh()
+
+
+static func ancient_oak_canopy_mesh() -> ArrayMesh:
+	return AncientOakMeshes.canopy_mesh()
+
+
+static func ancient_oak_moss_mesh() -> ArrayMesh:
+	return AncientOakMeshes.moss_mesh()
+
+
+static func ancient_oak_geometry_stats() -> Dictionary:
+	return AncientOakMeshes.geometry_stats()
 
 
 static func add_chimney_stack(parent: Node3D, node_name: String, outer_size: float, height: float, position: Vector3) -> Node3D:

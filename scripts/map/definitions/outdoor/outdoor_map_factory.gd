@@ -84,10 +84,19 @@ static func _structure(definition: MapDefinition, source: Dictionary) -> Diction
 
 
 static func _prop(definition: MapDefinition, source: Dictionary) -> Dictionary:
+	var primitive: StringName = source["primitive"]
+	var kind := MapTypes.PROP_KIND_BARRELS
+	match primitive:
+		&"ancient_tree", &"tree":
+			kind = MapTypes.PROP_KIND_TREE
+		&"well", &"spring":
+			kind = MapTypes.PROP_KIND_WELL
+		&"cart":
+			kind = MapTypes.PROP_KIND_CART
 	return {
 		"id": source["id"],
-		"kind": MapTypes.PROP_KIND_BARRELS,
-		"primitive": source["primitive"],
+		"kind": kind,
+		"primitive": primitive,
 		"position": cell_center(definition, source["cell"]),
 	}
 

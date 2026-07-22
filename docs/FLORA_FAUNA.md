@@ -42,6 +42,8 @@ All tree IDs accept optional `.small`, `.medium`, or `.large` suffixes. Group va
 | Common hawthorn | `tree.hawthorn` | modeled + fruit + used | [`reval_harbor_north.rrmap`](../content/maps/reval_harbor_north.rrmap) |
 | Blackthorn | `tree.blackthorn` | modeled + fruit + used | [`reval_harbor_east.rrmap`](../content/maps/reval_harbor_east.rrmap) |
 
+Sacred Grove landmark hingepuu (`primitive=ancient_tree` on [`world_sacred_grove.rrmap`](../content/maps/world_sacred_grove.rrmap)) uses a dedicated mesh in [`map_view_ancient_oak_meshes.gd`](../scripts/map/view3d/map_view_ancient_oak_meshes.gd): buttressed trunk, giant primary limbs, dense canopy, and hanging moss. Grove `primitive=tree_line` buildings dress as large oak rows in 3D rather than house boxes.
+
 Tree tests: [`test_map_view_tree_species.gd`](../tests/godot/test_map_view_tree_species.gd). They enforce the catalog target, cache reuse, bounded geometry, tapered trunks, size pins, and authored species use.
 
 ## Plant, herb, and crop model ledger (30/30)

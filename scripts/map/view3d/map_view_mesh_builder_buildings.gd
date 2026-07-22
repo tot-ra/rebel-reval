@@ -12,6 +12,12 @@ static func build_building(
 	entrances: Array[Dictionary] = [],
 	map_bounds: Rect2 = Rect2()
 ) -> Node3D:
+	# Oak-ring / treeline footprints must not render as house boxes. Sacred Grove
+	# and similar outdoor rings are authored as house+tree_line for collision
+	# envelopes, then dressed as real oak instances in the 3D view.
+	if StringName(building.get("primitive", &"")) == &"tree_line":
+		return _build_tree_line(building, cell_size)
+
 	var root := Node3D.new()
 	root.name = "Building_%s" % String(building["id"])
 	var scale := MapViewBridge.world_scale(cell_size)
@@ -162,6 +168,56 @@ static func build_building(
 			MapViewMeshBuilderBuildingFortification.add_base_arcades(root, building, size, map_bounds)
 			MapViewMeshBuilderBuildingFortification.add_battlements(root, building, size, height)
 			MapViewMeshBuilderBuildingFortification.add_wall_walk_roof(root, size, height)
+	return root
+
+
+## Places large oaks along a thin footprint so grove rings read as trees, not walls.
+static func _build_tree_line(building: Dictionary, cell_size: int) -> Node3D:
+	var root := Node3D.new()
+	root.name = "Building_%s" % String(building["id"])
+	var scale := MapViewBridge.world_scale(cell_size)
+	var footprint: Rect2 = building["footprint"]
+	var size := footprint.size * scale
+	var center := footprint.get_center() * scale
+	root.position = Vector3(center.x, 0.0, center.y)
+	root.set_meta(&"tree_line", true)
+
+	var along_x := size.x >= size.y
+	var length := maxf(size.x if along_x else size.y, 1.0)
+	# ~2.6 world units between trunks keeps crowns touching without merging into a hedge.
+	var spacing := 2.6
+	var count := maxi(2, int(round(length / spacing)) + 1)
+	var wood_mesh := MapViewMeshBuilderPrimitives.tree_wood_mesh(MapViewTreeSpecies.SPECIES_OAK)
+	var canopy_mesh := MapViewMeshBuilderPrimitives.tree_canopy_mesh(MapViewTreeSpecies.SPECIES_OAK)
+	var bark := MapViewMaterials.bark(MapViewTreeSpecies.bark_kind_for(MapViewTreeSpecies.SPECIES_OAK))
+	var canopy_mat := MapViewMaterials.canopy(MapViewTreeSpecies.canopy_material_kind(MapViewTreeSpecies.SPECIES_OAK))
+	for index in count:
+		var t := float(index) / float(count - 1)
+		var along := lerpf(-length * 0.5, length * 0.5, t)
+		var tree := Node3D.new()
+		tree.name = "Oak%02d" % index
+		tree.position = Vector3(along, 0.0, 0.0) if along_x else Vector3(0.0, 0.0, along)
+		# Deterministic size mix so the ring feels planted rather than cloned.
+		var size_roll := MapViewMeshBuilderMath.hash01(index, String(building["id"]).hash(), 7741)
+		var tree_scale := MapViewTreeSpecies.instance_scale(MapViewTreeSpecies.SIZE_LARGE, size_roll)
+		tree.rotation.y = size_roll * TAU
+		root.add_child(tree)
+
+		var trunk := MeshInstance3D.new()
+		trunk.name = "Trunk"
+		trunk.mesh = wood_mesh
+		trunk.scale = tree_scale
+		trunk.material_override = bark
+		tree.add_child(trunk)
+
+		var canopy := MeshInstance3D.new()
+		canopy.name = "Canopy"
+		canopy.mesh = canopy_mesh
+		canopy.scale = tree_scale
+		canopy.material_override = canopy_mat
+		tree.add_child(canopy)
+		tree.set_meta(&"tree_species", MapViewTreeSpecies.SPECIES_OAK)
+		tree.set_meta(&"tree_size", MapViewTreeSpecies.SIZE_LARGE)
 	return root
 
 

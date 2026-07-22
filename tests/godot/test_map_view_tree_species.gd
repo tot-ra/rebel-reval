@@ -112,6 +112,64 @@ func test_authored_tree_prop_builds_species_mesh() -> void:
 	node.free()
 
 
+func test_ancient_oak_landmark_is_huge_detailed_oak() -> void:
+	MapViewAncientOakMeshes.reset_cache()
+	var stats := MapViewMeshBuilderPrimitives.ancient_oak_geometry_stats()
+	assert_true(float(stats["trunk_height"]) >= 10.0, "hingepuu trunk should tower over woodland oaks")
+	assert_true(float(stats["trunk_base_radius"]) >= 0.9, "hingepuu needs a massive root flare")
+	assert_true(int(stats["root_buttresses"]) >= 6, "buttress roots sell the ancient base")
+	assert_true(int(stats["wood_segments"]) >= 120, "giant limbs need a deep branch skeleton")
+	assert_true(int(stats["leaf_count"]) >= 800, "sacred canopy needs dense leaf sprays")
+	assert_true(int(stats["moss_strands"]) >= 20, "hanging moss distinguishes the landmark oak")
+	assert_true(MapViewMeshBuilderPrimitives.ancient_oak_wood_mesh() is ArrayMesh)
+	assert_true(MapViewMeshBuilderPrimitives.ancient_oak_canopy_mesh() is ArrayMesh)
+	assert_true(MapViewMeshBuilderPrimitives.ancient_oak_moss_mesh() is ArrayMesh)
+	assert_true(
+		MapViewMeshBuilderPrimitives.ancient_oak_wood_mesh()
+		== MapViewMeshBuilderPrimitives.ancient_oak_wood_mesh(),
+		"ancient oak wood mesh must be cached"
+	)
+
+	var prop := {
+		"id": &"ancient_oak",
+		"kind": MapTypes.PROP_KIND_TREE,
+		"position": Vector2(64, 64),
+		"primitive": &"ancient_tree",
+		"style_variant": &"tree.oak",
+	}
+	var node := MapViewMeshBuilderProps.build_prop(prop, MapTypes.DEFAULT_CELL_SIZE)
+	assert_eq(node.get_meta(&"tree_model"), &"ancient_oak")
+	assert_eq(node.get_meta(&"tree_species"), MapViewTreeSpecies.SPECIES_OAK)
+	assert_true(node.has_node("Trunk"))
+	assert_true(node.has_node("Canopy"))
+	assert_true(node.has_node("Moss"))
+	assert_true((node.get_node("Trunk") as MeshInstance3D).mesh == MapViewMeshBuilderPrimitives.ancient_oak_wood_mesh())
+	node.free()
+
+
+func test_tree_line_building_places_oak_row_instead_of_house() -> void:
+	var building := {
+		"id": &"oak_ring_north",
+		"kind": MapTypes.BUILDING_KIND_HOUSE,
+		"primitive": &"tree_line",
+		"footprint": Rect2(0, 0, 704, 32),
+		"wall_height": 62.0,
+	}
+	var node := MapViewMeshBuilderBuildings.build_building(building, MapTypes.DEFAULT_CELL_SIZE)
+	assert_true(node.get_meta(&"tree_line"), "tree_line must skip house walls/roof")
+	assert_false(node.has_node("Walls"), "tree_line must not emit masonry walls")
+	assert_false(node.has_node("Roof"), "tree_line must not emit a roof")
+	var oak_count := 0
+	for child in node.get_children():
+		if String(child.name).begins_with("Oak"):
+			oak_count += 1
+			assert_eq(child.get_meta(&"tree_species"), MapViewTreeSpecies.SPECIES_OAK)
+			assert_true(child.has_node("Trunk"))
+			assert_true(child.has_node("Canopy"))
+	assert_true(oak_count >= 4, "oak ring needs multiple trunks along the footprint")
+	node.free()
+
+
 func test_outdoor_maps_author_multiple_tree_species() -> void:
 	var definition: MapDefinition = preload(
 		"res://scripts/map/definitions/outdoor/reval_harbor_east_definition.gd"

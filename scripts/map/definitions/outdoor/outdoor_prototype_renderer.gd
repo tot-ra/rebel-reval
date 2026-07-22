@@ -68,7 +68,13 @@ func _draw_prop(prop: Dictionary) -> void:
 	var primitive: StringName = prop.get("primitive", prop.get("kind", &"marker"))
 	var ink := Color8(43, 38, 36)
 	match primitive:
-		&"ancient_tree", &"tree":
+		&"ancient_tree":
+			# Landmark hingepuu: thicker trunk and broader crown than roadside oaks.
+			draw_rect(Rect2(point + Vector2(-10, -72), Vector2(20, 72)), Color8(72, 48, 34))
+			draw_circle(point + Vector2(-18, -58), 22.0, Color8(58, 92, 52))
+			draw_circle(point + Vector2(16, -62), 24.0, Color8(66, 102, 56))
+			draw_circle(point + Vector2(0, -78), 28.0, Color8(62, 98, 54))
+		&"tree":
 			draw_rect(Rect2(point + Vector2(-4, -28), Vector2(8, 28)), Color8(83, 55, 42))
 			draw_circle(point + Vector2(0, -35), 18.0, Color8(73, 103, 62))
 		&"crane", &"ship_frame", &"standard", &"beacon":

@@ -331,7 +331,14 @@ static func _add_horse(root: Node3D) -> void:
 ## most of the grass; sparse small/large tufts, shrubs, and trees add silhouette
 ## variation without turning every green cell into an object field.
 
+const ANCIENT_TREE_PRIMITIVE := &"ancient_tree"
+
+
 static func _add_authored_tree(root: Node3D, prop: Dictionary) -> void:
+	# Sacred Grove hingepuu and any other ancient_tree prop use the landmark mesh.
+	if prop.get("primitive", &"") == ANCIENT_TREE_PRIMITIVE:
+		_add_ancient_oak(root)
+		return
 	var variant: StringName = prop.get("style_variant", &"")
 	if variant.is_empty():
 		variant = TerrainVegetation.VARIANT_TREE_MIXED
@@ -372,3 +379,29 @@ static func _add_authored_tree(root: Node3D, prop: Dictionary) -> void:
 		root.add_child(fruit)
 	root.set_meta(&"tree_species", species)
 	root.set_meta(&"tree_size", size_class)
+
+
+static func _add_ancient_oak(root: Node3D) -> void:
+	var trunk := MeshInstance3D.new()
+	trunk.name = "Trunk"
+	trunk.mesh = MapViewMeshBuilderPrimitives.ancient_oak_wood_mesh()
+	trunk.material_override = MapViewMaterials.bark(MapViewTreeSpecies.BARK_DEFAULT)
+	root.add_child(trunk)
+
+	var canopy := MeshInstance3D.new()
+	canopy.name = "Canopy"
+	canopy.mesh = MapViewMeshBuilderPrimitives.ancient_oak_canopy_mesh()
+	canopy.material_override = MapViewMaterials.canopy(&"leaf")
+	root.add_child(canopy)
+
+	var moss_mesh := MapViewMeshBuilderPrimitives.ancient_oak_moss_mesh()
+	if moss_mesh != null:
+		var moss := MeshInstance3D.new()
+		moss.name = "Moss"
+		moss.mesh = moss_mesh
+		moss.material_override = MapViewMaterials.canopy(&"leaf")
+		moss.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(moss)
+	root.set_meta(&"tree_species", MapViewTreeSpecies.SPECIES_OAK)
+	root.set_meta(&"tree_size", MapViewTreeSpecies.SIZE_LARGE)
+	root.set_meta(&"tree_model", &"ancient_oak")

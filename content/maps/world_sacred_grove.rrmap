@@ -16,6 +16,7 @@ building oak_ring_east house 34 6 1 16 primitive=tree_line wall_height=62
 prop offering_stone barrels 23 14 primitive=offering_stone
 prop ancient_oak tree 23 9 primitive=ancient_tree
 prop spring_marker barrels 35 18 primitive=spring
+# Ring oaks use house+tree_line envelopes for collision; 3D dresses them as oak rows.
 anchor landmark_ancient_oak 23 9 kind=ancient_tree
 anchor landmark_offering_stone 23 14 kind=offering_stone
 anchor landmark_bog_spring 35 18 kind=spring
