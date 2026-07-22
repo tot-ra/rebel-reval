@@ -11,10 +11,13 @@ References:
 <!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
-| P0 |    20  |    10  | Baseline, storage, materials, historical audit |
+| P0 |    20  |     6  | Baseline, storage, materials, historical audit |
 | P1 |     3  |     2  | Runtime systems, content foundation |
-| P2 |    17  |     4  | Vertical-slice production (playable MVP) |
-| P3+ |    77  |     5  | Validation, accessibility, performance |
+| P2 |    17  |     0  | Vertical-slice production (playable MVP) |
+| P3 |    15  |     0  | Validation, accessibility, performance |
+| P4 |    43  |     3  | Act 1: The Simmering City |
+| P5 |    10  |     0  | Act 2: The Fire of Rebellion |
+| P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
 
 
 ## P6 - Act 3: The Iron Harvest and full release (lowest priority)
