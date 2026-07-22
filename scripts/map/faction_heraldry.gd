@@ -39,6 +39,21 @@ const ALL_FACTIONS: Array[StringName] = [
 	VITALIENBRUDER,
 ]
 
+## Color-coded roster markers for docs and UI. Field/charge colors follow
+## `field_color` / `charge_color` / `pattern_for` above; Vitalienbrüder fly none.
+const FACTION_FLAG_EMOJI: Dictionary = {
+	DANISH_CROWN: "🇩🇰", # red field + white cross
+	LIVONIAN_ORDER: "⬜", # white field + black cross
+	HANSEATIC: "🟥⬜", # red field + white hoist pale
+	HARJU_KINGS: "🟩", # green field
+	BLACK_CLOAKS: "⬜🐦", # white field + swallow charge
+	CULT_METSIK: "🟢", # olive field
+	PSKOV_NOVGOROD: "🟦🐻🐆", # azure + bear + lynx
+	NOVGOROD: "🟦🐻", # azure + bear
+	PSKOV: "🟦🐆", # azure + lynx
+	VITALIENBRUDER: "", # no cloth by design
+}
+
 const PATTERN_SOLID := &"solid"
 const PATTERN_CROSS := &"cross"
 const PATTERN_PALE := &"pale"
@@ -69,6 +84,10 @@ const BUILDING_DEFAULTS: Dictionary = {
 
 static func is_known(faction_id: StringName) -> bool:
 	return String(faction_id).is_empty() or ALL_FACTIONS.has(faction_id)
+
+
+static func flag_emoji(faction_id: StringName) -> String:
+	return String(FACTION_FLAG_EMOJI.get(faction_id, ""))
 
 
 static func resolve(source: Dictionary) -> StringName:

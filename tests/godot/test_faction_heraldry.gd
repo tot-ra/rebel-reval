@@ -5,6 +5,24 @@ const SouthQuarter := preload("res://scripts/map/definitions/prototypes/south_qu
 const MerchantBoatBuilder := preload("res://scripts/map/view3d/map_view_merchant_boat_builder.gd")
 
 
+func test_faction_flag_emoji_matches_heraldry_roster() -> void:
+	for faction_id in FactionHeraldry.ALL_FACTIONS:
+		assert_true(
+			FactionHeraldry.FACTION_FLAG_EMOJI.has(faction_id),
+			"every faction needs a roster emoji entry: %s" % String(faction_id)
+		)
+	assert_eq(FactionHeraldry.flag_emoji(FactionHeraldry.DANISH_CROWN), "🇩🇰")
+	assert_eq(FactionHeraldry.flag_emoji(FactionHeraldry.LIVONIAN_ORDER), "⬜")
+	assert_eq(FactionHeraldry.flag_emoji(FactionHeraldry.HANSEATIC), "🟥⬜")
+	assert_eq(FactionHeraldry.flag_emoji(FactionHeraldry.HARJU_KINGS), "🟩")
+	assert_eq(FactionHeraldry.flag_emoji(FactionHeraldry.BLACK_CLOAKS), "⬜🐦")
+	assert_eq(FactionHeraldry.flag_emoji(FactionHeraldry.CULT_METSIK), "🟢")
+	assert_eq(FactionHeraldry.flag_emoji(FactionHeraldry.PSKOV_NOVGOROD), "🟦🐻🐆")
+	assert_eq(FactionHeraldry.flag_emoji(FactionHeraldry.NOVGOROD), "🟦🐻")
+	assert_eq(FactionHeraldry.flag_emoji(FactionHeraldry.PSKOV), "🟦🐆")
+	assert_eq(FactionHeraldry.flag_emoji(FactionHeraldry.VITALIENBRUDER), "")
+
+
 func test_faction_heraldry_patterns_and_vitalien_fly_no_flag() -> void:
 	assert_eq(FactionHeraldry.pattern_for(FactionHeraldry.DANISH_CROWN), FactionHeraldry.PATTERN_CROSS)
 	assert_eq(FactionHeraldry.pattern_for(FactionHeraldry.LIVONIAN_ORDER), FactionHeraldry.PATTERN_CROSS)

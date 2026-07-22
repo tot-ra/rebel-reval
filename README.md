@@ -37,18 +37,18 @@ Time advances through authored phases, not a simulated clock. Dialogue is writte
 
 ## Factions
 
-Every faction believes it is in the right, and none is a clean moral team. Roster entries follow the confidence labels in [`docs/CANON.md`](./docs/CANON.md).
+Every faction believes it is in the right, and none is a clean moral team. Roster entries follow the confidence labels in [`docs/CANON.md`](./docs/CANON.md). Flag emojis match in-game cloth colors and charges from [`FactionHeraldry`](./scripts/map/faction_heraldry.gd) (`faction=` map keys).
 
-| Faction | Wants | Shadow |
-|---|---|---|
-| **The Danish Crown** | Keep its distant, indebted rule of Estonia | Taxes its subjects into ruin to fund a fading claim |
-| **The Livonian Order** | A pious land under one faith and one law | Order becomes fanaticism; massacre becomes policy |
-| **The Hanseatic guilds** | Trade above all; a profitable, quiet Reval | Lives and traditions priced like cargo |
-| **The Harju Kings** | Freedom; the rural heart of the uprising | Liberation slides into indiscriminate slaughter |
-| **The Black Cloaks** | Liberation from inside the walls — smiths, artisans, the underclass | Terror is a tool that doesn't stay aimed |
-| **The Cult of Metsik** | The old ways, the sacred groves, the old gods | Would burn the new world whole to regrow the old |
-| **Pskov & Novgorod emissaries** | Opportunity in the chaos; a weakened Order | Any ally is sellable at the right price |
-| **The Vitalienbrüder** | Plunder; chaos is the business model | No flag, no loyalty, no restraint |
+| Flag | Faction | Wants | Shadow |
+|---|---|---|---|
+| 🇩🇰 | **The Danish Crown** (`danish_crown`) | Keep its distant, indebted rule of Estonia | Taxes its subjects into ruin to fund a fading claim |
+| ⬜ | **The Livonian Order** (`livonian_order`) | A pious land under one faith and one law | Order becomes fanaticism; massacre becomes policy |
+| 🟥⬜ | **The Hanseatic guilds** (`hanseatic`) | Trade above all; a profitable, quiet Reval | Lives and traditions priced like cargo |
+| 🟩 | **The Harju Kings** (`harju_kings`) | Freedom; the rural heart of the uprising | Liberation slides into indiscriminate slaughter |
+| ⬜🐦 | **The Black Cloaks** (`black_cloaks`) | Liberation from inside the walls - smiths, artisans, the underclass | Terror is a tool that doesn't stay aimed |
+| 🟢 | **The Cult of Metsik** (`cult_metsik`) | The old ways, the sacred groves, the old gods | Would burn the new world whole to regrow the old |
+| 🟦🐻🐆 | **Pskov & Novgorod emissaries** (`pskov_novgorod`) | Opportunity in the chaos; a weakened Order | Any ally is sellable at the right price |
+| — | **The Vitalienbrüder** (`vitalienbruder`) | Plunder; chaos is the business model | No flag, no loyalty, no restraint |
 
 Remaining historical powers — the bishoprics, Lithuania, the Golden Horde, the Blackheads as a distinct body — stay present as background canon and dialogue, not as playable quest lines.
 
