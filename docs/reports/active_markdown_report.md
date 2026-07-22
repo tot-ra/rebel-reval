@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `43`
+- Active Markdown files scanned: `45`
 - Markdown files excluded as archive/reference/out of active scope: `303`
-- Local/external links inspected: `176`
-- Links to active Markdown docs: `100`
+- Local/external links inspected: `180`
+- Links to active Markdown docs: `104`
 - Links to existing archive/reference/non-active local docs: `23`
 - External links skipped for reachability: `22`
 - Issues found: `0`
@@ -75,10 +75,12 @@ No active Markdown documentation issues found.
 - `docs/MAP_CONVERSION_PLAN.md`
 - `docs/MATERIAL_STYLE_LOCK_KIT.md`
 - `docs/PERFORMANCE_REPORT.md`
+- `docs/ROADMAP.md`
 - `docs/SCENES/a-bitter-brew.md`
 - `docs/SCENES/the-makers-mark-branch-map.md`
 - `docs/SCENES/the-makers-mark.md`
 - `docs/SETUP.md`
+- `docs/TASK_ARCHIVE.md`
 - `README.md`
 - `TODO.md`
 
