@@ -4,7 +4,7 @@
 
 # Theophanes the Greek (b. c. 1330)
 
-![alt text](image-25.png)
+![alt text](img/image-25.png)
 
 **Visual Description:**
 At 13, Theophanes is a youth caught between boyhood and adolescence, with an intensity that belies his age. He is slight of build, with dark, unruly hair that often falls into his piercing, dark eyes. His complexion is olive, typical of his Byzantine Greek heritage, standing in contrast to the paler tones of the locals. He dresses in the simple, practical tunic of an apprentice, made of dark, earth-toned wool, though it is of a finer cut and fabric than those of local boys. His hands are perpetually stained with charcoal and pigment. He is often quiet and watchful, absorbing every detail of his surroundings with a startling focus, his gaze lingering on the play of light on stone or the expressions on faces in the crowd.

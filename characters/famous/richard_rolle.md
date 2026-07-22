@@ -4,7 +4,7 @@
 
 # Richard Rolle
 
-![alt text](image-18.png)
+![alt text](img/image-18.png)
 
 **Visual Description:**
 A man in his early 40s, Richard Rolle has the gaunt, wild-eyed appearance of a true ascetic. He is thin to the point of emaciation, with a long, unkempt beard and piercing eyes that seem to be looking at something beyond the material world. He wears the simple, rough-spun robes of a hermit, patched and weathered from years of living in the wilderness. He is a figure of intense, almost unsettling, spiritual energy.

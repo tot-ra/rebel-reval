@@ -4,7 +4,7 @@
 
 # Valdemar IV Atterdag
 
-![alt text](image-10.png)
+![alt text](img/image-10.png)
 
 **Visual Description:**
 A man in his early twenties, Valdemar IV possesses a lean, wiry build that speaks of a life of constant activity rather than courtly leisure. His hair is a deep brown, nearly black, medium in length and often unkempt from travel and the wearing of helmets. His eyes are a sharp, intelligent blue, holding a calculating gaze that misses little. He is dressed in rich, dark velvet, the deep crimson of his tunic a stark contrast to the polished black leather of his high boots. A heavy, gold-buckled belt sits low on his hips, a sign of his noble status. He is clean-shaven, revealing a determined jawline.

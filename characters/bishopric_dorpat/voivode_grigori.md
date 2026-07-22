@@ -6,7 +6,7 @@
 
 A cunning and ambitious military commander from the neighboring Principality of Pskov. He sees the chaos of the uprising as a golden opportunity to seize the wealthy city of Dorpat and its surrounding lands. He is not just a brute; he is a capable strategist who may even attempt to forge temporary alliances with Estonian rebel leaders to achieve his goals.
 
-![alt text](grigory.png)
+![alt text](img/grigory.png)
 
 ## Visual Description
 

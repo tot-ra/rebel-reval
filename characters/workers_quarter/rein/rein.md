@@ -6,7 +6,7 @@
 
 A grizzled old cobbler in his late fifties, known for his expert craftsmanship and his cantankerous demeanor.
 
-![](rein.png)
+![](img/rein.png)
 
 ### Visual Description
 Rein is a man in his late fifties, with a stocky, powerful build from a lifetime of working with leather. His face is weathered and deeply lined, and his bushy grey eyebrows are often furrowed in concentration. He has a bald head, fringed with grey hair, and a thick, well-kept beard. His eyes are a sharp, intelligent brown, and they don't miss a thing. He wears a heavy leather apron over a simple linen shirt and wool trousers. The apron is stained and worn, a testament to his years of labor.

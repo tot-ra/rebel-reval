@@ -4,7 +4,7 @@
 
 # John Mandeville (Author) (fl. 14th Century)
 
-![alt text](image-22.png)
+![alt text](img/image-22.png)
 
 **Visual Description:**
 The man calling himself "John Mandeville" is an enigma. He appears to be a man in his late 40s or early 50s, of indeterminate origin. He has a weathered face, suggesting a life of travel, and his eyes hold a perpetual twinkle, as if he's always withholding a fantastic secret. His hair and beard are a nondescript brown, with flecks of grey. He dresses in the durable, multi-layered garb of a seasoned traveler, his clothes a patchwork of different styles and fabrics—a woolen tunic that could be English, a fur-lined hat that looks vaguely Russian, and boots of a supple leather he claims comes from the Orient. He is never without a leather-bound journal and a pouch of exotic-smelling herbs. His accent is a curious mix, shifting depending on his audience.

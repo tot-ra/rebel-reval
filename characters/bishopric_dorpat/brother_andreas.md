@@ -6,7 +6,7 @@
 
 A learned monk and scholar from the Dorpat Cathedral School. He occasionally travels to Reval to study at the Cathedral of Saint Mary or to meet with fellow scholars. He is one of the few who is genuinely interested in the local Estonian language and culture, seeing it not as pagan foolishness but as something worthy of study. He is torn between his loyalty to the Church and his sympathy for the plight of the common people, making him a potential secret ally for a player character who chooses a more diplomatic path.
 
-![alt text](andreas.png)
+![alt text](img/andreas.png)
 
 ## Visual Description
 

@@ -2,7 +2,7 @@
 > **Reason:** NPC roster entry outside the seven-character vertical-slice scope.  
 > **Current source of truth:** [`README.md`](../../../README.md) - Main cast; approved character briefs in [`docs/CHARACTERS/`](../../../docs/CHARACTERS/).
 
-![alt text](gossip_neighbor.png)
+![alt text](img/gossip_neighbor.png)
 
 ## Gossip-Mongering Neighbor
 

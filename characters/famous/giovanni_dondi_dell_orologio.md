@@ -3,7 +3,7 @@
 > **Current source of truth:** [`README.md`](../../README.md) - Main cast; approved character briefs in [`docs/CHARACTERS/`](../../docs/CHARACTERS/).
 
 # Giovanni Dondi dell'Orologio
-![alt text](image-12.png)
+![alt text](img/image-12.png)
 **Visual Description:**
 A young man in his early teens, Giovanni Dondi is a prodigy, already possessing a mind of formidable precision and skill. He is thin and wiry, with dark, incredibly intense eyes that seem to see the world as a series of interlocking gears. His fingers are long and nimble, often stained with oil and metal filings. He dresses in the practical, dark clothes of a master artisan, perhaps with a leather apron covered in pockets for his specialized tools.
 

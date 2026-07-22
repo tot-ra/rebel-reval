@@ -6,7 +6,7 @@
 
 A ropemaker in his late thirties, a man of immense strength and few words.
 
-![](knut.png)
+![](img/knut.png)
 ### Visual Description
 Knut is a man in his late thirties, with a powerful, muscular build. He has long, blond hair, which he wears in a braid, and a thick beard. His eyes are a pale, icy blue, and they seem to look right through you. He wears a simple linen shirt and wool trousers, and his hands are calloused and scarred from his work.
 

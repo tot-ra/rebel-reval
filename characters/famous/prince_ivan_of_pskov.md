@@ -3,7 +3,7 @@
 > **Current source of truth:** [`README.md`](../../README.md) - Main cast; approved character briefs in [`docs/CHARACTERS/`](../../docs/CHARACTERS/).
 
 # (Prince) Ivan of Pskov
-![alt text](image-17.png)
+![alt text](img/image-17.png)
 
 **Visual Description:**
 Prince Ivan is a seasoned warrior, likely in his 30s or 40s. He has a strong, weathered face, with a thick beard and long, dark hair tied back. His eyes are sharp and alert, accustomed to scanning battlefields and courtrooms alike. He is more a soldier than a courtier, and his attire reflects this. He would wear practical chainmail or lamellar armor, covered by a heavy cloak. Even in more formal settings, he would favor function over finery.

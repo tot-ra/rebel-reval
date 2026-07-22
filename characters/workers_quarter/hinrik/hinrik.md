@@ -6,7 +6,7 @@
 
 A talented young painter, who is torn between his artistic ambitions and the demands of his patrons.
 
-![](hinrik.png)
+![](img/hinrik.png)
 
 ### Visual Description
 

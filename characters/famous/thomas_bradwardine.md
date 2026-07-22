@@ -4,7 +4,7 @@
 
 # Thomas Bradwardine (c. 1300–1349)
 
-![alt text](image-24.png)
+![alt text](img/image-24.png)
 
 **Visual Description:**
 In his early 40s, Thomas Bradwardine possesses the sharp, focused features of a man consumed by intellectual pursuits. He is tall and lanky, with a tendency to stoop as if perpetually leaning over a book or diagram. His brown hair is receding at the temples, and he is clean-shaven, revealing a firm jaw and a thoughtful mouth. His eyes are a clear, piercing blue, quick to light up with intellectual fervor or narrow in intense concentration. He wears the simple, dark robes of an Oxford scholar and theologian, practical and unadorned. His fingers are long, slender, and often smudged with ink. He exudes an aura of restless intelligence, his mind always working, calculating, and analyzing the world around him.

@@ -4,7 +4,7 @@
 
 # Kaja Lahekivi (The Messenger)
 
-![alt text](kaja_lahekivi.png)
+![alt text](img/kaja_lahekivi.png)
 
 ## Visual Description
 Kaja is a young woman in her early twenties, possessing a sharp, intelligent gaze that misses nothing. Her figure is lean and athletic, honed by countless hours spent on horseback. She has long, braided hair the color of dark honey, often kept tied securely to keep it out of her face while riding. Her features are fine, hinting at her noble birth, but her expression is one of fierce determination, not aristocratic softness. Her skin is lightly tanned from the sun and wind.

@@ -4,7 +4,7 @@
 
 # Nicole Oresme
 
-![alt text](image-11.png)
+![alt text](img/image-11.png)
 
 **Visual Description:**
 A young man around 20 years old, Nicole Oresme is a prodigy of astounding intellect. He has a sharp, bird-like intensity, with bright, curious eyes that dart about, taking in every detail. He is of a slight build and wears the simple, dark robes of a scholar of the College of Navarre in Paris. He is often lost in thought, with a habit of muttering complex mathematical or economic theories to himself.

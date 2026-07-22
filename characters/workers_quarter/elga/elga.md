@@ -6,7 +6,7 @@
 
 A cheerful, rosy-cheeked woman in her late sixties, the proprietor of the cheesemonger's shop.
 
-![](elga.png)
+![](img/elga.png)
 ### Visual Description
 Old Elga is a woman in her late sixties, with a round, friendly face and a cheerful disposition. Her cheeks are rosy, and her blue eyes sparkle with good humor. Wisps of white hair escape from her linen cap, framing her face. She wears a simple, clean apron over a dark wool dress.
 

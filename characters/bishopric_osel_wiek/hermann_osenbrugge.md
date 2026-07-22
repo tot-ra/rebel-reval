@@ -5,7 +5,7 @@
 # Bishop Hermann II Osenbrügge
 
 
-![](./hermann.png)
+![](./img/hermann.png)
 ## Visual Description
 
 Hermann is a man in his late 50s, with a commanding presence that speaks more of political acumen than physical strength. His figure is lean, shaped by years of disciplined, ascetic life. His face is long and narrow, with high cheekbones and thoughtful, deep-set grey eyes that seem to assess everything with a calm, calculating gaze. Thin, pale lips are often set in a neutral line, rarely breaking into a smile. His silver-grey hair is cut short and neatly combed, receding at the temples, revealing a high forehead. His skin is pale, almost like parchment, and etched with fine lines of worry around his eyes and mouth.

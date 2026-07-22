@@ -4,7 +4,7 @@
 
 # Brother Goswin von Herike
 
-![alt text](brother_goswin.png)
+![alt text](img/brother_goswin.png)
 
 **Visual Description:**
 Brother Goswin von Herike is a man in his early 40s, with a robust and stocky build that speaks of a life of martial discipline. His face is broad and weathered, with a square jaw and a prominent brow. He has close-cropped, light brown hair and intelligent, watchful brown eyes. A thick, well-groomed mustache adorns his upper lip, a common style among the German knights of the era. His expression is typically serious and focused, that of a man accustomed to command and responsibility.

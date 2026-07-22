@@ -4,7 +4,7 @@
 
 # William of Ockham
 
-![alt text](image-9.png)
+![alt text](img/image-9.png)
 
 **Visual Description:**
 William of Ockham is a man in his late 50s, with a sharp, ascetic face that reflects a life of intense intellectual rigor and controversy. He is thin, with a high forehead, piercing intelligent eyes, and a tonsured, greying haircut typical of a Franciscan friar. He wears the simple, coarse brown robes of his order. His demeanor is one of profound intellectual confidence and a certain weariness from his long conflict with the church authorities.

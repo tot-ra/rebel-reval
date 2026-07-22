@@ -4,7 +4,7 @@
 
 # Petrarch (Francesco Petrarca)
 
-![alt text](image-16.png)
+![alt text](img/image-16.png)
 
 **Visual Description:**
 A man in his late 30s, Petrarch has the refined, thoughtful face of a scholar and a poet. His dark hair is neatly kept, and his eyes are deep-set and melancholic, yet intensely observant. He is of a slender build. He wears the dark, high-quality robes of a traveling cleric or scholar, made of fine Italian wool, more suited to the libraries of Avignon than the muddy streets of Reval. He carries himself with an air of intellectual superiority and a slight disdain for his rustic surroundings.

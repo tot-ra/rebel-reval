@@ -3,7 +3,7 @@
 > **Current source of truth:** [`README.md`](../../README.md) - Main cast; approved character briefs in [`docs/CHARACTERS/`](../../docs/CHARACTERS/).
 
 # Guillaume de Machaut
-![alt text](image-13.png)
+![alt text](img/image-13.png)
 
 **Visual Description:**
 A man in his early 40s, Guillaume de Machaut has the refined and slightly world-weary appearance of a court artist. He is of medium build, with intelligent, perceptive eyes and a neatly trimmed beard. He dresses in the elegant, fashionable style of the French court, his clothes made of fine wools in rich colors, perhaps with subtle embroidery. His hands are expressive, with the long, nimble fingers of a master musician. He carries himself with a quiet dignity, a man accustomed to the complex politics of noble patronage.

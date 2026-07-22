@@ -4,7 +4,7 @@
 
 # Jüri Ratnik (Iron Hand)
 
-![alt text](juri_ratnik.png)
+![alt text](img/juri_ratnik.png)
 
 ## Visual Description
 Jüri is a mountain of a man in his forties, his physique a testament to a life spent at the forge. He is tall and broad-shouldered, with immense, muscular arms corded from the heavy work of a blacksmith. His hair is short and black, flecked with grey at the temples, and his square-jawed face is set in a perpetually grim expression. His dark eyes are intense and watchful, accustomed to measuring the heat of steel and the intent of men. His hands are large and calloused, permanently stained with soot.

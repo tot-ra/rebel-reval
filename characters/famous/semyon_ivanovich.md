@@ -4,7 +4,7 @@
 
 # Semyon Ivanovich (Simeon the Proud)
 
-![alt text](image-19.png)
+![alt text](img/image-19.png)
 
 **Visual Description:**
 Semyon is a man in his late twenties, tall and powerfully built, befitting his moniker "the Proud." He has dark hair and a thick, well-groomed beard, common for a Russian prince of the era. His eyes are dark and intense, conveying a sense of authority and shrewdness. He would be dressed in rich, layered robes of Byzantine influence, likely of silk or brocade in deep reds or golds, trimmed with fur. He carries himself with an air of command and confidence, fully aware of his status as the leader of the most powerful Russian principality.

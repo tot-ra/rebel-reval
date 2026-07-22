@@ -8,7 +8,7 @@
 
 **Role:** Spiritual leader, monk, peacemaker
 
-![](./radonezhski.png)
+![](./img/radonezhski.png)
 
 **Visual Description:**
 A man of 28, with a slender and ascetic build, shaped by a life of fasting and prayer. His hair is dark brown and of medium length, and his beard is neatly trimmed, framing a face that exudes a profound sense of calm. He is dressed in a simple, dark brown monastic robe (ryasa) made of coarse linen, and a soft, black woolen cap (skufia). His figure is unassuming, yet he carries an aura of quiet authority and deep inner peace.

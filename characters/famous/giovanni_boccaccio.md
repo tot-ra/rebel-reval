@@ -3,7 +3,7 @@
 > **Current source of truth:** [`README.md`](../../README.md) - Main cast; approved character briefs in [`docs/CHARACTERS/`](../../docs/CHARACTERS/).
 
 # Giovanni Boccaccio
-![alt text](image-14.png)
+![alt text](img/image-14.png)
 
 **Visual Description:**
 A man of 30, Giovanni Boccaccio is more worldly and affable than his friend Petrarch. He has a fuller build, with a round, expressive face, a neatly trimmed dark beard, and eyes that sparkle with humor and a keen interest in the people around him. He dresses in the comfortable, fashionable attire of a wealthy Florentine merchant's son, his clothes made of fine, colorful fabrics. He appears approachable and enjoys the pleasures of life, even in a rustic setting like Reval.

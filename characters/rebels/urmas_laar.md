@@ -4,7 +4,7 @@
 
 # Urmas Laar (The Seer)
 
-![alt text](urmas_laar.png)
+![alt text](img/urmas_laar.png)
 
 ## Visual Description
 Urmas is a man of indeterminate age; the harsh life of the marshlands has weathered him in a way that makes him seem both ancient and timeless. He is gaunt and wiry, with long, sinewy limbs. His face is thin, with high cheekbones and a sharp jawline, almost lost beneath a tangle of wild, grey-streaked black hair and a matted beard. His most striking feature is his eyes; they are a pale, almost translucent grey, and seem to be looking at a world beyond the physical. They are unsettling, filled with a fervent, mystical light.

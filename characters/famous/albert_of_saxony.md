@@ -4,7 +4,7 @@
 
 # Albert of Saxony
 
-![alt text](image-20.png)
+![alt text](img/image-20.png)
 
 **Visual Description:**
 A young man in his early 20s, Albert of Saxony has the keen, analytical face of a natural philosopher. He is tall and thin, with sharp features and intense, focused eyes that seem to be constantly deconstructing the world around him. He wears the simple, dark robes of a university master, practical for teaching and study. He carries himself with the confidence of a brilliant young mind, eager to make his mark on the world of ideas.

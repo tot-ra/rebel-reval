@@ -3,7 +3,7 @@
 > **Current source of truth:** [`README.md`](../../README.md) - Main cast; approved character briefs in [`docs/CHARACTERS/`](../../docs/CHARACTERS/).
 
 # Jean Buridan
-![alt text](image-15.png)
+![alt text](img/image-15.png)
 
 **Visual Description:**
 A man in his early 40s, Jean Buridan is a figure of immense intellectual authority. He has a sharp, questioning face, with a high forehead and piercing eyes that seem to analyze every proposition for logical flaws. He has a neatly trimmed beard and wears the distinguished robes of a senior master of the University of Paris. He carries himself with the calm, unshakable confidence of a man who has won a thousand debates and whose ideas are shaping the intellectual landscape of Europe.

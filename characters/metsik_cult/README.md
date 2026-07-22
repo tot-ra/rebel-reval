@@ -19,9 +19,9 @@ Wild and unpredictable, drawing power from the ancient forest.
 
 -   **Forest Stalker (Low Threat):** A fast, lightly armored warrior who dual-wields axes. Attempts to flank the player and attacks in flurries.
 
-![alt text](image-42.png)
-![alt text](image-43.png)
-![alt text](image-44.png)
+![alt text](img/image-42.png)
+![alt text](img/image-43.png)
+![alt text](img/image-44.png)
 
 
 

@@ -4,7 +4,7 @@
 
 # Ambrogio Lorenzetti (c. 1290–1348)
 
-![alt text](image-21.png)
+![alt text](img/image-21.png)
 
 **Visual Description:**
 Ambrogio is a man in his early 50s, with a thoughtful and composed demeanor that reflects his artistic sensibilities. His hair, once dark, is now streaked with grey at the temples, and his beard is neatly trimmed. He has the keen, observant eyes of a painter, constantly studying the world around him. He is of average height and build, with hands that are surprisingly strong and calloused from years of grinding pigments and preparing frescoes. He dresses in the practical but well-made clothes of a successful Sienese master craftsman: a tunic of dark blue wool, simple leather shoes, and a belt holding a few pouches for charcoal and a small sketchbook. His movements are deliberate and economical, the gestures of a man who understands form and function.

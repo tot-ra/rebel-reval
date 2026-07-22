@@ -6,7 +6,7 @@
 
 Ingrid's son, a young man of sixteen. He is a quiet and sensitive boy, with a talent for painting.
 
-![](peeter.png)
+![](img/peeter.png)
 ### Visual Description
 Peeter is a tall, slender youth of sixteen, with his mother's dark hair and his father's blue eyes. He has a quiet and gentle demeanor, and he often seems to be lost in his own thoughts. He wears simple, practical clothes, similar to his mother's, but they are always neat and clean.
 

@@ -4,7 +4,7 @@
 
 # Levi ben Gershon (Gersonides) (1288–1344)
 
-![alt text](image-23.png)
+![alt text](img/image-23.png)
 
 **Visual Description:**
 At 55, Levi ben Gershon is a man in the autumn of his years, but his mind remains as sharp as a winter frost. He is of medium height, with a slender, scholarly build. His beard is long, white, and meticulously kept, a sign of his rabbinic learning. His dark eyes, framed by wrinkles, hold a deep, penetrating intelligence, accustomed to scrutinizing both the heavens and ancient texts. He wears the distinctive, modest clothing of a French Jewish scholar: a simple, dark-colored woolen robe, a small cap on his head, and well-worn leather shoes. He carries a satchel filled with books, astronomical charts, and writing implements. His posture is slightly stooped from a lifetime spent hunched over manuscripts.

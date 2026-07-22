@@ -6,7 +6,7 @@
 
 A tall, gaunt man with a quiet, professional demeanor, the city's undertaker.
 
-![](kaspar.png)
+![](img/kaspar.png)
 
 ### Visual Description
 

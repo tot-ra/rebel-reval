@@ -8,7 +8,7 @@ A master carpenter in his early forties, a man of few words but great skill.
 
 ### Visual Description
 
-![](./marek_carpenter.png)
+![](./img/marek_carpenter.png)
 Marek is a tall, broad-shouldered man in his early forties, with a physique honed by years of heavy lifting and woodworking. His face is weathered and tanned from working outdoors, and he has a short, neatly-trimmed brown beard. His hair is a matching brown, cut short and practical. His eyes are a calm, steady green, and they have the focused gaze of a craftsman. He wears a simple, durable linen shirt and wool trousers, with a leather tool belt slung around his hips.
 
 ### Motivations

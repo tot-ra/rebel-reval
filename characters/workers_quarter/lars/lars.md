@@ -6,7 +6,7 @@
 
 A gruff, no-nonsense sailmaker, who is widely regarded as the best in Reval.
 
-![](lars.png)
+![](img/lars.png)
 ### Visual Description
 
 Lars is a man in his late fifties, with a barrel chest and powerful arms. His face is a mask of wrinkles, and his hands are as tough as old leather. He has a wild, gray beard and his eyes are a stormy gray, the color of the sea in winter. He is dressed in simple, practical clothes: a heavy woolen tunic, canvas trousers, and sturdy boots.

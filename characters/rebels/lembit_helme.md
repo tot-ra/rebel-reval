@@ -5,7 +5,7 @@
 
 # Lembit Helme (The Elder King)
 
-![](./lembit_helme.png)
+![](./img/lembit_helme.png)
 
 ## Visual Description
 Lembit Helme is a man in his early sixties, his face a roadmap of a long and difficult life. He is lean and wiry, with a strength that comes not from bulging muscle but from resilience. His face is deeply wrinkled, particularly around his sharp, intelligent grey eyes that have seen many winters and hold a deep sadness, yet also a flicker of unwavering resolve. A long, flowing white beard reaches his chest, giving him a patriarchal and authoritative presence. His hair is of a similar white, long and often bound by a simple leather strap.

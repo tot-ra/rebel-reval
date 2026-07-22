@@ -7,7 +7,7 @@
 A master stonemason, a man of quiet strength and unwavering faith.
 
 
-![](jaan.png)
+![](img/jaan.png)
 ### Visual Description
 
 Jaan is a man in his late forties, with a powerful build and a calm, steady gaze. His hands are large and calloused, a testament to a lifetime of working with stone. He has a short, graying beard and his eyes are a deep, thoughtful brown. He is dressed in simple, practical clothes: a leather apron over a woolen tunic, and sturdy boots.

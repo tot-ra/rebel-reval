@@ -6,7 +6,7 @@
 
 A master saddler in his late fifties, a man who is as tough and stubborn as the leather he works with.
 
-![](friedrich.png)
+![](img/friedrich.png)
 ### Visual Description
 Friedrich is a man in his late fifties, with a wiry, muscular build. He has a bald head and a bushy, grey beard. His face is a mask of perpetual grumpiness, and his small, dark eyes miss nothing. He wears a heavy leather apron over a simple linen shirt and wool trousers.
 
