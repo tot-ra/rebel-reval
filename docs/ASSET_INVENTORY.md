@@ -24,25 +24,25 @@ Priority order:
 
 | Classification | Count |
 | --- | ---: |
-| approved | 113 |
+| approved | 115 |
 | prototype | 0 |
 | unknown rights | 0 |
 | inconsistent | 0 |
 | archive | 0 |
-| **Total** | **113** |
+| **Total** | **115** |
 
 ## Counts by media type
 
 | Media type | Count |
 | --- | ---: |
-| image | 11 |
-| audio | 102 |
-| **Total** | **113** |
+| image | 12 |
+| audio | 103 |
+| **Total** | **115** |
 
 ## Verification summary
 
-- Inventory row count: `113`
-- Runtime source files found under `assets/`, `music/`, and `sounds/`: `113`
+- Inventory row count: `115`
+- Runtime source files found under `assets/`, `music/`, and `sounds/`: `115`
 - Imported `img/` marketing source files included as archive: `0`
 - Rows missing Godot `.import` sidecar: `0`
 - Orphan `.import` sidecars with no source file, not counted as runtime assets: `0`
@@ -62,6 +62,7 @@ Priority order:
 | `assets/materials/style_lock/stone.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `assets/materials/style_lock/timber.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `assets/materials/style_lock/water.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `assets/sky/lunar_albedo_nearside.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `assets/tiles/greybox_floor.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `assets/UI/estonia_world_map.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/domberg/day/Baltic Wind (1).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
@@ -166,3 +167,4 @@ Priority order:
 | `music/revel_south/Under the Linden Tree.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `sounds/door.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `sounds/walk_wood.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/walking_on_mud_stable_audio_3.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
