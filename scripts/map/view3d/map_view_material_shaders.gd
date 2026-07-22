@@ -430,6 +430,7 @@ render_mode cull_disabled, diffuse_burley;
 
 uniform sampler2DArray terrain_patterns;
 uniform sampler2DArray cobble_patterns;
+uniform sampler2D cobble_surface : filter_linear_mipmap, repeat_enable;
 uniform float pattern_layers = 1.0;
 uniform int cobblestone_layer = 12;
 uniform int castle_paving_layer = 13;
@@ -439,10 +440,12 @@ uniform int castle_paving_layer = 13;
 // while weight and tone interpolate for soft terrain borders.
 varying flat ivec2 blend_layers;
 varying vec2 blend_mix;
+varying vec2 terrain_world_xz;
 
 void vertex() {
 	blend_layers = ivec2(int(CUSTOM0.x + 0.5), int(CUSTOM0.y + 0.5));
 	blend_mix = CUSTOM0.zw;
+	terrain_world_xz = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xz;
 }
 
 float sample_terrain_pattern(int layer, vec2 uv) {
@@ -455,6 +458,25 @@ float sample_terrain_pattern(int layer, vec2 uv) {
 	return texture(terrain_patterns, vec3(uv, float(layer))).r;
 }
 
+float cobble_layer_weight(int layer) {
+	return float(layer == cobblestone_layer || layer == castle_paving_layer);
+}
+
+float cobble_hash(vec2 p) {
+	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+}
+
+float cobble_noise(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	vec2 u = f * f * (3.0 - 2.0 * f);
+	return mix(
+		mix(cobble_hash(i), cobble_hash(i + vec2(1.0, 0.0)), u.x),
+		mix(cobble_hash(i + vec2(0.0, 1.0)), cobble_hash(i + vec2(1.0, 1.0)), u.x),
+		u.y
+	);
+}
+
 void fragment() {
 	float blend = clamp(blend_mix.x, 0.0, 1.0);
 	float tone = blend_mix.y;
@@ -462,8 +484,43 @@ void fragment() {
 	float primary = sample_terrain_pattern(blend_layers.x, UV);
 	float secondary = sample_terrain_pattern(blend_layers.y, UV);
 	float pattern = mix(primary, secondary, blend);
-	ALBEDO = vec3(pattern) * COLOR.rgb * tone;
-	ROUGHNESS = mix(0.94, 0.82, blend * step(0.5, float(blend_layers.y)));
+	vec3 terrain_albedo = vec3(pattern) * COLOR.rgb * tone;
+
+	float primary_cobble = cobble_layer_weight(blend_layers.x);
+	float secondary_cobble = cobble_layer_weight(blend_layers.y);
+	float cobble_weight = mix(primary_cobble, secondary_cobble, blend);
+	vec4 surface = texture(cobble_surface, UV);
+	float stone = surface.b;
+	float palette = surface.a;
+
+	// Broad dirt settles across many stones rather than repeating at tile scale.
+	float age = cobble_noise(terrain_world_xz * 0.17 + vec2(13.7, 4.3));
+	age = age * 0.68 + cobble_noise(terrain_world_xz * 0.43 - vec2(2.1, 7.9)) * 0.32;
+	vec3 earth = mix(vec3(0.30, 0.235, 0.16), vec3(0.43, 0.34, 0.23), age);
+	vec3 gray = vec3(0.57, 0.58, 0.57);
+	vec3 blue_gray = vec3(0.49, 0.55, 0.59);
+	vec3 purple_gray = vec3(0.55, 0.50, 0.57);
+	vec3 warm_gray = vec3(0.60, 0.55, 0.48);
+	vec3 stone_color = gray;
+	if (palette > 0.78) {
+		stone_color = purple_gray;
+	} else if (palette > 0.48) {
+		stone_color = blue_gray;
+	} else if (palette < 0.14) {
+		stone_color = warm_gray;
+	}
+	stone_color *= mix(0.83, 1.04, pattern);
+	// Dirt veils the lower stones and fills every joint. Keeping the contrast low
+	// makes the whole road read as one old compacted surface, not floating props.
+	stone_color = mix(stone_color, earth, (1.0 - stone) * 0.32 + (1.0 - age) * 0.08);
+	vec3 cobble_albedo = mix(earth, stone_color, stone);
+	ALBEDO = mix(terrain_albedo, cobble_albedo * tone, cobble_weight);
+
+	vec2 normal_xy = surface.rg * 2.0 - 1.0;
+	vec3 cobble_normal = vec3(normal_xy, sqrt(max(1.0 - dot(normal_xy, normal_xy), 0.0)));
+	NORMAL_MAP = cobble_normal * 0.5 + 0.5;
+	NORMAL_MAP_DEPTH = 0.55 * cobble_weight;
+	ROUGHNESS = mix(0.94, mix(0.98, 0.88, stone), cobble_weight);
 }
 "
 

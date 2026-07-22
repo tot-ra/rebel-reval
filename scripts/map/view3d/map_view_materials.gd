@@ -205,6 +205,7 @@ static func blended_ground(noise_seed: int) -> ShaderMaterial:
 	material.shader = MapViewMaterialShaders.shader("terrain_blend", MapViewMaterialShaders.TERRAIN_BLEND_SHADER_CODE)
 	material.set_shader_parameter("terrain_patterns", terrain_pattern_array(noise_seed))
 	material.set_shader_parameter("cobble_patterns", cobble_pattern_array(noise_seed))
+	material.set_shader_parameter("cobble_surface", MapViewMaterialPatterns.cobble_surface_texture(8219))
 	material.set_shader_parameter("pattern_layers", float(BLEND_TERRAIN_ORDER.size()))
 	material.set_shader_parameter("cobblestone_layer", terrain_blend_index(MapTypes.TERRAIN_COBBLESTONE))
 	material.set_shader_parameter("castle_paving_layer", terrain_blend_index(MapTypes.TERRAIN_CASTLE_PAVING))
@@ -546,23 +547,6 @@ static func natural_rock() -> StandardMaterial3D:
 	material.uv1_triplanar = true
 	material.uv1_world_triplanar = false
 	material.uv1_scale = Vector3(2.4, 2.4, 2.4)
-	_cache[key] = material
-	return material
-
-
-## Rounded paving detail uses a neutral, triplanar stone grain and instance tone.
-## It remains separate from the flat splat material because each stone needs real
-## lighting across its domed top and rounded corners.
-static func cobble_detail() -> StandardMaterial3D:
-	var key := "cobble_detail"
-	if _cache.has(key):
-		return _cache[key]
-	var base := OutdoorTerrainPalette.color(MapTypes.TERRAIN_COBBLESTONE)
-	var material := _make_material(base, PATTERN_ROCK, 8219)
-	material.uv1_triplanar = true
-	material.uv1_world_triplanar = false
-	material.uv1_scale = Vector3(6.0, 6.0, 6.0)
-	material.roughness = 0.92
 	_cache[key] = material
 	return material
 

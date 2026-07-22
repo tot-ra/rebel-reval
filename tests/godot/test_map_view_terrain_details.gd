@@ -1,29 +1,44 @@
 extends "res://tests/godot/map_view_3d_test_base.gd"
 
-## Camera-dependent city terrain detail: dense Tallinn paving near eye level,
-## material-only top-down rendering, and bounded runtime generation.
+## Cobblestone stays part of the continuous terrain surface in every camera mode;
+## first-person chunk detail is reserved for genuinely silhouette-bearing plants.
 
 
-func test_cobble_mesh_is_rounded_rectangular_and_within_triangle_budget() -> void:
-	var mesh := MapViewTerrainDetails.cobble_mesh()
-	assert_true(mesh.get_surface_count() > 0, "cobble mesh must be generated geometry")
-	var vertices := mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX] as PackedVector3Array
-	var triangles := vertices.size() / 3
-	var stones_per_cell := (
-		MapViewMeshBuilderConfig.FIRST_PERSON_COBBLE_GRID.x
-		* MapViewMeshBuilderConfig.FIRST_PERSON_COBBLE_GRID.y
-	)
-	assert_true(MapViewTerrainDetails.COBBLE_LENGTH > MapViewTerrainDetails.COBBLE_WIDTH)
-	assert_true(MapViewTerrainDetails.COBBLE_RADIUS > 0.0, "corners must stay rounded")
-	assert_true(MapViewTerrainDetails.COBBLE_HEIGHT > 0.05, "street-level stones need visible relief")
-	assert_true(
-		triangles * stones_per_cell
-		<= MapViewMeshBuilderConfig.FIRST_PERSON_COBBLE_TRIANGLE_BUDGET_PER_CELL,
-		"denser paving must stay inside the per-cell triangle budget"
-	)
+func test_cobblestone_never_builds_per_stone_geometry() -> void:
+	var definition := LowerTownSlice.create()
+	var grid := MapBuilder.build(definition)
+	var bounds := Rect2i(Vector2i(0, 51), Vector2i(4, 2))
+	for first_person in [false, true]:
+		var chunk := MapViewTerrainDetails.build_chunk(definition, grid, bounds, first_person)
+		assert_eq(
+			chunk.find_children("Cobbles", "MultiMeshInstance3D", true, false).size(),
+			0,
+			"paving must remain one terrain mesh instead of per-stone instances"
+		)
+		chunk.free()
 
 
-func test_top_down_uses_material_instead_of_hidden_cobble_instances() -> void:
+func test_cobblestone_surface_texture_is_dense_earth_filled_and_shallow() -> void:
+	var image := MapViewMaterialPatterns.cobble_surface_texture(8219).get_image()
+	var stone_pixels := 0
+	var joint_pixels := 0
+	var strongest_slope := 0.0
+	for y in image.get_height():
+		for x in image.get_width():
+			var pixel := image.get_pixel(x, y)
+			if pixel.b > 0.5:
+				stone_pixels += 1
+			else:
+				joint_pixels += 1
+			var normal_xy := Vector2(pixel.r, pixel.g) * 2.0 - Vector2.ONE
+			strongest_slope = maxf(strongest_slope, normal_xy.length())
+	var coverage := float(stone_pixels) / float(stone_pixels + joint_pixels)
+	assert_true(coverage > 0.78, "stones need tight packing with only narrow earth joints")
+	assert_true(coverage < 0.96, "compacted ground must remain visible between stones")
+	assert_true(strongest_slope < 0.4, "normal relief must keep paving visibly embedded, not pillow-like")
+
+
+func test_top_down_detail_root_stays_geometry_free() -> void:
 	var definition := LowerTownSlice.create()
 	var grid := MapBuilder.build(definition)
 	var chunk := MapViewTerrainDetails.build_chunk(
@@ -32,37 +47,7 @@ func test_top_down_uses_material_instead_of_hidden_cobble_instances() -> void:
 		Rect2i(Vector2i(59, 112), Vector2i(2, 2))
 	)
 	assert_true(chunk.get_node_or_null("TopDown") != null)
-	assert_true(
-		chunk.get_node_or_null("TopDown/Cobbles") == null,
-		"top-down must rely on the seamless material, not duplicate cobble geometry"
-	)
-	chunk.free()
-
-
-func test_first_person_packs_narrow_running_bond_joints() -> void:
-	var definition := LowerTownSlice.create()
-	var grid := MapBuilder.build(definition)
-	var cell_count := 8
-	var chunk := MapViewTerrainDetails.build_chunk(
-		definition,
-		grid,
-		Rect2i(Vector2i(0, 51), Vector2i(4, 2)),
-		true
-	)
-	var cobbles := chunk.get_node("FirstPerson/Cobbles") as MultiMeshInstance3D
-	var grid_size := MapViewMeshBuilderConfig.FIRST_PERSON_COBBLE_GRID
-	assert_eq(cobbles.multimesh.instance_count, grid_size.x * grid_size.y * cell_count)
-	var length_joint := 1.0 / float(grid_size.x) - MapViewTerrainDetails.COBBLE_LENGTH
-	var course_joint := 1.0 / float(grid_size.y) - MapViewTerrainDetails.COBBLE_WIDTH
-	assert_true(length_joint >= 0.0 and length_joint <= 0.02, "stone ends need narrow mortar joints")
-	assert_true(course_joint >= 0.0 and course_joint <= 0.02, "courses must no longer have broad gutters")
-	assert_eq(cobbles.visibility_range_end, MapViewMeshBuilderConfig.FIRST_PERSON_DETAIL_RANGE)
-	assert_true(
-		float(grid_size.x * grid_size.y)
-		* pow(MapViewMeshBuilderConfig.FIRST_PERSON_DETAIL_RANGE, 2.0)
-		<= MapViewMeshBuilderConfig.FIRST_PERSON_COBBLE_INSTANCE_AREA_BUDGET,
-		"density and culling range must stay within the previous weighted instance budget"
-	)
+	assert_eq(chunk.find_children("*", "GeometryInstance3D", true, false).size(), 0)
 	chunk.free()
 
 
@@ -92,7 +77,8 @@ func test_runtime_camera_toggle_builds_only_selected_lod() -> void:
 	view.update_terrain_detail_focus(Vector3(60.0, 1.65, 114.0))
 	assert_true(view.uses_first_person_terrain_detail())
 	var first_person_roots := view.find_children("FirstPerson", "Node3D", true, false)
-	assert_true(first_person_roots.size() > 0, "first-person must build nearby detail")
+	assert_true(first_person_roots.size() > 0, "first-person must build nearby vegetation detail roots")
+	assert_eq(view.find_children("Cobbles", "MultiMeshInstance3D", true, false).size(), 0)
 	assert_eq(view.find_children("TopDown", "Node3D", true, false).size(), 0)
 	view.set_terrain_detail_for_first_person(false)
 	assert_false(view.uses_first_person_terrain_detail())

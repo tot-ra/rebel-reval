@@ -19,6 +19,14 @@ func test_cobblestone_uses_a_dedicated_high_resolution_texture_array() -> void:
 	)
 
 
+
+func test_cobblestone_surface_map_matches_high_resolution_source() -> void:
+	var surface := MapViewMaterialPatterns.cobble_surface_texture(8219)
+	assert_eq(surface.get_width(), MapViewMaterials.COBBLE_TEXTURE_SIZE)
+	assert_eq(surface.get_height(), MapViewMaterials.COBBLE_TEXTURE_SIZE)
+	var material := MapViewMaterials.blended_ground(731)
+	assert_eq(material.get_shader_parameter("cobble_surface"), surface)
+
 func test_natural_rock_pattern_avoids_masonry_horizontal_banding() -> void:
 	var rock := MapViewMaterialPatterns.pattern_texture(MapViewMaterials.PATTERN_ROCK, 9041).get_image()
 	var limestone := MapViewMaterialPatterns.pattern_texture(MapViewMaterials.PATTERN_LIMESTONE, 9041).get_image()
@@ -40,22 +48,26 @@ func test_cobblestone_high_resolution_texture_remains_seamless() -> void:
 		731,
 		MapViewMaterials.COBBLE_TEXTURE_SIZE
 	).get_image()
-	var cell_size := image.get_width() / 8
-	var internal_vertical := 0.0
-	var internal_horizontal := 0.0
-	for boundary in range(1, 8):
-		internal_vertical += _vertical_delta(image, boundary * cell_size - 1, boundary * cell_size)
-		internal_horizontal += _horizontal_delta(image, boundary * cell_size - 1, boundary * cell_size)
-	internal_vertical /= 7.0
-	internal_horizontal /= 7.0
+	var boundaries_x := MapViewMaterialPatterns.COBBLE_STONES_X
+	var boundaries_y := MapViewMaterialPatterns.COBBLE_STONES_Y
+	var cell_width := float(image.get_width()) / float(boundaries_x)
+	var cell_height := float(image.get_height()) / float(boundaries_y)
+	var internal_vertical_peak := 0.0
+	var internal_horizontal_peak := 0.0
+	for boundary in range(1, boundaries_x):
+		var pixel_x := roundi(float(boundary) * cell_width)
+		internal_vertical_peak = maxf(internal_vertical_peak, _vertical_delta(image, pixel_x - 1, pixel_x))
+	for boundary in range(1, boundaries_y):
+		var pixel_y := roundi(float(boundary) * cell_height)
+		internal_horizontal_peak = maxf(internal_horizontal_peak, _horizontal_delta(image, pixel_y - 1, pixel_y))
 
 	assert_true(
-		_vertical_delta(image, image.get_width() - 1, 0) <= internal_vertical * 1.35,
-		"horizontal wrapping must not introduce a seam stronger than internal stone boundaries"
+		_vertical_delta(image, image.get_width() - 1, 0) <= internal_vertical_peak * 1.05,
+		"horizontal wrapping must stay within the strongest internal stone boundary"
 	)
 	assert_true(
-		_horizontal_delta(image, image.get_height() - 1, 0) <= internal_horizontal * 1.35,
-		"vertical wrapping must not introduce a seam stronger than internal stone boundaries"
+		_horizontal_delta(image, image.get_height() - 1, 0) <= internal_horizontal_peak * 1.05,
+		"vertical wrapping must stay within the strongest internal stone boundary"
 	)
 
 

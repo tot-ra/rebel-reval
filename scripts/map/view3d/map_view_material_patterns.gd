@@ -6,6 +6,12 @@ extends RefCounted
 
 static var _cache: Dictionary = {}
 
+## The 4 m world-space terrain tile carries the same 5 x 7 stones per metre as
+## the former first-person MultiMesh, but all stones are baked into two textures.
+## Even counts preserve running-bond parity at both wrapping edges.
+const COBBLE_STONES_X := 20
+const COBBLE_STONES_Y := 28
+
 
 static func reset() -> void:
 	_cache.clear()
@@ -189,53 +195,100 @@ static func _paint_plaster(image: Image, noise_seed: int) -> void:
 			_fill_value(image, x, y, 0.88 + broad * 0.09 + fine * 0.05)
 
 
-## Rounded field stones packed on a jittered grid with crisp joints and fine
-## surface grain. Distances stay normalized to each stone cell so the layout is
-## identical at 128 and 512 pixels while the larger texture gains real detail.
+## Dense running-bond cobbles baked into one continuous surface. Stone centers
+## stay close enough that the narrow remainder reads as compacted sand/earth,
+## never empty space. Low domes and chipped edges feed both albedo and a matching
+## normal map, so street-level relief costs no per-stone geometry or draw calls.
 static func _paint_cobble(image: Image, noise_seed: int) -> void:
 	var size := image.get_width()
-	var stones := 8
-	var cell := float(size) / float(stones)
-	var broad_span := maxi(size / 32, 2)
-	var fine_span := maxi(size / 128, 1)
 	for y in size:
 		for x in size:
-			var best := 10.0
-			var second_best := 10.0
-			var tone := 0.0
-			var gx := floori(float(x) / cell)
-			var gy := floori(float(y) / cell)
-			for oy in range(-1, 2):
-				for ox in range(-1, 2):
-					var sx := posmod(gx + ox, stones)
-					var sy := posmod(gy + oy, stones)
-					var jx := (float(gx + ox) + 0.25 + _hash01(sx, sy, noise_seed) * 0.5) * cell
-					var jy := (float(gy + oy) + 0.25 + _hash01(sx, sy, noise_seed + 13) * 0.5) * cell
-					var distance := Vector2(x - jx, y - jy).length() / cell
-					if distance < best:
-						second_best = best
-						best = distance
-						tone = _hash01(sx, sy, noise_seed + 29)
-					elif distance < second_best:
-						second_best = distance
-			var dome := clampf(1.0 - best * best * 1.4, 0.0, 1.0)
-			var joint := smoothstep(0.015, 0.095, second_best - best)
-			var broad := _lattice(
-				float(x) / float(broad_span),
-				float(y) / float(broad_span),
-				size / broad_span,
-				noise_seed + 47
-			)
-			var fine := _lattice(
-				float(x) / float(fine_span),
-				float(y) / float(fine_span),
-				size / fine_span,
-				noise_seed + 83
-			)
-			var value := 0.55 + dome * 0.42 + (tone - 0.5) * 0.14
-			value += (broad - 0.5) * 0.08 + (fine - 0.5) * 0.035
-			value *= lerpf(0.62, 1.0, joint)
-			_fill_value(image, x, y, value)
+			var sample := _cobble_surface_sample(x, y, size, noise_seed)
+			var height := sample.r
+			var joint := sample.g
+			var stone_tone := sample.a
+			var broad := _lattice(float(x) / 41.0, float(y) / 47.0, maxi(size / 47, 2), noise_seed + 47)
+			var fine := _lattice(float(x) / 5.0, float(y) / 5.0, maxi(size / 5, 2), noise_seed + 83)
+			# Earth-filled joints are deliberately lighter and warmer in the tint map;
+			# the shader supplies their actual brown hue using the encoded joint mask.
+			var stone := 0.69 + stone_tone * 0.17 + height * 0.10
+			stone += (broad - 0.5) * 0.10 + (fine - 0.5) * 0.035
+			var earth := 0.64 + broad * 0.09 + fine * 0.035
+			_fill_value(image, x, y, lerpf(earth, stone, joint))
+
+
+## RGBA contract used by the terrain shader:
+## - RG: baked tangent-space normal XY
+## - B: stone mask (0 compacted joint, 1 stone)
+## - A: deterministic per-stone palette selector
+static func cobble_surface_texture(noise_seed: int) -> ImageTexture:
+	var key := "cobble_surface:%d:%d" % [noise_seed, MapViewMaterials.COBBLE_TEXTURE_SIZE]
+	if _cache.has(key):
+		return _cache[key]
+	var size := MapViewMaterials.COBBLE_TEXTURE_SIZE
+	var image := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	for y in size:
+		for x in size:
+			var sample := _cobble_surface_sample(x, y, size, noise_seed)
+			var left := _cobble_surface_sample(x - 1, y, size, noise_seed).r
+			var right := _cobble_surface_sample(x + 1, y, size, noise_seed).r
+			var up := _cobble_surface_sample(x, y - 1, size, noise_seed).r
+			var down := _cobble_surface_sample(x, y + 1, size, noise_seed).r
+			# A restrained slope keeps the stones pressed into the road. The old real
+			# mesh rose 7 cm; this reads closer to a worn 1-2 cm shoulder.
+			var normal := Vector3((left - right) * 0.28, (up - down) * 0.28, 1.0).normalized()
+			image.set_pixel(x, y, Color(
+				normal.x * 0.5 + 0.5,
+				normal.y * 0.5 + 0.5,
+				sample.g,
+				sample.b
+			))
+	image.generate_mipmaps()
+	var texture := ImageTexture.create_from_image(image)
+	_cache[key] = texture
+	return texture
+
+
+## Returns one sample from a seamless, staggered rounded-rectangle lattice.
+## The signed superellipse distance makes stones flatter and less inflated than
+## radial Voronoi domes, while low-frequency edge wear keeps them old and uneven.
+static func _cobble_surface_sample(x: int, y: int, size: int, noise_seed: int) -> Color:
+	# Neighbor reads for the baked normal map cross the image edge. Wrap them
+	# before all shape/noise work so albedo and normals share the exact same seam.
+	var wrapped_x := posmod(x, size)
+	var wrapped_y := posmod(y, size)
+	var px := (float(wrapped_x) + 0.5) / float(size) * float(COBBLE_STONES_X)
+	var py := (float(wrapped_y) + 0.5) / float(size) * float(COBBLE_STONES_Y)
+	var row := floori(py)
+	var stagger := 0.5 if posmod(row, 2) == 1 else 0.0
+	var column := floori(px - stagger)
+	var local := Vector2(px - stagger - (float(column) + 0.5), py - (float(row) + 0.5))
+	var wrapped_column := posmod(column, COBBLE_STONES_X)
+	var wrapped_row := posmod(row, COBBLE_STONES_Y)
+	var length_scale := 0.97 + _hash01(wrapped_column, wrapped_row, noise_seed + 11) * 0.04
+	var width_scale := 0.95 + _hash01(wrapped_column, wrapped_row, noise_seed + 17) * 0.04
+	var jitter := Vector2(
+		_hash01(wrapped_column, wrapped_row, noise_seed + 23) - 0.5,
+		_hash01(wrapped_column, wrapped_row, noise_seed + 29) - 0.5
+	) * 0.045
+	local -= jitter
+	local.x /= length_scale
+	local.y /= width_scale
+	# A high-order superellipse gives worn rectangular stones with rounded corners.
+	var shape := pow(pow(absf(local.x) / 0.5, 4.0) + pow(absf(local.y) / 0.49, 4.0), 0.25)
+	var edge_wear := (_hash01(wrapped_x, wrapped_y, noise_seed + 37) - 0.5) * 0.025
+	var signed_edge := 1.0 - shape + edge_wear
+	var joint := smoothstep(-0.005, 0.055, signed_edge)
+	# Most stone is nearly flush. Only its worn shoulder bends the normal, avoiding
+	# the high, pillow-like profile that made the previous geometry look too new.
+	var height := smoothstep(-0.02, 0.24, signed_edge)
+	height = lerpf(0.28, 0.78, height) * joint
+	var chips := _hash01(wrapped_x / 3, wrapped_y / 3, noise_seed + 43)
+	if chips < 0.08 and signed_edge < 0.14:
+		height *= 0.72
+	var palette := _hash01(wrapped_column, wrapped_row, noise_seed + 53)
+	var tone := _hash01(wrapped_column, wrapped_row, noise_seed + 59)
+	return Color(height, joint, palette, tone)
 
 
 static func _paint_brick(image: Image, noise_seed: int) -> void:
