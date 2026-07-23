@@ -1,7 +1,13 @@
 class_name MapViewRuntimeCamera
 extends RefCounted
 
-## Gameplay camera orbit, zoom, and first-person toggles for MapViewRuntime.
+## Gameplay camera modes, orbit, look, and top-down zoom for MapViewRuntime.
+
+enum CameraMode {
+	THIRD_PERSON,
+	FIRST_PERSON,
+	TOP_DOWN,
+}
 
 const FOLLOW_LERP_WEIGHT := 8.0
 const SNAP_DISTANCE_WORLD := 6.0
@@ -15,12 +21,18 @@ const MOUSE_ROTATE_DEGREES_PER_PIXEL := 0.3
 ## macOS trackpad two-finger scroll arrives as InputEventPanGesture with small
 ## deltas (~0.5-1.5 per tick) instead of mouse-wheel buttons.
 const PAN_SCROLL_ZOOM_SENSITIVITY := 1.0
+const THIRD_PERSON_DISTANCE := 6.0
+const THIRD_PERSON_TARGET_HEIGHT := 1.15
+const THIRD_PERSON_PITCH_DEGREES := -12.0
+const THIRD_PERSON_FOV_DEGREES := 65.0
+const THIRD_PERSON_NEAR := 0.05
 const FIRST_PERSON_EYE_HEIGHT := 1.65
 const FIRST_PERSON_PITCH_DEGREES := -10.0
 const FIRST_PERSON_MIN_PITCH_DEGREES := -80.0
 const FIRST_PERSON_MAX_PITCH_DEGREES := 80.0
 const FIRST_PERSON_FOV_DEGREES := 75.0
 const FIRST_PERSON_NEAR := 0.05
+const TOP_DOWN_NEAR := 0.05
 const OCCLUSION_PROBE_HEIGHTS: Array[float] = [0.5, 1.1, 1.8]
 
 var camera: Camera3D
@@ -29,11 +41,14 @@ var view: MapView3D
 var player: CharacterBody2D
 
 var drag_rotating_view := false
-var first_person := false
+var camera_mode: CameraMode = CameraMode.THIRD_PERSON
+var first_person: bool:
+	get:
+		return camera_mode == CameraMode.FIRST_PERSON
 
 var _mouse_rotation_armed := false
 var _last_mouse_position := Vector2.ZERO
-var _third_person_size := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
+var _top_down_size := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
 
 
 func configure(runtime_camera: Camera3D, runtime_player_rig: SharedCharacterRig, runtime_view: MapView3D, runtime_player: CharacterBody2D) -> void:
@@ -41,7 +56,8 @@ func configure(runtime_camera: Camera3D, runtime_player_rig: SharedCharacterRig,
 	player_rig = runtime_player_rig
 	view = runtime_view
 	player = runtime_player
-	_third_person_size = camera.size
+	_top_down_size = camera.size
+	_apply_camera_mode()
 
 
 func logic_direction_toward_camera() -> Vector2:
@@ -49,18 +65,37 @@ func logic_direction_toward_camera() -> Vector2:
 	return Vector2(world_offset.x, world_offset.z).normalized()
 
 
+func logic_direction_camera_faces() -> Vector2:
+	var world_forward := -camera.transform.basis.z
+	return Vector2(world_forward.x, world_forward.z).normalized()
+
+
+func character_follows_camera() -> bool:
+	return camera_mode != CameraMode.TOP_DOWN
+
+
 func follow_player(snap: bool, delta: float) -> void:
-	var target: Vector3
-	if first_person:
-		target = player_rig.position + Vector3.UP * FIRST_PERSON_EYE_HEIGHT
-	else:
-		target = player_rig.position + camera.transform.basis.z * MapView3D.CAMERA_DISTANCE
+	var target := _follow_target()
 	if snap or camera.position.distance_to(target) > SNAP_DISTANCE_WORLD:
 		camera.position = target
-		view.update_terrain_detail_focus(target)
+		view.update_terrain_detail_focus(player_rig.position)
 		return
 	camera.position = camera.position.lerp(target, clampf(FOLLOW_LERP_WEIGHT * delta, 0.0, 1.0))
-	view.update_terrain_detail_focus(target)
+	view.update_terrain_detail_focus(player_rig.position)
+
+
+func _follow_target() -> Vector3:
+	match camera_mode:
+		CameraMode.FIRST_PERSON:
+			return player_rig.position + Vector3.UP * FIRST_PERSON_EYE_HEIGHT
+		CameraMode.THIRD_PERSON:
+			return (
+				player_rig.position
+				+ Vector3.UP * THIRD_PERSON_TARGET_HEIGHT
+				+ camera.transform.basis.z * THIRD_PERSON_DISTANCE
+			)
+		_:
+			return player_rig.position + camera.transform.basis.z * MapView3D.CAMERA_DISTANCE
 
 
 func apply_view_rotation(delta: float) -> void:
@@ -101,6 +136,7 @@ func apply_mouse_rotation_from_position(mouse_position: Vector2, button_pressed:
 func rotate_view_degrees(delta_degrees: float) -> void:
 	camera.rotation_degrees.y = wrapf(camera.rotation_degrees.y + delta_degrees, -180.0, 180.0)
 	follow_player(true, 0.0)
+	_sync_player_facing_to_camera()
 
 
 func look_first_person_degrees(delta_degrees: float) -> void:
@@ -115,13 +151,14 @@ func look_first_person_degrees(delta_degrees: float) -> void:
 
 
 func zoom_view_steps(steps: float) -> void:
-	if first_person or is_zero_approx(steps):
+	if camera_mode != CameraMode.TOP_DOWN or is_zero_approx(steps):
 		return
 	camera.size = clampf(
 		camera.size * pow(ZOOM_STEP_FACTOR, steps),
 		ZOOM_MIN_ORTHOGRAPHIC_SIZE,
 		ZOOM_MAX_ORTHOGRAPHIC_SIZE
 	)
+	_top_down_size = camera.size
 
 
 func zoom_from_magnify_factor(factor: float) -> void:
@@ -138,35 +175,87 @@ func zoom_from_pan_delta(delta: Vector2) -> void:
 	zoom_view_steps(-delta.y * PAN_SCROLL_ZOOM_SENSITIVITY)
 
 
+func cycle_camera_mode() -> void:
+	match camera_mode:
+		CameraMode.THIRD_PERSON:
+			set_camera_mode(CameraMode.FIRST_PERSON)
+		CameraMode.FIRST_PERSON:
+			set_camera_mode(CameraMode.TOP_DOWN)
+		CameraMode.TOP_DOWN:
+			set_camera_mode(CameraMode.THIRD_PERSON)
+
+
 func toggle_first_person() -> void:
 	set_first_person(not first_person)
 
 
 func set_first_person(enabled: bool) -> void:
-	if first_person == enabled:
+	set_camera_mode(CameraMode.FIRST_PERSON if enabled else CameraMode.THIRD_PERSON)
+
+
+func set_camera_mode(next_mode: CameraMode) -> void:
+	if camera_mode == next_mode:
 		return
-	first_person = enabled
-	if enabled:
-		_third_person_size = camera.size
-		camera.projection = Camera3D.PROJECTION_PERSPECTIVE
-		camera.fov = FIRST_PERSON_FOV_DEGREES
-		camera.near = FIRST_PERSON_NEAR
-		camera.rotation_degrees.x = FIRST_PERSON_PITCH_DEGREES
-	else:
-		camera.projection = Camera3D.PROJECTION_ORTHOGONAL
-		camera.size = _third_person_size
-		camera.near = 0.05
-		camera.rotation_degrees.x = MapView3D.CAMERA_PITCH_DEGREES
-	player_rig.visible = not enabled
-	view.set_interior_shell_for_first_person(enabled)
+	if camera_mode == CameraMode.TOP_DOWN:
+		_top_down_size = camera.size
+	camera_mode = next_mode
+	_apply_camera_mode()
+
+
+func _apply_camera_mode() -> void:
+	match camera_mode:
+		CameraMode.THIRD_PERSON:
+			camera.projection = Camera3D.PROJECTION_PERSPECTIVE
+			camera.fov = THIRD_PERSON_FOV_DEGREES
+			camera.near = THIRD_PERSON_NEAR
+			camera.rotation_degrees.x = THIRD_PERSON_PITCH_DEGREES
+		CameraMode.FIRST_PERSON:
+			camera.projection = Camera3D.PROJECTION_PERSPECTIVE
+			camera.fov = FIRST_PERSON_FOV_DEGREES
+			camera.near = FIRST_PERSON_NEAR
+			camera.rotation_degrees.x = FIRST_PERSON_PITCH_DEGREES
+		CameraMode.TOP_DOWN:
+			camera.projection = Camera3D.PROJECTION_ORTHOGONAL
+			camera.size = _top_down_size
+			camera.near = TOP_DOWN_NEAR
+			camera.rotation_degrees.x = MapView3D.CAMERA_PITCH_DEGREES
+	player_rig.visible = not first_person
+	# Close perspective cameras need the ceiling shell and nearby micro detail;
+	# only the distant top-down view uses the readability cutaway.
+	view.set_close_camera_mode(camera_mode != CameraMode.TOP_DOWN)
 	follow_player(true, 0.0)
+	if camera_mode == CameraMode.TOP_DOWN and player.has_method("set_camera_facing"):
+		player.call("set_camera_facing", Vector2.ZERO)
+	_sync_player_facing_to_camera()
+
+
+func _sync_player_facing_to_camera() -> void:
+	if not character_follows_camera():
+		return
+	var facing := logic_direction_camera_faces()
+	if facing.is_zero_approx():
+		return
+	if player.has_method("set_camera_facing"):
+		player.call("set_camera_facing", facing)
+	elif player.has_method("set_view_facing"):
+		player.call("set_view_facing", facing)
+
+
+func mode_label() -> String:
+	match camera_mode:
+		CameraMode.THIRD_PERSON:
+			return "Third-person view"
+		CameraMode.FIRST_PERSON:
+			return "First-person view"
+		_:
+			return "Top-down view"
 
 
 func update_occlusion_ghost() -> void:
 	if first_person:
 		player_rig.set_occlusion_ghost(false)
 		return
-	var toward_camera := camera.transform.basis.z * MapView3D.CAMERA_DISTANCE
+	var toward_camera := camera.position - player_rig.position
 	var occluded := false
 	for height in OCCLUSION_PROBE_HEIGHTS:
 		var from := player_rig.position + Vector3.UP * height

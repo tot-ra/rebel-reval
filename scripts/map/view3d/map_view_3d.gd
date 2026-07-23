@@ -242,10 +242,10 @@ func view_camera() -> Camera3D:
 	return _camera
 
 
-## Top-down orthographic gameplay hides the interior ceiling so the player can
-## read floor layout; first-person enables the visual shell and occlusion. The
-## shadows-only daylight occluder remains active in both modes.
-func set_interior_shell_for_first_person(enabled: bool) -> void:
+## Close perspective cameras show the interior ceiling and nearby surface detail;
+## top-down orthographic gameplay hides both so the floor layout stays readable.
+## The shadows-only daylight occluder remains active in every mode.
+func set_close_camera_mode(enabled: bool) -> void:
 	set_terrain_detail_for_first_person(enabled)
 	var interior_shell := get_node_or_null("InteriorShell") as Node3D
 	if interior_shell == null:
@@ -259,6 +259,11 @@ func set_interior_shell_for_first_person(enabled: bool) -> void:
 	_interior_shell_occludes = enabled
 	_rebuild_occluder_bounds()
 	_sync_interior_top_down_background()
+
+
+## Compatibility wrapper for existing first-person callers and focused view tests.
+func set_interior_shell_for_first_person(enabled: bool) -> void:
+	set_close_camera_mode(enabled)
 
 
 ## Surface micro-geometry is deliberately camera-dependent: first-person needs

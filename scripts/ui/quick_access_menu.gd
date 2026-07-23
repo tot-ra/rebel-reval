@@ -148,7 +148,7 @@ func _build_ui() -> void:
 	_world_map_button.pressed.connect(_on_world_map_pressed)
 	actions.add_child(_world_map_button)
 
-	_camera_button = _create_action_button("CameraButton", "Camera [C]", "Toggle first-person view; right-drag to look around")
+	_camera_button = _create_action_button("CameraButton", "Camera [C]", "Cycle third-person, first-person, and top-down views; right-drag to look around")
 	_camera_button.pressed.connect(_on_camera_pressed)
 	actions.add_child(_camera_button)
 
@@ -296,7 +296,7 @@ func _on_camera_pressed() -> void:
 	if runtime == null:
 		return
 	runtime.toggle_camera_view()
-	_status_label.text = "First-person view" if runtime.is_first_person() else STATUS_READY
+	_status_label.text = runtime.camera_mode_label()
 
 
 func _on_controls_pressed() -> void:

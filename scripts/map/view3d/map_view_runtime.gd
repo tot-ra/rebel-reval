@@ -30,6 +30,11 @@ const ZOOM_MAX_ORTHOGRAPHIC_SIZE := RuntimeCamera.ZOOM_MAX_ORTHOGRAPHIC_SIZE
 const ROTATE_SPEED_DEGREES := RuntimeCamera.ROTATE_SPEED_DEGREES
 const MOUSE_ROTATE_DEGREES_PER_PIXEL := RuntimeCamera.MOUSE_ROTATE_DEGREES_PER_PIXEL
 const PAN_SCROLL_ZOOM_SENSITIVITY := RuntimeCamera.PAN_SCROLL_ZOOM_SENSITIVITY
+const THIRD_PERSON_DISTANCE := RuntimeCamera.THIRD_PERSON_DISTANCE
+const THIRD_PERSON_TARGET_HEIGHT := RuntimeCamera.THIRD_PERSON_TARGET_HEIGHT
+const THIRD_PERSON_PITCH_DEGREES := RuntimeCamera.THIRD_PERSON_PITCH_DEGREES
+const THIRD_PERSON_FOV_DEGREES := RuntimeCamera.THIRD_PERSON_FOV_DEGREES
+const THIRD_PERSON_NEAR := RuntimeCamera.THIRD_PERSON_NEAR
 const FIRST_PERSON_EYE_HEIGHT := RuntimeCamera.FIRST_PERSON_EYE_HEIGHT
 const FIRST_PERSON_PITCH_DEGREES := RuntimeCamera.FIRST_PERSON_PITCH_DEGREES
 const FIRST_PERSON_MIN_PITCH_DEGREES := RuntimeCamera.FIRST_PERSON_MIN_PITCH_DEGREES
@@ -304,9 +309,23 @@ func _handle_time_control_key(keycode: Key) -> bool:
 
 
 func toggle_camera_view() -> void:
-	_camera_controller.toggle_first_person()
+	_camera_controller.cycle_camera_mode()
 	_configure_screen_relative_movement()
 	_update_occlusion_ghost()
+
+
+func set_camera_mode(next_mode: MapViewRuntimeCamera.CameraMode) -> void:
+	_camera_controller.set_camera_mode(next_mode)
+	_configure_screen_relative_movement()
+	_update_occlusion_ghost()
+
+
+func camera_mode() -> MapViewRuntimeCamera.CameraMode:
+	return _camera_controller.camera_mode
+
+
+func camera_mode_label() -> String:
+	return _camera_controller.mode_label()
 
 
 func set_first_person(enabled: bool) -> void:
@@ -319,6 +338,14 @@ func is_first_person() -> bool:
 	return _camera_controller.first_person
 
 
+func is_third_person() -> bool:
+	return _camera_controller.camera_mode == MapViewRuntimeCamera.CameraMode.THIRD_PERSON
+
+
+func is_top_down() -> bool:
+	return _camera_controller.camera_mode == MapViewRuntimeCamera.CameraMode.TOP_DOWN
+
+
 func zoom_view_steps(steps: float) -> void:
 	_camera_controller.zoom_view_steps(steps)
 
@@ -326,9 +353,9 @@ func zoom_view_steps(steps: float) -> void:
 func _apply_view_rotation(delta: float) -> void:
 	var yaw_before := _camera.rotation_degrees.y
 	_camera_controller.apply_view_rotation(delta)
-	# First-person look can rotate the camera without going through rotate_view_degrees,
-	# so keep keyboard movement tied to the current view every frame.
-	if _camera_controller.first_person or not is_equal_approx(_camera.rotation_degrees.y, yaw_before):
+	# Perspective modes keep movement and authored facing tied to camera yaw;
+	# top-down only re-projects screen-relative movement after an actual orbit.
+	if _camera_controller.character_follows_camera() or not is_equal_approx(_camera.rotation_degrees.y, yaw_before):
 		_configure_screen_relative_movement()
 
 

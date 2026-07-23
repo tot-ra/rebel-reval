@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `60`
+- Active Markdown files scanned: `61`
 - Markdown files excluded as archive/reference/out of active scope: `366`
-- Local/external links inspected: `388`
-- Links to active Markdown docs: `168`
+- Local/external links inspected: `392`
+- Links to active Markdown docs: `172`
 - Links to existing archive/reference/non-active local docs: `83`
 - External links skipped for reachability: `27`
 - Issues found: `8`
@@ -62,6 +62,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/adr/0012-first-person-mouse-free-look.md`
 - `docs/adr/0013-authorial-visual-direction-without-blind-ux-panels.md`
 - `docs/adr/0014-authorial-acceptance-gates-without-external-playtests.md`
+- `docs/adr/0015-default-third-person-camera.md`
 - `docs/ARCHITECTURE.md`
 - `docs/ART_BIBLE.md`
 - `docs/ASSET_INVENTORY.md`

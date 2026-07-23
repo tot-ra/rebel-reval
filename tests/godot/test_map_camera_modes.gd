@@ -1,191 +1,189 @@
 extends "res://tests/godot/map_view_3d_test_base.gd"
 
 ## Camera-mode integration kept separate from the broader runtime test so its
-## result does not depend on actor-facing assertions.
+## result does not depend on unrelated actor synchronization assertions.
 
 
-func test_c_toggles_first_person_and_restores_third_person() -> void:
-	var scene_root := Node2D.new()
-	var map_root := Node2D.new()
-	var actors := Node2D.new()
-	var player := PLAYER_SCENE.instantiate() as Player
-	scene_root.add_child(map_root)
-	scene_root.add_child(actors)
-	actors.add_child(player)
-	var tree := Engine.get_main_loop() as SceneTree
-	tree.root.add_child(scene_root)
-
-	var definition := LowerTownSlice.create()
-	var bootstrap := {
-		"definition": definition,
-		"grid": MapBuilder.build(definition),
-		"assembled": {"buildings": [], "props": []},
-	}
-	var runtime := MapViewRuntime.install(scene_root, bootstrap, map_root, player)
+func test_c_cycles_third_person_first_person_and_top_down() -> void:
+	var fixture := _install_runtime(LowerTownSlice.create())
+	var scene_root := fixture["scene_root"] as Node2D
+	var runtime := fixture["runtime"] as MapViewRuntime
 	var rig := runtime.get_node("PlayerRig") as SharedCharacterRig
 	var camera := runtime.view.view_camera()
-	var third_person_size := camera.size
-	var third_person_yaw := camera.rotation_degrees.y
+	var top_down_size := camera.size
+	var initial_yaw := camera.rotation_degrees.y
 
-	var camera_toggle := InputEventKey.new()
-	camera_toggle.physical_keycode = KEY_C
-	camera_toggle.pressed = true
+	assert_true(runtime.is_third_person(), "third-person must be the default camera mode")
+	assert_eq(camera.projection, Camera3D.PROJECTION_PERSPECTIVE)
+	assert_true(is_equal_approx(camera.fov, MapViewRuntime.THIRD_PERSON_FOV_DEGREES))
+	assert_true(is_equal_approx(camera.rotation_degrees.x, MapViewRuntime.THIRD_PERSON_PITCH_DEGREES))
+	assert_true(
+		camera.position.is_equal_approx(
+			rig.position
+			+ Vector3.UP * MapViewRuntime.THIRD_PERSON_TARGET_HEIGHT
+			+ camera.transform.basis.z * MapViewRuntime.THIRD_PERSON_DISTANCE
+		),
+		"third-person camera must start behind the player"
+	)
+	assert_true(rig.visible, "the player rig must be visible in third-person")
+	var third_person_fov := camera.fov
+	runtime.zoom_view_steps(1.0)
+	assert_true(is_equal_approx(camera.fov, third_person_fov), "top-down zoom must not alter third-person FOV")
+
+	var camera_toggle := _camera_toggle_event()
 	runtime._unhandled_input(camera_toggle)
 
-	assert_true(runtime.is_first_person(), "C must switch to first-person view")
+	assert_true(runtime.is_first_person(), "the first C press must switch to first-person")
 	assert_eq(camera.projection, Camera3D.PROJECTION_PERSPECTIVE)
 	assert_true(is_equal_approx(camera.fov, MapViewRuntime.FIRST_PERSON_FOV_DEGREES))
 	assert_true(is_equal_approx(camera.rotation_degrees.x, MapViewRuntime.FIRST_PERSON_PITCH_DEGREES))
-	assert_true(is_equal_approx(camera.rotation_degrees.y, third_person_yaw), "switching view must preserve yaw")
+	assert_true(is_equal_approx(camera.rotation_degrees.y, initial_yaw), "switching view must preserve yaw")
 	assert_true(
 		camera.position.is_equal_approx(rig.position + Vector3.UP * MapViewRuntime.FIRST_PERSON_EYE_HEIGHT),
 		"first-person camera must sit at the player's eye height"
 	)
 	assert_false(rig.visible, "the player rig must not obstruct first-person view")
 
-	var first_person_fov := camera.fov
+	runtime._unhandled_input(camera_toggle)
+	assert_true(runtime.is_top_down(), "the second C press must switch to top-down")
+	assert_eq(camera.projection, Camera3D.PROJECTION_ORTHOGONAL)
+	assert_true(is_equal_approx(camera.size, top_down_size))
+	assert_true(is_equal_approx(camera.rotation_degrees.x, MapView3D.CAMERA_PITCH_DEGREES))
+	assert_true(is_equal_approx(camera.rotation_degrees.y, initial_yaw), "top-down must preserve yaw")
+	assert_true(rig.visible, "the player rig must be visible in top-down")
+	var zoomed_size := camera.size
 	runtime.zoom_view_steps(1.0)
-	assert_true(
-		is_equal_approx(camera.fov, first_person_fov),
-		"orthographic wheel zoom must not alter first-person view"
-	)
+	assert_true(camera.size < zoomed_size, "wheel zoom must remain available in top-down")
 
 	runtime._unhandled_input(camera_toggle)
-	assert_false(runtime.is_first_person(), "pressing C again must restore third-person view")
-	assert_eq(camera.projection, Camera3D.PROJECTION_ORTHOGONAL)
-	assert_true(is_equal_approx(camera.size, third_person_size))
-	assert_true(is_equal_approx(camera.rotation_degrees.x, MapView3D.CAMERA_PITCH_DEGREES))
-	assert_true(is_equal_approx(camera.rotation_degrees.y, third_person_yaw), "returning must preserve yaw")
-	assert_true(rig.visible, "the player rig must return in third-person view")
+	assert_true(runtime.is_third_person(), "the third C press must return to third-person")
+	assert_eq(camera.projection, Camera3D.PROJECTION_PERSPECTIVE)
+	assert_true(is_equal_approx(camera.fov, MapViewRuntime.THIRD_PERSON_FOV_DEGREES))
+	assert_true(is_equal_approx(camera.rotation_degrees.x, MapViewRuntime.THIRD_PERSON_PITCH_DEGREES))
+	assert_true(is_equal_approx(camera.rotation_degrees.y, initial_yaw))
+	assert_true(rig.visible)
 	_free_map_scene(scene_root)
 
 
-func test_interior_ceiling_hides_for_top_down_and_shows_in_first_person() -> void:
-	var scene_root := Node2D.new()
-	var map_root := Node2D.new()
-	var actors := Node2D.new()
-	var player := PLAYER_SCENE.instantiate() as Player
-	scene_root.add_child(map_root)
-	scene_root.add_child(actors)
-	actors.add_child(player)
-	var tree := Engine.get_main_loop() as SceneTree
-	tree.root.add_child(scene_root)
-
-	var definition := KalevSmithyDefinition.create()
-	var bootstrap := {
-		"definition": definition,
-		"grid": MapBuilder.build(definition),
-		"assembled": {"buildings": [], "props": []},
-	}
-	var runtime := MapViewRuntime.install(scene_root, bootstrap, map_root, player)
+func test_interior_shell_follows_close_and_top_down_camera_modes() -> void:
+	var fixture := _install_runtime(KalevSmithyDefinition.create())
+	var scene_root := fixture["scene_root"] as Node2D
+	var runtime := fixture["runtime"] as MapViewRuntime
 	assert_true(runtime.view.has_node("InteriorShell/Ceiling"), "smithy must build a shared ceiling shell")
-	assert_false(
-		runtime.view.is_interior_shell_visible(),
-		"top-down gameplay must hide the ceiling for floor readability"
-	)
-	assert_true(
-		runtime.view.uses_interior_top_down_background(),
-		"top-down interiors must clear to black instead of sky"
-	)
+	assert_true(runtime.view.is_interior_shell_visible(), "default third-person must show the ceiling shell")
+	assert_false(runtime.view.uses_interior_top_down_background(), "third-person must retain the sky background")
 	var world_env := runtime.view.get_node("ViewEnvironment") as WorldEnvironment
+	assert_eq(world_env.environment.background_mode, Environment.BG_SKY)
+
+	var camera_toggle := _camera_toggle_event()
+	runtime._unhandled_input(camera_toggle)
+	assert_true(runtime.is_first_person())
+	assert_true(runtime.view.is_interior_shell_visible(), "first-person must keep the ceiling shell visible")
+	assert_false(runtime.view.uses_interior_top_down_background())
+
+	runtime._unhandled_input(camera_toggle)
+	assert_true(runtime.is_top_down())
+	assert_false(runtime.view.is_interior_shell_visible(), "top-down must hide the ceiling for floor readability")
+	assert_true(runtime.view.uses_interior_top_down_background(), "top-down interiors must clear to black")
 	assert_eq(world_env.environment.background_mode, Environment.BG_COLOR)
 	assert_eq(world_env.environment.background_color, MapView3D.BACKGROUND_INTERIOR_TOP_DOWN_COLOR)
 
-	var camera_toggle := InputEventKey.new()
-	camera_toggle.physical_keycode = KEY_C
-	camera_toggle.pressed = true
 	runtime._unhandled_input(camera_toggle)
-	assert_true(runtime.is_first_person(), "test setup must enter first-person view")
-	assert_true(
-		runtime.view.is_interior_shell_visible(),
-		"first-person must show the raised ceiling shell"
-	)
-	assert_false(
-		runtime.view.uses_interior_top_down_background(),
-		"first-person must restore the sky dome for window views"
-	)
+	assert_true(runtime.is_third_person())
+	assert_true(runtime.view.is_interior_shell_visible(), "returning to third-person must restore the ceiling")
+	assert_false(runtime.view.uses_interior_top_down_background())
 	assert_eq(world_env.environment.background_mode, Environment.BG_SKY)
-
-	runtime._unhandled_input(camera_toggle)
-	assert_false(runtime.is_first_person(), "pressing C again must restore third-person view")
-	assert_false(
-		runtime.view.is_interior_shell_visible(),
-		"returning to top-down must hide the ceiling again"
-	)
-	assert_true(
-		runtime.view.uses_interior_top_down_background(),
-		"returning to top-down must restore the black void"
-	)
-	assert_eq(world_env.environment.background_mode, Environment.BG_COLOR)
 	_free_map_scene(scene_root)
 
 
-func test_first_person_movement_follows_camera_yaw_via_gameplay_rotation() -> void:
-	var scene_root := Node2D.new()
-	var map_root := Node2D.new()
-	var actors := Node2D.new()
-	var player := PLAYER_SCENE.instantiate() as Player
-	scene_root.add_child(map_root)
-	scene_root.add_child(actors)
-	actors.add_child(player)
-	var tree := Engine.get_main_loop() as SceneTree
-	tree.root.add_child(scene_root)
+func test_perspective_camera_yaw_updates_player_facing_but_top_down_does_not() -> void:
+	var fixture := _install_runtime(LowerTownSlice.create())
+	var scene_root := fixture["scene_root"] as Node2D
+	var runtime := fixture["runtime"] as MapViewRuntime
+	var player := fixture["player"] as Player
+	var rig := runtime.get_node("PlayerRig") as SharedCharacterRig
+	var forward_before := player.movement_direction_for_screen_input(Vector2.UP)
 
-	var definition := LowerTownSlice.create()
-	var bootstrap := {
-		"definition": definition,
-		"grid": MapBuilder.build(definition),
-		"assembled": {"buildings": [], "props": []},
-	}
-	var runtime := MapViewRuntime.install(scene_root, bootstrap, map_root, player)
-
-	var camera_toggle := InputEventKey.new()
-	camera_toggle.physical_keycode = KEY_C
-	camera_toggle.pressed = true
-	runtime._unhandled_input(camera_toggle)
-	assert_true(runtime.is_first_person(), "test setup must enter first-person view")
-
-	var screen_up_before := player.movement_direction_for_screen_input(Vector2.UP)
-	runtime._camera_controller.rotate_view_degrees(45.0)
-	runtime._apply_view_rotation(0.016)
-	var screen_up_after := player.movement_direction_for_screen_input(Vector2.UP)
-
-	assert_false(
-		screen_up_after.is_equal_approx(screen_up_before),
-		"first-person keyboard movement must follow camera yaw from the gameplay rotation path"
-	)
+	runtime.rotate_view_degrees(45.0)
+	var third_person_forward := runtime._camera_controller.logic_direction_camera_faces()
 	assert_true(
-		is_equal_approx(screen_up_after.length(), 1.0),
-		"re-projected first-person movement must stay normalized"
+		player.view_facing().is_equal_approx(third_person_forward),
+		"third-person camera yaw must immediately turn the character"
 	)
-	_free_map_scene(scene_root)
+	assert_false(
+		player.movement_direction_for_screen_input(Vector2.UP).is_equal_approx(forward_before),
+		"third-person forward movement must follow camera yaw"
+	)
+	runtime._sync_player(true)
+	assert_true(
+		is_equal_approx(rig.rotation.y, atan2(third_person_forward.x, third_person_forward.y)),
+		"the visible character rig must use the camera-authored facing"
+	)
+	Input.action_press("ui_down")
+	player._physics_process(0.0)
+	Input.action_release("ui_down")
+	assert_true(
+		player.view_facing().is_equal_approx(third_person_forward),
+		"moving backward in third-person must not turn the character away from the camera yaw"
+	)
+	player.velocity = Vector2.ZERO
 
-
-func test_first_person_mouse_drag_looks_vertically_and_clamps_pitch() -> void:
-	var scene_root := Node2D.new()
-	var map_root := Node2D.new()
-	var actors := Node2D.new()
-	var player := PLAYER_SCENE.instantiate() as Player
-	scene_root.add_child(map_root)
-	scene_root.add_child(actors)
-	actors.add_child(player)
-	var tree := Engine.get_main_loop() as SceneTree
-	tree.root.add_child(scene_root)
-
-	var definition := LowerTownSlice.create()
-	var bootstrap := {
-		"definition": definition,
-		"grid": MapBuilder.build(definition),
-		"assembled": {"buildings": [], "props": []},
-	}
-	var runtime := MapViewRuntime.install(scene_root, bootstrap, map_root, player)
-	var camera := runtime.view.view_camera()
 	runtime.set_first_person(true)
-	var yaw_before := camera.rotation_degrees.y
-	var screen_up_before_pitch := player.movement_direction_for_screen_input(Vector2.UP)
+	runtime.rotate_view_degrees(30.0)
+	var first_person_forward := runtime._camera_controller.logic_direction_camera_faces()
+	assert_true(
+		player.view_facing().is_equal_approx(first_person_forward),
+		"first-person camera yaw must immediately turn the character"
+	)
+	assert_true(
+		is_equal_approx(player.movement_direction_for_screen_input(Vector2.UP).length(), 1.0),
+		"camera-relative movement must remain normalized"
+	)
 
-	# The first sample arms right-drag; separate vertical and horizontal samples
-	# prove that each mouse axis controls only its matching camera axis.
+	runtime.set_camera_mode(MapViewRuntimeCamera.CameraMode.TOP_DOWN)
+	var top_down_facing := player.view_facing()
+	var top_down_up_before := player.movement_direction_for_screen_input(Vector2.UP)
+	runtime.rotate_view_degrees(30.0)
+	assert_true(
+		player.view_facing().is_equal_approx(top_down_facing),
+		"top-down camera rotation must not affect character facing"
+	)
+	assert_false(
+		player.movement_direction_for_screen_input(Vector2.UP).is_equal_approx(top_down_up_before),
+		"top-down must retain its existing screen-relative movement controls"
+	)
+	_free_map_scene(scene_root)
+
+
+func test_mouse_drag_pitch_is_first_person_only_and_yaw_turns_perspective_character() -> void:
+	var fixture := _install_runtime(LowerTownSlice.create())
+	var scene_root := fixture["scene_root"] as Node2D
+	var runtime := fixture["runtime"] as MapViewRuntime
+	var player := fixture["player"] as Player
+	var camera := runtime.view.view_camera()
+	var yaw_before := camera.rotation_degrees.y
+
+	# The first sample arms right-drag. Third-person accepts horizontal orbit but
+	# keeps its authored pitch instead of becoming a second free-look mode.
+	runtime._apply_mouse_rotation_from_position(Vector2(100.0, 200.0), true)
+	runtime._apply_mouse_rotation_from_position(Vector2(100.0, 100.0), true)
+	assert_true(is_equal_approx(camera.rotation_degrees.x, MapViewRuntime.THIRD_PERSON_PITCH_DEGREES))
+	runtime._apply_mouse_rotation_from_position(Vector2(60.0, 100.0), true)
+	assert_true(
+		is_equal_approx(
+			camera.rotation_degrees.y,
+			wrapf(yaw_before + 40.0 * MapViewRuntime.MOUSE_ROTATE_DEGREES_PER_PIXEL, -180.0, 180.0)
+		),
+		"third-person right-drag must orbit horizontally"
+	)
+	assert_true(
+		player.view_facing().is_equal_approx(runtime._camera_controller.logic_direction_camera_faces()),
+		"third-person mouse orbit must turn the character"
+	)
+
+	runtime._apply_mouse_rotation_from_position(Vector2(60.0, 100.0), false)
+	runtime.set_first_person(true)
+	var screen_up_before_pitch := player.movement_direction_for_screen_input(Vector2.UP)
 	runtime._apply_mouse_rotation_from_position(Vector2(100.0, 200.0), true)
 	runtime._apply_mouse_rotation_from_position(Vector2(100.0, 100.0), true)
 	assert_true(
@@ -199,39 +197,48 @@ func test_first_person_mouse_drag_looks_vertically_and_clamps_pitch() -> void:
 		player.movement_direction_for_screen_input(Vector2.UP).is_equal_approx(screen_up_before_pitch),
 		"vertical look must not change ground-plane movement"
 	)
+	runtime._apply_mouse_rotation_from_position(Vector2(100.0, -1000.0), true)
+	assert_true(is_equal_approx(camera.rotation_degrees.x, MapViewRuntime.FIRST_PERSON_MAX_PITCH_DEGREES))
+	runtime._apply_mouse_rotation_from_position(Vector2(100.0, 2000.0), true)
+	assert_true(is_equal_approx(camera.rotation_degrees.x, MapViewRuntime.FIRST_PERSON_MIN_PITCH_DEGREES))
 
-	runtime._apply_mouse_rotation_from_position(Vector2(60.0, 100.0), true)
-	assert_true(
-		is_equal_approx(
-			camera.rotation_degrees.y,
-			wrapf(yaw_before + 40.0 * MapViewRuntime.MOUSE_ROTATE_DEGREES_PER_PIXEL, -180.0, 180.0)
-		),
-		"first-person right-drag must keep horizontal look"
-	)
-
-	runtime._apply_mouse_rotation_from_position(Vector2(60.0, -1000.0), true)
-	assert_true(
-		is_equal_approx(camera.rotation_degrees.x, MapViewRuntime.FIRST_PERSON_MAX_PITCH_DEGREES),
-		"looking up must stop before the camera flips"
-	)
-	runtime._apply_mouse_rotation_from_position(Vector2(60.0, 2000.0), true)
-	assert_true(
-		is_equal_approx(camera.rotation_degrees.x, MapViewRuntime.FIRST_PERSON_MIN_PITCH_DEGREES),
-		"looking down must stop before the camera flips"
-	)
-
-	runtime._apply_mouse_rotation_from_position(Vector2(60.0, 2000.0), false)
-	runtime.set_first_person(false)
-	runtime._apply_mouse_rotation_from_position(Vector2(60.0, 100.0), true)
-	runtime._apply_mouse_rotation_from_position(Vector2(60.0, 0.0), true)
+	runtime._apply_mouse_rotation_from_position(Vector2(100.0, 2000.0), false)
+	runtime.set_camera_mode(MapViewRuntimeCamera.CameraMode.TOP_DOWN)
+	runtime._apply_mouse_rotation_from_position(Vector2(100.0, 200.0), true)
+	runtime._apply_mouse_rotation_from_position(Vector2(100.0, 100.0), true)
 	assert_true(
 		is_equal_approx(camera.rotation_degrees.x, MapView3D.CAMERA_PITCH_DEGREES),
-		"third-person right-drag must keep the authored dimetric pitch"
+		"top-down right-drag must keep the authored dimetric pitch"
 	)
 	_free_map_scene(scene_root)
 
 
-func test_quick_access_camera_button_toggles_first_person() -> void:
+func test_quick_access_camera_button_cycles_all_modes() -> void:
+	var fixture := _install_runtime(KalevSmithyDefinition.create(), true)
+	var scene_root := fixture["scene_root"] as Node2D
+	var runtime := fixture["runtime"] as MapViewRuntime
+	var player := fixture["player"] as Player
+	var menu := player.get_node("QuickAccessMenu") as QuickAccessMenu
+	menu._refresh_availability()
+
+	var camera_button := menu.find_child("CameraButton", true, false) as Button
+	var status := menu.find_child("StatusLabel", true, false) as Label
+	assert_false(camera_button.disabled, "camera button must be available on 3D maps")
+	camera_button.pressed.emit()
+	assert_true(runtime.is_first_person())
+	assert_eq(status.text, "First-person view")
+
+	camera_button.pressed.emit()
+	assert_true(runtime.is_top_down())
+	assert_eq(status.text, "Top-down view")
+
+	camera_button.pressed.emit()
+	assert_true(runtime.is_third_person())
+	assert_eq(status.text, "Third-person view")
+	_free_map_scene(scene_root)
+
+
+func _install_runtime(definition: MapDefinition, with_menu: bool = false) -> Dictionary:
 	var scene_root := Node2D.new()
 	var map_root := Node2D.new()
 	var actors := Node2D.new()
@@ -239,25 +246,30 @@ func test_quick_access_camera_button_toggles_first_person() -> void:
 	scene_root.add_child(map_root)
 	scene_root.add_child(actors)
 	actors.add_child(player)
-	var menu := QuickAccessMenu.new()
-	player.add_child(menu)
+	if with_menu:
+		var existing_menu := player.get_node_or_null("QuickAccessMenu")
+		if existing_menu != null:
+			existing_menu.queue_free()
+			player.remove_child(existing_menu)
+		var menu := QuickAccessMenu.new()
+		menu.name = "QuickAccessMenu"
+		player.add_child(menu)
 	var tree := Engine.get_main_loop() as SceneTree
 	tree.root.add_child(scene_root)
-
-	var definition := KalevSmithyDefinition.create()
 	var bootstrap := {
 		"definition": definition,
 		"grid": MapBuilder.build(definition),
 		"assembled": {"buildings": [], "props": []},
 	}
-	var runtime := MapViewRuntime.install(scene_root, bootstrap, map_root, player)
-	menu._refresh_availability()
+	return {
+		"scene_root": scene_root,
+		"runtime": MapViewRuntime.install(scene_root, bootstrap, map_root, player),
+		"player": player,
+	}
 
-	var camera_button := menu.find_child("CameraButton", true, false) as Button
-	assert_false(camera_button.disabled, "camera button must be available on 3D maps")
-	camera_button.pressed.emit()
-	assert_true(runtime.is_first_person(), "quick access must switch to first-person view")
 
-	camera_button.pressed.emit()
-	assert_false(runtime.is_first_person(), "quick access must restore third-person view")
-	_free_map_scene(scene_root)
+func _camera_toggle_event() -> InputEventKey:
+	var event := InputEventKey.new()
+	event.physical_keycode = KEY_C
+	event.pressed = true
+	return event

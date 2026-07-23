@@ -75,9 +75,10 @@ func test_runtime_maps_keyboard_to_screen_axes_and_preserves_facing_on_stop() ->
 	player.velocity = Vector2.ZERO
 	runtime.rotate_view_degrees(45.0)
 	runtime._sync_player(false, 0.016)
+	var camera_facing := runtime._camera_controller.logic_direction_camera_faces()
 	assert_true(
-		is_equal_approx(rig.rotation.y, atan2(move_direction.x, move_direction.y)),
-		"an idle player rig must keep the last movement direction after stopping"
+		is_equal_approx(rig.rotation.y, atan2(camera_facing.x, camera_facing.y)),
+		"default third-person camera rotation must turn the idle player rig"
 	)
 
 	var yaw_before := camera.rotation_degrees.y
@@ -128,6 +129,7 @@ func test_runtime_accepts_mouse_wheel_and_trackpad_zoom_input() -> void:
 		"assembled": {"buildings": [], "props": []},
 	}
 	var runtime := MapViewRuntime.install(scene_root, bootstrap, map_root, player)
+	runtime.set_camera_mode(MapViewRuntimeCamera.CameraMode.TOP_DOWN)
 	var camera := runtime.view.view_camera()
 	var default_camera_size := camera.size
 

@@ -9,7 +9,7 @@
 
 Accepted
 
-Amended by [ADR 0011](0011-optional-first-person-camera.md) (2026-07-20): the default gameplay camera remains fixed orthographic dimetric, with an optional first-person inspection toggle exposed in release UI.
+Amended by [ADR 0011](0011-optional-first-person-camera.md) (2026-07-20): first-person inspection is exposed in release UI. [ADR 0015](0015-default-third-person-camera.md) (2026-07-23) later replaces the fixed orthographic default with a perspective third-person follow camera while retaining orthographic top-down as an alternate mode.
 
 Amended by [ADR 0013](0013-authorial-visual-direction-without-blind-ux-panels.md) (2026-07-23): P0-039 blind UX panels are cancelled; P0-040 closes on maintainer sign-off plus P0-038 technical evidence.
 

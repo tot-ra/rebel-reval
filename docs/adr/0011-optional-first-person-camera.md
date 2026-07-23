@@ -8,6 +8,8 @@
 
 Accepted
 
+Superseded by [ADR 0015](0015-default-third-person-camera.md) (2026-07-23): perspective third-person is now the default and `C` cycles third-person, first-person, and top-down.
+
 ## Context
 
 ADR 0007 freezes the gameplay presentation on a fixed orthographic dimetric camera. The 3D view layer later added an optional first-person perspective toggle (`C`) so players can inspect interiors, ceilings, and sky detail at eye height. The toggle shipped without an ADR note or a mouse-accessible discoverability entry point, which blocked demo packaging (D-004) and conflicted with the repository discoverability policy in `TODO.md`.

@@ -32,6 +32,7 @@ const STAMINA_DRAIN_RATE := 10.0 # per second
 var _screen_right_in_logic := Vector2.RIGHT
 var _screen_down_in_logic := Vector2.DOWN
 var _facing_direction := Vector2.DOWN
+var _camera_facing_direction := Vector2.ZERO
 var action_state_machine := PlayerActionStateMachine.new()
 var combat_vitals := CombatVitals.new()
 var _active_attack_profile: AttackProfile = AttackProfile.unarmed()
@@ -91,7 +92,8 @@ func _physics_process(_delta):
 	var new_animation = "idle"
 	
 	if not movement_direction.is_zero_approx():
-		_facing_direction = movement_direction.normalized()
+		if _camera_facing_direction.is_zero_approx():
+			_facing_direction = movement_direction.normalized()
 		var encumbrance := _get_encumbrance_speed_multiplier()
 		var terrain_speed := _get_terrain_speed_multiplier()
 		var current_speed = run_speed * encumbrance * terrain_speed
@@ -112,7 +114,7 @@ func _physics_process(_delta):
 			var next_path_position: Vector2 = navigation_agent.get_next_path_position()
 
 			velocity = run_speed * _get_encumbrance_speed_multiplier() * _get_terrain_speed_multiplier() * (next_path_position - current_agent_position).normalized()
-			if not velocity.is_zero_approx():
+			if not velocity.is_zero_approx() and _camera_facing_direction.is_zero_approx():
 				_facing_direction = velocity.normalized()
 			
 			navigation_agent.set_velocity(velocity)
@@ -250,6 +252,18 @@ func is_combat_dead() -> bool:
 
 func view_facing() -> Vector2:
 	return _facing_direction
+
+
+func set_view_facing(direction: Vector2) -> void:
+	if direction.is_zero_approx():
+		return
+	_facing_direction = direction.normalized()
+
+
+func set_camera_facing(direction: Vector2) -> void:
+	_camera_facing_direction = direction.normalized() if not direction.is_zero_approx() else Vector2.ZERO
+	if not _camera_facing_direction.is_zero_approx():
+		_facing_direction = _camera_facing_direction
 
 
 func view_animation() -> StringName:

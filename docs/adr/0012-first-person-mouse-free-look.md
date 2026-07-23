@@ -7,6 +7,8 @@
 
 Accepted
 
+Amended by [ADR 0015](0015-default-third-person-camera.md) (2026-07-23): third-person is now a perspective follow camera with fixed pitch; vertical free look remains first-person-only.
+
 ## Context
 
 ADR 0011 shipped first-person inspection with the existing horizontal camera orbit only. Players could turn left and right but could not inspect ceilings, upper floors, or nearby ground without leaving first-person mode. This made the eye-level view too restrictive for its stated purpose of inspecting interiors and sky detail.
