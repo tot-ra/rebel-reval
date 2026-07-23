@@ -15,6 +15,8 @@ Validate a package corpus and emit branch-traversal Godot tests:
 ```bash
 python3 tools/verify_quest_packages.py content/packages/act1_south_quarter_probe
 python3 tools/generate_quest_package_tests.py --check
+# During multi-package authoring, skip broken packages instead of aborting:
+python3 tools/generate_quest_package_tests.py --skip-failing
 python3 tools/validate_content.py \
   content/packages/act1_south_quarter_probe/content \
   content/examples/support

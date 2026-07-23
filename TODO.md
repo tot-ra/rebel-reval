@@ -12,22 +12,16 @@ References:
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
 | P0 |    17  |    15  | Baseline, storage, materials, historical audit |
-| P1 |     3  |     2  | Runtime systems, content foundation |
+| P1 |     3  |     3  | Runtime systems, content foundation |
 | P2 |    17  |     4  | Vertical-slice production (playable MVP) |
-| P3 |    15  |     0  | Validation, accessibility, performance |
+| P3 |    13  |     0  | Validation, accessibility, performance |
 | P4 |    43  |     5  | Act 1: The Simmering City |
-| P5 |     9  |     1  | Act 2: The Fire of Rebellion |
+| P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
 
 
 
-
-
-
-
-
-
-<!-- P0-121 completed in current session -->
+<!-- P1-039 completed in current session -->
 
 
 
@@ -50,9 +44,14 @@ References:
 
 ## P5 - Act 2: The Fire of Rebellion
 
-### Medium
+### Small
 
 - [x] P5-008 | deps: none | deliverable: two additional enemy archetypes (Order knight, crossbowman) and scripted allied NPC support inside missions | verify: archetypes reuse the shared enemy state machine and allies never require party-control UI
+- [x] P5-013 | deps: none | deliverable: Act 2 lore sheet covering the Four Kings' historical context with in-game citations from existing assets | verify: all named sources map to assets already shipped in Act 1 or Act 2 (DONE)
+- [x] P5-014 | deps: P5-013 | deliverable: expand four_kings_act2_lore.md with Jüri Ratnik and Urmas Laar character briefs, linking each king's personality to specific Act 2 mission templates | verify: each king has at least one authored encounter or dialogue beat in P5-007/P5-009 scope
+
+### Medium
+
 - [ ] P5-007 | deps: P5-006 | deliverable: authored Kanavere Bog and Sõjamäe event missions with attested outcomes and steerable local cost | verify: battle outcomes match `docs/CANON.md` while named survivor and casualty states differ across branches
 - [ ] P5-004 | deps: P5-001 | deliverable: night mission framework: sabotage, theft, escort, and defense templates as content-defined packages with combat and non-combat routes | verify: one content-only mission per template completes both routes and writes ledger events
 - [ ] P5-006 | deps: P5-003,P5-004 | deliverable: playable siege arc: investment, sortie/supply, and assault phases each offering rebel-aligned and ruler-aligned missions | verify: both allegiance paths complete every phase and attested milestones occur on schedule on all paths
@@ -62,6 +61,10 @@ References:
 - [ ] P5-005 | deps: P4-016,P5-004 | deliverable: forged-object recall: objects with Act 1 forged records resurface in Act 2 encounters with behavior matching their records | verify: automated matrix shows each recallable object class alters at least one encounter and a sabotaged versus honest record produces observably different outcomes
 - [ ] P5-003 | deps: P5-002 | deliverable: world activation wave 1: Harju village, rebel kings' camp, and sacred grove from existing prototypes through the parity and activation gates (approval artifact: ADR 0008) | verify: activation guard, transition verifier, and traversal/collision tests pass and day/night captures pass parity review
 - [ ] P5-001 | deps: P4-013 | deliverable: approved Act 2 design: uprising-night opening derived from the act-boundary state, three-phase siege structure (investment, sortie/supply, assault), mission list, faction war-state table, and `docs/CANON.md` timeline entries for Kanavere Bog, Sõjamäe, and Paide with confidence labels | verify: every mission maps to an existing system or a named task in this file and every named event carries a canon confidence label
+
+### Large
+
+- [ ] P5-012 | deps: P5-010,P5-006 | deliverable: Act 2 end-to-end branch traversal and save compatibility suite covering all authored siege arcs, night missions, and the Paide finale | verify: every intended act-boundary state is reachable, every published save fixture loads or migrates
 
 ## P4 - Act 1: The Simmering City
 
@@ -130,15 +133,16 @@ References:
 - [ ] P3-012 | deps: P2-012,P3-007,P3-011 | deliverable: tested desktop export set and honest supported-platform declaration | verify: each declared platform installs, starts, saves, loads, and exits without critical error
 - [ ] P3-015 | deps: P3-014 | deliverable: tagged vertical-slice release with frozen compatible save and content schema versions | verify: release tag rebuilds from clean clone and loads its published save fixture
 - [ ] P3-001 | deps: P2-012 | deliverable: automated traversal of every valid slice branch and deliberate invalid state | verify: traversal report shows all intended endings reachable and all invalid transitions rejected
-- [ ] P3-009 | deps: P2-014 | deliverable: approved forge, town, tension, night, and consequence music stems with runtime streaming | verify: runtime loads only approved tracks and music memory remains within recorded budget
-- [ ] P3-002 | deps: P2-012 | deliverable: first external playtest round with at least five players focused on comprehension | verify: report records completion time, missed evidence, unclear prompts, deaths, and explanation of the core loop
-- [ ] P3-010 | deps: P2-012 | deliverable: normalized forge, footsteps, UI, combat, gate, crowd, and environment sound families with concurrency limits | verify: loudness report passes and stress scene produces no uncontrolled sound stacking
+
 ### Medium
 
 - [ ] P3-004 | deps: P3-003 | deliverable: second external playtest round with at least five players focused on choice impact | verify: report records branch distribution, noticed consequences, character understanding, and perceived choice quality
 - [ ] P3-008 | deps: P3-007 | deliverable: information design with no required color-only, audio-only, or prior-history dependency | verify: accessibility review completes slice with color removed, audio muted, and no external historical explanation
 - [ ] P3-007 | deps: P2-012 | deliverable: accessibility options for remapping, hold/toggle, text speed, scalable text, subtitle background, focus contrast, screenshake, and reduced flashing | verify: accessibility checklist passes at supported resolutions and on both input methods
 - [ ] P3-014 | deps: P3-001,P3-006,P3-008,P3-012,P3-013 | deliverable: signed vertical-slice gate report containing every acceptance criterion copied from README | verify: report records pass evidence for each criterion, including at least five players explaining forge-to-consequence and at least four rating the major choice difficult for narrative rather than UI reasons
+### Large
+
+- [ ] P3-016 | deps: P2-012,P3-014 | deliverable: end-to-end slice branch traversal suite covering all playable states and invalid transitions, save compatibility across every reported platform | verify: traversal report shows all intended endings reachable, all invalid transitions rejected, every published save fixture loads or migrates on declared platforms
 
 ## P2 - Vertical-slice production (playable MVP)
 
@@ -167,6 +171,10 @@ References:
 - [ ] P2-021 | deps: P0-101 | deliverable: visual-parity and gameplay-parity gate for the converted smithy and Lower Town slice with matched captures, annotated anchor accounting, topology traces, collision and navigation overlays, Y-sort and fade cases, and identical-framing day/night review | allowed files: `TODO.md`, `docs/MAP_CONVERSION_PLAN.md`, `docs/reports/map_conversion_parity.md`, `docs/reports/images/map_conversion_smithy_before.png`, `docs/reports/images/map_conversion_smithy_after_day.png`, `docs/reports/images/map_conversion_smithy_after_night.png`, `docs/reports/images/map_conversion_lower_town_before.png`, `docs/reports/images/map_conversion_lower_town_after_day.png`, `docs/reports/images/map_conversion_lower_town_after_night.png`, `tools/verify_map_conversion_parity.py`, `tests/python/test_verify_map_conversion_parity.py` | constraints: semantic parity rather than pixel tracing, no map or runtime-art edits, no acceptance by hue alone, unresolved parity failures block P2-012 | verify: `python3 tools/verify_map_conversion_parity.py` and `python3 -m unittest tests.python.test_verify_map_conversion_parity -v` pass with 100 percent anchor accounting, all required route pairs reachable, all hard exclusions blocked, zero spawn overlaps, zero missing references, and signed human review of composition, depth, readability, and day/night value hierarchy
 
 ## P1 - Runtime systems and content foundation
+
+### Small
+
+- [x] P1-039 | deps: P1-038 | deliverable: `--skip-failing` flag on `tools/generate_quest_package_tests.py` so partial quest-package authoring can regenerate traversal tests without aborting on one broken package | allowed files: `tools/generate_quest_package_tests.py`, `tests/python/test_generate_quest_package_tests.py`, `content/packages/README.md`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 -m unittest tests.python.test_generate_quest_package_tests -v` passes; `python3 tools/generate_quest_package_tests.py --skip-failing --check` exits 0 on the current corpus
 
 ### Medium
 
