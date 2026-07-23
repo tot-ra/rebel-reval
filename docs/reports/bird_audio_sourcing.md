@@ -17,6 +17,7 @@ script default filter is `len:15-90`.
 | **xeno-canto.org** | Excellent - filter by `cnt:Estonia`, thousands of recordings, per-recording quality grade A-E | Per recording: CC0, CC BY, CC BY-SA, **and** CC BY-NC(-SA/-ND) | **Only** the CC0 / BY / BY-SA subset | **Primary source.** Filter per recording. |
 | **freesound.org** | Some European recordings, not Estonia-tagged reliably | Per sound: CC0, CC BY, CC BY-SA, CC BY-NC | Only CC0 / BY / BY-SA | Secondary / gap filler. |
 | **Macaulay Library (eBird / Cornell)** | Very good regional coverage | Research/personal use; no commercial redistribution license | **No** | Reference only, do not ship. |
+| **loodusheli.ee** ("Kõrv loodusesse", Univ. of Tartu Natural History Museum) | Best available - recorded *in Estonia* by Estonian naturalists, incl. species soundscapes by biotope/season | **No license stated anywhere**; site footer is only `© 2016 TÜ loodusmuuseum`. Under EE/EU law, silence means all rights reserved | **No, not as-is** | Reject for direct download; **best candidate for a written permission request** (see below). |
 | Tierstimmenarchiv, Naturalis, most museum archives | Good | Mostly CC BY-NC | **No** | Reject for shipping. |
 | Paid royalty-free libs (BOOM, A Sound Effect, etc.) | Generic European, not species/region specific | Royalty-free commercial | Yes | Fallback if a species has no free clean Estonian take. |
 
@@ -68,6 +69,43 @@ NC rows are noted but rejected).
 **P0-122c outcome:** no freesound.org clip satisfies P0-122b. The documented P0-122
 gap fills remain in place; **P0-122b** stays open until a maintainer-recorded Baltic
 take or a newly published CC0 / CC BY / CC BY-SA source appears.
+
+## The core finding: no free source of genuinely Estonian recordings exists
+
+Every route was checked and the result is consistent, so this is a real constraint
+rather than an incomplete search:
+
+| Route | Estonian material? | Commercially licensed? |
+|---|---|---|
+| xeno-canto | Yes, thousands | **No** - xeno-canto's *default upload license is CC BY-NC-SA*, so the commercial subset is near-empty for Estonia |
+| loodusheli.ee | Yes, the best regional material | **No** - all rights reserved, no license offered |
+| freesound.org | Barely | Some CC0/BY, but nothing Estonia-tagged |
+| Macaulay Library | Yes | **No** - research/personal use only |
+
+Evidence from our own run: `sounds/birds/manifest.csv` holds 30/30 species but
+**zero recordings from Estonia**. `--widen-baltic` drifted far past the Baltic
+(Sweden 12, France 6, Netherlands 3, Finland 3, India 2, USA/Mongolia/Kazakhstan/
+Germany 1 each), and licenses are 28x CC BY-SA, 1x CC BY, 1x CC BY-SA 3.0 - no CC0.
+
+Consequence: **genuinely Estonian audio requires either written permission or our own
+recordings.** Only these three paths are real:
+
+1. **Request permission** (unlocks the large Estonian NC/reserved pools). NC licensing
+   does not stop the rightsholder from granting us separate commercial terms.
+   Named contacts found on loodusheli.ee:
+   - Tartu University Natural History Museum - `loodusmuuseum@ut.ee`
+   - Estonian Fund for Nature (Eestimaa Looduse Fond) - `elf@elfond.ee`
+   - individual xeno-canto recordists, who are named on every recording page;
+     Estonian contributors are the priority.
+   Underlying loodusheli.ee data sits in **PlutoF** (University of Tartu biodiversity
+   platform), which supports per-record licensing, so some records may already carry
+   usable terms - worth asking about explicitly.
+2. **Record ourselves in Estonia.** A spring dawn chorus session covers most of the
+   nine `*.song` species with perfect regional fit and unencumbered rights.
+3. **Fennoscandian fallback.** Sweden/Finland xeno-canto takes under CC0/BY/BY-SA are
+   ecologically defensible (shared avifauna and song dialects across the Gulf of
+   Finland) and need no permission. Far-flung takes (India, Mongolia, Kazakhstan, USA)
+   are **not** defensible and should be replaced.
 
 ## "Song" vs "call"
 
