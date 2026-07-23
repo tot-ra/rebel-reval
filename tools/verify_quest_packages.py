@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Validate quest package manifests against landmark integrations (P1-038)."""
+"""Validate quest package manifests against landmark integrations (P1-038).
+
+Adds a ``--skip-failing`` flag that lets validation continue when one package
+fails to load or validate, instead of aborting the whole corpus. This mirrors
+``tools/generate_quest_package_tests.py --skip-failing`` for partial authoring.
+"""
 
 from __future__ import annotations
 
@@ -16,12 +21,52 @@ from quest_packages import discover_packages, load_package, validate_package  # 
 ROOT = TOOLS.parent
 
 
+def validate_all(
+    package_dirs: list[Path], *, skip_failing: bool = False
+) -> tuple[int, list[str], list[str]]:
+    """Return (validated_count, skipped_names, errors)."""
+    errors: list[str] = []
+    skipped: list[str] = []
+    validated = 0
+
+    for package_dir in package_dirs:
+        try:
+            package = load_package(package_dir)
+        except Exception as exc:  # pragma: no cover - defensive
+            msg = f"{package_dir.name}: failed to load ({exc})"
+            if skip_failing:
+                print(f"[skip] {msg}", file=sys.stderr)
+                skipped.append(package_dir.name)
+                continue
+            errors.append(msg)
+            break
+
+        package_errors = validate_package(package)
+        if package_errors:
+            msg = f"{package_dir.name}: " + "; ".join(package_errors)
+            if skip_failing:
+                print(f"[skip] {msg}", file=sys.stderr)
+                skipped.append(package_dir.name)
+                continue
+            errors.extend(package_errors)
+            break
+
+        validated += 1
+
+    return validated, skipped, errors
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "paths",
         nargs="*",
         help="package directories (defaults to every content/packages/* manifest)",
+    )
+    parser.add_argument(
+        "--skip-failing",
+        action="store_true",
+        help="skip packages that fail to load or validate instead of aborting",
     )
     args = parser.parse_args(argv)
 
@@ -30,17 +75,24 @@ def main(argv: list[str] | None = None) -> int:
         print("no quest packages discovered", file=sys.stderr)
         return 1
 
-    errors: list[str] = []
-    for package_dir in package_dirs:
-        package = load_package(package_dir)
-        errors.extend(validate_package(package))
-
+    validated, skipped, errors = validate_all(
+        package_dirs,
+        skip_failing=args.skip_failing,
+    )
     if errors:
         for error in errors:
             print(error, file=sys.stderr)
         return 1
 
-    print(f"validated {len(package_dirs)} quest package(s)")
+    if args.skip_failing and skipped:
+        plural = "s" if len(skipped) != 1 else ""
+        print(
+            f"[info] skipped {len(skipped)} broken package{plural}: "
+            + ", ".join(skipped),
+            file=sys.stderr,
+        )
+
+    print(f"validated {validated} quest package(s)")
     return 0
 
 

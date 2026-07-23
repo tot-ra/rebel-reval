@@ -12,12 +12,13 @@ References:
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
 | P0 |    15  |    18  | Baseline, storage, materials, historical audit |
-| P1 |     3  |     3  | Runtime systems, content foundation |
+| P1 |     3  |     4  | Runtime systems, content foundation |
 | P2 |    15  |     6  | Vertical-slice production (playable MVP) |
 | P3 |    13  |     0  | Validation, accessibility, performance |
 | P4 |    42  |     6  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
+
 
 
 
@@ -180,6 +181,7 @@ References:
 
 ### Small
 
+- [x] P1-040 | deps: P1-039 | deliverable: `--skip-failing` flag on `tools/verify_quest_packages.py` so partial quest-package authoring can validate the rest of the corpus without aborting on one broken package | allowed files: `tools/verify_quest_packages.py`, `tests/python/test_verify_quest_packages.py`, `content/packages/README.md`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 -m unittest tests.python.test_verify_quest_packages -v` passes; `python3 tools/verify_quest_packages.py --skip-failing` exits 0 on the current corpus
 - [x] P1-039 | deps: P1-038 | deliverable: `--skip-failing` flag on `tools/generate_quest_package_tests.py` so partial quest-package authoring can regenerate traversal tests without aborting on one broken package | allowed files: `tools/generate_quest_package_tests.py`, `tests/python/test_generate_quest_package_tests.py`, `content/packages/README.md`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 -m unittest tests.python.test_generate_quest_package_tests -v` passes; `python3 tools/generate_quest_package_tests.py --skip-failing --check` exits 0 on the current corpus
 
 ### Medium
