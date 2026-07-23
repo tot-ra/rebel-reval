@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `57`
-- Markdown files excluded as archive/reference/out of active scope: `363`
-- Local/external links inspected: `308`
-- Links to active Markdown docs: `127`
-- Links to existing archive/reference/non-active local docs: `48`
+- Active Markdown files scanned: `58`
+- Markdown files excluded as archive/reference/out of active scope: `365`
+- Local/external links inspected: `364`
+- Links to active Markdown docs: `144`
+- Links to existing archive/reference/non-active local docs: `83`
 - External links skipped for reachability: `27`
 - Issues found: `8`
 
@@ -83,6 +83,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/INVENTORY_MECHANICS.md`
 - `docs/LANDMARK_NARRATIVE_INTEGRATION.md`
 - `docs/LARGE_MAP_CHUNKING_PLAN.md`
+- `docs/lore/estonian_folklore.md`
 - `docs/lore/four_kings_act2_lore.md`
 - `docs/MAP_ALIGNMENT_EDITOR.md`
 - `docs/MAP_AUTHORING.md`

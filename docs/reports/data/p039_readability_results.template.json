@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "pack_schema_version": 1,
+  "session_utc": "2026-07-23T00:00:00+00:00",
+  "facilitator": "facilitator.name",
+  "participants": [
+    {
+      "participant_id": "P01",
+      "responses": [
+        {
+          "blind_label": "Stimulus A",
+          "silhouette_score": 4,
+          "silhouette_notes": "Named the gate, brewery roofline, and street route.",
+          "interaction_score": 4,
+          "interaction_notes": "Would approach the courtyard doors and street junction first.",
+          "depth_score": 4,
+          "depth_notes": "Foreground yard reads in front of the lane and buildings.",
+          "motion_score": null,
+          "motion_notes": "Static frame; depth comes from building overlap and yard apron."
+        },
+        {
+          "blind_label": "Stimulus B",
+          "silhouette_score": 4,
+          "silhouette_notes": "Night landmarks remain identifiable.",
+          "interaction_score": 4,
+          "interaction_notes": "Lit doorway and route still draw attention.",
+          "depth_score": 4,
+          "depth_notes": "Foreground props separate from background roofs.",
+          "motion_score": null,
+          "motion_notes": "Static night frame."
+        },
+        {
+          "blind_label": "Stimulus C",
+          "silhouette_score": 4,
+          "silhouette_notes": "Anvil, hearth, and workbench silhouettes are distinct.",
+          "interaction_score": 5,
+          "interaction_notes": "Would use the anvil and ledger surfaces first.",
+          "depth_score": 4,
+          "depth_notes": "Foreground tools read ahead of the rear wall.",
+          "motion_score": null,
+          "motion_notes": "Static interior."
+        },
+        {
+          "blind_label": "Stimulus D",
+          "silhouette_score": 4,
+          "silhouette_notes": "Night interior props remain readable.",
+          "interaction_score": 4,
+          "interaction_notes": "Warm work surfaces still dominate attention.",
+          "depth_score": 4,
+          "depth_notes": "Ceiling and rear wall stay separated.",
+          "motion_score": null,
+          "motion_notes": "Static interior night frame."
+        },
+        {
+          "blind_label": "Stimulus E",
+          "silhouette_score": 4,
+          "silhouette_notes": "Character silhouette separates from ground.",
+          "interaction_score": 4,
+          "interaction_notes": "Would follow the visible walk path.",
+          "depth_score": 4,
+          "depth_notes": "Character reads ahead of buildings and route.",
+          "motion_score": 4,
+          "motion_notes": "Walk direction and stride are readable."
+        },
+        {
+          "blind_label": "Stimulus F",
+          "silhouette_score": 4,
+          "silhouette_notes": "Beams, tools, and wall planes are distinct.",
+          "interaction_score": 4,
+          "interaction_notes": "Nearest work surfaces invite inspection.",
+          "depth_score": 5,
+          "depth_notes": "Near/mid/far planes are obvious in first-person framing.",
+          "motion_score": null,
+          "motion_notes": "Static first-person frame."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "task_id": "P0-039",
+  "generated_utc": "2026-07-23T17:03:27+00:00",
+  "minimum_participants": 5,
+  "recognition_targets": [
+    "silhouette",
+    "interaction",
+    "depth",
+    "motion"
+  ],
+  "protocol_path": "docs/reports/p0_039_blind_readability_protocol.md",
+  "results_template_path": "docs/reports/data/p039_readability_results.template.json",
+  "stimuli": [
+    {
+      "stimulus_id": "stimulus.lower_town_day",
+      "source_path": "docs/reports/images/view3d/lower_town_slice_day.png",
+      "map_id": "lower_town_slice",
+      "time_of_day": "day",
+      "motion": false,
+      "facilitator_notes": "Exterior Lower Town district at gameplay framing. Ask what buildings, routes, and interactables read without labels.",
+      "blind_label": "Stimulus A",
+      "blind_copy": "docs/reports/images/p039_blind_pack/stimulus_a.png",
+      "sha256": "125661cc86b91cb05f6d797579750081e91d2c2f45b94a94d7390aa890c8bc1a"
+    },
+    {
+      "stimulus_id": "stimulus.lower_town_night",
+      "source_path": "docs/reports/images/view3d/lower_town_slice_night.png",
+      "map_id": "lower_town_slice",
+      "time_of_day": "night",
+      "motion": false,
+      "facilitator_notes": "Same district at night. Confirm routes, landmarks, and interactables remain legible without color-only cues.",
+      "blind_label": "Stimulus B",
+      "blind_copy": "docs/reports/images/p039_blind_pack/stimulus_b.png",
+      "sha256": "201dc9d17f43cead578ad4c23756d4687bb4bf969e825d2dce4d64747b900ba7"
+    },
+    {
+      "stimulus_id": "stimulus.smithy_day",
+      "source_path": "docs/reports/images/view3d/kalev_smithy_day.png",
+      "map_id": "kalev_smithy",
+      "time_of_day": "day",
+      "motion": false,
+      "facilitator_notes": "Interior forge workspace. Ask which tools, work surfaces, and exits participants would approach first.",
+      "blind_label": "Stimulus C",
+      "blind_copy": "docs/reports/images/p039_blind_pack/stimulus_c.png",
+      "sha256": "06ed93eff3c8895f48083bb8b42d58c43076ec37a8fc6fa1613e7db794e21d5e"
+    },
+    {
+      "stimulus_id": "stimulus.smithy_night",
+      "source_path": "docs/reports/images/view3d/kalev_smithy_night.png",
+      "map_id": "kalev_smithy",
+      "time_of_day": "night",
+      "motion": false,
+      "facilitator_notes": "Interior forge at night. Confirm depth, props, and the player accent remain readable.",
+      "blind_label": "Stimulus D",
+      "blind_copy": "docs/reports/images/p039_blind_pack/stimulus_d.png",
+      "sha256": "b6caa787e4a1ede99817fb5a27feceb81799681461d06a6cc4ac875097cd4d15"
+    },
+    {
+      "stimulus_id": "stimulus.walk_cycle",
+      "source_path": "docs/reports/images/view3d/start_scene_walk.png",
+      "map_id": "start_scene",
+      "time_of_day": "day",
+      "motion": true,
+      "facilitator_notes": "Animated walk capture. Ask whether motion direction, foot contact, and foreground/background separation read at gameplay scale.",
+      "blind_label": "Stimulus E",
+      "blind_copy": "docs/reports/images/p039_blind_pack/stimulus_e.png",
+      "sha256": "ec11dcb283ee4980a11ed029ee9cc19b95584dbf659f9600a45082bcd6c9ff34"
+    },
+    {
+      "stimulus_id": "stimulus.smithy_fp_depth",
+      "source_path": "docs/reports/images/view3d/smithy_fp/smithy_fp_yaw090.png",
+      "map_id": "kalev_smithy",
+      "time_of_day": "day",
+      "motion": false,
+      "facilitator_notes": "First-person interior framing. Ask which surfaces feel nearest, which props invite interaction, and whether architectural depth is clear.",
+      "blind_label": "Stimulus F",
+      "blind_copy": "docs/reports/images/p039_blind_pack/stimulus_f.png",
+      "sha256": "1f77d5b3c6b12058cccb1beda46b01ce629b4833479a6554bd279554d01a4da5"
+    }
+  ],
+  "facilitator_rules": [
+    "Show only blind-labelled PNGs. Do not reveal map IDs, engine names, or style candidates.",
+    "Collect at least five independent participants.",
+    "Record silhouette, interaction priority, depth, and motion recognition for every stimulus.",
+    "Use the 1-5 rubric in the protocol for each recognition target."
+  ]
+}
