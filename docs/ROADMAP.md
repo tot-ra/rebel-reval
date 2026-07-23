@@ -6,6 +6,7 @@ Executable open work stays in [`TODO.md`](../TODO.md).
 ## Current focus (2026-07-23)
 
 1. **P0-072** - sourced 1343 Reval environment dossier per retained map.
+Coordination note (2026-07-23 P0-072 town_hall card): `docs/HISTORICAL_AUDIT.md` now includes a full `town_hall` interior dossier card aligned with the early-1343 civic-hall prototype in `content/maps/town_hall.rrmap`; `python3 tools/verify_historical_dossier.py` passes 13/13 retained urban registry cards with human review still pending under **P0-111**.
 2. **P0-053** - slice surface and weathering kit (smithy interior wiring + slice surface tests in progress).
 Coordination note (2026-07-23 P2-026): Lower Town slice yards now use P2-025 trade props on `lower_town_slice` and `kalev_smithy` - brewery keg/malt stacks, smithy charcoal/iron scrap, cistern wash tub, and cooper/rope/saddler craft frontages; `evidence_barrels` retargets to `market_goods_pallet`; `--filter=test_lower_town_slice_map` passes 17/17 and `--filter=test_kalev_smithy_map` passes 9/9. Day/night capture sign-off remains optional before P2-012.
 Coordination note (2026-07-23 P4-028a): Kalamaja (`reval_harbor_east`) net yards now use `fishing_nets` and `fish_drying_rack` instead of barrel placeholders; smoke, salt, boatwright, and fisher yards carry trade-specific P2-025 props; `--filter=test_reval_harbor_map` passes 11/11. Day/night capture sign-off remains optional before broader harbour activation. Next dressing step: **P2-026** (Lower Town slice yards).

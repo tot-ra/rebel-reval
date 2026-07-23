@@ -299,6 +299,23 @@ The numeric ranges below use these definitions:
 | Topography | Nearly level usable floor with small hearth/dais fall; no exterior hill claim - **D** | Interior gameplay abstraction |
 | Landmarks | Guild dais, long tables, hearth and return door remain stable gameplay anchors; faction NPC roster and exact guild identity are **D**, while present Great Guild Hall (1407-10) and Blackheads institution (1399) must not be presented as attested 1343 occupants | H06-H07, H14 and market_civic_quarter exclusions |
 
+#### `town_hall` - early civic hall interior (prototype)
+
+| Category | 1343 target | Evidence |
+|---|---|---|
+| Street/property layout | One compact civic hall interior entered from the market-square threshold: public entry, petition zone, council dais, scribe/archive bay, and hearth/service strip. Exact room count, ceiling height, and window rhythm beyond the surviving first-quarter-14th-century hall mass are **D/U** | H06 records local-limestone town hall in 1322 and early-14th-century expansion; present vaulted upper hall/tower postdates 1343 |
+| Density | Built footprint is 100% because this blueprint is an interior. Within the footprint, circulation/open floor should remain 45-60% and fixed platforms/furnishings 40-55% - **B/D** | H06; gameplay clearance around `council_dais`, `petition_desk`, and `scribe_archive` remains authoritative |
+| Ordinary / exceptional buildings | Heavy timber floor, limewashed plaster walls, and local limestone at threshold, council dais, and hearth; no Gothic tower, upper storey, coats-of-arms gallery, or post-1404 ceremonial sequence - **A/B/D/U** | H06; `market_civic_quarter` exclusions |
+| Roof covers | Roof is not normally visible. If exposed by inspection view, use shingle or tile on a modest elongated civic hall shorter than the post-1371 mass; thatch is not expected on the attested stone hall - **B/U** | H06 and shared roof rule |
+| Ground surfaces | Timber boards 45-60%; stone threshold/dais/hearth zone 15-25%; packed earth or plaster service strips 15-25% - **B/D** | H05 records wooden floors in affluent civic/merchant interiors; exact town-hall surfacing unknown |
+| Drainage | Hearth ash/soot runoff uses a short gutter or hearth pit; no invented sewer - **B/U** | H05; exact interior drainage unknown |
+| Fences / plot edges | Interior partitions are timber/plaster. No rooted vegetation inside the hall - **B/U** | Interior scope |
+| Vegetation species | No rooted vegetation required indoors. Optional dried goods, wax, or civic garlands may appear as generic props; exact species are **U/D** | H17 supports medieval plant use but not civic inventory |
+| Garden / agricultural use | None inside this blueprint. Petition and council business draw on off-map market trade - **D/U** | Interior scope |
+| Domestic / wild fauna | Resident livestock and wild fauna: `none`. At most one commensal rodent or cat cue may be `trace` and **D/U** | H18; exact civic-hall fauna unknown |
+| Topography | Nearly level usable floor with a low council dais; no exterior hill claim - **D** | Interior gameplay abstraction |
+| Landmarks | Council dais, petition desk, scribe archive, civic hearth, and square return door remain stable gameplay anchors; exact burgomaster roster and trial procedure are **D**, while the post-1402-04 upper hall, tower, and later ceremonial room sequence must not be presented as attested 1343 fabric | H06, H07, and `market_civic_quarter` exclusions |
+
 #### `north_quarter` - northern merchant ward and Coastal Gate approach
 
 | Category | 1343 target | Evidence |
@@ -435,7 +452,7 @@ Required reviewer: a maintainer or consulted historian who did not author these 
 | Review item | Decision | Reviewer | Date | Notes |
 |---|---|---|---|---|
 | Evidence-class separation is clear and no later survival is presented as 1343 fact | `pending` |  |  |  |
-| Twelve map cards match the registry and cover layout, density, buildings/materials, roofs, ground, drainage, fences, vegetation species, garden/agricultural use, fauna, topography and landmark state | `pending` |  |  |  |
+| Thirteen map cards match the registry and cover layout, density, buildings/materials, roofs, ground, drainage, fences, vegetation species, garden/agricultural use, fauna, topography and landmark state | `pending` |  |  |  |
 | Built/open and surface bands are acceptable as bounded production targets | `pending` |  |  |  |
 | Landmark exclusions and unknowns are historically conservative | `pending` |  |  |  |
 | Approved for P1-036 and district quality-pass acceptance thresholds | `pending` |  |  |  |
