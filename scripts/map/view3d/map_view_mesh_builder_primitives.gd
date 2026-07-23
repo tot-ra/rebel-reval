@@ -195,17 +195,20 @@ static func gabled_roof_mesh(
 	base: Vector2,
 	ridge_along_x: bool = true,
 	overhang: float = -1.0,
-	close_gables: bool = true
+	close_gables: bool = true,
+	pitch: float = -1.0
 ) -> ArrayMesh:
 	if overhang < 0.0:
 		overhang = MapViewMeshBuilderConfig.ROOF_OVERHANG
-	var cache_key := "gabled_roof:%s:%s:%.3f:%s" % [base, ridge_along_x, overhang, close_gables]
+	if pitch < 0.0:
+		pitch = MapViewMeshBuilderConfig.ROOF_PITCH
+	var cache_key := "gabled_roof:%s:%s:%.3f:%s:%.3f" % [base, ridge_along_x, overhang, close_gables, pitch]
 	if _mesh_cache.has(cache_key):
 		return _mesh_cache[cache_key]
 	var half_w := base.x * 0.5 + overhang
 	var half_d := base.y * 0.5 + overhang
 	var narrow := half_d if ridge_along_x else half_w
-	var rise := narrow * MapViewMeshBuilderConfig.ROOF_PITCH
+	var rise := narrow * pitch
 	var slope_length := sqrt(narrow * narrow + rise * rise)
 	var ridge_half := half_w if ridge_along_x else half_d
 
@@ -301,6 +304,97 @@ static func add_roof_triangle(surface: SurfaceTool, a: Vector3, b: Vector3, c: V
 		surface.add_vertex(vertex)
 
 
+## Filled round-headed opening used by civic arcades and portals. The mesh has
+## two faces because facade relief can be seen from either side in editor orbit.
+static func arched_panel_mesh(
+	width: float,
+	height: float,
+	depth: float = 0.06,
+	segments: int = 12
+) -> ArrayMesh:
+	var safe_width := maxf(width, 0.2)
+	var safe_height := maxf(height, safe_width * 0.55)
+	var safe_segments := maxi(segments, 4)
+	var cache_key := "arched_panel:%.3f:%.3f:%.3f:%d" % [safe_width, safe_height, depth, safe_segments]
+	if _mesh_cache.has(cache_key):
+		return _mesh_cache[cache_key]
+
+	var radius := minf(safe_width * 0.5, safe_height * 0.58)
+	var spring_y := safe_height - radius
+	var points: Array[Vector2] = [Vector2(-safe_width * 0.5, 0.0), Vector2(safe_width * 0.5, 0.0)]
+	for index in safe_segments + 1:
+		var angle := PI * float(index) / float(safe_segments)
+		points.append(Vector2(cos(angle) * radius, spring_y + sin(angle) * radius))
+
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var center := Vector2(0.0, safe_height * 0.42)
+	for index in points.size():
+		var next := (index + 1) % points.size()
+		_add_flat_triangle(surface, center, points[next], points[index], -depth * 0.5, Vector3.FORWARD)
+		_add_flat_triangle(surface, center, points[index], points[next], depth * 0.5, Vector3.BACK)
+	var mesh := surface.commit()
+	_mesh_cache[cache_key] = mesh
+	return mesh
+
+
+## Semicircular masonry band. Straight jambs are authored separately so one
+## band can top a window-sized arcade bay or a wider functional door portal.
+static func arch_band_mesh(
+	outer_radius: float,
+	thickness: float,
+	depth: float = 0.12,
+	segments: int = 12
+) -> ArrayMesh:
+	var safe_outer := maxf(outer_radius, 0.2)
+	var safe_thickness := clampf(thickness, 0.05, safe_outer * 0.72)
+	var safe_segments := maxi(segments, 4)
+	var cache_key := "arch_band:%.3f:%.3f:%.3f:%d" % [safe_outer, safe_thickness, depth, safe_segments]
+	if _mesh_cache.has(cache_key):
+		return _mesh_cache[cache_key]
+
+	var inner_radius := safe_outer - safe_thickness
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for index in safe_segments:
+		var angle_a := PI * float(index) / float(safe_segments)
+		var angle_b := PI * float(index + 1) / float(safe_segments)
+		var outer_a := Vector2(cos(angle_a), sin(angle_a)) * safe_outer
+		var outer_b := Vector2(cos(angle_b), sin(angle_b)) * safe_outer
+		var inner_a := Vector2(cos(angle_a), sin(angle_a)) * inner_radius
+		var inner_b := Vector2(cos(angle_b), sin(angle_b)) * inner_radius
+		_add_flat_quad(surface, outer_a, inner_a, inner_b, outer_b, -depth * 0.5, Vector3.FORWARD)
+		_add_flat_quad(surface, outer_b, inner_b, inner_a, outer_a, depth * 0.5, Vector3.BACK)
+	var mesh := surface.commit()
+	_mesh_cache[cache_key] = mesh
+	return mesh
+
+
+static func _add_flat_triangle(
+	surface: SurfaceTool,
+	a: Vector2,
+	b: Vector2,
+	c: Vector2,
+	z: float,
+	normal: Vector3
+) -> void:
+	for point in [a, b, c]:
+		surface.set_normal(normal)
+		surface.set_uv(point)
+		surface.add_vertex(Vector3(point.x, point.y, z))
+
+
+static func _add_flat_quad(
+	surface: SurfaceTool,
+	a: Vector2,
+	b: Vector2,
+	c: Vector2,
+	d: Vector2,
+	z: float,
+	normal: Vector3
+) -> void:
+	_add_flat_triangle(surface, a, b, c, z, normal)
+	_add_flat_triangle(surface, a, c, d, z, normal)
 
 
 static func box(parent: Node3D, name: String, size: Vector3, position: Vector3, role: StringName) -> void:

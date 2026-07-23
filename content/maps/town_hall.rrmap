@@ -1,0 +1,56 @@
+# Developer-only interior of the early Town Hall. This is a plausible 1343 civic
+# hall, not the surviving post-1404 room sequence: one public hall combines
+# petitions, weighing records, council business, and a compact archive.
+rrmap 1
+map town_hall loc.lower_town.town_hall 40 24 timber_floor scope=prototype active=false palette=clean_painted seed=1343 cell_size=32
+source "scenes/reval_center/town_hall/town_hall.tscn"
+source "docs/HISTORICAL_AUDIT.md"
+source "scenes/reval_center/market_civic_quarter/town_hall.md"
+style wall.civic wall_height=136 wall_color=b8ad98ff wall_material=plaster
+style wall.smoked wall_height=136 wall_color=8c806fff wall_material=smoked_plaster
+style block.dais wall_height=32 wall_color=8f887cff wall_material=limestone
+# Limestone is kept to the civic threshold, dais, and hearth; the working hall
+# otherwise uses heavy timber boards, limewashed walls, and movable furniture.
+terrain entry_threshold stone 17 20 6 3 order=1
+terrain council_dais stone 13 3 14 3 order=2
+terrain hearth_apron stone 32 4 5 5 order=3
+terrain archive_bay plaster 3 3 8 8 order=4
+wall wall.north 0 0 39 0 thickness=1 openings=7,0,2,1|19,0,2,1|31,0,2,1 kind=interior_wall style=wall.civic
+wall wall.south 0 23 39 23 thickness=1 openings=19,23,2,1 kind=interior_wall style=wall.civic
+wall wall.west 0 1 0 22 thickness=1 openings=0,8,1,2 kind=interior_wall style=wall.civic
+wall wall.east_north 39 1 39 11 thickness=1 openings=39,7,1,2 kind=interior_wall style=wall.smoked
+wall wall.east_south 39 12 39 22 thickness=1 kind=interior_wall style=wall.civic
+# Low stone platform marks authority without inventing the later vaulted upper hall.
+building council_dais_block interior_block 13 3 14 2 style=block.dais
+prop council_table table 14 6 rect=12,3
+prop burgomaster_chair chair 19 4 rect=2,2
+prop alderman_chair_west chair 13 8 rect=2,2
+prop alderman_chair_east chair 25 8 rect=2,2
+prop petition_table table 16 13 rect=8,3
+prop petition_ledger ledger 19 13 rect=2,2
+prop scribe_table table 5 8 rect=5,3
+prop scribe_chair chair 7 11 rect=2,2
+prop archive_shelf_north shelf 3 3 rect=2,3
+prop archive_shelf_west shelf 3 7 rect=2,3
+prop charter_chest chest 8 4 rect=2,2
+prop civic_hearth hearth 33 5 rect=4,3
+prop service_table table 30 12 rect=5,3
+prop waiting_bench_west table 5 17 rect=6,1
+prop waiting_bench_east table 29 17 rect=6,1
+prop entry_candle_west candle 16 20 rect=1,1 visual_offset_px=0,-18
+prop entry_candle_east candle 23 20 rect=1,1 visual_offset_px=0,-18
+landmark window.north_west interior_window 7 0 2 1 passage_axis=z
+landmark window.north_center interior_window 19 0 2 1 passage_axis=z
+landmark window.north_east interior_window 31 0 2 1 passage_axis=z
+landmark window.west interior_window 0 8 1 2 passage_axis=x
+landmark window.east interior_window 39 7 1 2 passage_axis=x
+spawn spawn.inspection 19 18 rect=2,2
+anchor inspection_spawn 19 18 rect=2,2
+anchor public_entry 19 20 rect=2,2
+anchor petition_desk 18 14 rect=4,2
+anchor council_dais 17 5 rect=6,2
+anchor scribe_archive 5 7 rect=4,4
+anchor civic_hearth 33 5 rect=4,3
+transition to_reval_center 18 22 4 2 to=reval_center destination_spawn=to_town_hall spawn=from_reval_center spawn_offset_px=0,-96 highlight_area=true transition_visual=ground alignment=travel
+fade roof_fade 10 2 20 5
+camera 0 0 40 24

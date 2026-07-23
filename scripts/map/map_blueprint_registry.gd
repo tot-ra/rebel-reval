@@ -140,6 +140,11 @@ static func entries() -> Array[Dictionary]:
 			"required_anchors": [&"inspection_spawn", &"dais"],
 		},
 		{
+			"id": &"town_hall",
+			"source": "res://content/maps/town_hall.rrmap",
+			"required_anchors": [&"inspection_spawn", &"public_entry", &"petition_desk", &"council_dais", &"scribe_archive"],
+		},
+		{
 			"id": &"world.sacred_grove",
 			"source": "res://content/maps/world_sacred_grove.rrmap",
 			"required_anchors": [&"landmark_ancient_oak", &"landmark_offering_stone", &"landmark_bog_spring"],

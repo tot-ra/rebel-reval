@@ -67,39 +67,76 @@ static func add_historic_building_details(
 static func _add_early_town_hall_details(root: Node3D, size: Vector2, height: float) -> void:
 	var facade_z := -size.y * 0.5 - 0.13
 	var rear_z := size.y * 0.5 + 0.11
-	var bay_count := clampi(int(size.x / 1.95), 5, 9)
-	var bay_width := minf(1.35, size.x / float(bay_count) * 0.62)
+	var bay_count := clampi(int(size.x / 2.65), 5, 9)
+	if bay_count % 2 == 0:
+		bay_count -= 1
+	var bay_spacing := size.x / float(bay_count + 1)
+	var opening_width := minf(1.82, bay_spacing * 0.72)
+	var arch_height := minf(2.25, height * 0.54)
+	var voussoir := minf(0.18, opening_width * 0.12)
+	var center_index := floori(float(bay_count) * 0.5)
+
+	# WHY: the later Town Hall arcade is used as a restrained visual motif, not as
+	# evidence that the complete post-1404 facade already existed. Rounded bays,
+	# pale local limestone, and the tile color provide recognition while the mass
+	# stays a single-storey 1343 hall without the later upper floor or tower.
 	for index in bay_count:
 		var x := (float(index + 1) / float(bay_count + 1) - 0.5) * size.x
-		var arch_height := minf(1.45, height * 0.40)
-		MapViewMeshBuilderPrimitives.box(
+		var is_portal := index == center_index
+		var bay_width := opening_width * (1.10 if is_portal else 1.0)
+		var bay_radius := bay_width * 0.5
+		var bay_spring := arch_height - bay_radius
+		if not is_portal:
+			_add_arch_panel(
+				root,
+				"ArcadeShadow%02d" % index,
+				bay_width - voussoir * 1.5,
+				arch_height - voussoir * 0.75,
+				facade_z - 0.055,
+				&"ink"
+			)
+		var left_jamb_name := "TownHallPortalJambL" if is_portal else "ArcadePier%02d" % index
+		var right_jamb_name := "TownHallPortalJambR" if is_portal else "ArcadePier%02dRight" % index
+		for side in [-1.0, 1.0]:
+			MapViewMeshBuilderPrimitives.box(
+				root,
+				left_jamb_name if side < 0.0 else right_jamb_name,
+				Vector3(voussoir, bay_spring, 0.28),
+				Vector3(x + side * (bay_radius - voussoir * 0.5), bay_spring * 0.5, facade_z),
+				&"stone"
+			)
+		_add_arch_band(
 			root,
-			"ArcadePier%02d" % index,
-			Vector3(0.20, arch_height, 0.26),
-			Vector3(x - bay_width * 0.5, arch_height * 0.5, facade_z),
+			"TownHallPortalArch" if is_portal else "ArcadeArch%02d" % index,
+			bay_radius,
+			voussoir,
+			Vector3(x, bay_spring, facade_z),
 			&"stone"
 		)
-		MapViewMeshBuilderPrimitives.box(
-			root,
-			"ArcadeLintel%02d" % index,
-			Vector3(bay_width, 0.18, 0.26),
-			Vector3(x, arch_height, facade_z),
-			&"stone"
-		)
-		MapViewMeshBuilderPrimitives.box(
-			root,
-			"ArcadeShadow%02d" % index,
-			Vector3(maxf(0.24, bay_width - 0.26), maxf(0.45, arch_height - 0.28), 0.04),
-			Vector3(x, maxf(0.45, arch_height - 0.28) * 0.5, facade_z - 0.05),
-			&"window"
-		)
+
+	# A shallow string course and narrow lights break up the previous blank wall
+	# without implying a second storey. The central light marks the council axis.
 	MapViewMeshBuilderPrimitives.box(
 		root,
-		"CouncilDoorSurround",
-		Vector3(1.18, minf(2.05, height * 0.56), 0.14),
-		Vector3(size.x * 0.28, minf(2.05, height * 0.56) * 0.5, facade_z - 0.09),
+		"TownHallStringCourse",
+		Vector3(size.x * 0.94, 0.12, 0.20),
+		Vector3(0.0, arch_height + 0.22, facade_z + 0.03),
 		&"stone"
 	)
+	var upper_light_count := clampi((bay_count + 1) / 2, 3, 5)
+	for index in upper_light_count:
+		var x := (float(index + 1) / float(upper_light_count + 1) - 0.5) * size.x * 0.64
+		_add_arch_panel(
+			root,
+			"TownHallClerestory%02d" % index,
+			0.42,
+			minf(1.05, height * 0.24),
+			facade_z - 0.045,
+			&"window"
+		)
+		(root.get_node("TownHallClerestory%02d" % index) as Node3D).position.x = x
+		(root.get_node("TownHallClerestory%02d" % index) as Node3D).position.y = arch_height + 0.42
+
 	for side_x in [-size.x * 0.5 + 0.55, size.x * 0.5 - 0.55]:
 		MapViewMeshBuilderPrimitives.box(
 			root,
@@ -108,15 +145,15 @@ static func _add_early_town_hall_details(root: Node3D, size: Vector2, height: fl
 			Vector3(side_x, height * 0.46, facade_z + 0.05),
 			&"stone"
 		)
-	var step_count := 5
+	var step_count := 4
 	for index in step_count:
-		var step_width := size.y * (0.55 - float(index) * 0.075)
-		var step_height := height + 0.18 + float(index) * 0.24
+		var step_width := size.y * (0.52 - float(index) * 0.085)
+		var step_height := height + 0.18 + float(index) * 0.22
 		for x_side in [-1.0, 1.0]:
 			MapViewMeshBuilderPrimitives.box(
 				root,
 				"TownHallGableStep%02d_%s" % [index, "E" if x_side > 0.0 else "W"],
-				Vector3(0.24, 0.22, maxf(0.32, step_width)),
+				Vector3(0.24, 0.20, maxf(0.32, step_width)),
 				Vector3(x_side * (size.x * 0.5 + 0.05), step_height, 0.0),
 				&"stone"
 			)
@@ -124,20 +161,55 @@ static func _add_early_town_hall_details(root: Node3D, size: Vector2, height: fl
 	MapViewMeshBuilderPrimitives.box(
 		root,
 		"TownHallMarketStoop",
-		Vector3(size.x * 0.72, dais_height, 0.78),
-		Vector3(0.0, dais_height * 0.5, facade_z - 0.42),
+		Vector3(size.x * 0.76, dais_height, 0.82),
+		Vector3(0.0, dais_height * 0.5, facade_z - 0.44),
 		&"stone"
 	)
 	var rear_window_count := clampi(int(size.x / 3.2), 3, 6)
 	for index in rear_window_count:
 		var x := (float(index + 1) / float(rear_window_count + 1) - 0.5) * size.x
-		MapViewMeshBuilderPrimitives.box(
+		_add_arch_panel(
 			root,
 			"TownHallRearLancet%02d" % index,
-			Vector3(0.36, minf(1.25, height * 0.34), 0.05),
-			Vector3(x, height * 0.55, rear_z),
+			0.36,
+			minf(1.25, height * 0.34),
+			rear_z,
 			&"window"
 		)
+		(root.get_node("TownHallRearLancet%02d" % index) as Node3D).position.x = x
+		(root.get_node("TownHallRearLancet%02d" % index) as Node3D).position.y = height * 0.38
+
+
+static func _add_arch_panel(
+	root: Node3D,
+	node_name: String,
+	width: float,
+	height: float,
+	z: float,
+	role: StringName
+) -> void:
+	var panel := MeshInstance3D.new()
+	panel.name = node_name
+	panel.mesh = MapViewMeshBuilderPrimitives.arched_panel_mesh(width, height)
+	panel.position.z = z
+	panel.material_override = MapViewMeshBuilderPrimitives.role_material(role)
+	root.add_child(panel)
+
+
+static func _add_arch_band(
+	root: Node3D,
+	node_name: String,
+	radius: float,
+	thickness: float,
+	position: Vector3,
+	role: StringName
+) -> void:
+	var band := MeshInstance3D.new()
+	band.name = node_name
+	band.mesh = MapViewMeshBuilderPrimitives.arch_band_mesh(radius, thickness)
+	band.position = position
+	band.material_override = MapViewMeshBuilderPrimitives.role_material(role)
+	root.add_child(band)
 
 
 static func _add_holy_spirit_chapel_details(root: Node3D, size: Vector2, height: float) -> void:

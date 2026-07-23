@@ -14,6 +14,7 @@ const SCENE_THEME_ROUTES: Dictionary = {
 	"res://scenes/reval_east/viru_gate_foreland/viru_gate_foreland.tscn": &"town",
 	"res://scenes/reval_center/reval_center.tscn": &"center",
 	"res://scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn": &"center",
+	"res://scenes/reval_center/town_hall/town_hall.tscn": &"center",
 	"res://scenes/reval_north/reval_north.tscn": &"north",
 	"res://scenes/reval_monastery/reval_monastery.tscn": &"monastery",
 	"res://scenes/harbor/harbor_north.tscn": &"harbor",

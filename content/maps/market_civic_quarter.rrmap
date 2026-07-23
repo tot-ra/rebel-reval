@@ -21,7 +21,7 @@ source "docs/HISTORICAL_AUDIT.md"
 # shingle. The Town Hall predates its 1402-1404 tower/current form; Holy Spirit
 # is represented as the earlier chapel-almshouse complex without its later tower
 # or seventeenth-century clock; the post-1422 Raeapteek identity is avoided.
-style house.town_hall door_side=north ridge_axis=x primitive=town_hall_1343 wall_height=152 wall_color=918b80ff wall_material=limestone roof_color=4a2a20ff roof_material=tile
+style house.town_hall door_side=north ridge_axis=x primitive=town_hall_1343 wall_height=152 wall_color=aaa398ff wall_material=limestone roof_color=873f2dff roof_material=tile
 style house.church door_side=south ridge_axis=x primitive=holy_spirit_chapel_1343 wall_height=176 wall_color=9e998cff wall_material=limestone roof_color=42261fff roof_material=tile
 style house.hospital door_side=south ridge_axis=x wall_height=112 wall_color=807a70ff wall_material=limestone roof_color=3d3329ff roof_material=shingle
 style house.guild door_side=east ridge_axis=x wall_height=136 wall_color=7a7061ff wall_material=limestone roof_color=47291fff roof_material=tile
@@ -118,6 +118,7 @@ anchor weigh_table 32 47 rect=2,2
 # Holy Spirit rather than through its mass - keep to_reval_north on that corridor
 # so arrivals land on walkable street cells, not inside holy_spirit_hospital.
 # Do not wire any centre edge to Karja Gate's outside-the-walls exit on the eastern map.
+transition to_town_hall 38 66 4 3 to=town_hall destination_spawn=from_reval_center spawn=to_town_hall spawn_offset_px=0,96 building_id=town_hall_mass transition_visual=door
 transition to_reval_east 112 51 2 4 to=reval_east destination_spawn=vana_turg_boundary spawn=from_reval_east spawn_offset_px=-96,0
 transition to_reval_north 34 0 10 2 to=reval_monastery destination_spawn=from_reval_center spawn=to_reval_north spawn_offset_px=0,96 highlight_area=true transition_visual=ground
 transition to_reval_toompea 0 49 3 8 to=reval_toompea destination_spawn=from_reval_center spawn=to_reval_toompea spawn_offset_px=96,0 highlight_area=true transition_visual=ground

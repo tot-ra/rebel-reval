@@ -47,6 +47,11 @@ const MAPS: Dictionary = {
 		"scope": "prototype",
 		"active": false
 	},
+	"town_hall": {
+		"path": "res://scenes/reval_center/town_hall/town_hall.tscn",
+		"scope": "prototype",
+		"active": false
+	},
 	"viru_gate_foreland": {
 		"path": "res://scenes/reval_east/viru_gate_foreland/viru_gate_foreland.tscn",
 		"scope": "prototype",

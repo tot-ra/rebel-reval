@@ -1,6 +1,7 @@
 extends "res://tests/godot/test_case.gd"
 
 const StOlafsGuildHallDefinition := preload("res://scripts/map/definitions/prototypes/st_olafs_guild_hall_definition.gd")
+const TownHallDefinition := preload("res://scripts/map/definitions/prototypes/town_hall_definition.gd")
 const MarketCivicQuarterDefinition := preload("res://scripts/map/definitions/prototypes/market_civic_quarter_definition.gd")
 const NorthQuarterDefinition := preload("res://scripts/map/definitions/prototypes/north_quarter_definition.gd")
 const MonasteryQuarterDefinition := preload("res://scripts/map/definitions/prototypes/monastery_quarter_definition.gd")
@@ -16,7 +17,7 @@ const MapVerification := preload("res://scripts/map/map_verification.gd")
 
 
 func test_market_prototypes_validate_and_stay_inactive() -> void:
-	for factory in [StOlafsGuildHallDefinition, MarketCivicQuarterDefinition, NorthQuarterDefinition, MonasteryQuarterDefinition, ArchbishopsGardenDefinition, ToompeaQuarterDefinition, SouthQuarterDefinition, HarborWarehouseDefinition]:
+	for factory in [StOlafsGuildHallDefinition, TownHallDefinition, MarketCivicQuarterDefinition, NorthQuarterDefinition, MonasteryQuarterDefinition, ArchbishopsGardenDefinition, ToompeaQuarterDefinition, SouthQuarterDefinition, HarborWarehouseDefinition]:
 		var definition: MapDefinition = factory.create()
 		assert_eq(definition.scope, &"prototype")
 		assert_false(definition.active)
@@ -82,6 +83,9 @@ func test_central_district_has_unique_period_building_models() -> void:
 				var town_hall_footprint := building["footprint"] as Rect2
 				assert_true(town_hall_footprint.size.x < 30.0 * definition.cell_size, "Town Hall footprint should not read as an overlong block")
 				assert_true(node.has_node("ArcadePier00"))
+				assert_true(node.has_node("ArcadeArch00"), "Town Hall arcade should use round arches instead of lintels")
+				assert_true(node.has_node("TownHallPortalArch"), "The civic entrance should be framed by a central arch")
+				assert_true(node.has_node("TownHallClerestory00"), "Narrow upper lights should break up the single-storey facade")
 				assert_true(node.has_node("TownHallGableStep00_E"))
 				assert_true(node.has_node("TownHallMarketStoop"))
 			&"church_silhouette":
@@ -89,6 +93,56 @@ func test_central_district_has_unique_period_building_models() -> void:
 				assert_true(node.has_node("SanctusCoteRoof"))
 			&"merchant_gabled_house": assert_true(node.has_node("GableStep00"))
 		node.free()
+
+
+func test_town_hall_has_functional_entry_and_separate_civic_interior() -> void:
+	var exterior := MarketCivicQuarterDefinition.create()
+	var interior := TownHallDefinition.create()
+	var exterior_grid := MapBuilder.build(exterior)
+	var interior_grid := MapBuilder.build(interior)
+	var entry := _transition_by_id(exterior, &"to_town_hall")
+	var return_door := _transition_by_id(interior, &"to_reval_center")
+	var town_hall := _building_by_id(exterior, &"town_hall_mass")
+
+	assert_false(entry.is_empty(), "Town Hall exterior must have a usable entrance")
+	assert_eq(entry.get("destination_scene_id"), &"town_hall")
+	assert_eq(entry.get("destination_spawn_id"), &"from_reval_center")
+	assert_eq(entry.get("spawn_id"), &"to_town_hall")
+	assert_eq(entry.get("building_id"), &"town_hall_mass")
+	assert_true(MapBuildingEntrance.approach_aligns_with_facade(town_hall, entry, exterior.cell_size))
+	assert_true(MapVerification.route_exists_exact(exterior, exterior_grid, exterior.player_spawn, entry["rect"].get_center()))
+
+	assert_eq(interior.scope, &"prototype")
+	assert_false(interior.active)
+	assert_eq(interior.size_cells, Vector2i(40, 24))
+	assert_eq(return_door.get("destination_scene_id"), &"reval_center")
+	assert_eq(return_door.get("destination_spawn_id"), &"to_town_hall")
+	assert_eq(return_door.get("spawn_id"), &"from_reval_center")
+	for anchor_id in [&"public_entry", &"petition_desk", &"council_dais", &"scribe_archive", &"civic_hearth"]:
+		assert_true(MapVerification.has_anchor(interior, anchor_id), "Missing Town Hall interior anchor %s" % anchor_id)
+		assert_true(
+			MapVerification.route_exists_exact(interior, interior_grid, interior.player_spawn, MapVerification.anchor_position(interior, anchor_id)),
+			"Town Hall route is blocked at %s" % anchor_id
+		)
+
+
+func test_town_hall_exterior_door_is_attached_to_the_arcaded_facade() -> void:
+	var definition := MarketCivicQuarterDefinition.create()
+	var entry := _transition_by_id(definition, &"to_town_hall")
+	var building := _building_by_id(definition, &"town_hall_mass")
+	var node := MapViewMeshBuilder.build_building(building, definition.cell_size, [entry])
+	var door := MapViewMeshBuilder.build_transition_door(
+		entry,
+		definition.cell_size,
+		-1.0,
+		building
+	)
+	assert_true(node.has_node("TownHallPortalArch"))
+	assert_false(node.has_node("Door"), "Functional entry owns the visible door panel")
+	assert_true(door.has_node("Panel"))
+	assert_eq(door.get_meta("building_id"), &"town_hall_mass")
+	node.free()
+	door.free()
 
 
 func test_market_civic_quarter_edges_are_reciprocal_with_adjacent_districts() -> void:

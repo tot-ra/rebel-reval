@@ -24,3 +24,9 @@ func test_map_catalog() -> void:
 		_failures.append("Expected 'reval_south' in catalog")
 	elif south.get("scope") != "prototype":
 		_failures.append("Expected 'reval_south' to be prototype")
+
+	var town_hall = MapCatalog.get_map("town_hall")
+	if town_hall.is_empty():
+		_failures.append("Expected 'town_hall' in catalog")
+	elif town_hall.get("scope") != "prototype":
+		_failures.append("Expected 'town_hall' to be prototype")
