@@ -47,6 +47,40 @@ func test_central_district_square_and_edges_do_not_stop_abruptly() -> void:
 	assert_eq(definition.surroundings_sides.get(&"east"), &"town")
 
 
+func test_central_district_transitions_use_contextual_visual_cues() -> void:
+	var definition := MarketCivicQuarterDefinition.create()
+	var east_transition := _transition_by_id(definition, &"to_reval_east")
+	assert_eq(east_transition.get("transition_visual"), MapTypes.TRANSITION_VISUAL_GROUND)
+	assert_true(bool(east_transition.get("highlight_area", false)), "district exits need a readable ground cue")
+
+	var guild_transition := _transition_by_id(definition, &"to_guild_hall")
+	var guild_frontage := _building_by_id(definition, &"guild_frontage")
+	assert_eq(guild_transition.get("transition_visual"), MapTypes.TRANSITION_VISUAL_DOOR)
+	assert_eq(guild_transition.get("building_id"), &"guild_frontage")
+	assert_true(
+		MapBuildingEntrance.approach_aligns_with_facade(guild_frontage, guild_transition, definition.cell_size),
+		"the guild entrance must stay attached to its facade instead of standing in the forecourt"
+	)
+
+
+func test_central_district_guild_door_renders_on_the_frontage() -> void:
+	var definition := MarketCivicQuarterDefinition.create()
+	var transition := _transition_by_id(definition, &"to_guild_hall")
+	var building := _building_by_id(definition, &"guild_frontage")
+	var door := MapViewMeshBuilder.build_transition_door(
+		transition,
+		definition.cell_size,
+		-1.0,
+		building
+	)
+	var footprint: Rect2 = building["footprint"]
+	var expected_boundary := footprint.end.x * MapViewBridge.world_scale(definition.cell_size)
+	assert_true(is_equal_approx(door.position.x, expected_boundary), "guild door must sit flush with the east facade")
+	assert_eq(door.get_meta("building_id"), &"guild_frontage")
+	assert_false(door.has_node("OpeningHead"), "an attached guild entrance must not grow freestanding wall infill")
+	door.free()
+
+
 func test_central_and_south_districts_limit_cobble_to_main_routes() -> void:
 	var center: MapDefinition = MarketCivicQuarterDefinition.create()
 	var center_grid := MapBuilder.build(center)
