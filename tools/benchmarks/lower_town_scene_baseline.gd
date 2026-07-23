@@ -36,6 +36,8 @@ func _record() -> void:
 	var scene_root := get_parent().get_node("LowerTown")
 	var actors_root := scene_root.get_node_or_null("Actors")
 	var memory_after := int(Performance.get_monitor(Performance.MEMORY_STATIC))
+	var texture_memory := int(Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED))
+	var render_memory := int(Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED))
 	var report := {
 		"scene_startup_ms": startup_ms,
 		"pipeline_cpu_ms": startup_ms,
@@ -46,6 +48,8 @@ func _record() -> void:
 		"actor_count": _count_actors(actors_root),
 		"memory_static_bytes": memory_after,
 		"memory_delta_mib": maxf(0.0, float(memory_after - _memory_before) / MIB),
+		"texture_memory_bytes": texture_memory,
+		"render_video_memory_bytes": render_memory,
 		"frame_time_ms": _distribution(frame_times),
 	}
 	var output_path := DEFAULT_OUTPUT

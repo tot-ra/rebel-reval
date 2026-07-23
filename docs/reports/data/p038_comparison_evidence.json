@@ -1,0 +1,69 @@
+{
+  "animation_reuse": {
+    "canonical_clip_count": 76,
+    "focused_test_count": 16,
+    "focused_test_filter": "test_character_rig",
+    "per_direction_assets": false,
+    "shared_skeleton": true,
+    "source_report": "docs/reports/character_rig_production_p0_037.md"
+  },
+  "benchmark_report_path": "build/benchmarks/p038-evidence.json",
+  "git_commit": "a87b6002917fdfdc7afdb3fbf2fd8b1c030207d0",
+  "import_procedure": "tools/run_godot_checked.sh clean-import godot --headless --editor --quit",
+  "import_time_seconds": 2.423,
+  "measurement_host": {
+    "distribution": "macOS",
+    "headless": true,
+    "os": "macOS",
+    "processor_count": 18,
+    "processor_name": "Apple M5 Pro",
+    "video_adapter": ""
+  },
+  "navigation": {
+    "note": "Slice map route, patrol, collision, and transition suites remain green on HEAD. Synthetic monolithic profiles expose navigation bake scaling that chunk streaming must not replicate in production.",
+    "slice_navigation_bake_ms": 16.971,
+    "slice_navigation_polygon_count": 0,
+    "slice_route_tests": "green",
+    "synthetic_128_navigation_bake_ms": 63.689,
+    "synthetic_128_navigation_polygon_count": 818
+  },
+  "npc_variant_production": {
+    "animation_budget_seconds": 3600,
+    "innkeeper_rebuild_seconds": 16.83,
+    "pickup_integration_seconds": 21.0,
+    "source_report": "docs/reports/character_rig_production_p0_037.md",
+    "variant_budget_working_day_seconds": 86400
+  },
+  "performance": {
+    "actor_count": 3,
+    "frame_time_budget_ms": 16.67,
+    "frame_time_ms_p95": 7.346,
+    "memory_delta_mib": 261.474585533142,
+    "memory_static_bytes": 327126995,
+    "pipeline_cpu_ms_p95": 113.61,
+    "render_video_memory_bytes": 0,
+    "renderer_mode": "headless_dummy",
+    "scene_startup_ms": 16644.162,
+    "texture_memory_bytes": 0
+  },
+  "recorded_utc": "2026-07-23T16:04:27+00:00",
+  "renderer_escalation": {
+    "current_status": "development_baseline_headless_only",
+    "next_step": "Run tools/run_performance_report.sh with BENCHMARK_HEADLESS=0 on the declared minimum-hardware profile before using frame time or texture memory as P0-040 or P3-011 acceptance evidence.",
+    "required_before_gpu_acceptance": true
+  },
+  "schema_version": 1,
+  "target_hardware": {
+    "architecture": "arm64",
+    "cpu": "Apple M5 Pro, 18 logical cores",
+    "display": "3456x2234 built-in display",
+    "gpu": "Apple M5 Pro, 20 cores",
+    "memory_gib": 48,
+    "notes": "This reproducible development target is not a minimum supported-hardware declaration. P3-011 owns the minimum target and release budget. Run a non-headless capture on that profile before using GPU frame time as acceptance evidence.",
+    "platform": "macOS 26.3",
+    "profile_id": "development-baseline-m5-pro",
+    "schema_version": 1,
+    "status": "development_baseline_not_minimum"
+  },
+  "verdict": "pass_headless_development_baseline_pending_gpu_confirmation"
+}

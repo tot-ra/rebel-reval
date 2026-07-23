@@ -11,13 +11,14 @@ References:
 <!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
-| P0 |    17  |    15  | Baseline, storage, materials, historical audit |
+| P0 |    16  |    16  | Baseline, storage, materials, historical audit |
 | P1 |     3  |     3  | Runtime systems, content foundation |
 | P2 |    15  |     6  | Vertical-slice production (playable MVP) |
 | P3 |    13  |     0  | Validation, accessibility, performance |
 | P4 |    42  |     6  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
+
 
 
 
@@ -205,7 +206,7 @@ References:
 - [x] P0-121 | deps: none | deliverable: release-candidate verification scaffold (`tools/release_candidate_check.py`) covering AGPL license, asset provenance manifest, export preset and CI smoke indicators, and implemented accessibility baseline checks with Python unit tests | allowed files: `tools/release_candidate_check.py`, `tests/python/test_release_candidate_check.py`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 tools/release_candidate_check.py` exits 0 on current HEAD; `python3 -m unittest tests.python.test_release_candidate_check -v` passes
 ### Medium
 
-- [ ] P0-038 | deps: P0-053 | deliverable: comparison report for import time, frame time, texture memory, navigation defects, animation reuse, and NPC-variant production time measured on the 3D view layer with the P0-053 surface kit, including minimum-hardware frame-time results and renderer-setting escalation if budgets are missed | verify: report contains repeatable procedure, hardware, raw measurements, and result
+- [x] P0-038 | deps: P0-053 | deliverable: comparison report for import time, frame time, texture memory, navigation defects, animation reuse, and NPC-variant production time measured on the 3D view layer with the P0-053 surface kit, including minimum-hardware frame-time results and renderer-setting escalation if budgets are missed | allowed files: `tools/generate_p038_comparison_report.py`, `tests/python/test_generate_p038_comparison_report.py`, `docs/reports/p0_038_3d_view_comparison.md`, `docs/reports/data/p038_comparison_evidence.json`, `tools/benchmarks/lower_town_scene_baseline.gd`, `.github/workflows/ci.yml`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 tools/generate_p038_comparison_report.py --check` and `python3 -m unittest tests.python.test_generate_p038_comparison_report -v` pass; report contains repeatable procedure, hardware, raw measurements, and result
 ### Large
 - [ ] P0-108 | deps: P0-104,P0-107,P0-106,P0-114,P0-115,P0-116,P4-028h | deliverable: rural perimeter and foreland environment pass on `viru_gate_foreland` and other signed peri-urban margins: replace generic scrub with sourced garden plots, hay meadows, pasture strips, sparse woodland, and authored domestic/wild fauna bands from P0-072; keep maps inactive until their activation gates | verify: P1-036 foreland vegetation, agricultural, and fauna measures land inside signed P0-072 ranges; day/night captures show fields, gardens, hay, and livestock reads outside the wall; navigation, transition, and patrol guards stay green; wild predators remain outside required routes
 - [ ] P0-105 | deps: P0-100,P0-117,P2-024,P3-010 | deliverable: ambient bird flight and song system with district-appropriate species (for example gulls and terns at harbour margins, sparrows and crows in town, larks and finches on meadows, owls at night margins), simple flock or perch flight paths, positional 3D song audio with deterministic concurrency limits, and no combat or collection mechanics | verify: one day walkthrough hears at least three distinct song profiles and sees flying birds at harbour, town, and foreland contexts; seeded audio tests cap concurrent bird voices; disabling birds leaves gameplay state unchanged; performance budget passes on Lower Town quick report
