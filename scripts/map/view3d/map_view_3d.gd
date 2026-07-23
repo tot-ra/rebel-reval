@@ -243,13 +243,19 @@ func view_camera() -> Camera3D:
 
 
 ## Top-down orthographic gameplay hides the interior ceiling so the player can
-## read floor layout; first-person enables the raised shell and occlusion.
+## read floor layout; first-person enables the visual shell and occlusion. The
+## shadows-only daylight occluder remains active in both modes.
 func set_interior_shell_for_first_person(enabled: bool) -> void:
 	set_terrain_detail_for_first_person(enabled)
 	var interior_shell := get_node_or_null("InteriorShell") as Node3D
 	if interior_shell == null:
 		return
-	interior_shell.visible = enabled
+	for child in interior_shell.get_children():
+		if child is Node3D and child.name != &"DaylightOccluder":
+			(child as Node3D).visible = enabled
+	var daylight_occluder := interior_shell.get_node_or_null("DaylightOccluder") as Node3D
+	if daylight_occluder != null:
+		daylight_occluder.visible = true
 	_interior_shell_occludes = enabled
 	_rebuild_occluder_bounds()
 	_sync_interior_top_down_background()
@@ -291,8 +297,8 @@ func uses_first_person_terrain_detail() -> bool:
 
 
 func is_interior_shell_visible() -> bool:
-	var interior_shell := get_node_or_null("InteriorShell") as Node3D
-	return interior_shell != null and interior_shell.visible
+	var ceiling := get_node_or_null("InteriorShell/Ceiling") as Node3D
+	return ceiling != null and ceiling.visible
 
 
 ## Compatibility wrapper retained for focused tests and existing callers.

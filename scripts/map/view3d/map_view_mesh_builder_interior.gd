@@ -45,7 +45,23 @@ static func build_interior_shell(definition: MapDefinition) -> Node3D:
 	)
 	root.add_child(ceiling)
 	_add_exposed_beams(root, floor_bounds, ceiling_plane)
-	root.visible = false
+
+	var daylight_occluder := MeshInstance3D.new()
+	daylight_occluder.name = "DaylightOccluder"
+	daylight_occluder.mesh = ceiling_mesh
+	daylight_occluder.position = center
+	# WHY: top-down hides the authored ceiling for readability, but daylight must
+	# still behave as if the room is roofed. A shadows-only twin decouples solar
+	# occlusion from camera presentation while leaving exterior walls sunlit.
+	daylight_occluder.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
+	root.add_child(daylight_occluder)
+
+	# The persistent twin owns the roof shadow in every camera mode. Disabling the
+	# visual slab's duplicate shadow also avoids overlapping shadow-map geometry.
+	ceiling.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	for child in root.get_children():
+		if child is Node3D and child != daylight_occluder:
+			(child as Node3D).visible = false
 	return root
 
 
