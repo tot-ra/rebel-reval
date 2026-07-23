@@ -3,7 +3,7 @@
 Coordination notes, delivery order, and planning context formerly embedded in `TODO.md`.
 Executable open work stays in [`TODO.md`](../TODO.md).
 
-## Current focus (2026-07-22)
+## Current focus (2026-07-23)
 
 1. **P0-072** - sourced 1343 Reval environment dossier per retained map.
 2. **P0-053** - slice surface and weathering kit (coastal tide + thatch roof dressing in progress).
@@ -12,6 +12,8 @@ Executable open work stays in [`TODO.md`](../TODO.md).
 5. **P2-022 / P2-023 / P2-021** - Lower Town realism, landmark pass, parity gate.
 6. **P2-025 through P2-031** - district-life dressing, vegetation, fauna.
 7. Slice quest authoring (**P2-006** through **P2-012**) stays below environment realism until Lower Town reads as historically grounded Reval.
+
+Coordination note (2026-07-23 P0-121): `tools/release_candidate_check.py` now automates the repository-side release-candidate scaffold for AGPL license, asset provenance manifest, macOS export preset, clean-clone CI indicators, and the P1-028 accessibility baseline; `python3 tools/release_candidate_check.py` and `python3 -m unittest tests.python.test_release_candidate_check -v` pass 8/8. Full P3-012 / P4-013 / P6-008 gates still require human playtest, accessibility checklist, and campaign acceptance evidence.
 
 Coordination note (2026-07-23 P0-053): coastal harbour equilibrium tide now follows the lunar calendar through `SkyWeather3D.tide_level`, updates coastal water shaders via `MapViewMaterials.apply_coastal_tide`, and stays isolated from rivers. Procedural thatch roofs use slope-oriented reed relief, recessed timber gable infill, and a dedicated reed UV pattern distinct from field straw. Per-building wall and roof materials now derive unique pattern seeds and one of four weathering bands (fresh, worn, damp, repaired) from each stable building ID so adjacent houses no longer share one baked albedo map. Verified: `--filter=test_coastal_sea_3d` (7/7), `--filter=test_sky_weather_3d` (28/28), `--filter=test_map_view_3d_lighting` (13/13), `--filter=test_thatch_roof_dressing` (1/1), `--filter=test_building_surface_weathering` (4/4), and `--filter=test_enemy_combat_state_machine` extended for P5-008 knight/crossbowman archetypes.
 Coordination note (2026-07-22 P5-008): Order knight and crossbowman archetypes now resolve through `EnemyArchetype.from_id()` and reuse `EnemyCombatStateMachine`; mission allies use `MissionAllyScript` plus `MissionAllyController` for scripted in-range support without party-control UI; `--filter=test_enemy_archetype_p5_008` passes 7/7.
