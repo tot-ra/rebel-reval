@@ -21,7 +21,7 @@ source "docs/HISTORICAL_AUDIT.md"
 # shingle. The Town Hall predates its 1402-1404 tower/current form; Holy Spirit
 # is represented as the earlier chapel-almshouse complex without its later tower
 # or seventeenth-century clock; the post-1422 Raeapteek identity is avoided.
-style house.town_hall door_side=north ridge_axis=x primitive=town_hall_1343 wall_height=152 wall_color=aaa398ff wall_material=limestone roof_color=873f2dff roof_material=tile
+style house.town_hall door_side=north ridge_axis=x primitive=town_hall_1343 wall_height=180 wall_color=aaa398ff wall_material=limestone roof_color=873f2dff roof_material=tile
 style house.church door_side=south ridge_axis=x primitive=holy_spirit_chapel_1343 wall_height=176 wall_color=9e998cff wall_material=limestone roof_color=42261fff roof_material=tile
 style house.hospital door_side=south ridge_axis=x wall_height=112 wall_color=807a70ff wall_material=limestone roof_color=3d3329ff roof_material=shingle
 style house.guild door_side=east ridge_axis=x wall_height=136 wall_color=7a7061ff wall_material=limestone roof_color=47291fff roof_material=tile

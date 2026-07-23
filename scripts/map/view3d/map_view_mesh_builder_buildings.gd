@@ -78,6 +78,12 @@ static func build_building(
 		var mesh_size := Vector3(size.x, height, size.y)
 		if fortification:
 			mesh_size = MapViewMeshBuilderBuildingFortification.sealed_wall_size(mesh_size)
+		# WHY: a primitive with an open ground-floor gallery cannot be a single
+		# solid box. The mass is pulled back from the facade and the strip it
+		# vacates is rebuilt as arcade wall, end walls, and vault by the
+		# primitive's own detail pass.
+		var gallery_inset := MapViewMeshBuilderBuildingHouses.town_hall_gallery_inset(building, size)
+		mesh_size.z -= gallery_inset
 		wall_mesh.size = mesh_size
 		walls.mesh = wall_mesh
 		if kind == MapTypes.BUILDING_KIND_HOUSE:
@@ -92,7 +98,7 @@ static func build_building(
 			)
 		else:
 			walls.material_override = MapViewMaterials.wall_for_size(wall_color, wall_mesh.size)
-		walls.position = Vector3(0.0, height * 0.5, 0.0)
+		walls.position = Vector3(0.0, height * 0.5, gallery_inset * 0.5)
 	root.add_child(walls)
 
 	if kind == MapTypes.BUILDING_KIND_HOUSE:
@@ -117,14 +123,15 @@ static func build_building(
 		root.add_child(roof)
 		MapViewMeshBuilderBuildingHouses.add_chimney(root, building, size, height, along_ridge_x)
 		MapViewMeshBuilderBuildingHouses.add_house_structure(root, building, size, height, along_ridge_x)
-		MapViewMeshBuilderBuildingFacade.add_house_facade(
-			root,
-			building,
-			size,
-			height,
-			cell_size,
-			entrances
-		)
+		if not MapViewMeshBuilderBuildingHouses.authors_own_facade(building):
+			MapViewMeshBuilderBuildingFacade.add_house_facade(
+				root,
+				building,
+				size,
+				height,
+				cell_size,
+				entrances
+			)
 		MapViewMeshBuilderBuildingHouses.add_historic_building_details(root, building, size, height, along_ridge_x)
 		MapViewMeshBuilderBuildingHouses.add_window_lights(root, building["id"])
 	elif kind == MapTypes.BUILDING_KIND_INTERIOR_WALL:

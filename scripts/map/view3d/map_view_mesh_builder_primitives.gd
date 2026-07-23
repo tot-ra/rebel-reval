@@ -370,6 +370,174 @@ static func arch_band_mesh(
 	return mesh
 
 
+## Wall slab genuinely pierced by round-headed openings, including the jamb and
+## soffit reveals inside every opening. WHY: an arcade only reads as structure
+## carrying the storey above when you can see through it into the gallery
+## behind; arch bands laid on a closed wall look like painted decoration.
+## The outward face points toward -Z, so the caller places the slab at
+## `facade_z + thickness * 0.5` without rotating it.
+## `openings` entries: {"x": center, "half_width": radius, "spring_y": impost}.
+static func arcade_wall_mesh(
+	width: float,
+	height: float,
+	thickness: float,
+	openings: Array,
+	segments: int = 10
+) -> ArrayMesh:
+	var half_w := width * 0.5
+	var out_z := -thickness * 0.5
+	var in_z := thickness * 0.5
+	var safe_segments := maxi(segments, 4)
+	var sorted := openings.duplicate()
+	sorted.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["x"]) < float(b["x"]))
+
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	_add_pierced_face(surface, width, height, sorted, out_z, Vector3.FORWARD, safe_segments)
+	_add_pierced_face(surface, width, height, sorted, in_z, Vector3.BACK, safe_segments)
+
+	for opening in sorted:
+		var center_x := float(opening["x"])
+		var radius := float(opening["half_width"])
+		var spring_y := minf(float(opening["spring_y"]), height - radius)
+		for side: float in [-1.0, 1.0]:
+			var jamb_x := center_x + side * radius
+			_add_oriented_quad(
+				surface,
+				Vector3(jamb_x, 0.0, out_z),
+				Vector3(jamb_x, spring_y, out_z),
+				Vector3(jamb_x, spring_y, in_z),
+				Vector3(jamb_x, 0.0, in_z),
+				Vector3(-side, 0.0, 0.0),
+				width,
+				height
+			)
+		for index in safe_segments:
+			var angle_a := PI * float(index) / float(safe_segments)
+			var angle_b := PI * float(index + 1) / float(safe_segments)
+			var a := Vector2(center_x + cos(angle_a) * radius, spring_y + sin(angle_a) * radius)
+			var b := Vector2(center_x + cos(angle_b) * radius, spring_y + sin(angle_b) * radius)
+			var soffit_normal := Vector3(-(cos(angle_a) + cos(angle_b)) * 0.5, -(sin(angle_a) + sin(angle_b)) * 0.5, 0.0).normalized()
+			_add_oriented_quad(
+				surface,
+				Vector3(a.x, a.y, out_z),
+				Vector3(b.x, b.y, out_z),
+				Vector3(b.x, b.y, in_z),
+				Vector3(a.x, a.y, in_z),
+				soffit_normal,
+				width,
+				height
+			)
+
+	# End caps and head so the slab still reads solid where the main mass and the
+	# roof meet it.
+	for side: float in [-1.0, 1.0]:
+		_add_oriented_quad(
+			surface,
+			Vector3(side * half_w, 0.0, out_z),
+			Vector3(side * half_w, height, out_z),
+			Vector3(side * half_w, height, in_z),
+			Vector3(side * half_w, 0.0, in_z),
+			Vector3(side, 0.0, 0.0),
+			width,
+			height
+		)
+	_add_oriented_quad(
+		surface,
+		Vector3(-half_w, height, out_z),
+		Vector3(half_w, height, out_z),
+		Vector3(half_w, height, in_z),
+		Vector3(-half_w, height, in_z),
+		Vector3.UP,
+		width,
+		height
+	)
+	return surface.commit()
+
+
+static func _add_pierced_face(
+	surface: SurfaceTool,
+	width: float,
+	height: float,
+	openings: Array,
+	z: float,
+	normal: Vector3,
+	segments: int
+) -> void:
+	var half_w := width * 0.5
+	var cursor := -half_w
+	for opening in openings:
+		var center_x := float(opening["x"])
+		var radius := float(opening["half_width"])
+		var spring_y := minf(float(opening["spring_y"]), height - radius)
+		var left := center_x - radius
+		var right := center_x + radius
+		if left > cursor + 0.001:
+			_add_oriented_quad(
+				surface,
+				Vector3(cursor, 0.0, z),
+				Vector3(left, 0.0, z),
+				Vector3(left, height, z),
+				Vector3(cursor, height, z),
+				normal,
+				width,
+				height
+			)
+		# Spandrel: strips that follow the extrados up to the wall head.
+		for index in segments:
+			var angle_a := PI * float(segments - index) / float(segments)
+			var angle_b := PI * float(segments - index - 1) / float(segments)
+			var a := Vector2(center_x + cos(angle_a) * radius, spring_y + sin(angle_a) * radius)
+			var b := Vector2(center_x + cos(angle_b) * radius, spring_y + sin(angle_b) * radius)
+			_add_oriented_quad(
+				surface,
+				Vector3(a.x, a.y, z),
+				Vector3(b.x, b.y, z),
+				Vector3(b.x, height, z),
+				Vector3(a.x, height, z),
+				normal,
+				width,
+				height
+			)
+		cursor = right
+	if cursor < half_w - 0.001:
+		_add_oriented_quad(
+			surface,
+			Vector3(cursor, 0.0, z),
+			Vector3(half_w, 0.0, z),
+			Vector3(half_w, height, z),
+			Vector3(cursor, height, z),
+			normal,
+			width,
+			height
+		)
+
+
+static func _add_oriented_quad(
+	surface: SurfaceTool,
+	a: Vector3,
+	b: Vector3,
+	c: Vector3,
+	d: Vector3,
+	normal: Vector3,
+	width: float,
+	height: float
+) -> void:
+	# Flip the winding when the authored order disagrees with the wanted facing
+	# so opening reveals never turn inside out.
+	if (b - a).cross(c - a).dot(normal) < 0.0:
+		var swap := a
+		a = d
+		d = swap
+		swap = b
+		b = c
+		c = swap
+	for point in [a, b, c, a, c, d]:
+		surface.set_normal(normal)
+		surface.set_uv(Vector2((point.x / width) + 0.5, 1.0 - point.y / maxf(height, 0.001)))
+		surface.add_vertex(point)
+
+
 static func _add_flat_triangle(
 	surface: SurfaceTool,
 	a: Vector2,

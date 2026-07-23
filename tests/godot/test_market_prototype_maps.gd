@@ -122,6 +122,21 @@ func test_central_district_has_unique_period_building_models() -> void:
 				assert_true(node.has_node("TownHallClerestory00"), "Narrow upper lights should break up the single-storey facade")
 				assert_true(node.has_node("TownHallGableStep00_E"))
 				assert_true(node.has_node("TownHallMarketStoop"))
+				# The arcade carries the storey above a real covered walk, so the
+				# gallery structure must exist and the mass must be pulled back
+				# from the facade to leave room for it.
+				assert_true(node.has_node("TownHallArcadeWall"), "The arcade bays must be openings in a wall, not arches on a closed facade")
+				assert_true(node.has_node("TownHallGalleryFloor"))
+				assert_true(node.has_node("TownHallGalleryVault"), "The gallery needs a ceiling for the wall above to stand on")
+				assert_true(node.has_node("TownHallGalleryRib00"), "Transverse arches should tie the arcade piers to the inner wall")
+				assert_true(node.has_node("TownHallGalleryEndWallE"))
+				assert_false(node.has_node("WindowFrameL0"), "The Town Hall authors its own openings instead of generic house windows")
+				var mass := node.get_node("Walls") as MeshInstance3D
+				var mass_depth := (mass.mesh as BoxMesh).size.z
+				assert_true(
+					mass_depth < town_hall_footprint.size.y / float(definition.cell_size) - 1.0,
+					"Solid mass must stop short of the facade so the gallery is walk-through"
+				)
 			&"church_silhouette":
 				assert_true(node.has_node("Lancet00"))
 				assert_true(node.has_node("SanctusCoteRoof"))
@@ -175,6 +190,20 @@ func test_town_hall_exterior_door_is_attached_to_the_arcaded_facade() -> void:
 	assert_false(node.has_node("Door"), "Functional entry owns the visible door panel")
 	assert_true(door.has_node("Panel"))
 	assert_eq(door.get_meta("building_id"), &"town_hall_mass")
+
+	# The council door belongs at the back of the arcade gallery, on the arcade
+	# axis - not flattened onto the facade between the bays.
+	var scale := MapViewBridge.world_scale(definition.cell_size)
+	var footprint: Rect2 = building["footprint"]
+	var facade_z := footprint.position.y * scale
+	var inset := MapViewMeshBuilderBuildingHouses.town_hall_gallery_inset(building, footprint.size * scale)
+	assert_true(inset > 1.0, "The Town Hall gallery must be deep enough to walk into")
+	var expected_z := facade_z + inset - MapViewMeshBuilderBuildingHouses.TOWN_HALL_DOOR_RECESS
+	assert_true(absf(door.position.z - expected_z) < 0.01, "Door should stand on the gallery back wall")
+	assert_true(
+		absf(door.position.x - footprint.get_center().x * scale) < 0.01,
+		"Door should sit on the portal bay axis"
+	)
 	node.free()
 	door.free()
 
