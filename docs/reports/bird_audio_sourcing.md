@@ -16,10 +16,16 @@ script default filter is `len:15-90`.
 |---|---|---|---|---|
 | **xeno-canto.org** | Excellent - filter by `cnt:Estonia`, thousands of recordings, per-recording quality grade A-E | Per recording: CC0, CC BY, CC BY-SA, **and** CC BY-NC(-SA/-ND) | **Only** the CC0 / BY / BY-SA subset | **Primary source.** Filter per recording. |
 | **freesound.org** | Some European recordings, not Estonia-tagged reliably | Per sound: CC0, CC BY, CC BY-SA, CC BY-NC | Only CC0 / BY / BY-SA | Secondary / gap filler. |
-| **Macaulay Library (eBird / Cornell)** | Very good regional coverage | Research/personal use; no commercial redistribution license | **No** | Reference only, do not ship. |
+| **Macaulay Library (eBird / Cornell)** | Very good regional coverage incl. Baltic birds | Free for research/education; **commercial use requires a paid license** via Cornell's ticketing system and the "Commercially requestable media" filter | **Yes, with fee and contract** | Not a free source. Viable paid fallback for gap species (cormorant, white-tailed eagle) when xeno-canto has zero CC0/BY/BY-SA takes. |
 | **loodusheli.ee** ("Kõrv loodusesse", Univ. of Tartu Natural History Museum) | Best available - recorded *in Estonia* by Estonian naturalists, incl. species soundscapes by biotope/season | **No license stated anywhere**; site footer is only `© 2016 TÜ loodusmuuseum`. Under EE/EU law, silence means all rights reserved | **No, not as-is** | Reject for direct download; **best candidate for a written permission request** (see below). |
-| Tierstimmenarchiv, Naturalis, most museum archives | Good | Mostly CC BY-NC | **No** | Reject for shipping. |
-| Paid royalty-free libs (BOOM, A Sound Effect, etc.) | Generic European, not species/region specific | Royalty-free commercial | Yes | Fallback if a species has no free clean Estonian take. |
+| **eElurikkus / PlutoF / "Minu loodusheli"** | Growing Estonian sound-observation corpus (Legulus, PlutoF GO, citizen science) | Occurrence metadata is open; **audio file copyright stays with each recordist**. The GBIF "My naturesounds" export is CC0, but that covers the dataset metadata - not a blanket license on every attached sound file | **Per file only** | Search <https://elurikkus.ee/app/occurrences/search?class=Aves&file_types=Audio> and ask recordists (or `kessy.abarenkov@ut.ee` / `info@elurikkus.ut.ee`) about commercial terms. |
+| **Veljo Runnel** (naturesoundscapes.eu, Bandcamp) | **Best Estonian songbird coverage** - most breeding songbirds, Matsalu wetlands, Padakõrve, etc. | Bandcamp albums are **all rights reserved**; not CC | **No, not as-is** | High-priority **paid or permission** contact: `veljo.runnel@ut.ee`. Could replace most `*.song` species and several calls in one negotiation. |
+| **iNaturalist** | Sparse but Estonia-tagged sound observations exist | Default upload license is CC BY-NC; some users choose CC0 or CC BY per observation | **Only CC0 / BY rows** | Manual gap filler. Filter by country, taxon, and license on each observation page. |
+| **Wikimedia Commons** (`Category:Audio files of Aves`, country subcategories) | Thin per-species catalog; some Swedish/Finnish/European clips | Per file: usually CC BY or CC BY-SA | **Yes** (BY/BY-SA) | Already used for `great_cormorant` (P0-122 gap fill). Worth spot-checking before widening use - catalog is incomplete and not region-tagged reliably. |
+| **Tierstimmenarchiv** (Museum für Naturkunde Berlin) | Good European birds incl. Baltic-relevant species | Majority all-rights-reserved; a **CC BY-SA subset** is published (see Coding da Vinci export) | **Only the CC BY-SA subset** | Secondary scrape target. Commercial bulk use: `e-medien@zlb.de`. |
+| Tierstimmenarchiv peers (Naturalis, most museum archives) | Good | Mostly CC BY-NC | **No** | Reject for shipping unless permission granted. |
+| **freesound.org (Estonia-tagged)** | A few Estonian dawn-chorus / ambience recordings (e.g. jgrzinich Varessaare 2021) | Often **CC BY-NC** for the recordings that are actually from Estonia | **No** for NC rows | Confirms the regional pattern: Estonian material on freesound tends to be NC, not CC0/BY. |
+| Paid royalty-free libs (BOOM Seasons of Earth Europe, A Sound Effect "European Birds", etc.) | European ambience and some isolated species; **not a 30-species Baltic catalog** | Royalty-free commercial | Yes | Paid fallback. BOOM "Seasons of Earth" bundles are dawn-chorus ambience, not per-species isolated calls. Useful for background beds, not for the species-ID catalog in P0-105. |
 
 ### License rule for this project
 
@@ -79,8 +85,10 @@ rather than an incomplete search:
 |---|---|---|
 | xeno-canto | Yes, thousands | **No** - xeno-canto's *default upload license is CC BY-NC-SA*, so the commercial subset is near-empty for Estonia |
 | loodusheli.ee | Yes, the best regional material | **No** - all rights reserved, no license offered |
-| freesound.org | Barely | Some CC0/BY, but nothing Estonia-tagged |
-| Macaulay Library | Yes | **No** - research/personal use only |
+| freesound.org | Barely | Some CC0/BY, but Estonian rows tend to be NC |
+| Macaulay Library | Yes | **Paid license only** (commercial ticketing, not free) |
+| eElurikkus / PlutoF | Yes, growing | **Per-recordist** - metadata open, audio rights vary |
+| Veljo Runnel | Yes, best songbirds | **All rights reserved** - negotiate |
 
 Evidence from our own run: `sounds/birds/manifest.csv` holds 30/30 species but
 **zero recordings from Estonia**. `--widen-baltic` drifted far past the Baltic
@@ -92,9 +100,12 @@ recordings.** Only these three paths are real:
 
 1. **Request permission** (unlocks the large Estonian NC/reserved pools). NC licensing
    does not stop the rightsholder from granting us separate commercial terms.
-   Named contacts found on loodusheli.ee:
+   Named contacts found on loodusheli.ee and related Estonian biodiversity infra:
    - Tartu University Natural History Museum - `loodusmuuseum@ut.ee`
+   - PlutoF / eElurikkus data team - `kessy.abarenkov@ut.ee`, `info@elurikkus.ut.ee`
+   - Veljo Runnel (Estonian songbird specialist) - `veljo.runnel@ut.ee`
    - Estonian Fund for Nature (Eestimaa Looduse Fond) - `elf@elfond.ee`
+   - Estonian Ornithological Society (EOÜ) - `eva-liisa.orula@eoy.ee` (coordinates sound-observation projects)
    - individual xeno-canto recordists, who are named on every recording page;
      Estonian contributors are the priority.
    Underlying loodusheli.ee data sits in **PlutoF** (University of Tartu biodiversity
@@ -106,6 +117,54 @@ recordings.** Only these three paths are real:
    ecologically defensible (shared avifauna and song dialects across the Gulf of
    Finland) and need no permission. Far-flung takes (India, Mongolia, Kazakhstan, USA)
    are **not** defensible and should be replaced.
+4. **Paid commercial license.** Macaulay Library accepts commercial game requests via
+   Cornell's ticketing system (filter "Commercially requestable media"). Useful for
+   P0-122b gap species when free Baltic takes do not exist.
+
+## AI-generated bird sounds (research, 2026-07-24)
+
+**Short answer:** AI can help **clean, validate, or augment** field recordings for ML
+pipelines, but it is **not yet a reliable substitute** for shipping species-specific,
+regionally authentic ambient cues in a commercial game. Stick to licensed field
+recordings (or negotiated Estonian permissions) for P0-105.
+
+### What exists today
+
+| Approach | Species control | Production ready? | Fit for Rebel-reval |
+|---|---|---|---|
+| **BirdDiff** (diffusion, arXiv:2509.00318, 2025) | 12 training species; ~70% top-1 on a classifier trained on the same 12 species | Research only - no maintained open-source release | **No.** Wrong scale (12 vs 30), no Baltic dialect data, no license story. |
+| **AudioLDM / AudioLDM2** (general text-to-audio) | Prompt-based ("European robin song"); weak fine-grained control | Usable as a tool, not as a catalog | **No for shipping.** Sounds plausible at a glance but species accuracy is unreliable; BirdCLEF 2026 experiments show synthetic enrichment can **hurt** from-scratch classifiers once real data is available. |
+| **BirdGen** (GitHub hobby project) | Procedural synthetic training set, not real species | Demo / research | **No.** |
+| **Perch 2.0 / BirdNET / NatureLM-audio** | Classify ~10k-15k species | Mature for **identification** and QA | **Yes, as QA only** - verify a sourced clip is the right species before processing; not a generator. |
+| **BioSEN / Earth Species biodenoising** (2025-2026) | Denoise existing vocalizations | Research / tooling | **Maybe, downstream** - could clean noisy NC recordings **after** permission, or our own Estonian field takes; not a generation shortcut. |
+| **DeepFilterNet** | Speech denoiser adapted to wildlife | Open-source CLI | **Caution** - tuned for human speech; can smear weak bird harmonics. Prefer bioacoustic-specific denoisers for field material. |
+| **General SFX AI** (ElevenLabs SFX, Stable Audio, etc.) | "Bird chirping" generic prompts | Consumer tools | **No** - generic ambience only; fails the species catalog contract in `map_view_bird_species.gd`. |
+
+### Why not ship AI-generated calls as primary assets
+
+1. **Species fidelity** - Even BirdDiff, the strongest 2025 bioacoustic generator, misclassifies ~30% of its own outputs on in-distribution species. Our catalog needs 30 distinct, player-audible profiles (9 songs + 21 calls/drums).
+2. **Regional dialect** - Estonian thrush nightingale (*L. luscinia*) and Gulf-of-Finland song dialects are not represented in general models trained on global xeno-canto / iNaturalist pools.
+3. **Licensing** - Model weights may be open, but **training data** (xeno-canto NC majority) does not grant commercial redistribution rights on synthetic outputs. Treat AI-generated bird audio as legally ambiguous until counsel reviews the specific model license and training corpus.
+4. **Player trust** - P0-105 is an ambience system tied to `bird.*` IDs and district spawn weights. Wrong-species or "plastic" timbre breaks the fauna contract documented in `docs/FLORA_FAUNA.md`.
+
+### Practical AI uses that *do* help this pipeline
+
+| Use | When | Tooling |
+|---|---|---|
+| **Species QA** on downloaded takes | Before `process_bird_clips.py` | Perch 2.0 or BirdNET on the trimmed window - flag mismatches for manual swap |
+| **Denoising** | After permission or own field session | BioSEN / Earth Species biodenoising on noisy but otherwise correct Estonian NC takes |
+| **Gap-fill research** | P0-122b only | Macaulay Library commercial license search + Perch QA, **not** raw AudioLDM output |
+| **Future watch** | Post-vertical-slice | Species-conditioned diffusion (BirdDiff-class) if a maintainer fine-tunes on **licensed** Baltic recordings |
+
+### Recommendation
+
+| Priority | Action |
+|---|---|
+| 1 | Keep xeno-canto CC0/BY/BY-SA + Fennoscandian widen as the free baseline (current P0-122 manifest). |
+| 2 | Open a **single permission bundle** to loodusheli.ee / Veljo Runnel / PlutoF for Estonian replacements. |
+| 3 | Quote Macaulay Library commercial clips for the two P0-122b gap species if permission is slow. |
+| 4 | Use Perch/BirdNET as automated QA, not generation. |
+| 5 | Defer AI synthesis to a future task only if a model is fine-tuned on **our own** or **explicitly licensed** Baltic corpus. |
 
 ## "Song" vs "call"
 
