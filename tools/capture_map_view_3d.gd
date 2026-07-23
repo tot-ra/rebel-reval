@@ -1,13 +1,13 @@
 extends SceneTree
 
-## P0-052 evidence capture: renders the smithy courtyard and Lower Town slice
-## definitions through the 3D orthographic view layer and saves day/night PNGs
-## under docs/reports/images/view3d/. Requires a rendering-capable run (no
+## P0-053 evidence capture: renders the playable slice maps through the 3D
+## orthographic view layer and saves day/night PNGs under
+## docs/reports/images/view3d/. Requires a rendering-capable run (no
 ## --headless): godot --path . --script tools/capture_map_view_3d.gd
 
 const Registry := preload("res://scripts/map/map_audit_registry.gd")
 const OUTPUT_DIR := "res://docs/reports/images/view3d"
-const MAP_IDS: Array[String] = ["smithy_courtyard", "lower_town_slice"]
+const MAP_IDS: Array[String] = ["kalev_smithy", "lower_town_slice"]
 const VIEWPORT_SIZE := Vector2i(1280, 720)
 
 
