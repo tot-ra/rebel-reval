@@ -1,14 +1,16 @@
 # P0-039 blind gameplay-scale readability protocol
 
+**Status:** Cancelled - optional reference only ([ADR 0013](../adr/0013-authorial-visual-direction-without-blind-ux-panels.md), 2026-07-23)
+
 Recorded: 2026-07-23  
-Task: **P0-039**  
+Task: **P0-039** (cancelled)  
 Evidence pack: [`data/p039_readability_pack.json`](data/p039_readability_pack.json)  
 Blind stimuli: [`../images/p039_blind_pack/`](../images/p039_blind_pack/)  
 Results template: [`data/p039_readability_results.template.json`](data/p039_readability_results.template.json)
 
 ## Purpose
 
-Run a blind readability review of the programmatic 3D isometric candidate at native gameplay framing. This protocol satisfies the human gate named in [ADR 0007](../adr/0007-ai-generated-isometric-presentation.md) and blocks **P0-040** until at least five independent participants complete the session.
+Run a blind readability review of the programmatic 3D isometric candidate at native gameplay framing. This protocol was drafted for a human gate named in [ADR 0007](../adr/0007-ai-generated-isometric-presentation.md). **ADR 0013 cancelled the gate; do not treat this document as a release blocker.**
 
 This document is **not** a substitute for participant recruitment. It defines the facilitator procedure, rubric, and machine-checkable results contract.
 

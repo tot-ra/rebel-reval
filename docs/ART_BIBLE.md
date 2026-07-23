@@ -4,7 +4,7 @@ Status: **Superseded as style candidate** — [ADR 0007](adr/0007-ai-generated-i
 Recorded: 2026-07-16  
 Evidence: [P0-036 visual target report](reports/visual_targets_p0_036.md), [P0-036 UX review](reports/visual_targets_p0_036_ux_review.md), [ADR 0004](adr/0004-clean-painted-visual-style-candidate.md) (superseded), [ADR 0007](adr/0007-ai-generated-isometric-presentation.md)
 
-This document froze the candidate rules exercised by the P0-036 Smithy Courtyard gate. It does not authorize conversion of active districts. Final approval remains blocked by P0-038, P0-039, and a human P0-040 decision over the ADR 0007 candidate.
+This document froze the candidate rules exercised by the P0-036 Smithy Courtyard gate. It does not authorize conversion of active districts. Final approval remains blocked by P0-038 and a maintainer P0-040 decision over the ADR 0007 candidate per [ADR 0013](adr/0013-authorial-visual-direction-without-blind-ux-panels.md).
 
 ## Candidate direction
 
@@ -117,8 +117,7 @@ Before changing this status to `Approved`:
 
 1. P0-037 proves the shared low-poly rig at the frozen 64 px character scale.
 2. P0-038 records performance and production measurements for the compared approach.
-3. P0-039 runs a blind gameplay-scale readability test with at least five participants.
-4. A human approver records accept/reject and any rule changes in ADR 0004.
-5. Captures and automated geometry/collision/Y-sort verification remain green.
+3. The maintainer records accept/reject and any rule changes in P0-040 / ADR 0013 (blind UX panels are not required).
+4. Captures and automated geometry/collision/Y-sort verification remain green.
 
-Until all five steps pass, active district scenes and production runtime assets remain frozen.
+Until all four steps pass, active district scenes and production runtime assets remain frozen.

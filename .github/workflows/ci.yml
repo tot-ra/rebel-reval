@@ -177,9 +177,6 @@ jobs:
       - name: Verify P0-038 comparison report
         run: python3 tools/generate_p038_comparison_report.py --check
 
-      - name: Verify P0-039 blind readability pack
-        run: python3 tools/generate_p039_readability_pack.py --check
-
       - name: Verify release-candidate scaffold
         run: python3 tools/release_candidate_check.py
 

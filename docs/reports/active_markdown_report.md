@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `58`
+- Active Markdown files scanned: `59`
 - Markdown files excluded as archive/reference/out of active scope: `365`
-- Local/external links inspected: `364`
-- Links to active Markdown docs: `144`
+- Local/external links inspected: `376`
+- Links to active Markdown docs: `156`
 - Links to existing archive/reference/non-active local docs: `83`
 - External links skipped for reachability: `27`
 - Issues found: `8`
@@ -60,6 +60,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/adr/0010-large-map-runtime-chunking.md`
 - `docs/adr/0011-optional-first-person-camera.md`
 - `docs/adr/0012-first-person-mouse-free-look.md`
+- `docs/adr/0013-authorial-visual-direction-without-blind-ux-panels.md`
 - `docs/ARCHITECTURE.md`
 - `docs/ART_BIBLE.md`
 - `docs/ASSET_INVENTORY.md`

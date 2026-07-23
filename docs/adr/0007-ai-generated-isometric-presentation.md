@@ -11,6 +11,8 @@ Accepted
 
 Amended by [ADR 0011](0011-optional-first-person-camera.md) (2026-07-20): the default gameplay camera remains fixed orthographic dimetric, with an optional first-person inspection toggle exposed in release UI.
 
+Amended by [ADR 0013](0013-authorial-visual-direction-without-blind-ux-panels.md) (2026-07-23): P0-039 blind UX panels are cancelled; P0-040 closes on maintainer sign-off plus P0-038 technical evidence.
+
 ## Context
 
 The pre-scope-cut prototype (`quarantine/img/Screenshot 2025-08-26 at 16.42.48.png`) was an AI-generated painted isometric scene: timber-framed buildings with visible facades and roof mass, textured terrain, dense Fallout/Stoneshard-like mood. That image is the product vision players were shown. The later README banner is also retained under `quarantine/img/banner.jpg` because its provenance remains unresolved.
@@ -50,8 +52,8 @@ Adopt a **programmatic 3D isometric presentation**: real runtime 3D geometry gen
 
 - ADR 0004 is superseded; the clean-painted flat-color profiles in `map_visual_style.gd` become comparison evidence and are replaced by the 3D view layer (P0-052).
 - `docs/ART_BIBLE.md` scale, pivot, value-hierarchy, shadow, and night-grade rules carry forward into ART_BIBLE v2, restated for the 3D camera (character height in world units at frozen ortho size, light angles, grade parameters); its flat-color sections are historical evidence only.
-- P0-051 becomes the material style-lock kit, P0-052 the 3D view layer, P0-053 the slice texture/prop kit; P0-037 is reframed from cutout rig to the shared low-poly rig and retarget pipeline with the speed budget above; P0-038/P0-039 measure performance and readability of the 3D candidate; P0-040 remains the human decision gate.
+- P0-051 becomes the material style-lock kit, P0-052 the 3D view layer, P0-053 the slice texture/prop kit; P0-037 is reframed from cutout rig to the shared low-poly rig and retarget pipeline with the speed budget above; P0-038 measures performance of the 3D candidate; P0-040 remains the maintainer decision gate per [ADR 0013](0013-authorial-visual-direction-without-blind-ux-panels.md).
 - Existing map definitions, catalogs, activation guards, prototypes, and their tests continue to pass unmodified; the view-layer swap must not change any fingerprint.
 - Godot 4.7 GL Compatibility renders 3D; if slice scenes miss frame-time budgets on minimum hardware, P0-038 escalates renderer settings (or renderer choice) before any art rework.
-- Risk: low-poly characters read as toy-like. Mitigated by the post grade, silhouette rules, and the P0-039 blind readability test.
+- Risk: low-poly characters read as toy-like. Mitigated by the post grade, silhouette rules, and maintainer gameplay review ([ADR 0013](0013-authorial-visual-direction-without-blind-ux-panels.md)).
 - Risk: model/tool churn in texture generation. The kit records model, version, and full generation parameters per texture in SOURCES.csv so any texture can be regenerated or matched later.

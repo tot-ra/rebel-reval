@@ -153,7 +153,7 @@ def build_roadmap(coord: list[str], section_notes: list[str]) -> str:
         "1. **P0-078** - green clean-clone Godot baseline.",
         "2. **P0-072** - sourced 1343 Reval environment dossier per retained map.",
         "3. **P0-053** - slice surface and weathering kit.",
-        "4. **P0-038 / P0-039 / P0-040** - measure, blind-read, and freeze ART_BIBLE v2.",
+        "4. **P0-038 / P0-040** - measure and freeze ART_BIBLE v2 with maintainer sign-off (ADR 0013).",
         "5. **P2-003 / P1-029 / P1-036** - modular environment kit, asset lint, composition audit.",
         "6. **P2-022 / P2-023 / P2-021** - Lower Town realism, landmark pass, parity gate.",
         "7. **P2-025 through P2-031** - district-life dressing, vegetation, fauna.",
