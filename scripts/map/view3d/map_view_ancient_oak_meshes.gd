@@ -10,8 +10,8 @@ extends RefCounted
 
 const LANDMARK_SCALE := 2.0
 const WOOD_RADIAL_SEGMENTS := 9
-const MAX_WOOD_SEGMENTS := 900
-const MAX_LEAF_SPRAYS := 280
+const MAX_WOOD_SEGMENTS := 1200
+const MAX_LEAF_SPRAYS := 360
 const MAX_MOSS_STRANDS := 48
 const MIN_BRANCH_TIP_RADIUS := 0.012
 const TRUNK_BASE_FLARE := 1.18
@@ -61,6 +61,7 @@ static func _geometry() -> Dictionary:
 		"trunk_path_sections": int(skeleton["trunk_path_sections"]),
 		"leader_segments": int(skeleton["leader_segments"]),
 		"terminal_branch_tips": int(skeleton["terminal_branch_tips"]),
+		"bezier_branch_paths": int(skeleton["growth_stats"].get("bezier_branch_paths", 0)),
 		"curved_branch_paths": int(skeleton["growth_stats"].get("curved_branch_paths", 0)),
 		"interior_branch_junctions": int(skeleton["growth_stats"].get("interior_branch_junctions", 0)),
 		"primary_attachment_heights": (skeleton["primary_attachment_heights"] as Array).duplicate(),
@@ -79,6 +80,7 @@ static func _build_skeleton() -> Dictionary:
 	var leaf_candidates: Array[Dictionary] = []
 	var moss_anchors: Array[Dictionary] = []
 	var growth_stats := {
+		"bezier_branch_paths": 0,
 		"curved_branch_paths": 0,
 		"interior_branch_junctions": 0,
 	}
@@ -123,7 +125,7 @@ static func _build_skeleton() -> Dictionary:
 
 	# Primary limbs keep a loose phyllotaxis, but broad seeded offsets prevent the
 	# crown from reading as evenly spaced spokes or a staircase up the trunk.
-	var primary_count := 12
+	var primary_count := 16
 	var crown_start := 3.4
 	var crown_end := 10.4
 	var primary_attachment_heights: Array[float] = []
@@ -218,49 +220,57 @@ static func _grow_branch(
 		leaf_candidates.append({"position": start, "direction": direction, "seed": seed})
 		return
 
-	# A branch is a flowing path, not one rigid cylinder. Persistent curvature gives
-	# each limb a readable sweep, while smaller per-section changes avoid sharp,
-	# mechanically repeated elbows.
-	var piece_count := 6 if is_primary else (4 if depth >= 2 else 3)
+	# Each bough follows one cubic Bezier spine. Sampling a shared curve instead of
+	# repeatedly steering short cylinders keeps every section tangent-continuous and
+	# makes the heavy primary limbs flow naturally out into finer branchlets.
+	var piece_count := 9 if is_primary else (6 if depth >= 2 else 4)
 	var path_points: Array[Vector3] = [start]
 	var path_directions: Array[Vector3] = [direction.normalized()]
 	var path_radii: Array[float] = [radius]
-	var current_position := start
-	var current_direction := direction.normalized()
-	var curve_axis := _radial_around(direction, TAU * _hash(branch_index, seed, 61))
-	var curve_strength := lerpf(-0.20, 0.20, _hash(branch_index, seed, 67))
-	var end_radius := maxf(radius * 0.58, MIN_BRANCH_TIP_RADIUS)
+	var start_direction := direction.normalized()
+	var curve_axis := _radial_around(start_direction, TAU * _hash(branch_index, seed, 61))
+	var curve_strength := lerpf(-0.24, 0.24, _hash(branch_index, seed, 67))
+	var vertical_flow := lerpf(0.10, -0.12 if is_primary else -0.18, _hash(branch_index, seed, 71))
+	var end_direction := (
+		start_direction
+		+ curve_axis * curve_strength * 1.35
+		+ Vector3.UP * vertical_flow
+	).normalized()
+	var end_position := (
+		start
+		+ (start_direction * 0.72 + end_direction * 0.28).normalized() * length
+		+ curve_axis * curve_strength * length * 0.42
+		+ Vector3.UP * vertical_flow * length * 0.18
+	)
+	var control_a := start + start_direction * length * 0.34
+	var control_b := end_position - end_direction * length * 0.30
+	var end_radius := maxf(radius * 0.56, MIN_BRANCH_TIP_RADIUS)
 	for piece_index in piece_count:
 		if segments.size() >= MAX_WOOD_SEGMENTS:
 			break
 		var piece_t := float(piece_index + 1) / float(piece_count)
-		var meander := _radial_around(current_direction, TAU * _hash(piece_index, seed, 71))
-		var meander_strength := lerpf(-0.07, 0.07, _hash(piece_index, seed, 73))
-		# Old oak limbs rise from the collar, settle under their own weight, and then
-		# turn toward open light. The blend produces a soft arc instead of fixed pitch.
-		var vertical_flow := lerpf(0.08, -0.14 if is_primary else -0.20, piece_t)
-		vertical_flow += (_hash(piece_index, seed, 76) - 0.5) * 0.08
-		var target_direction := (
-			current_direction * 0.82
-			+ curve_axis * curve_strength
-			+ meander * meander_strength
-			+ Vector3.UP * vertical_flow
-		).normalized()
-		var next_direction := (current_direction * 0.52 + target_direction * 0.48).normalized()
-		var section_length := length / float(piece_count) * lerpf(0.92, 1.08, _hash(piece_index, seed, 77))
-		var next_position := current_position + (current_direction + next_direction).normalized() * section_length
+		var next_position := _cubic_bezier(start, control_a, control_b, end_position, piece_t)
+		var next_direction := _cubic_bezier_tangent(start, control_a, control_b, end_position, piece_t)
 		var next_radius := lerpf(radius, end_radius, pow(piece_t, 0.82))
-		_append_segment(segments, current_position, next_position, path_radii[path_radii.size() - 1], next_radius, 4 - depth)
-		current_position = next_position
-		current_direction = next_direction
-		path_points.append(current_position)
-		path_directions.append(current_direction)
+		_append_segment(
+			segments,
+			path_points[path_points.size() - 1],
+			next_position,
+			path_radii[path_radii.size() - 1],
+			next_radius,
+			4 - depth
+		)
+		path_points.append(next_position)
+		path_directions.append(next_direction)
 		path_radii.append(next_radius)
 
 	if path_points.size() <= 1:
 		leaf_candidates.append({"position": start, "direction": direction, "seed": seed})
 		return
+	growth_stats["bezier_branch_paths"] = int(growth_stats["bezier_branch_paths"]) + 1
 	growth_stats["curved_branch_paths"] = int(growth_stats["curved_branch_paths"]) + 1
+	var current_position := path_points[path_points.size() - 1]
+	var current_direction := path_directions[path_directions.size() - 1]
 	leaf_candidates.append({"position": current_position, "direction": current_direction, "seed": seed})
 	# Interior foliage pads the crown around fork shoulders instead of leaving all
 	# leaves at the outermost tips.
@@ -361,6 +371,31 @@ static func _point_on_path_at_height(points: Array[Vector3], target_y: float) ->
 	return points[points.size() - 1]
 
 
+static func _cubic_bezier(start: Vector3, control_a: Vector3, control_b: Vector3, end: Vector3, t: float) -> Vector3:
+	var inverse := 1.0 - t
+	return (
+		start * inverse * inverse * inverse
+		+ control_a * 3.0 * inverse * inverse * t
+		+ control_b * 3.0 * inverse * t * t
+		+ end * t * t * t
+	)
+
+
+static func _cubic_bezier_tangent(
+	start: Vector3,
+	control_a: Vector3,
+	control_b: Vector3,
+	end: Vector3,
+	t: float
+) -> Vector3:
+	var inverse := 1.0 - t
+	return (
+		(control_a - start) * 3.0 * inverse * inverse
+		+ (control_b - control_a) * 6.0 * inverse * t
+		+ (end - control_b) * 3.0 * t * t
+	).normalized()
+
+
 static func _append_segment(
 	segments: Array[Dictionary],
 	start: Vector3,
@@ -405,7 +440,7 @@ static func _build_canopy_mesh(skeleton: Dictionary) -> Dictionary:
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var candidates: Array = skeleton["leaf_candidates"]
 	var spray_count := mini(MAX_LEAF_SPRAYS, candidates.size())
-	var leaves_per_spray := 15
+	var leaves_per_spray := 21
 	var leaf_count := 0
 	for spray_index in spray_count:
 		var candidate_index := int(floor(float(spray_index) * float(candidates.size()) / float(spray_count)))

@@ -22,7 +22,7 @@ func test_sacred_grove_expands_into_a_forest_boundary() -> void:
 		if String(building.get("id", "")).begins_with("boundary_forest_"):
 			boundary_lines += 1
 			assert_eq(building.get("primitive"), &"tree_line")
-	assert_true(boundary_lines >= 14, "expanded edges need layered, irregular forest rows")
+	assert_eq(boundary_lines, 8, "a single broken outer belt should frame the grove without crowding it")
 
 
 func test_sacred_grove_keeps_road_openings_through_boundary_forest() -> void:

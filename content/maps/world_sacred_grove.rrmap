@@ -11,27 +11,19 @@ terrain eastern_bog bog 43 8 14 18 order=2
 terrain spring_water shallow_water 45 11 6 11 order=3
 terrain grove_road mud 3 25 58 4 order=4
 exclude spring_exclusion 45 11 6 11
-# The inner ring frames the ritual clearing; irregular double rows at the outer
-# boundary make the expanded playable ground disappear naturally into deep forest.
+# The inner oak ring frames the ritual clearing. A single broken outer belt keeps
+# the horizon wooded while leaving visual breathing room around the sacred oak.
 building oak_ring_north house 21 9 22 1 primitive=tree_line wall_height=62
 building oak_ring_west house 20 10 1 16 primitive=tree_line wall_height=62
 building oak_ring_east house 43 10 1 16 primitive=tree_line wall_height=62
-building boundary_forest_north_west_back house 1 1 27 2 primitive=tree_line wall_height=62
-building boundary_forest_north_east_back house 35 0 28 2 primitive=tree_line wall_height=62
-building boundary_forest_north_west_mid house 4 4 18 1 primitive=tree_line wall_height=62
-building boundary_forest_north_east_mid house 43 3 17 1 primitive=tree_line wall_height=62
-building boundary_forest_west_north_back house 0 2 2 18 primitive=tree_line wall_height=62
-building boundary_forest_west_south_back house 1 30 2 5 primitive=tree_line wall_height=62
-building boundary_forest_west_north_mid house 4 5 1 14 primitive=tree_line wall_height=62
-building boundary_forest_west_south_mid house 5 31 1 4 primitive=tree_line wall_height=62
-building boundary_forest_east_north_back house 62 2 2 18 primitive=tree_line wall_height=62
-building boundary_forest_east_south_back house 61 30 2 5 primitive=tree_line wall_height=62
-building boundary_forest_east_north_mid house 59 5 1 14 primitive=tree_line wall_height=62
-building boundary_forest_east_south_mid house 58 31 1 4 primitive=tree_line wall_height=62
-building boundary_forest_south_west_back house 1 34 25 2 primitive=tree_line wall_height=62
-building boundary_forest_south_east_back house 36 34 27 2 primitive=tree_line wall_height=62
-building boundary_forest_south_west_mid house 7 31 15 1 primitive=tree_line wall_height=62
-building boundary_forest_south_east_mid house 44 31 13 1 primitive=tree_line wall_height=62
+building boundary_forest_north_west_back house 1 1 27 1 primitive=tree_line wall_height=62
+building boundary_forest_north_east_back house 35 0 28 1 primitive=tree_line wall_height=62
+building boundary_forest_west_north_back house 0 2 1 18 primitive=tree_line wall_height=62
+building boundary_forest_west_south_back house 1 30 1 5 primitive=tree_line wall_height=62
+building boundary_forest_east_north_back house 63 2 1 18 primitive=tree_line wall_height=62
+building boundary_forest_east_south_back house 62 30 1 5 primitive=tree_line wall_height=62
+building boundary_forest_south_west_back house 1 35 25 1 primitive=tree_line wall_height=62
+building boundary_forest_south_east_back house 36 35 27 1 primitive=tree_line wall_height=62
 prop offering_stone barrels 32 18 primitive=offering_stone
 prop ancient_oak tree 32 13 primitive=ancient_tree
 prop spring_marker barrels 44 22 primitive=spring
