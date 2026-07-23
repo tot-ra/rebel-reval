@@ -12,7 +12,8 @@ style block.dais wall_height=32 wall_color=8f887cff wall_material=limestone
 # Limestone is kept to the civic threshold, dais, and hearth; the working hall
 # otherwise uses heavy timber boards, limewashed walls, and movable furniture.
 terrain entry_threshold stone 17 20 6 3 order=1
-terrain council_dais stone 13 3 14 3 order=2
+# Distinct from the council_dais gameplay anchor below.
+terrain council_dais_stone stone 13 3 14 3 order=2
 terrain hearth_apron stone 32 4 5 5 order=3
 terrain archive_bay plaster 3 3 8 8 order=4
 wall wall.north 0 0 39 0 thickness=1 openings=7,0,2,1|19,0,2,1|31,0,2,1 kind=interior_wall style=wall.civic
@@ -33,7 +34,8 @@ prop scribe_chair chair 7 11 rect=2,2
 prop archive_shelf_north shelf 3 3 rect=2,3
 prop archive_shelf_west shelf 3 7 rect=2,3
 prop charter_chest chest 8 4 rect=2,2
-prop civic_hearth hearth 33 5 rect=4,3
+# Distinct from the civic_hearth gameplay anchor below.
+prop civic_hearth_block hearth 33 5 rect=4,3
 prop service_table table 30 12 rect=5,3
 prop waiting_bench_west table 5 17 rect=6,1
 prop waiting_bench_east table 29 17 rect=6,1
