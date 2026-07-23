@@ -1,0 +1,311 @@
+{
+  "len_range": "15-90",
+  "min_quality": "A",
+  "recordings": {
+    "herring_gull": {
+      "scientific": "Larus argentatus",
+      "xc_id": "436943",
+      "recordist": "Joost van Bruggen",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/436943",
+      "length": "43",
+      "quality": "A",
+      "country": "Netherlands"
+    },
+    "common_gull": {
+      "scientific": "Larus canus",
+      "xc_id": "898207",
+      "recordist": "Jochem verweij",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/898207",
+      "length": "17",
+      "quality": "A",
+      "country": "Sweden"
+    },
+    "common_tern": {
+      "scientific": "Sterna hirundo",
+      "xc_id": "898659",
+      "recordist": "Jochem verweij",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/898659",
+      "length": "16",
+      "quality": "B",
+      "country": "Sweden"
+    },
+    "mute_swan": {
+      "scientific": "Cygnus olor",
+      "xc_id": "434964",
+      "recordist": "Joost van Bruggen",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/434964",
+      "length": "23",
+      "quality": "A",
+      "country": "Netherlands"
+    },
+    "mallard": {
+      "scientific": "Anas platyrhynchos",
+      "xc_id": "112828",
+      "recordist": "Jonathon Jongsma",
+      "license": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "page": "https://xeno-canto.org/112828",
+      "length": "16",
+      "quality": "B",
+      "country": "United States"
+    },
+    "greylag_goose": {
+      "scientific": "Anser anser",
+      "xc_id": "436358",
+      "recordist": "Joost van Bruggen",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/436358",
+      "length": "40",
+      "quality": "B",
+      "country": "Netherlands"
+    },
+    "grey_heron": {
+      "scientific": "Ardea cinerea",
+      "xc_id": "610467",
+      "recordist": "Jens Loose",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/610467",
+      "length": "47",
+      "quality": "A",
+      "country": "Germany"
+    },
+    "northern_lapwing": {
+      "scientific": "Vanellus vanellus",
+      "xc_id": "902884",
+      "recordist": "Jochem verweij",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/902884",
+      "length": "43",
+      "quality": "A",
+      "country": "Sweden"
+    },
+    "common_snipe": {
+      "scientific": "Gallinago gallinago",
+      "xc_id": "898040",
+      "recordist": "Jochem verweij",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/898040",
+      "length": "39",
+      "quality": "D",
+      "country": "Sweden"
+    },
+    "osprey": {
+      "scientific": "Pandion haliaetus",
+      "xc_id": "1090078",
+      "recordist": "Samuel Ortion",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/1090078",
+      "length": "15",
+      "quality": "C",
+      "country": "France"
+    },
+    "common_buzzard": {
+      "scientific": "Buteo buteo",
+      "xc_id": "538277",
+      "recordist": "Beno\u00eet Van Hecke",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/538277",
+      "length": "61",
+      "quality": "B",
+      "country": "France"
+    },
+    "common_kestrel": {
+      "scientific": "Falco tinnunculus",
+      "xc_id": "468409",
+      "recordist": "Marie-Lan Ta\u00ff Pamart",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/468409",
+      "length": "30",
+      "quality": "A",
+      "country": "France"
+    },
+    "tawny_owl": {
+      "scientific": "Strix aluco",
+      "xc_id": "457399",
+      "recordist": "Hannu Varkki",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/457399",
+      "length": "41",
+      "quality": "B",
+      "country": "Finland"
+    },
+    "house_sparrow": {
+      "scientific": "Passer domesticus",
+      "xc_id": "771298",
+      "recordist": "Max Karlsson",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/771298",
+      "length": "21",
+      "quality": "C",
+      "country": "Sweden"
+    },
+    "hooded_crow": {
+      "scientific": "Corvus cornix",
+      "xc_id": "901768",
+      "recordist": "Jochem verweij",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/901768",
+      "length": "28",
+      "quality": "C",
+      "country": "Sweden"
+    },
+    "rook": {
+      "scientific": "Corvus frugilegus",
+      "xc_id": "1148742",
+      "recordist": "steve",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/1148742",
+      "length": "16",
+      "quality": "B",
+      "country": "Mongolia"
+    },
+    "western_jackdaw": {
+      "scientific": "Coloeus monedula",
+      "xc_id": "842238",
+      "recordist": "hex0",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/842238",
+      "length": "25",
+      "quality": "D",
+      "country": "Kazakhstan"
+    },
+    "eurasian_magpie": {
+      "scientific": "Pica pica",
+      "xc_id": "475651",
+      "recordist": "Marie-Lan Ta\u00ff Pamart",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/475651",
+      "length": "72",
+      "quality": "B",
+      "country": "France"
+    },
+    "barn_swallow": {
+      "scientific": "Hirundo rustica",
+      "xc_id": "492100",
+      "recordist": "Marie-Lan Ta\u00ff Pamart",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/492100",
+      "length": "79",
+      "quality": "A",
+      "country": "France"
+    },
+    "skylark": {
+      "scientific": "Alauda arvensis",
+      "xc_id": "903764",
+      "recordist": "Jochem verweij",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/903764",
+      "length": "88",
+      "quality": "B",
+      "country": "Sweden"
+    },
+    "yellowhammer": {
+      "scientific": "Emberiza citrinella",
+      "xc_id": "902153",
+      "recordist": "Jochem verweij",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/902153",
+      "length": "62",
+      "quality": "A",
+      "country": "Sweden"
+    },
+    "common_chaffinch": {
+      "scientific": "Fringilla coelebs",
+      "xc_id": "489896",
+      "recordist": "Hannu Varkki",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/489896",
+      "length": "32",
+      "quality": "B",
+      "country": "Finland"
+    },
+    "great_tit": {
+      "scientific": "Parus major",
+      "xc_id": "703062",
+      "recordist": "Max Karlsson",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/703062",
+      "length": "16",
+      "quality": "C",
+      "country": "Sweden"
+    },
+    "european_robin": {
+      "scientific": "Erithacus rubecula",
+      "xc_id": "489906",
+      "recordist": "Hannu Varkki",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/489906",
+      "length": "46",
+      "quality": "B",
+      "country": "Finland"
+    },
+    "common_blackbird": {
+      "scientific": "Turdus merula",
+      "xc_id": "708973",
+      "recordist": "Max Karlsson",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/708973",
+      "length": "29",
+      "quality": "B",
+      "country": "Sweden"
+    },
+    "song_thrush": {
+      "scientific": "Turdus philomelos",
+      "xc_id": "537554",
+      "recordist": "Mats Havskogen",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/537554",
+      "length": "52",
+      "quality": "D",
+      "country": "Sweden"
+    },
+    "common_nightingale": {
+      "scientific": "Luscinia luscinia",
+      "xc_id": "1083488",
+      "recordist": "Robert Petersen",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/1083488",
+      "length": "62",
+      "quality": "A",
+      "country": "Sweden"
+    },
+    "great_cormorant": {
+      "source": "freesound",
+      "scientific": "Phalacrocorax carbo",
+      "fs_id": "572739",
+      "recordist": "TRP",
+      "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "page": "https://freesound.org/people/TRP/sounds/572739/",
+      "length": "45",
+      "quality": "B",
+      "country": "Canada",
+      "trim": {"start": 45, "duration": 45},
+      "notes": "xeno-canto has no commercial takes for this species; CC0 colony ambience trimmed to 45 s"
+    },
+    "white_tailed_eagle": {
+      "source": "freesound",
+      "scientific": "Haliaeetus albicilla",
+      "fs_id": "675962",
+      "recordist": "craigsmith",
+      "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "page": "https://freesound.org/people/craigsmith/sounds/675962/",
+      "length": "41",
+      "quality": "C",
+      "country": "United States",
+      "notes": "xeno-canto has no commercial takes; CC0 vintage eagle-call library gap fill until species-specific take is sourced"
+    },
+    "great_spotted_woodpecker": {
+      "scientific": "Dendrocopos major",
+      "xc_id": "995604",
+      "recordist": "No\u00e9 Ferrari",
+      "license": "https://creativecommons.org/licenses/by/4.0/",
+      "page": "https://xeno-canto.org/995604",
+      "length": "36",
+      "quality": "B",
+      "country": "France"
+    }
+  }
+}

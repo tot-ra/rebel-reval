@@ -34,6 +34,19 @@ trimming/looping). The download script enforces this automatically and records t
 license of every downloaded file in a manifest for the credits/license report
 (needed for P6-008 release license report).
 
+### xeno-canto gaps (filled via Freesound CC0 in P0-122)
+
+A full-catalog scan of xeno-canto (300+ takes per species) found **zero** recordings
+under CC0 / CC BY / CC BY-SA for:
+
+- `bird.great_cormorant` (*Phalacrocorax carbo*)
+- `bird.white_tailed_eagle` (*Haliaeetus albicilla*)
+
+For P0-122 these two species use documented Freesound CC0 gap fills listed in
+`tools/audio/curated_bird_recordings.json`. Replace them with species-specific
+Baltic field takes when a commercial license appears or a maintainer records one
+(**P0-122b**).
+
 ## "Song" vs "call"
 
 Only part of the catalog actually *sings*. The catalog cue names already encode this
@@ -93,18 +106,27 @@ xeno-canto retired its open API v2; **API v3 requires a free API key**. Steps:
 3. Run the helper:
 
    ```sh
-   python3 tools/audio/fetch_bird_songs.py --out sounds/birds --per-species 3
+   python3 tools/audio/build_curated_bird_manifest.py --widen-baltic
+   python3 tools/audio/fetch_bird_songs.py --curated tools/audio/curated_bird_recordings.json
+   python3 tools/verify_bird_audio_manifest.py
    ```
 
-   Defaults: country Estonia, quality A, length 15-90 s, commercial licenses only,
-   3 best recordings per species. Files land in `sounds/birds/<runtime_id>/` and a
-   `manifest.csv` (id, file, scientific name, recordist, license, xeno-canto URL,
-   length, quality) is written for the credits/license report.
+   The committed `tools/audio/curated_bird_recordings.json` is the reproducible source map.
+   Rebuild it when better Baltic takes appear; gap species currently use documented
+   Freesound CC0 fills (see **xeno-canto gaps** above).
 
    Useful flags: `--songbirds-only` (only the 9 `*.song` species first),
    `--widen-baltic` (also accept Latvia/Lithuania/Finland/Sweden if Estonia is thin
    for a species), `--min-quality B`, `--len 10-120`, `--dry-run` (list without
-   downloading).
+   downloading), `--scrape` (no API key; uses explore search with `lic:by` /
+   `lic:by-sa` / `lic:zero` tags before falling back to species-page walks).
+
+   Without an API key:
+
+   ```sh
+   python3 tools/audio/fetch_bird_songs.py --scrape --widen-baltic --per-species 1
+   python3 tools/verify_bird_audio_manifest.py
+   ```
 
 Human-browsable equivalent for spot checks, e.g. nightingale:
 <https://xeno-canto.org/explore?query=Luscinia%20luscinia%20cnt:estonia%20q:A%20len:15-90>

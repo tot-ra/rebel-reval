@@ -1,0 +1,31 @@
+bird_id,scientific,xc_id,recordist,license,page,length,quality,country,file
+herring_gull,Larus argentatus,436943,Joost van Bruggen,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/436943,43,A,Netherlands,sounds/birds/herring_gull/herring_gull_XC436943.mp3
+common_gull,Larus canus,898207,Jochem verweij,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/898207,17,A,Sweden,sounds/birds/common_gull/common_gull_XC898207.mp3
+common_tern,Sterna hirundo,898659,Jochem verweij,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/898659,16,B,Sweden,sounds/birds/common_tern/common_tern_XC898659.mp3
+mute_swan,Cygnus olor,434964,Joost van Bruggen,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/434964,23,A,Netherlands,sounds/birds/mute_swan/mute_swan_XC434964.mp3
+mallard,Anas platyrhynchos,112828,Jonathon Jongsma,https://creativecommons.org/licenses/by-sa/3.0/,https://xeno-canto.org/112828,16,B,United States,sounds/birds/mallard/mallard_XC112828.mp3
+greylag_goose,Anser anser,436358,Joost van Bruggen,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/436358,40,B,Netherlands,sounds/birds/greylag_goose/greylag_goose_XC436358.mp3
+grey_heron,Ardea cinerea,610467,Jens Loose,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/610467,47,A,Germany,sounds/birds/grey_heron/grey_heron_XC610467.mp3
+northern_lapwing,Vanellus vanellus,902884,Jochem verweij,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/902884,43,A,Sweden,sounds/birds/northern_lapwing/northern_lapwing_XC902884.mp3
+common_snipe,Gallinago gallinago,898040,Jochem verweij,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/898040,39,D,Sweden,sounds/birds/common_snipe/common_snipe_XC898040.mp3
+osprey,Pandion haliaetus,1090078,Samuel Ortion,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/1090078,15,C,France,sounds/birds/osprey/osprey_XC1090078.mp3
+common_buzzard,Buteo buteo,538277,Benoît Van Hecke,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/538277,61,B,France,sounds/birds/common_buzzard/common_buzzard_XC538277.mp3
+common_kestrel,Falco tinnunculus,468409,Marie-Lan Taÿ Pamart,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/468409,30,A,France,sounds/birds/common_kestrel/common_kestrel_XC468409.mp3
+tawny_owl,Strix aluco,457399,Hannu Varkki,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/457399,41,B,Finland,sounds/birds/tawny_owl/tawny_owl_XC457399.mp3
+house_sparrow,Passer domesticus,771298,Max Karlsson,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/771298,21,C,Sweden,sounds/birds/house_sparrow/house_sparrow_XC771298.mp3
+hooded_crow,Corvus cornix,901768,Jochem verweij,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/901768,28,C,Sweden,sounds/birds/hooded_crow/hooded_crow_XC901768.mp3
+rook,Corvus frugilegus,1148742,steve,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/1148742,16,B,Mongolia,sounds/birds/rook/rook_XC1148742.mp3
+western_jackdaw,Coloeus monedula,842238,hex0,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/842238,25,D,Kazakhstan,sounds/birds/western_jackdaw/western_jackdaw_XC842238.mp3
+eurasian_magpie,Pica pica,475651,Marie-Lan Taÿ Pamart,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/475651,72,B,France,sounds/birds/eurasian_magpie/eurasian_magpie_XC475651.mp3
+barn_swallow,Hirundo rustica,492100,Marie-Lan Taÿ Pamart,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/492100,79,A,France,sounds/birds/barn_swallow/barn_swallow_XC492100.mp3
+skylark,Alauda arvensis,903764,Jochem verweij,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/903764,88,B,Sweden,sounds/birds/skylark/skylark_XC903764.mp3
+yellowhammer,Emberiza citrinella,902153,Jochem verweij,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/902153,62,A,Sweden,sounds/birds/yellowhammer/yellowhammer_XC902153.mp3
+common_chaffinch,Fringilla coelebs,489896,Hannu Varkki,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/489896,32,B,Finland,sounds/birds/common_chaffinch/common_chaffinch_XC489896.mp3
+great_tit,Parus major,703062,Max Karlsson,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/703062,16,C,Sweden,sounds/birds/great_tit/great_tit_XC703062.mp3
+european_robin,Erithacus rubecula,489906,Hannu Varkki,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/489906,46,B,Finland,sounds/birds/european_robin/european_robin_XC489906.mp3
+common_blackbird,Turdus merula,708973,Max Karlsson,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/708973,29,B,Sweden,sounds/birds/common_blackbird/common_blackbird_XC708973.mp3
+song_thrush,Turdus philomelos,537554,Mats Havskogen,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/537554,52,D,Sweden,sounds/birds/song_thrush/song_thrush_XC537554.mp3
+common_nightingale,Luscinia luscinia,1083488,Robert Petersen,https://creativecommons.org/licenses/by-sa/4.0/,https://xeno-canto.org/1083488,62,A,Sweden,sounds/birds/common_nightingale/common_nightingale_XC1083488.mp3
+great_cormorant,Phalacrocorax carbo,572739,TRP,https://creativecommons.org/publicdomain/zero/1.0/,https://freesound.org/people/TRP/sounds/572739/,45,B,Canada,sounds/birds/great_cormorant/great_cormorant_FS572739.mp3
+white_tailed_eagle,Haliaeetus albicilla,675962,craigsmith,https://creativecommons.org/publicdomain/zero/1.0/,https://freesound.org/people/craigsmith/sounds/675962/,41,C,United States,sounds/birds/white_tailed_eagle/white_tailed_eagle_FS675962.mp3
+great_spotted_woodpecker,Dendrocopos major,995604,Noé Ferrari,https://creativecommons.org/licenses/by/4.0/,https://xeno-canto.org/995604,36,B,France,sounds/birds/great_spotted_woodpecker/great_spotted_woodpecker_XC995604.mp3
