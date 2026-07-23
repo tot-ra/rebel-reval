@@ -2,9 +2,10 @@
 """Verify the P0-072 historical environment dossier contract.
 
 The dossier deliberately allows broad bounded reconstructions, but every retained
-map still needs a complete, sourced card. Human review remains a separate gate:
-structural validation may pass while review is pending, yet P0-072/P1-036 cannot
-be marked complete until every review row is signed.
+map still needs a complete, sourced card. Maintainer sign-off (P0-111) is tracked
+separately per ADR 0014: structural validation may pass while review is pending,
+and P0-072 may close once structural coverage passes. P1-036 and district quality
+passes still require every review row to be signed before closeout.
 """
 
 from __future__ import annotations
@@ -49,7 +50,9 @@ CONFIDENCE = re.compile(r"\*\*(?:[ABCDU](?:/[ABCDU])*)\*\*")
 SOURCE_ID = re.compile(r"\bH\d{2}\b")
 REGISTRY_ID = re.compile(r'"id"\s*:\s*&"([a-z0-9_]+)"')
 CARD_HEADING = re.compile(r"^#### `([^`]+)`[^\n]*$", re.MULTILINE)
-TASK_ROW = re.compile(r"^- \[([ x])\] (P0-072|P1-036)\b", re.MULTILINE)
+# ADR 0014: only P1-036 (composition audit) requires signed human review before
+# closeout. P0-072 structural dossier completion is tracked separately in P0-111.
+TASK_ROW = re.compile(r"^- \[([ x])\] P1-036\b", re.MULTILINE)
 SIGNED_DECISIONS = frozenset({"accepted", "amended"})
 
 
@@ -121,7 +124,7 @@ def parse_review_rows(text: str) -> list[ReviewRow]:
 
 
 def completed_gate_tasks(todo_text: str) -> set[str]:
-    return {task_id for marker, task_id in TASK_ROW.findall(todo_text) if marker == "x"}
+    return {"P1-036" for marker in TASK_ROW.findall(todo_text) if marker == "x"}
 
 
 def review_is_signed(rows: list[ReviewRow]) -> bool:

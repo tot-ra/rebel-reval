@@ -78,10 +78,9 @@ class VerifyHistoricalDossierTest(unittest.TestCase):
         errors = self.validate(dossier=seeded)
         self.assertTrue(any("unknown source IDs: H99" in error for error in errors))
 
-    def test_pending_review_blocks_p0_072_completion(self) -> None:
+    def test_pending_review_allows_p0_072_completion(self) -> None:
         seeded_todo = self.todo.replace("- [ ] P0-072 |", "- [x] P0-072 |", 1)
-        errors = self.validate(todo=seeded_todo)
-        self.assertTrue(any("human historical review" in error and "P0-072" in error for error in errors))
+        self.assertEqual(self.validate(todo=seeded_todo), [])
 
     def test_pending_review_blocks_p1_036_completion(self) -> None:
         seeded_todo = self.todo.replace("- [ ] P1-036 |", "- [x] P1-036 |", 1)
