@@ -11,13 +11,14 @@ References:
 <!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
-| P0 |    15  |    20  | Baseline, storage, materials, historical audit |
+| P0 |    16  |    20  | Baseline, storage, materials, historical audit |
 | P1 |     3  |     4  | Runtime systems, content foundation |
 | P2 |    15  |     6  | Vertical-slice production (playable MVP) |
 | P3 |    10  |     3  | Validation, accessibility, performance |
 | P4 |    42  |     6  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
+
 
 
 
@@ -211,6 +212,7 @@ References:
 - [x] P0-121 | deps: none | deliverable: release-candidate verification scaffold (`tools/release_candidate_check.py`) covering AGPL license, asset provenance manifest, export preset and CI smoke indicators, and implemented accessibility baseline checks with Python unit tests | allowed files: `tools/release_candidate_check.py`, `tests/python/test_release_candidate_check.py`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 tools/release_candidate_check.py` exits 0 on current HEAD; `python3 -m unittest tests.python.test_release_candidate_check -v` passes
 - [ ] P0-122 | deps: P0-117 | deliverable: source and download commercially usable, clean Estonian/north-Baltic field recordings (15-90 s, quality A) for the thirty approved species in `docs/FLORA_FAUNA.md` using `tools/audio/fetch_bird_songs.py` against xeno-canto v3, keeping only CC0/CC BY/CC BY-SA licenses into `sounds/birds/<bird_id>/` with a license/attribution `manifest.csv`; sourcing rationale in `docs/reports/bird_audio_sourcing.md`. Feeds **P0-105** | verify: every `bird.*` species has at least one downloaded clip whose manifest license is CC0/BY/BY-SA and whose length is within the target range, and no downloaded file carries an -NC or -ND license
 - [ ] P0-123 | deps: P0-122 | deliverable: curate and process the P0-122 raw recordings into engine-ready ambient clips - audition, trim to the cleanest 15-90 s window, high-pass rumble, loudness-normalise, and export to `.mp3` with `.import` sidecars matching the existing `sounds/` convention, one canonical clip per catalog song/call cue | verify: each catalog cue referenced by `map_view_bird_species.gd` resolves to a processed clip; clips import in Godot without errors and the provenance manifest still maps every shipped file to its CC0/BY/BY-SA source
+- [ ] P0-124 | deps: P0-105 | deliverable: enclosed-interior rain-on-roof ambient audio: source or produce commercially usable (CC0/BY/BY-SA or royalty-free) rain-on-shingle/thatch loops, process them to the `sounds/` `.mp3` + `.import` convention with a provenance manifest, and play a muffled roof-drum bed (crossfading with rain intensity) only while the player is under a roofed shell, since `SkyWeather3D.rain_suppressed` already hides the falling-rain particles indoors | verify: entering a roofed interior (e.g. `kalev_smithy`) during a rain state plays the roof bed and no outdoor rain hiss; leaving restores the outdoor mix; disabling audio leaves gameplay state unchanged; every shipped clip maps to a CC0/BY/BY-SA or royalty-free source in the manifest
 ### Medium
 
 - [x] P0-038 | deps: P0-053 | deliverable: comparison report for import time, frame time, texture memory, navigation defects, animation reuse, and NPC-variant production time measured on the 3D view layer with the P0-053 surface kit, including minimum-hardware frame-time results and renderer-setting escalation if budgets are missed | allowed files: `tools/generate_p038_comparison_report.py`, `tests/python/test_generate_p038_comparison_report.py`, `docs/reports/p0_038_3d_view_comparison.md`, `docs/reports/data/p038_comparison_evidence.json`, `tools/benchmarks/lower_town_scene_baseline.gd`, `.github/workflows/ci.yml`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 tools/generate_p038_comparison_report.py --check` and `python3 -m unittest tests.python.test_generate_p038_comparison_report -v` pass; report contains repeatable procedure, hardware, raw measurements, and result

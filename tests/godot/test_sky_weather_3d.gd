@@ -32,6 +32,19 @@ func test_weather_sequence_is_deterministic() -> void:
 	second.free()
 
 
+func test_enclosed_shell_hides_falling_rain() -> void:
+	var sky = SkyWeather.new()
+	sky.auto_weather = false
+	sky.set_weather(SkyWeather.WEATHER_RAIN)
+	sky.advance(SkyWeather.TRANSITION_SECONDS + 1.0)
+	assert_eq(sky.rain_intensity(), 1.0, "precondition: the rain profile is fully in")
+	assert_true(sky.rain_emitter_visible(), "rain must fall outdoors during a rain state")
+	sky.rain_suppressed = true
+	assert_false(sky.rain_emitter_visible(), "a roofed interior must not rain indoors")
+	assert_eq(sky.rain_intensity(), 1.0, "suppression hides the emitter only; the weather field is unchanged")
+	sky.free()
+
+
 func test_transition_blends_toward_rain_profile() -> void:
 	var sky = SkyWeather.new()
 	sky.auto_weather = false

@@ -463,6 +463,10 @@ func _assemble() -> void:
 	_sky_weather.name = "SkyWeather"
 	add_child(_sky_weather)
 	_sky_weather.configure(_camera, _environment)
+	# Enclosed room shells (roofed interiors like the Kalev smithy) must not rain
+	# indoors. The weather cycle keeps running for lighting and wind; only the
+	# visible rain particles are gated. Rain-on-roof audio is a separate future task.
+	_sky_weather.rain_suppressed = definition != null and definition.suppresses_exterior_surroundings()
 
 	# Headless uses the dummy renderer, which cannot provide the screen texture
 	# sampled by this post-process. Visibility logic remains directly testable.

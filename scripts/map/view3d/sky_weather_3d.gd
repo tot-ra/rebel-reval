@@ -167,6 +167,12 @@ var auto_weather := true
 ## or (at 0) pause the whole sky together with the sun: cloud drift, the weather
 ## machine, gusts, and lightning. Tests call advance() directly and are unaffected.
 var time_scale := 1.0
+## Enclosed room shells (a roofed interior like the Kalev smithy) hide the
+## falling-rain particles: you do not get rain indoors. The weather machine still
+## runs so wind, lighting, and sea state stay in sync everywhere else — only the
+## visible emitter is gated. Roof-drum rain AUDIO is deliberately out of scope
+## here and waits on the ambient sound pipeline (see TODO P0-124, feeding P0-105).
+var rain_suppressed := false
 ## 1 while the sun hugs the horizon (golden hour), 0 the rest of the cycle.
 var sunset_factor := 0.0
 var calendar_date: Dictionary = GAME_CALENDAR.DEFAULT_DATE.duplicate()
@@ -638,14 +644,20 @@ func _lightning_envelope(t: float) -> float:
 	return clampf(maxf(leader, flicker), 0.0, 1.0)
 
 
+## Whether the falling-rain particle emitter should draw this frame: only when
+## it is actually raining and the player is not under an enclosed roof. Exposed
+## so headless tests can assert indoor suppression without building a renderer.
+func rain_emitter_visible() -> bool:
+	return not rain_suppressed and rain_intensity() > 0.02
+
+
 func _update_rain() -> void:
 	# Headless tests drive advance() without configure(); no emitter exists then.
 	if _rain == null:
 		return
-	var intensity := rain_intensity()
-	_rain.visible = intensity > 0.02
+	_rain.visible = rain_emitter_visible()
 	if _rain.visible:
-		_rain.amount_ratio = clampf(intensity, 0.05, 1.0)
+		_rain.amount_ratio = clampf(rain_intensity(), 0.05, 1.0)
 	if _camera != null:
 		_rain.global_position = _camera.global_position + Vector3.UP * RAIN_EMITTER_HEIGHT
 
