@@ -83,9 +83,22 @@ class VerifyHistoricalDossierTest(unittest.TestCase):
         self.assertEqual(self.validate(todo=seeded_todo), [])
 
     def test_pending_review_blocks_p1_036_completion(self) -> None:
+        seeded_dossier = self.dossier
+        for row in verifier.parse_review_rows(self.dossier):
+            if row.decision not in verifier.SIGNED_DECISIONS:
+                continue
+            old_line = (
+                f"| {row.item} | `{row.decision}` | {row.reviewer} | {row.date} | {row.notes} |"
+            )
+            new_line = f"| {row.item} | `pending` |  |  |  |"
+            seeded_dossier = seeded_dossier.replace(old_line, new_line, 1)
         seeded_todo = self.todo.replace("- [ ] P1-036 |", "- [x] P1-036 |", 1)
-        errors = self.validate(todo=seeded_todo)
+        errors = self.validate(dossier=seeded_dossier, todo=seeded_todo)
         self.assertTrue(any("human historical review" in error and "P1-036" in error for error in errors))
+
+    def test_signed_review_allows_p1_036_completion(self) -> None:
+        seeded_todo = self.todo.replace("- [ ] P1-036 |", "- [x] P1-036 |", 1)
+        self.assertEqual(self.validate(todo=seeded_todo), [])
 
 
 if __name__ == "__main__":

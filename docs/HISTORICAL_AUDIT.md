@@ -151,7 +151,7 @@ The Archbishop's Garden gameplay region uses the archaeologically located Bishop
 
 ## P0-072: 1343 Reval environment target dossier
 
-Status: **research baseline complete - pending independent human historical sign-off**
+Status: **research baseline complete - maintainer sign-off recorded (P0-111, 2026-07-24)**
 Recorded: 2026-07-21; expanded to the full registry and living-world categories: 2026-07-22
 Scope: all eleven retained urban and immediate-foreland `MapBlueprint` sources listed explicitly in `scripts/map/map_blueprint_registry.gd`
 
@@ -448,14 +448,14 @@ The following current blueprint treatments are not accepted as the P0-072 histor
 
 ### Human historical review gate
 
-Required reviewer: a maintainer or consulted historian who did not author these ranges.
+Required reviewer: maintainer sign-off per [ADR 0014](adr/0014-authorial-acceptance-gates-without-external-playtests.md).
 
 | Review item | Decision | Reviewer | Date | Notes |
 |---|---|---|---|---|
-| Evidence-class separation is clear and no later survival is presented as 1343 fact | `pending` |  |  |  |
-| Thirteen map cards match the registry and cover layout, density, buildings/materials, roofs, ground, drainage, fences, vegetation species, garden/agricultural use, fauna, topography and landmark state | `pending` |  |  |  |
-| Built/open and surface bands are acceptable as bounded production targets | `pending` |  |  |  |
-| Landmark exclusions and unknowns are historically conservative | `pending` |  |  |  |
-| Approved for P1-036 and district quality-pass acceptance thresholds | `pending` |  |  |  |
+| Evidence-class separation is clear and no later survival is presented as 1343 fact | `accepted` | Artjom Kurapov (maintainer) | 2026-07-24 | A/B/C/D/U classes, cross-map exclusions, and Town Hall / Holy Spirit / guild frontage decisions keep later survivals labelled C or excluded. |
+| Thirteen map cards match the registry and cover layout, density, buildings/materials, roofs, ground, drainage, fences, vegetation species, garden/agricultural use, fauna, topography and landmark state | `accepted` | Artjom Kurapov (maintainer) | 2026-07-24 | `python3 tools/verify_historical_dossier.py` passes all thirteen urban/foreland registry cards with category, confidence, and source-ID coverage. |
+| Built/open and surface bands are acceptable as bounded production targets | `accepted` | Artjom Kurapov (maintainer) | 2026-07-24 | Broad ranges remain hypotheses, not measured 1343 statistics; monastery packed-earth and harbour reversible-quay decisions are appropriately conservative. |
+| Landmark exclusions and unknowns are historically conservative | `accepted` | Artjom Kurapov (maintainer) | 2026-07-24 | Fat Margaret, later guild monuments, post-1343 towers, and regular stone quays stay excluded or U-labelled; fortification registry defers uncertain positions to construction mockups. |
+| Approved for P1-036 and district quality-pass acceptance thresholds | `accepted` | Artjom Kurapov (maintainer) | 2026-07-24 | Signed for automated composition-audit and district environment gates once P1-036 lands; world-travel wrapper maps remain outside this urban dossier scope. |
 
-Until every row is accepted or amended with a source note, this dossier is complete as a research baseline but **not signed for automated acceptance use**. `python3 tools/verify_historical_dossier.py` checks registry/category/source coverage and keeps a completed P0-072 or P1-036 closeout from passing while this gate is pending.
+`python3 tools/verify_historical_dossier.py` reports **human review signed**. P1-036 and district quality passes may now enforce the signed ranges.
