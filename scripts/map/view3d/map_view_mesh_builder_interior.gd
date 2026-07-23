@@ -37,7 +37,8 @@ static func build_interior_shell(definition: MapDefinition) -> Node3D:
 	ceiling_mesh.size = ceiling_size
 	ceiling.mesh = ceiling_mesh
 	ceiling.position = center
-	ceiling.material_override = MapViewMaterials.wall_surface_for_size(
+	ceiling.material_override = MapViewMaterials.wall_surface_for_building(
+		&"interior_ceiling",
 		&"plank",
 		MapViewMeshBuilderConfig.INTERIOR_CEILING_COLOR,
 		ceiling_size

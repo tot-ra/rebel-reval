@@ -15,10 +15,24 @@ const INTERIOR_WALL_TIMBER_WIDTH := 0.11
 const INTERIOR_WALL_POST_SPACING := 2.25
 
 
-static func interior_wall_material(building: Dictionary, wall_color: Color) -> StandardMaterial3D:
-	var family: StringName = building.get("wall_material", &"plaster")
-	var material := MapViewMaterials.wall_surface_triplanar(&"plaster", wall_color)
-	if family == &"smoked_plaster":
+static func interior_wall_material(
+	building: Dictionary,
+	wall_color: Color,
+	size: Vector3
+) -> StandardMaterial3D:
+	var authored_family: StringName = building.get("wall_material", &"plaster")
+	var pattern_family: StringName = &"plaster" if authored_family == &"smoked_plaster" else authored_family
+	var material := MapViewMaterials.wall_surface_for_building(
+		building.get("id", &"interior_wall"),
+		pattern_family,
+		wall_color,
+		size
+	)
+	# Interior wall strips are thin along one axis; triplanar keeps plaster
+	# courses readable when a segment runs north-south instead of east-west.
+	material.uv1_triplanar = true
+	material.uv1_world_triplanar = false
+	if authored_family == &"smoked_plaster":
 		material.roughness = 0.96
 	return material
 

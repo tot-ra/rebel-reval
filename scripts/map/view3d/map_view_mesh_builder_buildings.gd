@@ -85,7 +85,11 @@ static func build_building(
 		elif kind == MapTypes.BUILDING_KIND_WALL:
 			walls.material_override = MapViewMaterials.wall_surface_triplanar(&"limestone", wall_color)
 		elif kind == MapTypes.BUILDING_KIND_INTERIOR_WALL:
-			walls.material_override = MapViewMeshBuilderBuildingInteriorWalls.interior_wall_material(building, wall_color)
+			walls.material_override = MapViewMeshBuilderBuildingInteriorWalls.interior_wall_material(
+				building,
+				wall_color,
+				wall_mesh.size
+			)
 		else:
 			walls.material_override = MapViewMaterials.wall_for_size(wall_color, wall_mesh.size)
 		walls.position = Vector3(0.0, height * 0.5, 0.0)
