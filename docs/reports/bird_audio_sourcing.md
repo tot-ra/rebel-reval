@@ -47,13 +47,27 @@ For P0-122 closeout these species use documented fills in
 
 | Runtime ID | Fill source | License | Follow-up |
 |---|---|---|---|
-| `great_cormorant` | Wikimedia Commons field call | CC BY-SA 4.0 | **P0-122b** / **P0-122c** - replace with Baltic recording when available |
-| `white_tailed_eagle` | xeno-canto XC492979 (`Haliaeetus leucogaster` stand-in) | CC BY-SA 4.0 | **P0-122b** / **P0-122c** - replace with true `H. albicilla` clip |
+| `great_cormorant` | Wikimedia Commons field call | CC BY-SA 4.0 | **P0-122b** - replace with Baltic recording when available |
+| `white_tailed_eagle` | xeno-canto XC492979 (`Haliaeetus leucogaster` stand-in) | CC BY-SA 4.0 | **P0-122b** - replace with true `H. albicilla` clip |
 
-Re-scan (2026-07-24): `build_curated_bird_manifest` explore queries with `lic:by` /
-`lic:by-sa` / `lic:zero` tags and Baltic country preference still return **zero**
-commercial takes for both species. **P0-122c** owns a freesound.org follow-up before
-**P0-122b** can close.
+### freesound.org scan (P0-122c, 2026-07-24)
+
+After the 2026-07-24 xeno-canto commercial re-scan returned zero CC0 / CC BY /
+CC BY-SA takes for either gap species, **P0-122c** searched freesound.org with the
+same 15-90 s window and commercial-friendly license filters (CC0 / CC BY only;
+NC rows are noted but rejected).
+
+| Query | CC0 / CC BY hits (15-90 s) | Result |
+|---|---|---|
+| `Phalacrocorax carbo` | 0 | No species-tagged commercial clip |
+| `great cormorant` | 0 | No species-tagged commercial clip |
+| `cormorant call` | 2 (Soundholder FS425374, FS425375) | Colony ambient (nest / wing rustle); species and region not documented as *P. carbo* or Baltic; does not meet the P0-122b bar for a species-specific north-Baltic field call |
+| `Haliaeetus albicilla` | 0 | No commercial clip |
+| `white tailed eagle` | 1 (newlocknew FS713743) | Listed under the CC BY filter but the sound page carries **CC BY-NC 4.0**; 16.5 s zoo take (Ekaterinburg, Russia), not a Baltic field recording |
+
+**P0-122c outcome:** no freesound.org clip satisfies P0-122b. The documented P0-122
+gap fills remain in place; **P0-122b** stays open until a maintainer-recorded Baltic
+take or a newly published CC0 / CC BY / CC BY-SA source appears.
 
 ## "Song" vs "call"
 
@@ -121,7 +135,7 @@ xeno-canto retired its open API v2; **API v3 requires a free API key**. Steps:
 
    The committed `tools/audio/curated_bird_recordings.json` is the reproducible source map.
    Rebuild it when better Baltic takes appear; gap species use the documented fills in
-   **xeno-canto gaps** above until **P0-125** lands.
+   **xeno-canto gaps** above until **P0-122b** lands.
 
    Useful flags: `--songbirds-only` (only the 9 `*.song` species first),
    `--widen-baltic` (also accept Latvia/Lithuania/Finland/Sweden if Estonia is thin
