@@ -225,8 +225,15 @@ prop market_stall_turg_south stall 10 62 rect=2,2
 prop street_cart cart 48 57 rect=2,2
 prop gate_cart cart 117 54 rect=2,2
 prop yard_cart cart 79 84 rect=2,2
-prop brewery_barrels barrels 76 73 rect=2,1
-prop evidence_barrels barrels 79 76 rect=2,2
+prop brewery_keg_stack brewery_keg_stack 76 73
+prop brewery_malt_sacks malt_sack_pile 75 74
+prop smithy_charcoal charcoal_pile 94 72
+prop smithy_iron_scrap iron_scrap_pile 92 75
+prop evidence_barrels market_goods_pallet 79 76 rect=2,2
+prop cistern_wash_tub wash_tub 102 61
+prop cooper_yard cooper_staves 24 65
+prop ropeyard_rope rope_coil 43 65
+prop saddler_frame tanning_frame 14 65 rect=2,1
 prop south_apron_cart cart 57 118 rect=2,2
 prop south_apron_barrels barrels 78 116 rect=2,2
 prop south_apron_scrub_a bush 43 121 rect=2,2 style=veg.bush.scrub

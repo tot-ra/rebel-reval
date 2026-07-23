@@ -289,6 +289,41 @@ func test_smithy_exit_opens_into_a_readable_courtyard() -> void:
 	assert_true(nearest_wall_distance_cells >= 7.0, "city wall must not dominate the smithy exit view")
 
 
+func test_lower_town_slice_district_life_props_replace_trade_barrel_placeholders() -> void:
+	var definition: MapDefinition = LowerTownSliceDefinition.create()
+	assert_true(
+		_props_of_kind(definition, MapTypes.PROP_KIND_BREWERY_KEG_STACK).size() >= 1,
+		"Brewery service yard needs a keg stack"
+	)
+	assert_true(
+		_props_of_kind(definition, MapTypes.PROP_KIND_MALT_SACK_PILE).size() >= 1,
+		"Brewery service yard needs malt sacks"
+	)
+	assert_true(
+		_props_of_kind(definition, MapTypes.PROP_KIND_CHARCOAL_PILE).size() >= 1,
+		"Smithy courtyard needs a charcoal pile"
+	)
+	assert_true(
+		_props_of_kind(definition, MapTypes.PROP_KIND_IRON_SCRAP_PILE).size() >= 1,
+		"Smithy courtyard needs an iron scrap pile"
+	)
+	assert_true(
+		_props_of_kind(definition, MapTypes.PROP_KIND_WASH_TUB).size() >= 1,
+		"Cistern apron needs a wash tub"
+	)
+	var craft_kinds := {
+		MapTypes.PROP_KIND_COOPER_STAVES: false,
+		MapTypes.PROP_KIND_ROPE_COIL: false,
+		MapTypes.PROP_KIND_TANNING_FRAME: false,
+	}
+	for prop in definition.props:
+		var kind: StringName = prop.get("kind", &"")
+		if craft_kinds.has(kind):
+			craft_kinds[kind] = true
+	for craft_kind in craft_kinds:
+		assert_true(craft_kinds[craft_kind], "Playable route needs craft prop %s" % String(craft_kind))
+
+
 func test_viru_gate_arch_matches_collision_jamb_span() -> void:
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
 	var arch: Dictionary = {}
@@ -354,3 +389,11 @@ func _navigation_points_connected(nav_polygon: NavigationPolygon, start: Vector2
 				visited[neighbor] = true
 				pending.append(neighbor)
 	return false
+
+
+func _props_of_kind(definition: MapDefinition, kind: StringName) -> Array:
+	var matches: Array = []
+	for prop in definition.props:
+		if prop.get("kind", &"") == kind:
+			matches.append(prop)
+	return matches

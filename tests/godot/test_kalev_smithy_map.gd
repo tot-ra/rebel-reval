@@ -71,6 +71,9 @@ func test_kalev_smithy_has_windows_furniture_and_local_lighting() -> void:
 		prop_kinds[prop["kind"]] = true
 	for required in [MapTypes.PROP_KIND_BED, MapTypes.PROP_KIND_TABLE, MapTypes.PROP_KIND_CHAIR, MapTypes.PROP_KIND_FURNACE, MapTypes.PROP_KIND_CANDLE]:
 		assert_true(prop_kinds.has(required), "Missing prop kind %s" % String(required))
+	assert_true(prop_kinds.has(MapTypes.PROP_KIND_CHARCOAL_PILE), "Forge bay needs a charcoal pile")
+	assert_true(prop_kinds.has(MapTypes.PROP_KIND_IRON_SCRAP_PILE), "Forge bay needs an iron scrap pile")
+	assert_false(prop_kinds.has(MapTypes.PROP_KIND_BARRELS), "Smithy coal store must not use barrel placeholder")
 	var block_count := 0
 	for building in definition.buildings:
 		if building.get("kind", &"") == MapTypes.BUILDING_KIND_INTERIOR_BLOCK:

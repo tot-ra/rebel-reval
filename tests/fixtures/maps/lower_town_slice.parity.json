@@ -2214,17 +2214,19 @@
   ],
   "props": [
     {
-      "footprint": [
-        2432.000000000,
-        2336.000000000,
-        64.000000000,
-        32.000000000
-      ],
-      "id": "brewery_barrels",
-      "kind": "barrels",
+      "id": "brewery_keg_stack",
+      "kind": "brewery_keg_stack",
       "position": [
-        2464.000000000,
+        2448.000000000,
         2352.000000000
+      ]
+    },
+    {
+      "id": "brewery_malt_sacks",
+      "kind": "malt_sack_pile",
+      "position": [
+        2416.000000000,
+        2384.000000000
       ]
     },
     {
@@ -2239,6 +2241,22 @@
       "position": [
         3360.000000000,
         1952.000000000
+      ]
+    },
+    {
+      "id": "cistern_wash_tub",
+      "kind": "wash_tub",
+      "position": [
+        3280.000000000,
+        1968.000000000
+      ]
+    },
+    {
+      "id": "cooper_yard",
+      "kind": "cooper_staves",
+      "position": [
+        784.000000000,
+        2096.000000000
       ]
     },
     {
@@ -2291,7 +2309,7 @@
         64.000000000
       ],
       "id": "evidence_barrels",
-      "kind": "barrels",
+      "kind": "market_goods_pallet",
       "position": [
         2560.000000000,
         2464.000000000
@@ -2389,6 +2407,44 @@
         592.000000000
       ],
       "style_variant": "tree.linden"
+    },
+    {
+      "id": "ropeyard_rope",
+      "kind": "rope_coil",
+      "position": [
+        1392.000000000,
+        2096.000000000
+      ]
+    },
+    {
+      "footprint": [
+        448.000000000,
+        2080.000000000,
+        64.000000000,
+        32.000000000
+      ],
+      "id": "saddler_frame",
+      "kind": "tanning_frame",
+      "position": [
+        480.000000000,
+        2096.000000000
+      ]
+    },
+    {
+      "id": "smithy_charcoal",
+      "kind": "charcoal_pile",
+      "position": [
+        3024.000000000,
+        2320.000000000
+      ]
+    },
+    {
+      "id": "smithy_iron_scrap",
+      "kind": "iron_scrap_pile",
+      "position": [
+        2960.000000000,
+        2416.000000000
+      ]
     },
     {
       "footprint": [
