@@ -271,6 +271,23 @@ static func song_profile_for(species: StringName) -> Dictionary:
 	return (PROFILES[species].get("song", {}) as Dictionary).duplicate(true)
 
 
+## Maps a catalog cue such as ``bird.herring_gull.call`` to the processed P0-123 clip.
+static func stream_path_for_cue(cue: StringName) -> String:
+	var parts := String(cue).split(".")
+	if parts.size() != 3 or parts[0] != "bird":
+		return ""
+	var species := StringName(parts[1])
+	var kind := parts[2]
+	if not is_known_species(species):
+		return ""
+	if kind != "call" and kind != "song":
+		return ""
+	var expected := String(song_profile_for(species).get("cue", ""))
+	if expected != String(cue):
+		return ""
+	return "res://sounds/birds/%s/%s.mp3" % [parts[1], kind]
+
+
 static func spawn_weights_for(species: StringName) -> Dictionary:
 	var group := group_for(species)
 	if not GROUP_SPAWN_WEIGHTS.has(group):

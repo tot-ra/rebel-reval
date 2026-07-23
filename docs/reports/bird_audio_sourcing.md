@@ -134,10 +134,20 @@ xeno-canto retired its open API v2; **API v3 requires a free API key**. Steps:
 Human-browsable equivalent for spot checks, e.g. nightingale:
 <https://xeno-canto.org/explore?query=Luscinia%20luscinia%20cnt:estonia%20q:A%20len:15-90>
 
-## Post-download processing (separate task)
+## Post-download processing (P0-123)
 
 Raw xeno-canto takes are mono field recordings of varying gain and may carry faint wind
-or distant traffic even at grade A. Before shipping: audition, trim to the cleanest
-15-90 s window, high-pass to cut rumble, loudness-normalise, and export to the engine
-format used elsewhere (`.mp3` with a `.import` sidecar, matching `sounds/*.mp3`). This
-processing/curation is deliberately a follow-up task, not part of the raw fetch.
+or distant traffic even at grade A. Before shipping they are trimmed to the 15-90 s
+window when needed, high-pass filtered to cut rumble, loudness-normalised, and exported
+to ``call.mp3`` / ``song.mp3`` beside each raw source with Godot ``.import`` sidecars.
+
+```sh
+python3 tools/audio/process_bird_clips.py
+python3 tools/audio/sync_bird_sources.py
+/Applications/Godot.app/Contents/MacOS/Godot --headless --editor --quit
+python3 tools/verify_bird_audio_clips.py
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_bird_audio_clips
+```
+
+Provenance for every processed cue is recorded in ``sounds/birds/processed_manifest.csv``,
+linking each catalog cue back to the P0-122 source clip and license row.
