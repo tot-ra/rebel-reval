@@ -577,10 +577,28 @@ def download_curated(
         source = entry.get("source", "xeno-canto")
         xc_id = str(entry.get("xc_id", entry.get("fs_id", "")))
         sp_dir = out_dir / bird_id
+        prefix = {"freesound": "FS", "wikimedia": "WM"}.get(source, "XC")
         ext = ".mp3"
-        dest = sp_dir / f"{bird_id}_{'FS' if source == 'freesound' else 'XC'}{xc_id}{ext}"
+        if source == "wikimedia" and str(entry.get("download_url", "")).lower().endswith(".wav"):
+            ext = ".wav"
+        dest = sp_dir / f"{bird_id}_{prefix}{xc_id}{ext}"
 
-        if source == "freesound":
+        if source == "wikimedia":
+            file_url = entry.get("download_url", "")
+            if not file_url:
+                raise ValueError(f"{bird_id}: wikimedia entry missing download_url")
+            rec = {
+                "id": xc_id,
+                "lic": entry.get("license", ""),
+                "cnt": entry.get("country", ""),
+                "length": entry.get("length", ""),
+                "q": entry.get("quality", ""),
+                "rec": entry.get("recordist", ""),
+                "url": entry.get("page", file_url),
+                "file": file_url,
+                "file-name": dest.name,
+            }
+        elif source == "freesound":
             page = entry.get("page", "")
             file_url = entry.get("download_url") or fetch_freesound_preview_url(page)
             rec = {
@@ -610,7 +628,7 @@ def download_curated(
         row = manifest_row(bird_id, sci, rec, dest)
         rows.append(row)
         print(
-            f"* {bird_id}: {'FS' if source == 'freesound' else 'XC'}{xc_id} "
+            f"* {bird_id}: {prefix}{xc_id} "
             f"q={row['quality']} {row['length']} {row['country']} ({source})",
             flush=True,
         )

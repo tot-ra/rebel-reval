@@ -34,7 +34,7 @@ trimming/looping). The download script enforces this automatically and records t
 license of every downloaded file in a manifest for the credits/license report
 (needed for P6-008 release license report).
 
-### xeno-canto gaps (filled via Freesound CC0 in P0-122)
+### xeno-canto gaps (documented alternate sources in P0-122)
 
 A full-catalog scan of xeno-canto (300+ takes per species) found **zero** recordings
 under CC0 / CC BY / CC BY-SA for:
@@ -42,10 +42,13 @@ under CC0 / CC BY / CC BY-SA for:
 - `bird.great_cormorant` (*Phalacrocorax carbo*)
 - `bird.white_tailed_eagle` (*Haliaeetus albicilla*)
 
-For P0-122 these two species use documented Freesound CC0 gap fills listed in
-`tools/audio/curated_bird_recordings.json`. Replace them with species-specific
-Baltic field takes when a commercial license appears or a maintainer records one
-(**P0-122b**).
+For P0-122 closeout these species use documented fills in
+`tools/audio/curated_bird_recordings.json`:
+
+| Runtime ID | Fill source | License | Follow-up |
+|---|---|---|---|
+| `great_cormorant` | Wikimedia Commons field call | CC BY-SA 4.0 | **P0-125** - replace with Baltic recording when available |
+| `white_tailed_eagle` | xeno-canto XC492979 (`Haliaeetus leucogaster` stand-in) | CC BY-SA 4.0 | **P0-125** - replace with true `H. albicilla` clip |
 
 ## "Song" vs "call"
 
@@ -112,8 +115,8 @@ xeno-canto retired its open API v2; **API v3 requires a free API key**. Steps:
    ```
 
    The committed `tools/audio/curated_bird_recordings.json` is the reproducible source map.
-   Rebuild it when better Baltic takes appear; gap species currently use documented
-   Freesound CC0 fills (see **xeno-canto gaps** above).
+   Rebuild it when better Baltic takes appear; gap species use the documented fills in
+   **xeno-canto gaps** above until **P0-125** lands.
 
    Useful flags: `--songbirds-only` (only the 9 `*.song` species first),
    `--widen-baltic` (also accept Latvia/Lithuania/Finland/Sweden if Estonia is thin

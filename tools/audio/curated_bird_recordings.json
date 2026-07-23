@@ -62,6 +62,18 @@
       "quality": "B",
       "country": "Netherlands"
     },
+    "great_cormorant": {
+      "scientific": "Phalacrocorax carbo",
+      "source": "wikimedia",
+      "xc_id": "142295684",
+      "recordist": "Sharadapte",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://commons.wikimedia.org/w/index.php?curid=142295684",
+      "download_url": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Great_cormorant_call_recorded_in_August_2003_at_Ranganathittu_Bird_Sanctuary%2C_Karnataka.wav",
+      "length": "16",
+      "quality": "A",
+      "country": "India"
+    },
     "grey_heron": {
       "scientific": "Ardea cinerea",
       "xc_id": "610467",
@@ -91,6 +103,18 @@
       "length": "39",
       "quality": "D",
       "country": "Sweden"
+    },
+    "white_tailed_eagle": {
+      "scientific": "Haliaeetus albicilla",
+      "xc_id": "492979",
+      "recordist": "Manoj Karingamadathil",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "page": "https://xeno-canto.org/492979",
+      "length": "21",
+      "quality": "C",
+      "country": "India",
+      "stand_in_species": "Haliaeetus leucogaster",
+      "stand_in_note": "No commercial H. albicilla clip on xeno-canto; replace in P0-125"
     },
     "osprey": {
       "scientific": "Pandion haliaetus",
@@ -271,31 +295,6 @@
       "length": "62",
       "quality": "A",
       "country": "Sweden"
-    },
-    "great_cormorant": {
-      "source": "freesound",
-      "scientific": "Phalacrocorax carbo",
-      "fs_id": "572739",
-      "recordist": "TRP",
-      "license": "https://creativecommons.org/publicdomain/zero/1.0/",
-      "page": "https://freesound.org/people/TRP/sounds/572739/",
-      "length": "45",
-      "quality": "B",
-      "country": "Canada",
-      "trim": {"start": 45, "duration": 45},
-      "notes": "xeno-canto has no commercial takes for this species; CC0 colony ambience trimmed to 45 s"
-    },
-    "white_tailed_eagle": {
-      "source": "freesound",
-      "scientific": "Haliaeetus albicilla",
-      "fs_id": "675962",
-      "recordist": "craigsmith",
-      "license": "https://creativecommons.org/publicdomain/zero/1.0/",
-      "page": "https://freesound.org/people/craigsmith/sounds/675962/",
-      "length": "41",
-      "quality": "C",
-      "country": "United States",
-      "notes": "xeno-canto has no commercial takes; CC0 vintage eagle-call library gap fill until species-specific take is sourced"
     },
     "great_spotted_woodpecker": {
       "scientific": "Dendrocopos major",
