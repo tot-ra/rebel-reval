@@ -106,7 +106,7 @@ static func _add_wall(
 	wall.position = projection.project_point(center)
 	host.add_child(wall)
 
-	var points := projection.projected_rect_offsets(center, size)
+	var points: PackedVector2Array = projection.projected_rect_offsets(center, size)
 	var shape := ConvexPolygonShape2D.new()
 	shape.points = points
 	var collision := CollisionShape2D.new()
@@ -194,7 +194,7 @@ static func _create_doorway(host: Node2D, projection, doorway_entered: Callable)
 	door.collision_mask = CollisionLayers.PLAYER
 	host.add_child(door)
 
-	var points := projection.projected_rect_offsets(center, size)
+	var points: PackedVector2Array = projection.projected_rect_offsets(center, size)
 	var shape := ConvexPolygonShape2D.new()
 	shape.points = points
 	var collision := CollisionShape2D.new()

@@ -131,7 +131,7 @@ func _add_toggle_setting(parent: VBoxContainer, label_text: String, pressed: boo
 
 
 func _apply_panel_settings() -> void:
-	var settings := SettingsScript.default_settings()
+	var settings: DialogueSettings = SettingsScript.default_settings()
 	settings.text_scale = _scale_option.get_item_text(_scale_option.selected)
 	settings.text_speed = _speed_option.get_item_text(_speed_option.selected)
 	settings.high_contrast = _contrast_check.button_pressed
