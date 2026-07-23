@@ -7,6 +7,7 @@ Executable open work stays in [`TODO.md`](../TODO.md).
 
 1. **P0-072** - sourced 1343 Reval environment dossier per retained map.
 2. **P0-053** - slice surface and weathering kit (smithy interior wiring + slice surface tests in progress).
+Coordination note (2026-07-23 P2-025): district-life static prop kit landed with eighteen trade-specific kinds (`fishing_nets` through `wash_tub`) in `MapTypes`, procedural 3D builders, 2D yard silhouettes, and `docs/MAP_AUTHORING.md` footprint/sourcing contract; `--filter=test_district_life_prop_kinds` passes 4/4 including seeded invalid-kind rejection. Next dressing steps: **P2-026** (Lower Town slice yards), **P4-028a** (Kalamaja fishing shore).
 Coordination note (2026-07-23 P0-053 captures): `tools/capture_map_view_3d.gd` now renders production `kalev_smithy` and `lower_town_slice` day/night evidence instead of the retired `smithy_courtyard` spike; refreshed PNGs live under `docs/reports/images/view3d/` and `--filter=test_capture_map_view_3d` passes 2/2. Human matched day/night capture sign-off remains open before P0-053 closeout.
 3. **P0-038 / P0-039 / P0-040** - measure, blind-read, and freeze ART_BIBLE v2.
 4. **P2-003 / P1-029 / P1-036** - modular environment kit, asset lint, composition audit.

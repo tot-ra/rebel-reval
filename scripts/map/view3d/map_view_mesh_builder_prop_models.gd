@@ -1,6 +1,7 @@
 class_name MapViewMeshBuilderPropModels
 extends RefCounted
 
+const DistrictLifeProps := preload("res://scripts/map/view3d/map_view_mesh_builder_district_life_props.gd")
 const FishingBoatBuilder := preload("res://scripts/map/view3d/map_view_fishing_boat_builder.gd")
 const MerchantBoatBuilder := preload("res://scripts/map/view3d/map_view_merchant_boat_builder.gd")
 const WallWalkAccessBuilder := preload("res://scripts/map/view3d/map_view_wall_walk_access_builder.gd")
@@ -198,7 +199,10 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 		MapTypes.PROP_KIND_BANNER:
 			_add_banner(root, prop)
 		_:
-			MapViewMeshBuilderPrimitives.box(root, "Marker", Vector3(0.5, 0.5, 0.5), Vector3(0.0, 0.25, 0.0), &"ink")
+			if prop["kind"] in MapTypes.DISTRICT_LIFE_PROP_KINDS:
+				DistrictLifeProps.add_to(root, prop["kind"])
+			else:
+				MapViewMeshBuilderPrimitives.box(root, "Marker", Vector3(0.5, 0.5, 0.5), Vector3(0.0, 0.25, 0.0), &"ink")
 	return root
 
 

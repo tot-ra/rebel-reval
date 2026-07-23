@@ -114,7 +114,40 @@ The initial vocabulary must cover the existing runtime contract without exposing
 | `camera_bounds` | Optional cell rectangle, otherwise full map bounds | `camera_bounds` |
 | `prefab_instance` | Stable instance ID, prefab ID/version, origin, supported transform, overrides | Expanded primitives in the fields above |
 
-New reusable behavior must be added as a reviewed typed primitive with validation, compilation, and tests. Do not bypass the vocabulary with a generic `raw_definition_entry` or embedded `MapDefinition` dictionary.
+### District-life prop kinds (P2-025)
+
+Trade-specific dressing props replace generic `barrels` / `cargo_crates` stand-ins where a dedicated yard read is required. Each kind compiles through the normal `prop` primitive and renders in both 2D and 3D without gameplay hooks.
+
+| Kind | Typical footprint | P0-072 sourcing note |
+|---|---|---|
+| `fishing_nets` | 1 cell or `rect=2,1` | Shore net yards beside drying racks; reversible timber frames (**B/U**) |
+| `fish_drying_rack` | `rect=2,1` | Horizontal pole racks for split or whole fish (**B**) |
+| `smoke_rack` | `rect=2,1` | Covered smoke/drying frame over a low fire (**B/U**) |
+| `fish_splitting_table` | 1 cell | Work slab at fisher or smoke sheds (**B**) |
+| `boat_timber_stack` | `rect=2,1` | Boatwright yard log stacks (**B**) |
+| `rope_coil` | 1 cell | Ropewalk tallies and harbour cargo aprons (**B**) |
+| `sail_cloth_bale` | 1 cell | Sail loft cloth bales (**B**) |
+| `cooper_staves` | 1 cell | Bound stave bundles at cooperages (**B**) |
+| `malt_sack_pile` | 1 cell | Brewery service-yard grain sacks (**B**) |
+| `brewery_keg_stack` | 1 cell | Keg stacks beside service doors (**B**) |
+| `charcoal_pile` | 1 cell | Forge or gate-service charcoal mounds (**B**) |
+| `iron_scrap_pile` | 1 cell | Smithy yard offcuts and scrap (**B**) |
+| `weapon_rack` | 1 cell | Knights' court or armourer yards (**B/U**) |
+| `herb_drying_rack` | `rect=2,1` | Garden, convent, or orchard drying frames (**B**) |
+| `market_goods_pallet` | `rect=2,1` | Stall back-of-house pallet stacks (**B**) |
+| `salt_pile` | 1 cell | Fisher smoke/salt sheds and harbour curing yards (**B**) |
+| `tanning_frame` | `rect=2,1` | Tanner lane A-frames (**B/U**) |
+| `wash_tub` | 1 cell | Well aprons, convent service plots, gate yards (**B**) |
+
+Footprint rules:
+
+- Default placement is a single cell centered on the authored coordinate.
+- Use `rect=w,h` only when the yard needs a readable elongated silhouette; keep `w * h <= 4` on playable routes.
+- Props must not block required patrols, transitions, interaction anchors, or evidence routes. Prefer pen interiors and service aprons over street spines.
+- Unknown prop kinds fail compilation with `prop kind is unknown` (stable diagnostic for validators and agents).
+
+New production maps should retire barrel/crate placeholders on plots where one of the kinds above is already defined for that trade.
+
 
 For an enterable building, keep the transition rectangle on the walkable approach and set `building_id=<stable building id>`. The 2D trigger remains independently sized for reliable traversal, while the 3D renderer snaps the entrance to the nearest aligned facade and suppresses conflicting procedural facade details. Omit `building_id` for interior wall doors and freestanding gates.
 

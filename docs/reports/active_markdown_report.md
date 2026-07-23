@@ -14,27 +14,36 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `56`
+- Active Markdown files scanned: `57`
 - Markdown files excluded as archive/reference/out of active scope: `363`
-- Local/external links inspected: `289`
-- Links to active Markdown docs: `118`
-- Links to existing archive/reference/non-active local docs: `42`
-- External links skipped for reachability: `25`
-- Issues found: `0`
+- Local/external links inspected: `308`
+- Links to active Markdown docs: `127`
+- Links to existing archive/reference/non-active local docs: `48`
+- External links skipped for reachability: `27`
+- Issues found: `8`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 0 |
-| `BROKEN_ANCHOR` | 0 |
+| `BROKEN_LINK` | 1 |
+| `BROKEN_ANCHOR` | 7 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
 | `MISSING_REFERENCE` | 0 |
 
 ## Issues
 
-No active Markdown documentation issues found.
+| Code | Location | Detail |
+| --- | --- | --- |
+| `BROKEN_ANCHOR` | `docs/lore/four_kings_act2_lore.md:19` | Local Markdown link anchor `#the-siege-of-reval-and-the-four-kings` not found in `history/HISTORY.md` |
+| `BROKEN_ANCHOR` | `docs/lore/four_kings_act2_lore.md:108` | Local Markdown link anchor `#paide-castle` not found in `docs/TOURIST_LANDMARKS.md` |
+| `BROKEN_ANCHOR` | `docs/lore/four_kings_act2_lore.md:109` | Local Markdown link anchor `#mäo-hillfort-site` not found in `docs/TOURIST_LANDMARKS.md` |
+| `BROKEN_ANCHOR` | `docs/lore/four_kings_act2_lore.md:109` | Local Markdown link anchor `#mäo` not found in `docs/LANDMARK_NARRATIVE_INTEGRATION.md` |
+| `BROKEN_ANCHOR` | `docs/lore/four_kings_act2_lore.md:110` | Local Markdown link anchor `#rebel-signal-hill` not found in `docs/TOURIST_LANDMARKS.md` |
+| `BROKEN_ANCHOR` | `docs/lore/four_kings_act2_lore.md:111` | Local Markdown link anchor `#paide-castle` not found in `docs/LANDMARK_NARRATIVE_INTEGRATION.md` |
+| `BROKEN_ANCHOR` | `docs/lore/four_kings_act2_lore.md:112` | Local Markdown link anchor `#harju-signal-hill` not found in `docs/LANDMARK_NARRATIVE_INTEGRATION.md` |
+| `BROKEN_LINK` | `docs/lore/four_kings_act2_lore.md:108` | Local Markdown link target does not exist: `../LANDMARK_NARRATIVE_INTEGRATIVE.md#paide-castle` |
 
 ## Active files scanned
 
@@ -74,6 +83,7 @@ No active Markdown documentation issues found.
 - `docs/INVENTORY_MECHANICS.md`
 - `docs/LANDMARK_NARRATIVE_INTEGRATION.md`
 - `docs/LARGE_MAP_CHUNKING_PLAN.md`
+- `docs/lore/four_kings_act2_lore.md`
 - `docs/MAP_ALIGNMENT_EDITOR.md`
 - `docs/MAP_AUTHORING.md`
 - `docs/MAP_CONVERSION_PLAN.md`
