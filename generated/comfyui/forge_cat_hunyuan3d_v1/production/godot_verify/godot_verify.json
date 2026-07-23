@@ -1,0 +1,40 @@
+{
+  "aabb_end": [
+    0.2587,
+    0.3664,
+    0.0875
+  ],
+  "aabb_position": [
+    -0.2589,
+    0.0,
+    -0.0865
+  ],
+  "aabb_size": [
+    0.5176,
+    0.3664,
+    0.174
+  ],
+  "animations": {
+    "idle": {
+      "length": 5.0,
+      "loop": 0
+    },
+    "names": [
+      "idle"
+    ]
+  },
+  "bone_count": 22,
+  "ground_contact_ok": true,
+  "ground_min_y": 0.0,
+  "idle_playing": "idle",
+  "import_error_code": 0,
+  "longest_axis": "x",
+  "materials": {
+    "forge_cat": "StandardMaterial3D"
+  },
+  "mesh_count": 1,
+  "metric_scale_ok": true,
+  "screenshot": "previews/godot_preview.png",
+  "skeleton_count": 1,
+  "surfaces": 1
+}

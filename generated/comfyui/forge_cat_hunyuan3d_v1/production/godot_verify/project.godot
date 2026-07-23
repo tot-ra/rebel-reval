@@ -1,0 +1,9 @@
+config_version=5
+
+[application]
+config/name="forge_cat_verify"
+run/main_scene="res://verify.tscn"
+config/features=PackedStringArray("4.7")
+
+[rendering]
+renderer/rendering_method="forward_plus"

@@ -1,0 +1,64 @@
+{
+  "lod0": {
+    "faces": 4180,
+    "quads": 4180,
+    "quad_ratio": 1.0,
+    "triangles": 8360,
+    "vertices": 4182,
+    "boundary_edges": 0,
+    "non_manifold_edges": 0,
+    "components": 1
+  },
+  "lod1": {
+    "faces": 2623,
+    "quads": 877,
+    "quad_ratio": 0.334,
+    "triangles": 3500,
+    "vertices": 1752,
+    "boundary_edges": 0,
+    "non_manifold_edges": 0,
+    "components": 1
+  },
+  "lod2": {
+    "faces": 926,
+    "quads": 74,
+    "quad_ratio": 0.08,
+    "triangles": 1000,
+    "vertices": 502,
+    "boundary_edges": 0,
+    "non_manifold_edges": 0,
+    "components": 1
+  },
+  "metric_dimensions_m": [
+    0.5176,
+    0.174,
+    0.3664
+  ],
+  "ground_min_z": 0.0,
+  "uv_layers": [
+    "UVMap"
+  ],
+  "material": "forge_cat",
+  "textures": [
+    "forge_cat_albedo.png",
+    "forge_cat_normal.png",
+    "forge_cat_ao.png"
+  ],
+  "texture_size": 1024,
+  "weight_mode": "auto_bone_heat",
+  "bones": 22,
+  "animation": {
+    "name": "idle",
+    "fps": 30,
+    "frames": [
+      1,
+      150
+    ],
+    "seconds": 5.0
+  },
+  "budget_ok": {
+    "lod0_within_cap": true,
+    "lod1_in_range": true,
+    "lod2_in_range": true
+  }
+}
