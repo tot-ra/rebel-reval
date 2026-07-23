@@ -310,9 +310,23 @@ void sky() {
 	// Thin AA only. A wide outer skirt used to sample empty black albedo and
 	// read as a dark sticker outline against the night sky.
 	float moon_disk = smoothstep(moon_edge - 0.00012, moon_edge + 0.00004, moon_dot);
-	vec3 moon_up_axis = abs(moon_direction.y) > 0.96 ? vec3(0.0, 0.0, 1.0) : vec3(0.0, 1.0, 0.0);
-	vec3 moon_right = normalize(cross(moon_up_axis, moon_direction));
-	vec3 moon_up = normalize(cross(moon_direction, moon_right));
+	// WHY: The NASA near-side mosaic is north-up / west-left. Align the disk to
+	// celestial north (same ENU frame as the star map) instead of world zenith so
+	// maria keep the familiar Earth orientation and pick up the correct
+	// parallactic tilt as the moon crosses the sky. Zenith-up made the skin look
+	// sideways whenever the moon was off the meridian.
+	vec3 celestial_north = vec3(0.0, sin(observer_latitude), -cos(observer_latitude));
+	vec3 moon_north = celestial_north - moon_direction * dot(celestial_north, moon_direction);
+	// Near the celestial pole the projection collapses; fall back to ground north.
+	if (dot(moon_north, moon_north) < 1e-8) {
+		vec3 ground_north = vec3(0.0, 0.0, -1.0);
+		moon_north = ground_north - moon_direction * dot(ground_north, moon_direction);
+	}
+	vec3 moon_up = normalize(moon_north);
+	// cross(north_axis, moon_direction) points celestial west on the southern
+	// meridian, matching selenographic east (Mare Crisium) on the right of the
+	// NASA disk once +U follows moon_right.
+	vec3 moon_right = normalize(cross(moon_up, moon_direction));
 	vec2 moon_uv = vec2(dot(dir, moon_right), dot(dir, moon_up)) / sin(moon_radius);
 	float moon_r2 = dot(moon_uv, moon_uv);
 	float moon_z = sqrt(max(1.0 - moon_r2, 0.0));
@@ -333,7 +347,10 @@ void sky() {
 	float moon_lit = max(moon_ndotl, 0.0);
 	// WHY inset 0.485: unit-disk UV lands inside the authored crust, while the
 	// opaque filter-safe skirt outside r~1 keeps bilinear taps off black.
-	vec2 lunar_uv = clamp(moon_uv * 0.485 + 0.5, vec2(0.002), vec2(0.998));
+	// WHY flip V: sky sampler2D has V=0 at the top of the image (north on the
+	// mosaic). Disk +Y is lunar north, so +moon_uv.y must sample decreasing V.
+	// Without the flip the skin renders upside-down / sideways on the sky disk.
+	vec2 lunar_uv = clamp(vec2(moon_uv.x, -moon_uv.y) * 0.485 + 0.5, vec2(0.002), vec2(0.998));
 	vec3 lunar_albedo = texture(lunar_albedo_map, lunar_uv).rgb;
 	// Mild relief from photo luminance slopes. Keep taps inside the disk so the
 	// limb never differences against the exterior skirt and darkens into a rim.
@@ -348,7 +365,9 @@ void sky() {
 	float h_y = dot(texture(lunar_albedo_map, relief_uv_y).rgb, vec3(0.333333))
 		- dot(texture(lunar_albedo_map, relief_uv_ny).rgb, vec3(0.333333));
 	float relief_fade = smoothstep(0.08, 0.35, moon_z);
-	vec3 moon_shaded_n = normalize(moon_normal + vec3(-h_x, -h_y, 0.0) * (1.1 * relief_fade));
+	// +h_y: lunar_uv.y increases toward south after the V flip, so the texture
+	// Y slope is opposite moon_uv.y (lunar north).
+	vec3 moon_shaded_n = normalize(moon_normal + vec3(-h_x, h_y, 0.0) * (1.1 * relief_fade));
 	float relief_lit = max(dot(moon_shaded_n, moon_light), 0.0);
 	float terminator = smoothstep(-0.10, 0.05, moon_ndotl);
 	// Lommel-Seeliger approximates dusty regolith better than a Lambertian disk.

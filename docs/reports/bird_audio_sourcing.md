@@ -47,8 +47,13 @@ For P0-122 closeout these species use documented fills in
 
 | Runtime ID | Fill source | License | Follow-up |
 |---|---|---|---|
-| `great_cormorant` | Wikimedia Commons field call | CC BY-SA 4.0 | **P0-125** - replace with Baltic recording when available |
-| `white_tailed_eagle` | xeno-canto XC492979 (`Haliaeetus leucogaster` stand-in) | CC BY-SA 4.0 | **P0-125** - replace with true `H. albicilla` clip |
+| `great_cormorant` | Wikimedia Commons field call | CC BY-SA 4.0 | **P0-122b** / **P0-122c** - replace with Baltic recording when available |
+| `white_tailed_eagle` | xeno-canto XC492979 (`Haliaeetus leucogaster` stand-in) | CC BY-SA 4.0 | **P0-122b** / **P0-122c** - replace with true `H. albicilla` clip |
+
+Re-scan (2026-07-24): `build_curated_bird_manifest` explore queries with `lic:by` /
+`lic:by-sa` / `lic:zero` tags and Baltic country preference still return **zero**
+commercial takes for both species. **P0-122c** owns a freesound.org follow-up before
+**P0-122b** can close.
 
 ## "Song" vs "call"
 

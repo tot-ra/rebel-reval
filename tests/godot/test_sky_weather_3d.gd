@@ -215,8 +215,12 @@ func test_sky_shader_covers_required_features() -> void:
 	assert_true("lunar_albedo" in source, "the moon must include stable surface detail")
 	assert_true("textureSize(lunar_albedo_map" in source, "lunar albedo sampling must follow the authored map resolution")
 	assert_true(
-		"moon_uv * 0.485" in source,
-		"lunar UV must inset inside the crust so limb filtering cannot pick up exterior black"
+		"celestial_north" in source,
+		"the NASA near-side mosaic must align to celestial north, not world zenith"
+	)
+	assert_true(
+		"vec2(moon_uv.x, -moon_uv.y) * 0.485" in source,
+		"lunar UV must inset inside the crust and flip V so mosaic north stays disk-north"
 	)
 	assert_true(
 		"max(lunar_albedo, vec3(0.08))" not in source,
