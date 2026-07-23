@@ -89,6 +89,38 @@ func test_trade_harbor_has_merchant_boats_moored_on_water() -> void:
 	_assert_props_stay_on_water(definition, landing_boats)
 
 
+func test_kalamaja_district_life_props_replace_net_barrel_placeholders() -> void:
+	var definition: MapDefinition = HarborEastDefinition.create()
+	var drying_net_props := _props_of_kind(definition, MapTypes.PROP_KIND_FISHING_NETS)
+	var drying_racks := _props_of_kind(definition, MapTypes.PROP_KIND_FISH_DRYING_RACK)
+	assert_true(drying_net_props.size() >= 3, "Kalamaja needs readable net yards at west, mid, and east")
+	assert_true(drying_racks.size() >= 3, "Each net yard needs a drying rack beside the nets")
+	for prop in definition.props:
+		var prop_id := String(prop.get("id", ""))
+		if prop_id.contains("drying_nets"):
+			assert_ne(
+				prop.get("kind"),
+				MapTypes.PROP_KIND_BARRELS,
+				"%s must not remain a barrel placeholder" % prop_id
+			)
+	assert_true(
+		_props_of_kind(definition, MapTypes.PROP_KIND_SMOKE_RACK).size() >= 1,
+		"Smoke shed yard needs a smoke rack"
+	)
+	assert_true(
+		_props_of_kind(definition, MapTypes.PROP_KIND_SALT_PILE).size() >= 1,
+		"Salt shed needs a curing salt pile"
+	)
+	assert_true(
+		_props_of_kind(definition, MapTypes.PROP_KIND_BOAT_TIMBER_STACK).size() >= 1,
+		"Boatwright yard needs a timber stack"
+	)
+	assert_true(
+		_props_of_kind(definition, MapTypes.PROP_KIND_FISH_SPLITTING_TABLE).size() >= 3,
+		"Fisher huts and sheds need splitting tables"
+	)
+
+
 func test_fishing_harbor_has_boats_moored_on_water() -> void:
 	var definition: MapDefinition = HarborEastDefinition.create()
 	var boats := _props_of_kind(definition, MapTypes.PROP_KIND_FISHING_BOAT)

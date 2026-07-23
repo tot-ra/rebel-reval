@@ -63,6 +63,13 @@ Decision:
 - The playable edge alternates forest floor, mixed/spruce tree scatter, scrub, reeds, fences, and work structures, preventing one thin tree row from revealing a generic empty plane.
 - The view-only woodland continuation uses a deep multi-band forest backdrop beyond authored terrain. It never changes collision or navigation.
 
+### Kalamaja district-life dressing (P4-028a)
+
+- Three net yards (`drying_nets_west`, `drying_nets_mid`, `drying_nets_east`) now use `fishing_nets` and `fish_drying_rack` instead of barrel placeholders.
+- `smoke_shed_west` yard carries a `smoke_rack`; fisher and net sheds carry `fish_splitting_table` work slabs.
+- `salt_shed_east` carries a `salt_pile`; `boatwright_shed` carries a `boat_timber_stack` beside the existing cart.
+- Fence-adjacent net-yard clutter reuses `fishing_nets` at west, mid, and east yard gates without blocking pier decks or moored boats.
+
 ## Sources
 
 - Monika Reppo and Villu Kadakas, [Excavations at the Great Coastal Gate of Tallinn](../../history/AVE2019_15_Reppo-Kadakas.pdf).

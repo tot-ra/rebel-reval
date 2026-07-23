@@ -78,13 +78,26 @@ wall mid_netyard_south 43 67 82 67 thickness=1 kind=wall style=wall.fence openin
 wall east_boatyard_west 84 47 84 65 thickness=1 kind=wall style=wall.fence openings=84,54,1,5
 wall east_boatyard_south 84 65 122 65 thickness=1 kind=wall style=wall.fence openings=98,65,7,1
 prop fish_barrels_west barrels 19 51 rect=3,2
-prop drying_nets_west barrels 34 54 rect=2,1
-prop smokehouse_barrels barrels 28 58 rect=2,2
+prop drying_nets_west fishing_nets 33 54
+prop fish_rack_west fish_drying_rack 35 54 rect=2,1
+prop netyard_fence_west fishing_nets 10 52
+prop smoke_rack_west smoke_rack 29 53 rect=2,1
+prop fish_splitting_smoke fish_splitting_table 31 48
+prop fish_splitting_hut_west fish_splitting_table 22 55
 prop fish_barrels_mid barrels 55 53 rect=3,2
-prop drying_nets_mid barrels 72 59 rect=3,1
+prop drying_nets_mid fishing_nets 70 58
+prop fish_rack_mid fish_drying_rack 72 59 rect=2,1
+prop netyard_fence_mid fishing_nets 45 52
+prop fish_splitting_net_house fish_splitting_table 50 51
+prop fish_splitting_hut_mid fish_splitting_table 58 58
 prop boatwright_cart cart 95 50 rect=2,2
+prop boat_timber_boatwright boat_timber_stack 86 58 rect=2,1
 prop fish_barrels_east barrels 115 57 rect=3,2
-prop drying_nets_east barrels 132 54 rect=2,1
+prop drying_nets_east fishing_nets 130 53
+prop fish_rack_east fish_drying_rack 132 54 rect=2,1
+prop netyard_fence_east fishing_nets 86 52
+prop salt_pile_east salt_pile 127 52
+prop fish_splitting_hut_east fish_splitting_table 112 55
 prop scrub.west bush 38 68 rect=3,2 style=bush.dense
 prop scrub.mid bush 99 70 rect=3,2 style=bush.scrub
 prop scrub.east bush 136 65 rect=3,2 style=bush.dense
