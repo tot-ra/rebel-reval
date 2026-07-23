@@ -131,16 +131,26 @@ const ROOF_STYLE_SHINGLE := &"shingle"
 const ROOF_STYLE_THATCH := &"thatch"
 ## Weathered Baltic reed: golden-olive straw, not rotten brown or flat yellow.
 const THATCH_TONE := Color(0.58, 0.50, 0.34)
-## Extra eaves hang so thatch reads thicker than shingle/tile at dimetric range.
-const THATCH_ROOF_OVERHANG := 0.28
-## Soft flush ridge plus merged stem relief. About one stem every 8 cm keeps
-## individual reeds legible at gameplay distance without one node per stem.
-const THATCH_RIDGE_RADIUS := 0.14
-const THATCH_STEM_SPACING := 0.085
-const THATCH_STEM_WIDTH := 0.055
-const THATCH_STEM_RELIEF := 0.026
-const THATCH_STEM_EAVES_VARIATION := 0.11
-const THATCH_STEM_DRIFT := 0.018
+## Estonian reed roofs shed Baltic rain and snow at 45 degrees or steeper. Keep
+## this separate from tile/shingle pitch so ordinary thatch has its heavy,
+## weatherproof vernacular silhouette without changing urban masonry roofs.
+const THATCH_ROOF_PITCH := 1.0
+## Deep protective eaves and a circa 25 cm packed cover follow the documented
+## Estonian vernacular build: overlapping rye-straw/reed bundles over pole purlins.
+const THATCH_ROOF_OVERHANG := 0.38
+const THATCH_COVER_THICKNESS := 0.25
+## A broad, compact ridge closes the two thick slopes. Geometric reed courses
+## sit over the solid cover so there are no sparse see-through gaps.
+const THATCH_RIDGE_RADIUS := 0.24
+const THATCH_COURSE_EXPOSURE := 0.48
+const THATCH_COURSE_OVERLAP := 0.22
+## Relief prisms represent tightly packed bundles; the procedural thatch texture
+## resolves the many individual stems inside each bundle at gameplay distance.
+const THATCH_STEM_SPACING := 0.14
+const THATCH_STEM_WIDTH := 0.115
+const THATCH_STEM_RELIEF := 0.024
+const THATCH_STEM_EAVES_VARIATION := 0.075
+const THATCH_STEM_DRIFT := 0.014
 ## The timber gable sits behind the roof's broad verge and is framed with flat
 ## boards. This replaces the former cylinder rolls that read as projecting poles.
 const THATCH_GABLE_RECESS := 0.035

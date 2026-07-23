@@ -284,8 +284,14 @@ static func add_chimney(root: Node3D, building: Dictionary, size: Vector2, wall_
 	var seed := String(building_id).hash()
 	var chimney_size := MapViewMeshBuilderConfig.CHIMNEY_SIZE
 	var chimney_half := chimney_size * 0.5
-	var half_span := (size.y if ridge_along_x else size.x) * 0.5 + MapViewMeshBuilderConfig.ROOF_OVERHANG
-	var rise := half_span * MapViewMeshBuilderConfig.ROOF_PITCH
+	var roof_style := _Styles.roof_style(building)
+	var roof_overhang := MapViewMeshBuilderConfig.ROOF_OVERHANG
+	var roof_pitch := MapViewMeshBuilderConfig.ROOF_PITCH
+	if roof_style == MapViewMeshBuilderConfig.ROOF_STYLE_THATCH:
+		roof_overhang = MapViewMeshBuilderConfig.THATCH_ROOF_OVERHANG
+		roof_pitch = MapViewMeshBuilderConfig.THATCH_ROOF_PITCH
+	var half_span := (size.y if ridge_along_x else size.x) * 0.5 + roof_overhang
+	var rise := half_span * roof_pitch
 	# Near one ridge end, fully on one slope face so the shaft pierces tiles
 	# instead of balancing on the peak like a cube.
 	var along := ((size.x if ridge_along_x else size.y) * 0.5 - chimney_size) * 0.62

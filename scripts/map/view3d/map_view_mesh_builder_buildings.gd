@@ -99,15 +99,18 @@ static func build_building(
 		var along_ridge_x := MapViewMeshBuilderBuildingFacade.ridge_along_x(building, size)
 		var roof_style := MapViewMeshBuilderBuildingHouses.roof_style(building)
 		var roof_overhang := MapViewMeshBuilderConfig.ROOF_OVERHANG
+		var roof_pitch := MapViewMeshBuilderConfig.ROOF_PITCH
 		if roof_style == MapViewMeshBuilderConfig.ROOF_STYLE_THATCH:
 			roof_overhang = MapViewMeshBuilderConfig.THATCH_ROOF_OVERHANG
+			roof_pitch = MapViewMeshBuilderConfig.THATCH_ROOF_PITCH
 		var roof := MeshInstance3D.new()
 		roof.name = "Roof"
 		roof.mesh = MapViewMeshBuilderPrimitives.gabled_roof_mesh(
 			size,
 			along_ridge_x,
 			roof_overhang,
-			roof_style != MapViewMeshBuilderConfig.ROOF_STYLE_THATCH
+			roof_style != MapViewMeshBuilderConfig.ROOF_STYLE_THATCH,
+			roof_pitch
 		)
 		roof.position = Vector3(0.0, height, 0.0)
 		roof.material_override = MapViewMeshBuilderBuildingHouses.house_roof_material(building)

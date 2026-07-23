@@ -1,6 +1,6 @@
 extends "res://tests/godot/map_view_3d_test_base.gd"
 
-## Reed/straw thatch uses slope-oriented texture plus merged relief geometry.
+## Reed/straw thatch uses a thick packed shell plus overlapping bundle courses.
 ## Gable ends expose recessed timber infill and framing instead of flat thatch
 ## triangles or the former cylinder rolls that projected like purposeless poles.
 
@@ -21,6 +21,18 @@ func test_thatch_roofs_use_slope_reeds_and_framed_gables() -> void:
 		MapViewMaterials.BUILDING_UV_SCALE[MapViewMaterials.PATTERN_THATCH].y
 			> MapViewMaterials.BUILDING_UV_SCALE[MapViewMaterials.PATTERN_STRAW].y,
 		"thatch courses need denser along-slope UV repeats than field straw"
+	)
+	assert_true(
+		MapViewMeshBuilderConfig.THATCH_ROOF_PITCH >= 1.0,
+		"Baltic thatch needs a rain- and snow-shedding pitch of at least 45 degrees"
+	)
+	assert_true(
+		MapViewMeshBuilderConfig.THATCH_COVER_THICKNESS >= 0.25,
+		"Estonian thatch must keep its documented circa 10-inch packed depth"
+	)
+	assert_true(
+		MapViewMeshBuilderConfig.THATCH_ROOF_OVERHANG > MapViewMeshBuilderConfig.ROOF_OVERHANG,
+		"thatch needs deeper protective eaves than tile or shingle"
 	)
 
 	var definition := LowerTownSlice.create()
@@ -57,8 +69,19 @@ func test_thatch_roofs_use_slope_reeds_and_framed_gables() -> void:
 		var ridge_direction := Vector3.RIGHT if along_ridge_x else Vector3.FORWARD
 		for side in [-1, 1]:
 			var relief := node.get_node("ThatchEavesFringe_%d" % side) as MeshInstance3D
-			assert_true(relief.mesh is ArrayMesh, "%s: reed relief must be one merged mesh per slope" % building["id"])
-			assert_true(int(relief.get_meta("stem_count", 0)) >= 12, "%s: each slope needs individual reed stems" % building["id"])
+			assert_true(relief.mesh is ArrayMesh, "%s: each slope must be one merged packed-thatch mesh" % building["id"])
+			assert_true(
+				float(relief.get_meta("cover_thickness", 0.0)) >= 0.25,
+				"%s: each slope needs a visibly thick packed cover" % building["id"]
+			)
+			assert_true(
+				int(relief.get_meta("course_count", 0)) >= 4,
+				"%s: each slope needs several overlapping reed courses" % building["id"]
+			)
+			assert_true(
+				int(relief.get_meta("stem_count", 0)) >= 48,
+				"%s: each slope needs a dense mass of reed bundles" % building["id"]
+			)
 			var stem_direction: Vector3 = relief.get_meta("stem_direction", Vector3.ZERO)
 			assert_true(stem_direction.y < -0.6, "%s: stems must descend from ridge to eave" % building["id"])
 			assert_true(

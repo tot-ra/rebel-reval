@@ -93,9 +93,10 @@ static func add_roof_trim(
 		)
 
 
-## Reed bundles cover the roof in overlapping eaves-to-ridge courses. The base
-## texture supplies dense colour variation; these merged slope meshes provide
-## real stem relief and irregular butt ends without one scene node per reed.
+## Estonian thatch is a packed weatherproof cover, not a sparse layer of poles.
+## Each cached slope contains a solid circa 25 cm shell plus many short,
+## overlapping courses of reed bundles. This keeps the eaves and verges visibly
+## thick while preserving one draw node per slope.
 static var _thatch_slope_mesh_cache: Dictionary = {}
 static var _thatch_gable_mesh_cache: Dictionary = {}
 
@@ -109,26 +110,32 @@ static func _add_thatch_dressing(
 ) -> void:
 	var overhang := MapViewMeshBuilderConfig.THATCH_ROOF_OVERHANG
 	var slope_half := (size.y if along_ridge_x else size.x) * 0.5 + overhang
-	var rise := slope_half * MapViewMeshBuilderConfig.ROOF_PITCH
+	var rise := slope_half * MapViewMeshBuilderConfig.THATCH_ROOF_PITCH
 	var thatch_mat := _Styles.house_roof_material(building)
 	var ridge_r := MapViewMeshBuilderConfig.THATCH_RIDGE_RADIUS
 	var ridge_span := (size.x if along_ridge_x else size.y) + overhang * 2.0
 
-	# A compact flush ridge closes the bundle tips. It stops at the verges rather
-	# than extending beyond them like the former pole-shaped edge dressing.
+	# A compact bundle ridge closes both thick slope shells. It stops at the
+	# verges rather than extending beyond them like a timber ridge pole.
 	var ridge := MeshInstance3D.new()
 	ridge.name = "ThatchRidge"
 	var ridge_mesh := CylinderMesh.new()
 	ridge_mesh.top_radius = ridge_r
 	ridge_mesh.bottom_radius = ridge_r * 1.05
-	ridge_mesh.radial_segments = 10
+	ridge_mesh.radial_segments = 12
 	ridge_mesh.height = ridge_span
 	if along_ridge_x:
 		ridge.rotation.z = PI * 0.5
 	else:
 		ridge.rotation.x = PI * 0.5
 	ridge.mesh = ridge_mesh
-	ridge.position = Vector3(0.0, height + rise + ridge_r * 0.35, 0.0)
+	ridge.position = Vector3(
+		0.0,
+		height + rise
+			+ MapViewMeshBuilderConfig.THATCH_COVER_THICKNESS * 0.55
+			+ ridge_r * 0.35,
+		0.0
+	)
 	ridge.material_override = thatch_mat
 	root.add_child(ridge)
 
@@ -146,9 +153,8 @@ static func _add_thatch_reed_slopes(
 ) -> void:
 	for side in [-1.0, 1.0]:
 		var reeds := MeshInstance3D.new()
-		# Keep the established eaves-fringe node contract. The replacement mesh now
-		# continues all the way up the slope, so its eave silhouette is made from
-		# the actual staggered stem ends instead of a rectangular textured box.
+		# Keep the established node name for callers. The mesh now carries the
+		# complete packed cover, its cut edges, and all overlapping surface bundles.
 		reeds.name = "ThatchEavesFringe_%d" % int(side)
 		reeds.mesh = _thatch_slope_mesh(size, along_ridge_x, side)
 		reeds.position = Vector3(0.0, height, 0.0)
@@ -156,7 +162,9 @@ static func _add_thatch_reed_slopes(
 		var down_direction := _thatch_down_direction(size, along_ridge_x, side)
 		reeds.set_meta("stem_direction", down_direction)
 		reeds.set_meta("ridge_direction", Vector3.RIGHT if along_ridge_x else Vector3.FORWARD)
+		reeds.set_meta("course_count", _thatch_course_count(size, along_ridge_x))
 		reeds.set_meta("stem_count", _thatch_stem_count(size, along_ridge_x))
+		reeds.set_meta("cover_thickness", MapViewMeshBuilderConfig.THATCH_COVER_THICKNESS)
 		root.add_child(reeds)
 
 
@@ -168,68 +176,156 @@ static func _thatch_slope_mesh(size: Vector2, along_ridge_x: bool, side: float) 
 	var overhang := MapViewMeshBuilderConfig.THATCH_ROOF_OVERHANG
 	var ridge_half := (size.x if along_ridge_x else size.y) * 0.5 + overhang
 	var slope_half := (size.y if along_ridge_x else size.x) * 0.5 + overhang
-	var rise := slope_half * MapViewMeshBuilderConfig.ROOF_PITCH
+	var rise := slope_half * MapViewMeshBuilderConfig.THATCH_ROOF_PITCH
 	var rake := sqrt(slope_half * slope_half + rise * rise)
 	var across_direction := Vector3.RIGHT if along_ridge_x else Vector3.FORWARD
 	var surface_normal := (
-		Vector3(0.0, 1.0, side * MapViewMeshBuilderConfig.ROOF_PITCH)
+		Vector3(0.0, 1.0, side * MapViewMeshBuilderConfig.THATCH_ROOF_PITCH)
 		if along_ridge_x
-		else Vector3(side * MapViewMeshBuilderConfig.ROOF_PITCH, 1.0, 0.0)
+		else Vector3(side * MapViewMeshBuilderConfig.THATCH_ROOF_PITCH, 1.0, 0.0)
 	).normalized()
-	var stem_count := _thatch_stem_count(size, along_ridge_x)
+	var cover_lift := surface_normal * MapViewMeshBuilderConfig.THATCH_COVER_THICKNESS
+	var stems_per_course := _thatch_stems_per_course(size, along_ridge_x)
+	var course_count := _thatch_course_count(size, along_ridge_x)
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 
-	for index in stem_count:
-		var phase := float(index) * 2.399963 + side * 0.71
-		var variation := sin(phase) * 0.5 + 0.5
-		var secondary := sin(phase * 1.73 + 1.9) * 0.5 + 0.5
-		var ridge_position := lerpf(
-			-ridge_half,
-			ridge_half,
-			(float(index) + 0.5) / float(stem_count)
+	# The continuous shell makes the historical packed depth legible at every
+	# viewing distance. The eave cap is deliberately darker like cut reed butts.
+	_add_thatch_cover_shell(
+		surface,
+		ridge_half,
+		slope_half,
+		rise,
+		along_ridge_x,
+		side,
+		surface_normal,
+		cover_lift
+	)
+
+	# Bundles are fixed in overlapping eaves-to-ridge courses. Only their exposed
+	# lower portions sit above the packed shell, avoiding the modern combed look
+	# of uninterrupted grooves running from ridge to gutter.
+	for course_index in course_count:
+		var course_end_distance := minf(
+			float(course_index + 1) * MapViewMeshBuilderConfig.THATCH_COURSE_EXPOSURE,
+			rake
 		)
-		# Ridge packing hides the varied thin tips, while the thick butt ends extend
-		# down past the eave by unequal amounts, matching real butts-down reed work.
-		var start_t := 0.025 + variation * 0.035
-		var end_t := 1.0 + (
-			MapViewMeshBuilderConfig.THATCH_STEM_EAVES_VARIATION
-			* (0.25 + secondary * 0.75)
-			/ rake
+		var course_start_distance := maxf(
+			0.0,
+			course_end_distance
+				- MapViewMeshBuilderConfig.THATCH_COURSE_EXPOSURE
+				- MapViewMeshBuilderConfig.THATCH_COURSE_OVERLAP
 		)
-		var start := _thatch_surface_point(
-			ridge_position,
-			start_t,
-			slope_half,
-			rise,
-			along_ridge_x,
-			side
-		)
-		var end := _thatch_surface_point(
-			ridge_position,
-			end_t,
-			slope_half,
-			rise,
-			along_ridge_x,
-			side
-		)
-		end += across_direction * MapViewMeshBuilderConfig.THATCH_STEM_DRIFT * sin(phase * 1.37)
-		var width := MapViewMeshBuilderConfig.THATCH_STEM_WIDTH * (0.72 + variation * 0.45)
-		var tone := 0.82 + secondary * 0.20
-		_add_reed_prism(
-			surface,
-			start,
-			end,
-			across_direction,
-			surface_normal,
-			width,
-			MapViewMeshBuilderConfig.THATCH_STEM_RELIEF,
-			Color(tone, tone, tone, 1.0)
-		)
+		var is_eaves_course := course_index == course_count - 1
+		for index in stems_per_course:
+			var phase := float(index) * 2.399963 + float(course_index) * 1.618034 + side * 0.71
+			var variation := sin(phase) * 0.5 + 0.5
+			var secondary := sin(phase * 1.73 + 1.9) * 0.5 + 0.5
+			var stagger := 0.5 if course_index % 2 == 0 else 0.0
+			var ridge_position := lerpf(
+				-ridge_half,
+				ridge_half,
+				(float(index) + stagger) / float(stems_per_course)
+			)
+			# Internal course edges stay softly uneven; the final cut eave varies more.
+			var butt_variation := (
+				MapViewMeshBuilderConfig.THATCH_STEM_EAVES_VARIATION
+				if is_eaves_course
+				else MapViewMeshBuilderConfig.THATCH_STEM_EAVES_VARIATION * 0.32
+			)
+			var start_t := course_start_distance / rake
+			var end_t := (course_end_distance + butt_variation * (secondary - 0.35)) / rake
+			end_t = clampf(end_t, start_t + 0.015, 1.035 if is_eaves_course else 1.0)
+			var start := _thatch_surface_point(
+				ridge_position,
+				start_t,
+				slope_half,
+				rise,
+				along_ridge_x,
+				side
+			) + cover_lift
+			var end := _thatch_surface_point(
+				ridge_position,
+				end_t,
+				slope_half,
+				rise,
+				along_ridge_x,
+				side
+			) + cover_lift
+			end += across_direction * MapViewMeshBuilderConfig.THATCH_STEM_DRIFT * sin(phase * 1.37)
+			var width := MapViewMeshBuilderConfig.THATCH_STEM_WIDTH * (0.76 + variation * 0.38)
+			var tone := 0.78 + secondary * 0.22
+			_add_reed_prism(
+				surface,
+				start,
+				end,
+				across_direction,
+				surface_normal,
+				width,
+				MapViewMeshBuilderConfig.THATCH_STEM_RELIEF,
+				Color(tone, tone, tone, 1.0)
+			)
 
 	var mesh := surface.commit()
 	_thatch_slope_mesh_cache[key] = mesh
 	return mesh
+
+
+static func _add_thatch_cover_shell(
+	surface: SurfaceTool,
+	ridge_half: float,
+	slope_half: float,
+	rise: float,
+	along_ridge_x: bool,
+	side: float,
+	surface_normal: Vector3,
+	cover_lift: Vector3
+) -> void:
+	var base_ridge_a := _thatch_surface_point(-ridge_half, 0.0, slope_half, rise, along_ridge_x, side)
+	var base_ridge_b := _thatch_surface_point(ridge_half, 0.0, slope_half, rise, along_ridge_x, side)
+	var base_eave_a := _thatch_surface_point(-ridge_half, 1.0, slope_half, rise, along_ridge_x, side)
+	var base_eave_b := _thatch_surface_point(ridge_half, 1.0, slope_half, rise, along_ridge_x, side)
+	var top_ridge_a := base_ridge_a + cover_lift
+	var top_ridge_b := base_ridge_b + cover_lift
+	var top_eave_a := base_eave_a + cover_lift
+	var top_eave_b := base_eave_b + cover_lift
+	_add_colored_quad(
+		surface,
+		top_ridge_a,
+		top_ridge_b,
+		top_eave_b,
+		top_eave_a,
+		surface_normal,
+		Color.WHITE
+	)
+	var down_direction := (base_eave_a - base_ridge_a).normalized()
+	_add_colored_quad(
+		surface,
+		base_eave_a,
+		top_eave_a,
+		top_eave_b,
+		base_eave_b,
+		down_direction,
+		Color(0.62, 0.58, 0.48, 1.0)
+	)
+	# Close both gable-side cuts so the quarter-metre packed layer is also visible
+	# at the verges, not only along the eaves.
+	for ridge_sign in [-1.0, 1.0]:
+		var base_ridge := base_ridge_a if ridge_sign < 0.0 else base_ridge_b
+		var base_eave := base_eave_a if ridge_sign < 0.0 else base_eave_b
+		var top_ridge := top_ridge_a if ridge_sign < 0.0 else top_ridge_b
+		var top_eave := top_eave_a if ridge_sign < 0.0 else top_eave_b
+		var verge_normal: Vector3 = (Vector3.LEFT if along_ridge_x else Vector3.FORWARD) * -ridge_sign
+		_add_colored_quad(
+			surface,
+			base_ridge,
+			top_ridge,
+			top_eave,
+			base_eave,
+			verge_normal,
+			Color(0.78, 0.75, 0.66, 1.0)
+		)
 
 
 static func _thatch_surface_point(
@@ -250,21 +346,32 @@ static func _thatch_down_direction(size: Vector2, along_ridge_x: bool, side: flo
 		(size.y if along_ridge_x else size.x) * 0.5
 		+ MapViewMeshBuilderConfig.THATCH_ROOF_OVERHANG
 	)
-	var rise := slope_half * MapViewMeshBuilderConfig.ROOF_PITCH
+	var rise := slope_half * MapViewMeshBuilderConfig.THATCH_ROOF_PITCH
 	if along_ridge_x:
 		return Vector3(0.0, -rise, side * slope_half).normalized()
 	return Vector3(side * slope_half, -rise, 0.0).normalized()
 
 
-static func _thatch_stem_count(size: Vector2, along_ridge_x: bool) -> int:
+static func _thatch_stems_per_course(size: Vector2, along_ridge_x: bool) -> int:
 	var ridge_span := (
 		(size.x if along_ridge_x else size.y)
 		+ MapViewMeshBuilderConfig.THATCH_ROOF_OVERHANG * 2.0
 	)
-	return maxi(
-		12,
-		ceili(ridge_span / MapViewMeshBuilderConfig.THATCH_STEM_SPACING)
+	return maxi(18, ceili(ridge_span / MapViewMeshBuilderConfig.THATCH_STEM_SPACING))
+
+
+static func _thatch_course_count(size: Vector2, along_ridge_x: bool) -> int:
+	var slope_half := (
+		(size.y if along_ridge_x else size.x) * 0.5
+		+ MapViewMeshBuilderConfig.THATCH_ROOF_OVERHANG
 	)
+	var rise := slope_half * MapViewMeshBuilderConfig.THATCH_ROOF_PITCH
+	var rake := sqrt(slope_half * slope_half + rise * rise)
+	return maxi(4, ceili(rake / MapViewMeshBuilderConfig.THATCH_COURSE_EXPOSURE))
+
+
+static func _thatch_stem_count(size: Vector2, along_ridge_x: bool) -> int:
+	return _thatch_stems_per_course(size, along_ridge_x) * _thatch_course_count(size, along_ridge_x)
 
 
 static func _add_reed_prism(
@@ -382,7 +489,7 @@ static func _thatch_gable_mesh(size: Vector2, along_ridge_x: bool) -> ArrayMesh:
 		return _thatch_gable_mesh_cache[key]
 	var overhang := MapViewMeshBuilderConfig.THATCH_ROOF_OVERHANG
 	var slope_half := (size.y if along_ridge_x else size.x) * 0.5 + overhang
-	var rise := slope_half * MapViewMeshBuilderConfig.ROOF_PITCH
+	var rise := slope_half * MapViewMeshBuilderConfig.THATCH_ROOF_PITCH
 	var face_offset := MapViewMeshBuilderConfig.THATCH_GABLE_RECESS
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -440,7 +547,7 @@ static func _add_thatch_gable_framing(
 ) -> void:
 	var overhang := MapViewMeshBuilderConfig.THATCH_ROOF_OVERHANG
 	var slope_half := (size.y if along_ridge_x else size.x) * 0.5 + overhang
-	var rise := slope_half * MapViewMeshBuilderConfig.ROOF_PITCH
+	var rise := slope_half * MapViewMeshBuilderConfig.THATCH_ROOF_PITCH
 	var rake := sqrt(slope_half * slope_half + rise * rise)
 	var rake_angle := atan2(rise, slope_half)
 	var board_width := MapViewMeshBuilderConfig.THATCH_GABLE_BOARD_WIDTH
