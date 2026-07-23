@@ -2,7 +2,7 @@
 """Release-candidate verification scaffold for P0-121.
 
 Automates the repository checks that can run before P3-012, P4-013, or P6-008
-human gates: AGPL license presence, asset provenance manifest, export preset and
+maintainer gates per ADR 0014: AGPL license presence, asset provenance manifest, export preset and
 CI smoke indicators, and the accessibility baseline already shipped in P1-028.
 
 Usage:
