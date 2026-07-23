@@ -388,6 +388,12 @@ void sky() {
 	// Opaque black replacement would leave a dark round sticker beside the lit
 	// crescent; fade that nightside out as day_blend rises.
 	moon_opacity *= mix(1.0, terminator * terminator, day_blend * 0.92);
+	// WHY: Near new moon the crescent sits close to the sun. Drawing a solid
+	// disk there reads as "moon stuck behind the sun". Real daytime glare hides
+	// that conjunction; fade hard inside ~16 deg and restore by ~35 deg.
+	float sun_moon_align = max(dot(normalize(moon_direction), normalize(sun_direction)), 0.0);
+	float solar_glare_fade = 1.0 - smoothstep(0.82, 0.96, sun_moon_align);
+	moon_opacity *= mix(0.55 + 0.45 * solar_glare_fade, solar_glare_fade, day_blend);
 	color = mix(color, moon_surface, moon_opacity);
 	// Thin aureole from atmospheric forward scatter; much subtler than a glowy disk.
 	// Daytime air is already bright, so keep most of the aureole nocturnal.

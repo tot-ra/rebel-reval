@@ -49,12 +49,22 @@ const SUNSET_TINT_STRENGTH := 0.65
 ## Mean lunar orbit used for daily rise/set timing and phase lighting. One
 ## synodic month naturally divides into four roughly weekly phase quarters.
 ## The epoch is the 2000-01-06 18:14 UTC new moon (Julian day), projected back
-## deterministically onto the campaign's Julian calendar.
+## deterministically onto the campaign's Julian calendar. That projection keeps
+## the historical 1343-04-25 new moon and 1343-05-10 full moon, so the slice
+## window (21-23 April) sits on a late waning crescent near the sun - correct
+## astronomy, not a locked sun-following path.
 const SYNODIC_MONTH_DAYS := 29.530588853
 const NEW_MOON_EPOCH_JULIAN_DAY := 2451550.25972
 ## The moon moves east against the stars during each solar day, so its apparent
 ## westward crossing is slower than the sun's instead of sharing its rotation.
 const LUNAR_APPARENT_ROTATIONS_PER_SOLAR_DAY := 1.0 - 1.0 / SYNODIC_MONTH_DAYS
+## Mean lunar orbital inclination to the ecliptic. Without this tilt the moon
+## reused the sun's exact declination arc and read as "stuck behind the sun"
+## whenever the synodic phase put them near conjunction.
+const LUNAR_ORBITAL_INCLINATION_DEGREES := 5.14
+## Draconic month: argument of latitude for the inclination sine. Keeps the
+## north/south offset deterministic and independent of the synodic phase.
+const DRACONIC_MONTH_DAYS := 27.212220817
 ## Equilibrium tide approximation. Lunar forcing dominates, while solar forcing
 ## reinforces it at new/full moon and opposes it at quarter moons. Reval's real
 ## Baltic range is small; rendering applies a restrained visual scale separately.
@@ -303,12 +313,11 @@ static func solar_declination_degrees(date: Dictionary) -> float:
 	return EARTH_AXIAL_TILT_DEGREES * sin(TAU * (ordinal - CAMPAIGN_VERNAL_EQUINOX_DAY_OF_YEAR) / year_length)
 
 
-## Returns the observer-to-sun direction in the sky shader's ENU world frame:
-## +X east, -Z north, and +Y up. Local solar noon is progress 0.5.
-static func solar_direction(progress: float, date: Dictionary = {}) -> Vector3:
-	var effective_date := GAME_CALENDAR.DEFAULT_DATE if date.is_empty() else date
+## Local ENU direction for a body with the given equatorial declination.
+## +X east, -Z north, and +Y up. Progress 0.5 is local meridian transit.
+static func celestial_direction(progress: float, declination_degrees: float) -> Vector3:
 	var latitude := deg_to_rad(OBSERVER_LATITUDE_DEGREES)
-	var declination := deg_to_rad(solar_declination_degrees(effective_date))
+	var declination := deg_to_rad(declination_degrees)
 	var hour_angle := (wrapf(progress, 0.0, 1.0) - 0.5) * TAU
 	var east := -cos(declination) * sin(hour_angle)
 	var north := (
@@ -320,6 +329,13 @@ static func solar_direction(progress: float, date: Dictionary = {}) -> Vector3:
 		+ cos(latitude) * cos(declination) * cos(hour_angle)
 	)
 	return Vector3(east, up, -north).normalized()
+
+
+## Returns the observer-to-sun direction in the sky shader's ENU world frame:
+## +X east, -Z north, and +Y up. Local solar noon is progress 0.5.
+static func solar_direction(progress: float, date: Dictionary = {}) -> Vector3:
+	var effective_date := GAME_CALENDAR.DEFAULT_DATE if date.is_empty() else date
+	return celestial_direction(progress, solar_declination_degrees(effective_date))
 
 
 static func solar_elevation_degrees(progress: float, date: Dictionary = {}) -> float:
@@ -407,9 +423,21 @@ static func moonlight_strength(progress: float, date: Dictionary = {}) -> float:
 	return lunar_illumination(lunar_phase(effective_date)) * horizon_visibility
 
 
-## Uses the same local horizon frame and seasonal declination model as the sun.
-## The date phase sets the rise time, while the eastward lunar orbit makes the
-## moon cross about 12.2 degrees less sky than the sun during each solar day.
+## Lunar declination = solar seasonal declination plus the ~5.14° orbital tilt.
+## The draconic sine keeps the moon on a path that is never identical to the sun.
+static func lunar_declination_degrees(date: Dictionary = {}) -> float:
+	var effective_date := GAME_CALENDAR.DEFAULT_DATE if date.is_empty() else date
+	var days_since_epoch := julian_day(effective_date) - NEW_MOON_EPOCH_JULIAN_DAY
+	var orbital_latitude := sin(TAU * days_since_epoch / DRACONIC_MONTH_DAYS)
+	return (
+		solar_declination_degrees(effective_date)
+		+ LUNAR_ORBITAL_INCLINATION_DEGREES * orbital_latitude
+	)
+
+
+## Uses the same local horizon frame as the sun, but a phase-shifted hour angle
+## and a tilted declination. New moon stays near the sun, full moon opposite it,
+## and the inclination keeps the daily arcs from stacking on one path.
 static func lunar_direction(progress: float, date: Dictionary = {}) -> Vector3:
 	var effective_date := GAME_CALENDAR.DEFAULT_DATE if date.is_empty() else date
 	var wrapped_progress := wrapf(progress, 0.0, 1.0)
@@ -419,11 +447,19 @@ static func lunar_direction(progress: float, date: Dictionary = {}) -> Vector3:
 		0.0,
 		1.0
 	)
-	return solar_direction(lunar_progress, effective_date)
+	return celestial_direction(lunar_progress, lunar_declination_degrees(effective_date))
 
 
 static func lunar_elevation_degrees(progress: float, date: Dictionary = {}) -> float:
 	return rad_to_deg(asin(clampf(lunar_direction(progress, date).y, -1.0, 1.0)))
+
+
+## Angular separation between the live sun and moon disks, in degrees.
+static func sun_moon_separation_degrees(progress: float, date: Dictionary = {}) -> float:
+	var effective_date := GAME_CALENDAR.DEFAULT_DATE if date.is_empty() else date
+	var sun_direction := solar_direction(progress, effective_date)
+	var moon_direction := lunar_direction(progress, effective_date)
+	return rad_to_deg(acos(clampf(sun_direction.dot(moon_direction), -1.0, 1.0)))
 
 
 ## Normalized equilibrium tide in [-1, 1]. Using the sub-lunar and sub-solar

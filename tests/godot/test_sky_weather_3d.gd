@@ -245,6 +245,10 @@ func test_sky_shader_covers_required_features() -> void:
 		"terminator * terminator" in source,
 		"daytime crescents must hide the unlit nightside against bright sky"
 	)
+	assert_true(
+		"solar_glare_fade" in source,
+		"near-sun crescents must fade in solar glare instead of sitting on the sun disk"
+	)
 
 
 func test_clear_weather_is_partly_cloudy_with_moving_banks() -> void:
@@ -443,6 +447,35 @@ func test_moon_crosses_the_sky_from_east_to_west() -> void:
 	assert_true(evening.x > 0.0, "the evening full moon must rise in the eastern (+X) sky")
 	assert_true(midnight.y > evening.y, "the full moon must climb after rising")
 	assert_true(morning.x < 0.0, "the morning full moon must set in the western (-X) sky")
+
+
+func test_moon_angle_follows_phase_not_the_sun_path() -> void:
+	var prologue := {"day": 21, "month": 4, "year": 1343}
+	var new_moon := {"day": 25, "month": 4, "year": 1343}
+	var full_moon := {"day": 10, "month": 5, "year": 1343}
+	var noon := 0.5
+	var prologue_sep := SkyWeather.sun_moon_separation_degrees(noon, prologue)
+	var new_sep := SkyWeather.sun_moon_separation_degrees(noon, new_moon)
+	var full_sep := SkyWeather.sun_moon_separation_degrees(noon, full_moon)
+	assert_true(
+		prologue_sep > 35.0,
+		"the late-April waning crescent must sit well clear of the noon sun, not behind it"
+	)
+	assert_true(new_sep < 15.0, "new moon must approach solar conjunction")
+	assert_true(full_sep > 130.0, "full moon must sit opposite the sun, not on its path")
+	var sun_noon := SkyWeather.solar_direction(noon, new_moon)
+	var moon_noon := SkyWeather.lunar_direction(noon, new_moon)
+	assert_true(
+		absf(
+			SkyWeather.lunar_declination_degrees(prologue)
+			- SkyWeather.solar_declination_degrees(prologue)
+		) > 2.0,
+		"lunar inclination must tilt the moon off the sun's declination arc"
+	)
+	assert_false(
+		sun_noon.is_equal_approx(moon_noon),
+		"even near new moon the inclined lunar path must not reuse the sun vector"
+	)
 
 
 func test_celestial_motion_uses_distinct_astronomical_rates() -> void:
