@@ -11,7 +11,7 @@ func test_local_species_catalog_covers_woodland_and_orchard_trees() -> void:
 		assert_true(MapViewMeshBuilderPrimitives.tree_canopy_mesh(species) is ArrayMesh)
 		var stats := MapViewMeshBuilderPrimitives.tree_geometry_stats(species)
 		assert_true(int(stats.get("wood_segments", 0)) > 12, "%s needs visible branching" % species)
-		assert_true(int(stats.get("leaf_count", 0)) >= 80, "%s needs terminal leaf sprays" % species)
+		assert_true(int(stats.get("leaf_count", 0)) >= 100, "%s needs terminal leaf sprays" % species)
 		assert_true(int(stats.get("wood_segments", 999)) <= MapViewTreeMeshes.MAX_WOOD_SEGMENTS, "%s exceeds branch budget" % species)
 		assert_true(int(stats.get("curved_branch_paths", 0)) > 0, "%s needs flowing multi-section boughs" % species)
 		assert_true(int(stats.get("interior_branch_junctions", 0)) > 0, "%s needs branches attached before parent tips" % species)
@@ -25,8 +25,12 @@ func test_local_species_catalog_covers_woodland_and_orchard_trees() -> void:
 				"%s trunk must narrow continuously with height" % species
 			)
 		assert_true(
-			float(trunk_radii[0]) * 2.0 < float(stats.get("trunk_height", 0.0)) * 0.22,
+			float(trunk_radii[0]) * 2.0 < float(stats.get("trunk_height", 0.0)) * 0.16,
 			"%s trunk is too thick for its height" % species
+		)
+		assert_true(
+			float(trunk_radii[3]) < float(trunk_radii[0]) * 0.35,
+			"%s upper trunk must taper to well under half of base diameter" % species
 		)
 
 
@@ -70,13 +74,17 @@ func test_birch_and_oak_use_distinct_growth_architecture() -> void:
 	var birch := MapViewMeshBuilderPrimitives.tree_geometry_stats(MapViewTreeSpecies.SPECIES_BIRCH)
 	var oak := MapViewMeshBuilderPrimitives.tree_geometry_stats(MapViewTreeSpecies.SPECIES_OAK)
 	assert_true(int(birch["wood_segments"]) != int(oak["wood_segments"]))
-	assert_true(int(birch["leaf_count"]) >= 500, "birch crown needs dense leaf coverage")
+	assert_true(int(birch["leaf_count"]) >= 900, "birch crown needs dense leaf coverage")
 	assert_true(int(birch["leaf_count"]) > int(oak["leaf_count"]), "birch should carry more, smaller leaves than oak")
 	assert_true(int(birch["wood_segments"]) >= 40, "birch needs a deeper branch skeleton")
 	var birch_radii: Array = birch["trunk_radii"]
 	assert_true(
-		float(birch_radii[0]) * 2.0 < float(birch["trunk_height"]) * 0.08,
+		float(birch_radii[0]) * 2.0 < float(birch["trunk_height"]) * 0.055,
 		"birch should retain a slender height-to-diameter ratio"
+	)
+	assert_true(
+		float(birch_radii[3]) < float(birch_radii[0]) * 0.28,
+		"birch leader must be much thinner than the base"
 	)
 	assert_true(MapViewTreeSpecies.bark_kind_for(MapViewTreeSpecies.SPECIES_BIRCH) == MapViewTreeSpecies.BARK_BIRCH)
 
