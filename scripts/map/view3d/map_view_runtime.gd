@@ -14,6 +14,8 @@ const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 const GameCalendarScript := preload("res://scripts/global/game_calendar.gd")
 const RuntimeCamera := preload("res://scripts/map/view3d/map_view_runtime_camera.gd")
 const RuntimeActors := preload("res://scripts/map/view3d/map_view_runtime_actors.gd")
+const BirdAmbientAudio := preload("res://scripts/map/view3d/map_view_bird_ambient_audio.gd")
+const BirdContext := preload("res://scripts/map/view3d/map_view_bird_context.gd")
 
 ## Compatibility aliases keep the runtime's public locomotion thresholds stable.
 const WALK_ANIMATION_MIN_SPEED := RuntimeActors.WALK_ANIMATION_MIN_SPEED
@@ -75,6 +77,8 @@ var _equipment_state: GameState
 var _session_state: Node
 var _session_content_db: ContentDB
 var _click_input: Node
+var _bird_audio: MapViewBirdAmbientAudio
+var _bird_audio_enabled := true
 
 
 static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasItem, player: CharacterBody2D) -> MapViewRuntime:
@@ -124,6 +128,7 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 	runtime.view.set_calendar_date(runtime._current_calendar_date())
 	runtime.view.apply_cycle_progress(runtime.cycle_progress)
 	runtime._sync_music_cycle()
+	runtime._install_bird_audio()
 	runtime._install_click_input(scene_root)
 	return runtime
 
@@ -133,6 +138,26 @@ func configure_click_input(world_items: Node = null) -> void:
 		return
 	if world_items != null:
 		_click_input.call("set_world_items", world_items)
+
+
+func set_bird_audio_enabled(enabled: bool) -> void:
+	_bird_audio_enabled = enabled
+	if _bird_audio != null:
+		_bird_audio.set_audio_enabled(enabled)
+
+
+func bird_audio_active_voice_count() -> int:
+	if _bird_audio == null:
+		return 0
+	return _bird_audio.active_voice_count()
+
+
+func _install_bird_audio() -> void:
+	_bird_audio = BirdAmbientAudio.new()
+	_bird_audio.name = "BirdAmbientAudio"
+	add_child(_bird_audio)
+	var context := BirdContext.context_for_map(_definition.map_id)
+	_bird_audio.configure(_definition.map_id, context)
 
 
 func _install_click_input(_scene_root: Node2D) -> void:
@@ -248,6 +273,7 @@ func _process(delta: float) -> void:
 		_sync_music_cycle()
 	if _player == null or not is_instance_valid(_player):
 		return
+	_sync_bird_audio(delta)
 	_apply_view_rotation(delta)
 	_sync_player(false, delta)
 	_actor_controller.sync_view_actors(delta)
@@ -402,6 +428,17 @@ func _sync_music_cycle() -> void:
 		music_director.call("set_cycle_progress", cycle_progress)
 		if music_director.has_method(&"set_cycle_elapsed_days"):
 			music_director.call(&"set_cycle_elapsed_days", cycle_elapsed_days)
+
+
+func _sync_bird_audio(delta: float) -> void:
+	if _bird_audio == null or _definition == null or view == null:
+		return
+	if _definition.suppresses_exterior_surroundings():
+		_bird_audio.sync(&"", cycle_progress, Vector3.ZERO, delta, false)
+		return
+	var context := BirdContext.context_for_map(_definition.map_id)
+	var listener := _camera.global_position if _camera != null else Vector3.ZERO
+	_bird_audio.sync(context, cycle_progress, listener, delta, _bird_audio_enabled)
 
 
 func _sync_player(snap: bool, delta: float = 0.0) -> void:
