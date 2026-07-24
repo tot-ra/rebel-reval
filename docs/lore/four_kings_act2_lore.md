@@ -105,11 +105,11 @@ The following map locations and events are authored or planned for Act 2, tied t
 
 | Location / Event | File / Asset | Canon tie-in | Status |
 |---|---|---|---|
-| **Paide Castle** (`world_paide`) | [`content/maps/world_paide.rrmap`](../../content/maps/world_paide.rrmap) | *"The Four Kings are lured here and executed under truce"* — [`docs/TOURIST_LANDMARKS.md:31`](../TOURIST_LANDMARKS.md#paide-castle) | `world_paide` placeholder authored; Act 2 finale location per [`LANDMARK_NARRATIVE_INTEGRATION.md:173`](../LANDMARK_NARRATIVE_INTEGRATIVE.md#paide-castle) |
-| **Mäo Hillfort Site** (Järvamaa) | Landmark integration data | *"Invoked in speeches by the Four Kings"* — [`docs/TOURIST_LANDMARKS.md:42`](../TOURIST_LANDMARKS.md#mäo-hillfort-site); symbolic rallying point for rebel oratory | Referenced in [`LANDMARK_NARRATIVE_INTEGRATION.md:184`](../LANDMARK_NARRATIVE_INTEGRATION.md#mäo) |
-| **Rebel Signal Hill** (Harju) | World-travel placeholders (`world_harju`) | *"The Four Kings' election follows the first flames"* — [`docs/TOURIST_LANDMARKS.md:4`](../TOURIST_LANDMARKS.md#rebel-signal-hill) | Foreland `viru_gate_foreland` authored in Act 1 |
-| **Event: act2.four_kings** | Landmark integration data | Paide Castle execution event — [`LANDMARK_NARRATIVE_INTEGRATION.md:173`](../LANDMARK_NARRATIVE_INTEGRATION.md#paide-castle) | Task P5-009 (finale design) |
-| **Event: act2.harju_uprising** | Landmark integration data | Harju County election and rallying — [`LANDMARK_NARRATIVE_INTEGRATION.md:146`](../LANDMARK_NARRATIVE_INTEGRATION.md#harju-signal-hill) | Task P5-007 (Kanavere/Sõjamäe missions) |
+| **Paide Castle** (`world_paide`) | [`content/maps/world_paide.rrmap`](../../content/maps/world_paide.rrmap) | *"The Four Kings are lured here and executed under truce"* — [`docs/TOURIST_LANDMARKS.md:31`](../TOURIST_LANDMARKS.md#central-estonia-järvamaa-and-paide) | `world_paide` placeholder authored; Act 2 finale location per [`LANDMARK_NARRATIVE_INTEGRATION.md:173`](../LANDMARK_NARRATIVE_INTEGRATION.md#narrative-matrix) |
+| **Mäo Hillfort Site** (Järvamaa) | Landmark integration data | *"Invoked in speeches by the Four Kings"* — [`docs/TOURIST_LANDMARKS.md:42`](../TOURIST_LANDMARKS.md#central-estonia-järvamaa-and-paide); symbolic rallying point for rebel oratory | Referenced in [`LANDMARK_NARRATIVE_INTEGRATION.md:184`](../LANDMARK_NARRATIVE_INTEGRATION.md#narrative-matrix) |
+| **Rebel Signal Hill** (Harju) | World-travel placeholders (`world_harju`) | *"The Four Kings' election follows the first flames"* — [`docs/TOURIST_LANDMARKS.md:4`](../TOURIST_LANDMARKS.md#harju-county-reval-hinterland) | Foreland `viru_gate_foreland` authored in Act 1 |
+| **Event: act2.four_kings** | Landmark integration data | Paide Castle execution event — [`LANDMARK_NARRATIVE_INTEGRATION.md:173`](../LANDMARK_NARRATIVE_INTEGRATION.md#narrative-matrix) | Task P5-009 (finale design) |
+| **Event: act2.harju_uprising** | Landmark integration data | Harju County election and rallying — [`LANDMARK_NARRATIVE_INTEGRATION.md:146`](../LANDMARK_NARRATIVE_INTEGRATION.md#narrative-matrix) | Task P5-007 (Kanavere/Sõjamäe missions) |
 
 ---
 

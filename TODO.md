@@ -11,7 +11,7 @@ References:
 <!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
-| P0 |    12  |    29  | Baseline, storage, materials, historical audit |
+| P0 |    12  |    30  | Baseline, storage, materials, historical audit |
 | P1 |     3  |     4  | Runtime systems, content foundation |
 | P2 |    15  |     6  | Vertical-slice production (playable MVP) |
 | P3 |    10  |     3  | Validation, accessibility, performance |
@@ -45,10 +45,12 @@ References:
 
 
 
+
 <!-- P0-072 completed in current session -->
 <!-- P0-053 completed in current session -->
 <!-- P0-075 lunar-path defect fix completed in current session -->
 <!-- P0-111 completed in current session -->
+<!-- P0-126 completed in current session -->
 <!-- P0-125 completed in current session -->
 <!-- P0-107 completed in current session -->
 <!-- P0-122b blocked: 2026-07-24 commercial xeno-canto re-scan returned zero takes -->
@@ -222,6 +224,7 @@ References:
 
 - [x] P0-109 | deps: none | deliverable: historical context and daily life research report: deep dive into 1343 Reval ordinary life, domestic routines, craft, and authentic social relations to realistically anchor the game | verify: report is compiled and signed off, with at least 5 new actionable context entries added to docs/CANON.md
 - [x] P0-111 | deps: none | deliverable: maintainer sign-off on the P0-072 environment dossier per [ADR 0014](docs/adr/0014-authorial-acceptance-gates-without-external-playtests.md), accepting or source-amending every human-review row in `docs/HISTORICAL_AUDIT.md` | verify: every review row records `accepted` or `amended`, maintainer reviewer, date, and source-backed notes for amendments; `python3 tools/verify_historical_dossier.py` reports `human review signed`
+- [x] P0-126 | deps: P5-014 | deliverable: repair broken local Markdown links in `docs/lore/four_kings_act2_lore.md` so Act 2 lore citations resolve to existing `history/HISTORY.md`, `docs/TOURIST_LANDMARKS.md`, and `docs/LANDMARK_NARRATIVE_INTEGRATION.md` targets | allowed files: `docs/lore/four_kings_act2_lore.md`, `history/HISTORY.md`, `docs/reports/active_markdown_report.md`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 tools/generate_active_docs_report.py --check` passes with zero `BROKEN_LINK` and zero `BROKEN_ANCHOR` issues from `four_kings_act2_lore.md`
 - [x] P0-125 | deps: none | deliverable: extend `docs/HISTORICAL_AUDIT.md` with world-travel wrapper map cards for every `world.*` registry entry and fix `tools/verify_historical_dossier.py` registry-ID parsing so dotted map IDs are validated instead of skipped | verify: `python3 tools/verify_historical_dossier.py` reports signed review over the full registry inventory with zero missing cards; `python3 -m unittest tests.python.test_verify_historical_dossier -v` passes if present
 - [x] P0-112 | deps: none | deliverable: restore shared validation baseline after concurrent character-image and P2-011 scene additions by fixing README character image targets and reconciling `scenes/ui/reflection_overlay.tscn` in the scene inventory and map conversion plan | verify: `python3 tools/generate_active_docs_report.py --check`, `python3 tools/verify_map_conversion_plan.py`, and `python3 -m unittest discover -s tests/python -v` pass
 - [x] P0-113 | deps: none | deliverable: compile a linked set of markdown documents (e.g. `docs/TOURIST_LANDMARKS.md` or a `docs/landmarks/` folder) cataloging notable buildings and locations that tourists typically visit in Reval (Tallinn), mapping them to their 1343 status and organically tying them to in-game lore, factions, and specific map locations | verify: `python3 tools/verify_tourist_landmarks.py` and `python3 -m unittest tests.python.test_verify_tourist_landmarks -v` pass; document contains at least 10 major tourist landmarks with 1343 status notes and links directly to `docs/CANON.md` lore entries

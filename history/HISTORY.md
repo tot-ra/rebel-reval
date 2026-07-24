@@ -97,6 +97,8 @@ The rebels showed no mercy. They moved swiftly through the countryside, slaughte
 
 ![](./2.jpg)
 
+<a id="the-siege-of-reval-and-the-four-kings"></a>
+
 ### The [Siege of Reval](../wiki/events/siege_of_reval.md) and the Four Kings
 
 Having purged the countryside, the Estonian forces, demonstrating remarkable organization, elected four leaders among themselves, crowning them as "kings." This newly formed army, estimated at 10,000 strong, then marched on the fortified city of Reval (Tallinn) and laid siege to it. In the initial confrontation beneath the city walls, the rebels defeated the knights of the Livonian Order.

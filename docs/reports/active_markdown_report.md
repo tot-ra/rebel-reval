@@ -16,34 +16,25 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 - Active Markdown files scanned: `61`
 - Markdown files excluded as archive/reference/out of active scope: `367`
-- Local/external links inspected: `393`
-- Links to active Markdown docs: `173`
+- Local/external links inspected: `399`
+- Links to active Markdown docs: `175`
 - Links to existing archive/reference/non-active local docs: `83`
-- External links skipped for reachability: `27`
-- Issues found: `8`
+- External links skipped for reachability: `32`
+- Issues found: `0`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 1 |
-| `BROKEN_ANCHOR` | 7 |
+| `BROKEN_LINK` | 0 |
+| `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
 | `MISSING_REFERENCE` | 0 |
 
 ## Issues
 
-| Code | Location | Detail |
-| --- | --- | --- |
-| `BROKEN_ANCHOR` | `docs/lore/four_kings_act2_lore.md:19` | Local Markdown link anchor `#the-siege-of-reval-and-the-four-kings` not found in `history/HISTORY.md` |
-| `BROKEN_ANCHOR` | `docs/lore/four_kings_act2_lore.md:108` | Local Markdown link anchor `#paide-castle` not found in `docs/TOURIST_LANDMARKS.md` |
-| `BROKEN_ANCHOR` | `docs/lore/four_kings_act2_lore.md:109` | Local Markdown link anchor `#mäo-hillfort-site` not found in `docs/TOURIST_LANDMARKS.md` |
-| `BROKEN_ANCHOR` | `docs/lore/four_kings_act2_lore.md:109` | Local Markdown link anchor `#mäo` not found in `docs/LANDMARK_NARRATIVE_INTEGRATION.md` |
-| `BROKEN_ANCHOR` | `docs/lore/four_kings_act2_lore.md:110` | Local Markdown link anchor `#rebel-signal-hill` not found in `docs/TOURIST_LANDMARKS.md` |
-| `BROKEN_ANCHOR` | `docs/lore/four_kings_act2_lore.md:111` | Local Markdown link anchor `#paide-castle` not found in `docs/LANDMARK_NARRATIVE_INTEGRATION.md` |
-| `BROKEN_ANCHOR` | `docs/lore/four_kings_act2_lore.md:112` | Local Markdown link anchor `#harju-signal-hill` not found in `docs/LANDMARK_NARRATIVE_INTEGRATION.md` |
-| `BROKEN_LINK` | `docs/lore/four_kings_act2_lore.md:108` | Local Markdown link target does not exist: `../LANDMARK_NARRATIVE_INTEGRATIVE.md#paide-castle` |
+No active Markdown documentation issues found.
 
 ## Active files scanned
 
