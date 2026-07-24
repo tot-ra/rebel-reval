@@ -299,13 +299,22 @@ func test_lower_town_slice_district_life_props_replace_trade_barrel_placeholders
 		_props_of_kind(definition, MapTypes.PROP_KIND_MALT_SACK_PILE).size() >= 1,
 		"Brewery service yard needs malt sacks"
 	)
-	assert_true(
-		_props_of_kind(definition, MapTypes.PROP_KIND_CHARCOAL_PILE).size() >= 1,
-		"Smithy courtyard needs a charcoal pile"
+	# Forge clutter lives in kalev_smithy; outdoor furnace/charcoal/scrap at the
+	# smithy door read as a second forge on the Workers District street.
+	assert_eq(
+		_props_of_kind(definition, MapTypes.PROP_KIND_FURNACE).size(),
+		0,
+		"Workers District must not place a furnace outside the smithy"
 	)
-	assert_true(
-		_props_of_kind(definition, MapTypes.PROP_KIND_IRON_SCRAP_PILE).size() >= 1,
-		"Smithy courtyard needs an iron scrap pile"
+	assert_eq(
+		_props_of_kind(definition, MapTypes.PROP_KIND_CHARCOAL_PILE).size(),
+		0,
+		"Workers District must not place charcoal piles outside the smithy"
+	)
+	assert_eq(
+		_props_of_kind(definition, MapTypes.PROP_KIND_IRON_SCRAP_PILE).size(),
+		0,
+		"Workers District must not place iron scrap outside the smithy"
 	)
 	assert_true(
 		_props_of_kind(definition, MapTypes.PROP_KIND_WASH_TUB).size() >= 1,

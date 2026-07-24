@@ -2275,20 +2275,6 @@
     },
     {
       "footprint": [
-        3040.000000000,
-        2336.000000000,
-        64.000000000,
-        64.000000000
-      ],
-      "id": "courtyard_furnace",
-      "kind": "furnace",
-      "position": [
-        3072.000000000,
-        2368.000000000
-      ]
-    },
-    {
-      "footprint": [
         3136.000000000,
         2432.000000000,
         32.000000000,
@@ -2431,22 +2417,6 @@
       ]
     },
     {
-      "id": "smithy_charcoal",
-      "kind": "charcoal_pile",
-      "position": [
-        3024.000000000,
-        2320.000000000
-      ]
-    },
-    {
-      "id": "smithy_iron_scrap",
-      "kind": "iron_scrap_pile",
-      "position": [
-        2960.000000000,
-        2416.000000000
-      ]
-    },
-    {
       "footprint": [
         2496.000000000,
         3712.000000000,
@@ -2496,7 +2466,7 @@
         1408.000000000,
         3904.000000000
       ],
-      "style_variant": "bush.scrub"
+      "style_variant": "bush.bilberry"
     },
     {
       "footprint": [
@@ -2511,7 +2481,7 @@
         2976.000000000,
         3904.000000000
       ],
-      "style_variant": "bush.dense"
+      "style_variant": "bush.hawthorn"
     },
     {
       "footprint": [
