@@ -58,6 +58,8 @@ static func create_prop(
 		_:
 			if prop["kind"] in MapTypes.DISTRICT_LIFE_PROP_KINDS:
 				_draw_district_life_prop(root, prop["kind"], target, time_of_day)
+			elif prop["kind"] in MapTypes.RURAL_LIFE_PROP_KINDS:
+				_draw_rural_life_prop(root, prop["kind"], target, time_of_day)
 			else:
 				_add_rect(root, "Marker", Vector2(-8, -8), Vector2(16, 16), Color.MAGENTA, target, time_of_day)
 	if prop["kind"] in MapTypes.BOAT_PROP_KINDS and _has_tall_footprint(prop):
@@ -619,6 +621,59 @@ static func _draw_district_life_prop(
 		MapTypes.PROP_KIND_WASH_TUB:
 			_add_circle(parent, "Tub", Vector2(0, 0), 10.0, wood, target, time_of_day)
 			_add_circle(parent, "Water", Vector2(0, -1), 7.0, MapVisualStyle.role_color(&"water_highlight", target, time_of_day), target, time_of_day)
+		_:
+			_add_rect(parent, "Yard", Vector2(-10, -10), Vector2(20, 20), hay.darkened(0.1), target, time_of_day)
+
+
+static func _draw_rural_life_prop(
+	parent: Node2D,
+	kind: StringName,
+	target: StringName,
+	time_of_day: StringName
+) -> void:
+	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
+	var timber := MapVisualStyle.role_color(&"timber", target, time_of_day)
+	var plaster := MapVisualStyle.role_color(&"plaster", target, time_of_day)
+	var hay := MapVisualStyle.role_color(&"hay", target, time_of_day)
+	var vegetation := MapVisualStyle.role_color(&"vegetation", target, time_of_day)
+	var stone := MapVisualStyle.role_color(&"stone", target, time_of_day)
+	match kind:
+		MapTypes.PROP_KIND_KITCHEN_GARDEN:
+			_add_rect(parent, "BedNorth", Vector2(-18, -16), Vector2(36, 10), stone.darkened(0.12), target, time_of_day)
+			_add_rect(parent, "BedSouth", Vector2(-18, 6), Vector2(36, 10), stone.darkened(0.12), target, time_of_day)
+			for index in 3:
+				_add_circle(parent, "Leaf%d" % index, Vector2(-10 + index * 10, -10), 4.0, vegetation, target, time_of_day)
+		MapTypes.PROP_KIND_FIELD_STRIP:
+			for index in 3:
+				_add_rect(parent, "Furrow%d" % index, Vector2(-20, -10 + index * 8), Vector2(40, 4), stone.darkened(0.08), target, time_of_day)
+		MapTypes.PROP_KIND_HAY_WAGON:
+			_add_rect(parent, "Bed", Vector2(-16, -8), Vector2(32, 16), wood, target, time_of_day)
+			_add_circle(parent, "Load", Vector2(0, -2), 12.0, hay, target, time_of_day)
+		MapTypes.PROP_KIND_PASTURE_FENCE:
+			_add_rect(parent, "Rail", Vector2(-20, -4), Vector2(40, 4), timber, target, time_of_day)
+			for index in 4:
+				_add_rect(parent, "Post%d" % index, Vector2(-18 + index * 12, -10), Vector2(4, 14), wood, target, time_of_day)
+		MapTypes.PROP_KIND_PIGSTY:
+			_add_rect(parent, "Pen", Vector2(-16, -10), Vector2(32, 20), stone.darkened(0.18), target, time_of_day)
+			_add_rect(parent, "Roof", Vector2(-14, -14), Vector2(28, 6), hay, target, time_of_day)
+		MapTypes.PROP_KIND_CHICKEN_RUN:
+			_add_rect(parent, "Frame", Vector2(-16, -12), Vector2(32, 24), timber, target, time_of_day)
+			for index in 3:
+				_add_circle(parent, "Hen%d" % index, Vector2(-8 + index * 8, 2), 3.0, plaster, target, time_of_day)
+		MapTypes.PROP_KIND_FLAX_DRYING_FRAME:
+			_add_rect(parent, "Bar", Vector2(-18, -18), Vector2(36, 4), timber, target, time_of_day)
+			for index in 3:
+				_add_rect(parent, "Bundle%d" % index, Vector2(-10 + index * 10, -12), Vector2(4, 16), hay, target, time_of_day)
+		MapTypes.PROP_KIND_ROOT_CELLAR_MOUND:
+			_add_circle(parent, "Mound", Vector2(0, 0), 14.0, stone.darkened(0.1), target, time_of_day)
+			_add_rect(parent, "Door", Vector2(-8, -2), Vector2(16, 10), timber, target, time_of_day)
+		MapTypes.PROP_KIND_ORCHARD_ROW:
+			for index in 3:
+				_add_circle(parent, "Crown%d" % index, Vector2(-12 + index * 12, -6), 7.0, vegetation, target, time_of_day)
+				_add_rect(parent, "Trunk%d" % index, Vector2(-2 + index * 12, 2), Vector2(4, 8), wood, target, time_of_day)
+		MapTypes.PROP_KIND_FARM_CART:
+			_add_rect(parent, "Bed", Vector2(-14, -6), Vector2(28, 12), wood, target, time_of_day)
+			_add_rect(parent, "Crate", Vector2(-6, -10), Vector2(12, 8), plaster, target, time_of_day)
 		_:
 			_add_rect(parent, "Yard", Vector2(-10, -10), Vector2(20, 20), hay.darkened(0.1), target, time_of_day)
 

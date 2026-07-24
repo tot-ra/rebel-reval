@@ -148,6 +148,25 @@ Footprint rules:
 
 New production maps should retire barrel/crate placeholders on plots where one of the kinds above is already defined for that trade.
 
+### Rural-life prop kinds (P0-107)
+
+Peri-urban and foreland agricultural dressing props replace generic `cart`, `hay_stack`, or `timber_fence` stand-ins where a dedicated rural yard read is required. Each kind compiles through the normal `prop` primitive and renders in both 2D and 3D without gameplay hooks. Existing `hay_stack`, `cart`, and `timber_fence` kinds remain valid for simple placements; prefer the rural kinds below when the authored read needs a garden bed, livestock pen, or weathered farm cart.
+
+| Kind | Typical footprint | P0-072 sourcing note |
+|---|---|---|
+| `kitchen_garden` | `rect=2,1` | Kitchen-garden beds beside crofts and service yards (**B**) |
+| `field_strip` | `rect=2,1` | Narrow cereal/flax strips on `farm_soil` margins (**B**) |
+| `hay_wagon` | `rect=2,2` | Loaded hay cart beside meadows and barn aprons (**B**) |
+| `pasture_fence` | `rect=3,1` | Wattle or rail fencing around pasture strips (**B/U**) |
+| `pigsty` | `rect=2,2` | Small contained pig pen near farmsteads (**B/U**) |
+| `chicken_run` | `rect=2,1` | Timber chicken run beside croft yards (**B**) |
+| `flax_drying_frame` | `rect=2,1` | Flax/hemp drying frame distinct from herb racks (**B**) |
+| `root_cellar_mound` | `rect=2,1` | Turf-covered root cellar beside farmhouse walls (**B/U**) |
+| `orchard_row` | `rect=2,1` | Low orchard or fruit-tree row on garden margins (**B**) |
+| `farm_cart` | `rect=2,2` | Weathered single-axle farm cart with shafts (**B**) |
+
+Footprint rules match the P2-025 district-life contract: default single-cell placement, `rect=w,h` only when the yard needs an elongated silhouette (`w * h <= 4` on playable routes), and no blocking of required patrols, transitions, interaction anchors, or evidence routes.
+
 
 For an enterable building, keep the transition rectangle on the walkable approach and set `building_id=<stable building id>`. The 2D trigger remains independently sized for reliable traversal, while the 3D renderer snaps the entrance to the nearest aligned facade and suppresses conflicting procedural facade details. Omit `building_id` for interior wall doors and freestanding gates.
 

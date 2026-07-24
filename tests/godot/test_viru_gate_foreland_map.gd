@@ -118,6 +118,71 @@ func test_kalamaja_is_not_a_pirita_neighbor() -> void:
 	assert_false(DoorNavigator.has_spawn(&"reval_harbor_east", &"from_reval_east"))
 
 
+func test_pirita_travel_apron_carries_roadside_inn_clutter() -> void:
+	var definition: MapDefinition = ForelandDefinition.create()
+	var prop_ids: Dictionary = {}
+	var prop_kinds: Dictionary = {}
+	const forbidden_harbour_kinds := [
+		MapTypes.PROP_KIND_FISHING_NETS,
+		MapTypes.PROP_KIND_FISH_DRYING_RACK,
+		MapTypes.PROP_KIND_SMOKE_RACK,
+		MapTypes.PROP_KIND_FISH_SPLITTING_TABLE,
+		MapTypes.PROP_KIND_BOAT_TIMBER_STACK,
+		MapTypes.PROP_KIND_ROPE_COIL,
+		MapTypes.PROP_KIND_SAIL_CLOTH_BALE,
+		MapTypes.PROP_KIND_SALT_PILE,
+		MapTypes.PROP_KIND_CARGO_CRATES,
+		MapTypes.PROP_KIND_TRADE_GOODS,
+		MapTypes.PROP_KIND_FISHING_BOAT,
+		MapTypes.PROP_KIND_MERCHANT_BOAT,
+	]
+	var has_road_inn := false
+	for building in definition.buildings:
+		if building.get("id") == &"road_inn":
+			has_road_inn = true
+	for prop in definition.props:
+		var prop_id: StringName = prop.get("id", &"")
+		var kind: StringName = prop.get("kind", &"")
+		prop_ids[prop_id] = true
+		prop_kinds[kind] = true
+		assert_false(kind in forbidden_harbour_kinds, "foreland must not reuse harbour prop %s" % kind)
+	assert_true(has_road_inn, "Pirita foreland needs a roadside inn read beside the Viru road")
+	for required_id in [
+		&"road.inn_barrels",
+		&"road.apron_barrels_west",
+		&"road.apron_barrels_east",
+		&"road.apron_hay",
+		&"road.scrub_bridge",
+		&"bridge.pack_horse",
+	]:
+		assert_true(prop_ids.has(required_id), "travel apron must author %s" % required_id)
+	assert_true(prop_kinds.has(MapTypes.PROP_KIND_BARRELS), "travel apron must carry traveler barrels")
+	assert_true(prop_kinds.has(MapTypes.PROP_KIND_HAY_STACK), "travel apron must carry hay beside the road")
+	assert_true(prop_kinds.has(MapTypes.PROP_KIND_BUSH), "travel apron needs scrub margins beside the road")
+
+
+func test_pirita_foreland_carries_rural_life_dressing() -> void:
+	var definition: MapDefinition = ForelandDefinition.create()
+	var kinds: Dictionary = {}
+	for prop in definition.props:
+		var kind: StringName = prop.get("kind", &"")
+		if kind in MapTypes.RURAL_LIFE_PROP_KINDS:
+			kinds[kind] = true
+	for required in [
+		MapTypes.PROP_KIND_KITCHEN_GARDEN,
+		MapTypes.PROP_KIND_FIELD_STRIP,
+		MapTypes.PROP_KIND_HAY_WAGON,
+		MapTypes.PROP_KIND_PASTURE_FENCE,
+		MapTypes.PROP_KIND_PIGSTY,
+		MapTypes.PROP_KIND_CHICKEN_RUN,
+		MapTypes.PROP_KIND_FLAX_DRYING_FRAME,
+		MapTypes.PROP_KIND_ROOT_CELLAR_MOUND,
+		MapTypes.PROP_KIND_ORCHARD_ROW,
+		MapTypes.PROP_KIND_FARM_CART,
+	]:
+		assert_true(kinds.has(required), "Pirita foreland must author %s for rural reads" % required)
+
+
 func test_pirita_masks_off_limits_edges_with_dense_woodland() -> void:
 	var definition: MapDefinition = ForelandDefinition.create()
 	var view := MapView3D.create(definition, MapBuilder.build(definition))
