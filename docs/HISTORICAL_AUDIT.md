@@ -321,7 +321,7 @@ The numeric ranges below use these definitions:
 
 | Category | 1343 target | Evidence |
 |---|---|---|
-| Street/property layout | One compact civic hall interior entered from the market-square threshold: public entry, petition zone, council dais, scribe/archive bay, and hearth/service strip. Exact room count, ceiling height, and window rhythm beyond the surviving first-quarter-14th-century hall mass are **D/U** | H06 records local-limestone town hall in 1322 and early-14th-century expansion; present vaulted upper hall/tower postdates 1343 |
+| Street/property layout | Three-room sequence modeled on the surviving Raekoda plan (W. Neumann & E. Nottbeck, *Reval* 1904): west Burghers' Hall with two aisle pillars, central Councillors' Hall, and an east strip of kämmerei/treasury/kitchen rooms entered from the market-square threshold. Exact 1343 room count remains **D/U**; the post-1404 partitions are a deliberate legibility choice matching the exterior arcade - **B/D** | H06; [Medieval Heritage - Tallinn Town Hall](https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-town-hall/) |
 | Density | Built footprint is 100% because this blueprint is an interior. Within the footprint, circulation/open floor should remain 45-60% and fixed platforms/furnishings 40-55% - **B/D** | H06; gameplay clearance around `council_dais`, `petition_desk`, and `scribe_archive` remains authoritative |
 | Ordinary / exceptional buildings | Heavy timber floor, limewashed plaster walls, and local limestone at threshold, council dais, and hearth; no Gothic tower, upper storey, coats-of-arms gallery, or post-1404 ceremonial sequence - **A/B/D/U** | H06; `market_civic_quarter` exclusions |
 | Roof covers | Roof is not normally visible. If exposed by inspection view, use shingle or tile on a modest elongated civic hall shorter than the post-1371 mass; thatch is not expected on the attested stone hall - **B/U** | H06 and shared roof rule |
@@ -332,7 +332,7 @@ The numeric ranges below use these definitions:
 | Garden / agricultural use | None inside this blueprint. Petition and council business draw on off-map market trade - **D/U** | Interior scope |
 | Domestic / wild fauna | Resident livestock and wild fauna: `none`. At most one commensal rodent or cat cue may be `trace` and **D/U** | H18; exact civic-hall fauna unknown |
 | Topography | Nearly level usable floor with a low council dais; no exterior hill claim - **D** | Interior gameplay abstraction |
-| Landmarks | Council dais, petition desk, scribe archive, civic hearth, and square return door remain stable gameplay anchors; exact burgomaster roster and trial procedure are **D**, while the post-1402-04 upper hall, tower, and later ceremonial room sequence must not be presented as attested 1343 fabric | H06, H07, and `market_civic_quarter` exclusions |
+| Landmarks | Council dais, petition desk, scribe archive, civic hearth, and square return door remain stable gameplay anchors; exact burgomaster roster and trial procedure are **D**, while the post-1402-04 upper hall, tower, and coats-of-arms gallery must not be presented as attested 1343 fabric. Interior partitions quote the surviving west-to-east Burghers'/Councillors'/service sequence for player legibility - **B/D** | H06, H07, Neumann & Nottbeck plan, and `market_civic_quarter` exclusions |
 
 #### `north_quarter` - northern merchant ward and Coastal Gate approach
 
