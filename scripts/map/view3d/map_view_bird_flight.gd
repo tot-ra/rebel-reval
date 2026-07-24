@@ -1,8 +1,8 @@
 class_name MapViewBirdFlight
 extends Node3D
 
-## Deterministic gliding bird silhouettes for outdoor maps (P0-105b). Species
-## selection reuses P0-117 spawn weights; song playback remains P0-105a scope.
+## Deterministic gliding bird silhouettes for outdoor maps (P0-105). Species
+## selection reuses P0-117 spawn weights; song playback is MapViewBirdAmbientAudio.
 
 const BirdAmbientAudio := preload("res://scripts/map/view3d/map_view_bird_ambient_audio.gd")
 const BirdMeshes := preload("res://scripts/map/view3d/map_view_bird_meshes.gd")

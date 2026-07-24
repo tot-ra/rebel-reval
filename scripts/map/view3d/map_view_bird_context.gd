@@ -2,7 +2,7 @@ class_name MapViewBirdContext
 extends RefCounted
 
 ## Maps retained outdoor map IDs to the P0-117 bird habitat contexts used for
-## spawn-weight selection. Flight meshes and penned livestock remain P0-105/P2-024.
+## spawn-weight selection. Penned livestock and urban mammals remain P0-106/P2-024.
 
 const BirdSpecies := preload("res://scripts/map/view3d/map_view_bird_species.gd")
 

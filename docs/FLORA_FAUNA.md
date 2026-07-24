@@ -9,7 +9,7 @@ This is the implementation ledger for Reval vegetation. It distinguishes concret
 - **Ground-cover styles: 8/8 supported.** These are visual/ecological cover presets, not eight botanical species. Registration and density rules: [`terrain_vegetation.gd`](../scripts/map/terrain_vegetation.gd).
 - **Rendering: complete for the scoped flora system.** [`map_view_mesh_builder_scatter.gd`](../scripts/map/view3d/map_view_mesh_builder_scatter.gd) batches each tree or plant species with cached meshes and `MultiMesh`; [`map_view_terrain_details.gd`](../scripts/map/view3d/map_view_terrain_details.gd) adds first-person grass, dry seed heads, clover, and fern detail.
 - **Imported 3D flora assets: none by design.** Runtime vegetation is deterministic procedural geometry. Images under [`archive/2d_sprites_inspiration/assets/trees/`](../archive/2d_sprites_inspiration/assets/trees/) are references only and are not gameplay models.
-- **Birds: 30/30 target species cataloged with procedural reference meshes.** Catalog, acoustic stubs, and district spawn weights: [`map_view_bird_species.gd`](../scripts/map/view3d/map_view_bird_species.gd). Cached low-poly meshes: [`map_view_bird_meshes.gd`](../scripts/map/view3d/map_view_bird_meshes.gd). Reference sheet: [`p0_117_bird_reference_sheet.png`](reports/images/fauna/p0_117_bird_reference_sheet.png). District song playback is **P0-105a**; gliding flight actors are **P0-105b**; flock paths and full **P0-105** integration remain open.
+- **Birds: 30/30 target species cataloged with procedural reference meshes and runtime ambient playback.** Catalog, processed clips, district spawn weights, positional song scheduling, and gliding flight actors: [`map_view_bird_species.gd`](../scripts/map/view3d/map_view_bird_species.gd), [`map_view_bird_ambient_audio.gd`](../scripts/map/view3d/map_view_bird_ambient_audio.gd), [`map_view_bird_flight.gd`](../scripts/map/view3d/map_view_bird_flight.gd). Cached low-poly meshes: [`map_view_bird_meshes.gd`](../scripts/map/view3d/map_view_bird_meshes.gd). Reference sheet: [`p0_117_bird_reference_sheet.png`](reports/images/fauna/p0_117_bird_reference_sheet.png). Urban mammals remain **P2-024**; penned livestock remain **P0-106**.
 - **Other fauna: not yet modeled.** Ambient mammals and penned livestock are **P0-118** / **P0-106**; folklore bestiary content is not an ambient-fauna system.
 
 Status vocabulary:
@@ -88,7 +88,7 @@ Plant tests: [`test_map_view_plant_species.gd`](../tests/godot/test_map_view_pla
 
 ## Bird model ledger (30/30)
 
-`bird.*` IDs identify north-Baltic ambient species. Optional pose suffixes `.standing`, `.perched`, and `.gliding` select cached reference meshes. Song metadata is a stub only; playback and spawn selection belong to **P0-105**.
+`bird.*` IDs identify north-Baltic ambient species. Optional pose suffixes `.standing`, `.perched`, and `.gliding` select cached reference meshes. Processed clips, district spawn weights, and runtime scheduling are implemented under **P0-105**.
 
 | Bird | Runtime ID | Group | Status |
 |---|---|---|---|
@@ -163,5 +163,5 @@ The scoped tree/herb model system is complete at the target catalog size. Remain
 
 - seasonal states, harvest interactions, inventory items, and regrowth simulation;
 - species-specific collision or movement beyond current zone/prop multipliers;
-- ambient bird spawning/flight/song playback (**P0-105**), mammals, insects, fish, and their behavior/audio systems;
+- ambient mammals, insects, fish, and their behavior/audio systems (**P0-106**, **P2-024**, **P0-118**);
 - art-direction review from gameplay camera and performance profiling on target hardware.

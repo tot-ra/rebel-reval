@@ -7,6 +7,10 @@
 # Documentation manifest generated/imported by Godot as a translation CSV; keep only the source CSV.
 /assets/SOURCES.csv.import
 /assets/SOURCES.*.translation
+# Bird and weather manifest CSVs are tooling inputs; Godot import sidecars are not tracked.
+/sounds/birds/manifest.*.translation
+/sounds/birds/processed_manifest.*.translation
+/sounds/weather/manifest.*.translation
 # Local export artifacts and generated benchmark reports
 /build/
 /bin/

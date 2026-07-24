@@ -39,6 +39,20 @@ func test_harbor_context_schedules_distinct_daytime_song_cues() -> void:
 	assert_true(cues.size() >= 3, "Harbour day cycle should surface at least three song cues")
 
 
+func test_lower_town_night_cycle_schedules_owl_margin_cues() -> void:
+	var cues := BirdAmbientAudio.distinct_cues_for_context(
+		&"lower_town_slice",
+		BirdContext.context_for_map(&"lower_town_slice"),
+		0.92,
+		64
+	)
+	assert_true(cues.size() >= 1, "Lower Town night cycle should schedule at least one night-margin song cue")
+	assert_true(
+		cues.has(&"bird.tawny_owl.call") or cues.has(&"bird.common_nightingale.song"),
+		"Night scheduling should surface owl or nightingale cues at town margins"
+	)
+
+
 func test_species_selection_is_deterministic_for_seed_and_tick() -> void:
 	var first := BirdAmbientAudio.pick_species(&"lower_town_slice", BirdSpecies.CONTEXT_LOWER_TOWN, 0.35, 7)
 	var second := BirdAmbientAudio.pick_species(&"lower_town_slice", BirdSpecies.CONTEXT_LOWER_TOWN, 0.35, 7)

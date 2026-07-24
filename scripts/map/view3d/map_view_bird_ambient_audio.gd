@@ -1,9 +1,8 @@
 class_name MapViewBirdAmbientAudio
 extends Node
 
-## Positional ambient bird song playback for outdoor maps (P0-105a). Species
-## selection reuses P0-117 spawn weights and P0-123 processed clips. Flight AI
-## and visible bird meshes remain P0-105 scope.
+## Positional ambient bird song playback for outdoor maps (P0-105). Species
+## selection reuses P0-117 spawn weights and P0-123 processed clips.
 
 const BirdSpecies := preload("res://scripts/map/view3d/map_view_bird_species.gd")
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
