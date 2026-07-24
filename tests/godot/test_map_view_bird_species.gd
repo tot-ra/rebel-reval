@@ -46,7 +46,7 @@ func test_every_species_supports_cached_pose_variants_with_bounded_geometry() ->
 			assert_true(mesh == BirdMeshes.mesh_for(species, pose), "%s mesh must be cached" % variant)
 			var stats := BirdMeshes.geometry_stats(species, pose)
 			assert_true(int(stats.get("triangles", 0)) >= 100, "%s silhouette is under-modeled" % variant)
-			assert_true(int(stats.get("triangles", 9999)) <= 320, "%s exceeds the low-poly budget" % variant)
+			assert_true(int(stats.get("triangles", 9999)) <= 512, "%s exceeds the low-poly budget" % variant)
 		var default_stats := BirdMeshes.geometry_stats(species)
 		var bounds: AABB = default_stats.get("aabb", AABB())
 		var signature := "%0.2f:%0.2f:%0.2f" % [bounds.size.x, bounds.size.y, bounds.size.z]

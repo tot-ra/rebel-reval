@@ -7,8 +7,10 @@ extends RefCounted
 
 const BirdSpecies := preload("res://scripts/map/view3d/map_view_bird_species.gd")
 const RADIAL_SEGMENTS := 6
-const BODY_SEGMENTS := 8
-const BODY_RINGS := 5
+const BODY_SEGMENTS := 12
+const BODY_RINGS := 7
+const HEAD_SEGMENTS := 8
+const HEAD_RINGS := 5
 
 static var _mesh_cache: Dictionary = {}
 
@@ -62,7 +64,17 @@ static func _build_mesh(species: StringName, pose: StringName) -> ArrayMesh:
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 
 	var body_center := Vector3(0.0, leg_length + body_radius.y * 1.05, 0.0)
-	_append_ellipsoid(surface, body_center, body_radius, colors[0], BODY_SEGMENTS, BODY_RINGS)
+	# Countershaded body: lower rings blend toward the breast/belly tone so
+	# robins, tits, and gulls read as two-tone birds instead of single-color eggs.
+	_append_ellipsoid(
+		surface,
+		body_center,
+		body_radius,
+		colors[0],
+		BODY_SEGMENTS,
+		BODY_RINGS,
+		BirdSpecies.breast_color_for(species)
+	)
 
 	var neck_start := body_center + Vector3(0.0, body_radius.y * 0.38, -body_radius.z * 0.58)
 	var neck_end := neck_start + Vector3(0.0, neck_length * 0.86, -neck_length * 0.28)
@@ -85,11 +97,15 @@ static func _build_mesh(species: StringName, pose: StringName) -> ArrayMesh:
 		head_center,
 		Vector3(head_radius * 0.88, head_radius, head_radius * 0.92),
 		colors[1],
-		7,
-		4
+		HEAD_SEGMENTS,
+		HEAD_RINGS
 	)
 	_append_beak(surface, head_center, head_radius, beak_length, colors[2])
 	_append_eyes(surface, head_center, head_radius)
+	if BirdSpecies.has_crest(species):
+		_append_crest(surface, head_center, head_radius, colors[1])
+	if BirdSpecies.group_for(species) == BirdSpecies.GROUP_OWL:
+		_append_facial_disc(surface, head_center, head_radius, colors[2])
 
 	if pose == BirdSpecies.POSE_GLIDING:
 		_append_extended_wings(surface, body_center, body_radius, wing_span, wing_chord, colors[1])
@@ -121,25 +137,37 @@ static func _append_extended_wings(
 	var half_span := maxf(wing_span * 0.5, body_radius.x * 1.4)
 	for side_sign in [-1.0, 1.0]:
 		var shoulder := body_center + Vector3(side_sign * body_radius.x * 0.58, body_radius.y * 0.32, -body_radius.z * 0.08)
-		var elbow := shoulder + Vector3(side_sign * half_span * 0.44, half_span * 0.05, -wing_chord * 0.05)
+		var elbow := shoulder + Vector3(side_sign * half_span * 0.30, half_span * 0.03, -wing_chord * 0.03)
+		var wrist := shoulder + Vector3(side_sign * half_span * 0.62, half_span * 0.07, wing_chord * 0.05)
 		var tip := shoulder + Vector3(side_sign * half_span, half_span * 0.10, wing_chord * 0.14)
-		var rear_tip := tip + Vector3(-side_sign * half_span * 0.12, -half_span * 0.035, wing_chord * 0.30)
-		var rear_elbow := elbow + Vector3(-side_sign * half_span * 0.05, -half_span * 0.025, wing_chord * 0.72)
+		# Trailing edge points mirror the leading edge so each arm/hand panel
+		# keeps a believable chord instead of collapsing into a flat ribbon.
 		var rear_shoulder := shoulder + Vector3(0.0, -half_span * 0.015, body_radius.z * 0.82)
-		_append_quad(surface, shoulder, elbow, rear_elbow, rear_shoulder, color)
-		_append_quad(surface, elbow, tip, rear_tip, rear_elbow, color.darkened(0.05))
-		# Three separated outer primaries keep raptors, gulls, and swallows from
+		var rear_elbow := elbow + Vector3(-side_sign * half_span * 0.03, -half_span * 0.02, wing_chord * 0.66)
+		var rear_wrist := wrist + Vector3(-side_sign * half_span * 0.05, -half_span * 0.03, wing_chord * 0.52)
+		var rear_tip := tip + Vector3(-side_sign * half_span * 0.10, -half_span * 0.035, wing_chord * 0.30)
+		_append_quad(surface, shoulder, elbow, rear_elbow, rear_shoulder, color.lightened(0.04))
+		_append_quad(surface, elbow, wrist, rear_wrist, rear_elbow, color)
+		_append_quad(surface, wrist, tip, rear_tip, rear_wrist, color.darkened(0.05))
+		# Five separated outer primaries keep raptors, gulls, and swallows from
 		# reading as a single rectangular aircraft wing at gameplay scale.
-		for feather_index in 3:
-			var feather_t := float(feather_index) / 3.0
-			var root := elbow.lerp(tip, 0.38 + feather_t * 0.34)
+		for feather_index in 5:
+			var feather_t := float(feather_index) / 5.0
+			var anchor := wrist.lerp(tip, 0.15 + feather_t * 0.55)
+			var rear_anchor := rear_wrist.lerp(rear_tip, 0.15 + feather_t * 0.55)
 			var feather_tip := tip + Vector3(
-				-side_sign * half_span * feather_t * 0.08,
-				-half_span * feather_t * 0.015,
-				wing_chord * (0.18 + feather_t * 0.20)
+				-side_sign * half_span * feather_t * 0.10,
+				-half_span * feather_t * 0.02,
+				wing_chord * (0.16 + feather_t * 0.22)
 			)
-			var width := maxf(wing_chord * 0.10, 0.012)
-			_append_feather(surface, root, feather_tip, width, color.darkened(0.03 * float(feather_index)))
+			var width := maxf(wing_chord * (0.11 - feather_t * 0.03), 0.010)
+			_append_feather(
+				surface,
+				anchor.lerp(rear_anchor, 0.25),
+				feather_tip,
+				width,
+				color.darkened(0.02 + 0.03 * float(feather_index))
+			)
 
 
 static func _append_folded_wings(
@@ -155,8 +183,16 @@ static func _append_folded_wings(
 		var top := shoulder + Vector3(0.0, body_radius.y * 0.22, wing_length * 0.22)
 		var tip := shoulder + Vector3(-side_sign * body_radius.x * 0.10, -body_radius.y * 0.32, wing_length)
 		var lower := shoulder + Vector3(0.0, -body_radius.y * 0.45, wing_length * 0.34)
-		_append_colored_triangle(surface, shoulder, top, tip, color)
-		_append_colored_triangle(surface, shoulder, tip, lower, color.darkened(0.08))
+		# Layered coverts plus separated folded flight feathers replace the old
+		# two-triangle slab so perched and standing birds show a real wing shape.
+		_append_colored_triangle(surface, shoulder, top, tip, color.lightened(0.03))
+		_append_colored_triangle(surface, shoulder, tip, lower, color.darkened(0.06))
+		var inner_top := shoulder + Vector3(-side_sign * body_radius.x * 0.16, body_radius.y * 0.10, wing_length * 0.30)
+		var inner_tip := shoulder + Vector3(-side_sign * body_radius.x * 0.22, -body_radius.y * 0.26, wing_length * 0.92)
+		var inner_lower := shoulder + Vector3(-side_sign * body_radius.x * 0.06, -body_radius.y * 0.38, wing_length * 0.40)
+		_append_colored_triangle(surface, inner_top, inner_tip, inner_lower, color.darkened(0.12))
+		var primary_tip := shoulder + Vector3(-side_sign * body_radius.x * 0.05, -body_radius.y * 0.30, wing_length * 1.04)
+		_append_feather(surface, lower, primary_tip, maxf(body_radius.x * 0.20, 0.010), color.darkened(0.16))
 
 
 static func _append_tail(
@@ -176,14 +212,18 @@ static func _append_tail(
 			_append_feather(surface, feather_root, tip, maxf(half_width * 0.38, 0.012), color)
 	else:
 		var end := root + Vector3(0.0, -body_radius.y * 0.12, tail_length)
-		_append_quad(
-			surface,
-			root + Vector3(-half_width, 0.0, 0.0),
-			root + Vector3(half_width, 0.0, 0.0),
-			end + Vector3(half_width * 0.58, 0.0, 0.0),
-			end + Vector3(-half_width * 0.58, 0.0, 0.0),
-			color
-		)
+		# Three overlapping rectrices fan out instead of a single flat card.
+		for feather_index in 3:
+			var offset := float(feather_index - 1)
+			var feather_root := root + Vector3(offset * half_width * 0.55, 0.0, 0.0)
+			var feather_tip := end + Vector3(offset * half_width * 0.72, 0.0, 0.0)
+			_append_feather(
+				surface,
+				feather_root,
+				feather_tip,
+				maxf(half_width * 0.42, 0.012),
+				color.darkened(0.03 * absf(offset))
+			)
 
 
 static func _append_legs(
@@ -206,6 +246,9 @@ static func _append_legs(
 			var spread := float(toe_index - 1) * leg_length * 0.16
 			var toe_end := bottom + Vector3(spread, -leg_length * 0.02, -leg_length * 0.22)
 			_append_tapered_tube(surface, bottom, toe_end, maxf(leg_length * 0.018, 0.003), 0.002, color.darkened(0.08), 4)
+		# Rear hallux toe keeps perched birds from standing on tripod stilts.
+		var heel := bottom + Vector3(0.0, -leg_length * 0.015, leg_length * 0.16)
+		_append_tapered_tube(surface, bottom, heel, maxf(leg_length * 0.016, 0.003), 0.002, color.darkened(0.08), 4)
 
 
 static func _append_beak(
@@ -226,6 +269,39 @@ static func _append_beak(
 		color,
 		5
 	)
+	# Separate lower mandible reads as a real beak silhouette in profile.
+	var lower_root := root + Vector3(0.0, -head_radius * 0.10, head_radius * 0.06)
+	var lower_tip := root + Vector3(0.0, -beak_length * 0.16, -beak_length * 0.84)
+	_append_tapered_tube(
+		surface,
+		lower_root,
+		lower_tip,
+		maxf(head_radius * 0.20, 0.006),
+		0.001,
+		color.darkened(0.10),
+		5
+	)
+
+
+static func _append_crest(surface: SurfaceTool, head_center: Vector3, head_radius: float, color: Color) -> void:
+	# Thin swept-back crest feather (northern lapwing) anchored on the crown.
+	var root := head_center + Vector3(0.0, head_radius * 0.86, head_radius * 0.10)
+	var tip := root + Vector3(0.0, head_radius * 0.55, head_radius * 1.35)
+	_append_feather(surface, root, tip, maxf(head_radius * 0.09, 0.004), color.darkened(0.06))
+
+
+static func _append_facial_disc(surface: SurfaceTool, head_center: Vector3, head_radius: float, color: Color) -> void:
+	# Flattened pale disc sells the owl face without modelling individual feathers.
+	# It must sit proud of the head ellipsoid front (z radius 0.92) to stay visible.
+	var disc_center := head_center + Vector3(0.0, head_radius * 0.05, -head_radius * 0.84)
+	_append_ellipsoid(
+		surface,
+		disc_center,
+		Vector3(head_radius * 0.72, head_radius * 0.78, head_radius * 0.22),
+		color.lightened(0.10),
+		6,
+		3
+	)
 
 
 static func _append_eyes(surface: SurfaceTool, head_center: Vector3, head_radius: float) -> void:
@@ -240,11 +316,21 @@ static func _append_ellipsoid(
 	radius: Vector3,
 	color: Color,
 	segments: int,
-	rings: int
+	rings: int,
+	belly_color := Color(0.0, 0.0, 0.0, 0.0)
 ) -> void:
 	for ring_index in rings:
 		var latitude_a := -PI * 0.5 + PI * float(ring_index) / float(rings)
 		var latitude_b := -PI * 0.5 + PI * float(ring_index + 1) / float(rings)
+		# Rings below the equator blend toward the breast tone; the topmost ring
+		# darkens slightly so the mantle reads as separate from the belly.
+		var latitude_mid := (latitude_a + latitude_b) * 0.5
+		var ring_color := color
+		if belly_color.a > 0.0:
+			var belly_mix := clampf(-sin(latitude_mid) * 1.5 + 0.15, 0.0, 1.0)
+			ring_color = color.lerp(belly_color, belly_mix)
+		var mantle_mix := clampf(sin(latitude_mid) - 0.55, 0.0, 1.0) * 0.08
+		ring_color = ring_color.darkened(mantle_mix)
 		for segment_index in segments:
 			var longitude_a := TAU * float(segment_index) / float(segments)
 			var longitude_b := TAU * float(segment_index + 1) / float(segments)
@@ -252,8 +338,8 @@ static func _append_ellipsoid(
 			var b := center + _ellipsoid_point(radius, latitude_a, longitude_b)
 			var c := center + _ellipsoid_point(radius, latitude_b, longitude_b)
 			var d := center + _ellipsoid_point(radius, latitude_b, longitude_a)
-			_append_colored_triangle(surface, a, b, c, color)
-			_append_colored_triangle(surface, a, c, d, color)
+			_append_colored_triangle(surface, a, b, c, ring_color)
+			_append_colored_triangle(surface, a, c, d, ring_color)
 
 
 static func _ellipsoid_point(radius: Vector3, latitude: float, longitude: float) -> Vector3:
