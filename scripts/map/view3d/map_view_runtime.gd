@@ -17,6 +17,8 @@ const RuntimeActors := preload("res://scripts/map/view3d/map_view_runtime_actors
 const BirdAmbientAudio := preload("res://scripts/map/view3d/map_view_bird_ambient_audio.gd")
 const BirdContext := preload("res://scripts/map/view3d/map_view_bird_context.gd")
 const BirdFlight := preload("res://scripts/map/view3d/map_view_bird_flight.gd")
+const InsectAmbientAudio := preload("res://scripts/map/view3d/map_view_insect_ambient_audio.gd")
+const InsectContext := preload("res://scripts/map/view3d/map_view_insect_context.gd")
 
 ## Compatibility aliases keep the runtime's public locomotion thresholds stable.
 const WALK_ANIMATION_MIN_SPEED := RuntimeActors.WALK_ANIMATION_MIN_SPEED
@@ -86,6 +88,8 @@ var _bird_audio
 var _bird_audio_enabled := true
 var _bird_flight
 var _bird_flight_enabled := true
+var _insect_audio
+var _insect_audio_enabled := true
 
 
 static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasItem, player: CharacterBody2D) -> MapViewRuntime:
@@ -137,6 +141,7 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 	runtime._sync_music_cycle()
 	runtime._install_bird_audio()
 	runtime._install_bird_flight()
+	runtime._install_insect_audio()
 	runtime._install_click_input(scene_root)
 	return runtime
 
@@ -186,6 +191,26 @@ func _install_bird_audio() -> void:
 	add_child(_bird_audio)
 	var context := BirdContext.context_for_map(_definition.map_id)
 	_bird_audio.configure(_definition.map_id, context)
+
+
+func set_insect_audio_enabled(enabled: bool) -> void:
+	_insect_audio_enabled = enabled
+	if _insect_audio != null:
+		_insect_audio.set_audio_enabled(enabled)
+
+
+func insect_audio_active_voice_count() -> int:
+	if _insect_audio == null:
+		return 0
+	return _insect_audio.active_voice_count()
+
+
+func _install_insect_audio() -> void:
+	_insect_audio = InsectAmbientAudio.new()
+	_insect_audio.name = "InsectAmbientAudio"
+	add_child(_insect_audio)
+	var context := InsectContext.context_for_map(_definition.map_id)
+	_insect_audio.configure(_definition.map_id, context)
 
 
 func _install_click_input(_scene_root: Node2D) -> void:
@@ -303,6 +328,7 @@ func _process(delta: float) -> void:
 		return
 	_sync_bird_audio(delta)
 	_sync_bird_flight(delta)
+	_sync_insect_audio(delta)
 	_apply_view_rotation(delta)
 	_sync_player(false, delta)
 	_actor_controller.sync_view_actors(delta)
@@ -503,6 +529,17 @@ func _sync_bird_flight(delta: float) -> void:
 		return
 	var context := BirdContext.context_for_map(_definition.map_id)
 	_bird_flight.sync(context, cycle_progress, delta, _bird_flight_enabled)
+
+
+func _sync_insect_audio(delta: float) -> void:
+	if _insect_audio == null or _definition == null or view == null:
+		return
+	if _definition.suppresses_exterior_surroundings():
+		_insect_audio.sync(&"", cycle_progress, Vector3.ZERO, delta, false)
+		return
+	var context := InsectContext.context_for_map(_definition.map_id)
+	var listener := _camera.global_position if _camera != null else Vector3.ZERO
+	_insect_audio.sync(context, cycle_progress, listener, delta, _insect_audio_enabled)
 
 
 func _sync_player(snap: bool, delta: float = 0.0) -> void:
