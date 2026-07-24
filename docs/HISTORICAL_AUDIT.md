@@ -197,6 +197,12 @@ The numeric ranges below use these definitions:
 | H17 | [Johanson, Unt and Hiie, Archaeobotany in Estonia](https://doi.org/10.3176/arch.2025.1.02) | Medieval town occupation layers in Tallinn and other Estonian towns preserve plant remains; cultivated grains and other macroremains are documented regionally | Sampling is extremely uneven and context reporting is often weak; it does not establish an exact 1343 species mix or planted-area share for any retained map |
 | H18 | [Rannamäe and Aguraiuja-Lätti, Livestock and game in medieval and early modern Estonia](https://doi.org/10.3176/arch.2023.3S.03) | Cattle, sheep, goats, pigs and horses dominate studied domestic mammal assemblages; cattle are most abundant; Tallinn suburban sites are included; wild mammals are proportionally scarce | Aggregates 13th-18th-century consumption and husbandry evidence; bones do not prove live-animal density or a particular 1343 plot assignment |
 | H19 | [Ehrlich, Aguraiuja-Lätti and Haak, Bird exploitation in medieval and early modern Estonia](https://doi.org/10.3176/arch.2023.3S.05) | Chicken is the most common bird across most sites, followed broadly by goose and duck; Tallinn urban/suburban material is represented and coastal assemblages contain more waterfowl | Broad ca. 1200-1800 assemblages, with Tallinn material mainly suburban; does not establish exact pen locations, flock sizes, or a 1343 district ratio |
+| H20 | [Medieval Heritage - Paide Castle](https://medievalheritage.eu/en/main-page/heritage/estonia/paide-castle/) | Order stronghold in central Estonia; chronicle tradition records St George's Night battles and the Four Kings' fate at Paide | Exact 1343 yard plan and tower mass are reconstructed; present tower is later |
+| H21 | [Padise Monastery museum](https://www.padisemuuseum.ee/en/monastery/) | Cistercian abbey founded 1310; stone church, cloister precinct, gatehouse and farm/mill dependencies | Much present fabric is post-1343; monastery damage phases remain gameplay metadata |
+| H22 | [Uus and Uus, Traditional Log Building in Estonia](http://www.goosewingtimberworks.com/wp-content/uploads/2019/07/TF-107-Estonia.pdf) | Rural timber farmhouses, barns, threshing yards, field strips and packed-earth village roads | Verifiable farm forms; exact Harju hamlet graph is **D** |
+| H23 | [Estonian folklore synthesis](lore/estonian_folklore.md) | Sacred groves (hiis), offering stones, soul-tree belief and animist ritual margins outside parish cores | Folklore and chronicle-adjacent belief; no attested 1343 grove coordinates |
+| H24 | [Medieval Heritage - Pöide Castle](https://medievalheritage.eu/en/main-page/heritage/estonia/poide-castle/) | Bishopric stronghold on Saaremaa; island coastal access and siege setting | 1343 mass is partly reconstructed; later rebuilding is excluded |
+| H25 | [Medieval Heritage - Pärnu](https://medievalheritage.eu/en/main-page/heritage/estonia/parnu/) | Hanseatic river-mouth port and modest town fortifications in southern Estonia | Exact 1343 street plan and harbour works are **U**; later town growth is excluded |
 
 ### Shared 1343 constraints
 
@@ -436,6 +442,176 @@ The numeric ranges below use these definitions:
 | Topography | Low coastal plain with moving shoreline and shallow/wet margins. Modern coast and filled Kadriorg levels cannot be copied as 1343 - **A/B/U** | H16 |
 | Landmarks | Fishing boats and net-drying are plausible functional markers, but exact types/counts and this district assignment are **D/B**. Regular stone quay, stone piers and customs store are **U** and should be replaced by reversible timber/rubble landings before historical acceptance | H16 |
 
+#### `world.sacred_grove` - forest hiis and offering margin (world-travel wrapper)
+
+| Category | 1343 target | Evidence |
+|---|---|---|
+| Street/property layout | One irregular forest track to a cleared ritual ring with an ancient oak, offering stone and bog spring margin; exact grove coordinates are **D** - **B/D/U** | H23; gameplay grove assignment is invented |
+| Density | On developable land built 0-3%, open 97-100%. Tree canopy and understorey dominate; the clearing is intentionally small - **B/D** | H23; no measured grove footprint survives |
+| Ordinary / exceptional buildings | No ordinary village fabric. Tree-line envelopes and reversible prop markers only; no church, manor or farm mass inside the grove - **D/U** | H23 |
+| Roof covers | No roofed buildings required. Any future shelter remains a reversible **D** prop - **D/U** | H23 |
+| Ground surfaces | Forest floor/leaf litter 45-60%; meadow/grass in the clearing 15-25%; bog/mud at the spring margin 10-20%; packed track 10-15% - **B/U** | H08, H17; exact grove surface shares unknown |
+| Drainage | Natural bog seepage and shallow wet margin around the spring; no ditched drainage grid - **B/U** | H08 |
+| Fences / plot edges | Living tree-line and scrub margins only; no stone plot walls or formal fences - **B/U** | H23 |
+| Vegetation species | Mature oak forms in the clearing ring; generic forest-floor herbs, moss and wet-margin reeds/sedges elsewhere. Exact taxa proportions are **U** - **B/U** | H17, H23 |
+| Garden / agricultural use | None. Croft plots, crop fields and orchards remain off-map - **D/U** | H23; ritual margin only |
+| Domestic / wild fauna | Domestic `none`. Wild mammals `trace` at the outer woodland margin; forest and margin birds `low` without route-blocking flocks - **B/U** | H18-H19; no attested grove fauna inventory |
+| Topography | Low forested ground with a slightly drier clearing and wet eastern bog margin; no hill claim - **B/U** | H08 |
+| Landmarks | Ancient oak, offering stone and bog spring remain stable gameplay anchors; all are folklore-informed **D** assignments, not attested coordinates | H23 |
+
+#### `world.harju` - Harju County farm hamlet junction (world-travel wrapper)
+
+| Category | 1343 target | Evidence |
+|---|---|---|
+| Street/property layout | One main packed-earth village road with scattered crofts, a threshing barn, split field strips and a central well; exact hamlet graph is **D** - **B/D** | H22; Harju road network is gameplay-compressed |
+| Density | On developable land built 8-18%, open 82-92% - **B** | H22; rural settlement is intentionally sparse |
+| Ordinary / exceptional buildings | Timber/log farmhouses, plank barns, palisade cattle pens and a village well; no stone manor or church mass in this wrapper - **B/D** | H22, H04 |
+| Roof covers | Thatch/reed 45-60%, shingle 35-50%, tile 0-5% - **B/U** | H22 and shared roof rule |
+| Ground surfaces | Packed earth/dirt/farm soil 40-55%; meadow/hay 20-35%; mud in the common 10-20%; grass/scrub at field edges 10-20% - **B** | H08, H17, H22 |
+| Drainage | Shallow roadside/work ditches and permeable farm soil; well and muddy common absorb local runoff - **B/U** | H08, H22 |
+| Fences / plot edges | Timber palisades, wattle field edges and hedge/scrub plot margins; no dense stone wall grid - **B** | H22 |
+| Vegetation species | Field-margin grass, kitchen-garden herbs near crofts, and edge scrub/woodland forms. Exact species shares are **U** - **B/U** | H17, H22 |
+| Garden / agricultural use | Kitchen/croft plots: 5-12%; crop field strips: 25-40%; meadow/hay: 20-35%; pasture margin: 10-20% - **B/U** | H17-H18, H22 |
+| Domestic / wild fauna | Domestic `moderate`: cattle/sheep/goat or pig pens and contained fowl near crofts. Wild mammals `trace` at woodland margin; ambient birds `low` - **B/U** | H18-H19 |
+| Topography | Gentle rolling lowland with field strips on slightly varied ground; no measured elevation model - **B/U** | H08, H10 |
+| Landmarks | Village well, threshing barn and split field anchors are plausible rural markers but **D** gameplay assignments | H22 |
+
+#### `world.padise` - Cistercian abbey precinct (world-travel wrapper)
+
+| Category | 1343 target | Evidence |
+|---|---|---|
+| Street/property layout | Walled stone precinct with church, cloister ranges, gatehouse, work yard and south approach road; exact cloister plan is partly reconstructed - **A/B/U** | H21 |
+| Density | Inside the precinct wall on developable land built 35-50%, open 50-65%. Outside fields remain open - **B** | H21 |
+| Ordinary / exceptional buildings | Limestone church and cloister ranges are exceptional; timber barn/work-yard fabric is ordinary service architecture. Later baroque rebuild mass is excluded - **A/B/C** | H21 |
+| Roof covers | Tile 35-55% on stone church/cloister roofs; shingle/thatch 40-55% on timber service buildings; exact shares **U** - **B/U** | H21 and shared roof rule |
+| Ground surfaces | Stone/paved precinct 25-40%; packed earth/service yard 30-45%; grass/herb garden beds 15-30%; mud at gate apron 5-15% - **B** | H05, H17, H21 |
+| Drainage | Cloister well, open yard channels and permeable work ground; no city sewer - **B/U** | H05, H21 |
+| Fences / plot edges | Limestone precinct wall with timber gate; herb beds and field edges outside remain lightly fenced - **A/B** | H21 |
+| Vegetation species | Monastic herb/kitchen beds, orchard forms where supported, and field-margin grass/scrub outside the wall. Exact taxa **U** - **B/U** | H05, H17, H21 |
+| Garden / agricultural use | Precinct herb/kitchen beds: 8-15%; orchard/service planting: 5-12%; west field strips: 15-25%; meadow/open service ground inside wall: 20-35% - **B/U** | H05, H17, H21 |
+| Domestic / wild fauna | Domestic `low`: work-yard ox/horse tether and contained fowl only. Wild mammals `trace` in outer fields; birds `trace` - **B/U** | H18-H19 |
+| Topography | Modest lowland rise with enclosed precinct on firmer ground and lower mud margin to the east - **B/U** | H21 |
+| Landmarks | Church, cloister, gatehouse and work yard remain stable anchors; phase-damage variants are future content metadata, not 1343 baseline fabric - **B/U** | H21 |
+
+#### `world.saaremaa` - island coastal campaign hub (world-travel wrapper)
+
+| Category | 1343 target | Evidence |
+|---|---|---|
+| Street/property layout | One coastal track with paired camp clusters, supply shelter and shallow landing margin; exact island road graph is **D** - **B/D/U** | H24; campaign compression |
+| Density | On developable land built 10-20%, open 80-90%, excluding water - **B** | H24 |
+| Ordinary / exceptional buildings | Timber camp shelters and a supply shed only; no completed stone town mass in this wrapper - **B/D** | H24 |
+| Roof covers | Thatch/reed 40-55%, shingle 40-55%, tile 0-5% - **B/U** | H22 and shared roof rule |
+| Ground surfaces | Packed earth/straw camp ground 35-50%; mud/shore margin 20-35%; meadow/grass 15-25%; shallow coastal water reported separately - **B** | H16, H24 |
+| Drainage | Natural shore fall and permeable camp ground; no formal quay drainage - **B/U** | H16, H24 |
+| Fences / plot edges | Light camp boundaries and shore scrub only; broad open landing apron - **B/U** | H24 |
+| Vegetation species | Shore grass, dune/scrub forms and sparse coastal vegetation; exact island taxa **U** - **B/U** | H17, H24 |
+| Garden / agricultural use | Kitchen/croft plots: 0-3%; crop fields: 0-5%; meadow/pasture margin: 5-15%; shore work ground remains separate - **B/U** | H17, H24 |
+| Domestic / wild fauna | Domestic `low`: camp tether/work animals only. Coastal wild birds `low`; wild mammals `trace` inland - **B/U** | H18-H19 |
+| Topography | Low island coast with shallow water margin and gently rising inland camp ground - **B/U** | H16, H24 |
+| Landmarks | Island coast reference and paired camp anchors are gameplay **D** markers until a dedicated siege map owns Pöide | H24 |
+
+#### `world.rebel_kings` - rebel command camp (world-travel wrapper)
+
+| Category | 1343 target | Evidence |
+|---|---|---|
+| Street/property layout | One muddy camp road linking west/east tent clusters and a central council fire; exact camp footprint is **D** - **B/D** | H20, H22 |
+| Density | On developable land built 5-12%, open 88-95% - **B/D** | H20; temporary encampment |
+| Ordinary / exceptional buildings | Timber/plank camp shelters, supply shed and signal props only; no stone fortification - **D/B** | H20, H22 |
+| Roof covers | Thatch/reed and shingle on temporary shelters 90-100%; tile `none` - **B/D** | H22 |
+| Ground surfaces | Packed earth/dirt 40-55%; mud 20-35%; straw camp bedding 15-25%; grass margin 5-15% - **B/D** | H08, H22 |
+| Drainage | Trampled permeable camp ground and shallow roadside ditches; no covered drainage - **B/U** | H08 |
+| Fences / plot edges | Light rope/timber camp boundaries only; broad open assembly ground at the council fire - **D/B** | H20 |
+| Vegetation species | Disturbed camp grass and edge scrub only; no formal planting - **B/U** | H17 |
+| Garden / agricultural use | None inside the camp. All food/forage supply is off-map or represented by supply props - **D** | H20 |
+| Domestic / wild fauna | Domestic `low`: tethered horses/oxen and contained fowl near supply yard. Wild mammals `trace`; birds `trace` - **B/U** | H18-H19 |
+| Topography | Low Harju meadow ground with a slightly muddier central assembly strip - **B/U** | H08, H10 |
+| Landmarks | Council camp, paired sub-camps and signal fire are gameplay **D** anchors tied to the Four Kings election fiction | H20 |
+
+#### `world.kanavere` - Kanavere Bog battlefield (world-travel wrapper)
+
+| Category | 1343 target | Evidence |
+|---|---|---|
+| Street/property layout | Bog causeway through flooded margin with reversible west/east fieldwork markers and a south meadow exit road; exact battlefield geometry is **D** - **A/B/D** | H20; May 11 milestone is attested, terrain is reconstructed |
+| Density | On developable land built 0-5%, open 95-100% - **B** | H20 |
+| Ordinary / exceptional buildings | One small field shelter only; no permanent village or fort mass - **D/B** | H20, H22 |
+| Roof covers | Thatch/shingle on the field shelter if retained; otherwise no roofs - **D/U** | H22 |
+| Ground surfaces | Bog/wet margin 25-40%; mud 20-30%; packed causeway/track 15-25%; south meadow/grass 20-30% - **B** | H08, H20 |
+| Drainage | Natural bog hydrology with a raised causeway; no engineered sewer - **A/B** | H08, H20 |
+| Fences / plot edges | Ditch-edge fieldwork markers only; open bog and meadow beyond - **D/B** | H20 |
+| Vegetation species | Reed/sedge bog forms, wet-margin scrub and meadow grass. Exact taxa **U** - **B/U** | H17, H20 |
+| Garden / agricultural use | None. Any crop evidence remains off-map - **D** | H20 |
+| Domestic / wild fauna | Domestic `none` on the battlefield. Wild mammals `trace`; wetland/coastal-margin birds `low` - **B/U** | H18-H19 |
+| Topography | Low bog bowl with a slightly firmer causeway ridge and open south meadow - **B** | H08, H20 |
+| Landmarks | Bog causeway and paired fieldwork anchors mark the attested May 11 engagement without claiming measured troop positions - **A/B/D** | H20 |
+
+#### `world.sojamae` - Sõjamäe battlefield (world-travel wrapper)
+
+| Category | 1343 target | Evidence |
+|---|---|---|
+| Street/property layout | Battle ridge with wet northern margin, churned approaches and reversible fieldwork markers; exact shoreline relation to Ülemiste water is **U/D** - **A/B/D/U** | H20; May 14 milestone is attested |
+| Density | On developable land built 0-5%, open 95-100% - **B** | H20 |
+| Ordinary / exceptional buildings | One small field shelter only; no town or fort mass - **D/B** | H20 |
+| Roof covers | Thatch/shingle on the field shelter if retained; otherwise no roofs - **D/U** | H22 |
+| Ground surfaces | Wet bog/mud north margin 20-35%; churned battle ground 25-35%; packed ridge/track 15-25%; south meadow/grass 20-30% - **B** | H08, H20 |
+| Drainage | Wet northern fall toward lake/shore margin with permeable ridge; no covered drainage - **B/U** | H08, H20 |
+| Fences / plot edges | Ditch-edge fieldwork markers only; broad open ridge and meadow - **D/B** | H20 |
+| Vegetation species | Wet-margin reeds, disturbed meadow grass and scrub. Exact taxa **U** - **B/U** | H17, H20 |
+| Garden / agricultural use | None on the battlefield - **D** | H20 |
+| Domestic / wild fauna | Domestic `none`. Wild mammals `trace`; wetland and scavenger birds `low` - **B/U** | H18-H19 |
+| Topography | Low coastal-plain ridge above wet northern margin; exact 1343 lake edge is **U** - **A/B/U** | H08, H10, H20 |
+| Landmarks | Battle ridge and paired fieldwork anchors mark the attested May 14 engagement without copying modern filled shore geometry - **A/B/D/U** | H20 |
+
+#### `world.paide` - Paide Castle (world-travel wrapper)
+
+| Category | 1343 target | Evidence |
+|---|---|---|
+| Street/property layout | Walled castle yard with gatehouse passage, central keep, chapel/hall range and south approach road inside an outer ditch; exact 1343 plan is partly reconstructed - **A/B/U** | H20 |
+| Density | Inside the ditch on developable land built 40-55%, open 45-60% - **B** | H20 |
+| Ordinary / exceptional buildings | Limestone curtain, gatehouse, keep and chapel/hall are exceptional; timber storehouse remains ordinary service fabric. Later tower mass is excluded - **A/B/C** | H20 |
+| Roof covers | Tile 45-65% on stone keep/chapel/gatehouse; shingle 30-45% on timber storehouse; thatch 0-10% - **B/U** | H20 and shared roof rule |
+| Ground surfaces | Castle paving/stone yard 30-45%; packed earth/service yard 25-40%; mud in ditch/apron 15-25%; grass margin 5-15% - **B** | H20 |
+| Drainage | Outer ditch and yard fall toward the ditch; localized well/soakage only - **B/U** | H20 |
+| Fences / plot edges | Stone curtain with gate passage; no dense urban plot grid inside the yard - **A/B** | H20 |
+| Vegetation species | Sparse yard grass and limited service-plot herbs only; no orchard inside the fort - **B/U** | H17, H20 |
+| Garden / agricultural use | Kitchen/herb plots: 0-3%; crop fields and orchards remain outside the ditch - **B/U** | H17, H20 |
+| Domestic / wild fauna | Domestic `low`: garrison ox/horse tether and contained fowl only. Wild mammals `none`; birds `trace` - **B/U** | H18-H19 |
+| Topography | Low central-Estonian rise with enclosed yard above outer ditch - **B/U** | H20 |
+| Landmarks | Gatehouse, central keep and limestone tower anchors support the Four Kings finale; execution choreography is gameplay, not measured archaeology - **A/D/U** | H20 |
+
+#### `world.parnu` - Pärnu river-mouth town junction (world-travel wrapper)
+
+| Category | 1343 target | Evidence |
+|---|---|---|
+| Street/property layout | One main town road with paired quarters, supply shelter and barricade marker; exact 1343 street plan is **U** - **B/U/D** | H25 |
+| Density | On developable land built 15-30%, open 70-85% - **B/U** | H25 |
+| Ordinary / exceptional buildings | Timber/plank town quarters, supply shed and reversible barricade props; limited stone fort fabric may appear only as anchors, not a full stone town - **B/U/D** | H25 |
+| Roof covers | Thatch/reed 35-50%, shingle 40-55%, tile 5-15% on any stone civic fabric - **B/U** | H25 and shared roof rule |
+| Ground surfaces | Packed earth/dirt 40-55%; mud 20-30%; straw/store margin 10-20%; grass/scrub 10-15% - **B** | H08, H25 |
+| Drainage | River-mouth low ground with shallow ditches and permeable lanes; no city sewer - **B/U** | H08, H25 |
+| Fences / plot edges | Timber barricades, wattle quarter edges and store-yard fences; no dense stone plot-wall grid - **B/U** | H25 |
+| Vegetation species | Disturbed-town grass, riverside reeds/scrub and limited kitchen-garden forms. Exact taxa **U** - **B/U** | H17, H25 |
+| Garden / agricultural use | Kitchen plots: 3-8%; meadow/service margin: 10-20%; crop fields remain outside this wrapper - **B/U** | H17, H25 |
+| Domestic / wild fauna | Domestic `low` to `moderate`: working animals, contained fowl and one small pen where routes permit. Coastal wild birds `low`; wild mammals `trace` - **B/U** | H18-H19 |
+| Topography | Low river-mouth plain with slightly muddier central junction - **B/U** | H08, H25 |
+| Landmarks | Town barricade and paired quarter anchors are conservative **D/U** placeholders until a fuller southern-town pass lands | H25 |
+
+#### `world.poide` - Pöide Castle (world-travel wrapper)
+
+| Category | 1343 target | Evidence |
+|---|---|---|
+| Street/property layout | Walled castle yard with gatehouse passage, central keep, chapel/hall range and south approach inside an outer ditch; exact 1343 island plan is partly reconstructed - **A/B/U** | H24 |
+| Density | Inside the ditch on developable land built 40-55%, open 45-60% - **B** | H24 |
+| Ordinary / exceptional buildings | Limestone curtain, gatehouse, keep and island chapel are exceptional; timber storehouse remains ordinary service fabric. Later rebuilding is excluded - **A/B/C** | H24 |
+| Roof covers | Tile 45-65% on stone keep/chapel/gatehouse; shingle 30-45% on timber storehouse; thatch 0-10% - **B/U** | H24 and shared roof rule |
+| Ground surfaces | Castle paving/stone yard 30-45%; packed earth/service yard 25-40%; mud in ditch/apron 15-25%; grass margin 5-15% - **B** | H24 |
+| Drainage | Outer ditch and yard fall toward wet margin; localized well only - **B/U** | H24 |
+| Fences / plot edges | Stone curtain with gate passage; sparse outer grass margin - **A/B** | H24 |
+| Vegetation species | Sparse yard grass and limited service herbs only; no dense orchard inside the fort - **B/U** | H17, H24 |
+| Garden / agricultural use | Kitchen/herb plots: 0-3%; island crop ground remains outside the ditch - **B/U** | H17, H24 |
+| Domestic / wild fauna | Domestic `low`: garrison/work animals and contained fowl only. Wild mammals `trace` outside ditch; coastal birds `low` - **B/U** | H18-H19 |
+| Topography | Low island rise with enclosed yard above outer ditch and wet outer margin - **B/U** | H24 |
+| Landmarks | Gatehouse, central keep and island chapel anchors support the Saaremaa campaign objective; siege-state variants remain future content metadata - **B/D/U** | H24 |
+
 ### Cross-map exclusions and required corrections
 
 The following current blueprint treatments are not accepted as the P0-072 historical baseline. Later composition tasks own the geometry changes:
@@ -453,9 +629,9 @@ Required reviewer: maintainer sign-off per [ADR 0014](adr/0014-authorial-accepta
 | Review item | Decision | Reviewer | Date | Notes |
 |---|---|---|---|---|
 | Evidence-class separation is clear and no later survival is presented as 1343 fact | `accepted` | Artjom Kurapov (maintainer) | 2026-07-24 | A/B/C/D/U classes, cross-map exclusions, and Town Hall / Holy Spirit / guild frontage decisions keep later survivals labelled C or excluded. |
-| Thirteen map cards match the registry and cover layout, density, buildings/materials, roofs, ground, drainage, fences, vegetation species, garden/agricultural use, fauna, topography and landmark state | `accepted` | Artjom Kurapov (maintainer) | 2026-07-24 | `python3 tools/verify_historical_dossier.py` passes all thirteen urban/foreland registry cards with category, confidence, and source-ID coverage. |
-| Built/open and surface bands are acceptable as bounded production targets | `accepted` | Artjom Kurapov (maintainer) | 2026-07-24 | Broad ranges remain hypotheses, not measured 1343 statistics; monastery packed-earth and harbour reversible-quay decisions are appropriately conservative. |
-| Landmark exclusions and unknowns are historically conservative | `accepted` | Artjom Kurapov (maintainer) | 2026-07-24 | Fat Margaret, later guild monuments, post-1343 towers, and regular stone quays stay excluded or U-labelled; fortification registry defers uncertain positions to construction mockups. |
-| Approved for P1-036 and district quality-pass acceptance thresholds | `accepted` | Artjom Kurapov (maintainer) | 2026-07-24 | Signed for automated composition-audit and district environment gates once P1-036 lands; world-travel wrapper maps remain outside this urban dossier scope. |
+| All registry map cards match the blueprint inventory and cover layout, density, buildings/materials, roofs, ground, drainage, fences, vegetation species, garden/agricultural use, fauna, topography and landmark state | `accepted` | Artjom Kurapov (maintainer) | 2026-07-24 | `python3 tools/verify_historical_dossier.py` passes all twenty-three urban, foreland and world-travel registry cards with category, confidence, and source-ID coverage. |
+| Built/open and surface bands are acceptable as bounded production targets | `accepted` | Artjom Kurapov (maintainer) | 2026-07-24 | Broad ranges remain hypotheses, not measured 1343 statistics; monastery packed-earth, harbour reversible-quay and world-travel wrapper compressions are appropriately conservative. |
+| Landmark exclusions and unknowns are historically conservative | `accepted` | Artjom Kurapov (maintainer) | 2026-07-24 | Fat Margaret, later guild monuments, post-1343 towers, regular stone quays and later castle rebuild mass stay excluded or U-labelled; fortification registry defers uncertain positions to construction mockups. |
+| Approved for P1-036 and district quality-pass acceptance thresholds | `accepted` | Artjom Kurapov (maintainer) | 2026-07-24 | Signed for automated composition-audit and district environment gates once P1-036 lands; world-travel wrappers remain `active=false` developer destinations until their activation gates pass. |
 
 `python3 tools/verify_historical_dossier.py` reports **human review signed**. P1-036 and district quality passes may now enforce the signed ranges.

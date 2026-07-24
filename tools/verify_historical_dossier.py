@@ -41,14 +41,14 @@ REQUIRED_CATEGORIES = (
 )
 REQUIRED_REVIEW_ITEMS = (
     "Evidence-class separation is clear and no later survival is presented as 1343 fact",
-    "Thirteen map cards match the registry and cover layout, density, buildings/materials, roofs, ground, drainage, fences, vegetation species, garden/agricultural use, fauna, topography and landmark state",
+    "All registry map cards match the blueprint inventory and cover layout, density, buildings/materials, roofs, ground, drainage, fences, vegetation species, garden/agricultural use, fauna, topography and landmark state",
     "Built/open and surface bands are acceptable as bounded production targets",
     "Landmark exclusions and unknowns are historically conservative",
     "Approved for P1-036 and district quality-pass acceptance thresholds",
 )
 CONFIDENCE = re.compile(r"\*\*(?:[ABCDU](?:/[ABCDU])*)\*\*")
 SOURCE_ID = re.compile(r"\bH\d{2}\b")
-REGISTRY_ID = re.compile(r'"id"\s*:\s*&"([a-z0-9_]+)"')
+REGISTRY_ID = re.compile(r'"id"\s*:\s*&"([a-z][a-z0-9_.]*)"')
 CARD_HEADING = re.compile(r"^#### `([^`]+)`[^\n]*$", re.MULTILINE)
 # ADR 0014: only P1-036 (composition audit) requires signed human review before
 # closeout. P0-072 structural dossier completion is tracked separately in P0-111.

@@ -38,6 +38,11 @@ class VerifyHistoricalDossierTest(unittest.TestCase):
     def test_repository_dossier_covers_registry_and_required_categories(self) -> None:
         self.assertEqual(self.validate(), [])
 
+    def test_dotted_registry_ids_are_parsed(self) -> None:
+        registry_ids = verifier.parse_registry_ids(self.registry)
+        self.assertIn("world.paide", registry_ids)
+        self.assertIn("world.sacred_grove", registry_ids)
+
     def test_new_registry_map_requires_a_dossier_card(self) -> None:
         seeded_registry = self.registry.replace(
             "\t\t{\n\t\t\t\"id\": &\"kalev_smithy\",",
