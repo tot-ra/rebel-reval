@@ -4,6 +4,8 @@ extends RefCounted
 const Shoreline3D := preload("res://scripts/map/view3d/map_view_shoreline_3d.gd")
 const PlantSpecies := preload("res://scripts/map/view3d/map_view_plant_species.gd")
 const PlantMeshes := preload("res://scripts/map/view3d/map_view_plant_meshes.gd")
+const BushSpecies := preload("res://scripts/map/view3d/map_view_bush_species.gd")
+const BushMeshes := preload("res://scripts/map/view3d/map_view_bush_meshes.gd")
 
 ## Layered decorative vegetation and ground clutter. Textured ground cover carries
 ## most of the grass; sparse small/large tufts, shrubs, and trees add silhouette
@@ -27,10 +29,7 @@ static func build_scatter(
 	var small_grass_colors: Array[Color] = []
 	var large_grass: Array[Transform3D] = []
 	var large_grass_colors: Array[Color] = []
-	var dense_bushes: Array[Transform3D] = []
-	var dense_bush_colors: Array[Color] = []
-	var scrub_bushes: Array[Transform3D] = []
-	var scrub_bush_colors: Array[Color] = []
+	var bush_batches: Dictionary = {}
 	# Batched by silhouette/bark so MultiMesh stays shared across species tints.
 	var tree_batches: Dictionary = {}
 	var reeds: Array[Transform3D] = []
@@ -119,12 +118,28 @@ static func build_scatter(
 				var plant_species: StringName = profile.get("plant_species", &"")
 				_append_scattered_plant(plant_batches, field, x, y, definition.seed, plant_species)
 
-			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1500) < float(profile.get("dense_bush_chance", 0.0)) * density:
-				dense_bushes.append(_scatter_transform(field, x, y, definition.seed + 1700, 0.62, 0.95))
-				dense_bush_colors.append(Color(0.78, 0.94, 0.68))
-			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1529) < float(profile.get("scrub_bush_chance", 0.0)) * density:
-				scrub_bushes.append(_scatter_transform_elliptical(field, x, y, definition.seed + 1733, 0.7, 0.45))
-				scrub_bush_colors.append(Color(0.76, 0.88, 0.58))
+			var bush_chance := float(profile.get("bush_chance", 0.0)) * density
+			if bush_chance <= 0.0:
+				bush_chance = (
+					float(profile.get("dense_bush_chance", 0.0)) + float(profile.get("scrub_bush_chance", 0.0))
+				) * density
+			if bush_chance > 0.0 and MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1500) < bush_chance:
+				var bush_variant: StringName = profile.get("bush_variant", variant)
+				if bush_variant.is_empty():
+					bush_variant = (
+						TerrainVegetation.VARIANT_BUSH_SCRUB
+						if float(profile.get("scrub_bush_chance", 0.0)) > 0.0
+						else TerrainVegetation.VARIANT_BUSH_DENSE
+					)
+				_append_scattered_bush(
+					bush_batches,
+					field,
+					x,
+					y,
+					definition.seed,
+					bush_variant,
+					profile.get("bush_species", &"")
+				)
 
 			var tree_chance := float(profile.get("tree_chance", MapViewMeshBuilderConfig.SCATTER_TREE_CHANCE.get(terrain, 0.0))) * density
 			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 2309) < tree_chance:
@@ -151,19 +166,8 @@ static func build_scatter(
 	_add_grass_layer(root, "SmallGrass", small_grass, small_grass_colors, MapViewMeshBuilderPrimitives.grass_tuft_mesh())
 	_add_grass_layer(root, "LargeGrass", large_grass, large_grass_colors, MapViewMeshBuilderPrimitives.grass_tuft_mesh())
 
-	if not dense_bushes.is_empty():
-		var dense_instances := MapViewMeshBuilderPrimitives.multi_mesh("DenseBushes", MapViewMeshBuilderPrimitives.leaf_canopy_mesh(), dense_bushes, dense_bush_colors, MapViewMaterials.canopy(&"leaf"), Vector3(0.0, 0.42, 0.0))
-		dense_instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		root.add_child(dense_instances)
-	if not scrub_bushes.is_empty():
-		var scrub_mesh := SphereMesh.new()
-		scrub_mesh.radius = 0.34
-		scrub_mesh.height = 0.38
-		scrub_mesh.radial_segments = 8
-		scrub_mesh.rings = 4
-		var scrub_instances := MapViewMeshBuilderPrimitives.multi_mesh("ScrubBushes", scrub_mesh, scrub_bushes, scrub_bush_colors, MapViewMaterials.foliage_tuft(), Vector3(0.0, 0.16, 0.0))
-		scrub_instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		root.add_child(scrub_instances)
+	if not bush_batches.is_empty():
+		_emit_bush_batches(root, bush_batches)
 
 	if not tree_batches.is_empty():
 		_emit_tree_batches(root, tree_batches)
@@ -204,6 +208,74 @@ static func _is_urban_map(definition: MapDefinition) -> bool:
 		if kind == &"town":
 			return true
 	return false
+
+
+static func _append_scattered_bush(
+	batches: Dictionary,
+	field: Dictionary,
+	x: int,
+	y: int,
+	map_seed: int,
+	bush_variant: StringName,
+	pinned_species: StringName
+) -> void:
+	var species := pinned_species
+	if species.is_empty():
+		species = BushSpecies.pick_species(
+			BushSpecies.weights_for_variant(bush_variant),
+			MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 1703)
+		)
+	if not BushSpecies.is_known_species(species):
+		return
+	var key := String(species)
+	if not batches.has(key):
+		batches[key] = {
+			"transforms": [] as Array[Transform3D],
+			"colors": [] as Array[Color],
+			"species": species,
+		}
+	var scale_range := BushSpecies.scale_range(species)
+	var batch: Dictionary = batches[key]
+	(batch["transforms"] as Array).append(
+		_scatter_transform(field, x, y, map_seed + 1733, scale_range.x, scale_range.y)
+	)
+	(batch["colors"] as Array).append(
+		BushSpecies.instance_tint(
+			species,
+			MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 1747)
+		)
+	)
+
+
+static func _emit_bush_batches(root: Node3D, batches: Dictionary) -> void:
+	for key: Variant in batches.keys():
+		var batch: Dictionary = batches[key]
+		var transforms: Array[Transform3D] = []
+		var colors: Array[Color] = []
+		for transform: Variant in batch["transforms"]:
+			transforms.append(transform as Transform3D)
+		for color: Variant in batch["colors"]:
+			colors.append(color as Color)
+		if transforms.is_empty():
+			continue
+		var species: StringName = batch["species"]
+		var material_kind: StringName = BushSpecies.material_kind(species)
+		var material: Material = (
+			MapViewMaterials.canopy(material_kind)
+			if material_kind == &"leaf"
+			else MapViewMaterials.foliage_tuft()
+		)
+		var instances := MapViewMeshBuilderPrimitives.multi_mesh(
+			"Bushes_%s" % String(species).to_pascal_case(),
+			BushMeshes.mesh_for(species),
+			transforms,
+			colors,
+			material,
+			Vector3.ZERO
+		)
+		instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		instances.set_meta(&"bush_species", species)
+		root.add_child(instances)
 
 
 ## Collect one concrete botanical species into its own cached MultiMesh batch.

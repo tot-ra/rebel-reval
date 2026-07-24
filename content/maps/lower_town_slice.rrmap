@@ -68,8 +68,10 @@ style veg.grass.tall style_variant=grass.tall
 style veg.tree.mixed style_variant=tree.mixed
 style veg.tree.oak style_variant=tree.oak
 style veg.tree.linden style_variant=tree.linden
-style veg.bush.scrub style_variant=bush.scrub
-style veg.bush.dense style_variant=bush.dense
+style veg.bush.scrub style_variant=bush.bilberry
+style veg.bush.dense style_variant=bush.hawthorn
+style bush.bilberry
+style bush.hawthorn
 source "scenes/reval_east/reval_east.tscn"
 source "scenes/revel-map.jpg"
 source "scenes/reval_walls_towers/wall-map.png"

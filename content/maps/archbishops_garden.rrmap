@@ -24,6 +24,26 @@ style grass.fern
 style grass.dry
 style bush.dense
 style bush.scrub
+style bush.bilberry
+style bush.cowberry
+style bush.cloudberry
+style bush.cranberry
+style bush.crowberry
+style bush.wild_strawberry
+style bush.raspberry
+style bush.dog_rose
+style bush.guelder_rose
+style bush.elder
+style bush.sea_buckthorn
+style bush.heather
+style bush.bog_rosemary
+style bush.juniper_shrub
+style bush.hazel_shrub
+style bush.hawthorn
+style bush.blackthorn
+style bush.willow_shrub
+style bush.alder_shrub
+style bush.spindle
 style tree.orchard
 style tree.apple
 style tree.cherry
@@ -144,26 +164,26 @@ prop orchard_plot_fence_north timber_fence 18 9 rect=38,1
 prop orchard_plot_fence_south timber_fence 18 27 rect=38,1
 prop orchard_plot_fence_west timber_fence 18 10 rect=1,8
 prop kitchen_plot_fence timber_fence 40 19 rect=20,1
-prop orchard_canopy_west bush 16 12 rect=3,2 style=bush.scrub
-prop orchard_canopy_mid bush 34 14 rect=3,2 style=bush.dense
-prop orchard_canopy_east bush 50 20 rect=2,2 style=bush.scrub
-prop orchard_row_north bush 22 11 rect=2,2 style=bush.dense
-prop orchard_row_mid bush 40 16 rect=3,2 style=bush.scrub
-prop orchard_row_south bush 30 24 rect=2,2 style=bush.dense
-prop orchard_edge_south bush 26 34 rect=3,2 style=bush.dense
-prop orchard_edge_north bush 20 10 rect=2,2 style=bush.scrub
-prop well_grove_north bush 48 15 rect=2,2 style=bush.scrub
-prop well_grove_south bush 62 22 rect=2,2 style=bush.dense
-prop well_grove_east bush 66 18 rect=2,2 style=bush.scrub
-prop kitchen_hedge_west bush 41 21 rect=2,2 style=bush.dense
-prop kitchen_hedge_east bush 56 24 rect=2,2 style=bush.scrub
-prop western_scrub_low bush 8 30 rect=3,2 style=bush.dense
-prop western_scrub_high bush 8 16 rect=2,2 style=bush.scrub
-prop western_scrub_mid bush 11 22 rect=2,2 style=bush.dense
-prop terrace_shrub_west bush 56 33 rect=2,2 style=bush.scrub
-prop terrace_shrub_mid bush 82 35 rect=3,2 style=bush.dense
-prop terrace_shrub_east bush 108 33 rect=2,2 style=bush.scrub
-prop terrace_shrub_far bush 120 36 rect=3,2 style=bush.dense
+prop orchard_canopy_west bush 16 12 rect=3,2 style=bush.bilberry
+prop orchard_canopy_mid bush 34 14 rect=3,2 style=bush.cowberry
+prop orchard_canopy_east bush 50 20 rect=2,2 style=bush.wild_strawberry
+prop orchard_row_north bush 22 11 rect=2,2 style=bush.hawthorn
+prop orchard_row_mid bush 40 16 rect=3,2 style=bush.raspberry
+prop orchard_row_south bush 30 24 rect=2,2 style=bush.blackthorn
+prop orchard_edge_south bush 26 34 rect=3,2 style=bush.guelder_rose
+prop orchard_edge_north bush 20 10 rect=2,2 style=bush.elder
+prop well_grove_north bush 48 15 rect=2,2 style=bush.heather
+prop well_grove_south bush 62 22 rect=2,2 style=bush.hazel_shrub
+prop well_grove_east bush 66 18 rect=2,2 style=bush.dog_rose
+prop kitchen_hedge_west bush 41 21 rect=2,2 style=bush.spindle
+prop kitchen_hedge_east bush 56 24 rect=2,2 style=bush.juniper_shrub
+prop western_scrub_low bush 8 30 rect=3,2 style=bush.crowberry
+prop western_scrub_high bush 8 16 rect=2,2 style=bush.cloudberry
+prop western_scrub_mid bush 11 22 rect=2,2 style=bush.cranberry
+prop terrace_shrub_west bush 56 33 rect=2,2 style=bush.bog_rosemary
+prop terrace_shrub_mid bush 82 35 rect=3,2 style=bush.sea_buckthorn
+prop terrace_shrub_east bush 108 33 rect=2,2 style=bush.willow_shrub
+prop terrace_shrub_far bush 120 36 rect=3,2 style=bush.alder_shrub
 prop south_lawn_scrub bush 40 41 rect=2,2 style=bush.scrub
 prop path_edge_scrub bush 68 11 rect=2,2 style=bush.scrub
 prop path_edge_flowers bush 84 13 rect=2,2 style=bush.scrub

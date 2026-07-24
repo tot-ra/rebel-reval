@@ -10,6 +10,7 @@ This is the implementation ledger for Reval vegetation. It distinguishes concret
 - **Rendering: complete for the scoped flora system.** [`map_view_mesh_builder_scatter.gd`](../scripts/map/view3d/map_view_mesh_builder_scatter.gd) batches each tree or plant species with cached meshes and `MultiMesh`; [`map_view_terrain_details.gd`](../scripts/map/view3d/map_view_terrain_details.gd) adds first-person grass, dry seed heads, clover, and fern detail.
 - **Imported 3D flora assets: none by design.** Runtime vegetation is deterministic procedural geometry. Images under [`archive/2d_sprites_inspiration/assets/trees/`](../archive/2d_sprites_inspiration/assets/trees/) are references only and are not gameplay models.
 - **Birds: 30/30 target species cataloged with procedural reference meshes and runtime ambient playback.** Catalog, processed clips, district spawn weights, positional song scheduling, and gliding flight actors: [`map_view_bird_species.gd`](../scripts/map/view3d/map_view_bird_species.gd), [`map_view_bird_ambient_audio.gd`](../scripts/map/view3d/map_view_bird_ambient_audio.gd), [`map_view_bird_flight.gd`](../scripts/map/view3d/map_view_bird_flight.gd). Cached low-poly meshes: [`map_view_bird_meshes.gd`](../scripts/map/view3d/map_view_bird_meshes.gd). Reference sheet: [`p0_117_bird_reference_sheet.png`](reports/images/fauna/p0_117_bird_reference_sheet.png). Urban mammals remain **P2-024**; penned livestock remain **P0-106**.
+- **Shrubs: 20/20 target species modeled and authored.** Catalog and ecological groups: [`map_view_bush_species.gd`](../scripts/map/view3d/map_view_bush_species.gd). Procedural meshes: [`map_view_bush_meshes.gd`](../scripts/map/view3d/map_view_bush_meshes.gd). Legacy `bush.dense` and `bush.scrub` remain weighted group aliases.
 - **Other fauna: not yet modeled.** Ambient mammals and penned livestock are **P0-118** / **P0-106**; folklore bestiary content is not an ambient-fauna system.
 
 Status vocabulary:
@@ -85,6 +86,35 @@ Tree tests: [`test_map_view_tree_species.gd`](../tests/godot/test_map_view_tree_
 | St. John's wort | `plant.st_johns_wort` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap) |
 
 Plant tests: [`test_map_view_plant_species.gd`](../tests/godot/test_map_view_plant_species.gd). They enforce 30 registered models, cache reuse, geometry-family diversity, valid scatter profiles, and authored location coverage for all 20 trees and 30 plants.
+
+## Shrub model ledger (20/20)
+
+Group variants `bush.dense`, `bush.scrub`, `bush.mixed`, `bush.hedge`, `bush.heath`, `bush.coastal`, and `bush.bog` select weighted species pools. Authors may pin `bush.<species>` on props or terrain styles.
+
+| Shrub | Runtime ID | Group | Status | Concrete authored evidence |
+|---|---|---|---|---|
+| Bilberry | `bush.bilberry` | berry | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Cowberry | `bush.cowberry` | berry | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Cloudberry | `bush.cloudberry` | bog | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Cranberry | `bush.cranberry` | bog | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Crowberry | `bush.crowberry` | heath | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Wild strawberry | `bush.wild_strawberry` | berry | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Raspberry | `bush.raspberry` | berry | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Dog rose | `bush.dog_rose` | understory | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Guelder rose | `bush.guelder_rose` | understory | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Elder | `bush.elder` | understory | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Sea buckthorn | `bush.sea_buckthorn` | coastal | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Heather | `bush.heather` | heath | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Bog rosemary | `bush.bog_rosemary` | bog | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Juniper shrub | `bush.juniper_shrub` | coastal | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Hazel shrub | `bush.hazel_shrub` | hedge | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Hawthorn | `bush.hawthorn` | hedge | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Blackthorn | `bush.blackthorn` | hedge | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Willow shrub | `bush.willow_shrub` | wetland | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Alder shrub | `bush.alder_shrub` | wetland | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Spindle | `bush.spindle` | hedge | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+
+Shrub tests: [`test_map_view_bush_species.gd`](../tests/godot/test_map_view_bush_species.gd). They enforce the 20-species catalog, cache reuse, archetype diversity, valid scatter profiles, legacy dense/scrub aliases, and authored location coverage.
 
 ## Bird model ledger (30/30)
 

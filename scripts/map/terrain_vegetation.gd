@@ -2,6 +2,7 @@ class_name TerrainVegetation
 extends RefCounted
 
 const PlantSpecies := preload("res://scripts/map/view3d/map_view_plant_species.gd")
+const BushSpecies := preload("res://scripts/map/view3d/map_view_bush_species.gd")
 
 ## Vegetation is layered deliberately: the terrain material supplies continuous
 ## ground cover while only a minority of cells receive small grass, large grass,
@@ -82,6 +83,8 @@ static func resolved_variant(style_id: StringName, values: Dictionary) -> String
 static func is_known_variant(variant: StringName) -> bool:
 	if variant.is_empty() or variant in ALL_VARIANTS or PlantSpecies.is_known_variant(variant):
 		return true
+	if BushSpecies.is_known_variant(variant):
+		return true
 	# tree.oak.large / tree.birch.small are valid authored size pins.
 	var parsed: Dictionary = MapViewTreeSpecies.parse_variant(variant)
 	return not parsed.is_empty()
@@ -144,6 +147,14 @@ static func ground_color_tint(variant: StringName) -> Color:
 			lerpf(0.96, 1.08, plant_color.g),
 			lerpf(0.82, 1.0, plant_color.b)
 		)
+	var bush_parsed := BushSpecies.parse_variant(variant)
+	if bush_parsed.has("species"):
+		var bush_color: Color = BushSpecies.profile_for(bush_parsed["species"])["color"]
+		return Color(
+			lerpf(0.86, 1.02, bush_color.r),
+			lerpf(0.94, 1.06, bush_color.g),
+			lerpf(0.80, 0.98, bush_color.b)
+		)
 	match variant:
 		VARIANT_GRASS_SHORT:
 			return Color(1.04, 1.02, 0.94)
@@ -188,6 +199,41 @@ static func scatter_profile(variant: StringName) -> Dictionary:
 			"plant_chance": PlantSpecies.scatter_density(plant_species),
 			"plant_species": plant_species,
 		}
+	var bush_parsed: Dictionary = BushSpecies.parse_variant(variant)
+	if not bush_parsed.is_empty():
+		var bush_variant := variant
+		if bush_parsed.has("species"):
+			return {
+				"small_chance_scale": 0.14,
+				"large_chance": 0.0,
+				"bush_chance": BushSpecies.scatter_density(bush_parsed["species"]),
+				"bush_species": bush_parsed["species"],
+				"bush_variant": bush_variant,
+			}
+		var dense_chance := 0.32
+		var scrub_chance := 0.24
+		match bush_parsed.get("group", &""):
+			&"dense":
+				return {
+					"small_chance_scale": 0.18,
+					"large_chance": 0.02,
+					"bush_chance": dense_chance,
+					"bush_variant": VARIANT_BUSH_DENSE,
+				}
+			&"scrub":
+				return {
+					"small_chance_scale": 0.28,
+					"large_chance": 0.03,
+					"bush_chance": scrub_chance,
+					"bush_variant": VARIANT_BUSH_SCRUB,
+				}
+			_:
+				return {
+					"small_chance_scale": 0.22,
+					"large_chance": 0.02,
+					"bush_chance": 0.28,
+					"bush_variant": bush_variant,
+				}
 	var tree_parsed: Dictionary = MapViewTreeSpecies.parse_variant(variant)
 	if not tree_parsed.is_empty():
 		var tree_chance := 0.2
@@ -232,8 +278,8 @@ static func scatter_profile(variant: StringName) -> Dictionary:
 		VARIANT_REED_SHORE:
 			return {"small_chance_scale": 0.2, "small_height_min": 0.3, "small_height_max": 0.55, "large_chance": 0.0, "reed_chance": 0.34}
 		VARIANT_BUSH_DENSE:
-			return {"small_chance_scale": 0.18, "large_chance": 0.02, "dense_bush_chance": 0.32}
+			return {"small_chance_scale": 0.18, "large_chance": 0.02, "bush_chance": 0.32, "bush_variant": VARIANT_BUSH_DENSE}
 		VARIANT_BUSH_SCRUB:
-			return {"small_chance_scale": 0.28, "large_chance": 0.03, "scrub_bush_chance": 0.24}
+			return {"small_chance_scale": 0.28, "large_chance": 0.03, "bush_chance": 0.24, "bush_variant": VARIANT_BUSH_SCRUB}
 		_:
 			return {"small_chance_scale": 1.0, "small_height_min": 0.34, "small_height_max": 0.62, "large_chance": 0.025, "large_height_min": 0.75, "large_height_max": 1.05}
