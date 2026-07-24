@@ -34,6 +34,8 @@ const ROTATE_SPEED_DEGREES := RuntimeCamera.ROTATE_SPEED_DEGREES
 const MOUSE_ROTATE_DEGREES_PER_PIXEL := RuntimeCamera.MOUSE_ROTATE_DEGREES_PER_PIXEL
 const PAN_SCROLL_ZOOM_SENSITIVITY := RuntimeCamera.PAN_SCROLL_ZOOM_SENSITIVITY
 const THIRD_PERSON_DISTANCE := RuntimeCamera.THIRD_PERSON_DISTANCE
+const THIRD_PERSON_MIN_DISTANCE := RuntimeCamera.THIRD_PERSON_MIN_DISTANCE
+const THIRD_PERSON_MAX_DISTANCE := RuntimeCamera.THIRD_PERSON_MAX_DISTANCE
 const THIRD_PERSON_TARGET_HEIGHT := RuntimeCamera.THIRD_PERSON_TARGET_HEIGHT
 const THIRD_PERSON_PITCH_DEGREES := RuntimeCamera.THIRD_PERSON_PITCH_DEGREES
 const THIRD_PERSON_MIN_PITCH_DEGREES := RuntimeCamera.THIRD_PERSON_MIN_PITCH_DEGREES
@@ -322,11 +324,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey:
 		return
 	if event is InputEventMagnifyGesture:
-		_camera_controller.zoom_from_magnify_factor((event as InputEventMagnifyGesture).factor)
+		zoom_from_magnify_factor((event as InputEventMagnifyGesture).factor)
 		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventPanGesture:
-		_camera_controller.zoom_from_pan_delta((event as InputEventPanGesture).delta)
+		zoom_from_pan_delta((event as InputEventPanGesture).delta)
 		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventMouseButton:
@@ -400,7 +402,32 @@ func is_top_down() -> bool:
 
 
 func zoom_view_steps(steps: float) -> void:
+	var mode_before := _camera_controller.camera_mode
 	_camera_controller.zoom_view_steps(steps)
+	# Scroll can cross third-person <-> first-person; keep movement and ghost in sync.
+	if _camera_controller.camera_mode != mode_before:
+		_configure_screen_relative_movement()
+		_update_occlusion_ghost()
+
+
+func zoom_from_magnify_factor(factor: float) -> void:
+	var mode_before := _camera_controller.camera_mode
+	_camera_controller.zoom_from_magnify_factor(factor)
+	if _camera_controller.camera_mode != mode_before:
+		_configure_screen_relative_movement()
+		_update_occlusion_ghost()
+
+
+func zoom_from_pan_delta(delta: Vector2) -> void:
+	var mode_before := _camera_controller.camera_mode
+	_camera_controller.zoom_from_pan_delta(delta)
+	if _camera_controller.camera_mode != mode_before:
+		_configure_screen_relative_movement()
+		_update_occlusion_ghost()
+
+
+func third_person_follow_distance() -> float:
+	return _camera_controller.third_person_follow_distance()
 
 
 func _apply_view_rotation(delta: float) -> void:

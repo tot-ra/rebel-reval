@@ -7,7 +7,7 @@
 
 Accepted
 
-Amended by [ADR 0015](0015-default-third-person-camera.md) (2026-07-23; pitch rule updated 2026-07-25): third-person is a perspective follow camera with clamped vertical orbit; first-person keeps the wider free-look pitch band.
+Amended by [ADR 0015](0015-default-third-person-camera.md) (2026-07-23; pitch and boom-zoom rules updated 2026-07-25): third-person is a perspective follow camera with clamped vertical orbit and scroll boom zoom that can enter first-person; first-person keeps the wider free-look pitch band.
 
 ## Context
 

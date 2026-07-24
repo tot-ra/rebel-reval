@@ -27,8 +27,13 @@ func test_c_cycles_third_person_first_person_and_top_down() -> void:
 	)
 	assert_true(rig.visible, "the player rig must be visible in third-person")
 	var third_person_fov := camera.fov
+	var distance_before_zoom := runtime.third_person_follow_distance()
 	runtime.zoom_view_steps(1.0)
-	assert_true(is_equal_approx(camera.fov, third_person_fov), "top-down zoom must not alter third-person FOV")
+	assert_true(is_equal_approx(camera.fov, third_person_fov), "third-person boom zoom must not alter FOV")
+	assert_true(
+		runtime.third_person_follow_distance() < distance_before_zoom,
+		"wheel zoom must pull the third-person boom closer"
+	)
 
 	var camera_toggle := _camera_toggle_event()
 	runtime._unhandled_input(camera_toggle)
@@ -178,7 +183,7 @@ func test_mouse_drag_pitch_orbits_perspective_modes_and_yaw_turns_character() ->
 		camera.position.is_equal_approx(
 			rig.position
 			+ Vector3.UP * MapViewRuntime.THIRD_PERSON_TARGET_HEIGHT
-			+ camera.transform.basis.z * MapViewRuntime.THIRD_PERSON_DISTANCE
+			+ camera.transform.basis.z * runtime.third_person_follow_distance()
 		),
 		"third-person pitch must keep the follow boom distance"
 	)
@@ -227,6 +232,65 @@ func test_mouse_drag_pitch_orbits_perspective_modes_and_yaw_turns_character() ->
 	assert_true(
 		is_equal_approx(camera.rotation_degrees.x, MapView3D.CAMERA_PITCH_DEGREES),
 		"top-down right-drag must keep the authored dimetric pitch"
+	)
+	_free_map_scene(scene_root)
+
+
+func test_third_person_scroll_zoom_clamps_and_enters_first_person() -> void:
+	var fixture := _install_runtime(LowerTownSlice.create())
+	var scene_root := fixture["scene_root"] as Node2D
+	var runtime := fixture["runtime"] as MapViewRuntime
+	var rig := runtime.get_node("PlayerRig") as SharedCharacterRig
+	var camera := runtime.view.view_camera()
+	var player := fixture["player"] as Player
+
+	assert_true(runtime.is_third_person())
+	assert_true(is_equal_approx(runtime.third_person_follow_distance(), MapViewRuntime.THIRD_PERSON_DISTANCE))
+
+	runtime.zoom_view_steps(-200.0)
+	assert_true(runtime.is_third_person(), "zoom-out must stay in third-person until C or a close threshold")
+	assert_true(
+		is_equal_approx(runtime.third_person_follow_distance(), MapViewRuntime.THIRD_PERSON_MAX_DISTANCE),
+		"third-person boom must clamp at the authored max distance"
+	)
+	assert_true(
+		camera.position.is_equal_approx(
+			rig.position
+			+ Vector3.UP * MapViewRuntime.THIRD_PERSON_TARGET_HEIGHT
+			+ camera.transform.basis.z * MapViewRuntime.THIRD_PERSON_MAX_DISTANCE
+		),
+		"max zoom-out must place the camera on the clamped boom"
+	)
+
+	runtime.zoom_view_steps(100.0)
+	assert_true(runtime.is_first_person(), "zoom-in past the close boom must enter first-person")
+	assert_false(rig.visible, "entering first-person via zoom must hide the player rig")
+	assert_true(
+		camera.position.is_equal_approx(rig.position + Vector3.UP * MapViewRuntime.FIRST_PERSON_EYE_HEIGHT),
+		"zoom-entered first-person must sit at eye height"
+	)
+	assert_true(
+		player.view_facing().is_equal_approx(runtime._camera_controller.logic_direction_camera_faces()),
+		"zoom mode flip must keep camera-relative facing wired"
+	)
+
+	runtime.zoom_view_steps(1.0)
+	assert_true(runtime.is_first_person(), "further zoom-in while already first-person must be a no-op")
+
+	runtime.zoom_view_steps(-1.0)
+	assert_true(runtime.is_third_person(), "zoom-out from first-person must restore the follow boom")
+	assert_true(
+		is_equal_approx(runtime.third_person_follow_distance(), MapViewRuntime.THIRD_PERSON_MIN_DISTANCE),
+		"restored third-person must start at the closest boom"
+	)
+	assert_true(rig.visible)
+	assert_true(
+		camera.position.is_equal_approx(
+			rig.position
+			+ Vector3.UP * MapViewRuntime.THIRD_PERSON_TARGET_HEIGHT
+			+ camera.transform.basis.z * MapViewRuntime.THIRD_PERSON_MIN_DISTANCE
+		),
+		"restored boom must place the camera at the min follow distance"
 	)
 	_free_map_scene(scene_root)
 

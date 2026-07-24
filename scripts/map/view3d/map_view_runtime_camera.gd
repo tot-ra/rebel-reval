@@ -22,6 +22,10 @@ const MOUSE_ROTATE_DEGREES_PER_PIXEL := 0.3
 ## deltas (~0.5-1.5 per tick) instead of mouse-wheel buttons.
 const PAN_SCROLL_ZOOM_SENSITIVITY := 1.0
 const THIRD_PERSON_DISTANCE := 6.0
+## Closest boom before scroll-zoom flips into first-person.
+const THIRD_PERSON_MIN_DISTANCE := 2.0
+## Hard zoom-out cap so the follow camera cannot float into overview territory.
+const THIRD_PERSON_MAX_DISTANCE := 12.0
 const THIRD_PERSON_TARGET_HEIGHT := 1.15
 const THIRD_PERSON_PITCH_DEGREES := -12.0
 ## Follow-camera pitch band: look down toward the character/ground, or raise the
@@ -53,6 +57,7 @@ var first_person: bool:
 var _mouse_rotation_armed := false
 var _last_mouse_position := Vector2.ZERO
 var _top_down_size := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
+var _third_person_distance := THIRD_PERSON_DISTANCE
 
 
 func configure(runtime_camera: Camera3D, runtime_player_rig: SharedCharacterRig, runtime_view: MapView3D, runtime_player: CharacterBody2D) -> void:
@@ -61,7 +66,12 @@ func configure(runtime_camera: Camera3D, runtime_player_rig: SharedCharacterRig,
 	view = runtime_view
 	player = runtime_player
 	_top_down_size = camera.size
+	_third_person_distance = THIRD_PERSON_DISTANCE
 	_apply_camera_mode()
+
+
+func third_person_follow_distance() -> float:
+	return _third_person_distance
 
 
 func logic_direction_toward_camera() -> Vector2:
@@ -96,7 +106,7 @@ func _follow_target() -> Vector3:
 			return (
 				player_rig.position
 				+ Vector3.UP * THIRD_PERSON_TARGET_HEIGHT
-				+ camera.transform.basis.z * THIRD_PERSON_DISTANCE
+				+ camera.transform.basis.z * _third_person_distance
 			)
 		_:
 			return player_rig.position + camera.transform.basis.z * MapView3D.CAMERA_DISTANCE
@@ -171,14 +181,35 @@ func look_first_person_degrees(delta_degrees: float) -> void:
 
 
 func zoom_view_steps(steps: float) -> void:
-	if camera_mode != CameraMode.TOP_DOWN or is_zero_approx(steps):
+	if is_zero_approx(steps):
 		return
-	camera.size = clampf(
-		camera.size * pow(ZOOM_STEP_FACTOR, steps),
-		ZOOM_MIN_ORTHOGRAPHIC_SIZE,
-		ZOOM_MAX_ORTHOGRAPHIC_SIZE
-	)
-	_top_down_size = camera.size
+	match camera_mode:
+		CameraMode.TOP_DOWN:
+			camera.size = clampf(
+				camera.size * pow(ZOOM_STEP_FACTOR, steps),
+				ZOOM_MIN_ORTHOGRAPHIC_SIZE,
+				ZOOM_MAX_ORTHOGRAPHIC_SIZE
+			)
+			_top_down_size = camera.size
+		CameraMode.THIRD_PERSON:
+			# Same wheel polarity as top-down: positive steps pull the boom closer.
+			var next_distance := _third_person_distance * pow(ZOOM_STEP_FACTOR, steps)
+			if next_distance < THIRD_PERSON_MIN_DISTANCE:
+				# Crossing the close threshold enters eye-height first-person.
+				_third_person_distance = THIRD_PERSON_MIN_DISTANCE
+				set_camera_mode(CameraMode.FIRST_PERSON)
+				return
+			_third_person_distance = clampf(
+				next_distance,
+				THIRD_PERSON_MIN_DISTANCE,
+				THIRD_PERSON_MAX_DISTANCE
+			)
+			follow_player(true, 0.0)
+		CameraMode.FIRST_PERSON:
+			# Scroll-out restores the closest third-person boom; scroll-in is a no-op.
+			if steps < 0.0:
+				_third_person_distance = THIRD_PERSON_MIN_DISTANCE
+				set_camera_mode(CameraMode.THIRD_PERSON)
 
 
 func zoom_from_magnify_factor(factor: float) -> void:
