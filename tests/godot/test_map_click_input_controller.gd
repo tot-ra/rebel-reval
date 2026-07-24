@@ -121,6 +121,22 @@ func test_passive_hud_control_does_not_claim_gameplay_click() -> void:
 	label.free()
 
 
+func test_inventory_open_still_routes_world_drop_clicks() -> void:
+	var harness := _make_click_harness()
+	var inventory := harness.player.get_node_or_null("InventoryController") as InventoryController
+	assert_true(inventory != null, "player scene must own InventoryController")
+	inventory.open()
+	assert_true(inventory.is_open())
+
+	var world_items := _StubWorldItems.new()
+	harness.root.add_child(world_items)
+	harness.click_input.set_world_items(world_items)
+	assert_true(harness.player.is_movement_input_blocked())
+	assert_true(harness.click_input.try_handle_click(_left_click(Vector2(640, 360))))
+	assert_eq(world_items.handled_clicks, 1)
+	_cleanup_harness(harness)
+
+
 func _left_click(position: Vector2) -> InputEventMouseButton:
 	var event := InputEventMouseButton.new()
 	event.button_index = MOUSE_BUTTON_LEFT

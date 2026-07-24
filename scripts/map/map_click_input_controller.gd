@@ -29,9 +29,14 @@ func try_handle_click(event: InputEvent) -> bool:
 		return false
 	if _player == null or _view_runtime == null:
 		return false
-	if _player.is_movement_input_blocked():
-		return false
 	if _view_runtime.is_camera_drag_active():
+		return false
+	# WHY: while the bag is open, locomotion is blocked, but selected goods can
+	# still be dropped into the world. Do that before the general blocked-input
+	# gate; bag chrome itself is filtered out by _control_claims_click.
+	if _is_inventory_open():
+		return _world_items != null and _world_items.try_handle_click(event)
+	if _player.is_movement_input_blocked():
 		return false
 	if _world_items != null and _world_items.try_handle_click(event):
 		return true
@@ -72,7 +77,25 @@ static func _control_claims_click(control: Control) -> bool:
 		return false
 	# Containers and labels default to STOP even when they are only decorative.
 	# Focusable widgets are the controls that should retain primary-click ownership.
-	return control.focus_mode != Control.FOCUS_NONE
+	if control.focus_mode != Control.FOCUS_NONE:
+		return true
+	# Bag/journal chrome often uses FOCUS_NONE so overlay keyboard focus stays
+	# custom. While that modal chrome is hovered, gameplay must not steal the
+	# click or drag-and-drop never starts on grid cells.
+	var node: Node = control
+	while node != null:
+		if node is CanvasLayer and (node as CanvasLayer).visible:
+			if node is InventoryOverlay or node.is_in_group(&"modal_input_overlay"):
+				return true
+		node = node.get_parent()
+	return false
+
+
+func _is_inventory_open() -> bool:
+	if _player == null:
+		return false
+	var inventory := _player.get_node_or_null("InventoryController") as InventoryController
+	return inventory != null and inventory.is_open()
 
 
 func _physics_process(_delta: float) -> void:

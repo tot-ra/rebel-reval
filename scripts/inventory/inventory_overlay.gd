@@ -58,6 +58,10 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
+	# WHY: map click routing treats this group as interactive UI so bag cells
+	# with FOCUS_NONE still own drag/click instead of world drop/move.
+	if not is_in_group(&"modal_input_overlay"):
+		add_to_group(&"modal_input_overlay")
 	_selected = null
 	_focus_cell = Vector2i.ZERO
 	_refresh()
@@ -65,6 +69,8 @@ func open() -> void:
 
 func close() -> void:
 	visible = false
+	if is_in_group(&"modal_input_overlay"):
+		remove_from_group(&"modal_input_overlay")
 	_selected = null
 	closed.emit()
 
@@ -235,11 +241,16 @@ func _refresh_equipment_ui() -> void:
 				equipped[slot] = item_id
 	_silhouette.set_equipped(equipped)
 
+	var highlight: Array[StringName] = []
 	if _selected != null:
 		var equip_info := _equip_info(_selected.item_id)
 		if not equip_info.is_empty():
+			var slot := StringName(String(equip_info.get("slot", "")))
+			if not slot.is_empty():
+				highlight.append(slot)
 			_equip_button.visible = true
 			_equip_button.text = "Equip to %s" % String(equip_info.get("slot", "")).replace("_", " ")
+	_silhouette.set_highlight_slots(highlight)
 
 
 func _can_drop_on_slot(slot: StringName, data: Dictionary) -> bool:
@@ -291,15 +302,17 @@ func _slot_accepts_item(slot: StringName, item_id: StringName) -> bool:
 func _on_equipment_slot_pressed(slot: StringName) -> void:
 	if _state == null:
 		return
-	if not String(_state.equipped_item(slot)).is_empty():
-		_state.unequip_to_bag(slot)
-		_selected = null
-		_refresh()
-		return
+	# Prefer wearing the selected good (swap if needed) before treating the
+	# click as "stow whatever is already worn".
 	if _selected != null and _slot_accepts_item(slot, _selected.item_id):
 		if _state.equip_from_bag(slot, _selected.item_id):
 			_selected = null
 			_refresh()
+		return
+	if not String(_state.equipped_item(slot)).is_empty():
+		_state.unequip_to_bag(slot)
+		_selected = null
+		_refresh()
 
 
 func _equipped_item_label(item_id: StringName) -> String:

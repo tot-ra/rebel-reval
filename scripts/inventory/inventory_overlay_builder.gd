@@ -22,6 +22,9 @@ const HELP_TOOLTIP := (
 static func build(host: InventoryOverlay) -> Dictionary:
 	var root := MarginContainer.new()
 	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	# WHY: ignore outside the satchel so selected goods can be dropped into the
+	# world, while the panel itself still owns rearrange/equip clicks.
+	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_theme_constant_override("margin_left", 48)
 	root.add_theme_constant_override("margin_right", 48)
 	root.add_theme_constant_override("margin_top", 36)
@@ -31,11 +34,12 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	var dim := ColorRect.new()
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	dim.color = InventoryUiThemeScene.DIM_SCRIM
-	dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(dim)
 
 	var panel := PanelContainer.new()
 	panel.name = "BagPanel"
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	panel.custom_minimum_size = Vector2(740, 0)
@@ -84,7 +88,7 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	layout.add_child(InventoryUiThemeScene.make_brass_rule())
 
 	var hint := Label.new()
-	hint.text = "Click or drag to stow. Hover ? for controls."
+	hint.text = "Select a good, then Equip / drag onto a highlighted slot. Drag packed cells to rearrange."
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	InventoryUiThemeScene.apply_hint(hint)
 	layout.add_child(hint)

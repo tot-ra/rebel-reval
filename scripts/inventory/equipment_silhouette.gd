@@ -20,12 +20,17 @@ const SLOT_LABELS := {
 var _slot_rects: Dictionary = {}
 var _hover_slot: StringName = &""
 var _equipped: Dictionary[StringName, StringName] = {}
+var _highlight_slots: Array[StringName] = []
 var _slot_accepts_drop: Callable = Callable()
 var _slot_drop: Callable = Callable()
 var _item_label: Callable = Callable()
 var _item_short_label: Callable = Callable()
 var _drag_kind_bag: StringName = &"bag"
 var _drag_kind_equipped: StringName = &"equipped"
+## WHY: Godot delivers the mouse-up that ends a successful drop to this Control.
+## Treating that release as a slot click would immediately unequip the item we
+## just wore, which feels like drag-to-equip is broken.
+var _suppress_next_slot_click := false
 
 
 func _ready() -> void:
@@ -53,6 +58,11 @@ func configure_drop_handlers(
 
 func set_equipped(slots: Dictionary) -> void:
 	_equipped = slots
+	queue_redraw()
+
+
+func set_highlight_slots(slots: Array[StringName]) -> void:
+	_highlight_slots = slots.duplicate()
 	queue_redraw()
 
 
@@ -123,17 +133,20 @@ func _draw_slots() -> void:
 			continue
 		var rect: Rect2 = _slot_rects[slot]
 		var occupied := _equipped.has(slot) and not String(_equipped[slot]).is_empty()
+		var highlighted := slot in _highlight_slots
 		var base := InventoryUiThemeScene.SLOT_EMPTY
 		if occupied:
 			base = InventoryUiThemeScene.SLOT_FILLED
+		if highlighted:
+			base = InventoryUiThemeScene.LEATHER_VALID
 		if slot == _hover_slot:
 			base = base.lightened(0.14)
 		draw_rect(rect, base)
 		var border := (
-			InventoryUiThemeScene.BRASS_BRIGHT if slot == _hover_slot
+			InventoryUiThemeScene.BRASS_BRIGHT if slot == _hover_slot or highlighted
 			else InventoryUiThemeScene.BRASS
 		)
-		draw_rect(rect, border, false, 1.8)
+		draw_rect(rect, border, false, 2.2 if highlighted else 1.8)
 
 		var slot_name := String(SLOT_LABELS.get(slot, slot))
 		var label := slot_name
@@ -227,6 +240,10 @@ func _gui_input(event: InputEvent) -> void:
 	elif event is InputEventMouseButton:
 		var button := event as InputEventMouseButton
 		if button.button_index == MOUSE_BUTTON_LEFT and not button.pressed:
+			if _suppress_next_slot_click:
+				_suppress_next_slot_click = false
+				accept_event()
+				return
 			var slot := _slot_at(button.position)
 			if not slot.is_empty():
 				slot_pressed.emit(slot)
@@ -260,6 +277,8 @@ func _drop_data(at_position: Vector2, data: Variant) -> void:
 		return
 	if _slot_drop.is_valid():
 		_slot_drop.call(slot, data)
+	# Drop ends with a mouse-up on this control; skip the click that would stow.
+	_suppress_next_slot_click = true
 	_hover_slot = &""
 	queue_redraw()
 
