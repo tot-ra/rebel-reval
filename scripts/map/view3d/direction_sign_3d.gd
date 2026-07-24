@@ -5,24 +5,32 @@ extends RefCounted
 ## The map definition owns placement, label, and the outgoing ground-plane
 ## direction; this builder only turns those declarative values into 3D geometry.
 
-const POST_HEIGHT := 2.7
-const POST_RADIUS := 0.085
-const BOARD_HEIGHT := 0.52
-const BOARD_MIN_BODY_LENGTH := 2.0
-const BOARD_MAX_BODY_LENGTH := 3.0
-const BOARD_TEXT_PADDING := 0.18
-const TEXT_OFFSET_X := -0.12
-const ARROW_HEAD_LENGTH := 0.65
-const ARROW_HEAD_HEIGHT := 0.78
-const BOARD_THICKNESS := 0.12
-const BOARD_HEIGHT_FROM_GROUND := 2.25
-const TEXT_FONT_SIZE := 56
-const TEXT_PIXEL_SIZE := 0.0055
+const MeshBuilderPrimitives := preload("res://scripts/map/view3d/map_view_mesh_builder_primitives.gd")
+
+# Halved from the original footprint so signs read as hand-built waymarks, not
+# highway signage at the fixed dimetric camera distance.
+const POST_HEIGHT := 1.35
+const POST_RADIUS := 0.0425
+const BOARD_HEIGHT := 0.26
+const BOARD_MIN_BODY_LENGTH := 1.0
+const BOARD_MAX_BODY_LENGTH := 1.5
+const BOARD_TEXT_PADDING := 0.09
+const TEXT_OFFSET_X := -0.06
+const ARROW_HEAD_LENGTH := 0.325
+const ARROW_HEAD_HEIGHT := 0.39
+const BOARD_THICKNESS := 0.06
+const BOARD_HEIGHT_FROM_GROUND := 1.125
+const TEXT_FONT_SIZE := 44
+const TEXT_PIXEL_SIZE := 0.00275
+const BODY_PLANK_COUNT := 3
+const PLANK_GAP := 0.006
+const NAIL_HEAD_RADIUS := 0.008
+const NAIL_HEAD_THICKNESS := 0.003
 # Pale painted letters and an opaque dark outline remain readable against timber
 # in both the warm daylight palette and the blue-black night lighting.
 const TEXT_COLOR := Color(0.96, 0.86, 0.62)
 const TEXT_OUTLINE_COLOR := Color(0.055, 0.035, 0.02)
-const TEXT_OUTLINE_SIZE := 7
+const TEXT_OUTLINE_SIZE := 6
 
 
 static func build(sign: Dictionary, cell_size: int) -> Node3D:
@@ -38,8 +46,9 @@ static func build(sign: Dictionary, cell_size: int) -> Node3D:
 
 	var text := String(sign["text"])
 	var board_length := _board_length_for_text(text)
+	var sign_seed := text.hash()
 	_add_post(root)
-	_add_arrow_board(root, board_length)
+	_add_arrow_board(root, board_length, sign_seed)
 	_add_text(root, text, false, board_length)
 	_add_text(root, text, true, board_length)
 	return root
@@ -59,50 +68,121 @@ static func _add_post(root: Node3D) -> void:
 	root.add_child(post)
 
 
-static func _add_arrow_board(root: Node3D, board_length: float) -> void:
-	var body := MeshInstance3D.new()
+static func _add_arrow_board(root: Node3D, board_length: float, sign_seed: int) -> void:
+	var metal := MapViewMaterials.role(&"metal")
+
+	var body := Node3D.new()
 	body.name = "ArrowBody"
-	var body_mesh := BoxMesh.new()
-	body_mesh.size = Vector3(board_length, BOARD_HEIGHT, BOARD_THICKNESS)
-	body.mesh = body_mesh
 	body.position = Vector3(0.0, BOARD_HEIGHT_FROM_GROUND, 0.0)
-	body.material_override = MapViewMaterials.role(&"wood")
 	root.add_child(body)
+	_add_body_planks(body, board_length, metal, sign_seed)
 
-	var head := MeshInstance3D.new()
+	var head := Node3D.new()
 	head.name = "ArrowHead"
-	head.mesh = _arrow_head_mesh()
 	head.position = Vector3(board_length * 0.5, BOARD_HEIGHT_FROM_GROUND, 0.0)
-	head.material_override = MapViewMaterials.role(&"wood")
 	root.add_child(head)
+	_add_head_planks(head, metal, sign_seed)
 
 
-## A shallow triangular prism keeps the silhouette unmistakably arrow-shaped
-## from the fixed dimetric camera while retaining visible wooden side faces.
-static func _arrow_head_mesh() -> ArrayMesh:
+static func _add_body_planks(
+	parent: Node3D,
+	board_length: float,
+	metal: StandardMaterial3D,
+	sign_seed: int
+) -> void:
+	var plank_width := (board_length - PLANK_GAP * float(BODY_PLANK_COUNT - 1)) / float(BODY_PLANK_COUNT)
+	var x_start := -board_length * 0.5 + plank_width * 0.5
+	var half_thickness := BOARD_THICKNESS * 0.5
+
+	for plank_index in BODY_PLANK_COUNT:
+		var variation := _variation(sign_seed, plank_index)
+		var plank_height := BOARD_HEIGHT * (1.0 + variation * 0.07)
+		var plank_depth := BOARD_THICKNESS * (0.9 + absf(variation) * 0.08)
+		var plank := MeshInstance3D.new()
+		plank.name = "Plank%d" % plank_index
+		var mesh := BoxMesh.new()
+		mesh.size = Vector3(plank_width * (0.97 + absf(variation) * 0.04), plank_height, plank_depth)
+		plank.mesh = mesh
+		var x := x_start + float(plank_index) * (plank_width + PLANK_GAP)
+		plank.position = Vector3(x, variation * 0.01, variation * 0.003)
+		plank.rotation.z = variation * 0.035
+		plank.material_override = MapViewMaterials.role_for_size(&"timber", mesh.size)
+		parent.add_child(plank)
+
+		for y_sign in [-1.0, 1.0]:
+			for z_sign in [-1.0, 1.0]:
+				_add_nail_head(
+					parent,
+					"NailBody%d_%d_%d" % [plank_index, int(y_sign > 0.0), int(z_sign > 0.0)],
+					Vector3(x, y_sign * plank_height * 0.38, z_sign * (half_thickness + NAIL_HEAD_THICKNESS * 0.45)),
+					z_sign,
+					metal
+				)
+
+
+static func _add_head_planks(
+	parent: Node3D,
+	metal: StandardMaterial3D,
+	sign_seed: int
+) -> void:
 	var half_height := ARROW_HEAD_HEIGHT * 0.5
-	var half_depth := BOARD_THICKNESS * 0.5
-	var points := [
-		Vector3(0.0, -half_height, -half_depth),
-		Vector3(0.0, half_height, -half_depth),
-		Vector3(ARROW_HEAD_LENGTH, 0.0, -half_depth),
-		Vector3(0.0, -half_height, half_depth),
-		Vector3(0.0, half_height, half_depth),
-		Vector3(ARROW_HEAD_LENGTH, 0.0, half_depth),
-	]
-	var triangles := PackedInt32Array([
-		0, 2, 1,
-		3, 4, 5,
-		0, 3, 5, 0, 5, 2,
-		1, 2, 5, 1, 5, 4,
-		0, 1, 4, 0, 4, 3,
-	])
-	var surface := SurfaceTool.new()
-	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-	for index in triangles:
-		surface.add_vertex(points[index])
-	surface.generate_normals()
-	return surface.commit()
+	var head_length := ARROW_HEAD_LENGTH
+	var slope_length := sqrt(head_length * head_length + half_height * half_height)
+	var slope_angle := atan2(half_height, head_length)
+
+	for side_index in 2:
+		var side := 1.0 if side_index == 0 else -1.0
+		var variation := _variation(sign_seed, side_index + 11)
+		var plank := MeshInstance3D.new()
+		plank.name = "HeadPlank%d" % side_index
+		var mesh := BoxMesh.new()
+		mesh.size = Vector3(
+			slope_length * (0.98 + absf(variation) * 0.03),
+			BOARD_THICKNESS * (0.88 + absf(variation) * 0.06),
+			BOARD_HEIGHT * 0.42
+		)
+		plank.mesh = mesh
+		plank.rotation.z = -side * slope_angle + variation * 0.02
+		plank.position = Vector3(
+			head_length * 0.5 - slope_length * 0.5 * cos(slope_angle),
+			side * half_height * 0.34 + variation * 0.008,
+			variation * 0.004
+		)
+		plank.material_override = MapViewMaterials.role_for_size(&"timber", mesh.size)
+		parent.add_child(plank)
+
+		_add_nail_head(
+			parent,
+			"NailHead%d" % side_index,
+			Vector3(0.02, side * half_height * 0.22, side * (BOARD_THICKNESS * 0.5 + NAIL_HEAD_THICKNESS * 0.45)),
+			side,
+			metal
+		)
+
+
+static func _add_nail_head(
+	parent: Node3D,
+	nail_name: String,
+	position: Vector3,
+	face_sign: float,
+	metal: StandardMaterial3D
+) -> void:
+	var nail := MeshInstance3D.new()
+	nail.name = nail_name
+	var mesh := CylinderMesh.new()
+	mesh.top_radius = NAIL_HEAD_RADIUS
+	mesh.bottom_radius = NAIL_HEAD_RADIUS * 0.82
+	mesh.height = NAIL_HEAD_THICKNESS
+	mesh.radial_segments = 6
+	nail.mesh = mesh
+	nail.position = position
+	nail.rotation.x = PI * 0.5 if face_sign > 0.0 else -PI * 0.5
+	nail.material_override = metal
+	parent.add_child(nail)
+
+
+static func _variation(seed: int, index: int) -> float:
+	return MeshBuilderPrimitives.hash01(index, seed & 0xFFFF, seed) * 2.0 - 1.0
 
 
 static func _add_text(root: Node3D, text: String, back: bool, board_length: float) -> void:
@@ -116,7 +196,7 @@ static func _add_text(root: Node3D, text: String, back: bool, board_length: floa
 	label.outline_size = TEXT_OUTLINE_SIZE
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.position = Vector3(TEXT_OFFSET_X, BOARD_HEIGHT_FROM_GROUND, -BOARD_THICKNESS * 0.5 - 0.012 if back else BOARD_THICKNESS * 0.5 + 0.012)
+	label.position = Vector3(TEXT_OFFSET_X, BOARD_HEIGHT_FROM_GROUND, -BOARD_THICKNESS * 0.5 - 0.008 if back else BOARD_THICKNESS * 0.5 + 0.008)
 	if back:
 		label.rotation.y = PI
 	root.add_child(label)
