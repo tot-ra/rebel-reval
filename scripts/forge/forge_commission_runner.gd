@@ -5,6 +5,7 @@ extends Node
 
 signal started(commission_id: StringName)
 signal finished(commission_id: StringName)
+signal forging_started(commission_id: StringName, option_id: String)
 signal option_selected(commission_id: StringName, option_id: String)
 
 enum Result {
@@ -24,6 +25,7 @@ var _presenter: RefCounted
 var _commission_id := &""
 var _snapshot: Dictionary = {}
 var _active := false
+var _pending_option_id := ""
 var _last_result := Result.OK
 var _last_error := ""
 
@@ -80,23 +82,79 @@ func open(commission_id: StringName) -> bool:
 	return true
 
 
+func is_forging() -> bool:
+	return not _pending_option_id.is_empty()
+
+
 func select_option(option_id: String) -> bool:
 	_reset_result()
 	if not _active or option_id.is_empty():
 		return false
+	if not _pending_option_id.is_empty():
+		return false
 
+	var selected := _validate_option(option_id)
+	if selected.is_empty():
+		return false
+
+	_pending_option_id = option_id
+	forging_started.emit(_commission_id, option_id)
+	if _presenter != null:
+		_presenter.begin_forging(
+			option_id,
+			_snapshot,
+			Callable(self, "_on_forging_feedback_complete")
+		)
+	else:
+		return complete_pending_option()
+	return true
+
+
+func complete_pending_option() -> bool:
+	_reset_result()
+	if not _active or _pending_option_id.is_empty():
+		return false
+	var option_id := _pending_option_id
+	_pending_option_id = ""
+	return _commit_option(option_id)
+
+
+func cancel() -> void:
+	if not _active:
+		return
+	_pending_option_id = ""
+	_close()
+
+
+func _on_forging_feedback_complete() -> void:
+	complete_pending_option()
+
+
+func _validate_option(option_id: String) -> Dictionary:
 	if ForgeCommissionModel.is_commission_resolved(_state, _commission_id):
-		return _fail(Result.ALREADY_RESOLVED, "commission %s is already resolved" % _commission_id)
+		_fail(Result.ALREADY_RESOLVED, "commission %s is already resolved" % _commission_id)
+		return {}
 
 	var commission := _content_db.get_commission(_commission_id)
 	var selected := _find_forging_option(commission, option_id)
 	if selected.is_empty():
-		return _fail(Result.UNKNOWN_OPTION, "commission %s has no option %s" % [_commission_id, option_id])
+		_fail(Result.UNKNOWN_OPTION, "commission %s has no option %s" % [_commission_id, option_id])
+		return {}
 
 	var requires: Array = selected.get("requires", [])
 	if not requires.is_empty() \
 			and not _evaluator.evaluate_conditions(_runtime_rules(requires), _state):
-		return _fail(Result.OPTION_LOCKED, "option %s is locked for commission %s" % [option_id, _commission_id])
+		_fail(Result.OPTION_LOCKED, "option %s is locked for commission %s" % [option_id, _commission_id])
+		return {}
+
+	return selected
+
+
+func _commit_option(option_id: String) -> bool:
+	var commission := _content_db.get_commission(_commission_id)
+	var selected := _find_forging_option(commission, option_id)
+	if selected.is_empty():
+		return _fail(Result.UNKNOWN_OPTION, "commission %s has no option %s" % [_commission_id, option_id])
 
 	var effects: Array = selected.get("effects", [])
 	if not effects.is_empty() and not _evaluator.apply_effects(_runtime_rules(effects), _state):
@@ -117,12 +175,6 @@ func select_option(option_id: String) -> bool:
 	return true
 
 
-func cancel() -> void:
-	if not _active:
-		return
-	_close()
-
-
 func _find_forging_option(commission: Dictionary, option_id: String) -> Dictionary:
 	for option_value in commission.get("forging_options", []) as Array:
 		if typeof(option_value) != TYPE_DICTIONARY:
@@ -136,6 +188,7 @@ func _find_forging_option(commission: Dictionary, option_id: String) -> Dictiona
 func _close() -> void:
 	var finished_id := _commission_id
 	_active = false
+	_pending_option_id = ""
 	_commission_id = &""
 	_snapshot = {}
 	if _presenter != null:

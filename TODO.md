@@ -12,7 +12,7 @@ References:
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
 | P0 |    12  |    32  | Baseline, storage, materials, historical audit |
-| P1 |     1  |     6  | Runtime systems, content foundation |
+| P1 |     0  |     7  | Runtime systems, content foundation |
 | P2 |    15  |     6  | Vertical-slice production (playable MVP) |
 | P3 |    10  |     3  | Validation, accessibility, performance |
 | P4 |    41  |     7  | Act 1: The Simmering City |
@@ -58,7 +58,7 @@ References:
 <!-- P0-125 completed in current session -->
 <!-- P0-107 completed in current session -->
 <!-- P0-122b blocked: 2026-07-24 commercial xeno-canto re-scan returned zero takes -->
-<!-- P1-036 completed in current session -->
+<!-- P1-022 completed in current session -->
 <!-- P0-127 completed in current session -->
 
 
@@ -214,7 +214,7 @@ References:
 
 ### Medium
 
-- [ ] P1-022 | deps: P0-040 | deliverable: forge feedback for heat, hammer rhythm, quench, maker stamp, and object reveal | verify: automated scene trace emits the five feedback events in order and the forge scene exposes no temperature, strike-accuracy, or timing-score state
+- [x] P1-022 | deps: P0-040 | deliverable: forge feedback for heat, hammer rhythm, quench, maker stamp, and object reveal | allowed files: `scripts/forge/forge_feedback_sequence.gd`, `scripts/forge/forge_feedback_overlay.gd`, `scripts/forge/forge_commission_runner.gd`, `scripts/forge/forge_commission_presenter.gd`, `scripts/forge/forge_commission_ui_presenter.gd`, `scripts/forge/forge_commission_controller.gd`, `tests/godot/test_forge_feedback.gd`, `tests/godot/test_forge_commission.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: automated scene trace emits the five feedback events in order and the forge scene exposes no temperature, strike-accuracy, or timing-score state
 - [x] P1-029 | deps: P0-040 | deliverable: automated asset lint for texture dimensions and seamless tiling, texel density, naming, mesh pivots and character scale, portrait dimensions, and source-manifest provenance rows | allowed files: `tools/verify_asset_lint.py`, `tests/python/test_verify_asset_lint.py`, `.github/workflows/ci.yml`, `AGENTS.md`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 tools/verify_asset_lint.py` and `python3 -m unittest tests.python.test_verify_asset_lint -v` pass on current HEAD; valid fixture passes and one seeded error per rule fails in unit tests
 ### Large
 

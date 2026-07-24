@@ -197,6 +197,13 @@ func test_forge_ledger_commission_resolves_to_forged_record() -> void:
 	assert_true(overlay != null)
 	overlay.option_selected.emit("honest_work")
 
+	var feedback_overlay := commission_controller.get_node("ForgeFeedbackOverlay") as ForgeFeedbackOverlay
+	assert_true(feedback_overlay != null)
+	overlay.option_selected.emit("honest_work")
+	for _phase_index in 4:
+		feedback_overlay._unhandled_input(_accept_event())
+		await (Engine.get_main_loop() as SceneTree).process_frame
+
 	assert_false(commission_controller.is_open())
 	assert_true(SessionState.state.has_forged_record(RECORD_HONEST))
 	assert_false(ledger.is_enabled(), "resolved commission should disable the ledger interactable")
@@ -242,6 +249,13 @@ func _find_ledger_interactable(forge: Node) -> Interactable:
 func _activate_interactable(player: Player, interactable: Interactable) -> void:
 	player.global_position = interactable.global_position
 	interactable.register_actor_in_range(player)
+
+
+func _accept_event() -> InputEventKey:
+	var event := InputEventKey.new()
+	event.keycode = KEY_ENTER
+	event.pressed = true
+	return event
 
 
 func _make_runner_setup() -> Dictionary:

@@ -2,12 +2,14 @@ class_name ForgeCommissionController
 extends Node
 
 const OVERLAY_SCENE := preload("res://scenes/ui/forge_commission_overlay.tscn")
+const FEEDBACK_OVERLAY_SCRIPT := preload("res://scripts/forge/forge_feedback_overlay.gd")
 const RunnerScript := preload("res://scripts/forge/forge_commission_runner.gd")
 const PresenterScript := preload("res://scripts/forge/forge_commission_ui_presenter.gd")
 
 signal commission_finished(commission_id: StringName)
 
 var _overlay: ForgeCommissionOverlay
+var _feedback_overlay: ForgeFeedbackOverlay
 var _runner: ForgeCommissionRunner
 var _presenter: RefCounted
 
@@ -18,11 +20,16 @@ func _ready() -> void:
 	_overlay.visible = false
 	add_child(_overlay)
 
+	_feedback_overlay = FEEDBACK_OVERLAY_SCRIPT.new() as ForgeFeedbackOverlay
+	_feedback_overlay.name = "ForgeFeedbackOverlay"
+	_feedback_overlay.visible = false
+	add_child(_feedback_overlay)
+
 	_runner = RunnerScript.new()
 	add_child(_runner)
 
 	_presenter = PresenterScript.new()
-	_presenter.configure(_overlay, _runner)
+	_presenter.configure(_overlay, _runner, _feedback_overlay)
 	_runner.configure(SessionState.content_db, SessionState.state, _presenter)
 	_overlay.closed.connect(_on_overlay_closed)
 	_runner.finished.connect(_on_runner_finished)
@@ -43,7 +50,12 @@ func _on_state_replaced(_previous: GameState, current: GameState, _reason: Strin
 
 
 func is_open() -> bool:
-	return _overlay != null and _overlay.is_open()
+	return (_overlay != null and _overlay.is_open()) \
+		or (_feedback_overlay != null and _feedback_overlay.is_open())
+
+
+func is_forging() -> bool:
+	return _runner != null and _runner.is_forging()
 
 
 func is_active() -> bool:
