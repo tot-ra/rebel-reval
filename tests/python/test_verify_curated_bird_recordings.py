@@ -22,6 +22,26 @@ class VerifyCuratedBirdRecordingsTest(unittest.TestCase):
         errors = curated.verify(curated.DEFAULT_CURATED)
         self.assertEqual(errors, [])
 
+    def test_verify_rejects_procedural_maintainer_gap_fill(self) -> None:
+        payload = json.loads(curated.DEFAULT_CURATED.read_text(encoding="utf-8"))
+        payload["recordings"]["great_cormorant"] = {
+            "scientific": "Phalacrocorax carbo",
+            "source": "maintainer",
+            "recording_id": "122b01",
+            "recordist": "project maintainer",
+            "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+            "page": "tools/audio/generate_gap_bird_clips.py",
+            "local_file": "sounds/birds/great_cormorant/great_cormorant_MR122b01.mp3",
+            "length": "24",
+            "quality": "A",
+            "country": "Estonia",
+        }
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "curated.json"
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            errors = curated.verify(path)
+        self.assertTrue(any("procedural maintainer" in err for err in errors))
+
     def test_verify_rejects_wikimedia_gap_fill(self) -> None:
         payload = json.loads(curated.DEFAULT_CURATED.read_text(encoding="utf-8"))
         payload["recordings"]["great_cormorant"] = {

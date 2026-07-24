@@ -101,16 +101,18 @@ def build_bird_rows() -> list[dict[str, str]]:
         raw_path = Path(raw["file"])
         processed_path = Path(processed["processed_file"])
         is_maintainer = "MR" in raw_path.name
+        is_inaturalist = "IN" in raw_path.name
         raw_edits = (
             "P0-122b maintainer procedural call from tools/audio/generate_gap_bird_clips.py."
             if is_maintainer
             else "Downloaded from curated P0-122 manifest; unmodified source take."
         )
-        model_version = (
-            "in-house ffmpeg synthesis (tools/audio/generate_gap_bird_clips.py)"
-            if is_maintainer
-            else "xeno-canto / Wikimedia field recording"
-        )
+        if is_maintainer:
+            model_version = "in-house ffmpeg synthesis (tools/audio/generate_gap_bird_clips.py)"
+        elif is_inaturalist:
+            model_version = "iNaturalist field recording"
+        else:
+            model_version = "xeno-canto / Wikimedia field recording"
         common = {
             "recordist": raw.get("recordist", ""),
             "page": raw.get("page", ""),

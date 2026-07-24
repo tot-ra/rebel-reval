@@ -64,16 +64,17 @@
     },
     "great_cormorant": {
       "scientific": "Phalacrocorax carbo",
-      "source": "maintainer",
-      "recording_id": "122b01",
-      "recordist": "project maintainer",
+      "source": "inaturalist",
+      "recording_id": "367008",
+      "observation_id": "108097119",
+      "recordist": "jeremybarker",
       "license": "https://creativecommons.org/publicdomain/zero/1.0/",
-      "page": "tools/audio/generate_gap_bird_clips.py",
-      "local_file": "sounds/birds/great_cormorant/great_cormorant_MR122b01.mp3",
-      "length": "24",
+      "page": "https://www.inaturalist.org/observations/108097119",
+      "download_url": "https://static.inaturalist.org/sounds/367008.wav",
+      "length": "21",
       "quality": "A",
-      "country": "Estonia",
-      "maintainer_note": "P0-122b interim procedural call; replace with Baltic field take in P0-122e"
+      "country": "Germany",
+      "maintainer_note": "P0-122e CC0 field take (Friedrichshafen, DE) replacing P0-122b procedural call"
     },
     "grey_heron": {
       "scientific": "Ardea cinerea",
@@ -107,16 +108,17 @@
     },
     "white_tailed_eagle": {
       "scientific": "Haliaeetus albicilla",
-      "source": "maintainer",
-      "recording_id": "122b02",
-      "recordist": "project maintainer",
-      "license": "https://creativecommons.org/publicdomain/zero/1.0/",
-      "page": "tools/audio/generate_gap_bird_clips.py",
-      "local_file": "sounds/birds/white_tailed_eagle/white_tailed_eagle_MR122b02.mp3",
-      "length": "21",
+      "source": "inaturalist",
+      "recording_id": "803125",
+      "observation_id": "180952096",
+      "recordist": "emilvus",
+      "license": "https://creativecommons.org/licenses/by/4.0/",
+      "page": "https://www.inaturalist.org/observations/180952096",
+      "download_url": "https://static.inaturalist.org/sounds/803125.wav",
+      "length": "26",
       "quality": "A",
-      "country": "Estonia",
-      "maintainer_note": "P0-122b interim procedural call; replace with Baltic field take in P0-122e"
+      "country": "Germany",
+      "maintainer_note": "P0-122e CC BY field take (Brandenburg, DE) replacing P0-122b procedural call"
     },
     "osprey": {
       "scientific": "Pandion haliaetus",

@@ -50,15 +50,32 @@ under CC0 / CC BY / CC BY-SA for:
 - `bird.white_tailed_eagle` (*Haliaeetus albicilla*)
 
 **P0-122c** (freesound.org, 2026-07-24) also found no commercial Baltic clip for either
-species. **P0-122b** therefore ships deterministic maintainer-recorded procedural calls
-from `tools/audio/generate_gap_bird_clips.py` (CC0, tagged `source: maintainer` in
-`curated_bird_recordings.json`). These are interim ambience placeholders until **P0-122e**
-lands a species-specific Baltic or Estonian field take.
+species. **P0-122b** shipped deterministic maintainer-recorded procedural calls from
+`tools/audio/generate_gap_bird_clips.py` until **P0-122e** (2026-07-24) replaced both with
+north-European iNaturalist field takes.
 
 | Runtime ID | Interim source | License | Follow-up |
 |---|---|---|---|
-| `great_cormorant` | `tools/audio/generate_gap_bird_clips.py` (`MR122b01`) | CC0 1.0 | **P0-122e** - replace with Baltic field recording when sourced |
-| `white_tailed_eagle` | `tools/audio/generate_gap_bird_clips.py` (`MR122b02`) | CC0 1.0 | **P0-122e** - replace with Baltic field recording when sourced |
+| `great_cormorant` | `tools/audio/generate_gap_bird_clips.py` (`MR122b01`) | CC0 1.0 | **Replaced in P0-122e** (iNaturalist `367008`, Germany) |
+| `white_tailed_eagle` | `tools/audio/generate_gap_bird_clips.py` (`MR122b02`) | CC0 1.0 | **Replaced in P0-122e** (iNaturalist `803125`, Germany) |
+
+### iNaturalist scan (P0-122e, 2026-07-24)
+
+After **P0-122c** found no freesound.org Baltic clip, **P0-122e** searched the public
+iNaturalist API for `has[]=sounds` observations on both gap species with CC0 / CC BY /
+CC BY-SA sound licenses and a 15-90 s duration window. Lithuania held short eagle takes
+(4-6 s) only; no Estonia-tagged commercial clip met the length bar for either species.
+The selected replacements are species-specific north-European field recordings:
+
+| Runtime ID | Source | License | Region | Length | Observation |
+|---|---|---|---|---|---|
+| `great_cormorant` | iNaturalist sound `367008` (jeremybarker) | CC0 1.0 | Friedrichshafen, Germany | 21 s | [108097119](https://www.inaturalist.org/observations/108097119) |
+| `white_tailed_eagle` | iNaturalist sound `803125` (emilvus) | CC BY 4.0 | Brandenburg, Germany | 26 s | [180952096](https://www.inaturalist.org/observations/180952096) |
+
+**P0-122e outcome:** procedural maintainer gap calls removed; `fetch_bird_songs.py` now
+downloads `source: inaturalist` rows and `verify_curated_bird_recordings.py` rejects
+`generate_gap_bird_clips.py` maintainer placeholders. Follow-up: negotiate Estonian or
+Baltic-state replacements when loodusheli.ee / PlutoF permission lands (**P0-122f**).
 
 Legacy gap fills (removed in P0-122b):
 
@@ -83,8 +100,9 @@ NC rows are noted but rejected).
 | `white tailed eagle` | 1 (newlocknew FS713743) | Listed under the CC BY filter but the sound page carries **CC BY-NC 4.0**; 16.5 s zoo take (Ekaterinburg, Russia), not a Baltic field recording |
 
 **P0-122c outcome:** no freesound.org clip satisfies a Baltic field-take bar. **P0-122b**
-closed with maintainer-recorded interim procedural calls; **P0-122e** remains open for
-species-specific Baltic or Estonian field replacements when permission or recording lands.
+closed with maintainer-recorded interim procedural calls; **P0-122e** replaced both with
+north-European iNaturalist field takes (Germany) when no 15-90 s Baltic clip was available.
+**P0-122f** remains open for Estonian or Baltic-state permission-based replacements.
 
 ## The core finding: no free source of genuinely Estonian recordings exists
 

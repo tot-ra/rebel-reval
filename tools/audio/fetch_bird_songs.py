@@ -579,10 +579,18 @@ def download_curated(
         source = entry.get("source", "xeno-canto")
         recording_id = str(entry.get("recording_id", entry.get("xc_id", entry.get("fs_id", ""))))
         sp_dir = out_dir / bird_id
-        prefix = {"freesound": "FS", "wikimedia": "WM", "maintainer": "MR"}.get(source, "XC")
+        prefix = {
+            "freesound": "FS",
+            "inaturalist": "IN",
+            "wikimedia": "WM",
+            "maintainer": "MR",
+        }.get(source, "XC")
         ext = ".mp3"
-        if source == "wikimedia" and str(entry.get("download_url", "")).lower().endswith(".wav"):
+        download_url = str(entry.get("download_url", ""))
+        if download_url.lower().endswith(".wav"):
             ext = ".wav"
+        elif download_url.lower().endswith(".m4a"):
+            ext = ".m4a"
         dest = sp_dir / f"{bird_id}_{prefix}{recording_id}{ext}"
 
         if source == "maintainer":
@@ -623,6 +631,26 @@ def download_curated(
         elif source == "freesound":
             page = entry.get("page", "")
             file_url = entry.get("download_url") or fetch_freesound_preview_url(page)
+            rec = {
+                "id": recording_id,
+                "lic": entry.get("license", ""),
+                "cnt": entry.get("country", ""),
+                "length": entry.get("length", ""),
+                "q": entry.get("quality", ""),
+                "rec": entry.get("recordist", ""),
+                "url": page,
+                "file": file_url,
+                "file-name": dest.name,
+            }
+        elif source == "inaturalist":
+            file_url = entry.get("download_url", "")
+            if not file_url:
+                raise ValueError(f"{bird_id}: inaturalist entry missing download_url")
+            page = entry.get("page", "")
+            if not page:
+                obs_id = entry.get("observation_id", "")
+                if obs_id:
+                    page = f"https://www.inaturalist.org/observations/{obs_id}"
             rec = {
                 "id": recording_id,
                 "lic": entry.get("license", ""),
