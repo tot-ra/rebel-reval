@@ -170,6 +170,22 @@ Footprint rules match the P2-025 district-life contract: default single-cell pla
 
 For an enterable building, keep the transition rectangle on the walkable approach and set `building_id=<stable building id>`. The 2D trigger remains independently sized for reliable traversal, while the 3D renderer snaps the entrance to the nearest aligned facade and suppresses conflicting procedural facade details. Omit `building_id` for interior wall doors and freestanding gates.
 
+### Transition visual cues (P0-128)
+
+Every functional transition must declare how the 3D view dresses the trigger. Freestanding door meshes in open yards or on district edges are forbidden.
+
+| `transition_visual` | Use when | Required pairing |
+|---|---|---|
+| `door` (default) | Enterable buildings with a framed entrance | `building_id=<stable building id>`; approach rect must align with the building facade per `MapBuildingEntrance` |
+| `ground` | District edges, gate passages, and world-travel roads | `highlight_area=true` so the renderer draws a readable ground cue instead of a door mesh |
+| `none` | Suppress all transition dressing (rare) | No extra requirements |
+
+`MapDefinition.validate()` and `tests/godot/test_transition_visual_contract.gd` enforce:
+
+- `highlight_area=true` requires `transition_visual=ground`
+- `building_id` requires `transition_visual=door` and a facade-aligned approach
+- `transition_visual=door` without `building_id` must attach to a gate landmark (`view_landmark_id`) or an explicit interior-wall exception listed in the registry test
+
 ## Stable-ID rules
 
 Stable IDs connect map geometry to content, saves, transitions, audits, captures, and tests. Treat them as public API.
@@ -703,7 +719,7 @@ fingerprint. Toompea currently uses `elevation=2.8`.
 
 `placement_row` and arbitrary prefab definitions are intentionally not exposed in v1. They remain typed GDScript capabilities because a safe compact grammar has not demonstrated a readability benefit for them.
 
-Typed style/override keys are closed to the compiler's current semantic fields: `enabled`, `terrain`, `rect`, `wall_height`, `wall_height_scale`, `wall_color`, `roof_color`, `wall_material`, `roof_material`, `door_side`, `ridge_axis`, `primitive`, `cell`, `facing`, `style_variant`, `visual_offset_px`, `destination_scene_id`, `destination_spawn_id`, `spawn_id`, `spawn_offset_px`, `highlight_area`, `view_landmark_id`, `kind`, `direction`, `top_px`, `door_material`, `passage_axis`, `tower`, and `faction`. Each key has one parser type; unknown keys are rejected before compilation. The boolean `tower` key on a wall-kind building forces the round limestone tower dressing (drum, conical roof, arrow slits) regardless of footprint size; without it the small-footprint heuristic applies. The optional `faction` name selects readable heraldry for tower pennants, courtyard `banner` props, and merchant-cog mastheads (`danish_crown`, `livonian_order`, `hanseatic`, `harju_kings`, `black_cloaks`, `cult_metsik`, `pskov_novgorod`, `novgorod`, `pskov`, `vitalienbruder`). Prefer `novgorod` (bear) or `pskov` (lynx) when eastern trade cloth should show an animal charge; `pskov_novgorod` keeps the joint fess for undivided emissary placement. `black_cloaks` uses an invented swallow on black cloth (not the historical Brotherhood of Blackheads). `vitalienbruder` flies no flag. Confidence notes live on `FactionHeraldry`.
+Typed style/override keys are closed to the compiler's current semantic fields: `enabled`, `terrain`, `rect`, `wall_height`, `wall_height_scale`, `wall_color`, `roof_color`, `wall_material`, `roof_material`, `door_side`, `ridge_axis`, `primitive`, `cell`, `facing`, `style_variant`, `visual_offset_px`, `destination_scene_id`, `destination_spawn_id`, `spawn_id`, `building_id`, `spawn_offset_px`, `highlight_area`, `transition_visual`, `view_landmark_id`, `alignment`, `kind`, `direction`, `top_px`, `door_material`, `passage_axis`, `tower`, and `faction`. Each key has one parser type; unknown keys are rejected before compilation. The boolean `tower` key on a wall-kind building forces the round limestone tower dressing (drum, conical roof, arrow slits) regardless of footprint size; without it the small-footprint heuristic applies. The optional `faction` name selects readable heraldry for tower pennants, courtyard `banner` props, and merchant-cog mastheads (`danish_crown`, `livonian_order`, `hanseatic`, `harju_kings`, `black_cloaks`, `cult_metsik`, `pskov_novgorod`, `novgorod`, `pskov`, `vitalienbruder`). Prefer `novgorod` (bear) or `pskov` (lynx) when eastern trade cloth should show an animal charge; `pskov_novgorod` keeps the joint fess for undivided emissary placement. `black_cloaks` uses an invented swallow on black cloth (not the historical Brotherhood of Blackheads). `vitalienbruder` flies no flag. Confidence notes live on `FactionHeraldry`.
 
 `round_tower=true` selects a circular limestone footprint and the conical red-tile roof silhouette independently of the historical completion flag `tower=true` (which still adds ground doors and arrow slits). Use `wall_walk_axis=x|z` on a round tower when an elevated patrol corridor continues through it; this opens matching gameplay collision and cuts a character-scale upper portal. `interior_side=north|south|east|west` may orient blind wall arcades on ambiguous internal circuits; boundary walls otherwise derive their protected city face from map bounds.
 

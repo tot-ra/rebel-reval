@@ -11,13 +11,14 @@ References:
 <!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
-| P0 |    12  |    31  | Baseline, storage, materials, historical audit |
+| P0 |    12  |    32  | Baseline, storage, materials, historical audit |
 | P1 |     3  |     4  | Runtime systems, content foundation |
 | P2 |    15  |     6  | Vertical-slice production (playable MVP) |
 | P3 |    10  |     3  | Validation, accessibility, performance |
 | P4 |    41  |     7  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
+
 
 
 
@@ -55,6 +56,7 @@ References:
 <!-- P0-125 completed in current session -->
 <!-- P0-107 completed in current session -->
 <!-- P0-122b blocked: 2026-07-24 commercial xeno-canto re-scan returned zero takes -->
+<!-- P0-128 completed in current session -->
 <!-- P0-127 completed in current session -->
 
 
@@ -234,6 +236,7 @@ References:
 - [x] P0-120 | deps: none | deliverable: extend `tools/update_todo_counts.py` to report separate open/done counts for P3 through P6 act bands instead of collapsing them into one P3+ row | allowed files: `tools/update_todo_counts.py`, `tests/python/test_update_todo_counts.py`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 tools/update_todo_counts.py` lists accurate P0-P6 rows; `python3 -m unittest tests.python.test_update_todo_counts -v` passes; `python3 tools/update_todo_counts.py --write` refreshes the summary table without editing task contracts
 - [x] P0-121 | deps: none | deliverable: release-candidate verification scaffold (`tools/release_candidate_check.py`) covering AGPL license, asset provenance manifest, export preset and CI smoke indicators, and implemented accessibility baseline checks with Python unit tests | allowed files: `tools/release_candidate_check.py`, `tests/python/test_release_candidate_check.py`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 tools/release_candidate_check.py` exits 0 on current HEAD; `python3 -m unittest tests.python.test_release_candidate_check -v` passes
 - [x] P0-122 | deps: P0-117 | deliverable: source and download commercially usable, clean Estonian/north-Baltic field recordings (15-90 s, quality A) for the thirty approved species in `docs/FLORA_FAUNA.md` using `tools/audio/fetch_bird_songs.py` against xeno-canto v3, keeping only CC0/CC BY/CC BY-SA licenses into `sounds/birds/<bird_id>/` with a license/attribution `manifest.csv`; sourcing rationale in `docs/reports/bird_audio_sourcing.md`. Feeds **P0-105** | allowed files: `tools/audio/fetch_bird_songs.py`, `tools/audio/build_curated_bird_manifest.py`, `tools/audio/curated_bird_recordings.json`, `tools/verify_bird_audio_manifest.py`, `tests/python/test_bird_audio_manifest.py`, `sounds/birds/**`, `docs/reports/bird_audio_sourcing.md`, `.github/workflows/ci.yml`, `TODO.md` | verify: `python3 tools/verify_bird_audio_manifest.py` passes for all 30 species; `python3 -m unittest tests.python.test_bird_audio_manifest -v` passes; manifest licenses are CC0/BY/BY-SA only
+- [x] P0-128 | deps: none | deliverable: transition visual authoring contract in `docs/MAP_AUTHORING.md` plus a registry-wide Godot test ensuring door transitions attach to facades or gate landmarks and ground transitions expose `highlight_area` cues | allowed files: `docs/MAP_AUTHORING.md`, `tests/godot/test_transition_visual_contract.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: `docs/MAP_AUTHORING.md` documents `transition_visual`, `building_id`, and `highlight_area` pairing rules; `--filter=test_transition_visual_contract` passes across every retained map registry entry
 - [x] P0-127 | deps: P0-105a,P0-105b | deliverable: foreland bird context coverage in ambient audio and flight regression tests plus bird concurrency telemetry on the Lower Town performance quick report | allowed files: `tests/godot/test_map_view_bird_ambient_audio.gd`, `tests/godot/test_map_view_bird_flight.gd`, `tools/benchmarks/lower_town_scene_baseline.gd`, `tools/benchmarks/run_large_map_benchmark.gd`, `tools/benchmarks/large_map_benchmark_config.json`, `tools/benchmarks/run_large_map_benchmark.sh`, `tests/godot/test_performance_benchmark.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_map_view_bird_ambient_audio` and `--filter=test_map_view_bird_flight` each assert at least three distinct foreland cues/species; `tools/run_performance_report.sh build/benchmarks/performance-smoke.json --quick` records `bird_audio_peak` and `bird_flight_peak` within the authored caps
 - [ ] P0-122b | deps: P0-122 | deliverable: replace the two documented P0-122 gap fills (`great_cormorant` Wikimedia clip and `white_tailed_eagle` genus stand-in) with species-specific Baltic or Estonian field takes under CC0/BY/BY-SA once sourced | verify: `tools/audio/curated_bird_recordings.json` lists xeno-canto or maintainer-recorded sources for both gap species with no `stand_in_species` or non-xeno-canto source; `python3 tools/verify_bird_audio_manifest.py` stays green
 - [x] P0-122c | deps: none | deliverable: scan freesound.org for CC0/BY/BY-SA `great_cormorant` and `white_tailed_eagle` Baltic or north-Baltic field takes to unblock **P0-122b** after the 2026-07-24 xeno-canto commercial re-scan returned zero matches; extend `tools/audio/fetch_bird_songs.py` only if a clip is found | verify: if sourced, `curated_bird_recordings.json` has no `stand_in_species` or `wikimedia` rows for either gap species and `python3 tools/verify_bird_audio_manifest.py` stays green; otherwise `docs/reports/bird_audio_sourcing.md` records the freesound scan date and result
