@@ -12,12 +12,13 @@ References:
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
 | P0 |    12  |    32  | Baseline, storage, materials, historical audit |
-| P1 |     3  |     4  | Runtime systems, content foundation |
+| P1 |     2  |     5  | Runtime systems, content foundation |
 | P2 |    15  |     6  | Vertical-slice production (playable MVP) |
 | P3 |    10  |     3  | Validation, accessibility, performance |
 | P4 |    41  |     7  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
+
 
 
 
@@ -56,7 +57,7 @@ References:
 <!-- P0-125 completed in current session -->
 <!-- P0-107 completed in current session -->
 <!-- P0-122b blocked: 2026-07-24 commercial xeno-canto re-scan returned zero takes -->
-<!-- P0-128 completed in current session -->
+<!-- P1-029 completed in current session -->
 <!-- P0-127 completed in current session -->
 
 
@@ -213,7 +214,7 @@ References:
 ### Medium
 
 - [ ] P1-022 | deps: P0-040 | deliverable: forge feedback for heat, hammer rhythm, quench, maker stamp, and object reveal | verify: automated scene trace emits the five feedback events in order and the forge scene exposes no temperature, strike-accuracy, or timing-score state
-- [ ] P1-029 | deps: P0-040 | deliverable: automated asset lint for texture dimensions and seamless tiling, texel density, naming, mesh pivots and character scale, portrait dimensions, and source-manifest provenance rows | verify: valid fixture passes and one seeded error per rule fails CI
+- [x] P1-029 | deps: P0-040 | deliverable: automated asset lint for texture dimensions and seamless tiling, texel density, naming, mesh pivots and character scale, portrait dimensions, and source-manifest provenance rows | allowed files: `tools/verify_asset_lint.py`, `tests/python/test_verify_asset_lint.py`, `.github/workflows/ci.yml`, `AGENTS.md`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 tools/verify_asset_lint.py` and `python3 -m unittest tests.python.test_verify_asset_lint -v` pass on current HEAD; valid fixture passes and one seeded error per rule fails in unit tests
 ### Large
 
 - [ ] P1-036 | deps: P0-040,P0-072,P1-029 | deliverable: evidence-driven urban map composition audit that reports street/road surface ratios by material, built-footprint and open-space density, repeated building style/material usage, terrain/vegetation coverage, local elevation range, empty contiguous regions, and required landmark presence against the map-specific P0-072 ranges without treating cobblestone as the default ground fill | verify: valid Lower Town and prototype fixtures pass at their documented ranges; one seeded excess-cobble, sparse-building, missing-landmark, flat-relief, and repeated-style violation each fails with map ID, measured value, expected range, and source-decision reference

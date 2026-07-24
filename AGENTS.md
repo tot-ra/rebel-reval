@@ -111,7 +111,7 @@ Decision: P1-002 uses a small repository-owned headless GDScript harness instead
 | Active Markdown link and canon consistency report | `python3 tools/generate_active_docs_report.py --check` | **P0-031** |
 | Speculative scene and NPC markdown archive headers | `python3 tools/archive_speculative_docs.py --dry-run` (no output when complete) | **P0-032** |
 | Asset provenance manifest schema and coverage | `python3 tools/validate_asset_sources.py` | **P0-028** |
-| Asset lint (dimensions, pivots, manifest rows) | **Not yet available** | **P1-029** |
+| Asset lint (dimensions, pivots, manifest rows) | `python3 tools/verify_asset_lint.py` | **P1-029** |
 
 Content schemas and the Python validator are now available. Add runtime JSON under `content/` only when it passes `tools/validate_content.py` as part of a complete corpus.
 
