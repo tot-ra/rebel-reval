@@ -26,6 +26,7 @@ import csv
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -35,6 +36,7 @@ from pathlib import Path
 
 API = "https://xeno-canto.org/api/3/recordings"
 XC_BASE = "https://xeno-canto.org"
+REPO_ROOT = Path(__file__).resolve().parents[2]
 USER_AGENT = "rebel-reval-audio/1.0"
 
 # runtime bird id -> scientific name. Matches map_view_bird_species.gd. Estonia hosts
@@ -575,20 +577,40 @@ def download_curated(
     for bird_id, entry in recordings.items():
         sci = SPECIES[bird_id]
         source = entry.get("source", "xeno-canto")
-        xc_id = str(entry.get("xc_id", entry.get("fs_id", "")))
+        recording_id = str(entry.get("recording_id", entry.get("xc_id", entry.get("fs_id", ""))))
         sp_dir = out_dir / bird_id
-        prefix = {"freesound": "FS", "wikimedia": "WM"}.get(source, "XC")
+        prefix = {"freesound": "FS", "wikimedia": "WM", "maintainer": "MR"}.get(source, "XC")
         ext = ".mp3"
         if source == "wikimedia" and str(entry.get("download_url", "")).lower().endswith(".wav"):
             ext = ".wav"
-        dest = sp_dir / f"{bird_id}_{prefix}{xc_id}{ext}"
+        dest = sp_dir / f"{bird_id}_{prefix}{recording_id}{ext}"
 
-        if source == "wikimedia":
+        if source == "maintainer":
+            local_file = entry.get("local_file", "")
+            if not local_file:
+                raise ValueError(f"{bird_id}: maintainer entry missing local_file")
+            src_path = Path(local_file)
+            if not src_path.is_absolute():
+                src_path = REPO_ROOT / src_path
+            if not src_path.is_file():
+                raise ValueError(f"{bird_id}: maintainer local_file not found: {src_path}")
+            rec = {
+                "id": recording_id,
+                "lic": entry.get("license", ""),
+                "cnt": entry.get("country", ""),
+                "length": entry.get("length", ""),
+                "q": entry.get("quality", ""),
+                "rec": entry.get("recordist", ""),
+                "url": entry.get("page", "tools/audio/generate_gap_bird_clips.py"),
+                "file": str(src_path),
+                "file-name": dest.name,
+            }
+        elif source == "wikimedia":
             file_url = entry.get("download_url", "")
             if not file_url:
                 raise ValueError(f"{bird_id}: wikimedia entry missing download_url")
             rec = {
-                "id": xc_id,
+                "id": recording_id,
                 "lic": entry.get("license", ""),
                 "cnt": entry.get("country", ""),
                 "length": entry.get("length", ""),
@@ -602,7 +624,7 @@ def download_curated(
             page = entry.get("page", "")
             file_url = entry.get("download_url") or fetch_freesound_preview_url(page)
             rec = {
-                "id": xc_id,
+                "id": recording_id,
                 "lic": entry.get("license", ""),
                 "cnt": entry.get("country", ""),
                 "length": entry.get("length", ""),
@@ -614,21 +636,21 @@ def download_curated(
             }
         else:
             rec = {
-                "id": xc_id,
+                "id": recording_id,
                 "lic": entry.get("license", ""),
                 "cnt": entry.get("country", ""),
                 "length": entry.get("length", ""),
                 "q": entry.get("quality", ""),
                 "rec": entry.get("recordist", ""),
-                "url": entry.get("page", f"{XC_BASE}/{xc_id}"),
-                "file": f"{XC_BASE}/{xc_id}/download",
-                "file-name": f"XC{xc_id}.mp3",
+                "url": entry.get("page", f"{XC_BASE}/{recording_id}"),
+                "file": f"{XC_BASE}/{recording_id}/download",
+                "file-name": f"XC{recording_id}.mp3",
             }
 
         row = manifest_row(bird_id, sci, rec, dest)
         rows.append(row)
         print(
-            f"* {bird_id}: {prefix}{xc_id} "
+            f"* {bird_id}: {prefix}{recording_id} "
             f"q={row['quality']} {row['length']} {row['country']} ({source})",
             flush=True,
         )
@@ -637,7 +659,12 @@ def download_curated(
 
         sp_dir.mkdir(parents=True, exist_ok=True)
         trim = entry.get("trim")
-        if trim:
+        if source == "maintainer":
+            src_resolved = Path(rec["file"]).resolve()
+            dest_resolved = dest.resolve()
+            if src_resolved != dest_resolved:
+                shutil.copy2(src_resolved, dest_resolved)
+        elif trim:
             temp_dest = sp_dir / f".{dest.name}.full.mp3"
             if not download(rec["file"], temp_dest):
                 continue

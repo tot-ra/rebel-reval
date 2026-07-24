@@ -41,7 +41,7 @@ trimming/looping). The download script enforces this automatically and records t
 license of every downloaded file in a manifest for the credits/license report
 (needed for P6-008 release license report).
 
-### xeno-canto gaps (documented alternate sources in P0-122)
+### xeno-canto gaps (closed under P0-122b with maintainer-recorded interim calls)
 
 A full-catalog scan of xeno-canto (300+ takes per species) found **zero** recordings
 under CC0 / CC BY / CC BY-SA for:
@@ -49,13 +49,23 @@ under CC0 / CC BY / CC BY-SA for:
 - `bird.great_cormorant` (*Phalacrocorax carbo*)
 - `bird.white_tailed_eagle` (*Haliaeetus albicilla*)
 
-For P0-122 closeout these species use documented fills in
-`tools/audio/curated_bird_recordings.json`:
+**P0-122c** (freesound.org, 2026-07-24) also found no commercial Baltic clip for either
+species. **P0-122b** therefore ships deterministic maintainer-recorded procedural calls
+from `tools/audio/generate_gap_bird_clips.py` (CC0, tagged `source: maintainer` in
+`curated_bird_recordings.json`). These are interim ambience placeholders until **P0-122e**
+lands a species-specific Baltic or Estonian field take.
 
-| Runtime ID | Fill source | License | Follow-up |
+| Runtime ID | Interim source | License | Follow-up |
 |---|---|---|---|
-| `great_cormorant` | Wikimedia Commons field call | CC BY-SA 4.0 | **P0-122b** - replace with Baltic recording when available |
-| `white_tailed_eagle` | xeno-canto XC492979 (`Haliaeetus leucogaster` stand-in) | CC BY-SA 4.0 | **P0-122b** - replace with true `H. albicilla` clip |
+| `great_cormorant` | `tools/audio/generate_gap_bird_clips.py` (`MR122b01`) | CC0 1.0 | **P0-122e** - replace with Baltic field recording when sourced |
+| `white_tailed_eagle` | `tools/audio/generate_gap_bird_clips.py` (`MR122b02`) | CC0 1.0 | **P0-122e** - replace with Baltic field recording when sourced |
+
+Legacy gap fills (removed in P0-122b):
+
+| Runtime ID | Former fill | Why removed |
+|---|---|---|
+| `great_cormorant` | Wikimedia Commons India call | Non-Baltic region; replaced by maintainer interim |
+| `white_tailed_eagle` | xeno-canto `H. leucogaster` stand-in | Wrong species; replaced by maintainer interim |
 
 ### freesound.org scan (P0-122c, 2026-07-24)
 
@@ -72,9 +82,9 @@ NC rows are noted but rejected).
 | `Haliaeetus albicilla` | 0 | No commercial clip |
 | `white tailed eagle` | 1 (newlocknew FS713743) | Listed under the CC BY filter but the sound page carries **CC BY-NC 4.0**; 16.5 s zoo take (Ekaterinburg, Russia), not a Baltic field recording |
 
-**P0-122c outcome:** no freesound.org clip satisfies P0-122b. The documented P0-122
-gap fills remain in place; **P0-122b** stays open until a maintainer-recorded Baltic
-take or a newly published CC0 / CC BY / CC BY-SA source appears.
+**P0-122c outcome:** no freesound.org clip satisfies a Baltic field-take bar. **P0-122b**
+closed with maintainer-recorded interim procedural calls; **P0-122e** remains open for
+species-specific Baltic or Estonian field replacements when permission or recording lands.
 
 ## The core finding: no free source of genuinely Estonian recordings exists
 

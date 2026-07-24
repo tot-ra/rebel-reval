@@ -64,15 +64,16 @@
     },
     "great_cormorant": {
       "scientific": "Phalacrocorax carbo",
-      "source": "wikimedia",
-      "xc_id": "142295684",
-      "recordist": "Sharadapte",
-      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
-      "page": "https://commons.wikimedia.org/w/index.php?curid=142295684",
-      "download_url": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Great_cormorant_call_recorded_in_August_2003_at_Ranganathittu_Bird_Sanctuary%2C_Karnataka.wav",
-      "length": "16",
+      "source": "maintainer",
+      "recording_id": "122b01",
+      "recordist": "project maintainer",
+      "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "page": "tools/audio/generate_gap_bird_clips.py",
+      "local_file": "sounds/birds/great_cormorant/great_cormorant_MR122b01.mp3",
+      "length": "24",
       "quality": "A",
-      "country": "India"
+      "country": "Estonia",
+      "maintainer_note": "P0-122b interim procedural call; replace with Baltic field take in P0-122e"
     },
     "grey_heron": {
       "scientific": "Ardea cinerea",
@@ -106,15 +107,16 @@
     },
     "white_tailed_eagle": {
       "scientific": "Haliaeetus albicilla",
-      "xc_id": "492979",
-      "recordist": "Manoj Karingamadathil",
-      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
-      "page": "https://xeno-canto.org/492979",
+      "source": "maintainer",
+      "recording_id": "122b02",
+      "recordist": "project maintainer",
+      "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "page": "tools/audio/generate_gap_bird_clips.py",
+      "local_file": "sounds/birds/white_tailed_eagle/white_tailed_eagle_MR122b02.mp3",
       "length": "21",
-      "quality": "C",
-      "country": "India",
-      "stand_in_species": "Haliaeetus leucogaster",
-      "stand_in_note": "No commercial H. albicilla clip on xeno-canto; replace in P0-122b"
+      "quality": "A",
+      "country": "Estonia",
+      "maintainer_note": "P0-122b interim procedural call; replace with Baltic field take in P0-122e"
     },
     "osprey": {
       "scientific": "Pandion haliaetus",

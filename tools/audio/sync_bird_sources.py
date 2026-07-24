@@ -55,13 +55,14 @@ def row_for_file(
     page: str,
     license_url: str,
     edits: str,
+    model_version: str = "xeno-canto / Wikimedia field recording",
 ) -> dict[str, str]:
     rel_path = path if not path.is_absolute() else path.relative_to(ROOT)
     return {
         "asset_id": asset_id_for(rel_path),
         "path": rel_path.as_posix(),
         "creator_or_tool": recordist or "field recordist",
-        "model_version": "xeno-canto / Wikimedia field recording",
+        "model_version": model_version,
         "prompt_or_url": page,
         "seed": "n/a",
         "license": license_label(license_url),
@@ -99,6 +100,17 @@ def build_bird_rows() -> list[dict[str, str]]:
         processed = processed_rows[bird_id]
         raw_path = Path(raw["file"])
         processed_path = Path(processed["processed_file"])
+        is_maintainer = "MR" in raw_path.name
+        raw_edits = (
+            "P0-122b maintainer procedural call from tools/audio/generate_gap_bird_clips.py."
+            if is_maintainer
+            else "Downloaded from curated P0-122 manifest; unmodified source take."
+        )
+        model_version = (
+            "in-house ffmpeg synthesis (tools/audio/generate_gap_bird_clips.py)"
+            if is_maintainer
+            else "xeno-canto / Wikimedia field recording"
+        )
         common = {
             "recordist": raw.get("recordist", ""),
             "page": raw.get("page", ""),
@@ -107,7 +119,8 @@ def build_bird_rows() -> list[dict[str, str]]:
         out.append(
             row_for_file(
                 raw_path,
-                edits="Downloaded from curated P0-122 manifest; unmodified source take.",
+                edits=raw_edits,
+                model_version=model_version,
                 **common,
             )
         )
@@ -118,6 +131,7 @@ def build_bird_rows() -> list[dict[str, str]]:
                     "P0-123 trim to 15-90 s when needed, 80 Hz high-pass, "
                     "loudnorm to -16 LUFS; exported to engine MP3."
                 ),
+                model_version=model_version,
                 **common,
             )
         )
