@@ -9,9 +9,10 @@ This is the implementation ledger for Reval vegetation. It distinguishes concret
 - **Ground-cover styles: 8/8 supported.** These are visual/ecological cover presets, not eight botanical species. Registration and density rules: [`terrain_vegetation.gd`](../scripts/map/terrain_vegetation.gd).
 - **Rendering: complete for the scoped flora system.** [`map_view_mesh_builder_scatter.gd`](../scripts/map/view3d/map_view_mesh_builder_scatter.gd) batches each tree or plant species with cached meshes and `MultiMesh`; [`map_view_terrain_details.gd`](../scripts/map/view3d/map_view_terrain_details.gd) adds first-person grass, dry seed heads, clover, and fern detail.
 - **Imported 3D flora assets: none by design.** Runtime vegetation is deterministic procedural geometry. Images under [`archive/2d_sprites_inspiration/assets/trees/`](../archive/2d_sprites_inspiration/assets/trees/) are references only and are not gameplay models.
-- **Birds: 30/30 target species cataloged with procedural reference meshes and runtime ambient playback.** Catalog, processed clips, district spawn weights, positional song scheduling, and gliding flight actors: [`map_view_bird_species.gd`](../scripts/map/view3d/map_view_bird_species.gd), [`map_view_bird_ambient_audio.gd`](../scripts/map/view3d/map_view_bird_ambient_audio.gd), [`map_view_bird_flight.gd`](../scripts/map/view3d/map_view_bird_flight.gd). Cached low-poly meshes: [`map_view_bird_meshes.gd`](../scripts/map/view3d/map_view_bird_meshes.gd). Reference sheet: [`p0_117_bird_reference_sheet.png`](reports/images/fauna/p0_117_bird_reference_sheet.png). Urban mammals remain **P2-024**; penned livestock remain **P0-106**.
+- **Birds: 30/30 target species cataloged with procedural reference meshes and runtime ambient playback.** Catalog, processed clips, district spawn weights, positional song scheduling, and gliding flight actors: [`map_view_bird_species.gd`](../scripts/map/view3d/map_view_bird_species.gd), [`map_view_bird_ambient_audio.gd`](../scripts/map/view3d/map_view_bird_ambient_audio.gd), [`map_view_bird_flight.gd`](../scripts/map/view3d/map_view_bird_flight.gd). Cached low-poly meshes: [`map_view_bird_meshes.gd`](../scripts/map/view3d/map_view_bird_meshes.gd). Reference sheet: [`p0_117_bird_reference_sheet.png`](reports/images/fauna/p0_117_bird_reference_sheet.png).
+- **Mammals: 30/30 target species cataloged with procedural reference meshes.** Catalog and district spawn-weight stubs: [`map_view_mammal_species.gd`](../scripts/map/view3d/map_view_mammal_species.gd). Cached low-poly meshes: [`map_view_mammal_meshes.gd`](../scripts/map/view3d/map_view_mammal_meshes.gd). Reference sheet: [`p0_118_mammal_reference_sheet.png`](reports/images/fauna/p0_118_mammal_reference_sheet.png). Urban cat/dog/horse/rat runtime behavior remains **P2-024**; penned livestock runtime behavior remains **P0-106**.
 - **Shrubs: 20/20 target species modeled and authored.** Catalog and ecological groups: [`map_view_bush_species.gd`](../scripts/map/view3d/map_view_bush_species.gd). Procedural meshes: [`map_view_bush_meshes.gd`](../scripts/map/view3d/map_view_bush_meshes.gd). Legacy `bush.dense` and `bush.scrub` remain weighted group aliases.
-- **Other fauna: not yet modeled.** Ambient mammals and penned livestock are **P0-118** / **P0-106**; folklore bestiary content is not an ambient-fauna system.
+- **Other fauna: mammals modeled; runtime actors pending.** Ambient mammal spawning and penned livestock actors are **P2-024** / **P0-106**; folklore bestiary content is not an ambient-fauna system.
 
 Status vocabulary:
 - `modeled + used` - registered, produces a concrete cached mesh, and has an authored location below.
@@ -155,6 +156,45 @@ Shrub tests: [`test_map_view_bush_species.gd`](../tests/godot/test_map_view_bush
 
 Bird tests: [`test_map_view_bird_species.gd`](../tests/godot/test_map_view_bird_species.gd). They enforce 30 registered profiles, ten silhouette-group families, cached pose variants, bounded triangle budgets, district spawn weights for every context, and at least ten distinct default-pose envelopes.
 
+## Mammal model ledger (30/30)
+
+`fauna.*` IDs identify north-Baltic ambient mammals. Optional pose suffixes `.standing`, `.grazing`, and `.resting` select cached reference meshes. Runtime urban actors (**P2-024**), penned livestock (**P0-106**), and wild-margin flee behavior are not part of this task.
+
+| Mammal | Runtime ID | Group | Runtime owner | Status |
+|---|---|---|---|---|
+| Brown bear | `fauna.brown_bear` | bear | wild margin | modeled (catalog) |
+| Wolf | `fauna.wolf` | canid | wild margin | modeled (catalog) |
+| Red fox | `fauna.red_fox` | canid | wild margin | modeled (catalog) |
+| Eurasian lynx | `fauna.lynx` | felid | wild margin | modeled (catalog) |
+| Elk | `fauna.elk` | ungulate | wild margin | modeled (catalog) |
+| Red deer | `fauna.red_deer` | ungulate | wild margin | modeled (catalog) |
+| Roe deer | `fauna.roe_deer` | ungulate | wild margin | modeled (catalog) |
+| Wild boar | `fauna.wild_boar` | ungulate | wild margin | modeled (catalog) |
+| Beaver | `fauna.beaver` | rodent | wetland margin | modeled (catalog) |
+| Eurasian otter | `fauna.otter` | mustelid | wetland margin | modeled (catalog) |
+| European badger | `fauna.badger` | mustelid | wild margin | modeled (catalog) |
+| Stoat | `fauna.stoat` | mustelid | wild margin | modeled (catalog) |
+| Pine marten | `fauna.pine_marten` | mustelid | woodland margin | modeled (catalog) |
+| European polecat | `fauna.polecat` | mustelid | wild margin | modeled (catalog) |
+| European hare | `fauna.hare` | lagomorph | foreland margin | modeled (catalog) |
+| Red squirrel | `fauna.squirrel` | rodent | garden/woodland | modeled (catalog) |
+| European hedgehog | `fauna.hedgehog` | insectivore | garden margin | modeled (catalog) |
+| Grey seal | `fauna.grey_seal` | seal | harbour margin | modeled (catalog) |
+| Ringed seal | `fauna.ringed_seal` | seal | harbour/wetland | modeled (catalog) |
+| Common bat | `fauna.common_bat` | bat | night margin | modeled (catalog) |
+| Domestic cat | `fauna.cat` | felid | **P2-024** urban | modeled (catalog) |
+| Domestic dog | `fauna.dog` | canid | **P2-024** urban | modeled (catalog) |
+| Horse | `fauna.horse` | ungulate | **P2-024** urban | modeled (catalog) |
+| Brown rat | `fauna.rat` | rodent | **P2-024** urban | modeled (catalog) |
+| Chicken | `fauna.chicken` | fowl | **P0-106** penned | modeled (catalog) |
+| Domestic duck | `fauna.duck` | fowl | **P0-106** penned | modeled (catalog) |
+| Domestic goose | `fauna.goose` | fowl | **P0-106** penned | modeled (catalog) |
+| Domestic pig | `fauna.pig` | swine | **P0-106** penned | modeled (catalog) |
+| Cattle | `fauna.cow` | ungulate | **P0-106** penned | modeled (catalog) |
+| Sheep | `fauna.sheep` | ungulate | **P0-106** penned | modeled (catalog) |
+
+Mammal tests: [`test_map_view_mammal_species.gd`](../tests/godot/test_map_view_mammal_species.gd). They enforce 30 registered profiles, twelve silhouette-group families, cached pose variants, bounded triangle budgets, district spawn weights for every context, and at least eight distinct default-pose envelopes.
+
 ## Legacy ground-cover styles
 
 These remain valid for broad area dressing and backwards compatibility. Authors should use concrete `plant.*` / `crop.*` variants when a named species matters.
@@ -193,5 +233,5 @@ The scoped tree/herb model system is complete at the target catalog size. Remain
 
 - seasonal states, harvest interactions, inventory items, and regrowth simulation;
 - species-specific collision or movement beyond current zone/prop multipliers;
-- ambient mammals, insects, fish, and their behavior/audio systems (**P0-106**, **P2-024**, **P0-118**);
+- ambient mammal runtime actors and penned livestock behavior (**P2-024**, **P0-106**);
 - art-direction review from gameplay camera and performance profiling on target hardware.
