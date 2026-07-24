@@ -404,7 +404,7 @@ func is_top_down() -> bool:
 func zoom_view_steps(steps: float) -> void:
 	var mode_before := _camera_controller.camera_mode
 	_camera_controller.zoom_view_steps(steps)
-	# Scroll can cross third-person <-> first-person; keep movement and ghost in sync.
+	# Scroll can cross first-person <-> third-person <-> top-down; keep movement/ghost in sync.
 	if _camera_controller.camera_mode != mode_before:
 		_configure_screen_relative_movement()
 		_update_occlusion_ghost()

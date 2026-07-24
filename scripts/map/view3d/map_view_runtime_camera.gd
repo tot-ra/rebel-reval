@@ -24,7 +24,7 @@ const PAN_SCROLL_ZOOM_SENSITIVITY := 1.0
 const THIRD_PERSON_DISTANCE := 6.0
 ## Closest boom before scroll-zoom flips into first-person.
 const THIRD_PERSON_MIN_DISTANCE := 2.0
-## Hard zoom-out cap so the follow camera cannot float into overview territory.
+## Farthest boom before scroll-zoom flips into the orthographic top-down overview.
 const THIRD_PERSON_MAX_DISTANCE := 12.0
 const THIRD_PERSON_TARGET_HEIGHT := 1.15
 const THIRD_PERSON_PITCH_DEGREES := -12.0
@@ -185,8 +185,15 @@ func zoom_view_steps(steps: float) -> void:
 		return
 	match camera_mode:
 		CameraMode.TOP_DOWN:
+			# Same continuum as the follow boom: zoom-in past the close ortho
+			# threshold restores third-person at the farthest boom.
+			var next_size := camera.size * pow(ZOOM_STEP_FACTOR, steps)
+			if next_size < ZOOM_MIN_ORTHOGRAPHIC_SIZE and steps > 0.0:
+				_third_person_distance = THIRD_PERSON_MAX_DISTANCE
+				set_camera_mode(CameraMode.THIRD_PERSON)
+				return
 			camera.size = clampf(
-				camera.size * pow(ZOOM_STEP_FACTOR, steps),
+				next_size,
 				ZOOM_MIN_ORTHOGRAPHIC_SIZE,
 				ZOOM_MAX_ORTHOGRAPHIC_SIZE
 			)
@@ -198,6 +205,11 @@ func zoom_view_steps(steps: float) -> void:
 				# Crossing the close threshold enters eye-height first-person.
 				_third_person_distance = THIRD_PERSON_MIN_DISTANCE
 				set_camera_mode(CameraMode.FIRST_PERSON)
+				return
+			if next_distance > THIRD_PERSON_MAX_DISTANCE:
+				# Crossing the far threshold enters the orthographic overview.
+				_third_person_distance = THIRD_PERSON_MAX_DISTANCE
+				set_camera_mode(CameraMode.TOP_DOWN)
 				return
 			_third_person_distance = clampf(
 				next_distance,

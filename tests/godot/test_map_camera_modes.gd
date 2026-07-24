@@ -247,11 +247,23 @@ func test_third_person_scroll_zoom_clamps_and_enters_first_person() -> void:
 	assert_true(runtime.is_third_person())
 	assert_true(is_equal_approx(runtime.third_person_follow_distance(), MapViewRuntime.THIRD_PERSON_DISTANCE))
 
+	# One step past the far boom threshold enters top-down overview.
 	runtime.zoom_view_steps(-200.0)
-	assert_true(runtime.is_third_person(), "zoom-out must stay in third-person until C or a close threshold")
+	assert_true(runtime.is_top_down(), "zoom-out past the far boom must enter top-down")
+	assert_true(
+		camera.projection == Camera3D.PROJECTION_ORTHOGONAL,
+		"zoom-entered top-down must use the orthographic overview"
+	)
 	assert_true(
 		is_equal_approx(runtime.third_person_follow_distance(), MapViewRuntime.THIRD_PERSON_MAX_DISTANCE),
-		"third-person boom must clamp at the authored max distance"
+		"crossing into top-down must remember the max boom for the return path"
+	)
+
+	runtime.zoom_view_steps(100.0)
+	assert_true(runtime.is_third_person(), "zoom-in past the close top-down size must restore third-person")
+	assert_true(
+		is_equal_approx(runtime.third_person_follow_distance(), MapViewRuntime.THIRD_PERSON_MAX_DISTANCE),
+		"restored third-person from top-down must start at the farthest boom"
 	)
 	assert_true(
 		camera.position.is_equal_approx(
@@ -259,7 +271,7 @@ func test_third_person_scroll_zoom_clamps_and_enters_first_person() -> void:
 			+ Vector3.UP * MapViewRuntime.THIRD_PERSON_TARGET_HEIGHT
 			+ camera.transform.basis.z * MapViewRuntime.THIRD_PERSON_MAX_DISTANCE
 		),
-		"max zoom-out must place the camera on the clamped boom"
+		"restored boom from top-down must place the camera at the max follow distance"
 	)
 
 	runtime.zoom_view_steps(100.0)

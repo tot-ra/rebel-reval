@@ -182,15 +182,20 @@ func test_runtime_accepts_mouse_wheel_and_trackpad_zoom_input() -> void:
 		"opposite trackpad scroll must restore the previous zoom level"
 	)
 
-	runtime.zoom_view_steps(100.0)
-	assert_true(
-		is_equal_approx(camera.size, MapViewRuntime.ZOOM_MIN_ORTHOGRAPHIC_SIZE),
-		"zooming in must stop at the close-up limit"
-	)
 	runtime.zoom_view_steps(-200.0)
+	assert_true(runtime.is_top_down(), "zoom-out while already top-down must stay in overview")
 	assert_true(
 		is_equal_approx(camera.size, MapViewRuntime.ZOOM_MAX_ORTHOGRAPHIC_SIZE),
 		"zooming out must stop at the overview limit"
+	)
+	runtime.zoom_view_steps(100.0)
+	assert_true(
+		runtime.is_third_person(),
+		"zooming in past the close top-down size must restore third-person"
+	)
+	assert_true(
+		is_equal_approx(runtime.third_person_follow_distance(), MapViewRuntime.THIRD_PERSON_MAX_DISTANCE),
+		"restored third-person from top-down must start at the farthest boom"
 	)
 	scene_root.free()
 
