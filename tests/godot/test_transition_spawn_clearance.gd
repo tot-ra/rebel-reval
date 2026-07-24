@@ -17,6 +17,7 @@ func _definition_loaders() -> Array[Callable]:
 		preload("res://scripts/map/definitions/prototypes/toompea_quarter_definition.gd").create,
 		preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd").create,
 		preload("res://scripts/map/definitions/prototypes/st_olafs_guild_hall_definition.gd").create,
+		preload("res://scripts/map/definitions/prototypes/town_hall_definition.gd").create,
 	]
 
 
@@ -111,6 +112,29 @@ func test_center_monastery_pair_lands_on_walkable_street_cells() -> void:
 		),
 		"Monastery Pikk spine must reach the Central District door"
 	)
+
+
+func test_town_hall_return_lands_in_forecourt_not_inside_mass() -> void:
+	## Regression: +Y spawn offset placed arrivals inside town_hall_mass and the
+	## door trigger immediately sent players back into the interior.
+	var center: MapDefinition = preload(
+		"res://scripts/map/definitions/prototypes/market_civic_quarter_definition.gd"
+	).create()
+	var interior: MapDefinition = preload(
+		"res://scripts/map/definitions/prototypes/town_hall_definition.gd"
+	).create()
+	var center_grid := MapBuilder.build(center)
+	var entry := _transition(center, &"to_town_hall")
+	var exit := _transition(interior, &"to_reval_center")
+	assert_true((entry["spawn_offset"] as Vector2).y < 0.0, "return from Town Hall must land north of the facade trigger")
+	var arrival := (entry["rect"] as Rect2).get_center() + (entry["spawn_offset"] as Vector2)
+	assert_true(
+		MapVerification.is_walkable_point(center, center_grid, arrival),
+		"Town Hall return arrival %s must be walkable forecourt" % arrival
+	)
+	assert_true(MapVerification.spawn_clears_transition_trigger(entry))
+	assert_eq(exit.get("destination_spawn_id"), entry.get("spawn_id"))
+	assert_eq(exit.get("spawn_id"), entry.get("destination_spawn_id"))
 
 
 func test_global_mockup_transition_spawns_are_clear_and_reachable() -> void:
