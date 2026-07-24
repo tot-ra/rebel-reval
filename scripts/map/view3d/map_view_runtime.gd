@@ -16,6 +16,7 @@ const RuntimeCamera := preload("res://scripts/map/view3d/map_view_runtime_camera
 const RuntimeActors := preload("res://scripts/map/view3d/map_view_runtime_actors.gd")
 const BirdAmbientAudio := preload("res://scripts/map/view3d/map_view_bird_ambient_audio.gd")
 const BirdContext := preload("res://scripts/map/view3d/map_view_bird_context.gd")
+const BirdFlight := preload("res://scripts/map/view3d/map_view_bird_flight.gd")
 
 ## Compatibility aliases keep the runtime's public locomotion thresholds stable.
 const WALK_ANIMATION_MIN_SPEED := RuntimeActors.WALK_ANIMATION_MIN_SPEED
@@ -77,8 +78,10 @@ var _equipment_state: GameState
 var _session_state: Node
 var _session_content_db: ContentDB
 var _click_input: Node
-var _bird_audio: MapViewBirdAmbientAudio
+var _bird_audio
 var _bird_audio_enabled := true
+var _bird_flight
+var _bird_flight_enabled := true
 
 
 static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasItem, player: CharacterBody2D) -> MapViewRuntime:
@@ -129,6 +132,7 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 	runtime.view.apply_cycle_progress(runtime.cycle_progress)
 	runtime._sync_music_cycle()
 	runtime._install_bird_audio()
+	runtime._install_bird_flight()
 	runtime._install_click_input(scene_root)
 	return runtime
 
@@ -150,6 +154,26 @@ func bird_audio_active_voice_count() -> int:
 	if _bird_audio == null:
 		return 0
 	return _bird_audio.active_voice_count()
+
+
+func set_bird_flight_enabled(enabled: bool) -> void:
+	_bird_flight_enabled = enabled
+	if _bird_flight != null:
+		_bird_flight.set_flight_enabled(enabled)
+
+
+func bird_flight_active_count() -> int:
+	if _bird_flight == null:
+		return 0
+	return _bird_flight.active_bird_count()
+
+
+func _install_bird_flight() -> void:
+	_bird_flight = BirdFlight.new()
+	_bird_flight.name = "BirdFlight"
+	add_child(_bird_flight)
+	var context := BirdContext.context_for_map(_definition.map_id)
+	_bird_flight.configure(_definition.map_id, context, _definition.size_cells)
 
 
 func _install_bird_audio() -> void:
@@ -274,6 +298,7 @@ func _process(delta: float) -> void:
 	if _player == null or not is_instance_valid(_player):
 		return
 	_sync_bird_audio(delta)
+	_sync_bird_flight(delta)
 	_apply_view_rotation(delta)
 	_sync_player(false, delta)
 	_actor_controller.sync_view_actors(delta)
@@ -439,6 +464,16 @@ func _sync_bird_audio(delta: float) -> void:
 	var context := BirdContext.context_for_map(_definition.map_id)
 	var listener := _camera.global_position if _camera != null else Vector3.ZERO
 	_bird_audio.sync(context, cycle_progress, listener, delta, _bird_audio_enabled)
+
+
+func _sync_bird_flight(delta: float) -> void:
+	if _bird_flight == null or _definition == null:
+		return
+	if _definition.suppresses_exterior_surroundings():
+		_bird_flight.sync(&"", cycle_progress, delta, false)
+		return
+	var context := BirdContext.context_for_map(_definition.map_id)
+	_bird_flight.sync(context, cycle_progress, delta, _bird_flight_enabled)
 
 
 func _sync_player(snap: bool, delta: float = 0.0) -> void:
