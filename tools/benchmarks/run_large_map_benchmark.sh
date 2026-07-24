@@ -42,12 +42,15 @@ target = report["target_hardware"]
 headline = report["headline"]
 print(
     "Target: {profile_id} ({status}); frame p95: {frame:.3f} ms; "
-    "static memory: {memory} bytes; actor count: {actors}".format(
+    "static memory: {memory} bytes; actor count: {actors}; "
+    "bird audio peak: {bird_audio}; bird flight peak: {bird_flight}".format(
         profile_id=target["profile_id"],
         status=target["status"],
         frame=headline["frame_time_ms_p95"],
         memory=headline["memory_static_bytes"],
         actors=headline["actor_count"],
+        bird_audio=headline.get("bird_audio_peak", 0),
+        bird_flight=headline.get("bird_flight_peak", 0),
     )
 )
 PY

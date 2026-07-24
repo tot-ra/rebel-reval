@@ -6,6 +6,17 @@ const BirdSpecies := preload("res://scripts/map/view3d/map_view_bird_species.gd"
 const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
 const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
 const HarborNorth := preload("res://scripts/map/definitions/outdoor/reval_harbor_north_definition.gd")
+const Foreland := preload("res://scripts/map/definitions/outdoor/viru_gate_foreland_definition.gd")
+
+
+func test_foreland_context_surfaces_distinct_gliding_species() -> void:
+	var species := BirdFlight.distinct_species_for_context(
+		&"viru_gate_foreland",
+		BirdContext.context_for_map(&"viru_gate_foreland"),
+		0.35,
+		48
+	)
+	assert_true(species.size() >= 3, "Viru Gate foreland day cycle should surface at least three gliding species")
 
 
 func test_lower_town_context_surfaces_distinct_gliding_species() -> void:
@@ -68,3 +79,6 @@ func test_interior_maps_suppress_bird_flight_via_runtime() -> void:
 
 	var harbor: MapDefinition = HarborNorth.create()
 	assert_eq(BirdContext.context_for_map(harbor.map_id), BirdSpecies.CONTEXT_HARBOR)
+
+	var foreland: MapDefinition = Foreland.create()
+	assert_eq(BirdContext.context_for_map(foreland.map_id), BirdSpecies.CONTEXT_FORELAND)

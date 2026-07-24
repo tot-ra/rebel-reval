@@ -41,6 +41,8 @@ func test_headline_exposes_required_performance_metrics() -> void:
 			"memory_static_bytes": {"median": 134217728.0},
 			"memory_delta_mib": {"median": 64.0},
 			"actor_count": {"median": 3.0},
+			"bird_audio_peak": {"max": 2.0},
+			"bird_flight_peak": {"max": 3.0},
 		},
 	}]
 
@@ -50,5 +52,7 @@ func test_headline_exposes_required_performance_metrics() -> void:
 	assert_eq(headline["memory_static_bytes"], 134217728)
 	assert_eq(headline["memory_delta_mib"], 64.0)
 	assert_eq(headline["actor_count"], 3)
+	assert_eq(headline["bird_audio_peak"], 2)
+	assert_eq(headline["bird_flight_peak"], 3)
 
 	runner.free()

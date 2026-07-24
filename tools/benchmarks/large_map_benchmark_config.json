@@ -17,7 +17,9 @@
     "resident_collision_count": 900,
     "resident_memory_delta_mib": 256.0,
     "steady_frame_time_ms_p95": 16.67,
-    "steady_frame_time_ms_p99": 25.0
+    "steady_frame_time_ms_p99": 25.0,
+    "bird_audio_peak": 3,
+    "bird_flight_peak": 4
   },
   "benchmark": {
     "warmup_runs": 1,

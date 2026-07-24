@@ -6,6 +6,17 @@ const BirdSpecies := preload("res://scripts/map/view3d/map_view_bird_species.gd"
 const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
 const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
 const HarborNorth := preload("res://scripts/map/definitions/outdoor/reval_harbor_north_definition.gd")
+const Foreland := preload("res://scripts/map/definitions/outdoor/viru_gate_foreland_definition.gd")
+
+
+func test_foreland_context_schedules_distinct_daytime_song_cues() -> void:
+	var cues := BirdAmbientAudio.distinct_cues_for_context(
+		&"viru_gate_foreland",
+		BirdContext.context_for_map(&"viru_gate_foreland"),
+		0.35,
+		48
+	)
+	assert_true(cues.size() >= 3, "Viru Gate foreland day cycle should surface at least three song cues")
 
 
 func test_lower_town_context_schedules_distinct_daytime_song_cues() -> void:
@@ -68,3 +79,6 @@ func test_interior_maps_suppress_bird_audio_via_runtime() -> void:
 
 	var harbor: MapDefinition = HarborNorth.create()
 	assert_eq(BirdContext.context_for_map(harbor.map_id), BirdSpecies.CONTEXT_HARBOR)
+
+	var foreland: MapDefinition = Foreland.create()
+	assert_eq(BirdContext.context_for_map(foreland.map_id), BirdSpecies.CONTEXT_FORELAND)

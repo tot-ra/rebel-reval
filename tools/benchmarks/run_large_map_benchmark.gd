@@ -385,6 +385,8 @@ func _headline_metrics(profiles: Array) -> Dictionary:
 			"memory_static_bytes": roundi(_metric_value(metrics, "memory_static_bytes", "median")),
 			"memory_delta_mib": _metric_value(metrics, "memory_delta_mib", "median"),
 			"actor_count": roundi(_metric_value(metrics, "actor_count", "median")),
+			"bird_audio_peak": roundi(_metric_value(metrics, "bird_audio_peak", "max")),
+			"bird_flight_peak": roundi(_metric_value(metrics, "bird_flight_peak", "max")),
 		}
 	return {
 		"profile_id": "lower_town_scene",
@@ -432,6 +434,9 @@ func _budget_summary(profiles: Array) -> Dictionary:
 			"terrain_resident_node_count": _check_budget(metrics, "terrain_resident_node_count", "median", 25.0),
 			"terrain_chunk_reload_ms": _check_budget(metrics, "terrain_chunk_reload_ms", "p95", float(budgets.get("chunk_activation_cpu_ms_p95", INF))),
 		}
+		if String(profile.get("id", "")) == "lower_town_scene":
+			checks["bird_audio_peak"] = _check_budget(metrics, "bird_audio_peak", "max", float(budgets.get("bird_audio_peak", INF)))
+			checks["bird_flight_peak"] = _check_budget(metrics, "bird_flight_peak", "max", float(budgets.get("bird_flight_peak", INF)))
 		if String(profile.get("id", "")) == "synthetic_32":
 			checks["chunk_activation_cpu_ms"] = _check_budget(metrics, "pipeline_cpu_ms", "p95", float(budgets.get("chunk_activation_cpu_ms_p95", INF)))
 		summary["profiles"][profile.get("id", "unknown")] = checks

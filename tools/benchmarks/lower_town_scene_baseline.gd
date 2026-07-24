@@ -3,6 +3,8 @@ extends Node
 ## Runs as a child of the real Lower Town scene, so normal project autoloads and
 ## the complete production _ready chain are present during baseline capture.
 
+const BirdAmbientAudio := preload("res://scripts/map/view3d/map_view_bird_ambient_audio.gd")
+const BirdFlight := preload("res://scripts/map/view3d/map_view_bird_flight.gd")
 const DEFAULT_OUTPUT := "user://lower_town_scene_baseline.json"
 const MIB := 1024.0 * 1024.0
 
@@ -27,14 +29,20 @@ func _record() -> void:
 			frame_count = 20
 	var frame_times: Array[float] = []
 	var previous := Time.get_ticks_usec()
+	var scene_root := get_parent().get_node("LowerTown")
+	var actors_root := scene_root.get_node_or_null("Actors")
+	var view_runtime: MapViewRuntime = scene_root.get_node_or_null("MapViewRuntime")
+	var bird_audio_peak := 0
+	var bird_flight_peak := 0
 	for ignored in frame_count:
 		await get_tree().process_frame
 		var current := Time.get_ticks_usec()
 		frame_times.append(float(current - previous) / 1000.0)
 		previous = current
+		if view_runtime != null:
+			bird_audio_peak = maxi(bird_audio_peak, view_runtime.bird_audio_active_voice_count())
+			bird_flight_peak = maxi(bird_flight_peak, view_runtime.bird_flight_active_count())
 
-	var scene_root := get_parent().get_node("LowerTown")
-	var actors_root := scene_root.get_node_or_null("Actors")
 	var memory_after := int(Performance.get_monitor(Performance.MEMORY_STATIC))
 	var texture_memory := int(Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED))
 	var render_memory := int(Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED))
@@ -46,6 +54,10 @@ func _record() -> void:
 		# The production Actors branch is authoritative for simulation workload;
 		# counting named nodes would silently miss future actor archetypes.
 		"actor_count": _count_actors(actors_root),
+		"bird_audio_peak": bird_audio_peak,
+		"bird_flight_peak": bird_flight_peak,
+		"bird_audio_cap": BirdAmbientAudio.MAX_CONCURRENT_VOICES,
+		"bird_flight_cap": BirdFlight.MAX_CONCURRENT_BIRDS,
 		"memory_static_bytes": memory_after,
 		"memory_delta_mib": maxf(0.0, float(memory_after - _memory_before) / MIB),
 		"texture_memory_bytes": texture_memory,
