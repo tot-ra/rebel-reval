@@ -380,3 +380,55 @@ func test_morning_mist_gathers_before_dawn_and_burns_off() -> void:
 		MapView3D._morning_mist_factor(sunrise + 1.0, sunrise) < MapView3D._morning_mist_factor(sunrise - 0.5, sunrise) + 1.0,
 		"the mist envelope must be continuous across sunrise"
 	)
+
+
+func test_enclosed_interior_suppresses_morning_ground_mist() -> void:
+	# 18 Jan 1343 is a fog-prone morning (potential above FOG_POTENTIAL_FULL).
+	var fog_date := {"day": 18, "month": 1, "year": 1343}
+	assert_true(
+		SkyWeather3D.morning_fog_potential(fog_date) >= MapView3D.FOG_POTENTIAL_FULL,
+		"fixture date must be fog-prone"
+	)
+	var sunrise := float(SkyWeather3D.sunrise_sunset_hours(fog_date)["sunrise"])
+	var sunrise_progress := sunrise / 24.0
+
+	var outdoor_def := SmithyCourtyard.create()
+	assert_false(
+		outdoor_def.suppresses_exterior_surroundings(),
+		"courtyard control must stay an outdoor map"
+	)
+	var outdoor := MapView3D.create(outdoor_def, MapBuilder.build(outdoor_def), MapView3D.TIME_DAY)
+	var outdoor_sky := outdoor.sky_weather()
+	outdoor_sky.auto_weather = false
+	outdoor_sky.set_weather(SkyWeather3D.WEATHER_CLEAR)
+	outdoor.set_calendar_date(fog_date)
+	outdoor.apply_cycle_progress(sunrise_progress)
+	var outdoor_env := (outdoor.get_node("ViewEnvironment") as WorldEnvironment).environment
+	assert_true(
+		outdoor_env.fog_enabled,
+		"outdoor sunrise mist must still form on fog-prone mornings"
+	)
+	outdoor.free()
+
+	# Close/third-person shows the ceiling, so the old top-down-only gate no
+	# longer covers the smithy. Enclosed interiors must stay mist-free anyway.
+	var indoor_def := KalevSmithyDefinition.create()
+	assert_true(indoor_def.suppresses_exterior_surroundings())
+	var indoor := MapView3D.create(indoor_def, MapBuilder.build(indoor_def), MapView3D.TIME_DAY)
+	indoor.set_close_camera_mode(true)
+	assert_true(indoor.is_interior_shell_visible(), "close camera must show the ceiling shell")
+	assert_false(
+		indoor.uses_interior_top_down_background(),
+		"close camera must not use the top-down black void"
+	)
+	var indoor_sky := indoor.sky_weather()
+	indoor_sky.auto_weather = false
+	indoor_sky.set_weather(SkyWeather3D.WEATHER_CLEAR)
+	indoor.set_calendar_date(fog_date)
+	indoor.apply_cycle_progress(sunrise_progress)
+	var indoor_env := (indoor.get_node("ViewEnvironment") as WorldEnvironment).environment
+	assert_false(
+		indoor_env.fog_enabled,
+		"enclosed interiors must not render outdoor morning mist"
+	)
+	indoor.free()

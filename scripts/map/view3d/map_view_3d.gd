@@ -173,7 +173,8 @@ func apply_cycle_progress(progress: float, _sweep_sun_yaw: bool = true) -> void:
 		_sun,
 		_environment,
 		_sky_weather,
-		uses_interior_top_down_background()
+		uses_interior_top_down_background(),
+		definition != null and definition.suppresses_exterior_surroundings()
 	)
 	var bucket := TIME_NIGHT if night else TIME_DAY
 	if bucket != _last_chimney_bucket:

@@ -46,12 +46,15 @@ const FOG_POTENTIAL_FULL := 0.85
 
 ## Applies one complete celestial/weather lighting state and reports whether it
 ## belongs to the discrete night bucket used by chimney and window presentation.
+## `enclosed_interior` gates outdoor atmosphere (morning mist) the same way rain
+## particles are suppressed under a roofed room shell.
 static func apply_cycle_progress(
 	progress: float,
 	sun: DirectionalLight3D,
 	environment: Environment,
 	sky_weather: SkyWeather3D,
-	interior_top_down: bool
+	interior_top_down: bool,
+	enclosed_interior: bool = false
 ) -> bool:
 	var sun_direction := SkyWeather3D.solar_direction(progress, sky_weather.calendar_date)
 	var day_blend := SkyWeather3D.daylight_blend(progress, sky_weather.calendar_date)
@@ -92,7 +95,7 @@ static func apply_cycle_progress(
 	)
 	environment.background_color = BACKGROUND_NIGHT_COLOR.lerp(BACKGROUND_DAY_COLOR, day_blend)
 	sync_background(environment, interior_top_down)
-	apply_ground_mist(environment, sky_weather, progress, interior_top_down)
+	apply_ground_mist(environment, sky_weather, progress, enclosed_interior)
 
 	# Water specular follows the visible sun disk rather than civil-twilight light,
 	# preventing a sun glint after the disk has set.
@@ -132,16 +135,17 @@ static func sync_background(environment: Environment, interior_top_down: bool) -
 
 
 ## Low morning mist peaks at first light, disperses in wind, and stays disabled
-## indoors. The date-based potential keeps fog occasional rather than universal.
+## in enclosed interiors (any camera mode under a roofed room shell). The
+## date-based potential keeps fog occasional rather than universal outdoors.
 static func apply_ground_mist(
 	environment: Environment,
 	sky_weather: SkyWeather3D,
 	progress: float,
-	interior_top_down: bool
+	enclosed_interior: bool
 ) -> void:
 	if environment == null:
 		return
-	if interior_top_down:
+	if enclosed_interior:
 		environment.fog_enabled = false
 		return
 	var hour := DayNightCycle.progress_to_hour(progress)
