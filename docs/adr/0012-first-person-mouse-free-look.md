@@ -7,7 +7,7 @@
 
 Accepted
 
-Amended by [ADR 0015](0015-default-third-person-camera.md) (2026-07-23): third-person is now a perspective follow camera with fixed pitch; vertical free look remains first-person-only.
+Amended by [ADR 0015](0015-default-third-person-camera.md) (2026-07-23; pitch rule updated 2026-07-25): third-person is a perspective follow camera with clamped vertical orbit; first-person keeps the wider free-look pitch band.
 
 ## Context
 
@@ -16,13 +16,13 @@ ADR 0011 shipped first-person inspection with the existing horizontal camera orb
 ## Decision
 
 1. First-person mode supports mouse free look while the right mouse button is held. Horizontal drag changes yaw and vertical drag changes pitch.
-2. Pitch is clamped to -80 through 80 degrees so the camera cannot cross a vertical pole and invert yaw or screen-relative movement.
-3. Third-person keeps the authored dimetric pitch. Vertical drag has no effect outside first-person mode.
+2. First-person pitch is clamped to -80 through 80 degrees so the camera cannot cross a vertical pole and invert yaw or screen-relative movement.
+3. Third-person perspective also accepts vertical right-drag as a clamped orbit boom (see ADR 0015). Top-down keeps its authored dimetric pitch.
 4. The persistent Quick access help and camera tooltip document the right-drag control.
 5. First-person movement remains projected from camera yaw only. Looking up or down does not add vertical player movement.
 
 ## Consequences
 
-- ADR 0011 decision 4 is amended to allow player-controlled free look only in first-person mode. Its fixed orthographic default and third-person readability rules remain unchanged.
-- Interior and exterior geometry can be inspected above and below eye level, so first-person scene reviews should include ceiling and ground-facing angles.
-- Headless camera tests cover two-axis drag, pitch limits, and the unchanged third-person pitch.
+- ADR 0011 decision 4 is amended to allow player-controlled free look in perspective camera modes. Its fixed orthographic default and top-down readability rules remain unchanged.
+- Interior and exterior geometry can be inspected above and below eye level, so first-person and third-person scene reviews should include ceiling and ground-facing angles.
+- Headless camera tests cover two-axis drag and pitch limits for both perspective modes.

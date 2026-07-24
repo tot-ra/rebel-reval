@@ -382,4 +382,27 @@ func test_occlusion_query_flags_actors_behind_masses_only() -> void:
 		view.is_segment_occluded(open + Vector3.UP, open + Vector3.UP + toward_camera),
 		"an actor on the camera side of every mass must not read as occluded"
 	)
+
+	# A probe that starts or ends inside a mass (camera clipping a wall) must not
+	# count that volume as outdoor occlusion.
+	var inside_wall := Vector3(center.x, 1.0, center.y)
+	assert_false(
+		view.is_segment_occluded(inside_wall, inside_wall + toward_camera),
+		"segments with an endpoint inside a mass must not false-trigger occlusion"
+	)
+	view.free()
+
+
+func test_interior_shell_is_not_an_actor_occluder() -> void:
+	var definition := KalevSmithyDefinition.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition))
+	view.set_close_camera_mode(true)
+	assert_true(view.is_interior_shell_visible())
+	var world_units := Vector2(definition.size_cells) * MapViewBridge.world_scale(definition.cell_size)
+	var room_center := Vector3(world_units.x * 0.5, 1.1, world_units.y * 0.5)
+	var above_ceiling := room_center + Vector3.UP * 8.0
+	assert_false(
+		view.is_segment_occluded(room_center, above_ceiling),
+		"interior ceiling shells must not drive the occluded-actor silhouette"
+	)
 	view.free()

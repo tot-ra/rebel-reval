@@ -155,19 +155,33 @@ func test_perspective_camera_yaw_updates_player_facing_but_top_down_does_not() -
 	_free_map_scene(scene_root)
 
 
-func test_mouse_drag_pitch_is_first_person_only_and_yaw_turns_perspective_character() -> void:
+func test_mouse_drag_pitch_orbits_perspective_modes_and_yaw_turns_character() -> void:
 	var fixture := _install_runtime(LowerTownSlice.create())
 	var scene_root := fixture["scene_root"] as Node2D
 	var runtime := fixture["runtime"] as MapViewRuntime
 	var player := fixture["player"] as Player
 	var camera := runtime.view.view_camera()
 	var yaw_before := camera.rotation_degrees.y
+	var rig := runtime.get_node("PlayerRig") as SharedCharacterRig
 
-	# The first sample arms right-drag. Third-person accepts horizontal orbit but
-	# keeps its authored pitch instead of becoming a second free-look mode.
+	# The first sample arms right-drag. Third-person accepts both yaw and pitch orbit.
 	runtime._apply_mouse_rotation_from_position(Vector2(100.0, 200.0), true)
 	runtime._apply_mouse_rotation_from_position(Vector2(100.0, 100.0), true)
-	assert_true(is_equal_approx(camera.rotation_degrees.x, MapViewRuntime.THIRD_PERSON_PITCH_DEGREES))
+	assert_true(
+		is_equal_approx(
+			camera.rotation_degrees.x,
+			MapViewRuntime.THIRD_PERSON_PITCH_DEGREES + 100.0 * MapViewRuntime.MOUSE_ROTATE_DEGREES_PER_PIXEL
+		),
+		"third-person right-drag must orbit vertically"
+	)
+	assert_true(
+		camera.position.is_equal_approx(
+			rig.position
+			+ Vector3.UP * MapViewRuntime.THIRD_PERSON_TARGET_HEIGHT
+			+ camera.transform.basis.z * MapViewRuntime.THIRD_PERSON_DISTANCE
+		),
+		"third-person pitch must keep the follow boom distance"
+	)
 	runtime._apply_mouse_rotation_from_position(Vector2(60.0, 100.0), true)
 	assert_true(
 		is_equal_approx(
@@ -180,8 +194,12 @@ func test_mouse_drag_pitch_is_first_person_only_and_yaw_turns_perspective_charac
 		player.view_facing().is_equal_approx(runtime._camera_controller.logic_direction_camera_faces()),
 		"third-person mouse orbit must turn the character"
 	)
+	runtime._apply_mouse_rotation_from_position(Vector2(60.0, -1000.0), true)
+	assert_true(is_equal_approx(camera.rotation_degrees.x, MapViewRuntime.THIRD_PERSON_MAX_PITCH_DEGREES))
+	runtime._apply_mouse_rotation_from_position(Vector2(60.0, 2000.0), true)
+	assert_true(is_equal_approx(camera.rotation_degrees.x, MapViewRuntime.THIRD_PERSON_MIN_PITCH_DEGREES))
 
-	runtime._apply_mouse_rotation_from_position(Vector2(60.0, 100.0), false)
+	runtime._apply_mouse_rotation_from_position(Vector2(60.0, 2000.0), false)
 	runtime.set_first_person(true)
 	var screen_up_before_pitch := player.movement_direction_for_screen_input(Vector2.UP)
 	runtime._apply_mouse_rotation_from_position(Vector2(100.0, 200.0), true)
@@ -209,6 +227,21 @@ func test_mouse_drag_pitch_is_first_person_only_and_yaw_turns_perspective_charac
 	assert_true(
 		is_equal_approx(camera.rotation_degrees.x, MapView3D.CAMERA_PITCH_DEGREES),
 		"top-down right-drag must keep the authored dimetric pitch"
+	)
+	_free_map_scene(scene_root)
+
+
+func test_enclosed_interior_third_person_does_not_enable_occlusion_ghost() -> void:
+	var fixture := _install_runtime(KalevSmithyDefinition.create())
+	var scene_root := fixture["scene_root"] as Node2D
+	var runtime := fixture["runtime"] as MapViewRuntime
+	var rig := runtime.get_node("PlayerRig") as SharedCharacterRig
+	assert_true(runtime.is_third_person())
+	assert_true(runtime.view.definition.suppresses_exterior_surroundings())
+	runtime._update_occlusion_ghost()
+	assert_false(
+		rig.occlusion_ghost_enabled(),
+		"enclosed interiors must not keep the X-ray silhouette stuck on"
 	)
 	_free_map_scene(scene_root)
 

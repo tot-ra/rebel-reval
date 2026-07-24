@@ -24,6 +24,10 @@ const PAN_SCROLL_ZOOM_SENSITIVITY := 1.0
 const THIRD_PERSON_DISTANCE := 6.0
 const THIRD_PERSON_TARGET_HEIGHT := 1.15
 const THIRD_PERSON_PITCH_DEGREES := -12.0
+## Follow-camera pitch band: look down toward the character/ground, or raise the
+## boom enough to inspect ceilings without crossing the vertical poles.
+const THIRD_PERSON_MIN_PITCH_DEGREES := -55.0
+const THIRD_PERSON_MAX_PITCH_DEGREES := 35.0
 const THIRD_PERSON_FOV_DEGREES := 65.0
 const THIRD_PERSON_NEAR := 0.05
 const FIRST_PERSON_EYE_HEIGHT := 1.65
@@ -123,8 +127,9 @@ func apply_mouse_rotation_from_position(mouse_position: Vector2, button_pressed:
 			var mouse_delta := mouse_position - _last_mouse_position
 			if not is_zero_approx(mouse_delta.x):
 				rotate_view_degrees(-mouse_delta.x * MOUSE_ROTATE_DEGREES_PER_PIXEL)
-			if first_person and not is_zero_approx(mouse_delta.y):
-				look_first_person_degrees(-mouse_delta.y * MOUSE_ROTATE_DEGREES_PER_PIXEL)
+			# Perspective modes share vertical orbit; top-down keeps its authored pitch.
+			if camera_mode != CameraMode.TOP_DOWN and not is_zero_approx(mouse_delta.y):
+				look_pitch_degrees(-mouse_delta.y * MOUSE_ROTATE_DEGREES_PER_PIXEL)
 		_mouse_rotation_armed = true
 		drag_rotating_view = true
 	else:
@@ -139,15 +144,30 @@ func rotate_view_degrees(delta_degrees: float) -> void:
 	_sync_player_facing_to_camera()
 
 
-func look_first_person_degrees(delta_degrees: float) -> void:
-	if not first_person:
+func look_pitch_degrees(delta_degrees: float) -> void:
+	if camera_mode == CameraMode.TOP_DOWN:
 		return
+	var min_pitch := FIRST_PERSON_MIN_PITCH_DEGREES
+	var max_pitch := FIRST_PERSON_MAX_PITCH_DEGREES
+	if camera_mode == CameraMode.THIRD_PERSON:
+		min_pitch = THIRD_PERSON_MIN_PITCH_DEGREES
+		max_pitch = THIRD_PERSON_MAX_PITCH_DEGREES
 	# Avoid crossing the vertical poles, which would make yaw and movement flip.
 	camera.rotation_degrees.x = clampf(
 		camera.rotation_degrees.x + delta_degrees,
-		FIRST_PERSON_MIN_PITCH_DEGREES,
-		FIRST_PERSON_MAX_PITCH_DEGREES
+		min_pitch,
+		max_pitch
 	)
+	if camera_mode == CameraMode.THIRD_PERSON:
+		# Pitch changes the orbit boom; snap so the follow distance stays exact.
+		follow_player(true, 0.0)
+
+
+## Compatibility wrapper for callers that only intend first-person free look.
+func look_first_person_degrees(delta_degrees: float) -> void:
+	if not first_person:
+		return
+	look_pitch_degrees(delta_degrees)
 
 
 func zoom_view_steps(steps: float) -> void:
@@ -252,14 +272,26 @@ func mode_label() -> String:
 
 
 func update_occlusion_ghost() -> void:
-	if first_person:
+	# First-person hides the rig. Enclosed interiors keep the silhouette off:
+	# the follow boom often clips perimeter walls/ceilings, and the X-ray ghost
+	# reads as a constant "skeleton" rather than helpful outdoor occlusion.
+	if (
+		first_person
+		or (
+			view != null
+			and view.definition != null
+			and view.definition.suppresses_exterior_surroundings()
+		)
+	):
 		player_rig.set_occlusion_ghost(false)
 		return
-	var toward_camera := camera.position - player_rig.position
+	# Probe from body samples to the real camera, not to camera+height. The old
+	# offset aimed above the lens and false-triggered room ceilings indoors.
+	var to_camera := camera.position
 	var occluded := false
 	for height in OCCLUSION_PROBE_HEIGHTS:
 		var from := player_rig.position + Vector3.UP * height
-		if view.is_segment_occluded(from, from + toward_camera):
+		if view.is_segment_occluded(from, to_camera):
 			occluded = true
 			break
 	player_rig.set_occlusion_ghost(occluded)

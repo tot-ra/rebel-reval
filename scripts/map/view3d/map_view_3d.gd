@@ -84,7 +84,6 @@ var _environment: Environment
 var _camera: Camera3D
 var _fog_of_war: Node3D
 var _occluder_bounds: Array[AABB] = []
-var _interior_shell_occludes := false
 var _object_index: MapChunkRuntimeIndex
 var _object_streamer: MapObjectChunkStreamer
 var _scatter_root: Node3D
@@ -256,8 +255,6 @@ func set_close_camera_mode(enabled: bool) -> void:
 	var daylight_occluder := interior_shell.get_node_or_null("DaylightOccluder") as Node3D
 	if daylight_occluder != null:
 		daylight_occluder.visible = true
-	_interior_shell_occludes = enabled
-	_rebuild_occluder_bounds()
 	_sync_interior_top_down_background()
 
 
@@ -327,8 +324,13 @@ func _sync_interior_top_down_background() -> void:
 ## True when a building or landmark mass crosses the segment. The runtime
 ## probes from an actor toward the camera to decide when the occluded-actor
 ## silhouette overlay should show.
+## WHY: skip volumes that already contain an endpoint. A follow camera that
+## clips into a wall AABB would otherwise always report occlusion, and solid
+## house boxes would ghost anyone standing inside their footprint.
 func is_segment_occluded(from: Vector3, to: Vector3) -> bool:
 	for bounds in _occluder_bounds:
+		if bounds.has_point(from) or bounds.has_point(to):
+			continue
 		if bounds.intersects_segment(from, to):
 			return true
 	return false
@@ -605,13 +607,13 @@ func _rebuild_occluder_bounds() -> void:
 	_occluder_bounds.clear()
 	var buildings := get_node_or_null("Buildings") as Node3D
 	var landmarks := get_node_or_null("Landmarks") as Node3D
-	var interior_shell := get_node_or_null("InteriorShell") as Node3D
 	if buildings != null:
 		_append_mesh_bounds(buildings, buildings.transform, _occluder_bounds)
 	if landmarks != null:
 		_append_mesh_bounds(landmarks, landmarks.transform, _occluder_bounds)
-	if interior_shell != null and _interior_shell_occludes:
-		_append_mesh_bounds(interior_shell, interior_shell.transform, _occluder_bounds)
+	# InteriorShell (ceiling, beams, daylight twin) is presentation/solar only.
+	# Its room-sized AABBs are not outdoor building masses and must not drive
+	# the occluded-actor silhouette.
 
 
 static func _configure_sun_shadows(sun: DirectionalLight3D) -> void:
