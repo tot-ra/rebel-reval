@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://b6nmxwnacxfbq"
+
+[deps]
+
+files=["res://sounds/insects/manifest.scientific.translation", "res://sounds/insects/manifest.elu.translation", "res://sounds/insects/manifest.recordist.translation", "res://sounds/insects/manifest.license.translation", "res://sounds/insects/manifest.source.translation", "res://sounds/insects/manifest.length.translation", "res://sounds/insects/manifest.country.translation", "res://sounds/insects/manifest.common.translation", "res://sounds/insects/manifest.file.translation"]
+
+source_file="res://sounds/insects/manifest.csv"
+dest_files=["res://sounds/insects/manifest.scientific.translation", "res://sounds/insects/manifest.elu.translation", "res://sounds/insects/manifest.recordist.translation", "res://sounds/insects/manifest.license.translation", "res://sounds/insects/manifest.source.translation", "res://sounds/insects/manifest.length.translation", "res://sounds/insects/manifest.country.translation", "res://sounds/insects/manifest.common.translation", "res://sounds/insects/manifest.file.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

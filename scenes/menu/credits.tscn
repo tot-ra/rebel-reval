@@ -1,0 +1,65 @@
+[gd_scene load_steps=2 format=3 uid="uid://c2rebelcredits01"]
+
+[ext_resource type="Script" path="res://scenes/menu/credits_screen.gd" id="1_credits"]
+
+[node name="Credits" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_credits")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0392157, 0.0313726, 0.0470588, 0.960784)
+
+[node name="Scroll" type="ScrollContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 120.0
+offset_top = 90.0
+offset_right = -120.0
+offset_bottom = -120.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="Body" type="RichTextLabel" parent="Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 3
+theme_override_colors/default_color = Color(0.92, 0.9, 0.82, 1)
+theme_override_font_sizes/normal_font_size = 20
+
+[node name="BackLabel" type="RichTextLabel" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -120.0
+offset_top = -80.0
+offset_right = 120.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+focus_mode = 2
+theme_override_colors/default_color = Color(0.980392, 0.839216, 0.0235294, 1)
+theme_override_font_sizes/normal_font_size = 34
+text = "Back"
+horizontal_alignment = 1
+vertical_alignment = 1
