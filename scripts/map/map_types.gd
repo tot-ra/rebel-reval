@@ -87,6 +87,7 @@ const PROP_KIND_CART := &"cart"
 const PROP_KIND_WELL := &"well"
 const PROP_KIND_BARRELS := &"barrels"
 const PROP_KIND_FURNACE := &"furnace"
+const PROP_KIND_BELLOWS := &"bellows"
 const PROP_KIND_LEDGER := &"ledger"
 const PROP_KIND_BED := &"bed"
 const PROP_KIND_CHEST := &"chest"
@@ -179,6 +180,7 @@ const ALL_PROP_KINDS: Array[StringName] = [
 	PROP_KIND_WELL,
 	PROP_KIND_BARRELS,
 	PROP_KIND_FURNACE,
+	PROP_KIND_BELLOWS,
 	PROP_KIND_LEDGER,
 	PROP_KIND_BED,
 	PROP_KIND_CHEST,

@@ -33,6 +33,7 @@ static func create_prop(
 		MapTypes.PROP_KIND_WELL: _draw_well(root, target, time_of_day)
 		MapTypes.PROP_KIND_BARRELS: _draw_barrels(root, target, time_of_day)
 		MapTypes.PROP_KIND_FURNACE: _draw_furnace(root, target, time_of_day)
+		MapTypes.PROP_KIND_BELLOWS: _draw_bellows(root, target, time_of_day)
 		MapTypes.PROP_KIND_LEDGER: _draw_ledger(root, target, time_of_day)
 		MapTypes.PROP_KIND_BED: _draw_bed(root, target, time_of_day)
 		MapTypes.PROP_KIND_CHEST: _draw_chest(root, target, time_of_day)
@@ -246,10 +247,24 @@ static func _draw_furnace(parent: Node2D, target: StringName, time_of_day: Strin
 	var ember := MapVisualStyle.role_color(&"ember", target, time_of_day)
 	var ink := MapVisualStyle.role_color(&"ink", target, time_of_day)
 	_add_rect(parent, "FurnaceBase", Vector2(-42, -26), Vector2(84, 48), stone.darkened(0.10), target, time_of_day)
-	_add_rect(parent, "Firebox", Vector2(-22, -14), Vector2(44, 26), ink.lightened(0.08), target, time_of_day)
-	_add_rect(parent, "CoalBed", Vector2(-18, -4), Vector2(36, 10), ink, target, time_of_day)
-	_add_rect(parent, "FireMouth", Vector2(-14, -16), Vector2(28, 18), ember, target, time_of_day)
+	_add_rect(parent, "LeftCheek", Vector2(-34, -16), Vector2(12, 30), stone, target, time_of_day)
+	_add_rect(parent, "RightCheek", Vector2(22, -16), Vector2(12, 30), stone, target, time_of_day)
+	_add_rect(parent, "Firebox", Vector2(-20, -12), Vector2(40, 22), ink.lightened(0.05), target, time_of_day)
+	_add_rect(parent, "CoalBed", Vector2(-16, -2), Vector2(32, 10), ember.darkened(0.25), target, time_of_day)
+	_add_rect(parent, "FireMouth", Vector2(-12, -14), Vector2(24, 16), ember, target, time_of_day)
 	_add_rect(parent, "Chimney", Vector2(-14, -58), Vector2(28, 34), stone, target, time_of_day)
+
+
+static func _draw_bellows(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
+	var metal := MapVisualStyle.role_color(&"metal", target, time_of_day)
+	var leather := wood.darkened(0.22).lerp(Color8(92, 58, 34), 0.65)
+	_add_rect(parent, "Stand", Vector2(-16, 2), Vector2(28, 8), wood.darkened(0.12), target, time_of_day)
+	_add_rect(parent, "BoardBottom", Vector2(-18, -4), Vector2(34, 6), wood, target, time_of_day)
+	_add_rect(parent, "Leather", Vector2(-14, -16), Vector2(26, 12), leather, target, time_of_day)
+	_add_rect(parent, "BoardTop", Vector2(-16, -22), Vector2(30, 6), wood.lightened(0.05), target, time_of_day)
+	_add_rect(parent, "Nozzle", Vector2(14, -10), Vector2(18, 5), metal, target, time_of_day)
+	_add_rect(parent, "Lever", Vector2(-20, -34), Vector2(5, 14), wood.darkened(0.08), target, time_of_day)
 
 
 static func _draw_ledger(parent: Node2D, target: StringName, time_of_day: StringName) -> void:

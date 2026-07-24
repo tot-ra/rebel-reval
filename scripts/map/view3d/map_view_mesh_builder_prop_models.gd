@@ -107,6 +107,8 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			_add_barrel(root, "BarrelB", Vector3(0.32, 0.0, -0.16), 0.19)
 		MapTypes.PROP_KIND_FURNACE:
 			_add_furnace(root)
+		MapTypes.PROP_KIND_BELLOWS:
+			_add_bellows(root)
 		MapTypes.PROP_KIND_LEDGER:
 			MapViewMeshBuilderPrimitives.box(root, "Stand", Vector3(0.16, 0.9, 0.16), Vector3(0.0, 0.45, 0.0), &"wood")
 			MapViewMeshBuilderPrimitives.box(root, "Book", Vector3(0.52, 0.08, 0.42), Vector3(0.0, 0.95, 0.0), &"plaster")
@@ -204,51 +206,128 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 
 
 static func _add_anvil(root: Node3D) -> void:
-	# Stump first: a tapered timber block with an iron binding ring.
-	MapViewMeshBuilderPrimitives.cylinder(root, "Stump", 0.30, 0.46, Vector3(0.0, 0.23, 0.0), &"wood")
-	MapViewMeshBuilderPrimitives.cylinder(root, "StumpBand", 0.315, 0.05, Vector3(0.0, 0.38, 0.0), &"metal")
+	# Stump first: a timber block with an iron binding ring under the body.
+	MapViewMeshBuilderPrimitives.cylinder(root, "Stump", 0.28, 0.42, Vector3(0.0, 0.21, 0.0), &"wood")
+	MapViewMeshBuilderPrimitives.cylinder(root, "StumpBand", 0.295, 0.045, Vector3(0.0, 0.34, 0.0), &"metal")
 	var body := MeshInstance3D.new()
 	body.name = "Body"
 	body.mesh = AnvilMeshes.body_mesh()
 	# Mesh local Y already includes the standing height above the stump crown.
-	body.position = Vector3(0.0, 0.46, 0.0)
+	body.position = Vector3(0.0, 0.42, 0.0)
 	body.material_override = MapViewMeshBuilderPrimitives.role_material(&"metal")
 	root.add_child(body)
 
 
 static func _add_furnace(root: Node3D) -> void:
-	# Larger masonry breast so the forge dominates the working bay instead of
-	# reading as a thin brick pillar with a painted orange square.
-	MapViewMeshBuilderPrimitives.box(root, "Mass", Vector3(2.35, 1.55, 1.85), Vector3(0.0, 0.78, -0.08), &"stone")
-	MapViewMeshBuilderPrimitives.box(root, "Breast", Vector3(2.05, 0.55, 0.55), Vector3(0.0, 1.72, 0.15), &"stone")
-	MapViewMeshBuilderPrimitives.box(root, "HearthShelf", Vector3(1.55, 0.16, 0.55), Vector3(0.0, 0.18, 0.72), &"stone")
-	# Recessed firebox void, then coal bed and layered flame volumes.
-	MapViewMeshBuilderPrimitives.box(root, "Firebox", Vector3(1.15, 0.72, 0.55), Vector3(0.0, 0.62, 0.62), &"ink")
+	# Open-mouth masonry forge: rear bulk + cheeks + lintel leave a real cavity
+	# so red coal and flame read from the working bay (not a solid black box).
+	MapViewMeshBuilderPrimitives.box(root, "Mass", Vector3(2.4, 1.55, 1.35), Vector3(0.0, 0.78, -0.22), &"stone")
+	MapViewMeshBuilderPrimitives.box(root, "LeftCheek", Vector3(0.38, 1.05, 1.05), Vector3(-0.92, 0.62, 0.52), &"stone")
+	MapViewMeshBuilderPrimitives.box(root, "RightCheek", Vector3(0.38, 1.05, 1.05), Vector3(0.92, 0.62, 0.52), &"stone")
+	MapViewMeshBuilderPrimitives.box(root, "Lintel", Vector3(1.55, 0.32, 1.05), Vector3(0.0, 1.3, 0.52), &"stone")
+	MapViewMeshBuilderPrimitives.box(root, "HearthShelf", Vector3(1.55, 0.18, 1.0), Vector3(0.0, 0.16, 0.58), &"stone")
+	MapViewMeshBuilderPrimitives.box(root, "Breast", Vector3(2.1, 0.5, 0.7), Vector3(0.0, 1.7, 0.18), &"stone")
+	# Sooted cavity back sits deep inside the mouth, not as a front-facing plug.
+	MapViewMeshBuilderPrimitives.box(root, "Firebox", Vector3(1.35, 0.85, 0.14), Vector3(0.0, 0.72, 0.05), &"ink")
+	# Bright ember bed fills the hearth floor so the mouth always shows heat.
+	_add_furnace_ember_bed(root)
 	_add_furnace_coal_bed(root)
 	var flames := _add_furnace_flames(root)
 	var particles := _add_furnace_fire_particles(root)
+	# Tuyere stub on the left cheek - bellows nozzle aims here (axis along X).
+	_add_axis_cylinder(root, "Tuyere", 0.06, 0.42, Vector3(-1.15, 0.48, 0.55), &"metal")
 	# Flue seats into the breast and clears the interior ceiling plane.
-	MapViewMeshBuilderPrimitives.add_chimney_stack(root, "Chimney", 0.58, 2.35, Vector3(0.0, 1.85, -0.28))
+	MapViewMeshBuilderPrimitives.add_chimney_stack(root, "Chimney", 0.58, 2.35, Vector3(0.0, 1.85, -0.35))
 
 	var forge_light := OmniLight3D.new()
 	forge_light.name = "Omni"
-	forge_light.position = Vector3(0.0, 0.72, 0.78)
+	forge_light.position = Vector3(0.0, 0.7, 0.85)
 	root.add_child(forge_light)
 	var controller = MapViewMeshBuilderConfig.FORGE_FIRE_LIGHT_SCRIPT.new()
 	controller.configure(forge_light, flames, particles)
 	root.add_child(controller)
 
 
+static func _add_bellows(root: Node3D) -> void:
+	# Double-board leather bellows aimed +X toward the forge tuyere.
+	MapViewMeshBuilderPrimitives.box(root, "Stand", Vector3(0.55, 0.12, 0.7), Vector3(0.0, 0.06, 0.0), &"timber")
+	MapViewMeshBuilderPrimitives.box(root, "BoardBottom", Vector3(0.85, 0.06, 0.48), Vector3(0.05, 0.28, 0.0), &"wood")
+	MapViewMeshBuilderPrimitives.box(root, "BoardTop", Vector3(0.78, 0.06, 0.42), Vector3(-0.02, 0.72, 0.0), &"wood")
+	# Accordion leather folds between the boards.
+	for index in 4:
+		var t := float(index) / 3.0
+		var y := lerpf(0.36, 0.64, t)
+		var width := lerpf(0.82, 0.7, t)
+		var depth := lerpf(0.46, 0.38, absf(t - 0.5) * 2.0)
+		var fold := MeshInstance3D.new()
+		fold.name = "Leather%d" % index
+		var mesh := BoxMesh.new()
+		mesh.size = Vector3(width, 0.07, depth)
+		fold.mesh = mesh
+		fold.position = Vector3(0.02, y, 0.0)
+		fold.material_override = MapViewMaterials.leather()
+		root.add_child(fold)
+	# Nozzle / pipe points into the furnace mouth from the west (axis along X).
+	_add_axis_cylinder(root, "Nozzle", 0.055, 0.55, Vector3(0.55, 0.42, 0.0), &"metal")
+	_add_axis_cylinder(root, "NozzleTip", 0.04, 0.18, Vector3(0.88, 0.42, 0.0), &"metal")
+	# Pump lever on the top board.
+	MapViewMeshBuilderPrimitives.box(root, "Lever", Vector3(0.08, 0.55, 0.08), Vector3(-0.28, 1.0, 0.0), &"timber")
+	MapViewMeshBuilderPrimitives.box(root, "Handle", Vector3(0.28, 0.06, 0.08), Vector3(-0.38, 1.28, 0.0), &"wood")
+	MapViewMeshBuilderPrimitives.cylinder(root, "Hinge", 0.04, 0.5, Vector3(-0.4, 0.5, 0.0), &"metal")
+
+
+static func _add_axis_cylinder(
+	root: Node3D,
+	node_name: String,
+	radius: float,
+	length: float,
+	position: Vector3,
+	role: StringName
+) -> void:
+	# Primitive side_axis lies along Z; forge tuyere/nozzle need the X axis.
+	var instance := MeshInstance3D.new()
+	instance.name = node_name
+	var mesh := CylinderMesh.new()
+	mesh.top_radius = radius
+	mesh.bottom_radius = radius
+	mesh.height = length
+	instance.mesh = mesh
+	instance.position = position
+	instance.rotation_degrees = Vector3(0.0, 0.0, 90.0)
+	instance.material_override = MapViewMeshBuilderPrimitives.role_material(role)
+	root.add_child(instance)
+
+
+static func _add_furnace_ember_bed(root: Node3D) -> void:
+	var bed := MeshInstance3D.new()
+	bed.name = "EmberBed"
+	var mesh := BoxMesh.new()
+	mesh.size = Vector3(1.05, 0.1, 0.7)
+	bed.mesh = mesh
+	bed.position = Vector3(0.0, 0.3, 0.58)
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color8(180, 48, 18)
+	material.emission_enabled = true
+	material.emission = Color8(255, 90, 28)
+	material.emission_energy_multiplier = 3.4
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	bed.material_override = material
+	bed.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	root.add_child(bed)
+
+
 static func _add_furnace_coal_bed(root: Node3D) -> void:
 	var cold := MapViewMaterials.charcoal()
 	var hot := MapViewMaterials.hot_coal()
 	for spec in [
-		{"name": "CoalA", "radius": 0.16, "pos": Vector3(-0.28, 0.34, 0.68), "scale": Vector3(1.3, 0.55, 1.1), "hot": true},
-		{"name": "CoalB", "radius": 0.14, "pos": Vector3(0.22, 0.32, 0.72), "scale": Vector3(1.2, 0.5, 1.05), "hot": true},
-		{"name": "CoalC", "radius": 0.12, "pos": Vector3(-0.02, 0.36, 0.58), "scale": Vector3(1.35, 0.48, 1.15), "hot": true},
-		{"name": "CoalD", "radius": 0.11, "pos": Vector3(0.34, 0.3, 0.55), "scale": Vector3(1.15, 0.45, 1.0), "hot": false},
-		{"name": "CoalE", "radius": 0.10, "pos": Vector3(-0.38, 0.3, 0.52), "scale": Vector3(1.1, 0.42, 0.95), "hot": false},
-		{"name": "CoalF", "radius": 0.09, "pos": Vector3(0.08, 0.4, 0.7), "scale": Vector3(1.05, 0.4, 1.0), "hot": true},
+		{"name": "CoalA", "radius": 0.17, "pos": Vector3(-0.28, 0.36, 0.68), "scale": Vector3(1.35, 0.55, 1.15), "hot": true},
+		{"name": "CoalB", "radius": 0.15, "pos": Vector3(0.24, 0.34, 0.72), "scale": Vector3(1.25, 0.52, 1.1), "hot": true},
+		{"name": "CoalC", "radius": 0.14, "pos": Vector3(-0.02, 0.38, 0.55), "scale": Vector3(1.4, 0.5, 1.2), "hot": true},
+		{"name": "CoalD", "radius": 0.12, "pos": Vector3(0.36, 0.32, 0.52), "scale": Vector3(1.15, 0.45, 1.0), "hot": false},
+		{"name": "CoalE", "radius": 0.11, "pos": Vector3(-0.4, 0.32, 0.5), "scale": Vector3(1.1, 0.42, 0.95), "hot": false},
+		{"name": "CoalF", "radius": 0.10, "pos": Vector3(0.08, 0.42, 0.7), "scale": Vector3(1.1, 0.42, 1.05), "hot": true},
+		{"name": "CoalG", "radius": 0.09, "pos": Vector3(-0.14, 0.4, 0.74), "scale": Vector3(1.05, 0.38, 1.0), "hot": true},
+		{"name": "CoalH", "radius": 0.08, "pos": Vector3(0.18, 0.4, 0.48), "scale": Vector3(1.0, 0.36, 0.95), "hot": true},
 	]:
 		var lump := MeshInstance3D.new()
 		lump.name = spec["name"]
@@ -268,9 +347,10 @@ static func _add_furnace_coal_bed(root: Node3D) -> void:
 static func _add_furnace_flames(root: Node3D) -> Array[MeshInstance3D]:
 	var flames: Array[MeshInstance3D] = []
 	for spec in [
-		{"name": "FlameCore", "radius": 0.16, "height": 0.42, "pos": Vector3(0.0, 0.62, 0.72)},
-		{"name": "FlameLeft", "radius": 0.11, "height": 0.32, "pos": Vector3(-0.18, 0.58, 0.66)},
-		{"name": "FlameRight", "radius": 0.10, "height": 0.28, "pos": Vector3(0.2, 0.56, 0.68)},
+		{"name": "FlameCore", "radius": 0.2, "height": 0.55, "pos": Vector3(0.0, 0.68, 0.7)},
+		{"name": "FlameLeft", "radius": 0.13, "height": 0.4, "pos": Vector3(-0.22, 0.62, 0.64)},
+		{"name": "FlameRight", "radius": 0.12, "height": 0.36, "pos": Vector3(0.24, 0.6, 0.66)},
+		{"name": "FlameBack", "radius": 0.14, "height": 0.32, "pos": Vector3(0.02, 0.58, 0.42)},
 	]:
 		var flame := MeshInstance3D.new()
 		flame.name = spec["name"]
@@ -281,7 +361,16 @@ static func _add_furnace_flames(root: Node3D) -> Array[MeshInstance3D]:
 		mesh.rings = 4
 		flame.mesh = mesh
 		flame.position = spec["pos"]
-		flame.material_override = MapViewMeshBuilderPrimitives.role_material(&"ember").duplicate()
+		# Unshaded emissive volumes stay readable even under bright window fill.
+		var material := StandardMaterial3D.new()
+		material.albedo_color = Color8(255, 140, 48)
+		material.emission_enabled = true
+		material.emission = Color8(255, 110, 36)
+		material.emission_energy_multiplier = 2.8
+		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		material.albedo_color.a = 0.88
+		flame.material_override = material
 		flame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(flame)
 		flames.append(flame)
@@ -291,26 +380,26 @@ static func _add_furnace_flames(root: Node3D) -> Array[MeshInstance3D]:
 static func _add_furnace_fire_particles(root: Node3D) -> GPUParticles3D:
 	var particles := GPUParticles3D.new()
 	particles.name = "FireSparks"
-	particles.position = Vector3(0.0, 0.55, 0.7)
-	particles.amount = 14
-	particles.lifetime = 0.85
-	particles.preprocess = 0.4
-	particles.explosiveness = 0.05
-	particles.randomness = 0.35
-	particles.visibility_aabb = AABB(Vector3(-0.8, -0.2, -0.6), Vector3(1.6, 1.8, 1.2))
+	particles.position = Vector3(0.0, 0.48, 0.62)
+	particles.amount = 28
+	particles.lifetime = 1.05
+	particles.preprocess = 0.55
+	particles.explosiveness = 0.08
+	particles.randomness = 0.4
+	particles.visibility_aabb = AABB(Vector3(-0.9, -0.2, -0.7), Vector3(1.8, 2.0, 1.4))
 	var process := ParticleProcessMaterial.new()
 	process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
-	process.emission_box_extents = Vector3(0.35, 0.05, 0.18)
+	process.emission_box_extents = Vector3(0.4, 0.06, 0.22)
 	process.direction = Vector3.UP
-	process.spread = 22.0
-	process.initial_velocity_min = 0.45
-	process.initial_velocity_max = 1.15
-	process.gravity = Vector3(0.0, 0.35, 0.0)
-	process.damping_min = 0.4
-	process.damping_max = 1.1
-	process.scale_min = 0.035
-	process.scale_max = 0.08
-	process.color = Color8(255, 160, 60)
+	process.spread = 28.0
+	process.initial_velocity_min = 0.55
+	process.initial_velocity_max = 1.45
+	process.gravity = Vector3(0.0, 0.45, 0.0)
+	process.damping_min = 0.35
+	process.damping_max = 1.0
+	process.scale_min = 0.04
+	process.scale_max = 0.1
+	process.color = Color8(255, 150, 50)
 	particles.process_material = process
 	var draw := SphereMesh.new()
 	draw.radius = 0.5
@@ -322,7 +411,7 @@ static func _add_furnace_fire_particles(root: Node3D) -> GPUParticles3D:
 	spark_mat.albedo_color = Color8(255, 170, 70)
 	spark_mat.emission_enabled = true
 	spark_mat.emission = Color8(255, 140, 40)
-	spark_mat.emission_energy_multiplier = 2.2
+	spark_mat.emission_energy_multiplier = 3.0
 	spark_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	particles.material_override = spark_mat
 	root.add_child(particles)

@@ -688,17 +688,31 @@ static func charcoal() -> StandardMaterial3D:
 
 ## Glowing coal bed inside a working furnace mouth.
 static func hot_coal() -> StandardMaterial3D:
-	var key := "hot_coal"
+	var key := "hot_coal_v2"
 	if _cache.has(key):
 		return _cache[key]
-	var material := _make_material(Color8(42, 28, 22), PATTERN_ROCK, 7729)
+	var material := _make_material(Color8(56, 26, 16), PATTERN_ROCK, 7729)
 	material.uv1_triplanar = true
 	material.uv1_world_triplanar = false
 	material.uv1_scale = Vector3(2.8, 2.8, 2.8)
 	material.emission_enabled = true
-	material.emission = EMBER_COLOR
-	material.emission_energy_multiplier = EMBER_ENERGY * 0.85
-	material.roughness = 0.9
+	material.emission = Color8(255, 96, 28)
+	material.emission_energy_multiplier = EMBER_ENERGY * 2.2
+	material.roughness = 0.88
+	_cache[key] = material
+	return material
+
+
+## Tanned leather for forge bellows and similar soft props.
+static func leather() -> StandardMaterial3D:
+	var key := "leather"
+	if _cache.has(key):
+		return _cache[key]
+	var material := _make_material(Color8(92, 58, 34), PATTERN_PLASTER, 7741)
+	material.uv1_triplanar = true
+	material.uv1_world_triplanar = false
+	material.uv1_scale = Vector3(2.2, 2.2, 2.2)
+	material.roughness = 0.82
 	_cache[key] = material
 	return material
 

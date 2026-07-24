@@ -1,47 +1,44 @@
 class_name MapViewAnvilMeshes
 extends RefCounted
 
-## Cached procedural London-pattern anvil: horn, face, waist, heel, and flared
-## feet. Replaces the three-box stand-in so the smithy reads as a working tool.
+## Cached procedural London-pattern anvil: tapered horn, flat face, pinched waist,
+## heel block, and flared feet. Hex-ring loft reads as forged iron instead of a
+## rectangular banana slab.
 
 static var _mesh_cache: Dictionary = {}
 
 
 static func body_mesh() -> ArrayMesh:
-	const CACHE_KEY := &"anvil_body_v1"
+	const CACHE_KEY := &"anvil_body_v2"
 	if _mesh_cache.has(CACHE_KEY):
 		return _mesh_cache[CACHE_KEY]
 
 	# Stations run horn tip (-X) through face to heel (+X). Each ring is a
-	# vertical rectangle (yt/yb) with half-width hz so the silhouette tapers.
+	# vertical hex (yt/yb half-depth hz) so the silhouette softens without
+	# losing the classic London-pattern read.
 	var stations: Array[Dictionary] = [
-		{"x": -0.78, "yt": 0.50, "yb": 0.455, "hz": 0.03},
-		{"x": -0.52, "yt": 0.555, "yb": 0.40, "hz": 0.085},
-		{"x": -0.22, "yt": 0.62, "yb": 0.355, "hz": 0.145},
-		{"x": -0.02, "yt": 0.625, "yb": 0.34, "hz": 0.165},
-		{"x": 0.18, "yt": 0.62, "yb": 0.33, "hz": 0.16},
-		{"x": 0.28, "yt": 0.55, "yb": 0.20, "hz": 0.11},
-		{"x": 0.38, "yt": 0.52, "yb": 0.175, "hz": 0.125},
-		{"x": 0.46, "yt": 0.40, "yb": 0.15, "hz": 0.14},
-		{"x": 0.52, "yt": 0.26, "yb": 0.13, "hz": 0.145},
+		{"x": -0.62, "yt": 0.34, "yb": 0.30, "hz": 0.025}, # horn tip
+		{"x": -0.42, "yt": 0.38, "yb": 0.27, "hz": 0.07},
+		{"x": -0.22, "yt": 0.40, "yb": 0.24, "hz": 0.11},
+		{"x": -0.06, "yt": 0.405, "yb": 0.22, "hz": 0.13}, # face start
+		{"x": 0.10, "yt": 0.405, "yb": 0.20, "hz": 0.135}, # face
+		{"x": 0.22, "yt": 0.40, "yb": 0.16, "hz": 0.12},
+		{"x": 0.30, "yt": 0.34, "yb": 0.10, "hz": 0.085}, # waist
+		{"x": 0.38, "yt": 0.32, "yb": 0.08, "hz": 0.10}, # heel rise
+		{"x": 0.48, "yt": 0.30, "yb": 0.06, "hz": 0.12},
+		{"x": 0.54, "yt": 0.22, "yb": 0.05, "hz": 0.13}, # heel end
 	]
 
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	for index in stations.size() - 1:
-		_loft_ring(surface, stations[index], stations[index + 1])
+		_loft_hex_ring(surface, stations[index], stations[index + 1])
 
+	# Flat striking face sits proud of the loft so the working surface reads.
+	_add_box(surface, Vector3(0.02, 0.415, 0.0), Vector3(0.36, 0.035, 0.28))
 	# Flared feet under the waist/heel so the body does not float as a slab.
-	_add_box(
-		surface,
-		Vector3(0.08, 0.07, 0.0),
-		Vector3(0.42, 0.14, 0.34)
-	)
-	_add_box(
-		surface,
-		Vector3(0.30, 0.045, 0.0),
-		Vector3(0.28, 0.09, 0.40)
-	)
+	_add_box(surface, Vector3(0.16, 0.04, 0.0), Vector3(0.38, 0.09, 0.30))
+	_add_box(surface, Vector3(0.28, 0.02, 0.0), Vector3(0.24, 0.05, 0.36))
 
 	surface.generate_normals()
 	var mesh := surface.commit()
@@ -49,35 +46,46 @@ static func body_mesh() -> ArrayMesh:
 	return mesh
 
 
-static func _loft_ring(surface: SurfaceTool, a: Dictionary, b: Dictionary) -> void:
-	var ax := float(a["x"])
-	var bx := float(b["x"])
-	var a_yt := float(a["yt"])
-	var a_yb := float(a["yb"])
-	var a_hz := float(a["hz"])
-	var b_yt := float(b["yt"])
-	var b_yb := float(b["yb"])
-	var b_hz := float(b["hz"])
-
-	var a_tl := Vector3(ax, a_yt, -a_hz)
-	var a_tr := Vector3(ax, a_yt, a_hz)
-	var a_br := Vector3(ax, a_yb, a_hz)
-	var a_bl := Vector3(ax, a_yb, -a_hz)
-	var b_tl := Vector3(bx, b_yt, -b_hz)
-	var b_tr := Vector3(bx, b_yt, b_hz)
-	var b_br := Vector3(bx, b_yb, b_hz)
-	var b_bl := Vector3(bx, b_yb, -b_hz)
-
-	_quad(surface, a_tl, b_tl, b_tr, a_tr) # top
-	_quad(surface, a_bl, a_br, b_br, b_bl) # bottom
-	_quad(surface, a_tl, a_bl, b_bl, b_tl) # -Z
-	_quad(surface, a_tr, b_tr, b_br, a_br) # +Z
+static func _loft_hex_ring(surface: SurfaceTool, a: Dictionary, b: Dictionary) -> void:
+	var a_ring := _hex_ring(float(a["x"]), float(a["yt"]), float(a["yb"]), float(a["hz"]))
+	var b_ring := _hex_ring(float(b["x"]), float(b["yt"]), float(b["yb"]), float(b["hz"]))
+	for i in 6:
+		var next_i := (i + 1) % 6
+		_quad(surface, a_ring[i], b_ring[i], b_ring[next_i], a_ring[next_i])
 
 	# Cap the open horn tip and heel end so the loft is solid.
-	if ax < -0.70:
-		_quad(surface, a_tl, a_tr, a_br, a_bl)
-	if bx > 0.50:
-		_quad(surface, b_tl, b_bl, b_br, b_tr)
+	if float(a["x"]) < -0.55:
+		_cap_hex(surface, a_ring, true)
+	if float(b["x"]) > 0.50:
+		_cap_hex(surface, b_ring, false)
+
+
+static func _hex_ring(x: float, yt: float, yb: float, hz: float) -> Array[Vector3]:
+	# Order: top-back, top-front, mid-front, bottom-front, bottom-back, mid-back.
+	var mid_y := (yt + yb) * 0.5
+	var side_hz := hz * 1.08
+	return [
+		Vector3(x, yt, -hz),
+		Vector3(x, yt, hz),
+		Vector3(x, mid_y, side_hz),
+		Vector3(x, yb, hz),
+		Vector3(x, yb, -hz),
+		Vector3(x, mid_y, -side_hz),
+	]
+
+
+static func _cap_hex(surface: SurfaceTool, ring: Array[Vector3], outward_negative_x: bool) -> void:
+	# Fan from ring centroid so hex end caps stay planar.
+	var center := Vector3.ZERO
+	for point in ring:
+		center += point
+	center /= float(ring.size())
+	for i in 6:
+		var next_i := (i + 1) % 6
+		if outward_negative_x:
+			_tri(surface, center, ring[next_i], ring[i])
+		else:
+			_tri(surface, center, ring[i], ring[next_i])
 
 
 static func _add_box(surface: SurfaceTool, center: Vector3, size: Vector3) -> void:
@@ -101,9 +109,11 @@ static func _add_box(surface: SurfaceTool, center: Vector3, size: Vector3) -> vo
 
 
 static func _quad(surface: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, d: Vector3) -> void:
+	_tri(surface, a, b, c)
+	_tri(surface, a, c, d)
+
+
+static func _tri(surface: SurfaceTool, a: Vector3, b: Vector3, c: Vector3) -> void:
 	surface.add_vertex(a)
 	surface.add_vertex(b)
 	surface.add_vertex(c)
-	surface.add_vertex(a)
-	surface.add_vertex(c)
-	surface.add_vertex(d)
