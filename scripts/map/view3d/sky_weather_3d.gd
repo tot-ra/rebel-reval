@@ -11,6 +11,7 @@ extends Node3D
 
 const SKY_SHADER := preload("res://scripts/map/view3d/sky_weather_3d.gdshader")
 const SKY_RESOURCES := preload("res://scripts/map/view3d/sky_weather_resources.gd")
+const SkyWeatherRoofAudioScript := preload("res://scripts/map/view3d/sky_weather_roof_audio.gd")
 const STAR_CATALOG := preload("res://scripts/map/view3d/estonia_star_catalog.gd")
 const GAME_CALENDAR := preload("res://scripts/global/game_calendar.gd")
 
@@ -180,8 +181,8 @@ var time_scale := 1.0
 ## Enclosed room shells (a roofed interior like the Kalev smithy) hide the
 ## falling-rain particles: you do not get rain indoors. The weather machine still
 ## runs so wind, lighting, and sea state stay in sync everywhere else — only the
-## visible emitter is gated. Roof-drum rain AUDIO is deliberately out of scope
-## here and waits on the ambient sound pipeline (see TODO P0-124, feeding P0-105).
+## visible emitter is gated. Roof-drum rain audio is owned by SkyWeatherRoofAudio
+## (P0-124) and plays only while this flag is true.
 var rain_suppressed := false
 ## 1 while the sun hugs the horizon (golden hour), 0 the rest of the cycle.
 var sunset_factor := 0.0
@@ -210,6 +211,7 @@ var _material: ShaderMaterial
 var _star_map: ImageTexture
 var _camera: Camera3D
 var _rain: GPUParticles3D
+var _roof_audio: SkyWeatherRoofAudio
 
 
 ## State is seeded here, not in configure(), so headless tests can exercise the
@@ -249,6 +251,9 @@ func configure(camera: Camera3D, environment: Environment) -> void:
 
 	_rain = SKY_RESOURCES.build_rain()
 	add_child(_rain)
+	_roof_audio = SkyWeatherRoofAudioScript.new()
+	_roof_audio.name = "RoofRainAudio"
+	add_child(_roof_audio)
 	_push_cloud_uniforms()
 
 
@@ -284,7 +289,7 @@ func advance(delta: float) -> void:
 		_time_in_state += delta
 		if _time_in_state >= _state_duration:
 			_pick_next_weather()
-	_update_rain()
+	_update_rain(delta)
 	_push_cloud_uniforms()
 
 
@@ -687,7 +692,22 @@ func rain_emitter_visible() -> bool:
 	return not rain_suppressed and rain_intensity() > 0.02
 
 
-func _update_rain() -> void:
+func roof_audio_active() -> bool:
+	return _roof_audio != null and _roof_audio.roof_audio_active()
+
+
+func roof_audio_linear_volume() -> float:
+	if _roof_audio == null:
+		return 0.0
+	return _roof_audio.roof_audio_linear_volume()
+
+
+func set_roof_audio_enabled(enabled: bool) -> void:
+	if _roof_audio != null:
+		_roof_audio.set_audio_enabled(enabled)
+
+
+func _update_rain(delta: float = 0.0) -> void:
 	# Headless tests drive advance() without configure(); no emitter exists then.
 	if _rain == null:
 		return
@@ -696,6 +716,8 @@ func _update_rain() -> void:
 		_rain.amount_ratio = clampf(rain_intensity(), 0.05, 1.0)
 	if _camera != null:
 		_rain.global_position = _camera.global_position + Vector3.UP * RAIN_EMITTER_HEIGHT
+	if _roof_audio != null:
+		_roof_audio.sync(rain_suppressed, rain_intensity(), delta)
 
 
 func _push_cloud_uniforms() -> void:

@@ -45,6 +45,29 @@ func test_enclosed_shell_hides_falling_rain() -> void:
 	sky.free()
 
 
+func test_configured_sky_roof_audio_follows_suppression() -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	var sky = SkyWeather.new()
+	tree.root.add_child(sky)
+	var camera := Camera3D.new()
+	sky.add_child(camera)
+	sky.configure(camera, Environment.new())
+	sky.auto_weather = false
+	sky.set_weather(SkyWeather.WEATHER_RAIN)
+	sky.advance(SkyWeather.TRANSITION_SECONDS + 1.0)
+	sky.rain_suppressed = false
+	sky.advance(0.1)
+	assert_false(sky.roof_audio_active(), "outdoor rain must not arm the roof bed")
+	sky.rain_suppressed = true
+	sky.advance(0.1)
+	assert_true(sky.roof_audio_active(), "a roofed interior during rain must arm the roof bed")
+	sky.set_roof_audio_enabled(false)
+	sky.advance(0.1)
+	assert_false(sky.roof_audio_active(), "muting roof audio must leave weather intensity unchanged")
+	assert_eq(sky.rain_intensity(), 1.0, "audio mute must not alter rain intensity")
+	sky.queue_free()
+
+
 func test_transition_blends_toward_rain_profile() -> void:
 	var sky = SkyWeather.new()
 	sky.auto_weather = false

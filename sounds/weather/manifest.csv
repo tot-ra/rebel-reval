@@ -1,0 +1,2 @@
+clip_id,file,license,source,notes
+weather.rain_roof,rain_roof.mp3,AGPL-3.0-or-later (project author),in-house ffmpeg synthesis (P0-124),48 s pink-noise roof-drum loop; lavfi seed 124073; low-passed and tremolo-modulated for muffled thatch/shingle read

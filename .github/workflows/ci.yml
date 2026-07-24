@@ -121,6 +121,7 @@ jobs:
           python3 tools/generate_quest_package_tests.py --check
           python3 tools/verify_bird_audio_manifest.py
           python3 tools/verify_bird_audio_clips.py
+          python3 tools/verify_weather_audio_clips.py
 
       - name: Active Markdown links and validation
         run: python3 tools/generate_active_docs_report.py --check
