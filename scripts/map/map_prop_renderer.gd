@@ -74,9 +74,29 @@ static func _has_tall_footprint(prop: Dictionary) -> bool:
 
 static func _draw_anvil(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
 	var metal := MapVisualStyle.role_color(&"metal", target, time_of_day)
-	_add_rect(parent, "Base", Vector2(-16, -7), Vector2(32, 11), metal.darkened(0.18), target, time_of_day)
-	_add_polygon(parent, "AnvilBody", PackedVector2Array([Vector2(-12, -20), Vector2(13, -20), Vector2(18, -14), Vector2(7, -9), Vector2(-10, -9)]), metal, target, time_of_day)
-	_add_rect(parent, "Face", Vector2(-17, -25), Vector2(35, 7), metal.lightened(0.16), target, time_of_day)
+	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
+	_add_rect(parent, "Stump", Vector2(-14, -2), Vector2(28, 14), wood.darkened(0.08), target, time_of_day)
+	# Horned London-pattern silhouette so the 2D stand-in matches the 3D mesh.
+	_add_polygon(
+		parent,
+		"AnvilBody",
+		PackedVector2Array([
+			Vector2(-28, -18),
+			Vector2(-10, -24),
+			Vector2(12, -24),
+			Vector2(22, -20),
+			Vector2(26, -12),
+			Vector2(18, -8),
+			Vector2(8, -8),
+			Vector2(4, -14),
+			Vector2(-8, -14),
+			Vector2(-16, -10),
+		]),
+		metal,
+		target,
+		time_of_day
+	)
+	_add_rect(parent, "Face", Vector2(-12, -26), Vector2(26, 5), metal.lightened(0.16), target, time_of_day)
 
 
 static func _draw_hay_stack(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
@@ -224,9 +244,12 @@ static func _draw_well(parent: Node2D, target: StringName, time_of_day: StringNa
 static func _draw_furnace(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
 	var stone := MapVisualStyle.role_color(&"stone", target, time_of_day)
 	var ember := MapVisualStyle.role_color(&"ember", target, time_of_day)
-	_add_rect(parent, "FurnaceBase", Vector2(-32, -22), Vector2(64, 36), stone.darkened(0.10), target, time_of_day)
-	_add_rect(parent, "FireMouth", Vector2(-18, -12), Vector2(36, 20), ember, target, time_of_day)
-	_add_rect(parent, "Chimney", Vector2(-12, -50), Vector2(24, 30), stone, target, time_of_day)
+	var ink := MapVisualStyle.role_color(&"ink", target, time_of_day)
+	_add_rect(parent, "FurnaceBase", Vector2(-42, -26), Vector2(84, 48), stone.darkened(0.10), target, time_of_day)
+	_add_rect(parent, "Firebox", Vector2(-22, -14), Vector2(44, 26), ink.lightened(0.08), target, time_of_day)
+	_add_rect(parent, "CoalBed", Vector2(-18, -4), Vector2(36, 10), ink, target, time_of_day)
+	_add_rect(parent, "FireMouth", Vector2(-14, -16), Vector2(28, 18), ember, target, time_of_day)
+	_add_rect(parent, "Chimney", Vector2(-14, -58), Vector2(28, 34), stone, target, time_of_day)
 
 
 static func _draw_ledger(parent: Node2D, target: StringName, time_of_day: StringName) -> void:

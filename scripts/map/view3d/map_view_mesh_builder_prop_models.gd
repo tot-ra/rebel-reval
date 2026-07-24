@@ -8,6 +8,7 @@ const BushSpecies := preload("res://scripts/map/view3d/map_view_bush_species.gd"
 const FishingBoatBuilder := preload("res://scripts/map/view3d/map_view_fishing_boat_builder.gd")
 const MerchantBoatBuilder := preload("res://scripts/map/view3d/map_view_merchant_boat_builder.gd")
 const WallWalkAccessBuilder := preload("res://scripts/map/view3d/map_view_wall_walk_access_builder.gd")
+const AnvilMeshes := preload("res://scripts/map/view3d/map_view_anvil_meshes.gd")
 
 ## Individual authored prop meshes.
 
@@ -86,9 +87,7 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 
 	match prop["kind"] as StringName:
 		MapTypes.PROP_KIND_ANVIL:
-			MapViewMeshBuilderPrimitives.box(root, "Base", Vector3(0.9, 0.22, 0.5), Vector3(0.0, 0.11, 0.0), &"wood")
-			MapViewMeshBuilderPrimitives.box(root, "Body", Vector3(0.65, 0.3, 0.32), Vector3(0.0, 0.37, 0.0), &"metal")
-			MapViewMeshBuilderPrimitives.box(root, "Face", Vector3(1.05, 0.14, 0.34), Vector3(0.0, 0.59, 0.0), &"metal")
+			_add_anvil(root)
 		MapTypes.PROP_KIND_HAY_STACK:
 			MapViewMeshBuilderPrimitives.sphere(root, "Mound", 0.85, Vector3(0.0, 0.42, 0.0), &"hay", Vector3(1.0, 0.62, 1.0))
 			MapViewMeshBuilderPrimitives.sphere(root, "Crown", 0.5, Vector3(0.1, 0.78, -0.05), &"hay", Vector3(1.0, 0.6, 1.0))
@@ -107,12 +106,7 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			_add_barrel(root, "BarrelA", Vector3(-0.26, 0.0, 0.08), -0.12)
 			_add_barrel(root, "BarrelB", Vector3(0.32, 0.0, -0.16), 0.19)
 		MapTypes.PROP_KIND_FURNACE:
-			MapViewMeshBuilderPrimitives.box(root, "Mass", Vector3(1.35, 1.35, 1.1), Vector3(0.0, 0.68, 0.0), &"stone")
-			MapViewMeshBuilderPrimitives.box(root, "Mouth", Vector3(0.52, 0.42, 0.08), Vector3(0.0, 0.42, 0.58), &"ember")
-			# The flue must rise from the masonry as one breast: it seats into the
-			# mass top and runs past the interior ceiling plane (3.65+) so it never
-			# reads as a floating brick block from first-person.
-			MapViewMeshBuilderPrimitives.add_chimney_stack(root, "Chimney", 0.44, 2.55, Vector3(0.0, 1.25, -0.15))
+			_add_furnace(root)
 		MapTypes.PROP_KIND_LEDGER:
 			MapViewMeshBuilderPrimitives.box(root, "Stand", Vector3(0.16, 0.9, 0.16), Vector3(0.0, 0.45, 0.0), &"wood")
 			MapViewMeshBuilderPrimitives.box(root, "Book", Vector3(0.52, 0.08, 0.42), Vector3(0.0, 0.95, 0.0), &"plaster")
@@ -207,6 +201,132 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			else:
 				MapViewMeshBuilderPrimitives.box(root, "Marker", Vector3(0.5, 0.5, 0.5), Vector3(0.0, 0.25, 0.0), &"ink")
 	return root
+
+
+static func _add_anvil(root: Node3D) -> void:
+	# Stump first: a tapered timber block with an iron binding ring.
+	MapViewMeshBuilderPrimitives.cylinder(root, "Stump", 0.30, 0.46, Vector3(0.0, 0.23, 0.0), &"wood")
+	MapViewMeshBuilderPrimitives.cylinder(root, "StumpBand", 0.315, 0.05, Vector3(0.0, 0.38, 0.0), &"metal")
+	var body := MeshInstance3D.new()
+	body.name = "Body"
+	body.mesh = AnvilMeshes.body_mesh()
+	# Mesh local Y already includes the standing height above the stump crown.
+	body.position = Vector3(0.0, 0.46, 0.0)
+	body.material_override = MapViewMeshBuilderPrimitives.role_material(&"metal")
+	root.add_child(body)
+
+
+static func _add_furnace(root: Node3D) -> void:
+	# Larger masonry breast so the forge dominates the working bay instead of
+	# reading as a thin brick pillar with a painted orange square.
+	MapViewMeshBuilderPrimitives.box(root, "Mass", Vector3(2.35, 1.55, 1.85), Vector3(0.0, 0.78, -0.08), &"stone")
+	MapViewMeshBuilderPrimitives.box(root, "Breast", Vector3(2.05, 0.55, 0.55), Vector3(0.0, 1.72, 0.15), &"stone")
+	MapViewMeshBuilderPrimitives.box(root, "HearthShelf", Vector3(1.55, 0.16, 0.55), Vector3(0.0, 0.18, 0.72), &"stone")
+	# Recessed firebox void, then coal bed and layered flame volumes.
+	MapViewMeshBuilderPrimitives.box(root, "Firebox", Vector3(1.15, 0.72, 0.55), Vector3(0.0, 0.62, 0.62), &"ink")
+	_add_furnace_coal_bed(root)
+	var flames := _add_furnace_flames(root)
+	var particles := _add_furnace_fire_particles(root)
+	# Flue seats into the breast and clears the interior ceiling plane.
+	MapViewMeshBuilderPrimitives.add_chimney_stack(root, "Chimney", 0.58, 2.35, Vector3(0.0, 1.85, -0.28))
+
+	var forge_light := OmniLight3D.new()
+	forge_light.name = "Omni"
+	forge_light.position = Vector3(0.0, 0.72, 0.78)
+	root.add_child(forge_light)
+	var controller = MapViewMeshBuilderConfig.FORGE_FIRE_LIGHT_SCRIPT.new()
+	controller.configure(forge_light, flames, particles)
+	root.add_child(controller)
+
+
+static func _add_furnace_coal_bed(root: Node3D) -> void:
+	var cold := MapViewMaterials.charcoal()
+	var hot := MapViewMaterials.hot_coal()
+	for spec in [
+		{"name": "CoalA", "radius": 0.16, "pos": Vector3(-0.28, 0.34, 0.68), "scale": Vector3(1.3, 0.55, 1.1), "hot": true},
+		{"name": "CoalB", "radius": 0.14, "pos": Vector3(0.22, 0.32, 0.72), "scale": Vector3(1.2, 0.5, 1.05), "hot": true},
+		{"name": "CoalC", "radius": 0.12, "pos": Vector3(-0.02, 0.36, 0.58), "scale": Vector3(1.35, 0.48, 1.15), "hot": true},
+		{"name": "CoalD", "radius": 0.11, "pos": Vector3(0.34, 0.3, 0.55), "scale": Vector3(1.15, 0.45, 1.0), "hot": false},
+		{"name": "CoalE", "radius": 0.10, "pos": Vector3(-0.38, 0.3, 0.52), "scale": Vector3(1.1, 0.42, 0.95), "hot": false},
+		{"name": "CoalF", "radius": 0.09, "pos": Vector3(0.08, 0.4, 0.7), "scale": Vector3(1.05, 0.4, 1.0), "hot": true},
+	]:
+		var lump := MeshInstance3D.new()
+		lump.name = spec["name"]
+		var mesh := SphereMesh.new()
+		mesh.radius = spec["radius"]
+		mesh.height = spec["radius"] * 2.0
+		mesh.radial_segments = 7
+		mesh.rings = 3
+		lump.mesh = mesh
+		lump.position = spec["pos"]
+		lump.scale = spec["scale"]
+		lump.material_override = hot if spec["hot"] else cold
+		lump.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(lump)
+
+
+static func _add_furnace_flames(root: Node3D) -> Array[MeshInstance3D]:
+	var flames: Array[MeshInstance3D] = []
+	for spec in [
+		{"name": "FlameCore", "radius": 0.16, "height": 0.42, "pos": Vector3(0.0, 0.62, 0.72)},
+		{"name": "FlameLeft", "radius": 0.11, "height": 0.32, "pos": Vector3(-0.18, 0.58, 0.66)},
+		{"name": "FlameRight", "radius": 0.10, "height": 0.28, "pos": Vector3(0.2, 0.56, 0.68)},
+	]:
+		var flame := MeshInstance3D.new()
+		flame.name = spec["name"]
+		var mesh := SphereMesh.new()
+		mesh.radius = spec["radius"]
+		mesh.height = spec["height"]
+		mesh.radial_segments = 8
+		mesh.rings = 4
+		flame.mesh = mesh
+		flame.position = spec["pos"]
+		flame.material_override = MapViewMeshBuilderPrimitives.role_material(&"ember").duplicate()
+		flame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(flame)
+		flames.append(flame)
+	return flames
+
+
+static func _add_furnace_fire_particles(root: Node3D) -> GPUParticles3D:
+	var particles := GPUParticles3D.new()
+	particles.name = "FireSparks"
+	particles.position = Vector3(0.0, 0.55, 0.7)
+	particles.amount = 14
+	particles.lifetime = 0.85
+	particles.preprocess = 0.4
+	particles.explosiveness = 0.05
+	particles.randomness = 0.35
+	particles.visibility_aabb = AABB(Vector3(-0.8, -0.2, -0.6), Vector3(1.6, 1.8, 1.2))
+	var process := ParticleProcessMaterial.new()
+	process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	process.emission_box_extents = Vector3(0.35, 0.05, 0.18)
+	process.direction = Vector3.UP
+	process.spread = 22.0
+	process.initial_velocity_min = 0.45
+	process.initial_velocity_max = 1.15
+	process.gravity = Vector3(0.0, 0.35, 0.0)
+	process.damping_min = 0.4
+	process.damping_max = 1.1
+	process.scale_min = 0.035
+	process.scale_max = 0.08
+	process.color = Color8(255, 160, 60)
+	particles.process_material = process
+	var draw := SphereMesh.new()
+	draw.radius = 0.5
+	draw.height = 1.0
+	draw.radial_segments = 6
+	draw.rings = 3
+	particles.draw_pass_1 = draw
+	var spark_mat := StandardMaterial3D.new()
+	spark_mat.albedo_color = Color8(255, 170, 70)
+	spark_mat.emission_enabled = true
+	spark_mat.emission = Color8(255, 140, 40)
+	spark_mat.emission_energy_multiplier = 2.2
+	spark_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	particles.material_override = spark_mat
+	root.add_child(particles)
+	return particles
 
 
 static func _has_tall_footprint(prop: Dictionary) -> bool:

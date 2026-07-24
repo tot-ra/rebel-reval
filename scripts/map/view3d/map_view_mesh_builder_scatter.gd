@@ -17,6 +17,10 @@ static func build_scatter(
 ) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Scatter"
+	# Enclosed interiors (smithy, rooms) must not grow outdoor grass/stone clutter
+	# through plank or ashlar floors.
+	if definition.suppresses_exterior_surroundings():
+		return root
 	var blocked := MapViewMeshBuilderPrimitives.building_cell_rects(definition)
 	var field := MapViewMeshBuilderTerrain.ensure_height_field(definition, grid)
 	var bounds := cell_bounds

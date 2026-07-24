@@ -152,8 +152,28 @@ static func _add_brewery_keg_stack(root: Node3D) -> void:
 
 
 static func _add_charcoal_pile(root: Node3D) -> void:
-	_Primitives.sphere(root, "MoundA", 0.62, Vector3(-0.12, 0.28, 0.08), &"stone", Vector3(1.2, 0.55, 1.0))
-	_Primitives.sphere(root, "MoundB", 0.48, Vector3(0.24, 0.22, -0.1), &"stone", Vector3(1.05, 0.5, 0.95))
+	# WHY: limestone role on spheres read as brick-banded "rocks" in the smithy.
+	# Charcoal must stay near-black with organic mottling and chunky lumps.
+	var charcoal := MapViewMaterials.charcoal()
+	for spec in [
+		{"name": "ChunkA", "radius": 0.28, "pos": Vector3(-0.18, 0.16, 0.06), "scale": Vector3(1.35, 0.7, 1.1)},
+		{"name": "ChunkB", "radius": 0.22, "pos": Vector3(0.16, 0.14, -0.12), "scale": Vector3(1.2, 0.65, 1.05)},
+		{"name": "ChunkC", "radius": 0.18, "pos": Vector3(0.02, 0.22, 0.14), "scale": Vector3(1.1, 0.72, 0.95)},
+		{"name": "ChunkD", "radius": 0.14, "pos": Vector3(-0.32, 0.1, -0.1), "scale": Vector3(1.25, 0.6, 1.15)},
+		{"name": "ChunkE", "radius": 0.12, "pos": Vector3(0.34, 0.1, 0.08), "scale": Vector3(1.15, 0.55, 1.05)},
+	]:
+		var chunk := MeshInstance3D.new()
+		chunk.name = spec["name"]
+		var mesh := SphereMesh.new()
+		mesh.radius = spec["radius"]
+		mesh.height = spec["radius"] * 2.0
+		mesh.radial_segments = 8
+		mesh.rings = 4
+		chunk.mesh = mesh
+		chunk.position = spec["pos"]
+		chunk.scale = spec["scale"]
+		chunk.material_override = charcoal
+		root.add_child(chunk)
 	_Primitives.box(root, "Scoop", Vector3(0.42, 0.06, 0.24), Vector3(0.46, 0.08, 0.28), &"metal")
 
 

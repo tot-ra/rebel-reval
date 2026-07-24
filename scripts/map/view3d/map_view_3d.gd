@@ -210,9 +210,10 @@ func _update_window_lights() -> void:
 	var props := get_node_or_null("Props")
 	if props != null:
 		for prop_node in props.get_children():
-			var candle := prop_node.get_node_or_null("CandleLight")
-			if candle != null and candle.has_method(&"apply_cycle_progress"):
-				candle.call("apply_cycle_progress", cycle_progress)
+			# Candles and forge hearth lights both expose apply_cycle_progress.
+			for child in prop_node.get_children():
+				if child.has_method(&"apply_cycle_progress"):
+					child.call("apply_cycle_progress", cycle_progress)
 
 
 func world_position(logic_position: Vector2, height: float = 0.0) -> Vector3:

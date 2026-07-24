@@ -671,6 +671,38 @@ static func natural_rock() -> StandardMaterial3D:
 	return material
 
 
+## Charcoal lumps for forge stores and hearth beds. Uses organic rock mottling on
+## near-black albedo so sphere piles never read as limestone/brick masonry.
+static func charcoal() -> StandardMaterial3D:
+	var key := "charcoal"
+	if _cache.has(key):
+		return _cache[key]
+	var material := _make_material(Color8(26, 24, 22), PATTERN_ROCK, 7711)
+	material.uv1_triplanar = true
+	material.uv1_world_triplanar = false
+	material.uv1_scale = Vector3(3.2, 3.2, 3.2)
+	material.roughness = 0.96
+	_cache[key] = material
+	return material
+
+
+## Glowing coal bed inside a working furnace mouth.
+static func hot_coal() -> StandardMaterial3D:
+	var key := "hot_coal"
+	if _cache.has(key):
+		return _cache[key]
+	var material := _make_material(Color8(42, 28, 22), PATTERN_ROCK, 7729)
+	material.uv1_triplanar = true
+	material.uv1_world_triplanar = false
+	material.uv1_scale = Vector3(2.8, 2.8, 2.8)
+	material.emission_enabled = true
+	material.emission = EMBER_COLOR
+	material.emission_energy_multiplier = EMBER_ENERGY * 0.85
+	material.roughness = 0.9
+	_cache[key] = material
+	return material
+
+
 static func role_for_size(role_name: StringName, size: Vector3) -> StandardMaterial3D:
 	var material := role(role_name).duplicate()
 	var pattern := PATTERN_PLASTER
