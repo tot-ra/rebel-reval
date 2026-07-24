@@ -1,0 +1,215 @@
+{
+  "version": 1,
+  "source": "docs/HISTORICAL_AUDIT.md",
+  "maps": {
+    "kalev_smithy": {
+      "enforce": true,
+      "interior": true,
+      "source_refs": ["H04-H05"],
+      "surface_shares": {
+        "timber_pct": [35, 60],
+        "stone_pct": [20, 50],
+        "earth_pct": [5, 20]
+      },
+      "open_floor_pct": [70, 85]
+    },
+    "lower_town_slice": {
+      "enforce": false,
+      "source_refs": ["H04-H05", "H09-H10"],
+      "surface_shares": {
+        "stone_pct": [25, 40],
+        "earth_pct": [35, 50],
+        "grass_pct": [15, 30]
+      },
+      "built_density_pct": [45, 60],
+      "max_cobblestone_pct": 40,
+      "max_style_share_pct": 35,
+      "max_empty_region_cells": 1200,
+      "elevation_range_min": 0.3,
+      "required_landmark_building_ids": ["st_catherines_church"]
+    },
+    "market_civic_quarter": {
+      "enforce": false,
+      "source_refs": ["H04", "H06-H07", "H09"],
+      "surface_shares": {
+        "stone_pct": [40, 55],
+        "earth_pct": [30, 40],
+        "grass_pct": [10, 20]
+      },
+      "built_density_pct": [50, 65],
+      "max_cobblestone_pct": 55,
+      "max_style_share_pct": 35,
+      "max_empty_region_cells": 8000,
+      "elevation_range_min": 0.3,
+      "required_landmark_building_ids": ["town_hall_mass", "holy_spirit_frontage"]
+    },
+    "north_quarter": {
+      "enforce": false,
+      "source_refs": ["H04", "H08", "H11"],
+      "surface_shares": {
+        "stone_pct": [30, 45],
+        "earth_pct": [35, 50],
+        "grass_pct": [15, 25]
+      },
+      "built_density_pct": [45, 60],
+      "max_cobblestone_pct": 45,
+      "max_style_share_pct": 35,
+      "max_empty_region_cells": 12000,
+      "elevation_range_min": 0.3
+    },
+    "monastery_quarter": {
+      "enforce": true,
+      "source_refs": ["H04-H05", "H14"],
+      "surface_shares": {
+        "stone_pct": [0, 6],
+        "earth_pct": [60, 75],
+        "grass_pct": [20, 35]
+      },
+      "max_cobblestone_pct": 3,
+      "max_style_share_pct": 55,
+      "max_empty_region_cells": 22000,
+      "elevation_range_min": 0.3,
+      "required_landmark_building_ids": ["st_olaf_silhouette", "st_michaels_convent"]
+    },
+    "archbishops_garden": {
+      "enforce": false,
+      "source_refs": ["H12-H13"],
+      "surface_shares": {
+        "stone_pct": [5, 15],
+        "earth_pct": [10, 25],
+        "grass_pct": [60, 80]
+      },
+      "built_density_pct": [2, 8],
+      "max_style_share_pct": 60,
+      "max_empty_region_cells": 7000,
+      "elevation_range_min": 2.5
+    },
+    "toompea_quarter": {
+      "enforce": false,
+      "source_refs": ["H01", "H12-H13"],
+      "surface_shares": {
+        "stone_pct": [20, 40],
+        "earth_pct": [40, 60],
+        "grass_pct": [30, 50]
+      },
+      "built_density_pct": [20, 35],
+      "max_style_share_pct": 50,
+      "max_empty_region_cells": 26000,
+      "elevation_range_min": 2.5
+    },
+    "south_quarter": {
+      "enforce": false,
+      "source_refs": ["H08-H10"],
+      "surface_shares": {
+        "stone_pct": [25, 40],
+        "earth_pct": [40, 55],
+        "grass_pct": [15, 30]
+      },
+      "built_density_pct": [40, 55],
+      "max_style_share_pct": 35,
+      "max_empty_region_cells": 20000,
+      "elevation_range_min": 0.3
+    },
+    "viru_gate_foreland": {
+      "enforce": true,
+      "source_refs": ["H18"],
+      "surface_shares": {
+        "stone_pct": [0, 5],
+        "earth_pct": [15, 40],
+        "grass_pct": [50, 75]
+      },
+      "built_density_pct": [2, 8],
+      "max_style_share_pct": 55,
+      "max_empty_region_cells": 20000,
+      "elevation_range_min": 0.3
+    },
+    "reval_harbor_north": {
+      "enforce": false,
+      "source_refs": ["H11", "H16"],
+      "surface_shares": {
+        "stone_pct": [20, 40],
+        "earth_pct": [40, 60],
+        "grass_pct": [20, 40]
+      },
+      "built_density_pct": [5, 15],
+      "max_style_share_pct": 75,
+      "max_empty_region_cells": 9000,
+      "elevation_range_min": 0.3
+    },
+    "reval_harbor_east": {
+      "enforce": false,
+      "source_refs": ["H16"],
+      "surface_shares": {
+        "stone_pct": [0, 10],
+        "earth_pct": [50, 70],
+        "grass_pct": [25, 45]
+      },
+      "built_density_pct": [5, 15],
+      "max_style_share_pct": 70,
+      "max_empty_region_cells": 7000,
+      "elevation_range_min": 0.3
+    },
+    "st_olafs_guild_hall": {
+      "enforce": false,
+      "interior": true,
+      "source_refs": ["H04-H06"],
+      "surface_shares": {
+        "timber_pct": [40, 90],
+        "stone_pct": [0, 10],
+        "earth_pct": [5, 20]
+      },
+      "open_floor_pct": [90, 100]
+    },
+    "town_hall": {
+      "enforce": true,
+      "interior": true,
+      "source_refs": ["H06"],
+      "surface_shares": {
+        "timber_pct": [80, 90],
+        "stone_pct": [5, 15],
+        "earth_pct": [5, 12]
+      },
+      "open_floor_pct": [80, 92]
+    },
+    "world.sacred_grove": {
+      "enforce": false,
+      "source_refs": ["H23"]
+    },
+    "world.harju": {
+      "enforce": false,
+      "source_refs": ["H22"]
+    },
+    "world.padise": {
+      "enforce": false,
+      "source_refs": ["H21"]
+    },
+    "world.saaremaa": {
+      "enforce": false,
+      "source_refs": ["H24"]
+    },
+    "world.rebel_kings": {
+      "enforce": false,
+      "source_refs": ["H20"]
+    },
+    "world.kanavere": {
+      "enforce": false,
+      "source_refs": ["H20"]
+    },
+    "world.sojamae": {
+      "enforce": false,
+      "source_refs": ["H20"]
+    },
+    "world.paide": {
+      "enforce": false,
+      "source_refs": ["H20"]
+    },
+    "world.parnu": {
+      "enforce": false,
+      "source_refs": ["H25"]
+    },
+    "world.poide": {
+      "enforce": false,
+      "source_refs": ["H24"]
+    }
+  }
+}

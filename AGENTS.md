@@ -112,6 +112,7 @@ Decision: P1-002 uses a small repository-owned headless GDScript harness instead
 | Speculative scene and NPC markdown archive headers | `python3 tools/archive_speculative_docs.py --dry-run` (no output when complete) | **P0-032** |
 | Asset provenance manifest schema and coverage | `python3 tools/validate_asset_sources.py` | **P0-028** |
 | Asset lint (dimensions, pivots, manifest rows) | `python3 tools/verify_asset_lint.py` | **P1-029** |
+| Map composition audit (P0-072 surface/density/landmark bands) | `python3 tools/verify_map_composition.py` | **P1-036** |
 
 Content schemas and the Python validator are now available. Add runtime JSON under `content/` only when it passes `tools/validate_content.py` as part of a complete corpus.
 
