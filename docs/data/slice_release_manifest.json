@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "task_id": "P3-015",
+  "release_tag": "v0.1.0-slice",
+  "godot_model": "scripts/slice/vertical_slice_release_model.gd",
+  "godot_test_filter": "test_vertical_slice_release",
+  "maintainer_report": "docs/reports/p3_015_slice_release.md",
+  "verify_script": "tools/verify_slice_release.sh",
+  "build_fixture_script": "tools/build_slice_release_fixture.py",
+  "save_envelope_version": 1,
+  "game_state_version": 2,
+  "map_world_state_version": 2,
+  "content_schema_version": 1,
+  "content_schema_fingerprint": "e49a36e051256a899b7f7935fe4479bf2b977d4582b80341aebb147a63266ff6",
+  "content_corpus_fingerprint": "ce6129b14a7872662b40ecfec75aa69500f4231a1b60d31d2de5d8aaa35ace25",
+  "content_directories": [
+    "content/demo",
+    "content/examples/support",
+    "content/examples/valid"
+  ],
+  "published_save_fixture": {
+    "id": "save.slice_prologue_complete",
+    "path": "released/save.slice_prologue_complete.json",
+    "checkpoint_id": "checkpoint.prologue_complete",
+    "description": "Vertical-slice release fixture after Maker's Mark ledger commit with preserved ledger branch."
+  }
+}

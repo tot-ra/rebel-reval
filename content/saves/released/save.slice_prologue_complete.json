@@ -1,0 +1,69 @@
+{
+	"save_version": 1,
+	"saved_at_unix": 1753459200,
+	"game_state": {
+		"version": 2,
+		"phase": "phase.prologue_day",
+		"player": {
+			"health": 100.0,
+			"max_health": 100.0,
+			"stamina": 100.0,
+			"max_stamina": 100.0,
+			"location_id": "forge",
+			"spawn_id": "main"
+		},
+		"bag": {
+			"placements": []
+		},
+		"equipped": {
+			"right_hand": "item.forge_hammer"
+		},
+		"facts": {},
+		"flags": {
+			"flag.prologue_maker_mark_incident": true,
+			"flag.forge_ledger_preserved": true,
+			"flag.mart_missing": true
+		},
+		"relationships": {
+			"rel.henning_trust": 1,
+			"rel.mart_trust": 0
+		},
+		"pressures": {
+			"pressure.suspicion": 0,
+			"pressure.solidarity": 0,
+			"pressure.scarcity": 0
+		},
+		"quest_states": {
+			"quest.makers_mark": "ledger_committed"
+		},
+		"location_states": {},
+		"items": {},
+		"forged_records": [
+			{
+				"record_id": "forged.watch_buckle_repair.honest_work",
+				"commission_id": "commission.watch_buckle_repair",
+				"item_id": "item.watch_buckle",
+				"modification_id": "honest_work"
+			}
+		],
+		"world_items": {
+			"loc.kalev_smithy": {
+				"world.spearhead_anvil": {
+					"object_id": "world.spearhead_anvil",
+					"item_id": "item.seized_spearhead",
+					"position": {
+						"x": 624.0,
+						"y": 200.0
+					}
+				}
+			}
+		},
+		"world_defaults_seeded": {
+			"loc.kalev_smithy": true
+		},
+		"map_world_state": {
+			"save_version": 2,
+			"world_state": {}
+		}
+	}
+}

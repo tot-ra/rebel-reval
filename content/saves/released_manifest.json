@@ -14,6 +14,11 @@
       "id": "save.game_state_v1_legacy",
       "path": "released/save.game_state_v1_legacy.json",
       "description": "Envelope v1 with game-state schema v1 and no map_world_state block."
+    },
+    {
+      "id": "save.slice_prologue_complete",
+      "path": "released/save.slice_prologue_complete.json",
+      "description": "Vertical-slice release fixture after Maker's Mark ledger commit with preserved ledger branch."
     }
   ]
 }
