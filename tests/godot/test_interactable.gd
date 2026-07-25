@@ -99,6 +99,39 @@ func test_controller_focuses_closest_interactable() -> void:
 	assert_eq(controller.get_focused_interactable(), near)
 	assert_true(near.is_focused())
 	assert_false(far.is_focused())
+	assert_eq(CursorService.get_active_kind(), &"talk")
+	_cleanup_node(root)
+
+
+func test_controller_pickup_focus_shows_grab_cursor() -> void:
+	var root := _make_root()
+	var actor := _spawn_actor(root, Vector2(100, 100))
+	var pickup := _spawn_interactable(root, ID_PICKUP, InteractionKinds.PICKUP, "Pick up", Vector2(140, 100))
+
+	var controller := InteractionController.new()
+	controller.actor = actor
+	root.add_child(controller)
+
+	pickup.register_actor_in_range(actor)
+	controller._update_focus()
+
+	assert_eq(CursorService.get_active_kind(), &"grab")
+	_cleanup_node(root)
+
+
+func test_controller_use_focus_restores_default_cursor() -> void:
+	var root := _make_root()
+	var actor := _spawn_actor(root, Vector2(100, 100))
+	var use := _spawn_interactable(root, ID_USE, InteractionKinds.USE, "Inspect", Vector2(140, 100))
+
+	var controller := InteractionController.new()
+	controller.actor = actor
+	root.add_child(controller)
+
+	use.register_actor_in_range(actor)
+	controller._update_focus()
+
+	assert_eq(CursorService.get_active_kind(), &"")
 	_cleanup_node(root)
 
 

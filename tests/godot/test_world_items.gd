@@ -259,10 +259,12 @@ func test_pickup_hover_activates_grab_cursor_state() -> void:
 	controller._hovered = item
 	controller._overlay.update_cursor(true)
 	assert_true(controller.is_pickup_hover_active())
+	assert_eq(CursorService.get_active_kind(), &"grab")
 
 	controller._hovered = null
 	controller._overlay.update_cursor(false)
 	assert_false(controller.is_pickup_hover_active())
+	assert_eq(CursorService.get_active_kind(), &"")
 	_cleanup_node(root)
 
 

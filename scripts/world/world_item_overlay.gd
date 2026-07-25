@@ -64,14 +64,14 @@ func update_cursor(wants_grab: bool) -> void:
 		return
 	cursor_over_pickup = wants_grab
 	if wants_grab:
-		Input.set_default_cursor_shape(Input.CURSOR_DRAG)
+		CursorService.set_layer_cursor(CursorService.LAYER_WORLD_ITEM, &"grab")
 	else:
-		restore_cursor()
+		CursorService.clear_layer(CursorService.LAYER_WORLD_ITEM)
 
 
 func restore_cursor() -> void:
 	cursor_over_pickup = false
-	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
+	CursorService.clear_layer(CursorService.LAYER_WORLD_ITEM)
 
 
 func resolve_pickup_feedback(

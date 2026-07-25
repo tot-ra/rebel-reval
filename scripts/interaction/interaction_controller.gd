@@ -99,6 +99,22 @@ func _set_focused_interactable(next_focus: Interactable) -> void:
 	_focused = next_focus
 	if _focused != null:
 		_focused.set_focused(true)
+	_update_cursor_for_focus()
+
+
+func _exit_tree() -> void:
+	CursorService.clear_layer(CursorService.LAYER_INTERACTABLE)
+
+
+func _update_cursor_for_focus() -> void:
+	var kind := &""
+	if _focused != null:
+		match _focused.get_interaction_kind():
+			InteractionKinds.TALK:
+				kind = &"talk"
+			InteractionKinds.PICKUP:
+				kind = &"grab"
+	CursorService.set_layer_cursor(CursorService.LAYER_INTERACTABLE, kind)
 
 
 func _update_prompt() -> void:

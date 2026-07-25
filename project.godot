@@ -25,6 +25,7 @@ config/icon="res://scenes/menu/logo256.png"
 
 [autoload]
 
+CursorService="*res://scripts/ui/cursor_service.gd"
 DisplayWindow="*res://scripts/display/display_window.gd"
 DoorNavigator="*res://scripts/global/doorNavigator.gd"
 MusicDirector="*res://scripts/global/music_director.gd"
