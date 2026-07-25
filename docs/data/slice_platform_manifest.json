@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "task_id": "P3-012",
+  "godot_model": "scripts/slice/vertical_slice_platform_model.gd",
+  "godot_test_filter": "test_vertical_slice_platform",
+  "packaged_smoke_test_filter": "test_packaged_platform_smoke",
+  "maintainer_report": "docs/reports/p3_012_supported_platforms.md",
+  "export_preset_name": "rr",
+  "export_preset_platform": "macOS",
+  "export_architecture": "universal",
+  "packaged_smoke_user_argument": "--verify-packaged-platform",
+  "packaged_smoke_script": "scripts/demo/packaged_platform_smoke.gd",
+  "verify_script": "tools/verify_supported_platform.sh",
+  "supported_platform_count": 1,
+  "supported_platforms": [
+    {
+      "id": "macos_universal",
+      "os": "macOS",
+      "architecture": "universal",
+      "minimum_os": "macOS 11.0 (Apple Silicon) / macOS 10.12 (Intel)",
+      "artifact": "build/rr.dmg",
+      "export_preset": "rr",
+      "smoke_steps": ["install", "start", "save", "load", "exit"]
+    }
+  ],
+  "unsupported_declarations": [
+    {
+      "id": "windows",
+      "reason": "No export preset or packaged smoke harness yet"
+    },
+    {
+      "id": "linux",
+      "reason": "No export preset or packaged smoke harness yet"
+    }
+  ]
+}

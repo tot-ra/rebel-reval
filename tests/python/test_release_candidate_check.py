@@ -181,12 +181,23 @@ class ReleaseCandidateCheckTest(unittest.TestCase):
             (root / "export_presets.cfg").write_text(
                 "\n".join(
                     [
+                        'name="rr"',
                         'platform="macOS"',
                         'binary_format/architecture="universal"',
                     ]
                 ),
                 encoding="utf-8",
             )
+            docs_dir = root / "docs" / "data"
+            docs_dir.mkdir(parents=True)
+            (docs_dir / "slice_platform_manifest.json").write_text("{}", encoding="utf-8")
+            reports_dir = root / "docs" / "reports"
+            reports_dir.mkdir(parents=True)
+            (reports_dir / "p3_012_supported_platforms.md").write_text("# stub\n", encoding="utf-8")
+            tools_dir = root / "tools"
+            tools_dir.mkdir(parents=True, exist_ok=True)
+            (tools_dir / "report_slice_platform.py").write_text("# stub\n", encoding="utf-8")
+            (tools_dir / "verify_supported_platform.sh").write_text("#!/bin/sh\n", encoding="utf-8")
 
             result = check_platform(root)
 

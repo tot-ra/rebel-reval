@@ -1,6 +1,7 @@
 [gd_scene load_steps=9 format=3 uid="uid://dyl726xerhjhg"]
 
 [ext_resource type="Script" path="res://scripts/demo/packaged_demo_walkthrough.gd" id="1_packaged_walkthrough"]
+[ext_resource type="Script" path="res://scripts/demo/packaged_platform_smoke.gd" id="8_platform_smoke"]
 [ext_resource type="Script" path="res://scenes/menu/credits_label.gd" id="7_credits"]
 
 [ext_resource type="Texture2D" uid="uid://bysfalwbeyasb" path="res://scenes/menu/intro-hq.jpg" id="1_kiqgm"]
@@ -20,6 +21,9 @@ grow_vertical = 2
 
 [node name="PackagedDemoWalkthrough" type="Node" parent="."]
 script = ExtResource("1_packaged_walkthrough")
+
+[node name="PackagedPlatformSmoke" type="Node" parent="."]
+script = ExtResource("8_platform_smoke")
 
 [node name="City background" type="Sprite2D" parent="."]
 visible = false

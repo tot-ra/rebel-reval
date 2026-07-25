@@ -15,7 +15,7 @@ References:
 | P0 |     8  |    39  | Baseline, storage, materials, historical audit |
 | P1 |     0  |     8  | Runtime systems, content foundation |
 | P2 |     3  |    18  | Vertical-slice production (playable MVP) |
-| P3 |     4  |    12  | Validation, accessibility, performance |
+| P3 |     3  |    13  | Validation, accessibility, performance |
 | P4 |    49  |     7  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
@@ -78,6 +78,8 @@ References:
 
 
 
+
+<!-- P3-012 completed in current session -->
 <!-- P3-013 completed in current session -->
 <!-- P3-011 completed in current session -->
 <!-- P3-008 completed in current session -->
@@ -217,7 +219,7 @@ References:
 - [x] P3-005 | deps: P2-012 | deliverable: removal or rewrite of choices that differ only in wording or reward | allowed files: `scripts/slice/vertical_slice_branch_consequence_model.gd`, `docs/data/slice_branch_consequence_manifest.json`, `tools/slice_branch_consequences.py`, `tools/report_slice_branch_consequences.py`, `tests/python/test_report_slice_branch_consequences.py`, `tests/godot/test_vertical_slice_branch_consequences.gd`, `content/examples/valid/quest.makers_mark.json`, `tests/godot/test_makers_mark_prologue.gd`, `tests/godot/test_quest_manager.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 tools/report_slice_branch_consequences.py --check` and `python3 -m unittest tests.python.test_report_slice_branch_consequences -v` pass; `--filter=test_vertical_slice_branch_consequences` passes; branch review finds a distinct state or consequence for every retained major choice
 - [x] P3-019 | deps: P2-012 | deliverable: contextual grab/talk mouse cursors on focused interactables and world-item hover through a `CursorService` autoload with authored `assets/UI/cursors/` textures | allowed files: `scripts/ui/cursor_service.gd`, `scripts/interaction/interaction_controller.gd`, `scripts/world/world_item_overlay.gd`, `project.godot`, `assets/UI/cursors/**`, `assets/SOURCES.csv`, `tests/godot/test_cursor_service.gd`, `tests/godot/test_interactable.gd`, `tests/godot/test_world_items.gd`, `TODO.md` | verify: `--filter=test_interactable` and `--filter=test_world_items` pass; hovering a talk/pickup focus or world item shows the matching cursor and restoring returns to the OS arrow
 <!-- P3-019 completed in current session -->
-- [ ] P3-012 | deps: P2-012,P3-007,P3-011 | deliverable: tested desktop export set and honest supported-platform declaration | verify: each declared platform installs, starts, saves, loads, and exits without critical error
+- [x] P3-012 | deps: P2-012,P3-007,P3-011 | deliverable: tested desktop export set and honest supported-platform declaration | allowed files: `scripts/slice/vertical_slice_platform_model.gd`, `scripts/demo/packaged_platform_smoke.gd`, `docs/data/slice_platform_manifest.json`, `docs/reports/p3_012_supported_platforms.md`, `tools/slice_platform.py`, `tools/report_slice_platform.py`, `tools/verify_supported_platform.sh`, `tests/godot/test_vertical_slice_platform.gd`, `tests/godot/test_packaged_platform_smoke.gd`, `tests/python/test_report_slice_platform.py`, `scenes/menu/main_menu.tscn`, `tools/release_candidate_check.py`, `tests/python/test_release_candidate_check.py`, `.github/workflows/ci.yml`, `docs/SETUP.md`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 tools/report_slice_platform.py --check` and `python3 -m unittest tests.python.test_report_slice_platform -v` pass; `--filter=test_vertical_slice_platform` and `--filter=test_packaged_platform_smoke` pass; `tools/verify_supported_platform.sh` exports macOS `rr`, runs packaged install/start/save/load/exit smoke, and `docs/reports/p3_012_supported_platforms.md` declares macOS universal only
 - [ ] P3-015 | deps: P3-014 | deliverable: tagged vertical-slice release with frozen compatible save and content schema versions | verify: release tag rebuilds from clean clone and loads its published save fixture
 - [x] P3-001 | deps: P2-012 | deliverable: automated traversal of every valid slice branch and deliberate invalid state | allowed files: `scripts/slice/vertical_slice_traversal_model.gd`, `docs/data/slice_traversal_manifest.json`, `tests/godot/test_vertical_slice_traversal.gd`, `tools/slice_traversal.py`, `tools/report_slice_traversal.py`, `tests/python/test_report_slice_traversal.py`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_vertical_slice_traversal` passes; `python3 tools/report_slice_traversal.py --check` and `python3 -m unittest tests.python.test_report_slice_traversal -v` pass; traversal report lists every intended ending as reachable and every authored invalid transition as rejected
 

@@ -249,6 +249,10 @@ def check_accessibility(root: Path = ROOT) -> CheckResult:
 def check_platform(root: Path = ROOT) -> CheckResult:
     godot_version_file = root / ".godot-version"
     export_presets = root / "export_presets.cfg"
+    platform_manifest = root / "docs" / "data" / "slice_platform_manifest.json"
+    platform_report_tool = root / "tools" / "report_slice_platform.py"
+    maintainer_report = root / "docs" / "reports" / "p3_012_supported_platforms.md"
+    verify_script = root / "tools" / "verify_supported_platform.sh"
     details: list[str] = []
     checks: list[tuple[str, bool]] = []
 
@@ -268,11 +272,13 @@ def check_platform(root: Path = ROOT) -> CheckResult:
         lowered = presets_content.lower()
         has_macos_preset = 'platform="macos"' in lowered
         has_universal_arch = 'binary_format/architecture="universal"' in lowered
+        has_rr_preset = 'name="rr"' in lowered
         checks.extend(
             [
                 ("export_presets.cfg present", True),
                 ("macOS export preset configured", has_macos_preset),
                 ("universal macOS architecture configured", has_universal_arch),
+                ("rr export preset configured", has_rr_preset),
             ]
         )
         if has_macos_preset:
@@ -283,6 +289,35 @@ def check_platform(root: Path = ROOT) -> CheckResult:
             details.append("Universal macOS architecture configured")
         else:
             details.append("Universal macOS architecture not configured")
+        if has_rr_preset:
+            details.append("rr export preset configured")
+        else:
+            details.append("rr export preset missing from export_presets.cfg")
+
+    checks.extend(
+        [
+            ("slice platform manifest present", platform_manifest.is_file()),
+            ("slice platform verifier present", platform_report_tool.is_file()),
+            ("supported-platform maintainer report present", maintainer_report.is_file()),
+            ("supported-platform smoke script present", verify_script.is_file()),
+        ]
+    )
+    if platform_manifest.is_file():
+        details.append("slice_platform_manifest.json is present")
+    else:
+        details.append("slice_platform_manifest.json is missing")
+    if platform_report_tool.is_file():
+        details.append("report_slice_platform.py is present")
+    else:
+        details.append("report_slice_platform.py is missing")
+    if maintainer_report.is_file():
+        details.append("p3_012_supported_platforms.md is present")
+    else:
+        details.append("p3_012_supported_platforms.md is missing")
+    if verify_script.is_file():
+        details.append("verify_supported_platform.sh is present")
+    else:
+        details.append("verify_supported_platform.sh is missing")
 
     passed_count = sum(1 for _, ok in checks if ok)
     passed = passed_count == len(checks)
