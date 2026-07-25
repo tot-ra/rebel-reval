@@ -8,10 +8,10 @@ const InventoryUiThemeScene := preload("res://scripts/inventory/inventory_ui_the
 
 signal closed()
 
-const CELL_SIZE := 52
-const CELL_GAP := 4
-const PANEL_PADDING := 18
-const SILHOUETTE_WIDTH := 176
+const CELL_SIZE := 60
+const CELL_GAP := 6
+const PANEL_PADDING := 26
+const SILHOUETTE_WIDTH := 196
 
 const DRAG_KIND_BAG := &"bag"
 const DRAG_KIND_EQUIPPED := &"equipped"
@@ -30,6 +30,7 @@ var _weight_value: Label
 var _volume_bar: ProgressBar
 var _volume_value: Label
 var _speed_label: Label
+var _detail_title: Label
 var _detail_label: Label
 var _equip_button: Button
 var _cell_buttons: Array[Button] = []
@@ -185,6 +186,7 @@ func _build_ui() -> void:
 	_volume_bar = nodes["volume_bar"]
 	_volume_value = nodes["volume_value"]
 	_speed_label = nodes["speed_label"]
+	_detail_title = nodes["detail_title"]
 	_detail_label = nodes["detail_label"]
 	_equip_button = nodes["equip_button"]
 	_cell_buttons = nodes["cell_buttons"]
@@ -320,6 +322,10 @@ func _equipped_item_label(item_id: StringName) -> String:
 	return String(record.get("name", String(item_id)))
 
 
+func _equipped_item_icon(item_id: StringName) -> Texture2D:
+	return _icon_for(_item_record(item_id))
+
+
 func _equipped_slot_short_label(item_id: StringName) -> String:
 	return _short_label(_item_record(item_id), 1)
 
@@ -358,6 +364,7 @@ func _style_cell_button(
 	if placement == null:
 		button.text = ""
 		button.icon = null
+		_set_cell_badge(button, "")
 		button.tooltip_text = "Empty pouch cell"
 		var empty_bg := InventoryUiThemeScene.LEATHER_EMPTY
 		if _selected != null:
@@ -371,37 +378,51 @@ func _style_cell_button(
 
 	var record := _item_record(placement.item_id)
 	var category := String(record.get("category", "supply"))
-	var color: Color = InventoryUiThemeScene.CATEGORY_COLORS.get(
+	var accent: Color = InventoryUiThemeScene.CATEGORY_COLORS.get(
 		category,
 		InventoryUiThemeScene.CATEGORY_COLORS["supply"]
 	)
-	# Non-origin cells keep the item footprint readable without repeating text.
 	var selected := placement == _selected
+	var icon_tex := _icon_for(record)
+
+	# WHY: painted icons carry the item's identity, so the cell keeps a dark
+	# leather bed and shows the category as a coloured rim instead of a flat
+	# tint that used to wash the artwork out. Only the origin cell draws the
+	# icon; the rest of a multi-cell footprint stays a dim tinted shape.
+	var bed := InventoryUiThemeScene.LEATHER_EMPTY.lerp(accent, 0.18)
 	if is_origin:
-		button.text = _short_label(record, placement.quantity)
-		InventoryUiThemeScene.apply_cell_button(button, color, focused, selected)
+		button.icon = icon_tex
+		if icon_tex != null:
+			button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			button.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
+			button.expand_icon = true
+			button.text = ""
+		else:
+			button.text = _short_label(record, 1)
+		_set_cell_badge(button, ("x%d" % placement.quantity) if placement.quantity > 1 else "")
+		InventoryUiThemeScene.apply_cell_button(button, bed, focused, selected, accent)
 	else:
 		button.text = ""
-		InventoryUiThemeScene.apply_cell_button(button, color.darkened(0.18), focused, selected)
-
-	# Apply item icon texture if available, scaling to fit the cell.
-	# WHY: only the origin cell shows icon + label; multi-cell footprints stay
-	# as a tinted shape so the player can see the item footprint without
-	# cluttering every occupied cell with a duplicate icon.
-	if is_origin:
-		var icon_path: String = record.get("icon", "")
-		if not icon_path.is_empty() and ResourceLoader.exists(icon_path):
-			var icon_tex: Texture2D = ResourceLoader.load(icon_path) as Texture2D
-			if icon_tex != null:
-				button.icon = icon_tex
-				button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-				button.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
-				button.expand_icon = true
-				# Keep the short label visible alongside the icon.
-				button.text = _short_label(record, placement.quantity)
+		button.icon = null
+		_set_cell_badge(button, "")
+		InventoryUiThemeScene.apply_cell_button(
+			button, bed.darkened(0.22), focused, selected, accent.darkened(0.3)
+		)
 
 	button.tooltip_text = _item_tooltip(record, placement)
 	button.custom_minimum_size = Vector2(CELL_SIZE, CELL_SIZE)
+
+
+func _icon_for(record: Dictionary) -> Texture2D:
+	var icon_path: String = record.get("icon", "")
+	if icon_path.is_empty() or not ResourceLoader.exists(icon_path):
+		return null
+	return ResourceLoader.load(icon_path) as Texture2D
+
+
+func _set_cell_badge(button: Button, text: String) -> void:
+	if button.has_method("set_badge_text"):
+		button.call("set_badge_text", text)
 
 
 func _on_cell_pressed(cell_x: int, cell_y: int) -> void:
@@ -436,30 +457,51 @@ func _update_detail_label() -> void:
 		)
 		if focus_placement != null:
 			var focus_record := _item_record(focus_placement.item_id)
-			_detail_label.text = _item_detail_text(focus_record, focus_placement)
+			_set_detail(
+				String(focus_record.get("name", String(focus_placement.item_id))),
+				_item_stats_text(focus_record, focus_placement)
+			)
 			return
-		_detail_label.text = "Choose a good to inspect, then click a free cell or gear slot."
+		_set_detail(
+			"Nothing in hand",
+			"Choose a good to inspect, then click a free cell or gear slot."
+		)
 		return
 
 	var record := _item_record(_selected.item_id)
-	_detail_label.text = "In hand: " + _item_detail_text(record, _selected)
+	_set_detail(
+		"In hand: " + String(record.get("name", String(_selected.item_id))),
+		_item_stats_text(record, _selected)
+	)
+
+
+func _set_detail(title: String, body: String) -> void:
+	if _detail_title != null:
+		_detail_title.text = title
+	_detail_label.text = body
+
+
+## Stats line without the item name, which the detail card shows as its title.
+func _item_stats_text(record: Dictionary, placement: InventoryPlacement) -> String:
+	var profile := _profile_for(placement.item_id)
+	var parts := PackedStringArray([
+		"%.2f kg" % profile.weight_kg,
+		"%dx%d cells" % [profile.grid_width, profile.grid_height],
+	])
+	var category := String(record.get("category", "")).replace("_", " ")
+	if not category.is_empty():
+		parts.append(category)
+	var equip_info := _equip_info(placement.item_id)
+	if not equip_info.is_empty():
+		parts.append("equips to %s" % String(equip_info.get("slot", "")).replace("_", " "))
+	if placement.quantity > 1:
+		parts.append("qty %d" % placement.quantity)
+	return " · ".join(parts)
 
 
 func _item_detail_text(record: Dictionary, placement: InventoryPlacement) -> String:
-	var profile := _profile_for(placement.item_id)
 	var name_text := String(record.get("name", String(placement.item_id)))
-	var equip_hint := ""
-	var equip_info := _equip_info(placement.item_id)
-	if not equip_info.is_empty():
-		equip_hint = " · equips to %s" % String(equip_info.get("slot", "")).replace("_", " ")
-	return "%s · %.2f kg · %dx%d%s · qty %d" % [
-		name_text,
-		profile.weight_kg,
-		profile.grid_width,
-		profile.grid_height,
-		equip_hint,
-		placement.quantity,
-	]
+	return "%s · %s" % [name_text, _item_stats_text(record, placement)]
 
 
 func _item_tooltip(record: Dictionary, placement: InventoryPlacement) -> String:

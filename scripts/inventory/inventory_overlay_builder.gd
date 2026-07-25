@@ -7,10 +7,10 @@ const EquipmentSilhouetteScene := preload("res://scripts/inventory/equipment_sil
 const InventoryGridCellScene := preload("res://scripts/inventory/inventory_grid_cell.gd")
 const InventoryUiThemeScene := preload("res://scripts/inventory/inventory_ui_theme.gd")
 
-const CELL_SIZE := 52
-const CELL_GAP := 4
-const PANEL_PADDING := 20
-const SILHOUETTE_WIDTH := 176
+const CELL_SIZE := 60
+const CELL_GAP := 6
+const PANEL_PADDING := 26
+const SILHOUETTE_WIDTH := 228
 const DRAG_KIND_BAG := &"bag"
 const DRAG_KIND_EQUIPPED := &"equipped"
 const HELP_TOOLTIP := (
@@ -42,9 +42,13 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	panel.custom_minimum_size = Vector2(740, 0)
+	panel.custom_minimum_size = Vector2(860, 0)
+	panel.clip_contents = true
 	InventoryUiThemeScene.apply_panel(panel)
 	root.add_child(panel)
+
+	# Hearth glow sits behind the contents so the leather panel is not flat.
+	panel.add_child(InventoryUiThemeScene.make_panel_glow())
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", PANEL_PADDING)
@@ -54,19 +58,29 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	panel.add_child(margin)
 
 	var layout := VBoxContainer.new()
-	layout.add_theme_constant_override("separation", 10)
+	layout.add_theme_constant_override("separation", 14)
 	margin.add_child(layout)
 
 	var header := HBoxContainer.new()
 	header.add_theme_constant_override("separation", 12)
+	header.alignment = BoxContainer.ALIGNMENT_CENTER
 	layout.add_child(header)
+
+	var title_column := VBoxContainer.new()
+	title_column.add_theme_constant_override("separation", 0)
+	title_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(title_column)
 
 	var title := Label.new()
 	title.name = "BagTitle"
 	title.text = "Satchel"
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	InventoryUiThemeScene.apply_title(title)
-	header.add_child(title)
+	title_column.add_child(title)
+
+	var subtitle := Label.new()
+	subtitle.text = "Kalev's kit - what he carries through Reval"
+	InventoryUiThemeScene.apply_subtitle(subtitle)
+	title_column.add_child(subtitle)
 
 	var help_button := Button.new()
 	help_button.text = "?"
@@ -87,30 +101,22 @@ static func build(host: InventoryOverlay) -> Dictionary:
 
 	layout.add_child(InventoryUiThemeScene.make_brass_rule())
 
-	var hint := Label.new()
-	hint.text = "Select a good, then Equip / drag onto a highlighted slot. Drag packed cells to rearrange."
-	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	InventoryUiThemeScene.apply_hint(hint)
-	layout.add_child(hint)
-
-	var weight_meter := _add_meter_row(layout, "Burden")
-	var volume_meter := _add_meter_row(layout, "Stowage")
-
-	var speed_label := Label.new()
-	InventoryUiThemeScene.apply_body(speed_label)
-	layout.add_child(speed_label)
-
 	var body_row := HBoxContainer.new()
-	body_row.add_theme_constant_override("separation", 20)
+	body_row.add_theme_constant_override("separation", 16)
 	layout.add_child(body_row)
 
+	var silhouette_panel := PanelContainer.new()
+	InventoryUiThemeScene.apply_section_panel(silhouette_panel)
+	body_row.add_child(silhouette_panel)
+
 	var silhouette_column := VBoxContainer.new()
-	silhouette_column.add_theme_constant_override("separation", 6)
-	body_row.add_child(silhouette_column)
+	silhouette_column.add_theme_constant_override("separation", 8)
+	silhouette_panel.add_child(silhouette_column)
 
 	var silhouette_caption := Label.new()
-	silhouette_caption.text = "Worn gear"
-	InventoryUiThemeScene.apply_caption(silhouette_caption)
+	silhouette_caption.text = "WORN GEAR"
+	silhouette_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	InventoryUiThemeScene.apply_section_caption(silhouette_caption)
 	silhouette_column.add_child(silhouette_caption)
 
 	var silhouette: Control = EquipmentSilhouetteScene.new()
@@ -127,39 +133,81 @@ static func build(host: InventoryOverlay) -> Dictionary:
 		DRAG_KIND_BAG,
 		DRAG_KIND_EQUIPPED
 	)
+	silhouette.configure_icon_provider(Callable(host, "_equipped_item_icon"))
 	silhouette.slot_pressed.connect(host._on_equipment_slot_pressed)
 	silhouette_column.add_child(silhouette)
 
+	var grid_panel := PanelContainer.new()
+	grid_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	InventoryUiThemeScene.apply_section_panel(grid_panel)
+	body_row.add_child(grid_panel)
+
 	var grid_column := VBoxContainer.new()
-	grid_column.add_theme_constant_override("separation", 6)
-	grid_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body_row.add_child(grid_column)
+	grid_column.add_theme_constant_override("separation", 8)
+	grid_panel.add_child(grid_column)
 
 	var grid_caption := Label.new()
-	grid_caption.text = "Packed goods"
-	InventoryUiThemeScene.apply_caption(grid_caption)
+	grid_caption.text = "PACKED GOODS"
+	InventoryUiThemeScene.apply_section_caption(grid_caption)
 	grid_column.add_child(grid_caption)
 
 	var grid := GridContainer.new()
 	grid.columns = InventoryBag.GRID_WIDTH
 	grid.add_theme_constant_override("h_separation", CELL_GAP)
 	grid.add_theme_constant_override("v_separation", CELL_GAP)
+	grid.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	grid.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	grid_column.add_child(grid)
 
-	layout.add_child(InventoryUiThemeScene.make_brass_rule())
+	# Load readout lives under the columns so the eye goes gear -> goods -> cost.
+	var meters_panel := PanelContainer.new()
+	InventoryUiThemeScene.apply_section_panel(meters_panel)
+	layout.add_child(meters_panel)
+
+	var meters_column := VBoxContainer.new()
+	meters_column.add_theme_constant_override("separation", 6)
+	meters_panel.add_child(meters_column)
+
+	var weight_meter := _add_meter_row(meters_column, "Burden")
+	var volume_meter := _add_meter_row(meters_column, "Stowage")
+
+	var speed_label := Label.new()
+	InventoryUiThemeScene.apply_body(speed_label)
+	meters_column.add_child(speed_label)
+
+	var detail_panel := PanelContainer.new()
+	InventoryUiThemeScene.apply_section_panel(detail_panel)
+	layout.add_child(detail_panel)
+
+	var detail_column := VBoxContainer.new()
+	detail_column.add_theme_constant_override("separation", 4)
+	detail_panel.add_child(detail_column)
+
+	var detail_title := Label.new()
+	detail_title.text = "Nothing in hand"
+	InventoryUiThemeScene.apply_detail_title(detail_title)
+	detail_column.add_child(detail_title)
 
 	var detail_label := Label.new()
 	detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	detail_label.custom_minimum_size = Vector2(0, 48)
+	detail_label.custom_minimum_size = Vector2(0, 34)
 	InventoryUiThemeScene.apply_body(detail_label)
-	layout.add_child(detail_label)
+	detail_column.add_child(detail_label)
 
 	var equip_button := Button.new()
 	equip_button.visible = false
 	equip_button.focus_mode = Control.FOCUS_NONE
+	equip_button.size_flags_horizontal = Control.SIZE_SHRINK_END
 	InventoryUiThemeScene.apply_action_button(equip_button)
 	equip_button.pressed.connect(host._on_equip_pressed)
-	layout.add_child(equip_button)
+	detail_column.add_child(equip_button)
+
+	var hint := Label.new()
+	hint.text = "Select a good, then Equip / drag onto a highlighted slot. Drag packed cells to rearrange."
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	InventoryUiThemeScene.apply_hint(hint)
+	layout.add_child(hint)
 
 	var cell_buttons: Array[Button] = []
 	for cell_y in range(InventoryBag.GRID_HEIGHT):
@@ -176,6 +224,7 @@ static func build(host: InventoryOverlay) -> Dictionary:
 			button.focus_mode = Control.FOCUS_NONE
 			button.clip_text = true
 			button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			button.add_theme_font_size_override("font_size", 11)
 			InventoryUiThemeScene.apply_cell_button(
 				button,
 				InventoryUiThemeScene.LEATHER_EMPTY,
@@ -199,6 +248,7 @@ static func build(host: InventoryOverlay) -> Dictionary:
 		"volume_bar": volume_meter["bar"],
 		"volume_value": volume_meter["value"],
 		"speed_label": speed_label,
+		"detail_title": detail_title,
 		"detail_label": detail_label,
 		"equip_button": equip_button,
 		"cell_buttons": cell_buttons,
