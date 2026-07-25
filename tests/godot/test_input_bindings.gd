@@ -212,11 +212,22 @@ func test_main_menu_start_and_exit_are_in_gamepad_focus_ring() -> void:
 	var menu := MainMenuScene.instantiate()
 	(Engine.get_main_loop() as SceneTree).root.add_child(menu)
 	var start := menu.get_node("Start label") as Control
+	var load := menu.get_node("Load label") as Control
+	var credits := menu.get_node("Credits label") as Control
 	var exit := menu.get_node("Exit label") as Control
 	assert_eq(start.focus_mode, Control.FOCUS_ALL)
 	assert_eq(exit.focus_mode, Control.FOCUS_ALL)
-	assert_eq(start.focus_neighbor_bottom, NodePath("../Exit label"))
-	assert_eq(exit.focus_neighbor_top, NodePath("../Start label"))
+	if load.visible:
+		assert_eq(start.focus_neighbor_bottom, NodePath("../Load label"))
+		assert_eq(load.focus_neighbor_top, NodePath("../Start label"))
+		assert_eq(load.focus_neighbor_bottom, NodePath("../Credits label"))
+		assert_eq(credits.focus_neighbor_top, NodePath("../Load label"))
+	else:
+		assert_eq(start.focus_neighbor_bottom, NodePath("../Credits label"))
+		assert_eq(credits.focus_neighbor_top, NodePath("../Start label"))
+	assert_eq(credits.focus_neighbor_bottom, NodePath("../Exit label"))
+	assert_eq(exit.focus_neighbor_top, NodePath("../Credits label"))
+	assert_eq(exit.focus_neighbor_bottom, NodePath("../Start label"))
 	menu.free()
 
 

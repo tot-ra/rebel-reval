@@ -13,7 +13,7 @@ References:
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
 | P0 |     7  |    39  | Baseline, storage, materials, historical audit |
-| P1 |     0  |     7  | Runtime systems, content foundation |
+| P1 |     0  |     8  | Runtime systems, content foundation |
 | P2 |    14  |     7  | Vertical-slice production (playable MVP) |
 | P3 |    10  |     5  | Validation, accessibility, performance |
 | P4 |    49  |     7  | Act 1: The Simmering City |
@@ -69,6 +69,7 @@ References:
 <!-- P0-125 completed in current session -->
 <!-- P0-107 completed in current session -->
 <!-- P0-122b completed in current session -->
+<!-- P1-041 completed in current session -->
 <!-- P1-022 completed in current session -->
 <!-- P0-103 completed in current session -->
 <!-- P0-114 completed in current session -->
@@ -234,6 +235,7 @@ References:
 
 ### Small
 
+- [x] P1-041 | deps: P1-008 | deliverable: main-menu Load entry with multi-slot save list overlay that resumes the saved scene and spawn through DoorNavigator; entry hidden when no saves exist | allowed files: `scenes/menu/load_label.gd`, `scenes/menu/save_list_overlay.gd`, `scenes/menu/main_menu.tscn`, `scripts/save/save_service.gd`, `scripts/session/session_state.gd`, `tests/godot/test_main_menu_load.gd`, `tests/godot/test_save_service.gd`, `tests/godot/test_input_bindings.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_main_menu_load` and updated `--filter=test_save_service` / `--filter=test_input_bindings` pass; Load label opens the overlay, selecting a slot restores GameState and navigates to the recorded destination
 - [x] P1-040 | deps: P1-039 | deliverable: `--skip-failing` flag on `tools/verify_quest_packages.py` so partial quest-package authoring can validate the rest of the corpus without aborting on one broken package | allowed files: `tools/verify_quest_packages.py`, `tests/python/test_verify_quest_packages.py`, `content/packages/README.md`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 -m unittest tests.python.test_verify_quest_packages -v` passes; `python3 tools/verify_quest_packages.py --skip-failing` exits 0 on the current corpus
 - [x] P1-039 | deps: P1-038 | deliverable: `--skip-failing` flag on `tools/generate_quest_package_tests.py` so partial quest-package authoring can regenerate traversal tests without aborting on one broken package | allowed files: `tools/generate_quest_package_tests.py`, `tests/python/test_generate_quest_package_tests.py`, `content/packages/README.md`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 -m unittest tests.python.test_generate_quest_package_tests -v` passes; `python3 tools/generate_quest_package_tests.py --skip-failing --check` exits 0 on the current corpus
 

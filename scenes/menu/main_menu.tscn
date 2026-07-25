@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://dyl726xerhjhg"]
+[gd_scene load_steps=9 format=3 uid="uid://dyl726xerhjhg"]
 
 [ext_resource type="Script" path="res://scripts/demo/packaged_demo_walkthrough.gd" id="1_packaged_walkthrough"]
 [ext_resource type="Script" path="res://scenes/menu/credits_label.gd" id="7_credits"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://s3dc3n3tlc3s" path="res://scenes/menu/logo256.png" id="2_kiqgm"]
 [ext_resource type="Script" uid="uid://cb84o170r3wgt" path="res://scenes/intro/start_label.gd" id="3_i2l1n"]
 [ext_resource type="Script" uid="uid://c0ajiix2ug7wp" path="res://scenes/menu/exit_label.gd" id="4_hj162"]
+[ext_resource type="Script" path="res://scenes/menu/load_label.gd" id="5_load_label"]
 [ext_resource type="VideoStream" uid="uid://drwpbbti05fcs" path="res://scenes/menu/intro.ogv" id="6_xn6kt"]
 
 [node name="Control" type="Control"]
@@ -56,7 +57,7 @@ offset_right = 1051.0
 offset_bottom = 772.0
 focus_mode = 2
 focus_neighbor_top = NodePath("../Exit label")
-focus_neighbor_bottom = NodePath("../Credits label")
+focus_neighbor_bottom = NodePath("../Load label")
 theme_override_colors/default_color = Color(0.980392, 0.839216, 0.0235294, 1)
 theme_override_font_sizes/normal_font_size = 40
 text = "Start"
@@ -64,8 +65,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 script = ExtResource("3_i2l1n")
 
-[node name="Credits label" type="RichTextLabel" parent="."]
-custom_minimum_size = Vector2(100, 0)
+[node name="Load label" type="RichTextLabel" parent="."]
 layout_mode = 0
 offset_left = 735.0
 offset_top = 776.0
@@ -73,6 +73,23 @@ offset_right = 1094.0
 offset_bottom = 828.0
 focus_mode = 2
 focus_neighbor_top = NodePath("../Start label")
+focus_neighbor_bottom = NodePath("../Credits label")
+theme_override_colors/default_color = Color(0.980392, 0.839216, 0.0313726, 1)
+theme_override_font_sizes/normal_font_size = 30
+text = "Load"
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("5_load_label")
+
+[node name="Credits label" type="RichTextLabel" parent="."]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 0
+offset_left = 735.0
+offset_top = 832.0
+offset_right = 1094.0
+offset_bottom = 884.0
+focus_mode = 2
+focus_neighbor_top = NodePath("../Load label")
 focus_neighbor_bottom = NodePath("../Exit label")
 theme_override_colors/default_color = Color(0.980392, 0.839216, 0.0313726, 1)
 theme_override_font_sizes/normal_font_size = 30
@@ -84,9 +101,9 @@ script = ExtResource("7_credits")
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 0
 offset_left = 735.0
-offset_top = 832.0
+offset_top = 888.0
 offset_right = 1094.0
-offset_bottom = 884.0
+offset_bottom = 940.0
 focus_mode = 2
 focus_neighbor_top = NodePath("../Credits label")
 focus_neighbor_bottom = NodePath("../Start label")

@@ -71,6 +71,11 @@ func has_save(slot: int = SaveService.DEFAULT_SLOT) -> bool:
 	return save_service.has_save(slot)
 
 
+## Returns metadata for every save slot on disk, most recent first.
+func list_saves() -> Array[Dictionary]:
+	return save_service.list_saves()
+
+
 ## The only live-state replacement path. Installing the canonical reference and
 ## bag dependency before notifying listeners prevents consumers from observing a
 ## half-bound state. Phase presentation runs last because it may hide props that

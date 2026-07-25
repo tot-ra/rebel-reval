@@ -7,6 +7,11 @@ extends RefCounted
 const CURRENT_SAVE_VERSION := SaveEnvelope.CURRENT_ENVELOPE_VERSION
 const DEFAULT_SLOT := 0
 
+## Scan all known save slots and return metadata for every valid save found.
+## Each entry contains: slot (int), saved_at_unix (int), phase (String),
+## location_id (String), spawn_id (String).
+const MAX_SLOT := 8
+
 var save_directory: String = "user://saves"
 
 
@@ -24,6 +29,37 @@ func temp_path(slot: int) -> String:
 
 func has_save(slot: int = DEFAULT_SLOT) -> bool:
 	return FileAccess.file_exists(slot_path(slot)) or FileAccess.file_exists(backup_path(slot))
+
+
+## Returns metadata for every save slot that has a loadable envelope on disk.
+## The list is sorted by saved_at_unix descending (most recent first).
+func list_saves() -> Array[Dictionary]:
+	var entries: Array[Dictionary] = []
+	for slot in range(0, MAX_SLOT + 1):
+		if not has_save(slot):
+			continue
+		var envelope := _read_envelope_meta(slot_path(slot))
+		if envelope.is_empty():
+			# Primary file missing or corrupt - try the backup.
+			envelope = _read_envelope_meta(backup_path(slot))
+		if envelope.is_empty():
+			continue
+		var game_state: Variant = envelope.get("game_state", {})
+		if not game_state is Dictionary:
+			continue
+		var gs := game_state as Dictionary
+		var player: Variant = gs.get("player", {})
+		var location_id := ""
+		if player is Dictionary:
+			location_id = String((player as Dictionary).get("location_id", ""))
+		entries.append({
+			"slot": slot,
+			"saved_at_unix": int(envelope.get("saved_at_unix", 0)),
+			"phase": String(gs.get("phase", "")),
+			"location_id": location_id,
+		})
+	entries.sort_custom(func(a, b): return a["saved_at_unix"] > b["saved_at_unix"])
+	return entries
 
 
 func save_game(state: GameState, slot: int = DEFAULT_SLOT) -> bool:
@@ -68,6 +104,28 @@ func _read_envelope(path: String) -> Dictionary:
 	if not parsed["ok"]:
 		return {"errors": parsed["errors"]}
 	return {"state": parsed["state"]}
+
+
+## Read only the outer envelope (without hydrating a full GameState) so we can
+## display metadata cheaply for the save-list overlay.
+func _read_envelope_meta(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return {}
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return {}
+	var text := file.get_as_text()
+	file.close()
+	var json := JSON.new()
+	if json.parse(text) != OK:
+		return {}
+	var parsed: Variant = json.data
+	if not parsed is Dictionary:
+		return {}
+	var migrated := SaveEnvelope.migrate_envelope(parsed as Dictionary)
+	if not migrated["ok"]:
+		return {}
+	return migrated["envelope"]
 
 
 func _atomic_write(slot: int, json: String) -> bool:

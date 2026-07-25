@@ -79,6 +79,41 @@ func test_corrupt_primary_and_backup_reports_failure() -> void:
 	assert_true((loaded["errors"] as PackedStringArray).size() > 0)
 
 
+func test_list_saves_returns_sorted_metadata() -> void:
+	var service := _service()
+	var older := _rich_state()
+	older.set_phase(&"phase.prologue_day")
+	older.player.location_id = &"forge"
+	assert_true(service.save_game(older, 1))
+
+	var newer := _rich_state()
+	newer.set_phase(PHASE_NIGHT)
+	newer.player.location_id = &"reval_east"
+	assert_true(service.save_game(newer, 0))
+
+	var listed := service.list_saves()
+	assert_eq(listed.size(), 2)
+	assert_eq(listed[0]["slot"], 0)
+	assert_eq(listed[0]["phase"], String(PHASE_NIGHT))
+	assert_eq(listed[0]["location_id"], "reval_east")
+	assert_eq(listed[1]["slot"], 1)
+	assert_eq(listed[1]["phase"], "phase.prologue_day")
+	assert_true(listed[0]["saved_at_unix"] >= listed[1]["saved_at_unix"])
+
+
+func test_list_saves_skips_corrupt_slots() -> void:
+	var service := _service()
+	assert_true(service.save_game(_rich_state(), 2))
+	var corrupt := FileAccess.open(service.slot_path(3), FileAccess.WRITE)
+	assert_true(corrupt != null)
+	corrupt.store_string("{not valid")
+	corrupt.close()
+
+	var listed := service.list_saves()
+	assert_eq(listed.size(), 1)
+	assert_eq(listed[0]["slot"], 2)
+
+
 func test_game_state_payload_round_trip_without_files() -> void:
 	var original := _rich_state()
 	var payload := original.save_payload()
