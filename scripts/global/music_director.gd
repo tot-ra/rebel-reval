@@ -1,5 +1,6 @@
 extends Node
 
+const AudioBusService := preload("res://scripts/settings/audio_bus_service.gd")
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 const GameCalendarScript := preload("res://scripts/global/game_calendar.gd")
 
@@ -79,6 +80,7 @@ func _ready() -> void:
 	_player = AudioStreamPlayer.new()
 	_player.name = "ThemePlayer"
 	_player.volume_db = DEFAULT_VOLUME_DB
+	AudioBusService.assign_bus(_player, AudioBusService.BUS_MUSIC)
 	add_child(_player)
 	call_deferred("_sync_with_current_scene")
 
@@ -97,6 +99,14 @@ func _process(_delta: float) -> void:
 
 static func theme_for_scene(scene_path: String) -> StringName:
 	return SCENE_THEME_ROUTES.get(scene_path, &"") as StringName
+
+
+func active_theme_id() -> StringName:
+	return _active_theme
+
+
+func is_theme_playing() -> bool:
+	return _player != null and _player.playing
 
 
 static func has_theme(theme_id: StringName) -> bool:

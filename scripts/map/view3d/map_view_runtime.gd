@@ -372,16 +372,11 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 ## Dev/playtest time controls, handled as raw keys so they need no input-map
-## entries: comma/period slow down/speed up the world clock and sky, P pauses and
-## resumes, backslash restores real-time. Returns true when the key was a control.
+## entries: backslash restores real-time. Comma/period/P were removed in favor of
+## the DebugOverlay visual controls (accessible via QuickAccessMenu).
+## Returns true when the key was a control.
 func _handle_time_control_key(keycode: Key) -> bool:
 	match keycode:
-		KEY_COMMA:
-			time_speed_down()
-		KEY_PERIOD:
-			time_speed_up()
-		KEY_P:
-			toggle_time_pause()
 		KEY_BACKSLASH:
 			reset_time_flow()
 		_:

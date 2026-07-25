@@ -27,6 +27,7 @@ func test_menu_exposes_named_player_actions() -> void:
 	var iron := menu.find_child("IronTechniqueButton", true, false) as Button
 	var controls := menu.find_child("ControlsButton", true, false) as Button
 	var save := menu.find_child("SaveButton", true, false) as Button
+	var debug := menu.find_child("DebugButton", true, false) as Button
 	var help := menu.find_child("HelpLabel", true, false) as Label
 	var panel := menu.find_child("QuickAccessPanel", true, false) as PanelContainer
 
@@ -38,6 +39,8 @@ func test_menu_exposes_named_player_actions() -> void:
 	assert_true(controls != null, "quick access must visibly expose remappable controls")
 	assert_eq(controls.focus_mode, Control.FOCUS_ALL)
 	assert_true(save != null, "quick access must visibly expose manual save")
+	assert_true(debug != null, "quick access must visibly expose debug overlay toggle")
+	assert_eq(debug.text, "Debug")
 	assert_eq(inventory.text, "Inventory [I]")
 	assert_eq(journal.text, "Journal [J]")
 	assert_eq(world_map.text, "Map [M]")
@@ -49,6 +52,27 @@ func test_menu_exposes_named_player_actions() -> void:
 	assert_true(panel != null)
 	assert_eq(panel.anchor_top, 1.0, "unified quick access must stay at the bottom")
 	menu.queue_free()
+
+
+func test_debug_button_toggles_sibling_overlay() -> void:
+	var host := Node.new()
+	var overlay := DebugOverlay.new()
+	overlay.name = "DebugOverlay"
+	host.add_child(overlay)
+	var menu := QuickAccessMenu.new()
+	menu.name = "QuickAccessMenu"
+	host.add_child(menu)
+
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(host)
+
+	var debug := menu.find_child("DebugButton", true, false) as Button
+	assert_false(overlay.visible)
+	debug.pressed.emit()
+	assert_true(overlay.visible, "debug button must open the sibling overlay")
+	debug.pressed.emit()
+	assert_false(overlay.visible, "debug button must close the overlay again")
+	host.queue_free()
 
 
 func test_save_button_calls_existing_save_behavior_and_reports_success() -> void:

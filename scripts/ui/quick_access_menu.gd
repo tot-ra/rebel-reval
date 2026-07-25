@@ -15,7 +15,7 @@ const PANEL_WIDTH := 1120.0
 const ControlsOverlayScript := preload("res://scripts/ui/controls_overlay.gd")
 const HELP_TEXT := (
 	"WASD or arrows - move | Click - travel | E - interact | "
-	+ "C - camera | Right-drag - look | N - minimap | M - map | I - inventory | J - journal | K - controls"
+	+ "C - camera | Right-drag - look | N - minimap | M - map | I - inventory | J - journal | K - controls | Esc - settings | Debug"
 )
 
 var _inventory_controller: InventoryController
@@ -33,7 +33,9 @@ var _controls_button: Button
 var _controls_overlay
 var _technique_button: Button
 var _save_button: Button
+var _debug_button: Button
 var _status_label: Label
+var _debug_overlay: DebugOverlay
 
 
 func configure(
@@ -168,6 +170,10 @@ func _build_ui() -> void:
 	_save_button = _create_action_button("SaveButton", "Save game", "Save to the current slot")
 	_save_button.pressed.connect(_on_save_pressed)
 	actions.add_child(_save_button)
+
+	_debug_button = _create_action_button("DebugButton", "Debug", "Toggle debug overlay (FPS, audio, time controls)")
+	_debug_button.pressed.connect(_on_debug_pressed)
+	actions.add_child(_debug_button)
 
 	_status_label = Label.new()
 	_status_label.name = "StatusLabel"
@@ -366,3 +372,20 @@ func _on_save_pressed() -> void:
 		_status_label.text = STATUS_SAVE_FAILED
 		return
 	_status_label.text = STATUS_SAVED if bool(_save_callback.call()) else STATUS_SAVE_FAILED
+
+
+func _on_debug_pressed() -> void:
+	if _debug_overlay == null:
+		_debug_overlay = _find_debug_overlay()
+	if _debug_overlay != null:
+		_debug_overlay.toggle_visibility()
+		_status_label.text = "Debug overlay opened" if _debug_overlay.visible else STATUS_READY
+
+
+func _find_debug_overlay() -> DebugOverlay:
+	var node := get_parent()
+	while node != null:
+		if node.has_node("DebugOverlay"):
+			return node.get_node("DebugOverlay") as DebugOverlay
+		node = node.get_parent()
+	return null
