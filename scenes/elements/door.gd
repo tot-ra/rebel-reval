@@ -2,6 +2,8 @@ extends Area2D
 
 class_name Door
 
+const AudioBusService := preload("res://scripts/settings/audio_bus_service.gd")
+
 @export var transition_enabled := true
 @export var spawn_id: StringName
 @export var destination_scene_id: StringName
@@ -19,6 +21,8 @@ class_name Door
 
 func _ready() -> void:
 	collision_mask = CollisionLayers.PLAYER
+	if sound != null:
+		AudioBusService.assign_bus(sound, AudioBusService.BUS_SFX)
 
 
 func _on_body_entered(body: Node2D) -> void:

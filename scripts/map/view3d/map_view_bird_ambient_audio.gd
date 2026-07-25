@@ -4,6 +4,7 @@ extends Node
 ## Positional ambient bird song playback for outdoor maps (P0-105). Species
 ## selection reuses P0-117 spawn weights and P0-123 processed clips.
 
+const AudioBusService := preload("res://scripts/settings/audio_bus_service.gd")
 const BirdSpecies := preload("res://scripts/map/view3d/map_view_bird_species.gd")
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 
@@ -35,7 +36,7 @@ func _ready() -> void:
 		player.unit_size = 4.0
 		player.max_distance = MAX_AUDIBLE_DISTANCE
 		player.attenuation_model = AudioStreamPlayer3D.ATTENUATION_INVERSE_DISTANCE
-		player.bus = &"Master"
+		player.bus = String(AudioBusService.BUS_SFX)
 		add_child(player)
 		_players.append(player)
 

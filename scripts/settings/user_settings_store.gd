@@ -3,6 +3,7 @@ extends RefCounted
 
 ## Persists accessibility, dialogue, and input settings outside save slots.
 
+const AudioSettingsScript := preload("res://scripts/settings/audio_settings.gd")
 const DialogueSettingsScript := preload("res://scripts/settings/dialogue_settings.gd")
 const InputBindingSettingsScript := preload("res://scripts/settings/input_binding_settings.gd")
 const CURRENT_VERSION := 2
@@ -32,16 +33,30 @@ func load_input_bindings():
 	return InputBindingSettingsScript.from_dict(bindings_value as Dictionary)
 
 
+func load_audio_settings():
+	var envelope := _load_envelope()
+	var audio_value: Variant = envelope.get("audio", {})
+	if typeof(audio_value) != TYPE_DICTIONARY:
+		return AudioSettingsScript.default_settings()
+	return AudioSettingsScript.from_dict(audio_value as Dictionary)
+
+
 func save_dialogue_settings(settings) -> bool:
 	if settings == null:
 		return false
-	return _save_all(settings, load_input_bindings())
+	return _save_all(settings, load_input_bindings(), load_audio_settings())
 
 
 func save_input_bindings(bindings) -> bool:
 	if bindings == null:
 		return false
-	return _save_all(load_dialogue_settings(), bindings)
+	return _save_all(load_dialogue_settings(), bindings, load_audio_settings())
+
+
+func save_audio_settings(settings) -> bool:
+	if settings == null:
+		return false
+	return _save_all(load_dialogue_settings(), load_input_bindings(), settings)
 
 
 func _load_envelope() -> Dictionary:
@@ -61,14 +76,15 @@ func _load_envelope() -> Dictionary:
 	return envelope
 
 
-func _save_all(dialogue_settings, input_bindings) -> bool:
-	if dialogue_settings == null or input_bindings == null or not _ensure_directory():
+func _save_all(dialogue_settings, input_bindings, audio_settings) -> bool:
+	if dialogue_settings == null or input_bindings == null or audio_settings == null or not _ensure_directory():
 		return false
 	var envelope := {
 		"version": CURRENT_VERSION,
 		"saved_at_unix": Time.get_unix_time_from_system(),
 		"dialogue": dialogue_settings.to_dict(),
 		"input_bindings": input_bindings.to_dict(),
+		"audio": audio_settings.to_dict(),
 	}
 	var file := FileAccess.open(settings_path(), FileAccess.WRITE)
 	if file == null:

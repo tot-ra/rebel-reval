@@ -2,14 +2,18 @@ extends Node
 
 ## Autoload that owns persisted player settings separate from save slots (P1-013/P1-028).
 
+const AudioBusServiceScript := preload("res://scripts/settings/audio_bus_service.gd")
+const AudioSettingsScript := preload("res://scripts/settings/audio_settings.gd")
 const DialogueSettingsScript := preload("res://scripts/settings/dialogue_settings.gd")
 const InputBindingSettingsScript := preload("res://scripts/settings/input_binding_settings.gd")
 const StoreScript := preload("res://scripts/settings/user_settings_store.gd")
 
+signal audio_settings_changed(settings)
 signal dialogue_settings_changed(settings)
 signal input_bindings_changed(bindings)
 
 var store = StoreScript.new()
+var audio = AudioSettingsScript.default_settings()
 var dialogue = DialogueSettingsScript.default_settings()
 var input_bindings = InputBindingSettingsScript.default_settings()
 
@@ -17,6 +21,7 @@ var input_bindings = InputBindingSettingsScript.default_settings()
 func _ready() -> void:
 	reload_dialogue_settings()
 	reload_input_bindings()
+	reload_audio_settings()
 
 
 func _input(event: InputEvent) -> void:
@@ -45,6 +50,11 @@ func reload_input_bindings() -> void:
 	input_bindings = store.load_input_bindings()
 	input_bindings.apply_to_input_map()
 	input_bindings_changed.emit(input_bindings)
+
+
+func reload_audio_settings() -> void:
+	audio = store.load_audio_settings()
+	apply_audio_settings(audio, false)
 
 
 func apply_dialogue_settings(settings, persist: bool = true) -> void:
@@ -83,3 +93,14 @@ func rebind_action(
 
 func restore_default_input_bindings(persist: bool = true) -> bool:
 	return apply_input_bindings(InputBindingSettingsScript.default_settings(), persist)
+
+
+func apply_audio_settings(settings, persist: bool = true) -> void:
+	if settings == null:
+		return
+	audio = settings.duplicate_settings()
+	audio.normalize()
+	AudioBusServiceScript.apply_settings(audio)
+	audio_settings_changed.emit(audio)
+	if persist and not store.save_audio_settings(audio):
+		push_warning("Failed to persist audio settings.")

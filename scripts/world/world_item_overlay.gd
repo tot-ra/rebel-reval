@@ -3,6 +3,7 @@ extends Node
 
 ## Tooltip, pickup bark, SFX, and cursor feedback for WorldItemController.
 
+const AudioBusService := preload("res://scripts/settings/audio_bus_service.gd")
 const PickupFeedbackScript := preload("res://scripts/world/world_item_pickup_feedback.gd")
 
 var feedback_text := ""
@@ -131,4 +132,5 @@ func _build_ui() -> void:
 
 	_audio_player = AudioStreamPlayer.new()
 	_audio_player.name = "PickupSfx"
+	AudioBusService.assign_bus(_audio_player, AudioBusService.BUS_SFX)
 	add_child(_audio_player)

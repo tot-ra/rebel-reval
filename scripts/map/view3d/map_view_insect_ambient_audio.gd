@@ -11,6 +11,7 @@ extends Node
 ## Selection is deterministic (seed + tick) for reproducible tests. This node
 ## never touches game state - it is presentation only.
 
+const AudioBusService := preload("res://scripts/settings/audio_bus_service.gd")
 const InsectSpecies := preload("res://scripts/map/view3d/map_view_insect_species.gd")
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 
@@ -44,7 +45,7 @@ func _ready() -> void:
 		player.unit_size = 3.0
 		player.max_distance = MAX_AUDIBLE_DISTANCE
 		player.attenuation_model = AudioStreamPlayer3D.ATTENUATION_INVERSE_DISTANCE
-		player.bus = &"Master"
+		player.bus = String(AudioBusService.BUS_SFX)
 		player.set_meta(&"gain", 0.0)
 		player.set_meta(&"target", 0.0)
 		player.set_meta(&"age", 0)

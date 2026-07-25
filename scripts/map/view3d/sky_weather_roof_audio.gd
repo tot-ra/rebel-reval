@@ -4,6 +4,7 @@ extends Node
 ## Muffled rain-on-roof bed for enclosed interiors (P0-124). Plays only while
 ## the weather controller reports suppressed falling rain and a non-zero profile.
 
+const AudioBusService := preload("res://scripts/settings/audio_bus_service.gd")
 const ROOF_LOOP_PATH := "res://sounds/weather/rain_roof.mp3"
 const RAIN_AUDIBLE_THRESHOLD := 0.02
 const MAX_LINEAR_VOLUME := 0.42
@@ -22,6 +23,7 @@ func _ready() -> void:
 		(stream as AudioStreamMP3).loop = true
 	_player.stream = stream
 	_player.volume_db = SILENCE_DB
+	AudioBusService.assign_bus(_player, AudioBusService.BUS_SFX)
 	add_child(_player)
 
 
