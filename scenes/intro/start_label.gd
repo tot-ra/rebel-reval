@@ -2,6 +2,8 @@ extends RichTextLabel
 
 func _ready() -> void:
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	# Main menu labels should not show the default Godot focus border on load.
+	add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	gui_input.connect(_on_gui_input)
 	call_deferred("grab_focus")
 
