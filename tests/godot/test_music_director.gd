@@ -87,6 +87,17 @@ func test_elapsed_solar_days_advance_calendar_and_reset_with_cycle() -> void:
 	assert_eq(MusicDirector.get_cycle_elapsed_days(), 0)
 	assert_eq(MusicDirector.current_calendar_date(), {"day": 21, "month": 4, "year": 1343})
 
+func test_active_slice_themes_use_manifest_track_lists() -> void:
+	var forge_paths := MusicDirectorScript.day_track_paths_for_theme(&"forge")
+	var town_paths := MusicDirectorScript.day_track_paths_for_theme(&"town")
+	assert_eq(forge_paths.size(), 1, "slice forge theme should ship one approved track")
+	assert_eq(town_paths.size(), 2, "slice town theme should ship two approved tracks")
+	assert_true(
+		forge_paths[0].ends_with("Fireside Tale.mp3"),
+		"slice forge theme should keep Fireside Tale"
+	)
+
+
 func test_active_slice_themes_have_no_night_tracks_yet() -> void:
 	for theme_id: StringName in [&"forge", &"town"]:
 		assert_true(

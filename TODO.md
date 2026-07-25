@@ -14,7 +14,7 @@ References:
 |----------|-----:|-----:|-------|
 | P0 |     7  |    39  | Baseline, storage, materials, historical audit |
 | P1 |     0  |     8  | Runtime systems, content foundation |
-| P2 |     6  |    15  | Vertical-slice production (playable MVP) |
+| P2 |     5  |    16  | Vertical-slice production (playable MVP) |
 | P3 |    10  |     5  | Validation, accessibility, performance |
 | P4 |    49  |     7  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
@@ -69,6 +69,8 @@ References:
 
 
 
+
+<!-- P2-014 completed in current session -->
 <!-- P2-008 completed in current session -->
 <!-- P2-007 completed in current session -->
 <!-- P0-072 completed in current session -->
@@ -229,7 +231,7 @@ References:
 - [x] P2-016 | deps: P2-012 | deliverable: save/reload coverage at every phase and branch boundary | allowed files: `scripts/slice/vertical_slice_save_matrix.gd`, `tests/godot/vertical_slice_flow_harness.gd`, `tests/godot/save_state_assertions.gd`, `tests/godot/test_vertical_slice_flow.gd`, `tests/godot/test_vertical_slice_save_matrix.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_vertical_slice_save_matrix` passes; save/reload round-trips at ten checkpoints across all three Bitter Brew branches preserve phase, quests, forged records, pressures, relationships, and map world state
 - [x] P2-007 | deps: P0-102,P2-004,P2-005 | deliverable: playable daytime `A Bitter Brew` investigation | verify: player can inspect well, brewery, merchant supply, and checkpoint and produce the expected evidence states
 - [x] P2-013 | deps: P2-012 | deliverable: slice dialogue reduced to at most 2,500 approved words | allowed files: `docs/data/slice_dialogue_manifest.json`, `tools/slice_dialogue_words.py`, `tools/report_slice_dialogue_words.py`, `tests/python/test_report_slice_dialogue_words.py`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 tools/report_slice_dialogue_words.py --check` and `python3 -m unittest tests.python.test_report_slice_dialogue_words -v` pass; report excludes IDs/metadata and totals 2,500 or fewer spoken/displayed words
-- [ ] P2-014 | deps: P2-012 | deliverable: slice soundtrack reduced to at most 12 minutes of unique approved music | verify: manifest reports duration, reuse, streaming settings, and rights for every included track
+- [x] P2-014 | deps: P2-012 | deliverable: slice soundtrack reduced to at most 12 minutes of unique approved music | allowed files: `docs/data/slice_soundtrack_manifest.json`, `tools/slice_soundtrack.py`, `tools/report_slice_soundtrack.py`, `tests/python/test_report_slice_soundtrack.py`, `scripts/global/music_director.gd`, `tests/godot/test_music_director.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 tools/report_slice_soundtrack.py --check` and `python3 -m unittest tests.python.test_report_slice_soundtrack -v` pass; gameplay themes use only manifest tracks totaling 540.7 s (9:01) unique audio under the 720 s cap; menu theme is budget-exempt title-screen loop
 - [x] P2-008 | deps: P2-007,P1-022 | deliverable: playable `A Bitter Brew` commission with honest, defective, and secret-feature results | verify: each result creates the expected forged record and communicates it audiovisually
 ### Medium
 

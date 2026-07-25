@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "duration_budget_seconds": 720,
+  "release_theme_ids": ["menu", "forge", "town"],
+  "themes": {
+    "menu": {
+      "scene_paths": ["res://scenes/menu/main_menu.tscn"],
+      "stream_mode": "loop",
+      "shuffle": false,
+      "counts_toward_budget": false,
+      "tracks": [
+        {
+          "path": "music/menu/Menu.mp3",
+          "sources_id": "music.menu.menu"
+        }
+      ]
+    },
+    "forge": {
+      "scene_paths": ["res://scenes/reval_east/forge/forge.tscn"],
+      "stream_mode": "randomizer",
+      "shuffle": true,
+      "counts_toward_budget": true,
+      "tracks": [
+        {
+          "path": "music/forge/Fireside Tale.mp3",
+          "sources_id": "music.forge.fireside.tale"
+        }
+      ]
+    },
+    "town": {
+      "scene_paths": [
+        "res://scenes/reval_east/reval_east.tscn",
+        "res://scenes/reval_east/viru_gate_foreland/viru_gate_foreland.tscn"
+      ],
+      "stream_mode": "playlist",
+      "shuffle": true,
+      "counts_toward_budget": true,
+      "tracks": [
+        {
+          "path": "music/revel_east/Apothecary (8).mp3",
+          "sources_id": "music.revel.east.apothecary.8"
+        },
+        {
+          "path": "music/revel_east/Apothecary.mp3",
+          "sources_id": "music.revel.east.apothecary"
+        }
+      ]
+    }
+  }
+}

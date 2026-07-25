@@ -28,23 +28,11 @@ const MENU_TRACK := "res://music/menu/Menu.mp3"
 
 const FORGE_TRACKS: Array[String] = [
 	"res://music/forge/Fireside Tale.mp3",
-	"res://music/forge/The Smith's Song2.mp3",
-	"res://music/forge/The Smith's Song.mp3",
 ]
 
 const TOWN_TRACKS: Array[String] = [
-	"res://music/revel_east/Apothecary (1).mp3",
-	"res://music/revel_east/Apothecary (2).mp3",
-	"res://music/revel_east/Apothecary (3).mp3",
-	"res://music/revel_east/Apothecary (6).mp3",
-	"res://music/revel_east/Apothecary (7).mp3",
 	"res://music/revel_east/Apothecary (8).mp3",
-	"res://music/revel_east/Apothecary (9).mp3",
 	"res://music/revel_east/Apothecary.mp3",
-	"res://music/revel_east/streets2.mp3",
-	"res://music/revel_east/streets.mp3",
-	"res://music/revel_east/The Shaman's Trance.mp3",
-	"res://music/revel_east/The Shaman's Trance (1).mp3",
 ]
 
 const THEME_DAY_DIRS: Dictionary = {
