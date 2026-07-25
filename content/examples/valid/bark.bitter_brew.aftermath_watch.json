@@ -1,0 +1,78 @@
+{
+  "type": "bark_pool",
+  "id": "bark.bitter_brew.aftermath_watch",
+  "title": "Bitter Brew aftermath watch barks",
+  "owner_id": "char.henning",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P2-010",
+    "notes": "Patrol barks differ across the three Bitter Brew aftermath families."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "first_valid_in_order"
+  },
+  "selection": "first_valid_in_order",
+  "phase_ids": [
+    "phase.consequence_night",
+    "phase.reflection_morning"
+  ],
+  "location_ids": [
+    "loc.lower_town_slice"
+  ],
+  "entries": [
+    {
+      "id": "cistern_duty",
+      "speaker_id": "char.henning",
+      "text": "Scrape the runoff from the cistern again. Henning will hear about this mess.",
+      "priority": 3,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.bitter_brew_outcome_exonerated",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "fugitive_alert",
+      "speaker_id": "char.henning",
+      "text": "Keep your lamps low. The brewery witch slipped the net and someone helped her.",
+      "priority": 3,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.bitter_brew_outcome_escaped",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "contract_water",
+      "speaker_id": "char.henning",
+      "text": "The new water tastes clean, but Jürgen's price list arrived with the barrels.",
+      "priority": 3,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.bitter_brew_outcome_monopolized",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Aftermath patrol barks for the three Bitter Brew world states.",
+      "citations": [
+        "docs/SCENES/a-bitter-brew.md",
+        "scripts/investigation/bitter_brew_aftermath_model.gd"
+      ]
+    }
+  ]
+}

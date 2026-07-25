@@ -28,6 +28,11 @@
           "op": "set_flag",
           "key": "flag.bitter_brew_outcome_exonerated",
           "value": true
+        },
+        {
+          "op": "adjust_relationship",
+          "key": "rel.mart_trust",
+          "amount": 1
         }
       ]
     },
@@ -47,6 +52,11 @@
           "op": "set_flag",
           "key": "flag.bitter_brew_outcome_monopolized",
           "value": true
+        },
+        {
+          "op": "adjust_relationship",
+          "key": "rel.mart_trust",
+          "amount": -1
         }
       ]
     },
@@ -66,6 +76,11 @@
           "op": "set_flag",
           "key": "flag.bitter_brew_outcome_escaped",
           "value": true
+        },
+        {
+          "op": "adjust_relationship",
+          "key": "rel.mart_trust",
+          "amount": 1
         }
       ]
     }

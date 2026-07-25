@@ -23,6 +23,11 @@
           "npc_id": "mart",
           "anchor_id": "street_start",
           "visible": true
+        },
+        {
+          "npc_id": "aita",
+          "anchor_id": "brewery_door",
+          "visible": false
         }
       ]
     },

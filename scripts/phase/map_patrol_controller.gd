@@ -45,6 +45,10 @@ func is_enabled() -> bool:
 	return _enabled
 
 
+func get_body() -> CharacterBody2D:
+	return _body
+
+
 func _physics_process(delta: float) -> void:
 	if NpcPush.apply_queued_push(_body, delta):
 		return

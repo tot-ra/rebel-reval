@@ -8,6 +8,8 @@ const DIALOGUE_ID := &"dialogue.demo.mart_street"
 const ANCHOR_ID := &"mart_street"
 const INTERACTABLE_ID := &"interact.demo.mart_talk"
 
+var _aftermath_dialogue_id := &""
+
 var _player: Player
 var _mart: DemoMartNpc
 var _interactable: Interactable
@@ -96,6 +98,10 @@ func get_interaction_controller() -> InteractionController:
 	return _interaction_controller
 
 
+func set_aftermath_dialogue_id(dialogue_id: StringName) -> void:
+	_aftermath_dialogue_id = dialogue_id
+
+
 func _build_ui(scene_root: Node) -> void:
 	_prompt_layer = CanvasLayer.new()
 	_prompt_layer.name = "DemoInteractionPrompt"
@@ -145,4 +151,7 @@ func _build_view_binder(view_runtime: MapViewRuntime, definition: MapDefinition)
 func _on_talk_pressed(_actor: Node) -> void:
 	if _dialogue_runner == null or _dialogue_runner.is_active():
 		return
-	_dialogue_runner.start(DIALOGUE_ID, _mart)
+	var dialogue_id := _aftermath_dialogue_id
+	if dialogue_id.is_empty():
+		dialogue_id = DIALOGUE_ID
+	_dialogue_runner.start(dialogue_id, _mart)

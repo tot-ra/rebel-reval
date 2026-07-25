@@ -14,11 +14,12 @@ References:
 |----------|-----:|-----:|-------|
 | P0 |     7  |    39  | Baseline, storage, materials, historical audit |
 | P1 |     0  |     8  | Runtime systems, content foundation |
-| P2 |    11  |    10  | Vertical-slice production (playable MVP) |
+| P2 |    10  |    11  | Vertical-slice production (playable MVP) |
 | P3 |    10  |     5  | Validation, accessibility, performance |
 | P4 |    49  |     7  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
+
 
 
 
@@ -218,7 +219,7 @@ References:
 - [ ] P2-005 | deps: P2-004 | deliverable: approved watchman and sergeant visual variants | verify: both are distinguishable at gameplay scale without relying on color alone
 - [ ] P2-017 | deps: P2-012 | deliverable: end-to-end keyboard/mouse and gamepad completion | verify: recorded test runs complete every required action without input fallback
 - [ ] P2-015 | deps: P2-012 | deliverable: quest/tool pouch displaying at most three slice quest items | verify: every branch completes without exceeding three visible quest-item slots
-- [ ] P2-010 | deps: P2-009 | deliverable: three visible `A Bitter Brew` aftermath states | verify: brewery state, Aita state, Mart reaction, and patrol barks differ according to outcome
+- [x] P2-010 | deps: P2-009 | deliverable: three visible `A Bitter Brew` aftermath states | verify: brewery state, Aita state, Mart reaction, and patrol barks differ according to outcome
 - [x] P2-006 | deps: none | deliverable: playable `The Maker's Mark` tutorial | verify: new game teaches movement, interaction, commission, maker-mark incident, and all three ledger outcomes
 - [x] P2-009 | deps: P2-008 | deliverable: playable night consequence with combat and non-combat routes | verify: forged record changes encounter behavior and every route reaches a valid aftermath
 - [ ] P2-016 | deps: P2-012 | deliverable: save/reload coverage at every phase and branch boundary | verify: automated matrix preserves quest, modification, characters, pressures, player state, and phase
