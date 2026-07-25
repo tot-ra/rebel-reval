@@ -25,3 +25,6 @@ __pycache__/
 .ruff_cache/
 # Character pipeline build intermediates (regenerate with tools/rebuild_hero_character.sh)
 tools/character_build/
+
+# Ignore Godot .import sidecars in generated folder (auto-generated metadata, not source assets)
+generated/**/*.import
