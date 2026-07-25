@@ -45,16 +45,22 @@ func test_every_declared_slice_transition_is_traversable() -> void:
 			"id": &"preserve_ledger",
 			"flag": FLAG_PRESERVED,
 			"pressure": 0,
+			"henning": 1,
+			"mart": 0,
 		},
 		{
 			"id": &"alter_ledger",
 			"flag": FLAG_ALTERED,
 			"pressure": 0,
+			"henning": 0,
+			"mart": 1,
 		},
 		{
 			"id": &"destroy_ledger",
-			"flag": &"",
+			"flag": &"flag.forge_ledger_destroyed",
 			"pressure": 1,
+			"henning": 0,
+			"mart": 0,
 		},
 	]
 
@@ -71,6 +77,8 @@ func test_every_declared_slice_transition_is_traversable() -> void:
 		assert_true(branch_manager.transition(QUEST_ID, branch["id"]), "branch should succeed: %s" % branch["id"])
 		assert_eq(branch_state.get_quest_state(QUEST_ID), STATE_LEDGER_COMMITTED)
 		assert_eq(branch_state.get_pressure(PRESSURE_SUSPICION), branch["pressure"])
+		assert_eq(branch_state.get_relationship(&"rel.henning_trust"), branch["henning"])
+		assert_eq(branch_state.get_relationship(&"rel.mart_trust"), branch["mart"])
 		if not (branch["flag"] as StringName).is_empty():
 			assert_true(branch_state.get_flag(branch["flag"]))
 

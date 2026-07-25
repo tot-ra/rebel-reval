@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "task_id": "P3-005",
+  "choice_group_count": 4,
+  "choice_count": 12,
+  "choice_groups": [
+    "makers_mark.ledger",
+    "watch_buckle.forge",
+    "bitter_brew.forge",
+    "reflection.conviction"
+  ],
+  "godot_model": "scripts/slice/vertical_slice_branch_consequence_model.gd",
+  "godot_test_filter": "test_vertical_slice_branch_consequences"
+}

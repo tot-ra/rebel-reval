@@ -38,9 +38,9 @@ func test_prologue_starts_quest_and_blocks_rest_until_ledger_committed() -> void
 
 func test_prologue_supports_all_three_ledger_branches() -> void:
 	var branches := [
-		{"choice": "preserve_ledger", "flag": FLAG_PRESERVED, "pressure": 0},
-		{"choice": "alter_ledger", "flag": FLAG_ALTERED, "pressure": 0},
-		{"choice": "destroy_ledger", "flag": FLAG_DESTROYED, "pressure": 1},
+		{"choice": "preserve_ledger", "flag": FLAG_PRESERVED, "pressure": 0, "henning": 1, "mart": 0},
+		{"choice": "alter_ledger", "flag": FLAG_ALTERED, "pressure": 0, "henning": 0, "mart": 1},
+		{"choice": "destroy_ledger", "flag": FLAG_DESTROYED, "pressure": 1, "henning": 0, "mart": 0},
 	]
 	for branch in branches:
 		_prepare_prologue_state()
@@ -54,6 +54,8 @@ func test_prologue_supports_all_three_ledger_branches() -> void:
 		assert_eq(SessionState.state.get_quest_state(QUEST_ID), &"ledger_committed")
 		assert_true(SessionState.state.get_flag(branch["flag"]))
 		assert_eq(SessionState.state.get_pressure(&"pressure.suspicion"), branch["pressure"])
+		assert_eq(SessionState.state.get_relationship(&"rel.henning_trust"), branch["henning"])
+		assert_eq(SessionState.state.get_relationship(&"rel.mart_trust"), branch["mart"])
 		_free_scene(forge)
 
 
