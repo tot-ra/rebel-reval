@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "word_budget": 2500,
+  "content_directory": "content/examples/valid",
+  "dialogue_ids": [
+    "dialogue.makers_mark.henning_arrival",
+    "dialogue.makers_mark.chest_discovery",
+    "dialogue.makers_mark.ledger_choice",
+    "dialogue.bitter_brew.inspect_cistern",
+    "dialogue.bitter_brew.inspect_brewery",
+    "dialogue.bitter_brew.inspect_supply",
+    "dialogue.bitter_brew.inspect_checkpoint",
+    "dialogue.bitter_brew.mart_exonerated",
+    "dialogue.bitter_brew.mart_escaped",
+    "dialogue.bitter_brew.mart_monopolized",
+    "dialogue.bitter_brew.brewery_exonerated",
+    "dialogue.bitter_brew.brewery_confiscated",
+    "dialogue.bitter_brew.brewery_monopolized"
+  ],
+  "bark_pool_ids": [
+    "bark.prologue.watch_pressure",
+    "bark.bitter_brew.aftermath_watch"
+  ],
+  "commission_ids": [
+    "commission.watch_buckle_repair",
+    "commission.bitter_brew"
+  ],
+  "quest_ids": [
+    "quest.makers_mark",
+    "quest.bitter_brew"
+  ],
+  "inline_scripts": [
+  "scripts/forge/forge_prologue_controller.gd",
+  "scripts/forge/forge_feedback_sequence.gd",
+  "scripts/reflection/reflection_model.gd",
+  "scripts/investigation/bitter_brew_night_consequence.gd",
+  "scripts/forge/forge_commission_overlay.gd",
+  "scripts/forge/forge_feedback_overlay.gd",
+  "scripts/forge/forge_commission_model.gd"
+  ]
+}
