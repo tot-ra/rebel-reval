@@ -126,6 +126,34 @@ func test_toompea_castle_tower_flies_danish_pennant() -> void:
 	node.free()
 
 
+func test_danish_pennant_mesh_uses_high_density_cross() -> void:
+	# Old 5x6 grid produced 360 verts and muddy vertex-color bleed on the
+	# Nordic cross. Require the sharper 14x16 tessellation (12 verts/cell).
+	var mesh := FactionHeraldry.pennant_mesh(FactionHeraldry.DANISH_CROWN)
+	assert_true(mesh.get_surface_count() >= 1, "Danish pennant needs a surface")
+	var arrays := mesh.surface_get_arrays(0)
+	var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	assert_true(
+		vertices.size() >= 14 * 16 * 12,
+		"Danish pennant density must keep the white cross sharp on towers"
+	)
+	var colors: PackedColorArray = arrays[Mesh.ARRAY_COLOR]
+	assert_eq(colors.size(), vertices.size())
+	# Flat-per-cell cloth: every vertex color must be pure field or charge,
+	# never an interpolated pink mid-tone between red and white.
+	var field := FactionHeraldry.field_color(FactionHeraldry.DANISH_CROWN)
+	var charge := FactionHeraldry.charge_color(FactionHeraldry.DANISH_CROWN)
+	var saw_field := false
+	var saw_charge := false
+	for color in colors:
+		var is_field := color.is_equal_approx(field)
+		var is_charge := color.is_equal_approx(charge)
+		assert_true(is_field or is_charge, "Danish pennant verts must stay flat field/charge colors")
+		saw_field = saw_field or is_field
+		saw_charge = saw_charge or is_charge
+	assert_true(saw_field and saw_charge, "Danish pennant must include both red field and white cross")
+
+
 func test_south_quarter_knight_banner_is_livonian_cloth() -> void:
 	var definition := SouthQuarter.create()
 	var banner: Dictionary = {}

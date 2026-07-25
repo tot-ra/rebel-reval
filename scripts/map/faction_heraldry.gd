@@ -298,10 +298,15 @@ static func banner_mesh(faction_id: StringName, width: float = 0.72, height: flo
 
 static func _mesh_density(faction_id: StringName) -> Vector2i:
 	match pattern_for(faction_id):
-		PATTERN_BEAR, PATTERN_LYNX, PATTERN_SWALLOW:
+		PATTERN_BEAR, PATTERN_LYNX, PATTERN_BEAR_LYNX, PATTERN_SWALLOW:
 			return Vector2i(10, 12)
 		PATTERN_CROSS:
-			return Vector2i(5, 6)
+			# WHY: tower Danish / Teutonic pennants sit against the sky. A 5x6
+			# grid plus vertex-color lerp turned the white cross into a muddy
+			# pink blob. Dense cells keep the Nordic cross crisp at distance.
+			return Vector2i(14, 16)
+		PATTERN_PALE, PATTERN_FESS:
+			return Vector2i(8, 10)
 		_:
 			return Vector2i(4, 5)
 
@@ -314,6 +319,23 @@ static func _add_colored_quad(
 	c: Vector3, uv_c: Vector2,
 	d: Vector3, uv_d: Vector2
 ) -> void:
+	var pattern := pattern_for(faction_id)
+	# Geometric cloth (cross / pale / fess): paint each cell flat from its
+	# center UV so edges stay hard instead of interpolating field into charge.
+	if (
+		pattern == PATTERN_CROSS
+		or pattern == PATTERN_PALE
+		or pattern == PATTERN_FESS
+	):
+		var center_uv := (uv_a + uv_b + uv_c + uv_d) * 0.25
+		var color := color_at(faction_id, center_uv)
+		_add_solid_colored_vertex(surface, a, uv_a, color)
+		_add_solid_colored_vertex(surface, b, uv_b, color)
+		_add_solid_colored_vertex(surface, c, uv_c, color)
+		_add_solid_colored_vertex(surface, a, uv_a, color)
+		_add_solid_colored_vertex(surface, c, uv_c, color)
+		_add_solid_colored_vertex(surface, d, uv_d, color)
+		return
 	_add_colored_vertex(surface, faction_id, a, uv_a)
 	_add_colored_vertex(surface, faction_id, b, uv_b)
 	_add_colored_vertex(surface, faction_id, c, uv_c)
@@ -328,7 +350,16 @@ static func _add_colored_vertex(
 	vertex: Vector3,
 	uv: Vector2
 ) -> void:
-	surface.set_color(color_at(faction_id, uv))
+	_add_solid_colored_vertex(surface, vertex, uv, color_at(faction_id, uv))
+
+
+static func _add_solid_colored_vertex(
+	surface: SurfaceTool,
+	vertex: Vector3,
+	uv: Vector2,
+	color: Color
+) -> void:
+	surface.set_color(color)
 	surface.set_uv(uv)
 	surface.add_vertex(vertex)
 
