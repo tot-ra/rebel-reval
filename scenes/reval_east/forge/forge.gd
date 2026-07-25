@@ -3,6 +3,7 @@ extends Node2D
 const DEFINITION_SCRIPT := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
 const COMMISSION_ANCHOR_SCRIPT := preload("res://scripts/forge/forge_commission_anchor.gd")
 const PHASE_REST_ANCHOR_SCRIPT := preload("res://scripts/phase/phase_rest_anchor.gd")
+const PROLOGUE_CONTROLLER_SCRIPT := preload("res://scripts/forge/forge_prologue_controller.gd")
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -54,6 +55,19 @@ func _ready() -> void:
 	_rest_anchor.name = "PhaseRestAnchor"
 	add_child(_rest_anchor)
 	_rest_anchor.setup(self, definition, player)
+	var prologue = PROLOGUE_CONTROLLER_SCRIPT.new()
+	prologue.name = "ForgePrologueController"
+	add_child(prologue)
+	prologue.setup(
+		self,
+		definition,
+		player,
+		_commission_anchor,
+		_rest_anchor,
+		_dialogue_encounter,
+		henning,
+		_interaction_controller
+	)
 
 
 func _setup_dialogue_encounter(definition: MapDefinition) -> void:

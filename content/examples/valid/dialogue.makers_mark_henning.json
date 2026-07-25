@@ -3,10 +3,11 @@
   "id": "dialogue.makers_mark.henning_arrival",
   "title": "The Maker's Mark - Henning Arrival",
   "confidence": "invented",
-  "canon_status": "draft",
+  "canon_status": "active",
   "approval": {
-    "status": "review",
-    "notes": "Representative schema example, not final prose."
+    "status": "approved",
+    "reviewer": "P2-006",
+    "notes": "Prologue Henning confrontation beat."
   },
   "deterministic_offline": {
     "authored": true,

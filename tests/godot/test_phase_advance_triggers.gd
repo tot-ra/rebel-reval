@@ -111,6 +111,8 @@ func _prepare_prologue_forge_state() -> void:
 	SessionState.state.bag.try_add(ITEM_HAMMER)
 	SessionState.state.equip_from_bag(&"right_hand", ITEM_HAMMER)
 	SessionState.state.set_phase(GameState.PHASE_PROLOGUE_DAY)
+	SessionState.state.set_quest_state(&"quest.makers_mark", &"ledger_committed")
+	SessionState.state.set_flag(&"flag.forge_ledger_preserved", true)
 	if _tree().root.get_node_or_null("PhaseDirector") != null:
 		PhaseDirector.rebind_session_state()
 

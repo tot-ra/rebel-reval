@@ -1,0 +1,73 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.makers_mark.ledger_choice",
+  "title": "The Maker's Mark - Ledger Choice",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P2-006",
+    "notes": "Three-way ledger branch for the prologue tutorial."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "Quest transitions are applied by ForgePrologueController after close."
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "ledger_review",
+  "word_count_estimate": 58,
+  "nodes": [
+    {
+      "id": "ledger_review",
+      "speaker_id": "char.kalev",
+      "text": "The ledger still names every rejected blank Mart logged. What do I leave behind?",
+      "choices": [
+        {
+          "id": "preserve_ledger",
+          "text": "Keep the record truthful.",
+          "target_node_id": "preserve_close"
+        },
+        {
+          "id": "alter_ledger",
+          "text": "Alter the entries to hide the rejects.",
+          "target_node_id": "alter_close"
+        },
+        {
+          "id": "destroy_ledger",
+          "text": "Tear out the pages and burn them.",
+          "target_node_id": "destroy_close"
+        }
+      ]
+    },
+    {
+      "id": "preserve_close",
+      "speaker_id": "char.kalev",
+      "text": "Henning can read the truth later, but the record stays honest."
+    },
+    {
+      "id": "alter_close",
+      "speaker_id": "char.kalev",
+      "text": "A falsified line buys Mart time, if no one compares the pages."
+    },
+    {
+      "id": "destroy_close",
+      "speaker_id": "char.kalev",
+      "text": "Ash hides the rejects tonight. The Watch will notice the gap."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Playable prologue outline reconciled with canon.",
+      "citations": [
+        "docs/SCENES/the-makers-mark.md",
+        "docs/SCENES/the-makers-mark-branch-map.md"
+      ]
+    }
+  ]
+}

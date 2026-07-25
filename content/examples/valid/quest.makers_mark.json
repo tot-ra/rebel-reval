@@ -86,6 +86,11 @@
           "op": "adjust_pressure",
           "key": "pressure.suspicion",
           "amount": 1
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.forge_ledger_destroyed",
+          "value": true
         }
       ]
     }
@@ -165,7 +170,9 @@
       "char.henning"
     ],
     "dialogue_ids": [
-      "dialogue.makers_mark.henning_arrival"
+      "dialogue.makers_mark.henning_arrival",
+      "dialogue.makers_mark.chest_discovery",
+      "dialogue.makers_mark.ledger_choice"
     ],
     "bark_ids": [
       "bark.prologue.watch_pressure"
