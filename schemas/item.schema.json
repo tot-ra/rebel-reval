@@ -26,6 +26,10 @@
       "type": "string",
       "minLength": 1
     },
+    "icon": {
+      "type": "string",
+      "description": "Relative path to the item icon texture (e.g. 'res://assets/UI/inventory/forge_hammer.png'). Optional."
+    },
     "category": {
       "type": "string",
       "enum": [

@@ -2,6 +2,7 @@
   "type": "item",
   "id": "item.watch_buckle",
   "name": "Watchman's buckle",
+  "icon": "res://assets/UI/inventory/watch_buckle.png",
   "category": "commission_object",
   "confidence": "invented",
   "canon_status": "active",

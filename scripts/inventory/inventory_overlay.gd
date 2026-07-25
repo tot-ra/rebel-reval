@@ -357,6 +357,7 @@ func _style_cell_button(
 
 	if placement == null:
 		button.text = ""
+		button.icon = null
 		button.tooltip_text = "Empty pouch cell"
 		var empty_bg := InventoryUiThemeScene.LEATHER_EMPTY
 		if _selected != null:
@@ -382,6 +383,22 @@ func _style_cell_button(
 	else:
 		button.text = ""
 		InventoryUiThemeScene.apply_cell_button(button, color.darkened(0.18), focused, selected)
+
+	# Apply item icon texture if available, scaling to fit the cell.
+	# WHY: only the origin cell shows icon + label; multi-cell footprints stay
+	# as a tinted shape so the player can see the item footprint without
+	# cluttering every occupied cell with a duplicate icon.
+	if is_origin:
+		var icon_path: String = record.get("icon", "")
+		if not icon_path.is_empty() and ResourceLoader.exists(icon_path):
+			var icon_tex: Texture2D = ResourceLoader.load(icon_path) as Texture2D
+			if icon_tex != null:
+				button.icon = icon_tex
+				button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				button.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
+				button.expand_icon = true
+				# Keep the short label visible alongside the icon.
+				button.text = _short_label(record, placement.quantity)
 
 	button.tooltip_text = _item_tooltip(record, placement)
 	button.custom_minimum_size = Vector2(CELL_SIZE, CELL_SIZE)

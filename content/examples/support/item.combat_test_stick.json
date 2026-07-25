@@ -2,6 +2,7 @@
   "type": "item",
   "id": "item.combat_test_stick",
   "name": "Combat test stick",
+  "icon": "res://assets/UI/inventory/combat_stick.png",
   "category": "weapon",
   "confidence": "invented",
   "canon_status": "draft",

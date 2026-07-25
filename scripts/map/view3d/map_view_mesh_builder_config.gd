@@ -390,6 +390,11 @@ const FIRST_PERSON_DETAIL_RANGE := 14.0
 const FIRST_PERSON_DETAIL_RANGE_MARGIN := 3.0
 const FIRST_PERSON_DETAIL_REBUILD_STEP_CELLS := 4
 const FIRST_PERSON_DETAIL_BUILD_RADIUS_CELLS := 18
+## Scatter-layer grass covers the entire district. Beyond this range the
+## silhouette contribution is negligible so culling saves GPU fillrate and
+## draw calls without visible pop-in (margin provides a smooth fade).
+const SCATTER_GRASS_VISIBILITY_RANGE := 30.0
+const SCATTER_GRASS_VISIBILITY_RANGE_MARGIN := 5.0
 const PUDDLE_LOW_HEIGHT_BIAS := 0.55
 const PUDDLE_SCALE_MIN := 0.28
 const PUDDLE_SCALE_MAX := 0.72

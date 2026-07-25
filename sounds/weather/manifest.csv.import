@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://by7fxluaqr56o"
+
+[deps]
+
+files=["res://sounds/weather/manifest.file.translation", "res://sounds/weather/manifest.license.translation", "res://sounds/weather/manifest.source.translation", "res://sounds/weather/manifest.notes.translation"]
+
+source_file="res://sounds/weather/manifest.csv"
+dest_files=["res://sounds/weather/manifest.file.translation", "res://sounds/weather/manifest.license.translation", "res://sounds/weather/manifest.source.translation", "res://sounds/weather/manifest.notes.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

@@ -2,6 +2,7 @@
   "type": "item",
   "id": "item.forge_hammer",
   "name": "Forge hammer",
+  "icon": "res://assets/UI/inventory/forge_hammer.png",
   "category": "weapon",
   "confidence": "invented",
   "canon_status": "draft",

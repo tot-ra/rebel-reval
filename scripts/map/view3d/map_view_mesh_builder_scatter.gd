@@ -183,6 +183,8 @@ static func build_scatter(
 	if not clovers.is_empty():
 		var clover_instances := MapViewMeshBuilderPrimitives.multi_mesh("Clovers", MapViewMeshBuilderPrimitives.clover_patch_mesh(), clovers, clover_colors, MapViewMaterials.foliage_tuft(), Vector3(0.0, 0.02, 0.0))
 		clover_instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		clover_instances.visibility_range_end = MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE
+		clover_instances.visibility_range_end_margin = MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE_MARGIN
 		root.add_child(clover_instances)
 
 	if not plant_batches.is_empty():
@@ -490,6 +492,12 @@ static func _add_grass_layer(root: Node3D, layer_name: String, transforms: Array
 	var instances := MapViewMeshBuilderPrimitives.multi_mesh(layer_name, mesh, transforms, colors, MapViewMaterials.grass_blades(), Vector3.ZERO)
 	# Paper-thin wind-animated blades flicker in directional shadow maps.
 	instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	# Cull distant grass instances that are invisible to the camera. The scatter
+	# layer covers the entire district; without range culling every MultiMesh
+	# instance is submitted to the GPU even when far off-screen, tanking FPS on
+	# vegetation-heavy maps (e.g. workers district reval_east).
+	instances.visibility_range_end = MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE
+	instances.visibility_range_end_margin = MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE_MARGIN
 	root.add_child(instances)
 
 
