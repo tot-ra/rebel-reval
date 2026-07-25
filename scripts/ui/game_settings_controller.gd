@@ -15,6 +15,7 @@ func _ready() -> void:
 	_overlay.visible = false
 	_overlay.configure(UserSettings if has_node("/root/UserSettings") else null)
 	_overlay.closed.connect(_on_overlay_closed)
+	_overlay.controls_requested.connect(_on_controls_requested)
 	add_child(_overlay)
 
 
@@ -110,3 +111,11 @@ func _can_open() -> bool:
 
 func _on_overlay_closed() -> void:
 	pass
+
+
+func _on_controls_requested() -> void:
+	close()
+	var parent := get_parent()
+	var quick_access := parent.get_node_or_null("QuickAccessMenu") as QuickAccessMenu
+	if quick_access != null:
+		quick_access.open_controls_overlay()

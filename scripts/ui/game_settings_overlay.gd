@@ -1,12 +1,14 @@
 class_name GameSettingsOverlay
 extends CanvasLayer
 
-## In-game settings surface for audio volume and dialogue accessibility. Open with Esc when no other modal is active.
+## In-game settings surface for audio volume and accessibility. Open with Esc when no other modal is active.
 
 signal closed()
+signal controls_requested()
 
 const AudioSettingsScript := preload("res://scripts/settings/audio_settings.gd")
 const DialogueSettingsScript := preload("res://scripts/settings/dialogue_settings.gd")
+const GameplaySettingsScript := preload("res://scripts/settings/gameplay_accessibility_settings.gd")
 const TextScaleScript := preload("res://scripts/dialogue/dialogue_text_scale.gd")
 const PANEL_MIN_SIZE := Vector2(560, 520)
 
@@ -21,6 +23,11 @@ var _text_speed_option: OptionButton
 var _high_contrast_check: CheckButton
 var _subtitle_background_check: CheckButton
 var _reduced_motion_check: CheckButton
+var _guard_mode_option: OptionButton
+var _screen_shake_check: CheckButton
+var _reduced_flashing_check: CheckButton
+var _enhanced_focus_check: CheckButton
+var _remap_controls_button: Button
 
 
 func configure(settings_owner: Node) -> void:
@@ -123,7 +130,7 @@ func _build_ui() -> void:
 	header.add_child(_close_button)
 
 	var intro := Label.new()
-	intro.text = "Adjust audio and dialogue accessibility. Changes save outside campaign slots."
+	intro.text = "Adjust audio and accessibility. Changes save outside campaign slots."
 	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	intro.add_theme_color_override("font_color", Color(0.78, 0.82, 0.9, 1.0))
 	layout.add_child(intro)
@@ -152,8 +159,28 @@ func _build_ui() -> void:
 	_reduced_motion_check = _add_toggle_row(layout, "Reduced motion")
 	_reduced_motion_check.toggled.connect(_on_reduced_motion_toggled)
 
+	_add_section_heading(layout, "Gameplay accessibility")
+	_guard_mode_option = _add_option_row(
+		layout,
+		"Guard input",
+		GameplaySettingsScript.GUARD_MODES
+	)
+	_guard_mode_option.item_selected.connect(_on_guard_mode_selected)
+	_screen_shake_check = _add_toggle_row(layout, "Screen shake")
+	_screen_shake_check.toggled.connect(_on_screen_shake_toggled)
+	_reduced_flashing_check = _add_toggle_row(layout, "Reduced flashing")
+	_reduced_flashing_check.toggled.connect(_on_reduced_flashing_toggled)
+	_enhanced_focus_check = _add_toggle_row(layout, "Enhanced focus contrast")
+	_enhanced_focus_check.toggled.connect(_on_enhanced_focus_toggled)
+
+	_remap_controls_button = Button.new()
+	_remap_controls_button.text = "Remap controls"
+	_remap_controls_button.focus_mode = Control.FOCUS_ALL
+	_remap_controls_button.pressed.connect(_on_remap_controls_pressed)
+	layout.add_child(_remap_controls_button)
+
 	var hint := Label.new()
-	hint.text = "Esc closes this menu. Remap controls from Quick Access."
+	hint.text = "Esc closes this menu. Remap controls opens the full binding editor."
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.add_theme_color_override("font_color", Color(0.72, 0.76, 0.82, 1.0))
 	layout.add_child(hint)
@@ -248,6 +275,12 @@ func _sync_from_settings() -> void:
 	_subtitle_background_check.set_pressed_no_signal(dialogue_settings.subtitle_background)
 	_reduced_motion_check.set_pressed_no_signal(dialogue_settings.reduced_motion)
 
+	var gameplay_settings = _current_gameplay_settings()
+	_select_option_value(_guard_mode_option, gameplay_settings.guard_mode)
+	_screen_shake_check.set_pressed_no_signal(gameplay_settings.screenshake_enabled)
+	_reduced_flashing_check.set_pressed_no_signal(gameplay_settings.reduced_flashing)
+	_enhanced_focus_check.set_pressed_no_signal(gameplay_settings.enhanced_focus_contrast)
+
 
 func _on_music_changed(value: float) -> void:
 	var audio = _current_audio_settings()
@@ -293,6 +326,34 @@ func _on_reduced_motion_toggled(pressed: bool) -> void:
 	_apply_dialogue_settings(dialogue)
 
 
+func _on_guard_mode_selected(index: int) -> void:
+	var gameplay = _current_gameplay_settings()
+	gameplay.guard_mode = _guard_mode_option.get_item_text(index)
+	_apply_gameplay_settings(gameplay)
+
+
+func _on_screen_shake_toggled(pressed: bool) -> void:
+	var gameplay = _current_gameplay_settings()
+	gameplay.screenshake_enabled = pressed
+	_apply_gameplay_settings(gameplay)
+
+
+func _on_reduced_flashing_toggled(pressed: bool) -> void:
+	var gameplay = _current_gameplay_settings()
+	gameplay.reduced_flashing = pressed
+	_apply_gameplay_settings(gameplay)
+
+
+func _on_enhanced_focus_toggled(pressed: bool) -> void:
+	var gameplay = _current_gameplay_settings()
+	gameplay.enhanced_focus_contrast = pressed
+	_apply_gameplay_settings(gameplay)
+
+
+func _on_remap_controls_pressed() -> void:
+	controls_requested.emit()
+
+
 func _apply_audio_settings(settings) -> void:
 	if _settings_owner == null or not _settings_owner.has_method("apply_audio_settings"):
 		return
@@ -303,6 +364,12 @@ func _apply_dialogue_settings(settings) -> void:
 	if _settings_owner == null or not _settings_owner.has_method("apply_dialogue_settings"):
 		return
 	_settings_owner.call("apply_dialogue_settings", settings, true)
+
+
+func _apply_gameplay_settings(settings) -> void:
+	if _settings_owner == null or not _settings_owner.has_method("apply_gameplay_accessibility_settings"):
+		return
+	_settings_owner.call("apply_gameplay_accessibility_settings", settings, true)
 
 
 func _current_audio_settings():
@@ -317,6 +384,13 @@ func _current_dialogue_settings():
 		return DialogueSettingsScript.default_settings()
 	var value: Variant = _settings_owner.get("dialogue")
 	return value if value != null else DialogueSettingsScript.default_settings()
+
+
+func _current_gameplay_settings():
+	if _settings_owner == null:
+		return GameplaySettingsScript.default_settings()
+	var value: Variant = _settings_owner.get("gameplay")
+	return value if value != null else GameplaySettingsScript.default_settings()
 
 
 func _select_option_value(option: OptionButton, current: String) -> void:

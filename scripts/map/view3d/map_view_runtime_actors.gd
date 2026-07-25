@@ -18,9 +18,11 @@ var _view: MapView3D
 var _follow_player: Callable
 var _logic_direction_toward_camera: Callable
 var _last_facing := Vector2.ZERO
+var _last_player_health := -1.0
 var _actor_rigs: Dictionary = {}
 var _equipment_state: GameState
 var _content_db: ContentDB
+var _request_screen_shake: Callable
 
 
 func configure(
@@ -39,6 +41,10 @@ func configure(
 	_view = map_view
 	_follow_player = follow_player
 	_logic_direction_toward_camera = logic_direction_toward_camera
+
+
+func set_screen_shake_callback(callback: Callable) -> void:
+	_request_screen_shake = callback
 
 
 func register_view_actors(scene_root: Node) -> void:
@@ -111,6 +117,8 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 func bind_player_health_ring() -> void:
 	if _player == null or not _player.has_signal("health_changed"):
 		return
+	if "health" in _player:
+		_last_player_health = float(_player.health)
 	if not _player.health_changed.is_connected(_on_player_health_changed):
 		_player.health_changed.connect(_on_player_health_changed)
 
@@ -178,6 +186,9 @@ static func _hide_actor_canvas(actor: Node2D) -> void:
 
 
 func _on_player_health_changed(current: float, maximum: float) -> void:
+	if _last_player_health >= 0.0 and current < _last_player_health and _request_screen_shake.is_valid():
+		_request_screen_shake.call(0.35)
+	_last_player_health = current
 	var ring := _player_rig.get_node_or_null("HealthRing") as CharacterHealthRing3D
 	if ring != null:
 		ring.set_health(current, maximum)

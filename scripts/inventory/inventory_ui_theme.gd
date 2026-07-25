@@ -1,7 +1,7 @@
 class_name InventoryUiTheme
 extends RefCounted
 
-## Visual tokens for the bag overlay.
+const UiFocusThemeScript := preload("res://scripts/ui/ui_focus_theme.gd")
 ## Matches the minimap oak/brass HUD so the satchel reads as 14th-century Reval
 ## kit (leather pouch, brass fittings, parchment ink) without new texture assets.
 
@@ -205,8 +205,8 @@ static func cell_style(
 		border = BRASS_BRIGHT
 	elif focused:
 		border = BRASS_BRIGHT.lerp(border, 0.35)
-	style.border_color = border
-	style.set_border_width_all(2 if focused or selected else 1)
+	style.border_color = UiFocusThemeScript.focus_border_color(border) if focused else border
+	style.set_border_width_all(UiFocusThemeScript.focus_border_width() if focused else (2 if selected else 1))
 	style.set_corner_radius_all(6)
 	style.content_margin_left = 2
 	style.content_margin_right = 2
@@ -268,8 +268,12 @@ static func make_brass_rule() -> TextureRect:
 static func _button_style(bg: Color, bright_border: bool = false) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = bg
-	style.border_color = BRASS_BRIGHT if bright_border else BRASS
-	style.set_border_width_all(1)
+	var border := BRASS_BRIGHT if bright_border else BRASS
+	if bright_border:
+		UiFocusThemeScript.apply_button_focus_style(style, border)
+	else:
+		style.border_color = border
+		style.set_border_width_all(1)
 	style.set_corner_radius_all(6)
 	style.content_margin_left = 14
 	style.content_margin_right = 14

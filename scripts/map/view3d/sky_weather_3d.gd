@@ -531,7 +531,7 @@ func lighting_modifiers() -> Dictionary:
 		"ambient_energy": float(_current["ambient_energy"]) * (1.0 - SUNSET_AMBIENT_DIM * sunset_factor),
 		"sunset_tint": sunset_factor * SUNSET_TINT_STRENGTH * float(_current["sun_energy"]),
 		"overcast": float(_current["gray"]),
-		"lightning": _lightning,
+		"lightning": _effective_lightning(),
 	}
 
 
@@ -584,12 +584,29 @@ func storm_locality() -> float:
 ## Current lightning flash level (0..1). Exposed so scene lighting and audio can
 ## react to the same strike the sky shader draws.
 func lightning_flash() -> float:
-	return _lightning
+	return _effective_lightning()
+
+
+func _effective_lightning() -> float:
+	return _lightning * _lightning_flash_scale()
 
 
 ## Ground bearing (unit vec2, x = east, y = north) of the cell currently flashing.
 func lightning_direction() -> Vector2:
 	return _lightning_dir
+
+
+func _lightning_flash_scale() -> float:
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree == null or not tree.root.has_node("/root/UserSettings"):
+		return 1.0
+	var settings: Node = tree.root.get_node("/root/UserSettings")
+	if not ("gameplay" in settings):
+		return 1.0
+	var gameplay: Variant = settings.get("gameplay")
+	if gameplay == null or not gameplay.has_method("lightning_flash_scale"):
+		return 1.0
+	return float(gameplay.lightning_flash_scale())
 
 
 ## Prevailing wind follows the authored cloud drift so smoke, sails, and floating
@@ -775,6 +792,6 @@ func _push_cloud_uniforms() -> void:
 	_material.set_shader_parameter(&"cloud_chaos", cloud_chaos())
 	_material.set_shader_parameter(&"storm_intensity", storm_intensity())
 	_material.set_shader_parameter(&"storm_locality", storm_locality())
-	_material.set_shader_parameter(&"lightning", _lightning)
+	_material.set_shader_parameter(&"lightning", _effective_lightning())
 	_material.set_shader_parameter(&"lightning_dir", _lightning_dir)
 	_material.set_shader_parameter(&"wind_dir", wind_direction_xz())

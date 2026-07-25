@@ -10,6 +10,7 @@ const PANEL_SIZE := Vector2(820, 600)
 const NODE_SIZE := Vector2(140, 40)
 const TRAVEL_NODE_COLOR := Color(0.92, 0.96, 1.0, 1.0)
 const TRAVEL_FOCUS_COLOR := Color(1.0, 0.78, 0.28, 1.0)
+const UiFocusThemeScript := preload("res://scripts/ui/ui_focus_theme.gd")
 const HUB_COLOR := Color(1.0, 0.86, 0.42, 1.0)
 
 var _current_scene_id: StringName = &""
@@ -277,8 +278,7 @@ func _on_node_pressed(scene_id: StringName) -> void:
 func _travel_focus_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.16, 0.20, 0.28, 0.98)
-	style.border_color = TRAVEL_FOCUS_COLOR
-	style.set_border_width_all(4)
+	UiFocusThemeScript.apply_button_focus_style(style, TRAVEL_FOCUS_COLOR)
 	style.set_corner_radius_all(6)
 	style.expand_margin_left = 3
 	style.expand_margin_right = 3

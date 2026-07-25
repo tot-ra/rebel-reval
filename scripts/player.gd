@@ -210,6 +210,7 @@ func _charge_threshold_sec() -> float:
 
 
 func apply_hit_stun() -> void:
+	PlayerActionInput.reset_guard_toggle()
 	action_state_machine.apply_hit()
 
 

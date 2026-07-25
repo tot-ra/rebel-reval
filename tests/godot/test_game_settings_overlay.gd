@@ -105,6 +105,40 @@ func test_dialogue_accessibility_changes_persist_through_user_settings() -> void
 	overlay.queue_free()
 
 
+func test_gameplay_accessibility_changes_persist_through_user_settings() -> void:
+	var overlay := OverlayScript.new()
+	overlay.configure(UserSettings)
+	_tree().root.add_child(overlay)
+	overlay.open()
+
+	overlay._on_guard_mode_selected(1)
+	overlay._on_screen_shake_toggled(false)
+	overlay._on_reduced_flashing_toggled(true)
+	overlay._on_enhanced_focus_toggled(true)
+
+	assert_eq(UserSettings.gameplay.guard_mode, "toggle")
+	assert_false(UserSettings.gameplay.screenshake_enabled)
+	assert_true(UserSettings.gameplay.reduced_flashing)
+	assert_true(UserSettings.gameplay.enhanced_focus_contrast)
+
+	var loaded = UserSettings.store.load_gameplay_accessibility_settings()
+	assert_eq(loaded.guard_mode, "toggle")
+	assert_false(loaded.screenshake_enabled)
+	assert_true(loaded.reduced_flashing)
+	overlay.queue_free()
+
+
+func test_remap_controls_button_emits_signal() -> void:
+	var overlay := OverlayScript.new()
+	overlay.configure(UserSettings)
+	_tree().root.add_child(overlay)
+	var state := {"emitted": false}
+	overlay.controls_requested.connect(func(): state.emitted = true)
+	overlay._on_remap_controls_pressed()
+	assert_true(state.emitted)
+	overlay.queue_free()
+
+
 func test_opening_settings_closes_inventory_overlay() -> void:
 	var host := Node.new()
 	var inventory := InventoryController.new()

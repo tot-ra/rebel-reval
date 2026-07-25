@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 import sys
 import tempfile
 import unittest
@@ -92,6 +93,74 @@ class ReleaseCandidateCheckTest(unittest.TestCase):
             tests_dir = root / "tests" / "godot"
             tests_dir.mkdir(parents=True)
             (tests_dir / "test_input_bindings.gd").write_text("extends RefCounted\n", encoding="utf-8")
+            docs_dir = root / "docs" / "data"
+            docs_dir.mkdir(parents=True)
+            (docs_dir / "accessibility_checklist.json").write_text(
+                json.dumps(
+                    {
+                        "required_options": [
+                            "remapping",
+                            "guard_hold_toggle",
+                            "text_speed",
+                            "scalable_text",
+                            "subtitle_background",
+                            "focus_contrast",
+                            "screen_shake",
+                            "reduced_flashing",
+                        ],
+                        "supported_resolutions": [{"width": 1280, "height": 720}],
+                        "input_methods": ["keyboard_mouse", "gamepad"],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (settings_dir / "gameplay_accessibility_settings.gd").write_text(
+                "\n".join(
+                    [
+                        "var guard_mode",
+                        "var screenshake_enabled",
+                        "var reduced_flashing",
+                        "var enhanced_focus_contrast",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            (settings_dir / "dialogue_settings.gd").write_text(
+                "\n".join(
+                    [
+                        "var text_scale",
+                        "var text_speed",
+                        "var subtitle_background",
+                        "var high_contrast",
+                        "var reduced_motion",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            (ui_dir / "game_settings_overlay.gd").write_text(
+                'signal controls_requested\nbutton_text = "Remap controls"\n',
+                encoding="utf-8",
+            )
+            (root / "tools").mkdir(parents=True)
+            (root / "tools" / "report_accessibility_checklist.py").write_text("# stub\n", encoding="utf-8")
+            (tests_dir / "test_gameplay_accessibility_settings.gd").write_text(
+                "extends RefCounted\n", encoding="utf-8"
+            )
+            (tests_dir / "test_game_settings_overlay.gd").write_text("extends RefCounted\n", encoding="utf-8")
+            (ui_dir / "ui_focus_theme.gd").write_text("extends RefCounted\n", encoding="utf-8")
+            (root / "scripts" / "player" / "player_action_input.gd").parent.mkdir(
+                parents=True, exist_ok=True
+            )
+            (root / "scripts" / "player" / "player_action_input.gd").write_text(
+                "extends RefCounted\n", encoding="utf-8"
+            )
+            (root / "scripts" / "map" / "view3d" / "map_view_runtime_camera.gd").parent.mkdir(
+                parents=True, exist_ok=True
+            )
+            (root / "scripts" / "map" / "view3d" / "map_view_runtime_camera.gd").write_text(
+                "extends RefCounted\n", encoding="utf-8"
+            )
+            (settings_dir / "input_binding_settings.gd").write_text("extends RefCounted\n", encoding="utf-8")
 
             result = check_accessibility(root)
 

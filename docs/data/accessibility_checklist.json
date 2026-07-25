@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "required_options": [
+  "remapping",
+  "guard_hold_toggle",
+  "text_speed",
+  "scalable_text",
+  "subtitle_background",
+  "focus_contrast",
+  "screen_shake",
+  "reduced_flashing"
+  ],
+  "supported_resolutions": [
+  {"width": 1280, "height": 720},
+  {"width": 1920, "height": 1080}
+  ],
+  "input_methods": [
+  "keyboard_mouse",
+  "gamepad"
+  ],
+  "surfaces": {
+  "remapping": {
+  "overlay": "scripts/ui/controls_overlay.gd",
+  "settings_entry": "scripts/ui/game_settings_overlay.gd"
+  },
+  "gameplay_accessibility": {
+  "model": "scripts/settings/gameplay_accessibility_settings.gd",
+  "overlay": "scripts/ui/game_settings_overlay.gd"
+  },
+  "dialogue_accessibility": {
+  "model": "scripts/settings/dialogue_settings.gd",
+  "overlay": "scripts/ui/game_settings_overlay.gd"
+  }
+  }
+}

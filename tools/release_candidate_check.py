@@ -167,6 +167,29 @@ def check_accessibility(root: Path = ROOT) -> CheckResult:
     else:
         details.append("test_input_bindings.gd is missing")
 
+    checklist_manifest = root / "docs" / "data" / "accessibility_checklist.json"
+    checklist_tool = root / "tools" / "report_accessibility_checklist.py"
+    gameplay_settings = root / "scripts" / "settings" / "gameplay_accessibility_settings.gd"
+    checks.extend(
+        [
+            ("Accessibility checklist manifest present", checklist_manifest.is_file()),
+            ("Accessibility checklist verifier present", checklist_tool.is_file()),
+            ("Gameplay accessibility settings model present", gameplay_settings.is_file()),
+        ]
+    )
+    if checklist_manifest.is_file():
+        details.append("accessibility_checklist.json is present")
+    else:
+        details.append("accessibility_checklist.json is missing")
+    if checklist_tool.is_file():
+        details.append("report_accessibility_checklist.py is present")
+    else:
+        details.append("report_accessibility_checklist.py is missing")
+    if gameplay_settings.is_file():
+        details.append("gameplay_accessibility_settings.gd is present")
+    else:
+        details.append("gameplay_accessibility_settings.gd is missing")
+
     passed_count = sum(1 for _, ok in checks if ok)
     passed = passed_count == len(checks)
     return CheckResult(

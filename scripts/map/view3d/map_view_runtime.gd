@@ -122,6 +122,7 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 		runtime._camera_controller.follow_player,
 		runtime._camera_controller.logic_direction_toward_camera
 	)
+	runtime._actor_controller.set_screen_shake_callback(runtime._camera_controller.add_screen_shake)
 
 	scene_root.add_child(runtime)
 	# Created at runtime, so enable input explicitly before the first frame.
@@ -423,7 +424,7 @@ func is_top_down() -> bool:
 
 
 func zoom_view_steps(steps: float) -> void:
-	var mode_before := _camera_controller.camera_mode
+	var mode_before: MapViewRuntimeCamera.CameraMode = _camera_controller.camera_mode
 	_camera_controller.zoom_view_steps(steps)
 	# Scroll can cross first-person <-> third-person <-> top-down; keep movement/ghost in sync.
 	if _camera_controller.camera_mode != mode_before:
@@ -432,7 +433,7 @@ func zoom_view_steps(steps: float) -> void:
 
 
 func zoom_from_magnify_factor(factor: float) -> void:
-	var mode_before := _camera_controller.camera_mode
+	var mode_before: MapViewRuntimeCamera.CameraMode = _camera_controller.camera_mode
 	_camera_controller.zoom_from_magnify_factor(factor)
 	if _camera_controller.camera_mode != mode_before:
 		_configure_screen_relative_movement()
@@ -440,7 +441,7 @@ func zoom_from_magnify_factor(factor: float) -> void:
 
 
 func zoom_from_pan_delta(delta: Vector2) -> void:
-	var mode_before := _camera_controller.camera_mode
+	var mode_before: MapViewRuntimeCamera.CameraMode = _camera_controller.camera_mode
 	_camera_controller.zoom_from_pan_delta(delta)
 	if _camera_controller.camera_mode != mode_before:
 		_configure_screen_relative_movement()

@@ -5,21 +5,25 @@ extends Node
 const AudioBusServiceScript := preload("res://scripts/settings/audio_bus_service.gd")
 const AudioSettingsScript := preload("res://scripts/settings/audio_settings.gd")
 const DialogueSettingsScript := preload("res://scripts/settings/dialogue_settings.gd")
+const GameplayAccessibilitySettingsScript := preload("res://scripts/settings/gameplay_accessibility_settings.gd")
 const InputBindingSettingsScript := preload("res://scripts/settings/input_binding_settings.gd")
 const StoreScript := preload("res://scripts/settings/user_settings_store.gd")
 
 signal audio_settings_changed(settings)
 signal dialogue_settings_changed(settings)
+signal gameplay_accessibility_changed(settings)
 signal input_bindings_changed(bindings)
 
 var store = StoreScript.new()
 var audio = AudioSettingsScript.default_settings()
 var dialogue = DialogueSettingsScript.default_settings()
+var gameplay = GameplayAccessibilitySettingsScript.default_settings()
 var input_bindings = InputBindingSettingsScript.default_settings()
 
 
 func _ready() -> void:
 	reload_dialogue_settings()
+	reload_gameplay_accessibility_settings()
 	reload_input_bindings()
 	reload_audio_settings()
 
@@ -46,6 +50,11 @@ func reload_dialogue_settings() -> void:
 	dialogue_settings_changed.emit(dialogue)
 
 
+func reload_gameplay_accessibility_settings() -> void:
+	gameplay = store.load_gameplay_accessibility_settings()
+	gameplay_accessibility_changed.emit(gameplay)
+
+
 func reload_input_bindings() -> void:
 	input_bindings = store.load_input_bindings()
 	input_bindings.apply_to_input_map()
@@ -65,6 +74,16 @@ func apply_dialogue_settings(settings, persist: bool = true) -> void:
 	dialogue_settings_changed.emit(dialogue)
 	if persist and not store.save_dialogue_settings(dialogue):
 		push_warning("Failed to persist dialogue settings.")
+
+
+func apply_gameplay_accessibility_settings(settings, persist: bool = true) -> void:
+	if settings == null:
+		return
+	gameplay = settings.duplicate_settings()
+	gameplay.normalize()
+	gameplay_accessibility_changed.emit(gameplay)
+	if persist and not store.save_gameplay_accessibility_settings(gameplay):
+		push_warning("Failed to persist gameplay accessibility settings.")
 
 
 func apply_input_bindings(bindings, persist: bool = true) -> bool:

@@ -306,6 +306,10 @@ func _on_camera_pressed() -> void:
 
 
 func _on_controls_pressed() -> void:
+	open_controls_overlay()
+
+
+func open_controls_overlay() -> void:
 	if _controls_overlay == null:
 		return
 	if _inventory_controller != null:
