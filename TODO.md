@@ -7,15 +7,16 @@ Format: `- [ ] ID | deps: unresolved ID,ID or none | deliverable: ... | verify: 
 
 References:
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) - delivery order, coordination notes, current focus
+- [`docs/WITCHER3_REALISM_INSPIRATION.md`](docs/WITCHER3_REALISM_INSPIRATION.md) - Witcher 3 realism mechanics research and adaptation notes
 
 <!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
 | P0 |     7  |    39  | Baseline, storage, materials, historical audit |
 | P1 |     0  |     7  | Runtime systems, content foundation |
-| P2 |    15  |     6  | Vertical-slice production (playable MVP) |
+| P2 |    20  |     6  | Vertical-slice production (playable MVP) |
 | P3 |    10  |     5  | Validation, accessibility, performance |
-| P4 |    41  |     7  | Act 1: The Simmering City |
+| P4 |    48  |     7  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
 
@@ -128,6 +129,9 @@ References:
 - [ ] P4-001 | deps: P3-014 | deliverable: approved branch map and state table for `The Bell and the Chain` | verify: map reuses commission, mechanism, gate, patrol, and consequence systems without a new major framework
 - [ ] P4-013 | deps: P4-012 | deliverable: Act 1 release candidate playable as a standalone chapter | verify: clean-clone CI, supported-platform smoke tests, license report, accessibility checklist, and act acceptance matrix all pass
 - [ ] P4-012 | deps: P4-011 | deliverable: maintainer Act 1 playable review and critical/high issue closure per [ADR 0014](docs/adr/0014-authorial-acceptance-gates-without-external-playtests.md) | verify: `docs/reports/p4_012_act1_gate.md` records maintainer completion, comprehension, pacing, combat, choice, and continuity findings with no unresolved critical/high issue; automated Act 1 traversal suite is green
+- [ ] P4-029 | deps: P4-017 | deliverable: time-sensitive commission system: at least three commissions with visible deadlines (displayed in journal/UI) where missing the deadline changes outcomes, prices, or NPC relationships without softlocking the campaign | verify: one test commission shows different aftermath states when completed before vs. after its deadline; deadline state persists across save/load
+- [ ] P4-030 | deps: P4-017 | deliverable: economic simulation layer: dynamic pricing for trade goods based on district supply, faction control, and player actions (e.g., iron prices rise when the Order restricts trade, bread costs drop when rebels control the market) with at least two price tiers per essential good | verify: automated test shows price changes when district flags toggle; price differences appear in merchant dialogue; prices affect commission costs or player purchasing power
+- [ ] P4-031 | deps: P4-016 | deliverable: NPC relationship memory: named characters track and reference specific player actions (saved, betrayed, helped, ignored) in subsequent dialogue with at least two reference types per character; references change tone and available options | verify: one test character delivers different opening lines based on two different prior player actions; relationship state persists across map transitions
 ### Medium
 
 - [ ] P4-020 | deps: P0-040,P2-021,P4-019,P4-023 | deliverable: north quarter activation from the P4-015 prototype through the same gates (approval artifact: ADR 0008) | verify: activation guard, transition verifier, and traversal/collision tests pass, and day/night captures pass parity review
@@ -145,6 +149,14 @@ References:
 - [ ] P4-023g | deps: P0-106,P4-023 | deliverable: replace the Merchant District's static cattle/sheep environment models with lightweight ambient animal actors from **P0-106** only where route and performance budgets permit, retaining static pen dressing as fallback | verify: cattle/sheep idle within authored pens, cannot block Pikk/Lai or transitions, respect day/night population rules, and pass navigation/performance soak tests
 - [ ] P4-016 | deps: P3-014 | deliverable: faction ledger: per-faction standing for the eight active factions (README roster) derived only from explicit recorded events — forged records, quest outcomes, discoveries, betrayals — with a visible ledger UI and no aggregate meter | verify: content-only test events change standing, standing gates at least one quest, price, and route in tests, and GameState contains no universal morality or balance-of-power value
 - [ ] P4-027f | deps: P4-027b,P4-027c,P4-027d,P4-027e | deliverable: completed-tower portfolio acceptance and activation plan covering map audit, difficulty/loot progression, unique boss identity, save migration, performance and accessibility | verify: every completed 1343 Lower Town registry tower has exactly one dedicated interior, no construction/excluded position is enterable as a completed dungeon, full traversal/branch/soak suites pass, and signed captures cover every exterior and interior
+- [ ] P4-032 | deps: P4-029,P4-030 | deliverable: market-day event system: on designated cycle days, markets feature expanded stalls, NPC crowds, special goods, unique dialogue encounters, and optional micro-quests; off-days show reduced activity with closed stalls and fewer NPCs | verify: market captures on event vs. non-event days show distinct visual density and at least one unique interactable; event triggers at least one optional dialogue or trade option not available on regular days
+- [ ] P4-033 | deps: P4-030 | deliverable: supply chain visibility: visible transport of goods between districts (carts, porters, pack animals) that players can observe, intercept, or influence; at least one quest demonstrates supply-chain-dependent outcomes based on player interference | verify: one authored quest shows different outcomes when supply route is intact vs. disrupted; supply actors follow authored paths without blocking required routes
+- [ ] P4-034 | deps: P4-031 | deliverable: social reputation events: public reputation moments where NPC groups react collectively to player actions (cheers, murmurs, pointed silence, pointed questions) at thresholds; events gate access to certain social spaces or information without universal morality | verify: one test event triggers when faction standing crosses a threshold; event provides visual/audio feedback and gates at least one dialogue or location access
+- [ ] P4-035 | deps: P4-016,P4-029 | deliverable: investigative multi-step quests: at least one Act 1 quest requiring 3+ clue collection steps where each clue narrows suspect pool and changes available confrontation dialogue; clues persist in journal and can be reviewed | verify: automated traversal shows quest state differences when clues are collected in different orders; final confrontation dialogue varies based on collected clues; missing clues lead to different (not blocked) outcomes
+- [ ] P4-036 | deps: P4-017 | deliverable: environmental consequence visualization: visible world-state changes after major player actions (new graffiti, burned buildings, repaired walls, changed NPC paths, altered market goods) with at least three distinct consequence states per district | verify: captures after two different major actions show distinct visual differences; consequences match ledger state; consequences do not break navigation or required routes
+
+---
+
 ### Large
 
 - [ ] P4-023d | deps: P0-072,P0-102,P4-023a | deliverable: exceptional St Michael's Cistercian convent precinct model (church/convent mass, service wing and garden close) using low-detail placeholders only where 1343 above-ground mass remains labelled unknown; preserve convent building and `monastery_close` stable IDs | verify: audit requires convent landmark presence; signed captures distinguish the precinct from merchant rows and show garden/service ground rather than house fill; routes through convent_lane stay walkable
