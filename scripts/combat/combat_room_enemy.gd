@@ -26,6 +26,9 @@ var hit_count := 0
 var last_result: CombatHitResult
 var display_name := "Enemy"
 var _body: ColorRect
+var _pauldron_left: ColorRect
+var _pauldron_right: ColorRect
+var _spear: ColorRect
 var _label: Label
 var _target: Node2D
 var _swing_counter := 9000
@@ -136,15 +139,53 @@ func _ensure_machine_signals() -> void:
 
 
 func _ensure_visuals(tint: Color) -> void:
+	var profile := machine.archetype
+	var body_color := Color(0.72, 0.72, 0.74, 1.0)
+	if profile == null or (not profile.shows_spear and not profile.shows_pauldrons):
+		body_color = tint
 	if _body == null:
 		_body = ColorRect.new()
 		_body.name = "Body"
-		_body.offset_left = -16.0
-		_body.offset_top = -40.0
-		_body.offset_right = 16.0
-		_body.offset_bottom = -4.0
 		add_child(_body)
-	_body.color = tint
+		_pauldron_left = ColorRect.new()
+		_pauldron_left.name = "PauldronLeft"
+		add_child(_pauldron_left)
+		_pauldron_right = ColorRect.new()
+		_pauldron_right.name = "PauldronRight"
+		add_child(_pauldron_right)
+		_spear = ColorRect.new()
+		_spear.name = "Spear"
+		add_child(_spear)
+	var half_width := profile.body_half_width if profile != null else 16.0
+	var top := profile.body_top if profile != null else -40.0
+	var bottom := profile.body_bottom if profile != null else -4.0
+	_body.offset_left = -half_width
+	_body.offset_top = top
+	_body.offset_right = half_width
+	_body.offset_bottom = bottom
+	_body.color = body_color
+	var show_pauldrons := profile != null and profile.shows_pauldrons
+	_pauldron_left.visible = show_pauldrons
+	_pauldron_right.visible = show_pauldrons
+	if show_pauldrons:
+		_pauldron_left.offset_left = -half_width - 6.0
+		_pauldron_left.offset_top = top + 4.0
+		_pauldron_left.offset_right = -half_width + 2.0
+		_pauldron_left.offset_bottom = top + 16.0
+		_pauldron_left.color = body_color.darkened(0.12)
+		_pauldron_right.offset_left = half_width - 2.0
+		_pauldron_right.offset_top = top + 4.0
+		_pauldron_right.offset_right = half_width + 6.0
+		_pauldron_right.offset_bottom = top + 16.0
+		_pauldron_right.color = body_color.darkened(0.12)
+	var show_spear := profile != null and profile.shows_spear
+	_spear.visible = show_spear
+	if show_spear:
+		_spear.offset_left = half_width - 2.0
+		_spear.offset_top = top + 6.0
+		_spear.offset_right = half_width + 4.0
+		_spear.offset_bottom = bottom - 8.0
+		_spear.color = body_color.darkened(0.18)
 	if _label == null:
 		_label = Label.new()
 		_label.name = "StateLabel"

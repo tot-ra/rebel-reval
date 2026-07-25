@@ -9,8 +9,19 @@ const ID_SERGEANT := &"enemy.sergeant"
 const ID_KNIGHT_ORDER := &"enemy.knight_order"
 const ID_CROSSBOWMAN := &"enemy.crossbowman"
 
+const WATCHMAN_SCENE := preload("res://assets/characters/variants/watchman.tscn")
+const SERGEANT_SCENE := preload("res://assets/characters/variants/sergeant.tscn")
+
 var id: StringName = ID_WATCHMAN
 var display_label := "Watchman"
+var character_scene: PackedScene
+## Combat-room placeholder silhouette (P2-005): shape-only cues so archetypes
+## read apart even when tests force a shared neutral tint.
+var body_half_width: float = 16.0
+var body_top: float = -40.0
+var body_bottom: float = -4.0
+var shows_spear: bool = false
+var shows_pauldrons: bool = false
 
 ## Perception / leash (world units; tests use the same abstract distance).
 var detect_radius: float = 120.0
@@ -64,6 +75,9 @@ static func watchman() -> EnemyArchetype:
 	profile.attack_stamina_cost = 5.0
 	profile.attack_damage_type = &"blunt"
 	profile.attack_animation = &"hammer_attack"
+	profile.character_scene = WATCHMAN_SCENE
+	profile.body_half_width = 13.0
+	profile.shows_spear = true
 	return profile
 
 
@@ -86,6 +100,9 @@ static func sergeant() -> EnemyArchetype:
 	profile.attack_stamina_cost = 8.0
 	profile.attack_damage_type = &"slash"
 	profile.attack_animation = &"sword_attack"
+	profile.character_scene = SERGEANT_SCENE
+	profile.body_half_width = 17.0
+	profile.shows_pauldrons = true
 	return profile
 
 

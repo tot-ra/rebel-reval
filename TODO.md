@@ -14,11 +14,12 @@ References:
 |----------|-----:|-----:|-------|
 | P0 |     8  |    39  | Baseline, storage, materials, historical audit |
 | P1 |     0  |     8  | Runtime systems, content foundation |
-| P2 |     4  |    17  | Vertical-slice production (playable MVP) |
+| P2 |     3  |    18  | Vertical-slice production (playable MVP) |
 | P3 |     6  |    10  | Validation, accessibility, performance |
 | P4 |    49  |     7  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
+
 
 
 
@@ -232,7 +233,7 @@ References:
 ### Small
 
 - [x] P2-012 | deps: P2-006,P2-007,P2-008,P2-009,P2-010,P2-011,P2-021 | deliverable: complete 30-45 minute vertical-slice flow | allowed files: `scripts/slice/vertical_slice_flow_model.gd`, `tests/godot/test_vertical_slice_flow.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_vertical_slice_flow` passes; new game reaches all three aftermath outcomes without debug presets
-- [ ] P2-005 | deps: P2-004 | deliverable: approved watchman and sergeant visual variants | verify: both are distinguishable at gameplay scale without relying on color alone
+- [x] P2-005 | deps: P2-004 | deliverable: approved watchman and sergeant visual variants | allowed files: `tools/character_specs.py`, `assets/characters/shared/watchman.glb`, `assets/characters/shared/sergeant.glb`, `assets/characters/variants/watchman.tscn`, `assets/characters/variants/watchman_variant.tres`, `assets/characters/variants/sergeant.tscn`, `assets/characters/variants/sergeant_variant.tres`, `scripts/combat/enemy_archetype.gd`, `scripts/combat/combat_room_enemy.gd`, `tests/godot/test_character_rig.gd`, `assets/SOURCES.csv`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_character_rig` passes including `test_watchman_and_sergeant_are_distinguishable_without_color_cues`; watchman carries a spear and sergeant wears pauldrons/helmet with a broader silhouette than the watchman and below Captain Henning
 - [x] P2-017 | deps: P2-012 | deliverable: end-to-end keyboard/mouse and gamepad completion | allowed files: `scripts/slice/vertical_slice_input_catalog.gd`, `tests/godot/slice_input_driver.gd`, `tests/godot/vertical_slice_input_harness.gd`, `tests/godot/test_vertical_slice_input_completion.gd`, `scripts/forge/forge_commission_overlay.gd`, `scripts/investigation/bitter_brew_night_consequence.gd`, `scripts/reflection/reflection_overlay.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_vertical_slice_input_completion` passes; recorded keyboard/mouse and gamepad runs complete every catalog action without `Input.action_press` or `_for_test` fallbacks
 - [x] P2-015 | deps: P2-012 | deliverable: quest/tool pouch displaying at most three slice quest items | allowed files: `scripts/inventory/quest_pouch_model.gd`, `scripts/inventory/quest_pouch_hud.gd`, `scripts/inventory/quest_pouch_controller.gd`, `scripts/state/game_state.gd`, `content/examples/valid/item.seized_spearhead.json`, `content/examples/support/item.bitter_brew_work.json`, `player.tscn`, `tests/godot/test_quest_pouch.gd`, `docs/INVENTORY_MECHANICS.md`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_quest_pouch` passes 4/4; slice marks at most three `visible_in_pouch` tools (hammer, spearhead, crisis forge work) and the HUD caps display at three slots
 - [x] P2-010 | deps: P2-009 | deliverable: three visible `A Bitter Brew` aftermath states | verify: brewery state, Aita state, Mart reaction, and patrol barks differ according to outcome

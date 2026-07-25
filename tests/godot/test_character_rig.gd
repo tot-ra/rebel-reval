@@ -5,6 +5,8 @@ const MART_SCENE := preload("res://assets/characters/variants/mart.tscn")
 const INNKEEPER_SCENE := preload("res://assets/characters/variants/innkeeper.tscn")
 const HENNING_SCENE := preload("res://assets/characters/variants/henning.tscn")
 const TOWNSWOMAN_SCENE := preload("res://assets/characters/variants/townswoman.tscn")
+const WATCHMAN_SCENE := preload("res://assets/characters/variants/watchman.tscn")
+const SERGEANT_SCENE := preload("res://assets/characters/variants/sergeant.tscn")
 const REQUIRED_ANIMATIONS: Array[StringName] = [
 	&"idle",
 	&"walk",
@@ -354,6 +356,57 @@ func test_townswoman_body_spec_fulfills_the_rig_contract() -> void:
 
 	kalev.queue_free()
 	townswoman.queue_free()
+
+
+func test_watchman_and_sergeant_are_distinguishable_without_color_cues() -> void:
+	var henning := _instantiate(HENNING_SCENE)
+	var watchman := _instantiate(WATCHMAN_SCENE)
+	var sergeant := _instantiate(SERGEANT_SCENE)
+
+	assert_eq(watchman.validation_errors(), [], "watchman must satisfy the shared rig contract")
+	assert_eq(sergeant.validation_errors(), [], "sergeant must satisfy the shared rig contract")
+	assert_eq(watchman.variant_id(), &"char.watchman")
+	assert_eq(sergeant.variant_id(), &"char.sergeant")
+	assert_true(watchman.has_equipment(), "watchman carries a spear for gameplay-scale read")
+	assert_false(sergeant.has_equipment(), "sergeant relies on pauldrons and helmet, not a polearm")
+	assert_true(sergeant.has_garment(&"hat"), "sergeant wears the generated helmet garment")
+
+	var watchman_shoulders := _shoulder_span(watchman)
+	var sergeant_shoulders := _shoulder_span(sergeant)
+	assert_true(
+		sergeant_shoulders > watchman_shoulders,
+		"sergeant shoulders must read broader than the watchman at gameplay scale (%.3f vs %.3f)"
+		% [sergeant_shoulders, watchman_shoulders]
+	)
+
+	var henning_head := henning.skeleton().get_bone_global_rest(henning.skeleton().find_bone("head")).origin.y
+	var sergeant_head := sergeant.skeleton().get_bone_global_rest(sergeant.skeleton().find_bone("head")).origin.y
+	assert_true(
+		sergeant_head < henning_head,
+		"sergeant must stay visually subordinate to Captain Henning"
+	)
+
+	assert_true(watchman.play_animation(&"walk"))
+	assert_eq(watchman.animation_player().current_animation, &"Walking_C")
+	assert_true(sergeant.play_animation(&"walk"))
+	assert_eq(sergeant.animation_player().current_animation, &"Walking_B")
+
+	var watch_profile := EnemyArchetype.watchman()
+	var sarge_profile := EnemyArchetype.sergeant()
+	assert_true(watch_profile.shows_spear and not watch_profile.shows_pauldrons)
+	assert_true(sarge_profile.shows_pauldrons and not sarge_profile.shows_spear)
+	assert_true(sarge_profile.body_half_width > watch_profile.body_half_width)
+
+	henning.queue_free()
+	watchman.queue_free()
+	sergeant.queue_free()
+
+
+func _shoulder_span(character: SharedCharacterRig) -> float:
+	var skeleton := character.skeleton()
+	var left := skeleton.get_bone_global_rest(skeleton.find_bone("upperarm.l")).origin
+	var right := skeleton.get_bone_global_rest(skeleton.find_bone("upperarm.r")).origin
+	return right.distance_to(left)
 
 
 func _instantiate(scene: PackedScene) -> SharedCharacterRig:

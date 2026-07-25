@@ -159,6 +159,73 @@ CHARACTERS = {
         "output": "assets/characters/shared/innkeeper.glb",
         "garments": [],
     },
+    # Rank-and-file town watch: slimmer than the hero, spear-equipped, no
+    # pauldrons. The narrow shoulders and hip-length hem read as a patrol guard
+    # rather than a guild worker or officer.
+    "watchman": {
+        "proportions": {
+            "leg_length": 1.78,
+            "arm_length": 1.22,
+            "torso_length": 0.86,
+            "shoulder_width": 0.72,
+            "hip_socket_width": 0.92,
+        },
+        "shape": {
+            "bulk": 0.94,
+            "chest_breadth": 0.96,
+            "belly": 0.96,
+            "head_scale": 0.98,
+        },
+        "palette": {
+            "tunic": (0.34, 0.33, 0.30, 1.0),
+            "sleeves": (0.72, 0.70, 0.66, 1.0),
+            "pants": (0.18, 0.17, 0.16, 1.0),
+            "boots": (0.24, 0.20, 0.16, 1.0),
+            "belt": (0.42, 0.34, 0.22, 1.0),
+            "hair": (0.28, 0.22, 0.18, 1.0),
+            "beard": (0.24, 0.19, 0.15, 1.0),
+        },
+        "features": {
+            "hair_style": "short",
+            "beard_style": "none",
+            "tunic_length": "short",
+        },
+        "output": "assets/characters/shared/watchman.glb",
+        "garments": [],
+    },
+    # Livonian watch sergeant: broader and taller than the watchman, with baked
+    # pauldrons and a helmet garment. Stays below Captain Henning so rank reads
+    # at gameplay scale without sharing the captain's silhouette.
+    "sergeant": {
+        "proportions": {
+            "leg_length": 1.84,
+            "arm_length": 1.26,
+            "torso_length": 0.90,
+            "shoulder_width": 0.88,
+            "hip_socket_width": 0.98,
+        },
+        "shape": {
+            "bulk": 1.06,
+            "chest_breadth": 1.10,
+            "belly": 1.02,
+            "head_scale": 0.98,
+        },
+        "palette": {
+            "tunic": (0.24, 0.26, 0.30, 1.0),
+            "pants": (0.14, 0.15, 0.17, 1.0),
+            "boots": (0.10, 0.09, 0.08, 1.0),
+            "belt": (0.34, 0.22, 0.14, 1.0),
+            "hair": (0.26, 0.20, 0.16, 1.0),
+            "armor": (0.42, 0.44, 0.48, 1.0),
+        },
+        "features": {
+            "hair_style": "short",
+            "beard_style": "none",
+            "pauldrons": True,
+        },
+        "output": "assets/characters/shared/sergeant.glb",
+        "garments": ["hat"],
+    },
     # A slighter townswoman frame: shorter and narrower than the hero, with
     # long hair and an ankle-length tunic reading as a dress. Base body for
     # tint variants of the female cast (Aita, Kaja) until P2-004 approves
