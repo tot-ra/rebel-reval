@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "task_id": "P3-016",
+  "godot_model": "scripts/slice/vertical_slice_e2e_model.gd",
+  "godot_test_filter": "test_vertical_slice_e2e",
+  "maintainer_report": "docs/reports/p3_016_slice_e2e.md",
+  "verify_script": "tools/verify_slice_e2e.sh",
+  "traversal_manifest": "docs/data/slice_traversal_manifest.json",
+  "release_manifest": "docs/data/slice_release_manifest.json",
+  "platform_manifest": "docs/data/slice_platform_manifest.json",
+  "released_saves_manifest": "content/saves/released_manifest.json",
+  "godot_test_filters": [
+    "test_vertical_slice_traversal",
+    "test_vertical_slice_flow",
+    "test_vertical_slice_save_matrix",
+    "test_vertical_slice_release",
+    "test_save_envelope",
+    "test_vertical_slice_e2e"
+  ],
+  "python_report_scripts": [
+    "tools/report_slice_traversal.py",
+    "tools/report_slice_release.py",
+    "tools/report_slice_platform.py"
+  ],
+  "intended_ending_count": 3,
+  "invalid_transition_count": 9,
+  "save_checkpoint_count": 10,
+  "supported_platform_count": 1
+}

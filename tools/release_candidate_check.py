@@ -414,6 +414,45 @@ def check_slice_gate(root: Path = ROOT) -> CheckResult:
     )
 
 
+def check_slice_e2e(root: Path = ROOT) -> CheckResult:
+    manifest = root / "docs" / "data" / "slice_e2e_manifest.json"
+    report_tool = root / "tools" / "report_slice_e2e.py"
+    maintainer_report = root / "docs" / "reports" / "p3_016_slice_e2e.md"
+    verify_script = root / "tools" / "verify_slice_e2e.sh"
+    details: list[str] = []
+    checks: list[tuple[str, bool]] = [
+        ("slice e2e manifest present", manifest.is_file()),
+        ("slice e2e verifier present", report_tool.is_file()),
+        ("slice e2e maintainer report present", maintainer_report.is_file()),
+        ("verify_slice_e2e.sh present", verify_script.is_file()),
+    ]
+    if manifest.is_file():
+        details.append("slice_e2e_manifest.json is present")
+    else:
+        details.append("slice_e2e_manifest.json is missing")
+    if report_tool.is_file():
+        details.append("report_slice_e2e.py is present")
+    else:
+        details.append("report_slice_e2e.py is missing")
+    if maintainer_report.is_file():
+        details.append("p3_016_slice_e2e.md is present")
+    else:
+        details.append("p3_016_slice_e2e.md is missing")
+    if verify_script.is_file():
+        details.append("verify_slice_e2e.sh is present")
+    else:
+        details.append("verify_slice_e2e.sh is missing")
+
+    passed_count = sum(1 for _, ok in checks if ok)
+    passed = passed_count == len(checks)
+    return CheckResult(
+        name="Vertical-slice End-to-end Suite",
+        passed=passed,
+        message=f"Slice e2e check completed ({passed_count}/{len(checks)} items)",
+        details=details,
+    )
+
+
 def check_ci(root: Path = ROOT) -> CheckResult:
     ci_workflow = root / ".github" / "workflows" / "ci.yml"
     checked_runner = root / "tools" / "run_godot_checked.sh"
@@ -477,6 +516,7 @@ def run_checks(
     platform_check: bool = True,
     slice_gate_check: bool = True,
     slice_release_check: bool = True,
+    slice_e2e_check: bool = True,
     ci_check: bool = True,
     root: Path = ROOT,
 ) -> list[CheckResult]:
@@ -493,6 +533,8 @@ def run_checks(
         results.append(check_slice_gate(root))
     if slice_release_check:
         results.append(check_slice_release(root))
+    if slice_e2e_check:
+        results.append(check_slice_e2e(root))
     if ci_check:
         results.append(check_ci(root))
     return results
@@ -527,9 +569,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--ci", action="store_true", help="Check clean-clone CI scaffold only")
     parser.add_argument("--slice-gate", action="store_true", help="Check vertical-slice gate report only")
     parser.add_argument("--slice-release", action="store_true", help="Check vertical-slice release scaffold only")
+    parser.add_argument("--slice-e2e", action="store_true", help="Check vertical-slice end-to-end suite only")
     args = parser.parse_args(argv)
 
-    selected = [args.license, args.provenance, args.accessibility, args.platform, args.slice_gate, args.slice_release, args.ci]
+    selected = [args.license, args.provenance, args.accessibility, args.platform, args.slice_gate, args.slice_release, args.slice_e2e, args.ci]
     run_all = not any(selected)
     results = run_checks(
         license_check=run_all or args.license,
@@ -538,6 +581,7 @@ def main(argv: list[str] | None = None) -> int:
         platform_check=run_all or args.platform,
         slice_gate_check=run_all or args.slice_gate,
         slice_release_check=run_all or args.slice_release,
+        slice_e2e_check=run_all or args.slice_e2e,
         ci_check=run_all or args.ci,
     )
     return 0 if print_report(results) else 1

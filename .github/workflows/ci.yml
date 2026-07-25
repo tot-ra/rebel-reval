@@ -165,6 +165,8 @@ jobs:
           python3 tools/report_slice_platform.py --check
           python3 -m unittest tests.python.test_report_slice_release -v
           python3 tools/report_slice_release.py --check
+          python3 -m unittest tests.python.test_report_slice_e2e -v
+          python3 tools/report_slice_e2e.py --check
 
       - name: Seeded manifest coverage error fails
         run: |

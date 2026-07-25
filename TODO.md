@@ -15,7 +15,7 @@ References:
 | P0 |     8  |    39  | Baseline, storage, materials, historical audit |
 | P1 |     0  |     8  | Runtime systems, content foundation |
 | P2 |     3  |    18  | Vertical-slice production (playable MVP) |
-| P3 |     1  |    15  | Validation, accessibility, performance |
+| P3 |     0  |    16  | Validation, accessibility, performance |
 | P4 |    49  |     7  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
@@ -80,6 +80,7 @@ References:
 
 
 
+<!-- P3-016 completed in current session -->
 <!-- P3-015 completed in current session -->
 <!-- P3-013 completed in current session -->
 <!-- P3-011 completed in current session -->
@@ -231,7 +232,7 @@ References:
 - [x] P3-014 | deps: P3-001,P3-005,P3-008,P3-012,P3-013 | deliverable: maintainer vertical-slice gate report containing every acceptance criterion copied from README per [ADR 0014](docs/adr/0014-authorial-acceptance-gates-without-external-playtests.md) | allowed files: `docs/reports/p3_014_slice_gate.md`, `tools/release_candidate_check.py`, `tests/python/test_release_candidate_check.py`, `TODO.md`, `docs/ROADMAP.md` | verify: `docs/reports/p3_014_slice_gate.md` records pass evidence for each criterion from maintainer playable review plus automated traversal and export results; `python3 tools/release_candidate_check.py` passes repository-side gates
 ### Large
 
-- [ ] P3-016 | deps: P2-012,P3-014 | deliverable: end-to-end slice branch traversal suite covering all playable states and invalid transitions, save compatibility across every reported platform | verify: traversal report shows all intended endings reachable, all invalid transitions rejected, every published save fixture loads or migrates on declared platforms
+- [x] P3-016 | deps: P2-012,P3-014 | deliverable: end-to-end slice branch traversal suite covering all playable states and invalid transitions, save compatibility across every reported platform | allowed files: `scripts/slice/vertical_slice_e2e_model.gd`, `docs/data/slice_e2e_manifest.json`, `tools/slice_e2e.py`, `tools/report_slice_e2e.py`, `tools/verify_slice_e2e.sh`, `tests/godot/test_vertical_slice_e2e.gd`, `tests/python/test_report_slice_e2e.py`, `docs/reports/p3_016_slice_e2e.md`, `tools/release_candidate_check.py`, `tests/python/test_release_candidate_check.py`, `.github/workflows/ci.yml`, `TODO.md`, `docs/ROADMAP.md` | verify: `tools/verify_slice_e2e.sh`, `python3 tools/report_slice_e2e.py --check`, `python3 -m unittest tests.python.test_report_slice_e2e -v`, and `--filter=test_vertical_slice_e2e` pass; traversal report shows all intended endings reachable, all invalid transitions rejected, and every published save fixture loads or migrates on declared platforms
 
 ## P2 - Vertical-slice production (playable MVP)
 
