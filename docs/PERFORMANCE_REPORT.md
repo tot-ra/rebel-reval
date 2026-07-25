@@ -45,6 +45,37 @@ The top-level `headline` summarizes the production Lower Town profile:
 
 The raw `profiles` section retains per-run distributions, node/collision counts, startup and pipeline timings, semantic counts, and existing map-budget observations.
 
+## GPU render probe (draw-call attribution)
+
+The report above runs headless, so it cannot see GPU-side cost. For that, run the
+render probe non-headlessly against the same Lower Town (workers district) scene:
+
+```bash
+/Applications/Godot.app/Contents/MacOS/Godot --path . \
+  res://tools/benchmarks/lower_town_render_probe.tscn \
+  -- --output=user://probe.json --screenshot=/tmp/probe.png
+```
+
+It reports peak draw calls, primitives, frame time, and a census of the visual
+node types that produce them (mesh instances, shadow casters, particle systems,
+multimeshes), plus the heaviest subtrees by surface count.
+
+Attribution switches disable one cost source per run so a suspect can be sized
+before any code changes: `--no-shadows`, `--no-neighbors`, `--no-particles`,
+`--hide-particles`, `--halve-particles`, `--splits2`, `--trim-shadows`.
+
+Baseline measured on `development-baseline-m5-pro` (2026-07-25, gl_compatibility):
+
+| Build | Frame time (median) | Draw calls | Mesh instances |
+| --- | --- | --- | --- |
+| Before draw-call work | 77.8 ms (13 FPS) | 15 933 | 18 228 |
+| After | 25.3 ms (39 FPS) | 1 789 | 1 828 |
+
+The three fixes, in order of contribution: merging static view geometry per
+material (`MapViewStaticBatcher`), dropping shadow casting on architectural trim
+too slim to read as a shadow, and stripping backdrop dressing plus culling
+offscreen chimney plumes.
+
 ## Hardware identity and interpretation
 
 `target_hardware` is the declared machine profile for which the run is intended. `measurement_host` is what Godot detects at runtime. They are intentionally separate so a report made on a fast developer machine cannot be mistaken for minimum-hardware proof.

@@ -7,6 +7,7 @@ const _NeighborRegistry := preload("res://scripts/map/map_neighbor_preview_regis
 const _Buildings := preload("res://scripts/map/view3d/map_view_mesh_builder_buildings.gd")
 const _PropModels := preload("res://scripts/map/view3d/map_view_mesh_builder_prop_models.gd")
 const _Scatter := preload("res://scripts/map/view3d/map_view_mesh_builder_scatter.gd")
+const _Batcher := preload("res://scripts/map/view3d/map_view_static_batcher.gd")
 ## At max zoom-out the rotated orthographic ground footprint reaches about 66
 ## cells past an edge on a 16:9 viewport. Keep a generous margin for wider
 ## viewports so every visible urban structure comes from the authored neighbor.
@@ -301,6 +302,14 @@ static func _neighbor_preview(
 		if prop.has("footprint"):
 			prop["footprint"] = Rect2(prop["footprint"].position + offset_px, prop["footprint"].size)
 		props.add_child(_PropModels.build_prop(prop, neighbor.cell_size))
+	# A neighbor preview is an out-of-bounds backdrop the player can never reach,
+	# yet it was built with full interactive detail: it accounted for ~60% of the
+	# district's mesh instances plus its own smoke, lights, and shadow casters.
+	# Stripping the dressing and merging the silhouette keeps the skyline while
+	# collapsing thousands of draw calls into a handful.
+	_Batcher.strip_backdrop_dressing(root)
+	_Batcher.merge(buildings, {})
+	_Batcher.merge(props, {})
 	return root
 
 

@@ -17,6 +17,11 @@ const TerrainDetails := preload("res://scripts/map/view3d/map_view_terrain_detai
 const TIME_DAY := &"day"
 const TIME_NIGHT := &"night"
 const FOG_OF_WAR_SCRIPT := preload("res://scripts/map/view3d/map_fog_of_war.gd")
+const StaticBatcher := preload("res://scripts/map/view3d/map_view_static_batcher.gd")
+## Plume culling runs on a coarse timer: the camera pans slowly and the extra
+## margin hides the seam, so per-frame checks would only add cost.
+const SMOKE_CULL_INTERVAL := 0.25
+const SMOKE_CULL_MARGIN := 12.0
 const ALL_TIMES: Array[StringName] = [TIME_DAY, TIME_NIGHT]
 
 ## Classic isometric framing per ADR 0007; final values freeze in ART_BIBLE v2 (P0-040).
@@ -82,6 +87,7 @@ var _sky_weather: SkyWeather3D
 var _last_chimney_bucket: StringName = TIME_DAY
 var _environment: Environment
 var _camera: Camera3D
+var _smoke_cull_timer := 0.0
 var _fog_of_war: Node3D
 var _occluder_bounds: Array[AABB] = []
 var _object_index: MapChunkRuntimeIndex
@@ -131,6 +137,7 @@ static func _strip_geometry_materials(node: Node) -> void:
 
 func _process(delta: float) -> void:
 	_sync_sea_weather()
+	_cull_offscreen_smoke(delta)
 	if _fog_of_war == null:
 		return
 	var player_rig := get_tree().get_first_node_in_group(&"player_view_rig") as Node3D
@@ -138,6 +145,40 @@ func _process(delta: float) -> void:
 		return
 	var facing := Vector2(sin(player_rig.global_rotation.y), cos(player_rig.global_rotation.y))
 	_fog_of_war.call("update_view", player_rig.global_position, facing, delta)
+
+
+## A chimney plume costs the renderer per-system work whether or not it is on
+## screen, and a district carries dozens of them. Measured on the workers
+## quarter, drawing every plume cost ~6 ms per frame while the particle count
+## itself was irrelevant, so visibility - not particle budget - is the lever.
+func _cull_offscreen_smoke(delta: float) -> void:
+	if _camera == null:
+		return
+	_smoke_cull_timer -= delta
+	if _smoke_cull_timer > 0.0:
+		return
+	_smoke_cull_timer = SMOKE_CULL_INTERVAL
+	var buildings := get_node_or_null("Buildings")
+	if buildings == null:
+		return
+	var to_camera := _camera.global_transform.affine_inverse()
+	for building_node in buildings.get_children():
+		var smoke := building_node.get_node_or_null("ChimneySmoke") as ChimneySmoke3D
+		if smoke == null or not smoke.emitting:
+			continue
+		smoke.visible = _within_smoke_view(to_camera, smoke.global_position)
+
+
+func _within_smoke_view(to_camera: Transform3D, world_position: Vector3) -> bool:
+	var local := to_camera * world_position
+	if local.z > 0.0:
+		return false
+	if _camera.projection != Camera3D.PROJECTION_ORTHOGONAL:
+		return _camera.is_position_in_frustum(world_position)
+	var half_height := _camera.size * 0.5 + SMOKE_CULL_MARGIN
+	var viewport_size := get_viewport().get_visible_rect().size
+	var aspect := maxf(viewport_size.x / maxf(viewport_size.y, 1.0), 0.1)
+	return absf(local.x) <= half_height * aspect and absf(local.y) <= half_height
 
 
 func _sync_sea_weather() -> void:
@@ -486,6 +527,17 @@ func _assemble() -> void:
 
 
 func _create_streamed_object(record: Dictionary) -> Node:
+	var node := _build_streamed_object(record)
+	if node is Node3D:
+		var node_3d := node as Node3D
+		StaticBatcher.trim_small_shadow_casters(node_3d)
+		# Merging happens on the assembled view only, so builder-level tests and
+		# tools still see every authored detail node.
+		StaticBatcher.merge(node_3d)
+	return node
+
+
+func _build_streamed_object(record: Dictionary) -> Node:
 	var source := record["source"] as Dictionary
 	match record["kind"] as StringName:
 		&"building":

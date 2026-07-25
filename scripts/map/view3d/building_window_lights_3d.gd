@@ -82,6 +82,9 @@ func apply_cycle_progress(progress: float) -> void:
 
 
 func _register_window(mesh: MeshInstance3D, index: int) -> void:
+	# This controller keeps a direct reference to the pane and swaps its material
+	# every evening, so the view's static batcher must leave the node alone.
+	mesh.add_to_group(MapViewStaticBatcher.DYNAMIC_GEOMETRY_GROUP)
 	var lit := ((_building_seed >> (index * 2 + 1)) % 5) != 0
 	_window_lit.append(lit)
 	var source := mesh.material_override as StandardMaterial3D
