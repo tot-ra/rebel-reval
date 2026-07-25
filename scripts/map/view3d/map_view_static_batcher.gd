@@ -41,6 +41,7 @@ static func merge(root: Node3D, preserved_names: Dictionary = PRESERVED_NAMES) -
 	_collect(root, Transform3D.IDENTITY, preserved_names, groups)
 	var removed := 0
 	var index := 0
+	var surfaces_merged: Dictionary = {}
 	for key in groups:
 		var group: Dictionary = groups[key]
 		var entries: Array = group["entries"]
@@ -48,10 +49,16 @@ static func merge(root: Node3D, preserved_names: Dictionary = PRESERVED_NAMES) -
 			continue
 		var surface := SurfaceTool.new()
 		surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-		var merged_nodes: Dictionary = {}
 		for entry in entries:
 			surface.append_from(entry["mesh"], int(entry["surface"]), entry["transform"])
-			merged_nodes[entry["node"]] = true
+			var node: MeshInstance3D = entry["node"]
+			var node_id: int = node.get_instance_id()
+			if not surfaces_merged.has(node_id):
+				surfaces_merged[node_id] = {
+					"node": node,
+					"surfaces": {},
+				}
+			surfaces_merged[node_id]["surfaces"][int(entry["surface"])] = true
 		var merged := MeshInstance3D.new()
 		merged.name = "Batched%02d" % index
 		index += 1
@@ -59,24 +66,23 @@ static func merge(root: Node3D, preserved_names: Dictionary = PRESERVED_NAMES) -
 		merged.material_override = group["material"]
 		merged.cast_shadow = group["cast_shadow"]
 		root.add_child(merged)
-		for node in merged_nodes:
-			var source := node as Node3D
-			# A multi-surface mesh only leaves once all of its surfaces merged.
-			if _surfaces_all_merged(source, groups):
-				source.get_parent().remove_child(source)
-				source.queue_free()
-				removed += 1
+	for node_id in surfaces_merged:
+		var record: Dictionary = surfaces_merged[node_id]
+		var source := record["node"] as MeshInstance3D
+		if not _node_fully_merged(source, record["surfaces"]):
+			# Baking only some surfaces duplicates geometry on the source node.
+			continue
+		source.get_parent().remove_child(source)
+		source.queue_free()
+		removed += 1
 	return removed
 
 
-static func _surfaces_all_merged(node: Node3D, groups: Dictionary) -> bool:
-	for key in groups:
-		var group: Dictionary = groups[key]
-		if group["entries"].size() >= MIN_GROUP_SIZE:
-			continue
-		for entry in group["entries"]:
-			if entry["node"] == node:
-				return false
+static func _node_fully_merged(node: MeshInstance3D, merged_surfaces: Dictionary) -> bool:
+	var mesh: Mesh = node.mesh
+	for surface_index in mesh.get_surface_count():
+		if not merged_surfaces.has(surface_index):
+			return false
 	return true
 
 
@@ -183,4 +189,24 @@ static func _is_mergeable(node: Node3D, preserved_names: Dictionary) -> bool:
 	# Range-culled instances already avoid submission when far away.
 	if mesh_instance.visibility_range_end > 0.0:
 		return false
+	if mesh_instance.mesh.get_surface_count() > 1:
+		return false
+	return _all_surfaces_mergeable(mesh_instance)
+
+
+## Object-space triplanar samples mesh-local vertex position. Baking instance
+## transforms into one merged mesh retiles every piece from the parent origin,
+## which reads as stretched or swimming masonry on walls and gate jambs.
+static func _material_breaks_when_merged(material: Material) -> bool:
+	var standard := material as StandardMaterial3D
+	if standard == null:
+		return false
+	return standard.uv1_triplanar and not standard.uv1_world_triplanar
+
+
+static func _all_surfaces_mergeable(mesh_instance: MeshInstance3D) -> bool:
+	var mesh: Mesh = mesh_instance.mesh
+	for surface_index in mesh.get_surface_count():
+		if _material_breaks_when_merged(mesh_instance.get_active_material(surface_index)):
+			return false
 	return true

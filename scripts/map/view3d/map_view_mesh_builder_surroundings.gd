@@ -308,8 +308,13 @@ static func _neighbor_preview(
 	# Stripping the dressing and merging the silhouette keeps the skyline while
 	# collapsing thousands of draw calls into a handful.
 	_Batcher.strip_backdrop_dressing(root)
-	_Batcher.merge(buildings, {})
-	_Batcher.merge(props, {})
+	# Merge each building and prop on its own so skyline silhouettes do not
+	# collapse into one parent-space mesh (object-space triplanar masonry breaks
+	# when instances from different footprints share a merged surface).
+	for building_node in buildings.get_children():
+		_Batcher.merge(building_node as Node3D, {})
+	for prop_node in props.get_children():
+		_Batcher.merge(prop_node as Node3D, {})
 	return root
 
 
