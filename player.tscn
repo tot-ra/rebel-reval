@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://bs36kitagkmg5"]
+[gd_scene load_steps=14 format=3 uid="uid://bs36kitagkmg5"]
 
 [ext_resource type="Script" uid="uid://qbfohjtotkyu" path="res://scripts/player.gd" id="1_v254c"]
 [ext_resource type="Script" path="res://scripts/ui/character_health_ring.gd" id="7_health_ring"]
@@ -11,6 +11,8 @@
 [ext_resource type="Script" uid="uid://ckkqw3ra0222m" path="res://scripts/ui/world_map_controller.gd" id="8_world_map"]
 [ext_resource type="Script" path="res://scripts/reflection/reflection_controller.gd" id="9_reflection"]
 [ext_resource type="Script" path="res://scripts/ui/game_settings_controller.gd" id="11_game_settings"]
+
+[ext_resource type="Script" path="res://scripts/inventory/quest_pouch_controller.gd" id="12_quest_pouch"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_3iwfv"]
 radius = 16.0
@@ -86,3 +88,6 @@ script = ExtResource("6_quick_access")
 
 [node name="DebugOverlay" type="CanvasLayer" parent="."]
 script = ExtResource("10_debug")
+
+[node name="QuestPouchController" type="Node" parent="."]
+script = ExtResource("12_quest_pouch")

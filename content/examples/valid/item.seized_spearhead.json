@@ -14,7 +14,7 @@
   "location_id": "loc.kalev_smithy",
   "material_grade": "poor",
   "gameplay": {
-    "visible_in_pouch": false,
+    "visible_in_pouch": true,
     "stackable": false,
     "uses": [
       "Evidence inspected during the prologue; not a normal reward item."

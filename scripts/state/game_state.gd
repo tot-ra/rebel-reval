@@ -5,6 +5,10 @@ const _PersistenceScript := preload("res://scripts/state/game_state_persistence.
 
 ## Fired after a slot's contents change so the 3D view can mirror the state.
 signal equipment_changed(slot: StringName)
+## Fired when quest ownership flags change.
+signal items_changed()
+## Fired when a forged commission record is committed.
+signal forged_record_added(record_id: StringName)
 ## Fired when the campaign phase changes; SessionState autosaves on this boundary.
 signal phase_changed(previous: StringName, next: StringName)
 
@@ -215,15 +219,39 @@ func has_item(key: StringName) -> bool:
 	return _items.has(key)
 
 
+func get_owned_item_ids_in_order() -> Array[StringName]:
+	var keys: Array[StringName] = []
+	for key: StringName in _items:
+		keys.append(key)
+	return keys
+
+
+func possesses_item(item_id: StringName) -> bool:
+	if item_id.is_empty():
+		return false
+	if has_item(item_id):
+		return true
+	if bag.find_placement(item_id) != null:
+		return true
+	for slot: StringName in equipped_slots():
+		if equipped_item(slot) == item_id:
+			return true
+	return false
+
+
 func add_item(key: StringName) -> bool:
 	if key.is_empty() or _items.has(key):
 		return false
 	_items[key] = true
+	items_changed.emit()
 	return true
 
 
 func remove_item(key: StringName) -> bool:
-	return _items.erase(key)
+	if not _items.erase(key):
+		return false
+	items_changed.emit()
+	return true
 
 
 func has_dialogue_node_seen(dialogue_id: StringName, node_id: String) -> bool:
@@ -348,6 +376,7 @@ func add_forged_record(record: ForgedRecord) -> bool:
 	if _forged_records.has(record.record_id):
 		return false
 	_forged_records[record.record_id] = record
+	forged_record_added.emit(record.record_id)
 	return true
 
 

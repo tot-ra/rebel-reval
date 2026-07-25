@@ -23,7 +23,7 @@ Open the bag with **I**; close with **I**, **Esc**, or the overlay Close button.
 |--------|------|
 | `GameState.bag` | Physical inventory for a session |
 | `GameState.add_item` / `has_item` | Quest and content-rule ownership flags (unchanged) |
-| P2-015 quest pouch | Future HUD strip for at most three visible quest tools; not the bag |
+| P2-015 quest pouch | HUD strip (top-left) for at most three `visible_in_pouch` quest tools; separate from the bag grid |
 | `content/*.json` `gameplay.carry` | Authored weight and grid footprint per item |
 | `SessionState` autoload | Holds `GameState` and `ContentDB` across map transitions within a session |
 
@@ -81,13 +81,16 @@ Stackable items (`gameplay.stackable: true`) share one grid cell and stack up to
 | `scripts/inventory/inventory_overlay.gd` | Bag UI (grid, meters, move-by-click) |
 | `scripts/inventory/inventory_overlay_builder.gd` | Overlay node tree and chrome |
 | `scripts/inventory/inventory_ui_theme.gd` | Oak/brass/parchment style tokens |
-| `scripts/inventory/inventory_controller.gd` | `toggle_inventory` input on the player |
+| `scripts/inventory/quest_pouch_model.gd` | Resolve capped visible quest-tool ids from state + content |
+| `scripts/inventory/quest_pouch_hud.gd` | Always-on three-slot quest-tool HUD |
+| `scripts/inventory/quest_pouch_controller.gd` | Refresh HUD on item, equipment, and forged-record changes |
 | `scripts/session/session_state.gd` | Session `GameState` and demo content load |
 | `scripts/player.gd` | Applies encumbrance to walk/run speeds; blocks movement while bag is open |
 
 ## Verification
 
 ```bash
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_quest_pouch
 godot --headless --path . --script tools/run_godot_tests.gd
 python3 tools/validate_content.py content/demo content/demo/support content/examples/valid content/examples/support
 ```

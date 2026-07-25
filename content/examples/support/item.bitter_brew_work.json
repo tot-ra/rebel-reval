@@ -12,7 +12,7 @@
   },
   "material_grade": "common",
   "gameplay": {
-    "visible_in_pouch": false,
+    "visible_in_pouch": true,
     "stackable": false,
     "uses": [
       "Commission object forged during the Bitter Brew crisis response."
