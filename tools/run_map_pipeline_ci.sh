@@ -42,6 +42,8 @@ case "$MODE" in
   benchmark-smoke)
     "$ROOT/tools/benchmarks/run_large_map_benchmark.sh" \
       "$ROOT/build/benchmarks/large-map-ci-smoke.json" --quick
+    python3 "$ROOT/tools/report_slice_performance.py" --check \
+      --report "$ROOT/build/benchmarks/large-map-ci-smoke.json"
     ;;
   all)
     "$0" parser

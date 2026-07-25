@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "task_id": "P3-011",
+  "busiest_scene_profile_id": "lower_town_scene",
+  "busiest_scene_path": "scenes/reval_east/reval_east.tscn",
+  "minimum_hardware_profile": "tools/benchmarks/minimum-hardware.json",
+  "benchmark_config": "tools/benchmarks/large_map_benchmark_config.json",
+  "godot_model": "scripts/slice/vertical_slice_performance_model.gd",
+  "godot_test_filter": "test_vertical_slice_performance",
+  "maintainer_report": "docs/reports/p3_011_performance_budget.md",
+  "slice_gate_metrics": [
+    "frame_time_ms_p95",
+    "memory_delta_mib",
+    "node_count",
+    "collision_count",
+    "bird_audio_peak",
+    "bird_flight_peak"
+  ],
+  "budgets": {
+    "steady_frame_time_ms_p95": 16.67,
+    "resident_memory_delta_mib": 280.0,
+    "resident_node_count": 7500,
+    "resident_collision_count": 900,
+    "bird_audio_peak": 3,
+    "bird_flight_peak": 4
+  }
+}

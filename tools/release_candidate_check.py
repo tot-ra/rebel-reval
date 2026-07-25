@@ -213,6 +213,29 @@ def check_accessibility(root: Path = ROOT) -> CheckResult:
     else:
         details.append("p3_008_information_design.md is missing")
 
+    performance_manifest = root / "docs" / "data" / "slice_performance_manifest.json"
+    performance_tool = root / "tools" / "report_slice_performance.py"
+    performance_report = root / "docs" / "reports" / "p3_011_performance_budget.md"
+    checks.extend(
+        [
+            ("Slice performance manifest present", performance_manifest.is_file()),
+            ("Slice performance verifier present", performance_tool.is_file()),
+            ("Slice performance maintainer report present", performance_report.is_file()),
+        ]
+    )
+    if performance_manifest.is_file():
+        details.append("slice_performance_manifest.json is present")
+    else:
+        details.append("slice_performance_manifest.json is missing")
+    if performance_tool.is_file():
+        details.append("report_slice_performance.py is present")
+    else:
+        details.append("report_slice_performance.py is missing")
+    if performance_report.is_file():
+        details.append("p3_011_performance_budget.md is present")
+    else:
+        details.append("p3_011_performance_budget.md is missing")
+
     passed_count = sum(1 for _, ok in checks if ok)
     passed = passed_count == len(checks)
     return CheckResult(

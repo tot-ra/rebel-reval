@@ -159,6 +159,8 @@ jobs:
           python3 tools/quarantine_assets.py --check
           python3 tools/generate_asset_inventory.py --check
           python3 tools/report_slice_third_party.py --check
+          python3 -m unittest tests.python.test_report_slice_performance -v
+          python3 tools/report_slice_performance.py --check
 
       - name: Seeded manifest coverage error fails
         run: |
