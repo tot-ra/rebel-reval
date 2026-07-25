@@ -1,6 +1,7 @@
 extends "res://scripts/global/BaseLevel.gd"
 
 const DEFINITION_SCRIPT := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
+const INVESTIGATION_SCRIPT := preload("res://scripts/investigation/bitter_brew_investigation.gd")
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -9,6 +10,7 @@ const DEFINITION_SCRIPT := preload("res://scripts/map/definitions/lower_town/low
 var _bootstrap: Dictionary = {}
 var _view_runtime: MapViewRuntime
 var _mart_encounter: DemoMartEncounter
+var _bitter_brew_investigation: Node
 var _phase_binder: MapPhaseBinder
 var _patrol_controller: MapPatrolController
 
@@ -29,6 +31,16 @@ func _ready() -> void:
 	_view_runtime = MapViewRuntime.install(self, _bootstrap, map_root, player)
 	_setup_phase_binder(definition)
 	_mart_encounter.wire(self, definition, player, _view_runtime)
+	_bitter_brew_investigation = INVESTIGATION_SCRIPT.new()
+	_bitter_brew_investigation.name = "BitterBrewInvestigation"
+	add_child(_bitter_brew_investigation)
+	_bitter_brew_investigation.setup(
+		self,
+		definition,
+		player,
+		_view_runtime,
+		_mart_encounter.get_interaction_controller()
+	)
 
 
 func _setup_phase_binder(definition: MapDefinition) -> void:

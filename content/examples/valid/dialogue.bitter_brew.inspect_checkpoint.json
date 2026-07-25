@@ -1,0 +1,46 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.bitter_brew.inspect_checkpoint",
+  "title": "A Bitter Brew - Watch Cistern",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P2-007",
+    "notes": "Investigation site: neglected municipal cistern at the checkpoint."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "inspect_checkpoint",
+  "word_count_estimate": 35,
+  "nodes": [
+    {
+      "id": "inspect_checkpoint",
+      "speaker_id": "char.kalev",
+      "text": "Henning's cistern is cracked and choked with runoff. Neglect, or someone wanted it that way.",
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.bitter_brew.checkpoint_neglect",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Watch checkpoint inspection for the bitter-brew investigation loop.",
+      "citations": [
+        "docs/SCENES/a-bitter-brew.md"
+      ]
+    }
+  ]
+}

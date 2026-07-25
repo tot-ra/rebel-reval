@@ -1,0 +1,46 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.bitter_brew.inspect_cistern",
+  "title": "A Bitter Brew - Public Well",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P2-007",
+    "notes": "Investigation site: municipal well contamination."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "inspect_well",
+  "word_count_estimate": 36,
+  "nodes": [
+    {
+      "id": "inspect_well",
+      "speaker_id": "char.kalev",
+      "text": "The well water smells wrong - runoff and silt, not the clean draw Aita needs.",
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.bitter_brew.cistern_contaminated",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Public well inspection for the bitter-brew investigation loop.",
+      "citations": [
+        "docs/SCENES/a-bitter-brew.md"
+      ]
+    }
+  ]
+}

@@ -111,6 +111,13 @@ static func anchor_position(definition: MapDefinition, anchor_id: StringName) ->
 	return Vector2.ZERO
 
 
+static func prop_position(definition: MapDefinition, prop_id: StringName) -> Vector2:
+	for prop in definition.props:
+		if prop["id"] == prop_id:
+			return prop["position"]
+	return Vector2.ZERO
+
+
 static func transition_rect(definition: MapDefinition, transition_id: StringName) -> Rect2:
 	for transition in definition.transitions:
 		if transition["id"] == transition_id:

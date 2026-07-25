@@ -14,7 +14,7 @@ References:
 |----------|-----:|-----:|-------|
 | P0 |     7  |    39  | Baseline, storage, materials, historical audit |
 | P1 |     0  |     8  | Runtime systems, content foundation |
-| P2 |    14  |     7  | Vertical-slice production (playable MVP) |
+| P2 |    13  |     8  | Vertical-slice production (playable MVP) |
 | P3 |    10  |     5  | Validation, accessibility, performance |
 | P4 |    49  |     7  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
@@ -61,6 +61,8 @@ References:
 
 
 
+
+<!-- P2-007 completed in current session -->
 <!-- P0-072 completed in current session -->
 <!-- P0-053 completed in current session -->
 <!-- P0-075 lunar-path defect fix completed in current session -->
@@ -217,7 +219,7 @@ References:
 - [x] P2-006 | deps: none | deliverable: playable `The Maker's Mark` tutorial | verify: new game teaches movement, interaction, commission, maker-mark incident, and all three ledger outcomes
 - [ ] P2-009 | deps: P2-008 | deliverable: playable night consequence with combat and non-combat routes | verify: forged record changes encounter behavior and every route reaches a valid aftermath
 - [ ] P2-016 | deps: P2-012 | deliverable: save/reload coverage at every phase and branch boundary | verify: automated matrix preserves quest, modification, characters, pressures, player state, and phase
-- [ ] P2-007 | deps: P0-102,P2-004,P2-005 | deliverable: playable daytime `A Bitter Brew` investigation | verify: player can inspect well, brewery, merchant supply, and checkpoint and produce the expected evidence states
+- [x] P2-007 | deps: P0-102,P2-004,P2-005 | deliverable: playable daytime `A Bitter Brew` investigation | verify: player can inspect well, brewery, merchant supply, and checkpoint and produce the expected evidence states
 - [ ] P2-013 | deps: P2-012 | deliverable: slice dialogue reduced to at most 2,500 approved words | verify: generated word-count report excludes IDs/metadata and reports 2,500 or fewer spoken/displayed words
 - [ ] P2-014 | deps: P2-012 | deliverable: slice soundtrack reduced to at most 12 minutes of unique approved music | verify: manifest reports duration, reuse, streaming settings, and rights for every included track
 - [ ] P2-008 | deps: P2-007,P1-022 | deliverable: playable `A Bitter Brew` commission with honest, defective, and secret-feature results | verify: each result creates the expected forged record and communicates it audiovisually

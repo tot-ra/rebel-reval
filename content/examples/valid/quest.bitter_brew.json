@@ -2,17 +2,32 @@
   "type": "quest",
   "id": "quest.bitter_brew",
   "title": "A Bitter Brew",
-  "summary": "Night consequence at the watch checkpoint after the bitter-brew commission; combat and non-combat closes share one quest state contract.",
+  "summary": "Investigate tainted water in Lower Town, commit to a forge response, and survive the watch checkpoint night consequence.",
   "confidence": "invented",
   "canon_status": "draft",
   "approval": {
     "status": "draft",
-    "reviewer": "P1-026a",
-    "notes": "Minimal quest shell so encounter.watch_checkpoint can reference stable night outcome states before P2-007/P2-009 author the full investigation."
+    "reviewer": "P2-007",
+    "notes": "Day investigation and night encounter shell; commission and aftermath remain P2-008 through P2-010."
   },
-  "entry_conditions": [],
-  "initial_state": "active",
+  "entry_conditions": [
+    {
+      "op": "phase_is",
+      "key": "phase.investigation_morning",
+      "value": "active"
+    }
+  ],
+  "initial_state": "investigating",
   "states": [
+    {
+      "id": "investigating",
+      "label": "Gathering evidence"
+    },
+    {
+      "id": "investigation_ready",
+      "label": "Evidence complete",
+      "terminal": true
+    },
     {
       "id": "active",
       "label": "Night encounter armed"
@@ -40,6 +55,30 @@
   ],
   "transitions": [
     {
+      "id": "complete_investigation",
+      "from_state": "investigating",
+      "to_state": "investigation_ready",
+      "conditions": [
+        {
+          "op": "fact_known",
+          "key": "fact.bitter_brew.cistern_contaminated"
+        },
+        {
+          "op": "fact_known",
+          "key": "fact.bitter_brew.brewery_ale_sound"
+        },
+        {
+          "op": "fact_known",
+          "key": "fact.bitter_brew.merchant_supply_spoiled"
+        },
+        {
+          "op": "fact_known",
+          "key": "fact.bitter_brew.checkpoint_neglect"
+        }
+      ],
+      "effects": []
+    },
+    {
       "id": "resolve_surrender",
       "from_state": "active",
       "to_state": "night_surrendered",
@@ -66,9 +105,27 @@
   ],
   "objectives": [
     {
-      "id": "survive_checkpoint",
-      "text": "Resolve the watch checkpoint by combat or a non-lethal close.",
-      "state_id": "active"
+      "id": "inspect_sites",
+      "text": "Inspect the well, brewery yard, merchant supply, and watch cistern.",
+      "state_id": "investigating"
+    }
+  ],
+  "journal_evidence": [
+    {
+      "fact_id": "fact.bitter_brew.cistern_contaminated",
+      "text": "The public well carries runoff and silt instead of clean draw water."
+    },
+    {
+      "fact_id": "fact.bitter_brew.brewery_ale_sound",
+      "text": "Aita's ale is sound, but she draws from the same tainted municipal line."
+    },
+    {
+      "fact_id": "fact.bitter_brew.merchant_supply_spoiled",
+      "text": "Merchant barrels match the spoiled grain wagons quietly routed through the ward."
+    },
+    {
+      "fact_id": "fact.bitter_brew.checkpoint_neglect",
+      "text": "Henning's cistern is cracked and choked with runoff at the checkpoint."
     }
   ],
   "outcomes": [
@@ -119,7 +176,9 @@
   ],
   "content_links": {
     "character_ids": [
-      "char.kalev"
+      "char.kalev",
+      "char.aita",
+      "char.henning"
     ],
     "location_ids": [
       "loc.lower_town_slice"
@@ -128,10 +187,11 @@
   "source_notes": [
     {
       "confidence": "invented",
-      "summary": "Shell quest for P1-026a encounter outcome package; full bitter-brew investigation remains P2-007+.",
+      "summary": "P2-007 daytime investigation with four evidence sites; night encounter contract retained for P2-009.",
       "citations": [
         "docs/SCENES/a-bitter-brew.md",
-        "scripts/combat/encounter_outcome_definition.gd"
+        "scripts/investigation/bitter_brew_investigation.gd",
+        "content/examples/valid/encounter.watch_checkpoint.json"
       ]
     }
   ]

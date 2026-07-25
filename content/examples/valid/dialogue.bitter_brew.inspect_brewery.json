@@ -1,0 +1,46 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.bitter_brew.inspect_brewery",
+  "title": "A Bitter Brew - Brewery Yard",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P2-007",
+    "notes": "Investigation site: Aita's ale is sound while the supply is suspect."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "inspect_brewery",
+  "word_count_estimate": 34,
+  "nodes": [
+    {
+      "id": "inspect_brewery",
+      "speaker_id": "char.kalev",
+      "text": "Aita's ale is fine. The trouble is the water she draws - the same tainted municipal line.",
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.bitter_brew.brewery_ale_sound",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Brewery yard inspection for the bitter-brew investigation loop.",
+      "citations": [
+        "docs/SCENES/a-bitter-brew.md"
+      ]
+    }
+  ]
+}

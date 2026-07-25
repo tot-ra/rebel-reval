@@ -1,0 +1,46 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.bitter_brew.inspect_supply",
+  "title": "A Bitter Brew - Merchant Supply",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P2-007",
+    "notes": "Investigation site: spoiled grain routed through the merchant row."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "inspect_supply",
+  "word_count_estimate": 38,
+  "nodes": [
+    {
+      "id": "inspect_supply",
+      "speaker_id": "char.kalev",
+      "text": "These barrels came off the same spoiled grain wagons the merchants are quietly dumping.",
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.bitter_brew.merchant_supply_spoiled",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Merchant supply inspection for the bitter-brew investigation loop.",
+      "citations": [
+        "docs/SCENES/a-bitter-brew.md"
+      ]
+    }
+  ]
+}
