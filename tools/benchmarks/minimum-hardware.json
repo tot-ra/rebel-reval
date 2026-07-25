@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "profile_id": "minimum-hardware-intel-uhd-620",
+  "status": "declared_minimum_target",
+  "platform": "Linux/Windows (representative minimum)",
+  "architecture": "x86_64",
+  "cpu": "Intel Core i5-8250U, 4 cores / 8 threads, 1.6-3.4 GHz",
+  "gpu": "Intel UHD Graphics 620 (24 EUs, ~300 GFLOPS)",
+  "memory_gib": 8,
+  "display": "1920x1080",
+  "notes": "Representative 2017-2018 ultrabook / budget laptop. Integrated graphics with shared system memory. OpenGL 4.5 / Vulkan 1.0. This profile defines the minimum supported hardware target for the vertical slice release. P3-011 owns selection and acceptance of this target."
+}
