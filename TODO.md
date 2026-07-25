@@ -15,7 +15,7 @@ References:
 | P0 |     7  |    39  | Baseline, storage, materials, historical audit |
 | P1 |     0  |     8  | Runtime systems, content foundation |
 | P2 |     4  |    17  | Vertical-slice production (playable MVP) |
-| P3 |    10  |     5  | Validation, accessibility, performance |
+| P3 |     9  |     6  | Validation, accessibility, performance |
 | P4 |    49  |     7  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
@@ -71,6 +71,8 @@ References:
 
 
 
+
+<!-- P3-001 completed in current session -->
 <!-- P2-014 completed in current session -->
 <!-- P2-008 completed in current session -->
 <!-- P2-007 completed in current session -->
@@ -207,7 +209,7 @@ References:
 - [ ] P3-005 | deps: P2-012 | deliverable: removal or rewrite of choices that differ only in wording or reward | verify: branch review finds a distinct state or consequence for every retained major choice
 - [ ] P3-012 | deps: P2-012,P3-007,P3-011 | deliverable: tested desktop export set and honest supported-platform declaration | verify: each declared platform installs, starts, saves, loads, and exits without critical error
 - [ ] P3-015 | deps: P3-014 | deliverable: tagged vertical-slice release with frozen compatible save and content schema versions | verify: release tag rebuilds from clean clone and loads its published save fixture
-- [ ] P3-001 | deps: P2-012 | deliverable: automated traversal of every valid slice branch and deliberate invalid state | verify: traversal report shows all intended endings reachable and all invalid transitions rejected
+- [x] P3-001 | deps: P2-012 | deliverable: automated traversal of every valid slice branch and deliberate invalid state | allowed files: `scripts/slice/vertical_slice_traversal_model.gd`, `docs/data/slice_traversal_manifest.json`, `tests/godot/test_vertical_slice_traversal.gd`, `tools/slice_traversal.py`, `tools/report_slice_traversal.py`, `tests/python/test_report_slice_traversal.py`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_vertical_slice_traversal` passes; `python3 tools/report_slice_traversal.py --check` and `python3 -m unittest tests.python.test_report_slice_traversal -v` pass; traversal report lists every intended ending as reachable and every authored invalid transition as rejected
 
 ### Medium
 

@@ -238,3 +238,24 @@ func _free_scene(scene: Node) -> void:
 		return
 	MapView3D._strip_geometry_materials(scene)
 	scene.free()
+
+
+func _run_full_slice_branch(branch: Dictionary) -> void:
+	_reset_fresh_session()
+	await _complete_prologue()
+	await _rest_in_forge(GameState.PHASE_INVESTIGATION_MORNING)
+	await _complete_investigation()
+	await _complete_bitter_brew_commission(String(branch["forge_option"]))
+	await _rest_in_forge(GameState.PHASE_INVESTIGATION_NIGHT)
+	await _resolve_night_encounter(branch["night_route"] as StringName)
+	await _rest_in_forge(GameState.PHASE_CONSEQUENCE_NIGHT)
+	assert_true(
+		AftermathModel.commit_aftermath(SessionState.state, SessionState.content_db),
+		"aftermath must commit once the night route resolves"
+	)
+	assert_eq(
+		AftermathModel.resolve_outcome(SessionState.state),
+		branch["aftermath_outcome"] as StringName
+	)
+	await _rest_in_forge(GameState.PHASE_REFLECTION_MORNING)
+	_complete_reflection()

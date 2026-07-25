@@ -24,24 +24,3 @@ func test_honest_branch_completes_without_debug_presets() -> void:
 	await _run_full_slice_branch(branch)
 	assert_true(FlowModel.validate_branch_terminal_state(SessionState.state, branch))
 	assert_eq(AftermathModel.resolve_outcome(SessionState.state), AftermathModel.OUTCOME_EXONERATED)
-
-
-func _run_full_slice_branch(branch: Dictionary) -> void:
-	_reset_fresh_session()
-	await _complete_prologue()
-	await _rest_in_forge(GameState.PHASE_INVESTIGATION_MORNING)
-	await _complete_investigation()
-	await _complete_bitter_brew_commission(String(branch["forge_option"]))
-	await _rest_in_forge(GameState.PHASE_INVESTIGATION_NIGHT)
-	await _resolve_night_encounter(branch["night_route"] as StringName)
-	await _rest_in_forge(GameState.PHASE_CONSEQUENCE_NIGHT)
-	assert_true(
-		AftermathModel.commit_aftermath(SessionState.state, SessionState.content_db),
-		"aftermath must commit once the night route resolves"
-	)
-	assert_eq(
-		AftermathModel.resolve_outcome(SessionState.state),
-		branch["aftermath_outcome"] as StringName
-	)
-	await _rest_in_forge(GameState.PHASE_REFLECTION_MORNING)
-	_complete_reflection()

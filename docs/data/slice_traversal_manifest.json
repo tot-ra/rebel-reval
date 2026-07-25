@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "task_id": "P3-001",
+  "intended_ending_count": 3,
+  "invalid_transition_count": 9,
+  "intended_endings": [
+    "honest:exonerated",
+    "subtle:monopolized",
+    "secret:escaped"
+  ],
+  "invalid_transition_ids": [
+    "invalid.night.honest_bypass",
+    "invalid.night.honest_escape",
+    "invalid.night.subtle_escape",
+    "invalid.night.secret_bypass",
+    "invalid.aftermath.premature",
+    "invalid.reflection.wrong_phase",
+    "invalid.encounter.unknown_kind",
+    "invalid.investigation.wrong_phase",
+    "invalid.commission.before_investigation_ready"
+  ],
+  "godot_model": "scripts/slice/vertical_slice_traversal_model.gd",
+  "godot_test_filter": "test_vertical_slice_traversal"
+}
