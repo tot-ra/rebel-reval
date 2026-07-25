@@ -14,7 +14,7 @@ References:
 |----------|-----:|-----:|-------|
 | P0 |     7  |    39  | Baseline, storage, materials, historical audit |
 | P1 |     0  |     8  | Runtime systems, content foundation |
-| P2 |    13  |     8  | Vertical-slice production (playable MVP) |
+| P2 |    12  |     9  | Vertical-slice production (playable MVP) |
 | P3 |    10  |     5  | Validation, accessibility, performance |
 | P4 |    49  |     7  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
@@ -62,6 +62,8 @@ References:
 
 
 
+
+<!-- P2-008 completed in current session -->
 <!-- P2-007 completed in current session -->
 <!-- P0-072 completed in current session -->
 <!-- P0-053 completed in current session -->
@@ -222,7 +224,7 @@ References:
 - [x] P2-007 | deps: P0-102,P2-004,P2-005 | deliverable: playable daytime `A Bitter Brew` investigation | verify: player can inspect well, brewery, merchant supply, and checkpoint and produce the expected evidence states
 - [ ] P2-013 | deps: P2-012 | deliverable: slice dialogue reduced to at most 2,500 approved words | verify: generated word-count report excludes IDs/metadata and reports 2,500 or fewer spoken/displayed words
 - [ ] P2-014 | deps: P2-012 | deliverable: slice soundtrack reduced to at most 12 minutes of unique approved music | verify: manifest reports duration, reuse, streaming settings, and rights for every included track
-- [ ] P2-008 | deps: P2-007,P1-022 | deliverable: playable `A Bitter Brew` commission with honest, defective, and secret-feature results | verify: each result creates the expected forged record and communicates it audiovisually
+- [x] P2-008 | deps: P2-007,P1-022 | deliverable: playable `A Bitter Brew` commission with honest, defective, and secret-feature results | verify: each result creates the expected forged record and communicates it audiovisually
 ### Medium
 
 - [ ] P2-004 | deps: P0-040,P1-029 | deliverable: approved low-poly character models and AI-generated portraits for Kalev, Mart, Aita, Kaja, Henning, and Jürgen | verify: all six use the shared P0-037 rig and animation library, differ only by texture/equipment/silhouette swaps, pass asset lint, and match art-bible silhouette and palette rules

@@ -1,0 +1,102 @@
+{
+  "type": "commission",
+  "id": "commission.bitter_brew",
+  "title": "Answer the water crisis",
+  "client_id": "char.aita",
+  "quest_id": "quest.bitter_brew",
+  "object_item_id": "item.bitter_brew_work",
+  "location_id": "loc.kalev_smithy",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P2-008",
+    "notes": "Three forge responses before the watch checkpoint night consequence."
+  },
+  "concrete_order": "Forge a response to the tainted water before the watch tightens the ward.",
+  "hidden_contradiction": "Every honest fix protects Aita while every hidden flaw trades her safety for leverage over Henning or Jürgen.",
+  "investigation_clues": [
+    {
+      "id": "cistern",
+      "summary": "The public well carries runoff instead of clean draw water.",
+      "reveals_fact_id": "fact.bitter_brew.cistern_contaminated"
+    },
+    {
+      "id": "brewery",
+      "summary": "Aita's ale is sound, but she draws from the same tainted municipal line.",
+      "reveals_fact_id": "fact.bitter_brew.brewery_ale_sound"
+    },
+    {
+      "id": "supply",
+      "summary": "Merchant barrels match spoiled grain quietly routed through the ward.",
+      "reveals_fact_id": "fact.bitter_brew.merchant_supply_spoiled"
+    },
+    {
+      "id": "checkpoint",
+      "summary": "Henning's cistern is cracked and choked with runoff at the checkpoint.",
+      "reveals_fact_id": "fact.bitter_brew.checkpoint_neglect"
+    }
+  ],
+  "forging_options": [
+    {
+      "id": "honest_work",
+      "label": "Forge reinforced brewery bands to secure Aita's vats.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.bitter_brew_brewery_secured",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "subtle_defect",
+      "label": "Forge a tampered inspection seal to redirect the watch.",
+      "requires": [
+        {
+          "op": "fact_known",
+          "key": "fact.bitter_brew.checkpoint_neglect"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.bitter_brew_seal_tampered",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "secret_feature",
+      "label": "Forge a detention-cart lock with a hidden release flaw.",
+      "requires": [
+        {
+          "op": "fact_known",
+          "key": "fact.bitter_brew.brewery_ale_sound"
+        },
+        {
+          "op": "fact_known",
+          "key": "fact.bitter_brew.merchant_supply_spoiled"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.bitter_brew_cart_lock_flawed",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "night_consequence": "The forged response changes watch checkpoint routes and brewery pressure during investigation night.",
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P2-008 forge commission with three audiovisual outcomes before P2-009 night encounter.",
+      "citations": [
+        "docs/SCENES/a-bitter-brew.md",
+        "content/examples/valid/quest.bitter_brew.json"
+      ]
+    }
+  ]
+}

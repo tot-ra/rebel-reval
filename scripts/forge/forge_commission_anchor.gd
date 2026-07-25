@@ -13,6 +13,7 @@ const DEFAULT_ANCHOR_ID := &"ledger"
 var _player: Player
 var _interactable: Interactable
 var _scene_root: Node2D
+var _flow_gate: Callable = Callable()
 
 
 func setup(scene_root: Node2D, definition: MapDefinition, player: Player) -> void:
@@ -59,6 +60,26 @@ func get_interactable() -> Interactable:
 	return _interactable
 
 
+func set_commission_id(next_id: StringName) -> void:
+	if commission_id == next_id:
+		return
+	commission_id = next_id
+	sync_interactable_identity()
+
+
+func set_flow_gate(callable: Callable) -> void:
+	_flow_gate = callable
+
+
+func sync_interactable_identity() -> void:
+	if _interactable == null:
+		return
+	_interactable.interactable_id = StringName(
+		"interact.commission.%s" % String(commission_id).replace("commission.", "")
+	)
+	_interactable.prompt = _commission_prompt()
+
+
 func _spawn_interactable(definition: MapDefinition) -> void:
 	var anchor_position := MapVerification.anchor_position(definition, anchor_id)
 	_interactable = INTERACTABLE_SCENE.instantiate()
@@ -92,6 +113,8 @@ func _sync_enabled() -> void:
 
 func _should_enable() -> bool:
 	if _player == null:
+		return false
+	if _flow_gate.is_valid() and not bool(_flow_gate.call()):
 		return false
 	var controller := _player.get_node_or_null("ForgeCommissionController") as ForgeCommissionController
 	if controller != null and controller.is_open():

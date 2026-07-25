@@ -4,6 +4,9 @@ const DEFINITION_SCRIPT := preload("res://scripts/map/definitions/lower_town/kal
 const COMMISSION_ANCHOR_SCRIPT := preload("res://scripts/forge/forge_commission_anchor.gd")
 const PHASE_REST_ANCHOR_SCRIPT := preload("res://scripts/phase/phase_rest_anchor.gd")
 const PROLOGUE_CONTROLLER_SCRIPT := preload("res://scripts/forge/forge_prologue_controller.gd")
+const BITTER_BREW_CONTROLLER_SCRIPT := preload(
+	"res://scripts/forge/bitter_brew_commission_controller.gd"
+)
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -68,6 +71,10 @@ func _ready() -> void:
 		henning,
 		_interaction_controller
 	)
+	var bitter_brew = BITTER_BREW_CONTROLLER_SCRIPT.new()
+	bitter_brew.name = "BitterBrewCommissionController"
+	add_child(bitter_brew)
+	bitter_brew.setup(_commission_anchor, _rest_anchor, player)
 
 
 func _setup_dialogue_encounter(definition: MapDefinition) -> void:

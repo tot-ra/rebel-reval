@@ -8,7 +8,7 @@
   "approval": {
     "status": "draft",
     "reviewer": "P2-007",
-    "notes": "Day investigation and night encounter shell; commission and aftermath remain P2-008 through P2-010."
+    "notes": "Day investigation closed under P2-007; forge commission closed under P2-008; night aftermath remains P2-009 through P2-010."
   },
   "entry_conditions": [
     {
@@ -182,6 +182,9 @@
     ],
     "location_ids": [
       "loc.lower_town_slice"
+    ],
+    "commission_ids": [
+      "commission.bitter_brew"
     ]
   },
   "source_notes": [
@@ -191,6 +194,8 @@
       "citations": [
         "docs/SCENES/a-bitter-brew.md",
         "scripts/investigation/bitter_brew_investigation.gd",
+        "scripts/forge/bitter_brew_commission_controller.gd",
+        "content/examples/valid/commission.bitter_brew.json",
         "content/examples/valid/encounter.watch_checkpoint.json"
       ]
     }

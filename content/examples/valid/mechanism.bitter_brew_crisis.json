@@ -1,0 +1,88 @@
+{
+  "type": "mechanism",
+  "id": "mechanism.bitter_brew_crisis",
+  "title": "Bitter Brew crisis forge response",
+  "commission_id": "commission.bitter_brew",
+  "object_item_id": "item.bitter_brew_work",
+  "location_id": "loc.kalev_smithy",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P2-008"
+  },
+  "responses": [
+    {
+      "id": "brewery_secured",
+      "behavior": "hold",
+      "summary": "Reinforced bands keep the watch from seizing Aita's vats.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.bitter_brew",
+          "value": "honest_work"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.bitter_brew_outcome_exonerated",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "seal_redirect",
+      "behavior": "release",
+      "summary": "A forged seal lets Kalev redirect checkpoint paperwork.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.bitter_brew",
+          "value": "subtle_defect"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.bitter_brew_outcome_monopolized",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "cart_escape",
+      "behavior": "fail",
+      "summary": "A hidden lock flaw frees Aita during transport.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.bitter_brew",
+          "value": "secret_feature"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.bitter_brew_outcome_escaped",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "default_response": {
+    "id": "unresolved",
+    "behavior": "idle",
+    "summary": "Kalev has not committed to a forge response yet."
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Mechanism contract for Bitter Brew commission outcomes ahead of P2-009 night routes.",
+      "citations": [
+        "content/examples/valid/commission.bitter_brew.json",
+        "docs/SCENES/a-bitter-brew.md"
+      ]
+    }
+  ]
+}
