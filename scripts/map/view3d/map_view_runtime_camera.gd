@@ -24,6 +24,8 @@ const PAN_SCROLL_ZOOM_SENSITIVITY := 1.0
 const THIRD_PERSON_DISTANCE := 6.0
 ## Closest boom before scroll-zoom flips into first-person.
 const THIRD_PERSON_MIN_DISTANCE := 2.0
+## Interior follow targets this close to the floor edge count as wall clips.
+const INTERIOR_FLOOR_EDGE_MARGIN := 0.35
 ## Farthest boom before scroll-zoom flips into the orthographic top-down overview.
 const THIRD_PERSON_MAX_DISTANCE := 12.0
 const THIRD_PERSON_TARGET_HEIGHT := 1.15
@@ -140,12 +142,41 @@ func _screen_shake_enabled() -> bool:
 	return bool(gameplay.allows_screenshake(reduced_motion))
 
 
+func _resolve_third_person_target(target: Vector3) -> Vector3:
+	if view == null or view.definition == null:
+		return target
+	if not view.definition.suppresses_exterior_surroundings():
+		return target
+	var anchor := player_rig.position + Vector3.UP * THIRD_PERSON_TARGET_HEIGHT
+	var direction := target - anchor
+	var distance := direction.length()
+	if is_zero_approx(distance):
+		return target
+	direction /= distance
+	while distance > THIRD_PERSON_MIN_DISTANCE and _third_person_target_clips(target):
+		distance = maxf(THIRD_PERSON_MIN_DISTANCE, distance * 0.75)
+		target = anchor + direction * distance
+	return target
+
+
+func _third_person_target_clips(target: Vector3) -> bool:
+	if view.is_point_inside_occluder(target):
+		return true
+	var size := view.definition.size_cells
+	return (
+		target.x < INTERIOR_FLOOR_EDGE_MARGIN
+		or target.x > float(size.x) - INTERIOR_FLOOR_EDGE_MARGIN
+		or target.z < INTERIOR_FLOOR_EDGE_MARGIN
+		or target.z > float(size.y) - INTERIOR_FLOOR_EDGE_MARGIN
+	)
+
+
 func _follow_target() -> Vector3:
 	match camera_mode:
 		CameraMode.FIRST_PERSON:
 			return player_rig.position + Vector3.UP * FIRST_PERSON_EYE_HEIGHT
 		CameraMode.THIRD_PERSON:
-			return (
+			return _resolve_third_person_target(
 				player_rig.position
 				+ Vector3.UP * THIRD_PERSON_TARGET_HEIGHT
 				+ camera.transform.basis.z * _third_person_distance

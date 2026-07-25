@@ -379,6 +379,13 @@ func is_segment_occluded(from: Vector3, to: Vector3) -> bool:
 	return false
 
 
+func is_point_inside_occluder(point: Vector3) -> bool:
+	for bounds in _occluder_bounds:
+		if bounds.has_point(point):
+			return true
+	return false
+
+
 func sun_light() -> DirectionalLight3D:
 	return _sun
 

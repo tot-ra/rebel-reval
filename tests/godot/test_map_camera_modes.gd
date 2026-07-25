@@ -322,6 +322,27 @@ func test_enclosed_interior_third_person_does_not_enable_occlusion_ghost() -> vo
 	_free_map_scene(scene_root)
 
 
+func test_smithy_start_third_person_camera_avoids_walls() -> void:
+	var definition: MapDefinition = KalevSmithyDefinition.create()
+	var fixture := _install_runtime(definition)
+	var scene_root := fixture["scene_root"] as Node2D
+	var runtime := fixture["runtime"] as MapViewRuntime
+	var player := fixture["player"] as Player
+	var camera := runtime.view.view_camera()
+	player.global_position = definition.player_spawn
+	runtime._sync_player(true)
+	assert_false(
+		runtime.view.is_point_inside_occluder(camera.position),
+		"smithy start third-person camera must not clip interior walls"
+	)
+	assert_true(
+		camera.position.x < float(definition.size_cells.x) - 0.25
+		and camera.position.z < float(definition.size_cells.y) - 0.25,
+		"smithy start camera must stay inside the authored floor envelope"
+	)
+	_free_map_scene(scene_root)
+
+
 func test_quick_access_camera_button_cycles_all_modes() -> void:
 	var fixture := _install_runtime(KalevSmithyDefinition.create(), true)
 	var scene_root := fixture["scene_root"] as Node2D
