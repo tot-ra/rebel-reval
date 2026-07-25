@@ -158,6 +158,7 @@ jobs:
           python3 tools/verify_slice_surface_captures.py
           python3 tools/quarantine_assets.py --check
           python3 tools/generate_asset_inventory.py --check
+          python3 tools/report_slice_third_party.py --check
 
       - name: Seeded manifest coverage error fails
         run: |

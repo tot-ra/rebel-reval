@@ -76,6 +76,7 @@ def check_license(root: Path = ROOT) -> CheckResult:
 def check_provenance(root: Path = ROOT) -> CheckResult:
     manifest = root / "assets" / "SOURCES.csv"
     validator = root / "tools" / "validate_asset_sources.py"
+    third_party_report = root / "tools" / "report_slice_third_party.py"
     details: list[str] = []
     passed = True
 
@@ -90,6 +91,12 @@ def check_provenance(root: Path = ROOT) -> CheckResult:
         details.append(f"missing provenance validator: {validator}")
     else:
         details.append(f"provenance validator found: {validator}")
+
+    if not third_party_report.is_file():
+        passed = False
+        details.append(f"missing slice third-party report tool: {third_party_report}")
+    else:
+        details.append(f"slice third-party report tool found: {third_party_report}")
 
     return CheckResult(
         name="Asset Provenance",

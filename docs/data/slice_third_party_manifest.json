@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "notices_path": "docs/THIRD_PARTY_NOTICES.md",
+  "credits_path": "CREDITS.md",
+  "export_notice_files": [
+    "CREDITS.md",
+    "docs/THIRD_PARTY_NOTICES.md",
+    "assets/fonts/NotoSans-OFL-1.1.txt",
+    "assets/characters/shared/KAYKIT_CC0_LICENSE.txt",
+    "scripts/map/view3d/third_party/d3_celestial_BSD_3_CLAUSE.txt"
+  ],
+  "bundles": [
+    {
+      "id": "bundle.audio.bird_recordings",
+      "notice_id": "notice.audio.bird_recordings",
+      "manifest_path": "sounds/birds/manifest.csv",
+      "processed_manifest_path": "sounds/birds/processed_manifest.csv",
+      "sources_path_prefix": "sounds/birds/",
+      "credits_section": "Bird sounds"
+    },
+    {
+      "id": "bundle.audio.insect_recordings",
+      "notice_id": "notice.audio.insect_recordings",
+      "manifest_path": "sounds/insects/manifest.csv",
+      "sources_path_prefix": "sounds/insects/",
+      "credits_section": "Insect ambience (Orthoptera)"
+    }
+  ],
+  "entries": [
+    {
+      "notice_id": "notice.font.noto_sans",
+      "sources_id": "font.noto.sans.regular",
+      "category": "font"
+    },
+    {
+      "notice_id": "notice.rig.kaykit_adventures",
+      "sources_ids": [
+        "assets.characters.shared.kaykit_barbarian",
+        "assets.characters.shared.kaykit_barbarian_texture"
+      ],
+      "category": "animation_rig"
+    },
+    {
+      "notice_id": "notice.sky.nasa_lunar_albedo",
+      "sources_id": "assets.sky.lunar.albedo.nearside",
+      "category": "texture"
+    },
+    {
+      "notice_id": "notice.code.d3_celestial_stars",
+      "license_path": "scripts/map/view3d/third_party/d3_celestial_BSD_3_CLAUSE.txt",
+      "category": "code"
+    }
+  ]
+}

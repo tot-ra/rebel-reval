@@ -15,7 +15,7 @@ References:
 | P0 |     7  |    39  | Baseline, storage, materials, historical audit |
 | P1 |     0  |     8  | Runtime systems, content foundation |
 | P2 |     4  |    17  | Vertical-slice production (playable MVP) |
-| P3 |     9  |     6  | Validation, accessibility, performance |
+| P3 |     8  |     7  | Validation, accessibility, performance |
 | P4 |    49  |     7  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
@@ -72,6 +72,8 @@ References:
 
 
 
+
+<!-- P3-013 completed in current session -->
 <!-- P3-001 completed in current session -->
 <!-- P2-014 completed in current session -->
 <!-- P2-008 completed in current session -->
@@ -204,7 +206,7 @@ References:
 
 - [x] P3-017 | deps: P0-127 | deliverable: developer debug overlay reachable from QuickAccessMenu showing FPS, ambient audio telemetry, and visual time-flow controls (pause, slower, faster, reset) without keyboard-only dev shortcuts | allowed files: `scripts/ui/debug_overlay.gd`, `scripts/ui/quick_access_menu.gd`, `scripts/global/music_director.gd`, `scripts/map/view3d/map_view_runtime.gd`, `player.tscn`, `tests/godot/test_debug_overlay.gd`, `tests/godot/test_quick_access_menu.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_debug_overlay` and `--filter=test_quick_access_menu` pass; Debug button toggles the overlay; time buttons change `MapViewRuntime` pacing without altering `GameState`
 - [x] P3-018 | deps: P2-012 | deliverable: in-game settings overlay on Esc for music/SFX volume and accessibility baseline options, wired through `GameSettingsController` without conflicting modal surfaces | allowed files: `scripts/ui/game_settings_controller.gd`, `scripts/ui/game_settings_overlay.gd`, `scripts/settings/audio_settings.gd`, `scripts/settings/audio_bus_service.gd`, `scripts/settings/user_settings.gd`, `scripts/settings/user_settings_store.gd`, `audio/default_bus_layout.tres`, `player.tscn`, `tests/godot/test_game_settings_overlay.gd`, `tests/godot/test_audio_settings.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_game_settings_overlay` (7/7) and `--filter=test_audio_settings` (3/3) pass; Esc opens settings only when no dialogue, commission, or other modal is active; volume and dialogue accessibility changes persist through `UserSettings`
-- [ ] P3-013 | deps: P2-012 | deliverable: third-party notices and final slice asset/license report | verify: every exported non-original asset maps to a notice and approved manifest row
+- [x] P3-013 | deps: P2-012 | deliverable: third-party notices and final slice asset/license report | allowed files: `docs/THIRD_PARTY_NOTICES.md`, `docs/data/slice_third_party_manifest.json`, `tools/slice_third_party.py`, `tools/report_slice_third_party.py`, `tools/audio/sync_insect_sources.py`, `tests/python/test_report_slice_third_party.py`, `export_presets.cfg`, `.github/workflows/ci.yml`, `tools/release_candidate_check.py`, `assets/SOURCES.csv`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 tools/report_slice_third_party.py --check` and `python3 -m unittest tests.python.test_report_slice_third_party -v` pass; every exported non-original asset maps to a notice and approved manifest row
 - [ ] P3-011 | deps: P2-012 | deliverable: optimized slice meeting the explicit minimum-hardware target | verify: busiest scene sustains the recorded frame-time and memory budgets with headroom
 - [ ] P3-005 | deps: P2-012 | deliverable: removal or rewrite of choices that differ only in wording or reward | verify: branch review finds a distinct state or consequence for every retained major choice
 - [ ] P3-012 | deps: P2-012,P3-007,P3-011 | deliverable: tested desktop export set and honest supported-platform declaration | verify: each declared platform installs, starts, saves, loads, and exits without critical error
