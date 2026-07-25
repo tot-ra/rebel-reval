@@ -97,6 +97,16 @@ func get_focused_choice_index() -> int:
 	return _focused_choice_index
 
 
+func choice_index_for_id(choice_id: String) -> int:
+	for index in _choices.size():
+		var choice_value: Variant = _choices[index]
+		if typeof(choice_value) != TYPE_DICTIONARY:
+			continue
+		if String((choice_value as Dictionary).get("id", "")) == choice_id:
+			return index
+	return -1
+
+
 func get_disabled_reason() -> String:
 	return _disabled_reason_label.text
 

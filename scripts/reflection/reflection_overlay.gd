@@ -155,6 +155,7 @@ func _refresh() -> void:
 	_plain_summary_label.text = String(_snapshot.get("plain_summary", ""))
 	_refresh_marks(_snapshot.get("marks", []) as Array)
 	_refresh_options(_snapshot.get("options", []) as Array)
+	call_deferred("_seed_option_focus")
 
 
 func _refresh_marks(marks: Array) -> void:
@@ -197,10 +198,44 @@ func _refresh_options(options: Array) -> void:
 		button.text = "%s - %s" % [String(option.get("title", "")), String(option.get("summary", ""))]
 		button.tooltip_text = String(option.get("plain_text", ""))
 		var option_id := String(option.get("id", ""))
+		button.set_meta(&"option_id", option_id)
 		button.pressed.connect(func() -> void:
 			conviction_chosen.emit(option_id)
 		)
 		_options_box.add_child(button)
+	_wire_option_focus_neighbors()
+
+
+func _wire_option_focus_neighbors() -> void:
+	if _options_box == null:
+		return
+	var buttons: Array[Button] = []
+	for child in _options_box.get_children():
+		if child is Button:
+			buttons.append(child as Button)
+	for index in buttons.size():
+		var button: Button = buttons[index]
+		if index > 0:
+			button.focus_neighbor_top = button.get_path_to(buttons[index - 1])
+			buttons[index - 1].focus_neighbor_bottom = buttons[index - 1].get_path_to(button)
+
+
+func focus_conviction(option_id: String) -> void:
+	if _options_box == null:
+		return
+	for child in _options_box.get_children():
+		if child is Button and String(child.get_meta(&"option_id", "")) == option_id:
+			(child as Button).grab_focus()
+			return
+
+
+func _seed_option_focus() -> void:
+	if _options_box == null:
+		return
+	for child in _options_box.get_children():
+		if child is Button:
+			(child as Button).grab_focus()
+			return
 
 
 func _clear_options() -> void:

@@ -187,11 +187,39 @@ func _refresh() -> void:
 			if not reason.is_empty():
 				button.tooltip_text = reason
 		var option_id := String(option.get("id", ""))
+		button.set_meta(&"option_id", option_id)
+		button.focus_mode = Control.FOCUS_ALL
 		button.pressed.connect(func() -> void:
 			option_selected.emit(option_id)
 		)
 		_options_box.add_child(button)
 		_option_buttons.append(button)
+	_wire_option_focus_neighbors()
+	if visible and not already_resolved:
+		call_deferred("_seed_option_focus")
+
+
+func focus_option(option_id: String) -> void:
+	for button: Button in _option_buttons:
+		if String(button.get_meta(&"option_id", "")) == option_id:
+			button.grab_focus()
+			return
+
+
+func _seed_option_focus() -> void:
+	if _option_buttons.is_empty():
+		return
+	_option_buttons[0].grab_focus()
+
+
+func _wire_option_focus_neighbors() -> void:
+	for index in _option_buttons.size():
+		var button: Button = _option_buttons[index]
+		if index > 0:
+			button.focus_neighbor_top = button.get_path_to(_option_buttons[index - 1])
+			_option_buttons[index - 1].focus_neighbor_bottom = (
+				_option_buttons[index - 1].get_path_to(button)
+			)
 
 
 func _clear_option_buttons() -> void:

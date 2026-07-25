@@ -317,6 +317,7 @@ func _build_outcome_ui() -> void:
 
 	for button in [_surrender_button, _escape_button, _bypass_button, _retry_button]:
 		_actions_layer.add_child(button)
+	_wire_outcome_focus_neighbors()
 	_set_outcome_ui_visible(false)
 
 
@@ -332,6 +333,7 @@ func _make_outcome_button(
 	)
 	button.position = pos
 	button.custom_minimum_size = Vector2(120, 36)
+	button.focus_mode = Control.FOCUS_ALL
 	button.pressed.connect(func() -> void: resolve_encounter_outcome(kind))
 	return button
 
@@ -345,9 +347,44 @@ func _refresh_outcome_buttons() -> void:
 		_bypass_button.disabled = not is_outcome_available(EncounterOutcome.KIND_BYPASS)
 
 
+func focus_outcome(kind: StringName) -> void:
+	match kind:
+		EncounterOutcome.KIND_SURRENDER:
+			if _surrender_button != null:
+				_surrender_button.grab_focus()
+		EncounterOutcome.KIND_BYPASS:
+			if _bypass_button != null:
+				_bypass_button.grab_focus()
+		EncounterOutcome.KIND_ESCAPE:
+			if _escape_button != null:
+				_escape_button.grab_focus()
+		_:
+			pass
+
+
 func _set_outcome_ui_visible(visible: bool) -> void:
 	if _actions_layer != null:
 		_actions_layer.visible = visible
+	if visible:
+		call_deferred("_seed_outcome_focus")
+
+
+func _wire_outcome_focus_neighbors() -> void:
+	var buttons := [_surrender_button, _bypass_button, _escape_button, _retry_button]
+	for index in buttons.size():
+		var button: Button = buttons[index]
+		if button == null:
+			continue
+		if index > 0 and buttons[index - 1] != null:
+			button.focus_neighbor_left = button.get_path_to(buttons[index - 1])
+			buttons[index - 1].focus_neighbor_right = buttons[index - 1].get_path_to(button)
+
+
+func _seed_outcome_focus() -> void:
+	for button in [_surrender_button, _bypass_button, _escape_button, _retry_button]:
+		if button != null and button.visible and not button.disabled:
+			button.grab_focus()
+			return
 
 
 func _set_retry_visible(visible: bool) -> void:

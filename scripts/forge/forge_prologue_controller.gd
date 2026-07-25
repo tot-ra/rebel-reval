@@ -95,6 +95,10 @@ func get_dialogue_runner() -> DialogueRunner:
 	return _runner
 
 
+func get_dialogue_ui() -> DialogueUI:
+	return _dialogue_ui
+
+
 func get_chest_interactable() -> Interactable:
 	return _chest_interactable
 
