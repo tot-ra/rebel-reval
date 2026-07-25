@@ -14,11 +14,12 @@ References:
 |----------|-----:|-----:|-------|
 | P0 |     7  |    39  | Baseline, storage, materials, historical audit |
 | P1 |     0  |     8  | Runtime systems, content foundation |
-| P2 |     8  |    13  | Vertical-slice production (playable MVP) |
+| P2 |     7  |    14  | Vertical-slice production (playable MVP) |
 | P3 |    10  |     5  | Validation, accessibility, performance |
 | P4 |    49  |     7  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
+
 
 
 
@@ -224,7 +225,7 @@ References:
 - [x] P2-010 | deps: P2-009 | deliverable: three visible `A Bitter Brew` aftermath states | verify: brewery state, Aita state, Mart reaction, and patrol barks differ according to outcome
 - [x] P2-006 | deps: none | deliverable: playable `The Maker's Mark` tutorial | verify: new game teaches movement, interaction, commission, maker-mark incident, and all three ledger outcomes
 - [x] P2-009 | deps: P2-008 | deliverable: playable night consequence with combat and non-combat routes | verify: forged record changes encounter behavior and every route reaches a valid aftermath
-- [ ] P2-016 | deps: P2-012 | deliverable: save/reload coverage at every phase and branch boundary | verify: automated matrix preserves quest, modification, characters, pressures, player state, and phase
+- [x] P2-016 | deps: P2-012 | deliverable: save/reload coverage at every phase and branch boundary | allowed files: `scripts/slice/vertical_slice_save_matrix.gd`, `tests/godot/vertical_slice_flow_harness.gd`, `tests/godot/save_state_assertions.gd`, `tests/godot/test_vertical_slice_flow.gd`, `tests/godot/test_vertical_slice_save_matrix.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_vertical_slice_save_matrix` passes; save/reload round-trips at ten checkpoints across all three Bitter Brew branches preserve phase, quests, forged records, pressures, relationships, and map world state
 - [x] P2-007 | deps: P0-102,P2-004,P2-005 | deliverable: playable daytime `A Bitter Brew` investigation | verify: player can inspect well, brewery, merchant supply, and checkpoint and produce the expected evidence states
 - [ ] P2-013 | deps: P2-012 | deliverable: slice dialogue reduced to at most 2,500 approved words | verify: generated word-count report excludes IDs/metadata and reports 2,500 or fewer spoken/displayed words
 - [ ] P2-014 | deps: P2-012 | deliverable: slice soundtrack reduced to at most 12 minutes of unique approved music | verify: manifest reports duration, reuse, streaming settings, and rights for every included track
