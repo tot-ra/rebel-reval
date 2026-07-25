@@ -329,6 +329,46 @@ def check_platform(root: Path = ROOT) -> CheckResult:
     )
 
 
+def check_slice_gate(root: Path = ROOT) -> CheckResult:
+    gate_report = root / "docs" / "reports" / "p3_014_slice_gate.md"
+    traversal_tool = root / "tools" / "report_slice_traversal.py"
+    branch_tool = root / "tools" / "report_slice_branch_consequences.py"
+    details: list[str] = []
+    checks: list[tuple[str, bool]] = [
+        ("vertical-slice gate maintainer report present", gate_report.is_file()),
+        ("slice traversal verifier present", traversal_tool.is_file()),
+        ("slice branch consequence verifier present", branch_tool.is_file()),
+    ]
+    if gate_report.is_file():
+        content = gate_report.read_text(encoding="utf-8")
+        has_signoff = "Maintainer sign-off" in content and "pass" in content.lower()
+        checks.append(("gate report records maintainer sign-off", has_signoff))
+        details.append("p3_014_slice_gate.md is present")
+        if has_signoff:
+            details.append("gate report includes maintainer sign-off")
+        else:
+            details.append("gate report is missing maintainer sign-off section")
+    else:
+        details.append("p3_014_slice_gate.md is missing")
+    if traversal_tool.is_file():
+        details.append("report_slice_traversal.py is present")
+    else:
+        details.append("report_slice_traversal.py is missing")
+    if branch_tool.is_file():
+        details.append("report_slice_branch_consequences.py is present")
+    else:
+        details.append("report_slice_branch_consequences.py is missing")
+
+    passed_count = sum(1 for _, ok in checks if ok)
+    passed = passed_count == len(checks)
+    return CheckResult(
+        name="Vertical-slice Gate",
+        passed=passed,
+        message=f"Slice gate check completed ({passed_count}/{len(checks)} items)",
+        details=details,
+    )
+
+
 def check_ci(root: Path = ROOT) -> CheckResult:
     ci_workflow = root / ".github" / "workflows" / "ci.yml"
     checked_runner = root / "tools" / "run_godot_checked.sh"
@@ -390,6 +430,7 @@ def run_checks(
     provenance_check: bool = True,
     accessibility_check: bool = True,
     platform_check: bool = True,
+    slice_gate_check: bool = True,
     ci_check: bool = True,
     root: Path = ROOT,
 ) -> list[CheckResult]:
@@ -402,6 +443,8 @@ def run_checks(
         results.append(check_accessibility(root))
     if platform_check:
         results.append(check_platform(root))
+    if slice_gate_check:
+        results.append(check_slice_gate(root))
     if ci_check:
         results.append(check_ci(root))
     return results
@@ -434,15 +477,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--accessibility", action="store_true", help="Check accessibility baseline only")
     parser.add_argument("--platform", action="store_true", help="Check export preset scaffold only")
     parser.add_argument("--ci", action="store_true", help="Check clean-clone CI scaffold only")
+    parser.add_argument("--slice-gate", action="store_true", help="Check vertical-slice gate report only")
     args = parser.parse_args(argv)
 
-    selected = [args.license, args.provenance, args.accessibility, args.platform, args.ci]
+    selected = [args.license, args.provenance, args.accessibility, args.platform, args.slice_gate, args.ci]
     run_all = not any(selected)
     results = run_checks(
         license_check=run_all or args.license,
         provenance_check=run_all or args.provenance,
         accessibility_check=run_all or args.accessibility,
         platform_check=run_all or args.platform,
+        slice_gate_check=run_all or args.slice_gate,
         ci_check=run_all or args.ci,
     )
     return 0 if print_report(results) else 1

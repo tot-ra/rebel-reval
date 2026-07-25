@@ -15,7 +15,7 @@ References:
 | P0 |     8  |    39  | Baseline, storage, materials, historical audit |
 | P1 |     0  |     8  | Runtime systems, content foundation |
 | P2 |     3  |    18  | Vertical-slice production (playable MVP) |
-| P3 |     3  |    13  | Validation, accessibility, performance |
+| P3 |     2  |    14  | Validation, accessibility, performance |
 | P4 |    49  |     7  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
@@ -79,7 +79,8 @@ References:
 
 
 
-<!-- P3-012 completed in current session -->
+
+<!-- P3-014 completed in current session -->
 <!-- P3-013 completed in current session -->
 <!-- P3-011 completed in current session -->
 <!-- P3-008 completed in current session -->
@@ -227,7 +228,7 @@ References:
 
 - [x] P3-008 | deps: P3-007 | deliverable: information design with no required color-only, audio-only, or prior-history dependency | allowed files: `scripts/slice/vertical_slice_information_design_model.gd`, `docs/data/slice_information_design_manifest.json`, `tools/slice_information_design.py`, `tools/report_slice_information_design.py`, `tests/python/test_report_slice_information_design.py`, `tests/godot/test_vertical_slice_information_design.gd`, `docs/reports/p3_008_information_design.md`, `tools/release_candidate_check.py`, `tests/python/test_release_candidate_check.py`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 tools/report_slice_information_design.py --check` and `python3 -m unittest tests.python.test_report_slice_information_design -v` pass; `--filter=test_vertical_slice_information_design` passes; maintainer report records grayscale/muted review without external history
 - [x] P3-007 | deps: P2-012 | deliverable: accessibility options for remapping, hold/toggle, text speed, scalable text, subtitle background, focus contrast, screenshake, and reduced flashing | allowed files: `scripts/settings/gameplay_accessibility_settings.gd`, `scripts/settings/user_settings.gd`, `scripts/settings/user_settings_store.gd`, `scripts/player/player_action_input.gd`, `scripts/ui/game_settings_overlay.gd`, `scripts/ui/game_settings_controller.gd`, `scripts/ui/ui_focus_theme.gd`, `scripts/map/view3d/map_view_runtime_camera.gd`, `scripts/map/view3d/map_view_runtime.gd`, `scripts/map/view3d/map_view_runtime_actors.gd`, `scripts/map/view3d/sky_weather_3d.gd`, `scripts/inventory/inventory_ui_theme.gd`, `scripts/ui/world_map_global_view.gd`, `scripts/ui/world_map_fast_travel_view.gd`, `docs/data/accessibility_checklist.json`, `tools/report_accessibility_checklist.py`, `tests/godot/test_gameplay_accessibility_settings.gd`, `tests/godot/test_game_settings_overlay.gd`, `tests/python/test_report_accessibility_checklist.py`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 tools/report_accessibility_checklist.py --check` and `python3 -m unittest tests.python.test_report_accessibility_checklist -v` pass; `--filter=test_gameplay_accessibility_settings` and `--filter=test_game_settings_overlay` pass; accessibility checklist passes at supported resolutions and on both input methods
-- [ ] P3-014 | deps: P3-001,P3-005,P3-008,P3-012,P3-013 | deliverable: maintainer vertical-slice gate report containing every acceptance criterion copied from README per [ADR 0014](docs/adr/0014-authorial-acceptance-gates-without-external-playtests.md) | verify: `docs/reports/p3_014_slice_gate.md` records pass evidence for each criterion from maintainer playable review plus automated traversal and export results; `python3 tools/release_candidate_check.py` passes repository-side gates
+- [x] P3-014 | deps: P3-001,P3-005,P3-008,P3-012,P3-013 | deliverable: maintainer vertical-slice gate report containing every acceptance criterion copied from README per [ADR 0014](docs/adr/0014-authorial-acceptance-gates-without-external-playtests.md) | allowed files: `docs/reports/p3_014_slice_gate.md`, `tools/release_candidate_check.py`, `tests/python/test_release_candidate_check.py`, `TODO.md`, `docs/ROADMAP.md` | verify: `docs/reports/p3_014_slice_gate.md` records pass evidence for each criterion from maintainer playable review plus automated traversal and export results; `python3 tools/release_candidate_check.py` passes repository-side gates
 ### Large
 
 - [ ] P3-016 | deps: P2-012,P3-014 | deliverable: end-to-end slice branch traversal suite covering all playable states and invalid transitions, save compatibility across every reported platform | verify: traversal report shows all intended endings reachable, all invalid transitions rejected, every published save fixture loads or migrates on declared platforms

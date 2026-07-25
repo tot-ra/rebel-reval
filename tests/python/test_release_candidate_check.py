@@ -20,6 +20,7 @@ from release_candidate_check import (  # noqa: E402
     check_license,
     check_platform,
     check_provenance,
+    check_slice_gate,
     main,
     run_checks,
 )
@@ -225,6 +226,24 @@ class ReleaseCandidateCheckTest(unittest.TestCase):
             (tools_dir / "restore_lfs_assets.sh").write_text("#!/bin/sh\n", encoding="utf-8")
 
             result = check_ci(root)
+
+            self.assertTrue(result.passed)
+
+    def test_slice_gate_checks_maintainer_report(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            reports_dir = root / "docs" / "reports"
+            reports_dir.mkdir(parents=True)
+            (reports_dir / "p3_014_slice_gate.md").write_text(
+                "# gate\n\n## Maintainer sign-off\n\npass\n",
+                encoding="utf-8",
+            )
+            tools_dir = root / "tools"
+            tools_dir.mkdir(parents=True, exist_ok=True)
+            (tools_dir / "report_slice_traversal.py").write_text("# stub\n", encoding="utf-8")
+            (tools_dir / "report_slice_branch_consequences.py").write_text("# stub\n", encoding="utf-8")
+
+            result = check_slice_gate(root)
 
             self.assertTrue(result.passed)
 
