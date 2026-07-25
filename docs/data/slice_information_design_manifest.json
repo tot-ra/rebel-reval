@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "task_id": "P3-008",
+  "beat_count": 23,
+  "historical_concept_count": 6,
+  "godot_model": "scripts/slice/vertical_slice_information_design_model.gd",
+  "godot_test_filter": "test_vertical_slice_information_design",
+  "maintainer_report": "docs/reports/p3_008_information_design.md"
+}

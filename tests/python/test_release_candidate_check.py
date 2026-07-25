@@ -143,6 +143,14 @@ class ReleaseCandidateCheckTest(unittest.TestCase):
             )
             (root / "tools").mkdir(parents=True)
             (root / "tools" / "report_accessibility_checklist.py").write_text("# stub\n", encoding="utf-8")
+            (root / "tools" / "report_slice_information_design.py").write_text("# stub\n", encoding="utf-8")
+            reports_dir = root / "docs" / "reports"
+            reports_dir.mkdir(parents=True)
+            (reports_dir / "p3_008_information_design.md").write_text("# stub\n", encoding="utf-8")
+            (docs_dir / "slice_information_design_manifest.json").write_text(
+                json.dumps({"version": 1}),
+                encoding="utf-8",
+            )
             (tests_dir / "test_gameplay_accessibility_settings.gd").write_text(
                 "extends RefCounted\n", encoding="utf-8"
             )

@@ -190,6 +190,29 @@ def check_accessibility(root: Path = ROOT) -> CheckResult:
     else:
         details.append("gameplay_accessibility_settings.gd is missing")
 
+    info_design_manifest = root / "docs" / "data" / "slice_information_design_manifest.json"
+    info_design_tool = root / "tools" / "report_slice_information_design.py"
+    info_design_report = root / "docs" / "reports" / "p3_008_information_design.md"
+    checks.extend(
+        [
+            ("Information design manifest present", info_design_manifest.is_file()),
+            ("Information design verifier present", info_design_tool.is_file()),
+            ("Information design maintainer report present", info_design_report.is_file()),
+        ]
+    )
+    if info_design_manifest.is_file():
+        details.append("slice_information_design_manifest.json is present")
+    else:
+        details.append("slice_information_design_manifest.json is missing")
+    if info_design_tool.is_file():
+        details.append("report_slice_information_design.py is present")
+    else:
+        details.append("report_slice_information_design.py is missing")
+    if info_design_report.is_file():
+        details.append("p3_008_information_design.md is present")
+    else:
+        details.append("p3_008_information_design.md is missing")
+
     passed_count = sum(1 for _, ok in checks if ok)
     passed = passed_count == len(checks)
     return CheckResult(
