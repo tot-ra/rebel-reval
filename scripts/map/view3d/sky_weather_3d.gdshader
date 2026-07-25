@@ -232,6 +232,10 @@ float rain_shafts(vec3 dir) {
 // bearing, descending from high in the sky toward the horizon. Only drawn near
 // the peak of a flash so it reads as a bolt, not a steady line; it wanders
 // uniquely per strike and is naturally only seen when facing that quarter.
+//
+// Design: a mostly straight main trunk with a few rare angular deflections
+// (not high-frequency zigzag), plus 2-3 branches that fork off at realistic
+// angles. Each strike wanders uniquely via the per-strike seed.
 float lightning_bolt(vec3 dir) {
 	if (lightning < 0.35 || dir.y < 0.015 || dir.y > 0.62) {
 		return 0.0;
@@ -239,15 +243,47 @@ float lightning_bolt(vec3 dir) {
 	vec2 g = normalize(vec2(dir.x, -dir.z) + vec2(0.0001));
 	// Signed horizontal angle between this ray and the strike bearing.
 	float ang = atan(g.x * lightning_dir.y - g.y * lightning_dir.x, dot(g, lightning_dir));
-	// Jagged channel: the horizontal offset wanders with height, unique per strike.
+
+	// --- Main trunk: low-frequency angular deflections, not sawtooth. ---
+	// A single coarse noise sample gives one slow drift left/right, then a
+	// sharper mid-frequency sample adds a couple of angular bends - but at
+	// much lower amplitude so the bolt reads as a mostly straight channel.
 	float seed = lightning_dir.x * 5.3 + lightning_dir.y * 2.1 + 0.5;
-	float jag = (texture(cloud_noise, vec2(dir.y * 3.5 + seed, seed * 0.37)).r - 0.5) * 0.13;
-	jag += (texture(cloud_noise, vec2(dir.y * 12.0 + seed, 0.6)).r - 0.5) * 0.035;
-	float d = abs(ang - jag);
-	float core = smoothstep(0.010, 0.0, d);
-	float glow = smoothstep(0.06, 0.0, d) * 0.3;
+	// Slow broad drift: one or two large sweeps across the sky.
+	float trunk = (texture(cloud_noise, vec2(dir.y * 1.8 + seed, seed * 0.37)).r - 0.5) * 0.08;
+	// Sharper angular kinks at half the frequency - rare bends, not zigzag.
+	trunk += (texture(cloud_noise, vec2(dir.y * 4.2 + seed, 0.6)).r - 0.5) * 0.025;
+	float d_main = abs(ang - trunk);
+	float core = smoothstep(0.009, 0.0, d_main);
+	float glow = smoothstep(0.05, 0.0, d_main) * 0.25;
+
+	// --- Branches: 2-3 thin forks that split off at an angle. ---
+	// Each branch is a separate angular line at a fixed offset from the main
+	// trunk, visible only partway down the bolt and much thinner.
+	float branch_sum = 0.0;
+	// Branch 1: forks right ~30% down, ~15 degrees offset.
+	float b1_active = smoothstep(0.55, 0.50, dir.y) * smoothstep(0.18, 0.25, dir.y);
+	float b1_angle = ang - 0.12;
+	float b1_jag = (texture(cloud_noise, vec2(dir.y * 3.0 + seed + 1.7, 0.3)).r - 0.5) * 0.02;
+	float d_b1 = abs(b1_angle - b1_jag - trunk);
+	float b1 = smoothstep(0.005, 0.0, d_b1) * b1_active;
+	// Branch 2: forks left ~55% down, slightly wider angle.
+	float b2_active = smoothstep(0.45, 0.38, dir.y) * smoothstep(0.10, 0.18, dir.y);
+	float b2_angle = ang + 0.16;
+	float b2_jag = (texture(cloud_noise, vec2(dir.y * 2.5 + seed + 3.2, 0.7)).r - 0.5) * 0.015;
+	float d_b2 = abs(b2_angle - b2_jag - trunk);
+	float b2 = smoothstep(0.004, 0.0, d_b2) * b2_active;
+	// Branch 3: short upper fork, visible only near cloud base.
+	float b3_active = smoothstep(0.52, 0.48, dir.y) * smoothstep(0.38, 0.44, dir.y);
+	float b3_angle = ang - 0.09;
+	float d_b3 = abs(b3_angle - trunk);
+	float b3 = smoothstep(0.004, 0.0, d_b3) * b3_active * 0.6;
+	branch_sum = b1 + b2 + b3;
+
+	// Taper from cloud base (top) to ground (bottom).
 	float taper = smoothstep(0.015, 0.08, dir.y);
-	return (core + glow) * taper * smoothstep(0.35, 0.9, lightning);
+	float flash_gate = smoothstep(0.35, 0.9, lightning);
+	return (core + glow + branch_sum * 0.35) * taper * flash_gate;
 }
 
 
@@ -350,7 +386,10 @@ void sky() {
 	// WHY flip V: sky sampler2D has V=0 at the top of the image (north on the
 	// mosaic). Disk +Y is lunar north, so +moon_uv.y must sample decreasing V.
 	// Without the flip the skin renders upside-down / sideways on the sky disk.
-	vec2 lunar_uv = clamp(vec2(moon_uv.x, -moon_uv.y) * 0.485 + 0.5, vec2(0.002), vec2(0.998));
+	// WHY flip both U and V (180° rotation): The NASA near-side mosaic is oriented
+	// north-up / west-left. From Estonia's latitude (~59°N) the moon's near side
+	// appears rotated 180° compared to that default, so we flip both UV axes.
+	vec2 lunar_uv = clamp(vec2(-moon_uv.x, -moon_uv.y) * 0.485 + 0.5, vec2(0.002), vec2(0.998));
 	vec3 lunar_albedo = texture(lunar_albedo_map, lunar_uv).rgb;
 	// Mild relief from photo luminance slopes. Keep taps inside the disk so the
 	// limb never differences against the exterior skirt and darkens into a rim.

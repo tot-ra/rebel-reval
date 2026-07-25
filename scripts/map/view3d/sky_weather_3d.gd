@@ -132,22 +132,35 @@ const PROFILES: Dictionary = {
 }
 ## Seconds each weather state holds before the Markov step picks the next one.
 ## Sized against DayNightCycle.CYCLE_DURATION_SECONDS (60s days) so weather
-## visibly turns over within one in-game day.
+## visibly turns over within one in-game day. Clear spells are long enough to
+## feel like real Estonian sunny stretches; rain and storms pass quickly so they
+## punctuate rather than dominate.
 const DURATIONS: Dictionary = {
-	WEATHER_CLEAR: Vector2(22.0, 45.0),
-	WEATHER_CLOUDY: Vector2(16.0, 30.0),
-	WEATHER_OVERCAST: Vector2(25.0, 45.0),
-	WEATHER_RAIN: Vector2(22.0, 45.0),
-	WEATHER_STORM: Vector2(20.0, 40.0),
+	WEATHER_CLEAR: Vector2(28.0, 55.0),
+	WEATHER_CLOUDY: Vector2(18.0, 35.0),
+	WEATHER_OVERCAST: Vector2(20.0, 35.0),
+	WEATHER_RAIN: Vector2(15.0, 30.0),
+	WEATHER_STORM: Vector2(12.0, 25.0),
 }
-## Cumulative odds for what a cloudy spell becomes next. Weighted so every regime
-## — widespread rain, an isolated thunderstorm, full overcast, or clearing — is
-## easy to catch in a short session. The remainder falls back to clearing.
-const CLOUDY_TO_RAIN_CHANCE := 0.24
-const CLOUDY_TO_STORM_CHANCE := 0.62
-const CLOUDY_TO_OVERCAST_CHANCE := 0.82
-## An overcast deck often breaks into rain before clearing.
-const OVERCAST_TO_RAIN_CHANCE := 0.55
+## Cumulative odds for what a cloudy spell becomes next. Normalized to match
+## real Estonian spring weather: fair spells persist, rain comes from clouds
+## gathering, and storms are rare.
+const CLOUDY_TO_CLEAR_CHANCE := 0.30
+const CLOUDY_TO_OVERCAST_CHANCE := 0.55
+const CLOUDY_TO_RAIN_CHANCE := 0.72
+const CLOUDY_TO_STORM_CHANCE := 0.80
+## Clear skies can hold or cloud over, but never jump to rain — clouds must
+## gather first (tested in test_rain_never_starts_from_a_clear_sky).
+const CLEAR_TO_STAY_CHANCE := 0.40
+## Overcast often clears or thins; rain is the minority outcome.
+const OVERCAST_TO_CLEAR_CHANCE := 0.20
+const OVERCAST_TO_CLOUDY_CHANCE := 0.55
+## Rain eases to clear or cloudy; lingering overcast is less common.
+const RAIN_TO_CLEAR_CHANCE := 0.25
+const RAIN_TO_CLOUDY_CHANCE := 0.75
+## Storms pass and skies clear faster than lingering rain.
+const STORM_TO_CLEAR_CHANCE := 0.20
+const STORM_TO_CLOUDY_CHANCE := 0.70
 
 ## Gust front: a real squall is preceded by a shove of wind ahead of the rain.
 ## When the machine commits to rain we fire a transient gust that spikes the wind
@@ -601,32 +614,58 @@ static func sidereal_angle_for_progress(progress: float) -> float:
 
 
 ## Clouds must gather before rain, so wet regimes are only ever reached through
-## cloudy or overcast — never straight off a clear sky. From cloudy the roll
-## fans out into every regime for variety; storms and overcast settle back down
-## through cloudy.
+## cloudy or overcast -- never straight off a clear sky. Every state can
+## eventually reach clear, giving the sky a chance to break open after any
+## weather. The probabilities are tuned to Estonian spring averages: sunny
+## spells are common, rain and storms are punctuations rather than the norm.
 func _pick_next_weather() -> void:
 	match weather:
 		WEATHER_CLEAR:
-			set_weather(WEATHER_CLOUDY)
+			# Sunny spells can hold -- real spring days in Reval often stay fair.
+			if _rng.randf() < CLEAR_TO_STAY_CHANCE:
+				set_weather(WEATHER_CLEAR)
+			else:
+				set_weather(WEATHER_CLOUDY)
 		WEATHER_CLOUDY:
+			# The hub state: clouds can break, thicken, or produce rain/storms.
 			var roll := _rng.randf()
-			if roll < CLOUDY_TO_RAIN_CHANCE:
+			if roll < CLOUDY_TO_CLEAR_CHANCE:
+				set_weather(WEATHER_CLEAR)
+			elif roll < CLOUDY_TO_OVERCAST_CHANCE:
+				set_weather(WEATHER_OVERCAST)
+			elif roll < CLOUDY_TO_RAIN_CHANCE:
 				set_weather(WEATHER_RAIN)
 			elif roll < CLOUDY_TO_STORM_CHANCE:
 				set_weather(WEATHER_STORM)
-			elif roll < CLOUDY_TO_OVERCAST_CHANCE:
-				set_weather(WEATHER_OVERCAST)
-			else:
-				set_weather(WEATHER_CLEAR)
-		WEATHER_OVERCAST:
-			if _rng.randf() < OVERCAST_TO_RAIN_CHANCE:
-				set_weather(WEATHER_RAIN)
 			else:
 				set_weather(WEATHER_CLOUDY)
+		WEATHER_OVERCAST:
+			# Grey skies can break open, thin to clouds, or start raining.
+			var roll := _rng.randf()
+			if roll < OVERCAST_TO_CLEAR_CHANCE:
+				set_weather(WEATHER_CLEAR)
+			elif roll < OVERCAST_TO_CLOUDY_CHANCE:
+				set_weather(WEATHER_CLOUDY)
+			else:
+				set_weather(WEATHER_RAIN)
 		WEATHER_RAIN:
-			set_weather(WEATHER_CLOUDY)
+			# Showers pass: the sky clears or eases to cloud cover.
+			var roll := _rng.randf()
+			if roll < RAIN_TO_CLEAR_CHANCE:
+				set_weather(WEATHER_CLEAR)
+			elif roll < RAIN_TO_CLOUDY_CHANCE:
+				set_weather(WEATHER_CLOUDY)
+			else:
+				set_weather(WEATHER_OVERCAST)
 		WEATHER_STORM:
-			set_weather(WEATHER_CLOUDY)
+			# Storms clear faster than steady rain -- convective cells move on.
+			var roll := _rng.randf()
+			if roll < STORM_TO_CLEAR_CHANCE:
+				set_weather(WEATHER_CLEAR)
+			elif roll < STORM_TO_CLOUDY_CHANCE:
+				set_weather(WEATHER_CLOUDY)
+			else:
+				set_weather(WEATHER_OVERCAST)
 
 
 func _roll_duration(for_weather: StringName) -> float:
@@ -652,9 +691,18 @@ func _advance_gust(delta: float) -> void:
 
 ## Runs the lightning: decays any flash in progress, then, while the current
 ## state has thunder, counts down (faster the stronger the thunder) to the next
-## strike and fires one at a fresh bearing. An in-flight flash always finishes,
-## even if the storm ends mid-stroke.
+## strike and fires one at a fresh bearing. When thunder drops to zero the
+## strike timer resets and any in-flight flash is killed so lightning never
+## appears during fair weather.
 func _advance_lightning(delta: float) -> void:
+	var thunder := float(_current.get("thunder", 0.0))
+	# Fair weather: suppress lightning immediately and reset the countdown so
+	# strikes do not queue up and fire the instant weather turns stormy.
+	if thunder <= 0.01:
+		_lightning = 0.0
+		_lightning_time = -1.0
+		_time_to_strike = _lightning_rng.randf_range(LIGHTNING_GAP_SECONDS.x, LIGHTNING_GAP_SECONDS.y)
+		return
 	if _lightning_time >= 0.0:
 		_lightning_time += delta
 		_lightning = _lightning_envelope(_lightning_time)
@@ -663,9 +711,6 @@ func _advance_lightning(delta: float) -> void:
 			_lightning_time = -1.0
 	else:
 		_lightning = 0.0
-	var thunder := float(_current.get("thunder", 0.0))
-	if thunder <= 0.01:
-		return
 	_time_to_strike -= delta * thunder
 	if _time_to_strike <= 0.0 and _lightning_time < 0.0:
 		var angle := _lightning_rng.randf() * TAU
