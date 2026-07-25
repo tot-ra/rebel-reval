@@ -22,6 +22,8 @@ const DEFAULT_GLYPH_HEIGHT := (
 const GLYPH_BOB_AMPLITUDE := 0.05
 ## Ground pickups stay near the item instead of floating at adult head height.
 const PICKUP_GLYPH_HEIGHT := 0.55
+## Inspection sites and prop interactables have no actor rig; keep the glyph low.
+const USE_GLYPH_HEIGHT := 0.85
 
 var _interactable: Interactable
 var _cell_size := MapTypes.DEFAULT_CELL_SIZE
@@ -58,6 +60,8 @@ func set_focused(value: bool) -> void:
 func _process(delta: float) -> void:
 	if _interactable == null or not is_instance_valid(_interactable):
 		return
+	if _interactable.is_enabled() != _enabled:
+		set_enabled(_interactable.is_enabled())
 	MapViewBridge.sync_actor(self, _interactable.global_position, _cell_size)
 	if _glyph == null:
 		return
@@ -108,6 +112,8 @@ func _resolve_glyph_height() -> float:
 		return DEFAULT_GLYPH_HEIGHT
 	if _interactable.get_interaction_kind() == InteractionKinds.PICKUP:
 		return PICKUP_GLYPH_HEIGHT
+	if _interactable.get_interaction_kind() == InteractionKinds.USE:
+		return _resolve_actor_glyph_height()
 	var host := _interactable.get_parent()
 	if host != null and host.has_method("view_glyph_height"):
 		return host.call("view_glyph_height") as float
@@ -115,6 +121,16 @@ func _resolve_glyph_height() -> float:
 	if rig != null and rig.has_method("view_glyph_height"):
 		return rig.call("view_glyph_height") as float
 	return DEFAULT_GLYPH_HEIGHT
+
+
+func _resolve_actor_glyph_height() -> float:
+	var host := _interactable.get_parent() if _interactable != null else null
+	if host != null and host.has_method("view_glyph_height"):
+		return host.call("view_glyph_height") as float
+	var rig := _resolve_actor_rig(host)
+	if rig != null and rig.has_method("view_glyph_height"):
+		return rig.call("view_glyph_height") as float
+	return USE_GLYPH_HEIGHT
 
 
 func _resolve_actor_rig(host: Node) -> Node:

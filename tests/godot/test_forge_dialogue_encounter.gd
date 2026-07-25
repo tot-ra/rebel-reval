@@ -168,6 +168,43 @@ func test_interactable_world_indicator_toggles_focus_ring() -> void:
 	_cleanup_node(root)
 
 
+func test_interactable_world_indicator_positions_use_glyph_near_ground() -> void:
+	var root := _make_root()
+	var interactable := _spawn_interactable(root)
+	interactable.interaction_kind = InteractionKinds.USE
+	var indicator := InteractableWorldIndicator.new()
+	root.add_child(indicator)
+	indicator.attach(interactable, MapTypes.DEFAULT_CELL_SIZE)
+
+	var glyph := indicator.get_node("PromptGlyph") as Label3D
+	indicator._process(0.0)
+	assert_eq(glyph.text, "!")
+	assert_true(
+		is_equal_approx(glyph.position.y, InteractableWorldIndicator.USE_GLYPH_HEIGHT),
+		"Ground USE markers must not float at human head height"
+	)
+	assert_true(
+		glyph.position.y < CharacterScale.VISIBLE_HEIGHT_WORLD,
+		"USE glyph must stay below adult talk-marker height"
+	)
+	_cleanup_node(root)
+
+
+func test_interactable_world_indicator_hides_when_interactable_disabled() -> void:
+	var root := _make_root()
+	var interactable := _spawn_interactable(root)
+	interactable.interaction_kind = InteractionKinds.USE
+	var indicator := InteractableWorldIndicator.new()
+	root.add_child(indicator)
+	indicator.attach(interactable, MapTypes.DEFAULT_CELL_SIZE)
+	assert_true(indicator.visible)
+
+	interactable.enabled = false
+	indicator._process(0.0)
+	assert_false(indicator.visible)
+	_cleanup_node(root)
+
+
 func test_forge_cat_stops_and_faces_player_during_dialogue() -> void:
 	var cat := ForgeCat.new()
 	var player := CharacterBody2D.new()
