@@ -91,6 +91,29 @@ func test_keyboard_and_gamepad_advance_demo_dialogue() -> void:
 	_cleanup_node(root)
 
 
+func test_mouse_click_advances_demo_dialogue() -> void:
+	var root := _make_root()
+	var box := DemoDialogueBox.new()
+	root.add_child(box)
+	await box.ready
+
+	var db := ContentDB.new()
+	assert_true(db.load_from_directories(SessionState.DEMO_CONTENT_DIRS))
+	var runner := DemoDialogueRunner.new()
+	root.add_child(runner)
+	runner.configure(db, GameState.new(), box)
+	assert_true(runner.start(DIALOGUE_ID))
+	var first_line := box.get_line_text()
+
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	assert_true(runner.try_advance(click))
+	assert_true(runner.is_active())
+	assert_ne(box.get_line_text(), first_line)
+	_cleanup_node(root)
+
+
 func test_mart_encounter_spawns_at_mart_street_anchor() -> void:
 	var root := _make_root()
 	var actors := Node2D.new()

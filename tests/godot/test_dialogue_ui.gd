@@ -93,11 +93,19 @@ func _advance_line(setup: Dictionary, input_mode: String) -> void:
 		"keyboard":
 			_send_action(setup.runner, &"interact")
 		"mouse":
-			setup.ui.click_continue_for_test()
+			_send_mouse_continue(setup.ui)
 		"gamepad":
 			_send_joy_button(setup.runner, JOY_BUTTON_A)
 		_:
 			setup.runner.advance_for_test()
+
+
+func _send_mouse_continue(ui: DialogueUI) -> void:
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	# Exercise the real panel gui_input path, not the test helper shortcut.
+	ui._on_dialogue_panel_gui_input(click)
 
 
 func _select_choice_keyboard(setup: Dictionary, choice_id: String) -> void:

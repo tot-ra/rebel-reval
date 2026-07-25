@@ -81,12 +81,23 @@ func try_advance(event: InputEvent) -> bool:
 
 func _enable_advance() -> void:
 	_input_enabled = true
+	# WHY: left-clicks often land on decorative Labels/Controls and never become
+	# unhandled input. Process mouse in _input; keep keyboard/gamepad on
+	# _unhandled_input so focused UI chrome can still claim those actions first.
+	set_process_input(true)
 	set_process_unhandled_input(true)
 
 
 func advance_for_test() -> void:
 	if _active:
 		_advance()
+
+
+func _input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton):
+		return
+	if try_advance(event):
+		get_viewport().set_input_as_handled()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -138,6 +149,7 @@ func _close() -> void:
 	_active = false
 	_input_enabled = false
 	_current_node_id = ""
+	set_process_input(false)
 	set_process_unhandled_input(false)
 	remove_from_group(&"demo_dialogue_active")
 	_set_conversation_host(null)
@@ -181,6 +193,9 @@ func _set_interaction_enabled(enabled: bool) -> void:
 func _is_continue_event(event: InputEvent) -> bool:
 	if not event.is_pressed() or event.is_echo():
 		return false
+	if event is InputEventMouseButton:
+		var mouse_event := event as InputEventMouseButton
+		return mouse_event.button_index == MOUSE_BUTTON_LEFT
 	for action: StringName in CONTINUE_ACTIONS:
 		if event.is_action(action):
 			return event.is_action_pressed(action)

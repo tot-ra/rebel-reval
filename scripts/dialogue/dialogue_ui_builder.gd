@@ -11,6 +11,8 @@ const PORTRAIT_SIZE := 96
 static func build(host: CanvasLayer, font: Font, callbacks: Dictionary) -> Dictionary:
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	# WHY: full-rect chrome must not steal left-clicks meant to advance lines.
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_theme_constant_override("margin_left", 32)
 	margin.add_theme_constant_override("margin_right", 32)
 	margin.add_theme_constant_override("margin_bottom", 32)
@@ -18,6 +20,7 @@ static func build(host: CanvasLayer, font: Font, callbacks: Dictionary) -> Dicti
 
 	var stack := VBoxContainer.new()
 	stack.set_anchors_preset(Control.PRESET_FULL_RECT)
+	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stack.add_theme_constant_override("separation", 8)
 	margin.add_child(stack)
 
@@ -25,6 +28,7 @@ static func build(host: CanvasLayer, font: Font, callbacks: Dictionary) -> Dicti
 	backlog_panel.visible = false
 	backlog_panel.custom_minimum_size = Vector2(0, 220)
 	var backlog_margin := MarginContainer.new()
+	backlog_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	backlog_margin.add_theme_constant_override("margin_left", 16)
 	backlog_margin.add_theme_constant_override("margin_right", 16)
 	backlog_margin.add_theme_constant_override("margin_top", 12)
@@ -38,17 +42,22 @@ static func build(host: CanvasLayer, font: Font, callbacks: Dictionary) -> Dicti
 
 	var backlog_list := VBoxContainer.new()
 	backlog_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	backlog_list.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	backlog_scroll.add_child(backlog_list)
 
 	var root := Control.new()
 	root.custom_minimum_size = Vector2(0, TextLayoutScript.DIALOGUE_ROOT_MIN_HEIGHT)
+	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stack.add_child(root)
 
 	var panel := PanelContainer.new()
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	# Panel keeps STOP so left-click on the dialogue box advances the line.
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.add_child(panel)
 
 	var content := MarginContainer.new()
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_theme_constant_override("margin_left", 24)
 	content.add_theme_constant_override("margin_right", 24)
 	content.add_theme_constant_override("margin_top", 18)
@@ -56,24 +65,29 @@ static func build(host: CanvasLayer, font: Font, callbacks: Dictionary) -> Dicti
 	panel.add_child(content)
 
 	var body := HBoxContainer.new()
+	body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	body.add_theme_constant_override("separation", 16)
 	content.add_child(body)
 
 	var portrait_box := PanelContainer.new()
+	portrait_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	portrait_box.custom_minimum_size = Vector2(PORTRAIT_SIZE, PORTRAIT_SIZE)
 	body.add_child(portrait_box)
 
 	var portrait_stack := Control.new()
+	portrait_stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	portrait_stack.custom_minimum_size = Vector2(PORTRAIT_SIZE, PORTRAIT_SIZE)
 	portrait_box.add_child(portrait_stack)
 
 	var portrait_rect := TextureRect.new()
+	portrait_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	portrait_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	portrait_rect.custom_minimum_size = Vector2(PORTRAIT_SIZE, PORTRAIT_SIZE)
 	portrait_stack.add_child(portrait_rect)
 
 	var portrait_fallback := Label.new()
+	portrait_fallback.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	portrait_fallback.set_anchors_preset(Control.PRESET_FULL_RECT)
 	portrait_fallback.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	portrait_fallback.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -81,6 +95,7 @@ static func build(host: CanvasLayer, font: Font, callbacks: Dictionary) -> Dicti
 	portrait_stack.add_child(portrait_fallback)
 
 	var text_wrap := Control.new()
+	text_wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	text_wrap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.add_child(text_wrap)
 
@@ -91,16 +106,22 @@ static func build(host: CanvasLayer, font: Font, callbacks: Dictionary) -> Dicti
 
 	var text_column := VBoxContainer.new()
 	text_column.set_anchors_preset(Control.PRESET_FULL_RECT)
+	text_column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	text_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	text_column.add_theme_constant_override("separation", 8)
 	text_wrap.add_child(text_column)
 
 	var speaker_label := Label.new()
+	speaker_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	speaker_label.add_theme_color_override("font_color", Color(0.92, 0.78, 0.42, 1.0))
 	speaker_label.add_theme_font_override("font", font)
 	text_column.add_child(speaker_label)
 
 	var text_scroll := ScrollContainer.new()
+	# WHY: ScrollContainer accepts mouse presses for drag-scroll and would block
+	# panel gui_input continue. Wheel scrolling still works via the panel parent
+	# not owning the wheel; overflow text remains readable via auto layout.
+	text_scroll.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	text_scroll.custom_minimum_size = Vector2(0, TextLayoutScript.BODY_SCROLL_MIN_HEIGHT)
 	text_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	text_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -108,6 +129,7 @@ static func build(host: CanvasLayer, font: Font, callbacks: Dictionary) -> Dicti
 	text_column.add_child(text_scroll)
 
 	var text_label := Label.new()
+	text_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	text_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	text_label.add_theme_color_override("font_color", Color(0.95, 0.95, 0.9, 1.0))
@@ -115,14 +137,17 @@ static func build(host: CanvasLayer, font: Font, callbacks: Dictionary) -> Dicti
 	text_scroll.add_child(text_label)
 
 	var choices_box := VBoxContainer.new()
+	choices_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	choices_box.add_theme_constant_override("separation", 4)
 	text_column.add_child(choices_box)
 
 	var footer := HBoxContainer.new()
+	footer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	footer.add_theme_constant_override("separation", 12)
 	text_column.add_child(footer)
 
 	var continue_hint := Label.new()
+	continue_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	continue_hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	continue_hint.add_theme_color_override("font_color", Color(0.72, 0.76, 0.82, 1.0))
 	continue_hint.add_theme_font_override("font", font)
@@ -143,6 +168,7 @@ static func build(host: CanvasLayer, font: Font, callbacks: Dictionary) -> Dicti
 	footer.add_child(skip_button)
 
 	var disabled_reason_label := Label.new()
+	disabled_reason_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	disabled_reason_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	disabled_reason_label.add_theme_color_override("font_color", Color(0.86, 0.55, 0.48, 1.0))
 	disabled_reason_label.add_theme_font_override("font", font)

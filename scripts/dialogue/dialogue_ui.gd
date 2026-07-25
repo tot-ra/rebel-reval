@@ -276,6 +276,7 @@ func _rebuild_backlog() -> void:
 		var speaker_name := String(entry.get("speaker_name", ""))
 		var text := String(entry.get("text", ""))
 		line.text = "%s: %s" % [speaker_name, text] if not speaker_name.is_empty() else text
+		line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		line.add_theme_font_override("font", _font)
 		line.add_theme_font_size_override("font_size", TextScaleScript.backlog_size(_text_scale))
