@@ -15,7 +15,7 @@ References:
 | P0 |     7  |    39  | Baseline, storage, materials, historical audit |
 | P1 |     0  |     8  | Runtime systems, content foundation |
 | P2 |     4  |    17  | Vertical-slice production (playable MVP) |
-| P3 |     6  |     9  | Validation, accessibility, performance |
+| P3 |     6  |    10  | Validation, accessibility, performance |
 | P4 |    49  |     7  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
@@ -77,7 +77,7 @@ References:
 
 
 <!-- P3-013 completed in current session -->
-<!-- P3-001 completed in current session -->
+<!-- P3-007 completed in current session -->
 <!-- P2-014 completed in current session -->
 <!-- P2-008 completed in current session -->
 <!-- P2-007 completed in current session -->

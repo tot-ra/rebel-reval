@@ -1,8 +1,6 @@
 extends "res://tests/godot/test_case.gd"
 
-const CameraScript := preload("res://scripts/map/view3d/map_view_runtime_camera.gd")
-const GameplaySettingsScript := preload("res://scripts/settings/gameplay_accessibility_settings.gd")
-const PlayerActionKindScript := preload("res://scripts/player/player_action_kind.gd")
+const PlayerActionKind := preload("res://scripts/player/player_action_kind.gd")
 const PlayerInputScript := preload("res://scripts/player/player_action_input.gd")
 const SettingsScript := preload("res://scripts/settings/gameplay_accessibility_settings.gd")
 const StoreScript := preload("res://scripts/settings/user_settings_store.gd")
@@ -114,6 +112,14 @@ func _temp_dir(prefix: String) -> String:
 
 func _tree() -> SceneTree:
 	return Engine.get_main_loop() as SceneTree
+
+
+func _press_action(action: StringName) -> void:
+	Input.action_press(action)
+
+
+func _release_action(action: StringName) -> void:
+	Input.action_release(action)
 
 
 func _cleanup_temp_dir() -> void:

@@ -2,10 +2,12 @@ class_name PlayerActionInput
 extends RefCounted
 
 static var _guard_toggle_active := false
+static var _guard_was_pressed := false
 
 
 static func reset_guard_toggle() -> void:
 	_guard_toggle_active = false
+	_guard_was_pressed = false
 
 
 static func read_pressed_actions() -> Array[PlayerActionKind.Kind]:
@@ -35,9 +37,13 @@ static func read_attack_held() -> bool:
 
 
 static func read_guard_held() -> bool:
+	var pressed := Input.is_action_pressed(PlayerActionKind.ACTION_GUARD)
 	if _guard_uses_hold():
-		return Input.is_action_pressed(PlayerActionKind.ACTION_GUARD)
-	if Input.is_action_just_pressed(PlayerActionKind.ACTION_GUARD):
+		_guard_was_pressed = pressed
+		return pressed
+	var just_pressed := pressed and not _guard_was_pressed
+	_guard_was_pressed = pressed
+	if just_pressed:
 		_guard_toggle_active = not _guard_toggle_active
 	return _guard_toggle_active
 
