@@ -2,6 +2,9 @@ extends "res://scripts/global/BaseLevel.gd"
 
 const DEFINITION_SCRIPT := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
 const INVESTIGATION_SCRIPT := preload("res://scripts/investigation/bitter_brew_investigation.gd")
+const NIGHT_CONSEQUENCE_SCRIPT := preload(
+	"res://scripts/investigation/bitter_brew_night_consequence.gd"
+)
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -11,6 +14,7 @@ var _bootstrap: Dictionary = {}
 var _view_runtime: MapViewRuntime
 var _mart_encounter: DemoMartEncounter
 var _bitter_brew_investigation: Node
+var _bitter_brew_night: Node
 var _phase_binder: MapPhaseBinder
 var _patrol_controller: MapPatrolController
 
@@ -40,6 +44,16 @@ func _ready() -> void:
 		player,
 		_view_runtime,
 		_mart_encounter.get_interaction_controller()
+	)
+	_bitter_brew_night = NIGHT_CONSEQUENCE_SCRIPT.new()
+	_bitter_brew_night.name = "BitterBrewNightConsequence"
+	add_child(_bitter_brew_night)
+	_bitter_brew_night.setup(
+		self,
+		definition,
+		player,
+		_mart_encounter.get_interaction_controller(),
+		actors
 	)
 
 
