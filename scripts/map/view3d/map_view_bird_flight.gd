@@ -17,6 +17,13 @@ const FLIGHT_SPEED_MIN := 5.5
 const FLIGHT_SPEED_MAX := 11.0
 const EDGE_MARGIN := 5.0
 
+## Wing flap timing: seconds between keyframe advances. 0.12s gives roughly
+## 3-4 flaps/second which looks natural for most species at gameplay distance.
+const FLAP_INTERVAL_S := 0.12
+## Some species glide more than they flap; skip that many flaps between active
+## stroke bursts so swallows flap often while eagles mostly soar.
+const GLIDE_SKIP_DEFAULT := 3
+
 var _birds: Array[Node3D] = []
 var _rng := RandomNumberGenerator.new()
 var _flight_enabled := true
@@ -161,6 +168,8 @@ func _advance_active_birds(delta: float) -> void:
 		bird.position = position
 		bird.look_at(position + (end - start).normalized(), Vector3.UP)
 		bird.set_meta(&"traveled", traveled)
+		# Advance wing flap animation
+		_advance_flap(bird, delta)
 
 
 func _spawn_bird() -> void:
@@ -171,13 +180,15 @@ func _spawn_bird() -> void:
 	if bird == null:
 		return
 	var path := _random_path(_seed_key, _spawn_tick)
-	var mesh := BirdMeshes.mesh_for(species, BirdSpecies.POSE_GLIDING)
-	if mesh == null:
+	# Generate the flapping cycle meshes for this species
+	var cycle := BirdMeshes.flap_cycle(species)
+	if cycle.is_empty():
 		return
 	var model := bird.get_node_or_null("Model") as MeshInstance3D
 	if model == null:
 		return
-	model.mesh = mesh
+	# Start with the neutral wing position (index 2 in FLAP_KEYFRAMES = 0.0)
+	model.mesh = cycle[2]
 	_apply_mesh_material(model)
 	var start: Vector3 = path["start"]
 	var end: Vector3 = path["end"]
@@ -189,6 +200,13 @@ func _spawn_bird() -> void:
 	bird.set_meta(&"speed", path["speed"])
 	bird.set_meta(&"path_length", start.distance_to(end))
 	bird.set_meta(&"traveled", 0.0)
+	# Flapping state: mesh cycle, current keyframe index, and timer
+	bird.set_meta(&"flap_cycle", cycle)
+	bird.set_meta(&"flap_index", 2)
+	bird.set_meta(&"flap_timer", 0.0)
+	# Species-dependent glide skip: larger birds flap less often
+	bird.set_meta(&"glide_skip", _glide_skip_for_species(species))
+	bird.set_meta(&"glide_counter", 0)
 
 
 func _random_path(seed_key: StringName, spawn_tick: int) -> Dictionary:
@@ -230,6 +248,50 @@ func _first_idle_bird() -> Node3D:
 		if not bird.visible:
 			return bird
 	return null
+
+
+func _advance_flap(bird: Node3D, delta: float) -> void:
+	var cycle: Array = bird.get_meta(&"flap_cycle", [])
+	if cycle.is_empty():
+		return
+	var timer := float(bird.get_meta(&"flap_timer", 0.0)) + delta
+	var glide_skip: int = bird.get_meta(&"glide_skip", GLIDE_SKIP_DEFAULT)
+	var counter: int = bird.get_meta(&"glide_counter", 0)
+	if timer < FLAP_INTERVAL_S:
+		bird.set_meta(&"flap_timer", timer)
+		return
+	# Reset timer, carry over excess time for consistent frame pacing
+	bird.set_meta(&"flap_timer", fmod(timer, FLAP_INTERVAL_S))
+	# During glide skip frames the bird holds the neutral pose.
+	if counter < glide_skip:
+		bird.set_meta(&"glide_counter", counter + 1)
+		return
+	bird.set_meta(&"glide_counter", 0)
+	var idx: int = bird.get_meta(&"flap_index", 2)
+	idx = (idx + 1) % cycle.size()
+	bird.set_meta(&"flap_index", idx)
+	var model := bird.get_node_or_null("Model") as MeshInstance3D
+	if model != null:
+		model.mesh = cycle[idx]
+
+
+## Larger soaring birds (raptors, gulls) hold the glide longer between flap
+## bursts; small songbirds and swallows flap nearly continuously.
+func _glide_skip_for_species(species: StringName) -> int:
+	var group := BirdSpecies.group_for(species)
+	match group:
+		BirdSpecies.GROUP_RAPTOR:
+			return 6
+		BirdSpecies.GROUP_GULL, BirdSpecies.GROUP_WATERFOWL:
+			return 4
+		BirdSpecies.GROUP_OWL:
+			return 5
+		BirdSpecies.GROUP_SWALLOW:
+			return 1
+		BirdSpecies.GROUP_TERN:
+			return 2
+		_:
+			return GLIDE_SKIP_DEFAULT
 
 
 func _hide_all_birds() -> void:

@@ -12,7 +12,11 @@ const BODY_RINGS := 7
 const HEAD_SEGMENTS := 8
 const HEAD_RINGS := 5
 
+## Wing flapping keyframes: -1.0 = wings fully down, 0.0 = neutral, 1.0 = fully up
+const FLAP_KEYFRAMES: Array[float] = [-0.6, -0.3, 0.0, 0.4, 0.7, 0.4, 0.0, -0.3]
+
 static var _mesh_cache: Dictionary = {}
+static var _flap_mesh_cache: Dictionary = {}
 
 
 static func mesh_for(species: StringName, pose: StringName = &"") -> ArrayMesh:
@@ -29,6 +33,21 @@ static func mesh_for(species: StringName, pose: StringName = &"") -> ArrayMesh:
 
 static func reset_cache() -> void:
 	_mesh_cache.clear()
+	_flap_mesh_cache.clear()
+
+
+## Returns an array of ArrayMesh for one complete flapping cycle.
+## Each entry corresponds to a FLAP_KEYFRAMES position.
+static func flap_cycle(species: StringName) -> Array:
+	var cache_key := String(species)
+	if _flap_mesh_cache.has(cache_key):
+		return _flap_mesh_cache[cache_key]
+	var cycle: Array = []
+	for lift in FLAP_KEYFRAMES:
+		var mesh := _build_mesh(species, BirdSpecies.POSE_GLIDING, lift)
+		cycle.append(mesh)
+	_flap_mesh_cache[cache_key] = cycle
+	return cycle
 
 
 static func geometry_stats(species: StringName, pose: StringName = &"") -> Dictionary:
@@ -46,7 +65,7 @@ static func geometry_stats(species: StringName, pose: StringName = &"") -> Dicti
 	}
 
 
-static func _build_mesh(species: StringName, pose: StringName) -> ArrayMesh:
+static func _build_mesh(species: StringName, pose: StringName, wing_lift: float = 0.0) -> ArrayMesh:
 	var geometry := BirdSpecies.geometry_for(species)
 	var colors := BirdSpecies.colors_for(species)
 	var body_dims: Vector3 = geometry["body"]
@@ -108,7 +127,7 @@ static func _build_mesh(species: StringName, pose: StringName) -> ArrayMesh:
 		_append_facial_disc(surface, head_center, head_radius, colors[2])
 
 	if pose == BirdSpecies.POSE_GLIDING:
-		_append_extended_wings(surface, body_center, body_radius, wing_span, wing_chord, colors[1])
+		_append_extended_wings(surface, body_center, body_radius, wing_span, wing_chord, colors[1], wing_lift)
 	else:
 		_append_folded_wings(surface, body_center, body_radius, wing_chord, colors[1])
 
@@ -132,14 +151,23 @@ static func _append_extended_wings(
 	body_radius: Vector3,
 	wing_span: float,
 	wing_chord: float,
-	color: Color
+	color: Color,
+	wing_lift: float = 0.0
 ) -> void:
 	var half_span := maxf(wing_span * 0.5, body_radius.x * 1.4)
+	# wing_lift ranges -1..1; multiply by a fraction of the body height to get
+	# a vertical offset that makes the wing visually flap up and down.
+	var lift_offset := wing_lift * body_radius.y * 1.8
 	for side_sign in [-1.0, 1.0]:
-		var shoulder := body_center + Vector3(side_sign * body_radius.x * 0.58, body_radius.y * 0.32, -body_radius.z * 0.08)
-		var elbow := shoulder + Vector3(side_sign * half_span * 0.30, half_span * 0.03, -wing_chord * 0.03)
-		var wrist := shoulder + Vector3(side_sign * half_span * 0.62, half_span * 0.07, wing_chord * 0.05)
-		var tip := shoulder + Vector3(side_sign * half_span, half_span * 0.10, wing_chord * 0.14)
+		var shoulder := body_center + Vector3(side_sign * body_radius.x * 0.58, body_radius.y * 0.32 + lift_offset, -body_radius.z * 0.08)
+		# Elbow and wrist lift progressively more than the shoulder for a
+		# natural bending curve during the flap stroke.
+		var elbow_lift := lift_offset * 1.15
+		var wrist_lift := lift_offset * 1.30
+		var tip_lift := lift_offset * 1.40
+		var elbow := shoulder + Vector3(side_sign * half_span * 0.30, half_span * 0.03 + (elbow_lift - lift_offset), -wing_chord * 0.03)
+		var wrist := shoulder + Vector3(side_sign * half_span * 0.62, half_span * 0.07 + (wrist_lift - lift_offset), wing_chord * 0.05)
+		var tip := shoulder + Vector3(side_sign * half_span, half_span * 0.10 + (tip_lift - lift_offset), wing_chord * 0.14)
 		# Trailing edge points mirror the leading edge so each arm/hand panel
 		# keeps a believable chord instead of collapsing into a flat ribbon.
 		var rear_shoulder := shoulder + Vector3(0.0, -half_span * 0.015, body_radius.z * 0.82)
