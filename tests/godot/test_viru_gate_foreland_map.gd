@@ -161,6 +161,46 @@ func test_pirita_travel_apron_carries_roadside_inn_clutter() -> void:
 	assert_true(prop_kinds.has(MapTypes.PROP_KIND_BUSH), "travel apron needs scrub margins beside the road")
 
 
+func test_pirita_foreland_uses_named_bush_styles_not_generic_scrub() -> void:
+	var definition: MapDefinition = ForelandDefinition.create()
+	var named_bush_styles: Dictionary = {}
+	for prop in definition.props:
+		if prop.get("kind") != MapTypes.PROP_KIND_BUSH:
+			continue
+		var style: String = String(prop.get("style_variant", ""))
+		assert_false(style.ends_with(".scrub") or style.ends_with(".dense"), "Foreland bush props must use named P0-115 species styles, not %s" % style)
+		if style.begins_with("bush."):
+			named_bush_styles[style] = true
+	assert_true(named_bush_styles.size() >= 3, "Foreland should author multiple named bush species along road and river margins")
+
+
+func test_pirita_foreland_authors_field_and_meadow_terrain_bands() -> void:
+	var definition: MapDefinition = ForelandDefinition.create()
+	var grid := MapBuilder.build(definition)
+	var farm_soil := 0
+	var hay := 0
+	var open_ground := 0
+	for y in range(definition.size_cells.y):
+		for x in range(definition.size_cells.x):
+			var cell := Vector2i(x, y)
+			match grid.get_terrain(cell):
+				MapTypes.TERRAIN_FARM_SOIL:
+					farm_soil += 1
+				MapTypes.TERRAIN_HAY:
+					hay += 1
+				MapTypes.TERRAIN_MEADOW, MapTypes.TERRAIN_GRASS:
+					open_ground += 1
+			var variant := String(grid.get_style_variant(cell))
+			if grid.get_terrain(cell) == MapTypes.TERRAIN_FARM_SOIL:
+				assert_true(
+					variant.begins_with("crop."),
+					"Worked field strips must use named crop scatter variants, not %s" % variant
+				)
+	assert_true(farm_soil >= 300, "Foreland field strips must read as worked agricultural soil")
+	assert_true(hay >= 400, "Foreland hay meadow must cover a visible east-bank band")
+	assert_true(open_ground >= 6000, "Open meadow and pasture must dominate the Pirita crossing landscape")
+
+
 func test_pirita_foreland_carries_rural_life_dressing() -> void:
 	var definition: MapDefinition = ForelandDefinition.create()
 	var kinds: Dictionary = {}

@@ -15,8 +15,13 @@ style grass.short
 style grass.tall
 style grass.dry
 style grass.flowers
-style bush.dense
-style bush.scrub
+style bush.hawthorn
+style bush.dog_rose
+style bush.juniper_shrub
+style bush.willow_shrub
+style crop.rye
+style crop.barley
+style crop.flax
 style reed.shore
 style tree.mixed
 style tree.spruce
@@ -33,9 +38,9 @@ style plant.cattail
 style plant.water_lily
 terrain pirita.meadow meadow 0 0 168 120 style=grass.tall order=1
 terrain west.pasture grass 11 13 48 32 style=grass.short order=2
-terrain west.field_north farm_soil 14 80 46 9 order=3
-terrain west.field_middle farm_soil 12 91 50 8 order=3
-terrain west.field_south farm_soil 17 101 43 9 order=3
+terrain west.field_north farm_soil 14 80 46 9 style=crop.rye order=3
+terrain west.field_middle farm_soil 12 91 50 8 style=crop.barley order=3
+terrain west.field_south farm_soil 17 101 43 9 style=crop.flax order=3
 terrain west.field_fallow straw 62 82 8 27 style=grass.dry order=4
 terrain east.hay_meadow hay 104 75 52 31 style=grass.dry order=3
 terrain future_convent_meadow grass 102 10 51 38 style=grass.flowers order=4
@@ -107,7 +112,7 @@ prop road.inn_barrels barrels 54 61 rect=2,2
 prop road.apron_barrels_west barrels 22 61 rect=2,2
 prop road.apron_barrels_east barrels 133 61 rect=2,2
 prop road.apron_hay hay_stack 44 60 rect=2,2
-prop road.scrub_bridge bush 100 58 rect=2,2 style=bush.scrub
+prop road.scrub_bridge bush 100 58 rect=2,2 style=bush.hawthorn
 prop pasture.sheep_a sheep 25 16 rect=2,2
 prop pasture.sheep_b sheep 39 17 rect=2,2
 prop pasture.sheep_c sheep 50 28 rect=2,2
@@ -119,9 +124,9 @@ prop meadow.oak tree 116 29 style=tree.oak.small
 prop meadow.linden tree 143 42 style=tree.linden
 prop west.maple tree 20 38 style=tree.maple
 prop east.pine tree 154 54 style=tree.pine
-prop road.scrub_west bush 12 54 rect=3,2 style=bush.scrub
-prop road.scrub_east bush 148 70 rect=3,2 style=bush.dense
-prop river.scrub bush 67 51 rect=3,2 style=bush.scrub
+prop road.scrub_west bush 12 54 rect=3,2 style=bush.dog_rose
+prop road.scrub_east bush 148 70 rect=3,2 style=bush.hawthorn
+prop river.scrub bush 67 51 rect=3,2 style=bush.willow_shrub
 spawn spawn.inspection 12 63 rect=2,2
 anchor from_reval_east 4 63 rect=2,2
 anchor pirita_bridge 85 63 rect=2,2

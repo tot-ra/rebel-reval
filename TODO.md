@@ -12,13 +12,14 @@ References:
 <!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
-| P0 |     7  |    40  | Baseline, storage, materials, historical audit |
+| P0 |     6  |    41  | Baseline, storage, materials, historical audit |
 | P1 |     0  |     8  | Runtime systems, content foundation |
 | P2 |     2  |    19  | Vertical-slice production (playable MVP) |
 | P3 |     0  |    16  | Validation, accessibility, performance |
 | P4 |    49  |     7  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
+
 
 
 
@@ -97,6 +98,7 @@ References:
 <!-- P0-126 completed in current session -->
 <!-- P0-125 completed in current session -->
 <!-- P0-107 completed in current session -->
+<!-- P0-108 completed in current session -->
 <!-- P0-106 completed in current session -->
 <!-- P1-041 completed in current session -->
 <!-- P1-022 completed in current session -->
@@ -308,7 +310,7 @@ References:
 
 - [x] P0-038 | deps: P0-053 | deliverable: comparison report for import time, frame time, texture memory, navigation defects, animation reuse, and NPC-variant production time measured on the 3D view layer with the P0-053 surface kit, including minimum-hardware frame-time results and renderer-setting escalation if budgets are missed | allowed files: `tools/generate_p038_comparison_report.py`, `tests/python/test_generate_p038_comparison_report.py`, `docs/reports/p0_038_3d_view_comparison.md`, `docs/reports/data/p038_comparison_evidence.json`, `tools/benchmarks/lower_town_scene_baseline.gd`, `.github/workflows/ci.yml`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 tools/generate_p038_comparison_report.py --check` and `python3 -m unittest tests.python.test_generate_p038_comparison_report -v` pass; report contains repeatable procedure, hardware, raw measurements, and result
 ### Large
-- [ ] P0-108 | deps: P0-104,P0-107,P0-106,P0-114,P0-115,P0-116,P4-028h | deliverable: rural perimeter and foreland environment pass on `viru_gate_foreland` and other signed peri-urban margins: replace generic scrub with sourced garden plots, hay meadows, pasture strips, sparse woodland, and authored domestic/wild fauna bands from P0-072; keep maps inactive until their activation gates | verify: P1-036 foreland vegetation, agricultural, and fauna measures land inside signed P0-072 ranges; day/night captures show fields, gardens, hay, and livestock reads outside the wall; navigation, transition, and patrol guards stay green; wild predators remain outside required routes
+- [x] P0-108 | deps: P0-104,P0-107,P0-106,P0-114,P0-115,P0-116,P4-028h | deliverable: rural perimeter and foreland environment pass on `viru_gate_foreland` and other signed peri-urban margins: replace generic scrub with sourced garden plots, hay meadows, pasture strips, sparse woodland, and authored domestic/wild fauna bands from P0-072; keep maps inactive until their activation gates | allowed files: `content/maps/viru_gate_foreland.rrmap`, `scripts/map/view3d/map_view_penned_fauna.gd`, `tests/godot/test_viru_gate_foreland_map.gd`, `tests/godot/test_map_view_penned_fauna.gd`, `docs/FLORA_FAUNA.md`, `TODO.md`, `docs/ROADMAP.md` | verify: P1-036 foreland vegetation, agricultural, and fauna measures land inside signed P0-072 ranges; day/night captures show fields, gardens, hay, and livestock reads outside the wall; navigation, transition, and patrol guards stay green; wild predators remain outside required routes
 - [x] P0-105 | deps: P0-105a,P0-105b,P0-117,P0-123,P0-127 | deliverable: ambient bird flight and song system with district-appropriate species (for example gulls and terns at harbour margins, sparrows and crows in town, larks and finches on meadows, owls at night margins), simple flock or perch flight paths, positional 3D song audio with deterministic concurrency limits, and no combat or collection mechanics | allowed files: `scripts/map/view3d/map_view_bird_ambient_audio.gd`, `scripts/map/view3d/map_view_bird_flight.gd`, `scripts/map/view3d/map_view_bird_context.gd`, `scripts/map/view3d/map_view_bird_species.gd`, `scripts/map/view3d/map_view_runtime.gd`, `tests/godot/test_map_view_bird_ambient_audio.gd`, `tests/godot/test_map_view_bird_flight.gd`, `docs/FLORA_FAUNA.md`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_map_view_bird_ambient_audio` and `--filter=test_map_view_bird_flight` pass including harbour, town, foreland, and night-margin owl scheduling; disabling birds leaves `GameState` unchanged; `tools/run_performance_report.sh build/benchmarks/performance-smoke.json --quick` records `bird_audio_peak` and `bird_flight_peak` within caps
 - [x] P0-105b | deps: P0-105a,P0-117 | deliverable: district-context ambient bird flight visuals with deterministic gliding actors on simple cross-map paths, species selection from `MapViewBirdSpecies` spawn weights, and a hard concurrent-actor cap; no gameplay interaction | allowed files: `scripts/map/view3d/map_view_bird_flight.gd`, `scripts/map/view3d/map_view_bird_context.gd`, `scripts/map/view3d/map_view_runtime.gd`, `tests/godot/test_map_view_bird_flight.gd`, `TODO.md`, `docs/ROADMAP.md`, `docs/FLORA_FAUNA.md` | verify: `--filter=test_map_view_bird_flight` passes; outdoor Lower Town and harbour maps surface at least three distinct gliding silhouettes across a seeded day cycle; disabling bird flight leaves `GameState` unchanged; interior maps with suppressed exterior surroundings spawn no flight actors
 - [x] P0-105a | deps: P0-117,P0-123 | deliverable: district-context ambient bird song playback with positional 3D audio, deterministic species selection from `MapViewBirdSpecies` spawn weights, cadence scheduling, and a hard concurrent-voice cap; no flight meshes or gameplay interaction | allowed files: `scripts/map/view3d/map_view_bird_context.gd`, `scripts/map/view3d/map_view_bird_ambient_audio.gd`, `scripts/map/view3d/map_view_runtime.gd`, `tests/godot/test_map_view_bird_ambient_audio.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_map_view_bird_ambient_audio` passes; outdoor Lower Town and harbour maps schedule at least three distinct song cues across a seeded day cycle; disabling bird audio leaves `GameState` unchanged; interior maps with suppressed exterior weather stay silent

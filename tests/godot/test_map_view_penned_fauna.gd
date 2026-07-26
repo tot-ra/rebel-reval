@@ -5,6 +5,7 @@ const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smi
 const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 const PennedFauna := preload("res://scripts/map/view3d/map_view_penned_fauna.gd")
+const ForelandDefinition := preload("res://scripts/map/definitions/outdoor/viru_gate_foreland_definition.gd")
 
 
 func test_lower_town_surfaces_all_five_domestic_species() -> void:
@@ -79,6 +80,25 @@ func test_wild_margin_actors_flee_listener_on_foreland() -> void:
 	fauna.queue_free()
 
 
+func test_wild_predators_stay_outside_required_route_corridor() -> void:
+	var definition: MapDefinition = ForelandDefinition.create()
+	var corridor := _foreland_patrol_corridor_cells(definition, 4)
+	for placement: Dictionary in PennedFauna.MAP_PLACEMENTS[&"viru_gate_foreland"]:
+		var species: StringName = placement.get("species", &"")
+		if species != MammalSpecies.SPECIES_WOLF and species != MammalSpecies.SPECIES_BROWN_BEAR:
+			continue
+		var cell: Vector2i = placement.get("cell", Vector2i.ZERO)
+		assert_false(
+			corridor.has(cell),
+			"Predator %s must not spawn on the Viru road patrol corridor" % species
+		)
+		var nearest := _nearest_manhattan_distance(cell, corridor)
+		assert_true(
+			nearest >= 8,
+			"Predator %s at %s must stay outside the required route corridor (nearest=%d)" % [species, cell, nearest]
+		)
+
+
 func test_concurrent_fauna_cap_is_enforced() -> void:
 	var fauna := PennedFauna.new()
 	(Engine.get_main_loop() as SceneTree).root.add_child(fauna)
@@ -110,3 +130,24 @@ func test_interior_maps_suppress_penned_fauna_via_context() -> void:
 	assert_false(lower_town.suppresses_exterior_surroundings())
 	assert_true(FaunaContext.supports_penned_fauna(lower_town.map_id))
 	assert_eq(FaunaContext.context_for_map(lower_town.map_id), MammalSpecies.CONTEXT_LOWER_TOWN)
+
+
+func _foreland_patrol_corridor_cells(definition: MapDefinition, radius: int) -> Dictionary:
+	var corridor: Dictionary = {}
+	for patrol: Dictionary in definition.patrols:
+		if patrol.get("id", &"") != &"pirita_crossing_watch":
+			continue
+		for point in patrol.get("points", []):
+			var cell := Vector2i(point)
+			for dx in range(-radius, radius + 1):
+				for dy in range(-radius, radius + 1):
+					corridor[cell + Vector2i(dx, dy)] = true
+	return corridor
+
+
+func _nearest_manhattan_distance(cell: Vector2i, corridor: Dictionary) -> int:
+	var nearest := 9999
+	for corridor_cell: Vector2i in corridor.keys():
+		var distance := absi(cell.x - corridor_cell.x) + absi(cell.y - corridor_cell.y)
+		nearest = mini(nearest, distance)
+	return nearest
