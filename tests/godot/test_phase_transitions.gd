@@ -12,6 +12,7 @@ const BARK_INVESTIGATION := &"bark.investigation.morning_watch"
 const BARK_PROLOGUE := &"bark.prologue.watch_pressure"
 const LOC_LOWER_TOWN := &"loc.lower_town_slice"
 const LOC_SMITHY := &"loc.kalev_smithy"
+const DistrictPressureModelScript := preload("res://scripts/faction/district_pressure_model.gd")
 
 
 var db: ContentDB
@@ -208,6 +209,51 @@ func test_map_phase_binder_updates_npc_and_patrol_hooks() -> void:
 	var prologue_profile := PhaseProfileModelScript.resolve_profile(GameState.PHASE_PROLOGUE_DAY, db)
 	binder.apply_authored_profile(prologue_profile)
 	assert_false(patrol.is_enabled())
+
+
+func test_map_phase_binder_applies_district_pressure_patrol_speed() -> void:
+	var definition := _stub_lower_town_definition()
+	var scene_root := Node2D.new()
+	var patrol := MapPatrolControllerScript.new()
+	scene_root.add_child(patrol)
+	patrol.setup(definition, &"viru_watch", scene_root)
+
+	var binder := MapPhaseBinderScript.new()
+	scene_root.add_child(binder)
+	binder.setup(LOC_LOWER_TOWN, definition, null, false)
+	binder.register_patrol(&"viru_watch", patrol)
+
+	SessionState.replace_state(GameState.new(), &"test.district_pressure")
+	var relaxed := GameState.new()
+	relaxed.record_faction_event(
+		&"ledger.test.order.trusted",
+		FactionLedger.LIVONIAN_ORDER,
+		3,
+		"Trusted patrol posture."
+	)
+	SessionState.replace_state(relaxed, &"test.district_pressure.relaxed")
+
+	var morning_profile := PhaseProfileModelScript.resolve_profile(GameState.PHASE_INVESTIGATION_MORNING, db)
+	binder.apply_authored_profile(morning_profile)
+	assert_eq(patrol.get_speed_scale(), DistrictPressureModelScript.PATROL_SPEED_BY_TIER[DistrictPressureModelScript.TIER_RELAXED])
+
+	var crackdown := GameState.new()
+	crackdown.record_faction_event(
+		&"ledger.test.order.hostile",
+		FactionLedger.LIVONIAN_ORDER,
+		-3,
+		"Hostile patrol posture."
+	)
+	crackdown.set_flag(
+		DistrictPressureModelScript.district_flag(DistrictPressureModelScript.DISTRICT_LOWER_TOWN, &"unrest"),
+		true
+	)
+	SessionState.replace_state(crackdown, &"test.district_pressure.crackdown")
+	binder.apply_authored_profile(morning_profile)
+	assert_eq(
+		patrol.get_speed_scale(),
+		DistrictPressureModelScript.PATROL_SPEED_BY_TIER[DistrictPressureModelScript.TIER_CRACKDOWN]
+	)
 
 
 func test_map_phase_binder_invokes_prop_visibility_hook() -> void:

@@ -3,6 +3,7 @@ extends Node
 
 const PhaseProfileModelScript := preload("res://scripts/phase/phase_profile_model.gd")
 const MapPatrolControllerScript := preload("res://scripts/phase/map_patrol_controller.gd")
+const DistrictPressureModelScript := preload("res://scripts/faction/district_pressure_model.gd")
 
 ## Applies per-location phase rules to NPCs, props, patrols, and the 3D view runtime.
 
@@ -150,3 +151,18 @@ func _apply_patrol_rules(entries: Array) -> void:
 		var controller: Node = _patrols[patrol_id]
 		if controller != null and controller.has_method("set_enabled"):
 			controller.call("set_enabled", bool(rule.get("enabled", false)))
+	_apply_district_pressure_to_patrols()
+
+
+func _apply_district_pressure_to_patrols() -> void:
+	if SessionState.state == null or location_id.is_empty():
+		return
+	var snapshot := DistrictPressureModelScript.resolve_for_location(location_id, SessionState.state)
+	if snapshot.is_empty():
+		return
+	var speed_scale := float(snapshot.get("patrol_speed_scale", 1.0))
+	for patrol_id in _patrols.keys():
+		var controller: Node = _patrols[patrol_id]
+		if controller == null or not controller.has_method("set_speed_scale"):
+			continue
+		controller.call("set_speed_scale", speed_scale)

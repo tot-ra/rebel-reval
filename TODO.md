@@ -16,7 +16,7 @@ References:
 | P1 |     0  |     8  | Runtime systems, content foundation |
 | P2 |     2  |    20  | Vertical-slice production (playable MVP) |
 | P3 |     0  |    16  | Validation, accessibility, performance |
-| P4 |    41  |    17  | Act 1: The Simmering City |
+| P4 |    40  |    18  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
 
@@ -92,8 +92,9 @@ References:
 
 
 
+
 <!-- P2-021a completed in current session -->
-<!-- P4-016a completed in current session -->
+<!-- P4-017 completed in current session -->
 <!-- P4-028f completed in current session -->
 <!-- P4-028g completed in current session -->
 <!-- P4-028e completed in current session -->
@@ -187,7 +188,7 @@ References:
 
 - [ ] P4-020 | deps: P0-040,P2-021,P4-019,P4-023 | deliverable: north quarter activation from the P4-015 prototype through the same gates (approval artifact: ADR 0008) | verify: activation guard, transition verifier, and traversal/collision tests pass, and day/night captures pass parity review
 - [ ] P4-027d | deps: P4-027a | deliverable: dedicated `Rentenitorn` interior map and boss package using a conservative pre-mid-fourteenth-century form | verify: unknown fabric stays reversible/labelled; reciprocal door, all floors, boss outcomes, persistence and retry tests pass
-- [ ] P4-017 | deps: P4-016 | deliverable: district pressure states: per-district patrol density, prices, and bark sets driven by explicit flags and faction standing | verify: phase tests show two districts diverge visibly from the same base state under different ledger fixtures
+- [x] P4-017 | deps: P4-016 | deliverable: district pressure states: per-district patrol density, prices, and bark sets driven by explicit flags and faction standing | allowed files: `scripts/faction/district_pressure_model.gd`, `scripts/phase/map_phase_binder.gd`, `scripts/phase/map_patrol_controller.gd`, `scripts/state/state_rule_evaluator.gd`, `schemas/common.schema.json`, `tools/validate_content_common.py`, `content/examples/valid/bark.district.*.json`, `tests/godot/test_district_pressure_model.gd`, `tests/godot/test_phase_transitions.gd`, `tests/godot/test_state_rule_evaluator.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: phase tests show two districts diverge visibly from the same base state under different ledger fixtures
 - [ ] P4-010 | deps: P4-009,P4-017,P4-020 | deliverable: Act 1 content-budget report | verify: act remains within three districts, seven core characters plus named faction casts, eight substantial quests plus two three-quest faction lines, five cycles, one climax, and approved dialogue/audio budgets
 - [ ] P4-009 | deps: P4-008 | deliverable: Act 1 aftermath states for Mart, Aita, Kaja, Henning, Jürgen, Ellen, forge, and each active district recorded in the act-transition save | verify: automated matrix finds no impossible combination, missing core character, or universal morality score
 - [ ] P4-027c | deps: P4-027a | deliverable: dedicated `Kuldjala` interior map and boss package using the two-level circa-1310 horseshoe form and wall-walk relationship | verify: historical/art review signs the floor plan; reciprocal door, all floors, boss outcomes, persistence and retry tests pass

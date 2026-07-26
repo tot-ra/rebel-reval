@@ -11,6 +11,7 @@ var _body: CharacterBody2D
 var _points: PackedVector2Array = PackedVector2Array()
 var _point_index := 0
 var _enabled := false
+var _speed_scale := 1.0
 
 
 func setup(definition: MapDefinition, patrol: StringName, parent: Node2D) -> void:
@@ -45,6 +46,14 @@ func is_enabled() -> bool:
 	return _enabled
 
 
+func set_speed_scale(scale: float) -> void:
+	_speed_scale = maxf(scale, 0.1)
+
+
+func get_speed_scale() -> float:
+	return _speed_scale
+
+
 func get_body() -> CharacterBody2D:
 	return _body
 
@@ -62,7 +71,7 @@ func _physics_process(delta: float) -> void:
 		offset = target - _body.global_position
 	if offset.is_zero_approx():
 		return
-	_body.velocity = offset.normalized() * PATROL_SPEED
+	_body.velocity = offset.normalized() * PATROL_SPEED * _speed_scale
 	if not NpcPush.player_blocks_body(_body):
 		_body.move_and_slide()
 	else:

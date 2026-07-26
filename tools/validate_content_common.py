@@ -29,6 +29,8 @@ CONDITION_OPS = {
     "pressure_at_least",
     "relationship_at_least",
     "faction_standing_at_least",
+    "district_pressure_at_least",
+    "district_price_tier_at_least",
     "item_owned",
     "quest_state_is",
     "forged_modification_is",
@@ -62,6 +64,16 @@ CONDITION_RULES: dict[str, dict[str, Any]] = {
         "required": {"key", "amount"},
         "forbidden": {"value"},
         "key_prefix": "faction.",
+    },
+    "district_pressure_at_least": {
+        "required": {"key", "amount"},
+        "forbidden": {"value"},
+        "key_prefix": "district.",
+    },
+    "district_price_tier_at_least": {
+        "required": {"key", "amount"},
+        "forbidden": {"value"},
+        "key_prefix": "district.",
     },
     "item_owned": {"required": {"key"}, "forbidden": {"value", "amount"}, "key_prefix": "item.", "item_ref": True},
     "quest_state_is": {

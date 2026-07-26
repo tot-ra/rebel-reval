@@ -1,6 +1,8 @@
 class_name StateRuleEvaluator
 extends RefCounted
 
+const DistrictPressureModelScript := preload("res://scripts/faction/district_pressure_model.gd")
+
 ## Runtime counterpart to the allowlists in schemas/common.schema.json.
 ## Operation dictionaries are data only: no value is ever evaluated as GDScript.
 
@@ -13,6 +15,8 @@ const CONDITION_OPS := [
 	"pressure_at_least",
 	"relationship_at_least",
 	"faction_standing_at_least",
+	"district_pressure_at_least",
+	"district_price_tier_at_least",
 	"item_owned",
 	"quest_state_is",
 	"forged_modification_is",
@@ -64,6 +68,20 @@ func evaluate_condition(condition: Dictionary, state: GameState) -> bool:
 			return state.get_relationship(key) >= int(condition["amount"])
 		"faction_standing_at_least":
 			return state.get_faction_standing(FactionLedger.faction_id_from_key(key)) >= int(condition["amount"])
+		"district_pressure_at_least":
+			return (
+				DistrictPressureModelScript.resolve(key, state).get(
+					"pressure_tier", DistrictPressureModelScript.TIER_NORMAL
+				)
+				>= int(condition["amount"])
+			)
+		"district_price_tier_at_least":
+			return (
+				DistrictPressureModelScript.resolve(key, state).get(
+					"price_tier", DistrictPressureModelScript.TIER_NORMAL
+				)
+				>= int(condition["amount"])
+			)
 		"item_owned":
 			return state.has_item(key)
 		"quest_state_is":
@@ -183,6 +201,8 @@ func _validate_condition(condition: Dictionary, state: GameState) -> String:
 			return _validate_key_amount(condition, "rel.", -3, 3)
 		"faction_standing_at_least":
 			return _validate_faction_standing(condition)
+		"district_pressure_at_least", "district_price_tier_at_least":
+			return _validate_district_tier(condition)
 		"item_owned":
 			return _validate_key_only(condition, "item.")
 		"quest_state_is":
@@ -221,6 +241,28 @@ func _validate_faction_standing(condition: Dictionary) -> String:
 		]
 	if not FactionLedger.is_active_faction(FactionLedger.faction_id_from_key(StringName(String(condition["key"])))):
 		return "faction_standing_at_least key must name an active faction"
+	return ""
+
+
+func _validate_district_tier(condition: Dictionary) -> String:
+	var shape_error := _require_shape(condition, ["op", "key", "amount"])
+	if not shape_error.is_empty():
+		return shape_error
+	var key_error := _validate_key(condition, "district.")
+	if not key_error.is_empty():
+		return key_error
+	if typeof(condition["amount"]) != TYPE_INT:
+		return "%s amount must be an integer" % String(condition["op"])
+	var amount := int(condition["amount"])
+	if amount < DistrictPressureModelScript.TIER_RELAXED or amount > DistrictPressureModelScript.TIER_CRACKDOWN:
+		return "%s amount must be between %d and %d" % [
+			String(condition["op"]),
+			DistrictPressureModelScript.TIER_RELAXED,
+			DistrictPressureModelScript.TIER_CRACKDOWN,
+		]
+	var district_id := StringName(String(condition["key"]))
+	if not DistrictPressureModelScript.DISTRICT_PROFILES.has(district_id):
+		return "%s key must name a supported district" % String(condition["op"])
 	return ""
 
 

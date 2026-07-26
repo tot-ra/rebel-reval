@@ -42,6 +42,11 @@ func test_all_condition_operators() -> void:
 		{"op": "pressure_at_least", "key": String(PRESSURE_SUSPICION), "amount": 2},
 		{"op": "relationship_at_least", "key": String(REL_HENNING), "amount": 1},
 		{"op": "faction_standing_at_least", "key": "faction.black_cloaks", "amount": 0},
+		{
+			"op": "district_pressure_at_least",
+			"key": "district.lower_town",
+			"amount": 1,
+		},
 		{"op": "item_owned", "key": String(ITEM_SPEARHEAD)},
 		{"op": "quest_state_is", "key": String(QUEST_MAKERS_MARK), "value": "incident_known"},
 	]
