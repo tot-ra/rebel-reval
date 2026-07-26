@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "task_id": "P2-021a",
+  "report_path": "docs/reports/map_conversion_parity.md",
+  "capture_width": 1280,
+  "capture_height": 720,
+  "maps": [
+    {
+      "map_id": "lower_town_slice",
+      "parity_fixture": "tests/fixtures/maps/lower_town_slice.parity.json",
+      "godot_test_filter": "test_lower_town_slice_map",
+      "topology_route": [
+        "street_start",
+        "smithy_door",
+        "brewery_door",
+        "checkpoint_west",
+        "checkpoint_east"
+      ],
+      "required_anchors": [
+        "street_start",
+        "smithy_door",
+        "brewery_door",
+        "checkpoint_west",
+        "checkpoint_east",
+        "katariina_kaik",
+        "monastery_gate",
+        "karja_gate_south",
+        "vene_street_north",
+        "mart_street",
+        "south_quarter_lane"
+      ],
+      "rejected_anchors": []
+    },
+    {
+      "map_id": "kalev_smithy",
+      "source_map": "content/maps/kalev_smithy.rrmap",
+      "godot_test_filter": "test_kalev_smithy_map",
+      "topology_route": [
+        "door_courtyard",
+        "anvil",
+        "ledger",
+        "bed_alcove"
+      ],
+      "required_anchors": [
+        "anvil",
+        "ledger",
+        "bed_alcove"
+      ],
+      "required_transitions": [
+        "door_courtyard",
+        "smithy_start_spawn"
+      ],
+      "rejected_anchors": []
+    }
+  ],
+  "captures": [
+    {
+      "id": "smithy_before",
+      "path": "docs/reports/images/map_conversion_smithy_before.png",
+      "role": "legacy_reference",
+      "source_note": "Archived smithy_courtyard prototype framing until dedicated legacy interior capture lands"
+    },
+    {
+      "id": "smithy_after_day",
+      "path": "docs/reports/images/map_conversion_smithy_after_day.png",
+      "role": "converted_day",
+      "pair_night_id": "smithy_after_night"
+    },
+    {
+      "id": "smithy_after_night",
+      "path": "docs/reports/images/map_conversion_smithy_after_night.png",
+      "role": "converted_night",
+      "pair_day_id": "smithy_after_day"
+    },
+    {
+      "id": "lower_town_before",
+      "path": "docs/reports/images/map_conversion_lower_town_before.png",
+      "role": "legacy_reference",
+      "source_note": "Archived smithy_courtyard prototype exterior framing until matched legacy Lower Town capture lands"
+    },
+    {
+      "id": "lower_town_after_day",
+      "path": "docs/reports/images/map_conversion_lower_town_after_day.png",
+      "role": "converted_day",
+      "pair_night_id": "lower_town_after_night"
+    },
+    {
+      "id": "lower_town_after_night",
+      "path": "docs/reports/images/map_conversion_lower_town_after_night.png",
+      "role": "converted_night",
+      "pair_day_id": "lower_town_after_day"
+    }
+  ],
+  "human_visual_review": {
+    "required_for_task": "P2-021",
+    "signed": false,
+    "reviewer": "",
+    "review_date": "",
+    "notes": "Gameplay parity scaffold only; maintainer composition, depth, readability, and day/night value-hierarchy sign-off remains open under P2-021 after P0-101."
+  }
+}
