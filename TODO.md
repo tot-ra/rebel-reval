@@ -16,7 +16,7 @@ References:
 | P1 |     0  |     8  | Runtime systems, content foundation |
 | P2 |     2  |    19  | Vertical-slice production (playable MVP) |
 | P3 |     0  |    16  | Validation, accessibility, performance |
-| P4 |    45  |    11  | Act 1: The Simmering City |
+| P4 |    44  |    12  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
 
@@ -85,6 +85,9 @@ References:
 
 
 
+
+
+<!-- P4-028d completed in current session -->
 <!-- P4-028e completed in current session -->
 <!-- P4-028b completed in current session -->
 <!-- P4-028c completed in current session -->
@@ -201,7 +204,7 @@ References:
 
 - [ ] P4-023d | deps: P0-072,P0-102,P4-023a | deliverable: exceptional St Michael's Cistercian convent precinct model (church/convent mass, service wing and garden close) using low-detail placeholders only where 1343 above-ground mass remains labelled unknown; preserve convent building and `monastery_close` stable IDs | verify: audit requires convent landmark presence; signed captures distinguish the precinct from merchant rows and show garden/service ground rather than house fill; routes through convent_lane stay walkable
 - [ ] P4-027a | deps: P4-027 | deliverable: shared enterable-tower mini-dungeon contract and first completed-tower vertical slice with reciprocal exterior/interior transitions, multi-floor navigation, named boss with authored alternate resolution, loot/evidence, persistent state, retry, lighting and audio | verify: exterior tower door enters and returns safely; stairs/ladder/wall-walk routes are reachable; boss outcomes and loot persist across re-entry/save; collision, camera, transition and packaged-build tests pass
-- [ ] P4-028d | deps: P2-025,P4-023b | deliverable: Monastery District service-life dressing on `monastery_quarter`: garden/service props at `convent_well`, `guild_stall`, workshop rows (`herb_drying_rack`, `wash_tub`, `market_goods_pallet`, timber/service carts) that read merchant lane versus convent close; no house fill inside `monastery_close` | verify: day/night captures show dense Pikk/Lai frontage beside open convent garden ground; monastery quarter tests stay green; props do not block `convent_lane` or required patrols
+- [x] P4-028d | deps: P2-025,P4-023b | deliverable: Monastery District service-life dressing on `monastery_quarter`: garden/service props at `convent_well`, `guild_stall`, workshop rows (`herb_drying_rack`, `wash_tub`, `market_goods_pallet`, timber/service carts) that read merchant lane versus convent close; no house fill inside `monastery_close` | allowed files: `content/maps/monastery_quarter.rrmap`, `tests/godot/test_monastery_quarter_prototype_map.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: day/night captures show dense Pikk/Lai frontage beside open convent garden ground; monastery quarter tests stay green; props do not block `convent_lane` or required patrols
 - [ ] P4-028g | deps: P2-025,P4-025 | deliverable: Toompea and Archbishop's Garden precinct-life dressing: stable/official props on `toompea_quarter` (`stable_cart`, banners, cathedral terrace clutter) and orchard/kitchen garden dressing on `archbishops_garden` (`herb_drying_rack`, orchard fences, gardener cart, hay_store) that read elevated canonical precinct rather than dense merchant ward | verify: captures distinguish castle banner terrace, cathedral approach, and garden orchard/kitchen plots; both prototype test suites stay green
 - [ ] P4-028f | deps: P2-025,P4-024 | deliverable: South/Knights ward district-life dressing on `south_quarter`: Rataskaev well apron (`wash_tub`, buckets), knights' court (`weapon_rack`, `banner`, service barrels), Karja gate service yard (`charcoal_pile` or armourer scrap only where historically plausible), and swordsmith lane static tools; avoid turning ordinary houses into monumental knight architecture | verify: captures distinguish well court, knights' court, and Karja gate service yards; south-quarter tests and patrol reachability stay green
 - [x] P4-028c | deps: P2-025,P4-023 | deliverable: North/Merchant ward workshop-life dressing on `north_quarter`: specialize named workshop rows (`sailmakers_loft`, `cooperage_shed`, `ropemakers_shed`, warehouse courts) with `sail_cloth_bale`, `cooper_staves`, `rope_coil`, `market_goods_pallet`, and pen/yard props that match building IDs; retain cattle/sheep pens until **P4-023g** | allowed files: `content/maps/north_quarter.rrmap`, `tests/godot/test_north_quarter_prototype_map.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: gameplay-scale captures distinguish sail, cooper, rope, and warehouse yards along Pikk/Lai without reading every shed as a generic house; north-quarter map tests and patrol reachability stay green

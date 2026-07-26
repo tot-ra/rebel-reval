@@ -70,6 +70,76 @@ func test_monastery_district_links_the_merchant_civic_worker_and_toompea_maps() 
 	assert_eq(destinations[&"reval_toompea"], &"from_reval_north")
 
 
+func test_monastery_quarter_service_life_dressing() -> void:
+	var definition: MapDefinition = MonasteryQuarterDefinition.create()
+	var service_kinds := {
+		MapTypes.PROP_KIND_HERB_DRYING_RACK: false,
+		MapTypes.PROP_KIND_WASH_TUB: false,
+		MapTypes.PROP_KIND_MARKET_GOODS_PALLET: false,
+		MapTypes.PROP_KIND_BOAT_TIMBER_STACK: false,
+		MapTypes.PROP_KIND_FARM_CART: false,
+	}
+	for prop in definition.props:
+		var kind: StringName = prop.get("kind", &"")
+		if service_kinds.has(kind):
+			service_kinds[kind] = true
+		var prop_id := String(prop.get("id", ""))
+		if prop_id.contains("stall_") or prop_id.contains("well_") or prop_id.contains("workshop_"):
+			assert_ne(
+				prop.get("kind"),
+				MapTypes.PROP_KIND_BARRELS,
+				"%s must not remain a barrel placeholder" % prop_id
+			)
+	for service_kind in service_kinds:
+		assert_true(service_kinds[service_kind], "Monastery quarter needs service prop %s" % String(service_kind))
+	assert_true(
+		_prop_near_prop(definition, &"convent_well_herbs", &"convent_well", 6),
+		"Herb drying rack must sit beside convent_well"
+	)
+	assert_true(
+		_prop_near_prop(definition, &"convent_well_wash", &"convent_well", 6),
+		"Wash tub must sit beside convent_well"
+	)
+	assert_true(
+		_prop_near_prop(definition, &"convent_well_goods", &"convent_well", 6),
+		"Market goods pallet must sit beside convent_well"
+	)
+	assert_true(
+		_prop_near_prop(definition, &"guild_stall_goods", &"guild_stall", 6),
+		"Guild stall needs a goods pallet"
+	)
+	assert_true(
+		_prop_near_building(definition, &"workshop_row_west_herbs", &"workshop_row_west", 6),
+		"Workshop row west needs herb drying rack"
+	)
+	assert_true(
+		_prop_near_building(definition, &"workshop_row_mid_tub", &"workshop_row_mid", 6),
+		"Workshop row mid needs wash tub"
+	)
+	assert_true(
+		_prop_near_building(definition, &"netmakers_timber", &"netmakers_loft", 6),
+		"Netmakers loft needs timber stack"
+	)
+	assert_true(
+		_prop_near_building(definition, &"workshop_service_cart", &"workshop_row_west", 10),
+		"Service cart must sit in the workshop yard"
+	)
+	assert_true(
+		_prop_near_building(definition, &"almonry_cart", &"convent_almonry", 8),
+		"Farm cart must sit beside convent almonry"
+	)
+	assert_true(
+		_prop_by_id(definition, &"service_barrels").is_empty(),
+		"Generic service barrels must be retired where dedicated trade props exist"
+	)
+	var grid := MapBuilder.build(definition)
+	for point in (definition.patrols[0]["points"] as Array):
+		assert_true(
+			MapVerification.is_walkable_point(definition, grid, point),
+			"Patrol point %s must stay walkable after monastery dressing" % point
+		)
+
+
 func test_monastery_guild_rowfronts_avoid_later_monument_styles() -> void:
 	# P4-023e: later Great Guild / Blackheads monuments must not read as 1343 fabric.
 	var definition: MapDefinition = MonasteryQuarterDefinition.create()
@@ -93,3 +163,44 @@ func _building_by_id(definition: MapDefinition, building_id: StringName) -> Dict
 		if building["id"] == building_id:
 			return building
 	return {}
+
+
+func _prop_by_id(definition: MapDefinition, prop_id: StringName) -> Dictionary:
+	for prop in definition.props:
+		if prop["id"] == prop_id:
+			return prop
+	return {}
+
+
+func _prop_near_prop(
+	definition: MapDefinition,
+	prop_id: StringName,
+	other_prop_id: StringName,
+	max_distance_cells: int
+) -> bool:
+	var prop := _prop_by_id(definition, prop_id)
+	var other := _prop_by_id(definition, other_prop_id)
+	if prop.is_empty() or other.is_empty():
+		return false
+	var prop_pos: Vector2 = prop.get("position", Vector2.ZERO)
+	var other_pos: Vector2 = other.get("position", Vector2.ZERO)
+	return prop_pos.distance_to(other_pos) <= float(max_distance_cells * definition.cell_size)
+
+
+func _prop_near_building(
+	definition: MapDefinition,
+	prop_id: StringName,
+	building_id: StringName,
+	max_distance_cells: int
+) -> bool:
+	var prop := _prop_by_id(definition, prop_id)
+	var building := _building_by_id(definition, building_id)
+	if prop.is_empty() or building.is_empty():
+		return false
+	var prop_pos: Vector2 = prop.get("position", Vector2.ZERO)
+	var footprint: Rect2 = building["footprint"]
+	var closest := Vector2(
+		clampf(prop_pos.x, footprint.position.x, footprint.end.x),
+		clampf(prop_pos.y, footprint.position.y, footprint.end.y)
+	)
+	return prop_pos.distance_to(closest) <= float(max_distance_cells * definition.cell_size)
