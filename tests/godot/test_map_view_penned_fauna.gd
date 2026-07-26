@@ -6,6 +6,7 @@ const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 const PennedFauna := preload("res://scripts/map/view3d/map_view_penned_fauna.gd")
 const ForelandDefinition := preload("res://scripts/map/definitions/outdoor/viru_gate_foreland_definition.gd")
+const NorthQuarterDefinition := preload("res://scripts/map/definitions/prototypes/north_quarter_definition.gd")
 
 
 func test_lower_town_surfaces_all_five_domestic_species() -> void:
@@ -32,6 +33,54 @@ func test_lower_town_authors_five_placements_under_cap() -> void:
 func test_foreland_authors_nine_placements_under_cap() -> void:
 	assert_eq(PennedFauna.placement_count_for_map(&"viru_gate_foreland"), 9)
 	assert_true(PennedFauna.placement_count_for_map(&"viru_gate_foreland") <= PennedFauna.MAX_CONCURRENT_FAUNA)
+
+
+func test_north_quarter_authors_cattle_and_sheep_under_cap() -> void:
+	assert_eq(PennedFauna.placement_count_for_map(&"north_quarter"), 6)
+	assert_true(PennedFauna.placement_count_for_map(&"north_quarter") <= PennedFauna.MAX_CONCURRENT_FAUNA)
+	var seen: Dictionary = {}
+	for placement: Dictionary in PennedFauna.MAP_PLACEMENTS[&"north_quarter"]:
+		seen[placement.get("species", &"")] = true
+	assert_true(seen.has(MammalSpecies.SPECIES_COW))
+	assert_true(seen.has(MammalSpecies.SPECIES_SHEEP))
+
+
+func test_north_quarter_livestock_stays_outside_pikk_patrol_corridor() -> void:
+	var definition: MapDefinition = NorthQuarterDefinition.create()
+	var corridor := _merchant_patrol_corridor_cells(definition, 2)
+	for placement: Dictionary in PennedFauna.MAP_PLACEMENTS[&"north_quarter"]:
+		var cell: Vector2i = placement.get("cell", Vector2i.ZERO)
+		assert_false(
+			corridor.has(cell),
+			"Livestock at %s must not spawn on the Pikk patrol corridor" % cell
+		)
+		var nearest := _nearest_manhattan_distance(cell, corridor)
+		assert_true(
+			nearest >= 20,
+			"Livestock at %s must stay west of the Pikk/Lai spine (nearest=%d)" % [cell, nearest]
+		)
+
+
+func test_north_quarter_pen_actors_stay_within_authored_radius() -> void:
+	var fauna := PennedFauna.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(fauna)
+	fauna.configure(&"north_quarter", MammalSpecies.CONTEXT_MARKET, 32)
+	for step in 48:
+		fauna.sync(MammalSpecies.CONTEXT_MARKET, 0.25, Vector3.ZERO, true)
+	for actor in fauna.get_children():
+		var radius := float(actor.get_meta(&"radius", 0.0))
+		assert_true(
+			fauna.actor_offset_from_home(actor) <= radius * 1.05,
+			"Merchant pen actor drifted outside authored radius"
+		)
+	fauna.queue_free()
+
+
+func test_north_quarter_supports_penned_fauna_via_context() -> void:
+	var definition: MapDefinition = NorthQuarterDefinition.create()
+	assert_false(definition.suppresses_exterior_surroundings())
+	assert_true(FaunaContext.supports_penned_fauna(definition.map_id))
+	assert_eq(FaunaContext.context_for_map(definition.map_id), MammalSpecies.CONTEXT_MARKET)
 
 
 func test_fauna_actors_carry_no_collision_shapes() -> void:
@@ -136,6 +185,19 @@ func _foreland_patrol_corridor_cells(definition: MapDefinition, radius: int) -> 
 	var corridor: Dictionary = {}
 	for patrol: Dictionary in definition.patrols:
 		if patrol.get("id", &"") != &"pirita_crossing_watch":
+			continue
+		for point in patrol.get("points", []):
+			var cell := Vector2i(point)
+			for dx in range(-radius, radius + 1):
+				for dy in range(-radius, radius + 1):
+					corridor[cell + Vector2i(dx, dy)] = true
+	return corridor
+
+
+func _merchant_patrol_corridor_cells(definition: MapDefinition, radius: int) -> Dictionary:
+	var corridor: Dictionary = {}
+	for patrol: Dictionary in definition.patrols:
+		if patrol.get("id", &"") != &"merchant_watch":
 			continue
 		for point in patrol.get("points", []):
 			var cell := Vector2i(point)

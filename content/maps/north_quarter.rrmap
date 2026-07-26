@@ -198,8 +198,6 @@ prop market_goods trade_goods 116 102 rect=3,2
 prop harbor_cart cart 103 16 rect=2,2
 prop east_work_cart cart 177 80 rect=2,2
 prop west_work_cart cart 67 70 rect=2,2
-prop west_cattle cattle 12 67 rect=3,3 facing=east
-prop west_pen_sheep sheep 13 96 rect=3,3 facing=south
 prop cattle_pen_north timber_fence 8 58 rect=11,1
 prop cattle_pen_south timber_fence 8 77 rect=11,1
 prop cattle_pen_west timber_fence 8 59 rect=1,18

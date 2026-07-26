@@ -13,6 +13,7 @@ const URBAN_FAUNA_MAPS: Dictionary = {
 const PENNED_FAUNA_MAPS: Dictionary = {
 	&"lower_town_slice": MammalSpecies.CONTEXT_LOWER_TOWN,
 	&"viru_gate_foreland": MammalSpecies.CONTEXT_FORELAND,
+	&"north_quarter": MammalSpecies.CONTEXT_MARKET,
 }
 
 

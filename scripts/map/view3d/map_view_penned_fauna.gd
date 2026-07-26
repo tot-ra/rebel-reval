@@ -43,6 +43,17 @@ const LOWER_TOWN_PLACEMENTS: Array[Dictionary] = [
 	{"cell": Vector2i(82, 80), "species": MammalSpecies.SPECIES_COW, "behavior": BEHAVIOR_TETHER, "radius": 2.6},
 ]
 
+## Merchant District west-yard pens beside Pikk/Lai. Static fence props remain on
+## the map; cattle and sheep are runtime actors only (P4-023g).
+const NORTH_QUARTER_PLACEMENTS: Array[Dictionary] = [
+	{"cell": Vector2i(13, 68), "species": MammalSpecies.SPECIES_COW, "behavior": BEHAVIOR_TETHER, "radius": 2.4},
+	{"cell": Vector2i(15, 72), "species": MammalSpecies.SPECIES_COW, "behavior": BEHAVIOR_PEN, "radius": 2.0},
+	{"cell": Vector2i(11, 65), "species": MammalSpecies.SPECIES_COW, "behavior": BEHAVIOR_PEN, "radius": 1.8},
+	{"cell": Vector2i(13, 97), "species": MammalSpecies.SPECIES_SHEEP, "behavior": BEHAVIOR_PEN, "radius": 2.0},
+	{"cell": Vector2i(15, 100), "species": MammalSpecies.SPECIES_SHEEP, "behavior": BEHAVIOR_PEN, "radius": 1.8},
+	{"cell": Vector2i(11, 93), "species": MammalSpecies.SPECIES_SHEEP, "behavior": BEHAVIOR_PEN, "radius": 1.8},
+]
+
 ## Foreland farmstead pens plus signed outer-margin wild actors only.
 const FORELAND_PLACEMENTS: Array[Dictionary] = [
 	{"cell": Vector2i(35, 39), "species": MammalSpecies.SPECIES_CHICKEN, "behavior": BEHAVIOR_PEN, "radius": 1.6},
@@ -58,6 +69,7 @@ const FORELAND_PLACEMENTS: Array[Dictionary] = [
 
 const MAP_PLACEMENTS: Dictionary = {
 	&"lower_town_slice": LOWER_TOWN_PLACEMENTS,
+	&"north_quarter": NORTH_QUARTER_PLACEMENTS,
 	&"viru_gate_foreland": FORELAND_PLACEMENTS,
 }
 

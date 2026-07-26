@@ -77,10 +77,11 @@ func test_merchant_district_has_dense_varied_houses_warehouses_and_yards() -> vo
 		MapTypes.PROP_KIND_CARGO_CRATES,
 		MapTypes.PROP_KIND_TRADE_GOODS,
 		MapTypes.PROP_KIND_TIMBER_FENCE,
-		MapTypes.PROP_KIND_CATTLE,
-		MapTypes.PROP_KIND_SHEEP,
 	]:
 		assert_true(_has_prop_kind(definition, prop_kind), "Missing merchant-yard prop kind %s" % prop_kind)
+	assert_false(_has_prop_kind(definition, MapTypes.PROP_KIND_CATTLE), "Cattle are runtime penned fauna (P4-023g)")
+	assert_false(_has_prop_kind(definition, MapTypes.PROP_KIND_SHEEP), "Sheep are runtime penned fauna (P4-023g)")
+	assert_true(_pen_fence_count(definition) >= 8, "Merchant pens keep static timber-fence dressing")
 
 
 func test_merchant_district_has_three_sided_walls_dated_towers_and_harbor_gate() -> void:
@@ -151,3 +152,11 @@ func _has_prop_kind(definition: MapDefinition, prop_kind: StringName) -> bool:
 		if prop["kind"] == prop_kind:
 			return true
 	return false
+
+
+func _pen_fence_count(definition: MapDefinition) -> int:
+	var count := 0
+	for prop in definition.props:
+		if prop["kind"] == MapTypes.PROP_KIND_TIMBER_FENCE:
+			count += 1
+	return count
