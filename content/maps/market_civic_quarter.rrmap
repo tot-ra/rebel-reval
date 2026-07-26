@@ -89,13 +89,18 @@ prop fish_stall stall 27 32 rect=3,2
 prop cloth_stall stall 35 32 rect=3,2
 prop grain_stall stall 43 32 rect=3,2
 prop pottery_stall stall 51 32 rect=3,2
+prop fish_stall_splitting fish_splitting_table 28 36
+prop cloth_stall_bales sail_cloth_bale 36 36
+prop grain_stall_sacks malt_sack_pile 44 36
+prop pottery_stall_crates cargo_crates 52 36 rect=2,1
 # Eastern trade covers: Pskov feline and Novgorod bear cloth at the stall line
 # (animal charges are later popular identity; see FactionHeraldry confidence notes).
 prop pskov_trade_banner banner 55 30 rect=2,2 faction=pskov
 prop novgorod_trade_banner banner 24 30 rect=2,2 faction=novgorod
 prop weigh_table_prop table 31 44 rect=3,2
 prop market_cart cart 45 47 rect=2,2
-prop market_barrels barrels 59 47 rect=2,2
+prop civic_well_goods market_goods_pallet 58 50 rect=2,1
+prop civic_well_wash_tub wash_tub 50 50
 building south_ward_house_west house 6 101 12 8 style=house.merchant.east
 building south_ward_house_mid house 28 103 14 8 style=house.merchant.north
 building karja_south_row_west house 50 105 10 8 style=house.artisan

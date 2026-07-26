@@ -208,6 +208,63 @@ func test_town_hall_exterior_door_is_attached_to_the_arcaded_facade() -> void:
 	door.free()
 
 
+func test_market_civic_quarter_stall_life_dressing() -> void:
+	var definition: MapDefinition = MarketCivicQuarterDefinition.create()
+	var stall_kinds := {
+		MapTypes.PROP_KIND_FISH_SPLITTING_TABLE: false,
+		MapTypes.PROP_KIND_SAIL_CLOTH_BALE: false,
+		MapTypes.PROP_KIND_MALT_SACK_PILE: false,
+		MapTypes.PROP_KIND_CARGO_CRATES: false,
+		MapTypes.PROP_KIND_MARKET_GOODS_PALLET: false,
+		MapTypes.PROP_KIND_WASH_TUB: false,
+	}
+	for prop in definition.props:
+		var kind: StringName = prop.get("kind", &"")
+		if stall_kinds.has(kind):
+			stall_kinds[kind] = true
+		var prop_id := String(prop.get("id", ""))
+		if prop_id.contains("stall_") or prop_id.contains("civic_well_"):
+			assert_ne(
+				prop.get("kind"),
+				MapTypes.PROP_KIND_BARRELS,
+				"%s must not remain a barrel placeholder" % prop_id
+			)
+	for stall_kind in stall_kinds:
+		assert_true(stall_kinds[stall_kind], "Market square needs stall prop %s" % String(stall_kind))
+	assert_true(
+		_prop_near_prop(definition, &"fish_stall_splitting", &"fish_stall", 6),
+		"Fish splitting table must sit beside fish_stall"
+	)
+	assert_true(
+		_prop_near_prop(definition, &"cloth_stall_bales", &"cloth_stall", 6),
+		"Cloth bales must sit beside cloth_stall"
+	)
+	assert_true(
+		_prop_near_prop(definition, &"grain_stall_sacks", &"grain_stall", 6),
+		"Grain sacks must sit beside grain_stall"
+	)
+	assert_true(
+		_prop_near_prop(definition, &"pottery_stall_crates", &"pottery_stall", 6),
+		"Pottery crates must sit beside pottery_stall"
+	)
+	assert_true(
+		_prop_near_prop(definition, &"civic_well_goods", &"civic_well", 8),
+		"Market goods pallet must sit beside civic_well"
+	)
+	assert_true(
+		_prop_near_prop(definition, &"civic_well_wash_tub", &"civic_well", 6),
+		"Wash tub must sit beside civic_well"
+	)
+	assert_false(_prop_by_id(definition, &"weigh_table_prop").is_empty(), "Weigh table must stay on the square")
+	assert_false(_prop_by_id(definition, &"notice_cart").is_empty(), "Notice cart must stay on the square")
+	var grid := MapBuilder.build(definition)
+	for point in (definition.patrols[0]["points"] as Array):
+		assert_true(
+			MapVerification.is_walkable_point(definition, grid, point),
+			"Patrol point %s must stay walkable after market dressing" % point
+		)
+
+
 func test_market_civic_quarter_edges_are_reciprocal_with_adjacent_districts() -> void:
 	var center := MarketCivicQuarterDefinition.create()
 	var east := LowerTownSliceDefinition.create()
@@ -485,3 +542,29 @@ func _landmark_by_id(definition: MapDefinition, landmark_id: StringName) -> Dict
 	for landmark in definition.view_landmarks:
 		if landmark["id"] == landmark_id: return landmark
 	return {}
+
+
+func _prop_by_id(definition: MapDefinition, prop_id: StringName) -> Dictionary:
+	for prop in definition.props:
+		if prop["id"] == prop_id:
+			return prop
+	return {}
+
+
+func _prop_near_prop(
+	definition: MapDefinition,
+	prop_id: StringName,
+	anchor_prop_id: StringName,
+	max_distance_cells: int
+) -> bool:
+	var prop := _prop_by_id(definition, prop_id)
+	var anchor := _prop_by_id(definition, anchor_prop_id)
+	if prop.is_empty() or anchor.is_empty():
+		return false
+	var prop_pos: Vector2 = prop.get("position", Vector2.ZERO)
+	var anchor_rect: Rect2 = anchor.get("rect", Rect2(anchor.get("position", Vector2.ZERO), Vector2.ONE * definition.cell_size))
+	var closest := Vector2(
+		clampf(prop_pos.x, anchor_rect.position.x, anchor_rect.end.x),
+		clampf(prop_pos.y, anchor_rect.position.y, anchor_rect.end.y)
+	)
+	return prop_pos.distance_to(closest) <= float(max_distance_cells * definition.cell_size)
