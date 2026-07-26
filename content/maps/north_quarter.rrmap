@@ -181,16 +181,15 @@ building east_workshop_monastery house 166 125 9 10 style=house.dwelling.thatch
 building east_dwelling_monastery house 176 126 16 10 style=house.dwelling
 building east_rear_monastery house 194 129 8 8 style=house.rear
 landmark coast_gate_arch gate_arch 103 0 7 9 wall_color=8f8c80ff top_px=240 passage_axis=z door_material=wood
-# Cargo, trade goods and livestock make the work yards legible without inventing gameplay NPCs.
+# Workshop rows and warehouse courts use P2-025 trade props beside matching building IDs.
 prop dock_barrels barrels 116 23 rect=2,2
 prop dock_crates_west cargo_crates 82 22 rect=3,2
 prop dock_crates_east cargo_crates 152 43 rect=3,2
-prop imported_goods_bales trade_goods 88 27 rect=3,2
-prop sailcloth_goods trade_goods 145 30 rect=3,2
-prop rope_props barrels 136 47 rect=2,2
-prop cooperage_crates cargo_crates 121 39 rect=3,2
-prop west_warehouse_goods trade_goods 57 43 rect=3,2
-prop east_warehouse_goods cargo_crates 181 57 rect=3,2
+prop sailmakers_loft_bales sail_cloth_bale 98 37
+prop cooperage_shed_staves cooper_staves 119 37
+prop ropemakers_shed_coils rope_coil 140 30
+prop warehouse_west_court_pallet market_goods_pallet 26 42 rect=2,1
+prop warehouse_east_court_pallet market_goods_pallet 158 42 rect=2,1
 prop merchant_stall_a stall 97 96 rect=3,2
 prop merchant_stall_b stall 114 96 rect=3,2
 prop market_crates cargo_crates 94 102 rect=3,2

@@ -114,6 +114,49 @@ func test_merchant_district_connects_to_monastery_district() -> void:
 	assert_eq(to_monastery["spawn_id"], &"from_monastery")
 
 
+func test_north_quarter_workshop_life_dressing() -> void:
+	var definition: MapDefinition = NorthQuarterDefinition.create()
+	var workshop_kinds := {
+		MapTypes.PROP_KIND_SAIL_CLOTH_BALE: false,
+		MapTypes.PROP_KIND_COOPER_STAVES: false,
+		MapTypes.PROP_KIND_ROPE_COIL: false,
+		MapTypes.PROP_KIND_MARKET_GOODS_PALLET: false,
+	}
+	for prop in definition.props:
+		var kind: StringName = prop.get("kind", &"")
+		if workshop_kinds.has(kind):
+			workshop_kinds[kind] = true
+	for workshop_kind in workshop_kinds:
+		assert_true(workshop_kinds[workshop_kind], "Merchant ward needs workshop prop %s" % String(workshop_kind))
+	assert_true(
+		_prop_near_building(definition, &"sailmakers_loft_bales", &"sailmakers_loft", 6),
+		"Sail cloth bales must sit beside sailmakers_loft"
+	)
+	assert_true(
+		_prop_near_building(definition, &"cooperage_shed_staves", &"cooperage_shed", 6),
+		"Cooper staves must sit beside cooperage_shed"
+	)
+	assert_true(
+		_prop_near_building(definition, &"ropemakers_shed_coils", &"ropemakers_shed", 8),
+		"Rope coils must sit beside ropemakers_shed"
+	)
+	assert_true(
+		_prop_near_building(definition, &"warehouse_west_court_pallet", &"warehouse_west_court_a", 8),
+		"West warehouse court needs a goods pallet"
+	)
+	assert_true(
+		_prop_near_building(definition, &"warehouse_east_court_pallet", &"warehouse_east_court_a", 8),
+		"East warehouse court needs a goods pallet"
+	)
+	var grid := MapBuilder.build(definition)
+	var patrol := definition.patrols[0]["points"] as Array
+	for point in patrol:
+		assert_true(
+			MapVerification.is_walkable_point(definition, grid, point),
+			"Patrol point %s must stay walkable after workshop dressing" % point
+		)
+
+
 func test_north_quarter_connects_to_harbor() -> void:
 	var definition: MapDefinition = NorthQuarterDefinition.create()
 	var transition_by_id: Dictionary = {}
@@ -160,3 +203,29 @@ func _pen_fence_count(definition: MapDefinition) -> int:
 		if prop["kind"] == MapTypes.PROP_KIND_TIMBER_FENCE:
 			count += 1
 	return count
+
+
+func _prop_near_building(
+	definition: MapDefinition,
+	prop_id: StringName,
+	building_id: StringName,
+	max_distance_cells: int
+) -> bool:
+	var prop := _prop_by_id(definition, prop_id)
+	var building := _building_by_id(definition, building_id)
+	if prop.is_empty() or building.is_empty():
+		return false
+	var prop_pos: Vector2 = prop.get("position", Vector2.ZERO)
+	var footprint: Rect2 = building["footprint"]
+	var closest := Vector2(
+		clampf(prop_pos.x, footprint.position.x, footprint.end.x),
+		clampf(prop_pos.y, footprint.position.y, footprint.end.y)
+	)
+	return prop_pos.distance_to(closest) <= float(max_distance_cells * definition.cell_size)
+
+
+func _prop_by_id(definition: MapDefinition, prop_id: StringName) -> Dictionary:
+	for prop in definition.props:
+		if prop["id"] == prop_id:
+			return prop
+	return {}
