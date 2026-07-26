@@ -108,7 +108,13 @@ landmark luhike_jalg_gate_arch gate_arch 138 161 6 8 wall_color=8f8c80ff top_px=
 prop cathedral_steps table 53 87 rect=3,1
 prop garden_bench table 10 72 rect=2,1
 prop cathedral_orchard_bench table 22 18 rect=2,1
-prop stable_cart cart 76 162 rect=2,2
+# P4-028g: castle and cathedral terrace reads use official banners and service clutter.
+prop castle_courtyard_banner banner 14 130 rect=2,2 faction=danish_crown
+prop cathedral_terrace_banner banner 50 62 rect=2,2 faction=danish_crown
+prop cathedral_close_herbs herb_drying_rack 42 62 rect=2,1
+prop cathedral_close_wash wash_tub 66 62 rect=2,1
+prop stable_cart farm_cart 76 162 rect=2,2
+prop upper_stable_cart farm_cart 118 148 rect=2,2
 spawn spawn.inspection 76 102 rect=2,2
 anchor inspection_spawn 76 102 rect=2,2
 anchor castle_courtyard 30 150 rect=2,2

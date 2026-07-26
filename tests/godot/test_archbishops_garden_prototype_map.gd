@@ -105,6 +105,78 @@ func test_archbishops_garden_renders_apple_and_cherry_orchard_batches() -> void:
 	scatter.free()
 
 
+func test_archbishops_garden_precinct_life_dressing() -> void:
+	var definition: MapDefinition = ArchbishopsGardenDefinition.create()
+	var garden_kinds := {
+		MapTypes.PROP_KIND_HERB_DRYING_RACK: false,
+		MapTypes.PROP_KIND_FARM_CART: false,
+		MapTypes.PROP_KIND_HAY_STACK: false,
+		MapTypes.PROP_KIND_TIMBER_FENCE: false,
+	}
+	for prop in definition.props:
+		var kind: StringName = prop.get("kind", &"")
+		if garden_kinds.has(kind):
+			garden_kinds[kind] = true
+	for garden_kind in garden_kinds:
+		assert_true(garden_kinds[garden_kind], "Garden needs precinct prop %s" % String(garden_kind))
+	assert_false(_prop_by_id(definition, &"hay_store").is_empty())
+	assert_eq(_prop_by_id(definition, &"gardener_cart").get("kind"), MapTypes.PROP_KIND_FARM_CART)
+	assert_true(
+		_prop_near_prop(definition, &"kitchen_herb_rack", &"kitchen_plot_fence", 6),
+		"Herb drying rack must sit beside the kitchen plot fence"
+	)
+	assert_true(
+		_prop_near_building(definition, &"gardener_cart", &"orchard_store", 8),
+		"Gardener cart must sit beside orchard_store"
+	)
+	assert_true(
+		_prop_near_building(definition, &"hay_store", &"orchard_store", 8),
+		"Hay store must sit beside orchard_store"
+	)
+	assert_false(_prop_by_id(definition, &"orchard_plot_fence_north").is_empty())
+	assert_false(_prop_by_id(definition, &"kitchen_plot_fence").is_empty())
+	var grid := MapBuilder.build(definition)
+	for point in (definition.patrols[0]["points"] as Array):
+		assert_true(
+			MapVerification.is_walkable_point(definition, grid, point),
+			"Patrol point %s must stay walkable after garden dressing" % point
+		)
+
+
+func _prop_near_prop(
+	definition: MapDefinition,
+	prop_id: StringName,
+	other_prop_id: StringName,
+	max_distance_cells: int
+) -> bool:
+	var prop := _prop_by_id(definition, prop_id)
+	var other := _prop_by_id(definition, other_prop_id)
+	if prop.is_empty() or other.is_empty():
+		return false
+	var prop_pos: Vector2 = prop.get("position", Vector2.ZERO)
+	var other_pos: Vector2 = other.get("position", Vector2.ZERO)
+	return prop_pos.distance_to(other_pos) <= float(max_distance_cells * definition.cell_size)
+
+
+func _prop_near_building(
+	definition: MapDefinition,
+	prop_id: StringName,
+	building_id: StringName,
+	max_distance_cells: int
+) -> bool:
+	var prop := _prop_by_id(definition, prop_id)
+	var building := _building_by_id(definition, building_id)
+	if prop.is_empty() or building.is_empty():
+		return false
+	var prop_pos: Vector2 = prop.get("position", Vector2.ZERO)
+	var footprint: Rect2 = building["footprint"]
+	var closest := Vector2(
+		clampf(prop_pos.x, footprint.position.x, footprint.end.x),
+		clampf(prop_pos.y, footprint.position.y, footprint.end.y)
+	)
+	return prop_pos.distance_to(closest) <= float(max_distance_cells * definition.cell_size)
+
+
 func _building_by_id(definition: MapDefinition, building_id: StringName) -> Dictionary:
 	for building in definition.buildings:
 		if building["id"] == building_id:

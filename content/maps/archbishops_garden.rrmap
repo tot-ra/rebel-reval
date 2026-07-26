@@ -151,7 +151,9 @@ landmark garden_south_gate_arch gate_arch 24 40 10 8 wall_color=8f8c80ff top_px=
 prop medieval_well_prop well 54 18 rect=2,2
 prop orchard_bench table 36 18 rect=2,1
 prop terrace_bench table 88 31 rect=2,1
-prop gardener_cart cart 70 32 rect=2,2
+# P4-028g: kitchen and orchard service props read as canonical garden life, not merchant yards.
+prop kitchen_herb_rack herb_drying_rack 48 19 rect=2,1
+prop gardener_cart farm_cart 64 33 rect=2,2
 # Named specimens guarantee every orchard/understory profile is visible in authoring.
 prop orchard.apple tree 20 15 style=tree.apple
 prop orchard.cherry tree 29 23 style=tree.cherry
@@ -191,7 +193,7 @@ prop canon_close_shrub bush 88 20 rect=2,2 style=bush.dense
 prop cathedral_border_shrub bush 74 19 rect=2,2 style=bush.scrub
 prop cathedral_precinct_hedge bush 78 8 rect=3,2 style=bush.dense
 prop lodging_entry_shrub bush 106 14 rect=2,2 style=bush.scrub
-prop orchard_hay hay_stack 58 33 rect=2,2
+prop hay_store hay_stack 58 33 rect=2,2
 spawn spawn.inspection 58 24 rect=2,2
 anchor inspection_spawn 58 24 rect=2,2
 anchor archbishops_garden 44 18 rect=2,2

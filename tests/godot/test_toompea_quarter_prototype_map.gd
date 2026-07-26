@@ -74,6 +74,72 @@ func test_toompea_plateau_routes_connect_landmarks_and_all_three_descents() -> v
 		)
 
 
+func test_toompea_precinct_life_dressing() -> void:
+	var definition: MapDefinition = ToompeaQuarterDefinition.create()
+	var precinct_kinds := {
+		MapTypes.PROP_KIND_FARM_CART: false,
+		MapTypes.PROP_KIND_BANNER: false,
+		MapTypes.PROP_KIND_HERB_DRYING_RACK: false,
+		MapTypes.PROP_KIND_WASH_TUB: false,
+	}
+	for prop in definition.props:
+		var kind: StringName = prop.get("kind", &"")
+		if precinct_kinds.has(kind):
+			precinct_kinds[kind] = true
+	for precinct_kind in precinct_kinds:
+		assert_true(precinct_kinds[precinct_kind], "Toompea needs precinct prop %s" % String(precinct_kind))
+	assert_false(_prop_by_id(definition, &"stable_cart").is_empty())
+	assert_eq(_prop_by_id(definition, &"stable_cart").get("kind"), MapTypes.PROP_KIND_FARM_CART)
+	assert_true(
+		_prop_near_building(definition, &"castle_courtyard_banner", &"castle_mass", 8),
+		"Castle banner must sit beside the castle compound"
+	)
+	assert_true(
+		_prop_near_building(definition, &"cathedral_terrace_banner", &"cathedral_silhouette", 8),
+		"Cathedral terrace banner must sit beside the cathedral close"
+	)
+	assert_true(
+		_prop_near_building(definition, &"cathedral_close_herbs", &"cathedral_silhouette", 10),
+		"Herb drying rack must dress the cathedral terrace"
+	)
+	assert_true(
+		_prop_near_building(definition, &"stable_cart", &"castle_stables", 8),
+		"Stable cart must sit beside castle_stables"
+	)
+	var grid := MapBuilder.build(definition)
+	for point in (definition.patrols[0]["points"] as Array):
+		assert_true(
+			MapVerification.is_walkable_point(definition, grid, point),
+			"Patrol point %s must stay walkable after precinct dressing" % point
+		)
+
+
+func _prop_near_building(
+	definition: MapDefinition,
+	prop_id: StringName,
+	building_id: StringName,
+	max_distance_cells: int
+) -> bool:
+	var prop := _prop_by_id(definition, prop_id)
+	var building := _building_by_id(definition, building_id)
+	if prop.is_empty() or building.is_empty():
+		return false
+	var prop_pos: Vector2 = prop.get("position", Vector2.ZERO)
+	var footprint: Rect2 = building["footprint"]
+	var closest := Vector2(
+		clampf(prop_pos.x, footprint.position.x, footprint.end.x),
+		clampf(prop_pos.y, footprint.position.y, footprint.end.y)
+	)
+	return prop_pos.distance_to(closest) <= float(max_distance_cells * definition.cell_size)
+
+
+func _prop_by_id(definition: MapDefinition, prop_id: StringName) -> Dictionary:
+	for prop in definition.props:
+		if prop["id"] == prop_id:
+			return prop
+	return {}
+
+
 func _building_by_id(definition: MapDefinition, building_id: StringName) -> Dictionary:
 	for building in definition.buildings:
 		if building["id"] == building_id:
