@@ -1,0 +1,79 @@
+extends "res://tests/godot/test_case.gd"
+
+const FaunaContext := preload("res://scripts/map/view3d/map_view_fauna_context.gd")
+const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
+const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
+const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
+const UrbanFauna := preload("res://scripts/map/view3d/map_view_urban_fauna.gd")
+
+
+func test_lower_town_surfaces_all_four_urban_species() -> void:
+	var species := UrbanFauna.distinct_species_for_map(&"lower_town_slice")
+	assert_eq(species.size(), 4)
+	for required in UrbanFauna.URBAN_SPECIES:
+		assert_true(required in species, "Missing urban species %s" % required)
+
+
+func test_lower_town_authors_eight_placements_under_cap() -> void:
+	assert_eq(UrbanFauna.placement_count_for_map(&"lower_town_slice"), 8)
+	assert_true(UrbanFauna.placement_count_for_map(&"lower_town_slice") <= UrbanFauna.MAX_CONCURRENT_FAUNA)
+
+
+func test_fauna_actors_carry_no_collision_shapes() -> void:
+	var fauna := UrbanFauna.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(fauna)
+	fauna.configure(&"lower_town_slice", MammalSpecies.CONTEXT_LOWER_TOWN, 32)
+	for actor in fauna.get_children():
+		assert_false(fauna.actor_has_collision(actor), "Urban fauna must stay visual-only")
+	fauna.queue_free()
+
+
+func test_wander_and_tether_actors_stay_within_authored_radius() -> void:
+	var fauna := UrbanFauna.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(fauna)
+	fauna.configure(&"lower_town_slice", MammalSpecies.CONTEXT_LOWER_TOWN, 32)
+	for step in 48:
+		fauna.sync(MammalSpecies.CONTEXT_LOWER_TOWN, 0.25, Vector3.ZERO, true)
+	for actor in fauna.get_children():
+		var behavior: StringName = actor.get_meta(&"behavior", &"")
+		if behavior == UrbanFauna.BEHAVIOR_FLEE:
+			continue
+		var radius := float(actor.get_meta(&"radius", 0.0))
+		assert_true(
+			fauna.actor_offset_from_home(actor) <= radius * 1.05,
+			"%s drifted outside authored radius" % behavior
+		)
+	fauna.queue_free()
+
+
+func test_concurrent_fauna_cap_is_enforced() -> void:
+	var fauna := UrbanFauna.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(fauna)
+	fauna.configure(&"lower_town_slice", MammalSpecies.CONTEXT_LOWER_TOWN, 32)
+	fauna.sync(MammalSpecies.CONTEXT_LOWER_TOWN, 1.0, Vector3.ZERO, true)
+	assert_true(fauna.active_fauna_count() <= UrbanFauna.MAX_CONCURRENT_FAUNA)
+	fauna.queue_free()
+
+
+func test_disabling_fauna_leaves_game_state_unchanged() -> void:
+	var state := GameState.new()
+	var before := state.save_payload()
+	var fauna := UrbanFauna.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(fauna)
+	fauna.configure(&"lower_town_slice", MammalSpecies.CONTEXT_LOWER_TOWN, 32)
+	fauna.set_fauna_enabled(false)
+	fauna.sync(MammalSpecies.CONTEXT_LOWER_TOWN, 1.0, Vector3.ZERO, false)
+	assert_eq(fauna.active_fauna_count(), 0)
+	assert_eq(state.save_payload(), before)
+	fauna.queue_free()
+
+
+func test_interior_maps_suppress_urban_fauna_via_context() -> void:
+	var smithy: MapDefinition = KalevSmithy.create()
+	assert_true(smithy.suppresses_exterior_surroundings())
+	assert_false(FaunaContext.supports_urban_fauna(smithy.map_id))
+
+	var lower_town: MapDefinition = LowerTownSlice.create()
+	assert_false(lower_town.suppresses_exterior_surroundings())
+	assert_true(FaunaContext.supports_urban_fauna(lower_town.map_id))
+	assert_eq(FaunaContext.context_for_map(lower_town.map_id), MammalSpecies.CONTEXT_LOWER_TOWN)
