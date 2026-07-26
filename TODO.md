@@ -16,7 +16,7 @@ References:
 | P1 |     0  |     8  | Runtime systems, content foundation |
 | P2 |     2  |    20  | Vertical-slice production (playable MVP) |
 | P3 |     0  |    16  | Validation, accessibility, performance |
-| P4 |    42  |    15  | Act 1: The Simmering City |
+| P4 |    42  |    16  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
 
@@ -92,7 +92,7 @@ References:
 
 
 <!-- P2-021a completed in current session -->
-<!-- P4-028i completed in current session -->
+<!-- P4-016 completed in current session -->
 <!-- P4-028f completed in current session -->
 <!-- P4-028g completed in current session -->
 <!-- P4-028e completed in current session -->
@@ -197,7 +197,8 @@ References:
 - [ ] P4-008 | deps: P4-002,P4-004,P4-006,P4-007,P4-021 | deliverable: St. George's Night climax at Viru Gate reusing all earlier forged objects, ledger standing, and character states; Open, Seal, and Break resolve to a recorded act-boundary state instead of a game ending | verify: all three act-boundary families are reachable through visible prior decisions and each writes a distinct validated act-transition record
 - [ ] P4-021 | deps: P4-016,P4-018,P4-019 | deliverable: two Act 1 faction quest lines (Livonian Order and Black Cloaks), three quests each, authored as P4-018 content packages reusing slice systems | verify: both lines complete via generated traversal tests, every quest writes ledger events, and at least one quest per line resolves through a night consequence encounter with combat and non-combat routes
 - [x] P4-023g | deps: P0-106,P4-023 | deliverable: replace the Merchant District's static cattle/sheep environment models with lightweight ambient animal actors from **P0-106** only where route and performance budgets permit, retaining static pen dressing as fallback | allowed files: `content/maps/north_quarter.rrmap`, `scripts/map/view3d/map_view_fauna_context.gd`, `scripts/map/view3d/map_view_penned_fauna.gd`, `tests/godot/test_map_view_penned_fauna.gd`, `tests/godot/test_north_quarter_prototype_map.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: cattle/sheep idle within authored pens, cannot block Pikk/Lai or transitions, respect day/night population rules, and pass navigation/performance soak tests
-- [ ] P4-016 | deps: P3-014 | deliverable: faction ledger: per-faction standing for the eight active factions (README roster) derived only from explicit recorded events — forged records, quest outcomes, discoveries, betrayals — with a visible ledger UI and no aggregate meter | verify: content-only test events change standing, standing gates at least one quest, price, and route in tests, and GameState contains no universal morality or balance-of-power value
+- [x] P4-016 | deps: P3-014 | deliverable: faction ledger: per-faction standing for the eight active factions (README roster) derived only from explicit recorded events — forged records, quest outcomes, discoveries, betrayals — with a visible ledger UI and no aggregate meter | allowed files: `scripts/faction/faction_ledger.gd`, `scripts/faction/faction_ledger_model.gd`, `scripts/state/game_state.gd`, `scripts/state/game_state_persistence.gd`, `scripts/state/state_rule_evaluator.gd`, `scripts/journal/journal_overlay.gd`, `schemas/common.schema.json`, `tools/validate_content_common.py`, `tests/godot/test_faction_ledger.gd`, `tests/godot/test_state_rule_evaluator.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: content-only test events change standing, standing gates at least one quest, price, and route in tests, and GameState contains no universal morality or balance-of-power value
+- [ ] P4-016a | deps: P4-016 | deliverable: wire slice and Act 1 quest outcomes, forged records, and betrayal discoveries to `record_faction_event` effects so the journal faction tab reflects real play instead of test-only fixtures | verify: Maker's Mark ledger branches and Bitter Brew forged outcomes each write at least one ledger event; `--filter=test_faction_ledger` extended with slice-flow assertions
 - [ ] P4-027f | deps: P4-027b,P4-027c,P4-027d,P4-027e | deliverable: completed-tower portfolio acceptance and activation plan covering map audit, difficulty/loot progression, unique boss identity, save migration, performance and accessibility | verify: every completed 1343 Lower Town registry tower has exactly one dedicated interior, no construction/excluded position is enterable as a completed dungeon, full traversal/branch/soak suites pass, and signed captures cover every exterior and interior
 - [ ] P4-032 | deps: P4-029,P4-030 | deliverable: market-day event system: on designated cycle days, markets feature expanded stalls, NPC crowds, special goods, unique dialogue encounters, and optional micro-quests; off-days show reduced activity with closed stalls and fewer NPCs | verify: market captures on event vs. non-event days show distinct visual density and at least one unique interactable; event triggers at least one optional dialogue or trade option not available on regular days
 - [ ] P4-033 | deps: P4-030 | deliverable: supply chain visibility: visible transport of goods between districts (carts, porters, pack animals) that players can observe, intercept, or influence; at least one quest demonstrates supply-chain-dependent outcomes based on player interference | verify: one authored quest shows different outcomes when supply route is intact vs. disrupted; supply actors follow authored paths without blocking required routes

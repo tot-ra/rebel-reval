@@ -43,6 +43,7 @@ static func save_payload(state: GameState) -> Dictionary:
 		"facts": _bool_dictionary(state._facts),
 		"flags": _bool_dictionary(state._flags),
 		"relationships": _int_dictionary(state._relationships),
+		"faction_events": _faction_events_array(state._faction_events),
 		"pressures": _int_dictionary(state._pressures),
 		"quest_states": _string_dictionary(state._quest_states),
 		"location_states": _string_dictionary(state._location_states),
@@ -117,6 +118,7 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 	state._facts = _load_bool_dictionary(payload.get("facts", {}), errors, "facts")
 	state._flags = _load_bool_dictionary(payload.get("flags", {}), errors, "flags")
 	state._relationships = _load_int_dictionary(payload.get("relationships", {}), errors, "relationships")
+	state._faction_events = _load_faction_events(payload.get("faction_events", []), errors)
 	state._pressures = _load_pressure_dictionary(state, payload.get("pressures", {}), errors)
 	state._quest_states = _load_string_dictionary(payload.get("quest_states", {}), errors, "quest_states")
 	state._location_states = _load_string_dictionary(payload.get("location_states", {}), errors, "location_states")
@@ -173,6 +175,55 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 
 	state._refresh_reserved_weight()
 	return errors
+
+
+static func _faction_events_array(source: Dictionary[StringName, Dictionary]) -> Array[Dictionary]:
+	var rows: Array[Dictionary] = []
+	for event_id in source.keys():
+		var event: Dictionary = source[event_id]
+		rows.append({
+			"event_id": String(event_id),
+			"faction_id": String(event.get("faction_id", "")),
+			"delta": int(event.get("delta", 0)),
+			"summary": String(event.get("summary", "")),
+		})
+	rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return String(a.get("event_id", "")) < String(b.get("event_id", ""))
+	)
+	return rows
+
+
+static func _load_faction_events(source: Variant, errors: Array[String]) -> Dictionary[StringName, Dictionary]:
+	var out: Dictionary[StringName, Dictionary] = {}
+	if source == null:
+		return out
+	if not source is Array:
+		errors.append("faction_events must be an array")
+		return out
+	for index in (source as Array).size():
+		var row: Variant = (source as Array)[index]
+		if not row is Dictionary:
+			errors.append("faction_events[%d] must be a dictionary" % index)
+			continue
+		var event_dict := row as Dictionary
+		var event_id := StringName(String(event_dict.get("event_id", "")))
+		var faction_id := StringName(String(event_dict.get("faction_id", "")))
+		if event_id.is_empty():
+			errors.append("faction_events[%d] missing event_id" % index)
+			continue
+		if not FactionLedger.is_active_faction(faction_id):
+			errors.append("faction_events[%d] uses unknown faction %s" % [index, String(faction_id)])
+			continue
+		if out.has(event_id):
+			errors.append("duplicate faction event id %s" % String(event_id))
+			continue
+		out[event_id] = {
+			"event_id": event_id,
+			"faction_id": faction_id,
+			"delta": clampi(int(event_dict.get("delta", 0)), FactionLedger.STANDING_MIN, FactionLedger.STANDING_MAX),
+			"summary": String(event_dict.get("summary", "")),
+		}
+	return out
 
 
 static func _string_dictionary(source: Dictionary) -> Dictionary:

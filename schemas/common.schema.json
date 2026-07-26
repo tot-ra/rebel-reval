@@ -125,6 +125,7 @@
             "phase_is",
             "pressure_at_least",
             "relationship_at_least",
+            "faction_standing_at_least",
             "item_owned",
             "quest_state_is",
             "forged_modification_is"
@@ -142,8 +143,12 @@
         },
         "amount": {
           "type": "integer",
-          "minimum": 0,
+          "minimum": -3,
           "maximum": 3
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
         }
       }
     },
@@ -164,6 +169,7 @@
             "set_quest_state",
             "adjust_pressure",
             "adjust_relationship",
+            "record_faction_event",
             "add_item",
             "remove_item",
             "set_location_state"

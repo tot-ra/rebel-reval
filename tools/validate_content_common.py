@@ -28,6 +28,7 @@ CONDITION_OPS = {
     "phase_is",
     "pressure_at_least",
     "relationship_at_least",
+    "faction_standing_at_least",
     "item_owned",
     "quest_state_is",
     "forged_modification_is",
@@ -40,6 +41,7 @@ EFFECT_OPS = {
     "set_quest_state",
     "adjust_pressure",
     "adjust_relationship",
+    "record_faction_event",
     "add_item",
     "remove_item",
     "set_location_state",
@@ -56,6 +58,11 @@ CONDITION_RULES: dict[str, dict[str, Any]] = {
     "phase_is": {"required": {"key", "value"}, "key_prefix": "phase.", "value_type": str},
     "pressure_at_least": {"required": {"key", "amount"}, "forbidden": {"value"}, "key_prefix": "pressure."},
     "relationship_at_least": {"required": {"key", "amount"}, "forbidden": {"value"}, "key_prefix": "rel."},
+    "faction_standing_at_least": {
+        "required": {"key", "amount"},
+        "forbidden": {"value"},
+        "key_prefix": "faction.",
+    },
     "item_owned": {"required": {"key"}, "forbidden": {"value", "amount"}, "key_prefix": "item.", "item_ref": True},
     "quest_state_is": {
         "required": {"key", "value"},
@@ -87,6 +94,11 @@ EFFECT_RULES: dict[str, dict[str, Any]] = {
     },
     "adjust_pressure": {"required": {"key", "amount"}, "forbidden": {"value"}, "key_prefix": "pressure."},
     "adjust_relationship": {"required": {"key", "amount"}, "forbidden": {"value"}, "key_prefix": "rel."},
+    "record_faction_event": {
+        "required": {"key", "value", "amount"},
+        "key_prefix": "ledger.",
+        "value_type": str,
+    },
     "add_item": {"required": {"key"}, "forbidden": {"value", "amount"}, "key_prefix": "item.", "item_ref": True},
     "remove_item": {"required": {"key"}, "forbidden": {"value", "amount"}, "key_prefix": "item.", "item_ref": True},
     "set_location_state": {

@@ -9,6 +9,8 @@ signal equipment_changed(slot: StringName)
 signal items_changed()
 ## Fired when a forged commission record is committed.
 signal forged_record_added(record_id: StringName)
+## Fired when an explicit faction ledger event is recorded.
+signal faction_event_recorded(event_id: StringName, faction_id: StringName)
 ## Fired when the campaign phase changes; SessionState autosaves on this boundary.
 signal phase_changed(previous: StringName, next: StringName)
 
@@ -46,6 +48,7 @@ var map_world_state: MapStableStateStore = MapStableStateStore.new()
 var _equipped: Dictionary[StringName, StringName] = {}
 var _facts: Dictionary[StringName, bool] = {}
 var _relationships: Dictionary[StringName, int] = {}
+var _faction_events: Dictionary[StringName, Dictionary] = {}
 var _pressures: Dictionary[StringName, int] = {}
 var _forged_records: Dictionary[StringName, ForgedRecord] = {}
 var _flags: Dictionary[StringName, bool] = {}
@@ -356,6 +359,53 @@ func set_relationship(key: StringName, value: int) -> void:
 
 func adjust_relationship(key: StringName, amount: int) -> void:
 	set_relationship(key, get_relationship(key) + amount)
+
+
+func has_faction_event(event_id: StringName) -> bool:
+	return _faction_events.has(event_id)
+
+
+func record_faction_event(
+	event_id: StringName,
+	faction_id: StringName,
+	delta: int,
+	summary: String
+) -> bool:
+	if event_id.is_empty() or not FactionLedger.is_active_faction(faction_id):
+		return false
+	if _faction_events.has(event_id):
+		return false
+	_faction_events[event_id] = {
+		"event_id": event_id,
+		"faction_id": faction_id,
+		"delta": clampi(delta, FactionLedger.STANDING_MIN, FactionLedger.STANDING_MAX),
+		"summary": summary,
+	}
+	faction_event_recorded.emit(event_id, faction_id)
+	return true
+
+
+func get_faction_standing(faction_id: StringName) -> int:
+	if not FactionLedger.is_active_faction(faction_id):
+		return 0
+	var total := 0
+	for event in _faction_events.values():
+		if event.get("faction_id", &"") == faction_id:
+			total += int(event.get("delta", 0))
+	return clampi(total, FactionLedger.STANDING_MIN, FactionLedger.STANDING_MAX)
+
+
+func get_faction_events_for(faction_id: StringName) -> Array[Dictionary]:
+	var events: Array[Dictionary] = []
+	for event_id in _faction_events.keys():
+		var event: Dictionary = _faction_events[event_id]
+		if event.get("faction_id", &"") != faction_id:
+			continue
+		events.append(event.duplicate(true))
+	events.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return String(a.get("event_id", "")) < String(b.get("event_id", ""))
+	)
+	return events
 
 
 func get_pressure(key: StringName) -> int:

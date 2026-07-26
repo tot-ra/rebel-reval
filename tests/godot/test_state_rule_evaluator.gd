@@ -24,6 +24,12 @@ func test_all_condition_operators() -> void:
 	state.set_phase(PHASE_NIGHT)
 	state.set_pressure(PRESSURE_SUSPICION, 2)
 	state.set_relationship(REL_HENNING, 1)
+	state.record_faction_event(
+		&"ledger.test.black_cloaks.neutral",
+		FactionLedger.BLACK_CLOAKS,
+		0,
+		"Fixture neutral contact."
+	)
 	state.add_item(ITEM_SPEARHEAD)
 	state.set_quest_state(QUEST_MAKERS_MARK, &"incident_known")
 
@@ -35,6 +41,7 @@ func test_all_condition_operators() -> void:
 		{"op": "phase_is", "key": String(PHASE_NIGHT), "value": "active"},
 		{"op": "pressure_at_least", "key": String(PRESSURE_SUSPICION), "amount": 2},
 		{"op": "relationship_at_least", "key": String(REL_HENNING), "amount": 1},
+		{"op": "faction_standing_at_least", "key": "faction.black_cloaks", "amount": 0},
 		{"op": "item_owned", "key": String(ITEM_SPEARHEAD)},
 		{"op": "quest_state_is", "key": String(QUEST_MAKERS_MARK), "value": "incident_known"},
 	]
@@ -86,6 +93,13 @@ func test_all_effect_operators() -> void:
 		{"op": "set_quest_state", "key": String(QUEST_MAKERS_MARK), "value": "incident_known"},
 		{"op": "adjust_pressure", "key": String(PRESSURE_SUSPICION), "amount": 2},
 		{"op": "adjust_relationship", "key": String(REL_HENNING), "amount": -1},
+		{
+			"op": "record_faction_event",
+			"key": "ledger.test.black_cloaks.trusted",
+			"value": "faction.black_cloaks",
+			"amount": 1,
+			"summary": "Test ledger write.",
+		},
 		{"op": "remove_item", "key": String(ITEM_SPEARHEAD)},
 		{"op": "add_item", "key": "item.watch_buckle"},
 		{"op": "set_location_state", "key": String(LOCATION_SMITHY), "value": "after_ledger_destroyed"},
@@ -98,6 +112,8 @@ func test_all_effect_operators() -> void:
 	assert_eq(state.get_quest_state(QUEST_MAKERS_MARK), &"incident_known")
 	assert_eq(state.get_pressure(PRESSURE_SUSPICION), 2)
 	assert_eq(state.get_relationship(REL_HENNING), -1)
+	assert_true(state.has_faction_event(&"ledger.test.black_cloaks.trusted"))
+	assert_eq(state.get_faction_standing(FactionLedger.BLACK_CLOAKS), 1)
 	assert_false(state.has_item(ITEM_SPEARHEAD))
 	assert_true(state.has_item(&"item.watch_buckle"))
 	assert_eq(state.get_location_state(LOCATION_SMITHY), &"after_ledger_destroyed")

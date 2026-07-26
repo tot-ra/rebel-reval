@@ -12,6 +12,7 @@ const CONDITION_OPS := [
 	"phase_is",
 	"pressure_at_least",
 	"relationship_at_least",
+	"faction_standing_at_least",
 	"item_owned",
 	"quest_state_is",
 	"forged_modification_is",
@@ -24,6 +25,7 @@ const EFFECT_OPS := [
 	"set_quest_state",
 	"adjust_pressure",
 	"adjust_relationship",
+	"record_faction_event",
 	"add_item",
 	"remove_item",
 	"set_location_state",
@@ -60,6 +62,8 @@ func evaluate_condition(condition: Dictionary, state: GameState) -> bool:
 			return state.get_pressure(key) >= int(condition["amount"])
 		"relationship_at_least":
 			return state.get_relationship(key) >= int(condition["amount"])
+		"faction_standing_at_least":
+			return state.get_faction_standing(FactionLedger.faction_id_from_key(key)) >= int(condition["amount"])
 		"item_owned":
 			return state.has_item(key)
 		"quest_state_is":
@@ -140,6 +144,13 @@ func _apply_valid_effect(effect: Dictionary, state: GameState) -> void:
 			state.adjust_pressure(key, int(effect["amount"]))
 		"adjust_relationship":
 			state.adjust_relationship(key, int(effect["amount"]))
+		"record_faction_event":
+			state.record_faction_event(
+				key,
+				FactionLedger.faction_id_from_key(StringName(String(effect["value"]))),
+				int(effect["amount"]),
+				String(effect.get("summary", ""))
+			)
 		"add_item":
 			state.add_item(key)
 		"remove_item":
@@ -169,7 +180,9 @@ func _validate_condition(condition: Dictionary, state: GameState) -> String:
 		"pressure_at_least":
 			return _validate_key_amount(condition, "pressure.", 0, 3)
 		"relationship_at_least":
-			return _validate_key_amount(condition, "rel.", 0, 3)
+			return _validate_key_amount(condition, "rel.", -3, 3)
+		"faction_standing_at_least":
+			return _validate_faction_standing(condition)
 		"item_owned":
 			return _validate_key_only(condition, "item.")
 		"quest_state_is":
@@ -188,6 +201,53 @@ func _validate_forged_modification(condition: Dictionary) -> String:
 		return key_error
 	if typeof(condition["value"]) != TYPE_STRING or String(condition["value"]).is_empty():
 		return "forged_modification_is value must be a non-empty modification id"
+	return ""
+
+
+func _validate_faction_standing(condition: Dictionary) -> String:
+	var shape_error := _require_shape(condition, ["op", "key", "amount"])
+	if not shape_error.is_empty():
+		return shape_error
+	var key_error := _validate_key(condition, "faction.")
+	if not key_error.is_empty():
+		return key_error
+	if typeof(condition["amount"]) != TYPE_INT:
+		return "faction_standing_at_least amount must be an integer"
+	var amount := int(condition["amount"])
+	if amount < FactionLedger.STANDING_MIN or amount > FactionLedger.STANDING_MAX:
+		return "faction_standing_at_least amount must be between %d and %d" % [
+			FactionLedger.STANDING_MIN,
+			FactionLedger.STANDING_MAX,
+		]
+	if not FactionLedger.is_active_faction(FactionLedger.faction_id_from_key(StringName(String(condition["key"])))):
+		return "faction_standing_at_least key must name an active faction"
+	return ""
+
+
+func _validate_record_faction_event(effect: Dictionary) -> String:
+	if effect.size() not in [4, 5]:
+		return "record_faction_event contains missing or unsupported fields"
+	for required_key in ["op", "key", "value", "amount"]:
+		if not effect.has(required_key):
+			return "record_faction_event requires %s" % required_key
+	var key_error := _validate_key(effect, "ledger.")
+	if not key_error.is_empty():
+		return key_error
+	if typeof(effect["value"]) != TYPE_STRING or not String(effect["value"]).begins_with("faction."):
+		return "record_faction_event value must use the faction. namespace"
+	var faction_id := FactionLedger.faction_id_from_key(StringName(String(effect["value"])))
+	if not FactionLedger.is_active_faction(faction_id):
+		return "record_faction_event value must name an active faction"
+	if typeof(effect["amount"]) != TYPE_INT:
+		return "record_faction_event amount must be an integer"
+	var amount := int(effect["amount"])
+	if amount < FactionLedger.STANDING_MIN or amount > FactionLedger.STANDING_MAX:
+		return "record_faction_event amount must be between %d and %d" % [
+			FactionLedger.STANDING_MIN,
+			FactionLedger.STANDING_MAX,
+		]
+	if effect.has("summary") and typeof(effect["summary"]) != TYPE_STRING:
+		return "record_faction_event summary must be a string"
 	return ""
 
 
@@ -213,6 +273,8 @@ func _validate_effect(effect: Dictionary, state: GameState) -> String:
 			return _validate_key_amount(effect, "pressure.", -3, 3)
 		"adjust_relationship":
 			return _validate_key_amount(effect, "rel.", -3, 3)
+		"record_faction_event":
+			return _validate_record_faction_event(effect)
 		"add_item", "remove_item":
 			return _validate_key_only(effect, "item.")
 		"set_location_state":
