@@ -19,6 +19,7 @@ const BirdContext := preload("res://scripts/map/view3d/map_view_bird_context.gd"
 const BirdFlight := preload("res://scripts/map/view3d/map_view_bird_flight.gd")
 const FaunaContext := preload("res://scripts/map/view3d/map_view_fauna_context.gd")
 const UrbanFauna := preload("res://scripts/map/view3d/map_view_urban_fauna.gd")
+const PennedFauna := preload("res://scripts/map/view3d/map_view_penned_fauna.gd")
 const InsectAmbientAudio := preload("res://scripts/map/view3d/map_view_insect_ambient_audio.gd")
 const InsectContext := preload("res://scripts/map/view3d/map_view_insect_context.gd")
 
@@ -92,6 +93,8 @@ var _bird_flight
 var _bird_flight_enabled := true
 var _urban_fauna
 var _urban_fauna_enabled := true
+var _penned_fauna
+var _penned_fauna_enabled := true
 var _insect_audio
 var _insect_audio_enabled := true
 
@@ -147,6 +150,7 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 	runtime._install_bird_audio()
 	runtime._install_bird_flight()
 	runtime._install_urban_fauna()
+	runtime._install_penned_fauna()
 	runtime._install_insect_audio()
 	runtime._install_click_input(scene_root)
 	return runtime
@@ -195,6 +199,18 @@ func urban_fauna_active_count() -> int:
 	return _urban_fauna.active_fauna_count()
 
 
+func set_penned_fauna_enabled(enabled: bool) -> void:
+	_penned_fauna_enabled = enabled
+	if _penned_fauna != null:
+		_penned_fauna.set_fauna_enabled(enabled)
+
+
+func penned_fauna_active_count() -> int:
+	if _penned_fauna == null:
+		return 0
+	return _penned_fauna.active_fauna_count()
+
+
 func _install_bird_flight() -> void:
 	_bird_flight = BirdFlight.new()
 	_bird_flight.name = "BirdFlight"
@@ -209,6 +225,14 @@ func _install_urban_fauna() -> void:
 	add_child(_urban_fauna)
 	var context := FaunaContext.context_for_map(_definition.map_id)
 	_urban_fauna.configure(_definition.map_id, context, _definition.cell_size)
+
+
+func _install_penned_fauna() -> void:
+	_penned_fauna = PennedFauna.new()
+	_penned_fauna.name = "PennedFauna"
+	add_child(_penned_fauna)
+	var context := FaunaContext.context_for_map(_definition.map_id)
+	_penned_fauna.configure(_definition.map_id, context, _definition.cell_size)
 
 
 func _install_bird_audio() -> void:
@@ -355,6 +379,7 @@ func _process(delta: float) -> void:
 	_sync_bird_audio(delta)
 	_sync_bird_flight(delta)
 	_sync_urban_fauna(delta)
+	_sync_penned_fauna(delta)
 	_sync_insect_audio(delta)
 	_apply_view_rotation(delta)
 	_sync_player(false, delta)
@@ -562,6 +587,17 @@ func _sync_urban_fauna(delta: float) -> void:
 	var context := FaunaContext.context_for_map(_definition.map_id)
 	var listener := _camera.global_position if _camera != null else Vector3.ZERO
 	_urban_fauna.sync(context, delta, listener, _urban_fauna_enabled)
+
+
+func _sync_penned_fauna(delta: float) -> void:
+	if _penned_fauna == null or _definition == null:
+		return
+	if _definition.suppresses_exterior_surroundings():
+		_penned_fauna.sync(&"", delta, Vector3.ZERO, false)
+		return
+	var context := FaunaContext.context_for_map(_definition.map_id)
+	var listener := _camera.global_position if _camera != null else Vector3.ZERO
+	_penned_fauna.sync(context, delta, listener, _penned_fauna_enabled)
 
 
 func _sync_insect_audio(delta: float) -> void:

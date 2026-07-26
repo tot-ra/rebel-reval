@@ -6,6 +6,7 @@ extends Node
 const BirdAmbientAudio := preload("res://scripts/map/view3d/map_view_bird_ambient_audio.gd")
 const BirdFlight := preload("res://scripts/map/view3d/map_view_bird_flight.gd")
 const UrbanFauna := preload("res://scripts/map/view3d/map_view_urban_fauna.gd")
+const PennedFauna := preload("res://scripts/map/view3d/map_view_penned_fauna.gd")
 const DEFAULT_OUTPUT := "user://lower_town_scene_baseline.json"
 const MIB := 1024.0 * 1024.0
 
@@ -36,6 +37,7 @@ func _record() -> void:
 	var bird_audio_peak := 0
 	var bird_flight_peak := 0
 	var urban_fauna_peak := 0
+	var penned_fauna_peak := 0
 	for ignored in frame_count:
 		await get_tree().process_frame
 		var current := Time.get_ticks_usec()
@@ -45,6 +47,7 @@ func _record() -> void:
 			bird_audio_peak = maxi(bird_audio_peak, view_runtime.bird_audio_active_voice_count())
 			bird_flight_peak = maxi(bird_flight_peak, view_runtime.bird_flight_active_count())
 			urban_fauna_peak = maxi(urban_fauna_peak, view_runtime.urban_fauna_active_count())
+			penned_fauna_peak = maxi(penned_fauna_peak, view_runtime.penned_fauna_active_count())
 
 	var memory_after := int(Performance.get_monitor(Performance.MEMORY_STATIC))
 	var texture_memory := int(Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED))
@@ -60,9 +63,11 @@ func _record() -> void:
 		"bird_audio_peak": bird_audio_peak,
 		"bird_flight_peak": bird_flight_peak,
 		"urban_fauna_peak": urban_fauna_peak,
+		"penned_fauna_peak": penned_fauna_peak,
 		"bird_audio_cap": BirdAmbientAudio.MAX_CONCURRENT_VOICES,
 		"bird_flight_cap": BirdFlight.MAX_CONCURRENT_BIRDS,
 		"urban_fauna_cap": UrbanFauna.MAX_CONCURRENT_FAUNA,
+		"penned_fauna_cap": PennedFauna.MAX_CONCURRENT_FAUNA,
 		"memory_static_bytes": memory_after,
 		"memory_delta_mib": maxf(0.0, float(memory_after - _memory_before) / MIB),
 		"texture_memory_bytes": texture_memory,

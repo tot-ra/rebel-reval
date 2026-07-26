@@ -3,8 +3,8 @@ extends RefCounted
 
 ## Data-only catalog for north-Baltic ambient mammals. P0-118 owns stable IDs,
 ## visual profile stubs, and district suitability. Runtime spawning and behavior
-## are owned by P2-024 (urban), P0-106 (penned livestock), and future wild-margin
-## actors; no gameplay interaction in this task.
+## are owned by P2-024 (urban) and P0-106 (penned livestock and wild-margin actors);
+## no gameplay interaction in this task.
 
 const GROUP_BEAR := &"bear"
 const GROUP_CANID := &"canid"
