@@ -39,8 +39,17 @@ const LOWER_TOWN_PLACEMENTS: Array[Dictionary] = [
 	{"cell": Vector2i(92, 66), "species": MammalSpecies.SPECIES_HORSE, "behavior": BEHAVIOR_TETHER, "radius": 2.0},
 ]
 
+## Knights' stable yard and court beside knights_hall. Authored west of the
+## south_watch spine so horses never block King Street or Karja transitions.
+const SOUTH_QUARTER_PLACEMENTS: Array[Dictionary] = [
+	{"cell": Vector2i(249, 44), "species": MammalSpecies.SPECIES_HORSE, "behavior": BEHAVIOR_TETHER, "radius": 2.2},
+	{"cell": Vector2i(254, 46), "species": MammalSpecies.SPECIES_HORSE, "behavior": BEHAVIOR_TETHER, "radius": 2.0},
+	{"cell": Vector2i(275, 30), "species": MammalSpecies.SPECIES_DOG, "behavior": BEHAVIOR_WANDER, "radius": 2.8},
+]
+
 const MAP_PLACEMENTS: Dictionary = {
 	&"lower_town_slice": LOWER_TOWN_PLACEMENTS,
+	&"south_quarter": SOUTH_QUARTER_PLACEMENTS,
 }
 
 var _actors: Array[Node3D] = []

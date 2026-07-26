@@ -8,6 +8,7 @@ const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species
 
 const URBAN_FAUNA_MAPS: Dictionary = {
 	&"lower_town_slice": MammalSpecies.CONTEXT_LOWER_TOWN,
+	&"south_quarter": MammalSpecies.CONTEXT_LOWER_TOWN,
 }
 
 const PENNED_FAUNA_MAPS: Dictionary = {

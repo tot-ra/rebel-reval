@@ -4,6 +4,7 @@ const FaunaContext := preload("res://scripts/map/view3d/map_view_fauna_context.g
 const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
 const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
+const SouthQuarterDefinition := preload("res://scripts/map/definitions/prototypes/south_quarter_definition.gd")
 const UrbanFauna := preload("res://scripts/map/view3d/map_view_urban_fauna.gd")
 
 
@@ -68,6 +69,34 @@ func test_disabling_fauna_leaves_game_state_unchanged() -> void:
 	fauna.queue_free()
 
 
+func test_south_quarter_authors_horses_and_court_dog_under_cap() -> void:
+	assert_eq(UrbanFauna.placement_count_for_map(&"south_quarter"), 3)
+	assert_true(UrbanFauna.placement_count_for_map(&"south_quarter") <= UrbanFauna.MAX_CONCURRENT_FAUNA)
+	var seen: Dictionary = {}
+	for placement: Dictionary in UrbanFauna.MAP_PLACEMENTS[&"south_quarter"]:
+		seen[placement.get("species", &"")] = true
+	assert_true(seen.has(MammalSpecies.SPECIES_HORSE))
+	assert_true(seen.has(MammalSpecies.SPECIES_DOG))
+
+
+func test_south_quarter_stable_actors_stay_outside_south_watch_patrol() -> void:
+	var definition: MapDefinition = SouthQuarterDefinition.create()
+	var corridor := _south_watch_patrol_corridor_cells(definition, 1)
+	for placement: Dictionary in UrbanFauna.MAP_PLACEMENTS[&"south_quarter"]:
+		var cell: Vector2i = placement.get("cell", Vector2i.ZERO)
+		assert_false(
+			corridor.has(cell),
+			"Urban fauna at %s must not spawn on the south_watch patrol spine" % cell
+		)
+
+
+func test_south_quarter_supports_urban_fauna_via_context() -> void:
+	var definition: MapDefinition = SouthQuarterDefinition.create()
+	assert_false(definition.suppresses_exterior_surroundings())
+	assert_true(FaunaContext.supports_urban_fauna(definition.map_id))
+	assert_eq(FaunaContext.context_for_map(definition.map_id), MammalSpecies.CONTEXT_LOWER_TOWN)
+
+
 func test_interior_maps_suppress_urban_fauna_via_context() -> void:
 	var smithy: MapDefinition = KalevSmithy.create()
 	assert_true(smithy.suppresses_exterior_surroundings())
@@ -77,3 +106,16 @@ func test_interior_maps_suppress_urban_fauna_via_context() -> void:
 	assert_false(lower_town.suppresses_exterior_surroundings())
 	assert_true(FaunaContext.supports_urban_fauna(lower_town.map_id))
 	assert_eq(FaunaContext.context_for_map(lower_town.map_id), MammalSpecies.CONTEXT_LOWER_TOWN)
+
+
+func _south_watch_patrol_corridor_cells(definition: MapDefinition, radius: int) -> Dictionary:
+	var corridor: Dictionary = {}
+	for patrol: Dictionary in definition.patrols:
+		if patrol.get("id", &"") != &"south_watch":
+			continue
+		for point in patrol.get("points", []):
+			var cell := Vector2i(point)
+			for dx in range(-radius, radius + 1):
+				for dy in range(-radius, radius + 1):
+					corridor[cell + Vector2i(dx, dy)] = true
+	return corridor
