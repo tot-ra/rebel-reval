@@ -79,6 +79,71 @@ func test_harbor_shores_do_not_scatter_reeds_or_cattails() -> void:
 		scatter.free()
 
 
+func test_coastal_gate_merchant_landing_district_life_props() -> void:
+	var definition: MapDefinition = HarborNorthDefinition.create()
+	var yard_kinds := {
+		MapTypes.PROP_KIND_CARGO_CRATES: false,
+		MapTypes.PROP_KIND_TRADE_GOODS: false,
+		MapTypes.PROP_KIND_ROPE_COIL: false,
+	}
+	for prop in definition.props:
+		var kind: StringName = prop.get("kind", &"")
+		if yard_kinds.has(kind):
+			yard_kinds[kind] = true
+		var prop_id := String(prop.get("id", ""))
+		if prop_id.contains("cargo_") or prop_id.contains("rope_") or prop_id.contains("tally_"):
+			assert_ne(
+				prop.get("kind"),
+				MapTypes.PROP_KIND_BARRELS,
+				"%s must not remain a barrel placeholder" % prop_id
+			)
+	for yard_kind in yard_kinds:
+		assert_true(yard_kinds[yard_kind], "Merchant landing needs yard prop %s" % String(yard_kind))
+	assert_true(
+		_props_of_kind(definition, MapTypes.PROP_KIND_CARGO_CRATES).size() >= 2,
+		"West and mid cargo yards need crate clusters"
+	)
+	assert_true(
+		_props_of_kind(definition, MapTypes.PROP_KIND_TRADE_GOODS).size() >= 2,
+		"Cargo yards and tally ground need trade-goods reads"
+	)
+	assert_true(
+		_props_of_kind(definition, MapTypes.PROP_KIND_ROPE_COIL).size() >= 2,
+		"Ropewalk needs paired coil tallies"
+	)
+	assert_true(
+		_prop_near_building(definition, &"cargo_shed_west_crates", &"cargo_shed_west", 8),
+		"Cargo crates must sit beside cargo_shed_west"
+	)
+	assert_true(
+		_prop_near_building(definition, &"warehouse_mid_crates", &"warehouse_mid", 8),
+		"Cargo crates must sit beside warehouse_mid"
+	)
+	assert_true(
+		_prop_near_building(definition, &"tally_ground_goods", &"tally_shed", 6),
+		"Tally ground goods must sit beside tally_shed"
+	)
+	assert_true(
+		_prop_near_building(definition, &"ropeyard_coil_west", &"ropewalk_shed", 8),
+		"Rope coils must sit beside ropewalk_shed"
+	)
+	var grid := MapBuilder.build(definition)
+	for point in (definition.patrols[0]["points"] as Array):
+		assert_true(
+			MapVerification.is_walkable_point(definition, grid, point),
+			"Patrol point %s must stay walkable after merchant-landing dressing" % point
+		)
+	assert_true(
+		MapVerification.route_exists_exact(
+			definition,
+			grid,
+			MapVerification.cell_center(definition, Vector2i(103, 100)),
+			MapVerification.cell_center(definition, Vector2i(57, 64))
+		),
+		"Gate descent to west landing must stay open"
+	)
+
+
 func test_trade_harbor_has_merchant_boats_moored_on_water() -> void:
 	var definition: MapDefinition = HarborNorthDefinition.create()
 	var boats := _props_of_kind(definition, MapTypes.PROP_KIND_MERCHANT_BOAT)
@@ -258,4 +323,30 @@ func _landmark_by_id(definition: MapDefinition, landmark_id: StringName) -> Dict
 	for landmark in definition.view_landmarks:
 		if landmark.get("id", &"") == landmark_id:
 			return landmark
+	return {}
+
+
+func _prop_near_building(
+	definition: MapDefinition,
+	prop_id: StringName,
+	building_id: StringName,
+	max_distance_cells: int
+) -> bool:
+	var prop := _prop_by_id(definition, prop_id)
+	var building := _building_by_id(definition, building_id)
+	if prop.is_empty() or building.is_empty():
+		return false
+	var prop_pos: Vector2 = prop.get("position", Vector2.ZERO)
+	var footprint: Rect2 = building["footprint"]
+	var closest := Vector2(
+		clampf(prop_pos.x, footprint.position.x, footprint.end.x),
+		clampf(prop_pos.y, footprint.position.y, footprint.end.y)
+	)
+	return prop_pos.distance_to(closest) <= float(max_distance_cells * definition.cell_size)
+
+
+func _prop_by_id(definition: MapDefinition, prop_id: StringName) -> Dictionary:
+	for prop in definition.props:
+		if prop.get("id", &"") == prop_id:
+			return prop
 	return {}
