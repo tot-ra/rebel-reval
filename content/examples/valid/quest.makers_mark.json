@@ -60,6 +60,13 @@
           "op": "adjust_relationship",
           "key": "rel.henning_trust",
           "amount": 1
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.makers_mark.preserve_truth",
+          "value": "faction.livonian_order",
+          "amount": 1,
+          "summary": "Kept an honest forge ledger for the watch inspection."
         }
       ]
     },
@@ -77,6 +84,13 @@
           "op": "adjust_relationship",
           "key": "rel.mart_trust",
           "amount": 1
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.makers_mark.alter_for_apprentice",
+          "value": "faction.black_cloaks",
+          "amount": 1,
+          "summary": "Falsified the forge ledger to shield Mart's rejected iron."
         }
       ]
     },
@@ -101,6 +115,13 @@
           "op": "set_flag",
           "key": "flag.forge_ledger_destroyed",
           "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.makers_mark.destroy_evidence",
+          "value": "faction.livonian_order",
+          "amount": -1,
+          "summary": "Destroyed ledger pages the watch will notice missing."
         }
       ]
     }

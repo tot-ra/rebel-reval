@@ -2,6 +2,12 @@ extends "res://tests/godot/test_case.gd"
 
 const EVENT_HONEST := &"ledger.black_cloaks.honest_delivery"
 const EVENT_BETRAYAL := &"ledger.livonian_order.betrayal"
+const QUEST_MAKERS_MARK := &"quest.makers_mark"
+const COMMISSION_BITTER_BREW := &"commission.bitter_brew"
+const VALID_DIR := "res://content/examples/valid"
+const SUPPORT_DIR := "res://content/examples/support"
+const CommissionRunnerScript := preload("res://scripts/forge/forge_commission_runner.gd")
+const CommissionPresenterScript := preload("res://scripts/forge/forge_commission_presenter.gd")
 const FACTION_BLACK_CLOAKS := FactionLedger.BLACK_CLOAKS
 const FACTION_ORDER := FactionLedger.LIVONIAN_ORDER
 
@@ -133,3 +139,105 @@ func test_faction_ledger_survives_save_round_trip() -> void:
 	assert_eq(restored.load_payload(payload).size(), 0)
 	var after := FactionLedgerModel.build_snapshot(restored)
 	assert_eq(after, before)
+
+
+func test_makers_mark_ledger_branches_record_faction_events() -> void:
+	var db := ContentDB.new()
+	assert_true(db.load_from_directories([VALID_DIR, SUPPORT_DIR]))
+	var branches := [
+		{
+			"transition": &"preserve_ledger",
+			"event": &"ledger.makers_mark.preserve_truth",
+			"faction": FactionLedger.LIVONIAN_ORDER,
+			"standing": 1,
+		},
+		{
+			"transition": &"alter_ledger",
+			"event": &"ledger.makers_mark.alter_for_apprentice",
+			"faction": FactionLedger.BLACK_CLOAKS,
+			"standing": 1,
+		},
+		{
+			"transition": &"destroy_ledger",
+			"event": &"ledger.makers_mark.destroy_evidence",
+			"faction": FactionLedger.LIVONIAN_ORDER,
+			"standing": -1,
+		},
+	]
+	for branch in branches:
+		var slice_state := GameState.new()
+		slice_state.set_quest_state(QUEST_MAKERS_MARK, &"incident_known")
+		slice_state.set_flag(&"flag.mart_missing", true)
+		var quest_manager := QuestManager.new(db, slice_state)
+		assert_true(
+			quest_manager.transition(QUEST_MAKERS_MARK, branch["transition"]),
+			"transition %s should commit" % String(branch["transition"])
+		)
+		assert_true(slice_state.has_faction_event(branch["event"]))
+		assert_eq(slice_state.get_faction_standing(branch["faction"]), branch["standing"])
+
+
+func test_bitter_brew_forged_outcomes_record_faction_events() -> void:
+	var db := ContentDB.new()
+	assert_true(db.load_from_directories([VALID_DIR, SUPPORT_DIR]))
+	var options := [
+		{
+			"option": "honest_work",
+			"event": &"ledger.bitter_brew.honest_securing",
+			"faction": FactionLedger.HANSEATIC,
+			"standing": 1,
+			"facts": [] as Array[StringName],
+		},
+		{
+			"option": "subtle_defect",
+			"event": &"ledger.bitter_brew.seal_deception",
+			"faction": FactionLedger.LIVONIAN_ORDER,
+			"standing": -1,
+			"facts": [&"fact.bitter_brew.checkpoint_neglect"],
+		},
+		{
+			"option": "secret_feature",
+			"event": &"ledger.bitter_brew.cart_release",
+			"faction": FactionLedger.BLACK_CLOAKS,
+			"standing": 1,
+			"facts": [
+				&"fact.bitter_brew.brewery_ale_sound",
+				&"fact.bitter_brew.merchant_supply_spoiled",
+			],
+		},
+	]
+	for option_row in options:
+		var slice_state := GameState.new()
+		slice_state.set_phase(GameState.PHASE_INVESTIGATION_MORNING)
+		slice_state.set_quest_state(&"quest.bitter_brew", &"investigation_ready")
+		for fact_id in option_row["facts"]:
+			slice_state.set_fact(fact_id, true)
+		var setup := _make_commission_runner_setup(db, slice_state)
+		assert_true(setup["runner"].open(COMMISSION_BITTER_BREW))
+		assert_true(setup["runner"].select_option(String(option_row["option"])))
+		assert_true(slice_state.has_faction_event(option_row["event"]))
+		assert_eq(slice_state.get_faction_standing(option_row["faction"]), option_row["standing"])
+		_cleanup_commission_runner(setup)
+
+
+func _make_commission_runner_setup(db: ContentDB, slice_state: GameState) -> Dictionary:
+	var presenter := _SliceCommissionPresenter.new()
+	var runner := CommissionRunnerScript.new()
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(runner)
+	runner.configure(db, slice_state, presenter)
+	return {"runner": runner, "presenter": presenter}
+
+
+func _cleanup_commission_runner(setup: Dictionary) -> void:
+	var runner: Node = setup.get("runner")
+	if runner != null and is_instance_valid(runner):
+		runner.queue_free()
+
+
+class _SliceCommissionPresenter extends CommissionPresenterScript:
+	func present_commission(_snapshot: Dictionary) -> void:
+		pass
+
+	func close() -> void:
+		pass

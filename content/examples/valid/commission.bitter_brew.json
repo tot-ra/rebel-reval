@@ -46,6 +46,13 @@
           "op": "set_flag",
           "key": "flag.bitter_brew_brewery_secured",
           "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.bitter_brew.honest_securing",
+          "value": "faction.hanseatic",
+          "amount": 1,
+          "summary": "Forged honest bands to secure Aita's brewery vats."
         }
       ]
     },
@@ -63,6 +70,13 @@
           "op": "set_flag",
           "key": "flag.bitter_brew_seal_tampered",
           "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.bitter_brew.seal_deception",
+          "value": "faction.livonian_order",
+          "amount": -1,
+          "summary": "Forged a tampered inspection seal to misdirect the watch."
         }
       ]
     },
@@ -84,6 +98,13 @@
           "op": "set_flag",
           "key": "flag.bitter_brew_cart_lock_flawed",
           "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.bitter_brew.cart_release",
+          "value": "faction.black_cloaks",
+          "amount": 1,
+          "summary": "Forged a detention-cart lock with a hidden release catch."
         }
       ]
     }

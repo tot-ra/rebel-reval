@@ -189,6 +189,10 @@
           "type": "integer",
           "minimum": -3,
           "maximum": 3
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "description": "Declarative allowlisted effect. Content must not embed arbitrary GDScript."
