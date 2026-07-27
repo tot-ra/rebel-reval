@@ -1,17 +1,13 @@
 class_name InventoryOverlay
 extends CanvasLayer
 
-const EquipmentSilhouetteScene := preload("res://scripts/inventory/equipment_silhouette.gd")
-const InventoryGridCellScene := preload("res://scripts/inventory/inventory_grid_cell.gd")
+const InventoryEquipmentInteractionScene := preload("res://scripts/inventory/inventory_equipment_interaction.gd")
 const InventoryOverlayBuilder := preload("res://scripts/inventory/inventory_overlay_builder.gd")
 const InventoryUiThemeScene := preload("res://scripts/inventory/inventory_ui_theme.gd")
 
 signal closed()
 
 const CELL_SIZE := 60
-const CELL_GAP := 6
-const PANEL_PADDING := 26
-const SILHOUETTE_WIDTH := 196
 
 const DRAG_KIND_BAG := &"bag"
 const DRAG_KIND_EQUIPPED := &"equipped"
@@ -19,6 +15,7 @@ const DRAG_KIND_EQUIPPED := &"equipped"
 var _bag: InventoryBag
 var _content_db: ContentDB
 var _state: GameState
+var _equipment_interaction := InventoryEquipmentInteractionScene.new()
 var _selected: InventoryPlacement = null
 var _focus_cell := Vector2i.ZERO
 
@@ -39,6 +36,12 @@ var _cell_buttons: Array[Button] = []
 func configure(bag: InventoryBag, content_db: ContentDB) -> void:
 	_bag = bag
 	_content_db = content_db
+	_equipment_interaction.configure(
+		_state,
+		Callable(self, "_item_record"),
+		Callable(self, "_icon_for"),
+		Callable(self, "_short_label")
+	)
 	if is_node_ready():
 		_refresh()
 
@@ -46,6 +49,7 @@ func configure(bag: InventoryBag, content_db: ContentDB) -> void:
 ## Optional: enables the equip/unequip UI backed by GameState placement rules.
 func configure_state(state: GameState) -> void:
 	_state = state
+	_equipment_interaction.configure_state(state)
 	if is_node_ready():
 		_refresh()
 
@@ -228,124 +232,66 @@ func _refresh() -> void:
 
 	_update_detail_label()
 	_refresh_equipment_ui()
-
-
 func _refresh_equipment_ui() -> void:
-	_equip_button.visible = false
-	if _silhouette == null:
-		return
-
-	var equipped: Dictionary[StringName, StringName] = {}
-	if _state != null:
-		for slot: StringName in EquipmentSilhouetteScene.SLOT_ORDER:
-			var item_id := _state.equipped_item(slot)
-			if not String(item_id).is_empty():
-				equipped[slot] = item_id
-	_silhouette.set_equipped(equipped)
-
-	var highlight: Array[StringName] = []
-	if _selected != null:
-		var equip_info := _equip_info(_selected.item_id)
-		if not equip_info.is_empty():
-			var slot := StringName(String(equip_info.get("slot", "")))
-			if not slot.is_empty():
-				highlight.append(slot)
-			_equip_button.visible = true
-			_equip_button.text = "Equip to %s" % String(equip_info.get("slot", "")).replace("_", " ")
-	_silhouette.set_highlight_slots(highlight)
+	_equipment_interaction.refresh(_silhouette, _equip_button, _selected)
 
 
+# The builder binds these adapters as scene callbacks. Keep them on the overlay
+# while the collaborator owns the equipment placement rules.
 func _can_drop_on_slot(slot: StringName, data: Dictionary) -> bool:
-	if _state == null:
-		return false
-	var kind: StringName = data.get("kind", &"")
-	if kind == DRAG_KIND_BAG:
-		var placement: InventoryPlacement = data.get("placement")
-		if placement == null:
-			return false
-		return _slot_accepts_item(slot, placement.item_id)
-	if kind == DRAG_KIND_EQUIPPED:
-		var from_slot: StringName = data.get("slot", &"")
-		var item_id: StringName = data.get("item_id", &"")
-		if from_slot == slot or String(item_id).is_empty():
-			return false
-		return _slot_accepts_item(slot, item_id)
-	return false
+	return _equipment_interaction.can_drop_on_slot(slot, data)
 
 
 func _drop_on_slot(slot: StringName, data: Dictionary) -> void:
-	if _state == null:
-		return
-	var kind: StringName = data.get("kind", &"")
-	if kind == DRAG_KIND_BAG:
-		var placement: InventoryPlacement = data.get("placement")
-		if placement != null and _state.equip_from_bag(slot, placement.item_id):
-			_selected = null
-	elif kind == DRAG_KIND_EQUIPPED:
-		var from_slot: StringName = data.get("slot", &"")
-		var item_id: StringName = data.get("item_id", &"")
-		if from_slot.is_empty() or from_slot == slot:
-			return
-		if not _state.unequip_to_bag(from_slot):
-			return
-		if not _state.equip_from_bag(slot, item_id):
-			_state.equip_from_bag(from_slot, item_id)
+	var outcome := _equipment_interaction.drop_on_slot(slot, data)
+	if outcome == InventoryEquipmentInteraction.DROP_CLEAR_SELECTION:
 		_selected = null
-	_refresh()
+	if outcome != InventoryEquipmentInteraction.DROP_NOOP:
+		_refresh()
 
 
 func _slot_accepts_item(slot: StringName, item_id: StringName) -> bool:
-	var equip_info := _equip_info(item_id)
-	if equip_info.is_empty():
-		return false
-	return StringName(String(equip_info.get("slot", ""))) == slot
+	return _equipment_interaction.slot_accepts_item(slot, item_id)
 
 
 func _on_equipment_slot_pressed(slot: StringName) -> void:
-	if _state == null:
-		return
-	# Prefer wearing the selected good (swap if needed) before treating the
-	# click as "stow whatever is already worn".
-	if _selected != null and _slot_accepts_item(slot, _selected.item_id):
-		if _state.equip_from_bag(slot, _selected.item_id):
+	# Prefer wearing the selected good before treating the click as stowing gear.
+	# A valid but failed swap must not fall through and stow the current gear.
+	if _selected != null and _equipment_interaction.slot_accepts_item(slot, _selected.item_id):
+		if _equipment_interaction.try_equip_selected(slot, _selected):
 			_selected = null
 			_refresh()
 		return
-	if not String(_state.equipped_item(slot)).is_empty():
-		_state.unequip_to_bag(slot)
+	if _equipment_interaction.has_equipped_item(slot):
+		_equipment_interaction.unequip_to_bag(slot)
 		_selected = null
 		_refresh()
 
 
 func _equipped_item_label(item_id: StringName) -> String:
-	var record := _item_record(item_id)
-	return String(record.get("name", String(item_id)))
+	return _equipment_interaction.equipped_item_label(item_id)
 
 
 func _equipped_item_icon(item_id: StringName) -> Texture2D:
-	return _icon_for(_item_record(item_id))
+	return _equipment_interaction.equipped_item_icon(item_id)
 
 
 func _equipped_slot_short_label(item_id: StringName) -> String:
-	return _short_label(_item_record(item_id), 1)
+	return _equipment_interaction.equipped_slot_short_label(item_id)
 
 
 func _on_equip_pressed() -> void:
 	if _state == null or _selected == null:
 		return
-	var equip_info := _equip_info(_selected.item_id)
-	if equip_info.is_empty():
+	if _equipment_interaction.equip_info(_selected.item_id).is_empty():
 		return
-	var slot := StringName(String(equip_info.get("slot", "")))
-	if _state.equip_from_bag(slot, _selected.item_id):
+	if _equipment_interaction.equip_selected(_selected):
 		_selected = null
 	_refresh()
 
 
 func _equip_info(item_id: StringName) -> Dictionary:
-	var record := _item_record(item_id)
-	var gameplay: Dictionary = record.get("gameplay", {})
-	return gameplay.get("equip", {})
+	return _equipment_interaction.equip_info(item_id)
 
 
 func _style_cell_button(
