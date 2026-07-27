@@ -9,6 +9,10 @@ const FishingBoatBuilder := preload("res://scripts/map/view3d/map_view_fishing_b
 const MerchantBoatBuilder := preload("res://scripts/map/view3d/map_view_merchant_boat_builder.gd")
 const WallWalkAccessBuilder := preload("res://scripts/map/view3d/map_view_wall_walk_access_builder.gd")
 const AnvilMeshes := preload("res://scripts/map/view3d/map_view_anvil_meshes.gd")
+# Runtime loading avoids a clean-clone bootstrap cycle where GDScript parses
+# before Godot has registered the first GLB import.
+const SMITHY_CHAIR_SCENE_PATH := "res://assets/props/furniture/smithy_chair.glb"
+const SMITHY_CHAIR_PROP_ID := &"work_chair"
 
 ## Individual authored prop meshes.
 
@@ -148,10 +152,10 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			MapViewMeshBuilderPrimitives.box(root, "Base", Vector3(1.0, 0.4, 1.0), Vector3(0.0, 0.2, 0.0), &"stone")
 			MapViewMeshBuilderPrimitives.box(root, "Fire", Vector3(0.5, 0.22, 0.5), Vector3(0.0, 0.5, 0.0), &"ember")
 		MapTypes.PROP_KIND_CHAIR:
-			MapViewMeshBuilderPrimitives.box(root, "Seat", Vector3(0.5, 0.08, 0.45), Vector3(0.0, 0.42, 0.0), &"wood")
-			MapViewMeshBuilderPrimitives.box(root, "Back", Vector3(0.48, 0.5, 0.06), Vector3(0.0, 0.72, -0.18), &"timber")
-			MapViewMeshBuilderPrimitives.box(root, "LegFL", Vector3(0.06, 0.4, 0.06), Vector3(-0.18, 0.2, 0.14), &"timber")
-			MapViewMeshBuilderPrimitives.box(root, "LegFR", Vector3(0.06, 0.4, 0.06), Vector3(0.18, 0.2, 0.14), &"timber")
+			if prop.get("id", &"") == SMITHY_CHAIR_PROP_ID:
+				_add_smithy_chair(root)
+			else:
+				_add_chair_fallback(root)
 		MapTypes.PROP_KIND_CANDLE:
 			MapViewMeshBuilderPrimitives.cylinder(root, "Holder", 0.12, 0.06, Vector3(0.0, 0.03, 0.0), &"metal")
 			MapViewMeshBuilderPrimitives.cylinder(root, "Wax", 0.05, 0.22, Vector3(0.0, 0.2, 0.0), &"plaster")
@@ -203,6 +207,26 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			else:
 				MapViewMeshBuilderPrimitives.box(root, "Marker", Vector3(0.5, 0.5, 0.5), Vector3(0.0, 0.25, 0.0), &"ink")
 	return root
+
+
+static func _add_smithy_chair(root: Node3D) -> void:
+	# WHY: the smithy's authored chair is a close, recurring interior prop. A
+	# dedicated GLB gives it readable joinery while collision/navigation remain on
+	# the immutable 2D map definition, just like every other view-only prop.
+	var chair_scene := load(SMITHY_CHAIR_SCENE_PATH) as PackedScene
+	assert(chair_scene != null, "Smithy chair GLB must be imported before the map view is assembled")
+	var chair := chair_scene.instantiate() as Node3D
+	chair.name = "SmithyChairModel"
+	root.add_child(chair)
+
+
+static func _add_chair_fallback(root: Node3D) -> void:
+	# Town Hall chairs share the generic map kind but need a separate high-status
+	# model later, so they deliberately keep the neutral procedural fallback.
+	MapViewMeshBuilderPrimitives.box(root, "Seat", Vector3(0.5, 0.08, 0.45), Vector3(0.0, 0.42, 0.0), &"wood")
+	MapViewMeshBuilderPrimitives.box(root, "Back", Vector3(0.48, 0.5, 0.06), Vector3(0.0, 0.72, -0.18), &"timber")
+	MapViewMeshBuilderPrimitives.box(root, "LegFL", Vector3(0.06, 0.4, 0.06), Vector3(-0.18, 0.2, 0.14), &"timber")
+	MapViewMeshBuilderPrimitives.box(root, "LegFR", Vector3(0.06, 0.4, 0.06), Vector3(0.18, 0.2, 0.14), &"timber")
 
 
 static func _add_anvil(root: Node3D) -> void:

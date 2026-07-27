@@ -1,15 +1,15 @@
 ---
 name: 3d-renderer
-description: Generate, inspect, approve, and prepare clean 3D assets with local ComfyUI while keeping raw candidates out of the game until production approval.
+description: Generate, inspect, approve, and integrate clean 3D assets through deterministic Blender or image-to-3D workflows while keeping raw generated candidates out of the game.
 ---
 
-# ComfyUI 3D Asset Generation
+# 3D Asset Production
 
 ## Goal
 
-Generate and visually approve one clean base shape before spending time on topology, texturing, rigging, animation, or game integration. Treat the raw Hunyuan3D mesh as a shape candidate, not as a production asset.
+Generate, visually approve, and integrate a clean 3D asset through the least expensive reproducible path. Use deterministic Blender modeling as the default for rigid props with known dimensions; use image-to-3D generation for complex silhouettes that genuinely benefit from it. Treat a raw generated mesh as a shape candidate, never as a production asset.
 
-## Non-negotiable input rules
+## Non-negotiable image-to-3D input rules
 
 1. Use an image containing **exactly one object in one pose and one view**.
 2. Never use a contact sheet, collage, split image, turnaround, or image containing multiple views.
@@ -21,32 +21,53 @@ Generate and visually approve one clean base shape before spending time on topol
 6. Prefer a clean front three-quarter view for the first generation.
 7. Use multiview only when the user explicitly requests it and each view is a separate, consistent file. Default to single-image generation.
 
+## Choose the production path before generating
+
+Use the cheapest path that can meet the final game contract:
+
+1. **Deterministic Blender modeling - default for rigid props.** Use for furniture, tools, crates, simple architecture, signs, and other hard-surface objects with known dimensions. Procedural geometry may be the final production mesh when it passes the same topology, scale, material, provenance, and Godot checks as any other asset.
+2. **Image-to-3D candidate generation - complex silhouettes.** Use for organic creatures, statues, irregular hero props, or forms where manual primitives would not capture the approved concept efficiently. The raw mesh remains staging-only until cleanup.
+3. **Manual Blender cleanup/retopology - generated candidates.** Use after base-shape approval to produce the actual runtime GLB.
+
+Do not run ComfyUI merely to prove that generation is possible. For a simple prop, compare total iteration time, polygon control, dimensional accuracy, material portability, and cleanup risk. A deterministic two-second Blender build is preferable to a long high-poly generation followed by repair.
+
+For Blender-authored props:
+
+- keep the source generator or approved `.blend` reproducible;
+- use metric dimensions, Y-up export, ground contact at zero, and a stable named root;
+- merge static geometry to a small number of meshes/material surfaces;
+- author UVs even when the first pass uses only palette materials;
+- remember that arbitrary Blender procedural shader nodes do not survive glTF export - bake or generate portable PBR textures and confirm they are present in the GLB;
+- import with Godot and render under the target map lighting before calling the asset integrated.
+
 ## Efficient workflow
 
 ### 1. Preflight once, in parallel
 
 Before generating anything:
 
-- read the character/location brief and identify the gameplay camera, scale, and style;
-- inspect existing comparable assets to estimate later polygon and texture budgets;
-- check Git status and create a dedicated staging directory outside game `assets/` and `scenes/`;
-- confirm local ComfyUI health, the Hunyuan3D checkpoint, required nodes, input/output paths, and Blender availability;
+- read the asset and location brief and identify the gameplay camera, scale, and style;
+- inspect existing comparable assets to estimate polygon and texture budgets;
+- check Git status and create a dedicated staging directory outside game `assets/` and `scenes/` when using generated candidates;
+- confirm Blender availability and, only for image-to-3D, local ComfyUI health, the selected checkpoint, required nodes, and input/output paths;
 - verify that the selected image provider is configured before calling it;
 - reuse an existing API-format workflow only after confirming its ownership and inputs.
 
-Do not modify unrelated untracked artifacts. Keep all candidate files under one clearly named staging directory.
+Do not modify unrelated untracked artifacts. Keep all image-to-3D candidate files under one clearly named staging directory. A deterministic production asset may go directly to its approved runtime path after local preview and audit.
 
 ### 2. Create one reference, with a bounded retry policy
 
-Prefer the most controllable source method available:
+Prefer the most controllable source method available when the selected path needs an image-to-3D reference:
 
 1. an already approved clean concept;
 2. a reproducible Blender/procedural reference for strict pose and silhouette requirements;
 3. a local image model for stylistic concepts.
 
+If a deterministic Blender prop is itself the requested production asset, skip the reference-image and image-to-3D stages. Build, preview, audit, and verify that mesh directly.
+
 For a generative image model, request exactly one image. Allow at most **two prompt retries** for duplicate subjects, cropping, hidden limbs, or background contamination. If it still fails, switch to a deterministic Blender/procedural reference instead of continuing random retries.
 
-The procedural reference is only a source image. Do not export or integrate its geometry as the requested game model.
+The procedural reference is only a source image when used to drive image-to-3D. Do not export or integrate that geometry as a substitute for a requested generated/organic model. This restriction does not apply when the approved production path is deterministic Blender modeling for a rigid prop.
 
 ### 3. Run a reference QA gate before Hunyuan3D
 
@@ -74,7 +95,7 @@ If no reliable visual preview is available, do not claim that the reference pass
 
 ### 4. Validate the workflow structure before the expensive run
 
-For the default single-image Hunyuan3D workflow, assert:
+For the default single-image local Hunyuan3D workflow, assert:
 
 - exactly one `LoadImage` node;
 - one `Hunyuan3Dv2Conditioning` node;
@@ -84,6 +105,8 @@ For the default single-image Hunyuan3D workflow, assert:
 - fixed seed and recorded sampler settings.
 
 Copy the accepted reference into the configured ComfyUI input directory, submit once, and record the prompt ID immediately. Poll by prompt ID rather than resubmitting when a long local run is still active.
+
+Do not assume that a file named for Hunyuan uses the local workflow. Inspect node types first. A workflow containing cloud/API nodes such as `TencentImageToModelNode`, random seeds, multiple `LoadImage` nodes, or optional back/side inputs must be documented and evaluated as that provider's workflow, not described as local single-image Hunyuan.
 
 ### 5. Inspect the raw candidate without repairing it
 

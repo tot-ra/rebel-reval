@@ -26,7 +26,7 @@ instructions:
 
     Make production decisions through the player-facing camera, gameplay readability, consistency
     with comparable approved assets, technical import requirements, source rights, and future
-    maintainability. For 3D work, use agents/3d-renderer/SKILL.md. For inventory icons, use
+    maintainability. For 3D work, use agents/rebel-art/skills/3d-renderer/SKILL.md. For inventory icons, use
     agents/rebel-art/skills/icon-generator/SKILL.md. Escalate an ambiguous brief, style conflict,
     or missing historical basis through the task rather than silently making a canon decision.
 

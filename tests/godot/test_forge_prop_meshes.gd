@@ -3,6 +3,51 @@ extends "res://tests/godot/test_case.gd"
 ## Smithy forge props: elegant anvil, open firebox furnace, bellows, charcoal.
 
 
+func test_smithy_chair_uses_detailed_glb_without_replacing_town_hall_fallback() -> void:
+	var smithy := MapViewMeshBuilder.build_prop(
+		{"id": &"work_chair", "kind": MapTypes.PROP_KIND_CHAIR, "position": Vector2.ZERO},
+		MapTypes.DEFAULT_CELL_SIZE
+	)
+	assert_true(smithy.has_node("SmithyChairModel"), "smithy chair must instantiate the authored GLB")
+	assert_false(smithy.has_node("Seat"), "smithy chair must not keep the four-box placeholder")
+	var model := smithy.get_node("SmithyChairModel") as Node3D
+	var meshes := model.find_children("*", "MeshInstance3D", true, false)
+	assert_true(meshes.size() > 0, "authored chair GLB needs renderable mesh geometry")
+	var bounds := AABB()
+	var first := true
+	var surface_count := 0
+	var triangle_count := 0
+	var has_embedded_albedo := false
+	for child in meshes:
+		var mesh_instance := child as MeshInstance3D
+		if mesh_instance == null or mesh_instance.mesh == null:
+			continue
+		var child_bounds := mesh_instance.transform * mesh_instance.get_aabb()
+		bounds = child_bounds if first else bounds.merge(child_bounds)
+		first = false
+		surface_count += mesh_instance.mesh.get_surface_count()
+		for surface_index in mesh_instance.mesh.get_surface_count():
+			triangle_count += mesh_instance.mesh.surface_get_array_index_len(surface_index) / 3
+			var material := mesh_instance.mesh.surface_get_material(surface_index) as StandardMaterial3D
+			if material != null and material.albedo_texture != null:
+				has_embedded_albedo = true
+	assert_false(first, "chair GLB must expose a non-empty AABB")
+	assert_true(bounds.size.y >= 1.0 and bounds.size.y <= 1.1, "chair must import at believable metric height")
+	assert_true(bounds.position.y >= -0.001, "chair feet must rest on the prop ground plane")
+	assert_eq(surface_count, 3, "chair detail pass keeps wood, worn wood, and peg surfaces")
+	assert_true(triangle_count >= 1500 and triangle_count <= 3000, "chair detail must stay readable and lightweight")
+	assert_true(has_embedded_albedo, "chair's painted oak grain must survive GLB import")
+	smithy.free()
+
+	var formal := MapViewMeshBuilder.build_prop(
+		{"id": &"burgomaster_chair", "kind": MapTypes.PROP_KIND_CHAIR, "position": Vector2.ZERO},
+		MapTypes.DEFAULT_CELL_SIZE
+	)
+	assert_true(formal.has_node("Seat"), "non-smithy chairs keep their generic fallback")
+	assert_false(formal.has_node("SmithyChairModel"), "smithy model must not leak into Town Hall")
+	formal.free()
+
+
 func test_anvil_uses_custom_horned_body_on_stump() -> void:
 	var node := MapViewMeshBuilder.build_prop(
 		{"id": &"forge_anvil", "kind": MapTypes.PROP_KIND_ANVIL, "position": Vector2.ZERO},
