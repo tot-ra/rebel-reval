@@ -1,0 +1,49 @@
+{
+  "type": "location",
+  "id": "loc.north_quarter.merchant_court",
+  "name": "North Quarter Merchant Court",
+  "district": "Harbor",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-005"
+  },
+  "description": "Inactive prototype map for Pikk Street warehouses, salt stores, ropewalk, and St. Olaf guild workshop row.",
+  "gameplay_space": true,
+  "scene_path": "res://scenes/reval_north/reval_north.tscn",
+  "spawn_ids": [
+    "merchant_court"
+  ],
+  "connected_location_ids": [
+    "loc.lower_town_slice"
+  ],
+  "pressure_tags": [
+    "Authority",
+    "Suspicion"
+  ],
+  "phase_states": [
+    {
+      "id": "detention_fair",
+      "description": "Honest name-plates clear Mart at the guild hearing after coastal transfer."
+    },
+    {
+      "id": "detention_redirected",
+      "description": "False clerk evidence redirects the detention cart onto a scapegoat."
+    },
+    {
+      "id": "detention_concealed",
+      "description": "Swapped plate and concealed shackle release keep Mart off the roll."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "Support location for The Price of a Name north-quarter merchant cycle.",
+      "citations": [
+        "content/maps/north_quarter.rrmap",
+        "docs/SCENES/the-price-of-a-name.md"
+      ]
+    }
+  ]
+}

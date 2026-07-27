@@ -1,0 +1,48 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.price_of_a_name.inspect_watch_tower",
+  "title": "The Price of a Name - Harbor watch tower",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-005"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "inspect_watch_tower",
+  "nodes": [
+    {
+      "id": "inspect_watch_tower",
+      "speaker_id": "char.kalev",
+      "text": "The watch tower log copies a rebel dispatch that names Mart as a Pikk Street harbor contact. Henning wants shackles before sunset.",
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.price_of_a_name.dispatch_name",
+          "value": true
+        },
+        {
+          "op": "add_item",
+          "key": "item.evidence.seized_dispatch"
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Investigation dialogue for the harbor watch tower site.",
+      "citations": [
+        "docs/SCENES/the-price-of-a-name.md"
+      ]
+    }
+  ]
+}

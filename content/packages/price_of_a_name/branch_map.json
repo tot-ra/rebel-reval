@@ -1,0 +1,55 @@
+{
+  "quest_id": "quest.price_of_a_name",
+  "branches": [
+    {
+      "id": "honest_plates_cleared",
+      "transitions": [
+        "complete_investigation",
+        "commit_honest_forge"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "aftermath_cleared",
+        "flags": {
+          "flag.price_of_a_name_honest_work": true,
+          "flag.mart.name_cleared": true
+        }
+      }
+    },
+    {
+      "id": "false_clerk_redirected",
+      "transitions": [
+        "complete_investigation",
+        "commit_defect_forge"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "aftermath_redirected",
+        "flags": {
+          "flag.price_of_a_name_subtle_defect": true,
+          "flag.price_of_a_name_falsification_risk": true,
+          "flag.mart.name_redirected": true
+        }
+      }
+    },
+    {
+      "id": "swapped_plate_concealed",
+      "transitions": [
+        "complete_investigation",
+        "commit_release_forge"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "aftermath_concealed",
+        "flags": {
+          "flag.price_of_a_name_secret_feature": true,
+          "flag.mart.name_concealed": true,
+          "flag.mart_detention_release": true
+        }
+      }
+    }
+  ]
+}

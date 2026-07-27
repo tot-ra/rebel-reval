@@ -1,0 +1,130 @@
+{
+  "type": "commission",
+  "id": "commission.price_of_a_name",
+  "title": "Forge detention-cart shackles and a brass name-plate",
+  "client_id": "char.henning",
+  "quest_id": "quest.price_of_a_name",
+  "object_item_id": "item.price_of_a_name_work",
+  "location_id": "loc.kalev_smithy",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-005",
+    "notes": "Design contract for P4-006 playable cycle."
+  },
+  "concrete_order": "Forge detention-cart shackles and a brass name-plate before the Coastal Gate prisoner transfer.",
+  "hidden_contradiction": "Every plate Kalev forges decides whether Mart is cleared at the guild hearing, redirected onto false evidence, or concealed through a hidden shackle release.",
+  "investigation_clues": [
+    {
+      "id": "dispatch",
+      "summary": "A seized rebel dispatch lists Mart as a Pikk Street harbor contact.",
+      "reveals_fact_id": "fact.price_of_a_name.dispatch_name"
+    },
+    {
+      "id": "salt_drop",
+      "summary": "Kaja's wax-sealed dispatches hide between salt barrels.",
+      "reveals_fact_id": "fact.price_of_a_name.salt_warehouse_drop"
+    },
+    {
+      "id": "packhouse",
+      "summary": "Smuggled spearheads travel in empty barrel returns.",
+      "reveals_fact_id": "fact.price_of_a_name.packhouse_spears"
+    },
+    {
+      "id": "ropewalk",
+      "summary": "Henning's rope requisition ties the detention cart route to watch boats.",
+      "reveals_fact_id": "fact.price_of_a_name.ropewalk_route"
+    }
+  ],
+  "forging_options": [
+    {
+      "id": "honest_work",
+      "label": "Forge true name-plates and testify at the St. Olaf guild hearing.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.price_of_a_name_honest_work",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.price_of_a_name.name_cleared",
+          "value": "faction.livonian_order",
+          "amount": 1,
+          "summary": "Forged honest detention name-plates and testified at the St. Olaf guild hearing."
+        }
+      ]
+    },
+    {
+      "id": "subtle_defect",
+      "label": "Forge a false name-plate implicating a dead Novgorod clerk.",
+      "requires": [
+        {
+          "op": "fact_known",
+          "key": "fact.price_of_a_name.dispatch_name"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.price_of_a_name_subtle_defect",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.price_of_a_name.false_clerk",
+          "value": "faction.black_cloaks",
+          "amount": 1,
+          "summary": "Forged a false name-plate implicating a dead Novgorod clerk in the harbor round-up."
+        }
+      ]
+    },
+    {
+      "id": "secret_feature",
+      "label": "Forge a concealed shackle release and swap the brass name-plate.",
+      "requires": [
+        {
+          "op": "fact_known",
+          "key": "fact.price_of_a_name.salt_warehouse_drop"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.price_of_a_name_secret_feature",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.price_of_a_name.name_concealed",
+          "value": "faction.harju_kings",
+          "amount": 1,
+          "summary": "Forged a concealed shackle release and swapped the detention name-plate to protect Mart."
+        }
+      ]
+    }
+  ],
+  "night_consequence": "The forged detention hardware changes coastal transfer routes, false-evidence risk, and Hingepuu reflection marks during the install beat.",
+  "deadline": {
+    "due_phase_id": "phase.investigation_night",
+    "journal_label": "Coastal transfer eve",
+    "missed_effects": [
+      {
+        "op": "set_flag",
+        "key": "flag.price_of_a_name_deadline_missed",
+        "value": true
+      }
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Commission contract for The Price of a Name cycle.",
+      "citations": [
+        "docs/SCENES/the-price-of-a-name.md",
+        "docs/SCENES/the-price-of-a-name-branch-map.md"
+      ]
+    }
+  ]
+}

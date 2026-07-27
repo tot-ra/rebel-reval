@@ -1,0 +1,46 @@
+{
+  "type": "quest_package",
+  "id": "package.price_of_a_name",
+  "schema_version": 1,
+  "title": "Act 1 The Price of a Name design package",
+  "quest": "content/quest.json",
+  "support": [
+    "content/commission.price_of_a_name.json",
+    "content/mechanism.price_of_a_name_detention.json",
+    "content/item.price_of_a_name_work.json",
+    "content/item.evidence.seized_dispatch.json",
+    "content/dialogue.price_of_a_name.inspect_watch_tower.json",
+    "content/dialogue.price_of_a_name.inspect_salt_warehouse.json",
+    "content/dialogue.price_of_a_name.inspect_packhouse_lane.json",
+    "content/dialogue.price_of_a_name.inspect_ropewalk_lane.json",
+    "content/bark.price_of_a_name.aftermath_watch.json",
+    "../../examples/support/character.mart.json",
+    "../../examples/support/character.kaja.json",
+    "../../examples/support/character.henning.json",
+    "../../examples/support/location.merchant_court.json"
+  ],
+  "branch_map": "branch_map.json",
+  "bindings": {
+    "landmark_beats": [
+      "beat.landmark.tallinn.harbor_watch_tower_early",
+      "beat.landmark.tallinn.pikk_street_salt_warehouses"
+    ],
+    "map_anchors": [
+      {
+        "map_id": "north_quarter",
+        "anchor_id": "merchant_court"
+      }
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-005 approved branch map and state table for The Price of a Name; runtime wiring deferred to P4-006.",
+      "citations": [
+        "docs/SCENES/the-price-of-a-name.md",
+        "docs/SCENES/the-price-of-a-name-branch-map.md",
+        "TODO.md#P4-005"
+      ]
+    }
+  ]
+}

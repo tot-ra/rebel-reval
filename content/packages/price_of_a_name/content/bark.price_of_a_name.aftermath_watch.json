@@ -1,0 +1,75 @@
+{
+  "type": "bark_pool",
+  "id": "bark.price_of_a_name.aftermath_watch",
+  "title": "The Price of a Name aftermath watch barks",
+  "owner_id": "char.henning",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-005"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "first_valid_in_order"
+  },
+  "selection": "first_valid_in_order",
+  "phase_ids": [
+    "phase.reflection_morning"
+  ],
+  "location_ids": [
+    "loc.north_quarter.merchant_court"
+  ],
+  "entries": [
+    {
+      "id": "mart_cleared",
+      "speaker_id": "char.henning",
+      "text": "Mart's name came off the roll at the guild hearing. I have a real rebel lead now, not a frightened apprentice.",
+      "priority": 3,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.mart.name_cleared",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "mart_redirected",
+      "speaker_id": "char.henning",
+      "text": "A dead clerk's name rode the cart. Mart still flinches every time a watch boot passes the ropewalk.",
+      "priority": 3,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.mart.name_redirected",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "mart_concealed",
+      "speaker_id": "char.henning",
+      "text": "The plate on that cart did not match the seized dispatch. Someone swapped brass before first light.",
+      "priority": 3,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.mart.name_concealed",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Patrol barks after the Coastal Gate detention install in The Price of a Name.",
+      "citations": [
+        "docs/SCENES/the-price-of-a-name.md"
+      ]
+    }
+  ]
+}

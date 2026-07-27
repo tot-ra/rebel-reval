@@ -1,0 +1,35 @@
+{
+  "type": "item",
+  "id": "item.evidence.seized_dispatch",
+  "name": "Seized rebel dispatch",
+  "icon": "res://assets/UI/inventory/forge_hammer.png",
+  "category": "evidence",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-005"
+  },
+  "material_grade": "common",
+  "gameplay": {
+    "visible_in_pouch": true,
+    "stackable": false,
+    "uses": [
+      "Watch copy of a rebel dispatch listing Mart as a Pikk Street harbor contact."
+    ],
+    "carry": {
+      "weight_g": 80,
+      "grid_width": 1,
+      "grid_height": 1
+    }
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "False-evidence investigation item collected at the harbor watch tower inspection site.",
+      "citations": [
+        "docs/SCENES/the-price-of-a-name-branch-map.md"
+      ]
+    }
+  ]
+}
