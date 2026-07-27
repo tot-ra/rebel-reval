@@ -8,7 +8,8 @@ const DISTRICT_SCENE_THEMES: Dictionary = {
 	"res://scenes/reval_east/viru_gate_foreland/viru_gate_foreland.tscn": &"town",
 	"res://scenes/reval_center/reval_center.tscn": &"center",
 	"res://scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn": &"center",
-	"res://scenes/reval_center/town_hall/town_hall.tscn": &"center",
+	"res://scenes/reval_center/town_hall/town_hall.tscn": &"raekoda",
+	"res://scenes/reval_center/holy_spirit_church/holy_spirit_church.tscn": &"holy_spirit",
 	"res://scenes/reval_north/reval_north.tscn": &"north",
 	"res://scenes/reval_north/oleviste_church/oleviste_church.tscn": &"oleviste",
 	"res://scenes/reval_monastery/reval_monastery.tscn": &"monastery",
@@ -97,6 +98,14 @@ func test_active_slice_themes_use_manifest_track_lists() -> void:
 		forge_paths[0].ends_with("Fireside Tale.mp3"),
 		"slice forge theme should keep Fireside Tale"
 	)
+
+
+func test_holy_spirit_church_uses_dedicated_hymn_playlist() -> void:
+	var track_paths := MusicDirectorScript.day_track_paths_for_theme(&"holy_spirit")
+	assert_eq(track_paths.size(), 2, "Holy Spirit chapel should use both hymn tracks")
+	for track_path: String in track_paths:
+		assert_true(track_path.begins_with("res://music/revel_center/holy spirit church/"))
+		assert_true(ResourceLoader.exists(track_path), "hymn track should load: %s" % track_path)
 
 
 func test_active_slice_themes_have_no_night_tracks_yet() -> void:

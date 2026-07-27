@@ -18,6 +18,7 @@ func _definition_loaders() -> Array[Callable]:
 		preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd").create,
 		preload("res://scripts/map/definitions/prototypes/st_olafs_guild_hall_definition.gd").create,
 		preload("res://scripts/map/definitions/prototypes/oleviste_church_definition.gd").create,
+		preload("res://scripts/map/definitions/prototypes/holy_spirit_church_definition.gd").create,
 		preload("res://scripts/map/definitions/prototypes/town_hall_definition.gd").create,
 	]
 

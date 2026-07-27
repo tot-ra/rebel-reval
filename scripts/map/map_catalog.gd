@@ -52,6 +52,11 @@ const MAPS: Dictionary = {
 		"scope": "prototype",
 		"active": false
 	},
+	"holy_spirit_church": {
+		"path": "res://scenes/reval_center/holy_spirit_church/holy_spirit_church.tscn",
+		"scope": "prototype",
+		"active": false
+	},
 	"town_hall": {
 		"path": "res://scenes/reval_center/town_hall/town_hall.tscn",
 		"scope": "prototype",

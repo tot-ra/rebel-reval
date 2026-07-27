@@ -1,0 +1,45 @@
+# Developer-only Holy Spirit Church (Püha Vaimu kirik) interior.
+# The 1343 snapshot is the modest chapel-almshouse church before its later
+# enlargement, tower, clock, and surviving post-medieval furnishings.
+rrmap 1
+map holy_spirit_church loc.lower_town.holy_spirit_church 30 22 stone scope=prototype active=false palette=clean_painted seed=1319 cell_size=32
+source "scenes/reval_center/holy_spirit_church/holy_spirit_church.tscn"
+source "scenes/reval_center/market_civic_quarter/church_of_the_holy_spirit.md"
+source "docs/HISTORICAL_AUDIT.md"
+style wall.chapel wall_height=144 wall_color=9e998cff wall_material=limestone
+style block.altar wall_height=48 wall_color=756d63ff wall_material=limestone
+terrain nave_floor timber_floor 2 2 21 18 order=1
+terrain chancel_floor stone 23 2 5 18 order=2
+terrain entry_threshold stone 12 18 6 3 order=3
+wall wall.north 0 0 29 0 thickness=1 openings=6,0,2,1|14,0,2,1|22,0,2,1 kind=interior_wall style=wall.chapel
+wall wall.south 0 21 29 21 thickness=1 openings=13,21,4,1 kind=interior_wall style=wall.chapel
+wall wall.west 0 1 0 20 thickness=1 openings=0,8,1,2 kind=interior_wall style=wall.chapel
+wall wall.east 29 1 29 20 thickness=1 openings=29,8,1,2 kind=interior_wall style=wall.chapel
+building altar_block interior_block 25 8 2 5 style=block.altar
+# Two short bench banks preserve a central aisle and avoid projecting the much
+# larger, later church arrangement back onto the modest 1343 chapel.
+prop nave_bench_north_west table 5 6 rect=6,1
+prop nave_bench_north_east table 15 6 rect=6,1
+prop nave_bench_center_west table 5 10 rect=6,1
+prop nave_bench_center_east table 15 10 rect=6,1
+prop nave_bench_south_west table 5 14 rect=6,1
+prop nave_bench_south_east table 15 14 rect=6,1
+prop altar_candle_north candle 23 7 rect=1,1 visual_offset_px=0,-18
+prop altar_candle_south candle 23 13 rect=1,1 visual_offset_px=0,-18
+prop baptismal_font well 4 17 rect=2,2
+prop alms_chest chest 20 17 rect=2,2
+landmark window.north_west interior_window 6 0 2 1 passage_axis=z
+landmark window.north_center interior_window 14 0 2 1 passage_axis=z
+landmark window.north_east interior_window 22 0 2 1 passage_axis=z
+landmark window.west interior_window 0 8 1 2 passage_axis=x
+landmark window.east interior_window 29 8 1 2 passage_axis=x
+spawn spawn.inspection 14 17 rect=2,2
+anchor inspection_spawn 14 17 rect=2,2
+anchor south_entry 14 19 rect=2,2
+anchor nave_center 12 10 rect=4,4
+anchor altar_front 22 9 rect=2,4
+anchor baptismal_font_site 4 17 rect=2,2
+anchor alms_chest_site 20 17 rect=2,2
+transition to_reval_center 13 20 4 2 to=reval_center destination_spawn=to_holy_spirit_church spawn=from_reval_center spawn_offset_px=0,-96 highlight_area=true transition_visual=ground alignment=travel
+fade roof_fade 8 2 14 5
+camera 0 0 30 22

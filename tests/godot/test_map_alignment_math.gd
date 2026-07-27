@@ -134,6 +134,7 @@ func test_editor_portfolio_contains_accepted_campaign_greyboxes() -> void:
 	var expected_sizes := {
 		"st_olafs_guild_hall": Vector2i(32, 20),
 		"oleviste_church": Vector2i(36, 24),
+		"holy_spirit_church": Vector2i(30, 22),
 		"world_harju": Vector2i(52, 30),
 		"world_kanavere": Vector2i(54, 30),
 		"world_padise": Vector2i(50, 30),

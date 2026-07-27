@@ -86,7 +86,8 @@
         "to_reval_north",
         "to_reval_toompea",
         "to_reval_south",
-        "to_archbishops_garden"
+        "to_archbishops_garden",
+        "to_holy_spirit_church"
       ]
     },
     {
@@ -220,6 +221,26 @@
       ],
       "mandatory_transitions": [
         "to_reval_monastery"
+      ]
+    },
+    {
+      "id": "holy_spirit_church",
+      "location_name": "Holy Spirit Church",
+      "scene": "scenes/reval_center/holy_spirit_church/holy_spirit_church.tscn",
+      "definition": "scripts/map/definitions/prototypes/holy_spirit_church_definition.gd",
+      "factory": "HolySpiritChurchDefinition.create",
+      "disposition": "convert",
+      "capture": "holy_spirit_church.png",
+      "mandatory_anchors": [
+        "inspection_spawn",
+        "altar_front",
+        "nave_center",
+        "south_entry",
+        "baptismal_font_site",
+        "alms_chest_site"
+      ],
+      "mandatory_transitions": [
+        "to_reval_center"
       ]
     },
     {

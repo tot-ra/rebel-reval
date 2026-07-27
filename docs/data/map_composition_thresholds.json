@@ -171,6 +171,17 @@
       },
       "open_floor_pct": [85, 98]
     },
+    "holy_spirit_church": {
+      "enforce": false,
+      "interior": true,
+      "source_refs": ["H06"],
+      "surface_shares": {
+        "timber_pct": [10, 35],
+        "stone_pct": [55, 85],
+        "earth_pct": [0, 10]
+      },
+      "open_floor_pct": [85, 98]
+    },
     "town_hall": {
       "enforce": true,
       "interior": true,

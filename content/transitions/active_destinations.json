@@ -68,6 +68,9 @@
         },
         {
           "id": "to_town_hall"
+        },
+        {
+          "id": "to_holy_spirit_church"
         }
       ]
     },
@@ -133,6 +136,17 @@
     {
       "id": "town_hall",
       "path": "res://scenes/reval_center/town_hall/town_hall.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_center"
+        }
+      ]
+    },
+    {
+      "id": "holy_spirit_church",
+      "path": "res://scenes/reval_center/holy_spirit_church/holy_spirit_church.tscn",
       "active": true,
       "release": false,
       "spawns": [

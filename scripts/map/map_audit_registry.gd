@@ -11,6 +11,7 @@ const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_
 const MarketCivicQuarter := preload("res://scripts/map/definitions/prototypes/market_civic_quarter_definition.gd")
 const StOlafsGuildHall := preload("res://scripts/map/definitions/prototypes/st_olafs_guild_hall_definition.gd")
 const OlevisteChurch := preload("res://scripts/map/definitions/prototypes/oleviste_church_definition.gd")
+const HolySpiritChurch := preload("res://scripts/map/definitions/prototypes/holy_spirit_church_definition.gd")
 const TownHall := preload("res://scripts/map/definitions/prototypes/town_hall_definition.gd")
 const NorthQuarter := preload("res://scripts/map/definitions/prototypes/north_quarter_definition.gd")
 const MonasteryQuarter := preload("res://scripts/map/definitions/prototypes/monastery_quarter_definition.gd")
@@ -36,6 +37,7 @@ static func all() -> Array[MapDefinition]:
 		MarketCivicQuarter.create(),
 		StOlafsGuildHall.create(),
 		OlevisteChurch.create(),
+		HolySpiritChurch.create(),
 		TownHall.create(),
 		NorthQuarter.create(),
 		MonasteryQuarter.create(),

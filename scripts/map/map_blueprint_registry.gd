@@ -145,6 +145,11 @@ static func entries() -> Array[Dictionary]:
 			"required_anchors": [&"inspection_spawn", &"altar_front", &"nave_center", &"south_entry"],
 		},
 		{
+			"id": &"holy_spirit_church",
+			"source": "res://content/maps/holy_spirit_church.rrmap",
+			"required_anchors": [&"inspection_spawn", &"altar_front", &"nave_center", &"south_entry", &"baptismal_font_site", &"alms_chest_site"],
+		},
+		{
 			"id": &"town_hall",
 			"source": "res://content/maps/town_hall.rrmap",
 			"required_anchors": [&"inspection_spawn", &"public_entry", &"petition_desk", &"council_dais", &"scribe_archive"],

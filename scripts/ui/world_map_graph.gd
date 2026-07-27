@@ -30,6 +30,7 @@ const LAYOUT_BY_SCENE: Dictionary = {
 	&"reval_center": Vector2(0.40, 0.46),
 	&"st_olafs_guild_hall": Vector2(0.22, 0.28),
 	&"oleviste_church": Vector2(0.44, 0.22),
+	&"holy_spirit_church": Vector2(0.38, 0.40),
 	&"reval_east": Vector2(0.70, 0.50),
 	&"forge": Vector2(0.88, 0.58),
 	&"reval_south": Vector2(0.46, 0.78),
