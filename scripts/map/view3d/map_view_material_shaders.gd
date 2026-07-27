@@ -574,14 +574,20 @@ void fragment() {
 }
 "
 
-## Shallow wet patches on worked ground after rain. depth_prepass_alpha keeps
-## soft edges without the speckled dither alpha_hash shows on flat decals.
+## Thin rainwater decals. The opaque scene supplies the transmitted ground while
+## physically narrow specular, Fresnel transmission, and procedural normal ripples
+## make the plane read as water instead of a translucent painted ellipse.
 const PUDDLE_SHADER_CODE := "
 shader_type spatial;
-render_mode cull_disabled, diffuse_burley, specular_schlick_ggx, depth_draw_opaque, depth_prepass_alpha, blend_mix;
+render_mode blend_mix, depth_draw_never, cull_disabled, diffuse_burley, specular_schlick_ggx;
 
+// Puddles are too shallow for a separate bed mesh. Sampling the already-rendered
+// ground preserves cobbles and mud beneath the water; the decal contributes only
+// wet darkening, refraction, normals, and reflected light.
+uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear_mipmap;
 uniform vec3 wet_tint : source_color = vec3(0.72, 0.78, 0.82);
 uniform vec3 sheen_tint : source_color = vec3(0.88, 0.92, 0.94);
+uniform float refraction_strength = 0.032;
 
 float _hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
@@ -611,38 +617,79 @@ float _fbm(vec2 p) {
 	return value;
 }
 
-varying vec2 world_xz;
+varying vec2 puddle_world_xz;
+varying vec2 puddle_origin_xz;
 
 void vertex() {
 	vec3 world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
-	world_xz = world.xz * 0.55;
+	puddle_world_xz = world.xz;
+	// Each MultiMesh instance receives a stable edge and raindrop phase without
+	// requiring a unique material or texture allocation.
+	puddle_origin_xz = (MODEL_MATRIX * vec4(vec3(0.0), 1.0)).xz;
 }
 
 void fragment() {
-	vec2 centered = UV * 2.0 - 1.0;
-	float blob_warp = _fbm(world_xz * 1.6 + vec2(0.41, 0.67));
-	vec2 warped = centered * (1.0 + vec2(blob_warp - 0.5) * 0.55);
-	float radial = length(warped);
-	float edge_wobble = _fbm(world_xz * 3.4 + vec2(0.19, 0.83)) * 0.22;
-	float organic = _fbm(world_xz * 2.2 + vec2(0.73, 0.11));
-	float mask = smoothstep(1.02 + edge_wobble, 0.34, radial);
-	mask *= smoothstep(0.28, 0.62, organic + 0.18);
-	float rim = smoothstep(0.58, 0.94, radial);
+	vec2 local = UV * 2.0 - 1.0;
+	float angle = atan(local.y, local.x);
+	vec2 edge_direction = vec2(cos(angle), sin(angle));
+	float edge_noise = _fbm(edge_direction * 1.85 + puddle_origin_xz * 0.37);
+	float edge_radius = 0.68
+		+ (edge_noise - 0.48) * 0.18
+		+ sin(angle * 3.0 + puddle_origin_xz.x * 1.7) * 0.045
+		+ sin(angle * 7.0 - puddle_origin_xz.y * 1.3) * 0.025;
+	float edge_distance = length(local) - edge_radius;
 
-	vec2 ripple_uv = world_xz * 2.4 + vec2(TIME * 0.018, -TIME * 0.013);
-	float ripples = _fbm(ripple_uv) * 0.7 + _fbm(ripple_uv * 1.8 + vec2(TIME * 0.03)) * 0.3;
+	// Water ends first; a broader irregular damp band remains in the porous ground.
+	// Keeping both masks continuous avoids the luminous hard-edged decal in the old
+	// material while retaining a clearly readable waterline at close camera range.
+	float water_mask = 1.0 - smoothstep(-0.025, 0.045, edge_distance);
+	float wet_ground_mask = (1.0 - water_mask) * (1.0 - smoothstep(0.025, 0.16, edge_distance));
+	float coverage = clamp(water_mask + wet_ground_mask, 0.0, 1.0);
 
-	vec3 ground = COLOR.rgb;
-	vec3 wet = ground * wet_tint;
-	vec3 sheen = mix(wet, ground * sheen_tint, ripples * 0.08 + rim * 0.05);
-	float fresnel = pow(1.0 - clamp(dot(normalize(NORMAL), normalize(VIEW)), 0.0, 1.0), 3.6);
-	sheen = mix(sheen, ground * sheen_tint, fresnel * 0.10);
-	sheen = mix(sheen, ground * 0.82, smoothstep(0.0, 0.42, radial) * 0.35);
+	// Two very low-amplitude crossing wave trains break up the reflected highlight
+	// without making this shallow, sheltered water look like a moving river.
+	vec2 wave_a = normalize(vec2(0.91, 0.41));
+	vec2 wave_b = normalize(vec2(-0.36, 0.93));
+	vec2 slope = wave_a * cos(dot(puddle_world_xz, wave_a) * 12.0 + TIME * 0.34) * 0.010;
+	slope += wave_b * cos(dot(puddle_world_xz, wave_b) * 18.5 - TIME * 0.27) * 0.006;
 
-	ALBEDO = sheen;
-	ALPHA = mask * 0.62;
-	ROUGHNESS = mix(0.42, 0.62, ripples);
-	SPECULAR = mix(0.08, 0.16, fresnel);
+	// A deterministic occasional raindrop produces a fading circular normal wave.
+	// It bends reflections only - no bright ring is painted into the albedo.
+	float drop_phase = fract(TIME * 0.17 + _hash(floor(puddle_origin_xz * 7.0)));
+	vec2 drop_center = vec2(
+		_hash(floor(puddle_origin_xz * 11.0) + vec2(2.3, 7.1)),
+		_hash(floor(puddle_origin_xz * 13.0) + vec2(5.7, 1.9))
+	) * 0.70 - vec2(0.35);
+	vec2 from_drop = local - drop_center;
+	float drop_distance = length(from_drop);
+	float ring_radius = drop_phase * 1.15;
+	float ring_delta = drop_distance - ring_radius;
+	float ring_envelope = exp(-abs(ring_delta) * 34.0) * (1.0 - drop_phase);
+	float ring_slope = cos(ring_delta * 62.0) * ring_envelope * 0.035;
+	slope += normalize(from_drop + vec2(0.0001)) * ring_slope;
+	slope *= water_mask;
+
+	vec3 world_normal = normalize(vec3(-slope.x, 1.0, -slope.y));
+	vec3 view_normal = normalize((VIEW_MATRIX * vec4(world_normal, 0.0)).xyz);
+	vec3 flat_view_normal = normalize((VIEW_MATRIX * vec4(0.0, 1.0, 0.0, 0.0)).xyz);
+	NORMAL = view_normal;
+
+	// Offset from the flat normal, rather than the normal itself, prevents the
+	// camera angle from shifting the whole image under every puddle.
+	vec2 refraction_offset = (view_normal - flat_view_normal).xy * refraction_strength * water_mask;
+	vec2 refracted_uv = clamp(SCREEN_UV + refraction_offset, vec2(0.001), vec2(0.999));
+	vec3 transmitted_ground = textureLod(screen_texture, refracted_uv, 0.0).rgb;
+
+	float fresnel = pow(1.0 - clamp(dot(view_normal, normalize(VIEW)), 0.0, 1.0), 5.0);
+	float transmission = mix(0.58, 0.88, water_mask) * (1.0 - fresnel * 0.34);
+	// Emission carries the pre-lit terrain exactly once; low ALBEDO leaves room for
+	// Godot's dielectric specular lobe without washing the decal white.
+	EMISSION = transmitted_ground * wet_tint * transmission;
+	ALBEDO = mix(wet_tint * 0.035, sheen_tint * 0.075, fresnel * water_mask);
+	ALPHA = coverage * mix(0.38, 0.70, water_mask);
+	ROUGHNESS = mix(0.86, 0.075 + _noise(puddle_world_xz * 9.0) * 0.045, water_mask);
+	// In Godot, 0.25 maps to roughly the F0 of water rather than a metallic mirror.
+	SPECULAR = mix(0.10, 0.25, water_mask);
 }
 "
 

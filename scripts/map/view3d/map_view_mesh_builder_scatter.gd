@@ -192,8 +192,11 @@ static func build_scatter(
 
 	if not puddles.is_empty():
 		var puddle_mesh := PlaneMesh.new()
-		puddle_mesh.size = Vector2(0.88, 0.88)
-		var puddle_instances := MapViewMeshBuilderPrimitives.multi_mesh("Puddles", puddle_mesh, puddles, puddle_colors, MapViewMaterials.puddle_surface(), Vector3(0.0, 0.012, 0.0))
+		puddle_mesh.size = Vector2(1.02, 1.02)
+		# The shader discards the square plane into an organic waterline. A little
+		# extra lift prevents the transparent rim from z-fighting without making the
+		# water hover above cobbles when seen from the close camera.
+		var puddle_instances := MapViewMeshBuilderPrimitives.multi_mesh("Puddles", puddle_mesh, puddles, puddle_colors, MapViewMaterials.puddle_surface(), Vector3(0.0, 0.006, 0.0))
 		puddle_instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		puddle_instances.sorting_offset = 0.5
 		root.add_child(puddle_instances)
