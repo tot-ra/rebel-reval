@@ -161,7 +161,7 @@ sign sign.vene "to workers' district" 136 103 south
 sign sign.toompea "pikk jalg to toompea" 8 32 west
 sign sign.convent "st michael's convent" 49 47 west
 sign sign.olaf "st olaf's" 99 80 north
-transition to_oleviste_church 93 72 4 2 to=oleviste_church destination_spawn=from_reval_monastery spawn=to_oleviste_church spawn_offset_px=0,-96 building_id=st_olaf_silhouette transition_visual=door
+transition to_oleviste_church 93 72 4 2 to=oleviste_church destination_spawn=from_reval_monastery spawn=to_oleviste_church spawn_offset_px=0,96 building_id=st_olaf_silhouette transition_visual=door
 patrol monastery_watch 101,6|101,30|101,56|101,88|39,104|135,88|159,104|135,56|68,54|26,54|8,34
 fade fade.convent 10 10 55 58
 fade fade.olaf 75 50 65 42
