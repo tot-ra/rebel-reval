@@ -51,20 +51,28 @@ func register_view_actors(scene_root: Node) -> void:
 	for found: Node in scene_root.find_children("*", "", true, false):
 		if not found.is_in_group(&"map_view_actor") or not found is Node2D:
 			continue
-		var actor := found as Node2D
-		var rig_scene: PackedScene = actor.get("rig_scene") as PackedScene
-		if rig_scene == null:
-			push_warning("Map view actor %s has no rig_scene" % actor.name)
-			continue
-		var rig := rig_scene.instantiate() as SharedCharacterRig
-		if rig == null:
-			push_warning("Map view actor %s rig is not a SharedCharacterRig" % actor.name)
-			continue
-		rig.name = "%sRig" % actor.name
-		_host.add_child(rig)
-		_actor_rigs[actor] = rig
-		_hide_actor_canvas(actor)
-		_sync_view_actor(actor, rig, true, 0.0)
+		register_view_actor(found as Node2D)
+
+
+## Mirrors a single logic actor into the 3D view. Controllers that spawn NPCs
+## after MapViewRuntime.install() must call this, otherwise the body exists for
+## collision and interaction but no one is visible on the map.
+func register_view_actor(actor: Node2D) -> void:
+	if actor == null or _actor_rigs.has(actor):
+		return
+	var rig_scene: PackedScene = actor.get("rig_scene") as PackedScene
+	if rig_scene == null:
+		push_warning("Map view actor %s has no rig_scene" % actor.name)
+		return
+	var rig := rig_scene.instantiate() as SharedCharacterRig
+	if rig == null:
+		push_warning("Map view actor %s rig is not a SharedCharacterRig" % actor.name)
+		return
+	rig.name = "%sRig" % actor.name
+	_host.add_child(rig)
+	_actor_rigs[actor] = rig
+	_hide_actor_canvas(actor)
+	_sync_view_actor(actor, rig, true, 0.0)
 
 
 func sync_view_actors(delta: float) -> void:

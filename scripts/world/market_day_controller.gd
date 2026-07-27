@@ -9,7 +9,12 @@ const UiPresenterScript := preload("res://scripts/dialogue/dialogue_ui_presenter
 const UiScript := preload("res://scripts/dialogue/dialogue_ui.gd")
 const FeedbackScript := preload("res://scripts/world/world_item_pickup_feedback.gd")
 const INTERACTABLE_SCENE := preload("res://scenes/interaction/interactable.tscn")
+const KEEPER_NPC_SCRIPT := preload("res://scripts/world/static_npc_actor.gd")
+const KEEPER_RIG_SCENE := preload("res://assets/characters/variants/innkeeper.tscn")
 const CROWD_BARK_POOL := &"bark.market_day.crowd"
+## Logic-pixel offset placing the keeper beside the stall counter (stall rect is
+## 2x1 cells of 32 px) so the body does not sit inside the prop footprint.
+const KEEPER_STALL_OFFSET := Vector2(-48.0, 0.0)
 
 var location_id: StringName = &""
 
@@ -23,6 +28,7 @@ var _runner: DialogueRunner
 var _presenter: RefCounted
 var _dialogue_ui: DialogueUI
 var _merchant_interactable: Interactable
+var _stall_keeper: StaticNpcActor
 var _state: GameState
 var _synced_date_key := ""
 var _market_day_active := false
@@ -75,6 +81,10 @@ func is_market_day_active() -> bool:
 
 func get_merchant_interactable() -> Interactable:
 	return _merchant_interactable
+
+
+func get_stall_keeper() -> Node2D:
+	return _stall_keeper
 
 
 func sync_for_test(phase_id: StringName, elapsed_days: int) -> void:
@@ -213,15 +223,41 @@ func _spawn_merchant_interactable() -> void:
 	var position := MapVerification.prop_position(_definition, ModelScript.MERCHANT_PROP_ID)
 	if position == Vector2.ZERO:
 		return
+	_spawn_stall_keeper(position + KEEPER_STALL_OFFSET)
 	_merchant_interactable = INTERACTABLE_SCENE.instantiate()
 	_merchant_interactable.name = "MarketDayMerchant"
 	_merchant_interactable.interactable_id = ModelScript.MERCHANT_INTERACTABLE_ID
 	_merchant_interactable.interaction_kind = InteractionKinds.TALK
 	_merchant_interactable.prompt = "Talk to the stall keeper"
-	_merchant_interactable.global_position = position
 	_merchant_interactable.set_interact_callback(Callable(self, "_on_merchant_pressed"))
-	_scene_root.add_child(_merchant_interactable)
+	if _stall_keeper != null:
+		# Parenting to the keeper keeps the talk prompt and the 3D focus marker on
+		# the person instead of floating over an empty stall.
+		_stall_keeper.add_child(_merchant_interactable)
+	else:
+		_merchant_interactable.global_position = position
+		_scene_root.add_child(_merchant_interactable)
 	_view_binder.bind(_merchant_interactable)
+
+
+func _spawn_stall_keeper(position: Vector2) -> void:
+	if _scene_root == null:
+		return
+	_stall_keeper = KEEPER_NPC_SCRIPT.new()
+	_stall_keeper.name = "MarketStallKeeper"
+	_stall_keeper.rig_scene = KEEPER_RIG_SCENE
+	var actors := _scene_root.get_node_or_null("Actors")
+	if actors != null:
+		actors.add_child(_stall_keeper)
+	else:
+		_scene_root.add_child(_stall_keeper)
+	# Face east toward the stall counter until the player comes close enough for
+	# view_facing() to turn the keeper toward them.
+	_stall_keeper.configure(_player, position, Vector2.RIGHT)
+	if _view_runtime != null:
+		# Controllers run after MapViewRuntime.install(), so the boot-time actor
+		# scan already happened and the rig must be registered explicitly.
+		_view_runtime.register_view_actor(_stall_keeper)
 
 
 func _on_merchant_pressed(_actor: Node) -> void:

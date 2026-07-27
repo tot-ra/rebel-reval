@@ -15,12 +15,16 @@ static func build(host: CanvasLayer, font: Font, callbacks: Dictionary) -> Dicti
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_theme_constant_override("margin_left", 32)
 	margin.add_theme_constant_override("margin_right", 32)
+	margin.add_theme_constant_override("margin_top", 32)
 	margin.add_theme_constant_override("margin_bottom", 32)
 	host.add_child(margin)
 
 	var stack := VBoxContainer.new()
 	stack.set_anchors_preset(Control.PRESET_FULL_RECT)
 	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# WHY: the stack spans the screen, so without END alignment the dialogue box
+	# renders at the top edge and covers the scene instead of sitting under it.
+	stack.alignment = BoxContainer.ALIGNMENT_END
 	stack.add_theme_constant_override("separation", 8)
 	margin.add_child(stack)
 

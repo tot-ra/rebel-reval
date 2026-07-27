@@ -400,6 +400,12 @@ func get_actor_rig(actor: Node2D) -> SharedCharacterRig:
 	return _actor_controller.get_actor_rig(actor)
 
 
+## Late registration hook for NPCs spawned by controllers that run after
+## install(); the boot-time scan only sees actors already in the scene.
+func register_view_actor(actor: Node2D) -> void:
+	_actor_controller.register_view_actor(actor)
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"toggle_camera_view") and not event.is_echo():
 		toggle_camera_view()

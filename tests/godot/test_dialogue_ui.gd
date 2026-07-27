@@ -60,6 +60,21 @@ func test_backlog_records_presented_lines() -> void:
 	_cleanup_setup(setup)
 
 
+func test_dialogue_panel_is_aligned_to_bottom_of_viewport() -> void:
+	var setup := _make_setup("normal")
+	var stack := setup.ui._root.get_parent() as VBoxContainer
+	var margin := stack.get_parent() as MarginContainer
+	assert_true(stack != null)
+	assert_eq(
+		stack.alignment,
+		BoxContainer.ALIGNMENT_END,
+		"Dialogue chrome must stay at the bottom rather than starting at the top"
+	)
+	assert_eq(margin.get_theme_constant("margin_top"), 32)
+	assert_eq(margin.get_theme_constant("margin_bottom"), 32)
+	_cleanup_setup(setup)
+
+
 func _run_branching_dialogue_with_scale(scale_name: String, input_mode: String) -> void:
 	var setup := _make_setup(scale_name)
 	setup.ui.set_text_scale(scale_name)
