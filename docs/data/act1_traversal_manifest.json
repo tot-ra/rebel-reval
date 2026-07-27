@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "task_id": "P4-011",
+  "intended_ending_count": 3,
+  "invalid_transition_count": 5,
+  "intended_endings": [
+    "act_boundary:seal",
+    "act_boundary:break",
+    "act_boundary:open"
+  ],
+  "invalid_transition_ids": [
+    "invalid.climax.before_approach",
+    "invalid.climax.terminal_recommit",
+    "invalid.climax.unknown_transition",
+    "invalid.act1.premature_envelope",
+    "invalid.act1.record_without_flag"
+  ],
+  "cycle_test_filters": [
+    "test_bell_and_chain_cycle",
+    "test_bread_and_iron_cycle",
+    "test_price_of_a_name_cycle",
+    "test_root_and_ember_cycle",
+    "test_st_georges_night_cycle",
+    "test_act1_aftermath"
+  ],
+  "fixtures_manifest": "content/saves/act1_fixtures_manifest.json",
+  "godot_model": "scripts/quest/act1_traversal_model.gd",
+  "godot_test_filter": "test_act1_traversal"
+}
