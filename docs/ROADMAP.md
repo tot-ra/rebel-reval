@@ -3,6 +3,8 @@
 Coordination notes, delivery order, and planning context formerly embedded in `TODO.md`.
 Executable open work stays in [`TODO.md`](../TODO.md).
 
+Coordination note (2026-07-28 P2-027): Kalev smithy now ships a deterministic Blender-authored `smithy_anvil.glb` at `forge_anvil` while courtyard anvils keep the procedural fallback; Captain Henning's seated routine snaps to the authored `work_chair` prop so sit animations cannot drift from the chair GLB. Verified: `--filter=test_forge_prop_meshes` (6/6), `--filter=test_smithy_henning` (3/3), and `python3 tools/verify_asset_lint.py`.
+
 ## Current focus (2026-07-23)
 
 1. **P0-072** - sourced 1343 Reval environment dossier per retained map (structural closeout complete; maintainer sign-off closed under **P0-111** on 2026-07-24).

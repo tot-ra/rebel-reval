@@ -1,0 +1,34 @@
+{
+  "asset_id": "prop.smithy_anvil",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "542106653f69e5a3c5354390ada787d34408c65176cec679941b7dea10167de9",
+  "checks": {
+    "embedded_albedo": true,
+    "floating_geometry": true,
+    "ground_contact": true,
+    "metric_scale": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "uvs": true,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    1.4805,
+    0.704,
+    1.0045
+  ],
+  "faces": 990,
+  "floating_objects": 0,
+  "generator": "tools/generate_smithy_anvil.py",
+  "ground_min_z": 0.0,
+  "materials": 3,
+  "mesh_objects": 3,
+  "preview": "generated/blender/smithy_anvil_v1/preview.png",
+  "route": "deterministic_blender",
+  "sha256": "6e85c297aa9fa75dee12c37ec20cb24de00940219c398f3d022e3f8ed4056d7e",
+  "surfaces": 4,
+  "texture_size": 512,
+  "triangles": 2101,
+  "uv_sets": 1,
+  "vertices": 1059
+}

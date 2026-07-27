@@ -22,7 +22,7 @@ References:
 |----------|-----:|-----:|-------|
 | P0 |     6  |    42  | Baseline, storage, materials, historical audit |
 | P1 |     0  |     8  | Runtime systems, content foundation |
-| P2 |     2  |    20  | Vertical-slice production (playable MVP) |
+| P2 |     2  |    21  | Vertical-slice production (playable MVP) |
 | P3 |     0  |    16  | Validation, accessibility, performance |
 | P4 |    21  |    42  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
@@ -121,6 +121,7 @@ References:
 <!-- P4-008a completed in current session -->
 <!-- P4-005 completed in current session -->
 <!-- P4-004 completed in current session -->
+<!-- P2-027 completed in current session -->
 <!-- P2-021a completed in current session -->
 <!-- P4-017 completed in current session -->
 <!-- P4-003 completed in current session -->
@@ -180,7 +181,7 @@ Rows close through `review: canon` like all content work.
 
 ### People, power, military (Character, Quest, Narrative)
 
-- [ ] R-007 | role: research | deps: none | deliverable: history/dossiers/people/town-council-and-officers.md - council composition, offices, election, terms, and any attested councillor names near 1343 | verify: every named person carries a date range and a source; invented fillers are labelled and kept separate
+- [~] R-007 | role: research | deps: none | deliverable: history/dossiers/people/town-council-and-officers.md - council composition, offices, election, terms, and any attested councillor names near 1343 | verify: every named person carries a date range and a source; invented fillers are labelled and kept separate | claim: research-1@2026-07-28
 - [ ] R-008 | role: research | deps: none | deliverable: history/dossiers/power/jurisdictions-of-reval.md - who holds authority over whom between town council, Danish captain, vassalry, bishop, and the Livonian Order, and where the seams are | verify: produces a jurisdiction table a quest designer can use to construct a legally plausible conflict
 - [ ] R-009 | role: research | deps: R-008 | deliverable: history/dossiers/power/law-courts-and-punishment.md - court procedure, oath-helping, evidence, fines, pillory, banishment, execution, and who could be tried where | verify: at least five distinct sourced offence-to-consequence pairs usable as quest outcomes
 - [ ] R-010 | role: research | deps: none | deliverable: history/dossiers/military/watch-duty-and-town-defence.md - burgher watch obligation, muster, gate control, curfew, alarm signals, arms a townsman was required to own | verify: states a concrete nightly watch routine and the arms requirement by status tier
@@ -385,6 +386,7 @@ Rows close through `review: canon` like all content work.
 
 ### Medium
 
+- [x] P2-027 | claim: cursor-agent@2026-07-28 | deps: none | deliverable: authored smithy `forge_anvil` GLB with deterministic Blender generator, Godot import, and Henning `work_chair` seating alignment from the authored prop position | allowed files: `tools/generate_smithy_anvil.py`, `assets/props/forge/smithy_anvil.glb`, `assets/props/forge/*.import`, `generated/blender/smithy_anvil_v1/**`, `scripts/map/view3d/map_view_mesh_builder_prop_models.gd`, `scenes/reval_east/forge/forge.gd`, `scenes/reval_east/forge/smithy_henning.gd`, `tests/godot/test_forge_prop_meshes.gd`, `tests/godot/test_smithy_henning.gd`, `assets/SOURCES.csv`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_forge_prop_meshes` passes 6/6 including `test_smithy_anvil_uses_detailed_glb_without_replacing_courtyard_fallback`; `--filter=test_smithy_henning` passes 3/3 including `test_henning_sitting_origin_tracks_the_authored_work_chair`; `python3 tools/verify_asset_lint.py` stays green
 - [ ] P2-004 | deps: P0-040,P1-029 | deliverable: approved low-poly character models and AI-generated portraits for Kalev, Mart, Aita, Kaja, Henning, and Jürgen | verify: all six use the shared P0-037 rig and animation library, differ only by texture/equipment/silhouette swaps, pass asset lint, and match art-bible silhouette and palette rules
 ### Large
 

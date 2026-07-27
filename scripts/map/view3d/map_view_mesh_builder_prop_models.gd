@@ -11,6 +11,8 @@ const WallWalkAccessBuilder := preload("res://scripts/map/view3d/map_view_wall_w
 const AnvilMeshes := preload("res://scripts/map/view3d/map_view_anvil_meshes.gd")
 # Runtime loading avoids a clean-clone bootstrap cycle where GDScript parses
 # before Godot has registered the first GLB import.
+const SMITHY_ANVIL_SCENE_PATH := "res://assets/props/forge/smithy_anvil.glb"
+const SMITHY_ANVIL_PROP_ID := &"forge_anvil"
 const SMITHY_CHAIR_SCENE_PATH := "res://assets/props/furniture/smithy_chair.glb"
 const SMITHY_CHAIR_PROP_ID := &"work_chair"
 
@@ -91,7 +93,10 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 
 	match prop["kind"] as StringName:
 		MapTypes.PROP_KIND_ANVIL:
-			_add_anvil(root)
+			if StringName(prop["id"]) == SMITHY_ANVIL_PROP_ID:
+				_add_smithy_anvil(root)
+			else:
+				_add_anvil_fallback(root)
 		MapTypes.PROP_KIND_HAY_STACK:
 			MapViewMeshBuilderPrimitives.sphere(root, "Mound", 0.85, Vector3(0.0, 0.42, 0.0), &"hay", Vector3(1.0, 0.62, 1.0))
 			MapViewMeshBuilderPrimitives.sphere(root, "Crown", 0.5, Vector3(0.1, 0.78, -0.05), &"hay", Vector3(1.0, 0.6, 1.0))
@@ -229,8 +234,20 @@ static func _add_chair_fallback(root: Node3D) -> void:
 	MapViewMeshBuilderPrimitives.box(root, "LegFR", Vector3(0.06, 0.4, 0.06), Vector3(0.18, 0.2, 0.14), &"timber")
 
 
-static func _add_anvil(root: Node3D) -> void:
-	# Stump first: a timber block with an iron binding ring under the body.
+static func _add_smithy_anvil(root: Node3D) -> void:
+	# WHY: forge_anvil is the close, gameplay-critical smithy workstation. Its
+	# authored GLB improves silhouette and materials while the immutable rrmap
+	# footprint remains the sole collision/navigation authority.
+	var anvil_scene := load(SMITHY_ANVIL_SCENE_PATH) as PackedScene
+	assert(anvil_scene != null, "Smithy anvil GLB must be imported before the map view is assembled")
+	var anvil := anvil_scene.instantiate() as Node3D
+	anvil.name = "SmithyAnvilModel"
+	root.add_child(anvil)
+
+
+static func _add_anvil_fallback(root: Node3D) -> void:
+	# Outdoor and future anvils keep the lightweight procedural model until they
+	# receive location-specific art; this prevents smithy wear from leaking out.
 	MapViewMeshBuilderPrimitives.cylinder(root, "Stump", 0.28, 0.42, Vector3(0.0, 0.21, 0.0), &"wood")
 	MapViewMeshBuilderPrimitives.cylinder(root, "StumpBand", 0.295, 0.045, Vector3(0.0, 0.34, 0.0), &"metal")
 	var body := MeshInstance3D.new()

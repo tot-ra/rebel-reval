@@ -40,3 +40,26 @@ func test_henning_routine_exposes_social_and_seated_animation_states() -> void:
 		henning._set_state(state, 1.0)
 		assert_eq(henning.view_animation(), expected[state])
 	henning.free()
+
+
+func test_henning_sitting_origin_tracks_the_authored_work_chair() -> void:
+	var definition: MapDefinition = preload(
+		"res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd"
+	).create()
+	var chair_position := MapVerification.prop_position(definition, &"work_chair")
+	var henning := SmithyHenning.new()
+	henning.configure_navigation(RID(), chair_position)
+
+	var seat_route_index := henning._route.size() - 1
+	var expected_origin := chair_position + SmithyHenning.CHAIR_ROOT_OFFSET
+	assert_eq(henning._route[seat_route_index], expected_origin)
+
+	# Arrival must remove NavigationAgent2D tolerance and face Henning away from
+	# the backrest before the animation moves his hips backward onto the seat.
+	henning.global_position = Vector2.ZERO
+	henning._route_index = seat_route_index
+	henning._arrive()
+	assert_eq(henning.global_position, expected_origin)
+	assert_eq(henning.view_facing(), SmithyHenning.CHAIR_FACING)
+	assert_eq(henning.view_animation(), &"sit_down")
+	henning.free()

@@ -48,30 +48,55 @@ func test_smithy_chair_uses_detailed_glb_without_replacing_town_hall_fallback() 
 	formal.free()
 
 
-func test_anvil_uses_custom_horned_body_on_stump() -> void:
-	var node := MapViewMeshBuilder.build_prop(
+func test_smithy_anvil_uses_detailed_glb_without_replacing_courtyard_fallback() -> void:
+	var smithy := MapViewMeshBuilder.build_prop(
 		{"id": &"forge_anvil", "kind": MapTypes.PROP_KIND_ANVIL, "position": Vector2.ZERO},
 		MapTypes.DEFAULT_CELL_SIZE
 	)
-	assert_true(node.has_node("Stump"), "anvil needs a timber stump")
-	assert_true(node.has_node("Body"), "anvil needs a custom metal body")
-	assert_false(node.has_node("Face"), "legacy three-box Face must be gone")
-	var body := node.get_node("Body") as MeshInstance3D
-	assert_true(body.mesh is ArrayMesh, "anvil body must be a custom ArrayMesh")
-	var arrays := body.mesh.surface_get_arrays(0)
-	var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
-	var min_x := 999.0
-	var max_x := -999.0
-	var max_y := -999.0
-	for vertex in vertices:
-		min_x = minf(min_x, vertex.x)
-		max_x = maxf(max_x, vertex.x)
-		max_y = maxf(max_y, vertex.y)
-	assert_true(min_x < -0.5, "anvil needs a projecting horn")
-	assert_true(max_x > 0.4, "anvil needs a heel mass")
-	assert_true(max_x - min_x > 0.95, "anvil silhouette must stay longer than a cube stack")
-	assert_true(max_y > 0.38, "anvil needs a raised flat face")
-	node.free()
+	assert_true(smithy.has_node("SmithyAnvilModel"), "smithy anvil must instantiate the authored GLB")
+	assert_false(smithy.has_node("Body"), "smithy anvil must not keep the procedural body")
+	var model := smithy.get_node("SmithyAnvilModel") as Node3D
+	var meshes := model.find_children("*", "MeshInstance3D", true, false)
+	assert_true(meshes.size() >= 3, "authored anvil needs separate stump, body, and face meshes")
+	var bounds := AABB()
+	var first := true
+	var material_names: Dictionary = {}
+	var triangle_count := 0
+	var has_embedded_albedo := false
+	for child in meshes:
+		var mesh_instance := child as MeshInstance3D
+		if mesh_instance == null or mesh_instance.mesh == null:
+			continue
+		var child_bounds := mesh_instance.transform * mesh_instance.get_aabb()
+		bounds = child_bounds if first else bounds.merge(child_bounds)
+		first = false
+		for surface_index in mesh_instance.mesh.get_surface_count():
+			triangle_count += mesh_instance.mesh.surface_get_array_index_len(surface_index) / 3
+			var material := mesh_instance.mesh.surface_get_material(surface_index) as StandardMaterial3D
+			if material != null:
+				material_names[material.resource_name] = true
+				if material.albedo_texture != null:
+					has_embedded_albedo = true
+	assert_false(first, "anvil GLB must expose a non-empty AABB")
+	assert_true(bounds.size.x >= 1.45 and bounds.size.x <= 1.52, "anvil needs a long metric horn-to-heel silhouette")
+	assert_true(bounds.size.y >= 0.98 and bounds.size.y <= 1.03, "anvil and stump need a believable metric height")
+	assert_true(bounds.size.z >= 0.68 and bounds.size.z <= 0.72, "anvil face needs a broad working width")
+	assert_true(bounds.position.y >= -0.001, "stump must rest on the prop ground plane")
+	assert_true(triangle_count >= 1800 and triangle_count <= 4000, "anvil detail must stay readable and lightweight")
+	assert_true(material_names.size() == 3, "anvil keeps iron, polished face, and oak material identities")
+	assert_true(has_embedded_albedo, "anvil's painted wear textures must survive GLB import")
+	smithy.free()
+
+	var courtyard := MapViewMeshBuilder.build_prop(
+		{"id": &"courtyard_anvil", "kind": MapTypes.PROP_KIND_ANVIL, "position": Vector2.ZERO},
+		MapTypes.DEFAULT_CELL_SIZE
+	)
+	assert_true(courtyard.has_node("Stump"), "outdoor anvil keeps the lightweight procedural stump")
+	assert_true(courtyard.has_node("Body"), "outdoor anvil keeps the custom procedural body")
+	assert_false(courtyard.has_node("SmithyAnvilModel"), "smithy model must not leak into the courtyard")
+	var body := courtyard.get_node("Body") as MeshInstance3D
+	assert_true(body.mesh is ArrayMesh, "courtyard fallback must remain a custom ArrayMesh")
+	courtyard.free()
 
 
 func test_furnace_has_open_mouth_with_visible_hot_coal() -> void:

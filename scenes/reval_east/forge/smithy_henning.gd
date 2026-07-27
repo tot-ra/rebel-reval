@@ -12,12 +12,16 @@ const SIT_DOWN_SECONDS := 1.2
 const SIT_IDLE_SECONDS := 3.0
 const SIT_UP_SECONDS := 1.2
 
+const CHAIR_ROOT_OFFSET := Vector2.UP * 0.5 * MapTypes.DEFAULT_CELL_SIZE
+const CHAIR_FACING := Vector2.UP
+
 const ROUTE: Array[Vector2] = [
 	Vector2(9.5, 11.5) * MapTypes.DEFAULT_CELL_SIZE,
 	Vector2(13.5, 7.5) * MapTypes.DEFAULT_CELL_SIZE,
-	# The final stop doubles as a chair-height animation showcase. A dedicated
-	# chair prop can be snapped here later without changing NPC gameplay state.
-	Vector2(9.5, 11.5) * MapTypes.DEFAULT_CELL_SIZE,
+	# Configured from the authored work_chair position before navigation starts.
+	# The root stays just in front because Sit_Chair_Down moves the hips backward
+	# onto the seat while the feet remain around the animation origin.
+	Vector2.ZERO,
 ]
 
 enum RoutineState {
@@ -36,6 +40,7 @@ enum RoutineState {
 
 var _state := RoutineState.IDLE
 var _state_seconds := IDLE_SECONDS
+var _route: Array[Vector2] = ROUTE.duplicate()
 var _route_index := 0
 var _last_facing := Vector2.DOWN
 var _conversation_partner: Node2D = null
@@ -46,13 +51,16 @@ func _ready() -> void:
 	add_to_group(&"map_view_actor")
 
 
-func configure_navigation(navigation_map: RID) -> void:
+func configure_navigation(navigation_map: RID, chair_position: Vector2) -> void:
+	# The authored prop is the source of truth, so NPC and chair cannot drift when
+	# the smithy layout changes. Sit_Chair_* expects its root in front of the seat.
+	_route[_route.size() - 1] = chair_position + CHAIR_ROOT_OFFSET
 	# Tests may construct the script without the packed scene's NavigationAgent2D.
 	if navigation_agent == null:
 		return
 	navigation_agent.set_navigation_map(navigation_map)
 	_route_index = _nearest_route_index()
-	_begin_walk((_route_index + 1) % ROUTE.size())
+	_begin_walk((_route_index + 1) % _route.size())
 
 
 func set_conversation_partner(partner: Node2D) -> void:
@@ -129,7 +137,11 @@ func _update_walk() -> void:
 
 func _arrive() -> void:
 	velocity = Vector2.ZERO
-	if _route_index == ROUTE.size() - 1:
+	if _route_index == _route.size() - 1:
+		# Navigation may stop within target_desired_distance. Snap the animation
+		# origin so the seated pose cannot visibly float beside the authored chair.
+		global_position = _route[_route_index]
+		_last_facing = CHAIR_FACING
 		_set_state(RoutineState.SITTING_DOWN, SIT_DOWN_SECONDS)
 	else:
 		_set_state(RoutineState.IDLE, IDLE_SECONDS)
@@ -140,7 +152,7 @@ func _advance_routine() -> void:
 		RoutineState.IDLE:
 			_set_state(RoutineState.GESTURING, GESTURE_SECONDS)
 		RoutineState.GESTURING:
-			_begin_walk((_route_index + 1) % ROUTE.size())
+			_begin_walk((_route_index + 1) % _route.size())
 		RoutineState.SITTING_DOWN:
 			_set_state(RoutineState.SITTING, SIT_IDLE_SECONDS)
 		RoutineState.SITTING:
@@ -153,7 +165,7 @@ func _begin_walk(next_index: int) -> void:
 	_route_index = next_index
 	_set_state(RoutineState.WALKING, 0.0)
 	if navigation_agent != null:
-		navigation_agent.target_position = ROUTE[_route_index]
+		navigation_agent.target_position = _route[_route_index]
 
 
 func _set_state(next_state: RoutineState, seconds: float) -> void:
@@ -164,8 +176,8 @@ func _set_state(next_state: RoutineState, seconds: float) -> void:
 func _nearest_route_index() -> int:
 	var nearest := 0
 	var nearest_distance := INF
-	for index in ROUTE.size():
-		var distance := global_position.distance_squared_to(ROUTE[index])
+	for index in _route.size():
+		var distance := global_position.distance_squared_to(_route[index])
 		if distance < nearest_distance:
 			nearest = index
 			nearest_distance = distance

@@ -44,7 +44,7 @@ func _ready() -> void:
 	DoorNavigator.place_player(self, player, definition.player_spawn)
 	_wire_player_navigation()
 	MapSceneBootstrap.configure_player_movement(player, _bootstrap)
-	_wire_henning_navigation()
+	_wire_henning_navigation(definition)
 	_wire_cat_navigation()
 	if player == null:
 		player = _find_player(get_tree().root)
@@ -156,10 +156,13 @@ func _wire_player_navigation() -> void:
 		player.navigation_agent.set_navigation_map(navigation.get_navigation_map())
 
 
-func _wire_henning_navigation() -> void:
+func _wire_henning_navigation(definition: MapDefinition) -> void:
 	var navigation: NavigationRegion2D = _bootstrap.get("navigation")
 	if henning != null and navigation != null:
-		henning.configure_navigation(navigation.get_navigation_map())
+		henning.configure_navigation(
+			navigation.get_navigation_map(),
+			MapVerification.prop_position(definition, &"work_chair")
+		)
 
 
 func _wire_cat_navigation() -> void:
