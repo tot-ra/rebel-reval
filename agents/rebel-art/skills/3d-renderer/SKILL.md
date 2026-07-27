@@ -1,203 +1,147 @@
 ---
 name: 3d-renderer
-description: Generate, inspect, approve, and integrate clean 3D assets through deterministic Blender or image-to-3D workflows while keeping raw generated candidates out of the game.
+description: Produce game-ready 3D assets through a token-efficient deterministic Blender or image-to-3D workflow while keeping raw generated candidates out of runtime paths.
 ---
 
-# 3D Asset Production
+# Token-efficient 3D production
 
-## Goal
+## Objective
 
-Generate, visually approve, and integrate a clean 3D asset through the least expensive reproducible path. Use deterministic Blender modeling as the default for rigid props with known dimensions; use image-to-3D generation for complex silhouettes that genuinely benefit from it. Treat a raw generated mesh as a shape candidate, never as a production asset.
+Produce one verified asset with the fewest LLM decisions, context reads, and generation attempts. Spend compute in scripts and tools, not model context. Raw image-to-3D meshes are shape candidates, never shipped assets.
 
-## Non-negotiable image-to-3D input rules
+## Token budget rules
 
-1. Use an image containing **exactly one object in one pose and one view**.
-2. Never use a contact sheet, collage, split image, turnaround, or image containing multiple views.
-3. Keep the whole object visible with generous empty space around the silhouette. Aim for at least 10% clear margin on every edge.
-4. Use a plain, uniform background with no floor line, shadows, text, props, scenery, or pedestal.
-5. For characters that will be animated, use a neutral riggable pose:
-   - quadruped: standing on four legs, all paws visible, legs and tail clearly separated;
-   - humanoid: relaxed A-pose with visible hands and feet.
-6. Prefer a clean front three-quarter view for the first generation.
-7. Use multiview only when the user explicitly requests it and each view is a separate, consistent file. Default to single-image generation.
+1. Route once, generate once, and use at most two controlled retries.
+2. Keep the active text packet - brief, state, and latest metrics - under roughly 2 KB.
+3. Never paste workflow JSON, GLB data, vertex dumps, or full Blender/Godot logs into context.
+4. Write complete evidence to files. Return only exit status, compact metrics, and filtered failures.
+5. Cache immutable stages by hashes. Resume from `state.json`, not chat history.
+6. Ask for one visual approval only when human judgment is required.
+7. Final responses contain paths, hashes, metrics, checks, and unresolved defects only.
 
-## Choose the production path before generating
+## 1. Compact brief and route
 
-Use the cheapest path that can meet the final game contract:
+Read only the binding art rules, relevant asset/location brief, one comparable asset, and target scene. Save decisions once in a `brief.json` of at most 20 lines:
 
-1. **Deterministic Blender modeling - default for rigid props.** Use for furniture, tools, crates, simple architecture, signs, and other hard-surface objects with known dimensions. Procedural geometry may be the final production mesh when it passes the same topology, scale, material, provenance, and Godot checks as any other asset.
-2. **Image-to-3D candidate generation - complex silhouettes.** Use for organic creatures, statues, irregular hero props, or forms where manual primitives would not capture the approved concept efficiently. The raw mesh remains staging-only until cleanup.
-3. **Manual Blender cleanup/retopology - generated candidates.** Use after base-shape approval to produce the actual runtime GLB.
+```json
+{"id":"prop.smithy_chair","kind":"rigid_prop","target":"res://assets/props/furniture/smithy_chair.glb","scene":"res://scenes/reval_east/forge/forge.tscn","dimensions_m":[0.56,1.05,0.52],"triangles":{"target":2000,"max":3000},"textures":{"albedo":512},"style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}
+```
 
-Do not run ComfyUI merely to prove that generation is possible. For a simple prop, compare total iteration time, polygon control, dimensional accuracy, material portability, and cleanup risk. A deterministic two-second Blender build is preferable to a long high-poly generation followed by repair.
+Reference this path instead of repeating the brief.
 
-For Blender-authored props:
+| Asset | Route | Skip |
+|---|---|---|
+| Furniture, tools, crates, signs, simple architecture | Parameterized Blender generator | Concept image and image-to-3D |
+| Organic creature, statue, irregular hero prop | One reference -> image-to-3D -> Blender cleanup | Primitive approximation |
+| Acceptable existing mesh | Blender cleanup/conversion | New image and generation |
 
-- keep the source generator or approved `.blend` reproducible;
-- use metric dimensions, Y-up export, ground contact at zero, and a stable named root;
-- merge static geometry to a small number of meshes/material surfaces;
-- author UVs even when the first pass uses only palette materials;
-- remember that arbitrary Blender procedural shader nodes do not survive glTF export - bake or generate portable PBR textures and confirm they are present in the GLB;
-- import with Godot and render under the target map lighting before calling the asset integrated.
+Known rigid dimensions favor Blender: it is exact, deterministic, fast, and cheaper than discussing and repairing a noisy AI mesh.
 
-## Efficient workflow
+## 2. Batched preflight and cache
 
-### 1. Preflight once, in parallel
+In one batched tool call, check only owned/exact paths:
 
-Before generating anything:
+- scoped Git status and target prop ID;
+- Blender version;
+- ComfyUI health only for image-to-3D;
+- hashes of brief, input/source, generator/workflow, and cached output;
+- dimensions and triangle/material count of one comparable asset.
 
-- read the asset and location brief and identify the gameplay camera, scale, and style;
-- inspect existing comparable assets to estimate polygon and texture budgets;
-- check Git status and create a dedicated staging directory outside game `assets/` and `scenes/` when using generated candidates;
-- confirm Blender availability and, only for image-to-3D, local ComfyUI health, the selected checkpoint, required nodes, and input/output paths;
-- verify that the selected image provider is configured before calling it;
-- reuse an existing API-format workflow only after confirming its ownership and inputs.
+Search first, then use bounded reads. Do not rescan the repository. Redirect verbose command output to files and return only filtered error lines.
 
-Do not modify unrelated untracked artifacts. Keep all image-to-3D candidate files under one clearly named staging directory. A deterministic production asset may go directly to its approved runtime path after local preview and audit.
+Cache key:
 
-### 2. Create one reference, with a bounded retry policy
+```text
+sha256(brief + input/source + generator/workflow + model version + seed + settings)
+```
 
-Prefer the most controllable source method available when the selected path needs an image-to-3D reference:
+If `state.json` has this key and output checksums match, skip generation and verify the cache.
 
-1. an already approved clean concept;
-2. a reproducible Blender/procedural reference for strict pose and silhouette requirements;
-3. a local image model for stylistic concepts.
+## 3A. Deterministic Blender route
 
-If a deterministic Blender prop is itself the requested production asset, skip the reference-image and image-to-3D stages. Build, preview, audit, and verify that mesh directly.
+Use one Python generator that emits a production GLB, optional single preview, compact `report.json`, and one stdout line under 500 characters:
 
-For a generative image model, request exactly one image. Allow at most **two prompt retries** for duplicate subjects, cropping, hidden limbs, or background contamination. If it still fails, switch to a deterministic Blender/procedural reference instead of continuing random retries.
+```text
+ASSET_METRICS={"triangles":2332,"materials":3,"uv_sets":1,"dimensions_m":[0.555,1.0525,0.521],"ground_min":0.0,"sha256":"..."}
+```
 
-The procedural reference is only a source image when used to drive image-to-3D. Do not export or integrate that geometry as a substitute for a requested generated/organic model. This restriction does not apply when the approved production path is deterministic Blender modeling for a rigid prop.
+Requirements:
 
-### 3. Run a reference QA gate before Hunyuan3D
+- metric size, Y-up GLB, stable root, ground contact at zero;
+- few meshes/materials, UVs, and portable glTF PBR materials;
+- baked/generated textures because arbitrary Blender shader nodes do not export;
+- fixed parameters and deterministic texture generation;
+- final rebuild has the same SHA-256.
 
-Visually inspect the final RGB image. Do not infer visual quality from the prompt or source scene alone.
+Do not save `.blend` when the script fully reproduces the result. Give Blender geometric rules, not model-authored vertex arrays.
 
-Required checks:
+## 3B. Image-to-3D route
 
-- exactly one subject;
-- one neutral pose and one view;
-- complete silhouette inside the frame;
-- correct anatomy with no extra, missing, crossed, or merged limbs;
-- required extremities and tail are visible and separated;
-- uniform background with no floor, shadow, prop, text, or scenery.
+### Reference
 
-Add cheap programmatic checks where useful:
+Use one object, pose, and view on a uniform background, with 10% margins and no floor, shadow, text, scenery, or pedestal. Animated subjects use a neutral separated-limb pose. Default to a front three-quarter view. Generate one image; retry at most twice for cropping, duplication, merged anatomy, or background contamination, then switch source method.
 
-- image dimensions and color mode;
-- foreground bounding box and edge margins;
-- border uniformity;
-- visible-limb mask audit for riggable characters.
+### Workflow
 
-Programmatic checks support visual review but do not replace it. A separated tail or limb may legitimately appear as a separate 2D silhouette component.
+Store verified API workflows as versioned files. Call `comfyui_run_workflow` with `workflow_path` and small `input_overrides`; never inline the full workflow JSON in tool calls or chat.
 
-If no reliable visual preview is available, do not claim that the reference passed. Use another preview path or ask the user to review it.
+Validate workflow files by script and print only:
 
-### 4. Validate the workflow structure before the expensive run
+```json
+{"load_images":1,"conditioning":"Hunyuan3Dv2Conditioning","multiview":false,"outputs":["glb"],"seed":382182111,"valid":true}
+```
 
-For the default single-image local Hunyuan3D workflow, assert:
+Local single-image Hunyuan requires one `LoadImage`, one `Hunyuan3Dv2Conditioning`, no multiview/side/back inputs, one GLB output, and a fixed seed. Workflows with `TencentImageToModelNode`, multiple loaders, optional views, or randomized seeds must be labeled as their actual provider.
 
-- exactly one `LoadImage` node;
-- one `Hunyuan3Dv2Conditioning` node;
-- no `Hunyuan3Dv2ConditioningMultiView` node;
-- no left, right, or back image inputs;
-- one output GLB;
-- fixed seed and recorded sampler settings.
+Submit once, store the job ID immediately, and poll it. Never resubmit a slow run. Poll messages contain only status, elapsed time, and terminal paths.
 
-Copy the accepted reference into the configured ComfyUI input directory, submit once, and record the prompt ID immediately. Poll by prompt ID rather than resubmitting when a long local run is still active.
+## 4. Scripted audit and decision
 
-Do not assume that a file named for Hunyuan uses the local workflow. Inspect node types first. A workflow containing cloud/API nodes such as `TencentImageToModelNode`, random seeds, multiple `LoadImage` nodes, or optional back/side inputs must be documented and evaluated as that provider's workflow, not described as local single-image Hunyuan.
+Preserve and hash raw generated GLBs. A Blender/Python audit writes details to `report.json` and prints one compact record:
 
-### 5. Inspect the raw candidate without repairing it
+```json
+{"meshes":1,"components":1,"triangles":187432,"boundary_edges":6,"non_manifold_edges":2169,"dimensions_m":[0.52,0.37,0.17],"uv_sets":0,"decision":"cleanup"}
+```
 
-Preserve the raw GLB unchanged and record its SHA-256. In parallel when possible:
+Use image previews, not verbose textual descriptions. Rigid props need one three-quarter preview and one in-engine frame. Organic/rigged candidates need separate front, side, and back views.
 
-- import it into Blender;
-- render **three separate files**: front, side, and back;
-- confirm the head/body axis before labeling the views;
-- record mesh/object count, connected components, dimensions, triangles, loose geometry, boundary edges, and non-manifold edges;
-- for quadrupeds, verify four separate lower-leg/paw regions and clear gaps between limbs;
-- inspect the tail, underside, ears, and ground-contact areas from useful oblique angles if the orthographic views are ambiguous.
+Reject duplicate bodies, collapsed depth, fused/missing major parts, floating geometry, severe holes, or wrong identity/proportions. High polygon count, noisy topology, small manifold defects, and missing UV/rig are cleanup defects if the silhouette is good.
 
-Do not combine the three views into a contact sheet unless the user separately asks for one after generation.
+## 5. Persist minimal state
 
-## Candidate decision gates
+Keep `state.json` next to staging output:
 
-### Hard rejection: regenerate the base shape
+```json
+{"asset_id":"creature.forge_cat","route":"image_to_3d","stage":"candidate_approved","cache_key":"...","job_id":"...","selected_glb":"candidate.glb","sha256":"...","decision":"cleanup","defects":["non_manifold","no_uv","no_rig"]}
+```
 
-Reject the candidate when front/side/back inspection shows a fundamental shape failure:
+Stages: `briefed`, `reference_ready`, `generating`, `candidate_ready`, `candidate_approved`, `production_ready`, `integrated`, `rejected`. Keep detailed measurements only in `report.json`; state uses short defect codes.
 
-- duplicate bodies or duplicate major parts;
-- a sheet, wall, billboard, or collapsed depth;
-- fused or missing limbs that destroy the riggable silhouette;
-- floating/disconnected geometry that is not intentional;
-- severe holes that remove recognizable anatomy;
-- fundamentally wrong proportions, pose, or object identity.
+## 6. Cleanup and integration
 
-Do not repair a fundamentally bad generation.
+After candidate approval, create a separate production GLB. For deforming characters use deliberate LOD0 retopology, clean skeleton/weights, and a minimal looping idle; decimate mainly lower LODs.
 
-### Conditional base-shape approval: keep for production cleanup
+Scripted verification must cover:
 
-Do **not** automatically discard an otherwise good silhouette only because the raw generated topology has:
+- component/mesh count and no duplicate/floating geometry;
+- polygon cap, normals/tangents, UVs, and portable materials;
+- metric scale, axes, origin, and ground contact;
+- rig deformation/idle when applicable;
+- clean Godot import and one target-scene render;
+- unchanged gameplay collision/navigation unless explicitly authorized.
 
-- excessive polygon count;
-- non-manifold edges or small boundary defects;
-- noisy tessellation or normals;
-- rough paws, fingers, ears, or other local forms that can be deliberately remodeled;
-- missing UVs, textures, skeleton, or animation.
+Keep generated candidates outside runtime paths before approval. Record tool/workflow version, seed if used, checksum, edits, rights, and approval in `assets/SOURCES.csv`.
 
-Record these as mandatory production defects. Ask the user to approve or reject the **base shape**, explicitly naming the defects and the prompt ID. User approval may cover silhouette/proportions while requiring local anatomy changes during retopology.
+## 7. Minimal final report
 
-Once the user selects a candidate, stop alternate generation or mesher experiments unless they ask for them. Preserve the selected prompt ID and do not silently substitute another GLB.
+```text
+Route: deterministic_blender | image_to_3d
+Asset: <path> | Reproduce: <one command>
+Metrics: <triangles>; <materials>; <dimensions>; <textures>
+Hashes: <cache key>; <final GLB SHA-256>
+Verified: <lint>; <Godot import/test>; <in-scene preview>
+Decision: integrated | approval needed | rejected
+Defects/blockers: <short list>
+```
 
-## Approval and integration boundary
-
-Before approval, keep the candidate only in staging. Do not:
-
-- copy it into game asset paths;
-- replace an existing rig or scene reference;
-- edit gameplay scenes, collisions, or content records;
-- present the raw Hunyuan GLB as game-ready.
-
-After approval, document:
-
-- selected prompt ID and GLB checksum;
-- approval scope;
-- visible defects to fix;
-- whether integration has occurred, which should remain `false` until the production GLB passes Godot verification.
-
-Then propose the production steps separately. Execute them only when requested.
-
-## Post-approval production proposal
-
-Derive budgets from comparable project assets and expected screen size, then propose:
-
-1. LOD0 polygon target and hard cap, plus optional LOD1/LOD2;
-2. retopology strategy and local anatomy remodeling before decimation;
-3. manifold cleanup, normals, origin, scale, forward axis, and ground contact;
-4. UV layout, texture resolution, materials, and high-to-low bakes;
-5. skeleton hierarchy and skin-weight checks;
-6. a minimal looping `idle`, with locked feet/paws;
-7. separate production GLB export and in-engine verification.
-
-For deforming characters, prefer clean retopology for LOD0. Use controlled decimation primarily for lower LODs, not as a substitute for animation-ready topology.
-
-## Game-ready checks
-
-- One connected character mesh unless separation is intentional.
-- No duplicate bodies, hidden planes, loose parts, floating geometry, or unintended holes.
-- Manifold production topology and a polygon count within the approved budget.
-- Clean silhouette from every gameplay camera angle.
-- Correct metric scale, origin, forward axis, and ground contact.
-- Valid UVs, normals/tangents, texture color space, and Godot-compatible materials.
-- Rig deforms cleanly at shoulders, hips, paws/hands, neck, and tail.
-- At minimum, test a looping `idle`; add `walk` only if movement is required.
-- Verify the final GLB in Godot under the target scene camera and lighting, not only in Blender or ComfyUI.
-
-## Output hygiene
-
-Keep only the accepted reference, selected raw GLB, separate previews, reproducible workflow/settings, QA report, approval decision, and production proposal. Delete session-created rejected retries unless the user asks to retain comparisons. Never delete or commit unrelated existing worktree files.
-
-## Default decision
-
-When unsure, make **one controllable reference, run one single-image workflow, and ask for one base-shape decision**. A simple approved shape with documented production defects is more useful than repeated expensive generations or an unapproved raw mesh integrated into the game.
+Point to prompts, workflow files, reports, and logs instead of quoting them. When unsure, make one controllable reference or deterministic build, run one workflow, and request one decision.
