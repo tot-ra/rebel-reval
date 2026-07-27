@@ -160,6 +160,17 @@
       },
       "open_floor_pct": [90, 100]
     },
+    "oleviste_church": {
+      "enforce": false,
+      "interior": true,
+      "source_refs": ["H14"],
+      "surface_shares": {
+        "timber_pct": [0, 10],
+        "stone_pct": [70, 95],
+        "earth_pct": [0, 8]
+      },
+      "open_floor_pct": [85, 98]
+    },
     "town_hall": {
       "enforce": true,
       "interior": true,

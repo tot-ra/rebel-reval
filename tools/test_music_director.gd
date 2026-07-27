@@ -32,6 +32,7 @@ func _check_routes(failures: Array[String]) -> void:
 		"res://scenes/reval_east/reval_east.tscn": &"town",
 		"res://scenes/reval_center/reval_center.tscn": &"center",
 		"res://scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn": &"center",
+		"res://scenes/reval_north/oleviste_church/oleviste_church.tscn": &"oleviste",
 		"res://scenes/reval_north/reval_north.tscn": &"north",
 		"res://scenes/reval_monastery/reval_monastery.tscn": &"monastery",
 		"res://scenes/harbor/harbor_north.tscn": &"harbor",
@@ -51,7 +52,7 @@ func _check_routes(failures: Array[String]) -> void:
 
 func _check_streams(failures: Array[String]) -> void:
 	var director := MusicDirectorScript.new()
-	for theme_id: StringName in [&"menu", &"forge", &"town", &"center", &"north", &"monastery", &"harbor", &"toompea", &"south"]:
+	for theme_id: StringName in [&"menu", &"forge", &"town", &"center", &"north", &"oleviste", &"monastery", &"harbor", &"toompea", &"south"]:
 		if not MusicDirectorScript.has_theme(theme_id):
 			failures.append("Theme %s is routed but not configured" % theme_id)
 			continue

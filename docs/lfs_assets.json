@@ -272,114 +272,48 @@
       "scope": "archive"
     },
     {
-      "path": "archive/music/garden/day/danish_kings_garden_1.mp3",
-      "size_bytes": 6690841,
-      "sha256": "8a1bf12e05acb3cb68b040b4c5422c1f6117ececc17e2671c72eb1e3fd83ca43",
-      "lfs_oid": "sha256:8a1bf12e05acb3cb68b040b4c5422c1f6117ececc17e2671c72eb1e3fd83ca43",
-      "owner": "project maintainer - inactive soundtrack archive",
-      "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
-      "source_reference": "assets/SOURCES.csv:music.garden.day.danish.kings.garden.1",
-      "scope": "archive"
-    },
-    {
-      "path": "archive/music/garden/day/danish_kings_garden_2.mp3",
-      "size_bytes": 7548855,
-      "sha256": "b02cc35978b88615e033066afc7014347f7de1a6c683e1c90c5ab128a090a755",
-      "lfs_oid": "sha256:b02cc35978b88615e033066afc7014347f7de1a6c683e1c90c5ab128a090a755",
-      "owner": "project maintainer - inactive soundtrack archive",
-      "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
-      "source_reference": "assets/SOURCES.csv:music.garden.day.danish.kings.garden.2",
-      "scope": "archive"
-    },
-    {
-      "path": "archive/music/garden/day/danish_kings_garden_3.mp3",
-      "size_bytes": 4216946,
-      "sha256": "d4af9778093fd849c73a1a9d6e8629112564200e1f0edd3e4713ad805bf9e865",
-      "lfs_oid": "sha256:d4af9778093fd849c73a1a9d6e8629112564200e1f0edd3e4713ad805bf9e865",
-      "owner": "project maintainer - inactive soundtrack archive",
-      "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
-      "source_reference": "assets/SOURCES.csv:music.garden.day.danish.kings.garden.3",
-      "scope": "archive"
-    },
-    {
-      "path": "archive/music/garden/night/danish_kings_garden_1.mp3",
-      "size_bytes": 8557102,
-      "sha256": "6fbd50e6edcf65aa5e55490064373e6dca83336e0e8e5d692b861227181d530f",
-      "lfs_oid": "sha256:6fbd50e6edcf65aa5e55490064373e6dca83336e0e8e5d692b861227181d530f",
-      "owner": "project maintainer - inactive soundtrack archive",
-      "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
-      "source_reference": "assets/SOURCES.csv:music.garden.night.danish.kings.garden.1",
-      "scope": "archive"
-    },
-    {
-      "path": "archive/music/garden/night/danish_kings_garden_2.mp3",
-      "size_bytes": 5117511,
-      "sha256": "0633eac478971d60bbbf30a45217724c5c3a375642fa1dbf285ff20feec626aa",
-      "lfs_oid": "sha256:0633eac478971d60bbbf30a45217724c5c3a375642fa1dbf285ff20feec626aa",
-      "owner": "project maintainer - inactive soundtrack archive",
-      "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
-      "source_reference": "assets/SOURCES.csv:music.garden.night.danish.kings.garden.2",
-      "scope": "archive"
-    },
-    {
-      "path": "archive/music/garden/night/danish_kings_garden_3.mp3",
-      "size_bytes": 6399135,
-      "sha256": "29cd747aa8f1206b0cade412a26ccb1d2840ea371d4f0be4d2803dffd36417c1",
-      "lfs_oid": "sha256:29cd747aa8f1206b0cade412a26ccb1d2840ea371d4f0be4d2803dffd36417c1",
-      "owner": "project maintainer - inactive soundtrack archive",
-      "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
-      "source_reference": "assets/SOURCES.csv:music.garden.night.danish.kings.garden.3",
-      "scope": "archive"
-    },
-    {
-      "path": "archive/music/harbor/battle/Baltic Tempest (1).mp3",
+      "path": "music/battle/Baltic Tempest (1).mp3",
       "size_bytes": 4727793,
       "sha256": "72e9d2e167712feeb2c774db6f2c6ced2465e432fda79ae456cc49fd850fcd1b",
       "lfs_oid": "sha256:72e9d2e167712feeb2c774db6f2c6ced2465e432fda79ae456cc49fd850fcd1b",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - battle soundtrack",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation; available for battle-scene routing",
       "source_reference": "assets/SOURCES.csv:music.harbor.battle.baltic.tempest.1",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
-      "path": "archive/music/harbor/battle/Baltic Tempest (2).mp3",
+      "path": "music/battle/Baltic Tempest (2).mp3",
       "size_bytes": 5015671,
       "sha256": "97a62d43af76c4643e05cd31dfe2c981eb2a5a803fc5c75f75ec58dc635df7af",
       "lfs_oid": "sha256:97a62d43af76c4643e05cd31dfe2c981eb2a5a803fc5c75f75ec58dc635df7af",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - battle soundtrack",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation; available for battle-scene routing",
       "source_reference": "assets/SOURCES.csv:music.harbor.battle.baltic.tempest.2",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
-      "path": "archive/music/harbor/battle/Baltic Tempest.mp3",
+      "path": "music/battle/Baltic Tempest.mp3",
       "size_bytes": 6454767,
       "sha256": "80a3cdbc8f734fe1123d0025a763070ca9076f49ef107b2e89e988a6f53ad6b8",
       "lfs_oid": "sha256:80a3cdbc8f734fe1123d0025a763070ca9076f49ef107b2e89e988a6f53ad6b8",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - battle soundtrack",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation; available for battle-scene routing",
       "source_reference": "assets/SOURCES.csv:music.harbor.battle.baltic.tempest",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
-      "path": "archive/music/harbor/battle/Clash on the Docks.mp3",
+      "path": "music/battle/Clash on the Docks.mp3",
       "size_bytes": 5582831,
       "sha256": "1aa30e29d354d554181e4daada564022ab89eccc353cd99902d545d02ccdb863",
       "lfs_oid": "sha256:1aa30e29d354d554181e4daada564022ab89eccc353cd99902d545d02ccdb863",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - battle soundtrack",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation; available for battle-scene routing",
       "source_reference": "assets/SOURCES.csv:music.harbor.battle.clash.on.the.docks",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
       "path": "archive/music/revel_center/apotheca/The Apothecary's Secret (1).mp3",
@@ -404,70 +338,70 @@
       "scope": "archive"
     },
     {
-      "path": "archive/music/revel_center/battle/Defense of the Town Hall.mp3",
+      "path": "music/battle/Defense of the Town Hall.mp3",
       "size_bytes": 3396653,
       "sha256": "63cc7b9babecde12bb3600a52d308d01144f691e9874a533c392b5c8fcec88df",
       "lfs_oid": "sha256:63cc7b9babecde12bb3600a52d308d01144f691e9874a533c392b5c8fcec88df",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - battle soundtrack",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation; available for battle-scene routing",
       "source_reference": "assets/SOURCES.csv:music.revel.center.battle.defense.of.the.town.hall",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
-      "path": "archive/music/revel_center/battle/Market Mayhem.mp3",
+      "path": "music/battle/Market Mayhem.mp3",
       "size_bytes": 7910858,
       "sha256": "6bd1e111c8422f62e7622fcd7af887e40d50aea1d3390dd9327e4306e9471de2",
       "lfs_oid": "sha256:6bd1e111c8422f62e7622fcd7af887e40d50aea1d3390dd9327e4306e9471de2",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - battle soundtrack",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation; available for battle-scene routing",
       "source_reference": "assets/SOURCES.csv:music.revel.center.battle.market.mayhem",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
-      "path": "archive/music/revel_center/battle/Riot in the Square.mp3",
+      "path": "music/battle/Riot in the Square.mp3",
       "size_bytes": 4857580,
       "sha256": "5c48a4cc49832f960072d219f507c79c3fb7ce3c22d11b6fbb66cb30171b30e9",
       "lfs_oid": "sha256:5c48a4cc49832f960072d219f507c79c3fb7ce3c22d11b6fbb66cb30171b30e9",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - battle soundtrack",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation; available for battle-scene routing",
       "source_reference": "assets/SOURCES.csv:music.revel.center.battle.riot.in.the.square",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
-      "path": "archive/music/revel_center/battle/The Festival of St. John.mp3",
+      "path": "music/battle/The Festival of St. John.mp3",
       "size_bytes": 4094216,
       "sha256": "350d7532a2fdf0f451a8db3c81fadf296607e331ef294919c7a91c8928cd8d0c",
       "lfs_oid": "sha256:350d7532a2fdf0f451a8db3c81fadf296607e331ef294919c7a91c8928cd8d0c",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - battle soundtrack",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation; available for battle-scene routing",
       "source_reference": "assets/SOURCES.csv:music.revel.center.battle.the.festival.of.st.john",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
-      "path": "archive/music/revel_center/battle/The Guilds at War (1).mp3",
+      "path": "music/battle/The Guilds at War (1).mp3",
       "size_bytes": 5056909,
       "sha256": "f7b71fbf6f761d8f6f17a4fe2cb4a8c824007cb4cd5aad1cf765374350f312ac",
       "lfs_oid": "sha256:f7b71fbf6f761d8f6f17a4fe2cb4a8c824007cb4cd5aad1cf765374350f312ac",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - battle soundtrack",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation; available for battle-scene routing",
       "source_reference": "assets/SOURCES.csv:music.revel.center.battle.the.guilds.at.war.1",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
-      "path": "archive/music/revel_center/battle/The Guilds at War.mp3",
+      "path": "music/battle/The Guilds at War.mp3",
       "size_bytes": 7988890,
       "sha256": "018111e8b6c47e50aa6ed159e8fe2234a0673a5f7523df6777ae9c33776718bf",
       "lfs_oid": "sha256:018111e8b6c47e50aa6ed159e8fe2234a0673a5f7523df6777ae9c33776718bf",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - battle soundtrack",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation; available for battle-scene routing",
       "source_reference": "assets/SOURCES.csv:music.revel.center.battle.the.guilds.at.war",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
       "path": "archive/music/revel_center/holy spirit church/Hymn of the Holy Spirit (1).mp3",
@@ -492,147 +426,147 @@
       "scope": "archive"
     },
     {
-      "path": "archive/music/revel_center/raekoda/The Guildmaster's Ball.mp3",
+      "path": "music/revel_center/raekoda/The Guildmaster's Ball.mp3",
       "size_bytes": 4733538,
       "sha256": "6c347b1c9630461824451bcc1440fcb462dafa78155b5801a51db211ea4e0359",
       "lfs_oid": "sha256:6c347b1c9630461824451bcc1440fcb462dafa78155b5801a51db211ea4e0359",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - runtime audio",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation",
       "source_reference": "assets/SOURCES.csv:music.revel.center.raekoda.the.guildmaster.s.ball",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
-      "path": "archive/music/revel_center/raekoda/The Town Hall Fanfare.mp3",
+      "path": "music/revel_center/raekoda/The Town Hall Fanfare.mp3",
       "size_bytes": 6092427,
       "sha256": "bc6d92af37b87ac850980535af20ee80b048ac01da0fde6ba74337a438f010e0",
       "lfs_oid": "sha256:bc6d92af37b87ac850980535af20ee80b048ac01da0fde6ba74337a438f010e0",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - runtime audio",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation",
       "source_reference": "assets/SOURCES.csv:music.revel.center.raekoda.the.town.hall.fanfare",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
-      "path": "archive/music/revel_north/battle/Ambush on Pikk Street (1).mp3",
+      "path": "music/battle/Ambush on Pikk Street (1).mp3",
       "size_bytes": 6580482,
       "sha256": "7a73898044c83f199e2e59f368792d94580cbf1a973b013a2bdf969c7ca2928d",
       "lfs_oid": "sha256:7a73898044c83f199e2e59f368792d94580cbf1a973b013a2bdf969c7ca2928d",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - battle soundtrack",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation; available for battle-scene routing",
       "source_reference": "assets/SOURCES.csv:music.revel.north.battle.ambush.on.pikk.street.1",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
-      "path": "archive/music/revel_north/battle/Ambush on Pikk Street.mp3",
+      "path": "music/battle/Ambush on Pikk Street.mp3",
       "size_bytes": 3722358,
       "sha256": "76d9e16361ae63adddb6f319b983acca19c1b5c737654b5970b6f9aa74b35aee",
       "lfs_oid": "sha256:76d9e16361ae63adddb6f319b983acca19c1b5c737654b5970b6f9aa74b35aee",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - battle soundtrack",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation; available for battle-scene routing",
       "source_reference": "assets/SOURCES.csv:music.revel.north.battle.ambush.on.pikk.street",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
-      "path": "archive/music/revel_north/battle/Battle for Oleviste.mp3",
+      "path": "music/battle/Battle for Oleviste.mp3",
       "size_bytes": 6270696,
       "sha256": "60420380410b73344833adedf0abe87ee3f9c0e95bc1f5786a26610c222dd5a1",
       "lfs_oid": "sha256:60420380410b73344833adedf0abe87ee3f9c0e95bc1f5786a26610c222dd5a1",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - battle soundtrack",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation; available for battle-scene routing",
       "source_reference": "assets/SOURCES.csv:music.revel.north.battle.battle.for.oleviste",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
-      "path": "archive/music/revel_north/battle/Blackheads' Charge (1).mp3",
+      "path": "music/battle/Blackheads' Charge (1).mp3",
       "size_bytes": 5522822,
       "sha256": "ad2b19f17e78d6910892fce993326cbead30368107bc1f80a1b9787c5419983e",
       "lfs_oid": "sha256:ad2b19f17e78d6910892fce993326cbead30368107bc1f80a1b9787c5419983e",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - battle soundtrack",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation; available for battle-scene routing",
       "source_reference": "assets/SOURCES.csv:music.revel.north.battle.blackheads.charge.1",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
-      "path": "archive/music/revel_north/battle/Blackheads' Charge.mp3",
+      "path": "music/battle/Blackheads' Charge.mp3",
       "size_bytes": 9480182,
       "sha256": "5b936593583c882979dddcd9061a540167892456b5519377869184ea21ea28cc",
       "lfs_oid": "sha256:5b936593583c882979dddcd9061a540167892456b5519377869184ea21ea28cc",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - battle soundtrack",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation; available for battle-scene routing",
       "source_reference": "assets/SOURCES.csv:music.revel.north.battle.blackheads.charge",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
-      "path": "archive/music/revel_north/battle/Sacking the Nunnery (1).mp3",
+      "path": "music/battle/Sacking the Nunnery (1).mp3",
       "size_bytes": 6222460,
       "sha256": "517fb0d79a964590126150957bef7dc951937066b5b7e776d66821ce5db64b78",
       "lfs_oid": "sha256:517fb0d79a964590126150957bef7dc951937066b5b7e776d66821ce5db64b78",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - battle soundtrack",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation; available for battle-scene routing",
       "source_reference": "assets/SOURCES.csv:music.revel.north.battle.sacking.the.nunnery.1",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
-      "path": "archive/music/revel_north/battle/Sacking the Nunnery.mp3",
+      "path": "music/battle/Sacking the Nunnery.mp3",
       "size_bytes": 5229706,
       "sha256": "55092fcae6ebbfc2c6a0162c1560c8246dfb0ae635128b7264c6e47061b6e8d9",
       "lfs_oid": "sha256:55092fcae6ebbfc2c6a0162c1560c8246dfb0ae635128b7264c6e47061b6e8d9",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - battle soundtrack",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation; available for battle-scene routing",
       "source_reference": "assets/SOURCES.csv:music.revel.north.battle.sacking.the.nunnery",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
-      "path": "archive/music/revel_north/battle/The Blackheads' Oath.mp3",
+      "path": "music/battle/The Blackheads' Oath.mp3",
       "size_bytes": 5233477,
       "sha256": "476d665d377f5ac1d145682c5811a278fb470b7d40f0ad17719b05889dd87685",
       "lfs_oid": "sha256:476d665d377f5ac1d145682c5811a278fb470b7d40f0ad17719b05889dd87685",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - battle soundtrack",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation; available for battle-scene routing",
       "source_reference": "assets/SOURCES.csv:music.revel.north.battle.the.blackheads.oath",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
-      "path": "archive/music/revel_north/battle/The Guild War.mp3",
+      "path": "music/battle/The Guild War.mp3",
       "size_bytes": 3185016,
       "sha256": "bddd89f9b47058c6565655601c61baf850101e370ce21f6248ffeb5a0ee6c87d",
       "lfs_oid": "sha256:bddd89f9b47058c6565655601c61baf850101e370ce21f6248ffeb5a0ee6c87d",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - battle soundtrack",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation; available for battle-scene routing",
       "source_reference": "assets/SOURCES.csv:music.revel.north.battle.the.guild.war",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
-      "path": "archive/music/revel_north/oleviste/Oleviste's Bells (1).mp3",
+      "path": "music/revel_north/oleviste/Oleviste's Bells (1).mp3",
       "size_bytes": 6465056,
       "sha256": "51fd5ea388e2da6fb47d4800e3bde910a302b35e6028f2387ddc2a680d8e2f25",
       "lfs_oid": "sha256:51fd5ea388e2da6fb47d4800e3bde910a302b35e6028f2387ddc2a680d8e2f25",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation",
       "source_reference": "assets/SOURCES.csv:music.revel.north.oleviste.oleviste.s.bells.1",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
-      "path": "archive/music/revel_north/oleviste/Oleviste's Bells.mp3",
+      "path": "music/revel_north/oleviste/Oleviste's Bells.mp3",
       "size_bytes": 5749746,
       "sha256": "9575400b031412df26bdbb49d7a498d2825a05248c89acb01142fd06aab46e6b",
       "lfs_oid": "sha256:9575400b031412df26bdbb49d7a498d2825a05248c89acb01142fd06aab46e6b",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation",
       "source_reference": "assets/SOURCES.csv:music.revel.north.oleviste.oleviste.s.bells",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
       "path": "history/1.jpg",
@@ -1075,7 +1009,7 @@
       "scope": "runtime"
     },
     {
-      "path": "music/revel_east/monastery/battle/Catherine's Prayer.mp3",
+      "path": "music/battle/Catherine's Prayer.mp3",
       "size_bytes": 11445881,
       "sha256": "c4e0a2ae6d6caa5dac57c1040dc38cd0a082e5c10a69c4383004ebb126c833bb",
       "lfs_oid": "sha256:c4e0a2ae6d6caa5dac57c1040dc38cd0a082e5c10a69c4383004ebb126c833bb",

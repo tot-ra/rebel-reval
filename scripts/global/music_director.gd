@@ -17,6 +17,7 @@ const SCENE_THEME_ROUTES: Dictionary = {
 	"res://scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn": &"center",
 	"res://scenes/reval_center/town_hall/town_hall.tscn": &"center",
 	"res://scenes/reval_north/reval_north.tscn": &"north",
+	"res://scenes/reval_north/oleviste_church/oleviste_church.tscn": &"oleviste",
 	"res://scenes/reval_monastery/reval_monastery.tscn": &"monastery",
 	"res://scenes/harbor/harbor_north.tscn": &"harbor",
 	"res://scenes/harbor/harbor_east.tscn": &"harbor",
@@ -38,6 +39,7 @@ const TOWN_TRACKS: Array[String] = [
 const THEME_DAY_DIRS: Dictionary = {
 	&"center": "res://music/revel_center/",
 	&"north": "res://music/revel_north/",
+	&"oleviste": "res://music/revel_north/oleviste/",
 	&"monastery": "res://music/revel_east/monastery/",
 	&"harbor": "res://music/harbor/",
 	&"toompea": "res://music/domberg/day/",

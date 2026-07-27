@@ -1,0 +1,35 @@
+# Developer-only St. Olaf's Church (Oleviste kirik) interior greybox.
+# 1343 snapshot: active 13th-century church without the later giant spire,
+# 15th-century basilica, or completed chancel (see st_olafs_church.md).
+rrmap 1
+map oleviste_church loc.lower_town.st_olafs_church 36 24 stone scope=prototype active=false palette=clean_painted seed=1267 cell_size=32
+source "scenes/reval_north/oleviste_church/oleviste_church.tscn"
+source "scenes/reval_north/st_olafs_church.md"
+source "docs/HISTORICAL_AUDIT.md"
+style wall.church wall_height=176 wall_color=807a70ff wall_material=limestone
+style block.altar wall_height=56 wall_color=706860ff wall_material=limestone
+terrain nave_floor stone 1 1 34 22 order=1
+terrain altar_apron stone 13 2 10 4 order=2
+building wall_north interior_wall 1 1 34 1 style=wall.church
+building wall_south_west interior_wall 1 22 15 1 style=wall.church
+building wall_south_east interior_wall 20 22 15 1 style=wall.church
+building wall_west interior_wall 1 2 1 20 style=wall.church
+building wall_east interior_wall 34 2 1 20 style=wall.church
+building altar_block interior_block 14 3 8 2 style=block.altar
+prop nave_bench_west table 6 14 rect=8,2
+prop nave_bench_east table 22 14 rect=8,2
+prop prayer_candle_west candle 10 8 rect=1,1 visual_offset_px=0,-18
+prop prayer_candle_east candle 25 8 rect=1,1 visual_offset_px=0,-18
+prop lectern_stand table 17 10 rect=2,2
+prop baptismal_font well 8 18 rect=2,2
+landmark window.north_west interior_window 8 0 2 1 passage_axis=z
+landmark window.north_center interior_window 17 0 2 1 passage_axis=z
+landmark window.north_east interior_window 26 0 2 1 passage_axis=z
+spawn spawn.inspection 17 18 rect=2,2
+anchor inspection_spawn 17 18 rect=2,2
+anchor nave_center 17 14 rect=4,4
+anchor altar_front 17 6 rect=4,2
+anchor south_entry 17 20 rect=2,2
+transition to_reval_monastery 16 22 4 2 to=reval_monastery destination_spawn=to_oleviste_church spawn=from_reval_monastery spawn_offset_px=0,-96 highlight_area=true transition_visual=ground alignment=travel
+fade roof_fade 10 2 16 6
+camera 0 0 36 24

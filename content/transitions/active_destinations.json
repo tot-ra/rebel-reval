@@ -102,6 +102,20 @@
         },
         {
           "id": "from_reval_toompea"
+        },
+        {
+          "id": "to_oleviste_church"
+        }
+      ]
+    },
+    {
+      "id": "oleviste_church",
+      "path": "res://scenes/reval_north/oleviste_church/oleviste_church.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_monastery"
         }
       ]
     },

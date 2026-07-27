@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `68`
-- Markdown files excluded as archive/reference/out of active scope: `394`
-- Local/external links inspected: `455`
-- Links to active Markdown docs: `184`
+- Active Markdown files scanned: `70`
+- Markdown files excluded as archive/reference/out of active scope: `396`
+- Local/external links inspected: `458`
+- Links to active Markdown docs: `186`
 - Links to existing archive/reference/non-active local docs: `93`
 - External links skipped for reachability: `33`
 - Issues found: `0`
@@ -99,6 +99,8 @@ No active Markdown documentation issues found.
 - `docs/SCENES/the-bell-and-the-chain.md`
 - `docs/SCENES/the-makers-mark-branch-map.md`
 - `docs/SCENES/the-makers-mark.md`
+- `docs/SCENES/the-price-of-a-name-branch-map.md`
+- `docs/SCENES/the-price-of-a-name.md`
 - `docs/SETUP.md`
 - `docs/TASK_ARCHIVE.md`
 - `docs/THIRD_PARTY_NOTICES.md`

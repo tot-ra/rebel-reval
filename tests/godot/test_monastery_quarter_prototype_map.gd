@@ -158,6 +158,23 @@ func test_monastery_guild_rowfronts_avoid_later_monument_styles() -> void:
 		)
 
 
+func test_monastery_st_olaf_frontage_opens_oleviste_church_interior() -> void:
+	var definition: MapDefinition = MonasteryQuarterDefinition.create()
+	var entry := _transition_by_id(definition, &"to_oleviste_church")
+	assert_false(entry.is_empty(), "Monastery district must expose a St. Olaf church door")
+	assert_eq(entry.get("destination_scene_id"), &"oleviste_church")
+	assert_eq(entry.get("destination_spawn_id"), &"from_reval_monastery")
+	assert_eq(entry.get("spawn_id"), &"to_oleviste_church")
+	assert_eq(entry.get("building_id"), &"st_olaf_silhouette")
+
+
+func _transition_by_id(definition: MapDefinition, transition_id: StringName) -> Dictionary:
+	for transition in definition.transitions:
+		if transition.get("id", &"") == transition_id:
+			return transition
+	return {}
+
+
 func _building_by_id(definition: MapDefinition, building_id: StringName) -> Dictionary:
 	for building in definition.buildings:
 		if building["id"] == building_id:

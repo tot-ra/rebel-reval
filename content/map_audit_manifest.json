@@ -200,7 +200,26 @@
         "to_reval_north",
         "to_reval_center",
         "to_reval_east",
-        "to_reval_toompea"
+        "to_reval_toompea",
+        "to_oleviste_church"
+      ]
+    },
+    {
+      "id": "oleviste_church",
+      "location_name": "St. Olaf's Church",
+      "scene": "scenes/reval_north/oleviste_church/oleviste_church.tscn",
+      "definition": "scripts/map/definitions/prototypes/oleviste_church_definition.gd",
+      "factory": "OlevisteChurchDefinition.create",
+      "disposition": "convert",
+      "capture": "oleviste_church.png",
+      "mandatory_anchors": [
+        "inspection_spawn",
+        "altar_front",
+        "nave_center",
+        "south_entry"
+      ],
+      "mandatory_transitions": [
+        "to_reval_monastery"
       ]
     },
     {

@@ -1,6 +1,6 @@
-> **Legacy status:** `archive`  
-> **Reason:** Speculative location design outside the approved vertical-slice scope.  
-> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; active prologue outline in [`docs/SCENES/the-makers-mark.md`](../../docs/SCENES/the-makers-mark.md).
+> **Legacy status:** `reference`  
+> **Reason:** Location design prose for St. Olaf's Church; playable interior ships as developer prototype `oleviste_church`.  
+> **Current source of truth:** [`README.md`](../../README.md) - Vertical slice and scope boundaries; interior map `content/maps/oleviste_church.rrmap`.
 
 # St. Olaf's Church (Oleviste kirik)
 

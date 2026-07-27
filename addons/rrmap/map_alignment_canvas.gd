@@ -32,6 +32,7 @@ const DISPLAY_NAMES: Dictionary = {
 	&"reval_harbor_north": "Coastal Gate Landing",
 	&"reval_harbor_east": "Kalamaja Fishing Shore",
 	&"st_olafs_guild_hall": "St. Olaf's Guild Hall",
+	&"oleviste_church": "St. Olaf's Church",
 	&"world.sacred_grove": "Sacred Grove",
 	&"world.harju": "Harju Village",
 	&"world.padise": "Padise Monastery",

@@ -10,6 +10,7 @@ const DISTRICT_SCENE_THEMES: Dictionary = {
 	"res://scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn": &"center",
 	"res://scenes/reval_center/town_hall/town_hall.tscn": &"center",
 	"res://scenes/reval_north/reval_north.tscn": &"north",
+	"res://scenes/reval_north/oleviste_church/oleviste_church.tscn": &"oleviste",
 	"res://scenes/reval_monastery/reval_monastery.tscn": &"monastery",
 	"res://scenes/harbor/harbor_north.tscn": &"harbor",
 	"res://scenes/harbor/harbor_east.tscn": &"harbor",

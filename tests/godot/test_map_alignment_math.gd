@@ -133,6 +133,7 @@ func test_reval_city_cycles_resolve_to_one_physical_offset() -> void:
 func test_editor_portfolio_contains_accepted_campaign_greyboxes() -> void:
 	var expected_sizes := {
 		"st_olafs_guild_hall": Vector2i(32, 20),
+		"oleviste_church": Vector2i(36, 24),
 		"world_harju": Vector2i(52, 30),
 		"world_kanavere": Vector2i(54, 30),
 		"world_padise": Vector2i(50, 30),
