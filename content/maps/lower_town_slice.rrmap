@@ -2,6 +2,11 @@
 # street spacing are doubled while doors, props, and character-scale details stay readable.
 # The south-west Karja/Vaike-Karja edge is an interior district seam to the
 # Southern Quarter; the exterior Karja Gate and south wall live on south_quarter.
+# House footprints keep at least one free cell between them. Roofs overhang the
+# footprint on every side (0.15 shingle/tile, 0.38 thatch world units, one cell
+# equals one world unit), so touching or overlapping plots made neighbouring
+# roofs and facades interpenetrate and z-fight. Only fortification seals and the
+# smithy yard fence are allowed to embed into each other on purpose.
 rrmap 1
 map lower_town_slice loc.lower_town_slice 152 128 grass scope=production active=true palette=clean_painted seed=42042 cell_size=32
 # 1343 material mix (docs/HISTORICAL_AUDIT.md): church, monastery, and rich
@@ -143,48 +148,48 @@ building city_wall_bend_c wall 76 103 10 4 style=wall.plain.h192.00
 building wall_tower_southwest wall 73 103 6 8 style=wall.plain.h240.01 tower=false round_tower=true wall_walk_axis=x
 building city_wall_bend_d wall 73 107 4 14 style=wall.plain.h192.00
 building city_wall_south_continuation wall 73 121 4 7 style=wall.plain.h192.00
-building st_catherines_church house 35 3 24 10 style=house.south.h192.05
+building st_catherines_church house 35 3 21 10 style=house.south.h192.05
 building monastery_cloister house 57 0 18 12 style=house.south.h128.06
 building monastery_precinct_wall_west wall 31 0 2 19 style=wall.plain.h96.07
 building monastery_precinct_wall_south_a wall 31 19 16 2 style=wall.plain.h96.07
 building monastery_precinct_wall_south_b wall 52 19 24 2 style=wall.plain.h96.07
 building monastery_barn house 79 5 8 6 style=house.south.h96.08
-building pikk_corner_house house 0 0 10 8 style=house.south.h120.09
-building vene_row_house house 10 0 10 8 style=house.south.h120.10
+building pikk_corner_house house 0 0 9 8 style=house.south.h120.09
+building vene_row_house house 10 0 8 8 style=house.south.h120.10
 building vene_corner_house house 19 0 6 8 style=house.east.h112.11
 building market_row_house house 0 14 8 10 style=house.east.h112.12
-building saiakang_house house 9 14 10 10 style=house.west.h120.13
+building saiakang_house house 9 14 9 10 style=house.west.h120.13
 building vene_gate_house house 19 14 6 10 style=house.east.h112.14
 building apothecary_house house 0 27 8 8 style=house.south.h128.15
-building turg_house_north house 9 27 8 8 style=house.south.h112.16
+building turg_house_north house 9 27 7 8 style=house.south.h112.16
 building moneychangers_house house 17 27 8 8 style=house.east.h120.17
 building vanaturu_kael_house house 16 41 10 8 style=house.south.h120.18
-building kaik_house_west house 31 27 12 8 style=house.north.h112.19
+building kaik_house_west house 31 27 11 8 style=house.north.h112.19
 building kaik_house_mid house 43 27 12 8 style=house.north.h120.20
-building kaik_house_east house 59 27 12 8 style=house.north.h112.21
-building guild_storehouse house 71 27 12 8 style=house.north.h136.22
-building glovers_house house 83 27 10 8 style=house.north.h112.23
+building kaik_house_east house 59 27 11 8 style=house.north.h112.21
+building guild_storehouse house 71 27 11 8 style=house.north.h136.22
+building glovers_house house 83 27 9 8 style=house.north.h112.23
 building corner_house_muurivahe house 93 27 10 8 style=house.east.h128.24
-building viru_house_west house 31 41 12 8 style=house.south.h120.25
+building viru_house_west house 31 41 11 8 style=house.south.h120.25
 building viru_house_mid house 43 38 14 10 style=house.south.h128.26
-building viru_house_stone house 59 41 12 8 style=house.south.h128.27
-building merchants_house house 71 38 12 10 style=house.south.h136.28
-building viru_house_east house 83 41 10 8 style=house.south.h112.29
+building viru_house_stone house 59 41 11 8 style=house.south.h128.27
+building merchants_house house 71 38 11 10 style=house.south.h136.28
+building viru_house_east house 83 41 9 8 style=house.south.h112.29
 building weary_traveler_inn house 93 41 10 8 style=house.south.h120.30
-building saddlers_house house 16 62 10 8 style=house.north.h112.23
-building coopers_house house 26 62 10 8 style=house.north.h112.31
+building saddlers_house house 16 62 9 8 style=house.north.h112.23
+building coopers_house house 26 62 8 8 style=house.north.h112.31
 building sauna_corner_house house 35 62 8 8 style=house.north.h104.32
-building rope_makers_house house 45 62 10 8 style=house.north.h112.21
+building rope_makers_house house 45 62 8 8 style=house.north.h112.21
 building karja_corner_house house 54 62 10 8 style=house.north.h120.33
-building kuninga_house_west house 16 79 10 6 style=house.north.h104.34
-building kuninga_house_mid house 26 79 10 6 style=house.north.h104.35
+building kuninga_house_west house 16 79 9 6 style=house.north.h104.34
+building kuninga_house_mid house 26 79 8 6 style=house.north.h104.35
 building kuninga_house_east house 35 79 8 6 style=house.north.h104.36
-building public_bathhouse house 45 79 10 6 style=house.west.h120.37
+building public_bathhouse house 45 79 8 6 style=house.west.h120.37
 building vaike_karja_house house 54 79 10 6 style=house.south.h112.38
-building tenement_row house 16 92 10 8 style=house.north.h112.23
-building laundress_house house 26 92 10 8 style=house.north.h104.35
+building tenement_row house 16 92 9 8 style=house.north.h112.23
+building laundress_house house 26 92 9 8 style=house.north.h104.35
 building widows_house house 36 92 10 8 style=house.north.h104.34
-building dyers_house house 47 92 10 8 style=house.north.h104.39
+building dyers_house house 47 92 9 8 style=house.north.h104.39
 building karja_gate_house house 57 92 6 8 style=house.east.h104.40
 building turg_south_house house 7 73 8 8 style=house.east.h112.12
 building west_lane_house house 7 87 8 8 style=house.east.h104.41
@@ -193,11 +198,13 @@ building wall_side_house house 7 114 8 8 style=house.east.h96.43
 building artisan_shed house 76 79 8 6 style=house.north.h96.44
 building potters_house house 76 89 8 6 style=house.north.h104.32
 building glassblowers_house house 67 62 8 8 style=house.north.h112.23
-building foaming_mug_brewery house 76 62 12 8 style=house.north.h120.45
+building foaming_mug_brewery house 76 62 9 8 style=house.north.h120.45
 building kalev_smithy house 86 62 10 8 style=house.none.h128.46
+# The yard fence deliberately embeds one cell into the smithy wall: a flush
+# butt joint would leave coplanar faces that z-fight from the street camera.
 building smithy_yard_fence_north wall 95 62 3 2 style=wall.plain.h56.47
 building smithy_yard_fence_east wall 102 62 2 14 style=wall.plain.h56.47
-building muurivahe_house_north house 100 0 10 6 style=house.south.h104.54
+building muurivahe_house_north house 100 0 8 6 style=house.south.h104.54
 building south_apron_wall_walk_hut house 50 116 8 6 style=house.east.h96.52
 building south_apron_timber_house house 81 114 8 6 style=house.north.h96.49
 building south_apron_far_roofs house 100 118 10 6 style=house.north.h96.51
