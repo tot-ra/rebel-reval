@@ -107,7 +107,7 @@ The initial vocabulary must cover the existing runtime contract without exposing
 | `interaction_anchor` | Stable ID, cell placement, optional kind | `interaction_anchors` |
 | `patrol_path` | Stable ID and ordered cell points | `patrols` |
 | `excluded_rect` | Cell rectangle blocked from traversal | `excluded_areas` |
-| `fade_rect` | Cell rectangle for roof or foreground fade | `fade_volumes` |
+| `fade_rect` | Cell rectangle for roof or foreground fade; optional `music_theme` overrides the district playlist while the player stands inside | `fade_volumes` |
 | `direction_sign` | Stable association, text, placement, outgoing direction | `direction_signs` |
 | `view_landmark` | Stable ID, supported view-only kind, placement and dimensions | `view_landmarks` |
 | `surroundings` | Explicit per-side view continuation (`town`, `water`, `woodland`) | `surroundings_sides` |
@@ -762,6 +762,14 @@ landmark landmark.gate gate_arch 9 2 2 1 wall_color=8c8980ff top_px=128 passage_
 camera 1 1 18 12
 surroundings north town west town
 ```
+
+### Sub-location music zones
+
+Fade volumes may carry a `music_theme` override. While the player stands inside the compiled world `rect`, `MapMusicZoneBinder` (installed by `MapViewRuntime`) calls `MusicDirector.set_zone_theme_override()` so a sub-precinct can use its own approved playlist without changing the scene route. Leaving the volume clears the override and restores the district theme from `MusicDirector.SCENE_THEME_ROUTES`.
+
+Authors can set `music_theme` explicitly on a typed `fade_rect()` override or rely on the compiler convention: any fade id containing `danish_kings_garden` auto-tags `music_theme=garden` (see `map_blueprint_compiler_build.gd`). The theme id must already be registered in `MusicDirector.THEME_DAY_DIRS`; the first shipped zone is Toompea's eastern slope (`fade.danish_kings_garden` on `toompea_quarter`) which swaps from the `toompea` Domberg playlist to the `garden` Danish King's Garden tracks under `music/garden/`.
+
+Regression coverage: `--filter=test_map_music_zone_binder`.
 
 Unlisted sides render no exterior backdrop. Use `woodland` only where a meadow treeline is intended; coastal maps should prefer `water` on sea-facing edges (see `content/maps/reval_harbor_north.rrmap` and `content/maps/reval_harbor_east.rrmap`).
 

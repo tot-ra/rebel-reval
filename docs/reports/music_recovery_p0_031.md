@@ -22,12 +22,13 @@ An interim P0-031 fix used procedural placeholder tones. The maintainer confirme
    - forge: `AudioStreamRandomizer` over the three forge tracks
    - Workers' District: shuffled playlist over the twelve `music/revel_east/` ambient tracks
    - Market/Civic District and St. Olaf's Guild Hall: shuffled playlist over the thirteen top-level `music/revel_center/` ambient tracks
+   - Town Hall interior (`raekoda`): dedicated two-track playlist under `music/revel_center/raekoda/`
    - Merchant District: shuffled playlist over the nine top-level `music/revel_north/` ambient tracks
    - Monastery District: shuffled playlist over the four `music/revel_east/monastery/` ambient tracks
    - Trade and Fishing Harbours: shuffled playlist over the fourteen top-level `music/harbor/` ambient tracks
    - Toompea: separate shuffled day and night playlists under `music/domberg/`
    - Knights District: shuffled playlist over the seven `music/revel_south/` ambient tracks
-   - battle and location-specific subdirectories remain archived until their gameplay contexts are routed
+   - battle tracks are consolidated in `music/battle/`; location-specific subdirectories remain archived until their gameplay contexts are routed
 4. Restored `sounds/door.mp3` on `scenes/elements/door.tscn`.
 
 `tools/generate_asset_inventory.py` now classifies audio as `approved` when `assets/SOURCES.csv` records maintainer approval.

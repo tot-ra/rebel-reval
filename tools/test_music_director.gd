@@ -54,7 +54,7 @@ func _check_routes(failures: Array[String]) -> void:
 
 func _check_streams(failures: Array[String]) -> void:
 	var director := MusicDirectorScript.new()
-	for theme_id: StringName in [&"menu", &"forge", &"town", &"center", &"raekoda", &"north", &"oleviste", &"monastery", &"harbor", &"toompea", &"garden", &"south"]:
+	for theme_id: StringName in [&"menu", &"forge", &"town", &"center", &"raekoda", &"holy_spirit", &"north", &"oleviste", &"monastery", &"harbor", &"toompea", &"garden", &"south"]:
 		if not MusicDirectorScript.has_theme(theme_id):
 			failures.append("Theme %s is routed but not configured" % theme_id)
 			continue
@@ -96,6 +96,14 @@ func _check_streams(failures: Array[String]) -> void:
 		failures.append("Raekoda must use its dedicated Town Hall playlist")
 	if not MusicDirectorScript.night_track_paths_for_theme(&"raekoda").is_empty():
 		failures.append("Raekoda should not have night tracks until they are approved")
+
+	var holy_spirit_tracks := MusicDirectorScript.day_track_paths_for_theme(&"holy_spirit")
+	var expected_holy_spirit_tracks := PackedStringArray([
+		"res://music/revel_center/holy spirit church/Hymn of the Holy Spirit (1).mp3",
+		"res://music/revel_center/holy spirit church/Hymn of the Holy Spirit.mp3",
+	])
+	if holy_spirit_tracks != expected_holy_spirit_tracks:
+		failures.append("Holy Spirit Church must use its dedicated hymn playlist")
 
 	_check_cycle_volume(failures)
 	director.free()
