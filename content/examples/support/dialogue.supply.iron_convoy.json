@@ -1,0 +1,74 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.supply.iron_convoy",
+  "title": "Iron convoy porter",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P4-033"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "Player can block the authored convoy route during investigation morning."
+  },
+  "participants": [
+    "char.kalev",
+    "char.merchant_stall"
+  ],
+  "start_node_id": "convoy_halt",
+  "word_count_estimate": 38,
+  "nodes": [
+    {
+      "id": "convoy_halt",
+      "speaker_id": "char.merchant_stall",
+      "text": "North-quarter bars for Mart's lane. Stand aside unless you mean to hold the whole shipment.",
+      "choices": [
+        {
+          "id": "block_route",
+          "text": "Block the lane until the watch clears it.",
+          "target_node_id": "convoy_blocked"
+        },
+        {
+          "id": "let_pass",
+          "text": "Let the porter through.",
+          "target_node_id": "convoy_close"
+        }
+      ]
+    },
+    {
+      "id": "convoy_blocked",
+      "speaker_id": "char.merchant_stall",
+      "text": "Then the bars turn back to the ropewalk. Merchants will feel it by noon.",
+      "choices": [
+        {
+          "id": "done",
+          "text": "So be it.",
+          "target_node_id": "convoy_close"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.supply.iron_convoy_disrupted",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "convoy_close",
+      "speaker_id": "char.merchant_stall",
+      "text": "The road stays open only while you do.",
+      "choices": []
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-033 convoy intercept sets flag.supply.iron_convoy_disrupted."
+    }
+  ]
+}

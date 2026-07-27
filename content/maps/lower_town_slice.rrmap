@@ -267,6 +267,8 @@ transition viru_road_boundary 145 51 4 3 destination_spawn=from_reval_east spawn
 transition to_reval_south 59 126 14 2 to=reval_south destination_spawn=from_reval_east spawn=from_reval_south spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
 transition street_start_spawn 83 54 2 2 spawn=street_start
 patrol viru_watch 110,53|80,53|65,53|65,75|65,88|65,116
+# North-quarter iron wagon route: Pikk/Vene lane into Viru Street market without looping back.
+patrol iron_convoy 24,10|24,28|24,42|52,54|76,54
 fade fade.viru_street 17 46 76 22
 camera 0 0 152 128
 sign sign.viru_road "viru gate and eastern road" 135 46 east

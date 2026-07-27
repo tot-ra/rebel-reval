@@ -8,6 +8,7 @@ const NIGHT_CONSEQUENCE_SCRIPT := preload(
 const AFTERMATH_SCRIPT := preload("res://scripts/investigation/bitter_brew_aftermath.gd")
 const REPUTATION_SCRIPT := preload("res://scripts/faction/social_reputation_controller.gd")
 const MARKET_DAY_SCRIPT := preload("res://scripts/world/market_day_controller.gd")
+const SUPPLY_CHAIN_SCRIPT := preload("res://scripts/world/supply_chain_controller.gd")
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -21,6 +22,7 @@ var _bitter_brew_night: Node
 var _bitter_brew_aftermath: Node
 var _social_reputation: Node
 var _market_day: Node
+var _supply_chain: Node
 var _phase_binder: MapPhaseBinder
 var _patrol_controller: MapPatrolController
 
@@ -87,6 +89,18 @@ func _ready() -> void:
 		definition,
 		player,
 		_view_runtime,
+		_mart_encounter.get_interaction_controller(),
+		&"loc.lower_town_slice"
+	)
+	_supply_chain = SUPPLY_CHAIN_SCRIPT.new()
+	_supply_chain.name = "SupplyChainController"
+	add_child(_supply_chain)
+	_supply_chain.setup(
+		self,
+		definition,
+		player,
+		_view_runtime,
+		actors,
 		_mart_encounter.get_interaction_controller(),
 		&"loc.lower_town_slice"
 	)
