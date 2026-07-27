@@ -10,6 +10,9 @@ const BITTER_BREW_CONTROLLER_SCRIPT := preload(
 const BELL_AND_CHAIN_CONTROLLER_SCRIPT := preload(
 	"res://scripts/forge/bell_and_chain_commission_controller.gd"
 )
+const BREAD_AND_IRON_CONTROLLER_SCRIPT := preload(
+	"res://scripts/forge/bread_and_iron_commission_controller.gd"
+)
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -82,6 +85,10 @@ func _ready() -> void:
 	bell_and_chain.name = "BellAndChainCommissionController"
 	add_child(bell_and_chain)
 	bell_and_chain.setup(_commission_anchor, _rest_anchor, player)
+	var bread_and_iron = BREAD_AND_IRON_CONTROLLER_SCRIPT.new()
+	bread_and_iron.name = "BreadAndIronCommissionController"
+	add_child(bread_and_iron)
+	bread_and_iron.setup(_commission_anchor, _rest_anchor, player)
 
 
 func _setup_dialogue_encounter(definition: MapDefinition) -> void:

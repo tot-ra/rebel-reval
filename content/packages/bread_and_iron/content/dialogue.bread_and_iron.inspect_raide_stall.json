@@ -1,0 +1,44 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.bread_and_iron.inspect_raide_stall",
+  "title": "Bread and Iron - Raide grain stall",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-004"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "inspect_raide_stall",
+  "nodes": [
+    {
+      "id": "inspect_raide_stall",
+      "speaker_id": "char.kalev",
+      "text": "Mare Raide's reserve bins are nearly empty two days before municipal allotment. The Raide family will starve if the scales stay rigged.",
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.bread_and_iron.raide_empty_bins",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Raide grain stall inspection for Bread and Iron investigation loop.",
+      "citations": [
+        "docs/SCENES/bread-and-iron.md"
+      ]
+    }
+  ]
+}

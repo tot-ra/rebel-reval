@@ -1,0 +1,75 @@
+{
+  "type": "bark_pool",
+  "id": "bark.bread_and_iron.aftermath_watch",
+  "title": "Bread and Iron aftermath watch barks",
+  "owner_id": "char.henning",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-004"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "first_valid_in_order"
+  },
+  "selection": "first_valid_in_order",
+  "phase_ids": [
+    "phase.reflection_morning"
+  ],
+  "location_ids": [
+    "loc.lower_town_slice"
+  ],
+  "entries": [
+    {
+      "id": "raide_supplied",
+      "speaker_id": "char.henning",
+      "text": "The scales held true at allotment. Mare Raide's bins are full and the ward bread price eased a notch.",
+      "priority": 3,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.family.raide_supplied",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "raide_rationed",
+      "speaker_id": "char.henning",
+      "text": "Half allotments again. Mare Raide got a ration chit while Jürgen's warehouse props swell.",
+      "priority": 3,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.family.raide_rationed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "raide_debt",
+      "speaker_id": "char.henning",
+      "text": "Grain moved overnight and a credit tally is nailed to the Raide stall. Henning wants names.",
+      "priority": 3,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.family.raide_debt",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Patrol barks after the civic weighing-house bracket install in Bread and Iron.",
+      "citations": [
+        "docs/SCENES/bread-and-iron.md"
+      ]
+    }
+  ]
+}

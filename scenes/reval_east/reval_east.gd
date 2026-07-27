@@ -19,6 +19,15 @@ const BELL_NIGHT_SCRIPT := preload(
 const BELL_AFTERMATH_SCRIPT := preload(
 	"res://scripts/investigation/bell_and_chain_aftermath.gd"
 )
+const BREAD_INVESTIGATION_SCRIPT := preload(
+	"res://scripts/investigation/bread_and_iron_investigation.gd"
+)
+const BREAD_INSTALL_SCRIPT := preload(
+	"res://scripts/investigation/bread_and_iron_install_consequence.gd"
+)
+const BREAD_AFTERMATH_SCRIPT := preload(
+	"res://scripts/investigation/bread_and_iron_aftermath.gd"
+)
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -37,6 +46,9 @@ var _environmental_consequence: Node
 var _bell_and_chain_investigation: Node
 var _bell_and_chain_night: Node
 var _bell_and_chain_aftermath: Node
+var _bread_and_iron_investigation: Node
+var _bread_and_iron_install: Node
+var _bread_and_iron_aftermath: Node
 var _phase_binder: MapPhaseBinder
 var _patrol_controller: MapPatrolController
 
@@ -143,6 +155,28 @@ func _ready() -> void:
 		player,
 		_patrol_controller,
 		_bell_and_chain_night
+	)
+	_bread_and_iron_investigation = BREAD_INVESTIGATION_SCRIPT.new()
+	_bread_and_iron_investigation.name = "BreadAndIronInvestigation"
+	add_child(_bread_and_iron_investigation)
+	_bread_and_iron_investigation.setup(
+		self,
+		definition,
+		_view_runtime,
+		_mart_encounter.get_interaction_controller()
+	)
+	_bread_and_iron_install = BREAD_INSTALL_SCRIPT.new()
+	_bread_and_iron_install.name = "BreadAndIronInstallConsequence"
+	add_child(_bread_and_iron_install)
+	_bread_and_iron_install.setup(self, definition, player, actors)
+	_bread_and_iron_aftermath = BREAD_AFTERMATH_SCRIPT.new()
+	_bread_and_iron_aftermath.name = "BreadAndIronAftermath"
+	add_child(_bread_and_iron_aftermath)
+	_bread_and_iron_aftermath.setup(
+		self,
+		player,
+		_patrol_controller,
+		_bread_and_iron_install
 	)
 
 

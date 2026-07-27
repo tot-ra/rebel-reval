@@ -10,6 +10,11 @@
     "content/item.bread_and_iron_work.json",
     "content/item.supplier_iron_stock.json",
     "content/item.evidence.grain_tally_chit.json",
+    "content/dialogue.bread_and_iron.inspect_weighbridge.json",
+    "content/dialogue.bread_and_iron.inspect_grain_lane.json",
+    "content/dialogue.bread_and_iron.inspect_supplier_ledgers.json",
+    "content/dialogue.bread_and_iron.inspect_raide_stall.json",
+    "content/bark.bread_and_iron.aftermath_watch.json",
     "../../examples/support/character.jurgen.json"
   ],
   "branch_map": "branch_map.json",

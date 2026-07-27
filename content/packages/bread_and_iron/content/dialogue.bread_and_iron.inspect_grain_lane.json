@@ -1,0 +1,44 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.bread_and_iron.inspect_grain_lane",
+  "title": "Bread and Iron - Vana Turg grain lane",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-004"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "inspect_grain_lane",
+  "nodes": [
+    {
+      "id": "inspect_grain_lane",
+      "speaker_id": "char.kalev",
+      "text": "Wax-sealed rebel messages ride inside diverted rye sacks. Kaja's couriers are moving grain off the civic books.",
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.bread_and_iron.diverted_grain_sacks",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Grain lane inspection for Bread and Iron investigation loop.",
+      "citations": [
+        "docs/SCENES/bread-and-iron.md"
+      ]
+    }
+  ]
+}
