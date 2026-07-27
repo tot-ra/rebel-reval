@@ -146,6 +146,55 @@ func test_smithy_anvil_uses_detailed_glb_without_replacing_courtyard_fallback() 
 	courtyard.free()
 
 
+func test_smithy_quench_uses_detailed_metal_glb_without_replacing_generic_fallback() -> void:
+	var smithy := MapViewMeshBuilder.build_prop(
+			{"id": &"quench", "kind": MapTypes.PROP_KIND_QUENCH, "position": Vector2.ZERO},
+			MapTypes.DEFAULT_CELL_SIZE
+	)
+	assert_true(smithy.has_node("SmithyQuenchBucketModel"), "smithy quench must instantiate the authored metal GLB")
+	assert_false(smithy.has_node("Bucket"), "smithy quench must not keep the wooden cylinder placeholder")
+	var model := smithy.get_node("SmithyQuenchBucketModel") as Node3D
+	var meshes := model.find_children("*", "MeshInstance3D", true, false)
+	assert_true(meshes.size() >= 5, "authored quench bucket needs vessel, fittings, handle, rim, and water geometry")
+	var bounds := AABB()
+	var first := true
+	var material_names: Dictionary = {}
+	var triangle_count := 0
+	var has_embedded_albedo := false
+	for child in meshes:
+		var mesh_instance := child as MeshInstance3D
+		if mesh_instance == null or mesh_instance.mesh == null:
+			continue
+		var child_bounds := mesh_instance.transform * mesh_instance.get_aabb()
+		bounds = child_bounds if first else bounds.merge(child_bounds)
+		first = false
+		for surface_index in mesh_instance.mesh.get_surface_count():
+			triangle_count += mesh_instance.mesh.surface_get_array_index_len(surface_index) / 3
+			var material := mesh_instance.mesh.surface_get_material(surface_index) as StandardMaterial3D
+			if material != null:
+				material_names[material.resource_name] = true
+				if material.albedo_texture != null:
+					has_embedded_albedo = true
+	assert_false(first, "quench bucket GLB must expose a non-empty AABB")
+	assert_true(bounds.size.x >= 0.75 and bounds.size.x <= 0.82, "forged ears need a believable bucket width")
+	assert_true(bounds.size.y >= 0.84 and bounds.size.y <= 0.90, "raised bail needs a readable metric height")
+	assert_true(bounds.size.z >= 0.64 and bounds.size.z <= 0.70, "bucket body needs a believable depth")
+	assert_true(bounds.position.y >= -0.001, "quench bucket must rest on the prop ground plane")
+	assert_true(triangle_count >= 1800 and triangle_count <= 4000, "quench bucket detail must stay readable and lightweight")
+	assert_eq(material_names.size(), 3, "quench bucket keeps aged iron, dark inner iron, and water identities")
+	assert_true(has_embedded_albedo, "quench bucket's painted metal wear must survive GLB import")
+	smithy.free()
+
+	var generic := MapViewMeshBuilder.build_prop(
+			{"id": &"courtyard_quench", "kind": MapTypes.PROP_KIND_QUENCH, "position": Vector2.ZERO},
+			MapTypes.DEFAULT_CELL_SIZE
+	)
+	assert_true(generic.has_node("Bucket"), "non-smithy quench props keep their generic fallback")
+	assert_true(generic.has_node("Water"), "generic fallback keeps visible water")
+	assert_false(generic.has_node("SmithyQuenchBucketModel"), "smithy model must not leak into other maps")
+	generic.free()
+
+
 func test_furnace_has_open_mouth_with_visible_hot_coal() -> void:
 	var node := MapViewMeshBuilder.build_prop(
 		{"id": &"forge_furnace", "kind": MapTypes.PROP_KIND_FURNACE, "position": Vector2.ZERO},

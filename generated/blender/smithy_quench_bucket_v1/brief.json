@@ -1,0 +1,1 @@
+{"id":"prop.smithy_quench_bucket","kind":"rigid_prop","target":"res://assets/props/forge/smithy_quench_bucket.glb","scene":"res://content/maps/kalev_smithy.rrmap#quench","dimensions_m":[0.76,0.66,0.86],"triangles":{"target":2200,"max":4000},"textures":{"albedo":512},"style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}

@@ -15,6 +15,8 @@ const SMITHY_ANVIL_SCENE_PATH := "res://assets/props/forge/smithy_anvil.glb"
 const SMITHY_ANVIL_PROP_ID := &"forge_anvil"
 const SMITHY_CHAIR_SCENE_PATH := "res://assets/props/furniture/smithy_chair.glb"
 const SMITHY_CHAIR_PROP_ID := &"work_chair"
+const SMITHY_QUENCH_SCENE_PATH := "res://assets/props/forge/smithy_quench_bucket.glb"
+const SMITHY_QUENCH_PROP_ID := &"quench"
 const SMITHY_BED_SCENE_PATH := "res://assets/props/furniture/smithy_bed.glb"
 const SMITHY_BED_PROP_ID := &"bed"
 
@@ -140,8 +142,10 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			for level in 3:
 				MapViewMeshBuilderPrimitives.box(root, "Board%d" % level, Vector3(0.82, 0.06, 0.26), Vector3(0.0, 0.35 + 0.4 * level, 0.0), &"wood")
 		MapTypes.PROP_KIND_QUENCH:
-			MapViewMeshBuilderPrimitives.cylinder(root, "Bucket", 0.3, 0.46, Vector3(0.0, 0.23, 0.0), &"wood")
-			MapViewMeshBuilderPrimitives.cylinder(root, "Water", 0.24, 0.05, Vector3(0.0, 0.44, 0.0), &"water_highlight")
+			if prop.get("id", &"") == SMITHY_QUENCH_PROP_ID:
+				_add_smithy_quench_bucket(root)
+			else:
+				_add_quench_fallback(root)
 		MapTypes.PROP_KIND_STAIRS:
 			for step in 3:
 				MapViewMeshBuilderPrimitives.box(
@@ -336,6 +340,22 @@ static func _add_bellows(root: Node3D) -> void:
 	MapViewMeshBuilderPrimitives.box(root, "Lever", Vector3(0.08, 0.55, 0.08), Vector3(-0.28, 1.0, 0.0), &"timber")
 	MapViewMeshBuilderPrimitives.box(root, "Handle", Vector3(0.28, 0.06, 0.08), Vector3(-0.38, 1.28, 0.0), &"wood")
 	MapViewMeshBuilderPrimitives.cylinder(root, "Hinge", 0.04, 0.5, Vector3(-0.4, 0.5, 0.0), &"metal")
+
+
+static func _add_quench_fallback(root: Node3D) -> void:
+	MapViewMeshBuilderPrimitives.cylinder(root, "Bucket", 0.3, 0.46, Vector3(0.0, 0.23, 0.0), &"wood")
+	MapViewMeshBuilderPrimitives.cylinder(root, "Water", 0.24, 0.05, Vector3(0.0, 0.44, 0.0), &"water_highlight")
+
+
+static func _add_smithy_quench_bucket(root: Node3D) -> void:
+	# WHY: the smithy's close workstation needs a visibly hollow, metal quench
+	# vessel, while generic map buckets retain the cheap procedural fallback.
+	# The rrmap footprint remains the sole collision/navigation authority.
+	var bucket_scene := load(SMITHY_QUENCH_SCENE_PATH) as PackedScene
+	assert(bucket_scene != null, "Smithy quench bucket GLB must be imported before the map view is assembled")
+	var bucket := bucket_scene.instantiate() as Node3D
+	bucket.name = "SmithyQuenchBucketModel"
+	root.add_child(bucket)
 
 
 static func _add_axis_cylinder(
