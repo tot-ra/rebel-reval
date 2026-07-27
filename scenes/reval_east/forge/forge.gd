@@ -13,6 +13,12 @@ const BELL_AND_CHAIN_CONTROLLER_SCRIPT := preload(
 const BREAD_AND_IRON_CONTROLLER_SCRIPT := preload(
 	"res://scripts/forge/bread_and_iron_commission_controller.gd"
 )
+const PRICE_OF_A_NAME_CONTROLLER_SCRIPT := preload(
+	"res://scripts/forge/price_of_a_name_commission_controller.gd"
+)
+const PRICE_OF_A_NAME_CONTROLLER_SCRIPT := preload(
+	"res://scripts/forge/price_of_a_name_commission_controller.gd"
+)
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -89,6 +95,14 @@ func _ready() -> void:
 	bread_and_iron.name = "BreadAndIronCommissionController"
 	add_child(bread_and_iron)
 	bread_and_iron.setup(_commission_anchor, _rest_anchor, player)
+	var price_of_a_name = PRICE_OF_A_NAME_CONTROLLER_SCRIPT.new()
+	price_of_a_name.name = "PriceOfANameCommissionController"
+	add_child(price_of_a_name)
+	price_of_a_name.setup(_commission_anchor, _rest_anchor, player)
+	var price_of_a_name = PRICE_OF_A_NAME_CONTROLLER_SCRIPT.new()
+	price_of_a_name.name = "PriceOfANameCommissionController"
+	add_child(price_of_a_name)
+	price_of_a_name.setup(_commission_anchor, _rest_anchor, player)
 
 
 func _setup_dialogue_encounter(definition: MapDefinition) -> void:

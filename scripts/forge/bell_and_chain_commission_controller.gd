@@ -5,6 +5,7 @@ extends Node
 
 const ModelScript := preload("res://scripts/quest/bell_and_chain_quest_model.gd")
 const BreadAndIronModelScript := preload("res://scripts/quest/bread_and_iron_quest_model.gd")
+const PriceOfANameModelScript := preload("res://scripts/quest/price_of_a_name_quest_model.gd")
 const PROLOGUE_COMMISSION_ID := &"commission.watch_buckle_repair"
 const BITTER_BREW_COMMISSION_ID := &"commission.bitter_brew"
 
@@ -81,7 +82,9 @@ func _sync_stage() -> void:
 		return
 
 	var commission_id := PROLOGUE_COMMISSION_ID
-	if BreadAndIronModelScript.is_forge_flow_active(SessionState.state):
+	if PriceOfANameModelScript.is_forge_flow_active(SessionState.state):
+		commission_id = PriceOfANameModelScript.COMMISSION_ID
+	elif BreadAndIronModelScript.is_forge_flow_active(SessionState.state):
 		commission_id = BreadAndIronModelScript.COMMISSION_ID
 	elif ModelScript.is_forge_flow_active(SessionState.state):
 		commission_id = ModelScript.COMMISSION_ID

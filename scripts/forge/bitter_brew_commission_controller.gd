@@ -7,6 +7,7 @@ extends Node
 
 const BellAndChainModelScript := preload("res://scripts/quest/bell_and_chain_quest_model.gd")
 const BreadAndIronModelScript := preload("res://scripts/quest/bread_and_iron_quest_model.gd")
+const PriceOfANameModelScript := preload("res://scripts/quest/price_of_a_name_quest_model.gd")
 
 const QUEST_ID := &"quest.bitter_brew"
 const COMMISSION_ID := &"commission.bitter_brew"
@@ -98,6 +99,8 @@ func _sync_stage() -> void:
 	if BellAndChainModelScript.is_forge_flow_active(SessionState.state):
 		return
 	if BreadAndIronModelScript.is_forge_flow_active(SessionState.state):
+		return
+	if PriceOfANameModelScript.is_forge_flow_active(SessionState.state):
 		return
 
 	if SessionState.state.get_phase() == GameState.PHASE_INVESTIGATION_MORNING:

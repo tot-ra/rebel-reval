@@ -1,13 +1,13 @@
-class_name BreadAndIronCommissionController
+class_name PriceOfANameCommissionController
 extends Node
 
-## Wires commission.bread_and_iron after the civic market investigation completes.
+## Wires commission.price_of_a_name after the civic grain cycle investigation completes.
 
-const ModelScript := preload("res://scripts/quest/bread_and_iron_quest_model.gd")
-const PriceOfANameModelScript := preload("res://scripts/quest/price_of_a_name_quest_model.gd")
+const ModelScript := preload("res://scripts/quest/price_of_a_name_quest_model.gd")
+const BreadAndIronModelScript := preload("res://scripts/quest/bread_and_iron_quest_model.gd")
+const BellAndChainModelScript := preload("res://scripts/quest/bell_and_chain_quest_model.gd")
 const PROLOGUE_COMMISSION_ID := &"commission.watch_buckle_repair"
 const BITTER_BREW_COMMISSION_ID := &"commission.bitter_brew"
-const BELL_AND_CHAIN_COMMISSION_ID := &"commission.bell_and_chain"
 
 const PhaseProfileModelScript := preload("res://scripts/phase/phase_profile_model.gd")
 
@@ -70,7 +70,7 @@ func _on_commission_finished(commission_id: StringName) -> void:
 	if commission_id != ModelScript.COMMISSION_ID:
 		return
 	_apply_quest_transition()
-	_remove_supplier_stock()
+	_remove_seized_dispatch()
 	_sync_stage()
 
 
@@ -83,12 +83,12 @@ func _sync_stage() -> void:
 		return
 
 	var commission_id := PROLOGUE_COMMISSION_ID
-	if PriceOfANameModelScript.is_forge_flow_active(SessionState.state):
-		commission_id = PriceOfANameModelScript.COMMISSION_ID
-	elif ModelScript.is_forge_flow_active(SessionState.state):
+	if ModelScript.is_forge_flow_active(SessionState.state):
 		commission_id = ModelScript.COMMISSION_ID
-	elif BellAndChainQuestModel.is_forge_flow_active(SessionState.state):
-		commission_id = BELL_AND_CHAIN_COMMISSION_ID
+	elif BreadAndIronModelScript.is_forge_flow_active(SessionState.state):
+		commission_id = BreadAndIronModelScript.COMMISSION_ID
+	elif BellAndChainModelScript.is_forge_flow_active(SessionState.state):
+		commission_id = BellAndChainModelScript.COMMISSION_ID
 	elif _bitter_brew_commission_active():
 		commission_id = BITTER_BREW_COMMISSION_ID
 
@@ -121,7 +121,7 @@ func _sync_rest_enabled() -> void:
 func _apply_quest_transition() -> void:
 	if SessionState.state == null:
 		return
-	var record := _latest_bread_record()
+	var record := _latest_price_record()
 	if record == null:
 		return
 	var transition_id := ModelScript.transition_for_modification(record.modification_id)
@@ -131,14 +131,14 @@ func _apply_quest_transition() -> void:
 	manager.transition(ModelScript.QUEST_ID, transition_id)
 
 
-func _remove_supplier_stock() -> void:
+func _remove_seized_dispatch() -> void:
 	if SessionState.state == null:
 		return
-	if SessionState.state.has_item(ModelScript.SUPPLIER_ITEM_ID):
-		SessionState.state.remove_item(ModelScript.SUPPLIER_ITEM_ID)
+	if SessionState.state.has_item(ModelScript.DISPATCH_ITEM_ID):
+		SessionState.state.remove_item(ModelScript.DISPATCH_ITEM_ID)
 
 
-func _latest_bread_record() -> ForgedRecord:
+func _latest_price_record() -> ForgedRecord:
 	if SessionState.state == null:
 		return null
 	for record in SessionState.state.get_forged_records():

@@ -28,6 +28,15 @@ const BREAD_INSTALL_SCRIPT := preload(
 const BREAD_AFTERMATH_SCRIPT := preload(
 	"res://scripts/investigation/bread_and_iron_aftermath.gd"
 )
+const PRICE_INVESTIGATION_SCRIPT := preload(
+	"res://scripts/investigation/price_of_a_name_investigation.gd"
+)
+const PRICE_INSTALL_SCRIPT := preload(
+	"res://scripts/investigation/price_of_a_name_install_consequence.gd"
+)
+const PRICE_AFTERMATH_SCRIPT := preload(
+	"res://scripts/investigation/price_of_a_name_aftermath.gd"
+)
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -49,6 +58,9 @@ var _bell_and_chain_aftermath: Node
 var _bread_and_iron_investigation: Node
 var _bread_and_iron_install: Node
 var _bread_and_iron_aftermath: Node
+var _price_of_a_name_investigation: Node
+var _price_of_a_name_install: Node
+var _price_of_a_name_aftermath: Node
 var _phase_binder: MapPhaseBinder
 var _patrol_controller: MapPatrolController
 
@@ -177,6 +189,28 @@ func _ready() -> void:
 		player,
 		_patrol_controller,
 		_bread_and_iron_install
+	)
+	_price_of_a_name_investigation = PRICE_INVESTIGATION_SCRIPT.new()
+	_price_of_a_name_investigation.name = "PriceOfANameInvestigation"
+	add_child(_price_of_a_name_investigation)
+	_price_of_a_name_investigation.setup(
+		self,
+		definition,
+		_view_runtime,
+		_mart_encounter.get_interaction_controller()
+	)
+	_price_of_a_name_install = PRICE_INSTALL_SCRIPT.new()
+	_price_of_a_name_install.name = "PriceOfANameInstallConsequence"
+	add_child(_price_of_a_name_install)
+	_price_of_a_name_install.setup(self, definition, player, actors)
+	_price_of_a_name_aftermath = PRICE_AFTERMATH_SCRIPT.new()
+	_price_of_a_name_aftermath.name = "PriceOfANameAftermath"
+	add_child(_price_of_a_name_aftermath)
+	_price_of_a_name_aftermath.setup(
+		self,
+		player,
+		_patrol_controller,
+		_price_of_a_name_install
 	)
 
 
