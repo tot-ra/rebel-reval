@@ -1,0 +1,37 @@
+{
+  "type": "quest_package",
+  "id": "package.bell_and_chain",
+  "schema_version": 1,
+  "title": "Act 1 The Bell and the Chain design package",
+  "quest": "content/quest.json",
+  "support": [
+    "content/commission.bell_and_chain.json",
+    "content/mechanism.bell_and_chain_gate.json",
+    "content/item.bell_and_chain_work.json",
+    "../../examples/support/character.henning.json"
+  ],
+  "branch_map": "branch_map.json",
+  "bindings": {
+    "landmark_beats": [
+      "beat.landmark.tallinn.gate_portcullis_groove_viru",
+      "beat.landmark.tallinn.beacon_basket_site"
+    ],
+    "map_anchors": [
+      {
+        "map_id": "lower_town_slice",
+        "anchor_id": "checkpoint_east"
+      }
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-001 approved branch map and state table for The Bell and the Chain; runtime wiring deferred to P4-002.",
+      "citations": [
+        "docs/SCENES/the-bell-and-the-chain.md",
+        "docs/SCENES/the-bell-and-the-chain-branch-map.md",
+        "TODO.md#P4-001"
+      ]
+    }
+  ]
+}

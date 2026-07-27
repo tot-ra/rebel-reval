@@ -1,0 +1,35 @@
+{
+  "type": "item",
+  "id": "item.bell_and_chain_work",
+  "name": "Gate chain assembly",
+  "icon": "res://assets/UI/inventory/forge_hammer.png",
+  "category": "commission_object",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-001"
+  },
+  "material_grade": "common",
+  "gameplay": {
+    "visible_in_pouch": true,
+    "stackable": false,
+    "uses": [
+      "Commission object for Viru Gate portcullis chain links and bell striker."
+    ],
+    "carry": {
+      "weight_g": 3200,
+      "grid_width": 2,
+      "grid_height": 2
+    }
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Shared commission object for honest, defective, and release-pin chain outcomes.",
+      "citations": [
+        "docs/SCENES/the-bell-and-the-chain.md"
+      ]
+    }
+  ]
+}

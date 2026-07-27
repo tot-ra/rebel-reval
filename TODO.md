@@ -22,9 +22,10 @@ References:
 | P1 |     0  |     8  | Runtime systems, content foundation |
 | P2 |     2  |    20  | Vertical-slice production (playable MVP) |
 | P3 |     0  |    16  | Validation, accessibility, performance |
-| P4 |    32  |    26  | Act 1: The Simmering City |
+| P4 |    31  |    27  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
+
 
 
 
@@ -191,7 +192,7 @@ References:
 - [ ] P4-005 | deps: P4-004 | deliverable: approved branch map and state table for `The Price of a Name` | verify: map reuses relationships, detention, false evidence, and Hingepuu without a new major system
 - [ ] P4-011 | deps: P4-010 | deliverable: automated Act 1 branch traversal and save compatibility suite | verify: every intended act-boundary state is reachable and every published save fixture loads or migrates
 - [ ] P4-007 | deps: P4-006 | deliverable: one approved ambiguous folklore quest introducing Ellen, Ember or Root | verify: quest remains understandable without literal magic and introduces no second-game subsystem
-- [ ] P4-001 | deps: P3-014 | deliverable: approved branch map and state table for `The Bell and the Chain` | verify: map reuses commission, mechanism, gate, patrol, and consequence systems without a new major framework
+- [x] P4-001 | deps: P3-014 | deliverable: approved branch map and state table for `The Bell and the Chain` | allowed files: `docs/SCENES/the-bell-and-the-chain.md`, `docs/SCENES/the-bell-and-the-chain-branch-map.md`, `content/packages/bell_and_chain/**`, `tests/python/test_bell_and_chain_branch_map.py`, `tests/godot/generated/test_quest_package_bell_and_chain.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: branch map reuses commission, mechanism, gate, patrol, and consequence systems without a new major framework; `python3 -m unittest tests.python.test_bell_and_chain_branch_map -v`, `python3 tools/verify_quest_packages.py`, `python3 tools/validate_content.py content/packages/bell_and_chain/content content/examples/valid content/examples/support`, and `--filter=test_quest_package_bell_and_chain` pass with three act-climax bias branches
 - [ ] P4-013 | deps: P4-012 | deliverable: Act 1 release candidate playable as a standalone chapter | verify: clean-clone CI, supported-platform smoke tests, license report, accessibility checklist, and act acceptance matrix all pass
 - [ ] P4-012 | deps: P4-011 | deliverable: maintainer Act 1 playable review and critical/high issue closure per [ADR 0014](docs/adr/0014-authorial-acceptance-gates-without-external-playtests.md) | verify: `docs/reports/p4_012_act1_gate.md` records maintainer completion, comprehension, pacing, combat, choice, and continuity findings with no unresolved critical/high issue; automated Act 1 traversal suite is green
 - [x] P4-029 | deps: P4-017 | deliverable: time-sensitive commission system: at least three commissions with visible deadlines (displayed in journal/UI) where missing the deadline changes outcomes, prices, or NPC relationships without softlocking the campaign | verify: one test commission shows different aftermath states when completed before vs. after its deadline; deadline state persists across save/load

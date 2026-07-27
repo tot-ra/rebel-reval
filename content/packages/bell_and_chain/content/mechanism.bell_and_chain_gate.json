@@ -1,0 +1,98 @@
+{
+  "type": "mechanism",
+  "id": "mechanism.bell_and_chain_gate",
+  "title": "Viru Gate chain install mechanism",
+  "commission_id": "commission.bell_and_chain",
+  "object_item_id": "item.bell_and_chain_work",
+  "location_id": "loc.lower_town_slice",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-001"
+  },
+  "responses": [
+    {
+      "id": "chain_holds",
+      "behavior": "hold",
+      "summary": "Honest links pass the alarm stress test and bias the climax toward Seal.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.bell_and_chain",
+          "value": "honest_work"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act_climax_viru_seal",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "fracture_ready",
+      "behavior": "fail",
+      "summary": "Hidden fracture groans during install; rebels learn the weak link.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.bell_and_chain",
+          "value": "subtle_defect"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.rebel_gate_intelligence",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.act_climax_viru_break",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "release_armed",
+      "behavior": "release",
+      "summary": "Concealed release pin is armed; Mart or Kaja's network can open the gate later.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.bell_and_chain",
+          "value": "secret_feature"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.mart_gate_release",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.act_climax_viru_open",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "default_response": {
+    "id": "unresolved",
+    "behavior": "idle",
+    "summary": "Kalev has not installed the Viru Gate chain assembly yet."
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Mechanism contract mapping forged chain records to gate install behavior and P4-008 climax bias flags.",
+      "citations": [
+        "content/packages/bell_and_chain/content/commission.bell_and_chain.json",
+        "docs/SCENES/the-bell-and-the-chain-branch-map.md"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "quest_id": "quest.bell_and_chain",
+  "branches": [
+    {
+      "id": "honest_chain_seal_bias",
+      "transitions": [
+        "complete_investigation",
+        "commit_honest_forge"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "aftermath_honest",
+        "flags": {
+          "flag.gate_chain_honest_work": true,
+          "flag.act_climax_viru_seal": true
+        }
+      }
+    },
+    {
+      "id": "hidden_fracture_break_bias",
+      "transitions": [
+        "complete_investigation",
+        "commit_defect_forge"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "aftermath_defect",
+        "flags": {
+          "flag.gate_chain_subtle_defect": true,
+          "flag.gate_chain_falsification_risk": true,
+          "flag.act_climax_viru_break": true
+        }
+      }
+    },
+    {
+      "id": "secret_release_open_bias",
+      "transitions": [
+        "complete_investigation",
+        "commit_release_forge"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "aftermath_release",
+        "flags": {
+          "flag.gate_chain_secret_feature": true,
+          "flag.mart_gate_release": true,
+          "flag.act_climax_viru_open": true
+        }
+      }
+    }
+  ]
+}

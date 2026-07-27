@@ -1,0 +1,130 @@
+{
+  "type": "commission",
+  "id": "commission.bell_and_chain",
+  "title": "Refit the Viru Gate chain and bell striker",
+  "client_id": "char.henning",
+  "quest_id": "quest.bell_and_chain",
+  "object_item_id": "item.bell_and_chain_work",
+  "location_id": "loc.kalev_smithy",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-001",
+    "notes": "Design contract for P4-002 playable cycle."
+  },
+  "concrete_order": "Forge tempered portcullis links and a reliable bell striker before the next Viru Gate alarm drill.",
+  "hidden_contradiction": "Every link Kalev forges will return at St. George's Night: honest steel holds the gate, a hidden fracture breaks under strain, and a release pin opens the city to rebels.",
+  "investigation_clues": [
+    {
+      "id": "portcullis",
+      "summary": "The portcullis groove is pitted and the chain squeals during weekly tests.",
+      "reveals_fact_id": "fact.bell_and_chain.portcullis_wear"
+    },
+    {
+      "id": "patrol_log",
+      "summary": "Henning doubled east-wall patrols after the failed alarm test.",
+      "reveals_fact_id": "fact.bell_and_chain.patrol_rotation"
+    },
+    {
+      "id": "striker",
+      "summary": "The bell striker drum shows stress cracks at Kalev's earlier fittings.",
+      "reveals_fact_id": "fact.bell_and_chain.striker_stress"
+    },
+    {
+      "id": "rebel_map",
+      "summary": "Rebel chalk marks map the gate rotation from the wall circuit.",
+      "reveals_fact_id": "fact.bell_and_chain.rebel_gate_map"
+    }
+  ],
+  "forging_options": [
+    {
+      "id": "honest_work",
+      "label": "Forge true tempered links and a reliable striker.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.gate_chain_honest_work",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.bell_and_chain.honest_hold",
+          "value": "faction.livonian_order",
+          "amount": 1,
+          "summary": "Forged a reliable Viru Gate chain and striker for the watch."
+        }
+      ]
+    },
+    {
+      "id": "subtle_defect",
+      "label": "Hide a stress-fractured middle link that fails under ram pressure.",
+      "requires": [
+        {
+          "op": "fact_known",
+          "key": "fact.bell_and_chain.portcullis_wear"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.gate_chain_subtle_defect",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.bell_and_chain.hidden_fracture",
+          "value": "faction.black_cloaks",
+          "amount": 1,
+          "summary": "Concealed a stress fracture in the Viru Gate portcullis chain."
+        }
+      ]
+    },
+    {
+      "id": "secret_feature",
+      "label": "Forge a concealed quick-release pin Mart can trigger from inside.",
+      "requires": [
+        {
+          "op": "fact_known",
+          "key": "fact.bell_and_chain.rebel_gate_map"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.gate_chain_secret_feature",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.bell_and_chain.secret_release",
+          "value": "faction.harju_kings",
+          "amount": 1,
+          "summary": "Forged a concealed quick-release pin in the Viru Gate chain assembly."
+        }
+      ]
+    }
+  ],
+  "night_consequence": "The forged chain assembly changes Viru Gate install routes, patrol pressure, and act-climax readiness during the curfew install beat.",
+  "deadline": {
+    "due_phase_id": "phase.investigation_night",
+    "journal_label": "Alarm drill eve",
+    "missed_effects": [
+      {
+        "op": "set_flag",
+        "key": "flag.bell_and_chain_deadline_missed",
+        "value": true
+      }
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Commission contract for The Bell and the Chain cycle.",
+      "citations": [
+        "docs/SCENES/the-bell-and-the-chain.md",
+        "docs/SCENES/the-bell-and-the-chain-branch-map.md"
+      ]
+    }
+  ]
+}
