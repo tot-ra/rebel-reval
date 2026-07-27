@@ -11,8 +11,10 @@ TODO = ROOT / "TODO.md"
 ARCHIVE = ROOT / "docs" / "TASK_ARCHIVE.md"
 ROADMAP = ROOT / "docs" / "ROADMAP.md"
 
+# The extended async-worker format inserts an optional `role: <loop>` segment between the ID and
+# `deps:`. It must be matched and preserved here, or such rows are silently dropped on rebuild.
 TASK_RE = re.compile(
-    r"^- \[([ xX])\] ([^ |]+) \| deps: ([^|]+) \| deliverable: (.*)$"
+    r"^- \[([ xX])\] ([^ |]+) \|(?: role: ([^|]+) \|)? deps: ([^|]+) \| deliverable: (.*)$"
 )
 
 REQUIRED_DONE = {
@@ -22,8 +24,9 @@ REQUIRED_DONE = {
     "P4-015",
 }
 
-# Low campaign priority first; P0 baseline last.
-PRIORITY_ORDER = ["P6", "P5", "P4", "P3", "P2", "P1", "P0"]
+# Low campaign priority first; P0 baseline last. `R` is the cross-cutting, researcher-managed
+# historical research band and has no campaign order, so it trails the campaign bands.
+PRIORITY_ORDER = ["P6", "P5", "P4", "P3", "P2", "P1", "P0", "R"]
 
 
 @dataclass
@@ -37,13 +40,15 @@ class Task:
 def priority_of(task_id: str) -> str:
     if task_id.startswith("D-"):
         return "D"
+    if task_id.startswith("R-"):
+        return "R"
     match = re.match(r"^(P\d+)", task_id)
     return match.group(1) if match else "P9"
 
 
 def complexity_score(task: Task) -> int:
     match = TASK_RE.match(task.raw)
-    return len(match.group(4)) if match else 9999
+    return len(match.group(5)) if match else 9999
 
 
 def clean_deps(deps: str, done_ids: set[str]) -> str:
@@ -58,8 +63,9 @@ def rebuild_line(task: Task, done_ids: set[str]) -> str:
     if not match:
         return task.raw
     state = "x" if task.done else " "
-    deps = clean_deps(match.group(3).strip(), done_ids) if not task.done else match.group(3).strip()
-    return f"- [{state}] {match.group(2)} | deps: {deps} | deliverable: {match.group(4)}"
+    deps = clean_deps(match.group(4).strip(), done_ids) if not task.done else match.group(4).strip()
+    role = f" role: {match.group(3).strip()} |" if match.group(3) else ""
+    return f"- [{state}] {match.group(2)} |{role} deps: {deps} | deliverable: {match.group(5)}"
 
 
 def parse_todo(text: str) -> tuple[list[str], list[str], list[str], list[Task]]:
@@ -88,7 +94,7 @@ def parse_todo(text: str) -> tuple[list[str], list[str], list[str], list[Task]]:
                 Task(
                     done=match.group(1).lower() == "x",
                     task_id=match.group(2),
-                    deps=match.group(3).strip(),
+                    deps=match.group(4).strip(),
                     raw=line,
                 )
             )
@@ -216,6 +222,7 @@ def build_todo(prefix: list[str], open_tasks: list[Task], validator_done: list[T
                 "P4": "P4 - Act 1: The Simmering City",
                 "P5": "P5 - Act 2: The Fire of Rebellion",
                 "P6": "P6 - Act 3: The Iron Harvest and full release (lowest priority)",
+                "R": "R - Historical research backlog (researcher-managed, cross-cutting)",
             }.get(priority, priority)
             lines.extend(["", f"## {title}", ""])
         if complexity != current_complexity:

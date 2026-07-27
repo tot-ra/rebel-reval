@@ -75,7 +75,7 @@ Priority order when several rows are claimable: lowest campaign band first (P0 b
 |------|------|----------|
 | Producer | `TODO.md`, `docs/ROADMAP.md` | all |
 | Canon Keeper | `docs/CANON.md`, `docs/HISTORICAL_AUDIT.md`, canon verdict tags in `TODO.md` | all content + research |
-| Research | `history/`, `docs/lore/`, research dossiers | canon, roadmap |
+| Research | `history/`, `docs/lore/`, research dossiers, **`R-###` rows in the `## R -` section of `TODO.md`** | canon, roadmap |
 | Narrative | `story/`, `docs/GAME-PILLARS.md` | canon, research, quests |
 | Quest | `content/packages/*/quest.json`, `schemas/quest.schema.json` | canon, narrative |
 | Dialogue | `content/packages/*/dialogue.json`, `schemas/dialogue.schema.json` | narrative, quest, character |
@@ -130,6 +130,8 @@ Read docs/AGENT_LOOPS.md first. Your ONLY write targets are TODO.md and docs/ROA
 
 Each tick, in order:
 1. RECONCILE. Scan TODO.md for:
+   - the `## Downstream requests` table in history/RESEARCH_INDEX.md - turn each entry
+     into a row for the responsible role, then leave the entry marked as taken up.
    - rows marked `- [!]` (blocked: ...) - re-scope them: split, re-word, fix deps,
      or drop with a note in docs/ROADMAP.md; flip them back to `- [ ]` only when re-scoped.
    - rows with `canon: rejected(...)` or `qa: failed(...)` - reopen or adjust the
@@ -149,6 +151,9 @@ Hard rules:
 - Every content-producing row (research, narrative, quest, dialogue, character, map, art)
   must be phrased so the worker knows it closes via `review: canon`.
 - No two open rows of the same role may target the same file.
+- The `## R - Historical research backlog` section belongs to the Researcher loop: do not
+  create, re-order, or delete `R-###` rows. Reconcile them like any other row (stale claims,
+  blocked, canon verdicts) and open non-research rows for anything the index requests.
 - Exit when the current milestone has no open rows and QA has accepted the candidate.
 ```
 
@@ -193,32 +198,50 @@ Exit when the review queue is empty.
 
 ## 3. Historical-Geo Researcher
 
-Produces sourced dossiers on 1343 Reval: buildings, interiors, clothes, tools, institutions, flora/fauna, daily life.
+Produces sourced, cross-linked dossiers on 1343 Reval across fourteen domains - topography, architecture, people, power, military, crafts, economy, religion, culture, folklore, daily life, language, nature, hinterland - indexed by [`history/RESEARCH_INDEX.md`](../history/RESEARCH_INDEX.md).
+
+Unlike every other worker, Research is **proactive**: when its queue is empty it refills its own backlog instead of stopping. It is the single exception to the "Producer is the only structural writer" rule, scoped to `R-###` rows inside the `## R - Historical research backlog` section of `TODO.md`.
 
 Copy-paste prompt:
 
 ```text
-You are the Historical-Geo Researcher for Reval Rebel. Read docs/AGENT_LOOPS.md and
-docs/CANON.md first. You own history/ and docs/lore/; you have web search.
+You are the Historical-Geo Researcher for Reval Rebel. Read docs/AGENT_LOOPS.md,
+docs/CANON.md, history/RESEARCH_INDEX.md, and
+agents/rebel-researcher/skills/dossier-standard/SKILL.md first.
+You own history/ and docs/lore/; you have web search. You are never idle.
 
-Work loop:
+Mode A - deliver (run when a research row is claimable):
 1. Scan TODO.md for `- [ ]` rows with `role: research` whose deps are all `- [x]`.
-   If none, stop.
 2. Claim one: flip to `- [~]`, append `claim: research-N@<date>`. First writer wins.
-3. Produce a sourced dossier at history/<topic>.md with a `## Sources` section.
-   Every fact gets a citation and a confidence label; distinguish attested record from
-   plausible composite; note regional specifics (Danish Estonia, Hanseatic Reval,
-   Livonian Order); flag where evidence is thin. Add a short brief (max 20 lines)
-   at the top for the requesting loop.
-4. Close: replace the claim tag with `review: canon`. Never flip to `- [x]` yourself.
-5. If the topic is unresearchable as scoped: flip to `- [!]` with `blocked: <reason>`.
+3. Produce the dossier at history/dossiers/<domain>/<slug>.md in the standard structure:
+   brief (max 20 lines) for the requesting role, sourced findings with confidence
+   labels, `## Production hooks`, `## Cross-references`, `## Open questions`,
+   `## Sources`. Note Danish Estonia / Hanseatic Reval / Livonian Order specifics and
+   flag thin or conflicting evidence.
+4. Wire it in: update status and link in history/RESEARCH_INDEX.md and add reciprocal
+   links in every dossier you cited. An unlinked dossier is not delivered.
+5. Close: replace the claim tag with `review: canon`. Never flip to `- [x]` yourself.
+6. Unresearchable as scoped: flip to `- [!]` with `blocked: <reason>`.
+
+Mode B - refill the backlog (run when nothing is claimable; never just stop):
+1. Audit history/RESEARCH_INDEX.md coverage against what is actually on disk.
+2. Prioritise by production demand: evidence needed by currently open map/art/character/
+   quest/dialogue/narrative rows, then unresolved `## Open questions`, then
+   absent/stub domains.
+3. Append rows to the `## R -` section only, as
+   `- [ ] R-### | role: research | deps: ... | deliverable: history/dossiers/<domain>/<slug>.md - <scope> | verify: ...`
+   Keep >= 6 open rows. Never reuse or rename an ID.
+4. One tick per row (20-40 min): one street, one trade, one institution, one festival.
+5. Needs belonging to another role go under `## Downstream requests` in the index -
+   you never author rows for other roles, and you never touch a non-`R-###` row.
 
 Acceptance: every non-trivial claim sourced or labeled `plausible composite` with
-rationale; no anachronisms. ~20-40 min per dossier.
+rationale; no anachronisms; every dossier reachable from the index and cross-linked;
+every topic carries a concrete production hook; claimable work remains for the next tick.
 ```
 
-- **Model tier:** L + web. **Cadence:** front-loaded (3-4 dossiers/day early, < 1/day late); 1-2 instances early, 0-1 standby late.
-- **Exit condition:** no claimable `role: research` rows.
+- **Model tier:** L + web. **Cadence:** front-loaded (3-4 dossiers/day early, ~1/day late); 1-2 instances early, 1 standby late that keeps mining the backlog.
+- **Exit condition:** none by default - the loop self-refills. It stops only when the index reports every domain `solid` and the `## R -` section is empty.
 
 ---
 
@@ -477,7 +500,7 @@ baseline.
 ## Concurrency rules
 
 1. **Claim before work.** A row is claimed by editing `TODO.md` first. First writer wins; losers skip. This is the only synchronization primitive.
-2. **Single structural writer.** Only Producer creates, re-scopes, reorders, or deletes rows. Workers only flip state and append reporting tags on rows they claimed.
+2. **Single structural writer, with one scoped exception.** Only Producer creates, re-scopes, reorders, or deletes rows. Workers only flip state and append reporting tags on rows they claimed. The exception is Research, which maintains its own `R-###` rows inside the `## R - Historical research backlog` section (and that section's line in the priority-count table) because its backlog is discovered by doing the research, not derivable from the roadmap. Research still may not touch any other row, and needs belonging to other roles go through `## Downstream requests` in `history/RESEARCH_INDEX.md`, which Producer reads on its reconcile tick.
 3. **Path ownership is the write barrier.** Cross-loop file conflicts cannot occur when every worker writes only inside its owned paths; same-role conflicts are prevented by claim criterion 6.
 4. **Canon gate is structural.** Content rows cannot reach `[x]` - and therefore cannot unblock Dev/QA deps - without `canon: approved`.
 5. **Failures surface, never stall.** `blocked:`, `canon: rejected(...)`, and `qa: failed(...)` are the only escalation channels; Producer's reconcile pass is the only resolver. Workers never wait on each other.

@@ -15,7 +15,7 @@ Operational guide for AI agents and contributors working on **Reval Rebel**. Pro
 | `characters/` | Character portraits and design prose | Mostly reference and archive material |
 | `music/` | MP3 soundtrack library | Far larger than the vertical-slice budget |
 | `sounds/` | Short SFX | Door and footstep samples |
-| `story/`, `history/` | Narrative and research markdown | Mixed canon status; reconcile before implementing |
+| `story/`, `history/` | Narrative and research markdown | Mixed canon status; reconcile before implementing. Start at [`history/RESEARCH_INDEX.md`](history/RESEARCH_INDEX.md) - it indexes every historical dossier and its production hooks |
 | `img/` | README and marketing images | Not runtime gameplay assets |
 | `bin/` | Build artifact storage | Contains `rr.zip`; not a documented toolchain |
 | Root legacy docs | `docs/GAME-PILLARS.md`, `docs/GAMEPLAY.md`, `QUESTS.md`, etc. | Reference only unless reconciled in README and added to `TODO.md` |

@@ -37,6 +37,8 @@ PRIORITY_MAP: dict[str, tuple[str, str]] = {
     "P4": ("P4", "Act 1: The Simmering City"),
     "P5": ("P5", "Act 2: The Fire of Rebellion"),
     "P6": ("P6", "Act 3: The Iron Harvest and full release"),
+    # Cross-cutting, researcher-managed band; listed last because it has no campaign order.
+    "R": ("R ", "Historical research backlog (researcher-managed, cross-cutting)"),
 }
 
 # Everything above P6 collapses into one bucket.
@@ -58,7 +60,7 @@ def scan_todo(path: Path) -> dict[str, Counters]:
 
     # Match task rows: "- [ ]" or "- [x]" followed by an ID like D-001 or P2-045.
     pattern = re.compile(
-        r"^-\s+\[(?:[ x])\]\s+(D|P\d+)-\d+[a-z]*\b.*?deps:\s*(.*?)\s*\|\s*deliverable:"
+        r"^-\s+\[(?:[ x])\]\s+(D|R|P\d+)-\d+[a-z]*\b.*?deps:\s*(.*?)\s*\|\s*deliverable:"
     )
 
     for line in text.splitlines():

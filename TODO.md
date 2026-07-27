@@ -10,6 +10,8 @@ Row states: `- [ ]` open, `- [~]` claimed (`claim: <agent>@<date>`), `- [x]` don
 `- [!]` failed (`blocked: <reason>`). Reporting tags: `review: canon`,
 `canon: approved/rejected(...)`, `qa: failed(<suite>)`. Only the Producer creates,
 re-scopes, reorders, or deletes rows; workers flip state on rows they claimed.
+Single exception: the Researcher loop maintains its own `R-###` rows inside the
+`## R - Historical research backlog` section (see [`docs/AGENT_LOOPS.md`](docs/AGENT_LOOPS.md)).
 
 References:
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) - delivery order, coordination notes, current focus
@@ -25,6 +27,7 @@ References:
 | P4 |    30  |    28  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
+| R  |    28  |     0  | Historical research backlog (researcher-managed, cross-cutting) |
 
 
 
@@ -140,6 +143,58 @@ References:
 <!-- P0-114 completed in current session -->
 
 
+
+## R - Historical research backlog (researcher-managed, cross-cutting)
+
+Evidence work for Spring 1343 Reval. Maintained by the Researcher loop, which may create, split,
+re-word, and re-order rows **in this section only**; every other section belongs to the Producer.
+Ordered by production demand (most-needed first), not by campaign band. Deliverables follow
+[`history/RESEARCH_INDEX.md`](history/RESEARCH_INDEX.md) and the dossier standard in
+[`agents/rebel-researcher/skills/dossier-standard/SKILL.md`](agents/rebel-researcher/skills/dossier-standard/SKILL.md).
+Rows close through `review: canon` like all content work.
+
+### Topography and architecture (Map, Art)
+
+- [ ] R-001 | role: research | deps: none | deliverable: history/dossiers/topography/lower-town-street-plan.md - street network, named streets, plot widths and depths, block structure, market square placement in 1343 | verify: a map author can lay out at least three Lower Town blocks with sourced dimensions and labelled uncertainty
+- [ ] R-002 | role: research | deps: none | deliverable: history/dossiers/topography/walls-gates-towers.md - which wall circuit, towers, gates, and ditch existed by 1343, with heights and thicknesses where attested (mine `history/Linnakindlustuste kaardistus.pdf` first) | verify: every gate and tower is listed as present, absent, or uncertain in 1343 with a source
+- [ ] R-003 | role: research | deps: none | deliverable: history/dossiers/architecture/burgher-house-plan.md - Lower Town house typology: cellar, Diele hall, storey heights, hoisting beam, hearth, window and roof treatment | verify: yields a labelled floor-plan description and interior prop list an art and map pass can build from
+- [ ] R-004 | role: research | deps: R-003 | deliverable: history/dossiers/architecture/smithy-workshop-layout.md - forge building layout: hearth, bellows, anvil placement, quench, fuel and stock storage, fire regulation, smoke handling | verify: supports the forge core loop with sourced spatial and equipment detail plus at least one fire-risk rule
+- [ ] R-005 | role: research | deps: none | deliverable: history/dossiers/topography/harbour-and-shoreline.md - 1343 shoreline, harbour and roadstead, quay and crane practice, Härjapea river mouth, ship types calling at Reval | verify: distinguishes 1343 shoreline from the modern coast and names what a harbour scene may and may not show
+- [ ] R-006 | role: research | deps: none | deliverable: history/dossiers/architecture/toompea-castle-and-upper-town.md - Danish castle, Dome church, vassal residences, upper/lower town boundary and its gates | verify: separates attested 1343 fabric from later rebuilding, with the boundary control points named
+
+### People, power, military (Character, Quest, Narrative)
+
+- [ ] R-007 | role: research | deps: none | deliverable: history/dossiers/people/town-council-and-officers.md - council composition, offices, election, terms, and any attested councillor names near 1343 | verify: every named person carries a date range and a source; invented fillers are labelled and kept separate
+- [ ] R-008 | role: research | deps: none | deliverable: history/dossiers/power/jurisdictions-of-reval.md - who holds authority over whom between town council, Danish captain, vassalry, bishop, and the Livonian Order, and where the seams are | verify: produces a jurisdiction table a quest designer can use to construct a legally plausible conflict
+- [ ] R-009 | role: research | deps: R-008 | deliverable: history/dossiers/power/law-courts-and-punishment.md - court procedure, oath-helping, evidence, fines, pillory, banishment, execution, and who could be tried where | verify: at least five distinct sourced offence-to-consequence pairs usable as quest outcomes
+- [ ] R-010 | role: research | deps: none | deliverable: history/dossiers/military/watch-duty-and-town-defence.md - burgher watch obligation, muster, gate control, curfew, alarm signals, arms a townsman was required to own | verify: states a concrete nightly watch routine and the arms requirement by status tier
+- [ ] R-011 | role: research | deps: none | deliverable: history/dossiers/military/arms-and-armour-livonia-1340s.md - what a Reval smith made, repaired, and could not make; Order versus rebel equipment; materials and costs | verify: separates smith-producible items from imported ones and lists at least ten items with materials
+- [ ] R-026 | role: research | deps: none | deliverable: history/dossiers/people/estonian-and-german-populations.md - who actually lived inside and outside the walls: Estonian townsfolk, servants, German burghers, clergy, transients, and their legal standing | verify: gives population composition with confidence labels and names the status markers a character designer must respect
+
+### Crafts and economy (Dev, Quest, Art)
+
+- [ ] R-012 | role: research | deps: none | deliverable: history/dossiers/crafts/guild-structure.md - Great Guild, St Canute and St Olaf guilds, craft ordinances, apprentice/journeyman/master progression, exclusion of Estonians | verify: yields the membership rules and obligations a forge-owner character would actually be bound by
+- [ ] R-013 | role: research | deps: R-004 | deliverable: history/dossiers/crafts/blacksmith-materials-and-techniques.md - iron and steel sources, charcoal, fluxes, forging and hardening technique, realistic task durations and failure modes | verify: gives quantities and durations a crafting system can model, each labelled attested or plausible composite
+- [ ] R-014 | role: research | deps: none | deliverable: history/dossiers/economy/coinage-prices-and-measures.md - Riga mark, artig, öre; prices of bread, beer, iron, tools, livestock; wages; weights and measures in use at Reval | verify: a price table with source and confidence per line, sufficient to set in-game shop values
+- [ ] R-015 | role: research | deps: none | deliverable: history/dossiers/economy/hanseatic-trade-and-season.md - goods through Reval, the Novgorod route, sailing season and ice, staple rules, merchant practice and credit | verify: states the April-May trade situation specifically and what stalls when the countryside rises
+- [ ] R-027 | role: research | deps: R-012 | deliverable: history/dossiers/crafts/trades-of-the-lower-town.md - the other trades a district needs: baker, brewer, cobbler, tanner, cooper, carpenter, butcher, with workshop signs and nuisances | verify: each trade has a workshop description, a tool set, and a plausible street-level presence for map and art use
+
+### Religion, culture, folklore (Narrative, Dialogue, Art)
+
+- [ ] R-016 | role: research | deps: none | deliverable: history/dossiers/religion/churches-and-religious-houses.md - St Olaf, St Nicholas, the Dominican priory, Cistercian nuns, the Dome church: what stood in 1343, congregations, and social role | verify: each institution is dated against 1343 and given its congregation and function, not just its architecture
+- [ ] R-017 | role: research | deps: R-016 | deliverable: history/dossiers/religion/liturgical-calendar-spring-1343.md - Lent, Easter, St George's day and the April-May feast sequence with actual 1343 dates, plus observance and work rules | verify: a dated day-by-day calendar for April and May 1343 that the campaign timeline can be checked against
+- [ ] R-018 | role: research | deps: none | deliverable: history/dossiers/culture/music-and-instruments.md - town pipers, church music, instruments plausibly present, Estonian runic song, where and when music was heard | verify: separates German urban and Estonian rural traditions and lists instruments with a present/absent verdict for 1343 Reval
+- [ ] R-019 | role: research | deps: R-017 | deliverable: history/dossiers/culture/festivals-games-and-public-life.md - market days, processions, spring customs, drinking culture, games and sport, public punishment as spectacle | verify: at least six datable or seasonally placed public events usable as scene backdrops
+- [ ] R-020 | role: research | deps: none | deliverable: history/dossiers/folklore/belief-omens-and-healing.md - decompose `docs/lore/estonian_folklore.md` into the 1343-usable layer: spirit beings, omens, charms, healers, sacred groves, and the Christian-pagan overlap | verify: every element is labelled folklore or attested practice and cross-linked back to the lore compendium
+- [ ] R-021 | role: research | deps: R-020 | deliverable: history/dossiers/folklore/tales-tellable-in-1343.md - narrative tales a character could actually tell, with teller, setting, and length | verify: each tale is summarised for dialogue use and dated as plausibly current in 1343 rather than a later recording
+
+### Daily life, language, nature, hinterland (Character, Dialogue, Map)
+
+- [ ] R-022 | role: research | deps: none | deliverable: history/dossiers/dailylife/food-and-drink.md - diet by status, bread, beer and its role, fasting rules, kitchen equipment, meal times, food storage in spring | verify: distinguishes burgher, Estonian labourer, and monastic diets, with the pre-harvest spring scarcity stated
+- [ ] R-023 | role: research | deps: R-026 | deliverable: history/dossiers/dailylife/clothing-and-status-markers.md - dress of burghers, Estonian townsfolk, vassals, clergy, and Order members, with materials, colours, and visible rank signals | verify: gives an art-usable description per status tier plus the markers that must never be mixed
+- [ ] R-024 | role: research | deps: none | deliverable: history/dossiers/language/names-address-and-oaths.md - Low German, Estonian, and Latin registers; naming conventions; forms of address by rank; oaths, curses, greetings | verify: supplies a name stock and an address table a dialogue writer can apply without anachronism
+- [ ] R-025 | role: research | deps: none | deliverable: history/dossiers/nature/spring-climate-and-living-world.md - April-May weather and light, sea ice break-up, plants in bloom, birds and animals present, livestock and field work | verify: describes what is visibly alive and growing on St George's night specifically, for map and art dressing
+- [ ] R-028 | role: research | deps: none | deliverable: history/dossiers/hinterland/harju-village-and-manor.md - village layout, manor obligations, corvée and dues, roads and travel times to Reval, who the rebels actually were | verify: yields a buildable village plan plus the grievance structure that motivates the uprising, sourced
 
 ## P6 - Act 3: The Iron Harvest and full release (lowest priority)
 
