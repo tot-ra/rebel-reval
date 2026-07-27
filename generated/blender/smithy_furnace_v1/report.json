@@ -1,0 +1,35 @@
+{
+  "asset_id": "prop.smithy_furnace",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "db3e9822e0de19e8252d3ec205833752912d09d983036c65dc13cbd5778309d2",
+  "checks": {
+    "embedded_albedo": true,
+    "floating_geometry": true,
+    "ground_contact": true,
+    "metric_scale": true,
+    "portable_pbr": true,
+    "tangents": true,
+    "triangle_cap": true,
+    "uvs": true,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    2.61,
+    1.7,
+    4.075
+  ],
+  "faces": 2680,
+  "floating_objects": 0,
+  "generator": "tools/generate_smithy_forge_props.py",
+  "ground_min_z": 0.0,
+  "materials": 4,
+  "mesh_objects": 4,
+  "preview": "generated/blender/smithy_furnace_v1/preview.png",
+  "route": "deterministic_blender",
+  "sha256": "c04600c8b3f526451dbfafbafa1a438e553a0bf1eb607daa3d551f0b405e9ea1",
+  "surfaces": 4,
+  "texture_size": 512,
+  "triangles": 2680,
+  "uv_sets": 1,
+  "vertices": 1440
+}

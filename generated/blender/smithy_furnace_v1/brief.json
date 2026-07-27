@@ -1,0 +1,1 @@
+{"id":"prop.smithy_furnace","kind":"rigid_prop","target":"res://assets/props/forge/smithy_furnace.glb","scene":"res://content/maps/kalev_smithy.rrmap#forge_furnace","dimensions_m":[2.61,1.7,4.075],"triangles":{"target":2700,"max":8000},"textures":{"albedo":512},"style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}

@@ -1,0 +1,1 @@
+{"id":"prop.smithy_bellows","kind":"rigid_prop","target":"res://assets/props/forge/smithy_bellows.glb","scene":"res://content/maps/kalev_smithy.rrmap#forge_bellows","dimensions_m":[2.01,0.77,1.5575],"triangles":{"target":6050,"max":6500},"textures":{"albedo":512},"style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}

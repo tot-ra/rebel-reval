@@ -13,6 +13,10 @@ const AnvilMeshes := preload("res://scripts/map/view3d/map_view_anvil_meshes.gd"
 # before Godot has registered the first GLB import.
 const SMITHY_ANVIL_SCENE_PATH := "res://assets/props/forge/smithy_anvil.glb"
 const SMITHY_ANVIL_PROP_ID := &"forge_anvil"
+const SMITHY_FURNACE_SCENE_PATH := "res://assets/props/forge/smithy_furnace.glb"
+const SMITHY_FURNACE_PROP_ID := &"forge_furnace"
+const SMITHY_BELLOWS_SCENE_PATH := "res://assets/props/forge/smithy_bellows.glb"
+const SMITHY_BELLOWS_PROP_ID := &"forge_bellows"
 const SMITHY_CHAIR_SCENE_PATH := "res://assets/props/furniture/smithy_chair.glb"
 const SMITHY_CHAIR_PROP_ID := &"work_chair"
 const SMITHY_QUENCH_SCENE_PATH := "res://assets/props/forge/smithy_quench_bucket.glb"
@@ -119,9 +123,15 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			_add_barrel(root, "BarrelA", Vector3(-0.26, 0.0, 0.08), -0.12)
 			_add_barrel(root, "BarrelB", Vector3(0.32, 0.0, -0.16), 0.19)
 		MapTypes.PROP_KIND_FURNACE:
-			_add_furnace(root)
+			if StringName(prop["id"]) == SMITHY_FURNACE_PROP_ID:
+				_add_smithy_furnace(root)
+			else:
+				_add_furnace_fallback(root)
 		MapTypes.PROP_KIND_BELLOWS:
-			_add_bellows(root)
+			if StringName(prop["id"]) == SMITHY_BELLOWS_PROP_ID:
+				_add_smithy_bellows(root)
+			else:
+				_add_bellows_fallback(root)
 		MapTypes.PROP_KIND_LEDGER:
 			MapViewMeshBuilderPrimitives.box(root, "Stand", Vector3(0.16, 0.9, 0.16), Vector3(0.0, 0.45, 0.0), &"wood")
 			MapViewMeshBuilderPrimitives.box(root, "Book", Vector3(0.52, 0.08, 0.42), Vector3(0.0, 0.95, 0.0), &"plaster")
@@ -284,7 +294,29 @@ static func _add_anvil_fallback(root: Node3D) -> void:
 	root.add_child(body)
 
 
-static func _add_furnace(root: Node3D) -> void:
+static func _add_smithy_furnace(root: Node3D) -> void:
+	# WHY: forge_furnace is a close hero prop, but its rrmap footprint must remain
+	# the sole collision/navigation authority. The GLB replaces only the masonry;
+	# live embers, particles, and day/night fire lighting remain engine-driven.
+	var furnace_scene := load(SMITHY_FURNACE_SCENE_PATH) as PackedScene
+	assert(furnace_scene != null, "Smithy furnace GLB must be imported before the map view is assembled")
+	var furnace := furnace_scene.instantiate() as Node3D
+	furnace.name = "SmithyFurnaceModel"
+	root.add_child(furnace)
+	_add_furnace_ember_bed(root)
+	_add_furnace_coal_bed(root)
+	var flames := _add_furnace_flames(root)
+	var particles := _add_furnace_fire_particles(root)
+	var forge_light := OmniLight3D.new()
+	forge_light.name = "Omni"
+	forge_light.position = Vector3(0.0, 0.7, 0.85)
+	root.add_child(forge_light)
+	var controller = MapViewMeshBuilderConfig.FORGE_FIRE_LIGHT_SCRIPT.new()
+	controller.configure(forge_light, flames, particles)
+	root.add_child(controller)
+
+
+static func _add_furnace_fallback(root: Node3D) -> void:
 	# Open-mouth masonry forge: rear bulk + cheeks + lintel leave a real cavity
 	# so red coal and flame read from the working bay (not a solid black box).
 	MapViewMeshBuilderPrimitives.box(root, "Mass", Vector3(2.4, 1.55, 1.35), Vector3(0.0, 0.78, -0.22), &"stone")
@@ -314,7 +346,17 @@ static func _add_furnace(root: Node3D) -> void:
 	root.add_child(controller)
 
 
-static func _add_bellows(root: Node3D) -> void:
+static func _add_smithy_bellows(root: Node3D) -> void:
+	# The authored mechanism supplies readable leather folds, joinery, tacks, and
+	# a tapered nozzle without changing the declarative smithy prop footprint.
+	var bellows_scene := load(SMITHY_BELLOWS_SCENE_PATH) as PackedScene
+	assert(bellows_scene != null, "Smithy bellows GLB must be imported before the map view is assembled")
+	var bellows := bellows_scene.instantiate() as Node3D
+	bellows.name = "SmithyBellowsModel"
+	root.add_child(bellows)
+
+
+static func _add_bellows_fallback(root: Node3D) -> void:
 	# Double-board leather bellows aimed +X toward the forge tuyere.
 	MapViewMeshBuilderPrimitives.box(root, "Stand", Vector3(0.55, 0.12, 0.7), Vector3(0.0, 0.06, 0.0), &"timber")
 	MapViewMeshBuilderPrimitives.box(root, "BoardBottom", Vector3(0.85, 0.06, 0.48), Vector3(0.05, 0.28, 0.0), &"wood")

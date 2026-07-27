@@ -1,6 +1,6 @@
 extends "res://tests/godot/test_case.gd"
 
-## Smithy forge props: elegant anvil, open firebox furnace, bellows, charcoal.
+## Smithy forge props: authored furniture, elegant anvil, open firebox furnace, bellows, charcoal.
 
 
 func test_smithy_bed_uses_detailed_glb_and_keeps_generic_fallback() -> void:
@@ -195,53 +195,106 @@ func test_smithy_quench_uses_detailed_metal_glb_without_replacing_generic_fallba
 	generic.free()
 
 
-func test_furnace_has_open_mouth_with_visible_hot_coal() -> void:
+func test_smithy_furnace_uses_authored_masonry_and_keeps_live_fire() -> void:
 	var node := MapViewMeshBuilder.build_prop(
 		{"id": &"forge_furnace", "kind": MapTypes.PROP_KIND_FURNACE, "position": Vector2.ZERO},
 		MapTypes.DEFAULT_CELL_SIZE
 	)
-	assert_true(node.has_node("Mass"), "furnace needs a masonry mass")
-	assert_true(node.has_node("LeftCheek"), "furnace needs open-mouth left cheek")
-	assert_true(node.has_node("RightCheek"), "furnace needs open-mouth right cheek")
-	assert_true(node.has_node("Lintel"), "furnace needs a lintel over the mouth")
-	assert_true(node.has_node("Firebox"), "furnace needs a recessed soot back wall")
-	assert_true(node.has_node("EmberBed"), "furnace needs a glowing ember bed")
-	assert_true(node.has_node("CoalA"), "furnace needs a coal bed")
-	assert_true(node.has_node("FlameCore"), "furnace needs flame volumes")
-	assert_true(node.has_node("FireSparks"), "furnace needs fire particles")
-	assert_true(node.has_node("ForgeFireLight"), "furnace needs a day/night fire light controller")
-	assert_true(node.has_node("Tuyere"), "furnace needs a tuyere for the bellows")
-	assert_true(node.has_node("Chimney"), "furnace keeps an integrated chimney")
-	var mass := node.get_node("Mass") as MeshInstance3D
-	var mass_mesh := mass.mesh as BoxMesh
-	assert_true(mass_mesh.size.x >= 2.0, "furnace mass must be wider than the old 1.35 m block")
-	assert_true(mass_mesh.size.y >= 1.45, "furnace mass must be taller than the old block")
-	var firebox := node.get_node("Firebox") as MeshInstance3D
-	var firebox_mesh := firebox.mesh as BoxMesh
-	# Firebox is a thin rear wall inside the cavity, not a front-facing black plug.
-	assert_true(firebox_mesh.size.z <= 0.25, "firebox must be a thin cavity back, not a solid mouth plug")
+	assert_true(node.has_node("SmithyFurnaceModel"), "smithy furnace must instantiate the authored GLB")
+	assert_false(node.has_node("Mass"), "smithy furnace must not keep the stacked-box masonry")
+	for live_node in ["EmberBed", "CoalA", "FlameCore", "FireSparks", "ForgeFireLight"]:
+		assert_true(node.has_node(live_node), "authored furnace must retain dynamic %s" % live_node)
 	var ember := node.get_node("EmberBed") as MeshInstance3D
 	var ember_mat := ember.material_override as StandardMaterial3D
 	assert_true(ember_mat != null and ember_mat.emission_enabled, "ember bed must glow")
-	assert_false(node.has_node("Mouth"), "flat orange Mouth stand-in must be gone")
+
+	var model := node.get_node("SmithyFurnaceModel") as Node3D
+	var meshes := model.find_children("*", "MeshInstance3D", true, false)
+	assert_true(meshes.size() >= 4, "furnace needs masonry, lining, soot, and iron meshes")
+	var bounds := AABB()
+	var first := true
+	var material_names: Dictionary = {}
+	var triangle_count := 0
+	var textured_surface_count := 0
+	for child in meshes:
+		var mesh_instance := child as MeshInstance3D
+		if mesh_instance == null or mesh_instance.mesh == null:
+			continue
+		var child_bounds := mesh_instance.transform * mesh_instance.get_aabb()
+		bounds = child_bounds if first else bounds.merge(child_bounds)
+		first = false
+		for surface_index in mesh_instance.mesh.get_surface_count():
+			triangle_count += mesh_instance.mesh.surface_get_array_index_len(surface_index) / 3
+			var material := mesh_instance.mesh.surface_get_material(surface_index) as StandardMaterial3D
+			if material != null:
+				material_names[material.resource_name] = true
+				if material.albedo_texture != null:
+					textured_surface_count += 1
+	assert_false(first, "furnace GLB must expose a non-empty AABB")
+	assert_true(bounds.size.x >= 2.55 and bounds.size.x <= 2.65, "forge needs a broad masonry front")
+	assert_true(bounds.size.y >= 4.0 and bounds.size.y <= 4.15, "chimney needs believable metric height")
+	assert_true(bounds.size.z >= 1.65 and bounds.size.z <= 1.75, "forge needs a deep open firebox")
+	assert_true(bounds.position.y >= -0.001, "masonry base must rest on the prop ground plane")
+	assert_true(triangle_count >= 2400 and triangle_count <= 8000, "furnace detail must stay lightweight")
+	assert_eq(material_names.size(), 4, "furnace keeps limestone, firebrick, soot, and iron identities")
+	assert_true(textured_surface_count >= 4, "painted furnace albedos must survive GLB import")
 	node.free()
 
+	var generic := MapViewMeshBuilder.build_prop(
+		{"id": &"courtyard_furnace", "kind": MapTypes.PROP_KIND_FURNACE, "position": Vector2.ZERO},
+		MapTypes.DEFAULT_CELL_SIZE
+	)
+	assert_true(generic.has_node("Mass"), "non-smithy furnaces keep the procedural fallback")
+	assert_false(generic.has_node("SmithyFurnaceModel"), "smithy masonry must not leak to other locations")
+	generic.free()
 
-func test_bellows_has_leather_bag_and_nozzle() -> void:
+
+func test_smithy_bellows_uses_authored_leather_mechanism() -> void:
 	var node := MapViewMeshBuilder.build_prop(
 		{"id": &"forge_bellows", "kind": MapTypes.PROP_KIND_BELLOWS, "position": Vector2.ZERO},
 		MapTypes.DEFAULT_CELL_SIZE
 	)
-	assert_true(node.has_node("BoardBottom"), "bellows need a bottom board")
-	assert_true(node.has_node("BoardTop"), "bellows need a top board")
-	assert_true(node.has_node("Leather0"), "bellows need leather folds")
-	assert_true(node.has_node("Nozzle"), "bellows need a nozzle aimed at the forge")
-	assert_true(node.has_node("Lever"), "bellows need a pump lever")
-	var leather := node.get_node("Leather0") as MeshInstance3D
-	var material := leather.material_override as StandardMaterial3D
-	assert_true(material != null, "leather fold needs a material")
-	assert_true(material.albedo_color.r > 0.25, "leather should read warm brown, not charcoal black")
+	assert_true(node.has_node("SmithyBellowsModel"), "smithy bellows must instantiate the authored GLB")
+	assert_false(node.has_node("BoardBottom"), "smithy bellows must not keep box-fold placeholders")
+	var model := node.get_node("SmithyBellowsModel") as Node3D
+	var meshes := model.find_children("*", "MeshInstance3D", true, false)
+	assert_true(meshes.size() >= 3, "bellows need oak, leather, and iron mesh groups")
+	var bounds := AABB()
+	var first := true
+	var material_names: Dictionary = {}
+	var triangle_count := 0
+	var textured_surface_count := 0
+	for child in meshes:
+		var mesh_instance := child as MeshInstance3D
+		if mesh_instance == null or mesh_instance.mesh == null:
+			continue
+		var child_bounds := mesh_instance.transform * mesh_instance.get_aabb()
+		bounds = child_bounds if first else bounds.merge(child_bounds)
+		first = false
+		for surface_index in mesh_instance.mesh.get_surface_count():
+			triangle_count += mesh_instance.mesh.surface_get_array_index_len(surface_index) / 3
+			var material := mesh_instance.mesh.surface_get_material(surface_index) as StandardMaterial3D
+			if material != null:
+				material_names[material.resource_name] = true
+				if material.albedo_texture != null:
+					textured_surface_count += 1
+	assert_false(first, "bellows GLB must expose a non-empty AABB")
+	assert_true(bounds.size.x >= 1.95 and bounds.size.x <= 2.05, "bellows need a long nozzle-to-handle silhouette")
+	assert_true(bounds.size.y >= 1.50 and bounds.size.y <= 1.60, "pump lever needs believable working height")
+	assert_true(bounds.size.z >= 0.74 and bounds.size.z <= 0.80, "leather chamber needs a broad working width")
+	assert_true(bounds.position.y >= -0.001, "bellows stand must rest on the prop ground plane")
+	assert_true(triangle_count >= 5000 and triangle_count <= 6500, "leather folds and tacks must stay within budget")
+	assert_eq(material_names.size(), 3, "bellows keep oak, leather, and iron identities")
+	assert_true(textured_surface_count >= 3, "painted bellows albedos must survive GLB import")
 	node.free()
+
+	var generic := MapViewMeshBuilder.build_prop(
+		{"id": &"courtyard_bellows", "kind": MapTypes.PROP_KIND_BELLOWS, "position": Vector2.ZERO},
+		MapTypes.DEFAULT_CELL_SIZE
+	)
+	assert_true(generic.has_node("BoardBottom"), "non-smithy bellows keep the procedural fallback")
+	assert_false(generic.has_node("SmithyBellowsModel"), "smithy bellows must not leak to other locations")
+	generic.free()
 
 
 func test_charcoal_pile_uses_charcoal_not_limestone_rock() -> void:

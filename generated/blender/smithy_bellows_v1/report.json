@@ -1,0 +1,35 @@
+{
+  "asset_id": "prop.smithy_bellows",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "dd30350a7ba0ab9abb37dda5ab097e8deb9852d1870b5393e0ca797f8f83b028",
+  "checks": {
+    "embedded_albedo": true,
+    "floating_geometry": true,
+    "ground_contact": true,
+    "metric_scale": true,
+    "portable_pbr": true,
+    "tangents": true,
+    "triangle_cap": true,
+    "uvs": true,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    2.01,
+    0.77,
+    1.5575
+  ],
+  "faces": 6044,
+  "floating_objects": 0,
+  "generator": "tools/generate_smithy_forge_props.py",
+  "ground_min_z": 0.0,
+  "materials": 3,
+  "mesh_objects": 3,
+  "preview": "generated/blender/smithy_bellows_v1/preview.png",
+  "route": "deterministic_blender",
+  "sha256": "f076897f53a8b44cb768e37922fbb447e4d813667e3b396f2098e1ffc9eea8c7",
+  "surfaces": 3,
+  "texture_size": 512,
+  "triangles": 6044,
+  "uv_sets": 1,
+  "vertices": 3086
+}
