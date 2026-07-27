@@ -1,0 +1,44 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.root_and_ember.inspect_hearth",
+  "title": "Root and Ember - Disturbed hearth",
+  "confidence": "folklore",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-007"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "inspect_hearth",
+  "nodes": [
+    {
+      "id": "inspect_hearth",
+      "speaker_id": "char.kalev",
+      "text": "Soot climbs the outer wall while the room draws cold air. A cracked flue could do this - or frightened people could name it a kodukäija. Either way the hearth needs hardware.",
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.root_and_ember.soot_updraft",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "folklore",
+      "summary": "Material and folklore readings of the disturbed hearth.",
+      "citations": [
+        "docs/SCENES/root-and-ember.md"
+      ]
+    }
+  ]
+}

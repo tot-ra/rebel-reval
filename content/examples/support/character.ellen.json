@@ -1,0 +1,40 @@
+{
+  "type": "character",
+  "id": "char.ellen",
+  "name": "Ellen Luik",
+  "role": "Midwife and keeper of old songs",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-007"
+  },
+  "pronunciation": "EL-len LOO-ik",
+  "brief": {
+    "want": "Preserve people and memory rather than restore an imagined pagan state.",
+    "fear": "Young radicals will turn fragmentary traditions into revenge.",
+    "contradiction": "She encourages ambiguous belief because it gives frightened people courage.",
+    "secret_or_withheld_fact": "She has changed parts of old songs to hide families who keep household rites."
+  },
+  "relationships": [],
+  "voice": {
+    "summary": "Patient, precise, unsentimental.",
+    "diction": "Distinguishes what she witnessed, heard, and hopes is true."
+  },
+  "outcomes": [
+    {
+      "id": "songs_preserved",
+      "summary": "Ellen keeps singing for households the parish overlooks."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "Support record for Root and Ember folklore quest references.",
+      "citations": [
+        "docs/CHARACTERS/ellen.md",
+        "docs/CANON.md"
+      ]
+    }
+  ]
+}

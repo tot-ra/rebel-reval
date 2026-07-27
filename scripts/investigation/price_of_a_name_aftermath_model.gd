@@ -57,4 +57,7 @@ static func commit_install(state: GameState, content_db: ContentDB) -> bool:
 	if not ForgeCommissionModel.is_commission_resolved(state, COMMISSION_ID):
 		return false
 	var resolver := MechanismResolver.new(content_db, state)
-	return resolver.trigger(MECHANISM_ID)
+	var ok := resolver.trigger(MECHANISM_ID)
+	if ok:
+		state.set_flag(&"flag.act1_root_and_ember_unlocked", true)
+	return ok

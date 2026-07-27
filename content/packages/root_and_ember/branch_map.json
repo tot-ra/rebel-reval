@@ -1,0 +1,53 @@
+{
+  "quest_id": "quest.root_and_ember",
+  "branches": [
+    {
+      "id": "ember_song_peace",
+      "transitions": [
+        "complete_investigation",
+        "commit_ember_forge"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "aftermath_ember",
+        "flags": {
+          "flag.ellen.belief_honored": true,
+          "flag.root_and_ember_ember_rite": true
+        }
+      }
+    },
+    {
+      "id": "root_ward_peace",
+      "transitions": [
+        "complete_investigation",
+        "commit_root_forge"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "aftermath_root",
+        "flags": {
+          "flag.ellen.remedy_trusted": true,
+          "flag.root_and_ember_root_ward": true
+        }
+      }
+    },
+    {
+      "id": "iron_bracket_practical",
+      "transitions": [
+        "complete_investigation",
+        "commit_iron_forge"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "aftermath_iron",
+        "flags": {
+          "flag.ellen.skepticism_respected": true,
+          "flag.root_and_ember_iron_bracket": true
+        }
+      }
+    }
+  ]
+}

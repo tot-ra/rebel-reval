@@ -1,0 +1,35 @@
+{
+  "type": "item",
+  "id": "item.root_and_ember_work",
+  "name": "Hearth ward hardware",
+  "icon": "res://assets/UI/inventory/forge_hammer.png",
+  "category": "commission_object",
+  "confidence": "folklore",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-007"
+  },
+  "material_grade": "common",
+  "gameplay": {
+    "visible_in_pouch": true,
+    "stackable": false,
+    "uses": [
+      "Commission object for Ember, Root, or iron hearth ward hardware."
+    ],
+    "carry": {
+      "weight_g": 1800,
+      "grid_width": 2,
+      "grid_height": 2
+    }
+  },
+  "source_notes": [
+    {
+      "confidence": "folklore",
+      "summary": "Shared commission object for Root and Ember hearth outcomes.",
+      "citations": [
+        "docs/SCENES/root-and-ember.md"
+      ]
+    }
+  ]
+}

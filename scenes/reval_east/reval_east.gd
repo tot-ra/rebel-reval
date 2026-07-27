@@ -37,6 +37,15 @@ const PRICE_INSTALL_SCRIPT := preload(
 const PRICE_AFTERMATH_SCRIPT := preload(
 	"res://scripts/investigation/price_of_a_name_aftermath.gd"
 )
+const ROOT_INVESTIGATION_SCRIPT := preload(
+	"res://scripts/investigation/root_and_ember_investigation.gd"
+)
+const ROOT_INSTALL_SCRIPT := preload(
+	"res://scripts/investigation/root_and_ember_install_consequence.gd"
+)
+const ROOT_AFTERMATH_SCRIPT := preload(
+	"res://scripts/investigation/root_and_ember_aftermath.gd"
+)
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -61,6 +70,9 @@ var _bread_and_iron_aftermath: Node
 var _price_of_a_name_investigation: Node
 var _price_of_a_name_install: Node
 var _price_of_a_name_aftermath: Node
+var _root_and_ember_investigation: Node
+var _root_and_ember_install: Node
+var _root_and_ember_aftermath: Node
 var _phase_binder: MapPhaseBinder
 var _patrol_controller: MapPatrolController
 
@@ -211,6 +223,28 @@ func _ready() -> void:
 		player,
 		_patrol_controller,
 		_price_of_a_name_install
+	)
+	_root_and_ember_investigation = ROOT_INVESTIGATION_SCRIPT.new()
+	_root_and_ember_investigation.name = "RootAndEmberInvestigation"
+	add_child(_root_and_ember_investigation)
+	_root_and_ember_investigation.setup(
+		self,
+		definition,
+		_view_runtime,
+		_mart_encounter.get_interaction_controller()
+	)
+	_root_and_ember_install = ROOT_INSTALL_SCRIPT.new()
+	_root_and_ember_install.name = "RootAndEmberInstallConsequence"
+	add_child(_root_and_ember_install)
+	_root_and_ember_install.setup(self, definition)
+	_root_and_ember_aftermath = ROOT_AFTERMATH_SCRIPT.new()
+	_root_and_ember_aftermath.name = "RootAndEmberAftermath"
+	add_child(_root_and_ember_aftermath)
+	_root_and_ember_aftermath.setup(
+		self,
+		player,
+		_patrol_controller,
+		_root_and_ember_install
 	)
 
 

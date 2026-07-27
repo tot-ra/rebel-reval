@@ -1,0 +1,182 @@
+{
+  "type": "quest",
+  "id": "quest.root_and_ember",
+  "title": "Root and Ember",
+  "summary": "Ellen Luik asks Kalev to calm a household hearth beside the brewery. Forge an Ember rite-hook, a Root herb ward, or a plain iron smoke bracket before the neighbors turn the watch on a kodukäija scare.",
+  "confidence": "folklore",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-007",
+    "notes": "Approved ambiguous folklore quest; playable cycle in P4-007."
+  },
+  "entry_conditions": [],
+  "initial_state": "investigating",
+  "states": [
+    {
+      "id": "investigating",
+      "label": "Inspecting hearth signs and herb lane"
+    },
+    {
+      "id": "investigation_ready",
+      "label": "Ready to forge hearth ward hardware"
+    },
+    {
+      "id": "aftermath_ember",
+      "label": "Ember rite honored",
+      "terminal": true
+    },
+    {
+      "id": "aftermath_root",
+      "label": "Root ward trusted",
+      "terminal": true
+    },
+    {
+      "id": "aftermath_iron",
+      "label": "Iron bracket accepted",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "complete_investigation",
+      "from_state": "investigating",
+      "to_state": "investigation_ready",
+      "effects": []
+    },
+    {
+      "id": "commit_ember_forge",
+      "from_state": "investigation_ready",
+      "to_state": "aftermath_ember",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.root_and_ember_ember_rite",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.ellen.belief_honored",
+          "value": true
+        },
+        {
+          "op": "record_memory",
+          "key": "memory.ellen.song_shared"
+        }
+      ]
+    },
+    {
+      "id": "commit_root_forge",
+      "from_state": "investigation_ready",
+      "to_state": "aftermath_root",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.root_and_ember_root_ward",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.ellen.remedy_trusted",
+          "value": true
+        },
+        {
+          "op": "record_memory",
+          "key": "memory.ellen.herb_ward_shared"
+        }
+      ]
+    },
+    {
+      "id": "commit_iron_forge",
+      "from_state": "investigation_ready",
+      "to_state": "aftermath_iron",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.root_and_ember_iron_bracket",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.ellen.skepticism_respected",
+          "value": true
+        },
+        {
+          "op": "record_memory",
+          "key": "memory.ellen.material_honesty"
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "meet_ellen",
+      "text": "Speak with Ellen Luik and inspect the disturbed hearth and monastery herb lane.",
+      "state_id": "investigating"
+    },
+    {
+      "id": "forge_hearth_ward",
+      "text": "Forge Ember, Root, or iron hearth hardware at the smithy.",
+      "state_id": "investigation_ready"
+    }
+  ],
+  "journal_evidence": [
+    {
+      "fact_id": "fact.root_and_ember.ellen_summoned",
+      "text": "Ellen Luik summoned Kalev about a household hearth that throws soot and cold drafts at night."
+    },
+    {
+      "fact_id": "fact.root_and_ember.soot_updraft",
+      "text": "Soot climbs the wrong wall while drafts pull cold air when the flue should draw warm."
+    },
+    {
+      "fact_id": "fact.root_and_ember.herb_lane_roots",
+      "text": "Ellen sources linden bark and dried roots from the monastery herb lane for birth wards."
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "ember",
+      "summary": "Ember rite-hook and Ellen's song calm the household without proving a spirit existed.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.root_and_ember",
+          "value": "aftermath_ember"
+        }
+      ]
+    },
+    {
+      "id": "root",
+      "summary": "Root herb ward trusted; household peace without literal magic confirmation.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.root_and_ember",
+          "value": "aftermath_root"
+        }
+      ]
+    },
+    {
+      "id": "iron",
+      "summary": "Plain iron bracket repairs the flue; Ellen respects Kalev's material honesty.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.root_and_ember",
+          "value": "aftermath_iron"
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "folklore",
+      "summary": "Ambiguous kodukäija hearth quest introducing Ellen and Ember/Root techniques.",
+      "citations": [
+        "docs/SCENES/root-and-ember.md",
+        "docs/lore/estonian_folklore.md"
+      ]
+    }
+  ]
+}

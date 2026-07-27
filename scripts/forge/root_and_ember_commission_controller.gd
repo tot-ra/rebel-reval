@@ -1,10 +1,10 @@
-class_name PriceOfANameCommissionController
+class_name RootAndEmberCommissionController
 extends Node
 
-## Wires commission.price_of_a_name after the civic grain cycle investigation completes.
+## Wires commission.root_and_ember after the Price of a Name cycle completes.
 
-const ModelScript := preload("res://scripts/quest/price_of_a_name_quest_model.gd")
-const RootAndEmberModelScript := preload("res://scripts/quest/root_and_ember_quest_model.gd")
+const ModelScript := preload("res://scripts/quest/root_and_ember_quest_model.gd")
+const PriceOfANameModelScript := preload("res://scripts/quest/price_of_a_name_quest_model.gd")
 const BreadAndIronModelScript := preload("res://scripts/quest/bread_and_iron_quest_model.gd")
 const BellAndChainModelScript := preload("res://scripts/quest/bell_and_chain_quest_model.gd")
 const PROLOGUE_COMMISSION_ID := &"commission.watch_buckle_repair"
@@ -71,7 +71,7 @@ func _on_commission_finished(commission_id: StringName) -> void:
 	if commission_id != ModelScript.COMMISSION_ID:
 		return
 	_apply_quest_transition()
-	_remove_seized_dispatch()
+	_apply_technique_from_record()
 	_sync_stage()
 
 
@@ -84,10 +84,10 @@ func _sync_stage() -> void:
 		return
 
 	var commission_id := PROLOGUE_COMMISSION_ID
-	if RootAndEmberModelScript.is_forge_flow_active(SessionState.state):
-		commission_id = RootAndEmberModelScript.COMMISSION_ID
-	elif ModelScript.is_forge_flow_active(SessionState.state):
+	if ModelScript.is_forge_flow_active(SessionState.state):
 		commission_id = ModelScript.COMMISSION_ID
+	elif PriceOfANameModelScript.is_forge_flow_active(SessionState.state):
+		commission_id = PriceOfANameModelScript.COMMISSION_ID
 	elif BreadAndIronModelScript.is_forge_flow_active(SessionState.state):
 		commission_id = BreadAndIronModelScript.COMMISSION_ID
 	elif BellAndChainModelScript.is_forge_flow_active(SessionState.state):
@@ -116,7 +116,9 @@ func _sync_rest_enabled() -> void:
 	if ModelScript.is_forge_flow_active(SessionState.state):
 		allow_rest = (
 			has_next_phase
-			and ForgeCommissionModel.is_commission_resolved(SessionState.state, ModelScript.COMMISSION_ID)
+			and ForgeCommissionModel.is_commission_resolved(
+				SessionState.state, ModelScript.COMMISSION_ID
+			)
 		)
 	interactable.enabled = allow_rest
 
@@ -124,7 +126,7 @@ func _sync_rest_enabled() -> void:
 func _apply_quest_transition() -> void:
 	if SessionState.state == null:
 		return
-	var record := _latest_price_record()
+	var record := _latest_root_record()
 	if record == null:
 		return
 	var transition_id := ModelScript.transition_for_modification(record.modification_id)
@@ -134,14 +136,20 @@ func _apply_quest_transition() -> void:
 	manager.transition(ModelScript.QUEST_ID, transition_id)
 
 
-func _remove_seized_dispatch() -> void:
+func _apply_technique_from_record() -> void:
 	if SessionState.state == null:
 		return
-	if SessionState.state.has_item(ModelScript.DISPATCH_ITEM_ID):
-		SessionState.state.remove_item(ModelScript.DISPATCH_ITEM_ID)
+	var record := _latest_root_record()
+	if record == null:
+		return
+	var technique_id := ModelScript.technique_for_modification(record.modification_id)
+	if technique_id.is_empty():
+		SessionState.state.set_equipped_forge_technique(&"")
+	else:
+		SessionState.state.set_equipped_forge_technique(technique_id)
 
 
-func _latest_price_record() -> ForgedRecord:
+func _latest_root_record() -> ForgedRecord:
 	if SessionState.state == null:
 		return null
 	for record in SessionState.state.get_forged_records():
