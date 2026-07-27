@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "task_id": "P4-009",
+  "godot_model": "scripts/quest/act1_aftermath_model.gd",
+  "godot_test_filter": "test_act1_aftermath",
+  "core_characters": [
+    "mart",
+    "aita",
+    "kaja",
+    "henning",
+    "jurgen",
+    "ellen"
+  ],
+  "active_districts": [
+    "district.lower_town",
+    "district.north_merchant"
+  ],
+  "scenario_count": 3,
+  "forbidden_aggregate_keys": [
+    "morality",
+    "alignment",
+    "karma",
+    "virtue",
+    "sin",
+    "good_evil"
+  ]
+}

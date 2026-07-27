@@ -59,6 +59,7 @@ static func save_payload(state: GameState) -> Dictionary:
 		"world_items": state._world_items.duplicate(true),
 		"world_defaults_seeded": state._world_defaults_seeded.duplicate(true),
 		"map_world_state": state.save_map_world_state(),
+		"act1_transition": state._act1_transition.duplicate(true),
 	}
 
 
@@ -188,6 +189,14 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 		errors.append("map_world_state must be a dictionary")
 	else:
 		errors.append_array(state.map_world_state.load_payload(map_payload as Dictionary))
+
+	var act1_payload: Variant = payload.get("act1_transition", {})
+	if act1_payload == null:
+		state._act1_transition = {}
+	elif not act1_payload is Dictionary:
+		errors.append("act1_transition must be a dictionary")
+	else:
+		state._act1_transition = (act1_payload as Dictionary).duplicate(true)
 
 	state._refresh_reserved_weight()
 	return errors

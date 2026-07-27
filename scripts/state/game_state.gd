@@ -65,6 +65,8 @@ var _world_items: Dictionary = {}
 var _world_defaults_seeded: Dictionary = {}
 ## One equipped forge technique (Iron / Ember / Root) or empty when none.
 var _equipped_forge_technique: StringName = &""
+## Frozen Act 1 transition envelope written at St. George's Night (P4-009).
+var _act1_transition: Dictionary = {}
 
 
 func _init() -> void:
@@ -133,6 +135,18 @@ func set_equipped_forge_technique(technique_id: StringName) -> bool:
 		return false
 	_equipped_forge_technique = technique_id
 	return true
+
+
+func get_act1_transition() -> Dictionary:
+	return _act1_transition.duplicate(true)
+
+
+func set_act1_transition(envelope: Dictionary) -> void:
+	_act1_transition = envelope.duplicate(true)
+
+
+func has_act1_transition() -> bool:
+	return not _act1_transition.is_empty()
 
 
 func get_quest_state(key: StringName) -> StringName:

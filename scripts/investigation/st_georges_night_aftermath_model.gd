@@ -6,6 +6,7 @@ extends RefCounted
 const MECHANISM_ID := &"mechanism.st_georges_night_gate"
 const QUEST_ID := &"quest.st_georges_night"
 const PHASE_ACT1_CLIMAX := &"phase.act1_climax"
+const Act1AftermathModel := preload("res://scripts/quest/act1_aftermath_model.gd")
 
 const OUTCOME_SEAL := &"seal"
 const OUTCOME_BREAK := &"break"
@@ -62,4 +63,4 @@ static func commit_climax_choice(
 		return false
 	var resolver := MechanismResolver.new(content_db, state)
 	resolver.trigger(MECHANISM_ID)
-	return true
+	return Act1AftermathModel.record_transition(state)
