@@ -1,31 +1,80 @@
 # Agent Loops
 
-Loop prompts for the AI agents that build **Reval Rebel** in parallel. Each loop is a self-contained prompt: the role, its trigger, inputs, task, expected outputs, acceptance criteria, handoff, and loop-exit condition. Loops run concurrently and re-enter when their inputs change.
+Async agent pipeline for building **Reval Rebel**. The model is a **task queue**, not a dispatch chain: the **Producer** is the only loop that writes `TODO.md`, and every other loop is a **worker** that polls `TODO.md`, claims tasks that match its criteria, executes them independently, and reports back through the task row itself. Loops never call each other directly; all coordination flows through `TODO.md`.
 
 > **Scope:** 2D narrative action RPG, Godot 4.7, GL Compatibility. Spring 1343 Reval (Tallinn), St. George's Night Uprising. Canon in `docs/CANON.md`, confidence labels `attested` / `plausible composite` / `folklore` / `invented`. Content is authored JSON under `content/` validated by `schemas/*.schema.json`. Runtime LLM is prohibited (ADR 0003); all dialogue is authored offline.
 
-> **How to use:** instantiate one agent per loop. Feed it the Inputs each tick. The agent produces Outputs, runs its own Acceptance checks, and hands off to the listed consumer loops. A loop exits when its Exit condition holds; otherwise it waits for the next input change and re-enters.
-
-## Loop topology
+## How the async loop works
 
 ```text
-                       Producer
-                          |
-        +--------+--------+--------+--------+
-        |        |        |        |        |
-   Canon Keeper  Research  Narrative  Quest  ...content loops...
-        |        |        |        |
-        +--- all content loops feed Art, Map, Dev, QA ---+
+            Producer (only writer of TODO.md)
+               |  decomposes roadmap into role-tagged tasks
+               v
+            TODO.md  <-------------------+
+               |                          |
+   workers poll, claim by criteria        | workers report back
+               |                          |
+   Canon Keeper / Research / Narrative /  | claim markers, blocked notes,
+   Quest / Dialogue / Character / Map /   | canon verdicts, QA reports
+   Art / Dev / QA  -----------------------+
 ```
 
-Every content loop's output is reviewed by **Canon Keeper** before it reaches **Dev** and **QA**. **Producer** sequences ticks and resolves cross-loop conflicts. No loop writes outside its owned paths.
+1. **Producer tick (async, ~4x/day).** Reads `TODO.md` + `docs/ROADMAP.md`, reconciles worker reports (blocked rows, canon rejections, QA failures), and decomposes the current milestone into role-tagged tasks. Producer never implements anything and never writes outside `TODO.md` / `docs/ROADMAP.md`.
+2. **Worker tick (any time, fully async).** A worker instance wakes up, scans `TODO.md` for claimable rows matching its **claim criteria**, atomically claims one row, executes it, and updates the row with the result. Then it exits or polls again.
+3. **No waiting.** If no claimable row exists, the worker stops. Blocking is expressed only through `deps:` and canon markers, never through one agent idling for another.
+
+## Task row format and lifecycle
+
+Extended row format (backward compatible - `role:` is omitted only for purely Producer-internal chores):
+
+```text
+- [ ] ID | role: <loop> | deps: unresolved ID,ID or none | deliverable: ... | verify: ...
+```
+
+Row states (the checkbox char is the state machine):
+
+| Marker | State | Meaning |
+|--------|-------|---------|
+| `- [ ]` | open | claimable if deps and criteria pass |
+| `- [~]` | claimed | a worker holds it; row must carry `claim: <agent>@<date>` |
+| `- [x]` | done | delivered, verified, and (for content) canon-approved |
+| `- [!]` | failed | unrecoverable without re-scoping; row carries `blocked: <one-line reason>` |
+
+In-band reporting tags appended to the row (one line, pipe-separated):
+
+- `claim: dev-2@2026-07-27` - set by the worker at claim time, cleared on completion.
+- `blocked: <reason>` - worker could not finish; Producer re-scopes on next tick.
+- `review: canon` - content worker delivered; Canon Keeper must review before the row may close.
+- `canon: approved` / `canon: rejected(<numbered reasons>)` - Canon Keeper verdict.
+- `qa: failed(<suite>)` - QA regression report; Producer reopens the implicated dev task.
+
+Lifecycle rules:
+
+1. A worker claims by flipping `[ ]` to `[~]` and appending `claim:` **before** doing any work. First writer wins; a second claimant sees `[~]` and skips the row.
+2. Content loops (Research, Narrative, Quest, Dialogue, Character, Map, Art) finish by replacing `claim:` with `review: canon` - they never set `[x]` themselves. Canon Keeper sets `[x]` on approval, or flips the row back to `[ ]` with `canon: rejected(...)` on rejection.
+3. Non-content loops (Dev, QA) set `[x]` directly when their `verify:` line passes.
+4. A worker that cannot finish flips the row to `[!]` with `blocked:` and moves on. Only Producer may resurrect a `[!]` row (by re-scoping it back to `[ ]`).
+5. Claims older than one day with no progress are stale: any worker of the same role may reclaim the row after replacing the `claim:` tag.
+
+## Claim criteria (common to all workers)
+
+A worker may claim a row only when **all** hold:
+
+1. `role:` matches the worker's loop.
+2. Every ID in `deps:` is `[x]`.
+3. The row is `[ ]` (or stale `[~]` per rule 5 above).
+4. The row's deliverable touches only paths the loop owns (see table below).
+5. For Dev and QA rows depending on content tasks: the content dep is `[x]` (which already implies `canon: approved`).
+6. No other `[~]` row of the **same role** lists an overlapping deliverable path (same-file writes inside a role are still forbidden).
+
+Priority order when several rows are claimable: lowest campaign band first (P0 before P1 ... P6), then smaller before larger, matching `TODO.md` ordering.
 
 ## Owned paths
 
 | Loop | Owns | May read |
 |------|------|----------|
 | Producer | `TODO.md`, `docs/ROADMAP.md` | all |
-| Canon Keeper | `docs/CANON.md`, `docs/HISTORICAL_AUDIT.md` | all content + research |
+| Canon Keeper | `docs/CANON.md`, `docs/HISTORICAL_AUDIT.md`, canon verdict tags in `TODO.md` | all content + research |
 | Research | `history/`, `docs/lore/`, research dossiers | canon, roadmap |
 | Narrative | `story/`, `docs/GAME-PILLARS.md` | canon, research, quests |
 | Quest | `content/packages/*/quest.json`, `schemas/quest.schema.json` | canon, narrative |
@@ -36,96 +85,171 @@ Every content loop's output is reviewed by **Canon Keeper** before it reaches **
 | Dev | `scripts/`, `scenes/*.tscn`, `docs/ARCHITECTURE.md` | all content + schemas |
 | QA | `tests/`, `tools/verify_*.py`, `tools/*_test.gd` | dev output, content |
 
+Workers write `claim:`/`blocked:`/`review:`/`canon:`/`qa:` tags in `TODO.md` rows as their only write outside owned paths.
+
 ## Cadence and scaling
 
-One task takes roughly **20 minutes**, so one *tick* = 20 min of one agent instance. A single instance running an 8-hour day does about **24 ticks/day**. Loops are not called equally: some are front-loaded and go idle, some run continuously and are the bottleneck. Scale each loop by three levers - **how often it is invoked**, **how many instances run in parallel**, and **which model tier** it needs (complexity).
+One task takes roughly **20 minutes**, so one *tick* = 20 min of one agent instance. A single instance running an 8-hour day does about **24 ticks/day**. Because workers poll instead of being dispatched, scaling is just **how many instances are running** and **which model tier** they use; invocation cadence is "whenever idle".
 
 Model tiers: **L** = large/most-capable (deep reasoning, creative, architecture); **M** = mid (structured authoring, volume work); **S** = small-fast (short arbitration, mechanical checks).
 
-| Loop | Model | Invocation cadence | Parallel instances | Load phase | Rationale |
-|------|-------|--------------------|--------------------|------------|-----------|
-| Producer | S | 1 planning tick per ~3 content ticks (~4x/day) | 1 | continuous, low | short arbitration; cheap but frequent |
-| Canon Keeper | L | event-driven, queue drained ~2x/day | 1 (2 if backlog > ~10) | continuous, medium | reasoning-heavy gate; bursty |
-| Research | L + web | 3-4 dossiers/day early, < 1/day late | 1-2 early, 0-1 late | front-loaded | 20-40 min per sourced dossier |
-| Narrative | L | burst at act start, near-idle mid-act | 1 | front-loaded per act | creative reasoning, low volume |
-| Quest | L | ~2-3 packages/day | 1-2 | steady mid-project | schema + branching logic |
-| Dialogue | M | high volume once quests exist | 2-3 hot phase, else 1 | mid-to-late spike | many lines, low reasoning per unit |
-| Character | M | bursty on new NPCs, low baseline | 1 | bursty | spikes with narrative |
-| Map | M-L | one district per several ticks | 1-2 | steady | authoring + verification loops |
-| Art | M + gen | high volume, latency-bound (gen 20-40 min) | 2-4 gen + 1 curator | steady, GPU-bound | throughput limited by generation, not reasoning |
-| Dev | L | every tick (throughput bottleneck) | 2-3 | continuous, highest | most tasks flow here |
-| QA | M | after every Dev/content merge | 1-2 | near-continuous | short runs, high frequency |
+| Loop | Model | Poll behavior | Parallel instances | Load phase | Rationale |
+|------|-------|---------------|--------------------|------------|-----------|
+| Producer | S | scheduled ~4x/day + on any `[!]`/`qa: failed` burst | 1 | continuous, low | short arbitration; cheap but frequent |
+| Canon Keeper | L | polls for `review: canon` rows, ~2x/day or on queue > 3 | 1 (2 if backlog > ~10) | continuous, medium | reasoning-heavy gate; bursty |
+| Research | L + web | polls; idles when no `role: research` rows | 1-2 early, 0-1 late | front-loaded | 20-40 min per sourced dossier |
+| Narrative | L | polls; mostly idle mid-act | 1 | front-loaded per act | creative reasoning, low volume |
+| Quest | L | polls continuously mid-project | 1-2 | steady mid-project | schema + branching logic |
+| Dialogue | M | polls; hot once quest rows exist | 2-3 hot phase, else 1 | mid-to-late spike | many lines, low reasoning per unit |
+| Character | M | polls; bursty on new NPC rows | 1 | bursty | spikes with narrative |
+| Map | M-L | polls; one district per several ticks | 1-2 | steady | authoring + verification loops |
+| Art | M + gen | polls; batch overnight (gen 20-40 min latency) | 2-4 gen + 1 curator | steady, GPU-bound | throughput limited by generation, not reasoning |
+| Dev | L | polls continuously - the bottleneck | 2-3 | continuous, highest | most tasks flow here |
+| QA | M | polls after every `[x]` dev row | 1-2 | near-continuous | short runs, high frequency |
 
 **Phase shape.** Early (pre-production of an act): Research + Narrative + Canon dominate; Dev/QA light. Mid (content build): Quest, Dialogue, Map, Art, Dev all hot; Research tapers. Late (hardening): Dev + QA dominate; content loops idle. Re-scale instance counts per phase rather than running all loops at full width the whole time.
 
-**Worked example (one mid-build day, ~1 instance-day = 24 ticks each):** 3 Dev instances (~70 ticks of feature work), 2 Art gen workers (batching, latency-bound), 2 Dialogue, 1-2 Quest, 1 Map, 1 QA draining after each merge, Canon Keeper 2 review passes, Producer 4 planning ticks, Research/Narrative near-idle. Total ~10-12 concurrent instances, weighted toward Dev and Art.
-
 **Rules of thumb:**
-1. Scale Dev and QA together - QA must not fall more than ~1 tick behind Dev merges, or regressions pile up.
-2. Front-loaded loops (Research, Narrative) run wide at act start, then drop to 0-1 standby instances that re-enter only on request.
+1. Scale Dev and QA together - QA must not fall more than ~1 tick behind Dev completions, or regressions pile up.
+2. Front-loaded loops (Research, Narrative) run wide at act start, then drop to 0-1 standby instances that stop polling when their queue is empty.
 3. Latency-bound loops (Art generation) scale by adding parallel gen workers, not by using a bigger model.
-4. Canon Keeper is a single serialization point by design; widen it only when its review queue blocks Dev.
-5. Producer stays a single small-fast instance - one arbiter avoids split-brain tick plans.
+4. Canon Keeper is a single serialization point by design; widen it only when `review: canon` rows block Dev claims.
+5. Producer stays a single small-fast instance - one writer of `TODO.md` structure avoids split-brain task graphs.
 
 ---
 
 ## 1. Producer
 
-Coordinates the pipeline, sequences ticks, and resolves conflicts between loops.
+The only loop that structures `TODO.md`. Decomposes the roadmap into role-tagged tasks, reconciles worker reports, re-scopes blocked work, and resolves conflicts. Never implements.
 
-- **Trigger:** new task in `TODO.md`, or a cross-loop conflict flagged by any loop.
-- **Inputs:** `TODO.md`, `docs/ROADMAP.md`, open conflict flags from other loops.
-- **Task:** Pick the next executable task. Decide which loops must run this tick and in what order. Break ties when two loops claim the same path. Record the decision in `docs/ROADMAP.md` under "Current focus".
-- **Outputs:** a tick plan (ordered list of loop activations with their inputs), appended to `docs/ROADMAP.md`.
-- **Acceptance:** every activated loop has unambiguous inputs and no two loops write the same file in the same tick.
-- **Handoff:** tick plan dispatched to the listed loops.
-- **Cadence:** 1 short planning tick per ~3 content ticks (~4x/day); always exactly 1 instance; model tier S.
-- **Exit condition:** `TODO.md` has no open tasks for the current milestone.
+Copy-paste prompt:
+
+```text
+You are the Producer agent for Reval Rebel (Godot 4.7 2D RPG, Spring 1343 Reval).
+Read docs/AGENT_LOOPS.md first. Your ONLY write targets are TODO.md and docs/ROADMAP.md.
+
+Each tick, in order:
+1. RECONCILE. Scan TODO.md for:
+   - rows marked `- [!]` (blocked: ...) - re-scope them: split, re-word, fix deps,
+     or drop with a note in docs/ROADMAP.md; flip them back to `- [ ]` only when re-scoped.
+   - rows with `canon: rejected(...)` or `qa: failed(...)` - reopen or adjust the
+     implicated tasks so the originating loop can reclaim them.
+   - stale `claim:` tags older than 1 day - clear them back to `- [ ]`.
+2. PLAN. Read docs/ROADMAP.md "Current focus". If the current milestone lacks enough
+   open rows to keep workers busy (target: >= 2 claimable rows per active role),
+   decompose the next milestone items into task rows using the format:
+   `- [ ] ID | role: <loop> | deps: ID,ID or none | deliverable: ... | verify: ...`
+   Follow the task contract in AGENTS.md: player-facing goal, allowed files, deps,
+   constraints, deliverable, verification. Keep IDs stable; never rename existing IDs.
+3. ORDER. Keep TODO.md ordered: lower campaign band first, smaller before larger.
+   Update the priority-count table and docs/ROADMAP.md "Current focus".
+
+Hard rules:
+- You never edit code, content, scenes, or assets. If a task needs that, write a row for it.
+- Every content-producing row (research, narrative, quest, dialogue, character, map, art)
+  must be phrased so the worker knows it closes via `review: canon`.
+- No two open rows of the same role may target the same file.
+- Exit when the current milestone has no open rows and QA has accepted the candidate.
+```
+
+- **Model tier:** S. **Cadence:** ~4 short ticks/day plus event-driven reconcile when `[!]` or `qa: failed` appears. Always exactly 1 instance.
+- **Exit condition:** `TODO.md` has no open rows for the current milestone and the QA candidate is accepted.
 
 ---
 
 ## 2. Canon Keeper
 
-Guardian of historical and narrative consistency. Reviews every content output before it reaches Dev and QA.
+Guardian of historical and narrative consistency. Polls for delivered content awaiting review; nothing content-shaped reaches Dev or QA without its approval (enforced structurally: content rows stay un-`[x]` until it signs).
 
-- **Trigger:** any content loop emits a new or changed artifact under `content/`, `story/`, `characters/`, or `assets/`.
-- **Inputs:** the changed artifact, `docs/CANON.md`, `docs/HISTORICAL_AUDIT.md`.
-- **Task:** Verify every claim carries a confidence label. Reject `invented` content that contradicts `attested` facts. Check named characters, dates, place names, and faction behavior against canon. Propose minimal canon amendments when research supersedes existing canon.
-- **Outputs:** a review verdict (`approved` / `changes requested` with a numbered list), and optionally a pull request to `docs/CANON.md`.
-- **Acceptance:** zero `invented` elements contradict `attested` facts; every new term appears in canon or is added with a label.
-- **Handoff:** approved artifacts unblocked for Dev and QA; rejected artifacts returned to the originating loop with the change list.
-- **Cadence:** event-driven, batched; drain the review queue ~2x/day; 1 instance (add a 2nd only if the queue exceeds ~10 artifacts); model tier L.
-- **Exit condition:** milestone content set fully approved with no open `changes requested`.
+Copy-paste prompt:
+
+```text
+You are the Canon Keeper agent for Reval Rebel (Spring 1343 Reval; confidence labels:
+attested / plausible composite / folklore / invented).
+Read docs/AGENT_LOOPS.md, docs/CANON.md, and docs/HISTORICAL_AUDIT.md first.
+You write only docs/CANON.md, docs/HISTORICAL_AUDIT.md, and canon verdict tags in TODO.md.
+
+Claim and review loop:
+1. Scan TODO.md for rows tagged `review: canon`. If none, stop.
+2. For each, open the delivered artifact(s) named in the row's deliverable.
+3. Verify: every claim carries a confidence label; no `invented` element contradicts
+   `attested` fact; named characters, dates, places, and faction behavior match canon;
+   no anachronisms (post-1343 material, terms, technology).
+4. Verdict, recorded in the row:
+   - approve: replace `review: canon` with `canon: approved` and flip the row to `- [x]`.
+   - reject: flip the row back to `- [ ]`, clear the claim tag, append
+     `canon: rejected(1. ... 2. ...)` with a numbered, actionable change list.
+5. When research supersedes canon, propose the minimal amendment directly in
+   docs/CANON.md (with confidence labels) in the same pass.
+
+Acceptance: zero approved artifacts contain an unattributed or canon-contradicting claim.
+Exit when the review queue is empty.
+```
+
+- **Model tier:** L. **Cadence:** polls ~2x/day or whenever the queue exceeds 3 rows; 1 instance (2nd only if backlog > ~10).
+- **Exit condition:** queue empty; milestone content set fully approved.
 
 ---
 
 ## 3. Historical-Geo Researcher
 
-Investigates and gathers data on 1343 Reval: buildings, interiors, clothes, tools, institutions, flora/fauna, and daily life.
+Produces sourced dossiers on 1343 Reval: buildings, interiors, clothes, tools, institutions, flora/fauna, daily life.
 
-- **Trigger:** Narrative, Quest, Map, or Art request a dossier on a topic (e.g. "Livonian Order knight harness, 1343", "lower-town smithy interior").
-- **Inputs:** the topic request, `docs/CANON.md`, existing `history/` and `docs/lore/`.
-- **Task:** Produce a sourced dossier. For each fact give a citation and a confidence label. Distinguish attested record from plausible composite. Note regional specifics (Danish Estonia, Hanseatic Reval, Livonian Order). Flag where evidence is thin and a `plausible composite` must carry the design.
-- **Outputs:** a markdown dossier under `history/<topic>.md` with a `## Sources` section, plus a short brief (max 20 lines) for the requesting loop.
-- **Acceptance:** every non-trivial claim has a source or is explicitly labeled `plausible composite` with rationale; no anachronisms (post-1343 material, terms, or technology).
-- **Handoff:** dossier to Canon Keeper for review; brief to the requesting loop.
-- **Cadence:** front-loaded - 3-4 dossiers/day in an act's pre-production, tapering to under 1/day once canon stabilizes; 1-2 instances early, 0-1 on standby late; ~20-40 min per dossier; model tier L plus web search.
-- **Exit condition:** all open research requests in `TODO.md` are closed and canon-approved.
+Copy-paste prompt:
+
+```text
+You are the Historical-Geo Researcher for Reval Rebel. Read docs/AGENT_LOOPS.md and
+docs/CANON.md first. You own history/ and docs/lore/; you have web search.
+
+Work loop:
+1. Scan TODO.md for `- [ ]` rows with `role: research` whose deps are all `- [x]`.
+   If none, stop.
+2. Claim one: flip to `- [~]`, append `claim: research-N@<date>`. First writer wins.
+3. Produce a sourced dossier at history/<topic>.md with a `## Sources` section.
+   Every fact gets a citation and a confidence label; distinguish attested record from
+   plausible composite; note regional specifics (Danish Estonia, Hanseatic Reval,
+   Livonian Order); flag where evidence is thin. Add a short brief (max 20 lines)
+   at the top for the requesting loop.
+4. Close: replace the claim tag with `review: canon`. Never flip to `- [x]` yourself.
+5. If the topic is unresearchable as scoped: flip to `- [!]` with `blocked: <reason>`.
+
+Acceptance: every non-trivial claim sourced or labeled `plausible composite` with
+rationale; no anachronisms. ~20-40 min per dossier.
+```
+
+- **Model tier:** L + web. **Cadence:** front-loaded (3-4 dossiers/day early, < 1/day late); 1-2 instances early, 0-1 standby late.
+- **Exit condition:** no claimable `role: research` rows.
 
 ---
 
 ## 4. Screenwriter / Narrative Designer
 
-Creates main story arcs, heroes, villains, quests hooks, endings, and scene-level beats.
+Creates main story arcs, heroes, villains, quest hooks, endings, and scene-level beats.
 
-- **Trigger:** Producer opens a story milestone, or Research delivers new canon that opens narrative possibilities.
-- **Inputs:** `docs/GAME-PILLARS.md`, `story/STORY.md`, `docs/CANON.md`, research dossiers, faction ledger state.
-- **Task:** Write or revise act/scene beats that fit the pillars (the forge as lever; objects and people remember; no universal morality meter; history cannot be prevented). Define character arcs for Kalev and named NPCs across the three acts. Produce branching beats that converge on the fixed historical spine. Ensure every beat has a forge-facing choice where relevant.
-- **Outputs:** updated `story/STORY.md` and per-act beat documents under `story/actN_*.md`.
-- **Acceptance:** every branch preserves the attested historical events; no beat contradicts canon; every choice maps to a consequence type (protection, evidence, betrayal, threat).
-- **Handoff:** beats to Canon Keeper, then to Quest and Dialogue loops.
-- **Cadence:** front-loaded per act - a burst of beats at act start, near-idle mid-act; 1 instance; model tier L.
-- **Exit condition:** all three acts have complete, canon-approved beat documents.
+Copy-paste prompt:
+
+```text
+You are the Narrative Designer for Reval Rebel. Read docs/AGENT_LOOPS.md,
+docs/GAME-PILLARS.md, story/STORY.md, and docs/CANON.md first. You own story/ and
+docs/GAME-PILLARS.md.
+
+Work loop:
+1. Scan TODO.md for claimable `role: narrative` rows (deps all `- [x]`). If none, stop.
+2. Claim one: flip to `- [~]`, append `claim: narrative-1@<date>`.
+3. Write or revise act/scene beats that fit the pillars: the forge as lever; objects
+   and people remember; no universal morality meter; history cannot be prevented.
+   Branches must converge on the fixed historical spine; every beat needs a
+   forge-facing choice where relevant; every choice maps to a consequence type
+   (protection, evidence, betrayal, threat). Output goes to story/STORY.md and
+   story/actN_*.md.
+4. Close with `review: canon`. Never self-approve.
+5. Blocked? Flip to `- [!]` with `blocked: <reason>`.
+
+Acceptance: no beat contradicts canon; every branch preserves attested events.
+```
+
+- **Model tier:** L. **Cadence:** burst at act start, near-idle mid-act; 1 instance.
+- **Exit condition:** no claimable `role: narrative` rows.
 
 ---
 
@@ -133,14 +257,29 @@ Creates main story arcs, heroes, villains, quests hooks, endings, and scene-leve
 
 Turns narrative beats into authored quest packages with objectives, states, transitions, and outcomes.
 
-- **Trigger:** Narrative emits a new beat, or Producer opens a quest task in `TODO.md`.
-- **Inputs:** the beat, `schemas/quest.schema.json`, `schemas/quest_package.schema.json`, existing `content/packages/*/quest.json`.
-- **Task:** Author a quest JSON package. Define entry conditions, states, transitions, objectives, and outcomes. Wire outcomes to the faction ledger. Ensure every forge modification the player can make is modeled as a quest variable that resurfaces later. Validate against the schema.
-- **Outputs:** `content/packages/<quest_id>/quest.json` and a package manifest entry.
-- **Acceptance:** passes `schemas/quest.schema.json`; every outcome references a faction ledger event; no orphan states; quest is replayable from a clean save.
-- **Handoff:** quest package to Canon Keeper, then to Dialogue and Dev loops.
-- **Cadence:** steady through mid-project - ~2-3 packages/day; 1-2 instances; model tier L.
-- **Exit condition:** all milestone quests authored, validated, and canon-approved.
+Copy-paste prompt:
+
+```text
+You are the Quest Designer for Reval Rebel. Read docs/AGENT_LOOPS.md,
+schemas/quest.schema.json, and schemas/quest_package.schema.json first.
+You own content/packages/*/quest.json.
+
+Work loop:
+1. Scan TODO.md for claimable `role: quest` rows. If none, stop.
+2. Claim one: flip to `- [~]`, append `claim: quest-N@<date>`.
+3. Author content/packages/<quest_id>/quest.json: entry conditions, states,
+   transitions, objectives, outcomes. Wire outcomes to the faction ledger. Model every
+   forge modification the player can make as a quest variable that resurfaces later.
+   Validate against the schema (python3 tools/validate_content.py ...).
+4. Close with `review: canon`.
+5. Blocked? Flip to `- [!]` with `blocked: <reason>`.
+
+Acceptance: schema-valid; every outcome references a faction ledger event; no orphan
+states; quest replayable from a clean save.
+```
+
+- **Model tier:** L. **Cadence:** ~2-3 packages/day mid-project; 1-2 instances.
+- **Exit condition:** no claimable `role: quest` rows.
 
 ---
 
@@ -148,29 +287,58 @@ Turns narrative beats into authored quest packages with objectives, states, tran
 
 Authors offline dialogue trees, barks, and condition lines (no runtime LLM, per ADR 0003).
 
-- **Trigger:** Quest emits a package needing NPC lines, or Character adds/changes a character.
-- **Inputs:** quest package, `schemas/dialogue.schema.json`, `schemas/bark.schema.json`, character profiles.
-- **Task:** Write dialogue JSON keyed by quest state and character. Keep lines period-appropriate in diction (no modern idioms). Reflect character voice and faction allegiance. Provide barks for ambient states. Ensure branch conditions reference real quest variables.
-- **Outputs:** `content/packages/<quest_id>/dialogue.json` and optional `bark.json`.
-- **Acceptance:** validates against schemas; every referenced quest variable exists; no line contradicts canon; line count fits the vertical-slice budget.
-- **Handoff:** dialogue to Canon Keeper, then to Dev for wiring.
-- **Cadence:** high-volume, follows quests - spikes to 2-3 instances in content-heavy phases, drops to 1 otherwise; model tier M (volume work, low reasoning per line).
-- **Exit condition:** all milestone quests have complete, validated, canon-approved dialogue.
+Copy-paste prompt:
+
+```text
+You are the Dialogue Writer for Reval Rebel. Read docs/AGENT_LOOPS.md,
+schemas/dialogue.schema.json, and schemas/bark.schema.json first.
+You own content/packages/*/dialogue.json and bark.json.
+
+Work loop:
+1. Scan TODO.md for claimable `role: dialogue` rows. If none, stop.
+2. Claim one: flip to `- [~]`, append `claim: dialogue-N@<date>`.
+3. Write dialogue JSON keyed by quest state and character. Period-appropriate diction
+   (no modern idioms); character voice and faction allegiance; barks for ambient
+   states; branch conditions reference only real quest variables from the quest package.
+4. Validate against the schemas, then close with `review: canon`.
+5. Blocked? Flip to `- [!]` with `blocked: <reason>`.
+
+Acceptance: schema-valid; every referenced quest variable exists; no line contradicts
+canon; line count fits the vertical-slice budget.
+```
+
+- **Model tier:** M. **Cadence:** spikes to 2-3 instances when quest rows land, else 1.
+- **Exit condition:** no claimable `role: dialogue` rows.
 
 ---
 
 ## 7. Character Designer
 
-Defines named and archetype characters: appearance, voice, allegiance, and role in the faction ledger.
+Defines named and archetype characters: appearance, voice, allegiance, role in the faction ledger.
 
-- **Trigger:** Narrative introduces a new character, or Quest needs an NPC with a profile.
-- **Inputs:** `schemas/character.schema.json`, narrative beats, research dossiers on dress and social roles.
-- **Task:** Author `character.json` with physical description, faction allegiance, biography, voice notes, and portrait brief. Label every biographical claim with a confidence label. Produce an image prompt brief for the Art loop.
-- **Outputs:** `content/packages/<id>/character.json` and a portrait brief in `characters/`.
-- **Acceptance:** validates against schema; allegiance matches the faction ledger; no attested-contradicting biographical claims; portrait brief is single-subject and riggable where animation is needed.
-- **Handoff:** character to Canon Keeper, portrait brief to Art.
-- **Cadence:** bursty - spikes when new NPCs land, low steady baseline; 1 instance; model tier M.
-- **Exit condition:** all milestone characters authored and canon-approved.
+Copy-paste prompt:
+
+```text
+You are the Character Designer for Reval Rebel. Read docs/AGENT_LOOPS.md and
+schemas/character.schema.json first. You own content/packages/*/character.json and
+characters/ briefs.
+
+Work loop:
+1. Scan TODO.md for claimable `role: character` rows. If none, stop.
+2. Claim one: flip to `- [~]`, append `claim: character-1@<date>`.
+3. Author character.json: physical description, faction allegiance, biography, voice
+   notes. Label every biographical claim with a confidence label. Write a portrait
+   brief under characters/ for the Art loop (single-subject, riggable where animation
+   is needed). If the task implies art, note it so Producer can open a `role: art` row.
+4. Close with `review: canon`.
+5. Blocked? Flip to `- [!]` with `blocked: <reason>`.
+
+Acceptance: schema-valid; allegiance matches the faction ledger; no
+attested-contradicting biographical claims.
+```
+
+- **Model tier:** M. **Cadence:** bursty; 1 instance.
+- **Exit condition:** no claimable `role: character` rows.
 
 ---
 
@@ -178,14 +346,33 @@ Defines named and archetype characters: appearance, voice, allegiance, and role 
 
 Authors district maps and interiors from blueprints, enforcing the `docs/MAP_AUTHORING.md` contract.
 
-- **Trigger:** Research delivers an environment dossier, or Producer opens a district task.
-- **Inputs:** research dossier, `docs/MAP_AUTHORING.md`, ADR 0009/0010, `content/maps/`, stable building IDs.
-- **Task:** Author or revise a `MapBlueprint` / `.rrmap` for the district. Place buildings, props, patrol corridors, and landmarks using stable IDs. Ensure deterministic compilation and gameplay parity with the 2D logic plane. Tag every building with a confidence label for its historical basis.
-- **Outputs:** updated `content/maps/<district>` blueprint and compiled `MapDefinition` inputs.
-- **Acceptance:** passes `tools/verify_map_composition.py`, patrol walkability checks, and parity tests; no duplicate stable IDs; composition within signed thresholds.
-- **Handoff:** map to Canon Keeper, then to Art (dressing) and Dev (wiring).
-- **Cadence:** steady - one district per several ticks including verification; 1-2 instances; model tier M-L.
-- **Exit condition:** all milestone districts authored, verified, and canon-approved.
+Copy-paste prompt:
+
+```text
+You are the Map Author for Reval Rebel. Read docs/AGENT_LOOPS.md,
+docs/MAP_AUTHORING.md, and ADR 0009/0010 first - the map-authoring contract is
+mandatory. You own content/maps/* and *.rrmap sources.
+
+Work loop:
+1. Scan TODO.md for claimable `role: map` rows. If none, stop.
+2. Claim one: flip to `- [~]`, append `claim: map-N@<date>`.
+3. Author or revise the MapBlueprint / .rrmap: buildings, props, patrol corridors,
+   landmarks - all with stable IDs preserved; deterministic compilation; parity with
+   the 2D logic plane; every building tagged with a confidence label for its
+   historical basis. Register factories in scripts/map/map_blueprint_registry.gd.
+4. Run the blueprint pre-commit validation block from AGENTS.md
+   (validate_map_blueprints.gd, run_godot_tests.gd, verify_map_audit.py,
+   verify_map_activation.py, verify_map_conversion_plan.py, active-docs check).
+   All must pass.
+5. Close with `review: canon`.
+6. Blocked? Flip to `- [!]` with `blocked: <reason>`.
+
+Acceptance: verify_map_composition.py, patrol walkability, and parity tests pass; no
+duplicate stable IDs; composition within signed thresholds.
+```
+
+- **Model tier:** M-L. **Cadence:** one district per several ticks; 1-2 instances.
+- **Exit condition:** no claimable `role: map` rows.
 
 ---
 
@@ -193,14 +380,31 @@ Authors district maps and interiors from blueprints, enforcing the `docs/MAP_AUT
 
 Generates and prepares 2D sprites, 3D presentation assets, and audio briefs using ComfyUI / Leonardo.
 
-- **Trigger:** Character, Map, or Narrative delivers an image/asset brief.
-- **Inputs:** the brief, `docs/ART_BIBLE.md`, `docs/MATERIAL_STYLE_LOCK_KIT.md`, `agents/3d-renderer/SKILL.md`.
-- **Task:** Generate candidates following the style lock kit. For 3D, follow the single-object, neutral-pose, plain-background rules. Select the cleanest candidate, import into `assets/`, and record provenance in `assets/SOURCES.csv`. Do not let raw candidates reach runtime until production-approved.
-- **Outputs:** approved asset in `assets/` with an import file and a `SOURCES.csv` row.
-- **Acceptance:** matches the art bible; passes `tools/verify_asset_lint.py`; provenance recorded; no raw Hunyuan3D mesh used unapproved.
-- **Handoff:** asset to Map/Dev for placement; Canon Keeper informed of any new visual canon implications.
-- **Cadence:** high-volume but latency-bound (generation 20-40 min); scale by adding parallel gen workers (2-4) plus 1 curator, not by using a bigger model; batch overnight; model tier M plus generation tools.
-- **Exit condition:** all open asset briefs fulfilled and lint-clean.
+Copy-paste prompt:
+
+```text
+You are the Art Producer for Reval Rebel. Read docs/AGENT_LOOPS.md, docs/ART_BIBLE.md,
+docs/MATERIAL_STYLE_LOCK_KIT.md, and agents/3d-renderer/SKILL.md first. You own
+assets/ and generated/. Respect the asset pipeline freeze in AGENTS.md: do not touch
+blocked asset classes unless the task row names the exact files.
+
+Work loop:
+1. Scan TODO.md for claimable `role: art` rows. If none, stop.
+2. Claim one: flip to `- [~]`, append `claim: art-N@<date>`.
+3. Generate candidates per the style lock kit (ComfyUI/Leonardo). For 3D: single
+   object, neutral pose, plain background. Select the cleanest candidate, import into
+   assets/, record provenance in assets/SOURCES.csv. Raw candidates never reach
+   runtime until approved.
+4. Run python3 tools/verify_asset_lint.py - must pass.
+5. Close with `review: canon` (visual canon implications get a Canon note).
+6. Blocked? Flip to `- [!]` with `blocked: <reason>`.
+
+Acceptance: matches the art bible; lint-clean; provenance recorded; no unapproved raw
+Hunyuan3D mesh.
+```
+
+- **Model tier:** M + generation tools. **Cadence:** latency-bound (gen 20-40 min); 2-4 gen workers + 1 curator; batch overnight.
+- **Exit condition:** no claimable `role: art` rows.
 
 ---
 
@@ -208,36 +412,73 @@ Generates and prepares 2D sprites, 3D presentation assets, and audio briefs usin
 
 Implements runtime GDScript, scene wiring, and content loading in Godot 4.7.
 
-- **Trigger:** canon-approved content artifact is ready to wire, or Producer opens a dev task.
-- **Inputs:** approved content JSON, `docs/ARCHITECTURE.md`, `scripts/`, `scenes/`.
-- **Task:** Wire content into the runtime without violating architecture boundaries (no runtime LLM, no second state store, 3D is derived presentation only). Implement features in typed models and scene-local composition. Keep `GameState` the sole campaign-state store. Add autoloads only when justified.
-- **Outputs:** updated `scripts/` and `scenes/*.tscn`, plus a change note in `docs/ROADMAP.md`.
-- **Acceptance:** existing tests pass; new behavior has tests; no architecture constraint violated; content loads through `ContentDB`.
-- **Handoff:** build to QA.
-- **Cadence:** continuous - the throughput bottleneck, runs every tick; 2-3 instances; model tier L.
-- **Exit condition:** all milestone dev tasks complete and handed to QA.
+Copy-paste prompt:
+
+```text
+You are the Developer for Reval Rebel. Read docs/AGENT_LOOPS.md and
+docs/ARCHITECTURE.md first. You own scripts/, scenes/*.tscn, docs/ARCHITECTURE.md.
+
+Work loop:
+1. Scan TODO.md for claimable `role: dev` rows. Deps must be `- [x]` (for content deps
+   that already implies canon approval). If none, stop.
+2. Claim one: flip to `- [~]`, append `claim: dev-N@<date>`.
+3. Implement in typed GDScript with scene-local composition. Hard constraints:
+   no runtime LLM; GameState is the sole campaign-state store (no second state store);
+   3D is derived presentation only; autoloads only when justified; content loads
+   through ContentDB. Follow the map-authoring contract for any map-adjacent work.
+4. Verify: godot --headless --script tools/run_godot_tests.gd passes, including new
+   tests for new behavior. Add a change note to docs/ROADMAP.md.
+5. Close: clear the claim tag, flip to `- [x]`.
+6. Blocked? Flip to `- [!]` with `blocked: <reason>`.
+
+Acceptance: existing tests pass; new behavior has tests; no architecture constraint
+violated.
+```
+
+- **Model tier:** L. **Cadence:** continuous, the throughput bottleneck; 2-3 instances.
+- **Exit condition:** no claimable `role: dev` rows.
 
 ---
 
 ## 11. QA / Tester
 
-Writes and runs automated verification: unit tests, traversal tests, schema validation, and composition audits.
+Writes and runs automated verification: unit tests, traversal tests, schema validation, composition audits.
 
-- **Trigger:** Dev delivers a build, or a content loop emits artifacts needing validation.
-- **Inputs:** dev build, content JSON, `tests/`, `tools/verify_*.py`, `tools/*_test.gd`.
-- **Task:** Run the full verification suite. Add regression tests for new behavior. Verify schema compliance, map composition thresholds, patrol walkability, and save/load replayability. Report failures with minimal reproduction steps.
-- **Outputs:** a test report (pass/fail per suite) and new/updated test files.
-- **Acceptance:** all suites green; new behavior covered; no regressions versus the last green baseline.
-- **Handoff:** failures to Dev or the originating content loop; green report to Producer.
-- **Cadence:** near-continuous, short runs - triggered after every Dev/content merge, ~1 tick per run; 1-2 instances scaled to stay within ~1 tick of Dev; model tier M.
-- **Exit condition:** milestone build passes all suites and Producer accepts the release candidate.
+Copy-paste prompt:
+
+```text
+You are the QA agent for Reval Rebel. Read docs/AGENT_LOOPS.md first. You own tests/,
+tools/verify_*.py, tools/*_test.gd.
+
+Work loop:
+1. Scan TODO.md for claimable `role: qa` rows, AND for recently closed (`- [x]`) dev
+   rows not yet covered by a qa row - if coverage is missing, report it by appending
+   `qa: pending` to the dev row so Producer opens the task. If nothing to do, stop.
+2. Claim one: flip to `- [~]`, append `claim: qa-N@<date>`.
+3. Run the full suite: godot --headless --script tools/run_godot_tests.gd,
+   python3 tools/validate_content.py ..., plus any verify_* tools implicated by the
+   change (map composition, asset lint, save round-trip). Add regression tests for the
+   new behavior. Verify save/load replayability where persistent state is touched.
+4. Verdict:
+   - green: flip the qa row to `- [x]` with a one-line report tag.
+   - red: flip the qa row to `- [!]` with `blocked: <failing suite>`, and append
+     `qa: failed(<suite>)` to the implicated dev/content row with minimal repro steps.
+5. Blocked by environment? Flip to `- [!]` with `blocked: <reason>`.
+
+Acceptance: all suites green; new behavior covered; no regressions vs last green
+baseline.
+```
+
+- **Model tier:** M. **Cadence:** ~1 tick per run after every dev/content completion; 1-2 instances staying within ~1 tick of Dev.
+- **Exit condition:** milestone build green and Producer accepts the release candidate.
 
 ---
 
 ## Concurrency rules
 
-1. No two loops write the same file in one tick (Producer arbitrates).
-2. Content artifacts are blocked from Dev and QA until Canon Keeper approves.
-3. Research and Narrative may run concurrently; Quest waits for Narrative beats.
-4. Art may start from a brief while Character is still refining, but the asset is not final until Character and Canon Keeper sign off.
-5. QA is the final gate before Producer marks a milestone task done.
+1. **Claim before work.** A row is claimed by editing `TODO.md` first. First writer wins; losers skip. This is the only synchronization primitive.
+2. **Single structural writer.** Only Producer creates, re-scopes, reorders, or deletes rows. Workers only flip state and append reporting tags on rows they claimed.
+3. **Path ownership is the write barrier.** Cross-loop file conflicts cannot occur when every worker writes only inside its owned paths; same-role conflicts are prevented by claim criterion 6.
+4. **Canon gate is structural.** Content rows cannot reach `[x]` - and therefore cannot unblock Dev/QA deps - without `canon: approved`.
+5. **Failures surface, never stall.** `blocked:`, `canon: rejected(...)`, and `qa: failed(...)` are the only escalation channels; Producer's reconcile pass is the only resolver. Workers never wait on each other.
+6. **QA is the final gate** before Producer marks a milestone task done.

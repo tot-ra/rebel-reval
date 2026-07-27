@@ -4,6 +4,12 @@ Quick grab list for **open** work only. Order: low campaign priority first, then
 within each band: small complexity before large.
 
 Format: `- [ ] ID | deps: unresolved ID,ID or none | deliverable: ... | verify: ...`
+Extended async-worker format (see [`docs/AGENT_LOOPS.md`](docs/AGENT_LOOPS.md)):
+`- [ ] ID | role: <loop> | deps: ... | deliverable: ... | verify: ...`
+Row states: `- [ ]` open, `- [~]` claimed (`claim: <agent>@<date>`), `- [x]` done,
+`- [!]` failed (`blocked: <reason>`). Reporting tags: `review: canon`,
+`canon: approved/rejected(...)`, `qa: failed(<suite>)`. Only the Producer creates,
+re-scopes, reorders, or deletes rows; workers flip state on rows they claimed.
 
 References:
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) - delivery order, coordination notes, current focus

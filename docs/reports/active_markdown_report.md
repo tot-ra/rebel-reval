@@ -14,12 +14,12 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `61`
-- Markdown files excluded as archive/reference/out of active scope: `367`
-- Local/external links inspected: `429`
-- Links to active Markdown docs: `177`
-- Links to existing archive/reference/non-active local docs: `83`
-- External links skipped for reachability: `32`
+- Active Markdown files scanned: `64`
+- Markdown files excluded as archive/reference/out of active scope: `376`
+- Local/external links inspected: `442`
+- Links to active Markdown docs: `179`
+- Links to existing archive/reference/non-active local docs: `87`
+- External links skipped for reachability: `33`
 - Issues found: `0`
 
 ## Issue counts
@@ -54,6 +54,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0013-authorial-visual-direction-without-blind-ux-panels.md`
 - `docs/adr/0014-authorial-acceptance-gates-without-external-playtests.md`
 - `docs/adr/0015-default-third-person-camera.md`
+- `docs/AGENT_LOOPS.md`
 - `docs/ARCHITECTURE.md`
 - `docs/ART_BIBLE.md`
 - `docs/ASSET_INVENTORY.md`
@@ -96,7 +97,9 @@ No active Markdown documentation issues found.
 - `docs/SCENES/the-makers-mark.md`
 - `docs/SETUP.md`
 - `docs/TASK_ARCHIVE.md`
+- `docs/THIRD_PARTY_NOTICES.md`
 - `docs/TOURIST_LANDMARKS.md`
+- `docs/WITCHER3_REALISM_INSPIRATION.md`
 - `README.md`
 - `TODO.md`
 
