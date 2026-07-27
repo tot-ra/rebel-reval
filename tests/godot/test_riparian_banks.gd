@@ -50,6 +50,33 @@ func test_natural_bank_scatter_builds_cattail_clusters() -> void:
 	scatter.free()
 
 
+func test_reed_models_have_volumetric_botanical_silhouettes() -> void:
+	for entry in [
+		["common reeds", MapViewMeshBuilderPrimitives.reed_stem_mesh(), 300, 380],
+		["cattails", MapViewMeshBuilderPrimitives.cattail_cluster_mesh(), 360, 440],
+	]:
+		var label: String = entry[0]
+		var mesh: ArrayMesh = entry[1]
+		var minimum_triangles: int = entry[2]
+		var maximum_triangles: int = entry[3]
+		var arrays := mesh.surface_get_arrays(0)
+		var vertices := arrays[Mesh.ARRAY_VERTEX] as PackedVector3Array
+		var normals := arrays[Mesh.ARRAY_NORMAL] as PackedVector3Array
+		var colors := arrays[Mesh.ARRAY_COLOR] as PackedColorArray
+		var uvs := arrays[Mesh.ARRAY_TEX_UV] as PackedVector2Array
+		var triangle_count := vertices.size() / 3
+		var bounds := mesh.get_aabb()
+
+		assert_true(triangle_count >= minimum_triangles, "%s need rounded stems, curved leaves, and modeled seed heads" % label)
+		assert_true(triangle_count <= maximum_triangles, "%s must remain cheap enough for MultiMesh shoreline scatter" % label)
+		assert_eq(normals.size(), vertices.size(), "%s need complete lighting normals" % label)
+		assert_eq(colors.size(), vertices.size(), "%s need per-part botanical colors" % label)
+		assert_eq(uvs.size(), vertices.size(), "%s need root-to-tip UVs for wind animation" % label)
+		assert_true(bounds.position.y >= -0.0001, "%s must remain grounded at local y=0" % label)
+		assert_true(bounds.size.x >= 0.5 and bounds.size.z >= 0.5, "%s need a three-dimensional clump silhouette" % label)
+		assert_true(bounds.size.y >= 0.9 and bounds.size.y <= 1.25, "%s need plausible gameplay-scale height" % label)
+
+
 func _shore_definition(base_terrain: StringName) -> MapDefinition:
 	var definition := MapDefinition.new()
 	definition.map_id = &"test_riparian_bank_%s" % String(base_terrain)
