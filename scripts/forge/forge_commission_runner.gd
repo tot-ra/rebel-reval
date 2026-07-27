@@ -1,6 +1,8 @@
 class_name ForgeCommissionRunner
 extends Node
 
+const CommissionDeadlineModelScript := preload("res://scripts/commission/commission_deadline_model.gd")
+
 ## Content-driven forge commission flow: snapshot display and forging-option resolution.
 
 signal started(commission_id: StringName)
@@ -156,6 +158,8 @@ func _commit_option(option_id: String) -> bool:
 	if selected.is_empty():
 		return _fail(Result.UNKNOWN_OPTION, "commission %s has no option %s" % [_commission_id, option_id])
 
+	CommissionDeadlineModelScript.mark_commission_met_if_timely(_state, _commission_id, _content_db)
+
 	var effects: Array = selected.get("effects", [])
 	if not effects.is_empty() and not _evaluator.apply_effects(_runtime_rules(effects), _state):
 		return _fail(Result.EFFECTS_REJECTED, _evaluator.get_last_error())
@@ -169,6 +173,8 @@ func _commit_option(option_id: String) -> bool:
 	)
 	if not _state.add_forged_record(record):
 		return _fail(Result.ALREADY_RESOLVED, "forged record already exists for commission %s" % _commission_id)
+
+	CommissionDeadlineModelScript.mark_commission_met(_state, _commission_id, _content_db)
 
 	option_selected.emit(_commission_id, option_id)
 	_close()

@@ -78,6 +78,22 @@
     }
   ],
   "night_consequence": "The repaired buckle and ledger branch affect Henning's trust and later watch pressure.",
+  "deadline": {
+    "due_phase_id": "phase.investigation_morning",
+    "journal_label": "Before Henning's morning inspection",
+    "missed_effects": [
+      {
+        "op": "set_flag",
+        "key": "flag.watch_buckle_deadline_missed",
+        "value": true
+      },
+      {
+        "op": "adjust_relationship",
+        "key": "rel.henning_trust",
+        "amount": -1
+      }
+    ]
+  },
   "source_notes": [
     {
       "confidence": "invented",

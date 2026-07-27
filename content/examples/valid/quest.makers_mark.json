@@ -219,11 +219,13 @@
       "bark.prologue.watch_pressure"
     ],
     "commission_ids": [
-      "commission.watch_buckle_repair"
+      "commission.watch_buckle_repair",
+      "commission.lantern_hook_rush"
     ],
     "item_ids": [
       "item.seized_spearhead",
-      "item.watch_buckle"
+      "item.watch_buckle",
+      "item.lantern_hook"
     ],
     "location_ids": [
       "loc.kalev_smithy",

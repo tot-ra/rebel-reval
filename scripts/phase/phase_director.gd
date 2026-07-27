@@ -4,6 +4,7 @@ extends Node
 ## Owns phase-boundary autosave and global presentation hooks (music, lighting).
 
 const PhaseProfileModelScript := preload("res://scripts/phase/phase_profile_model.gd")
+const CommissionDeadlineModelScript := preload("res://scripts/commission/commission_deadline_model.gd")
 
 signal profile_applied(profile: Dictionary, phase_id: StringName)
 
@@ -84,7 +85,13 @@ func _unbind_state() -> void:
 	_connected_state = null
 
 
-func _on_phase_changed(_previous: StringName, next: StringName) -> void:
+func _on_phase_changed(previous: StringName, next: StringName) -> void:
+	CommissionDeadlineModelScript.sync_on_phase_change(
+		SessionState.state,
+		SessionState.content_db,
+		previous,
+		next
+	)
 	if not SessionState.save_game():
 		push_warning("Phase-boundary autosave failed for phase %s" % String(next))
 	apply_profile_for_phase(next)

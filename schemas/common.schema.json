@@ -131,7 +131,9 @@
             "item_owned",
             "quest_state_is",
             "forged_modification_is",
-            "memory_recorded"
+            "memory_recorded",
+            "commission_deadline_met",
+            "commission_deadline_missed"
           ]
         },
         "key": {

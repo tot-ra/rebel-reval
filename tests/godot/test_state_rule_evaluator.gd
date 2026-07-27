@@ -1,5 +1,7 @@
 extends "res://tests/godot/test_case.gd"
 
+const CommissionDeadlineModelScript := preload("res://scripts/commission/commission_deadline_model.gd")
+
 const FLAG_INCIDENT := &"flag.prologue_maker_mark_incident"
 const FACT_SPEARHEAD := &"fact.seized_spearhead_seen"
 const PHASE_NIGHT := &"phase.investigation_night"
@@ -84,6 +86,21 @@ func test_all_condition_operators() -> void:
 	state.record_relationship_memory(&"memory.mart.helped")
 	var memory_condition := {"op": "memory_recorded", "key": "memory.mart.helped"}
 	assert_true(evaluator.evaluate_condition(memory_condition, state))
+
+	state.set_commission_deadline_status(&"commission.watch_buckle_repair", CommissionDeadlineModelScript.STATUS_MET)
+	assert_true(
+		evaluator.evaluate_condition(
+			{"op": "commission_deadline_met", "key": "commission.watch_buckle_repair"},
+			state
+		)
+	)
+	state.set_commission_deadline_status(&"commission.lantern_hook_rush", CommissionDeadlineModelScript.STATUS_MISSED)
+	assert_true(
+		evaluator.evaluate_condition(
+			{"op": "commission_deadline_missed", "key": "commission.lantern_hook_rush"},
+			state
+		)
+	)
 
 
 func test_false_condition_is_not_an_error() -> void:

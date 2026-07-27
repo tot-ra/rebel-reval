@@ -1,0 +1,103 @@
+{
+  "type": "commission",
+  "id": "commission.lantern_hook_rush",
+  "title": "Rush the lantern hook",
+  "client_id": "char.mart",
+  "quest_id": "quest.makers_mark",
+  "object_item_id": "item.lantern_hook",
+  "location_id": "loc.kalev_smithy",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-029",
+    "notes": "Deadline fixture for P4-029; Mart needs the hook before he opens the stall."
+  },
+  "concrete_order": "Forge Mart's lantern hook before he opens the Lower Town stall.",
+  "hidden_contradiction": "Mart needs the hook to light the lane, but a rushed job can hide a weak weld he will not notice until patrols pass.",
+  "investigation_clues": [
+    {
+      "id": "stall_opening",
+      "summary": "Mart plans to hang the lantern before the morning watch changes.",
+      "reveals_fact_id": "fact.seized_spearhead_seen"
+    }
+  ],
+  "forging_options": [
+    {
+      "id": "honest_work",
+      "label": "Forge a sturdy hook with clean welds.",
+      "effects": [
+        {
+          "op": "adjust_relationship",
+          "key": "rel.mart_trust",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "subtle_defect",
+      "label": "Rush the welds and hide a weak seam.",
+      "requires": [
+        {
+          "op": "commission_deadline_missed",
+          "key": "commission.lantern_hook_rush"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.lantern_hook_rushed_defect",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "secret_feature",
+      "label": "Forge a reinforced hook that earns Mart's gratitude.",
+      "requires": [
+        {
+          "op": "commission_deadline_met",
+          "key": "commission.lantern_hook_rush"
+        }
+      ],
+      "effects": [
+        {
+          "op": "adjust_relationship",
+          "key": "rel.mart_trust",
+          "amount": 2
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.lantern_hook_on_time_bonus",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "night_consequence": "Mart's lantern hook changes how warmly he vouches for Kalev on the street.",
+  "deadline": {
+    "due_phase_id": "phase.investigation_morning",
+    "journal_label": "Before Mart opens the street stall",
+    "missed_effects": [
+      {
+        "op": "set_flag",
+        "key": "flag.lantern_hook_deadline_missed",
+        "value": true
+      },
+      {
+        "op": "adjust_relationship",
+        "key": "rel.mart_trust",
+        "amount": -1
+      }
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-029 deadline fixture with on-time bonus and late-only defect option.",
+      "citations": [
+        "content/examples/valid/quest.makers_mark.json"
+      ]
+    }
+  ]
+}

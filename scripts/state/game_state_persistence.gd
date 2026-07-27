@@ -15,6 +15,10 @@ static func save_payload(state: GameState) -> Dictionary:
 			"modification_id": String(record.modification_id),
 		})
 
+	var commission_deadlines: Dictionary = {}
+	for commission_id in state._commission_deadlines:
+		commission_deadlines[String(commission_id)] = String(state._commission_deadlines[commission_id])
+
 	var placements: Array[Dictionary] = []
 	for placement in state.bag.placements:
 		placements.append({
@@ -50,6 +54,7 @@ static func save_payload(state: GameState) -> Dictionary:
 		"items": _bool_dictionary(state._items),
 		"dialogue_nodes_seen": _bool_dictionary(state._dialogue_nodes_seen),
 		"relationship_memories": _bool_dictionary(state._relationship_memories),
+		"commission_deadlines": commission_deadlines,
 		"forged_records": forged,
 		"world_items": state._world_items.duplicate(true),
 		"world_defaults_seeded": state._world_defaults_seeded.duplicate(true),
@@ -133,6 +138,11 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 		payload.get("relationship_memories", {}),
 		errors,
 		"relationship_memories"
+	)
+	state._commission_deadlines = _load_string_dictionary(
+		payload.get("commission_deadlines", {}),
+		errors,
+		"commission_deadlines"
 	)
 
 	state._forged_records.clear()

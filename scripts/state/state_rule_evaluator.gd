@@ -2,6 +2,7 @@ class_name StateRuleEvaluator
 extends RefCounted
 
 const DistrictPressureModelScript := preload("res://scripts/faction/district_pressure_model.gd")
+const CommissionDeadlineModelScript := preload("res://scripts/commission/commission_deadline_model.gd")
 
 ## Runtime counterpart to the allowlists in schemas/common.schema.json.
 ## Operation dictionaries are data only: no value is ever evaluated as GDScript.
@@ -21,6 +22,8 @@ const CONDITION_OPS := [
 	"quest_state_is",
 	"forged_modification_is",
 	"memory_recorded",
+	"commission_deadline_met",
+	"commission_deadline_missed",
 ]
 
 const EFFECT_OPS := [
@@ -92,6 +95,10 @@ func evaluate_condition(condition: Dictionary, state: GameState) -> bool:
 			return state.has_forged_modification(key, StringName(String(condition["value"])))
 		"memory_recorded":
 			return state.has_relationship_memory(key)
+		"commission_deadline_met":
+			return CommissionDeadlineModelScript.is_deadline_met(state, key)
+		"commission_deadline_missed":
+			return CommissionDeadlineModelScript.is_deadline_missed(state, key)
 	return false
 
 
@@ -217,6 +224,8 @@ func _validate_condition(condition: Dictionary, state: GameState) -> String:
 			return _validate_forged_modification(condition)
 		"memory_recorded":
 			return _validate_key_only(condition, "memory.")
+		"commission_deadline_met", "commission_deadline_missed":
+			return _validate_key_only(condition, "commission.")
 	return "unsupported condition op: %s" % op
 
 

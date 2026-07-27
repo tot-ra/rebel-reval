@@ -5,6 +5,7 @@ extends RefCounted
 ## Quest outcomes are never surfaced here; only objectives and discovered facts.
 
 const EVALUATOR_SCRIPT := preload("res://scripts/state/state_rule_evaluator.gd")
+const CommissionDeadlineModelScript := preload("res://scripts/commission/commission_deadline_model.gd")
 
 
 static func build_snapshot(
@@ -17,7 +18,7 @@ static func build_snapshot(
 	var evidence: Array[Dictionary] = []
 
 	if state == null or content_db == null or not content_db.is_loaded():
-		return {"objectives": objectives, "evidence": evidence}
+		return {"objectives": objectives, "evidence": evidence, "commission_deadlines": []}
 
 	for quest_id in content_db.get_ids_by_type(ContentDB.TYPE_QUEST):
 		var quest := content_db.get_quest(quest_id)
@@ -51,7 +52,8 @@ static func build_snapshot(
 		var right := "%s:%s" % [String(b.get("quest_id", "")), String(b.get("fact_id", ""))]
 		return left < right
 	)
-	return {"objectives": objectives, "evidence": evidence}
+	var commission_deadlines: Array[Dictionary] = CommissionDeadlineModelScript.build_journal_deadlines(state, content_db)
+	return {"objectives": objectives, "evidence": evidence, "commission_deadlines": commission_deadlines}
 
 
 static func _current_objective_for_quest(

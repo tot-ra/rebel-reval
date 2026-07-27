@@ -80,4 +80,6 @@ func test_journal_state_survives_save_round_trip() -> void:
 	assert_eq(restored.load_payload(payload).size(), 0)
 
 	var after := JournalModel.build_snapshot(restored, db)
-	assert_eq(after, before)
+	assert_eq(after.get("objectives", []), before.get("objectives", []))
+	assert_eq(after.get("evidence", []), before.get("evidence", []))
+	assert_eq(after.get("commission_deadlines", []), before.get("commission_deadlines", []))

@@ -10,6 +10,7 @@ var _panel: PanelContainer
 var _tab_container: TabContainer
 var _objective_title: Label
 var _objective_body: Label
+var _deadline_list: ItemList
 var _evidence_list: ItemList
 var _faction_list: ItemList
 
@@ -123,6 +124,16 @@ func _build_objectives_tab() -> void:
 	_objective_body.add_theme_font_size_override("font_size", 14)
 	tab.add_child(_objective_body)
 
+	var deadline_header := Label.new()
+	deadline_header.text = "Commission deadlines"
+	deadline_header.add_theme_font_size_override("font_size", 16)
+	tab.add_child(deadline_header)
+
+	_deadline_list = ItemList.new()
+	_deadline_list.custom_minimum_size = Vector2(0, 72)
+	_deadline_list.fixed_icon_size = Vector2.ZERO
+	tab.add_child(_deadline_list)
+
 	var evidence_header := Label.new()
 	evidence_header.text = "Discovered evidence"
 	evidence_header.add_theme_font_size_override("font_size", 16)
@@ -164,6 +175,7 @@ func _refresh_objectives() -> void:
 	if _state == null or _content_db == null:
 		_objective_title.text = "No active objective"
 		_objective_body.text = ""
+		_deadline_list.clear()
 		_evidence_list.clear()
 		return
 
@@ -176,6 +188,19 @@ func _refresh_objectives() -> void:
 		var primary: Dictionary = objectives[0]
 		_objective_title.text = String(primary.get("quest_title", ""))
 		_objective_body.text = String(primary.get("text", ""))
+
+	_deadline_list.clear()
+	var deadlines: Array = snapshot.get("commission_deadlines", [])
+	if deadlines.is_empty():
+		_deadline_list.add_item("No urgent commissions.")
+	else:
+		for entry in deadlines:
+			if typeof(entry) != TYPE_DICTIONARY:
+				continue
+			var row := entry as Dictionary
+			_deadline_list.add_item(
+				"%s - %s" % [String(row.get("title", "")), String(row.get("label", ""))]
+			)
 
 	_evidence_list.clear()
 	var evidence: Array = snapshot.get("evidence", [])

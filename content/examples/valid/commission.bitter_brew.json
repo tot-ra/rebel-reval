@@ -110,6 +110,22 @@
     }
   ],
   "night_consequence": "The forged response changes watch checkpoint routes and brewery pressure during investigation night.",
+  "deadline": {
+    "due_phase_id": "phase.investigation_night",
+    "journal_label": "Before the night ward tightens",
+    "missed_effects": [
+      {
+        "op": "set_flag",
+        "key": "flag.bitter_brew_deadline_missed",
+        "value": true
+      },
+      {
+        "op": "adjust_pressure",
+        "key": "pressure.suspicion",
+        "amount": 1
+      }
+    ]
+  },
   "source_notes": [
     {
       "confidence": "invented",

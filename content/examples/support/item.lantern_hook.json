@@ -1,0 +1,32 @@
+{
+  "type": "item",
+  "id": "item.lantern_hook",
+  "name": "Street lantern hook",
+  "icon": "res://assets/UI/inventory/watch_buckle.png",
+  "category": "commission_object",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P4-029"
+  },
+  "material_grade": "common",
+  "gameplay": {
+    "visible_in_pouch": false,
+    "stackable": false,
+    "uses": [
+      "Iron hook for Mart's street lantern bracket."
+    ],
+    "carry": {
+      "weight_g": 900,
+      "grid_width": 1,
+      "grid_height": 2
+    }
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Support item for the P4-029 rush commission deadline fixture."
+    }
+  ]
+}

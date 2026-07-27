@@ -4,6 +4,8 @@ extends RefCounted
 const _PersistenceScript := preload("res://scripts/state/game_state_persistence.gd")
 const _RelationshipMemoryScript := preload("res://scripts/relationship/relationship_memory.gd")
 
+const COMMISSION_DEADLINE_ACTIVE := &"active"
+
 ## Fired after a slot's contents change so the 3D view can mirror the state.
 signal equipment_changed(slot: StringName)
 ## Fired when quest ownership flags change.
@@ -58,6 +60,7 @@ var _location_states: Dictionary[StringName, StringName] = {}
 var _items: Dictionary[StringName, bool] = {}
 var _dialogue_nodes_seen: Dictionary[StringName, bool] = {}
 var _relationship_memories: Dictionary[StringName, bool] = {}
+var _commission_deadlines: Dictionary[StringName, StringName] = {}
 var _world_items: Dictionary = {}
 var _world_defaults_seeded: Dictionary = {}
 ## One equipped forge technique (Iron / Ember / Root) or empty when none.
@@ -84,6 +87,20 @@ func set_phase(value: StringName) -> void:
 	var previous := phase
 	phase = value
 	phase_changed.emit(previous, value)
+
+
+func get_commission_deadline_status(commission_id: StringName) -> StringName:
+	if commission_id.is_empty():
+		return &""
+	if not _commission_deadlines.has(commission_id):
+		return COMMISSION_DEADLINE_ACTIVE
+	return _commission_deadlines[commission_id]
+
+
+func set_commission_deadline_status(commission_id: StringName, status: StringName) -> void:
+	if commission_id.is_empty() or status.is_empty():
+		return
+	_commission_deadlines[commission_id] = status
 
 
 func get_fact(key: StringName) -> bool:

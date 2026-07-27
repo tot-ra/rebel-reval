@@ -4,6 +4,7 @@ extends RefCounted
 ## Builds player-facing commission snapshots from authored content and GameState.
 
 const EVALUATOR_SCRIPT := preload("res://scripts/state/state_rule_evaluator.gd")
+const CommissionDeadlineModelScript := preload("res://scripts/commission/commission_deadline_model.gd")
 
 const MATERIAL_LABELS := {
 	"common": "Common iron",
@@ -44,6 +45,7 @@ static func build_snapshot(
 		"forging_options": _resolve_forging_options(commission, state, rule_evaluator),
 		"already_resolved": is_commission_resolved(state, commission_id),
 		"night_consequence": String(commission.get("night_consequence", "")),
+		"deadline": CommissionDeadlineModelScript.deadline_snapshot(commission, state, content_db),
 	}
 
 
@@ -77,6 +79,7 @@ static func _empty_snapshot(commission_id: StringName) -> Dictionary:
 		"forging_options": [],
 		"already_resolved": false,
 		"night_consequence": "",
+		"deadline": {},
 	}
 
 

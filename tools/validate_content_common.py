@@ -35,6 +35,8 @@ CONDITION_OPS = {
     "quest_state_is",
     "forged_modification_is",
     "memory_recorded",
+    "commission_deadline_met",
+    "commission_deadline_missed",
 }
 
 EFFECT_OPS = {
@@ -98,6 +100,18 @@ CONDITION_RULES: dict[str, dict[str, Any]] = {
         "forbidden": {"value", "amount"},
         "key_prefix": "memory.",
         "memory_ref": True,
+    },
+    "commission_deadline_met": {
+        "required": {"key"},
+        "forbidden": {"value", "amount"},
+        "key_prefix": "commission.",
+        "commission_ref": True,
+    },
+    "commission_deadline_missed": {
+        "required": {"key"},
+        "forbidden": {"value", "amount"},
+        "key_prefix": "commission.",
+        "commission_ref": True,
     },
 }
 

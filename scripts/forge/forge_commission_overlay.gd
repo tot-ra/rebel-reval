@@ -10,6 +10,7 @@ var _customer_value: Label
 var _object_value: Label
 var _purpose_value: Label
 var _materials_value: Label
+var _deadline_value: Label
 var _leverage_list: ItemList
 var _options_box: VBoxContainer
 var _resolved_label: Label
@@ -95,6 +96,7 @@ func _build_ui() -> void:
 	_object_value = _add_field_row(layout, "Object")
 	_purpose_value = _add_field_row(layout, "Known purpose")
 	_materials_value = _add_field_row(layout, "Materials")
+	_deadline_value = _add_field_row(layout, "Deadline")
 
 	var leverage_header := Label.new()
 	leverage_header.text = "Discovered leverage"
@@ -156,6 +158,12 @@ func _refresh() -> void:
 	_object_value.text = String(_snapshot.get("object_name", ""))
 	_purpose_value.text = String(_snapshot.get("known_purpose", ""))
 	_materials_value.text = String(_snapshot.get("materials", ""))
+
+	var deadline: Dictionary = _snapshot.get("deadline", {})
+	if deadline.is_empty():
+		_deadline_value.text = "No deadline"
+	else:
+		_deadline_value.text = String(deadline.get("display", deadline.get("label", "")))
 
 	_leverage_list.clear()
 	var leverage: Array = _snapshot.get("discovered_leverage", [])
