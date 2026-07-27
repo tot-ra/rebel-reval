@@ -56,6 +56,26 @@ func test_concurrent_bird_cap_is_enforced() -> void:
 	flight.queue_free()
 
 
+func test_active_birds_fly_above_the_ground() -> void:
+	var flight := BirdFlight.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(flight)
+	flight.configure(&"lower_town_slice", BirdSpecies.CONTEXT_LOWER_TOWN, Vector2i(64, 36))
+	# The first sync deterministically spawns a bird; inspect it before the short
+	# test map lets that bird cross the opposite edge and despawn.
+	flight.sync(BirdSpecies.CONTEXT_LOWER_TOWN, 0.35, 0.1)
+	var checked := 0
+	for bird in flight.get_children():
+		if not bird.visible:
+			continue
+		checked += 1
+		assert_true(
+			bird.position.y >= BirdFlight.FLIGHT_HEIGHT_MIN * 0.9,
+			"%s must fly instead of circling on the ground" % bird.name
+		)
+	assert_true(checked > 0, "at least one ambient bird must be in flight")
+	flight.queue_free()
+
+
 func test_disabling_bird_flight_leaves_game_state_unchanged() -> void:
 	var state := GameState.new()
 	var before := state.save_payload()

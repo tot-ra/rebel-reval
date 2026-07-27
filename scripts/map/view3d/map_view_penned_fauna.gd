@@ -5,6 +5,7 @@ extends Node3D
 ## only: no collision, gameplay interaction, or GameState writes.
 
 const FaunaContext := preload("res://scripts/map/view3d/map_view_fauna_context.gd")
+const GroundWander := preload("res://scripts/map/view3d/map_view_ground_wander.gd")
 const MapViewBridge := preload("res://scripts/map/view3d/map_view_bridge.gd")
 const MammalMeshes := preload("res://scripts/map/view3d/map_view_mammal_meshes.gd")
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
@@ -13,6 +14,9 @@ const UrbanFauna := preload("res://scripts/map/view3d/map_view_urban_fauna.gd")
 const MAX_CONCURRENT_FAUNA := 10
 const FLEE_RADIUS := 6.5
 const FLEE_SPEED := 5.0
+const PEN_SPEED := 0.34
+const TETHER_SPEED := 0.22
+const WILD_SPEED := 0.85
 
 const DOMESTIC_SPECIES: Array[StringName] = [
 	MammalSpecies.SPECIES_CHICKEN,
@@ -198,49 +202,32 @@ func _make_actor(index: int, placement: Dictionary) -> Node3D:
 	actor.rotation.y = _yaw_for_placement(index)
 	actor.set_meta(&"species", species)
 	actor.set_meta(&"behavior", behavior)
-	actor.set_meta(&"radius", radius)
-	actor.set_meta(&"home", home)
-	actor.set_meta(&"phase", float(hash_seed(_map_id, index, 17) % 6283) / 1000.0)
-	actor.set_meta(&"placement_index", index)
+	GroundWander.setup(actor, _map_id, index, _wander_config(behavior, home, radius))
 	return actor
 
 
-func _advance_actor(actor: Node3D, listener_position: Vector3, delta: float) -> void:
-	var behavior: StringName = actor.get_meta(&"behavior", BEHAVIOR_PEN)
-	var home: Vector3 = actor.get_meta(&"home", Vector3.ZERO)
-	var radius := float(actor.get_meta(&"radius", 1.0))
-	var phase := float(actor.get_meta(&"phase", 0.0)) + delta
-	actor.set_meta(&"phase", phase)
-	var offset := Vector3.ZERO
+static func _wander_config(behavior: StringName, home: Vector3, radius: float) -> Dictionary:
+	var config := {"home": home, "radius": radius}
 	match behavior:
-		BEHAVIOR_PEN:
-			offset = Vector3(
-				sin(phase * 0.42) * radius * 0.28,
-				0.0,
-				cos(phase * 0.36) * radius * 0.28
-			)
 		BEHAVIOR_TETHER:
-			offset = Vector3(
-				sin(phase * 0.35) * radius * 0.42,
-				0.0,
-				cos(phase * 0.28) * radius * 0.42
-			)
+			config["speed"] = TETHER_SPEED
+			config["roam_scale"] = 0.42
+			config["pause_range"] = Vector2(2.4, 6.0)
 		BEHAVIOR_FLEE:
-			offset = Vector3(
-				sin(phase * 1.4) * radius * 0.35,
-				0.0,
-				cos(phase * 1.2) * radius * 0.35
-			)
-			var flat_listener := Vector3(listener_position.x, home.y, listener_position.z)
-			var away := home - flat_listener
-			if away.length() < FLEE_RADIUS and away.length() > 0.01:
-				away = away.normalized() * clampf((FLEE_RADIUS - away.length()) * 0.55, 0.0, radius)
-				offset += away * FLEE_SPEED * delta
-	actor.position = home + offset
-	var facing := offset
-	if facing.length_squared() < 0.0001:
-		facing = Vector3(sin(phase), 0.0, cos(phase))
-	actor.look_at(actor.position + Vector3(facing.x, 0.0, facing.z).normalized(), Vector3.UP)
+			config["speed"] = WILD_SPEED
+			config["roam_scale"] = 0.78
+			config["pause_range"] = Vector2(0.8, 2.6)
+			config["flee_speed"] = FLEE_SPEED
+			config["flee_radius"] = FLEE_RADIUS
+		_:
+			config["speed"] = PEN_SPEED
+			config["roam_scale"] = 0.62
+			config["pause_range"] = Vector2(1.6, 4.4)
+	return config
+
+
+func _advance_actor(actor: Node3D, listener_position: Vector3, delta: float) -> void:
+	GroundWander.advance(actor, _map_id, listener_position, delta)
 
 
 static func _pose_for_behavior(behavior: StringName, species: StringName) -> StringName:

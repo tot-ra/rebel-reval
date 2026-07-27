@@ -47,6 +47,60 @@ func test_wander_and_tether_actors_stay_within_authored_radius() -> void:
 	fauna.queue_free()
 
 
+func test_urban_fauna_stays_on_the_ground_plane() -> void:
+	var fauna := UrbanFauna.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(fauna)
+	fauna.configure(&"lower_town_slice", MammalSpecies.CONTEXT_LOWER_TOWN, 32)
+	for step in 64:
+		fauna.sync(MammalSpecies.CONTEXT_LOWER_TOWN, 0.1, Vector3.ZERO, true)
+		for actor in fauna.get_children():
+			var home: Vector3 = actor.get_meta(&"home", Vector3.ZERO)
+			assert_true(
+				is_equal_approx(actor.position.y, home.y),
+				"%s must not drift off the ground" % actor.name
+			)
+	fauna.queue_free()
+
+
+func test_moving_fauna_walks_in_straight_segments_instead_of_circling() -> void:
+	var fauna := UrbanFauna.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(fauna)
+	fauna.configure(&"lower_town_slice", MammalSpecies.CONTEXT_LOWER_TOWN, 32)
+	var previous: Dictionary = {}
+	var previous_heading: Dictionary = {}
+	var moving_steps: Dictionary = {}
+	var turns: Dictionary = {}
+	for step in 200:
+		for actor in fauna.get_children():
+			previous[actor.name] = actor.position
+		fauna.sync(MammalSpecies.CONTEXT_LOWER_TOWN, 0.1, Vector3.ZERO, true)
+		for actor in fauna.get_children():
+			var movement: Vector3 = actor.position - Vector3(previous[actor.name])
+			if movement.length() < 0.0001:
+				continue
+			var heading := movement.normalized()
+			moving_steps[actor.name] = int(moving_steps.get(actor.name, 0)) + 1
+			if previous_heading.has(actor.name):
+				# Circular motion re-aims every frame; waypoint walking only turns
+				# when a leg of the route ends.
+				if heading.dot(previous_heading[actor.name]) < 0.999:
+					turns[actor.name] = int(turns.get(actor.name, 0)) + 1
+			previous_heading[actor.name] = heading
+
+	var checked := 0
+	for actor in fauna.get_children():
+		var steps := int(moving_steps.get(actor.name, 0))
+		if steps < 10:
+			continue
+		checked += 1
+		assert_true(
+			float(turns.get(actor.name, 0)) <= float(steps) * 0.25,
+			"%s changes heading every step, which reads as circling" % actor.name
+		)
+	assert_true(checked > 0, "at least one actor must actually travel")
+	fauna.queue_free()
+
+
 func test_concurrent_fauna_cap_is_enforced() -> void:
 	var fauna := UrbanFauna.new()
 	(Engine.get_main_loop() as SceneTree).root.add_child(fauna)

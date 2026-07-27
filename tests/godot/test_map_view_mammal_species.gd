@@ -3,6 +3,16 @@ extends "res://tests/godot/test_case.gd"
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 const MammalMeshes := preload("res://scripts/map/view3d/map_view_mammal_meshes.gd")
 
+## Catalog silhouettes stay cheap, but the two Lower Town urban actors are seen
+## from close range on the street and carry facial and paw detail, so they get a
+## wider budget. Concurrency is capped at eight urban actors (P2-024).
+const REFERENCE_TRIANGLE_BUDGET := 420
+const DETAILED_TRIANGLE_BUDGET := 680
+const DETAILED_SPECIES: Array[StringName] = [
+	MammalSpecies.SPECIES_CAT,
+	MammalSpecies.SPECIES_RAT,
+]
+
 
 func test_catalog_exposes_thirty_stable_profiled_mammal_ids() -> void:
 	assert_eq(MammalSpecies.ALL_SPECIES.size(), 30)
@@ -39,8 +49,11 @@ func test_every_species_supports_cached_pose_variants_with_bounded_geometry() ->
 			assert_true(mesh.get_surface_count() > 0, "%s mesh needs geometry" % variant)
 			assert_true(mesh == MammalMeshes.mesh_for(species, pose), "%s mesh must be cached" % variant)
 			var stats := MammalMeshes.geometry_stats(species, pose)
-			assert_true(int(stats.get("triangles", 0)) >= 80, "%s silhouette is under-modeled" % variant)
-			assert_true(int(stats.get("triangles", 9999)) <= 420, "%s exceeds the low-poly budget" % variant)
+			var triangles := int(stats.get("triangles", 0))
+			var detail_floor := 500 if species in DETAILED_SPECIES else 80
+			assert_true(triangles >= detail_floor, "%s silhouette is under-modeled" % variant)
+			var budget := DETAILED_TRIANGLE_BUDGET if species in DETAILED_SPECIES else REFERENCE_TRIANGLE_BUDGET
+			assert_true(triangles <= budget, "%s exceeds the low-poly budget" % variant)
 		var default_stats := MammalMeshes.geometry_stats(species)
 		var bounds: AABB = default_stats.get("aabb", AABB())
 		var signature := "%0.2f:%0.2f:%0.2f" % [bounds.size.x, bounds.size.y, bounds.size.z]
