@@ -17,6 +17,8 @@ const COBBLE_TEXTURE_SIZE := 512
 const EMBER_COLOR := Color8(224, 108, 48)
 const EMBER_ENERGY := 1.6
 const WATER_MATERIALS := preload("res://scripts/map/view3d/map_view_water_materials.gd")
+const BUILDING_MATERIALS := preload("res://scripts/map/view3d/map_view_building_materials.gd")
+const PROP_MATERIALS := preload("res://scripts/map/view3d/map_view_prop_materials.gd")
 
 const WATER_WAVE_BASE := {
 	MapTypes.TERRAIN_SHALLOW_WATER: {
@@ -173,6 +175,8 @@ static func reset() -> void:
 	MapViewMaterialShaders.reset()
 	MapViewMaterialPatterns.reset()
 	WATER_MATERIALS.reset()
+	BUILDING_MATERIALS.reset()
+	PROP_MATERIALS.reset()
 
 
 static func terrain(terrain_id: StringName, noise_seed: int) -> StandardMaterial3D:
@@ -395,246 +399,93 @@ static func flag_cloth() -> ShaderMaterial:
 	return material
 
 
+## Building material API remains here for existing map builders and tests.
+## Construction-specific caches, weathering, and UV rules live in BUILDING_MATERIALS.
 static func wall(color: Color) -> StandardMaterial3D:
-	return _building_surface("wall", color, PATTERN_PLASTER)
+	return BUILDING_MATERIALS.wall(color)
 
 
-## Building wall surface in an explicit material family so houses read as
-## built from something: plastered timber frame, brick, plank, log, or limestone.
 static func wall_surface(family: StringName, color: Color) -> StandardMaterial3D:
-	match family:
-		&"brick":
-			return _building_surface("wall_brick", color, PATTERN_BRICK)
-		&"plank":
-			return _building_surface("wall_plank", color, PATTERN_PLANK)
-		&"log":
-			return _building_surface("wall_log", color, PATTERN_LOG)
-		&"limestone":
-			return _building_surface("wall_limestone", color, PATTERN_LIMESTONE)
-		_:
-			return _building_surface("wall_plaster", color, PATTERN_PLASTER)
+	return BUILDING_MATERIALS.wall_surface(family, color)
 
 
-## Wall material with UV repeats derived from the mesh world size so BoxMesh
-## faces tile instead of stretching one pattern across the full span.
 static func wall_surface_for_size(family: StringName, color: Color, size: Vector3) -> StandardMaterial3D:
-	var material := wall_surface(family, color).duplicate()
-	material.uv1_scale = building_uv_scale(_wall_pattern(family), size)
-	return material
+	return BUILDING_MATERIALS.wall_surface_for_size(family, color, size)
 
 
-## Per-building wall material with unique pattern seed and weathering band.
 static func wall_surface_for_building(
 	surface_id: StringName,
 	family: StringName,
 	color: Color,
 	size: Vector3
 ) -> StandardMaterial3D:
-	var pattern := _wall_pattern(family)
-	var weathering := surface_weathering_variant(surface_id)
-	var material := _building_surface_weathered(
-		"wall_building",
-		surface_id,
-		_weathered_albedo(color, weathering),
-		pattern,
-		weathering
-	)
-	material.uv1_scale = building_uv_scale(pattern, size)
-	return material
+	return BUILDING_MATERIALS.wall_surface_for_building(surface_id, family, color, size)
 
 
-## Per-building roof material with unique pattern seed and weathering band.
 static func roof_surface_for_building(
 	surface_id: StringName,
 	family: StringName,
 	color: Color
 ) -> StandardMaterial3D:
-	var pattern := PATTERN_ROOF_TILE
-	match family:
-		&"shingle":
-			pattern = PATTERN_SHINGLE
-		&"thatch", &"straw":
-			pattern = PATTERN_THATCH
-	var weathering := surface_weathering_variant(surface_id)
-	return _building_surface_weathered(
-		"roof_building",
-		surface_id,
-		_weathered_albedo(color, weathering),
-		pattern,
-		weathering
-	)
+	return BUILDING_MATERIALS.roof_surface_for_building(surface_id, family, color)
 
 
-## Stable weathering band from a building or landmark ID.
 static func surface_weathering_variant(surface_id: StringName) -> StringName:
-	var roll := absi(String(surface_id).hash()) % 20
-	if roll < 8:
-		return WEATHER_WORN
-	if roll < 13:
-		return WEATHER_FRESH
-	if roll < 17:
-		return WEATHER_DAMP
-	return WEATHER_REPAIRED
+	return BUILDING_MATERIALS.surface_weathering_variant(surface_id)
 
 
 static func building_pattern_seed(surface_id: StringName, pattern: StringName) -> int:
-	return int(StringName("%s:%s" % [surface_id, pattern]).hash())
+	return BUILDING_MATERIALS.building_pattern_seed(surface_id, pattern)
 
 
-## Object-space triplanar mapping keeps masonry density independent of whether a
-## BoxMesh wall runs along X or Z. Regular BoxMesh UVs only use uv1_scale.x/y,
-## which makes Z-aligned walls derive their visible repeat count from thickness.
 static func wall_surface_triplanar(family: StringName, color: Color) -> StandardMaterial3D:
-	var pattern := _wall_pattern(family)
-	var material := wall_surface(family, color).duplicate()
-	material.uv1_triplanar = true
-	material.uv1_world_triplanar = false
-	material.uv1_scale = building_uv_density(pattern)
-	return material
+	return BUILDING_MATERIALS.wall_surface_triplanar(family, color)
 
 
 static func wall_for_size(color: Color, size: Vector3) -> StandardMaterial3D:
-	var material := wall(color).duplicate()
-	material.uv1_scale = building_uv_scale(PATTERN_PLASTER, size)
-	return material
+	return BUILDING_MATERIALS.wall_for_size(color, size)
 
 
 static func roof(color: Color) -> StandardMaterial3D:
-	return _building_surface("roof", color, PATTERN_ROOF_TILE)
+	return BUILDING_MATERIALS.roof(color)
 
 
-## Roof cover in an explicit material family. 1343 Reval roofs were mostly
-## wooden shingle and reed/straw thatch; ceramic tile marked churches and the
-## few rich stone houses, so tile stays the explicit (not default-everywhere) choice.
 static func roof_surface(family: StringName, color: Color) -> StandardMaterial3D:
-	match family:
-		&"shingle":
-			return _building_surface("roof_shingle", color, PATTERN_SHINGLE)
-		&"thatch", &"straw":
-			return _building_surface("roof_thatch", color, PATTERN_THATCH)
-		_:
-			return _building_surface("roof_tile", color, PATTERN_ROOF_TILE)
+	return BUILDING_MATERIALS.roof_surface(family, color)
 
 
-## UV repeat density per world unit. Triplanar materials use this directly so
-## X- and Z-facing walls receive the same masonry scale.
 static func building_uv_density(pattern: StringName) -> Vector3:
-	var repeats: Vector3 = BUILDING_UV_SCALE.get(pattern, Vector3.ONE)
-	return repeats / BUILDING_UV_REFERENCE_SIZE
+	return BUILDING_MATERIALS.building_uv_density(pattern)
 
 
-## UV repeat counts for a box face whose width, height, and depth are size.
 static func building_uv_scale(pattern: StringName, size: Vector3) -> Vector3:
-	return size * building_uv_density(pattern)
+	return BUILDING_MATERIALS.building_uv_scale(pattern, size)
 
 
-## CylinderMesh wraps U around the circumference; pass radius and height.
 static func building_uv_scale_cylinder(pattern: StringName, radius: float, height: float) -> Vector3:
-	return building_uv_scale(pattern, Vector3(TAU * radius, height, TAU * radius))
+	return BUILDING_MATERIALS.building_uv_scale_cylinder(pattern, radius, height)
 
 
-## Prop surface materials keyed by the shared visual-style roles so the
-## placeholder palette carries over from the approved clean-painted profile.
+## Prop, foliage, and smoke APIs remain here for existing builders and tests.
+## Their independent cache lives in PROP_MATERIALS.
 static func role(role_name: StringName) -> StandardMaterial3D:
-	var key := "role:%s" % String(role_name)
-	if _cache.has(key):
-		return _cache[key]
-	var base := MapVisualStyle.role_color(role_name, MapVisualStyle.TARGET_CLEAN_PAINTED, MapVisualStyle.TIME_DAY)
-	var pattern := PATTERN_PLASTER
-	match role_name:
-		&"wood", &"timber":
-			pattern = PATTERN_PLANK
-		&"stone":
-			pattern = PATTERN_LIMESTONE
-		&"rock":
-			pattern = PATTERN_ROCK
-		&"hay":
-			pattern = PATTERN_STRAW
-	var material := _make_material(base, pattern, int(role_name.hash()))
-	match role_name:
-		&"metal":
-			material.metallic = 0.55
-			material.roughness = 0.45
-		&"window":
-			# Glazed openings read as dark tinted glass, not bright sky panels.
-			material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-			material.albedo_color = base.darkened(0.42)
-			material.albedo_color.a = 0.52
-			material.roughness = 0.1
-			# Godot 4 StandardMaterial3D exposes metallic_specular, not specular.
-			material.metallic_specular = 0.35
-			material.cull_mode = BaseMaterial3D.CULL_DISABLED
-		&"water_highlight":
-			material.roughness = 0.15
-		&"ember":
-			material.emission_enabled = true
-			material.emission = EMBER_COLOR
-			material.emission_energy_multiplier = EMBER_ENERGY
-	_cache[key] = material
-	return material
+	return PROP_MATERIALS.role(role_name)
 
 
-## Size-aware role material so gate leaves, jambs, and thresholds keep plank or
-## ashlar courses at house scale instead of stretching one tile across a 6-10 m span.
-## Natural weathered rock for shoreline boulders and field scatter. Triplanar
-## mapping keeps grain organic on stretched sphere instances.
 static func natural_rock() -> StandardMaterial3D:
-	var key := "natural_rock"
-	if _cache.has(key):
-		return _cache[key]
-	var base := MapVisualStyle.role_color(&"stone", MapVisualStyle.TARGET_CLEAN_PAINTED, MapVisualStyle.TIME_DAY)
-	var material := _make_material(base, PATTERN_ROCK, 9041)
-	material.uv1_triplanar = true
-	material.uv1_world_triplanar = false
-	material.uv1_scale = Vector3(2.4, 2.4, 2.4)
-	_cache[key] = material
-	return material
+	return PROP_MATERIALS.natural_rock()
 
 
-## Charcoal lumps for forge stores and hearth beds. Uses organic rock mottling on
-## near-black albedo so sphere piles never read as limestone/brick masonry.
 static func charcoal() -> StandardMaterial3D:
-	var key := "charcoal"
-	if _cache.has(key):
-		return _cache[key]
-	var material := _make_material(Color8(26, 24, 22), PATTERN_ROCK, 7711)
-	material.uv1_triplanar = true
-	material.uv1_world_triplanar = false
-	material.uv1_scale = Vector3(3.2, 3.2, 3.2)
-	material.roughness = 0.96
-	_cache[key] = material
-	return material
+	return PROP_MATERIALS.charcoal()
 
 
-## Glowing coal bed inside a working furnace mouth.
 static func hot_coal() -> StandardMaterial3D:
-	var key := "hot_coal_v2"
-	if _cache.has(key):
-		return _cache[key]
-	var material := _make_material(Color8(56, 26, 16), PATTERN_ROCK, 7729)
-	material.uv1_triplanar = true
-	material.uv1_world_triplanar = false
-	material.uv1_scale = Vector3(2.8, 2.8, 2.8)
-	material.emission_enabled = true
-	material.emission = Color8(255, 96, 28)
-	material.emission_energy_multiplier = EMBER_ENERGY * 2.2
-	material.roughness = 0.88
-	_cache[key] = material
-	return material
+	return PROP_MATERIALS.hot_coal()
 
 
-## Tanned leather for forge bellows and similar soft props.
 static func leather() -> StandardMaterial3D:
-	var key := "leather"
-	if _cache.has(key):
-		return _cache[key]
-	var material := _make_material(Color8(92, 58, 34), PATTERN_PLASTER, 7741)
-	material.uv1_triplanar = true
-	material.uv1_world_triplanar = false
-	material.uv1_scale = Vector3(2.2, 2.2, 2.2)
-	material.roughness = 0.82
-	_cache[key] = material
-	return material
+	return PROP_MATERIALS.leather()
 
 
 static func role_for_size(role_name: StringName, size: Vector3) -> StandardMaterial3D:
@@ -651,157 +502,36 @@ static func role_for_size(role_name: StringName, size: Vector3) -> StandardMater
 	return material
 
 
-## Flat vegetation and landscape tints for the view-only scatter and treeline.
-## Instance colors modulate these through vertex_color_use_as_albedo.
 static func foliage_tuft() -> StandardMaterial3D:
-	return _patterned("foliage_tuft", Color8(96, 122, 60), PATTERN_GRASS)
+	return PROP_MATERIALS.foliage_tuft()
 
 
 static func foliage_spruce() -> StandardMaterial3D:
-	return _patterned("foliage_spruce", Color8(56, 82, 54), PATTERN_GRASS)
+	return PROP_MATERIALS.foliage_spruce()
 
 
 static func foliage_leaf() -> StandardMaterial3D:
-	return _patterned("foliage_leaf", Color8(94, 116, 58), PATTERN_GRASS)
+	return PROP_MATERIALS.foliage_leaf()
 
 
 static func bark(kind: StringName = &"bark") -> StandardMaterial3D:
-	if kind == &"birch":
-		return _patterned("bark_birch", Color8(214, 208, 196), PATTERN_BIRCH_BARK)
-	if kind == &"cherry":
-		return _patterned("bark_cherry", Color8(91, 51, 43), PATTERN_CHERRY_BARK)
-	return _patterned("bark", Color8(74, 56, 42), PATTERN_BARK)
+	return PROP_MATERIALS.bark(kind)
 
 
-## Fruit mesh carries apple/cherry color per vertex; this neutral material keeps
-## both species in the same cheap material family and avoids tiny cast shadows.
 static func tree_fruit() -> StandardMaterial3D:
-	var material := _patterned("tree_fruit", Color.WHITE, PATTERN_SPECKLE)
-	material.roughness = 0.76
-	return material
+	return PROP_MATERIALS.tree_fruit()
 
 
 static func surroundings_ground() -> StandardMaterial3D:
-	var key := "surroundings_ground"
-	if _cache.has(key):
-		return _cache[key]
-	var material := _make_material(Color8(74, 88, 60), PATTERN_GRASS, 8117)
-	material.uv1_scale = Vector3(96.0, 96.0, 1.0)
-	_cache[key] = material
-	return material
+	return PROP_MATERIALS.surroundings_ground()
 
 
 static func surroundings_town() -> StandardMaterial3D:
-	var key := "surroundings_town"
-	if _cache.has(key):
-		return _cache[key]
-	var material := _make_material(Color8(90, 86, 78), PATTERN_COBBLE, 8219)
-	material.uv1_scale = Vector3(48.0, 48.0, 1.0)
-	_cache[key] = material
-	return material
+	return PROP_MATERIALS.surroundings_town()
 
 
-## Untextured, unshaded billboard for chimney smoke. Radial vertex alpha on the
-## puff mesh and the particle color ramp provide tint and lifetime fade.
-## Untextured, unshaded billboard for chimney smoke. Tint and lifetime fade come
-## from the particle color ramp only.
 static func smoke() -> StandardMaterial3D:
-	var key := "smoke"
-	if _cache.has(key):
-		return _cache[key]
-	var material := StandardMaterial3D.new()
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	# Particle COLOR carries the lifetime ramp, including the alpha fade.
-	material.vertex_color_use_as_albedo = true
-	material.albedo_color = Color(1.0, 1.0, 1.0, 1.0)
-	material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	material.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
-	material.billboard_keep_scale = true
-	_cache[key] = material
-	return material
-
-
-
-
-static func _patterned(prefix: String, color: Color, pattern: StringName) -> StandardMaterial3D:
-	var key := "%s:%s:%s" % [prefix, color.to_html(), String(pattern)]
-	if _cache.has(key):
-		return _cache[key]
-	var material := _make_material(color, pattern, int(key.hash()))
-	_cache[key] = material
-	return material
-
-
-static func _building_surface(prefix: String, color: Color, pattern: StringName) -> StandardMaterial3D:
-	var material := _patterned(prefix, color, pattern)
-	material.uv1_scale = building_uv_scale(pattern, BUILDING_UV_REFERENCE_SIZE)
-	return material
-
-
-static func _building_surface_weathered(
-	prefix: String,
-	surface_id: StringName,
-	color: Color,
-	pattern: StringName,
-	weathering: StringName
-) -> StandardMaterial3D:
-	var key := "%s:%s:%s:%s:%s" % [
-		prefix,
-		String(surface_id),
-		color.to_html(),
-		String(pattern),
-		String(weathering),
-	]
-	if _cache.has(key):
-		return _cache[key]
-	var seed := building_pattern_seed(surface_id, pattern)
-	var material := _make_weathered_material(color, pattern, seed, weathering)
-	material.uv1_scale = building_uv_scale(pattern, BUILDING_UV_REFERENCE_SIZE)
-	_cache[key] = material
-	return material
-
-
-static func _weathered_albedo(base: Color, weathering: StringName) -> Color:
-	match weathering:
-		WEATHER_WORN:
-			return base.lightened(0.04).lerp(Color(0.76, 0.74, 0.69), 0.08)
-		WEATHER_DAMP:
-			return base.darkened(0.08)
-		_:
-			return base
-
-
-static func _make_weathered_material(
-	base: Color,
-	pattern: StringName,
-	noise_seed: int,
-	weathering: StringName
-) -> StandardMaterial3D:
-	var material := StandardMaterial3D.new()
-	material.albedo_color = base
-	material.albedo_texture = MapViewMaterialPatterns.pattern_texture_weathered(
-		pattern,
-		noise_seed,
-		weathering
-	)
-	material.roughness = 1.0
-	material.metallic = 0.0
-	material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	material.vertex_color_use_as_albedo = true
-	return material
-
-
-static func _wall_pattern(family: StringName) -> StringName:
-	match family:
-		&"brick":
-			return PATTERN_BRICK
-		&"plank":
-			return PATTERN_PLANK
-		&"limestone":
-			return PATTERN_LIMESTONE
-		_:
-			return PATTERN_PLASTER
+	return PROP_MATERIALS.smoke()
 
 
 static func _make_material(base: Color, pattern: StringName, noise_seed: int) -> StandardMaterial3D:
