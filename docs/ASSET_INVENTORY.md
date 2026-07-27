@@ -24,25 +24,25 @@ Priority order:
 
 | Classification | Count |
 | --- | ---: |
-| approved | 115 |
+| approved | 134 |
 | prototype | 0 |
 | unknown rights | 0 |
 | inconsistent | 0 |
 | archive | 0 |
-| **Total** | **115** |
+| **Total** | **134** |
 
 ## Counts by media type
 
 | Media type | Count |
 | --- | ---: |
 | image | 12 |
-| audio | 103 |
-| **Total** | **115** |
+| audio | 122 |
+| **Total** | **134** |
 
 ## Verification summary
 
-- Inventory row count: `115`
-- Runtime source files found under `assets/`, `music/`, and `sounds/`: `115`
+- Inventory row count: `134`
+- Runtime source files found under `assets/`, `music/`, and `sounds/`: `134`
 - Imported `img/` marketing source files included as archive: `0`
 - Rows missing Godot `.import` sidecar: `0`
 - Orphan `.import` sidecars with no source file, not counted as runtime assets: `0`
@@ -65,6 +65,39 @@ Priority order:
 | `assets/sky/lunar_albedo_nearside.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `assets/tiles/greybox_floor.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `assets/UI/estonia_world_map.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/1.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/2.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/4.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Ambush on Pikk Street (1).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Ambush on Pikk Street.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Apothecary (4).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Apothecary (5).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Baltic Tempest (1).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Baltic Tempest (2).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Baltic Tempest.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Battle for Oleviste.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Blackheads' Charge (1).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Blackheads' Charge.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Catherine's Prayer.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Catherine's Prayer2.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Clash on the Docks.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Cobblestone Jig (1).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Cobblestone Jig.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Defense of the Town Hall.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Market Mayhem.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Riot in the Square.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Sacking the Nunnery (1).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Sacking the Nunnery.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/The Blackheads' Oath.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/The Festival of St. John.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/The Guild War.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/The Guilds at War (1).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/The Guilds at War.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/The Viru Gate Dance1.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/The Viru Gate Dance2.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/The Viru Gate Dance3.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Viru Gate Skirmish (1).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/battle/Viru Gate Skirmish.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/domberg/day/Baltic Wind (1).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/domberg/day/Baltic Wind.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/domberg/day/Crown of Stone.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
@@ -123,21 +156,7 @@ Priority order:
 | `music/revel_east/Apothecary (8).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_east/Apothecary (9).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_east/Apothecary.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
-| `music/revel_east/battle/1.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
-| `music/revel_east/battle/2.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
-| `music/revel_east/battle/4.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
-| `music/revel_east/battle/Apothecary (4).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
-| `music/revel_east/battle/Apothecary (5).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
-| `music/revel_east/battle/Cobblestone Jig (1).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
-| `music/revel_east/battle/Cobblestone Jig.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
-| `music/revel_east/battle/The Viru Gate Dance1.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
-| `music/revel_east/battle/The Viru Gate Dance2.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
-| `music/revel_east/battle/The Viru Gate Dance3.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
-| `music/revel_east/battle/Viru Gate Skirmish (1).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
-| `music/revel_east/battle/Viru Gate Skirmish.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_east/intro.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
-| `music/revel_east/monastery/battle/Catherine's Prayer.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
-| `music/revel_east/monastery/battle/Catherine's Prayer2.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_east/monastery/Whispers of the Monastery Garden (1).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_east/monastery/Whispers of the Monastery Garden (2).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_east/monastery/Whispers of the Monastery Garden (3).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
