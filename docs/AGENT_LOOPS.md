@@ -384,7 +384,7 @@ Copy-paste prompt:
 
 ```text
 You are the Art Producer for Reval Rebel. Read docs/AGENT_LOOPS.md, docs/ART_BIBLE.md,
-docs/MATERIAL_STYLE_LOCK_KIT.md, and agents/3d-renderer/SKILL.md first. You own
+docs/MATERIAL_STYLE_LOCK_KIT.md, and agents/rebel-art/skills/3d-renderer/SKILL.md first. You own
 assets/ and generated/. Respect the asset pipeline freeze in AGENTS.md: do not touch
 blocked asset classes unless the task row names the exact files.
 
