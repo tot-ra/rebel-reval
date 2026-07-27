@@ -36,6 +36,37 @@ Every content loop's output is reviewed by **Canon Keeper** before it reaches **
 | Dev | `scripts/`, `scenes/*.tscn`, `docs/ARCHITECTURE.md` | all content + schemas |
 | QA | `tests/`, `tools/verify_*.py`, `tools/*_test.gd` | dev output, content |
 
+## Cadence and scaling
+
+One task takes roughly **20 minutes**, so one *tick* = 20 min of one agent instance. A single instance running an 8-hour day does about **24 ticks/day**. Loops are not called equally: some are front-loaded and go idle, some run continuously and are the bottleneck. Scale each loop by three levers - **how often it is invoked**, **how many instances run in parallel**, and **which model tier** it needs (complexity).
+
+Model tiers: **L** = large/most-capable (deep reasoning, creative, architecture); **M** = mid (structured authoring, volume work); **S** = small-fast (short arbitration, mechanical checks).
+
+| Loop | Model | Invocation cadence | Parallel instances | Load phase | Rationale |
+|------|-------|--------------------|--------------------|------------|-----------|
+| Producer | S | 1 planning tick per ~3 content ticks (~4x/day) | 1 | continuous, low | short arbitration; cheap but frequent |
+| Canon Keeper | L | event-driven, queue drained ~2x/day | 1 (2 if backlog > ~10) | continuous, medium | reasoning-heavy gate; bursty |
+| Research | L + web | 3-4 dossiers/day early, < 1/day late | 1-2 early, 0-1 late | front-loaded | 20-40 min per sourced dossier |
+| Narrative | L | burst at act start, near-idle mid-act | 1 | front-loaded per act | creative reasoning, low volume |
+| Quest | L | ~2-3 packages/day | 1-2 | steady mid-project | schema + branching logic |
+| Dialogue | M | high volume once quests exist | 2-3 hot phase, else 1 | mid-to-late spike | many lines, low reasoning per unit |
+| Character | M | bursty on new NPCs, low baseline | 1 | bursty | spikes with narrative |
+| Map | M-L | one district per several ticks | 1-2 | steady | authoring + verification loops |
+| Art | M + gen | high volume, latency-bound (gen 20-40 min) | 2-4 gen + 1 curator | steady, GPU-bound | throughput limited by generation, not reasoning |
+| Dev | L | every tick (throughput bottleneck) | 2-3 | continuous, highest | most tasks flow here |
+| QA | M | after every Dev/content merge | 1-2 | near-continuous | short runs, high frequency |
+
+**Phase shape.** Early (pre-production of an act): Research + Narrative + Canon dominate; Dev/QA light. Mid (content build): Quest, Dialogue, Map, Art, Dev all hot; Research tapers. Late (hardening): Dev + QA dominate; content loops idle. Re-scale instance counts per phase rather than running all loops at full width the whole time.
+
+**Worked example (one mid-build day, ~1 instance-day = 24 ticks each):** 3 Dev instances (~70 ticks of feature work), 2 Art gen workers (batching, latency-bound), 2 Dialogue, 1-2 Quest, 1 Map, 1 QA draining after each merge, Canon Keeper 2 review passes, Producer 4 planning ticks, Research/Narrative near-idle. Total ~10-12 concurrent instances, weighted toward Dev and Art.
+
+**Rules of thumb:**
+1. Scale Dev and QA together - QA must not fall more than ~1 tick behind Dev merges, or regressions pile up.
+2. Front-loaded loops (Research, Narrative) run wide at act start, then drop to 0-1 standby instances that re-enter only on request.
+3. Latency-bound loops (Art generation) scale by adding parallel gen workers, not by using a bigger model.
+4. Canon Keeper is a single serialization point by design; widen it only when its review queue blocks Dev.
+5. Producer stays a single small-fast instance - one arbiter avoids split-brain tick plans.
+
 ---
 
 ## 1. Producer
@@ -48,6 +79,7 @@ Coordinates the pipeline, sequences ticks, and resolves conflicts between loops.
 - **Outputs:** a tick plan (ordered list of loop activations with their inputs), appended to `docs/ROADMAP.md`.
 - **Acceptance:** every activated loop has unambiguous inputs and no two loops write the same file in the same tick.
 - **Handoff:** tick plan dispatched to the listed loops.
+- **Cadence:** 1 short planning tick per ~3 content ticks (~4x/day); always exactly 1 instance; model tier S.
 - **Exit condition:** `TODO.md` has no open tasks for the current milestone.
 
 ---
@@ -62,6 +94,7 @@ Guardian of historical and narrative consistency. Reviews every content output b
 - **Outputs:** a review verdict (`approved` / `changes requested` with a numbered list), and optionally a pull request to `docs/CANON.md`.
 - **Acceptance:** zero `invented` elements contradict `attested` facts; every new term appears in canon or is added with a label.
 - **Handoff:** approved artifacts unblocked for Dev and QA; rejected artifacts returned to the originating loop with the change list.
+- **Cadence:** event-driven, batched; drain the review queue ~2x/day; 1 instance (add a 2nd only if the queue exceeds ~10 artifacts); model tier L.
 - **Exit condition:** milestone content set fully approved with no open `changes requested`.
 
 ---
@@ -76,6 +109,7 @@ Investigates and gathers data on 1343 Reval: buildings, interiors, clothes, tool
 - **Outputs:** a markdown dossier under `history/<topic>.md` with a `## Sources` section, plus a short brief (max 20 lines) for the requesting loop.
 - **Acceptance:** every non-trivial claim has a source or is explicitly labeled `plausible composite` with rationale; no anachronisms (post-1343 material, terms, or technology).
 - **Handoff:** dossier to Canon Keeper for review; brief to the requesting loop.
+- **Cadence:** front-loaded - 3-4 dossiers/day in an act's pre-production, tapering to under 1/day once canon stabilizes; 1-2 instances early, 0-1 on standby late; ~20-40 min per dossier; model tier L plus web search.
 - **Exit condition:** all open research requests in `TODO.md` are closed and canon-approved.
 
 ---
@@ -90,6 +124,7 @@ Creates main story arcs, heroes, villains, quests hooks, endings, and scene-leve
 - **Outputs:** updated `story/STORY.md` and per-act beat documents under `story/actN_*.md`.
 - **Acceptance:** every branch preserves the attested historical events; no beat contradicts canon; every choice maps to a consequence type (protection, evidence, betrayal, threat).
 - **Handoff:** beats to Canon Keeper, then to Quest and Dialogue loops.
+- **Cadence:** front-loaded per act - a burst of beats at act start, near-idle mid-act; 1 instance; model tier L.
 - **Exit condition:** all three acts have complete, canon-approved beat documents.
 
 ---
@@ -104,6 +139,7 @@ Turns narrative beats into authored quest packages with objectives, states, tran
 - **Outputs:** `content/packages/<quest_id>/quest.json` and a package manifest entry.
 - **Acceptance:** passes `schemas/quest.schema.json`; every outcome references a faction ledger event; no orphan states; quest is replayable from a clean save.
 - **Handoff:** quest package to Canon Keeper, then to Dialogue and Dev loops.
+- **Cadence:** steady through mid-project - ~2-3 packages/day; 1-2 instances; model tier L.
 - **Exit condition:** all milestone quests authored, validated, and canon-approved.
 
 ---
@@ -118,6 +154,7 @@ Authors offline dialogue trees, barks, and condition lines (no runtime LLM, per 
 - **Outputs:** `content/packages/<quest_id>/dialogue.json` and optional `bark.json`.
 - **Acceptance:** validates against schemas; every referenced quest variable exists; no line contradicts canon; line count fits the vertical-slice budget.
 - **Handoff:** dialogue to Canon Keeper, then to Dev for wiring.
+- **Cadence:** high-volume, follows quests - spikes to 2-3 instances in content-heavy phases, drops to 1 otherwise; model tier M (volume work, low reasoning per line).
 - **Exit condition:** all milestone quests have complete, validated, canon-approved dialogue.
 
 ---
@@ -132,6 +169,7 @@ Defines named and archetype characters: appearance, voice, allegiance, and role 
 - **Outputs:** `content/packages/<id>/character.json` and a portrait brief in `characters/`.
 - **Acceptance:** validates against schema; allegiance matches the faction ledger; no attested-contradicting biographical claims; portrait brief is single-subject and riggable where animation is needed.
 - **Handoff:** character to Canon Keeper, portrait brief to Art.
+- **Cadence:** bursty - spikes when new NPCs land, low steady baseline; 1 instance; model tier M.
 - **Exit condition:** all milestone characters authored and canon-approved.
 
 ---
@@ -146,6 +184,7 @@ Authors district maps and interiors from blueprints, enforcing the `docs/MAP_AUT
 - **Outputs:** updated `content/maps/<district>` blueprint and compiled `MapDefinition` inputs.
 - **Acceptance:** passes `tools/verify_map_composition.py`, patrol walkability checks, and parity tests; no duplicate stable IDs; composition within signed thresholds.
 - **Handoff:** map to Canon Keeper, then to Art (dressing) and Dev (wiring).
+- **Cadence:** steady - one district per several ticks including verification; 1-2 instances; model tier M-L.
 - **Exit condition:** all milestone districts authored, verified, and canon-approved.
 
 ---
@@ -160,6 +199,7 @@ Generates and prepares 2D sprites, 3D presentation assets, and audio briefs usin
 - **Outputs:** approved asset in `assets/` with an import file and a `SOURCES.csv` row.
 - **Acceptance:** matches the art bible; passes `tools/verify_asset_lint.py`; provenance recorded; no raw Hunyuan3D mesh used unapproved.
 - **Handoff:** asset to Map/Dev for placement; Canon Keeper informed of any new visual canon implications.
+- **Cadence:** high-volume but latency-bound (generation 20-40 min); scale by adding parallel gen workers (2-4) plus 1 curator, not by using a bigger model; batch overnight; model tier M plus generation tools.
 - **Exit condition:** all open asset briefs fulfilled and lint-clean.
 
 ---
@@ -174,6 +214,7 @@ Implements runtime GDScript, scene wiring, and content loading in Godot 4.7.
 - **Outputs:** updated `scripts/` and `scenes/*.tscn`, plus a change note in `docs/ROADMAP.md`.
 - **Acceptance:** existing tests pass; new behavior has tests; no architecture constraint violated; content loads through `ContentDB`.
 - **Handoff:** build to QA.
+- **Cadence:** continuous - the throughput bottleneck, runs every tick; 2-3 instances; model tier L.
 - **Exit condition:** all milestone dev tasks complete and handed to QA.
 
 ---
@@ -188,6 +229,7 @@ Writes and runs automated verification: unit tests, traversal tests, schema vali
 - **Outputs:** a test report (pass/fail per suite) and new/updated test files.
 - **Acceptance:** all suites green; new behavior covered; no regressions versus the last green baseline.
 - **Handoff:** failures to Dev or the originating content loop; green report to Producer.
+- **Cadence:** near-continuous, short runs - triggered after every Dev/content merge, ~1 tick per run; 1-2 instances scaled to stay within ~1 tick of Dev; model tier M.
 - **Exit condition:** milestone build passes all suites and Producer accepts the release candidate.
 
 ---
