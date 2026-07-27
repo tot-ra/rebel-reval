@@ -31,6 +31,8 @@ static func build_scatter(
 
 	var small_grass: Array[Transform3D] = []
 	var small_grass_colors: Array[Color] = []
+	var hay_stubble: Array[Transform3D] = []
+	var hay_stubble_colors: Array[Color] = []
 	var large_grass: Array[Transform3D] = []
 	var large_grass_colors: Array[Color] = []
 	var bush_batches: Dictionary = {}
@@ -85,6 +87,17 @@ static func build_scatter(
 					puddles.append(_scatter_transform_elliptical(field, x, y, definition.seed + 1921, puddle_scale_x, puddle_scale_z))
 					var puddle_tint := 0.9 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1929) * 0.14
 					puddle_colors.append(Color(puddle_tint, puddle_tint, puddle_tint + 0.03))
+
+			var hay_stubble_chance := float(MapViewMeshBuilderConfig.SCATTER_HAY_STUBBLE_CHANCE.get(terrain, 0.0))
+			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 4211) < hay_stubble_chance:
+				var stubble_scale := Vector3(
+					0.58 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 4217) * 0.24,
+					0.38 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 4229) * 0.32,
+					0.58 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 4231) * 0.24
+				)
+				hay_stubble.append(_scatter_transform_scaled(field, x, y, definition.seed + 4237, stubble_scale))
+				var straw_tone := 0.78 + MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 4241) * 0.24
+				hay_stubble_colors.append(Color(straw_tone, straw_tone * 0.94, straw_tone * 0.74))
 
 			var small_chance := float(MapViewMeshBuilderConfig.SCATTER_SMALL_GRASS_CHANCE.get(terrain, 0.0))
 			small_chance *= float(profile.get("small_chance_scale", 1.0)) * density
@@ -168,6 +181,7 @@ static func build_scatter(
 				stone_colors.append(Color(gray, gray, gray * 0.97))
 
 	_add_grass_layer(root, "SmallGrass", small_grass, small_grass_colors, MapViewMeshBuilderPrimitives.grass_tuft_mesh())
+	_add_hay_stubble_layer(root, hay_stubble, hay_stubble_colors)
 	_add_grass_layer(root, "LargeGrass", large_grass, large_grass_colors, MapViewMeshBuilderPrimitives.grass_tuft_mesh())
 
 	if not bush_batches.is_empty():
@@ -499,6 +513,25 @@ static func _add_grass_layer(root: Node3D, layer_name: String, transforms: Array
 	# layer covers the entire district; without range culling every MultiMesh
 	# instance is submitted to the GPU even when far off-screen, tanking FPS on
 	# vegetation-heavy maps (e.g. workers district reval_east).
+	instances.visibility_range_end = MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE
+	instances.visibility_range_end_margin = MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE_MARGIN
+	root.add_child(instances)
+
+
+
+
+static func _add_hay_stubble_layer(root: Node3D, transforms: Array[Transform3D], colors: Array[Color]) -> void:
+	if transforms.is_empty():
+		return
+	var instances := MapViewMeshBuilderPrimitives.multi_mesh(
+		"HayStubble",
+		MapViewMeshBuilderPrimitives.grass_tuft_mesh(),
+		transforms,
+		colors,
+		MapViewMaterials.role(&"hay"),
+		Vector3.ZERO
+	)
+	instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	instances.visibility_range_end = MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE
 	instances.visibility_range_end_margin = MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE_MARGIN
 	root.add_child(instances)

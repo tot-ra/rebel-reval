@@ -6,6 +6,7 @@ extends RefCounted
 ## blocking required routes when authored inside the documented footprint bands.
 
 const _Primitives := preload("res://scripts/map/view3d/map_view_mesh_builder_primitives.gd")
+const _HayMeshes := preload("res://scripts/map/view3d/map_view_hay_meshes.gd")
 
 
 static func add_to(root: Node3D, kind: StringName) -> void:
@@ -58,8 +59,9 @@ static func _add_hay_wagon(root: Node3D) -> void:
 		_Primitives.cylinder(root, "Wheel%d" % int((wheel_x + 0.42) * 10.0), 0.22, 0.08, Vector3(wheel_x, 0.22, 0.28), &"wood")
 		_Primitives.cylinder(root, "WheelBack%d" % int((wheel_x + 0.42) * 10.0), 0.22, 0.08, Vector3(wheel_x, 0.22, -0.28), &"wood")
 	_Primitives.box(root, "Bed", Vector3(0.92, 0.1, 0.72), Vector3(0.0, 0.34, 0.0), &"wood")
-	_Primitives.sphere(root, "LoadA", 0.42, Vector3(-0.18, 0.62, 0.08), &"hay", Vector3(1.1, 0.72, 1.0))
-	_Primitives.sphere(root, "LoadB", 0.38, Vector3(0.2, 0.58, -0.1), &"hay", Vector3(1.05, 0.68, 0.95))
+	# A compact shared rick keeps the load visibly loose and fibrous rather than
+	# balancing two smooth spheres on the cart bed.
+	_HayMeshes.add_rick(root, "HayLoad", 4157, Vector3(0.0, 0.39, 0.0), Vector3(0.54, 0.58, 0.48))
 
 
 static func _add_pasture_fence(root: Node3D) -> void:

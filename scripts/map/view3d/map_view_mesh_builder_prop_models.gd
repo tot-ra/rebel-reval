@@ -9,6 +9,9 @@ const FishingBoatBuilder := preload("res://scripts/map/view3d/map_view_fishing_b
 const MerchantBoatBuilder := preload("res://scripts/map/view3d/map_view_merchant_boat_builder.gd")
 const WallWalkAccessBuilder := preload("res://scripts/map/view3d/map_view_wall_walk_access_builder.gd")
 const AnvilMeshes := preload("res://scripts/map/view3d/map_view_anvil_meshes.gd")
+const HayMeshes := preload("res://scripts/map/view3d/map_view_hay_meshes.gd")
+const MedievalAnimalModels := preload("res://scripts/map/view3d/map_view_medieval_animal_models.gd")
+const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 # Runtime loading avoids a clean-clone bootstrap cycle where GDScript parses
 # before Godot has registered the first GLB import.
 const SMITHY_ANVIL_SCENE_PATH := "res://assets/props/forge/smithy_anvil.glb"
@@ -107,8 +110,9 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			else:
 				_add_anvil_fallback(root)
 		MapTypes.PROP_KIND_HAY_STACK:
-			MapViewMeshBuilderPrimitives.sphere(root, "Mound", 0.85, Vector3(0.0, 0.42, 0.0), &"hay", Vector3(1.0, 0.62, 1.0))
-			MapViewMeshBuilderPrimitives.sphere(root, "Crown", 0.5, Vector3(0.1, 0.78, -0.05), &"hay", Vector3(1.0, 0.6, 1.0))
+			# Stable IDs vary the hand-built contour without changing map placement or
+			# the gameplay-owned climb/collision footprint.
+			HayMeshes.add_rick(root, "HayRick", int(String(prop["id"]).hash()))
 		MapTypes.PROP_KIND_CART:
 			MapViewMeshBuilderPrimitives.box(root, "Bed", Vector3(1.6, 0.16, 0.9), Vector3(0.0, 0.6, 0.0), &"wood")
 			MapViewMeshBuilderPrimitives.cylinder(root, "WheelLeft", 0.34, 0.1, Vector3(-0.45, 0.34, 0.5), &"wood", true)
@@ -637,35 +641,15 @@ static func _add_timber_fence(root: Node3D, prop: Dictionary, cell_size: int) ->
 
 
 static func _add_cattle(root: Node3D) -> void:
-	MapViewMeshBuilderPrimitives.sphere(root, "Body", 0.62, Vector3(-0.1, 0.72, 0.0), &"wood", Vector3(1.45, 0.75, 0.68))
-	MapViewMeshBuilderPrimitives.sphere(root, "Head", 0.34, Vector3(0.83, 0.78, 0.0), &"wood", Vector3(0.85, 0.95, 0.78))
-	MapViewMeshBuilderPrimitives.box(root, "Muzzle", Vector3(0.28, 0.2, 0.34), Vector3(1.1, 0.69, 0.0), &"hay")
-	for leg_spec in [["LegFL", 0.46, 0.27], ["LegFR", 0.46, -0.27], ["LegBL", -0.52, 0.27], ["LegBR", -0.52, -0.27]]:
-		MapViewMeshBuilderPrimitives.box(root, leg_spec[0], Vector3(0.13, 0.7, 0.13), Vector3(leg_spec[1], 0.35, leg_spec[2]), &"timber")
-	for horn_z in [-0.21, 0.21]:
-		var horn_name := "HornL" if horn_z > 0.0 else "HornR"
-		MapViewMeshBuilderPrimitives.cylinder(root, horn_name, 0.045, 0.34, Vector3(0.91, 1.04, horn_z), &"hay", true)
+	MedievalAnimalModels.add_model(root, MammalSpecies.SPECIES_COW)
 
 
 static func _add_sheep(root: Node3D) -> void:
-	MapViewMeshBuilderPrimitives.sphere(root, "Fleece", 0.55, Vector3(-0.08, 0.58, 0.0), &"plaster", Vector3(1.28, 0.88, 0.82))
-	MapViewMeshBuilderPrimitives.sphere(root, "Head", 0.27, Vector3(0.68, 0.57, 0.0), &"wood", Vector3(0.82, 1.0, 0.76))
-	for leg_spec in [["LegFL", 0.3, 0.2], ["LegFR", 0.3, -0.2], ["LegBL", -0.42, 0.2], ["LegBR", -0.42, -0.2]]:
-		MapViewMeshBuilderPrimitives.box(root, leg_spec[0], Vector3(0.09, 0.46, 0.09), Vector3(leg_spec[1], 0.23, leg_spec[2]), &"timber")
+	MedievalAnimalModels.add_model(root, MammalSpecies.SPECIES_SHEEP)
 
 
 static func _add_horse(root: Node3D) -> void:
-	# A restrained pack-horse silhouette is enough for rural traffic; tack and load
-	# distinguish it from cattle without introducing an ambient actor dependency.
-	MapViewMeshBuilderPrimitives.sphere(root, "Body", 0.58, Vector3(-0.1, 0.93, 0.0), &"wood", Vector3(1.55, 0.68, 0.62))
-	MapViewMeshBuilderPrimitives.box(root, "Neck", Vector3(0.38, 0.82, 0.34), Vector3(0.66, 1.22, 0.0), &"wood")
-	MapViewMeshBuilderPrimitives.sphere(root, "Head", 0.3, Vector3(0.89, 1.53, 0.0), &"wood", Vector3(1.2, 0.72, 0.72))
-	MapViewMeshBuilderPrimitives.box(root, "Muzzle", Vector3(0.36, 0.2, 0.3), Vector3(1.15, 1.47, 0.0), &"timber")
-	for leg_spec in [["LegFL", 0.43, 0.22], ["LegFR", 0.43, -0.22], ["LegBL", -0.56, 0.22], ["LegBR", -0.56, -0.22]]:
-		MapViewMeshBuilderPrimitives.box(root, leg_spec[0], Vector3(0.1, 0.9, 0.1), Vector3(leg_spec[1], 0.45, leg_spec[2]), &"timber")
-	MapViewMeshBuilderPrimitives.box(root, "PackBlanket", Vector3(0.78, 0.09, 0.78), Vector3(-0.05, 1.42, 0.0), &"hay")
-	MapViewMeshBuilderPrimitives.box(root, "PackLeft", Vector3(0.46, 0.42, 0.26), Vector3(-0.12, 1.28, 0.47), &"wood")
-	MapViewMeshBuilderPrimitives.box(root, "PackRight", Vector3(0.46, 0.42, 0.26), Vector3(-0.12, 1.28, -0.47), &"wood")
+	MedievalAnimalModels.add_model(root, MammalSpecies.SPECIES_HORSE)
 
 
 ## Layered decorative vegetation and ground clutter. Textured ground cover carries

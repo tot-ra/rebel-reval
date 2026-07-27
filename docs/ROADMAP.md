@@ -3,6 +3,8 @@
 Coordination notes, delivery order, and planning context formerly embedded in `TODO.md`.
 Executable open work stays in [`TODO.md`](../TODO.md).
 
+Coordination note (2026-07-28 P0-132): production hay fiber texture (`assets/materials/production/hay_fibers.png`) now drives triplanar rick/wagon geometry, terrain hay/straw blends, and batched meadow stubble; ComfyUI livestock GLBs for cattle, sheep, and pack horse share one loader across static props and ambient penned/urban fauna actors. Verified: `--filter=test_hay_assets` (4/4), `--filter=test_medieval_animal_models` (3/3), and `python3 tools/verify_asset_lint.py`.
+
 Coordination note (2026-07-28 P2-028): Kalev smithy now ships deterministic Blender-authored `smithy_furnace.glb` and `smithy_bellows.glb` at `forge_furnace` and `forge_bellows`; the furnace keeps engine-driven embers, coal, flames, sparks, and day/night fire lighting while non-smithy maps retain procedural fallbacks. Verified: `--filter=test_forge_prop_meshes` (8/8).
 
 Coordination note (2026-07-28 P2-027): Kalev smithy now ships a deterministic Blender-authored `smithy_anvil.glb` at `forge_anvil` while courtyard anvils keep the procedural fallback; Captain Henning's seated routine snaps to the authored `work_chair` prop so sit animations cannot drift from the chair GLB. Verified: `--filter=test_forge_prop_meshes` (6/6), `--filter=test_smithy_henning` (3/3), and `python3 tools/verify_asset_lint.py`.

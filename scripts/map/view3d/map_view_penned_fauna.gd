@@ -8,6 +8,7 @@ const FaunaContext := preload("res://scripts/map/view3d/map_view_fauna_context.g
 const GroundWander := preload("res://scripts/map/view3d/map_view_ground_wander.gd")
 const MapViewBridge := preload("res://scripts/map/view3d/map_view_bridge.gd")
 const MammalMeshes := preload("res://scripts/map/view3d/map_view_mammal_meshes.gd")
+const MedievalAnimalModels := preload("res://scripts/map/view3d/map_view_medieval_animal_models.gd")
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 const UrbanFauna := preload("res://scripts/map/view3d/map_view_urban_fauna.gd")
 
@@ -187,17 +188,18 @@ func _make_actor(index: int, placement: Dictionary) -> Node3D:
 	var cell: Vector2i = placement.get("cell", Vector2i.ZERO)
 	var pose := _pose_for_behavior(behavior, species)
 	var home := MapViewBridge.cell_center_to_world(cell, _cell_size)
-	var mesh := MammalMeshes.mesh_for(species, pose)
 	var actor := Node3D.new()
 	actor.name = "PennedFauna%d" % index
-	var model := MeshInstance3D.new()
-	model.name = "Model"
-	if mesh != null:
-		model.mesh = mesh
-		var aabb := mesh.get_aabb()
-		model.position.y = -aabb.position.y
-	_apply_variant_material(model, species, hash_seed(_map_id, index))
-	actor.add_child(model)
+	if MedievalAnimalModels.add_model(actor, species) == null:
+		var mesh := MammalMeshes.mesh_for(species, pose)
+		var model := MeshInstance3D.new()
+		model.name = "Model"
+		if mesh != null:
+			model.mesh = mesh
+			var aabb := mesh.get_aabb()
+			model.position.y = -aabb.position.y
+		_apply_variant_material(model, species, hash_seed(_map_id, index))
+		actor.add_child(model)
 	actor.position = home
 	actor.rotation.y = _yaw_for_placement(index)
 	actor.set_meta(&"species", species)

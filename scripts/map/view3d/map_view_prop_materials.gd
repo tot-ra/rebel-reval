@@ -16,6 +16,7 @@ const PATTERN_ROCK := &"rock"
 const PATTERN_BARK := &"bark"
 const PATTERN_BIRCH_BARK := &"birch_bark"
 const PATTERN_CHERRY_BARK := &"cherry_bark"
+const HAY_FIBER_TEXTURE := preload("res://assets/materials/production/hay_fibers.png")
 
 const EMBER_COLOR := Color8(224, 108, 48)
 const EMBER_ENERGY := 1.6
@@ -46,6 +47,14 @@ static func role(role_name: StringName) -> StandardMaterial3D:
 			pattern = PATTERN_STRAW
 	var material := _make_material(base, pattern, int(role_name.hash()))
 	match role_name:
+		&"hay":
+			# The production fiber tile carries actual overlapping stems. Triplanar
+			# mapping keeps them continuous over irregular ricks and wagon loads.
+			material.albedo_texture = HAY_FIBER_TEXTURE
+			material.uv1_triplanar = true
+			material.uv1_world_triplanar = false
+			material.uv1_scale = Vector3(2.6, 2.6, 2.6)
+			material.roughness = 0.98
 		&"metal":
 			material.metallic = 0.55
 			material.roughness = 0.45

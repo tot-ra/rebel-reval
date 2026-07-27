@@ -19,6 +19,7 @@ const EMBER_ENERGY := 1.6
 const WATER_MATERIALS := preload("res://scripts/map/view3d/map_view_water_materials.gd")
 const BUILDING_MATERIALS := preload("res://scripts/map/view3d/map_view_building_materials.gd")
 const PROP_MATERIALS := preload("res://scripts/map/view3d/map_view_prop_materials.gd")
+const HAY_FIBER_TEXTURE := preload("res://assets/materials/production/hay_fibers.png")
 
 const WATER_WAVE_BASE := {
 	MapTypes.TERRAIN_SHALLOW_WATER: {
@@ -207,12 +208,21 @@ static func terrain_pattern_array(noise_seed: int) -> Texture2DArray:
 		return _cache[key]
 	var images: Array[Image] = []
 	for terrain_id in BLEND_TERRAIN_ORDER:
-		var pattern: StringName = TERRAIN_PATTERN.get(terrain_id, PATTERN_GRASS)
-		var image := MapViewMaterialPatterns.pattern_texture_at_size(
-			pattern,
-			noise_seed + int(terrain_id.hash()),
-			TEXTURE_SIZE
-		).get_image()
+		var image: Image
+		if terrain_id in [MapTypes.TERRAIN_HAY, MapTypes.TERRAIN_STRAW]:
+			# Both harvested field layers use the same production fiber source; their
+			# distinct palette tints still separate fresh hay from weathered stubble.
+			image = HAY_FIBER_TEXTURE.get_image()
+			if image.get_width() != TEXTURE_SIZE or image.get_height() != TEXTURE_SIZE:
+				image.resize(TEXTURE_SIZE, TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
+			image.generate_mipmaps()
+		else:
+			var pattern: StringName = TERRAIN_PATTERN.get(terrain_id, PATTERN_GRASS)
+			image = MapViewMaterialPatterns.pattern_texture_at_size(
+				pattern,
+				noise_seed + int(terrain_id.hash()),
+				TEXTURE_SIZE
+			).get_image()
 		images.append(image)
 	var array := Texture2DArray.new()
 	array.create_from_images(images)

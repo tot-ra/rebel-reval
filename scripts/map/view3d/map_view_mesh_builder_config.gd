@@ -317,6 +317,8 @@ const GATE_THRESHOLD_WIDTH := 0.7
 const GATE_THRESHOLD_HEIGHT := 0.08
 const GATE_DOOR_STRAP_THICKNESS := 0.04
 const GATE_DOOR_HINGE_RADIUS := 0.05
+## Raised grilles are visual-only and keep their teeth above the 2.0-unit actor.
+const GATE_PORTCULLIS_CLEARANCE := 2.35
 ## Fortification wall prisms grow slightly past their authored footprint so
 ## thin segments visually seal against wider towers at bends and gate throats.
 const WALL_SEAL_OVERHANG := 0.45
@@ -348,8 +350,12 @@ const SCATTER_SMALL_GRASS_CHANCE := {
 	MapTypes.TERRAIN_MEADOW: 0.34,
 	MapTypes.TERRAIN_FOREST_FLOOR: 0.12,
 	MapTypes.TERRAIN_BOG: 0.16,
-	MapTypes.TERRAIN_HAY: 0.08,
-	MapTypes.TERRAIN_STRAW: 0.06,
+}
+## Harvested ground uses a dedicated ochre stubble layer rather than green grass
+## blades. Higher coverage is still batched into one MultiMesh per visible chunk.
+const SCATTER_HAY_STUBBLE_CHANCE := {
+	MapTypes.TERRAIN_HAY: 0.30,
+	MapTypes.TERRAIN_STRAW: 0.22,
 }
 const SCATTER_TREE_CHANCE := {
 	MapTypes.TERRAIN_FOREST_FLOOR: 0.09,
