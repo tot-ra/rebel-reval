@@ -1,0 +1,46 @@
+{
+  "type": "phase_profile",
+  "id": "slicephase.act1_climax",
+  "phase_id": "phase.act1_climax",
+  "title": "St. George's Night",
+  "sequence_index": 5,
+  "presentation": {
+    "cycle_enabled": true,
+    "cycle_progress": "0.82",
+    "music_night_tracks": true
+  },
+  "locations": [
+    {
+      "location_id": "loc.lower_town_slice",
+      "patrols": [
+        {
+          "patrol_id": "viru_watch",
+          "enabled": true
+        }
+      ],
+      "npcs": [
+        {
+          "npc_id": "mart",
+          "anchor_id": "street_start",
+          "visible": true
+        }
+      ]
+    }
+  ],
+  "confidence": "attested",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-008"
+  },
+  "source_notes": [
+    {
+      "confidence": "attested",
+      "summary": "St. George's Night 23 April 1343 uprising signal and Viru Gate act-boundary climax.",
+      "citations": [
+        "docs/SCENES/st-georges-night.md",
+        "docs/CANON.md"
+      ]
+    }
+  ]
+}

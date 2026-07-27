@@ -46,6 +46,12 @@ const ROOT_INSTALL_SCRIPT := preload(
 const ROOT_AFTERMATH_SCRIPT := preload(
 	"res://scripts/investigation/root_and_ember_aftermath.gd"
 )
+const ST_GEORGES_CLIMAX_SCRIPT := preload(
+	"res://scripts/investigation/st_georges_night_climax.gd"
+)
+const ST_GEORGES_AFTERMATH_SCRIPT := preload(
+	"res://scripts/investigation/st_georges_night_aftermath.gd"
+)
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -245,6 +251,19 @@ func _ready() -> void:
 		player,
 		_patrol_controller,
 		_root_and_ember_install
+	)
+	var st_georges_climax := ST_GEORGES_CLIMAX_SCRIPT.new()
+	st_georges_climax.name = "StGeorgesNightClimax"
+	add_child(st_georges_climax)
+	st_georges_climax.setup(self, definition)
+	var st_georges_aftermath := ST_GEORGES_AFTERMATH_SCRIPT.new()
+	st_georges_aftermath.name = "StGeorgesNightAftermath"
+	add_child(st_georges_aftermath)
+	st_georges_aftermath.setup(
+		self,
+		player,
+		_patrol_controller,
+		st_georges_climax
 	)
 
 

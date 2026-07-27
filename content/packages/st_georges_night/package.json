@@ -7,6 +7,7 @@
   "support": [
     "content/mechanism.st_georges_night_gate.json",
     "content/bark.st_georges_night.aftermath_watch.json",
+    "content/slicephase.act1_climax.json",
     "../../examples/support/character.henning.json",
     "../bell_and_chain/content/commission.bell_and_chain.json",
     "../bell_and_chain/content/item.bell_and_chain_work.json"
