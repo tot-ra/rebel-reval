@@ -34,9 +34,11 @@ frontmatter.
 ## File layout
 
 ```text
-history/RESEARCH_INDEX.md          hub: taxonomy, coverage matrix, downstream requests
-history/dossiers/<domain>/<slug>.md one topic, one tick of work
-history/dossiers/TEMPLATE.md       the canonical skeleton
+history/RESEARCH_INDEX.md            hub: taxonomy, coverage matrix, downstream requests
+history/dossiers/<domain>/<slug>.md  one topic, one tick of work
+history/dossiers/TEMPLATE.md         the canonical skeleton
+history/reference/plates.csv         image manifest: one row per reference plate
+history/reference/<domain>/<slug>/   fetched plate files (Git LFS, outside Godot import)
 ```
 
 Slugs are kebab-case and specific: `st-olafs-guild-hall-interior`, not `buildings`. Never rename a
@@ -49,6 +51,44 @@ delivered dossier - other files link to it; supersede it with a new file and a p
 3. Links are relative markdown paths (`../crafts/blacksmith-workshop.md`), so they resolve on disk and in the repo browser.
 4. `history/RESEARCH_INDEX.md` links to every dossier. A dossier reachable from nothing does not exist.
 5. When a dossier supersedes canon or lore, link to `docs/CANON.md` and flag it - the Canon Keeper, not you, makes the amendment.
+
+## Reference plates - the visual half of a dossier
+
+Art, map, and character roles cannot build a door from a paragraph about doors. Prose fixes the
+decision; a plate fixes the shape. Every dossier whose consumers include `art`, `map`, or
+`character` ships **3-8 reference plates** unless you state explicitly that no licensed visual
+evidence exists for the topic.
+
+**What counts as a plate.** Primary or scholarly visual evidence, not mood art:
+
+- **Clothing and textiles:** cut, layering, fastenings, headwear, footwear, status contrast, working dress versus feast dress; effigies, brasses, manuscript folios, surviving garments (Herjolfsnes, Bocksten, London Museum textiles).
+- **Floor plans and sections:** measured surveys of houses, cellars, halls, guild houses, church interiors; excavation plans in `history/*.pdf` and Muinsuskaitseamet reports.
+- **Facades and elevations:** gable forms, window rhythm, hoist beams, doorway placement, wall surface, roof pitch and covering.
+- **Doors, ironwork, fittings:** hinges, straps, locks, keys, handles, nails, grilles, shutters, chest mounts.
+- **Interiors:** hearth and stove types, ceiling and floor construction, furniture, lighting, storage, workshop layout.
+- **Tools, arms, and craft gear:** forge equipment above all, plus trade tools, measures, containers, weapons and armour.
+- **Ships, harbour, transport:** cog construction, cranes, carts, sledges, harness.
+- **Town views, maps, seals, coins:** later views used only as retrospective evidence, plus seals and coins that are contemporary.
+
+**Where to look first.** Local `history/*.pdf` archaeology reports (they contain measured drawings
+and finds photography), then Muinsuskaitseamet / Estonian registers, Tallinn City Archives and
+Tallinn City Museum, Eesti Ajaloomuuseum, Wikimedia Commons scans of out-of-copyright plates,
+Rijksmuseum, and digitised manuscript folios (BnF Gallica, British Library, e-codices).
+
+**Dating discipline is the same as for prose.** State the object's date and place of origin in the
+plate row. Baltic or North German material of 1250-1400 is the target; anything later or from
+Lübeck, Riga, Visby, or Novgorod is a `plausible composite` comparandum and must say so and say why
+it transfers. A plate never silently upgrades a guess into evidence.
+
+**Rights.** Only `public domain`, `CC0`, `CC BY`, and `CC BY-SA` plates are downloaded; everything
+else stays a link-only row with `status: linked`. Plates are evidence under `history/`, never game
+content: they are Git-LFS tracked, excluded from Godot import, and absent from `assets/SOURCES.csv`.
+If art later derives a shipped asset from a plate, that role records its own provenance row.
+
+**Manifest.** Append rows to `history/reference/plates.csv`, then run
+`python3 tools/research/fetch_reference_plates.py --slug <dossier-slug>` to download, checksum, and
+write the local paths back. `--verify` re-checks every fetched row and is what QA runs. Plate IDs
+are `<domain>.<slug>.<nn>` and are never reused.
 
 ## Dossier template
 
@@ -81,6 +121,15 @@ Concrete, reusable specifics, grouped by consumer role:
 - **Quest / Narrative:** frictions, obligations, seasonal deadlines, plausible conflicts.
 - **Dialogue:** terms of art, forms of address, oaths, units, prices to quote.
 - **Dev / systems:** quantities, rates, durations, tolerances a system could model.
+
+## Reference plates
+One row per plate, mirroring `history/reference/plates.csv`. Omit only with an explicit line saying
+no licensed visual evidence was found.
+
+| Plate | Shows | Source, date, origin | License | Answers |
+|-------|-------|----------------------|---------|---------|
+| [`crafts.blacksmith-workshop.01`](../../reference/crafts/blacksmith-workshop/crafts.blacksmith-workshop.01.jpg) | forge hearth, bellows, tool rack | Mendel Hausbuch f. 34r, Nuremberg, c. 1425 - later comparandum | public domain | how the bellows meets the hearth wall |
+| `crafts.blacksmith-workshop.02` (link-only) | tong and hammer finds | Tallinn City Museum catalogue, 14th c., Reval | rights unclear | tool silhouettes and proportions |
 
 ## Cross-references
 Why each linked dossier matters here, one line each.

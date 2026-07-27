@@ -5,6 +5,7 @@ status: partial
 consumers: [map, art, quest, dev]
 related:
   - ../topography/lower-town-street-plan.md
+  - ../architecture/burgher-house-plan.md
   - ../architecture/toompea-castle-and-upper-town.md
   - ../military/watch-duty-and-town-defence.md
 updated: 2026-07-27
@@ -141,6 +142,7 @@ For April 1343: show **wet ditch** on south/east where completed; **timber sluic
 
 - [`lower-town-street-plan.md`](lower-town-street-plan.md) — street spines terminate at Viru, Karja, and Coastal gates; Müürivahe runs inside the curtain.
 - [`../architecture/toompea-castle-and-upper-town.md`](../architecture/toompea-castle-and-upper-town.md) — castle hill and wooden/stone hill gates (R-006 deliverable).
+- [`../architecture/burgher-house-plan.md`](../architecture/burgher-house-plan.md) — plot-wall height (~3 m) matches party-wall and yard-enclosure logic on burgess strips (R-003).
 - [`../military/watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) — burgher watch on towers and gates (R-010 deliverable).
 
 ## Open questions

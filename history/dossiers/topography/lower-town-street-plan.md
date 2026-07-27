@@ -148,7 +148,7 @@ Dimensions below combine attested medieval bands [4] with surviving alignment [2
 
 - [`walls-gates-towers.md`](walls-gates-towers.md) — gate positions (Viru, Karja, Coastal) terminate these spines; wall lane (*Müürivahe*) bounds blocks on the curtain side.
 - [`../../../docs/HISTORICAL_AUDIT.md`](../../../docs/HISTORICAL_AUDIT.md) — P0-072 ward-level density, surface, and gate chronology that implement this street plan in prototype maps.
-- **Pending neighbour:** `architecture/burgher-house-plan.md` (R-003).
+- **Delivered neighbour:** [`architecture/burgher-house-plan.md`](../architecture/burgher-house-plan.md) (R-003) — diele-dornse interior zoning, cellars, hoists, hearth, and 1343-safe facade/roof bands.
 
 ## Open questions
 
