@@ -1,0 +1,76 @@
+{
+  "type": "bark_pool",
+  "id": "bark.bell_and_chain.aftermath_watch",
+  "title": "Bell and the Chain aftermath watch barks",
+  "owner_id": "char.henning",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-002"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "first_valid_in_order"
+  },
+  "selection": "first_valid_in_order",
+  "phase_ids": [
+    "phase.consequence_night",
+    "phase.reflection_morning"
+  ],
+  "location_ids": [
+    "loc.lower_town_slice"
+  ],
+  "entries": [
+    {
+      "id": "honest_hold",
+      "speaker_id": "char.henning",
+      "text": "The portcullis held clean on the stress test. Henning wants that chain on every gate ledger.",
+      "priority": 3,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.gate_chain_honest_work",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "hidden_fracture",
+      "speaker_id": "char.henning",
+      "text": "Something groaned in the links during the drill. File it, but keep lamps on the east wall.",
+      "priority": 3,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.gate_chain_subtle_defect",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "secret_release",
+      "speaker_id": "char.henning",
+      "text": "The install was too quiet. Henning will double the inner-gate inspections this week.",
+      "priority": 3,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.gate_chain_secret_feature",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Patrol barks after the Viru Gate chain install in The Bell and the Chain.",
+      "citations": [
+        "docs/SCENES/the-bell-and-the-chain.md"
+      ]
+    }
+  ]
+}

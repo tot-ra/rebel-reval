@@ -1,0 +1,44 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.bell_and_chain.inspect_portcullis",
+  "title": "The Bell and the Chain - Portcullis groove",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-002"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "inspect_portcullis",
+  "nodes": [
+    {
+      "id": "inspect_portcullis",
+      "speaker_id": "char.kalev",
+      "text": "The portcullis groove is pitted. Rusted links squeal every time the weekly alarm test drops.",
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.bell_and_chain.portcullis_wear",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Portcullis groove inspection for The Bell and the Chain investigation loop.",
+      "citations": [
+        "docs/SCENES/the-bell-and-the-chain.md"
+      ]
+    }
+  ]
+}

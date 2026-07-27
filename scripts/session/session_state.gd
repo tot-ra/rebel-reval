@@ -11,6 +11,7 @@ const DEMO_CONTENT_DIRS: Array[String] = [
 	"res://content/demo",
 	"res://content/examples/support",
 	"res://content/examples/valid",
+	"res://content/packages/bell_and_chain/content",
 ]
 
 const DebugStatePresetsScript := preload("res://scripts/debug/debug_state_presets.gd")

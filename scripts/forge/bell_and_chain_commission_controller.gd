@@ -1,17 +1,11 @@
-class_name BitterBrewCommissionController
+class_name BellAndChainCommissionController
 extends Node
 
-## Wires the Bitter Brew forge commission after daytime investigation completes.
-## Switches the shared ledger anchor to commission.bitter_brew and gates bed rest
-## until Kalev commits a forged response.
+## Wires commission.bell_and_chain after the Viru Gate investigation completes.
 
-const BellAndChainModelScript := preload("res://scripts/quest/bell_and_chain_quest_model.gd")
-
-const QUEST_ID := &"quest.bitter_brew"
-const COMMISSION_ID := &"commission.bitter_brew"
+const ModelScript := preload("res://scripts/quest/bell_and_chain_quest_model.gd")
 const PROLOGUE_COMMISSION_ID := &"commission.watch_buckle_repair"
-
-const STATE_INVESTIGATION_READY := &"investigation_ready"
+const BITTER_BREW_COMMISSION_ID := &"commission.bitter_brew"
 
 const PhaseProfileModelScript := preload("res://scripts/phase/phase_profile_model.gd")
 
@@ -71,37 +65,27 @@ func _on_phase_changed(_previous: StringName, _next: StringName) -> void:
 
 
 func _on_commission_finished(commission_id: StringName) -> void:
-	if commission_id != COMMISSION_ID:
+	if commission_id != ModelScript.COMMISSION_ID:
 		return
-	_sync_stage()
-
-
-func _process(_delta: float) -> void:
+	_apply_quest_transition()
 	_sync_stage()
 
 
 func _commission_flow_gate() -> bool:
-	if SessionState.state == null:
-		return false
-	var phase := SessionState.state.get_phase()
-	if phase == GameState.PHASE_PROLOGUE_DAY:
-		return true
-	if phase != GameState.PHASE_INVESTIGATION_MORNING:
-		return false
-	return _quest_state() == STATE_INVESTIGATION_READY
+	return ModelScript.is_forge_flow_active(SessionState.state)
 
 
 func _sync_stage() -> void:
 	if _commission_anchor == null or SessionState.state == null:
 		return
-	if BellAndChainModelScript.is_forge_flow_active(SessionState.state):
-		return
 
-	if SessionState.state.get_phase() == GameState.PHASE_INVESTIGATION_MORNING:
-		_commission_anchor.set_commission_id(COMMISSION_ID)
-	else:
-		_commission_anchor.set_commission_id(PROLOGUE_COMMISSION_ID)
+	var commission_id := PROLOGUE_COMMISSION_ID
+	if ModelScript.is_forge_flow_active(SessionState.state):
+		commission_id = ModelScript.COMMISSION_ID
+	elif _bitter_brew_commission_active():
+		commission_id = BITTER_BREW_COMMISSION_ID
 
+	_commission_anchor.set_commission_id(commission_id)
 	_commission_anchor.sync_interactable_identity()
 	_sync_rest_enabled()
 
@@ -119,22 +103,39 @@ func _sync_rest_enabled() -> void:
 		SessionState.content_db
 	).is_empty()
 	var allow_rest := has_next_phase
-	if _is_investigation_commission_flow():
+	if ModelScript.is_forge_flow_active(SessionState.state):
 		allow_rest = (
 			has_next_phase
-			and ForgeCommissionModel.is_commission_resolved(SessionState.state, COMMISSION_ID)
+			and ForgeCommissionModel.is_commission_resolved(SessionState.state, ModelScript.COMMISSION_ID)
 		)
 	interactable.enabled = allow_rest
 
 
-func _is_investigation_commission_flow() -> bool:
-	return (
-		SessionState.state.get_phase() == GameState.PHASE_INVESTIGATION_MORNING
-		and _quest_state() == STATE_INVESTIGATION_READY
-	)
-
-
-func _quest_state() -> StringName:
+func _apply_quest_transition() -> void:
 	if SessionState.state == null:
-		return &""
-	return SessionState.state.get_quest_state(QUEST_ID)
+		return
+	var record := _latest_bell_record()
+	if record == null:
+		return
+	var transition_id := ModelScript.transition_for_modification(record.modification_id)
+	if transition_id.is_empty():
+		return
+	var manager := QuestManager.new(SessionState.content_db, SessionState.state)
+	manager.transition(ModelScript.QUEST_ID, transition_id)
+
+
+func _latest_bell_record() -> ForgedRecord:
+	if SessionState.state == null:
+		return null
+	for record in SessionState.state.get_forged_records():
+		if record.commission_id == ModelScript.COMMISSION_ID:
+			return record
+	return null
+
+
+func _bitter_brew_commission_active() -> bool:
+	if SessionState.state == null:
+		return false
+	if SessionState.state.get_phase() != GameState.PHASE_INVESTIGATION_MORNING:
+		return false
+	return SessionState.state.get_quest_state(&"quest.bitter_brew") == &"investigation_ready"

@@ -72,11 +72,14 @@ static func commit_aftermath(state: GameState, content_db: ContentDB) -> bool:
 	if not is_quest_terminal(state):
 		return false
 	if not resolve_outcome(state).is_empty():
+		state.set_flag(&"flag.act1_bell_and_chain_unlocked", true)
 		return true
 	var resolver := MechanismResolver.new(content_db, state)
 	if not resolver.trigger(MECHANISM_ID):
 		return false
 	_apply_brewery_location_state(state)
+	if not resolve_outcome(state).is_empty():
+		state.set_flag(&"flag.act1_bell_and_chain_unlocked", true)
 	return not resolve_outcome(state).is_empty()
 
 

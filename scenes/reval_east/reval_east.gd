@@ -10,6 +10,15 @@ const REPUTATION_SCRIPT := preload("res://scripts/faction/social_reputation_cont
 const MARKET_DAY_SCRIPT := preload("res://scripts/world/market_day_controller.gd")
 const SUPPLY_CHAIN_SCRIPT := preload("res://scripts/world/supply_chain_controller.gd")
 const ENVIRONMENT_SCRIPT := preload("res://scripts/world/environmental_consequence_controller.gd")
+const BELL_INVESTIGATION_SCRIPT := preload(
+	"res://scripts/investigation/bell_and_chain_investigation.gd"
+)
+const BELL_NIGHT_SCRIPT := preload(
+	"res://scripts/investigation/bell_and_chain_night_consequence.gd"
+)
+const BELL_AFTERMATH_SCRIPT := preload(
+	"res://scripts/investigation/bell_and_chain_aftermath.gd"
+)
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -25,6 +34,9 @@ var _social_reputation: Node
 var _market_day: Node
 var _supply_chain: Node
 var _environmental_consequence: Node
+var _bell_and_chain_investigation: Node
+var _bell_and_chain_night: Node
+var _bell_and_chain_aftermath: Node
 var _phase_binder: MapPhaseBinder
 var _patrol_controller: MapPatrolController
 
@@ -110,6 +122,28 @@ func _ready() -> void:
 	_environmental_consequence.name = "EnvironmentalConsequenceController"
 	add_child(_environmental_consequence)
 	_environmental_consequence.setup(_view_runtime, &"loc.lower_town_slice")
+	_bell_and_chain_investigation = BELL_INVESTIGATION_SCRIPT.new()
+	_bell_and_chain_investigation.name = "BellAndChainInvestigation"
+	add_child(_bell_and_chain_investigation)
+	_bell_and_chain_investigation.setup(
+		self,
+		definition,
+		_view_runtime,
+		_mart_encounter.get_interaction_controller()
+	)
+	_bell_and_chain_night = BELL_NIGHT_SCRIPT.new()
+	_bell_and_chain_night.name = "BellAndChainNightConsequence"
+	add_child(_bell_and_chain_night)
+	_bell_and_chain_night.setup(self, definition, player, actors)
+	_bell_and_chain_aftermath = BELL_AFTERMATH_SCRIPT.new()
+	_bell_and_chain_aftermath.name = "BellAndChainAftermath"
+	add_child(_bell_and_chain_aftermath)
+	_bell_and_chain_aftermath.setup(
+		self,
+		player,
+		_patrol_controller,
+		_bell_and_chain_night
+	)
 
 
 func _setup_phase_binder(definition: MapDefinition) -> void:

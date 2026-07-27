@@ -22,9 +22,10 @@ References:
 | P1 |     0  |     8  | Runtime systems, content foundation |
 | P2 |     2  |    20  | Vertical-slice production (playable MVP) |
 | P3 |     0  |    16  | Validation, accessibility, performance |
-| P4 |    31  |    27  | Act 1: The Simmering City |
+| P4 |    30  |    28  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
+
 
 
 
@@ -187,7 +188,7 @@ References:
 
 - [ ] P4-004 | deps: P4-003 | deliverable: playable and playtested `Bread and Iron` cycle | verify: one named family receives a visible consequence in every valid outcome
 - [ ] P4-006 | deps: P4-005 | deliverable: playable and playtested `The Price of a Name` cycle | verify: Mart, Kaja, Henning, and Kalev receive causally consistent state changes in every branch
-- [ ] P4-002 | deps: P4-001 | deliverable: playable and playtested `The Bell and the Chain` cycle | verify: gate-chain modification changes act-climax-ready state and the cycle passes its branch matrix
+- [x] P4-002 | claim: cursor-agent@2026-07-27 | deps: P4-001 | deliverable: playable and playtested `The Bell and the Chain` cycle | allowed files: `scripts/quest/bell_and_chain_quest_model.gd`, `scripts/investigation/bell_and_chain_investigation.gd`, `scripts/investigation/bell_and_chain_night_consequence.gd`, `scripts/investigation/bell_and_chain_aftermath_model.gd`, `scripts/investigation/bell_and_chain_aftermath.gd`, `scripts/forge/bell_and_chain_commission_controller.gd`, `content/packages/bell_and_chain/content/**`, `scenes/reval_east/reval_east.gd`, `scenes/reval_east/forge/forge.gd`, `scripts/session/session_state.gd`, `tests/godot/test_bell_and_chain_cycle.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: gate-chain modification changes act-climax-ready state and the cycle passes its branch matrix; `--filter=test_bell_and_chain_cycle` and `--filter=test_quest_package_bell_and_chain` pass
 - [ ] P4-003 | deps: P4-002 | deliverable: approved branch map and state table for `Bread and Iron` | verify: map reuses evidence, supplier, inventory, and location-state systems within campaign budgets
 - [ ] P4-005 | deps: P4-004 | deliverable: approved branch map and state table for `The Price of a Name` | verify: map reuses relationships, detention, false evidence, and Hingepuu without a new major system
 - [ ] P4-011 | deps: P4-010 | deliverable: automated Act 1 branch traversal and save compatibility suite | verify: every intended act-boundary state is reachable and every published save fixture loads or migrates

@@ -7,6 +7,9 @@ const PROLOGUE_CONTROLLER_SCRIPT := preload("res://scripts/forge/forge_prologue_
 const BITTER_BREW_CONTROLLER_SCRIPT := preload(
 	"res://scripts/forge/bitter_brew_commission_controller.gd"
 )
+const BELL_AND_CHAIN_CONTROLLER_SCRIPT := preload(
+	"res://scripts/forge/bell_and_chain_commission_controller.gd"
+)
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -75,6 +78,10 @@ func _ready() -> void:
 	bitter_brew.name = "BitterBrewCommissionController"
 	add_child(bitter_brew)
 	bitter_brew.setup(_commission_anchor, _rest_anchor, player)
+	var bell_and_chain = BELL_AND_CHAIN_CONTROLLER_SCRIPT.new()
+	bell_and_chain.name = "BellAndChainCommissionController"
+	add_child(bell_and_chain)
+	bell_and_chain.setup(_commission_anchor, _rest_anchor, player)
 
 
 func _setup_dialogue_encounter(definition: MapDefinition) -> void:

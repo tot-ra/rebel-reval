@@ -1,0 +1,44 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.bell_and_chain.inspect_rebel_marks",
+  "title": "The Bell and the Chain - Rebel chalk marks",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-002"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "inspect_rebel_marks",
+  "nodes": [
+    {
+      "id": "inspect_rebel_marks",
+      "speaker_id": "char.kalev",
+      "text": "Rebel chalk marks map the gate rotation from the Margaret wall circuit. Kaja's scouts were thorough.",
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.bell_and_chain.rebel_gate_map",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Rebel chalk mark inspection for The Bell and the Chain investigation loop.",
+      "citations": [
+        "docs/SCENES/the-bell-and-the-chain.md"
+      ]
+    }
+  ]
+}
