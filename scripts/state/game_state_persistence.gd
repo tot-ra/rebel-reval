@@ -49,6 +49,7 @@ static func save_payload(state: GameState) -> Dictionary:
 		"location_states": _string_dictionary(state._location_states),
 		"items": _bool_dictionary(state._items),
 		"dialogue_nodes_seen": _bool_dictionary(state._dialogue_nodes_seen),
+		"relationship_memories": _bool_dictionary(state._relationship_memories),
 		"forged_records": forged,
 		"world_items": state._world_items.duplicate(true),
 		"world_defaults_seeded": state._world_defaults_seeded.duplicate(true),
@@ -127,6 +128,11 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 		payload.get("dialogue_nodes_seen", {}),
 		errors,
 		"dialogue_nodes_seen"
+	)
+	state._relationship_memories = _load_bool_dictionary(
+		payload.get("relationship_memories", {}),
+		errors,
+		"relationship_memories"
 	)
 
 	state._forged_records.clear()

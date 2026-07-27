@@ -81,6 +81,10 @@ func test_all_condition_operators() -> void:
 		)
 	)
 
+	state.record_relationship_memory(&"memory.mart.helped")
+	var memory_condition := {"op": "memory_recorded", "key": "memory.mart.helped"}
+	assert_true(evaluator.evaluate_condition(memory_condition, state))
+
 
 func test_false_condition_is_not_an_error() -> void:
 	var condition := {"op": "flag_is", "key": String(FLAG_INCIDENT), "value": true}
@@ -108,6 +112,7 @@ func test_all_effect_operators() -> void:
 		{"op": "remove_item", "key": String(ITEM_SPEARHEAD)},
 		{"op": "add_item", "key": "item.watch_buckle"},
 		{"op": "set_location_state", "key": String(LOCATION_SMITHY), "value": "after_ledger_destroyed"},
+		{"op": "record_memory", "key": "memory.mart.ignored"},
 	]
 
 	assert_true(evaluator.apply_effects(effects, state))
@@ -122,6 +127,7 @@ func test_all_effect_operators() -> void:
 	assert_false(state.has_item(ITEM_SPEARHEAD))
 	assert_true(state.has_item(&"item.watch_buckle"))
 	assert_eq(state.get_location_state(LOCATION_SMITHY), &"after_ledger_destroyed")
+	assert_true(state.has_relationship_memory(&"memory.mart.ignored"))
 
 
 func test_unknown_condition_rejects_arbitrary_expression() -> void:

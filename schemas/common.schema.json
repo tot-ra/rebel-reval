@@ -130,7 +130,8 @@
             "district_price_tier_at_least",
             "item_owned",
             "quest_state_is",
-            "forged_modification_is"
+            "forged_modification_is",
+            "memory_recorded"
           ]
         },
         "key": {
@@ -174,7 +175,8 @@
             "record_faction_event",
             "add_item",
             "remove_item",
-            "set_location_state"
+            "set_location_state",
+            "record_memory"
           ]
         },
         "key": {

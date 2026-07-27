@@ -20,6 +20,7 @@ const CONDITION_OPS := [
 	"item_owned",
 	"quest_state_is",
 	"forged_modification_is",
+	"memory_recorded",
 ]
 
 const EFFECT_OPS := [
@@ -33,6 +34,7 @@ const EFFECT_OPS := [
 	"add_item",
 	"remove_item",
 	"set_location_state",
+	"record_memory",
 ]
 
 var _last_error := ""
@@ -88,6 +90,8 @@ func evaluate_condition(condition: Dictionary, state: GameState) -> bool:
 			return state.get_quest_state(key) == StringName(String(condition["value"]))
 		"forged_modification_is":
 			return state.has_forged_modification(key, StringName(String(condition["value"])))
+		"memory_recorded":
+			return state.has_relationship_memory(key)
 	return false
 
 
@@ -175,6 +179,8 @@ func _apply_valid_effect(effect: Dictionary, state: GameState) -> void:
 			state.remove_item(key)
 		"set_location_state":
 			state.set_location_state(key, StringName(String(effect["value"])))
+		"record_memory":
+			state.record_relationship_memory(key)
 
 
 func _validate_condition(condition: Dictionary, state: GameState) -> String:
@@ -209,6 +215,8 @@ func _validate_condition(condition: Dictionary, state: GameState) -> String:
 			return _validate_key_value(condition, "quest.", TYPE_STRING)
 		"forged_modification_is":
 			return _validate_forged_modification(condition)
+		"memory_recorded":
+			return _validate_key_only(condition, "memory.")
 	return "unsupported condition op: %s" % op
 
 
@@ -321,7 +329,22 @@ func _validate_effect(effect: Dictionary, state: GameState) -> String:
 			return _validate_key_only(effect, "item.")
 		"set_location_state":
 			return _validate_key_value(effect, "loc.", TYPE_STRING)
+		"record_memory":
+			return _validate_memory_record(effect)
 	return "unsupported effect op: %s" % op
+
+
+func _validate_memory_record(effect: Dictionary) -> String:
+	var shape_error := _require_shape(effect, ["op", "key"])
+	if not shape_error.is_empty():
+		return shape_error
+	var key_error := _validate_key(effect, "memory.")
+	if not key_error.is_empty():
+		return key_error
+	var parts := String(effect["key"]).split(".")
+	if parts.size() < 3:
+		return "record_memory key must name a character and action, for example memory.mart.helped"
+	return ""
 
 
 func _validate_key_only(operation: Dictionary, prefix: String) -> String:

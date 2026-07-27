@@ -201,6 +201,51 @@ def validate_condition_semantics(
                     )
                 )
 
+    if rules.get("memory_ref") and isinstance(key, str):
+        _validate_memory_key(
+            diagnostics,
+            path=path,
+            pointer=f"{pointer}.key",
+            key=key,
+            op=str(op),
+            index=index,
+            root=root,
+        )
+
+
+def _validate_memory_key(
+    diagnostics: list[Diagnostic],
+    *,
+    path: Path,
+    pointer: str,
+    key: str,
+    op: str,
+    index: dict[str, tuple[str, Path, dict[str, Any]]],
+    root: Path,
+) -> None:
+    parts = key.split(".")
+    if len(parts) < 3:
+        diagnostics.append(
+            diag(
+                "UNSUPPORTED_CONDITION" if op == "memory_recorded" else "UNSUPPORTED_EFFECT",
+                path,
+                pointer,
+                f"{op} key must name a character and action, for example memory.mart.helped",
+                root=root,
+            )
+        )
+        return
+    character_id = f"char.{parts[1]}"
+    require_record_ref(
+        diagnostics,
+        path=path,
+        pointer=pointer,
+        content_id=character_id,
+        expected_type="character",
+        index=index,
+        root=root,
+    )
+
 
 def validate_effect_semantics(
     diagnostics: list[Diagnostic],
@@ -306,6 +351,17 @@ def validate_effect_semantics(
                     )
                 )
 
+    if rules.get("memory_ref") and isinstance(key, str):
+        _validate_memory_key(
+            diagnostics,
+            path=path,
+            pointer=f"{pointer}.key",
+            key=key,
+            op=str(op),
+            index=index,
+            root=root,
+        )
+
 
 def walk_operation_lists(
     obj: Any,
@@ -363,6 +419,28 @@ def validate_dialogue(
             diag("REFERENCE", path, "$.start_node_id", f"unknown dialogue node id {start!r}", root=root)
         )
 
+    entry_points: list[str] = []
+    if isinstance(start, str) and start in id_to_index:
+        entry_points.append(start)
+    for variant_index, variant in enumerate(record.get("entry_variants") or []):
+        if not isinstance(variant, dict):
+            continue
+        variant_pointer = f"$.entry_variants[{variant_index}]"
+        node_id = variant.get("node_id")
+        if isinstance(node_id, str):
+            if node_id not in id_to_index:
+                diagnostics.append(
+                    diag(
+                        "REFERENCE",
+                        path,
+                        f"{variant_pointer}.node_id",
+                        f"unknown dialogue node id {node_id!r}",
+                        root=root,
+                    )
+                )
+            else:
+                entry_points.append(node_id)
+
     for node_index, node in enumerate(nodes):
         if not isinstance(node, dict):
             continue
@@ -401,9 +479,13 @@ def validate_dialogue(
                     )
                 )
 
-    if isinstance(start, str) and start in id_to_index:
-        reachable = {start}
-        queue = [start]
+    if entry_points:
+        reachable: set[str] = set()
+        queue: list[str] = []
+        for entry_id in entry_points:
+            if entry_id not in reachable:
+                reachable.add(entry_id)
+                queue.append(entry_id)
         while queue:
             current = queue.pop(0)
             node_index = id_to_index.get(current)
@@ -430,7 +512,7 @@ def validate_dialogue(
                         "REACHABILITY",
                         path,
                         f"$.nodes[{node_index}].id",
-                        f"dialogue node {node_id!r} is unreachable from start_node_id",
+                        f"dialogue node {node_id!r} is unreachable from start_node_id or entry_variants",
                         root=root,
                     )
                 )

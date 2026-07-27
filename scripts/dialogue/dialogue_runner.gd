@@ -2,6 +2,7 @@ class_name DialogueRunner
 extends Node
 
 const PresenterScript := preload("res://scripts/dialogue/dialogue_presenter.gd")
+const EntryResolverScript := preload("res://scripts/dialogue/dialogue_entry_resolver.gd")
 
 ## Authored offline dialogue playback: branching choices, conditions, effects,
 ## once-only nodes, and phase bark resolution. UI is delegated to DialoguePresenter.
@@ -73,7 +74,9 @@ func start(dialogue_id: StringName) -> bool:
 			continue
 		_nodes_by_id[node_id] = node
 
-	var start_id := String(dialogue.get("start_node_id", ""))
+	var start_id := EntryResolverScript.resolve_entry_node_id(dialogue, _state, _evaluator)
+	if start_id.is_empty():
+		start_id = String(dialogue.get("start_node_id", ""))
 	if start_id.is_empty() or not _nodes_by_id.has(start_id):
 		return false
 

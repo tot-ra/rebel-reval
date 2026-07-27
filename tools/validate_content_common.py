@@ -34,6 +34,7 @@ CONDITION_OPS = {
     "item_owned",
     "quest_state_is",
     "forged_modification_is",
+    "memory_recorded",
 }
 
 EFFECT_OPS = {
@@ -47,6 +48,7 @@ EFFECT_OPS = {
     "add_item",
     "remove_item",
     "set_location_state",
+    "record_memory",
 }
 
 CONDITION_LIST_KEYS = frozenset({"conditions", "entry_conditions", "requires"})
@@ -91,6 +93,12 @@ CONDITION_RULES: dict[str, dict[str, Any]] = {
         "commission_ref": True,
         "forging_option": True,
     },
+    "memory_recorded": {
+        "required": {"key"},
+        "forbidden": {"value", "amount"},
+        "key_prefix": "memory.",
+        "memory_ref": True,
+    },
 }
 
 EFFECT_RULES: dict[str, dict[str, Any]] = {
@@ -119,6 +127,12 @@ EFFECT_RULES: dict[str, dict[str, Any]] = {
         "key_prefix": "loc.",
         "value_type": str,
         "location_state": True,
+    },
+    "record_memory": {
+        "required": {"key"},
+        "forbidden": {"value", "amount"},
+        "key_prefix": "memory.",
+        "memory_ref": True,
     },
 }
 

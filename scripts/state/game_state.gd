@@ -2,6 +2,7 @@ class_name GameState
 extends RefCounted
 
 const _PersistenceScript := preload("res://scripts/state/game_state_persistence.gd")
+const _RelationshipMemoryScript := preload("res://scripts/relationship/relationship_memory.gd")
 
 ## Fired after a slot's contents change so the 3D view can mirror the state.
 signal equipment_changed(slot: StringName)
@@ -56,6 +57,7 @@ var _quest_states: Dictionary[StringName, StringName] = {}
 var _location_states: Dictionary[StringName, StringName] = {}
 var _items: Dictionary[StringName, bool] = {}
 var _dialogue_nodes_seen: Dictionary[StringName, bool] = {}
+var _relationship_memories: Dictionary[StringName, bool] = {}
 var _world_items: Dictionary = {}
 var _world_defaults_seeded: Dictionary = {}
 ## One equipped forge technique (Iron / Ember / Root) or empty when none.
@@ -274,6 +276,34 @@ func get_dialogue_nodes_seen() -> Array[StringName]:
 	for key: StringName in _dialogue_nodes_seen:
 		keys.append(key)
 	keys.sort()
+	return keys
+
+
+func has_relationship_memory(key: StringName) -> bool:
+	return _relationship_memories.get(key, false)
+
+
+func record_relationship_memory(key: StringName) -> bool:
+	if not _RelationshipMemoryScript.is_valid_key(key):
+		return false
+	_relationship_memories[key] = true
+	return true
+
+
+func get_relationship_memories() -> Array[StringName]:
+	var keys: Array[StringName] = []
+	for key: StringName in _relationship_memories:
+		if _relationship_memories[key]:
+			keys.append(key)
+	keys.sort()
+	return keys
+
+
+func get_relationship_memories_for_character(character_id: StringName) -> Array[StringName]:
+	var keys: Array[StringName] = []
+	for key: StringName in get_relationship_memories():
+		if _RelationshipMemoryScript.character_id_for_key(key) == character_id:
+			keys.append(key)
 	return keys
 
 
