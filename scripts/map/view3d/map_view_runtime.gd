@@ -22,6 +22,7 @@ const UrbanFauna := preload("res://scripts/map/view3d/map_view_urban_fauna.gd")
 const PennedFauna := preload("res://scripts/map/view3d/map_view_penned_fauna.gd")
 const InsectAmbientAudio := preload("res://scripts/map/view3d/map_view_insect_ambient_audio.gd")
 const InsectContext := preload("res://scripts/map/view3d/map_view_insect_context.gd")
+const MapMusicZoneBinder := preload("res://scripts/map/map_music_zone_binder.gd")
 
 ## Compatibility aliases keep the runtime's public locomotion thresholds stable.
 const WALK_ANIMATION_MIN_SPEED := RuntimeActors.WALK_ANIMATION_MIN_SPEED
@@ -97,6 +98,7 @@ var _penned_fauna
 var _penned_fauna_enabled := true
 var _insect_audio
 var _insect_audio_enabled := true
+var _music_zone_binder
 
 
 static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasItem, player: CharacterBody2D) -> MapViewRuntime:
@@ -152,6 +154,7 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 	runtime._install_urban_fauna()
 	runtime._install_penned_fauna()
 	runtime._install_insect_audio()
+	runtime._install_music_zone_binder()
 	runtime._install_click_input(scene_root)
 	return runtime
 
@@ -261,6 +264,13 @@ func _install_insect_audio() -> void:
 	add_child(_insect_audio)
 	var context := InsectContext.context_for_map(_definition.map_id)
 	_insect_audio.configure(_definition.map_id, context)
+
+
+func _install_music_zone_binder() -> void:
+	_music_zone_binder = MapMusicZoneBinder.new()
+	_music_zone_binder.name = "MapMusicZoneBinder"
+	add_child(_music_zone_binder)
+	_music_zone_binder.configure(_definition, _player)
 
 
 func _install_click_input(_scene_root: Node2D) -> void:

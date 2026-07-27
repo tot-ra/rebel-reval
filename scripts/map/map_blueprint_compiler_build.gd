@@ -85,7 +85,15 @@ static func build_definition(blueprint: MapBlueprint, expanded: Dictionary) -> M
 	var fades: Array = expanded["fades"]
 	fades.sort_custom(MapBlueprintCompiler._compare_id_records)
 	for values in fades:
-		definition.fade_volumes.append({"id": values["id"], "rect": definition.cell_rect_to_world_rect(values["rect"])})
+		var volume := {
+			"id": values["id"],
+			"rect": definition.cell_rect_to_world_rect(values["rect"]),
+		}
+		if values.has("music_theme"):
+			volume["music_theme"] = values["music_theme"]
+		elif String(values["id"]).contains("danish_kings_garden"):
+			volume["music_theme"] = &"garden"
+		definition.fade_volumes.append(volume)
 
 	definition.source_references = blueprint.source_references.duplicate()
 	definition.source_references.sort()

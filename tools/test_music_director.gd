@@ -32,6 +32,7 @@ func _check_routes(failures: Array[String]) -> void:
 		"res://scenes/reval_east/reval_east.tscn": &"town",
 		"res://scenes/reval_center/reval_center.tscn": &"center",
 		"res://scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn": &"center",
+		"res://scenes/reval_center/town_hall/town_hall.tscn": &"raekoda",
 		"res://scenes/reval_north/oleviste_church/oleviste_church.tscn": &"oleviste",
 		"res://scenes/reval_north/reval_north.tscn": &"north",
 		"res://scenes/reval_monastery/reval_monastery.tscn": &"monastery",
@@ -52,7 +53,7 @@ func _check_routes(failures: Array[String]) -> void:
 
 func _check_streams(failures: Array[String]) -> void:
 	var director := MusicDirectorScript.new()
-	for theme_id: StringName in [&"menu", &"forge", &"town", &"center", &"north", &"oleviste", &"monastery", &"harbor", &"toompea", &"south"]:
+	for theme_id: StringName in [&"menu", &"forge", &"town", &"center", &"raekoda", &"north", &"oleviste", &"monastery", &"harbor", &"toompea", &"garden", &"south"]:
 		if not MusicDirectorScript.has_theme(theme_id):
 			failures.append("Theme %s is routed but not configured" % theme_id)
 			continue
@@ -84,6 +85,16 @@ func _check_streams(failures: Array[String]) -> void:
 			_:
 				if not stream is AudioStreamPlaylist:
 					failures.append("District theme %s should use AudioStreamPlaylist" % theme_id)
+
+	var raekoda_tracks := MusicDirectorScript.day_track_paths_for_theme(&"raekoda")
+	var expected_raekoda_tracks := PackedStringArray([
+		"res://music/revel_center/raekoda/The Guildmaster's Ball.mp3",
+		"res://music/revel_center/raekoda/The Town Hall Fanfare.mp3",
+	])
+	if raekoda_tracks != expected_raekoda_tracks:
+		failures.append("Raekoda must use its dedicated Town Hall playlist")
+	if not MusicDirectorScript.night_track_paths_for_theme(&"raekoda").is_empty():
+		failures.append("Raekoda should not have night tracks until they are approved")
 
 	_check_cycle_volume(failures)
 	director.free()

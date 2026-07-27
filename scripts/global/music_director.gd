@@ -15,7 +15,7 @@ const SCENE_THEME_ROUTES: Dictionary = {
 	"res://scenes/reval_east/viru_gate_foreland/viru_gate_foreland.tscn": &"town",
 	"res://scenes/reval_center/reval_center.tscn": &"center",
 	"res://scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn": &"center",
-	"res://scenes/reval_center/town_hall/town_hall.tscn": &"center",
+	"res://scenes/reval_center/town_hall/town_hall.tscn": &"raekoda",
 	"res://scenes/reval_north/reval_north.tscn": &"north",
 	"res://scenes/reval_north/oleviste_church/oleviste_church.tscn": &"oleviste",
 	"res://scenes/reval_monastery/reval_monastery.tscn": &"monastery",
@@ -38,11 +38,13 @@ const TOWN_TRACKS: Array[String] = [
 
 const THEME_DAY_DIRS: Dictionary = {
 	&"center": "res://music/revel_center/",
+	&"raekoda": "res://music/revel_center/raekoda/",
 	&"north": "res://music/revel_north/",
 	&"oleviste": "res://music/revel_north/oleviste/",
 	&"monastery": "res://music/revel_east/monastery/",
 	&"harbor": "res://music/harbor/",
 	&"toompea": "res://music/domberg/day/",
+	&"garden": "res://music/garden/day/",
 	&"south": "res://music/revel_south/",
 }
 
@@ -50,6 +52,7 @@ const THEME_NIGHT_DIRS: Dictionary = {
 	&"forge": "res://music/forge/night/",
 	&"town": "res://music/revel_east/night/",
 	&"toompea": "res://music/domberg/night/",
+	&"garden": "res://music/garden/night/",
 }
 
 signal cycle_progress_changed(progress: float)
@@ -57,6 +60,8 @@ signal calendar_date_changed(date: Dictionary)
 
 var _player: AudioStreamPlayer
 var _active_scene: Node
+var _scene_theme := &""
+var _zone_theme_override := &""
 var _active_theme := &""
 var _playing_night := false
 var _cycle_active := false
@@ -93,6 +98,27 @@ static func theme_for_scene(scene_path: String) -> StringName:
 
 func active_theme_id() -> StringName:
 	return _active_theme
+
+
+func zone_theme_override() -> StringName:
+	return _zone_theme_override
+
+
+func set_zone_theme_override(theme_id: StringName) -> void:
+	if theme_id == _zone_theme_override:
+		return
+	if theme_id.is_empty() or not has_theme(theme_id):
+		clear_zone_theme_override()
+		return
+	_zone_theme_override = theme_id
+	_apply_theme(_resolved_theme_id())
+
+
+func clear_zone_theme_override() -> void:
+	if _zone_theme_override.is_empty():
+		return
+	_zone_theme_override = &""
+	_apply_theme(_resolved_theme_id())
 
 
 func is_theme_playing() -> bool:
@@ -210,9 +236,17 @@ func _sync_with_current_scene() -> void:
 	_active_scene = current_scene
 	var scene_path := current_scene.scene_file_path if current_scene != null else ""
 	var theme_id := theme_for_scene(scene_path)
+	_zone_theme_override = &""
+	_scene_theme = theme_id
 	if theme_id == &"menu":
 		clear_cycle_progress()
-	_apply_theme(theme_id)
+	_apply_theme(_resolved_theme_id())
+
+
+func _resolved_theme_id() -> StringName:
+	if not _zone_theme_override.is_empty():
+		return _zone_theme_override
+	return _scene_theme
 
 
 func _apply_theme(theme_id: StringName) -> void:
