@@ -155,9 +155,16 @@ static func _collect(
 		var mesh: Mesh = mesh_instance.mesh
 		for surface_index in mesh.get_surface_count():
 			var material := mesh_instance.get_active_material(surface_index)
-			var key := "%s|%d" % [
+			# WHY: SurfaceTool.append_from cannot reconcile two vertex formats in one
+			# surface. Merging an indexed primitive (the thatch ridge pole) with
+			# non-indexed, vertex-coloured slope meshes dropped the reed geometry from
+			# the index buffer and filled the primitive's missing COLOR attribute with
+			# opaque black, so the roof lost its relief and grew a black ridge pipe.
+			# Batching per vertex format keeps every merge lossless.
+			var key := "%s|%d|%d" % [
 				material.get_rid() if material != null else RID(),
 				int(mesh_instance.cast_shadow),
+				_surface_format(mesh, surface_index),
 			]
 			if not groups.has(key):
 				groups[key] = {
@@ -171,6 +178,19 @@ static func _collect(
 				"surface": surface_index,
 				"transform": child_transform,
 			})
+
+
+## Vertex format of one surface. Only ArrayMesh exposes it; engine primitives all
+## share the same generated layout (position, normal, tangent, UV, indices), so a
+## single sentinel keeps them batchable with each other but apart from ArrayMeshes.
+const PRIMITIVE_MESH_FORMAT := -1
+
+
+static func _surface_format(mesh: Mesh, surface_index: int) -> int:
+	var array_mesh := mesh as ArrayMesh
+	if array_mesh == null:
+		return PRIMITIVE_MESH_FORMAT
+	return int(array_mesh.surface_get_format(surface_index))
 
 
 static func _is_mergeable(node: Node3D, preserved_names: Dictionary) -> bool:

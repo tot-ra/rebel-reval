@@ -40,6 +40,64 @@ func test_merge_combines_shared_non_triplanar_trim() -> void:
 	root.free()
 
 
+## Regression: a thatch ridge pole (indexed CylinderMesh) shares its material with
+## the vertex-coloured, non-indexed slope shells. Merging both formats into one
+## surface dropped the slope triangles and painted the pole black.
+func test_merge_keeps_mixed_vertex_formats_apart() -> void:
+	var root := Node3D.new()
+	var thatch := MapViewMaterials.role(&"hay")
+	for index in 2:
+		var slope := MeshInstance3D.new()
+		slope.name = "Slope%d" % index
+		slope.mesh = _colored_quad_mesh()
+		slope.material_override = thatch
+		slope.position = Vector3(float(index) * 2.0, 0.0, 0.0)
+		root.add_child(slope)
+	var ridge := MeshInstance3D.new()
+	ridge.name = "Ridge"
+	var cylinder := CylinderMesh.new()
+	cylinder.height = 4.0
+	cylinder.top_radius = 0.2
+	cylinder.bottom_radius = 0.2
+	ridge.mesh = cylinder
+	ridge.material_override = thatch
+	root.add_child(ridge)
+
+	Batcher.merge(root, {})
+
+	assert_true(root.has_node("Ridge"), "an unpaired primitive must keep its own instance")
+	assert_true(root.has_node("Batched00"), "the two coloured slopes must still batch together")
+	var batched := root.get_node("Batched00") as MeshInstance3D
+	var arrays: Array = (batched.mesh as ArrayMesh).surface_get_arrays(0)
+	var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	var colors: PackedColorArray = arrays[Mesh.ARRAY_COLOR]
+	assert_eq(vertices.size(), 12, "both slope quads must survive the merge")
+	assert_eq(colors.size(), 12, "merged slopes must keep their vertex colours")
+	for color in colors:
+		assert_true(color.r > 0.5, "no slope vertex may inherit a primitive's black default")
+	root.free()
+
+
+## Non-indexed, vertex-coloured quad, matching how the thatch slopes are authored.
+func _colored_quad_mesh() -> ArrayMesh:
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var corners := [
+		Vector3(0.0, 0.0, 0.0),
+		Vector3(1.0, 0.0, 0.0),
+		Vector3(1.0, 0.0, 1.0),
+		Vector3(0.0, 0.0, 0.0),
+		Vector3(1.0, 0.0, 1.0),
+		Vector3(0.0, 0.0, 1.0),
+	]
+	for corner in corners:
+		surface.set_normal(Vector3.UP)
+		surface.set_color(Color(0.9, 0.9, 0.9))
+		surface.set_uv(Vector2.ZERO)
+		surface.add_vertex(corner)
+	return surface.commit()
+
+
 func test_gate_arch_keeps_triplanar_mass_after_merge() -> void:
 	var landmark := {
 		"id": &"gate.test",
