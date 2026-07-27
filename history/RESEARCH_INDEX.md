@@ -12,6 +12,7 @@ Confidence labels are defined in [`docs/CANON.md`](../docs/CANON.md): `attested`
 ## How to use this index
 
 - **Producing agents (art, map, character, quest, dialogue, narrative):** find your domain below, open the dossier, and read its `## Brief` and `## Production hooks` sections. Those are written for you. If the evidence you need is absent, say so in your task row rather than inventing it.
+- **Looking for pictures?** Dossiers written for art, map, and character carry a `## Reference plates` table - licensed images of clothing, floor plans, facades, doors, ironwork, interiors, and tools. The files are under [`reference/`](reference/README.md) and the manifest is [`reference/plates.csv`](reference/plates.csv). They are evidence, not assets: derive from them, do not ship them.
 - **Canon Keeper:** dossiers are proposals, not canon. Amendments to [`docs/CANON.md`](../docs/CANON.md) remain yours.
 - **Researcher:** keep the status column honest, keep `## Downstream requests` current, and refill the `## R -` backlog in [`TODO.md`](../TODO.md) whenever it runs dry.
 

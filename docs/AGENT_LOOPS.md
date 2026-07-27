@@ -215,18 +215,27 @@ Mode A - deliver (run when a research row is claimable):
 2. Claim one: flip to `- [~]`, append `claim: research-N@<date>`. First writer wins.
 3. Produce the dossier at history/dossiers/<domain>/<slug>.md in the standard structure:
    brief (max 20 lines) for the requesting role, sourced findings with confidence
-   labels, `## Production hooks`, `## Cross-references`, `## Open questions`,
-   `## Sources`. Note Danish Estonia / Hanseatic Reval / Livonian Order specifics and
-   flag thin or conflicting evidence.
-4. Wire it in: update status and link in history/RESEARCH_INDEX.md and add reciprocal
+   labels, `## Production hooks`, `## Reference plates`, `## Cross-references`,
+   `## Open questions`, `## Sources`. Note Danish Estonia / Hanseatic Reval / Livonian
+   Order specifics and flag thin or conflicting evidence.
+4. Gather 3-8 reference plates in the same tick when art, map, or character will read
+   the dossier: clothing cuts, floor plans, facades, doors and ironwork, interiors,
+   tools, ships. Mine the measured drawings in history/*.pdf first, then Estonian
+   institutions, museums, and Wikimedia. Append rows to history/reference/plates.csv
+   (shows, source, date, origin, page_url, licence) and run
+   `python3 tools/research/fetch_reference_plates.py --slug <slug>`. Only public
+   domain / CC0 / CC BY / CC BY-SA are downloaded; the rest stay `status: linked`.
+   Cite plate IDs from the hooks they support. Never generate an image as evidence.
+5. Wire it in: update status and link in history/RESEARCH_INDEX.md and add reciprocal
    links in every dossier you cited. An unlinked dossier is not delivered.
-5. Close: replace the claim tag with `review: canon`. Never flip to `- [x]` yourself.
-6. Unresearchable as scoped: flip to `- [!]` with `blocked: <reason>`.
+6. Close: replace the claim tag with `review: canon`. Never flip to `- [x]` yourself.
+7. Unresearchable as scoped: flip to `- [!]` with `blocked: <reason>`.
 
 Mode B - refill the backlog (run when nothing is claimable; never just stop):
 1. Audit history/RESEARCH_INDEX.md coverage against what is actually on disk.
 2. Prioritise by production demand: evidence needed by currently open map/art/character/
-   quest/dialogue/narrative rows, then unresolved `## Open questions`, then
+   quest/dialogue/narrative rows, then delivered dossiers for visual consumers that
+   still have no reference plates, then unresolved `## Open questions`, then
    absent/stub domains.
 3. Append rows to the `## R -` section only, as
    `- [ ] R-### | role: research | deps: ... | deliverable: history/dossiers/<domain>/<slug>.md - <scope> | verify: ...`
@@ -237,7 +246,10 @@ Mode B - refill the backlog (run when nothing is claimable; never just stop):
 
 Acceptance: every non-trivial claim sourced or labeled `plausible composite` with
 rationale; no anachronisms; every dossier reachable from the index and cross-linked;
-every topic carries a concrete production hook; claimable work remains for the next tick.
+every topic carries a concrete production hook; dossiers for visual consumers carry
+licence-checked, dated plates or a stated finding that none exist, and
+`python3 tools/research/fetch_reference_plates.py --verify` passes; claimable work
+remains for the next tick.
 ```
 
 - **Model tier:** L + web. **Cadence:** front-loaded (3-4 dossiers/day early, ~1/day late); 1-2 instances early, 1 standby late that keeps mining the backlog.
