@@ -149,6 +149,16 @@ func _add_field_row(parent: VBoxContainer, label_text: String) -> Label:
 	return value
 
 
+func _format_materials_line(snapshot: Dictionary) -> String:
+	var materials := String(snapshot.get("materials", ""))
+	var cost_display := String(snapshot.get("material_cost_display", ""))
+	if materials.is_empty():
+		return cost_display
+	if cost_display.is_empty():
+		return materials
+	return "%s - %s" % [materials, cost_display]
+
+
 func _refresh() -> void:
 	if _title_label == null:
 		return
@@ -157,7 +167,7 @@ func _refresh() -> void:
 	_customer_value.text = String(_snapshot.get("customer_name", ""))
 	_object_value.text = String(_snapshot.get("object_name", ""))
 	_purpose_value.text = String(_snapshot.get("known_purpose", ""))
-	_materials_value.text = String(_snapshot.get("materials", ""))
+	_materials_value.text = _format_materials_line(_snapshot)
 
 	var deadline: Dictionary = _snapshot.get("deadline", {})
 	if deadline.is_empty():

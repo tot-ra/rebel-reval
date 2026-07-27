@@ -5,6 +5,7 @@ extends RefCounted
 
 const EVALUATOR_SCRIPT := preload("res://scripts/state/state_rule_evaluator.gd")
 const CommissionDeadlineModelScript := preload("res://scripts/commission/commission_deadline_model.gd")
+const TradePriceModelScript := preload("res://scripts/economy/trade_price_model.gd")
 
 const MATERIAL_LABELS := {
 	"common": "Common iron",
@@ -31,6 +32,9 @@ static func build_snapshot(
 	var client_id := StringName(String(commission.get("client_id", "")))
 	var object_item_id := StringName(String(commission.get("object_item_id", "")))
 	var item := content_db.get_item(object_item_id)
+	var location_id := StringName(String(commission.get("location_id", "")))
+	var material_grade := String(item.get("material_grade", "common"))
+	var material_cost := TradePriceModelScript.material_cost_pfennigs(material_grade, location_id, state)
 
 	return {
 		"commission_id": commission_id,
@@ -41,6 +45,8 @@ static func build_snapshot(
 		"object_item_id": object_item_id,
 		"known_purpose": String(commission.get("concrete_order", "")),
 		"materials": _format_materials(item),
+		"material_cost_pfennigs": material_cost,
+		"material_cost_display": "%d pfennig material charge" % material_cost,
 		"discovered_leverage": _discovered_leverage(commission, state),
 		"forging_options": _resolve_forging_options(commission, state, rule_evaluator),
 		"already_resolved": is_commission_resolved(state, commission_id),
@@ -75,6 +81,8 @@ static func _empty_snapshot(commission_id: StringName) -> Dictionary:
 		"object_item_id": &"",
 		"known_purpose": "",
 		"materials": "",
+		"material_cost_pfennigs": 0,
+		"material_cost_display": "",
 		"discovered_leverage": [],
 		"forging_options": [],
 		"already_resolved": false,

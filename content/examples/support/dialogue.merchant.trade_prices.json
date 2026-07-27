@@ -1,0 +1,74 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.merchant.trade_prices",
+  "title": "Merchant stall trade quotes",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P4-030"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "Support dialogue for P4-030 dynamic trade-price tokens."
+  },
+  "participants": [
+    "char.kalev",
+    "char.merchant_stall"
+  ],
+  "start_node_id": "merchant_default_opening",
+  "entry_variants": [
+    {
+      "node_id": "merchant_tight_market_opening",
+      "priority": 20,
+      "conditions": [
+        {
+          "op": "district_price_tier_at_least",
+          "key": "district.lower_town",
+          "amount": 2
+        }
+      ]
+    }
+  ],
+  "word_count_estimate": 42,
+  "nodes": [
+    {
+      "id": "merchant_tight_market_opening",
+      "speaker_id": "char.merchant_stall",
+      "text": "Iron is {trade_price:trade.iron} pfennig and bread {trade_price:trade.bread} today. Patrols and tariffs, nothing personal.",
+      "choices": [
+        {
+          "id": "acknowledge",
+          "text": "Understood.",
+          "target_node_id": "merchant_close"
+        }
+      ]
+    },
+    {
+      "id": "merchant_default_opening",
+      "speaker_id": "char.merchant_stall",
+      "text": "Fair morning for trade - iron {trade_price:trade.iron}, bread {trade_price:trade.bread}.",
+      "choices": [
+        {
+          "id": "acknowledge",
+          "text": "Noted.",
+          "target_node_id": "merchant_close"
+        }
+      ]
+    },
+    {
+      "id": "merchant_close",
+      "speaker_id": "char.merchant_stall",
+      "text": "Come back before the watch changes the numbers again."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Regression dialogue for district-driven trade price tokens."
+    }
+  ]
+}

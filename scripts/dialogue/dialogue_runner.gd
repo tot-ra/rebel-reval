@@ -3,6 +3,7 @@ extends Node
 
 const PresenterScript := preload("res://scripts/dialogue/dialogue_presenter.gd")
 const EntryResolverScript := preload("res://scripts/dialogue/dialogue_entry_resolver.gd")
+const TextFormatterScript := preload("res://scripts/dialogue/dialogue_text_formatter.gd")
 
 ## Authored offline dialogue playback: branching choices, conditions, effects,
 ## once-only nodes, and phase bark resolution. UI is delegated to DialoguePresenter.
@@ -196,7 +197,7 @@ func resolve_bark(
 			"entry_id": String(entry.get("id", "")),
 			"speaker_id": StringName(String(entry.get("speaker_id", ""))),
 			"speaker_name": _speaker_name(StringName(String(entry.get("speaker_id", "")))),
-			"text": String(entry.get("text", "")),
+			"text": _format_text(String(entry.get("text", ""))),
 		}
 	return {}
 
@@ -225,7 +226,7 @@ func _enter_node(node_id: String, depth: int = 0) -> bool:
 	_apply_node_effects(node)
 	_mark_node_seen(_dialogue_id, node)
 
-	var text := String(node.get("text", ""))
+	var text := _format_text(String(node.get("text", "")))
 	var choices := _resolve_choices(node)
 	var speaker_id := StringName(String(node.get("speaker_id", "")))
 	if not text.is_empty():
@@ -352,6 +353,13 @@ func _speaker_name(speaker_id: StringName) -> String:
 	if character.is_empty():
 		return String(speaker_id)
 	return String(character.get("name", speaker_id))
+
+
+func _format_text(text: String) -> String:
+	if _state == null:
+		return text
+	var location_id := _state.player.location_id if _state.player != null else &""
+	return TextFormatterScript.format(text, _state, location_id)
 
 
 func _close() -> void:

@@ -22,9 +22,10 @@ References:
 | P1 |     0  |     8  | Runtime systems, content foundation |
 | P2 |     2  |    20  | Vertical-slice production (playable MVP) |
 | P3 |     0  |    16  | Validation, accessibility, performance |
-| P4 |    38  |    20  | Act 1: The Simmering City |
+| P4 |    37  |    21  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
+
 
 
 
@@ -190,7 +191,7 @@ References:
 - [ ] P4-013 | deps: P4-012 | deliverable: Act 1 release candidate playable as a standalone chapter | verify: clean-clone CI, supported-platform smoke tests, license report, accessibility checklist, and act acceptance matrix all pass
 - [ ] P4-012 | deps: P4-011 | deliverable: maintainer Act 1 playable review and critical/high issue closure per [ADR 0014](docs/adr/0014-authorial-acceptance-gates-without-external-playtests.md) | verify: `docs/reports/p4_012_act1_gate.md` records maintainer completion, comprehension, pacing, combat, choice, and continuity findings with no unresolved critical/high issue; automated Act 1 traversal suite is green
 - [x] P4-029 | deps: P4-017 | deliverable: time-sensitive commission system: at least three commissions with visible deadlines (displayed in journal/UI) where missing the deadline changes outcomes, prices, or NPC relationships without softlocking the campaign | verify: one test commission shows different aftermath states when completed before vs. after its deadline; deadline state persists across save/load
-- [ ] P4-030 | deps: P4-017 | deliverable: economic simulation layer: dynamic pricing for trade goods based on district supply, faction control, and player actions (e.g., iron prices rise when the Order restricts trade, bread costs drop when rebels control the market) with at least two price tiers per essential good | verify: automated test shows price changes when district flags toggle; price differences appear in merchant dialogue; prices affect commission costs or player purchasing power
+- [x] P4-030 | deps: P4-017 | deliverable: economic simulation layer: dynamic pricing for trade goods based on district supply, faction control, and player actions (e.g., iron prices rise when the Order restricts trade, bread costs drop when rebels control the market) with at least two price tiers per essential good | allowed files: `scripts/economy/trade_price_model.gd`, `scripts/dialogue/dialogue_text_formatter.gd`, `scripts/dialogue/dialogue_runner.gd`, `scripts/faction/district_pressure_model.gd`, `scripts/forge/forge_commission_model.gd`, `scripts/forge/forge_commission_overlay.gd`, `content/examples/support/character.merchant_stall.json`, `content/examples/support/dialogue.merchant.trade_prices.json`, `tests/godot/test_trade_price_model.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_trade_price_model` passes 5/5; merchant dialogue quotes change when district flags toggle; commission snapshots expose district-priced material charges
 - [x] P4-031 | deps: P4-016 | deliverable: NPC relationship memory: named characters track and reference specific player actions (saved, betrayed, helped, ignored) in subsequent dialogue with at least two reference types per character; references change tone and available options | verify: one test character delivers different opening lines based on two different prior player actions; relationship state persists across map transitions
 ### Medium
 

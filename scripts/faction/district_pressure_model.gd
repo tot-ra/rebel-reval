@@ -10,6 +10,7 @@ const TIER_TENSE := 2
 const TIER_CRACKDOWN := 3
 
 const LOC_LOWER_TOWN := &"loc.lower_town_slice"
+const LOC_SMITHY := &"loc.kalev_smithy"
 const MAP_NORTH_QUARTER := &"north_quarter"
 
 const DISTRICT_LOWER_TOWN := &"district.lower_town"
@@ -30,6 +31,7 @@ const TIER_NAMES: Array[StringName] = [
 
 const LOCATION_TO_DISTRICT: Dictionary = {
 	LOC_LOWER_TOWN: DISTRICT_LOWER_TOWN,
+	LOC_SMITHY: DISTRICT_LOWER_TOWN,
 }
 
 const MAP_TO_DISTRICT: Dictionary = {

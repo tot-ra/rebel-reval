@@ -1,0 +1,36 @@
+{
+  "type": "character",
+  "id": "char.merchant_stall",
+  "name": "Market stall keeper",
+  "role": "Lower Town grain and iron trader",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P4-030"
+  },
+  "pronunciation": "MER-chant stall",
+  "brief": {
+    "want": "Move stock before patrols tighten prices again.",
+    "fear": "Empty shelves when the Order seizes iron shipments.",
+    "contradiction": "Complains about tariffs while profiting from scarcity.",
+    "secret_or_withheld_fact": "Keeps a hidden loaf reserve for rebel sympathizers."
+  },
+  "relationships": [],
+  "voice": {
+    "summary": "Practical, clipped, price-first.",
+    "diction": "Quotes numbers plainly and blames whoever tightened supply last."
+  },
+  "outcomes": [
+    {
+      "id": "open",
+      "summary": "Keeps the stall trading through district pressure swings."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Support character for P4-030 trade-price dialogue regression."
+    }
+  ]
+}
