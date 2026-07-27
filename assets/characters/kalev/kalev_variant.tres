@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1_variant")
 stable_id = &"char.kalev"
-material_tint = Color(0.92, 0.78, 0.72, 1)
+material_tint = Color(1, 1, 1, 1)
 equipment = ExtResource("2_hammer")
 show_cape = true
 

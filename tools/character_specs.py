@@ -15,12 +15,14 @@ Spec fields (all optional except output):
   animation clip consistently.
 - shape: high-level mesh knobs merged over BASE_SHAPE; consumed by the body
   generator (multipliers on generated geometry, not on bones).
-- features: discrete identity knobs merged over BASE_FEATURES; consumed by
-  the body generator (hair_style, beard_style, sleeve_style, tunic_length,
-  pauldrons).
+- face: portrait-scale identity knobs merged over BASE_FACE; consumed by the
+  head generator without changing the shared head bone or animation tracks.
+- features: discrete identity and clothing knobs merged over BASE_FEATURES;
+  consumed by the body generator (hair_style, beard_style, sleeve_style,
+  tunic_length, outerwear, pauldrons).
 - palette: sRGB color overrides merged over the base PALETTE of the
   generator (skin, tunic, sleeves, sleeve_band, pants, boots, belt, hair,
-  beard, eyes, armor, ...).
+  beard, eyes, outerwear, trim, ...).
 - output: runtime glb path relative to the repo root.
 - garments: garment ids to export as separate skinned glbs next to the
   body ("cape", "hat"). Usually only the shared hero set carries these.
@@ -45,19 +47,21 @@ BASE_PROPORTIONS = {
     "forearm_relax_degrees": 45.0,
 }
 
-# Default feature set for the body generator (see generate_hero_body.py).
-# Specs override individual keys to change identity without new code:
+# Default feature set for the body generator. Specs override individual keys
+# to change identity and situation without adding runtime branches:
 # - hair_style: "full" | "short" | "bald" | "ponytail" | "bun" | "long"
 # - beard_style: "full" | "short" | "none"
 # - sleeve_style: "long" (tunic sleeve + undersleeves + cuff) | "bare" (short
 #   tunic sleeve, skin to the wrist)
 # - tunic_length: "long" (knee hem) | "short" (hip hem)
+# - outerwear: "none" | "apron" | "vest" | "surcoat" | "kirtle"
 # - pauldrons: shoulder armor plates baked into the body glb
 BASE_FEATURES = {
     "hair_style": "full",
     "beard_style": "full",
     "sleeve_style": "long",
     "tunic_length": "long",
+    "outerwear": "none",
     "pauldrons": False,
 }
 
@@ -72,10 +76,44 @@ BASE_SHAPE = {
     "head_scale": 1.0,
 }
 
+# Face values are deliberately independent from head_scale. This lets named
+# characters have recognisable portrait silhouettes while preserving a shared
+# head bone, attachment point and complete animation library.
+BASE_FACE = {
+    "width": 1.0,
+    "depth": 1.0,
+    "length": 1.0,
+    "jaw_width": 1.0,
+    "nose_length": 1.0,
+    "eye_spacing": 1.0,
+    "brow_height": 1.0,
+}
+
 CHARACTERS = {
-    # The shared hero body used by Kalev, Mart, and current NPC variants.
-    # Palette matches the legacy Kalev pixel sprite (character/inspiration/user__idle.gif).
+    # Kalev is the player's working blacksmith body. The leather apron and
+    # rolled-looking pale sleeves keep his profession legible from behind,
+    # where the gameplay camera sees him most often.
     "hero": {
+        "shape": {
+            "bulk": 1.05,
+            "chest_breadth": 1.08,
+            "belly": 1.01,
+            "head_scale": 0.98,
+        },
+        "face": {
+            "width": 0.97,
+            "depth": 1.02,
+            "length": 1.04,
+            "jaw_width": 1.06,
+            "nose_length": 1.05,
+            "brow_height": 0.92,
+        },
+        "features": {
+            "hair_style": "short",
+            "beard_style": "short",
+            "tunic_length": "short",
+            "outerwear": "apron",
+        },
         "palette": {
             "tunic": (0.38, 0.24, 0.14, 1.0),
             "sleeves": (0.84, 0.83, 0.80, 1.0),
@@ -85,9 +123,61 @@ CHARACTERS = {
             "belt": (0.62, 0.46, 0.28, 1.0),
             "hair": (0.48, 0.32, 0.20, 1.0),
             "beard": (0.42, 0.28, 0.16, 1.0),
+            "outerwear": (0.24, 0.16, 0.10, 1.0),
+            "trim": (0.48, 0.31, 0.17, 1.0),
         },
         "output": "assets/characters/shared/heroic_humanoid.glb",
         "garments": ["cape", "hat"],
+    },
+    # Mart is a named person, not a tint of Kalev. His adolescent skeleton,
+    # narrower frame and plain vest remain compatible with every shared clip.
+    "mart": {
+        "proportions": {
+            "leg_length": 1.72,
+            "arm_length": 1.16,
+            "torso_length": 0.82,
+            "shoulder_width": 0.66,
+            "hip_socket_width": 0.90,
+            "head_size": 0.31,
+            "hand_size": 0.76,
+            "arm_relax_degrees": 48.0,
+            "forearm_relax_degrees": 42.0,
+        },
+        "shape": {
+            "bulk": 0.86,
+            "chest_breadth": 0.91,
+            "belly": 0.94,
+            "head_scale": 1.01,
+        },
+        "face": {
+            "width": 0.92,
+            "depth": 0.96,
+            "length": 1.02,
+            "jaw_width": 0.88,
+            "nose_length": 0.91,
+            "eye_spacing": 1.04,
+            "brow_height": 1.05,
+        },
+        "features": {
+            "hair_style": "full",
+            "beard_style": "none",
+            "tunic_length": "short",
+            "outerwear": "vest",
+        },
+        "palette": {
+            "skin": (0.82, 0.62, 0.46, 1.0),
+            "tunic": (0.48, 0.43, 0.33, 1.0),
+            "sleeves": (0.72, 0.69, 0.60, 1.0),
+            "sleeve_band": (0.32, 0.44, 0.38, 1.0),
+            "pants": (0.18, 0.20, 0.20, 1.0),
+            "boots": (0.30, 0.22, 0.15, 1.0),
+            "belt": (0.38, 0.25, 0.15, 1.0),
+            "hair": (0.36, 0.24, 0.15, 1.0),
+            "outerwear": (0.27, 0.31, 0.27, 1.0),
+            "trim": (0.45, 0.39, 0.27, 1.0),
+        },
+        "output": "assets/characters/shared/mart.glb",
+        "garments": [],
     },
     # Captain Henning: tall, broad-shouldered and disciplined. The dark Watch
     # palette and heavier upper body keep his authority readable at gameplay
@@ -106,6 +196,15 @@ CHARACTERS = {
             "belly": 1.04,
             "head_scale": 0.98,
         },
+        "face": {
+            "width": 1.02,
+            "depth": 1.02,
+            "length": 1.08,
+            "jaw_width": 1.12,
+            "nose_length": 1.08,
+            "eye_spacing": 0.96,
+            "brow_height": 0.88,
+        },
         "palette": {
             "skin": (0.73, 0.52, 0.38, 1.0),
             "tunic": (0.20, 0.25, 0.30, 1.0),
@@ -116,12 +215,15 @@ CHARACTERS = {
             "beard": (0.24, 0.19, 0.15, 1.0),
             "eyes": (0.05, 0.06, 0.07, 1.0),
             "armor": (0.38, 0.40, 0.44, 1.0),
+            "outerwear": (0.24, 0.27, 0.31, 1.0),
+            "trim": (0.58, 0.49, 0.31, 1.0),
         },
-        # A career officer reads clean-cut: cropped hair, no beard, and
-        # pauldrons that widen the already broad shoulder line.
+        # A career officer reads clean-cut: cropped hair, no beard, plated
+        # shoulders and a belted surcoat over the darker uniform.
         "features": {
             "hair_style": "short",
             "beard_style": "none",
+            "outerwear": "surcoat",
             "pauldrons": True,
         },
         "output": "assets/characters/shared/henning.glb",
@@ -144,17 +246,29 @@ CHARACTERS = {
             "belly": 1.35,
             "head_scale": 1.05,
         },
+        "face": {
+            "width": 1.10,
+            "depth": 1.08,
+            "length": 0.96,
+            "jaw_width": 1.08,
+            "nose_length": 1.04,
+            "eye_spacing": 1.03,
+            "brow_height": 1.02,
+        },
         "palette": {
             "tunic": (0.45, 0.36, 0.24, 1.0),
             "pants": (0.28, 0.24, 0.20, 1.0),
             "hair": (0.38, 0.30, 0.24, 1.0),
             "beard": (0.32, 0.24, 0.18, 1.0),
+            "outerwear": (0.29, 0.18, 0.11, 1.0),
+            "trim": (0.55, 0.39, 0.22, 1.0),
         },
         "features": {
             "hair_style": "bun",
             "beard_style": "short",
             "sleeve_style": "bare",
             "tunic_length": "short",
+            "outerwear": "apron",
         },
         "output": "assets/characters/shared/innkeeper.glb",
         "garments": [],
@@ -176,6 +290,15 @@ CHARACTERS = {
             "belly": 0.96,
             "head_scale": 0.98,
         },
+        "face": {
+            "width": 0.94,
+            "depth": 1.0,
+            "length": 1.04,
+            "jaw_width": 0.96,
+            "nose_length": 1.02,
+            "eye_spacing": 0.98,
+            "brow_height": 0.94,
+        },
         "palette": {
             "tunic": (0.34, 0.33, 0.30, 1.0),
             "sleeves": (0.72, 0.70, 0.66, 1.0),
@@ -184,11 +307,14 @@ CHARACTERS = {
             "belt": (0.42, 0.34, 0.22, 1.0),
             "hair": (0.28, 0.22, 0.18, 1.0),
             "beard": (0.24, 0.19, 0.15, 1.0),
+            "outerwear": (0.29, 0.30, 0.29, 1.0),
+            "trim": (0.46, 0.42, 0.31, 1.0),
         },
         "features": {
             "hair_style": "short",
             "beard_style": "none",
             "tunic_length": "short",
+            "outerwear": "vest",
         },
         "output": "assets/characters/shared/watchman.glb",
         "garments": [],
@@ -210,6 +336,15 @@ CHARACTERS = {
             "belly": 1.02,
             "head_scale": 0.98,
         },
+        "face": {
+            "width": 1.04,
+            "depth": 1.03,
+            "length": 1.02,
+            "jaw_width": 1.08,
+            "nose_length": 1.03,
+            "eye_spacing": 0.96,
+            "brow_height": 0.90,
+        },
         "palette": {
             "tunic": (0.24, 0.26, 0.30, 1.0),
             "pants": (0.14, 0.15, 0.17, 1.0),
@@ -217,10 +352,13 @@ CHARACTERS = {
             "belt": (0.34, 0.22, 0.14, 1.0),
             "hair": (0.26, 0.20, 0.16, 1.0),
             "armor": (0.42, 0.44, 0.48, 1.0),
+            "outerwear": (0.31, 0.32, 0.35, 1.0),
+            "trim": (0.56, 0.48, 0.31, 1.0),
         },
         "features": {
             "hair_style": "short",
             "beard_style": "none",
+            "outerwear": "surcoat",
             "pauldrons": True,
         },
         "output": "assets/characters/shared/sergeant.glb",
@@ -246,6 +384,15 @@ CHARACTERS = {
             "belly": 0.98,
             "head_scale": 1.0,
         },
+        "face": {
+            "width": 0.94,
+            "depth": 0.96,
+            "length": 1.01,
+            "jaw_width": 0.92,
+            "nose_length": 0.98,
+            "eye_spacing": 1.05,
+            "brow_height": 1.03,
+        },
         "palette": {
             "tunic": (0.30, 0.36, 0.30, 1.0),
             "sleeves": (0.86, 0.84, 0.78, 1.0),
@@ -254,10 +401,13 @@ CHARACTERS = {
             "boots": (0.30, 0.22, 0.15, 1.0),
             "belt": (0.55, 0.42, 0.26, 1.0),
             "hair": (0.30, 0.20, 0.12, 1.0),
+            "outerwear": (0.60, 0.53, 0.39, 1.0),
+            "trim": (0.48, 0.29, 0.20, 1.0),
         },
         "features": {
             "hair_style": "long",
             "beard_style": "none",
+            "outerwear": "kirtle",
         },
         "output": "assets/characters/shared/townswoman.glb",
         "garments": [],
@@ -275,6 +425,7 @@ def spec(name: str) -> dict:
         "name": name,
         "proportions": {**BASE_PROPORTIONS, **entry.get("proportions", {})},
         "shape": {**BASE_SHAPE, **entry.get("shape", {})},
+        "face": {**BASE_FACE, **entry.get("face", {})},
         "features": {**BASE_FEATURES, **entry.get("features", {})},
         "palette": entry.get("palette", {}),
         "output": entry["output"],

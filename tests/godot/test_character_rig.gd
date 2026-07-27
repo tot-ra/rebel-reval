@@ -170,19 +170,22 @@ func test_proportions_modifier_installed_and_neutral_by_default() -> void:
 	kalev.queue_free()
 
 
-func test_mart_is_a_data_only_swap_on_the_shared_rig() -> void:
+func test_mart_has_a_named_body_on_the_shared_animation_contract() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
 	var mart := _instantiate(MART_SCENE)
 
-	assert_eq(mart.validation_errors(), [], "Second variant must preserve the rig contract")
+	assert_eq(mart.validation_errors(), [], "Mart's body must preserve the rig contract")
 	assert_eq(mart.variant_id(), &"char.mart")
-	assert_false(mart.has_equipment(), "Mart variant must swap out Kalev's hammer")
+	assert_false(mart.has_equipment(), "Mart must not inherit Kalev's hammer")
 	assert_eq(mart.skeleton().get_bone_count(), kalev.skeleton().get_bone_count())
 	assert_eq(mart.canonical_animation_names(), kalev.canonical_animation_names())
-	assert_true(is_same(
+	assert_false(is_same(
 		mart.animation_player().get_animation_library(&""),
 		kalev.animation_player().get_animation_library(&""),
-	), "Variants must reuse one imported animation library")
+	), "a named body carries clips retargeted to its own proportions")
+	var kalev_head := kalev.skeleton().get_bone_global_rest(kalev.skeleton().find_bone("head")).origin.y
+	var mart_head := mart.skeleton().get_bone_global_rest(mart.skeleton().find_bone("head")).origin.y
+	assert_true(mart_head < kalev_head, "the 16-year-old apprentice must read shorter than Kalev")
 
 	kalev.queue_free()
 	mart.queue_free()
@@ -230,7 +233,7 @@ func test_skinned_garments_deform_with_the_shared_skeleton() -> void:
 
 	assert_true(kalev.has_garment(&"cape"), "Kalev variant must wear the generated cape")
 	assert_false(kalev.has_garment(&"hat"), "Kalev variant must not wear the hat")
-	assert_true(mart.has_garment(&"hat"), "Mart variant must wear the generated hat")
+	assert_false(mart.has_garment(&"hat"), "Mart keeps his generated adolescent silhouette unobstructed")
 
 	var cape_meshes := kalev.skeleton().find_children("Garment_cape*", "MeshInstance3D", false, false)
 	assert_true(cape_meshes.size() > 0, "cape meshes must mount under the skeleton")

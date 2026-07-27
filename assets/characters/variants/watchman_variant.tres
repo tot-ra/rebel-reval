@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1_variant")
 stable_id = &"char.watchman"
-material_tint = Color(0.86, 0.84, 0.8, 1)
+material_tint = Color(1, 1, 1, 1)
 equipment = ExtResource("2_spear")
 animation_overrides = {
 &"walk": &"Walking_C"

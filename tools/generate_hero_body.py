@@ -50,8 +50,12 @@ PALETTE = {
     "belt": (0.62, 0.46, 0.28, 1.0),
     "hair": (0.48, 0.32, 0.20, 1.0),
     "beard": (0.42, 0.28, 0.16, 1.0),
-    "eyes": (0.06, 0.05, 0.05, 1.0),
+    "eyes": (0.10, 0.16, 0.18, 1.0),
+    "eye_white": (0.78, 0.76, 0.68, 1.0),
+    "lips": (0.48, 0.25, 0.20, 1.0),
     "armor": (0.45, 0.47, 0.50, 1.0),
+    "outerwear": (0.28, 0.20, 0.14, 1.0),
+    "trim": (0.55, 0.40, 0.24, 1.0),
     "cape": (0.42, 0.24, 0.14, 1.0),
     "hat": (0.32, 0.36, 0.28, 1.0),
 }
@@ -69,9 +73,35 @@ def _material(name: str) -> bpy.types.Material:
     srgb = _active_palette[name]
     linear = tuple(pow(channel, 2.2) for channel in srgb[:3]) + (srgb[3],)
     bsdf.inputs["Base Color"].default_value = linear
-    bsdf.inputs["Roughness"].default_value = 1.0
+    # Material response is part of the model, not a global flat-plastic tint.
+    # Wool stays matte, leather has a restrained broad highlight, skin keeps a
+    # softer response and metal remains the only genuinely reflective surface.
+    roughness = {
+        "skin": 0.72,
+        "hair": 0.78,
+        "beard": 0.82,
+        "eyes": 0.32,
+        "eye_white": 0.50,
+        "lips": 0.58,
+        "boots": 0.66,
+        "belt": 0.64,
+        "outerwear": 0.76,
+        "armor": 0.38,
+    }.get(name, 0.88)
+    specular = {
+        "skin": 0.28,
+        "eyes": 0.55,
+        "eye_white": 0.34,
+        "lips": 0.36,
+        "boots": 0.24,
+        "belt": 0.24,
+        "armor": 0.62,
+    }.get(name, 0.16)
+    bsdf.inputs["Roughness"].default_value = roughness
+    if "Metallic" in bsdf.inputs:
+        bsdf.inputs["Metallic"].default_value = 0.72 if name == "armor" else 0.0
     if "Specular IOR Level" in bsdf.inputs:
-        bsdf.inputs["Specular IOR Level"].default_value = 0.1
+        bsdf.inputs["Specular IOR Level"].default_value = specular
     return material
 
 
@@ -91,7 +121,7 @@ def generate(character: str) -> None:
     context = BodyContext.from_armature(armature)
     parts: list[PartBuilder] = [
         build_torso(context, selected["shape"], selected["features"]),
-        build_head(context, selected["shape"], selected["features"]),
+        build_head(context, selected["shape"], selected["face"], selected["features"]),
     ]
     parts.extend(build_limbs(context, selected["shape"], selected["features"]))
     body_objects = [part.build(armature, _material) for part in parts]

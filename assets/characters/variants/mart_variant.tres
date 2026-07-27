@@ -5,6 +5,5 @@
 [resource]
 script = ExtResource("1_variant")
 stable_id = &"char.mart"
-material_tint = Color(0.68, 0.82, 0.76, 1)
-show_hat = true
+material_tint = Color(1, 1, 1, 1)
 

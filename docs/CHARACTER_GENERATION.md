@@ -44,8 +44,10 @@ tools/rebuild_hero_character.sh <spec_name>
 Spec knobs, in order of visual power:
 
 - `proportions` — **bone-level**; also reshapes every animation clip consistently: `leg_length`, `arm_length`, `torso_length`, `shoulder_width`, `hip_socket_width`, `arm_relax_degrees` (upper-arm +Z fold; sets elbow breadth), `forearm_relax_degrees` (extra forearm +Z fold that brings handslots forward without pulling elbows in).
-- `shape` — **mesh-level**, bones untouched: `bulk` (overall girth), `chest_breadth`, `belly`, `head_scale` (keep within ±10 %).
-- `palette` — sRGB color overrides: `skin`, `tunic`, `pants`, `boots`, `belt`, `hair`, `beard`, `eyes`.
+- `shape` - **mesh-level**, bones untouched: `bulk` (overall girth), `chest_breadth`, `belly`, `head_scale` (keep within +/-10%).
+- `face` - **portrait identity**, head bone untouched: `width`, `depth`, `length`, `jaw_width`, `nose_length`, `eye_spacing`, `brow_height`. These preserve attachment and animation compatibility.
+- `palette` - sRGB material colors: `skin`, `tunic`, `pants`, `boots`, `belt`, `hair`, `beard`, `eyes`, `eye_white`, `lips`, `outerwear`, `trim`. Roughness, specular response and armor metallic response are assigned by material role.
+- `features` - discrete geometry: hair and beard styles, sleeve and tunic lengths, `outerwear` (`none`, `apron`, `vest`, `surcoat`, `kirtle`), and `pauldrons`.
 - `output` — runtime glb path under `assets/characters/shared/`.
 
 Then:

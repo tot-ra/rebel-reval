@@ -1,4 +1,4 @@
-"""Head and facial-feature assembly for the generated hero body."""
+"""Head and facial-feature assembly for generated rigged characters."""
 
 from __future__ import annotations
 
@@ -8,7 +8,9 @@ from hero_body_context import BodyContext, blend_weights
 from hero_body_mesh_builder import PartBuilder
 
 
-def build_head(context: BodyContext, shape: dict, features: dict) -> PartBuilder:
+def build_head(
+    context: BodyContext, shape: dict, face: dict, features: dict
+) -> PartBuilder:
     frame = context.frame
     up, forward, left = frame.up, frame.forward, frame.left
     scale = context.scale
@@ -16,15 +18,39 @@ def build_head(context: BodyContext, shape: dict, features: dict) -> PartBuilder
     head_center = context.head_center
     neck_base = context.neck_base
 
-    # Head bulk is governed by head_scale, not body bulk. Face-feature boxes
-    # stay at base size, which is suitable for the supported +/-10% range.
-    head_part = PartBuilder("Hero_Head", frame, bulk=shape["head_scale"])
+    # Named characters alter the facial mesh, never the head bone. Attachments,
+    # hit reactions and all retargeted clips therefore keep a stable contract.
+    head_part = PartBuilder("Character_Head", frame, bulk=shape["head_scale"])
+    skull_radius = Vector(
+        (
+            0.132 * scale * face["width"],
+            0.142 * scale * face["depth"],
+            0.151 * scale * face["length"],
+        )
+    )
     head_part.uv_sphere(
-        head_center,
-        Vector((0.140 * scale, 0.145 * scale, 0.155 * scale)),
+        head_center + up * 0.012 * scale,
+        skull_radius,
         {"head": 1.0},
         "skin",
-        rings=14,
+        rings=16,
+    )
+
+    # A separate lower-face volume breaks the old spherical toy-head read and
+    # gives each spec an independent jaw silhouette.
+    jaw_center = head_center + forward * 0.018 * scale - up * 0.075 * scale
+    head_part.uv_sphere(
+        jaw_center,
+        Vector(
+            (
+                0.102 * scale * face["jaw_width"],
+                0.126 * scale * face["depth"],
+                0.092 * scale * face["length"],
+            )
+        ),
+        {"head": 1.0},
+        "skin",
+        rings=12,
     )
 
     head_part.start_tube()
@@ -46,55 +72,87 @@ def build_head(context: BodyContext, shape: dict, features: dict) -> PartBuilder
     )
     head_part.cap(head + up * 0.065 * scale, {"head": 1.0}, "skin")
 
-    # Ears are small flattened shells on the skull sides.
     for side in (1.0, -1.0):
         head_part.uv_sphere(
-            head_center + left * side * 0.134 * scale + up * 0.004 * scale,
-            Vector((0.018 * scale, 0.026 * scale, 0.034 * scale)),
+            head_center
+            + left * side * 0.132 * scale * face["width"]
+            + up * 0.002 * scale,
+            Vector((0.016 * scale, 0.024 * scale, 0.032 * scale)),
             {"head": 1.0},
             "skin",
-            rings=6,
+            rings=7,
         )
 
-    _add_hair(head_part, context, features["hair_style"])
-    _add_beard(head_part, context, features["beard_style"])
+    _add_hair(head_part, context, features["hair_style"], face)
+    _add_beard(head_part, context, features["beard_style"], face)
 
-    head_part.box(
-        head_center + forward * 0.146 * scale - up * 0.004 * scale,
-        left * 0.024 * scale,
-        forward * 0.026 * scale,
-        up * 0.036 * scale,
+    nose_length = face["nose_length"]
+    head_part.uv_sphere(
+        head_center + forward * 0.143 * scale * nose_length - up * 0.008 * scale,
+        Vector((0.024 * scale, 0.033 * scale * nose_length, 0.043 * scale)),
         {"head": 1.0},
         "skin",
+        rings=7,
     )
-    # Eyes and eyebrows.
+    head_part.uv_sphere(
+        head_center + forward * 0.158 * scale * nose_length - up * 0.025 * scale,
+        Vector((0.029 * scale, 0.024 * scale, 0.023 * scale)),
+        {"head": 1.0},
+        "skin",
+        rings=6,
+    )
+
+    eye_spacing = 0.048 * scale * face["eye_spacing"]
+    eye_forward = 0.132 * scale * face["depth"]
+    eye_height = 0.031 * scale
     for side in (1.0, -1.0):
-        head_part.box(
+        eye_center = (
             head_center
-            + forward * 0.132 * scale
-            + left * side * 0.052 * scale
-            + up * 0.032 * scale,
-            left * 0.017 * scale,
-            forward * 0.010 * scale,
-            up * 0.021 * scale,
+            + forward * eye_forward
+            + left * side * eye_spacing
+            + up * eye_height
+        )
+        head_part.uv_sphere(
+            eye_center,
+            Vector((0.021 * scale, 0.010 * scale, 0.014 * scale)),
+            {"head": 1.0},
+            "eye_white",
+            rings=7,
+        )
+        head_part.uv_sphere(
+            eye_center + forward * 0.009 * scale,
+            Vector((0.009 * scale, 0.006 * scale, 0.010 * scale)),
             {"head": 1.0},
             "eyes",
+            rings=6,
         )
         head_part.box(
-            head_center
-            + forward * 0.131 * scale
-            + left * side * 0.052 * scale
-            + up * 0.060 * scale,
+            eye_center
+            - forward * 0.001 * scale
+            + up * 0.029 * scale * face["brow_height"],
             left * 0.025 * scale,
-            forward * 0.009 * scale,
-            up * 0.007 * scale,
+            forward * 0.006 * scale,
+            up * 0.005 * scale,
             {"head": 1.0},
             "hair",
         )
+
+    # The mouth remains neutral geometry so dialogue/attack animations can move
+    # the whole head without a frozen painted expression.
+    head_part.box(
+        head_center + forward * 0.132 * scale - up * 0.071 * scale,
+        left * 0.043 * scale,
+        forward * 0.006 * scale,
+        up * 0.006 * scale,
+        {"head": 1.0},
+        "lips",
+    )
     return head_part
 
 
-def _add_hair(head_part: PartBuilder, context: BodyContext, style: str) -> None:
+def _add_hair(
+    head_part: PartBuilder, context: BodyContext, style: str, face: dict
+) -> None:
     if style == "bald":
         return
 
@@ -103,40 +161,41 @@ def _add_hair(head_part: PartBuilder, context: BodyContext, style: str) -> None:
     scale = context.scale
     head_center = context.head_center
     if style == "short":
-        hair_offset = head_center + up * 0.034 * scale - forward * 0.030 * scale
-        hair_radii = Vector((0.142 * scale, 0.134 * scale, 0.146 * scale))
+        hair_offset = head_center + up * 0.052 * scale - forward * 0.030 * scale
+        hair_radii = Vector(
+            (
+                0.136 * scale * face["width"],
+                0.133 * scale * face["depth"],
+                0.122 * scale * face["length"],
+            )
+        )
     else:
-        hair_offset = head_center + up * 0.028 * scale - forward * 0.038 * scale
-        hair_radii = Vector((0.148 * scale, 0.140 * scale, 0.152 * scale))
-    head_part.uv_sphere(hair_offset, hair_radii, {"head": 1.0}, "hair", rings=13)
+        hair_offset = head_center + up * 0.044 * scale - forward * 0.038 * scale
+        hair_radii = Vector(
+            (
+                0.142 * scale * face["width"],
+                0.139 * scale * face["depth"],
+                0.136 * scale * face["length"],
+            )
+        )
+    head_part.uv_sphere(hair_offset, hair_radii, {"head": 1.0}, "hair", rings=14)
 
     if style == "ponytail":
         tail_base = head_center - forward * 0.140 * scale + up * 0.095 * scale
         head_part.start_tube()
-        head_part.ring(
-            tail_base,
-            up,
-            0.032 * scale,
-            0.030 * scale,
-            {"head": 1.0},
-            "hair",
-        )
-        head_part.ring(
-            tail_base - forward * 0.028 * scale - up * 0.100 * scale,
-            up,
-            0.027 * scale,
-            0.025 * scale,
-            {"head": 1.0},
-            "hair",
-        )
-        head_part.ring(
-            tail_base - forward * 0.036 * scale - up * 0.200 * scale,
-            up,
-            0.019 * scale,
-            0.018 * scale,
-            {"head": 1.0},
-            "hair",
-        )
+        for center, radius in (
+            (tail_base, 0.032),
+            (tail_base - forward * 0.028 * scale - up * 0.100 * scale, 0.027),
+            (tail_base - forward * 0.036 * scale - up * 0.200 * scale, 0.019),
+        ):
+            head_part.ring(
+                center,
+                up,
+                radius * scale,
+                radius * 0.94 * scale,
+                {"head": 1.0},
+                "hair",
+            )
         head_part.cap(
             tail_base - forward * 0.040 * scale - up * 0.245 * scale,
             {"head": 1.0},
@@ -148,34 +207,38 @@ def _add_hair(head_part: PartBuilder, context: BodyContext, style: str) -> None:
             Vector((0.052 * scale, 0.050 * scale, 0.048 * scale)),
             {"head": 1.0},
             "hair",
-            rings=8,
+            rings=9,
         )
     elif style == "long":
         head_part.start_tube()
-        head_part.ring(
-            head_center - forward * 0.115 * scale + up * 0.105 * scale,
-            up,
-            0.072 * scale,
-            0.052 * scale,
-            {"head": 1.0},
-            "hair",
-        )
-        head_part.ring(
-            head_center - forward * 0.132 * scale - up * 0.045 * scale,
-            up,
-            0.076 * scale,
-            0.056 * scale,
-            {"head": 1.0},
-            "hair",
-        )
-        head_part.ring(
-            context.neck_base - forward * 0.058 * scale,
-            up,
-            0.062 * scale,
-            0.046 * scale,
-            blend_weights("chest", "head", 0.5),
-            "hair",
-        )
+        for center, side_radius, front_radius, weights in (
+            (
+                head_center - forward * 0.115 * scale + up * 0.105 * scale,
+                0.072,
+                0.052,
+                {"head": 1.0},
+            ),
+            (
+                head_center - forward * 0.132 * scale - up * 0.045 * scale,
+                0.076,
+                0.056,
+                {"head": 1.0},
+            ),
+            (
+                context.neck_base - forward * 0.058 * scale,
+                0.062,
+                0.046,
+                blend_weights("chest", "head", 0.5),
+            ),
+        ):
+            head_part.ring(
+                center,
+                up,
+                side_radius * scale,
+                front_radius * scale,
+                weights,
+                "hair",
+            )
         head_part.cap(
             context.neck_base - forward * 0.056 * scale - up * 0.035 * scale,
             {"head": 1.0},
@@ -183,35 +246,50 @@ def _add_hair(head_part: PartBuilder, context: BodyContext, style: str) -> None:
         )
 
 
-def _add_beard(head_part: PartBuilder, context: BodyContext, style: str) -> None:
+def _add_beard(
+    head_part: PartBuilder, context: BodyContext, style: str, face: dict
+) -> None:
+    if style == "none":
+        return
+
     frame = context.frame
     up, forward, left = frame.up, frame.forward, frame.left
     scale = context.scale
     head_center = context.head_center
+    jaw_width = face["jaw_width"]
     if style == "full":
-        head_part.box(
-            head_center + forward * 0.118 * scale - up * 0.095 * scale,
-            left * 0.082 * scale,
-            forward * 0.052 * scale,
-            up * 0.075 * scale,
+        head_part.uv_sphere(
+            head_center + forward * 0.108 * scale - up * 0.094 * scale,
+            Vector(
+                (
+                    0.080 * scale * jaw_width,
+                    0.047 * scale,
+                    0.082 * scale,
+                )
+            ),
             {"head": 1.0},
             "beard",
+            rings=9,
         )
-        # Mustache bar under the nose.
         head_part.box(
-            head_center + forward * 0.147 * scale - up * 0.038 * scale,
+            head_center + forward * 0.144 * scale - up * 0.039 * scale,
             left * 0.048 * scale,
-            forward * 0.012 * scale,
-            up * 0.011 * scale,
+            forward * 0.010 * scale,
+            up * 0.009 * scale,
             {"head": 1.0},
             "beard",
         )
     elif style == "short":
-        head_part.box(
-            head_center + forward * 0.110 * scale - up * 0.082 * scale,
-            left * 0.060 * scale,
-            forward * 0.036 * scale,
-            up * 0.048 * scale,
+        head_part.uv_sphere(
+            head_center + forward * 0.105 * scale - up * 0.086 * scale,
+            Vector(
+                (
+                    0.064 * scale * jaw_width,
+                    0.030 * scale,
+                    0.050 * scale,
+                )
+            ),
             {"head": 1.0},
             "beard",
+            rings=8,
         )

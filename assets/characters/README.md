@@ -27,7 +27,9 @@ which chains three stages:
 
 The generator prints `BODY_STATURE`; `SharedCharacterRig.HEROIC_MODEL_SCALE` must equal `2.0 / hero stature` (uniform - the old anisotropic squash is gone) to keep the 2.0 world-unit height contract. Non-hero bodies share the same uniform scale so relative statures hold. `CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE` (`33.75`) projects that to 64 px in the 1920x1080 viewport.
 
-The runtime `RealisticProportions` skeleton modifier is now **neutral by default** and exists only as a per-variant fine-tune hook (a stockier or lankier NPC without new meshes).
+Each named character body is generated from its own spec. Body proportions retarget the complete animation library, while face proportions, hair, role-specific skinned outerwear (`apron`, `vest`, `surcoat`, `kirtle`) and material response alter visual identity without changing the runtime contract. Mart is a separate adolescent body rather than a tint of Kalev.
+
+The runtime `RealisticProportions` skeleton modifier is **neutral by default** and exists only as a per-variant fine-tune hook (a stockier or lankier NPC without new meshes).
 
 ## Stable runtime contract
 

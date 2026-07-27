@@ -10,7 +10,7 @@ from hero_body_mesh_builder import PartBuilder
 
 def build_torso(context: BodyContext, shape: dict, features: dict) -> PartBuilder:
     frame = context.frame
-    up = frame.up
+    up, forward, left = frame.up, frame.forward, frame.left
     scale = context.scale
     hips = context.hips
     neck_base = context.neck_base
@@ -109,6 +109,8 @@ def build_torso(context: BodyContext, shape: dict, features: dict) -> PartBuilde
     )
     torso.cap(neck_base + up * 0.02, {"chest": 1.0}, "tunic")
 
+    _add_outerwear(torso, context, shape, features["outerwear"])
+
     # Deltoid bulges follow the upper arm so the shoulder joint stays covered
     # when the arms swing.
     for suffix, shoulder in (("l", context.shoulder_l), ("r", context.shoulder_r)):
@@ -132,3 +134,136 @@ def build_torso(context: BodyContext, shape: dict, features: dict) -> PartBuilde
                 rings=9,
             )
     return torso
+
+
+def _add_outerwear(
+    torso: PartBuilder, context: BodyContext, shape: dict, style: str
+) -> None:
+    """Add role-specific clothing as skinned geometry on the shared body.
+
+    These layers are intentionally generated into each named character GLB:
+    their proportions and weights therefore follow that body's skeleton in
+    locomotion, combat and social animations instead of floating as props.
+    """
+    if style == "none":
+        return
+
+    frame = context.frame
+    up, forward, left = frame.up, frame.forward, frame.left
+    scale = context.scale
+    belly = shape["belly"]
+    chest_breadth = shape["chest_breadth"]
+
+    if style == "apron":
+        # Leather work apron: bib, skirt, neck strap and belt ties.
+        torso.box(
+            context.chest_height + forward * 0.118 * scale,
+            left * 0.105 * scale * chest_breadth,
+            forward * 0.012 * scale,
+            up * 0.170 * scale,
+            blend_weights("spine", "chest", 0.55),
+            "outerwear",
+        )
+        apron_center = context.hips.lerp(context.knee_center, 0.42) + forward * 0.122 * scale
+        torso.box(
+            apron_center,
+            left * 0.135 * scale * belly,
+            forward * 0.014 * scale,
+            up * 0.250 * scale,
+            {"hips": 1.0},
+            "outerwear",
+        )
+        torso.box(
+            context.hips + up * 0.025 * scale + forward * 0.128 * scale,
+            left * 0.155 * scale * belly,
+            forward * 0.018 * scale,
+            up * 0.025 * scale,
+            {"hips": 1.0},
+            "trim",
+        )
+        for side in (-1.0, 1.0):
+            torso.box(
+                context.shoulder_line
+                + left * side * 0.078 * scale
+                + forward * 0.100 * scale,
+                left * 0.012 * scale,
+                forward * 0.009 * scale,
+                up * 0.125 * scale,
+                {"chest": 1.0},
+                "trim",
+            )
+        return
+
+    if style in ("vest", "surcoat"):
+        # Sleeveless wool/leather layer. The centre opening and edging create a
+        # readable garment rather than another uniformly coloured torso shell.
+        torso.start_tube()
+        hem_height = context.hips - up * (0.10 if style == "vest" else 0.22) * scale
+        for center, side_radius, front_radius, weights in (
+            (hem_height, 0.151 * belly, 0.113 * belly, {"hips": 1.0}),
+            (context.waist, 0.127 * belly, 0.103 * belly, blend_weights("hips", "spine", 0.5)),
+            (context.chest_height, 0.181 * chest_breadth, 0.119, blend_weights("spine", "chest", 0.65)),
+            (context.shoulder_line, 0.190 * chest_breadth, 0.111, {"chest": 1.0}),
+            (context.neck_base - up * 0.035 * scale, 0.074, 0.066, {"chest": 1.0}),
+        ):
+            torso.ring(
+                center,
+                up,
+                side_radius * scale,
+                front_radius * scale,
+                weights,
+                "outerwear",
+            )
+        torso.cap(context.neck_base - up * 0.01 * scale, {"chest": 1.0}, "outerwear")
+        trim_center = context.hips.lerp(context.shoulder_line, 0.55) + forward * 0.122 * scale
+        for side in (-1.0, 1.0):
+            torso.box(
+                trim_center + left * side * 0.018 * scale,
+                left * 0.008 * scale,
+                forward * 0.008 * scale,
+                up * 0.285 * scale,
+                blend_weights("spine", "chest", 0.5),
+                "trim",
+            )
+        if style == "surcoat":
+            torso.box(
+                context.hips + up * 0.025 * scale + forward * 0.124 * scale,
+                left * 0.158 * scale,
+                forward * 0.014 * scale,
+                up * 0.026 * scale,
+                {"hips": 1.0},
+                "trim",
+            )
+        return
+
+    if style == "kirtle":
+        # Contrasting over-dress/apron panel with shoulder straps. The main
+        # long tunic still supplies the animated skirt volume beneath it.
+        panel_center = context.hips.lerp(context.knee_center, 0.38) + forward * 0.120 * scale
+        torso.box(
+            panel_center,
+            left * 0.125 * scale,
+            forward * 0.012 * scale,
+            up * 0.330 * scale,
+            {"hips": 1.0},
+            "outerwear",
+        )
+        torso.box(
+            context.chest_height + forward * 0.115 * scale,
+            left * 0.105 * scale,
+            forward * 0.012 * scale,
+            up * 0.125 * scale,
+            blend_weights("spine", "chest", 0.6),
+            "outerwear",
+        )
+        for side in (-1.0, 1.0):
+            torso.box(
+                context.shoulder_line
+                + left * side * 0.078 * scale
+                + forward * 0.105 * scale,
+                left * 0.013 * scale,
+                forward * 0.009 * scale,
+                up * 0.125 * scale,
+                {"chest": 1.0},
+                "trim",
+            )
