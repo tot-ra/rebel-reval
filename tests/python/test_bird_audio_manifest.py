@@ -3,10 +3,13 @@
 
 from __future__ import annotations
 
+import contextlib
 import csv
+import io
 import sys
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -73,6 +76,55 @@ class FetchBirdSongsTest(unittest.TestCase):
             global_fallback=True,
         )
         self.assertEqual(reason, "license")
+
+    def test_compatibility_facade_reexports_toolchain_helpers(self) -> None:
+        import bird_audio_catalog as catalog
+        import bird_audio_curated as curated
+        import xeno_canto
+
+        expected_exports = {
+            "API", "BALTIC_COUNTRIES", "COMMERCIAL_LICENSE_TAGS", "LICENSE_RE",
+            "QUALITY_GRADES", "QUALITY_RE", "RECORDING_ID_RE", "RECORDIST_RE",
+            "REPO_ROOT", "SONGBIRDS", "SPECIES", "TABLE_ROW_RE", "USER_AGENT",
+            "XC_BASE", "build_explore_queries", "collect_recordings", "country_rank",
+            "download", "download_curated", "explore_recording_ids",
+            "fetch_freesound_preview_url", "fetch_html", "is_commercial_license",
+            "iterate_species_recording_ids", "list_species_pages",
+            "list_species_recording_ids", "load_curated", "main", "manifest_row",
+            "parse_len_seconds", "parse_recording_page", "query", "rank",
+            "recording_matches_filters", "scrape_explore_recordings",
+            "scrape_species_recordings", "species_slug", "trim_mp3_to_window",
+        }
+        self.assertTrue(all(hasattr(fetch, name) for name in expected_exports))
+        self.assertIs(fetch.SPECIES, catalog.SPECIES)
+        self.assertIs(fetch.parse_recording_page, xeno_canto.parse_recording_page)
+        self.assertIs(fetch.download_curated, curated.download_curated)
+        self.assertEqual(fetch.REPO_ROOT, curated.REPO_ROOT)
+
+    def test_download_curated_dry_run_returns_complete_manifest_rows(self) -> None:
+        curated_path = AUDIO_TOOLS / "curated_bird_recordings.json"
+        with tempfile.TemporaryDirectory() as temp_dir, contextlib.redirect_stdout(io.StringIO()):
+            rows = fetch.download_curated(
+                curated_path,
+                Path(temp_dir) / "birds",
+                dry_run=True,
+            )
+
+        self.assertEqual([row["bird_id"] for row in rows], list(fetch.SPECIES))
+        self.assertEqual(
+            next(row for row in rows if row["bird_id"] == "great_cormorant")["file"].split("/")[-1],
+            "great_cormorant_IN367008.wav",
+        )
+
+    def test_main_rejects_missing_api_key_without_creating_output(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output_dir = Path(temp_dir) / "birds"
+            with (
+                mock.patch.object(sys, "argv", ["fetch_bird_songs.py", "--out", str(output_dir)]),
+                contextlib.redirect_stderr(io.StringIO()),
+            ):
+                self.assertEqual(fetch.main(), 2)
+            self.assertFalse(output_dir.exists())
 
 
 class VerifyBirdAudioManifestTest(unittest.TestCase):
