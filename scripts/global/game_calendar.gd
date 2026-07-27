@@ -34,6 +34,27 @@ static func days_in_month(month: int, year: int) -> int:
 	return MONTH_LENGTHS[valid_month - 1]
 
 
+## ISO weekday for the Julian campaign calendar: Monday=0 through Sunday=6.
+static func weekday_index(date: Dictionary) -> int:
+	var year := int(date.get("year", DEFAULT_DATE["year"]))
+	var month := clampi(int(date.get("month", DEFAULT_DATE["month"])), 1, 12)
+	var day := clampi(
+		int(date.get("day", DEFAULT_DATE["day"])),
+		1,
+		days_in_month(month, year)
+	)
+	var y := year
+	var m := month
+	if m < 3:
+		m += 12
+		y -= 1
+	var k := y % 100
+	var j := y / 100
+	var h := (day + int(13 * (m + 1) / 5) + k + int(k / 4) + int(j / 4) + 5 * j) % 7
+	# Zeller: 0=Saturday, 1=Sunday, ... 6=Friday -> ISO Monday=0.
+	return (h + 5) % 7
+
+
 static func day_of_year(date: Dictionary) -> int:
 	var year := int(date.get("year", DEFAULT_DATE["year"]))
 	var month := clampi(int(date.get("month", DEFAULT_DATE["month"])), 1, 12)

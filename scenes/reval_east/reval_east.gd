@@ -7,6 +7,7 @@ const NIGHT_CONSEQUENCE_SCRIPT := preload(
 )
 const AFTERMATH_SCRIPT := preload("res://scripts/investigation/bitter_brew_aftermath.gd")
 const REPUTATION_SCRIPT := preload("res://scripts/faction/social_reputation_controller.gd")
+const MARKET_DAY_SCRIPT := preload("res://scripts/world/market_day_controller.gd")
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -19,6 +20,7 @@ var _bitter_brew_investigation: Node
 var _bitter_brew_night: Node
 var _bitter_brew_aftermath: Node
 var _social_reputation: Node
+var _market_day: Node
 var _phase_binder: MapPhaseBinder
 var _patrol_controller: MapPatrolController
 
@@ -77,6 +79,17 @@ func _ready() -> void:
 	_social_reputation.name = "SocialReputationController"
 	add_child(_social_reputation)
 	_social_reputation.setup(self, &"loc.lower_town_slice", player)
+	_market_day = MARKET_DAY_SCRIPT.new()
+	_market_day.name = "MarketDayController"
+	add_child(_market_day)
+	_market_day.setup(
+		self,
+		definition,
+		player,
+		_view_runtime,
+		_mart_encounter.get_interaction_controller(),
+		&"loc.lower_town_slice"
+	)
 
 
 func _setup_phase_binder(definition: MapDefinition) -> void:

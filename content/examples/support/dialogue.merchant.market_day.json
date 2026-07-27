@@ -1,0 +1,98 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.merchant.market_day",
+  "title": "Lower Town market stall",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P4-032"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "Market-day and off-day merchant stall dialogue for P4-032."
+  },
+  "participants": [
+    "char.kalev",
+    "char.merchant_stall"
+  ],
+  "start_node_id": "merchant_off_day_opening",
+  "entry_variants": [
+    {
+      "node_id": "merchant_market_day_opening",
+      "priority": 20,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.market_day_active",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "word_count_estimate": 58,
+  "nodes": [
+    {
+      "id": "merchant_market_day_opening",
+      "speaker_id": "char.merchant_stall",
+      "text": "Market day on Viru Street - iron {trade_price:trade.iron}, bread {trade_price:trade.bread}, and salted herring from the harbour wagons.",
+      "choices": [
+        {
+          "id": "buy_herring",
+          "text": "Take a market-day herring bundle (8 pfennig).",
+          "target_node_id": "merchant_market_day_herring"
+        },
+        {
+          "id": "browse",
+          "text": "Just looking.",
+          "target_node_id": "merchant_close"
+        }
+      ]
+    },
+    {
+      "id": "merchant_market_day_herring",
+      "speaker_id": "char.merchant_stall",
+      "text": "Wrap it in salt and nettle - only sold when the square is full. Come back Wednesday or Saturday if you miss it.",
+      "choices": [
+        {
+          "id": "thanks",
+          "text": "Fair enough.",
+          "target_node_id": "merchant_close"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.market_day.sampled_herring",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "merchant_off_day_opening",
+      "speaker_id": "char.merchant_stall",
+      "text": "Stalls are shuttered until the next market day. I keep the gate cart covered so the watch does not count it as hawking.",
+      "choices": [
+        {
+          "id": "acknowledge",
+          "text": "Understood.",
+          "target_node_id": "merchant_close"
+        }
+      ]
+    },
+    {
+      "id": "merchant_close",
+      "speaker_id": "char.merchant_stall",
+      "text": "Safe roads."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-032 market-day trade option gated by flag.market_day_active."
+    }
+  ]
+}

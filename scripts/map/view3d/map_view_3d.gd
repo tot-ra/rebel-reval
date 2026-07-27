@@ -284,6 +284,16 @@ func view_camera() -> Camera3D:
 	return _camera
 
 
+## Runtime toggles for authored prop stable IDs (P4-032 market-day density).
+func set_prop_visible(prop_id: StringName, visible_state: bool) -> void:
+	var props := get_node_or_null("Props") as Node3D
+	if props == null or prop_id.is_empty():
+		return
+	var prop_node := props.get_node_or_null("Prop_%s" % String(prop_id)) as Node3D
+	if prop_node != null:
+		prop_node.visible = visible_state
+
+
 ## Close perspective cameras show the interior ceiling and nearby surface detail;
 ## top-down orthographic gameplay hides both so the floor layout stays readable.
 ## The shadows-only daylight occluder remains active in every mode.
