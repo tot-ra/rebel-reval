@@ -1,0 +1,39 @@
+{
+  "type": "quest_package",
+  "id": "package.st_georges_night",
+  "schema_version": 1,
+  "title": "Act 1 St. George's Night climax design package",
+  "quest": "content/quest.json",
+  "support": [
+    "content/mechanism.st_georges_night_gate.json",
+    "content/bark.st_georges_night.aftermath_watch.json",
+    "../../examples/support/character.henning.json",
+    "../bell_and_chain/content/commission.bell_and_chain.json",
+    "../bell_and_chain/content/item.bell_and_chain_work.json"
+  ],
+  "branch_map": "branch_map.json",
+  "bindings": {
+    "landmark_beats": [
+      "beat.landmark.tallinn.gate_portcullis_groove_viru",
+      "beat.landmark.tallinn.beacon_basket_site"
+    ],
+    "map_anchors": [
+      {
+        "map_id": "lower_town_slice",
+        "anchor_id": "checkpoint_east"
+      }
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-008a approved branch map and state table for the St. George's Night act-boundary climax; playable runtime owned by P4-008.",
+      "citations": [
+        "docs/SCENES/st-georges-night.md",
+        "docs/SCENES/st-georges-night-branch-map.md",
+        "docs/adr/0008-three-act-campaign-and-faction-scope.md",
+        "TODO.md#P4-008a"
+      ]
+    }
+  ]
+}

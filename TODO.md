@@ -24,10 +24,10 @@ References:
 | P1 |     0  |     8  | Runtime systems, content foundation |
 | P2 |     2  |    20  | Vertical-slice production (playable MVP) |
 | P3 |     0  |    16  | Validation, accessibility, performance |
-| P4 |    25  |    34  | Act 1: The Simmering City |
+| P4 |    25  |    38  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
-| R  |    30  |     2  | Historical research backlog (researcher-managed, cross-cutting) |
+| R  |    29  |     2  | Historical research backlog (researcher-managed, cross-cutting) |
 
 
 
@@ -114,7 +114,8 @@ References:
 
 
 
-<!-- P4-006 completed in current session -->
+
+<!-- P4-008a completed in current session -->
 <!-- P4-005 completed in current session -->
 <!-- P4-004 completed in current session -->
 <!-- P2-021a completed in current session -->
@@ -210,7 +211,7 @@ Rows close through `review: canon` like all content work.
 ### Follow-ups from R-001 (topography depth)
 
 - [~] R-029 | role: research | deps: R-001 | deliverable: history/dossiers/topography/raekoja-plats-extents-1343.md - open square dimensions and town-hall footprint before the 1371–74 lengthening | verify: gives a bounded square polygon with confidence labels, not modern square size | review: canon
-- [ ] R-030 | role: research | deps: R-001 | deliverable: history/dossiers/topography/pikk-lai-frontage-materials-1340s.md - which Lower Town frontages were timber vs stone in the 1340s property records | verify: street-level material map for at least one block of Pikk and one of Lai with sources
+- [~] R-030 | role: research | deps: R-001 | deliverable: history/dossiers/topography/pikk-lai-frontage-materials-1340s.md - which Lower Town frontages were timber vs stone in the 1340s property records | verify: street-level material map for at least one block of Pikk and one of Lai with sources | review: canon
 - [ ] R-031 | role: research | deps: R-001 | deliverable: history/dossiers/topography/old-market-vanaturg.md - precise 1343 location and function of the Old Market relative to Raekoja plats | verify: places Vanaturg on a map sketch with attested vs reconstructed boundary
 - [ ] R-032 | role: research | deps: R-001 | deliverable: history/dossiers/topography/back-lanes-east-of-pikk.md - rear-lane (*Tagenstraße*) network names, widths, and gates east of Pikk | verify: names at least three back lanes with documentary or archaeological support
 - [ ] R-033 | role: research | deps: R-005 | deliverable: history/dossiers/topography/harjapea-mouth-shoreline-gis.md - measured 1343 shoreline polygon from shore-displacement and wreck coordinates | verify: bounded map polygon with confidence labels distinguishing attested wet margin from reconstructed curve
@@ -288,7 +289,8 @@ Rows close through `review: canon` like all content work.
 - [ ] P4-027e | deps: P4-027a,P4-023f | deliverable: dedicated Great Coastal Gate tower interior map and boss package for the probable 1311-1340 first tower, excluding later barbicans and Fat Margaret | verify: archaeology review signs the gate phase; reciprocal door, gate route, boss outcomes, persistence and retry tests pass
 - [x] P4-018 | deps: P3-014 | deliverable: quest content pipeline: agent-authorable quest package format (quest JSON, dialogue, branch map, spawn/anchor bindings) plus a generator that emits branch-traversal tests from the package | verify: an example quest added as pure content passes `tools/validate_content.py` and its generated traversal test without engine code changes
 - [ ] P4-019 | deps: P0-040,P2-021,P3-014,P4-022 | deliverable: unified Central District and Town Hall market square activation from the P4-014 prototype through the parity and activation gates (approval artifact: ADR 0008) | verify: `python3 tools/verify_map_activation.py`, the transition verifier, and traversal/collision tests pass with the new destinations, and day/night captures pass parity review
-- [ ] P4-008 | deps: P4-002,P4-004,P4-006,P4-007,P4-021 | deliverable: St. George's Night climax at Viru Gate reusing all earlier forged objects, ledger standing, and character states; Open, Seal, and Break resolve to a recorded act-boundary state instead of a game ending | verify: all three act-boundary families are reachable through visible prior decisions and each writes a distinct validated act-transition record
+- [x] P4-008a | claim: cursor-agent@2026-07-27 | deps: P4-002,P4-004,P4-006,P4-007 | deliverable: approved branch map and state table for St. George's Night act-boundary climax | allowed files: `docs/SCENES/st-georges-night.md`, `docs/SCENES/st-georges-night-branch-map.md`, `content/packages/st_georges_night/**`, `tests/python/test_st_georges_night_branch_map.py`, `tests/godot/generated/test_quest_package_st_georges_night.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: branch map reuses mechanism, gate, patrol, ledger, and consequence systems without a new major framework; `python3 -m unittest tests.python.test_st_georges_night_branch_map -v`, `python3 tools/verify_quest_packages.py`, `python3 tools/validate_content.py content/packages/st_georges_night/content content/packages/bell_and_chain/content content/examples/valid content/examples/support`, and `--filter=test_quest_package_st_georges_night` pass with three act-boundary families (Seal, Break, Open)
+- [ ] P4-008 | deps: P4-008a,P4-021 | deliverable: playable St. George's Night climax at Viru Gate reusing all earlier forged objects, ledger standing, and character states; Open, Seal, and Break resolve to a recorded act-boundary state instead of a game ending | allowed files: `scripts/quest/st_georges_night_quest_model.gd`, `scripts/investigation/st_georges_night_climax.gd`, `scripts/investigation/st_georges_night_aftermath_model.gd`, `scripts/investigation/st_georges_night_aftermath.gd`, `content/packages/st_georges_night/content/**`, `scenes/reval_east/reval_east.gd`, `tests/godot/test_st_georges_night_cycle.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: all three act-boundary families are reachable through visible prior decisions and each writes a distinct validated act-transition record; `--filter=test_st_georges_night_cycle` and `--filter=test_quest_package_st_georges_night` pass
 - [ ] P4-021 | deps: P4-016,P4-018,P4-019 | deliverable: two Act 1 faction quest lines (Livonian Order and Black Cloaks), three quests each, authored as P4-018 content packages reusing slice systems | verify: both lines complete via generated traversal tests, every quest writes ledger events, and at least one quest per line resolves through a night consequence encounter with combat and non-combat routes
 - [x] P4-023g | deps: P0-106,P4-023 | deliverable: replace the Merchant District's static cattle/sheep environment models with lightweight ambient animal actors from **P0-106** only where route and performance budgets permit, retaining static pen dressing as fallback | allowed files: `content/maps/north_quarter.rrmap`, `scripts/map/view3d/map_view_fauna_context.gd`, `scripts/map/view3d/map_view_penned_fauna.gd`, `tests/godot/test_map_view_penned_fauna.gd`, `tests/godot/test_north_quarter_prototype_map.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: cattle/sheep idle within authored pens, cannot block Pikk/Lai or transitions, respect day/night population rules, and pass navigation/performance soak tests
 - [x] P4-016 | deps: P3-014 | deliverable: faction ledger: per-faction standing for the eight active factions (README roster) derived only from explicit recorded events — forged records, quest outcomes, discoveries, betrayals — with a visible ledger UI and no aggregate meter | allowed files: `scripts/faction/faction_ledger.gd`, `scripts/faction/faction_ledger_model.gd`, `scripts/state/game_state.gd`, `scripts/state/game_state_persistence.gd`, `scripts/state/state_rule_evaluator.gd`, `scripts/journal/journal_overlay.gd`, `schemas/common.schema.json`, `tools/validate_content_common.py`, `tests/godot/test_faction_ledger.gd`, `tests/godot/test_state_rule_evaluator.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: content-only test events change standing, standing gates at least one quest, price, and route in tests, and GameState contains no universal morality or balance-of-power value

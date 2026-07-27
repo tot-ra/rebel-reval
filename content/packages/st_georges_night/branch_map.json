@@ -1,0 +1,59 @@
+{
+  "quest_id": "quest.st_georges_night",
+  "branches": [
+    {
+      "id": "seal_act_boundary",
+      "transitions": [
+        "begin_approach",
+        "commit_seal_choice"
+      ],
+      "setup": {},
+      "require_flags": {
+        "flag.act_climax_viru_seal": true
+      },
+      "expect": {
+        "quest_state": "aftermath_seal",
+        "flags": {
+          "flag.act_boundary.viru_seal": true,
+          "flag.act_transition.act1_recorded": true
+        }
+      }
+    },
+    {
+      "id": "break_act_boundary",
+      "transitions": [
+        "begin_approach",
+        "commit_break_choice"
+      ],
+      "setup": {},
+      "require_flags": {
+        "flag.act_climax_viru_break": true
+      },
+      "expect": {
+        "quest_state": "aftermath_break",
+        "flags": {
+          "flag.act_boundary.viru_break": true,
+          "flag.act_transition.act1_recorded": true
+        }
+      }
+    },
+    {
+      "id": "open_act_boundary",
+      "transitions": [
+        "begin_approach",
+        "commit_open_choice"
+      ],
+      "setup": {},
+      "require_flags": {
+        "flag.act_climax_viru_open": true
+      },
+      "expect": {
+        "quest_state": "aftermath_open",
+        "flags": {
+          "flag.act_boundary.viru_open": true,
+          "flag.act_transition.act1_recorded": true
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,195 @@
+{
+  "type": "quest",
+  "id": "quest.st_georges_night",
+  "title": "St. George's Night",
+  "summary": "Hilltop bonfires signal the uprising. At Viru Gate Kalev chooses whether the city Seals, Breaks, or Opens the portcullis, recording the Act 1 boundary for the siege to come.",
+  "confidence": "attested",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-008a",
+    "notes": "Approved branch map and state table; playable climax owned by P4-008."
+  },
+  "entry_conditions": [],
+  "initial_state": "latent",
+  "states": [
+    {
+      "id": "latent",
+      "label": "Awaiting bonfire signal"
+    },
+    {
+      "id": "approaching",
+      "label": "Choosing the Viru Gate act-boundary family"
+    },
+    {
+      "id": "aftermath_seal",
+      "label": "Gate sealed for Act 2",
+      "terminal": true
+    },
+    {
+      "id": "aftermath_break",
+      "label": "Gate breached for Act 2",
+      "terminal": true
+    },
+    {
+      "id": "aftermath_open",
+      "label": "Gate opened for Act 2",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "begin_approach",
+      "from_state": "latent",
+      "to_state": "approaching",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.st_georges_night_signal",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "commit_seal_choice",
+      "from_state": "approaching",
+      "to_state": "aftermath_seal",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act_boundary.viru_seal",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.act_transition.act1_recorded",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.st_georges_night.gate_sealed",
+          "value": "faction.livonian_order",
+          "amount": 1,
+          "summary": "Held Viru Gate with Henning on St. George's Night."
+        }
+      ]
+    },
+    {
+      "id": "commit_break_choice",
+      "from_state": "approaching",
+      "to_state": "aftermath_break",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act_boundary.viru_break",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.act_transition.act1_recorded",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.st_georges_night.gate_breached",
+          "value": "faction.harju_kings",
+          "amount": 1,
+          "summary": "Let the fractured Viru Gate chain fail under rebel strain."
+        }
+      ]
+    },
+    {
+      "id": "commit_open_choice",
+      "from_state": "approaching",
+      "to_state": "aftermath_open",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act_boundary.viru_open",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.act_transition.act1_recorded",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.st_georges_night.gate_opened",
+          "value": "faction.black_cloaks",
+          "amount": 1,
+          "summary": "Triggered the concealed Viru Gate release on St. George's Night."
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "reach_gate",
+      "text": "Reach Viru Gate when the hilltop bonfires burn.",
+      "state_id": "latent"
+    },
+    {
+      "id": "choose_boundary",
+      "text": "Choose whether the gate is Sealed, Broken, or Opened.",
+      "state_id": "approaching"
+    }
+  ],
+  "journal_evidence": [],
+  "outcomes": [
+    {
+      "id": "seal_recorded",
+      "summary": "Viru Gate sealed; Act 1 boundary family Seal recorded for Act 2.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.st_georges_night",
+          "value": "aftermath_seal"
+        }
+      ]
+    },
+    {
+      "id": "break_recorded",
+      "summary": "Viru Gate breached; Act 1 boundary family Break recorded for Act 2.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.st_georges_night",
+          "value": "aftermath_break"
+        }
+      ]
+    },
+    {
+      "id": "open_recorded",
+      "summary": "Viru Gate opened; Act 1 boundary family Open recorded for Act 2.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.st_georges_night",
+          "value": "aftermath_open"
+        }
+      ]
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.henning",
+      "char.mart",
+      "char.kaja"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-008a design contract reusing mechanism, gate, patrol, ledger, and consequence systems.",
+      "citations": [
+        "docs/SCENES/st-georges-night.md",
+        "docs/SCENES/st-georges-night-branch-map.md",
+        "content/packages/st_georges_night/branch_map.json"
+      ]
+    }
+  ]
+}
