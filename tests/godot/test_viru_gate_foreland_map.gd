@@ -223,6 +223,20 @@ func test_pirita_foreland_carries_rural_life_dressing() -> void:
 		assert_true(kinds.has(required), "Pirita foreland must author %s for rural reads" % required)
 
 
+func test_pirita_rural_dressing_stays_outside_buildings() -> void:
+	var definition: MapDefinition = ForelandDefinition.create()
+	for prop in definition.props:
+		if not prop.has("footprint"):
+			continue
+		var prop_footprint: Rect2 = prop["footprint"]
+		for building in definition.buildings:
+			var building_footprint: Rect2 = building["footprint"]
+			assert_false(
+				prop_footprint.intersects(building_footprint),
+				"Pirita prop %s must not clip through building %s"
+					% [prop.get("id", &""), building.get("id", &"")]
+			)
+
 func test_pirita_masks_off_limits_edges_with_dense_woodland() -> void:
 	var definition: MapDefinition = ForelandDefinition.create()
 	var view := MapView3D.create(definition, MapBuilder.build(definition))
