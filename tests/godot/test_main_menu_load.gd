@@ -53,6 +53,24 @@ func test_focus_ring_skips_hidden_load_label() -> void:
 	menu.free()
 
 
+func test_save_list_overlay_fills_menu_and_centres_panel() -> void:
+	var menu := MainMenuScene.instantiate()
+	(Engine.get_main_loop() as SceneTree).root.add_child(menu)
+
+	var overlay: Control = SaveListOverlay.new()
+	menu.add_child(overlay)
+
+	assert_eq(overlay.anchor_left, 0.0)
+	assert_eq(overlay.anchor_top, 0.0)
+	assert_eq(overlay.anchor_right, 1.0)
+	assert_eq(overlay.anchor_bottom, 1.0)
+	var panel := overlay.get_node("Panel") as PanelContainer
+	assert_eq(panel.anchor_left, 0.5)
+	assert_eq(panel.anchor_top, 0.5)
+	assert_eq(panel.anchor_right, 0.5)
+	assert_eq(panel.anchor_bottom, 0.5)
+
+	menu.free()
 func test_save_list_overlay_lists_every_slot() -> void:
 	var state := GameState.new()
 	state.player.location_id = &"reval_east"

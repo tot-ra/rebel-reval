@@ -21,6 +21,9 @@ signal save_selected(slot: int)
 
 
 func _ready() -> void:
+	# This modal is added dynamically, so it starts at 0×0 unless it explicitly
+	# fills the menu. Its centred panel must use the whole viewport as its parent.
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_build_ui()
 	_populate_entries()
 
