@@ -6,6 +6,7 @@ const NIGHT_CONSEQUENCE_SCRIPT := preload(
 	"res://scripts/investigation/bitter_brew_night_consequence.gd"
 )
 const AFTERMATH_SCRIPT := preload("res://scripts/investigation/bitter_brew_aftermath.gd")
+const REPUTATION_SCRIPT := preload("res://scripts/faction/social_reputation_controller.gd")
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -17,6 +18,7 @@ var _mart_encounter: DemoMartEncounter
 var _bitter_brew_investigation: Node
 var _bitter_brew_night: Node
 var _bitter_brew_aftermath: Node
+var _social_reputation: Node
 var _phase_binder: MapPhaseBinder
 var _patrol_controller: MapPatrolController
 
@@ -71,6 +73,10 @@ func _ready() -> void:
 		_bitter_brew_night,
 		actors
 	)
+	_social_reputation = REPUTATION_SCRIPT.new()
+	_social_reputation.name = "SocialReputationController"
+	add_child(_social_reputation)
+	_social_reputation.setup(self, &"loc.lower_town_slice", player)
 
 
 func _setup_phase_binder(definition: MapDefinition) -> void:
