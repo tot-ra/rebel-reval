@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "task_id": "P4-010",
+  "district_budget": 3,
+  "district_ids": [
+    "district.lower_town",
+    "district.market_civic",
+    "district.north_merchant"
+  ],
+  "core_character_budget": 7,
+  "core_character_ids": [
+    "kalev",
+    "mart",
+    "aita",
+    "kaja",
+    "henning",
+    "jurgen",
+    "ellen"
+  ],
+  "faction_cast_budget": 2,
+  "faction_cast_ids": [
+    "faction.livonian_order",
+    "faction.black_cloaks"
+  ],
+  "cycle_budget": 5,
+  "cycle_quest_ids": [
+    "quest.bitter_brew",
+    "quest.bell_and_chain",
+    "quest.bread_and_iron",
+    "quest.price_of_a_name",
+    "quest.root_and_ember"
+  ],
+  "climax_quest_ids": [
+    "quest.st_georges_night"
+  ],
+  "substantial_quest_budget": 8,
+  "substantial_quest_ids": [
+    "quest.makers_mark",
+    "quest.bitter_brew",
+    "quest.bell_and_chain",
+    "quest.bread_and_iron",
+    "quest.price_of_a_name",
+    "quest.root_and_ember",
+    "quest.stolen_iron",
+    "quest.st_georges_night"
+  ],
+  "faction_quest_line_budget": 2,
+  "faction_quests_per_line": 3,
+  "planned_faction_lines": [
+    {
+      "line_id": "faction_line.livonian_order",
+      "faction_id": "faction.livonian_order",
+      "status": "planned",
+      "quest_ids": []
+    },
+    {
+      "line_id": "faction_line.black_cloaks",
+      "faction_id": "faction.black_cloaks",
+      "status": "planned",
+      "quest_ids": []
+    }
+  ],
+  "dialogue_word_budget": 12000,
+  "dialogue_manifest": "docs/data/act1_dialogue_manifest.json",
+  "audio_duration_budget_seconds": 9000,
+  "audio_manifest": "docs/data/act1_soundtrack_manifest.json",
+  "quest_package_directories": [
+    "content/packages/bell_and_chain/content",
+    "content/packages/bread_and_iron/content",
+    "content/packages/price_of_a_name/content",
+    "content/packages/root_and_ember/content",
+    "content/packages/st_georges_night/content"
+  ]
+}

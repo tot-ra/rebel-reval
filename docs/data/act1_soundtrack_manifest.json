@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "duration_budget_seconds": 3600,
+  "track_directories": [
+    "music/forge",
+    "music/revel_center",
+    "music/revel_north",
+    "music/garden"
+  ],
+  "excluded_globs": [
+    "music/revel_center/market_day*.mp3"
+  ]
+}

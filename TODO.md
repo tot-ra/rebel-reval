@@ -24,10 +24,10 @@ References:
 | P1 |     0  |     8  | Runtime systems, content foundation |
 | P2 |     2  |    20  | Vertical-slice production (playable MVP) |
 | P3 |     0  |    16  | Validation, accessibility, performance |
-| P4 |    22  |    41  | Act 1: The Simmering City |
+| P4 |    21  |    42  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
-| R  |    29  |     2  | Historical research backlog (researcher-managed, cross-cutting) |
+| R  |    29  |     3  | Historical research backlog (researcher-managed, cross-cutting) |
 
 
 
@@ -116,6 +116,7 @@ References:
 
 
 
+<!-- P4-010 completed in current session -->
 <!-- P4-008 completed in current session -->
 <!-- P4-008a completed in current session -->
 <!-- P4-005 completed in current session -->
@@ -215,12 +216,14 @@ Rows close through `review: canon` like all content work.
 
 - [~] R-029 | role: research | deps: R-001 | deliverable: history/dossiers/topography/raekoja-plats-extents-1343.md - open square dimensions and town-hall footprint before the 1371–74 lengthening | verify: gives a bounded square polygon with confidence labels, not modern square size | review: canon
 - [~] R-030 | role: research | deps: R-001 | deliverable: history/dossiers/topography/pikk-lai-frontage-materials-1340s.md - which Lower Town frontages were timber vs stone in the 1340s property records | verify: street-level material map for at least one block of Pikk and one of Lai with sources | review: canon
-- [ ] R-031 | role: research | deps: R-001 | deliverable: history/dossiers/topography/old-market-vanaturg.md - precise 1343 location and function of the Old Market relative to Raekoja plats | verify: places Vanaturg on a map sketch with attested vs reconstructed boundary
+- [~] R-031 | role: research | deps: R-001 | deliverable: history/dossiers/topography/old-market-vanaturg.md - precise 1343 location and function of the Old Market relative to Raekoja plats | verify: places Vanaturg on a map sketch with attested vs reconstructed boundary | review: canon
 - [ ] R-032 | role: research | deps: R-001 | deliverable: history/dossiers/topography/back-lanes-east-of-pikk.md - rear-lane (*Tagenstraße*) network names, widths, and gates east of Pikk | verify: names at least three back lanes with documentary or archaeological support
 - [ ] R-033 | role: research | deps: R-005 | deliverable: history/dossiers/topography/harjapea-mouth-shoreline-gis.md - measured 1343 shoreline polygon from shore-displacement and wreck coordinates | verify: bounded map polygon with confidence labels distinguishing attested wet margin from reconstructed curve
 - [ ] R-034 | role: research | deps: R-005 | deliverable: history/dossiers/topography/kalamaja-fishing-shore-1343.md - Kalamaja/Kalarand built footprint, boat types, and net-yard layout before 1352 attestation | verify: art-usable fishing-shore scene list with confidence per element
 - [ ] R-035 | role: research | deps: R-006 | deliverable: history/dossiers/architecture/toompea-small-castle-interior.md - Small Castle and Great Castle room sequence, chapel, chapter, dormitory, and viceroy's hall c. 1340 from Zobel 2008 and Danish charter evidence | verify: labelled floor zones a map and art pass can build without importing post-1346 Order layout
 - [ ] R-036 | role: research | deps: R-029 | deliverable: history/reference/topography/raekoja-hall-phase-plans/ - Neumann 1904 town-hall construction-phase drawings with measured pre-1371 length | verify: 2+ licensed plates in plates.csv, fetched and cited from raekoja-plats-extents-1343 dossier
+
+- [ ] R-037 | role: research | deps: R-031 | deliverable: history/dossiers/topography/viru-vanaturg-paving-archaeology.md - AVE 2016/17 paving limits forum-throat transition and Viru gate apron surfaces c. 1340 | verify: labelled paving map with attested vs reconstructed tiles cited from old-market-vanaturg dossier
 
 ## P6 - Act 3: The Iron Harvest and full release (lowest priority)
 
@@ -285,7 +288,7 @@ Rows close through `review: canon` like all content work.
 - [ ] P4-020 | deps: P0-040,P2-021,P4-019,P4-023 | deliverable: north quarter activation from the P4-015 prototype through the same gates (approval artifact: ADR 0008) | verify: activation guard, transition verifier, and traversal/collision tests pass, and day/night captures pass parity review
 - [ ] P4-027d | deps: P4-027a | deliverable: dedicated `Rentenitorn` interior map and boss package using a conservative pre-mid-fourteenth-century form | verify: unknown fabric stays reversible/labelled; reciprocal door, all floors, boss outcomes, persistence and retry tests pass
 - [x] P4-017 | deps: P4-016 | deliverable: district pressure states: per-district patrol density, prices, and bark sets driven by explicit flags and faction standing | allowed files: `scripts/faction/district_pressure_model.gd`, `scripts/phase/map_phase_binder.gd`, `scripts/phase/map_patrol_controller.gd`, `scripts/state/state_rule_evaluator.gd`, `schemas/common.schema.json`, `tools/validate_content_common.py`, `content/examples/valid/bark.district.*.json`, `tests/godot/test_district_pressure_model.gd`, `tests/godot/test_phase_transitions.gd`, `tests/godot/test_state_rule_evaluator.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: phase tests show two districts diverge visibly from the same base state under different ledger fixtures
-- [ ] P4-010 | deps: P4-009,P4-017,P4-020 | deliverable: Act 1 content-budget report | verify: act remains within three districts, seven core characters plus named faction casts, eight substantial quests plus two three-quest faction lines, five cycles, one climax, and approved dialogue/audio budgets
+- [x] P4-010 | claim: cursor-agent@2026-07-28 | deps: P4-009,P4-017,P4-020 | deliverable: Act 1 content-budget report | allowed files: `docs/data/act1_content_budget_manifest.json`, `docs/data/act1_dialogue_manifest.json`, `docs/data/act1_soundtrack_manifest.json`, `tools/act1_content_budget.py`, `tools/report_act1_content_budget.py`, `tests/python/test_report_act1_content_budget.py`, `TODO.md`, `docs/ROADMAP.md` | verify: `python3 tools/report_act1_content_budget.py --check` and `python3 -m unittest tests.python.test_report_act1_content_budget -v` pass; act remains within three districts, seven core characters plus named faction casts, eight substantial quests plus two three-quest faction lines, five cycles, one climax, and approved dialogue/audio budgets
 - [x] P4-009 | claim: cursor-agent@2026-07-27 | deps: P4-008 | deliverable: Act 1 aftermath states for Mart, Aita, Kaja, Henning, Jürgen, Ellen, forge, and each active district recorded in the act-transition save | allowed files: `scripts/quest/act1_aftermath_model.gd`, `docs/data/act1_aftermath_manifest.json`, `scripts/state/game_state.gd`, `scripts/state/game_state_persistence.gd`, `scripts/investigation/st_georges_night_aftermath_model.gd`, `tests/godot/test_act1_aftermath.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_act1_aftermath` passes 4/4; envelope covers all six core characters, forge ledger/conviction/pressures, and both active districts with no morality aggregate; `act1_transition` round-trips through save payload
 - [ ] P4-027c | deps: P4-027a | deliverable: dedicated `Kuldjala` interior map and boss package using the two-level circa-1310 horseshoe form and wall-walk relationship | verify: historical/art review signs the floor plan; reciprocal door, all floors, boss outcomes, persistence and retry tests pass
 - [ ] P4-027b | deps: P4-027a | deliverable: dedicated `Nunnatorn` interior map and boss package using its open-backed early-14th-century form rather than a later horseshoe rebuild | verify: historical/art review signs the floor plan; reciprocal door, all floors, boss outcomes, persistence and retry tests pass
