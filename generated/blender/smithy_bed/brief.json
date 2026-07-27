@@ -1,0 +1,1 @@
+{"id":"prop.smithy_bed","kind":"rigid_prop","target":"res://assets/props/furniture/smithy_bed.glb","scene":"res://content/maps/kalev_smithy.rrmap","dimensions_m":[2.4,1.05,1.35],"triangles":{"target":4000,"max":6000},"textures":{"albedo":512},"style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}

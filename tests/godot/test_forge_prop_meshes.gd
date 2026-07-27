@@ -3,6 +3,53 @@ extends "res://tests/godot/test_case.gd"
 ## Smithy forge props: elegant anvil, open firebox furnace, bellows, charcoal.
 
 
+func test_smithy_bed_uses_detailed_glb_and_keeps_generic_fallback() -> void:
+	var smithy := MapViewMeshBuilder.build_prop(
+			{"id": &"bed", "kind": MapTypes.PROP_KIND_BED, "position": Vector2.ZERO},
+			MapTypes.DEFAULT_CELL_SIZE
+	)
+	assert_true(smithy.has_node("SmithyBedModel"), "smithy bed must instantiate the authored GLB")
+	assert_false(smithy.has_node("Frame"), "smithy bed must not keep the stacked-box placeholder")
+	var model := smithy.get_node("SmithyBedModel") as Node3D
+	var meshes := model.find_children("*", "MeshInstance3D", true, false)
+	assert_true(meshes.size() > 0, "authored bed GLB needs renderable mesh geometry")
+	var bounds := AABB()
+	var first := true
+	var surface_count := 0
+	var triangle_count := 0
+	var textured_surface_count := 0
+	for child in meshes:
+		var mesh_instance := child as MeshInstance3D
+		if mesh_instance == null or mesh_instance.mesh == null:
+			continue
+		var child_bounds := mesh_instance.transform * mesh_instance.get_aabb()
+		bounds = child_bounds if first else bounds.merge(child_bounds)
+		first = false
+		surface_count += mesh_instance.mesh.get_surface_count()
+		for surface_index in mesh_instance.mesh.get_surface_count():
+			triangle_count += mesh_instance.mesh.surface_get_array_index_len(surface_index) / 3
+			var material := mesh_instance.mesh.surface_get_material(surface_index) as StandardMaterial3D
+			if material != null and material.albedo_texture != null:
+				textured_surface_count += 1
+	assert_false(first, "bed GLB must expose a non-empty AABB")
+	assert_true(bounds.size.x >= 2.3 and bounds.size.x <= 2.45, "bed must preserve the smithy footprint length")
+	assert_true(bounds.size.z >= 1.25 and bounds.size.z <= 1.4, "bed must preserve the smithy footprint width")
+	assert_true(bounds.size.y >= 1.05 and bounds.size.y <= 1.2, "headboard must have a believable metric height")
+	assert_true(bounds.position.y >= -0.001, "bed feet must rest on the prop ground plane")
+	assert_eq(surface_count, 5, "bed keeps oak, dark oak, linen, wool, and rope surfaces")
+	assert_true(triangle_count >= 3500 and triangle_count <= 6000, "bed detail must stay readable and lightweight")
+	assert_true(textured_surface_count >= 3, "oak, linen, and wool albedos must survive GLB import")
+	smithy.free()
+
+	var generic := MapViewMeshBuilder.build_prop(
+			{"id": &"guest_bed", "kind": MapTypes.PROP_KIND_BED, "position": Vector2.ZERO},
+			MapTypes.DEFAULT_CELL_SIZE
+	)
+	assert_true(generic.has_node("Frame"), "non-smithy beds keep their generic fallback")
+	assert_false(generic.has_node("SmithyBedModel"), "smithy model must not leak into other maps")
+	generic.free()
+
+
 func test_smithy_chair_uses_detailed_glb_without_replacing_town_hall_fallback() -> void:
 	var smithy := MapViewMeshBuilder.build_prop(
 		{"id": &"work_chair", "kind": MapTypes.PROP_KIND_CHAIR, "position": Vector2.ZERO},

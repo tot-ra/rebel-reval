@@ -15,6 +15,8 @@ const SMITHY_ANVIL_SCENE_PATH := "res://assets/props/forge/smithy_anvil.glb"
 const SMITHY_ANVIL_PROP_ID := &"forge_anvil"
 const SMITHY_CHAIR_SCENE_PATH := "res://assets/props/furniture/smithy_chair.glb"
 const SMITHY_CHAIR_PROP_ID := &"work_chair"
+const SMITHY_BED_SCENE_PATH := "res://assets/props/furniture/smithy_bed.glb"
+const SMITHY_BED_PROP_ID := &"bed"
 
 ## Individual authored prop meshes.
 
@@ -122,9 +124,10 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			MapViewMeshBuilderPrimitives.box(root, "Stand", Vector3(0.16, 0.9, 0.16), Vector3(0.0, 0.45, 0.0), &"wood")
 			MapViewMeshBuilderPrimitives.box(root, "Book", Vector3(0.52, 0.08, 0.42), Vector3(0.0, 0.95, 0.0), &"plaster")
 		MapTypes.PROP_KIND_BED:
-			MapViewMeshBuilderPrimitives.box(root, "Frame", Vector3(2.4, 0.38, 1.35), Vector3(0.0, 0.19, 0.0), &"wood")
-			MapViewMeshBuilderPrimitives.box(root, "Mattress", Vector3(2.2, 0.16, 1.2), Vector3(0.0, 0.46, 0.0), &"plaster")
-			MapViewMeshBuilderPrimitives.box(root, "Pillow", Vector3(0.42, 0.14, 0.72), Vector3(-0.82, 0.58, 0.0), &"hay")
+			if prop.get("id", &"") == SMITHY_BED_PROP_ID:
+				_add_smithy_bed(root)
+			else:
+				_add_bed_fallback(root)
 		MapTypes.PROP_KIND_CHEST:
 			MapViewMeshBuilderPrimitives.box(root, "Box", Vector3(0.7, 0.42, 0.46), Vector3(0.0, 0.21, 0.0), &"wood")
 			MapViewMeshBuilderPrimitives.box(root, "Lid", Vector3(0.72, 0.14, 0.48), Vector3(0.0, 0.49, 0.0), &"timber")
@@ -212,6 +215,24 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			else:
 				MapViewMeshBuilderPrimitives.box(root, "Marker", Vector3(0.5, 0.5, 0.5), Vector3(0.0, 0.25, 0.0), &"ink")
 	return root
+
+
+static func _add_smithy_bed(root: Node3D) -> void:
+	# WHY: this close interior rest landmark needs period joinery and soft bedding,
+	# while gameplay collision, navigation, and interaction remain owned by rrmap.
+	var bed_scene := load(SMITHY_BED_SCENE_PATH) as PackedScene
+	assert(bed_scene != null, "Smithy bed GLB must be imported before the map view is assembled")
+	var bed := bed_scene.instantiate() as Node3D
+	bed.name = "SmithyBedModel"
+	root.add_child(bed)
+
+
+static func _add_bed_fallback(root: Node3D) -> void:
+	# Other maps can continue using the lightweight neutral bed until they receive
+	# authored furniture matched to their location and status.
+	MapViewMeshBuilderPrimitives.box(root, "Frame", Vector3(2.4, 0.38, 1.35), Vector3(0.0, 0.19, 0.0), &"wood")
+	MapViewMeshBuilderPrimitives.box(root, "Mattress", Vector3(2.2, 0.16, 1.2), Vector3(0.0, 0.46, 0.0), &"plaster")
+	MapViewMeshBuilderPrimitives.box(root, "Pillow", Vector3(0.42, 0.14, 0.72), Vector3(-0.82, 0.58, 0.0), &"hay")
 
 
 static func _add_smithy_chair(root: Node3D) -> void:

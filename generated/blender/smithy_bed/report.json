@@ -1,0 +1,26 @@
+{
+  "asset_id": "prop.smithy_bed",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "9a616a87d41bc26545d45a07a8fb1fb23d58c9148ee21ecb74259875e05df5ff",
+  "checks": [
+    "metric_scale",
+    "y_up",
+    "ground_contact",
+    "uvs",
+    "embedded_pbr_albedo"
+  ],
+  "dimensions_m": [
+    2.3827,
+    1.3312,
+    1.12
+  ],
+  "faces": 2580,
+  "generator": "tools/generate_smithy_bed.py",
+  "ground_min_z": 0.0,
+  "materials": 5,
+  "preview": "generated/blender/smithy_bed/preview.png",
+  "sha256": "0020a6bd67982c503e9be61da81d12574b5def8bbff2a3d1e5bc9e9a5b119b8c",
+  "triangles": 4696,
+  "uv_layers": 1,
+  "vertices": 2456
+}
