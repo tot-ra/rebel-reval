@@ -24,10 +24,11 @@ References:
 | P1 |     0  |     8  | Runtime systems, content foundation |
 | P2 |     2  |    20  | Vertical-slice production (playable MVP) |
 | P3 |     0  |    16  | Validation, accessibility, performance |
-| P4 |    30  |    28  | Act 1: The Simmering City |
+| P4 |    28  |    30  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
-| R  |    31  |     0  | Historical research backlog (researcher-managed, cross-cutting) |
+| R  |    30  |     2  | Historical research backlog (researcher-managed, cross-cutting) |
+
 
 
 
@@ -156,8 +157,8 @@ Rows close through `review: canon` like all content work.
 
 ### Topography and architecture (Map, Art)
 
-- [~] R-001 | role: research | deps: none | deliverable: history/dossiers/topography/lower-town-street-plan.md - street network, named streets, plot widths and depths, block structure, market square placement in 1343 | verify: a map author can lay out at least three Lower Town blocks with sourced dimensions and labelled uncertainty | review: canon
-- [~] R-002 | role: research | deps: none | deliverable: history/dossiers/topography/walls-gates-towers.md - which wall circuit, towers, gates, and ditch existed by 1343, with heights and thicknesses where attested (mine `history/Linnakindlustuste kaardistus.pdf` first) | verify: every gate and tower is listed as present, absent, or uncertain in 1343 with a source | review: canon
+- [x] R-001 | role: research | deps: none | deliverable: history/dossiers/topography/lower-town-street-plan.md - street network, named streets, plot widths and depths, block structure, market square placement in 1343 | verify: a map author can lay out at least three Lower Town blocks with sourced dimensions and labelled uncertainty | review: canon
+- [x] R-002 | role: research | deps: none | deliverable: history/dossiers/topography/walls-gates-towers.md - which wall circuit, towers, gates, and ditch existed by 1343, with heights and thicknesses where attested (mine `history/Linnakindlustuste kaardistus.pdf` first) | verify: every gate and tower is listed as present, absent, or uncertain in 1343 with a source | review: canon
 - [ ] R-003 | role: research | deps: none | deliverable: history/dossiers/architecture/burgher-house-plan.md - Lower Town house typology: cellar, Diele hall, storey heights, hoisting beam, hearth, window and roof treatment | verify: yields a labelled floor-plan description and interior prop list an art and map pass can build from
 - [ ] R-004 | role: research | deps: R-003 | deliverable: history/dossiers/architecture/smithy-workshop-layout.md - forge building layout: hearth, bellows, anvil placement, quench, fuel and stock storage, fire regulation, smoke handling | verify: supports the forge core loop with sourced spatial and equipment detail plus at least one fire-risk rule
 - [ ] R-005 | role: research | deps: none | deliverable: history/dossiers/topography/harbour-and-shoreline.md - 1343 shoreline, harbour and roadstead, quay and crane practice, Härjapea river mouth, ship types calling at Reval | verify: distinguishes 1343 shoreline from the modern coast and names what a harbour scene may and may not show

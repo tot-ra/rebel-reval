@@ -43,8 +43,8 @@ Domains and their scope are defined in the
 
 | Domain | Scope | Status | Dossiers | Open backlog | Primary consumers |
 |--------|-------|--------|----------|--------------|-------------------|
-| `topography` | city plan, walls, gates, plots, harbour | absent | - | R-001, R-002, R-005 | Map, Dev |
-| `architecture` | building types, floor plans, interiors | absent | - | R-003, R-004, R-006 | Map, Art |
+| `topography` | city plan, walls, gates, plots, harbour | partial | [`lower-town-street-plan`](dossiers/topography/lower-town-street-plan.md) (partial), [`walls-gates-towers`](dossiers/topography/walls-gates-towers.md) (partial), [`harbour-and-shoreline`](dossiers/topography/harbour-and-shoreline.md) (stub) | R-005, R-029–R-032 | Map, Dev |
+| `architecture` | building types, floor plans, interiors | stub | [`burgher-house-plan`](dossiers/architecture/burgher-house-plan.md) (stub) | R-003, R-004, R-006 | Map, Art |
 | `people` | named residents, households, name stock | absent | - | R-007, R-026 | Character, Narrative |
 | `power` | council, jurisdictions, law, punishment | absent | - | R-008, R-009 | Quest, Narrative |
 | `military` | garrison, watch, arms, fortification, siege | absent | - | R-010, R-011 | Quest, Art, Dev |

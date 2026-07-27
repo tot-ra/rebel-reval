@@ -16,6 +16,32 @@ const TEXTURE_SIZE := 128
 const COBBLE_TEXTURE_SIZE := 512
 const EMBER_COLOR := Color8(224, 108, 48)
 const EMBER_ENERGY := 1.6
+const WATER_MATERIALS := preload("res://scripts/map/view3d/map_view_water_materials.gd")
+
+const WATER_WAVE_BASE := {
+	MapTypes.TERRAIN_SHALLOW_WATER: {
+		"height": 0.026, "chaos": 0.78, "foam": 0.24, "breakers": 0.52, "absorption": 5.0,
+		"tide_height": 0.004, "tide_shore_retreat": 0.13, "tide_optical_depth": 0.055,
+	},
+	MapTypes.TERRAIN_DEEP_WATER: {
+		"height": 0.044, "chaos": 1.18, "foam": 0.12, "breakers": 0.10, "absorption": 9.0,
+		"tide_height": 0.004, "tide_shore_retreat": 0.0, "tide_optical_depth": 0.025,
+	},
+	MapTypes.TERRAIN_WATER: {
+		"height": 0.030, "chaos": 0.96, "foam": 0.18, "breakers": 0.22, "absorption": 7.0,
+		"bed_vegetation": 1.0,
+		"tide_height": 0.0, "tide_shore_retreat": 0.0, "tide_optical_depth": 0.0,
+	},
+	# Fast river water uses tighter, livelier ripples than ponds or open sea and
+	# drops the sheltered-water algae layer. Absorption sits higher than the old
+	# clear-shallow tuning so the blue water column, not the warm bed, dominates
+	# the surface colour - the Pirita should read as a river, not a green shallow.
+	MapTypes.TERRAIN_RIVER_WATER: {
+		"height": 0.024, "chaos": 0.72, "foam": 0.12, "breakers": 0.08, "absorption": 6.0,
+		"bed_vegetation": 0.0,
+		"tide_height": 0.0, "tide_shore_retreat": 0.0, "tide_optical_depth": 0.0,
+	},
+}
 
 const WATER_TERRAINS: Array[StringName] = [
 	MapTypes.TERRAIN_WATER,
@@ -146,6 +172,7 @@ static func reset() -> void:
 	_cache.clear()
 	MapViewMaterialShaders.reset()
 	MapViewMaterialPatterns.reset()
+	WATER_MATERIALS.reset()
 
 
 static func terrain(terrain_id: StringName, noise_seed: int) -> StandardMaterial3D:
@@ -227,136 +254,28 @@ static func blended_ground(noise_seed: int) -> ShaderMaterial:
 	return material
 
 
+## Water material API remains here for existing map builders and tests. The
+## implementation and its independent cache live in WATER_MATERIALS.
 static func puddle_surface() -> ShaderMaterial:
-	var key := "puddle_surface"
-	if _cache.has(key):
-		return _cache[key]
-	var material := ShaderMaterial.new()
-	material.shader = MapViewMaterialShaders.shader("puddle", MapViewMaterialShaders.PUDDLE_SHADER_CODE)
-	material.set_shader_parameter("wet_tint", Vector3(0.78, 0.82, 0.86))
-	material.set_shader_parameter("sheen_tint", Vector3(0.94, 0.96, 0.98))
-	_cache[key] = material
-	return material
-
-
-## Animated water surface for water-family terrain cells; colors derive from
-## the same frozen palette entry the flat material uses.
-## Base wave heights are scaled at runtime by apply_sea_weather() so storms
-## raise both the water mesh and floating hulls together.
-const WATER_WAVE_BASE := {
-	MapTypes.TERRAIN_SHALLOW_WATER: {
-		"height": 0.026, "chaos": 0.78, "foam": 0.24, "breakers": 0.52, "absorption": 5.0,
-		"tide_height": 0.004, "tide_shore_retreat": 0.13, "tide_optical_depth": 0.055,
-	},
-	MapTypes.TERRAIN_DEEP_WATER: {
-		"height": 0.044, "chaos": 1.18, "foam": 0.12, "breakers": 0.10, "absorption": 9.0,
-		"tide_height": 0.004, "tide_shore_retreat": 0.0, "tide_optical_depth": 0.025,
-	},
-	MapTypes.TERRAIN_WATER: {
-		"height": 0.030, "chaos": 0.96, "foam": 0.18, "breakers": 0.22, "absorption": 7.0,
-		"bed_vegetation": 1.0,
-		"tide_height": 0.0, "tide_shore_retreat": 0.0, "tide_optical_depth": 0.0,
-	},
-	# Fast river water uses tighter, livelier ripples than ponds or open sea and
-	# drops the sheltered-water algae layer. Absorption sits higher than the old
-	# clear-shallow tuning so the blue water column, not the warm bed, dominates
-	# the surface colour - the Pirita should read as a river, not a green shallow.
-	MapTypes.TERRAIN_RIVER_WATER: {
-		"height": 0.024, "chaos": 0.72, "foam": 0.12, "breakers": 0.08, "absorption": 6.0,
-		"bed_vegetation": 0.0,
-		"tide_height": 0.0, "tide_shore_retreat": 0.0, "tide_optical_depth": 0.0,
-	},
-}
+	return WATER_MATERIALS.puddle_surface()
 
 
 static func water_surface(terrain_id: StringName) -> ShaderMaterial:
-	var key := "water_surface:%s" % String(terrain_id)
-	if _cache.has(key):
-		return _cache[key]
-	var base := OutdoorTerrainPalette.color(terrain_id)
-	var material := ShaderMaterial.new()
-	material.shader = MapViewMaterialShaders.shader("water", MapViewMaterialShaders.WATER_SHADER_CODE)
-	material.set_shader_parameter("shallow_color", base.lightened(0.18))
-	material.set_shader_parameter("deep_color", base.darkened(0.42))
-	# ART_BIBLE highlight #65B1C4 blended toward the terrain palette entry.
-	material.set_shader_parameter("highlight_color", base.lerp(Color8(101, 177, 196), 0.55))
-	# Keep foam close to the water tint so the shoreline does not flash white.
-	material.set_shader_parameter("foam_color", base.lerp(Color8(188, 208, 206), 0.48))
-	var wave: Dictionary = WATER_WAVE_BASE.get(
-		terrain_id,
-		WATER_WAVE_BASE[MapTypes.TERRAIN_WATER]
-	) as Dictionary
-	material.set_shader_parameter("depth_absorption", float(wave["absorption"]))
-	material.set_shader_parameter("wave_height", float(wave["height"]))
-	material.set_shader_parameter("wave_chaos", float(wave["chaos"]))
-	material.set_shader_parameter("foam_intensity", float(wave["foam"]))
-	material.set_shader_parameter("breaker_intensity", float(wave["breakers"]))
-	material.set_shader_parameter("bed_vegetation", float(wave.get("bed_vegetation", 1.0)))
-	material.set_shader_parameter("tide_height", float(wave["tide_height"]))
-	material.set_shader_parameter("tide_shore_retreat", float(wave["tide_shore_retreat"]))
-	material.set_shader_parameter("tide_optical_depth", float(wave["tide_optical_depth"]))
-	# WHY: Fast rivers need a pale sand/gravel bed instead of the shared coastal
-	# sand+algae look. Without this, low absorption shows a green meadow cast
-	# through the default seabed tint even when bed_vegetation is zero.
-	if terrain_id == MapTypes.TERRAIN_RIVER_WATER:
-		material.set_shader_parameter("sand_bed_color", Color(0.58, 0.50, 0.38))
-		material.set_shader_parameter("stone_bed_color", Color(0.36, 0.39, 0.42))
-		material.set_shader_parameter("deep_bed_color", Color(0.03, 0.07, 0.12))
-		material.set_shader_parameter("foam_color", base.lerp(Color8(186, 204, 214), 0.52))
-		# The Pirita flows from south (+Z) to north (-Z). A non-zero flow advects
-		# the wave field and drives downstream foam ribbons so the surface reads as
-		# a moving current; still water (sea/pond) keeps the default zero flow.
-		material.set_shader_parameter("flow_direction", Vector2(0.0, -1.0))
-		material.set_shader_parameter("flow_strength", 0.6)
-	_cache[key] = material
-	return material
+	return WATER_MATERIALS.water_surface(terrain_id, WATER_WAVE_BASE)
 
 
-## Scales cached water materials from SkyWeather wind/rain. Safe to call every
-## frame; only shader uniforms change, never the cached material instances.
 static func apply_sea_weather(wind: float, rain: float) -> void:
-	var wind_state := clampf(wind, 0.0, 1.0)
-	var rain_state := clampf(rain, 0.0, 1.0)
-	var height_mul := lerpf(0.82, 2.15, wind_state) * lerpf(1.0, 1.45, rain_state)
-	var chaos_mul := lerpf(0.88, 1.65, wind_state) * lerpf(1.0, 1.35, rain_state)
-	var speed := lerpf(0.72, 1.62, wind_state) * lerpf(1.0, 1.18, rain_state)
-	var breaker_mul := lerpf(0.72, 1.75, wind_state) * lerpf(1.0, 1.45, rain_state)
-	for terrain_id in WATER_WAVE_BASE.keys():
-		var material := water_surface(terrain_id as StringName)
-		var wave: Dictionary = WATER_WAVE_BASE[terrain_id]
-		material.set_shader_parameter("wave_height", float(wave["height"]) * height_mul)
-		material.set_shader_parameter("wave_chaos", float(wave["chaos"]) * chaos_mul)
-		material.set_shader_parameter("wave_speed", speed)
-		material.set_shader_parameter("breaker_intensity", float(wave["breakers"]) * breaker_mul)
-		material.set_shader_parameter("foam_intensity", float(wave["foam"]) * lerpf(0.9, 1.35, rain_state))
+	WATER_MATERIALS.apply_sea_weather(wind, rain, WATER_WAVE_BASE)
 
 
-## Pushes sky sun-disk visibility and day/night blend into cached water
-## materials so specular sun glints die with the visible sun.
 static func apply_water_lighting(sun_visibility: float, day_blend: float) -> void:
-	var visibility := clampf(sun_visibility, 0.0, 1.0)
-	var blend := clampf(day_blend, 0.0, 1.0)
-	for terrain_id in WATER_WAVE_BASE.keys():
-		var material := water_surface(terrain_id as StringName)
-		material.set_shader_parameter("sun_visibility", visibility)
-		material.set_shader_parameter("day_blend", blend)
+	WATER_MATERIALS.apply_water_lighting(sun_visibility, day_blend, WATER_WAVE_BASE)
 
 
-## Applies a shared astronomical tide to coastal water families. The generic
-## TERRAIN_WATER family represents rivers and enclosed water, so its material
-## profile intentionally has zero visual tide response.
 static func apply_coastal_tide(level: float) -> void:
-	var normalized_level := clampf(level, -1.0, 1.0)
-	for terrain_id in WATER_WAVE_BASE.keys():
-		water_surface(terrain_id as StringName).set_shader_parameter(
-			"tide_level",
-			normalized_level
-		)
+	WATER_MATERIALS.apply_coastal_tide(level, WATER_WAVE_BASE)
 
 
-## Pushes the sky state shared by the dome and cached water materials. Reusing
-## the catalog texture and astronomical frame keeps reflected stars and celestial
-## glints aligned with the visible sky rather than inventing a second night map.
 static func apply_water_sky_reflection(
 	star_map: Texture2D,
 	sun_direction: Vector3,
@@ -368,17 +287,18 @@ static func apply_water_sky_reflection(
 	sidereal_angle: float,
 	sun_color: Color
 ) -> void:
-	for terrain_id in WATER_WAVE_BASE.keys():
-		var material := water_surface(terrain_id as StringName)
-		material.set_shader_parameter("star_map", star_map)
-		material.set_shader_parameter("sun_direction", sun_direction)
-		material.set_shader_parameter("moon_direction", moon_direction)
-		material.set_shader_parameter("sun_reflection_visibility", clampf(sun_visibility, 0.0, 1.0))
-		material.set_shader_parameter("moon_visibility", clampf(moon_visibility, 0.0, 1.0))
-		material.set_shader_parameter("star_visibility", clampf(star_visibility, 0.0, 1.0))
-		material.set_shader_parameter("observer_latitude", observer_latitude)
-		material.set_shader_parameter("sidereal_angle", sidereal_angle)
-		material.set_shader_parameter("sun_reflection_color", sun_color)
+	WATER_MATERIALS.apply_water_sky_reflection(
+		star_map,
+		sun_direction,
+		moon_direction,
+		sun_visibility,
+		moon_visibility,
+		star_visibility,
+		observer_latitude,
+		sidereal_angle,
+		sun_color,
+		WATER_WAVE_BASE
+	)
 
 
 ## Pushes the shared world wind field into grass, canopy, sail, and flag cloth.

@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `66`
-- Markdown files excluded as archive/reference/out of active scope: `390`
-- Local/external links inspected: `450`
-- Links to active Markdown docs: `182`
-- Links to existing archive/reference/non-active local docs: `91`
+- Active Markdown files scanned: `68`
+- Markdown files excluded as archive/reference/out of active scope: `394`
+- Local/external links inspected: `455`
+- Links to active Markdown docs: `184`
+- Links to existing archive/reference/non-active local docs: `93`
 - External links skipped for reachability: `33`
 - Issues found: `0`
 
@@ -93,6 +93,8 @@ No active Markdown documentation issues found.
 - `docs/quests/pskov_faction.md`
 - `docs/ROADMAP.md`
 - `docs/SCENES/a-bitter-brew.md`
+- `docs/SCENES/bread-and-iron-branch-map.md`
+- `docs/SCENES/bread-and-iron.md`
 - `docs/SCENES/the-bell-and-the-chain-branch-map.md`
 - `docs/SCENES/the-bell-and-the-chain.md`
 - `docs/SCENES/the-makers-mark-branch-map.md`
