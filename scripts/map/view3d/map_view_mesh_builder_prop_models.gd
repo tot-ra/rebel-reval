@@ -23,6 +23,7 @@ const SMITHY_QUENCH_SCENE_PATH := "res://assets/props/forge/smithy_quench_bucket
 const SMITHY_QUENCH_PROP_ID := &"quench"
 const SMITHY_BED_SCENE_PATH := "res://assets/props/furniture/smithy_bed.glb"
 const SMITHY_BED_PROP_ID := &"bed"
+const SACRED_GROVE_ANCIENT_OAK_SCENE_PATH := "res://assets/props/environment/sacred_grove_ancient_oak.glb"
 
 ## Individual authored prop meshes.
 
@@ -748,30 +749,15 @@ static func _add_authored_bush(root: Node3D, prop: Dictionary) -> void:
 
 
 static func _add_ancient_oak(root: Node3D) -> void:
-	var landmark_scale := Vector3.ONE * MapViewAncientOakMeshes.LANDMARK_SCALE
-	var trunk := MeshInstance3D.new()
-	trunk.name = "Trunk"
-	trunk.mesh = MapViewMeshBuilderPrimitives.ancient_oak_wood_mesh()
-	trunk.scale = landmark_scale
-	trunk.material_override = MapViewMaterials.bark(MapViewTreeSpecies.BARK_DEFAULT)
-	root.add_child(trunk)
-
-	var canopy := MeshInstance3D.new()
-	canopy.name = "Canopy"
-	canopy.mesh = MapViewMeshBuilderPrimitives.ancient_oak_canopy_mesh()
-	canopy.scale = landmark_scale
-	canopy.material_override = MapViewMaterials.canopy(&"leaf")
-	root.add_child(canopy)
-
-	var moss_mesh := MapViewMeshBuilderPrimitives.ancient_oak_moss_mesh()
-	if moss_mesh != null:
-		var moss := MeshInstance3D.new()
-		moss.name = "Moss"
-		moss.mesh = moss_mesh
-		moss.scale = landmark_scale
-		moss.material_override = MapViewMaterials.canopy(&"leaf")
-		moss.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		root.add_child(moss)
+	# WHY: the hingepuu is the grove's close hero landmark. Its custom GLB carries
+	# continuous tapered boughs, buttress roots, shaped leaves, bark relief, and
+	# weathering. Collision/navigation remain owned by the unchanged rrmap.
+	var oak_scene := load(SACRED_GROVE_ANCIENT_OAK_SCENE_PATH) as PackedScene
+	assert(oak_scene != null, "Sacred Grove ancient oak GLB must be imported before the map view is assembled")
+	var oak := oak_scene.instantiate() as Node3D
+	oak.name = "SacredGroveAncientOakModel"
+	root.add_child(oak)
 	root.set_meta(&"tree_species", MapViewTreeSpecies.SPECIES_OAK)
 	root.set_meta(&"tree_size", MapViewTreeSpecies.SIZE_LARGE)
-	root.set_meta(&"tree_model", &"ancient_oak")
+	root.set_meta(&"tree_model", &"sacred_grove_ancient_oak_glb")
+	root.set_meta(&"tree_asset_path", SACRED_GROVE_ANCIENT_OAK_SCENE_PATH)

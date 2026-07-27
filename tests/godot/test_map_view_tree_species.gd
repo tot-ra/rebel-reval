@@ -122,33 +122,7 @@ func test_authored_tree_prop_builds_species_mesh() -> void:
 	node.free()
 
 
-func test_ancient_oak_landmark_is_huge_detailed_oak() -> void:
-	MapViewAncientOakMeshes.reset_cache()
-	var stats := MapViewMeshBuilderPrimitives.ancient_oak_geometry_stats()
-	assert_true(float(stats["trunk_height"]) >= 10.0, "hingepuu source mesh should tower over woodland oaks")
-	assert_eq(float(stats["landmark_scale"]), 2.0, "sacred oak should render at double scale")
-	assert_true(float(stats["visual_trunk_height"]) >= 22.0, "double-size hingepuu should reach about 22 metres")
-	assert_true(float(stats["visual_trunk_base_radius"]) >= 2.0, "double-size root flare should remain massive")
-	assert_true(float(stats["trunk_base_radius"]) >= 0.9, "hingepuu needs a massive root flare")
-	assert_true(int(stats["root_buttresses"]) >= 6, "buttress roots sell the ancient base")
-	assert_true(int(stats["wood_segments"]) >= 800, "giant limbs need a dense multi-section branch skeleton")
-	assert_true(int(stats["trunk_path_sections"]) >= 8, "the wind-shaped trunk needs a visibly curved centreline")
-	assert_true(int(stats["leader_segments"]) >= 20, "the trunk must continue into a branching leader instead of ending as a pipe")
-	assert_true(int(stats["terminal_branch_tips"]) >= 280, "the crown needs abundant fine terminal branches")
-	assert_true(int(stats["bezier_branch_paths"]) >= 200, "hingepuu boughs should use tangent-continuous Bezier spines")
-	assert_true(int(stats["curved_branch_paths"]) >= 200, "hingepuu branches should bend through several sections")
-	assert_true(int(stats["interior_branch_junctions"]) >= 120, "branches should emerge from varied places along parent limbs")
-	assert_true(int(stats["leaf_count"]) >= 6000, "sacred canopy needs dense leaf sprays")
-	assert_true(int(stats["moss_strands"]) >= 20, "hanging moss distinguishes the landmark oak")
-	assert_true(MapViewMeshBuilderPrimitives.ancient_oak_wood_mesh() is ArrayMesh)
-	assert_true(MapViewMeshBuilderPrimitives.ancient_oak_canopy_mesh() is ArrayMesh)
-	assert_true(MapViewMeshBuilderPrimitives.ancient_oak_moss_mesh() is ArrayMesh)
-	assert_true(
-		MapViewMeshBuilderPrimitives.ancient_oak_wood_mesh()
-		== MapViewMeshBuilderPrimitives.ancient_oak_wood_mesh(),
-		"ancient oak wood mesh must be cached"
-	)
-
+func test_ancient_oak_landmark_uses_custom_production_model() -> void:
 	var prop := {
 		"id": &"ancient_oak",
 		"kind": MapTypes.PROP_KIND_TREE,
@@ -157,15 +131,24 @@ func test_ancient_oak_landmark_is_huge_detailed_oak() -> void:
 		"style_variant": &"tree.oak",
 	}
 	var node := MapViewMeshBuilderProps.build_prop(prop, MapTypes.DEFAULT_CELL_SIZE)
-	assert_eq(node.get_meta(&"tree_model"), &"ancient_oak")
+	assert_eq(node.get_meta(&"tree_model"), &"sacred_grove_ancient_oak_glb")
+	assert_eq(
+		node.get_meta(&"tree_asset_path"),
+		"res://assets/props/environment/sacred_grove_ancient_oak.glb"
+	)
 	assert_eq(node.get_meta(&"tree_species"), MapViewTreeSpecies.SPECIES_OAK)
-	assert_true(node.has_node("Trunk"))
-	assert_true(node.has_node("Canopy"))
-	assert_true(node.has_node("Moss"))
-	assert_eq((node.get_node("Trunk") as MeshInstance3D).scale, Vector3.ONE * 2.0)
-	assert_eq((node.get_node("Canopy") as MeshInstance3D).scale, Vector3.ONE * 2.0)
-	assert_eq((node.get_node("Moss") as MeshInstance3D).scale, Vector3.ONE * 2.0)
-	assert_true((node.get_node("Trunk") as MeshInstance3D).mesh == MapViewMeshBuilderPrimitives.ancient_oak_wood_mesh())
+	assert_eq(node.get_meta(&"tree_size"), MapViewTreeSpecies.SIZE_LARGE)
+	assert_true(node.has_node("SacredGroveAncientOakModel"))
+	var model := node.get_node("SacredGroveAncientOakModel") as Node3D
+	assert_true(model != null)
+	assert_true(model.has_node("SacredGroveAncientOak/AncientOakWood"))
+	assert_true(model.has_node("SacredGroveAncientOak/AncientOakFoliage"))
+	assert_true(model.has_node("SacredGroveAncientOak/AncientOakBrokenHeartwood"))
+	assert_true(model.has_node("SacredGroveAncientOak/AncientOakHollow"))
+	for part_name in ["AncientOakWood", "AncientOakFoliage", "AncientOakBrokenHeartwood", "AncientOakHollow"]:
+		var part := model.get_node("SacredGroveAncientOak/%s" % part_name) as MeshInstance3D
+		assert_true(part != null, "%s must import as production mesh geometry" % part_name)
+		assert_true(part.mesh != null, "%s must carry an imported mesh" % part_name)
 	node.free()
 
 
