@@ -166,6 +166,54 @@
         }
       }
     },
+    "investigation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "suspects",
+        "culprit_id",
+        "min_clues_for_full_resolution",
+        "clues"
+      ],
+      "properties": {
+        "suspects": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "common.schema.json#/$defs/content_id"
+          }
+        },
+        "culprit_id": {
+          "$ref": "common.schema.json#/$defs/content_id"
+        },
+        "min_clues_for_full_resolution": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "clues": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "fact_id"
+            ],
+            "properties": {
+              "fact_id": {
+                "$ref": "common.schema.json#/$defs/content_id"
+              },
+              "exonerates": {
+                "type": "array",
+                "items": {
+                  "$ref": "common.schema.json#/$defs/content_id"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "outcomes": {
       "type": "array",
       "minItems": 1,
