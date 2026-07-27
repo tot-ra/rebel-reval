@@ -1,0 +1,185 @@
+{
+  "asset_id": "building.facade_window_set",
+  "assets": [
+    {
+      "asset_id": "building.facade_window.timber_open_shutters",
+      "bounds_blender": {
+        "max": [
+          0.59687,
+          0.01542,
+          0.955
+        ],
+        "min": [
+          -0.59687,
+          -0.19,
+          0.0
+        ]
+      },
+      "checks": {
+        "embedded_albedo": true,
+        "metric_scale": true,
+        "mount_plane_recorded": true,
+        "portable_pbr": true,
+        "sill_origin": true,
+        "single_runtime_mesh": true,
+        "triangle_cap": true,
+        "uvs": true,
+        "y_up_glb": true
+      },
+      "dimensions_blender_xyz_m": [
+        1.1937,
+        0.2054,
+        0.955
+      ],
+      "dimensions_gltf_xyz_m": [
+        1.1937,
+        0.955,
+        0.2054
+      ],
+      "faces": 798,
+      "glb": {
+        "images": 2,
+        "materials": 4,
+        "meshes": 1,
+        "nodes": 2,
+        "scenes": 1,
+        "textures": 2,
+        "version": "2.0"
+      },
+      "materials": 4,
+      "mesh_objects": 1,
+      "mount_plane_blender_y": 0.0,
+      "path": "assets/buildings/facades/timber_window_open_shutters.glb",
+      "sha256": "deb98b343975b8076720d5d36b66a2e52572ce2b8e45925cadcd1fdb22ded540",
+      "sill_min_z": 0.0,
+      "texture_size": 512,
+      "triangles": 1380,
+      "uv_sets": 1,
+      "vertices": 744
+    },
+    {
+      "asset_id": "building.facade_window.timber_closed_shutters",
+      "bounds_blender": {
+        "max": [
+          0.44,
+          0.001,
+          0.955
+        ],
+        "min": [
+          -0.44,
+          -0.19,
+          0.0
+        ]
+      },
+      "checks": {
+        "embedded_albedo": true,
+        "metric_scale": true,
+        "mount_plane_recorded": true,
+        "portable_pbr": true,
+        "sill_origin": true,
+        "single_runtime_mesh": true,
+        "triangle_cap": true,
+        "uvs": true,
+        "y_up_glb": true
+      },
+      "dimensions_blender_xyz_m": [
+        0.88,
+        0.191,
+        0.955
+      ],
+      "dimensions_gltf_xyz_m": [
+        0.88,
+        0.955,
+        0.191
+      ],
+      "faces": 926,
+      "glb": {
+        "images": 2,
+        "materials": 4,
+        "meshes": 1,
+        "nodes": 2,
+        "scenes": 1,
+        "textures": 2,
+        "version": "2.0"
+      },
+      "materials": 4,
+      "mesh_objects": 1,
+      "mount_plane_blender_y": 0.0,
+      "path": "assets/buildings/facades/timber_window_closed_shutters.glb",
+      "sha256": "00581b19b778c2fa7c8a7ba6e5e46617898506109d0aa3ad6b14f5bdcb9a4380",
+      "sill_min_z": 0.0,
+      "texture_size": 512,
+      "triangles": 1604,
+      "uv_sets": 1,
+      "vertices": 864
+    },
+    {
+      "asset_id": "building.facade_window.stone_pointed_open_shutters",
+      "bounds_blender": {
+        "max": [
+          0.63696,
+          0.02984,
+          1.40902
+        ],
+        "min": [
+          -0.63696,
+          -0.25,
+          0.0
+        ]
+      },
+      "checks": {
+        "embedded_albedo": true,
+        "metric_scale": true,
+        "mount_plane_recorded": true,
+        "portable_pbr": true,
+        "sill_origin": true,
+        "single_runtime_mesh": true,
+        "triangle_cap": true,
+        "uvs": true,
+        "y_up_glb": true
+      },
+      "dimensions_blender_xyz_m": [
+        1.2739,
+        0.2798,
+        1.409
+      ],
+      "dimensions_gltf_xyz_m": [
+        1.2739,
+        1.409,
+        0.2798
+      ],
+      "faces": 1002,
+      "glb": {
+        "images": 3,
+        "materials": 5,
+        "meshes": 1,
+        "nodes": 2,
+        "scenes": 1,
+        "textures": 3,
+        "version": "2.0"
+      },
+      "materials": 5,
+      "mesh_objects": 1,
+      "mount_plane_blender_y": 0.0,
+      "path": "assets/buildings/facades/stone_pointed_window_open_shutters.glb",
+      "sha256": "f721585400266e3fa2a9703156c679ca234d75aea5c12abc1f54089f493665e1",
+      "sill_min_z": 0.0,
+      "texture_size": 512,
+      "triangles": 1788,
+      "uv_sets": 1,
+      "vertices": 960
+    }
+  ],
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "fa62523f7bbfce0b7dca3d983c307b6855a10e172a72d5a92a631a5121ba47e9",
+  "checks": {
+    "all_asset_checks": true,
+    "all_outputs_exist": true,
+    "historical_profile": "small timber openings; boarded shutters; simple pointed stone opening; no late-Gothic four-light cross",
+    "runtime_integration": "modular assets only; no gameplay collision or navigation changed"
+  },
+  "generator": "tools/generate_window_facades.py",
+  "generator_version": "window_facades_v1",
+  "preview": "generated/blender/window_facades_v1/preview.png",
+  "route": "deterministic_blender"
+}
