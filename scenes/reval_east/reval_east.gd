@@ -9,6 +9,7 @@ const AFTERMATH_SCRIPT := preload("res://scripts/investigation/bitter_brew_after
 const REPUTATION_SCRIPT := preload("res://scripts/faction/social_reputation_controller.gd")
 const MARKET_DAY_SCRIPT := preload("res://scripts/world/market_day_controller.gd")
 const SUPPLY_CHAIN_SCRIPT := preload("res://scripts/world/supply_chain_controller.gd")
+const ENVIRONMENT_SCRIPT := preload("res://scripts/world/environmental_consequence_controller.gd")
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -23,6 +24,7 @@ var _bitter_brew_aftermath: Node
 var _social_reputation: Node
 var _market_day: Node
 var _supply_chain: Node
+var _environmental_consequence: Node
 var _phase_binder: MapPhaseBinder
 var _patrol_controller: MapPatrolController
 
@@ -104,6 +106,10 @@ func _ready() -> void:
 		_mart_encounter.get_interaction_controller(),
 		&"loc.lower_town_slice"
 	)
+	_environmental_consequence = ENVIRONMENT_SCRIPT.new()
+	_environmental_consequence.name = "EnvironmentalConsequenceController"
+	add_child(_environmental_consequence)
+	_environmental_consequence.setup(_view_runtime, &"loc.lower_town_slice")
 
 
 func _setup_phase_binder(definition: MapDefinition) -> void:

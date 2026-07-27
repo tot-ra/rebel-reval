@@ -275,3 +275,9 @@ sign sign.viru_road "viru gate and eastern road" 135 46 east
 sign sign.town_centre "to town centre" 3 49 west
 sign sign.south_quarter "to knights district" 64 122 south
 sign sign.karja_gate "karja gate" 71 116 south
+# P4-036: consequence overlays toggled by EnvironmentalConsequenceController.
+prop consequence_rebel_graffiti banner 44 118 rect=2,2 faction=harju_kings
+prop consequence_order_notice banner 100 58 rect=2,2 faction=livonian_order
+prop consequence_watch_barricade barrels 6 54 rect=2,1
+prop consequence_supply_scatter cargo_crates 68 56
+prop consequence_wall_repair cooper_staves 103 58
