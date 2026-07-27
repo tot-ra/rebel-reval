@@ -1,0 +1,113 @@
+{
+  "type": "mechanism",
+  "id": "mechanism.bread_and_iron_scales",
+  "title": "Civic weighing-house scale mechanism",
+  "commission_id": "commission.bread_and_iron",
+  "object_item_id": "item.bread_and_iron_work",
+  "location_id": "loc.lower_town.market_civic",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-003"
+  },
+  "responses": [
+    {
+      "id": "scales_fair",
+      "behavior": "hold",
+      "summary": "Honest pivot brackets hold true weight; Raide family receives full allotment.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.bread_and_iron",
+          "value": "honest_work"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.family.raide_supplied",
+          "value": true
+        },
+        {
+          "op": "set_location_state",
+          "key": "loc.grain_stall_raide",
+          "value": "stall_full"
+        }
+      ]
+    },
+    {
+      "id": "scales_rigged",
+      "behavior": "jam",
+      "summary": "Soft-iron pivot jams on light sacks; Jürgen hoards surplus while Raides are rationed.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.bread_and_iron",
+          "value": "subtle_defect"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.family.raide_rationed",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.jurgen_surplus_visible",
+          "value": true
+        },
+        {
+          "op": "set_location_state",
+          "key": "loc.grain_stall_raide",
+          "value": "stall_rationed"
+        }
+      ]
+    },
+    {
+      "id": "chute_armed",
+      "behavior": "release",
+      "summary": "Concealed chute latch is armed; Kaja's network diverts grain while Raides fall into debt.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.bread_and_iron",
+          "value": "secret_feature"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.family.raide_debt",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.kaja_grain_chute",
+          "value": true
+        },
+        {
+          "op": "set_location_state",
+          "key": "loc.grain_stall_raide",
+          "value": "stall_debt"
+        }
+      ]
+    }
+  ],
+  "default_response": {
+    "id": "unresolved",
+    "behavior": "idle",
+    "summary": "Kalev has not installed the weighing-house pivot brackets yet."
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Mechanism contract mapping forged bracket records to civic scale behavior and Raide family outcomes.",
+      "citations": [
+        "content/packages/bread_and_iron/content/commission.bread_and_iron.json",
+        "docs/SCENES/bread-and-iron-branch-map.md"
+      ]
+    }
+  ]
+}

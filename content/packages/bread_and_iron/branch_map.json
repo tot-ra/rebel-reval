@@ -1,0 +1,55 @@
+{
+  "quest_id": "quest.bread_and_iron",
+  "branches": [
+    {
+      "id": "honest_brackets_supplied",
+      "transitions": [
+        "complete_investigation",
+        "commit_honest_forge"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "aftermath_supplied",
+        "flags": {
+          "flag.bread_and_iron_honest_work": true,
+          "flag.family.raide_supplied": true
+        }
+      }
+    },
+    {
+      "id": "rigged_pivot_rationed",
+      "transitions": [
+        "complete_investigation",
+        "commit_defect_forge"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "aftermath_rationed",
+        "flags": {
+          "flag.bread_and_iron_subtle_defect": true,
+          "flag.bread_and_iron_falsification_risk": true,
+          "flag.family.raide_rationed": true
+        }
+      }
+    },
+    {
+      "id": "smuggler_chute_debt",
+      "transitions": [
+        "complete_investigation",
+        "commit_release_forge"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "aftermath_debt",
+        "flags": {
+          "flag.bread_and_iron_secret_feature": true,
+          "flag.family.raide_debt": true,
+          "flag.kaja_grain_chute": true
+        }
+      }
+    }
+  ]
+}

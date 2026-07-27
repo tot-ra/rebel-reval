@@ -1,0 +1,48 @@
+{
+  "type": "location",
+  "id": "loc.grain_stall_raide",
+  "name": "Raide grain stall",
+  "district": "Lower Town",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-003"
+  },
+  "description": "Mare and Ott Raide's civic grain stall beside the municipal weighing house.",
+  "gameplay_space": false,
+  "scene_path": "res://scenes/reval_center/reval_center.tscn",
+  "spawn_ids": [
+    "grain_stall"
+  ],
+  "connected_location_ids": [
+    "loc.lower_town.market_civic"
+  ],
+  "pressure_tags": [
+    "Community",
+    "Scarcity"
+  ],
+  "phase_states": [
+    {
+      "id": "stall_full",
+      "description": "Reserve bins hold a full municipal flour allotment."
+    },
+    {
+      "id": "stall_rationed",
+      "description": "Half-filled bins and a ration chit on the stall apron."
+    },
+    {
+      "id": "stall_debt",
+      "description": "Credit tally nailed to the stall after black-market flour purchase."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Named baker family stall for Bread and Iron family consequence states.",
+      "citations": [
+        "docs/SCENES/bread-and-iron-branch-map.md"
+      ]
+    }
+  ]
+}

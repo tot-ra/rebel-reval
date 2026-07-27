@@ -1,0 +1,39 @@
+{
+  "type": "quest_package",
+  "id": "package.bread_and_iron",
+  "schema_version": 1,
+  "title": "Act 1 Bread and Iron design package",
+  "quest": "content/quest.json",
+  "support": [
+    "content/commission.bread_and_iron.json",
+    "content/mechanism.bread_and_iron_scales.json",
+    "content/item.bread_and_iron_work.json",
+    "content/item.supplier_iron_stock.json",
+    "content/item.evidence.grain_tally_chit.json",
+    "../../examples/support/character.jurgen.json"
+  ],
+  "branch_map": "branch_map.json",
+  "bindings": {
+    "landmark_beats": [
+      "beat.landmark.tallinn.civic_weighing_house",
+      "beat.landmark.tallinn.market_weighbridge_lane"
+    ],
+    "map_anchors": [
+      {
+        "map_id": "market_civic_quarter",
+        "anchor_id": "market_cross"
+      }
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-003 approved branch map and state table for Bread and Iron; runtime wiring deferred to P4-004.",
+      "citations": [
+        "docs/SCENES/bread-and-iron.md",
+        "docs/SCENES/bread-and-iron-branch-map.md",
+        "TODO.md#P4-003"
+      ]
+    }
+  ]
+}

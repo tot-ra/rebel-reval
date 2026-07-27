@@ -1,0 +1,49 @@
+{
+  "type": "location",
+  "id": "loc.lower_town.market_civic",
+  "name": "Market and Civic Quarter",
+  "district": "Lower Town",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-003"
+  },
+  "description": "Inactive prototype map for the Town Hall square, civic weighing house, and merchant stalls.",
+  "gameplay_space": true,
+  "scene_path": "res://scenes/reval_center/reval_center.tscn",
+  "spawn_ids": [
+    "market_cross"
+  ],
+  "connected_location_ids": [
+    "loc.lower_town_slice"
+  ],
+  "pressure_tags": [
+    "Community",
+    "Scarcity"
+  ],
+  "phase_states": [
+    {
+      "id": "weighhouse_fair",
+      "description": "Municipal scales read true after honest bracket install."
+    },
+    {
+      "id": "weighhouse_rigged",
+      "description": "Soft-iron pivot lets underweight sacks pass inspection."
+    },
+    {
+      "id": "weighhouse_smuggled",
+      "description": "Concealed chute diverts grain sacks overnight."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "Support location for Bread and Iron civic market cycle.",
+      "citations": [
+        "content/maps/market_civic_quarter.rrmap",
+        "docs/SCENES/bread-and-iron.md"
+      ]
+    }
+  ]
+}

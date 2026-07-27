@@ -1,0 +1,234 @@
+{
+  "type": "quest",
+  "id": "quest.bread_and_iron",
+  "title": "Bread and Iron",
+  "summary": "Investigate civic grain fraud, forge weighing-house pivot brackets from Jürgen's contracted iron stock, and decide whether the Raide baker family is supplied, rationed, or driven into debt.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-003",
+    "notes": "Approved branch map and state table; playable cycle owned by P4-004."
+  },
+  "entry_conditions": [],
+  "initial_state": "investigating",
+  "states": [
+    {
+      "id": "investigating",
+      "label": "Inspecting civic market evidence"
+    },
+    {
+      "id": "investigation_ready",
+      "label": "Ready to forge the weighing-house brackets"
+    },
+    {
+      "id": "aftermath_supplied",
+      "label": "Raide family supplied",
+      "terminal": true
+    },
+    {
+      "id": "aftermath_rationed",
+      "label": "Raide family rationed",
+      "terminal": true
+    },
+    {
+      "id": "aftermath_debt",
+      "label": "Raide family in debt",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "complete_investigation",
+      "from_state": "investigating",
+      "to_state": "investigation_ready",
+      "effects": []
+    },
+    {
+      "id": "commit_honest_forge",
+      "from_state": "investigation_ready",
+      "to_state": "aftermath_supplied",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.bread_and_iron_honest_work",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.family.raide_supplied",
+          "value": true
+        },
+        {
+          "op": "set_location_state",
+          "key": "loc.lower_town.market_civic",
+          "value": "weighhouse_fair"
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.bread_and_iron.fair_allotment",
+          "value": "faction.hanseatic",
+          "amount": 1,
+          "summary": "Forged honest weighing-house brackets and testified at the municipal grain allotment."
+        }
+      ]
+    },
+    {
+      "id": "commit_defect_forge",
+      "from_state": "investigation_ready",
+      "to_state": "aftermath_rationed",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.bread_and_iron_subtle_defect",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.bread_and_iron_falsification_risk",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.family.raide_rationed",
+          "value": true
+        },
+        {
+          "op": "set_location_state",
+          "key": "loc.lower_town.market_civic",
+          "value": "weighhouse_rigged"
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.bread_and_iron.rigged_scales",
+          "value": "faction.hanseatic",
+          "amount": 1,
+          "summary": "Forged a soft-iron pivot that let underweight sacks pass civic inspection."
+        }
+      ]
+    },
+    {
+      "id": "commit_release_forge",
+      "from_state": "investigation_ready",
+      "to_state": "aftermath_debt",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.bread_and_iron_secret_feature",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.family.raide_debt",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.kaja_grain_chute",
+          "value": true
+        },
+        {
+          "op": "set_location_state",
+          "key": "loc.lower_town.market_civic",
+          "value": "weighhouse_smuggled"
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.bread_and_iron.smuggled_grain",
+          "value": "faction.harju_kings",
+          "amount": 1,
+          "summary": "Forged a concealed grain chute latch for rebel sack diversion at the civic weigh-house."
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "inspect_market",
+      "text": "Inspect the weighbridge, grain lane, supplier ledgers, and Raide grain stall.",
+      "state_id": "investigating"
+    },
+    {
+      "id": "forge_brackets",
+      "text": "Forge the weighing-house pivot brackets before municipal allotment day.",
+      "state_id": "investigation_ready"
+    }
+  ],
+  "journal_evidence": [
+    {
+      "fact_id": "fact.bread_and_iron.short_weight_tally",
+      "text": "Harbour tally chits outweigh the municipal scale readings at the civic weighbridge."
+    },
+    {
+      "fact_id": "fact.bread_and_iron.diverted_grain_sacks",
+      "text": "Wax-sealed rebel messages ride inside diverted rye sacks along Vana Turg lane."
+    },
+    {
+      "fact_id": "fact.bread_and_iron.supplier_ledger_fraud",
+      "text": "Jürgen Witte's wax tallies hide bribe lines in the civic allotment books."
+    },
+    {
+      "fact_id": "fact.bread_and_iron.raide_empty_bins",
+      "text": "Mare Raide's reserve bins are nearly empty two days before municipal allotment."
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "supplied",
+      "summary": "Honest brackets pass inspection and the Raide family receives a full flour reserve.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.bread_and_iron",
+          "value": "aftermath_supplied"
+        }
+      ]
+    },
+    {
+      "id": "rationed",
+      "summary": "Rigged scales pass inspection but the Raide family receives half their allotment.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.bread_and_iron",
+          "value": "aftermath_rationed"
+        }
+      ]
+    },
+    {
+      "id": "debt",
+      "summary": "Smuggled grain moves overnight and the Raide family owes Jürgen for emergency flour.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.bread_and_iron",
+          "value": "aftermath_debt"
+        }
+      ]
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.jurgen",
+      "char.kaja"
+    ],
+    "location_ids": [
+      "loc.lower_town.market_civic",
+      "loc.kalev_smithy"
+    ],
+    "commission_ids": [
+      "commission.bread_and_iron"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-003 design contract reusing evidence, supplier, inventory, and location-state systems.",
+      "citations": [
+        "docs/SCENES/bread-and-iron.md",
+        "docs/SCENES/bread-and-iron-branch-map.md",
+        "content/packages/bread_and_iron/branch_map.json"
+      ]
+    }
+  ]
+}

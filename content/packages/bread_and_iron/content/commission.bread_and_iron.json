@@ -1,0 +1,130 @@
+{
+  "type": "commission",
+  "id": "commission.bread_and_iron",
+  "title": "Forge civic weighing-house pivot brackets",
+  "client_id": "char.jurgen",
+  "quest_id": "quest.bread_and_iron",
+  "object_item_id": "item.bread_and_iron_work",
+  "location_id": "loc.kalev_smithy",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-003",
+    "notes": "Design contract for P4-004 playable cycle."
+  },
+  "concrete_order": "Forge tempered pivot brackets for the municipal weighing house before the next grain allotment, using iron stock from Jürgen's harbour contract.",
+  "hidden_contradiction": "Every bracket Kalev forges will decide whether the Raide baker family is supplied, rationed, or driven into black-market debt when the civic scales are tested.",
+  "investigation_clues": [
+    {
+      "id": "weighbridge",
+      "summary": "Harbour tally chits outweigh the municipal scale readings.",
+      "reveals_fact_id": "fact.bread_and_iron.short_weight_tally"
+    },
+    {
+      "id": "grain_lane",
+      "summary": "Diverted rye sacks carry wax-sealed rebel messages along Vana Turg.",
+      "reveals_fact_id": "fact.bread_and_iron.diverted_grain_sacks"
+    },
+    {
+      "id": "supplier_ledger",
+      "summary": "Jürgen's wax tallies hide bribe lines in the civic allotment books.",
+      "reveals_fact_id": "fact.bread_and_iron.supplier_ledger_fraud"
+    },
+    {
+      "id": "raide_stall",
+      "summary": "Mare Raide's reserve bins are nearly empty before allotment day.",
+      "reveals_fact_id": "fact.bread_and_iron.raide_empty_bins"
+    }
+  ],
+  "forging_options": [
+    {
+      "id": "honest_work",
+      "label": "Forge true tempered pivot brackets and testify at allotment.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.bread_and_iron_honest_work",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.bread_and_iron.fair_allotment",
+          "value": "faction.hanseatic",
+          "amount": 1,
+          "summary": "Forged honest weighing-house brackets and testified at the municipal grain allotment."
+        }
+      ]
+    },
+    {
+      "id": "subtle_defect",
+      "label": "Forge a soft-iron pivot that lets underweight sacks pass inspection.",
+      "requires": [
+        {
+          "op": "fact_known",
+          "key": "fact.bread_and_iron.short_weight_tally"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.bread_and_iron_subtle_defect",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.bread_and_iron.rigged_scales",
+          "value": "faction.hanseatic",
+          "amount": 1,
+          "summary": "Forged a soft-iron pivot that let underweight sacks pass civic inspection."
+        }
+      ]
+    },
+    {
+      "id": "secret_feature",
+      "label": "Forge a concealed chute latch for diverted grain sacks.",
+      "requires": [
+        {
+          "op": "fact_known",
+          "key": "fact.bread_and_iron.diverted_grain_sacks"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.bread_and_iron_secret_feature",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.bread_and_iron.smuggled_grain",
+          "value": "faction.harju_kings",
+          "amount": 1,
+          "summary": "Forged a concealed grain chute latch for rebel sack diversion at the civic weigh-house."
+        }
+      ]
+    }
+  ],
+  "night_consequence": "The forged pivot brackets change civic allotment routes, supplier leverage, and Raide family outcomes during the weighing-house install beat.",
+  "deadline": {
+    "due_phase_id": "phase.investigation_morning",
+    "journal_label": "Municipal allotment eve",
+    "missed_effects": [
+      {
+        "op": "set_flag",
+        "key": "flag.bread_and_iron_deadline_missed",
+        "value": true
+      }
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Commission contract for Bread and Iron cycle with Jürgen Witte as supplier client.",
+      "citations": [
+        "docs/SCENES/bread-and-iron.md",
+        "docs/SCENES/bread-and-iron-branch-map.md"
+      ]
+    }
+  ]
+}

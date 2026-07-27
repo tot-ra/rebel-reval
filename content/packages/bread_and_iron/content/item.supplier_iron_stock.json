@@ -1,0 +1,35 @@
+{
+  "type": "item",
+  "id": "item.supplier_iron_stock",
+  "name": "Contracted iron stock",
+  "icon": "res://assets/UI/inventory/forge_hammer.png",
+  "category": "material",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-003"
+  },
+  "material_grade": "common",
+  "gameplay": {
+    "visible_in_pouch": false,
+    "stackable": false,
+    "uses": [
+      "Harbour-contract iron bars delivered by Jürgen Witte for the weighing-house bracket commission."
+    ],
+    "carry": {
+      "weight_g": 4800,
+      "grid_width": 2,
+      "grid_height": 2
+    }
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Supplier intake item for Bread and Iron forge commission material charge.",
+      "citations": [
+        "docs/SCENES/bread-and-iron.md"
+      ]
+    }
+  ]
+}

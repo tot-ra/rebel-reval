@@ -27,7 +27,7 @@ References:
 | P4 |    30  |    28  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
-| R  |    28  |     0  | Historical research backlog (researcher-managed, cross-cutting) |
+| R  |    31  |     0  | Historical research backlog (researcher-managed, cross-cutting) |
 
 
 
@@ -113,6 +113,7 @@ References:
 
 <!-- P2-021a completed in current session -->
 <!-- P4-017 completed in current session -->
+<!-- P4-003 completed in current session -->
 <!-- P4-036 completed in current session -->
 <!-- P4-028g completed in current session -->
 <!-- P4-028e completed in current session -->
@@ -155,8 +156,8 @@ Rows close through `review: canon` like all content work.
 
 ### Topography and architecture (Map, Art)
 
-- [ ] R-001 | role: research | deps: none | deliverable: history/dossiers/topography/lower-town-street-plan.md - street network, named streets, plot widths and depths, block structure, market square placement in 1343 | verify: a map author can lay out at least three Lower Town blocks with sourced dimensions and labelled uncertainty
-- [ ] R-002 | role: research | deps: none | deliverable: history/dossiers/topography/walls-gates-towers.md - which wall circuit, towers, gates, and ditch existed by 1343, with heights and thicknesses where attested (mine `history/Linnakindlustuste kaardistus.pdf` first) | verify: every gate and tower is listed as present, absent, or uncertain in 1343 with a source
+- [~] R-001 | role: research | deps: none | deliverable: history/dossiers/topography/lower-town-street-plan.md - street network, named streets, plot widths and depths, block structure, market square placement in 1343 | verify: a map author can lay out at least three Lower Town blocks with sourced dimensions and labelled uncertainty | review: canon
+- [~] R-002 | role: research | deps: none | deliverable: history/dossiers/topography/walls-gates-towers.md - which wall circuit, towers, gates, and ditch existed by 1343, with heights and thicknesses where attested (mine `history/Linnakindlustuste kaardistus.pdf` first) | verify: every gate and tower is listed as present, absent, or uncertain in 1343 with a source | review: canon
 - [ ] R-003 | role: research | deps: none | deliverable: history/dossiers/architecture/burgher-house-plan.md - Lower Town house typology: cellar, Diele hall, storey heights, hoisting beam, hearth, window and roof treatment | verify: yields a labelled floor-plan description and interior prop list an art and map pass can build from
 - [ ] R-004 | role: research | deps: R-003 | deliverable: history/dossiers/architecture/smithy-workshop-layout.md - forge building layout: hearth, bellows, anvil placement, quench, fuel and stock storage, fire regulation, smoke handling | verify: supports the forge core loop with sourced spatial and equipment detail plus at least one fire-risk rule
 - [ ] R-005 | role: research | deps: none | deliverable: history/dossiers/topography/harbour-and-shoreline.md - 1343 shoreline, harbour and roadstead, quay and crane practice, Härjapea river mouth, ship types calling at Reval | verify: distinguishes 1343 shoreline from the modern coast and names what a harbour scene may and may not show
@@ -195,6 +196,13 @@ Rows close through `review: canon` like all content work.
 - [ ] R-024 | role: research | deps: none | deliverable: history/dossiers/language/names-address-and-oaths.md - Low German, Estonian, and Latin registers; naming conventions; forms of address by rank; oaths, curses, greetings | verify: supplies a name stock and an address table a dialogue writer can apply without anachronism
 - [ ] R-025 | role: research | deps: none | deliverable: history/dossiers/nature/spring-climate-and-living-world.md - April-May weather and light, sea ice break-up, plants in bloom, birds and animals present, livestock and field work | verify: describes what is visibly alive and growing on St George's night specifically, for map and art dressing
 - [ ] R-028 | role: research | deps: none | deliverable: history/dossiers/hinterland/harju-village-and-manor.md - village layout, manor obligations, corvée and dues, roads and travel times to Reval, who the rebels actually were | verify: yields a buildable village plan plus the grievance structure that motivates the uprising, sourced
+
+### Follow-ups from R-001 (topography depth)
+
+- [ ] R-029 | role: research | deps: R-001 | deliverable: history/dossiers/topography/raekoja-plats-extents-1343.md - open square dimensions and town-hall footprint before the 1371–74 lengthening | verify: gives a bounded square polygon with confidence labels, not modern square size
+- [ ] R-030 | role: research | deps: R-001 | deliverable: history/dossiers/topography/pikk-lai-frontage-materials-1340s.md - which Lower Town frontages were timber vs stone in the 1340s property records | verify: street-level material map for at least one block of Pikk and one of Lai with sources
+- [ ] R-031 | role: research | deps: R-001 | deliverable: history/dossiers/topography/old-market-vanaturg.md - precise 1343 location and function of the Old Market relative to Raekoja plats | verify: places Vanaturg on a map sketch with attested vs reconstructed boundary
+- [ ] R-032 | role: research | deps: R-001 | deliverable: history/dossiers/topography/back-lanes-east-of-pikk.md - rear-lane (*Tagenstraße*) network names, widths, and gates east of Pikk | verify: names at least three back lanes with documentary or archaeological support
 
 ## P6 - Act 3: The Iron Harvest and full release (lowest priority)
 
@@ -244,7 +252,7 @@ Rows close through `review: canon` like all content work.
 - [ ] P4-004 | deps: P4-003 | deliverable: playable and playtested `Bread and Iron` cycle | verify: one named family receives a visible consequence in every valid outcome
 - [ ] P4-006 | deps: P4-005 | deliverable: playable and playtested `The Price of a Name` cycle | verify: Mart, Kaja, Henning, and Kalev receive causally consistent state changes in every branch
 - [x] P4-002 | claim: cursor-agent@2026-07-27 | deps: P4-001 | deliverable: playable and playtested `The Bell and the Chain` cycle | allowed files: `scripts/quest/bell_and_chain_quest_model.gd`, `scripts/investigation/bell_and_chain_investigation.gd`, `scripts/investigation/bell_and_chain_night_consequence.gd`, `scripts/investigation/bell_and_chain_aftermath_model.gd`, `scripts/investigation/bell_and_chain_aftermath.gd`, `scripts/forge/bell_and_chain_commission_controller.gd`, `content/packages/bell_and_chain/content/**`, `scenes/reval_east/reval_east.gd`, `scenes/reval_east/forge/forge.gd`, `scripts/session/session_state.gd`, `tests/godot/test_bell_and_chain_cycle.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: gate-chain modification changes act-climax-ready state and the cycle passes its branch matrix; `--filter=test_bell_and_chain_cycle` and `--filter=test_quest_package_bell_and_chain` pass
-- [ ] P4-003 | deps: P4-002 | deliverable: approved branch map and state table for `Bread and Iron` | verify: map reuses evidence, supplier, inventory, and location-state systems within campaign budgets
+- [x] P4-003 | claim: cursor-agent@2026-07-27 | deps: P4-002 | deliverable: approved branch map and state table for `Bread and Iron` | allowed files: `docs/SCENES/bread-and-iron.md`, `docs/SCENES/bread-and-iron-branch-map.md`, `content/packages/bread_and_iron/**`, `content/examples/support/character.jurgen.json`, `content/examples/support/character.kaja.json`, `content/examples/support/location.market_civic.json`, `content/examples/support/location.grain_stall_raide.json`, `tests/python/test_bread_and_iron_branch_map.py`, `tests/godot/generated/test_quest_package_bread_and_iron.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: branch map reuses evidence, supplier, inventory, and location-state systems without a new major framework; `python3 -m unittest tests.python.test_bread_and_iron_branch_map -v`, `python3 tools/verify_quest_packages.py`, `python3 tools/validate_content.py content/packages/bread_and_iron/content content/examples/valid content/examples/support`, and `--filter=test_quest_package_bread_and_iron` pass with three Raide-family outcome branches
 - [ ] P4-005 | deps: P4-004 | deliverable: approved branch map and state table for `The Price of a Name` | verify: map reuses relationships, detention, false evidence, and Hingepuu without a new major system
 - [ ] P4-011 | deps: P4-010 | deliverable: automated Act 1 branch traversal and save compatibility suite | verify: every intended act-boundary state is reachable and every published save fixture loads or migrates
 - [ ] P4-007 | deps: P4-006 | deliverable: one approved ambiguous folklore quest introducing Ellen, Ember or Root | verify: quest remains understandable without literal magic and introduces no second-game subsystem

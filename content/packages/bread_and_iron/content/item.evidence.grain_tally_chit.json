@@ -1,0 +1,35 @@
+{
+  "type": "item",
+  "id": "item.evidence.grain_tally_chit",
+  "name": "Short-weight tally chit",
+  "icon": "res://assets/UI/inventory/forge_hammer.png",
+  "category": "evidence",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-003"
+  },
+  "material_grade": "common",
+  "gameplay": {
+    "visible_in_pouch": true,
+    "stackable": false,
+    "uses": [
+      "Harbour tally chit showing municipal scales read light against contracted grain weight."
+    ],
+    "carry": {
+      "weight_g": 50,
+      "grid_width": 1,
+      "grid_height": 1
+    }
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Investigation evidence item collected at the civic weighbridge inspection site.",
+      "citations": [
+        "docs/SCENES/bread-and-iron-branch-map.md"
+      ]
+    }
+  ]
+}

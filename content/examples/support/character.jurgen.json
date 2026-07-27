@@ -1,0 +1,39 @@
+{
+  "type": "character",
+  "id": "char.jurgen",
+  "name": "Jürgen Witte",
+  "role": "Hanseatic supplier and economic temptation",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-003"
+  },
+  "pronunciation": "YUR-gen VIT-eh",
+  "brief": {
+    "want": "Keep the harbour open and convert political instability into control of debt and city supply.",
+    "fear": "Open war will make contracts meaningless, empowering armed men over merchants.",
+    "contradiction": "He prevents shortages when relief is profitable, but hoards grain when scarcity drives leverage.",
+    "secret_or_withheld_fact": "He has negotiated a secret contingency contract to supply the Livonian Order if they besiege Reval."
+  },
+  "relationships": [],
+  "voice": {
+    "summary": "Suave, transactional, polite but quietly menacing.",
+    "diction": "Speaks about starvation and war in terms of investments and yields."
+  },
+  "outcomes": [
+    {
+      "id": "supplier_contract",
+      "summary": "Jürgen continues supplying iron and grain on his own terms."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "Support record for Bread and Iron supplier client contract.",
+      "citations": [
+        "docs/CHARACTERS/jurgen.md"
+      ]
+    }
+  ]
+}
