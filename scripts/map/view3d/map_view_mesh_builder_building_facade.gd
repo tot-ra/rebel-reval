@@ -78,11 +78,35 @@ static func add_house_facade(
 	var door_height := minf(MapViewMeshBuilderConfig.HOUSE_DOOR_HEIGHT, height - 0.2)
 	var door_along := (float(id_hash % 100) / 99.0 - 0.5) * maxf(facade_length - MapViewMeshBuilderConfig.HOUSE_DOOR_WIDTH - 1.2, 0.0) * 0.5
 	if declared != &"none" and entrance_along.is_empty():
-		facade_box(root, "Door", Vector3(MapViewMeshBuilderConfig.HOUSE_DOOR_WIDTH, door_height, MapViewMeshBuilderConfig.DOOR_THICKNESS), door_along, door_height * 0.5, side, face_offset, &"wood")
-		var lintel_role: StringName = &"stone" if masonry else &"timber"
-		facade_box(root, "DoorLintel", Vector3(MapViewMeshBuilderConfig.HOUSE_DOOR_WIDTH + 0.24, MapViewMeshBuilderConfig.DOOR_FRAME_THICKNESS, MapViewMeshBuilderConfig.DOOR_THICKNESS + 0.02), door_along, door_height + MapViewMeshBuilderConfig.DOOR_FRAME_THICKNESS * 0.5, side, face_offset, lintel_role)
+		var door_seed := int(building["id"].hash())
+		var door_transform := MapViewDoorBuilder.facade_transform(
+			door_along,
+			side,
+			face_offset,
+			MapViewMeshBuilderConfig.DOOR_THICKNESS
+		)
+		MapViewDoorBuilder.add_leaf(
+			root,
+			"Door",
+			"Door",
+			MapViewMeshBuilderConfig.HOUSE_DOOR_WIDTH,
+			door_height,
+			MapViewMeshBuilderConfig.DOOR_THICKNESS,
+			door_transform,
+			door_seed
+		)
+		MapViewDoorBuilder.add_frame(
+			root,
+			"Door",
+			MapViewMeshBuilderConfig.HOUSE_DOOR_WIDTH,
+			door_height,
+			MapViewMeshBuilderConfig.HOUSE_DOOR_FRAME_WIDTH,
+			MapViewMeshBuilderConfig.HOUSE_DOOR_FRAME_DEPTH,
+			door_transform,
+			door_seed,
+			masonry
+		)
 		facade_box(root, "DoorStep", Vector3(MapViewMeshBuilderConfig.HOUSE_DOOR_WIDTH + 0.2, 0.09, 0.34), door_along, 0.045, side, face_offset, &"stone")
-		_add_house_door_hardware(root, door_along, door_height, side, face_offset)
 
 	var window_count := clampi(int(facade_length / MapViewMeshBuilderConfig.HOUSE_WINDOW_SPACING), 1, 3)
 	var window_sill := minf(MapViewMeshBuilderConfig.HOUSE_WINDOW_SILL, height - MapViewMeshBuilderConfig.HOUSE_WINDOW_SIZE.y - 0.15)
@@ -105,40 +129,6 @@ static func _overlaps_entrance(along: float, entrances: Array[float]) -> bool:
 		if absf(along - entrance_along) < (MapViewMeshBuilderConfig.DOOR_WIDTH + MapViewMeshBuilderConfig.HOUSE_WINDOW_SIZE.x) * 0.62:
 			return true
 	return false
-
-
-static func _add_house_door_hardware(
-	root: Node3D,
-	door_along: float,
-	door_height: float,
-	side: StringName,
-	face_offset: float
-) -> void:
-	var strap_h := MapViewMeshBuilderConfig.HOUSE_DOOR_STRAP_THICKNESS
-	var door_w := MapViewMeshBuilderConfig.HOUSE_DOOR_WIDTH
-	for band_index in MapViewMeshBuilderConfig.HOUSE_DOOR_STRAP_COUNT:
-		var band_y := door_height * (0.28 + 0.38 * float(band_index))
-		facade_box(
-			root,
-			"DoorStrap%d" % band_index,
-			Vector3(door_w * 0.9, strap_h * 2.0, strap_h),
-			door_along,
-			band_y,
-			side,
-			face_offset,
-			&"metal"
-		)
-	# Simple latch block on the opening edge (readable from dimetric camera).
-	facade_box(
-		root,
-		"DoorLatch",
-		Vector3(0.08, 0.14, 0.06),
-		door_along + door_w * 0.32,
-		door_height * 0.52,
-		side,
-		face_offset,
-		&"metal"
-	)
 
 
 static func add_house_window(

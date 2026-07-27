@@ -400,23 +400,28 @@ static func build_transition_door(
 		var opening_width := (rect.size.x if horizontal_wall else rect.size.y) * scale
 		_add_transition_opening_infill(root, opening_width, resolved_wall_height)
 
-	MapViewMeshBuilderPrimitives.box(
+	var door_seed := int(transition["id"].hash())
+	MapViewDoorBuilder.add_leaf(
 		root,
 		"Panel",
-		Vector3(MapViewMeshBuilderConfig.DOOR_WIDTH, MapViewMeshBuilderConfig.DOOR_HEIGHT, MapViewMeshBuilderConfig.DOOR_THICKNESS),
-		Vector3(0.0, MapViewMeshBuilderConfig.DOOR_HEIGHT * 0.5, 0.0),
-		&"wood"
+		"",
+		MapViewMeshBuilderConfig.DOOR_WIDTH,
+		MapViewMeshBuilderConfig.DOOR_HEIGHT,
+		MapViewMeshBuilderConfig.DOOR_THICKNESS,
+		Transform3D.IDENTITY,
+		door_seed
 	)
-	var frame_height := MapViewMeshBuilderConfig.DOOR_HEIGHT + MapViewMeshBuilderConfig.DOOR_FRAME_THICKNESS
-	var frame_x := MapViewMeshBuilderConfig.DOOR_WIDTH * 0.5 + MapViewMeshBuilderConfig.DOOR_FRAME_THICKNESS * 0.5
-	MapViewMeshBuilderPrimitives.box(root, "FrameLeft", Vector3(MapViewMeshBuilderConfig.DOOR_FRAME_THICKNESS, frame_height, 0.22), Vector3(-frame_x, frame_height * 0.5, 0.0), &"timber")
-	MapViewMeshBuilderPrimitives.box(root, "FrameRight", Vector3(MapViewMeshBuilderConfig.DOOR_FRAME_THICKNESS, frame_height, 0.22), Vector3(frame_x, frame_height * 0.5, 0.0), &"timber")
-	MapViewMeshBuilderPrimitives.box(root, "Lintel", Vector3(MapViewMeshBuilderConfig.DOOR_WIDTH + MapViewMeshBuilderConfig.DOOR_FRAME_THICKNESS * 2.0, MapViewMeshBuilderConfig.DOOR_FRAME_THICKNESS, 0.22), Vector3(0.0, frame_height, 0.0), &"timber")
+	MapViewDoorBuilder.add_frame(
+		root,
+		"",
+		MapViewMeshBuilderConfig.DOOR_WIDTH,
+		MapViewMeshBuilderConfig.DOOR_HEIGHT,
+		MapViewMeshBuilderConfig.DOOR_FRAME_THICKNESS,
+		MapViewMeshBuilderConfig.DOOR_FRAME_DEPTH,
+		Transform3D.IDENTITY,
+		door_seed
+	)
 	MapViewMeshBuilderPrimitives.box(root, "Threshold", Vector3(MapViewMeshBuilderConfig.DOOR_WIDTH + 0.18, 0.08, 0.28), Vector3(0.0, 0.04, 0.0), &"stone")
-	for plank_index in 3:
-		var plank_x := -MapViewMeshBuilderConfig.DOOR_WIDTH * 0.25 + float(plank_index) * MapViewMeshBuilderConfig.DOOR_WIDTH * 0.25
-		MapViewMeshBuilderPrimitives.box(root, "Plank%d" % plank_index, Vector3(0.025, MapViewMeshBuilderConfig.DOOR_HEIGHT - 0.12, 0.018), Vector3(plank_x, MapViewMeshBuilderConfig.DOOR_HEIGHT * 0.5, MapViewMeshBuilderConfig.DOOR_THICKNESS * 0.5 + 0.01), &"timber")
-	MapViewMeshBuilderPrimitives.sphere(root, "Handle", 0.055, Vector3(MapViewMeshBuilderConfig.DOOR_WIDTH * 0.3, MapViewMeshBuilderConfig.DOOR_HEIGHT * 0.52, MapViewMeshBuilderConfig.DOOR_THICKNESS * 0.5 + 0.06), &"metal")
 	return root
 
 

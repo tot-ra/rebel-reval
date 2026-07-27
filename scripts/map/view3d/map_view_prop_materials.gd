@@ -68,6 +68,41 @@ static func role(role_name: StringName) -> StandardMaterial3D:
 	return material
 
 
+## Weathered door boards use a dedicated vertical-grain texture and normal map.
+## A few deterministic variants keep repeated facades from cloning the same knot.
+static func door_wood(noise_seed: int) -> StandardMaterial3D:
+	var variant := posmod(noise_seed, 3)
+	var key := "door_wood:%d" % variant
+	if _cache.has(key):
+		return _cache[key]
+	var base := MapVisualStyle.role_color(&"wood", MapVisualStyle.TARGET_CLEAN_PAINTED, MapVisualStyle.TIME_DAY)
+	var material := StandardMaterial3D.new()
+	material.albedo_color = base.darkened(0.08 + float(variant) * 0.025)
+	material.albedo_texture = MapViewMaterialPatterns.door_wood_texture(noise_seed)
+	material.normal_enabled = true
+	material.normal_texture = MapViewMaterialPatterns.door_wood_normal_texture(noise_seed)
+	material.normal_scale = 0.42
+	material.roughness = 0.86
+	material.metallic = 0.0
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	_cache[key] = material
+	return material
+
+
+## Hand-forged iron is dark, uneven-looking, and rough rather than polished chrome.
+static func door_iron() -> StandardMaterial3D:
+	var key := "door_iron"
+	if _cache.has(key):
+		return _cache[key]
+	var material := _make_material(Color8(43, 48, 47), PATTERN_ROCK, 4517)
+	material.metallic = 0.68
+	material.metallic_specular = 0.32
+	material.roughness = 0.7
+	material.uv1_scale = Vector3(3.0, 3.0, 3.0)
+	_cache[key] = material
+	return material
+
+
 ## Natural weathered rock for shoreline boulders and field scatter. Triplanar
 ## mapping keeps grain organic on stretched sphere instances.
 static func natural_rock() -> StandardMaterial3D:

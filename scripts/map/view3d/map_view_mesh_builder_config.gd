@@ -21,8 +21,9 @@ const CAP_OVERHANG := 0.05
 ## Doorways must read taller than the frozen 2.0-unit character.
 const DOOR_WIDTH := 1.5
 const DOOR_HEIGHT := 2.5
-const DOOR_THICKNESS := 0.14
-const DOOR_FRAME_THICKNESS := 0.16
+const DOOR_THICKNESS := 0.11
+const DOOR_FRAME_THICKNESS := 0.13
+const DOOR_FRAME_DEPTH := 0.19
 const TRANSITION_MARKER_HEIGHT := 0.035
 const TRANSITION_MARKER_COLOR := Color(0.55, 0.78, 0.48, 0.3)
 
@@ -252,9 +253,10 @@ const FACADE_RELIEF := 0.05
 const HOUSE_SHUTTER_WIDTH := 0.28
 const HOUSE_SHUTTER_THICKNESS := 0.045
 const HOUSE_SHUTTER_GAP := 0.04
-## Bound door leaves: two iron straps plus a simple latch block.
-const HOUSE_DOOR_STRAP_THICKNESS := 0.035
-const HOUSE_DOOR_STRAP_COUNT := 2
+## House door leaves reuse the transition-door construction at a narrower
+## vernacular scale. Frames remain substantial timber without the old boxed-in look.
+const HOUSE_DOOR_FRAME_WIDTH := 0.11
+const HOUSE_DOOR_FRAME_DEPTH := 0.19
 ## Roof trim: bargeboards on gable ends and a fascia under the eaves keep the
 ## Nordic/Estonian wooden-town silhouette without inventing German Fachwerk.
 ## Width is the board face; thickness is the thin edge. A near-square stick

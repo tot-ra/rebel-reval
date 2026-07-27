@@ -11,6 +11,9 @@ func test_houses_get_facade_doors_and_windows() -> void:
 		else:
 			assert_true(node.has_node("Door"), "%s: every house needs a street door" % building["id"])
 			assert_true(node.has_node("DoorStrap0"), "%s: street doors need iron binding straps" % building["id"])
+			assert_true(node.has_node("DoorPlank0") and node.has_node("DoorPlank3"), "%s: street doors need separate vertical boards" % building["id"])
+			assert_true(node.has_node("DoorHingeBarrel0"), "%s: strap hinges need readable barrels" % building["id"])
+			assert_true(node.has_node("DoorRearBrace0"), "%s: boarded leaves need an inner connecting bar" % building["id"])
 		assert_true(node.has_node("Window0"), "%s: every house needs at least one window" % building["id"])
 		assert_true(node.has_node("WindowFrameL0"), "%s: windows need an outer timber frame" % building["id"])
 		assert_true(node.has_node("WindowMullionV0"), "%s: windows need inner mullions" % building["id"])

@@ -502,6 +502,14 @@ static func role_for_size(role_name: StringName, size: Vector3) -> StandardMater
 	return material
 
 
+static func door_wood(noise_seed: int) -> StandardMaterial3D:
+	return PROP_MATERIALS.door_wood(noise_seed)
+
+
+static func door_iron() -> StandardMaterial3D:
+	return PROP_MATERIALS.door_iron()
+
+
 static func foliage_tuft() -> StandardMaterial3D:
 	return PROP_MATERIALS.foliage_tuft()
 

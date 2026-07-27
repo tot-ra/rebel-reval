@@ -452,6 +452,15 @@ func test_transition_door_has_readable_frame_panel_and_handle() -> void:
 	assert_true(door.has_node("FrameRight"), "door needs a right frame")
 	assert_true(door.has_node("Lintel"), "door needs a lintel")
 	assert_true(door.has_node("Handle"), "door needs a visible handle")
+	assert_true(door.has_node("Plank0") and door.has_node("Plank4"), "door needs separate vertical boards")
+	assert_true(door.has_node("Strap0") and door.has_node("HingeBarrel0"), "door needs forged strap hinges")
+	assert_true(door.has_node("Strap0Rivet0"), "door straps need visible forged fasteners")
+	assert_true(door.has_node("RearBrace0"), "door needs an inclined inner connecting bar")
+	var plank := door.get_node("Plank0") as MeshInstance3D
+	var wood := plank.material_override as StandardMaterial3D
+	assert_true(wood.albedo_texture != null, "door boards need a dedicated grain texture")
+	assert_true(wood.normal_enabled and wood.normal_texture != null, "door boards need PBR grain relief")
+	assert_true((door.get_node("Handle") as MeshInstance3D).mesh is TorusMesh, "door pull must read as a forged ring")
 	var footprint: Rect2 = smithy["footprint"]
 	var expected_boundary := footprint.end.y * MapViewBridge.world_scale(definition.cell_size)
 	assert_true(is_equal_approx(door.position.z, expected_boundary), "door must sit flush with the smithy facade")

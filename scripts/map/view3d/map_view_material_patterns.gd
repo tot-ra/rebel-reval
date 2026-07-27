@@ -24,9 +24,63 @@ static func pattern_texture(pattern: StringName, noise_seed: int) -> ImageTextur
 	return _pattern_texture_at_size(pattern, noise_seed, texture_size)
 
 
-## Terrain splatting keeps its general-purpose array compact and binds the two
-## cobble layers separately at high resolution. Explicit sizing also guarantees
-## that every image inside a Texture2DArray has matching dimensions.
+static func door_wood_texture(noise_seed: int) -> ImageTexture:
+	var variant_seed := posmod(noise_seed, 3) * 977 + 413
+	var key := "door_wood:%d" % variant_seed
+	if _cache.has(key):
+		return _cache[key]
+	var image := Image.create(256, 256, false, Image.FORMAT_RGB8)
+	_paint_door_wood(image, variant_seed)
+	image.generate_mipmaps()
+	var texture := ImageTexture.create_from_image(image)
+	_cache[key] = texture
+	return texture
+
+
+static func door_wood_normal_texture(noise_seed: int) -> ImageTexture:
+	var variant_seed := posmod(noise_seed, 3) * 977 + 413
+	var key := "door_wood_normal:%d" % variant_seed
+	if _cache.has(key):
+		return _cache[key]
+	var image := Image.create(256, 256, false, Image.FORMAT_RGB8)
+	_paint_door_wood(image, variant_seed)
+	# The grayscale grain doubles as a shallow bump source. Converting it here
+	# keeps the procedural texture portable through Godot's PBR material path.
+	image.bump_map_to_normal_map(1.35)
+	image.generate_mipmaps()
+	var texture := ImageTexture.create_from_image(image)
+	_cache[key] = texture
+	return texture
+
+
+## Dense longitudinal grain for close-range door boards. Unlike PATTERN_PLANK,
+## this has no horizontal course seams because every board is separate geometry.
+static func _paint_door_wood(image: Image, noise_seed: int) -> void:
+	var width := image.get_width()
+	var height := image.get_height()
+	var knot_x := int(_hash01(3, 7, noise_seed) * float(width))
+	var knot_y := int((0.22 + _hash01(5, 11, noise_seed) * 0.56) * float(height))
+	for y in height:
+		for x in width:
+			var slow_warp := (_lattice(float(x) / 18.0, float(y) / 42.0, maxi(width / 18, 2), noise_seed + 17) - 0.5) * 13.0
+			var fiber := sin((float(x) + slow_warp) * 0.23)
+			var fine := sin((float(x) + slow_warp * 0.45) * 0.71 + float(y) * 0.014)
+			var broad := _lattice(float(x) / 24.0, float(y) / 48.0, maxi(width / 24, 2), noise_seed + 43)
+			var value := 0.70 + fiber * 0.055 + fine * 0.022 + (broad - 0.5) * 0.13
+			var knot_delta := Vector2(float(x - knot_x) * 0.72, float(y - knot_y))
+			var knot_distance := knot_delta.length()
+			if knot_distance < 29.0:
+				var ring := sin(knot_distance * 0.72 + atan2(knot_delta.y, knot_delta.x) * 1.8)
+				value += ring * (1.0 - knot_distance / 29.0) * 0.12
+			if knot_distance < 5.0:
+				value -= 0.18 * (1.0 - knot_distance / 5.0)
+			# Slightly darker, handled edges make each physical board read worn.
+			var edge_distance := minf(float(x), float(width - 1 - x))
+			if edge_distance < 5.0:
+				value -= (1.0 - edge_distance / 5.0) * 0.11
+			_fill_value(image, x, y, value)
+
+
 static func pattern_texture_at_size(pattern: StringName, noise_seed: int, texture_size: int) -> ImageTexture:
 	return _pattern_texture_at_size(pattern, noise_seed, texture_size)
 
