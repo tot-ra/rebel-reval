@@ -289,12 +289,13 @@ static func _add_smithy_furnace(root: Node3D) -> void:
 	_add_furnace_coal_bed(root)
 	var flames := _add_furnace_flames(root)
 	var particles := _add_furnace_fire_particles(root)
+	var smoke := _add_furnace_smoke_particles(root)
 	var forge_light := OmniLight3D.new()
 	forge_light.name = "Omni"
 	forge_light.position = Vector3(0.0, 0.7, 0.85)
 	root.add_child(forge_light)
 	var controller = MapViewMeshBuilderConfig.FORGE_FIRE_LIGHT_SCRIPT.new()
-	controller.configure(forge_light, flames, particles)
+	controller.configure(forge_light, flames, particles, smoke)
 	root.add_child(controller)
 
 
@@ -314,6 +315,7 @@ static func _add_furnace_fallback(root: Node3D) -> void:
 	_add_furnace_coal_bed(root)
 	var flames := _add_furnace_flames(root)
 	var particles := _add_furnace_fire_particles(root)
+	var smoke := _add_furnace_smoke_particles(root)
 	# Tuyere stub on the left cheek - bellows nozzle aims here (axis along X).
 	_add_axis_cylinder(root, "Tuyere", 0.06, 0.42, Vector3(-1.15, 0.48, 0.55), &"metal")
 	# Flue seats into the breast and clears the interior ceiling plane.
@@ -324,7 +326,7 @@ static func _add_furnace_fallback(root: Node3D) -> void:
 	forge_light.position = Vector3(0.0, 0.7, 0.85)
 	root.add_child(forge_light)
 	var controller = MapViewMeshBuilderConfig.FORGE_FIRE_LIGHT_SCRIPT.new()
-	controller.configure(forge_light, flames, particles)
+	controller.configure(forge_light, flames, particles, smoke)
 	root.add_child(controller)
 
 
@@ -450,36 +452,14 @@ static func _add_furnace_coal_bed(root: Node3D) -> void:
 		root.add_child(lump)
 
 
-static func _add_furnace_flames(root: Node3D) -> Array[MeshInstance3D]:
-	var flames: Array[MeshInstance3D] = []
-	for spec in [
-		{"name": "FlameCore", "radius": 0.2, "height": 0.55, "pos": Vector3(0.0, 0.68, 0.7)},
-		{"name": "FlameLeft", "radius": 0.13, "height": 0.4, "pos": Vector3(-0.22, 0.62, 0.64)},
-		{"name": "FlameRight", "radius": 0.12, "height": 0.36, "pos": Vector3(0.24, 0.6, 0.66)},
-		{"name": "FlameBack", "radius": 0.14, "height": 0.32, "pos": Vector3(0.02, 0.58, 0.42)},
-	]:
-		var flame := MeshInstance3D.new()
-		flame.name = spec["name"]
-		var mesh := SphereMesh.new()
-		mesh.radius = spec["radius"]
-		mesh.height = spec["height"]
-		mesh.radial_segments = 8
-		mesh.rings = 4
-		flame.mesh = mesh
-		flame.position = spec["pos"]
-		# Unshaded emissive volumes stay readable even under bright window fill.
-		var material := StandardMaterial3D.new()
-		material.albedo_color = Color8(255, 140, 48)
-		material.emission_enabled = true
-		material.emission = Color8(255, 110, 36)
-		material.emission_energy_multiplier = 2.8
-		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		material.albedo_color.a = 0.88
-		flame.material_override = material
-		flame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		root.add_child(flame)
-		flames.append(flame)
+static func _add_furnace_flames(root: Node3D) -> Node3D:
+	# WHY: solid pulsing spheres read as plastic blobs, not fire. Overlapping
+	# billboard flame tongues (the CandleFlame3D vocabulary, hearth scale) give
+	# turbulent licks, a cooling color ramp, and additive glow instead.
+	var flames = MapViewMeshBuilderConfig.FORGE_FLAME_SCRIPT.new()
+	flames.position = Vector3(0.0, 0.36, 0.6)
+	flames.configure()
+	root.add_child(flames)
 	return flames
 
 
@@ -503,9 +483,27 @@ static func _add_furnace_fire_particles(root: Node3D) -> GPUParticles3D:
 	process.gravity = Vector3(0.0, 0.45, 0.0)
 	process.damping_min = 0.35
 	process.damping_max = 1.0
+	process.angular_velocity_min = -60.0
+	process.angular_velocity_max = 60.0
 	process.scale_min = 0.04
 	process.scale_max = 0.1
-	process.color = Color8(255, 150, 50)
+	# WHY: sparks cool as they rise. A white-hot birth fading through orange to
+	# dead red plus shrink-over-life sells ember trajectories, not orange dots.
+	var spark_scale := Curve.new()
+	spark_scale.add_point(Vector2(0.0, 1.0))
+	spark_scale.add_point(Vector2(0.55, 0.7))
+	spark_scale.add_point(Vector2(1.0, 0.15))
+	var spark_scale_texture := CurveTexture.new()
+	spark_scale_texture.curve = spark_scale
+	process.scale_curve = spark_scale_texture
+	var spark_ramp := Gradient.new()
+	spark_ramp.set_color(0, Color(1.0, 0.95, 0.7, 1.0))
+	spark_ramp.set_color(1, Color(0.6, 0.08, 0.0, 0.0))
+	spark_ramp.add_point(0.4, Color(1.0, 0.6, 0.15, 0.9))
+	spark_ramp.add_point(0.75, Color(0.9, 0.25, 0.02, 0.5))
+	var spark_ramp_texture := GradientTexture1D.new()
+	spark_ramp_texture.gradient = spark_ramp
+	process.color_ramp = spark_ramp_texture
 	particles.process_material = process
 	var draw := SphereMesh.new()
 	draw.radius = 0.5
@@ -514,12 +512,85 @@ static func _add_furnace_fire_particles(root: Node3D) -> GPUParticles3D:
 	draw.rings = 3
 	particles.draw_pass_1 = draw
 	var spark_mat := StandardMaterial3D.new()
-	spark_mat.albedo_color = Color8(255, 170, 70)
+	spark_mat.vertex_color_use_as_albedo = true
+	spark_mat.albedo_color = Color.WHITE
 	spark_mat.emission_enabled = true
 	spark_mat.emission = Color8(255, 140, 40)
 	spark_mat.emission_energy_multiplier = 3.0
 	spark_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	particles.material_override = spark_mat
+	root.add_child(particles)
+	return particles
+
+
+static func _add_furnace_smoke_particles(root: Node3D) -> GPUParticles3D:
+	# Thin soot stream above the mouth: without it the fire looks weightless.
+	# Soft radial puffs grow, gray out, and dissolve as they clear the lintel.
+	var particles := GPUParticles3D.new()
+	particles.name = "FireSmoke"
+	particles.position = Vector3(0.0, 0.95, 0.55)
+	particles.amount = 12
+	particles.lifetime = 2.4
+	particles.preprocess = 1.6
+	particles.explosiveness = 0.0
+	particles.randomness = 0.5
+	particles.local_coords = true
+	particles.visibility_aabb = AABB(Vector3(-1.0, -0.4, -0.8), Vector3(2.0, 3.2, 1.6))
+	var process := ParticleProcessMaterial.new()
+	process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	process.emission_box_extents = Vector3(0.28, 0.05, 0.14)
+	process.direction = Vector3.UP
+	process.spread = 10.0
+	process.initial_velocity_min = 0.35
+	process.initial_velocity_max = 0.6
+	process.gravity = Vector3(0.0, 0.12, 0.0)
+	process.damping_min = 0.05
+	process.damping_max = 0.2
+	process.angular_velocity_min = -18.0
+	process.angular_velocity_max = 18.0
+	process.scale_min = 0.55
+	process.scale_max = 0.85
+	var smoke_scale := Curve.new()
+	smoke_scale.add_point(Vector2(0.0, 0.3))
+	smoke_scale.add_point(Vector2(0.4, 0.9))
+	smoke_scale.add_point(Vector2(1.0, 1.7))
+	var smoke_scale_texture := CurveTexture.new()
+	smoke_scale_texture.curve = smoke_scale
+	process.scale_curve = smoke_scale_texture
+	# Puffs darken and thin over life so the column dissolves instead of popping.
+	var smoke_ramp := Gradient.new()
+	smoke_ramp.set_color(0, Color(0.32, 0.28, 0.25, 0.0))
+	smoke_ramp.set_color(1, Color(0.16, 0.15, 0.14, 0.0))
+	smoke_ramp.add_point(0.25, Color(0.3, 0.27, 0.24, 0.3))
+	smoke_ramp.add_point(0.65, Color(0.22, 0.2, 0.19, 0.22))
+	var smoke_ramp_texture := GradientTexture1D.new()
+	smoke_ramp_texture.gradient = smoke_ramp
+	process.color_ramp = smoke_ramp_texture
+	particles.process_material = process
+	var quad := QuadMesh.new()
+	quad.size = Vector2(0.55, 0.55)
+	particles.draw_pass_1 = quad
+	var smoke_mat := StandardMaterial3D.new()
+	smoke_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	smoke_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	smoke_mat.vertex_color_use_as_albedo = true
+	# Procedural radial falloff keeps the puff soft without a texture asset.
+	var falloff := Gradient.new()
+	falloff.set_color(0, Color.WHITE)
+	falloff.set_color(1, Color(1.0, 1.0, 1.0, 0.0))
+	falloff.add_point(0.55, Color(1.0, 1.0, 1.0, 0.55))
+	var falloff_texture := GradientTexture2D.new()
+	falloff_texture.gradient = falloff
+	falloff_texture.fill = GradientTexture2D.FILL_RADIAL
+	falloff_texture.fill_from = Vector2(0.5, 0.5)
+	falloff_texture.fill_to = Vector2(1.0, 0.5)
+	smoke_mat.albedo_texture = falloff_texture
+	smoke_mat.albedo_color = Color.WHITE
+	smoke_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	smoke_mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	smoke_mat.billboard_keep_scale = true
+	particles.material_override = smoke_mat
+	particles.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(particles)
 	return particles
 

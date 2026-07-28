@@ -202,11 +202,46 @@ func test_smithy_furnace_uses_authored_masonry_and_keeps_live_fire() -> void:
 	)
 	assert_true(node.has_node("SmithyFurnaceModel"), "smithy furnace must instantiate the authored GLB")
 	assert_false(node.has_node("Mass"), "smithy furnace must not keep the stacked-box masonry")
-	for live_node in ["EmberBed", "CoalA", "FlameCore", "FireSparks", "ForgeFireLight"]:
+	for live_node in ["EmberBed", "CoalA", "ForgeFlames", "FireSparks", "FireSmoke", "ForgeFireLight"]:
 		assert_true(node.has_node(live_node), "authored furnace must retain dynamic %s" % live_node)
 	var ember := node.get_node("EmberBed") as MeshInstance3D
 	var ember_mat := ember.material_override as StandardMaterial3D
 	assert_true(ember_mat != null and ember_mat.emission_enabled, "ember bed must glow")
+
+	# The hearth flame must be layered particle fire, not pulsing solid blobs:
+	# billboard tongues with a lifetime color ramp and scale curve, sparks that
+	# cool and shrink over life, and a soft rising smoke column.
+	var flame_root := node.get_node("ForgeFlames") as Node3D
+	var flames := flame_root.get_node("OuterFlames") as GPUParticles3D
+	var hot_core := flame_root.get_node("HotCore") as GPUParticles3D
+	assert_true(flames != null and flames.emitting, "furnace flame must be an emitting particle system")
+	assert_true(hot_core != null and hot_core.emitting, "furnace flame needs a separate white-hot core layer")
+	var flame_process := flames.process_material as ParticleProcessMaterial
+	assert_true(flame_process != null, "furnace flame needs animated particle motion")
+	assert_true(flames.draw_pass_1 is ArrayMesh, "furnace flame needs tapered billboard tongues")
+	assert_true(flames.amount >= 16, "furnace flame needs overlapping tongues, not a few blobs")
+	assert_true(flame_process.color_ramp is GradientTexture1D, "flame tongues must cool through a color ramp")
+	assert_true(flame_process.scale_curve is CurveTexture, "flame tongues must grow and shrink over life")
+	var flame_draw_material := (flames.draw_pass_1 as ArrayMesh).surface_get_material(0) as StandardMaterial3D
+	assert_true(
+		flame_draw_material != null and flame_draw_material.blend_mode == BaseMaterial3D.BLEND_MODE_ADD,
+		"flame tongues must blend additively for a glowing core"
+	)
+
+	var sparks := node.get_node("FireSparks") as GPUParticles3D
+	var spark_process := sparks.process_material as ParticleProcessMaterial
+	assert_true(spark_process.color_ramp is GradientTexture1D, "sparks must cool from white-hot to dead red")
+	assert_true(spark_process.scale_curve is CurveTexture, "sparks must shrink as they burn out")
+
+	var smoke := node.get_node("FireSmoke") as GPUParticles3D
+	assert_true(smoke != null and smoke.emitting, "furnace needs a rising smoke column")
+	var smoke_process := smoke.process_material as ParticleProcessMaterial
+	assert_true(smoke_process != null and smoke_process.scale_curve is CurveTexture, "smoke puffs must expand over life")
+	var smoke_material := smoke.material_override as StandardMaterial3D
+	assert_true(
+		smoke_material != null and smoke_material.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA,
+		"smoke must render as soft translucent puffs"
+	)
 
 	var model := node.get_node("SmithyFurnaceModel") as Node3D
 	var meshes := model.find_children("*", "MeshInstance3D", true, false)
