@@ -1,0 +1,54 @@
+{
+  "asset_id": "creature.cattle",
+  "route": "leonardo_reference_to_hunyuan3d_to_blender_cleanup",
+  "source": "generated/comfyui/medieval_animals_v1/cattle_candidate.glb",
+  "source_sha256": "2226941a674653c6f56c2873b47f83387a2662aa1309043e6d1bdf69ebd5f972",
+  "output": "assets/animals/medieval/medieval_cattle.glb",
+  "output_sha256": "0ab4e9867b0d2754a6dd9c0249e31f6082b20daaeddee2209b0ee9214a45a801",
+  "raw": {
+    "vertices": 196093,
+    "polygons": 599660,
+    "triangles": 599660,
+    "components": 1,
+    "component_vertices": [
+      196093
+    ],
+    "boundary_edges": 13,
+    "non_manifold_edges": 260122,
+    "loose_vertices": 0
+  },
+  "production": {
+    "vertices": 3996,
+    "polygons": 8000,
+    "triangles": 8000,
+    "components": 1,
+    "component_vertices": [
+      3996
+    ],
+    "boundary_edges": 0,
+    "non_manifold_edges": 0,
+    "loose_vertices": 0
+  },
+  "discarded_raw_noise_components": 0,
+  "metric_dimensions_m_y_up": [
+    2.2,
+    1.45,
+    1.02
+  ],
+  "ground_min_y": 0.0,
+  "uv_sets": 1,
+  "materials": 1,
+  "texture_size": 512,
+  "static_prop": true,
+  "rigged": true,
+  "animations": [
+    "Idle-loop",
+    "Walk-loop"
+  ],
+  "animated_parts": [
+    "legs",
+    "neck",
+    "tail",
+    "eyes"
+  ]
+}

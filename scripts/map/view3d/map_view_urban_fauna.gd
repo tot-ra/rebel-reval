@@ -205,7 +205,9 @@ static func _wander_config(behavior: StringName, home: Vector3, radius: float) -
 
 
 func _advance_actor(actor: Node3D, listener_position: Vector3, delta: float) -> void:
+	var previous_position := actor.position
 	GroundWander.advance(actor, _map_id, listener_position, delta)
+	MedievalAnimalModels.sync_animation(actor, previous_position, delta)
 
 
 static func _pose_for_behavior(behavior: StringName, species: StringName) -> StringName:
