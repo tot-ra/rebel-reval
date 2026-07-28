@@ -5,12 +5,17 @@ const BirdMeshes := preload("res://scripts/map/view3d/map_view_bird_meshes.gd")
 const BirdSpecies := preload("res://scripts/map/view3d/map_view_bird_species.gd")
 
 
-func test_catalog_has_no_authored_glbs_yet() -> void:
+func test_catalog_uses_only_the_reviewed_authored_glbs() -> void:
+	var authored := {
+		BirdSpecies.SPECIES_MALLARD: BirdSpecies.POSE_STANDING,
+		BirdSpecies.SPECIES_HOUSE_SPARROW: BirdSpecies.POSE_PERCHED,
+	}
 	for species in BirdSpecies.ALL_SPECIES:
 		for pose in BirdSpecies.ALL_POSES:
-			assert_false(
+			assert_eq(
 				BirdAssets.has_authored_pose(species, pose),
-				"%s/%s should fall back to procedural geometry until P2-034+" % [species, pose]
+				authored.get(species, &"") == pose,
+				"Unexpected authored bird pose %s/%s" % [species, pose]
 			)
 		assert_false(
 			BirdAssets.has_complete_flap_cycle(species),
@@ -18,16 +23,21 @@ func test_catalog_has_no_authored_glbs_yet() -> void:
 		)
 
 
-func test_mesh_for_falls_back_to_procedural_geometry() -> void:
+func test_mesh_for_prefers_reviewed_authored_defaults_and_falls_back_for_the_rest() -> void:
 	BirdMeshes.reset_cache()
+	var authored_defaults: Array[StringName] = [
+		BirdSpecies.SPECIES_MALLARD,
+		BirdSpecies.SPECIES_HOUSE_SPARROW,
+	]
 	for species in BirdSpecies.ALL_SPECIES:
 		var pose := BirdSpecies.default_pose(species)
 		var mesh := BirdMeshes.mesh_for(species, pose)
 		assert_true(mesh is ArrayMesh, "%s needs a mesh" % species)
-		assert_false(BirdMeshes.uses_authored_mesh(species, pose))
+		assert_eq(BirdMeshes.uses_authored_mesh(species, pose), species in authored_defaults)
 		var stats := BirdMeshes.geometry_stats(species, pose)
 		assert_true(int(stats.get("triangles", 0)) >= 100)
-		assert_true(int(stats.get("triangles", 9999)) <= 512)
+		if species not in authored_defaults:
+			assert_true(int(stats.get("triangles", 9999)) <= 512)
 
 
 func test_gliding_flap_cycle_stays_procedural_without_authored_frames() -> void:
@@ -37,7 +47,9 @@ func test_gliding_flap_cycle_stays_procedural_without_authored_frames() -> void:
 	for mesh in cycle:
 		assert_true(mesh is ArrayMesh)
 		assert_true((mesh as ArrayMesh).get_surface_count() > 0)
-	assert_true(cycle[2] == BirdMeshes.mesh_for(BirdSpecies.SPECIES_HERRING_GULL, BirdSpecies.POSE_GLIDING))
+	var neutral := BirdMeshes.mesh_for(BirdSpecies.SPECIES_HERRING_GULL, BirdSpecies.POSE_GLIDING)
+	assert_true(neutral is ArrayMesh)
+	assert_true((cycle[2] as ArrayMesh).get_aabb().is_equal_approx(neutral.get_aabb()))
 
 
 func test_bird_asset_paths_follow_runtime_convention() -> void:
