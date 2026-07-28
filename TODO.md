@@ -22,12 +22,13 @@ References:
 |----------|-----:|-----:|-------|
 | P0 |     6  |    44  | Baseline, storage, materials, historical audit |
 | P1 |     0  |     8  | Runtime systems, content foundation |
-| P2 |     2  |    23  | Vertical-slice production (playable MVP) |
+| P2 |     2  |    24  | Vertical-slice production (playable MVP) |
 | P3 |     0  |    16  | Validation, accessibility, performance |
 | P4 |    21  |    42  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
-| R  |    28  |     3  | Historical research backlog (researcher-managed, cross-cutting) |
+| R  |    29  |     3  | Historical research backlog (researcher-managed, cross-cutting) |
+
 
 
 
@@ -124,7 +125,7 @@ References:
 <!-- P4-008a completed in current session -->
 <!-- P4-005 completed in current session -->
 <!-- P4-004 completed in current session -->
-<!-- P2-029 completed in current session -->
+<!-- P2-030 completed in current session -->
 <!-- P2-029 in progress in current session -->
 <!-- P2-028 completed in current session -->
 <!-- P2-027 completed in current session -->
@@ -196,7 +197,7 @@ Rows close through `review: canon` like all content work.
 
 ### Crafts and economy (Dev, Quest, Art)
 
-- [ ] R-012 | role: research | deps: none | deliverable: history/dossiers/crafts/guild-structure.md - Great Guild, St Canute and St Olaf guilds, craft ordinances, apprentice/journeyman/master progression, exclusion of Estonians | verify: yields the membership rules and obligations a forge-owner character would actually be bound by
+- [~] R-012 | role: research | deps: none | deliverable: history/dossiers/crafts/guild-structure.md - Great Guild, St Canute and St Olaf guilds, craft ordinances, apprentice/journeyman/master progression, exclusion of Estonians | verify: yields the membership rules and obligations a forge-owner character would actually be bound by | review: canon
 - [ ] R-013 | role: research | deps: R-004 | deliverable: history/dossiers/crafts/blacksmith-materials-and-techniques.md - iron and steel sources, charcoal, fluxes, forging and hardening technique, realistic task durations and failure modes | verify: gives quantities and durations a crafting system can model, each labelled attested or plausible composite
 - [ ] R-014 | role: research | deps: none | deliverable: history/dossiers/economy/coinage-prices-and-measures.md - Riga mark, artig, öre; prices of bread, beer, iron, tools, livestock; wages; weights and measures in use at Reval | verify: a price table with source and confidence per line, sufficient to set in-game shop values
 - [ ] R-015 | role: research | deps: none | deliverable: history/dossiers/economy/hanseatic-trade-and-season.md - goods through Reval, the Novgorod route, sailing season and ice, staple rules, merchant practice and credit | verify: states the April-May trade situation specifically and what stalls when the countryside rises
@@ -234,6 +235,7 @@ Rows close through `review: canon` like all content work.
 - [ ] R-038 | role: research | deps: R-007 | deliverable: history/dossiers/people/reval-council-prosopography-1340-1345.md - sitting burgomaster pairs and councillor turnover from Denkelbuch and AWB entries 1340–1345 | verify: every 1343–1345 name carries document date and source; no name presented without archival citation
 - [ ] R-039 | role: research | deps: R-008 | deliverable: history/dossiers/power/order-comptoir-transition-1343-1346.md - daily authority on Toompea between 16 May 1343 castle handover and 1 Nov 1346 sale: comptoir powers, council confirmations, what changes for Lower Town | verify: dated authority table for post-siege scenes with confidence labels per row
 - [ ] R-040 | role: research | deps: R-010 | deliverable: history/dossiers/power/reval-law-codex-arms-and-watch.md - 1257/1282 Lübeck codex articles on burgher arms, watch obligation, gate fines, and muster as applied in Reval | verify: cited article numbers or ordinance excerpts with confidence labels for 1343 enforcement
+- [ ] R-041 | role: research | deps: R-012 | deliverable: history/dossiers/crafts/schmiede-amt-ordinances-pre-1363.md - Schmiede *Amt* rules, fines, and masterpiece requirements before 1363 council Schragen; Tallinn City Archives pass | verify: at least three cited craft-offence-to-penalty pairs usable in forge quest outcomes
 
 ## P6 - Act 3: The Iron Harvest and full release (lowest priority)
 
@@ -398,6 +400,7 @@ Rows close through `review: canon` like all content work.
 - [x] P2-027 | claim: cursor-agent@2026-07-28 | deps: none | deliverable: authored smithy `forge_anvil` GLB with deterministic Blender generator, Godot import, and Henning `work_chair` seating alignment from the authored prop position | allowed files: `tools/generate_smithy_anvil.py`, `assets/props/forge/smithy_anvil.glb`, `assets/props/forge/*.import`, `generated/blender/smithy_anvil_v1/**`, `scripts/map/view3d/map_view_mesh_builder_prop_models.gd`, `scenes/reval_east/forge/forge.gd`, `scenes/reval_east/forge/smithy_henning.gd`, `tests/godot/test_forge_prop_meshes.gd`, `tests/godot/test_smithy_henning.gd`, `assets/SOURCES.csv`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_forge_prop_meshes` passes 6/6 including `test_smithy_anvil_uses_detailed_glb_without_replacing_courtyard_fallback`; `--filter=test_smithy_henning` passes 3/3 including `test_henning_sitting_origin_tracks_the_authored_work_chair`; `python3 tools/verify_asset_lint.py` stays green
 - [x] P2-028 | claim: cursor-agent@2026-07-28 | deps: none | deliverable: authored smithy `forge_furnace` and `forge_bellows` GLBs with deterministic Blender generator, Godot import at stable prop IDs, live-fire retention on the furnace, and procedural fallbacks for non-smithy maps | allowed files: `tools/generate_smithy_forge_props.py`, `assets/props/forge/smithy_furnace.glb`, `assets/props/forge/smithy_bellows.glb`, `assets/props/forge/*.import`, `generated/blender/smithy_furnace_v1/**`, `generated/blender/smithy_bellows_v1/**`, `scripts/map/view3d/map_view_mesh_builder_prop_models.gd`, `tests/godot/test_forge_prop_meshes.gd`, `assets/SOURCES.csv`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_forge_prop_meshes` passes 8/8 including `test_smithy_furnace_uses_authored_masonry_and_keeps_live_fire` and `test_smithy_bellows_uses_authored_leather_mechanism`; new `assets/SOURCES.csv` rows cover both GLBs
 - [x] P2-029 | claim: cursor-agent@2026-07-28 | deps: none | deliverable: deterministic 1343 Reval gate-leaf and raised-portcullis GLB kit wired into `gate_arch` landmarks at Viru Gate and foregate | allowed files: `tools/generate_medieval_gate_kit.py`, `assets/props/architecture/gates/**`, `generated/blender/medieval_gate_kit_v1/**`, `scripts/map/view3d/map_view_mesh_builder_landmarks.gd`, `content/maps/lower_town_slice.rrmap`, `tests/godot/test_medieval_gate_assets.gd`, `tests/godot/test_map_view_3d_fortification.gd`, `tests/godot/test_lower_town_slice_map.gd`, `tests/godot/test_map_view_static_batcher.gd`, `assets/SOURCES.csv`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_medieval_gate_assets` passes 2/2; `--filter=test_map_view_3d_fortification` and `--filter=test_lower_town_slice_map` stay green; `python3 tools/verify_asset_lint.py` passes; Viru Gate `gate_arch` shows open ironbound leaves and raised portcullis without blocking the walkable passage
+- [x] P2-030 | claim: cursor-agent@2026-07-28 | deps: none | deliverable: authored smithy `bed` GLB with deterministic Blender generator, Godot import at stable prop ID, derived albedo sidecar provenance, and generic bed fallback for non-smithy maps | allowed files: `tools/generate_smithy_bed.py`, `assets/props/furniture/smithy_bed.glb`, `assets/props/furniture/smithy_bed_*_albedo.png`, `assets/props/furniture/*.import`, `generated/blender/smithy_bed/**`, `scripts/map/view3d/map_view_mesh_builder_prop_models.gd`, `tests/godot/test_forge_prop_meshes.gd`, `assets/SOURCES.csv`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_forge_prop_meshes` passes 8/8 including `test_smithy_bed_uses_detailed_glb_and_keeps_generic_fallback`; `python3 tools/validate_asset_sources.py` and `python3 tools/verify_asset_lint.py` stay green; derived oak/linen/wool albedo PNGs are tracked with SOURCES.csv rows
 - [ ] P2-004 | deps: P0-040,P1-029 | deliverable: approved low-poly character models and AI-generated portraits for Kalev, Mart, Aita, Kaja, Henning, and Jürgen | verify: all six use the shared P0-037 rig and animation library, differ only by texture/equipment/silhouette swaps, pass asset lint, and match art-bible silhouette and palette rules
 ### Large
 
