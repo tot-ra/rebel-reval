@@ -1,0 +1,1 @@
+{"id":"prop.wooden_cart","kind":"rigid_prop","target":"res://assets/props/vehicles/wooden_cart.glb","scene":"res://content/maps/viru_gate_foreland.rrmap#west.farm_cart","dimensions_m":[1.06,2.5,1.0],"triangles":{"target":4500,"max":8000},"textures":{"albedo":512},"style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}

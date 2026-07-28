@@ -25,6 +25,7 @@ const SMITHY_CHAIR_PROP_ID := &"work_chair"
 const SMITHY_QUENCH_SCENE_PATH := "res://assets/props/forge/smithy_quench_bucket.glb"
 const SMITHY_QUENCH_PROP_ID := &"quench"
 const SMITHY_BED_SCENE_PATH := "res://assets/props/furniture/smithy_bed.glb"
+const CartModels := preload("res://scripts/map/view3d/map_view_cart_models.gd")
 const SMITHY_BED_PROP_ID := &"bed"
 const SACRED_GROVE_ANCIENT_OAK_SCENE_PATH := "res://assets/props/environment/sacred_grove_ancient_oak.glb"
 
@@ -114,10 +115,7 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			# the gameplay-owned climb/collision footprint.
 			HayMeshes.add_rick(root, "HayRick", int(String(prop["id"]).hash()))
 		MapTypes.PROP_KIND_CART:
-			MapViewMeshBuilderPrimitives.box(root, "Bed", Vector3(1.6, 0.16, 0.9), Vector3(0.0, 0.6, 0.0), &"wood")
-			MapViewMeshBuilderPrimitives.cylinder(root, "WheelLeft", 0.34, 0.1, Vector3(-0.45, 0.34, 0.5), &"wood", true)
-			MapViewMeshBuilderPrimitives.cylinder(root, "WheelRight", 0.34, 0.1, Vector3(-0.45, 0.34, -0.5), &"wood", true)
-			MapViewMeshBuilderPrimitives.box(root, "Handle", Vector3(0.9, 0.08, 0.5), Vector3(1.1, 0.62, 0.0), &"wood")
+			CartModels.add_model(root)
 		MapTypes.PROP_KIND_WELL:
 			MapViewMeshBuilderPrimitives.cylinder(root, "Ring", 0.55, 0.5, Vector3(0.0, 0.25, 0.0), &"stone")
 			MapViewMeshBuilderPrimitives.cylinder(root, "Water", 0.42, 0.06, Vector3(0.0, 0.49, 0.0), &"water_highlight")

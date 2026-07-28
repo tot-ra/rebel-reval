@@ -1,0 +1,34 @@
+{
+  "asset_id": "prop.wooden_cart",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "e4a9b8f0bed60cf2aac16abf5fbe06fefb2f27367598e2f842f01ef05ed56743",
+  "checks": {
+    "embedded_albedo": true,
+    "floating_geometry": true,
+    "ground_contact": true,
+    "metric_scale": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "uvs": true,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    1.16,
+    2.4515,
+    1.0
+  ],
+  "faces": 2168,
+  "floating_objects": 0,
+  "generator": "tools/generate_wooden_cart.py",
+  "ground_min_z": 0.0,
+  "materials": 3,
+  "mesh_objects": 2,
+  "preview": "generated/blender/wooden_cart_v1/preview.png",
+  "route": "deterministic_blender",
+  "sha256": "30cab6f2fa9edff9d951430ba7beee978d27c92629ba407bbc77f1c80f71e2c8",
+  "surfaces": 4,
+  "texture_size": 512,
+  "triangles": 4240,
+  "uv_sets": 1,
+  "vertices": 2256
+}

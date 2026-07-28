@@ -7,6 +7,7 @@ extends RefCounted
 
 const _Primitives := preload("res://scripts/map/view3d/map_view_mesh_builder_primitives.gd")
 const _HayMeshes := preload("res://scripts/map/view3d/map_view_hay_meshes.gd")
+const _CartModels := preload("res://scripts/map/view3d/map_view_cart_models.gd")
 
 
 static func add_to(root: Node3D, kind: StringName) -> void:
@@ -117,11 +118,4 @@ static func _add_orchard_row(root: Node3D) -> void:
 
 
 static func _add_farm_cart(root: Node3D) -> void:
-	_Primitives.box(root, "Axle", Vector3(0.92, 0.07, 0.1), Vector3(0.0, 0.16, 0.0), &"timber")
-	for wheel_x in [-0.34, 0.34]:
-		_Primitives.cylinder(root, "Wheel%d" % int((wheel_x + 0.34) * 10.0), 0.2, 0.07, Vector3(wheel_x, 0.2, 0.24), &"wood")
-		_Primitives.cylinder(root, "WheelBack%d" % int((wheel_x + 0.34) * 10.0), 0.2, 0.07, Vector3(wheel_x, 0.2, -0.24), &"wood")
-	_Primitives.box(root, "Bed", Vector3(0.78, 0.08, 0.62), Vector3(0.0, 0.28, 0.0), &"wood")
-	_Primitives.box(root, "ShaftL", Vector3(0.06, 0.06, 0.42), Vector3(-0.18, 0.24, 0.46), &"timber")
-	_Primitives.box(root, "ShaftR", Vector3(0.06, 0.06, 0.42), Vector3(0.18, 0.24, 0.46), &"timber")
-	_Primitives.box(root, "Crate", Vector3(0.28, 0.18, 0.22), Vector3(0.04, 0.36, -0.04), &"plaster")
+	_CartModels.add_model(root)
