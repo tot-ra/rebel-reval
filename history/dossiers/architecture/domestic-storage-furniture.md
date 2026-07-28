@@ -52,6 +52,7 @@ No searched source supplied a dated 1343 Reval household inventory distinguishin
 ## Cross-references
 
 - [`burgher-house-plan.md`](burgher-house-plan.md) - places chests and storage within affluent and ordinary Lower Town house plans.
+- [`../dailylife/food-and-drink.md`](../dailylife/food-and-drink.md) - grain, beer, and dry goods stored in chests and cellars.
 - [`smithy-workshop-layout.md`](smithy-workshop-layout.md) - establishes shelves and pegs as work storage rather than a modern wardrobe.
 
 ## Open questions

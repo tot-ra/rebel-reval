@@ -284,13 +284,14 @@ Manifest rows: [`history/reference/plates.csv`](../../reference/plates.csv). In-
 - [`smithy-workshop-layout.md`](smithy-workshop-layout.md) — forge as a fire-separated hot-trade variant of the workshop house (R-004).
 - [`../crafts/guild-structure.md`](../crafts/guild-structure.md) — Schmiede *Amt* under St Canute; master/journeyman/apprentice tiers for workshop household layout.
 - [`toompea-castle-and-upper-town.md`](toompea-castle-and-upper-town.md) — contrast hill vassal housing with Lower Town diele-dornse merchant fabric.
+- [`../dailylife/food-and-drink.md`](../dailylife/food-and-drink.md) — cellar beer storage and living-bay hearth cooking.
 
 ## Open questions
 
 - Measured **room dimensions** for 1343 Reval interiors — no unaltered 1343 house survives; worth a dedicated comparanda pass from Lübeck/Riga if a future row needs exact metre counts.
 - **Glazing vs shutter** prevalence on timber front houses in the 1340s — no quantified Reval source found.
 - Whether **attic hoists** were already standard on timber-front merchant houses in the 1340s or mainly a stone-facade merchant feature.
-- **Interior furnishings** by status (bed forms, table ware, textile hangings) — needs dailylife pass (R-022).
+- **Interior furnishings** by status (bed forms, table ware, textile hangings) — see [`food-and-drink.md`](../dailylife/food-and-drink.md); clothing pass remains R-023.
 - **Rear stone Hinterhaus** square-plan prevalence specifically in the 1340s vs 15th-c. consolidation [1].
 
 ## Sources

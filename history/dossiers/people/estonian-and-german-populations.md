@@ -131,6 +131,7 @@ Johansen notes **Scandinavian and Russian merchant settlements** around **St Ola
 - [`../crafts/guild-structure.md`](../crafts/guild-structure.md) — Estonian St Canute membership pre-uprising; apprenticeship tiers.
 - [`../military/watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) — burgher watch; Estonian squad fits here.
 - [`../architecture/burgher-house-plan.md`](../architecture/burgher-house-plan.md) — who lives in diele vs service wing.
+- [`../dailylife/food-and-drink.md`](../dailylife/food-and-drink.md) — beer-excise collectors; labourer vs burgher meal tiers.
 - [`../military/arms-and-armour-livonia-1340s.md`](../military/arms-and-armour-livonia-1340s.md) — faction kit by group.
 
 ## Open questions

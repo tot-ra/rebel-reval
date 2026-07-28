@@ -142,6 +142,7 @@ You are dressing **Catholic Reval in April–May 1343**, one week before and thr
 - [`../crafts/guild-structure.md`](../crafts/guild-structure.md) — which craft umbrella funds which parish chapels.
 - [`../military/watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) — parish bells as alarm and curfew signals.
 - [`../hinterland/harju-village-and-manor.md`](../hinterland/harju-village-and-manor.md) — Padise abbey and rural parish framework.
+- [`../dailylife/food-and-drink.md`](../dailylife/food-and-drink.md) — Dominican brewery and fish-and-beer economy in eastern lanes.
 - [`../topography/back-lanes-east-of-pikk.md`](../topography/back-lanes-east-of-pikk.md) (R-032) — Katariina käik cloister passage and Müürivahe wall lane east of Pikk blocks.
 - [`./liturgical-calendar-spring-1343.md`](./liturgical-calendar-spring-1343.md) — Easter, holy days, and St George feast dates for parish processions.
 

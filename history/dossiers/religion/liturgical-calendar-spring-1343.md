@@ -139,6 +139,7 @@ You are scheduling **Catholic time in Julian-calendar Reval** for the playable *
 - [`spring-climate-and-living-world.md`](../nature/spring-climate-and-living-world.md) — outdoor dressing for St George's Night and May battles.
 - [`guild-structure.md`](../crafts/guild-structure.md) — St Canute feast oaths and umbrella guild masses.
 - [`harju-village-and-manor.md`](../hinterland/harju-village-and-manor.md) — rural tithe pressure and St George mobilisation.
+- [`food-and-drink.md`](../dailylife/food-and-drink.md) — Lent fast foods, Easter feast resumption, and post-Easter burgher diet.
 - [`../../TIMELINE.md`](../../TIMELINE.md) — attested campaign dates.
 
 ## Open questions

@@ -42,7 +42,7 @@ You are dressing **Reval in the last cold weeks before harvest**, not a lush hig
 | **11 May 1343** | Battle of Kanavere Bog | Wet meadow/bog margin vegetation; cavalry on soft ground | attested [1] |
 | **14 May 1343** | Sõjamäe defeat | Open fields south of town; late-spring grass, not harvest stubble | attested [1] |
 
-Easter 1343 fell **before** St George's Day — Lent fasting and **pre-harvest scarcity** still shape town diet (see R-022) `plausible composite` [3][14].
+Easter 1343 fell **before** St George's Day — Lent fasting and **pre-harvest scarcity** still shape town diet [`food-and-drink.md`](../dailylife/food-and-drink.md) `plausible composite` [3][14].
 
 ### Weather, temperature, and light
 
@@ -152,6 +152,7 @@ Register fetched files under `history/reference/nature/spring-climate-and-living
 - [`TIMELINE.md`](../../TIMELINE.md) — dated campaign events April–May 1343.
 - [`hanseatic-trade-and-season.md`](../economy/hanseatic-trade-and-season.md) — ice-break sailing season and interior supply stall after 23 April.
 - [`liturgical-calendar-spring-1343.md`](../religion/liturgical-calendar-spring-1343.md) — Easter 13 April and St George 23 April weekday anchors.
+- [`food-and-drink.md`](../dailylife/food-and-drink.md) — pre-harvest diet scarcity and siege grain tension.
 
 ## Open questions
 
@@ -175,7 +176,7 @@ Register fetched files under `history/reference/nature/spring-climate-and-living
 11. [`docs/FLORA_FAUNA.md`](../../../docs/FLORA_FAUNA.md) — bird/plant runtime ledger (project).
 12. P0-106 / P2-024 penned and urban fauna implementation notes in [`docs/FLORA_FAUNA.md`](../../../docs/FLORA_FAUNA.md) (project).
 13. [`archbishops_garden.rrmap`](../../../content/maps/archbishops_garden.rrmap) — authored spring garden crop IDs (project map).
-14. R-022 deliverable [`food-and-drink.md`](../dailylife/food-and-drink.md) — pre-harvest scarcity (backlog).
+14. [`food-and-drink.md`](../dailylife/food-and-drink.md) — pre-harvest scarcity and status-tier meals (project dossier).
 15. [`harbour-and-shoreline.md`](../topography/harbour-and-shoreline.md) — wet margin, roadstead, April trade moment.
 16. [`docs/HISTORICAL_AUDIT.md`](../../../docs/HISTORICAL_AUDIT.md) — ground surface mud/earth vs cobble bands for Lower Town.
 17. [`docs/FLORA_FAUNA.md`](../../../docs/FLORA_FAUNA.md) — wild mammal margin rules (wolf/bear outside routes).

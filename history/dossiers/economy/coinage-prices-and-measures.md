@@ -10,6 +10,7 @@ related:
   - ../people/town-council-and-officers.md
   - ../topography/old-market-vanaturg.md
   - ./hanseatic-trade-and-season.md
+  - ../dailylife/food-and-drink.md
 updated: 2026-07-28
 ---
 
@@ -133,6 +134,7 @@ All nominal prices in **Lübeck schilling (ßl.)** and **pfennig (d.)** unless m
 - [`../people/town-council-and-officers.md`](../people/town-council-and-officers.md) — Kämmerer and council collect fines in the same units.
 - [`../topography/old-market-vanaturg.md`](../topography/old-market-vanaturg.md) — forum and harbour throat where steelyards and money-changers sit.
 - [`./hanseatic-trade-and-season.md`](./hanseatic-trade-and-season.md) — April–May siege scarcity multiplier and what trade flows stall after St George's Night.
+- [`../dailylife/food-and-drink.md`](../dailylife/food-and-drink.md) — bread, beer, and fish prices applied to status-tier meals.
 
 ## Open questions
 

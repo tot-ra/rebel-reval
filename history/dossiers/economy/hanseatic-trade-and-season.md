@@ -160,6 +160,7 @@ Hanseatic practice: **larger ships lay up November–March** on the Baltic; **sp
 - [`../religion/liturgical-calendar-spring-1343.md`](../religion/liturgical-calendar-spring-1343.md) — **authoritative Easter 13 April** and Lent end; supersedes Easter date in this dossier pending canon reconcile.
 - [`../power/jurisdictions-of-reval.md`](../power/jurisdictions-of-reval.md) — 11 May grain levy and council–crown seam.
 - [`../crafts/guild-structure.md`](../crafts/guild-structure.md) — Great Guild warehouse and trade restrictions (R-012).
+- [`../dailylife/food-and-drink.md`](../dailylife/food-and-drink.md) — Lent herring trade and post-siege grain/beer scarcity.
 
 ## Open questions
 

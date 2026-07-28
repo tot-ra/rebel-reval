@@ -17,8 +17,6 @@ updated: 2026-07-28
 
 # Food and drink (Spring 1343 Reval)
 
-## Brief for Character / Art / Dialogue
-
 You are feeding **April–May 1343 Lower Town Reval** — a **Hanseatic port under Danish rule**, one week after **Easter (13 April Julian)** and through **St George's Night (23 April)** and the **May siege**.
 
 **Ship these decisions:**
