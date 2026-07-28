@@ -30,7 +30,13 @@ func test_showcase_definition_is_valid_and_complete() -> void:
 
 func test_showcase_includes_review_variants_and_animation_catalogs() -> void:
 	assert_eq(Definition.GATE_SPECS.size(), 3, "oak, ironbound, and portcullis need dedicated samples")
-	assert_eq(AssetShowcase.HUMANOID_SCENES.size(), 7, "all current humanoid character scenes need comparison samples")
+	assert_eq(AssetShowcase.HUMANOID_SCENES.size(), 8, "all current humanoid character scenes need comparison samples")
+	assert_true(
+		AssetShowcase.HUMANOID_SCENES.any(
+			func(scene: PackedScene) -> bool: return scene.resource_path.ends_with("danish_warrior.tscn")
+		),
+		"debug showcase must include the Danish warrior"
+	)
 	assert_eq(SharedCharacterRig.CANONICAL_ANIMATIONS.size(), 15)
 	assert_eq(CatRig.REQUIRED_ANIMATIONS.size(), 5)
 	assert_true(ResourceLoader.exists(AssetShowcase.CART_SCENE_PATH, "PackedScene"))

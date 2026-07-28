@@ -7,6 +7,7 @@ extends "res://scripts/global/BaseLevel.gd"
 const Definition := preload("res://scenes/debug/asset_showcase_definition.gd")
 const HUMANOID_SCENES: Array[PackedScene] = [
 	preload("res://assets/characters/kalev/kalev.tscn"),
+	preload("res://assets/characters/variants/danish_warrior.tscn"),
 	preload("res://assets/characters/variants/henning.tscn"),
 	preload("res://assets/characters/variants/innkeeper.tscn"),
 	preload("res://assets/characters/variants/mart.tscn"),

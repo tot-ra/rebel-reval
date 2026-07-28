@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CharacterVariant" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://assets/characters/shared/character_variant.gd" id="1_variant"]
+[ext_resource type="PackedScene" path="res://assets/characters/shared/spear.tscn" id="2_spear"]
+
+[resource]
+script = ExtResource("1_variant")
+stable_id = &"char.danish_warrior"
+material_tint = Color(1, 1, 1, 1)
+equipment = ExtResource("2_spear")
+animation_overrides = {
+&"walk": &"Walking_B"
+}

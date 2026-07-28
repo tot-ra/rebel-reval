@@ -1,0 +1,14 @@
+{
+  "cache_key": "081e3ace8316cf891cde03da1cf2df7950026b64cb211e128040b2b8b22ce907",
+  "output_sha256": {
+    "hero": "748a58fcaa1ac00502c9b87a15db0383215b1adc56ace213225a2f8e36c59d5a",
+    "mart": "46f7a9474672d7f9263423369c2b2427ef739c3152ad188a38ed2791ef9ab705",
+    "henning": "4b2bd78eb26805c2e9ca9e2d86ef7d16a4998102a17888b94d80de065d345ca2",
+    "innkeeper": "93eae71d6743300b50797908e5b7305fc077f1d3e2ea461c6cd7ebf331526925",
+    "watchman": "4825c45b57adba0c287ec9330c3d9acf7c62c2b04f801d4d398fd0b297fe5d4c",
+    "sergeant": "c671575ed7393e07531977055e820b16ebf5296283276cbaefcec0d6c7f0fdce",
+    "townswoman": "0123607b95f6310b66ac367eaa97f933648c3b42ae2ee6213ebcee365bf7df50",
+    "danish_warrior": "0a4245c9a5e5829ac2908df940825852ad500b6d58e82e08d2beddebab6fb8fe"
+  },
+  "status": "verified"
+}

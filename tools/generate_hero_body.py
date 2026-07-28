@@ -26,6 +26,10 @@ import bpy
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 from character_specs import spec as character_spec  # noqa: E402
+from hero_body_anatomy_builder import (  # noqa: E402
+    build_anatomical_limbs,
+    build_anatomical_torso,
+)
 from hero_body_context import BodyContext  # noqa: E402
 from hero_body_head_builder import build_head  # noqa: E402
 from hero_body_limb_builder import build_limbs  # noqa: E402
@@ -54,6 +58,7 @@ PALETTE = {
     "eye_white": (0.78, 0.76, 0.68, 1.0),
     "lips": (0.48, 0.25, 0.20, 1.0),
     "armor": (0.45, 0.47, 0.50, 1.0),
+    "mail": (0.40, 0.43, 0.45, 1.0),
     "outerwear": (0.28, 0.20, 0.14, 1.0),
     "trim": (0.55, 0.40, 0.24, 1.0),
     "cape": (0.42, 0.24, 0.14, 1.0),
@@ -87,6 +92,7 @@ def _material(name: str) -> bpy.types.Material:
         "belt": 0.64,
         "outerwear": 0.76,
         "armor": 0.38,
+        "mail": 0.47,
     }.get(name, 0.88)
     specular = {
         "skin": 0.28,
@@ -96,10 +102,11 @@ def _material(name: str) -> bpy.types.Material:
         "boots": 0.24,
         "belt": 0.24,
         "armor": 0.62,
+        "mail": 0.48,
     }.get(name, 0.16)
     bsdf.inputs["Roughness"].default_value = roughness
     if "Metallic" in bsdf.inputs:
-        bsdf.inputs["Metallic"].default_value = 0.72 if name == "armor" else 0.0
+        bsdf.inputs["Metallic"].default_value = 0.72 if name in ("armor", "mail") else 0.0
     if "Specular IOR Level" in bsdf.inputs:
         bsdf.inputs["Specular IOR Level"].default_value = specular
     return material
@@ -119,12 +126,26 @@ def generate(character: str) -> None:
 
     armature = find_armature()
     context = BodyContext.from_armature(armature)
-    parts: list[PartBuilder] = [
-        build_torso(context, selected["shape"], selected["features"]),
-        build_head(context, selected["shape"], selected["face"], selected["features"]),
-    ]
-    parts.extend(build_limbs(context, selected["shape"], selected["features"]))
-    body_objects = [part.build(armature, _material) for part in parts]
+    body_parts: list[PartBuilder]
+    if selected["features"]["anatomical_layers"]:
+        # Opt-in prototypes keep the proven skeleton/clip contract but author
+        # skin below independent clothing, with muscle landmarks in the body
+        # profile. Existing characters remain byte-for-byte rebuild compatible.
+        body_parts = [
+            build_anatomical_torso(context, selected["shape"]),
+            build_torso(context, selected["shape"], selected["features"]),
+            build_head(context, selected["shape"], selected["face"], selected["features"]),
+        ]
+        body_parts.extend(
+            build_anatomical_limbs(context, selected["shape"], selected["features"])
+        )
+    else:
+        body_parts = [
+            build_torso(context, selected["shape"], selected["features"]),
+            build_head(context, selected["shape"], selected["face"], selected["features"]),
+        ]
+        body_parts.extend(build_limbs(context, selected["shape"], selected["features"]))
+    body_objects = [part.build(armature, _material) for part in body_parts]
 
     # Report stature so the rig scene can pin its uniform model scale.
     crown = (

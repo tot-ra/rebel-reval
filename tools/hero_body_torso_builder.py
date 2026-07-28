@@ -19,6 +19,12 @@ def build_torso(context: BodyContext, shape: dict, features: dict) -> PartBuilde
     chest_breadth = shape["chest_breadth"]
 
     torso = PartBuilder("Hero_Torso", frame, bulk=shape["bulk"])
+    if features["anatomical_layers"]:
+        # The anatomical builder owns skin and limbs. This builder contributes
+        # only fitted torso clothing and role-specific outerwear above it.
+        _add_anatomical_clothing(torso, context, shape, features)
+        _add_outerwear(torso, context, shape, features["outerwear"])
+        return torso
     torso.start_tube()
     # Pelvis cap; hidden under a long tunic skirt, visible with a short one.
     torso.ring(
@@ -134,6 +140,67 @@ def build_torso(context: BodyContext, shape: dict, features: dict) -> PartBuilde
                 rings=9,
             )
     return torso
+
+
+def _add_anatomical_clothing(
+    torso: PartBuilder, context: BodyContext, shape: dict, features: dict
+) -> None:
+    """Build a fitted tunic or mail shell outside the anatomical skin.
+
+    A small radial clearance prevents z-fighting while preserving ribcage,
+    waist, and pelvic landmarks. Profession/rank outerwear is added afterward
+    by the existing role-specific builder, keeping clothing independent from
+    the body envelope.
+    """
+    up = context.frame.up
+    scale = context.scale
+    belly = shape["belly"]
+    chest = shape["chest_breadth"]
+    material = "mail" if features["armor_style"] == "mail" else "tunic"
+
+    torso.start_tube()
+    if features["tunic_length"] == "long":
+        torso.ring(
+            context.knee_center + up * 0.04 * scale,
+            up,
+            0.168 * scale,
+            0.111 * scale,
+            {"hips": 1.0},
+            material,
+        )
+        torso.ring(
+            context.mid_thigh,
+            up,
+            0.157 * scale,
+            0.113 * scale,
+            {"hips": 1.0},
+            material,
+        )
+    else:
+        torso.ring(
+            context.hips - up * 0.13 * scale,
+            up,
+            0.151 * scale * belly,
+            0.111 * scale * belly,
+            {"hips": 1.0},
+            material,
+        )
+    for center, side_radius, front_radius, weights in (
+        (context.hips - up * 0.03 * scale, 0.148 * belly, 0.109 * belly, {"hips": 1.0}),
+        (context.waist, 0.122 * belly, 0.096 * belly, blend_weights("hips", "spine", 0.5)),
+        (context.chest_height, 0.169 * chest, 0.114, blend_weights("spine", "chest", 0.65)),
+        (context.shoulder_line, 0.190 * chest, 0.108, {"chest": 1.0}),
+        (context.neck_base - up * 0.015 * scale, 0.068, 0.062, {"chest": 1.0}),
+    ):
+        torso.ring(
+            center,
+            up,
+            side_radius * scale,
+            front_radius * scale,
+            weights,
+            material,
+        )
+    torso.cap(context.neck_base + up * 0.005 * scale, {"chest": 1.0}, material)
 
 
 def _add_outerwear(

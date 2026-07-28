@@ -64,6 +64,7 @@ const HEROIC_MODEL_SCALE := Vector3(1.1621, 1.1621, 1.1621)
 @export var model_scale: Vector3 = HEROIC_MODEL_SCALE
 const OCCLUDED_SILHOUETTE_SHADER := preload("res://assets/characters/shared/occluded_silhouette.gdshader")
 const HEAD_SCALE_MODIFIER := preload("res://assets/characters/shared/head_scale_modifier.gd")
+const ANATOMICAL_MUSCLE_MODIFIER := preload("res://assets/characters/shared/anatomical_muscle_modifier.gd")
 ## Head bone origin is mid-skull; this clears crown / helmet before the talk glyph.
 const HEAD_CROWN_OFFSET := 0.30
 ## Gap between crown and the bottom of the billboard talk glyph.
@@ -72,6 +73,8 @@ const PROMPT_GLYPH_PADDING := 0.14
 static var _occluded_silhouette_material: ShaderMaterial
 
 @export var variant: CharacterVariant
+## All generated humanoids use the shared pose-driven muscle response.
+@export var use_anatomical_muscles: bool = true
 @export var start_animation: StringName = &"idle"
 @export_range(0.1, 5.0, 0.01) var visible_height_world: float = 2.0
 
@@ -88,7 +91,7 @@ func _ready() -> void:
 	_animation_player = _find_animation_player($Model)
 	_skeleton = _find_skeleton($Model)
 	_apply_variant()
-	_install_head_scale()
+	_install_proportion_modifiers()
 	play_animation(start_animation)
 
 
@@ -112,12 +115,18 @@ static func _detach_render_geometry(root: Node) -> void:
 ## Adult proportions are baked into the generated heroic_humanoid.glb; the
 ## modifier stays neutral by default and exists as a per-variant fine-tune
 ## hook (slightly different head/limb builds without new meshes).
-func _install_head_scale() -> void:
+func _install_proportion_modifiers() -> void:
 	if _skeleton == null:
 		return
-	var modifier := HEAD_SCALE_MODIFIER.new()
-	modifier.name = "RealisticProportions"
-	_skeleton.add_child(modifier)
+	var proportions := HEAD_SCALE_MODIFIER.new()
+	proportions.name = "RealisticProportions"
+	_skeleton.add_child(proportions)
+	if use_anatomical_muscles:
+		# Added after general proportions so contraction is the final, small
+		# pose-driven correction and cannot change the authored rest skeleton.
+		var muscles := ANATOMICAL_MUSCLE_MODIFIER.new()
+		muscles.name = "AnatomicalMuscles"
+		_skeleton.add_child(muscles)
 
 func canonical_animation_names() -> Array[StringName]:
 	var names: Array[StringName] = []

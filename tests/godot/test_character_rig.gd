@@ -7,6 +7,7 @@ const HENNING_SCENE := preload("res://assets/characters/variants/henning.tscn")
 const TOWNSWOMAN_SCENE := preload("res://assets/characters/variants/townswoman.tscn")
 const WATCHMAN_SCENE := preload("res://assets/characters/variants/watchman.tscn")
 const SERGEANT_SCENE := preload("res://assets/characters/variants/sergeant.tscn")
+const DANISH_WARRIOR_SCENE := preload("res://assets/characters/variants/danish_warrior.tscn")
 const REQUIRED_ANIMATIONS: Array[StringName] = [
 	&"idle",
 	&"walk",
@@ -403,6 +404,58 @@ func test_watchman_and_sergeant_are_distinguishable_without_color_cues() -> void
 	henning.queue_free()
 	watchman.queue_free()
 	sergeant.queue_free()
+
+
+func test_all_humanoids_use_anatomical_body_clothing_and_muscle_system() -> void:
+	var scenes: Array[PackedScene] = [
+		KALEV_SCENE,
+		MART_SCENE,
+		INNKEEPER_SCENE,
+		HENNING_SCENE,
+		TOWNSWOMAN_SCENE,
+		WATCHMAN_SCENE,
+		SERGEANT_SCENE,
+		DANISH_WARRIOR_SCENE,
+	]
+	for scene: PackedScene in scenes:
+		var character := _instantiate(scene)
+		assert_eq(character.validation_errors(), [], "%s must preserve the shared rig contract" % character.name)
+		assert_true(
+			character.skeleton().has_node("AnatomicalMuscles"),
+			"%s must install pose-driven muscle response" % character.name
+		)
+		var has_anatomy := false
+		var has_clothing := false
+		for found: Node in character.get_node("Model").find_children("*", "MeshInstance3D", true, false):
+			has_anatomy = has_anatomy or found.name.begins_with("Anatomy_")
+			has_clothing = has_clothing or found.name.begins_with("Clothing_")
+		assert_true(has_anatomy, "%s needs a bone-derived anatomical envelope" % character.name)
+		assert_true(has_clothing, "%s needs clothing outside the body envelope" % character.name)
+		character.queue_free()
+
+
+func test_danish_warrior_is_a_distinct_animated_spear_variant() -> void:
+	var warrior := _instantiate(DANISH_WARRIOR_SCENE)
+	assert_eq(warrior.variant_id(), &"char.danish_warrior")
+	assert_true(warrior.has_equipment(), "Danish garrison warrior needs a spear silhouette")
+	assert_true(warrior.play_animation(&"walk"))
+	assert_eq(warrior.animation_player().current_animation, &"Walking_B")
+	assert_true(warrior.has_animation(&"guard"))
+	warrior.queue_free()
+
+
+func test_anatomical_muscle_volume_responds_to_joint_bend() -> void:
+	var warrior := _instantiate(DANISH_WARRIOR_SCENE)
+	var skeleton := warrior.skeleton()
+	var muscles := skeleton.get_node("AnatomicalMuscles")
+	var elbow := skeleton.find_bone("lowerarm.l")
+	var upper_arm := skeleton.find_bone("upperarm.l")
+	skeleton.set_bone_pose_rotation(elbow, Quaternion(Vector3.FORWARD, deg_to_rad(90.0)))
+	muscles.call("_process_modification")
+	var contracted := skeleton.get_bone_pose_scale(upper_arm)
+	assert_true(contracted.x > 1.02 and contracted.z > 1.02, "bent arm must gain transverse muscle volume")
+	assert_true(contracted.y < 1.0, "bent arm muscle must shorten along the bone")
+	warrior.queue_free()
 
 
 func _shoulder_span(character: SharedCharacterRig) -> float:

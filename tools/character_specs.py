@@ -55,6 +55,10 @@ BASE_PROPORTIONS = {
 #   tunic sleeve, skin to the wrist)
 # - tunic_length: "long" (knee hem) | "short" (hip hem)
 # - outerwear: "none" | "apron" | "vest" | "surcoat" | "kirtle"
+# - armor_style: "none" | "mail"; mail replaces the torso/upper-sleeve shell
+#   while leaving the anatomical skin envelope and cloth layers independent.
+# - anatomical_layers: build skin, muscle-shaped silhouette, and clothing as
+#   separate skinned meshes around the same skeleton.
 # - pauldrons: shoulder armor plates baked into the body glb
 BASE_FEATURES = {
     "hair_style": "full",
@@ -62,6 +66,8 @@ BASE_FEATURES = {
     "sleeve_style": "long",
     "tunic_length": "long",
     "outerwear": "none",
+    "armor_style": "none",
+    "anatomical_layers": True,
     "pauldrons": False,
 }
 
@@ -363,6 +369,61 @@ CHARACTERS = {
         },
         "output": "assets/characters/shared/sergeant.glb",
         "garments": ["hat"],
+    },
+    # Danish crown man-at-arms reference for the Toompea garrison. Unlike the
+    # Lower Town burgher watch, he can plausibly carry a mail hauberk; the red
+    # and off-white cloth identifies Danish allegiance without claiming a
+    # modern national uniform. His body uses the same anatomy-first skeleton,
+    # muscle, skin, and clothing contract as every other generated humanoid.
+    "danish_warrior": {
+        "proportions": {
+            "leg_length": 1.88,
+            "arm_length": 1.27,
+            "torso_length": 0.91,
+            "shoulder_width": 0.90,
+            "hip_socket_width": 0.98,
+            "hand_size": 0.84,
+        },
+        "shape": {
+            "bulk": 1.04,
+            "chest_breadth": 1.08,
+            "belly": 1.0,
+            "head_scale": 0.97,
+        },
+        "face": {
+            "width": 1.0,
+            "depth": 1.02,
+            "length": 1.05,
+            "jaw_width": 1.08,
+            "nose_length": 1.04,
+            "eye_spacing": 0.97,
+            "brow_height": 0.91,
+        },
+        "palette": {
+            "skin": (0.74, 0.55, 0.41, 1.0),
+            "tunic": (0.80, 0.77, 0.67, 1.0),
+            "sleeves": (0.76, 0.74, 0.68, 1.0),
+            "sleeve_band": (0.48, 0.10, 0.09, 1.0),
+            "pants": (0.36, 0.13, 0.12, 1.0),
+            "boots": (0.22, 0.14, 0.09, 1.0),
+            "belt": (0.35, 0.20, 0.11, 1.0),
+            "hair": (0.30, 0.22, 0.15, 1.0),
+            "beard": (0.27, 0.19, 0.13, 1.0),
+            "mail": (0.38, 0.41, 0.43, 1.0),
+            "outerwear": (0.48, 0.10, 0.09, 1.0),
+            "trim": (0.82, 0.77, 0.61, 1.0),
+        },
+        "features": {
+            "hair_style": "short",
+            "beard_style": "short",
+            "sleeve_style": "long",
+            "tunic_length": "short",
+            "outerwear": "surcoat",
+            "armor_style": "mail",
+            "anatomical_layers": True,
+        },
+        "output": "assets/characters/shared/danish_warrior.glb",
+        "garments": [],
     },
     # A slighter townswoman frame: shorter and narrower than the hero, with
     # long hair and an ankle-length tunic reading as a dress. Base body for

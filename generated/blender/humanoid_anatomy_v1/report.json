@@ -1,0 +1,96 @@
+{
+  "asset": "character.humanoid_anatomy_v1",
+  "characters": {
+    "hero": {
+      "sha256": "748a58fcaa1ac00502c9b87a15db0383215b1adc56ace213225a2f8e36c59d5a",
+      "bytes": 3846360,
+      "triangles": 38448,
+      "meshes": 15,
+      "anatomy_meshes": 7,
+      "clothing_meshes": 6,
+      "skins": 1,
+      "animations": 76
+    },
+    "mart": {
+      "sha256": "46f7a9474672d7f9263423369c2b2427ef739c3152ad188a38ed2791ef9ab705",
+      "bytes": 3827088,
+      "triangles": 37776,
+      "meshes": 15,
+      "anatomy_meshes": 7,
+      "clothing_meshes": 6,
+      "skins": 1,
+      "animations": 76
+    },
+    "henning": {
+      "sha256": "4b2bd78eb26805c2e9ca9e2d86ef7d16a4998102a17888b94d80de065d345ca2",
+      "bytes": 3840464,
+      "triangles": 38016,
+      "meshes": 15,
+      "anatomy_meshes": 7,
+      "clothing_meshes": 6,
+      "skins": 1,
+      "animations": 76
+    },
+    "innkeeper": {
+      "sha256": "93eae71d6743300b50797908e5b7305fc077f1d3e2ea461c6cd7ebf331526925",
+      "bytes": 3836108,
+      "triangles": 38160,
+      "meshes": 15,
+      "anatomy_meshes": 7,
+      "clothing_meshes": 6,
+      "skins": 1,
+      "animations": 76
+    },
+    "watchman": {
+      "sha256": "4825c45b57adba0c287ec9330c3d9acf7c62c2b04f801d4d398fd0b297fe5d4c",
+      "bytes": 3834904,
+      "triangles": 37776,
+      "meshes": 15,
+      "anatomy_meshes": 7,
+      "clothing_meshes": 6,
+      "skins": 1,
+      "animations": 76
+    },
+    "sergeant": {
+      "sha256": "c671575ed7393e07531977055e820b16ebf5296283276cbaefcec0d6c7f0fdce",
+      "bytes": 3839148,
+      "triangles": 38016,
+      "meshes": 15,
+      "anatomy_meshes": 7,
+      "clothing_meshes": 6,
+      "skins": 1,
+      "animations": 76
+    },
+    "townswoman": {
+      "sha256": "0123607b95f6310b66ac367eaa97f933648c3b42ae2ee6213ebcee365bf7df50",
+      "bytes": 3831820,
+      "triangles": 37680,
+      "meshes": 15,
+      "anatomy_meshes": 7,
+      "clothing_meshes": 6,
+      "skins": 1,
+      "animations": 76
+    },
+    "danish_warrior": {
+      "sha256": "0a4245c9a5e5829ac2908df940825852ad500b6d58e82e08d2beddebab6fb8fe",
+      "bytes": 3872036,
+      "triangles": 39264,
+      "meshes": 15,
+      "anatomy_meshes": 7,
+      "clothing_meshes": 6,
+      "skins": 1,
+      "animations": 76
+    }
+  },
+  "checks": [
+    "python_compile",
+    "two_full_rebuilds_same_sha256",
+    "godot_import",
+    "21_character_rig_tests",
+    "asset_showcase_tests",
+    "debug_showcase_startup",
+    "closeup_render"
+  ],
+  "result": "pass",
+  "known_limit": "Muscle contraction is a restrained skeletal-scale approximation, not soft-body simulation."
+}
