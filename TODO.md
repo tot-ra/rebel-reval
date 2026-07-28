@@ -27,7 +27,8 @@ References:
 | P4 |    21  |    42  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
-| R  |    27  |    10  | Historical research backlog (researcher-managed, cross-cutting) |
+| R  |    27  |    11  | Historical research backlog (researcher-managed, cross-cutting) |
+
 
 
 
@@ -124,6 +125,7 @@ References:
 
 
 <!-- R-004 completed in current session -->
+<!-- R-006 completed in current session -->
 <!-- R-008 completed in current session -->
 <!-- R-003 completed in current session -->
 <!-- R-025 completed in current session -->
@@ -195,13 +197,14 @@ Rows close through `review: canon` like all content work.
 - [x] R-003 | claim: cursor-agent@2026-07-28 | role: research | deps: none | deliverable: history/dossiers/architecture/burgher-house-plan.md - Lower Town house typology: cellar, Diele hall, storey heights, hoisting beam, hearth, window and roof treatment | verify: yields a labelled floor-plan description and interior prop list an art and map pass can build from | review: canon
 - [x] R-004 | claim: cursor-agent@2026-07-28 | role: research | deps: R-003 | deliverable: history/dossiers/architecture/smithy-workshop-layout.md - forge building layout: hearth, bellows, anvil placement, quench, fuel and stock storage, fire regulation, smoke handling | verify: supports the forge core loop with sourced spatial and equipment detail plus at least one fire-risk rule | review: canon
 - [x] R-005 | claim: cursor-agent@2026-07-28 | role: research | deps: none | deliverable: history/dossiers/topography/harbour-and-shoreline.md - 1343 shoreline, harbour and roadstead, quay and crane practice, Härjapea river mouth, ship types calling at Reval | verify: distinguishes 1343 shoreline from the modern coast and names what a harbour scene may and may not show | review: canon
-- [~] R-006 | role: research | deps: none | deliverable: history/dossiers/architecture/toompea-castle-and-upper-town.md - Danish castle, Dome church, vassal residences, upper/lower town boundary and its gates | verify: separates attested 1343 fabric from later rebuilding, with the boundary control points named | review: canon
+- [x] R-006 | claim: cursor-agent@2026-07-28 | role: research | deps: none | deliverable: history/dossiers/architecture/toompea-castle-and-upper-town.md - Danish castle, Dome church, vassal residences, upper/lower town boundary and its gates | verify: separates attested 1343 fabric from later rebuilding, with the boundary control points named | review: canon
 
 ### People, power, military (Character, Quest, Narrative)
 
 - [~] R-007 | role: research | deps: none | deliverable: history/dossiers/people/town-council-and-officers.md - council composition, offices, election, terms, and any attested councillor names near 1343 | verify: every named person carries a date range and a source; invented fillers are labelled and kept separate | review: canon
 - [x] R-008 | claim: cursor-agent@2026-07-28 | role: research | deps: none | deliverable: history/dossiers/power/jurisdictions-of-reval.md - who holds authority over whom between town council, Danish captain, vassalry, bishop, and the Livonian Order, and where the seams are | verify: produces a jurisdiction table a quest designer can use to construct a legally plausible conflict | review: canon
-- [ ] R-009 | role: research | deps: R-008 | deliverable: history/dossiers/power/law-courts-and-punishment.md - court procedure, oath-helping, evidence, fines, pillory, banishment, execution, and who could be tried where | verify: at least five distinct sourced offence-to-consequence pairs usable as quest outcomes
+- [~] R-009 | role: research | deps: R-008 | deliverable: history/dossiers/power/law-courts-and-punishment.md - court procedure, oath-helping, evidence, fines, pillory, banishment, execution, and who could be tried where | verify: at least five distinct sourced offence-to-consequence pairs usable as quest outcomes | review: canon
+- [ ] R-045 | role: research | deps: R-006 | deliverable: fetch link-only `architecture.toompea-castle-and-upper-town.04` and `.05` reference plates after Wikimedia rate-limit clears | verify: `python3 tools/research/fetch_reference_plates.py --slug toompea-castle-and-upper-town --verify` reports six fetched plates with no linked rows
 - [~] R-010 | role: research | deps: none | deliverable: history/dossiers/military/watch-duty-and-town-defence.md - burgher watch obligation, muster, gate control, curfew, alarm signals, arms a townsman was required to own | verify: states a concrete nightly watch routine and the arms requirement by status tier | review: canon
 - [x] R-011 | claim: cursor-agent@2026-07-28 | role: research | deps: none | deliverable: history/dossiers/military/arms-and-armour-livonia-1340s.md - what a Reval smith made, repaired, and could not make; Order versus rebel equipment; materials and costs | verify: separates smith-producible items from imported ones and lists at least ten items with materials | review: canon
 - [~] R-026 | role: research | deps: none | deliverable: history/dossiers/people/estonian-and-german-populations.md - who actually lived inside and outside the walls: Estonian townsfolk, servants, German burghers, clergy, transients, and their legal standing | verify: gives population composition with confidence labels and names the status markers a character designer must respect | review: canon
@@ -247,7 +250,7 @@ Rows close through `review: canon` like all content work.
 - [ ] R-039 | role: research | deps: R-008 | deliverable: history/dossiers/power/order-comptoir-transition-1343-1346.md - daily authority on Toompea between 16 May 1343 castle handover and 1 Nov 1346 sale: comptoir powers, council confirmations, what changes for Lower Town | verify: dated authority table for post-siege scenes with confidence labels per row
 - [ ] R-040 | role: research | deps: R-010 | deliverable: history/dossiers/power/reval-law-codex-arms-and-watch.md - 1257/1282 Lübeck codex articles on burgher arms, watch obligation, gate fines, and muster as applied in Reval | verify: cited article numbers or ordinance excerpts with confidence labels for 1343 enforcement
 - [ ] R-041 | role: research | deps: R-012 | deliverable: history/dossiers/crafts/schmiede-amt-ordinances-pre-1363.md - Schmiede *Amt* rules, fines, and masterpiece requirements before 1363 council Schragen; Tallinn City Archives pass | verify: at least three cited craft-offence-to-penalty pairs usable in forge quest outcomes
-- [ ] R-042 | role: research | deps: R-037,R-029 | deliverable: history/dossiers/topography/forum-neck-paving-tieline.md - measured forum SSE corner to Vanaturu kael slab/pebble transition from combined Raekoja and AVE trench data | verify: single labelled edge segment with confidence labels connecting zone F and zone T polygons
+- [ ] R-043 | role: research | deps: R-009,R-029 | deliverable: history/dossiers/topography/forum-pillory-placement-1337.md - measured pillory position on 1343 forum polygon reconciling 1337 attestation with raekoja-plats extents | verify: single labelled coordinate with confidence on authoring polygon cited from both dossiers
 - [ ] R-043 | role: research | deps: R-011 | deliverable: history/dossiers/military/lower-town-weapon-finds-1340s.md - archaeological weapon and armour fragments from Lower Town occupation layers and Jahu/Lootsi waste exports c. 1340–1450 | verify: typed find list with layer dates, confidence labels, and gap statement for absent categories
 - [ ] R-044 | role: research | deps: R-026 | deliverable: history/dossiers/people/estonian-burgers-prosopography-pre-1343.md - named Estonian *Bürger* and permanent residents from AWB and Johansen name-stock tables before St George's Night | verify: every name carries document date and source; distinguishes citizen from resident without upgrading status
 

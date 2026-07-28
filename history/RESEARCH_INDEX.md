@@ -45,9 +45,9 @@ Domains and their scope are defined in the
 | Domain | Scope | Status | Dossiers | Open backlog | Primary consumers |
 |--------|-------|--------|----------|--------------|-------------------|
 | `topography` | city plan, walls, gates, plots, harbour | partial | [`lower-town-street-plan`](dossiers/topography/lower-town-street-plan.md) (partial), [`walls-gates-towers`](dossiers/topography/walls-gates-towers.md) (partial), [`harbour-and-shoreline`](dossiers/topography/harbour-and-shoreline.md) (solid), [`raekoja-plats-extents-1343`](dossiers/topography/raekoja-plats-extents-1343.md) (partial), [`pikk-lai-frontage-materials-1340s`](dossiers/topography/pikk-lai-frontage-materials-1340s.md) (partial), [`old-market-vanaturg`](dossiers/topography/old-market-vanaturg.md) (solid), [`viru-vanaturg-paving-archaeology`](dossiers/topography/viru-vanaturg-paving-archaeology.md) (partial) | R-032–R-033, R-036 | Map, Dev |
-| `architecture` | building types, floor plans, interiors | partial | [`burgher-house-plan`](dossiers/architecture/burgher-house-plan.md) (solid), [`smithy-workshop-layout`](dossiers/architecture/smithy-workshop-layout.md) (solid), [`toompea-castle-and-upper-town`](dossiers/architecture/toompea-castle-and-upper-town.md) (partial) | R-035 | Map, Art |
+| `architecture` | building types, floor plans, interiors | partial | [`burgher-house-plan`](dossiers/architecture/burgher-house-plan.md) (solid), [`smithy-workshop-layout`](dossiers/architecture/smithy-workshop-layout.md) (solid), [`toompea-castle-and-upper-town`](dossiers/architecture/toompea-castle-and-upper-town.md) (solid) | R-035, R-045 | Map, Art |
 | `people` | named residents, households, name stock | partial | [`town-council-and-officers`](dossiers/people/town-council-and-officers.md) (partial), [`estonian-and-german-populations`](dossiers/people/estonian-and-german-populations.md) (partial) | R-007, R-026, R-038 | Character, Narrative |
-| `power` | council, jurisdictions, law, punishment | partial | [`jurisdictions-of-reval`](dossiers/power/jurisdictions-of-reval.md) (solid) | R-009 | Quest, Narrative |
+| `power` | council, jurisdictions, law, punishment | partial | [`jurisdictions-of-reval`](dossiers/power/jurisdictions-of-reval.md) (solid), [`law-courts-and-punishment`](dossiers/power/law-courts-and-punishment.md) (partial) | R-040 | Quest, Narrative |
 | `military` | garrison, watch, arms, fortification, siege | partial | [`watch-duty-and-town-defence`](dossiers/military/watch-duty-and-town-defence.md) (partial), [`arms-and-armour-livonia-1340s`](dossiers/military/arms-and-armour-livonia-1340s.md) (partial) | R-040 | Quest, Art, Dev |
 | `crafts` | guilds, trades, workshops, tools, smithing | partial | [`guild-structure`](dossiers/crafts/guild-structure.md) (partial) | R-013, R-027, R-041 | Dev, Art, Quest |
 | `economy` | trade, goods, prices, coin, measures | absent | - | R-014, R-015 | Dev, Quest |
@@ -73,7 +73,7 @@ roles directly.
 | 2026-07-27 | research | Tallinn City Archives pass on 1340–1343 AWB entries for explicit Pikk/Lai street names | [`pikk-lai-frontage-materials-1340s`](dossiers/topography/pikk-lai-frontage-materials-1340s.md) |
 | 2026-07-28 | research | Denkelbuch / AWB folio read for sitting burgomaster pair and December 1343 council election names | [`town-council-and-officers`](dossiers/people/town-council-and-officers.md) |
 | 2026-07-28 | research | Tallinn City Archives / AWB pass for named Estonian *Bürger* before 1343 | [`estonian-and-german-populations`](dossiers/people/estonian-and-german-populations.md) |
-| 2026-07-28 | art | Licensed fetch or museum permission for Virunuka / Siksälä textile find photography (urban Estonian dress gap) | [`estonian-and-german-populations`](dossiers/people/estonian-and-german-populations.md) |
+| 2026-07-28 | research | Reconcile 1337 pillory attestation with forum polygon in raekoja-plats dossier | [`law-courts-and-punishment`](dossiers/power/law-courts-and-punishment.md) |
 
 ## Maintenance
 
