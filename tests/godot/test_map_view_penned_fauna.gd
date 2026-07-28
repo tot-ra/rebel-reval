@@ -90,8 +90,8 @@ func test_lower_town_authors_five_placements_under_cap() -> void:
 	assert_true(PennedFauna.placement_count_for_map(&"lower_town_slice") <= PennedFauna.MAX_CONCURRENT_FAUNA)
 
 
-func test_foreland_authors_nine_placements_under_cap() -> void:
-	assert_eq(PennedFauna.placement_count_for_map(&"viru_gate_foreland"), 9)
+func test_foreland_authors_ten_placements_under_cap() -> void:
+	assert_eq(PennedFauna.placement_count_for_map(&"viru_gate_foreland"), 10)
 	assert_true(PennedFauna.placement_count_for_map(&"viru_gate_foreland") <= PennedFauna.MAX_CONCURRENT_FAUNA)
 
 

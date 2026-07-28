@@ -66,6 +66,7 @@ const FORELAND_PLACEMENTS: Array[Dictionary] = [
 	{"cell": Vector2i(121, 79), "species": MammalSpecies.SPECIES_GOOSE, "behavior": BEHAVIOR_PEN, "radius": 2.0},
 	{"cell": Vector2i(146, 89), "species": MammalSpecies.SPECIES_PIG, "behavior": BEHAVIOR_PEN, "radius": 2.4},
 	{"cell": Vector2i(125, 86), "species": MammalSpecies.SPECIES_COW, "behavior": BEHAVIOR_TETHER, "radius": 3.0},
+	{"cell": Vector2i(132, 84), "species": &"goat", "behavior": BEHAVIOR_TETHER, "radius": 2.2},
 	{"cell": Vector2i(20, 8), "species": MammalSpecies.SPECIES_HARE, "behavior": BEHAVIOR_FLEE, "radius": 4.0},
 	{"cell": Vector2i(8, 30), "species": MammalSpecies.SPECIES_RED_FOX, "behavior": BEHAVIOR_FLEE, "radius": 5.0},
 	{"cell": Vector2i(155, 115), "species": MammalSpecies.SPECIES_WOLF, "behavior": BEHAVIOR_FLEE, "radius": 6.0},

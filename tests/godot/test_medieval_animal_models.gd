@@ -7,7 +7,7 @@ const UrbanFauna := preload("res://scripts/map/view3d/map_view_urban_fauna.gd")
 
 
 func test_production_models_load_with_mesh_material_and_ground_contact() -> void:
-	for species: StringName in [MammalSpecies.SPECIES_COW, MammalSpecies.SPECIES_PIG, MammalSpecies.SPECIES_SHEEP, MammalSpecies.SPECIES_HORSE]:
+	for species: StringName in [MammalSpecies.SPECIES_CHICKEN, MammalSpecies.SPECIES_DUCK, &"goat", MammalSpecies.SPECIES_COW, MammalSpecies.SPECIES_PIG, MammalSpecies.SPECIES_SHEEP, MammalSpecies.SPECIES_HORSE]:
 		var host := Node3D.new()
 		var model := Models.add_model(host, species)
 		assert_true(model != null, "%s needs an imported production model" % species)

@@ -14,10 +14,22 @@ const ANIMATION_PLAYER_META := &"animal_animation_player"
 # Runtime loading avoids a clean-clone parse cycle before Godot has imported the
 # new GLBs for the first time.
 const MODEL_PATHS: Dictionary = {
+	MammalSpecies.SPECIES_CHICKEN: "res://assets/animals/hendrik_reyneke/chicken.glb",
+	MammalSpecies.SPECIES_DUCK: "res://assets/birds/mallard/standing.glb",
+	&"goat": "res://assets/animals/hendrik_reyneke/goat.glb",
 	MammalSpecies.SPECIES_COW: "res://assets/animals/medieval/medieval_cattle.glb",
 	MammalSpecies.SPECIES_PIG: "res://assets/animals/medieval/medieval_pig.glb",
 	MammalSpecies.SPECIES_SHEEP: "res://assets/animals/medieval/medieval_sheep.glb",
 	MammalSpecies.SPECIES_HORSE: "res://assets/animals/medieval/medieval_pack_horse.glb",
+	# Town cats are the same production cat as Kalev's, dressed in another coat.
+	MammalSpecies.SPECIES_CAT: "res://assets/characters/cat/cat_rig.tscn",
+}
+
+## Yaw applied to a model so its nose points along -Z, which is the direction
+## ambient actors are turned toward by `look_at` while walking. The cat rig is
+## authored facing +Z for `SharedCharacterRig`.
+const MODEL_YAW: Dictionary = {
+	MammalSpecies.SPECIES_CAT: PI,
 }
 
 
@@ -34,6 +46,7 @@ static func add_model(parent: Node3D, species: StringName) -> Node3D:
 	var model := scene.instantiate() as Node3D
 	assert(model != null, "Medieval animal GLB root must be Node3D: %s" % path)
 	model.name = "Model"
+	model.rotation.y = float(MODEL_YAW.get(species, 0.0))
 	model.set_meta(&"production_animal_model", true)
 	model.set_meta(&"species", species)
 	parent.add_child(model)
@@ -48,8 +61,8 @@ static func sync_animation(actor: Node3D, previous_position: Vector3, delta: flo
 	if player == null:
 		return
 	var displacement := Vector2(actor.position.x - previous_position.x, actor.position.z - previous_position.z)
-	var wanted := WALK_ANIMATION if displacement.length_squared() > 0.0000001 else IDLE_ANIMATION
-	if not player.has_animation(wanted) or player.current_animation == wanted:
+	var wanted := _clip_name(player, WALK_ANIMATION if displacement.length_squared() > 0.0000001 else IDLE_ANIMATION)
+	if wanted.is_empty() or player.current_animation == wanted:
 		return
 	player.play(wanted, 0.18)
 	if wanted == WALK_ANIMATION:
@@ -65,5 +78,15 @@ static func _configure_animation(parent: Node3D, model: Node3D) -> void:
 		return
 	var player := players[0] as AnimationPlayer
 	parent.set_meta(ANIMATION_PLAYER_META, player)
-	if player.has_animation(IDLE_ANIMATION):
-		player.play(IDLE_ANIMATION)
+	var idle := _clip_name(player, IDLE_ANIMATION)
+	if not idle.is_empty():
+		player.play(idle)
+
+
+## Livestock GLBs ship capitalised clip names; the cat rig ships the lowercase
+## canonical names shared with the character rigs. Accept either.
+static func _clip_name(player: AnimationPlayer, canonical: StringName) -> String:
+	for candidate in [String(canonical), String(canonical).to_lower()]:
+		if player.has_animation(candidate):
+			return candidate
+	return ""
