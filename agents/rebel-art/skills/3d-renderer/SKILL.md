@@ -81,6 +81,37 @@ Do not save `.blend` when the script fully reproduces the result. Give Blender g
 
 Use one object, pose, and view on a uniform background, with 10% margins and no floor, shadow, text, scenery, or pedestal. Animated subjects use a neutral separated-limb pose. Default to a front three-quarter view. Generate one image; retry at most twice for cropping, duplication, merged anatomy, or background contamination, then switch source method.
 
+### Creature realism gate
+
+For pigs, sheep, cattle, horses, dogs, and other animals, target **anatomical and husbandry realism inside the binding non-photoreal art direction**. Realism means a species-correct silhouette, believable skeletal landmarks and weight distribution, plausible age/body condition, historically appropriate phenotype and tack, and restrained coat materials. It does not mean photoreal shaders, dense strand fur, or modern show-breed exaggeration.
+
+Add `species`, `sex_age`, `use`, `phenotype`, `anatomy_reference`, and `pose` to the compact brief. For a historical setting, source the regional period phenotype; when evidence is incomplete, describe a generic unimproved landrace and record the assumption instead of inventing a named breed. Base dimensions on withers/shoulder height and nose-to-rump length, not on a generated mesh's bounds.
+
+Use this reference pattern, replacing the bracketed fields:
+
+```text
+full-body anatomically credible [species, sex/age, use], [sourced regional-period phenotype], natural body condition, species-correct head-to-body ratio and leg joints, weight evenly supported in a neutral square stance, all four legs and feet clearly visible and separated, tail and ears clear of the body, restrained natural coat variation, realistic form adapted to the approved game art direction, eye-level front three-quarter view, even soft lighting, isolated on a uniform mid-gray background, 10% margin; no ground, cast shadow, scenery, text, extra limbs, merged legs, oversized head or eyes, inflated torso, peg legs, fantasy features, modern show-breed exaggeration, dramatic pose, or accessories not named in the brief
+```
+
+Use species-specific cues without replacing a sourced anatomy reference:
+
+| Animal | Minimum silhouette/anatomy cues |
+|---|---|
+| Pig | Low long torso, wedge-shaped head and mobile snout, short correctly articulated legs, cloven hooves; no generic wild-boar tusks or ridge unless sourced. |
+| Sheep | Narrow muzzle, distinct neck/chest under the fleece, visible lower legs, cloven hooves; fleece follows the body instead of forming a spherical cloud. |
+| Horse | Defined withers and sloped shoulder, deep ribcage, readable knees/hocks/fetlocks, one hoof per leg; use a sourced medieval riding, cart, or pack type rather than a modern sport/show breed. |
+| Cattle | Long load-bearing torso, distinct shoulder/pelvis and plausible dewlap, cloven hooves, age/sex-appropriate horns and udder or sheath only when specified. |
+
+Generate the base animal without equipment by default. Model harness, packs, blankets, collars, and similar tack as separate geometry when required, so anatomy remains reviewable and the animal stays reusable. For quadrupeds, reject the 2D reference before 3D generation unless:
+
+- the spine, shoulder, pelvis, chest, and belly read as one plausible load-bearing body;
+- all four limbs have species-correct joint direction and reach the same ground plane;
+- feet are distinct and correct for the species, including cloven hooves for pigs/sheep/cattle and single hooves for horses;
+- muzzle, eyes, ears, horns/tusks when applicable, and tail have plausible placement and scale;
+- the silhouette remains recognizable without coat color or texture detail.
+
+Use the single allowed visual approval on this reference before the expensive 3D run when anatomy or historical phenotype is uncertain. A clean background cannot compensate for an anatomically weak source.
+
 ### Workflow
 
 Store verified API workflows as versioned files. Call `comfyui_run_workflow` with `workflow_path` and small `input_overrides`; never inline the full workflow JSON in tool calls or chat.
@@ -107,6 +138,8 @@ Use image previews, not verbose textual descriptions. Rigid props need one three
 
 Reject duplicate bodies, collapsed depth, fused/missing major parts, floating geometry, severe holes, or wrong identity/proportions. High polygon count, noisy topology, small manifold defects, and missing UV/rig are cleanup defects if the silhouette is good.
 
+For animals, audit shape before topology cleanup. Compare orthographic front/side/back renders against the brief's anatomy reference and record `anatomy_decision`, `scale_basis`, and short defect codes in `report.json`. Reject rather than repair when the candidate has incorrect limb count or joint direction, fused weight-bearing legs, malformed feet/hooves, implausible head/torso proportions, broken spine or chest volume, or equipment fused into the body. Retopology and decimation can preserve good anatomy, but they do not turn a malformed reconstruction into a realistic animal.
+
 ## 5. Persist minimal state
 
 Keep `state.json` next to staging output:
@@ -127,6 +160,7 @@ Scripted verification must cover:
 - polygon cap, normals/tangents, UVs, and portable materials;
 - metric scale, axes, origin, and ground contact;
 - rig deformation/idle when applicable;
+- animal anatomy review against the approved reference at front/side/back views, including feet, joint bends, ground contact, body proportions, and equipment separation;
 - clean Godot import and one target-scene render;
 - unchanged gameplay collision/navigation unless explicitly authorized.
 
