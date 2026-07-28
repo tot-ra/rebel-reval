@@ -3,16 +3,16 @@ base shape. Single reproducible pipeline:
 
   retopo (voxel quad) -> feline paw rework + flat ground contact -> light
   de-blocking smooth -> single UV set -> 1024 AO + short-fur normal bake ->
-  charcoal-gray fur material -> quadruped rig + auto weights -> 4-6s looping
-  idle (root fixed, paws locked) -> production GLB + LOD1/LOD2 + report.
+  charcoal-gray fur material -> quadruped rig + auto weights -> five canonical
+  ambient clips -> production GLB + LOD1/LOD2 + report.
 
 Run: blender -b --python production_build.py
 
 WHY a fresh clean mesh instead of decimating the raw 187k candidate: the source
 has 2169 non-manifold + 6 boundary edges and no UV/rig. Voxel remesh over the
 approved silhouette yields a manifold, all-quad, single-component base that we
-can UV, bake, rig and animate. The existing in-game cat rig is NOT touched; this
-is a separate reviewable candidate pending final visual + in-engine approval.
+can UV, bake, rig and animate. The runtime `CatRig` adapter instances the final
+GLB while keeping forge collision and navigation logic unchanged.
 """
 
 import bpy, bmesh, json, math, os
@@ -319,45 +319,143 @@ def build_rig(obj):
     return arm, wmode
 
 
-def make_idle(arm):
-    """5s (150f @30fps) seamless idle: breathing, small head dip, tail sway.
-    Root fixed, all four paw/leg bones untouched -> paws locked to ground."""
+def _begin_action(arm, name, frame_end):
+    """Create an armature action with a complete neutral-pose baseline.
+
+    WHY every clip keys every bone at its boundaries: Godot blends directly
+    between imported clips. Complete tracks prevent an unkeyed leg or tail from
+    inheriting the previous state when the cat changes routine.
+    """
     scene = bpy.context.scene
     scene.render.fps = 30
-    scene.frame_start = 1; scene.frame_end = 150
+    scene.frame_start = 1; scene.frame_end = frame_end
     bpy.context.view_layer.objects.active = arm
-    bpy.ops.object.mode_set(mode="POSE")
-    act = bpy.data.actions.new("idle")
+    if arm.mode != "POSE":
+        bpy.ops.object.mode_set(mode="POSE")
+    act = bpy.data.actions.new(name)
     arm.animation_data_create(); arm.animation_data.action = act
+    act.use_fake_user = True
     pb = arm.pose.bones
+
+    for b in pb:
+        b.rotation_mode = "XYZ"
+        b.rotation_euler = (0, 0, 0)
+        b.location = (0, 0, 0)
+        b.scale = (1, 1, 1)
+        for frame in (1, frame_end):
+            b.keyframe_insert("rotation_euler", frame=frame)
+            b.keyframe_insert("location", frame=frame)
 
     def key(bone, frame, rot=None, loc=None):
         b = pb.get(bone)
-        if not b: return
+        if not b:
+            return
         if rot is not None:
             b.rotation_mode = "XYZ"; b.rotation_euler = rot
             b.keyframe_insert("rotation_euler", frame=frame)
         if loc is not None:
             b.location = loc; b.keyframe_insert("location", frame=frame)
 
-    # breathing on chest/spine (subtle), matched first=last for seamless loop
-    breaths = [(1, 0.0), (45, 0.02), (75, 0.028), (110, 0.015), (150, 0.0)]
-    for f, a in breaths:
+    return act, key
+
+
+def make_animations(arm):
+    """Author the five canonical clips used by ForgeCat's ambient routine.
+
+    The motion stays intentionally restrained because this cat is normally seen
+    from an isometric game camera. The walk uses diagonal quadruped pairs; rest
+    clips keep the root stationary except for small pose offsets.
+    """
+    animations = {}
+
+    idle, key = _begin_action(arm, "idle", 150)
+    for f, a in [(1, 0.0), (45, 0.02), (75, 0.028), (110, 0.015), (150, 0.0)]:
         key("spine", f, rot=(a, 0, 0))
         key("chest", f, rot=(a * 0.6, 0, 0))
-    # slow head settle + tiny turn
     for f, rx, ry in [(1, 0, 0), (60, 0.05, 0.03), (120, 0.02, -0.03), (150, 0, 0)]:
         key("head", f, rot=(rx, ry, 0))
         key("neck", f, rot=(rx * 0.4, ry * 0.5, 0))
-    # relaxed tail sway
     for i in range(4):
         amp = 0.06 + 0.02 * i
         for f, s in [(1, 0), (50, amp), (100, -amp), (150, 0)]:
             key(f"tail_{i+1}", f, rot=(0, 0, s))
+    animations[idle.name] = {"frames": [1, 150], "seconds": 5.0, "loop": True}
 
-    # keyframe_insert defaults to BEZIER interpolation, so the loop is seamless.
+    walk, key = _begin_action(arm, "walk", 24)
+    # Natural diagonal gait: front-left/rear-right oppose front-right/rear-left.
+    gait = [(1, 0.0), (7, -0.34), (13, 0.0), (19, 0.34), (24, 0.0)]
+    for f, swing in gait:
+        for prefix in ("legFL", "legBR"):
+            key(prefix + "_upper", f, rot=(swing, 0, 0))
+            key(prefix + "_lower", f, rot=(-swing * 0.42, 0, 0))
+        for prefix in ("legFR", "legBL"):
+            key(prefix + "_upper", f, rot=(-swing, 0, 0))
+            key(prefix + "_lower", f, rot=(swing * 0.42, 0, 0))
+        key("pelvis", f, rot=(0, 0, swing * 0.035))
+        key("chest", f, rot=(0, 0, -swing * 0.025))
+    for f, lift in [(1, 0), (7, 0.006), (13, 0), (19, 0.006), (24, 0)]:
+        key("root", f, loc=(0, 0, lift))
+    for i in range(4):
+        for f, s in [(1, 0), (7, 0.05), (13, 0), (19, -0.05), (24, 0)]:
+            key(f"tail_{i+1}", f, rot=(0, 0, s * (i + 1) / 4.0))
+    animations[walk.name] = {"frames": [1, 24], "seconds": 0.8, "loop": True}
+
+    sleep, key = _begin_action(arm, "sleep", 90)
+    for f, breath in [(1, 0.0), (45, 0.012), (90, 0.0)]:
+        key("root", f, loc=(0, 0, -0.055 + breath))
+        key("spine", f, rot=(0.14, 0, 0.04))
+        key("chest", f, rot=(0.22, 0, -0.05))
+        key("neck", f, rot=(0.30, 0.10, 0.12))
+        key("head", f, rot=(0.42, 0.12, 0.16))
+    for prefix, bend in (("legFL", 0.38), ("legFR", 0.30), ("legBL", -0.42), ("legBR", -0.34)):
+        for f in (1, 90):
+            key(prefix + "_upper", f, rot=(bend, 0, 0))
+            key(prefix + "_lower", f, rot=(-bend * 0.8, 0, 0))
+    for i in range(4):
+        curl = 0.22 + i * 0.08
+        for f in (1, 90):
+            key(f"tail_{i+1}", f, rot=(0.12, 0, curl))
+    animations[sleep.name] = {"frames": [1, 90], "seconds": 3.0, "loop": True}
+
+    lick, key = _begin_action(arm, "lick", 48)
+    for f in (1, 48):
+        key("root", f, loc=(0, 0, -0.025))
+        key("pelvis", f, rot=(-0.12, 0, 0))
+        key("neck", f, rot=(0.30, 0.05, 0))
+    for f, rx, rz in [(1, 0.38, 0.10), (9, 0.58, 0.18), (17, 0.42, 0.04),
+                      (25, 0.60, -0.12), (33, 0.43, 0.04), (41, 0.57, 0.16), (48, 0.38, 0.10)]:
+        key("head", f, rot=(rx, 0.08, rz))
+    for prefix, bend in (("legBL", -0.24), ("legBR", -0.24)):
+        for f in (1, 48):
+            key(prefix + "_upper", f, rot=(bend, 0, 0))
+            key(prefix + "_lower", f, rot=(-bend * 0.7, 0, 0))
+    for i in range(4):
+        for f, s in [(1, 0), (16, 0.05), (32, -0.05), (48, 0)]:
+            key(f"tail_{i+1}", f, rot=(0, 0, s * (i + 1) / 4.0))
+    animations[lick.name] = {"frames": [1, 48], "seconds": 1.6, "loop": True}
+
+    stretch, key = _begin_action(arm, "stretch", 60)
+    # Forelegs reach toward the head while the hips rise, then return cleanly.
+    for f, amount in [(1, 0.0), (15, 0.55), (42, 0.55), (60, 0.0)]:
+        key("root", f, loc=(0, 0, amount * 0.025))
+        key("pelvis", f, rot=(-amount * 0.20, 0, 0))
+        key("spine", f, rot=(amount * 0.22, 0, 0))
+        key("chest", f, rot=(amount * 0.18, 0, 0))
+        key("neck", f, rot=(-amount * 0.12, 0, 0))
+        key("head", f, rot=(-amount * 0.16, 0, 0))
+        for prefix in ("legFL", "legFR"):
+            key(prefix + "_upper", f, rot=(-amount * 0.58, 0, 0))
+            key(prefix + "_lower", f, rot=(amount * 0.32, 0, 0))
+        for prefix in ("legBL", "legBR"):
+            key(prefix + "_upper", f, rot=(amount * 0.16, 0, 0))
+    for i in range(4):
+        for f, s in [(1, 0), (15, -0.10), (42, 0.10), (60, 0)]:
+            key(f"tail_{i+1}", f, rot=(0, 0, s * (i + 1) / 4.0))
+    animations[stretch.name] = {"frames": [1, 60], "seconds": 2.0, "loop": False}
+
     bpy.ops.object.mode_set(mode="OBJECT")
-    return act
+    arm.animation_data.action = idle
+    return animations
 
 
 def export_glb(arm, obj):
@@ -367,9 +465,10 @@ def export_glb(arm, obj):
     bpy.ops.export_scene.gltf(
         filepath=PROD_GLB, export_format="GLB", use_selection=True,
         export_yup=True, export_apply=False, export_animations=True,
-        export_animation_mode="ACTIONS", export_texcoords=True,
-        export_normals=True, export_tangents=True, export_materials="EXPORT",
-        export_skins=True, export_frame_range=True)
+        export_animation_mode="ACTIONS", export_frame_range=False,
+        export_action_filter=True, export_extra_animations=True,
+        export_texcoords=True, export_normals=True, export_tangents=True,
+        export_materials="EXPORT", export_skins=True)
 
 
 def make_lod(obj, tris, path):
@@ -404,7 +503,7 @@ def main():
     alb = author_albedo(obj, ao_img)
     final_material(obj, alb, nrm_img)
     arm, wmode = build_rig(obj)
-    act = make_idle(arm)
+    animations = make_animations(arm)
     # Guard against any stray/floating geometry leaking into the export so the
     # GLB carries exactly one character mesh + its armature.
     for s in [o for o in bpy.data.objects if o.type == "MESH" and o is not obj]:
@@ -426,7 +525,7 @@ def main():
         "texture_size": TEX_SIZE,
         "weight_mode": wmode,
         "bones": len(arm.data.bones),
-        "animation": {"name": act.name, "fps": 30, "frames": [1, 150], "seconds": 5.0},
+        "animations": animations,
         "budget_ok": {"lod0_within_cap": lod0["triangles"] <= 12000,
                       "lod1_in_range": 3000 <= lod1["triangles"] <= 4200,
                       "lod2_in_range": 700 <= lod2["triangles"] <= 1300},

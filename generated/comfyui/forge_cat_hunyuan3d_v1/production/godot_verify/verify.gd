@@ -2,8 +2,8 @@ extends Node3D
 
 # In-engine verification of the production GLB. Loads the file with GLTFDocument
 # (tests the raw asset, not a pre-baked .import), inspects scale/origin/axes/
-# materials/skeleton/idle/ground contact/bounds, renders a forge-lit screenshot,
-# writes a JSON report and quits. Does NOT touch the shipping cat rig.
+# materials/skeleton/all five runtime clips/ground contact/bounds, renders a forge-lit screenshot,
+# writes a JSON report and quits. This verifies the integrated production asset.
 
 # Load the sibling production GLB directly (no duplicated copy in the repo).
 var _glb := ProjectSettings.globalize_path("res://").path_join("../forge_cat_production_v1.glb").simplify_path()
@@ -89,7 +89,12 @@ func _ready() -> void:
 	_report["animations"] = anim_info
 
 	_setup_stage(aabb)
-	# advance the idle a little then capture
+	# WHY: headless macOS may never emit frame_post_draw. Structural CI still
+	# completes, while interactive runs retain the forge-lit screenshot proof.
+	if DisplayServer.get_name() == "headless":
+		_report["screenshot"] = "skipped-headless"
+		_finish()
+		return
 	await get_tree().create_timer(0.6).timeout
 	await _capture()
 	_finish()

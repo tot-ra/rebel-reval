@@ -44,7 +44,7 @@ Inventory row count (data rows in the table below): **96**.
 |---|------------|-------|-------|
 | 1 | `game.tscn` | archive | Legacy editor wrapper instancing `main_menu`; not `run/main_scene`. |
 | 2 | `player.tscn` | working | Full player rig, greybox visual, inline HealthBar/StaminaBar, and hidden legacy HUD instance; instanced by all district scenes. |
-| 3 | `assets/characters/cat/cat_rig.tscn` | partial | Ambient forge-cat rig; instanced by `forge_cat.tscn`; animation set incomplete. |
+| 3 | `assets/characters/cat/cat_rig.tscn` | working | Ambient forge-cat rig; instances `forge_cat_production_v1.glb` via `forge_cat.tscn`; five canonical ambient clips. |
 | 4 | `assets/characters/kalev/kalev.tscn` | working | Kalev variant on `shared_character_rig.tscn`; P0-037 player presentation. |
 | 5 | `assets/characters/shared/hammer.tscn` | working | Shared hammer equipment mesh for rig attachment. |
 | 6 | `assets/characters/shared/shared_character_rig.tscn` | working | Shared low-poly rig base with animation library; P0-037 foundation. |

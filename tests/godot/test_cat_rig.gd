@@ -10,7 +10,7 @@ const REQUIRED_ANIMATIONS: Array[StringName] = [
 ]
 
 
-func test_cat_rig_has_procedural_animations() -> void:
+func test_cat_rig_has_production_animations() -> void:
 	var cat := _instantiate_cat()
 
 	assert_eq(cat.validation_errors(), [], "Cat rig must report no validation errors")

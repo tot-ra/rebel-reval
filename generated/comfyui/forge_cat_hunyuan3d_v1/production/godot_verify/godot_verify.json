@@ -19,9 +19,29 @@
       "length": 5.0,
       "loop": 0
     },
+    "lick": {
+      "length": 1.6,
+      "loop": 0
+    },
     "names": [
-      "idle"
-    ]
+      "idle",
+      "lick",
+      "sleep",
+      "stretch",
+      "walk"
+    ],
+    "sleep": {
+      "length": 3.0,
+      "loop": 0
+    },
+    "stretch": {
+      "length": 2.0,
+      "loop": 0
+    },
+    "walk": {
+      "length": 0.8,
+      "loop": 0
+    }
   },
   "bone_count": 22,
   "ground_contact_ok": true,
@@ -34,7 +54,7 @@
   },
   "mesh_count": 1,
   "metric_scale_ok": true,
-  "screenshot": "previews/godot_preview.png",
+  "screenshot": "skipped-headless",
   "skeleton_count": 1,
   "surfaces": 1
 }

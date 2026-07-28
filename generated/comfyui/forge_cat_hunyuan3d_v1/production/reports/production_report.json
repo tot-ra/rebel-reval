@@ -47,14 +47,47 @@
   "texture_size": 1024,
   "weight_mode": "auto_bone_heat",
   "bones": 22,
-  "animation": {
-    "name": "idle",
-    "fps": 30,
-    "frames": [
-      1,
-      150
-    ],
-    "seconds": 5.0
+  "animations": {
+    "idle": {
+      "frames": [
+        1,
+        150
+      ],
+      "seconds": 5.0,
+      "loop": true
+    },
+    "walk": {
+      "frames": [
+        1,
+        24
+      ],
+      "seconds": 0.8,
+      "loop": true
+    },
+    "sleep": {
+      "frames": [
+        1,
+        90
+      ],
+      "seconds": 3.0,
+      "loop": true
+    },
+    "lick": {
+      "frames": [
+        1,
+        48
+      ],
+      "seconds": 1.6,
+      "loop": true
+    },
+    "stretch": {
+      "frames": [
+        1,
+        60
+      ],
+      "seconds": 2.0,
+      "loop": false
+    }
   },
   "budget_ok": {
     "lod0_within_cap": true,

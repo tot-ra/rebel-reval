@@ -1,6 +1,10 @@
-[gd_scene format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://assets/characters/cat/cat_rig.gd" id="1_cat"]
+[ext_resource type="PackedScene" uid="uid://25gqsu5pgcvo" path="res://generated/comfyui/forge_cat_hunyuan3d_v1/production/forge_cat_production_v1.glb" id="2_model"]
 
 [node name="CatRig" type="Node3D"]
 script = ExtResource("1_cat")
+
+[node name="Model" parent="." instance=ExtResource("2_model")]
+rotation_degrees = Vector3(0, 90, 0)

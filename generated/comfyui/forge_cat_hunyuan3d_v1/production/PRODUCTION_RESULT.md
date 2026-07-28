@@ -1,14 +1,15 @@
-# Forge cat - game-ready production pass (result)
+# Forge cat - game-ready production pass (integrated)
 
 Separate production pass over the visually approved Hunyuan3D base shape
-(`../forge_cat_hunyuan3d_v1.glb`), following `../PRODUCTION_PLAN.md`. This is a
-reviewable candidate only. The shipping cat rig (`assets/characters/cat/cat_rig.tscn`)
-is **not** replaced, pending a separate final visual + in-engine approval.
+(`../forge_cat_hunyuan3d_v1.glb`), following `../PRODUCTION_PLAN.md`. The
+production GLB is integrated through `assets/characters/cat/cat_rig.tscn`; its
+adapter preserves the existing `SharedCharacterRig` gameplay contract.
 
 ## Deliverables
 
 - `forge_cat_production_v1.glb` - LOD0 mesh + `forge_cat` material + 22-bone
-  quadruped armature + `idle` animation (single-file GLB, textures embedded).
+  quadruped armature + `idle`, `walk`, `sleep`, `lick`, and `stretch` animations
+  (single-file GLB, textures embedded).
 - `lod/forge_cat_lod1.glb`, `lod/forge_cat_lod2.glb` - decimated distance LODs
   (mesh + UV, shared-material placeholder, no embedded textures).
 - `tex/forge_cat_albedo.png`, `tex/forge_cat_normal.png`, `tex/forge_cat_ao.png`
@@ -33,7 +34,7 @@ is **not** replaced, pending a separate final visual + in-engine approval.
 | Texture set | 1024 | 1024 albedo/normal/AO |
 | Rig | quadruped | 22 bones: root, pelvis, spine, chest, neck, head, 4x(upper/lower/paw), 4x tail |
 | Weights | clean | automatic bone-heat |
-| Idle | 4-6s loop @30fps | 5.0s (150f), seamless (first=last), root fixed, paws locked |
+| Animations | ForgeCat runtime contract | `idle` 5.0s, `walk` 0.8s, `sleep` 3.0s, `lick` 1.6s, `stretch` 2.0s; all 30fps |
 | Scale / origin | metric, feet on ground | 0.52 x 0.17 x 0.37 m, origin between paws, min Y = 0 |
 
 ## Godot in-engine verification (`godot_verify/`)
@@ -42,7 +43,7 @@ Loaded via `GLTFDocument` (tests the raw GLB, not a pre-baked import):
 
 - Import error code: `0` (no errors).
 - 1 mesh, 1 surface, material `forge_cat` (StandardMaterial3D).
-- Skeleton imported (22 bones); `idle` present (5.0s) and plays.
+- Skeleton imported (22 bones); all five canonical runtime clips are present and play.
 - AABB `[0.5176, 0.3664, 0.174]`, min Y = `0.0` -> ground contact OK.
 - Metric scale OK (all axes < 1 m).
 
@@ -62,10 +63,10 @@ Loaded via `GLTFDocument` (tests the raw GLB, not a pre-baked import):
   authored from procedural noise; albedo is charcoal-gray with restrained
   warm-brown forge highlights (top/back gradient) and AO multiplied in. One
   material, `metallic=0`, `roughness=0.82` scalar.
-- **Idle** is authored seamless (matched first/last keyframes). glTF does not
-  carry a loop flag, so looping is enabled by the Godot import/AnimationPlayer
-  at integration time.
-- **Existing rig untouched**: this candidate is separate and additive.
+- **Animations** use full-pose boundary keys so transitions do not inherit stale
+  bones. Idle, walk, sleep, and lick are looped by `CatRig`; stretch is one-shot.
+- **Runtime integration**: `cat_rig.tscn` instances this GLB and `cat_rig.gd`
+  adapts its canonical animation names without changing forge collision or navigation.
 
 ## Known limitations / follow-ups (pending approval)
 
