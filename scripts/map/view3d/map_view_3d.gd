@@ -64,6 +64,21 @@ const FOG_HOURS_BEFORE_SUNRISE := Lighting.FOG_HOURS_BEFORE_SUNRISE
 const FOG_HOURS_AFTER_SUNRISE := Lighting.FOG_HOURS_AFTER_SUNRISE
 const FOG_POTENTIAL_MIN := Lighting.FOG_POTENTIAL_MIN
 const FOG_POTENTIAL_FULL := Lighting.FOG_POTENTIAL_FULL
+const TONEMAP_MODE := Lighting.TONEMAP_MODE
+const GRADE_DAY_EXPOSURE := Lighting.GRADE_DAY_EXPOSURE
+const GRADE_DAY_SATURATION := Lighting.GRADE_DAY_SATURATION
+const GRADE_DAY_CONTRAST := Lighting.GRADE_DAY_CONTRAST
+const GRADE_DAY_BRIGHTNESS := Lighting.GRADE_DAY_BRIGHTNESS
+const GRADE_NIGHT_EXPOSURE := Lighting.GRADE_NIGHT_EXPOSURE
+const GRADE_NIGHT_SATURATION := Lighting.GRADE_NIGHT_SATURATION
+const GRADE_NIGHT_CONTRAST := Lighting.GRADE_NIGHT_CONTRAST
+const GRADE_NIGHT_BRIGHTNESS := Lighting.GRADE_NIGHT_BRIGHTNESS
+const GLOW_HDR_THRESHOLD := Lighting.GLOW_HDR_THRESHOLD
+const GLOW_INTENSITY_DAY := Lighting.GLOW_INTENSITY_DAY
+const GLOW_INTENSITY_NIGHT := Lighting.GLOW_INTENSITY_NIGHT
+const GLOW_BLOOM := Lighting.GLOW_BLOOM
+const GLOW_STRENGTH := Lighting.GLOW_STRENGTH
+const GLOW_MIX := Lighting.GLOW_MIX
 
 ## Shadow cascades only need the max-zoom gameplay frustum, not the authored map
 ## or the camera far plane. Tighter distance concentrates shadow-map texels on
@@ -516,6 +531,7 @@ func _assemble() -> void:
 	_environment = Environment.new()
 	_environment.background_mode = Environment.BG_COLOR
 	_environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	Lighting.configure_post_process(_environment)
 	var world_environment := WorldEnvironment.new()
 	world_environment.name = "ViewEnvironment"
 	world_environment.environment = _environment

@@ -43,6 +43,66 @@ const FOG_HOURS_AFTER_SUNRISE := 2.5
 const FOG_POTENTIAL_MIN := 0.6
 const FOG_POTENTIAL_FULL := 0.85
 
+## Frozen Baltic post-grade (MATERIAL_STYLE_LOCK_KIT day table + ART_BIBLE night
+## rules). Parameters freeze in ART_BIBLE v2 at P0-040; P0-141 wires them here.
+const TONEMAP_MODE := Environment.TONE_MAPPER_AGX
+const GRADE_DAY_EXPOSURE := 1.0
+const GRADE_DAY_SATURATION := 0.82
+const GRADE_DAY_CONTRAST := 1.06
+const GRADE_DAY_BRIGHTNESS := 1.02
+const GRADE_NIGHT_EXPOSURE := 0.78
+const GRADE_NIGHT_SATURATION := 0.58
+const GRADE_NIGHT_CONTRAST := 1.10
+const GRADE_NIGHT_BRIGHTNESS := 0.74
+const GLOW_HDR_THRESHOLD := 1.0
+const GLOW_INTENSITY_DAY := 0.35
+const GLOW_INTENSITY_NIGHT := 0.48
+const GLOW_BLOOM := 0.12
+const GLOW_STRENGTH := 0.9
+const GLOW_MIX := 0.04
+
+
+## One-time WorldEnvironment setup: tonemap, glow, and color-adjustment toggles.
+static func configure_post_process(environment: Environment) -> void:
+	if environment == null:
+		return
+	environment.tonemap_mode = TONEMAP_MODE
+	environment.adjustment_enabled = true
+	environment.glow_enabled = true
+	environment.glow_blend_mode = Environment.GLOW_BLEND_MODE_SOFTLIGHT
+	environment.glow_hdr_threshold = GLOW_HDR_THRESHOLD
+	environment.glow_bloom = GLOW_BLOOM
+	environment.glow_strength = GLOW_STRENGTH
+	environment.glow_mix = GLOW_MIX
+	environment.set("glow_levels/1", true)
+	environment.set("glow_levels/2", true)
+	environment.set("glow_levels/3", true)
+	environment.set("glow_levels/4", false)
+	environment.set("glow_levels/5", false)
+	environment.set("glow_levels/6", false)
+	environment.set("glow_levels/7", false)
+
+
+## Cycle-driven Baltic grade: desaturated day masters, cooler/darker night response.
+static func apply_post_grade(environment: Environment, day_blend: float) -> void:
+	if environment == null:
+		return
+	var blend := clampf(day_blend, 0.0, 1.0)
+	environment.tonemap_exposure = lerpf(GRADE_NIGHT_EXPOSURE, GRADE_DAY_EXPOSURE, blend)
+	environment.adjustment_saturation = lerpf(GRADE_NIGHT_SATURATION, GRADE_DAY_SATURATION, blend)
+	environment.adjustment_contrast = lerpf(GRADE_NIGHT_CONTRAST, GRADE_DAY_CONTRAST, blend)
+	environment.adjustment_brightness = lerpf(GRADE_NIGHT_BRIGHTNESS, GRADE_DAY_BRIGHTNESS, blend)
+	environment.glow_intensity = lerpf(GLOW_INTENSITY_NIGHT, GLOW_INTENSITY_DAY, blend)
+
+
+## Proxy for regression tests: exposure * brightness must drop at least 20% at night.
+static func post_grade_luminance_proxy(day_blend: float) -> float:
+	var blend := clampf(day_blend, 0.0, 1.0)
+	return (
+		lerpf(GRADE_NIGHT_EXPOSURE, GRADE_DAY_EXPOSURE, blend)
+		* lerpf(GRADE_NIGHT_BRIGHTNESS, GRADE_DAY_BRIGHTNESS, blend)
+	)
+
 
 ## Applies one complete celestial/weather lighting state and reports whether it
 ## belongs to the discrete night bucket used by chimney and window presentation.
@@ -119,6 +179,7 @@ static func apply_cycle_progress(
 		SkyWeather3D.sidereal_angle_for_progress(progress),
 		sun_reflection_color
 	)
+	apply_post_grade(environment, day_blend)
 	return day_blend < 0.5
 
 

@@ -111,6 +111,22 @@ At gameplay scale, a grayscale/squint pass must preserve tiers 1-3. Texture mark
 - Forge props prioritize immediate silhouette recognition: broad anvil face, cart wheels/shaft, well rim/water opening, barrel bands, and stacked rectangular hay bales.
 - Architecture may exaggerate facade visibility for the three-quarter view, but footprints and street widths remain orthogonal.
 
+## Post-process grade (v2 draft, P0-141)
+
+Frozen on `MapViewLighting` and applied to every `MapView3D` `WorldEnvironment`. Day master textures are graded in post; night does **not** regenerate albedos. Full day/night tint tables remain in [`MATERIAL_STYLE_LOCK_KIT.md`](MATERIAL_STYLE_LOCK_KIT.md); edge darkening, grain, and vignette stay future work once P0-142 picks a renderer path.
+
+| Pass | Day (noon) | Night (midnight) |
+|---|---:|---:|
+| Tonemap | AgX, exposure `1.0` | AgX, exposure `0.78` |
+| Saturation | `0.82` | `0.58` |
+| Contrast | `1.06` | `1.10` |
+| Brightness | `1.02` | `0.74` |
+| Glow HDR threshold | `1.0` (both) | `1.0` |
+| Glow intensity | `0.35` | `0.48` |
+| Glow bloom / strength / mix | `0.12` / `0.9` / `0.04` | same |
+
+Night post-grade luminance proxy (`exposure * brightness`) must stay at least 20% below the day proxy while emissive windows and forge highlights keep a soft bloom.
+
 ## Approval gate
 
 Before changing this status to `Approved`:
