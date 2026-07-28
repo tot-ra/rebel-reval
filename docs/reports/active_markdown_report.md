@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `74`
-- Markdown files excluded as archive/reference/out of active scope: `426`
-- Local/external links inspected: `461`
-- Links to active Markdown docs: `188`
+- Active Markdown files scanned: `75`
+- Markdown files excluded as archive/reference/out of active scope: `427`
+- Local/external links inspected: `467`
+- Links to active Markdown docs: `194`
 - Links to existing archive/reference/non-active local docs: `93`
 - External links skipped for reachability: `33`
 - Issues found: `0`
@@ -109,6 +109,7 @@ No active Markdown documentation issues found.
 - `docs/TASK_ARCHIVE.md`
 - `docs/THIRD_PARTY_NOTICES.md`
 - `docs/TOURIST_LANDMARKS.md`
+- `docs/VISUAL_FIDELITY_PLAN.md`
 - `docs/WITCHER3_REALISM_INSPIRATION.md`
 - `README.md`
 - `TODO.md`

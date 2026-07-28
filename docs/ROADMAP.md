@@ -3,7 +3,7 @@
 Coordination notes, delivery order, and planning context formerly embedded in `TODO.md`.
 Executable open work stays in [`TODO.md`](../TODO.md).
 
-Coordination note (2026-07-28 P0-137): enclosed interiors now ship cycle-driven dust motes in each `InteriorWindowLights` daylight shaft; lit billboard particles pick up the shadow-casting window spot so in-beam motes glint while ambient room motes stay dim, faking god-rays without volumetric fog on GL Compatibility. Verified: `--filter=test_map_view_3d_mesh` (18/18). Next interior ambience step: **P0-130** Leonardo PBR texture pass or **P2-034** harbour gull GLB batch.
+Coordination note (2026-07-28 R-035): Toompea Small Castle interior dossier now closes Danish April 1343 hill zones (`SC-*`, `GC-*`, outer bailey) with explicit post-1346 Order layout exclusions; reference plates `.01` and `.02` fetched locally after Commons hash and CSV comma fixes. Verified: dossier `status: solid`; `python3 tools/research/fetch_reference_plates.py --slug toompea-small-castle-interior --verify` passes. Next architecture step: **R-036** Raekoja hall phase plans or Toompea map prototype when act scope opens.
 
 Coordination note (2026-07-28 P2-049): medieval lighting kit v2 now ships flame-free holder meshes with `FlameAnchor` markers and runtime `CandleFlame3D` particle fire plus synchronized `CandleLight3D` flicker across all five `style_variant` fuels. Verified: `--filter=test_medieval_lighting_assets` (2/2), `python3 tools/validate_asset_sources.py`, and `python3 tools/verify_asset_lint.py`. Next prop art step: **P2-034** harbour gull GLB batch.
 
