@@ -5,6 +5,8 @@
   "defects": [],
   "generator": "tools/generate_household_chests.py",
   "generator_version": "household_chests_v1",
+  "godot_preview": "generated/blender/household_chests_v1/godot_preview.png",
+  "godot_renderer": "Godot 4.7.1 GL Compatibility / OpenGL 3",
   "metrics": {
     "common": {
       "dimensions_m": [
@@ -59,6 +61,8 @@
       "triangle_budget": true,
       "uvs": true
     },
+    "godot_import": true,
+    "in_engine_preview": true,
     "poor": {
       "ground_contact": true,
       "metric_scale": true,
@@ -66,6 +70,7 @@
       "triangle_budget": true,
       "uvs": true
     },
+    "production_rebuild_sha256_stable": true,
     "rich": {
       "ground_contact": true,
       "metric_scale": true,

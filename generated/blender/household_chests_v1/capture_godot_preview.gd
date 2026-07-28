@@ -1,6 +1,10 @@
 extends SceneTree
 
 ## Evidence-only in-engine lineup using the fixed orthographic gameplay camera.
+## Run with a real renderer rather than `--headless`, which selects dummy on macOS:
+## godot --display-driver macos --rendering-method gl_compatibility \
+##   --rendering-driver opengl3 --audio-driver Dummy --path . \
+##   --script res://generated/blender/household_chests_v1/capture_godot_preview.gd
 
 const OUTPUT_PATH := "res://generated/blender/household_chests_v1/godot_preview.png"
 const VIEWPORT_SIZE := Vector2i(1200, 600)
@@ -80,6 +84,10 @@ func _run() -> void:
 	for frame in 6:
 		await process_frame
 	var image := viewport.get_texture().get_image()
+	if image == null:
+		push_error("Godot preview requires a real rendering driver, not the headless dummy renderer")
+		quit(1)
+		return
 	var error := image.save_png(ProjectSettings.globalize_path(OUTPUT_PATH))
 	if error != OK:
 		push_error("Could not save household chest Godot preview: %s" % error_string(error))
