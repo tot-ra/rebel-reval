@@ -471,9 +471,9 @@ render_mode cull_disabled, depth_draw_opaque, diffuse_burley, shadows_disabled;
 uniform sampler2D albedo_texture : source_color, filter_linear_mipmap, repeat_enable;
 uniform vec2 wind_direction = vec2(0.9285, 0.3714);
 uniform float wind_strength = 0.22;
-uniform float sway_strength = 0.115;
-uniform float pin_height = 1.0;
-uniform float pin_fade = 0.24;
+uniform float sway_strength = 0.098;
+uniform float pin_height = 1.36;
+uniform float pin_fade = 0.17;
 instance uniform float motion_scale = 1.0;
 instance uniform float motion_phase = 0.0;
 uniform float surface_roughness = 0.96;
@@ -493,13 +493,13 @@ void vertex() {
 
 	// Slow pressure, irregular gusts, and a fine crosswind ripple give distinct
 	// temporal scales. None use random state, so captures and clients stay stable.
-	float slow = sin(TIME * (0.72 + strength * 0.42) + phase * 0.34);
-	float gust = sin(TIME * 1.37 + phase * 0.51 + sin(TIME * 0.29 + phase) * 0.8);
-	float ripple = sin(TIME * 3.8 + phase * 1.8 + VERTEX.y * 8.0)
-		+ 0.42 * sin(TIME * 5.7 - phase * 2.3 + VERTEX.x * 11.0);
+	float slow = sin(TIME * (0.64 + strength * 0.38) + phase * 0.34);
+	float gust = sin(TIME * 1.18 + phase * 0.51 + sin(TIME * 0.26 + phase) * 0.8);
+	float ripple = sin(TIME * 3.35 + phase * 1.8 + VERTEX.y * 8.0)
+		+ 0.42 * sin(TIME * 5.0 - phase * 2.3 + VERTEX.x * 11.0);
 	float pressure = 0.34 * power + slow * 0.22 * power + gust * 0.12 * power;
-	vec2 horizontal = wind * pressure + across * ripple * (0.025 + strength * 0.035);
-	float lift = (slow * 0.018 + ripple * 0.006) * power;
+	vec2 horizontal = wind * pressure + across * ripple * (0.022 + strength * 0.030);
+	float lift = (slow * 0.015 + ripple * 0.005) * power;
 	vec3 world_delta = vec3(horizontal.x, lift, horizontal.y)
 		* sway_strength * free_weight * motion_scale;
 	VERTEX += (inverse(MODEL_MATRIX) * vec4(world_delta, 0.0)).xyz;

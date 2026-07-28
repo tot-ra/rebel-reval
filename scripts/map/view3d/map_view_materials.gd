@@ -422,9 +422,9 @@ static func fishing_net_hemp() -> ShaderMaterial:
 	return _fishing_net_wind_material(
 		&"fishing_net_hemp",
 		FISHING_NET_HEMP_TEXTURE,
-		0.115,
-		1.0,
-		0.24,
+		0.098,
+		1.36,
+		0.17,
 		0.96
 	)
 
@@ -433,9 +433,9 @@ static func fishing_net_float() -> ShaderMaterial:
 	return _fishing_net_wind_material(
 		&"fishing_net_float",
 		FISHING_NET_FLOAT_TEXTURE,
-		0.115,
-		1.0,
-		0.24,
+		0.098,
+		1.36,
+		0.17,
 		0.94
 	)
 
@@ -444,9 +444,9 @@ static func fishing_net_sinker() -> ShaderMaterial:
 	return _fishing_net_wind_material(
 		&"fishing_net_sinker",
 		FISHING_NET_SINKER_TEXTURE,
-		0.115,
-		1.0,
-		0.24,
+		0.098,
+		1.36,
+		0.17,
 		0.98
 	)
 
