@@ -444,12 +444,12 @@ def _render_preview(meshes: list[bpy.types.Object], output: Path) -> None:
     direction = Vector((0.0, 0.0, 0.55)) - fill.location
     fill.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
 
-    bpy.ops.object.camera_add(location=(2.15, -2.65, 1.75))
+    bpy.ops.object.camera_add(location=(0.0, -3.0, 0.76))
     camera = bpy.context.object
-    direction = Vector((0.0, 0.0, 0.52)) - camera.location
+    direction = Vector((0.0, 0.0, 0.54)) - camera.location
     camera.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
     camera.data.type = "ORTHO"
-    camera.data.ortho_scale = 1.75
+    camera.data.ortho_scale = 1.7
     scene.camera = camera
     scene.render.filepath = str(output)
     output.parent.mkdir(parents=True, exist_ok=True)
