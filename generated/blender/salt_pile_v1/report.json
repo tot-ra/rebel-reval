@@ -1,0 +1,42 @@
+{
+  "approval": "user-approved 2026-07-28",
+  "asset_id": "prop.salt_pile",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "c48d4fdf3ff0d1b7361f7bff9f02e605892d691b120c2fa056bf5fab17c404ea",
+  "checks": {
+    "embedded_albedo": true,
+    "floating_geometry": true,
+    "ground_contact": true,
+    "identity_features": [
+      "gathered_sacks",
+      "open_malt",
+      "visible_seams_and_ties",
+      "grain_scoop"
+    ],
+    "metric_scale": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "uvs": true,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    1.3828,
+    0.48,
+    0.9664
+  ],
+  "faces": 688,
+  "floating_objects": 0,
+  "generator": "tools/generate_salt_pile.py",
+  "generator_version": "salt_pile_v1",
+  "ground_min_z": 0.0,
+  "materials": 1,
+  "mesh_objects": 2,
+  "preview": "generated/blender/salt_pile_v1/preview.png",
+  "route": "deterministic_blender",
+  "sha256": "6f78dba49bacae7bd1ed065c4fe4b72d0e18edcae77fa230e4aa0f962af2fb4c",
+  "surfaces": 4,
+  "texture_size": 512,
+  "triangles": 688,
+  "uv_sets": 1,
+  "vertices": 360
+}

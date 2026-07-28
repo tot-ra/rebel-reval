@@ -12,6 +12,7 @@ const _FishDryingRackModels := preload("res://scripts/map/view3d/map_view_fish_d
 const _DriedFishMeshes := preload("res://scripts/map/view3d/map_view_dried_fish_meshes.gd")
 const _RopeCoilModels := preload("res://scripts/map/view3d/map_view_rope_coil_models.gd")
 const _MaltSackPileModels := preload("res://scripts/map/view3d/map_view_malt_sack_pile_models.gd")
+const _SaltPileModels := preload("res://scripts/map/view3d/map_view_salt_pile_models.gd")
 const _TanningFrameModels := preload("res://scripts/map/view3d/map_view_tanning_frame_models.gd")
 const _TableModels := preload("res://scripts/map/view3d/map_view_table_models.gd")
 
@@ -252,9 +253,7 @@ static func _add_market_goods_pallet(root: Node3D) -> void:
 
 
 static func _add_salt_pile(root: Node3D) -> void:
-	_Primitives.sphere(root, "SaltA", 0.48, Vector3(-0.1, 0.24, 0.06), &"plaster", Vector3(1.15, 0.62, 1.0))
-	_Primitives.sphere(root, "SaltB", 0.36, Vector3(0.2, 0.18, -0.08), &"plaster", Vector3(1.05, 0.58, 0.95))
-	_Primitives.box(root, "Shovel", Vector3(0.06, 0.42, 0.06), Vector3(0.42, 0.16, 0.2), &"wood")
+	_SaltPileModels.add_model(root)
 
 
 static func _add_tanning_frame(root: Node3D) -> void:
