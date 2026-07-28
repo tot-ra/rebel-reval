@@ -6,10 +6,11 @@ extends RefCounted
 ## required routes when authored inside the documented footprint bands.
 
 const _Primitives := preload("res://scripts/map/view3d/map_view_mesh_builder_primitives.gd")
-const _MaltSackPileModels := preload("res://scripts/map/view3d/map_view_malt_sack_pile_models.gd")
 const _PropStyleVariants := preload("res://scripts/map/map_prop_style_variants.gd")
+const _FishingNetModels := preload("res://scripts/map/view3d/map_view_fishing_net_models.gd")
 const _FishDryingRackModels := preload("res://scripts/map/view3d/map_view_fish_drying_rack_models.gd")
 const _DriedFishMeshes := preload("res://scripts/map/view3d/map_view_dried_fish_meshes.gd")
+const _MaltSackPileModels := preload("res://scripts/map/view3d/map_view_malt_sack_pile_models.gd")
 const _TanningFrameModels := preload("res://scripts/map/view3d/map_view_tanning_frame_models.gd")
 
 
@@ -56,12 +57,9 @@ static func add_to(root: Node3D, kind: StringName, prop: Dictionary = {}) -> voi
 
 
 static func _add_fishing_nets(root: Node3D) -> void:
-	for post_z in [-0.55, 0.55]:
-		_Primitives.box(root, "Post%d" % int((post_z + 0.55) * 10.0), Vector3(0.08, 1.35, 0.08), Vector3(post_z, 0.68, 0.0), &"timber")
-	_Primitives.box(root, "TopRail", Vector3(1.35, 0.07, 0.07), Vector3(0.0, 1.32, 0.0), &"wood")
-	for index in 4:
-		var along := lerpf(-0.55, 0.55, float(index) / 3.0)
-		_Primitives.box(root, "Mesh%d" % index, Vector3(0.04, 0.9, 0.04), Vector3(along, 0.72, 0.0), &"plaster")
+	# WHY: four bright vertical boxes could not read as a net at gameplay distance.
+	# The authored model supplies actual diamond mesh, sag, floats, and sinkers.
+	_FishingNetModels.add_model(root)
 
 
 static func _add_fish_drying_rack(root: Node3D, prop: Dictionary) -> void:

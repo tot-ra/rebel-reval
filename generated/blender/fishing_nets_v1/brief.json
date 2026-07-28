@@ -1,0 +1,1 @@
+{"id":"prop.fishing_nets","kind":"rigid_prop","target":"res://assets/props/crafts/fishing_nets.glb","scene":"res://content/maps/reval_harbor_east.rrmap#drying_nets_west","dimensions_m":[1.5,1.48,0.5],"triangles":{"target":2600,"max":4500},"textures":{"albedo":512},"style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}

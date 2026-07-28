@@ -1,0 +1,128 @@
+{
+  "assumptions": [
+    "No complete 1343 Reval customs ledger survives in project evidence; the kit uses period Hanseatic cargo norms.",
+    "Salt, herring, and wine use coopered barrel cargo; cloth is cord-bound; fur bundles are counted and tied."
+  ],
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "e513d6520c9973bcb7ab5b7efa8fd58e1cdb23e00d64a697f50b56d0be4ca23e",
+  "checks": {
+    "embedded_albedo": true,
+    "ground_contact": true,
+    "mesh_count": true,
+    "metric_scale": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "uvs": true,
+    "y_up_glb": true
+  },
+  "generator": "tools/generate_hanseatic_trade_goods.py",
+  "generator_version": "hanseatic_trade_goods_v1",
+  "historical_sources": [
+    "history/dossiers/topography/harbour-and-shoreline.md",
+    "history/dossiers/topography/old-market-vanaturg.md",
+    "https://pure.knaw.nl/ws/files/463798/BALTIC_CONNECTIONS_article.pdf",
+    "https://eprints.bournemouth.ac.uk/24537/1/Fish%20Feather%20and%20Fur%20QI%20Uncorrected%20proofs.pdf",
+    "https://research.chalmers.se/publication/528778/file/528778_Fulltext.pdf"
+  ],
+  "preview": "generated/blender/hanseatic_trade_goods_v1/preview.png",
+  "route": "deterministic_blender",
+  "variants": {
+    "barrelled_herring_metal": {
+      "asset_id": "prop.trade_goods.barrelled_herring_metal",
+      "dimensions_m_blender_xyz": [
+        1.3502,
+        0.9759,
+        0.68
+      ],
+      "direction": "mixed_transit",
+      "faces": 3260,
+      "goods": [
+        "barrelled herring or wine",
+        "iron bars",
+        "copper ingots"
+      ],
+      "ground_min_z": 0.0,
+      "materials": 6,
+      "mesh_objects": 1,
+      "sha256": "a49674e8ff885929c913253f1b5964f3955158156e742fe75019ee2dec9622b9",
+      "surfaces": 6,
+      "texture_size": 512,
+      "triangles": 3260,
+      "uv_sets": 1,
+      "variant": "barrelled_herring_metal",
+      "vertices": 1672
+    },
+    "eastern_furs_wax": {
+      "asset_id": "prop.trade_goods.eastern_furs_wax",
+      "dimensions_m_blender_xyz": [
+        1.4262,
+        0.822,
+        0.52
+      ],
+      "direction": "east_to_west",
+      "faces": 2820,
+      "goods": [
+        "Novgorod fur bundles",
+        "beeswax cakes"
+      ],
+      "ground_min_z": 0.01,
+      "materials": 4,
+      "mesh_objects": 1,
+      "sha256": "b366f889e69e1a060835ccb826c690b0578dd06fc06a125139382818a3e02c17",
+      "surfaces": 4,
+      "texture_size": 512,
+      "triangles": 2820,
+      "uv_sets": 1,
+      "variant": "eastern_furs_wax",
+      "vertices": 1446
+    },
+    "livonian_grain_flax": {
+      "asset_id": "prop.trade_goods.livonian_grain_flax",
+      "dimensions_m_blender_xyz": [
+        1.1606,
+        0.8999,
+        0.7022
+      ],
+      "direction": "local_export",
+      "faces": 6012,
+      "goods": [
+        "grain sacks",
+        "bound flax bundles"
+      ],
+      "ground_min_z": 0.0,
+      "materials": 3,
+      "mesh_objects": 1,
+      "sha256": "9035089d626848c45aa865858c5cd2f8d45a29653c841f600af307def867bed1",
+      "surfaces": 3,
+      "texture_size": 512,
+      "triangles": 6012,
+      "uv_sets": 1,
+      "variant": "livonian_grain_flax",
+      "vertices": 3070
+    },
+    "western_cloth_salt": {
+      "asset_id": "prop.trade_goods.western_cloth_salt",
+      "dimensions_m_blender_xyz": [
+        1.5067,
+        0.7143,
+        0.6912
+      ],
+      "direction": "west_to_east",
+      "faces": 3120,
+      "goods": [
+        "bound western cloth bales",
+        "barrelled salt"
+      ],
+      "ground_min_z": 0.0048,
+      "materials": 6,
+      "mesh_objects": 1,
+      "sha256": "0e6d14b38cd56891706766b4f54d04c7e12192de99ca641b3b3e7f69cc105d02",
+      "surfaces": 6,
+      "texture_size": 512,
+      "triangles": 3120,
+      "uv_sets": 1,
+      "variant": "western_cloth_salt",
+      "vertices": 1608
+    }
+  }
+}

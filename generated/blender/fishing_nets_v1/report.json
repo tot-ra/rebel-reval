@@ -1,0 +1,45 @@
+{
+  "asset_id": "prop.fishing_nets",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "3da948781da1a16280b7462cba2a345c092b867816d97ea4a68697306c31ab5b",
+  "checks": {
+    "embedded_albedo": true,
+    "floating_geometry": true,
+    "ground_contact": true,
+    "identity_features": [
+      "diamond_netting",
+      "catenary_sag",
+      "cork_floats",
+      "stone_sinkers",
+      "rear_braces"
+    ],
+    "metric_scale": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "uvs": true,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    1.46,
+    1.4833,
+    0.503
+  ],
+  "faces": 4240,
+  "floating_objects": 0,
+  "floats": 5,
+  "generator": "tools/generate_fishing_nets.py",
+  "generator_version": "fishing_nets_v1",
+  "ground_min": 0.0,
+  "materials": 4,
+  "mesh_objects": 5,
+  "net_strands": 128,
+  "preview": "generated/blender/fishing_nets_v1/preview.png",
+  "route": "deterministic_blender",
+  "sha256": "fa6675a9889b58c76a5c7065b483a1599420bad3f45b5f831ae6477559f73d49",
+  "sinkers": 7,
+  "surfaces": 5,
+  "texture_size": 512,
+  "triangles": 4240,
+  "uv_sets": 1,
+  "vertices": 2518
+}

@@ -27,6 +27,7 @@ const SMITHY_QUENCH_SCENE_PATH := "res://assets/props/forge/smithy_quench_bucket
 const SMITHY_QUENCH_PROP_ID := &"quench"
 const SMITHY_BED_SCENE_PATH := "res://assets/props/furniture/smithy_bed.glb"
 const CartModels := preload("res://scripts/map/view3d/map_view_cart_models.gd")
+const TradeGoodsModels := preload("res://scripts/map/view3d/map_view_trade_goods_models.gd")
 const SMITHY_BED_PROP_ID := &"bed"
 const SACRED_GROVE_ANCIENT_OAK_SCENE_PATH := "res://assets/props/environment/sacred_grove_ancient_oak.glb"
 
@@ -207,7 +208,7 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 		MapTypes.PROP_KIND_CARGO_CRATES:
 			_add_cargo_crates(root)
 		MapTypes.PROP_KIND_TRADE_GOODS:
-			_add_trade_goods(root)
+			_add_trade_goods(root, prop)
 		MapTypes.PROP_KIND_TIMBER_FENCE:
 			_add_timber_fence(root, prop, cell_size)
 		MapTypes.PROP_KIND_CATTLE:
@@ -610,12 +611,10 @@ static func _add_crate(root: Node3D, node_name: String, size: Vector3, position:
 	MapViewMeshBuilderPrimitives.box(crate, "BraceVertical", Vector3(0.075, size.y, brace_depth), Vector3.ZERO, &"timber")
 
 
-static func _add_trade_goods(root: Node3D) -> void:
-	# Baltic cargo is represented generically as wool/flour sacks and bound cloth
-	# bales, avoiding unsupported claims about exact goods on a given plot.
-	MapViewMeshBuilderPrimitives.sphere(root, "SackA", 0.34, Vector3(-0.34, 0.34, 0.03), &"plaster", Vector3(0.72, 1.15, 0.78))
-	MapViewMeshBuilderPrimitives.sphere(root, "SackB", 0.31, Vector3(0.14, 0.31, -0.16), &"plaster", Vector3(0.78, 1.12, 0.72))
-	MapViewMeshBuilderPrimitives.box(root, "ClothBale", Vector3(0.72, 0.38, 0.54), Vector3(0.34, 0.19, 0.25), &"hay")
+static func _add_trade_goods(root: Node3D, prop: Dictionary) -> void:
+	# WHY: named harbor and market props need four distinct Hanseatic cargo reads
+	# instead of one repeated sack-and-bale silhouette at gameplay distance.
+	TradeGoodsModels.add_model(root, StringName(prop.get("id", &"trade_goods")))
 
 
 static func _add_timber_fence(root: Node3D, prop: Dictionary, cell_size: int) -> void:
