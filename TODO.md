@@ -27,7 +27,8 @@ References:
 | P4 |    21  |    42  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
-| R  |    26  |    14  | Historical research backlog (researcher-managed, cross-cutting) |
+| R  |    26  |    15  | Historical research backlog (researcher-managed, cross-cutting) |
+
 
 
 
@@ -183,7 +184,7 @@ References:
 <!-- P0-114 completed in current session -->
 <!-- R-010 completed in current session -->
 <!-- R-045 completed in current session -->
-<!-- R-009 completed in current session -->
+<!-- R-046 completed in current session -->
 
 
 
@@ -211,7 +212,7 @@ Rows close through `review: canon` like all content work.
 - [x] R-008 | claim: cursor-agent@2026-07-28 | role: research | deps: none | deliverable: history/dossiers/power/jurisdictions-of-reval.md - who holds authority over whom between town council, Danish captain, vassalry, bishop, and the Livonian Order, and where the seams are | verify: produces a jurisdiction table a quest designer can use to construct a legally plausible conflict | review: canon
 - [x] R-009 | claim: cursor-agent@2026-07-28 | role: research | deps: R-008 | deliverable: history/dossiers/power/law-courts-and-punishment.md - court procedure, oath-helping, evidence, fines, pillory, banishment, execution, and who could be tried where | verify: at least five distinct sourced offence-to-consequence pairs usable as quest outcomes | review: canon
 - [x] R-045 | claim: cursor-agent@2026-07-28 | role: research | deps: R-006 | deliverable: fetch link-only `architecture.toompea-castle-and-upper-town.04` and `.05` reference plates after Wikimedia rate-limit clears | verify: `python3 tools/research/fetch_reference_plates.py --slug toompea-castle-and-upper-town --verify` reports six fetched plates with no linked rows | review: canon
-- [ ] R-046 | role: research | deps: R-009 | deliverable: fetch `power.law-courts-and-punishment.01` through `.04` reference plates once Wikimedia rate-limit clears (Sachsenspiegel oath/combat miniatures and Schwäbisch Hall pillory) | verify: `python3 tools/research/fetch_reference_plates.py --slug law-courts-and-punishment --verify` reports four fetched plates with no linked or failed rows
+- [x] R-046 | claim: cursor-agent@2026-07-28 | role: research | deps: R-009 | deliverable: fetch `power.law-courts-and-punishment.01` through `.04` reference plates once Wikimedia rate-limit clears (Sachsenspiegel oath/combat miniatures and Schwäbisch Hall pillory) | verify: `python3 tools/research/fetch_reference_plates.py --slug law-courts-and-punishment --verify` reports four fetched plates with no linked or failed rows | review: canon
 - [x] R-010 | claim: cursor-agent@2026-07-28 | role: research | deps: none | deliverable: history/dossiers/military/watch-duty-and-town-defence.md - burgher watch obligation, muster, gate control, curfew, alarm signals, arms a townsman was required to own | verify: states a concrete nightly watch routine and the arms requirement by status tier | review: canon
 - [x] R-011 | claim: cursor-agent@2026-07-28 | role: research | deps: none | deliverable: history/dossiers/military/arms-and-armour-livonia-1340s.md - what a Reval smith made, repaired, and could not make; Order versus rebel equipment; materials and costs | verify: separates smith-producible items from imported ones and lists at least ten items with materials | review: canon
 - [~] R-026 | role: research | deps: none | deliverable: history/dossiers/people/estonian-and-german-populations.md - who actually lived inside and outside the walls: Estonian townsfolk, servants, German burghers, clergy, transients, and their legal standing | verify: gives population composition with confidence labels and names the status markers a character designer must respect | review: canon
@@ -219,8 +220,8 @@ Rows close through `review: canon` like all content work.
 ### Crafts and economy (Dev, Quest, Art)
 
 - [~] R-012 | role: research | deps: none | deliverable: history/dossiers/crafts/guild-structure.md - Great Guild, St Canute and St Olaf guilds, craft ordinances, apprentice/journeyman/master progression, exclusion of Estonians | verify: yields the membership rules and obligations a forge-owner character would actually be bound by | review: canon
-- [~] R-013 | role: research | deps: R-004 | deliverable: history/dossiers/crafts/blacksmith-materials-and-techniques.md - iron and steel sources, charcoal, fluxes, forging and hardening technique, realistic task durations and failure modes | verify: gives quantities and durations a crafting system can model, each labelled attested or plausible composite | claim: research-1@2026-07-28
-- [ ] R-014 | role: research | deps: none | deliverable: history/dossiers/economy/coinage-prices-and-measures.md - Riga mark, artig, öre; prices of bread, beer, iron, tools, livestock; wages; weights and measures in use at Reval | verify: a price table with source and confidence per line, sufficient to set in-game shop values
+- [~] R-013 | role: research | deps: R-004 | deliverable: history/dossiers/crafts/blacksmith-materials-and-techniques.md - iron and steel sources, charcoal, fluxes, forging and hardening technique, realistic task durations and failure modes | verify: gives quantities and durations a crafting system can model, each labelled attested or plausible composite | review: canon
+- [~] R-014 | role: research | deps: none | deliverable: history/dossiers/economy/coinage-prices-and-measures.md - Riga mark, artig, öre; prices of bread, beer, iron, tools, livestock; wages; weights and measures in use at Reval | verify: a price table with source and confidence per line, sufficient to set in-game shop values | claim: research-1@2026-07-28 | review: canon
 - [ ] R-015 | role: research | deps: none | deliverable: history/dossiers/economy/hanseatic-trade-and-season.md - goods through Reval, the Novgorod route, sailing season and ice, staple rules, merchant practice and credit | verify: states the April-May trade situation specifically and what stalls when the countryside rises
 - [ ] R-027 | role: research | deps: R-012 | deliverable: history/dossiers/crafts/trades-of-the-lower-town.md - the other trades a district needs: baker, brewer, cobbler, tanner, cooper, carpenter, butcher, with workshop signs and nuisances | verify: each trade has a workshop description, a tool set, and a plausible street-level presence for map and art use
 
@@ -257,6 +258,8 @@ Rows close through `review: canon` like all content work.
 - [ ] R-039 | role: research | deps: R-008 | deliverable: history/dossiers/power/order-comptoir-transition-1343-1346.md - daily authority on Toompea between 16 May 1343 castle handover and 1 Nov 1346 sale: comptoir powers, council confirmations, what changes for Lower Town | verify: dated authority table for post-siege scenes with confidence labels per row
 - [ ] R-040 | role: research | deps: R-010 | deliverable: history/dossiers/power/reval-law-codex-arms-and-watch.md - 1257/1282 Lübeck codex articles on burgher arms, watch obligation, gate fines, and muster as applied in Reval | verify: cited article numbers or ordinance excerpts with confidence labels for 1343 enforcement
 - [ ] R-041 | role: research | deps: R-012 | deliverable: history/dossiers/crafts/schmiede-amt-ordinances-pre-1363.md - Schmiede *Amt* rules, fines, and masterpiece requirements before 1363 council Schragen; Tallinn City Archives pass | verify: at least three cited craft-offence-to-penalty pairs usable in forge quest outcomes
+- [ ] R-047 | role: research | deps: R-014 | deliverable: fetch `economy.coinage-prices-and-measures.01` through `.05` reference plates once Wikimedia rate-limit clears | verify: `python3 tools/research/fetch_reference_plates.py --slug coinage-prices-and-measures --verify` reports five fetched plates with no linked or failed rows
+- [ ] R-042 | role: research | deps: R-014 | deliverable: history/dossiers/economy/steel-sheet-import-1340s.md - Lübeck steel sheet and rod import to Reval before 1368 records; osmund barrel weights and customs measures | verify: dated import path with confidence labels and at least one price or weight line usable in forge material costs
 - [ ] R-043 | role: research | deps: R-009,R-029 | deliverable: history/dossiers/topography/forum-pillory-placement-1337.md - measured pillory position on 1343 forum polygon reconciling 1337 attestation with raekoja-plats extents | verify: single labelled coordinate with confidence on authoring polygon cited from both dossiers
 - [ ] R-043 | role: research | deps: R-011 | deliverable: history/dossiers/military/lower-town-weapon-finds-1340s.md - archaeological weapon and armour fragments from Lower Town occupation layers and Jahu/Lootsi waste exports c. 1340–1450 | verify: typed find list with layer dates, confidence labels, and gap statement for absent categories
 - [ ] R-044 | role: research | deps: R-026 | deliverable: history/dossiers/people/estonian-burgers-prosopography-pre-1343.md - named Estonian *Bürger* and permanent residents from AWB and Johansen name-stock tables before St George's Night | verify: every name carries document date and source; distinguishes citizen from resident without upgrading status
