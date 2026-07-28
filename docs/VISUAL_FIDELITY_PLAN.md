@@ -64,6 +64,11 @@ Enforced by `tools/verify_asset_lint.py` through `tools/character_fidelity_tiers
 | 1 Named NPC | 56,000 | 1024 px | `shared_skin_plus_pbr_swaps` | `skeleton_mesh_instance` | LOD1/LOD2 optional; P0-151 |
 | 2 Crowd / battle | 12,000 | 512 px | `crowd_simplified_pbr` | `multimesh_or_vat` | LOD1 ~50%, LOD2 ~20% of LOD0; P0-151 |
 
+Distance LOD switching (P0-151, `SharedCharacterRig`): LOD0 full meshes fade out by 18 world
+units; LOD1 covers 14-48 units; LOD2 takes over from 44 units onward. Decimated GLBs live beside
+each body as `<body>_lod1.glb` / `<body>_lod2.glb`; triangle fractions are recorded in
+`assets/characters/shared/character_lod_manifest.json` (authored ~50% / ~20% of LOD0).
+
 Triangle caps sum indexed triangle primitives across every skinned layer exported into the
 GLB (`anatomical_layers=True` bodies today land near 51k-55k tris).
 

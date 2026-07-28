@@ -59,6 +59,21 @@ const GARMENT_SCENES: Dictionary = {
 ## visible height contract (2.0 / BODY_STATURE from the generator log).
 const HEROIC_MODEL_SCALE := Vector3(1.1621, 1.1621, 1.1621)
 
+## Distance LOD thresholds (world units, camera-to-rig). Orthographic gameplay
+## rarely frames NPCs closer than ~8 units; beyond ~45 units they read as
+## distant silhouettes. Crossfade margins soften the hand-off between levels.
+const LOD0_VISIBILITY_END := 18.0
+const LOD0_VISIBILITY_MARGIN := 4.0
+const LOD1_VISIBILITY_BEGIN := 14.0
+const LOD1_VISIBILITY_END := 48.0
+const LOD1_VISIBILITY_MARGIN := 4.0
+const LOD2_VISIBILITY_BEGIN := 44.0
+const LOD_LEVELS: Array[int] = [1, 2]
+const BODY_GLB_BASENAMES: Dictionary = {
+	&"char.kalev": &"heroic_humanoid",
+}
+const CHARACTER_LOD_DIR := "res://assets/characters/shared/"
+
 ## Per-scene override for non-hero bodies: a body scene generated from a
 ## different spec sets this to 2.0 / its own BODY_STATURE.
 @export var model_scale: Vector3 = HEROIC_MODEL_SCALE
@@ -92,6 +107,8 @@ func _ready() -> void:
 	_skeleton = _find_skeleton($Model)
 	_apply_variant()
 	_install_proportion_modifiers()
+	_configure_lod0_visibility()
+	_install_distance_lods()
 	play_animation(start_animation)
 
 
@@ -421,4 +438,125 @@ func _tint_meshes(root: Node, tint: Color) -> void:
 				mesh_instance.set_surface_override_material(surface_index, tinted_material)
 	for child: Node in root.get_children():
 		_tint_meshes(child, tint)
+
+
+func _resolve_body_glb_basename() -> String:
+	if variant == null:
+		return ""
+	if BODY_GLB_BASENAMES.has(variant.stable_id):
+		return String(BODY_GLB_BASENAMES[variant.stable_id])
+	var stable := String(variant.stable_id)
+	if stable.begins_with("char."):
+		return stable.substr(5)
+	return ""
+
+
+func _configure_lod0_visibility() -> void:
+	var model := get_node_or_null("Model") as Node3D
+	if model == null:
+		return
+	for found: Node in model.find_children("*", "MeshInstance3D", true, false):
+		_apply_lod0_visibility(found as MeshInstance3D)
+
+
+func _install_distance_lods() -> void:
+	if _skeleton == null:
+		return
+	var basename := _resolve_body_glb_basename()
+	if basename.is_empty():
+		return
+	for lod_level: int in LOD_LEVELS:
+		var lod_path := "%s%s_lod%d.glb" % [CHARACTER_LOD_DIR, basename, lod_level]
+		if not ResourceLoader.exists(lod_path):
+			continue
+		var lod_scene := load(lod_path) as PackedScene
+		if lod_scene == null:
+			continue
+		var imported := lod_scene.instantiate()
+		_mount_lod_meshes(imported, lod_level)
+		imported.free()
+
+
+func _mount_lod_meshes(imported: Node, lod_level: int) -> void:
+	for found: Node in imported.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := found as MeshInstance3D
+		if mesh_instance.mesh == null:
+			continue
+		var local_xf := mesh_instance.transform
+		mesh_instance.get_parent().remove_child(mesh_instance)
+		mesh_instance.owner = null
+		mesh_instance.name = "LOD%d_%s" % [lod_level, mesh_instance.name]
+		_skeleton.add_child(mesh_instance)
+		mesh_instance.transform = local_xf
+		mesh_instance.skeleton = NodePath("..")
+		_apply_lod_level_visibility(mesh_instance, lod_level)
+		if _occlusion_ghost:
+			_apply_overlay(mesh_instance, _silhouette_material())
+
+
+static func _apply_lod0_visibility(mesh_instance: MeshInstance3D) -> void:
+	if mesh_instance == null:
+		return
+	mesh_instance.visibility_range_end = LOD0_VISIBILITY_END
+	mesh_instance.visibility_range_end_margin = LOD0_VISIBILITY_MARGIN
+	mesh_instance.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+
+
+static func _apply_lod_level_visibility(mesh_instance: MeshInstance3D, lod_level: int) -> void:
+	if mesh_instance == null:
+		return
+	match lod_level:
+		1:
+			mesh_instance.visibility_range_begin = LOD1_VISIBILITY_BEGIN
+			mesh_instance.visibility_range_begin_margin = LOD1_VISIBILITY_MARGIN
+			mesh_instance.visibility_range_end = LOD1_VISIBILITY_END
+			mesh_instance.visibility_range_end_margin = LOD1_VISIBILITY_MARGIN
+		2:
+			mesh_instance.visibility_range_begin = LOD2_VISIBILITY_BEGIN
+			mesh_instance.visibility_range_begin_margin = LOD1_VISIBILITY_MARGIN
+	mesh_instance.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+
+
+func lod_mesh_count(lod_level: int) -> int:
+	if _skeleton == null:
+		return 0
+	var prefix := "LOD%d_" % lod_level
+	var count := 0
+	for child: Node in _skeleton.get_children():
+		if child is MeshInstance3D and String(child.name).begins_with(prefix):
+			count += 1
+	return count
+
+
+func lod_visibility_configured() -> bool:
+	var model := get_node_or_null("Model") as Node3D
+	if model == null:
+		return false
+	var lod0_ok := false
+	for found: Node in model.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := found as MeshInstance3D
+		if mesh_instance.visibility_range_end >= LOD0_VISIBILITY_END:
+			lod0_ok = true
+			break
+	if not lod0_ok:
+		return false
+	for lod_level: int in LOD_LEVELS:
+		if lod_mesh_count(lod_level) <= 0:
+			return false
+		var sample_name := "LOD%d_" % lod_level
+		for child: Node in _skeleton.get_children():
+			if not (child is MeshInstance3D and String(child.name).begins_with(sample_name)):
+				continue
+			var mesh_instance := child as MeshInstance3D
+			match lod_level:
+				1:
+					if (
+						mesh_instance.visibility_range_begin < LOD1_VISIBILITY_BEGIN
+						or mesh_instance.visibility_range_end < LOD1_VISIBILITY_END
+					):
+						return false
+				2:
+					if mesh_instance.visibility_range_begin < LOD2_VISIBILITY_BEGIN:
+						return false
+	return true
 

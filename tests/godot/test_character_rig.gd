@@ -444,6 +444,36 @@ func test_danish_warrior_is_a_distinct_animated_spear_variant() -> void:
 	warrior.queue_free()
 
 
+func test_shared_rig_distance_lods_mount_with_visibility_ranges() -> void:
+	var kalev := _instantiate(KALEV_SCENE)
+	assert_true(kalev.lod_visibility_configured(), "Kalev must mount LOD1/LOD2 meshes with distance fades")
+	assert_true(kalev.lod_mesh_count(1) > 0, "LOD1 meshes must exist on the live skeleton")
+	assert_true(kalev.lod_mesh_count(2) > 0, "LOD2 meshes must exist on the live skeleton")
+	var manifest := FileAccess.open(
+		"res://assets/characters/shared/character_lod_manifest.json",
+		FileAccess.READ
+	)
+	assert_true(manifest != null, "character LOD manifest must be present")
+	var parsed: Variant = JSON.parse_string(manifest.get_as_text())
+	assert_true(parsed is Dictionary, "character LOD manifest must parse")
+	var bodies: Array = parsed.get("bodies", [])
+	assert_false(bodies.is_empty(), "character LOD manifest must list generated bodies")
+	var heroic: Dictionary = {}
+	for body_entry: Variant in bodies:
+		if body_entry is Dictionary and body_entry.get("body", "") == "heroic_humanoid.glb":
+			heroic = body_entry
+			break
+	assert_false(heroic.is_empty(), "heroic_humanoid LOD report must exist")
+	var lod1: Dictionary = heroic.get("levels", {}).get("lod1", {})
+	var lod2: Dictionary = heroic.get("levels", {}).get("lod2", {})
+	var lod1_fraction := float(lod1.get("fraction_of_lod0", 0.0))
+	var lod2_fraction := float(lod2.get("fraction_of_lod0", 1.0))
+	assert_true(lod1_fraction >= 0.40, "LOD1 should retain roughly half of LOD0 triangles")
+	assert_true(lod1_fraction <= 0.60, "LOD1 should stay near the 50% decimation target")
+	assert_true(lod2_fraction <= 0.30, "LOD2 should stay near the 20% decimation target")
+	kalev.queue_free()
+
+
 func test_anatomical_muscle_volume_responds_to_joint_bend() -> void:
 	var warrior := _instantiate(DANISH_WARRIOR_SCENE)
 	var skeleton := warrior.skeleton()

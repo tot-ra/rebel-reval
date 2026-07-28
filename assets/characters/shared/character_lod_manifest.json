@@ -1,0 +1,152 @@
+{
+  "lod_ratios": {
+    "1": 0.5,
+    "2": 0.2
+  },
+  "bodies": [
+    {
+      "body": "danish_warrior.glb",
+      "lod0_triangles": 52592,
+      "levels": {
+        "lod1": {
+          "path": "assets/characters/shared/danish_warrior_lod1.glb",
+          "triangles": 26291,
+          "fraction_of_lod0": 0.4999,
+          "target_ratio": 0.5
+        },
+        "lod2": {
+          "path": "assets/characters/shared/danish_warrior_lod2.glb",
+          "triangles": 10502,
+          "fraction_of_lod0": 0.1997,
+          "target_ratio": 0.2
+        }
+      }
+    },
+    {
+      "body": "henning.glb",
+      "lod0_triangles": 55408,
+      "levels": {
+        "lod1": {
+          "path": "assets/characters/shared/henning_lod1.glb",
+          "triangles": 27700,
+          "fraction_of_lod0": 0.4999,
+          "target_ratio": 0.5
+        },
+        "lod2": {
+          "path": "assets/characters/shared/henning_lod2.glb",
+          "triangles": 11065,
+          "fraction_of_lod0": 0.1997,
+          "target_ratio": 0.2
+        }
+      }
+    },
+    {
+      "body": "heroic_humanoid.glb",
+      "lod0_triangles": 51552,
+      "levels": {
+        "lod1": {
+          "path": "assets/characters/shared/heroic_humanoid_lod1.glb",
+          "triangles": 25772,
+          "fraction_of_lod0": 0.4999,
+          "target_ratio": 0.5
+        },
+        "lod2": {
+          "path": "assets/characters/shared/heroic_humanoid_lod2.glb",
+          "triangles": 10294,
+          "fraction_of_lod0": 0.1997,
+          "target_ratio": 0.2
+        }
+      }
+    },
+    {
+      "body": "innkeeper.glb",
+      "lod0_triangles": 51344,
+      "levels": {
+        "lod1": {
+          "path": "assets/characters/shared/innkeeper_lod1.glb",
+          "triangles": 25669,
+          "fraction_of_lod0": 0.4999,
+          "target_ratio": 0.5
+        },
+        "lod2": {
+          "path": "assets/characters/shared/innkeeper_lod2.glb",
+          "triangles": 10254,
+          "fraction_of_lod0": 0.1997,
+          "target_ratio": 0.2
+        }
+      }
+    },
+    {
+      "body": "mart.glb",
+      "lod0_triangles": 52144,
+      "levels": {
+        "lod1": {
+          "path": "assets/characters/shared/mart_lod1.glb",
+          "triangles": 26066,
+          "fraction_of_lod0": 0.4999,
+          "target_ratio": 0.5
+        },
+        "lod2": {
+          "path": "assets/characters/shared/mart_lod2.glb",
+          "triangles": 10414,
+          "fraction_of_lod0": 0.1997,
+          "target_ratio": 0.2
+        }
+      }
+    },
+    {
+      "body": "sergeant.glb",
+      "lod0_triangles": 55728,
+      "levels": {
+        "lod1": {
+          "path": "assets/characters/shared/sergeant_lod1.glb",
+          "triangles": 27860,
+          "fraction_of_lod0": 0.4999,
+          "target_ratio": 0.5
+        },
+        "lod2": {
+          "path": "assets/characters/shared/sergeant_lod2.glb",
+          "triangles": 11130,
+          "fraction_of_lod0": 0.1997,
+          "target_ratio": 0.2
+        }
+      }
+    },
+    {
+      "body": "townswoman.glb",
+      "lod0_triangles": 52016,
+      "levels": {
+        "lod1": {
+          "path": "assets/characters/shared/townswoman_lod1.glb",
+          "triangles": 26004,
+          "fraction_of_lod0": 0.4999,
+          "target_ratio": 0.5
+        },
+        "lod2": {
+          "path": "assets/characters/shared/townswoman_lod2.glb",
+          "triangles": 10390,
+          "fraction_of_lod0": 0.1997,
+          "target_ratio": 0.2
+        }
+      }
+    },
+    {
+      "body": "watchman.glb",
+      "lod0_triangles": 52384,
+      "levels": {
+        "lod1": {
+          "path": "assets/characters/shared/watchman_lod1.glb",
+          "triangles": 26185,
+          "fraction_of_lod0": 0.4999,
+          "target_ratio": 0.5
+        },
+        "lod2": {
+          "path": "assets/characters/shared/watchman_lod2.glb",
+          "triangles": 10461,
+          "fraction_of_lod0": 0.1997,
+          "target_ratio": 0.2
+        }
+      }
+    }
+  ]
+}
