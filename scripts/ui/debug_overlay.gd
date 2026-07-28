@@ -7,8 +7,10 @@ extends CanvasLayer
 
 const PANEL_MARGIN := 12.0
 const PANEL_WIDTH := 320.0
-const PANEL_HEIGHT := 340.0
+const PANEL_HEIGHT := 380.0
 const ASSET_SHOWCASE_SCENE := "res://scenes/debug/asset_showcase.tscn"
+const LARGE_ASSET_SHOWCASE_SCENE := "res://scenes/debug/asset_showcase_large.tscn"
+const ASSET_SHOWCASE_SCENES: Array[String] = [ASSET_SHOWCASE_SCENE, LARGE_ASSET_SHOWCASE_SCENE]
 const BG_COLOR := Color(0.0, 0.0, 0.0, 0.75)
 const TEXT_COLOR := Color(0.9, 0.9, 0.9, 1.0)
 const LABEL_COLOR := Color(0.6, 0.8, 1.0, 1.0)
@@ -27,7 +29,8 @@ var _pause_button: Button
 var _speed_down_button: Button
 var _speed_up_button: Button
 var _reset_button: Button
-var _asset_showcase_button: Button
+var _small_asset_showcase_button: Button
+var _large_asset_showcase_button: Button
 var _runtime: MapViewRuntime
 
 
@@ -233,13 +236,21 @@ func _build_ui() -> void:
 	scene_header.add_theme_color_override("font_color", LABEL_COLOR)
 	layout.add_child(scene_header)
 
-	_asset_showcase_button = _create_button(
-		"AssetShowcaseButton",
-		"Return to previous scene" if is_asset_showcase_scene() else "Open asset showcase",
-		_on_asset_showcase_pressed
+	_small_asset_showcase_button = _create_button(
+		"SmallAssetShowcaseButton",
+		"Return to previous scene" if _is_current_asset_showcase(ASSET_SHOWCASE_SCENE) else "Open small assets",
+		func() -> void: _open_asset_showcase(ASSET_SHOWCASE_SCENE)
 	)
-	_asset_showcase_button.tooltip_text = "Travel to the well-lit review gallery for all terrains, buildings, props, characters, and animations"
-	layout.add_child(_asset_showcase_button)
+	_small_asset_showcase_button.tooltip_text = "Review people, animals, furniture, tools, and other relatively small props"
+	layout.add_child(_small_asset_showcase_button)
+
+	_large_asset_showcase_button = _create_button(
+		"LargeAssetShowcaseButton",
+		"Return to previous scene" if _is_current_asset_showcase(LARGE_ASSET_SHOWCASE_SCENE) else "Open large assets",
+		func() -> void: _open_asset_showcase(LARGE_ASSET_SHOWCASE_SCENE)
+	)
+	_large_asset_showcase_button.tooltip_text = "Review terrain materials, buildings, trees, ships, and facade assets on a spacious grid"
+	layout.add_child(_large_asset_showcase_button)
 
 
 func _add_label(parent: Control, text: String) -> Label:
@@ -299,20 +310,32 @@ func _on_reset_pressed() -> void:
 
 func is_asset_showcase_scene() -> bool:
 	var current := get_tree().current_scene if is_inside_tree() else null
-	return current != null and current.scene_file_path == ASSET_SHOWCASE_SCENE
+	return current != null and current.scene_file_path in ASSET_SHOWCASE_SCENES
 
 
-func _on_asset_showcase_pressed() -> void:
+func _is_current_asset_showcase(scene_path: String) -> bool:
+	var current := get_tree().current_scene if is_inside_tree() else null
+	return current != null and current.scene_file_path == scene_path
+
+
+func _open_asset_showcase(scene_path: String) -> void:
 	var tree := get_tree()
-	if is_asset_showcase_scene():
-		var return_path := String(tree.root.get_meta(&"debug_asset_showcase_return_path", ""))
-		if return_path.is_empty() or not ResourceLoader.exists(return_path, "PackedScene"):
-			return_path = String(ProjectSettings.get_setting("application/run/main_scene", ""))
-		if not return_path.is_empty():
-			tree.change_scene_to_file(return_path)
+	var current := tree.current_scene
+	if current != null and current.scene_file_path == scene_path:
+		_return_from_asset_showcase(tree)
 		return
 
-	var current := tree.current_scene
-	if current != null and not current.scene_file_path.is_empty():
+	# Switching between the two catalogs must preserve the original return path,
+	# otherwise Return would only bounce back to the other debug gallery.
+	if current != null and current.scene_file_path not in ASSET_SHOWCASE_SCENES \
+			and not current.scene_file_path.is_empty():
 		tree.root.set_meta(&"debug_asset_showcase_return_path", current.scene_file_path)
-	tree.change_scene_to_file(ASSET_SHOWCASE_SCENE)
+	tree.change_scene_to_file(scene_path)
+
+
+func _return_from_asset_showcase(tree: SceneTree) -> void:
+	var return_path := String(tree.root.get_meta(&"debug_asset_showcase_return_path", ""))
+	if return_path.is_empty() or not ResourceLoader.exists(return_path, "PackedScene"):
+		return_path = String(ProjectSettings.get_setting("application/run/main_scene", ""))
+	if not return_path.is_empty():
+		tree.change_scene_to_file(return_path)

@@ -12,11 +12,15 @@ func test_debug_overlay_starts_hidden_and_toggles_visibility() -> void:
 	overlay.toggle_visibility()
 	assert_false(overlay.visible, "second toggle must hide the overlay")
 	var reset := overlay.find_child("ResetButton", true, false) as Button
-	var showcase := overlay.find_child("AssetShowcaseButton", true, false) as Button
+	var small_showcase := overlay.find_child("SmallAssetShowcaseButton", true, false) as Button
+	var large_showcase := overlay.find_child("LargeAssetShowcaseButton", true, false) as Button
 	assert_true(reset != null, "debug overlay must keep time reset available")
-	assert_true(showcase != null, "debug overlay must expose the asset review gallery")
-	assert_eq(showcase.text, "Open asset showcase")
-	assert_eq(showcase.focus_mode, Control.FOCUS_ALL)
+	assert_true(small_showcase != null, "debug overlay must expose the small-asset gallery")
+	assert_true(large_showcase != null, "debug overlay must expose the large-asset gallery")
+	assert_eq(small_showcase.text, "Open small assets")
+	assert_eq(large_showcase.text, "Open large assets")
+	assert_eq(small_showcase.focus_mode, Control.FOCUS_ALL)
+	assert_eq(large_showcase.focus_mode, Control.FOCUS_ALL)
 	overlay.queue_free()
 
 

@@ -61,7 +61,11 @@ Then:
 
 ## Anatomy and clothing layers
 
-`tools/hero_body_anatomy_builder.py` builds the shared body system from the retargeted skeleton rather than from uniform limb cylinders. Thigh, knee, calf, shin, deltoid, upper arm, elbow, and forearm use distinct profiles and blended joint weights. `tools/hero_body_torso_builder.py` then adds fitted tunic or mail and existing profession/rank outerwear above that envelope. Every committed human body must expose `Anatomy_*` and `Clothing_*` meshes and install `AnatomicalMuscles` through `SharedCharacterRig`.
+`tools/hero_body_anatomy_builder.py` builds the shared body system from the retargeted skeleton rather than from uniform limb cylinders. Thigh, knee, calf, shin, deltoid, upper arm, elbow, and forearm use distinct profiles and blended joint weights. `tools/hero_body_torso_builder.py` then adds fitted tunic or mail and existing profession/rank outerwear above that envelope.
+
+**One profile per body region, shared by every layer.** `torso_profile()` (anatomy builder) and `head_profile()` (head builder) return the cross-sections - centre, side, front and back radius - that the skin, the clothing shell, the hair and the beard all read. Garments are that profile plus a clearance, so cloth can never disagree with the body underneath, and outerwear panel depths come from `_worn_depth()` rather than from constants (a fixed depth buried the innkeeper's apron inside his own belly). The torso profile carries the shoulder girdle: its clavicle section reaches the arm sockets measured from the skeleton, and the arm builder caps the joint with a deltoid weighted to `upperarm.*`. Without both halves the arms hang visibly detached.
+
+Faces are built the same way - chin, jaw, cheek, eye line, brow, cranium and crown sections - and features are seated on the resulting surface with `_surface_depth()` instead of at a fixed distance, so eyes and brows do not bulge past the cheekbone on wide or narrow specs. Hair and beard are the head profile scaled per section: below 1.0 they hide inside the skull, above it they show, and the crossing draws the hairline or the beard's jaw line. Two surfaces that cross at a shallow angle speckle against each other, so make the jump across the boundary section decisive. Every committed human body must expose `Anatomy_*` and `Clothing_*` meshes and install `AnatomicalMuscles` through `SharedCharacterRig`.
 
 The Danish crown man-at-arms is the armor reference and eighth comparison character in `scenes/debug/asset_showcase.tscn`. He represents the Toompea garrison, not the Lower Town burgher watch. Mail is plausible for that role; red and off-white cloth communicates allegiance without claiming a standardized modern national uniform. Historical constraints: `history/dossiers/military/arms-and-armour-livonia-1340s.md` and `history/dossiers/military/watch-duty-and-town-defence.md`.
 
@@ -75,7 +79,8 @@ New body parts (skirts, hoods, animal shapes) are new `PartBuilder` sections in 
 - `PartBuilder` applies **one Catmull-Clark subdivision** at build time (smooth-shaded, weights interpolate through the apply): tubes and spheres round out, and `box()` pre-scales by `BOX_SUBDIVISION_COMPENSATION` so hands, boots, and face features keep their authored footprint while gaining rounded corners. Pass `subdivision=0` for parts that must stay hard-edged.
 - Assign weights at creation: interior rings weight 1.0 to their bone, joint rings blend 50/50 between the adjacent bones (`_blend`).
 - Rings around a nearly-horizontal axis (hands in the A-pose rest) must build their frame with `frame.basis_for(axis)`, not the body frame — degenerate frames collapse geometry (this bug produced sliver hands once).
-- Close every tube (`cap`) — open meshes show their backfaces in motion.
+- `ring()` takes an optional `radius_back` for egg-shaped sections (buttocks, chest, calf, occiput). Its depth axis is oriented by `PartBuilder._section_basis`, which aligns the first ring of a tube with the body's forward direction and makes later rings follow it; `Frame.basis_for` alone fixes only the plane, not the sign, so a raw vertical ring points its "front" at the character's back.
+- Close every tube (`cap`) — open meshes show their backfaces in motion. Both ends: an uncapped thigh top showed through the pelvis from above.
 - New creatures with non-humanoid skeletons are out of scope for this pipeline; that is a future ADR (new clip source or hand-authored cycles).
 
 ## Non-negotiables

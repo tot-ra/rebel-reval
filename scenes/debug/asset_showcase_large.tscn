@@ -3,9 +3,9 @@
 [ext_resource type="Script" path="res://scenes/debug/asset_showcase.gd" id="1_showcase"]
 [ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="2_player"]
 
-[node name="SmallAssetShowcase" type="Node2D"]
+[node name="LargeAssetShowcase" type="Node2D"]
 script = ExtResource("1_showcase")
-showcase_kind = "small"
+showcase_kind = "large"
 
 [node name="MapRoot" type="Node2D" parent="."]
 
@@ -16,8 +16,8 @@ y_sort_enabled = true
 y_sort_enabled = true
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(1536, 1856)
+position = Vector2(2176, 2080)
 limit_left = 0
 limit_top = 0
-limit_right = 3072
-limit_bottom = 3712
+limit_right = 4352
+limit_bottom = 4800

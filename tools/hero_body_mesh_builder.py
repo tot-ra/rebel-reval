@@ -84,6 +84,7 @@ class PartBuilder:
         self.face_materials: list[str] = []
         self._last_ring: list[int] | None = None
         self._last_ring_material: str | None = None
+        self._last_basis: tuple[Vector, Vector] | None = None
 
     def _add_vertex(self, position: Vector, weights: dict[str, float]) -> int:
         self.vertices.append(position)
@@ -93,6 +94,7 @@ class PartBuilder:
     def start_tube(self) -> None:
         self._last_ring = None
         self._last_ring_material = None
+        self._last_basis = None
 
     def ring(
         self,
@@ -102,15 +104,26 @@ class PartBuilder:
         radius_forward: float,
         weights: dict[str, float],
         material: str,
+        radius_back: float | None = None,
     ) -> list[int]:
-        side, forward = self.frame.basis_for(axis.normalized())
+        """Add one cross-section, bridged to the previous ring of this tube.
+
+        `radius_back` makes the section egg-shaped instead of elliptical: the
+        posterior half uses its own depth. Bodies need this wherever front and
+        back masses differ - buttocks, chest, calf, skull - and the section
+        stays closed and smooth because both halves meet at zero offset on the
+        side axis.
+        """
+        side, forward = self._section_basis(axis.normalized())
         radius_side *= self.bulk
         radius_forward *= self.bulk
+        radius_back = radius_forward if radius_back is None else radius_back * self.bulk
         indices: list[int] = []
         for step in range(RING_SEGMENTS):
             angle = math.tau * step / RING_SEGMENTS
+            depth = math.sin(angle)
             offset = side * (math.cos(angle) * radius_side)
-            offset += forward * (math.sin(angle) * radius_forward)
+            offset += forward * (depth * (radius_forward if depth >= 0.0 else radius_back))
             indices.append(self._add_vertex(center + offset, weights))
         if self._last_ring is not None:
             for step in range(RING_SEGMENTS):
@@ -127,6 +140,26 @@ class PartBuilder:
         self._last_ring = indices
         self._last_ring_material = material
         return indices
+
+    def _section_basis(self, axis: Vector) -> tuple[Vector, Vector]:
+        """Oriented cross-section basis: (side, depth), depth facing forward.
+
+        `Frame.basis_for` fixes only the plane, not the sign, and for a
+        vertical axis its second vector happens to point at the character's
+        back - which silently mirrors every front/back radius. The first ring
+        of a tube therefore aligns depth with the body's forward direction, and
+        later rings follow the previous ring so a bending limb cannot twist.
+        Both vectors flip together, so ring winding is preserved.
+        """
+        side, depth = self.frame.basis_for(axis)
+        if self._last_basis is None:
+            flip = depth.dot(self.frame.forward) < 0.0
+        else:
+            flip = depth.dot(self._last_basis[1]) < 0.0
+        if flip:
+            side, depth = -side, -depth
+        self._last_basis = (side, depth)
+        return side, depth
 
     def cap(self, center: Vector, weights: dict[str, float], material: str) -> None:
         if self._last_ring is None:
@@ -178,6 +211,7 @@ class PartBuilder:
         weights: dict[str, float],
         material: str,
         rings: int = 7,
+        radius_back: float | None = None,
     ) -> None:
         up, forward, _left = self.frame.up, self.frame.forward, self.frame.left
         self.start_tube()
@@ -197,6 +231,7 @@ class PartBuilder:
                 radius.y * ring_radius,
                 weights,
                 material,
+                radius_back=None if radius_back is None else radius_back * ring_radius,
             )
             if first:
                 apex = self._add_vertex(bottom, weights)

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from mathutils import Vector
 
+from hero_body_anatomy_builder import torso_profile
 from hero_body_context import BodyContext, blend_weights
 from hero_body_mesh_builder import PartBuilder
 
@@ -24,6 +25,7 @@ def build_torso(context: BodyContext, shape: dict, features: dict) -> PartBuilde
         # only fitted torso clothing and role-specific outerwear above it.
         _add_anatomical_clothing(torso, context, shape, features)
         _add_outerwear(torso, context, shape, features["outerwear"])
+        _add_pauldrons(torso, context, features)
         return torso
     torso.start_tube()
     # Pelvis cap; hidden under a long tunic skirt, visible with a short one.
@@ -127,19 +129,34 @@ def build_torso(context: BodyContext, shape: dict, features: dict) -> PartBuilde
             "tunic",
             rings=9,
         )
-        if features["pauldrons"]:
-            # Flattened steel dome riding the deltoid, pushed slightly outward.
-            outward = shoulder - neck_base
-            outward -= up * outward.dot(up)
-            outward = outward.normalized()
-            torso.uv_sphere(
-                shoulder + up * 0.034 * scale + outward * 0.028 * scale,
-                Vector((0.096 * scale, 0.082 * scale, 0.056 * scale)),
-                {f"upperarm.{suffix}": 1.0},
-                "armor",
-                rings=9,
-            )
+    _add_pauldrons(torso, context, features)
     return torso
+
+
+def _add_pauldrons(
+    torso: PartBuilder, context: BodyContext, features: dict
+) -> None:
+    """Flattened steel domes riding the deltoids.
+
+    Rank armour has to survive on the anatomical bodies too - it used to be
+    reachable only on the legacy path, so captains and sergeants shipped
+    without the plates their specs ask for.
+    """
+    if not features["pauldrons"]:
+        return
+    up = context.frame.up
+    scale = context.scale
+    for suffix, shoulder in (("l", context.shoulder_l), ("r", context.shoulder_r)):
+        outward = shoulder - context.neck_base
+        outward -= up * outward.dot(up)
+        outward = outward.normalized()
+        torso.uv_sphere(
+            shoulder + up * 0.034 * scale + outward * 0.028 * scale,
+            Vector((0.096 * scale, 0.082 * scale, 0.056 * scale)),
+            {f"upperarm.{suffix}": 1.0},
+            "armor",
+            rings=9,
+        )
 
 
 def _add_anatomical_clothing(
@@ -155,8 +172,10 @@ def _add_anatomical_clothing(
     up = context.frame.up
     scale = context.scale
     belly = shape["belly"]
-    chest = shape["chest_breadth"]
     material = "mail" if features["armor_style"] == "mail" else "tunic"
+    # Worn clearance over the skin envelope. Cloth follows the body it covers -
+    # including the shoulder girdle - because both read the same profile.
+    clearance = 0.011
 
     torso.start_tube()
     if features["tunic_length"] == "long":
@@ -185,22 +204,43 @@ def _add_anatomical_clothing(
             {"hips": 1.0},
             material,
         )
-    for center, side_radius, front_radius, weights in (
-        (context.hips - up * 0.03 * scale, 0.148 * belly, 0.109 * belly, {"hips": 1.0}),
-        (context.waist, 0.122 * belly, 0.096 * belly, blend_weights("hips", "spine", 0.5)),
-        (context.chest_height, 0.169 * chest, 0.114, blend_weights("spine", "chest", 0.65)),
-        (context.shoulder_line, 0.190 * chest, 0.108, {"chest": 1.0}),
-        (context.neck_base - up * 0.015 * scale, 0.068, 0.062, {"chest": 1.0}),
+    # Skip the profile's crotch section: the hem above already closes the
+    # garment below the hips, and the pelvis belongs to the skin layer.
+    for index, (center, side_radius, front_radius, back_radius, weights) in enumerate(
+        torso_profile(context, shape)[1:]
     ):
         torso.ring(
             center,
             up,
-            side_radius * scale,
-            front_radius * scale,
+            (side_radius + clearance) * scale,
+            (front_radius + clearance) * scale,
             weights,
             material,
+            radius_back=(back_radius + clearance) * scale,
         )
-    torso.cap(context.neck_base + up * 0.005 * scale, {"chest": 1.0}, material)
+        if index == 0:
+            # Belt sits on the pelvis, breaking the tunic's vertical run and
+            # marking the waist that the outerwear and pouches hang from.
+            torso.ring(
+                context.hips + up * 0.022 * scale,
+                up,
+                (0.140 * belly + clearance) * scale,
+                (0.100 * belly + clearance) * scale,
+                {"hips": 1.0},
+                "belt",
+                radius_back=(0.124 * belly + clearance) * scale,
+            )
+    torso.cap(context.neck_base + up * 0.038 * scale, {"chest": 1.0}, material)
+
+
+def _worn_depth(context: BodyContext, shape: dict, section: int) -> float:
+    """Front depth of the outermost worn layer at one torso section.
+
+    Outerwear panels are flat boxes; they only read as clothing if they clear
+    the tunic beneath them by roughly their own thickness, whatever girth the
+    spec asks for.
+    """
+    return torso_profile(context, shape)[section][2] + 0.020
 
 
 def _add_outerwear(
@@ -220,28 +260,38 @@ def _add_outerwear(
     scale = context.scale
     belly = shape["belly"]
     chest_breadth = shape["chest_breadth"]
+    # Where the outermost worn layer sits at each landmark. Measured from the
+    # body profile rather than assumed: a fixed depth buried the innkeeper's
+    # apron inside his own belly.
+    hip_front = _worn_depth(context, shape, 1)
+    chest_front = _worn_depth(context, shape, 4)
+    shoulder_front = _worn_depth(context, shape, 6)
 
     if style == "apron":
         # Leather work apron: bib, skirt, neck strap and belt ties.
         torso.box(
-            context.chest_height + forward * 0.118 * scale,
+            context.chest_height + forward * chest_front * scale,
             left * 0.105 * scale * chest_breadth,
             forward * 0.012 * scale,
             up * 0.170 * scale,
             blend_weights("spine", "chest", 0.55),
             "outerwear",
         )
-        apron_center = context.hips.lerp(context.knee_center, 0.42) + forward * 0.122 * scale
+        # The skirt stops at mid-thigh: hung to the knee it read as a plank
+        # swinging clear of the legs.
+        apron_center = (
+            context.hips.lerp(context.knee_center, 0.30) + forward * hip_front * scale
+        )
         torso.box(
             apron_center,
-            left * 0.135 * scale * belly,
-            forward * 0.014 * scale,
-            up * 0.250 * scale,
+            left * 0.132 * scale * belly,
+            forward * 0.013 * scale,
+            up * 0.200 * scale,
             {"hips": 1.0},
             "outerwear",
         )
         torso.box(
-            context.hips + up * 0.025 * scale + forward * 0.128 * scale,
+            context.hips + up * 0.025 * scale + forward * (hip_front + 0.008) * scale,
             left * 0.155 * scale * belly,
             forward * 0.018 * scale,
             up * 0.025 * scale,
@@ -252,7 +302,7 @@ def _add_outerwear(
             torso.box(
                 context.shoulder_line
                 + left * side * 0.078 * scale
-                + forward * 0.100 * scale,
+                + forward * shoulder_front * scale,
                 left * 0.012 * scale,
                 forward * 0.009 * scale,
                 up * 0.125 * scale,
@@ -264,25 +314,46 @@ def _add_outerwear(
     if style in ("vest", "surcoat"):
         # Sleeveless wool/leather layer. The centre opening and edging create a
         # readable garment rather than another uniformly coloured torso shell.
+        # Worn over the tunic on the same profile, so it reads as a garment on
+        # a body from every angle - authored radii used to leave the front of
+        # the vest sunk inside the tunic while its sides stuck out.
+        sections = torso_profile(context, shape)
+        outer = 0.022
         torso.start_tube()
         hem_height = context.hips - up * (0.10 if style == "vest" else 0.22) * scale
-        for center, side_radius, front_radius, weights in (
-            (hem_height, 0.151 * belly, 0.113 * belly, {"hips": 1.0}),
-            (context.waist, 0.127 * belly, 0.103 * belly, blend_weights("hips", "spine", 0.5)),
-            (context.chest_height, 0.181 * chest_breadth, 0.119, blend_weights("spine", "chest", 0.65)),
-            (context.shoulder_line, 0.190 * chest_breadth, 0.111, {"chest": 1.0}),
-            (context.neck_base - up * 0.035 * scale, 0.074, 0.066, {"chest": 1.0}),
-        ):
+        torso.ring(
+            hem_height,
+            up,
+            (0.151 * belly + outer) * scale,
+            (0.113 * belly + outer) * scale,
+            {"hips": 1.0},
+            "outerwear",
+            radius_back=(0.125 * belly + outer) * scale,
+        )
+        for center, side_radius, front_radius, back_radius, weights in sections[1:6]:
             torso.ring(
                 center,
                 up,
-                side_radius * scale,
-                front_radius * scale,
+                (side_radius + outer) * scale,
+                (front_radius + outer) * scale,
                 weights,
                 "outerwear",
+                radius_back=(back_radius + outer) * scale,
             )
+        # A sleeveless layer stops at the collarbone with a wide neck opening.
+        torso.ring(
+            context.neck_base - up * 0.035 * scale,
+            up,
+            0.086 * scale,
+            0.078 * scale,
+            {"chest": 1.0},
+            "outerwear",
+        )
         torso.cap(context.neck_base - up * 0.01 * scale, {"chest": 1.0}, "outerwear")
-        trim_center = context.hips.lerp(context.shoulder_line, 0.55) + forward * 0.122 * scale
+        trim_center = (
+            context.hips.lerp(context.shoulder_line, 0.55)
+            + forward * (chest_front + outer) * scale
+        )
         for side in (-1.0, 1.0):
             torso.box(
                 trim_center + left * side * 0.018 * scale,
@@ -294,7 +365,7 @@ def _add_outerwear(
             )
         if style == "surcoat":
             torso.box(
-                context.hips + up * 0.025 * scale + forward * 0.124 * scale,
+                context.hips + up * 0.025 * scale + forward * (hip_front + outer) * scale,
                 left * 0.158 * scale,
                 forward * 0.014 * scale,
                 up * 0.026 * scale,
@@ -306,17 +377,19 @@ def _add_outerwear(
     if style == "kirtle":
         # Contrasting over-dress/apron panel with shoulder straps. The main
         # long tunic still supplies the animated skirt volume beneath it.
-        panel_center = context.hips.lerp(context.knee_center, 0.38) + forward * 0.120 * scale
+        panel_center = (
+            context.hips.lerp(context.knee_center, 0.34) + forward * hip_front * scale
+        )
         torso.box(
             panel_center,
             left * 0.125 * scale,
             forward * 0.012 * scale,
-            up * 0.330 * scale,
+            up * 0.290 * scale,
             {"hips": 1.0},
             "outerwear",
         )
         torso.box(
-            context.chest_height + forward * 0.115 * scale,
+            context.chest_height + forward * chest_front * scale,
             left * 0.105 * scale,
             forward * 0.012 * scale,
             up * 0.125 * scale,
@@ -327,7 +400,7 @@ def _add_outerwear(
             torso.box(
                 context.shoulder_line
                 + left * side * 0.078 * scale
-                + forward * 0.105 * scale,
+                + forward * shoulder_front * scale,
                 left * 0.013 * scale,
                 forward * 0.009 * scale,
                 up * 0.125 * scale,

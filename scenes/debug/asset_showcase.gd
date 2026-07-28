@@ -1,8 +1,8 @@
 class_name AssetShowcase
 extends "res://scripts/global/BaseLevel.gd"
 
-## Walkable developer gallery for reviewing the complete current object catalog
-## under the production renderer, scale, shadows, camera, and animation systems.
+## Walkable developer galleries for reviewing the current object catalog under the
+## production renderer, scale, shadows, camera, and animation systems.
 
 const Definition := preload("res://scenes/debug/asset_showcase_definition.gd")
 const HUMANOID_SCENES: Array[PackedScene] = [
@@ -27,6 +27,9 @@ const CHARACTER_VARIANT_SPACING := 5.0
 const CAT_ANIMATION_SPACING := 6.0
 const ONE_SHOT_REPLAY_DELAY := 0.6
 const MIDDAY_PROGRESS := 0.5
+const LARGE_ASSET_COLOR := Color8(255, 220, 132)
+
+@export_enum("small", "large") var showcase_kind: String = String(Definition.SHOWCASE_SMALL)
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -40,7 +43,7 @@ var _replay_delays: Dictionary = {}
 
 
 func _ready() -> void:
-	_definition = Definition.create()
+	_definition = Definition.create(StringName(showcase_kind))
 	var errors := _definition.validate()
 	if not errors.is_empty():
 		push_error("Invalid debug asset showcase: %s" % ", ".join(errors))
@@ -54,7 +57,7 @@ func _ready() -> void:
 		player.navigation_agent.set_navigation_map(navigation.get_navigation_map())
 
 	_view_runtime = MapViewRuntime.install(self, _bootstrap, map_root, player)
-	# The gallery is a stable visual review environment, not a weather/time test.
+	# The galleries are stable visual review environments, not weather/time tests.
 	_view_runtime.set_time_of_day(MapView3D.TIME_DAY)
 	_view_runtime.view.apply_cycle_progress(MIDDAY_PROGRESS)
 	var sky := _view_runtime.view.sky_weather()
@@ -66,8 +69,11 @@ func _ready() -> void:
 
 	_add_fill_light()
 	_add_section_labels()
-	_add_characters_and_animations()
-	_add_unbound_asset_variants()
+	if is_large_showcase():
+		_add_large_unbound_assets()
+	else:
+		_add_characters_and_animations()
+		_add_small_unbound_assets()
 	_add_review_hud()
 
 
@@ -86,6 +92,10 @@ func _process(delta: float) -> void:
 		_replay_delays[rig] = ONE_SHOT_REPLAY_DELAY
 
 
+func is_large_showcase() -> bool:
+	return StringName(showcase_kind) == Definition.SHOWCASE_LARGE
+
+
 func _add_fill_light() -> void:
 	var fill := DirectionalLight3D.new()
 	fill.name = "ShowcaseFillLight"
@@ -100,7 +110,14 @@ func _add_section_labels() -> void:
 	var labels := Node3D.new()
 	labels.name = "ShowcaseLabels"
 	_view_runtime.view.add_child(labels)
-	_add_label(labels, "TERRAIN MATERIALS - %d" % MapTypes.ALL_TERRAINS.size(), Vector2(4.0, 1.5), 1.5, Color8(255, 220, 132))
+	if is_large_showcase():
+		_add_large_section_labels(labels)
+	else:
+		_add_small_section_labels(labels)
+
+
+func _add_large_section_labels(labels: Node3D) -> void:
+	_add_label(labels, "LARGE ASSETS - TERRAIN MATERIALS (%d)" % MapTypes.ALL_TERRAINS.size(), Vector2(4.0, 2.0), 1.5, LARGE_ASSET_COLOR)
 	for index in MapTypes.ALL_TERRAINS.size():
 		_add_label(
 			labels,
@@ -111,31 +128,46 @@ func _add_section_labels() -> void:
 			44
 		)
 
-	_add_label(labels, "BUILDINGS, FORTIFICATIONS AND GATES", Vector2(4.0, 24.0), 1.5, Color8(255, 220, 132))
+	_add_label(labels, "BUILDINGS, FORTIFICATIONS AND GATES", Vector2(4.0, 66.0), 1.5, LARGE_ASSET_COLOR)
 	for spec in Definition.BUILDING_SPECS:
 		var rect: Rect2i = spec["cell_rect"]
-		_add_label(labels, spec["label"], Vector2(rect.position) + Vector2(rect.size.x * 0.5, rect.size.y + 0.7), 0.2)
+		_add_label(labels, spec["label"], Vector2(rect.position) + Vector2(rect.size.x * 0.5, rect.size.y + 1.0), 0.2)
 	for spec in Definition.GATE_SPECS:
 		var rect: Rect2i = spec["cell_rect"]
-		_add_label(labels, spec["label"], Vector2(rect.position) + Vector2(rect.size.x * 0.5, rect.size.y + 0.7), 0.2)
+		_add_label(labels, spec["label"], Vector2(rect.position) + Vector2(rect.size.x * 0.5, rect.size.y + 1.0), 0.2)
+	_add_label(labels, "WALL-WALK ACCESS", Vector2(88.0, 110.0), 0.2)
 
-	_add_label(labels, "ALL PROP KINDS - %d" % MapTypes.ALL_PROP_KINDS.size(), Vector2(4.0, 39.5), 1.5, Color8(255, 220, 132))
-	for index in MapTypes.ALL_PROP_KINDS.size():
+	_add_label(labels, "TREES AND SHIPS - LARGE GRID", Vector2(4.0, 116.0), 1.5, LARGE_ASSET_COLOR)
+	for index in Definition.LARGE_PROP_KINDS.size():
 		_add_label(
 			labels,
-			String(MapTypes.ALL_PROP_KINDS[index]).to_upper(),
-			Vector2(Definition.prop_cell(index)) + Vector2(0.5, 1.8),
+			String(Definition.LARGE_PROP_KINDS[index]).to_upper(),
+			Vector2(Definition.large_prop_cell(index)) + Vector2(0.5, 4.8),
+			0.2,
+			Color.WHITE,
+			40
+		)
+	_add_label(labels, "ANCIENT OAK GLB", Vector2(108.5, 127.8), 0.2)
+	_add_label(labels, "ARCHITECTURAL FACADE ASSETS", Vector2(4.0, 135.0), 1.5, LARGE_ASSET_COLOR)
+
+
+func _add_small_section_labels(labels: Node3D) -> void:
+	var kinds := Definition.small_prop_kinds()
+	_add_label(labels, "SMALL ASSETS - PEOPLE, ANIMALS AND PROPS (%d)" % kinds.size(), Vector2(4.0, 2.0), 1.5, LARGE_ASSET_COLOR)
+	for index in kinds.size():
+		_add_label(
+			labels,
+			String(kinds[index]).to_upper(),
+			Vector2(Definition.small_prop_cell(index)) + Vector2(0.5, 1.8),
 			0.1,
 			Color.WHITE,
 			36
 		)
-	_add_label(labels, "ANCIENT OAK GLB", Vector2(81.5, 98.4), 0.2)
-	_add_label(labels, "WALL-WALK ACCESS", Vector2(15.0, 39.8), 0.2)
 
-	_add_label(labels, "CHARACTER VARIANTS", Vector2(4.0, 105.0), 1.5, Color8(255, 220, 132))
-	_add_label(labels, "ALL HUMANOID ANIMATIONS", Vector2(4.0, 113.5), 1.5, Color8(255, 220, 132))
-	_add_label(labels, "ALL CAT ANIMATIONS", Vector2(4.0, 129.0), 1.5, Color8(255, 220, 132))
-	_add_label(labels, "UNBOUND PRODUCTION ASSETS", Vector2(4.0, 140.0), 1.5, Color8(255, 220, 132))
+	_add_label(labels, "CHARACTER VARIANTS", Vector2(4.0, 63.0), 1.5, LARGE_ASSET_COLOR)
+	_add_label(labels, "ALL HUMANOID ANIMATIONS", Vector2(4.0, 73.0), 1.5, LARGE_ASSET_COLOR)
+	_add_label(labels, "ALL CAT ANIMATIONS", Vector2(4.0, 93.0), 1.5, LARGE_ASSET_COLOR)
+	_add_label(labels, "UNBOUND PRODUCTION OBJECTS", Vector2(4.0, 104.0), 1.5, LARGE_ASSET_COLOR)
 
 
 func _add_characters_and_animations() -> void:
@@ -145,7 +177,7 @@ func _add_characters_and_animations() -> void:
 
 	for index in HUMANOID_SCENES.size():
 		var rig := HUMANOID_SCENES[index].instantiate() as SharedCharacterRig
-		rig.position = Vector3(8.0 + float(index) * CHARACTER_VARIANT_SPACING, 0.0, 109.0)
+		rig.position = Vector3(8.0 + float(index) * CHARACTER_VARIANT_SPACING, 0.0, 68.0)
 		rig.start_animation = &"idle"
 		root.add_child(rig)
 		_add_world_label(root, String(rig.name).to_upper(), rig.position + Vector3(0.0, 2.7, 0.0), 38)
@@ -157,7 +189,7 @@ func _add_characters_and_animations() -> void:
 		var row := index / 8
 		var column := index % 8
 		var rig := HUMANOID_SCENES[0].instantiate() as SharedCharacterRig
-		rig.position = Vector3(7.0 + float(column) * HUMANOID_ANIMATION_SPACING, 0.0, 118.0 + float(row) * 7.0)
+		rig.position = Vector3(7.0 + float(column) * HUMANOID_ANIMATION_SPACING, 0.0, 78.0 + float(row) * 8.0)
 		rig.start_animation = animation_name
 		root.add_child(rig)
 		_add_world_label(root, String(animation_name).to_upper(), rig.position + Vector3(0.0, 2.7, 0.0), 34)
@@ -168,7 +200,7 @@ func _add_characters_and_animations() -> void:
 	for index in CatRig.REQUIRED_ANIMATIONS.size():
 		var animation_name: StringName = CatRig.REQUIRED_ANIMATIONS[index]
 		var cat := CAT_SCENE.instantiate() as CatRig
-		cat.position = Vector3(8.0 + float(index) * CAT_ANIMATION_SPACING, 0.0, 134.0)
+		cat.position = Vector3(8.0 + float(index) * CAT_ANIMATION_SPACING, 0.0, 98.0)
 		cat.start_animation = animation_name
 		root.add_child(cat)
 		_add_world_label(root, "CAT %s" % String(animation_name).to_upper(), cat.position + Vector3(0.0, 1.25, 0.0), 34)
@@ -177,18 +209,23 @@ func _add_characters_and_animations() -> void:
 			_replay_delays[cat] = ONE_SHOT_REPLAY_DELAY
 
 
-func _add_unbound_asset_variants() -> void:
+func _add_small_unbound_assets() -> void:
 	var root := Node3D.new()
-	root.name = "UnboundAssetShowcase"
+	root.name = "UnboundSmallAssetShowcase"
 	_view_runtime.add_child(root)
-
 	var cart_scene := load(CART_SCENE_PATH) as PackedScene
-	if cart_scene != null:
-		var cart := cart_scene.instantiate() as Node3D
-		root.add_child(cart)
-		cart.position = Vector3(8.0, 0.0, 144.0)
-		_add_world_label(root, "WOODEN CART GLB", cart.position + Vector3(0.0, 2.8, 0.0), 38)
+	if cart_scene == null:
+		return
+	var cart := cart_scene.instantiate() as Node3D
+	root.add_child(cart)
+	cart.position = Vector3(8.0, 0.0, 109.0)
+	_add_world_label(root, "WOODEN CART GLB", cart.position + Vector3(0.0, 2.8, 0.0), 38)
 
+
+func _add_large_unbound_assets() -> void:
+	var root := Node3D.new()
+	root.name = "UnboundLargeAssetShowcase"
+	_view_runtime.add_child(root)
 	for index in FACADE_ASSETS.size():
 		var spec := FACADE_ASSETS[index]
 		var scene := load(spec["path"]) as PackedScene
@@ -196,7 +233,7 @@ func _add_unbound_asset_variants() -> void:
 			continue
 		var asset := scene.instantiate() as Node3D
 		root.add_child(asset)
-		asset.position = Vector3(22.0 + float(index) * 9.0, 0.0, 144.0)
+		asset.position = Vector3(12.0 + float(index) * 32.0, 0.0, 142.0)
 		_add_world_label(root, spec["label"], asset.position + Vector3(0.0, 3.8, 0.0), 34)
 
 
@@ -254,12 +291,20 @@ func _add_review_hud() -> void:
 	panel.add_child(margin)
 
 	var label := Label.new()
-	label.text = (
-		"ASSET REVIEW GALLERY\n"
-		+ "%d terrains | %d prop kinds | %d building samples | %d humanoid clips | %d cat clips\n"
-		% [MapTypes.ALL_TERRAINS.size(), MapTypes.ALL_PROP_KINDS.size(), Definition.BUILDING_SPECS.size(), SharedCharacterRig.CANONICAL_ANIMATIONS.size(), CatRig.REQUIRED_ANIMATIONS.size()]
-		+ "WASD/arrows - move | C - camera | right-drag - look | Debug - return"
-	)
+	if is_large_showcase():
+		label.text = (
+			"LARGE ASSET REVIEW GALLERY\n"
+			+ "%d terrains | %d large prop kinds | %d building samples | %d facade assets\n"
+			% [MapTypes.ALL_TERRAINS.size(), Definition.LARGE_PROP_KINDS.size(), Definition.BUILDING_SPECS.size(), FACADE_ASSETS.size()]
+			+ "WASD/arrows - move | C - camera | right-drag - look | Debug - switch/return"
+		)
+	else:
+		label.text = (
+			"SMALL ASSET REVIEW GALLERY\n"
+			+ "%d prop kinds | %d characters | %d humanoid clips | %d cat clips\n"
+			% [Definition.small_prop_kinds().size(), HUMANOID_SCENES.size(), SharedCharacterRig.CANONICAL_ANIMATIONS.size(), CatRig.REQUIRED_ANIMATIONS.size()]
+			+ "WASD/arrows - move | C - camera | right-drag - look | Debug - switch/return"
+		)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.add_theme_font_size_override("font_size", 14)
 	label.add_theme_color_override("font_color", Color(0.95, 0.92, 0.82))
