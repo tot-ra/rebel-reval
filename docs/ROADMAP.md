@@ -3,6 +3,8 @@
 Coordination notes, delivery order, and planning context formerly embedded in `TODO.md`.
 Executable open work stays in [`TODO.md`](../TODO.md).
 
+Coordination note (2026-07-28 R-055): `history/reference/plates.csv` manifest audit closed CSV comma drift on four Commons page URLs (`guild-structure.02/.04`, `churches-and-religious-houses.01/.03`), corrected the stale `Lai 5` upload hash (`0/0e` -> `f/fa`) on `architecture.burgher-house-plan.03` and `topography.back-lanes-east-of-pikk.04`, and re-fetched all eight previously `failed` plates (rate-limited rows via Commons `thumburl`). Verified: `python3 tools/research/fetch_reference_plates.py --verify` reports 137 plates, zero problems, zero `failed` rows. Next research hygiene step: **R-036** Raekoja hall phase plans.
+
 Coordination note (2026-07-28 R-035): Toompea Small Castle interior dossier now closes Danish April 1343 hill zones (`SC-*`, `GC-*`, outer bailey) with explicit post-1346 Order layout exclusions; reference plates `.01` and `.02` fetched locally after Commons hash and CSV comma fixes. Verified: dossier `status: solid`; `python3 tools/research/fetch_reference_plates.py --slug toompea-small-castle-interior --verify` passes. Next architecture step: **R-036** Raekoja hall phase plans or Toompea map prototype when act scope opens.
 
 Coordination note (2026-07-28 P2-049): medieval lighting kit v2 now ships flame-free holder meshes with `FlameAnchor` markers and runtime `CandleFlame3D` particle fire plus synchronized `CandleLight3D` flicker across all five `style_variant` fuels. Verified: `--filter=test_medieval_lighting_assets` (2/2), `python3 tools/validate_asset_sources.py`, and `python3 tools/verify_asset_lint.py`. Next prop art step: **P2-034** harbour gull GLB batch.

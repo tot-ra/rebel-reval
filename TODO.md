@@ -139,6 +139,7 @@ References:
 
 
 
+<!-- R-055 completed in current session -->
 <!-- R-054 completed in current session -->
 <!-- R-004 completed in current session -->
 <!-- R-006 completed in current session -->
@@ -252,7 +253,7 @@ Rows close through `review: canon` like all content work.
 - [~] R-017 | role: research | deps: R-016 | deliverable: history/dossiers/religion/liturgical-calendar-spring-1343.md - Lent, Easter, St George's day and the April-May feast sequence with actual 1343 dates, plus observance and work rules | verify: a dated day-by-day calendar for April and May 1343 that the campaign timeline can be checked against | claim: research-3@2026-07-28 | review: canon
 - [x] R-018 | role: research | deps: none | deliverable: history/dossiers/culture/music-and-instruments.md - town pipers, church music, instruments plausibly present, Estonian runic song, where and when music was heard | verify: separates German urban and Estonian rural traditions and lists instruments with a present/absent verdict for 1343 Reval | claim: research-N@2026-07-28 | review: canon
 - [ ] R-019 | role: research | deps: R-017 | deliverable: history/dossiers/culture/festivals-games-and-public-life.md - market days, processions, spring customs, drinking culture, games and sport, public punishment as spectacle | verify: at least six datable or seasonally placed public events usable as scene backdrops
-- [~] R-020 | role: research | deps: none | deliverable: history/dossiers/folklore/belief-omens-and-healing.md - decompose `docs/lore/estonian_folklore.md` into the 1343-usable layer: spirit beings, omens, charms, healers, sacred groves, and the Christian-pagan overlap | verify: every element is labelled folklore or attested practice and cross-linked back to the lore compendium | claim: research-N@2026-07-28
+- [~] R-020 | role: research | deps: none | deliverable: history/dossiers/folklore/belief-omens-and-healing.md - decompose `docs/lore/estonian_folklore.md` into the 1343-usable layer: spirit beings, omens, charms, healers, sacred groves, and the Christian-pagan overlap | verify: every element is labelled folklore or attested practice and cross-linked back to the lore compendium | claim: research-N@2026-07-28 | review: canon
 - [ ] R-021 | role: research | deps: R-020 | deliverable: history/dossiers/folklore/tales-tellable-in-1343.md - narrative tales a character could actually tell, with teller, setting, and length | verify: each tale is summarised for dialogue use and dated as plausibly current in 1343 rather than a later recording
 
 ### Daily life, language, nature, hinterland (Character, Dialogue, Map)
@@ -289,7 +290,8 @@ Rows close through `review: canon` like all content work.
 - [x] R-051 | role: research | deps: R-017 | deliverable: fetch `religion.liturgical-calendar-spring-1343.01` through `.05` reference plates once Wikimedia rate-limit clears | verify: `python3 tools/research/fetch_reference_plates.py --slug liturgical-calendar-spring-1343 --verify` reports five fetched plates with no linked or failed rows
 - [x] R-052 | role: research | deps: R-032 | deliverable: fetch `topography.back-lanes-east-of-pikk.01` through `.04` reference plates once Wikimedia rate-limit clears | verify: `python3 tools/research/fetch_reference_plates.py --slug back-lanes-east-of-pikk --verify` reports four fetched plates with no failed rows
 - [ ] R-053 | role: research | deps: R-022 | deliverable: history/dossiers/economy/reval-brewery-ordinances-1340s.md - citizen brewer rules, beer excise, and Estonian collector roles from AWB/council entries 1340–1343 | verify: at least three cited ordinance or excise lines with document dates usable in Bitter Brew and tavern economy
-- [ ] R-055 | role: research | deps: none | deliverable: audit `history/reference/plates.csv` for unquoted commas in Commons page URLs and stale Wikimedia upload hashes; fix parsing drift and re-fetch any `failed` rows | verify: `python3 tools/research/fetch_reference_plates.py --verify` reports zero `failed` rows and no `unknown status` parse errors across the full manifest - Act 3: The Iron Harvest and full release (lowest priority)
+- [x] R-055 | claim: cursor-agent@2026-07-28 | deps: none | deliverable: audit `history/reference/plates.csv` for unquoted commas in Commons page URLs and stale Wikimedia upload hashes; fix parsing drift and re-fetch any `failed` rows | verify: `python3 tools/research/fetch_reference_plates.py --verify` reports zero `failed` rows and no `unknown status` parse errors across the full manifest
+- [ ] R-056 | role: research | deps: R-020 | deliverable: history/dossiers/folklore/harju-hiis-sites-within-walk-1343.md - archaeological and LCD *lucus sanctus* candidates within one day's walk of 1343 Reval walls with confidence per site | verify: map-usable point list cited from belief-omens-and-healing open questions with attested vs reconstructed labels
 
 ### Small
 
