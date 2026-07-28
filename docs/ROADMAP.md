@@ -5,6 +5,8 @@ Executable open work stays in [`TODO.md`](../TODO.md).
 
 Coordination note (2026-07-28 R-031): Old Market / Vanaturu kael dossier now closes the 1343 east-throat boundary: *forum inferior* and *Vana turg* are absent in April 1343; Vanaturu kael is a 4-6 m paved lane from Raekoja plats SE to the Viru/Vene convergence, with labelled authoring polygon and four reference plates. Verified: dossier `status: solid`; `history/reference/plates.csv` rows `.01`-.`.04` fetched.
 
+Coordination note (2026-07-28 P2-032): MapBlueprint compiler v7 now compiles `gate_variant` and `grille_variant` from `.rrmap` gate_arch landmarks so P2-029 hardware survives the rrmap pipeline; Holy Spirit Church reciprocal door on `market_civic_quarter` now uses `spawn_offset_px=0,96` so arrivals land south of the chapel mass. Verified: `tools/validate_map_blueprints.gd`, `--filter=test_lower_town_slice_map`, `--filter=test_medieval_gate_assets`, and `--filter=test_holy_spirit_church`.
+
 Coordination note (2026-07-28 P0-133): Town Hall and Holy Spirit Church interiors now have conversion-plan index rows, scene-inventory coverage, registry-aligned mandatory anchors, and regenerated 1600x900 map-audit captures (~68 KiB each). Verified: `python3 tools/verify_map_audit.py`, `python3 tools/verify_map_conversion_plan.py`, and `--filter=test_map_quality_audit::test_capture_policy_and_pngs_are_present`.
 
 Coordination note (2026-07-28 P2-030): Kalev smithy now ships deterministic Blender-authored `smithy_bed.glb` at `bed` with oak/linen/wool embedded albedos, Godot-extracted sidecar provenance, and a generic bed fallback on other maps. Verified: `--filter=test_forge_prop_meshes` (8/8), `python3 tools/validate_asset_sources.py`, and `python3 tools/verify_asset_lint.py`.

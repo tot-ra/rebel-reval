@@ -155,7 +155,7 @@ static func _compile_sign(values: Dictionary, definition: MapDefinition) -> Dict
 
 static func _compile_landmark(values: Dictionary, definition: MapDefinition) -> Dictionary:
 	var output := {"id": values["id"], "kind": values["kind"], "rect": definition.cell_rect_to_world_rect(values["rect"])}
-	_copy_fields(values, output, [&"wall_color", &"top_px", &"door_material", &"passage_axis"])
+	_copy_fields(values, output, [&"wall_color", &"top_px", &"door_material", &"gate_variant", &"grille_variant", &"passage_axis"])
 	return output
 
 

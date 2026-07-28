@@ -8,7 +8,7 @@ extends RefCounted
 ## this class keeps validation helpers and the public compile entry points.
 
 
-const COMPILER_VERSION := 6
+const COMPILER_VERSION := 7
 const ID_PATTERN := "^[a-z0-9_.-]+$"
 
 const COMMON_STYLE_KEYS: Array[StringName] = [&"enabled"]
@@ -32,14 +32,14 @@ const PATROL_KEYS: Array[StringName] = [&"points", &"point_rects"]
 const RECT_KEYS: Array[StringName] = [&"rect"]
 const SIGN_KEYS: Array[StringName] = [&"text", &"cell", &"rect", &"direction"]
 const LANDMARK_OVERRIDE_KEYS: Array[StringName] = [
-	&"rect", &"wall_color", &"top_px", &"door_material", &"passage_axis",
+	&"rect", &"wall_color", &"top_px", &"door_material", &"gate_variant", &"grille_variant", &"passage_axis",
 ]
 const ALL_STYLE_KEYS: Array[StringName] = [
 	&"enabled", &"terrain", &"rect", &"wall_height", &"wall_height_scale", &"wall_color",
 	&"roof_color", &"door_side", &"ridge_axis", &"wall_walk_axis", &"interior_side", &"primitive", &"cell", &"facing",
 	&"style_variant", &"visual_offset_px", &"destination_scene_id", &"destination_spawn_id",
 	&"spawn_id", &"building_id", &"spawn_offset_px", &"highlight_area", &"transition_visual", &"view_landmark_id", &"alignment", &"kind",
-	&"points", &"point_rects", &"text", &"direction", &"top_px", &"door_material", &"passage_axis",
+	&"points", &"point_rects", &"text", &"direction", &"top_px", &"door_material", &"gate_variant", &"grille_variant", &"passage_axis",
 	&"movement_speed_multiplier", &"tower", &"round_tower", &"wall_material", &"roof_material", &"faction",
 ]
 

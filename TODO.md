@@ -22,12 +22,13 @@ References:
 |----------|-----:|-----:|-------|
 | P0 |     6  |    44  | Baseline, storage, materials, historical audit |
 | P1 |     0  |     8  | Runtime systems, content foundation |
-| P2 |     2  |    24  | Vertical-slice production (playable MVP) |
+| P2 |     2  |    26  | Vertical-slice production (playable MVP) |
 | P3 |     0  |    16  | Validation, accessibility, performance |
 | P4 |    21  |    42  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
-| R  |    29  |     3  | Historical research backlog (researcher-managed, cross-cutting) |
+| R  |    28  |     6  | Historical research backlog (researcher-managed, cross-cutting) |
+
 
 
 
@@ -126,6 +127,7 @@ References:
 <!-- P4-008a completed in current session -->
 <!-- P4-005 completed in current session -->
 <!-- P4-004 completed in current session -->
+<!-- P2-032 completed in current session -->
 <!-- P2-031 completed in current session -->
 <!-- P2-030 completed in current session -->
 <!-- P2-029 completed in current session -->
@@ -406,6 +408,7 @@ Rows close through `review: canon` like all content work.
 - [x] P2-029 | claim: cursor-agent@2026-07-28 | deps: none | deliverable: deterministic 1343 Reval gate-leaf and raised-portcullis GLB kit wired into `gate_arch` landmarks at Viru Gate and foregate | allowed files: `tools/generate_medieval_gate_kit.py`, `assets/props/architecture/gates/**`, `generated/blender/medieval_gate_kit_v1/**`, `scripts/map/view3d/map_view_mesh_builder_landmarks.gd`, `content/maps/lower_town_slice.rrmap`, `tests/godot/test_medieval_gate_assets.gd`, `tests/godot/test_map_view_3d_fortification.gd`, `tests/godot/test_lower_town_slice_map.gd`, `tests/godot/test_map_view_static_batcher.gd`, `assets/SOURCES.csv`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_medieval_gate_assets` passes 2/2; `--filter=test_map_view_3d_fortification` and `--filter=test_lower_town_slice_map` stay green; `python3 tools/verify_asset_lint.py` passes; Viru Gate `gate_arch` shows open ironbound leaves and raised portcullis without blocking the walkable passage
 - [x] P2-030 | claim: cursor-agent@2026-07-28 | deps: none | deliverable: authored smithy `bed` GLB with deterministic Blender generator, Godot import at stable prop ID, derived albedo sidecar provenance, and generic bed fallback for non-smithy maps | allowed files: `tools/generate_smithy_bed.py`, `assets/props/furniture/smithy_bed.glb`, `assets/props/furniture/smithy_bed_*_albedo.png`, `assets/props/furniture/*.import`, `generated/blender/smithy_bed/**`, `scripts/map/view3d/map_view_mesh_builder_prop_models.gd`, `tests/godot/test_forge_prop_meshes.gd`, `assets/SOURCES.csv`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_forge_prop_meshes` passes 8/8 including `test_smithy_bed_uses_detailed_glb_and_keeps_generic_fallback`; `python3 tools/validate_asset_sources.py` and `python3 tools/verify_asset_lint.py` stay green; derived oak/linen/wool albedo PNGs are tracked with SOURCES.csv rows
 - [x] P2-031 | claim: cursor-agent@2026-07-28 | deps: none | deliverable: integrate Hunyuan3D forge-cat production GLB through `cat_rig.tscn` with a slim runtime adapter, provenance, and regression tests | allowed files: `assets/characters/cat/**`, `generated/comfyui/forge_cat_hunyuan3d_v1/production/forge_cat_production_v1.glb`, `generated/comfyui/forge_cat_hunyuan3d_v1/state.json`, `tests/godot/test_cat_rig.gd`, `assets/SOURCES.csv`, `docs/reports/scene_inventory.md`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_cat_rig` passes 3/3 and `--filter=test_forge_dialogue_encounter` stays green; `python3 tools/validate_asset_sources.py` and `python3 tools/verify_asset_lint.py` stay green; `cat_rig` instances the production GLB with `idle`, `walk`, `sleep`, `lick`, and `stretch` clips
+- [x] P2-032 | claim: cursor-agent@2026-07-28 | deps: P2-029 | deliverable: compile `gate_variant` and `grille_variant` landmark keys from `.rrmap` through MapBlueprint compiler v7; fix Holy Spirit Church reciprocal `spawn_offset_px` on `market_civic_quarter` so arrivals land south of the chapel mass | allowed files: `scripts/map/map_blueprint_compiler.gd`, `scripts/map/map_blueprint_compiler_build.gd`, `scripts/map/rrmap/map_rrmap_parser_tokens.gd`, `content/maps/market_civic_quarter.rrmap`, `docs/MAP_AUTHORING.md`, `TODO.md`, `docs/ROADMAP.md` | verify: `godot --headless --path . --script tools/validate_map_blueprints.gd` stays green; `--filter=test_lower_town_slice_map`, `--filter=test_medieval_gate_assets`, and `--filter=test_holy_spirit_church` pass
 - [ ] P2-004 | deps: P0-040,P1-029 | deliverable: approved low-poly character models and AI-generated portraits for Kalev, Mart, Aita, Kaja, Henning, and Jürgen | verify: all six use the shared P0-037 rig and animation library, differ only by texture/equipment/silhouette swaps, pass asset lint, and match art-bible silhouette and palette rules
 ### Large
 
