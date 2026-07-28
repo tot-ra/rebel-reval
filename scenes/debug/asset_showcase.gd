@@ -149,6 +149,16 @@ func _add_large_section_labels(labels: Node3D) -> void:
 		)
 	_add_label(labels, "ANCIENT OAK GLB", Vector2(108.5, 127.8), 0.2)
 	_add_label(labels, "ARCHITECTURAL FACADE ASSETS", Vector2(4.0, 135.0), 1.5, LARGE_ASSET_COLOR)
+	_add_label(labels, "PROCEDURAL TREE MODELS (%d) - MEDIUM SCALE" % MapViewTreeSpecies.ALL_SPECIES.size(), Vector2(4.0, 152.0), 1.5, LARGE_ASSET_COLOR)
+	for index in MapViewTreeSpecies.ALL_SPECIES.size():
+		_add_label(
+			labels,
+			String(MapViewTreeSpecies.ALL_SPECIES[index]).to_upper(),
+			Vector2(Definition.tree_model_cell(index)) + Vector2(0.5, 3.5),
+			0.15,
+			Color.WHITE,
+			34
+		)
 
 
 func _add_small_section_labels(labels: Node3D) -> void:
@@ -294,8 +304,14 @@ func _add_review_hud() -> void:
 	if is_large_showcase():
 		label.text = (
 			"LARGE ASSET REVIEW GALLERY\n"
-			+ "%d terrains | %d large prop kinds | %d building samples | %d facade assets\n"
-			% [MapTypes.ALL_TERRAINS.size(), Definition.LARGE_PROP_KINDS.size(), Definition.BUILDING_SPECS.size(), FACADE_ASSETS.size()]
+			+ "%d terrains | %d large prop kinds | %d procedural trees | %d building samples | %d facade assets\n"
+			% [
+				MapTypes.ALL_TERRAINS.size(),
+				Definition.LARGE_PROP_KINDS.size(),
+				MapViewTreeSpecies.ALL_SPECIES.size(),
+				Definition.BUILDING_SPECS.size(),
+				FACADE_ASSETS.size(),
+			]
 			+ "WASD/arrows - move | C - camera | right-drag - look | Debug - switch/return"
 		)
 	else:

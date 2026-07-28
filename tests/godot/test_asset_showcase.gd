@@ -35,6 +35,20 @@ func test_showcase_definitions_are_valid_and_complete() -> void:
 	# stairs sample remains in the small-object catalog.
 	assert_true(large_props.has(MapTypes.PROP_KIND_STAIRS))
 
+	var tree_models: Dictionary = {}
+	for prop in large_definition.props:
+		if prop.get("kind") != MapTypes.PROP_KIND_TREE or prop.get("primitive", &"") == &"ancient_tree":
+			continue
+		var parsed := MapViewTreeSpecies.parse_variant(prop.get("style_variant", &""))
+		if parsed.has("species") and parsed.get("size") == MapViewTreeSpecies.SIZE_MEDIUM:
+			tree_models[parsed["species"]] = prop
+	assert_eq(tree_models.size(), MapViewTreeSpecies.ALL_SPECIES.size(), "large showcase needs every procedural tree model")
+	for species in MapViewTreeSpecies.ALL_SPECIES:
+		assert_true(tree_models.has(species), "missing showcase tree model: %s" % species)
+		var model: Dictionary = tree_models[species]
+		assert_eq(model.get("position"), _cell_center(Definition.tree_model_cell(MapViewTreeSpecies.ALL_SPECIES.find(species))))
+		assert_eq(StringName(model.get("style_variant", &"")), StringName("tree.%s.medium" % String(species)))
+
 	var shown_buildings: Array[StringName] = []
 	for building in large_definition.buildings:
 		shown_buildings.append(building["kind"] as StringName)
@@ -86,6 +100,10 @@ func _prop_kinds(definition: MapDefinition) -> Array[StringName]:
 		if kind not in kinds:
 			kinds.append(kind)
 	return kinds
+
+
+func _cell_center(cell: Vector2i) -> Vector2:
+	return (Vector2(cell) + Vector2(0.5, 0.5)) * float(Definition.CELL_SIZE)
 
 
 func _assert_showcase_scene(path: String, expected_kind: StringName) -> void:

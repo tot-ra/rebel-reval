@@ -10,7 +10,7 @@ const SHOWCASE_SMALL := &"small"
 const SHOWCASE_KINDS: Array[StringName] = [SHOWCASE_LARGE, SHOWCASE_SMALL]
 
 const CELL_SIZE := MapTypes.DEFAULT_CELL_SIZE
-const LARGE_SIZE_CELLS := Vector2i(136, 150)
+const LARGE_SIZE_CELLS := Vector2i(136, 210)
 const SMALL_SIZE_CELLS := Vector2i(96, 116)
 
 # Large assets use wider patches and gaps than the small-object catalog so roofs,
@@ -25,6 +25,11 @@ const SMALL_PROP_COLUMNS := 8
 const SMALL_PROP_START_CELL := Vector2i(4, 6)
 const SMALL_PROP_SPACING_CELLS := Vector2i(11, 8)
 const ANCIENT_TREE_CELL := Vector2i(108, 123)
+# Every registered procedural species gets a neutral medium-size sample. Keeping
+# scale fixed makes silhouette, bark, foliage, and fruit differences reviewable.
+const TREE_MODEL_COLUMNS := 5
+const TREE_MODEL_START_CELL := Vector2i(12, 158)
+const TREE_MODEL_SPACING_CELLS := Vector2i(24, 12)
 const WALL_WALK_ACCESS_CELL := Vector2i(88, 105)
 const WALL_WALK_ACCESS_RECT := Rect2i(84, 103, 8, 5)
 
@@ -185,7 +190,7 @@ static func create(showcase_kind: StringName = SHOWCASE_SMALL) -> MapDefinition:
 		definition.buildings = _buildings()
 		definition.view_landmarks = _gate_landmarks()
 	definition.props = _props(showcase_kind)
-	definition.fingerprint = "debug-asset-showcase-%s-v2" % String(showcase_kind)
+	definition.fingerprint = "debug-asset-showcase-%s-v3" % String(showcase_kind)
 	return definition
 
 
@@ -220,6 +225,13 @@ static func terrain_cell(terrain_index: int) -> Vector2i:
 	return TERRAIN_START_CELL + Vector2i(
 		(terrain_index % TERRAIN_COLUMNS) * TERRAIN_SPACING_CELLS.x,
 		(terrain_index / TERRAIN_COLUMNS) * TERRAIN_SPACING_CELLS.y
+	)
+
+
+static func tree_model_cell(species_index: int) -> Vector2i:
+	return TREE_MODEL_START_CELL + Vector2i(
+		(species_index % TREE_MODEL_COLUMNS) * TREE_MODEL_SPACING_CELLS.x,
+		(species_index / TREE_MODEL_COLUMNS) * TREE_MODEL_SPACING_CELLS.y
 	)
 
 
@@ -295,6 +307,16 @@ static func _props(showcase_kind: StringName) -> Array[Dictionary]:
 			"position": _cell_center(ANCIENT_TREE_CELL),
 			"primitive": &"ancient_tree",
 		})
+		# These entries deliberately resolve through the normal prop builder so this
+		# gallery always shows the exact cached procedural models used on maps.
+		for index in MapViewTreeSpecies.ALL_SPECIES.size():
+			var species: StringName = MapViewTreeSpecies.ALL_SPECIES[index]
+			props.append({
+				"id": StringName("tree_%s_medium" % String(species)),
+				"kind": MapTypes.PROP_KIND_TREE,
+				"position": _cell_center(tree_model_cell(index)),
+				"style_variant": StringName("tree.%s.medium" % String(species)),
+			})
 		props.append({
 			"id": &"wall_walk_access",
 			"kind": MapTypes.PROP_KIND_STAIRS,
