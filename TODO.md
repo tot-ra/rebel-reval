@@ -27,7 +27,7 @@ References:
 | P4 |    21  |    42  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
-| R  |    29  |     2  | Historical research backlog (researcher-managed, cross-cutting) |
+| R  |    28  |     3  | Historical research backlog (researcher-managed, cross-cutting) |
 
 
 
@@ -117,6 +117,8 @@ References:
 
 
 
+
+<!-- R-031 completed in current session -->
 <!-- P4-010 completed in current session -->
 <!-- P4-008 completed in current session -->
 <!-- P4-008a completed in current session -->
@@ -221,7 +223,7 @@ Rows close through `review: canon` like all content work.
 
 - [~] R-029 | role: research | deps: R-001 | deliverable: history/dossiers/topography/raekoja-plats-extents-1343.md - open square dimensions and town-hall footprint before the 1371–74 lengthening | verify: gives a bounded square polygon with confidence labels, not modern square size | review: canon
 - [~] R-030 | role: research | deps: R-001 | deliverable: history/dossiers/topography/pikk-lai-frontage-materials-1340s.md - which Lower Town frontages were timber vs stone in the 1340s property records | verify: street-level material map for at least one block of Pikk and one of Lai with sources | review: canon
-- [~] R-031 | role: research | deps: R-001 | deliverable: history/dossiers/topography/old-market-vanaturg.md - precise 1343 location and function of the Old Market relative to Raekoja plats | verify: places Vanaturg on a map sketch with attested vs reconstructed boundary | review: canon
+- [x] R-031 | role: research | deps: R-001 | deliverable: history/dossiers/topography/old-market-vanaturg.md - precise 1343 location and function of the Old Market relative to Raekoja plats | verify: places Vanaturg on a map sketch with attested vs reconstructed boundary | review: canon
 - [ ] R-032 | role: research | deps: R-001 | deliverable: history/dossiers/topography/back-lanes-east-of-pikk.md - rear-lane (*Tagenstraße*) network names, widths, and gates east of Pikk | verify: names at least three back lanes with documentary or archaeological support
 - [ ] R-033 | role: research | deps: R-005 | deliverable: history/dossiers/topography/harjapea-mouth-shoreline-gis.md - measured 1343 shoreline polygon from shore-displacement and wreck coordinates | verify: bounded map polygon with confidence labels distinguishing attested wet margin from reconstructed curve
 - [ ] R-034 | role: research | deps: R-005 | deliverable: history/dossiers/topography/kalamaja-fishing-shore-1343.md - Kalamaja/Kalarand built footprint, boat types, and net-yard layout before 1352 attestation | verify: art-usable fishing-shore scene list with confidence per element

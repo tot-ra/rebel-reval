@@ -3,6 +3,8 @@
 Coordination notes, delivery order, and planning context formerly embedded in `TODO.md`.
 Executable open work stays in [`TODO.md`](../TODO.md).
 
+Coordination note (2026-07-28 R-031): Old Market / Vanaturu kael dossier now closes the 1343 east-throat boundary: *forum inferior* and *Vana turg* are absent in April 1343; Vanaturu kael is a 4-6 m paved lane from Raekoja plats SE to the Viru/Vene convergence, with labelled authoring polygon and four reference plates. Verified: dossier `status: solid`; `history/reference/plates.csv` rows `.01`-.`.04` fetched.
+
 Coordination note (2026-07-28 P0-133): Town Hall and Holy Spirit Church interiors now have conversion-plan index rows, scene-inventory coverage, registry-aligned mandatory anchors, and regenerated 1600x900 map-audit captures (~68 KiB each). Verified: `python3 tools/verify_map_audit.py`, `python3 tools/verify_map_conversion_plan.py`, and `--filter=test_map_quality_audit::test_capture_policy_and_pngs_are_present`.
 
 Coordination note (2026-07-28 P2-029): deterministic 1343 Reval gate kit now ships `oak_double_gate.glb`, `ironbound_double_gate.glb`, and `raised_portcullis.glb` from `tools/generate_medieval_gate_kit.py`; `gate_arch` landmarks load parked-open leaves and a raised grille at `viru_gate_arch` and `viru_foregate_arch` without blocking the walkable passage. Verified: `--filter=test_medieval_gate_assets` (2/2), `--filter=test_map_view_3d_fortification`, and `python3 tools/verify_asset_lint.py`.
