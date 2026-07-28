@@ -8,6 +8,7 @@ extends RefCounted
 const _Primitives := preload("res://scripts/map/view3d/map_view_mesh_builder_primitives.gd")
 const _HayMeshes := preload("res://scripts/map/view3d/map_view_hay_meshes.gd")
 const _CartModels := preload("res://scripts/map/view3d/map_view_cart_models.gd")
+const _RootCellarModels := preload("res://scripts/map/view3d/map_view_root_cellar_models.gd")
 
 
 static func add_to(root: Node3D, kind: StringName) -> void:
@@ -105,9 +106,7 @@ static func _add_flax_drying_frame(root: Node3D) -> void:
 
 
 static func _add_root_cellar_mound(root: Node3D) -> void:
-	_Primitives.sphere(root, "Mound", 0.72, Vector3(0.0, 0.28, 0.0), &"stone", Vector3(1.35, 0.55, 1.1))
-	_Primitives.box(root, "Door", Vector3(0.42, 0.38, 0.08), Vector3(0.0, 0.22, 0.62), &"timber")
-	_Primitives.box(root, "Lint", Vector3(0.5, 0.06, 0.12), Vector3(0.0, 0.44, 0.62), &"wood")
+	_RootCellarModels.add_model(root)
 
 
 static func _add_orchard_row(root: Node3D) -> void:

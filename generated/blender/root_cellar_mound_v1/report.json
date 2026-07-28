@@ -1,0 +1,36 @@
+{
+  "asset_id": "prop.root_cellar_mound",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "602f4af94a208b2f26ee0f3f2252f65200efcbba670c0b868e0362f5c30b92fe",
+  "checks": {
+    "embedded_albedo": true,
+    "floating_geometry": true,
+    "ground_contact": true,
+    "metric_scale": true,
+    "non_brick_mound_material": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "uvs": true,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    1.9477,
+    0.7357,
+    1.73
+  ],
+  "faces": 484,
+  "floating_objects": 0,
+  "generator": "tools/generate_root_cellar_mound.py",
+  "ground_min_y": 0.0,
+  "materials": 5,
+  "mesh_objects": 3,
+  "preview": "generated/blender/root_cellar_mound_v1/preview.png",
+  "route": "deterministic_blender",
+  "sha256": "84f358f86c6a6b6f55a270cf2205e9314e53f9ad34b97bc5049a930b0359cfb9",
+  "surfaces": 5,
+  "texture_size": 512,
+  "textured_materials": 4,
+  "triangles": 736,
+  "uv_sets": 1,
+  "vertices": 411
+}

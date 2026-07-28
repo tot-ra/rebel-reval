@@ -1,0 +1,1 @@
+{"id":"prop.root_cellar_mound","kind":"rigid_prop","target":"res://assets/props/environment/root_cellar_mound.glb","scene":"res://content/maps/viru_gate_foreland.rrmap#west.root_cellar","dimensions_m":[1.96,0.74,1.73],"triangles":{"target":700,"max":1800},"textures":{"albedo":512},"style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}
