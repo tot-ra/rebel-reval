@@ -66,6 +66,12 @@ func test_enclosed_interior_suppresses_countryside_surroundings() -> void:
 		var projected_light := node.get_node("InteriorWindowLights/WindowDaylight0") as SpotLight3D
 		assert_true(projected_light.shadow_enabled, "window daylight must cast interior shadows")
 		assert_eq(projected_light.light_energy, 0.0, "window daylight starts disabled until the cycle is applied")
+		assert_true(
+			node.has_node("InteriorWindowLights/WindowDust0"),
+			"each interior window needs airborne dust motes for the daylight shaft"
+		)
+		var dust := node.get_node("InteriorWindowLights/WindowDust0") as GPUParticles3D
+		assert_false(dust.emitting, "dust motes start idle until the cycle raises daylight")
 		assert_true(node.has_node("Window0"), "interior window needs glazed pane")
 		var glass := node.get_node("Window0") as MeshInstance3D
 		var expected_inward := Vector3(-glass.position.x, 0.0, -glass.position.z).normalized()
@@ -109,8 +115,13 @@ func test_enclosed_interior_suppresses_countryside_surroundings() -> void:
 	) as SpotLight3D
 	assert_true(day_mat.emission_enabled, "day cycle must drive interior window daylight glow")
 	assert_true(daylight_projector.light_energy > 0.0, "day cycle must project light inward through windows")
+	var day_dust := day_window.get_parent().get_node(
+		"InteriorWindowLights/WindowDust0"
+	) as GPUParticles3D
+	assert_true(day_dust.emitting, "day cycle must release dust motes into the daylight shaft")
 	view.apply_cycle_progress(0.0)
 	day_lights.call("apply_cycle_progress", 0.0)
+	assert_false(day_dust.emitting, "night cycle must stop the daylight dust motes")
 	assert_eq(world_env.environment.background_color, MapView3D.BACKGROUND_INTERIOR_TOP_DOWN_COLOR)
 	assert_false(day_mat.emission_enabled, "night cycle must turn interior window daylight off")
 	assert_eq(daylight_projector.light_energy, 0.0, "night cycle must turn window projection off")
