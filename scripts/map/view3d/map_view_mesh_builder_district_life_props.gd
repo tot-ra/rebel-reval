@@ -6,6 +6,7 @@ extends RefCounted
 ## required routes when authored inside the documented footprint bands.
 
 const _Primitives := preload("res://scripts/map/view3d/map_view_mesh_builder_primitives.gd")
+const _MaltSackPileModels := preload("res://scripts/map/view3d/map_view_malt_sack_pile_models.gd")
 const _PropStyleVariants := preload("res://scripts/map/map_prop_style_variants.gd")
 const _FishDryingRackModels := preload("res://scripts/map/view3d/map_view_fish_drying_rack_models.gd")
 const _DriedFishMeshes := preload("res://scripts/map/view3d/map_view_dried_fish_meshes.gd")
@@ -170,9 +171,9 @@ static func _add_cooper_staves(root: Node3D) -> void:
 
 
 static func _add_malt_sack_pile(root: Node3D) -> void:
-	_Primitives.sphere(root, "SackA", 0.34, Vector3(-0.22, 0.34, 0.06), &"plaster", Vector3(0.78, 1.1, 0.82))
-	_Primitives.sphere(root, "SackB", 0.31, Vector3(0.18, 0.31, -0.12), &"plaster", Vector3(0.82, 1.08, 0.76))
-	_Primitives.sphere(root, "SackC", 0.28, Vector3(0.02, 0.52, 0.14), &"hay", Vector3(0.74, 1.05, 0.8))
+	# WHY: spheres read as eggs and cannot explain the brewery use. The authored
+	# model exposes gathered cloth, malt, and a scoop while rrmap keeps the anchor.
+	_MaltSackPileModels.add_model(root)
 
 
 static func _add_brewery_keg_stack(root: Node3D) -> void:

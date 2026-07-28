@@ -1,0 +1,43 @@
+{
+  "approval": "user-approved 2026-07-28",
+  "asset_id": "prop.malt_sack_pile",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "30eb106415347aa669c666da440de7f830e25bc20050777475a62827189d9111",
+  "checks": {
+    "embedded_albedo": true,
+    "floating_geometry": true,
+    "ground_contact": true,
+    "identity_features": [
+      "gathered_sacks",
+      "open_malt",
+      "visible_seams_and_ties",
+      "grain_scoop"
+    ],
+    "metric_scale": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "uvs": true,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    1.2631,
+    0.6741,
+    0.9554
+  ],
+  "faces": 1624,
+  "floating_objects": 0,
+  "generator": "tools/generate_malt_sack_pile.py",
+  "generator_version": "malt_sack_pile_v1",
+  "godot_preview": "generated/blender/malt_sack_pile_v1/godot_preview.png",
+  "ground_min_z": 0.0,
+  "materials": 4,
+  "mesh_objects": 5,
+  "preview": "generated/blender/malt_sack_pile_v1/preview.png",
+  "route": "deterministic_blender",
+  "sha256": "462beacfbe2f34d692f85080c6646eb59bc0a8dd9c8370d0cda6406610a1c331",
+  "surfaces": 20,
+  "texture_size": 512,
+  "triangles": 1624,
+  "uv_sets": 1,
+  "vertices": 874
+}

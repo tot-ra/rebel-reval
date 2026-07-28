@@ -1,0 +1,1 @@
+{"id":"prop.malt_sack_pile","kind":"rigid_prop","target":"res://assets/props/crafts/malt_sack_pile.glb","scene":"res://content/maps/lower_town_slice.rrmap#brewery_malt_sacks","dimensions_m":[1.27,0.68,0.96],"triangles":{"target":1600,"max":3000},"textures":{"albedo":512},"style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}
