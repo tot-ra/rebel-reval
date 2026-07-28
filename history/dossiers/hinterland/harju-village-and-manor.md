@@ -136,6 +136,7 @@ No licensed plate gives a **measured 1343 hamlet plan** or **attested signal-hil
 - [`../religion/liturgical-calendar-spring-1343.md`](../religion/liturgical-calendar-spring-1343.md) — Lent tithe pressure and St George feast-night calendar anchor.
 - [`../topography/harbour-and-shoreline.md`](../topography/harbour-and-shoreline.md) — coastal vs inland Harju; Kalamaja fishing shore separate from agrarian belt.
 - [`../../../docs/lore/four_kings_act2_lore.md`](../../../docs/lore/four_kings_act2_lore.md) — invented Four Kings cast on attested election event.
+- [`../folklore/belief-omens-and-healing.md`](../folklore/belief-omens-and-healing.md) — hiis groves, rebel sacred geography, and syncretic healing outside manor yards.
 
 ## Open questions
 

@@ -12,6 +12,7 @@ related:
   - ../architecture/burgher-house-plan.md
   - ../architecture/domestic-storage-furniture.md
   - ../nature/spring-climate-and-living-world.md
+  - ../culture/music-and-instruments.md
 updated: 2026-07-28
 ---
 
@@ -146,6 +147,7 @@ You are feeding **April–May 1343 Lower Town Reval** — a **Hanseatic port und
 - [`churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) — Dominican brewery and fish trade.
 - [`burgher-house-plan.md`](../architecture/burgher-house-plan.md) — cellar beer store, living-bay hearth.
 - [`domestic-storage-furniture.md`](../architecture/domestic-storage-furniture.md) — grain and spice chests.
+- [`music-and-instruments.md`](../culture/music-and-instruments.md) — tavern and feast music contexts for beer scenes.
 - [`spring-climate-and-living-world.md`](../nature/spring-climate-and-living-world.md) — pre-harvest phenology and scarcity tone.
 - [`old-market-vanaturg.md`](../topography/old-market-vanaturg.md) — grain-sack cart traffic at forum throat.
 

@@ -9,7 +9,9 @@ related:
   - ../military/watch-duty-and-town-defence.md
   - ../crafts/guild-structure.md
   - ../topography/raekoja-plats-extents-1343.md
+  - ./reval-law-codex-arms-and-watch.md
   - ../economy/coinage-prices-and-measures.md
+  - ../language/names-address-and-oaths.md
 updated: 2026-07-28
 ---
 
@@ -143,19 +145,22 @@ Consumers are quest/narrative; four procedure and punishment visuals suffice. No
 ## Cross-references
 
 - [`./jurisdictions-of-reval.md`](./jurisdictions-of-reval.md) — which authority tries whom; forum-shopping seams for quest design.
+- [`./reval-law-codex-arms-and-watch.md`](./reval-law-codex-arms-and-watch.md) — 1282 codex articles and Burspraken layer for arms, watch, and muster offences.
+- [`./order-comptoir-transition-1343-1346.md`](./order-comptoir-transition-1343-1346.md) — post-16 May Order castle authority; Vogt/Rat unchanged inside Lower Town.
 - [`../people/town-council-and-officers.md`](../people/town-council-and-officers.md) — Vogt, Rat, burgomasters, Stadtschreiber, and Town Hall meeting room.
 - [`../military/watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) — curfew breaches and gate-control offences handed to Vogt.
 - [`../crafts/guild-structure.md`](../crafts/guild-structure.md) — *Amt* fines vs council jurisdiction over smiths before 1363 Schragen.
 - [`../topography/raekoja-plats-extents-1343.md`](../topography/raekoja-plats-extents-1343.md) — forum polygon for pillory placement; note 1337 pillory attestation vs dossier's earlier uncertainty.
 - [`../economy/coinage-prices-and-measures.md`](../economy/coinage-prices-and-measures.md) — 60 schilling perjury fine and general mark/schilling/pfennig scale.
+- [`../language/names-address-and-oaths.md`](../language/names-address-and-oaths.md) — oath formulae, compurgation speech, and insult register for court dialogue.
 
-- **Exact 1282 codex articles enforced in 1343 Reval** — needs Tallinn City Archives pass on ms. 230 Cm 19 and comparison with R-040 (1257/1282 arms-and-watch articles).
+## Open questions
+
 - **Vogt's name and appointment mechanism in 1343** — no attested officer list; candidate archival row.
 - **Execution ground location** outside walls (Viru gate apron? moat edge?) — archaeological and cartographic pass.
 - **Estonian testimony rights** in Vogt's court — tied to R-026 population dossier.
 - **Pillory exact coordinates** on 1343 forum — reconcile 1337 attestation with [`raekoja-plats-extents-1343.md`](../topography/raekoja-plats-extents-1343.md) open-ground polygon.
-
-## Sources
+- **Fixed curfew-fine amount** in Reval AWB 1340–1343 — see [`reval-law-codex-arms-and-watch.md`](./reval-law-codex-arms-and-watch.md) open questions.
 
 1. T. Kämpf, *Das Revaler Ratsurteilsbuch*, Böhlau 2013 — Vogt lower / Rat upper court; appeal to Lübeck (German; **1515–1554** procedure, retrojected cautiously).
 2. Same as [1] — settlement pressure, party structure, Low German record language.

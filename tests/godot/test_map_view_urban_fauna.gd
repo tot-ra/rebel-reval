@@ -173,3 +173,34 @@ func _south_watch_patrol_corridor_cells(definition: MapDefinition, radius: int) 
 				for dy in range(-radius, radius + 1):
 					corridor[cell + Vector2i(dx, dy)] = true
 	return corridor
+
+
+func test_town_cats_are_coat_variants_of_the_production_cat() -> void:
+	var fauna := UrbanFauna.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(fauna)
+	fauna.configure(&"lower_town_slice", MammalSpecies.CONTEXT_LOWER_TOWN, 32)
+	var cats := 0
+	var coats: Dictionary = {}
+	for actor in fauna.get_children():
+		if actor.get_meta(&"species", &"") != MammalSpecies.SPECIES_CAT:
+			continue
+		cats += 1
+		var model := actor.get_node_or_null("Model") as Node3D
+		assert_true(model != null, "town cats must instance the production cat rig")
+		assert_true(model.has_meta(&"cat_coat"), "town cats must be dressed in a coat")
+		coats[model.get_meta(&"cat_coat")] = true
+		assert_true(model.find_children("*", "AnimationPlayer", true, false).size() > 0,
+			"town cats must keep the rig's animation player")
+	assert_true(cats >= 2, "Lower Town should keep more than one cat")
+	assert_eq(coats.size(), cats, "each town cat should wear its own coat")
+	fauna.queue_free()
+
+
+func test_at_least_one_town_cat_walks_its_yard() -> void:
+	var walking := 0
+	for placement: Dictionary in UrbanFauna.MAP_PLACEMENTS[&"lower_town_slice"]:
+		if placement.get("species", &"") != MammalSpecies.SPECIES_CAT:
+			continue
+		if placement.get("behavior", &"") == UrbanFauna.BEHAVIOR_WANDER:
+			walking += 1
+	assert_true(walking >= 1, "a town cat should use the walk cycle, not only rest poses")

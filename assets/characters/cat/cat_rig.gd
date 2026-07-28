@@ -21,10 +21,13 @@ const LOOPING_CAT_ANIMATIONS: Array[StringName] = [
 	&"sleep",
 	&"lick",
 ]
-const WALK_REFERENCE_SPEED_WORLD := 1.5
+## Ground speed the authored walk cycle covers (stride 0.124 m over a 0.6 s
+## lateral-sequence cycle at a 0.66 duty factor). Driving the clip near this
+## speed is what keeps the paws planted instead of skating.
+const WALK_REFERENCE_SPEED_WORLD := 0.31
 const CAT_PROMPT_GLYPH_PADDING := 0.22
-## The production report guarantees a standing AABB top of 0.3664 m.
-const STANDING_MODEL_HEIGHT := 0.3664
+## The production report guarantees a standing AABB top of 0.3474 m.
+const STANDING_MODEL_HEIGHT := 0.3474
 
 
 static func standing_glyph_height() -> float:

@@ -4,7 +4,10 @@ extends CharacterBody2D
 ## Placeholder/demo NPC: Kalev's forge cat.
 ## Moves around the smithy, sleeps, grooms, and stretches.
 
-const WALK_SPEED := 52.0
+## 0.44 m/s at 32 px per world unit: a cat crossing a workshop at a brisk
+## walk. The old 52 px/s was 1.6 m/s, far past what the walk cycle covers, so
+## the cat slid across the floor with its legs cycling underneath it.
+const WALK_SPEED := 14.0
 const ARRIVAL_DISTANCE := 8.0
 const IDLE_SECONDS := 1.5
 const SLEEP_SECONDS := 4.0

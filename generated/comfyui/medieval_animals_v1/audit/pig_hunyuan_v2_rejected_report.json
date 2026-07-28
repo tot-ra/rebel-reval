@@ -1,0 +1,112 @@
+{
+  "source": "pig_candidate.glb",
+  "object_count": 1,
+  "mesh_object_count": 1,
+  "bounds_min": [
+    -0.5720993876457214,
+    -0.2548501491546631,
+    -0.5119776725769043
+  ],
+  "bounds_max": [
+    0.8506297469139099,
+    0.5258021950721741,
+    0.35423463582992554
+  ],
+  "dimensions": [
+    1.4227291345596313,
+    0.7806523442268372,
+    0.8662123084068298
+  ],
+  "meshes": [
+    {
+      "name": "Mesh_0",
+      "vertices": 62431,
+      "edges": 198391,
+      "polygons": 139812,
+      "triangles": 139812,
+      "connected_components": 17,
+      "components": [
+        {
+          "vertices": 59424,
+          "faces": 132016
+        },
+        {
+          "vertices": 892,
+          "faces": 2884
+        },
+        {
+          "vertices": 636,
+          "faces": 1460
+        },
+        {
+          "vertices": 480,
+          "faces": 1046
+        },
+        {
+          "vertices": 300,
+          "faces": 684
+        },
+        {
+          "vertices": 196,
+          "faces": 464
+        },
+        {
+          "vertices": 132,
+          "faces": 314
+        },
+        {
+          "vertices": 105,
+          "faces": 302
+        },
+        {
+          "vertices": 102,
+          "faces": 278
+        },
+        {
+          "vertices": 40,
+          "faces": 104
+        },
+        {
+          "vertices": 34,
+          "faces": 86
+        },
+        {
+          "vertices": 20,
+          "faces": 42
+        },
+        {
+          "vertices": 20,
+          "faces": 42
+        },
+        {
+          "vertices": 18,
+          "faces": 34
+        },
+        {
+          "vertices": 12,
+          "faces": 22
+        },
+        {
+          "vertices": 12,
+          "faces": 22
+        },
+        {
+          "vertices": 8,
+          "faces": 12
+        }
+      ],
+      "loose_vertices": 0,
+      "loose_edges": 0,
+      "boundary_edges": 37,
+      "non_manifold_edges": 19907
+    }
+  ],
+  "sha256": "d7127509aba5b53e46d1dd709097fa4083109f0e8fb3e436f263b73549e3ddda",
+  "anatomy_decision": "rejected_missing_two_weight_bearing_legs",
+  "scale_basis": "1.35 m nose-to-rump length; 0.75 m standing height for lean unimproved medieval landrace",
+  "defects": [
+    "missing_weight_bearing_legs",
+    "detached_limb_fragments"
+  ],
+  "decision": "rejected"
+}

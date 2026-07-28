@@ -7,8 +7,10 @@ related:
   - ../topography/walls-gates-towers.md
   - ../topography/lower-town-street-plan.md
   - burgher-house-plan.md
+  - toompea-small-castle-interior.md
   - ../military/watch-duty-and-town-defence.md
   - ../power/jurisdictions-of-reval.md
+  - ../power/order-comptoir-transition-1343-1346.md
 updated: 2026-07-28
 ---
 
@@ -138,7 +140,7 @@ The castle's **eastern outer-ward gate** feeds these lanes; treat as the **upper
 
 ## Open questions
 
-- Measured 1343 plan of Small Castle vs Great Castle interior rooms — needs Zobel 2008 plate mining or Danish charter archaeology (`R-035` candidate).
+- Measured 1343 plan of Small Castle vs Great Castle interior rooms — partially addressed in [`toompea-small-castle-interior.md`](toompea-small-castle-interior.md); Zobel 2008 plate mining still needed for dimensions.
 - Specific vassal houses attested by name on Toompea c. 1340 — supports character roster (`R-007` dependency).
 - Whether outer-ward southern gate had a stone gate tower before 1346 Order rebuild.
 - Daily curfew time on hill gates in 1343 (later records give 21:00 Order / 22:00 Swedish) — dialogue prop only.

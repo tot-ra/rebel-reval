@@ -7,4 +7,3 @@
 script = ExtResource("1_cat")
 
 [node name="Model" parent="." instance=ExtResource("2_model")]
-rotation_degrees = Vector3(0, 90, 0)

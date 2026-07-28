@@ -11,6 +11,7 @@ related:
   - ../dailylife/food-and-drink.md
   - ./reval-musician-payments-1340s.md
   - ../economy/hanseatic-trade-and-season.md
+  - ../language/names-address-and-oaths.md
 updated: 2026-07-28
 ---
 
@@ -113,7 +114,7 @@ You are scoring **audible Reval in April–May 1343**. Sound is **sparse, functi
 | [`culture.music-and-instruments.04`](../../reference/culture/music-and-instruments/culture.music-and-instruments.04.png) | shawm or straight trumpet player | Peterborough Psalter p. 154, c. 1310, England | public domain | alta capella wind silhouette for Spielleute |
 | [`culture.music-and-instruments.05`](../../reference/culture/music-and-instruments/culture.music-and-instruments.05.jpg) | straight trumpet signal | Maastricht Hours f. 201r, 14th c., Liège | public domain | watch/muster brass — not slide trumpet |
 
-No licensed visual record survives for **Estonian regilaul performance in 1343**; rural singer scenes rely on **folklore** direction and later ethnographic comparanda — see [`belief-omens-and-healing.md`](../folklore/belief-omens-and-healing.md) backlog (R-020).
+No licensed visual record survives for **Estonian regilaul performance in 1343**; rural singer scenes rely on **folklore** direction — see [`../folklore/belief-omens-and-healing.md`](../folklore/belief-omens-and-healing.md).
 
 ## Cross-references
 
@@ -124,6 +125,7 @@ No licensed visual record survives for **Estonian regilaul performance in 1343**
 - [`../dailylife/food-and-drink.md`](../dailylife/food-and-drink.md) - tavern and feast contexts for secular music.
 - [`./reval-musician-payments-1340s.md`](./reval-musician-payments-1340s.md) - AWB negative search; no council musician payroll in 1340-1343.
 - [`../economy/hanseatic-trade-and-season.md`](../economy/hanseatic-trade-and-season.md) — merchant wedding and harbour feast season.
+- [`../language/names-address-and-oaths.md`](../language/names-address-and-oaths.md) — Latin chant vs MLG tavern calls; register tags for musician NPC dialogue.
 
 ## Open questions
 

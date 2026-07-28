@@ -47,11 +47,11 @@ cam_data = bpy.data.cameras.new("cam"); cam_data.type = "ORTHO"; cam_data.ortho_
 cam = bpy.data.objects.new("cam", cam_data); scene.collection.objects.link(cam); scene.camera = cam
 D = max(size) * 3.0
 h = center.z
-# Re-imported frame: length runs along X with the head toward -X, up is Z.
+# Re-imported frame: length runs along Y with the head toward -Y, up is Z.
 views = {
-    "front": Vector((-D, 0, h)),                                  # face-on
-    "side": Vector((0, -D, h)),                                   # profile
-    "back": Vector((D, 0, h)),                                    # rear
+    "front": Vector((0, -D, h)),                                  # face-on
+    "side": Vector((-D, 0, h)),                                   # profile
+    "back": Vector((0, D, h)),                                    # rear
     "threeq": Vector((-D * 0.72, -D * 0.72, h + size.z * 0.15)),  # hero 3/4
 }
 for nm, loc in views.items():

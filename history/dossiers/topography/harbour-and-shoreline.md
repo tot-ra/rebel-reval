@@ -125,6 +125,7 @@ No licensed plate reproduces the **1343 rectangular Coastal Gate** or **exact 13
 
 ## Cross-references
 
+- [`harjapea-mouth-shoreline-gis.md`](./harjapea-mouth-shoreline-gis.md) — **1343 wet-margin GIS polygon** with wreck anchors and confidence-labelled shore segments; closes measured shoreline open question.
 - [`kalamaja-fishing-shore-1343.md`](./kalamaja-fishing-shore-1343.md) — **Kalamaja/Kalarand** built footprint, boat types, net-yard layout, and 1343 attestation band for `reval_harbor_east`.
 - [`lower-town-street-plan.md`](./lower-town-street-plan.md) — **Pikk** as merchant/harbour spine; Block B grade fall toward north margin; **Vene** quarter riverside limit (open question partially resolved here).
 - [`walls-gates-towers.md`](./walls-gates-towers.md) — **Coastal Gate** and **Sand Gate** positions, cliff height, absent foregates/Fat Margaret.
@@ -134,10 +135,8 @@ No licensed plate reproduces the **1343 rectangular Coastal Gate** or **exact 13
 
 ## Open questions
 
-- **Measured 1343 shoreline polygon** — no single published contour; needs GIS pass from Nurk shore-displacement data + Lootsi/Roio wreck coordinates (new R-row).
 - **Attested harbour crane at Reval** — treadwheel assumed from Hanseatic comparanda only [13]; worth mining Lübeck/Riga port accounts.
-- **Exact Härjapea channel width** at Lootsi in 1343 — archaeology gives wet delta, not navigable width.
-- **Measured 1343 Kalarand shoreline curve** — partially addressed in [`kalamaja-fishing-shore-1343.md`](./kalamaja-fishing-shore-1343.md); full GIS polygon still needs R-033.
+- **Measured 1343 Kalarand shoreline curve** — partially addressed in [`kalamaja-fishing-shore-1343.md`](./kalamaja-fishing-shore-1343.md); S1 vertex in GIS dossier still **plausible composite**.
 - **Harbour tolls and who collected them** — council vs crown; ties to R-008 jurisdictions.
 
 ## Sources

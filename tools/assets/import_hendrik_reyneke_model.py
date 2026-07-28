@@ -13,6 +13,8 @@ materials, and embeds the attribution metadata in the exported GLB.
 from __future__ import annotations
 
 import argparse
+import json
+import struct
 import sys
 from pathlib import Path
 
@@ -40,13 +42,20 @@ def main() -> None:
     if not meshes:
         raise RuntimeError(f"No mesh objects in {args.source}")
 
-    # Bake the complete imported hierarchy so the runtime GLB does not depend on
-    # Sketchfab's centimetre-scale wrapper transforms.
+    # Snapshot the evaluated world matrix before detaching the meshes. Assigning
+    # matrix_world while a mesh still has Sketchfab's scaled parent hierarchy can
+    # reintroduce the inverse parent scale when that parent is removed later.
+    # Detach first, then bake the saved matrix and explicitly reset every object
+    # transform so the exported GLB has identity mesh-node transforms.
     for obj in meshes:
-        obj.data = obj.data.copy()
-        obj.data.transform(obj.matrix_world)
-        obj.matrix_world = Matrix.Identity(4)
+        world_matrix = obj.matrix_world.copy()
         obj.parent = None
+        obj.data = obj.data.copy()
+        obj.data.transform(world_matrix)
+        obj.matrix_world = Matrix.Identity(4)
+        obj.location = Vector((0.0, 0.0, 0.0))
+        obj.rotation_euler = Vector((0.0, 0.0, 0.0))
+        obj.scale = Vector((1.0, 1.0, 1.0))
 
     for obj in list(bpy.context.scene.objects):
         if obj.type != "MESH":
@@ -85,7 +94,40 @@ def main() -> None:
         export_image_format="AUTO",
         use_selection=True,
     )
+    _verify_export(args.output, args.largest_axis_m)
     print(f"Exported {args.title}: {args.output} (largest axis {args.largest_axis_m:.3f} m)")
+
+
+def _verify_export(path: Path, expected_largest_axis_m: float) -> None:
+    """Reject GLBs whose node transforms would scale metric vertices again."""
+    payload = path.read_bytes()
+    if payload[:4] != b"glTF":
+        raise RuntimeError(f"Export is not a GLB: {path}")
+    json_length = struct.unpack_from("<I", payload, 12)[0]
+    document = json.loads(payload[20 : 20 + json_length])
+
+    for node in document.get("nodes", []):
+        if "mesh" not in node:
+            continue
+        scale = node.get("scale", [1.0, 1.0, 1.0])
+        translation = node.get("translation", [0.0, 0.0, 0.0])
+        if any(abs(float(value) - 1.0) > 1e-5 for value in scale):
+            raise RuntimeError(f"{path}: mesh node retains non-unit scale {scale}")
+        if any(abs(float(value)) > 1e-5 for value in translation):
+            raise RuntimeError(f"{path}: mesh node retains translation {translation}")
+
+    largest_axis = 0.0
+    for accessor in document.get("accessors", []):
+        if accessor.get("type") != "VEC3" or "min" not in accessor or "max" not in accessor:
+            continue
+        largest_axis = max(
+            largest_axis,
+            max(float(high) - float(low) for low, high in zip(accessor["min"], accessor["max"])),
+        )
+    if abs(largest_axis - expected_largest_axis_m) > 1e-4:
+        raise RuntimeError(
+            f"{path}: exported largest axis {largest_axis:.6f} m, expected {expected_largest_axis_m:.6f} m"
+        )
 
 
 if __name__ == "__main__":

@@ -73,3 +73,41 @@ func _instantiate_cat() -> CatRig:
 	var tree := Engine.get_main_loop() as SceneTree
 	tree.root.add_child(cat)
 	return cat
+
+
+func test_cat_coats_vary_by_seed_and_reserve_the_forge_coat() -> void:
+	var seen: Dictionary = {}
+	for placement_seed in 24:
+		var coat := CatCoatVariants.coat_for_seed(placement_seed * 7919)
+		assert_true(coat in CatCoatVariants.TOWN_COATS, "town cats must draw from the town coats")
+		assert_true(coat != CatCoatVariants.COAT_FORGE, "the forge coat stays Kalev's")
+		seen[coat] = true
+	assert_true(seen.size() >= 3, "seeded coats must actually vary, got %d" % seen.size())
+
+
+func test_cat_coat_textures_and_sizes_exist() -> void:
+	for coat: StringName in CatCoatVariants.TOWN_COATS:
+		var path := CatCoatVariants.coat_texture_path(coat)
+		assert_true(ResourceLoader.exists(path), "missing baked coat texture %s" % path)
+		assert_true(CatCoatVariants.build_material(coat) != null, "coat %s must build a material" % coat)
+	for placement_seed in 8:
+		var body_scale := CatCoatVariants.scale_for_seed(placement_seed * 31)
+		assert_true(
+			body_scale >= CatCoatVariants.SCALE_RANGE.x and body_scale <= CatCoatVariants.SCALE_RANGE.y,
+			"cat size jitter must stay in range"
+		)
+
+
+func test_town_cat_wears_a_coat_over_the_production_rig() -> void:
+	var cat := _instantiate_cat()
+	var coat := CatCoatVariants.apply(cat, 12345)
+
+	assert_true(coat in CatCoatVariants.TOWN_COATS)
+	var meshes := cat.find_children("*", "MeshInstance3D", true, false)
+	assert_true(meshes.size() > 0, "production cat must carry a mesh")
+	for mesh in meshes:
+		assert_true(
+			(mesh as MeshInstance3D).material_override != null,
+			"coat variant must override the embedded forge fur"
+		)
+	cat.queue_free()

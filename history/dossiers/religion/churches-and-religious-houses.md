@@ -11,6 +11,8 @@ related:
   - ../military/watch-duty-and-town-defence.md
   - ../hinterland/harju-village-and-manor.md
   - ./liturgical-calendar-spring-1343.md
+  - ./ecclesiastical-precinct-boundaries-1343.md
+  - ../culture/music-and-instruments.md
 updated: 2026-07-28
 ---
 
@@ -116,7 +118,7 @@ You are dressing **Catholic Reval in April–May 1343**, one week before and thr
 ## Production hooks
 
 - **Art:** Three parish silhouettes differ: St Nicholas = **stocky tower + two aisles**, no tall spire [`religion.churches-and-religious-houses.01`](../../reference/religion/churches-and-religious-houses/religion.churches-and-religious-houses.01.jpg); St Olaf = **compact vaulted hall + massive west tower stump**, no sky-piercing spire [`religion.churches-and-religious-houses.02`](../../reference/religion/churches-and-religious-houses/religion.churches-and-religious-houses.02.jpg); Holy Spirit = **modest hall**, twin-nave proportion, almshouse wing [`religion.churches-and-religious-houses.03`](../../reference/religion/churches-and-religious-houses/religion.churches-and-religious-houses.03.jpg). Dominican = **long limestone hall** and carved portal [`religion.churches-and-religious-houses.04`](../../reference/religion/churches-and-religious-houses/religion.churches-and-religious-houses.04.jpg). Dome = **construction site** on Toompea [`religion.churches-and-religious-houses.05`](../../reference/religion/churches-and-religious-houses/religion.churches-and-religious-houses.05.jpg) — strip baroque/post-1433 layers. Nunnery = **garden, wall, service wings** — no tourist basilica interior.
-- **Map:** Block **institutional precincts** on [`lower-town-street-plan.md`](../topography/lower-town-street-plan.md): Dominican east (Vene/Müürivahe), St Michael west (Kloostri/Aida), St Olaf north, St Nicholas south-west, Holy Spirit north of forum; cathedral on Toompea separate mesh. Cemetery greens beside St Nicholas and St Olaf. **1340s wall scaffold** on nunnery west.
+- **Map:** Block **institutional precincts** on [`lower-town-street-plan.md`](../topography/lower-town-street-plan.md) using measured polygons in [`ecclesiastical-precinct-boundaries-1343.md`](./ecclesiastical-precinct-boundaries-1343.md): Dominican east (Vene/Müürivahe), St Michael west (Kloostri/Aida), St Olaf north, St Nicholas south-west, Holy Spirit north of forum; cathedral on Toompea separate mesh. Cemetery greens beside St Nicholas and St Olaf. **1340s wall scaffold** on nunnery west.
 - **Character:** Parish priest, Dominican preacher, cathedral canon, almshouse infirmarian, St Michael lay sisters at gate — dress **clerical black/grey** or **Cistercian white/black** (nuns); burghers in **best wool** at St Nicholas, **working dress** at St Olaf craft funerals.
 - **Quest / Narrative:** **Sanctuary** in Dominican cloister (composite); **St Barbara charnel** (1342) as creepy quest node; **bishop vs council** letter on tithe during siege; **Padise massacre** as off-screen hinterland horror; **bell alarm** from three parishes when rebels approach.
 - **Dialogue:** *Nikolaikirche*, *Olaikirche*, *Heiliggeistkirche*, *Domkirche* / *Toomkirik*; *Dominiiklaste klooster*; *Mihkli klooster* / *Miikaeli klooster*.
@@ -136,19 +138,22 @@ You are dressing **Catholic Reval in April–May 1343**, one week before and thr
 ## Cross-references
 
 - [`../architecture/toompea-castle-and-upper-town.md`](../architecture/toompea-castle-and-upper-town.md) — Dome church construction state and bishop's political position on the hill.
+- [`../architecture/toompea-small-castle-interior.md`](../architecture/toompea-small-castle-interior.md) — `GC-cathedral`, `GC-bishop-palace`, and chapter zones on the Great Castle plateau.
 - [`../topography/lower-town-street-plan.md`](../topography/lower-town-street-plan.md) — institutional precincts that break merchant strip blocks.
 - [`../topography/walls-gates-towers.md`](../topography/walls-gates-towers.md) — 1340s enclosure of St Olaf quarter and St Michael nunnery.
 - [`../power/jurisdictions-of-reval.md`](../power/jurisdictions-of-reval.md) — parish vs bishop vs town court seams at church doors.
 - [`../crafts/guild-structure.md`](../crafts/guild-structure.md) — which craft umbrella funds which parish chapels.
 - [`../military/watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) — parish bells as alarm and curfew signals.
+- [`../culture/music-and-instruments.md`](../culture/music-and-instruments.md) — chant, organ limits, and what parish music is not in 1343.
 - [`../hinterland/harju-village-and-manor.md`](../hinterland/harju-village-and-manor.md) — Padise abbey and rural parish framework.
 - [`../dailylife/food-and-drink.md`](../dailylife/food-and-drink.md) — Dominican brewery and fish-and-beer economy in eastern lanes.
 - [`../topography/back-lanes-east-of-pikk.md`](../topography/back-lanes-east-of-pikk.md) (R-032) — Katariina käik cloister passage and Müürivahe wall lane east of Pikk blocks.
+- [`../folklore/belief-omens-and-healing.md`](../folklore/belief-omens-and-healing.md) — Dominican preaching against superstition; parish healing frame versus folk *tark* practice.
+- [`./ecclesiastical-precinct-boundaries-1343.md`](./ecclesiastical-precinct-boundaries-1343.md) — labelled Dominican and St Michael precinct polygons with 1340s wall-incorporation seams.
 - [`./liturgical-calendar-spring-1343.md`](./liturgical-calendar-spring-1343.md) — Easter, holy days, and St George feast dates for parish processions.
 
 ## Open questions
 
-- Exact **ecclesiastical precinct boundary** lines for Dominican and St Michael closes in 1343 — needs measured map pass (candidate `R-049`).
 - **Named parish priests** and Dominican prior in **1343** — needs Tallinn City Archives / publication pass.
 - **Holy Spirit almshouse** ground plan and bed count in 1343 — archaeology thin; only block relationship secure.
 - Whether **St Olaf west tower** was already standing in April 1343 or only after **1364** document — stratigraphy ambiguous.

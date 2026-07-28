@@ -119,18 +119,19 @@ Consumers are quest/narrative only; three authority visuals suffice. No survivin
 
 - [`../people/town-council-and-officers.md`](../people/town-council-and-officers.md) — council composition, officers, and 1343 corporate actions that instantiate this table.
 - [`../architecture/toompea-castle-and-upper-town.md`](../architecture/toompea-castle-and-upper-town.md) — physical hill/castle zone under viceroy and bishop, not Rat.
+- [`../architecture/toompea-small-castle-interior.md`](../architecture/toompea-small-castle-interior.md) — viceroy audience zone (`SC-viceroy-audience`) vs Lower Town courts.
 - [`../topography/walls-gates-towers.md`](../topography/walls-gates-towers.md) — which gates council controls during siege.
 - [`../power/law-courts-and-punishment.md`](../power/law-courts-and-punishment.md) — offence-to-consequence pairs, Vogt/Rat procedure, pillory and capital punishment under Lübeck law.
+- [`order-comptoir-transition-1343-1346.md`](./order-comptoir-transition-1343-1346.md) — dated authority table for post-16 May through 1346 sale; Komturei powers vs council continuity.
 - [`../people/estonian-and-german-populations.md`](../people/estonian-and-german-populations.md) — Estonian watch squad, legal freedom in town vs manor serfdom; population segments for forum-shopping scenes.
 - [`../religion/churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) — parish trio, Dominican sanctuary seam, bishop's cathedral jurisdiction.
 
 ## Open questions
 
-- Exact **ecclesiastical precinct boundaries** for Dominican priory and St Michael's nunnery in 1343 — see [`../religion/churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) and backlog **R-049**.
+- Exact **ecclesiastical precinct boundaries** for Dominican priory and St Michael's nunnery in 1343 — see [`../religion/ecclesiastical-precinct-boundaries-1343.md`](../religion/ecclesiastical-precinct-boundaries-1343.md).
 - **Guild vs council** jurisdiction over smiths before Great Guild formal rules — see [`guild-structure.md`](../crafts/guild-structure.md); smith *Amt* fines still need R-041 archival pass.
-- Whether **May 16 castle transfer** required council assent or only vassal + Order action — Tallinn City Archives charter pass.
+- Whether **May 16 castle transfer** required council assent — **DD 322** is vassal-only; council joins **27 Oct** petition [6]; full AWB signature pass still open (feeds R-038).
 - **Estonian legal status** inside walls (year-and-day freedom, testimony rights) — candidate row tied to R-026.
-- Post-**16 May** daily administration: who holds Toompea gates until **1346** sale — Order comptoir practice.
 
 ## Sources
 

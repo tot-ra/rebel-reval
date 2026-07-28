@@ -123,6 +123,7 @@ No licensed measured plan of the **Danish-period** Small Castle interior survive
 
 - [`toompea-castle-and-upper-town.md`](toompea-castle-and-upper-town.md) — plateau context, boundary gates, what is absent from skyline in 1343.
 - [`../power/jurisdictions-of-reval.md`](../power/jurisdictions-of-reval.md) — viceroy authority, May 1343 grain levy and castle handover.
+- [`../power/order-comptoir-transition-1343-1346.md`](../power/order-comptoir-transition-1343-1346.md) — post-16 May Komtur residence and council continuity through 1346 sale.
 - [`../religion/churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) — cathedral construction state and chapter on `GC-*` zones.
 - [`../people/town-council-and-officers.md`](../people/town-council-and-officers.md) — Lower Town council vs hill; no council jurisdiction inside `SC-viceroy-audience`.
 - [`burgher-house-plan.md`](burgher-house-plan.md) — merchant interior typology to avoid on the hill.

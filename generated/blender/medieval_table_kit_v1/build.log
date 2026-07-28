@@ -1,0 +1,26 @@
+/Users/artjomkurapov/git/rebel-reval/tools/generate_medieval_table_kit.py:130: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  material.use_nodes = True
+/Users/artjomkurapov/git/rebel-reval/tools/generate_medieval_table_kit.py:130: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  material.use_nodes = True
+INFO Draco is available, use library at /Applications/Blender.app/Contents/Resources/5.2/scripts/addons_core/io_scene_gltf2/libbf_intern_draco_bridge.dylib
+INFO MeshOptimizer is available, use library at /Applications/Blender.app/Contents/Resources/5.2/scripts/addons_core/io_scene_gltf2/libbf_intern_meshopt_bridge.dylib
+15:30:59 | INFO: Starting glTF 2.0 export
+15:30:59 | INFO: Extracting primitive: CommonTableFrameMesh
+15:30:59 | INFO: Primitives created: 3
+15:30:59 | INFO: Extracting primitive: CuttingBoardMesh
+15:30:59 | INFO: Primitives created: 2
+15:30:59 | INFO: Extracting primitive: HerringMesh
+15:30:59 | INFO: Primitives created: 2
+15:30:59 | INFO: Extracting primitive: FishKnifeMesh
+15:30:59 | INFO: Primitives created: 2
+15:30:59 | INFO: Extracting primitive: LongTableFrameMesh
+15:30:59 | INFO: Primitives created: 3
+15:30:59 | INFO: Extracting primitive: WorkTableFrameMesh
+15:30:59 | INFO: Primitives created: 3
+15:30:59 | INFO: Finished glTF 2.0 export in 0.01823592185974121 s
+00:02.413  render           | Saved: '/Users/artjomkurapov/git/rebel-reval/generated/blender/medieval_table_kit_v1/preview.png'
+
+ASSET_METRICS={"cache_key":"ed75fdf7b44283116fddbcbcf58c41292c0d294a335ab2ed0fdf544f3027ac2f","materials":5,"sha256":"186ebe555be5da218c8076bb918a91a929ba5dbdf7513e9f1bafc32dd09164c4","triangles":4792,"uv_sets":1}
+Blender 5.2.0 LTS (hash fbe6228777e7 built 2026-07-14 01:31:22)
+
+Blender quit

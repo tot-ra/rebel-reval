@@ -8,6 +8,9 @@ related:
   - ../power/jurisdictions-of-reval.md
   - ../people/town-council-and-officers.md
   - ../architecture/toompea-castle-and-upper-town.md
+  - ../culture/music-and-instruments.md
+  - ../power/law-courts-and-punishment.md
+  - ../power/reval-law-codex-arms-and-watch.md
 updated: 2026-07-28
 ---
 
@@ -132,11 +135,12 @@ Use this as a **default April weeknight**; tighten every row during the **late-A
 
 - [`../topography/walls-gates-towers.md`](../topography/walls-gates-towers.md) — which gates and towers exist in 1343; Viru unfinished; wooden hill gates.
 - [`../power/jurisdictions-of-reval.md`](../power/jurisdictions-of-reval.md) — council vs viceroy vs Order at gates; hill-gate seam.
-- [`../power/law-courts-and-punishment.md`](../power/law-courts-and-punishment.md) — curfew and gate breaches as Vogt offences; fine and pillory consequences.
+- [`../power/reval-law-codex-arms-and-watch.md`](../power/reval-law-codex-arms-and-watch.md) — 1282 codex Art. 179/90/91 and Burspraken *Wacht*/*Harnisch* legal basis for watch fines and muster.
 - [`../people/town-council-and-officers.md`](../people/town-council-and-officers.md) — who orders muster and proclamations; Vogt for night arrests.
 - [`../crafts/guild-structure.md`](../crafts/guild-structure.md) — craft masters on burgher watch rolls; guild feast obligations do not replace militia duty.
 - [`../people/estonian-and-german-populations.md`](../people/estonian-and-german-populations.md) — attested Estonian watch squad; ethnic labour division on night patrol.
 - [`../military/arms-and-armour-livonia-1340s.md`](../military/arms-and-armour-livonia-1340s.md) — what smiths produce vs import; militia kit materials.
+- [`../culture/music-and-instruments.md`](../culture/music-and-instruments.md) — bells vs trumpets; no Stadtpfeifer tower fanfares in 1343.
 - [`../architecture/toompea-castle-and-upper-town.md`](../architecture/toompea-castle-and-upper-town.md) — upper gate chain; curfew on hill access.
 
 ## Open questions
@@ -144,7 +148,7 @@ Use this as a **default April weeknight**; tighten every row during the **late-A
 - Tallinn **1343 curfew hour** and which parish bell was authoritative — no primary inscription survives before Holy Spirit 1433 bell [19].
 - **Household-to-roster mapping** (parish vs guild vs street quarter) for Reval — needs Stadtbuch / ordinance pass (successor to R-038 prosopography scope).
 - Whether **small paid gate clerks** existed in 1343 or only volunteer burghers — Hanseatic trend says mixed model by century end [2].
-- Exact **arms ordinance** text in Reval's 1257/1282 law codices for 1343 — needs dedicated law-codex read (candidate R-040).
+- **Fixed curfew-fine amount** in Reval AWB 1340–1343 — see [`reval-law-codex-arms-and-watch.md`](../power/reval-law-codex-arms-and-watch.md).
 - **Tower-by-tower garrison list** in April 1343 — eleven commanders only from ~1355 [4].
 
 ## Sources

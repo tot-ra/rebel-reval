@@ -10,6 +10,7 @@ const GroundWander := preload("res://scripts/map/view3d/map_view_ground_wander.g
 const MapViewBridge := preload("res://scripts/map/view3d/map_view_bridge.gd")
 const MammalMeshes := preload("res://scripts/map/view3d/map_view_mammal_meshes.gd")
 const MedievalAnimalModels := preload("res://scripts/map/view3d/map_view_medieval_animal_models.gd")
+const CatCoats := preload("res://assets/characters/cat/cat_coat_variants.gd")
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 
 const MAX_CONCURRENT_FAUNA := 8
@@ -36,7 +37,7 @@ const BEHAVIOR_FLEE := &"flee"
 const LOWER_TOWN_PLACEMENTS: Array[Dictionary] = [
 	{"cell": Vector2i(90, 70), "species": MammalSpecies.SPECIES_HORSE, "behavior": BEHAVIOR_TETHER, "radius": 2.4},
 	{"cell": Vector2i(74, 56), "species": MammalSpecies.SPECIES_DOG, "behavior": BEHAVIOR_WANDER, "radius": 3.6},
-	{"cell": Vector2i(80, 62), "species": MammalSpecies.SPECIES_CAT, "behavior": BEHAVIOR_IDLE, "radius": 1.4},
+	{"cell": Vector2i(80, 62), "species": MammalSpecies.SPECIES_CAT, "behavior": BEHAVIOR_WANDER, "radius": 2.2},
 	{"cell": Vector2i(66, 52), "species": MammalSpecies.SPECIES_RAT, "behavior": BEHAVIOR_FLEE, "radius": 2.8},
 	{"cell": Vector2i(85, 58), "species": MammalSpecies.SPECIES_CAT, "behavior": BEHAVIOR_IDLE, "radius": 1.2},
 	{"cell": Vector2i(72, 54), "species": MammalSpecies.SPECIES_DOG, "behavior": BEHAVIOR_WANDER, "radius": 3.2},
@@ -153,6 +154,10 @@ func _rebuild_actors() -> void:
 		_actors.append(actor)
 
 
+## Cats amble; they do not trot around a yard like a working dog.
+const CAT_WANDER_SPEED := 0.34
+
+
 func _make_actor(index: int, placement: Dictionary) -> Node3D:
 	var species: StringName = placement.get("species", &"")
 	var behavior: StringName = placement.get("behavior", BEHAVIOR_IDLE)
@@ -162,25 +167,30 @@ func _make_actor(index: int, placement: Dictionary) -> Node3D:
 	var home := MapViewBridge.cell_center_to_world(cell, _cell_size)
 	var actor := Node3D.new()
 	actor.name = "UrbanFauna%d" % index
-	if MedievalAnimalModels.add_model(actor, species) == null:
+	var model := MedievalAnimalModels.add_model(actor, species)
+	if model != null and species == MammalSpecies.SPECIES_CAT:
+		# Same mesh and rig as Kalev's cat, different coat and build, so a town
+		# with several cats does not read as one cat copied around.
+		actor.set_meta(&"coat", CatCoats.apply(model, hash_seed(_map_id, index, 71)))
+	if model == null:
 		var mesh := MammalMeshes.mesh_for(species, pose)
-		var model := MeshInstance3D.new()
-		model.name = "Model"
+		var proxy := MeshInstance3D.new()
+		proxy.name = "Model"
 		if mesh != null:
-			model.mesh = mesh
+			proxy.mesh = mesh
 			var aabb := mesh.get_aabb()
-			model.position.y = -aabb.position.y
-		_apply_variant_material(model, species, hash_seed(_map_id, index))
-		actor.add_child(model)
+			proxy.position.y = -aabb.position.y
+		_apply_variant_material(proxy, species, hash_seed(_map_id, index))
+		actor.add_child(proxy)
 	actor.position = home
 	actor.rotation.y = _yaw_for_placement(index)
 	actor.set_meta(&"species", species)
 	actor.set_meta(&"behavior", behavior)
-	GroundWander.setup(actor, _map_id, index, _wander_config(behavior, home, radius))
+	GroundWander.setup(actor, _map_id, index, _wander_config(behavior, home, radius, species))
 	return actor
 
 
-static func _wander_config(behavior: StringName, home: Vector3, radius: float) -> Dictionary:
+static func _wander_config(behavior: StringName, home: Vector3, radius: float, species: StringName = &"") -> Dictionary:
 	var config := {"home": home, "radius": radius}
 	match behavior:
 		BEHAVIOR_TETHER:
@@ -198,7 +208,7 @@ static func _wander_config(behavior: StringName, home: Vector3, radius: float) -
 			# reads worse than one that simply sits still.
 			config["speed"] = 0.0
 		_:
-			config["speed"] = WANDER_SPEED
+			config["speed"] = CAT_WANDER_SPEED if species == MammalSpecies.SPECIES_CAT else WANDER_SPEED
 			config["roam_scale"] = 0.82
 			config["pause_range"] = Vector2(0.9, 3.2)
 	return config

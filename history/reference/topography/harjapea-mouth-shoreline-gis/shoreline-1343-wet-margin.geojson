@@ -1,0 +1,82 @@
+{
+  "type": "FeatureCollection",
+  "name": "reval-shoreline-1343-wet-margin",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "EPSG:4326"
+    }
+  },
+  "metadata": {
+    "game_date": "1343-04-23",
+    "purpose": "Wet ground (sea, delta, mud, reed) for map authoring — not modern harbour CAD",
+    "method": "Wreck foreshore anchors + interpolated curve + wall-foot closure",
+    "dossier": "history/dossiers/topography/harjapea-mouth-shoreline-gis.md",
+    "updated": "2026-07-28"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "wet_margin_1343",
+        "confidence": "mixed",
+        "label": "1343 wet margin polygon"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [24.7348, 59.4452],
+            [24.7375, 59.4445],
+            [24.7485, 59.4418],
+            [24.7565, 59.4432],
+            [24.76579, 59.44149],
+            [24.78155, 59.44212],
+            [24.778, 59.4385],
+            [24.75492, 59.4366],
+            [24.75025, 59.43646],
+            [24.752, 59.442],
+            [24.7395, 59.4438],
+            [24.7348, 59.4452]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "A5_lootsi_8_wreck",
+        "confidence": "attested",
+        "label": "Lootsi 8 wreck foreshore"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [24.76579, 59.44149]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "A6_peeter_pikksilma_wreck",
+        "confidence": "attested",
+        "label": "Peeter / Pikksilma wreck foreshore"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [24.78155, 59.44212]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "A7_kadriorg_ship_zone",
+        "confidence": "attested",
+        "label": "Kadriorg 14th-c. ship find zone"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [24.778, 59.4385]
+      }
+    }
+  ]
+}

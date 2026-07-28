@@ -5,6 +5,7 @@ status: partial
 consumers: [character, narrative, quest]
 related:
   - ../power/jurisdictions-of-reval.md
+  - ../power/order-comptoir-transition-1343-1346.md
   - ../topography/raekoja-plats-extents-1343.md
   - ../architecture/toompea-castle-and-upper-town.md
   - ../military/watch-duty-and-town-defence.md
@@ -130,6 +131,7 @@ No surviving portrait or costume depiction of a **named 1343 Reval councillor** 
 - [`../architecture/toompea-castle-and-upper-town.md`](../architecture/toompea-castle-and-upper-town.md) — Danish castle administration separate from merchant council.
 - [`../military/watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) — council musters burgher watch; Henning-type sergeant answers to Rat not viceroy.
 - [`estonian-and-german-populations.md`](estonian-and-german-populations.md) — who may sit on council (Germans only) vs who populates the town (mixed Undeutsch majority in labour tiers).
+- [`../language/names-address-and-oaths.md`](../language/names-address-and-oaths.md) — Low German office titles, 1333 name stock, and address forms for councillor dialogue.
 
 ## Open questions
 

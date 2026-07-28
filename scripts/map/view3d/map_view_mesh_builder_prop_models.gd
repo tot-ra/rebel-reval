@@ -482,8 +482,8 @@ static func _add_furnace_fire_particles(root: Node3D) -> GPUParticles3D:
 	process.damping_max = 1.0
 	process.angular_velocity_min = -60.0
 	process.angular_velocity_max = 60.0
-	process.scale_min = 0.04
-	process.scale_max = 0.1
+	process.scale_min = 0.025
+	process.scale_max = 0.06
 	# WHY: sparks cool as they rise. A white-hot birth fading through orange to
 	# dead red plus shrink-over-life sells ember trajectories, not orange dots.
 	var spark_scale := Curve.new()
@@ -513,7 +513,7 @@ static func _add_furnace_fire_particles(root: Node3D) -> GPUParticles3D:
 	spark_mat.albedo_color = Color.WHITE
 	spark_mat.emission_enabled = true
 	spark_mat.emission = Color8(255, 140, 40)
-	spark_mat.emission_energy_multiplier = 3.0
+	spark_mat.emission_energy_multiplier = 2.4
 	spark_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	particles.material_override = spark_mat
 	root.add_child(particles)

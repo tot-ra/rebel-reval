@@ -10,9 +10,9 @@
     "components": 1
   },
   "lod1": {
-    "faces": 2623,
-    "quads": 877,
-    "quad_ratio": 0.334,
+    "faces": 2674,
+    "quads": 826,
+    "quad_ratio": 0.309,
     "triangles": 3500,
     "vertices": 1752,
     "boundary_edges": 0,
@@ -20,9 +20,9 @@
     "components": 1
   },
   "lod2": {
-    "faces": 926,
-    "quads": 74,
-    "quad_ratio": 0.08,
+    "faces": 937,
+    "quads": 63,
+    "quad_ratio": 0.067,
     "triangles": 1000,
     "vertices": 502,
     "boundary_edges": 0,
@@ -30,9 +30,9 @@
     "components": 1
   },
   "metric_dimensions_m": [
-    0.5176,
-    0.174,
-    0.3664
+    0.1721,
+    0.5181,
+    0.3474
   ],
   "ground_min_z": 0.0,
   "uv_layers": [
@@ -42,11 +42,48 @@
   "textures": [
     "forge_cat_albedo.png",
     "forge_cat_normal.png",
+    "forge_cat_roughness.png",
     "forge_cat_ao.png"
+  ],
+  "coats": [
+    "forge",
+    "tabby_brown",
+    "tabby_grey",
+    "black",
+    "ginger",
+    "white_black"
   ],
   "texture_size": 1024,
   "weight_mode": "auto_bone_heat",
+  "cross_limb_weights_removed": 894,
   "bones": 22,
+  "orientation": {
+    "rotated_long_axis": "X",
+    "head_end": "-Y",
+    "head_stats": {
+      "upper_mass": 3893,
+      "thickness": 0.4778
+    },
+    "tail_stats": {
+      "upper_mass": 4382,
+      "thickness": 0.1644
+    },
+    "dims_source_units": [
+      0.671,
+      1.9667,
+      1.3981
+    ]
+  },
+  "rig": {
+    "back_z": 0.2507,
+    "hip_z": 0.1554,
+    "knee_z": 0.0827,
+    "ankle_z": 0.0326,
+    "toe_z": 0.001,
+    "cross_limb_weights_removed": 894,
+    "upper_length": 0.0727,
+    "lower_length": 0.0501
+  },
   "animations": {
     "idle": {
       "frames": [
@@ -59,10 +96,19 @@
     "walk": {
       "frames": [
         1,
-        24
+        19
       ],
-      "seconds": 0.8,
-      "loop": true
+      "seconds": 0.6,
+      "loop": true,
+      "stride_m": 0.1236,
+      "duty_factor": 0.66,
+      "ground_speed_m_s": 0.3122,
+      "footfall_order": [
+        "legBL",
+        "legFL",
+        "legBR",
+        "legFR"
+      ]
     },
     "sleep": {
       "frames": [
@@ -78,7 +124,7 @@
         48
       ],
       "seconds": 1.6,
-      "loop": true
+      "loop": false
     },
     "stretch": {
       "frames": [
@@ -87,11 +133,78 @@
       ],
       "seconds": 2.0,
       "loop": false
+    },
+    "_solver": {
+      "max_reach_shortfall_m": 0.0,
+      "walk_amplitude_m": 0.0618
     }
+  },
+  "gait": {
+    "legs": {
+      "legFL": {
+        "stance_frames": 12,
+        "stance_speed_m_s": 0.318,
+        "max_speed_deviation_m_s": 0.0127,
+        "max_contact_height_error_m": 0.0,
+        "swing_clearance_m": 0.0227,
+        "floor_penetration_m": 0.0
+      },
+      "legFR": {
+        "stance_frames": 12,
+        "stance_speed_m_s": 0.318,
+        "max_speed_deviation_m_s": 0.0127,
+        "max_contact_height_error_m": 0.0,
+        "swing_clearance_m": 0.0227,
+        "floor_penetration_m": 0.0
+      },
+      "legBL": {
+        "stance_frames": 12,
+        "stance_speed_m_s": 0.3179,
+        "max_speed_deviation_m_s": 0.0391,
+        "max_contact_height_error_m": 0.0,
+        "swing_clearance_m": 0.0292,
+        "floor_penetration_m": 0.0004
+      },
+      "legBR": {
+        "stance_frames": 12,
+        "stance_speed_m_s": 0.317,
+        "max_speed_deviation_m_s": 0.0334,
+        "max_contact_height_error_m": 0.0,
+        "swing_clearance_m": 0.0292,
+        "floor_penetration_m": 0.0004
+      }
+    },
+    "support_counts": [
+      3,
+      3,
+      3,
+      2,
+      2,
+      3,
+      3,
+      3,
+      2,
+      3,
+      3,
+      3,
+      2,
+      2,
+      3,
+      3,
+      3,
+      2
+    ],
+    "worst_slip_m_s": 0.0391,
+    "worst_floor_penetration_m": 0.0004,
+    "worst_contact_height_error_m": 0.0,
+    "min_swing_clearance_m": 0.0227,
+    "always_supported": true,
+    "pass": true
   },
   "budget_ok": {
     "lod0_within_cap": true,
     "lod1_in_range": true,
-    "lod2_in_range": true
+    "lod2_in_range": true,
+    "gait_pass": true
   }
 }

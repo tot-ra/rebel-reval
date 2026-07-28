@@ -10,6 +10,7 @@ related:
   - ./viru-vanaturg-paving-archaeology.md
   - ../architecture/burgher-house-plan.md
   - ../religion/churches-and-religious-houses.md
+  - ../religion/ecclesiastical-precinct-boundaries-1343.md
 updated: 2026-07-28
 ---
 
@@ -142,7 +143,8 @@ Labourers and **Estonian servants** more often use **rear lanes and yard gates**
 - [`walls-gates-towers.md`](./walls-gates-towers.md) — Müürivahe as inner curtain lane; Viru Gate 1343 phase at lane terminus.
 - [`viru-vanaturg-paving-archaeology.md`](./viru-vanaturg-paving-archaeology.md) — Viru west pebble band and Müürivahe crossing surfaces.
 - [`burgher-house-plan.md`](../architecture/burgher-house-plan.md) — yard gate, rear lane, and dornse courtyard door placement.
-- [`churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) — Dominican precinct bounds the east side of these lanes.
+- [`churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) — Dominican precinct institution context.
+- [`ecclesiastical-precinct-boundaries-1343.md`](../religion/ecclesiastical-precinct-boundaries-1343.md) — measured Dominican east edge along Müürivahe / Katariina käik.
 
 ## Open questions
 

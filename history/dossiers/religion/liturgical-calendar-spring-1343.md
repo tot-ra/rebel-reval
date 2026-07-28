@@ -10,6 +10,7 @@ related:
   - ../crafts/guild-structure.md
   - ../hinterland/harju-village-and-manor.md
   - ../../TIMELINE.md
+  - ../culture/music-and-instruments.md
 updated: 2026-07-28
 ---
 
@@ -140,6 +141,7 @@ You are scheduling **Catholic time in Julian-calendar Reval** for the playable *
 - [`guild-structure.md`](../crafts/guild-structure.md) — St Canute feast oaths and umbrella guild masses.
 - [`harju-village-and-manor.md`](../hinterland/harju-village-and-manor.md) — rural tithe pressure and St George mobilisation.
 - [`food-and-drink.md`](../dailylife/food-and-drink.md) — Lent fast foods, Easter feast resumption, and post-Easter burgher diet.
+- [`music-and-instruments.md`](../culture/music-and-instruments.md) — seasonal soundscape: Holy Week quiet, Easter bells, absent civic St George music.
 - [`../../TIMELINE.md`](../../TIMELINE.md) — attested campaign dates.
 
 ## Open questions

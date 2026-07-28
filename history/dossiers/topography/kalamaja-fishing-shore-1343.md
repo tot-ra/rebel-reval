@@ -122,6 +122,7 @@ No licensed plate reproduces **1343 Kalarand itself** or a **measured shore plan
 ## Cross-references
 
 - [`harbour-and-shoreline.md`](./harbour-and-shoreline.md) — parent harbour dossier; two-zone harbour model; Kalamaja introduced as fishing shore.
+- [`harjapea-mouth-shoreline-gis.md`](./harjapea-mouth-shoreline-gis.md) — wet-margin polygon; fishing-shore vertices S1–S2.
 - [`walls-gates-towers.md`](./walls-gates-towers.md) — **Sand Gate** beach exit; wall circuit northwest tower positions.
 - [`../economy/hanseatic-trade-and-season.md`](../economy/hanseatic-trade-and-season.md) — herring, salt, and Lent fish trade into town.
 - [`../people/estonian-and-german-populations.md`](../people/estonian-and-german-populations.md) — Estonian shore labour vs German burgher buyers (R-026).
@@ -129,7 +130,7 @@ No licensed plate reproduces **1343 Kalarand itself** or a **measured shore plan
 
 ## Open questions
 
-- **Measured 1343 Kalarand shoreline curve** — needs GIS pass tied to R-033 shore-displacement polygon.
+- [`harjapea-mouth-shoreline-gis.md`](./harjapea-mouth-shoreline-gis.md) — 1343 wet-margin polygon and wreck anchors; S1–S2 fishing-shore vertices.
 - **Archaeological horizon for Kalamaja medieval huts** — pre-1400 structural evidence not reviewed in this tick; Tallinn archaeology pass needed.
 - **Boat-count and yard-count in 1343** — project uses **3 yards / 6 boats** as bounded gameplay composite [1]; documentary support **thin**.
 - **Estonian vs Swedish shore quarters in 1343** — Johansen's two-village model is **15th-c.+** evidence [6].

@@ -9,6 +9,8 @@ related:
   - ../crafts/guild-structure.md
   - ../military/watch-duty-and-town-defence.md
   - ../architecture/burgher-house-plan.md
+  - ../culture/music-and-instruments.md
+  - ../language/names-address-and-oaths.md
 updated: 2026-07-28
 ---
 
@@ -133,6 +135,9 @@ Johansen notes **Scandinavian and Russian merchant settlements** around **St Ola
 - [`../architecture/burgher-house-plan.md`](../architecture/burgher-house-plan.md) — who lives in diele vs service wing.
 - [`../dailylife/food-and-drink.md`](../dailylife/food-and-drink.md) — beer-excise collectors; labourer vs burgher meal tiers.
 - [`../military/arms-and-armour-livonia-1340s.md`](../military/arms-and-armour-livonia-1340s.md) — faction kit by group.
+- [`../culture/music-and-instruments.md`](../culture/music-and-instruments.md) — regilaul rural layer vs German urban music; who sings where.
+- [`../folklore/belief-omens-and-healing.md`](../folklore/belief-omens-and-healing.md) — who may practice folk belief versus who may prosecute it; syncretic Estonian labour in town.
+- [`../language/names-address-and-oaths.md`](../language/names-address-and-oaths.md) — register split (MLG / Estonian / Latin), patronymic patterns, and address ladder for mixed-crowd scenes.
 
 ## Open questions
 
