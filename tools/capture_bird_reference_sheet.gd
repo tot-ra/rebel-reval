@@ -1,7 +1,8 @@
 extends SceneTree
 
-## Reproducible P0-117 silhouette sheet. This tool renders all catalog birds from
-## procedural geometry only; it does not instantiate runtime spawning or flight.
+## Reproducible P0-117 silhouette sheet. Renders catalog birds from authored GLBs
+## when present (P2-033) and otherwise from procedural geometry. This tool does
+## not instantiate runtime spawning or flight.
 ## Run with a rendering-capable Godot process (no --headless):
 ## /Applications/Godot.app/Contents/MacOS/Godot --path . \
 ##   --script tools/capture_bird_reference_sheet.gd
@@ -76,11 +77,12 @@ func _bird_entry(species: StringName, origin: Vector3) -> Node3D:
 	instance.position = Vector3(0.0, 0.15 - (bounds.position.y + bounds.size.y * 0.5) * visual_scale, 0.0)
 	instance.rotation_degrees = Vector3(-10.0, -22.0, 0.0)
 
-	var material := StandardMaterial3D.new()
-	material.vertex_color_use_as_albedo = true
-	material.roughness = 0.82
-	material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	instance.material_override = material
+	if not BirdMeshes.uses_authored_mesh(species):
+		var material := StandardMaterial3D.new()
+		material.vertex_color_use_as_albedo = true
+		material.roughness = 0.82
+		material.cull_mode = BaseMaterial3D.CULL_DISABLED
+		instance.material_override = material
 	root_3d.add_child(instance)
 
 	var label := Label3D.new()

@@ -5,6 +5,7 @@ extends RefCounted
 ## intentionally static: future runtime wing animation or flight paths belong to
 ## P0-105 and can reuse these proportions without changing catalog semantics.
 
+const BirdAssets := preload("res://scripts/map/view3d/map_view_bird_assets.gd")
 const BirdSpecies := preload("res://scripts/map/view3d/map_view_bird_species.gd")
 const RADIAL_SEGMENTS := 6
 const BODY_SEGMENTS := 12
@@ -26,14 +27,26 @@ static func mesh_for(species: StringName, pose: StringName = &"") -> ArrayMesh:
 	var cache_key := "%s:%s" % [species, resolved_pose]
 	if _mesh_cache.has(cache_key):
 		return _mesh_cache[cache_key]
+	var authored := BirdAssets.mesh_for_pose(species, resolved_pose)
+	if authored != null:
+		_mesh_cache[cache_key] = authored
+		return authored
 	var mesh := _build_mesh(species, resolved_pose)
 	_mesh_cache[cache_key] = mesh
 	return mesh
 
 
+static func uses_authored_mesh(species: StringName, pose: StringName = &"") -> bool:
+	var resolved_pose := BirdSpecies.default_pose(species) if pose.is_empty() else pose
+	return BirdAssets.has_authored_pose(species, resolved_pose) or (
+		resolved_pose == BirdSpecies.POSE_GLIDING and BirdAssets.has_complete_flap_cycle(species)
+	)
+
+
 static func reset_cache() -> void:
 	_mesh_cache.clear()
 	_flap_mesh_cache.clear()
+	BirdAssets.reset_cache()
 
 
 ## Returns an array of ArrayMesh for one complete flapping cycle.
@@ -42,6 +55,10 @@ static func flap_cycle(species: StringName) -> Array:
 	var cache_key := String(species)
 	if _flap_mesh_cache.has(cache_key):
 		return _flap_mesh_cache[cache_key]
+	var authored_cycle := BirdAssets.flap_cycle_meshes(species)
+	if not authored_cycle.is_empty():
+		_flap_mesh_cache[cache_key] = authored_cycle
+		return authored_cycle
 	var cycle: Array = []
 	for lift in FLAP_KEYFRAMES:
 		var mesh := _build_mesh(species, BirdSpecies.POSE_GLIDING, lift)
