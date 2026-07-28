@@ -6,6 +6,7 @@ extends RefCounted
 ## which one belongs in each household or workspace.
 
 const LIGHTING_KIT_SCENE_PATH := "res://assets/props/lighting/medieval_lighting_kit.glb"
+const FLAME_SCRIPT := preload("res://scripts/map/view3d/candle_flame_3d.gd")
 const VARIANT_ROOT_NAMES: Dictionary = {
 	MapTypes.LIGHTING_VARIANT_POOR_TALLOW: &"PoorTallow",
 	MapTypes.LIGHTING_VARIANT_ARTISAN_TALLOW: &"ArtisanTallow",
@@ -19,30 +20,36 @@ const LIGHT_PROFILES: Dictionary = {
 		"day_energy": 0.12,
 		"night_energy": 0.90,
 		"range": 2.4,
+		"flame_size": 0.82,
 	},
 	MapTypes.LIGHTING_VARIANT_ARTISAN_TALLOW: {
 		"color": Color8(255, 188, 98),
 		"day_energy": 0.16,
 		"night_energy": 1.18,
 		"range": 3.0,
+		"flame_size": 0.90,
 	},
 	MapTypes.LIGHTING_VARIANT_RICH_BEESWAX: {
 		"color": Color8(255, 205, 122),
 		"day_energy": 0.18,
 		"night_energy": 1.35,
 		"range": 3.2,
+		"flame_size": 1.0,
 	},
 	MapTypes.LIGHTING_VARIANT_GREASE_LAMP: {
 		"color": Color8(255, 166, 76),
 		"day_energy": 0.11,
 		"night_energy": 0.82,
 		"range": 2.3,
+		"flame_size": 0.78,
 	},
 	MapTypes.LIGHTING_VARIANT_PINE_SPLINT: {
 		"color": Color8(255, 156, 62),
 		"day_energy": 0.14,
 		"night_energy": 1.05,
 		"range": 2.7,
+		"flame_size": 0.88,
+		"flame_particles": 8,
 	},
 }
 
@@ -70,25 +77,23 @@ static func add_model(parent: Node3D, prop: Dictionary) -> Node3D:
 	model.set_meta(&"production_lighting_model", true)
 	model.set_meta(&"lighting_variant", variant)
 	selected.set_meta(&"lighting_variant", variant)
-	var flame: MeshInstance3D = null
-	for child in selected.get_children():
-		if child is MeshInstance3D and String(child.name).begins_with("Flame"):
-			flame = child as MeshInstance3D
-			break
-	assert(flame != null and flame.mesh != null, "Medieval lighting variant needs a separate Flame mesh")
-	var imported_flame_material := flame.get_active_material(0) as StandardMaterial3D
-	if imported_flame_material != null:
-		# Each prop owns its emission state; sharing the imported glTF material would
-		# make one day/night update alter every lighting instance at once.
-		flame.material_override = imported_flame_material.duplicate() as StandardMaterial3D
+
+	# The generated model contains fuel and a charred wick but no fire geometry.
+	# Anchoring a runtime effect to the marker keeps every holder reusable unlit.
+	var flame_anchor := selected.find_child("FlameAnchor*", true, false) as Node3D
+	assert(flame_anchor != null, "Medieval lighting variant needs a separate FlameAnchor marker")
+	var light_profile: Dictionary = LIGHT_PROFILES[variant].duplicate()
+	# Stable authored IDs de-synchronize nearby flames without random state.
+	light_profile["flicker_phase"] = float(abs(String(prop.get("id", variant)).hash()) % 628) * 0.01
+	var flame := FLAME_SCRIPT.new() as GPUParticles3D
+	flame.configure(light_profile)
+	flame_anchor.add_child(flame)
 
 	var light := OmniLight3D.new()
 	light.name = "Omni"
-	# The flame mesh is local to its node, so its AABB center is a stable light
-	# anchor for every fuel shape without duplicated height constants.
-	light.position = flame.mesh.get_aabb().get_center()
-	flame.add_child(light)
+	light.position.y = 0.06 * float(light_profile.get("flame_size", 1.0))
+	flame_anchor.add_child(light)
 	var controller = MapViewMeshBuilderConfig.CANDLE_LIGHT_SCRIPT.new()
-	controller.configure(light, flame, LIGHT_PROFILES[variant])
+	controller.configure(light, flame, light_profile)
 	parent.add_child(controller)
 	return model

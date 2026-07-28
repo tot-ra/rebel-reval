@@ -28,9 +28,10 @@ Unknown candle variants fail map compilation. Runtime fallback to `artisan_tallo
 
 - Fuel, holder silhouette, height, metal, flame color, range, and energy change together. Social class is not represented by recoloring one universal candle.
 - Every variant is an independent child root inside one GLB. Runtime removes the unused roots, so hidden geometry is not rendered.
-- Every flame is a separate mesh with an instance-owned material. `CandleLight3D` can therefore update emission without changing every lamp in the scene.
+- Every authored variant contains the holder, fuel, and charred wick plus a `FlameAnchor` marker, but no flame geometry. The same models can therefore be reused unlit without hiding or editing a mesh.
+- Runtime attaches a small `GPUParticles3D` fire effect to `FlameAnchor`. Overlapping tapered billboards rise, shrink, change from pale yellow to orange, and fade independently; `CandleLight3D` adds non-synchronized light flicker.
 - The generated 512 px albedos use broad painted wear below character-detail priority. There are no arbitrary Blender-only shader nodes.
-- The set totals 2,824 triangles. Individual variants range from 212 to 900 triangles and retain a zero-ground pivot.
+- The set totals 2,424 triangles across holder and fuel meshes only. Individual variants range from 132 to 820 triangles and retain a zero-ground pivot.
 - The existing hearth remains the main ambient source in ordinary interiors. These props represent expensive or task-specific supplementary light.
 
 ## Historically restrained exclusions

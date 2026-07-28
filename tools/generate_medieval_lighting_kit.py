@@ -30,7 +30,7 @@ STATE_PATH = EVIDENCE_DIR / "state.json"
 DEFAULT_PREVIEW = EVIDENCE_DIR / "preview.png"
 ASSET_ID = "prop.medieval_lighting_kit"
 BLENDER_VERSION = "Blender 5.2 LTS"
-GENERATOR_VERSION = "medieval_lighting_kit_v1"
+GENERATOR_VERSION = "medieval_lighting_kit_v2"
 
 VARIANT_ROOTS = {
     "poor_tallow": "PoorTallow",
@@ -247,19 +247,11 @@ def _box(
     return obj
 
 
-def _flame(parent: bpy.types.Object, location: tuple[float, float, float], material: bpy.types.Material, scale: float = 1.0) -> bpy.types.Object:
-    x, y, z = location
-    flame = _lathe(
-        "Flame",
-        [(0.0, 0.0), (0.040 * scale, 0.025 * scale), (0.052 * scale, 0.070 * scale), (0.028 * scale, 0.125 * scale), (0.0, 0.175 * scale)],
-        10,
-        material,
-        parent,
-    )
-    # Keep the flame mesh local to its node so runtime lights can anchor to the
-    # flame AABB instead of duplicating per-variant height constants.
-    flame.location = (x, y, z)
-    return flame
+def _flame_anchor(parent: bpy.types.Object, location: tuple[float, float, float]) -> bpy.types.Object:
+    """Mark the fire origin while keeping authored lighting models flame-free."""
+    anchor = _empty("FlameAnchor", parent)
+    anchor.location = location
+    return anchor
 
 
 def _wick(parent: bpy.types.Object, location: tuple[float, float, float], material: bpy.types.Material) -> bpy.types.Object:
@@ -295,7 +287,7 @@ def _build_poor_tallow(materials: dict[str, bpy.types.Material]) -> bpy.types.Ob
     _wax_body(root, "UnevenTallowCandle", 0.085, 0.225, 0.045, materials["tallow"], math.radians(-1.7))
     _lathe("TallowDrip", [(0.0, 0.135), (0.018, 0.140), (0.023, 0.180), (0.013, 0.225), (0.0, 0.240)], 8, materials["tallow"], root).location.x = 0.044
     _wick(root, (0.0, 0.0, 0.326), materials["char"])
-    _flame(root, (0.0, 0.0, 0.345), materials["flame"], 0.82)
+    _flame_anchor(root, (0.0, 0.0, 0.345))
     return root
 
 
@@ -309,7 +301,7 @@ def _build_artisan_tallow(materials: dict[str, bpy.types.Material]) -> bpy.types
     _cylinder("HiddenPricket", 0.010, 0.105, (0.0, 0.0, 0.365), materials["iron"], root, 8)
     _wax_body(root, "TallowCandle", 0.315, 0.245, 0.052, materials["tallow"])
     _wick(root, (0.0, 0.0, 0.575), materials["char"])
-    _flame(root, (0.0, 0.0, 0.595), materials["flame"], 0.9)
+    _flame_anchor(root, (0.0, 0.0, 0.595))
     return root
 
 
@@ -329,7 +321,7 @@ def _build_rich_beeswax(materials: dict[str, bpy.types.Material]) -> bpy.types.O
     _cylinder("Pricket", 0.011, 0.120, (0.0, 0.0, 0.485), materials["brass"], root, 8)
     _wax_body(root, "BeeswaxCandle", 0.425, 0.285, 0.047, materials["beeswax"])
     _wick(root, (0.0, 0.0, 0.727), materials["char"])
-    _flame(root, (0.0, 0.0, 0.746), materials["flame"], 1.0)
+    _flame_anchor(root, (0.0, 0.0, 0.746))
     return root
 
 
@@ -342,7 +334,7 @@ def _build_grease_lamp(materials: dict[str, bpy.types.Material]) -> bpy.types.Ob
     _box("PinchedSpout", (0.16, 0.085, 0.045), (0.145, 0.0, 0.118), materials["pottery"], root)
     wick = _box("Wick", (0.105, 0.016, 0.016), (0.165, 0.0, 0.154), materials["char"], root)
     wick.rotation_euler[1] = math.radians(-12.0)
-    _flame(root, (0.220, 0.0, 0.165), materials["flame"], 0.78)
+    _flame_anchor(root, (0.220, 0.0, 0.165))
     return root
 
 
@@ -358,7 +350,7 @@ def _build_pine_splint(materials: dict[str, bpy.types.Material]) -> bpy.types.Ob
     splint = _box("ResinousPineSplint", (0.48, 0.040, 0.030), (0.150, 0.0, 0.490), materials["pine"], root, math.radians(8.0))
     splint.rotation_euler[1] = math.radians(-2.0)
     _box("CharredTip", (0.075, 0.044, 0.034), (0.365, 0.0, 0.520), materials["char"], root, math.radians(8.0))
-    _flame(root, (0.392, 0.0, 0.535), materials["flame"], 0.88)
+    _flame_anchor(root, (0.392, 0.0, 0.535))
     return root
 
 
@@ -372,7 +364,6 @@ def _build_model() -> tuple[bpy.types.Object, list[bpy.types.Object]]:
         "oil": _material("rendered_animal_fat", COLORS["oil"], "oil", 0.38),
         "pine": _material("resinous_pine", COLORS["pine"], "wood", 0.86),
         "char": _material("charred_wick", COLORS["char"], "plain", 0.96),
-        "flame": _material("open_flame", COLORS["flame"], "plain", 0.24, emission_strength=4.0),
     }
     root = _empty("MedievalLightingKit")
     root["asset_id"] = ASSET_ID
@@ -392,15 +383,18 @@ def _build_model() -> tuple[bpy.types.Object, list[bpy.types.Object]]:
     return root, variant_roots
 
 
-def _descendant_meshes(root: bpy.types.Object) -> list[bpy.types.Object]:
+def _descendants(root: bpy.types.Object) -> list[bpy.types.Object]:
     result: list[bpy.types.Object] = []
     stack = list(root.children)
     while stack:
         obj = stack.pop()
+        result.append(obj)
         stack.extend(obj.children)
-        if obj.type == "MESH":
-            result.append(obj)
     return result
+
+
+def _descendant_meshes(root: bpy.types.Object) -> list[bpy.types.Object]:
+    return [obj for obj in _descendants(root) if obj.type == "MESH"]
 
 
 def _bounds(meshes: list[bpy.types.Object]) -> tuple[Vector, Vector]:
@@ -440,6 +434,18 @@ def _mesh_metrics(variant_roots: list[bpy.types.Object]) -> dict[str, object]:
         "materials": len(material_names),
         "uv_sets_min": min((len(mesh.data.uv_layers) for mesh in all_meshes), default=0),
         "texture_size": 512,
+        "flame_anchor_count": sum(
+            1
+            for root in variant_roots
+            for obj in _descendants(root)
+            if obj.name.startswith("FlameAnchor")
+        ),
+        "flame_mesh_count": sum(
+            1
+            for root in variant_roots
+            for mesh in _descendant_meshes(root)
+            if mesh.name.startswith("Flame")
+        ),
     }
 
 
@@ -455,7 +461,7 @@ def _export(root: bpy.types.Object, variant_roots: list[bpy.types.Object]) -> di
     bpy.ops.object.select_all(action="DESELECT")
     root.select_set(True)
     for obj in bpy.context.scene.objects:
-        if obj == root or obj in variant_roots or obj.type == "MESH":
+        if obj == root or obj in variant_roots or obj.type == "MESH" or obj.name.startswith("FlameAnchor"):
             obj.select_set(True)
     bpy.context.view_layer.objects.active = root
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
@@ -539,8 +545,10 @@ def _write_evidence(metrics: dict[str, object], preview: Path | None) -> None:
             "ground_contact": all(abs(float(item["ground_min_z"])) <= 0.001 for item in variants.values()),
             "triangle_budget": int(metrics["triangles"]) <= int(BRIEF["triangles"]["max"]),
             "uvs": int(metrics["uv_sets_min"]) >= 1,
-            "portable_pbr_materials": int(metrics["materials"]) == 9,
+            "portable_pbr_materials": int(metrics["materials"]) == 8,
             "five_independent_variants": len(variants) == 5,
+            "flame_free_models": int(metrics["flame_mesh_count"]) == 0,
+            "runtime_flame_anchors": int(metrics["flame_anchor_count"]) == 5,
         },
         "preview": preview.relative_to(ROOT).as_posix() if preview is not None else None,
         "defects": ["pine_splint is a low-confidence regional reconstruction, not a Reval archaeological find"],
