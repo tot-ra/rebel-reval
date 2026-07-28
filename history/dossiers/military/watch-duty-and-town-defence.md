@@ -1,7 +1,7 @@
 ---
 domain: military
 slug: watch-duty-and-town-defence
-status: partial
+status: solid
 consumers: [quest, art, dev, character, narrative]
 related:
   - ../topography/walls-gates-towers.md
@@ -132,8 +132,10 @@ Use this as a **default April weeknight**; tighten every row during the **late-A
 
 - [`../topography/walls-gates-towers.md`](../topography/walls-gates-towers.md) — which gates and towers exist in 1343; Viru unfinished; wooden hill gates.
 - [`../power/jurisdictions-of-reval.md`](../power/jurisdictions-of-reval.md) — council vs viceroy vs Order at gates; hill-gate seam.
+- [`../power/law-courts-and-punishment.md`](../power/law-courts-and-punishment.md) — curfew and gate breaches as Vogt offences; fine and pillory consequences.
 - [`../people/town-council-and-officers.md`](../people/town-council-and-officers.md) — who orders muster and proclamations; Vogt for night arrests.
 - [`../crafts/guild-structure.md`](../crafts/guild-structure.md) — craft masters on burgher watch rolls; guild feast obligations do not replace militia duty.
+- [`../people/estonian-and-german-populations.md`](../people/estonian-and-german-populations.md) — attested Estonian watch squad; ethnic labour division on night patrol.
 - [`../military/arms-and-armour-livonia-1340s.md`](../military/arms-and-armour-livonia-1340s.md) — what smiths produce vs import; militia kit materials.
 - [`../architecture/toompea-castle-and-upper-town.md`](../architecture/toompea-castle-and-upper-town.md) — upper gate chain; curfew on hill access.
 

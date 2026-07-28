@@ -3,6 +3,8 @@
 Coordination notes, delivery order, and planning context formerly embedded in `TODO.md`.
 Executable open work stays in [`TODO.md`](../TODO.md).
 
+Coordination note (2026-07-28 R-010): watch-duty-and-town-defence dossier now closes Spring 1343 burgher militia watch: nightly routine table, arms-by-status tiers, gate priorities, siege overlay, six reference plates (four fetched, two link-only), and production hooks for Henning checkpoint scenes. Verified: dossier `status: solid`; `python3 tools/research/fetch_reference_plates.py --slug watch-duty-and-town-defence --verify` passes. Next military step: **R-040** Reval law codex arms and watch ordinances.
+
 Coordination note (2026-07-28 R-006): toompea-castle-and-upper-town dossier now closes Danish Toompea / All-linn boundary for Spring 1343: plateau and castle fabric table, Dome church construction-site read, vassal belt, Pikk jalg / Lühike jalg wooden gate control points, and six reference plates (four fetched locally, two link-only pending **R-045** Wikimedia retry). Verified: dossier `status: solid`; `python3 tools/research/fetch_reference_plates.py --slug toompea-castle-and-upper-town --verify` passes; `history/reference/plates.csv` rows `.01`-.`.06` registered. Next architecture step: **R-035** Small Castle interior.
 
 Coordination note (2026-07-28 R-008): jurisdictions-of-reval dossier now closes Spring 1343 authority seams: master jurisdiction table, geographic seams, May 1343 timeline spine, Kalev smith legal hooks, and three fetched reference plates under `history/reference/power/jurisdictions-of-reval/`. Verified: dossier `status: solid`; `history/reference/plates.csv` rows `.01`-.`.03` registered. Next power step: **R-009** law courts and punishment.
