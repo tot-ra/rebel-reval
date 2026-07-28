@@ -121,6 +121,7 @@ References:
 
 
 <!-- R-025 completed in current session -->
+<!-- R-005 completed in current session -->
 <!-- R-031 completed in current session -->
 <!-- P4-010 completed in current session -->
 <!-- P4-008 completed in current session -->
@@ -187,7 +188,7 @@ Rows close through `review: canon` like all content work.
 - [x] R-002 | role: research | deps: none | deliverable: history/dossiers/topography/walls-gates-towers.md - which wall circuit, towers, gates, and ditch existed by 1343, with heights and thicknesses where attested (mine `history/Linnakindlustuste kaardistus.pdf` first) | verify: every gate and tower is listed as present, absent, or uncertain in 1343 with a source | review: canon
 - [~] R-003 | role: research | deps: none | deliverable: history/dossiers/architecture/burgher-house-plan.md - Lower Town house typology: cellar, Diele hall, storey heights, hoisting beam, hearth, window and roof treatment | verify: yields a labelled floor-plan description and interior prop list an art and map pass can build from | review: canon
 - [ ] R-004 | role: research | deps: R-003 | deliverable: history/dossiers/architecture/smithy-workshop-layout.md - forge building layout: hearth, bellows, anvil placement, quench, fuel and stock storage, fire regulation, smoke handling | verify: supports the forge core loop with sourced spatial and equipment detail plus at least one fire-risk rule
-- [~] R-005 | role: research | deps: none | deliverable: history/dossiers/topography/harbour-and-shoreline.md - 1343 shoreline, harbour and roadstead, quay and crane practice, Härjapea river mouth, ship types calling at Reval | verify: distinguishes 1343 shoreline from the modern coast and names what a harbour scene may and may not show | review: canon
+- [x] R-005 | claim: cursor-agent@2026-07-28 | role: research | deps: none | deliverable: history/dossiers/topography/harbour-and-shoreline.md - 1343 shoreline, harbour and roadstead, quay and crane practice, Härjapea river mouth, ship types calling at Reval | verify: distinguishes 1343 shoreline from the modern coast and names what a harbour scene may and may not show | review: canon
 - [~] R-006 | role: research | deps: none | deliverable: history/dossiers/architecture/toompea-castle-and-upper-town.md - Danish castle, Dome church, vassal residences, upper/lower town boundary and its gates | verify: separates attested 1343 fabric from later rebuilding, with the boundary control points named | review: canon
 
 ### People, power, military (Character, Quest, Narrative)
@@ -197,7 +198,7 @@ Rows close through `review: canon` like all content work.
 - [ ] R-009 | role: research | deps: R-008 | deliverable: history/dossiers/power/law-courts-and-punishment.md - court procedure, oath-helping, evidence, fines, pillory, banishment, execution, and who could be tried where | verify: at least five distinct sourced offence-to-consequence pairs usable as quest outcomes
 - [~] R-010 | role: research | deps: none | deliverable: history/dossiers/military/watch-duty-and-town-defence.md - burgher watch obligation, muster, gate control, curfew, alarm signals, arms a townsman was required to own | verify: states a concrete nightly watch routine and the arms requirement by status tier | review: canon
 - [x] R-011 | claim: cursor-agent@2026-07-28 | role: research | deps: none | deliverable: history/dossiers/military/arms-and-armour-livonia-1340s.md - what a Reval smith made, repaired, and could not make; Order versus rebel equipment; materials and costs | verify: separates smith-producible items from imported ones and lists at least ten items with materials | review: canon
-- [ ] R-026 | role: research | deps: none | deliverable: history/dossiers/people/estonian-and-german-populations.md - who actually lived inside and outside the walls: Estonian townsfolk, servants, German burghers, clergy, transients, and their legal standing | verify: gives population composition with confidence labels and names the status markers a character designer must respect
+- [~] R-026 | role: research | deps: none | deliverable: history/dossiers/people/estonian-and-german-populations.md - who actually lived inside and outside the walls: Estonian townsfolk, servants, German burghers, clergy, transients, and their legal standing | verify: gives population composition with confidence labels and names the status markers a character designer must respect | review: canon
 
 ### Crafts and economy (Dev, Quest, Art)
 
@@ -242,6 +243,7 @@ Rows close through `review: canon` like all content work.
 - [ ] R-041 | role: research | deps: R-012 | deliverable: history/dossiers/crafts/schmiede-amt-ordinances-pre-1363.md - Schmiede *Amt* rules, fines, and masterpiece requirements before 1363 council Schragen; Tallinn City Archives pass | verify: at least three cited craft-offence-to-penalty pairs usable in forge quest outcomes
 - [ ] R-042 | role: research | deps: R-037,R-029 | deliverable: history/dossiers/topography/forum-neck-paving-tieline.md - measured forum SSE corner to Vanaturu kael slab/pebble transition from combined Raekoja and AVE trench data | verify: single labelled edge segment with confidence labels connecting zone F and zone T polygons
 - [ ] R-043 | role: research | deps: R-011 | deliverable: history/dossiers/military/lower-town-weapon-finds-1340s.md - archaeological weapon and armour fragments from Lower Town occupation layers and Jahu/Lootsi waste exports c. 1340–1450 | verify: typed find list with layer dates, confidence labels, and gap statement for absent categories
+- [ ] R-044 | role: research | deps: R-026 | deliverable: history/dossiers/people/estonian-burgers-prosopography-pre-1343.md - named Estonian *Bürger* and permanent residents from AWB and Johansen name-stock tables before St George's Night | verify: every name carries document date and source; distinguishes citizen from resident without upgrading status
 
 ## P6 - Act 3: The Iron Harvest and full release (lowest priority)
 
