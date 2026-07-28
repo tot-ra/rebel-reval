@@ -25,6 +25,40 @@ func test_district_life_props_build_mesh_children() -> void:
 		node.free()
 
 
+func test_tanning_frame_has_hide_lacing_and_grounded_support() -> void:
+	var prop := {
+		"id": &"test.tanning_frame",
+		"kind": MapTypes.PROP_KIND_TANNING_FRAME,
+		"position": Vector2(64, 64),
+	}
+	var node := MapViewMeshBuilderProps.build_prop(prop, MapTypes.DEFAULT_CELL_SIZE)
+	var model := node.find_child("TanningFrameModel", true, false) as Node3D
+	assert_true(model != null, "tanning frame needs an authored model root")
+	if model == null:
+		node.free()
+		return
+	assert_true(model.get_meta(&"production_tanning_frame_model", false))
+	assert_true(model.has_node("TanningFrame/Frame"), "tanning frame needs a braced oak frame")
+	assert_true(model.has_node("TanningFrame/Hide"), "tanning frame needs an irregular stretched hide")
+	assert_true(model.has_node("TanningFrame/Lacing"), "tanning frame needs visible perimeter lacing")
+
+	var meshes := model.find_children("*", "MeshInstance3D", true, false)
+	var triangle_count := 0
+	var textured_surface_count := 0
+	for child in meshes:
+		var mesh_instance := child as MeshInstance3D
+		if mesh_instance == null or mesh_instance.mesh == null:
+			continue
+		for surface_index in mesh_instance.mesh.get_surface_count():
+			triangle_count += mesh_instance.mesh.surface_get_array_index_len(surface_index) / 3
+			var material := mesh_instance.mesh.surface_get_material(surface_index) as StandardMaterial3D
+			if material != null and material.albedo_texture != null:
+				textured_surface_count += 1
+	assert_true(triangle_count >= 400 and triangle_count <= 1200, "tanning frame must stay readable and lightweight")
+	assert_eq(textured_surface_count, 3, "timber, hide, and rope need embedded painted albedos")
+	node.free()
+
+
 func test_district_life_props_render_day_and_night() -> void:
 	for kind in MapTypes.DISTRICT_LIFE_PROP_KINDS:
 		var prop := {

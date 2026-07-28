@@ -1,0 +1,39 @@
+{
+  "asset_id": "prop.tanning_frame",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "928b0773dbd0dd8aaf21daa8c30acea7177def41a17b629fbb06c456d49470bc",
+  "checks": {
+    "embedded_albedo": true,
+    "floating_geometry": true,
+    "ground_contact": true,
+    "identity_features": [
+      "irregular_hide",
+      "perimeter_lacing",
+      "rear_ground_braces"
+    ],
+    "metric_scale": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "uvs": true,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    1.24,
+    0.6543,
+    1.3658
+  ],
+  "faces": 488,
+  "floating_objects": 0,
+  "generator": "tools/generate_tanning_frame.py",
+  "ground_min_z": 0.0,
+  "materials": 3,
+  "mesh_objects": 3,
+  "preview": "generated/blender/tanning_frame_v1/preview.png",
+  "route": "deterministic_blender",
+  "sha256": "6ba497179463ff7e5c1fca61284bb18bf29e83ea3164dc9f1e4fef7d030abf1d",
+  "surfaces": 3,
+  "texture_size": 512,
+  "triangles": 488,
+  "uv_sets": 1,
+  "vertices": 284
+}

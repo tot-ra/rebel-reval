@@ -1,0 +1,1 @@
+{"id":"prop.tanning_frame","kind":"rigid_prop","target":"res://assets/props/crafts/tanning_frame.glb","scene":"res://content/maps/lower_town_slice.rrmap#saddler_frame","dimensions_m":[1.24,1.35,0.58],"triangles":{"target":600,"max":1200},"textures":{"albedo":512},"style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}

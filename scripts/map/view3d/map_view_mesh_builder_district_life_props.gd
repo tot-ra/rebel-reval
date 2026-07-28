@@ -6,6 +6,7 @@ extends RefCounted
 ## required routes when authored inside the documented footprint bands.
 
 const _Primitives := preload("res://scripts/map/view3d/map_view_mesh_builder_primitives.gd")
+const _TanningFrameModels := preload("res://scripts/map/view3d/map_view_tanning_frame_models.gd")
 
 
 static func add_to(root: Node3D, kind: StringName) -> void:
@@ -218,10 +219,9 @@ static func _add_salt_pile(root: Node3D) -> void:
 
 
 static func _add_tanning_frame(root: Node3D) -> void:
-	for post_x in [-0.42, 0.42]:
-		_Primitives.box(root, "AFrame%d" % int((post_x + 0.42) * 10.0), Vector3(0.1, 1.15, 0.1), Vector3(post_x, 0.58, 0.0), &"timber")
-	_Primitives.box(root, "Beam", Vector3(1.0, 0.08, 0.08), Vector3(0.0, 1.05, 0.0), &"wood")
-	_Primitives.box(root, "Hide", Vector3(0.72, 0.9, 0.04), Vector3(0.0, 0.62, 0.0), &"plaster")
+	# WHY: the irregular hide, lacing, and braced frame need authored geometry to
+	# remain identifiable at gameplay distance; rrmap still owns the footprint.
+	_TanningFrameModels.add_model(root)
 
 
 static func _add_wash_tub(root: Node3D) -> void:
