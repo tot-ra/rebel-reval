@@ -16,6 +16,13 @@ const HUMANOID_SCENES: Array[PackedScene] = [
 	preload("res://assets/characters/variants/watchman.tscn"),
 ]
 const CAT_SCENE := preload("res://assets/characters/cat/cat_rig.tscn")
+const CatCoats := preload("res://assets/characters/cat/cat_coat_variants.gd")
+const GroundWander := preload("res://scripts/map/view3d/map_view_ground_wander.gd")
+const BirdMeshes := preload("res://scripts/map/view3d/map_view_bird_meshes.gd")
+const BirdSpecies := preload("res://scripts/map/view3d/map_view_bird_species.gd")
+const MammalMeshes := preload("res://scripts/map/view3d/map_view_mammal_meshes.gd")
+const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
+const MedievalAnimalModels := preload("res://scripts/map/view3d/map_view_medieval_animal_models.gd")
 const CART_SCENE_PATH := "res://assets/props/vehicles/wooden_cart.glb"
 const FACADE_ASSETS: Array[Dictionary] = [
 	{"label": "STONE POINTED WINDOW", "path": "res://assets/buildings/facades/stone_pointed_window_open_shutters.glb"},
@@ -25,11 +32,17 @@ const FACADE_ASSETS: Array[Dictionary] = [
 const HUMANOID_ANIMATION_SPACING := 5.5
 const CHARACTER_VARIANT_SPACING := 5.0
 const CAT_ANIMATION_SPACING := 6.0
+const CATALOG_COLUMNS := 10
+const CATALOG_COLUMN_SPACING := 12.0
+const CATALOG_ROW_SPACING := 8.0
+const MAMMAL_CATALOG_START := Vector3(8.0, 0.0, 14.0)
+const BIRD_CATALOG_START := Vector3(8.0, 0.0, 43.0)
+const FAUNA_WANDER_SPEED := 0.38
 const ONE_SHOT_REPLAY_DELAY := 0.6
 const MIDDAY_PROGRESS := 0.5
 const LARGE_ASSET_COLOR := Color8(255, 220, 132)
 
-@export_enum("small", "large") var showcase_kind: String = String(Definition.SHOWCASE_SMALL)
+@export_enum("small", "large", "characters_animals") var showcase_kind: String = String(Definition.SHOWCASE_SMALL)
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -40,6 +53,9 @@ var _bootstrap: Dictionary = {}
 var _view_runtime: MapViewRuntime
 var _replay_rigs: Array[SharedCharacterRig] = []
 var _replay_delays: Dictionary = {}
+var _catalog_fauna: Array[Node3D] = []
+var _catalog_birds: Array[Dictionary] = []
+var _catalog_elapsed := 0.0
 
 
 func _ready() -> void:
@@ -71,8 +87,10 @@ func _ready() -> void:
 	_add_section_labels()
 	if is_large_showcase():
 		_add_large_unbound_assets()
-	else:
+	elif is_characters_animals_showcase():
 		_add_characters_and_animations()
+		_add_animal_catalog()
+	else:
 		_add_small_unbound_assets()
 	_add_review_hud()
 
@@ -91,9 +109,33 @@ func _process(delta: float) -> void:
 		rig.play_animation(rig.start_animation, 0.08)
 		_replay_delays[rig] = ONE_SHOT_REPLAY_DELAY
 
+	if not is_characters_animals_showcase() or _view_runtime == null:
+		return
+	_catalog_elapsed += delta
+	var listener_position := _view_runtime.view.view_camera().global_position
+	for actor in _catalog_fauna:
+		if not is_instance_valid(actor):
+			continue
+		var previous_position := actor.position
+		GroundWander.advance(actor, &"debug_characters_animals", listener_position, delta)
+		MedievalAnimalModels.sync_animation(actor, previous_position, delta)
+	for spec in _catalog_birds:
+		var model := spec.get("model") as MeshInstance3D
+		if model == null or not is_instance_valid(model):
+			continue
+		var cycle: Array = spec.get("cycle", [])
+		if cycle.is_empty():
+			continue
+		var frame := int(floor(_catalog_elapsed / MapViewBirdFlight.FLAP_INTERVAL_S)) % cycle.size()
+		model.mesh = cycle[frame]
+
 
 func is_large_showcase() -> bool:
 	return StringName(showcase_kind) == Definition.SHOWCASE_LARGE
+
+
+func is_characters_animals_showcase() -> bool:
+	return StringName(showcase_kind) == Definition.SHOWCASE_CHARACTERS_ANIMALS
 
 
 func _add_fill_light() -> void:
@@ -112,6 +154,8 @@ func _add_section_labels() -> void:
 	_view_runtime.view.add_child(labels)
 	if is_large_showcase():
 		_add_large_section_labels(labels)
+	elif is_characters_animals_showcase():
+		_add_characters_animals_section_labels(labels)
 	else:
 		_add_small_section_labels(labels)
 
@@ -163,7 +207,7 @@ func _add_large_section_labels(labels: Node3D) -> void:
 
 func _add_small_section_labels(labels: Node3D) -> void:
 	var kinds := Definition.small_prop_kinds()
-	_add_label(labels, "SMALL ASSETS - PEOPLE, ANIMALS AND PROPS (%d)" % kinds.size(), Vector2(4.0, 2.0), 1.5, LARGE_ASSET_COLOR)
+	_add_label(labels, "SMALL ASSETS - PROPS (%d)" % kinds.size(), Vector2(4.0, 2.0), 1.5, LARGE_ASSET_COLOR)
 	for index in kinds.size():
 		_add_label(
 			labels,
@@ -174,10 +218,15 @@ func _add_small_section_labels(labels: Node3D) -> void:
 			36
 		)
 
-	_add_label(labels, "CHARACTER VARIANTS", Vector2(4.0, 63.0), 1.5, LARGE_ASSET_COLOR)
-	_add_label(labels, "ALL HUMANOID ANIMATIONS", Vector2(4.0, 73.0), 1.5, LARGE_ASSET_COLOR)
-	_add_label(labels, "ALL CAT ANIMATIONS", Vector2(4.0, 93.0), 1.5, LARGE_ASSET_COLOR)
 	_add_label(labels, "UNBOUND PRODUCTION OBJECTS", Vector2(4.0, 104.0), 1.5, LARGE_ASSET_COLOR)
+
+
+func _add_characters_animals_section_labels(labels: Node3D) -> void:
+	_add_label(labels, "ALL MAMMALS - LIVING CATALOG (%d)" % MammalSpecies.ALL_SPECIES.size(), Vector2(4.0, 2.0), 1.5, LARGE_ASSET_COLOR)
+	_add_label(labels, "ALL BIRDS - LIVING CATALOG (%d)" % BirdSpecies.ALL_SPECIES.size(), Vector2(4.0, 38.0), 1.5, LARGE_ASSET_COLOR)
+	_add_label(labels, "CHARACTER VARIANTS", Vector2(4.0, 73.0), 1.5, LARGE_ASSET_COLOR)
+	_add_label(labels, "ALL HUMANOID ANIMATIONS", Vector2(4.0, 83.0), 1.5, LARGE_ASSET_COLOR)
+	_add_label(labels, "ALL CAT ANIMATIONS", Vector2(4.0, 103.0), 1.5, LARGE_ASSET_COLOR)
 
 
 func _add_characters_and_animations() -> void:
@@ -187,7 +236,7 @@ func _add_characters_and_animations() -> void:
 
 	for index in HUMANOID_SCENES.size():
 		var rig := HUMANOID_SCENES[index].instantiate() as SharedCharacterRig
-		rig.position = Vector3(8.0 + float(index) * CHARACTER_VARIANT_SPACING, 0.0, 68.0)
+		rig.position = Vector3(8.0 + float(index) * CHARACTER_VARIANT_SPACING, 0.0, 78.0)
 		rig.start_animation = &"idle"
 		root.add_child(rig)
 		_add_world_label(root, String(rig.name).to_upper(), rig.position + Vector3(0.0, 2.7, 0.0), 38)
@@ -199,7 +248,7 @@ func _add_characters_and_animations() -> void:
 		var row := index / 8
 		var column := index % 8
 		var rig := HUMANOID_SCENES[0].instantiate() as SharedCharacterRig
-		rig.position = Vector3(7.0 + float(column) * HUMANOID_ANIMATION_SPACING, 0.0, 78.0 + float(row) * 8.0)
+		rig.position = Vector3(7.0 + float(column) * HUMANOID_ANIMATION_SPACING, 0.0, 88.0 + float(row) * 8.0)
 		rig.start_animation = animation_name
 		root.add_child(rig)
 		_add_world_label(root, String(animation_name).to_upper(), rig.position + Vector3(0.0, 2.7, 0.0), 34)
@@ -210,13 +259,111 @@ func _add_characters_and_animations() -> void:
 	for index in CatRig.REQUIRED_ANIMATIONS.size():
 		var animation_name: StringName = CatRig.REQUIRED_ANIMATIONS[index]
 		var cat := CAT_SCENE.instantiate() as CatRig
-		cat.position = Vector3(8.0 + float(index) * CAT_ANIMATION_SPACING, 0.0, 98.0)
+		cat.position = Vector3(8.0 + float(index) * CAT_ANIMATION_SPACING, 0.0, 108.0)
 		cat.start_animation = animation_name
 		root.add_child(cat)
 		_add_world_label(root, "CAT %s" % String(animation_name).to_upper(), cat.position + Vector3(0.0, 1.25, 0.0), 34)
 		if animation_name not in CatRig.LOOPING_CAT_ANIMATIONS:
 			_replay_rigs.append(cat)
 			_replay_delays[cat] = ONE_SHOT_REPLAY_DELAY
+
+
+func _add_animal_catalog() -> void:
+	var root := Node3D.new()
+	root.name = "AnimalCatalog"
+	_view_runtime.add_child(root)
+
+	# Cattle, sheep, and horses are authored prop kinds. Their map samples have
+	# moved here intact so this gallery remains the one place for all living assets.
+	var moved_species: Array[StringName] = [
+		MammalSpecies.SPECIES_COW,
+		MammalSpecies.SPECIES_SHEEP,
+		MammalSpecies.SPECIES_HORSE,
+	]
+	for index in moved_species.size():
+		var cell := Definition.small_prop_cell(index)
+		var position := Vector3(float(cell.x) + 0.5, 0.0, float(cell.y) + 0.5)
+		_add_world_label(root, String(moved_species[index]).to_upper(), position + Vector3(0.0, 2.7, 0.0), 34)
+
+	# Goat is a shipped living actor even though it predates the signed 30-species
+	# mammal catalog, so it receives an explicit production-model slot.
+	var goat_position := Vector3(44.5, 0.0, 6.5)
+	_add_catalog_fauna(root, &"goat", goat_position, 0)
+
+	var catalog_index := 0
+	for species: StringName in MammalSpecies.ALL_SPECIES:
+		if species in moved_species:
+			continue
+		var position := _catalog_position(MAMMAL_CATALOG_START, catalog_index)
+		_add_catalog_fauna(root, species, position, catalog_index + 1)
+		catalog_index += 1
+
+	for index in BirdSpecies.ALL_SPECIES.size():
+		var species: StringName = BirdSpecies.ALL_SPECIES[index]
+		var position := _catalog_position(BIRD_CATALOG_START, index)
+		_add_catalog_bird(root, species, position, index)
+
+
+func _add_catalog_fauna(parent: Node3D, species: StringName, position: Vector3, index: int) -> void:
+	var actor := Node3D.new()
+	actor.name = "Fauna_%s" % String(species)
+	var model := MedievalAnimalModels.add_model(actor, species)
+	if model != null and species == MammalSpecies.SPECIES_CAT:
+		CatCoats.apply(model, hash(["debug_characters_animals", index]))
+	if model == null:
+		var mesh := MammalMeshes.mesh_for(species)
+		var proxy := MeshInstance3D.new()
+		proxy.name = "Model"
+		proxy.mesh = mesh
+		if mesh != null:
+			var aabb := mesh.get_aabb()
+			proxy.position.y = -aabb.position.y
+		_apply_catalog_material(proxy)
+		actor.add_child(proxy)
+	actor.position = position
+	actor.set_meta(&"species", species)
+	parent.add_child(actor)
+	GroundWander.setup(actor, &"debug_characters_animals", index, {
+		"home": position,
+		"radius": 2.0,
+		"speed": 0.85 if species == MammalSpecies.SPECIES_RAT else FAUNA_WANDER_SPEED,
+		"roam_scale": 0.72,
+		"pause_range": Vector2(1.0, 3.0),
+	})
+	_catalog_fauna.append(actor)
+	_add_world_label(parent, String(species).replace("_", " ").to_upper(), position + Vector3(0.0, 2.7, 0.0), 30)
+
+
+func _add_catalog_bird(parent: Node3D, species: StringName, position: Vector3, index: int) -> void:
+	var actor := Node3D.new()
+	actor.name = "Bird_%s" % String(species)
+	actor.position = position + Vector3(0.0, 1.8, 0.0)
+	parent.add_child(actor)
+	var model := MeshInstance3D.new()
+	model.name = "Model"
+	actor.add_child(model)
+	_apply_catalog_material(model)
+	var cycle := BirdMeshes.flap_cycle(species)
+	if not cycle.is_empty():
+		model.mesh = cycle[index % cycle.size()]
+	_catalog_birds.append({"model": model, "cycle": cycle})
+	_add_world_label(parent, String(species).replace("_", " ").to_upper(), position + Vector3(0.0, 3.2, 0.0), 28)
+
+
+func _catalog_position(start: Vector3, index: int) -> Vector3:
+	return start + Vector3(
+		float(index % CATALOG_COLUMNS) * CATALOG_COLUMN_SPACING,
+		0.0,
+		float(index / CATALOG_COLUMNS) * CATALOG_ROW_SPACING
+	)
+
+
+func _apply_catalog_material(model: MeshInstance3D) -> void:
+	var material := StandardMaterial3D.new()
+	material.vertex_color_use_as_albedo = true
+	material.metallic = 0.0
+	material.roughness = 0.9
+	model.material_override = material
 
 
 func _add_small_unbound_assets() -> void:

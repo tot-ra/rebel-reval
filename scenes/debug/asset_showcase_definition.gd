@@ -5,11 +5,17 @@ extends RefCounted
 ## registries so coverage tests fail when a new terrain or prop kind is added
 ## without a corresponding place in one of the review scenes.
 
+const SHOWCASE_CHARACTERS_ANIMALS := &"characters_animals"
 const SHOWCASE_LARGE := &"large"
 const SHOWCASE_SMALL := &"small"
-const SHOWCASE_KINDS: Array[StringName] = [SHOWCASE_LARGE, SHOWCASE_SMALL]
+const SHOWCASE_KINDS: Array[StringName] = [
+	SHOWCASE_CHARACTERS_ANIMALS,
+	SHOWCASE_LARGE,
+	SHOWCASE_SMALL,
+]
 
 const CELL_SIZE := MapTypes.DEFAULT_CELL_SIZE
+const CHARACTERS_ANIMALS_SIZE_CELLS := Vector2i(136, 144)
 const LARGE_SIZE_CELLS := Vector2i(136, 210)
 const SMALL_SIZE_CELLS := Vector2i(96, 116)
 
@@ -33,6 +39,11 @@ const TREE_MODEL_SPACING_CELLS := Vector2i(24, 12)
 const WALL_WALK_ACCESS_CELL := Vector2i(88, 105)
 const WALL_WALK_ACCESS_RECT := Rect2i(84, 103, 8, 5)
 
+const LIVE_PROP_KINDS: Array[StringName] = [
+	MapTypes.PROP_KIND_CATTLE,
+	MapTypes.PROP_KIND_SHEEP,
+	MapTypes.PROP_KIND_HORSE,
+]
 const LARGE_PROP_KINDS: Array[StringName] = [
 	MapTypes.PROP_KIND_TREE,
 	MapTypes.PROP_KIND_FISHING_BOAT,
@@ -167,17 +178,34 @@ const GATE_SPECS: Array[Dictionary] = [
 static func create(showcase_kind: StringName = SHOWCASE_SMALL) -> MapDefinition:
 	assert(SHOWCASE_KINDS.has(showcase_kind), "Unknown asset showcase kind: %s" % String(showcase_kind))
 	var large := showcase_kind == SHOWCASE_LARGE
+	var characters_animals := showcase_kind == SHOWCASE_CHARACTERS_ANIMALS
 	var definition := MapDefinition.new()
-	definition.map_id = &"debug_asset_showcase_large" if large else &"debug_asset_showcase_small"
+	match showcase_kind:
+		SHOWCASE_CHARACTERS_ANIMALS:
+			definition.map_id = &"debug_characters_animals"
+			definition.location = &"loc.debug.characters.animals"
+		SHOWCASE_LARGE:
+			definition.map_id = &"debug_asset_showcase_large"
+			definition.location = &"loc.debug.asset_showcase.large"
+		_:
+			definition.map_id = &"debug_asset_showcase_small"
+			definition.location = &"loc.debug.asset_showcase.small"
 	definition.seed = 1343
 	definition.cell_size = CELL_SIZE
-	definition.size_cells = LARGE_SIZE_CELLS if large else SMALL_SIZE_CELLS
+	definition.size_cells = (
+		LARGE_SIZE_CELLS if large
+		else CHARACTERS_ANIMALS_SIZE_CELLS if characters_animals
+		else SMALL_SIZE_CELLS
+	)
 	definition.base_terrain = MapTypes.TERRAIN_GRASS
-	definition.location = &"loc.debug.asset_showcase.large" if large else &"loc.debug.asset_showcase.small"
 	definition.scope = &"prototype"
 	definition.active = false
 	definition.palette = MapVisualStyle.TARGET_CLEAN_PAINTED
-	definition.player_spawn = _cell_center(Vector2i(68, 65) if large else Vector2i(48, 60))
+	definition.player_spawn = _cell_center(
+		Vector2i(68, 65) if large
+		else Vector2i(68, 70) if characters_animals
+		else Vector2i(48, 60)
+	)
 	definition.camera_bounds = Rect2(Vector2.ZERO, definition.world_size())
 	definition.surroundings_sides = {
 		&"north": &"woodland",
@@ -190,8 +218,12 @@ static func create(showcase_kind: StringName = SHOWCASE_SMALL) -> MapDefinition:
 		definition.buildings = _buildings()
 		definition.view_landmarks = _gate_landmarks()
 	definition.props = _props(showcase_kind)
-	definition.fingerprint = "debug-asset-showcase-%s-v3" % String(showcase_kind)
+	definition.fingerprint = "debug-asset-showcase-%s-v4" % String(showcase_kind)
 	return definition
+
+
+static func create_characters_animals() -> MapDefinition:
+	return create(SHOWCASE_CHARACTERS_ANIMALS)
 
 
 static func create_large() -> MapDefinition:
@@ -205,7 +237,7 @@ static func create_small() -> MapDefinition:
 static func small_prop_kinds() -> Array[StringName]:
 	var kinds: Array[StringName] = []
 	for kind in MapTypes.ALL_PROP_KINDS:
-		if kind not in LARGE_PROP_KINDS:
+		if kind not in LARGE_PROP_KINDS and kind not in LIVE_PROP_KINDS:
 			kinds.append(kind)
 	return kinds
 
@@ -278,6 +310,8 @@ static func _props(showcase_kind: StringName) -> Array[Dictionary]:
 	var kinds: Array[StringName] = []
 	if showcase_kind == SHOWCASE_LARGE:
 		kinds.assign(LARGE_PROP_KINDS)
+	elif showcase_kind == SHOWCASE_CHARACTERS_ANIMALS:
+		kinds.assign(LIVE_PROP_KINDS)
 	else:
 		kinds = small_prop_kinds()
 

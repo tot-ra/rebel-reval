@@ -3,15 +3,23 @@ extends "res://tests/godot/test_case.gd"
 const Definition := preload("res://scenes/debug/asset_showcase_definition.gd")
 const SMALL_SHOWCASE_SCENE := "res://scenes/debug/asset_showcase.tscn"
 const LARGE_SHOWCASE_SCENE := "res://scenes/debug/asset_showcase_large.tscn"
+const CHARACTERS_ANIMALS_SHOWCASE_SCENE := "res://scenes/debug/characters_animals_showcase.tscn"
 
 
 func test_showcase_definitions_are_valid_and_complete() -> void:
 	var small_definition := Definition.create_small()
 	var large_definition := Definition.create_large()
+	var characters_animals_definition := Definition.create_characters_animals()
 	assert_eq(small_definition.validate(), [], "small-item showcase must satisfy the production map contract")
 	assert_eq(large_definition.validate(), [], "large-item showcase must satisfy the production map contract")
+	assert_eq(
+		characters_animals_definition.validate(),
+		[],
+		"characters/animals showcase must satisfy the production map contract"
+	)
 	assert_true(large_definition.zones.size() >= MapTypes.ALL_TERRAINS.size())
 	assert_true(small_definition.zones.is_empty(), "terrain catalog belongs only on the large-item map")
+	assert_true(characters_animals_definition.zones.is_empty(), "terrain catalog belongs only on the large-item map")
 
 	var shown_terrains: Array[StringName] = []
 	for zone in large_definition.zones:
@@ -21,16 +29,32 @@ func test_showcase_definitions_are_valid_and_complete() -> void:
 
 	var small_props := _prop_kinds(small_definition)
 	var large_props := _prop_kinds(large_definition)
+	var characters_animals_props := _prop_kinds(characters_animals_definition)
 	for kind in MapTypes.ALL_PROP_KINDS:
 		assert_true(
-			small_props.has(kind) or large_props.has(kind),
+			small_props.has(kind) or large_props.has(kind) or characters_animals_props.has(kind),
 			"missing showcase prop kind: %s" % kind
 		)
 		if kind in Definition.LARGE_PROP_KINDS:
 			assert_true(large_props.has(kind), "large prop is on the wrong map: %s" % kind)
 			assert_false(small_props.has(kind), "large prop leaked onto the small map: %s" % kind)
+			assert_false(
+				characters_animals_props.has(kind),
+				"large prop leaked onto the characters/animals map: %s" % kind
+			)
+		elif kind in Definition.LIVE_PROP_KINDS:
+			assert_true(
+				characters_animals_props.has(kind),
+				"live prop is on the wrong map: %s" % kind
+			)
+			assert_false(small_props.has(kind), "live prop leaked onto the small map: %s" % kind)
+			assert_false(large_props.has(kind), "live prop leaked onto the large map: %s" % kind)
 		else:
 			assert_true(small_props.has(kind), "small prop is on the wrong map: %s" % kind)
+			assert_false(
+				characters_animals_props.has(kind),
+				"small prop leaked onto the characters/animals map: %s" % kind
+			)
 	# wall_walk_access is an architectural variant on the large map; its generic
 	# stairs sample remains in the small-object catalog.
 	assert_true(large_props.has(MapTypes.PROP_KIND_STAIRS))
@@ -55,6 +79,10 @@ func test_showcase_definitions_are_valid_and_complete() -> void:
 	for kind in MapTypes.ALL_BUILDING_KINDS:
 		assert_true(shown_buildings.has(kind), "missing large showcase building kind: %s" % kind)
 	assert_true(small_definition.buildings.is_empty(), "building catalog belongs only on the large-item map")
+	assert_true(
+		characters_animals_definition.buildings.is_empty(),
+		"building catalog belongs only on the large-item map"
+	)
 
 
 func test_large_showcase_uses_a_spacious_grid() -> void:
@@ -88,9 +116,14 @@ func test_showcases_include_review_variants_and_animation_catalogs() -> void:
 func test_showcase_scenes_and_debug_destinations_are_loadable() -> void:
 	assert_eq(DebugOverlay.ASSET_SHOWCASE_SCENE, SMALL_SHOWCASE_SCENE)
 	assert_eq(DebugOverlay.LARGE_ASSET_SHOWCASE_SCENE, LARGE_SHOWCASE_SCENE)
-	assert_eq(DebugOverlay.ASSET_SHOWCASE_SCENES, [SMALL_SHOWCASE_SCENE, LARGE_SHOWCASE_SCENE])
+	assert_eq(DebugOverlay.CHARACTERS_ANIMALS_SHOWCASE_SCENE, CHARACTERS_ANIMALS_SHOWCASE_SCENE)
+	assert_eq(
+		DebugOverlay.ASSET_SHOWCASE_SCENES,
+		[SMALL_SHOWCASE_SCENE, LARGE_SHOWCASE_SCENE, CHARACTERS_ANIMALS_SHOWCASE_SCENE]
+	)
 	_assert_showcase_scene(SMALL_SHOWCASE_SCENE, Definition.SHOWCASE_SMALL)
 	_assert_showcase_scene(LARGE_SHOWCASE_SCENE, Definition.SHOWCASE_LARGE)
+	_assert_showcase_scene(CHARACTERS_ANIMALS_SHOWCASE_SCENE, Definition.SHOWCASE_CHARACTERS_ANIMALS)
 
 
 func _prop_kinds(definition: MapDefinition) -> Array[StringName]:

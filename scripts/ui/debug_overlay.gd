@@ -10,7 +10,12 @@ const PANEL_WIDTH := 320.0
 const PANEL_HEIGHT := 380.0
 const ASSET_SHOWCASE_SCENE := "res://scenes/debug/asset_showcase.tscn"
 const LARGE_ASSET_SHOWCASE_SCENE := "res://scenes/debug/asset_showcase_large.tscn"
-const ASSET_SHOWCASE_SCENES: Array[String] = [ASSET_SHOWCASE_SCENE, LARGE_ASSET_SHOWCASE_SCENE]
+const CHARACTERS_ANIMALS_SHOWCASE_SCENE := "res://scenes/debug/characters_animals_showcase.tscn"
+const ASSET_SHOWCASE_SCENES: Array[String] = [
+	ASSET_SHOWCASE_SCENE,
+	LARGE_ASSET_SHOWCASE_SCENE,
+	CHARACTERS_ANIMALS_SHOWCASE_SCENE,
+]
 const BG_COLOR := Color(0.0, 0.0, 0.0, 0.75)
 const TEXT_COLOR := Color(0.9, 0.9, 0.9, 1.0)
 const LABEL_COLOR := Color(0.6, 0.8, 1.0, 1.0)
@@ -31,6 +36,7 @@ var _speed_up_button: Button
 var _reset_button: Button
 var _small_asset_showcase_button: Button
 var _large_asset_showcase_button: Button
+var _characters_animals_showcase_button: Button
 var _runtime: MapViewRuntime
 
 
@@ -241,8 +247,16 @@ func _build_ui() -> void:
 		"Return to previous scene" if _is_current_asset_showcase(ASSET_SHOWCASE_SCENE) else "Open small assets",
 		func() -> void: _open_asset_showcase(ASSET_SHOWCASE_SCENE)
 	)
-	_small_asset_showcase_button.tooltip_text = "Review people, animals, furniture, tools, and other relatively small props"
+	_small_asset_showcase_button.tooltip_text = "Review furniture, tools, and other relatively small non-living props"
 	layout.add_child(_small_asset_showcase_button)
+
+	_characters_animals_showcase_button = _create_button(
+		"CharactersAnimalsShowcaseButton",
+		"Return to previous scene" if _is_current_asset_showcase(CHARACTERS_ANIMALS_SHOWCASE_SCENE) else "Open characters / animals",
+		func() -> void: _open_asset_showcase(CHARACTERS_ANIMALS_SHOWCASE_SCENE)
+	)
+	_characters_animals_showcase_button.tooltip_text = "Review every humanoid, animated character clip, bird, cat, rat, and other living fauna"
+	layout.add_child(_characters_animals_showcase_button)
 
 	_large_asset_showcase_button = _create_button(
 		"LargeAssetShowcaseButton",
