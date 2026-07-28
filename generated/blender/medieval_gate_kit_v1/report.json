@@ -1,0 +1,93 @@
+{
+  "asset_id": "kit.reval_gate_1343",
+  "assets": {
+    "ironbound_double_gate": {
+      "asset_id": "ironbound_double_gate",
+      "checks": {
+        "embedded_albedo": true,
+        "ground_contact": true,
+        "metric_scale": true,
+        "portable_pbr": true,
+        "triangle_cap": true,
+        "uvs": true,
+        "y_up_glb": true
+      },
+      "dimensions_m": [
+        4.8314,
+        2.1887,
+        2.6525
+      ],
+      "faces": 1288,
+      "ground_min_z": 0.0,
+      "materials": 3,
+      "mesh_objects": 58,
+      "sha256": "be57eee1247ab3ce25dbf42b1cfa65c3ae1a21be56ce13ba671a1177bc922f91",
+      "surfaces": 58,
+      "texture_size": 512,
+      "triangles": 2464,
+      "uv_sets": 1,
+      "vertices": 1344
+    },
+    "oak_double_gate": {
+      "asset_id": "oak_double_gate",
+      "checks": {
+        "embedded_albedo": true,
+        "ground_contact": true,
+        "metric_scale": true,
+        "portable_pbr": true,
+        "triangle_cap": true,
+        "uvs": true,
+        "y_up_glb": true
+      },
+      "dimensions_m": [
+        4.8019,
+        2.1827,
+        2.6525
+      ],
+      "faces": 1092,
+      "ground_min_z": 0.0,
+      "materials": 3,
+      "mesh_objects": 48,
+      "sha256": "57c5131f81c9fa6117fefadec4257011138744442b222bc81ef9b9983a31440a",
+      "surfaces": 48,
+      "texture_size": 512,
+      "triangles": 2088,
+      "uv_sets": 1,
+      "vertices": 1136
+    },
+    "raised_portcullis": {
+      "asset_id": "raised_portcullis",
+      "checks": {
+        "embedded_albedo": true,
+        "ground_contact": true,
+        "metric_scale": true,
+        "portable_pbr": true,
+        "triangle_cap": true,
+        "uvs": true,
+        "y_up_glb": true
+      },
+      "dimensions_m": [
+        5.28,
+        0.445,
+        3.27
+      ],
+      "faces": 1405,
+      "ground_min_z": 0.0,
+      "materials": 2,
+      "mesh_objects": 40,
+      "sha256": "c304de94faca66110df74858f67484303556e48029c872abc864020818f7882c",
+      "surfaces": 40,
+      "texture_size": 512,
+      "triangles": 2630,
+      "uv_sets": 1,
+      "vertices": 1371
+    }
+  },
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "d31aa5e7b7999876df11cd58fca09ac76e8541691ed05161ff6845dfe2318e8a",
+  "generator": "tools/generate_medieval_gate_kit.py",
+  "generator_version": "medieval_gate_kit_v1",
+  "historical_scope": "Simple mid-14th-century gate leaves and one raised grille; no barbican, foregate towers, or drawbridge.",
+  "preview": "generated/blender/medieval_gate_kit_v1/preview.png",
+  "route": "deterministic_blender"
+}

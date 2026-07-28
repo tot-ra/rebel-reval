@@ -209,8 +209,11 @@ building south_apron_wall_walk_hut house 50 116 8 6 style=house.east.h96.52
 building south_apron_timber_house house 81 114 8 6 style=house.north.h96.49
 building south_apron_far_roofs house 100 118 10 6 style=house.north.h96.51
 # Match the visible arch to the narrowed collision jambs so the smithy apron stays open.
-landmark viru_gate_arch gate_arch 110 51 7 6 door_material=wood top_px=256 wall_color=8f8c80ff
-landmark viru_foregate_arch gate_arch 124 51 6 6 door_material=wood top_px=176 wall_color=8f8c80ff
+# Archaeology permits a simple mid-14th-century gate here. Use open iron-bound
+# oak leaves and one raised grille, not the later barbican or 1370s round towers.
+landmark viru_gate_arch gate_arch 110 51 7 6 gate_variant=ironbound grille_variant=portcullis top_px=256 wall_color=8f8c80ff
+# The outer works remain incomplete in 1343 and therefore keep simpler oak leaves.
+landmark viru_foregate_arch gate_arch 124 51 6 6 gate_variant=oak top_px=176 wall_color=8f8c80ff
 prop courtyard_anvil anvil 97 65 rect=2,2
 # Forge furnace, charcoal, and scrap stay inside kalev_smithy. Outdoor duplicates
 # at the door read as a second forge on the Workers District street.

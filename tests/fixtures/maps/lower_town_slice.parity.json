@@ -2118,7 +2118,7 @@
   "format_version": 1,
   "landmarks": [
     {
-      "door_material": "wood",
+      "gate_variant": "oak",
       "id": "viru_foregate_arch",
       "kind": "gate_arch",
       "rect": [
@@ -2136,7 +2136,8 @@
       ]
     },
     {
-      "door_material": "wood",
+      "gate_variant": "ironbound",
+      "grille_variant": "portcullis",
       "id": "viru_gate_arch",
       "kind": "gate_arch",
       "rect": [

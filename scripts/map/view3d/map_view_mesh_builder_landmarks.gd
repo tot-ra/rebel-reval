@@ -3,6 +3,27 @@ extends RefCounted
 
 ## Landmark arches, interior windows, and transition doors.
 
+const GATE_ASSET_PATHS := {
+	&"oak": "res://assets/props/architecture/gates/oak_double_gate.glb",
+	&"ironbound": "res://assets/props/architecture/gates/ironbound_double_gate.glb",
+	&"portcullis": "res://assets/props/architecture/gates/raised_portcullis.glb",
+}
+const GATE_ASSET_WIDTHS := {
+	&"oak": 4.8019,
+	&"ironbound": 4.8314,
+	&"portcullis": 5.28,
+}
+const GATE_ASSET_HEIGHTS := {
+	&"oak": 2.6525,
+	&"ironbound": 2.6525,
+	&"portcullis": 3.27,
+}
+const GATE_ASSET_DEPTHS := {
+	&"oak": 2.1827,
+	&"ironbound": 2.1887,
+	&"portcullis": 0.445,
+}
+
 static func interior_shell_wall_height_world(definition: MapDefinition) -> float:
 	var scale := MapViewBridge.world_scale(definition.cell_size)
 	for building in definition.buildings:
@@ -189,9 +210,12 @@ static func _add_gate_arch(root: Node3D, landmark: Dictionary, size: Vector2, sc
 	threshold.material_override = MapViewMaterials.role_for_size(&"stone", threshold_size)
 	root.add_child(threshold)
 
-	var door_material: StringName = landmark.get("door_material", &"wood")
-	if door_material in [&"wood", &"metal"]:
-		_add_gate_doors(root, size, passage_along_x, door_material)
+	var gate_variant: StringName = landmark.get("gate_variant", landmark.get("door_material", &"wood"))
+	var grille_variant: StringName = landmark.get("grille_variant", &"none")
+	if gate_variant not in [&"none", &""]:
+		_add_gate_asset(root, size, passage_along_x, gate_variant, false)
+	if grille_variant == &"portcullis":
+		_add_gate_asset(root, size, passage_along_x, grille_variant, true)
 
 	MapViewMeshBuilderBuildings.add_battlements(root, {"id": landmark["id"], "wall_color": color}, size, top - MapViewMeshBuilderConfig.CAP_HEIGHT)
 
@@ -212,116 +236,72 @@ static func _add_gate_masonry_box(
 	instance.material_override = material
 	parent.add_child(instance)
 
-
-## Double gate leaves parked open against the jambs so the passage stays
-## walkable while wood or iron-bound doors remain readable at character scale.
-
-
-static func _add_gate_doors(root: Node3D, size: Vector2, passage_along_x: bool, door_material: StringName) -> void:
-	var door_height := minf(MapViewMeshBuilderConfig.GATE_DOOR_HEIGHT, MapViewMeshBuilderConfig.GATE_ARCH_CLEARANCE - 0.1)
-	var half := size * 0.5
-	# Leaf width follows the opening span (axis across the road), not the
-	# gatehouse depth - the old axis swap hid doors outside the arch.
-	var opening := maxf(
+## Instantiates a deterministic Blender gate model and fits it to the authored
+## clear opening. All assets stay parked open or raised, so view geometry never
+## contradicts the immutable walkable passage and collision grid.
+static func _add_gate_asset(
+	root: Node3D,
+	size: Vector2,
+	passage_along_x: bool,
+	variant: StringName,
+	is_grille: bool
+) -> void:
+	var resolved_variant := variant
+	if variant in [&"wood", &"oak"]:
+		resolved_variant = &"oak"
+	elif variant in [&"metal", &"ironbound"]:
+		# WHY: medieval city gates were iron-bound oak, not implausible solid-metal slabs.
+		resolved_variant = &"ironbound"
+	if not GATE_ASSET_PATHS.has(resolved_variant):
+		return
+	var scene := load(GATE_ASSET_PATHS[resolved_variant]) as PackedScene
+	if scene == null:
+		push_error("Could not load gate asset: %s" % GATE_ASSET_PATHS[resolved_variant])
+		return
+	var instance := scene.instantiate() as Node3D
+	if instance == null:
+		push_error("Gate asset root must be Node3D: %s" % GATE_ASSET_PATHS[resolved_variant])
+		return
+	instance.name = "GatePortcullis" if is_grille else "GateLeaves"
+	var opening_width := maxf(
 		(size.y if passage_along_x else size.x) - MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS * 2.0,
 		1.2
 	)
-	var leaf_span := clampf(opening * 0.48, 0.9, MapViewMeshBuilderConfig.GATE_DOOR_MAX_LEAF)
-	var passage_depth := size.x if passage_along_x else size.y
-	var leaf_along := minf(leaf_span, maxf(passage_depth * 0.42, 1.0))
-	var inset := MapViewMeshBuilderConfig.GATE_JAMB_THICKNESS + MapViewMeshBuilderConfig.GATE_DOOR_THICKNESS * 0.5 + 0.04
-
-	for side_index in 2:
-		var side := -1.0 if side_index == 0 else 1.0
-		var door := MeshInstance3D.new()
-		door.name = "GateDoor%d" % side_index
-		var mesh := BoxMesh.new()
-		if passage_along_x:
-			mesh.size = Vector3(leaf_along, door_height, MapViewMeshBuilderConfig.GATE_DOOR_THICKNESS)
-			# Parked against the N/S jamb, on the street face of the arch.
-			door.position = Vector3(
-				-half.x + leaf_along * 0.5 + 0.08,
-				door_height * 0.5,
-				side * (half.y - inset)
-			)
-		else:
-			mesh.size = Vector3(MapViewMeshBuilderConfig.GATE_DOOR_THICKNESS, door_height, leaf_along)
-			door.position = Vector3(
-				side * (half.x - inset),
-				door_height * 0.5,
-				-half.y + leaf_along * 0.5 + 0.08
-			)
-		door.mesh = mesh
-		door.material_override = MapViewMaterials.role_for_size(door_material, mesh.size)
-		root.add_child(door)
-		_add_gate_door_hardware(door, mesh.size, passage_along_x, side, door_material)
-
-
-static func _add_gate_door_hardware(
-	door: MeshInstance3D,
-	leaf_size: Vector3,
-	passage_along_x: bool,
-	side: float,
-	door_material: StringName
-) -> void:
-	var metal := MapViewMaterials.role(&"metal")
-	var strap_h := MapViewMeshBuilderConfig.GATE_DOOR_STRAP_THICKNESS
-	var face := (
-		leaf_size.z * 0.5 + strap_h * 0.5 + 0.005
-		if passage_along_x
-		else leaf_size.x * 0.5 + strap_h * 0.5 + 0.005
+	var width_scale := minf(
+		opening_width / float(GATE_ASSET_WIDTHS[resolved_variant]),
+		1.0
 	)
-	# Three horizontal iron bands read as bound city-gate leaves even when the
-	# panel itself is timber; metal doors keep the same silhouette darker.
-	for band_index in 3:
-		var band_y := leaf_size.y * (0.18 + 0.32 * float(band_index)) - leaf_size.y * 0.5
-		var band := MeshInstance3D.new()
-		band.name = "Strap%d" % band_index
-		var band_mesh := BoxMesh.new()
-		if passage_along_x:
-			band_mesh.size = Vector3(leaf_size.x * 0.92, strap_h * 2.2, strap_h)
-			band.position = Vector3(0.0, band_y, -side * face)
-		else:
-			band_mesh.size = Vector3(strap_h, strap_h * 2.2, leaf_size.z * 0.92)
-			band.position = Vector3(-side * face, band_y, 0.0)
-		band.mesh = band_mesh
-		band.material_override = metal
-		door.add_child(band)
+	var height_limit := (
+		MapViewMeshBuilderConfig.GATE_ARCH_CLEARANCE - 0.08
+		if is_grille
+		else MapViewMeshBuilderConfig.GATE_DOOR_HEIGHT
+	)
+	var height_scale := height_limit / float(GATE_ASSET_HEIGHTS[resolved_variant])
+	var uniform_scale := minf(width_scale, height_scale)
+	instance.scale = Vector3.ONE * uniform_scale
+	if passage_along_x:
+		instance.rotation_degrees.y = 90.0
+	# Raised teeth clear the ground by at least this amount while remaining visible
+	# under the lintel. Gate leaves retain their authored ground contact.
+	if is_grille:
+		instance.position.y = maxf(
+			MapViewMeshBuilderConfig.GATE_PORTCULLIS_CLEARANCE,
+			MapViewMeshBuilderConfig.GATE_ARCH_CLEARANCE
+				- float(GATE_ASSET_HEIGHTS[resolved_variant]) * uniform_scale,
+		)
+	var passage_depth := size.x if passage_along_x else size.y
+	var model_depth := float(GATE_ASSET_DEPTHS[resolved_variant]) * uniform_scale
+	if is_grille:
+		# Put the raised grille in the outer third of the tunnel, leaving the oak
+		# leaves and their hardware readable deeper in the gatehouse.
+		var along_offset := clampf(passage_depth * 0.22, 0.15, 0.75)
+		instance.position += Vector3(along_offset if passage_along_x else 0.0, 0.0, 0.0 if passage_along_x else along_offset)
+	elif model_depth > passage_depth:
+		# Very shallow garden arches cannot contain fully opened leaves. Uniformly
+		# shrink rather than clipping the imported mesh through the masonry.
+		instance.scale *= passage_depth / model_depth
+	root.add_child(instance)
 
-	for hinge_index in 2:
-		var hinge := MeshInstance3D.new()
-		hinge.name = "Hinge%d" % hinge_index
-		var hinge_mesh := CylinderMesh.new()
-		hinge_mesh.top_radius = MapViewMeshBuilderConfig.GATE_DOOR_HINGE_RADIUS
-		hinge_mesh.bottom_radius = MapViewMeshBuilderConfig.GATE_DOOR_HINGE_RADIUS
-		hinge_mesh.height = 0.22
-		hinge.mesh = hinge_mesh
-		var hinge_y := leaf_size.y * (0.22 if hinge_index == 0 else 0.72) - leaf_size.y * 0.5
-		if passage_along_x:
-			hinge.position = Vector3(-leaf_size.x * 0.45, hinge_y, -side * face)
-			hinge.rotation_degrees = Vector3(0.0, 0.0, 90.0)
-		else:
-			hinge.position = Vector3(-side * face, hinge_y, -leaf_size.z * 0.45)
-			hinge.rotation_degrees = Vector3(90.0, 0.0, 0.0)
-		hinge.material_override = metal
-		door.add_child(hinge)
-
-	if door_material == &"wood":
-		# Vertical boarding cue so open timber leaves do not read as flat slabs.
-		for plank_index in 3:
-			var plank := MeshInstance3D.new()
-			plank.name = "Plank%d" % plank_index
-			var plank_mesh := BoxMesh.new()
-			var along := -0.28 + 0.28 * float(plank_index)
-			if passage_along_x:
-				plank_mesh.size = Vector3(0.03, leaf_size.y * 0.92, 0.02)
-				plank.position = Vector3(along * leaf_size.x * 0.5, 0.0, -side * face)
-			else:
-				plank_mesh.size = Vector3(0.02, leaf_size.y * 0.92, 0.03)
-				plank.position = Vector3(-side * face, 0.0, along * leaf_size.z * 0.5)
-			plank.mesh = plank_mesh
-			plank.material_override = MapViewMaterials.role(&"timber")
-			door.add_child(plank)
 
 
 static func transition_uses_landmark_visual(definition: MapDefinition, transition: Dictionary) -> bool:

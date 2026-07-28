@@ -166,6 +166,24 @@
       ]
     },
     {
+      "id": "town_hall",
+      "location_name": "Town Hall",
+      "scene": "scenes/reval_center/town_hall/town_hall.tscn",
+      "definition": "scripts/map/definitions/prototypes/town_hall_definition.gd",
+      "factory": "TownHallDefinition.create",
+      "disposition": "convert",
+      "capture": "town_hall.png",
+      "mandatory_anchors": [
+        "inspection_spawn",
+        "public_entry",
+        "council_dais",
+        "petition_desk"
+      ],
+      "mandatory_transitions": [
+        "to_reval_center"
+      ]
+    },
+    {
       "id": "north_quarter",
       "location_name": "Merchant District",
       "scene": "scenes/reval_north/reval_north.tscn",
@@ -236,8 +254,8 @@
         "altar_front",
         "nave_center",
         "south_entry",
-        "baptismal_font_site",
-        "alms_chest_site"
+        "baptismal_font",
+        "alms_chest"
       ],
       "mandatory_transitions": [
         "to_reval_center"

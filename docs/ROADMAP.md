@@ -3,6 +3,8 @@
 Coordination notes, delivery order, and planning context formerly embedded in `TODO.md`.
 Executable open work stays in [`TODO.md`](../TODO.md).
 
+Coordination note (2026-07-28 P2-029): deterministic 1343 Reval gate kit now ships `oak_double_gate.glb`, `ironbound_double_gate.glb`, and `raised_portcullis.glb` from `tools/generate_medieval_gate_kit.py`; `gate_arch` landmarks load parked-open leaves and a raised grille at `viru_gate_arch` and `viru_foregate_arch` without blocking the walkable passage. Verified: `--filter=test_medieval_gate_assets` (2/2), `--filter=test_map_view_3d_fortification`, and `python3 tools/verify_asset_lint.py`.
+
 Coordination note (2026-07-28 P0-132): production hay fiber texture (`assets/materials/production/hay_fibers.png`) now drives triplanar rick/wagon geometry, terrain hay/straw blends, and batched meadow stubble; ComfyUI livestock GLBs for cattle, sheep, and pack horse share one loader across static props and ambient penned/urban fauna actors. Verified: `--filter=test_hay_assets` (4/4), `--filter=test_medieval_animal_models` (3/3), and `python3 tools/verify_asset_lint.py`.
 
 Coordination note (2026-07-28 P2-028): Kalev smithy now ships deterministic Blender-authored `smithy_furnace.glb` and `smithy_bellows.glb` at `forge_furnace` and `forge_bellows`; the furnace keeps engine-driven embers, coal, flames, sparks, and day/night fire lighting while non-smithy maps retain procedural fallbacks. Verified: `--filter=test_forge_prop_meshes` (8/8).

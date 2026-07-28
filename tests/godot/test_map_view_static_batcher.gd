@@ -110,6 +110,7 @@ func test_gate_arch_keeps_triplanar_mass_after_merge() -> void:
 	Batcher.merge(gate, {})
 	assert_true(gate.has_node("Bridge"), "gate bridge must survive batching")
 	assert_true(gate.has_node("Jamb0"), "gate jambs must survive batching")
+	assert_true(gate.has_node("GateLeaves"), "generated gate model root must survive batching")
 	var bridge := gate.get_node("Bridge") as MeshInstance3D
 	var jamb := gate.get_node("Jamb0") as MeshInstance3D
 	assert_true(bridge.mesh != null, "gate bridge must keep its masonry mesh")

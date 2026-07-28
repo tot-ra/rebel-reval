@@ -348,6 +348,8 @@ func test_viru_gate_arch_matches_collision_jamb_span() -> void:
 	assert_false(arch.is_empty())
 	assert_false(north_jamb.is_empty())
 	assert_false(south_jamb.is_empty())
+	assert_eq(arch.get("gate_variant", &""), &"ironbound")
+	assert_eq(arch.get("grille_variant", &""), &"portcullis")
 	if arch.is_empty() or north_jamb.is_empty() or south_jamb.is_empty():
 		return
 	# The gate arch is view-only. Its longitudinal span must stay over both
