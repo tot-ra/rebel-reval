@@ -56,6 +56,7 @@ SPECS = {
         "base_color": (0.58, 0.51, 0.38),
         "accent_color": (0.78, 0.72, 0.59),
         "seed": 208744132,
+        "animated": True,
     },
     "pack_horse": {
         "source": STAGING / "pack_horse_candidate.glb",
@@ -66,6 +67,7 @@ SPECS = {
         "base_color": (0.27, 0.17, 0.085),
         "accent_color": (0.49, 0.34, 0.16),
         "seed": 208744133,
+        "animated": True,
     },
 }
 
@@ -327,35 +329,29 @@ def parent_to_bone(obj: bpy.types.Object, armature: bpy.types.Object, bone_name:
     obj.matrix_world = world
 
 
-def create_cattle_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.types.Object]]:
-    """Add a compact cattle rig plus explicit readable eyes and swishing tail.
-
-    The approved scan is a single watertight surface, so deterministic spatial
-    groups provide a deliberately broad deformation envelope without depending
-    on unavailable source topology or auto-weighting heuristics.
-    """
+def create_quadruped_rig(
+    obj: bpy.types.Object,
+    rig_name: str,
+    body_head: tuple[float, float, float],
+    body_tail: tuple[float, float, float],
+    bone_specs: dict[str, tuple[tuple[float, float, float], tuple[float, float, float]]],
+    group_rules: dict[str, object],
+    eye_specs: list[tuple[str, float, float, float, str]] | None = None,
+    tail_specs: tuple[tuple[float, float, float], tuple[float, float, float], float, float] | None = None,
+) -> tuple[bpy.types.Object, list[bpy.types.Object]]:
+    """Shared low-cost quadruped rig for approved single-surface livestock scans."""
     coat = obj.data.materials[0]
     bpy.ops.object.armature_add(enter_editmode=True, location=(0.0, 0.0, 0.0))
     armature = bpy.context.object
-    armature.name = "CattleRig"
-    armature.data.name = "CattleSkeleton"
+    armature.name = rig_name
+    armature.data.name = f"{rig_name}Skeleton"
     armature.show_in_front = True
 
     body = armature.data.edit_bones[0]
     body.name = "Body"
-    body.head = (0.0, 0.0, 0.48)
-    body.tail = (0.0, 0.0, 1.02)
+    body.head = body_head
+    body.tail = body_tail
 
-    bone_specs = {
-        "Neck": ((-0.48, 0.0, 0.88), (-0.90, 0.0, 1.15)),
-        "Tail": ((0.64, 0.0, 0.90), (0.98, 0.0, 0.50)),
-        "FrontLeftLeg": ((-0.55, 0.27, 0.70), (-0.55, 0.27, 0.08)),
-        "FrontRightLeg": ((-0.55, -0.27, 0.70), (-0.55, -0.27, 0.08)),
-        "BackLeftLeg": ((0.60, 0.27, 0.70), (0.60, 0.27, 0.08)),
-        "BackRightLeg": ((0.60, -0.27, 0.70), (0.60, -0.27, 0.08)),
-        "EyeLeft": ((-0.80, 0.42, 1.20), (-0.80, 0.42, 1.29)),
-        "EyeRight": ((-0.80, -0.42, 1.20), (-0.80, -0.42, 1.29)),
-    }
     for name, (head, tail) in bone_specs.items():
         bone = armature.data.edit_bones.new(name)
         bone.head = head
@@ -368,51 +364,187 @@ def create_cattle_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy
     assignments: dict[str, list[int]] = {name: [] for name in groups}
     for vertex in obj.data.vertices:
         point = vertex.co
-        if point.x < -0.48 and point.z > 0.68:
+        group_name = "Body"
+        if point.x < group_rules["neck_x"] and point.z > group_rules["neck_z"]:
             group_name = "Neck"
-        elif point.x > 0.70 and point.z > 0.54 and abs(point.y) < 0.36:
+        elif (
+            point.x > group_rules["tail_x"]
+            and point.z > group_rules["tail_z"]
+            and abs(point.y) < group_rules["tail_y"]
+        ):
             group_name = "Tail"
-        elif point.z < 0.72 and point.x < -0.24:
+        elif point.z < group_rules["leg_z"] and point.x < group_rules["front_leg_x"]:
             group_name = "FrontLeftLeg" if point.y >= 0.0 else "FrontRightLeg"
-        elif point.z < 0.72 and point.x > 0.26:
+        elif point.z < group_rules["leg_z"] and point.x > group_rules["back_leg_x"]:
             group_name = "BackLeftLeg" if point.y >= 0.0 else "BackRightLeg"
-        else:
-            group_name = "Body"
         assignments[group_name].append(vertex.index)
     for name, indices in assignments.items():
         if indices:
             groups[name].add(indices, 1.0, "REPLACE")
 
-    modifier = obj.modifiers.new("CattleArmature", "ARMATURE")
+    modifier = obj.modifiers.new(f"{rig_name}Armature", "ARMATURE")
     modifier.object = armature
     obj.parent = armature
 
-    eye_white = create_flat_material("cattle_eye_white", (0.58, 0.47, 0.31, 1.0))
-    pupil_black = create_flat_material("cattle_pupil", (0.012, 0.008, 0.005, 1.0))
-    eye_parts: list[bpy.types.Object] = []
-    for side, y, bone_name in [("Left", 0.425, "EyeLeft"), ("Right", -0.425, "EyeRight")]:
-        eye = add_uv_sphere(f"Eye{side}", (-0.82, y, 1.205), (0.070, 0.026, 0.058), eye_white)
-        pupil_y = y + (0.024 if y > 0.0 else -0.024)
-        pupil = add_uv_sphere(f"Pupil{side}", (-0.835, pupil_y, 1.205), (0.030, 0.014, 0.034), pupil_black)
-        parent_to_bone(eye, armature, bone_name)
-        parent_to_bone(pupil, armature, bone_name)
-        eye_parts.extend([eye, pupil])
+    details: list[bpy.types.Object] = []
+    if eye_specs is not None:
+        eye_white = create_flat_material(f"{rig_name.lower()}_eye_white", (0.58, 0.47, 0.31, 1.0))
+        pupil_black = create_flat_material(f"{rig_name.lower()}_pupil", (0.012, 0.008, 0.005, 1.0))
+        for side, y, z, bone_name in eye_specs:
+            eye = add_uv_sphere(f"Eye{side}", (-group_rules["eye_x"], y, z), group_rules["eye_scale"], eye_white)
+            pupil_y = y + (group_rules["pupil_offset"] if y > 0.0 else -group_rules["pupil_offset"])
+            pupil = add_uv_sphere(
+                f"Pupil{side}",
+                (-group_rules["eye_x"] - 0.015, pupil_y, z),
+                group_rules["pupil_scale"],
+                pupil_black,
+            )
+            parent_to_bone(eye, armature, bone_name)
+            parent_to_bone(pupil, armature, bone_name)
+            details.extend([eye, pupil])
+        armature["animated_eyes"] = True
 
-    tail_start = Vector((0.67, 0.0, 0.90))
-    tail_end = Vector((0.98, 0.0, 0.50))
-    tail = add_tapered_segment("TailTuftStem", tail_start, tail_end, 0.050, 0.025, coat)
-    tuft = add_uv_sphere("TailTuft", tuple(tail_end), (0.075, 0.065, 0.105), coat)
-    parent_to_bone(tail, armature, "Tail")
-    parent_to_bone(tuft, armature, "Tail")
-    details = eye_parts + [tail, tuft]
+    if tail_specs is not None:
+        tail_start, tail_end, start_radius, end_radius = tail_specs
+        tail = add_tapered_segment(
+            "TailTuftStem",
+            Vector(tail_start),
+            Vector(tail_end),
+            start_radius,
+            end_radius,
+            coat,
+        )
+        tuft = add_uv_sphere("TailTuft", tuple(tail_end), group_rules["tail_tuft_scale"], coat)
+        parent_to_bone(tail, armature, "Tail")
+        parent_to_bone(tuft, armature, "Tail")
+        details.extend([tail, tuft])
+        armature["animated_tail"] = True
 
-    armature["animated_eyes"] = True
-    armature["animated_tail"] = True
-    create_cattle_animations(armature)
+    create_livestock_animations(armature)
     return armature, details
 
 
-def create_cattle_animations(armature: bpy.types.Object) -> None:
+def create_cattle_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.types.Object]]:
+    """Compact cattle rig with readable eyes and swishing tail."""
+    return create_quadruped_rig(
+        obj,
+        "CattleRig",
+        (0.0, 0.0, 0.48),
+        (0.0, 0.0, 1.02),
+        {
+            "Neck": ((-0.48, 0.0, 0.88), (-0.90, 0.0, 1.15)),
+            "Tail": ((0.64, 0.0, 0.90), (0.98, 0.0, 0.50)),
+            "FrontLeftLeg": ((-0.55, 0.27, 0.70), (-0.55, 0.27, 0.08)),
+            "FrontRightLeg": ((-0.55, -0.27, 0.70), (-0.55, -0.27, 0.08)),
+            "BackLeftLeg": ((0.60, 0.27, 0.70), (0.60, 0.27, 0.08)),
+            "BackRightLeg": ((0.60, -0.27, 0.70), (0.60, -0.27, 0.08)),
+            "EyeLeft": ((-0.80, 0.42, 1.20), (-0.80, 0.42, 1.29)),
+            "EyeRight": ((-0.80, -0.42, 1.20), (-0.80, -0.42, 1.29)),
+        },
+        {
+            "neck_x": -0.48,
+            "neck_z": 0.68,
+            "tail_x": 0.70,
+            "tail_z": 0.54,
+            "tail_y": 0.36,
+            "leg_z": 0.72,
+            "front_leg_x": -0.24,
+            "back_leg_x": 0.26,
+            "eye_x": 0.82,
+            "eye_scale": (0.070, 0.026, 0.058),
+            "pupil_scale": (0.030, 0.014, 0.034),
+            "pupil_offset": 0.024,
+            "tail_tuft_scale": (0.075, 0.065, 0.105),
+        },
+        eye_specs=[
+            ("Left", 0.425, 1.205, "EyeLeft"),
+            ("Right", -0.425, 1.205, "EyeRight"),
+        ],
+        tail_specs=((0.67, 0.0, 0.90), (0.98, 0.0, 0.50), 0.050, 0.025),
+    )
+
+
+def create_sheep_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.types.Object]]:
+    """Compact sheep rig scaled to the smaller fleece body envelope."""
+    return create_quadruped_rig(
+        obj,
+        "SheepRig",
+        (0.0, 0.0, 0.30),
+        (0.0, 0.0, 0.58),
+        {
+            "Neck": ((-0.26, 0.0, 0.52), (-0.50, 0.0, 0.68)),
+            "Tail": ((0.34, 0.0, 0.52), (0.52, 0.0, 0.30)),
+            "FrontLeftLeg": ((-0.30, 0.14, 0.44), (-0.30, 0.14, 0.06)),
+            "FrontRightLeg": ((-0.30, -0.14, 0.44), (-0.30, -0.14, 0.06)),
+            "BackLeftLeg": ((0.32, 0.14, 0.44), (0.32, 0.14, 0.06)),
+            "BackRightLeg": ((0.32, -0.14, 0.44), (0.32, -0.14, 0.06)),
+            "EyeLeft": ((-0.44, 0.22, 0.70), (-0.44, 0.22, 0.76)),
+            "EyeRight": ((-0.44, -0.22, 0.70), (-0.44, -0.22, 0.76)),
+        },
+        {
+            "neck_x": -0.22,
+            "neck_z": 0.42,
+            "tail_x": 0.35,
+            "tail_z": 0.38,
+            "tail_y": 0.18,
+            "leg_z": 0.46,
+            "front_leg_x": -0.10,
+            "back_leg_x": 0.12,
+            "eye_x": 0.44,
+            "eye_scale": (0.048, 0.018, 0.040),
+            "pupil_scale": (0.022, 0.010, 0.024),
+            "pupil_offset": 0.016,
+            "tail_tuft_scale": (0.055, 0.048, 0.075),
+        },
+        eye_specs=[
+            ("Left", 0.22, 0.70, "EyeLeft"),
+            ("Right", -0.22, 0.70, "EyeRight"),
+        ],
+        tail_specs=((0.36, 0.0, 0.52), (0.52, 0.0, 0.30), 0.038, 0.020),
+    )
+
+
+def create_pack_horse_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.types.Object]]:
+    """Taller pack-horse rig with longer legs and a readable swishing tail."""
+    return create_quadruped_rig(
+        obj,
+        "PackHorseRig",
+        (0.0, 0.0, 0.55),
+        (0.0, 0.0, 1.12),
+        {
+            "Neck": ((-0.50, 0.0, 0.98), (-0.95, 0.0, 1.28)),
+            "Tail": ((0.68, 0.0, 0.95), (1.02, 0.0, 0.52)),
+            "FrontLeftLeg": ((-0.60, 0.22, 0.80), (-0.60, 0.22, 0.10)),
+            "FrontRightLeg": ((-0.60, -0.22, 0.80), (-0.60, -0.22, 0.10)),
+            "BackLeftLeg": ((0.65, 0.22, 0.80), (0.65, 0.22, 0.10)),
+            "BackRightLeg": ((0.65, -0.22, 0.80), (0.65, -0.22, 0.10)),
+            "EyeLeft": ((-0.86, 0.34, 1.24), (-0.86, 0.34, 1.34)),
+            "EyeRight": ((-0.86, -0.34, 1.24), (-0.86, -0.34, 1.34)),
+        },
+        {
+            "neck_x": -0.45,
+            "neck_z": 0.85,
+            "tail_x": 0.65,
+            "tail_z": 0.70,
+            "tail_y": 0.28,
+            "leg_z": 0.95,
+            "front_leg_x": -0.20,
+            "back_leg_x": 0.30,
+            "eye_x": 0.88,
+            "eye_scale": (0.074, 0.028, 0.062),
+            "pupil_scale": (0.032, 0.015, 0.036),
+            "pupil_offset": 0.022,
+            "tail_tuft_scale": (0.082, 0.070, 0.110),
+        },
+        eye_specs=[
+            ("Left", 0.34, 1.24, "EyeLeft"),
+            ("Right", -0.34, 1.24, "EyeRight"),
+        ],
+        tail_specs=((0.70, 0.0, 0.95), (1.02, 0.0, 0.52), 0.055, 0.028),
+    )
+
+
+def create_livestock_animations(armature: bpy.types.Object) -> None:
     """Author two short looping clips with diagonal walk and independent blinks."""
     armature.animation_data_create()
     pose_bones = armature.pose.bones
@@ -543,6 +675,9 @@ def build(name: str, spec: dict) -> dict:
     discarded_before = remove_tiny_islands(obj, 0.0015)
     align_long_axis(obj)
     rebuild_surface(obj, spec["voxel_divisor"], spec["triangles"])
+    # Pack-horse scans retain tack islands; discard more aggressively before rigging.
+    if name == "pack_horse":
+        remove_tiny_islands(obj, 0.0025)
     normalize_dimensions(obj, spec["dimensions_m"])
     make_uv(obj)
     albedo = create_albedo(name, spec)
@@ -551,7 +686,12 @@ def build(name: str, spec: dict) -> dict:
     armature: bpy.types.Object | None = None
     details: list[bpy.types.Object] = []
     if spec.get("animated", False):
-        armature, details = create_cattle_rig(obj)
+        rig_builder = {
+            "cattle": create_cattle_rig,
+            "sheep": create_sheep_rig,
+            "pack_horse": create_pack_horse_rig,
+        }.get(name, create_cattle_rig)
+        armature, details = rig_builder(obj)
     output: Path = spec["output"]
     export_glb(obj, output, armature, details)
 

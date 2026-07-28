@@ -49,6 +49,50 @@ func test_cattle_has_broad_rigged_body_eyes_tail_and_locomotion_clips() -> void:
 	host.free()
 
 
+func test_sheep_has_rigged_body_tail_and_locomotion_clips() -> void:
+	var host := Node3D.new()
+	var model := Models.add_model(host, MammalSpecies.SPECIES_SHEEP)
+	assert_true(model != null)
+	var mesh := model.find_child("AnimalMesh", true, false) as MeshInstance3D
+	assert_true(mesh != null)
+	var aabb := mesh.get_aabb()
+	assert_true(aabb.size.z >= 0.45, "Sheep must keep a compact fleece silhouette")
+	assert_true(model.find_child("TailTuft", true, false) != null, "Sheep needs an articulated tail")
+	var players := model.find_children("*", "AnimationPlayer", true, false)
+	assert_true(players.size() >= 1, "Sheep needs imported skeletal animation")
+	var player := players[0] as AnimationPlayer
+	assert_true(player.has_animation(Models.IDLE_ANIMATION))
+	assert_true(player.has_animation(Models.WALK_ANIMATION))
+	assert_eq(player.current_animation, Models.IDLE_ANIMATION)
+	Models.sync_animation(host, host.position - Vector3(0.1, 0.0, 0.0), 0.1)
+	assert_eq(player.current_animation, Models.WALK_ANIMATION)
+	Models.sync_animation(host, host.position, 0.1)
+	assert_eq(player.current_animation, Models.IDLE_ANIMATION)
+	host.free()
+
+
+func test_pack_horse_has_tall_rigged_body_tail_and_locomotion_clips() -> void:
+	var host := Node3D.new()
+	var model := Models.add_model(host, MammalSpecies.SPECIES_HORSE)
+	assert_true(model != null)
+	var mesh := model.find_child("AnimalMesh", true, false) as MeshInstance3D
+	assert_true(mesh != null)
+	var aabb := mesh.get_aabb()
+	assert_true(aabb.size.y >= 1.2, "Pack horse must keep a tall readable silhouette")
+	assert_true(model.find_child("TailTuft", true, false) != null, "Pack horse needs an articulated tail")
+	var players := model.find_children("*", "AnimationPlayer", true, false)
+	assert_true(players.size() >= 1, "Pack horse needs imported skeletal animation")
+	var player := players[0] as AnimationPlayer
+	assert_true(player.has_animation(Models.IDLE_ANIMATION))
+	assert_true(player.has_animation(Models.WALK_ANIMATION))
+	assert_eq(player.current_animation, Models.IDLE_ANIMATION)
+	Models.sync_animation(host, host.position - Vector3(0.1, 0.0, 0.0), 0.1)
+	assert_eq(player.current_animation, Models.WALK_ANIMATION)
+	Models.sync_animation(host, host.position, 0.1)
+	assert_eq(player.current_animation, Models.IDLE_ANIMATION)
+	host.free()
+
+
 func test_static_livestock_props_use_production_models() -> void:
 	for kind: StringName in [MapTypes.PROP_KIND_CATTLE, MapTypes.PROP_KIND_SHEEP, MapTypes.PROP_KIND_HORSE]:
 		var prop := MapViewMeshBuilder.build_prop({"id": kind, "kind": kind, "position": Vector2.ZERO}, MapTypes.DEFAULT_CELL_SIZE)
