@@ -47,6 +47,14 @@ func test_fishing_nets_have_knotted_mesh_floats_sinkers_and_grounded_frame() -> 
 	assert_true(triangle_count >= 3000 and triangle_count <= 4500, "diamond mesh and maritime cues must stay readable and lightweight")
 	assert_eq(material_names.size(), 4, "rack keeps oak, hemp, float, and sinker identities")
 	assert_eq(textured_material_names.size(), 4, "all fishing-net material families need embedded painted albedos")
+
+	var frame := model.get_node("FishingNets/Frame") as MeshInstance3D
+	assert_true(frame.material_override == null, "oak rack must remain on its rigid imported material")
+	for path in ["FishingNets/Netting", "FishingNets/OutlineRope", "FishingNets/Floats", "FishingNets/Sinkers"]:
+		var moving_part := model.get_node(path) as MeshInstance3D
+		assert_true(moving_part.material_override is ShaderMaterial, "%s must use GPU wind deformation" % path)
+		assert_true(moving_part.get_meta(&"wind_animated", false), "%s must be tagged as wind animated" % path)
+		assert_true(moving_part.get_instance_shader_parameter("motion_phase") is float, "%s needs a deterministic motion phase" % path)
 	host.free()
 
 
@@ -59,4 +67,14 @@ func test_fishing_nets_prop_uses_production_model_without_gameplay_bodies() -> v
 	var node := MapViewMeshBuilderProps.build_prop(prop, MapTypes.DEFAULT_CELL_SIZE)
 	assert_true(node.find_child("FishingNetsModel", true, false) != null, "district-life prop must instantiate the production GLB")
 	assert_true(node.find_children("*", "CollisionObject3D", true, false).is_empty(), "visual upgrade must not add collision or navigation bodies")
-	node.free()
+	_free_map_scene(node)
+
+
+func test_fishing_nets_follow_shared_weather_wind() -> void:
+	var net := MapViewMaterials.fishing_net_hemp()
+	MapViewMaterials.apply_world_wind(Vector2(0.0, 1.0), 0.84)
+	assert_eq(net.get_shader_parameter("wind_direction"), Vector2(0.0, 1.0), "net must follow harbor wind direction")
+	assert_eq(net.get_shader_parameter("wind_strength"), 0.84, "net must strengthen with storm wind")
+	assert_true(MapViewMaterialShaders.FISHING_NET_WIND_SHADER_CODE.contains("smoothstep(pin_height - pin_fade, pin_height, VERTEX.y)"), "shader must pin the upper edge by vertex height")
+	assert_true(MapViewMaterialShaders.FISHING_NET_WIND_SHADER_CODE.contains("instance uniform float motion_phase"), "each rack needs an independent wind phase")
+	MapViewMaterials.apply_world_wind(Vector2(0.9285, 0.3714), 0.22)

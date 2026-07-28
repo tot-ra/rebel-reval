@@ -20,6 +20,9 @@ const WATER_MATERIALS := preload("res://scripts/map/view3d/map_view_water_materi
 const BUILDING_MATERIALS := preload("res://scripts/map/view3d/map_view_building_materials.gd")
 const PROP_MATERIALS := preload("res://scripts/map/view3d/map_view_prop_materials.gd")
 const HAY_FIBER_TEXTURE := preload("res://assets/materials/production/hay_fibers.png")
+const FISHING_NET_HEMP_TEXTURE := preload("res://assets/props/crafts/fishing_nets_TarredHempNet_albedo.png")
+const FISHING_NET_FLOAT_TEXTURE := preload("res://assets/props/crafts/fishing_nets_BarkCorkFloats_albedo.png")
+const FISHING_NET_SINKER_TEXTURE := preload("res://assets/props/crafts/fishing_nets_PiercedStoneSinkers_albedo.png")
 
 const WATER_WAVE_BASE := {
 	MapTypes.TERRAIN_SHALLOW_WATER: {
@@ -339,6 +342,9 @@ static func _wind_materials() -> Array[ShaderMaterial]:
 		canopy(&"orchard"),
 		sail_cloth(),
 		flag_cloth(),
+		fishing_net_hemp(),
+		fishing_net_float(),
+		fishing_net_sinker(),
 	]
 
 
@@ -405,6 +411,67 @@ static func flag_cloth() -> ShaderMaterial:
 	material.set_shader_parameter("base_color", Color8(248, 246, 240))
 	material.set_shader_parameter("sway_strength", 0.42)
 	material.set_shader_parameter("free_edge", Vector2(1.0, 0.0))
+	_cache[key] = material
+	return material
+
+
+## The rack stays rigid while all net-borne parts share one height-pinned wind
+## shader. Separate textured materials preserve their maritime identities while
+## the common deformation keeps outline rope, floats, and sinkers attached.
+static func fishing_net_hemp() -> ShaderMaterial:
+	return _fishing_net_wind_material(
+		&"fishing_net_hemp",
+		FISHING_NET_HEMP_TEXTURE,
+		0.115,
+		1.0,
+		0.24,
+		0.96
+	)
+
+
+static func fishing_net_float() -> ShaderMaterial:
+	return _fishing_net_wind_material(
+		&"fishing_net_float",
+		FISHING_NET_FLOAT_TEXTURE,
+		0.115,
+		1.0,
+		0.24,
+		0.94
+	)
+
+
+static func fishing_net_sinker() -> ShaderMaterial:
+	return _fishing_net_wind_material(
+		&"fishing_net_sinker",
+		FISHING_NET_SINKER_TEXTURE,
+		0.115,
+		1.0,
+		0.24,
+		0.98
+	)
+
+
+static func _fishing_net_wind_material(
+	key_name: StringName,
+	albedo: Texture2D,
+	sway_strength: float,
+	pin_height: float,
+	pin_fade: float,
+	roughness: float
+) -> ShaderMaterial:
+	var key := String(key_name)
+	if _cache.has(key):
+		return _cache[key]
+	var material := ShaderMaterial.new()
+	material.shader = MapViewMaterialShaders.shader(
+		"fishing_net_wind",
+		MapViewMaterialShaders.FISHING_NET_WIND_SHADER_CODE
+	)
+	material.set_shader_parameter("albedo_texture", albedo)
+	material.set_shader_parameter("sway_strength", sway_strength)
+	material.set_shader_parameter("pin_height", pin_height)
+	material.set_shader_parameter("pin_fade", pin_fade)
+	material.set_shader_parameter("surface_roughness", roughness)
 	_cache[key] = material
 	return material
 

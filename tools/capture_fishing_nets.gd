@@ -6,6 +6,7 @@ extends SceneTree
 
 const FishingNetModels := preload("res://scripts/map/view3d/map_view_fishing_net_models.gd")
 const OUTPUT := "res://generated/blender/fishing_nets_v1/godot_preview.png"
+const OUTPUT_GUST := "res://generated/blender/fishing_nets_v1/godot_preview_gust.png"
 const VIEWPORT_SIZE := Vector2i(768, 768)
 
 
@@ -26,6 +27,7 @@ func _run() -> void:
 	model_host.rotation_degrees.y = -8.0
 	viewport.add_child(model_host)
 	FishingNetModels.add_model(model_host)
+	MapViewMaterials.apply_world_wind(Vector2(0.94, 0.34).normalized(), 0.72)
 
 	var camera := Camera3D.new()
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
@@ -42,7 +44,13 @@ func _run() -> void:
 		push_error("Could not save fishing nets capture %s: %s" % [OUTPUT, error_string(error)])
 		quit(1)
 		return
-	print("Fishing nets capture: %s" % OUTPUT)
+	await create_timer(0.72).timeout
+	error = viewport.get_texture().get_image().save_png(ProjectSettings.globalize_path(OUTPUT_GUST))
+	if error != OK:
+		push_error("Could not save fishing nets gust capture %s: %s" % [OUTPUT_GUST, error_string(error)])
+		quit(1)
+		return
+	print("Fishing nets captures: %s, %s" % [OUTPUT, OUTPUT_GUST])
 	viewport.queue_free()
 	quit(0)
 
