@@ -1,0 +1,50 @@
+{
+  "asset_id": "prop.hay_wagon",
+  "cache_key": "741391dc4bbd936c7fb5e9f23a80bac2065f9116cb2452b0426170a929259f86",
+  "checks": {
+    "authored_spoked_wheel_assembly": true,
+    "flat_cylinder_placeholders_removed": true,
+    "ground_contact": true,
+    "hay_load_on_bed": true,
+    "longitudinal_load_fit": true,
+    "metric_scale": true,
+    "portable_pbr": true,
+    "target_camera_preview": true,
+    "triangle_cap": true,
+    "y_up_runtime": true
+  },
+  "composition_sha256": "bbc908e399ec0b106f22db6ca0c56ed26df6cca745c77c0f9767e21cd22858dc",
+  "dimensions_m": [
+    1.3566,
+    1.3837,
+    2.4515
+  ],
+  "generator": "Godot runtime composition of authored wooden cart and shared hay rick",
+  "godot_version": "4.7.1.stable.official.a13da4feb",
+  "ground_min_y": 0.0,
+  "materials": 4,
+  "mesh_instances": 4,
+  "preview": "generated/blender/hay_wagon_v1/godot_preview.png",
+  "preview_sha256": "9d2d7e2f38950c44c00e33bb6b480c1783b2b93e074795ffd15803bc71b8bc31",
+  "route": "deterministic_blender",
+  "source_sha256s": {
+    "assets/materials/production/hay_fibers.png": "1d6bcd8fbd95a8122f08bb87b7aa0209c55ea04e48c0b953c3c9368c5af28e12",
+    "assets/props/vehicles/wooden_cart.glb": "30cab6f2fa9edff9d951430ba7beee978d27c92629ba407bbc77f1c80f71e2c8",
+    "generated/blender/hay_wagon_v1/brief.json": "f3df6ffaddaefea0d95dba5c6bc4033f0a5a8b1f389dd2fd3c0eb9c58e6f1ba4",
+    "generated/blender/hay_wagon_v1/capture_godot_preview.gd": "7ab19b60fc5074a65cd5cdb692b50d1e548f877cf1f91980f0a7a3cc931ee792",
+    "scripts/map/view3d/map_view_hay_meshes.gd": "7212929fd9ab7350f5ef9cd1de1747d7ec439c6286fb566bf7fb6b0f4e759de3",
+    "scripts/map/view3d/map_view_mesh_builder_rural_life_props.gd": "23f91b1f86f8a6c96b1f54853c5ba6a0a91fb7e442888befd4652f5405db6982"
+  },
+  "surfaces": 6,
+  "textures": {
+    "cart_albedo": 512,
+    "hay_albedo": 512
+  },
+  "triangles": 4556,
+  "verified": [
+    "test_hay_assets: 4/4",
+    "test_wooden_cart_assets: 2/2",
+    "tools/verify_asset_lint.py",
+    "GL Compatibility in-engine preview"
+  ]
+}
