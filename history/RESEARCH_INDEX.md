@@ -49,14 +49,14 @@ Domains and their scope are defined in the
 | `people` | named residents, households, name stock | partial | [`town-council-and-officers`](dossiers/people/town-council-and-officers.md) (partial) | R-007, R-026 | Character, Narrative |
 | `power` | council, jurisdictions, law, punishment | partial | [`jurisdictions-of-reval`](dossiers/power/jurisdictions-of-reval.md) (partial) | R-009 | Quest, Narrative |
 | `military` | garrison, watch, arms, fortification, siege | partial | [`watch-duty-and-town-defence`](dossiers/military/watch-duty-and-town-defence.md) (partial) | R-011 | Quest, Art, Dev |
-| `crafts` | guilds, trades, workshops, tools, smithing | absent | - | R-012, R-013, R-027 | Dev, Art, Quest |
+| `crafts` | guilds, trades, workshops, tools, smithing | partial | [`guild-structure`](dossiers/crafts/guild-structure.md) (partial) | R-013, R-027, R-041 | Dev, Art, Quest |
 | `economy` | trade, goods, prices, coin, measures | absent | - | R-014, R-015 | Dev, Quest |
 | `religion` | churches, orders, liturgy, calendar | absent | - | R-016, R-017 | Narrative, Map, Art |
 | `culture` | music, instruments, festivals, games | absent | - | R-018, R-019 | Art, Dialogue, Dev |
 | `folklore` | tales, beliefs, spirits, magic | stub (see lore compendium) | - | R-020, R-021 | Narrative, Dialogue |
 | `dailylife` | food, clothing, housing, health | absent | - | R-022, R-023 | Character, Art, Dialogue |
 | `language` | registers, names, address, oaths | absent | - | R-024 | Dialogue, Character |
-| `nature` | flora, fauna, April-May climate, livestock | absent | - | R-025 | Map, Art |
+| `nature` | flora, fauna, April-May climate, livestock | partial | [`spring-climate-and-living-world`](dossiers/nature/spring-climate-and-living-world.md) (solid) | R-022 phenology tie-in | Map, Art |
 | `hinterland` | villages, manors, roads, Saaremaa | absent | - | R-028 | Map, Narrative |
 
 Replace the `-` in **Dossiers** with links as files land, and clear the backlog cell as rows close.
@@ -72,6 +72,7 @@ roles directly.
 |--------|----------|------|----------------|
 | 2026-07-27 | research | Tallinn City Archives pass on 1340–1343 AWB entries for explicit Pikk/Lai street names | [`pikk-lai-frontage-materials-1340s`](dossiers/topography/pikk-lai-frontage-materials-1340s.md) |
 | 2026-07-28 | research | Denkelbuch / AWB folio read for sitting burgomaster pair and December 1343 council election names | [`town-council-and-officers`](dossiers/people/town-council-and-officers.md) |
+| 2026-07-28 | research | Tallinn City Archives pass on Schmiede *Amt* pre-1363 fines and masterpiece rules | [`guild-structure`](dossiers/crafts/guild-structure.md) |
 
 ## Maintenance
 

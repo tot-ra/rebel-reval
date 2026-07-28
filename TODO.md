@@ -119,6 +119,7 @@ References:
 
 
 
+<!-- R-025 completed in current session -->
 <!-- R-031 completed in current session -->
 <!-- P4-010 completed in current session -->
 <!-- P4-008 completed in current session -->
@@ -217,7 +218,7 @@ Rows close through `review: canon` like all content work.
 - [ ] R-022 | role: research | deps: none | deliverable: history/dossiers/dailylife/food-and-drink.md - diet by status, bread, beer and its role, fasting rules, kitchen equipment, meal times, food storage in spring | verify: distinguishes burgher, Estonian labourer, and monastic diets, with the pre-harvest spring scarcity stated
 - [ ] R-023 | role: research | deps: R-026 | deliverable: history/dossiers/dailylife/clothing-and-status-markers.md - dress of burghers, Estonian townsfolk, vassals, clergy, and Order members, with materials, colours, and visible rank signals | verify: gives an art-usable description per status tier plus the markers that must never be mixed
 - [ ] R-024 | role: research | deps: none | deliverable: history/dossiers/language/names-address-and-oaths.md - Low German, Estonian, and Latin registers; naming conventions; forms of address by rank; oaths, curses, greetings | verify: supplies a name stock and an address table a dialogue writer can apply without anachronism
-- [ ] R-025 | role: research | deps: none | deliverable: history/dossiers/nature/spring-climate-and-living-world.md - April-May weather and light, sea ice break-up, plants in bloom, birds and animals present, livestock and field work | verify: describes what is visibly alive and growing on St George's night specifically, for map and art dressing
+- [x] R-025 | claim: cursor-agent@2026-07-28 | role: research | deps: none | deliverable: history/dossiers/nature/spring-climate-and-living-world.md - April-May weather and light, sea ice break-up, plants in bloom, birds and animals present, livestock and field work | verify: describes what is visibly alive and growing on St George's night specifically, for map and art dressing | review: canon
 - [ ] R-028 | role: research | deps: none | deliverable: history/dossiers/hinterland/harju-village-and-manor.md - village layout, manor obligations, corvée and dues, roads and travel times to Reval, who the rebels actually were | verify: yields a buildable village plan plus the grievance structure that motivates the uprising, sourced
 
 ### Follow-ups from R-001 (topography depth)
@@ -231,7 +232,7 @@ Rows close through `review: canon` like all content work.
 - [ ] R-035 | role: research | deps: R-006 | deliverable: history/dossiers/architecture/toompea-small-castle-interior.md - Small Castle and Great Castle room sequence, chapel, chapter, dormitory, and viceroy's hall c. 1340 from Zobel 2008 and Danish charter evidence | verify: labelled floor zones a map and art pass can build without importing post-1346 Order layout
 - [ ] R-036 | role: research | deps: R-029 | deliverable: history/reference/topography/raekoja-hall-phase-plans/ - Neumann 1904 town-hall construction-phase drawings with measured pre-1371 length | verify: 2+ licensed plates in plates.csv, fetched and cited from raekoja-plats-extents-1343 dossier
 
-- [ ] R-037 | role: research | deps: R-031 | deliverable: history/dossiers/topography/viru-vanaturg-paving-archaeology.md - AVE 2016/17 paving limits forum-throat transition and Viru gate apron surfaces c. 1340 | verify: labelled paving map with attested vs reconstructed tiles cited from old-market-vanaturg dossier
+- [~] R-037 | role: research | deps: R-031 | deliverable: history/dossiers/topography/viru-vanaturg-paving-archaeology.md - AVE 2016/17 paving limits forum-throat transition and Viru gate apron surfaces c. 1340 | verify: labelled paving map with attested vs reconstructed tiles cited from old-market-vanaturg dossier | claim: research-1@2026-07-28
 - [ ] R-038 | role: research | deps: R-007 | deliverable: history/dossiers/people/reval-council-prosopography-1340-1345.md - sitting burgomaster pairs and councillor turnover from Denkelbuch and AWB entries 1340–1345 | verify: every 1343–1345 name carries document date and source; no name presented without archival citation
 - [ ] R-039 | role: research | deps: R-008 | deliverable: history/dossiers/power/order-comptoir-transition-1343-1346.md - daily authority on Toompea between 16 May 1343 castle handover and 1 Nov 1346 sale: comptoir powers, council confirmations, what changes for Lower Town | verify: dated authority table for post-siege scenes with confidence labels per row
 - [ ] R-040 | role: research | deps: R-010 | deliverable: history/dossiers/power/reval-law-codex-arms-and-watch.md - 1257/1282 Lübeck codex articles on burgher arms, watch obligation, gate fines, and muster as applied in Reval | verify: cited article numbers or ordinance excerpts with confidence labels for 1343 enforcement
