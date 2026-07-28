@@ -3,6 +3,8 @@
 Coordination notes, delivery order, and planning context formerly embedded in `TODO.md`.
 Executable open work stays in [`TODO.md`](../TODO.md).
 
+Coordination note (2026-07-28 R-003): burgher-house-plan dossier now closes Lower Town diele-dornse typology with labelled merchant and *boda* floor plans, room-zone prop table, eight reference plates under `history/reference/architecture/burgher-house-plan/`, and `status: solid`. Verified: dossier verify line (floor-plan + prop list); `history/reference/plates.csv` rows `.01`–`.08` registered. Next architecture step: **R-004** smithy workshop layout.
+
 Coordination note (2026-07-28 R-005): harbour-and-shoreline dossier now closes 1343 wet margin decisions: two harbour zones (merchant landing below Coastal Gate, Kalamaja fishing shore), shoreline displacement vs modern coast, Härjapea delta at Lootsi, ship-type table, and six reference plates (three fetched, three link-only). Verified: dossier `status: solid`; `history/reference/plates.csv` rows `.01`–`.06` registered.
 
 Coordination note (2026-07-28 R-031): Old Market / Vanaturu kael dossier now closes the 1343 east-throat boundary: *forum inferior* and *Vana turg* are absent in April 1343; Vanaturu kael is a 4-6 m paved lane from Raekoja plats SE to the Viru/Vene convergence, with labelled authoring polygon and four reference plates. Verified: dossier `status: solid`; `history/reference/plates.csv` rows `.01`-.`.04` fetched.

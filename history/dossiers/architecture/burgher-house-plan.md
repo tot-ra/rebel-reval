@@ -1,13 +1,14 @@
 ---
 domain: architecture
 slug: burgher-house-plan
-status: partial
+status: solid
 consumers: [map, art, character, dev]
 related:
   - ../topography/lower-town-street-plan.md
   - ../topography/walls-gates-towers.md
   - smithy-workshop-layout.md
-updated: 2026-07-27
+  - ../crafts/guild-structure.md
+updated: 2026-07-28
 ---
 
 # Burgher house plan (Lower Town, Spring 1343)
@@ -40,6 +41,79 @@ Plot rhythm comes from [`../topography/lower-town-street-plan.md`](../topography
 | Affluent merchant strip | Stone or timber front house, 2–3 storeys, diele-dornse + cellars | Stone *Hinterhaus*, sheds, yard gate to back lane | attested typology; exact material mix per house **plausible composite** [1][2] |
 | Ordinary craft strip | Timber or mixed front workshop | Smaller yards, wattle fences | attested coexistence [1][12] |
 | *Boda* | Compact two-room house | Minimal yard; may abut owner's rear plot | attested type [1] |
+
+### Labelled floor plans
+
+Dimensions below use a **9 m frontage × 28 m depth** merchant example on a 7–11 m plot
+([`lower-town-street-plan`](../topography/lower-town-street-plan.md)). Ceiling heights are
+**plausible composite** gameplay scale (2.5–3.5 m per storey) [1][11]. Every label carries a
+confidence tag for art and map passes.
+
+#### Merchant front house (affluent stone or mixed front)
+
+```text
+STREET (gable to lane)                                    REAR YARD / BACK LANE
+        ↑ cellar neck / low terrace
+┌───────┬──────────────────────────────┬──────────────────┐
+│portal │ A  DI ELE  (~60% ground width)│ B  DORNSE (~40%) │
+│+ large│    corner mantel hearth       │   family room    │
+│window │    trade samples / loom bench │   hypocaust vent │
+│       │    stair ↑ to upper floors ──┼── yard door      │
+└───────┴──────────────────────────────┴──────────────────┘
+│ C  CELLAR (warehouse, beer, hypocaust furnace)           │  attested type [1][3]
+├──────────────────────────────────────────────────────────┤
+│ D  UPPER 1–2  granary / goods storage + loading hatches  │  attested [1][7]
+│ E  ATTIC / steep gable void  bulk storage, vent hatches  │  plausible composite [1]
+        hoist beam (merchant tier only) protrudes above D/E openings
+```
+
+| Zone | Label | Use | 1343 confidence |
+|---|---|---|---|
+| A | Street portal + large ground opening | Customer entry, display | attested on stone fronts [5] |
+| B | Diele | Workshop-shop, dining reception, corner hearth | attested [1][3] |
+| C | Cellar | Cool store, beer, hypocaust furnace | attested [1] |
+| D | Dornse | Private family room, sleeping | attested [1][3] |
+| E | Upper storeys | Granary, hoist delivery | attested [1][7] |
+| F | Rear yard | Privy, well, sheds, plot gate | attested [1][4] |
+
+Ground-floor depth split for map authoring: **diele 55–65%** of footprint depth from street,
+**dornse 35–45%** to yard [3][11] — **plausible composite**.
+
+#### Craft *boda* (rented two-room workshop, 7 m frontage example)
+
+```text
+STREET
+┌────────────────────────────┬─────────────┐
+│  WORKROOM / diele (single    │  SLEEPING   │
+│  hearth, craft bench)        │  nook       │
+└────────────────────────────┴─────────────┘
+│  shared yard access or owner's rear plot gate              │
+```
+
+No hypocaust, no hoist beam, one to two storeys maximum [1]. **attested type**; exact 1343
+dimensions **unknown**.
+
+### Interior prop list
+
+Props are grouped by room zone so art can kitbash interiors without inventing late-Gothic theatre
+dressing. Omit hoist hardware on *boda* and timber-craft tiers.
+
+| Zone | Props (minimum set) | Tier | Confidence |
+|---|---|---|---|
+| Diele | Trestle table, benches, open-hearth tools (tongs, poker), trade samples, loom or craft bench by owner trade | merchant, craft | attested [1][3] |
+| Diele | Ledger stand, barrel samples, hanging scales (merchant) | merchant | plausible composite [1] |
+| Dornse | Chests, sleeping platform, wool blankets, hypocaust floor grilles | merchant stone | attested / composite [3][6] |
+| Dornse | Simple hearth stool, earthenware, rush mat | craft *boda* | plausible composite [1] |
+| Chimney kitchen | Iron pot hook, kneading trough, water bucket, fuel wood rack | merchant | attested layout [5] |
+| Upper storeys | Sacks, barrels, rope coil at winch, loading hatch frame, ladder | merchant | attested [1][7] |
+| Cellar | Beer casks, grain bins, cool-store shelves, furnace mouth (affluent) | merchant | attested [1] |
+| Exterior street | Protruding hoisting beam, cellar-neck stone steps, steep gable silhouette | merchant only | attested practice [1][7][8] |
+| Exterior street | Timber posts, limewash, smaller shuttered openings | timber front | plausible composite [1][12] |
+| Rear yard | Privy shed, well sweep, wattle fence, firewood stack, servant lean-to | merchant, craft | attested [1][4] |
+| Roof | Wood shingle or thatch (ordinary); clay tile (affluent stone) | varies by ward | attested bands [12] |
+
+Palette: local grey limestone, limewashed timber, tar-dark shingle, selective red/brown tile on
+wealthy stone fronts [1][12].
 
 ### Cellar, fill, and cellar necks
 
@@ -173,9 +247,25 @@ Medieval Heritage states that in the **14th century front street houses were mos
 
 *Lai 5 rear yard. **plausible composite** for rear sheds, yard gate to back lane, and timber service mass behind stone front — ordinary merchant/craft rear zone [1][4].*
 
+## Reference plates
+
+| Plate | Shows | Source, date, origin | License | Answers |
+|---|---|---|---|---|
+| [`architecture.burgher-house-plan.01`](../../reference/architecture/burgher-house-plan/architecture.burgher-house-plan.01.jpg) | Lai 23 courtyard ensemble | Vamps photo, 14th–20th c. composite fabric, Reval | CC BY-SA 3.0 EE | Rear yard, service wings, enclosed plot logic |
+| [`architecture.burgher-house-plan.02`](../../reference/architecture/burgher-house-plan/architecture.burgher-house-plan.02.jpg) | Lai 23 street portal and steps | Edelmauswaldgeist, CC0, Reval | CC0 1.0 | Stone merchant portal + raised threshold beside diele |
+| [`architecture.burgher-house-plan.03`](../../reference/architecture/burgher-house-plan/architecture.burgher-house-plan.03.jpg) | Lai 5 rear yard and gate | Vamps photo, 15th–20th c. fabric, Reval | CC BY-SA 3.0 EE | Service sheds and yard gate behind front house |
+| `architecture.burgher-house-plan.04` (link-only) | Peppersack ground-floor hall volume | A.Savin, building from 1370s, Reval | Free Art License 1.3 | Diele height and hall scale — dossier copy at [`images/peppersack-diele-hall.jpg`](images/peppersack-diele-hall.jpg) |
+| [`architecture.burgher-house-plan.05`](../../reference/architecture/burgher-house-plan/architecture.burgher-house-plan.05.jpg) | Peppersack facade hatch rhythm | Andrei Stroe, Reval | CC BY-SA 3.0 EE | Upper storage hatches over windows |
+| [`architecture.burgher-house-plan.06`](../../reference/architecture/burgher-house-plan/architecture.burgher-house-plan.06.jpg) | Peppersack hoist beam and hatches | Olaf Meister, Reval | CC BY-SA 4.0 | Hanseatic merchant storage facade practice |
+| [`architecture.burgher-house-plan.07`](../../reference/architecture/burgher-house-plan/architecture.burgher-house-plan.07.jpg) | Three Brothers strip-plot gables | Ymblanter, Reval | CC BY-SA 4.0 | 7–11 m frontage rhythm on Lai |
+| [`architecture.burgher-house-plan.08`](../../reference/architecture/burgher-house-plan/architecture.burgher-house-plan.08.jpg) | Three Sisters corner gable massing | Diego Delso, Reval | CC BY-SA 3.0 | Affluent merchant street gable silhouette |
+
+Manifest rows: [`history/reference/plates.csv`](../../reference/plates.csv). In-dossier copies also live under
+[`images/`](images/) with matching captions.
+
 ## Production hooks
 
-- **Art:** Props per room — diele: trestle table, benches, open hearth tools, trade samples, loom or craft bench by owner; dornse: chests, sleeping platform, hypocaust floor grilles (affluent); upper floor: sacks, barrels, rope coil at winch, loading hatch frame; exterior: protruding hoisting beam (merchant only), cellar neck stones, steep gable silhouette. Palette: local grey limestone, limewashed timber, tar-dark shingle, selective red/brown tile on wealthy stone fronts [1][12]. **Visual refs:** see `images/` folder and captions above before generating facades or interiors.
+- **Art:** Use the **Interior prop list** and **Reference plates** above before generating facades or room kits. Omit late-Gothic enrichment and modern restaurant fit-out from Peppersack interior refs.
 - **Map:** Interior footprint on 7–11 m frontage: diele ~55–65% of ground floor depth to street, dornse ~35–45% to yard (plausible composite) [3][11]; plot depth budget from street-plan blocks; rear yard minimum 8–15 m on merchant plots [4]; mark *boda* as smaller single-cell or two-cell module [1].
 - **Character:** Merchant family lives dornse/rear upper; apprentices/servants may sleep diele loft or rear shed; Estonian labourer likely in rear service building, not guild front room [1][4].
 - **Quest / Narrative:** Goods hoisted at curfew risk; hypocaust failure in cold April nights; fire spreading from diele hearth to timber neighbour; council inspection of stone party walls (~3 m plot fences) [1].
@@ -186,7 +276,11 @@ Medieval Heritage states that in the **14th century front street houses were mos
 
 - [`../topography/lower-town-street-plan.md`](../topography/lower-town-street-plan.md) — plot widths, block modules, and ward material bias that this interior plan slots into.
 - [`../topography/walls-gates-towers.md`](../topography/walls-gates-towers.md) — wall-side plots (*Müürivahe*) share party-wall logic with limestone plot fences [1].
+- [`../topography/pikk-lai-frontage-materials-1340s.md`](../topography/pikk-lai-frontage-materials-1340s.md) — street-facing timber/stone skin assignments for Pikk and Lai blocks (R-030).
+- [`../topography/old-market-vanaturg.md`](../topography/old-market-vanaturg.md) — projecting shop bay and strip frontage on Vanaturu kael neck plots (R-031).
 - [`smithy-workshop-layout.md`](smithy-workshop-layout.md) — forge as a fire-separated hot-trade variant of the workshop house (R-004 deliverable; stub until written).
+- [`../crafts/guild-structure.md`](../crafts/guild-structure.md) — Schmiede *Amt* under St Canute; master/journeyman/apprentice tiers for workshop household layout.
+- [`toompea-castle-and-upper-town.md`](toompea-castle-and-upper-town.md) — contrast hill vassal housing with Lower Town diele-dornse merchant fabric.
 
 ## Open questions
 
