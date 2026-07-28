@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `75`
-- Markdown files excluded as archive/reference/out of active scope: `427`
-- Local/external links inspected: `467`
-- Links to active Markdown docs: `194`
-- Links to existing archive/reference/non-active local docs: `93`
+- Active Markdown files scanned: `76`
+- Markdown files excluded as archive/reference/out of active scope: `435`
+- Local/external links inspected: `477`
+- Links to active Markdown docs: `202`
+- Links to existing archive/reference/non-active local docs: `95`
 - External links skipped for reachability: `33`
 - Issues found: `0`
 
@@ -54,6 +54,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0013-authorial-visual-direction-without-blind-ux-panels.md`
 - `docs/adr/0014-authorial-acceptance-gates-without-external-playtests.md`
 - `docs/adr/0015-default-third-person-camera.md`
+- `docs/adr/0016-tiered-character-fidelity.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ARCHITECTURE.md`
 - `docs/ART_BIBLE.md`

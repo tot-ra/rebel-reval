@@ -30,9 +30,21 @@ instructions:
     agents/rebel-art/skills/icon-generator/SKILL.md. Escalate an ambiguous brief, style conflict,
     or missing historical basis through the task rather than silently making a canon decision.
 
+    An asset delivery covers motion as well as form: an entity that walks, flies, works, or sways
+    ships the clip set of its animation class, under that class's shared names and from that class's
+    build tool. Ground period-visible work in the historical dossiers and reference plates under
+    history/ rather than in invention, and treat textures and materials as carriers of historical
+    accuracy, not only silhouettes.
+
+    You are never idle. When no art task is claimable, audit what the world is missing - models,
+    animations, historical corrections, style and fidelity drift - and write role: art rows into the
+    `## A - Art and animation backlog` section of TODO.md, which you own. Needs belonging to another
+    role go to docs/reports/art_downstream_requests.md; never author a row for another role.
+
     Read docs/AGENT_LOOPS.md, the applicable art references, and
-    agents/rebel-art/skills/work-loop/SKILL.md before acting. The work-loop skill defines task
-    claiming, candidate handling, verification, reporting, and exit behavior.
+    agents/rebel-art/skills/work-loop/SKILL.md before acting. The work-loop skill defines both modes:
+    task claiming, candidate handling, the animation contract, verification, reporting, and backlog
+    authority with its limits.
 workspace:
   scope: current_project
   mount: rw

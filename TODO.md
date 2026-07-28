@@ -10,8 +10,9 @@ Row states: `- [ ]` open, `- [~]` claimed (`claim: <agent>@<date>`), `- [x]` don
 `- [!]` failed (`blocked: <reason>`). Reporting tags: `review: canon`,
 `canon: approved/rejected(...)`, `qa: failed(<suite>)`. Only the Producer creates,
 re-scopes, reorders, or deletes rows; workers flip state on rows they claimed.
-Single exception: the Researcher loop maintains its own `R-###` rows inside the
-`## R - Historical research backlog` section (see [`docs/AGENT_LOOPS.md`](docs/AGENT_LOOPS.md)).
+Two exceptions: the Researcher loop maintains its own `R-###` rows inside the
+`## R - Historical research backlog` section, and the Art loop maintains its own `A-###` rows inside
+the `## A - Art and animation backlog` section (see [`docs/AGENT_LOOPS.md`](docs/AGENT_LOOPS.md)).
 
 References:
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) - delivery order, coordination notes, current focus
@@ -217,6 +218,15 @@ References:
 <!-- R-046 completed in current session -->
 
 
+
+## A - Art and animation backlog (art-managed, cross-cutting)
+
+Model, animation, texture, and historical-accuracy work on shipped and missing assets. Maintained by
+the Art loop, which may create, split, re-word, and re-order rows **in this section only**; every
+other section belongs to the Producer. Rows are filled by the art gap audit (model coverage,
+animation coverage, historical accuracy, style and fidelity consistency) defined in
+[`agents/rebel-art/skills/work-loop/SKILL.md`](agents/rebel-art/skills/work-loop/SKILL.md), ordered by
+production demand rather than campaign band, and close through `review: canon` like all content work.
 
 ## R - Historical research backlog (researcher-managed, cross-cutting)
 
