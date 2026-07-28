@@ -27,7 +27,9 @@ References:
 | P4 |    21  |    42  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
-| R  |    27  |    11  | Historical research backlog (researcher-managed, cross-cutting) |
+| R  |    27  |    13  | Historical research backlog (researcher-managed, cross-cutting) |
+
+
 
 
 
@@ -178,6 +180,8 @@ References:
 <!-- P1-022 completed in current session -->
 <!-- P0-103 completed in current session -->
 <!-- P0-114 completed in current session -->
+<!-- R-045 completed in current session -->
+<!-- R-009 completed in current session -->
 
 
 
@@ -203,8 +207,9 @@ Rows close through `review: canon` like all content work.
 
 - [~] R-007 | role: research | deps: none | deliverable: history/dossiers/people/town-council-and-officers.md - council composition, offices, election, terms, and any attested councillor names near 1343 | verify: every named person carries a date range and a source; invented fillers are labelled and kept separate | review: canon
 - [x] R-008 | claim: cursor-agent@2026-07-28 | role: research | deps: none | deliverable: history/dossiers/power/jurisdictions-of-reval.md - who holds authority over whom between town council, Danish captain, vassalry, bishop, and the Livonian Order, and where the seams are | verify: produces a jurisdiction table a quest designer can use to construct a legally plausible conflict | review: canon
-- [~] R-009 | role: research | deps: R-008 | deliverable: history/dossiers/power/law-courts-and-punishment.md - court procedure, oath-helping, evidence, fines, pillory, banishment, execution, and who could be tried where | verify: at least five distinct sourced offence-to-consequence pairs usable as quest outcomes | review: canon
-- [ ] R-045 | role: research | deps: R-006 | deliverable: fetch link-only `architecture.toompea-castle-and-upper-town.04` and `.05` reference plates after Wikimedia rate-limit clears | verify: `python3 tools/research/fetch_reference_plates.py --slug toompea-castle-and-upper-town --verify` reports six fetched plates with no linked rows
+- [x] R-009 | claim: cursor-agent@2026-07-28 | role: research | deps: R-008 | deliverable: history/dossiers/power/law-courts-and-punishment.md - court procedure, oath-helping, evidence, fines, pillory, banishment, execution, and who could be tried where | verify: at least five distinct sourced offence-to-consequence pairs usable as quest outcomes | review: canon
+- [x] R-045 | claim: cursor-agent@2026-07-28 | role: research | deps: R-006 | deliverable: fetch link-only `architecture.toompea-castle-and-upper-town.04` and `.05` reference plates after Wikimedia rate-limit clears | verify: `python3 tools/research/fetch_reference_plates.py --slug toompea-castle-and-upper-town --verify` reports six fetched plates with no linked rows | review: canon
+- [ ] R-046 | role: research | deps: R-009 | deliverable: fetch `power.law-courts-and-punishment.01` through `.04` reference plates once Wikimedia rate-limit clears (Sachsenspiegel oath/combat miniatures and Schwäbisch Hall pillory) | verify: `python3 tools/research/fetch_reference_plates.py --slug law-courts-and-punishment --verify` reports four fetched plates with no linked or failed rows
 - [~] R-010 | role: research | deps: none | deliverable: history/dossiers/military/watch-duty-and-town-defence.md - burgher watch obligation, muster, gate control, curfew, alarm signals, arms a townsman was required to own | verify: states a concrete nightly watch routine and the arms requirement by status tier | review: canon
 - [x] R-011 | claim: cursor-agent@2026-07-28 | role: research | deps: none | deliverable: history/dossiers/military/arms-and-armour-livonia-1340s.md - what a Reval smith made, repaired, and could not make; Order versus rebel equipment; materials and costs | verify: separates smith-producible items from imported ones and lists at least ten items with materials | review: canon
 - [~] R-026 | role: research | deps: none | deliverable: history/dossiers/people/estonian-and-german-populations.md - who actually lived inside and outside the walls: Estonian townsfolk, servants, German burghers, clergy, transients, and their legal standing | verify: gives population composition with confidence labels and names the status markers a character designer must respect | review: canon
