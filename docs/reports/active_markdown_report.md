@@ -15,18 +15,18 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 ## Summary
 
 - Active Markdown files scanned: `74`
-- Markdown files excluded as archive/reference/out of active scope: `406`
+- Markdown files excluded as archive/reference/out of active scope: `408`
 - Local/external links inspected: `461`
 - Links to active Markdown docs: `188`
 - Links to existing archive/reference/non-active local docs: `93`
 - External links skipped for reachability: `33`
-- Issues found: `1`
+- Issues found: `0`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 1 |
+| `BROKEN_LINK` | 0 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -34,9 +34,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Issues
 
-| Code | Location | Detail |
-| --- | --- | --- |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:48` | Local Markdown link target does not exist: `../scripts/map/view3d/map_view_ancient_oak_meshes.gd` |
+No active Markdown documentation issues found.
 
 ## Active files scanned
 
