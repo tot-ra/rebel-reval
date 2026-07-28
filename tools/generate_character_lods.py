@@ -128,7 +128,7 @@ def _export_lod(path: Path, armature: bpy.types.Object, meshes: list[bpy.types.O
         export_yup=True,
         export_animations=False,
         export_skins=True,
-        export_materials="PLACEHOLDER",
+        export_materials="EXPORT",
     )
 
 

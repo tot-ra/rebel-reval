@@ -449,6 +449,15 @@ func test_shared_rig_distance_lods_mount_with_visibility_ranges() -> void:
 	assert_true(kalev.lod_visibility_configured(), "Kalev must mount LOD1/LOD2 meshes with distance fades")
 	assert_true(kalev.lod_mesh_count(1) > 0, "LOD1 meshes must exist on the live skeleton")
 	assert_true(kalev.lod_mesh_count(2) > 0, "LOD2 meshes must exist on the live skeleton")
+	for lod_level: int in [1, 2]:
+		for lod_mesh: MeshInstance3D in kalev.skeleton().get_children().filter(func(child: Node) -> bool:
+			return child is MeshInstance3D and String(child.name).begins_with("LOD%d_" % lod_level)
+		):
+			for surface_index: int in lod_mesh.mesh.get_surface_count():
+				assert_true(
+					lod_mesh.mesh.surface_get_material(surface_index) != null,
+					"LOD%d surfaces must retain their authored materials instead of defaulting white" % lod_level
+				)
 	var manifest := FileAccess.open(
 		"res://assets/characters/shared/character_lod_manifest.json",
 		FileAccess.READ
