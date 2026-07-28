@@ -1,0 +1,43 @@
+{
+  "approval": "user-requested 2026-07-28",
+  "asset_id": "prop.rope_coil",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "294dd6dc4bdaab614f3777c4d1e946c4e1b444412fed6486d3b966a9ccb65d55",
+  "checks": {
+    "embedded_albedo": true,
+    "floating_geometry": true,
+    "ground_contact": true,
+    "identity_features": [
+      "open_center",
+      "layered_turns",
+      "three_strand_lay",
+      "curved_frayed_end"
+    ],
+    "metric_scale": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "uvs": true,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    1.2411,
+    0.1156,
+    0.856
+  ],
+  "faces": 7068,
+  "floating_objects": 0,
+  "generator": "tools/generate_rope_coil.py",
+  "generator_version": "rope_coil_v1",
+  "godot_preview": "generated/blender/rope_coil_v1/godot_preview.png",
+  "ground_min_z": 0.0,
+  "materials": 1,
+  "mesh_objects": 3,
+  "preview": "generated/blender/rope_coil_v1/preview.png",
+  "route": "deterministic_blender",
+  "sha256": "7a865c55fe0b95b55cd9dc03604455dba2b04493851e9ed5de3d8d975dbe6e5b",
+  "surfaces": 3,
+  "texture_size": 512,
+  "triangles": 7068,
+  "uv_sets": 1,
+  "vertices": 3555
+}

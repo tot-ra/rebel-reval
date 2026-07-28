@@ -1,0 +1,1 @@
+{"id":"prop.rope_coil","kind":"rigid_prop","target":"res://assets/props/crafts/rope_coil.glb","scene":"res://content/maps/north_quarter.rrmap#ropemakers_shed_coils","dimensions_m":[1.22,0.12,0.86],"triangles":{"target":6500,"max":8000},"textures":{"albedo":512},"style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}

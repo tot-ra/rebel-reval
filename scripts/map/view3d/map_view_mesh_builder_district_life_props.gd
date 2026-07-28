@@ -10,6 +10,7 @@ const _PropStyleVariants := preload("res://scripts/map/map_prop_style_variants.g
 const _FishingNetModels := preload("res://scripts/map/view3d/map_view_fishing_net_models.gd")
 const _FishDryingRackModels := preload("res://scripts/map/view3d/map_view_fish_drying_rack_models.gd")
 const _DriedFishMeshes := preload("res://scripts/map/view3d/map_view_dried_fish_meshes.gd")
+const _RopeCoilModels := preload("res://scripts/map/view3d/map_view_rope_coil_models.gd")
 const _MaltSackPileModels := preload("res://scripts/map/view3d/map_view_malt_sack_pile_models.gd")
 const _TanningFrameModels := preload("res://scripts/map/view3d/map_view_tanning_frame_models.gd")
 
@@ -147,9 +148,9 @@ static func _add_boat_timber_stack(root: Node3D) -> void:
 
 
 static func _add_rope_coil(root: Node3D) -> void:
-	_Primitives.cylinder(root, "CoilOuter", 0.42, 0.18, Vector3(0.0, 0.09, 0.0), &"hay")
-	_Primitives.cylinder(root, "CoilInner", 0.18, 0.2, Vector3(0.0, 0.1, 0.0), &"timber")
-	_Primitives.box(root, "Tail", Vector3(0.55, 0.05, 0.05), Vector3(0.42, 0.08, 0.12), &"hay")
+	# WHY: the former nested cylinders read as a yellow wheel with a wooden hub.
+	# The authored mesh exposes layered turns, a true opening, strand lay, and tail.
+	_RopeCoilModels.add_model(root)
 
 
 static func _add_sail_cloth_bale(root: Node3D) -> void:
