@@ -15,6 +15,7 @@ const MarketStallModels := preload("res://scripts/map/view3d/map_view_market_sta
 const TableModels := preload("res://scripts/map/view3d/map_view_table_models.gd")
 const MedievalLightingModels := preload("res://scripts/map/view3d/map_view_medieval_lighting_models.gd")
 const ChestModels := preload("res://scripts/map/view3d/map_view_chest_models.gd")
+const WellModels := preload("res://scripts/map/view3d/map_view_well_models.gd")
 const StorageFurnitureModels := preload("res://scripts/map/view3d/map_view_storage_furniture_models.gd")
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 # Runtime loading avoids a clean-clone bootstrap cycle where GDScript parses
@@ -123,11 +124,7 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 		MapTypes.PROP_KIND_CART:
 			CartModels.add_model(root)
 		MapTypes.PROP_KIND_WELL:
-			MapViewMeshBuilderPrimitives.cylinder(root, "Ring", 0.55, 0.5, Vector3(0.0, 0.25, 0.0), &"stone")
-			MapViewMeshBuilderPrimitives.cylinder(root, "Water", 0.42, 0.06, Vector3(0.0, 0.49, 0.0), &"water_highlight")
-			MapViewMeshBuilderPrimitives.box(root, "PostLeft", Vector3(0.1, 1.0, 0.1), Vector3(-0.5, 0.75, 0.0), &"wood")
-			MapViewMeshBuilderPrimitives.box(root, "PostRight", Vector3(0.1, 1.0, 0.1), Vector3(0.5, 0.75, 0.0), &"wood")
-			MapViewMeshBuilderPrimitives.box(root, "RoofBeam", Vector3(1.3, 0.1, 0.5), Vector3(0.0, 1.3, 0.0), &"roof")
+			WellModels.add_model(root)
 		MapTypes.PROP_KIND_BARRELS:
 			_add_barrel(root, "BarrelA", Vector3(-0.26, 0.0, 0.08), -0.12)
 			_add_barrel(root, "BarrelB", Vector3(0.32, 0.0, -0.16), 0.19)
