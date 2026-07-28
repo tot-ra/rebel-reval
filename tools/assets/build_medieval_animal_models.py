@@ -7,8 +7,8 @@ Run from the repository root:
 Raw image-to-3D meshes stay under generated/comfyui and are never copied into
 runtime paths. This pass keeps their approved silhouettes but rebuilds topology,
 sets explicit metric dimensions, creates portable UV/PBR materials, and emits
-compact reports next to the staging inputs. Cattle additionally receives a
-purpose-built low-cost rig, visible eyes, and looping idle/walk animation.
+compact reports next to the staging inputs. Each approved livestock mesh receives
+a purpose-built low-cost rig, visible eyes, and looping idle/walk animation.
 """
 
 from __future__ import annotations
@@ -46,6 +46,25 @@ SPECS = {
         "accent_color": (0.48, 0.235, 0.095),
         "seed": 208744131,
         "animated": True,
+    },
+    "pig": {
+        "source": STAGING / "pig_hendrik_reyneke_cc_by_source.glb",
+        "output": RUNTIME / "medieval_pig.glb",
+        "dimensions_m": (1.35, 0.75, 0.48),
+        "triangles": 7_000,
+        "voxel_divisor": 72.0,
+        "base_color": (0.19, 0.105, 0.055),
+        "accent_color": (0.40, 0.205, 0.095),
+        "seed": 208744134,
+        "animated": True,
+        # WHY: this licensed source already has four clean, articulated legs and
+        # cloven feet. Voxel remeshing would erase anatomy instead of repairing it.
+        "preserve_topology": True,
+        "source_long_axis": "y",
+        "route": "licensed_existing_mesh_to_blender_cleanup",
+        "source_license": "CC BY 4.0 - hendrikReyneke",
+        "anatomy_decision": "approved_four_separate_weight_bearing_legs",
+        "scale_basis": "1.35 m nose-to-rump length; 0.75 m standing height",
     },
     "sheep": {
         "source": STAGING / "sheep_candidate.glb",
@@ -195,7 +214,17 @@ def rebuild_surface(obj: bpy.types.Object, divisor: float, target_triangles: int
 
 def normalize_dimensions(obj: bpy.types.Object, dimensions_y_up: tuple[float, float, float]) -> None:
     target_length, target_height, target_width = dimensions_y_up
-    current = obj.dimensions
+    # WHY: imported glTF roots can leave stale bound boxes on obj.dimensions even
+    # after baking matrix_world into mesh data. Vertex extents keep metric scaling
+    # stable for preserve_topology livestock such as the licensed pig source.
+    points = [vertex.co for vertex in obj.data.vertices]
+    min_x = min(point.x for point in points)
+    max_x = max(point.x for point in points)
+    min_y = min(point.y for point in points)
+    max_y = max(point.y for point in points)
+    min_z = min(point.z for point in points)
+    max_z = max(point.z for point in points)
+    current = Vector((max_x - min_x, max_y - min_y, max_z - min_z))
     obj.scale = (
         target_length / max(current.x, 1e-6),
         target_width / max(current.y, 1e-6),
@@ -544,6 +573,47 @@ def create_pack_horse_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list
     )
 
 
+def create_pig_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.types.Object]]:
+    """Lean landrace-pig rig preserving the licensed model's cloven-foot anatomy."""
+    return create_quadruped_rig(
+        obj,
+        "PigRig",
+        (0.0, 0.0, 0.22),
+        (0.0, 0.0, 0.50),
+        {
+            "Neck": ((-0.34, 0.0, 0.40), (-0.60, 0.0, 0.55)),
+            "Tail": ((0.38, 0.0, 0.52), (0.62, 0.0, 0.54)),
+            "FrontLeftLeg": ((-0.28, 0.12, 0.32), (-0.28, 0.12, 0.04)),
+            "FrontRightLeg": ((-0.28, -0.12, 0.32), (-0.28, -0.12, 0.04)),
+            "BackLeftLeg": ((0.28, 0.12, 0.32), (0.28, 0.12, 0.04)),
+            "BackRightLeg": ((0.28, -0.12, 0.32), (0.28, -0.12, 0.04)),
+            "EyeLeft": ((-0.58, 0.17, 0.52), (-0.58, 0.17, 0.56)),
+            "EyeRight": ((-0.58, -0.17, 0.52), (-0.58, -0.17, 0.56)),
+        },
+        {
+            "neck_x": -0.34,
+            "neck_z": 0.30,
+            "tail_x": 0.38,
+            "tail_z": 0.45,
+            "tail_y": 0.18,
+            "leg_z": 0.35,
+            "front_leg_x": -0.12,
+            "back_leg_x": 0.12,
+            "eye_x": 0.58,
+            "eye_scale": (0.026, 0.012, 0.022),
+            "pupil_scale": (0.012, 0.007, 0.012),
+            "pupil_offset": 0.010,
+            "tail_tuft_scale": (0.025, 0.020, 0.025),
+        },
+        eye_specs=[
+            ("Left", 0.17, 0.52, "EyeLeft"),
+            ("Right", -0.17, 0.52, "EyeRight"),
+        ],
+        # The source's small curled tail is retained and weighted to Tail directly.
+        tail_specs=None,
+    )
+
+
 def create_livestock_animations(armature: bpy.types.Object) -> None:
     """Author two short looping clips with diagonal walk and independent blinks."""
     armature.animation_data_create()
@@ -673,8 +743,18 @@ def build(name: str, spec: dict) -> dict:
     obj = flatten_imported_hierarchy()
     raw = topology(obj)
     discarded_before = remove_tiny_islands(obj, 0.0015)
-    align_long_axis(obj)
-    rebuild_surface(obj, spec["voxel_divisor"], spec["triangles"])
+    if spec.get("source_long_axis") == "y":
+        # Keep authored head/tail orientation stable: source -Y becomes runtime -X.
+        obj.rotation_euler.z = -math.pi * 0.5
+        bpy.context.view_layer.objects.active = obj
+        bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+    else:
+        align_long_axis(obj)
+    if not spec.get("preserve_topology", False):
+        rebuild_surface(obj, spec["voxel_divisor"], spec["triangles"])
+    else:
+        for polygon in obj.data.polygons:
+            polygon.use_smooth = True
     # Pack-horse scans retain tack islands; discard more aggressively before rigging.
     if name == "pack_horse":
         remove_tiny_islands(obj, 0.0025)
@@ -688,6 +768,7 @@ def build(name: str, spec: dict) -> dict:
     if spec.get("animated", False):
         rig_builder = {
             "cattle": create_cattle_rig,
+            "pig": create_pig_rig,
             "sheep": create_sheep_rig,
             "pack_horse": create_pack_horse_rig,
         }.get(name, create_cattle_rig)
@@ -697,7 +778,10 @@ def build(name: str, spec: dict) -> dict:
 
     report = {
         "asset_id": f"creature.{name}",
-        "route": "leonardo_reference_to_hunyuan3d_to_blender_cleanup",
+        "route": spec.get("route", "leonardo_reference_to_hunyuan3d_to_blender_cleanup"),
+        "source_license": spec.get("source_license", "project-authored AI generation"),
+        "anatomy_decision": spec.get("anatomy_decision", "approved_reference_silhouette"),
+        "scale_basis": spec.get("scale_basis", "brief metric dimensions"),
         "source": str(source.relative_to(ROOT)),
         "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
         "output": str(output.relative_to(ROOT)),

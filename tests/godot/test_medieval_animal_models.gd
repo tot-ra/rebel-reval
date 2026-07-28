@@ -7,7 +7,7 @@ const UrbanFauna := preload("res://scripts/map/view3d/map_view_urban_fauna.gd")
 
 
 func test_production_models_load_with_mesh_material_and_ground_contact() -> void:
-	for species: StringName in [MammalSpecies.SPECIES_COW, MammalSpecies.SPECIES_SHEEP, MammalSpecies.SPECIES_HORSE]:
+	for species: StringName in [MammalSpecies.SPECIES_COW, MammalSpecies.SPECIES_PIG, MammalSpecies.SPECIES_SHEEP, MammalSpecies.SPECIES_HORSE]:
 		var host := Node3D.new()
 		var model := Models.add_model(host, species)
 		assert_true(model != null, "%s needs an imported production model" % species)
@@ -22,6 +22,29 @@ func test_production_models_load_with_mesh_material_and_ground_contact() -> void
 		var aabb := mesh_instance.get_aabb()
 		assert_true(absf(aabb.position.y) < 0.001, "%s feet must touch Y=0" % species)
 		host.free()
+
+
+func test_pig_has_realistic_rigged_body_and_locomotion_clips() -> void:
+	var host := Node3D.new()
+	var model := Models.add_model(host, MammalSpecies.SPECIES_PIG)
+	assert_true(model != null)
+	var mesh := model.find_child("AnimalMesh", true, false) as MeshInstance3D
+	assert_true(mesh != null)
+	var aabb := mesh.get_aabb()
+	assert_true(aabb.size.x >= 1.30, "Pig must keep a low, long landrace silhouette")
+	assert_true(aabb.size.y >= 0.70, "Pig legs and back must retain plausible standing height")
+	assert_true(aabb.size.z >= 0.45, "Pig chest must retain believable load-bearing width")
+	assert_true(model.find_child("EyeLeft", true, false) != null)
+	assert_true(model.find_child("EyeRight", true, false) != null)
+	var players := model.find_children("*", "AnimationPlayer", true, false)
+	assert_true(players.size() >= 1, "Pig needs imported skeletal animation")
+	var player := players[0] as AnimationPlayer
+	assert_true(player.has_animation(Models.IDLE_ANIMATION))
+	assert_true(player.has_animation(Models.WALK_ANIMATION))
+	assert_eq(player.current_animation, Models.IDLE_ANIMATION)
+	Models.sync_animation(host, host.position - Vector3(0.1, 0.0, 0.0), 0.1)
+	assert_eq(player.current_animation, Models.WALK_ANIMATION)
+	host.free()
 
 
 func test_cattle_has_broad_rigged_body_eyes_tail_and_locomotion_clips() -> void:

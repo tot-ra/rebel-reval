@@ -15,6 +15,7 @@ const ANIMATION_PLAYER_META := &"animal_animation_player"
 # new GLBs for the first time.
 const MODEL_PATHS: Dictionary = {
 	MammalSpecies.SPECIES_COW: "res://assets/animals/medieval/medieval_cattle.glb",
+	MammalSpecies.SPECIES_PIG: "res://assets/animals/medieval/medieval_pig.glb",
 	MammalSpecies.SPECIES_SHEEP: "res://assets/animals/medieval/medieval_sheep.glb",
 	MammalSpecies.SPECIES_HORSE: "res://assets/animals/medieval/medieval_pack_horse.glb",
 }

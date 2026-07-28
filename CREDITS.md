@@ -77,3 +77,7 @@ Source: eBiodiversity / elurikkus.ee (PlutoF), University of Tartu. Used for amb
 - CC BY-SA 3.0: https://creativecommons.org/licenses/by-sa/3.0/
 
 ShareAlike note: recordings under a CC BY-SA license that we edited remain available under the same CC BY-SA license; this does not affect the licensing of the rest of the game.
+
+## 3D animal models
+
+- Pig - created by [hendrikReyneke](https://sketchfab.com/hendrikReyneke), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Source: https://sketchfab.com/3d-models/pig-041ea96fc6ae4839bf9ce16f8ea4ad68. Modified for Rebel Reval through metric normalization, UV/material restyling, rigging, and idle/walk animation.

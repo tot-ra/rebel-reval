@@ -1,0 +1,89 @@
+{
+  "asset_id": "creature.pig",
+  "route": "licensed_existing_mesh_to_blender_cleanup",
+  "source_license": "CC BY 4.0 - hendrikReyneke",
+  "anatomy_decision": "approved_four_separate_weight_bearing_legs",
+  "scale_basis": "1.35 m nose-to-rump length; 0.75 m standing height",
+  "source": "generated/comfyui/medieval_animals_v1/pig_hendrik_reyneke_cc_by_source.glb",
+  "source_sha256": "a029a0ec3f45a809f15b6f71a9a413c054cd3f0cb4d4137dc46f9504471cf9e5",
+  "output": "assets/animals/medieval/medieval_pig.glb",
+  "output_sha256": "747cb62d0dedddb82f26885f24dd6e4d5ba4c3635e9ce154caa517edc10bde0b",
+  "raw": {
+    "vertices": 3784,
+    "polygons": 6748,
+    "triangles": 6748,
+    "components": 17,
+    "component_vertices": [
+      1396,
+      405,
+      360,
+      360,
+      312,
+      312,
+      183,
+      183,
+      73,
+      48,
+      28,
+      25,
+      25,
+      25,
+      25,
+      12,
+      12
+    ],
+    "boundary_edges": 812,
+    "non_manifold_edges": 812,
+    "loose_vertices": 0
+  },
+  "production": {
+    "vertices": 3784,
+    "polygons": 6748,
+    "triangles": 6748,
+    "components": 17,
+    "component_vertices": [
+      1396,
+      405,
+      360,
+      360,
+      312,
+      312,
+      183,
+      183,
+      73,
+      48,
+      28,
+      25,
+      25,
+      25,
+      25,
+      12,
+      12
+    ],
+    "boundary_edges": 812,
+    "non_manifold_edges": 812,
+    "loose_vertices": 0
+  },
+  "discarded_raw_noise_components": 0,
+  "metric_dimensions_m_y_up": [
+    1.35,
+    0.75,
+    0.48
+  ],
+  "ground_min_y": 0.0,
+  "uv_sets": 2,
+  "materials": 1,
+  "texture_size": 512,
+  "static_prop": true,
+  "rigged": true,
+  "animations": [
+    "Idle-loop",
+    "Walk-loop"
+  ],
+  "animated_parts": [
+    "legs",
+    "neck",
+    "tail",
+    "eyes"
+  ]
+}
