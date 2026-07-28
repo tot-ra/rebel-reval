@@ -170,7 +170,7 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 					&"stone"
 				)
 		MapTypes.PROP_KIND_STALL:
-			MarketStallModels.add_model(root)
+			MarketStallModels.add_model(root, prop)
 		MapTypes.PROP_KIND_HEARTH:
 			MapViewMeshBuilderPrimitives.box(root, "Base", Vector3(1.0, 0.4, 1.0), Vector3(0.0, 0.2, 0.0), &"stone")
 			MapViewMeshBuilderPrimitives.box(root, "Fire", Vector3(0.5, 0.22, 0.5), Vector3(0.0, 0.5, 0.0), &"ember")
@@ -616,8 +616,6 @@ static func _add_trade_goods(root: Node3D) -> void:
 	MapViewMeshBuilderPrimitives.sphere(root, "SackA", 0.34, Vector3(-0.34, 0.34, 0.03), &"plaster", Vector3(0.72, 1.15, 0.78))
 	MapViewMeshBuilderPrimitives.sphere(root, "SackB", 0.31, Vector3(0.14, 0.31, -0.16), &"plaster", Vector3(0.78, 1.12, 0.72))
 	MapViewMeshBuilderPrimitives.box(root, "ClothBale", Vector3(0.72, 0.38, 0.54), Vector3(0.34, 0.19, 0.25), &"hay")
-	MapViewMeshBuilderPrimitives.box(root, "BaleCordA", Vector3(0.07, 0.4, 0.56), Vector3(0.17, 0.2, 0.25), &"timber")
-	MapViewMeshBuilderPrimitives.box(root, "BaleCordB", Vector3(0.07, 0.4, 0.56), Vector3(0.51, 0.2, 0.25), &"timber")
 
 
 static func _add_timber_fence(root: Node3D, prop: Dictionary, cell_size: int) -> void:

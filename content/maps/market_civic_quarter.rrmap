@@ -85,10 +85,10 @@ building karja_corner_house house 22 69 3 6 style=house.merchant.west
 prop civic_well well 52 47 rect=2,2
 prop notice_cart cart 20 41 rect=2,2
 prop guild_stall stall 21 24 rect=3,2
-prop fish_stall stall 27 32 rect=3,2
-prop cloth_stall stall 35 32 rect=3,2
-prop grain_stall stall 43 32 rect=3,2
-prop pottery_stall stall 51 32 rect=3,2
+prop fish_stall stall 27 32 rect=3,2 display_goods=fish
+prop cloth_stall stall 35 32 rect=3,2 display_goods=cloth
+prop grain_stall stall 43 32 rect=3,2 display_goods=grain
+prop pottery_stall stall 51 32 rect=3,2 display_goods=pottery
 prop fish_stall_splitting fish_splitting_table 28 36
 prop cloth_stall_bales sail_cloth_bale 36 36
 prop grain_stall_sacks malt_sack_pile 44 36

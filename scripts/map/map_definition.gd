@@ -298,6 +298,16 @@ func _validate_prop(prop: Dictionary, index: int, seen_ids: Dictionary) -> Array
 			])
 	if prop.has("faction") and not FactionHeraldry.is_known(StringName(prop["faction"])):
 		errors.append("%s.faction is unknown: %s" % [prefix, str(prop["faction"])])
+	if prop.has("display_goods"):
+		if prop.get("kind") != MapTypes.PROP_KIND_STALL:
+			errors.append("%s.display_goods is supported only for stall props" % prefix)
+		for goods_kind in MapTypes.invalid_market_stall_goods(StringName(prop["display_goods"])):
+			if goods_kind == &"too_many_modules":
+				errors.append("%s.display_goods supports at most %d modules" % [
+					prefix, MapTypes.MARKET_STALL_MAX_DISPLAY_MODULES
+				])
+			else:
+				errors.append("%s.display_goods is unknown: %s" % [prefix, String(goods_kind)])
 
 	return errors
 

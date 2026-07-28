@@ -96,6 +96,22 @@ const PROP_KIND_SHELF := &"shelf"
 const PROP_KIND_QUENCH := &"quench_bucket"
 const PROP_KIND_STAIRS := &"stairs"
 const PROP_KIND_STALL := &"stall"
+
+## Market-stall display contract. The base stall is one reusable frame; these
+## values select independent countertop modules through rrmap `display_goods`.
+const MARKET_STALL_GOODS_NONE := &"none"
+const MARKET_STALL_GOODS_FISH := &"fish"
+const MARKET_STALL_GOODS_CLOTH := &"cloth"
+const MARKET_STALL_GOODS_GRAIN := &"grain"
+const MARKET_STALL_GOODS_POTTERY := &"pottery"
+const MARKET_STALL_GOODS_SEPARATOR := "+"
+const MARKET_STALL_MAX_DISPLAY_MODULES := 3
+const MARKET_STALL_GOODS_KINDS: Array[StringName] = [
+	MARKET_STALL_GOODS_FISH,
+	MARKET_STALL_GOODS_CLOTH,
+	MARKET_STALL_GOODS_GRAIN,
+	MARKET_STALL_GOODS_POTTERY,
+]
 const PROP_KIND_HEARTH := &"hearth"
 const PROP_KIND_CHAIR := &"chair"
 const PROP_KIND_CANDLE := &"candle"
@@ -242,6 +258,38 @@ const DEFAULT_SEED := 42042
 const FORTIFICATION_HEIGHT_SCALE := 1.5
 const FORTIFICATION_MIN_HEIGHT_PX := 128.0
 
+
+
+static func parse_market_stall_goods(specification: StringName) -> Array[StringName]:
+	var parsed: Array[StringName] = []
+	var raw := String(specification).strip_edges()
+	if raw.is_empty() or raw == String(MARKET_STALL_GOODS_NONE):
+		return parsed
+	for token in raw.split(MARKET_STALL_GOODS_SEPARATOR, false):
+		var goods_kind := StringName(token.strip_edges())
+		if goods_kind in MARKET_STALL_GOODS_KINDS and goods_kind not in parsed:
+			parsed.append(goods_kind)
+		if parsed.size() == MARKET_STALL_MAX_DISPLAY_MODULES:
+			break
+	return parsed
+
+
+static func invalid_market_stall_goods(specification: StringName) -> Array[StringName]:
+	var invalid: Array[StringName] = []
+	var raw := String(specification).strip_edges()
+	if raw.is_empty() or raw == String(MARKET_STALL_GOODS_NONE):
+		return invalid
+	var module_count := 0
+	for token in raw.split(MARKET_STALL_GOODS_SEPARATOR, false):
+		var goods_kind := StringName(token.strip_edges())
+		if goods_kind.is_empty() or goods_kind == MARKET_STALL_GOODS_NONE:
+			continue
+		module_count += 1
+		if goods_kind not in MARKET_STALL_GOODS_KINDS and goods_kind not in invalid:
+			invalid.append(goods_kind)
+	if module_count > MARKET_STALL_MAX_DISPLAY_MODULES:
+		invalid.append(&"too_many_modules")
+	return invalid
 
 static func resolved_wall_height_px(building: Dictionary) -> float:
 	var height_px := float(building.get("wall_height", 64.0))
