@@ -26,10 +26,10 @@ prop forge_bellows bellows 16 2 rect=2,2
 prop forge_ledger ledger 4 3 rect=2,2
 # Coded Black Cloak swallow cloth in the living bay - not municipal heraldry.
 prop cloak_banner banner 5 2 rect=2,2 faction=black_cloaks
-prop table_candle candle 8 11 rect=1,1 visual_offset_px=0,-18
+prop table_candle candle 8 11 rect=1,1 visual_offset_px=0,-18 style_variant=artisan_tallow
 prop quench quench_bucket 16 5 rect=2,2
 prop bed bed 3 9 rect=4,2
-prop chest chest 2 7 rect=2,2
+prop chest chest 2 7 rect=2,2 style_variant=chest.burgher
 prop food_table table 6 10 rect=4,3
 prop work_chair chair 10 10 rect=2,2
 prop tool_shelf shelf 22 2 rect=2,2

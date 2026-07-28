@@ -19,4 +19,6 @@ static func is_known(kind: StringName, variant: StringName) -> bool:
 		return true
 	if kind == MapTypes.PROP_KIND_FISH_DRYING_RACK:
 		return variant in FISH_RACK_VARIANTS
+	if kind == MapTypes.PROP_KIND_CANDLE:
+		return variant in MapTypes.LIGHTING_VARIANTS
 	return TerrainVegetation.is_known_variant(variant)

@@ -62,6 +62,31 @@ transition enter 4 6 2 1 to=forge destination_spawn=door_courtyard spawn=outside
 		assert_eq(parsed.definition.transitions[0].get("building_id"), &"smithy")
 
 
+func test_rrmap_round_trips_lighting_variant_and_rejects_modern_fuel() -> void:
+	var source := """rrmap 1
+map lighting_variants loc.lighting_variants 12 10 timber_floor
+prop work_light candle 4 5 style_variant=artisan_tallow
+spawn spawn.main 2 2
+"""
+	var parsed := MapRrmapParser.parse(source, "res://lighting_variants.rrmap")
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if not parsed.is_ok():
+		return
+	assert_eq(parsed.definition.props[0].get("style_variant"), MapTypes.LIGHTING_VARIANT_ARTISAN_TALLOW)
+	var canonical := MapRrmapParser.canonical_print(parsed.blueprint)
+	assert_true("style_variant=artisan_tallow" in canonical)
+	var reparsed := MapRrmapParser.parse(canonical, "res://lighting_variants.canonical.rrmap")
+	assert_true(reparsed.is_ok(), str(reparsed.formatted_diagnostics()))
+
+	var invalid := source.replace("artisan_tallow", "modern_paraffin")
+	var rejected := MapRrmapParser.parse(invalid, "res://invalid_lighting_variant.rrmap")
+	assert_false(rejected.is_ok(), "unknown candle fuel must fail compilation")
+	assert_true(
+		str(rejected.formatted_diagnostics()).contains("style_variant is unknown"),
+		"invalid lighting variant needs an actionable diagnostic"
+	)
+
+
 func test_comments_quoting_and_exact_primitive_mapping() -> void:
 	var source := """rrmap 1 # version
 map syntax_test loc.syntax_test 12 10 grass # map

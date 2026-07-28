@@ -12,6 +12,7 @@ const AnvilMeshes := preload("res://scripts/map/view3d/map_view_anvil_meshes.gd"
 const HayMeshes := preload("res://scripts/map/view3d/map_view_hay_meshes.gd")
 const MedievalAnimalModels := preload("res://scripts/map/view3d/map_view_medieval_animal_models.gd")
 const MarketStallModels := preload("res://scripts/map/view3d/map_view_market_stall_models.gd")
+const MedievalLightingModels := preload("res://scripts/map/view3d/map_view_medieval_lighting_models.gd")
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 # Runtime loading avoids a clean-clone bootstrap cycle where GDScript parses
 # before Godot has registered the first GLB import.
@@ -181,26 +182,7 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			else:
 				_add_chair_fallback(root)
 		MapTypes.PROP_KIND_CANDLE:
-			MapViewMeshBuilderPrimitives.cylinder(root, "Holder", 0.12, 0.06, Vector3(0.0, 0.03, 0.0), &"metal")
-			MapViewMeshBuilderPrimitives.cylinder(root, "Wax", 0.05, 0.22, Vector3(0.0, 0.2, 0.0), &"plaster")
-			var flame := MeshInstance3D.new()
-			flame.name = "Flame"
-			var flame_mesh := SphereMesh.new()
-			flame_mesh.radius = 0.07
-			flame_mesh.height = 0.14
-			flame_mesh.radial_segments = 8
-			flame_mesh.rings = 4
-			flame.mesh = flame_mesh
-			flame.position = Vector3(0.0, 0.36, 0.0)
-			flame.material_override = MapViewMeshBuilderPrimitives.role_material(&"ember")
-			root.add_child(flame)
-			var candle_light := OmniLight3D.new()
-			candle_light.name = "Omni"
-			candle_light.position = Vector3(0.0, 0.42, 0.0)
-			root.add_child(candle_light)
-			var controller = MapViewMeshBuilderConfig.CANDLE_LIGHT_SCRIPT.new()
-			controller.configure(candle_light, flame)
-			root.add_child(controller)
+			MedievalLightingModels.add_model(root, prop)
 		MapTypes.PROP_KIND_BUSH:
 			_add_authored_bush(root, prop)
 		MapTypes.PROP_KIND_TREE:

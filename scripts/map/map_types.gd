@@ -115,6 +115,23 @@ const MARKET_STALL_GOODS_KINDS: Array[StringName] = [
 const PROP_KIND_HEARTH := &"hearth"
 const PROP_KIND_CHAIR := &"chair"
 const PROP_KIND_CANDLE := &"candle"
+
+## Household lighting is an authored social/material choice, not a random skin.
+## The default preserves the existing smithy meaning while maps can select
+## poorer tallow, affluent beeswax, or a distinct lamp/splint construction.
+const LIGHTING_VARIANT_POOR_TALLOW := &"poor_tallow"
+const LIGHTING_VARIANT_ARTISAN_TALLOW := &"artisan_tallow"
+const LIGHTING_VARIANT_RICH_BEESWAX := &"rich_beeswax"
+const LIGHTING_VARIANT_GREASE_LAMP := &"grease_lamp"
+const LIGHTING_VARIANT_PINE_SPLINT := &"pine_splint"
+const DEFAULT_LIGHTING_VARIANT := LIGHTING_VARIANT_ARTISAN_TALLOW
+const LIGHTING_VARIANTS: Array[StringName] = [
+	LIGHTING_VARIANT_POOR_TALLOW,
+	LIGHTING_VARIANT_ARTISAN_TALLOW,
+	LIGHTING_VARIANT_RICH_BEESWAX,
+	LIGHTING_VARIANT_GREASE_LAMP,
+	LIGHTING_VARIANT_PINE_SPLINT,
+]
 const PROP_KIND_BUSH := &"bush"
 const PROP_KIND_TREE := &"tree"
 const PROP_KIND_FISHING_BOAT := &"fishing_boat"
@@ -290,6 +307,18 @@ static func invalid_market_stall_goods(specification: StringName) -> Array[Strin
 	if module_count > MARKET_STALL_MAX_DISPLAY_MODULES:
 		invalid.append(&"too_many_modules")
 	return invalid
+
+static func lighting_variant_for_prop(prop: Dictionary) -> StringName:
+	var variant := StringName(prop.get("style_variant", DEFAULT_LIGHTING_VARIANT))
+	return variant if variant in LIGHTING_VARIANTS else DEFAULT_LIGHTING_VARIANT
+
+
+static func invalid_lighting_variant(prop: Dictionary) -> StringName:
+	if prop.get("kind") != PROP_KIND_CANDLE or not prop.has("style_variant"):
+		return &""
+	var variant := StringName(prop["style_variant"])
+	return &"" if variant in LIGHTING_VARIANTS else variant
+
 
 static func resolved_wall_height_px(building: Dictionary) -> float:
 	var height_px := float(building.get("wall_height", 64.0))
