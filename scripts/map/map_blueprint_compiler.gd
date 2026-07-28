@@ -8,7 +8,7 @@ extends RefCounted
 ## this class keeps validation helpers and the public compile entry points.
 
 
-const COMPILER_VERSION := 7
+const COMPILER_VERSION := 8
 const ID_PATTERN := "^[a-z0-9_.-]+$"
 
 const COMMON_STYLE_KEYS: Array[StringName] = [&"enabled"]
@@ -20,7 +20,7 @@ const BUILDING_OVERRIDE_KEYS: Array[StringName] = [
 ]
 const PROP_OVERRIDE_KEYS: Array[StringName] = [
 	&"cell", &"rect", &"facing", &"style_variant", &"visual_offset_px", &"primitive",
-	&"movement_speed_multiplier", &"faction",
+	&"movement_speed_multiplier", &"faction", &"display_goods",
 ]
 const SPAWN_KEYS: Array[StringName] = [&"cell", &"rect"]
 const TRANSITION_KEYS: Array[StringName] = [
@@ -40,7 +40,7 @@ const ALL_STYLE_KEYS: Array[StringName] = [
 	&"style_variant", &"visual_offset_px", &"destination_scene_id", &"destination_spawn_id",
 	&"spawn_id", &"building_id", &"spawn_offset_px", &"highlight_area", &"transition_visual", &"view_landmark_id", &"alignment", &"kind",
 	&"points", &"point_rects", &"text", &"direction", &"top_px", &"door_material", &"gate_variant", &"grille_variant", &"passage_axis",
-	&"movement_speed_multiplier", &"tower", &"round_tower", &"wall_material", &"roof_material", &"faction",
+	&"movement_speed_multiplier", &"tower", &"round_tower", &"wall_material", &"roof_material", &"faction", &"display_goods",
 ]
 
 

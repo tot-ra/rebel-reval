@@ -101,7 +101,7 @@ The initial vocabulary must cover the existing runtime contract without exposing
 | `terrain_rect` | Terrain ID, cell rectangle, explicit layer/order when overlaps matter | `zones` |
 | `structure_rect` | Stable ID, supported building/structure kind, cell footprint, style parameters | `buildings` |
 | `wall_run` | Stable ID, endpoints or cell rectangle, thickness, openings, style | One or more canonical `buildings` entries |
-| `prop` | Stable ID, supported prop kind, cell placement, optional facing/style | `props` |
+| `prop` | Stable ID, supported prop kind, cell placement, optional facing/style; `stall` may compose countertop modules with `display_goods=fish+cloth` | `props` |
 | `player_spawn` | Named or primary spawn placement | `player_spawn` and any supported spawn metadata |
 | `transition` | Stable ID, cell rectangle, destination scene/spawn IDs, optional local spawn metadata, and optional `building_id` for a door attached to a facade | `transitions` |
 | `interaction_anchor` | Stable ID, cell placement, optional kind | `interaction_anchors` |
@@ -147,6 +147,18 @@ Footprint rules:
 - Unknown prop kinds fail compilation with `prop kind is unknown` (stable diagnostic for validators and agents).
 
 New production maps should retire barrel/crate placeholders on plots where one of the kinds above is already defined for that trade.
+
+### Modular market-stall displays
+
+`stall` always instantiates the shared `market_stall.glb` frame. Countertop merchandise is selected independently with the typed `display_goods` override:
+
+```text
+prop fish_stall stall 27 32 rect=3,2 display_goods=fish
+prop mixed_stall stall 35 32 rect=3,2 display_goods=cloth+pottery
+prop closed_stall stall 43 32 rect=3,2 display_goods=none
+```
+
+Supported modules are `fish`, `cloth`, `grain`, and `pottery`. Join up to three unique modules with `+`; the renderer assigns one module per stable countertop slot and adjusts module spacing without scaling the merchandise with the stall frame. Omit `display_goods` or use `none` for an empty counter. Unknown modules, more than three modules, and `display_goods` on non-`stall` props fail map validation.
 
 ### Rural-life prop kinds (P0-107)
 
