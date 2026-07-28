@@ -49,3 +49,25 @@ func test_bird_asset_paths_follow_runtime_convention() -> void:
 		BirdAssets.flap_frame_path(BirdSpecies.SPECIES_HERRING_GULL, 2),
 		"res://assets/birds/herring_gull/gliding_02.glb"
 	)
+
+
+func test_procedural_mesh_uses_lit_surface_material() -> void:
+	BirdMeshes.reset_cache()
+	BirdSpecies.reset_surface_material_cache()
+	for species in BirdSpecies.ALL_SPECIES:
+		var mesh := BirdMeshes.mesh_for(species, BirdSpecies.POSE_GLIDING)
+		assert_true(mesh.get_surface_count() > 0, "%s needs a lit surface" % species)
+		_assert_lit_fauna_material(mesh.surface_get_material(0), species)
+
+
+func _assert_lit_fauna_material(material: Material, label: String) -> void:
+	assert_true(material is StandardMaterial3D, "%s surface must be StandardMaterial3D" % label)
+	var std := material as StandardMaterial3D
+	assert_ne(
+		std.shading_mode,
+		BaseMaterial3D.SHADING_MODE_UNSHADED,
+		"%s must react to scene lighting" % label
+	)
+	assert_true(std.normal_enabled and std.normal_texture != null, "%s needs feather normal response" % label)
+	assert_true(std.roughness > 0.05 and std.roughness < 1.0, "%s roughness must be authored" % label)
+	assert_true(std.vertex_color_use_as_albedo, "%s keeps vertex colour as albedo tint" % label)

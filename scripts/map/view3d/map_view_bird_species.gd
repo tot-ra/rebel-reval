@@ -318,5 +318,61 @@ static func spawn_weights_for(species: StringName) -> Dictionary:
 	return weights
 
 
+
 static func spawn_weight(species: StringName, context: StringName) -> float:
 	return float(spawn_weights_for(species).get(context, 0.0))
+
+
+const MaterialPatterns := preload("res://scripts/map/view3d/map_view_material_patterns.gd")
+
+static var _surface_material_cache: Dictionary = {}
+static var _normal_texture_cache: Dictionary = {}
+
+
+static func reset_surface_material_cache() -> void:
+	_surface_material_cache.clear()
+	_normal_texture_cache.clear()
+
+
+## Lit surface material for procedural P0-117 meshes. Vertex colours stay the
+## per-species albedo tint; a soft speckle normal map sells feather barb relief.
+static func surface_material_for(species: StringName) -> StandardMaterial3D:
+	if _surface_material_cache.has(species):
+		return _surface_material_cache[species]
+	var group := group_for(species)
+	var material := StandardMaterial3D.new()
+	material.vertex_color_use_as_albedo = true
+	material.albedo_color = Color.WHITE
+	material.metallic = 0.0
+	material.roughness = _feather_roughness_for_group(group)
+	material.metallic_specular = 0.18
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	material.normal_enabled = true
+	material.normal_texture = _feather_normal_for_group(group)
+	material.normal_scale = 0.34
+	_surface_material_cache[species] = material
+	return material
+
+
+static func _feather_roughness_for_group(group: StringName) -> float:
+	match group:
+		GROUP_RAPTOR, GROUP_WOODPECKER:
+			return 0.86
+		GROUP_OWL:
+			return 0.93
+		GROUP_WATERFOWL, GROUP_GULL:
+			return 0.90
+		_:
+			return 0.88
+
+
+static func _feather_normal_for_group(group: StringName) -> Texture2D:
+	if _normal_texture_cache.has(group):
+		return _normal_texture_cache[group]
+	var seed := int(group.hash())
+	var image := MaterialPatterns.pattern_texture(MapViewMaterials.PATTERN_SPECKLE, seed).get_image()
+	image.bump_map_to_normal_map(1.15)
+	image.generate_mipmaps()
+	var texture := ImageTexture.create_from_image(image)
+	_normal_texture_cache[group] = texture
+	return texture

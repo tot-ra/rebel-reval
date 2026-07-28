@@ -151,8 +151,14 @@ static func _build_mesh(species: StringName, pose: StringName) -> ArrayMesh:
 	if tail_length > 0.01:
 		_append_tail(surface, body_center, body_radius, tail_length, colors[1], group, pose, species)
 
+	return _commit_mesh(surface, species)
+
+
+static func _commit_mesh(surface: SurfaceTool, species: StringName) -> ArrayMesh:
 	surface.generate_normals()
-	return surface.commit()
+	var mesh := surface.commit()
+	mesh.surface_set_material(0, MammalSpecies.surface_material_for(species))
+	return mesh
 
 
 static func _build_bat_mesh(species: StringName, pose: StringName) -> ArrayMesh:
@@ -176,8 +182,7 @@ static func _build_bat_mesh(species: StringName, pose: StringName) -> ArrayMesh:
 		_append_quad(surface, shoulder, tip, rear, center, colors[1])
 	if pose == MammalSpecies.POSE_RESTING:
 		center.y -= body_radius.y * 0.35
-	surface.generate_normals()
-	return surface.commit()
+	return _commit_mesh(surface, species)
 
 
 static func _build_seal_mesh(species: StringName, pose: StringName) -> ArrayMesh:
@@ -204,8 +209,7 @@ static func _build_seal_mesh(species: StringName, pose: StringName) -> ArrayMesh
 	var tail_root := center + Vector3(0.0, 0.0, body_radius.z * 0.82)
 	var tail_tip := tail_root + Vector3(0.0, -body_radius.y * 0.12, float(geometry["tail"]) * scale_factor)
 	_append_tapered_tube(surface, tail_root, tail_tip, body_radius.x * 0.22, body_radius.x * 0.08, colors[1], 5)
-	surface.generate_normals()
-	return surface.commit()
+	return _commit_mesh(surface, species)
 
 
 static func _build_fowl_mesh(species: StringName, pose: StringName) -> ArrayMesh:
@@ -230,8 +234,7 @@ static func _build_fowl_mesh(species: StringName, pose: StringName) -> ArrayMesh
 	_append_ellipsoid(surface, head_center, Vector3.ONE * head_radius, colors[1], 6, 4)
 	_append_beak(surface, head_center, head_radius, colors[2])
 	_append_quadruped_legs(surface, body_center, body_radius, leg_length, colors[2], pose, &"", true)
-	surface.generate_normals()
-	return surface.commit()
+	return _commit_mesh(surface, species)
 
 
 static func _append_snout(

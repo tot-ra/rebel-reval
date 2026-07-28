@@ -158,8 +158,14 @@ static func _build_mesh(species: StringName, pose: StringName, wing_lift: float 
 	)
 	_append_legs(surface, body_center, body_radius, leg_length, colors[2], pose)
 
+	return _commit_mesh(surface, species)
+
+
+static func _commit_mesh(surface: SurfaceTool, species: StringName) -> ArrayMesh:
 	surface.generate_normals()
-	return surface.commit()
+	var mesh := surface.commit()
+	mesh.surface_set_material(0, BirdSpecies.surface_material_for(species))
+	return mesh
 
 
 static func _append_extended_wings(

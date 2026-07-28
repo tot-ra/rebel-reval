@@ -85,3 +85,26 @@ func test_district_spawn_weights_cover_every_context_without_spawning() -> void:
 		MammalSpecies.spawn_weight(MammalSpecies.SPECIES_CAT, MammalSpecies.CONTEXT_LOWER_TOWN)
 		> MammalSpecies.spawn_weight(MammalSpecies.SPECIES_CAT, MammalSpecies.CONTEXT_WOODLAND)
 	)
+
+
+func test_procedural_mesh_uses_lit_surface_material() -> void:
+	MammalMeshes.reset_cache()
+	MammalSpecies.reset_surface_material_cache()
+	for species in MammalSpecies.ALL_SPECIES:
+		var pose := MammalSpecies.default_pose(species)
+		var mesh := MammalMeshes.mesh_for(species, pose)
+		assert_true(mesh.get_surface_count() > 0, "%s needs a lit surface" % species)
+		_assert_lit_fauna_material(mesh.surface_get_material(0), String(species))
+
+
+func _assert_lit_fauna_material(material: Material, label: String) -> void:
+	assert_true(material is StandardMaterial3D, "%s surface must be StandardMaterial3D" % label)
+	var std := material as StandardMaterial3D
+	assert_ne(
+		std.shading_mode,
+		BaseMaterial3D.SHADING_MODE_UNSHADED,
+		"%s must react to scene lighting" % label
+	)
+	assert_true(std.normal_enabled and std.normal_texture != null, "%s needs fur normal response" % label)
+	assert_true(std.roughness > 0.05 and std.roughness < 1.0, "%s roughness must be authored" % label)
+	assert_true(std.vertex_color_use_as_albedo, "%s keeps vertex colour as albedo tint" % label)

@@ -285,5 +285,64 @@ static func spawn_weights_for(species: StringName) -> Dictionary:
 	return weights
 
 
+
 static func spawn_weight(species: StringName, context: StringName) -> float:
 	return float(spawn_weights_for(species).get(context, 0.0))
+
+
+const MaterialPatterns := preload("res://scripts/map/view3d/map_view_material_patterns.gd")
+
+static var _surface_material_cache: Dictionary = {}
+static var _normal_texture_cache: Dictionary = {}
+
+
+static func reset_surface_material_cache() -> void:
+	_surface_material_cache.clear()
+	_normal_texture_cache.clear()
+
+
+## Lit surface material for procedural P0-118 meshes. Vertex colours remain the
+## species tint; a soft fur normal map keeps distant silhouettes readable under
+## the dynamic sun and P0-141 grade instead of reading as flat vertex blobs.
+static func surface_material_for(species: StringName) -> StandardMaterial3D:
+	if _surface_material_cache.has(species):
+		return _surface_material_cache[species]
+	var group := group_for(species)
+	var material := StandardMaterial3D.new()
+	material.vertex_color_use_as_albedo = true
+	material.albedo_color = Color.WHITE
+	material.metallic = 0.0
+	material.roughness = _fur_roughness_for_group(group)
+	material.metallic_specular = 0.14
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	material.normal_enabled = true
+	material.normal_texture = _fur_normal_for_group(group)
+	material.normal_scale = 0.42
+	_surface_material_cache[species] = material
+	return material
+
+
+static func _fur_roughness_for_group(group: StringName) -> float:
+	match group:
+		GROUP_SEAL:
+			return 0.72
+		GROUP_BAT:
+			return 0.80
+		GROUP_UNGULATE, GROUP_SWINE:
+			return 0.90
+		GROUP_FELID, GROUP_RODENT, GROUP_LAGOMORPH:
+			return 0.88
+		_:
+			return 0.86
+
+
+static func _fur_normal_for_group(group: StringName) -> Texture2D:
+	if _normal_texture_cache.has(group):
+		return _normal_texture_cache[group]
+	var seed := int(group.hash()) ^ 0x6A09E667
+	var image := MaterialPatterns.pattern_texture(MapViewMaterials.PATTERN_SPECKLE, seed).get_image()
+	image.bump_map_to_normal_map(1.28)
+	image.generate_mipmaps()
+	var texture := ImageTexture.create_from_image(image)
+	_normal_texture_cache[group] = texture
+	return texture
