@@ -1,7 +1,7 @@
 {
   "asset_id": "prop.smithy_quench_bucket",
   "blender_version": "Blender 5.2 LTS",
-  "cache_key": "a263ffc8b099aa30827985389a5430a3c6de296c5b9552d7526bc2a55f0044b9",
+  "cache_key": "8efb6e9c281c06febc953dd7b8297a92659b4ea5cb0da5275d2487c3001dca0a",
   "checks": {
     "embedded_albedo": true,
     "floating_geometry": true,
@@ -24,9 +24,8 @@
   "ground_min_z": 0.0,
   "materials": 3,
   "mesh_objects": 6,
-  "preview": "generated/blender/smithy_quench_bucket_v1/preview.png",
   "route": "deterministic_blender",
-  "sha256": "cba3184f2edac5dc02975bd575c67cf65c66f4c749f21faa365f48aee60cc058",
+  "sha256": "9bfe034327987e0f9218fde9bf794d9e6f6a25ac84f1fd12531950e2de1a2e09",
   "surfaces": 7,
   "texture_size": 512,
   "triangles": 2160,

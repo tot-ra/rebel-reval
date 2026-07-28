@@ -22,6 +22,11 @@ import bmesh
 import bpy
 from mathutils import Matrix, Vector
 
+TOOLS_DIR = Path(__file__).resolve().parent
+if str(TOOLS_DIR) not in sys.path:
+    sys.path.insert(0, str(TOOLS_DIR))
+from assets.prop_orm_baking import wire_orm_maps
+
 ROOT = Path(__file__).resolve().parents[1]
 BLENDER_VERSION = "Blender 5.2 LTS"
 GENERATOR_VERSION = "smithy_forge_props_v1"
@@ -181,6 +186,7 @@ def _create_material(
     texture.interpolation = "Linear"
     texture.extension = "REPEAT"
     links.new(texture.outputs["Color"], principled.inputs["Base Color"])
+    wire_orm_maps(material, name, palette_key)
     return material
 
 

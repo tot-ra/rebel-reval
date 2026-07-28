@@ -58,6 +58,8 @@ func test_each_wealth_class_uses_distinct_grounded_production_geometry() -> void
 		assert_true(audit["triangles"] <= expected["triangles"].y)
 		assert_eq(audit["materials"].size(), expected["materials"])
 		assert_eq(audit["textured_materials"].size(), expected["materials"], "%s needs embedded albedos on every surface" % variant)
+		for material_name in audit["materials"]:
+			_assert_chest_pbr_material(audit["materials"][material_name], material_name)
 		host.free()
 
 
@@ -154,7 +156,7 @@ func _audit_model(model: Node3D) -> Dictionary:
 			var material := mesh_instance.mesh.surface_get_material(surface_index) as StandardMaterial3D
 			if material == null:
 				continue
-			materials[material.resource_name] = true
+			materials[material.resource_name] = material
 			if material.albedo_texture != null:
 				textured_materials[material.resource_name] = true
 	assert_false(first, "chest GLB must contain renderable mesh geometry")
@@ -173,3 +175,19 @@ func _transform_from_ancestor(ancestor: Node3D, node: Node3D) -> Transform3D:
 		transform = current.transform * transform
 		current = current.get_parent() as Node3D
 	return transform
+
+
+func _assert_chest_pbr_material(material: StandardMaterial3D, label: String) -> void:
+	if material.albedo_texture == null:
+		return
+	assert_ne(
+		material.shading_mode,
+		BaseMaterial3D.SHADING_MODE_UNSHADED,
+		"%s must react to scene lighting" % label
+	)
+	assert_true(material.normal_enabled and material.normal_texture != null, "%s needs embedded normal map" % label)
+	assert_true(
+		material.roughness_texture != null
+		or (material.roughness > 0.05 and material.roughness < 1.0),
+		"%s needs authored roughness response" % label
+	)

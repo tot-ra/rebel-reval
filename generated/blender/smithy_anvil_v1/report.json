@@ -1,7 +1,7 @@
 {
   "asset_id": "prop.smithy_anvil",
   "blender_version": "Blender 5.2 LTS",
-  "cache_key": "d0a9dc0b35e97351c2627c3f120c77ae9c3b3aab52c06ef18512e90e55e94e37",
+  "cache_key": "2c2c53cd000a8bf3e427e0eb76db532b92884eb61cefd74e2e5bfc295e733a66",
   "checks": {
     "embedded_albedo": true,
     "floating_geometry": true,
@@ -23,9 +23,8 @@
   "ground_min_z": 0.0,
   "materials": 3,
   "mesh_objects": 3,
-  "preview": "generated/blender/smithy_anvil_v1/preview.png",
   "route": "deterministic_blender",
-  "sha256": "6e85c297aa9fa75dee12c37ec20cb24de00940219c398f3d022e3f8ed4056d7e",
+  "sha256": "c5b80a1036be8de71fa7d751b896743149e934b0bc2ba04fa9885ab642dca880",
   "surfaces": 4,
   "texture_size": 512,
   "triangles": 2101,

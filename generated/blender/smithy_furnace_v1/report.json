@@ -1,7 +1,7 @@
 {
   "asset_id": "prop.smithy_furnace",
   "blender_version": "Blender 5.2 LTS",
-  "cache_key": "db3e9822e0de19e8252d3ec205833752912d09d983036c65dc13cbd5778309d2",
+  "cache_key": "9192779453600b6f19f77100896dcc5a58639e915ac5cca66396d9aacb8fd3c7",
   "checks": {
     "embedded_albedo": true,
     "floating_geometry": true,
@@ -24,9 +24,8 @@
   "ground_min_z": 0.0,
   "materials": 4,
   "mesh_objects": 4,
-  "preview": "generated/blender/smithy_furnace_v1/preview.png",
   "route": "deterministic_blender",
-  "sha256": "c04600c8b3f526451dbfafbafa1a438e553a0bf1eb607daa3d551f0b405e9ea1",
+  "sha256": "0aa9f05f8b59cdc9a1c086bd335c090553b21fe16b2a00dc8966d56ce4857c4b",
   "surfaces": 4,
   "texture_size": 512,
   "triangles": 2680,

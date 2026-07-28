@@ -132,6 +132,7 @@ func test_smithy_anvil_uses_detailed_glb_without_replacing_courtyard_fallback() 
 	assert_true(triangle_count >= 1800 and triangle_count <= 4000, "anvil detail must stay readable and lightweight")
 	assert_true(material_names.size() == 3, "anvil keeps iron, polished face, and oak material identities")
 	assert_true(has_embedded_albedo, "anvil's painted wear textures must survive GLB import")
+	_assert_smithy_prop_pbr_surfaces(model, "anvil")
 	smithy.free()
 
 	var courtyard := MapViewMeshBuilder.build_prop(
@@ -183,6 +184,7 @@ func test_smithy_quench_uses_detailed_metal_glb_without_replacing_generic_fallba
 	assert_true(triangle_count >= 1800 and triangle_count <= 4000, "quench bucket detail must stay readable and lightweight")
 	assert_eq(material_names.size(), 3, "quench bucket keeps aged iron, dark inner iron, and water identities")
 	assert_true(has_embedded_albedo, "quench bucket's painted metal wear must survive GLB import")
+	_assert_smithy_prop_pbr_surfaces(model, "quench")
 	smithy.free()
 
 	var generic := MapViewMeshBuilder.build_prop(
@@ -273,6 +275,7 @@ func test_smithy_furnace_uses_authored_masonry_and_keeps_live_fire() -> void:
 	assert_true(triangle_count >= 2400 and triangle_count <= 8000, "furnace detail must stay lightweight")
 	assert_eq(material_names.size(), 4, "furnace keeps limestone, firebrick, soot, and iron identities")
 	assert_true(textured_surface_count >= 4, "painted furnace albedos must survive GLB import")
+	_assert_smithy_prop_pbr_surfaces(model, "furnace")
 	node.free()
 
 	var generic := MapViewMeshBuilder.build_prop(
@@ -321,6 +324,7 @@ func test_smithy_bellows_uses_authored_leather_mechanism() -> void:
 	assert_true(triangle_count >= 5000 and triangle_count <= 6500, "leather folds and tacks must stay within budget")
 	assert_eq(material_names.size(), 3, "bellows keep oak, leather, and iron identities")
 	assert_true(textured_surface_count >= 3, "painted bellows albedos must survive GLB import")
+	_assert_smithy_prop_pbr_surfaces(model, "bellows")
 	node.free()
 
 	var generic := MapViewMeshBuilder.build_prop(
@@ -344,6 +348,34 @@ func test_charcoal_pile_uses_charcoal_not_limestone_rock() -> void:
 	assert_true(material != null, "charcoal chunk needs a material")
 	assert_true(material.albedo_color.v < 0.25, "charcoal must stay near-black, not limestone grey")
 	node.free()
+
+
+func _assert_smithy_prop_pbr_surfaces(model: Node3D, label: String) -> void:
+	var checked := 0
+	for child in model.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := child as MeshInstance3D
+		if mesh_instance == null or mesh_instance.mesh == null:
+			continue
+		for surface_index in mesh_instance.mesh.get_surface_count():
+			var material := mesh_instance.mesh.surface_get_material(surface_index) as StandardMaterial3D
+			if material == null or material.albedo_texture == null:
+				continue
+			assert_ne(
+				material.shading_mode,
+				BaseMaterial3D.SHADING_MODE_UNSHADED,
+				"%s surface %d must react to scene lighting" % [label, surface_index]
+			)
+			assert_true(
+				material.normal_enabled and material.normal_texture != null,
+				"%s surface %d needs embedded normal map" % [label, surface_index]
+			)
+			assert_true(
+				material.roughness_texture != null
+				or (material.roughness > 0.05 and material.roughness < 1.0),
+				"%s surface %d needs authored roughness response" % [label, surface_index]
+			)
+			checked += 1
+	assert_true(checked >= 3, "%s must expose at least three textured PBR surfaces" % label)
 
 
 func test_enclosed_interior_skips_outdoor_scatter() -> void:
