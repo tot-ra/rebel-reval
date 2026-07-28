@@ -1,26 +1,26 @@
 # Scene inventory (P0-018, reconciled P0-055)
 
 Recorded: 2026-07-16
-Reconciled: 2026-07-22 (exact repository coverage through P0-112)
+Reconciled: 2026-07-28 (P0-133 town hall and Holy Spirit interior scenes)
 
 ## Summary
 
 | Classification | Count | Role |
 |----------------|------:|------|
-| `working` | 26 | Active runtime scenes with verified or complete behavior |
-| `partial` | 29 | Substantial content but incomplete integration or dev-only use |
+| `working` | 28 | Active runtime scenes with verified or complete behavior |
+| `partial` | 36 | Substantial content but incomplete integration or dev-only use |
 | `placeholder` | 3 | Reserved stubs or reference-only visuals, not playable |
 | `archive` | 20 | Out of vertical-slice scope; legacy open-world or event shells |
-| **Total** | **88** | Matches repository `.tscn` count |
+| **Total** | **96** | Matches repository `.tscn` count |
 
 Repository count command:
 
 ```bash
 find . -name '*.tscn' -not -path './.git/*' -not -path './.godot/*' -not -path './.a2gent-worktrees/*' | wc -l
-# Expected: 88
+# Expected: 96
 ```
 
-Inventory row count (data rows in the table below): **88**.
+Inventory row count (data rows in the table below): **96**.
 
 ## Classification criteria
 
@@ -53,7 +53,9 @@ Inventory row count (data rows in the table below): **88**.
 | 9 | `assets/characters/variants/henning.tscn` | working | Henning NPC variant; texture and equipment swap on shared rig. |
 | 10 | `assets/characters/variants/innkeeper.tscn` | working | Innkeeper NPC variant; future slice cast. |
 | 11 | `assets/characters/variants/mart.tscn` | working | Mart NPC variant; demo dialogue target. |
-| 12 | `scenes/elements/building.tscn` | working | Reusable building sprite with collision and light occluder. |
+| 12 | `assets/characters/variants/watchman.tscn` | working | P2-005 watchman combat archetype on shared rig with spear equipment. |
+| 13 | `assets/characters/variants/sergeant.tscn` | working | P2-005 sergeant combat archetype on shared rig with pauldron/helmet read. |
+| 14 | `scenes/elements/building.tscn` | working | Reusable building sprite with collision and light occluder. |
 | 13 | `scenes/elements/door.tscn` | working | Door transitions via `door.gd` and `DoorNavigator`. |
 | 14 | `scenes/elements/FadeArea.tscn` | partial | Instanced in forge; `CollisionPolygon2D` has no polygon yet. |
 | 15 | `scenes/elements/location_hud.tscn` | working | District title overlay; active on approved maps. |
@@ -79,10 +81,13 @@ Inventory row count (data rows in the table below): **88**.
 | 33 | `scenes/map/map.tscn` | placeholder | Static map image only; no interaction or travel logic. |
 | 34 | `scenes/map_prototype/smithy_courtyard.tscn` | partial | P0-042 deterministic programmatic map-authoring spike; developer-only and not in the active transition manifest. |
 | 35 | `scenes/menu/main_menu.tscn` | working | `run/main_scene`; Start/Exit UI, video, audio; P0-017 smoke pass. |
+| 36 | `scenes/menu/credits.tscn` | working | Credits roll overlay opened from the main menu. |
 | 37 | `scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn` | partial | Inactive programmatic guild hall interior prototype; not in active destinations. |
 | 91 | `scenes/reval_north/oleviste_church/oleviste_church.tscn` | partial | Inactive St. Olaf's Church interior prototype; developer traversal from Monastery District. |
 | 77 | `scenes/reval_archbishops_garden/reval_archbishops_garden.tscn` | partial | Inactive Archbishop's Garden western Toompea prototype; developer traversal only. |
 | 38 | `scenes/reval_center/reval_center.tscn` | partial | Unified inactive Central District prototype containing Town Hall market square and civic quarter; release-gated. |
+| 92 | `scenes/reval_center/holy_spirit_church/holy_spirit_church.tscn` | partial | Inactive Holy Spirit Church interior prototype; developer traversal from Central District. |
+| 93 | `scenes/reval_center/town_hall/town_hall.tscn` | partial | Inactive early Town Hall interior prototype; developer traversal from market civic quarter. |
 | 39 | `scenes/reval_east/forge/forge.tscn` | working | Programmatic smithy interior; `DoorNavigator` target with stable anchors and courtyard transition. |
 | 40 | `scenes/reval_east/forge/forge_cat.tscn` | working | Ambient smithy cat with navigation and idle behavior. |
 | 41 | `scenes/reval_east/forge/smithy_henning.tscn` | working | Smithy apprentice Henning with patrol and idle behavior. |
@@ -130,14 +135,17 @@ Inventory row count (data rows in the table below): **88**.
 | 69 | `scenes/comparison_room/diamond_isometric_8_direction.tscn` | partial | P0-035 legacy diamond-isometric/eight-direction variant; dev verification only. |
 | 70 | `tools/benchmarks/large_map_benchmark.tscn` | partial | CI large-map pipeline benchmark host; not player-facing. |
 | 71 | `tools/benchmarks/lower_town_scene_benchmark.tscn` | partial | CI Lower Town scene-load benchmark host; not player-facing. |
+| 94 | `tools/benchmarks/lower_town_render_probe.tscn` | partial | CI Lower Town 3D render benchmark host; not player-facing. |
 | 72 | `tools/capture_demo_walkthrough_host.tscn` | partial | D-004 packaged demo walkthrough capture host; not player-facing. |
+| 95 | `generated/comfyui/forge_cat_hunyuan3d_v1/production/godot_verify/verify.tscn` | partial | Forge cat GLB import verification host; ComfyUI pipeline only. |
 
 ## Totals by folder
 
 | Folder | working | partial | placeholder | archive | Total |
 |--------|--------:|--------:|------------:|--------:|------:|
 | Repository root | 1 | 0 | 0 | 1 | 2 |
-| `assets/characters/` | 7 | 3 | 0 | 0 | 10 |
+| `assets/characters/` | 9 | 3 | 0 | 0 | 12 |
+| `generated/comfyui/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/comparison_room/` | 0 | 3 | 0 | 0 | 3 |
 | `scenes/elements/` | 7 | 2 | 0 | 0 | 9 |
 | `scenes/events/` | 0 | 0 | 0 | 7 | 7 |
@@ -146,9 +154,9 @@ Inventory row count (data rows in the table below): **88**.
 | `scenes/intro/` | 0 | 0 | 1 | 0 | 1 |
 | `scenes/map/` | 0 | 0 | 1 | 0 | 1 |
 | `scenes/map_prototype/` | 0 | 1 | 0 | 0 | 1 |
-| `scenes/menu/` | 1 | 0 | 0 | 0 | 1 |
+| `scenes/menu/` | 2 | 0 | 0 | 0 | 2 |
 | `scenes/reval_archbishops_garden/` | 0 | 1 | 0 | 0 | 1 |
-| `scenes/reval_center/` | 0 | 2 | 0 | 0 | 2 |
+| `scenes/reval_center/` | 0 | 4 | 0 | 0 | 4 |
 | `scenes/reval_east/` | 4 | 1 | 0 | 0 | 5 |
 | `scenes/reval_monastery/` | 0 | 1 | 0 | 0 | 1 |
 | `scenes/reval_north/` | 0 | 1 | 0 | 0 | 1 |
@@ -159,8 +167,8 @@ Inventory row count (data rows in the table below): **88**.
 | `scenes/world/` | 0 | 0 | 0 | 10 | 10 |
 | `scenes/world_travel/` | 0 | 10 | 0 | 0 | 10 |
 | `tools/` | 0 | 1 | 0 | 0 | 1 |
-| `tools/benchmarks/` | 0 | 2 | 0 | 0 | 2 |
-| **All** | **26** | **39** | **3** | **20** | **88** |
+| `tools/benchmarks/` | 0 | 3 | 0 | 0 | 3 |
+| **All** | **28** | **45** | **3** | **20** | **96** |
 
 ## Verification
 
@@ -172,7 +180,7 @@ find . -name '*.tscn' -not -path './.git/*' -not -path './.godot/*' -not -path '
 grep -E '^\| [0-9]+ \|' docs/reports/scene_inventory.md | wc -l
 ```
 
-Both commands should print `88` on a clean checkout at this revision.
+Both commands should print `96` on a clean checkout at this revision.
 
 ## Related tasks
 

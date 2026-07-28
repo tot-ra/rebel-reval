@@ -3,6 +3,8 @@
 Coordination notes, delivery order, and planning context formerly embedded in `TODO.md`.
 Executable open work stays in [`TODO.md`](../TODO.md).
 
+Coordination note (2026-07-28 P0-133): Town Hall and Holy Spirit Church interiors now have conversion-plan index rows, scene-inventory coverage, registry-aligned mandatory anchors, and regenerated 1600x900 map-audit captures (~68 KiB each). Verified: `python3 tools/verify_map_audit.py`, `python3 tools/verify_map_conversion_plan.py`, and `--filter=test_map_quality_audit::test_capture_policy_and_pngs_are_present`.
+
 Coordination note (2026-07-28 P2-029): deterministic 1343 Reval gate kit now ships `oak_double_gate.glb`, `ironbound_double_gate.glb`, and `raised_portcullis.glb` from `tools/generate_medieval_gate_kit.py`; `gate_arch` landmarks load parked-open leaves and a raised grille at `viru_gate_arch` and `viru_foregate_arch` without blocking the walkable passage. Verified: `--filter=test_medieval_gate_assets` (2/2), `--filter=test_map_view_3d_fortification`, and `python3 tools/verify_asset_lint.py`.
 
 Coordination note (2026-07-28 P0-132): production hay fiber texture (`assets/materials/production/hay_fibers.png`) now drives triplanar rick/wagon geometry, terrain hay/straw blends, and batched meadow stubble; ComfyUI livestock GLBs for cattle, sheep, and pack horse share one loader across static props and ambient penned/urban fauna actors. Verified: `--filter=test_hay_assets` (4/4), `--filter=test_medieval_animal_models` (3/3), and `python3 tools/verify_asset_lint.py`.

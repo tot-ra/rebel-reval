@@ -254,8 +254,8 @@
         "altar_front",
         "nave_center",
         "south_entry",
-        "baptismal_font",
-        "alms_chest"
+        "baptismal_font_site",
+        "alms_chest_site"
       ],
       "mandatory_transitions": [
         "to_reval_center"
