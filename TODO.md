@@ -1,6 +1,6 @@
 # TODO
 - [x] Fix asset showcase test after characters/animals split | claim: cursor-agent@2026-07-29
-- [ ] Give the smithy yard hay stack an authored size
+- [x] Give the smithy yard hay stack an authored size | claim: cursor-agent@2026-07-29
 
 Quick grab list for **open** work only. Order: low campaign priority first, then higher;
 within each band: small complexity before large.

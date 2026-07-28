@@ -218,7 +218,7 @@ prop courtyard_anvil anvil 97 65 rect=2,2
 # Forge furnace, charcoal, and scrap stay inside kalev_smithy. Outdoor duplicates
 # at the door read as a second forge on the Workers District street.
 prop courtyard_quench quench_bucket 98 76 rect=1,1
-prop hay_store hay_stack 86 76 rect=2,2
+prop hay_store hay_stack 86 76 rect=2,2 style_variant=hay_stack.small
 prop cistern well 104 60 rect=2,2
 prop monastery_well well 73 11 rect=2,2
 # The west-side gate stair climbs east into a patrol corridor that follows the

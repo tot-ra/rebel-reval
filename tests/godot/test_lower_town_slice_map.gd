@@ -5,6 +5,7 @@ const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const MapTypes := preload("res://scripts/map/map_types.gd")
 const MapVerification := preload("res://scripts/map/map_verification.gd")
 const MapParitySnapshot := preload("res://scripts/map/map_parity_snapshot.gd")
+const MapPropStyleVariants := preload("res://scripts/map/map_prop_style_variants.gd")
 const PLAYER_SCENE := preload("res://player.tscn")
 const PARITY_FIXTURE_PATH := "res://tests/fixtures/maps/lower_town_slice.parity.json"
 
@@ -331,6 +332,21 @@ func test_lower_town_slice_district_life_props_replace_trade_barrel_placeholders
 			craft_kinds[kind] = true
 	for craft_kind in craft_kinds:
 		assert_true(craft_kinds[craft_kind], "Playable route needs craft prop %s" % String(craft_kind))
+
+
+func test_smithy_yard_hay_store_authors_a_small_stack() -> void:
+	var definition: MapDefinition = LowerTownSliceDefinition.create()
+	var hay_store: Dictionary = {}
+	for prop in definition.props:
+		if prop.get("id") == &"hay_store":
+			hay_store = prop
+	assert_false(hay_store.is_empty(), "smithy courtyard needs a hay store prop")
+	assert_eq(hay_store.get("kind"), MapTypes.PROP_KIND_HAY_STACK)
+	assert_eq(
+		StringName(hay_store.get("style_variant", &"")),
+		MapPropStyleVariants.HAY_STACK_SMALL,
+		"smithy yard hay must read as a loose yard pile, not the default medium rick"
+	)
 
 
 func test_viru_gate_arch_matches_collision_jamb_span() -> void:
