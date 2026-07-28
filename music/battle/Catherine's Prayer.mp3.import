@@ -3,12 +3,12 @@
 importer="mp3"
 type="AudioStreamMP3"
 uid="uid://cikyjthwq4rom"
-path="res://.godot/imported/Catherine's Prayer.mp3-d59547522a9cc821ff181fa99fd4777e.mp3str"
+path="res://.godot/imported/Catherine's Prayer.mp3-9790bc656b021efc461a745aeac2597c.mp3str"
 
 [deps]
 
 source_file="res://music/battle/Catherine's Prayer.mp3"
-dest_files=["res://.godot/imported/Catherine's Prayer.mp3-d59547522a9cc821ff181fa99fd4777e.mp3str"]
+dest_files=["res://.godot/imported/Catherine's Prayer.mp3-9790bc656b021efc461a745aeac2597c.mp3str"]
 
 [params]
 

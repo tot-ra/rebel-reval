@@ -1,0 +1,83 @@
+{
+  "source": "medieval_sheep.glb",
+  "sha256": "3aa7cbf80b5987aafa938d9875c405a584a25358dcb9eea53e756287c830fd70",
+  "mesh_object_count": 1,
+  "bounds_min": [
+    -0.625,
+    -0.275,
+    0.0
+  ],
+  "bounds_max": [
+    0.625,
+    0.275,
+    0.9
+  ],
+  "dimensions": [
+    1.25,
+    0.55,
+    0.9
+  ],
+  "meshes": [
+    {
+      "name": "AnimalMesh",
+      "vertices": 5415,
+      "polygons": 6000,
+      "triangles": 6000,
+      "connected_components": 469,
+      "components": [
+        {
+          "vertices": 700,
+          "faces": 1159
+        },
+        {
+          "vertices": 662,
+          "faces": 1065
+        },
+        {
+          "vertices": 281,
+          "faces": 405
+        },
+        {
+          "vertices": 266,
+          "faces": 314
+        },
+        {
+          "vertices": 258,
+          "faces": 295
+        },
+        {
+          "vertices": 188,
+          "faces": 309
+        },
+        {
+          "vertices": 123,
+          "faces": 172
+        },
+        {
+          "vertices": 120,
+          "faces": 155
+        },
+        {
+          "vertices": 100,
+          "faces": 113
+        },
+        {
+          "vertices": 81,
+          "faces": 102
+        },
+        {
+          "vertices": 72,
+          "faces": 97
+        },
+        {
+          "vertices": 60,
+          "faces": 79
+        }
+      ],
+      "loose_vertices": 0,
+      "loose_edges": 0,
+      "boundary_edges": 3922,
+      "non_manifold_edges": 3922
+    }
+  ]
+}

@@ -3,12 +3,11 @@
 importer="mp3"
 type="AudioStreamMP3"
 uid="uid://bpyvu1fdk482k"
-path="res://.godot/imported/The Blackheads' Oath.mp3-410a7421c0eeba89dcf16d1b0f148cb6.mp3str"
+valid=false
 
 [deps]
 
 source_file="res://music/battle/The Blackheads' Oath.mp3"
-dest_files=["res://.godot/imported/The Blackheads' Oath.mp3-410a7421c0eeba89dcf16d1b0f148cb6.mp3str"]
 
 [params]
 

@@ -3,12 +3,12 @@
 importer="mp3"
 type="AudioStreamMP3"
 uid="uid://cdlfyj6suno5l"
-path="res://.godot/imported/Cobblestone Jig (1).mp3-8c4ce5336fe08f749916296c605eecb0.mp3str"
+path="res://.godot/imported/Cobblestone Jig (1).mp3-b27f122d490c653d5ec1ac031d0a0495.mp3str"
 
 [deps]
 
 source_file="res://music/battle/Cobblestone Jig (1).mp3"
-dest_files=["res://.godot/imported/Cobblestone Jig (1).mp3-8c4ce5336fe08f749916296c605eecb0.mp3str"]
+dest_files=["res://.godot/imported/Cobblestone Jig (1).mp3-b27f122d490c653d5ec1ac031d0a0495.mp3str"]
 
 [params]
 

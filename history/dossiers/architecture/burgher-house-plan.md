@@ -8,6 +8,7 @@ related:
   - ../topography/walls-gates-towers.md
   - smithy-workshop-layout.md
   - ../crafts/guild-structure.md
+  - domestic-storage-furniture.md
 updated: 2026-07-28
 ---
 
@@ -277,8 +278,10 @@ Manifest rows: [`history/reference/plates.csv`](../../reference/plates.csv). In-
 - [`../topography/lower-town-street-plan.md`](../topography/lower-town-street-plan.md) — plot widths, block modules, and ward material bias that this interior plan slots into.
 - [`../topography/walls-gates-towers.md`](../topography/walls-gates-towers.md) — wall-side plots (*Müürivahe*) share party-wall logic with limestone plot fences [1].
 - [`../topography/pikk-lai-frontage-materials-1340s.md`](../topography/pikk-lai-frontage-materials-1340s.md) — street-facing timber/stone skin assignments for Pikk and Lai blocks (R-030).
+- [`../topography/back-lanes-east-of-pikk.md`](../topography/back-lanes-east-of-pikk.md) (R-032) — rear-lane yard gates and service access behind street fronts.
 - [`../topography/old-market-vanaturg.md`](../topography/old-market-vanaturg.md) — projecting shop bay and strip frontage on Vanaturu kael neck plots (R-031).
-- [`smithy-workshop-layout.md`](smithy-workshop-layout.md) — forge as a fire-separated hot-trade variant of the workshop house (R-004 deliverable; stub until written).
+- [`domestic-storage-furniture.md`](domestic-storage-furniture.md) - social tiers for chests, open racks, and rare closed cupboards inside these rooms.
+- [`smithy-workshop-layout.md`](smithy-workshop-layout.md) — forge as a fire-separated hot-trade variant of the workshop house (R-004).
 - [`../crafts/guild-structure.md`](../crafts/guild-structure.md) — Schmiede *Amt* under St Canute; master/journeyman/apprentice tiers for workshop household layout.
 - [`toompea-castle-and-upper-town.md`](toompea-castle-and-upper-town.md) — contrast hill vassal housing with Lower Town diele-dornse merchant fabric.
 

@@ -9,6 +9,7 @@ related:
   - ../military/watch-duty-and-town-defence.md
   - ../crafts/guild-structure.md
   - ../topography/raekoja-plats-extents-1343.md
+  - ../economy/coinage-prices-and-measures.md
 updated: 2026-07-28
 ---
 
@@ -146,8 +147,7 @@ Consumers are quest/narrative; four procedure and punishment visuals suffice. No
 - [`../military/watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) — curfew breaches and gate-control offences handed to Vogt.
 - [`../crafts/guild-structure.md`](../crafts/guild-structure.md) — *Amt* fines vs council jurisdiction over smiths before 1363 Schragen.
 - [`../topography/raekoja-plats-extents-1343.md`](../topography/raekoja-plats-extents-1343.md) — forum polygon for pillory placement; note 1337 pillory attestation vs dossier's earlier uncertainty.
-
-## Open questions
+- [`../economy/coinage-prices-and-measures.md`](../economy/coinage-prices-and-measures.md) — 60 schilling perjury fine and general mark/schilling/pfennig scale.
 
 - **Exact 1282 codex articles enforced in 1343 Reval** — needs Tallinn City Archives pass on ms. 230 Cm 19 and comparison with R-040 (1257/1282 arms-and-watch articles).
 - **Vogt's name and appointment mechanism in 1343** — no attested officer list; candidate archival row.

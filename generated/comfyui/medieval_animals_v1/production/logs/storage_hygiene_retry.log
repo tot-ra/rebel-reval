@@ -1,0 +1,3 @@
+storage hygiene verification failed:
+  - standard-Git file is at least 10 MiB without an exception: generated/comfyui/cat_hunyuan3d/cat_hunyuan3d_local.glb (17732872 bytes)
+  - standard-Git file is at least 10 MiB without an exception: sounds/birds/great_spotted_woodpecker/great_spotted_woodpecker_XC995604.mp3 (10503962 bytes)

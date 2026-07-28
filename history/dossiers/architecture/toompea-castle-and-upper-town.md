@@ -77,9 +77,6 @@ Surviving medieval limestone on the modern castle's **west face** is largely **p
 - **1330s onward:** transformation from single-aisle church to **three-aisle Gothic basilica**; work lasted ~100 years [4][5]. **attested**
 - Nave rectangular pillars completed **second half of the 14th century**; longitudinal nave (~29 m) finished **1430s** [4][5]. For **April 1343:** show **open nave construction** — scaffolding, half-walls, masons' yard on Toompea square; choir and vestry from early-14th-c. phase already standing [4][5]. **plausible composite**
 - Only building on Toompea to survive the **1684** fire intact in its medieval bones; baroque spire and many fittings are **much later** — do not paste 18th-c. silhouette onto 1343 [4]. **attested**
-- Cathedral school attested **by 1319** [11]. **attested**
-
-### Vassal residences and upper-town housing
 
 By the **end of the 13th century** the Great Castle plateau was **densely populated** by vassals who preferred hill safety over rural estates [1][6]. Building type is **not** the Lower Town diele-dornse merchant house — expect **stone or stone-timber noble town houses**, smaller footprints, domestic chapels or oratories, service wings, and yard walls on cliff-edge plots [1][6]. **plausible composite** from hill settlement pattern; no measured 1343 vassal house plan survives this tick.
 
@@ -137,6 +134,7 @@ The castle's **eastern outer-ward gate** feeds these lanes; treat as the **upper
 - [`../people/town-council-and-officers.md`](../people/town-council-and-officers.md) — merchant council self-rule in Lower Town vs Danish castle on the hill.
 - [`../power/jurisdictions-of-reval.md`](../power/jurisdictions-of-reval.md) — jurisdiction table: viceroy, bishop, vassals, council, and Order seams.
 - [`../military/watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) — council-ordered hill-gate curfew and burgher wall watch from Lower Town side.
+- [`../religion/churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) — cathedral congregation, chapter, and bishop's diocesan role on Toompea.
 
 ## Open questions
 

@@ -1,0 +1,11 @@
+{
+  "asset_id": "creature.pack_horse.v2",
+  "leonardo_generation_id": "75f25481-f8bb-4444-a5e0-91fa16942436",
+  "comfyui_prompt_id": "1c7ce801-247e-49bd-8431-40618411eb73",
+  "route": "Leonardo isolated reference -> local Hunyuan3D v2 -> Blender 5.2 cleanup",
+  "seed": 208744234,
+  "reference_sha256": "f1ecd1ed7cc4bac429b0e8faa905535d68e1738e120ab8acf32ff075db069d07",
+  "candidate_sha256": "f5aeaee2a6f701588042138db01145546632561eaf096941d93d5ca5157fcd3d",
+  "runtime_sha256": "387cf0f0175d03a332475265315f3c7854cfd364c2ba424cb8cb0973910f352c",
+  "albedo_sha256": "68d23b92250a954c636a65a5fb6e994bb6f1897fb31593de3c5a180d18c565e7"
+}

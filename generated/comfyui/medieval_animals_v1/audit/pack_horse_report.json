@@ -1,0 +1,83 @@
+{
+  "source": "pack_horse_candidate.glb",
+  "sha256": "239bd4725ee8bad3e0091a01804d085c832de580063e9f18d9cf2192ff1a3329",
+  "mesh_object_count": 1,
+  "bounds_min": [
+    -0.969821,
+    -0.999758,
+    -0.974203
+  ],
+  "bounds_max": [
+    0.979223,
+    0.878083,
+    0.977453
+  ],
+  "dimensions": [
+    1.949044,
+    1.877841,
+    1.951655
+  ],
+  "meshes": [
+    {
+      "name": "Mesh_0",
+      "vertices": 303073,
+      "polygons": 839166,
+      "triangles": 839166,
+      "connected_components": 51,
+      "components": [
+        {
+          "vertices": 112502,
+          "faces": 247868
+        },
+        {
+          "vertices": 102234,
+          "faces": 389472
+        },
+        {
+          "vertices": 42729,
+          "faces": 95626
+        },
+        {
+          "vertices": 30579,
+          "faces": 69168
+        },
+        {
+          "vertices": 5178,
+          "faces": 11086
+        },
+        {
+          "vertices": 2616,
+          "faces": 8466
+        },
+        {
+          "vertices": 1550,
+          "faces": 3148
+        },
+        {
+          "vertices": 1338,
+          "faces": 3124
+        },
+        {
+          "vertices": 1204,
+          "faces": 2612
+        },
+        {
+          "vertices": 774,
+          "faces": 2706
+        },
+        {
+          "vertices": 372,
+          "faces": 1066
+        },
+        {
+          "vertices": 316,
+          "faces": 812
+        }
+      ],
+      "loose_vertices": 0,
+      "loose_edges": 0,
+      "boundary_edges": 55,
+      "non_manifold_edges": 295088
+    }
+  ]
+}

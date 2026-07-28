@@ -3,12 +3,12 @@
 importer="mp3"
 type="AudioStreamMP3"
 uid="uid://l0fpukln0074"
-path="res://.godot/imported/4.mp3-e57a1f9023b2d7345b7b99eb346a1df2.mp3str"
+path="res://.godot/imported/4.mp3-6ec817dc49ec10c3376d1618f8f963f1.mp3str"
 
 [deps]
 
 source_file="res://music/battle/4.mp3"
-dest_files=["res://.godot/imported/4.mp3-e57a1f9023b2d7345b7b99eb346a1df2.mp3str"]
+dest_files=["res://.godot/imported/4.mp3-6ec817dc49ec10c3376d1618f8f963f1.mp3str"]
 
 [params]
 

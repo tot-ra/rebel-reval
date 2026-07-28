@@ -56,8 +56,8 @@ P0-070 migrated 110 current-tree objects totaling 569,387,736 bytes to authentic
 
 | Scope | Objects | Bytes | Default checkout |
 |------|------:|------:|------------------|
-| Runtime audio | 2 | 22,659,102 | Restored explicitly by CI and `tools/restore_lfs_assets.sh runtime`. |
-| Inactive audio archive | 57 | 333,586,071 | Excluded by `.lfsconfig`; restore on demand. |
+| Runtime audio | 25 | 152,233,236 | Restored explicitly by CI and `tools/restore_lfs_assets.sh runtime`. |
+| Inactive audio archive | 28 | 165,481,547 | Excluded by `.lfsconfig`; restore on demand. |
 | Historical research media | 39 | 166,557,881 | Excluded by `.lfsconfig`; reference-only rights status is preserved. |
 | Legacy narrative images | 12 | 46,584,682 | Excluded by `.lfsconfig`; archive-only rights status is preserved. |
 
@@ -67,7 +67,7 @@ The migration is deliberately current-tree-only. Old standard-Git blobs remain i
 
 ## LFS retrieval and failure behavior
 
-Normal checkouts intentionally leave inactive archive, research, and narrative LFS objects as pointers. Restore the two runtime objects before import, test, or export:
+Normal checkouts intentionally leave inactive archive, research, and narrative LFS objects as pointers. Restore the 25 runtime objects, including the shared battle library, before import, test, or export:
 
 ```bash
 tools/restore_lfs_assets.sh runtime

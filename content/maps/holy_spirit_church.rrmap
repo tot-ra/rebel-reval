@@ -27,7 +27,7 @@ prop nave_bench_south_east table 15 14 rect=6,1
 prop altar_candle_north candle 23 7 rect=1,1 visual_offset_px=0,-18
 prop altar_candle_south candle 23 13 rect=1,1 visual_offset_px=0,-18
 prop baptismal_font well 4 17 rect=2,2
-prop alms_chest chest 20 17 rect=2,2
+prop alms_chest chest 20 17 rect=2,2 style_variant=chest.burgher
 landmark window.north_west interior_window 6 0 2 1 passage_axis=z
 landmark window.north_center interior_window 14 0 2 1 passage_axis=z
 landmark window.north_east interior_window 22 0 2 1 passage_axis=z

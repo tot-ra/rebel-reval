@@ -1,0 +1,1 @@
+{"id":"material.hay_fibers","kind":"seamless_albedo_multiplier","target":"res://assets/materials/production/hay_fibers.png","source":"generated/leonardo/hay_texture_v1/source.jpg","dimensions_px":[512,512],"palette":"#CDA444","style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}

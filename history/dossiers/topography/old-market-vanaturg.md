@@ -8,6 +8,7 @@ related:
   - ./lower-town-street-plan.md
   - ./walls-gates-towers.md
   - ../architecture/burgher-house-plan.md
+  - ../economy/hanseatic-trade-and-season.md
 updated: 2026-07-28
 ---
 
@@ -139,11 +140,13 @@ Local axes: **+X east**, **+Y north**, origin at **forum SE corner** (shared wit
 - [`raekoja-plats-extents-1343.md`](./raekoja-plats-extents-1343.md) — Forum polygon SE throat shares origin with this neck; *forum inferior* explicitly excluded from 1343 square.
 - [`lower-town-street-plan.md`](./lower-town-street-plan.md) — Viru approach (Block C) feeds the east junction; Pikk/Vene spines.
 - [`walls-gates-towers.md`](./walls-gates-towers.md) — Viru Gate mid-14th-c. state and clay-gate naming; east apron density.
+- [`viru-vanaturg-paving-archaeology.md`](./viru-vanaturg-paving-archaeology.md) — zone surface tags for Vanaturu kael and Viru gate apron from AVE 2016/17.
 - [`../architecture/burgher-house-plan.md`](../architecture/burgher-house-plan.md) — Strip-plot diele frontage on neck houses; projecting shop bay type.
+- [`../economy/hanseatic-trade-and-season.md`](../economy/hanseatic-trade-and-season.md) — Forum steelyard and convoy goods division at market throat.
 
 ## Open questions
 
-- Measured **forum–throat paving transition** from AVE 2016/17 trench data — dedicated archaeology pass on `AVE2016_17_KRAUT-NURK_Tln-Viru-tn.pdf`.
+- Measured **forum–throat paving transition** — see [`viru-vanaturg-paving-archaeology.md`](./viru-vanaturg-paving-archaeology.md) (no continuous slab edge published; zone T treatment).
 - **Pre-1368** council records for stranger trading at the convergence (Tallinn City Archives AWB search).
 - Whether a **weigh-house** stood west of the forum (14th-c. mention at Raeapteek site per Postimees) affects grain-lane fiction but not this neck’s boundary [1].
 

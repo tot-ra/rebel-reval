@@ -1,0 +1,94 @@
+/Users/artjomkurapov/git/rebel-reval/tools/generate_medieval_lighting_kit.py:140: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  material.use_nodes = True
+/Users/artjomkurapov/git/rebel-reval/tools/generate_medieval_lighting_kit.py:140: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  material.use_nodes = True
+INFO Draco is available, use library at /Applications/Blender.app/Contents/Resources/5.2/scripts/addons_core/io_scene_gltf2/libbf_intern_draco_bridge.dylib
+INFO MeshOptimizer is available, use library at /Applications/Blender.app/Contents/Resources/5.2/scripts/addons_core/io_scene_gltf2/libbf_intern_meshopt_bridge.dylib
+14:22:25 | INFO: Starting glTF 2.0 export
+14:22:25 | INFO: Extracting primitive: FlameMesh.001
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: ForgedIronFootMesh
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: ForgedIronStemMesh
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: Cylinder.001
+14:22:25 | WARNING: Cylinder.001: Could not calculate tangents. Please try to triangulate the mesh first.
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: IronBobecheMesh
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: TallowCandleMesh
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: Cylinder.002
+14:22:25 | WARNING: Cylinder.002: Could not calculate tangents. Please try to triangulate the mesh first.
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: FlameMesh.003
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: Cube
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: PotteryLampMesh
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: RenderedFatMesh
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: Cube.001
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: Cube.006
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: FlameMesh.004
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: Cylinder.005
+14:22:25 | WARNING: Cylinder.005: Could not calculate tangents. Please try to triangulate the mesh first.
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: Cylinder.006
+14:22:25 | WARNING: Cylinder.006: Could not calculate tangents. Please try to triangulate the mesh first.
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: Cube.003
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: Cube.005
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: Cube.004
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: Cube.002
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: CrudeSocketMesh
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: FlameMesh
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: IronDripPanMesh
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: TallowDripMesh
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: UnevenTallowCandleMesh
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: Cylinder
+14:22:25 | WARNING: Cylinder: Could not calculate tangents. Please try to triangulate the mesh first.
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: BeeswaxCandleMesh
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: BrassBobecheMesh
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: CastBrassFootMesh
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: FlameMesh.002
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: Cylinder.003
+14:22:25 | WARNING: Cylinder.003: Could not calculate tangents. Please try to triangulate the mesh first.
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: TurnedBrassStemMesh
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Extracting primitive: Cylinder.004
+14:22:25 | WARNING: Cylinder.004: Could not calculate tangents. Please try to triangulate the mesh first.
+14:22:25 | INFO: Primitives created: 1
+14:22:25 | INFO: Finished glTF 2.0 export in 0.025018930435180664 s
+00:00.864  render           | Saved: '/Users/artjomkurapov/git/rebel-reval/generated/blender/medieval_lighting_kit_v1/preview.png'
+
+Warning: Cylinder.001: Could not calculate tangents. Please try to triangulate the mesh first.
+Warning: Cylinder.002: Could not calculate tangents. Please try to triangulate the mesh first.
+Warning: Cylinder.005: Could not calculate tangents. Please try to triangulate the mesh first.
+Warning: Cylinder.006: Could not calculate tangents. Please try to triangulate the mesh first.
+Warning: Cylinder: Could not calculate tangents. Please try to triangulate the mesh first.
+Warning: Cylinder.003: Could not calculate tangents. Please try to triangulate the mesh first.
+Warning: Cylinder.004: Could not calculate tangents. Please try to triangulate the mesh first.
+ASSET_METRICS={"asset_id":"prop.medieval_lighting_kit","cache_key":"c7b2fe2bb60ca6f231bccd4027f61f4ec5d99580da73e68fd391afe9a4a3961e","materials":9,"mesh_objects":33,"sha256":"60abae6c8a325baa67422ad44de122ba5e8176e07dbf97c17bb61e6358b1a5c3","texture_size":512,"triangles":2824,"uv_sets_min":1,"variants":{"artisan_tallow":{"dimensions_m":[0.31,0.31,0.7525],"ground_min_z":0.0,"mesh_objects":7,"triangles":760},"grease_lamp":{"dimensions_m":[0.4326,0.344,0.3015],"ground_min_z":0.0,"mesh_objects":5,"triangles":412},"pine_splint":{"dimensions_m":[0.5778,0.22,0.6885],"ground_min_z":0.0005,"mesh_objects":8,"triangles":212},"poor_tallow":{"dimensions_m":[0.29,0.2856,0.4885],"ground_min_z":0.0,"mesh_objects":6,"triangles":540},"rich_beeswax":{"dimensions_m":[0.37,0.37,0.921],"ground_min_z":0.0,"mesh_objects":7,"triangles":900}}}
+Blender 5.2.0 LTS (hash fbe6228777e7 built 2026-07-14 01:31:22)
+
+Blender quit

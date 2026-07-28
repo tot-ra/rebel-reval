@@ -7,26 +7,36 @@ extends RefCounted
 ## than as ground-clipped scenery. Wall-walk stairs/platforms remain owned by
 ## MapWallWalkAccess and take precedence when both apply.
 
-## Stand heights match the prop mesh tops in MapViewMeshBuilderProps.
+## Variant-aware props use their authored model top while every other climbable
+## kind retains the established mesh-builder height.
 const STAND_HEIGHT_BY_KIND := {
 	MapTypes.PROP_KIND_CARGO_CRATES: 0.62,
 	MapTypes.PROP_KIND_BARRELS: 0.72,
 	MapTypes.PROP_KIND_CART: 0.68,
 	MapTypes.PROP_KIND_HAY_STACK: 0.78,
 	MapTypes.PROP_KIND_TRADE_GOODS: 0.55,
-	MapTypes.PROP_KIND_CHEST: 0.56,
 }
+const CHEST_STAND_HEIGHT_BY_VARIANT := {
+	MapPropStyleVariants.CHEST_PLAIN_COFFER: 0.45,
+	MapPropStyleVariants.CHEST_BURGHER: 0.61,
+	MapPropStyleVariants.CHEST_MERCHANT_STRONGBOX: 0.70,
+}
+const DEFAULT_CHEST_STAND_HEIGHT := 0.61
 
 
 static func is_climbable(prop: Dictionary) -> bool:
 	if not prop.get("footprint") is Rect2:
 		return false
-	return STAND_HEIGHT_BY_KIND.has(prop.get("kind", &""))
+	var kind: StringName = prop.get("kind", &"")
+	return kind == MapTypes.PROP_KIND_CHEST or STAND_HEIGHT_BY_KIND.has(kind)
 
 
 static func stand_height(prop: Dictionary) -> float:
 	if not is_climbable(prop):
 		return 0.0
+	if prop.get("kind", &"") == MapTypes.PROP_KIND_CHEST:
+		var variant := StringName(prop.get("style_variant", &""))
+		return float(CHEST_STAND_HEIGHT_BY_VARIANT.get(variant, DEFAULT_CHEST_STAND_HEIGHT))
 	return float(STAND_HEIGHT_BY_KIND[prop["kind"]])
 
 

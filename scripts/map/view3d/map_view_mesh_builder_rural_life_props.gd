@@ -56,14 +56,12 @@ static func _add_field_strip(root: Node3D) -> void:
 
 
 static func _add_hay_wagon(root: Node3D) -> void:
-	_Primitives.box(root, "Axle", Vector3(1.05, 0.08, 0.12), Vector3(0.0, 0.18, 0.0), &"timber")
-	for wheel_x in [-0.42, 0.42]:
-		_Primitives.cylinder(root, "Wheel%d" % int((wheel_x + 0.42) * 10.0), 0.22, 0.08, Vector3(wheel_x, 0.22, 0.28), &"wood")
-		_Primitives.cylinder(root, "WheelBack%d" % int((wheel_x + 0.42) * 10.0), 0.22, 0.08, Vector3(wheel_x, 0.22, -0.28), &"wood")
-	_Primitives.box(root, "Bed", Vector3(0.92, 0.1, 0.72), Vector3(0.0, 0.34, 0.0), &"wood")
-	# A compact shared rick keeps the load visibly loose and fibrous rather than
-	# balancing two smooth spheres on the cart bed.
-	_HayMeshes.add_rick(root, "HayLoad", 4157, Vector3(0.0, 0.39, 0.0), Vector3(0.54, 0.58, 0.48))
+	# Reuse the authored cart so the wagon keeps upright spoked wheels, axles,
+	# rails, and shafts instead of reading as a plank on four flat cylinders.
+	_CartModels.add_model(root)
+	# The authored bed top is 0.68 m. A long, low load fits between its side rails
+	# and leaves the shafts visible, which preserves the cart silhouette in view.
+	_HayMeshes.add_rick(root, "HayLoad", 4157, Vector3(0.0, 0.68, 0.0), Vector3(0.50, 0.56, 0.72))
 
 
 static func _add_pasture_fence(root: Node3D) -> void:

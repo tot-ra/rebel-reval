@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c8oleviste1343audit"
-path="res://.godot/imported/oleviste_church.png-73e78ddf5c1e63d721a5b81ef7f926c5.ctex"
+uid="uid://n482kfk07r64"
+path="res://.godot/imported/oleviste_church.png-321a4e1a16ad439a0e2ed0112f10bc98.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://docs/reports/images/map_audit/oleviste_church.png"
-dest_files=["res://.godot/imported/oleviste_church.png-73e78ddf5c1e63d721a5b81ef7f926c5.ctex"]
+dest_files=["res://.godot/imported/oleviste_church.png-321a4e1a16ad439a0e2ed0112f10bc98.ctex"]
 
 [params]
 

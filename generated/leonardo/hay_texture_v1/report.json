@@ -1,0 +1,16 @@
+{
+  "source": "generated/leonardo/hay_texture_v1/source.jpg",
+  "source_sha256": "d0aa7e5f9eee53be1581d8dcbdb7387635be796286668a8baeb830a1aa1c1cd4",
+  "output": "assets/materials/production/hay_fibers.png",
+  "output_sha256": "1d6bcd8fbd95a8122f08bb87b7aa0209c55ea04e48c0b953c3c9368c5af28e12",
+  "size": [
+    512,
+    512
+  ],
+  "mode": "RGB",
+  "channel_mean": 194.4316,
+  "channel_stddev": 34.1136,
+  "left_right_max_delta": 0,
+  "top_bottom_max_delta": 0,
+  "decision": "production_ready"
+}

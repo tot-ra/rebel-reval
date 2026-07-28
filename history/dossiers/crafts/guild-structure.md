@@ -112,11 +112,16 @@ No surviving **1343 Reval guild regalia or smith ordinance** plate exists; cerem
 ## Cross-references
 
 - [`../architecture/burgher-house-plan.md`](../architecture/burgher-house-plan.md) — *boda* vs merchant diele where a master smith works and lives.
+- [`../architecture/smithy-workshop-layout.md`](../architecture/smithy-workshop-layout.md) — hearth, bellows, anvil, quench, and fire-risk layout inside the craft house.
 - [`../military/arms-and-armour-livonia-1340s.md`](../military/arms-and-armour-livonia-1340s.md) — what Kalev's forge can produce vs import; rebel vs Order kit.
 - [`../power/jurisdictions-of-reval.md`](../power/jurisdictions-of-reval.md) — council vs guild jurisdiction; Vogt tries brawls, *Amt* handles craft quality (composite).
+- [`../power/law-courts-and-punishment.md`](../power/law-courts-and-punishment.md) — *Amt* fines vs Vogt fire-breach jurisdiction; offence-to-consequence pairs for forge quests.
 - [`../people/town-council-and-officers.md`](../people/town-council-and-officers.md) — council co-opts from merchant Kindergilde, not from smith *Amt*.
+- [`../people/estonian-and-german-populations.md`](../people/estonian-and-german-populations.md) — Estonian St Canute membership pre-uprising; Undeutsch craft tiers vs German elite crafts.
+- [`../religion/liturgical-calendar-spring-1343.md`](../religion/liturgical-calendar-spring-1343.md) — St Canute feast oaths and umbrella guild masses on holy days.
+- [`../religion/churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) — which craft umbrella holds chapels in which parish churches.
 - [`../military/watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) — guild masters on burgher watch rolls, not guild-only guard.
-- [`../topography/lower-town-street-plan.md`](../topography/lower-town-street-plan.md) — Harju / smith-street approach; craft wards on Pikk–Lai.
+- [`blacksmith-materials-and-techniques.md`](blacksmith-materials-and-techniques.md) — iron, charcoal, forge durations, and failure modes for Schmiede commissions.
 
 ## Open questions
 

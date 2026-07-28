@@ -1,0 +1,24 @@
+{
+  "id": "creature.sheep",
+  "kind": "organic_creature",
+  "target": "res://assets/animals/medieval_sheep.glb",
+  "dimensions_m": [
+    1.25,
+    0.9,
+    0.55
+  ],
+  "triangles": {
+    "target": 5500,
+    "max": 8000
+  },
+  "textures": {
+    "albedo": 512
+  },
+  "style_refs": [
+    "docs/ART_BIBLE.md"
+  ],
+  "reference": "sheep_reference.jpg",
+  "workflow": "workflow_api.json",
+  "seed": 208744132,
+  "approval": "task-authorized"
+}

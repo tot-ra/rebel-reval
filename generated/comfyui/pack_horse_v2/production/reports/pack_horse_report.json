@@ -1,0 +1,50 @@
+{
+  "asset_id": "creature.pack_horse",
+  "route": "leonardo_reference_to_hunyuan3d_to_blender_cleanup",
+  "source": "generated/comfyui/pack_horse_v2/pack_horse_candidate.glb",
+  "source_sha256": "f5aeaee2a6f701588042138db01145546632561eaf096941d93d5ca5157fcd3d",
+  "output": "assets/animals/medieval/medieval_pack_horse.glb",
+  "output_sha256": "387cf0f0175d03a332475265315f3c7854cfd364c2ba424cb8cb0973910f352c",
+  "raw": {
+    "vertices": 140167,
+    "polygons": 348438,
+    "triangles": 348438,
+    "components": 5,
+    "component_vertices": [
+      140045,
+      52,
+      34,
+      24,
+      12
+    ],
+    "boundary_edges": 47,
+    "non_manifold_edges": 86231,
+    "loose_vertices": 0
+  },
+  "production": {
+    "vertices": 5992,
+    "polygons": 12000,
+    "triangles": 12000,
+    "components": 1,
+    "component_vertices": [
+      5992
+    ],
+    "boundary_edges": 0,
+    "non_manifold_edges": 0,
+    "loose_vertices": 0
+  },
+  "discarded_raw_noise_components": 4,
+  "metric_dimensions_m_y_up": [
+    2.35,
+    1.65,
+    0.78
+  ],
+  "ground_min_y": 0.0,
+  "uv_sets": 1,
+  "materials": 1,
+  "texture_size": 1024,
+  "static_prop": true,
+  "rigged": false,
+  "animations": [],
+  "animated_parts": []
+}

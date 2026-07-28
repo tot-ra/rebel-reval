@@ -3,12 +3,11 @@
 importer="mp3"
 type="AudioStreamMP3"
 uid="uid://b464aqrkk2pjn"
-path="res://.godot/imported/Battle for Oleviste.mp3-a9a88a4f8b37807a8e004d7acae87bc0.mp3str"
+valid=false
 
 [deps]
 
 source_file="res://music/battle/Battle for Oleviste.mp3"
-dest_files=["res://.godot/imported/Battle for Oleviste.mp3-a9a88a4f8b37807a8e004d7acae87bc0.mp3str"]
 
 [params]
 

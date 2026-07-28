@@ -291,6 +291,18 @@ static func parse_market_stall_goods(specification: StringName) -> Array[StringN
 	return parsed
 
 
+
+static func lighting_variant_for_prop(prop: Dictionary) -> StringName:
+	var variant := StringName(prop.get("style_variant", DEFAULT_LIGHTING_VARIANT))
+	return variant if variant in LIGHTING_VARIANTS else DEFAULT_LIGHTING_VARIANT
+
+
+static func invalid_lighting_variant(prop: Dictionary) -> StringName:
+	if prop.get("kind") != PROP_KIND_CANDLE or not prop.has("style_variant"):
+		return &""
+	var variant := StringName(prop["style_variant"])
+	return &"" if variant in LIGHTING_VARIANTS else variant
+
 static func invalid_market_stall_goods(specification: StringName) -> Array[StringName]:
 	var invalid: Array[StringName] = []
 	var raw := String(specification).strip_edges()
@@ -307,18 +319,6 @@ static func invalid_market_stall_goods(specification: StringName) -> Array[Strin
 	if module_count > MARKET_STALL_MAX_DISPLAY_MODULES:
 		invalid.append(&"too_many_modules")
 	return invalid
-
-static func lighting_variant_for_prop(prop: Dictionary) -> StringName:
-	var variant := StringName(prop.get("style_variant", DEFAULT_LIGHTING_VARIANT))
-	return variant if variant in LIGHTING_VARIANTS else DEFAULT_LIGHTING_VARIANT
-
-
-static func invalid_lighting_variant(prop: Dictionary) -> StringName:
-	if prop.get("kind") != PROP_KIND_CANDLE or not prop.has("style_variant"):
-		return &""
-	var variant := StringName(prop["style_variant"])
-	return &"" if variant in LIGHTING_VARIANTS else variant
-
 
 static func resolved_wall_height_px(building: Dictionary) -> float:
 	var height_px := float(building.get("wall_height", 64.0))

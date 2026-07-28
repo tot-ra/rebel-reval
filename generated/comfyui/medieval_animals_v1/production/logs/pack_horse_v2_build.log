@@ -1,0 +1,17 @@
+11:10:13 | INFO: Data are loaded, start creating Blender stuff
+11:10:13 | INFO: Blender create Mesh node 0
+11:10:13 | INFO: glTF import finished in 0.08s
+/Users/artjomkurapov/git/rebel-reval/generated/comfyui/medieval_animals_v1/production/build_pack_horse_v2.py:87: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  material.use_nodes = True
+INFO Draco is available, use library at /Applications/Blender.app/Contents/Resources/5.2/scripts/addons_core/io_scene_gltf2/libbf_intern_draco_bridge.dylib
+INFO MeshOptimizer is available, use library at /Applications/Blender.app/Contents/Resources/5.2/scripts/addons_core/io_scene_gltf2/libbf_intern_meshopt_bridge.dylib
+11:10:14 | INFO: Starting glTF 2.0 export
+11:10:14 | INFO: Extracting primitive: Mesh_0
+11:10:14 | WARNING: The active Vertex Color will not be exported, as it is not used in the node tree of the material
+11:10:14 | INFO: Primitives created: 1
+11:10:14 | INFO: Finished glTF 2.0 export in 0.017478227615356445 s
+
+ASSET_METRICS={"asset":"pack_horse","triangles":12000,"components":1,"dimensions_m":[2.35,1.65,0.78],"sha256":"7a39b8acaaa255d730131e960b46b579a9e3c1d77ca372f5e6dd0b9a1c378b83"}
+Blender 5.2.0 LTS (hash fbe6228777e7 built 2026-07-14 01:31:22)
+
+Blender quit

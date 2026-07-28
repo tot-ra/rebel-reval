@@ -6,7 +6,7 @@ consumers: [map, art, quest, dev]
 related:
   - ../topography/lower-town-street-plan.md
   - ../architecture/burgher-house-plan.md
-  - ../architecture/toompea-castle-and-upper-town.md
+  - ./harbour-and-shoreline.md
   - ../military/watch-duty-and-town-defence.md
 updated: 2026-07-27
 ---
@@ -141,16 +141,22 @@ For April 1343: show **wet ditch** on south/east where completed; **timber sluic
 ## Cross-references
 
 - [`lower-town-street-plan.md`](lower-town-street-plan.md) — street spines terminate at Viru, Karja, and Coastal gates; Müürivahe runs inside the curtain.
-- [`../architecture/toompea-castle-and-upper-town.md`](../architecture/toompea-castle-and-upper-town.md) — castle hill and wooden/stone hill gates (R-006 deliverable).
+- [`back-lanes-east-of-pikk.md`](./back-lanes-east-of-pikk.md) (R-032) — Müürivahe as eastern rear-lane margin; yard-gate access from Pikk plots.
+- [`old-market-vanaturg.md`](./old-market-vanaturg.md) — Viru Gate apron feeds Vanaturu kael east-throat cart traffic to the *forum* (R-031).
+- [`viru-vanaturg-paving-archaeology.md`](./viru-vanaturg-paving-archaeology.md) — gate-apron paving zones G/A and plank-on-moat-fill surface from AVE 2016/17.
+- [`harbour-and-shoreline.md`](./harbour-and-shoreline.md) — cliff descent from Coastal Gate to wet cargo ground; Sand Gate beach exit to Kalamaja fishing shore; no 1343 foregate/Fat Margaret.
+- [`kalamaja-fishing-shore-1343.md`](./kalamaja-fishing-shore-1343.md) — net-yard layout, boat types, and 1343 attestation band for the northwest fishing fringe.
+- [`../architecture/toompea-castle-and-upper-town.md`](../architecture/toompea-castle-and-upper-town.md) — castle hill, wooden hill gates, Danish Toompea vs All-linn jurisdiction.
+- [`../power/jurisdictions-of-reval.md`](../power/jurisdictions-of-reval.md) — who controls gates and courts during siege (council vs crown vs Order).
 - [`../architecture/burgher-house-plan.md`](../architecture/burgher-house-plan.md) — plot-wall height (~3 m) matches party-wall and yard-enclosure logic on burgess strips (R-003).
 - [`../military/watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) — burgher watch on towers and gates (R-010 deliverable).
 
 ## Open questions
 
-- Exact April 1343 completion percentage of Viru Gate masonry — needs closer read of `AVE2016_17_KRAUT-NURK_Tln-Viru-tn.pdf` (supports retained R-002 depth or map note).
+- Exact April 1343 completion percentage of Viru Gate masonry — see [`viru-vanaturg-paving-archaeology.md`](./viru-vanaturg-paving-archaeology.md) for gate-apron paving; tower completion still **partial**.
 - Whether Harju Gate watermill existed before 1345 Ülemiste grant.
 - Tower-by-tower garrison list in 1343 (eleven commanders only attested ~1355) [1].
-- Toompea curtain between castle and Lower Town in 1343 — wooden/earthen until 1454–1455 [1]; needs R-006 coordination.
+- Toompea curtain between castle and Lower Town in 1343 — wooden/earthen until 1454–1455; see [`../architecture/toompea-castle-and-upper-town.md`](../architecture/toompea-castle-and-upper-town.md).
 - Measured tower spacing on eastern curtain (400 m between Viru and Sand without intermediate tower until At the Monks) — gameplay exposure vs. historical thin defence [1].
 
 ## Sources

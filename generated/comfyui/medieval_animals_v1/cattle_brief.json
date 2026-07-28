@@ -1,0 +1,24 @@
+{
+  "id": "creature.cattle",
+  "kind": "organic_creature",
+  "target": "res://assets/animals/medieval_cattle.glb",
+  "dimensions_m": [
+    2.2,
+    1.45,
+    0.82
+  ],
+  "triangles": {
+    "target": 7000,
+    "max": 10000
+  },
+  "textures": {
+    "albedo": 512
+  },
+  "style_refs": [
+    "docs/ART_BIBLE.md"
+  ],
+  "reference": "cattle_reference.jpg",
+  "workflow": "workflow_api.json",
+  "seed": 208744131,
+  "approval": "task-authorized"
+}

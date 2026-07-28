@@ -37,8 +37,17 @@ func test_hay_wagon_reuses_compact_fibrous_load() -> void:
 		{"id": &"east.hay_wagon", "kind": MapTypes.PROP_KIND_HAY_WAGON, "position": Vector2.ZERO},
 		MapTypes.DEFAULT_CELL_SIZE
 	)
+	assert_true(wagon.has_node("WoodenCartModel"), "hay wagon needs the authored medieval cart chassis")
+	var cart := wagon.get_node("WoodenCartModel") as Node3D
+	assert_true(cart.get_meta(&"production_cart_model", false), "hay wagon must identify the shared production cart")
+	assert_true(cart.has_node("WoodenCart/WheelAssembly"), "hay wagon wheels need the authored upright spoked assembly")
+	assert_false(wagon.has_node("Wheel0"), "flat cylinder wheel placeholders must be removed")
+	assert_false(wagon.has_node("WheelBack0"), "flat cylinder wheel placeholders must be removed")
 	assert_true(wagon.has_node("HayLoad/HayBody"), "Pirita wagon needs a shaped shared hay load")
 	assert_true(wagon.has_node("HayLoad/LooseStraw"), "wagon load needs visible overhanging straw")
+	var load := wagon.get_node("HayLoad") as Node3D
+	assert_true(load.position.y >= 0.68, "hay load must rest on the authored cart bed")
+	assert_true(load.scale.z > load.scale.x, "hay load must run along the wagon bed instead of forming a round heap")
 	assert_false(wagon.has_node("LoadA"), "wagon must not keep sphere load placeholders")
 	assert_false(wagon.has_node("LoadB"), "wagon must not keep sphere load placeholders")
 	wagon.free()

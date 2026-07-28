@@ -8,10 +8,6 @@
 
 config_version=5
 
-[audio]
-
-buses/default_bus_layout="res://audio/default_bus_layout.tres"
-
 [animation]
 
 compatibility/default_parent_skeleton_in_mesh_instance_3d=true
@@ -22,6 +18,10 @@ config/name="Reval Rebel"
 run/main_scene="uid://dyl726xerhjhg"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://scenes/menu/logo256.png"
+
+[audio]
+
+buses/default_bus_layout="res://audio/default_bus_layout.tres"
 
 [autoload]
 

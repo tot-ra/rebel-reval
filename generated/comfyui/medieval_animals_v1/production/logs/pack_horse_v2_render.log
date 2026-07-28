@@ -1,0 +1,13 @@
+11:11:53 | INFO: Data are loaded, start creating Blender stuff
+11:11:53 | INFO: Blender create Mesh node Mesh_0
+11:11:53 | INFO: glTF import finished in 0.02s
+/Users/artjomkurapov/git/rebel-reval/generated/comfyui/forge_cat_hunyuan3d_v1/production/render_textured.py:32: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  scene.world.use_nodes = True
+00:00.794  render           | Saved: 'generated/comfyui/medieval_animals_v1/production/previews/pack_horse_v2_front.png'
+00:01.027  render           | Saved: 'generated/comfyui/medieval_animals_v1/production/previews/pack_horse_v2_side.png'
+00:01.255  render           | Saved: 'generated/comfyui/medieval_animals_v1/production/previews/pack_horse_v2_back.png'
+00:01.475  render           | Saved: 'generated/comfyui/medieval_animals_v1/production/previews/pack_horse_v2_threeq.png'
+GLB_INFO={"meshes": ["AnimalMesh"], "armatures": [], "images": ["pack_horse_albedo"], "actions": [], "materials": ["medieval_pack_horse"], "bounds_min": [-1.175, -0.39, 0.0], "bounds_max": [1.175, 0.39, 1.65], "dims": [2.35, 0.78, 1.65]}
+Blender 5.2.0 LTS (hash fbe6228777e7 built 2026-07-14 01:31:22)
+
+Blender quit

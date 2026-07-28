@@ -1,0 +1,77 @@
+{
+  "asset_id": "prop.household_chests",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "7ed7d8457a803c5c2d4baefd5e7c6d0a8b0624d482cfc4b29a2226f46c0db939",
+  "defects": [],
+  "generator": "tools/generate_household_chests.py",
+  "generator_version": "household_chests_v1",
+  "metrics": {
+    "common": {
+      "dimensions_m": [
+        1.005,
+        0.6075,
+        0.61
+      ],
+      "ground_min": 0.0,
+      "materials": 3,
+      "sha256": "479ba5c0652bccc42a43ee04912eaa3683e8c755bd3239b78bfab537a82e9642",
+      "texture_size": 512,
+      "triangle_max": 4200,
+      "triangles": 1872,
+      "uv_sets": 1
+    },
+    "poor": {
+      "dimensions_m": [
+        0.815,
+        0.4475,
+        0.5125
+      ],
+      "ground_min": 0.0,
+      "materials": 2,
+      "sha256": "27e6cc9bfc6052a81d6ee23ea90df83b3f096fbffcdc974ec887b62b611e793e",
+      "texture_size": 512,
+      "triangle_max": 2800,
+      "triangles": 708,
+      "uv_sets": 1
+    },
+    "rich": {
+      "dimensions_m": [
+        1.2445,
+        0.7026,
+        0.71
+      ],
+      "ground_min": 0.0,
+      "materials": 3,
+      "sha256": "322aef49a50876111e6b1df3a4bccf5757cd744cdcd818597f1538c29a610129",
+      "texture_size": 512,
+      "triangle_max": 6500,
+      "triangles": 3592,
+      "uv_sets": 1
+    }
+  },
+  "preview": null,
+  "route": "deterministic_blender",
+  "validation": {
+    "common": {
+      "ground_contact": true,
+      "metric_scale": true,
+      "portable_pbr_materials": true,
+      "triangle_budget": true,
+      "uvs": true
+    },
+    "poor": {
+      "ground_contact": true,
+      "metric_scale": true,
+      "portable_pbr_materials": true,
+      "triangle_budget": true,
+      "uvs": true
+    },
+    "rich": {
+      "ground_contact": true,
+      "metric_scale": true,
+      "portable_pbr_materials": true,
+      "triangle_budget": true,
+      "uvs": true
+    }
+  }
+}

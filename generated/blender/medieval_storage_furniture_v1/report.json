@@ -1,0 +1,64 @@
+{
+  "asset_id": "prop.medieval_storage_furniture",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "316cae10631b30432e242d2b7d0790be3093295098e5f67d2289ac2f73acd33b",
+  "checks": [
+    "metric_scale",
+    "y_up",
+    "ground_contact",
+    "uvs",
+    "embedded_pbr_albedo",
+    "social_variant_allowlist"
+  ],
+  "generator": "tools/generate_medieval_storage_furniture.py",
+  "generator_version": "medieval_storage_furniture_v1",
+  "preview": "generated/blender/medieval_storage_furniture_v1/preview.png",
+  "route": "deterministic_blender",
+  "variants": {
+    "shelf.burgher_cupboard": {
+      "dimensions_m": [
+        1.2,
+        0.6507,
+        1.52
+      ],
+      "faces": 1022,
+      "ground_min_z": 0.0,
+      "materials": 3,
+      "sha256": "db62a4ea9223ca64fb8624e4cf2025589c4f02c4c21dd845df7b324538a3b3bf",
+      "textured_materials": 1,
+      "triangles": 1796,
+      "uv_sets": 1,
+      "vertices": 960
+    },
+    "shelf.common_open": {
+      "dimensions_m": [
+        0.98,
+        0.47,
+        1.4
+      ],
+      "faces": 486,
+      "ground_min_z": 0.0,
+      "materials": 2,
+      "sha256": "722bb031f67adba5034a647a3cf704895a868daf81d656c64aeb19dfae3b4f75",
+      "textured_materials": 1,
+      "triangles": 852,
+      "uv_sets": 1,
+      "vertices": 456
+    },
+    "shelf.elite_armarium": {
+      "dimensions_m": [
+        1.46,
+        0.8207,
+        1.9775
+      ],
+      "faces": 1282,
+      "ground_min_z": 0.0,
+      "materials": 3,
+      "sha256": "e4e379b5ab048c9ec7e2bcb16cd267765110850cec5404c6fd2e8ae17a170daf",
+      "textured_materials": 1,
+      "triangles": 2236,
+      "uv_sets": 1,
+      "vertices": 1200
+    }
+  }
+}

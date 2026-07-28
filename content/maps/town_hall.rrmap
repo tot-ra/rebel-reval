@@ -40,10 +40,10 @@ prop petition_table table 9 13 rect=8,3
 prop petition_ledger ledger 12 13 rect=2,2
 prop scribe_table table 33 5 rect=5,3
 prop scribe_chair chair 35 8 rect=2,2
-prop archive_shelf_north shelf 32 3 rect=2,3
-prop archive_shelf_west shelf 32 7 rect=2,3
-prop charter_chest chest 36 4 rect=2,2
-prop treasury_chest chest 33 12 rect=2,2
+prop archive_shelf_north shelf 32 3 rect=2,3 style_variant=shelf.elite_armarium
+prop archive_shelf_west shelf 32 7 rect=2,3 style_variant=shelf.burgher_cupboard
+prop charter_chest chest 36 4 rect=2,2 style_variant=chest.burgher
+prop treasury_chest chest 33 12 rect=2,2 style_variant=chest.merchant_strongbox
 prop civic_hearth_block hearth 33 17 rect=4,3
 prop service_table table 35 12 rect=4,3
 prop waiting_bench_west table 4 18 rect=6,1

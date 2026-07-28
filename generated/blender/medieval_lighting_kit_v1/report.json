@@ -1,0 +1,85 @@
+{
+  "asset_id": "prop.medieval_lighting_kit",
+  "blender_version": "Blender 5.2 LTS",
+  "defects": [
+    "pine_splint is a low-confidence regional reconstruction, not a Reval archaeological find"
+  ],
+  "generator": "tools/generate_medieval_lighting_kit.py",
+  "generator_version": "medieval_lighting_kit_v1",
+  "limits": {
+    "max": 9000,
+    "target": 6500
+  },
+  "metrics": {
+    "asset_id": "prop.medieval_lighting_kit",
+    "cache_key": "c7b2fe2bb60ca6f231bccd4027f61f4ec5d99580da73e68fd391afe9a4a3961e",
+    "materials": 9,
+    "mesh_objects": 33,
+    "sha256": "60abae6c8a325baa67422ad44de122ba5e8176e07dbf97c17bb61e6358b1a5c3",
+    "texture_size": 512,
+    "triangles": 2824,
+    "uv_sets_min": 1,
+    "variants": {
+      "artisan_tallow": {
+        "dimensions_m": [
+          0.31,
+          0.31,
+          0.7525
+        ],
+        "ground_min_z": 0.0,
+        "mesh_objects": 7,
+        "triangles": 760
+      },
+      "grease_lamp": {
+        "dimensions_m": [
+          0.4326,
+          0.344,
+          0.3015
+        ],
+        "ground_min_z": 0.0,
+        "mesh_objects": 5,
+        "triangles": 412
+      },
+      "pine_splint": {
+        "dimensions_m": [
+          0.5778,
+          0.22,
+          0.6885
+        ],
+        "ground_min_z": 0.0005,
+        "mesh_objects": 8,
+        "triangles": 212
+      },
+      "poor_tallow": {
+        "dimensions_m": [
+          0.29,
+          0.2856,
+          0.4885
+        ],
+        "ground_min_z": 0.0,
+        "mesh_objects": 6,
+        "triangles": 540
+      },
+      "rich_beeswax": {
+        "dimensions_m": [
+          0.37,
+          0.37,
+          0.921
+        ],
+        "ground_min_z": 0.0,
+        "mesh_objects": 7,
+        "triangles": 900
+      }
+    }
+  },
+  "preview": null,
+  "route": "deterministic_blender",
+  "validation": {
+    "five_independent_variants": true,
+    "ground_contact": true,
+    "metric_scale": true,
+    "portable_pbr_materials": true,
+    "triangle_budget": true,
+    "uvs": true
+  }
+}

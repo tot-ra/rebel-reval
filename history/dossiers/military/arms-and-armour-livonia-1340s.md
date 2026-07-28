@@ -8,6 +8,7 @@ related:
   - watch-duty-and-town-defence.md
   - ../crafts/blacksmith-materials-and-techniques.md
   - ../power/jurisdictions-of-reval.md
+  - ../economy/coinage-prices-and-measures.md
 updated: 2026-07-28
 ---
 
@@ -93,19 +94,19 @@ Minimum ten items with materials — usable for shop tables, commission prompts,
 
 Detailed durations and failure modes belong in **R-013** [`blacksmith-materials-and-techniques.md`](../crafts/blacksmith-materials-and-techniques.md) (not yet delivered).
 
-### Costs and trade (placeholder until R-014)
+### Costs and trade
 
-No Reval 1343 price list is attested in this pass. Hanseatic comparanda (label `plausible composite`):
+Price scale now lives in [`../economy/coinage-prices-and-measures.md`](../economy/coinage-prices-and-measures.md). Key arms lines (all `plausible composite` unless noted):
 
-| Item | Rough comparandum | Notes |
+| Item | Nominal price | Notes |
 |---|---|---|
-| Spearhead | Fraction of a mark | Cheaper than sword |
-| Sword (complete) | Multiple marks | Blade import dominates cost |
-| Mail hauberk | Many marks | Often largest household arms expense |
-| Crossbow | Between spear and sword | Composite prod increases price |
-| Horseshoe set | Pence per shoe | Routine smith cash flow |
+| Spearhead (forged) | **6–12 ßl.** | Cheaper than sword |
+| Sword (complete) | **2–6 M.** | Blade import dominates |
+| Mail hauberk | **15–40 M.** | Largest common arms expense |
+| Crossbow (complete) | **1–3 M.** | Composite prod adds cost |
+| Horseshoe pair | **4–8 d.** | Routine smith cash flow |
 
-**Do not quote exact öre in dialogue until R-014 lands.**
+Apply **×1.25–1.5** siege multiplier April–May 1343 per economy dossier.
 
 ## Production hooks
 
@@ -131,16 +132,16 @@ No Reval 1343 price list is attested in this pass. Hanseatic comparanda (label `
 
 - [`watch-duty-and-town-defence.md`](watch-duty-and-town-defence.md) — who must carry which kit on watch nights.
 - [`../crafts/guild-structure.md`](../crafts/guild-structure.md) — Schmiede *Amt* under St Canute; illegal blade sales.
-- [`../crafts/blacksmith-materials-and-techniques.md`](../crafts/blacksmith-materials-and-techniques.md) — iron sources, temper, durations (R-013, pending).
+- [`../architecture/smithy-workshop-layout.md`](../architecture/smithy-workshop-layout.md) — forge spatial layout and curfew fire rule for commission scenes.
+- [`../crafts/blacksmith-materials-and-techniques.md`](../crafts/blacksmith-materials-and-techniques.md) — iron sources, temper, durations, charcoal quantities.
 - [`../power/jurisdictions-of-reval.md`](../power/jurisdictions-of-reval.md) — council arms muster vs Order reinforcement.
 - [`../topography/lower-town-street-plan.md`](../topography/lower-town-street-plan.md) — Harju smith-street and craft wards.
-
-## Open questions
+- [`../economy/coinage-prices-and-measures.md`](../economy/coinage-prices-and-measures.md) — arms and horseshoe price rows in schilling/mark/pfennig.
 
 - Reval **1343 arms ordinance** article numbers in the 1257/1282 law codex — candidate **R-040**.
 - **Named smith contracts** for watch resupply in AWB 1340–1343 — tie to R-038 prosopography.
 - **Baltic crossbow prod import** route (Riga vs local horn) — needs Hanse harbour dossier R-015.
-- Exact **price in marks/öre** for spearhead vs horseshoe — R-014 economy pass.
+- Exact **price in marks/öre** for spearhead vs horseshoe — resolved in [`../economy/coinage-prices-and-measures.md`](../economy/coinage-prices-and-measures.md); AWB folio pass still sharpens iron rows (R-042).
 
 ## Sources
 

@@ -1,0 +1,39 @@
+{
+  "source": "cattle_candidate.glb",
+  "sha256": "2226941a674653c6f56c2873b47f83387a2662aa1309043e6d1bdf69ebd5f972",
+  "mesh_object_count": 1,
+  "bounds_min": [
+    -0.971981,
+    -0.985301,
+    -0.716889
+  ],
+  "bounds_max": [
+    0.977959,
+    0.977366,
+    0.69762
+  ],
+  "dimensions": [
+    1.94994,
+    1.962668,
+    1.41451
+  ],
+  "meshes": [
+    {
+      "name": "Mesh_0",
+      "vertices": 196093,
+      "polygons": 599660,
+      "triangles": 599660,
+      "connected_components": 1,
+      "components": [
+        {
+          "vertices": 196093,
+          "faces": 599660
+        }
+      ],
+      "loose_vertices": 0,
+      "loose_edges": 0,
+      "boundary_edges": 13,
+      "non_manifold_edges": 260122
+    }
+  ]
+}

@@ -3,12 +3,11 @@
 importer="mp3"
 type="AudioStreamMP3"
 uid="uid://mkux7gss6w6m"
-path="res://.godot/imported/Riot in the Square.mp3-60265eca565157e1edd263b1f4594ab4.mp3str"
+valid=false
 
 [deps]
 
 source_file="res://music/battle/Riot in the Square.mp3"
-dest_files=["res://.godot/imported/Riot in the Square.mp3-60265eca565157e1edd263b1f4594ab4.mp3str"]
 
 [params]
 

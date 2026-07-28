@@ -5,6 +5,7 @@ status: solid
 consumers: [art, map, dev, quest]
 related:
   - burgher-house-plan.md
+  - domestic-storage-furniture.md
   - ../crafts/guild-structure.md
   - ../crafts/blacksmith-materials-and-techniques.md
   - ../military/arms-and-armour-livonia-1340s.md

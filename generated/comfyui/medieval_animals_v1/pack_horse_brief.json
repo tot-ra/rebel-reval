@@ -1,0 +1,24 @@
+{
+  "id": "creature.pack_horse",
+  "kind": "organic_creature",
+  "target": "res://assets/animals/medieval_pack_horse.glb",
+  "dimensions_m": [
+    2.35,
+    1.65,
+    0.78
+  ],
+  "triangles": {
+    "target": 9000,
+    "max": 12000
+  },
+  "textures": {
+    "albedo": 512
+  },
+  "style_refs": [
+    "docs/ART_BIBLE.md"
+  ],
+  "reference": "pack_horse_reference.jpg",
+  "workflow": "workflow_api.json",
+  "seed": 208744133,
+  "approval": "task-authorized"
+}

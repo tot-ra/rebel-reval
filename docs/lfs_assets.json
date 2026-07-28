@@ -404,26 +404,26 @@
       "scope": "runtime"
     },
     {
-      "path": "archive/music/revel_center/holy spirit church/Hymn of the Holy Spirit (1).mp3",
+      "path": "music/revel_center/holy spirit church/Hymn of the Holy Spirit (1).mp3",
       "size_bytes": 5895123,
       "sha256": "4cf4acbd09949ad7b467ea62236b850390ee149903163cdf9a0e9e776519707c",
       "lfs_oid": "sha256:4cf4acbd09949ad7b467ea62236b850390ee149903163cdf9a0e9e776519707c",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - runtime audio",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation",
       "source_reference": "assets/SOURCES.csv:music.revel.center.holy.spirit.church.hymn.of.the.holy.spirit.1",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
-      "path": "archive/music/revel_center/holy spirit church/Hymn of the Holy Spirit.mp3",
+      "path": "music/revel_center/holy spirit church/Hymn of the Holy Spirit.mp3",
       "size_bytes": 5059729,
       "sha256": "b5075685c1a321790c7279976befaabce2dc6027f31d7524c54ff8d7e83bf094",
       "lfs_oid": "sha256:b5075685c1a321790c7279976befaabce2dc6027f31d7524c54ff8d7e83bf094",
-      "owner": "project maintainer - inactive soundtrack archive",
+      "owner": "project maintainer - runtime audio",
       "license": "AGPL-3.0-or-later (project author)",
-      "approval": "approved - maintainer AI generation; archived and excluded from runtime",
+      "approval": "approved - maintainer AI generation",
       "source_reference": "assets/SOURCES.csv:music.revel.center.holy.spirit.church.hymn.of.the.holy.spirit",
-      "scope": "archive"
+      "scope": "runtime"
     },
     {
       "path": "music/revel_center/raekoda/The Guildmaster's Ball.mp3",

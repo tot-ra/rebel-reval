@@ -6,6 +6,7 @@ consumers: [map, dev, art]
 related:
   - ../../../docs/HISTORICAL_AUDIT.md
   - ./walls-gates-towers.md
+  - ./harbour-and-shoreline.md
 updated: 2026-07-27
 ---
 
@@ -146,17 +147,24 @@ Dimensions below combine attested medieval bands [4] with surviving alignment [2
 
 ## Cross-references
 
-- [`walls-gates-towers.md`](walls-gates-towers.md) — gate positions (Viru, Karja, Coastal) terminate these spines; wall lane (*Müürivahe*) bounds blocks on the curtain side.
+- [`lower-town-street-plan.md`](./lower-town-street-plan.md) — Pikk merchant spine terminates at Coastal Gate; grade fall toward wet north margin.
+- [`harbour-and-shoreline.md`](./harbour-and-shoreline.md) — Pikk harbour spine, wet north margin, Coastal Gate descent to merchant landing (R-005).
 - [`../../../docs/HISTORICAL_AUDIT.md`](../../../docs/HISTORICAL_AUDIT.md) — P0-072 ward-level density, surface, and gate chronology that implement this street plan in prototype maps.
 - **Delivered neighbour:** [`architecture/burgher-house-plan.md`](../architecture/burgher-house-plan.md) (R-003) — diele-dornse interior zoning, cellars, hoists, hearth, and 1343-safe facade/roof bands.
+- **Delivered neighbour:** [`topography/raekoja-plats-extents-1343.md`](./raekoja-plats-extents-1343.md) (R-029) — bounded 1343 market polygon and pre-1371 Town Hall south frontage.
+- **Delivered neighbour:** [`topography/pikk-lai-frontage-materials-1340s.md`](./pikk-lai-frontage-materials-1340s.md) (R-030) — timber vs stone frontage bands for Pikk and Lai merchant spines.
+- **Delivered neighbour:** [`topography/back-lanes-east-of-pikk.md`](./back-lanes-east-of-pikk.md) (R-032) — named rear lanes (Müürivahe, Vene, Katariina käik) east of Pikk merchant blocks.
+- **Delivered neighbour:** [`topography/old-market-vanaturg.md`](./old-market-vanaturg.md) (R-031) — east throat / Vanaturu kael lane; *forum inferior* absent in 1343.
+- **Delivered neighbour:** [`../religion/churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) (R-016) — Dominican, St Michael, and parish church precincts that break strip blocks.
+- [`../architecture/toompea-castle-and-upper-town.md`](../architecture/toompea-castle-and-upper-town.md) (R-006) — Pikk jalg / Lühike jalg ascents and hill–Lower Town boundary control.
 
 ## Open questions
 
 - Exact 1343 footprint of **Pikk** and **Lai** names in council records — worth a dedicated language/register pass (supports R-024).
 - **Rataskaevu** well at modern anchor vs generic well placement in 1343 — flagged uncertain in audit [12].
 - Measured **street widths** at specific intersections (Viru × market, Pikk × Coastal Gate) — only local archaeology, no citywide survey.
-- **Vene** quarter eastern limit and riverside plots — needs harbour shoreline dossier (R-005).
-- Whether **Müürivahe** functioned as a full public lane or intermittent service path in 1343.
+- **Vene** quarter eastern limit and riverside plots — see [`harbour-and-shoreline.md`](./harbour-and-shoreline.md) for wet north margin; precise Vene street limit in 1343 remains **uncertain**.
+- Whether **Müürivahe** functioned as a full public lane or intermittent service path in 1343 — partially addressed in [`back-lanes-east-of-pikk.md`](./back-lanes-east-of-pikk.md) (R-032); yard-gate widths still open.
 
 ## Sources
 

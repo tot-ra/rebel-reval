@@ -44,20 +44,20 @@ Domains and their scope are defined in the
 
 | Domain | Scope | Status | Dossiers | Open backlog | Primary consumers |
 |--------|-------|--------|----------|--------------|-------------------|
-| `topography` | city plan, walls, gates, plots, harbour | partial | [`lower-town-street-plan`](dossiers/topography/lower-town-street-plan.md) (partial), [`walls-gates-towers`](dossiers/topography/walls-gates-towers.md) (partial), [`harbour-and-shoreline`](dossiers/topography/harbour-and-shoreline.md) (solid), [`raekoja-plats-extents-1343`](dossiers/topography/raekoja-plats-extents-1343.md) (partial), [`pikk-lai-frontage-materials-1340s`](dossiers/topography/pikk-lai-frontage-materials-1340s.md) (partial), [`old-market-vanaturg`](dossiers/topography/old-market-vanaturg.md) (solid), [`viru-vanaturg-paving-archaeology`](dossiers/topography/viru-vanaturg-paving-archaeology.md) (partial) | R-032–R-033, R-036 | Map, Dev |
-| `architecture` | building types, floor plans, interiors | partial | [`burgher-house-plan`](dossiers/architecture/burgher-house-plan.md) (solid), [`smithy-workshop-layout`](dossiers/architecture/smithy-workshop-layout.md) (solid), [`toompea-castle-and-upper-town`](dossiers/architecture/toompea-castle-and-upper-town.md) (solid) | R-035 | Map, Art |
+| `topography` | city plan, walls, gates, plots, harbour | partial | [`lower-town-street-plan`](dossiers/topography/lower-town-street-plan.md) (partial), [`walls-gates-towers`](dossiers/topography/walls-gates-towers.md) (partial), [`harbour-and-shoreline`](dossiers/topography/harbour-and-shoreline.md) (solid), [`kalamaja-fishing-shore-1343`](dossiers/topography/kalamaja-fishing-shore-1343.md) (partial), [`raekoja-plats-extents-1343`](dossiers/topography/raekoja-plats-extents-1343.md) (partial), [`pikk-lai-frontage-materials-1340s`](dossiers/topography/pikk-lai-frontage-materials-1340s.md) (partial), [`old-market-vanaturg`](dossiers/topography/old-market-vanaturg.md) (solid), [`viru-vanaturg-paving-archaeology`](dossiers/topography/viru-vanaturg-paving-archaeology.md) (partial), [`back-lanes-east-of-pikk`](dossiers/topography/back-lanes-east-of-pikk.md) (partial) | R-033, R-036, R-043, R-052 | Map, Dev |
+| `architecture` | building types, floor plans, interiors | partial | [`burgher-house-plan`](dossiers/architecture/burgher-house-plan.md) (solid), [`smithy-workshop-layout`](dossiers/architecture/smithy-workshop-layout.md) (solid), [`domestic-storage-furniture`](dossiers/architecture/domestic-storage-furniture.md) (solid), [`toompea-castle-and-upper-town`](dossiers/architecture/toompea-castle-and-upper-town.md) (solid) | R-035 | Map, Art |
 | `people` | named residents, households, name stock | partial | [`town-council-and-officers`](dossiers/people/town-council-and-officers.md) (partial), [`estonian-and-german-populations`](dossiers/people/estonian-and-german-populations.md) (partial) | R-007, R-026, R-038 | Character, Narrative |
 | `power` | council, jurisdictions, law, punishment | partial | [`jurisdictions-of-reval`](dossiers/power/jurisdictions-of-reval.md) (solid), [`law-courts-and-punishment`](dossiers/power/law-courts-and-punishment.md) (solid) | R-040 | Quest, Narrative |
 | `military` | garrison, watch, arms, fortification, siege | partial | [`watch-duty-and-town-defence`](dossiers/military/watch-duty-and-town-defence.md) (solid), [`arms-and-armour-livonia-1340s`](dossiers/military/arms-and-armour-livonia-1340s.md) (partial) | R-040 | Quest, Art, Dev |
-| `crafts` | guilds, trades, workshops, tools, smithing | partial | [`guild-structure`](dossiers/crafts/guild-structure.md) (partial) | R-013, R-027, R-041 | Dev, Art, Quest |
-| `economy` | trade, goods, prices, coin, measures | absent | - | R-014, R-015 | Dev, Quest |
-| `religion` | churches, orders, liturgy, calendar | absent | - | R-016, R-017 | Narrative, Map, Art |
+| `crafts` | guilds, trades, workshops, tools, smithing | partial | [`guild-structure`](dossiers/crafts/guild-structure.md) (partial), [`blacksmith-materials-and-techniques`](dossiers/crafts/blacksmith-materials-and-techniques.md) (solid) | R-027, R-041, R-042 | Dev, Art, Quest |
+| `economy` | trade, goods, prices, coin, measures | partial | [`coinage-prices-and-measures`](dossiers/economy/coinage-prices-and-measures.md) (solid), [`hanseatic-trade-and-season`](dossiers/economy/hanseatic-trade-and-season.md) (solid) | R-042 | Dev, Quest |
+| `religion` | churches, orders, liturgy, calendar | partial | [`churches-and-religious-houses`](dossiers/religion/churches-and-religious-houses.md) (solid), [`liturgical-calendar-spring-1343`](dossiers/religion/liturgical-calendar-spring-1343.md) (solid) | R-049, R-050 | Narrative, Map, Art |
 | `culture` | music, instruments, festivals, games | absent | - | R-018, R-019 | Art, Dialogue, Dev |
 | `folklore` | tales, beliefs, spirits, magic | stub (see lore compendium) | - | R-020, R-021 | Narrative, Dialogue |
-| `dailylife` | food, clothing, housing, health | absent | - | R-022, R-023 | Character, Art, Dialogue |
+| `dailylife` | food, clothing, housing, health | partial | [`food-and-drink`](dossiers/dailylife/food-and-drink.md) (solid) | R-023 | Character, Art, Dialogue |
 | `language` | registers, names, address, oaths | absent | - | R-024 | Dialogue, Character |
 | `nature` | flora, fauna, April-May climate, livestock | partial | [`spring-climate-and-living-world`](dossiers/nature/spring-climate-and-living-world.md) (solid) | R-022 phenology tie-in | Map, Art |
-| `hinterland` | villages, manors, roads, Saaremaa | absent | - | R-028 | Map, Narrative |
+| `hinterland` | villages, manors, roads, Saaremaa | partial | [`harju-village-and-manor`](dossiers/hinterland/harju-village-and-manor.md) (partial) | R-048, R-049 | Map, Narrative |
 
 Replace the `-` in **Dossiers** with links as files land, and clear the backlog cell as rows close.
 The skeleton every dossier copies is [`dossiers/TEMPLATE.md`](dossiers/TEMPLATE.md).
@@ -70,10 +70,14 @@ roles directly.
 
 | Raised | For role | Need | Source dossier |
 |--------|----------|------|----------------|
-| 2026-07-27 | research | Tallinn City Archives pass on 1340–1343 AWB entries for explicit Pikk/Lai street names | [`pikk-lai-frontage-materials-1340s`](dossiers/topography/pikk-lai-frontage-materials-1340s.md) |
+| 2026-07-28 | research | Fetch `topography.kalamaja-fishing-shore-1343.02` and `.04` reference plates after Wikimedia rate-limit clears | [`kalamaja-fishing-shore-1343`](dossiers/topography/kalamaja-fishing-shore-1343.md) |
+| 2026-07-28 | research | Tallinn City Archives pass on 1340–1343 AWB entries for explicit Pikk/Lai street names | [`pikk-lai-frontage-materials-1340s`](dossiers/topography/pikk-lai-frontage-materials-1340s.md) |
 | 2026-07-28 | research | Denkelbuch / AWB folio read for sitting burgomaster pair and December 1343 council election names | [`town-council-and-officers`](dossiers/people/town-council-and-officers.md) |
 | 2026-07-28 | research | Tallinn City Archives / AWB pass for named Estonian *Bürger* before 1343 | [`estonian-and-german-populations`](dossiers/people/estonian-and-german-populations.md) |
-| 2026-07-28 | research | Reconcile 1337 pillory attestation with forum polygon in raekoja-plats dossier | [`law-courts-and-punishment`](dossiers/power/law-courts-and-punishment.md) |
+| 2026-07-28 | research | Steel sheet / osmund barrel weights for forge material costs (R-042) | [`blacksmith-materials-and-techniques`](dossiers/crafts/blacksmith-materials-and-techniques.md) |
+| 2026-07-28 | research | Fetch `religion.liturgical-calendar-spring-1343.01`–`.05` reference plates after Wikimedia rate-limit clears | [`liturgical-calendar-spring-1343`](dossiers/religion/liturgical-calendar-spring-1343.md) |
+| 2026-07-28 | research | Fetch `topography.back-lanes-east-of-pikk.01`–`.04` reference plates once Wikimedia rate-limit clears | [`back-lanes-east-of-pikk`](dossiers/topography/back-lanes-east-of-pikk.md) |
+| 2026-07-28 | canon | Reconcile Easter 1343 date in `hanseatic-trade-and-season.md` (21 Apr → **13 Apr** Julian) against computus | [`liturgical-calendar-spring-1343`](dossiers/religion/liturgical-calendar-spring-1343.md) |
 
 ## Maintenance
 

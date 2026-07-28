@@ -120,12 +120,13 @@ Consumers are quest/narrative only; three authority visuals suffice. No survivin
 - [`../people/town-council-and-officers.md`](../people/town-council-and-officers.md) — council composition, officers, and 1343 corporate actions that instantiate this table.
 - [`../architecture/toompea-castle-and-upper-town.md`](../architecture/toompea-castle-and-upper-town.md) — physical hill/castle zone under viceroy and bishop, not Rat.
 - [`../topography/walls-gates-towers.md`](../topography/walls-gates-towers.md) — which gates council controls during siege.
-- [`../military/watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) — burgher watch routine, curfew, and arms tiers under council command.
+- [`../power/law-courts-and-punishment.md`](../power/law-courts-and-punishment.md) — offence-to-consequence pairs, Vogt/Rat procedure, pillory and capital punishment under Lübeck law.
 - [`../people/estonian-and-german-populations.md`](../people/estonian-and-german-populations.md) — Estonian watch squad, legal freedom in town vs manor serfdom; population segments for forum-shopping scenes.
+- [`../religion/churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) — parish trio, Dominican sanctuary seam, bishop's cathedral jurisdiction.
 
 ## Open questions
 
-- Exact **ecclesiastical precinct boundaries** for Dominican priory and St Michael's nunnery in 1343 — needs R-016 churches dossier.
+- Exact **ecclesiastical precinct boundaries** for Dominican priory and St Michael's nunnery in 1343 — see [`../religion/churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) and backlog **R-049**.
 - **Guild vs council** jurisdiction over smiths before Great Guild formal rules — see [`guild-structure.md`](../crafts/guild-structure.md); smith *Amt* fines still need R-041 archival pass.
 - Whether **May 16 castle transfer** required council assent or only vassal + Order action — Tallinn City Archives charter pass.
 - **Estonian legal status** inside walls (year-and-day freedom, testimony rights) — candidate row tied to R-026.

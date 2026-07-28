@@ -3,12 +3,11 @@
 importer="mp3"
 type="AudioStreamMP3"
 uid="uid://dh1hciieqnvkv"
-path="res://.godot/imported/Blackheads' Charge.mp3-ed6431f8bdb6337f26e73e7a287fb503.mp3str"
+valid=false
 
 [deps]
 
 source_file="res://music/battle/Blackheads' Charge.mp3"
-dest_files=["res://.godot/imported/Blackheads' Charge.mp3-ed6431f8bdb6337f26e73e7a287fb503.mp3str"]
 
 [params]
 

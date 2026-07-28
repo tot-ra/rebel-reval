@@ -24,30 +24,39 @@ Priority order:
 
 | Classification | Count |
 | --- | ---: |
-| approved | 134 |
+| approved | 236 |
 | prototype | 0 |
 | unknown rights | 0 |
-| inconsistent | 0 |
+| inconsistent | 6 |
 | archive | 0 |
-| **Total** | **134** |
+| **Total** | **242** |
 
 ## Counts by media type
 
 | Media type | Count |
 | --- | ---: |
-| image | 12 |
-| audio | 122 |
-| **Total** | **134** |
+| image | 20 |
+| audio | 222 |
+| **Total** | **242** |
 
 ## Verification summary
 
-- Inventory row count: `134`
-- Runtime source files found under `assets/`, `music/`, and `sounds/`: `134`
+- Inventory row count: `242`
+- Runtime source files found under `assets/`, `music/`, and `sounds/`: `242`
 - Imported `img/` marketing source files included as archive: `0`
 - Rows missing Godot `.import` sidecar: `0`
 - Orphan `.import` sidecars with no source file, not counted as runtime assets: `0`
-- Active import path violations (must be `approved` or `prototype`): `0`
+- Active import path violations (must be `approved` or `prototype`): `6`
 - Reproduce with: `python3 tools/generate_asset_inventory.py --check`
+
+### Active import path violations
+
+- `assets/UI/inventory/backpack.png` (inconsistent): Legacy HUD/system art is frozen until P0-040 defines the approved UI style.
+- `assets/UI/inventory/combat_stick.png` (inconsistent): Legacy HUD/system art is frozen until P0-040 defines the approved UI style.
+- `assets/UI/inventory/forge_hammer.png` (inconsistent): Legacy HUD/system art is frozen until P0-040 defines the approved UI style.
+- `assets/UI/inventory/hood.png` (inconsistent): Legacy HUD/system art is frozen until P0-040 defines the approved UI style.
+- `assets/UI/inventory/spearhead.png` (inconsistent): Legacy HUD/system art is frozen until P0-040 defines the approved UI style.
+- `assets/UI/inventory/watch_buckle.png` (inconsistent): Legacy HUD/system art is frozen until P0-040 defines the approved UI style.
 
 ## Per-file inventory
 
@@ -64,7 +73,15 @@ Priority order:
 | `assets/materials/style_lock/water.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `assets/sky/lunar_albedo_nearside.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `assets/tiles/greybox_floor.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `assets/UI/cursors/cursor_grab.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `assets/UI/cursors/cursor_talk.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `assets/UI/estonia_world_map.png` | image | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `assets/UI/inventory/backpack.png` | image | inconsistent | yes | Legacy HUD/system art is frozen until P0-040 defines the approved UI style. |
+| `assets/UI/inventory/combat_stick.png` | image | inconsistent | yes | Legacy HUD/system art is frozen until P0-040 defines the approved UI style. |
+| `assets/UI/inventory/forge_hammer.png` | image | inconsistent | yes | Legacy HUD/system art is frozen until P0-040 defines the approved UI style. |
+| `assets/UI/inventory/hood.png` | image | inconsistent | yes | Legacy HUD/system art is frozen until P0-040 defines the approved UI style. |
+| `assets/UI/inventory/spearhead.png` | image | inconsistent | yes | Legacy HUD/system art is frozen until P0-040 defines the approved UI style. |
+| `assets/UI/inventory/watch_buckle.png` | image | inconsistent | yes | Legacy HUD/system art is frozen until P0-040 defines the approved UI style. |
 | `music/battle/1.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/battle/2.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/battle/4.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
@@ -119,6 +136,12 @@ Priority order:
 | `music/forge/Fireside Tale.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/forge/The Smith's Song.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/forge/The Smith's Song2.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/garden/day/danish_kings_garden_1.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/garden/day/danish_kings_garden_2.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/garden/day/danish_kings_garden_3.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/garden/night/danish_kings_garden_1.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/garden/night/danish_kings_garden_2.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/garden/night/danish_kings_garden_3.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/harbor/Harbor Mist (1).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/harbor/Harbor Mist.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/harbor/Olaf's Jig.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
@@ -138,11 +161,15 @@ Priority order:
 | `music/revel_center/A Moment of Peace (2).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_center/A Moment of Peace (3).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_center/A Moment of Peace.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/revel_center/holy spirit church/Hymn of the Holy Spirit (1).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/revel_center/holy spirit church/Hymn of the Holy Spirit.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_center/Market Day.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_center/market_day_2.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_center/market_day_3.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_center/market_day_4.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_center/market_day_5.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/revel_center/raekoda/The Guildmaster's Ball.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/revel_center/raekoda/The Town Hall Fanfare.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_center/The Bard's Tale (1).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_center/The Bard's Tale.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_center/The Children's Dance.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
@@ -172,6 +199,8 @@ Priority order:
 | `music/revel_north/A Journey Through the North.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_north/A Worker's Toil (1).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_north/A Worker's Toil.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/revel_north/oleviste/Oleviste's Bells (1).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `music/revel_north/oleviste/Oleviste's Bells.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_north/The Craftsman's Pride.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_north/The Merchant's Path (1).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_north/The Merchant's Path.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
@@ -184,6 +213,94 @@ Priority order:
 | `music/revel_south/The Herbalist's Garden.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_south/Under the Linden Tree (1).mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `music/revel_south/Under the Linden Tree.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/barn_swallow/barn_swallow_XC492100.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/barn_swallow/song.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/common_blackbird/common_blackbird_XC708973.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/common_blackbird/song.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/common_buzzard/call.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/common_buzzard/common_buzzard_XC538277.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/common_chaffinch/common_chaffinch_XC489896.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/common_chaffinch/song.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/common_gull/call.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/common_gull/common_gull_XC898207.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/common_kestrel/call.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/common_kestrel/common_kestrel_XC468409.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/common_nightingale/common_nightingale_XC1083488.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/common_nightingale/song.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/common_snipe/call.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/common_snipe/common_snipe_XC898040.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/common_tern/call.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/common_tern/common_tern_XC898659.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/eurasian_magpie/call.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/eurasian_magpie/eurasian_magpie_XC475651.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/european_robin/european_robin_XC489906.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/european_robin/song.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/great_cormorant/call.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/great_cormorant/great_cormorant_IN367008.wav` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/great_spotted_woodpecker/call.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/great_spotted_woodpecker/great_spotted_woodpecker_XC995604.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/great_tit/great_tit_XC703062.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/great_tit/song.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/grey_heron/call.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/grey_heron/grey_heron_XC610467.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/greylag_goose/call.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/greylag_goose/greylag_goose_XC436358.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/herring_gull/call.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/herring_gull/herring_gull_XC436943.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/hooded_crow/call.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/hooded_crow/hooded_crow_XC901768.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/house_sparrow/call.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/house_sparrow/house_sparrow_XC771298.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/mallard/call.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/mallard/mallard_XC112828.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/mute_swan/call.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/mute_swan/mute_swan_XC434964.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/northern_lapwing/call.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/northern_lapwing/northern_lapwing_XC902884.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/osprey/call.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/osprey/osprey_XC1090078.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/rook/call.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/rook/rook_XC1148742.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/skylark/skylark_XC903764.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/skylark/song.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/song_thrush/song.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/song_thrush/song_thrush_XC537554.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/tawny_owl/call.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/tawny_owl/tawny_owl_XC457399.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/western_jackdaw/call.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/western_jackdaw/western_jackdaw_XC842238.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/white_tailed_eagle/call.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/white_tailed_eagle/white_tailed_eagle_IN803125.wav` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/yellowhammer/song.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/birds/yellowhammer/yellowhammer_XC902153.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `sounds/door.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/acheta_domestica/acheta_domestica.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/acrididae/acrididae.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/barbitistes_constrictus/barbitistes_constrictus.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/bicolorana_bicolor/bicolorana_bicolor.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/chorthippus_albomarginatus/chorthippus_albomarginatus.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/chorthippus_apricarius/chorthippus_apricarius.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/chorthippus_biguttulus/chorthippus_biguttulus.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/chorthippus_brunneus/chorthippus_brunneus.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/chorthippus_dorsatus/chorthippus_dorsatus.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/chorthippus_mollis/chorthippus_mollis.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/chrysochraon_dispar/chrysochraon_dispar.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/conocephalus_dorsalis/conocephalus_dorsalis.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/conocephalus_fuscus/conocephalus_fuscus.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/decticus_verrucivorus/decticus_verrucivorus.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/euthystira_brachyptera/euthystira_brachyptera.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/gryllotalpa_gryllotalpa/gryllotalpa_gryllotalpa.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/metrioptera_brachyptera/metrioptera_brachyptera.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/myrmeleotettix_maculatus/myrmeleotettix_maculatus.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/omocestus_viridulus/omocestus_viridulus.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/orthoptera/orthoptera.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/pholidoptera_griseoaptera/pholidoptera_griseoaptera.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/pseudochorthippus_montanus/pseudochorthippus_montanus.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/pseudochorthippus_parallelus/pseudochorthippus_parallelus.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/roeseliana_roeselii/roeseliana_roeselii.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/stenobothrus_lineatus/stenobothrus_lineatus.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/tettigonia_cantans/tettigonia_cantans.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/insects/tettigonia_viridissima/tettigonia_viridissima.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `sounds/walk_wood.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
 | `sounds/walking_on_mud_stable_audio_3.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |
+| `sounds/weather/rain_roof.mp3` | audio | approved | yes | Source, rights, edits, and approval are documented in assets/SOURCES.csv. |

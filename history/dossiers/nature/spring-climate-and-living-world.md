@@ -7,6 +7,8 @@ related:
   - ../topography/harbour-and-shoreline.md
   - ../military/watch-duty-and-town-defence.md
   - ../crafts/guild-structure.md
+  - ../economy/hanseatic-trade-and-season.md
+  - ../religion/liturgical-calendar-spring-1343.md
   - ../../TIMELINE.md
 updated: 2026-07-28
 ---
@@ -148,6 +150,8 @@ Register fetched files under `history/reference/nature/spring-climate-and-living
 - [`guild-structure.md`](../crafts/guild-structure.md) — St George's Night mobilises **burgher militia** from spring routine.
 - [`docs/FLORA_FAUNA.md`](../../../docs/FLORA_FAUNA.md) — full species ledger and runtime IDs.
 - [`TIMELINE.md`](../../TIMELINE.md) — dated campaign events April–May 1343.
+- [`hanseatic-trade-and-season.md`](../economy/hanseatic-trade-and-season.md) — ice-break sailing season and interior supply stall after 23 April.
+- [`liturgical-calendar-spring-1343.md`](../religion/liturgical-calendar-spring-1343.md) — Easter 13 April and St George 23 April weekday anchors.
 
 ## Open questions
 

@@ -3,12 +3,12 @@
 importer="mp3"
 type="AudioStreamMP3"
 uid="uid://c7xab03squicl"
-path="res://.godot/imported/Viru Gate Skirmish.mp3-ef7c5d0d938442c6466fe7ebe9942c59.mp3str"
+path="res://.godot/imported/Viru Gate Skirmish.mp3-5b8d1e3323f08a2c62127dc5b41b41f1.mp3str"
 
 [deps]
 
 source_file="res://music/battle/Viru Gate Skirmish.mp3"
-dest_files=["res://.godot/imported/Viru Gate Skirmish.mp3-ef7c5d0d938442c6466fe7ebe9942c59.mp3str"]
+dest_files=["res://.godot/imported/Viru Gate Skirmish.mp3-5b8d1e3323f08a2c62127dc5b41b41f1.mp3str"]
 
 [params]
 

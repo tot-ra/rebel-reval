@@ -242,7 +242,7 @@ Rows close through `review: canon` like all content work.
 
 ### Daily life, language, nature, hinterland (Character, Dialogue, Map)
 
-- [ ] R-022 | role: research | deps: none | deliverable: history/dossiers/dailylife/food-and-drink.md - diet by status, bread, beer and its role, fasting rules, kitchen equipment, meal times, food storage in spring | verify: distinguishes burgher, Estonian labourer, and monastic diets, with the pre-harvest spring scarcity stated
+- [~] R-022 | role: research | deps: none | deliverable: history/dossiers/dailylife/food-and-drink.md - diet by status, bread, beer and its role, fasting rules, kitchen equipment, meal times, food storage in spring | verify: distinguishes burgher, Estonian labourer, and monastic diets, with the pre-harvest spring scarcity stated | review: canon
 - [ ] R-023 | role: research | deps: R-026 | deliverable: history/dossiers/dailylife/clothing-and-status-markers.md - dress of burghers, Estonian townsfolk, vassals, clergy, and Order members, with materials, colours, and visible rank signals | verify: gives an art-usable description per status tier plus the markers that must never be mixed
 - [ ] R-024 | role: research | deps: none | deliverable: history/dossiers/language/names-address-and-oaths.md - Low German, Estonian, and Latin registers; naming conventions; forms of address by rank; oaths, curses, greetings | verify: supplies a name stock and an address table a dialogue writer can apply without anachronism
 - [x] R-025 | claim: cursor-agent@2026-07-28 | role: research | deps: none | deliverable: history/dossiers/nature/spring-climate-and-living-world.md - April-May weather and light, sea ice break-up, plants in bloom, birds and animals present, livestock and field work | verify: describes what is visibly alive and growing on St George's night specifically, for map and art dressing | review: canon
@@ -273,6 +273,7 @@ Rows close through `review: canon` like all content work.
 - [ ] R-050 | role: research | deps: R-017 | deliverable: history/dossiers/economy/reval-market-weekday-1340s.md - weekly market day and holy-day trading rules from AWB/council ordinances 1340–1343 | verify: cites at least one document date naming market weekday or a feast-day trading fine applicable in 1343
 - [ ] R-051 | role: research | deps: R-017 | deliverable: fetch `religion.liturgical-calendar-spring-1343.01` through `.05` reference plates once Wikimedia rate-limit clears | verify: `python3 tools/research/fetch_reference_plates.py --slug liturgical-calendar-spring-1343 --verify` reports five fetched plates with no linked or failed rows
 - [ ] R-052 | role: research | deps: R-032 | deliverable: fetch `topography.back-lanes-east-of-pikk.01` through `.04` reference plates once Wikimedia rate-limit clears | verify: `python3 tools/research/fetch_reference_plates.py --slug back-lanes-east-of-pikk --verify` reports four fetched plates with no failed rows
+- [ ] R-053 | role: research | deps: R-022 | deliverable: history/dossiers/economy/reval-brewery-ordinances-1340s.md - citizen brewer rules, beer excise, and Estonian collector roles from AWB/council entries 1340–1343 | verify: at least three cited ordinance or excise lines with document dates usable in Bitter Brew and tavern economy
 
 ## P6 - Act 3: The Iron Harvest and full release (lowest priority)
 

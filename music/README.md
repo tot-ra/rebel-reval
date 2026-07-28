@@ -2,6 +2,10 @@
 
 This document contains prompts for the game's soundtrack, designed to guide composers in creating music that aligns with the game's vision.
 
+## Battle music location
+
+All battle-scene tracks are stored in `music/battle/`. Track titles retain their historic district context, while the file layout keeps the shared combat library in one location.
+
 ## Main Menu Theme
 
 **Condensed Prompt:** medieval Baltic folk, ambient electronics, kantele, runosong, cello, viola, frame drums, bodhrán, dark ambient drone, somber, tense, melancholic, defiant

@@ -1,0 +1,83 @@
+{
+  "source": "medieval_pack_horse.glb",
+  "sha256": "d3f7d1ce338a779d72cefd8df9da0c8aaf28e96d79d927550525e00db61c8380",
+  "mesh_object_count": 1,
+  "bounds_min": [
+    -1.175,
+    -0.39,
+    0.0
+  ],
+  "bounds_max": [
+    1.175,
+    0.39,
+    1.65
+  ],
+  "dimensions": [
+    2.35,
+    0.78,
+    1.65
+  ],
+  "meshes": [
+    {
+      "name": "AnimalMesh",
+      "vertices": 9223,
+      "polygons": 10000,
+      "triangles": 10000,
+      "connected_components": 833,
+      "components": [
+        {
+          "vertices": 752,
+          "faces": 1239
+        },
+        {
+          "vertices": 508,
+          "faces": 840
+        },
+        {
+          "vertices": 388,
+          "faces": 532
+        },
+        {
+          "vertices": 342,
+          "faces": 426
+        },
+        {
+          "vertices": 309,
+          "faces": 468
+        },
+        {
+          "vertices": 264,
+          "faces": 435
+        },
+        {
+          "vertices": 258,
+          "faces": 322
+        },
+        {
+          "vertices": 218,
+          "faces": 252
+        },
+        {
+          "vertices": 196,
+          "faces": 273
+        },
+        {
+          "vertices": 161,
+          "faces": 219
+        },
+        {
+          "vertices": 154,
+          "faces": 230
+        },
+        {
+          "vertices": 152,
+          "faces": 213
+        }
+      ],
+      "loose_vertices": 0,
+      "loose_edges": 0,
+      "boundary_edges": 6832,
+      "non_manifold_edges": 6832
+    }
+  ]
+}

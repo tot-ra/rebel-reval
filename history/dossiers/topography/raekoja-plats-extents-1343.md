@@ -1,0 +1,163 @@
+---
+domain: topography
+slug: raekoja-plats-extents-1343
+status: partial
+consumers: [map, art, dev]
+related:
+  - ./lower-town-street-plan.md
+  - ../architecture/burgher-house-plan.md
+  - ../architecture/toompea-castle-and-upper-town.md
+updated: 2026-07-27
+---
+
+# Raekoja plats extents (Spring 1343)
+
+## Brief for Map
+
+You are blocking out the **open market reserve** (*forum*, modern Raekoja plats) and the **1343 Town Hall footprint** on its south edge — not the present tourist square.
+
+**Ship these decisions:**
+
+1. **Smaller than today.** The hall reached its full **36.8 m** length only in **1371–74**; the square’s east–west span grew with it. For April 1343 use a **shorter south edge (~22–28 m)** and a **smaller open polygon** than the modern plaza [1][2][3].
+2. **South edge = hall only.** One-storey grey-limestone hall, clay-tile gable roof, **no arcade**, **no tower**, **no upper council storey**. The north façade is a plain wall with simple stone-framed windows opening to the market [1][4][5].
+3. **North edge = built frontage, not void.** Strip burgess plots and the modest **Holy Spirit chapel–almshouse** complex sit north of the open ground; the square does **not** read as a formal rectangle walled on four sides [6][7][8].
+4. **Open ground is irregular.** Temporary stalls, carts, and foot traffic only — no permanent market halls, no Christmas-tree tradition (1441+), no pillory as a fixed prop unless flagged uncertain [9][10].
+5. **Vana Turg is separate.** The named *forum inferior* / “Old Market” (**1368+**) is **not** this square in 1343. Route convergence east of the civic square is valid; do not label it *Vana Turg* in UI [11][12].
+6. **Use the authoring polygon below** (local axes, metres). Treat vertices as **plausible composite** targets ±2 m; do not trace the modern paved outline.
+
+## Findings
+
+### Documentary identity of the square
+
+| Name / concept | Attestation | 1343 use |
+|---|---|---|
+| *forum* (Latin) | **1313** [12] | **attested** — primary Lower Town market node |
+| *market* (MLG) | **1371** [13] | post-1343 label; square existed earlier |
+| *forum inferior* / Vana Turg | **1368** [11] | **absent in 1343** — distinct lower market emerges later |
+| Raekoja plats | 1732+ Estonian [12] | modern name only |
+
+The market and Town Hall share a site from at least the 1322 consistorium record [1]. Päll’s onomastic survey and Postimees market history agree: **Raekoja plats is the attested central forum in 1313**; Vana Turg is a **later** differentiated market [12][11].
+
+### Town Hall footprint before 1371–74
+
+| Element | 1343 state | Confidence |
+|---|---|---|
+| Position | South side of *forum*, exit of gate-ward streets [2] | attested |
+| Length along south edge | **~22–28 m** (western core + first-quarter-14th-c. extension; **not** 36.8 m) | plausible composite [1][2][3][5] |
+| Width (north–south) | **~14.5–15.2 m** (trapezoid taper ≤0.5 m) | attested for finished hall; apply to 1343 core [2] |
+| Storeys | **One** storey + attic storeroom; board or tile roof [1][3] | attested |
+| Arcade loggia | **Absent** (1402–04) [1][4] | attested |
+| Tower | **Absent** (1402–04 east tower; later spire) [1][2] | attested |
+| Council chamber upstairs | **Absent** as built volume (ground-floor consistorium / warehouse) [1][5] | attested |
+| Material | Grey limestone walls, clay-tile roof [2] | attested |
+
+**Construction phasing (west → east):** Oldest fabric occupies the **western** part; first-quarter-14th-century cellar and diele–dornse expansion precede 1343; **1371–74** extension to the **east** brings full 36.8 m length [2][5]. Seven basement/ground-floor windows and three walls from the 1322 building survive in the eastern part of the present structure [1].
+
+**Deliberate game deviation:** Project audit P0-072 models a readable arcade at ground floor for player legibility — label that as **invented** if used; this dossier’s map polygon assumes **no arcade** unless canon overrides [14].
+
+### Open market polygon (authoring coordinates)
+
+Local axes: **+X east**, **+Y north**, origin at the **south-west corner of open market ground** (Kullassepa / west market approach). Metres.
+
+| Vertex | X | Y | Confidence | Notes |
+|---|---:|---:|---|---|
+| SW | 0 | 0 | plausible composite | West approach; Kullassepa goldsmiths’ lane [2][12] |
+| SE | 40 | 0 | plausible composite | East throat toward future Vanaturu kael [2][11] |
+| SE hall east | 32 | 0 | plausible composite | East end of **1343** hall (~24 m from west inset) |
+| Hall west inset | 8 | 0 | plausible composite | West end of hall mass |
+| NE market | 44 | 34 | plausible composite | North-east limit; lane to Holy Spirit close [6][7] |
+| NW market | 2 | 36 | plausible composite | North-west; Pühavaimu frontage [6] |
+
+**Derived spans (mid-targets):**
+
+| Measure | Range | Confidence |
+|---|---|---|
+| Open ground E–W (north edge) | 38–46 m | plausible composite [3][9][14] |
+| Open ground N–S depth | 30–38 m | plausible composite [3][9] |
+| Hall south frontage | 22–28 m | plausible composite [1][2][5] |
+| Open area (polygon) | ~1,100–1,500 m² | plausible composite |
+
+No municipal survey gives a 1343 polygon; ranges synthesise hall phasing [1][2], burgess plot rhythm (7–11 m fronts) [15], and civic-quarter audit bands [14]. **Modern paved Raekoja plats (~45×45 m perception) is anachronistic for 1343.**
+
+### Edges, streets, and landmarks
+
+| Edge | 1343 treatment | Confidence |
+|---|---|---|
+| **South** | Town Hall long wall; Raekoja tänav behind hall [2] | attested hall; lane name later |
+| **West** | Kullassepa / goldsmith frontages feeding square [2] | plausible composite |
+| **East** | Opening toward converging roads (later Vana Turg neck) [11] | plausible composite |
+| **North** | Merchant strip plots; Holy Spirit chapel–almshouse north of square [6][7][8] | attested institutions; exact setback **partial** |
+| **Centre** | Unpaved/partially paved open ground, temporary stalls | attested usage pattern [9][13] |
+
+**Exclude from 1343 south and north frontage:**
+
+| Landmark | Why excluded | Confidence |
+|---|---|---|
+| Town Hall tower & two-storey Gothic arcade | 1402–04 rebuild [1][4] | attested |
+| Great Guild Hall | 1407–10 [14] | attested |
+| Blackheads house | 1399 [14] | attested |
+| Raeapteek as pharmacy | Continuous trade from **1422** [16] | attested |
+| Holy Spirit baroque tower & public clock | 17th c. [6] | attested |
+| Fixed pillory on arcade pillar | Arcade is post-1343; pillory tradition at square is **unverified** for 1343 | open |
+
+**Holy Spirit in 1343:** Indirect chapel record **1316**; almshouse documented **1334**; choir c. **1300**; major Gothic nave/aisle rebuild completes **c. 1375–80** — in April 1343 show a **modest single-aisle chapel** with almshouse wing, not the full 36.3 m hall church [6][7][8].
+
+### Regional context
+
+- **Danish sovereignty** until sale negotiations intensify after 1343; council meets in/consistorium at the hall [1][17].
+- **Hanseatic staple economy** rising — 1346 transfer to Order and staple rights explain **post-1343** pressure to enlarge hall and square [2][13]; do not back-project full 1370s mass.
+- **Livonian Order** extramural in April 1343; square is burgher civic space, not Order parade ground [17].
+
+## Production hooks
+
+- **Map:** Trace polygon SW→SE→NE→NW; reserve south strip **8–32 m** (X) for hall; keep interior **~1,200 m²** open. Feed approaches: Kullassepa (W), Vanaturu throat (E), Pühavaimu (N). Prototype `market_civic_quarter` 80×48-cell module should feel **tighter** than modern square — shrink open core ~25–30% vs present tourist pavement [14]. Plate [`topography.raekoja-plats-extents-1343.02`](../../reference/topography/raekoja-plats-extents-1343/topography.raekoja-plats-extents-1343.02.jpg) for hall-to-square proportion (post-1404 façade — comparandum only).
+- **Art:** South skyline = **low** limestone gable (~8–10 m ridge), tile roof, no tower silhouette. Market = packed earth / patch limestone, movable awning canvas, hand-carts, ale buckets — not stone stall rows. North skyline = mixed timber/stone burgess gables + modest chapel bell-cote at most [6][8][15].
+- **Character:** Council announcements from hall doorway (west portal tradition [2]); Estonian labourers and servants in open ground; German burghers on north frontage plots [15][17].
+- **Quest / Narrative:** Bread-and-iron grain tension, St George’s Night rally potential, council proclamations before siege [17].
+- **Dialogue:** Diegetic *forum* / *markt* only; avoid *Vana turg* and *Raekoja plats* [12][11].
+- **Dev / systems:** Market stall cap scales with open polygon area; hall collision box **24×15 m** default, not 37×15 m.
+
+## Reference plates
+
+| Plate | Shows | Source, date, origin | License | Answers |
+|-------|-------|----------------------|---------|---------|
+| `topography.raekoja-plats-extents-1343.01` (link-only) | Neumann & Nottbeck ground-floor plan, west–east room sequence | *Geschichte und Kunstdenkmäler der Stadt Reval*, vol. 2, Reval 1904, plate in dig. 52772 | linked (1904 book) | Hall room zoning; **post-1371** length — use phase labels |
+| [`topography.raekoja-plats-extents-1343.02`](../../reference/topography/raekoja-plats-extents-1343/topography.raekoja-plats-extents-1343.02.jpg) | Town Hall north façade and square relationship | Ymblanter photo, 2018, Tallinn | CC BY-SA 4.0 | Square–hall proportion; **post-1404** arcade — comparandum |
+| [`topography.raekoja-plats-extents-1343.03`](../../reference/topography/raekoja-plats-extents-1343/topography.raekoja-plats-extents-1343.03.jpg) | Holy Spirit church tight urban massing north of market | Panoramio / Wikimedia, 2010s, Tallinn | CC BY-SA 3.0 | North-edge built density; church **later** than 1343 core |
+| [`topography.raekoja-plats-extents-1343.04`](../../reference/topography/raekoja-plats-extents-1343/topography.raekoja-plats-extents-1343.04.jpg) | Market square overview with hall south | Julian Nyča photo, 2014, Tallinn | CC BY-SA 4.0 | Irregular open ground shape around hall |
+| `topography.raekoja-plats-extents-1343.05` (link-only) | Medieval Heritage phased hall description + Neumann plans | medievalheritage.eu town-hall article | linked | Construction phasing west→east |
+
+## Cross-references
+
+- [`lower-town-street-plan.md`](./lower-town-street-plan.md) — Block A market south frontage; *forum* 1313 attestation; street feeders.
+- [`pikk-lai-frontage-materials-1340s.md`](./pikk-lai-frontage-materials-1340s.md) — Pikk Block A frontage material bands abutting the square east edge (R-030).
+- [`../architecture/burgher-house-plan.md`](../architecture/burgher-house-plan.md) — North-edge strip-house depth and gable rhythm.
+- [`../architecture/toompea-castle-and-upper-town.md`](../architecture/toompea-castle-and-upper-town.md) — Lühike jalg / hill approaches west of civic quarter.
+- [`../people/town-council-and-officers.md`](../people/town-council-and-officers.md) — council proclamations from hall windows; separate from Toompea administration.
+
+## Open questions
+
+- Measured **pre-1371** hall length from Neumann phase drawings — worth a plate-gathering pass on Heidelberg facsimile pages (candidate `R-###` plate row).
+- Archaeological paving limits of *forum* vs surrounding plots — no citywide 1343 survey published in reviewed sources.
+- Whether a **well** stood in the open ground in 1343 (modern decorative well is not evidence).
+- Exact 1343 boundary between *forum* and the road convergence later called Vana Turg — resolved in [`old-market-vanaturg.md`](./old-market-vanaturg.md) (R-031): neck is a lane, not *forum inferior*.
+
+## Sources
+
+1. Tallinn Town Hall, “The building,” https://raekoda.tallinn.ee/en/the-building/ — 1322 consistorium, 1371–74 length, 1402–04 form (English).
+2. Medieval Heritage, “Tallinn town hall,” https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-town-hall/ — dimensions 36.8×14.7/15.2 m, west-to-east phasing (English).
+3. Wikipedia, “Tallinn Town Hall,” https://en.wikipedia.org/wiki/Tallinn_Town_Hall — square length in 1370s, single-storey pre-1402 state (English).
+4. Project internal: `docs/HISTORICAL_AUDIT.md` H06 — 1343 hall without tower; arcade legibility note (English).
+5. Neumann W. & Nottbeck E., *Geschichte und Kunstdenkmäler der Stadt Reval*, vol. 2, Reval: Kluge, 1904 — plans cited via https://doi.org/10.11588/diglit.52772 (German).
+6. Medieval Heritage, “Holy Spirit Church,” https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-holy-spirit-church-puha-vaimu-kirik/ — 1316 chapel, 1360s rebuild donations (English).
+7. Pühavaimu congregation, “Kirikuhoone,” https://puhavaimu.ee/kirikuhoone/ — choir c. 1300, aisle 14th c., 1375–80 works (Estonian).
+8. Project internal: `docs/HISTORICAL_AUDIT.md` — Holy Spirit 1343 modest chapel–almshouse (English).
+9. Visit Tallinn / UNESCO summaries — market function of square (English).
+10. Tallinn Streets, “Raekoja plats,” https://www.tallinnstreets.com/en/raekoja-plats — pillory devices until 1816 (English); 1343 presence **not** attested.
+11. Tallinn Streets, “Vana Turg,” https://www.tallinnstreets.com/en/vana-turg — *forum inferior* 1368 (English).
+12. Päll, P., ICOS 2009 street-name attestations; S-Gabriel list https://www.s-gabriel.org/names/ffride/eestreets.html — *forum* 1313 (English).
+13. Postimees, “Turud on tegutsenud ilmakorrast hoolimata,” https://www.postimees.ee/1777651/ — market names and chronology (Estonian).
+14. Project internal: `docs/HISTORICAL_AUDIT.md` P0-072 `market_civic_quarter` — density, exclusions, prototype bands (English).
+15. [`burgher-house-plan.md`](../architecture/burgher-house-plan.md) — plot widths, market frontage (English).
+16. Raeapteek history, https://raepret.ee/en/about/ — pharmacy from 1422 (English).
+17. Project internal: `history/HISTORY.md`, `history/TIMELINE.md` — 1343 power and siege (English).
