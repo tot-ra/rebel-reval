@@ -127,6 +127,21 @@ Frozen on `MapViewLighting` and applied to every `MapView3D` `WorldEnvironment`.
 
 Night post-grade luminance proxy (`exposure * brightness`) must stay at least 20% below the day proxy while emissive windows and forge highlights keep a soft bloom.
 
+## Character fidelity tiers (P0-140 / ADR 0016)
+
+Humanoid runtime GLBs use the shared rig and animation library but ship at one of three frozen
+fidelity tiers. Full caps and enforcement live in
+[`VISUAL_FIDELITY_PLAN.md`](VISUAL_FIDELITY_PLAN.md) and `tools/character_fidelity_tiers.py`.
+
+| Tier | Triangle cap | Texture cap | Typical cast |
+|---:|---:|---:|---|
+| 0 Hero | 60,000 | 2048 px | Kalev, Mart, Henning, townswoman base (Aita/Kaja), future Ellen/Jürgen |
+| 1 Named NPC | 56,000 | 1024 px | Innkeeper, watchman, sergeant, danish_warrior |
+| 2 Crowd / battle | 12,000 | 512 px | Battle and ambient crowds (P0-152) |
+
+Garment GLBs (`hero_cape`, `hero_hat`) cap at 1,024 indexed triangles. Build-input KayKit source GLBs are
+not tier-linted.
+
 ## Approval gate
 
 Before changing this status to `Approved`:

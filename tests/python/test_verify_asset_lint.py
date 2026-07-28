@@ -10,6 +10,7 @@ import tempfile
 import unittest
 import zlib
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
 TOOLS = ROOT / "tools"
@@ -111,6 +112,56 @@ def _write_minimal_contract_files(root: Path) -> None:
         scene_path.write_text('[node name="Prop" type="Node3D"]\n', encoding="utf-8")
 
 
+def _write_minimal_character_glb(path: Path) -> None:
+    import json
+
+    vertices = [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+    ]
+    padding = b"\x00" * 10_000
+    bin_chunk = struct.pack("<" + "f" * len(vertices), *vertices) + padding
+    document = {
+        "asset": {"version": "2.0"},
+        "buffers": [{"byteLength": len(bin_chunk)}],
+        "bufferViews": [{"buffer": 0, "byteOffset": 0, "byteLength": len(bin_chunk)}],
+        "accessors": [
+            {
+                "bufferView": 0,
+                "componentType": 5126,
+                "count": 3,
+                "type": "VEC3",
+                "max": [1.0, 1.0, 0.0],
+                "min": [0.0, 0.0, 0.0],
+            }
+        ],
+        "meshes": [{"primitives": [{"attributes": {"POSITION": 0}}]}],
+    }
+    json_chunk = json.dumps(document, separators=(",", ":")).encode("utf-8")
+    json_padding = (4 - len(json_chunk) % 4) % 4
+    json_chunk += b" " * json_padding
+    bin_padding = (4 - len(bin_chunk) % 4) % 4
+    bin_chunk += b"\x00" * bin_padding
+    body = (
+        struct.pack("<I", len(json_chunk))
+        + b"JSON"
+        + json_chunk
+        + struct.pack("<I", len(bin_chunk))
+        + b"BIN\x00"
+        + bin_chunk
+    )
+    glb = b"glTF" + struct.pack("<II", 2, 12 + len(body)) + body
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(glb)
+
+
 def _write_valid_fixture(root: Path) -> None:
     _write_minimal_contract_files(root)
     style_lock = root / "assets" / "materials" / "style_lock"
@@ -118,7 +169,7 @@ def _write_valid_fixture(root: Path) -> None:
     for family in REQUIRED_FAMILIES:
         _write_seamless_png(style_lock / f"{family}.png", TEXTURE_SIZE, (120, 120, 120, 255))
     glb = root / "assets" / "characters" / "shared" / "heroic_humanoid.glb"
-    glb.write_bytes(b"glb-fixture" * 2_000)
+    _write_minimal_character_glb(glb)
     _write_sources(
         root,
         [
@@ -247,6 +298,17 @@ class VerifyAssetLintTest(unittest.TestCase):
             sources.write_text("\n".join(lines) + "\n", encoding="utf-8")
             rules = _issue_rules(validate(root=root))
             self.assertIn("ASSET_LINT_PROVENANCE", rules)
+
+    def test_character_tier_rule_fails_on_triangle_over_budget(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            _write_valid_fixture(root)
+            with mock.patch(
+                "verify_asset_lint.inspect_glb",
+                return_value={"triangles": 99_999, "max_texture_px": 0},
+            ):
+                rules = _issue_rules(validate(root=root))
+            self.assertIn("ASSET_LINT_CHARACTER_TIER", rules)
 
     def test_main_exits_zero_on_repository(self) -> None:
         self.assertEqual(main(), 0)

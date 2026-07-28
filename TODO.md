@@ -20,14 +20,15 @@ References:
 <!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
-| P0 |    25  |    50  | Baseline, storage, materials, historical audit |
+| P0 |    24  |    51  | Baseline, storage, materials, historical audit |
 | P1 |     0  |     8  | Runtime systems, content foundation |
 | P2 |    11  |    35  | Vertical-slice production (playable MVP) |
 | P3 |     0  |    16  | Validation, accessibility, performance |
 | P4 |    21  |    42  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
-| R  |    17  |    23  | Historical research backlog (researcher-managed, cross-cutting) |
+| R  |    18  |    23  | Historical research backlog (researcher-managed, cross-cutting) |
+
 
 
 
@@ -195,6 +196,7 @@ References:
 <!-- P2-050 completed in current session -->
 <!-- P0-158 completed in current session -->
 <!-- P0-137 completed in current session -->
+<!-- P0-140 completed in current session -->
 <!-- P0-136 completed in current session -->
 <!-- P0-135 completed in current session -->
 <!-- P0-126 completed in current session -->
@@ -262,7 +264,7 @@ Rows close through `review: canon` like all content work.
 
 - [~] R-022 | role: research | deps: none | deliverable: history/dossiers/dailylife/food-and-drink.md - diet by status, bread, beer and its role, fasting rules, kitchen equipment, meal times, food storage in spring | verify: distinguishes burgher, Estonian labourer, and monastic diets, with the pre-harvest spring scarcity stated | review: canon
 - [ ] R-023 | role: research | deps: R-026 | deliverable: history/dossiers/dailylife/clothing-and-status-markers.md - dress of burghers, Estonian townsfolk, vassals, clergy, and Order members, with materials, colours, and visible rank signals | verify: gives an art-usable description per status tier plus the markers that must never be mixed
-- [~] R-024 | role: research | deps: none | deliverable: history/dossiers/language/names-address-and-oaths.md - Low German, Estonian, and Latin registers; naming conventions; forms of address by rank; oaths, curses, greetings | verify: supplies a name stock and an address table a dialogue writer can apply without anachronism | claim: research-N@2026-07-28
+- [~] R-024 | role: research | deps: none | deliverable: history/dossiers/language/names-address-and-oaths.md - Low German, Estonian, and Latin registers; naming conventions; forms of address by rank; oaths, curses, greetings | verify: supplies a name stock and an address table a dialogue writer can apply without anachronism | claim: research-N@2026-07-28 | review: canon
 - [x] R-025 | claim: cursor-agent@2026-07-28 | role: research | deps: none | deliverable: history/dossiers/nature/spring-climate-and-living-world.md - April-May weather and light, sea ice break-up, plants in bloom, birds and animals present, livestock and field work | verify: describes what is visibly alive and growing on St George's night specifically, for map and art dressing | review: canon
 - [~] R-028 | role: research | deps: none | deliverable: history/dossiers/hinterland/harju-village-and-manor.md - village layout, manor obligations, corvée and dues, roads and travel times to Reval, who the rebels actually were | verify: yields a buildable village plan plus the grievance structure that motivates the uprising, sourced | claim: research-N@2026-07-28 | review: canon
 
@@ -294,6 +296,7 @@ Rows close through `review: canon` like all content work.
 - [ ] R-053 | role: research | deps: R-022 | deliverable: history/dossiers/economy/reval-brewery-ordinances-1340s.md - citizen brewer rules, beer excise, and Estonian collector roles from AWB/council entries 1340–1343 | verify: at least three cited ordinance or excise lines with document dates usable in Bitter Brew and tavern economy
 - [x] R-055 | claim: cursor-agent@2026-07-28 | deps: none | deliverable: audit `history/reference/plates.csv` for unquoted commas in Commons page URLs and stale Wikimedia upload hashes; fix parsing drift and re-fetch any `failed` rows | verify: `python3 tools/research/fetch_reference_plates.py --verify` reports zero `failed` rows and no `unknown status` parse errors across the full manifest
 - [ ] R-056 | role: research | deps: R-020 | deliverable: history/dossiers/folklore/harju-hiis-sites-within-walk-1343.md - archaeological and LCD *lucus sanctus* candidates within one day's walk of 1343 Reval walls with confidence per site | verify: map-usable point list cited from belief-omens-and-healing open questions with attested vs reconstructed labels
+- [ ] R-057 | role: research | deps: R-024 | deliverable: history/dossiers/language/estonian-forenames-harju-1340s.md - attested Estonian and Undeutsch forename pool from AWB and manorial lists 1340–1350 with German-record spellings | verify: at least fifteen forenames with document date or source and confidence label usable in character generator
 
 ### Small
 
@@ -570,7 +573,7 @@ gap to a grounded, PBR-lit third-person look. Do the cheap high-impact rows firs
 P0-156), then the tier ADR (P0-140) and character-texture foundation (P0-144). Each row is
 independently pickable.
 
-- [ ] P0-140 | deps: none | deliverable: ratify the two-tier character fidelity model as `docs/adr/0016-tiered-character-fidelity.md` (amends [ADR 0007](docs/adr/0007-ai-generated-isometric-presentation.md)'s single-shared-rig rule): define Tier 0 hero, Tier 1 named NPC, and Tier 2 crowd/battle, with a frozen per-tier budget table (triangle cap, texture resolution, allowed shader set, instancing method) in `docs/VISUAL_FIDELITY_PLAN.md`, and add an asset-lint rule that classifies every character GLB into a tier and enforces its budget | allowed files: `docs/adr/0016-tiered-character-fidelity.md`, `docs/VISUAL_FIDELITY_PLAN.md`, `docs/ART_BIBLE.md`, `tools/verify_asset_lint.py`, `tests/python/test_verify_asset_lint.py`, `TODO.md`, `docs/ROADMAP.md` | verify: ADR 0016 records maintainer accept and a budget table for all three tiers; `python3 tools/verify_asset_lint.py` classifies each `assets/characters/**` GLB into a tier and fails any that exceed its frozen budget; `python3 -m unittest tests.python.test_verify_asset_lint -v` passes
+- [x] P0-140 | claim: cursor-agent@2026-07-28 | deps: none | deliverable: ratify the two-tier character fidelity model as `docs/adr/0016-tiered-character-fidelity.md` (amends [ADR 0007](docs/adr/0007-ai-generated-isometric-presentation.md)'s single-shared-rig rule): define Tier 0 hero, Tier 1 named NPC, and Tier 2 crowd/battle, with a frozen per-tier budget table (triangle cap, texture resolution, allowed shader set, instancing method) in `docs/VISUAL_FIDELITY_PLAN.md`, and add an asset-lint rule that classifies every character GLB into a tier and enforces its budget | allowed files: `docs/adr/0016-tiered-character-fidelity.md`, `docs/VISUAL_FIDELITY_PLAN.md`, `docs/ART_BIBLE.md`, `tools/verify_asset_lint.py`, `tests/python/test_verify_asset_lint.py`, `TODO.md`, `docs/ROADMAP.md` | verify: ADR 0016 records maintainer accept and a budget table for all three tiers; `python3 tools/verify_asset_lint.py` classifies each `assets/characters/**` GLB into a tier and fails any that exceed its frozen budget; `python3 -m unittest tests.python.test_verify_asset_lint -v` passes
 - [x] P0-141 | claim: cursor-agent@2026-07-28 | deps: none | deliverable: implement the frozen post-process grade promised by ADR 0007 on the shared `WorldEnvironment` in `map_view_3d.gd`: tonemap (AgX or Filmic), glow/bloom on emissive highlights, and a color-adjustment (brightness/contrast/saturation) Baltic grade wired into the day/night cycle in `MapViewLighting`, with all parameters frozen in `docs/ART_BIBLE.md` v2; works on the current GL Compatibility renderer | allowed files: `scripts/map/view3d/map_view_3d.gd`, `scripts/map/view3d/map_view_lighting.gd`, `docs/ART_BIBLE.md`, `tests/godot/test_map_view_lighting.gd`, `tests/godot/test_map_view_3d_mesh.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: `--filter=test_map_view_lighting` asserts tonemap, glow, and adjustment are enabled with the frozen values and that night stays >=20% darker than day; day/night captures of `kalev_smithy` remain non-blank and readable; graded capture is measurably different from the ungraded baseline
 - [ ] P0-142 | deps: P0-038 | deliverable: renderer evaluation spike comparing `gl_compatibility`, `mobile`, and `forward_plus` on the Lower Town slice: measured frame time on minimum hardware, texture memory, and fidelity captures (SSAO, glow, shadow quality, fog) for each, plus a macOS/web export-compatibility note, recorded in `docs/reports/renderer_evaluation.md` with a maintainer recommendation; no renderer switch lands in this task | allowed files: `docs/reports/renderer_evaluation.md`, `tools/benchmarks/renderer_comparison.gd`, `tools/benchmarks/run_renderer_comparison.sh`, `tests/python/test_renderer_evaluation_report.py`, `TODO.md`, `docs/ROADMAP.md` | verify: report contains repeatable procedure, hardware, per-renderer frame-time/memory numbers, side-by-side captures, and export-support findings; `python3 -m unittest tests.python.test_renderer_evaluation_report -v` passes; a follow-up task or ADR is named for any recommended switch
 - [ ] P0-143 | deps: P0-141 | deliverable: add `CameraAttributesPractical` to the third-person and first-person perspective modes in `MapViewRuntimeCamera`: subtle authored depth-of-field and exposure that read on closeups, explicitly disabled in top-down orthographic mode | allowed files: `scripts/map/view3d/map_view_runtime_camera.gd`, `scripts/map/view3d/map_view_3d.gd`, `tests/godot/test_map_view_runtime_camera.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: camera-mode tests assert DoF/exposure attributes are attached in third/first-person and cleared in top-down; the full camera-cycle integration suite stays green; a third-person closeup capture shows background falloff without blurring the player

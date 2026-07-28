@@ -54,6 +54,16 @@ from verify_slice_surface_assets import (  # noqa: E402
     read_style_lock_sources,
     validate as validate_style_lock_assets,
 )
+from character_fidelity_tiers import (  # noqa: E402
+    BUILD_INPUT_GLBS,
+    GARMENT_GLBS,
+    GARMENT_TEXTURE_MAX_PX,
+    GARMENT_TRIANGLE_CAP,
+    TIER_BUDGETS,
+    classify_character_glb,
+    inspect_glb,
+    iter_runtime_character_glbs,
+)
 
 
 @dataclass(frozen=True)
@@ -347,6 +357,70 @@ def validate(*, root: Path = ROOT) -> list[LintIssue]:
                 )
             )
 
+    for glb_path in iter_runtime_character_glbs(root=root):
+        rel = _rel_path(glb_path, root)
+        tier = classify_character_glb(rel, root=root)
+        if tier is None:
+            if rel.replace("\\", "/") in BUILD_INPUT_GLBS:
+                continue
+            issues.append(
+                LintIssue(
+                    "ASSET_LINT_CHARACTER_TIER",
+                    f"{rel}: runtime character glb has no fidelity tier assignment",
+                )
+            )
+            continue
+        try:
+            stats = inspect_glb(glb_path)
+        except (OSError, ValueError, KeyError) as exc:
+            issues.append(
+                LintIssue(
+                    "ASSET_LINT_CHARACTER_TIER",
+                    f"{rel}: could not inspect GLB for tier budget ({exc})",
+                )
+            )
+            continue
+
+        triangles = int(stats["triangles"])
+        max_texture_px = int(stats["max_texture_px"])
+        normalized = rel.replace("\\", "/")
+        if normalized in GARMENT_GLBS:
+            if triangles > GARMENT_TRIANGLE_CAP:
+                issues.append(
+                    LintIssue(
+                        "ASSET_LINT_CHARACTER_TIER",
+                        f"{rel}: garment triangle budget exceeded "
+                        f"({triangles}>{GARMENT_TRIANGLE_CAP})",
+                    )
+                )
+            if max_texture_px > GARMENT_TEXTURE_MAX_PX:
+                issues.append(
+                    LintIssue(
+                        "ASSET_LINT_CHARACTER_TIER",
+                        f"{rel}: garment texture budget exceeded "
+                        f"({max_texture_px}px>{GARMENT_TEXTURE_MAX_PX}px)",
+                    )
+                )
+            continue
+
+        budget = TIER_BUDGETS[tier]
+        if triangles > budget.triangle_cap:
+            issues.append(
+                LintIssue(
+                    "ASSET_LINT_CHARACTER_TIER",
+                    f"{rel}: tier {tier} ({budget.label}) triangle budget exceeded "
+                    f"({triangles}>{budget.triangle_cap})",
+                )
+            )
+        if max_texture_px > budget.texture_max_px:
+            issues.append(
+                LintIssue(
+                    "ASSET_LINT_CHARACTER_TIER",
+                    f"{rel}: tier {tier} ({budget.label}) texture budget exceeded "
+                    f"({max_texture_px}px>{budget.texture_max_px}px)",
+                )
+            )
+
     return issues
 
 
@@ -361,10 +435,16 @@ def main() -> int:
     portrait_count = sum(
         1 for rel_path in _known_portrait_paths(ROOT) if (ROOT / rel_path).is_file()
     )
+    tier_count = sum(
+        1
+        for glb_path in iter_runtime_character_glbs(root=ROOT)
+        if classify_character_glb(glb_path.relative_to(ROOT).as_posix(), root=ROOT) is not None
+    )
     print(
         "asset lint passed "
         f"({len(REQUIRED_FAMILIES)} style-lock textures, "
         f"{len(_character_outputs(ROOT))} character glbs, "
+        f"{tier_count} tier-classified character glb(s), "
         f"{portrait_count} portrait(s) checked)"
     )
     return 0

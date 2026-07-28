@@ -24,6 +24,9 @@ Spec fields (all optional except output):
   generator (skin, tunic, sleeves, sleeve_band, pants, boots, belt, hair,
   beard, eyes, outerwear, trim, ...).
 - output: runtime glb path relative to the repo root.
+- fidelity_tier: 0 = hero cast (Kalev, Mart, Aita, Kaja, Henning, Jürgen, Ellen base),
+  1 = named NPC (shopkeepers, faction figures), 2 = crowd/battle (future). Frozen caps
+  live in tools/character_fidelity_tiers.py and docs/VISUAL_FIDELITY_PLAN.md.
 - garments: garment ids to export as separate skinned glbs next to the
   body ("cape", "hat"). Usually only the shared hero set carries these.
 """
@@ -133,6 +136,7 @@ CHARACTERS = {
             "trim": (0.48, 0.31, 0.17, 1.0),
         },
         "output": "assets/characters/shared/heroic_humanoid.glb",
+        "fidelity_tier": 0,
         "garments": ["cape", "hat"],
     },
     # Mart is a named person, not a tint of Kalev. His adolescent skeleton,
@@ -183,6 +187,7 @@ CHARACTERS = {
             "trim": (0.45, 0.39, 0.27, 1.0),
         },
         "output": "assets/characters/shared/mart.glb",
+        "fidelity_tier": 0,
         "garments": [],
     },
     # Captain Henning: tall, broad-shouldered and disciplined. The dark Watch
@@ -233,6 +238,7 @@ CHARACTERS = {
             "pauldrons": True,
         },
         "output": "assets/characters/shared/henning.glb",
+        "fidelity_tier": 0,
         "garments": [],
     },
     # Worked example for docs/CHARACTER_GENERATION.md: a stocky innkeeper
@@ -277,6 +283,7 @@ CHARACTERS = {
             "outerwear": "apron",
         },
         "output": "assets/characters/shared/innkeeper.glb",
+        "fidelity_tier": 1,
         "garments": [],
     },
     # Rank-and-file town watch: slimmer than the hero, spear-equipped, no
@@ -323,6 +330,7 @@ CHARACTERS = {
             "outerwear": "vest",
         },
         "output": "assets/characters/shared/watchman.glb",
+        "fidelity_tier": 1,
         "garments": [],
     },
     # Livonian watch sergeant: broader and taller than the watchman, with baked
@@ -368,6 +376,7 @@ CHARACTERS = {
             "pauldrons": True,
         },
         "output": "assets/characters/shared/sergeant.glb",
+        "fidelity_tier": 1,
         "garments": ["hat"],
     },
     # Danish crown man-at-arms reference for the Toompea garrison. Unlike the
@@ -423,6 +432,7 @@ CHARACTERS = {
             "anatomical_layers": True,
         },
         "output": "assets/characters/shared/danish_warrior.glb",
+        "fidelity_tier": 1,
         "garments": [],
     },
     # A slighter townswoman frame: shorter and narrower than the hero, with
@@ -471,6 +481,7 @@ CHARACTERS = {
             "outerwear": "kirtle",
         },
         "output": "assets/characters/shared/townswoman.glb",
+        "fidelity_tier": 0,
         "garments": [],
     },
 }
@@ -490,6 +501,7 @@ def spec(name: str) -> dict:
         "features": {**BASE_FEATURES, **entry.get("features", {})},
         "palette": entry.get("palette", {}),
         "output": entry["output"],
+        "fidelity_tier": int(entry.get("fidelity_tier", 1)),
         "garments": entry.get("garments", []),
         "skeleton_intermediate": f"tools/character_build/{name}_skeleton.glb",
     }
