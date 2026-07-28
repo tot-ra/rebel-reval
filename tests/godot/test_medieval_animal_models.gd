@@ -116,6 +116,37 @@ func test_pack_horse_has_tall_rigged_body_tail_and_locomotion_clips() -> void:
 	host.free()
 
 
+func test_medieval_livestock_carry_normal_and_roughness_maps() -> void:
+	for species: StringName in [
+		MammalSpecies.SPECIES_COW,
+		MammalSpecies.SPECIES_PIG,
+		MammalSpecies.SPECIES_SHEEP,
+		MammalSpecies.SPECIES_HORSE,
+	]:
+		var host := Node3D.new()
+		var model := Models.add_model(host, species)
+		assert_true(model != null, "%s production model must load" % species)
+		var mesh_instance := model.find_child("AnimalMesh", true, false) as MeshInstance3D
+		assert_true(mesh_instance != null, "%s needs AnimalMesh" % species)
+		_assert_livestock_pbr_material(mesh_instance.mesh.surface_get_material(0), species)
+		host.free()
+
+
+func _assert_livestock_pbr_material(material: Material, label: String) -> void:
+	assert_true(material is StandardMaterial3D, "%s must import as StandardMaterial3D" % label)
+	var std := material as StandardMaterial3D
+	assert_ne(
+		std.shading_mode,
+		BaseMaterial3D.SHADING_MODE_UNSHADED,
+		"%s must react to scene lighting" % label
+	)
+	assert_true(std.normal_enabled and std.normal_texture != null, "%s needs hide/wool normal map" % label)
+	assert_true(
+		std.roughness_texture != null or (std.roughness > 0.05 and std.roughness < 1.0),
+		"%s needs authored roughness response" % label
+	)
+
+
 func test_static_livestock_props_use_production_models() -> void:
 	for kind: StringName in [MapTypes.PROP_KIND_CATTLE, MapTypes.PROP_KIND_SHEEP, MapTypes.PROP_KIND_HORSE]:
 		var prop := MapViewMeshBuilder.build_prop({"id": kind, "kind": kind, "position": Vector2.ZERO}, MapTypes.DEFAULT_CELL_SIZE)

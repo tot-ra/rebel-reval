@@ -7,7 +7,7 @@
   "source": "generated/comfyui/medieval_animals_v1/pig_hendrik_reyneke_cc_by_source.glb",
   "source_sha256": "a029a0ec3f45a809f15b6f71a9a413c054cd3f0cb4d4137dc46f9504471cf9e5",
   "output": "assets/animals/medieval/medieval_pig.glb",
-  "output_sha256": "747cb62d0dedddb82f26885f24dd6e4d5ba4c3635e9ce154caa517edc10bde0b",
+  "output_sha256": "88a71bcf0bcb6b715a6756ee804e313a418d40c6813e14e07e02ead7e54d734a",
   "raw": {
     "vertices": 3784,
     "polygons": 6748,
@@ -74,6 +74,11 @@
   "uv_sets": 2,
   "materials": 1,
   "texture_size": 512,
+  "textures": [
+    "pig_albedo.png",
+    "pig_normal.png",
+    "pig_roughness.png"
+  ],
   "static_prop": true,
   "rigged": true,
   "animations": [

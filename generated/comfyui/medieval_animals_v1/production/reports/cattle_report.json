@@ -1,10 +1,13 @@
 {
   "asset_id": "creature.cattle",
   "route": "leonardo_reference_to_hunyuan3d_to_blender_cleanup",
+  "source_license": "project-authored AI generation",
+  "anatomy_decision": "approved_reference_silhouette",
+  "scale_basis": "brief metric dimensions",
   "source": "generated/comfyui/medieval_animals_v1/cattle_candidate.glb",
   "source_sha256": "2226941a674653c6f56c2873b47f83387a2662aa1309043e6d1bdf69ebd5f972",
   "output": "assets/animals/medieval/medieval_cattle.glb",
-  "output_sha256": "0ab4e9867b0d2754a6dd9c0249e31f6082b20daaeddee2209b0ee9214a45a801",
+  "output_sha256": "4d464ca5ad709d72ca31380104854c80cf14a47b9b598c86a7753c25bd4a376a",
   "raw": {
     "vertices": 196093,
     "polygons": 599660,
@@ -39,6 +42,11 @@
   "uv_sets": 1,
   "materials": 1,
   "texture_size": 512,
+  "textures": [
+    "cattle_albedo.png",
+    "cattle_normal.png",
+    "cattle_roughness.png"
+  ],
   "static_prop": true,
   "rigged": true,
   "animations": [

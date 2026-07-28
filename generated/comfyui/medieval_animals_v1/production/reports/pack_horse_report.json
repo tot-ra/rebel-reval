@@ -1,10 +1,13 @@
 {
   "asset_id": "creature.pack_horse",
   "route": "leonardo_reference_to_hunyuan3d_to_blender_cleanup",
+  "source_license": "project-authored AI generation",
+  "anatomy_decision": "approved_reference_silhouette",
+  "scale_basis": "brief metric dimensions",
   "source": "generated/comfyui/medieval_animals_v1/pack_horse_candidate.glb",
   "source_sha256": "239bd4725ee8bad3e0091a01804d085c832de580063e9f18d9cf2192ff1a3329",
   "output": "assets/animals/medieval/medieval_pack_horse.glb",
-  "output_sha256": "8c125a883604b4743c8789372f6d81db3965f26204697a7524b1b2f370609641",
+  "output_sha256": "24054267871f7c0f9af1771588fffc103efe94fb220c0b54cda60261452e557f",
   "raw": {
     "vertices": 303073,
     "polygons": 839166,
@@ -96,6 +99,11 @@
   "uv_sets": 1,
   "materials": 1,
   "texture_size": 512,
+  "textures": [
+    "pack_horse_albedo.png",
+    "pack_horse_normal.png",
+    "pack_horse_roughness.png"
+  ],
   "static_prop": true,
   "rigged": true,
   "animations": [

@@ -1,10 +1,13 @@
 {
   "asset_id": "creature.sheep",
   "route": "leonardo_reference_to_hunyuan3d_to_blender_cleanup",
+  "source_license": "project-authored AI generation",
+  "anatomy_decision": "approved_reference_silhouette",
+  "scale_basis": "brief metric dimensions",
   "source": "generated/comfyui/medieval_animals_v1/sheep_candidate.glb",
   "source_sha256": "900147fb470f086ecc12913e78e6ddefb286a2ce24a1b969f6c599a1e8e5b319",
   "output": "assets/animals/medieval/medieval_sheep.glb",
-  "output_sha256": "29fdf47400d5c8a7a0caa917fe10edcab8c2c982c069b8805a811e8e922994d7",
+  "output_sha256": "e998aacb20f26dd85945119edd60b015841af3347df8bbf41c63f636ce4e7162",
   "raw": {
     "vertices": 186701,
     "polygons": 446054,
@@ -81,6 +84,11 @@
   "uv_sets": 1,
   "materials": 1,
   "texture_size": 512,
+  "textures": [
+    "sheep_albedo.png",
+    "sheep_normal.png",
+    "sheep_roughness.png"
+  ],
   "static_prop": true,
   "rigged": true,
   "animations": [

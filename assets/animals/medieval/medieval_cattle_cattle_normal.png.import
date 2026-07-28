@@ -2,25 +2,23 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c0ldkx85lxgm4"
-path.s3tc="res://.godot/imported/medieval_pig_pig_albedo.png-8d4e0ed6dd992b4f3c5c01f191a1aaae.s3tc.ctex"
-path.etc2="res://.godot/imported/medieval_pig_pig_albedo.png-8d4e0ed6dd992b4f3c5c01f191a1aaae.etc2.ctex"
+uid="uid://ire7vc0ce2h7"
+path="res://.godot/imported/medieval_cattle_cattle_normal.png-8f227aadbc6c1826176c2251d68ec528.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
-"vram_texture": true
+"vram_texture": false
 }
 generator_parameters={
-"md5": "29c8d7fa281eda2ca185aef21a8497ba"
+"md5": "aacbcaad6b15fca398f077506e592e45"
 }
 
 [deps]
 
-source_file="res://assets/animals/medieval/medieval_pig_pig_albedo.png"
-dest_files=["res://.godot/imported/medieval_pig_pig_albedo.png-8d4e0ed6dd992b4f3c5c01f191a1aaae.s3tc.ctex", "res://.godot/imported/medieval_pig_pig_albedo.png-8d4e0ed6dd992b4f3c5c01f191a1aaae.etc2.ctex"]
+source_file="res://assets/animals/medieval/medieval_cattle_cattle_normal.png"
+dest_files=["res://.godot/imported/medieval_cattle_cattle_normal.png-8f227aadbc6c1826176c2251d68ec528.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -42,4 +40,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=0
+detect_3d/compress_to=1

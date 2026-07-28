@@ -40,6 +40,44 @@ REPORTS = STAGING / "production/reports"
 TEXTURES = STAGING / "production/textures"
 TEXTURE_SIZE = 512
 
+# Per-species hide/wool/hair micro-surface baked into portable normal and
+# roughness maps. Sheep gets a coarser noise profile so fleece reads apart from
+# cattle/pig hide without changing the shared rig or silhouette contract.
+SURFACE_PROFILES: dict[str, dict] = {
+    "cattle": {
+        "noise_scale": 38.0,
+        "noise_detail": 3.5,
+        "bump_strength": 0.22,
+        "rough_min": 0.78,
+        "rough_max": 0.90,
+        "normal_strength": 0.65,
+    },
+    "pig": {
+        "noise_scale": 42.0,
+        "noise_detail": 3.0,
+        "bump_strength": 0.20,
+        "rough_min": 0.76,
+        "rough_max": 0.88,
+        "normal_strength": 0.60,
+    },
+    "sheep": {
+        "noise_scale": 85.0,
+        "noise_detail": 4.5,
+        "bump_strength": 0.35,
+        "rough_min": 0.82,
+        "rough_max": 0.94,
+        "normal_strength": 0.85,
+    },
+    "pack_horse": {
+        "noise_scale": 55.0,
+        "noise_detail": 4.0,
+        "bump_strength": 0.26,
+        "rough_min": 0.74,
+        "rough_max": 0.86,
+        "normal_strength": 0.70,
+    },
+}
+
 # Dimensions use the game contract's Y-up order: length, height, width.
 SPECS = {
     "cattle": {
@@ -259,6 +297,95 @@ def make_uv(obj: bpy.types.Object) -> None:
     bpy.ops.object.mode_set(mode="OBJECT")
 
 
+def new_image(name: str, color: tuple[float, float, float, float], *, non_color: bool = False) -> bpy.types.Image:
+    image = bpy.data.images.new(name, TEXTURE_SIZE, TEXTURE_SIZE, alpha=False)
+    if non_color:
+        image.colorspace_settings.name = "Non-Color"
+    image.generated_color = color
+    return image
+
+
+def _prepare_bake_scene() -> bpy.types.Scene:
+    scene = bpy.context.scene
+    scene.render.engine = "CYCLES"
+    scene.cycles.samples = 32
+    scene.cycles.device = "CPU"
+    scene.render.bake.margin = 8
+    scene.render.bake.use_selected_to_active = False
+    return scene
+
+
+def bake_normal_map(obj: bpy.types.Object, name: str, profile: dict) -> bpy.types.Image:
+    """Bake a tangent-space hide/wool normal from procedural micro-relief."""
+    _prepare_bake_scene()
+    normal = new_image(f"{name}_normal", (0.5, 0.5, 1.0, 1.0), non_color=True)
+    material = bpy.data.materials.new(f"medieval_{name}_normal_bake")
+    material.use_nodes = True
+    nodes = material.node_tree.nodes
+    links = material.node_tree.links
+    shader = nodes.get("Principled BSDF")
+    noise = nodes.new("ShaderNodeTexNoise")
+    noise.inputs["Scale"].default_value = profile["noise_scale"]
+    noise.inputs["Detail"].default_value = profile["noise_detail"]
+    bump = nodes.new("ShaderNodeBump")
+    bump.inputs["Strength"].default_value = profile["bump_strength"]
+    links.new(noise.outputs["Fac"], bump.inputs["Height"])
+    links.new(bump.outputs["Normal"], shader.inputs["Normal"])
+    obj.data.materials.clear()
+    obj.data.materials.append(material)
+
+    image_node = nodes.new("ShaderNodeTexImage")
+    image_node.image = normal
+    nodes.active = image_node
+    bpy.ops.object.select_all(action="DESELECT")
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.bake(type="NORMAL", normal_space="TANGENT", margin=8)
+
+    normal.filepath_raw = str(TEXTURES / f"{name}_normal.png")
+    normal.file_format = "PNG"
+    normal.save()
+    bpy.data.materials.remove(material)
+    return normal
+
+
+def bake_roughness_map(obj: bpy.types.Object, name: str, profile: dict) -> bpy.types.Image:
+    """Bake a matte hide/wool roughness map with subtle value breakup."""
+    scene = _prepare_bake_scene()
+    scene.cycles.samples = 8
+    roughness = new_image(f"{name}_roughness", (0.84, 0.84, 0.84, 1.0), non_color=True)
+    material = bpy.data.materials.new(f"medieval_{name}_roughness_bake")
+    material.use_nodes = True
+    nodes = material.node_tree.nodes
+    links = material.node_tree.links
+    shader = nodes.get("Principled BSDF")
+    noise = nodes.new("ShaderNodeTexNoise")
+    noise.inputs["Scale"].default_value = profile["noise_scale"] * 0.55
+    noise.inputs["Detail"].default_value = profile["noise_detail"]
+    spread = nodes.new("ShaderNodeMapRange")
+    spread.inputs["From Min"].default_value = 0.35
+    spread.inputs["From Max"].default_value = 0.65
+    spread.inputs["To Min"].default_value = profile["rough_min"]
+    spread.inputs["To Max"].default_value = profile["rough_max"]
+    spread.clamp = True
+    links.new(noise.outputs["Fac"], spread.inputs["Value"])
+    links.new(spread.outputs["Result"], shader.inputs["Base Color"])
+
+    image_node = nodes.new("ShaderNodeTexImage")
+    image_node.image = roughness
+    nodes.active = image_node
+    bpy.ops.object.select_all(action="DESELECT")
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.bake(type="DIFFUSE", pass_filter={"COLOR"}, margin=8)
+
+    roughness.filepath_raw = str(TEXTURES / f"{name}_roughness.png")
+    roughness.file_format = "PNG"
+    roughness.save()
+    bpy.data.materials.remove(material)
+    return roughness
+
+
 def create_albedo(name: str, spec: dict) -> bpy.types.Image:
     """Create deterministic restrained coat variation as a portable texture."""
     rng = np.random.default_rng(spec["seed"])
@@ -285,16 +412,39 @@ def create_albedo(name: str, spec: dict) -> bpy.types.Image:
     return image
 
 
-def assign_material(obj: bpy.types.Object, name: str, image: bpy.types.Image) -> None:
+def assign_pbr_material(
+    obj: bpy.types.Object,
+    name: str,
+    albedo: bpy.types.Image,
+    normal: bpy.types.Image,
+    roughness: bpy.types.Image,
+    profile: dict,
+) -> None:
     material = bpy.data.materials.new(f"medieval_{name}")
     material.use_nodes = True
     nodes = material.node_tree.nodes
     links = material.node_tree.links
-    shader = nodes.get("Principled BSDF")
-    texture = nodes.new("ShaderNodeTexImage")
-    texture.image = image
-    links.new(texture.outputs["Color"], shader.inputs["Base Color"])
-    shader.inputs["Roughness"].default_value = 0.84
+    for node in list(nodes):
+        if node.type != "OUTPUT_MATERIAL":
+            nodes.remove(node)
+    output = nodes.get("Material Output")
+    shader = nodes.new("ShaderNodeBsdfPrincipled")
+    links.new(shader.outputs["BSDF"], output.inputs["Surface"])
+
+    albedo_node = nodes.new("ShaderNodeTexImage")
+    albedo_node.image = albedo
+    links.new(albedo_node.outputs["Color"], shader.inputs["Base Color"])
+
+    normal_node = nodes.new("ShaderNodeTexImage")
+    normal_node.image = normal
+    normal_map = nodes.new("ShaderNodeNormalMap")
+    normal_map.inputs["Strength"].default_value = profile["normal_strength"]
+    links.new(normal_node.outputs["Color"], normal_map.inputs["Color"])
+    links.new(normal_map.outputs["Normal"], shader.inputs["Normal"])
+
+    roughness_node = nodes.new("ShaderNodeTexImage")
+    roughness_node.image = roughness
+    links.new(roughness_node.outputs["Color"], shader.inputs["Roughness"])
     shader.inputs["Metallic"].default_value = 0.0
     obj.data.materials.clear()
     obj.data.materials.append(material)
@@ -361,8 +511,11 @@ def build(name: str, spec: dict) -> dict:
         remove_tiny_islands(obj, 0.0025)
     normalize_dimensions(obj, spec["dimensions_m"])
     make_uv(obj)
+    profile = SURFACE_PROFILES[name]
     albedo = create_albedo(name, spec)
-    assign_material(obj, name, albedo)
+    normal = bake_normal_map(obj, name, profile)
+    roughness = bake_roughness_map(obj, name, profile)
+    assign_pbr_material(obj, name, albedo, normal, roughness, profile)
     production = topology(obj)
     armature: bpy.types.Object | None = None
     details: list[bpy.types.Object] = []
@@ -390,6 +543,11 @@ def build(name: str, spec: dict) -> dict:
         "uv_sets": len(obj.data.uv_layers),
         "materials": len(obj.data.materials),
         "texture_size": TEXTURE_SIZE,
+        "textures": [
+            f"{name}_albedo.png",
+            f"{name}_normal.png",
+            f"{name}_roughness.png",
+        ],
         "static_prop": True,
         "rigged": armature is not None,
         "animations": ["Idle-loop", "Walk-loop"] if armature is not None else [],
