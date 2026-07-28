@@ -12,6 +12,7 @@ const AnvilMeshes := preload("res://scripts/map/view3d/map_view_anvil_meshes.gd"
 const HayMeshes := preload("res://scripts/map/view3d/map_view_hay_meshes.gd")
 const MedievalAnimalModels := preload("res://scripts/map/view3d/map_view_medieval_animal_models.gd")
 const MarketStallModels := preload("res://scripts/map/view3d/map_view_market_stall_models.gd")
+const TableModels := preload("res://scripts/map/view3d/map_view_table_models.gd")
 const MedievalLightingModels := preload("res://scripts/map/view3d/map_view_medieval_lighting_models.gd")
 const ChestModels := preload("res://scripts/map/view3d/map_view_chest_models.gd")
 const StorageFurnitureModels := preload("res://scripts/map/view3d/map_view_storage_furniture_models.gd")
@@ -151,9 +152,7 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 		MapTypes.PROP_KIND_CHEST:
 			ChestModels.add_model(root, prop)
 		MapTypes.PROP_KIND_TABLE:
-			MapViewMeshBuilderPrimitives.box(root, "Top", Vector3(1.5, 0.08, 0.95), Vector3(0.0, 0.58, 0.0), &"wood")
-			MapViewMeshBuilderPrimitives.box(root, "LegsLeft", Vector3(0.1, 0.54, 0.78), Vector3(-0.62, 0.27, 0.0), &"timber")
-			MapViewMeshBuilderPrimitives.box(root, "LegsRight", Vector3(0.1, 0.54, 0.78), Vector3(0.62, 0.27, 0.0), &"timber")
+			TableModels.add_model(root, prop)
 		MapTypes.PROP_KIND_SHELF:
 			StorageFurnitureModels.add_model(root, prop)
 		MapTypes.PROP_KIND_QUENCH:

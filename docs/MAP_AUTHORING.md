@@ -101,7 +101,7 @@ The initial vocabulary must cover the existing runtime contract without exposing
 | `terrain_rect` | Terrain ID, cell rectangle, explicit layer/order when overlaps matter | `zones` |
 | `structure_rect` | Stable ID, supported building/structure kind, cell footprint, style parameters | `buildings` |
 | `wall_run` | Stable ID, endpoints or cell rectangle, thickness, openings, style | One or more canonical `buildings` entries |
-| `prop` | Stable ID, supported prop kind, cell placement, optional facing/style; `stall` may compose countertop modules with `display_goods=fish+cloth` | `props` |
+| `prop` | Stable ID, supported prop kind, cell placement, optional facing/style; `stall` may compose countertop modules with `display_goods=fish+cloth`, while `table` may compose contents with `table_items=cutting_board+fish+knife` | `props` |
 | `player_spawn` | Named or primary spawn placement | `player_spawn` and any supported spawn metadata |
 | `transition` | Stable ID, cell rectangle, destination scene/spawn IDs, optional local spawn metadata, and optional `building_id` for a door attached to a facade | `transitions` |
 | `interaction_anchor` | Stable ID, cell placement, optional kind | `interaction_anchors` |
@@ -159,6 +159,18 @@ prop closed_stall stall 43 32 rect=3,2 display_goods=none
 ```
 
 Supported modules are `fish`, `cloth`, `grain`, and `pottery`. Join up to three unique modules with `+`; the renderer assigns one module per stable countertop slot and adjusts module spacing without scaling the merchandise with the stall frame. Omit `display_goods` or use `none` for an empty counter. Unknown modules, more than three modules, and `display_goods` on non-`stall` props fail map validation.
+
+### Modular medieval tables
+
+`table` selects one independent furniture base with `style_variant`: `table.common_household`, `table.trestle_work`, or `table.long_board`. Tabletop contents are composed independently with `table_items`:
+
+```text
+prop food_table table 6 10 rect=4,3 style_variant=table.common_household table_items=candle
+prop fish_work table 31 48 style_variant=table.trestle_work table_items=cutting_board+fish+knife
+prop guild_board table 18 10 rect=6,2 style_variant=table.long_board table_items=none
+```
+
+Supported item modules are `cutting_board`, `fish`, `knife`, and `candle`. Join up to four unique modules with `+`; omit `table_items` or use `none` for a bare table. Candle contents reuse the authored historical lighting kit and its day/night behavior. `fish_splitting_table` remains a compatibility preset that resolves to `table.trestle_work` with `cutting_board+fish+knife`, so existing maps gain the modular production assets without migration. Unknown, duplicate, excessive, or non-table assignments fail map validation.
 
 ### Rural-life prop kinds (P0-107)
 

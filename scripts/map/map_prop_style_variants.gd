@@ -31,6 +31,15 @@ const CHEST_VARIANTS: Array[StringName] = [
 	CHEST_MERCHANT_STRONGBOX,
 ]
 
+const TABLE_COMMON_HOUSEHOLD := &"table.common_household"
+const TABLE_TRESTLE_WORK := &"table.trestle_work"
+const TABLE_LONG_BOARD := &"table.long_board"
+const TABLE_VARIANTS: Array[StringName] = [
+	TABLE_COMMON_HOUSEHOLD,
+	TABLE_TRESTLE_WORK,
+	TABLE_LONG_BOARD,
+]
+
 
 static func is_known(kind: StringName, variant: StringName) -> bool:
 	if variant.is_empty():
@@ -41,6 +50,8 @@ static func is_known(kind: StringName, variant: StringName) -> bool:
 		return variant in CHEST_VARIANTS
 	if kind == MapTypes.PROP_KIND_SHELF:
 		return variant in STORAGE_FURNITURE_VARIANTS
+	if kind == MapTypes.PROP_KIND_TABLE or kind == MapTypes.PROP_KIND_FISH_SPLITTING_TABLE:
+		return variant in TABLE_VARIANTS
 	if kind == MapTypes.PROP_KIND_CANDLE:
 		return variant in MapTypes.LIGHTING_VARIANTS
 	return TerrainVegetation.is_known_variant(variant)

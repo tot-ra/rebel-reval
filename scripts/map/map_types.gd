@@ -112,6 +112,22 @@ const MARKET_STALL_GOODS_KINDS: Array[StringName] = [
 	MARKET_STALL_GOODS_GRAIN,
 	MARKET_STALL_GOODS_POTTERY,
 ]
+
+## Table contents use the same bounded `+` composition grammar as stall goods,
+## but remain a separate domain so furniture never accepts merchandise modules.
+const TABLE_ITEMS_NONE := &"none"
+const TABLE_ITEM_CUTTING_BOARD := &"cutting_board"
+const TABLE_ITEM_FISH := &"fish"
+const TABLE_ITEM_KNIFE := &"knife"
+const TABLE_ITEM_CANDLE := &"candle"
+const TABLE_ITEMS_SEPARATOR := "+"
+const TABLE_MAX_ITEMS := 4
+const TABLE_ITEM_KINDS: Array[StringName] = [
+	TABLE_ITEM_CUTTING_BOARD,
+	TABLE_ITEM_FISH,
+	TABLE_ITEM_KNIFE,
+	TABLE_ITEM_CANDLE,
+]
 const PROP_KIND_HEARTH := &"hearth"
 const PROP_KIND_CHAIR := &"chair"
 const PROP_KIND_CANDLE := &"candle"
@@ -290,6 +306,42 @@ static func parse_market_stall_goods(specification: StringName) -> Array[StringN
 			break
 	return parsed
 
+
+
+static func parse_table_items(specification: StringName) -> Array[StringName]:
+	var parsed: Array[StringName] = []
+	var raw := String(specification).strip_edges()
+	if raw.is_empty() or raw == String(TABLE_ITEMS_NONE):
+		return parsed
+	for token in raw.split(TABLE_ITEMS_SEPARATOR, false):
+		var item_kind := StringName(token.strip_edges())
+		if item_kind in TABLE_ITEM_KINDS and item_kind not in parsed:
+			parsed.append(item_kind)
+		if parsed.size() == TABLE_MAX_ITEMS:
+			break
+	return parsed
+
+
+static func invalid_table_items(specification: StringName) -> Array[StringName]:
+	var invalid: Array[StringName] = []
+	var raw := String(specification).strip_edges()
+	if raw.is_empty() or raw == String(TABLE_ITEMS_NONE):
+		return invalid
+	var item_count := 0
+	var seen: Array[StringName] = []
+	for token in raw.split(TABLE_ITEMS_SEPARATOR, false):
+		var item_kind := StringName(token.strip_edges())
+		if item_kind.is_empty() or item_kind == TABLE_ITEMS_NONE:
+			continue
+		item_count += 1
+		if item_kind in seen and &"duplicate_items" not in invalid:
+			invalid.append(&"duplicate_items")
+		seen.append(item_kind)
+		if item_kind not in TABLE_ITEM_KINDS and item_kind not in invalid:
+			invalid.append(item_kind)
+	if item_count > TABLE_MAX_ITEMS:
+		invalid.append(&"too_many_items")
+	return invalid
 
 
 static func lighting_variant_for_prop(prop: Dictionary) -> StringName:

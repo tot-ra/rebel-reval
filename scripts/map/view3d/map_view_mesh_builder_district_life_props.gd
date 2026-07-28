@@ -13,6 +13,7 @@ const _DriedFishMeshes := preload("res://scripts/map/view3d/map_view_dried_fish_
 const _RopeCoilModels := preload("res://scripts/map/view3d/map_view_rope_coil_models.gd")
 const _MaltSackPileModels := preload("res://scripts/map/view3d/map_view_malt_sack_pile_models.gd")
 const _TanningFrameModels := preload("res://scripts/map/view3d/map_view_tanning_frame_models.gd")
+const _TableModels := preload("res://scripts/map/view3d/map_view_table_models.gd")
 
 
 static func add_to(root: Node3D, kind: StringName, prop: Dictionary = {}) -> void:
@@ -24,7 +25,7 @@ static func add_to(root: Node3D, kind: StringName, prop: Dictionary = {}) -> voi
 		MapTypes.PROP_KIND_SMOKE_RACK:
 			_add_smoke_rack(root)
 		MapTypes.PROP_KIND_FISH_SPLITTING_TABLE:
-			_add_fish_splitting_table(root)
+			_add_fish_splitting_table(root, prop)
 		MapTypes.PROP_KIND_BOAT_TIMBER_STACK:
 			_add_boat_timber_stack(root)
 		MapTypes.PROP_KIND_ROPE_COIL:
@@ -126,11 +127,11 @@ static func _add_smoke_rack(root: Node3D) -> void:
 	root.add_child(smoke)
 
 
-static func _add_fish_splitting_table(root: Node3D) -> void:
-	_Primitives.box(root, "Top", Vector3(1.35, 0.1, 0.72), Vector3(0.0, 0.78, 0.0), &"wood")
-	for leg_spec in [["LegFL", -0.52, 0.24], ["LegFR", 0.52, 0.24], ["LegBL", -0.52, -0.24], ["LegBR", 0.52, -0.24]]:
-		_Primitives.box(root, leg_spec[0], Vector3(0.1, 0.76, 0.1), Vector3(leg_spec[1], 0.38, leg_spec[2]), &"timber")
-	_Primitives.box(root, "Slab", Vector3(0.42, 0.04, 0.28), Vector3(0.18, 0.86, 0.0), &"stone")
+static func _add_fish_splitting_table(root: Node3D, prop: Dictionary) -> void:
+	# WHY: the old monolithic boxes baked one stone slab into one table. The legacy
+	# kind now resolves to the same reusable table + independent contents contract
+	# available to every ordinary table, without invalidating authored maps.
+	_TableModels.add_fish_splitting_preset(root, prop)
 
 
 static func _add_boat_timber_stack(root: Node3D) -> void:

@@ -311,6 +311,17 @@ func _validate_prop(prop: Dictionary, index: int, seen_ids: Dictionary) -> Array
 				])
 			else:
 				errors.append("%s.display_goods is unknown: %s" % [prefix, String(goods_kind)])
+	if prop.has("table_items"):
+		if prop.get("kind") not in [MapTypes.PROP_KIND_TABLE, MapTypes.PROP_KIND_FISH_SPLITTING_TABLE]:
+			errors.append("%s.table_items is supported only for table props" % prefix)
+		for item_kind in MapTypes.invalid_table_items(StringName(prop["table_items"])):
+			match item_kind:
+				&"too_many_items":
+					errors.append("%s.table_items supports at most %d items" % [prefix, MapTypes.TABLE_MAX_ITEMS])
+				&"duplicate_items":
+					errors.append("%s.table_items cannot contain duplicate items" % prefix)
+				_:
+					errors.append("%s.table_items is unknown: %s" % [prefix, String(item_kind)])
 
 	return errors
 
