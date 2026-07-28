@@ -27,7 +27,7 @@ References:
 | P4 |    21  |    42  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
-| R  |    24  |    18  | Historical research backlog (researcher-managed, cross-cutting) |
+| R  |    22  |    19  | Historical research backlog (researcher-managed, cross-cutting) |
 
 
 
@@ -134,6 +134,8 @@ References:
 
 
 
+
+<!-- R-054 completed in current session -->
 <!-- R-004 completed in current session -->
 <!-- R-006 completed in current session -->
 <!-- R-008 completed in current session -->
@@ -261,7 +263,7 @@ Rows close through `review: canon` like all content work.
 - [~] R-030 | role: research | deps: R-001 | deliverable: history/dossiers/topography/pikk-lai-frontage-materials-1340s.md - which Lower Town frontages were timber vs stone in the 1340s property records | verify: street-level material map for at least one block of Pikk and one of Lai with sources | review: canon
 - [x] R-031 | role: research | deps: R-001 | deliverable: history/dossiers/topography/old-market-vanaturg.md - precise 1343 location and function of the Old Market relative to Raekoja plats | verify: places Vanaturg on a map sketch with attested vs reconstructed boundary | review: canon
 - [x] R-032 | role: research | deps: R-001 | deliverable: history/dossiers/topography/back-lanes-east-of-pikk.md - rear-lane (*Tagenstraße*) network names, widths, and gates east of Pikk | verify: names at least three back lanes with documentary or archaeological support | claim: research-N@2026-07-28 | review: canon
-- [ ] R-033 | role: research | deps: R-005 | deliverable: history/dossiers/topography/harjapea-mouth-shoreline-gis.md - measured 1343 shoreline polygon from shore-displacement and wreck coordinates | verify: bounded map polygon with confidence labels distinguishing attested wet margin from reconstructed curve
+- [~] R-033 | role: research | deps: R-005 | deliverable: history/dossiers/topography/harjapea-mouth-shoreline-gis.md - measured 1343 shoreline polygon from shore-displacement and wreck coordinates | verify: bounded map polygon with confidence labels distinguishing attested wet margin from reconstructed curve | claim: research-5@2026-07-28
 - [~] R-034 | role: research | deps: R-005 | deliverable: history/dossiers/topography/kalamaja-fishing-shore-1343.md - Kalamaja/Kalarand built footprint, boat types, and net-yard layout before 1352 attestation | verify: art-usable fishing-shore scene list with confidence per element | claim: research-4@2026-07-28 | review: canon
 - [ ] R-035 | role: research | deps: R-006 | deliverable: history/dossiers/architecture/toompea-small-castle-interior.md - Small Castle and Great Castle room sequence, chapel, chapter, dormitory, and viceroy's hall c. 1340 from Zobel 2008 and Danish charter evidence | verify: labelled floor zones a map and art pass can build without importing post-1346 Order layout
 - [ ] R-036 | role: research | deps: R-029 | deliverable: history/reference/topography/raekoja-hall-phase-plans/ - Neumann 1904 town-hall construction-phase drawings with measured pre-1371 length | verify: 2+ licensed plates in plates.csv, fetched and cited from raekoja-plats-extents-1343 dossier
@@ -281,7 +283,7 @@ Rows close through `review: canon` like all content work.
 - [ ] R-051 | role: research | deps: R-017 | deliverable: fetch `religion.liturgical-calendar-spring-1343.01` through `.05` reference plates once Wikimedia rate-limit clears | verify: `python3 tools/research/fetch_reference_plates.py --slug liturgical-calendar-spring-1343 --verify` reports five fetched plates with no linked or failed rows
 - [ ] R-052 | role: research | deps: R-032 | deliverable: fetch `topography.back-lanes-east-of-pikk.01` through `.04` reference plates once Wikimedia rate-limit clears | verify: `python3 tools/research/fetch_reference_plates.py --slug back-lanes-east-of-pikk --verify` reports four fetched plates with no failed rows
 - [ ] R-053 | role: research | deps: R-022 | deliverable: history/dossiers/economy/reval-brewery-ordinances-1340s.md - citizen brewer rules, beer excise, and Estonian collector roles from AWB/council entries 1340–1343 | verify: at least three cited ordinance or excise lines with document dates usable in Bitter Brew and tavern economy
-- [ ] R-054 | role: research | deps: R-018 | deliverable: history/dossiers/culture/reval-musician-payments-1340s.md - AWB/council payments to *spilman*/*moosik*/*pfeifer* 1340–1343; confirms or refutes council-employed musicians before Piperbude | verify: every payment line carries document date and source; present/absent verdict for formal town musician corps in 1343
+- [x] R-054 | claim: cursor-agent@2026-07-28 | role: research | deps: R-018 | deliverable: history/dossiers/culture/reval-musician-payments-1340s.md - AWB/council payments to *spilman*/*moosik*/*pfeifer* 1340–1343; confirms or refutes council-employed musicians before Piperbude | verify: every payment line carries document date and source; present/absent verdict for formal town musician corps in 1343 | review: canon
 
 ## P6 - Act 3: The Iron Harvest and full release (lowest priority)
 

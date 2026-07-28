@@ -52,7 +52,7 @@ Domains and their scope are defined in the
 | `crafts` | guilds, trades, workshops, tools, smithing | partial | [`guild-structure`](dossiers/crafts/guild-structure.md) (partial), [`blacksmith-materials-and-techniques`](dossiers/crafts/blacksmith-materials-and-techniques.md) (solid) | R-027, R-041, R-042 | Dev, Art, Quest |
 | `economy` | trade, goods, prices, coin, measures | partial | [`coinage-prices-and-measures`](dossiers/economy/coinage-prices-and-measures.md) (solid), [`hanseatic-trade-and-season`](dossiers/economy/hanseatic-trade-and-season.md) (solid) | R-042 | Dev, Quest |
 | `religion` | churches, orders, liturgy, calendar | partial | [`churches-and-religious-houses`](dossiers/religion/churches-and-religious-houses.md) (solid), [`liturgical-calendar-spring-1343`](dossiers/religion/liturgical-calendar-spring-1343.md) (solid) | R-049, R-050 | Narrative, Map, Art |
-| `culture` | music, instruments, festivals, games | absent | - | R-018, R-019 | Art, Dialogue, Dev |
+| `culture` | music, instruments, festivals, games | partial | [`music-and-instruments`](dossiers/culture/music-and-instruments.md) (partial), [`reval-musician-payments-1340s`](dossiers/culture/reval-musician-payments-1340s.md) (solid) | R-019 | Art, Dialogue, Dev |
 | `folklore` | tales, beliefs, spirits, magic | stub (see lore compendium) | - | R-020, R-021 | Narrative, Dialogue |
 | `dailylife` | food, clothing, housing, health | partial | [`food-and-drink`](dossiers/dailylife/food-and-drink.md) (solid) | R-023 | Character, Art, Dialogue |
 | `language` | registers, names, address, oaths | absent | - | R-024 | Dialogue, Character |
@@ -78,7 +78,7 @@ roles directly.
 | 2026-07-28 | research | Fetch `religion.liturgical-calendar-spring-1343.01`–`.05` reference plates after Wikimedia rate-limit clears | [`liturgical-calendar-spring-1343`](dossiers/religion/liturgical-calendar-spring-1343.md) |
 | 2026-07-28 | research | Fetch `topography.back-lanes-east-of-pikk.01`–`.04` reference plates once Wikimedia rate-limit clears | [`back-lanes-east-of-pikk`](dossiers/topography/back-lanes-east-of-pikk.md) |
 | 2026-07-28 | canon | Reconcile Easter 1343 date in `hanseatic-trade-and-season.md` (21 Apr → **13 Apr** Julian) against computus | [`liturgical-calendar-spring-1343`](dossiers/religion/liturgical-calendar-spring-1343.md) |
-| 2026-07-28 | research | AWB/council pass on Reval brewery ordinances and beer excise 1340–1343 (R-053) | [`food-and-drink`](dossiers/dailylife/food-and-drink.md) |
+| 2026-07-28 | research | Fetch local Tallinn musician artefact plates (Vene 23 singer relief, 2018 Kalamaja glass musician) once institutional images are licensed | [`music-and-instruments`](dossiers/culture/music-and-instruments.md) |
 
 ## Maintenance
 
