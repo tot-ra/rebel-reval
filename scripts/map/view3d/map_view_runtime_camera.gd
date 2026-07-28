@@ -43,6 +43,18 @@ const FIRST_PERSON_MAX_PITCH_DEGREES := 80.0
 const FIRST_PERSON_FOV_DEGREES := 75.0
 const FIRST_PERSON_NEAR := 0.05
 const TOP_DOWN_NEAR := 0.05
+## Frozen practical-camera attributes (P0-143). Orthographic top-down clears them so
+## the overview stays fully sharp and does not fight the fixed ortho size.
+const PERSPECTIVE_AUTO_EXPOSURE_ENABLED := true
+const PERSPECTIVE_AUTO_EXPOSURE_SCALE := 0.35
+const PERSPECTIVE_AUTO_EXPOSURE_SPEED := 0.5
+const PERSPECTIVE_EXPOSURE_SENSITIVITY := 100.0
+const THIRD_PERSON_DOF_BLUR_AMOUNT := 0.032
+const THIRD_PERSON_DOF_FAR_DISTANCE := 10.0
+const THIRD_PERSON_DOF_FAR_TRANSITION := 6.0
+const FIRST_PERSON_DOF_BLUR_AMOUNT := 0.028
+const FIRST_PERSON_DOF_FAR_DISTANCE := 14.0
+const FIRST_PERSON_DOF_FAR_TRANSITION := 8.0
 const OCCLUSION_PROBE_HEIGHTS: Array[float] = [0.5, 1.1, 1.8]
 
 var camera: Camera3D
@@ -66,6 +78,7 @@ var _mouse_rotation_armed := false
 var _last_mouse_position := Vector2.ZERO
 var _top_down_size := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
 var _third_person_distance := THIRD_PERSON_DISTANCE
+var _perspective_attributes: CameraAttributesPractical
 
 
 func configure(runtime_camera: Camera3D, runtime_player_rig: SharedCharacterRig, runtime_view: MapView3D, runtime_player: CharacterBody2D) -> void:
@@ -75,7 +88,12 @@ func configure(runtime_camera: Camera3D, runtime_player_rig: SharedCharacterRig,
 	player = runtime_player
 	_top_down_size = camera.size
 	_third_person_distance = THIRD_PERSON_DISTANCE
+	_perspective_attributes = CameraAttributesPractical.new()
 	_apply_camera_mode()
+
+
+func perspective_camera_attributes() -> CameraAttributesPractical:
+	return _perspective_attributes
 
 
 func third_person_follow_distance() -> float:
@@ -338,6 +356,33 @@ func set_camera_mode(next_mode: CameraMode) -> void:
 	_apply_camera_mode()
 
 
+func _apply_perspective_camera_attributes() -> void:
+	if _perspective_attributes == null:
+		return
+	_perspective_attributes.auto_exposure_enabled = PERSPECTIVE_AUTO_EXPOSURE_ENABLED
+	_perspective_attributes.auto_exposure_scale = PERSPECTIVE_AUTO_EXPOSURE_SCALE
+	_perspective_attributes.auto_exposure_speed = PERSPECTIVE_AUTO_EXPOSURE_SPEED
+	_perspective_attributes.exposure_sensitivity = PERSPECTIVE_EXPOSURE_SENSITIVITY
+	_perspective_attributes.dof_blur_near_enabled = false
+	_perspective_attributes.dof_blur_far_enabled = true
+	match camera_mode:
+		CameraMode.THIRD_PERSON:
+			_perspective_attributes.dof_blur_amount = THIRD_PERSON_DOF_BLUR_AMOUNT
+			_perspective_attributes.dof_blur_far_distance = THIRD_PERSON_DOF_FAR_DISTANCE
+			_perspective_attributes.dof_blur_far_transition = THIRD_PERSON_DOF_FAR_TRANSITION
+		CameraMode.FIRST_PERSON:
+			_perspective_attributes.dof_blur_amount = FIRST_PERSON_DOF_BLUR_AMOUNT
+			_perspective_attributes.dof_blur_far_distance = FIRST_PERSON_DOF_FAR_DISTANCE
+			_perspective_attributes.dof_blur_far_transition = FIRST_PERSON_DOF_FAR_TRANSITION
+		_:
+			return
+	camera.attributes = _perspective_attributes
+
+
+func _clear_camera_attributes() -> void:
+	camera.attributes = null
+
+
 func _apply_camera_mode() -> void:
 	match camera_mode:
 		CameraMode.THIRD_PERSON:
@@ -345,16 +390,19 @@ func _apply_camera_mode() -> void:
 			camera.fov = THIRD_PERSON_FOV_DEGREES
 			camera.near = THIRD_PERSON_NEAR
 			camera.rotation_degrees.x = THIRD_PERSON_PITCH_DEGREES
+			_apply_perspective_camera_attributes()
 		CameraMode.FIRST_PERSON:
 			camera.projection = Camera3D.PROJECTION_PERSPECTIVE
 			camera.fov = FIRST_PERSON_FOV_DEGREES
 			camera.near = FIRST_PERSON_NEAR
 			camera.rotation_degrees.x = FIRST_PERSON_PITCH_DEGREES
+			_apply_perspective_camera_attributes()
 		CameraMode.TOP_DOWN:
 			camera.projection = Camera3D.PROJECTION_ORTHOGONAL
 			camera.size = _top_down_size
 			camera.near = TOP_DOWN_NEAR
 			camera.rotation_degrees.x = MapView3D.CAMERA_PITCH_DEGREES
+			_clear_camera_attributes()
 	player_rig.visible = not first_person
 	# Close perspective cameras need the ceiling shell and nearby micro detail;
 	# only the distant top-down view uses the readability cutaway.
