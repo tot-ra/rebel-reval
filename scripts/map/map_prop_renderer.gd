@@ -36,7 +36,7 @@ static func create_prop(
 
 	match prop["kind"] as StringName:
 		MapTypes.PROP_KIND_ANVIL: Industrial.draw_anvil(root, target, time_of_day)
-		MapTypes.PROP_KIND_HAY_STACK: Industrial.draw_hay_stack(root, target, time_of_day)
+		MapTypes.PROP_KIND_HAY_STACK: Industrial.draw_hay_stack(root, prop, target, time_of_day)
 		MapTypes.PROP_KIND_CART: Industrial.draw_cart(root, target, time_of_day)
 		MapTypes.PROP_KIND_WELL: Industrial.draw_well(root, target, time_of_day)
 		MapTypes.PROP_KIND_BARRELS: Harbor.draw_barrels(root, target, time_of_day)

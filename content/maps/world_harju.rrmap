@@ -15,7 +15,7 @@ building threshing_barn house 30 7 9 4 primitive=barn wall_height=58
 building west_croft house 6 18 7 4 primitive=farmhouse wall_height=50
 building cattle_fence wall 28 21 12 1 primitive=palisade wall_height=20
 prop village_well well 25 15 primitive=well
-prop hay_rick hay_stack 9 25 primitive=hay_stack
+prop hay_rick hay_stack 9 25 primitive=hay_stack style_variant=hay_stack.tall
 prop field_cart cart 40 14 primitive=cart
 anchor landmark_village_well 25 15 kind=well
 anchor landmark_threshing_barn 34 11 kind=barn

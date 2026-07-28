@@ -193,7 +193,7 @@ prop canon_close_shrub bush 88 20 rect=2,2 style=bush.dense
 prop cathedral_border_shrub bush 74 19 rect=2,2 style=bush.scrub
 prop cathedral_precinct_hedge bush 78 8 rect=3,2 style=bush.dense
 prop lodging_entry_shrub bush 106 14 rect=2,2 style=bush.scrub
-prop hay_store hay_stack 58 33 rect=2,2
+prop hay_store hay_stack 58 33 rect=2,2 style_variant=hay_stack.small
 spawn spawn.inspection 58 24 rect=2,2
 anchor inspection_spawn 58 24 rect=2,2
 anchor archbishops_garden 44 18 rect=2,2

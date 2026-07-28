@@ -118,9 +118,17 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			else:
 				_add_anvil_fallback(root)
 		MapTypes.PROP_KIND_HAY_STACK:
-			# Stable IDs vary the hand-built contour without changing map placement or
-			# the gameplay-owned climb/collision footprint.
-			HayMeshes.add_rick(root, "HayRick", int(String(prop["id"]).hash()))
+			# Size is authored explicitly while the stable ID still varies only the
+			# hand-built contour, so map edits never reshuffle nearby stack heights.
+			var hay_size: StringName = prop.get("style_variant", HayMeshes.DEFAULT_SIZE)
+			HayMeshes.add_rick(
+				root,
+				"HayRick",
+				int(String(prop["id"]).hash()),
+				Vector3.ZERO,
+				Vector3.ONE,
+				hay_size
+			)
 		MapTypes.PROP_KIND_CART:
 			CartModels.add_model(root)
 		MapTypes.PROP_KIND_WELL:

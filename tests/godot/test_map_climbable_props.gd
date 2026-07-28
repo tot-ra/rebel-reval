@@ -12,6 +12,21 @@ func test_climbable_kinds_match_outdoor_cargo_silhouettes() -> void:
 	assert_false(MapClimbableProps.STAND_HEIGHT_BY_KIND.has(MapTypes.PROP_KIND_FURNACE))
 
 
+
+func test_hay_stack_stand_height_tracks_authored_size() -> void:
+	var heights: Array[float] = []
+	for size_variant in MapPropStyleVariants.HAY_STACK_VARIANTS:
+		heights.append(MapClimbableProps.stand_height({
+			"id": StringName("test.%s" % String(size_variant)),
+			"kind": MapTypes.PROP_KIND_HAY_STACK,
+			"position": Vector2.ZERO,
+			"footprint": Rect2(0.0, 0.0, 64.0, 64.0),
+			"style_variant": size_variant,
+		}))
+	assert_true(heights[0] < heights[1])
+	assert_true(heights[1] < heights[2])
+	assert_eq(heights[1], MapClimbableProps.STAND_HEIGHT_BY_KIND[MapTypes.PROP_KIND_HAY_STACK])
+
 func test_actor_rises_when_standing_on_cargo_crates() -> void:
 	var definition := MapDefinition.new()
 	definition.map_id = &"climbable_prop_fixture"

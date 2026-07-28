@@ -6,6 +6,16 @@ extends RefCounted
 
 const RADIAL_SEGMENTS := 14
 const VARIANT_COUNT := 3
+const SIZE_SMALL := &"hay_stack.small"
+const SIZE_MEDIUM := &"hay_stack.medium"
+const SIZE_TALL := &"hay_stack.tall"
+const DEFAULT_SIZE := SIZE_MEDIUM
+const SIZE_SCALES := {
+	SIZE_SMALL: Vector3(0.72, 0.68, 0.72),
+	SIZE_MEDIUM: Vector3.ONE,
+	# A 2.3 m crown clears the project's 2.0 m visible character-height contract.
+	SIZE_TALL: Vector3(1.08, 2.04, 1.06),
+}
 
 static var _body_cache: Dictionary = {}
 static var _loose_straw_cache: Dictionary = {}
@@ -16,12 +26,14 @@ static func add_rick(
 	node_name: String,
 	variation_seed: int,
 	position: Vector3 = Vector3.ZERO,
-	scale: Vector3 = Vector3.ONE
+	scale: Vector3 = Vector3.ONE,
+	size_variant: StringName = DEFAULT_SIZE
 ) -> Node3D:
 	var rick := Node3D.new()
 	rick.name = node_name
 	rick.position = position
-	rick.scale = scale
+	rick.scale = scale * size_scale(size_variant)
+	rick.set_meta(&"hay_size_variant", resolved_size_variant(size_variant))
 	# Stable rotation and one of three contour variants prevent repeated Pirita
 	# stacks from presenting the same lopsided crown to the camera.
 	var variant := posmod(variation_seed, VARIANT_COUNT)
@@ -41,6 +53,20 @@ static func add_rick(
 	loose_straw.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	rick.add_child(loose_straw)
 	return rick
+
+
+static func resolved_size_variant(size_variant: StringName) -> StringName:
+	return size_variant if SIZE_SCALES.has(size_variant) else DEFAULT_SIZE
+
+
+static func size_scale(size_variant: StringName = DEFAULT_SIZE) -> Vector3:
+	return SIZE_SCALES[resolved_size_variant(size_variant)]
+
+
+static func size_bounds(size_variant: StringName = DEFAULT_SIZE, contour_variant: int = 0) -> AABB:
+	var bounds: AABB = geometry_stats(contour_variant)["aabb"]
+	var resolved_scale := size_scale(size_variant)
+	return AABB(bounds.position * resolved_scale, bounds.size * resolved_scale)
 
 
 static func body_mesh(variant: int = 0) -> ArrayMesh:

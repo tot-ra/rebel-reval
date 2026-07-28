@@ -176,6 +176,14 @@ Supported item modules are `cutting_board`, `fish`, `knife`, and `candle`. Join 
 
 Peri-urban and foreland agricultural dressing props replace generic `cart`, `hay_stack`, or `timber_fence` stand-ins where a dedicated rural yard read is required. Each kind compiles through the normal `prop` primitive and renders in both 2D and 3D without gameplay hooks. Existing `hay_stack`, `cart`, and `timber_fence` kinds remain valid for simple placements; prefer the rural kinds below when the authored read needs a garden bed, livestock pen, or weathered farm cart.
 
+`hay_stack` supports three strict `style_variant` sizes: `hay_stack.small` for loose yard piles, `hay_stack.medium` for the default hand-built rick, and `hay_stack.tall` for a roughly 2.3 m storage rick that stands above the 2.0 m character-height reference. Omit `style_variant` to retain the medium size. All variants keep the same `rect=2,2` gameplay footprint; authored climb height follows the visible stack size.
+
+```text
+prop yard_hay hay_stack 22 42 rect=2,2 style_variant=hay_stack.small
+prop field_rick hay_stack 30 42 rect=2,2 style_variant=hay_stack.medium
+prop barn_rick hay_stack 38 42 rect=2,2 style_variant=hay_stack.tall
+```
+
 | Kind | Typical footprint | P0-072 sourcing note |
 |---|---|---|
 | `kitchen_garden` | `rect=2,1` | Kitchen-garden beds beside crofts and service yards (**B**) |

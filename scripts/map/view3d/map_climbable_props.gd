@@ -1,6 +1,8 @@
 class_name MapClimbableProps
 extends RefCounted
 
+const _HayMeshes := preload("res://scripts/map/view3d/map_view_hay_meshes.gd")
+
 ## Low outdoor props the player may step onto. The flat 2D logic plane stays
 ## authoritative for collision and navigation; this only lifts the derived 3D
 ## actor so crates, barrels, carts, and similar cargo read as climbable rather
@@ -34,9 +36,14 @@ static func is_climbable(prop: Dictionary) -> bool:
 static func stand_height(prop: Dictionary) -> float:
 	if not is_climbable(prop):
 		return 0.0
-	if prop.get("kind", &"") == MapTypes.PROP_KIND_CHEST:
-		var variant := StringName(prop.get("style_variant", &""))
-		return float(CHEST_STAND_HEIGHT_BY_VARIANT.get(variant, DEFAULT_CHEST_STAND_HEIGHT))
+	match prop.get("kind", &"") as StringName:
+		MapTypes.PROP_KIND_CHEST:
+			var variant := StringName(prop.get("style_variant", &""))
+			return float(CHEST_STAND_HEIGHT_BY_VARIANT.get(variant, DEFAULT_CHEST_STAND_HEIGHT))
+		MapTypes.PROP_KIND_HAY_STACK:
+			# The broad shoulder, not the loose crown tip, is the believable footing.
+			var size_variant := StringName(prop.get("style_variant", _HayMeshes.DEFAULT_SIZE))
+			return STAND_HEIGHT_BY_KIND[MapTypes.PROP_KIND_HAY_STACK] * _HayMeshes.size_scale(size_variant).y
 	return float(STAND_HEIGHT_BY_KIND[prop["kind"]])
 
 

@@ -40,6 +40,16 @@ const TABLE_VARIANTS: Array[StringName] = [
 	TABLE_LONG_BOARD,
 ]
 
+const HAY_STACK_SMALL := &"hay_stack.small"
+const HAY_STACK_MEDIUM := &"hay_stack.medium"
+const HAY_STACK_TALL := &"hay_stack.tall"
+const HAY_STACK_VARIANTS: Array[StringName] = [
+	HAY_STACK_SMALL,
+	HAY_STACK_MEDIUM,
+	HAY_STACK_TALL,
+]
+const DEFAULT_HAY_STACK_VARIANT := HAY_STACK_MEDIUM
+
 
 static func is_known(kind: StringName, variant: StringName) -> bool:
 	if variant.is_empty():
@@ -52,6 +62,8 @@ static func is_known(kind: StringName, variant: StringName) -> bool:
 		return variant in STORAGE_FURNITURE_VARIANTS
 	if kind == MapTypes.PROP_KIND_TABLE or kind == MapTypes.PROP_KIND_FISH_SPLITTING_TABLE:
 		return variant in TABLE_VARIANTS
+	if kind == MapTypes.PROP_KIND_HAY_STACK:
+		return variant in HAY_STACK_VARIANTS
 	if kind == MapTypes.PROP_KIND_CANDLE:
 		return variant in MapTypes.LIGHTING_VARIANTS
 	return TerrainVegetation.is_known_variant(variant)

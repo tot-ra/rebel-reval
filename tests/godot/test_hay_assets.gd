@@ -32,6 +32,80 @@ func test_hay_stack_uses_irregular_rick_with_loose_straw() -> void:
 	stack.free()
 
 
+func test_hay_stack_sizes_include_a_rick_taller_than_a_character() -> void:
+	var bounds_by_size := {}
+	for size_variant in MapPropStyleVariants.HAY_STACK_VARIANTS:
+		assert_true(
+			MapPropStyleVariants.is_known(MapTypes.PROP_KIND_HAY_STACK, size_variant),
+			"every hay size must pass the prop-domain allowlist"
+		)
+		var bounds := HayMeshes.size_bounds(size_variant)
+		bounds_by_size[size_variant] = bounds
+		var stack := MapViewMeshBuilder.build_prop(
+			{
+				"id": StringName("test.%s" % String(size_variant)),
+				"kind": MapTypes.PROP_KIND_HAY_STACK,
+				"position": Vector2.ZERO,
+				"style_variant": size_variant,
+			},
+			MapTypes.DEFAULT_CELL_SIZE
+		)
+		var rick := stack.get_node("HayRick") as Node3D
+		assert_eq(rick.get_meta(&"hay_size_variant"), size_variant)
+		assert_eq(rick.scale, HayMeshes.size_scale(size_variant))
+		stack.free()
+
+	var small: AABB = bounds_by_size[MapPropStyleVariants.HAY_STACK_SMALL]
+	var medium: AABB = bounds_by_size[MapPropStyleVariants.HAY_STACK_MEDIUM]
+	var tall: AABB = bounds_by_size[MapPropStyleVariants.HAY_STACK_TALL]
+	assert_true(small.size.y < medium.size.y, "small yard hay must stay below the regular rick")
+	assert_true(medium.size.y < tall.size.y, "storage rick needs a clearly distinct tall silhouette")
+	assert_true(
+		tall.size.y > CharacterScale.VISIBLE_HEIGHT_WORLD,
+		"tall hay rick must rise above the project's full-height character reference"
+	)
+	assert_true(tall.size.x < 2.3, "tall rick must stay inside its compact two-cell authored read")
+
+
+func test_hay_size_variant_round_trips_and_rejects_unknown_value() -> void:
+	var source := """rrmap 1
+map hay_sizes loc.hay_sizes 16 10 grass
+prop yard_hay hay_stack 3 5 rect=2,2 style_variant=hay_stack.small
+prop barn_rick hay_stack 9 5 rect=2,2 style_variant=hay_stack.tall
+spawn spawn.main 1 1
+"""
+	var parsed := MapRrmapParser.parse(source, "res://hay_sizes.rrmap")
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if not parsed.is_ok():
+		return
+	# Compiled props are ordered by stable ID, so assert per ID rather than by
+	# the authored source order.
+	var sizes_by_id := {}
+	for prop in parsed.definition.props:
+		sizes_by_id[StringName(prop["id"])] = StringName(prop.get("style_variant", &""))
+	assert_eq(sizes_by_id.get(&"yard_hay"), MapPropStyleVariants.HAY_STACK_SMALL)
+	assert_eq(sizes_by_id.get(&"barn_rick"), MapPropStyleVariants.HAY_STACK_TALL)
+	var canonical := MapRrmapParser.canonical_print(parsed.blueprint)
+	assert_true("style_variant=hay_stack.small" in canonical)
+	assert_true("style_variant=hay_stack.tall" in canonical)
+	var rejected := MapRrmapParser.parse(
+		source.replace("hay_stack.tall", "hay_stack.giant"),
+		"res://invalid_hay_size.rrmap"
+	)
+	assert_false(rejected.is_ok(), "unknown hay size must fail map compilation")
+	assert_true(str(rejected.formatted_diagnostics()).contains("style_variant is unknown"))
+
+
+func test_pirita_authors_small_medium_and_tall_hay_stacks() -> void:
+	var definition: MapDefinition = ForelandDefinition.create()
+	var authored_sizes: Array[StringName] = []
+	for prop in definition.props:
+		if prop.get("kind") == MapTypes.PROP_KIND_HAY_STACK:
+			authored_sizes.append(StringName(prop.get("style_variant", &"")))
+	for size_variant in MapPropStyleVariants.HAY_STACK_VARIANTS:
+		assert_true(authored_sizes.has(size_variant), "Pirita must showcase hay size: %s" % size_variant)
+
+
 func test_hay_wagon_reuses_compact_fibrous_load() -> void:
 	var wagon := MapViewMeshBuilder.build_prop(
 		{"id": &"east.hay_wagon", "kind": MapTypes.PROP_KIND_HAY_WAGON, "position": Vector2.ZERO},

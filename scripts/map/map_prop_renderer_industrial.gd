@@ -35,13 +35,48 @@ static func draw_anvil(parent: Node2D, target: StringName, time_of_day: StringNa
 	Draw.add_rect(parent, "Face", Vector2(-12, -26), Vector2(26, 5), metal.lightened(0.16), target, time_of_day)
 
 
-static func draw_hay_stack(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+static func draw_hay_stack(parent: Node2D, prop: Dictionary, target: StringName, time_of_day: StringName) -> void:
 	var hay := MapVisualStyle.role_color(&"hay", target, time_of_day)
-	for index in 3:
-		var offset := float(index) * 6.0
-		Draw.add_rect(parent, "Bale%d" % index, Vector2(-21 + offset, -15 - offset), Vector2(42, 13), hay.darkened(index * 0.05), target, time_of_day)
-		if target == MapVisualStyle.TARGET_WOODCUT:
-			Draw.add_line(parent, "Straw%d" % index, PackedVector2Array([Vector2(-17 + offset, -10 - offset), Vector2(16 + offset, -15 - offset)]), target, time_of_day)
+	var size_variant := StringName(prop.get("style_variant", MapPropStyleVariants.DEFAULT_HAY_STACK_VARIANT))
+	var scale_by_variant := {
+		MapPropStyleVariants.HAY_STACK_SMALL: Vector2(0.74, 0.72),
+		MapPropStyleVariants.HAY_STACK_MEDIUM: Vector2.ONE,
+		MapPropStyleVariants.HAY_STACK_TALL: Vector2(1.08, 1.62),
+	}
+	var size_scale: Vector2 = scale_by_variant.get(size_variant, Vector2.ONE)
+	# A layered rick silhouette keeps the overview map aligned with the rounded 3D
+	# profile while still making tall stacks visibly taller than the player marker.
+	Draw.add_polygon(
+		parent,
+		"RickBody",
+		PackedVector2Array([
+			Vector2(-25.0 * size_scale.x, 0.0),
+			Vector2(-27.0 * size_scale.x, -13.0 * size_scale.y),
+			Vector2(-21.0 * size_scale.x, -29.0 * size_scale.y),
+			Vector2(-11.0 * size_scale.x, -42.0 * size_scale.y),
+			Vector2(1.0 * size_scale.x, -48.0 * size_scale.y),
+			Vector2(13.0 * size_scale.x, -39.0 * size_scale.y),
+			Vector2(23.0 * size_scale.x, -24.0 * size_scale.y),
+			Vector2(27.0 * size_scale.x, -8.0 * size_scale.y),
+			Vector2(20.0 * size_scale.x, 0.0),
+		]),
+		hay,
+		target,
+		time_of_day
+	)
+	if target == MapVisualStyle.TARGET_WOODCUT:
+		for index in 3:
+			var y := (-10.0 - float(index) * 11.0) * size_scale.y
+			Draw.add_line(
+				parent,
+				"StrawLayer%d" % index,
+				PackedVector2Array([
+					Vector2(-20.0 * size_scale.x, y),
+					Vector2(19.0 * size_scale.x, y - 3.0 * size_scale.y),
+				]),
+				target,
+				time_of_day
+			)
 
 
 static func draw_cart(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
