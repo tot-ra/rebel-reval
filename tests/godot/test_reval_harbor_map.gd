@@ -160,6 +160,12 @@ func test_kalamaja_district_life_props_replace_net_barrel_placeholders() -> void
 	var drying_racks := _props_of_kind(definition, MapTypes.PROP_KIND_FISH_DRYING_RACK)
 	assert_true(drying_net_props.size() >= 3, "Kalamaja needs readable net yards at west, mid, and east")
 	assert_true(drying_racks.size() >= 3, "Each net yard needs a drying rack beside the nets")
+	var rack_variants: Dictionary = {}
+	for rack in drying_racks:
+		rack_variants[rack.get("style_variant", &"fish_rack.mixed")] = true
+	assert_true(rack_variants.has(&"fish_rack.empty"), "Kalamaja needs one reusable empty drying frame")
+	assert_true(rack_variants.has(&"fish_rack.herring"), "Kalamaja needs a herring-only drying load")
+	assert_true(rack_variants.has(&"fish_rack.mixed"), "Kalamaja needs a mixed drying load")
 	for prop in definition.props:
 		var prop_id := String(prop.get("id", ""))
 		if prop_id.contains("drying_nets"):

@@ -5,6 +5,7 @@ extends RefCounted
 
 const ExpandTerrain := preload("res://scripts/map/map_blueprint_compiler_expand_terrain.gd")
 const ExpandGeometry := preload("res://scripts/map/map_blueprint_compiler_expand_geometry.gd")
+const PropStyleVariants := preload("res://scripts/map/map_prop_style_variants.gd")
 
 static func expand_primitives(
 	blueprint: MapBlueprint,
@@ -96,11 +97,12 @@ static func _expand_prop(
 	blueprint: MapBlueprint, path: String, expanded: Dictionary, global: Dictionary, errors: Array[String]
 ) -> void:
 	var values := resolved_values(object_id, data, style, inline, global, MapBlueprintCompiler.PROP_OVERRIDE_KEYS, path, errors)
-	# Vegetation styles such as tree.oak / bush.scrub pin scatter and mesh choice
-	# through style_variant, matching terrain paint resolution.
+	# Vegetation and reusable district props share the authored style_variant
+	# field, but each domain validates against its own strict allowlist.
 	var style_variant := TerrainVegetation.resolved_variant(style_id, values)
 	if not style_variant.is_empty():
-		if not TerrainVegetation.is_known_variant(style_variant):
+		var prop_kind: StringName = values.get("kind", &"")
+		if not PropStyleVariants.is_known(prop_kind, style_variant):
 			errors.append("%s style_variant is unknown: %s" % [path, String(style_variant)])
 		else:
 			values["style_variant"] = style_variant

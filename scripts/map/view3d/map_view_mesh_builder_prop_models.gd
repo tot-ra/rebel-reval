@@ -224,7 +224,7 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			_add_banner(root, prop)
 		_:
 			if prop["kind"] in MapTypes.DISTRICT_LIFE_PROP_KINDS:
-				DistrictLifeProps.add_to(root, prop["kind"])
+				DistrictLifeProps.add_to(root, prop["kind"], prop)
 			elif prop["kind"] in MapTypes.RURAL_LIFE_PROP_KINDS:
 				RuralLifeProps.add_to(root, prop["kind"])
 			else:

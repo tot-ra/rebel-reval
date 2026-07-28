@@ -6,15 +6,18 @@ extends RefCounted
 ## required routes when authored inside the documented footprint bands.
 
 const _Primitives := preload("res://scripts/map/view3d/map_view_mesh_builder_primitives.gd")
+const _PropStyleVariants := preload("res://scripts/map/map_prop_style_variants.gd")
+const _FishDryingRackModels := preload("res://scripts/map/view3d/map_view_fish_drying_rack_models.gd")
+const _DriedFishMeshes := preload("res://scripts/map/view3d/map_view_dried_fish_meshes.gd")
 const _TanningFrameModels := preload("res://scripts/map/view3d/map_view_tanning_frame_models.gd")
 
 
-static func add_to(root: Node3D, kind: StringName) -> void:
+static func add_to(root: Node3D, kind: StringName, prop: Dictionary = {}) -> void:
 	match kind:
 		MapTypes.PROP_KIND_FISHING_NETS:
 			_add_fishing_nets(root)
 		MapTypes.PROP_KIND_FISH_DRYING_RACK:
-			_add_fish_drying_rack(root)
+			_add_fish_drying_rack(root, prop)
 		MapTypes.PROP_KIND_SMOKE_RACK:
 			_add_smoke_rack(root)
 		MapTypes.PROP_KIND_FISH_SPLITTING_TABLE:
@@ -60,19 +63,54 @@ static func _add_fishing_nets(root: Node3D) -> void:
 		_Primitives.box(root, "Mesh%d" % index, Vector3(0.04, 0.9, 0.04), Vector3(along, 0.72, 0.0), &"plaster")
 
 
-static func _add_fish_drying_rack(root: Node3D) -> void:
-	for post_x in [-0.62, 0.62]:
-		_Primitives.box(root, "Leg%d" % int((post_x + 0.62) * 10.0), Vector3(0.1, 0.72, 0.1), Vector3(post_x, 0.36, -0.42), &"timber")
-		_Primitives.box(root, "LegBack%d" % int((post_x + 0.62) * 10.0), Vector3(0.1, 0.72, 0.1), Vector3(post_x, 0.36, 0.42), &"timber")
-	for rail_z in [-0.35, 0.0, 0.35]:
-		_Primitives.box(root, "Rail%d" % int((rail_z + 0.35) * 10.0), Vector3(1.45, 0.06, 0.06), Vector3(0.0, 0.78, rail_z), &"wood")
-	for fish_index in 3:
-		var fish_x := lerpf(-0.45, 0.45, float(fish_index) / 2.0)
-		_Primitives.box(root, "Fish%d" % fish_index, Vector3(0.34, 0.06, 0.12), Vector3(fish_x, 0.84, 0.0), &"hay")
+static func _add_fish_drying_rack(root: Node3D, prop: Dictionary) -> void:
+	# WHY: frame and catch remain independent so a map can author an empty rack or
+	# reuse the same joinery with different fish loads through style_variant.
+	_FishDryingRackModels.add_frame(root)
+	var variant: StringName = prop.get("style_variant", _PropStyleVariants.FISH_RACK_MIXED)
+	if variant == _PropStyleVariants.FISH_RACK_EMPTY:
+		return
+
+	var catch_root := Node3D.new()
+	catch_root.name = "DryingCatch"
+	catch_root.set_meta(&"fish_rack_variant", variant)
+	root.add_child(catch_root)
+	var catch_specs := _catch_specs_for_variant(variant)
+	for fish_index in catch_specs.size():
+		var spec: Dictionary = catch_specs[fish_index]
+		var attachment := _FishDryingRackModels.attachment_point(float(spec["x"]), bool(spec["back_row"]))
+		var cord_length := float(spec["cord_length"])
+		_FishDryingRackModels.add_hanging_cord(catch_root, "Cord%d" % fish_index, attachment, cord_length)
+		_DriedFishMeshes.add_hanging_fish(
+			catch_root,
+			"Fish%d" % fish_index,
+			spec["species"],
+			attachment + Vector3(0.0, -cord_length, 0.0),
+			float(spec["yaw"]),
+			float(spec["scale"])
+		)
+
+
+static func _catch_specs_for_variant(variant: StringName) -> Array[Dictionary]:
+	if variant == _PropStyleVariants.FISH_RACK_HERRING:
+		return [
+			{"x": -0.5, "back_row": false, "cord_length": 0.08, "yaw": -0.12, "scale": 0.88, "species": _DriedFishMeshes.SPECIES_HERRING},
+			{"x": -0.25, "back_row": true, "cord_length": 0.13, "yaw": 0.08, "scale": 0.94, "species": _DriedFishMeshes.SPECIES_HERRING},
+			{"x": 0.0, "back_row": false, "cord_length": 0.1, "yaw": 0.1, "scale": 0.9, "species": _DriedFishMeshes.SPECIES_HERRING},
+			{"x": 0.25, "back_row": true, "cord_length": 0.14, "yaw": -0.08, "scale": 0.92, "species": _DriedFishMeshes.SPECIES_HERRING},
+			{"x": 0.5, "back_row": false, "cord_length": 0.11, "yaw": 0.14, "scale": 0.86, "species": _DriedFishMeshes.SPECIES_HERRING},
+		]
+	return [
+		{"x": -0.48, "back_row": false, "cord_length": 0.08, "yaw": -0.1, "scale": 0.92, "species": _DriedFishMeshes.SPECIES_HERRING},
+		{"x": -0.18, "back_row": true, "cord_length": 0.12, "yaw": 0.09, "scale": 0.82, "species": _DriedFishMeshes.SPECIES_COD},
+		{"x": 0.12, "back_row": false, "cord_length": 0.1, "yaw": 0.08, "scale": 0.96, "species": _DriedFishMeshes.SPECIES_HERRING},
+		{"x": 0.43, "back_row": true, "cord_length": 0.14, "yaw": -0.1, "scale": 0.78, "species": _DriedFishMeshes.SPECIES_COD},
+	]
 
 
 static func _add_smoke_rack(root: Node3D) -> void:
-	_add_fish_drying_rack(root)
+	# Smoke racks reuse the empty joinery and add their own covered treatment.
+	_FishDryingRackModels.add_frame(root)
 	_Primitives.box(root, "SmokeHood", Vector3(1.1, 0.08, 1.1), Vector3(0.0, 1.45, 0.0), &"stone")
 	var smoke := MeshInstance3D.new()
 	smoke.name = "Smoke"

@@ -121,7 +121,7 @@ Trade-specific dressing props replace generic `barrels` / `cargo_crates` stand-i
 | Kind | Typical footprint | P0-072 sourcing note |
 |---|---|---|
 | `fishing_nets` | 1 cell or `rect=2,1` | Shore net yards beside drying racks; reversible timber frames (**B/U**) |
-| `fish_drying_rack` | `rect=2,1` | Horizontal pole racks for split or whole fish (**B**) |
+| `fish_drying_rack` | `rect=2,1` | Horizontal pole racks for split or whole fish; use `style_variant=fish_rack.empty`, `fish_rack.herring`, or `fish_rack.mixed` to compose the reusable frame and catch (**B**) |
 | `smoke_rack` | `rect=2,1` | Covered smoke/drying frame over a low fire (**B/U**) |
 | `fish_splitting_table` | 1 cell | Work slab at fisher or smoke sheds (**B**) |
 | `boat_timber_stack` | `rect=2,1` | Boatwright yard log stacks (**B**) |
