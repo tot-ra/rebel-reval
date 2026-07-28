@@ -1,0 +1,41 @@
+{
+  "asset_id": "prop.market_stall",
+  "blender_version": "Blender 5.2 LTS",
+  "defects": [],
+  "generator": "tools/generate_market_stall.py",
+  "generator_version": "market_stall_v1",
+  "limits": {
+    "max": 4500,
+    "target": 2600
+  },
+  "metrics": {
+    "asset_id": "prop.market_stall",
+    "cache_key": "fc84c69ece804aeda843a83441d300bb7908eefc8806a9a0a123700872424288",
+    "dimensions_m": [
+      2.0629,
+      1.5736,
+      1.947
+    ],
+    "faces": 3748,
+    "floating_objects": 0,
+    "ground_min_z": 0.0,
+    "materials": 5,
+    "mesh_objects": 2,
+    "sha256": "ac1b2307216b08c7f2890e8312c8f6fc83247994d64597ad4e5e10a836514469",
+    "surfaces": 5,
+    "texture_size": 512,
+    "triangles": 3748,
+    "uv_sets": 1,
+    "vertices": 1982
+  },
+  "preview": "generated/blender/market_stall_v1/preview.png",
+  "route": "deterministic_blender",
+  "validation": {
+    "floating_components": true,
+    "ground_contact": true,
+    "metric_scale": true,
+    "portable_pbr_materials": true,
+    "triangle_budget": true,
+    "uvs": true
+  }
+}

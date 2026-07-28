@@ -1,0 +1,1 @@
+{"id":"prop.market_stall","kind":"rigid_prop","target":"res://assets/props/market/market_stall.glb","scene":"res://content/maps/market_civic_quarter.rrmap#fish_stall","dimensions_m":[2.04,1.6,1.95],"triangles":{"target":2600,"max":4500},"textures":{"albedo":512},"style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}

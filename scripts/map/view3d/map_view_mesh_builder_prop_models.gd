@@ -11,6 +11,7 @@ const WallWalkAccessBuilder := preload("res://scripts/map/view3d/map_view_wall_w
 const AnvilMeshes := preload("res://scripts/map/view3d/map_view_anvil_meshes.gd")
 const HayMeshes := preload("res://scripts/map/view3d/map_view_hay_meshes.gd")
 const MedievalAnimalModels := preload("res://scripts/map/view3d/map_view_medieval_animal_models.gd")
+const MarketStallModels := preload("res://scripts/map/view3d/map_view_market_stall_models.gd")
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 # Runtime loading avoids a clean-clone bootstrap cycle where GDScript parses
 # before Godot has registered the first GLB import.
@@ -169,10 +170,7 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 					&"stone"
 				)
 		MapTypes.PROP_KIND_STALL:
-			MapViewMeshBuilderPrimitives.box(root, "Counter", Vector3(1.4, 0.8, 0.6), Vector3(0.0, 0.4, 0.0), &"wood")
-			MapViewMeshBuilderPrimitives.box(root, "PostLeft", Vector3(0.08, 1.5, 0.08), Vector3(-0.65, 0.75, -0.4), &"timber")
-			MapViewMeshBuilderPrimitives.box(root, "PostRight", Vector3(0.08, 1.5, 0.08), Vector3(0.65, 0.75, -0.4), &"timber")
-			MapViewMeshBuilderPrimitives.box(root, "Canopy", Vector3(1.6, 0.08, 1.1), Vector3(0.0, 1.55, -0.1), &"hay")
+			MarketStallModels.add_model(root)
 		MapTypes.PROP_KIND_HEARTH:
 			MapViewMeshBuilderPrimitives.box(root, "Base", Vector3(1.0, 0.4, 1.0), Vector3(0.0, 0.2, 0.0), &"stone")
 			MapViewMeshBuilderPrimitives.box(root, "Fire", Vector3(0.5, 0.22, 0.5), Vector3(0.0, 0.5, 0.0), &"ember")
