@@ -1,5 +1,5 @@
 {
-  "asset_id": "creature.pack_horse",
+  "asset_id": "creature.pack_horse.v3",
   "route": "leonardo_reference_to_floating_cleanup_to_hunyuan3d_to_blender_cleanup",
   "decision": "v3 regenerates from a floating mid-gray reference so Hunyuan does not emit a ground disc, then preserves topology with collapse decimate only (voxel remesh collapsed open AI surfaces to a paper shell).",
   "source": "generated/comfyui/pack_horse_v3/pack_horse_candidate.glb",
@@ -56,7 +56,5 @@
   "animations": [
     "Idle-loop",
     "Walk-loop"
-  ],
-  "anatomy_decision": "approved_four_separate_weight_bearing_legs_no_ground_disc",
-  "scale_basis": "2.35 m nose-to-rump; 1.65 m standing height; 0.78 m width"
+  ]
 }

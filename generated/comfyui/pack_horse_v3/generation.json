@@ -1,0 +1,11 @@
+{
+  "asset_id": "creature.pack_horse.v3",
+  "source_leonardo_generation_id": "75f25481-f8bb-4444-a5e0-91fa16942436",
+  "comfyui_prompt_id": "5a481d5e-0306-4e55-8860-67b307668631",
+  "route": "Leonardo v2 still -> floating mid-gray cleanup -> local Hunyuan3D v2 -> Blender 5.2 preserve-topology cleanup",
+  "seed": 208744336,
+  "reference": "generated/comfyui/pack_horse_v3/pack_horse_reference_floating.png",
+  "candidate": "generated/comfyui/pack_horse_v3/pack_horse_candidate.glb",
+  "runtime": "assets/animals/medieval/medieval_pack_horse.glb",
+  "decision": "Reject v2 remesh wall; regenerate without ground disc; preserve topology; retarget eyes to narrow head."
+}

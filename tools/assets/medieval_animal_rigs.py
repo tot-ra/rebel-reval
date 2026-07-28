@@ -253,7 +253,12 @@ def create_sheep_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.
 
 
 def create_pack_horse_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.types.Object]]:
-    """Taller pack-horse rig with longer legs and a readable swishing tail."""
+    """Taller pack-horse rig with longer legs and a readable swishing tail.
+
+    WHY: the v3 Hunyuan horse has a much narrower head (~±0.19 m) than the older
+    wall-artifact mesh. Eyes at ±0.34 m floated beside the skull, so the orbit
+    anchors stay inside the measured head envelope.
+    """
     return create_quadruped_rig(
         obj,
         "PackHorseRig",
@@ -266,8 +271,8 @@ def create_pack_horse_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list
             "FrontRightLeg": ((-0.60, -0.22, 0.80), (-0.60, -0.22, 0.10)),
             "BackLeftLeg": ((0.65, 0.22, 0.80), (0.65, 0.22, 0.10)),
             "BackRightLeg": ((0.65, -0.22, 0.80), (0.65, -0.22, 0.10)),
-            "EyeLeft": ((-0.86, 0.34, 1.24), (-0.86, 0.34, 1.34)),
-            "EyeRight": ((-0.86, -0.34, 1.24), (-0.86, -0.34, 1.34)),
+            "EyeLeft": ((-0.94, 0.14, 1.38), (-0.94, 0.14, 1.46)),
+            "EyeRight": ((-0.94, -0.14, 1.38), (-0.94, -0.14, 1.46)),
         },
         {
             "neck_x": -0.45,
@@ -278,15 +283,15 @@ def create_pack_horse_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list
             "leg_z": 0.95,
             "front_leg_x": -0.20,
             "back_leg_x": 0.30,
-            "eye_x": 0.88,
-            "eye_scale": (0.074, 0.028, 0.062),
-            "pupil_scale": (0.032, 0.015, 0.036),
-            "pupil_offset": 0.022,
+            "eye_x": 0.94,
+            "eye_scale": (0.048, 0.020, 0.042),
+            "pupil_scale": (0.022, 0.010, 0.024),
+            "pupil_offset": 0.012,
             "tail_tuft_scale": (0.082, 0.070, 0.110),
         },
         eye_specs=[
-            ("Left", 0.34, 1.24, "EyeLeft"),
-            ("Right", -0.34, 1.24, "EyeRight"),
+            ("Left", 0.14, 1.38, "EyeLeft"),
+            ("Right", -0.14, 1.38, "EyeRight"),
         ],
         tail_specs=((0.70, 0.0, 0.95), (1.02, 0.0, 0.52), 0.055, 0.028),
     )

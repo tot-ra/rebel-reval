@@ -122,15 +122,22 @@ SPECS = {
         "animated": True,
     },
     "pack_horse": {
-        "source": STAGING / "pack_horse_candidate.glb",
+        # WHY: rebuild only through pack_horse_v3/production/build_pack_horse_v3.py.
+        # The shared voxel remesh collapses this open AI surface to a paper shell,
+        # and older v1/v2 candidates still carry fused ground discs.
+        "source": ROOT / "generated/comfyui/pack_horse_v3/pack_horse_candidate.glb",
         "output": RUNTIME / "medieval_pack_horse.glb",
         "dimensions_m": (2.35, 1.65, 0.78),
         "triangles": 10_000,
-        "voxel_divisor": 20.0,
+        "voxel_divisor": 110.0,
         "base_color": (0.27, 0.17, 0.085),
         "accent_color": (0.49, 0.34, 0.16),
         "seed": 208744133,
         "animated": True,
+        "preserve_topology": True,
+        "route": "leonardo_reference_to_floating_cleanup_to_hunyuan3d_to_blender_cleanup",
+        "anatomy_decision": "use_generated/comfyui/pack_horse_v3/production/build_pack_horse_v3.py",
+        "scale_basis": "2.35 m nose-to-rump; 1.65 m standing height; 0.78 m width",
     },
 }
 
