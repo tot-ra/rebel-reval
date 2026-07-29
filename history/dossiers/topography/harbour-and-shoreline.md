@@ -7,6 +7,7 @@ related:
   - ./lower-town-street-plan.md
   - ./walls-gates-towers.md
   - ../economy/hanseatic-trade-and-season.md
+  - ../economy/pr-voorimees-garden-coastal-gate.md
 updated: 2026-07-28
 ---
 
@@ -131,6 +132,7 @@ No licensed plate reproduces the **1343 rectangular Coastal Gate** or **exact 13
 - [`walls-gates-towers.md`](./walls-gates-towers.md) — **Coastal Gate** and **Sand Gate** positions, cliff height, absent foregates/Fat Margaret.
 - [`../nature/spring-climate-and-living-world.md`](../nature/spring-climate-and-living-world.md) — April–May weather, ice break-up, and St George's Night outdoor dressing.
 - [`../economy/merchant-cart-and-transport-1340s.md`](../economy/merchant-cart-and-transport-1340s.md) — barrel transfer from lighter to cart at wet margin; harbour supply loads.
+- [`../economy/pr-voorimees-garden-coastal-gate.md`](../economy/pr-voorimees-garden-coastal-gate.md) — extramural carter + cooper gardens on north apron below gate.
 - [`../economy/hanseatic-trade-and-season.md`](../economy/hanseatic-trade-and-season.md) — April–May sailing, Novgorod route, staple goods (R-015 deliverable).
 - Project report [`../../../docs/reports/reval_harbour_1343_research.md`](../../../docs/reports/reval_harbour_1343_research.md) — map translation decisions for `reval_harbor_north` / `reval_harbor_east`.
 

@@ -121,6 +121,7 @@ Dominican block sits **east of deep Pikk plots** [`back-lanes-east-of-pikk.md`](
 - [`../topography/walls-gates-towers.md`](../topography/walls-gates-towers.md) — 1340s enclosure programme and Nuns' Gate dating.
 - [`../topography/back-lanes-east-of-pikk.md`](../topography/back-lanes-east-of-pikk.md) — Katariina käik and Müürivahe outside Dominican east edge.
 - [`../power/jurisdictions-of-reval.md`](../power/jurisdictions-of-reval.md) — sanctuary and arrest seams at precinct gates.
+- [`../topography/public-bath-locations-1343.md`](../topography/public-bath-locations-1343.md) — Cistercian enclosed bath vs south-wall municipal zone.
 
 ## Open questions
 

@@ -6,141 +6,154 @@ consumers: [map, art, quest, dialogue]
 related:
   - ../dailylife/hygiene-and-grooming-1343.md
   - ../power/reval-street-cleaning-ordinances-1340s.md
-  - ../religion/ecclesiastical-precinct-boundaries-1343.md
   - ../religion/churches-and-religious-houses.md
+  - ../religion/ecclesiastical-precinct-boundaries-1343.md
   - ./lower-town-street-plan.md
   - ./walls-gates-towers.md
 updated: 2026-07-29
 ---
 
-# Public bath plot locations (Spring 1343)
+# Public bath locations (Spring 1343 Reval)
 
 ## Brief for Map
 
-You are placing **city-owned public baths** (*Bad*, *Saun*, *stupa*) and **one enclosed convent bath** on the Lower Town mesh — **peripheral timber or stone bathhouses**, not Roman thermae and **not** the post-1371 **Saunatorn** stone tower [`hygiene-and-grooming-1343.md`](../dailylife/hygiene-and-grooming-1343.md).
+You are placing **city-owned public baths** (*Bad* / *Saun*) and **one enclosed convent bath** on the Lower Town mesh — not Roman thermae, not the **stone Saunatorn tower** (1371+), and not private yard saunas on merchant plots.
 
 **Ship these decisions:**
 
-1. **Four municipal POIs** with stable IDs below: **Nunne (Stocker)**, **Oleviste**, **Sauna street (Uus saun)**, and **south-wall nunnery bath** — all **city- or convent-owned**, drained toward **wet margins** or **licensed channels**, not into forum paving [1][2][3].
-2. **Rataskaevu is a well/crane street, not a named 1343 bath plot.** Do **not** place a `bath.rataskaevu` POI unless a later AWB folio pass (R-066) finds a Badpacht row; secondary historiography lists Rataskaevu among later bath streets only `plausible composite` [4][5].
-3. **Nunne Stocker sauna (1310)** sits on the **west belt** opposite the future NUKU courtyard (modern Nunne 7); medieval street line may lie **under present Nunne tänav** — author a **~12×18 m** timber/stone bath footprint straddling lane and courtyard edge `plausible composite` [6][7].
-4. **Sauna street cluster (1329 Uus saun)** occupies **Viru–Väike-Karja** lane lots at modern Sauna 6–8; street name (*Stavenstraße*, *Badstubenstraße*) reflects this cluster from the **14th c.** onward [8][9].
-5. **Oleviste bath (1329)** is a **second municipal node** north of St Olaf church on the **Zantberg** slope — separate mesh from Sauna street; do not merge into one mega-bath [2][10].
-6. **South-wall / Saunatorn zone:** show a **wooden circular-wall nuns' bath** inside St Michael precinct (**13th-c. tradition**); **omit** the **1371+ stone Saunatorn** turret and **1422** demolition conflict [11][12].
-7. **Use the point table and authoring coordinates** (local axes, metres). Vertices are **plausible composite** ±5–8 m; reconcile with [`ecclesiastical-precinct-boundaries-1343.md`](../religion/ecclesiastical-precinct-boundaries-1343.md) nunnery polygon.
+1. **Six map POIs** below: four **municipal public baths** (Nunne, Oleviste belt, Sauna street, Rataskaevu — last uncertain), one **south-wall service zone** (municipal + drain logic), one **Cistercian enclosed bath** (not public). Tag each `bath_type: municipal_public | convent_enclosed | uncertain`.
+2. **Nunne / Stocker (1310)** is the **best-attested** municipal node — anchor at **Nunne tn 7** opposite NUKU courtyard; building may extend under modern Nunne street `attested` doc date; plot `plausible composite` [1][2].
+3. **Oleviste belt (1329)** — bath attested near St Olaf church; place on **Pikk/Lai churchyard fringe**, not inside nave `attested` doc date; exact footprint **uncertain** [3][4].
+4. **Sauna street (by early 14th c.)** — street name proves a bath at **Sauna tn 6–8** near south curtain; operational in 1343 `attested` street tradition; measured plan **gap** [5][6].
+5. **Rataskaevu** — listed in 14th-c. bath inventories but **no dedicated 1343 deed** reviewed; place a **low-confidence** POI on **sub monte** belt west of Toompea descent, **not** on the Cat's Well (that is a drinking well, 1375+) [7][8].
+6. **South-wall zone** — peripheral municipal baths drain to wet margin; **convent ladies' sauna** sits inside St Michael circular wall (**13th c.** tradition) — **do not merge** with Saunatorn stone turret [9][10].
+7. **Dominican priory bath** — east service yard, friars + guests only; see open question (not mapped as public POI this tick).
+8. **Do not show:** stone **Saunatorn** (1371), **Nuns' Gate** label (1355), **15th-c. syphilis closures**, or **1391 Thursday poor-bath** as 1343 law.
 
 ## Findings
 
-### Method and limits
+### Municipal ownership and siting logic
 
-No **1343 measured bath cadastre** survives. Plot anchors combine: Tallinn property-book tradition cited in archaeology (Heinlöö NUKU 2013) [6], Estonian bath historiography (Saunale.ee, Kübar) [1][2], street-name onomastics [5][8], and surviving wall/convent topography [11][12]. **TLA Ältestes Wittschopbuch** may hold Badpacht clauses for these plots — **not folio-read this tick**; coordinates are **authoring targets**, not survey.
-
-### Map-usable point list
-
-Local axes: **+X east**, **+Y north**, origin at **south-west corner of open market ground** (*forum*), consistent with [`raekoja-plats-extents-1343.md`](./raekoja-plats-extents-1343.md). Metres.
-
-| Stable ID | Common name | Authoring point (X, Y) | Footprint target | Document anchor | 1343 operational status | Confidence | Ref |
-|---|---|---:|---|---|---|---|---|
-| `bath.nunne_stocker` | Stocker municipal sauna | **(−48, 22)** | ~12×18 m; may extend under lane | **1310** — first public town sauna (Kanne letter tradition) | Open; city-leased | attested (doc date); plot `plausible composite` | [6][7] |
-| `bath.oleviste` | St Olaf church bath | **(−12, 58)** | ~10×14 m yard building | **1329** — sauna by Oleviste church | Open; city-leased | attested (doc date); plot `plausible composite` | [2][10] |
-| `bath.sauna_street_uus` | Uus saun / Sauna street baths | **(28, −18)** | ~14×20 m on lane lots 6–8 | **1329** — *Uus saun* at present Sauna 6–8 | Open; city-leased | attested (doc date); plot `plausible composite` | [8][9] |
-| `bath.saunatorn_precinct` | Cistercian nuns' enclosed bath | **(−52, 12)** | ~8 m dia. within circular precinct wall | **13th c.** — ladies' sauna in convent ring wall | Open; convent use | attested tradition; 1343 fabric `plausible composite` | [11][12] |
-| `bath.rataskaevu` | *(do not author)* | — | — | Street **1328** *dummestrate*; **1348** *sub monte* — **well/crane**, not bath | **No 1343 bath plot attested** | gap [4][5] | Heinloo 2013; Tallinn Streets [5] |
-
-**Secondary / post-scope baths** (cite only; no April 1343 POI without new evidence):
-
-| Location | Note | Confidence |
+| Principle | Evidence | Confidence |
 |---|---|---|
-| Niguliste church margin | Listed in 14th–15th-c. bath inventories | plausible composite [1] |
-| Small Coastal Gate (*Väike Rannavärav*) | Harbour-edge bath tradition | plausible composite [1] |
-| Dominican priory service yard | Priory + guest bath `plausible composite` | plausible composite [13] |
+| Baths **belong to the city** and are **rented to operators** (*Saunapidaja*) under Rat rules | Tallinn 14th-c. tradition; operators licensed via **Lübeck** comparandum | attested pattern [4][11] |
+| Baths sit on **periphery** for **drainage** and **fire risk** | Nunne, Rataskaevu, Sauna street, south wall listed together | attested siting logic [11][12] |
+| **1225 Stadtrecht** treats bath (*stupa*) as regulated public venue alongside forum and cemetery | Double composition for insult/brawl | attested [13] |
+| **No 1340–1343 AWB rent figure** (*Badpacht*) extracted | Property register searched at secondary level | gap [14] |
 
-### Zone-by-zone narrative
+### Bath POI table (authoring anchors)
 
-#### Nunne (Stocker sauna)
+| POI | Modern anchor | Documentary hook | April 1343 verdict | Confidence |
+|---|---|---|---|---|
+| **BATH-NUNNE** | Nunne tn 7 / NUKU courtyard SW | **1310** “Letter of Canne” / Stocker sauna [1][2] | Municipal public bath **operational** | attested date; footprint **plausible composite** [1][2] |
+| **BATH-OLEVISTE** | Pikk × Lai churchyard fringe, north of forum | **1329** sauna by St Olaf church [3][4] | Municipal public bath **operational** | attested date; plot **uncertain** [3] |
+| **BATH-SAUNA-ST** | Sauna tn 6–8 (Viru × Väike-Karja block) | Street named for bath ≤ early 14th c.; Kroewel bath 15th c. [5][6] | Municipal public bath **operational** | attested street; building **plausible composite** [5] |
+| **BATH-RATASKAEVU** | Rataskaevu × Dunkri / *sub monte* belt | Listed among 14th-c. public baths [11][12] | **Uncertain** — include as low-confidence POI | plausible composite [7][11] |
+| **BATH-SOUTH-WALL** | South curtain near Väike Rannavärav service lane | Peripheral bath zone in inventories [11][12] | Municipal bath **plausible**; shares drain axis with convent | plausible composite [11] |
+| **BATH-CISTERCIAN** | Inside St Michael circular wall, west/north belt | 13th-c. ladies' sauna in convent wall tradition [9][10] | **Enclosed convent** — not public | attested tradition; 1343 fabric **plausible composite** [9] |
 
-- **1310** document associates the **first municipal public sauna** with the plot opposite the inner courtyard of the present NUKU theatre (**Nunne 7** tradition) [6][7].
-- **Archaeology (2013):** early-14th-c. **thick-walled stone building** partly under **modern Nunne street**; medieval Nunne alignment may lie **south-west of present carriageway** [6].
-- **1343 scene:** timber or mixed **steam bath** with **city rent to Saunapidaja**; **drain** toward **west wet margin** / nunnery garden edge; **hay-bundle or horn** at door per Baltic custom `plausible composite` [1][2].
-- **Wall pressure:** 1340s curtain incorporation eats western margin; bath may sit **just inside** new wall line near **Nuns' opening** — not yet named **1355** [`walls-gates-towers.md`](./walls-gates-towers.md).
+### Per-site notes
 
-#### Rataskaevu
+#### BATH-NUNNE (Stocker sauna, 1310)
 
-- Street first recorded **1328** as *platea dicta dummestrate* (hoist/lever street), **1348** *sub monte*, **1381** *sub monte sitam penes machina* — all name the **well-hoist apparatus**, not a bathhouse [5].
-- **Saunale.ee** lists Rataskaevu among streets that **later** hosted public baths; **no 1343 property-book row** tying a Bad to this slope was reviewed [1][4].
-- **Map rule:** author **Rataskaevu well POI** separately; **do not** duplicate a municipal bath here unless R-066 AWB pass finds Badpacht.
+- First **written** public sauna in Reval tradition; associated with plot opposite NUKU inner courtyard (Nunne tn 7) `attested` [1][2].
+- **AVE 2013** (Heinloo & Piirits): thick-walled stone building **early 14th c.** largely under present Nunne street; sauna may extend into excavation SW corner `plausible composite` [2].
+- Medieval Nunne street line **displaced** from modern curb toward courtyard — do not snap POI to 2020s kerb `plausible composite` [2].
+- **Quarter I** context: western Lower Town, Lai/Nunne/Suur-Kloostri block; convent gardens to **north** [2].
 
-#### Sauna street (*Sauna tänav*)
+#### BATH-OLEVISTE (1329)
 
-- Lane **~140 m**, **Viru → Väike-Karja**; MLG *Badstubenstraße*, *Stovenstraße* [8].
-- **1329:** *Uus saun* (**New sauna**) attested at sites of modern **Sauna 6 and 8** [8][9].
-- **1343:** dense **nightlife-adjacent** lane in modern tourism, but in period = **working bath row** with **smoke, lye run-off, and queue** at Saturday peak `plausible composite` [1][2].
-- **Drainage:** licensed bath waste may tie into **wooden storm channels**; not full sewer grid [`hygiene-and-grooming-1343.md`](../dailylife/hygiene-and-grooming-1343.md).
+- Kübar / archival tradition: sauna built **by St Olaf's church 1329** `attested` (document date) [3][4].
+- Church nave **vaulted 1330**; bath is **extramural service building**, not chapel [15].
+- Saturday bath queue plausible before Sunday mass — **composite** Hanseatic rhythm [11].
+- **Do not** place inside Oleviste cemetery (Oleviste street is later).
 
-#### South-wall service zone (St Michael / Saunatorn)
+#### BATH-SAUNA-ST
 
-- **13th-c.** Cistercian precinct had **~3.5 m circular wall** incorporating a **women's sauna** — name source for later **Saunatorn** [11][12].
-- **1371–1372:** stone **Saunatorn** turret begins — **post-1343** [`walls-gates-towers.md`](./walls-gates-towers.md).
-- **1422:** council demands demolition of nuns' bath blocking **wall patrol** — **post-1343** conflict [11].
-- **April 1343:** author **low timber bath** inside **south-west precinct** (`bath.saunatorn_precinct`); **no stone tower mesh**; show **construction scaffold** on adjoining **W1** curtain [`ecclesiastical-precinct-boundaries-1343.md`](../religion/ecclesiastical-precinct-boundaries-1343.md).
+- **Sauna tänav** (140 m) between Viru and Väike-Karja — name from bath at **tn 6–8** not later than early 14th c. `attested` [5][6].
+- **15th c.** “Kroewel bath” name proves continuity; 1343 operator **unknown** (gap).
+- Archaeology at Sauna 8/10 (Tiko 2014) = household layers — supports street as **built-up service strip**, not open field [16].
+- Near **south-wall nightlife belt** in game era — in 1343 show **timber/limestone bathhouse**, smoke vent, peripheral drain.
 
-### Relative placement sketch
+#### BATH-RATASKAEVU
 
-```
-                    [Toompea]
-                        |
-         bath.oleviste ·  St Olaf
-                        |
-    bath.nunne_stocker  |     [forum]
-         ·              |        ·
-    [St Michael]        |    bath.sauna_street_uus
- bath.saunatorn_precinct|        ·
-         ·              |
-              [Viru gate apron]
-```
+- Secondary inventories place a public bath on **Rataskaevu** [11][12].
+- Street name from **wheel-well** (*ratas* + *kaev*); first well mention **1325**, rebuilt **1375** — **Cat's Well is not the bath** [7][8].
+- *Sub monte* = slope below Toompea — bath logically on **lane margin**, not forum.
+- **No plot deed** at 1343 reviewed — keep `confidence: low` or omit from hard quest triggers.
+
+#### BATH-SOUTH-WALL / convent seam
+
+- Inventories: baths at **Väike Rannavärav** and **Saunatorn** [11][12].
+- **Saunatorn stone turret = 1371–1372** — absent in April 1343 UI [9].
+- **13th-c. circular convent wall** incorporated **ladies' sauna** — name source for later Saunatorn [9][10].
+- **1422** conflict: council demanded demolition when sauna blocked wall walk — proves **prior** existence, not April 1343 layout [9].
+- Municipal peripheral bath and convent bath are **adjacent but distinct** polygons [`ecclesiastical-precinct-boundaries-1343.md`](../religion/ecclesiastical-precinct-boundaries-1343.md).
+
+### Institutions without public POI this tick
+
+| Site | Status | Note |
+|---|---|---|
+| **Dominican priory bath** | `plausible composite` | East service yard — friars/guests [`churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) |
+| **St Nicholas (Niguliste) “bath”** | **uncertain** | Saunale.ee lists “Oleviste **and Niguliste**” — may conflate parish zone; **no 1343 deed** [11] |
+| **Private merchant yard saunas** | `plausible composite` | Wealthy plots only — not map POIs |
+
+### Danish / Hanseatic / Order context
+
+- **Danish crown** on Toompea; **Rat** leases baths and sets operator rules — Vogt enforces **stupa** brawls under **1225** double fine [13].
+- **Hanseatic burghers** = primary Saturday-bath clientele; **Estonian labourers** use baths **less often** (fee band) [`hygiene-and-grooming-1343.md`](../dailylife/hygiene-and-grooming-1343.md).
+- **Livonian Order** extramural until **16 May 1343** — no Order bath administration in Lower Town.
 
 ## Production hooks
 
-- **Map:** Register five rows in bath POI table; activate **four** (`bath.nunne_stocker`, `bath.oleviste`, `bath.sauna_street_uus`, `bath.saunatorn_precinct`). Tag `owner: city` or `owner: convent`; `drain: wet_margin`; `quest_hook: sanitation`. **Exclude** `bath.rataskaevu` until AWB evidence.
-- **Art:** Municipal baths = **low timber hall**, **smoke vent**, **tub or steam benches**, **nude same-sex interior** [`dailylife.hygiene-and-grooming-1343.02`](../../reference/dailylife/hygiene-and-grooming-1343/dailylife.hygiene-and-grooming-1343.02.jpg) comparandum only. Nunnery bath = **small circular wooden structure** inside curtain, **not** stone tower.
-- **Quest / Narrative:** **Saturday queue** at `bath.sauna_street_uus`; **Vogt fine** after brawl at `bath.nunne_stocker` (1225 *stupa* double composition) [`reval-street-cleaning-ordinances-1340s.md`](../power/reval-street-cleaning-ordinances-1340s.md); **siege** reduces cart service but baths stay open unless council orders closure (gap).
-- **Dialogue:** MLG **Bad**, **Saun**, **stupa**, **Saunapidaja**; point players to **Nunne** (oldest), **Sauna street** (nearest Viru), **Oleviste** (north burghers).
+- **Map:** Place POI markers per table; `drain_axis: south_wall_wet_margin` for Nunne, Sauna st., south-wall nodes; `bath_nunne` polygon ~25×15 m `plausible composite` straddling Nunne 7 courtyard line [`topography.public-bath-locations-1343.02`]; tag BATH-RATASKAEVU `confidence: low`. **No Saunatorn mesh.**
+- **Art:** Municipal bath = **timber frame + limestone base**, central hearth/steambath, **sex-segregated sessions** (composite); smoke stain on eaves; **hay tuft** or **horn** signal when ready [11]. Convent bath = **enclosed within curtain**, no public signage.
+- **Quest / Narrative:** **1225 stupa rule** — brawl in Nunne bath → double fine to Vogt [`reval-street-cleaning-ordinances-1340s.md`](../power/reval-street-cleaning-ordinances-1340s.md). **Siege** — baths stay open until council orders otherwise (no 1343 closure attested). **Wall labour** — nunnery sauna blocks scaffold path (foreshadow 1422).
+- **Dialogue:** MLG *Bad*, *Saun*, *Stupa*, *Saunapidaja*; point directions: *na der Nunne*, *bi Oleviste*, *up de Saunstrate*.
+- **Dev / systems:** `bath_poi: {id, type, confidence, open: true}`; entry fee **12–24 pfennig** `plausible composite` only if economy row needs it.
 
 ## Reference plates
 
 | Plate | Shows | Source, date, origin | License | Answers |
 |---|---|---|---|---|
-| [`dailylife.hygiene-and-grooming-1343.02`](../../reference/dailylife/hygiene-and-grooming-1343/dailylife.hygiene-and-grooming-1343.02.jpg) | Communal tub bath with attendants | Tacuinum Sanitatis print, 1531 publ. | CC BY 4.0 | Interior layout comparandum — not Reval fabric |
-| [`religion.ecclesiastical-precinct-boundaries-1343.04`](../../reference/religion/ecclesiastical-precinct-boundaries-1343/religion.ecclesiastical-precinct-boundaries-1343.04.jpg) | Nunnatorn and Monastery Gate massing | Leif Jørgensen photo, 2018, Tallinn | CC BY-SA 4.0 | South-wall zone — gate arch later than 1343 |
-| `topography.public-bath-locations-1343.01` (link-only) | NUKU courtyard archaeology plan with Nunne sauna plot | Heinloo, AVE 2013:6 fig. 3 | linked | Stocker sauna under-street footprint |
+| [`topography.public-bath-locations-1343.01`](../../reference/topography/public-bath-locations-1343/topography.public-bath-locations-1343.01.jpg) | Communal bath with tub and attendants | Tacuinum Sanitatis print, Ibn Butlan, 1531 publ. | CC BY 4.0 | interior layout comparandum — not Reval fabric |
+| `topography.public-bath-locations-1343.02` (link-only) | Medieval house Sauna 8 street front | Wikimedia Vamps photo, 15th–19th c. fabric, Tallinn | CC BY-SA 3.0 EE | Sauna street built-up service frontage |
+| [`topography.public-bath-locations-1343.03`](../../reference/topography/public-bath-locations-1343/topography.public-bath-locations-1343.03.jpg) | Nunnatorn and Saunatorn on south wall | Leif Jørgensen Wikimedia photo, 2018, Tallinn | CC BY-SA 4.0 | south-wall bath **zone** — towers mostly post-1343 |
+| [`topography.public-bath-locations-1343.04`](../../reference/topography/public-bath-locations-1343/topography.public-bath-locations-1343.04.jpg) | Tallinn town plan 1810 | Tallinn City Archives via Wikimedia | public domain | relative west/east bath belt placement retrospective |
+| `topography.public-bath-locations-1343.05` (link-only) | NUKU courtyard excavation plan with Nunne sauna hypothesis | Heinloo & Piirits AVE 2013 Fig. 3 | linked | Stocker bath footprint under Nunne street |
+| [`topography.public-bath-locations-1343.06`](../../reference/topography/public-bath-locations-1343/topography.public-bath-locations-1343.06.jpg) | Suur Rannavärav gate south-wall approach | Stan Shebs Wikimedia photo, 2003, Tallinn | CC BY-SA 3.0 | south-wall peripheral bath drain zone |
 
 ## Cross-references
 
-- [`../dailylife/hygiene-and-grooming-1343.md`](../dailylife/hygiene-and-grooming-1343.md) — bathing rhythm, status tiers, open question resolved here.
-- [`../power/reval-street-cleaning-ordinances-1340s.md`](../power/reval-street-cleaning-ordinances-1340s.md) — 1310/1329 dated bath lines; Art. 31 enforcement.
-- [`../religion/ecclesiastical-precinct-boundaries-1343.md`](../religion/ecclesiastical-precinct-boundaries-1343.md) — St Michael polygon and Saunatorn zone.
-- [`./lower-town-street-plan.md`](./lower-town-street-plan.md) — Nunne (*susterstrate* 1361), Sauna street routes.
-- [`./walls-gates-towers.md`](./walls-gates-towers.md) — 1340s west-wall incorporation around nunnery.
+- [`hygiene-and-grooming-1343.md`](../dailylife/hygiene-and-grooming-1343.md) — who bathes how often; requested this map pass.
+- [`reval-street-cleaning-ordinances-1340s.md`](../power/reval-street-cleaning-ordinances-1340s.md) — stupa fines, Badpacht gap, peripheral drain logic.
+- [`churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) — Oleviste 1329 bath; Dominican service yard.
+- [`ecclesiastical-precinct-boundaries-1343.md`](../religion/ecclesiastical-precinct-boundaries-1343.md) — St Michael sauna inside curtain vs municipal south-wall zone.
+- [`lower-town-street-plan.md`](./lower-town-street-plan.md) — Nunne route, Rataskaevu/sub monte, Sauna street anchors.
+- [`walls-gates-towers.md`](./walls-gates-towers.md) — Saunatorn absent 1343; south-wall service lanes.
 
 ## Open questions
 
-- **AWB Badpacht rows** for each plot (Nunne, Oleviste, Sauna 6–8) — downstream **R-066** folio read.
-- **Rataskaevu:** confirm absence of 1340–1343 bath lease or refute secondary lists — same AWB pass.
-- **GeoJSON export** of four bath footprints for `lower_town_slice` / `monastery_quarter` rrmap import — downstream **dev** task.
-- **Dominican priory bath** exact south-yard footprint — needs Vene archaeology pass.
+- **TLA property-book pass** for Bad/Saun plot boundaries on Nunne, Rataskaevu, Sauna tn 6–8 with 1340s dates — candidate depth row.
+- **Dominican brewery-yard bath** footprint — ties to R-060 south service yard dossier.
+- **Measured Nunne 1310 building** from full Heinloo 2013 plan digitisation — upgrade BATH-NUNNE polygon from composite to partial attested.
+- **St Nicholas parish bath** — confirm or refute Saunale.ee pairing with Oleviste.
 
 ## Sources
 
-1. Saunale.ee, "Eesti alade esimesed linnasaunad" — 14th-c. municipal baths, peripheral siting, drain practice (Estonian; cites archival tradition): https://saunale.ee/eesti-alade-esimesed-linnasaunad/
-2. Ain Kübar, "Saunakultuuri tõid meile sakslased," Kristlik Mõttevõra (Estonian essay) — Stocker **1310**, Oleviste **1329**, Lübeck licensure: https://www.kristlikmottevora.ee/blogs/post/saunakultuuri-toid-meile-sakslased
-3. [`../power/reval-street-cleaning-ordinances-1340s.md`](../power/reval-street-cleaning-ordinances-1340s.md) — city lease and 1225 *stupa* fine (project dossier).
-4. Heinloo, "Archaeological investigations in the inner courtyard of the puppet theatre NUKU," *AVE* 2013:6 — Nunne 7 / Stocker sauna, street under-build (English/Estonian): https://arheoloogia.ee/ave2013/AVE2013_06_Heinloo_Nuku.pdf
-5. Tallinn Streets, "Rataskaevu" — *dummestrate* 1328, *sub monte* 1348, hoist/well naming (English): https://tallinnstreets.com/en/rataskaevu
-6. Kangropool 2003 via Heinloo 2013 — Nunne 7 sauna **1310** citation chain (Estonian archaeology tradition).
-7. [`./lower-town-street-plan.md`](./lower-town-street-plan.md) — Nunne route; name post-1343 (project dossier).
-8. Estonian Wikipedia, "Sauna tänav" — **1329** Uus saun at lots 6–8, ~140 m lane, MLG street names (Estonian): https://et.wikipedia.org/wiki/Sauna_t%C3%A4nav
-9. [`../dailylife/hygiene-and-grooming-1343.md`](../dailylife/hygiene-and-grooming-1343.md) — Sauna street as municipal bath node (project dossier).
-10. [`../religion/churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) — St Olaf quarter placement (project dossier).
-11. Vaatavanalinna.ee, "The Sauna Tower" — 13th-c. circular wall and nuns' bath; stone tower **1371+**; **1422** conflict (English): https://vaatavanalinna.ee/en/sauna-tower/
-12. [`../religion/ecclesiastical-precinct-boundaries-1343.md`](../religion/ecclesiastical-precinct-boundaries-1343.md) — St Michael precinct and bath zone (project dossier).
-13. [`../religion/churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) — Dominican service yard (project dossier).
+1. Kangropool, R. 2003. “All-linna topograafiast 14. sajandil.” *Vana Tallinn* XIV — 1310 Stocker sauna, Nunne belt (Estonian; TLA manuscript tradition).
+2. Heinloo, E. & Piirits, P. 2014 / AVE 2013. Archaeological investigations NUKU courtyard — Nunne tn 7 first public sauna, building under street: https://arheoloogia.ee/ave2013/AVE2013_06_Heinloo_Nuku.pdf
+3. Kübar, A. 2016. “Saunakultuuri tõid meile sakslased” — **1329** Oleviste sauna, **1310** Nunne: https://www.kristlikmottevora.ee/blogs/post/saunakultuuri-toid-meile-sakslased
+4. Saunale.ee. “Eesti alade esimesed linnasaunad” — city ownership, peripheral siting, bath list: https://saunale.ee/eesti-alade-esimesed-linnasaunad/
+5. WikiSort / Tallinn street-name tradition — Sauna tn bath at 6–8, ≤ early 14th c. (Russian-lang secondary; cites [1]).
+6. Tiko, A. 2014. Medieval households Sauna 8/10 (cited in glass-vessels thesis) — street archaeology.
+7. Kuuskemaa, J. 2024. Postimees — Rataskaevu well **1325** mention, *sub monte*: https://arvamus.postimees.ee/7993047/juri-kuuskemaa-rataskaevust-kassikaevuks
+8. [`lower-town-street-plan.md`](./lower-town-street-plan.md) — Rataskaevu *sub monte* 1361; 1343 well anchor uncertain.
+9. Vaatavanalinna.ee. “The Sauna Tower” — 13th-c. convent circular-wall sauna; stone tower **1371+**; 1422 demolition conflict: https://vaatavanalinna.ee/en/sauna-tower/
+10. [`ecclesiastical-precinct-boundaries-1343.md`](../religion/ecclesiastical-precinct-boundaries-1343.md) — St Michael bath zone in precinct polygon.
+11. [`hygiene-and-grooming-1343.md`](../dailylife/hygiene-and-grooming-1343.md) — bath facility table and Saturday rhythm (project dossier).
+12. [`reval-street-cleaning-ordinances-1340s.md`](../power/reval-street-cleaning-ordinances-1340s.md) — municipal bath rent pattern; 1310/1329 dates (project dossier).
+13. Hähnel 1975 via van Dam — **1225** Reval Stadtrecht *stupa* clause (cited in street-cleaning dossier).
+14. [`reval-street-cleaning-ordinances-1340s.md`](../power/reval-street-cleaning-ordinances-1340s.md) — AWB 1340–1343 Badpacht gap (project dossier).
+15. [`churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) — St Olaf 1330 nave; parish context.
+16. Glass-vessels thesis (Academia) — Sauna 8/10 excavation reference.

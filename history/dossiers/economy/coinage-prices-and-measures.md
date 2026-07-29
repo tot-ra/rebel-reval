@@ -135,6 +135,7 @@ All nominal prices in **Lübeck schilling (ßl.)** and **pfennig (d.)** unless m
 - [`../topography/old-market-vanaturg.md`](../topography/old-market-vanaturg.md) — forum and harbour throat where steelyards and money-changers sit.
 - [`./hanseatic-trade-and-season.md`](./hanseatic-trade-and-season.md) — April–May siege scarcity multiplier and what trade flows stall after St George's Night.
 - [`merchant-cart-and-transport-1340s.md`](merchant-cart-and-transport-1340s.md) — barrel and sack load props for cart economy scenes.
+- [`reval-cart-tolls-and-fuhr-rent-1340s.md`](reval-cart-tolls-and-fuhr-rent-1340s.md) — schilling fine bands when cart toll ordinance is silent; explicit wheel-tax gap.
 - [`../dailylife/food-and-drink.md`](../dailylife/food-and-drink.md) — bread, beer, and fish prices applied to status-tier meals.
 
 ## Open questions

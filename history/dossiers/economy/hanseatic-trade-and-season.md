@@ -157,6 +157,7 @@ Hanseatic practice: **larger ships lay up November–March** on the Baltic; **sp
 - [`../topography/kalamaja-fishing-shore-1343.md`](../topography/kalamaja-fishing-shore-1343.md) — local herring shore, smoke/salt sheds, extramural fisher population.
 - [`../topography/old-market-vanaturg.md`](../topography/old-market-vanaturg.md) — forum weighing and market throat where convoy goods divide.
 - [`merchant-cart-and-transport-1340s.md`](merchant-cart-and-transport-1340s.md) — cart types and loads for harbour-to-forum supply runs.
+- [`reval-cart-tolls-and-fuhr-rent-1340s.md`](reval-cart-tolls-and-fuhr-rent-1340s.md) — no attested 1340–1343 cart toll; harbour weigh fees remain R-048.
 - [`../nature/spring-climate-and-living-world.md`](../nature/spring-climate-and-living-world.md) — ice, mud, and Easter/St George calendar.
 - [`../religion/liturgical-calendar-spring-1343.md`](../religion/liturgical-calendar-spring-1343.md) — **authoritative Easter 13 April** and Lent end; supersedes Easter date in this dossier pending canon reconcile.
 - [`../power/jurisdictions-of-reval.md`](../power/jurisdictions-of-reval.md) — 11 May grain levy and council–crown seam.

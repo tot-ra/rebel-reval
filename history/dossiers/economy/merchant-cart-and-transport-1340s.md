@@ -99,11 +99,13 @@ No published **1340–1343 Reval customs tariff** names **cart tolls**, **wheel 
 - [`../topography/old-market-vanaturg.md`](../topography/old-market-vanaturg.md) — east-throat cart queue geometry.
 - [`../topography/harbour-and-shoreline.md`](../topography/harbour-and-shoreline.md) — barrel transfer from lighter to cart at wet margin.
 - [`../hinterland/harju-village-and-manor.md`](../hinterland/harju-village-and-manor.md) — manor cart obligations and rebel road risk.
-- [`../power/reval-street-cleaning-ordinances-1340s.md`](../power/reval-street-cleaning-ordinances-1340s.md) — dung cart gap; no 1343 municipal livery.
+- [`reval-cart-tolls-and-fuhr-rent-1340s.md`](reval-cart-tolls-and-fuhr-rent-1340s.md) — explicit gap for wheel tax / cart toll; attested 1342–1343 tax substitutions and composite fee bands.
+- [`awb-fuhr-servitude-clauses-1340-1343.md`](awb-fuhr-servitude-clauses-1340-1343.md) — AWB folio pass confirms no *Fuhrpacht* 1340–1343; yard-access and *clausuris* vocabulary.
+- [`../power/reval-street-cleaning-ordinances-1340s.md`](../power/reval-street-cleaning-ordinances-1340s.md) — parallel AWB gap for municipal dung carts.
 
 ## Open questions
 
-- **TLA / AWB pass** for cart or *Fuhr* rent clauses 1340–1343 — could name operators or tolls (candidate `R-069`).
+- **TLA / AWB pass** for cart or *Fuhr* rent clauses 1340–1343 — delivered in [`reval-cart-tolls-and-fuhr-rent-1340s.md`](reval-cart-tolls-and-fuhr-rent-1340s.md) and [`awb-fuhr-servitude-clauses-1340-1343.md`](awb-fuhr-servitude-clauses-1340-1343.md) as explicit gap with yard-access vocabulary.
 - **In-situ cart hardware** from Lower Town house plots — wheel hubs, axle stubs, rim nails (none published this tick).
 - **Fetch Lootsi/Meremuuseum projectile plates** when open-licence photography publishes — unblocks blocked `R-062`; unrelated to cart form but same harbour margin.
 

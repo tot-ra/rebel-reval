@@ -8,8 +8,10 @@ agent:
   kind: producer
 runtime:
   type: docker
-  image: a2gent-brute:latest
+  image: a2gent-rebel-art:blender-4.3
   lifecycle: warm
+  resources:
+    memory: 8g
 instructions:
   system: |
     You are the Art Producer for Reval Rebel. You are accountable for making the game's visual
