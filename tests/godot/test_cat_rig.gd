@@ -103,11 +103,24 @@ func test_town_cat_wears_a_coat_over_the_production_rig() -> void:
 	var coat := CatCoatVariants.apply(cat, 12345)
 
 	assert_true(coat in CatCoatVariants.TOWN_COATS)
-	var meshes := cat.find_children("*", "MeshInstance3D", true, false)
-	assert_true(meshes.size() > 0, "production cat must carry a mesh")
-	for mesh in meshes:
+	var bodies := CatCoatVariants.body_meshes(cat)
+	assert_true(bodies.size() > 0, "production cat must carry a fur mesh")
+	for mesh in bodies:
 		assert_true(
-			(mesh as MeshInstance3D).material_override != null,
+			mesh.material_override != null,
 			"coat variant must override the embedded forge fur"
 		)
+
+	var faces := 0
+	for mesh in cat.find_children("*", "MeshInstance3D", true, false):
+		if not String(mesh.name).begins_with(CatCoatVariants.FACE_MESH_PREFIX):
+			continue
+		faces += 1
+		# Eyes, pupils, nose leather and whiskers keep their own materials; a
+		# coat swap that painted them fur-coloured would erase the face.
+		assert_true(
+			(mesh as MeshInstance3D).material_override == null,
+			"face parts must not be repainted by a coat swap"
+		)
+	assert_eq(faces, 1, "production cat must carry its eyes/whiskers face mesh")
 	cat.queue_free()

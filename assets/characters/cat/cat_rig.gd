@@ -21,13 +21,13 @@ const LOOPING_CAT_ANIMATIONS: Array[StringName] = [
 	&"sleep",
 	&"lick",
 ]
-## Ground speed the authored walk cycle covers (stride 0.124 m over a 0.6 s
-## lateral-sequence cycle at a 0.66 duty factor). Driving the clip near this
-## speed is what keeps the paws planted instead of skating.
-const WALK_REFERENCE_SPEED_WORLD := 0.31
+## Ground speed the authored walk cycle covers: 0.134 m of stance travel per
+## 0.66 duty factor over the 0.633 s clip Godot imports. Driving the clip near
+## this speed is what keeps the paws planted instead of skating.
+const WALK_REFERENCE_SPEED_WORLD := 0.32
 const CAT_PROMPT_GLYPH_PADDING := 0.22
-## The production report guarantees a standing AABB top of 0.3474 m.
-const STANDING_MODEL_HEIGHT := 0.3474
+## The production report guarantees a standing AABB top of 0.4037 m.
+const STANDING_MODEL_HEIGHT := 0.4037
 
 
 static func standing_glyph_height() -> float:

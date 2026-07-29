@@ -23,6 +23,7 @@ const PennedFauna := preload("res://scripts/map/view3d/map_view_penned_fauna.gd"
 const InsectAmbientAudio := preload("res://scripts/map/view3d/map_view_insect_ambient_audio.gd")
 const InsectContext := preload("res://scripts/map/view3d/map_view_insect_context.gd")
 const MapMusicZoneBinder := preload("res://scripts/map/map_music_zone_binder.gd")
+const CrowdRenderer := preload("res://scripts/map/view3d/map_view_crowd_renderer.gd")
 
 ## Compatibility aliases keep the runtime's public locomotion thresholds stable.
 const WALK_ANIMATION_MIN_SPEED := RuntimeActors.WALK_ANIMATION_MIN_SPEED
@@ -99,6 +100,8 @@ var _penned_fauna_enabled := true
 var _insect_audio
 var _insect_audio_enabled := true
 var _music_zone_binder
+var _crowd_renderer: MapViewCrowdRenderer
+var _crowd_enabled := true
 
 
 static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasItem, player: CharacterBody2D) -> MapViewRuntime:
@@ -155,6 +158,7 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 	runtime._install_penned_fauna()
 	runtime._install_insect_audio()
 	runtime._install_music_zone_binder()
+	runtime._install_crowd_renderer()
 	runtime._install_click_input(scene_root)
 	return runtime
 
@@ -271,6 +275,27 @@ func _install_music_zone_binder() -> void:
 	_music_zone_binder.name = "MapMusicZoneBinder"
 	add_child(_music_zone_binder)
 	_music_zone_binder.configure(_definition, _player)
+
+
+func _install_crowd_renderer() -> void:
+	_crowd_renderer = CrowdRenderer.new()
+	_crowd_renderer.name = "CrowdRenderer"
+	add_child(_crowd_renderer)
+	# Capacity defaults to 200; maps with battle scenes can override via
+	# configure_crowd() after install.
+	_crowd_renderer.configure(max_instances = 200, seed_value = hash(_definition.map_id))
+
+
+func set_crowd_enabled(enabled: bool) -> void:
+	_crowd_enabled = enabled
+	if _crowd_renderer != null:
+		_crowd_renderer.set_crowd_enabled(enabled)
+
+
+func crowd_active_count() -> int:
+	if _crowd_renderer == null:
+		return 0
+	return _crowd_renderer.active_count()
 
 
 func _install_click_input(_scene_root: Node2D) -> void:

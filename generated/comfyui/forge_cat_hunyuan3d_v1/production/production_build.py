@@ -26,7 +26,10 @@ COATS_DIR = os.path.join(TEX, "coats")
 LOD = os.path.join(OUT, "lod")
 REP = os.path.join(OUT, "reports")
 PROD_GLB = os.path.join(OUT, "forge_cat_production_v1.glb")
-METRIC = 0.52 / 1.97
+# Nose-to-rump length in metres over the source mesh span. Sized as a large
+# well-fed tom (0.60 m body, ~0.29 m at the withers): the earlier 0.52 m build
+# read as a kitten next to the human rigs from the game camera.
+METRIC = 0.60 / 1.97
 TEX_SIZE = 1024
 
 
@@ -295,18 +298,25 @@ def author_albedo(obj, ao_img, coat, back_z):
         # noise so the stripes are not mechanical.
         wave = nodes.new("ShaderNodeTexWave")
         wave.bands_direction = "Y"
-        wave.inputs["Scale"].default_value = 9.0
-        wave.inputs["Distortion"].default_value = 2.4
-        wave.inputs["Detail"].default_value = 2.0
+        wave.inputs["Scale"].default_value = 26.0
+        wave.inputs["Distortion"].default_value = 5.5
+        wave.inputs["Detail"].default_value = 3.0
+        wave.inputs["Detail Scale"].default_value = 1.6
         links.new(geo.outputs["Position"], wave.inputs["Vector"])
         band = nodes.new("ShaderNodeMapRange")
-        band.inputs["From Min"].default_value = 0.42
-        band.inputs["From Max"].default_value = 0.62
+        band.inputs["From Min"].default_value = 0.46
+        band.inputs["From Max"].default_value = 0.58
         band.inputs["To Max"].default_value = coat["stripes"] * 0.85
         band.clamp = True
         links.new(wave.outputs["Fac"], band.inputs["Value"])
+        # Real tabby banding is strong over the back and flanks and fades out on
+        # the pale belly and inner legs; reuse the countershading gradient as a
+        # mask so the stripes do not wrap the animal like a barrel.
+        band_mask = nodes.new("ShaderNodeMath"); band_mask.operation = "MULTIPLY"
+        links.new(band.outputs["Result"], band_mask.inputs[0])
+        links.new(shade.outputs["Result"], band_mask.inputs[1])
         stripe_mix = nodes.new("ShaderNodeMixRGB"); stripe_mix.blend_type = "MIX"
-        links.new(band.outputs["Result"], stripe_mix.inputs["Fac"])
+        links.new(band_mask.outputs["Value"], stripe_mix.inputs["Fac"])
         links.new(current.outputs["Color"], stripe_mix.inputs["Color1"])
         links.new(accent.outputs[0], stripe_mix.inputs["Color2"])
         current = stripe_mix
@@ -483,9 +493,16 @@ def measure_body(obj):
         tail_nodes.append((sum(v.x for v in sub) / len(sub),
                            (lo + hi) * 0.5,
                            sum(v.z for v in sub) / len(sub)))
+    # Skull box, for placing eyes, nose and whiskers on the real head surface.
+    skull = [v for v in vs if v.y < fore_y - length * 0.02]
+    head_box = {
+        "y_min": min(v.y for v in skull), "y_max": max(v.y for v in skull),
+        "z_min": min(v.z for v in skull), "z_max": max(v.z for v in skull),
+        "half_width": max(abs(v.x) for v in skull),
+    }
     return {"feet": feet, "back_z": back_z, "head_center": head_c, "nose_y": nose_y,
             "fore_y": fore_y, "hind_y": hind_y, "y0": y0, "y1": y1, "z1": z1,
-            "tail_nodes": tail_nodes}
+            "tail_nodes": tail_nodes, "head_box": head_box}
 
 
 def clean_leg_weights(obj, body, hip_z):
@@ -620,6 +637,136 @@ def build_rig(obj):
             "paw_len": math.hypot(toe_y - foot["y"], ankle_z - toe_z),
         }
     return arm, wmode, rig
+
+
+def _flat_material(name, color, roughness):
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    bsdf = mat.node_tree.nodes.get("Principled BSDF")
+    bsdf.inputs["Base Color"].default_value = tuple(color) + (1,)
+    bsdf.inputs["Roughness"].default_value = roughness
+    bsdf.inputs["Metallic"].default_value = 0.0
+    return mat
+
+
+def add_face_details(arm, obj, body):
+    """Eyes, slit pupils, nose leather and whiskers as one skinned face mesh.
+
+    The retopologised body carries no facial features at all - from the game
+    camera the cat read as a smooth grey shape. These are separate parts rather
+    than painted detail because eyes need their own sheen and whiskers have to
+    leave the silhouette. They follow the same pattern as the livestock kit
+    (`tools/assets/medieval_animal_rigs.py`): small primitives with flat
+    materials, bound rigidly to the head bone so they track the head animation.
+    """
+    # Landmarks, not centroids: the front slice of the body also contains the
+    # forelegs and chest, so a centroid of it sits far below the skull and drags
+    # the eyes down onto the chin. Measure the muzzle tip and the ear line and
+    # place features between them.
+    verts = [v.co for v in obj.data.vertices]
+    length = body["y1"] - body["y0"]
+    nose_y = min(v.y for v in verts)
+    muzzle = [v for v in verts if v.y < nose_y + length * 0.035]
+    nose_z = sum(v.z for v in muzzle) / len(muzzle)
+    head_len = length * 0.22
+    skull = [v for v in verts if v.y < nose_y + head_len and v.z > nose_z - length * 0.06]
+    head_top_z = max(v.z for v in skull)             # ear tips
+    head_half_width = max(abs(v.x) for v in skull)
+
+    # Eye line sits about a third of the way from the muzzle up to the ear tips.
+    eye_z = nose_z + (head_top_z - nose_z) * 0.32
+    eye_y = nose_y + head_len * 0.30
+    eye_radius = head_len * 0.062
+    whisker_z = nose_z - head_len * 0.03
+    whisker_y = nose_y + head_len * 0.13
+    whisker_length = length * 0.13
+
+    def on_surface(origin, direction):
+        """Head surface point and normal in a given direction from a point inside
+        the skull. Casting outward from inside cannot stray onto a flank the way
+        a nearest-point query can."""
+        d = Vector(direction).normalized()
+        hit, location, normal, _ = obj.ray_cast(Vector(origin), d)
+        if not hit:
+            return Vector(origin) + d * head_half_width, d
+        if normal.dot(d) < 0.0:
+            normal = -normal
+        return location, normal
+
+    iris = _flat_material("forge_cat_eye", (0.20, 0.145, 0.030), 0.18)
+    pupil_mat = _flat_material("forge_cat_pupil", (0.010, 0.009, 0.010), 0.12)
+    nose_mat = _flat_material("forge_cat_nose", (0.115, 0.055, 0.055), 0.45)
+    whisker_mat = _flat_material("forge_cat_whisker", (0.40, 0.385, 0.355), 0.42)
+
+    parts = []
+
+    def sphere(name, location, scale, material):
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=12, ring_count=7, location=location)
+        part = bpy.context.object
+        part.name = name
+        part.scale = scale
+        bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+        part.data.materials.append(material)
+        for polygon in part.data.polygons:
+            polygon.use_smooth = True
+        parts.append(part)
+        return part
+
+    for side in (-1, 1):
+        # Forward-facing eyes set roughly 35 degrees off the median plane and a
+        # little above the muzzle line, as on a cat skull.
+        surface, normal = on_surface((0.0, eye_y, eye_z), (side * 1.0, -0.34, 0.08))
+        # Set into the socket rather than stuck on: a sphere left proud of the
+        # skull reads as a bead, not an eye.
+        eye_at = surface - normal * eye_radius * 0.55
+        sphere("Eye%s" % ("L" if side < 0 else "R"), eye_at,
+               (eye_radius, eye_radius * 0.95, eye_radius * 0.92), iris)
+        # Vertical slit: a cat pupil in daylight, which is also what makes the
+        # eye read as feline rather than as a bead.
+        sphere("Pupil%s" % ("L" if side < 0 else "R"), eye_at + normal * eye_radius * 0.52,
+               (eye_radius * 0.26, eye_radius * 0.26, eye_radius * 0.66), pupil_mat)
+
+    nose_at, nose_normal = on_surface((0.0, nose_y + head_len * 0.22, nose_z), (0.0, -1.0, 0.0))
+    sphere("NoseLeather", nose_at - nose_normal * eye_radius * 0.15,
+           (eye_radius * 0.60, eye_radius * 0.42, eye_radius * 0.40), nose_mat)
+
+    for side in (-1, 1):
+        # Whisker pads: on the upper lip, either side of the nose.
+        root, _ = on_surface((0.0, whisker_y, whisker_z), (side * 0.88, -0.42, -0.14))
+        for index in range(5):
+            # Fan from mostly-forward to mostly-sideways, upper whiskers raised
+            # and lower ones angled down, which is how a cat's mystacial rows sit.
+            spread = math.radians(28.0 + 12.0 * index)
+            rise = math.radians(22.0 - 10.0 * index)
+            direction = Vector((
+                side * math.sin(spread) * math.cos(rise),
+                -math.cos(spread) * math.cos(rise),
+                math.sin(rise),
+            )).normalized()
+            length = whisker_length * (1.0 - 0.09 * abs(index - 2))
+            end = Vector(root) + direction * length
+            bpy.ops.mesh.primitive_cone_add(vertices=6, radius1=whisker_length * 0.018, radius2=0.0,
+                                            depth=length, location=(Vector(root) + end) * 0.5)
+            whisker = bpy.context.object
+            whisker.name = "Whisker%s%d" % ("L" if side < 0 else "R", index)
+            whisker.rotation_mode = "QUATERNION"
+            whisker.rotation_quaternion = direction.to_track_quat("Z", "Y")
+            whisker.data.materials.append(whisker_mat)
+            parts.append(whisker)
+
+    # Join into one face mesh and bind it rigidly to the head bone.
+    bpy.ops.object.select_all(action="DESELECT")
+    for part in parts:
+        part.select_set(True)
+    bpy.context.view_layer.objects.active = parts[0]
+    bpy.ops.object.join()
+    face = bpy.context.object
+    face.name = "ForgeCatFace"
+    group = face.vertex_groups.new(name="head")
+    group.add(list(range(len(face.data.vertices))), 1.0, "REPLACE")
+    face.modifiers.new("FaceArmature", "ARMATURE").object = arm
+    face.parent = arm
+    return face
 
 
 def _begin_action(arm, name, frame_end):
@@ -957,9 +1104,11 @@ def audit_gait(arm, rig, seconds):
     return report
 
 
-def export_glb(arm, obj):
+def export_glb(arm, obj, face=None):
     bpy.ops.object.select_all(action="DESELECT")
     arm.select_set(True); obj.select_set(True)
+    if face is not None:
+        face.select_set(True)
     bpy.context.view_layer.objects.active = arm
     bpy.ops.export_scene.gltf(
         filepath=PROD_GLB, export_format="GLB", use_selection=True,
@@ -1006,13 +1155,14 @@ def main():
     rgh_img = author_roughness(obj, ao_img)
     final_material(obj, coat_images["forge"], nrm_img, rgh_img)
     arm, wmode, rig = build_rig(obj)
+    face = add_face_details(arm, obj, body)
     animations = make_animations(arm, rig)
     gait = audit_gait(arm, rig, animations["walk"]["seconds"])
     # Guard against any stray/floating geometry leaking into the export so the
     # GLB carries exactly one character mesh + its armature.
-    for s in [o for o in bpy.data.objects if o.type == "MESH" and o is not obj]:
+    for s in [o for o in bpy.data.objects if o.type == "MESH" and o not in (obj, face)]:
         bpy.data.objects.remove(s, do_unlink=True)
-    export_glb(arm, obj)
+    export_glb(arm, obj, face)
     lod1 = make_lod(obj, 3500, os.path.join(LOD, "forge_cat_lod1.glb"))
     lod2 = make_lod(obj, 1000, os.path.join(LOD, "forge_cat_lod2.glb"))
 
@@ -1025,6 +1175,8 @@ def main():
         "ground_min_z": round(min(v.co.z for v in obj.data.vertices), 5),
         "uv_layers": [x.name for x in obj.data.uv_layers],
         "material": obj.data.materials[0].name,
+        "face_parts": {"mesh": face.name, "triangles": topo(face)["triangles"],
+                       "materials": [m.name for m in face.data.materials]},
         "textures": ["forge_cat_albedo.png", "forge_cat_normal.png",
                      "forge_cat_roughness.png", "forge_cat_ao.png"],
         "coats": [c["id"] for c in COATS],

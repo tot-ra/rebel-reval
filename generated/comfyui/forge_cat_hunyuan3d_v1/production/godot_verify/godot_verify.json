@@ -1,18 +1,18 @@
 {
   "aabb_end": [
-    0.2587,
-    0.3664,
-    0.0875
+    0.1009,
+    0.4227,
+    0.3445
   ],
   "aabb_position": [
-    -0.2589,
+    -0.0999,
     0.0,
-    -0.0865
+    -0.2985
   ],
   "aabb_size": [
-    0.5176,
-    0.3664,
-    0.174
+    0.2008,
+    0.4227,
+    0.6431
   ],
   "animations": {
     "idle": {
@@ -39,22 +39,26 @@
       "loop": 0
     },
     "walk": {
-      "length": 0.8,
+      "length": 0.633,
       "loop": 0
     }
   },
-  "bone_count": 22,
+  "bone_count": 23,
   "ground_contact_ok": true,
   "ground_min_y": 0.0,
   "idle_playing": "idle",
   "import_error_code": 0,
-  "longest_axis": "x",
+  "longest_axis": "z",
   "materials": {
-    "forge_cat": "StandardMaterial3D"
+    "forge_cat": "StandardMaterial3D",
+    "forge_cat_eye": "StandardMaterial3D",
+    "forge_cat_nose": "StandardMaterial3D",
+    "forge_cat_pupil": "StandardMaterial3D",
+    "forge_cat_whisker": "StandardMaterial3D"
   },
-  "mesh_count": 1,
+  "mesh_count": 2,
   "metric_scale_ok": true,
   "screenshot": "skipped-headless",
   "skeleton_count": 1,
-  "surfaces": 1
+  "surfaces": 5
 }

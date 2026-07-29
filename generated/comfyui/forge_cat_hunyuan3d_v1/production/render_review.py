@@ -26,10 +26,12 @@ def load_scene():
     bpy.ops.import_scene.gltf(filepath=GLB)
     for o in [o for o in bpy.data.objects if o.type == "MESH" and o.name.startswith("Icosphere")]:
         bpy.data.objects.remove(o, do_unlink=True)
-    mesh = next(o for o in bpy.context.scene.objects if o.type == "MESH")
+    meshes = [o for o in bpy.context.scene.objects if o.type == "MESH"]
+    # The body carries the coat; the face mesh carries eyes, nose and whiskers.
+    mesh = next(o for o in meshes if not o.name.startswith("ForgeCatFace"))
     arm = next(o for o in bpy.context.scene.objects if o.type == "ARMATURE")
 
-    corners = [mesh.matrix_world @ Vector(c) for c in mesh.bound_box]
+    corners = [o.matrix_world @ Vector(c) for o in meshes for c in o.bound_box]
     mn = Vector((min(v.x for v in corners), min(v.y for v in corners), min(v.z for v in corners)))
     mx = Vector((max(v.x for v in corners), max(v.y for v in corners), max(v.z for v in corners)))
     center = (mn + mx) * 0.5

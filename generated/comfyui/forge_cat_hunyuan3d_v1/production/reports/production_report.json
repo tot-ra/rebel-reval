@@ -30,15 +30,25 @@
     "components": 1
   },
   "metric_dimensions_m": [
-    0.1721,
-    0.5181,
-    0.3474
+    0.1986,
+    0.5978,
+    0.4037
   ],
   "ground_min_z": 0.0,
   "uv_layers": [
     "UVMap"
   ],
   "material": "forge_cat",
+  "face_parts": {
+    "mesh": "ForgeCatFace",
+    "triangles": 820,
+    "materials": [
+      "forge_cat_eye",
+      "forge_cat_pupil",
+      "forge_cat_nose",
+      "forge_cat_whisker"
+    ]
+  },
   "textures": [
     "forge_cat_albedo.png",
     "forge_cat_normal.png",
@@ -75,14 +85,14 @@
     ]
   },
   "rig": {
-    "back_z": 0.2507,
-    "hip_z": 0.1554,
-    "knee_z": 0.0827,
-    "ankle_z": 0.0326,
+    "back_z": 0.2893,
+    "hip_z": 0.1793,
+    "knee_z": 0.0955,
+    "ankle_z": 0.0376,
     "toe_z": 0.001,
     "cross_limb_weights_removed": 894,
-    "upper_length": 0.0727,
-    "lower_length": 0.0501
+    "upper_length": 0.0839,
+    "lower_length": 0.0579
   },
   "animations": {
     "idle": {
@@ -100,9 +110,9 @@
       ],
       "seconds": 0.6,
       "loop": true,
-      "stride_m": 0.1236,
+      "stride_m": 0.1336,
       "duty_factor": 0.66,
-      "ground_speed_m_s": 0.3122,
+      "ground_speed_m_s": 0.3373,
       "footfall_order": [
         "legBL",
         "legFL",
@@ -136,42 +146,42 @@
     },
     "_solver": {
       "max_reach_shortfall_m": 0.0,
-      "walk_amplitude_m": 0.0618
+      "walk_amplitude_m": 0.0668
     }
   },
   "gait": {
     "legs": {
       "legFL": {
         "stance_frames": 12,
-        "stance_speed_m_s": 0.318,
-        "max_speed_deviation_m_s": 0.0127,
+        "stance_speed_m_s": 0.344,
+        "max_speed_deviation_m_s": 0.0147,
         "max_contact_height_error_m": 0.0,
-        "swing_clearance_m": 0.0227,
+        "swing_clearance_m": 0.0235,
         "floor_penetration_m": 0.0
       },
       "legFR": {
         "stance_frames": 12,
-        "stance_speed_m_s": 0.318,
-        "max_speed_deviation_m_s": 0.0127,
+        "stance_speed_m_s": 0.344,
+        "max_speed_deviation_m_s": 0.0146,
         "max_contact_height_error_m": 0.0,
-        "swing_clearance_m": 0.0227,
+        "swing_clearance_m": 0.0235,
         "floor_penetration_m": 0.0
       },
       "legBL": {
         "stance_frames": 12,
-        "stance_speed_m_s": 0.3179,
-        "max_speed_deviation_m_s": 0.0391,
+        "stance_speed_m_s": 0.3439,
+        "max_speed_deviation_m_s": 0.0451,
         "max_contact_height_error_m": 0.0,
-        "swing_clearance_m": 0.0292,
-        "floor_penetration_m": 0.0004
+        "swing_clearance_m": 0.03,
+        "floor_penetration_m": 0.00096
       },
       "legBR": {
         "stance_frames": 12,
-        "stance_speed_m_s": 0.317,
-        "max_speed_deviation_m_s": 0.0334,
+        "stance_speed_m_s": 0.3429,
+        "max_speed_deviation_m_s": 0.0386,
         "max_contact_height_error_m": 0.0,
-        "swing_clearance_m": 0.0292,
-        "floor_penetration_m": 0.0004
+        "swing_clearance_m": 0.03,
+        "floor_penetration_m": 0.00096
       }
     },
     "support_counts": [
@@ -194,10 +204,10 @@
       3,
       2
     ],
-    "worst_slip_m_s": 0.0391,
-    "worst_floor_penetration_m": 0.0004,
+    "worst_slip_m_s": 0.0451,
+    "worst_floor_penetration_m": 0.00096,
     "worst_contact_height_error_m": 0.0,
-    "min_swing_clearance_m": 0.0227,
+    "min_swing_clearance_m": 0.0235,
     "always_supported": true,
     "pass": true
   },

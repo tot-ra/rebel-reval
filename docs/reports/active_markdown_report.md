@@ -14,8 +14,8 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `79`
-- Markdown files excluded as archive/reference/out of active scope: `451`
+- Active Markdown files scanned: `80`
+- Markdown files excluded as archive/reference/out of active scope: `452`
 - Local/external links inspected: `505`
 - Links to active Markdown docs: `227`
 - Links to existing archive/reference/non-active local docs: `97`
@@ -88,6 +88,7 @@ No active Markdown documentation issues found.
 - `docs/MAP_CONVERSION_PLAN.md`
 - `docs/MATERIAL_STYLE_LOCK_KIT.md`
 - `docs/PERFORMANCE_REPORT.md`
+- `docs/quest_seed_shortlist.md`
 - `docs/quests/bandits.md`
 - `docs/quests/estonian_rebels.md`
 - `docs/quests/hanseatic_merchants.md`

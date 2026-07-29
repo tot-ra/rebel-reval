@@ -19,7 +19,7 @@ workspace:
   scope: configured_project
   mount: rw
 tools:
-  mode: allow
+  mode: all
 networking:
   internet_access: true
 publish:
