@@ -310,6 +310,17 @@ class VerifyAssetLintTest(unittest.TestCase):
                 rules = _issue_rules(validate(root=root))
             self.assertIn("ASSET_LINT_CHARACTER_TIER", rules)
 
+    def test_fauna_pbr_rule_fails_when_glb_lacks_roughness(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            _write_valid_fixture(root)
+            with mock.patch(
+                "verify_asset_lint.validate_fauna_glb_pbr",
+                return_value=["assets/birds/mallard/standing.glb: material 'body' missing metallicRoughnessTexture"],
+            ):
+                rules = _issue_rules(validate(root=root))
+            self.assertIn("ASSET_LINT_FAUNA_PBR", rules)
+
     def test_main_exits_zero_on_repository(self) -> None:
         self.assertEqual(main(), 0)
 

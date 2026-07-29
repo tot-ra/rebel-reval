@@ -64,6 +64,7 @@ from character_fidelity_tiers import (  # noqa: E402
     inspect_glb,
     iter_runtime_character_glbs,
 )
+from fauna_glb_inspect import validate_fauna_glb_pbr  # noqa: E402
 
 
 @dataclass(frozen=True)
@@ -420,6 +421,9 @@ def validate(*, root: Path = ROOT) -> list[LintIssue]:
                     f"({max_texture_px}px>{budget.texture_max_px}px)",
                 )
             )
+
+    for message in validate_fauna_glb_pbr(root=root):
+        issues.append(LintIssue("ASSET_LINT_FAUNA_PBR", message))
 
     return issues
 
