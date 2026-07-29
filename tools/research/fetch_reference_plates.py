@@ -62,6 +62,7 @@ DOWNLOADABLE_LICENSES = {
     "cc by 4.0",
     "cc by-sa 3.0",
     "cc by-sa 4.0",
+    "cc by-sa 2.0",
 }
 
 EXTENSIONS = {

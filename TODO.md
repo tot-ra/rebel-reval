@@ -25,12 +25,14 @@ References:
 |----------|-----:|-----:|-------|
 | P0 |    20  |    55  | Baseline, storage, materials, historical audit |
 | P1 |     0  |     8  | Runtime systems, content foundation |
-| P2 |    21  |    37  | Vertical-slice production (playable MVP) |
+| P2 |    20  |    38  | Vertical-slice production (playable MVP) |
 | P3 |     0  |    16  | Validation, accessibility, performance |
 | P4 |    21  |    42  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
-| R  |    17  |    23  | Historical research backlog (researcher-managed, cross-cutting) |
+| R  |    18  |    26  | Historical research backlog (researcher-managed, cross-cutting) |
+| A  |     5  |     0  | Art and animation backlog (art-managed, cross-cutting) |
+
 
 
 
@@ -230,6 +232,18 @@ animation coverage, historical accuracy, style and fidelity consistency) defined
 [`agents/rebel-art/skills/work-loop/SKILL.md`](agents/rebel-art/skills/work-loop/SKILL.md), ordered by
 production demand rather than campaign band, and close through `review: canon` like all content work.
 
+- [~] A-001 | role: art | deps: none | deliverable: assets/characters/shared/kalev.glb — hero Kalev mesh (single object, neutral pose, plain background) derived from R-023 clothing dossier brief and plates, LOD chain lod1/lod2 included; allowed files: `assets/characters/shared/kalev*.glb`, `assets/characters/shared/character_lod_manifest.json`; verify: GLB imports cleanly in Godot 4.7, all three meshes present, SOURCES.csv row added | claim: art-1@2026-07-28 | review: canon
+
+- [ ] A-002 | role: art | deps: none | deliverable: assets/animals/medieval/medieval_horse.glb — quadruped horse mesh (single object, neutral standing pose) with Idle-loop and Walk-loop clips authored via `tools/assets/medieval_animal_rigs.py`; allowed files: `assets/animals/medieval/medieval_horse*.glb`, `scripts/map/view3d/map_view_fauna_context.gd` (clip registry); verify: GLB imports, two clips present on rig, idle and walk loop seamlessly | review: canon
+
+- [ ] A-003 | role: art | deps: none | deliverable: assets/props/architecture/gates/viru_gate.glb — 1343-period Viru Gate exterior model (single object, neutral pose) omitting post-1346 Fat Margaret barbican form; derived from R-002 wall/gate dossier and `docs/HISTORICAL_AUDIT.md` cross-map exclusions; allowed files: `assets/props/architecture/gates/viru_gate*.glb`; verify: GLB imports, silhouette matches circa-1343 tower form per plate evidence | review: canon
+
+- [ ] A-004 | role: art | deps: none | deliverable: assets/props/trade/supply_cart.glb — merchant supply cart prop (single object, neutral) for use on supply-chain quest routes; derived from R-012 economy dossier brief; allowed files: `assets/props/trade/supply_cart*.glb`; verify: GLB imports cleanly, reads as functional 14th-c. merchant cart at gameplay camera distance | review: canon
+
+- [ ] A-005 | role: art | deps: none | deliverable: assets/birds/mallard/standing.glb — mallard procedural mesh with script-driven flap and glide cadence via `map_view_bird_flight.gd`; allowed files: `assets/birds/mallard/*.glb`, `scripts/map/view3d/map_view_bird_flight.gd` | verify: GLB imports, flight script references mesh; idle/walk clips not required (procedural class) | review: canon
+
+- [ ] A-006 | role: art | deps: none | deliverable: assets/characters/shared/kalev.glb — hero Kalev mesh with all 76 shared KayKit body clips retargeted; allowed files: `assets/characters/shared/kalev*.glb`, `animation_overrides` in `.tres`; verify: GLB imports, clip count matches humanoid contract, overrides documented | review: canon
+
 ## R - Historical research backlog (researcher-managed, cross-cutting)
 
 Evidence work for Spring 1343 Reval. Maintained by the Researcher loop, which may create, split,
@@ -279,7 +293,7 @@ Rows close through `review: canon` like all content work.
 ### Daily life, language, nature, hinterland (Character, Dialogue, Map)
 
 - [~] R-022 | role: research | deps: none | deliverable: history/dossiers/dailylife/food-and-drink.md - diet by status, bread, beer and its role, fasting rules, kitchen equipment, meal times, food storage in spring | verify: distinguishes burgher, Estonian labourer, and monastic diets, with the pre-harvest spring scarcity stated | review: canon
-- [ ] R-023 | role: research | deps: R-026 | deliverable: history/dossiers/dailylife/clothing-and-status-markers.md - dress of burghers, Estonian townsfolk, vassals, clergy, and Order members, with materials, colours, and visible rank signals | verify: gives an art-usable description per status tier plus the markers that must never be mixed
+- [x] R-023 | role: research | deps: R-026 | deliverable: history/dossiers/dailylife/clothing-and-status-markers.md - dress of burghers, Estonian townsfolk, vassals, clergy, and Order members, with materials, colours, and visible rank signals | verify: gives an art-usable description per status tier plus the markers that must never be mixed | claim: research-N@2026-07-29 | review: canon
 - [~] R-024 | role: research | deps: none | deliverable: history/dossiers/language/names-address-and-oaths.md - Low German, Estonian, and Latin registers; naming conventions; forms of address by rank; oaths, curses, greetings | verify: supplies a name stock and an address table a dialogue writer can apply without anachronism | claim: research-N@2026-07-28 | review: canon
 - [x] R-025 | claim: cursor-agent@2026-07-28 | role: research | deps: none | deliverable: history/dossiers/nature/spring-climate-and-living-world.md - April-May weather and light, sea ice break-up, plants in bloom, birds and animals present, livestock and field work | verify: describes what is visibly alive and growing on St George's night specifically, for map and art dressing | review: canon
 - [~] R-028 | role: research | deps: none | deliverable: history/dossiers/hinterland/harju-village-and-manor.md - village layout, manor obligations, corvée and dues, roads and travel times to Reval, who the rebels actually were | verify: yields a buildable village plan plus the grievance structure that motivates the uprising, sourced | claim: research-N@2026-07-28 | review: canon
@@ -306,7 +320,9 @@ Rows close through `review: canon` like all content work.
 - [ ] R-048 | role: research | deps: R-015 | deliverable: history/dossiers/economy/reval-harbour-customs-1340s.md - harbour tolls, crane fees, and landing dues from AWB 1340–1343 | verify: at least three cited fee lines with document dates usable in harbour quest economy
 - [ ] R-042 | role: research | deps: R-014 | deliverable: history/dossiers/economy/steel-sheet-import-1340s.md - Lübeck steel sheet and rod import to Reval before 1368 records; osmund barrel weights and customs measures | verify: dated import path with confidence labels and at least one price or weight line usable in forge material costs
 - [ ] R-043 | role: research | deps: R-009,R-029 | deliverable: history/dossiers/topography/forum-pillory-placement-1337.md - measured pillory position on 1343 forum polygon reconciling 1337 attestation with raekoja-plats extents | verify: single labelled coordinate with confidence on authoring polygon cited from both dossiers
-- [ ] R-058 | role: research | deps: R-011 | deliverable: history/dossiers/military/lower-town-weapon-finds-1340s.md - archaeological weapon and armour fragments from Lower Town occupation layers and Jahu/Lootsi waste exports c. 1340–1450 | verify: typed find list with layer dates, confidence labels, and gap statement for absent categories
+- [x] R-058 | role: research | deps: R-011 | deliverable: history/dossiers/military/lower-town-weapon-finds-1340s.md - archaeological weapon and armour fragments from Lower Town occupation layers and Jahu/Lootsi waste exports c. 1340–1450 | verify: typed find list with layer dates, confidence labels, and gap statement for absent categories | review: canon
+- [~] R-061 | role: research | deps: R-058 | deliverable: history/dossiers/military/lower-town-in-situ-projectiles-inventory.md - TLÜ foto.arheoloogia.ee / AI inventory pass for arrowheads and crossbow bolts from Pikk, Lai, Rahukohtu, Müürivahe rescue collections with document dates | verify: at least five named finds with AI inventory number, plot address, and confidence label | claim: research-N@2026-07-29
+- [ ] R-062 | role: research | deps: R-058 | deliverable: fetch `military.lower-town-weapon-finds-1340s.01` and `.02` reference plates once Meremuuseum / AVE publish open-licence Lootsi projectile photography | verify: `python3 tools/research/fetch_reference_plates.py --slug lower-town-weapon-finds-1340s --verify` reports fetched rows for Tallinn-origin springald and arrowhead plates
 - [~] R-049 | role: research | deps: R-016 | deliverable: history/dossiers/religion/ecclesiastical-precinct-boundaries-1343.md - measured Dominican and St Michael close polygons against 1340s wall incorporation | verify: labelled precinct map cited from churches-and-religious-houses dossier with confidence per boundary segment | claim: research-N@2026-07-28 | review: canon
 - [ ] R-050 | role: research | deps: R-017 | deliverable: history/dossiers/economy/reval-market-weekday-1340s.md - weekly market day and holy-day trading rules from AWB/council ordinances 1340–1343 | verify: cites at least one document date naming market weekday or a feast-day trading fine applicable in 1343
 - [x] R-051 | role: research | deps: R-017 | deliverable: fetch `religion.liturgical-calendar-spring-1343.01` through `.05` reference plates once Wikimedia rate-limit clears | verify: `python3 tools/research/fetch_reference_plates.py --slug liturgical-calendar-spring-1343 --verify` reports five fetched plates with no linked or failed rows
@@ -315,6 +331,9 @@ Rows close through `review: canon` like all content work.
 - [x] R-055 | claim: cursor-agent@2026-07-28 | deps: none | deliverable: audit `history/reference/plates.csv` for unquoted commas in Commons page URLs and stale Wikimedia upload hashes; fix parsing drift and re-fetch any `failed` rows | verify: `python3 tools/research/fetch_reference_plates.py --verify` reports zero `failed` rows and no `unknown status` parse errors across the full manifest
 - [ ] R-056 | role: research | deps: R-020 | deliverable: history/dossiers/folklore/harju-hiis-sites-within-walk-1343.md - archaeological and LCD *lucus sanctus* candidates within one day's walk of 1343 Reval walls with confidence per site | verify: map-usable point list cited from belief-omens-and-healing open questions with attested vs reconstructed labels
 - [ ] R-057 | role: research | deps: R-024 | deliverable: history/dossiers/language/estonian-forenames-harju-1340s.md - attested Estonian and Undeutsch forename pool from AWB and manorial lists 1340–1350 with German-record spellings | verify: at least fifteen forenames with document date or source and confidence label usable in character generator
+- [x] R-063 | role: research | deps: none | deliverable: history/dossiers/dailylife/hygiene-and-grooming-1343.md - bathing, lice, haircut, soap, teeth, and urban waste practice in Hanseatic Reval with status contrasts | verify: at least three tier-specific grooming facts with confidence labels usable by character and art | claim: cursor-agent@2026-07-29 | review: canon
+- [ ] R-064 | role: research | deps: none | deliverable: history/dossiers/power/reval-street-cleaning-ordinances-1340s.md - AWB/council rows on dung carts, street dumping fines, and bath-house rent 1340–1343 | verify: at least three cited ordinance lines with document dates usable in siege sanitation quest beats
+- [ ] R-065 | role: research | deps: none | deliverable: history/dossiers/topography/public-bath-locations-1343.md - mapped bath plots on Nunne, Rataskaevu, Sauna street, and south-wall service zone from TLA property books | verify: point list with confidence labels cited from hygiene-and-grooming-1343 open questions
 
 ### Small
 

@@ -140,6 +140,8 @@ Use this as a **default April weeknight**; tighten every row during the **late-A
 - [`../crafts/guild-structure.md`](../crafts/guild-structure.md) — craft masters on burgher watch rolls; guild feast obligations do not replace militia duty.
 - [`../people/estonian-and-german-populations.md`](../people/estonian-and-german-populations.md) — attested Estonian watch squad; ethnic labour division on night patrol.
 - [`../military/arms-and-armour-livonia-1340s.md`](../military/arms-and-armour-livonia-1340s.md) — what smiths produce vs import; militia kit materials.
+- [`lower-town-weapon-finds-1340s.md`](lower-town-weapon-finds-1340s.md) — archaeological bolt/arrowhead evidence; Jahu export vs in-situ gap for watch resupply props.
+- [`lower-town-weapon-finds-1340s.md`](lower-town-weapon-finds-1340s.md) — archaeological bolt and arrowhead evidence for watch missile props.
 - [`../culture/music-and-instruments.md`](../culture/music-and-instruments.md) — bells vs trumpets; no Stadtpfeifer tower fanfares in 1343.
 - [`../architecture/toompea-castle-and-upper-town.md`](../architecture/toompea-castle-and-upper-town.md) — upper gate chain; curfew on hill access.
 

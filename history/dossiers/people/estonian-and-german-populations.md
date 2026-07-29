@@ -11,7 +11,8 @@ related:
   - ../architecture/burgher-house-plan.md
   - ../culture/music-and-instruments.md
   - ../language/names-address-and-oaths.md
-updated: 2026-07-28
+  - ../dailylife/clothing-and-status-markers.md
+updated: 2026-07-29
 ---
 
 # Estonian and German populations (Spring 1343)
@@ -137,6 +138,7 @@ Johansen notes **Scandinavian and Russian merchant settlements** around **St Ola
 - [`../military/arms-and-armour-livonia-1340s.md`](../military/arms-and-armour-livonia-1340s.md) — faction kit by group.
 - [`../culture/music-and-instruments.md`](../culture/music-and-instruments.md) — regilaul rural layer vs German urban music; who sings where.
 - [`../folklore/belief-omens-and-healing.md`](../folklore/belief-omens-and-healing.md) — who may practice folk belief versus who may prosecute it; syncretic Estonian labour in town.
+- [`../dailylife/clothing-and-status-markers.md`](../dailylife/clothing-and-status-markers.md) — per-tier dress lanes and forbidden marker mixes for mixed crowds.
 - [`../language/names-address-and-oaths.md`](../language/names-address-and-oaths.md) — register split (MLG / Estonian / Latin), patronymic patterns, and address ladder for mixed-crowd scenes.
 
 ## Open questions
@@ -145,7 +147,7 @@ Johansen notes **Scandinavian and Russian merchant settlements** around **St Ola
 - **Estonian Bürgerrecht list:** Named Estonian citizens before 1343 — prosopography row for character casting.
 - **Kalamaja 1343 footprint:** Fisher/Swedish population share before 1352 attestation → [`R-034`](../topography/kalamaja-fishing-shore-1343.md) when claimed.
 - **Licensed plate:** Virunuka or Siksälä textile find photography cleared for repo fetch.
-- **Clothing dossier:** [`R-023`](../dailylife/clothing-and-status-markers.md) depends on this file — needs per-tier garment materials pass.
+- **Clothing dossier:** [`clothing-and-status-markers.md`](../dailylife/clothing-and-status-markers.md) — per-tier garment pass delivered; use `dress_tier` tags from population segments.
 
 ## Sources
 

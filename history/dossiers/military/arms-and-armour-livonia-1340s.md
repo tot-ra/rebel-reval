@@ -136,6 +136,7 @@ Apply **×1.25–1.5** siege multiplier April–May 1343 per economy dossier.
 - [`../crafts/blacksmith-materials-and-techniques.md`](../crafts/blacksmith-materials-and-techniques.md) — iron sources, temper, durations, charcoal quantities.
 - [`../power/jurisdictions-of-reval.md`](../power/jurisdictions-of-reval.md) — council arms muster vs Order reinforcement.
 - [`../topography/lower-town-street-plan.md`](../topography/lower-town-street-plan.md) — Harju smith-street and craft wards.
+- [`lower-town-weapon-finds-1340s.md`](lower-town-weapon-finds-1340s.md) — archaeological projectile and armour evidence; Lootsi and Jahu contexts.
 - [`../economy/coinage-prices-and-measures.md`](../economy/coinage-prices-and-measures.md) — arms and horseshoe price rows in schilling/mark/pfennig.
 
 - Reval **1343 arms ordinance** article numbers in the 1257/1282 law codex — candidate **R-040**.

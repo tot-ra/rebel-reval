@@ -285,6 +285,7 @@ Manifest rows: [`history/reference/plates.csv`](../../reference/plates.csv). In-
 - [`../crafts/guild-structure.md`](../crafts/guild-structure.md) — Schmiede *Amt* under St Canute; master/journeyman/apprentice tiers for workshop household layout.
 - [`toompea-castle-and-upper-town.md`](toompea-castle-and-upper-town.md) — contrast hill vassal housing with Lower Town diele-dornse merchant fabric.
 - [`../dailylife/food-and-drink.md`](../dailylife/food-and-drink.md) — cellar beer storage and living-bay hearth cooking.
+- [`../dailylife/hygiene-and-grooming-1343.md`](../dailylife/hygiene-and-grooming-1343.md) — rear-yard privy, well sweep, and morning basin in dornse.
 
 ## Open questions
 
