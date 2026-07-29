@@ -3,6 +3,9 @@
 Coordination notes, delivery order, and planning context formerly embedded in `TODO.md`.
 Executable open work stays in [`TODO.md`](../TODO.md).
 
+<!-- P1-042 completed in current session -->
+Coordination note (2026-07-29 P1-042): SaveService now serializes concurrent writes through a static mutex and temp-file rotation protocol; combat `health_changed` and dialogue `started`/`finished` autosave stress tests prove signal handlers can persist without interrupting resolution or corrupting slots, and v1-to-v2 GameState payload migration is covered in envelope tests. Verified: `--filter=test_save_service` (10/10), `--filter=test_save_envelope` (13/13), and `--filter=test_save_signal_stress` (2/2). Next runtime step: **P0-145** character-surface texture generator or **P2-059** Kalev household vignettes.
+
 <!-- P0-161 completed in current session -->
 Coordination note (2026-07-29 P0-161): playable `kalev_smithy` and `lower_town_slice` now ship authored soot/mud/grime/wet_threshold decals through `map_wear_decals.gd` (forge pad, door thresholds, yard corners, Viru Gate lane) without changing grid fingerprints or routes. Verified: `--filter=test_map_view_decals` (8/8), `--filter=test_kalev_smithy_map`, and `--filter=test_lower_town_slice_map`. Next map step: **P0-162** migrate decal placements into rrmap source lines.
 
