@@ -1,0 +1,29 @@
+{
+  "approval": "task-authorized",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "891401f6380b2a7c6c44c83167d50be45e8c0cc458485181f45081ce55d7cbdb",
+  "checks": {
+    "embedded_albedo": true,
+    "ground_contact": true,
+    "metric_scale": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "variant_count": 17,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    0.745,
+    0.46,
+    0.9
+  ],
+  "floating_objects": 0,
+  "generator": "tools/generate_smithy_household_clutter.py",
+  "generator_version": "smithy_household_clutter_v1",
+  "ground_min_z": 0.0,
+  "materials": 11,
+  "route": "deterministic_blender",
+  "sha256": "cb69f9b2aa95af8d938fcfbe795c3c5ab01f228aa713aa9c6f0e66204c06e638",
+  "texture_size": 512,
+  "triangles": 4996,
+  "uv_sets": 1
+}

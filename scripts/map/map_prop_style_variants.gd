@@ -60,6 +60,7 @@ const HEARTH_STATE_VARIANTS: Array[StringName] = [
 ]
 
 const KITCHENWARE_VARIANTS: Array[StringName] = MapTypes.KITCHENWARE_VARIANTS
+const HOUSEHOLD_CLUTTER_VARIANTS: Array[StringName] = MapTypes.HOUSEHOLD_CLUTTER_VARIANTS
 
 
 static func is_known(kind: StringName, variant: StringName) -> bool:
@@ -79,6 +80,8 @@ static func is_known(kind: StringName, variant: StringName) -> bool:
 		return variant in HEARTH_STATE_VARIANTS
 	if kind == MapTypes.PROP_KIND_KITCHENWARE:
 		return variant in KITCHENWARE_VARIANTS
+	if kind == MapTypes.PROP_KIND_HOUSEHOLD_CLUTTER:
+		return variant in HOUSEHOLD_CLUTTER_VARIANTS
 	if kind == MapTypes.PROP_KIND_CANDLE:
 		return variant in MapTypes.LIGHTING_VARIANTS
 	return TerrainVegetation.is_known_variant(variant)

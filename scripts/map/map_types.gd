@@ -196,6 +196,44 @@ const KITCHENWARE_VARIANTS: Array[StringName] = [
 	KITCHENWARE_GROUP_EATING,
 	KITCHENWARE_GROUP_CLEANUP,
 ]
+const PROP_KIND_HOUSEHOLD_CLUTTER := &"household_clutter"
+const PROVISION_RYE_BREAD_LOAF := &"provision.rye_bread_loaf"
+const PROVISION_RYE_BREAD_CUT := &"provision.rye_bread_cut"
+const PROVISION_DRIED_PEAS_BIN := &"provision.dried_peas_bin"
+const PROVISION_ONION_BRAID := &"provision.onion_braid"
+const PROVISION_HERRING_FILLETED := &"provision.herring_filleted"
+const PROVISION_BEER_JUG := &"provision.beer_jug"
+const PROVISION_SALT_CROCK := &"provision.salt_crock"
+const HOUSEHOLD_WATER_BUCKET := &"household.water_bucket"
+const HOUSEHOLD_KINDLING_BUNDLE := &"household.kindling_bundle"
+const HOUSEHOLD_ASH_SCOOP := &"household.ash_scoop"
+const HOUSEHOLD_BROOM := &"household.broom"
+const HOUSEHOLD_LINEN_FOLDED := &"household.linen_folded"
+const HOUSEHOLD_APRON := &"household.apron"
+const HOUSEHOLD_GROUP_CLOSED := &"household.group.closed"
+const HOUSEHOLD_GROUP_IN_USE := &"household.group.in_use"
+const HOUSEHOLD_GROUP_DEPLETED := &"household.group.depleted"
+const HOUSEHOLD_GROUP_CLEARED := &"household.group.cleared"
+const DEFAULT_HOUSEHOLD_CLUTTER_VARIANT := PROVISION_RYE_BREAD_LOAF
+const HOUSEHOLD_CLUTTER_VARIANTS: Array[StringName] = [
+	PROVISION_RYE_BREAD_LOAF,
+	PROVISION_RYE_BREAD_CUT,
+	PROVISION_DRIED_PEAS_BIN,
+	PROVISION_ONION_BRAID,
+	PROVISION_HERRING_FILLETED,
+	PROVISION_BEER_JUG,
+	PROVISION_SALT_CROCK,
+	HOUSEHOLD_WATER_BUCKET,
+	HOUSEHOLD_KINDLING_BUNDLE,
+	HOUSEHOLD_ASH_SCOOP,
+	HOUSEHOLD_BROOM,
+	HOUSEHOLD_LINEN_FOLDED,
+	HOUSEHOLD_APRON,
+	HOUSEHOLD_GROUP_CLOSED,
+	HOUSEHOLD_GROUP_IN_USE,
+	HOUSEHOLD_GROUP_DEPLETED,
+	HOUSEHOLD_GROUP_CLEARED,
+]
 const PROP_KIND_BUSH := &"bush"
 const PROP_KIND_TREE := &"tree"
 const PROP_KIND_FISHING_BOAT := &"fishing_boat"
@@ -288,6 +326,7 @@ const ALL_PROP_KINDS: Array[StringName] = [
 	PROP_KIND_STALL,
 	PROP_KIND_HEARTH,
 	PROP_KIND_KITCHENWARE,
+	PROP_KIND_HOUSEHOLD_CLUTTER,
 	PROP_KIND_CHAIR,
 	PROP_KIND_CANDLE,
 	PROP_KIND_BUSH,
@@ -427,6 +466,18 @@ static func invalid_kitchenware_variant(prop: Dictionary) -> StringName:
 		return &""
 	var variant := StringName(prop["style_variant"])
 	return &"" if variant in KITCHENWARE_VARIANTS else variant
+
+
+static func household_clutter_variant_for_prop(prop: Dictionary) -> StringName:
+	var variant := StringName(prop.get("style_variant", DEFAULT_HOUSEHOLD_CLUTTER_VARIANT))
+	return variant if variant in HOUSEHOLD_CLUTTER_VARIANTS else DEFAULT_HOUSEHOLD_CLUTTER_VARIANT
+
+
+static func invalid_household_clutter_variant(prop: Dictionary) -> StringName:
+	if prop.get("kind") != PROP_KIND_HOUSEHOLD_CLUTTER or not prop.has("style_variant"):
+		return &""
+	var variant := StringName(prop["style_variant"])
+	return &"" if variant in HOUSEHOLD_CLUTTER_VARIANTS else variant
 
 static func invalid_market_stall_goods(specification: StringName) -> Array[StringName]:
 	var invalid: Array[StringName] = []

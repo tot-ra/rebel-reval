@@ -16,6 +16,7 @@ const TableModels := preload("res://scripts/map/view3d/map_view_table_models.gd"
 const MedievalLightingModels := preload("res://scripts/map/view3d/map_view_medieval_lighting_models.gd")
 const DomesticHearthModels := preload("res://scripts/map/view3d/map_view_domestic_hearth_models.gd")
 const KitchenwareModels := preload("res://scripts/map/view3d/map_view_kitchenware_models.gd")
+const HouseholdClutterModels := preload("res://scripts/map/view3d/map_view_household_clutter_models.gd")
 const ChestModels := preload("res://scripts/map/view3d/map_view_chest_models.gd")
 const WellModels := preload("res://scripts/map/view3d/map_view_well_models.gd")
 const StorageFurnitureModels := preload("res://scripts/map/view3d/map_view_storage_furniture_models.gd")
@@ -182,6 +183,8 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 			DomesticHearthModels.add_model(root, prop)
 		MapTypes.PROP_KIND_KITCHENWARE:
 			KitchenwareModels.add_model(root, prop)
+		MapTypes.PROP_KIND_HOUSEHOLD_CLUTTER:
+			HouseholdClutterModels.add_model(root, prop)
 		MapTypes.PROP_KIND_CHAIR:
 			if prop.get("id", &"") == SMITHY_CHAIR_PROP_ID:
 				_add_smithy_chair(root)

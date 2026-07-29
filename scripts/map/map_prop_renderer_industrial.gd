@@ -202,6 +202,28 @@ static func draw_kitchenware(parent: Node2D, prop: Dictionary, target: StringNam
 			Draw.add_rect(parent, "Kitchenware", Vector2(-10, -6), Vector2(20, 10), wood, target, time_of_day)
 
 
+static func draw_household_clutter(parent: Node2D, prop: Dictionary, target: StringName, time_of_day: StringName) -> void:
+	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
+	var bread := MapVisualStyle.role_color(&"plaster", target, time_of_day).darkened(0.18)
+	var pottery := MapVisualStyle.role_color(&"plaster", target, time_of_day).darkened(0.12)
+	var variant := StringName(prop.get("style_variant", MapTypes.DEFAULT_HOUSEHOLD_CLUTTER_VARIANT))
+	if variant.begins_with(&"household.group."):
+		Draw.add_rect(parent, "GroupBase", Vector2(-18, -10), Vector2(36, 14), wood, target, time_of_day)
+		Draw.add_rect(parent, "GroupAccent", Vector2(-10, -14), Vector2(20, 6), bread, target, time_of_day)
+		return
+	match variant:
+		MapTypes.PROVISION_BEER_JUG, MapTypes.PROVISION_SALT_CROCK:
+			Draw.add_rect(parent, "Vessel", Vector2(-6, -12), Vector2(12, 16), pottery, target, time_of_day)
+		MapTypes.HOUSEHOLD_WATER_BUCKET:
+			Draw.add_circle(parent, "Bucket", Vector2(0, -6), 10.0, wood, target, time_of_day)
+		MapTypes.HOUSEHOLD_BROOM:
+			Draw.add_rect(parent, "Broom", Vector2(-2, -10), Vector2(4, 20), wood, target, time_of_day)
+		MapTypes.HOUSEHOLD_APRON, MapTypes.HOUSEHOLD_LINEN_FOLDED:
+			Draw.add_rect(parent, "Cloth", Vector2(-10, -6), Vector2(20, 10), bread.lightened(0.08), target, time_of_day)
+		_:
+			Draw.add_rect(parent, "Provision", Vector2(-10, -6), Vector2(20, 10), bread, target, time_of_day)
+
+
 static func draw_chair(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
 	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
 	Draw.add_rect(parent, "Seat", Vector2(-10, -4), Vector2(20, 8), wood, target, time_of_day)
