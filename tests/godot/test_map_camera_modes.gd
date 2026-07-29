@@ -368,6 +368,75 @@ func test_quick_access_camera_button_cycles_all_modes() -> void:
 	_free_map_scene(scene_root)
 
 
+func test_ground_clamp_prevents_underground_camera() -> void:
+	var fixture := _install_runtime(LowerTownSlice.create())
+	var scene_root := fixture["scene_root"] as Node2D
+	var runtime := fixture["runtime"] as MapViewRuntime
+	var camera := runtime.view.view_camera()
+	var rig := runtime.get_node("PlayerRig") as SharedCharacterRig
+	var controller := runtime._camera_controller as MapViewRuntimeCamera
+
+	# Place the camera far below ground by snapping to an underground target.
+	camera.position.y = -10.0
+	controller.follow_player(true, 0.0)
+	var terrain_y := MapViewMeshBuilder.ground_height(
+		runtime.view.definition, Vector2(camera.position.x, camera.position.z)
+	)
+	assert_true(
+		camera.position.y >= terrain_y + MapViewRuntimeCamera.GROUND_CLEARANCE - 0.01,
+		"camera must be clamped above terrain height after follow"
+	)
+
+	# Verify it also works during lerp (non-snap) path.
+	camera.position.y = -5.0
+	controller.follow_player(false, 0.1)
+	terrain_y = MapViewMeshBuilder.ground_height(
+		runtime.view.definition, Vector2(camera.position.x, camera.position.z)
+	)
+	assert_true(
+		camera.position.y >= terrain_y + MapViewRuntimeCamera.GROUND_CLEARANCE - 0.01,
+		"lerped camera must also be clamped above terrain"
+	)
+	_free_map_scene(scene_root)
+
+
+func test_building_collision_pulls_camera_out() -> void:
+	var fixture := _install_runtime(LowerTownSlice.create())
+	var scene_root := fixture["scene_root"] as Node2D
+	var runtime := fixture["runtime"] as MapViewRuntime
+	var camera := runtime.view.view_camera()
+	var rig := runtime.get_node("PlayerRig") as SharedCharacterRig
+	var controller := runtime._camera_controller as MapViewRuntimeCamera
+
+	# Place the camera inside a known building/landmark occluder.
+	var buildings := runtime.view.get_node_or_null("Buildings") as Node3D
+	if buildings != null and buildings.get_child_count() > 0:
+		var first_building := buildings.get_child(0) as Node3D
+		# Move camera into the building AABB.
+		camera.position = first_building.global_position + Vector3.UP * 1.0
+		controller.follow_player(true, 0.0)
+		assert_false(
+			runtime.view.is_point_inside_occluder(camera.position),
+			"camera must be pulled out of building AABB after follow"
+		)
+	_free_map_scene(scene_root)
+
+
+func test_top_down_occlusion_allows_ghost_not_reset() -> void:
+	var fixture := _install_runtime(LowerTownSlice.create())
+	var scene_root := fixture["scene_root"] as Node2D
+	var runtime := fixture["runtime"] as MapViewRuntime
+	var rig := runtime.get_node("PlayerRig") as SharedCharacterRig
+
+	runtime.set_camera_mode(MapViewRuntimeCamera.CameraMode.TOP_DOWN)
+	# In top-down, occlusion ghost should be available (not suppressed).
+	runtime._update_occlusion_ghost()
+	# The ghost state depends on actual scene geometry; at minimum, the rig
+	# must remain visible in top-down mode.
+	assert_true(rig.visible, "player rig must be visible in top-down even when occluded")
+	_free_map_scene(scene_root)
+
+
 func _install_runtime(definition: MapDefinition, with_menu: bool = false) -> Dictionary:
 	var scene_root := Node2D.new()
 	var map_root := Node2D.new()

@@ -55,6 +55,15 @@ const THIRD_PERSON_DOF_FAR_TRANSITION := 6.0
 const FIRST_PERSON_DOF_BLUR_AMOUNT := 0.028
 const FIRST_PERSON_DOF_FAR_DISTANCE := 14.0
 const FIRST_PERSON_DOF_FAR_TRANSITION := 8.0
+## Safety: prevent camera from clipping through terrain, buildings, or losing
+## sight of the player. Ground clamping pulls the camera above the terrain
+## height map; building collision slides it out of building AABBs toward the
+## player; visibility safety snaps closer when the player is fully occluded.
+const GROUND_CLEARANCE := 0.3
+const BUILDING_PULL_ITERATIONS := 4
+const BUILDING_PULL_STEP := 0.6
+const VISIBILITY_PULL_STEP := 0.6
+const VISIBILITY_PULL_ITERATIONS := 4
 const OCCLUSION_PROBE_HEIGHTS: Array[float] = [0.5, 1.1, 1.8]
 
 var camera: Camera3D
@@ -118,10 +127,10 @@ func follow_player(snap: bool, delta: float) -> void:
 	var target := _follow_target()
 	if snap or camera.position.distance_to(target) > SNAP_DISTANCE_WORLD:
 		camera.position = _apply_screen_shake(delta, target)
-		view.update_terrain_detail_focus(player_rig.position)
-		return
-	var lerped := camera.position.lerp(target, clampf(FOLLOW_LERP_WEIGHT * delta, 0.0, 1.0))
-	camera.position = _apply_screen_shake(delta, lerped)
+	else:
+		var lerped := camera.position.lerp(target, clampf(FOLLOW_LERP_WEIGHT * delta, 0.0, 1.0))
+		camera.position = _apply_screen_shake(delta, lerped)
+	_enforce_camera_safety()
 	view.update_terrain_detail_focus(player_rig.position)
 
 
@@ -163,17 +172,22 @@ func _screen_shake_enabled() -> bool:
 func _resolve_third_person_target(target: Vector3) -> Vector3:
 	if view == null or view.definition == null:
 		return target
-	if not view.definition.suppresses_exterior_surroundings():
-		return target
 	var anchor := player_rig.position + Vector3.UP * THIRD_PERSON_TARGET_HEIGHT
 	var direction := target - anchor
 	var distance := direction.length()
 	if is_zero_approx(distance):
 		return target
 	direction /= distance
-	while distance > THIRD_PERSON_MIN_DISTANCE and _third_person_target_clips(target):
-		distance = maxf(THIRD_PERSON_MIN_DISTANCE, distance * 0.75)
-		target = anchor + direction * distance
+	# Interior maps enforce floor-edge margins so the boom stays inside the room.
+	# Exterior maps pull the target out of any building/landmark AABB it enters.
+	if view.definition.suppresses_exterior_surroundings():
+		while distance > THIRD_PERSON_MIN_DISTANCE and _third_person_target_clips(target):
+			distance = maxf(THIRD_PERSON_MIN_DISTANCE, distance * 0.75)
+			target = anchor + direction * distance
+	else:
+		while distance > THIRD_PERSON_MIN_DISTANCE and view.is_point_inside_occluder(target):
+			distance = maxf(THIRD_PERSON_MIN_DISTANCE, distance * 0.75)
+			target = anchor + direction * distance
 	return target
 
 
@@ -433,6 +447,83 @@ func mode_label() -> String:
 			return "First-person view"
 		_:
 			return "Top-down view"
+
+
+## Post-follow safety: clamp above ground, pull out of buildings, and ensure
+## the camera can still see the player. Called every frame after position is
+## set so both snap and lerp paths stay safe.
+func _enforce_camera_safety() -> void:
+	_clamp_above_ground()
+	_pull_out_of_buildings()
+	_ensure_player_visible()
+
+
+## Prevent the camera from sinking below the terrain height field. The margin
+## (GROUND_CLEARANCE) avoids z-fighting and gives a comfortable buffer above
+## grass/paving relief that the height field alone does not capture.
+func _clamp_above_ground() -> void:
+	if view == null or view.definition == null:
+		return
+	var world_xz := Vector2(camera.position.x, camera.position.z)
+	var terrain_y := MapViewMeshBuilder.ground_height(view.definition, world_xz)
+	var min_y := terrain_y + GROUND_CLEARANCE
+	if camera.position.y < min_y:
+		camera.position.y = min_y
+
+
+## When the camera lands inside a building/landmark AABB (e.g. after a sharp
+## pitch orbit or lerp through geometry), slide it toward the player until it
+## exits the occluder. Keeps the player visible and avoids interior-flicker.
+func _pull_out_of_buildings() -> void:
+	if view == null:
+		return
+	if not view.is_point_inside_occluder(camera.position):
+		return
+	var player_pos := player_rig.position
+	for i in range(BUILDING_PULL_ITERATIONS):
+		camera.position = camera.position.lerp(player_pos, BUILDING_PULL_STEP)
+		if not view.is_point_inside_occluder(camera.position):
+			break
+	# Hard fallback: if still inside after iterations, place just outside the
+	# nearest occluder by pushing toward the player at minimum boom distance.
+	if view.is_point_inside_occluder(camera.position):
+		var to_camera := (camera.position - player_pos)
+		if to_camera.length_squared() > 0.01:
+			camera.position = player_pos + to_camera.normalized() * THIRD_PERSON_MIN_DISTANCE
+		else:
+			camera.position = player_pos + Vector3.UP * THIRD_PERSON_TARGET_HEIGHT
+
+
+## Final safety net: if the camera-to-player segment is fully occluded by
+## buildings/terrain (e.g. camera ended up behind a wall), pull the camera
+## closer until the line-of-sight is clear. In top-down mode the occlusion
+## ghost overlay handles the visual; this mostly fires for third-person.
+func _ensure_player_visible() -> void:
+	if view == null:
+		return
+	var player_pos := player_rig.position
+	if not view.is_segment_occluded(camera.position, player_pos):
+		return
+	# Top-down mode intentionally allows occlusion (shows skeleton ghost);
+	# only correct third-person and first-person to avoid disorientation.
+	if camera_mode == CameraMode.TOP_DOWN:
+		return
+	var dir := camera.position - player_pos
+	var distance := dir.length()
+	if distance < 0.1:
+		return
+	dir /= distance
+	for i in range(VISIBILITY_PULL_ITERATIONS):
+		distance *= VISIBILITY_PULL_STEP
+		if distance < THIRD_PERSON_MIN_DISTANCE:
+			break
+		var candidate := player_pos + dir * distance
+		if not view.is_segment_occluded(candidate, player_pos):
+			camera.position = candidate
+			return
+	# Last resort: place the camera at the player's eye level so at least the
+	# player is visible; ground/building clamping will re-correct on next tick.
+	camera.position = player_pos + Vector3.UP * THIRD_PERSON_TARGET_HEIGHT
 
 
 func update_occlusion_ghost() -> void:
