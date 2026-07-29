@@ -70,6 +70,7 @@ roles directly.
 
 | Raised | For role | Need | Source dossier |
 |--------|----------|------|----------------|
+| 2026-07-30 | map / art / producer | Build historically tiered Lower Town houses from R-003: contract **P0-163**, tiers **P2-063**–**P2-065**, plot dressing **P2-066**, slice wiring **P2-067**, art brief **A-008** / sign-off **A-009** (rows now in `TODO.md`) | [`burgher-house-plan`](dossiers/architecture/burgher-house-plan.md) |
 | 2026-07-29 | research | EV II folio read (Nottbeck 1890) matching fn. 99 entries to verbatim *Karrienpforte* carter *ort* deed text | [`pr-voorimees-garden-coastal-gate`](dossiers/economy/pr-voorimees-garden-coastal-gate.md) |
 | 2026-07-29 | research | Fetch `economy.reval-cart-tolls-and-fuhr-rent-1340s.04` reference plate once Wikimedia rate-limit clears | [`reval-cart-tolls-and-fuhr-rent-1340s`](dossiers/economy/reval-cart-tolls-and-fuhr-rent-1340s.md) |
 | 2026-07-29 | research | AWB folio read 1340–1343 for explicit **Badpacht**, **Mist**, and **Gasse** rent/fine clauses (Nottbeck 1888 pagination) | [`reval-street-cleaning-ordinances-1340s`](dossiers/power/reval-street-cleaning-ordinances-1340s.md) |

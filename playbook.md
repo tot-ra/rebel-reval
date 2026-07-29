@@ -16,3 +16,6 @@
 - Blender's bundled Python often lacks Pillow; compose multi-species fauna reference sheets with host `python3` + Pillow after the Blender generator writes per-species EEVEE previews, rather than failing the batch when in-process sheet composition returns `None`.
 - Never open `assets/SOURCES.csv` with mode `w` until the replacement row list is fully built; a failed `DictWriter` after truncate can wipe provenance. Prefer write-to-temp then rename, or build rows before opening for write.
 - `tools/run_godot_checked.sh` expects `tools/run_godot_checked.sh [--require-test-summary] <log-name> -- <godot-command> [args...]`; setting `GODOT_BIN` alone does not supply its required log-name or command arguments.
+- When inserting many rows into a hot shared file like `TODO.md`, prefer one atomic Python rewrite and immediately assert the new IDs exist; Cursor `StrReplace` success alone is not enough if another writer can race the file.
+- Do not treat a substring match for a new task ID (for example `P0-163` inside a `deps:` list) as proof that the task row itself was inserted.
+- Before `git commit`, inspect `git status` for already-staged unrelated files (`M ` in the first column); unstage them or the commit will absorb them.

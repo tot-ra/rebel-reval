@@ -3,6 +3,8 @@
 Coordination notes, delivery order, and planning context formerly embedded in `TODO.md`.
 Executable open work stays in [`TODO.md`](../TODO.md).
 
+Coordination note (2026-07-30 burgher houses): R-003 `burgher-house-plan` is now tracked as production work. Order: **P0-163** typology contract (`house_tier` = `merchant_stone` / `merchant_timber` / `craft_boda`) -> art brief **A-008** -> exterior kits **P2-063**–**P2-065** and plot dressing **P2-066** -> Lower Town wiring **P2-067** -> art sign-off **A-009**, then **P0-102** / **P0-101**. Decisions recorded in the dossier. Do not ship late-Gothic tourist facades as the 1343 default.
+
 <!-- P2-035 completed in current session -->
 Coordination note (2026-07-30 P2-035): standing waterfowl batch now ships authored `standing.glb` meshes for `mute_swan`, `mallard`, `greylag_goose`, and `great_cormorant` under `assets/birds/<species>/` with embedded albedo/normal/roughness, catalog long-neck overrides, per-species reference plates, and a four-up sheet under `docs/reports/images/fauna/`. Hunyuan3D was unavailable so production used `tools/generate_waterfowl.py`; optional candidate upgrade is **P2-035a**. Verified: `python3 tools/verify_bird_models.py`, `python3 tools/validate_asset_sources.py`, `python3 tools/verify_asset_lint.py`, `--filter=test_map_view_bird_meshes` (5/5), and `--filter=test_map_view_bird_flight` (8/8). Next fauna art step: **P2-036** wader GLB batch.
 

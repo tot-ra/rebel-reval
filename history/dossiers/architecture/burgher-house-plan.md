@@ -264,14 +264,21 @@ Medieval Heritage states that in the **14th century front street houses were mos
 Manifest rows: [`history/reference/plates.csv`](../../reference/plates.csv). In-dossier copies also live under
 [`images/`](images/) with matching captions.
 
+## Decisions
+
+| Date | Decision | Source |
+|------|----------|--------|
+| 2026-07-30 | Promote this dossier into production TODO rows: authoring contract **P0-163**; exterior kits **P2-063** (`merchant_stone`), **P2-064** (`merchant_timber`), **P2-065** (`craft_boda`); plot dressing **P2-066**; Lower Town wiring **P2-067**; art brief/sign-off **A-008** / **A-009**. Ordinary houses must follow the Brief ship decisions above; late-Gothic tourist facades are not the 1343 default. | User request (A2gent session); primary context this file |
+| 2026-07-30 | Keep house tier tags exactly `merchant_stone`, `merchant_timber`, `craft_boda` as the closed production allowlist (matches Dev/systems hook below). | R-003 Dev / systems hook |
+
 ## Production hooks
 
-- **Art:** Use the **Interior prop list** and **Reference plates** above before generating facades or room kits. Omit late-Gothic enrichment and modern restaurant fit-out from Peppersack interior refs.
-- **Map:** Interior footprint on 7–11 m frontage: diele ~55–65% of ground floor depth to street, dornse ~35–45% to yard (plausible composite) [3][11]; plot depth budget from street-plan blocks; rear yard minimum 8–15 m on merchant plots [4]; mark *boda* as smaller single-cell or two-cell module [1].
+- **Art:** Use the **Interior prop list** and **Reference plates** above before generating facades or room kits. Omit late-Gothic enrichment and modern restaurant fit-out from Peppersack interior refs. Tracked in **A-008** / **A-009**.
+- **Map:** Interior footprint on 7–11 m frontage: diele ~55–65% of ground floor depth to street, dornse ~35–45% to yard (plausible composite) [3][11]; plot depth budget from street-plan blocks; rear yard minimum 8–15 m on merchant plots [4]; mark *boda* as smaller single-cell or two-cell module [1]. Tracked in **P0-163** / **P2-067**.
 - **Character:** Merchant family lives dornse/rear upper; apprentices/servants may sleep diele loft or rear shed; Estonian labourer likely in rear service building, not guild front room [1][4].
 - **Quest / Narrative:** Goods hoisted at curfew risk; hypocaust failure in cold April nights; fire spreading from diele hearth to timber neighbour; council inspection of stone party walls (~3 m plot fences) [1].
 - **Dialogue:** *Diele* / *Dornse* as Low German room terms; *Keller* cellar; *Boda* for small rented workshop [1].
-- **Dev / systems:** House tier tags: `merchant_stone`, `merchant_timber`, `craft_boda`; storage capacity scales with upper floors; hoist action requires winch + hatch on merchant tier only; hypocaust gives warmth bonus to dornse in cold weather [1][7].
+- **Dev / systems:** House tier tags: `merchant_stone`, `merchant_timber`, `craft_boda`; storage capacity scales with upper floors; hoist action requires winch + hatch on merchant tier only; hypocaust gives warmth bonus to dornse in cold weather [1][7]. Exterior kits **P2-063**–**P2-065**, plot dressing **P2-066**.
 
 ## Cross-references
 
