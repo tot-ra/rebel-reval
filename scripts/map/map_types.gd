@@ -160,6 +160,42 @@ const HEARTH_STATES: Array[StringName] = [
 	HEARTH_STATE_EMBERS,
 	HEARTH_STATE_COLD,
 ]
+const PROP_KIND_KITCHENWARE := &"kitchenware"
+const KITCHENWARE_PREP_BOARD := &"kitchenware.prep_board"
+const KITCHENWARE_KNIFE := &"kitchenware.knife"
+const KITCHENWARE_SPOON := &"kitchenware.spoon"
+const KITCHENWARE_BOWL_SMALL := &"kitchenware.bowl_small"
+const KITCHENWARE_BOWL_LARGE := &"kitchenware.bowl_large"
+const KITCHENWARE_TRENCHER := &"kitchenware.trencher"
+const KITCHENWARE_CUP := &"kitchenware.cup"
+const KITCHENWARE_JAR_LIDDED := &"kitchenware.jar_lidded"
+const KITCHENWARE_JAR_OPEN := &"kitchenware.jar_open"
+const KITCHENWARE_COOKING_POT_LIDDED := &"kitchenware.cooking_pot_lidded"
+const KITCHENWARE_JUG := &"kitchenware.jug"
+const KITCHENWARE_BASIN_CLOTH := &"kitchenware.basin_cloth"
+const KITCHENWARE_GROUP_STORAGE := &"kitchenware.group.storage"
+const KITCHENWARE_GROUP_PREP := &"kitchenware.group.prep"
+const KITCHENWARE_GROUP_EATING := &"kitchenware.group.eating"
+const KITCHENWARE_GROUP_CLEANUP := &"kitchenware.group.cleanup"
+const DEFAULT_KITCHENWARE_VARIANT := KITCHENWARE_PREP_BOARD
+const KITCHENWARE_VARIANTS: Array[StringName] = [
+	KITCHENWARE_PREP_BOARD,
+	KITCHENWARE_KNIFE,
+	KITCHENWARE_SPOON,
+	KITCHENWARE_BOWL_SMALL,
+	KITCHENWARE_BOWL_LARGE,
+	KITCHENWARE_TRENCHER,
+	KITCHENWARE_CUP,
+	KITCHENWARE_JAR_LIDDED,
+	KITCHENWARE_JAR_OPEN,
+	KITCHENWARE_COOKING_POT_LIDDED,
+	KITCHENWARE_JUG,
+	KITCHENWARE_BASIN_CLOTH,
+	KITCHENWARE_GROUP_STORAGE,
+	KITCHENWARE_GROUP_PREP,
+	KITCHENWARE_GROUP_EATING,
+	KITCHENWARE_GROUP_CLEANUP,
+]
 const PROP_KIND_BUSH := &"bush"
 const PROP_KIND_TREE := &"tree"
 const PROP_KIND_FISHING_BOAT := &"fishing_boat"
@@ -251,6 +287,7 @@ const ALL_PROP_KINDS: Array[StringName] = [
 	PROP_KIND_STAIRS,
 	PROP_KIND_STALL,
 	PROP_KIND_HEARTH,
+	PROP_KIND_KITCHENWARE,
 	PROP_KIND_CHAIR,
 	PROP_KIND_CANDLE,
 	PROP_KIND_BUSH,
@@ -378,6 +415,18 @@ static func invalid_hearth_state(prop: Dictionary) -> StringName:
 		return &""
 	var variant := StringName(prop["style_variant"])
 	return &"" if variant in HEARTH_STATES else variant
+
+
+static func kitchenware_variant_for_prop(prop: Dictionary) -> StringName:
+	var variant := StringName(prop.get("style_variant", DEFAULT_KITCHENWARE_VARIANT))
+	return variant if variant in KITCHENWARE_VARIANTS else DEFAULT_KITCHENWARE_VARIANT
+
+
+static func invalid_kitchenware_variant(prop: Dictionary) -> StringName:
+	if prop.get("kind") != PROP_KIND_KITCHENWARE or not prop.has("style_variant"):
+		return &""
+	var variant := StringName(prop["style_variant"])
+	return &"" if variant in KITCHENWARE_VARIANTS else variant
 
 static func invalid_market_stall_goods(specification: StringName) -> Array[StringName]:
 	var invalid: Array[StringName] = []

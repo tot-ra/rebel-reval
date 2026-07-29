@@ -301,6 +301,9 @@ func _validate_prop(prop: Dictionary, index: int, seen_ids: Dictionary) -> Array
 	var invalid_lighting := MapTypes.invalid_lighting_variant(prop)
 	if not invalid_lighting.is_empty():
 		errors.append("%s.style_variant is unknown for candle: %s" % [prefix, String(invalid_lighting)])
+	var invalid_kitchenware := MapTypes.invalid_kitchenware_variant(prop)
+	if not invalid_kitchenware.is_empty():
+		errors.append("%s.style_variant is unknown for kitchenware: %s" % [prefix, String(invalid_kitchenware)])
 	if prop.has("display_goods"):
 		if prop.get("kind") != MapTypes.PROP_KIND_STALL:
 			errors.append("%s.display_goods is supported only for stall props" % prefix)

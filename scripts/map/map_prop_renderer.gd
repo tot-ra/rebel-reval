@@ -51,6 +51,7 @@ static func create_prop(
 		MapTypes.PROP_KIND_STAIRS: Industrial.draw_stairs(root, target, time_of_day)
 		MapTypes.PROP_KIND_STALL: Industrial.draw_stall(root, target, time_of_day)
 		MapTypes.PROP_KIND_HEARTH: Industrial.draw_hearth(root, target, time_of_day)
+		MapTypes.PROP_KIND_KITCHENWARE: Industrial.draw_kitchenware(root, prop, target, time_of_day)
 		MapTypes.PROP_KIND_CHAIR: Industrial.draw_chair(root, target, time_of_day)
 		MapTypes.PROP_KIND_CANDLE: Industrial.draw_candle(root, target, time_of_day)
 		MapTypes.PROP_KIND_BUSH: Nature.draw_bush(root, target, time_of_day)

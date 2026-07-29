@@ -1,0 +1,29 @@
+{
+  "approval": "task-authorized",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "644ee45e7dbb68ba6a0a7f2954ff5d18787ec6d6a39368f96809031f6667d1e3",
+  "checks": {
+    "embedded_albedo": true,
+    "ground_contact": true,
+    "metric_scale": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "variant_count": 16,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    0.6352,
+    0.5814,
+    0.25
+  ],
+  "floating_objects": 0,
+  "generator": "tools/generate_medieval_kitchenware_kit.py",
+  "generator_version": "medieval_kitchenware_kit_v1",
+  "ground_min_z": 0.0,
+  "materials": 5,
+  "route": "deterministic_blender",
+  "sha256": "d66c698e4b085a44222be425e7a30eaa0712fef22238483c96d4f9af5f894615",
+  "texture_size": 512,
+  "triangles": 5048,
+  "uv_sets": 1
+}
