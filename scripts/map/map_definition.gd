@@ -14,6 +14,10 @@ var ground_elevation: float = 0.0
 var zones: Array[Dictionary] = []
 var buildings: Array[Dictionary] = []
 var props: Array[Dictionary] = []
+## View-only projected decals for environmental storytelling (P0-157).
+## Each dict carries id, kind (DECAL_KIND_*), position (Vector2), optional
+## radius, rotation, and tint. No collision, navigation, or gameplay effect.
+var decals: Array[Dictionary] = []
 var player_spawn: Vector2 = Vector2.ZERO
 var location: StringName = &""
 var scope: StringName = &""

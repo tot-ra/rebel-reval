@@ -370,6 +370,35 @@ const ALL_PROP_KINDS: Array[StringName] = [
 	PROP_KIND_FARM_CART,
 ]
 
+## Decal kinds for environmental storytelling (P0-157). Flat transparent meshes
+## placed from MapDefinition.decals; GL-Compatibility fallback for Godot Decal3D.
+const DECAL_KIND_SOOT := &"soot"
+const DECAL_KIND_MUD := &"mud"
+const DECAL_KIND_BLOOD := &"blood"
+const DECAL_KIND_SCORCH := &"scorch"
+const DECAL_KIND_GRIME := &"grime"
+const DECAL_KIND_WET_THRESHOLD := &"wet_threshold"
+const ALL_DECAL_KINDS: Array[StringName] = [
+	DECAL_KIND_SOOT,
+	DECAL_KIND_MUD,
+	DECAL_KIND_BLOOD,
+	DECAL_KIND_SCORCH,
+	DECAL_KIND_GRIME,
+	DECAL_KIND_WET_THRESHOLD,
+]
+## Decal color tints per kind. Alpha is the base opacity; the shader further
+## modulates by procedural edge falloff.
+const DECAL_TINTS: Dictionary = {
+	DECAL_KIND_SOOT: Color(0.12, 0.11, 0.10, 0.45),
+	DECAL_KIND_MUD: Color(0.38, 0.28, 0.18, 0.50),
+	DECAL_KIND_BLOOD: Color(0.45, 0.06, 0.04, 0.55),
+	DECAL_KIND_SCORCH: Color(0.08, 0.07, 0.06, 0.40),
+	DECAL_KIND_GRIME: Color(0.22, 0.20, 0.16, 0.35),
+	DECAL_KIND_WET_THRESHOLD: Color(0.30, 0.32, 0.30, 0.30),
+}
+## Default decal radius in world units (one logic cell).
+const DECAL_DEFAULT_RADIUS := 0.6
+
 const DEFAULT_CELL_SIZE := 32
 const DEFAULT_SEED := 42042
 

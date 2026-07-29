@@ -442,6 +442,8 @@ func update_active_chunks_from_logic_positions(logic_positions: Array[Vector2]) 
 	_update_active_chunks(chunks)
 
 
+var _decals_node: Node3D
+
 ## Headless tests and editor preview need every streamed object and scatter
 ## chunk resident; gameplay keeps the spawn-radius window from _initial_active_chunks.
 func activate_all_chunks() -> void:
@@ -472,6 +474,9 @@ func _assemble() -> void:
 	var props := Node3D.new()
 	props.name = "Props"
 	add_child(props)
+	# P0-157: projected decals (soot, mud, blood) from map data.
+	_decals_node = MapViewDecals.build_decals(definition, definition.cell_size)
+	add_child(_decals_node)
 	var direction_signs := Node3D.new()
 	direction_signs.name = "DirectionSigns"
 	add_child(direction_signs)
