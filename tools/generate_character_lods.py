@@ -43,29 +43,39 @@ GARMENT_OUTPUTS = {
 
 
 def _clear_scene() -> None:
-    bpy.ops.object.select_all(action="SELECT")
-    bpy.ops.object.delete()
+    # WHY: soft select/delete in background Blender left orphan MESH objects
+    # (often named Icosphere.*) between bodies. Those leftovers were then
+    # decimated into later LOD GLBs with no materials and rendered as the
+    # default-white distant character blobs.
+    if bpy.context.object is not None and bpy.context.object.mode != "OBJECT":
+        bpy.ops.object.mode_set(mode="OBJECT")
+    for obj in list(bpy.data.objects):
+        bpy.data.objects.remove(obj, do_unlink=True)
     for block in (
         bpy.data.meshes,
         bpy.data.armatures,
         bpy.data.materials,
         bpy.data.actions,
+        bpy.data.images,
     ):
         for item in list(block):
-            if item.users == 0:
-                block.remove(item)
+            block.remove(item)
 
 
 def _mesh_triangle_count(mesh: bpy.types.Mesh) -> int:
     return sum(max(0, len(polygon.vertices) - 2) for polygon in mesh.polygons)
 
 
-def _scene_triangle_count() -> int:
-    total = 0
-    for obj in bpy.data.objects:
-        if obj.type == "MESH" and obj.data is not None:
-            total += _mesh_triangle_count(obj.data)
-    return total
+def _mesh_has_authored_materials(obj: bpy.types.Object) -> bool:
+    if obj.type != "MESH" or obj.data is None:
+        return False
+    materials = list(obj.data.materials)
+    return bool(materials) and all(material is not None for material in materials)
+
+
+def _scene_triangle_count(meshes: list[bpy.types.Object] | None = None) -> int:
+    targets = meshes if meshes is not None else _source_meshes()
+    return sum(_mesh_triangle_count(obj.data) for obj in targets)
 
 
 def _body_glb_paths(selected: list[str] | None = None) -> list[Path]:
@@ -94,7 +104,20 @@ def _import_glb(path: Path) -> bpy.types.Object | None:
 
 
 def _source_meshes() -> list[bpy.types.Object]:
-    return [obj for obj in bpy.data.objects if obj.type == "MESH" and obj.data is not None]
+    meshes: list[bpy.types.Object] = []
+    for obj in bpy.data.objects:
+        if obj.type != "MESH" or obj.data is None:
+            continue
+        # Helper leftovers and unnamed Icospheres carry no slot materials and
+        # would import as Godot's default white StandardMaterial3D.
+        if obj.name.startswith("Icosphere"):
+            print(f"SKIP helper mesh {obj.name}: Icosphere leftovers are not body LOD sources")
+            continue
+        if not _mesh_has_authored_materials(obj):
+            print(f"SKIP mesh {obj.name}: missing authored materials")
+            continue
+        meshes.append(obj)
+    return meshes
 
 
 def _decimate_copy(source: bpy.types.Object, ratio: float) -> bpy.types.Object:
@@ -138,7 +161,10 @@ def _process_body(path: Path) -> dict:
     if armature is None:
         return {}
     sources = _source_meshes()
-    lod0_tris = _scene_triangle_count()
+    if not sources:
+        print(f"SKIP {path.name}: no authored body meshes")
+        return {}
+    lod0_tris = _scene_triangle_count(sources)
     entry = {
         "body": path.name,
         "lod0_triangles": lod0_tris,
@@ -152,7 +178,10 @@ def _process_body(path: Path) -> dict:
         out_path = path.with_name(f"{path.stem}_lod{level}{path.suffix}")
         _export_lod(out_path, armature, lod_meshes)
         for mesh_obj in lod_meshes:
+            mesh_data = mesh_obj.data
             bpy.data.objects.remove(mesh_obj, do_unlink=True)
+            if mesh_data is not None and mesh_data.users == 0:
+                bpy.data.meshes.remove(mesh_data)
         fraction = round(lod_tris / lod0_tris, 4) if lod0_tris else 0.0
         entry["levels"][f"lod{level}"] = {
             "path": str(out_path.relative_to(ROOT)),

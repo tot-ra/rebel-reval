@@ -453,11 +453,42 @@ func test_shared_rig_distance_lods_mount_with_visibility_ranges() -> void:
 		for lod_mesh: MeshInstance3D in kalev.skeleton().get_children().filter(func(child: Node) -> bool:
 			return child is MeshInstance3D and String(child.name).begins_with("LOD%d_" % lod_level)
 		):
+			assert_false(
+				String(lod_mesh.name).contains("Icosphere"),
+				"LOD%d must not mount helper Icospheres that default to white" % lod_level
+			)
+			assert_eq(
+				lod_mesh.visibility_range_fade_mode,
+				GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED,
+				"LOD fade must stay disabled on GL Compatibility to avoid bright double-draws"
+			)
 			for surface_index: int in lod_mesh.mesh.get_surface_count():
+				var surface_material := lod_mesh.mesh.surface_get_material(surface_index)
 				assert_true(
-					lod_mesh.mesh.surface_get_material(surface_index) != null,
+					surface_material != null,
 					"LOD%d surfaces must retain their authored materials instead of defaulting white" % lod_level
 				)
+	var lod0_sample: MeshInstance3D = null
+	for found: Node in kalev.get_node("Model").find_children("*", "MeshInstance3D", true, false):
+		lod0_sample = found as MeshInstance3D
+		break
+	assert_true(lod0_sample != null, "LOD0 body mesh must exist")
+	assert_eq(
+		lod0_sample.visibility_range_fade_mode,
+		GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED,
+		"LOD0 fade must stay disabled on GL Compatibility"
+	)
+	assert_eq(lod0_sample.visibility_range_end, SharedCharacterRig.LOD0_VISIBILITY_END)
+	assert_eq(
+		SharedCharacterRig.LOD0_VISIBILITY_END,
+		SharedCharacterRig.LOD1_VISIBILITY_BEGIN,
+		"LOD ranges must abut so Compatibility hard-cuts do not double-draw"
+	)
+	assert_eq(
+		SharedCharacterRig.LOD1_VISIBILITY_END,
+		SharedCharacterRig.LOD2_VISIBILITY_BEGIN,
+		"LOD1/LOD2 ranges must abut so Compatibility hard-cuts do not double-draw"
+	)
 	var manifest := FileAccess.open(
 		"res://assets/characters/shared/character_lod_manifest.json",
 		FileAccess.READ

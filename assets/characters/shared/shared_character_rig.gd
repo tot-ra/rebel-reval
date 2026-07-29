@@ -61,13 +61,15 @@ const HEROIC_MODEL_SCALE := Vector3(1.1621, 1.1621, 1.1621)
 
 ## Distance LOD thresholds (world units, camera-to-rig). Orthographic gameplay
 ## rarely frames NPCs closer than ~8 units; beyond ~45 units they read as
-## distant silhouettes. Crossfade margins soften the hand-off between levels.
-const LOD0_VISIBILITY_END := 18.0
-const LOD0_VISIBILITY_MARGIN := 4.0
-const LOD1_VISIBILITY_BEGIN := 14.0
-const LOD1_VISIBILITY_END := 48.0
-const LOD1_VISIBILITY_MARGIN := 4.0
-const LOD2_VISIBILITY_BEGIN := 44.0
+## distant silhouettes. Ranges abut (no overlap) because FADE_SELF is unsupported
+## on GL Compatibility and overlapping hard-cuts double-drew meshes as bright
+## white blobs; margins are hysteresis only.
+const LOD0_VISIBILITY_END := 16.0
+const LOD0_VISIBILITY_MARGIN := 1.0
+const LOD1_VISIBILITY_BEGIN := 16.0
+const LOD1_VISIBILITY_END := 46.0
+const LOD1_VISIBILITY_MARGIN := 1.0
+const LOD2_VISIBILITY_BEGIN := 46.0
 const LOD_LEVELS: Array[int] = [1, 2]
 const BODY_GLB_BASENAMES: Dictionary = {
 	&"char.kalev": &"heroic_humanoid",
@@ -482,6 +484,10 @@ func _mount_lod_meshes(imported: Node, lod_level: int) -> void:
 		var mesh_instance := found as MeshInstance3D
 		if mesh_instance.mesh == null:
 			continue
+		# WHY: stale LOD GLBs shipped helper Icospheres with no authored material;
+		# Godot filled those with default white and they read as distant blobs.
+		if _lod_mesh_is_default_white(mesh_instance):
+			continue
 		var local_xf := mesh_instance.transform
 		mesh_instance.get_parent().remove_child(mesh_instance)
 		mesh_instance.owner = null
@@ -494,12 +500,26 @@ func _mount_lod_meshes(imported: Node, lod_level: int) -> void:
 			_apply_overlay(mesh_instance, _silhouette_material())
 
 
+static func _lod_mesh_is_default_white(mesh_instance: MeshInstance3D) -> bool:
+	if mesh_instance == null or mesh_instance.mesh == null:
+		return true
+	var mesh_name := String(mesh_instance.name)
+	if mesh_name.begins_with("Icosphere"):
+		return true
+	for surface_index: int in mesh_instance.mesh.get_surface_count():
+		if mesh_instance.mesh.surface_get_material(surface_index) == null:
+			return true
+	return false
+
+
 static func _apply_lod0_visibility(mesh_instance: MeshInstance3D) -> void:
 	if mesh_instance == null:
 		return
 	mesh_instance.visibility_range_end = LOD0_VISIBILITY_END
 	mesh_instance.visibility_range_end_margin = LOD0_VISIBILITY_MARGIN
-	mesh_instance.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+	# FADE_SELF is Forward+-only; on GL Compatibility it disables hysteresis and
+	# overlapping ranges double-drew opaque LODs as bright silhouettes.
+	mesh_instance.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
 
 
 static func _apply_lod_level_visibility(mesh_instance: MeshInstance3D, lod_level: int) -> void:
@@ -514,7 +534,7 @@ static func _apply_lod_level_visibility(mesh_instance: MeshInstance3D, lod_level
 		2:
 			mesh_instance.visibility_range_begin = LOD2_VISIBILITY_BEGIN
 			mesh_instance.visibility_range_begin_margin = LOD1_VISIBILITY_MARGIN
-	mesh_instance.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+	mesh_instance.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
 
 
 func lod_mesh_count(lod_level: int) -> int:
