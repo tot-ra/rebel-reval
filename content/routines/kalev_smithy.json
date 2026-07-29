@@ -1,0 +1,356 @@
+{
+  "map_id": "loc.kalev_smithy",
+  "activity_points": [
+    {
+      "id": "ap.sleep.wake",
+      "zone": "LZ-A",
+      "approach_position": {"x": 144, "y": 336},
+      "facing": "up",
+      "prop_id": "bed",
+      "allowed_actors": ["char.kalev", "char.mart"],
+      "duration_min_sec": 2.0,
+      "duration_max_sec": 4.0,
+      "allowed_phases": ["phase.prologue_day", "phase.reflection_morning"],
+      "time_bands": ["dawn"],
+      "body_socket": "sleep",
+      "exclusive": true
+    },
+    {
+      "id": "ap.sleep.rest",
+      "zone": "LZ-A",
+      "approach_position": {"x": 144, "y": 336},
+      "facing": "up",
+      "prop_id": "bed",
+      "allowed_actors": ["char.kalev", "char.mart"],
+      "duration_min_sec": 3.0,
+      "duration_max_sec": 6.0,
+      "allowed_phases": ["phase.prologue_day", "phase.reflection_morning"],
+      "time_bands": ["evening"],
+      "body_socket": "sleep",
+      "exclusive": true
+    },
+    {
+      "id": "ap.wash.basin",
+      "zone": "LZ-D",
+      "approach_position": {"x": 368, "y": 80},
+      "facing": "left",
+      "prop_id": "wash_basin",
+      "allowed_actors": ["char.kalev", "char.mart"],
+      "duration_min_sec": 2.5,
+      "duration_max_sec": 4.0,
+      "allowed_phases": ["phase.prologue_day", "phase.investigation_morning", "phase.reflection_morning"],
+      "time_bands": ["morning"],
+      "hand_prop_socket": "wash_cloth",
+      "exclusive": true
+    },
+    {
+      "id": "ap.fetch.water",
+      "zone": "LZ-G",
+      "approach_position": {"x": 400, "y": 400},
+      "facing": "down",
+      "prop_id": "door_courtyard",
+      "allowed_actors": ["char.kalev", "char.mart"],
+      "duration_min_sec": 4.0,
+      "duration_max_sec": 6.0,
+      "allowed_phases": ["phase.prologue_day", "phase.investigation_morning", "phase.reflection_morning"],
+      "time_bands": ["morning"],
+      "hand_prop_socket": "water_bucket",
+      "exclusive": true
+    },
+    {
+      "id": "ap.prepare.board",
+      "zone": "LZ-E",
+      "approach_position": {"x": 240, "y": 336},
+      "facing": "up",
+      "prop_id": "food_table",
+      "allowed_actors": ["char.kalev", "char.mart"],
+      "duration_min_sec": 3.0,
+      "duration_max_sec": 5.0,
+      "allowed_phases": ["phase.prologue_day", "phase.investigation_morning", "phase.reflection_morning"],
+      "time_bands": ["morning"],
+      "hand_prop_socket": "prep_knife",
+      "exclusive": true
+    },
+    {
+      "id": "ap.hearth.tend",
+      "zone": "LZ-C",
+      "approach_position": {"x": 80, "y": 80},
+      "facing": "right",
+      "prop_id": "domestic_hearth",
+      "allowed_actors": ["char.kalev"],
+      "duration_min_sec": 2.0,
+      "duration_max_sec": 4.0,
+      "allowed_phases": ["phase.prologue_day", "phase.investigation_morning", "phase.reflection_morning"],
+      "time_bands": ["morning", "midday"],
+      "exclusive": true
+    },
+    {
+      "id": "ap.hearth.cookpot",
+      "zone": "LZ-C",
+      "approach_position": {"x": 80, "y": 80},
+      "facing": "right",
+      "prop_id": "domestic_hearth",
+      "allowed_actors": ["char.kalev", "char.mart"],
+      "duration_min_sec": 4.0,
+      "duration_max_sec": 8.0,
+      "allowed_phases": ["phase.prologue_day", "phase.investigation_morning", "phase.reflection_morning"],
+      "time_bands": ["midday"],
+      "hand_prop_socket": "cooking_ladle",
+      "exclusive": true,
+      "fallback_activity_id": "ap.hearth.tend"
+    },
+    {
+      "id": "ap.hearth.bank",
+      "zone": "LZ-C",
+      "approach_position": {"x": 80, "y": 80},
+      "facing": "right",
+      "prop_id": "domestic_hearth",
+      "allowed_actors": ["char.kalev"],
+      "duration_min_sec": 2.0,
+      "duration_max_sec": 3.0,
+      "allowed_phases": ["phase.prologue_day", "phase.reflection_morning"],
+      "time_bands": ["evening"],
+      "exclusive": true
+    },
+    {
+      "id": "ap.eat.table",
+      "zone": "LZ-E",
+      "approach_position": {"x": 272, "y": 368},
+      "facing": "up",
+      "prop_id": "food_table",
+      "allowed_actors": ["char.kalev", "char.mart"],
+      "duration_min_sec": 4.0,
+      "duration_max_sec": 7.0,
+      "allowed_phases": ["phase.prologue_day", "phase.investigation_morning", "phase.reflection_morning"],
+      "time_bands": ["midday"],
+      "body_socket": "sit",
+      "exclusive": true,
+      "fallback_activity_id": "ap.prepare.board"
+    },
+    {
+      "id": "ap.clear.table",
+      "zone": "LZ-E",
+      "approach_position": {"x": 240, "y": 368},
+      "facing": "up",
+      "prop_id": "food_table",
+      "allowed_actors": ["char.kalev", "char.mart"],
+      "duration_min_sec": 2.0,
+      "duration_max_sec": 4.0,
+      "allowed_phases": ["phase.prologue_day", "phase.investigation_morning", "phase.reflection_morning"],
+      "time_bands": ["midday"],
+      "exclusive": true
+    },
+    {
+      "id": "ap.sweep.floor",
+      "zone": "LZ-G",
+      "approach_position": {"x": 368, "y": 368},
+      "facing": "left",
+      "prop_id": "broom",
+      "allowed_actors": ["char.kalev", "char.mart"],
+      "duration_min_sec": 3.0,
+      "duration_max_sec": 5.0,
+      "allowed_phases": ["phase.prologue_day", "phase.reflection_morning"],
+      "time_bands": ["evening"],
+      "hand_prop_socket": "broom",
+      "exclusive": true
+    },
+    {
+      "id": "ap.carry.fuel",
+      "zone": "LZ-G",
+      "approach_position": {"x": 400, "y": 400},
+      "facing": "down",
+      "prop_id": "hearth_kindling_store",
+      "allowed_actors": ["char.kalev", "char.mart"],
+      "duration_min_sec": 3.0,
+      "duration_max_sec": 5.0,
+      "allowed_phases": ["phase.prologue_day", "phase.reflection_morning"],
+      "time_bands": ["any"],
+      "hand_prop_socket": "kindling_bundle",
+      "exclusive": true
+    },
+    {
+      "id": "ap.ledger.inspect",
+      "zone": "LZ-B",
+      "approach_position": {"x": 144, "y": 112},
+      "facing": "down",
+      "prop_id": "forge_ledger",
+      "allowed_actors": ["char.kalev"],
+      "duration_min_sec": 2.0,
+      "duration_max_sec": 5.0,
+      "allowed_phases": ["phase.prologue_day", "phase.investigation_morning", "phase.reflection_morning"],
+      "time_bands": ["any"],
+      "exclusive": true
+    },
+    {
+      "id": "ap.forge.anvil",
+      "zone": "FZ-E",
+      "approach_position": {"x": 592, "y": 176},
+      "facing": "left",
+      "prop_id": "forge_anvil",
+      "allowed_actors": ["char.kalev", "char.mart"],
+      "duration_min_sec": 5.0,
+      "duration_max_sec": 12.0,
+      "allowed_phases": ["phase.prologue_day", "phase.investigation_morning", "phase.reflection_morning"],
+      "time_bands": ["any"],
+      "body_socket": "forge_stance",
+      "exclusive": true
+    },
+    {
+      "id": "ap.forge.bellows",
+      "zone": "FZ-B",
+      "approach_position": {"x": 528, "y": 80},
+      "facing": "right",
+      "prop_id": "forge_bellows",
+      "allowed_actors": ["char.kalev", "char.mart"],
+      "duration_min_sec": 3.0,
+      "duration_max_sec": 6.0,
+      "allowed_phases": ["phase.prologue_day", "phase.investigation_morning", "phase.reflection_morning"],
+      "time_bands": ["any"],
+      "hand_prop_socket": "bellows_handle",
+      "exclusive": true
+    },
+    {
+      "id": "ap.forge.quench",
+      "zone": "FZ-E",
+      "approach_position": {"x": 528, "y": 176},
+      "facing": "right",
+      "prop_id": "quench",
+      "allowed_actors": ["char.kalev", "char.mart"],
+      "duration_min_sec": 2.0,
+      "duration_max_sec": 4.0,
+      "allowed_phases": ["phase.prologue_day", "phase.investigation_morning", "phase.reflection_morning"],
+      "time_bands": ["any"],
+      "exclusive": true
+    },
+    {
+      "id": "ap.visitor.enter",
+      "zone": "LZ-G",
+      "approach_position": {"x": 400, "y": 432},
+      "facing": "up",
+      "prop_id": "door_courtyard",
+      "allowed_actors": ["char.henning"],
+      "duration_min_sec": 1.5,
+      "duration_max_sec": 2.5,
+      "allowed_phases": ["phase.prologue_day"],
+      "time_bands": ["any"],
+      "exclusive": false
+    },
+    {
+      "id": "ap.visitor.wait",
+      "zone": "FZ-E",
+      "approach_position": {"x": 560, "y": 240},
+      "facing": "left",
+      "prop_id": "",
+      "allowed_actors": ["char.henning"],
+      "duration_min_sec": 2.0,
+      "duration_max_sec": 4.0,
+      "allowed_phases": ["phase.prologue_day"],
+      "time_bands": ["any"],
+      "exclusive": true
+    },
+    {
+      "id": "ap.visitor.inspect",
+      "zone": "FZ-E",
+      "approach_position": {"x": 592, "y": 176},
+      "facing": "left",
+      "prop_id": "forge_anvil",
+      "allowed_actors": ["char.henning"],
+      "duration_min_sec": 3.0,
+      "duration_max_sec": 5.0,
+      "allowed_phases": ["phase.prologue_day"],
+      "time_bands": ["any"],
+      "exclusive": true,
+      "fallback_activity_id": "ap.visitor.wait"
+    },
+    {
+      "id": "ap.visitor.talk",
+      "zone": "LZ-E",
+      "approach_position": {"x": 336, "y": 336},
+      "facing": "up",
+      "prop_id": "work_chair",
+      "allowed_actors": ["char.henning"],
+      "duration_min_sec": 4.0,
+      "duration_max_sec": 8.0,
+      "allowed_phases": ["phase.prologue_day"],
+      "time_bands": ["any"],
+      "body_socket": "sit",
+      "exclusive": true,
+      "fallback_activity_id": "ap.visitor.wait"
+    },
+    {
+      "id": "ap.visitor.leave",
+      "zone": "LZ-G",
+      "approach_position": {"x": 400, "y": 432},
+      "facing": "down",
+      "prop_id": "door_courtyard",
+      "allowed_actors": ["char.henning"],
+      "duration_min_sec": 1.5,
+      "duration_max_sec": 2.5,
+      "allowed_phases": ["phase.prologue_day"],
+      "time_bands": ["any"],
+      "exclusive": false
+    },
+    {
+      "id": "ap.cat.sleep",
+      "zone": "LZ-A",
+      "approach_position": {"x": 176, "y": 336},
+      "facing": "right",
+      "prop_id": "bed",
+      "allowed_actors": ["char.forge_cat"],
+      "duration_min_sec": 6.0,
+      "duration_max_sec": 12.0,
+      "allowed_phases": ["phase.prologue_day", "phase.investigation_morning", "phase.reflection_morning"],
+      "time_bands": ["any"],
+      "exclusive": false
+    },
+    {
+      "id": "ap.cat.warmth",
+      "zone": "LZ-C",
+      "approach_position": {"x": 112, "y": 112},
+      "facing": "right",
+      "prop_id": "domestic_hearth",
+      "allowed_actors": ["char.forge_cat"],
+      "duration_min_sec": 4.0,
+      "duration_max_sec": 8.0,
+      "allowed_phases": ["phase.prologue_day", "phase.investigation_morning", "phase.reflection_morning"],
+      "time_bands": ["evening", "morning"],
+      "exclusive": false
+    }
+  ],
+  "schedules": {
+    "char.kalev": {
+      "phase.prologue_day": {
+        "dawn": ["ap.sleep.wake", "ap.wash.basin"],
+        "morning": ["ap.fetch.water", "ap.prepare.board", "ap.hearth.tend"],
+        "midday": ["ap.hearth.cookpot", "ap.eat.table", "ap.clear.table", "ap.ledger.inspect"],
+        "evening": ["ap.sweep.floor", "ap.hearth.bank", "ap.sleep.rest"]
+      },
+      "phase.investigation_morning": {
+        "morning": ["ap.wash.basin", "ap.forge.bellows"],
+        "midday": ["ap.forge.anvil", "ap.forge.quench"],
+        "any": ["ap.ledger.inspect"]
+      },
+      "phase.reflection_morning": {
+        "morning": ["ap.wash.basin", "ap.prepare.board"],
+        "evening": ["ap.hearth.bank", "ap.sleep.rest"]
+      }
+    },
+    "char.mart": {
+      "phase.investigation_morning": {
+        "morning": ["ap.wash.basin", "ap.prepare.board"],
+        "midday": ["ap.eat.table", "ap.forge.anvil"]
+      }
+    }
+  },
+  "visitor_sequences": {
+    "char.henning": {
+      "phase.prologue_day": [
+        "ap.visitor.enter",
+        "ap.visitor.wait",
+        "ap.visitor.inspect",
+        "ap.visitor.talk",
+        "ap.visitor.leave"
+      ]
+    }
+  }
+}

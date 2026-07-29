@@ -114,7 +114,10 @@ The initial vocabulary must cover the existing runtime contract without exposing
 | `camera_bounds` | Optional cell rectangle, otherwise full map bounds | `camera_bounds` |
 | `prefab_instance` | Stable instance ID, prefab ID/version, origin, supported transform, overrides | Expanded primitives in the fields above |
 
-### District-life prop kinds (P2-025)
+### Smithy activity points (P2-058)
+
+Domestic and forge routines on `loc.kalev_smithy` use stable **`ap.*` activity IDs** authored in `content/routines/kalev_smithy.json`, not coordinate patrol loops. Each entry defines an approach transform in pixel space, facing, optional prop binding, permitted phase/time windows, exclusive occupancy, and optional fallback when navigation or another actor blocks the station. Map props and interaction anchors must keep the referenced stable prop IDs reachable; routine controllers reserve exclusive points through `SmithyRoutineController` before actors play station animations.
+
 
 Trade-specific dressing props replace generic `barrels` / `cargo_crates` stand-ins where a dedicated yard read is required. Each kind compiles through the normal `prop` primitive and renders in both 2D and 3D without gameplay hooks.
 
