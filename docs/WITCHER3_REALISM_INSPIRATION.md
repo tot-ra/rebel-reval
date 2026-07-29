@@ -71,7 +71,7 @@ All Witcher 3-inspired features have been adapted to fit Reval Rebel's scope con
 - No open world or seamless Reval
 - No runtime LLM dialogue or procedural runs
 - No party control or army battle simulation
-- No Living City meters or universal morality scores
+- Living City Hope/Fear pressure returns under ADR 0017 beside the faction ledger; still no universal good/evil morality score
 - Authored dialogue and explicit consequence state only
 
 Features enhance the existing commission-investigation-modification-consequence-reflection loop without adding new major subsystems.

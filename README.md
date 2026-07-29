@@ -8,7 +8,7 @@ It is spring 1343 in Reval — present-day Tallinn — days before the St. Georg
 
 The history cannot be prevented. Who survives it, what each side carries into it, and what Kalev becomes — that is the game.
 
-> Reval Rebel is in pre-production with an early playable Godot prototype. See [`TODO.md`](./TODO.md) for the executable roadmap, [`docs/SETUP.md`](./docs/SETUP.md) to run it, and [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) for the production compact/chunked map workflow ([ADR 0009](./docs/adr/0009-map-blueprint-authoring-architecture.md), [ADR 0010](./docs/adr/0010-large-map-runtime-chunking.md)). The scope described here was widened from a single-district campaign to a three-act faction RPG by [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md); the playable MVP still ships first.
+> Reval Rebel is in pre-production with an early playable Godot prototype. See [`TODO.md`](./TODO.md) for the executable roadmap, [`docs/SETUP.md`](./docs/SETUP.md) to run it, and [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) for the production compact/chunked map workflow ([ADR 0009](./docs/adr/0009-map-blueprint-authoring-architecture.md), [ADR 0010](./docs/adr/0010-large-map-runtime-chunking.md)). The scope was widened to a three-act faction RPG by [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md) and legacy design systems (magic, NATURAL/psyche, Living City, expanded cast) were returned to the plan by [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md); the playable MVP still ships first.
 
 ## The heart of the game
 
@@ -17,7 +17,7 @@ The history cannot be prevented. Who survives it, what each side carries into it
 Four ideas guide the project:
 
 - **The forge is your lever.** Kalev is not the chosen warrior of the uprising; he is the man who makes its tools. Faction power flows through his anvil. A commission has a customer, a hidden purpose, and a small number of meaningful modifications — forging is narrative problem-solving, and it is how the player touches the war.
-- **Objects and people remember.** Every forged object carries a persistent record. A spearhead sabotaged in spring shatters in someone's hand at the siege; a gate chain forged true holds when it matters. Consequences surface in named characters, changed districts, patrols, prices, and dialogue — never in a universal morality meter.
+- **Objects and people remember.** Every forged object carries a persistent record. A spearhead sabotaged in spring shatters in someone's hand at the siege; a gate chain forged true holds when it matters. Consequences surface in named characters, changed districts, patrols, prices, dialogue, faction ledger standing, and Living City pressure meters (Hope / Fear) per [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md) - not in a single good/evil morality score.
 - **History holds its course; people don't have to.** Attested events — the signal fires, the siege of Reval, Kanavere Bog, Sõjamäe, the killing of the Four Kings at Paide, the 1346 sale of Estonia — happen on schedule. The player steers the human cost inside them: who lives, who trusts whom, what evidence remains, and how Kalev is remembered.
 - **You fight with what you forged.** Combat is small, direct, and personal — hammer, guard, dodge, one equipped forge technique — and every piece of gear on Kalev's body, and much of what his enemies carry, passed through his hands. Your past choices are literally the weapons in play.
 
@@ -29,9 +29,9 @@ The game runs on a day/night rhythm inside authored story phases:
 2. **At the forge**, complete the work honestly, alter it, or sabotage it when Kalev has the knowledge and materials. Every choice writes a forged record.
 3. **By night**, face the consequences in compact authored missions — sabotage, theft, escort, defense, escape — with combat and non-combat routes.
 4. **In the aftermath**, watch people, places, faction standing, patrols, and supplies react.
-5. **At Hingepuu**, reflect. The soul-tree gives choices emotional weight without grading them.
+5. **At Hingepuu**, tend Kalev's inner world: NATURAL aspects, psyche states, and reflection - the soul-tree is both narrative weight and progression ([ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md)).
 
-**Factions keep a ledger, not a score.** Each of the eight active factions tracks its standing with Kalev through explicit remembered events — works delivered, flaws discovered, favors, betrayals. Standing opens and closes quests, prices, routes, and protection. There is no join-a-team menu; allegiance emerges from the ledger until St. George's Night forces one decision that cannot stay ambiguous.
+**Factions keep a ledger; the city keeps pressure meters.** Each active faction tracks standing with Kalev through explicit remembered events - works delivered, flaws discovered, favors, betrayals. Living City Hope / Fear meters capture broader rebel morale and civic order. Standing and meters together open and close quests, prices, routes, and protection. There is no join-a-team menu; allegiance emerges from play until St. George's Night forces one decision that cannot stay ambiguous.
 
 Time advances through authored phases, not a simulated clock. Dialogue is written and deterministic. Stealth comes from patrol avoidance and authored alternate routes, not a stealth simulation.
 
@@ -50,7 +50,7 @@ Every faction believes it is in the right, and none is a clean moral team. Roste
 | 🐻🐆 | **Pskov & Novgorod emissaries** (`pskov_novgorod`) | Opportunity in the chaos; a weakened Order | Any ally is sellable at the right price |
 | 🏴‍☠️ | **The Vitalienbrüder** (`vitalienbruder`) | Plunder; chaos is the business model | No flag, no loyalty, no restraint |
 
-Remaining historical powers — the bishoprics, Lithuania, the Golden Horde, the Blackheads as a distinct body — stay present as background canon and dialogue, not as playable quest lines.
+Remaining historical powers - the bishoprics, Lithuania, the Golden Horde, the Blackheads as a distinct body, and other legacy roster entries - start as background canon and are candidates for act-gated playable lines through [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md) / P7 cast-faction reconciliation.
 
 ## The campaign
 
@@ -75,15 +75,15 @@ Target length is 15–20 hours across the three acts, with replay value in branc
   <img src="./characters/metsik_cult/img/ellen_luik.png" width="112" alt="Prototype pixel art of Ellen">
 </p>
 
-The story follows seven core characters across all three acts: [Kalev](./docs/CHARACTERS/kalev.md), [Mart](./docs/CHARACTERS/mart.md), [Aita](./docs/CHARACTERS/aita.md), [Kaja](./docs/CHARACTERS/kaja.md), [Captain Henning](./docs/CHARACTERS/henning.md), [Jürgen Witte](./docs/CHARACTERS/jurgen.md), and [Ellen Luik](./docs/CHARACTERS/ellen.md). Around them, each active faction contributes a small cast of named figures promoted from the [legacy roster](./characters/README.md) through the character-brief process in [`docs/CHARACTERS/`](./docs/CHARACTERS/README.md).
+The vertical-slice MVP centers on seven core characters: [Kalev](./docs/CHARACTERS/kalev.md), [Mart](./docs/CHARACTERS/mart.md), [Aita](./docs/CHARACTERS/aita.md), [Kaja](./docs/CHARACTERS/kaja.md), [Captain Henning](./docs/CHARACTERS/henning.md), [Jürgen Witte](./docs/CHARACTERS/jurgen.md), and [Ellen Luik](./docs/CHARACTERS/ellen.md). The wider [legacy roster](./characters/README.md) returns to the production plan under [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md): named faction figures are promoted into [`docs/CHARACTERS/`](./docs/CHARACTERS/README.md) briefs and built as new shared-rig models. Prototype pixel art above is inspiration only.
 
-Kalev is a fixed protagonist with no amnesia and no character creator; there is no party control — allies act in authored missions, not under player command.
+Kalev is a fixed protagonist with no amnesia; NATURAL aspect allocation and psyche play deepen him without a separate custom hero. There is no party control - allies act in authored missions, not under player command.
 
 ## World and tone
 
 Reval is a Danish-ruled, German-elite city with overlapping legal, religious, and linguistic communities, surrounded by a countryside on the edge of revolt. The game world is hub-based: dense handcrafted districts inside the walls, and a travel layer connecting authored world locations outside them — village, monastery, castles, groves, battlefields — most of which already exist in the repository as inactive, contract-tested map prototypes awaiting activation.
 
-Rural violence, the siege, and the reprisals stay historically anchored; an uprising inside Reval's walls is treated as alternate history at the act boundary. Folklore is rare and ambiguous: fragmentary old-faith beliefs, never a complete fantasy religion or a spell system. Named people, events, institutions, buildings, and beliefs are marked as `attested`, `plausible composite`, `folklore`, or `invented` in [`docs/CANON.md`](./docs/CANON.md).
+Rural violence, the siege, and the reprisals stay historically anchored; an uprising inside Reval's walls is treated as alternate history at the act boundary. Folklore and magic return as playable systems under [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md): pagan combinatorial elements, Christian divine rites, and NATURAL/Hingepuu progression, all labelled `folklore` or `invented` where they leave attested history. The slice may still ship ambiguous belief quests (for example Root and Ember) before literal magic branches land. Named people, events, institutions, buildings, and beliefs are marked as `attested`, `plausible composite`, `folklore`, or `invented` in [`docs/CANON.md`](./docs/CANON.md).
 
 ## Visual direction
 
@@ -108,24 +108,25 @@ The spring 1343 fortification snapshot uses a conservative four-position complet
 The three-act campaign includes:
 
 - Kalev as fixed protagonist; the forge as hub; the commission → investigation → modification → consequence → reflection loop;
-- eight active factions with ledger-based standing and quest lines; seven core characters plus faction casts;
+- eight launch factions with ledger-based standing, Living City Hope/Fear pressure, and quest lines; seven slice-core characters plus an expanding cast promoted from the legacy roster;
 - Reval districts (Lower Town, market/civic, north quarter) and authored world locations activated from existing prototypes;
 - night-mission templates (sabotage, theft, escort, defense) with combat and non-combat routes;
-- small hammer combat, self-forged gear, and no more than three forge techniques;
-- authored dialogue, explicit consequence state, ambiguous folklore, and act-spanning forged-object recall;
+- hammer combat, self-forged gear, forge techniques, and dual-school magic (pagan combinatorial elements and Christian divine rites) wired through NATURAL aspects and Hingepuu psyche play;
+- authored dialogue, explicit consequence state, folklore/magic with confidence labels, and act-spanning forged-object recall;
 - ending families for Kalev, the forge, the people, and the land.
 
 It does **not** include:
 
 - an open world, seamless Reval, or playable campaigns in Riga, Dorpat, or other cities;
 - runtime LLM dialogue, generated quests, or procedural runs;
-- party control, army or fleet battle simulation, tower-capture strategy, or survival simulation;
-- Living City meters, NPC-allegiance arithmetic, or any universal morality score;
-- sprawling crafting trees, randomized loot, weapon families, or a blacksmith rhythm minigame;
-- a complete pagan magic system or the legacy 21-element and NATURAL-aspects systems;
+- party control, army or fleet battle simulation, or survival simulation;
+- a universal good/evil morality score detached from faction ledger and city-pressure systems;
+- restoring legacy pixel sprites or superseded NATURAL HUD art as production runtime assets;
 - the non-canon 1351 plague epilogue.
 
-Ideas outside this boundary are reference material, not promised features. A major addition must replace comparable scope, be recorded in an ADR, and receive a verifiable `TODO.md` entry before implementation ([ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md) is the record for the current boundary).
+Tower-capture strategy, naval/castle-building mini-games, and other fringe legacy loops stay out until a dedicated ADR accepts them. Sprawl crafting trees, randomized loot, and blacksmith rhythm minigames remain excluded unless P7 mini-game reconciliation explicitly reinstates a named variant.
+
+Campaign breadth is governed by [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md) as amended by [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md). The working inventory is [`docs/LEGACY_REINTRODUCTION.md`](./docs/LEGACY_REINTRODUCTION.md). A further major addition must replace comparable scope, be recorded in an ADR, and receive a verifiable `TODO.md` entry before implementation.
 
 ## Development status
 
@@ -171,14 +172,15 @@ tools/run_performance_report.sh build/benchmarks/performance-smoke.json --quick
 | [`docs/SETUP.md`](./docs/SETUP.md) | Editor installation, import, startup, tests, and export |
 | [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) | Compact map-blueprint primitives, stable IDs, compiler architecture, validation, and migration policy |
 | [`docs/adr/`](./docs/adr/) | Product and technical decisions |
+| [`docs/LEGACY_REINTRODUCTION.md`](./docs/LEGACY_REINTRODUCTION.md) | Legacy design → P7 plan inventory (ADR 0017) |
 | [`assets/SOURCES.csv`](./assets/SOURCES.csv) | Asset provenance, rights, and approval metadata |
 | [`docs/FLORA_FAUNA.md`](./docs/FLORA_FAUNA.md) | Sourced 1343 native vegetation and animal species reference |
 
-Root design documents, much of `story/`, and the older faction and location indexes are preserved as research and legacy material. Individual seeds from them (faction hooks, quest ideas, locations) become active only through reconciliation with this README and a strict task in [`TODO.md`](./TODO.md).
+Root design documents, much of `story/`, and the older faction and location indexes are the seed corpus for [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md). They are not runtime truth until reconciled through [`docs/LEGACY_REINTRODUCTION.md`](./docs/LEGACY_REINTRODUCTION.md) and strict `TODO.md` P7 / act rows. Legacy 2D art in those trees is inspiration only.
 
 ### Legacy Design & Research Material
 
-The following scattered documents contain older concepts, mechanics, and lore. They are preserved for reference and inspiration:
+The following documents are the reintroduction corpus (planning inventory: [`docs/LEGACY_REINTRODUCTION.md`](./docs/LEGACY_REINTRODUCTION.md)):
 
 **Core Gameplay & Vision**
 - [`GAME-PILLARS.md`](./docs/GAME-PILLARS.md), [`GAMEPLAY.md`](./docs/GAMEPLAY.md), [`GAMEPLAY-NIGHT.md`](./docs/GAMEPLAY-NIGHT.md)
@@ -192,6 +194,7 @@ The following scattered documents contain older concepts, mechanics, and lore. T
 **Character & Mechanics Concepts**
 - [`character/BUILD.md`](./character/BUILD.md), [`character/COMBAT.md`](./character/COMBAT.md), [`character/PSYCHE.md`](./character/PSYCHE.md)
 - [`character/MAGIC-ELEMENTS.md`](./character/MAGIC-ELEMENTS.md), [`character/CHRISTIAN-MAGIC.md`](./character/CHRISTIAN-MAGIC.md), [`character/PAGAN-MAGIC.md`](./character/PAGAN-MAGIC.md)
+- [`characters/README.md`](./characters/README.md) (expanded faction and NPC roster)
 ## Map pipeline documentation
 
 - [Compact map authoring, validation, migration, scale budgets, and limitations](./docs/MAP_AUTHORING.md)

@@ -1,6 +1,6 @@
 # ADR 0008: Widen the campaign to a three-act faction RPG spanning 1343–1346
 
-- **Status:** Accepted (maintainer-directed, 2026-07-17)
+- **Status:** Accepted (maintainer-directed, 2026-07-17); **amended by** [ADR 0017](0017-legacy-design-reintroduction.md) (2026-07-29) for magic, NATURAL/psyche, Living City meters, and expanded cast/faction reintroduction
 - **Supersedes:** the "single first campaign, one district, no faction sandbox" scope boundary in README (pre-0008) and the corresponding exclusions in `AGENTS.md`. Does **not** supersede ADR 0003 (no runtime LLM), ADR 0007 (AI-generated isometric presentation), or the MVP-first delivery order.
 
 ## Context
@@ -66,17 +66,21 @@ entire game with AI agents.
   faction quest lines, three acts, night-mission templates, world travel layer.
 - Removed / still excluded, named here as the offsetting scope: seamless open world; runtime LLM or
   procedural quests; party control; army/fleet battle simulation; tower-capture strategic loop;
-  Living City meters and NPC-allegiance scoring; combinatorial magic, 21 elements, and NATURAL
-  aspects; playable campaigns in Riga, Dorpat, or other cities; the 1351 plague epilogue (non-canon
+  playable campaigns in Riga, Dorpat, or other cities; the 1351 plague epilogue (non-canon
   per `docs/CANON.md`).
+- **Amendment (ADR 0017):** Living City meters, NPC-allegiance pressure design, combinatorial magic,
+  21 elements, and NATURAL aspects are no longer permanent exclusions. They return through the P7
+  track and [`docs/LEGACY_REINTRODUCTION.md`](../LEGACY_REINTRODUCTION.md). Tower-capture remains
+  excluded until a later ADR.
 
 ## Alternatives considered
 
 - **Keep the compact single campaign.** Rejected by maintainer direction; the preserved prototypes
   and faction material would remain dead weight.
-- **Return to the full legacy vision (meters, towers, magic, 15+ factions).** Rejected: conflicts
-  with canon guardrails, explodes verification surface, and reintroduces systems already judged
-  incoherent with the forge-choice core.
+- **Return to the full legacy vision (meters, towers, magic, 15+ factions) in one step.** Deferred
+  at acceptance time for verification-surface reasons; partially reversed later by ADR 0017 for
+  meters, magic, NATURAL/psyche, and expanded casts, still MVP-first and without tower-capture or
+  other-city campaigns.
 - **Widen breadth-first (all districts before a playable loop).** Rejected: violates the MVP-first
   directive; activation of any location stays gated by the parity/activation guards.
 

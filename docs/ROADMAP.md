@@ -3,6 +3,8 @@
 Coordination notes, delivery order, and planning context formerly embedded in `TODO.md`.
 Executable open work stays in [`TODO.md`](../TODO.md).
 
+Coordination note (2026-07-29 P7-001 / ADR 0017): maintainer returned Legacy Design & Research Material to the campaign plan - magic, NATURAL/psyche, Living City meters, expanded cast/factions, and history/story seeds - while keeping MVP-first delivery and treating 2D/pixel sprites as inspiration only. Artifacts: `docs/adr/0017-legacy-design-reintroduction.md`, `docs/LEGACY_REINTRODUCTION.md`, README/AGENTS/CANON sync, P7 track in `TODO.md`. Next legacy steps: **P7-002** MAGIC.md, **P7-003** NATURAL/PSYCHE docs, **P7-004** Living City vs ledger, **P7-009** cast promotion plan. Tower-capture, party control, open world, and other-city campaigns stay out.
+
 Coordination note (2026-07-29 P2-059): Kalev smithy domestic presentation now runs player-driven through `SmithyRoutineController` phase-entry prop variants, optional contextual interactables at authored activity points, held-socket tracking, and map-world-state persistence without autonomous player locomotion. Verified: `--filter=test_smithy_kalev_routine` (8/8) and `--filter=test_smithy_routine_controller` (10/10). Next domestic step: **P2-062** polish and acceptance pass.
 
 <!-- P2-061 completed in current session -->

@@ -1,3 +1,6 @@
+> **Legacy status:** `reference`  
+> **Scope reconciliation:** [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md), parent [`MAGIC-ELEMENTS.md`](./MAGIC-ELEMENTS.md)
+
 # 🙏 Divine Rites: The New Faith
 
 Theurgy, often called "Miracles," is the power of the divine made manifest in the mortal world. Practitioners do not wield power themselves, but act as conduits for a higher authority—be it God, the saints, or the celestial host. It is an art of faith, devotion, and supplication.

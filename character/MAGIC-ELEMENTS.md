@@ -1,6 +1,7 @@
-> **Legacy status:** `superseded`  
-> **Reason:** Twenty-one combinable elements and dual magic schools are replaced by three forge techniques with one combat and one narrative use each.  
-> **Current source of truth:** [`README.md`](../README.md) - Product decisions (Narrative systems) and Scope boundaries.
+> **Legacy status:** `reference`  
+> **Reason:** Dual magic schools and combinatorial elements return under [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md); this file is the seed until `docs/SYSTEMS/MAGIC.md` lands.  
+> **Scope reconciliation:** [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md), [`docs/LEGACY_REINTRODUCTION.md`](../docs/LEGACY_REINTRODUCTION.md)  
+> **Current source of truth:** [`README.md`](../README.md) until P7-002 closes.
 
 # 🔮 The Elements of Philosophy
 

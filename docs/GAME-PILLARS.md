@@ -1,9 +1,9 @@
-> **Legacy status:** `superseded`  
-> **Reason:** Original pillar set (combinatorial magic, Living City meters, Ego NPC, replayable runs) conflicts with the forge-choice, three-act campaign in [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md).  
-> **Scope reconciliation:** [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md)  
-> **Reactivated seeds:** day/night commission loop; fixed protagonist Kalev; consequence-driven narrative; historical-fiction guardrails; faction ledger (not meters); forge as persistent narrative core; three-act campaign delivery.  
-> **Still superseded:** combinatorial magic and spell-forging; Living City Hope/Fear/Chaos meters; Ego-as-NPC inner-dialogue mechanic; roguelike replayable-run structure.  
-> **Current source of truth:** [`README.md`](./README.md) - Product vision, Game pillars, and Scope boundaries.
+> **Legacy status:** `reference`  
+> **Reason:** Original pillar set is a design seed corpus; runtime truth stays in README until P7 reconciliation closes.  
+> **Scope reconciliation:** [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md), [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md), [`LEGACY_REINTRODUCTION.md`](./LEGACY_REINTRODUCTION.md)  
+> **Reactivating via ADR 0017:** combinatorial magic and spell-forging; Living City Hope/Fear meters; Ego/psyche Hingepuu play; day/night commission loop; fixed protagonist Kalev; forge as persistent narrative core.  
+> **Still out:** roguelike replayable-run structure; tower-capture until a later ADR; open world.  
+> **Current source of truth:** [`README.md`](../README.md) - Product vision and Scope boundaries.
 
 ## Inspirations
 Witcher, Hades, Fallout, Disco Elysium, Magicka, WoW, Skyrim, Kingdom Come Deliverance

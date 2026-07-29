@@ -1,6 +1,8 @@
-> **Legacy status:** `superseded`  
-> **Reason:** Seven-aspect NATURAL progression and point-buy leveling are replaced by authored convictions and no character creation stat allocation.  
-> **Current source of truth:** [`README.md`](../README.md) - Product decisions (Narrative systems) and Main cast (Kalev).
+> **Legacy status:** `reference`  
+> **Reason:** NATURAL seven-aspect progression returns under [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md); this file is the seed until `docs/SYSTEMS/NATURAL.md` lands.  
+> **Scope reconciliation:** [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md), [`docs/LEGACY_REINTRODUCTION.md`](../docs/LEGACY_REINTRODUCTION.md)  
+> **Art note:** aspect HUD icons here are inspiration only; new UI/models required.  
+> **Current source of truth:** [`README.md`](../README.md) until P7-003 closes.
 
 See [PSYCHE](./PSYCHE.md) to better understand background of the character build system.
 

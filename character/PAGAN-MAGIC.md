@@ -1,3 +1,6 @@
+> **Legacy status:** `reference`  
+> **Scope reconciliation:** [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md), parent [`MAGIC-ELEMENTS.md`](./MAGIC-ELEMENTS.md)
+
 # 🌳 Pagan Magic: The Old Ways
 
 Pagan magic is the raw, untamed power that flows through the natural world. It is not a gift from a distant god, but an inherent force to be mastered through will, wisdom, and communion with the spirits of the land. Practitioners, often called shamans, sages, or simply "the knowing," see the world as alive with spirits—in the rustling leaves, the flowing rivers, and the heart of the fire.

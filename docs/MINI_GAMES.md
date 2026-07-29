@@ -1,6 +1,7 @@
-> **Legacy status:** `archive`  
-> **Reason:** Castle building, naval play, fishing, haggling, and similar minigames are explicitly excluded from the first campaign.  
-> **Current source of truth:** [`README.md`](../README.md) - Scope boundaries (Explicitly excluded).
+> **Legacy status:** `reference`  
+> **Reason:** Selected mini-games may return after P7-007 priority reconciliation under [ADR 0017](./adr/0017-legacy-design-reintroduction.md). Naval/castle-building sims stay out until a later ADR.  
+> **Scope reconciliation:** [ADR 0017](./adr/0017-legacy-design-reintroduction.md), [`LEGACY_REINTRODUCTION.md`](./LEGACY_REINTRODUCTION.md)  
+> **Current source of truth:** [`README.md`](../README.md) until P7-007 closes.
 
 # Mini-Game Ideas
 

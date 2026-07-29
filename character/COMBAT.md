@@ -1,6 +1,8 @@
-> **Legacy status:** `superseded`  
-> **Reason:** Broad weapon families, spellforging combat, and party tactics exceed the small hammer combat model in current scope.  
-> **Current source of truth:** [`README.md`](../README.md) - Target game (Combat) and Vertical slice (Hard content budget).
+> **Legacy status:** `reference`  
+> **Reason:** Spellforging combat returns with magic under [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md); party tactics stay out.  
+> **Scope reconciliation:** [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md), [`docs/LEGACY_REINTRODUCTION.md`](../docs/LEGACY_REINTRODUCTION.md)  
+> **Still out:** party control; sprawling weapon-family loot trees.  
+> **Current source of truth:** [`README.md`](../README.md) until P7-005 closes.
 
 # ⚔️ Combat Mechanics
 

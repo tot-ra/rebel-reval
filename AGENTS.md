@@ -151,30 +151,32 @@ P1-001 adds CI coverage for export smoke only. Full install, start, save, load, 
 
 Agents must treat [`README.md`](./README.md) as the product source of truth.
 
-The product is a three-act faction RPG per [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md); delivery order is strict: demo → vertical-slice MVP → Act 1 → Act 2 → Act 3.
+The product is a three-act faction RPG per [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md) as amended by [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md); delivery order is strict: demo → vertical-slice MVP → Act 1 → Act 2 → Act 3. Legacy design reintroduction is tracked in **P7** and [`docs/LEGACY_REINTRODUCTION.md`](./docs/LEGACY_REINTRODUCTION.md).
 
 ### In scope (act-gated per TODO.md tracks)
 
 - Kalev as fixed protagonist; forge as hub
 - Commission, investigation, modification, consequence, reflection loop
 - One dense Lower Town district for the slice; further districts and world locations activate only through their P4+/P5+/P6 tasks and the parity/activation gates
-- Seven core characters in slice scope, plus faction casts in act scope; authored offline dialogue
-- Eight active factions with ledger-based standing (P4-016+); night mission templates (P5-004+)
-- Small hammer combat and limited forge techniques
+- Seven slice-core characters, plus expanding faction casts promoted from `characters/` through `docs/CHARACTERS/` (ADR 0017 / P7-009); authored offline dialogue
+- Eight launch factions with ledger-based standing (P4-016+) and Living City Hope/Fear pressure (P7-004 / P7-012); night mission templates (P5-004+)
+- Hammer combat, forge techniques, dual-school magic, NATURAL aspects, and Hingepuu psyche play (P7 design before implementation)
 - Deterministic state; no runtime LLM
 
 ### Explicitly out of scope
 
 - Open world or seamless full Reval; playable campaigns in other cities
 - Runtime LLM, procedural quests, or free-text NPC chat
-- Party control, army/fleet battle simulation, tower-capture loops, survival sims
-- Activating any map before its TODO.md task and gates pass, regardless of ADR 0008
-- Legacy systems called out in README: 21 elements, Living City meters and NPC-allegiance arithmetic, NATURAL aspects HUD, combinatorial magic, temperature or rhythm forging minigames
+- Party control, army/fleet battle simulation, survival sims
+- Tower-capture strategic loops and naval/castle-building mini-games until a later ADR accepts them
+- Activating any map before its TODO.md task and gates pass, regardless of ADR 0008 / 0017
+- Shipping legacy pixel sprites or superseded NATURAL/element HUD art as production runtime assets (inspiration only; new models/UI required)
+- Universal good/evil morality score detached from faction ledger and Living City pressure
 
 ### Legacy and documentation rules
 
-- Do not implement concepts from root or `scenes/` legacy markdown unless reconciled with README and added as a strict `TODO.md` entry
-- Named historical claims require confidence labels once `docs/CANON.md` exists (**P0-008**)
+- Do not implement concepts from root or `scenes/` legacy markdown unless reconciled with README / ADR 0017 and added as a strict `TODO.md` entry (prefer P7 inventory rows)
+- Named historical claims require confidence labels in `docs/CANON.md` (**P0-008**)
 - Do not add new major frameworks, event buses, or giant scene edits without a task that names allowed files and verification
 
 ### Scope-change rule
@@ -195,7 +197,7 @@ Blocked asset classes (linked to **P0-040**):
 
 - **Current isometric assets** - tiles, props, and characters authored for the legacy isometric projection or scale
 - **Pixel-frame animation pipeline assets** - sprite sheets and animations produced for the superseded frame-by-frame pixel pipeline
-- **Superseded HUD and system assets** - UI for NATURAL aspects, 21 elements, ruler/rebel balance, and other legacy HUD called out in README scope exclusions
+- **Superseded HUD and system assets** - old pixel NATURAL aspects, 21-element, and ruler/rebel balance HUD frames. New UI for ADR 0017 systems must be authored under the art bible, not restored from those assets.
 
 New production art must wait for the art-bible baseline from **P0-040** unless a `TODO.md` task explicitly names allowed files and verification.
 

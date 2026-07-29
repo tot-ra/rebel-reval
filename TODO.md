@@ -31,6 +31,7 @@ References:
 | P4 |    21  |    42  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
+| P7 |    11  |     1  | Legacy design reintroduction (ADR 0017) |
 | R  |    18  |    28  | Historical research backlog (researcher-managed, cross-cutting) |
 
 
@@ -352,6 +353,36 @@ Rows close through `review: canon` like all content work.
 - [ ] R-066 | role: research | deps: R-064 | deliverable: history/dossiers/power/awb-sanitation-clauses-1340-1343.md - AWB folio read (Nottbeck 1888) for Badpacht, Mist, and Gasse rent/fine lines 1340–1343 with document dates | verify: every cited clause carries AWB entry number, folio or Nottbeck page, and confidence label; upgrades or refutes composite fines in reval-street-cleaning-ordinances-1340s dossier
 - [~] R-065 | role: research | deps: none | deliverable: history/dossiers/topography/public-bath-locations-1343.md - mapped bath plots on Nunne, Rataskaevu, Sauna street, and south-wall service zone from TLA property books | verify: point list with confidence labels cited from hygiene-and-grooming-1343 open questions | claim: research-N@2026-07-29 | review: canon
 - [ ] R-067 | role: research | deps: R-065 | deliverable: history/dossiers/topography/nunne-bath-plot-boundaries-tla.md - TLA/Kangropool property entries for Nunne tn 6-8 sauna plots with 1310-1345 dates | verify: cited plot boundaries upgrade BATH-NUNNE row in public-bath-locations-1343 dossier from plausible composite toward partial attested
+
+## P7 - Legacy design reintroduction (ADR 0017)
+
+Return characters, history, magic, NATURAL/psyche, Living City, and related systems from
+README Legacy Design & Research Material into the campaign plan. Inventory:
+[`docs/LEGACY_REINTRODUCTION.md`](docs/LEGACY_REINTRODUCTION.md). Approval:
+[ADR 0017](docs/adr/0017-legacy-design-reintroduction.md). MVP-first order still holds;
+implementation rows must not pull ahead of vertical-slice gates. Legacy 2D sprites are
+inspiration only.
+
+### Small
+
+- [x] P7-001 | claim: cursor-agent@2026-07-29 | deps: none | deliverable: ADR 0017 plus `docs/LEGACY_REINTRODUCTION.md` inventory mapping every README legacy source to design/implementation TODO IDs; sync README, AGENTS.md, CANON, and legacy headers | verify: ADR 0017 accepted; inventory lists magic, NATURAL/psyche, Living City, cast/factions, story/history, combat/night, quests, mini-games; `python3 tools/generate_active_docs_report.py --check` passes
+- [ ] P7-006 | deps: P7-001 | deliverable: quest-seed shortlist from `QUESTS.md` and `docs/IDEAS_RESEARCH.md` with target act, required systems, and stable content-ID stubs | verify: at least twelve seeds labelled keep/adapt/defer with act tags and no plague-epilogue content
+- [ ] P7-007 | deps: P7-001 | deliverable: mini-game priority pass over `docs/MINI_GAMES.md` accepting or deferring each idea; naval/castle-building remain deferred without a new ADR | verify: signed shortlist names at most three slice-or-Act-1 candidates with player-facing goals and verify sketches
+
+### Medium
+
+- [ ] P7-002 | deps: P7-001 | deliverable: `docs/SYSTEMS/MAGIC.md` reconciling pagan combinatorial elements and Christian divine rites with forge-as-conduit and ADR 0003 deterministic content | verify: document defines schools, element budget, smith hammer rules, content ID forms, and slice-safe partial ship; links CANON folklore/invented labels
+- [ ] P7-003 | deps: P7-001 | deliverable: `docs/SYSTEMS/NATURAL.md` and `docs/SYSTEMS/PSYCHE.md` for seven aspects, psyche states, and explorable Hingepuu, stating how they extend or replace the current reflection-only screen | verify: progression rules, save fields, and UI needs named; no dependency on legacy pixel HUD assets
+- [ ] P7-004 | deps: P7-001,P4-016 | deliverable: `docs/SYSTEMS/LIVING_CITY.md` reconciling Hope/Fear (and related) meters with the faction ledger so bookkeeping is explicit | verify: worked examples show one forged event updating ledger and meters without a universal morality score; tower-capture remains excluded
+- [ ] P7-005 | deps: P7-002,P7-003 | deliverable: combat and night design addendum merging `character/COMBAT.md` and `docs/GAMEPLAY-NIGHT.md` seeds with hammer combat and P5 night templates (no party control, no tower-capture) | verify: addendum lists player-visible verbs, content hooks, and which P2/P5 rows must change
+- [ ] P7-008 | deps: P7-001 | deliverable: canon/story pass folding usable beats from `history/HISTORY.md`, `history/TIMELINE.md`, and `story/STORY.md` into `docs/CANON.md` with confidence labels | verify: every promoted beat has a label; 1351 plague epilogue stays non-canon; active-docs check passes
+- [ ] P7-009 | deps: P7-001 | deliverable: cast and faction promotion plan from `characters/` into `docs/CHARACTERS/` briefs (priority order, act gates, art tier) noting 2D art as inspiration only | verify: plan names at least fifteen promote-first NPCs and faction candidates beyond the eight launch factions; CHARACTERS README index updated when first briefs land
+
+### Large
+
+- [ ] P7-010 | deps: P7-002,P2-021 | deliverable: runtime magic foundation (content schemas, GameState fields, forge-conduit hooks, tests) implementing the accepted MAGIC.md contract without shipping full spell lists | verify: Godot tests cover grant/revoke/cast failure modes; content validator accepts example packages; slice demo still runs without requiring magic
+- [ ] P7-011 | deps: P7-003,P7-010 | deliverable: runtime NATURAL aspects and Hingepuu psyche foundation with save/load and a minimal inner-world or extended reflection host | verify: aspect spend and psyche state round-trip in save tests; UI uses new art-bible-facing controls, not restored pixel HUD
+- [ ] P7-012 | deps: P7-004,P4-016 | deliverable: runtime Living City Hope/Fear pressure wired to explicit events beside the faction ledger, with district bark/patrol/price hooks | verify: tests show meter changes from named events; no universal morality score; README/AGENTS examples match behavior
 
 ### Small
 

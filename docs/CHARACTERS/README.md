@@ -16,7 +16,8 @@ Kalev, Mart, Aita, Kaja, Henning, and Jürgen appear in the vertical slice. Elle
 
 ## Canon rules
 
-- Keep the cast within the seven-character first-campaign budget unless a scope decision says otherwise.
+- The seven characters above are the vertical-slice MVP core. Wider casts from [`characters/`](../../characters/) are in plan under [ADR 0017](../adr/0017-legacy-design-reintroduction.md) and must be promoted here via **P7-009** before quest content treats them as active.
 - Use [`docs/CANON.md`](../CANON.md) for names, pronunciation, confidence labels, and the historical timeline.
-- Treat older sheets under [`characters/`](../../characters/) as visual or narrative archive material, not active character definitions.
+- Treat older sheets under [`characters/`](../../characters/) as seeds and visual inspiration (including 2D sprites), not runtime definitions, until a brief exists in this directory.
 - Update the relevant brief and canon entry when a character's identity or relationship changes.
+- New production models use the shared rig and fidelity tiers; do not ship legacy pixel sheets as runtime characters.

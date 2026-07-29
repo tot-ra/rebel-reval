@@ -118,11 +118,22 @@ The playable narrative focuses on the days immediately preceding and during the 
 
 ---
 
+## Magic, psyche, and Living City (planned)
+
+Per [ADR 0017](./adr/0017-legacy-design-reintroduction.md), the following return to the campaign plan. Detailed rules land in `docs/SYSTEMS/` through P7 design tasks; until then treat legacy `character/` and `docs/GAMEPLAY*.md` files as seeds only.
+
+* **Dual-school magic (pagan combinatorial elements + Christian divine rites)** - **`folklore`** / **`invented`**
+  * Playable; never presented as attested 1343 historical practice.
+* **NATURAL aspects and Hingepuu psyche play** - **`invented`** / **`folklore`**
+  * Extends the existing Hingepuu reflection concept into progression and inner-world locations.
+* **Living City Hope / Fear pressure** - **`invented`**
+  * City-scale consequence layer reconciled with per-faction ledger standing; not a universal good/evil score.
+
 ## Superseded narrative (non-canon)
 
-The following legacy material is preserved for reference only. Do not implement or cite as planned content for the first campaign.
+The following legacy material remains non-canon. Do not implement.
 
 * **Plague-justice epilogue ("The Last Song", 1351)** - **`invented`** / **non-canon**
   * Legacy multi-act ending in which the Black Death reaches Reval as pagan divine justice, with a child ritual ("blessing game") accelerating plague transmission.
   * Archived at [`story/archive/plague_justice_epilogue.md`](../story/archive/plague_justice_epilogue.md).
-  * The active campaign ends in April-May 1343 with separate character, forge, and district epilogue states (see README Campaign outline). There is no plague minigame or universal morality score.
+  * The active campaign closes through the attested 1346 sale of Estonia (ADR 0008 Act 3). There is no plague minigame.

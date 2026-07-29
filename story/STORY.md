@@ -1,9 +1,9 @@
-> **Legacy status:** `superseded`  
-> **Reason:** Pre-1343 timeline and plot beats here differ from the attested 1343-1346 campaign in [ADR 0008](../docs/adr/0008-three-act-campaign-and-faction-scope.md) and `docs/CANON.md`.  
-> **Scope reconciliation:** [ADR 0008](../docs/adr/0008-three-act-campaign-and-faction-scope.md)  
-> **Reactivated seeds:** three-act campaign structure; St. George's Night as Act 1 boundary state; world-location activation from existing prototypes; attested historical milestones on schedule with steerable local cost.  
-> **Still superseded:** pre-1343 opening timeline; legacy single-campaign plot beats that conflict with the five-cycle slice; 1351 plague epilogue (non-canon).  
-> **Current source of truth:** [`README.md`](../README.md) - Historical and lore guardrails, Main cast, and Campaign outline.
+> **Legacy status:** `reference`  
+> **Reason:** Story seeds return through [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md) P7-008 into `docs/CANON.md`; this file is not runtime truth.  
+> **Scope reconciliation:** [ADR 0008](../docs/adr/0008-three-act-campaign-and-faction-scope.md), [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md)  
+> **Reactivating:** three-act structure; Living City narrative beats; magic/faction plot hooks that pass confidence labelling.  
+> **Still out:** 1351 plague epilogue (non-canon); any beat that contradicts attested milestones without an alternate-history label.  
+> **Current source of truth:** [`README.md`](../README.md) and [`docs/CANON.md`](../docs/CANON.md) until P7-008 closes.
 
 ## Storyline / Level progression
 ### Prequel Chapter: The Forging of Chains

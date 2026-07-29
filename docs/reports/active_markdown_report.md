@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `77`
-- Markdown files excluded as archive/reference/out of active scope: `450`
-- Local/external links inspected: `479`
-- Links to active Markdown docs: `204`
-- Links to existing archive/reference/non-active local docs: `95`
+- Active Markdown files scanned: `79`
+- Markdown files excluded as archive/reference/out of active scope: `451`
+- Local/external links inspected: `505`
+- Links to active Markdown docs: `227`
+- Links to existing archive/reference/non-active local docs: `97`
 - External links skipped for reachability: `33`
 - Issues found: `0`
 
@@ -55,6 +55,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0014-authorial-acceptance-gates-without-external-playtests.md`
 - `docs/adr/0015-default-third-person-camera.md`
 - `docs/adr/0016-tiered-character-fidelity.md`
+- `docs/adr/0017-legacy-design-reintroduction.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ARCHITECTURE.md`
 - `docs/ART_BIBLE.md`
@@ -79,6 +80,7 @@ No active Markdown documentation issues found.
 - `docs/INVENTORY_MECHANICS.md`
 - `docs/LANDMARK_NARRATIVE_INTEGRATION.md`
 - `docs/LARGE_MAP_CHUNKING_PLAN.md`
+- `docs/LEGACY_REINTRODUCTION.md`
 - `docs/lore/estonian_folklore.md`
 - `docs/lore/four_kings_act2_lore.md`
 - `docs/MAP_ALIGNMENT_EDITOR.md`

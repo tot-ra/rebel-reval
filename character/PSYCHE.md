@@ -1,6 +1,7 @@
-> **Legacy status:** `superseded`  
-> **Reason:** Seven NATURAL aspect centers and psyche-state modifiers differ from the three-conviction reflection model and non-explorable Hingepuu screen.  
-> **Current source of truth:** [`README.md`](../README.md) - Product decisions (Narrative systems) and Main cast (Ellen Luik / Hingepuu).
+> **Legacy status:** `reference`  
+> **Reason:** Explorable Hingepuu, psyche states, and aspect centers return under [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md); this file is the seed until `docs/SYSTEMS/PSYCHE.md` lands.  
+> **Scope reconciliation:** [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md), [`docs/LEGACY_REINTRODUCTION.md`](../docs/LEGACY_REINTRODUCTION.md)  
+> **Current source of truth:** [`README.md`](../README.md) until P7-003 closes.
 
 # 🌳 The Inner World: The Hingepuu
 

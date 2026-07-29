@@ -1,9 +1,10 @@
-> **Legacy status:** `archive`  
-> **Reason:** Fifteen-plus faction roster and mandatory ruler/rebel join framing are research material; act scope is governed by [ADR 0008](../docs/adr/0008-three-act-campaign-and-faction-scope.md).  
-> **Scope reconciliation:** [ADR 0008](../docs/adr/0008-three-act-campaign-and-faction-scope.md)  
-> **Reactivated seeds:** eight active factions (Danish Crown, Livonian Order, Hanseatic guilds, Harju Kings, Black Cloaks, Cult of Metsik, Pskov/Novgorod emissaries, Vitalienbrüder); extended faction casts and NPC hooks for act production.  
-> **Still superseded:** fifteen-plus faction roster as a simultaneous production target; mandatory ruler/rebel join choice as the primary campaign frame; NPC sheets outside reconciled `docs/CHARACTERS/` briefs.  
-> **Current source of truth:** [`README.md`](../README.md) - Main cast, Product decisions (Narrative systems), and Scope boundaries.
+> **Legacy status:** `reference`  
+> **Reason:** Expanded faction and NPC roster returns to the production plan under [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md); sheets here are seeds until promoted into `docs/CHARACTERS/`.  
+> **Scope reconciliation:** [ADR 0008](../docs/adr/0008-three-act-campaign-and-faction-scope.md), [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md), [`docs/LEGACY_REINTRODUCTION.md`](../docs/LEGACY_REINTRODUCTION.md)  
+> **Reactivating via ADR 0017:** eight launch factions plus bishopric / Blackheads / Lizard Union / Lithuania / Golden Horde candidates; named NPC hooks for act production.  
+> **Still out as primary frame:** mandatory early ruler/rebel join menu (allegiance still emerges from play).  
+> **Art note:** portraits and pixel sheets are inspiration; new shared-rig models required.  
+> **Current source of truth:** [`README.md`](../README.md) and `docs/CHARACTERS/` for active briefs; P7-009 owns promotion order.
 
 ## ⚔️ Factions
 You can ally, betray, or infiltrate these political forces. Your actions will determine the fate of Reval and the future of Estonia. Each faction offers unique quests, abilities, and endings.
