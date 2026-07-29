@@ -88,8 +88,53 @@ func test_game_state_v1_legacy_fixture_migrates_map_world_state() -> void:
 	)
 	assert_true(result["ok"])
 	var state := result["state"] as GameState
-	assert_eq(state.get_version(), 1)
+	assert_eq(state.get_version(), GameState.CURRENT_VERSION)
 	assert_eq(state.save_map_world_state()["save_version"], MapStableStateStore.CURRENT_SAVE_VERSION)
+
+
+func test_game_state_v1_to_v2_migration_preserves_data_and_adds_defaults() -> void:
+	var legacy := {
+		"version": 1,
+		"phase": "phase.investigation_night",
+		"player": {"health": 63.0, "location_id": "forge"},
+		"flags": {"flag.legacy": true},
+		"legacy_extension": {"keep": "future-compatible"},
+	}
+	var migrated := GameState._migrate_v1_to_v2(legacy)
+
+	assert_eq(legacy["version"], 1, "migration must not mutate the source payload")
+	assert_eq(migrated["version"], GameState.CURRENT_VERSION)
+	assert_eq(migrated["player"], legacy["player"])
+	assert_eq(migrated["flags"], legacy["flags"])
+	assert_eq(migrated["legacy_extension"], legacy["legacy_extension"])
+	assert_eq(migrated["world_items"], {})
+	assert_eq(migrated["world_defaults_seeded"], {})
+	assert_eq(
+		migrated["map_world_state"],
+		{"save_version": MapStableStateStore.CURRENT_SAVE_VERSION, "world_state": {}}
+	)
+
+
+func test_partial_v1_payload_loads_with_current_defaults() -> void:
+	var envelope := {
+		"save_version": SaveEnvelope.CURRENT_ENVELOPE_VERSION,
+		"saved_at_unix": 1,
+		"game_state": {
+			"version": 1,
+			"player": {"health": 55.0},
+			"flags": {"flag.partial_migration": true},
+		},
+	}
+	var result := SaveEnvelope.parse_text(JSON.stringify(envelope))
+
+	assert_true(result["ok"], ", ".join(result["errors"]))
+	var state := result["state"] as GameState
+	assert_eq(state.get_version(), GameState.CURRENT_VERSION)
+	assert_eq(state.get_phase(), GameState.PHASE_PROLOGUE_DAY)
+	assert_true(is_equal_approx(state.player.health, 55.0))
+	assert_true(state.get_flag(&"flag.partial_migration"))
+	assert_true(state.bag.is_empty())
+	assert_eq(state.save_map_world_state()["world_state"], {})
 
 
 func test_unsupported_game_state_version_is_rejected() -> void:

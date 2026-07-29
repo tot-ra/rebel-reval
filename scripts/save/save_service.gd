@@ -12,6 +12,11 @@ const DEFAULT_SLOT := 0
 ## location_id (String), spawn_id (String).
 const MAX_SLOT := 8
 
+## A temp path is shared by every SaveService targeting the same slot. Serialize
+## the full rotation protocol so concurrent autosave/manual-save calls cannot
+## delete or promote each other's temp files.
+static var _write_mutex := Mutex.new()
+
 var save_directory: String = "user://saves"
 
 
@@ -129,6 +134,13 @@ func _read_envelope_meta(path: String) -> Dictionary:
 
 
 func _atomic_write(slot: int, json: String) -> bool:
+	_write_mutex.lock()
+	var succeeded := _atomic_write_locked(slot, json)
+	_write_mutex.unlock()
+	return succeeded
+
+
+func _atomic_write_locked(slot: int, json: String) -> bool:
 	if not _ensure_directory():
 		return false
 

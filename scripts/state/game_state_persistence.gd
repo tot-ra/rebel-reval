@@ -56,7 +56,7 @@ static func save_payload(state: GameState) -> Dictionary:
 		"relationship_memories": _bool_dictionary(state._relationship_memories),
 		"commission_deadlines": commission_deadlines,
 		"forged_records": forged,
-		"world_items": state._world_items.duplicate(true),
+		"world_items": _world_items_dictionary(state._world_items),
 		"world_defaults_seeded": state._world_defaults_seeded.duplicate(true),
 		"map_world_state": state.save_map_world_state(),
 		"act1_transition": state._act1_transition.duplicate(true),
@@ -68,17 +68,27 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 	if not payload is Dictionary:
 		return ["game state payload must be a dictionary"]
 
-	var schema_version := int(payload.get("version", 0))
+	var candidate := payload.duplicate(true)
+	var schema_version := int(candidate.get("version", 0))
 	if schema_version < 1 or schema_version > GameState.CURRENT_VERSION:
 		errors.append(
 			"unsupported game-state version %d (supported: 1-%d)" % [schema_version, GameState.CURRENT_VERSION]
 		)
 		return errors
 
-	state.version = schema_version
-	state.phase = StringName(String(payload.get("phase", GameState.PHASE_PROLOGUE_DAY)))
+	while schema_version < GameState.CURRENT_VERSION:
+		match schema_version:
+			1:
+				candidate = GameState._migrate_v1_to_v2(candidate)
+				schema_version = 2
+			_:
+				errors.append("no game-state migration available from version %d" % schema_version)
+				return errors
 
-	var player_payload: Variant = payload.get("player", {})
+	state.version = GameState.CURRENT_VERSION
+	state.phase = StringName(String(candidate.get("phase", GameState.PHASE_PROLOGUE_DAY)))
+
+	var player_payload: Variant = candidate.get("player", {})
 	if not player_payload is Dictionary:
 		errors.append("player must be a dictionary")
 	else:
@@ -90,7 +100,7 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 		state.player.location_id = StringName(String(player_dict.get("location_id", state.player.location_id)))
 		state.player.spawn_id = StringName(String(player_dict.get("spawn_id", state.player.spawn_id)))
 
-	var bag_payload: Variant = payload.get("bag", {})
+	var bag_payload: Variant = candidate.get("bag", {})
 	if not bag_payload is Dictionary:
 		errors.append("bag must be a dictionary")
 	else:
@@ -115,39 +125,39 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 				)
 			state.bag._rebuild_occupancy()
 
-	state._equipped = _load_string_dictionary(payload.get("equipped", {}), errors, "equipped")
+	state._equipped = _load_string_dictionary(candidate.get("equipped", {}), errors, "equipped")
 	# Optional for older saves; empty means no technique equipped.
-	var technique_raw := String(payload.get("equipped_forge_technique", ""))
+	var technique_raw := String(candidate.get("equipped_forge_technique", ""))
 	if technique_raw.is_empty():
 		state._equipped_forge_technique = &""
 	elif not state.set_equipped_forge_technique(StringName(technique_raw)):
 		errors.append("unsupported equipped_forge_technique %s" % technique_raw)
-	state._facts = _load_bool_dictionary(payload.get("facts", {}), errors, "facts")
-	state._flags = _load_bool_dictionary(payload.get("flags", {}), errors, "flags")
-	state._relationships = _load_int_dictionary(payload.get("relationships", {}), errors, "relationships")
-	state._faction_events = _load_faction_events(payload.get("faction_events", []), errors)
-	state._pressures = _load_pressure_dictionary(state, payload.get("pressures", {}), errors)
-	state._quest_states = _load_string_dictionary(payload.get("quest_states", {}), errors, "quest_states")
-	state._location_states = _load_string_dictionary(payload.get("location_states", {}), errors, "location_states")
-	state._items = _load_bool_dictionary(payload.get("items", {}), errors, "items")
+	state._facts = _load_bool_dictionary(candidate.get("facts", {}), errors, "facts")
+	state._flags = _load_bool_dictionary(candidate.get("flags", {}), errors, "flags")
+	state._relationships = _load_int_dictionary(candidate.get("relationships", {}), errors, "relationships")
+	state._faction_events = _load_faction_events(candidate.get("faction_events", []), errors)
+	state._pressures = _load_pressure_dictionary(state, candidate.get("pressures", {}), errors)
+	state._quest_states = _load_string_dictionary(candidate.get("quest_states", {}), errors, "quest_states")
+	state._location_states = _load_string_dictionary(candidate.get("location_states", {}), errors, "location_states")
+	state._items = _load_bool_dictionary(candidate.get("items", {}), errors, "items")
 	state._dialogue_nodes_seen = _load_bool_dictionary(
-		payload.get("dialogue_nodes_seen", {}),
+		candidate.get("dialogue_nodes_seen", {}),
 		errors,
 		"dialogue_nodes_seen"
 	)
 	state._relationship_memories = _load_bool_dictionary(
-		payload.get("relationship_memories", {}),
+		candidate.get("relationship_memories", {}),
 		errors,
 		"relationship_memories"
 	)
 	state._commission_deadlines = _load_string_dictionary(
-		payload.get("commission_deadlines", {}),
+		candidate.get("commission_deadlines", {}),
 		errors,
 		"commission_deadlines"
 	)
 
 	state._forged_records.clear()
-	var forged_rows: Variant = payload.get("forged_records", [])
+	var forged_rows: Variant = candidate.get("forged_records", [])
 	if not forged_rows is Array:
 		errors.append("forged_records must be an array")
 	else:
@@ -170,7 +180,7 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 				continue
 			state._forged_records[record.record_id] = record
 
-	var world_items_payload: Variant = payload.get("world_items", {})
+	var world_items_payload: Variant = candidate.get("world_items", {})
 	if not world_items_payload is Dictionary:
 		errors.append("world_items must be a dictionary")
 	else:
@@ -178,19 +188,19 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 		# so WorldItemController never sees a Dictionary where Vector2 is required.
 		state._world_items = _normalize_world_items(world_items_payload as Dictionary)
 
-	var seeded_payload: Variant = payload.get("world_defaults_seeded", {})
+	var seeded_payload: Variant = candidate.get("world_defaults_seeded", {})
 	if not seeded_payload is Dictionary:
 		errors.append("world_defaults_seeded must be a dictionary")
 	else:
 		state._world_defaults_seeded = (seeded_payload as Dictionary).duplicate(true)
 
-	var map_payload: Variant = payload.get("map_world_state", {})
+	var map_payload: Variant = candidate.get("map_world_state", {})
 	if not map_payload is Dictionary:
 		errors.append("map_world_state must be a dictionary")
 	else:
 		errors.append_array(state.map_world_state.load_payload(map_payload as Dictionary))
 
-	var act1_payload: Variant = payload.get("act1_transition", {})
+	var act1_payload: Variant = candidate.get("act1_transition", {})
 	if act1_payload == null:
 		state._act1_transition = {}
 	elif not act1_payload is Dictionary:
@@ -255,6 +265,25 @@ static func _string_dictionary(source: Dictionary) -> Dictionary:
 	var out: Dictionary = {}
 	for key in source:
 		out[String(key)] = String(source[key])
+	return out
+
+
+## JSON.stringify does not preserve Vector2, so save positions as explicit
+## coordinates and let _normalize_world_items reconstruct runtime vectors.
+static func _world_items_dictionary(source: Dictionary) -> Dictionary:
+	var out: Dictionary = source.duplicate(true)
+	for location_key in out:
+		var bucket_variant: Variant = out[location_key]
+		if not bucket_variant is Dictionary:
+			continue
+		for object_key in bucket_variant as Dictionary:
+			var record_variant: Variant = (bucket_variant as Dictionary)[object_key]
+			if not record_variant is Dictionary:
+				continue
+			var record := record_variant as Dictionary
+			var position: Variant = record.get("position", Vector2.ZERO)
+			if position is Vector2:
+				record["position"] = {"x": position.x, "y": position.y}
 	return out
 
 

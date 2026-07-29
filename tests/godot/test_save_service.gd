@@ -8,9 +8,11 @@ const PHASE_NIGHT := &"phase.investigation_night"
 const RECORD_HONEST := &"forged.watch_buckle_repair.honest_work"
 const COMMISSION := &"commission.watch_buckle_repair"
 
+var _test_root := ""
+
 
 func before_each() -> void:
-	_cleanup_temp_dir()
+	_test_root = "user://test_saves/%d_%d" % [OS.get_process_id(), Time.get_ticks_usec()]
 
 
 func after_each() -> void:
@@ -25,6 +27,68 @@ func test_round_trip_preserves_full_game_state() -> void:
 	var loaded := service.load_game()
 	assert_true(loaded["ok"])
 	_assert_states_equal(original, loaded["state"] as GameState)
+
+
+func test_repeated_file_round_trip_is_stable() -> void:
+	var service := _service()
+	assert_true(service.save_game(_rich_state()))
+
+	var first_load := service.load_game()
+	assert_true(first_load["ok"])
+	var first_state := first_load["state"] as GameState
+	var first_snapshot := MapParitySnapshot.serialize_value(first_state.save_payload())
+
+	assert_true(service.save_game(first_state))
+	var second_load := service.load_game()
+	assert_true(second_load["ok"])
+	var second_snapshot := MapParitySnapshot.serialize_value(
+		(second_load["state"] as GameState).save_payload()
+	)
+	assert_eq(second_snapshot, first_snapshot)
+
+
+func test_empty_save_slot_reports_no_loadable_save() -> void:
+	var service := _service()
+
+	assert_false(service.has_save(7))
+	var loaded := service.load_game(7)
+	assert_false(loaded["ok"])
+	assert_eq(loaded["state"], null)
+	assert_true(_errors_contain(loaded, "no loadable save found for slot 7"))
+
+
+func test_concurrent_save_attempts_are_serialized_and_loadable() -> void:
+	var service := _service()
+	var start_gate := Semaphore.new()
+	var threads: Array[Thread] = []
+	var expected_locations: Array[StringName] = []
+
+	for index in 12:
+		var state := GameState.new()
+		state.player.health = 50.0 + index
+		state.player.location_id = StringName("concurrent_%d" % index)
+		state.set_flag(StringName("flag.concurrent_%d" % index), true)
+		expected_locations.append(state.player.location_id)
+
+		var thread := Thread.new()
+		var start_error := thread.start(
+			Callable(self, "_save_after_gate").bind(service, state, start_gate)
+		)
+		assert_eq(start_error, OK)
+		threads.append(thread)
+
+	for _index in threads.size():
+		start_gate.post()
+	for thread in threads:
+		assert_true(bool(thread.wait_to_finish()), "every queued save must complete")
+
+	assert_false(FileAccess.file_exists(service.temp_path(0)))
+	var loaded := service.load_game()
+	assert_true(loaded["ok"], ", ".join(loaded["errors"]))
+	var loaded_state := loaded["state"] as GameState
+	assert_true(expected_locations.has(loaded_state.player.location_id))
+	var suffix := String(loaded_state.player.location_id).trim_prefix("concurrent_")
+	assert_true(loaded_state.get_flag(StringName("flag.concurrent_%s" % suffix)))
 
 
 func test_phase_autosave_writes_loadable_slot() -> void:
@@ -123,6 +187,23 @@ func test_game_state_payload_round_trip_without_files() -> void:
 	_assert_states_equal(original, restored)
 
 
+func _save_after_gate(
+	service: SaveService,
+	state: GameState,
+	start_gate: Semaphore
+) -> bool:
+	start_gate.wait()
+	return service.save_game(state)
+
+
+func _errors_contain(result: Dictionary, needle: String) -> bool:
+	var errors: Variant = result.get("errors", PackedStringArray())
+	for entry in errors:
+		if needle in String(entry):
+			return true
+	return false
+
+
 func _service() -> SaveService:
 	var service := SaveService.new()
 	service.save_directory = _temp_dir("save_service")
@@ -131,20 +212,13 @@ func _service() -> SaveService:
 
 func _temp_dir(label: String) -> String:
 	var unique := "%s_%d" % [label, Time.get_ticks_usec()]
-	return "user://test_saves/%s" % unique
+	return "%s/%s" % [_test_root, unique]
 
 
 func _cleanup_temp_dir() -> void:
-	var root := DirAccess.open("user://test_saves")
-	if root == null:
+	if _test_root.is_empty():
 		return
-	root.list_dir_begin()
-	var entry := root.get_next()
-	while entry != "":
-		if entry != "." and entry != "..":
-			_remove_tree("user://test_saves/%s" % entry)
-		entry = root.get_next()
-	root.list_dir_end()
+	_remove_tree(_test_root)
 
 
 func _remove_tree(path: String) -> void:
@@ -210,6 +284,10 @@ func _assert_states_equal(expected: GameState, actual: GameState) -> void:
 	assert_eq(actual.bag.placements.size(), expected.bag.placements.size())
 	assert_true(actual.has_item(ITEM_SPEARHEAD))
 	assert_true(actual.is_world_item_placed(LOC_SMITHY, OBJ_SPEAR))
+	assert_eq(
+		actual.get_world_items(LOC_SMITHY)[0]["position"],
+		expected.get_world_items(LOC_SMITHY)[0]["position"]
+	)
 	assert_true(actual.are_world_defaults_seeded(LOC_SMITHY))
 	assert_eq(actual.get_forged_records().size(), expected.get_forged_records().size())
 	assert_eq(

@@ -514,6 +514,23 @@ func get_forged_records() -> Array[ForgedRecord]:
 	return records
 
 
+## Migrates the last released v1 payload without mutating the caller's data.
+## V2 introduced persistent loose world items and the stable map-state envelope.
+static func _migrate_v1_to_v2(payload: Dictionary) -> Dictionary:
+	var migrated := payload.duplicate(true)
+	migrated["version"] = 2
+	if not migrated.has("world_items"):
+		migrated["world_items"] = {}
+	if not migrated.has("world_defaults_seeded"):
+		migrated["world_defaults_seeded"] = {}
+	if not migrated.has("map_world_state"):
+		migrated["map_world_state"] = {
+			"save_version": MapStableStateStore.CURRENT_SAVE_VERSION,
+			"world_state": {},
+		}
+	return migrated
+
+
 func save_payload() -> Dictionary:
 	return _PersistenceScript.save_payload(self)
 
