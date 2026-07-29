@@ -3,6 +3,8 @@
 Coordination notes, delivery order, and planning context formerly embedded in `TODO.md`.
 Executable open work stays in [`TODO.md`](../TODO.md).
 
+Coordination note (2026-07-29 P2-059): Kalev smithy domestic presentation now runs player-driven through `SmithyRoutineController` phase-entry prop variants, optional contextual interactables at authored activity points, held-socket tracking, and map-world-state persistence without autonomous player locomotion. Verified: `--filter=test_smithy_kalev_routine` (8/8) and `--filter=test_smithy_routine_controller` (10/10). Next domestic step: **P2-062** polish and acceptance pass.
+
 <!-- P2-061 completed in current session -->
 Coordination note (2026-07-29 P2-061): Mart and the forge cat now run phase-aware ambient routines through `SmithyRoutineController` instead of coordinate patrol loops. Mart stays hidden during prologue and while `flag.mart_missing` is set, then resumes apprentice work/meal/cleanup beats from `content/routines/mart_smithy.json`. The cat cycles sleep, groom, warmth, and feed anchors from `content/routines/forge_cat.json` without claiming human stations or the industrial forge. Verified: `--filter=test_smithy_ambient_actors` (4/4), `--filter=test_forge_cat` (4/4), `--filter=test_smithy_henning` (5/5), and `--filter=test_smithy_routine_controller` (10/10). Next domestic step: **P2-059** Kalev phase-aware household vignettes.
 

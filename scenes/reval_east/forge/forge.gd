@@ -19,6 +19,27 @@ const PRICE_OF_A_NAME_CONTROLLER_SCRIPT := preload(
 const ROOT_AND_EMBER_CONTROLLER_SCRIPT := preload(
 	"res://scripts/forge/root_and_ember_commission_controller.gd"
 )
+const ROUTINE_CONTROLLER_SCRIPT := preload("res://scripts/world/smithy_routine_controller.gd")
+const INTERACTABLE_SCENE := preload("res://scenes/interaction/interactable.tscn")
+const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
+
+const KALEV_ROUTINE_PATH := "res://content/routines/kalev_smithy.json"
+const KALEV_ID := &"char.kalev"
+const DOMESTIC_INTERACT_PROMPTS := {
+	&"ap.wash.basin": "Wash",
+	&"ap.prepare.board": "Prepare meal",
+	&"ap.hearth.tend": "Tend hearth",
+	&"ap.hearth.cookpot": "Stir pot",
+	&"ap.eat.table": "Eat",
+	&"ap.clear.table": "Clear table",
+	&"ap.sweep.floor": "Sweep",
+	&"ap.carry.fuel": "Carry fuel",
+	&"ap.hearth.bank": "Bank hearth",
+	&"ap.forge.bellows": "Work bellows",
+	&"ap.forge.anvil": "Work anvil",
+	&"ap.forge.quench": "Quench",
+	&"ap.ledger.inspect": "Inspect ledger",
+}
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -28,6 +49,7 @@ const ROOT_AND_EMBER_CONTROLLER_SCRIPT := preload(
 @onready var cat: ForgeCat = $Actors/Cat
 
 var _bootstrap: Dictionary = {}
+var _map_definition: MapDefinition
 var _view_runtime: MapViewRuntime
 var _world_items: WorldItemController
 var _phase_binder: MapPhaseBinder
@@ -37,10 +59,16 @@ var _interaction_controller: InteractionController
 var _dialogue_encounter: ForgeDialogueEncounter
 var _prompt_layer: CanvasLayer
 var _prompt_label: Label
+var _kalev_routine: SmithyRoutineController
+var _domestic_interactables: Dictionary = {}
+var _domestic_vignette_seconds := 0.0
+var _domestic_vignette_activity := &""
+var _last_domestic_time_band := &"any"
 
 
 func _ready() -> void:
 	var definition: MapDefinition = DEFINITION_SCRIPT.create()
+	_map_definition = definition
 	_bootstrap = MapSceneBootstrap.assemble(self, definition, actors, map_root)
 	DoorNavigator.place_player(self, player, definition.player_spawn)
 	_wire_player_navigation()
@@ -106,6 +134,11 @@ func _ready() -> void:
 	add_child(root_and_ember)
 	root_and_ember.setup(_commission_anchor, _rest_anchor, player)
 	_connect_ambient_actor_refresh()
+	_setup_kalev_domestic_presentation(definition)
+
+
+func _process(delta: float) -> void:
+	_tick_domestic_presentation(delta)
 
 
 func _connect_ambient_actor_refresh() -> void:
@@ -125,6 +158,7 @@ func _on_session_state_replaced(_previous: GameState, current: GameState, _reaso
 
 func _on_campaign_phase_changed(_previous: StringName, _next: StringName) -> void:
 	_refresh_smithy_ambient_actors(SessionState.state if has_node("/root/SessionState") else null)
+	_apply_phase_entry_domestic_presentation()
 
 
 func _refresh_smithy_ambient_actors(current: GameState) -> void:
@@ -223,3 +257,150 @@ func _find_player(node: Node) -> Player:
 		if found != null:
 			return found
 	return null
+
+
+func _setup_kalev_domestic_presentation(definition: MapDefinition) -> void:
+	_kalev_routine = ROUTINE_CONTROLLER_SCRIPT.new()
+	_kalev_routine.name = "KalevDomesticRoutineController"
+	add_child(_kalev_routine)
+	_kalev_routine.configure_from_file(KALEV_ROUTINE_PATH)
+	if not _kalev_routine.presentation_changed.is_connected(_on_kalev_presentation_changed):
+		_kalev_routine.presentation_changed.connect(_on_kalev_presentation_changed)
+	if SessionState.state != null:
+		_kalev_routine.restore_prop_variants_from_state(SessionState.state, definition)
+	_apply_phase_entry_domestic_presentation()
+	_spawn_domestic_interactables(definition)
+
+
+func _apply_phase_entry_domestic_presentation() -> void:
+	if _kalev_routine == null or _map_definition == null:
+		return
+	var state := SessionState.state if has_node("/root/SessionState") else null
+	var time_band := _current_domestic_time_band()
+	_last_domestic_time_band = time_band
+	var phase_id := state.get_phase() if state != null else GameState.PHASE_PROLOGUE_DAY
+	var variants := _kalev_routine.phase_entry_prop_variants(phase_id, time_band)
+	if variants.is_empty():
+		return
+	_apply_domestic_prop_variants(variants, state)
+
+
+func _current_domestic_time_band() -> StringName:
+	if _view_runtime != null:
+		return ROUTINE_CONTROLLER_SCRIPT.time_band_for_cycle_progress(_view_runtime.cycle_progress)
+	return ROUTINE_CONTROLLER_SCRIPT.time_band_for_cycle_progress(DayNightCycle.DEFAULT_PROGRESS)
+
+
+func _on_kalev_presentation_changed(prop_variants: Dictionary, held_socket: StringName) -> void:
+	var state := SessionState.state if has_node("/root/SessionState") else null
+	if not prop_variants.is_empty():
+		_apply_domestic_prop_variants(prop_variants, state)
+	if player != null and not held_socket.is_empty():
+		var facing := _kalev_routine.station_facing(_domestic_vignette_activity)
+		if not facing.is_zero_approx():
+			player.set_view_facing(facing)
+
+
+func _apply_domestic_prop_variants(prop_variants: Dictionary, state: GameState) -> void:
+	if _map_definition == null or prop_variants.is_empty():
+		return
+	for prop in _map_definition.props:
+		var prop_id := String(prop.get("id", ""))
+		if prop_variants.has(prop_id):
+			prop["style_variant"] = StringName(String(prop_variants[prop_id]))
+	if state != null:
+		_kalev_routine.persist_prop_variants(state, prop_variants)
+
+
+func _spawn_domestic_interactables(definition: MapDefinition) -> void:
+	_clear_domestic_interactables()
+	var root := Node2D.new()
+	root.name = "DomesticInteractables"
+	add_child(root)
+	for activity_id in DOMESTIC_INTERACT_PROMPTS.keys():
+		var point := _kalev_routine.get_activity_point(activity_id)
+		if point == null:
+			continue
+		var interactable: Interactable = INTERACTABLE_SCENE.instantiate()
+		interactable.name = "Domestic_%s" % String(activity_id).replace(".", "_")
+		interactable.interactable_id = StringName("interact.domestic.%s" % String(activity_id))
+		interactable.interaction_kind = InteractionKinds.USE
+		interactable.prompt = String(DOMESTIC_INTERACT_PROMPTS[activity_id])
+		interactable.global_position = point.approach_position
+		interactable.set_interact_callback(_on_domestic_interact.bind(activity_id))
+		root.add_child(interactable)
+		_domestic_interactables[activity_id] = interactable
+	_sync_domestic_interactables()
+
+
+func _clear_domestic_interactables() -> void:
+	for interactable: Interactable in _domestic_interactables.values():
+		if interactable != null and is_instance_valid(interactable):
+			interactable.free()
+	_domestic_interactables.clear()
+	var existing := get_node_or_null("DomesticInteractables")
+	if existing != null:
+		existing.free()
+
+
+func _sync_domestic_interactables() -> void:
+	if _kalev_routine == null:
+		return
+	var state := SessionState.state if has_node("/root/SessionState") else null
+	var context := _kalev_routine.build_kalev_context(state, _current_domestic_time_band())
+	var available := _kalev_routine.list_available_activities(KALEV_ID, context)
+	var blocked := _domestic_story_blocks_player()
+	for activity_id: StringName in _domestic_interactables.keys():
+		var interactable: Interactable = _domestic_interactables[activity_id]
+		if interactable == null or not is_instance_valid(interactable):
+			continue
+		var enabled := not blocked and available.has(activity_id)
+		interactable.enabled = enabled
+		interactable.visible = enabled
+
+
+func _domestic_story_blocks_player() -> bool:
+	if _dialogue_encounter != null:
+		var runner := _dialogue_encounter.get_dialogue_runner()
+		if runner != null and runner.is_active():
+			return true
+	var commission := player.get_node_or_null("ForgeCommissionController")
+	if commission != null and commission.has_method("is_active") and commission.call("is_active"):
+		return true
+	return false
+
+
+func _on_domestic_interact(_actor: Node, activity_id: StringName) -> void:
+	if _domestic_story_blocks_player() or _kalev_routine == null or player == null:
+		return
+	var state := SessionState.state if has_node("/root/SessionState") else null
+	var context := _kalev_routine.build_kalev_context(state, _current_domestic_time_band())
+	if not _kalev_routine.can_begin(KALEV_ID, activity_id, context):
+		return
+	var point := _kalev_routine.get_activity_point(activity_id)
+	if point != null and not _kalev_routine.station_within_tolerance(player.global_position, activity_id):
+		return
+	_domestic_vignette_activity = activity_id
+	_domestic_vignette_seconds = point.sample_duration_sec(1343) if point != null else 2.0
+	_kalev_routine.apply_kalev_activity_presentation(activity_id, context)
+
+
+func _tick_domestic_presentation(delta: float) -> void:
+	if _kalev_routine == null:
+		return
+	var time_band := _current_domestic_time_band()
+	if time_band != _last_domestic_time_band:
+		_last_domestic_time_band = time_band
+		_apply_phase_entry_domestic_presentation()
+		_sync_domestic_interactables()
+	_sync_domestic_interactables()
+	if _domestic_vignette_seconds <= 0.0 or _domestic_vignette_activity.is_empty():
+		return
+	_domestic_vignette_seconds -= delta
+	if _domestic_vignette_seconds > 0.0:
+		return
+	_kalev_routine.complete_kalev_activity_presentation(
+		_domestic_vignette_activity,
+		ROUTINE_CONTROLLER_SCRIPT.REASON_COMPLETED
+	)
+	_domestic_vignette_activity = &""

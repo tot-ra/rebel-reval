@@ -352,5 +352,90 @@
         "ap.visitor.leave"
       ]
     }
+  },
+  "presentation": {
+    "phase_entry": {
+      "phase.prologue_day": {
+        "dawn": {
+          "domestic_hearth": "hearth.cold",
+          "table_settings": "kitchenware.group.storage",
+          "table_prep": "kitchenware.group.storage",
+          "table_cleanup": "kitchenware.group.cleanup",
+          "chest_provisions": "household.group.closed"
+        },
+        "morning": {
+          "domestic_hearth": "hearth.embers",
+          "table_prep": "kitchenware.group.prep",
+          "table_settings": "kitchenware.group.storage",
+          "chest_provisions": "household.group.closed"
+        },
+        "midday": {
+          "domestic_hearth": "hearth.lit",
+          "table_settings": "kitchenware.group.eating",
+          "table_prep": "kitchenware.group.prep",
+          "table_cleanup": "kitchenware.group.cleanup"
+        },
+        "evening": {
+          "domestic_hearth": "hearth.embers",
+          "table_settings": "kitchenware.group.cleanup",
+          "table_cleanup": "kitchenware.group.cleanup",
+          "chest_provisions": "household.group.closed"
+        }
+      },
+      "phase.investigation_morning": {
+        "morning": {
+          "domestic_hearth": "hearth.embers",
+          "table_settings": "kitchenware.group.storage"
+        },
+        "midday": {
+          "domestic_hearth": "hearth.lit",
+          "table_settings": "kitchenware.group.eating"
+        }
+      },
+      "phase.reflection_morning": {
+        "morning": {
+          "domestic_hearth": "hearth.embers",
+          "table_prep": "kitchenware.group.prep"
+        },
+        "evening": {
+          "domestic_hearth": "hearth.embers",
+          "table_settings": "kitchenware.group.cleanup"
+        }
+      }
+    },
+    "activity_effects": {
+      "ap.sleep.wake": {"props": {}, "held_socket": ""},
+      "ap.sleep.rest": {"props": {}, "held_socket": "", "body_socket": "sleep"},
+      "ap.wash.basin": {"props": {}, "held_socket": "wash_cloth"},
+      "ap.fetch.water": {"props": {}, "held_socket": "water_bucket"},
+      "ap.prepare.board": {
+        "props": {"table_prep": "kitchenware.group.prep"},
+        "held_socket": "prep_knife"
+      },
+      "ap.hearth.tend": {"props": {"domestic_hearth": "hearth.lit"}, "held_socket": ""},
+      "ap.hearth.cookpot": {
+        "props": {"domestic_hearth": "hearth.lit"},
+        "held_socket": "cooking_ladle"
+      },
+      "ap.hearth.bank": {"props": {"domestic_hearth": "hearth.embers"}, "held_socket": ""},
+      "ap.eat.table": {
+        "props": {"table_settings": "kitchenware.group.eating"},
+        "held_socket": "",
+        "body_socket": "sit"
+      },
+      "ap.clear.table": {
+        "props": {
+          "table_settings": "kitchenware.group.cleanup",
+          "table_cleanup": "kitchenware.group.cleanup"
+        },
+        "held_socket": ""
+      },
+      "ap.sweep.floor": {"props": {}, "held_socket": "broom"},
+      "ap.carry.fuel": {"props": {}, "held_socket": "kindling_bundle"},
+      "ap.ledger.inspect": {"props": {}, "held_socket": ""},
+      "ap.forge.anvil": {"props": {}, "held_socket": "", "body_socket": "forge_stance"},
+      "ap.forge.bellows": {"props": {}, "held_socket": "bellows_handle"},
+      "ap.forge.quench": {"props": {}, "held_socket": ""}
+    }
   }
 }
