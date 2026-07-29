@@ -3,6 +3,9 @@
 Coordination notes, delivery order, and planning context formerly embedded in `TODO.md`.
 Executable open work stays in [`TODO.md`](../TODO.md).
 
+<!-- P2-061 completed in current session -->
+Coordination note (2026-07-29 P2-061): Mart and the forge cat now run phase-aware ambient routines through `SmithyRoutineController` instead of coordinate patrol loops. Mart stays hidden during prologue and while `flag.mart_missing` is set, then resumes apprentice work/meal/cleanup beats from `content/routines/mart_smithy.json`. The cat cycles sleep, groom, warmth, and feed anchors from `content/routines/forge_cat.json` without claiming human stations or the industrial forge. Verified: `--filter=test_smithy_ambient_actors` (4/4), `--filter=test_forge_cat` (4/4), `--filter=test_smithy_henning` (5/5), and `--filter=test_smithy_routine_controller` (10/10). Next domestic step: **P2-059** Kalev phase-aware household vignettes.
+
 <!-- P2-034 completed in current session -->
 Coordination note (2026-07-29 P2-034): harbour gull batch now ships authored gliding flap cycles for `herring_gull`, `common_gull`, and `common_tern` under `assets/birds/<species>/gliding_XX.glb` with embedded albedo/normal/roughness, catalog-matched metric scale, and reference plates plus a three-up sheet under `docs/reports/images/fauna/`. Hunyuan3D was unavailable so production used `tools/generate_harbour_gulls.py`; optional candidate upgrade is **P2-034a**. Verified: `python3 tools/verify_bird_models.py`, `python3 tools/validate_asset_sources.py`, `python3 tools/verify_asset_lint.py`, `--filter=test_map_view_bird_flight` (8/8), and `--filter=test_map_view_bird_meshes` (5/5). Next fauna art step: **P2-035** waterfowl GLB batch.
 

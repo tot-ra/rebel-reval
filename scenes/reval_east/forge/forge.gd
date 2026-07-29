@@ -24,6 +24,7 @@ const ROOT_AND_EMBER_CONTROLLER_SCRIPT := preload(
 @onready var actors: Node2D = $Actors
 @onready var player: Player = $Actors/Player
 @onready var henning: SmithyHenning = $Actors/Henning
+@onready var mart: SmithyMart = $Actors/Mart
 @onready var cat: ForgeCat = $Actors/Cat
 
 var _bootstrap: Dictionary = {}
@@ -45,6 +46,7 @@ func _ready() -> void:
 	_wire_player_navigation()
 	MapSceneBootstrap.configure_player_movement(player, _bootstrap)
 	_wire_henning_navigation(definition)
+	_wire_mart_navigation(definition)
 	_wire_cat_navigation()
 	if player == null:
 		player = _find_player(get_tree().root)
@@ -103,6 +105,38 @@ func _ready() -> void:
 	root_and_ember.name = "RootAndEmberCommissionController"
 	add_child(root_and_ember)
 	root_and_ember.setup(_commission_anchor, _rest_anchor, player)
+	_connect_ambient_actor_refresh()
+
+
+func _connect_ambient_actor_refresh() -> void:
+	if has_node("/root/SessionState"):
+		if not SessionState.state_replaced.is_connected(_on_session_state_replaced):
+			SessionState.state_replaced.connect(_on_session_state_replaced)
+		if not SessionState.state.phase_changed.is_connected(_on_campaign_phase_changed):
+			SessionState.state.phase_changed.connect(_on_campaign_phase_changed)
+		_refresh_smithy_ambient_actors(SessionState.state)
+	else:
+		_refresh_smithy_ambient_actors(null)
+
+
+func _on_session_state_replaced(_previous: GameState, current: GameState, _reason: StringName) -> void:
+	_refresh_smithy_ambient_actors(current)
+
+
+func _on_campaign_phase_changed(_previous: StringName, _next: StringName) -> void:
+	_refresh_smithy_ambient_actors(SessionState.state if has_node("/root/SessionState") else null)
+
+
+func _refresh_smithy_ambient_actors(current: GameState) -> void:
+	var phase_id := GameState.PHASE_PROLOGUE_DAY
+	var mart_missing := true
+	if current != null:
+		phase_id = current.get_phase()
+		mart_missing = current.get_flag(&"flag.mart_missing")
+	if mart != null:
+		mart.set_routine_context(phase_id, &"any", mart_missing)
+	if cat != null:
+		cat.set_routine_context(phase_id, &"any")
 
 
 func _setup_dialogue_encounter(definition: MapDefinition) -> void:
@@ -127,6 +161,8 @@ func _setup_phase_binder(definition: MapDefinition) -> void:
 	_phase_binder.setup(&"loc.kalev_smithy", definition, _view_runtime)
 	if henning != null:
 		_phase_binder.register_npc(&"henning", henning, &"ledger")
+	if mart != null:
+		_phase_binder.register_npc(&"mart", mart, &"forge_anvil")
 
 
 func _build_interaction_prompt() -> void:
@@ -164,6 +200,15 @@ func _wire_henning_navigation(definition: MapDefinition) -> void:
 			MapVerification.prop_position(definition, &"work_chair")
 		)
 		henning.set_phase_visibility(false)
+
+
+func _wire_mart_navigation(definition: MapDefinition) -> void:
+	var navigation: NavigationRegion2D = _bootstrap.get("navigation")
+	if mart != null and navigation != null:
+		mart.configure_navigation(
+			navigation.get_navigation_map(),
+			MapVerification.prop_position(definition, &"forge_anvil")
+		)
 
 
 func _wire_cat_navigation() -> void:

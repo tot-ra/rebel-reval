@@ -1,0 +1,53 @@
+{
+  "map_id": "loc.kalev_smithy",
+  "activity_points_source": "res://content/routines/kalev_smithy.json",
+  "activity_points": [
+    {
+      "id": "ap.cat.groom",
+      "zone": "LZ-A",
+      "approach_position": {"x": 200, "y": 320},
+      "facing": "right",
+      "prop_id": "bed",
+      "allowed_actors": ["char.forge_cat"],
+      "duration_min_sec": 4.0,
+      "duration_max_sec": 8.0,
+      "allowed_phases": [
+        "phase.prologue_day",
+        "phase.investigation_morning",
+        "phase.reflection_morning"
+      ],
+      "time_bands": ["any"],
+      "exclusive": false
+    },
+    {
+      "id": "ap.cat.feed",
+      "zone": "LZ-C",
+      "approach_position": {"x": 96, "y": 96},
+      "facing": "right",
+      "prop_id": "domestic_hearth",
+      "allowed_actors": ["char.forge_cat"],
+      "duration_min_sec": 3.0,
+      "duration_max_sec": 6.0,
+      "allowed_phases": [
+        "phase.prologue_day",
+        "phase.investigation_morning",
+        "phase.reflection_morning"
+      ],
+      "time_bands": ["morning", "midday"],
+      "exclusive": false
+    }
+  ],
+  "schedules": {
+    "char.forge_cat": {
+      "phase.prologue_day": {
+        "any": ["ap.cat.sleep", "ap.cat.groom", "ap.cat.warmth", "ap.cat.feed"]
+      },
+      "phase.investigation_morning": {
+        "any": ["ap.cat.sleep", "ap.cat.groom", "ap.cat.warmth", "ap.cat.feed"]
+      },
+      "phase.reflection_morning": {
+        "any": ["ap.cat.sleep", "ap.cat.groom", "ap.cat.warmth"]
+      }
+    }
+  }
+}
