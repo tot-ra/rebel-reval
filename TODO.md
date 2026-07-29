@@ -30,8 +30,9 @@ References:
 | P4 |    21  |    42  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
-| R  |    18  |    26  | Historical research backlog (researcher-managed, cross-cutting) |
-| A  |     5  |     0  | Art and animation backlog (art-managed, cross-cutting) |
+| R  |    17  |    27  | Historical research backlog (researcher-managed, cross-cutting) |
+| A  |     4  |     0  | Art and animation backlog (art-managed, cross-cutting) |
+
 
 
 
@@ -234,7 +235,7 @@ production demand rather than campaign band, and close through `review: canon` l
 
 - [~] A-001 | role: art | deps: none | deliverable: assets/characters/shared/kalev.glb — hero Kalev mesh (single object, neutral pose, plain background) derived from R-023 clothing dossier brief and plates, LOD chain lod1/lod2 included; allowed files: `assets/characters/shared/kalev*.glb`, `assets/characters/shared/character_lod_manifest.json`; verify: GLB imports cleanly in Godot 4.7, all three meshes present, SOURCES.csv row added | claim: art-1@2026-07-28 | review: canon
 
-- [ ] A-002 | role: art | deps: none | deliverable: assets/animals/medieval/medieval_horse.glb — quadruped horse mesh (single object, neutral standing pose) with Idle-loop and Walk-loop clips authored via `tools/assets/medieval_animal_rigs.py`; allowed files: `assets/animals/medieval/medieval_horse*.glb`, `scripts/map/view3d/map_view_fauna_context.gd` (clip registry); verify: GLB imports, two clips present on rig, idle and walk loop seamlessly | review: canon
+- [~] A-002 | role: art | deps: none | deliverable: assets/animals/medieval/medieval_horse.glb — quadruped horse mesh (single object, neutral standing pose) with Idle-loop and Walk-loop clips authored via `tools/assets/medieval_animal_rigs.py`; allowed files: `assets/animals/medieval/medieval_horse*.glb`, `scripts/map/view3d/map_view_fauna_context.gd` (clip registry); verify: GLB imports, two clips present on rig, idle and walk loop seamlessly | claim: art-2@2026-07-29 | blocked: no python3 or blender runtime in this docker container — cannot execute `build_medieval_animal_models.py`, `medieval_animal_rigs.py`, or `verify_asset_lint.py`. Historical basis documented; awaiting environment with Blender 4.x + Python 3.12+ for production pass. | review: canon
 
 - [ ] A-003 | role: art | deps: none | deliverable: assets/props/architecture/gates/viru_gate.glb — 1343-period Viru Gate exterior model (single object, neutral pose) omitting post-1346 Fat Margaret barbican form; derived from R-002 wall/gate dossier and `docs/HISTORICAL_AUDIT.md` cross-map exclusions; allowed files: `assets/props/architecture/gates/viru_gate*.glb`; verify: GLB imports, silhouette matches circa-1343 tower form per plate evidence | review: canon
 
@@ -332,8 +333,9 @@ Rows close through `review: canon` like all content work.
 - [ ] R-056 | role: research | deps: R-020 | deliverable: history/dossiers/folklore/harju-hiis-sites-within-walk-1343.md - archaeological and LCD *lucus sanctus* candidates within one day's walk of 1343 Reval walls with confidence per site | verify: map-usable point list cited from belief-omens-and-healing open questions with attested vs reconstructed labels
 - [ ] R-057 | role: research | deps: R-024 | deliverable: history/dossiers/language/estonian-forenames-harju-1340s.md - attested Estonian and Undeutsch forename pool from AWB and manorial lists 1340–1350 with German-record spellings | verify: at least fifteen forenames with document date or source and confidence label usable in character generator
 - [x] R-063 | role: research | deps: none | deliverable: history/dossiers/dailylife/hygiene-and-grooming-1343.md - bathing, lice, haircut, soap, teeth, and urban waste practice in Hanseatic Reval with status contrasts | verify: at least three tier-specific grooming facts with confidence labels usable by character and art | claim: cursor-agent@2026-07-29 | review: canon
-- [ ] R-064 | role: research | deps: none | deliverable: history/dossiers/power/reval-street-cleaning-ordinances-1340s.md - AWB/council rows on dung carts, street dumping fines, and bath-house rent 1340–1343 | verify: at least three cited ordinance lines with document dates usable in siege sanitation quest beats
-- [ ] R-065 | role: research | deps: none | deliverable: history/dossiers/topography/public-bath-locations-1343.md - mapped bath plots on Nunne, Rataskaevu, Sauna street, and south-wall service zone from TLA property books | verify: point list with confidence labels cited from hygiene-and-grooming-1343 open questions
+- [~] R-064 | role: research | deps: none | deliverable: history/dossiers/power/reval-street-cleaning-ordinances-1340s.md - AWB/council rows on dung carts, street dumping fines, and bath-house rent 1340–1343 | verify: at least three cited ordinance lines with document dates usable in siege sanitation quest beats | claim: research-N@2026-07-29 | review: canon
+- [ ] R-066 | role: research | deps: R-064 | deliverable: history/dossiers/power/awb-sanitation-clauses-1340-1343.md - AWB folio read (Nottbeck 1888) for Badpacht, Mist, and Gasse rent/fine lines 1340–1343 with document dates | verify: every cited clause carries AWB entry number, folio or Nottbeck page, and confidence label; upgrades or refutes composite fines in reval-street-cleaning-ordinances-1340s dossier
+- [x] R-065 | role: research | deps: none | deliverable: history/dossiers/topography/public-bath-locations-1343.md - mapped bath plots on Nunne, Rataskaevu, Sauna street, and south-wall service zone from TLA property books | verify: point list with confidence labels cited from hygiene-and-grooming-1343 open questions | claim: cursor-agent@2026-07-29 | review: canon
 
 ### Small
 

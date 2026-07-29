@@ -12,6 +12,8 @@ related:
   - ../folklore/belief-omens-and-healing.md
   - ../religion/churches-and-religious-houses.md
   - ../power/reval-law-codex-arms-and-watch.md
+  - ../power/reval-street-cleaning-ordinances-1340s.md
+  - ../topography/public-bath-locations-1343.md
 updated: 2026-07-29
 ---
 
@@ -153,13 +155,15 @@ You are dressing **April–May 1343 Lower Town Reval** — a **Hanseatic port** 
 - [`belief-omens-and-healing.md`](../folklore/belief-omens-and-healing.md) — rural sauna healing; cunning-woman at grove edge.
 - [`churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) — Oleviste bath, Dominican service yard, Cistercian convent bath tradition.
 - [`reval-law-codex-arms-and-watch.md`](../power/reval-law-codex-arms-and-watch.md) — council authority for street order and neighbour pavement duty.
+- [`reval-street-cleaning-ordinances-1340s.md`](../power/reval-street-cleaning-ordinances-1340s.md) — dated bath and Art. 31 sanitation ordinance lines; AWB gap on 1340–1343 cart rent.
+- [`public-bath-locations-1343.md`](../topography/public-bath-locations-1343.md) — map POI IDs and authoring coordinates for municipal and convent baths.
 - [`kalamaja-fishing-shore-1343.md`](../topography/kalamaja-fishing-shore-1343.md) — shore washing and fish-gut smell.
 - [`viru-vanaturg-paving-archaeology.md`](../topography/viru-vanaturg-paving-archaeology.md) — forum-throat mud and market refuse.
 
 ## Open questions
 
-- **AWB / council pass for 1340–1343 street-cleaning, dung-cart, and bath-house rent rows** — candidate backlog row **R-064**.
-- **Measured map of attested 14th-c. bath plots** (Nunne, Rataskaevu, Sauna street) from TLA property books — candidate **R-065**.
+- **AWB / council pass for 1340–1343 street-cleaning, dung-cart, and bath-house rent rows** — delivered in [`reval-street-cleaning-ordinances-1340s.md`](../power/reval-street-cleaning-ordinances-1340s.md); **folio-level Badpacht/Mist clauses still open** (downstream index request).
+- **Measured map of attested 14th-c. bath plots** — delivered in [`public-bath-locations-1343.md`](../topography/public-bath-locations-1343.md); AWB Badpacht folio rows remain **R-066**.
 - **1343 poor-law charity bath day** — only **1391** comparandum reviewed; needs archival folio before staging.
 - **Archaeological privy locations** on Pikk/Lai 1340s layers — tie to [`pikk-lai-frontage-materials-1340s.md`](../topography/pikk-lai-frontage-materials-1340s.md).
 

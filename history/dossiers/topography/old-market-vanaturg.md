@@ -9,6 +9,7 @@ related:
   - ./walls-gates-towers.md
   - ../architecture/burgher-house-plan.md
   - ../economy/hanseatic-trade-and-season.md
+  - ../power/reval-street-cleaning-ordinances-1340s.md
 updated: 2026-07-28
 ---
 
@@ -142,7 +143,7 @@ Local axes: **+X east**, **+Y north**, origin at **forum SE corner** (shared wit
 - [`walls-gates-towers.md`](./walls-gates-towers.md) — Viru Gate mid-14th-c. state and clay-gate naming; east apron density.
 - [`viru-vanaturg-paving-archaeology.md`](./viru-vanaturg-paving-archaeology.md) — zone surface tags for Vanaturu kael and Viru gate apron from AVE 2016/17.
 - [`../architecture/burgher-house-plan.md`](../architecture/burgher-house-plan.md) — Strip-plot diele frontage on neck houses; projecting shop bay type.
-- [`../economy/hanseatic-trade-and-season.md`](../economy/hanseatic-trade-and-season.md) — Forum steelyard and convoy goods division at market throat.
+- [`../power/reval-street-cleaning-ordinances-1340s.md`](../power/reval-street-cleaning-ordinances-1340s.md) — fish-offal and dung dumping fines at forum throat under Art. 31 orders.
 
 ## Open questions
 

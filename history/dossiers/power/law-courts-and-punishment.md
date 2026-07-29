@@ -10,6 +10,7 @@ related:
   - ../crafts/guild-structure.md
   - ../topography/raekoja-plats-extents-1343.md
   - ./reval-law-codex-arms-and-watch.md
+  - ./reval-street-cleaning-ordinances-1340s.md
   - ../economy/coinage-prices-and-measures.md
   - ../language/names-address-and-oaths.md
 updated: 2026-07-28
@@ -145,7 +146,7 @@ Consumers are quest/narrative; four procedure and punishment visuals suffice. No
 ## Cross-references
 
 - [`./jurisdictions-of-reval.md`](./jurisdictions-of-reval.md) — which authority tries whom; forum-shopping seams for quest design.
-- [`./reval-law-codex-arms-and-watch.md`](./reval-law-codex-arms-and-watch.md) — 1282 codex articles and Burspraken layer for arms, watch, and muster offences.
+- [`./reval-street-cleaning-ordinances-1340s.md`](./reval-street-cleaning-ordinances-1340s.md) — forum dumping fines and Art. 31 Burspraken enforcement under Vogt.
 - [`./order-comptoir-transition-1343-1346.md`](./order-comptoir-transition-1343-1346.md) — post-16 May Order castle authority; Vogt/Rat unchanged inside Lower Town.
 - [`../people/town-council-and-officers.md`](../people/town-council-and-officers.md) — Vogt, Rat, burgomasters, Stadtschreiber, and Town Hall meeting room.
 - [`../military/watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) — curfew breaches and gate-control offences handed to Vogt.

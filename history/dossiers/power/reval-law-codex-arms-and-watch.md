@@ -6,6 +6,7 @@ consumers: [quest, dev, narrative, character]
 related:
   - ./law-courts-and-punishment.md
   - ./jurisdictions-of-reval.md
+  - ./reval-street-cleaning-ordinances-1340s.md
   - ../military/watch-duty-and-town-defence.md
   - ../military/arms-and-armour-livonia-1340s.md
   - ../people/town-council-and-officers.md
@@ -135,7 +136,7 @@ Hanse Lexikon summarises the **Bürgereid / Burspraken** obligations recurring i
 - [`../military/arms-and-armour-livonia-1340s.md`](../military/arms-and-armour-livonia-1340s.md) — materials and smith-producible items for arms-check scenes.
 - [`../people/town-council-and-officers.md`](../people/town-council-and-officers.md) — burgomasters, Vogt, Stadtschreiber as enforcement officers.
 - [`../economy/coinage-prices-and-measures.md`](../economy/coinage-prices-and-measures.md) — mark/schilling/pfennig scale for Art. 90/91/50 fines.
-- [`../language/names-address-and-oaths.md`](../language/names-address-and-oaths.md) — Bürgereid and Low German court formulae.
+- [`./reval-street-cleaning-ordinances-1340s.md`](./reval-street-cleaning-ordinances-1340s.md) — Art. 31 Burspraken layer applied to street dumping and bath regulation; fine amounts mostly gap.
 
 ## Open questions
 
