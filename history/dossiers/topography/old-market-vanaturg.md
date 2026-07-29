@@ -144,6 +144,7 @@ Local axes: **+X east**, **+Y north**, origin at **forum SE corner** (shared wit
 - [`viru-vanaturg-paving-archaeology.md`](./viru-vanaturg-paving-archaeology.md) — zone surface tags for Vanaturu kael and Viru gate apron from AVE 2016/17.
 - [`../architecture/burgher-house-plan.md`](../architecture/burgher-house-plan.md) — Strip-plot diele frontage on neck houses; projecting shop bay type.
 - [`../power/reval-street-cleaning-ordinances-1340s.md`](../power/reval-street-cleaning-ordinances-1340s.md) — fish-offal and dung dumping fines at forum throat under Art. 31 orders.
+- [`../economy/merchant-cart-and-transport-1340s.md`](../economy/merchant-cart-and-transport-1340s.md) — east-throat cart queue geometry and wheel track for supply traffic.
 
 ## Open questions
 

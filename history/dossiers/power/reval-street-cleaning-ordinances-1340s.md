@@ -113,6 +113,8 @@ You are writing **civic sanitation enforcement in April–May 1343 Lower Town**,
 - [`coinage-prices-and-measures.md`](../economy/coinage-prices-and-measures.md) — schilling fine bands when ordinance amount is silent.
 - [`old-market-vanaturg.md`](../topography/old-market-vanaturg.md) — forum throat where fish and dung nuisances collide.
 - [`viru-vanaturg-paving-archaeology.md`](../topography/viru-vanaturg-paving-archaeology.md) — gate apron surfaces and dumping prohibition zone.
+- [`public-bath-locations-1343.md`](../topography/public-bath-locations-1343.md) — mapped municipal bath POIs for stupa brawl and peripheral drain logic.
+- [`../economy/merchant-cart-and-transport-1340s.md`](../economy/merchant-cart-and-transport-1340s.md) — dung-cart gap; no attested 1343 municipal cart livery.
 
 ## Open questions
 

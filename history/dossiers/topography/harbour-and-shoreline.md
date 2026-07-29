@@ -130,6 +130,7 @@ No licensed plate reproduces the **1343 rectangular Coastal Gate** or **exact 13
 - [`lower-town-street-plan.md`](./lower-town-street-plan.md) — **Pikk** as merchant/harbour spine; Block B grade fall toward north margin; **Vene** quarter riverside limit (open question partially resolved here).
 - [`walls-gates-towers.md`](./walls-gates-towers.md) — **Coastal Gate** and **Sand Gate** positions, cliff height, absent foregates/Fat Margaret.
 - [`../nature/spring-climate-and-living-world.md`](../nature/spring-climate-and-living-world.md) — April–May weather, ice break-up, and St George's Night outdoor dressing.
+- [`../economy/merchant-cart-and-transport-1340s.md`](../economy/merchant-cart-and-transport-1340s.md) — barrel transfer from lighter to cart at wet margin; harbour supply loads.
 - [`../economy/hanseatic-trade-and-season.md`](../economy/hanseatic-trade-and-season.md) — April–May sailing, Novgorod route, staple goods (R-015 deliverable).
 - Project report [`../../../docs/reports/reval_harbour_1343_research.md`](../../../docs/reports/reval_harbour_1343_research.md) — map translation decisions for `reval_harbor_north` / `reval_harbor_east`.
 

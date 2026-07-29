@@ -30,7 +30,7 @@ References:
 | P4 |    21  |    42  | Act 1: The Simmering City |
 | P5 |    10  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
-| R  |    18  |    27  | Historical research backlog (researcher-managed, cross-cutting) |
+| R  |    17  |    28  | Historical research backlog (researcher-managed, cross-cutting) |
 | A  |     4  |     0  | Art and animation backlog (art-managed, cross-cutting) |
 
 
@@ -149,7 +149,7 @@ References:
 
 
 
-<!-- R-055 completed in current session -->
+<!-- R-068 completed in current session -->
 <!-- R-054 completed in current session -->
 <!-- R-004 completed in current session -->
 <!-- R-006 completed in current session -->
@@ -241,7 +241,7 @@ production demand rather than campaign band, and close through `review: canon` l
 
 - [ ] A-004 | role: art | deps: none | deliverable: assets/props/trade/supply_cart.glb — merchant supply cart prop (single object, neutral) for use on supply-chain quest routes; derived from R-012 economy dossier brief; allowed files: `assets/props/trade/supply_cart*.glb`; verify: GLB imports cleanly, reads as functional 14th-c. merchant cart at gameplay camera distance | review: canon
 
-- [ ] A-005 | role: art | deps: none | deliverable: assets/birds/mallard/standing.glb — mallard procedural mesh with script-driven flap and glide cadence via `map_view_bird_flight.gd`; allowed files: `assets/birds/mallard/*.glb`, `scripts/map/view3d/map_view_bird_flight.gd` | verify: GLB imports, flight script references mesh; idle/walk clips not required (procedural class) | review: canon
+- [~] A-005 | role: art | deps: none | deliverable: assets/birds/mallard/standing.glb — mallard procedural mesh with script-driven flap and glide cadence via `map_view_bird_flight.gd`; allowed files: `assets/birds/mallard/*.glb`, `scripts/map/view3d/map_view_bird_flight.gd` | verify: GLB imports, flight script references mesh; idle/walk clips not required (procedural class) | claim: art-5@2026-07-29 | review: canon
 
 - [ ] A-006 | role: art | deps: none | deliverable: assets/characters/shared/kalev.glb — hero Kalev mesh with all 76 shared KayKit body clips retargeted; allowed files: `assets/characters/shared/kalev*.glb`, `animation_overrides` in `.tres`; verify: GLB imports, clip count matches humanoid contract, overrides documented | review: canon
 
@@ -324,7 +324,8 @@ Rows close through `review: canon` like all content work.
 - [x] R-058 | role: research | deps: R-011 | deliverable: history/dossiers/military/lower-town-weapon-finds-1340s.md - archaeological weapon and armour fragments from Lower Town occupation layers and Jahu/Lootsi waste exports c. 1340–1450 | verify: typed find list with layer dates, confidence labels, and gap statement for absent categories | review: canon
 - [~] R-061 | role: research | deps: R-058 | deliverable: history/dossiers/military/lower-town-in-situ-projectiles-inventory.md - TLÜ foto.arheoloogia.ee / AI inventory pass for arrowheads and crossbow bolts from Pikk, Lai, Rahukohtu, Müürivahe rescue collections with document dates | verify: at least five named finds with AI inventory number, plot address, and confidence label | claim: research-N@2026-07-29
 - [!] R-062 | role: research | deps: R-058 | deliverable: fetch `military.lower-town-weapon-finds-1340s.01` and `.02` reference plates once Meremuuseum / AVE publish open-licence Lootsi projectile photography | verify: `python3 tools/research/fetch_reference_plates.py --slug lower-town-weapon-finds-1340s --verify` reports fetched rows for Tallinn-origin springald and arrowhead plates | blocked: Meremuuseum/AVE Lootsi springald photos remain PDF-embedded only (AVE 2022:10 figs. 7, 9); no CC BY / CC BY-SA / PD raster on Commons, Meremuuseum site, or foto.arheoloogia.ee as of 2026-07-29
-- [~] R-068 | role: research | deps: none | deliverable: history/dossiers/economy/merchant-cart-and-transport-1340s.md - Hanseatic two-wheel and four-wheel carts, sledges, harness, wheel and axle construction for Reval supply routes | verify: art-usable cart silhouette, wheel type, and load props for A-004 supply_cart with confidence labels per element | claim: research-N@2026-07-29
+- [x] R-068 | claim: cursor-agent@2026-07-29 | role: research | deps: none | deliverable: history/dossiers/economy/merchant-cart-and-transport-1340s.md - Hanseatic two-wheel and four-wheel carts, sledges, harness, wheel and axle construction for Reval supply routes | verify: art-usable cart silhouette, wheel type, and load props for A-004 supply_cart with confidence labels per element | review: canon
+- [~] R-069 | role: research | deps: none | deliverable: history/dossiers/economy/reval-cart-tolls-and-fuhr-rent-1340s.md - AWB/council entries for cart tolls, Fuhr rent, and wheel tax 1340–1343 | verify: at least two cited document lines with dates or explicit gap statement usable in harbour and forum economy quests | claim: research-N@2026-07-29
 - [~] R-049 | role: research | deps: R-016 | deliverable: history/dossiers/religion/ecclesiastical-precinct-boundaries-1343.md - measured Dominican and St Michael close polygons against 1340s wall incorporation | verify: labelled precinct map cited from churches-and-religious-houses dossier with confidence per boundary segment | claim: research-N@2026-07-28 | review: canon
 - [ ] R-050 | role: research | deps: R-017 | deliverable: history/dossiers/economy/reval-market-weekday-1340s.md - weekly market day and holy-day trading rules from AWB/council ordinances 1340–1343 | verify: cites at least one document date naming market weekday or a feast-day trading fine applicable in 1343
 - [x] R-051 | role: research | deps: R-017 | deliverable: fetch `religion.liturgical-calendar-spring-1343.01` through `.05` reference plates once Wikimedia rate-limit clears | verify: `python3 tools/research/fetch_reference_plates.py --slug liturgical-calendar-spring-1343 --verify` reports five fetched plates with no linked or failed rows
