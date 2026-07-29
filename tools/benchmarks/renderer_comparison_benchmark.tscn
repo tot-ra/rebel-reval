@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/reval_east/reval_east.tscn" id="1_lower_town"]
+[ext_resource type="Script" path="res://tools/benchmarks/renderer_comparison.gd" id="2_renderer_comparison"]
+
+[node name="RendererComparisonBenchmark" type="Node"]
+
+[node name="LowerTown" parent="." instance=ExtResource("1_lower_town")]
+
+[node name="RendererComparisonRecorder" type="Node" parent="."]
+script = ExtResource("2_renderer_comparison")
