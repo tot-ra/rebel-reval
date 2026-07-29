@@ -24,6 +24,7 @@ static func expand_primitives(
 		"patrols": [],
 		"exclusions": [],
 		"fades": [],
+		"decals": [],
 		"signs": [],
 		"landmarks": [],
 		"resolved_ids": {},
@@ -83,6 +84,8 @@ static func expand_primitives(
 				_expand_rect_record(&"exclusion", primitive_id, data, style_values, inline_overrides, MapBlueprintCompiler.RECT_KEYS, blueprint, path, expanded["exclusions"], expanded, global_overrides, errors)
 			&"fade_rect":
 				_expand_rect_record(&"fade", primitive_id, data, style_values, inline_overrides, MapBlueprintCompiler.RECT_KEYS, blueprint, path, expanded["fades"], expanded, global_overrides, errors)
+			&"decal_rect":
+				_expand_decal(primitive_id, data, style_values, inline_overrides, blueprint, path, expanded, global_overrides, errors)
 			&"direction_sign":
 				_expand_sign(primitive_id, data, style_values, inline_overrides, blueprint, path, expanded, global_overrides, errors)
 			&"view_landmark":
@@ -151,6 +154,31 @@ static func _expand_rect_record(
 	values["id"] = object_id
 	values["record_kind"] = record_kind
 	destination.append(values)
+
+
+static func _expand_decal(
+	object_id: StringName, data: Dictionary, style: Dictionary, inline: Dictionary,
+	blueprint: MapBlueprint, path: String, expanded: Dictionary, global: Dictionary, errors: Array[String]
+) -> void:
+	var values := resolved_values(object_id, data, style, inline, global, MapBlueprintCompiler.DECAL_KEYS, path, errors)
+	register_id(object_id, path, expanded, errors)
+	if not bool(values.get("enabled", true)):
+		return
+	var rect: Variant = values.get("rect")
+	if not rect is Rect2i:
+		errors.append("%s.rect must be Rect2i" % path)
+		return
+	MapBlueprintCompiler._validate_rect(rect, "%s.rect" % path, blueprint.size_cells, errors)
+	var kind: StringName = values.get("kind", &"")
+	if not MapTypes.ALL_DECAL_KINDS.has(kind):
+		errors.append("%s kind is unknown: %s" % [path, String(kind)])
+	var radius: Variant = values.get("radius", MapTypes.DECAL_DEFAULT_RADIUS)
+	if not radius is float and not radius is int:
+		errors.append("%s.radius must be numeric" % path)
+		return
+	values["radius"] = float(radius)
+	values["id"] = object_id
+	expanded["decals"].append(values)
 
 
 static func _expand_patrol(

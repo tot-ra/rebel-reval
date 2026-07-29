@@ -123,6 +123,50 @@ spawn spawn.main 12 12
 	assert_eq(reparsed.definition.ground_elevation, 2.8)
 
 
+func test_decal_statements_round_trip_kinds_radius_and_rotation() -> void:
+	var source := """rrmap 1
+map decal_test loc.decal_test 12 10 grass
+decal soot_pad soot 3 3 2 2 radius=1.8
+decal mud_door mud 5 5 2 1 radius=1.3 rotation=0.35
+decal wet_step wet_threshold 7 7 1 1
+spawn spawn.main 2 2
+"""
+	var parsed := MapRrmapParser.parse(source, "res://decal_test.rrmap")
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if not parsed.is_ok():
+		return
+	assert_eq(parsed.definition.decals.size(), 3)
+	var decals_by_id: Dictionary = {}
+	for decal in parsed.definition.decals:
+		decals_by_id[decal.get("id")] = decal
+	var soot: Dictionary = decals_by_id[&"soot_pad"]
+	assert_eq(soot.get("kind"), MapTypes.DECAL_KIND_SOOT)
+	assert_eq(soot.get("radius", 0.0), 1.8)
+	var mud: Dictionary = decals_by_id[&"mud_door"]
+	assert_eq(mud.get("kind"), MapTypes.DECAL_KIND_MUD)
+	assert_eq(mud.get("rotation", 0.0), 0.35)
+	var wet: Dictionary = decals_by_id[&"wet_step"]
+	assert_eq(wet.get("kind"), MapTypes.DECAL_KIND_WET_THRESHOLD)
+	assert_eq(wet.get("radius", 0.0), MapTypes.DECAL_DEFAULT_RADIUS)
+	var canonical := MapRrmapParser.canonical_print(parsed.blueprint)
+	assert_true("decal soot_pad soot 3 3 2 2 radius=1.8" in canonical)
+	assert_true("rotation=0.35" in canonical)
+	var reparsed := MapRrmapParser.parse(canonical, "res://decal_test.canonical.rrmap")
+	assert_true(reparsed.is_ok(), str(reparsed.formatted_diagnostics()))
+	assert_eq(reparsed.definition.decals.size(), 3)
+
+
+func test_unknown_decal_kind_is_rejected() -> void:
+	var source := """rrmap 1
+map decal_invalid loc.decal_invalid 8 8 grass
+decal bad bloodstain 2 2 1 1
+spawn spawn.main 1 1
+"""
+	var parsed := MapRrmapParser.parse(source, "res://decal_invalid.rrmap")
+	assert_false(parsed.is_ok())
+	assert_true(_has_code(parsed, &"unknown_decal_kind"))
+
+
 func test_malformed_input_reports_file_line_column_and_code() -> void:
 	var source := """rrmap 1
 map malformed loc.malformed twelve 10 grass

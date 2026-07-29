@@ -226,6 +226,14 @@ Authoring guidance:
 
 Unknown kinds are skipped at build time. Clearing `decals` must leave gameplay grid fingerprints unchanged.
 
+rrmap v1 authoring (P0-162):
+
+```text
+decal <id> <kind> <x> <y> <width> <height> [radius=N] [rotation=N] [tint=#rrggbbaa]
+```
+
+The placement rect selects the authored cell footprint; the compiler places the decal at the rect center in world pixels. `radius` defaults to `MapTypes.DECAL_DEFAULT_RADIUS` (1.1). Decals are view-only and excluded from the gameplay fingerprint.
+
 
 For an enterable building, keep the transition rectangle on the walkable approach and set `building_id=<stable building id>`. The 2D trigger remains independently sized for reliable traversal, while the 3D renderer snaps the entrance to the nearest aligned facade and suppresses conflicting procedural facade details. Omit `building_id` for interior wall doors and freestanding gates.
 
@@ -684,7 +692,7 @@ file          = trivia, "rrmap", WS, "1", EOL,
 trivia        = { blank_line | comment_line } ;
 statement     = source | surroundings | camera | style
               | terrain | terrain_rects | stroke | building | wall | prop
-              | spawn | transition | anchor | patrol | exclude | fade
+              | spawn | transition | anchor | patrol | exclude | fade | decal
               | sign | landmark | package | prefab | override ;
 
 map           = "map", ID, ID, INT, INT, ID,
@@ -722,6 +730,8 @@ anchor        = "anchor", ID, INT, INT,
 patrol        = "patrol", ID, POINT_LIST ;
 exclude       = "exclude", ID, RECT ;
 fade          = "fade", ID, RECT ;
+decal         = "decal", ID, DECAL_KIND, RECT,
+                [ "radius=", NUMBER ], [ "rotation=", NUMBER ], [ "tint=", COLOR ] ;
 sign          = "sign", ID, STRING, INT, INT, SIDE,
                 [ "style=", ID ], { typed_option } ;
 landmark      = "landmark", ID, ID, RECT,
@@ -770,6 +780,7 @@ fingerprint. Toompea currently uses `elevation=2.8`.
 | `patrol` | `patrol_path()` |
 | `exclude` | `excluded_rect()` |
 | `fade` | `fade_rect()` |
+| `decal` | `decal_rect()` |
 | `sign` | `direction_sign()` |
 | `landmark` | `view_landmark()` |
 | `package urban 1` | `use_prefab_package(UrbanPrefabPackage.create())` |

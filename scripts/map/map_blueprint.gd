@@ -293,6 +293,17 @@ func fade_rect(fade_id: StringName, rect: Rect2i, overrides: Dictionary = {}) ->
 	return self
 
 
+func decal_rect(
+	decal_id: StringName,
+	kind: StringName,
+	rect: Rect2i,
+	radius: float = MapTypes.DECAL_DEFAULT_RADIUS,
+	overrides: Dictionary = {}
+) -> MapBlueprint:
+	_append_primitive(&"decal_rect", decal_id, {"kind": kind, "rect": rect, "radius": radius}, &"", overrides)
+	return self
+
+
 func direction_sign(
 	sign_id: StringName,
 	text: String,

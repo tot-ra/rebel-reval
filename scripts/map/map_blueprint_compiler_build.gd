@@ -95,6 +95,11 @@ static func build_definition(blueprint: MapBlueprint, expanded: Dictionary) -> M
 			volume["music_theme"] = &"garden"
 		definition.fade_volumes.append(volume)
 
+	var decals: Array = expanded["decals"]
+	decals.sort_custom(MapBlueprintCompiler._compare_id_records)
+	for values in decals:
+		definition.decals.append(_compile_decal(values, definition))
+
 	definition.source_references = blueprint.source_references.duplicate()
 	definition.source_references.sort()
 	definition.surroundings_sides = blueprint.surroundings_sides.duplicate()
@@ -156,6 +161,17 @@ static func _compile_sign(values: Dictionary, definition: MapDefinition) -> Dict
 static func _compile_landmark(values: Dictionary, definition: MapDefinition) -> Dictionary:
 	var output := {"id": values["id"], "kind": values["kind"], "rect": definition.cell_rect_to_world_rect(values["rect"])}
 	_copy_fields(values, output, [&"wall_color", &"top_px", &"door_material", &"gate_variant", &"grille_variant", &"passage_axis"])
+	return output
+
+
+static func _compile_decal(values: Dictionary, definition: MapDefinition) -> Dictionary:
+	var output := {
+		"id": values["id"],
+		"kind": values["kind"],
+		"position": definition.cell_rect_center(values["rect"]),
+		"radius": values.get("radius", MapTypes.DECAL_DEFAULT_RADIUS),
+	}
+	_copy_fields(values, output, [&"rotation", &"tint"])
 	return output
 
 

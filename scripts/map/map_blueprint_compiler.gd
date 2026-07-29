@@ -30,6 +30,7 @@ const TRANSITION_KEYS: Array[StringName] = [
 const ANCHOR_KEYS: Array[StringName] = [&"cell", &"rect", &"kind"]
 const PATROL_KEYS: Array[StringName] = [&"points", &"point_rects"]
 const RECT_KEYS: Array[StringName] = [&"rect"]
+const DECAL_KEYS: Array[StringName] = [&"rect", &"kind", &"radius", &"rotation", &"tint"]
 const SIGN_KEYS: Array[StringName] = [&"text", &"cell", &"rect", &"direction"]
 const LANDMARK_OVERRIDE_KEYS: Array[StringName] = [
 	&"rect", &"wall_color", &"top_px", &"door_material", &"gate_variant", &"grille_variant", &"passage_axis",
@@ -41,6 +42,7 @@ const ALL_STYLE_KEYS: Array[StringName] = [
 	&"spawn_id", &"building_id", &"spawn_offset_px", &"highlight_area", &"transition_visual", &"view_landmark_id", &"alignment", &"kind",
 	&"points", &"point_rects", &"text", &"direction", &"top_px", &"door_material", &"gate_variant", &"grille_variant", &"passage_axis",
 	&"movement_speed_multiplier", &"tower", &"round_tower", &"wall_material", &"roof_material", &"faction", &"display_goods", &"table_items",
+	&"radius", &"rotation", &"tint",
 ]
 
 

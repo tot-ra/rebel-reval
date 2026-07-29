@@ -85,6 +85,8 @@ func parse_statement(tokens: Array[Dictionary], line: int) -> void:
 			_parse_simple_rect(tokens, line, &"exclude")
 		"fade":
 			_parse_simple_rect(tokens, line, &"fade")
+		"decal":
+			_parse_decal(tokens, line)
 		"sign":
 			_parse_sign(tokens, line)
 		"landmark":
@@ -459,6 +461,47 @@ func _parse_simple_rect(tokens: Array[Dictionary], line: int, kind: StringName) 
 		_parser._blueprint.excluded_rect(StringName(tokens[1]["text"]), rect)
 	else:
 		_parser._blueprint.fade_rect(StringName(tokens[1]["text"]), rect)
+
+
+func _parse_decal(tokens: Array[Dictionary], line: int) -> void:
+	if not _tokens.arity(
+		tokens,
+		line,
+		7,
+		"decal <id> <kind> <x> <y> <width> <height> [radius=N] [rotation=N] [tint=#rrggbbaa]"
+	):
+		return
+	var kind := StringName(tokens[2]["text"])
+	if kind not in MapTypes.ALL_DECAL_KINDS:
+		_parser._error(
+			line,
+			tokens[2]["column"],
+			&"unknown_decal_kind",
+			"decal kind '%s' is unknown; expected one of: %s" % [tokens[2]["text"], ", ".join(MapTypes.ALL_DECAL_KINDS.map(func(value: StringName) -> String: return String(value)))]
+		)
+		return
+	var rect = _tokens.rect_from_tokens(tokens, line, 3)
+	var options = _tokens.options(tokens, line, 7, ["radius", "rotation", "tint"])
+	if rect == null or options == null:
+		return
+	var radius := MapTypes.DECAL_DEFAULT_RADIUS
+	if options.has("radius"):
+		var parsed_radius = _tokens.float_value(options["radius"], line, _tokens.option_column(tokens, "radius"))
+		if parsed_radius == null:
+			return
+		radius = parsed_radius
+	var overrides: Dictionary = {}
+	if options.has("rotation"):
+		var parsed_rotation = _tokens.float_value(options["rotation"], line, _tokens.option_column(tokens, "rotation"))
+		if parsed_rotation == null:
+			return
+		overrides["rotation"] = parsed_rotation
+	if options.has("tint"):
+		var parsed_tint = _tokens.color_value(options["tint"], line, _tokens.option_column(tokens, "tint"))
+		if parsed_tint == null:
+			return
+		overrides["tint"] = parsed_tint
+	_parser._blueprint.decal_rect(StringName(tokens[1]["text"]), kind, rect, radius, overrides)
 
 
 func _parse_sign(tokens: Array[Dictionary], line: int) -> void:
