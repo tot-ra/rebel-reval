@@ -1,5 +1,8 @@
 # Production roadmap
 
+<!-- P0-163 completed in current session -->
+Coordination note (2026-07-30 P0-163): burgher-house typology contract now ships closed `house_tier` allowlist (`merchant_stone` / `merchant_timber` / `craft_boda`) through rrmap tokens, compiler building overrides, and `MapPropStyleVariants`, with diele/dornse depth split, hoist rules, ward bias, and Late-Gothic rejection documented in `docs/reports/burgher_house_typology_contract.md` and `docs/MAP_AUTHORING.md`. Verified: `--filter=test_burgher_house_typology_contract` (3/3). Next burgher-house step: art brief **A-008**, then exterior kits **P2-063**–**P2-065**.
+
 Coordination notes, delivery order, and planning context formerly embedded in `TODO.md`.
 Executable open work stays in [`TODO.md`](../TODO.md).
 

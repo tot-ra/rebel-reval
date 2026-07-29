@@ -28,3 +28,5 @@
 - Before editing from a summarized audit, re-read the exact target line; a stale assumption can turn an already-correct permission into a failed replacement.
 - After programmatic regex edits, inspect the saved source representation and run a tiny fixture immediately; doubled backslashes in raw strings can silently change whitespace matching into literal text matching.
 - When a Producer-only TODO/ROADMAP tick makes the active Markdown report stale, create a bounded QA report-refresh row instead of editing the generated report outside Producer ownership.
+- When a TODO allowlist names only `map_blueprint_compiler.gd` for a new typed style key, also update `map_blueprint_compiler_build.gd` (field copy) and `map_blueprint_compiler_expand_geometry.gd` / expand validation, or the key parses but never reaches `MapDefinition` and rejection tests stay red.
+- Godot contract tests that assert documentation phrases are case-sensitive; match the exact casing used in the report (`Late-Gothic` vs `late-Gothic`) rather than assuming title-case variants.

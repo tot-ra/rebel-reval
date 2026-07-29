@@ -270,6 +270,7 @@ Manifest rows: [`history/reference/plates.csv`](../../reference/plates.csv). In-
 |------|----------|--------|
 | 2026-07-30 | Promote this dossier into production TODO rows: authoring contract **P0-163**; exterior kits **P2-063** (`merchant_stone`), **P2-064** (`merchant_timber`), **P2-065** (`craft_boda`); plot dressing **P2-066**; Lower Town wiring **P2-067**; art brief/sign-off **A-008** / **A-009**. Ordinary houses must follow the Brief ship decisions above; late-Gothic tourist facades are not the 1343 default. | User request (A2gent session); primary context this file |
 | 2026-07-30 | Keep house tier tags exactly `merchant_stone`, `merchant_timber`, `craft_boda` as the closed production allowlist (matches Dev/systems hook below). | R-003 Dev / systems hook |
+| 2026-07-30 | Authoring contract **P0-163** wires `house_tier` into rrmap/compiler allowlists and documents diele/dornse split, hoist rules, and late-Gothic rejection in `docs/reports/burgher_house_typology_contract.md`. | P0-163 implementation |
 
 ## Production hooks
 

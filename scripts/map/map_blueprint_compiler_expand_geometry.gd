@@ -3,6 +3,8 @@ extends RefCounted
 
 ## Building and wall primitive expansion for MapBlueprintCompilerExpand.
 
+const PropStyleVariants := preload("res://scripts/map/map_prop_style_variants.gd")
+
 
 static func expand_structure(
 	object_id: StringName, data: Dictionary, style: Dictionary, inline: Dictionary,
@@ -160,6 +162,11 @@ static func append_building(
 		return
 	if not MapTypes.ALL_BUILDING_KINDS.has(values.get("kind", &"")):
 		errors.append("%s building kind is unknown: %s" % [path, str(values.get("kind", ""))])
+	# P0-163: closed R-003 house_tier allowlist. Empty stays legal so legacy
+	# houses keep deterministic hash styles until P2-067 assigns tiers.
+	var house_tier := StringName(values.get("house_tier", &""))
+	if not PropStyleVariants.is_known_house_tier(house_tier):
+		errors.append("%s house_tier is unknown: %s" % [path, String(house_tier)])
 	var rect: Variant = values.get("rect")
 	if not rect is Rect2i:
 		errors.append("%s.rect must be Rect2i" % path)

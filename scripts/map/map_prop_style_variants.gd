@@ -62,6 +62,27 @@ const HEARTH_STATE_VARIANTS: Array[StringName] = [
 const KITCHENWARE_VARIANTS: Array[StringName] = MapTypes.KITCHENWARE_VARIANTS
 const HOUSEHOLD_CLUTTER_VARIANTS: Array[StringName] = MapTypes.HOUSEHOLD_CLUTTER_VARIANTS
 
+## Closed R-003 / P0-163 ordinary Lower Town house tiers. Optional on house
+## buildings; empty means "unset / legacy hash style" until P2-067 wiring.
+const HOUSE_TIER_MERCHANT_STONE := &"merchant_stone"
+const HOUSE_TIER_MERCHANT_TIMBER := &"merchant_timber"
+const HOUSE_TIER_CRAFT_BODA := &"craft_boda"
+const HOUSE_TIERS: Array[StringName] = [
+	HOUSE_TIER_MERCHANT_STONE,
+	HOUSE_TIER_MERCHANT_TIMBER,
+	HOUSE_TIER_CRAFT_BODA,
+]
+
+
+static func is_known_house_tier(tier: StringName) -> bool:
+	if tier.is_empty():
+		return true
+	return tier in HOUSE_TIERS
+
+
+static func house_tier_allows_hoist(tier: StringName) -> bool:
+	return tier == HOUSE_TIER_MERCHANT_STONE or tier == HOUSE_TIER_MERCHANT_TIMBER
+
 
 static func is_known(kind: StringName, variant: StringName) -> bool:
 	if variant.is_empty():
