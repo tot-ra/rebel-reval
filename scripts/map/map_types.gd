@@ -389,15 +389,15 @@ const ALL_DECAL_KINDS: Array[StringName] = [
 ## Decal color tints per kind. Alpha is the base opacity; the shader further
 ## modulates by procedural edge falloff.
 const DECAL_TINTS: Dictionary = {
-	DECAL_KIND_SOOT: Color(0.12, 0.11, 0.10, 0.45),
-	DECAL_KIND_MUD: Color(0.38, 0.28, 0.18, 0.50),
-	DECAL_KIND_BLOOD: Color(0.45, 0.06, 0.04, 0.55),
-	DECAL_KIND_SCORCH: Color(0.08, 0.07, 0.06, 0.40),
-	DECAL_KIND_GRIME: Color(0.22, 0.20, 0.16, 0.35),
-	DECAL_KIND_WET_THRESHOLD: Color(0.30, 0.32, 0.30, 0.30),
+	DECAL_KIND_SOOT: Color(0.10, 0.09, 0.08, 0.72),
+	DECAL_KIND_MUD: Color(0.36, 0.26, 0.16, 0.70),
+	DECAL_KIND_BLOOD: Color(0.48, 0.05, 0.03, 0.75),
+	DECAL_KIND_SCORCH: Color(0.06, 0.05, 0.04, 0.68),
+	DECAL_KIND_GRIME: Color(0.20, 0.18, 0.14, 0.55),
+	DECAL_KIND_WET_THRESHOLD: Color(0.28, 0.30, 0.28, 0.48),
 }
-## Default decal radius in world units (one logic cell).
-const DECAL_DEFAULT_RADIUS := 0.6
+## Default decal radius in world units (~two logic cells).
+const DECAL_DEFAULT_RADIUS := 1.1
 
 const DEFAULT_CELL_SIZE := 32
 const DEFAULT_SEED := 42042

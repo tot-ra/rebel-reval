@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `76`
-- Markdown files excluded as archive/reference/out of active scope: `443`
-- Local/external links inspected: `477`
-- Links to active Markdown docs: `202`
+- Active Markdown files scanned: `77`
+- Markdown files excluded as archive/reference/out of active scope: `450`
+- Local/external links inspected: `479`
+- Links to active Markdown docs: `204`
 - Links to existing archive/reference/non-active local docs: `95`
 - External links skipped for reachability: `33`
 - Issues found: `0`
@@ -108,6 +108,7 @@ No active Markdown documentation issues found.
 - `docs/SCENES/the-price-of-a-name.md`
 - `docs/SETUP.md`
 - `docs/TASK_ARCHIVE.md`
+- `docs/TEXTURE_AI_GENERATION.md`
 - `docs/THIRD_PARTY_NOTICES.md`
 - `docs/TOURIST_LANDMARKS.md`
 - `docs/VISUAL_FIDELITY_PLAN.md`

@@ -4,14 +4,18 @@ extends RefCounted
 ## P0-157: Wear/grime/blood decal system for environmental storytelling.
 ## Flat transparent MeshInstance3D overlays placed from MapDefinition.decals.
 ## GL-Compatibility compatible: no Decal3D node, just projected quads with
-## a procedural shader that blends soft edges over the opaque ground.
+## a soft-edge shader that multiplies authored alpha masks by DECAL_TINTS.
 
 const MaterialShaders := preload("res://scripts/map/view3d/map_view_material_shaders.gd")
 const MeshBuilderPrimitives := preload("res://scripts/map/view3d/map_view_mesh_builder_primitives.gd")
+const MeshBuilder := preload("res://scripts/map/view3d/map_view_mesh_builder.gd")
 const Bridge := preload("res://scripts/map/view3d/map_view_bridge.gd")
 
-## Slight lift above ground to avoid z-fighting while staying imperceptible.
-const GROUND_LIFT := 0.003
+## Slight lift above sampled ground to avoid z-fighting while staying imperceptible.
+const GROUND_LIFT := 0.015
+const MASK_DIR := "res://assets/materials/decals"
+
+static var _mask_cache: Dictionary = {}
 
 
 static func _decal_quad_mesh(radius: float) -> ArrayMesh:
@@ -42,6 +46,29 @@ static func _decal_quad_mesh(radius: float) -> ArrayMesh:
 	return mesh
 
 
+static func _mask_texture(kind: StringName) -> Texture2D:
+	if _mask_cache.has(kind):
+		return _mask_cache[kind]
+	var path := "%s/%s.png" % [MASK_DIR, String(kind)]
+	var texture: Texture2D = null
+	if ResourceLoader.exists(path):
+		texture = load(path) as Texture2D
+	_mask_cache[kind] = texture
+	return texture
+
+
+static func _decal_material(kind: StringName, tint: Color) -> ShaderMaterial:
+	var material := ShaderMaterial.new()
+	material.shader = MaterialShaders.shader("wear_decal", MaterialShaders.WEAR_DECAL_SHADER_CODE)
+	material.render_priority = -1
+	material.set_shader_parameter("tint_color", tint)
+	material.set_shader_parameter("soft_edge", 0.35)
+	var mask := _mask_texture(kind)
+	if mask != null:
+		material.set_shader_parameter("mask_texture", mask)
+	return material
+
+
 static func build_decals(
 	definition: MapDefinition,
 	cell_size: int
@@ -49,13 +76,17 @@ static func build_decals(
 	var root := Node3D.new()
 	root.name = "Decals"
 	for decal in definition.decals:
-		var node := _build_single(decal, cell_size)
+		var node := _build_single(decal, definition, cell_size)
 		if node != null:
 			root.add_child(node)
 	return root
 
 
-static func _build_single(decal: Dictionary, cell_size: int) -> Node3D:
+static func _build_single(
+	decal: Dictionary,
+	definition: MapDefinition,
+	cell_size: int
+) -> Node3D:
 	var kind: StringName = decal.get("kind", &"")
 	if kind not in MapTypes.ALL_DECAL_KINDS:
 		return null
@@ -69,23 +100,16 @@ static func _build_single(decal: Dictionary, cell_size: int) -> Node3D:
 	mesh_instance.name = "Decal_%s" % String(decal.get("id", kind))
 	mesh_instance.mesh = _decal_quad_mesh(radius)
 	var world_pos := Bridge.logic_to_world(position_2d, cell_size)
-	mesh_instance.position = Vector3(world_pos.x, GROUND_LIFT, world_pos.z)
+	# WHY: cobble/dirt relief sits above y=0; a fixed micro-lift buries stains
+	# under the terrain mesh. Snap to sampled ground like props do.
+	var ground_y := MeshBuilder.ground_height(definition, Vector2(world_pos.x, world_pos.z))
+	mesh_instance.position = Vector3(world_pos.x, ground_y + GROUND_LIFT, world_pos.z)
 	if decal.has("rotation"):
 		mesh_instance.rotation.y = decal["rotation"]
 	# Shadow and GI off: decals are purely cosmetic overlays.
 	mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	mesh_instance.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
-	# Material: depth_draw_never keeps the quad invisible to depth prepass;
-	# blend_mix with alpha lets the ground show through.
-	var mat := StandardMaterial3D.new()
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_PER_VERTEX
-	mat.albedo_color = tint
-	mat.roughness = 0.95
-	mat.no_depth_test = false
-	mat.render_priority = -1
-	mesh_instance.material_override = mat
+	mesh_instance.material_override = _decal_material(kind, tint)
 	return mesh_instance
 
 

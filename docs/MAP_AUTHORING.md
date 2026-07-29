@@ -202,6 +202,30 @@ prop barn_rick hay_stack 38 42 rect=2,2 style_variant=hay_stack.tall
 
 Footprint rules match the P2-025 district-life contract: default single-cell placement, `rect=w,h` only when the yard needs an elongated silhouette (`w * h <= 4` on playable routes), and no blocking of required patrols, transitions, interaction anchors, or evidence routes.
 
+### Projected wear decals (P0-157)
+
+View-only environmental storytelling stains live on `MapDefinition.decals` and render through `MapViewDecals` as soft-edged ground quads. They never contribute collision, navigation, fingerprints, or `GameState`. Use the GL-Compatibility path (flat quads + soft-edge shader + alpha masks under `assets/materials/decals/`); do not require Forward+ `Decal3D`.
+
+Each entry is a dictionary:
+
+| Field | Required | Notes |
+|---|---|---|
+| `id` | yes | Stable string id unique among map props/anchors/decals |
+| `kind` | yes | One of `soot`, `mud`, `blood`, `scorch`, `grime`, `wet_threshold` |
+| `position` | yes | Logic-plane `Vector2` in world pixels (same space as prop positions) |
+| `radius` | no | World-unit half-extent; default `MapTypes.DECAL_DEFAULT_RADIUS` (1.1) |
+| `rotation` | no | Yaw in radians |
+| `tint` | no | Optional `Color` override; otherwise `MapTypes.DECAL_TINTS[kind]` |
+
+Authoring guidance:
+
+- `soot` near forge hearths and chimneys
+- `mud` / `wet_threshold` on door thresholds and packed-earth lanes
+- `blood` / `scorch` only for authored night-mission or combat aftermath beats
+- `grime` for restrained lived-in wear on thresholds and yard corners
+
+Unknown kinds are skipped at build time. Clearing `decals` must leave gameplay grid fingerprints unchanged.
+
 
 For an enterable building, keep the transition rectangle on the walkable approach and set `building_id=<stable building id>`. The 2D trigger remains independently sized for reliable traversal, while the 3D renderer snaps the entrance to the nearest aligned facade and suppresses conflicting procedural facade details. Omit `building_id` for interior wall doors and freestanding gates.
 
