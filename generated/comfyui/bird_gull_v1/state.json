@@ -1,0 +1,8 @@
+{
+  "asset_id": "bird.harbour_gull_batch",
+  "route": "deterministic_blender",
+  "stage": "production_ready",
+  "generator_version": "harbour_gulls_v1",
+  "blender_version": "Blender 5.2 LTS",
+  "note": "Hunyuan3D unavailable; catalog-proportion Blender meshes with PBR feather maps"
+}

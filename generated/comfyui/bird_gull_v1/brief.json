@@ -1,0 +1,18 @@
+{
+  "id": "fauna.harbour_gull_batch",
+  "kind": "organic_creature_batch",
+  "route": "deterministic_blender_guided_by_reference",
+  "species": [
+    "herring_gull",
+    "common_gull",
+    "common_tern"
+  ],
+  "pose": "gliding",
+  "flap_frames": 8,
+  "style_refs": [
+    "docs/ART_BIBLE.md",
+    "docs/FLORA_FAUNA.md",
+    "scripts/map/view3d/map_view_bird_species.gd"
+  ],
+  "approval": "task-authorized-P2-034"
+}

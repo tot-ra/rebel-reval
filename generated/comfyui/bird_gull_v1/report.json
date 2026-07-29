@@ -1,0 +1,410 @@
+{
+  "generator": "harbour_gulls_v1",
+  "assets": [
+    {
+      "triangles": 286,
+      "dimensions_m": [
+        1.5519,
+        0.586,
+        1.1762
+      ],
+      "largest_axis_m": 1.5519,
+      "ground_min_z": 0.0,
+      "sha256": "5bbe0a63f8c9b608fa40c027da206da140f7602eed447e761d0bba55076bb5c7",
+      "path": "assets/birds/herring_gull/gliding_00.glb",
+      "species": "herring_gull",
+      "frame": 0,
+      "wing_lift": -0.6
+    },
+    {
+      "triangles": 286,
+      "dimensions_m": [
+        1.5519,
+        0.586,
+        1.1762
+      ],
+      "largest_axis_m": 1.5519,
+      "ground_min_z": 0.0,
+      "sha256": "c0014c4612db354f4df57f842a37ba5a5a6e543a2f4327172fdc4eb1f89ceb46",
+      "path": "assets/birds/herring_gull/gliding_01.glb",
+      "species": "herring_gull",
+      "frame": 1,
+      "wing_lift": -0.3
+    },
+    {
+      "triangles": 286,
+      "dimensions_m": [
+        1.5519,
+        0.586,
+        1.1762
+      ],
+      "largest_axis_m": 1.5519,
+      "ground_min_z": 0.0,
+      "sha256": "4c76c024e2f3a1146a2948fd11df54a95f2dcb1cfe34172debe50c9bfd8f806f",
+      "path": "assets/birds/herring_gull/gliding_02.glb",
+      "species": "herring_gull",
+      "frame": 2,
+      "wing_lift": 0.0
+    },
+    {
+      "triangles": 286,
+      "dimensions_m": [
+        1.5519,
+        0.586,
+        1.1762
+      ],
+      "largest_axis_m": 1.5519,
+      "ground_min_z": 0.0,
+      "sha256": "4c76c024e2f3a1146a2948fd11df54a95f2dcb1cfe34172debe50c9bfd8f806f",
+      "path": "assets/birds/herring_gull/gliding.glb",
+      "species": "herring_gull",
+      "frame": "neutral",
+      "wing_lift": 0.0
+    },
+    {
+      "triangles": 286,
+      "dimensions_m": [
+        1.5519,
+        0.586,
+        1.1762
+      ],
+      "largest_axis_m": 1.5519,
+      "ground_min_z": 0.0,
+      "sha256": "e43f5a4ccd80dffef8b2b86042e00480887e385632b1f230951ff679576b5108",
+      "path": "assets/birds/herring_gull/gliding_03.glb",
+      "species": "herring_gull",
+      "frame": 3,
+      "wing_lift": 0.4
+    },
+    {
+      "triangles": 286,
+      "dimensions_m": [
+        1.5519,
+        0.586,
+        1.1762
+      ],
+      "largest_axis_m": 1.5519,
+      "ground_min_z": 0.0,
+      "sha256": "4ed5637c4e02fb1161b77c4f9f44e37e2fe3070e2607050ae4d3ed08970931ea",
+      "path": "assets/birds/herring_gull/gliding_04.glb",
+      "species": "herring_gull",
+      "frame": 4,
+      "wing_lift": 0.7
+    },
+    {
+      "triangles": 286,
+      "dimensions_m": [
+        1.5519,
+        0.586,
+        1.1762
+      ],
+      "largest_axis_m": 1.5519,
+      "ground_min_z": 0.0,
+      "sha256": "e43f5a4ccd80dffef8b2b86042e00480887e385632b1f230951ff679576b5108",
+      "path": "assets/birds/herring_gull/gliding_05.glb",
+      "species": "herring_gull",
+      "frame": 5,
+      "wing_lift": 0.4
+    },
+    {
+      "triangles": 286,
+      "dimensions_m": [
+        1.5519,
+        0.586,
+        1.1762
+      ],
+      "largest_axis_m": 1.5519,
+      "ground_min_z": 0.0,
+      "sha256": "4c76c024e2f3a1146a2948fd11df54a95f2dcb1cfe34172debe50c9bfd8f806f",
+      "path": "assets/birds/herring_gull/gliding_06.glb",
+      "species": "herring_gull",
+      "frame": 6,
+      "wing_lift": 0.0
+    },
+    {
+      "triangles": 286,
+      "dimensions_m": [
+        1.5519,
+        0.586,
+        1.1762
+      ],
+      "largest_axis_m": 1.5519,
+      "ground_min_z": 0.0,
+      "sha256": "c0014c4612db354f4df57f842a37ba5a5a6e543a2f4327172fdc4eb1f89ceb46",
+      "path": "assets/birds/herring_gull/gliding_07.glb",
+      "species": "herring_gull",
+      "frame": 7,
+      "wing_lift": -0.3
+    },
+    {
+      "triangles": 286,
+      "dimensions_m": [
+        1.1122,
+        0.42,
+        0.843
+      ],
+      "largest_axis_m": 1.1122,
+      "ground_min_z": 0.0,
+      "sha256": "6aec8880ab9ca254a3594be11d68df388d96983f23be04017b0549419f323751",
+      "path": "assets/birds/common_gull/gliding_00.glb",
+      "species": "common_gull",
+      "frame": 0,
+      "wing_lift": -0.6
+    },
+    {
+      "triangles": 286,
+      "dimensions_m": [
+        1.1122,
+        0.42,
+        0.843
+      ],
+      "largest_axis_m": 1.1122,
+      "ground_min_z": 0.0,
+      "sha256": "1a6c2f6092ef48baa53f683c817c7e204efbccfed8591841dad5d851f87a9cea",
+      "path": "assets/birds/common_gull/gliding_01.glb",
+      "species": "common_gull",
+      "frame": 1,
+      "wing_lift": -0.3
+    },
+    {
+      "triangles": 286,
+      "dimensions_m": [
+        1.1122,
+        0.42,
+        0.843
+      ],
+      "largest_axis_m": 1.1122,
+      "ground_min_z": 0.0,
+      "sha256": "ac14267b16095fe9a5e6ad4cef0ea11c2c863b41d24ce744c419397454f5d819",
+      "path": "assets/birds/common_gull/gliding_02.glb",
+      "species": "common_gull",
+      "frame": 2,
+      "wing_lift": 0.0
+    },
+    {
+      "triangles": 286,
+      "dimensions_m": [
+        1.1122,
+        0.42,
+        0.843
+      ],
+      "largest_axis_m": 1.1122,
+      "ground_min_z": 0.0,
+      "sha256": "ac14267b16095fe9a5e6ad4cef0ea11c2c863b41d24ce744c419397454f5d819",
+      "path": "assets/birds/common_gull/gliding.glb",
+      "species": "common_gull",
+      "frame": "neutral",
+      "wing_lift": 0.0
+    },
+    {
+      "triangles": 286,
+      "dimensions_m": [
+        1.1122,
+        0.42,
+        0.843
+      ],
+      "largest_axis_m": 1.1122,
+      "ground_min_z": 0.0,
+      "sha256": "978bece0242ca8c61110e2cb5613118e452a198eae20f77d229cf977d34d33cd",
+      "path": "assets/birds/common_gull/gliding_03.glb",
+      "species": "common_gull",
+      "frame": 3,
+      "wing_lift": 0.4
+    },
+    {
+      "triangles": 286,
+      "dimensions_m": [
+        1.1122,
+        0.42,
+        0.843
+      ],
+      "largest_axis_m": 1.1122,
+      "ground_min_z": 0.0,
+      "sha256": "8592a53c9583f193c25ce8a95facbbe68ac2a13d288a0ec77bbb7a2bf41f7e4b",
+      "path": "assets/birds/common_gull/gliding_04.glb",
+      "species": "common_gull",
+      "frame": 4,
+      "wing_lift": 0.7
+    },
+    {
+      "triangles": 286,
+      "dimensions_m": [
+        1.1122,
+        0.42,
+        0.843
+      ],
+      "largest_axis_m": 1.1122,
+      "ground_min_z": 0.0,
+      "sha256": "978bece0242ca8c61110e2cb5613118e452a198eae20f77d229cf977d34d33cd",
+      "path": "assets/birds/common_gull/gliding_05.glb",
+      "species": "common_gull",
+      "frame": 5,
+      "wing_lift": 0.4
+    },
+    {
+      "triangles": 286,
+      "dimensions_m": [
+        1.1122,
+        0.42,
+        0.843
+      ],
+      "largest_axis_m": 1.1122,
+      "ground_min_z": 0.0,
+      "sha256": "ac14267b16095fe9a5e6ad4cef0ea11c2c863b41d24ce744c419397454f5d819",
+      "path": "assets/birds/common_gull/gliding_06.glb",
+      "species": "common_gull",
+      "frame": 6,
+      "wing_lift": 0.0
+    },
+    {
+      "triangles": 286,
+      "dimensions_m": [
+        1.1122,
+        0.42,
+        0.843
+      ],
+      "largest_axis_m": 1.1122,
+      "ground_min_z": 0.0,
+      "sha256": "1a6c2f6092ef48baa53f683c817c7e204efbccfed8591841dad5d851f87a9cea",
+      "path": "assets/birds/common_gull/gliding_07.glb",
+      "species": "common_gull",
+      "frame": 7,
+      "wing_lift": -0.3
+    },
+    {
+      "triangles": 335,
+      "dimensions_m": [
+        1.133,
+        0.3019,
+        0.9215
+      ],
+      "largest_axis_m": 1.133,
+      "ground_min_z": 0.0,
+      "sha256": "0ac55faa3d40816089595c1fd34504fc20c3d2aa32e85268ac4c6acd2c2e1958",
+      "path": "assets/birds/common_tern/gliding_00.glb",
+      "species": "common_tern",
+      "frame": 0,
+      "wing_lift": -0.6
+    },
+    {
+      "triangles": 335,
+      "dimensions_m": [
+        1.133,
+        0.3019,
+        0.9215
+      ],
+      "largest_axis_m": 1.133,
+      "ground_min_z": 0.0,
+      "sha256": "fc5c533c8f0330921424f726f502ccb9ba3eb5c35b373d05aec5c79b636fba90",
+      "path": "assets/birds/common_tern/gliding_01.glb",
+      "species": "common_tern",
+      "frame": 1,
+      "wing_lift": -0.3
+    },
+    {
+      "triangles": 335,
+      "dimensions_m": [
+        1.133,
+        0.3019,
+        0.9215
+      ],
+      "largest_axis_m": 1.133,
+      "ground_min_z": 0.0,
+      "sha256": "872e9e7ee0ada3670f8749792eae2bf510de533d8b856377043e18c81a7115cf",
+      "path": "assets/birds/common_tern/gliding_02.glb",
+      "species": "common_tern",
+      "frame": 2,
+      "wing_lift": 0.0
+    },
+    {
+      "triangles": 335,
+      "dimensions_m": [
+        1.133,
+        0.3019,
+        0.9215
+      ],
+      "largest_axis_m": 1.133,
+      "ground_min_z": 0.0,
+      "sha256": "872e9e7ee0ada3670f8749792eae2bf510de533d8b856377043e18c81a7115cf",
+      "path": "assets/birds/common_tern/gliding.glb",
+      "species": "common_tern",
+      "frame": "neutral",
+      "wing_lift": 0.0
+    },
+    {
+      "triangles": 335,
+      "dimensions_m": [
+        1.133,
+        0.3019,
+        0.9215
+      ],
+      "largest_axis_m": 1.133,
+      "ground_min_z": 0.0,
+      "sha256": "3615aca40cc9be3ee53ffa56c025bd0142985b1202865942d38a3a3df22e12c0",
+      "path": "assets/birds/common_tern/gliding_03.glb",
+      "species": "common_tern",
+      "frame": 3,
+      "wing_lift": 0.4
+    },
+    {
+      "triangles": 335,
+      "dimensions_m": [
+        1.133,
+        0.3019,
+        0.9215
+      ],
+      "largest_axis_m": 1.133,
+      "ground_min_z": 0.0,
+      "sha256": "e67cca781102991638026845c2b0de287db6a1916f26b37a4001e2f121aa2b17",
+      "path": "assets/birds/common_tern/gliding_04.glb",
+      "species": "common_tern",
+      "frame": 4,
+      "wing_lift": 0.7
+    },
+    {
+      "triangles": 335,
+      "dimensions_m": [
+        1.133,
+        0.3019,
+        0.9215
+      ],
+      "largest_axis_m": 1.133,
+      "ground_min_z": 0.0,
+      "sha256": "3615aca40cc9be3ee53ffa56c025bd0142985b1202865942d38a3a3df22e12c0",
+      "path": "assets/birds/common_tern/gliding_05.glb",
+      "species": "common_tern",
+      "frame": 5,
+      "wing_lift": 0.4
+    },
+    {
+      "triangles": 335,
+      "dimensions_m": [
+        1.133,
+        0.3019,
+        0.9215
+      ],
+      "largest_axis_m": 1.133,
+      "ground_min_z": 0.0,
+      "sha256": "872e9e7ee0ada3670f8749792eae2bf510de533d8b856377043e18c81a7115cf",
+      "path": "assets/birds/common_tern/gliding_06.glb",
+      "species": "common_tern",
+      "frame": 6,
+      "wing_lift": 0.0
+    },
+    {
+      "triangles": 335,
+      "dimensions_m": [
+        1.133,
+        0.3019,
+        0.9215
+      ],
+      "largest_axis_m": 1.133,
+      "ground_min_z": 0.0,
+      "sha256": "fc5c533c8f0330921424f726f502ccb9ba3eb5c35b373d05aec5c79b636fba90",
+      "path": "assets/birds/common_tern/gliding_07.glb",
+      "species": "common_tern",
+      "frame": 7,
+      "wing_lift": -0.3
+    }
+  ]
+}

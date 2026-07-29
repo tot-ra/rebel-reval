@@ -123,9 +123,9 @@ Shrub tests: [`test_map_view_bush_species.gd`](../tests/godot/test_map_view_bush
 
 | Bird | Runtime ID | Group | Status |
 |---|---|---|---|
-| Herring gull | `bird.herring_gull` | gull | modeled (catalog) |
-| Common gull | `bird.common_gull` | gull | modeled (catalog) |
-| Common tern | `bird.common_tern` | tern | modeled (catalog) |
+| Herring gull | `bird.herring_gull` | gull | modeled (catalog) + authored GLB flap cycle (**P2-034**) |
+| Common gull | `bird.common_gull` | gull | modeled (catalog) + authored GLB flap cycle (**P2-034**) |
+| Common tern | `bird.common_tern` | tern | modeled (catalog) + authored GLB flap cycle (**P2-034**) |
 | Mute swan | `bird.mute_swan` | waterfowl | modeled (catalog) |
 | Mallard | `bird.mallard` | waterfowl | modeled (catalog) |
 | Greylag goose | `bird.greylag_goose` | waterfowl | modeled (catalog) |

@@ -6,20 +6,30 @@ const BirdSpecies := preload("res://scripts/map/view3d/map_view_bird_species.gd"
 
 
 func test_catalog_uses_only_the_reviewed_authored_glbs() -> void:
-	var authored := {
+	# Static-pose allowlist plus P2-034 harbour gull flap cycles.
+	var authored_static := {
 		BirdSpecies.SPECIES_MALLARD: BirdSpecies.POSE_STANDING,
 		BirdSpecies.SPECIES_HOUSE_SPARROW: BirdSpecies.POSE_PERCHED,
+		BirdSpecies.SPECIES_HERRING_GULL: BirdSpecies.POSE_GLIDING,
+		BirdSpecies.SPECIES_COMMON_GULL: BirdSpecies.POSE_GLIDING,
+		BirdSpecies.SPECIES_COMMON_TERN: BirdSpecies.POSE_GLIDING,
 	}
+	var authored_flap: Array[StringName] = [
+		BirdSpecies.SPECIES_HERRING_GULL,
+		BirdSpecies.SPECIES_COMMON_GULL,
+		BirdSpecies.SPECIES_COMMON_TERN,
+	]
 	for species in BirdSpecies.ALL_SPECIES:
 		for pose in BirdSpecies.ALL_POSES:
 			assert_eq(
 				BirdAssets.has_authored_pose(species, pose),
-				authored.get(species, &"") == pose,
+				authored_static.get(species, &"") == pose,
 				"Unexpected authored bird pose %s/%s" % [species, pose]
 			)
-		assert_false(
+		assert_eq(
 			BirdAssets.has_complete_flap_cycle(species),
-			"%s flap cycle should stay procedural until authored frames land" % species
+			species in authored_flap,
+			"%s flap-cycle authorship mismatch" % species
 		)
 
 
@@ -28,6 +38,9 @@ func test_mesh_for_prefers_reviewed_authored_defaults_and_falls_back_for_the_res
 	var authored_defaults: Array[StringName] = [
 		BirdSpecies.SPECIES_MALLARD,
 		BirdSpecies.SPECIES_HOUSE_SPARROW,
+		BirdSpecies.SPECIES_HERRING_GULL,
+		BirdSpecies.SPECIES_COMMON_GULL,
+		BirdSpecies.SPECIES_COMMON_TERN,
 	]
 	for species in BirdSpecies.ALL_SPECIES:
 		var pose := BirdSpecies.default_pose(species)
@@ -40,8 +53,9 @@ func test_mesh_for_prefers_reviewed_authored_defaults_and_falls_back_for_the_res
 			assert_true(int(stats.get("triangles", 9999)) <= 512)
 
 
-func test_gliding_flap_cycle_stays_procedural_without_authored_frames() -> void:
+func test_harbour_gull_flap_cycle_uses_authored_frames() -> void:
 	BirdMeshes.reset_cache()
+	assert_true(BirdAssets.has_complete_flap_cycle(BirdSpecies.SPECIES_HERRING_GULL))
 	var cycle := BirdMeshes.flap_cycle(BirdSpecies.SPECIES_HERRING_GULL)
 	assert_eq(cycle.size(), BirdAssets.FLAP_FRAME_COUNT)
 	for mesh in cycle:
@@ -49,6 +63,7 @@ func test_gliding_flap_cycle_stays_procedural_without_authored_frames() -> void:
 		assert_true((mesh as ArrayMesh).get_surface_count() > 0)
 	var neutral := BirdMeshes.mesh_for(BirdSpecies.SPECIES_HERRING_GULL, BirdSpecies.POSE_GLIDING)
 	assert_true(neutral is ArrayMesh)
+	# Neutral gliding.glb matches flap frame 02 (MapViewBirdAssets convention).
 	assert_true((cycle[2] as ArrayMesh).get_aabb().is_equal_approx(neutral.get_aabb()))
 
 
@@ -66,13 +81,22 @@ func test_bird_asset_paths_follow_runtime_convention() -> void:
 func test_procedural_mesh_uses_lit_surface_material() -> void:
 	BirdMeshes.reset_cache()
 	BirdSpecies.reset_surface_material_cache()
+	var authored_gliding: Array[StringName] = [
+		BirdSpecies.SPECIES_HERRING_GULL,
+		BirdSpecies.SPECIES_COMMON_GULL,
+		BirdSpecies.SPECIES_COMMON_TERN,
+	]
 	for species in BirdSpecies.ALL_SPECIES:
 		var mesh := BirdMeshes.mesh_for(species, BirdSpecies.POSE_GLIDING)
 		assert_true(mesh.get_surface_count() > 0, "%s needs a lit surface" % species)
-		_assert_lit_fauna_material(mesh.surface_get_material(0), species)
+		_assert_lit_fauna_material(
+			mesh.surface_get_material(0),
+			species,
+			species not in authored_gliding
+		)
 
 
-func _assert_lit_fauna_material(material: Material, label: String) -> void:
+func _assert_lit_fauna_material(material: Material, label: String, expect_vertex_tint: bool) -> void:
 	assert_true(material is StandardMaterial3D, "%s surface must be StandardMaterial3D" % label)
 	var std := material as StandardMaterial3D
 	assert_ne(
@@ -81,5 +105,11 @@ func _assert_lit_fauna_material(material: Material, label: String) -> void:
 		"%s must react to scene lighting" % label
 	)
 	assert_true(std.normal_enabled and std.normal_texture != null, "%s needs feather normal response" % label)
-	assert_true(std.roughness > 0.05 and std.roughness < 1.0, "%s roughness must be authored" % label)
-	assert_true(std.vertex_color_use_as_albedo, "%s keeps vertex colour as albedo tint" % label)
+	# Authored harbour-gull GLBs use roughness textures; procedural birds keep a scalar.
+	var has_roughness_tex := std.roughness_texture != null
+	assert_true(
+		has_roughness_tex or (std.roughness > 0.05 and std.roughness < 1.0),
+		"%s roughness must be authored" % label
+	)
+	if expect_vertex_tint:
+		assert_true(std.vertex_color_use_as_albedo, "%s keeps vertex colour as albedo tint" % label)

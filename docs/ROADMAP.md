@@ -3,6 +3,9 @@
 Coordination notes, delivery order, and planning context formerly embedded in `TODO.md`.
 Executable open work stays in [`TODO.md`](../TODO.md).
 
+<!-- P2-034 completed in current session -->
+Coordination note (2026-07-29 P2-034): harbour gull batch now ships authored gliding + 8-frame flap GLBs for `herring_gull`, `common_gull`, and `common_tern` from deterministic Blender `harbour_gulls_v1` (catalog proportions + embedded feather PBR), with AI reference plates under `generated/comfyui/bird_gull_v1/references/` and silhouette evidence at `docs/reports/images/fauna/p2_034_harbour_gull_silhouettes.png`. Hunyuan3D candidate swap remains **P2-034a**. Verified: `python3 tools/verify_bird_models.py`, `--filter=test_map_view_bird_flight` (8/8), `--filter=test_map_view_bird_meshes` (5/5). Next fauna art step: **P2-035** waterfowl GLB batch.
+
 <!-- P1-042 completed in current session -->
 Coordination note (2026-07-29 P1-042): SaveService now serializes concurrent writes through a static mutex and temp-file rotation protocol; combat `health_changed` and dialogue `started`/`finished` autosave stress tests prove signal handlers can persist without interrupting resolution or corrupting slots, and v1-to-v2 GameState payload migration is covered in envelope tests. Verified: `--filter=test_save_service` (10/10), `--filter=test_save_envelope` (13/13), and `--filter=test_save_signal_stress` (2/2). Next runtime step: **P0-145** character-surface texture generator or **P2-059** Kalev household vignettes.
 
