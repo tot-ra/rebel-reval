@@ -34,6 +34,7 @@ var _schedule_indices: Dictionary = {}
 var _interrupted_states: Dictionary = {}
 var _dialogue_hold: Dictionary = {}
 var _presentation_held_socket: StringName = &""
+var _station_reservations: Node
 
 
 func _ready() -> void:
@@ -44,6 +45,22 @@ func _ready() -> void:
 func configure(next_definition: SmithyRoutineDefinition) -> void:
 	definition = next_definition
 	reset_runtime_state()
+
+
+func set_station_reservations(reservations: Node) -> void:
+	if _station_reservations == reservations:
+		return
+	if _station_reservations != null:
+		for actor_id: StringName in _active_assignments.keys():
+			_station_reservations.call(&"release_actor", actor_id)
+	_station_reservations = reservations
+	if _station_reservations == null:
+		return
+	for actor_id: StringName in _active_assignments.keys().duplicate():
+		var activity_id: StringName = _active_assignments[actor_id]
+		var point := get_activity_point(activity_id)
+		if not bool(_station_reservations.call(&"try_reserve", actor_id, activity_id, point)):
+			end_activity(actor_id, REASON_BLOCKED)
 
 
 func configure_from_file(path: String) -> void:
@@ -63,6 +80,9 @@ func load_presentation_from_dict(data: Dictionary) -> void:
 
 
 func reset_runtime_state() -> void:
+	if _station_reservations != null:
+		for actor_id: StringName in _active_assignments.keys():
+			_station_reservations.call(&"release_actor", actor_id)
 	_occupants.clear()
 	_active_assignments.clear()
 	_schedule_indices.clear()
@@ -111,6 +131,10 @@ func can_begin(actor_id: StringName, activity_id: StringName, context: Dictionar
 		return false
 	if point.exclusive and is_occupied(activity_id):
 		return occupant_of(activity_id) == actor_id
+	if _station_reservations != null and not bool(
+		_station_reservations.call(&"can_reserve", actor_id, activity_id, point)
+	):
+		return false
 	return true
 
 
@@ -119,6 +143,10 @@ func begin_activity(actor_id: StringName, activity_id: StringName, context: Dict
 		return false
 	var point := definition.get_activity_point(activity_id)
 	if point == null:
+		return false
+	if _station_reservations != null and not bool(
+		_station_reservations.call(&"try_reserve", actor_id, activity_id, point)
+	):
 		return false
 	if point.exclusive:
 		_occupants[activity_id] = actor_id
@@ -130,10 +158,14 @@ func begin_activity(actor_id: StringName, activity_id: StringName, context: Dict
 func end_activity(actor_id: StringName, reason: StringName = REASON_COMPLETED) -> void:
 	var activity_id: StringName = _active_assignments.get(actor_id, &"")
 	if activity_id.is_empty():
+		if _station_reservations != null:
+			_station_reservations.call(&"release_actor", actor_id)
 		return
 	if _occupants.get(activity_id, &"") == actor_id:
 		_occupants.erase(activity_id)
 	_active_assignments.erase(actor_id)
+	if _station_reservations != null:
+		_station_reservations.call(&"release_actor", actor_id)
 	activity_ended.emit(actor_id, activity_id, reason)
 
 
@@ -154,6 +186,8 @@ func interrupt_for_dialogue(actor_id: StringName, context: Dictionary = {}) -> D
 	if point != null and point.exclusive and _occupants.get(activity_id, &"") == actor_id:
 		_occupants.erase(activity_id)
 	_active_assignments.erase(actor_id)
+	if _station_reservations != null:
+		_station_reservations.call(&"release_actor", actor_id)
 	activity_ended.emit(actor_id, activity_id, REASON_INTERRUPTED)
 	return snapshot.duplicate()
 
@@ -181,6 +215,36 @@ func cancel_after_dialogue(actor_id: StringName) -> void:
 	_dialogue_hold[actor_id] = false
 	_interrupted_states.erase(actor_id)
 	_active_assignments.erase(actor_id)
+	if _station_reservations != null:
+		_station_reservations.call(&"release_actor", actor_id)
+
+
+func runtime_snapshot_for(actor_id: StringName) -> Dictionary:
+	return {
+		"active_activity": String(active_activity_for(actor_id)),
+		"schedule_index": int(_schedule_indices.get(actor_id, 0)),
+		"dialogue_hold": bool(_dialogue_hold.get(actor_id, false)),
+		"interrupted": (_interrupted_states.get(actor_id, {}) as Dictionary).duplicate(true),
+	}
+
+
+func restore_runtime_snapshot_for(
+	actor_id: StringName,
+	snapshot: Dictionary,
+	context: Dictionary
+) -> bool:
+	end_activity(actor_id, REASON_CANCELLED)
+	_schedule_indices[actor_id] = int(snapshot.get("schedule_index", 0))
+	_dialogue_hold[actor_id] = bool(snapshot.get("dialogue_hold", false))
+	var interrupted: Dictionary = snapshot.get("interrupted", {}) as Dictionary
+	if interrupted.is_empty():
+		_interrupted_states.erase(actor_id)
+	else:
+		_interrupted_states[actor_id] = interrupted.duplicate(true)
+	var activity_id := StringName(String(snapshot.get("active_activity", "")))
+	if activity_id.is_empty() or _dialogue_hold[actor_id]:
+		return activity_id.is_empty()
+	return begin_activity(actor_id, activity_id, context)
 
 
 func context_approach_reached(_actor_id: StringName) -> bool:

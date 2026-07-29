@@ -51,6 +51,11 @@ func _ready() -> void:
 	_apply_visibility()
 
 
+func set_station_reservations(reservations: Node) -> void:
+	_ensure_routine_controller()
+	_routine_controller.set_station_reservations(reservations)
+
+
 func configure_navigation(navigation_map: RID, spawn_position: Vector2) -> void:
 	if navigation_agent == null:
 		return

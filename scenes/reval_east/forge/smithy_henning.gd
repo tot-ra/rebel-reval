@@ -62,6 +62,11 @@ func _ensure_routine_controller() -> void:
 	_load_routine_definitions()
 
 
+func set_station_reservations(reservations: Node) -> void:
+	_ensure_routine_controller()
+	_routine_controller.set_station_reservations(reservations)
+
+
 func configure_navigation(navigation_map: RID, chair_position: Vector2) -> void:
 	_chair_position = chair_position
 	if navigation_agent == null:
@@ -96,6 +101,49 @@ func is_visit_complete() -> bool:
 
 func is_visit_active() -> bool:
 	return _visit_active and not _visit_completed
+
+
+func runtime_snapshot() -> Dictionary:
+	return {
+		"visit_active": _visit_active,
+		"visit_completed": _visit_completed,
+		"current_activity": String(_current_activity),
+		"activity_mode": int(_activity_mode),
+		"activity_seconds": _activity_seconds,
+		"position": {"x": global_position.x, "y": global_position.y},
+		"target_position": {"x": _target_position.x, "y": _target_position.y},
+		"target_facing": {"x": _target_facing.x, "y": _target_facing.y},
+		"last_facing": {"x": _last_facing.x, "y": _last_facing.y},
+		"approach_reached": _approach_reached,
+		"routine": _routine_controller.runtime_snapshot_for(stable_id),
+	}
+
+
+func restore_runtime_snapshot(snapshot: Dictionary) -> bool:
+	_ensure_routine_controller()
+	_visit_active = bool(snapshot.get("visit_active", false))
+	_visit_completed = bool(snapshot.get("visit_completed", false))
+	_current_activity = StringName(String(snapshot.get("current_activity", "")))
+	_activity_mode = int(snapshot.get("activity_mode", ActivityMode.ACTING))
+	_activity_seconds = maxf(float(snapshot.get("activity_seconds", 0.0)), 0.0)
+	global_position = _decode_vector(snapshot.get("position", {}) as Dictionary, global_position)
+	_target_position = _decode_vector(snapshot.get("target_position", {}) as Dictionary, global_position)
+	_target_facing = _decode_vector(snapshot.get("target_facing", {}) as Dictionary, Vector2.DOWN)
+	_last_facing = _decode_vector(snapshot.get("last_facing", {}) as Dictionary, Vector2.DOWN)
+	_approach_reached = bool(snapshot.get("approach_reached", false))
+	var restored := _routine_controller.restore_runtime_snapshot_for(
+		stable_id,
+		snapshot.get("routine", {}) as Dictionary,
+		_visit_context()
+	)
+	_apply_visibility()
+	return restored
+
+
+static func _decode_vector(value: Dictionary, fallback: Vector2) -> Vector2:
+	if not value.has("x") or not value.has("y"):
+		return fallback
+	return Vector2(float(value["x"]), float(value["y"]))
 
 
 func set_conversation_partner(partner: Node2D) -> void:

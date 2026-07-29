@@ -20,11 +20,15 @@ const ROOT_AND_EMBER_CONTROLLER_SCRIPT := preload(
 	"res://scripts/forge/root_and_ember_commission_controller.gd"
 )
 const ROUTINE_CONTROLLER_SCRIPT := preload("res://scripts/world/smithy_routine_controller.gd")
+const STATION_RESERVATIONS_SCRIPT := preload("res://scenes/reval_east/forge/smithy_station_reservations.gd")
+const DOMESTIC_PRESENTER_SCRIPT := preload("res://scenes/reval_east/forge/smithy_domestic_life_presenter.gd")
 const INTERACTABLE_SCENE := preload("res://scenes/interaction/interactable.tscn")
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 
 const KALEV_ROUTINE_PATH := "res://content/routines/kalev_smithy.json"
 const KALEV_ID := &"char.kalev"
+const DOMESTIC_RUNTIME_STATE_ID := &"runtime.smithy_domestic_vignette"
+const HENNING_RUNTIME_STATE_ID := &"runtime.smithy_henning_visit"
 const DOMESTIC_INTERACT_PROMPTS := {
 	&"ap.wash.basin": "Wash",
 	&"ap.prepare.board": "Prepare meal",
@@ -60,6 +64,9 @@ var _dialogue_encounter: ForgeDialogueEncounter
 var _prompt_layer: CanvasLayer
 var _prompt_label: Label
 var _kalev_routine: SmithyRoutineController
+var _station_reservations: SmithyStationReservations
+var _domestic_presenter: SmithyDomesticLifePresenter
+var _kalev_rig: SharedCharacterRig
 var _domestic_interactables: Dictionary = {}
 var _domestic_vignette_seconds := 0.0
 var _domestic_vignette_activity := &""
@@ -139,6 +146,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_tick_domestic_presentation(delta)
+	_persist_henning_runtime_state()
 
 
 func _connect_ambient_actor_refresh() -> void:
@@ -153,10 +161,16 @@ func _connect_ambient_actor_refresh() -> void:
 
 
 func _on_session_state_replaced(_previous: GameState, current: GameState, _reason: StringName) -> void:
+	_clear_domestic_vignette(false, false)
 	_refresh_smithy_ambient_actors(current)
+	if _domestic_presenter != null:
+		_domestic_presenter.configure(_kalev_rig, current, SessionState.content_db)
+	_restore_domestic_runtime_state(current)
+	_restore_henning_runtime_state(current)
 
 
 func _on_campaign_phase_changed(_previous: StringName, _next: StringName) -> void:
+	_clear_domestic_vignette(false)
 	_refresh_smithy_ambient_actors(SessionState.state if has_node("/root/SessionState") else null)
 	_apply_phase_entry_domestic_presentation()
 
@@ -260,16 +274,45 @@ func _find_player(node: Node) -> Player:
 
 
 func _setup_kalev_domestic_presentation(definition: MapDefinition) -> void:
+	_station_reservations = STATION_RESERVATIONS_SCRIPT.new()
+	_station_reservations.name = "SmithyStationReservations"
+	add_child(_station_reservations)
+	if mart != null:
+		mart.set_station_reservations(_station_reservations)
+	if henning != null:
+		henning.set_station_reservations(_station_reservations)
 	_kalev_routine = ROUTINE_CONTROLLER_SCRIPT.new()
 	_kalev_routine.name = "KalevDomesticRoutineController"
 	add_child(_kalev_routine)
 	_kalev_routine.configure_from_file(KALEV_ROUTINE_PATH)
+	_kalev_routine.set_station_reservations(_station_reservations)
+	_kalev_rig = _find_kalev_rig()
+	_domestic_presenter = DOMESTIC_PRESENTER_SCRIPT.new()
+	_domestic_presenter.name = "SmithyDomesticLifePresenter"
+	_view_runtime.add_child(_domestic_presenter)
+	_domestic_presenter.configure(
+		_kalev_rig,
+		SessionState.state if has_node("/root/SessionState") else null,
+		SessionState.content_db if has_node("/root/SessionState") else null
+	)
 	if not _kalev_routine.presentation_changed.is_connected(_on_kalev_presentation_changed):
 		_kalev_routine.presentation_changed.connect(_on_kalev_presentation_changed)
 	if SessionState.state != null:
 		_kalev_routine.restore_prop_variants_from_state(SessionState.state, definition)
 	_apply_phase_entry_domestic_presentation()
 	_spawn_domestic_interactables(definition)
+	if SessionState.state != null:
+		_restore_domestic_runtime_state(SessionState.state)
+		_restore_henning_runtime_state(SessionState.state)
+
+
+func _find_kalev_rig() -> SharedCharacterRig:
+	if _view_runtime == null:
+		return null
+	for child: Node in _view_runtime.get_children():
+		if child is SharedCharacterRig and (child as SharedCharacterRig).variant_id() == KALEV_ID:
+			return child as SharedCharacterRig
+	return null
 
 
 func _apply_phase_entry_domestic_presentation() -> void:
@@ -382,7 +425,21 @@ func _on_domestic_interact(_actor: Node, activity_id: StringName) -> void:
 		return
 	_domestic_vignette_activity = activity_id
 	_domestic_vignette_seconds = point.sample_duration_sec(1343) if point != null else 2.0
-	_kalev_routine.apply_kalev_activity_presentation(activity_id, context)
+	# Prop-variant maps may be empty for some beats; still accept when the
+	# routine controller successfully owns the activity.
+	var presentation := _kalev_routine.apply_kalev_activity_presentation(activity_id, context)
+	if not presentation.is_empty() or _kalev_routine.active_activity_for(KALEV_ID) == activity_id:
+		if _domestic_presenter != null:
+			_domestic_presenter.begin_activity(
+				activity_id,
+				_kalev_routine.activity_held_socket(activity_id),
+				_domestic_vignette_seconds
+			)
+		_set_domestic_player_lock(true)
+		_persist_domestic_runtime_state()
+	else:
+		_domestic_vignette_activity = &""
+		_domestic_vignette_seconds = 0.0
 
 
 func _tick_domestic_presentation(delta: float) -> void:
@@ -396,11 +453,112 @@ func _tick_domestic_presentation(delta: float) -> void:
 	_sync_domestic_interactables()
 	if _domestic_vignette_seconds <= 0.0 or _domestic_vignette_activity.is_empty():
 		return
-	_domestic_vignette_seconds -= delta
-	if _domestic_vignette_seconds > 0.0:
+	if _domestic_story_blocks_player() or not _kalev_routine.station_within_tolerance(
+		player.global_position,
+		_domestic_vignette_activity
+	):
+		_clear_domestic_vignette(false)
 		return
-	_kalev_routine.complete_kalev_activity_presentation(
-		_domestic_vignette_activity,
-		ROUTINE_CONTROLLER_SCRIPT.REASON_COMPLETED
-	)
+	_domestic_vignette_seconds -= delta
+	if _domestic_presenter != null:
+		_domestic_presenter.global_position = _kalev_rig.global_position if _kalev_rig != null else Vector3.ZERO
+	if _domestic_vignette_seconds > 0.0:
+		_persist_domestic_runtime_state()
+		return
+	_clear_domestic_vignette(true)
+
+
+func _clear_domestic_vignette(completed: bool, persist: bool = true) -> void:
+	if _kalev_routine != null and not _domestic_vignette_activity.is_empty():
+		_kalev_routine.complete_kalev_activity_presentation(
+			_domestic_vignette_activity,
+			ROUTINE_CONTROLLER_SCRIPT.REASON_COMPLETED if completed else ROUTINE_CONTROLLER_SCRIPT.REASON_CANCELLED
+		)
+	if _domestic_presenter != null:
+		_domestic_presenter.clear_activity(completed)
 	_domestic_vignette_activity = &""
+	_domestic_vignette_seconds = 0.0
+	_set_domestic_player_lock(false)
+	if persist:
+		_persist_domestic_runtime_state()
+
+
+func _set_domestic_player_lock(locked: bool) -> void:
+	if player == null:
+		return
+	player.velocity = Vector2.ZERO
+	player.set_physics_process(not locked)
+
+
+func _persist_domestic_runtime_state() -> void:
+	var state := SessionState.state if has_node("/root/SessionState") else null
+	if state == null:
+		return
+	var presenter_snapshot := _domestic_presenter.snapshot() if _domestic_presenter != null else {}
+	state.map_world_state.record_object_delta(
+		&"loc.kalev_smithy",
+		DOMESTIC_RUNTIME_STATE_ID,
+		{
+			"snapshot_version": 1,
+			"active": not _domestic_vignette_activity.is_empty(),
+			"activity_id": String(_domestic_vignette_activity),
+			"remaining_sec": _domestic_vignette_seconds,
+			"presenter": presenter_snapshot,
+		}
+	)
+
+
+func _restore_domestic_runtime_state(state: GameState) -> void:
+	if state == null or _kalev_routine == null:
+		return
+	var snapshot := state.map_world_state.object_delta(&"loc.kalev_smithy", DOMESTIC_RUNTIME_STATE_ID)
+	if not bool(snapshot.get("active", false)):
+		return
+	var activity_id := StringName(String(snapshot.get("activity_id", "")))
+	var point := _kalev_routine.get_activity_point(activity_id)
+	if activity_id.is_empty() or point == null:
+		return
+	var context := _kalev_routine.build_kalev_context(state, _current_domestic_time_band())
+	if not _kalev_routine.begin_activity(KALEV_ID, activity_id, context):
+		return
+	_domestic_vignette_activity = activity_id
+	_domestic_vignette_seconds = maxf(float(snapshot.get("remaining_sec", 0.05)), 0.05)
+	_kalev_routine.apply_kalev_activity_presentation(activity_id, context)
+	if _domestic_presenter != null:
+		var presenter_snapshot := snapshot.get("presenter", {}) as Dictionary
+		if not _domestic_presenter.restore_snapshot(presenter_snapshot):
+			_domestic_presenter.begin_activity(
+				activity_id,
+				_kalev_routine.activity_held_socket(activity_id),
+				_domestic_vignette_seconds,
+				true
+			)
+	_set_domestic_player_lock(true)
+
+
+func _persist_henning_runtime_state() -> void:
+	var state := SessionState.state if has_node("/root/SessionState") else null
+	if state == null or henning == null:
+		return
+	state.map_world_state.record_object_delta(
+		&"loc.kalev_smithy",
+		HENNING_RUNTIME_STATE_ID,
+		{"snapshot_version": 1, "visitor": henning.runtime_snapshot()}
+	)
+
+
+func _restore_henning_runtime_state(state: GameState) -> void:
+	if state == null or henning == null:
+		return
+	var saved := state.map_world_state.object_delta(&"loc.kalev_smithy", HENNING_RUNTIME_STATE_ID)
+	if int(saved.get("snapshot_version", 0)) != 1:
+		return
+	henning.restore_runtime_snapshot(saved.get("visitor", {}) as Dictionary)
+
+
+func smithy_domestic_telemetry() -> Dictionary:
+	return {
+		"reservations": _station_reservations.telemetry() if _station_reservations != null else {},
+		"presentation": _domestic_presenter.telemetry() if _domestic_presenter != null else {},
+		"active_activity": String(_domestic_vignette_activity),
+	}
