@@ -13,3 +13,6 @@
 - For catalog birds with exact `MapViewBirdSpecies` metrics, prefer deterministic Blender generators over Hunyuan when prior animal candidates were rejected for topology; keep an optional Hunyuan follow-up row.
 - If `run_godot_checked.sh` fails without surfaced output, inspect the wrapper and its saved log before retrying so the original diagnostic is preserved.
 - When the full Godot harness exceeds the available timeout, inspect its saved log, report the last completed test, and rely on clean focused suites rather than immediately repeating the same long run.
+- Blender's bundled Python often lacks Pillow; compose multi-species fauna reference sheets with host `python3` + Pillow after the Blender generator writes per-species EEVEE previews, rather than failing the batch when in-process sheet composition returns `None`.
+- Never open `assets/SOURCES.csv` with mode `w` until the replacement row list is fully built; a failed `DictWriter` after truncate can wipe provenance. Prefer write-to-temp then rename, or build rows before opening for write.
+- `tools/run_godot_checked.sh` expects `tools/run_godot_checked.sh [--require-test-summary] <log-name> -- <godot-command> [args...]`; setting `GODOT_BIN` alone does not supply its required log-name or command arguments.

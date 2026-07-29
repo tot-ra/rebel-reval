@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://b2sw6wpk8b0lj"
-path="res://.godot/imported/standing.glb-eccd08afe3b8d2d03c781d566ed46fc4.scn"
+uid="uid://toph0nlndu88"
+path="res://.godot/imported/standing.glb-bacc7dcb21f3a557c6df7c5f7f2a4bf0.scn"
 
 [deps]
 
-source_file="res://assets/birds/mallard/standing.glb"
-dest_files=["res://.godot/imported/standing.glb-eccd08afe3b8d2d03c781d566ed46fc4.scn"]
+source_file="res://assets/birds/greylag_goose/standing.glb"
+dest_files=["res://.godot/imported/standing.glb-bacc7dcb21f3a557c6df7c5f7f2a4bf0.scn"]
 
 [params]
 

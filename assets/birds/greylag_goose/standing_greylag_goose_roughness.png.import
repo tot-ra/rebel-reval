@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bvae263o88ngu"
-path="res://.godot/imported/standing_Image_1.png-e69d9be25875654c8ca380c07746826f.ctex"
+uid="uid://cptysb8gsjyjo"
+path="res://.godot/imported/standing_greylag_goose_roughness.png-bca081f535e862f61f06041787123f35.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "513ca26db31e34e18c22d8225e7a1d14"
+"md5": "804fd458fdcccc3dac15bd1b85822b60"
 }
 
 [deps]
 
-source_file="res://assets/birds/mallard/standing_Image_1.png"
-dest_files=["res://.godot/imported/standing_Image_1.png-e69d9be25875654c8ca380c07746826f.ctex"]
+source_file="res://assets/birds/greylag_goose/standing_greylag_goose_roughness.png"
+dest_files=["res://.godot/imported/standing_greylag_goose_roughness.png-bca081f535e862f61f06041787123f35.ctex"]
 
 [params]
 

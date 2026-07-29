@@ -2,19 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cnh4kg63gep8w"
-path="res://.godot/imported/standing_Image_0.png-ccfca00d413d0188b9c7fbc3da95905e.ctex"
+uid="uid://k8w1m6nmd7i3"
+path="res://.godot/imported/p2_035_great_cormorant_reference.png-fcb74bd71b6a0298765b46ee12b95d71.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "22374bf88d6945b1e5982416e36bf750"
 }
 
 [deps]
 
-source_file="res://assets/birds/mallard/standing_Image_0.png"
-dest_files=["res://.godot/imported/standing_Image_0.png-ccfca00d413d0188b9c7fbc3da95905e.ctex"]
+source_file="res://docs/reports/images/fauna/p2_035_great_cormorant_reference.png"
+dest_files=["res://.godot/imported/p2_035_great_cormorant_reference.png-fcb74bd71b6a0298765b46ee12b95d71.ctex"]
 
 [params]
 
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

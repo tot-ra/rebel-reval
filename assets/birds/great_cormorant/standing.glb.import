@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://b2sw6wpk8b0lj"
-path="res://.godot/imported/standing.glb-eccd08afe3b8d2d03c781d566ed46fc4.scn"
+uid="uid://cl1x5jhvcywuq"
+path="res://.godot/imported/standing.glb-2ccb2baaf215934ca7fb9d964175d198.scn"
 
 [deps]
 
-source_file="res://assets/birds/mallard/standing.glb"
-dest_files=["res://.godot/imported/standing.glb-eccd08afe3b8d2d03c781d566ed46fc4.scn"]
+source_file="res://assets/birds/great_cormorant/standing.glb"
+dest_files=["res://.godot/imported/standing.glb-2ccb2baaf215934ca7fb9d964175d198.scn"]
 
 [params]
 

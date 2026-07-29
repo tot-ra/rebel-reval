@@ -1,0 +1,70 @@
+{
+  "generator": "waterfowl_v1",
+  "assets": [
+    {
+      "triangles": 500,
+      "dimensions_m": [
+        0.859,
+        2.6206,
+        3.679
+      ],
+      "largest_axis_m": 3.679,
+      "ground_min_z": 0.0,
+      "sha256": "e04226ac06c14734e9d88037fb4942b0c0238ce3077b92973089a5b848e8d51b",
+      "path": "assets/birds/mute_swan/standing.glb",
+      "species": "mute_swan",
+      "pose": "standing",
+      "neck": 0.72,
+      "reference_plate": "docs/reports/images/fauna/p2_035_mute_swan_reference.png"
+    },
+    {
+      "triangles": 548,
+      "dimensions_m": [
+        0.3447,
+        0.6935,
+        1.0989
+      ],
+      "largest_axis_m": 1.0989,
+      "ground_min_z": 0.0,
+      "sha256": "47bbcbd7d9a9090aa5f4fb50dddf58c2ddba9983265fc685df98a49f3779f6c5",
+      "path": "assets/birds/mallard/standing.glb",
+      "species": "mallard",
+      "pose": "standing",
+      "neck": 0.13,
+      "reference_plate": "docs/reports/images/fauna/p2_035_mallard_reference.png"
+    },
+    {
+      "triangles": 500,
+      "dimensions_m": [
+        0.4873,
+        1.2924,
+        1.83
+      ],
+      "largest_axis_m": 1.83,
+      "ground_min_z": 0.0,
+      "sha256": "df1ec4d8f106f5a800e22e901538e65c32d34e2ae97de4c8838ba0d8e520d0e0",
+      "path": "assets/birds/greylag_goose/standing.glb",
+      "species": "greylag_goose",
+      "pose": "standing",
+      "neck": 0.46,
+      "reference_plate": "docs/reports/images/fauna/p2_035_greylag_goose_reference.png"
+    },
+    {
+      "triangles": 500,
+      "dimensions_m": [
+        0.4769,
+        1.5958,
+        2.4927
+      ],
+      "largest_axis_m": 2.4927,
+      "ground_min_z": 0.0,
+      "sha256": "092c28e48574eff937503c642c9b31b9f23a9eb694e278ee06179d22654ae6c1",
+      "path": "assets/birds/great_cormorant/standing.glb",
+      "species": "great_cormorant",
+      "pose": "standing",
+      "neck": 0.52,
+      "reference_plate": "docs/reports/images/fauna/p2_035_great_cormorant_reference.png"
+    }
+  ],
+  "reference_sheet": "docs/reports/images/fauna/p2_035_waterfowl_reference_sheet.png"
+}

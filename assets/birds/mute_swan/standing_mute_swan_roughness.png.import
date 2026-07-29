@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://be0kd3au672w4"
-path="res://.godot/imported/standing_standing_roughness.png-d28372bb68d0a06d35f8b0ece61d281d.ctex"
+uid="uid://oiwpj6el4sc"
+path="res://.godot/imported/standing_mute_swan_roughness.png-2fbb871694813c66d738e243f5e41381.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "4e9c575d675d988f501dbed450718e38"
+"md5": "804fd458fdcccc3dac15bd1b85822b60"
 }
 
 [deps]
 
-source_file="res://assets/birds/mallard/standing_standing_roughness.png"
-dest_files=["res://.godot/imported/standing_standing_roughness.png-d28372bb68d0a06d35f8b0ece61d281d.ctex"]
+source_file="res://assets/birds/mute_swan/standing_mute_swan_roughness.png"
+dest_files=["res://.godot/imported/standing_mute_swan_roughness.png-2fbb871694813c66d738e243f5e41381.ctex"]
 
 [params]
 

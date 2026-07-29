@@ -1,0 +1,8 @@
+{
+  "asset_id": "bird.waterfowl_batch",
+  "route": "deterministic_blender",
+  "stage": "production_ready",
+  "generator_version": "waterfowl_v1",
+  "blender_version": "Blender 5.2 LTS",
+  "note": "Hunyuan3D unavailable; catalog-proportion standing waterfowl with PBR feather maps and long-neck overrides"
+}
