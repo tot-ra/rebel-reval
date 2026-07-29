@@ -1,0 +1,59 @@
+{
+  "map_id": "loc.kalev_smithy",
+  "living_bay_x_max_cell": 13,
+  "zones": {
+    "LZ-A": {"cells": "x2-6,y8-11", "props": ["bed", "bed_linen"]},
+    "LZ-B": {"cells": "x2-6,y2-4", "props": ["forge_ledger", "cloak_banner", "provision_bread"]},
+    "LZ-C": {"cells": "x1-4,y1-3", "props": ["domestic_hearth", "hearth_kindling_store", "provision_peas", "provision_onions", "provision_salt"]},
+    "LZ-D": {"cells": "x10-12,y1-2", "props": ["wash_basin", "water_bucket", "wash_cloth"]},
+    "LZ-E": {"cells": "x6-10,y10-12", "props": ["food_table", "work_chair", "table_candle", "table_settings", "table_prep", "table_cleanup"]},
+    "LZ-F": {"cells": "x2-3,y7-8", "props": ["chest", "chest_provisions"]},
+    "LZ-G": {"cells": "x10-13,y12-13", "props": ["ash_scoop", "broom", "door_courtyard"]}
+  },
+  "required_domestic_props": [
+    {"id": "domestic_hearth", "kind": "hearth", "style_variant": "hearth.lit", "zone": "LZ-C"},
+    {"id": "hearth_kindling_store", "kind": "household_clutter", "style_variant": "household.kindling_bundle", "zone": "LZ-C"},
+    {"id": "wash_basin", "kind": "wash_tub", "zone": "LZ-D"},
+    {"id": "water_bucket", "kind": "household_clutter", "style_variant": "household.water_bucket", "zone": "LZ-D"},
+    {"id": "wash_cloth", "kind": "kitchenware", "style_variant": "kitchenware.basin_cloth", "zone": "LZ-D"},
+    {"id": "provision_peas", "kind": "household_clutter", "style_variant": "provision.dried_peas_bin", "zone": "LZ-C"},
+    {"id": "provision_onions", "kind": "household_clutter", "style_variant": "provision.onion_braid", "zone": "LZ-C"},
+    {"id": "provision_salt", "kind": "household_clutter", "style_variant": "provision.salt_crock", "zone": "LZ-C"},
+    {"id": "provision_bread", "kind": "household_clutter", "style_variant": "provision.rye_bread_loaf", "zone": "LZ-B"},
+    {"id": "chest_provisions", "kind": "household_clutter", "style_variant": "household.group.closed", "zone": "LZ-F"},
+    {"id": "table_settings", "kind": "kitchenware", "style_variant": "kitchenware.group.eating", "zone": "LZ-E"},
+    {"id": "table_prep", "kind": "kitchenware", "style_variant": "kitchenware.group.prep", "zone": "LZ-E"},
+    {"id": "table_cleanup", "kind": "kitchenware", "style_variant": "kitchenware.group.cleanup", "zone": "LZ-E"},
+    {"id": "bed_linen", "kind": "household_clutter", "style_variant": "household.linen_folded", "zone": "LZ-A"},
+    {"id": "apron_hook", "kind": "household_clutter", "style_variant": "household.apron", "zone": "LZ-A"},
+    {"id": "ash_scoop", "kind": "household_clutter", "style_variant": "household.ash_scoop", "zone": "LZ-G"},
+    {"id": "broom", "kind": "household_clutter", "style_variant": "household.broom", "zone": "LZ-G"}
+  ],
+  "routine_prop_ids": [
+    "bed",
+    "wash_basin",
+    "door_courtyard",
+    "food_table",
+    "domestic_hearth",
+    "broom",
+    "hearth_kindling_store",
+    "forge_ledger",
+    "forge_anvil",
+    "forge_bellows",
+    "quench",
+    "work_chair"
+  ],
+  "forge_only_props": [
+    "forge_anvil",
+    "forge_furnace",
+    "forge_bellows",
+    "quench",
+    "tool_shelf",
+    "coal_store",
+    "iron_scrap_store"
+  ],
+  "hearth_clearance_cells": {
+    "domestic_hearth": {"x_min": 1, "x_max": 3, "y_min": 1, "y_max": 3},
+    "forge_furnace": {"x_min": 18, "x_max": 21, "y_min": 1, "y_max": 3}
+  }
+}

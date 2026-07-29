@@ -4,6 +4,11 @@ const KalevSmithyDefinition := preload("res://scripts/map/definitions/lower_town
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const MapTypes := preload("res://scripts/map/map_types.gd")
 const MapVerification := preload("res://scripts/map/map_verification.gd")
+const RoutineDefinition := preload("res://scripts/world/smithy_routine_definition.gd")
+
+const DOMESTIC_FIXTURE_PATH := "res://tests/fixtures/maps/kalev_smithy_domestic_life.json"
+const ROUTINE_PATH := "res://content/routines/kalev_smithy.json"
+const LIVING_BAY_X_MAX_CELL := 13
 
 
 func test_kalev_smithy_definition_validates() -> void:
@@ -126,3 +131,111 @@ func test_kalev_smithy_full_terrain_coverage() -> void:
 	for y in grid.size_cells.y:
 		for x in grid.size_cells.x:
 			assert_false(String(grid.get_terrain(Vector2i(x, y))).is_empty())
+
+
+func test_kalev_smithy_domestic_life_props_match_fixture() -> void:
+	var fixture := _load_domestic_fixture()
+	var definition: MapDefinition = KalevSmithyDefinition.create()
+	for entry: Dictionary in fixture.get("required_domestic_props", []):
+		var prop_id: StringName = StringName(str(entry.get("id", "")))
+		var prop := _prop_by_id(definition, prop_id)
+		assert_false(prop.is_empty(), "Missing domestic prop %s" % String(prop_id))
+		assert_eq(prop.get("kind"), StringName(str(entry.get("kind", ""))))
+		if entry.has("style_variant"):
+			assert_eq(prop.get("style_variant"), StringName(str(entry.get("style_variant"))))
+		var cell := _prop_origin_cell(definition, prop)
+		assert_true(cell.x <= LIVING_BAY_X_MAX_CELL, "%s must stay in the living bay" % String(prop_id))
+
+
+func test_kalev_smithy_routine_props_exist_on_map() -> void:
+	var fixture := _load_domestic_fixture()
+	var definition: MapDefinition = KalevSmithyDefinition.create()
+	for prop_id_text: String in fixture.get("routine_prop_ids", []):
+		var prop_id := StringName(prop_id_text)
+		if prop_id == &"door_courtyard":
+			assert_false(MapVerification.transition_rect(definition, prop_id) == Rect2())
+			continue
+		assert_ne(MapVerification.prop_position(definition, prop_id), Vector2.ZERO, "Routine prop %s missing" % prop_id_text)
+
+
+func test_kalev_smithy_domestic_and_forge_hearths_are_separated() -> void:
+	var fixture := _load_domestic_fixture()
+	var definition: MapDefinition = KalevSmithyDefinition.create()
+	var domestic := _prop_by_id(definition, &"domestic_hearth")
+	var furnace := _prop_by_id(definition, &"forge_furnace")
+	assert_false(domestic.is_empty())
+	assert_false(furnace.is_empty())
+	var domestic_cell := _prop_origin_cell(definition, domestic)
+	var furnace_cell := _prop_origin_cell(definition, furnace)
+	assert_true(domestic_cell.x <= LIVING_BAY_X_MAX_CELL)
+	assert_true(furnace_cell.x > LIVING_BAY_X_MAX_CELL)
+	var clearance: Dictionary = fixture.get("hearth_clearance_cells", {})
+	var domestic_box: Dictionary = clearance.get("domestic_hearth", {})
+	var furnace_box: Dictionary = clearance.get("forge_furnace", {})
+	assert_true(domestic_cell.x >= int(domestic_box.get("x_min", 0)))
+	assert_true(domestic_cell.x <= int(domestic_box.get("x_max", 99)))
+	assert_true(furnace_cell.x >= int(furnace_box.get("x_min", 0)))
+
+
+func test_kalev_smithy_forge_props_stay_in_work_bay() -> void:
+	var fixture := _load_domestic_fixture()
+	var definition: MapDefinition = KalevSmithyDefinition.create()
+	for prop_id_text: String in fixture.get("forge_only_props", []):
+		var prop := _prop_by_id(definition, StringName(prop_id_text))
+		assert_false(prop.is_empty(), "Forge prop %s missing" % prop_id_text)
+		var cell := _prop_origin_cell(definition, prop)
+		assert_true(cell.x > LIVING_BAY_X_MAX_CELL, "%s must remain in the forge bay" % prop_id_text)
+
+
+func test_kalev_smithy_domestic_props_do_not_block_protected_routes() -> void:
+	var definition: MapDefinition = KalevSmithyDefinition.create()
+	var grid: MapTerrainGrid = MapBuilder.build(definition)
+	var spawn := definition.player_spawn
+	for anchor_id: StringName in [&"anvil", &"ledger", &"bed_alcove"]:
+		assert_true(
+			MapVerification.route_exists(definition, grid, spawn, MapVerification.anchor_position(definition, anchor_id)),
+			"Route to %s blocked after domestic dressing" % String(anchor_id)
+		)
+	assert_true(
+		MapVerification.route_exists(
+			definition,
+			grid,
+			spawn,
+			MapVerification.transition_rect(definition, &"door_courtyard").get_center()
+		),
+		"Route to courtyard door blocked after domestic dressing"
+	)
+	var routine := RoutineDefinition.load_from_file(ROUTINE_PATH)
+	for activity_id: StringName in routine.all_activity_ids():
+		var point := routine.get_activity_point(activity_id)
+		if point == null or point.prop_id.is_empty() or point.prop_id == &"door_courtyard":
+			continue
+		assert_ne(
+			MapVerification.prop_position(definition, point.prop_id),
+			Vector2.ZERO,
+			"Activity %s references missing prop %s" % [String(activity_id), String(point.prop_id)]
+		)
+
+
+func _load_domestic_fixture() -> Dictionary:
+	var file := FileAccess.open(DOMESTIC_FIXTURE_PATH, FileAccess.READ)
+	assert_true(file != null, "Domestic-life fixture must exist")
+	var parsed: Variant = JSON.parse_string(file.get_as_text())
+	file.close()
+	assert_true(parsed is Dictionary, "Domestic-life fixture must be JSON object")
+	return parsed
+
+
+func _prop_by_id(definition: MapDefinition, prop_id: StringName) -> Dictionary:
+	for prop in definition.props:
+		if prop.get("id", &"") == prop_id:
+			return prop
+	return {}
+
+
+func _prop_origin_cell(definition: MapDefinition, prop: Dictionary) -> Vector2i:
+	var position: Vector2 = prop.get("position", Vector2.ZERO)
+	return Vector2i(
+		int(floor(position.x / definition.cell_size)),
+		int(floor(position.y / definition.cell_size))
+	)

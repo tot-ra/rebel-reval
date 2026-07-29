@@ -35,6 +35,24 @@ prop work_chair chair 10 10 rect=2,2
 prop tool_shelf shelf 22 2 rect=2,2
 prop coal_store charcoal_pile 23 4
 prop iron_scrap_store iron_scrap_pile 21 5
+# Living-bay domestic dressing (P2-057): hearth, wash, provisions, table settings, door tools.
+prop domestic_hearth hearth 1 1 rect=3,3 style_variant=hearth.lit
+prop hearth_kindling_store household_clutter 3 3 style_variant=household.kindling_bundle
+prop provision_peas household_clutter 4 1 style_variant=provision.dried_peas_bin
+prop provision_onions household_clutter 4 2 style_variant=provision.onion_braid
+prop provision_salt household_clutter 1 4 style_variant=provision.salt_crock
+prop provision_bread household_clutter 5 3 style_variant=provision.rye_bread_loaf
+prop wash_basin wash_tub 11 1 rect=1,1
+prop water_bucket household_clutter 10 1 style_variant=household.water_bucket
+prop wash_cloth kitchenware 12 1 style_variant=kitchenware.basin_cloth
+prop chest_provisions household_clutter 2 6 style_variant=household.group.closed
+prop table_settings kitchenware 7 10 style_variant=kitchenware.group.eating
+prop table_prep kitchenware 5 11 style_variant=kitchenware.group.prep
+prop table_cleanup kitchenware 9 11 style_variant=kitchenware.group.cleanup
+prop bed_linen household_clutter 4 9 style_variant=household.linen_folded
+prop apron_hook household_clutter 1 8 style_variant=household.apron
+prop ash_scoop household_clutter 11 12 style_variant=household.ash_scoop
+prop broom household_clutter 10 12 style_variant=household.broom
 landmark window.north_living interior_window 5 0 1 1 passage_axis=z
 landmark window.north_forge interior_window 20 0 1 1 passage_axis=z
 landmark window.west interior_window 0 6 1 2 passage_axis=x
