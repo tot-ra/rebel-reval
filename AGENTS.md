@@ -30,7 +30,7 @@ Current architecture boundaries and file ownership are documented in [`docs/ARCH
 
 ### Current runtime surface (evidence-based)
 
-- **Autoload:** `DoorNavigator` (`scripts/global/doorNavigator.gd`) - scene cache and transitions via `content/transitions/active_destinations.json` (stable scene/spawn ids), not hard-coded `scene_paths`
+- **Autoload:** `DoorNavigator` (`scripts/global/door_navigator.gd`) - scene cache and transitions via `content/transitions/active_destinations.json` (stable scene/spawn ids), not hard-coded `scene_paths`
 - **Main scene:** `scenes/menu/main_menu.tscn`
 - **Playable demo path:** main menu → Lower Town (`reval_east`) → forge; Mart conversation and anvil spearhead pickup (D-003) work on that loop
 - **Implemented today:** movement, manifest transitions, Interactable focus/prompt, session `GameState`, inventory/journal overlays, quick-access menu, district/world map overlay with click-to-travel, keyboard/gamepad focus travel, and visible focus styling (P1-031 / P1-031a / P1-031b / P1-031c, `M` / Districts), phase director hooks, content validation, map pipeline, save service APIs with tests, packaged macOS demo export with D-004 / D-004a proof

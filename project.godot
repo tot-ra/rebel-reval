@@ -27,7 +27,7 @@ buses/default_bus_layout="res://audio/default_bus_layout.tres"
 
 CursorService="*res://scripts/ui/cursor_service.gd"
 DisplayWindow="*res://scripts/display/display_window.gd"
-DoorNavigator="*res://scripts/global/doorNavigator.gd"
+DoorNavigator="*res://scripts/global/door_navigator.gd"
 MusicDirector="*res://scripts/global/music_director.gd"
 PhaseDirector="*res://scripts/phase/phase_director.gd"
 SessionState="*res://scripts/session/session_state.gd"

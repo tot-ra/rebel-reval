@@ -15,7 +15,7 @@ Recorded during **P0-017** seed and expanded under **P0-019** on 2026-07-16. Re-
 | DEF-005 | high | **Resolved** | `reval_center.tscn` is a programmatic MapScene host; no `revel_walls_towers/wall-map.png` ext_resource |
 | DEF-006 | low | **Retained** (low) | MultiMesh ShaderMaterial teardown ERROR still mitigated by strip-before-free helpers |
 
-Replacing navigation system for DEF-003/004/005 era reports: hard-coded `DoorNavigator.scene_paths` and district TileMap `.tscn` door exports were superseded by `content/transitions/active_destinations.json` consumed by `scripts/global/doorNavigator.gd`, plus `MapSceneBootstrap` district hosts.
+Replacing navigation system for DEF-003/004/005 era reports: hard-coded `DoorNavigator.scene_paths` and district TileMap `.tscn` door exports were superseded by `content/transitions/active_destinations.json` consumed by `scripts/global/door_navigator.gd`, plus `MapSceneBootstrap` district hosts.
 
 ## Test scope
 
@@ -31,7 +31,7 @@ Replacing navigation system for DEF-003/004/005 era reports: hard-coded `DoorNav
 | Scene sweep | All `36` scenes under `scenes/**/*.tscn` with `--quit-after 3` |
 | Playable smoke | `main_menu`, `reval_east`, `reval_north`, `forge`, `reval_center`, `harbor`, `intro` |
 | Parser check | `godot --headless --check-only` (15s watchdog) |
-| Door tags | Manual review of `destination_level_tag` in district `.tscn` files and `scripts/global/doorNavigator.gd` |
+| Door tags | Manual review of `destination_level_tag` in district `.tscn` files and `scripts/global/door_navigator.gd` |
 | Transition simulation | Headless GDScript repro of `DoorNavigator.go_to_scene` failure modes |
 
 ### P0-060 reconfirm

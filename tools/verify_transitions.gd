@@ -23,7 +23,7 @@ const RETIRED_SCENE_IDS := [
 ]
 const SOURCE_FILES_WITHOUT_LEGACY_DOOR_PATHS := [
 	"res://scripts/global/BaseLevel.gd",
-	"res://scripts/global/doorNavigator.gd",
+	"res://scripts/global/door_navigator.gd",
 	"res://scenes/reval_east/forge/forge.gd",
 ]
 
@@ -126,7 +126,7 @@ func _verify_no_legacy_path_construction() -> void:
 		var text := file.get_as_text()
 		if text.contains("Doors/door_"):
 			_fail("Legacy door node path construction remains in active code: " + path)
-		if path.ends_with("doorNavigator.gd") and text.contains("scene_paths"):
+		if path.ends_with("door_navigator.gd") and text.contains("scene_paths"):
 			_fail("Legacy hard-coded scene dictionary remains in DoorNavigator")
 
 func _verify_active_destinations_and_spawns() -> void:
