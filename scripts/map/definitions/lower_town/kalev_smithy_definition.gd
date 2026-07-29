@@ -6,6 +6,7 @@ extends RefCounted
 
 
 const RRMAP_PATH := "res://content/maps/kalev_smithy.rrmap"
+const WearDecals := preload("res://scripts/map/definitions/lower_town/map_wear_decals.gd")
 
 
 static func create() -> MapDefinition:
@@ -14,4 +15,7 @@ static func create() -> MapDefinition:
 		for diagnostic in parsed.formatted_diagnostics():
 			push_error(diagnostic)
 		return MapDefinition.new()
-	return parsed.definition
+	var definition: MapDefinition = parsed.definition
+	# P0-161: view-only wear stains; .rrmap lacks a decal statement so far.
+	WearDecals.apply_kalev_smithy(definition)
+	return definition

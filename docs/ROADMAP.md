@@ -3,6 +3,9 @@
 Coordination notes, delivery order, and planning context formerly embedded in `TODO.md`.
 Executable open work stays in [`TODO.md`](../TODO.md).
 
+<!-- P0-161 completed in current session -->
+Coordination note (2026-07-29 P0-161): playable `kalev_smithy` and `lower_town_slice` now ship authored soot/mud/grime/wet_threshold decals through `map_wear_decals.gd` (forge pad, door thresholds, yard corners, Viru Gate lane) without changing grid fingerprints or routes. Verified: `--filter=test_map_view_decals` (8/8), `--filter=test_kalev_smithy_map`, and `--filter=test_lower_town_slice_map`. Next map step: **P0-162** migrate decal placements into rrmap source lines.
+
 <!-- P0-142 completed in current session -->
 Coordination note (2026-07-29 P0-157): projected wear/grime/blood decals now ship as GL-Compatibility soft-edge quads (`MapViewDecals` + `WEAR_DECAL_SHADER_CODE`) with six authored alpha masks under `assets/materials/decals/`, ground-height snapping, and before/after evidence in `docs/reports/images/decals/`. Verified: `--filter=test_map_view_decals` (6/6). Next visual step: **P0-161** author smithy/Lower Town placements, or **P0-144** shared-rig UV unwrap.
 

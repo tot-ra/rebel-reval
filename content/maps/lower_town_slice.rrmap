@@ -264,6 +264,8 @@ anchor south_quarter_lane 62 122 rect=2,2
 anchor mart_street 76 54 rect=2,2
 spawn spawn.street_start 83 54 rect=2,2
 transition smithy_door_transition 88 73 2 1 destination_spawn=door_courtyard spawn=forge spawn_offset_px=0,64 to=forge building_id=kalev_smithy transition_visual=door
+# P0-161 wear decals (soot/mud/grime/wet_threshold) are authored in map_wear_decals.gd
+# at smithy and brewery thresholds, courtyard forge pad, hay yard, and Viru Gate lane.
 # Spawn offsets must clear trigger half-size plus player capsule (r=16,h=32)
 # so arrivals do not immediately re-fire the green transition volumes.
 # District adjacency follows medieval Reval (Tallinn Old Town):

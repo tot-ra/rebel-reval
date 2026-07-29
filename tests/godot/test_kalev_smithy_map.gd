@@ -64,6 +64,20 @@ func test_kalev_smithy_collision_parity() -> void:
 	assert_true(MapVerification.collision_parity(definition))
 
 
+func test_kalev_smithy_decals_do_not_change_gameplay_fingerprint() -> void:
+	var definition: MapDefinition = KalevSmithyDefinition.create()
+	assert_true(definition.decals.size() > 0, "Smithy interior should ship authored wear decals")
+	var grid := MapBuilder.build(definition)
+	var fingerprint_with_decals := grid.fingerprint()
+	definition.decals.clear()
+	var grid_without := MapBuilder.build(definition)
+	assert_eq(
+		fingerprint_with_decals,
+		grid_without.fingerprint(),
+		"Wear decals must stay view-only"
+	)
+
+
 func test_kalev_smithy_has_windows_furniture_and_local_lighting() -> void:
 	var definition: MapDefinition = KalevSmithyDefinition.create()
 	var window_count := 0

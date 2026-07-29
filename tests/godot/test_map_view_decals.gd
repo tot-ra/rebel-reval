@@ -90,6 +90,35 @@ func test_clear_helper_removes_decal_nodes() -> void:
 	view.free()
 
 
-func test_smithy_has_no_decals_yet() -> void:
+func test_smithy_courtyard_authors_wear_decals() -> void:
 	var definition := SmithyCourtyard.create()
-	assert_eq(definition.decals.size(), 0, "Smithy courtyard starts with no decals (placement is a follow-up map pass)")
+	assert_true(definition.decals.size() >= 3, "Prototype courtyard should carry forge and threshold wear")
+	var kinds: Dictionary = {}
+	for decal in definition.decals:
+		kinds[decal.get("kind", &"")] = true
+	assert_true(kinds.has(MapTypes.DECAL_KIND_SOOT), "Forge pad needs soot")
+	assert_true(kinds.has(MapTypes.DECAL_KIND_MUD), "Lane threshold needs mud")
+
+
+func test_kalev_smithy_authors_wear_decals() -> void:
+	var KalevSmithyDefinition := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
+	var definition: MapDefinition = KalevSmithyDefinition.create()
+	assert_true(definition.decals.size() >= 4, "Smithy interior needs forge, door, and yard decals")
+	var kinds: Dictionary = {}
+	for decal in definition.decals:
+		kinds[decal.get("kind", &"")] = true
+	assert_true(kinds.has(MapTypes.DECAL_KIND_SOOT), "Forge bay needs soot")
+	assert_true(kinds.has(MapTypes.DECAL_KIND_MUD), "Courtyard door needs mud")
+	assert_true(kinds.has(MapTypes.DECAL_KIND_GRIME), "Living bay needs grime")
+
+
+func test_lower_town_slice_authors_wear_decals() -> void:
+	var LowerTownSliceDefinition := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
+	var definition: MapDefinition = LowerTownSliceDefinition.create()
+	assert_true(definition.decals.size() >= 4, "Lower Town slice needs threshold and yard decals")
+	var kinds: Dictionary = {}
+	for decal in definition.decals:
+		kinds[decal.get("kind", &"")] = true
+	assert_true(kinds.has(MapTypes.DECAL_KIND_SOOT), "Courtyard anvil needs soot")
+	assert_true(kinds.has(MapTypes.DECAL_KIND_MUD), "District doors need mud")
+	assert_true(kinds.has(MapTypes.DECAL_KIND_WET_THRESHOLD), "Smithy threshold needs wet wear")

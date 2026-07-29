@@ -3,6 +3,8 @@ extends RefCounted
 
 ## Declarative layout for the Smithy Courtyard and adjacent Lower Town street spike.
 
+const WearDecals := preload("res://scripts/map/definitions/lower_town/map_wear_decals.gd")
+
 
 static func create() -> MapDefinition:
 	var definition := MapDefinition.new()
@@ -138,5 +140,8 @@ static func create() -> MapDefinition:
 			"position": definition.cell_rect_center(Rect2i(16, 14, 2, 2)),
 		},
 	]
+
+	# P0-161: prototype yard wear stains (view-only; no fingerprint impact).
+	WearDecals.apply_smithy_courtyard(definition)
 
 	return definition

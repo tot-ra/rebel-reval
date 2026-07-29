@@ -30,6 +30,20 @@ func test_lower_town_slice_matches_canonical_parity_fixture() -> void:
 	)
 
 
+func test_lower_town_slice_decals_do_not_change_gameplay_fingerprint() -> void:
+	var definition: MapDefinition = LowerTownSliceDefinition.create()
+	assert_true(definition.decals.size() > 0, "Lower Town slice should ship authored wear decals")
+	var grid := MapBuilder.build(definition)
+	var fingerprint_with_decals := grid.fingerprint()
+	definition.decals.clear()
+	var grid_without := MapBuilder.build(definition)
+	assert_eq(
+		fingerprint_with_decals,
+		grid_without.fingerprint(),
+		"Wear decals must stay view-only"
+	)
+
+
 func test_lower_town_limits_cobble_to_primary_roads() -> void:
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
 	var grid := MapBuilder.build(definition)
