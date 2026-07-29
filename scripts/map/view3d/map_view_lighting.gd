@@ -40,8 +40,10 @@ const FOG_HEIGHT := 3.5
 const FOG_MAX_HEIGHT_DENSITY := 1.1
 const FOG_HOURS_BEFORE_SUNRISE := 3.0
 const FOG_HOURS_AFTER_SUNRISE := 2.5
-const FOG_POTENTIAL_MIN := 0.6
-const FOG_POTENTIAL_FULL := 0.85
+## Raising the onset from 0.6 to 0.8 cuts eligible mornings from roughly two in
+## five to one in five while preserving the strongest deterministic fog days.
+const FOG_POTENTIAL_MIN := 0.8
+const FOG_POTENTIAL_FULL := 0.95
 
 ## Frozen Baltic post-grade (MATERIAL_STYLE_LOCK_KIT day table + ART_BIBLE night
 ## rules). Parameters freeze in ART_BIBLE v2 at P0-040; P0-141 wires them here.

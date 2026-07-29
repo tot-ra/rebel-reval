@@ -235,16 +235,33 @@ func test_town_surroundings_do_not_add_urban_fillers() -> void:
 	view.free()
 
 
-func test_lower_town_scatter_includes_puddles_on_worked_ground() -> void:
+func test_lower_town_puddles_appear_only_after_rain() -> void:
 	var definition := LowerTownSlice.create()
 	var view := MapView3D.create(definition, MapBuilder.build(definition))
+	(Engine.get_main_loop() as SceneTree).root.add_child(view)
 	view.activate_all_chunks()
-	var found := false
+	var puddles: Array[Node3D] = []
 	for chunk in view.get_node("Scatter").get_children():
-		if chunk.has_node("Puddles"):
-			found = true
-			break
-	assert_true(found, "lower town worked ground should spawn reflective puddles")
+		var chunk_puddles := chunk.get_node_or_null("Puddles") as Node3D
+		if chunk_puddles != null:
+			puddles.append(chunk_puddles)
+	assert_false(puddles.is_empty(), "lower town worked ground should prepare reflective puddle geometry")
+	for puddle_layer in puddles:
+		assert_false(puddle_layer.visible, "puddles must stay hidden before rain has fallen")
+
+	var sky := view.sky_weather()
+	sky.auto_weather = false
+	sky.set_weather(SkyWeather3D.WEATHER_RAIN)
+	sky.advance(SkyWeather3D.TRANSITION_SECONDS + 1.0)
+	view._sync_puddle_visibility()
+	for puddle_layer in puddles:
+		assert_true(puddle_layer.visible, "rain-created wetness must reveal puddles")
+
+	sky.set_weather(SkyWeather3D.WEATHER_CLEAR)
+	sky.advance(SkyWeather3D.TRANSITION_SECONDS + 1.0 / SkyWeather3D.PUDDLE_DRY_PER_SECOND + 1.0)
+	view._sync_puddle_visibility()
+	for puddle_layer in puddles:
+		assert_false(puddle_layer.visible, "puddles must disappear once rain-created wetness dries")
 	view.free()
 
 

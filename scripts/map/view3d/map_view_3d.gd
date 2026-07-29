@@ -110,6 +110,7 @@ var _object_streamer: MapObjectChunkStreamer
 var _scatter_root: Node3D
 var _loaded_scatter_chunks: Dictionary = {}
 var _active_chunks: Array[Vector2i] = []
+var _last_puddle_visible := false
 var _first_person_terrain_detail := false
 var _terrain_detail_focus_cell := Vector2i(2147483647, 2147483647)
 
@@ -152,6 +153,7 @@ static func _strip_geometry_materials(node: Node) -> void:
 
 func _process(delta: float) -> void:
 	_sync_sea_weather()
+	_sync_puddle_visibility()
 	_cull_offscreen_smoke(delta)
 	if _fog_of_war == null:
 		return
@@ -203,6 +205,21 @@ func _sync_sea_weather() -> void:
 	# Vegetation, sails, and tower pennants share the same weather wind field as
 	# floating hulls so a storm leans the whole harbor one way.
 	MapViewMaterials.apply_world_wind(_sky_weather.wind_direction_xz(), _sky_weather.wind_strength())
+
+
+## Puddle geometry remains prebuilt with each scatter chunk, but a fresh map is
+## dry. Rain-created wetness reveals it without rebuilding deterministic terrain.
+func _sync_puddle_visibility(force: bool = false) -> void:
+	if _sky_weather == null or _scatter_root == null:
+		return
+	var puddle_visible := _sky_weather.puddle_wetness() > 0.001
+	if not force and puddle_visible == _last_puddle_visible:
+		return
+	_last_puddle_visible = puddle_visible
+	for chunk in _scatter_root.get_children():
+		var puddles := chunk.get_node_or_null("Puddles") as Node3D
+		if puddles != null:
+			puddles.visible = puddle_visible
 
 
 func set_time_of_day(next_time: StringName) -> void:
@@ -555,6 +572,7 @@ func _assemble() -> void:
 	# indoors. The weather cycle keeps running for lighting and wind; only the
 	# visible rain particles are gated; roof-drum audio follows the same flag.
 	_sky_weather.rain_suppressed = definition != null and definition.suppresses_exterior_surroundings()
+	_sync_puddle_visibility(true)
 
 	# Headless uses the dummy renderer, which cannot provide the screen texture
 	# sampled by this post-process. Visibility logic remains directly testable.
@@ -670,6 +688,7 @@ func _update_scatter_chunks(chunks: Array[Vector2i]) -> void:
 		scatter.name = "Chunk_%d_%d" % [coordinates.x, coordinates.y]
 		_scatter_root.add_child(scatter)
 		_loaded_scatter_chunks[coordinates] = scatter
+	_sync_puddle_visibility(true)
 	_rebuild_terrain_details()
 
 

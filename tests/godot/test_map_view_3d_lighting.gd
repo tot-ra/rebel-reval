@@ -382,6 +382,25 @@ func test_morning_mist_gathers_before_dawn_and_burns_off() -> void:
 	)
 
 
+func test_morning_mist_uses_the_reduced_daily_probability() -> void:
+	# This deterministic date was foggy under the previous 0.6 onset but should
+	# remain clear now that only roughly the dampest fifth of mornings qualify.
+	var formerly_foggy_date := {"day": 1, "month": 1, "year": 1343}
+	var potential := SkyWeather3D.morning_fog_potential(formerly_foggy_date)
+	assert_true(potential > 0.6 and potential < MapView3D.FOG_POTENTIAL_MIN)
+	var sunrise := float(SkyWeather3D.sunrise_sunset_hours(formerly_foggy_date)["sunrise"])
+	var definition := SmithyCourtyard.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_DAY)
+	var sky := view.sky_weather()
+	sky.auto_weather = false
+	sky.set_weather(SkyWeather3D.WEATHER_CLEAR)
+	view.set_calendar_date(formerly_foggy_date)
+	view.apply_cycle_progress(sunrise / 24.0)
+	var environment := (view.get_node("ViewEnvironment") as WorldEnvironment).environment
+	assert_false(environment.fog_enabled, "moderately damp mornings must no longer produce fog")
+	view.free()
+
+
 func test_enclosed_interior_suppresses_morning_ground_mist() -> void:
 	# 18 Jan 1343 is a fog-prone morning (potential above FOG_POTENTIAL_FULL).
 	var fog_date := {"day": 18, "month": 1, "year": 1343}

@@ -32,6 +32,25 @@ func test_weather_sequence_is_deterministic() -> void:
 	second.free()
 
 
+func test_puddles_form_only_after_rain_and_dry_afterward() -> void:
+	var sky = SkyWeather.new()
+	sky.auto_weather = false
+	assert_eq(sky.puddle_wetness(), 0.0, "a fresh weather cycle must start with dry ground")
+	sky.advance(120.0)
+	assert_eq(sky.puddle_wetness(), 0.0, "clear weather must not create puddles")
+
+	sky.set_weather(SkyWeather.WEATHER_RAIN)
+	sky.advance(SkyWeather.TRANSITION_SECONDS + 1.0)
+	assert_true(sky.puddle_wetness() > 0.0, "rain that reaches the ground must create puddles")
+
+	sky.set_weather(SkyWeather.WEATHER_CLEAR)
+	sky.advance(SkyWeather.TRANSITION_SECONDS)
+	assert_true(sky.puddle_wetness() > 0.0, "puddles must persist through the rain-to-clear transition")
+	sky.advance(1.0 / SkyWeather.PUDDLE_DRY_PER_SECOND + 1.0)
+	assert_eq(sky.puddle_wetness(), 0.0, "puddles must eventually dry in clear weather")
+	sky.free()
+
+
 func test_enclosed_shell_hides_falling_rain() -> void:
 	var sky = SkyWeather.new()
 	sky.auto_weather = false
