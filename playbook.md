@@ -19,3 +19,5 @@
 - When inserting many rows into a hot shared file like `TODO.md`, prefer one atomic Python rewrite and immediately assert the new IDs exist; Cursor `StrReplace` success alone is not enough if another writer can race the file.
 - Do not treat a substring match for a new task ID (for example `P0-163` inside a `deps:` list) as proof that the task row itself was inserted.
 - Before `git commit`, inspect `git status` for already-staged unrelated files (`M ` in the first column); unstage them or the commit will absorb them.
+- When allocating new `TODO.md` IDs, also scan open `docs/ROADMAP.md` coordination notes and other tracks that may have just claimed nearby IDs (for example cart `P0-164` / `A-010` / `P4-037` versus Toompea work). After write, assert each new ID has exactly one deliverable row, not only `deps:` / `production:` mentions.
+- Solid history dossiers need Producer follow-up rows that name the target map anachronism and Brief ship decisions; closing `R-###` alone does not put historically accurate fabric into the game.
