@@ -22,7 +22,9 @@
 - When allocating new `TODO.md` IDs, also scan open `docs/ROADMAP.md` coordination notes and other tracks that may have just claimed nearby IDs (for example cart `P0-164` / `A-010` / `P4-037` versus Toompea work). After write, assert each new ID has exactly one deliverable row, not only `deps:` / `production:` mentions.
 - Solid history dossiers need Producer follow-up rows that name the target map anachronism and Brief ship decisions; closing `R-###` alone does not put historically accurate fabric into the game.
 - Discover focused test paths before reading them; do not infer filenames from runtime class names because smithy ambient coverage is grouped in `test_smithy_ambient_actors.gd`.
+- In Python diagnostic snippets, precompute regex matches before formatting; backslashes inside f-string expressions cause a SyntaxError.
 - The parallel tool accepts at most 12 steps per call; split larger exploration batches before dispatch.
 - When validating YAML-like text, match full keys/values with anchored regexes; substring checks such as `mode: all` also match valid `mode: allow`.
 - Before editing from a summarized audit, re-read the exact target line; a stale assumption can turn an already-correct permission into a failed replacement.
 - After programmatic regex edits, inspect the saved source representation and run a tiny fixture immediately; doubled backslashes in raw strings can silently change whitespace matching into literal text matching.
+- When a Producer-only TODO/ROADMAP tick makes the active Markdown report stale, create a bounded QA report-refresh row instead of editing the generated report outside Producer ownership.
