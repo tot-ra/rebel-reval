@@ -1,0 +1,30 @@
+{
+  "approval": "task-authorized",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "78e9583fb31c6c7eccc25391d28545c24cddfc9d1bc8505da72a9e1f6bd5f8da",
+  "checks": {
+    "anchor_count": 6,
+    "embedded_albedo": true,
+    "flame_mesh_count": 0,
+    "ground_contact": true,
+    "metric_scale": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    1.0,
+    1.051,
+    1.66
+  ],
+  "floating_objects": 0,
+  "generator": "tools/generate_medieval_hearth_kit.py",
+  "generator_version": "medieval_hearth_kit_v1",
+  "ground_min_z": 0.0,
+  "materials": 7,
+  "route": "deterministic_blender",
+  "sha256": "7d157747aa2ce8ad37b63ea7b0cab8acb37e42c8a64281b854267b71dc19a70c",
+  "texture_size": 512,
+  "triangles": 3632,
+  "uv_sets": 1
+}

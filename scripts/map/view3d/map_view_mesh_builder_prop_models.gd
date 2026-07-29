@@ -14,6 +14,7 @@ const MedievalAnimalModels := preload("res://scripts/map/view3d/map_view_medieva
 const MarketStallModels := preload("res://scripts/map/view3d/map_view_market_stall_models.gd")
 const TableModels := preload("res://scripts/map/view3d/map_view_table_models.gd")
 const MedievalLightingModels := preload("res://scripts/map/view3d/map_view_medieval_lighting_models.gd")
+const DomesticHearthModels := preload("res://scripts/map/view3d/map_view_domestic_hearth_models.gd")
 const ChestModels := preload("res://scripts/map/view3d/map_view_chest_models.gd")
 const WellModels := preload("res://scripts/map/view3d/map_view_well_models.gd")
 const StorageFurnitureModels := preload("res://scripts/map/view3d/map_view_storage_furniture_models.gd")
@@ -177,8 +178,7 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 		MapTypes.PROP_KIND_STALL:
 			MarketStallModels.add_model(root, prop)
 		MapTypes.PROP_KIND_HEARTH:
-			MapViewMeshBuilderPrimitives.box(root, "Base", Vector3(1.0, 0.4, 1.0), Vector3(0.0, 0.2, 0.0), &"stone")
-			MapViewMeshBuilderPrimitives.box(root, "Fire", Vector3(0.5, 0.22, 0.5), Vector3(0.0, 0.5, 0.0), &"ember")
+			DomesticHearthModels.add_model(root, prop)
 		MapTypes.PROP_KIND_CHAIR:
 			if prop.get("id", &"") == SMITHY_CHAIR_PROP_ID:
 				_add_smithy_chair(root)

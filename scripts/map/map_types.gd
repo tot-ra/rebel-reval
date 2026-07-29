@@ -148,6 +148,18 @@ const LIGHTING_VARIANTS: Array[StringName] = [
 	LIGHTING_VARIANT_GREASE_LAMP,
 	LIGHTING_VARIANT_PINE_SPLINT,
 ]
+
+## Domestic cooking-hearth fire states are authored separately from the
+## industrial forge furnace so food preparation never reuses hot-work props.
+const HEARTH_STATE_LIT := &"hearth.lit"
+const HEARTH_STATE_EMBERS := &"hearth.embers"
+const HEARTH_STATE_COLD := &"hearth.cold"
+const DEFAULT_HEARTH_STATE := HEARTH_STATE_LIT
+const HEARTH_STATES: Array[StringName] = [
+	HEARTH_STATE_LIT,
+	HEARTH_STATE_EMBERS,
+	HEARTH_STATE_COLD,
+]
 const PROP_KIND_BUSH := &"bush"
 const PROP_KIND_TREE := &"tree"
 const PROP_KIND_FISHING_BOAT := &"fishing_boat"
@@ -354,6 +366,18 @@ static func invalid_lighting_variant(prop: Dictionary) -> StringName:
 		return &""
 	var variant := StringName(prop["style_variant"])
 	return &"" if variant in LIGHTING_VARIANTS else variant
+
+
+static func hearth_state_for_prop(prop: Dictionary) -> StringName:
+	var variant := StringName(prop.get("style_variant", DEFAULT_HEARTH_STATE))
+	return variant if variant in HEARTH_STATES else DEFAULT_HEARTH_STATE
+
+
+static func invalid_hearth_state(prop: Dictionary) -> StringName:
+	if prop.get("kind") != PROP_KIND_HEARTH or not prop.has("style_variant"):
+		return &""
+	var variant := StringName(prop["style_variant"])
+	return &"" if variant in HEARTH_STATES else variant
 
 static func invalid_market_stall_goods(specification: StringName) -> Array[StringName]:
 	var invalid: Array[StringName] = []

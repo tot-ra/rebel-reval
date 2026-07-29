@@ -50,6 +50,15 @@ const HAY_STACK_VARIANTS: Array[StringName] = [
 ]
 const DEFAULT_HAY_STACK_VARIANT := HAY_STACK_MEDIUM
 
+const HEARTH_STATE_LIT := MapTypes.HEARTH_STATE_LIT
+const HEARTH_STATE_EMBERS := MapTypes.HEARTH_STATE_EMBERS
+const HEARTH_STATE_COLD := MapTypes.HEARTH_STATE_COLD
+const HEARTH_STATE_VARIANTS: Array[StringName] = [
+	HEARTH_STATE_LIT,
+	HEARTH_STATE_EMBERS,
+	HEARTH_STATE_COLD,
+]
+
 
 static func is_known(kind: StringName, variant: StringName) -> bool:
 	if variant.is_empty():
@@ -64,6 +73,8 @@ static func is_known(kind: StringName, variant: StringName) -> bool:
 		return variant in TABLE_VARIANTS
 	if kind == MapTypes.PROP_KIND_HAY_STACK:
 		return variant in HAY_STACK_VARIANTS
+	if kind == MapTypes.PROP_KIND_HEARTH:
+		return variant in HEARTH_STATE_VARIANTS
 	if kind == MapTypes.PROP_KIND_CANDLE:
 		return variant in MapTypes.LIGHTING_VARIANTS
 	return TerrainVegetation.is_known_variant(variant)
