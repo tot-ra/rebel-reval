@@ -163,6 +163,7 @@ func _wire_henning_navigation(definition: MapDefinition) -> void:
 			navigation.get_navigation_map(),
 			MapVerification.prop_position(definition, &"work_chair")
 		)
+		henning.set_phase_visibility(false)
 
 
 func _wire_cat_navigation() -> void:

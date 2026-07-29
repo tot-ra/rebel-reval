@@ -1,0 +1,17 @@
+{
+  "map_id": "loc.kalev_smithy",
+  "activity_points_source": "res://content/routines/kalev_smithy.json",
+  "actor_id": "char.henning",
+  "despawn_after_leave": true,
+  "visitor_sequences": {
+    "char.henning": {
+      "phase.prologue_day": [
+        "ap.visitor.enter",
+        "ap.visitor.wait",
+        "ap.visitor.inspect",
+        "ap.visitor.talk",
+        "ap.visitor.leave"
+      ]
+    }
+  }
+}

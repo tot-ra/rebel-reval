@@ -138,6 +138,8 @@ func _on_dialogue_finished(dialogue_id: StringName) -> void:
 		_dialogue_ui.choice_selected.disconnect(_on_ledger_choice_picked)
 	if _henning != null:
 		_henning.set_conversation_partner(null)
+		if dialogue_id == DIALOGUE_HENNING:
+			_henning.resume_after_dialogue()
 	if not _is_prologue_active():
 		return
 	match dialogue_id:
@@ -182,6 +184,8 @@ func _try_start_henning_arrival() -> void:
 	):
 		return
 	_henning_arrival_started = true
+	if _henning != null:
+		_henning.begin_prologue_visit()
 	_start_branching_dialogue(DIALOGUE_HENNING)
 
 
