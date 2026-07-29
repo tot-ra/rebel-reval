@@ -3,6 +3,8 @@
 Coordination notes, delivery order, and planning context formerly embedded in `TODO.md`.
 Executable open work stays in [`TODO.md`](../TODO.md).
 
+Coordination note (2026-07-30 merchant carts): R-068 `merchant-cart-and-transport-1340s` (plus R-069 toll gap) is now tracked as production work. Order: **P0-164** transport contract (`vehicle_class` = `cart_2w` / `wagon_4w` / `barrow` / `sledge`, ~1.3 m wheel track, no 1343 wheel tax) -> art brief **A-010** -> **A-004** two-wheel *Karren* GLB -> kit **P2-068** and corridor placement **P2-069** -> systems **P4-037** and quests **P4-038** -> traffic wiring **P2-070** -> art sign-off **A-011**. Decisions recorded in the dossier. Default urban vehicle is a single-horse two-wheel cart, not a war wagon or ox team.
+
 Coordination note (2026-07-30 burgher houses): R-003 `burgher-house-plan` is now tracked as production work. Order: **P0-163** typology contract (`house_tier` = `merchant_stone` / `merchant_timber` / `craft_boda`) -> art brief **A-008** -> exterior kits **P2-063**–**P2-065** and plot dressing **P2-066** -> Lower Town wiring **P2-067** -> art sign-off **A-009**, then **P0-102** / **P0-101**. Decisions recorded in the dossier. Do not ship late-Gothic tourist facades as the 1343 default.
 
 <!-- P2-035 completed in current session -->

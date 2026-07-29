@@ -10,7 +10,7 @@ related:
   - ../topography/harbour-and-shoreline.md
   - ../hinterland/harju-village-and-manor.md
   - ../power/reval-street-cleaning-ordinances-1340s.md
-updated: 2026-07-29
+updated: 2026-07-30
 ---
 
 # Merchant cart and road transport (Spring 1343 Reval)
@@ -76,11 +76,13 @@ No published **1340–1343 Reval customs tariff** names **cart tolls**, **wheel 
 
 ## Production hooks
 
-- **Art (A-004):** **Two-wheel cart**, **~1.3 m track**, **lattice sides**, **open front**, **hinged rear gate**, **single horse** in shafts; load variant **two grain sacks + one barrel**; wood **weathered grey-brown**, iron **dark rust**; wheel **12-spoke** class (`economy.merchant-cart-and-transport-1340s.01`). **No** armour plating, **no** war-wagon breastwork.
-- **Map:** `cart_path_width_min: 2.5 m` on forum throat; `wheel_rut_spacing: 1.3 m` tag on cobbled lanes; block **twin-cart passing** on back lanes <3 m [`back-lanes-east-of-pikk`](../topography/back-lanes-east-of-pikk.md).
-- **Quest:** **Supply run** — escort barrel cart from harbour to forge before curfew; **siege** — cart abandoned at Viru queue; **smuggle** — hide osmond steel under sack load [`coinage-prices-and-measures.md`](coinage-prices-and-measures.md).
-- **Dialogue:** MLG *Karren*, *Wagen*, *Fuhrmann*, *Schlitten*; shout *Macht Platz!* in forum jam.
-- **Dev / systems:** `vehicle_class: cart_2w | wagon_4w | sledge`; `load_kg` cap **250–350** for single-horse cart (`plausible composite`); `road_state: cobble | mud | ice` affects speed.
+Tracked in `TODO.md` (2026-07-30 decision): contract **P0-164** → art brief **A-010** → *Karren* GLB **A-004** → kit **P2-068** / corridors **P2-069** → systems **P4-037** / quests **P4-038** → traffic wiring **P2-070** → sign-off **A-011**. Toll-gap constraints come from [`reval-cart-tolls-and-fuhr-rent-1340s.md`](reval-cart-tolls-and-fuhr-rent-1340s.md) (**R-069**).
+
+- **Art (A-004 / A-010 / A-011):** **Two-wheel cart**, **~1.3 m track**, **lattice sides**, **open front**, **hinged rear gate**, **single horse** in shafts; load variant **two grain sacks + one barrel**; wood **weathered grey-brown**, iron **dark rust**; wheel **12-spoke** class (`economy.merchant-cart-and-transport-1340s.01`). **No** armour plating, **no** war-wagon breastwork.
+- **Map (P2-069):** `cart_path_width_min: 2.5 m` on forum throat; `wheel_rut_spacing: 1.3 m` tag on cobbled lanes; block **twin-cart passing** on back lanes <3 m [`back-lanes-east-of-pikk`](../topography/back-lanes-east-of-pikk.md).
+- **Quest (P4-038):** **Supply run** — escort barrel cart from harbour to forge before curfew; **siege** — cart abandoned at Viru queue; **smuggle** — hide osmond steel under sack load [`coinage-prices-and-measures.md`](coinage-prices-and-measures.md).
+- **Dialogue (P4-037):** MLG *Karren*, *Wagen*, *Fuhrmann*, *Schlitten*; shout *Macht Platz!* in forum jam.
+- **Dev / systems (P0-164 / P4-037):** `vehicle_class: cart_2w | wagon_4w | barrow | sledge`; `load_kg` cap **250–350** for single-horse cart (`plausible composite`); `road_state: cobble | mud | ice` affects speed; `cart_toll_pfennig: null`.
 
 ## Reference plates
 
