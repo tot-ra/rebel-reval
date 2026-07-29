@@ -1,0 +1,182 @@
+# PBR Texture Generation (P0-130)
+
+**Date:** 2026-07-29
+**Author:** AI assistant (Leonardo AI pipeline)
+**Authority:** [MATERIAL_STYLE_LOCK_KIT.md](MATERIAL_STYLE_LOCK_KIT.md), [ADR 0007](adr/0007-ai-generated-isometric-presentation.md)
+
+## Overview
+
+This document records the AI-generated PBR texture sets for the primary Reval 1343
+environment materials. Each material family receives three maps: albedo, normal, and
+roughness, replacing the albedo-only placeholders in `assets/materials/style_lock/`.
+
+The PBR textures live under `assets/materials/pbr/<family>/` with the naming convention:
+```
+<family>_albedo.png    - base color / diffuse
+<family>_normal.png    - tangent-space normal map
+<family>_roughness.png - per-pixel roughness (grayscale)
+```
+
+## Material families
+
+| Family | Description | Typical surfaces |
+|--------|-------------|------------------|
+| `stone` | Cut limestone ashlar | Enclosure walls, well ring, furnace mass, stair treads |
+| `plaster` | Lime plaster infill | House wall infill, rendered surfaces |
+| `timber` | Aged structural timber | Frame beams, posts, table legs, chest trim |
+| `hay` | Dry straw / thatch | Thatch roofing, hay stacks, field stubble |
+| `roof_tile` | Clay roof shingles | Gabled roofs, well canopy |
+| `cobble` | Cobblestone paving | Streets, stable lanes |
+
+## Generation pipeline
+
+1. **Source:** Leonardo AI "Lucid Realism" model, 1024x1024 output
+2. **Prompts:** Crafted for seamless tileable medieval materials with period-appropriate wear
+3. **Post-processing:** `tools/apply_pbr_textures.py` converts JPG to 512x512 PNG using Pillow Lanczos resampling
+4. **Output:** Stored in `assets/materials/pbr/<family>/`
+5. **Provenance:** Every texture receives an `assets/SOURCES.csv` row under `assets.materials.pbr.<family>.<map_type>`
+
+## Generation log
+
+### Stone (limestone ashlar)
+
+**Albedo prompt:**
+> Seamless tileable medieval limestone wall texture, cut ashlar blocks, light grey stone
+> with subtle mortar joints, weathered surface, PBR albedo map, photorealistic,
+> top-down view, 512x512 tileable pattern
+
+**Normal prompt:**
+> Seamless tileable limestone wall normal map, flat tangent-space normal map for cut
+> ashlar stone blocks with mortar joints, blue-purple normal map colors, PBR normal map
+> texture, top-down view, 512x512 tileable
+
+**Roughness prompt:**
+> Seamless tileable limestone roughness map, grayscale texture, white rough areas for
+> mortar joints and darker smoother areas for stone faces, PBR roughness map, top-down
+> view, 512x512 tileable
+
+**Leonardo generation IDs:** 72c9eec1, 51b612ce, 6ea9567a
+
+### Plaster (lime plaster)
+
+**Albedo prompt:**
+> Seamless tileable lime plaster wall texture, warm beige cream color, slightly rough
+> surface with subtle cracks and aging, medieval building material, PBR albedo map,
+> photorealistic, top-down view, 512x512 tileable pattern
+
+**Normal prompt:**
+> Seamless tileable lime plaster wall normal map, flat tangent-space normal map for
+> rough plaster surface with subtle cracks, blue-purple normal map colors, PBR normal
+> map texture, top-down view, 512x512 tileable
+
+**Roughness prompt:**
+> Seamless tileable lime plaster roughness map, grayscale texture, medium grey with
+> subtle variations for rough plaster surface, PBR roughness map, top-down view,
+> 512x512 tileable
+
+**Leonardo generation IDs:** a1dee551, 4161e9fa, c74dc4bc
+
+### Timber (aged structural wood)
+
+**Albedo prompt:**
+> Seamless tileable aged timber wood texture, dark brown structural beam surface,
+> visible grain and knots, medieval construction wood, PBR albedo map, photorealistic,
+> top-down view, 512x512 tileable pattern
+
+**Normal prompt:**
+> Seamless tileable aged timber wood normal map, flat tangent-space normal map for wood
+> grain and knots, blue-purple normal map colors, PBR normal map texture, top-down view,
+> 512x512 tileable
+
+**Roughness prompt:**
+> Seamless tileable timber wood roughness map, grayscale texture, varied grey levels
+> following wood grain pattern, PBR roughness map, top-down view, 512x512 tileable
+
+**Leonardo generation IDs:** e42db7c1, 10b58670, 5e4dd896
+
+### Hay (thatch / straw)
+
+**Albedo prompt:**
+> Seamless tileable dry straw hay thatch roofing texture, golden brown bundled reeds,
+> medieval roof material, PBR albedo map, photorealistic, top-down view, 512x512
+> tileable pattern
+
+**Normal prompt:**
+> Seamless tileable straw hay thatch normal map, flat tangent-space normal map for
+> bundled reed thatch roofing, blue-purple normal map colors, PBR normal map texture,
+> top-down view, 512x512 tileable
+
+**Roughness prompt:**
+> Seamless tileable straw hay thatch roughness map, grayscale texture, very bright rough
+> surface for dry straw fibers, PBR roughness map, top-down view, 512x512 tileable
+
+**Leonardo generation IDs:** e1debaf4, 02e14313, a8a8db92
+
+### Roof tile (clay shingles)
+
+**Albedo prompt:**
+> Seamless tileable medieval clay roof shingle texture, dark red-brown curved tiles
+> overlapping, weathered ceramic surface, PBR albedo map, photorealistic, top-down view,
+> 512x512 tileable pattern
+
+**Normal prompt:**
+> Seamless tileable clay roof shingle normal map, flat tangent-space normal map for
+> overlapping curved ceramic tiles, blue-purple normal map colors, PBR normal map
+> texture, top-down view, 512x512 tileable
+
+**Roughness prompt:**
+> Seamless tileable clay roof shingle roughness map, grayscale texture, medium-dark grey
+> for fired ceramic with slight glossy highlights on edges, PBR roughness map, top-down
+> view, 512x512 tileable
+
+**Leonardo generation IDs:** 9c66006f, a0a3a1c9, 40e9e3ac
+
+### Cobble (cobblestone paving)
+
+**Albedo prompt:**
+> Seamless tileable medieval cobblestone street texture, irregular grey stone blocks
+> with dirt and moss in gaps, worn surface, PBR albedo map, photorealistic, top-down
+> view, 512x512 tileable pattern
+
+**Normal prompt:**
+> Seamless tileable cobblestone street normal map, flat tangent-space normal map for
+> irregular stone blocks with gaps, blue-purple normal map colors, PBR normal map
+> texture, top-down view, 512x512 tileable
+
+**Roughness prompt:**
+> Seamless tileable cobblestone roughness map, grayscale texture, varied grey levels with
+> darker smooth worn stone tops and lighter rough gaps, PBR roughness map, top-down view,
+> 512x512 tileable
+
+**Leonardo generation IDs:** 1c85cef0, 151628c8, 3ca9a967
+
+## Runtime integration
+
+The PBR textures under `assets/materials/pbr/` are source/reference assets. The actual
+runtime materials in Godot are still procedurally generated in GDScript (P0-053 surface
+kit). When the visual fidelity ladder reaches the P0-130 wiring stage, these textures
+will be loaded into `StandardMaterial3D` instances replacing the procedural patterns.
+
+The existing `style_lock/` albedo-only textures are retained as reference material for
+the style-lock kit verification pipeline.
+
+## Verification
+
+```bash
+# Check PBR texture presence and dimensions
+python3 tools/verify_pbr_textures.py
+
+# Check style-lock albedo references still pass
+python3 tools/verify_slice_surface_assets.py
+
+# Full asset lint (style-lock + characters)
+python3 tools/verify_asset_lint.py
+```
+
+## Style consistency notes
+
+- All albedo maps maintain the master hex palette from `MATERIAL_STYLE_LOCK_KIT.md`
+- Stone targets `#919189`, plaster targets `#CDB892`, timber targets `#53372A`
+- Normal maps use standard tangent-space encoding (R=X, G=Y, B=Z up-facing flat)
+- Roughness maps use linear grayscale (white=rough, black=smooth)
+- All textures are 512x512 PNG, matching the existing kit resolution
