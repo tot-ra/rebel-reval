@@ -5,18 +5,6 @@ const _PersistenceScript := preload("res://scripts/state/game_state_persistence.
 const _RelationshipMemoryScript := preload("res://scripts/relationship/relationship_memory.gd")
 
 const COMMISSION_DEADLINE_ACTIVE := &"active"
-
-## Fired after a slot's contents change so the 3D view can mirror the state.
-signal equipment_changed(slot: StringName)
-## Fired when quest ownership flags change.
-signal items_changed()
-## Fired when a forged commission record is committed.
-signal forged_record_added(record_id: StringName)
-## Fired when an explicit faction ledger event is recorded.
-signal faction_event_recorded(event_id: StringName, faction_id: StringName)
-## Fired when the campaign phase changes; SessionState autosaves on this boundary.
-signal phase_changed(previous: StringName, next: StringName)
-
 const CURRENT_VERSION := 2
 
 const PHASE_PROLOGUE_DAY := &"phase.prologue_day"
@@ -41,6 +29,17 @@ const RELATIONSHIP_MIN := -3
 const RELATIONSHIP_MAX := 3
 const PRESSURE_MIN := 0
 const PRESSURE_MAX := 3
+
+## Fired after a slot's contents change so the 3D view can mirror the state.
+signal equipment_changed(slot: StringName)
+## Fired when quest ownership flags change.
+signal items_changed
+## Fired when a forged commission record is committed.
+signal forged_record_added(record_id: StringName)
+## Fired when an explicit faction ledger event is recorded.
+signal faction_event_recorded(event_id: StringName, faction_id: StringName)
+## Fired when the campaign phase changes; SessionState autosaves on this boundary.
+signal phase_changed(previous: StringName, next: StringName)
 
 var version: int = CURRENT_VERSION
 var phase: StringName = PHASE_PROLOGUE_DAY
@@ -180,6 +179,7 @@ func save_map_world_state() -> Dictionary:
 ## --- Equipment placement (see docs/INVENTORY_MECHANICS.md) ---------------
 ## Equipped items leave the bag grid but keep counting toward the weight cap:
 ## you carry what you wear. Failed swaps mutate nothing.
+
 
 func equipped_item(slot: StringName) -> StringName:
 	return _equipped.get(slot, &"")
@@ -341,6 +341,7 @@ func get_relationship_memories_for_character(character_id: StringName) -> Array[
 ## --- World item placement (session-scoped, survives map re-entry) ---------
 ## Items on the ground live outside the bag grid until picked up.
 
+
 func get_world_items(location_id: StringName) -> Array[Dictionary]:
 	var records: Array[Dictionary] = []
 	if location_id.is_empty():
@@ -352,8 +353,9 @@ func get_world_items(location_id: StringName) -> Array[Dictionary]:
 		var record: Variant = bucket[object_key]
 		if record is Dictionary:
 			records.append((record as Dictionary).duplicate(true))
-	records.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return String(a.get("object_id", "")) < String(b.get("object_id", ""))
+	records.sort_custom(
+		func(a: Dictionary, b: Dictionary) -> bool:
+			return String(a.get("object_id", "")) < String(b.get("object_id", ""))
 	)
 	return records
 
@@ -366,10 +368,7 @@ func is_world_item_placed(location_id: StringName, object_id: StringName) -> boo
 
 
 func place_world_item(
-	location_id: StringName,
-	object_id: StringName,
-	item_id: StringName,
-	position: Vector2
+	location_id: StringName, object_id: StringName, item_id: StringName, position: Vector2
 ) -> bool:
 	if location_id.is_empty() or object_id.is_empty() or item_id.is_empty():
 		return false
@@ -427,10 +426,7 @@ func has_faction_event(event_id: StringName) -> bool:
 
 
 func record_faction_event(
-	event_id: StringName,
-	faction_id: StringName,
-	delta: int,
-	summary: String
+	event_id: StringName, faction_id: StringName, delta: int, summary: String
 ) -> bool:
 	if event_id.is_empty() or not FactionLedger.is_active_faction(faction_id):
 		return false
@@ -463,8 +459,9 @@ func get_faction_events_for(faction_id: StringName) -> Array[Dictionary]:
 		if event.get("faction_id", &"") != faction_id:
 			continue
 		events.append(event.duplicate(true))
-	events.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return String(a.get("event_id", "")) < String(b.get("event_id", ""))
+	events.sort_custom(
+		func(a: Dictionary, b: Dictionary) -> bool:
+			return String(a.get("event_id", "")) < String(b.get("event_id", ""))
 	)
 	return events
 
@@ -510,8 +507,9 @@ func get_forged_records() -> Array[ForgedRecord]:
 	var records: Array[ForgedRecord] = []
 	for record in _forged_records.values():
 		records.append(record)
-	records.sort_custom(func(a: ForgedRecord, b: ForgedRecord) -> bool:
-		return String(a.record_id) < String(b.record_id)
+	records.sort_custom(
+		func(a: ForgedRecord, b: ForgedRecord) -> bool:
+			return String(a.record_id) < String(b.record_id)
 	)
 	return records
 

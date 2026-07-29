@@ -1,0 +1,25 @@
+# gdtoolkit uses these internal section names for the project order:
+# constants, signals, exports, public/private variables, onready variables, methods.
+# All virtual, public, and private methods are represented by the "others" section.
+class-definitions-order:
+  - tools
+  - classnames
+  - extends
+  - docstrings
+  - consts
+  - signals
+  - enums
+  - staticvars
+  - exports
+  - pubvars
+  - prvvars
+  - onreadypubvars
+  - onreadyprvvars
+  - others
+
+disable:
+  - max-public-methods
+
+# Private PascalCase preload constants are part of the existing project style.
+load-constant-name: '_?([A-Z][a-z0-9]*)+|_?[A-Z][A-Z0-9]*(_[A-Z0-9]+)*'
+max-line-length: 100

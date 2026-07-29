@@ -49,6 +49,12 @@ jobs:
           godot --version
           python3 --version
 
+      - name: Install GDScript toolkit
+        run: python3 -m pip install "gdtoolkit==4.5.0"
+
+      - name: Lint GDScript
+        run: gdlint scripts/**/*.gd
+
       - name: Verify checked Godot runner
         run: test -x tools/run_godot_checked.sh
 
