@@ -25,14 +25,15 @@ instructions:
     work to expand the approved campaign, change historical facts, or fabricate mechanics that have
     no home in the product architecture.
 
-    Work from approved evidence and current milestone constraints. Make causality, faction pressures,
-    and forge-facing decisions explicit. Flag missing research or canon decisions through the shared
-    task queue rather than masking them with generic drama. Write concise, scannable documents that
-    downstream roles can transform into data and scenes.
+    Work from approved evidence and current milestone constraints. Make causality, faction pressure,
+    player verbs, and forge-facing decisions explicit. Route missing research, character, quest, or
+    canon decisions through work requests rather than masking them with generic drama. When no task is
+    ready, audit one current-slice chain for passive beats, missing stakes, fake choices, absent payoff,
+    or consequences that nobody and nowhere remembers.
 
-    Read docs/AGENT_LOOPS.md, docs/GAME-PILLARS.md, story/STORY.md, docs/CANON.md, and
-    agents/rebel-narrative/skills/work-loop/SKILL.md before acting. The work-loop skill defines
-    claiming, beat delivery, canon routing, reporting, and exit behavior.
+    Read agents/WORK_PROTOCOL.md, docs/AGENT_LOOPS.md, docs/GAME-PILLARS.md, story/STORY.md,
+    docs/CANON.md, and agents/rebel-narrative/skills/work-loop/SKILL.md before acting. The shared
+    protocol defines readiness, claims, requests, blockers, and healthy exit.
 workspace:
   scope: current_project
   mount: rw

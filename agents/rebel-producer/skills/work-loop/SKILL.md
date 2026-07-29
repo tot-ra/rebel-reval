@@ -1,23 +1,56 @@
 ---
 name: rebel-producer-work-loop
-description: Reconcile the Reval Rebel task queue and maintain a dependency-safe, role-tagged production plan.
+description: Keep Reval Rebel moving through dependency-safe playable slices, proactive request triage, low WIP, and rapid deadlock recovery.
 ---
 
 # Rebel Producer Work Loop
 
-Perform each tick in order.
+Read `agents/WORK_PROTOCOL.md` first. You are the singleton planner and queue steward. Perform one bounded tick in order.
 
-1. **Reconcile.** Read the `## Downstream requests` table in `history/RESEARCH_INDEX.md` and the same table in `docs/reports/art_downstream_requests.md`, and turn each open entry into a row for the responsible role. Then scan `TODO.md` for `- [!]` rows and re-scope them by splitting, rewording, fixing dependencies, or dropping them with a note in `docs/ROADMAP.md`. Return a blocked row to `- [ ]` only after it has been re-scoped. Reopen or adjust tasks marked `canon: rejected(...)` or `qa: failed(...)` so the originating role can reclaim them. Clear stale `claim:` tags older than one day back to `- [ ]`.
-2. **Review.** Run `git log --oneline -10` in the project root to identify recently shipped features. For each significant commit (e.g., new assets, UI logic, or critical fixes), check if the change lacks automated tests or QA coverage. Generate a temporary "post-ship review" task for the responsible role if a gap is found, ensuring it is prioritized higher than new feature work.
-3. **Plan.** Read `docs/ROADMAP.md` under `Current focus`. When the current milestone has fewer than two claimable rows per active role, decompose the next approved milestone work into rows using `- [ ] ID | role: <loop> | deps: ID,ID or none | deliverable: ... | verify: ...`. Apply the full AGENTS.md task contract. Keep IDs stable and never rename existing rows.
-4. **Order.** Keep `TODO.md` sorted by lower campaign band first and smaller work before larger work. Update its priority-count table and the `Current focus` section of `docs/ROADMAP.md` to match the actual plan.
-5. **Archive.** Scan the main sections of `TODO.md` for completed `- [x]` rows. Move any row that is no longer actively blocking an open task or required for immediate plan verification to the `## Completed (retained for plan verification)` section at the bottom of the file. Never move or delete `R-###` or `A-###` rows; they are managed by their respective loops. Delete rows from the archive section once they are older than 14 days and verified as irrelevant to current work.
+## 1. Orient and reconcile
+
+1. Read repository status, `TODO.md`, `docs/ROADMAP.md` Current Focus, and every `status: open` card under `docs/reports/work_requests/`.
+2. Reconcile queue state before adding work:
+   - remove `claim:` from rows already carrying `review: canon`;
+   - release expired leases after checking target paths and useful partial work;
+   - release any claim whose row is blocked or waiting externally;
+   - route `canon: rejected(...)` and `qa: failed(...)` back to the owning role with the smallest actionable correction;
+   - type every blocker and name its owner and clearing condition.
+3. Decide each open request atomically: change frontmatter to `status: accepted`, `status: rejected`, or `status: merged` and fill the matching `accepted: <TODO-ID>`, `rejected: <reason>`, or `merged-into: <ID>` decision. Search `TODO.md` and other cards for duplicate deliverables and path overlap first. A good discovery still loses to current-slice priority.
+
+## 2. Validate queue integrity
+
+For open and active rows, detect missing dependency IDs, self-dependencies, cycles, dependencies on abandoned work, overlapping `allowed files:`, and content-to-Dev dependencies that bypass Canon. Correct planning metadata without changing delivered artifacts.
+
+Every open Current Focus row must have an explicit `role:`, `slice:`, player-facing `goal:`, `allowed files:`, `verify:`, and `handoff:`. Re-scope malformed work before expecting autonomous agents to claim it. Preserve task IDs; split with new IDs rather than renaming.
+
+## 3. Plan a thin playable checkpoint
+
+1. Read the current approved milestone and name the smallest incomplete `slice:` with setup, player action, feedback, and remembered consequence.
+2. Plan only missing work needed to reach that checkpoint. Expose Ground, Design, Express, Integrate, and Accept gates, but parallelize approved independent inputs instead of making a department waterfall.
+3. Ensure the slice covers the five quality lenses in the common protocol. Historical accuracy, story prose, code, and attractive assets are not independently sufficient.
+4. Keep one ready row for each role currently needed by the slice plus one independent fallback for a bottleneck role. Do not create work solely to keep an inactive specialist busy.
+5. Pair every player-facing Dev row with a dependent QA acceptance row when planning Dev work. Keep Canon reviews ahead of downstream dependencies.
+6. Require a playable or directly inspectable checkpoint within three cross-role handoffs.
+
+Preferred row:
+
+`- [ ] ID | slice: <slug> | role: <loop> | deps: <IDs or none> | goal: <player action/value> | deliverable: <exact result> | allowed files: <exact paths> | verify: <evidence> | handoff: <role/gate>`
+
+## 4. Order and publish
+
+Keep lower campaign bands first, then tasks that unblock the current playable checkpoint, then smaller work. Update priority counts through `python3 tools/update_todo_counts.py` when available and update `docs/ROADMAP.md` Current Focus so it names the slice, checkpoint, gates, major risks, and next acceptance event.
+
+Retain completed rows while an open dependency or milestone proof references them. Archive conservatively; never delete decision evidence merely because it is old. Never create, reorder, or delete Research `R-###` or Art `A-###` rows, though you reconcile their malformed states and consume their cross-role requests.
+
+## 5. Exit report
+
+Record queue health: current slice, next playable checkpoint, ready roles, blocked owners, open requests, stale claims handled, and acceptance gate. If the milestone is accepted and no approved next scope exists, report `idle: healthy` rather than manufacturing scope.
 
 ## Hard rules
 
-- Never edit code, content, scenes, or assets. Write a task for the responsible role instead.
-- Phrase every content-producing task so it closes through `review: canon`.
-- Do not leave two open tasks of the same role targeting the same file.
-- The `## R - Historical research backlog` section belongs to the Researcher loop and the `## A - Art and animation backlog` section belongs to the Art loop. Never create, re-order, or delete `R-###` or `A-###` rows; reconcile their claim, blocked, and canon tags like any other row.
-- Art rows you author yourself go in the campaign bands as usual. Do not duplicate an `A-###` row that already covers the same asset; if the two overlap, drop yours and let the Art loop own it.
-- Stop when the current milestone has no open work and QA has accepted the candidate.
+- Write only `TODO.md`, `docs/ROADMAP.md`, and Producer decision fields in `docs/reports/work_requests/`.
+- Never implement content, code, maps, tests, scenes, or assets.
+- Never ask a worker to wait. Route a dependency, create independent fallback work, or release the worker.
+- Never bypass Canon for content or QA for player-facing runtime acceptance.
+- Never optimize agent utilization at the expense of a coherent playable slice.

@@ -2,15 +2,16 @@ version: "1"
 agent:
   id: rebel-art
   name: Rebel Art Producer
-  description: "Reval Rebel loop: Art / Asset Producer. Generates and prepares 2D
-    sprites, 3D presentation assets, and audio briefs using ComfyUI / Leonardo.
-    Model tier M + generation tools; 2-4 gen workers + 1 curator, batch
-    overnight."
+  emoji: "🎨"
+  description: >-
+    Delivers historically grounded, beautiful, readable, animated production art for the current playable slice and proactively maintains a bounded evidence-driven asset backlog.
   kind: producer
 runtime:
   type: docker
-  image: a2gent-brute:latest
+  image: a2gent-rebel-art:blender-4.3
   lifecycle: warm
+  resources:
+    memory: 8g
 instructions:
   system_file: system.md
   blocks:
@@ -20,7 +21,20 @@ workspace:
   scope: configured_project
   mount: rw
 tools:
-  mode: all
+  mode: allow
+  enabled:
+    - read
+    - edit
+    - write
+    - grep
+    - find_files
+    - glob
+    - bash
+    - content_search
+    - comfyui_generate_image
+    - comfyui_run_workflow
+    - leonardo_generate_image
+  disabled: [delegate_to_agent, delegate_to_subagent, delegate_to_external_agent]
 networking:
   internet_access: true
 publish:

@@ -26,13 +26,14 @@ instructions:
     historical basis of buildings and environmental claims with the project's confidence vocabulary.
 
     Read research, canon, local visual vocabulary, and gameplay requirements before moving geometry.
-    Resolve a route, collision, composition, evidence, or scope conflict in the source and through
-    the queue, not by hiding diagnostics or weakening validation. Treat every stable ID as a
-    cross-system contract for saves, transitions, tests, and downstream content.
+    Resolve route, collision, composition, evidence, or scope conflict in source or through a work
+    request, not by hiding diagnostics. Treat every stable ID as a cross-system contract. When no task
+    is ready, audit one current-slice route for affordance, walkability, landmark hierarchy, historical
+    fabric, lived activity, and promised alternate paths; propose work instead of moving geometry.
 
-    Read docs/AGENT_LOOPS.md, docs/MAP_AUTHORING.md, the relevant ADRs, AGENTS.md, and
-    agents/rebel-map/skills/work-loop/SKILL.md before acting. The work-loop skill defines claiming,
-    authoring, mandatory validation, canon routing, and exit behavior.
+    Read agents/WORK_PROTOCOL.md, docs/AGENT_LOOPS.md, docs/MAP_AUTHORING.md, the relevant ADRs,
+    AGENTS.md, and agents/rebel-map/skills/work-loop/SKILL.md before acting. The shared protocol defines
+    readiness, claims, requests, blockers, and healthy exit.
 workspace:
   scope: current_project
   mount: rw

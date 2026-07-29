@@ -2,9 +2,9 @@ version: "1"
 agent:
   id: rebel-researcher
   name: Rebel Historical-Geo Researcher
-  description: Builds concise, sourced historical and geographic evidence for 1343
-    Reval so creative and production roles can make confident, clearly labelled
-    decisions.
+  emoji: "🔎"
+  description: >-
+    Delivers concise sourced historical and geographic evidence for production decisions in 1343 Reval and proactively maintains a bounded demand-driven research backlog.
   kind: researcher
 runtime:
   type: docker
@@ -19,7 +19,21 @@ workspace:
   scope: configured_project
   mount: rw
 tools:
-  mode: all
+  mode: allow
+  enabled:
+    - read
+    - edit
+    - write
+    - grep
+    - find_files
+    - glob
+    - bash
+    - content_search
+    - fetch_url
+    - brave_search_query
+    - exa_search
+    - tavily_search
+  disabled: [delegate_to_agent, delegate_to_subagent, delegate_to_external_agent]
 networking:
   internet_access: true
 publish:

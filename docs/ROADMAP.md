@@ -106,6 +106,13 @@ Coordination note (2026-07-28 P2-027): Kalev smithy now ships a deterministic Bl
 
 ## Current focus (2026-07-23)
 
+### Agent-readable control block
+
+- **Status:** Producer reconciliation required. The numbered list below is retained historical context, not an autonomous dispatch list; several named gates have since closed.
+- **Immediate production checkpoint:** `agent-flow-bootstrap` - one Producer tick validates open requests, releases malformed/stale claims, chooses one approved player-facing slice, and tags its ready rows with explicit `slice:` and `role:` metadata.
+- **Worker rule until refreshed:** claim only rows that already name the worker's `role:` and satisfy the shared Definition of Ready. Use bounded Improve mode for a grounded current-slice audit; do not infer a role from untagged campaign rows.
+- **Required Producer output:** replace this block's checkpoint with the selected gameplay slice, its next playable acceptance event, ready roles, blocked owners, and Canon/QA gates. This coordination repair does not approve new gameplay scope.
+
 1. **P0-072** - sourced 1343 Reval environment dossier per retained map (structural closeout complete; maintainer sign-off closed under **P0-111** on 2026-07-24).
 Coordination note (2026-07-23 P0-053 closeout): slice surface kit is closed. `tools/verify_slice_surface_captures.py` now enforces 1280x720 day/night evidence for `kalev_smithy` and `lower_town_slice`, checks non-blank detail, and requires day frames to read brighter than night; `python3 tools/verify_slice_surface_captures.py` and `python3 -m unittest tests.python.test_verify_slice_surface_captures -v` pass 5/5 alongside the existing asset lint and Godot wiring/capture suites. Next surface-dependent step: **P0-040** maintainer ART_BIBLE v2 freeze.
 2. **P0-040** - maintainer freeze of ART_BIBLE v2 after P0-038 technical baseline ([ADR 0013](adr/0013-authorial-visual-direction-without-blind-ux-panels.md) cancelled blind UX panels P0-039/P0-122; [ADR 0014](adr/0014-authorial-acceptance-gates-without-external-playtests.md) cancelled external playtest gates P3-003/P3-004/P3-006 and rewrote slice/act acceptance).

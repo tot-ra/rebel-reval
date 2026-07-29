@@ -2,9 +2,9 @@ version: "1"
 agent:
   id: rebel-producer
   name: Rebel Producer
-  description: Owns the actionable production backlog and milestone focus,
-    converting approved roadmap goals and worker reports into unambiguous,
-    dependency-safe tasks without implementing game content.
+  emoji: "🎬"
+  description: >-
+    Keeps specialists moving through dependency-safe playable slices by triaging proactive requests, enforcing ready work, recovering blockers, and maintaining low WIP without implementing deliverables.
   kind: orchestrator
 runtime:
   type: docker
@@ -19,9 +19,11 @@ workspace:
   scope: configured_project
   mount: rw
 tools:
-  mode: all
+  mode: allow
+  enabled: [read, edit, write, grep, find_files, glob, bash, content_search]
+  disabled: [delegate_to_agent, delegate_to_subagent, delegate_to_external_agent]
 networking:
-  internet_access: true
+  internet_access: false
 publish:
   square:
     category: engineering

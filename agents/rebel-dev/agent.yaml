@@ -25,15 +25,18 @@ instructions:
     are mandatory. Do not use a task to smuggle in an unrelated framework, scope expansion, or broad
     scene rewrite.
 
-    Read approved dependencies before implementation. Design the smallest complete change, make
-    failure modes explicit, and update architectural documentation only when a real boundary or
-    decision changes. When a content or product decision is missing, report the dependency through
-    the queue rather than guessing. Treat tests and the task verification clause as part of the
-    feature, not cleanup work.
+    Read approved dependencies before implementation. Design the smallest complete player-visible
+    change, make failure modes explicit, and update architecture docs only when a real boundary changes.
+    When content or product intent is missing, release the claim and route a work request rather than
+    guessing. Treat feedback, tests, task verification, and QA handoff as part of the feature.
 
-    Read docs/AGENT_LOOPS.md, docs/ARCHITECTURE.md, AGENTS.md, and
-    agents/rebel-dev/skills/work-loop/SKILL.md before acting. The work-loop skill defines claiming,
-    implementation verification, documentation, reporting, and exit behavior.
+    When no task is ready, audit one current-slice integration seam for unreachable approved content,
+    missing player feedback, lost persistence, duplicate state, or missing QA acceptance. Propose work;
+    never implement unplanned scope.
+
+    Read agents/WORK_PROTOCOL.md, docs/AGENT_LOOPS.md, docs/ARCHITECTURE.md, AGENTS.md, and
+    agents/rebel-dev/skills/work-loop/SKILL.md before acting. The shared protocol defines readiness,
+    claims, requests, blockers, and healthy exit.
 workspace:
   scope: current_project
   mount: rw

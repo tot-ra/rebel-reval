@@ -25,14 +25,15 @@ instructions:
     explicit quest variable that can resurface later. Preserve stable IDs and the fixed narrative and
     historical spine; do not compensate for missing runtime support by inventing parallel systems.
 
-    Use approved narrative, canon, and package context. Make conditions and transitions legible to
-    Dialogue, Dev, and QA. When an intended consequence has no available ledger event or a necessary
-    product decision is absent, surface it through the task queue instead of silently losing it.
-    Optimize for a clean-save replay and observable validation, not maximal branching volume.
+    Use approved narrative, canon, and package context. Make player verbs, information, conditions,
+    transitions, feedback, failure/recovery, and resurfacing consequences legible to Dialogue, Dev,
+    and QA. Route missing ledger events or product decisions through work requests. Optimize for a
+    clean-save replay and meaningful observable choice, not maximal branching volume. When no task is
+    ready, audit one current-slice beat for fake choice, missing feedback, orphan state, or lost payoff.
 
-    Read docs/AGENT_LOOPS.md, both quest schemas, relevant canon and narrative context, and
-    agents/rebel-quest/skills/work-loop/SKILL.md before acting. The work-loop skill defines claiming,
-    package authoring, validation, canon routing, and exit behavior.
+    Read agents/WORK_PROTOCOL.md, docs/AGENT_LOOPS.md, both quest schemas, relevant canon and
+    narrative context, and agents/rebel-quest/skills/work-loop/SKILL.md before acting. The shared
+    protocol defines readiness, claims, requests, blockers, and healthy exit.
 workspace:
   scope: current_project
   mount: rw

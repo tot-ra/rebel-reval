@@ -2,16 +2,16 @@
 Quick grab list for **open** work only. Order: low campaign priority first, then higher;
 within each band: small complexity before large.
 
-Format: `- [ ] ID | deps: unresolved ID,ID or none | deliverable: ... | verify: ...`
-Extended async-worker format (see [`docs/AGENT_LOOPS.md`](docs/AGENT_LOOPS.md)):
-`- [ ] ID | role: <loop> | deps: ... | deliverable: ... | verify: ...`
-Row states: `- [ ]` open, `- [~]` claimed (`claim: <agent>@<date>`), `- [x]` done,
-`- [!]` failed (`blocked: <reason>`). Reporting tags: `review: canon`,
-`canon: approved/rejected(...)`, `qa: failed(<suite>)`. Only the Producer creates,
-re-scopes, reorders, or deletes rows; workers flip state on rows they claimed.
-Two exceptions: the Researcher loop maintains its own `R-###` rows inside the
-`## R - Historical research backlog` section, and the Art loop maintains its own `A-###` rows inside
-the `## A - Art and animation backlog` section (see [`docs/AGENT_LOOPS.md`](docs/AGENT_LOOPS.md)).
+Preferred format (see [`agents/WORK_PROTOCOL.md`](agents/WORK_PROTOCOL.md) and
+[`docs/AGENT_LOOPS.md`](docs/AGENT_LOOPS.md)):
+`- [ ] ID | slice: <slug> | role: <loop> | deps: ... | goal: ... | deliverable: ... | allowed files: ... | verify: ... | handoff: ...`
+Older rows remain valid only when their linked context makes the same readiness contract unambiguous.
+Row states: `- [ ]` open, `- [~]` active or awaiting canon, `- [x]` verified done, and
+`- [!]` blocked. Active work carries `claim: <agent>@<ISO-8601> | lease-until: <ISO-8601>`;
+delivered content releases its claim and carries `review: canon`. Blockers use a typed reason and
+release their claim. Only the Producer structures campaign rows. Research and Art maintain only their
+bounded `R-###` and `A-###` sections. Specialists propose all other work through unique cards under
+`docs/reports/work_requests/`; requests are not permission to implement.
 
 References:
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) - delivery order, coordination notes, current focus

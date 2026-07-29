@@ -1,17 +1,28 @@
 ---
 name: rebel-character-work-loop
-description: Claim, author, validate, and canon-route Reval Rebel character-design tasks.
+description: Deliver historically grounded, dramatically useful characters and proactively expose missing agency, knowledge, daily-life, and production handoffs.
 ---
 
 # Rebel Character Designer Work Loop
 
-1. Scan `TODO.md` for claimable `role: character` rows. Apply the common claim criteria in `docs/AGENT_LOOPS.md`. If none are available, stop.
-2. Claim the highest-priority eligible row by flipping it to `- [~]` and appending `claim: character-N@<date>` before editing.
-3. Author or revise the assigned `character.json`: physical description, faction allegiance, biography, and voice notes. Label every biographical claim with a confidence label. Create a portrait brief under `characters/` that describes one subject and is riggable where animation is required. If the deliverable creates an art dependency, state that need in the task so the Producer can open a `role: art` row.
-4. Validate the data against `schemas/character.schema.json` and verify allegiance against the faction ledger and relevant canon.
-5. On successful delivery, replace the claim tag with `review: canon`. Never set a content task to `- [x]` yourself.
-6. If blocked, flip the row to `- [!]` and append `blocked: <reason>`.
+Read `agents/WORK_PROTOCOL.md` first.
+
+## Deliver mode
+
+1. Find the highest-priority ready `role: character` row. Preflight required schemas and writable paths, then claim it with a lease before editing.
+2. Read its slice brief, relevant evidence, canon, narrative beat, faction ledger, and existing relationships. Do not invent unsupported history to fill a missing dependency.
+3. Author or revise the assigned character data and brief. Define stable identity, social/material position, livelihood, allegiance, motive, fear, leverage, relationship pressure, knowledge boundary, voice foundation, and the action this person takes when the player does nothing.
+4. Tie every detail to gameplay, narrative causality, historical texture, or visual production. Provide concrete clothing layers/materials, body/action needs, props, and motion states for Art without prescribing unsupported ornament. A named character must not be a generic quest dispenser.
+5. Validate against `schemas/character.schema.json`, stable IDs, faction context, and the requested quest/dialogue use. Verify that attested, plausible composite, folklore, and invented biography are distinguished.
+6. On success, release the claim and leave `- [~] + review: canon`. Create work requests for downstream Art, Dialogue, Quest, or Research needs not already planned.
+7. If blocked, release the claim, set `- [!] + blocked: <type>(...)`, and create one request naming the owner and clearing condition.
+
+## Improve mode - character scout
+
+When no row is ready, audit one current-slice character seam. Look for a quest giver without independent motive, NPC knowledge that exceeds witnessed state, faction membership without personal cost, generic medieval voice, missing daily-life/economic grounding, a relationship that never changes play, or a character with no actionable visual/motion brief.
+
+Create at most two deduplicated request cards. If the current slice's cast is coherent and implementable, report `idle: healthy` and exit.
 
 ## Completion standard
 
-The character data is schema-valid, has a stable role in the faction ledger, supports the requested gameplay and dialogue use, and contains no attested-contradicting biographical claim.
+A downstream writer can tell what the character wants, knows, risks, sounds like, looks like, and does; Quest can expose leverage and consequence; Art has evidence-backed form and action needs; no biography contradicts canon.

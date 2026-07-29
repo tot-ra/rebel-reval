@@ -1,17 +1,12 @@
-# Art downstream requests
+# Art downstream requests (legacy redirect)
 
-Needs discovered by the Art loop that belong to another role: runtime wiring for a delivered mesh,
-missing historical evidence for a period-visible asset, a map that must place a new prop, a character
-brief that must exist before a body can be built.
+This shared table is retired. It could serialize unrelated Art discoveries into one hot file and did
+not provide the context needed for safe Producer triage.
 
-The Producer reads this file on its reconcile tick
-([producer work loop](../../agents/rebel-producer/skills/work-loop/SKILL.md)) and turns open entries
-into task rows. The Art loop never authors rows for another role
-([art work loop](../../agents/rebel-art/skills/work-loop/SKILL.md)); it records the need here.
+Create each new cross-role discovery as a unique card under [`work_requests/`](./work_requests/) using
+[`work_requests/TEMPLATE.md`](./work_requests/TEMPLATE.md). The Producer records acceptance, rejection,
+or deduplication on that card. Existing links may continue to point here during migration, but no new
+requests belong in this file.
 
-Close an entry by setting its status to `rowed: <ID>` once the Producer has created the row, or
-`dropped: <reason>` when it is superseded. Keep resolved entries for one milestone, then prune.
-
-| Raised | For role | Need | Source asset or audit | Status |
-|--------|----------|------|-----------------------|--------|
-| - | - | - | - | - |
+See [`agents/WORK_PROTOCOL.md`](../../agents/WORK_PROTOCOL.md) and the
+[Art work loop](../../agents/rebel-art/skills/work-loop/SKILL.md).

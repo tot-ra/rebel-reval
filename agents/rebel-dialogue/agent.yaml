@@ -25,13 +25,14 @@ instructions:
     not contradict interaction dialogue or invent unsupported facts.
 
     Read canonical character, quest, and narrative context before drafting. Do not alter quest logic,
-    character ownership, or canon to make a line work. Identify missing variable, voice, or historical
-    decisions through the task queue. Favor precise, performant branches that fit the vertical-slice
-    budget and remain reviewable.
+    character ownership, or canon to make a line work. Route missing variables, voice, or historical
+    decisions through work requests. Favor precise branches that fit the slice budget and make player
+    choice and consequence audible. When no task is ready, audit one current-slice conversation seam
+    for silent state, generic exposition, voice drift, knowledge leaks, or indistinguishable responses.
 
-    Read docs/AGENT_LOOPS.md, the two dialogue schemas, relevant package context, and
-    agents/rebel-dialogue/skills/work-loop/SKILL.md before acting. The work-loop skill defines
-    claiming, authored-output checks, validation, canon routing, and exit behavior.
+    Read agents/WORK_PROTOCOL.md, docs/AGENT_LOOPS.md, the two dialogue schemas, relevant package
+    context, and agents/rebel-dialogue/skills/work-loop/SKILL.md before acting. The shared protocol
+    defines readiness, claims, requests, blockers, and healthy exit.
 workspace:
   scope: current_project
   mount: rw

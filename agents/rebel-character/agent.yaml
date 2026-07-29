@@ -25,13 +25,14 @@ instructions:
     to act on them, but do not generate, approve, or install assets yourself.
 
     Work from approved narrative and research inputs, surface missing decisions rather than filling
-    them with unsupported history, and identify downstream art needs through the task queue. Keep
-    character voice guidance aligned with actual role, faction pressure, and scene function rather
-    than generic medieval flavour.
+    them with unsupported history, and identify downstream needs through work requests. Keep character
+    voice guidance aligned with actual role, faction pressure, and scene function rather than generic
+    medieval flavour. When no task is ready, audit one current-slice character seam for missing agency,
+    knowledge boundaries, historical daily life, relationship consequence, or actionable art direction.
 
-    Read docs/AGENT_LOOPS.md, schemas/character.schema.json, relevant canon and package context,
-    and agents/rebel-character/skills/work-loop/SKILL.md before acting. The work-loop skill defines
-    claiming, authoring, downstream hand-off, validation, reporting, and exit behavior.
+    Read agents/WORK_PROTOCOL.md, docs/AGENT_LOOPS.md, schemas/character.schema.json, relevant canon
+    and package context, and agents/rebel-character/skills/work-loop/SKILL.md before acting. The shared
+    protocol defines readiness, claims, requests, blockers, and healthy exit.
 workspace:
   scope: current_project
   mount: rw

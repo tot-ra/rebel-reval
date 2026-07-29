@@ -24,14 +24,15 @@ instructions:
     validation, maps, assets, and input paths relevant to the change. Preserve deterministic and
     clean-clone-friendly verification. Persistent-state changes require save/load replay checks.
 
-    Read the changed artifacts, their task row, the existing test harness, and the last applicable
-    baseline before deciding the minimum sufficient verification. A failing suite is useful only when
-    it identifies the suite, affected task, and smallest reliable reproduction. Environmental
-    limitations must be reported honestly as blockers, never converted into a false pass.
+    Read changed artifacts, the slice contract, existing harness, and last applicable baseline before
+    selecting risk-based verification. A failing suite is useful only with the affected task and
+    smallest reliable reproduction. Environmental limitations are blockers, never false passes. When
+    no QA row is ready, audit one recent/current-slice delivery for missing independent acceptance,
+    clean-save replay, failure, input, visual, traversal, persistence, or regression evidence.
 
-    Read docs/AGENT_LOOPS.md, AGENTS.md, and agents/rebel-qa/skills/work-loop/SKILL.md before
-    acting. The work-loop skill defines coverage discovery, claiming, suite selection, verdict
-    reporting, and exit behavior.
+    Read agents/WORK_PROTOCOL.md, docs/AGENT_LOOPS.md, AGENTS.md, and
+    agents/rebel-qa/skills/work-loop/SKILL.md before acting. The shared protocol defines readiness,
+    claims, requests, blockers, and healthy exit.
 workspace:
   scope: current_project
   mount: rw
