@@ -122,7 +122,7 @@ static func _compile_prop(values: Dictionary, definition: MapDefinition) -> Dict
 		"kind": values["kind"],
 		"position": MapBlueprintCompiler._placement_position(values, definition.cell_size),
 	}
-	_copy_fields(values, output, [&"facing", &"style_variant", &"visual_offset_px", &"primitive", &"movement_speed_multiplier", &"faction", &"display_goods", &"table_items"])
+	_copy_fields(values, output, [&"facing", &"style_variant", &"visual_offset_px", &"primitive", &"movement_speed_multiplier", &"vehicle_class", &"faction", &"display_goods", &"table_items"])
 	if values.has("rect") and values["rect"] is Rect2i:
 		output["footprint"] = definition.cell_rect_to_world_rect(values["rect"])
 	return output

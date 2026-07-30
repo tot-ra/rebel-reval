@@ -82,7 +82,7 @@ Tracked in `TODO.md` (2026-07-30 decision): contract **P0-164** → art brief **
 - **Map (P2-069):** `cart_path_width_min: 2.5 m` on forum throat; `wheel_rut_spacing: 1.3 m` tag on cobbled lanes; block **twin-cart passing** on back lanes <3 m [`back-lanes-east-of-pikk`](../topography/back-lanes-east-of-pikk.md).
 - **Quest (P4-038):** **Supply run** — escort barrel cart from harbour to forge before curfew; **siege** — cart abandoned at Viru queue; **smuggle** — hide osmond steel under sack load [`coinage-prices-and-measures.md`](coinage-prices-and-measures.md).
 - **Dialogue (P4-037):** MLG *Karren*, *Wagen*, *Fuhrmann*, *Schlitten*; shout *Macht Platz!* in forum jam.
-- **Dev / systems (P0-164 / P4-037):** `vehicle_class: cart_2w | wagon_4w | barrow | sledge`; `load_kg` cap **250–350** for single-horse cart (`plausible composite`); `road_state: cobble | mud | ice` affects speed; `cart_toll_pfennig: null`.
+- **Dev / systems (P0-164 / P4-037):** closed `vehicle_class: cart_2w | wagon_4w | barrow | sledge` (`MapPropStyleVariants`); default urban `cart_2w`; `wheel_rut_spacing: 1.3`; `cart_path_width_min: 2.5`; `load_kg` cap **250–350** for single-horse cart (`plausible composite`); `road_state: cobble | mud | ice` affects speed; `cart_toll_pfennig: null` (R-069 gap). Contract: [`docs/reports/merchant_cart_transport_contract.md`](../../docs/reports/merchant_cart_transport_contract.md).
 
 ## Reference plates
 

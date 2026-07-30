@@ -109,6 +109,11 @@ static func _expand_prop(
 			errors.append("%s style_variant is unknown: %s" % [path, String(style_variant)])
 		else:
 			values["style_variant"] = style_variant
+	# P0-164: closed R-068 vehicle_class allowlist. Empty stays legal so legacy
+	# cart / farm_cart props keep the wooden_cart mesh until P2-068 assigns classes.
+	var vehicle_class := StringName(values.get("vehicle_class", &""))
+	if not PropStyleVariants.is_known_vehicle_class(vehicle_class):
+		errors.append("%s vehicle_class is unknown: %s" % [path, String(vehicle_class)])
 	append_prop(object_id, values, blueprint, path, expanded, errors)
 
 

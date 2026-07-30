@@ -77,6 +77,39 @@ const HOUSE_TIERS: Array[StringName] = [
 	HOUSE_TIER_CRAFT_BODA,
 ]
 
+## Closed R-068 / P0-164 merchant vehicle classes. Optional on cart props;
+## empty means "unset / legacy wooden_cart" until P2-068 kit wiring.
+const VEHICLE_CLASS_CART_2W := &"cart_2w"
+const VEHICLE_CLASS_WAGON_4W := &"wagon_4w"
+const VEHICLE_CLASS_BARROW := &"barrow"
+const VEHICLE_CLASS_SLEDGE := &"sledge"
+const VEHICLE_CLASSES: Array[StringName] = [
+	VEHICLE_CLASS_CART_2W,
+	VEHICLE_CLASS_WAGON_4W,
+	VEHICLE_CLASS_BARROW,
+	VEHICLE_CLASS_SLEDGE,
+]
+const DEFAULT_URBAN_VEHICLE_CLASS := VEHICLE_CLASS_CART_2W
+## Tallinn wheel-rut find band (~1.26–1.40 m) back-projected as contract constant.
+const WHEEL_RUT_SPACING_M := 1.3
+## Forum-throat minimum clear width for a queued two-wheel cart (R-068).
+const CART_PATH_WIDTH_MIN_M := 2.5
+## R-069 attested gap: no 1340–1343 wheel tax / per-cart gate toll.
+## Systems must keep cart_toll_pfennig unset (null), never invent Radsteuer.
+const CART_TOLL_ATTESTED := false
+const CART_CORRIDOR_VANATURG_THROAT := &"vanaturg_throat"
+const CART_CORRIDOR_PIKK_LAI_DELIVERY := &"pikk_lai_delivery"
+const CART_CORRIDOR_HARBOUR_MARGIN := &"harbour_margin"
+const CART_CORRIDOR_VIRU_APRON := &"viru_apron"
+const CART_CORRIDOR_HARJU_ROAD := &"harju_road"
+const CART_CORRIDORS: Array[StringName] = [
+	CART_CORRIDOR_VANATURG_THROAT,
+	CART_CORRIDOR_PIKK_LAI_DELIVERY,
+	CART_CORRIDOR_HARBOUR_MARGIN,
+	CART_CORRIDOR_VIRU_APRON,
+	CART_CORRIDOR_HARJU_ROAD,
+]
+
 
 static func is_known_house_tier(tier: StringName) -> bool:
 	if tier.is_empty():
@@ -86,6 +119,32 @@ static func is_known_house_tier(tier: StringName) -> bool:
 
 static func house_tier_allows_hoist(tier: StringName) -> bool:
 	return tier == HOUSE_TIER_MERCHANT_STONE or tier == HOUSE_TIER_MERCHANT_TIMBER
+
+
+static func is_known_vehicle_class(vehicle_class: StringName) -> bool:
+	if vehicle_class.is_empty():
+		return true
+	return vehicle_class in VEHICLE_CLASSES
+
+
+static func vehicle_class_is_default_urban(vehicle_class: StringName) -> bool:
+	return vehicle_class.is_empty() or vehicle_class == DEFAULT_URBAN_VEHICLE_CLASS
+
+
+static func vehicle_class_allows_harbour_or_wall_only(vehicle_class: StringName) -> bool:
+	## Four-wheel freight stays on harbour/wall yards, not alley defaults.
+	return vehicle_class == VEHICLE_CLASS_WAGON_4W
+
+
+static func is_known_cart_corridor(corridor: StringName) -> bool:
+	if corridor.is_empty():
+		return true
+	return corridor in CART_CORRIDORS
+
+
+static func cart_toll_pfennig() -> Variant:
+	## Explicit null: R-069 gap forbids an attested pfennig-per-wheel value.
+	return null
 
 
 static func is_known(kind: StringName, variant: StringName) -> bool:
