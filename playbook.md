@@ -80,3 +80,5 @@
 - In a dirty shared worktree, restore `TODO.md` from HEAD before applying a single-task closeout; otherwise `update_todo_counts.py --write` and unrelated WIP comment cleanup get absorbed into the commit.
 - Expand bird-batch allowlists to include `tools/generate_*.py` and `tests/godot/test_map_view_bird_meshes.gd` up front; authored GLBs fail CI without the mesh allowlist update even when the task row omitted them.
 - When appending `assets/SOURCES.csv` rows, keep HEAD bytes for existing lines and append new rows as text; rewriting the whole file with `csv.writer` can silently drop quoting on fields that contain commas.
+- Before batching tool calls, verify every tool name against the available schema; placeholder or inferred tool names make the whole parallel batch noisy and unactionable.
+- Pass `tools/run_godot_checked.sh` a basename such as `seamless-terrain-chunks`, not an absolute `/tmp/...` path; the wrapper creates its own `${TMPDIR}/<log-name>.log` and nested path separators make a green Godot run fail during log capture.
