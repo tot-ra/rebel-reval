@@ -9,7 +9,7 @@ shader_type spatial;
 
 uniform sampler2D albedo_texture : source_color, filter_linear_mipmap;
 uniform sampler2D normal_texture : hint_normal, filter_linear_mipmap;
-uniform sampler2d roughness_texture : hint_roughness_r, filter_linear_mipmap;
+uniform sampler2D roughness_texture : hint_roughness_r, filter_linear_mipmap;
 
 // Per-instance color is set via MultiMesh.set_instance_color().
 // Vertex color carries the palette tint from the MultiMesh; the shader

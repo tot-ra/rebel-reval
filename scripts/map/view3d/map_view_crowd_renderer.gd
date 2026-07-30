@@ -12,7 +12,6 @@ extends Node3D
 ## equipment tint every frame for the same actor set.
 
 const CROWD_SHADER := preload("res://scripts/characters/crowd_shader.gdshader")
-const CharacterLODDir := preload("res://assets/characters/shared/").get_path()
 
 ## LOD thresholds mirror SharedCharacterRig distance bands so crowd meshes
 ## cull at the same range as individual rigs.
@@ -52,16 +51,13 @@ func configure(max_instances: int = 200, seed_value: int = 0) -> void:
 	material.shader = shader
 	# Apply a base albedo texture if the mesh carries one; otherwise the
 	# shader falls back to vertex color only.
-	var first_surface_mesh := mesh
-	if first_surface_mesh.get_surface_count() > 0:
-		var arrays := first_surface_mesh.surface_get_arrays(0)
-		var material_key := arrays[Mesh.ARRAY_MATERIAL]
-		if material_key is Material:
-			var base_mat: StandardMaterial3D = material_key as StandardMaterial3D
-			if base_mat != null and base_mat.albedo_texture != null:
-				material.set_shader_parameter("albedo_texture", base_mat.albedo_texture)
-			if base_mat != null and base_mat.normal_enabled and base_mat.normal_texture != null:
-				material.set_shader_parameter("normal_texture", base_mat.normal_texture)
+	# Surface materials live on the mesh, not in ARRAY_* buffers (Godot 4.7).
+	if mesh.get_surface_count() > 0:
+		var base_mat := mesh.surface_get_material(0) as StandardMaterial3D
+		if base_mat != null and base_mat.albedo_texture != null:
+			material.set_shader_parameter("albedo_texture", base_mat.albedo_texture)
+		if base_mat != null and base_mat.normal_enabled and base_mat.normal_texture != null:
+			material.set_shader_parameter("normal_texture", base_mat.normal_texture)
 	_lod0_instance = _build_multimesh_node("CrowdLOD0", mesh, material, max_instances)
 	_lod0_instance.visibility_range_end = LOD0_END
 	_lod0_instance.visibility_range_end_margin = LOD0_MARGIN
@@ -151,14 +147,23 @@ func _apply_to_lod(instance: MultiMeshInstance3D, ids: Array, count: int) -> voi
 	if instance == null or instance.multimesh == null:
 		return
 	var mm: MultiMesh = instance.multimesh
-	mm.instance_count = count
-	for i in count:
-		var actor_id: int = ids[i]
-		var pos: Vector3 = _actor_positions[actor_id]
-		var tint: Color = _actor_tints[actor_id]
-		var transform := Transform3D(Basis.IDENTITY, pos)
-		mm.set_instance_transform(i, transform)
-		mm.set_instance_color(i, tint)
+	# Keep configured capacity; overflow actors stay registered in logic
+	# dictionaries but are not drawn (P0-152 / capacity contract).
+	var capacity := mm.instance_count
+	var visible_count := mini(count, capacity)
+	for i in capacity:
+		if i < visible_count:
+			var actor_id: int = ids[i]
+			var pos: Vector3 = _actor_positions[actor_id]
+			var tint: Color = _actor_tints[actor_id]
+			mm.set_instance_transform(i, Transform3D(Basis.IDENTITY, pos))
+			mm.set_instance_color(i, tint)
+		else:
+			mm.set_instance_transform(
+				i,
+				Transform3D(Basis.from_scale(Vector3.ONE * 0.001), Vector3(0, -9999, 0))
+			)
+			mm.set_instance_color(i, Color(1, 1, 1, 1))
 
 
 func _deterministic_tint(actor_id: int) -> Color:
@@ -255,7 +260,10 @@ static func _build_multimesh_node(
 	# Hide all instances by setting zero-scale transforms until an actor
 	# is assigned. Active instances get proper transforms in _sync_multimesh.
 	for i in capacity:
-		mm.set_instance_transform(i, Transform3D(Basis(Vector3.ONE * 0.001), Vector3(0, -9999, 0)))
+		mm.set_instance_transform(
+			i,
+			Transform3D(Basis.from_scale(Vector3.ONE * 0.001), Vector3(0, -9999, 0))
+		)
 	instance.multimesh = mm
 	instance.material_override = material
 	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON

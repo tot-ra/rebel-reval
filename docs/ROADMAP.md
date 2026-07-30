@@ -1,5 +1,8 @@
 # Production roadmap
 
+<!-- P0-172 completed in current session -->
+Coordination note (2026-07-30 P0-172): MapViewRuntime crowd install now uses positional `configure(200, hash(map_id))`; CrowdRenderer compile blockers cleared (directory preload, `Mesh.ARRAY_MATERIAL`, `Basis(Vector3)`), crowd shader `sampler2D` fixed, and MultiMesh sync preserves configured capacity. Verified: checked runner `--filter=test_map_view_crowd_renderer` (8/8), `--filter=test_act1_candidate_acceptance` (7/7), and `--filter=test_act1_packaged_acceptance` (8/8) with zero ambient SCRIPT ERROR. Next Act 1 gate: maintainer **P4-012**, then package **P4-013**.
+
 <!-- P0-163 completed in current session -->
 Coordination note (2026-07-30 P0-163): burgher-house typology contract now ships closed `house_tier` allowlist (`merchant_stone` / `merchant_timber` / `craft_boda`) through rrmap tokens, compiler building overrides, and `MapPropStyleVariants`, with diele/dornse depth split, hoist rules, ward bias, and Late-Gothic rejection documented in `docs/reports/burgher_house_typology_contract.md` and `docs/MAP_AUTHORING.md`. Verified: `--filter=test_burgher_house_typology_contract` (3/3). Next burgher-house step: art brief **A-008**, then exterior kits **P2-063**–**P2-065**.
 
@@ -111,8 +114,8 @@ Coordination note (2026-07-28 P2-027): Kalev smithy now ships a deterministic Bl
 
 - **Milestone:** Act 1 standalone candidate. The candidate is not accepted, so the Producer does not stop.
 - **Current slice:** `act1-standalone-candidate` - launch or load Act 1, traverse an intended branch with supported input, observe its remembered boundary consequence, save/reload it, and exit cleanly.
-- **Next playable checkpoint:** close packaging runtime blocker **P0-172** (MapViewRuntime named-assignment parse), then maintainer gate **P4-012**, package **P4-013**, and independent release acceptance **P4-044**. Independent QA preflights **P4-042** and **P4-043** are complete with high finding **P4-043-F01** / **P4-042-F01** owned by **P0-172**.
-- **Ready roles:** Dev may claim **P0-172** to clear the packaging/runtime high finding that keeps checked-runner and in-binary macOS smoke red. **P4-012** remains the next QA gate after that defect is closed or explicitly waived. Other specialist roles stay inactive for this gate and must not manufacture scope.
+- **Next playable checkpoint:** maintainer gate **P4-012**, then package **P4-013**, and independent release acceptance **P4-044**. Runtime packaging blocker **P0-172** is closed; re-check **P4-043-F01** / **P4-042-F01** against the fixed MapViewRuntime before treating packaged smoke as green.
+- **Ready roles:** QA/maintainer may claim **P4-012** now that **P0-172** cleared the checked-runner parse chain. **P0-171** remains the claimable active-docs report refresh. Other specialist roles stay inactive for this gate and must not manufacture scope.
 - **Acceptance event:** P4-012 records maintainer completion with no unresolved critical/high finding; P4-044 must accept the exact P4-013 package before the milestone closes. Canon remains a hard dependency for any content correction.
 - **Lower-band safeguards:** P0-171 is the claimable active-docs report refresh after this focus tick. P0-166 waits for R-015/R-017 canon review, P0-167 waits for R-033 canon review, and P0-170 waits for A-007 canon approval. They remain ahead by campaign band but are not claimable. P0-163/P0-165 remain approved historical authoring work but need a later full-slice decomposition before autonomous claim.
 - **Queue-integrity decision:** dropped the cancelled duplicate `P0-122` blind-readability row because the shipped bird-audio task already owns that stable ID. ADR 0013 remains the authoritative cancellation evidence; the audio P0-122 row keeps its ID and history.

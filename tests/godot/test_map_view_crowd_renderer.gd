@@ -9,7 +9,7 @@ const CrowdRenderer := preload("res://scripts/map/view3d/map_view_crowd_renderer
 
 func test_configure_creates_multimesh_with_capacity() -> void:
 	var renderer := CrowdRenderer.new()
-	renderer.configure(max_instances = 100, seed_value = 7)
+	renderer.configure(100, 7)
 	assert_eq(renderer.capacity(), 100, "capacity must match the requested max_instances")
 	assert_eq(renderer.active_count(), 0, "starts with zero active actors")
 	renderer.queue_free()
@@ -17,7 +17,7 @@ func test_configure_creates_multimesh_with_capacity() -> void:
 
 func test_set_and_remove_actor_updates_active_count() -> void:
 	var renderer := CrowdRenderer.new()
-	renderer.configure(max_instances = 50, seed_value = 13)
+	renderer.configure(50, 13)
 	renderer.set_actor_position(1, Vector3(1, 0, 2))
 	renderer.set_actor_position(2, Vector3(3, 0, 4))
 	assert_eq(renderer.active_count(), 2, "two actors registered")
@@ -30,7 +30,7 @@ func test_set_and_remove_actor_updates_active_count() -> void:
 
 func test_deterministic_tint_is_stable_for_same_id() -> void:
 	var renderer := CrowdRenderer.new()
-	renderer.configure(max_instances = 10, seed_value = 99)
+	renderer.configure(10, 99)
 	# Register the same actor twice; tint should be identical.
 	renderer.set_actor_position(42, Vector3(0, 0, 0))
 	renderer.set_actor_position(43, Vector3(1, 0, 0))
@@ -42,7 +42,7 @@ func test_deterministic_tint_is_stable_for_same_id() -> void:
 
 func test_deterministic_tint_varies_across_ids() -> void:
 	var renderer := CrowdRenderer.new()
-	renderer.configure(max_instances = 10, seed_value = 5)
+	renderer.configure(10, 5)
 	var tint_a := renderer._deterministic_tint(1)
 	var tint_b := renderer._deterministic_tint(2)
 	# With the palette range, it is extremely unlikely two random IDs
@@ -53,7 +53,7 @@ func test_deterministic_tint_varies_across_ids() -> void:
 
 func test_crowd_enable_disable_toggles_visibility() -> void:
 	var renderer := CrowdRenderer.new()
-	renderer.configure(max_instances = 10, seed_value = 1)
+	renderer.configure(10, 1)
 	renderer.set_crowd_enabled(false)
 	assert_false(renderer.is_crowd_enabled(), "crowd reports disabled")
 	assert_false(renderer.visible, "node must be hidden when disabled")
@@ -67,7 +67,7 @@ func test_disabling_crowd_does_not_alter_game_state() -> void:
 	# P0-152 requires that disabling the crowd renderer leaves GameState unchanged.
 	var state_a := _snapshot_game_state()
 	var renderer := CrowdRenderer.new()
-	renderer.configure(max_instances = 10, seed_value = 3)
+	renderer.configure(10, 3)
 	renderer.set_crowd_enabled(false)
 	renderer.queue_free()
 	var state_b := _snapshot_game_state()
@@ -76,7 +76,7 @@ func test_disabling_crowd_does_not_alter_game_state() -> void:
 
 func test_multimesh_has_per_instance_colors() -> void:
 	var renderer := CrowdRenderer.new()
-	renderer.configure(max_instances = 10, seed_value = 11)
+	renderer.configure(10, 11)
 	renderer.set_actor_position(10, Vector3(0, 0, 0))
 	renderer.set_actor_position(20, Vector3(5, 0, 3))
 	# The internal LOD0 multimesh should have use_colors enabled.
@@ -88,7 +88,7 @@ func test_multimesh_has_per_instance_colors() -> void:
 
 func test_capacity_is_not_exceeded_by_registrations() -> void:
 	var renderer := CrowdRenderer.new()
-	renderer.configure(max_instances = 3, seed_value = 1)
+	renderer.configure(3, 1)
 	renderer.set_actor_position(1, Vector3(0, 0, 0))
 	renderer.set_actor_position(2, Vector3(1, 0, 0))
 	renderer.set_actor_position(3, Vector3(2, 0, 0))

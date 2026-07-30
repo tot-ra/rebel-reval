@@ -283,7 +283,9 @@ func _install_crowd_renderer() -> void:
 	add_child(_crowd_renderer)
 	# Capacity defaults to 200; maps with battle scenes can override via
 	# configure_crowd() after install.
-	_crowd_renderer.configure(max_instances = 200, seed_value = hash(_definition.map_id))
+	# Positional args only: GDScript 4.7 rejects `name = value` in call sites
+	# as assignment-in-expression (P0-172 / P4-043-F01).
+	_crowd_renderer.configure(200, hash(_definition.map_id))
 
 
 func set_crowd_enabled(enabled: bool) -> void:
