@@ -1,0 +1,183 @@
+{
+  "id": "act2_design",
+  "task": "P5-001",
+  "report": "docs/reports/p5_001_act2_design.md",
+  "act_boundary_flags": [
+    "flag.act_boundary.viru_seal",
+    "flag.act_boundary.viru_break",
+    "flag.act_boundary.viru_open"
+  ],
+  "siege_phases": [
+    {
+      "id": "siege.investment",
+      "window": "late_april_to_approx_8_may",
+      "label": "attested"
+    },
+    {
+      "id": "siege.sortie_supply",
+      "window": "approx_9_to_13_may",
+      "label": "attested"
+    },
+    {
+      "id": "siege.assault",
+      "window": "14_to_16_may",
+      "label": "attested"
+    }
+  ],
+  "factions": [
+    "danish_crown",
+    "livonian_order",
+    "hanseatic",
+    "harju_kings",
+    "black_cloaks",
+    "cult_metsik",
+    "pskov_novgorod",
+    "vitalienbruder"
+  ],
+  "events": [
+    {
+      "id": "event.st_georges_night",
+      "date": "1343-04-23",
+      "confidence": "attested",
+      "notes": "Uprising night; Viru Open/Seal/Break families are invented framing"
+    },
+    {
+      "id": "event.siege_of_reval",
+      "date": "1343-04-late_to_05",
+      "confidence": "attested",
+      "notes": "Harju rebels invest Reval"
+    },
+    {
+      "id": "event.paide_four_kings",
+      "date": "1343-05-early_to_mid",
+      "confidence": "attested",
+      "notes": "Four Kings killed under truce at Paide; playable sequencing after field battles is invented framing"
+    },
+    {
+      "id": "event.kanavere_bog",
+      "date": "1343-05-11",
+      "confidence": "attested",
+      "notes": "Rebel minor victory against Order detachment"
+    },
+    {
+      "id": "event.sojamae",
+      "date": "1343-05-14",
+      "confidence": "attested",
+      "notes": "Decisive rebel defeat near Lake Ülemiste"
+    },
+    {
+      "id": "event.order_castle_leverage",
+      "date": "1343-05-16",
+      "confidence": "attested",
+      "notes": "Order political leverage / castle handover context; Act 2 to Act 3 bridge"
+    },
+    {
+      "id": "event.swedish_fleet",
+      "date": "1343-05-18",
+      "confidence": "attested",
+      "notes": "Swedish fleet arrives too late for mainland rebels"
+    }
+  ],
+  "missions": [
+    {
+      "id": "mission.act2.opening_aftermath",
+      "todo": "P5-001",
+      "system": "st_georges_night"
+    },
+    {
+      "id": "mission.act2.night.sabotage",
+      "todo": "P5-004",
+      "system": "night_mission_framework"
+    },
+    {
+      "id": "mission.act2.night.theft",
+      "todo": "P5-004",
+      "system": "night_mission_framework"
+    },
+    {
+      "id": "mission.act2.night.escort",
+      "todo": "P5-004",
+      "system": "night_mission_framework"
+    },
+    {
+      "id": "mission.act2.night.defense",
+      "todo": "P5-004",
+      "system": "night_mission_framework"
+    },
+    {
+      "id": "mission.act2.recall.spearhead",
+      "todo": "P5-005",
+      "system": "forge_record_recall"
+    },
+    {
+      "id": "mission.act2.recall.gate_chain",
+      "todo": "P5-005",
+      "system": "forge_record_recall"
+    },
+    {
+      "id": "mission.act2.recall.brew_work",
+      "todo": "P5-005",
+      "system": "forge_record_recall"
+    },
+    {
+      "id": "mission.act2.siege.investment_rebel",
+      "todo": "P5-006",
+      "system": "siege_arc"
+    },
+    {
+      "id": "mission.act2.siege.investment_ruler",
+      "todo": "P5-006",
+      "system": "siege_arc"
+    },
+    {
+      "id": "mission.act2.siege.sortie_rebel",
+      "todo": "P5-006",
+      "system": "siege_arc"
+    },
+    {
+      "id": "mission.act2.siege.sortie_ruler",
+      "todo": "P5-006",
+      "system": "siege_arc"
+    },
+    {
+      "id": "mission.act2.siege.assault_rebel",
+      "todo": "P5-006",
+      "system": "siege_arc"
+    },
+    {
+      "id": "mission.act2.siege.assault_ruler",
+      "todo": "P5-006",
+      "system": "siege_arc"
+    },
+    {
+      "id": "mission.act2.kanavere",
+      "todo": "P5-007",
+      "system": "EnemyCombatStateMachine"
+    },
+    {
+      "id": "mission.act2.sojamae",
+      "todo": "P5-007",
+      "system": "EnemyCombatStateMachine"
+    },
+    {
+      "id": "mission.act2.paide",
+      "todo": "P5-009",
+      "system": "act_transition"
+    },
+    {
+      "id": "mission.act2.travel.harju_camp",
+      "todo": "P5-002",
+      "system": "world_travel"
+    },
+    {
+      "id": "mission.act2.travel.harju_village",
+      "todo": "P5-003",
+      "system": "world_activation"
+    },
+    {
+      "id": "mission.act2.travel.sacred_grove",
+      "todo": "P5-003",
+      "system": "world_activation"
+    }
+  ]
+}

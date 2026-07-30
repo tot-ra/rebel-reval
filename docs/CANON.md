@@ -14,19 +14,30 @@ Every entry in this document uses one of the following confidence labels to guid
 
 ## Timeline (April–May 1343)
 
-The playable narrative focuses on the days immediately preceding and during the St. George's Night Uprising.
+The playable narrative focuses on the days immediately preceding and during the St. George's Night Uprising, then through the siege (Act 2 design: [`docs/reports/p5_001_act2_design.md`](./reports/p5_001_act2_design.md)).
 
 * **Pre-April 23, 1343 (The Simmering City)** - **`invented`** (Narrative framing)
-  * The game's five day/night cycles take place in the immediate build-up to the historical uprising. Tensions are high; factions are maneuvering. 
+  * The game's five day/night cycles take place in the immediate build-up to the historical uprising. Tensions are high; factions are maneuvering.
 * **April 23, 1343 (St. George's Night)** - **`attested`** (Source: Chronicles of Balthasar Russow / Livonian Chronicle of Hermann de Wartberge)
-  * A signal fire on a hilltop in Harju County triggers the uprising. Coordinated attacks begin on German nobles, merchants, and clergy. 
+  * A signal fire on a hilltop in Harju County triggers the uprising. Coordinated attacks begin on German nobles, merchants, and clergy.
   * The "Four Kings" (Neli kuningat) are elected by the rebels.
-* **Late April 1343** - **`attested`** (Source: Historical accounts of the siege)
+  * Viru Gate Open / Seal / Break families that close Act 1 are **`invented`** act-boundary framing on this attested night; they become fixed input to Act 2.
+* **Late April 1343 (Siege of Reval begins)** - **`attested`** (Source: chronicle accounts of the siege; project synthesis in `history/HISTORY.md`)
   * Rebel forces from Harju County lay siege to Reval (Tallinn), demanding surrender from the Danish-held city.
-* **May 11, 1343 ([Battle of Kanavere Bog](../wiki/events/battle_of_kanavere_bog.md))** - **`attested`** (Source: Livonian Order records)
-  * A minor victory for the Estonian rebels against the forces of the Livonian Order.
+  * Playable Act 2 uses three siege phases - investment, sortie/supply, assault - that keep this attested investment on the calendar while steering local cost inside missions.
+* **Early to mid-May 1343 ([Paide negotiations / Four Kings killing](../wiki/events/paide_negotiations.md))** - **`attested`** (Source: Livonian chronicle tradition, including Hermann de Wartberge)
+  * Master Burchard von Dreileben lures the Four Kings under truce to Paide Castle (Wittenstein); the talks break into accusation and the envoys are killed.
+  * Exact day-order versus the 11-14 May field battles is contested across chronicle reconstructions. The killings themselves are **`attested`**. Act 2 places the Paide beat as the dramatic finale after Kanavere and Sõjamäe so survivor and warning states can matter; that playable sequencing is **`invented`** campaign framing and must not be sold as a settled primary-source chronology.
+* **May 11, 1343 ([Battle of Kanavere Bog](../wiki/events/battle_of_kanavere_bog.md))** - **`attested`** (Source: Livonian Order records / chronicle tradition)
+  * A rebel force defeats an Order detachment near Kanavere bog - a real but limited field success before the main Order army arrives.
+  * In play, mission branches may change named survivors and local casualties; they must not overturn the attested rebel tactical success.
 * **May 14, 1343 ([Battle of Sõjamäe](../wiki/events/battle_of_sõjamäe.md))** - **`attested`** (Source: Livonian Chronicle of Hermann de Wartberge; later chronicle tradition)
   * The decisive defeat of the main rebel army by Master Burchard von Dreileben’s Livonian Order forces near Lake Ülemiste. The mainland rebellion is largely crushed.
+  * In play, steerable local cost may change who lives or what evidence survives; the attested Order victory and collapse of the main field army remain fixed.
+* **May 16, 1343 (Order leverage on Toompea)** - **`attested`** (Source: Danish-Order transition context; see Toompea dossiers)
+  * Order military and political leverage over the Danish castle rises after the field victories; used as the Act 2 → Act 3 authority bridge, not as an April baseline.
+* **May 18-19, 1343 (Swedish fleet offshore)** - **`attested`** (Source: chronicle accounts of Swedish bailiffs' response)
+  * A Swedish fleet arrives too late to save the mainland rising; it becomes aftermath colour and an Act 3 seed, not a playable relief victory.
 
 ---
 

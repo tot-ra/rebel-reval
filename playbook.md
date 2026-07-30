@@ -92,3 +92,6 @@
 - During equipment hot-swap tests, do not assert a PackedScene root name: a queued sibling with the same name can make Godot auto-rename the replacement. Assert scene-specific child geometry instead.
 - `tools/validate_content.py` requires one or more explicit content paths; pass the scoped JSON file instead of invoking it without arguments.
 - Do not copy hammer attachment orientation onto a long blade without pose-space clearance checks; the same `handslot.r` transform can point a sword through the torso. Compare grip/tip distance from chest in idle and attack, then render both plates.
+- Full-character Godot pose probes can hang when several imported rigs are instantiated and freed in one `SceneTree`; run one actor/pose per process and use the checked runner so teardown failures stay isolated.
+
+- Godot/`unittest` row checks that use `^` against multi-line TODO text need `(?m)` (or `re.M`); bare `assertRegex` is not multiline and will only test the first line, then dump the whole file on failure.

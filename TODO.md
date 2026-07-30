@@ -25,11 +25,12 @@ References:
 | P2 |    19  |    51  | Vertical-slice production (playable MVP) |
 | P3 |     0  |    16  | Validation, accessibility, performance |
 | P4 |    29  |    47  | Act 1: The Simmering City |
-| P5 |    10  |     3  | Act 2: The Fire of Rebellion |
+| P5 |     9  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
 | R  |    21  |    28  | Historical research backlog (researcher-managed, cross-cutting) |
 | A  |    10  |     0  | Art and animation backlog (art-managed, cross-cutting) |
 | P7+ |    10  |     2  | Reserved for future priority bands |
+
 
 
 
@@ -607,7 +608,7 @@ Decision (2026-07-30): solid dossiers `toompea-castle-and-upper-town.md` and `to
 - [ ] P5-009 | deps: P5-005,P5-007 | deliverable: Act 2 finale: the fate of the Four Kings at Paide with a branch-dependent player role and a recorded Act 3 opening state | verify: the attested killing occurs in every branch and the player's knowledge and warning states produce distinct validated act-transition records
 - [ ] P5-005 | deps: P4-016,P5-004 | deliverable: forged-object recall: objects with Act 1 forged records resurface in Act 2 encounters with behavior matching their records | verify: automated matrix shows each recallable object class alters at least one encounter and a sabotaged versus honest record produces observably different outcomes
 - [ ] P5-003 | deps: P5-002 | deliverable: world activation wave 1: Harju village, rebel kings' camp, and sacred grove from existing prototypes through the parity and activation gates (approval artifact: ADR 0008) | verify: activation guard, transition verifier, and traversal/collision tests pass and day/night captures pass parity review
-- [ ] P5-001 | deps: P4-013 | deliverable: approved Act 2 design: uprising-night opening derived from the act-boundary state, three-phase siege structure (investment, sortie/supply, assault), mission list, faction war-state table, and `docs/CANON.md` timeline entries for Kanavere Bog, Sõjamäe, and Paide with confidence labels | verify: every mission maps to an existing system or a named task in this file and every named event carries a canon confidence label
+- [~] P5-001 | slice: act2-fire-of-rebellion | role: narrative | deps: P4-013 | goal: Act 2 starts from the Viru Gate act-boundary with a playable siege and mission plan | deliverable: approved Act 2 design: uprising-night opening derived from the act-boundary state, three-phase siege structure (investment, sortie/supply, assault), mission list, faction war-state table, and `docs/CANON.md` timeline entries for Kanavere Bog, Sõjamäe, and Paide with confidence labels | allowed files: `docs/reports/p5_001_act2_design.md`, `docs/data/act2_design_manifest.json`, `docs/CANON.md`, `TODO.md`, `docs/ROADMAP.md`, `tests/python/test_act2_design_manifest.py` | verify: every mission maps to an existing system or a named task in this file and every named event carries a canon confidence label; `python3 -m unittest tests.python.test_act2_design_manifest -v` passes | review: canon | evidence: docs/reports/p5_001_act2_design.md; docs/data/act2_design_manifest.json; python3 -m unittest tests.python.test_act2_design_manifest -v
 
 ### Large
 
