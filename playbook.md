@@ -43,3 +43,7 @@
 - Crowd MultiMesh sync must keep configured `instance_count` capacity; resizing it to the active actor count breaks the overflow/capacity contract.
 - Godot shader sampler types are case-sensitive (`sampler2D`, not `sampler2d`); headless dummy renderer fails shader compile the same way as a real GPU path.
 - `python3 tools/update_todo_counts.py` only prints the table; pass `--write` to rewrite the TODO summary in place.
+- After P0-172 (or any packaging parse fix), a maintainer gate like P4-012 must re-prove `tools/run_godot_checked.sh --require-test-summary` and `SKIP_EXPORT=1 tools/verify_supported_platform.sh` before closing P4-042-F01 / P4-043-F01; do not treat preflight text as still open if HEAD is green.
+- Close preflight findings in the gate report itself; do not rewrite historical P4-042 / P4-043 reports from a P4-012 allowlist that only names `docs/reports/p4_012_act1_gate.md`.
+- When instruction blocks conflict (delegate to sub-agents vs do not call sub-agents), follow the more specific project/session constraint and state the conflict once.
+- A ROADMAP Current-focus tick after closing a QA gate intentionally leaves `python3 tools/generate_active_docs_report.py --check` red until the claimable **P0-171** refresh; do not regenerate `active_markdown_report.md` from a gate allowlist.
