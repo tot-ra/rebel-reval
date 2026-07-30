@@ -49,5 +49,10 @@
 - A ROADMAP Current-focus tick after closing a QA gate intentionally leaves `python3 tools/generate_active_docs_report.py --check` red until the claimable **P0-171** refresh; do not regenerate `active_markdown_report.md` from a gate allowlist.
 - An NPC "standing on the smithy anvil" is usually an authored anvil-bound activity (`ap.visitor.inspect` / `ap.forge.anvil`) whose `approach_position` sits inside `forge_anvil` footprint, not a stray spawn; in prologue prefer Henning inspect over Mart (Mart stays hidden while `flag.mart_missing`).
 - The Godot harness `--filter=` matches one file/name substring per run; pass multiple focused suites as separate `run_godot_checked.sh` invocations instead of stacking several `--filter=` flags in one command.
-
+- When the dedicated browser endpoint on `127.0.0.1:9223` is unavailable, do not retry it for local asset previews; use Blender-rendered evidence plus `notify_webapp` and continue with geometry/material assertions.
 - The Godot test runner lives at `tools/run_godot_tests.gd`; do not infer `tests/godot/run_tests.gd` from the test directory layout.
+- Before invoking a presumed project utility, discover its exact path with `find_files` or `rg`; this repository validates compiled maps through Godot scripts such as `tools/validate_map_blueprints.gd`, not a guessed `tools/compile_maps.py`.
+- Before running capture or validation scripts in a fresh detached worktree, run Godot `--editor --headless --import`; scripts that reference global `class_name` types cannot parse until the temporary checkout has a `.godot` class cache.
+- When downloading research papers, verify the response MIME/file signature before passing it to PDF tools; OJS download links can return an HTML interstitial, so resolve the actual article-download URL first.
+- For Act 1 packaging (`P4-013`), add a dedicated non-runnable `act1` export preset targeting `build/act1/rr.dmg`, keep the binary gitignored, and `git add -f` only the small SHA fingerprint sidecars (`package_fingerprint.json`, `PACKAGE_SHA256.txt`) so QA can bind `P4-044` without committing a multi-gigabyte DMG.
+- When closing a packaging row while unrelated WIP exists (for example charcoal-storage assets), stage only the allowlisted packaging files; never absorb concurrent map/prop edits into the packaging commit.
