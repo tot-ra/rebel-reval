@@ -82,3 +82,4 @@
 - When appending `assets/SOURCES.csv` rows, keep HEAD bytes for existing lines and append new rows as text; rewriting the whole file with `csv.writer` can silently drop quoting on fields that contain commas.
 - Before batching tool calls, verify every tool name against the available schema; placeholder or inferred tool names make the whole parallel batch noisy and unactionable.
 - Pass `tools/run_godot_checked.sh` a basename such as `seamless-terrain-chunks`, not an absolute `/tmp/...` path; the wrapper creates its own `${TMPDIR}/<log-name>.log` and nested path separators make a green Godot run fail during log capture.
+- When one prop-kind suffix appears in both a grouped registry and `ALL_PROP_KINDS`, include the array declaration in exact edits; matching only the trailing entries is ambiguous.

@@ -1,0 +1,1 @@
+{"id":"prop.scythe","kind":"rigid_prop","target":"res://assets/props/tools/scythe.glb","scene":"res://content/maps/viru_gate_foreland.rrmap#east.scythe","dimensions_m":[1.02,1.54,0.31],"triangles":{"max":1800},"textures":{"albedo_normal_roughness":512},"style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}

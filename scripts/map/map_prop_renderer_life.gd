@@ -78,6 +78,7 @@ static func draw_rural_life_prop(
 	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
 	var timber := MapVisualStyle.role_color(&"timber", target, time_of_day)
 	var plaster := MapVisualStyle.role_color(&"plaster", target, time_of_day)
+	var metal := MapVisualStyle.role_color(&"metal", target, time_of_day)
 	var hay := MapVisualStyle.role_color(&"hay", target, time_of_day)
 	var vegetation := MapVisualStyle.role_color(&"vegetation", target, time_of_day)
 	var stone := MapVisualStyle.role_color(&"stone", target, time_of_day)
@@ -118,5 +119,14 @@ static func draw_rural_life_prop(
 		MapTypes.PROP_KIND_FARM_CART:
 			Draw.add_rect(parent, "Bed", Vector2(-14, -6), Vector2(28, 12), wood, target, time_of_day)
 			Draw.add_rect(parent, "Crate", Vector2(-6, -10), Vector2(12, 8), plaster, target, time_of_day)
+		MapTypes.PROP_KIND_PITCHFORK:
+			Draw.add_line(parent, "Shaft", PackedVector2Array([Vector2(-7, 12), Vector2(3, -24)]), target, time_of_day, &"wood")
+			for tine in 3:
+				var tine_x := -4.0 + float(tine) * 5.0
+				Draw.add_line(parent, "Tine%d" % tine, PackedVector2Array([Vector2(3, -24), Vector2(tine_x, -36)]), target, time_of_day, &"metal")
+		MapTypes.PROP_KIND_SCYTHE:
+			Draw.add_line(parent, "Snath", PackedVector2Array([Vector2(-8, 12), Vector2(0, -8), Vector2(6, -28)]), target, time_of_day, &"wood")
+			Draw.add_line(parent, "Grip", PackedVector2Array([Vector2(-1, -8), Vector2(-10, -13)]), target, time_of_day, &"wood")
+			Draw.add_polygon(parent, "Blade", PackedVector2Array([Vector2(-8, 12), Vector2(9, 10), Vector2(25, 3), Vector2(20, 9), Vector2(5, 14)]), metal, target, time_of_day)
 		_:
 			Draw.add_rect(parent, "Yard", Vector2(-10, -10), Vector2(20, 20), hay.darkened(0.1), target, time_of_day)

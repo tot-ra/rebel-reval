@@ -147,6 +147,43 @@ func test_smithy_anvil_uses_detailed_glb_without_replacing_courtyard_fallback() 
 	courtyard.free()
 
 
+
+func test_blacksmith_tongs_use_authored_grounded_pbr_glb() -> void:
+	var node := MapViewMeshBuilder.build_prop(
+		{"id": &"forge_tongs", "kind": MapTypes.PROP_KIND_BLACKSMITH_TONGS, "position": Vector2.ZERO},
+		MapTypes.DEFAULT_CELL_SIZE
+	)
+	assert_true(node.has_node("BlacksmithTongsModel"), "forge needs independently placeable authored tongs")
+	var model := node.get_node("BlacksmithTongsModel") as Node3D
+	assert_true(model.get_meta(&"production_medieval_hand_tool", false))
+	var bounds := AABB()
+	var first := true
+	var triangles := 0
+	var materials: Dictionary = {}
+	var pbr_materials: Dictionary = {}
+	for child in model.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := child as MeshInstance3D
+		if mesh_instance == null or mesh_instance.mesh == null:
+			continue
+		var child_bounds := mesh_instance.transform * mesh_instance.get_aabb()
+		bounds = child_bounds if first else bounds.merge(child_bounds)
+		first = false
+		for surface_index in mesh_instance.mesh.get_surface_count():
+			triangles += mesh_instance.mesh.surface_get_array_index_len(surface_index) / 3
+			var material := mesh_instance.mesh.surface_get_material(surface_index) as StandardMaterial3D
+			if material == null:
+				continue
+			materials[material.resource_name] = true
+			if material.albedo_texture != null and material.normal_enabled and material.normal_texture != null and material.roughness_texture != null:
+				pbr_materials[material.resource_name] = true
+	assert_false(first, "tongs GLB must expose render geometry")
+	assert_true(bounds.size.y >= 0.77 and bounds.size.y <= 0.80, "tongs need long heat-safe handles")
+	assert_true(bounds.position.y >= -0.001, "tongs must rest on the prop ground plane")
+	assert_eq(triangles, 660, "tongs geometry must stay deterministic and lightweight")
+	assert_eq(materials.size(), 2, "tongs keep hammered and polished iron identities")
+	assert_eq(pbr_materials.size(), 2, "both iron surfaces need albedo, normal, and roughness maps")
+	node.free()
+
 func test_smithy_quench_uses_detailed_metal_glb_without_replacing_generic_fallback() -> void:
 	var smithy := MapViewMeshBuilder.build_prop(
 			{"id": &"quench", "kind": MapTypes.PROP_KIND_QUENCH, "position": Vector2.ZERO},

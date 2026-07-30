@@ -94,6 +94,8 @@ prop bridge.south_rail timber_fence 72 66 rect=27,1
 prop west.well well 49 41 rect=2,2
 prop west.kitchen_garden kitchen_garden 22 42 rect=2,1
 prop west.chicken_run chicken_run 34 38 rect=2,1
+# Field tools are stored beside buildings, not abandoned in growing crops.
+prop west.pitchfork pitchfork 42 38 rect=1,1 facing=south
 prop west.field_strip field_strip 28 86 rect=2,1
 prop west.farm_cart farm_cart 31 45 rect=2,2
 prop west.hay hay_stack 55 84 rect=2,2 style_variant=hay_stack.small
@@ -103,6 +105,7 @@ prop east.hay_wagon hay_wagon 124 84 rect=2,2
 prop east.hay_north hay_stack 146 74 rect=2,2 style_variant=hay_stack.tall
 prop east.hay_south hay_stack 151 94 rect=2,2 style_variant=hay_stack.medium
 prop east.pigsty pigsty 142 92 rect=2,2
+prop east.scythe scythe 140 83 rect=1,1 facing=east
 prop east.flax_frame flax_drying_frame 128 92 rect=2,1
 prop east.pasture_fence pasture_fence 108 68 rect=3,1
 prop meadow.orchard orchard_row 128 24 rect=2,1

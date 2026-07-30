@@ -1,0 +1,35 @@
+{
+  "approval": "user-requested 2026-07-30",
+  "asset_id": "prop.blacksmith_tongs",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "7da9d08c99e5f5fcc3c5b3ca8ec99049bc2888d795d076075acdb182b092a86e",
+  "checks": {
+    "embedded_albedo_normal_roughness": true,
+    "floating_geometry": true,
+    "ground_contact": true,
+    "metric_scale": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "uvs": true,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    0.4345,
+    0.7809,
+    0.1978
+  ],
+  "floating_objects": 0,
+  "generator": "tools/generate_medieval_hand_tools.py",
+  "generator_version": "medieval_hand_tools_v1",
+  "ground_min_z": 0.0,
+  "materials": 2,
+  "mesh_objects": 12,
+  "preview": "generated/blender/blacksmith_tongs_v1/preview.png",
+  "route": "deterministic_blender",
+  "sha256": "85960fd58e819194ffd916452fdda1f12be69eb1a82624c9ef85bdb71d355767",
+  "texture_size": 512,
+  "textured_materials": 2,
+  "triangles": 660,
+  "uv_sets": 1,
+  "vertices": 354
+}

@@ -95,6 +95,15 @@ func test_pirita_uses_rural_livestock_and_has_no_early_bridgettine_church() -> v
 		assert_false(description.to_lower().contains("brigit"))
 
 
+func test_pirita_farmsteads_store_authored_field_tools() -> void:
+	var definition: MapDefinition = ForelandDefinition.create()
+	var present: Dictionary = {}
+	for prop in definition.props:
+		present[prop.get("kind", &"")] = true
+	assert_true(present.has(MapTypes.PROP_KIND_PITCHFORK), "western croft needs a pitchfork for hay and bedding")
+	assert_true(present.has(MapTypes.PROP_KIND_SCYTHE), "eastern farm needs a scythe for hay and grain work")
+
+
 func test_pirita_reciprocates_workers_district_with_stable_ids() -> void:
 	var pirita: MapDefinition = ForelandDefinition.create()
 	var town: MapDefinition = preload(

@@ -122,6 +122,15 @@ static func draw_bellows(parent: Node2D, target: StringName, time_of_day: String
 	Draw.add_rect(parent, "Lever", Vector2(-20, -34), Vector2(5, 14), wood.darkened(0.08), target, time_of_day)
 
 
+
+static func draw_blacksmith_tongs(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
+	var metal := MapVisualStyle.role_color(&"metal", target, time_of_day)
+	Draw.add_line(parent, "LeftHandle", PackedVector2Array([Vector2(-8, 8), Vector2(-3, -7), Vector2(0, -16)]), target, time_of_day, &"metal")
+	Draw.add_line(parent, "RightHandle", PackedVector2Array([Vector2(8, 8), Vector2(3, -7), Vector2(0, -16)]), target, time_of_day, &"metal")
+	Draw.add_circle(parent, "Rivet", Vector2(0, -7), 3.0, metal.lightened(0.08), target, time_of_day)
+	Draw.add_rect(parent, "LeftJaw", Vector2(-7, -24), Vector2(5, 9), metal.lightened(0.12), target, time_of_day)
+	Draw.add_rect(parent, "RightJaw", Vector2(2, -24), Vector2(5, 9), metal.lightened(0.12), target, time_of_day)
+
 static func draw_ledger(parent: Node2D, target: StringName, time_of_day: StringName) -> void:
 	var wood := MapVisualStyle.role_color(&"wood", target, time_of_day)
 	Draw.add_rect(parent, "LedgerDesk", Vector2(-20, -10), Vector2(40, 14), wood, target, time_of_day)

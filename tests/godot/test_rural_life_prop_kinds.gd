@@ -6,8 +6,8 @@ extends "res://tests/godot/map_view_3d_test_base.gd"
 func test_all_rural_life_kinds_are_registered() -> void:
 	assert_eq(
 		MapTypes.RURAL_LIFE_PROP_KINDS.size(),
-		10,
-		"P0-107 minimum prop-kind set must stay in sync with MapTypes"
+		12,
+		"P0-107 rural prop-kind set plus authored field tools must stay in sync with MapTypes"
 	)
 	for kind in MapTypes.RURAL_LIFE_PROP_KINDS:
 		assert_true(MapTypes.ALL_PROP_KINDS.has(kind), "%s must be in ALL_PROP_KINDS" % kind)
@@ -37,6 +37,69 @@ func test_rural_life_props_render_day_and_night() -> void:
 			assert_true(node.get_child_count() > 1, "%s %s needs shadow plus body" % [kind, time_of_day])
 			node.free()
 
+
+
+func test_authored_farm_tools_keep_readable_metric_silhouettes_and_pbr() -> void:
+	var expected := {
+		MapTypes.PROP_KIND_PITCHFORK: {
+			"node": "PitchforkModel",
+			"height": Vector2(2.0, 2.04),
+			"triangles": 376,
+			"materials": 2,
+		},
+		MapTypes.PROP_KIND_SCYTHE: {
+			"node": "ScytheModel",
+			"height": Vector2(1.49, 1.53),
+			"triangles": 388,
+			"materials": 3,
+		},
+	}
+	for kind in expected:
+		var node := MapViewMeshBuilderProps.build_prop({
+			"id": StringName("asset.%s" % kind),
+			"kind": kind,
+			"position": Vector2.ZERO,
+		}, MapTypes.DEFAULT_CELL_SIZE)
+		var spec: Dictionary = expected[kind]
+		var model := node.get_node(String(spec["node"])) as Node3D
+		assert_true(model.get_meta(&"production_medieval_hand_tool", false))
+		var metrics := _tool_metrics(model)
+		var height: Vector2 = spec["height"]
+		assert_true(metrics["bounds"].size.y >= height.x and metrics["bounds"].size.y <= height.y, "%s height must stay plausible" % kind)
+		assert_true(metrics["bounds"].position.y >= -0.001, "%s must rest on the ground plane" % kind)
+		assert_eq(metrics["triangles"], spec["triangles"], "%s geometry must stay deterministic" % kind)
+		assert_eq(metrics["materials"], spec["materials"], "%s material identities must stay stable" % kind)
+		assert_eq(metrics["pbr_materials"], spec["materials"], "%s needs albedo, normal, and roughness on every material" % kind)
+		node.free()
+
+
+func _tool_metrics(model: Node3D) -> Dictionary:
+	var bounds := AABB()
+	var first := true
+	var triangles := 0
+	var materials: Dictionary = {}
+	var pbr_materials: Dictionary = {}
+	for child in model.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := child as MeshInstance3D
+		if mesh_instance == null or mesh_instance.mesh == null:
+			continue
+		var child_bounds := mesh_instance.transform * mesh_instance.get_aabb()
+		bounds = child_bounds if first else bounds.merge(child_bounds)
+		first = false
+		for surface_index in mesh_instance.mesh.get_surface_count():
+			triangles += mesh_instance.mesh.surface_get_array_index_len(surface_index) / 3
+			var material := mesh_instance.mesh.surface_get_material(surface_index) as StandardMaterial3D
+			if material == null:
+				continue
+			materials[material.resource_name] = true
+			if material.albedo_texture != null and material.normal_enabled and material.normal_texture != null and material.roughness_texture != null:
+				pbr_materials[material.resource_name] = true
+	return {
+		"bounds": bounds,
+		"triangles": triangles,
+		"materials": materials.size(),
+		"pbr_materials": pbr_materials.size(),
+	}
 
 func test_unknown_rural_life_kind_fails_blueprint_compile() -> void:
 	var blueprint := MapBlueprint.new(

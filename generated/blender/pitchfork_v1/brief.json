@@ -1,0 +1,1 @@
+{"id":"prop.pitchfork","kind":"rigid_prop","target":"res://assets/props/tools/pitchfork.glb","scene":"res://content/maps/viru_gate_foreland.rrmap#west.pitchfork","dimensions_m":[0.44,2.02,0.19],"triangles":{"max":1800},"textures":{"albedo_normal_roughness":512},"style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}

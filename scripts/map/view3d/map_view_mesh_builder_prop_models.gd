@@ -20,6 +20,7 @@ const HouseholdClutterModels := preload("res://scripts/map/view3d/map_view_house
 const ChestModels := preload("res://scripts/map/view3d/map_view_chest_models.gd")
 const WellModels := preload("res://scripts/map/view3d/map_view_well_models.gd")
 const StorageFurnitureModels := preload("res://scripts/map/view3d/map_view_storage_furniture_models.gd")
+const MedievalHandToolModels := preload("res://scripts/map/view3d/map_view_medieval_hand_tool_models.gd")
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 # Runtime loading avoids a clean-clone bootstrap cycle where GDScript parses
 # before Godot has registered the first GLB import.
@@ -160,6 +161,8 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 				_add_smithy_bellows(root)
 			else:
 				_add_bellows_fallback(root)
+		MapTypes.PROP_KIND_BLACKSMITH_TONGS, MapTypes.PROP_KIND_PITCHFORK, MapTypes.PROP_KIND_SCYTHE:
+			MedievalHandToolModels.add_model(root, prop["kind"])
 		MapTypes.PROP_KIND_LEDGER:
 			MapViewMeshBuilderPrimitives.box(root, "Stand", Vector3(0.16, 0.9, 0.16), Vector3(0.0, 0.45, 0.0), &"wood")
 			MapViewMeshBuilderPrimitives.box(root, "Book", Vector3(0.52, 0.08, 0.42), Vector3(0.0, 0.95, 0.0), &"plaster")
