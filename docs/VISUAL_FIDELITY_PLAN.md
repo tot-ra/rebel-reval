@@ -19,7 +19,7 @@ Large premium RPG and anime productions use specialized concept, modeling, surfa
 | Area | Current state (measured) | Consequence |
 |---|---|---|
 | Character textures | `heroic_humanoid.glb`: ~51k indexed tris across anatomical layers, **0 images**, 14 flat per-part color materials. mart/henning/townswoman/etc. follow the same pattern. No UVs. | Reads toy-like and cannot carry expressive face/hand detail, costume story, rich material color, or anime-influenced shape grouping - the #1 fidelity gap. |
-| Post-process grade | AgX, glow, and adjustment are wired with ADR 0018 saturation, contrast, and controlled highlight values. | Matched visual captures still need review across day, night, weather, third-person, and top-down views. |
+| Post-process grade | AgX, glow, and adjustment are wired with ADR 0018 saturation, contrast, and controlled highlight values. Matched day/night third-person and top-down captures live under `docs/reports/images/adr0018_calibration/`. | Continue opportunistic hero-asset migration; weather-state matched plates remain optional follow-up. |
 | Renderer | `project.godot`: `renderer/rendering_method="gl_compatibility"`. | No SSAO/SSIL/SDFGI/SSR/volumetric fog and no established HDR10/wide-gamut output. This is a ceiling on advanced light/VFX, not permission to mislabel SDR output as display HDR. |
 | Props / animals | Forge & furniture GLBs carry 1–3 images (albedo only); animal GLBs 1 image. | Flat, unlit-looking surfaces under otherwise-good dynamic lighting. |
 | LOD / crowds | Shared rig has no `visibility_range`/LOD; no `MultiMeshInstance3D` for characters. | 40k-tri characters do not scale to battle-sized counts. |

@@ -65,8 +65,9 @@ static func apply_time(
 	if emissive:
 		return day_color.lerp(Color8(255, 210, 122), 0.65)
 	# Colorful indigo night preserves local hue instead of restoring the old gray wash.
-	var night := Color(day_color.r * 0.54, day_color.g * 0.58, day_color.b * 0.72, day_color.a)
-	return night.lerp(Color8(31, 41, 82, day_color.a8), 0.12)
+	# Calibration keeps more of the day master so outdoor night does not crush to black.
+	var night := Color(day_color.r * 0.64, day_color.g * 0.68, day_color.b * 0.80, day_color.a)
+	return night.lerp(Color8(36, 48, 96, day_color.a8), 0.10)
 
 
 static func outline_width(target: StringName) -> float:

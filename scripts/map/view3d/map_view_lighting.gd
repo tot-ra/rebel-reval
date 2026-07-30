@@ -18,12 +18,13 @@ const BACKGROUND_DAY_COLOR := Color8(31, 30, 28)
 const BACKGROUND_INTERIOR_TOP_DOWN_COLOR := Color.BLACK
 
 ## Night stays at least 20% darker than day while ambient light keeps terrain
-## identities readable.
+## identities readable. Calibration after ADR 0018 raised fill so indigo ambient
+## and local albedo survive outside fire/window pools instead of crushing to black.
 const SUN_NIGHT_COLOR := Color8(142, 162, 210)
-const SUN_NIGHT_ENERGY := 0.42
-const AMBIENT_NIGHT_COLOR := Color8(52, 66, 100)
-const AMBIENT_NIGHT_ENERGY := 0.5
-const BACKGROUND_NIGHT_COLOR := Color8(12, 14, 22)
+const SUN_NIGHT_ENERGY := 0.72
+const AMBIENT_NIGHT_COLOR := Color8(58, 74, 112)
+const AMBIENT_NIGHT_ENERGY := 0.92
+const BACKGROUND_NIGHT_COLOR := Color8(14, 18, 28)
 
 ## Golden-hour and weather tints blended over the day/night baseline.
 const SUNSET_LIGHT_COLOR := Color8(255, 148, 64)
@@ -47,21 +48,23 @@ const FOG_POTENTIAL_FULL := 0.95
 
 ## ADR 0018 saturated HDR-range post-grade. AgX compresses scene-referred values
 ## for the current SDR output; this does not claim HDR10 or wide-gamut delivery.
+## Visual calibration tuned day exposure/glow so windows keep texture through AgX
+## and night fill/chroma so local color remains readable outside emissive pools.
 const TONEMAP_MODE := Environment.TONE_MAPPER_AGX
-const GRADE_DAY_EXPOSURE := 1.03
+const GRADE_DAY_EXPOSURE := 0.98
 const GRADE_DAY_SATURATION := 1.20
 const GRADE_DAY_CONTRAST := 1.12
 const GRADE_DAY_BRIGHTNESS := 1.03
-const GRADE_NIGHT_EXPOSURE := 0.82
-const GRADE_NIGHT_SATURATION := 1.08
-const GRADE_NIGHT_CONTRAST := 1.16
-const GRADE_NIGHT_BRIGHTNESS := 0.78
-const GLOW_HDR_THRESHOLD := 0.85
-const GLOW_INTENSITY_DAY := 0.48
-const GLOW_INTENSITY_NIGHT := 0.62
-const GLOW_BLOOM := 0.18
+const GRADE_NIGHT_EXPOSURE := 0.90
+const GRADE_NIGHT_SATURATION := 1.14
+const GRADE_NIGHT_CONTRAST := 1.08
+const GRADE_NIGHT_BRIGHTNESS := 0.89
+const GLOW_HDR_THRESHOLD := 1.05
+const GLOW_INTENSITY_DAY := 0.32
+const GLOW_INTENSITY_NIGHT := 0.48
+const GLOW_BLOOM := 0.10
 const GLOW_STRENGTH := 1.0
-const GLOW_MIX := 0.06
+const GLOW_MIX := 0.05
 
 
 ## One-time WorldEnvironment setup: tonemap, glow, and color-adjustment toggles.

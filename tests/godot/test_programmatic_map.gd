@@ -52,6 +52,13 @@ func test_production_palette_uses_saturated_style_lock_v11() -> void:
 		MapTypes.TERRAIN_WATER, target, MapVisualStyle.TIME_NIGHT
 	)
 	assert_true(night_water.b > night_water.r, "night water must retain the indigo/cyan script")
+	var night_grass := MapVisualStyle.terrain_color(
+		MapTypes.TERRAIN_GRASS, target, MapVisualStyle.TIME_NIGHT
+	)
+	assert_true(
+		night_grass.g > night_grass.r and night_grass.g > 0.2,
+		"night grass must keep local green rather than crushing to gray"
+	)
 	# Comparison profiles are historical P0-036 evidence, not migration targets.
 	assert_eq(
 		MapVisualStyle.terrain_color(

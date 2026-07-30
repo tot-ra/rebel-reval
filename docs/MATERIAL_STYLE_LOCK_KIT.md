@@ -166,25 +166,25 @@ Day master textures are lit in scene-referred HDR range and compressed through A
 
 | Pass | Setting |
 |---|---:|
-| Exposure | `1.03` |
+| Exposure | `0.98` |
 | Saturation | `1.20` |
 | Contrast | `1.12` |
 | Brightness | `1.03` |
-| Glow threshold | `0.85` |
-| Glow intensity | `0.48` |
-| Glow bloom / strength / mix | `0.18` / `1.0` / `0.06` |
+| Glow threshold | `1.05` |
+| Glow intensity | `0.32` |
+| Glow bloom / strength / mix | `0.10` / `1.0` / `0.05` |
 
 ### Night
 
 | Pass | Setting |
 |---|---:|
-| Exposure | `0.82` |
-| Saturation | `1.08` |
-| Contrast | `1.16` |
-| Brightness | `0.78` |
-| Glow threshold | `0.85` |
-| Glow intensity | `0.62` |
-| Glow bloom / strength / mix | `0.18` / `1.0` / `0.06` |
+| Exposure | `0.90` |
+| Saturation | `1.14` |
+| Contrast | `1.08` |
+| Brightness | `0.89` |
+| Glow threshold | `1.05` |
+| Glow intensity | `0.48` |
+| Glow bloom / strength / mix | `0.10` / `1.0` / `0.05` |
 
 Night luminance proxy remains at least 20 percent below day. Preserve cobalt/indigo shadows, cyan moon edges, teal water, and amber fire rather than applying a gray or opaque blue wash. Emissive maps may exceed 1.0 in shader space; albedo maps may not contain painted bloom halos.
 

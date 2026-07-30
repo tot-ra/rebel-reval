@@ -55,6 +55,14 @@ func test_post_grade_differs_from_ungraded_baseline() -> void:
 		"ADR 0018 grade must preserve a saturated Baltic palette"
 	)
 	assert_true(
-		graded.glow_hdr_threshold < 1.0,
-		"HDR-range focal highlights must reach controlled glow before display white"
+		graded.glow_hdr_threshold >= 1.0,
+		"glow must stay selective so matte plaster does not bloom with windows"
+	)
+	assert_true(
+		Lighting.AMBIENT_NIGHT_ENERGY >= 0.85,
+		"night ambient fill must keep local color readable outside emissive pools"
+	)
+	assert_true(
+		Lighting.SUN_NIGHT_ENERGY <= Lighting.SUN_DAY_ENERGY * 0.8,
+		"night sun must remain at least 20 percent dimmer than day"
 	)

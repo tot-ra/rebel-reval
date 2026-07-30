@@ -123,13 +123,13 @@ A grayscale/squint pass must preserve tiers 1-3 in day, night, fog, rain, and fi
 
 | Pass | Day (noon) | Night (midnight) |
 |---|---:|---:|
-| Tonemap | AgX, exposure `1.03` | AgX, exposure `0.82` |
-| Saturation | `1.20` | `1.08` |
-| Contrast | `1.12` | `1.16` |
-| Brightness | `1.03` | `0.78` |
-| Glow HDR threshold | `0.85` | `0.85` |
-| Glow intensity | `0.48` | `0.62` |
-| Glow bloom / strength / mix | `0.18` / `1.0` / `0.06` | same |
+| Tonemap | AgX, exposure `0.98` | AgX, exposure `0.90` |
+| Saturation | `1.20` | `1.14` |
+| Contrast | `1.12` | `1.08` |
+| Brightness | `1.03` | `0.89` |
+| Glow HDR threshold | `1.05` | `1.05` |
+| Glow intensity | `0.32` | `0.48` |
+| Glow bloom / strength / mix | `0.10` / `1.0` / `0.05` | same |
 
 - Exposed skies, pale plaster, and metal highlights must retain color/texture through AgX rather than clipping to white.
 - Bloom belongs to emissive fire, forge heat, windows, wet speculars, rim effects, and authorized magic. Matte walls and UI text must not glow.
