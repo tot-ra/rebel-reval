@@ -1,8 +1,8 @@
 > **Legacy status:** `reference`  
-> **Reason:** NATURAL seven-aspect progression returns under [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md); this file is the seed until `docs/SYSTEMS/NATURAL.md` lands.  
+> **Reason:** NATURAL seven-aspect progression returns under [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md); this file remains a seed after P7-003.  
 > **Scope reconciliation:** [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md), [`docs/LEGACY_REINTRODUCTION.md`](../docs/LEGACY_REINTRODUCTION.md)  
 > **Art note:** aspect HUD icons here are inspiration only; new UI/models required.  
-> **Current source of truth:** [`README.md`](../README.md) until P7-003 closes.
+> **Current source of truth:** [`docs/SYSTEMS/NATURAL.md`](../docs/SYSTEMS/NATURAL.md) (P7-003). Runtime remains **P7-011**.
 
 See [PSYCHE](./PSYCHE.md) to better understand background of the character build system.
 

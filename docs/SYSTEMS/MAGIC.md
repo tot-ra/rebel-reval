@@ -136,21 +136,19 @@ Grant / revoke must be explicit content ops (`magic.grant`, `magic.revoke`) so P
 
 Legacy rule: each NATURAL aspect point adds **+2%** effectiveness to associated elements.
 
-Production stance until **P7-003** closes:
+Normative mapping (closed by **P7-003** in [`NATURAL.md`](./NATURAL.md)):
 
-- Keep the mapping as the design default:
+| Aspect | Empowers elements |
+|---|---|
+| `aspect.nature` | `element.earth`, `element.metal` |
+| `aspect.affection` | `element.water`, `element.air` |
+| `aspect.tenacity` | `element.fire`, `element.beast` |
+| `aspect.unity` | `element.life`, `element.hope` |
+| `aspect.resonance` | `element.deception`, `element.dominion` |
+| `aspect.awareness` | `element.mind`, `element.time` |
+| `aspect.light` | `element.faith`, `element.spirit` |
 
-  | Aspect | Empowers elements |
-  |---|---|
-  | Nature | `earth`, `metal` |
-  | Affection | `water`, `air` |
-  | Tenacity | `fire`, `beast` |
-  | Unity | `life`, `hope` |
-  | Resonance | `deception`, `dominion` |
-  | Awareness | `mind`, `time` |
-  | Light | `faith`, `spirit` |
-
-- Runtime must read aspect ranks from the NATURAL/psyche save fields defined in P7-003 / P7-011.
+- Runtime must read aspect ranks from the NATURAL/psyche save fields defined in NATURAL.md / PSYCHE.md (**P7-011**).
 - If NATURAL is not yet granted in a build, magic uses baseline effectiveness (multiplier 1.0). Magic must not hard-crash when aspects are absent.
 - Do not restore legacy pixel aspect HUD assets; new UI is art-bible work.
 
@@ -232,11 +230,11 @@ These are design stubs, not shipped balance.
 | Concern | Owns |
 |---|---|
 | This contract | P7-002 (closed when verify line passes) |
-| NATURAL / psyche fields that scale elements | P7-003, P7-011 |
+| NATURAL / psyche fields that scale elements | P7-003 (closed: NATURAL.md / PSYCHE.md), P7-011 |
 | Living City Hope/Fear vs piety / hope element naming collision | P7-004 must keep `resource.piety` and city `meter.hope` distinct IDs |
 | Combat verbs / night templates using casts | P7-005 |
 | Schemas, GameState, forge hooks, tests | P7-010 |
-| Full aspect-scaled casting UI | P7-011 after NATURAL docs |
+| Full aspect-scaled casting UI | P7-011 |
 
 ---
 

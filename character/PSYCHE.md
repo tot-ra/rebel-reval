@@ -1,7 +1,7 @@
 > **Legacy status:** `reference`  
-> **Reason:** Explorable Hingepuu, psyche states, and aspect centers return under [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md); this file is the seed until `docs/SYSTEMS/PSYCHE.md` lands.  
+> **Reason:** Explorable Hingepuu, psyche states, and aspect centers return under [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md); this file remains a seed after P7-003.  
 > **Scope reconciliation:** [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md), [`docs/LEGACY_REINTRODUCTION.md`](../docs/LEGACY_REINTRODUCTION.md)  
-> **Current source of truth:** [`README.md`](../README.md) until P7-003 closes.
+> **Current source of truth:** [`docs/SYSTEMS/PSYCHE.md`](../docs/SYSTEMS/PSYCHE.md) (P7-003). Runtime remains **P7-011**.
 
 # 🌳 The Inner World: The Hingepuu
 

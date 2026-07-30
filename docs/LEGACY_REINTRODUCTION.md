@@ -16,8 +16,8 @@ P7 design/canon rows may run in parallel. P7 implementation rows depend on slice
 | Pillar | Legacy sources | Planned active home | Design TODO | Implementation TODO (after design) |
 |---|---|---|---|---|
 | Dual magic (pagan + divine rites) | `character/MAGIC-ELEMENTS.md`, `PAGAN-MAGIC.md`, `CHRISTIAN-MAGIC.md` | [`docs/SYSTEMS/MAGIC.md`](./SYSTEMS/MAGIC.md) + CANON folklore/invented labels | P7-001, P7-002 | P7-010 |
-| NATURAL aspects + progression | `character/BUILD.md` | `docs/SYSTEMS/NATURAL.md` (to create) | P7-001, P7-003 | P7-011 |
-| Psyche / Hingepuu / Ego | `character/PSYCHE.md`, GAME-PILLARS Ego NPC | `docs/SYSTEMS/PSYCHE.md` (to create); extend Hingepuu beyond reflection screen | P7-001, P7-003 | P7-011 |
+| NATURAL aspects + progression | `character/BUILD.md` | [`docs/SYSTEMS/NATURAL.md`](./SYSTEMS/NATURAL.md) | P7-001, P7-003 | P7-011 |
+| Psyche / Hingepuu / Ego | `character/PSYCHE.md`, GAME-PILLARS Ego NPC | [`docs/SYSTEMS/PSYCHE.md`](./SYSTEMS/PSYCHE.md); extend Hingepuu beyond reflection screen | P7-001, P7-003 | P7-011 |
 | Living City meters + allegiance pressure | `docs/GAMEPLAY.md`, `docs/GAME-PILLARS.md` | `docs/SYSTEMS/LIVING_CITY.md` (to create); reconcile with faction ledger | P7-001, P7-004 | P7-012 |
 | Combat depth | `character/COMBAT.md` | extend combat design after magic/NATURAL contracts | P7-001, P7-005 | act-gated after P7-010/011 |
 | Night systems | `docs/GAMEPLAY-NIGHT.md` | enrich P5 night templates; keep authored missions | P7-001, P7-005 | P5/P7 follow-ons |

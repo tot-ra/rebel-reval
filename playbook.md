@@ -99,3 +99,11 @@
 
 - Forge-cat sleep/stretch burial is usually uncompensated spine/chest pitch on foreleg parents, not a bad bind pose; plant feet from the live hip world position and lift the root until skinned mesh min Z clears the floor, then assert every clip in `audit_pose_ground` (walk-only gait audit will stay green while the loaf disappears).
 - When continuing a failed parent session that died mid-`production_build.py` read, re-measure the exported GLB mesh AABB per clip before rewriting IK - pose sheets and tip bones can disagree after glTF Yup round-trip.
+
+- After a failed in-place `TODO.md` rewrite in a dirty shared worktree, restore from HEAD with `git checkout HEAD -- TODO.md` before retrying a single-task closeout; do not run `update_todo_counts.py --write` on a truncated file or it will bake a broken three-row summary.
+- For hot `TODO.md` closeouts, write the full patched file to `/tmp`, assert size (>200KB) and anchored row presence, then `shutil.copyfile` into place; prefer manual count-cell bumps over `update_todo_counts.py --write` when concurrent writers may race.
+- Instruction conflict: general orchestrator guidance may ask to delegate to sub-agents while the project/session block says not to; follow the more specific project constraint and state the conflict once.
+
+- Indoor wall banners must hang from a wall-parallel top rod with soft UV.y hem sway; the old +X projecting arm plus `flag_cloth` UV.x wind reads as a hammer stick flying sideways. Embroidered faction plates live under `assets/heraldry/` and use `hanging_banner_cloth`.
+- Prop close-up captures must zero `build_prop` world position (and add a WorldEnvironment); otherwise the kit sits at map cell coords and the SubViewport plate is a solid ambient swatch. Prefer the map definition preload over `MapAuditRegistry` when distant dirty maps can abort the run.
+- Banner cloth authored in XY with a -Z lit face needs `rotation.y = +PI/2` to face model +X; `-PI/2` shows the mirrored back side so charges face the wrong way.

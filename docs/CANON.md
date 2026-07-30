@@ -18,6 +18,8 @@ The playable narrative focuses on the days immediately preceding and during the 
 
 * **Pre-April 23, 1343 (The Simmering City)** - **`invented`** (Narrative framing)
   * The game's five day/night cycles take place in the immediate build-up to the historical uprising. Tensions are high; factions are maneuvering.
+* **April 13, 1343 (Easter Sunday)** - **`attested`** (Source: Julian computus tables [5ko.free.fr, UU Gent]; liturgical calendar dossier R-017)
+  * Lent ends; meat and dairy return for observant burghers. Easter Monday (14 April) closes trade per Lübeck-law custom. Post-Easter market feasting resumes; convoy preparation begins. Easter is **ten days before** St George's Night, not two.
 * **April 23, 1343 (St. George's Night)** - **`attested`** (Source: Chronicles of Balthasar Russow / Livonian Chronicle of Hermann de Wartberge)
   * A signal fire on a hilltop in Harju County triggers the uprising. Coordinated attacks begin on German nobles, merchants, and clergy.
   * The "Four Kings" (Neli kuningat) are elected by the rebels.
@@ -138,6 +140,7 @@ Per [ADR 0017](./adr/0017-legacy-design-reintroduction.md), the following return
   * Active contract: [`docs/SYSTEMS/MAGIC.md`](./SYSTEMS/MAGIC.md) (P7-002). Runtime remains **P7-010**.
 * **NATURAL aspects and Hingepuu psyche play** - **`invented`** / **`folklore`**
   * Extends the existing Hingepuu reflection concept into progression and inner-world locations.
+  * Active contracts: [`docs/SYSTEMS/NATURAL.md`](./SYSTEMS/NATURAL.md) and [`docs/SYSTEMS/PSYCHE.md`](./SYSTEMS/PSYCHE.md) (P7-003). Runtime remains **P7-011**.
 * **Living City Hope / Fear pressure** - **`invented`**
   * City-scale consequence layer reconciled with per-faction ledger standing; not a universal good/evil score.
 
