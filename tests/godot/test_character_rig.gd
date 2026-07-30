@@ -14,6 +14,7 @@ const REQUIRED_ANIMATIONS: Array[StringName] = [
 	&"run",
 	&"forge_strike",
 	&"hammer_attack",
+	&"sword_attack",
 	&"hammer_charged_attack",
 	&"unarmed_attack",
 	&"guard",
@@ -36,6 +37,17 @@ func test_kalev_rig_has_required_skeleton_animations_and_hammer() -> void:
 		assert_true(kalev.has_animation(animation_name), "Missing canonical animation %s" % animation_name)
 		assert_true(kalev.play_animation(animation_name), "Animation %s must play" % animation_name)
 
+	kalev.queue_free()
+
+func test_sword_attack_uses_diagonal_slice_clip() -> void:
+	var kalev := _instantiate(KALEV_SCENE)
+	assert_true(kalev.play_animation(&"sword_attack"))
+	assert_eq(kalev.animation_player().current_animation, &"1H_Melee_Attack_Slice_Diagonal")
+	assert_eq(
+		kalev.animation_player().get_animation(&"1H_Melee_Attack_Slice_Diagonal").loop_mode,
+		Animation.LOOP_NONE,
+		"Sword light attack must remain a one-shot shared-rig action"
+	)
 	kalev.queue_free()
 
 func test_unarmed_attack_uses_punch_clip() -> void:
@@ -209,6 +221,78 @@ func test_occlusion_ghost_overlays_every_mesh_and_clears() -> void:
 	for mesh_instance: MeshInstance3D in mesh_instances:
 		assert_eq(mesh_instance.material_overlay, null, "%s must drop the overlay when visible" % mesh_instance.name)
 
+	kalev.queue_free()
+
+func test_sword_scene_mounts_with_grip_origin_and_blade_away_from_hand() -> void:
+	var kalev := _instantiate(KALEV_SCENE)
+	var sword_scene := load("res://assets/characters/shared/sword.tscn") as PackedScene
+	var sword := kalev.equip(&"right_hand", sword_scene)
+	assert_true(sword != null)
+	assert_eq(sword.name, "PlainCruciformSword")
+	assert_true(sword.get_node_or_null("Grip") != null)
+	assert_true(sword.get_node_or_null("Crossguard") != null)
+	assert_true(sword.get_node_or_null("Blade") != null)
+	assert_true(sword.get_node_or_null("BladeTip") != null)
+	assert_true(
+		(sword.get_node("BladeTip") as Node3D).position.y > (sword.get_node("Crossguard") as Node3D).position.y,
+		"Blade must extend away from the grip instead of into the wrist"
+	)
+	assert_true((sword.get_node("Blade") as MeshInstance3D).get_aabb().size.y > 0.65)
+	assert_true((sword.get_node("Crossguard") as MeshInstance3D).get_aabb().size.x > 0.25)
+	kalev.queue_free()
+
+func test_sword_blade_points_away_from_torso_in_idle_and_attack() -> void:
+	var kalev := _instantiate(KALEV_SCENE)
+	var sword_scene := load("res://assets/characters/shared/sword.tscn") as PackedScene
+	var sword := kalev.equip(&"right_hand", sword_scene)
+	var chest_index := kalev.skeleton().find_bone("chest")
+	assert_true(chest_index >= 0)
+	for pose: Dictionary in [
+		{"animation": &"idle", "time": 0.0},
+		{"animation": &"sword_attack", "time": 0.38},
+	]:
+		assert_true(kalev.play_animation(pose["animation"], 0.0))
+		kalev.animation_player().seek(float(pose["time"]), true)
+		kalev.skeleton().force_update_all_bone_transforms()
+		var grip_world := sword.to_global(Vector3.ZERO)
+		var tip_world := (sword.get_node("BladeTip") as Node3D).to_global(Vector3(0.0, 0.06, 0.0))
+		var chest_world := kalev.skeleton().to_global(
+			kalev.skeleton().get_bone_global_pose(chest_index).origin
+		)
+		assert_true(
+			tip_world.distance_to(chest_world) > grip_world.distance_to(chest_world),
+			"%s blade tip must extend away from the torso" % String(pose["animation"])
+		)
+		assert_true(
+			grip_world.distance_to(chest_world) > 0.12,
+			"%s grip must stay outside the torso" % String(pose["animation"])
+		)
+	kalev.queue_free()
+
+func test_map_view_runtime_hot_swaps_hammer_sword_and_empty_hand_visuals() -> void:
+	var db := ContentDB.new()
+	assert_true(db.load_from_directories(SessionState.DEMO_CONTENT_DIRS))
+	var state := GameState.new()
+	state.bag.set_content_db(db)
+	var kalev := _instantiate(KALEV_SCENE)
+	var actors := MapViewRuntimeActors.new()
+	actors.configure(null, null, null, kalev, null, Callable(), Callable())
+	actors.bind_equipment_state(state, db)
+	assert_eq(kalev.equipped(&"right_hand"), null)
+
+	assert_eq(state.bag.try_add(&"item.forge_hammer"), InventoryBag.AddResult.OK)
+	assert_true(state.equip_from_bag(&"right_hand", &"item.forge_hammer"))
+	assert_true(kalev.equipped(&"right_hand").get_node_or_null("Handle") != null)
+	assert_true(kalev.equipped(&"right_hand").get_node_or_null("Head") != null)
+
+	assert_eq(state.bag.try_add(&"item.plain_sword"), InventoryBag.AddResult.OK)
+	assert_true(state.equip_from_bag(&"right_hand", &"item.plain_sword"))
+	assert_true(kalev.equipped(&"right_hand").get_node_or_null("Blade") != null)
+	assert_true(kalev.equipped(&"right_hand").get_node_or_null("Crossguard") != null)
+
+	assert_true(state.unequip_to_bag(&"right_hand"))
+	assert_eq(kalev.equipped(&"right_hand"), null)
+	actors.disconnect_equipment_state()
 	kalev.queue_free()
 
 func test_equipment_slots_mount_replace_and_clear_props() -> void:

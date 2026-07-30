@@ -12,6 +12,7 @@ const DUMMY_SCRIPT := preload("res://scripts/combat/combat_training_dummy.gd")
 const ENEMY_SCRIPT := preload("res://scripts/combat/combat_room_enemy.gd")
 const FEEDBACK_HUD_SCRIPT := preload("res://scripts/combat/combat_feedback_hud.gd")
 const ITEM_HAMMER := &"item.forge_hammer"
+const ITEM_SWORD := &"item.plain_sword"
 
 const PLAYER_SPAWN := Vector2(640.0, 400.0)
 const OPEN_DUMMY_POS := Vector2(780.0, 400.0)
@@ -30,6 +31,9 @@ var encounter_definition: EncounterOutcomeDefinition = EncounterOutcomeDefinitio
 var encounter_resolver := EncounterOutcomeResolver.new()
 var encounter_checkpoint := EncounterCheckpoint.new()
 var _reset_button: Button
+var _hammer_button: Button
+var _sword_button: Button
+var _unarmed_button: Button
 var _retry_button: Button
 var _surrender_button: Button
 var _escape_button: Button
@@ -168,6 +172,18 @@ func get_reset_button() -> Button:
 	return _reset_button
 
 
+func get_hammer_button() -> Button:
+	return _hammer_button
+
+
+func get_sword_button() -> Button:
+	return _sword_button
+
+
+func get_unarmed_button() -> Button:
+	return _unarmed_button
+
+
 func get_retry_button() -> Button:
 	return _retry_button
 
@@ -269,15 +285,29 @@ func _ensure_session() -> void:
 	)
 
 
-func _equip_hammer() -> void:
+func equip_test_weapon(item_id: StringName) -> bool:
+	ensure_built()
+	_ensure_session()
 	var slot := &"right_hand"
-	if SessionState.state.equipped_item(slot) == ITEM_HAMMER:
-		return
+	if SessionState.state.equipped_item(slot) == item_id:
+		return true
 	if not SessionState.state.equipped_item(slot).is_empty():
-		SessionState.state.unequip_to_bag(slot)
-	if SessionState.state.bag.find_placement(ITEM_HAMMER) == null:
-		SessionState.state.bag.try_add(ITEM_HAMMER)
-	SessionState.state.equip_from_bag(slot, ITEM_HAMMER)
+		if not SessionState.state.unequip_to_bag(slot):
+			return false
+	if item_id.is_empty():
+		_refresh_status("Unarmed profile equipped.")
+		return true
+	if SessionState.state.bag.find_placement(item_id) == null:
+		if SessionState.state.bag.try_add(item_id) != InventoryBag.AddResult.OK:
+			return false
+	var equipped_ok := SessionState.state.equip_from_bag(slot, item_id)
+	if equipped_ok:
+		_refresh_status("Equipped %s." % String(item_id))
+	return equipped_ok
+
+
+func _equip_hammer() -> void:
+	equip_test_weapon(ITEM_HAMMER)
 
 
 func _build_environment() -> void:
@@ -365,6 +395,21 @@ func _build_hud() -> void:
 	_reset_button.pressed.connect(reset_room)
 	actions.add_child(_reset_button)
 
+	# Keep weapon access narrow and explicit: these buttons exercise the same
+	# inventory/equipment/content path as gameplay rather than test-only profiles.
+	_hammer_button = _make_weapon_button(
+		"EquipHammerButton", "Hammer", ITEM_HAMMER, Vector2(700, 640)
+	)
+	_sword_button = _make_weapon_button(
+		"EquipSwordButton", "Sword", ITEM_SWORD, Vector2(820, 640)
+	)
+	_unarmed_button = _make_weapon_button(
+		"EquipUnarmedButton", "Unarmed", &"", Vector2(940, 640)
+	)
+	actions.add_child(_hammer_button)
+	actions.add_child(_sword_button)
+	actions.add_child(_unarmed_button)
+
 	# Mouse-reachable failure retry (discoverability policy; no hotkey required).
 	_retry_button = Button.new()
 	_retry_button.name = "RetryCheckpointButton"
@@ -391,6 +436,19 @@ func _build_hud() -> void:
 	actions.add_child(_surrender_button)
 	actions.add_child(_escape_button)
 	actions.add_child(_bypass_button)
+
+
+func _make_weapon_button(
+	node_name: String, label: String, item_id: StringName, pos: Vector2
+) -> Button:
+	var button := Button.new()
+	button.name = node_name
+	button.text = label
+	button.tooltip_text = "Equip %s through the live data-driven item path" % label.to_lower()
+	button.position = pos
+	button.custom_minimum_size = Vector2(110, 36)
+	button.pressed.connect(func() -> void: equip_test_weapon(item_id))
+	return button
 
 
 func _make_outcome_button(

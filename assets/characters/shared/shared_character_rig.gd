@@ -8,6 +8,7 @@ const CANONICAL_ANIMATIONS: Dictionary = {
 	&"run": &"Running_B",
 	&"forge_strike": &"1H_Melee_Attack_Chop",
 	&"hammer_attack": &"1H_Melee_Attack_Chop",
+	&"sword_attack": &"1H_Melee_Attack_Slice_Diagonal",
 	&"hammer_charged_attack": &"2H_Melee_Attack_Chop",
 	&"unarmed_attack": &"Unarmed_Melee_Attack_Punch_A",
 	&"guard": &"Blocking",

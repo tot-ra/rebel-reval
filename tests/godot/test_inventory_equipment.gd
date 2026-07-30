@@ -1,6 +1,7 @@
 extends "res://tests/godot/test_case.gd"
 
 const ITEM_HAMMER := &"item.forge_hammer"
+const ITEM_SWORD := &"item.plain_sword"
 const ITEM_SPEARHEAD := &"item.seized_spearhead"
 
 
@@ -77,6 +78,26 @@ func test_spearhead_equips_to_left_hand_while_hammer_stays_worn() -> void:
 	assert_eq(state.equipped_item(&"right_hand"), ITEM_HAMMER)
 	assert_eq(state.equipped_item(&"left_hand"), ITEM_SPEARHEAD)
 	assert_eq(state.bag.get_used_cells(), 0)
+
+
+func test_sword_carry_and_equip_metadata_drive_inventory_state() -> void:
+	var db := ContentDB.new()
+	assert_true(db.load_from_directories(SessionState.DEMO_CONTENT_DIRS))
+	var item := db.get_item(ITEM_SWORD)
+	var gameplay: Dictionary = item.get("gameplay", {})
+	var equip: Dictionary = gameplay.get("equip", {})
+	var state := GameState.new()
+	state.bag.set_content_db(db)
+
+	assert_eq(String(item.get("category", "")), "weapon")
+	assert_eq(StringName(String(equip.get("slot", ""))), &"right_hand")
+	assert_eq(String(equip.get("scene", "")), "res://assets/characters/shared/sword.tscn")
+	assert_eq(state.bag.profile_for(ITEM_SWORD).grid_width, 1)
+	assert_eq(state.bag.profile_for(ITEM_SWORD).grid_height, 4)
+	assert_true(is_equal_approx(state.bag.profile_for(ITEM_SWORD).weight_kg, 1.45))
+	assert_eq(state.bag.try_add(ITEM_SWORD), InventoryBag.AddResult.OK)
+	assert_true(state.equip_from_bag(&"right_hand", ITEM_SWORD))
+	assert_eq(state.equipped_item(&"right_hand"), ITEM_SWORD)
 
 
 func test_equipment_changed_signal_fires_per_slot() -> void:

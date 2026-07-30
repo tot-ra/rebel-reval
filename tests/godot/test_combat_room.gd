@@ -7,6 +7,7 @@ extends "res://tests/godot/test_case.gd"
 const COMBAT_ROOM_SCENE := preload("res://scenes/tests/combat_room.tscn")
 const TEST_DELTA := 0.05
 const ITEM_HAMMER := &"item.forge_hammer"
+const ITEM_SWORD := &"item.plain_sword"
 
 
 func test_combat_room_boots_with_hammer_dummies_and_feedback() -> void:
@@ -27,12 +28,40 @@ func test_combat_room_boots_with_hammer_dummies_and_feedback() -> void:
 	)
 	assert_true(room.get_feedback() != null)
 	assert_true(room.get_reset_button() != null)
+	assert_true(room.get_hammer_button() != null)
+	assert_true(room.get_sword_button() != null, "Sword fixture must be mouse-reachable")
+	assert_true(room.get_unarmed_button() != null)
 	assert_false(room.get_reset_button().disabled, "Reset must be mouse-reachable")
 	assert_true(room.get_surrender_button() != null, "P1-026 surrender must be mouse-reachable")
 	assert_true(room.get_escape_button() != null, "P1-026 escape must be mouse-reachable")
 	assert_true(room.get_bypass_button() != null, "P1-026 bypass must be mouse-reachable")
 	_free_room(room)
 
+
+func test_combat_room_hot_swaps_hammer_sword_and_unarmed_profiles() -> void:
+	var room: CombatRoom = _mount_room()
+	assert_eq(SessionState.state.equipped_item(&"right_hand"), ITEM_HAMMER)
+	assert_eq(
+		AttackProfileResolver.resolve_for_state(SessionState.state, SessionState.content_db).animation,
+		&"hammer_attack"
+	)
+
+	room.get_sword_button().pressed.emit()
+	assert_eq(SessionState.state.equipped_item(&"right_hand"), ITEM_SWORD)
+	var sword := AttackProfileResolver.resolve_for_state(SessionState.state, SessionState.content_db)
+	assert_eq(sword.animation, &"sword_attack")
+	assert_eq(sword.damage, 11.0)
+	assert_eq(sword.reach_px, 66.0)
+	assert_eq(sword.stamina_cost, 7.0)
+	assert_eq(sword.damage_type, &"slash")
+
+	room.get_unarmed_button().pressed.emit()
+	assert_eq(SessionState.state.equipped_item(&"right_hand"), &"")
+	var unarmed := AttackProfileResolver.resolve_for_state(SessionState.state, SessionState.content_db)
+	assert_eq(unarmed.animation, &"unarmed_attack")
+	assert_eq(unarmed.damage, 8.0)
+
+	_free_room(room)
 
 func test_watchman_completes_detect_to_disengage_in_combat_room() -> void:
 	_assert_room_enemy_loop(func(room: CombatRoom) -> CombatRoomEnemy: return room.get_watchman())

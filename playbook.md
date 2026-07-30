@@ -91,3 +91,4 @@
 - In RefCounted Godot test scripts, use `(Engine.get_main_loop() as SceneTree).root` rather than `get_tree()`; RefCounted has no `get_tree` method and the suite will fail to parse.
 - During equipment hot-swap tests, do not assert a PackedScene root name: a queued sibling with the same name can make Godot auto-rename the replacement. Assert scene-specific child geometry instead.
 - `tools/validate_content.py` requires one or more explicit content paths; pass the scoped JSON file instead of invoking it without arguments.
+- Do not copy hammer attachment orientation onto a long blade without pose-space clearance checks; the same `handslot.r` transform can point a sword through the torso. Compare grip/tip distance from chest in idle and attack, then render both plates.

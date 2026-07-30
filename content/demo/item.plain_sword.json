@@ -1,0 +1,50 @@
+{
+  "type": "item",
+  "id": "item.plain_sword",
+  "name": "Plain cruciform sword",
+  "category": "weapon",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "Simple imported blade with locally maintainable iron hilt for 1343 Reval combat testing."
+  },
+  "material_grade": "common",
+  "gameplay": {
+    "visible_in_pouch": true,
+    "stackable": false,
+    "uses": [
+      "Equip in the right hand for a quick one-handed cutting attack.",
+      "Combat-room fixture for data-driven weapon hot-swap verification."
+    ],
+    "carry": {
+      "weight_g": 1450,
+      "grid_width": 1,
+      "grid_height": 4
+    },
+    "equip": {
+      "slot": "right_hand",
+      "scene": "res://assets/characters/shared/sword.tscn"
+    },
+    "attack_profile": {
+      "animation": "sword_attack",
+      "damage": 11.0,
+      "reach_px": 66.0,
+      "facing_dot": 0.35,
+      "impact_timing_sec": 0.27,
+      "attack_duration_sec": 0.64,
+      "stamina_cost": 7.0,
+      "damage_type": "slash"
+    }
+  },
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "A plain double-edged sword with iron guard and pommel matches the documented burgher sidearm and imported-blade/local-hilt supply model for 1343 Reval.",
+      "citations": [
+        "history/dossiers/military/arms-and-armour-livonia-1340s.md#brief-for-dev--art--quest",
+        "history/dossiers/military/arms-and-armour-livonia-1340s.md#item-ledger-materials-for-systems-and-art"
+      ]
+    }
+  ]
+}

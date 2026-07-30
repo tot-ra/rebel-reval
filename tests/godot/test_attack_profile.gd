@@ -5,6 +5,7 @@ const COMBAT_TEST_DUMMY := preload("res://tests/godot/fixtures/combat_test_dummy
 const TEST_DELTA := 0.05
 
 const ITEM_HAMMER := &"item.forge_hammer"
+const ITEM_SWORD := &"item.plain_sword"
 const ITEM_TEST_STICK := &"item.combat_test_stick"
 
 
@@ -29,6 +30,35 @@ func test_resolve_hammer_profile_from_content() -> void:
 	assert_eq(profile.reach_px, 56.0)
 	assert_eq(profile.stamina_cost, 12.0)
 	player.free()
+
+
+func test_resolve_sword_profile_from_demo_content() -> void:
+	_ensure_content_loaded()
+	var player := _create_player()
+	_equip_item(&"right_hand", ITEM_SWORD)
+	var profile := AttackProfileResolver.resolve_for_state(SessionState.state, SessionState.content_db)
+	assert_eq(profile.animation, &"sword_attack")
+	assert_eq(profile.damage, 11.0)
+	assert_eq(profile.reach_px, 66.0)
+	assert_eq(profile.impact_timing_sec, 0.27)
+	assert_eq(profile.attack_duration_sec, 0.64)
+	assert_eq(profile.stamina_cost, 7.0)
+	assert_eq(profile.damage_type, &"slash")
+	player.free()
+
+
+func test_sword_values_sit_between_fast_unarmed_and_heavy_hammer() -> void:
+	_ensure_content_loaded()
+	var unarmed := AttackProfile.unarmed()
+	var sword := AttackProfileResolver.profile_for_item(ITEM_SWORD, SessionState.content_db)
+	var hammer := AttackProfileResolver.profile_for_item(ITEM_HAMMER, SessionState.content_db)
+	assert_true(sword.damage > unarmed.damage and sword.damage < hammer.damage)
+	assert_true(sword.stamina_cost > unarmed.stamina_cost and sword.stamina_cost < hammer.stamina_cost)
+	assert_true(sword.impact_timing_sec > unarmed.impact_timing_sec)
+	assert_true(sword.impact_timing_sec < hammer.impact_timing_sec)
+	assert_true(sword.attack_duration_sec > unarmed.attack_duration_sec)
+	assert_true(sword.attack_duration_sec < hammer.attack_duration_sec)
+	assert_true(sword.reach_px > hammer.reach_px, "Sword blade should out-reach the shorter hammer")
 
 
 func test_resolve_test_stick_profile_from_content() -> void:
@@ -59,6 +89,14 @@ func test_swapping_equipped_items_changes_attack_behavior_without_item_id_branch
 	player.stamina = 100.0
 	_start_attack(player)
 	assert_eq(target.health, 0.0, "Hammer profile should apply its authored damage")
+
+	# Sword from the same content-driven resolver
+	target.health = 20.0
+	_clear_hit_invulnerability(target)
+	_equip_item(&"right_hand", ITEM_SWORD)
+	player.stamina = 100.0
+	_start_attack(player)
+	assert_eq(target.health, 9.0, "Sword profile should apply its authored slash damage")
 
 	# Test stick from content
 	target.health = 20.0
@@ -147,6 +185,28 @@ func test_hammer_charged_attack_hits_with_authored_reach_and_damage() -> void:
 
 	assert_eq(in_reach.health, 0.0, "Charged hammer should damage targets inside its longer reach")
 	assert_eq(beyond_reach.health, 20.0, "Charged hammer must still respect its reach cap")
+
+	in_reach.free()
+	beyond_reach.free()
+	player.free()
+
+
+func test_sword_attack_drains_stamina_and_respects_authored_reach() -> void:
+	_ensure_content_loaded()
+	var player := _create_player()
+	_equip_item(&"right_hand", ITEM_SWORD)
+	player.global_position = Vector2.ZERO
+	player._facing_direction = Vector2.RIGHT
+	player.stamina = 20.0
+	var in_reach := _create_dummy(Vector2(62.0, 0.0))
+	var beyond_reach := _create_dummy(Vector2(70.0, 0.0))
+
+	assert_true(player.commit_attack_from_charge_hold(0.05))
+	assert_eq(player.view_animation(), &"sword_attack")
+	assert_eq(player.stamina, 13.0)
+	_advance(player.action_state_machine, player.action_state_machine.attack_impact_sec)
+	assert_eq(in_reach.health, 9.0, "Sword slash should hit inside its 66 px reach")
+	assert_eq(beyond_reach.health, 20.0, "Sword slash must respect its reach cap")
 
 	in_reach.free()
 	beyond_reach.free()
