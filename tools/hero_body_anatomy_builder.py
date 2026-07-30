@@ -37,21 +37,24 @@ def torso_profile(context: BodyContext, shape: dict) -> list[tuple]:
     shoulder_mid = (context.shoulder_l + context.shoulder_r) * 0.5
 
     return [
-        (context.crotch, 0.101 * belly, 0.076 * belly, 0.086 * belly, {"hips": 1.0}),
+        (context.crotch, 0.098 * belly, 0.076 * belly, 0.086 * belly, {"hips": 1.0}),
         # Pelvis and buttocks: the posterior mass is what stops the hips
         # reading as a straight tube in profile and from the gameplay camera.
+        # The iliac flare is deliberately wider than the thigh tops below it so
+        # the legs read as hanging from a pelvis rather than as two tubes
+        # bolted to the waist.
         (
             context.hips - up * 0.025 * scale,
-            0.142 * belly,
-            0.096 * belly,
-            0.134 * belly,
+            0.152 * belly,
+            0.100 * belly,
+            0.140 * belly,
             {"hips": 1.0},
         ),
         (
             context.hips + up * 0.055 * scale,
-            0.130 * belly,
-            0.092 * belly,
-            0.106 * belly,
+            0.137 * belly,
+            0.094 * belly,
+            0.110 * belly,
             blend_weights("hips", "spine", 0.35),
         ),
         (
@@ -76,16 +79,30 @@ def torso_profile(context: BodyContext, shape: dict) -> list[tuple]:
             0.100,
             {"chest": 1.0},
         ),
-        # Clavicle line, level with the arm sockets.
+        # Clavicle line, level with the arm sockets. Its front depth carries the
+        # collarbones: without that cross-chest mass the arms read as separate
+        # mechanical parts hung off a narrow column.
         (
             shoulder_mid - up * 0.030 * scale,
             clavicle_reach,
-            0.099,
+            0.107,
             0.094,
             {"chest": 1.0},
         ),
-        # Trapezius slope into the neck.
-        (context.neck_base - up * 0.004 * scale, 0.097, 0.074, 0.078, {"chest": 1.0}),
+        # Acromion line. Continuing the girdle above the sockets is what merges
+        # the deltoids into the torso; ending the wide section below them left
+        # the shoulder caps sitting on the silhouette as detached spheres.
+        (
+            shoulder_mid + up * 0.014 * scale,
+            clavicle_reach * 0.97,
+            0.098,
+            0.091,
+            {"chest": 1.0},
+        ),
+        # Trapezius slope into the neck. Wide enough to meet the sleeve cap:
+        # a narrow section here left a step between the shoulder yoke and the
+        # arm that read as a seam across the top of the shoulder.
+        (context.neck_base - up * 0.004 * scale, 0.112, 0.078, 0.082, {"chest": 1.0}),
         # Slightly inside the head builder's neck tube: same skin colour, and
         # the clearance keeps the two layers from z-fighting when the head turns.
         (context.neck_base + up * 0.030 * scale, 0.051, 0.047, 0.049, {"chest": 1.0}),
@@ -144,24 +161,29 @@ def _build_anatomical_arms(
         # forearm mass instead of tapering as one straight cylinder.
         skin = PartBuilder(f"Anatomy_SkinArm{suffix}", frame, bulk=shape["bulk"])
 
-        # Deltoid cap. The clavicle section of the torso profile reaches the
-        # socket from the inside; this rounds the joint from the outside and
-        # rides the upper arm, so the shoulder stays closed through the whole
-        # swing range instead of opening the hole the arm tube alone leaves.
-        deltoid_center = shoulder + upper_axis * 0.026 * scale + frame.up * 0.012 * scale
+        # Deltoid cap. The clavicle and acromion sections of the torso profile
+        # reach the socket from the inside; this rounds the joint from the
+        # outside and rides the upper arm, so the shoulder stays closed through
+        # the whole swing range instead of opening the hole the arm tube alone
+        # leaves. Sized down from the earlier ball: with the girdle now carrying
+        # the width, an oversized cap only made the shoulders read as spheres
+        # bolted onto the torso.
+        # The cap hangs from the socket rather than sitting on top of it: a
+        # deltoid crowns at the acromion and tapers down the arm.
+        deltoid_center = shoulder + upper_axis * 0.030 * scale - frame.up * 0.012 * scale
         skin.uv_sphere(
             deltoid_center,
-            Vector((0.081 * scale, 0.076 * scale, 0.083 * scale)),
+            Vector((0.068 * scale, 0.066 * scale, 0.064 * scale)),
             {bone("upperarm"): 1.0},
             "skin",
             rings=10,
         )
 
         skin.start_tube()
-        for center, axis, side_radius, depth_radius, weights in (
-            (shoulder - upper_axis * 0.018 * scale, upper_axis, 0.069, 0.064, {bone("upperarm"): 1.0}),
-            (shoulder.lerp(elbow, 0.14), upper_axis, 0.082, 0.077, {bone("upperarm"): 1.0}),
-            (shoulder.lerp(elbow, 0.36), upper_axis, 0.075, 0.069, {bone("upperarm"): 1.0}),
+        for index, (center, axis, side_radius, depth_radius, weights) in enumerate((
+            (shoulder - upper_axis * 0.018 * scale, upper_axis, 0.062, 0.058, {bone("upperarm"): 1.0}),
+            (shoulder.lerp(elbow, 0.14), upper_axis, 0.074, 0.070, {bone("upperarm"): 1.0}),
+            (shoulder.lerp(elbow, 0.36), upper_axis, 0.070, 0.065, {bone("upperarm"): 1.0}),
             (shoulder.lerp(elbow, 0.68), upper_axis, 0.059, 0.054, {bone("upperarm"): 1.0}),
             (elbow, joint_axis, 0.056, 0.046, blend_weights(bone("upperarm"), bone("lowerarm"), 0.5)),
             (elbow.lerp(wrist, 0.22), lower_axis, 0.059, 0.052, {bone("lowerarm"): 1.0}),
@@ -169,7 +191,7 @@ def _build_anatomical_arms(
             (elbow.lerp(wrist, 0.76), lower_axis, 0.044, 0.040, {bone("lowerarm"): 1.0}),
             (wrist, lower_axis, 0.037, 0.034, blend_weights(bone("lowerarm"), bone("wrist"), 0.55)),
             (hand, (hand - wrist).normalized(), 0.034, 0.032, blend_weights(bone("wrist"), bone("hand"), 0.65)),
-        ):
+        )):
             skin.ring(
                 center,
                 axis,
@@ -178,6 +200,11 @@ def _build_anatomical_arms(
                 weights,
                 "skin",
             )
+            if index == 0:
+                # Close the shoulder end. It used to be covered only by the
+                # deltoid cap overlapping it, so shrinking that cap opened a
+                # hole straight into the arm.
+                skin.cap(center - upper_axis * 0.030 * scale, weights, "skin")
         skin.cap(
             hand + (hand - wrist).normalized() * 0.010 * scale,
             {bone("hand"): 1.0},
@@ -196,8 +223,8 @@ def _build_anatomical_arms(
         # Sleeve head over the deltoid: cloth has to cover the joint the skin
         # layer just closed, or the shoulder shows bare skin through the tunic.
         sleeve.uv_sphere(
-            shoulder + upper_axis * 0.024 * scale + frame.up * 0.012 * scale,
-            Vector((0.092 * scale, 0.087 * scale, 0.093 * scale)),
+            shoulder + upper_axis * 0.028 * scale - frame.up * 0.016 * scale,
+            Vector((0.078 * scale, 0.076 * scale, 0.064 * scale)),
             {bone("upperarm"): 1.0},
             upper_sleeve_material,
             rings=10,
@@ -205,9 +232,9 @@ def _build_anatomical_arms(
 
         sleeve.start_tube()
         sleeve_profile = [
-            (shoulder - upper_axis * 0.022 * scale, upper_axis, 0.087, 0.083, {bone("upperarm"): 1.0}, upper_sleeve_material),
-            (shoulder.lerp(elbow, 0.18), upper_axis, 0.091, 0.086, {bone("upperarm"): 1.0}, upper_sleeve_material),
-            (shoulder.lerp(elbow, 0.38), upper_axis, 0.082, 0.076, {bone("upperarm"): 1.0}, upper_sleeve_material),
+            (shoulder - upper_axis * 0.022 * scale, upper_axis, 0.076, 0.073, {bone("upperarm"): 1.0}, upper_sleeve_material),
+            (shoulder.lerp(elbow, 0.18), upper_axis, 0.081, 0.077, {bone("upperarm"): 1.0}, upper_sleeve_material),
+            (shoulder.lerp(elbow, 0.38), upper_axis, 0.076, 0.071, {bone("upperarm"): 1.0}, upper_sleeve_material),
         ]
         if long_sleeves:
             sleeve_profile.extend(
@@ -224,7 +251,14 @@ def _build_anatomical_arms(
             sleeve_profile.append(
                 (shoulder.lerp(elbow, 0.48), upper_axis, 0.076, 0.070, {bone("upperarm"): 1.0}, "tunic")
             )
-        for center, axis, side_radius, depth_radius, weights, material in sleeve_profile:
+        for index, (
+            center,
+            axis,
+            side_radius,
+            depth_radius,
+            weights,
+            material,
+        ) in enumerate(sleeve_profile):
             sleeve.ring(
                 center,
                 axis,
@@ -233,6 +267,11 @@ def _build_anatomical_arms(
                 weights,
                 material,
             )
+            if index == 0:
+                # Same closure as the skin arm: the sleeve's shoulder end is a
+                # visible opening from the gameplay camera once the sleeve cap
+                # stops overlapping it.
+                sleeve.cap(center - upper_axis * 0.030 * scale, weights, material)
         end_center, _axis, _side, _depth, end_weights, end_material = sleeve_profile[-1]
         sleeve.cap(end_center + upper_axis * 0.006 * scale, end_weights, end_material)
         parts.append(sleeve)
@@ -281,13 +320,18 @@ def _build_anatomical_legs(context: BodyContext, shape: dict) -> list[PartBuilde
         # the buttock mass on a hip/thigh weight blend and closes the tube,
         # where a bare top ring used to leave an open hole at the hip.
         glute_weights = blend_weights("hips", bone("upperleg"), 0.55)
+        # Thigh girth is measured against the pelvis above it: the upper thigh
+        # used to be as wide as the hip flare, which read as a body with no
+        # pelvis at all. The taper starts narrower and keeps the buttock depth,
+        # so mass moves from the sides to the back where a thigh actually
+        # carries it.
         skin_profile = [
-            (socket - thigh_axis * 0.045 * scale, thigh_axis, 0.093, 0.084, 0.104, glute_weights),
-            (socket + thigh_axis * 0.010 * scale, thigh_axis, 0.098, 0.088, 0.118, glute_weights),
-            (socket.lerp(knee, 0.18), thigh_axis, 0.101, 0.092, 0.099, {bone("upperleg"): 1.0}),
-            (socket.lerp(knee, 0.43), thigh_axis, 0.087, 0.079, 0.084, {bone("upperleg"): 1.0}),
-            (socket.lerp(knee, 0.72), thigh_axis, 0.070, 0.063, 0.066, {bone("upperleg"): 1.0}),
-            (knee, joint_axis, 0.066, 0.052, 0.056, blend_weights(bone("upperleg"), bone("lowerleg"), 0.5)),
+            (socket - thigh_axis * 0.045 * scale, thigh_axis, 0.078, 0.081, 0.104, glute_weights),
+            (socket + thigh_axis * 0.010 * scale, thigh_axis, 0.082, 0.085, 0.116, glute_weights),
+            (socket.lerp(knee, 0.18), thigh_axis, 0.085, 0.088, 0.097, {bone("upperleg"): 1.0}),
+            (socket.lerp(knee, 0.43), thigh_axis, 0.077, 0.076, 0.082, {bone("upperleg"): 1.0}),
+            (socket.lerp(knee, 0.72), thigh_axis, 0.066, 0.061, 0.065, {bone("upperleg"): 1.0}),
+            (knee, joint_axis, 0.063, 0.051, 0.055, blend_weights(bone("upperleg"), bone("lowerleg"), 0.5)),
             (knee.lerp(ankle, 0.16), shin_axis, 0.060, 0.052, 0.062, {bone("lowerleg"): 1.0}),
             (knee.lerp(ankle, 0.34), shin_axis, 0.070, 0.055, 0.082, {bone("lowerleg"): 1.0}),
             (knee.lerp(ankle, 0.55), shin_axis, 0.062, 0.050, 0.070, {bone("lowerleg"): 1.0}),
@@ -322,10 +366,10 @@ def _build_anatomical_legs(context: BodyContext, shape: dict) -> list[PartBuilde
         boot = PartBuilder(f"Clothing_Boot{suffix}", frame)
         boot.start_tube()
         for center, side_radius, depth_radius, weights in (
-            (knee.lerp(ankle, 0.48), 0.082, 0.075, {bone("lowerleg"): 1.0}),
-            (knee.lerp(ankle, 0.70), 0.070, 0.064, {bone("lowerleg"): 1.0}),
-            (ankle + up * 0.018 * scale, 0.058, 0.056, blend_weights(bone("lowerleg"), bone("foot"), 0.6)),
-            (ankle - up * 0.045 * scale, 0.056, 0.058, {bone("foot"): 1.0}),
+            (knee.lerp(ankle, 0.48), 0.078, 0.072, {bone("lowerleg"): 1.0}),
+            (knee.lerp(ankle, 0.70), 0.066, 0.061, {bone("lowerleg"): 1.0}),
+            (ankle + up * 0.018 * scale, 0.055, 0.053, blend_weights(bone("lowerleg"), bone("foot"), 0.6)),
+            (ankle - up * 0.045 * scale, 0.053, 0.055, {bone("foot"): 1.0}),
         ):
             boot.ring(
                 center,
@@ -337,24 +381,54 @@ def _build_anatomical_legs(context: BodyContext, shape: dict) -> list[PartBuilde
             )
         boot.cap(sole + up * 0.030 * scale, {bone("foot"): 1.0}, "boots")
 
+        # The foot is built as a turnshoe rather than one tapering tube: a
+        # heel-to-toe run that is wider than it is tall, a heel counter behind
+        # the ankle, and a sole plate underneath. The single tube it replaces
+        # ended in a long apex and read as a cone stuck on the shin, with no
+        # heel to stand on.
         boot.start_tube()
-        for center, width, height, weights in (
-            (sole - foot_forward * 0.058 * scale + up * 0.054 * scale, 0.055, 0.054, {bone("foot"): 1.0}),
-            (sole + foot_forward * 0.035 * scale + up * 0.052 * scale, 0.058, 0.052, {bone("foot"): 1.0}),
-            (sole + foot_forward * 0.145 * scale + up * 0.038 * scale, 0.052, 0.038, blend_weights(bone("foot"), bone("toes"), 0.55)),
+        for offset, lift, width, height, weights in (
+            (-0.072, 0.048, 0.044, 0.042, {bone("foot"): 1.0}),
+            (-0.040, 0.052, 0.053, 0.050, {bone("foot"): 1.0}),
+            (0.020, 0.050, 0.057, 0.047, {bone("foot"): 1.0}),
+            (0.100, 0.042, 0.056, 0.037, blend_weights(bone("foot"), bone("toes"), 0.55)),
+            (0.160, 0.034, 0.049, 0.027, {bone("toes"): 1.0}),
         ):
             boot.ring(
-                center,
+                sole + foot_forward * offset * scale + up * lift * scale,
                 foot_forward,
                 width * scale,
                 height * scale,
                 weights,
                 "boots",
             )
+        # A blunt toe: the cap sits close to the last ring so the shoe ends in a
+        # rounded box, not a point.
         boot.cap(
-            sole + foot_forward * 0.205 * scale + up * 0.032 * scale,
+            sole + foot_forward * 0.192 * scale + up * 0.030 * scale,
             {bone("toes"): 1.0},
             "boots",
+        )
+
+        # Heel counter: the stiffened cup a shoe is built around, and the
+        # landmark that tells a viewer which way the foot points.
+        boot.box(
+            sole - foot_forward * 0.050 * scale + up * 0.030 * scale,
+            frame.left * 0.046 * scale,
+            foot_forward * 0.028 * scale,
+            up * 0.030 * scale,
+            {bone("foot"): 1.0},
+            "sole",
+        )
+        # Sole plate, in its own leather tone so the shoe reads as built up
+        # from parts at gameplay distance.
+        boot.box(
+            sole + foot_forward * 0.048 * scale + up * 0.010 * scale,
+            frame.left * 0.050 * scale,
+            foot_forward * 0.128 * scale,
+            up * 0.011 * scale,
+            blend_weights(bone("foot"), bone("toes"), 0.35),
+            "sole",
         )
         parts.append(boot)
     return parts

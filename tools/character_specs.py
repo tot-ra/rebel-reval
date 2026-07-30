@@ -36,7 +36,18 @@ BASE_PROPORTIONS = {
     "arm_length": 1.25,
     "torso_length": 0.88,
     "shoulder_width": 0.78,
-    "hip_socket_width": 0.95,
+    # Height of the arm sockets above the chest bone. The chibi carries them
+    # halfway up to the head, which left them 1.4 cm below the neck base: any
+    # deltoid mass around such a socket rises past the neck and reads as huge
+    # shoulder pads on a character with no neck. Dropping them puts the
+    # acromion below the neck base, as on a real shoulder girdle.
+    "shoulder_drop": 0.62,
+    # Lateral placement of the hip joints. The chibi source stands splay-legged:
+    # at the old 0.95 the sockets sat 0.325 m apart on a 1.63 m body - wider
+    # than the pelvis itself - so the thighs emerged outside the hips instead of
+    # under them. Every spec was narrowed by the same ratio, keeping body-type
+    # differences relative.
+    "hip_socket_width": 0.62,
     "head_size": 0.32,
     "hand_size": 0.85,
     # Degrees the upper arms rotate around +Z (shoulder fold). Sets elbow
@@ -147,7 +158,7 @@ CHARACTERS = {
             "arm_length": 1.16,
             "torso_length": 0.82,
             "shoulder_width": 0.66,
-            "hip_socket_width": 0.90,
+            "hip_socket_width": 0.59,
             "head_size": 0.31,
             "hand_size": 0.76,
             "arm_relax_degrees": 48.0,
@@ -199,7 +210,7 @@ CHARACTERS = {
             "arm_length": 1.28,
             "torso_length": 0.92,
             "shoulder_width": 0.96,
-            "hip_socket_width": 1.0,
+            "hip_socket_width": 0.65,
         },
         "shape": {
             "bulk": 1.10,
@@ -295,7 +306,7 @@ CHARACTERS = {
             "arm_length": 1.22,
             "torso_length": 0.86,
             "shoulder_width": 0.72,
-            "hip_socket_width": 0.92,
+            "hip_socket_width": 0.6,
         },
         "shape": {
             "bulk": 0.94,
@@ -342,7 +353,7 @@ CHARACTERS = {
             "arm_length": 1.26,
             "torso_length": 0.90,
             "shoulder_width": 0.88,
-            "hip_socket_width": 0.98,
+            "hip_socket_width": 0.64,
         },
         "shape": {
             "bulk": 1.06,
@@ -390,7 +401,7 @@ CHARACTERS = {
             "arm_length": 1.27,
             "torso_length": 0.91,
             "shoulder_width": 0.90,
-            "hip_socket_width": 0.98,
+            "hip_socket_width": 0.64,
             "hand_size": 0.84,
         },
         "shape": {
@@ -445,7 +456,7 @@ CHARACTERS = {
             "arm_length": 1.18,
             "torso_length": 0.86,
             "shoulder_width": 0.64,
-            "hip_socket_width": 1.05,
+            "hip_socket_width": 0.69,
             "head_size": 0.30,
             "hand_size": 0.72,
         },

@@ -45,7 +45,7 @@ tools/rebuild_hero_character.sh <spec_name>
 
 Spec knobs, in order of visual power:
 
-- `proportions` — **bone-level**; also reshapes every animation clip consistently: `leg_length`, `arm_length`, `torso_length`, `shoulder_width`, `hip_socket_width`, `arm_relax_degrees` (upper-arm +Z fold; sets elbow breadth), `forearm_relax_degrees` (extra forearm +Z fold that brings handslots forward without pulling elbows in).
+- `proportions` — **bone-level**; also reshapes every animation clip consistently: `leg_length`, `arm_length`, `torso_length`, `shoulder_width`, `shoulder_drop` (how far the arm sockets sit above the chest bone - the chibi source puts them level with the neck, which makes any deltoid read as a shoulder pad), `hip_socket_width` (lateral hip-joint placement; the source stands splay-legged, so the thighs emerge outside the pelvis), `arm_relax_degrees` (upper-arm +Z fold; sets elbow breadth), `forearm_relax_degrees` (extra forearm +Z fold that brings handslots forward without pulling elbows in).
 - `shape` - **mesh-level**, bones untouched: `bulk` (overall girth), `chest_breadth`, `belly`, `head_scale` (keep within +/-10%).
 - `face` - **portrait identity**, head bone untouched: `width`, `depth`, `length`, `jaw_width`, `nose_length`, `eye_spacing`, `brow_height`. These preserve attachment and animation compatibility.
 - `palette` - sRGB material colors: `skin`, `tunic`, `pants`, `boots`, `belt`, `hair`, `beard`, `eyes`, `eye_white`, `lips`, `outerwear`, `trim`. Roughness, specular response and armor metallic response are assigned by material role.
@@ -70,6 +70,29 @@ Faces are built the same way - chin, jaw, cheek, eye line, brow, cranium and cro
 The Danish crown man-at-arms is the armor reference and eighth comparison character in `scenes/debug/asset_showcase.tscn`. He represents the Toompea garrison, not the Lower Town burgher watch. Mail is plausible for that role; red and off-white cloth communicates allegiance without claiming a standardized modern national uniform. Historical constraints: `history/dossiers/military/arms-and-armour-livonia-1340s.md` and `history/dossiers/military/watch-duty-and-town-defence.md`.
 
 The committed worked examples are **`innkeeper`** (shorter legs, broad chest, `belly 1.35`, homespun palette) and **`townswoman`** (narrow shoulders, slighter bulk, long hair, no beard - the base female frame) - completely different silhouettes from ~20 spec lines each. The measured P0-037 production proof, including the end-to-end rebuild timing and new-motion retarget checklist, is in [`docs/reports/character_rig_production_p0_037.md`](reports/character_rig_production_p0_037.md).
+
+## Locomotion arm carriage
+
+Walk and run arms are **rebuilt** in `tools/build_heroic_humanoid_glb.py` (`_ARM_SWING`) rather than attenuated. The chibi source runs with the elbows folded past a right angle, carried at chest height and driven far behind the back; scaling those deltas only shrinks a cycle around the wrong neutral pose, and the source bones' euler axes mix swing with abduction, so per-axis attenuation traded one review defect for another.
+
+Each arm bone is instead posed as `rotate(lateral_axis, neutral + amplitude * phase(t)) x rest_with_relax`, where `phase(t)` is the clip's own sagittal signal, mean-centred and normalised. Timing and the contralateral relation therefore still come from the clip, while `neutral`, `amplitude` and `adduct` are real degrees of shoulder swing, elbow bend and how far the limb is drawn in toward the ribs. Walk and run are tuned separately: a walking arm hangs nearly straight and swings from the shoulder, a running arm holds a bent elbow and pumps it.
+
+Three details are easy to get wrong and each produced a visible defect:
+
+- The swing axis is the **body** lateral axis mapped into each bone's parent space; the arm bones' local frames are mirrored and twisted, so a shared local axis sends one elbow outward and desynchronises the arms.
+- The forearm is posed inside an already re-aimed upper arm, so its axis has to undo the shoulder's adduction or the elbow bend leaks into forearm twist.
+- The mirrored source bones report the same physical swing with opposite sign; without flipping the left arm's phase both arms swing together, and each moves *with* the leg on its own side.
+
+Measure, do not eyeball:
+
+```bash
+/Applications/Blender.app/Contents/MacOS/Blender --background --python tools/audit_arm_swing.py \
+    -- --body=tools/character_build/hero_skeleton.glb --clips=Walking_A,Running_B
+```
+
+It reports elbow gap, how far each elbow trails its shoulder, elbow angle, hand height relative to the hips and hand travel along the stride axis, all normalised by stature, plus per-frame traces including the knees so arm/leg opposition is checkable. Working targets: walking elbow angle 150-170 degrees with the hands passing hip level, running 85-125 degrees with the hands straddling the body midline, and elbows outside the shoulder line in both.
+
+Iterate on the **skeleton intermediate** (`python3 tools/build_heroic_humanoid_glb.py hero`, seconds) and only rebuild the body once the numbers land.
 
 ## Tier 4 — new geometry
 
@@ -96,6 +119,10 @@ New body parts (skirts, hoods, animal shapes) are new `PartBuilder` sections in 
 ```bash
 tools/rebuild_hero_character.sh            # hero
 tools/rebuild_hero_character.sh innkeeper  # every committed spec
+blender --background --python tools/generate_character_lods.py   # after any body change
+blender --background --python tools/audit_arm_swing.py           # locomotion arm numbers
 godot --headless --path . --script tools/run_godot_tests.gd
 python3 tools/validate_asset_sources.py
 ```
+
+Bone-level changes shift the generator's reported `BODY_STATURE`; `SharedCharacterRig.HEROIC_MODEL_SCALE` must be updated to `2.0 / BODY_STATURE` in the same change.

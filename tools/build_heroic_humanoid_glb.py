@@ -74,8 +74,8 @@ def _translation_factors(p: dict, hips_lift: float) -> dict[str, np.ndarray]:
         "spine": np.array([1.0, p["torso_length"], 1.0]),
         "chest": np.array([1.0, p["torso_length"], 1.0]),
         "head": np.array([1.0, p["torso_length"], 1.0]),
-        "upperarm.l": np.array([p["shoulder_width"], 1.0, 1.0]),
-        "upperarm.r": np.array([p["shoulder_width"], 1.0, 1.0]),
+        "upperarm.l": np.array([p["shoulder_width"], p["shoulder_drop"], 1.0]),
+        "upperarm.r": np.array([p["shoulder_width"], p["shoulder_drop"], 1.0]),
         "lowerarm.l": np.array([1.0, p["arm_length"], 1.0]),
         "lowerarm.r": np.array([1.0, p["arm_length"], 1.0]),
         "wrist.l": np.array([1.0, p["arm_length"], 1.0]),
@@ -189,9 +189,9 @@ def _write_accessor(
 
 
 def _quat_multiply(a: np.ndarray, b: np.ndarray) -> np.ndarray:
-    """Hamilton product for glTF-order quaternions [x, y, z, w]; supports
-    broadcasting b as an (N, 4) array."""
-    ax, ay, az, aw = a
+    """Hamilton product for glTF-order quaternions [x, y, z, w]; either side
+    may be a single quaternion or an (N, 4) array."""
+    ax, ay, az, aw = a[..., 0], a[..., 1], a[..., 2], a[..., 3]
     bx, by, bz, bw = b[..., 0], b[..., 1], b[..., 2], b[..., 3]
     return np.stack(
         [
@@ -208,6 +208,16 @@ def _axis_angle_quat(axis: np.ndarray, degrees: float) -> np.ndarray:
     radians = np.deg2rad(degrees)
     axis = axis / np.linalg.norm(axis)
     return np.append(axis * np.sin(radians / 2.0), np.cos(radians / 2.0))
+
+
+def _axis_angle_quat_array(axis: np.ndarray, degrees: np.ndarray) -> np.ndarray:
+    """One quaternion per angle about a shared axis, shaped (..., 4)."""
+    radians = np.deg2rad(np.asarray(degrees, dtype=np.float64))
+    axis = axis / np.linalg.norm(axis)
+    sin_half = np.sin(radians / 2.0)[..., None]
+    return np.concatenate(
+        [axis * sin_half, np.cos(radians / 2.0)[..., None]], axis=-1
+    )
 
 
 def _quat_inverse(q: np.ndarray) -> np.ndarray:
@@ -240,49 +250,187 @@ def _euler_xyz_degrees_to_quat(euler: np.ndarray) -> np.ndarray:
     )
 
 
-# Locomotion clips keep large local pitch/roll deltas from the KayKit chibi rig.
-# On the slim adult silhouette that reads as hands flaring left/right instead of
-# swinging along +Z. The lateral term is flattened hard: the chibi run cycle
-# spreads the elbows around its barrel torso, which on an adult frame reads as
-# arms held too far apart (review feedback). Upper-arm roll is only softened:
-# flattening it too hard left elbows parked behind the back. Sagittal swing is
-# kept near full so contralateral stride still reads (test_character_rig.gd).
+# Locomotion arm carriage is rebuilt rather than attenuated.
+#
+# The KayKit source clips were authored on a barrel-wide chibi: it walks and
+# runs with the elbows folded past a right angle, carried at chest height and
+# driven far behind the back. Scaling those deltas only shrinks a cycle around
+# the wrong neutral pose, and the euler axes of the source bones mix swing with
+# abduction, so per-axis attenuation traded one review defect for another.
+#
+# Instead the arm swing is authored here in body terms and only its *phase* is
+# taken from the clip, which keeps stride timing and the contralateral relation
+# that test_character_rig.gd asserts. Each arm bone is posed as
+#
+#     rotate(lateral_axis, neutral + amplitude * phase(t)) x rest_with_relax
+#
+# where `phase(t)` is the source sagittal signal normalised to [-1, 1]. Angles
+# are therefore real degrees of shoulder swing and elbow bend measured from the
+# rest carriage, which is what tools/audit_arm_swing.py reports.
+#
 # Every Walking_*/Running_* clip is treated, not just the canonical pair,
 # because CharacterVariant.animation_overrides may pick any of them.
 _LOCOMOTION_PREFIXES = ("Walking_", "Running_")
-_ARM_SWING_LATERAL_ATTENUATION = 0.05
-_ARM_SWING_ROLL_ATTENUATION = 0.60
-# Mild upper-arm sagittal soften so the rear elbow does not overshoot, while
-# leaving enough contralateral z-travel for test_character_rig.gd.
-_ARM_SWING_LONGITUDINAL_ATTENUATION = 0.88
-# Forearms keep more of their roll than upper arms: the elbow pump lives
-# partly in this component, so flattening it as hard as the shoulder makes
-# the arms read stiff.
-_FOREARM_SWING_ROLL_ATTENUATION = 0.70
-_FOREARM_SWING_LONGITUDINAL_ATTENUATION = 0.92
+
+# Body axes in glTF world space (Y up, Z forward). Rotating about the lateral
+# axis swings a hanging arm sagittally (negated so a positive angle carries the
+# arm forward); rotating about the forward axis draws the elbow in toward the
+# ribs. Both are mapped into each bone's parent space (`_swing_axes`), because
+# the arm bones' local frames are mirrored and twisted relative to the body -
+# assuming a shared local axis instead sent one elbow outward and
+# desynchronised the two arms.
+#
+# Adduction has to be authored here because the rest carriage is not a usable
+# neutral: the retargeted A-pose leaves the elbows ~39 degrees abducted, and
+# rebuilding the swing from that rest alone parked them far outside the hips.
+_WORLD_SWING_AXIS = np.array([-1.0, 0.0, 0.0])
+_WORLD_ADDUCT_AXIS = np.array([0.0, 0.0, 1.0])
+
+# Walk and run are different gaits, not one gait at two speeds. A walking arm
+# hangs nearly straight and swings from the shoulder; a running arm holds a
+# bent elbow and drives it back. `neutral` offsets the whole cycle (positive =
+# forward), `amplitude` is the half-range of the swing, and `adduct` pulls the
+# limb in toward the body - all in degrees.
+# The forearm entries are elbow angles: the retargeted rest carries a 129
+# degree elbow, and a negative angle straightens it toward 180 while a positive
+# one folds it. A walking arm is nearly straight; a running arm is near a right
+# angle.
+_ARM_SWING: dict[str, dict[str, dict[str, float]]] = {
+    "Walking_": {
+        "upperarm": {"neutral": 2.0, "amplitude": 20.0, "adduct": 33.0},
+        # A relaxed walking elbow stays slightly bent all cycle and pumps a
+        # little as the arm comes forward.
+        "lowerarm": {"neutral": -31.0, "amplitude": 8.0, "adduct": 0.0},
+    },
+    "Running_": {
+        # The shoulder cycle is centred slightly behind vertical and the elbow
+        # pumps hard: it opens toward 140 degrees as the arm goes back and
+        # closes past a right angle in front. That pump is what carries the
+        # hand behind the hip at the back of the stride without driving the
+        # elbow itself straight back, which was the original review defect.
+        "upperarm": {"neutral": -18.0, "amplitude": 40.0, "adduct": 30.0},
+        "lowerarm": {"neutral": 26.0, "amplitude": 36.0, "adduct": 0.0},
+    },
+}
 
 
-def _remap_arm_swing_delta(
+def _locomotion_family(animation_name: str) -> str | None:
+    for prefix in _LOCOMOTION_PREFIXES:
+        if animation_name.startswith(prefix):
+            return prefix
+    return None
+
+
+def _swing_phase(source_rest: np.ndarray, values: np.ndarray) -> np.ndarray:
+    """Normalised [-1, 1] stride phase from the source clip's sagittal signal.
+
+    The signal is centred on its own mean first. The chibi source carries a
+    large constant offset in this component - and a mirrored one per side - so
+    normalising the raw signal yielded a near-constant phase that froze one arm
+    forward and the other back instead of swinging them.
+
+    Centring and normalising per bone and clip also equalises the two arms'
+    amplitude, which the source does not do, while preserving each arm's timing
+    and sign, so the contralateral relation survives.
+    """
+    deltas = _quat_multiply(_quat_inverse(source_rest), values)
+    signal = _quat_to_euler_xyz_degrees(deltas)[..., 2]
+    signal = signal - float(np.mean(signal))
+    peak = float(np.max(np.abs(signal)))
+    if peak < 1e-4:
+        return np.zeros_like(signal)
+    return signal / peak
+
+
+def _shape_locomotion_arm(
     source_rest: np.ndarray,
+    offset: np.ndarray,
     values: np.ndarray,
     animation_name: str,
-    bone_name: str = "",
-) -> np.ndarray:
-    """Preserve clip timing but flatten lateral elbow flare on locomotion."""
-    if not animation_name.startswith(_LOCOMOTION_PREFIXES):
-        return values
-    inv_rest = _quat_inverse(source_rest)
-    deltas = _quat_multiply(inv_rest, values)
-    euler = _quat_to_euler_xyz_degrees(deltas)
-    euler[..., 1] *= _ARM_SWING_LATERAL_ATTENUATION
+    bone_name: str,
+    parent_rest_rotation: np.ndarray,
+) -> np.ndarray | None:
+    """Rebuilt locomotion arm track, or None when the clip is not locomotion."""
+    family = _locomotion_family(animation_name)
+    if family is None:
+        return None
     if bone_name.startswith("upperarm"):
-        euler[..., 0] *= _ARM_SWING_ROLL_ATTENUATION
-        euler[..., 2] *= _ARM_SWING_LONGITUDINAL_ATTENUATION
+        limb = "upperarm"
     elif bone_name.startswith("lowerarm"):
-        euler[..., 0] *= _FOREARM_SWING_ROLL_ATTENUATION
-        euler[..., 2] *= _FOREARM_SWING_LONGITUDINAL_ATTENUATION
-    remapped = _quat_multiply(source_rest, _euler_xyz_degrees_to_quat(euler))
-    return remapped
+        limb = "lowerarm"
+    else:
+        return None
+
+    swing = _ARM_SWING[family][limb]
+    # Mirrors the rest fold's convention: -relax on the left, +relax on the
+    # right.
+    side = -1.0 if bone_name.endswith(".l") else 1.0
+
+    swing_axis_world = _WORLD_SWING_AXIS
+    adduct_axis_world = _WORLD_ADDUCT_AXIS
+    if limb == "lowerarm":
+        # The forearm is posed inside an upper arm this pass has already
+        # re-aimed, so its parent frame is no longer the rest frame the axes
+        # were measured in. Undoing the shoulder's adduction keeps the elbow
+        # hinging on the body's lateral axis; the shoulder's swing needs no
+        # correction because it turns about that axis itself. Skipping this
+        # left the elbow bend leaking into forearm twist - the running arms
+        # came out straighter than the walking ones.
+        correction = _quat_to_matrix(
+            _axis_angle_quat(
+                _WORLD_ADDUCT_AXIS, -side * _ARM_SWING[family]["upperarm"]["adduct"]
+            )
+        )
+        swing_axis_world = correction @ swing_axis_world
+        adduct_axis_world = correction @ adduct_axis_world
+
+    inverse_parent = np.linalg.inv(parent_rest_rotation)
+    swing_axis = inverse_parent @ swing_axis_world
+    swing_axis /= np.linalg.norm(swing_axis)
+    adduct_axis = inverse_parent @ adduct_axis_world
+    adduct_axis /= np.linalg.norm(adduct_axis)
+
+    # The mirrored source bones report the same physical swing with opposite
+    # sign, so the left arm's phase is flipped back here. Without it both arms
+    # swung together, and the left arm moved with the left leg instead of
+    # against it (verified against the knee traces in tools/audit_arm_swing.py).
+    phase = side * _swing_phase(source_rest, values)
+    angles = swing["neutral"] + swing["amplitude"] * phase
+    pose = _quat_multiply(offset, source_rest)
+    if swing["adduct"]:
+        pose = _quat_multiply(
+            _axis_angle_quat(adduct_axis, side * swing["adduct"]), pose
+        )
+    return _quat_multiply(_axis_angle_quat_array(swing_axis, angles), pose)
+
+
+def _parent_rest_rotations(
+    gltf: dict,
+    globals_by_node: dict[int, np.ndarray],
+    name_to_index: dict[str, int],
+    bone_names: tuple[str, ...],
+) -> dict[int, np.ndarray]:
+    """Rotation part of each arm bone's parent global rest transform.
+
+    Locomotion angles are authored in body space, so they have to be mapped
+    through this to reach the bone's own parent space.
+    """
+    parent_of: dict[int, int] = {}
+    for index, node in enumerate(gltf["nodes"]):
+        for child in node.get("children", []):
+            parent_of[child] = index
+
+    rotations: dict[int, np.ndarray] = {}
+    for name in bone_names:
+        index = name_to_index[name]
+        parent = parent_of.get(index)
+        linear = globals_by_node[parent][:3, :3] if parent is not None else np.eye(3)
+        # Drop retarget scale so only orientation remains.
+        columns = [
+            column / (np.linalg.norm(column) or 1.0) for column in linear.T
+        ]
+        rotations[index] = np.stack(columns, axis=1)
+    return rotations
 
 
 def _quat_to_matrix(q: np.ndarray) -> np.ndarray:
@@ -486,6 +634,9 @@ def build(character: str) -> None:
     offset_by_node = {
         name_to_index[name]: offset for name, offset in rotation_offsets.items()
     }
+    parent_rotation_by_node = _parent_rest_rotations(
+        gltf, new_globals, name_to_index, tuple(rotation_offsets)
+    )
     scaled_outputs: dict[int, int] = {}
     rotated_outputs: dict[int, int] = {}
     for animation in gltf.get("animations", []):
@@ -514,15 +665,20 @@ def build(character: str) -> None:
                 rotated_outputs[output] = node_index
                 values = _read_accessor(gltf, bin_chunk, output).astype(np.float64)
                 source_rest = source_arm_rests[node_index]
-                remapped = _remap_arm_swing_delta(
-                    source_rest, values, animation_name, names[node_index]
-                )
                 offset = offset_by_node[node_index]
+                shaped = _shape_locomotion_arm(
+                    source_rest,
+                    offset,
+                    values,
+                    animation_name,
+                    names[node_index],
+                    parent_rotation_by_node[node_index],
+                )
                 _write_accessor(
                     gltf,
                     bin_chunk,
                     output,
-                    _quat_multiply(offset, remapped),
+                    shaped if shaped is not None else _quat_multiply(offset, values),
                 )
 
     # Report resulting stature for the uniform Model scale constant.

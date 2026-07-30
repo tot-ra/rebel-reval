@@ -6,53 +6,53 @@
   "bodies": [
     {
       "body": "danish_warrior.glb",
-      "lod0_triangles": 52592,
+      "lod0_triangles": 54432,
       "levels": {
         "lod1": {
           "path": "assets/characters/shared/danish_warrior_lod1.glb",
-          "triangles": 26291,
+          "triangles": 27208,
           "fraction_of_lod0": 0.4999,
           "target_ratio": 0.5
         },
         "lod2": {
           "path": "assets/characters/shared/danish_warrior_lod2.glb",
-          "triangles": 10502,
-          "fraction_of_lod0": 0.1997,
+          "triangles": 10873,
+          "fraction_of_lod0": 0.1998,
           "target_ratio": 0.2
         }
       }
     },
     {
       "body": "henning.glb",
-      "lod0_triangles": 55408,
+      "lod0_triangles": 57168,
       "levels": {
         "lod1": {
           "path": "assets/characters/shared/henning_lod1.glb",
-          "triangles": 27700,
+          "triangles": 28579,
           "fraction_of_lod0": 0.4999,
           "target_ratio": 0.5
         },
         "lod2": {
           "path": "assets/characters/shared/henning_lod2.glb",
-          "triangles": 11065,
-          "fraction_of_lod0": 0.1997,
+          "triangles": 11420,
+          "fraction_of_lod0": 0.1998,
           "target_ratio": 0.2
         }
       }
     },
     {
       "body": "heroic_humanoid.glb",
-      "lod0_triangles": 51552,
+      "lod0_triangles": 53232,
       "levels": {
         "lod1": {
           "path": "assets/characters/shared/heroic_humanoid_lod1.glb",
-          "triangles": 25772,
+          "triangles": 26610,
           "fraction_of_lod0": 0.4999,
           "target_ratio": 0.5
         },
         "lod2": {
           "path": "assets/characters/shared/heroic_humanoid_lod2.glb",
-          "triangles": 10294,
+          "triangles": 10631,
           "fraction_of_lod0": 0.1997,
           "target_ratio": 0.2
         }
@@ -60,17 +60,17 @@
     },
     {
       "body": "innkeeper.glb",
-      "lod0_triangles": 51344,
+      "lod0_triangles": 52944,
       "levels": {
         "lod1": {
           "path": "assets/characters/shared/innkeeper_lod1.glb",
-          "triangles": 25669,
+          "triangles": 26467,
           "fraction_of_lod0": 0.4999,
           "target_ratio": 0.5
         },
         "lod2": {
           "path": "assets/characters/shared/innkeeper_lod2.glb",
-          "triangles": 10254,
+          "triangles": 10575,
           "fraction_of_lod0": 0.1997,
           "target_ratio": 0.2
         }
@@ -78,35 +78,35 @@
     },
     {
       "body": "mart.glb",
-      "lod0_triangles": 52144,
+      "lod0_triangles": 53664,
       "levels": {
         "lod1": {
           "path": "assets/characters/shared/mart_lod1.glb",
-          "triangles": 26066,
+          "triangles": 26826,
           "fraction_of_lod0": 0.4999,
           "target_ratio": 0.5
         },
         "lod2": {
           "path": "assets/characters/shared/mart_lod2.glb",
-          "triangles": 10414,
-          "fraction_of_lod0": 0.1997,
+          "triangles": 10720,
+          "fraction_of_lod0": 0.1998,
           "target_ratio": 0.2
         }
       }
     },
     {
       "body": "sergeant.glb",
-      "lod0_triangles": 55728,
+      "lod0_triangles": 57168,
       "levels": {
         "lod1": {
           "path": "assets/characters/shared/sergeant_lod1.glb",
-          "triangles": 27860,
+          "triangles": 28578,
           "fraction_of_lod0": 0.4999,
           "target_ratio": 0.5
         },
         "lod2": {
           "path": "assets/characters/shared/sergeant_lod2.glb",
-          "triangles": 11130,
+          "triangles": 11419,
           "fraction_of_lod0": 0.1997,
           "target_ratio": 0.2
         }
@@ -114,17 +114,17 @@
     },
     {
       "body": "townswoman.glb",
-      "lod0_triangles": 52016,
+      "lod0_triangles": 53376,
       "levels": {
         "lod1": {
           "path": "assets/characters/shared/townswoman_lod1.glb",
-          "triangles": 26004,
+          "triangles": 26681,
           "fraction_of_lod0": 0.4999,
           "target_ratio": 0.5
         },
         "lod2": {
           "path": "assets/characters/shared/townswoman_lod2.glb",
-          "triangles": 10390,
+          "triangles": 10660,
           "fraction_of_lod0": 0.1997,
           "target_ratio": 0.2
         }
@@ -132,17 +132,17 @@
     },
     {
       "body": "watchman.glb",
-      "lod0_triangles": 52384,
+      "lod0_triangles": 53664,
       "levels": {
         "lod1": {
           "path": "assets/characters/shared/watchman_lod1.glb",
-          "triangles": 26185,
+          "triangles": 26825,
           "fraction_of_lod0": 0.4999,
           "target_ratio": 0.5
         },
         "lod2": {
           "path": "assets/characters/shared/watchman_lod2.glb",
-          "triangles": 10461,
+          "triangles": 10719,
           "fraction_of_lod0": 0.1997,
           "target_ratio": 0.2
         }

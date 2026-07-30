@@ -51,6 +51,9 @@ PALETTE = {
     "sleeve_band": (0.22, 0.42, 0.72, 1.0),
     "pants": (0.16, 0.12, 0.10, 1.0),
     "boots": (0.42, 0.28, 0.16, 1.0),
+    # Soles and heel counters: darker, waxed leather that separates the built-up
+    # parts of the shoe from its upper at gameplay distance.
+    "sole": (0.17, 0.13, 0.11, 1.0),
     "belt": (0.62, 0.46, 0.28, 1.0),
     "hair": (0.48, 0.32, 0.20, 1.0),
     "beard": (0.42, 0.28, 0.16, 1.0),
@@ -89,6 +92,7 @@ def _material(name: str) -> bpy.types.Material:
         "eye_white": 0.50,
         "lips": 0.58,
         "boots": 0.66,
+        "sole": 0.80,
         "belt": 0.64,
         "outerwear": 0.76,
         "armor": 0.38,
@@ -100,6 +104,7 @@ def _material(name: str) -> bpy.types.Material:
         "eye_white": 0.34,
         "lips": 0.36,
         "boots": 0.24,
+        "sole": 0.14,
         "belt": 0.24,
         "armor": 0.62,
         "mail": 0.48,

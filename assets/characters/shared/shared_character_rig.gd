@@ -75,7 +75,7 @@ const GARMENT_SCENES: Dictionary = {
 ## Uniform: the generated body is authored at adult proportions, so no
 ## anisotropic correction is needed — only normalization to the 2.0-unit
 ## visible height contract (2.0 / BODY_STATURE from the generator log).
-const HEROIC_MODEL_SCALE := Vector3(1.1621, 1.1621, 1.1621)
+const HEROIC_MODEL_SCALE := Vector3(1.1639, 1.1639, 1.1639)
 
 ## Distance LOD thresholds (world units, camera-to-rig). Orthographic gameplay
 ## rarely frames NPCs closer than ~8 units; beyond ~45 units they read as
