@@ -135,6 +135,7 @@ Per [ADR 0017](./adr/0017-legacy-design-reintroduction.md), the following return
 
 * **Dual-school magic (pagan combinatorial elements + Christian divine rites)** - **`folklore`** / **`invented`**
   * Playable; never presented as attested 1343 historical practice.
+  * Active contract: [`docs/SYSTEMS/MAGIC.md`](./SYSTEMS/MAGIC.md) (P7-002). Runtime remains **P7-010**.
 * **NATURAL aspects and Hingepuu psyche play** - **`invented`** / **`folklore`**
   * Extends the existing Hingepuu reflection concept into progression and inner-world locations.
 * **Living City Hope / Fear pressure** - **`invented`**

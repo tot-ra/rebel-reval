@@ -29,7 +29,8 @@ References:
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
 | R  |    21  |    28  | Historical research backlog (researcher-managed, cross-cutting) |
 | A  |    10  |     0  | Art and animation backlog (art-managed, cross-cutting) |
-| P7+ |    10  |     2  | Reserved for future priority bands |
+| P7+ |     9  |     3  | Reserved for future priority bands |
+
 
 
 
@@ -648,7 +649,7 @@ inspiration only.
 
 ### Medium
 
-- [ ] P7-002 | deps: P7-001 | deliverable: `docs/SYSTEMS/MAGIC.md` reconciling pagan combinatorial elements and Christian divine rites with forge-as-conduit and ADR 0003 deterministic content | verify: document defines schools, element budget, smith hammer rules, content ID forms, and slice-safe partial ship; links CANON folklore/invented labels
+- [x] P7-002 | deps: P7-001 | deliverable: `docs/SYSTEMS/MAGIC.md` reconciling pagan combinatorial elements and Christian divine rites with forge-as-conduit and ADR 0003 deterministic content | verify: document defines schools, element budget, smith hammer rules, content ID forms, and slice-safe partial ship; links CANON folklore/invented labels | evidence: docs/SYSTEMS/MAGIC.md; docs/CANON.md Magic section links contract; docs/LEGACY_REINTRODUCTION.md points at SYSTEMS/MAGIC.md
 - [ ] P7-003 | deps: P7-001 | deliverable: `docs/SYSTEMS/NATURAL.md` and `docs/SYSTEMS/PSYCHE.md` for seven aspects, psyche states, and explorable Hingepuu, stating how they extend or replace the current reflection-only screen | verify: progression rules, save fields, and UI needs named; no dependency on legacy pixel HUD assets
 - [ ] P7-004 | deps: P7-001,P4-016 | deliverable: `docs/SYSTEMS/LIVING_CITY.md` reconciling Hope/Fear (and related) meters with the faction ledger so bookkeeping is explicit | verify: worked examples show one forged event updating ledger and meters without a universal morality score; tower-capture remains excluded
 - [ ] P7-005 | deps: P7-002,P7-003 | deliverable: combat and night design addendum merging `character/COMBAT.md` and `docs/GAMEPLAY-NIGHT.md` seeds with hammer combat and P5 night templates (no party control, no tower-capture) | verify: addendum lists player-visible verbs, content hooks, and which P2/P5 rows must change

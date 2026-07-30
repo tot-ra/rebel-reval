@@ -1,7 +1,7 @@
 > **Legacy status:** `reference`  
-> **Reason:** Dual magic schools and combinatorial elements return under [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md); this file is the seed until `docs/SYSTEMS/MAGIC.md` lands.  
+> **Reason:** Dual magic schools and combinatorial elements return under [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md); this file remains the seed catalog.  
 > **Scope reconciliation:** [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md), [`docs/LEGACY_REINTRODUCTION.md`](../docs/LEGACY_REINTRODUCTION.md)  
-> **Current source of truth:** [`README.md`](../README.md) until P7-002 closes.
+> **Current source of truth:** [`docs/SYSTEMS/MAGIC.md`](../docs/SYSTEMS/MAGIC.md) (P7-002).
 
 # 🔮 The Elements of Philosophy
 

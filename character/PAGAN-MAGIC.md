@@ -1,5 +1,6 @@
 > **Legacy status:** `reference`  
-> **Scope reconciliation:** [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md), parent [`MAGIC-ELEMENTS.md`](./MAGIC-ELEMENTS.md)
+> **Scope reconciliation:** [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md), parent [`MAGIC-ELEMENTS.md`](./MAGIC-ELEMENTS.md)  
+> **Current source of truth:** [`docs/SYSTEMS/MAGIC.md`](../docs/SYSTEMS/MAGIC.md) (P7-002)
 
 # 🌳 Pagan Magic: The Old Ways
 
