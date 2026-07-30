@@ -359,7 +359,7 @@ const FACING_AWARE_PROP_KINDS: Array[StringName] = [
 
 ## Logic-plane direction each kit's working face points at zero yaw. The kits
 ## were authored front-to--Z, which is map north; `banner` is the exception
-## because its wall arm and cloth project along +X.
+## because its cloth face reads toward +X (into the room on a west-wall hang).
 const MODEL_FRONT_NORTH := Vector2(0.0, -1.0)
 const MODEL_FRONT_EAST := Vector2(1.0, 0.0)
 const PROP_MODEL_FRONTS: Dictionary = {
@@ -584,7 +584,7 @@ static func invalid_wash_fixture_variant(prop: Dictionary) -> StringName:
 ## therefore has to be turned, otherwise its mouth or open front stares into
 ## the plaster. `facing` names the direction the prop should look along the
 ## logic plane, so `facing=south` on a north-wall hearth is a half turn.
-## `banner` is the one kit whose cloth arm projects along +X, so it declares
+## `banner` is the one kit whose cloth face reads toward +X, so it declares
 ## its own model front instead of inheriting the -Z default.
 static func prop_facing_yaw(prop: Dictionary) -> float:
 	if not prop.has("facing"):

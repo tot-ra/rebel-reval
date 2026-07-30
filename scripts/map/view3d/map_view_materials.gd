@@ -23,6 +23,7 @@ const HAY_FIBER_TEXTURE := preload("res://assets/materials/production/hay_fibers
 const FISHING_NET_HEMP_TEXTURE := preload("res://assets/props/crafts/fishing_nets_TarredHempNet_albedo.png")
 const FISHING_NET_FLOAT_TEXTURE := preload("res://assets/props/crafts/fishing_nets_BarkCorkFloats_albedo.png")
 const FISHING_NET_SINKER_TEXTURE := preload("res://assets/props/crafts/fishing_nets_PiercedStoneSinkers_albedo.png")
+const BLACK_CLOAKS_BANNER_TEXTURE := preload("res://assets/heraldry/black_cloaks_banner.png")
 
 const WATER_WAVE_BASE := {
 	MapTypes.TERRAIN_SHALLOW_WATER: {
@@ -342,6 +343,8 @@ static func _wind_materials() -> Array[ShaderMaterial]:
 		canopy(&"orchard"),
 		sail_cloth(),
 		flag_cloth(),
+		hanging_banner_cloth(),
+		hanging_banner_cloth(BLACK_CLOAKS_BANNER_TEXTURE),
 		fishing_net_hemp(),
 		fishing_net_float(),
 		fishing_net_sinker(),
@@ -413,6 +416,50 @@ static func flag_cloth() -> ShaderMaterial:
 	material.set_shader_parameter("free_edge", Vector2(1.0, 0.0))
 	_cache[key] = material
 	return material
+
+
+## Vertical wall banners: pinned at the top rod, soft hem sway only.
+## Pass an embroidered albedo for factions that ship a heraldry plate; otherwise
+## vertex COLOR from FactionHeraldry.banner_mesh remains the charge source.
+static func hanging_banner_cloth(albedo: Texture2D = null) -> ShaderMaterial:
+	var keyed := "hanging_banner_cloth_textured" if albedo != null else "hanging_banner_cloth"
+	if _cache.has(keyed):
+		return _cache[keyed]
+	var material := ShaderMaterial.new()
+	material.shader = MapViewMaterialShaders.shader(
+		"hanging_banner_cloth",
+		MapViewMaterialShaders.HANGING_BANNER_CLOTH_SHADER_CODE
+	)
+	material.set_shader_parameter("base_color", Color8(248, 246, 240))
+	material.set_shader_parameter("sway_strength", 0.035)
+	material.set_shader_parameter("wind_strength", 0.08)
+	material.set_shader_parameter("free_edge", Vector2(0.0, 1.0))
+	if albedo != null:
+		material.set_shader_parameter("albedo_texture", albedo)
+		material.set_shader_parameter("use_albedo_texture", 1.0)
+	else:
+		# Unbound sampler2D is undefined on GLES; bind a 1x1 white plate.
+		material.set_shader_parameter("albedo_texture", _white_albedo())
+		material.set_shader_parameter("use_albedo_texture", 0.0)
+	_cache[keyed] = material
+	return material
+
+
+static func faction_banner_albedo(faction_id: StringName) -> Texture2D:
+	if faction_id == &"black_cloaks":
+		return BLACK_CLOAKS_BANNER_TEXTURE
+	return null
+
+
+static func _white_albedo() -> Texture2D:
+	var key := "white_albedo_1x1"
+	if _cache.has(key):
+		return _cache[key]
+	var image := Image.create(1, 1, false, Image.FORMAT_RGBA8)
+	image.fill(Color.WHITE)
+	var texture := ImageTexture.create_from_image(image)
+	_cache[key] = texture
+	return texture
 
 
 ## The rack stays rigid while all net-borne parts share one height-pinned wind

@@ -261,7 +261,7 @@ static func pennant_mesh(faction_id: StringName) -> ArrayMesh:
 	return surface.commit()
 
 
-## Rectangular courtyard or facade banner hung from a vertical staff.
+## Rectangular courtyard or facade banner hung from a top rod.
 static func banner_mesh(faction_id: StringName, width: float = 0.72, height: float = 1.05) -> ArrayMesh:
 	var density := _mesh_density(faction_id)
 	var cols := density.x
@@ -296,9 +296,48 @@ static func banner_mesh(faction_id: StringName, width: float = 0.72, height: flo
 	return surface.commit()
 
 
+## Subdivided white quad for embroidered banner albedos. Subdivision keeps the
+## soft hem sway from the hanging-cloth shader without tearing the plate.
+static func banner_textured_mesh(width: float = 0.72, height: float = 1.05) -> ArrayMesh:
+	var cols := 8
+	var rows := 12
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var white := Color.WHITE
+	for col in cols:
+		var u0 := float(col) / float(cols)
+		var u1 := float(col + 1) / float(cols)
+		for row in rows:
+			var v0 := float(row) / float(rows)
+			var v1 := float(row + 1) / float(rows)
+			var a := Vector3(width * u0, height * (0.5 - v0), 0.0)
+			var b := Vector3(width * u0, height * (0.5 - v1), 0.0)
+			var c := Vector3(width * u1, height * (0.5 - v1), 0.0)
+			var d := Vector3(width * u1, height * (0.5 - v0), 0.0)
+			_add_solid_colored_vertex(surface, a, Vector2(u0, v0), white)
+			_add_solid_colored_vertex(surface, b, Vector2(u0, v1), white)
+			_add_solid_colored_vertex(surface, c, Vector2(u1, v1), white)
+			_add_solid_colored_vertex(surface, a, Vector2(u0, v0), white)
+			_add_solid_colored_vertex(surface, c, Vector2(u1, v1), white)
+			_add_solid_colored_vertex(surface, d, Vector2(u1, v0), white)
+			# Back face so double-sided cloth stays lit from the room.
+			_add_solid_colored_vertex(surface, a, Vector2(u0, v0), white)
+			_add_solid_colored_vertex(surface, d, Vector2(u1, v0), white)
+			_add_solid_colored_vertex(surface, c, Vector2(u1, v1), white)
+			_add_solid_colored_vertex(surface, a, Vector2(u0, v0), white)
+			_add_solid_colored_vertex(surface, c, Vector2(u1, v1), white)
+			_add_solid_colored_vertex(surface, b, Vector2(u0, v1), white)
+	surface.generate_normals()
+	return surface.commit()
+
+
 static func _mesh_density(faction_id: StringName) -> Vector2i:
 	match pattern_for(faction_id):
-		PATTERN_BEAR, PATTERN_LYNX, PATTERN_BEAR_LYNX, PATTERN_SWALLOW:
+		PATTERN_SWALLOW:
+			# Dense cells keep the forked-tail charge readable when a texture
+			# plate is unavailable (2D preview / fallback vertex cloth).
+			return Vector2i(16, 20)
+		PATTERN_BEAR, PATTERN_LYNX, PATTERN_BEAR_LYNX:
 			return Vector2i(10, 12)
 		PATTERN_CROSS:
 			# WHY: tower Danish / Teutonic pennants sit against the sky. A 5x6
@@ -413,22 +452,25 @@ static func _in_lynx(uv: Vector2, offset: Vector2 = Vector2.ZERO) -> bool:
 
 
 ## Swallow in flight: forked tail, swept wings, small head toward the fly.
+## Tuned for the denser 16x20 banner grid and logo TR silhouette.
 static func _in_swallow(uv: Vector2) -> bool:
-	# Body.
-	if _in_ellipse(uv, Vector2(0.48, 0.48), Vector2(0.10, 0.055)):
+	# Body and breast.
+	if _in_ellipse(uv, Vector2(0.50, 0.48), Vector2(0.12, 0.07)):
 		return true
-	# Head.
-	if _in_ellipse(uv, Vector2(0.62, 0.44), Vector2(0.055, 0.045)):
+	# Head and beak toward the fly.
+	if _in_ellipse(uv, Vector2(0.64, 0.46), Vector2(0.07, 0.055)):
 		return true
-	# Wings (upper and lower sweeps).
-	if _in_oriented_box(uv, Vector2(0.42, 0.30), Vector2(0.22, 0.045), -0.55):
+	if _in_ellipse(uv, Vector2(0.72, 0.48), Vector2(0.035, 0.025)):
 		return true
-	if _in_oriented_box(uv, Vector2(0.42, 0.66), Vector2(0.22, 0.045), 0.55):
+	# Swept wings.
+	if _in_oriented_box(uv, Vector2(0.44, 0.28), Vector2(0.24, 0.05), -0.55):
+		return true
+	if _in_oriented_box(uv, Vector2(0.44, 0.68), Vector2(0.24, 0.05), 0.55):
 		return true
 	# Forked tail toward the hoist.
-	if _in_oriented_box(uv, Vector2(0.28, 0.38), Vector2(0.14, 0.035), -0.7):
+	if _in_oriented_box(uv, Vector2(0.26, 0.36), Vector2(0.16, 0.04), -0.72):
 		return true
-	if _in_oriented_box(uv, Vector2(0.28, 0.58), Vector2(0.14, 0.035), 0.7):
+	if _in_oriented_box(uv, Vector2(0.26, 0.60), Vector2(0.16, 0.04), 0.72):
 		return true
 	return false
 

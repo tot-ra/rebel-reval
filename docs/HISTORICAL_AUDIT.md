@@ -122,9 +122,11 @@ factions as the title mark. Historical notes below are secondary context only.
   * Source Note: Logo charge is canonical for game cloth. Republican seals used
     Christ, horseman, warrior, eagle; the bear enters the 1565 governor seal.
 * **Black Cloaks swallow**
-  * Label: **`brand`** (logo TR dark swallow on white)
+  * Label: **`brand`** (logo TR dark swallow on white; wall banners use an
+    embroidered Estonian-blue charge with black stitch on white linen)
   * Source Note: Logo charge is canonical rebel cloth. Distinct from the historical
-    Brotherhood of Blackheads (Mustpeade / St Maurice head).
+    Brotherhood of Blackheads (Mustpeade / St Maurice head). Runtime plate:
+    `assets/heraldry/black_cloaks_banner.png`.
 * **Joint Pskov-Novgorod cloth**
   * Label: **`brand`** (logo BR both animals on azure)
   * Source Note: `faction=pskov_novgorod` stacks black bear behind gold lynx.

@@ -646,20 +646,36 @@ static func _add_banner(root: Node3D, prop: Dictionary) -> void:
 	if not FactionHeraldry.shows_flag(faction):
 		# No bare poles: faction-less / Vitalienbrüder props stay empty footprints.
 		return
-	# WHY: freestanding masts read as a forest of empty sticks from the dimetric
-	# camera. Courtyard cloth hangs from a short wall arm instead.
+	# WHY: the old +X projecting arm plus UV.x wind read as a hammer stick with
+	# cloth flying sideways (especially indoors in the smithy). Banners now hang
+	# like a wall tapestry: short brackets, rod parallel to the plaster, cloth
+	# face toward model +X (into the room when facing=east on a west wall).
 	MapViewMeshBuilderPrimitives.box(
-		root, "BannerMount", Vector3(0.22, 0.14, 0.22), Vector3(0.0, 2.05, 0.0), &"stone"
+		root, "BannerMount", Vector3(0.08, 0.08, 0.10), Vector3(0.02, 2.10, -0.28), &"stone"
 	)
 	MapViewMeshBuilderPrimitives.box(
-		root, "BannerArm", Vector3(0.62, 0.055, 0.055), Vector3(0.28, 2.05, 0.0), &"timber"
+		root, "BannerPeg", Vector3(0.08, 0.08, 0.10), Vector3(0.02, 2.10, 0.28), &"stone"
 	)
+	# BannerArm keeps its historical node name for tests; it is the top rod.
+	MapViewMeshBuilderPrimitives.box(
+		root, "BannerArm", Vector3(0.04, 0.04, 0.70), Vector3(0.05, 2.10, 0.0), &"timber"
+	)
+	var cloth_width := 0.62
+	var cloth_height := 0.95
 	var cloth := MeshInstance3D.new()
 	cloth.name = "BannerCloth"
-	cloth.mesh = FactionHeraldry.banner_mesh(faction, 0.62, 0.95)
-	cloth.position = Vector3(0.32, 1.5, 0.0)
+	var albedo := MapViewMaterials.faction_banner_albedo(faction)
+	if albedo != null:
+		# Textured plate: white verts so the embroidered albedo is not tinted.
+		cloth.mesh = FactionHeraldry.banner_textured_mesh(cloth_width, cloth_height)
+	else:
+		cloth.mesh = FactionHeraldry.banner_mesh(faction, cloth_width, cloth_height)
+	# banner_mesh lies in XY with its lit face toward -Z; +90 deg Y turns that
+	# face toward +X (into the room) and the width along +Z. Center on the rod.
+	cloth.rotation.y = PI * 0.5
+	cloth.position = Vector3(0.08, 1.58, -cloth_width * 0.5)
 	cloth.set_meta(&"faction", faction)
-	cloth.material_override = MapViewMaterials.flag_cloth()
+	cloth.material_override = MapViewMaterials.hanging_banner_cloth(albedo)
 	cloth.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(cloth)
 

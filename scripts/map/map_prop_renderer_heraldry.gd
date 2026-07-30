@@ -15,18 +15,18 @@ static func draw_banner(parent: Node2D, prop: Dictionary, target: StringName, ti
 	var charge := FactionHeraldry.charge_color(faction)
 	if not FactionHeraldry.shows_flag(faction):
 		return
-	# Short wall arm + hanging cloth; matches the 3D wall-mount banner.
-	Draw.add_rect(parent, "BannerMount", Vector2(-4, -48), Vector2(8, 8), wood.darkened(0.12), target, time_of_day)
-	Draw.add_rect(parent, "BannerArm", Vector2(2, -46), Vector2(22, 4), wood.darkened(0.08), target, time_of_day)
-	Draw.add_rect(parent, "BannerField", Vector2(4, -44), Vector2(26, 34), field, target, time_of_day)
+	# Top rod + vertical hanging cloth; matches the 3D wall-tapestry banner.
+	Draw.add_rect(parent, "BannerMount", Vector2(-2, -50), Vector2(6, 6), wood.darkened(0.12), target, time_of_day)
+	Draw.add_rect(parent, "BannerArm", Vector2(-10, -48), Vector2(28, 3), wood.darkened(0.08), target, time_of_day)
+	Draw.add_rect(parent, "BannerField", Vector2(-8, -45), Vector2(24, 40), field, target, time_of_day)
 	match FactionHeraldry.pattern_for(faction):
 		FactionHeraldry.PATTERN_CROSS:
-			Draw.add_rect(parent, "BannerCrossV", Vector2(14, -44), Vector2(6, 34), charge, target, time_of_day)
-			Draw.add_rect(parent, "BannerCrossH", Vector2(4, -30), Vector2(26, 6), charge, target, time_of_day)
+			Draw.add_rect(parent, "BannerCrossV", Vector2(0, -45), Vector2(6, 40), charge, target, time_of_day)
+			Draw.add_rect(parent, "BannerCrossH", Vector2(-8, -28), Vector2(24, 6), charge, target, time_of_day)
 		FactionHeraldry.PATTERN_PALE:
-			Draw.add_rect(parent, "BannerPale", Vector2(4, -44), Vector2(13, 34), charge, target, time_of_day)
+			Draw.add_rect(parent, "BannerPale", Vector2(-8, -45), Vector2(12, 40), charge, target, time_of_day)
 		FactionHeraldry.PATTERN_FESS:
-			Draw.add_rect(parent, "BannerFess", Vector2(4, -44), Vector2(26, 17), charge, target, time_of_day)
+			Draw.add_rect(parent, "BannerFess", Vector2(-8, -45), Vector2(24, 20), charge, target, time_of_day)
 		FactionHeraldry.PATTERN_BEAR:
 			draw_banner_bear(parent, charge, target, time_of_day)
 		FactionHeraldry.PATTERN_LYNX:
@@ -81,19 +81,28 @@ static func draw_banner_lynx(parent: Node2D, charge: Color, target: StringName, 
 
 
 static func draw_banner_swallow(parent: Node2D, charge: Color, target: StringName, time_of_day: StringName) -> void:
+	# Forked-tail swallow centered on the taller vertical field.
 	Draw.add_polygon(
 		parent,
 		"SwallowBody",
-		PackedVector2Array([Vector2(12, -34), Vector2(22, -36), Vector2(22, -32), Vector2(12, -30)]),
+		PackedVector2Array([Vector2(-2, -28), Vector2(8, -30), Vector2(8, -24), Vector2(-2, -22)]),
 		charge,
 		target,
 		time_of_day
 	)
-	Draw.add_circle(parent, "SwallowHead", Vector2(24, -34), 2.5, charge, target, time_of_day)
+	Draw.add_circle(parent, "SwallowHead", Vector2(10, -26), 3.0, charge, target, time_of_day)
+	Draw.add_polygon(
+		parent,
+		"SwallowBeak",
+		PackedVector2Array([Vector2(12, -27), Vector2(16, -26), Vector2(12, -25)]),
+		charge,
+		target,
+		time_of_day
+	)
 	Draw.add_polygon(
 		parent,
 		"SwallowWingU",
-		PackedVector2Array([Vector2(10, -34), Vector2(18, -44), Vector2(20, -42), Vector2(14, -34)]),
+		PackedVector2Array([Vector2(-4, -28), Vector2(4, -40), Vector2(7, -38), Vector2(0, -28)]),
 		charge,
 		target,
 		time_of_day
@@ -101,7 +110,7 @@ static func draw_banner_swallow(parent: Node2D, charge: Color, target: StringNam
 	Draw.add_polygon(
 		parent,
 		"SwallowWingL",
-		PackedVector2Array([Vector2(10, -30), Vector2(18, -20), Vector2(20, -22), Vector2(14, -30)]),
+		PackedVector2Array([Vector2(-4, -22), Vector2(4, -10), Vector2(7, -12), Vector2(0, -22)]),
 		charge,
 		target,
 		time_of_day
@@ -109,7 +118,7 @@ static func draw_banner_swallow(parent: Node2D, charge: Color, target: StringNam
 	Draw.add_polygon(
 		parent,
 		"SwallowTailU",
-		PackedVector2Array([Vector2(6, -38), Vector2(12, -34), Vector2(12, -32), Vector2(7, -35)]),
+		PackedVector2Array([Vector2(-12, -34), Vector2(-2, -28), Vector2(-2, -26), Vector2(-11, -30)]),
 		charge,
 		target,
 		time_of_day
@@ -117,7 +126,7 @@ static func draw_banner_swallow(parent: Node2D, charge: Color, target: StringNam
 	Draw.add_polygon(
 		parent,
 		"SwallowTailL",
-		PackedVector2Array([Vector2(6, -26), Vector2(12, -30), Vector2(12, -32), Vector2(7, -29)]),
+		PackedVector2Array([Vector2(-12, -16), Vector2(-2, -22), Vector2(-2, -24), Vector2(-11, -20)]),
 		charge,
 		target,
 		time_of_day

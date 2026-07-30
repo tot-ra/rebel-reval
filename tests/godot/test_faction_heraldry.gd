@@ -166,9 +166,21 @@ func test_south_quarter_knight_banner_is_livonian_cloth() -> void:
 	assert_eq(FactionHeraldry.resolve(banner), FactionHeraldry.LIVONIAN_ORDER)
 	var node := MapViewMeshBuilder.build_prop(banner, definition.cell_size, definition)
 	assert_true(node.has_node("BannerCloth"))
-	assert_true(node.has_node("BannerArm"), "courtyard banners hang from a wall arm, not a freestanding mast")
+	assert_true(node.has_node("BannerArm"), "courtyard banners hang from a top rod, not a freestanding mast")
 	assert_false(node.has_node("BannerStaff"), "freestanding banner masts were removed as empty-pole clutter")
 	assert_eq(node.get_node("BannerCloth").get_meta(&"faction"), FactionHeraldry.LIVONIAN_ORDER)
+	var arm := node.get_node("BannerArm") as MeshInstance3D
+	var arm_mesh := arm.mesh as BoxMesh
+	assert_true(
+		arm_mesh.size.z > arm_mesh.size.x * 2.0,
+		"BannerArm must be a wall-parallel rod, not a projecting hammer stick"
+	)
+	var cloth_mat := node.get_node("BannerCloth").material_override as ShaderMaterial
+	assert_true(cloth_mat != null)
+	assert_true(
+		is_equal_approx(float(cloth_mat.get_shader_parameter("sway_strength")), 0.035),
+		"wall hangings use soft hem sway, not outdoor hoist wind"
+	)
 	node.free()
 
 
@@ -259,7 +271,24 @@ func test_forge_cloak_banner_flies_swallow_cloth() -> void:
 	assert_eq(FactionHeraldry.resolve(banner), FactionHeraldry.BLACK_CLOAKS)
 	assert_eq(FactionHeraldry.pattern_for(FactionHeraldry.BLACK_CLOAKS), FactionHeraldry.PATTERN_SWALLOW)
 	var node := MapViewMeshBuilder.build_prop(banner, parsed.definition.cell_size, parsed.definition)
-	assert_eq(node.get_node("BannerCloth").get_meta(&"faction"), FactionHeraldry.BLACK_CLOAKS)
+	var cloth := node.get_node("BannerCloth") as MeshInstance3D
+	assert_eq(cloth.get_meta(&"faction"), FactionHeraldry.BLACK_CLOAKS)
+	assert_true(
+		is_equal_approx(cloth.rotation.y, PI * 0.5),
+		"smithy swallow cloth must face into the room, not edge-on"
+	)
+	var mat := cloth.material_override as ShaderMaterial
+	assert_true(mat != null)
+	assert_true(
+		is_equal_approx(float(mat.get_shader_parameter("use_albedo_texture")), 1.0),
+		"Black Cloaks smithy banner must use the embroidered swallow albedo"
+	)
+	assert_true(mat.get_shader_parameter("albedo_texture") != null)
+	var free_edge: Vector2 = mat.get_shader_parameter("free_edge")
+	assert_true(
+		is_equal_approx(free_edge.x, 0.0) and is_equal_approx(free_edge.y, 1.0),
+		"wall banner hem must hang down (UV.y free), not fly sideways"
+	)
 	node.free()
 
 
