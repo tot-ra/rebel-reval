@@ -1,0 +1,43 @@
+{
+  "approval": "user-requested 2026-07-30",
+  "asset_id": "prop.smithy_charcoal_storage",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "8997e1092b8ec86fe7196751d41763358dd84e816cbef0932772660519d3b360",
+  "checks": {
+    "embedded_albedo": true,
+    "floating_geometry": true,
+    "ground_contact": true,
+    "identity_features": [
+      "delivery_sacks",
+      "open_working_sack",
+      "angular_charcoal",
+      "visible_seams_and_ties",
+      "oak_dunnage"
+    ],
+    "metric_scale": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "uvs": true,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    1.082,
+    0.7589,
+    0.7808
+  ],
+  "faces": 1392,
+  "floating_objects": 0,
+  "generator": "tools/generate_smithy_charcoal_storage.py",
+  "generator_version": "smithy_charcoal_storage_v1",
+  "ground_min_z": 0.0,
+  "materials": 4,
+  "mesh_objects": 5,
+  "preview": "generated/blender/smithy_charcoal_storage_v1/preview.png",
+  "route": "deterministic_blender",
+  "sha256": "8ec1a2ef373d4bcf387675f72afa4e33271fe191938aad86ebc6348d10128fca",
+  "surfaces": 20,
+  "texture_size": 512,
+  "triangles": 1392,
+  "uv_sets": 1,
+  "vertices": 762
+}

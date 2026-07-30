@@ -60,4 +60,15 @@
 - When closing a packaging row while unrelated WIP exists (for example charcoal-storage assets), stage only the allowlisted packaging files; never absorb concurrent map/prop edits into the packaging commit.
 - Before claiming a hot `TODO.md` row, re-read its exact current text immediately before editing; concurrent Producer or worker updates can change task wording and make a stale exact replacement fail.
 - Before running a named unit-test module from an old task contract or memory, discover the current test filename; the active docs suite is `tests/python/test_active_docs_report.py`, not `test_generate_active_docs_report.py`.
+- RRMap parser support files live under `scripts/map/rrmap/`; discover them before reading instead of inferring a flat `scripts/map/map_rrmap_*.gd` path from a class name.
+- Verify downloaded research-source MIME type and file signature before treating a download endpoint as a PDF; OJS and museum endpoints can return HTML viewers or interstitial pages.
+
+- When web-search wrappers return truncated payloads or quota errors, pivot to direct official pages and scholarly sources, then state the evidence boundary instead of repeatedly retrying broad search.
+- Before an exact-string edit or helper-file read, inspect the current target block and discover the actual path; stale snippets and inferred filenames create avoidable no-match failures.
+
 - Act 1 packaged smoke can print `P3-012_PACKAGED_PLATFORM_PASS` and still emit `ParticlesShaderGLES3 were never freed` plus DEF-002 resource/RID exit leaks; treat that Compatibility exit noise as non-blocking (P4-012-N01 / P4-044-N01) in `tools/verify_act1_release.sh` rather than failing release acceptance on ambient exit ERROR lines.
+- Spoken "кавальня" / "на Кавальне" in Workers District notes usually means the outdoor `courtyard_anvil` (наковальня), not a building name; confirm against `lower_town_slice.rrmap` before inventing a new landmark.
+- When Leonardo MCP is unavailable in Cursor CLI, ship deterministic Blender prop generators (`tools/generate_*.py`) instead of blocking on image-to-3D integrations.
+- Split-firewood billets must extend length along local +X (horizontal); putting length on local +Z exports upright poles and inflates stack height past yard scale.
+- Retiring a stable outdoor prop ID (for example `courtyard_anvil` → `courtyard_firewood`) requires regenerating `lower_town_slice.parity.json` with `tools/regenerate_lower_town_slice_parity.gd -- --write-lower-town-slice-parity-fixture` in the same change.
+- Do not `git checkout HEAD --` a shared hot file like `map_types.gd` to carve a narrow commit while other dirty scripts already call APIs from that WIP; restore fails cascade (`is_known_house_tier`, `build_prop`) and red focused suites. Prefer committing the interdependent WIP together or use an isolated worktree.

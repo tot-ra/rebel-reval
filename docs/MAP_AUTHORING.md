@@ -90,6 +90,16 @@ MapDefinition               <- existing runtime contract
 - A point-like primitive occupies an explicit cell or cell-relative offset. The compiler performs all conversion to `Vector2`, `Rect2`, and other world-space runtime values.
 - Do not mix cells and world pixels in a blueprint. A rare non-grid visual offset must use a field whose unit is explicit in its name and schema, for example `visual_offset_px`; it must not alter gameplay collision or navigation silently.
 - Array order is semantic only where the primitive says so, such as terrain paint layers or patrol points. Otherwise the compiler canonicalizes output independently of declaration order.
+- **One cell renders as one world unit, and authored models are built in metres** (`MapViewBridge.WORLD_UNITS_PER_CELL = 1.0`). A `rect=` is therefore a metric footprint, not a decorative zone band: size it to the prop's GLB. A 1.0 m hearth authored on `rect=3,3` renders adrift in the middle of a 3 m × 3 m blocked square rather than against the wall it belongs to.
+
+### Prop orientation and surface placement
+
+Interior furniture kits are modelled with their working face toward local **−Z**, which is **map north**. An optional `facing=` cardinal on `prop` rotates the 3D model onto the named direction, so a hearth or cupboard built into a north wall needs `facing=south` to open into the room. Without `facing` the yaw stays zero, which keeps every already-shipped map byte-identical in appearance.
+
+- `MapTypes.FACING_AWARE_PROP_KINDS` is the allowlist. Kinds outside it ignore `facing`, so scatter and pile props cannot change silhouette by inheriting a value meant for something else.
+- `MapTypes.PROP_MODEL_FRONTS` records the exceptions. `banner` fronts **+X**, because its wall bracket and cloth project along `+X`; `facing=east` is that kit's identity turn.
+- `stairs` props with a wall-walk `primitive` consume `facing` as an access direction instead and are resolved before furniture yaw.
+- Small items belong on the surface that carries them. Lift them with `visual_offset_px=<x>,<-y>`: the y component is screen-down, so the view bridge subtracts it. Known host heights are documented per map; for `kalev_smithy` see [`kalev_smithy_domestic_life_plan.md`](reports/kalev_smithy_domestic_life_plan.md). `visual_offset_px` accepts floats and shifts only world **X** and **Y** - there is no Z component, so a wall hanging must reach its wall through its cell and `facing`, not through the offset.
 
 ## Supported primitive vocabulary
 
@@ -128,6 +138,7 @@ Trade-specific dressing props replace generic `barrels` / `cargo_crates` stand-i
 | `smoke_rack` | `rect=2,1` | Covered smoke/drying frame over a low fire (**B/U**) |
 | `fish_splitting_table` | 1 cell | Work slab at fisher or smoke sheds (**B**) |
 | `boat_timber_stack` | `rect=2,1` | Boatwright yard log stacks (**B**) |
+| `firewood_stack` | `rect=2,2` | Domestic/workshop yard split-wood stacks; not forge charcoal (**B**) |
 | `rope_coil` | 1 cell | Ropewalk tallies and harbour cargo aprons (**B**) |
 | `sail_cloth_bale` | 1 cell | Sail loft cloth bales (**B**) |
 | `cooper_staves` | 1 cell | Bound stave bundles at cooperages (**B**) |
@@ -140,7 +151,7 @@ Trade-specific dressing props replace generic `barrels` / `cargo_crates` stand-i
 | `market_goods_pallet` | `rect=2,1` | Stall back-of-house pallet stacks (**B**) |
 | `salt_pile` | 1 cell | Fisher smoke/salt sheds and harbour curing yards (**B**) |
 | `tanning_frame` | `rect=2,1` | Tanner lane A-frames (**B/U**) |
-| `wash_tub` | 1 cell | Well aprons, convent service plots, gate yards (**B**) |
+| `wash_tub` | 1 cell | Well aprons, convent service plots, gate yards (**B**); `style_variant=wash.stand_basin` swaps the yard tub for an indoor hand-wash stand with basin, ewer, and towel rail |
 
 Footprint rules:
 

@@ -2351,8 +2351,8 @@
         64.000000000,
         64.000000000
       ],
-      "id": "courtyard_anvil",
-      "kind": "anvil",
+      "id": "courtyard_firewood",
+      "kind": "firewood_stack",
       "position": [
         3136.000000000,
         2112.000000000

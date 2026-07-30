@@ -269,16 +269,22 @@ func test_boundary_exits_connect_to_registered_destinations() -> void:
 	assert_eq(south.get("destination_spawn_id"), &"from_reval_east")
 
 
-func test_courtyard_anvil_does_not_cover_smithy_door() -> void:
+func test_courtyard_firewood_does_not_cover_smithy_door() -> void:
 	var definition: MapDefinition = LowerTownSliceDefinition.create()
-	var anvil_position := Vector2.ZERO
+	var firewood_position := Vector2.ZERO
 	for prop in definition.props:
-		if prop["id"] == &"courtyard_anvil":
-			anvil_position = prop["position"]
+		if prop["id"] == &"courtyard_firewood":
+			firewood_position = prop["position"]
+			assert_eq(prop["kind"], MapTypes.PROP_KIND_FIREWOOD_STACK)
 	var door_position := MapVerification.anchor_position(definition, &"smithy_door")
 	assert_true(
-		anvil_position.distance_to(door_position) > float(definition.cell_size * 2),
-		"courtyard anvil must remain visually separate from the smithy door"
+		firewood_position.distance_to(door_position) > float(definition.cell_size * 2),
+		"courtyard firewood must remain visually separate from the smithy door"
+	)
+	assert_eq(
+		_props_of_kind(definition, MapTypes.PROP_KIND_ANVIL).size(),
+		0,
+		"Workers District must not place an outdoor anvil (reads as a second forge)"
 	)
 
 

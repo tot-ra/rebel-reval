@@ -12,6 +12,8 @@ const _FishDryingRackModels := preload("res://scripts/map/view3d/map_view_fish_d
 const _DriedFishMeshes := preload("res://scripts/map/view3d/map_view_dried_fish_meshes.gd")
 const _RopeCoilModels := preload("res://scripts/map/view3d/map_view_rope_coil_models.gd")
 const _MaltSackPileModels := preload("res://scripts/map/view3d/map_view_malt_sack_pile_models.gd")
+const _SmithyCharcoalStorageModels := preload("res://scripts/map/view3d/map_view_smithy_charcoal_storage_models.gd")
+const _FirewoodStackModels := preload("res://scripts/map/view3d/map_view_firewood_stack_models.gd")
 const _SaltPileModels := preload("res://scripts/map/view3d/map_view_salt_pile_models.gd")
 const _TanningFrameModels := preload("res://scripts/map/view3d/map_view_tanning_frame_models.gd")
 const _TableModels := preload("res://scripts/map/view3d/map_view_table_models.gd")
@@ -29,6 +31,8 @@ static func add_to(root: Node3D, kind: StringName, prop: Dictionary = {}) -> voi
 			_add_fish_splitting_table(root, prop)
 		MapTypes.PROP_KIND_BOAT_TIMBER_STACK:
 			_add_boat_timber_stack(root)
+		MapTypes.PROP_KIND_FIREWOOD_STACK:
+			_add_firewood_stack(root)
 		MapTypes.PROP_KIND_ROPE_COIL:
 			_add_rope_coil(root)
 		MapTypes.PROP_KIND_SAIL_CLOTH_BALE:
@@ -40,7 +44,7 @@ static func add_to(root: Node3D, kind: StringName, prop: Dictionary = {}) -> voi
 		MapTypes.PROP_KIND_BREWERY_KEG_STACK:
 			_add_brewery_keg_stack(root)
 		MapTypes.PROP_KIND_CHARCOAL_PILE:
-			_add_charcoal_pile(root)
+			_add_charcoal_storage(root, prop)
 		MapTypes.PROP_KIND_IRON_SCRAP_PILE:
 			_add_iron_scrap_pile(root)
 		MapTypes.PROP_KIND_WEAPON_RACK:
@@ -54,7 +58,10 @@ static func add_to(root: Node3D, kind: StringName, prop: Dictionary = {}) -> voi
 		MapTypes.PROP_KIND_TANNING_FRAME:
 			_add_tanning_frame(root)
 		MapTypes.PROP_KIND_WASH_TUB:
-			_add_wash_tub(root)
+			if MapTypes.wash_fixture_variant_for_prop(prop) == MapTypes.WASH_STAND_BASIN:
+				_add_wash_stand_basin(root)
+			else:
+				_add_wash_tub(root)
 		_:
 			_Primitives.box(root, "Marker", Vector3(0.5, 0.5, 0.5), Vector3(0.0, 0.25, 0.0), &"ink")
 
@@ -149,6 +156,12 @@ static func _add_boat_timber_stack(root: Node3D) -> void:
 		)
 
 
+static func _add_firewood_stack(root: Node3D) -> void:
+	# WHY: outdoor courtyard anvils read as a second forge on the street. Yard
+	# firewood is domestic/workshop fuel and must not reuse boat-timber cylinders.
+	_FirewoodStackModels.add_model(root)
+
+
 static func _add_rope_coil(root: Node3D) -> void:
 	# WHY: the former nested cylinders read as a yellow wheel with a wooden hub.
 	# The authored mesh exposes layered turns, a true opening, strand lay, and tail.
@@ -190,6 +203,15 @@ static func _add_brewery_keg_stack(root: Node3D) -> void:
 		root.add_child(keg)
 		_Primitives.cylinder(keg, "Body", 0.28, 0.68, Vector3(0.0, 0.34, 0.0), &"wood")
 		_Primitives.cylinder(keg, "Band", 0.3, 0.05, Vector3(0.0, 0.42, 0.0), &"metal")
+
+
+static func _add_charcoal_storage(root: Node3D, prop: Dictionary) -> void:
+	# WHY: Kalev's indoor stock should read as dry sack-delivered fuel, while
+	# outdoor charcoal_pile props keep their bulk-yard procedural silhouette.
+	if _SmithyCharcoalStorageModels.applies_to(prop):
+		_SmithyCharcoalStorageModels.add_model(root)
+	else:
+		_add_charcoal_pile(root)
 
 
 static func _add_charcoal_pile(root: Node3D) -> void:
@@ -267,3 +289,53 @@ static func _add_wash_tub(root: Node3D) -> void:
 	_Primitives.cylinder(root, "Water", 0.34, 0.05, Vector3(0.0, 0.58, 0.0), &"water_highlight")
 	for leg_spec in [["LegFL", -0.28, 0.22], ["LegFR", 0.28, 0.22], ["LegBL", -0.28, -0.22], ["LegBR", 0.28, -0.22]]:
 		_Primitives.box(root, leg_spec[0], Vector3(0.08, 0.42, 0.08), Vector3(leg_spec[1], 0.21, leg_spec[2]), &"timber")
+
+
+## Indoor hand-wash station: oak stand, sunk basin, ewer, and towel rail.
+##
+## WHY: the yard laundry tub above is a legged cylinder with a bright disc on
+## top. Standing that in a living bay reads as an unexplained puddle rather
+## than a place a household washes face and hands, so the interior gets its own
+## fixture. The water plane sits below the basin rim on purpose - a disc level
+## with the rim is what made the tub look wrong. Back rail and towel occupy +Z
+## so the fixture matches the -Z model-front convention shared by the hearth
+## and cupboard kits.
+static func _add_wash_stand_basin(root: Node3D) -> void:
+	_Primitives.box(root, "StandTop", Vector3(0.78, 0.05, 0.42), Vector3(0.0, 0.835, 0.0), &"wood")
+	_Primitives.box(root, "StandShelf", Vector3(0.72, 0.04, 0.36), Vector3(0.0, 0.30, 0.0), &"timber")
+	for leg_spec in [
+		["LegFrontLeft", -0.33, -0.16],
+		["LegFrontRight", 0.33, -0.16],
+		["LegBackLeft", -0.33, 0.16],
+		["LegBackRight", 0.33, 0.16],
+	]:
+		_Primitives.box(
+			root, leg_spec[0], Vector3(0.07, 0.81, 0.07), Vector3(leg_spec[1], 0.405, leg_spec[2]), &"timber"
+		)
+
+	# Shallow pewter basin recessed into the board, water surface below the rim.
+	_Primitives.cylinder(root, "Basin", 0.20, 0.09, Vector3(-0.14, 0.905, -0.02), &"metal")
+	_Primitives.cylinder(root, "BasinRim", 0.215, 0.022, Vector3(-0.14, 0.947, -0.02), &"metal")
+	_Primitives.cylinder(root, "BasinWater", 0.168, 0.02, Vector3(-0.14, 0.918, -0.02), &"water_highlight")
+
+	# Ewer poured over the basin. Metal, not timber: the plank pattern the wood
+	# role applies to a cylinder reads as barrel staves at this size.
+	_Primitives.cylinder(root, "EwerBody", 0.078, 0.20, Vector3(0.25, 0.96, 0.01), &"metal")
+	_Primitives.cylinder(root, "EwerNeck", 0.042, 0.08, Vector3(0.25, 1.10, 0.01), &"metal")
+	_Primitives.box(root, "EwerHandle", Vector3(0.03, 0.13, 0.03), Vector3(0.32, 1.03, 0.01), &"metal")
+
+	# Towel rail against the wall side. Two panels over the rail read as draped
+	# linen; a single flat panel disappeared against the limewashed plaster.
+	for upright_spec in [["RailPostLeft", -0.33], ["RailPostRight", 0.33]]:
+		_Primitives.box(
+			root, upright_spec[0], Vector3(0.05, 0.58, 0.05), Vector3(upright_spec[1], 1.145, 0.19), &"timber"
+		)
+	_Primitives.box(root, "TowelRail", Vector3(0.71, 0.045, 0.045), Vector3(0.0, 1.42, 0.19), &"timber")
+	# Slate household linen, not cream: a plaster-toned towel vanished against the
+	# limewashed wall directly behind it.
+	for towel_spec in [
+		["TowelLinen", Vector3(0.3, 0.46, 0.024), Vector3(0.12, 1.18, 0.148)],
+		["TowelLinenBack", Vector3(0.3, 0.3, 0.024), Vector3(0.12, 1.26, 0.232)],
+		["TowelLinenCrown", Vector3(0.3, 0.05, 0.11), Vector3(0.12, 1.425, 0.19)],
+	]:
+		_Primitives.box(root, towel_spec[0], towel_spec[1], towel_spec[2], &"character_apron")

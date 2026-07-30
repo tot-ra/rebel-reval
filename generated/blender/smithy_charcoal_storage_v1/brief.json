@@ -1,0 +1,1 @@
+{"id":"prop.smithy_charcoal_storage","kind":"rigid_prop","target":"res://assets/props/forge/smithy_charcoal_storage.glb","scene":"res://content/maps/kalev_smithy.rrmap#coal_store","dimensions_m":[1.1,0.72,0.72],"triangles":{"target":1800,"max":3000},"textures":{"albedo":512},"style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}

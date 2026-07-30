@@ -31,6 +31,14 @@ const SMITHY_BELLOWS_SCENE_PATH := "res://assets/props/forge/smithy_bellows.glb"
 const SMITHY_BELLOWS_PROP_ID := &"forge_bellows"
 const SMITHY_CHAIR_SCENE_PATH := "res://assets/props/furniture/smithy_chair.glb"
 const SMITHY_CHAIR_PROP_ID := &"work_chair"
+## Seating in Kalev's dwelling shares the one authored chair GLB. Town Hall and
+## other civic chairs stay on the neutral fallback until they get their own art.
+const SMITHY_CHAIR_PROP_IDS: Array[StringName] = [
+	SMITHY_CHAIR_PROP_ID,
+	&"kitchen_stool",
+	&"table_stool_west",
+	&"table_stool_east",
+]
 const SMITHY_QUENCH_SCENE_PATH := "res://assets/props/forge/smithy_quench_bucket.glb"
 const SMITHY_QUENCH_PROP_ID := &"quench"
 const SMITHY_BED_SCENE_PATH := "res://assets/props/furniture/smithy_bed.glb"
@@ -113,6 +121,9 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 	if MapWallWalkAccess.is_access_prop(prop) or MapWallWalkAccess.is_platform_prop(prop):
 		WallWalkAccessBuilder.add_to(root, prop, cell_size, definition)
 		return root
+	# Wall-walk props consume `facing` as an access direction above, so furniture
+	# yaw is resolved only after that early return.
+	root.rotation.y += MapTypes.prop_facing_yaw(prop)
 
 	match prop["kind"] as StringName:
 		MapTypes.PROP_KIND_ANVIL:
@@ -186,7 +197,7 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 		MapTypes.PROP_KIND_HOUSEHOLD_CLUTTER:
 			HouseholdClutterModels.add_model(root, prop)
 		MapTypes.PROP_KIND_CHAIR:
-			if prop.get("id", &"") == SMITHY_CHAIR_PROP_ID:
+			if StringName(prop.get("id", &"")) in SMITHY_CHAIR_PROP_IDS:
 				_add_smithy_chair(root)
 			else:
 				_add_chair_fallback(root)

@@ -59,6 +59,10 @@ const HEARTH_STATE_VARIANTS: Array[StringName] = [
 	HEARTH_STATE_COLD,
 ]
 
+const WASH_YARD_TUB := MapTypes.WASH_YARD_TUB
+const WASH_STAND_BASIN := MapTypes.WASH_STAND_BASIN
+const WASH_FIXTURE_VARIANTS: Array[StringName] = MapTypes.WASH_FIXTURE_VARIANTS
+
 const KITCHENWARE_VARIANTS: Array[StringName] = MapTypes.KITCHENWARE_VARIANTS
 const HOUSEHOLD_CLUTTER_VARIANTS: Array[StringName] = MapTypes.HOUSEHOLD_CLUTTER_VARIANTS
 
@@ -99,6 +103,8 @@ static func is_known(kind: StringName, variant: StringName) -> bool:
 		return variant in HAY_STACK_VARIANTS
 	if kind == MapTypes.PROP_KIND_HEARTH:
 		return variant in HEARTH_STATE_VARIANTS
+	if kind == MapTypes.PROP_KIND_WASH_TUB:
+		return variant in WASH_FIXTURE_VARIANTS
 	if kind == MapTypes.PROP_KIND_KITCHENWARE:
 		return variant in KITCHENWARE_VARIANTS
 	if kind == MapTypes.PROP_KIND_HOUSEHOLD_CLUTTER:

@@ -336,18 +336,55 @@ func test_smithy_bellows_uses_authored_leather_mechanism() -> void:
 	generic.free()
 
 
-func test_charcoal_pile_uses_charcoal_not_limestone_rock() -> void:
+func test_smithy_charcoal_uses_authored_dry_sack_storage() -> void:
 	var node := MapViewMeshBuilder.build_prop(
 		{"id": &"coal_store", "kind": MapTypes.PROP_KIND_CHARCOAL_PILE, "position": Vector2.ZERO},
 		MapTypes.DEFAULT_CELL_SIZE
 	)
-	assert_true(node.has_node("ChunkA"), "charcoal pile needs chunky lumps")
-	assert_false(node.has_node("MoundA"), "legacy limestone rock mound must be gone")
-	var chunk := node.get_node("ChunkA") as MeshInstance3D
-	var material := chunk.material_override as StandardMaterial3D
-	assert_true(material != null, "charcoal chunk needs a material")
-	assert_true(material.albedo_color.v < 0.25, "charcoal must stay near-black, not limestone grey")
+	assert_true(node.has_node("SmithyCharcoalStorageModel"), "indoor stock must instantiate the authored GLB")
+	assert_false(node.has_node("ChunkA"), "ambiguous black-lump placeholder must stay retired inside the smithy")
+	var model := node.get_node("SmithyCharcoalStorageModel") as Node3D
+	assert_true(model.get_meta(&"production_smithy_charcoal_storage_model", false))
+	assert_true(model.has_node("SmithyCharcoalStorage/Sacks"), "storage needs closed delivery sacks")
+	assert_true(model.has_node("SmithyCharcoalStorage/OpenSack"), "storage needs one open working sack")
+	assert_true(model.has_node("SmithyCharcoalStorage/Charcoal"), "open sack needs visible angular charcoal")
+	assert_true(model.has_node("SmithyCharcoalStorage/OakDunnage"), "sacks need dry timber dunnage")
+
+	var bounds := AABB()
+	var first := true
+	var triangle_count := 0
+	var material_names: Dictionary = {}
+	for child in model.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := child as MeshInstance3D
+		if mesh_instance == null or mesh_instance.mesh == null:
+			continue
+		var child_bounds := mesh_instance.transform * mesh_instance.get_aabb()
+		bounds = child_bounds if first else bounds.merge(child_bounds)
+		first = false
+		for surface_index in mesh_instance.mesh.get_surface_count():
+			triangle_count += mesh_instance.mesh.surface_get_array_index_len(surface_index) / 3
+			var material := mesh_instance.mesh.surface_get_material(surface_index) as StandardMaterial3D
+			if material != null:
+				material_names[material.resource_name] = true
+				assert_true(material.albedo_texture != null, "charcoal storage material needs albedo")
+				assert_true(material.normal_enabled and material.normal_texture != null, "charcoal storage material needs normals")
+				assert_true(material.roughness_texture != null, "charcoal storage material needs roughness")
+	assert_false(first, "charcoal storage GLB must expose render geometry")
+	assert_true(bounds.size.x >= 1.07 and bounds.size.x <= 1.09, "sacks must fit the one-cell visual width")
+	assert_true(bounds.size.y >= 0.75 and bounds.size.y <= 0.77, "sacks need believable filled height")
+	assert_true(bounds.size.z >= 0.77 and bounds.size.z <= 0.79, "storage must remain compact in the forge corner")
+	assert_true(bounds.position.y >= -0.001, "storage must rest on the ground plane")
+	assert_eq(triangle_count, 1392, "authored sack and charcoal cues must stay deterministic")
+	assert_eq(material_names.size(), 4, "storage keeps linen, hemp, charcoal, and oak identities")
 	node.free()
+
+	var yard := MapViewMeshBuilder.build_prop(
+		{"id": &"yard_charcoal", "kind": MapTypes.PROP_KIND_CHARCOAL_PILE, "position": Vector2.ZERO},
+		MapTypes.DEFAULT_CELL_SIZE
+	)
+	assert_true(yard.has_node("ChunkA"), "outdoor service yards keep the procedural bulk-charcoal fallback")
+	assert_false(yard.has_node("SmithyCharcoalStorageModel"), "Kalev's indoor sack model must not leak into yards")
+	yard.free()
 
 
 func _assert_smithy_prop_pbr_surfaces(model: Node3D, label: String) -> void:

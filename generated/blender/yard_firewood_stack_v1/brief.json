@@ -1,0 +1,1 @@
+{"id":"prop.yard_firewood_stack","kind":"rigid_prop","target":"res://assets/props/crafts/yard_firewood_stack.glb","scene":"res://content/maps/lower_town_slice.rrmap#courtyard_firewood","dimensions_m":[2.07,0.55,0.92],"triangles":{"target":1264,"max":2800},"textures":{"albedo":512},"style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}

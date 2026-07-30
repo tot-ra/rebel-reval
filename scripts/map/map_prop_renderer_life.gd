@@ -32,6 +32,9 @@ static func draw_district_life_prop(
 		MapTypes.PROP_KIND_BOAT_TIMBER_STACK:
 			for index in 3:
 				Draw.add_rect(parent, "Log%d" % index, Vector2(-16 + index * 5, -6 - index * 2), Vector2(28, 5), wood.darkened(index * 0.04), target, time_of_day)
+		MapTypes.PROP_KIND_FIREWOOD_STACK:
+			for index in 3:
+				Draw.add_rect(parent, "Billet%d" % index, Vector2(-14 + index * 4, -4 - index * 3), Vector2(22, 5), wood.darkened(index * 0.05), target, time_of_day)
 		MapTypes.PROP_KIND_ROPE_COIL:
 			Draw.add_circle(parent, "Coil", Vector2(0, 0), 11.0, hay, target, time_of_day)
 		MapTypes.PROP_KIND_SAIL_CLOTH_BALE, MapTypes.PROP_KIND_MALT_SACK_PILE, MapTypes.PROP_KIND_SALT_PILE:

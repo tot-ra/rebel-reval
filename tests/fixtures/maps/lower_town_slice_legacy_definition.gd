@@ -261,7 +261,7 @@ static func create() -> MapDefinition:
 
 	definition.props = [
 		# Smithy work yard.
-		{"id": &"courtyard_anvil", "kind": MapTypes.PROP_KIND_ANVIL, "position": definition.cell_rect_center(Rect2i(56, 24, 2, 2))},
+		{"id": &"courtyard_firewood", "kind": MapTypes.PROP_KIND_FIREWOOD_STACK, "position": definition.cell_rect_center(Rect2i(56, 24, 2, 2))},
 		{"id": &"courtyard_furnace", "kind": MapTypes.PROP_KIND_FURNACE, "position": definition.cell_rect_center(Rect2i(55, 27, 2, 2))},
 		{"id": &"courtyard_quench", "kind": MapTypes.PROP_KIND_QUENCH, "position": definition.cell_rect_center(Rect2i(57, 28, 1, 1))},
 		{"id": &"hay_store", "kind": MapTypes.PROP_KIND_HAY_STACK, "position": definition.cell_rect_center(Rect2i(50, 28, 2, 2))},

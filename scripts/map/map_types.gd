@@ -250,6 +250,7 @@ const PROP_KIND_FISH_DRYING_RACK := &"fish_drying_rack"
 const PROP_KIND_SMOKE_RACK := &"smoke_rack"
 const PROP_KIND_FISH_SPLITTING_TABLE := &"fish_splitting_table"
 const PROP_KIND_BOAT_TIMBER_STACK := &"boat_timber_stack"
+const PROP_KIND_FIREWOOD_STACK := &"firewood_stack"
 const PROP_KIND_ROPE_COIL := &"rope_coil"
 const PROP_KIND_SAIL_CLOTH_BALE := &"sail_cloth_bale"
 const PROP_KIND_COOPER_STAVES := &"cooper_staves"
@@ -263,6 +264,15 @@ const PROP_KIND_MARKET_GOODS_PALLET := &"market_goods_pallet"
 const PROP_KIND_SALT_PILE := &"salt_pile"
 const PROP_KIND_TANNING_FRAME := &"tanning_frame"
 const PROP_KIND_WASH_TUB := &"wash_tub"
+## Yard laundry tub (default, unchanged for well aprons and service plots) and
+## the indoor hand-wash stand a dwelling needs beside its living-bay door.
+const WASH_YARD_TUB := &"wash.yard_tub"
+const WASH_STAND_BASIN := &"wash.stand_basin"
+const DEFAULT_WASH_FIXTURE_VARIANT := WASH_YARD_TUB
+const WASH_FIXTURE_VARIANTS: Array[StringName] = [
+	WASH_YARD_TUB,
+	WASH_STAND_BASIN,
+]
 const PROP_KIND_KITCHEN_GARDEN := &"kitchen_garden"
 const PROP_KIND_FIELD_STRIP := &"field_strip"
 const PROP_KIND_HAY_WAGON := &"hay_wagon"
@@ -280,6 +290,7 @@ const DISTRICT_LIFE_PROP_KINDS: Array[StringName] = [
 	PROP_KIND_SMOKE_RACK,
 	PROP_KIND_FISH_SPLITTING_TABLE,
 	PROP_KIND_BOAT_TIMBER_STACK,
+	PROP_KIND_FIREWOOD_STACK,
 	PROP_KIND_ROPE_COIL,
 	PROP_KIND_SAIL_CLOTH_BALE,
 	PROP_KIND_COOPER_STAVES,
@@ -307,6 +318,32 @@ const RURAL_LIFE_PROP_KINDS: Array[StringName] = [
 	PROP_KIND_ORCHARD_ROW,
 	PROP_KIND_FARM_CART,
 ]
+
+## Props whose authored `facing` turns the 3D model. Deliberately narrow: only
+## kits with a readable working face, so scatter and pile props keep their
+## existing hash-driven look and no shipped map changes silhouette by accident.
+const FACING_AWARE_PROP_KINDS: Array[StringName] = [
+	PROP_KIND_HEARTH,
+	PROP_KIND_TABLE,
+	PROP_KIND_CHAIR,
+	PROP_KIND_SHELF,
+	PROP_KIND_CHEST,
+	PROP_KIND_BED,
+	PROP_KIND_WASH_TUB,
+	PROP_KIND_BANNER,
+	# Flat clutter such as the household apron is a 0.02 m panel whose face must
+	# be turned to the wall it hangs on, otherwise it renders edge-on as a stick.
+	PROP_KIND_HOUSEHOLD_CLUTTER,
+]
+
+## Logic-plane direction each kit's working face points at zero yaw. The kits
+## were authored front-to--Z, which is map north; `banner` is the exception
+## because its wall arm and cloth project along +X.
+const MODEL_FRONT_NORTH := Vector2(0.0, -1.0)
+const MODEL_FRONT_EAST := Vector2(1.0, 0.0)
+const PROP_MODEL_FRONTS: Dictionary = {
+	PROP_KIND_BANNER: MODEL_FRONT_EAST,
+}
 
 const ALL_PROP_KINDS: Array[StringName] = [
 	PROP_KIND_ANVIL,
@@ -345,6 +382,7 @@ const ALL_PROP_KINDS: Array[StringName] = [
 	PROP_KIND_SMOKE_RACK,
 	PROP_KIND_FISH_SPLITTING_TABLE,
 	PROP_KIND_BOAT_TIMBER_STACK,
+	PROP_KIND_FIREWOOD_STACK,
 	PROP_KIND_ROPE_COIL,
 	PROP_KIND_SAIL_CLOTH_BALE,
 	PROP_KIND_COOPER_STAVES,
@@ -495,6 +533,45 @@ static func invalid_kitchenware_variant(prop: Dictionary) -> StringName:
 		return &""
 	var variant := StringName(prop["style_variant"])
 	return &"" if variant in KITCHENWARE_VARIANTS else variant
+
+
+static func wash_fixture_variant_for_prop(prop: Dictionary) -> StringName:
+	var variant := StringName(prop.get("style_variant", DEFAULT_WASH_FIXTURE_VARIANT))
+	return variant if variant in WASH_FIXTURE_VARIANTS else DEFAULT_WASH_FIXTURE_VARIANT
+
+
+static func invalid_wash_fixture_variant(prop: Dictionary) -> StringName:
+	if prop.get("kind") != PROP_KIND_WASH_TUB or not prop.has("style_variant"):
+		return &""
+	var variant := StringName(prop["style_variant"])
+	return &"" if variant in WASH_FIXTURE_VARIANTS else variant
+
+
+## Yaw that turns an authored `facing` cardinal into a model rotation.
+##
+## WHY: the interior kits are modelled with their working face toward local -Z
+## (map north), because a fixture built into a north wall was the first case
+## authored. A hearth, cupboard, or wash stand pushed against any other wall
+## therefore has to be turned, otherwise its mouth or open front stares into
+## the plaster. `facing` names the direction the prop should look along the
+## logic plane, so `facing=south` on a north-wall hearth is a half turn.
+## `banner` is the one kit whose cloth arm projects along +X, so it declares
+## its own model front instead of inheriting the -Z default.
+static func prop_facing_yaw(prop: Dictionary) -> float:
+	if not prop.has("facing"):
+		return 0.0
+	var kind := StringName(prop.get("kind", &""))
+	if kind not in FACING_AWARE_PROP_KINDS:
+		return 0.0
+	var facing := Vector2(prop["facing"])
+	if facing.is_zero_approx():
+		return 0.0
+	facing = facing.normalized()
+	var front := Vector2(PROP_MODEL_FRONTS.get(kind, MODEL_FRONT_NORTH))
+	# Rotate `front` onto `facing` around +Y. Logic +y is map south, which the
+	# view bridge maps to world +Z, so `atan2(x, -y)` is the compass angle of a
+	# logic-plane direction measured from north, and yaw is their difference.
+	return atan2(front.x, -front.y) - atan2(facing.x, -facing.y)
 
 
 static func household_clutter_variant_for_prop(prop: Dictionary) -> StringName:

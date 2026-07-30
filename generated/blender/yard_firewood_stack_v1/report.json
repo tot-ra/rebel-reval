@@ -1,0 +1,42 @@
+{
+  "approval": "user-requested 2026-07-30",
+  "asset_id": "prop.yard_firewood_stack",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "6e158211b3cfb2160a99306acc5da252a34bd10680fbe86e9157c33eb5f5b9b9",
+  "checks": {
+    "embedded_albedo": true,
+    "floating_geometry": true,
+    "ground_contact": true,
+    "identity_features": [
+      "split_billet_faces",
+      "bark_backs",
+      "staggered_courses",
+      "hemp_yard_cord"
+    ],
+    "metric_scale": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "uvs": true,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    2.0747,
+    0.551,
+    0.9245
+  ],
+  "faces": 1264,
+  "floating_objects": 0,
+  "generator": "tools/generate_yard_firewood_stack.py",
+  "generator_version": "yard_firewood_stack_v1",
+  "ground_min_z": 0.0,
+  "materials": 3,
+  "mesh_objects": 2,
+  "preview": "generated/blender/yard_firewood_stack_v1/preview.png",
+  "route": "deterministic_blender",
+  "sha256": "d886b4f30725919b7012896bb85fd13663324cf76609297dc2ffda67fc7692eb",
+  "surfaces": 6,
+  "texture_size": 512,
+  "triangles": 1264,
+  "uv_sets": 1,
+  "vertices": 656
+}

@@ -6,8 +6,8 @@ extends "res://tests/godot/map_view_3d_test_base.gd"
 func test_all_district_life_kinds_are_registered() -> void:
 	assert_eq(
 		MapTypes.DISTRICT_LIFE_PROP_KINDS.size(),
-		18,
-		"P2-025 minimum prop-kind set must stay in sync with MapTypes"
+		19,
+		"P2-025 prop-kind set must stay in sync with MapTypes (includes firewood_stack)"
 	)
 	for kind in MapTypes.DISTRICT_LIFE_PROP_KINDS:
 		assert_true(MapTypes.ALL_PROP_KINDS.has(kind), "%s must be in ALL_PROP_KINDS" % kind)
