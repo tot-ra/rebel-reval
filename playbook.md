@@ -47,3 +47,5 @@
 - Close preflight findings in the gate report itself; do not rewrite historical P4-042 / P4-043 reports from a P4-012 allowlist that only names `docs/reports/p4_012_act1_gate.md`.
 - When instruction blocks conflict (delegate to sub-agents vs do not call sub-agents), follow the more specific project/session constraint and state the conflict once.
 - A ROADMAP Current-focus tick after closing a QA gate intentionally leaves `python3 tools/generate_active_docs_report.py --check` red until the claimable **P0-171** refresh; do not regenerate `active_markdown_report.md` from a gate allowlist.
+- An NPC "standing on the smithy anvil" is usually an authored anvil-bound activity (`ap.visitor.inspect` / `ap.forge.anvil`) whose `approach_position` sits inside `forge_anvil` footprint, not a stray spawn; in prologue prefer Henning inspect over Mart (Mart stays hidden while `flag.mart_missing`).
+- The Godot harness `--filter=` matches one file/name substring per run; pass multiple focused suites as separate `run_godot_checked.sh` invocations instead of stacking several `--filter=` flags in one command.
