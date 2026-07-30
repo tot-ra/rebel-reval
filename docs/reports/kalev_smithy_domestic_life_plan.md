@@ -214,12 +214,12 @@ All IDs are reserved for **P2-058**; transforms are approximate cell centres unt
 | `ap.sweep.floor` | LZ-G | (11,11) | `broom` (floor) | Kalev, Mart |
 | `ap.carry.fuel` | LZ-G → LZ-C | (12,12) → (2,2) | kindling | Kalev, Mart |
 | `ap.ledger.inspect` | LZ-B | (4,3) | `forge_ledger` | Kalev |
-| `ap.forge.anvil` | FZ-E | (18,5) | `forge_anvil` | Kalev, Mart |
+| `ap.forge.anvil` | FZ-E | (19,7) stand south of anvil | `forge_anvil` | Kalev, Mart |
 | `ap.forge.bellows` | FZ-B | (16,2) | `forge_bellows` | Kalev, Mart |
 | `ap.forge.quench` | FZ-E | (16,5) | `quench` | Kalev, Mart |
 | `ap.visitor.enter` | LZ-G | (12,13) | `door_courtyard` | Henning |
 | `ap.visitor.wait` | FZ-E | (17,7) | — | Henning |
-| `ap.visitor.inspect` | FZ-E | (18,5) | `forge_anvil` | Henning |
+| `ap.visitor.inspect` | FZ-E | (18,7) stand south of anvil | `forge_anvil` | Henning |
 | `ap.visitor.talk` | LZ-E | (10,10) | `work_chair` | Henning |
 | `ap.visitor.leave` | LZ-G | (12,13) | `door_courtyard` | Henning |
 | `ap.cat.sleep` | LZ-A | (5,10) | `bed` (floor beside) | `char.forge_cat` |

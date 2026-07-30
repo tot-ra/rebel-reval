@@ -81,7 +81,7 @@ func _ready() -> void:
 	_wire_player_navigation()
 	MapSceneBootstrap.configure_player_movement(player, _bootstrap)
 	_wire_henning_navigation(definition)
-	_wire_mart_navigation(definition)
+	_wire_mart_navigation()
 	_wire_cat_navigation()
 	if player == null:
 		player = _find_player(get_tree().root)
@@ -210,7 +210,8 @@ func _setup_phase_binder(definition: MapDefinition) -> void:
 	if henning != null:
 		_phase_binder.register_npc(&"henning", henning, &"ledger")
 	if mart != null:
-		_phase_binder.register_npc(&"mart", mart, &"forge_anvil")
+		# Do not default-anchor Mart to the anvil prop; that snaps him onto the iron.
+		_phase_binder.register_npc(&"mart", mart)
 
 
 func _build_interaction_prompt() -> void:
@@ -250,13 +251,20 @@ func _wire_henning_navigation(definition: MapDefinition) -> void:
 		henning.set_phase_visibility(false)
 
 
-func _wire_mart_navigation(definition: MapDefinition) -> void:
+func _wire_mart_navigation() -> void:
 	var navigation: NavigationRegion2D = _bootstrap.get("navigation")
 	if mart != null and navigation != null:
+		# WHY: spawn on the south anvil apron, never on forge_anvil's prop center,
+		# otherwise Mart (and any anvil-bound beat) reads as standing on the iron.
 		mart.configure_navigation(
 			navigation.get_navigation_map(),
-			MapVerification.prop_position(definition, &"forge_anvil")
+			_anvil_stand_position()
 		)
+
+
+func _anvil_stand_position() -> Vector2:
+	# Cell (19, 7): south of forge_anvil rect (18,5)-(20,6), matches ap.forge.anvil.
+	return SmithyActivityPoint.cell_center_to_position(Vector2i(19, 7))
 
 
 func _wire_cat_navigation() -> void:

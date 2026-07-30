@@ -184,8 +184,8 @@
     {
       "id": "ap.forge.anvil",
       "zone": "FZ-E",
-      "approach_position": {"x": 592, "y": 176},
-      "facing": "left",
+      "approach_position": {"x": 624, "y": 240},
+      "facing": "up",
       "prop_id": "forge_anvil",
       "allowed_actors": ["char.kalev", "char.mart"],
       "duration_min_sec": 5.0,
@@ -251,8 +251,8 @@
     {
       "id": "ap.visitor.inspect",
       "zone": "FZ-E",
-      "approach_position": {"x": 592, "y": 176},
-      "facing": "left",
+      "approach_position": {"x": 592, "y": 240},
+      "facing": "up",
       "prop_id": "forge_anvil",
       "allowed_actors": ["char.henning"],
       "duration_min_sec": 3.0,

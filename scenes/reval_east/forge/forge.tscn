@@ -21,7 +21,7 @@ y_sort_enabled = true
 position = Vector2(304, 368)
 
 [node name="Mart" parent="Actors" instance=ExtResource("4_mart")]
-position = Vector2(528, 176)
+position = Vector2(624, 240)
 
 [node name="Cat" parent="Actors" instance=ExtResource("5_cat")]
 position = Vector2(176, 336)

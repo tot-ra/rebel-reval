@@ -39,7 +39,7 @@ func test_mart_hidden_while_mart_missing_flag_set() -> void:
 func test_mart_routine_starts_when_mart_returns() -> void:
 	var mart := SmithyMart.new()
 	_mount_actor(mart)
-	mart.configure_navigation(RID(), Vector2(592, 176))
+	mart.configure_navigation(RID(), Vector2(624, 240))
 	mart.set_routine_context(GameState.PHASE_INVESTIGATION_MORNING, &"morning", false)
 	assert_true(mart.visible)
 	assert_true(mart.is_physics_processing())
@@ -56,6 +56,29 @@ func test_mart_and_kalev_cannot_share_exclusive_station() -> void:
 	}
 	assert_true(controller.begin_activity(KALEV, &"ap.eat.table", context))
 	assert_false(controller.can_begin(MART, &"ap.eat.table", context))
+	controller.free()
+
+
+func test_anvil_bound_approaches_stand_beside_not_on_anvil() -> void:
+	# WHY: 3D anvil GLB made cell-center approaches read as standing on the iron.
+	var definition: MapDefinition = preload(
+		"res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd"
+	).create()
+	var anvil_rect := Rect2()
+	for prop in definition.props:
+		if prop.get("id", &"") == &"forge_anvil":
+			anvil_rect = prop.get("footprint", Rect2()) as Rect2
+			break
+	assert_false(anvil_rect == Rect2(), "forge_anvil footprint must exist")
+	var controller := _make_merged_controller()
+	for activity_id in [&"ap.forge.anvil", &"ap.visitor.inspect"]:
+		var point := controller.get_activity_point(activity_id)
+		assert_true(point != null, "%s missing" % String(activity_id))
+		assert_false(
+			anvil_rect.has_point(point.approach_position),
+			"%s approach %s must stand beside the anvil, not on it"
+			% [String(activity_id), str(point.approach_position)]
+		)
 	controller.free()
 
 
