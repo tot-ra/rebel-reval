@@ -95,3 +95,4 @@
 - Full-character Godot pose probes can hang when several imported rigs are instantiated and freed in one `SceneTree`; run one actor/pose per process and use the checked runner so teardown failures stay isolated.
 
 - Godot/`unittest` row checks that use `^` against multi-line TODO text need `(?m)` (or `re.M`); bare `assertRegex` is not multiline and will only test the first line, then dump the whole file on failure.
+- After structural edits shift a file, do not reuse stale line numbers for insertion. Re-read the target boundary or use exact-string replacement, then run a syntax check immediately.

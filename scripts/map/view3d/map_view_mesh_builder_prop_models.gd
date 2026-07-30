@@ -161,7 +161,7 @@ static func build_prop(prop: Dictionary, cell_size: int, definition: MapDefiniti
 				_add_smithy_bellows(root)
 			else:
 				_add_bellows_fallback(root)
-		MapTypes.PROP_KIND_BLACKSMITH_TONGS, MapTypes.PROP_KIND_PITCHFORK, MapTypes.PROP_KIND_SCYTHE:
+		MapTypes.PROP_KIND_BLACKSMITH_TONGS, MapTypes.PROP_KIND_BLACKSMITH_HAMMER, MapTypes.PROP_KIND_BLACKSMITH_PUNCH, MapTypes.PROP_KIND_PITCHFORK, MapTypes.PROP_KIND_SCYTHE, MapTypes.PROP_KIND_SICKLE, MapTypes.PROP_KIND_RAKE, MapTypes.PROP_KIND_WOODEN_SHOVEL:
 			MedievalHandToolModels.add_model(root, prop["kind"])
 		MapTypes.PROP_KIND_LEDGER:
 			MapViewMeshBuilderPrimitives.box(root, "Stand", Vector3(0.16, 0.9, 0.16), Vector3(0.0, 0.45, 0.0), &"wood")

@@ -128,5 +128,18 @@ static func draw_rural_life_prop(
 			Draw.add_line(parent, "Snath", PackedVector2Array([Vector2(-8, 12), Vector2(0, -8), Vector2(6, -28)]), target, time_of_day, &"wood")
 			Draw.add_line(parent, "Grip", PackedVector2Array([Vector2(-1, -8), Vector2(-10, -13)]), target, time_of_day, &"wood")
 			Draw.add_polygon(parent, "Blade", PackedVector2Array([Vector2(-8, 12), Vector2(9, 10), Vector2(25, 3), Vector2(20, 9), Vector2(5, 14)]), metal, target, time_of_day)
+		MapTypes.PROP_KIND_SICKLE:
+			Draw.add_line(parent, "Grip", PackedVector2Array([Vector2(-8, 12), Vector2(-2, -4)]), target, time_of_day, &"wood")
+			Draw.add_polygon(parent, "Blade", PackedVector2Array([Vector2(-3, -5), Vector2(6, -17), Vector2(20, -23), Vector2(27, -19), Vector2(17, -15), Vector2(7, -8)]), metal, target, time_of_day)
+		MapTypes.PROP_KIND_RAKE:
+			Draw.add_line(parent, "Shaft", PackedVector2Array([Vector2(-4, 13), Vector2(3, -28)]), target, time_of_day, &"wood")
+			Draw.add_line(parent, "Head", PackedVector2Array([Vector2(-17, -27), Vector2(22, -30)]), target, time_of_day, &"wood")
+			for tooth in 6:
+				var tooth_x := -15.0 + float(tooth) * 7.0
+				Draw.add_line(parent, "Tooth%d" % tooth, PackedVector2Array([Vector2(tooth_x, -28), Vector2(tooth_x, -36)]), target, time_of_day, &"wood")
+		MapTypes.PROP_KIND_WOODEN_SHOVEL:
+			Draw.add_line(parent, "Shaft", PackedVector2Array([Vector2(0, 8), Vector2(0, -27)]), target, time_of_day, &"wood")
+			Draw.add_line(parent, "Grip", PackedVector2Array([Vector2(-7, -28), Vector2(7, -28)]), target, time_of_day, &"wood")
+			Draw.add_polygon(parent, "Blade", PackedVector2Array([Vector2(-11, 8), Vector2(11, 8), Vector2(9, 23), Vector2(0, 28), Vector2(-9, 23)]), wood, target, time_of_day)
 		_:
 			Draw.add_rect(parent, "Yard", Vector2(-10, -10), Vector2(20, 20), hay.darkened(0.1), target, time_of_day)

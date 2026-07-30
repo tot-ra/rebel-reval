@@ -1,0 +1,35 @@
+{
+  "approval": "user-requested 2026-07-30",
+  "asset_id": "prop.blacksmith_hammer",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "4419ce5841077471917554ed38439080f456afae9bc5603ae435f3c32e39a46e",
+  "checks": {
+    "embedded_albedo_normal_roughness": true,
+    "floating_geometry": true,
+    "ground_contact": true,
+    "metric_scale": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "uvs": true,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    0.204,
+    0.3525,
+    0.078
+  ],
+  "floating_objects": 0,
+  "generator": "tools/generate_medieval_hand_tools.py",
+  "generator_version": "medieval_hand_tools_v2",
+  "ground_min_z": -0.0,
+  "materials": 3,
+  "mesh_objects": 4,
+  "preview": "generated/blender/blacksmith_hammer_v1/preview.png",
+  "route": "deterministic_blender",
+  "sha256": "246df3bd0a2e1ac3df29594c65ef03b613e096395698e7a710e9028d2a60b3c7",
+  "texture_size": 512,
+  "textured_materials": 3,
+  "triangles": 368,
+  "uv_sets": 1,
+  "vertices": 192
+}

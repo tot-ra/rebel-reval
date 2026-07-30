@@ -1,0 +1,1 @@
+{"id":"prop.blacksmith_hammer","kind":"rigid_prop","target":"res://assets/props/tools/blacksmith_hammer.glb","scene":"res://content/maps/kalev_smithy.rrmap#forge_hammer","dimensions_m":[0.17,0.38,0.1],"triangles":{"max":1000},"textures":{"albedo_normal_roughness":512},"style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}

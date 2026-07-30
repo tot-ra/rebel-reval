@@ -1,0 +1,1 @@
+{"id":"prop.rake","kind":"rigid_prop","target":"res://assets/props/tools/rake.glb","scene":"res://content/maps/viru_gate_foreland.rrmap#east.rake","dimensions_m":[0.65,1.72,0.13],"triangles":{"max":1600},"textures":{"albedo_normal_roughness":512},"style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}

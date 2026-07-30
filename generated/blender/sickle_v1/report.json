@@ -1,0 +1,35 @@
+{
+  "approval": "user-requested 2026-07-30",
+  "asset_id": "prop.sickle",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "fb2b6f16336d8ae98c84c6cdd85db65858a694efa8fb0b3eba36753fb94f9afd",
+  "checks": {
+    "embedded_albedo_normal_roughness": true,
+    "floating_geometry": true,
+    "ground_contact": true,
+    "metric_scale": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "uvs": true,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    0.5407,
+    0.4602,
+    0.054
+  ],
+  "floating_objects": 0,
+  "generator": "tools/generate_medieval_hand_tools.py",
+  "generator_version": "medieval_hand_tools_v2",
+  "ground_min_z": 0.0,
+  "materials": 3,
+  "mesh_objects": 4,
+  "preview": "generated/blender/sickle_v1/preview.png",
+  "route": "deterministic_blender",
+  "sha256": "768e142e771949bf6f31689240cec52c816f4a02362bcee2924acb75157300f4",
+  "texture_size": 512,
+  "textured_materials": 3,
+  "triangles": 140,
+  "uv_sets": 1,
+  "vertices": 78
+}

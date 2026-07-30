@@ -92,6 +92,8 @@ func test_kalev_smithy_has_windows_furniture_and_local_lighting() -> void:
 		assert_true(prop_kinds.has(required), "Missing prop kind %s" % String(required))
 	assert_true(prop_kinds.has(MapTypes.PROP_KIND_BELLOWS), "Forge bay needs bellows for the fire")
 	assert_true(prop_kinds.has(MapTypes.PROP_KIND_BLACKSMITH_TONGS), "Forge bay needs tongs to hold hot stock")
+	assert_true(prop_kinds.has(MapTypes.PROP_KIND_BLACKSMITH_HAMMER), "Anvil apron needs a one-handed forging hammer")
+	assert_true(prop_kinds.has(MapTypes.PROP_KIND_BLACKSMITH_PUNCH), "Anvil apron needs an independently placeable punch")
 	assert_true(prop_kinds.has(MapTypes.PROP_KIND_CHARCOAL_PILE), "Forge bay needs a charcoal pile")
 	assert_true(prop_kinds.has(MapTypes.PROP_KIND_IRON_SCRAP_PILE), "Forge bay needs an iron scrap pile")
 	assert_false(prop_kinds.has(MapTypes.PROP_KIND_BARRELS), "Smithy coal store must not use barrel placeholder")

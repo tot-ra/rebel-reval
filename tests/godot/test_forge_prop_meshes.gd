@@ -184,6 +184,48 @@ func test_blacksmith_tongs_use_authored_grounded_pbr_glb() -> void:
 	assert_eq(pbr_materials.size(), 2, "both iron surfaces need albedo, normal, and roughness maps")
 	node.free()
 
+func test_blacksmith_hammer_and_punch_use_independent_grounded_pbr_glbs() -> void:
+	var expected := {
+		MapTypes.PROP_KIND_BLACKSMITH_HAMMER: {"node": "BlacksmithHammerModel", "height": Vector2(0.34, 0.36), "triangles": 368, "materials": 3},
+		MapTypes.PROP_KIND_BLACKSMITH_PUNCH: {"node": "BlacksmithPunchModel", "height": Vector2(0.22, 0.24), "triangles": 108, "materials": 2},
+	}
+	for kind in expected:
+		var node := MapViewMeshBuilder.build_prop({"id": StringName("forge.%s" % kind), "kind": kind, "position": Vector2.ZERO}, MapTypes.DEFAULT_CELL_SIZE)
+		var spec: Dictionary = expected[kind]
+		var model := node.get_node(String(spec["node"])) as Node3D
+		assert_true(model.get_meta(&"production_medieval_hand_tool", false))
+		var bounds := AABB()
+		var first := true
+		var triangles := 0
+		var materials: Dictionary = {}
+		var pbr_materials: Dictionary = {}
+		for child in model.find_children("*", "MeshInstance3D", true, false):
+			var mesh_instance := child as MeshInstance3D
+			if mesh_instance == null or mesh_instance.mesh == null:
+				continue
+			var child_bounds := mesh_instance.transform * mesh_instance.get_aabb()
+			bounds = child_bounds if first else bounds.merge(child_bounds)
+			first = false
+			for surface_index in mesh_instance.mesh.get_surface_count():
+				triangles += mesh_instance.mesh.surface_get_array_index_len(surface_index) / 3
+				var material := mesh_instance.mesh.surface_get_material(surface_index) as StandardMaterial3D
+				if material != null:
+					materials[material.resource_name] = true
+					if material.albedo_texture != null and material.normal_enabled and material.normal_texture != null and material.roughness_texture != null:
+						pbr_materials[material.resource_name] = true
+		var height: Vector2 = spec["height"]
+		assert_false(first, "%s GLB must expose render geometry" % kind)
+		assert_true(bounds.size.y >= height.x and bounds.size.y <= height.y, "%s needs a plausible metric height" % kind)
+		assert_true(bounds.position.y >= -0.001, "%s must rest on the ground plane" % kind)
+		assert_eq(triangles, spec["triangles"], "%s geometry must stay deterministic" % kind)
+		assert_eq(materials.size(), spec["materials"], "%s material identities must stay stable" % kind)
+		assert_eq(pbr_materials.size(), spec["materials"], "%s needs albedo, normal, and roughness on every material" % kind)
+		var icon := MapPropRenderer.create_prop({"id": StringName("icon.%s" % kind), "kind": kind, "position": Vector2.ZERO})
+		assert_true(icon.get_child_count() > 2, "%s needs a readable 2D renderer" % kind)
+		icon.free()
+		node.free()
+
+
 func test_smithy_quench_uses_detailed_metal_glb_without_replacing_generic_fallback() -> void:
 	var smithy := MapViewMeshBuilder.build_prop(
 			{"id": &"quench", "kind": MapTypes.PROP_KIND_QUENCH, "position": Vector2.ZERO},

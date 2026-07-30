@@ -89,6 +89,8 @@ const PROP_KIND_BARRELS := &"barrels"
 const PROP_KIND_FURNACE := &"furnace"
 const PROP_KIND_BELLOWS := &"bellows"
 const PROP_KIND_BLACKSMITH_TONGS := &"blacksmith_tongs"
+const PROP_KIND_BLACKSMITH_HAMMER := &"blacksmith_hammer"
+const PROP_KIND_BLACKSMITH_PUNCH := &"blacksmith_punch"
 const PROP_KIND_LEDGER := &"ledger"
 const PROP_KIND_BED := &"bed"
 const PROP_KIND_CHEST := &"chest"
@@ -286,6 +288,9 @@ const PROP_KIND_ORCHARD_ROW := &"orchard_row"
 const PROP_KIND_FARM_CART := &"farm_cart"
 const PROP_KIND_PITCHFORK := &"pitchfork"
 const PROP_KIND_SCYTHE := &"scythe"
+const PROP_KIND_SICKLE := &"sickle"
+const PROP_KIND_RAKE := &"rake"
+const PROP_KIND_WOODEN_SHOVEL := &"wooden_shovel"
 const BOAT_PROP_KINDS: Array[StringName] = [PROP_KIND_FISHING_BOAT, PROP_KIND_MERCHANT_BOAT]
 const DISTRICT_LIFE_PROP_KINDS: Array[StringName] = [
 	PROP_KIND_FISHING_NETS,
@@ -322,6 +327,9 @@ const RURAL_LIFE_PROP_KINDS: Array[StringName] = [
 	PROP_KIND_FARM_CART,
 	PROP_KIND_PITCHFORK,
 	PROP_KIND_SCYTHE,
+	PROP_KIND_SICKLE,
+	PROP_KIND_RAKE,
+	PROP_KIND_WOODEN_SHOVEL,
 ]
 
 ## Props whose authored `facing` turns the 3D model. Deliberately narrow: only
@@ -337,8 +345,13 @@ const FACING_AWARE_PROP_KINDS: Array[StringName] = [
 	PROP_KIND_WASH_TUB,
 	PROP_KIND_BANNER,
 	PROP_KIND_BLACKSMITH_TONGS,
+	PROP_KIND_BLACKSMITH_HAMMER,
+	PROP_KIND_BLACKSMITH_PUNCH,
 	PROP_KIND_PITCHFORK,
 	PROP_KIND_SCYTHE,
+	PROP_KIND_SICKLE,
+	PROP_KIND_RAKE,
+	PROP_KIND_WOODEN_SHOVEL,
 	# Flat clutter such as the household apron is a 0.02 m panel whose face must
 	# be turned to the wall it hangs on, otherwise it renders edge-on as a stick.
 	PROP_KIND_HOUSEHOLD_CLUTTER,
@@ -365,6 +378,8 @@ const ALL_PROP_KINDS: Array[StringName] = [
 	PROP_KIND_BED,
 	PROP_KIND_CHEST,
 	PROP_KIND_BLACKSMITH_TONGS,
+	PROP_KIND_BLACKSMITH_HAMMER,
+	PROP_KIND_BLACKSMITH_PUNCH,
 	PROP_KIND_TABLE,
 	PROP_KIND_SHELF,
 	PROP_KIND_QUENCH,
@@ -417,6 +432,9 @@ const ALL_PROP_KINDS: Array[StringName] = [
 	PROP_KIND_FARM_CART,
 	PROP_KIND_PITCHFORK,
 	PROP_KIND_SCYTHE,
+	PROP_KIND_SICKLE,
+	PROP_KIND_RAKE,
+	PROP_KIND_WOODEN_SHOVEL,
 ]
 
 ## Decal kinds for environmental storytelling (P0-157). Flat transparent meshes

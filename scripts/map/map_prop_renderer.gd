@@ -43,6 +43,8 @@ static func create_prop(
 		MapTypes.PROP_KIND_FURNACE: Industrial.draw_furnace(root, target, time_of_day)
 		MapTypes.PROP_KIND_BELLOWS: Industrial.draw_bellows(root, target, time_of_day)
 		MapTypes.PROP_KIND_BLACKSMITH_TONGS: Industrial.draw_blacksmith_tongs(root, target, time_of_day)
+		MapTypes.PROP_KIND_BLACKSMITH_HAMMER: Industrial.draw_blacksmith_hammer(root, target, time_of_day)
+		MapTypes.PROP_KIND_BLACKSMITH_PUNCH: Industrial.draw_blacksmith_punch(root, target, time_of_day)
 		MapTypes.PROP_KIND_LEDGER: Industrial.draw_ledger(root, target, time_of_day)
 		MapTypes.PROP_KIND_BED: Industrial.draw_bed(root, target, time_of_day)
 		MapTypes.PROP_KIND_CHEST: Industrial.draw_chest(root, target, time_of_day)

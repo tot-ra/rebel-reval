@@ -1,0 +1,35 @@
+{
+  "approval": "user-requested 2026-07-30",
+  "asset_id": "prop.rake",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "6a8c9a3d376f27282990b0df696af6f9180fb46fcb200c6a7f42e48bc78e5dcd",
+  "checks": {
+    "embedded_albedo_normal_roughness": true,
+    "floating_geometry": true,
+    "ground_contact": true,
+    "metric_scale": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "uvs": true,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    0.62,
+    1.6989,
+    0.1689
+  ],
+  "floating_objects": 0,
+  "generator": "tools/generate_medieval_hand_tools.py",
+  "generator_version": "medieval_hand_tools_v2",
+  "ground_min_z": 0.0,
+  "materials": 1,
+  "mesh_objects": 10,
+  "preview": "generated/blender/rake_v1/preview.png",
+  "route": "deterministic_blender",
+  "sha256": "b030011f889106670f39965c4ec4a92a30fc3a7d7ba38291989d0c6b34828aab",
+  "texture_size": 512,
+  "textured_materials": 1,
+  "triangles": 312,
+  "uv_sets": 1,
+  "vertices": 176
+}

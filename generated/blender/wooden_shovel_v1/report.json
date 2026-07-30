@@ -1,0 +1,35 @@
+{
+  "approval": "user-requested 2026-07-30",
+  "asset_id": "prop.wooden_shovel",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "d8effdfe41faf2bf6c74947536662a6265afd2086471e96bf0d6d7a818b457d7",
+  "checks": {
+    "embedded_albedo_normal_roughness": true,
+    "floating_geometry": true,
+    "ground_contact": true,
+    "metric_scale": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "uvs": true,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    0.27,
+    1.453,
+    0.056
+  ],
+  "floating_objects": 0,
+  "generator": "tools/generate_medieval_hand_tools.py",
+  "generator_version": "medieval_hand_tools_v2",
+  "ground_min_z": 0.0,
+  "materials": 1,
+  "mesh_objects": 4,
+  "preview": "generated/blender/wooden_shovel_v1/preview.png",
+  "route": "deterministic_blender",
+  "sha256": "d53b86508f23b41fe3400ed50bde2cb9248f9c21c9c8658e53cd5f372794ddd3",
+  "texture_size": 512,
+  "textured_materials": 1,
+  "triangles": 136,
+  "uv_sets": 1,
+  "vertices": 76
+}

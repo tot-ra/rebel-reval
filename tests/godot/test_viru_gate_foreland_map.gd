@@ -102,6 +102,9 @@ func test_pirita_farmsteads_store_authored_field_tools() -> void:
 		present[prop.get("kind", &"")] = true
 	assert_true(present.has(MapTypes.PROP_KIND_PITCHFORK), "western croft needs a pitchfork for hay and bedding")
 	assert_true(present.has(MapTypes.PROP_KIND_SCYTHE), "eastern farm needs a scythe for hay and grain work")
+	assert_true(present.has(MapTypes.PROP_KIND_SICKLE), "western croft needs a short reaping sickle")
+	assert_true(present.has(MapTypes.PROP_KIND_RAKE), "western shed needs a wooden hay rake")
+	assert_true(present.has(MapTypes.PROP_KIND_WOODEN_SHOVEL), "eastern barn needs a wooden grain or stable shovel")
 
 
 func test_pirita_reciprocates_workers_district_with_stable_ids() -> void:

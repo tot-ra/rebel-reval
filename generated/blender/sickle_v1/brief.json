@@ -1,0 +1,1 @@
+{"id":"prop.sickle","kind":"rigid_prop","target":"res://assets/props/tools/sickle.glb","scene":"res://content/maps/viru_gate_foreland.rrmap#west.sickle","dimensions_m":[0.42,0.48,0.1],"triangles":{"max":1200},"textures":{"albedo_normal_roughness":512},"style_refs":["docs/ART_BIBLE.md","docs/MATERIAL_STYLE_LOCK_KIT.md"],"approval":"task-authorized"}

@@ -1,0 +1,35 @@
+{
+  "approval": "user-requested 2026-07-30",
+  "asset_id": "prop.blacksmith_punch",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "bcdfab38bdf6e03e848a0722d56e2231e588305c69691fab90419ab28e03e828",
+  "checks": {
+    "embedded_albedo_normal_roughness": true,
+    "floating_geometry": true,
+    "ground_contact": true,
+    "metric_scale": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "uvs": true,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    0.059,
+    0.225,
+    0.062
+  ],
+  "floating_objects": 0,
+  "generator": "tools/generate_medieval_hand_tools.py",
+  "generator_version": "medieval_hand_tools_v2",
+  "ground_min_z": 0.0,
+  "materials": 2,
+  "mesh_objects": 3,
+  "preview": "generated/blender/blacksmith_punch_v1/preview.png",
+  "route": "deterministic_blender",
+  "sha256": "b4a9f365f88b63fc49252bf3aa13da9d704627e443d8eca339b44592ce4b79cb",
+  "texture_size": 512,
+  "textured_materials": 2,
+  "triangles": 108,
+  "uv_sets": 1,
+  "vertices": 60
+}

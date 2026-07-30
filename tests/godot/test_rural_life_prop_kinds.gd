@@ -6,7 +6,7 @@ extends "res://tests/godot/map_view_3d_test_base.gd"
 func test_all_rural_life_kinds_are_registered() -> void:
 	assert_eq(
 		MapTypes.RURAL_LIFE_PROP_KINDS.size(),
-		12,
+		15,
 		"P0-107 rural prop-kind set plus authored field tools must stay in sync with MapTypes"
 	)
 	for kind in MapTypes.RURAL_LIFE_PROP_KINDS:
@@ -52,6 +52,24 @@ func test_authored_farm_tools_keep_readable_metric_silhouettes_and_pbr() -> void
 			"height": Vector2(1.49, 1.53),
 			"triangles": 388,
 			"materials": 3,
+		},
+		MapTypes.PROP_KIND_SICKLE: {
+			"node": "SickleModel",
+			"height": Vector2(0.45, 0.48),
+			"triangles": 140,
+			"materials": 3,
+		},
+		MapTypes.PROP_KIND_RAKE: {
+			"node": "RakeModel",
+			"height": Vector2(1.68, 1.72),
+			"triangles": 312,
+			"materials": 1,
+		},
+		MapTypes.PROP_KIND_WOODEN_SHOVEL: {
+			"node": "WoodenShovelModel",
+			"height": Vector2(1.44, 1.47),
+			"triangles": 136,
+			"materials": 1,
 		},
 	}
 	for kind in expected:
