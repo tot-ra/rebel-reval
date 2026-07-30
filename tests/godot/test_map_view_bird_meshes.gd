@@ -6,12 +6,15 @@ const BirdSpecies := preload("res://scripts/map/view3d/map_view_bird_species.gd"
 
 
 func test_catalog_uses_only_the_reviewed_authored_glbs() -> void:
-	# Static-pose allowlist plus P2-034 harbour gull flap cycles and P2-035 waterfowl.
+	# Static-pose allowlist plus P2-034 harbour gull flap cycles, P2-035 waterfowl, P2-036 waders.
 	var authored_static := {
 		BirdSpecies.SPECIES_MUTE_SWAN: BirdSpecies.POSE_STANDING,
 		BirdSpecies.SPECIES_MALLARD: BirdSpecies.POSE_STANDING,
 		BirdSpecies.SPECIES_GREYLAG_GOOSE: BirdSpecies.POSE_STANDING,
 		BirdSpecies.SPECIES_GREAT_CORMORANT: BirdSpecies.POSE_STANDING,
+		BirdSpecies.SPECIES_GREY_HERON: BirdSpecies.POSE_STANDING,
+		BirdSpecies.SPECIES_NORTHERN_LAPWING: BirdSpecies.POSE_STANDING,
+		BirdSpecies.SPECIES_COMMON_SNIPE: BirdSpecies.POSE_STANDING,
 		BirdSpecies.SPECIES_HOUSE_SPARROW: BirdSpecies.POSE_PERCHED,
 		BirdSpecies.SPECIES_HERRING_GULL: BirdSpecies.POSE_GLIDING,
 		BirdSpecies.SPECIES_COMMON_GULL: BirdSpecies.POSE_GLIDING,
@@ -43,6 +46,9 @@ func test_mesh_for_prefers_reviewed_authored_defaults_and_falls_back_for_the_res
 		BirdSpecies.SPECIES_MALLARD,
 		BirdSpecies.SPECIES_GREYLAG_GOOSE,
 		BirdSpecies.SPECIES_GREAT_CORMORANT,
+		BirdSpecies.SPECIES_GREY_HERON,
+		BirdSpecies.SPECIES_NORTHERN_LAPWING,
+		BirdSpecies.SPECIES_COMMON_SNIPE,
 		BirdSpecies.SPECIES_HOUSE_SPARROW,
 		BirdSpecies.SPECIES_HERRING_GULL,
 		BirdSpecies.SPECIES_COMMON_GULL,

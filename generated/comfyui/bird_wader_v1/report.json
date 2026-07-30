@@ -1,0 +1,63 @@
+{
+  "generator": "waders_v1",
+  "assets": [
+    {
+      "triangles": 504,
+      "dimensions_m": [
+        0.4328,
+        3.2685,
+        3.028
+      ],
+      "largest_axis_m": 3.2685,
+      "ground_min_z": 0.0,
+      "sha256": "85e8ee25b47f2ef0d1ef67dc77d9c15d7d7ed5d21af29196599a9e90fd0fdc35",
+      "path": "assets/birds/grey_heron/standing.glb",
+      "species": "grey_heron",
+      "pose": "standing",
+      "neck": 0.66,
+      "legs": 0.72,
+      "beak": 0.48,
+      "crest": false,
+      "reference_plate": "docs/reports/images/fauna/p2_036_grey_heron_reference.png"
+    },
+    {
+      "triangles": 506,
+      "dimensions_m": [
+        0.1694,
+        0.5319,
+        0.5543
+      ],
+      "largest_axis_m": 0.5543,
+      "ground_min_z": 0.0,
+      "sha256": "24f37c9e190627b42c34aef517e9280be81314c305a5ec8b6df83ee420991d7b",
+      "path": "assets/birds/northern_lapwing/standing.glb",
+      "species": "northern_lapwing",
+      "pose": "standing",
+      "neck": 0.08,
+      "legs": 0.27,
+      "beak": 0.16,
+      "crest": true,
+      "reference_plate": "docs/reports/images/fauna/p2_036_northern_lapwing_reference.png"
+    },
+    {
+      "triangles": 504,
+      "dimensions_m": [
+        0.135,
+        0.4031,
+        0.7644
+      ],
+      "largest_axis_m": 0.7644,
+      "ground_min_z": 0.0,
+      "sha256": "a905c31b50688fc2d9f4d6907034a62a1c73c4f8068f58ef87eff819b97ec865",
+      "path": "assets/birds/common_snipe/standing.glb",
+      "species": "common_snipe",
+      "pose": "standing",
+      "neck": 0.05,
+      "legs": 0.25,
+      "beak": 0.56,
+      "crest": false,
+      "reference_plate": "docs/reports/images/fauna/p2_036_common_snipe_reference.png"
+    }
+  ],
+  "reference_sheet": "docs/reports/images/fauna/p2_036_wader_reference_sheet.png"
+}

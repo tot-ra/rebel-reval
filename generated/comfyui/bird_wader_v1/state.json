@@ -1,0 +1,8 @@
+{
+  "asset_id": "bird.wader_batch",
+  "route": "deterministic_blender",
+  "stage": "production_ready",
+  "generator_version": "waders_v1",
+  "blender_version": "Blender 5.2 LTS",
+  "note": "Hunyuan3D unavailable; catalog-proportion standing waders with PBR feather maps, heron neck/legs, lapwing crest, snipe bill"
+}
