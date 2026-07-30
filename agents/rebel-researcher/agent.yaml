@@ -41,4 +41,5 @@ publish:
     category: engineering
     discoverable: false
 llm:
-  provider: fallback_chain:development
+  provider: openrouter
+  model: xiaomi/mimo-v2.5

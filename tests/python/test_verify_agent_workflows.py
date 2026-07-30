@@ -45,6 +45,20 @@ networking:
             MODULE.tool_items(yaml_text, "disabled"),
         )
 
+    def test_llm_target_reads_explicit_provider_and_model(self) -> None:
+        yaml_text = """runtime:
+  type: docker
+llm:
+  model: xiaomi/mimo-v2.5  # Ordering and comments are valid YAML.
+  provider: openrouter
+instructions:
+  system_file: system.md
+"""
+        self.assertEqual(
+            ("openrouter", "xiaomi/mimo-v2.5"),
+            MODULE.llm_target(yaml_text),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

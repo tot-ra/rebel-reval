@@ -23,6 +23,11 @@ EXPECTED_AGENTS = {
     "rebel-quest",
     "rebel-researcher",
 }
+DOCKER_LLM_TARGETS = {
+    "rebel-art": ("openai_codex", "gpt-5.6-sol"),
+    "rebel-producer": ("openai_codex", "gpt-5.6-sol"),
+    "rebel-researcher": ("openrouter", "xiaomi/mimo-v2.5"),
+}
 
 
 def error(errors: list[str], path: Path, message: str) -> None:
@@ -57,6 +62,30 @@ def tool_items(yaml_text: str, key: str) -> set[str]:
     return set()
 
 
+def section_scalar(yaml_text: str, section: str, key: str) -> str:
+    """Read a scalar from a simple top-level YAML mapping without key-order assumptions."""
+    in_section = False
+    marker = f"{section}:"
+    key_pattern = re.compile(rf"^  {re.escape(key)}:\s*([^#]+?)(?:\s+#.*)?$")
+    for line in yaml_text.splitlines():
+        if line == marker:
+            in_section = True
+            continue
+        if in_section and line and not line.startswith(" "):
+            break
+        if not in_section:
+            continue
+        match = key_pattern.match(line)
+        if match:
+            return match.group(1).strip().strip("'\"")
+    return ""
+
+
+def llm_target(yaml_text: str) -> tuple[str, str]:
+    """Read the direct provider/model pair from the top-level llm section."""
+    return section_scalar(yaml_text, "llm", "provider"), section_scalar(yaml_text, "llm", "model")
+
+
 def validate() -> list[str]:
     errors: list[str] = []
     found = {path.parent.name for path in AGENTS_DIR.glob("rebel-*/agent.yaml")}
@@ -85,6 +114,17 @@ def validate() -> list[str]:
         match = re.search(r"^\s{2}id:\s*([^\s]+)\s*$", yaml_text, re.MULTILINE)
         if not match or match.group(1) != agent_id:
             error(errors, yaml_path, "agent.id must match its directory")
+        if agent_id in DOCKER_LLM_TARGETS:
+            expected_target = DOCKER_LLM_TARGETS[agent_id]
+            actual_target = llm_target(yaml_text)
+            if actual_target != expected_target:
+                error(
+                    errors,
+                    yaml_path,
+                    f"Docker LLM target must be {expected_target!r}, got {actual_target!r}",
+                )
+            if section_scalar(yaml_text, "networking", "internet_access") != "true":
+                error(errors, yaml_path, "Docker LLM routing through the parent proxy requires internet_access: true")
         for key, value in (("type", "docker"), ("mount", "rw"), ("mode", "allow")):
             setting = f"  {key}: {value}"
             if setting not in yaml_text.splitlines():
