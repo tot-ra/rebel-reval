@@ -1,0 +1,29 @@
+{
+  "task_id": "P4-013",
+  "slice": "act1-standalone-candidate",
+  "exported_at": "2026-07-30T09:03:20Z",
+  "godot_version": "4.7.1.stable.official.a13da4feb",
+  "export_preset": "act1",
+  "package_path": "build/act1/rr.dmg",
+  "app_path": "build/act1/Reval Rebel.app",
+  "package_bytes": 1143742554,
+  "package_sha256": "ea3cf41493394ab6bd01e17de38011b05bf3ee199fd4710a08a4eb3dc1eafbdc",
+  "application_version": "0.2.0-act1",
+  "platform": "macOS",
+  "architecture": "universal",
+  "supported_entry_point": "res://scenes/menu/main_menu.tscn",
+  "frozen_contracts": {
+    "save_envelope_version": 1,
+    "game_state_version": 2,
+    "map_world_state_version": 2,
+    "content_schema_version": 1,
+    "reference_slice_release": "docs/data/slice_release_manifest.json",
+    "gate_report": "docs/reports/p4_012_act1_gate.md"
+  },
+  "launch_verification": {
+    "command": "build/act1/Reval Rebel.app/Contents/MacOS/Reval Rebel -- --verify-packaged-platform",
+    "result": "PASS",
+    "log_tail_path": "build/act1/launch_smoke.log"
+  },
+  "handoff": "P4-044"
+}
