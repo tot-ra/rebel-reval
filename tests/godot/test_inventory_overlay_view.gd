@@ -1,6 +1,7 @@
 extends "res://tests/godot/test_case.gd"
 
 const ITEM_SPEARHEAD := &"item.seized_spearhead"
+const EquipmentSilhouetteScene := preload("res://scripts/inventory/equipment_silhouette.gd")
 const InventoryUiThemeScene := preload("res://scripts/inventory/inventory_ui_theme.gd")
 
 
@@ -78,5 +79,27 @@ func test_overlay_uses_historical_satchel_theme() -> void:
 	var empty_style := overlay._cell_buttons[0].get_theme_stylebox("normal") as StyleBoxFlat
 	assert_true(empty_style != null, "cells must use leather styleboxes")
 	assert_eq(empty_style.bg_color, InventoryUiThemeScene.LEATHER_EMPTY)
+
+
+
+func test_overlay_exposes_rich_equipment_paper_doll_and_ornament() -> void:
+	var overlay := InventoryOverlay.new()
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(overlay)
+	overlay.open()
+
+	var ornament := overlay.find_child("OrnamentFrame", true, false)
+	assert_true(ornament != null, "bag panel needs scalable ornamental brasswork")
+	var equipment_panel := overlay.find_child("EquipmentPanel", true, false) as PanelContainer
+	assert_true(equipment_panel != null, "paper doll needs a dedicated framed equipment panel")
+
+	var expected_slots: Array[StringName] = [
+		&"head", &"back", &"body", &"arms", &"belt", &"legs", &"feet", &"left_hand", &"right_hand"
+	]
+	assert_eq(EquipmentSilhouetteScene.SLOT_ORDER, expected_slots)
+	for slot: StringName in expected_slots:
+		assert_true(overlay._silhouette._slot_rects.has(slot), "%s socket must be visible" % slot)
+		var rect: Rect2 = overlay._silhouette._slot_rects[slot]
+		assert_true(rect.size.x > 30.0 and rect.size.y > 25.0, "%s socket must remain usable" % slot)
 
 	overlay.queue_free()

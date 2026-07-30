@@ -5,25 +5,29 @@ const UiFocusThemeScript := preload("res://scripts/ui/ui_focus_theme.gd")
 ## Matches the minimap oak/brass HUD so the satchel reads as 14th-century Reval
 ## kit (leather pouch, brass fittings, parchment ink) without new texture assets.
 
-const PANEL_BG := Color(0.085, 0.052, 0.028, 0.96)
-const PANEL_BORDER := Color(0.42, 0.26, 0.12, 1.0)
-const PANEL_SHADOW := Color(0.0, 0.0, 0.0, 0.55)
-const SECTION_BG := Color(0.055, 0.034, 0.018, 0.62)
-const BRASS := Color(0.72, 0.58, 0.31, 1.0)
-const BRASS_BRIGHT := Color(0.93, 0.79, 0.48, 0.95)
+const PANEL_BG := Color(0.052, 0.030, 0.017, 0.985)
+const PANEL_BORDER := Color(0.46, 0.29, 0.12, 1.0)
+const PANEL_SHADOW := Color(0.0, 0.0, 0.0, 0.72)
+const SECTION_BG := Color(0.035, 0.021, 0.012, 0.76)
+const SECTION_INSET := Color(0.12, 0.075, 0.035, 0.72)
+const BRASS_DARK := Color(0.34, 0.22, 0.10, 1.0)
+const BRASS := Color(0.72, 0.55, 0.25, 1.0)
+const BRASS_BRIGHT := Color(0.96, 0.78, 0.40, 0.98)
 const PARCHMENT := Color(0.96, 0.91, 0.81, 1.0)
-const INK_MUTED := Color(0.78, 0.70, 0.58, 1.0)
+const INK_MUTED := Color(0.76, 0.68, 0.55, 1.0)
 const INK_BODY := Color(0.90, 0.84, 0.72, 1.0)
-const LEATHER_EMPTY := Color(0.16, 0.11, 0.07, 0.96)
-const LEATHER_VALID := Color(0.22, 0.28, 0.16, 0.96)
-const DIM_SCRIM := Color(0.06, 0.04, 0.02, 0.74)
-const SILHOUETTE_FILL := Color(0.34, 0.24, 0.16, 0.94)
-const SILHOUETTE_STROKE := Color(0.18, 0.11, 0.06, 0.98)
-const SLOT_EMPTY := Color(0.14, 0.09, 0.05, 0.88)
-const SLOT_FILLED := Color(0.46, 0.34, 0.18, 0.94)
-const METER_TRACK := Color(0.12, 0.08, 0.04, 0.95)
-const METER_FILL := Color(0.62, 0.48, 0.24, 0.98)
-const METER_FILL_HEAVY := Color(0.62, 0.30, 0.18, 0.98)
+const LEATHER_EMPTY := Color(0.125, 0.078, 0.043, 0.98)
+const LEATHER_VALID := Color(0.20, 0.27, 0.14, 0.98)
+const DIM_SCRIM := Color(0.025, 0.015, 0.008, 0.82)
+const SILHOUETTE_FILL := Color(0.31, 0.205, 0.125, 0.98)
+const SILHOUETTE_MID := Color(0.225, 0.14, 0.085, 0.98)
+const SILHOUETTE_HIGHLIGHT := Color(0.43, 0.30, 0.18, 0.92)
+const SILHOUETTE_STROKE := Color(0.105, 0.060, 0.028, 1.0)
+const SLOT_EMPTY := Color(0.105, 0.061, 0.031, 0.95)
+const SLOT_FILLED := Color(0.43, 0.30, 0.14, 0.96)
+const METER_TRACK := Color(0.09, 0.05, 0.025, 0.98)
+const METER_FILL := Color(0.64, 0.45, 0.18, 0.98)
+const METER_FILL_HEAVY := Color(0.64, 0.25, 0.13, 0.98)
 
 ## Period dye / metal tones instead of neon UI hues.
 const CATEGORY_COLORS := {
@@ -40,17 +44,19 @@ static func apply_panel(panel: PanelContainer) -> void:
 	var style := StyleBoxFlat.new()
 	style.bg_color = PANEL_BG
 	style.border_color = PANEL_BORDER
-	style.set_border_width_all(2)
-	style.border_width_top = 3
-	style.border_width_bottom = 3
-	style.set_corner_radius_all(12)
+	style.set_border_width_all(3)
+	style.border_width_top = 4
+	style.border_width_bottom = 4
+	style.set_corner_radius_all(4)
+	style.corner_radius_top_left = 18
+	style.corner_radius_bottom_right = 18
 	style.shadow_color = PANEL_SHADOW
-	style.shadow_size = 18
-	style.shadow_offset = Vector2(0, 6)
-	style.content_margin_left = 2
-	style.content_margin_right = 2
-	style.content_margin_top = 2
-	style.content_margin_bottom = 2
+	style.shadow_size = 24
+	style.shadow_offset = Vector2(0, 9)
+	style.content_margin_left = 3
+	style.content_margin_right = 3
+	style.content_margin_top = 3
+	style.content_margin_bottom = 3
 	panel.add_theme_stylebox_override("panel", style)
 
 
@@ -60,9 +66,15 @@ static func apply_panel(panel: PanelContainer) -> void:
 static func apply_section_panel(panel: PanelContainer) -> void:
 	var style := StyleBoxFlat.new()
 	style.bg_color = SECTION_BG
-	style.border_color = Color(BRASS.r, BRASS.g, BRASS.b, 0.42)
+	style.border_color = Color(BRASS.r, BRASS.g, BRASS.b, 0.66)
 	style.set_border_width_all(1)
-	style.set_corner_radius_all(7)
+	style.border_width_top = 2
+	style.set_corner_radius_all(3)
+	style.corner_radius_top_left = 9
+	style.corner_radius_bottom_right = 9
+	style.shadow_color = Color(0, 0, 0, 0.32)
+	style.shadow_size = 5
+	style.shadow_offset = Vector2(0, 2)
 	style.content_margin_left = 12
 	style.content_margin_right = 12
 	style.content_margin_top = 10
@@ -93,11 +105,13 @@ static func make_panel_glow() -> TextureRect:
 
 
 static func apply_title(label: Label) -> void:
-	label.add_theme_font_size_override("font_size", 30)
+	label.add_theme_font_size_override("font_size", 32)
 	label.add_theme_color_override("font_color", BRASS_BRIGHT)
-	label.add_theme_color_override("font_shadow_color", Color(0.05, 0.03, 0.02, 0.95))
+	label.add_theme_color_override("font_outline_color", Color(BRASS_DARK, 0.92))
+	label.add_theme_constant_override("outline_size", 1)
+	label.add_theme_color_override("font_shadow_color", Color(0.02, 0.01, 0.005, 0.98))
 	label.add_theme_constant_override("shadow_offset_x", 1)
-	label.add_theme_constant_override("shadow_offset_y", 2)
+	label.add_theme_constant_override("shadow_offset_y", 3)
 
 
 static func apply_subtitle(label: Label) -> void:
@@ -107,7 +121,10 @@ static func apply_subtitle(label: Label) -> void:
 
 static func apply_section_caption(label: Label) -> void:
 	label.add_theme_font_size_override("font_size", 11)
-	label.add_theme_color_override("font_color", BRASS)
+	label.add_theme_color_override("font_color", BRASS_BRIGHT)
+	label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
+	label.add_theme_constant_override("shadow_offset_y", 1)
+	label.add_theme_constant_override("letter_spacing", 1)
 
 
 static func apply_detail_title(label: Label) -> void:
@@ -207,7 +224,9 @@ static func cell_style(
 		border = BRASS_BRIGHT.lerp(border, 0.35)
 	style.border_color = UiFocusThemeScript.focus_border_color(border) if focused else border
 	style.set_border_width_all(UiFocusThemeScript.focus_border_width() if focused else (2 if selected else 1))
-	style.set_corner_radius_all(6)
+	style.set_corner_radius_all(3)
+	style.corner_radius_top_left = 7
+	style.corner_radius_bottom_right = 7
 	style.content_margin_left = 2
 	style.content_margin_right = 2
 	style.content_margin_top = 2

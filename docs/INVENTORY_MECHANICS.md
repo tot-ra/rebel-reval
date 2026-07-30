@@ -15,7 +15,7 @@ Items occupy rectangular footprints on the grid (`grid_width` x `grid_height`). 
 
 **Encumbrance:** movement speed scales linearly from 100% at empty load to 65% at the weight cap. Volume does not slow the player directly, but a full grid blocks new pickups.
 
-Open the bag with **I**; close with **I**, **Esc**, or the overlay Close button. While open, movement is paused so the player can rearrange items. Move the grid selection with arrow keys or **WASD**; **Enter** or **Space** picks up or places the focused item (same as clicking a cell). The overlay shows exact burden (`kg`) and stowage (`cells`), short item labels on the grid, tooltips with full names, and a worn-gear silhouette for equipment slots. Visual styling follows the oak/brass/parchment HUD tokens in `InventoryUiTheme` so the satchel matches the minimap date badge family without new texture assets.
+Open the bag with **I**; close with **I**, **Esc**, or the overlay Close button. While open, movement is paused so the player can rearrange items. Move the grid selection with arrow keys or **WASD**; **Enter** or **Space** picks up or places the focused item (same as clicking a cell). The overlay shows exact burden (`kg`) and stowage (`cells`), short item labels on the grid, tooltips with full names, and a nine-socket worn-gear paper doll for head, back, body, arms, belt, legs, feet, and both hands. Visual styling follows the oak/brass/parchment HUD tokens in `InventoryUiTheme`; scalable chamfered brasswork and corner fittings give the satchel a richer late-medieval frame without resolution-specific texture assets.
 
 ## Relationship to other systems
 
@@ -31,7 +31,7 @@ Pickup wiring (D-003) should call `GameState.bag.try_add(item_id)` and, on succe
 
 ## Equipment placement (design)
 
-Status: **designed, not yet implemented.** The rig side exists (`SharedCharacterRig.equip/unequip/equip_garment`, slots `right_hand`, `left_hand`, `head`, `back` — see [`docs/CHARACTER_GENERATION.md`](CHARACTER_GENERATION.md)); this section fixes the inventory-side contract before wiring.
+Status: **implemented.** The inventory supports nine logical sockets (`head`, `back`, `body`, `arms`, `belt`, `legs`, `feet`, `left_hand`, `right_hand`). The current 3D rig mirrors the four rigid attachment sockets `right_hand`, `left_hand`, `head`, and `back`; the additional body sockets are UI/state-ready and need garment assets plus runtime rig wiring before they appear on the 3D character (see [`docs/CHARACTER_GENERATION.md`](CHARACTER_GENERATION.md)).
 
 **Content**: item records gain an optional `gameplay.equip` block:
 
@@ -52,7 +52,7 @@ or, for clothes, `"garment": "cape"` instead of `scene`. No `equip` block means 
 - Unequip is the reverse: needs free grid space, else rejected.
 - Quest/content ownership flags (`add_item`/`has_item`) are unaffected by equip state — an equipped hammer is still owned.
 
-**UI**: the bag overlay gains a slot column (right hand, left hand, head, back) beside the grid. Click an equipable item → "Equip" action; click an occupied slot → returns the item to the bag. Encumbrance meter unchanged.
+**UI**: the bag overlay places a nine-socket equipment paper doll (head, back, body, arms, belt, legs, feet, and both hands) beside the 8 x 5 packed-goods grid. Click an equipable item → "Equip" action; click an occupied socket → returns the item to the bag. Encumbrance meter unchanged.
 
 **Visuals**: on any change to `GameState.equipped`, the player controller calls the matching `rig.equip/unequip/equip_garment` so the 3D view always reflects state; NPC variants keep using `CharacterVariant` defaults.
 
@@ -80,6 +80,8 @@ Stackable items (`gameplay.stackable: true`) share one grid cell and stack up to
 | `scripts/state/item_carry_profile.gd` | Resolve carry stats from content or defaults |
 | `scripts/inventory/inventory_overlay.gd` | Bag UI (grid, meters, move-by-click) |
 | `scripts/inventory/inventory_overlay_builder.gd` | Overlay node tree and chrome |
+| `scripts/inventory/inventory_ornament_frame.gd` | Resolution-independent chamfered frame, fittings, and brass ornament |
+| `scripts/inventory/equipment_silhouette.gd` | Anatomical paper doll, nine equipment sockets, and drag/drop hit zones |
 | `scripts/inventory/inventory_ui_theme.gd` | Oak/brass/parchment style tokens |
 | `scripts/inventory/quest_pouch_model.gd` | Resolve capped visible quest-tool ids from state + content |
 | `scripts/inventory/quest_pouch_hud.gd` | Always-on three-slot quest-tool HUD |

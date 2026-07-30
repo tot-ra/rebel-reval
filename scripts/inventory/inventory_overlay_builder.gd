@@ -5,12 +5,13 @@ extends RefCounted
 
 const EquipmentSilhouetteScene := preload("res://scripts/inventory/equipment_silhouette.gd")
 const InventoryGridCellScene := preload("res://scripts/inventory/inventory_grid_cell.gd")
+const InventoryOrnamentFrameScene := preload("res://scripts/inventory/inventory_ornament_frame.gd")
 const InventoryUiThemeScene := preload("res://scripts/inventory/inventory_ui_theme.gd")
 
 const CELL_SIZE := 60
 const CELL_GAP := 6
-const PANEL_PADDING := 26
-const SILHOUETTE_WIDTH := 228
+const PANEL_PADDING := 32
+const SILHOUETTE_WIDTH := 330
 const DRAG_KIND_BAG := &"bag"
 const DRAG_KIND_EQUIPPED := &"equipped"
 const HELP_TOOLTIP := (
@@ -42,13 +43,20 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	panel.custom_minimum_size = Vector2(860, 0)
-	panel.clip_contents = true
+	panel.custom_minimum_size = Vector2(1180, 0)
+	panel.clip_contents = false
 	InventoryUiThemeScene.apply_panel(panel)
 	root.add_child(panel)
 
 	# Hearth glow sits behind the contents so the leather panel is not flat.
 	panel.add_child(InventoryUiThemeScene.make_panel_glow())
+
+	# Vector brasswork gives the large panel a shaped, game-like silhouette while
+	# remaining resolution-independent at every supported UI scale.
+	var ornament: Control = InventoryOrnamentFrameScene.new()
+	ornament.name = "OrnamentFrame"
+	ornament.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	panel.add_child(ornament)
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", PANEL_PADDING)
@@ -102,10 +110,11 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	layout.add_child(InventoryUiThemeScene.make_brass_rule())
 
 	var body_row := HBoxContainer.new()
-	body_row.add_theme_constant_override("separation", 16)
+	body_row.add_theme_constant_override("separation", 18)
 	layout.add_child(body_row)
 
 	var silhouette_panel := PanelContainer.new()
+	silhouette_panel.name = "EquipmentPanel"
 	InventoryUiThemeScene.apply_section_panel(silhouette_panel)
 	body_row.add_child(silhouette_panel)
 
@@ -114,15 +123,16 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	silhouette_panel.add_child(silhouette_column)
 
 	var silhouette_caption := Label.new()
-	silhouette_caption.text = "WORN GEAR"
+	silhouette_caption.text = "KALEV - WORN GEAR"
 	silhouette_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	InventoryUiThemeScene.apply_section_caption(silhouette_caption)
 	silhouette_column.add_child(silhouette_caption)
+	silhouette_column.add_child(InventoryUiThemeScene.make_brass_rule())
 
 	var silhouette: Control = EquipmentSilhouetteScene.new()
 	silhouette.custom_minimum_size = Vector2(
 		SILHOUETTE_WIDTH,
-		CELL_SIZE * InventoryBag.GRID_HEIGHT + CELL_GAP * (InventoryBag.GRID_HEIGHT - 1)
+		CELL_SIZE * InventoryBag.GRID_HEIGHT + CELL_GAP * (InventoryBag.GRID_HEIGHT - 1) - 8
 	)
 	silhouette.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	silhouette.configure_drop_handlers(
@@ -138,6 +148,7 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	silhouette_column.add_child(silhouette)
 
 	var grid_panel := PanelContainer.new()
+	grid_panel.name = "PackedGoodsPanel"
 	grid_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	InventoryUiThemeScene.apply_section_panel(grid_panel)
 	body_row.add_child(grid_panel)
@@ -147,9 +158,10 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	grid_panel.add_child(grid_column)
 
 	var grid_caption := Label.new()
-	grid_caption.text = "PACKED GOODS"
+	grid_caption.text = "PACKED GOODS - 8 × 5"
 	InventoryUiThemeScene.apply_section_caption(grid_caption)
 	grid_column.add_child(grid_caption)
+	grid_column.add_child(InventoryUiThemeScene.make_brass_rule())
 
 	var grid := GridContainer.new()
 	grid.columns = InventoryBag.GRID_WIDTH
@@ -203,7 +215,7 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	detail_column.add_child(equip_button)
 
 	var hint := Label.new()
-	hint.text = "Select a good, then Equip / drag onto a highlighted slot. Drag packed cells to rearrange."
+	hint.text = "Select a good, then Equip / drag it onto the matching brass socket. Drag packed cells to rearrange."
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	InventoryUiThemeScene.apply_hint(hint)
