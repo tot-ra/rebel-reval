@@ -75,3 +75,6 @@
 - ADR 0018 matched day/night calibration captures must use one Godot process per plate; batching many SubViewport MapView3D builds in one process eventually yields blank frames after the first few.
 - `--script` capture paths that instantiate `player.tscn` need a host `.tscn` so autoloads (`DoorNavigator`, `SessionState`) resolve; prefer MapView3D-only calibration cameras when Player is not required for the plate.
 - Outdoor night crushed to black after ADR 0018 is usually ambient/fill and clean-painted night multipliers, not the 20% post-grade luminance proxy alone; raise `AMBIENT_NIGHT_ENERGY` / night terrain multipliers before breaching the proxy.
+- In a dirty shared worktree, restore `TODO.md` from HEAD before applying a single-task closeout; otherwise `update_todo_counts.py --write` and unrelated WIP comment cleanup get absorbed into the commit.
+- Expand bird-batch allowlists to include `tools/generate_*.py` and `tests/godot/test_map_view_bird_meshes.gd` up front; authored GLBs fail CI without the mesh allowlist update even when the task row omitted them.
+- When appending `assets/SOURCES.csv` rows, keep HEAD bytes for existing lines and append new rows as text; rewriting the whole file with `csv.writer` can silently drop quoting on fields that contain commas.
