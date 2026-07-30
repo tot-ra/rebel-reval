@@ -40,8 +40,8 @@ func test_central_district_square_and_edges_do_not_stop_abruptly() -> void:
 	var east_transition := _transition_by_id(definition, &"to_reval_east")
 	var town_hall_footprint := _building_by_id(definition, &"town_hall_mass")["footprint"] as Rect2
 	assert_eq(grid.get_terrain(Vector2i(74, 60)), MapTypes.TERRAIN_DIRT, "The east side of Raekoja plats stays trampled earth")
-	assert_eq(grid.get_terrain(Vector2i(38, 83)), MapTypes.TERRAIN_DIRT, "The Town Hall's secondary border street stays unpaved")
-	assert_true(float(83 * definition.cell_size) > town_hall_footprint.end.y)
+	assert_eq(grid.get_terrain(Vector2i(46, 85)), MapTypes.TERRAIN_DIRT, "The Town Hall's secondary border street stays unpaved")
+	assert_true(float(85 * definition.cell_size) > town_hall_footprint.end.y)
 	assert_eq(east_transition["rect"].end.x, definition.world_size().x)
 	assert_eq(definition.surroundings_sides.get(&"north"), &"town")
 	assert_eq(definition.surroundings_sides.get(&"east"), &"town")
@@ -88,7 +88,7 @@ func test_central_and_south_districts_limit_cobble_to_main_routes() -> void:
 	var center_total: int = center.size_cells.x * center.size_cells.y
 	assert_true(int(center_counts[MapTypes.TERRAIN_COBBLESTONE]) <= int(center_total * 0.05), "Market cobble must stay on Pikk, Vana Turg, and Karja")
 	assert_true(_permeable_count(center_counts) >= int(center_total * 0.85), "Raekoja plats and its service lanes must remain earth, mud, sand, or grass")
-	assert_eq(center_grid.get_terrain(Vector2i(38, 15)), MapTypes.TERRAIN_COBBLESTONE, "Pikk remains a paved primary street")
+	assert_eq(center_grid.get_terrain(Vector2i(39, 15)), MapTypes.TERRAIN_COBBLESTONE, "Pikk remains a paved primary street")
 	assert_eq(center_grid.get_terrain(Vector2i(46, 44)), MapTypes.TERRAIN_MUD, "The market interior remains churned earth")
 
 	var south: MapDefinition = SouthQuarterDefinition.create()
@@ -106,7 +106,6 @@ func test_central_district_has_unique_period_building_models() -> void:
 	var expected := {
 		&"town_hall_mass": &"town_hall_1343",
 		&"church_silhouette": &"holy_spirit_chapel_1343",
-		&"merchant_gabled_house": &"stepped_gable_merchant",
 	}
 	for building_id in expected:
 		var building := _building_by_id(definition, building_id)
@@ -140,8 +139,48 @@ func test_central_district_has_unique_period_building_models() -> void:
 			&"church_silhouette":
 				assert_true(node.has_node("Lancet00"))
 				assert_true(node.has_node("SanctusCoteRoof"))
-			&"merchant_gabled_house": assert_true(node.has_node("GableStep00"))
 		node.free()
+
+
+func test_central_district_ordinary_frontages_follow_1343_burgher_typology() -> void:
+	var definition: MapDefinition = MarketCivicQuarterDefinition.create()
+	var tier_counts := {
+		&"merchant_stone": 0,
+		&"merchant_timber": 0,
+		&"craft_boda": 0,
+	}
+	for building in definition.buildings:
+		var tier: StringName = building.get("house_tier", &"")
+		if tier == &"":
+			continue
+		assert_true(tier_counts.has(tier), "ordinary frontage uses an unknown 1343 house tier")
+		tier_counts[tier] = int(tier_counts[tier]) + 1
+		assert_eq(building.get("primitive", &""), &"", "ordinary 1343 fabric must not inherit a late display-facade primitive")
+		var door_side: StringName = building.get("door_side", &"")
+		var expected_ridge := &"z" if door_side in [&"north", &"south"] else &"x"
+		assert_eq(building.get("ridge_axis", &""), expected_ridge, "%s must turn its gable toward the lane" % building["id"])
+		var wall_height := float(building.get("wall_height", 0.0))
+		if tier == &"craft_boda":
+			assert_true(wall_height >= 96.0 and wall_height <= 144.0, "craft boda stay one to two storeys")
+		else:
+			assert_true(wall_height >= 176.0 and wall_height <= 224.0, "merchant fronts must read as two to three storeys")
+	assert_true(int(tier_counts[&"merchant_stone"]) >= 16)
+	assert_true(int(tier_counts[&"merchant_timber"]) >= 16)
+	assert_true(int(tier_counts[&"craft_boda"]) >= 6)
+	assert_true(definition.buildings.size() >= 50, "Central District needs a dense permanent frontage fabric")
+
+
+func test_central_district_east_market_throat_is_narrow_and_built_in() -> void:
+	var definition := MarketCivicQuarterDefinition.create()
+	var north_front := _building_by_id(definition, &"east_throat_north_mid")["footprint"] as Rect2
+	var south_front := _building_by_id(definition, &"eastern_backstreet_mid")["footprint"] as Rect2
+	var throat_width_cells := roundi((south_front.position.y - north_front.end.y) / float(definition.cell_size))
+	assert_eq(throat_width_cells, 6, "Viru/Vene route needs a 4-6 m cart throat, not a second open square")
+	assert_eq(
+		MapVerification.anchor_position(definition, &"vana_turg_neck"),
+		MapVerification.anchor_position(definition, &"viru_vene_road_convergence"),
+		"legacy Vana Turg ID must resolve to the route convergence, not a second market"
+	)
 
 
 func test_town_hall_has_functional_entry_and_separate_civic_interior() -> void:
