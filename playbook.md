@@ -58,3 +58,4 @@
 - When closing a packaging row while unrelated WIP exists (for example charcoal-storage assets), stage only the allowlisted packaging files; never absorb concurrent map/prop edits into the packaging commit.
 - Before claiming a hot `TODO.md` row, re-read its exact current text immediately before editing; concurrent Producer or worker updates can change task wording and make a stale exact replacement fail.
 - Before running a named unit-test module from an old task contract or memory, discover the current test filename; the active docs suite is `tests/python/test_active_docs_report.py`, not `test_generate_active_docs_report.py`.
+- Act 1 packaged smoke can print `P3-012_PACKAGED_PLATFORM_PASS` and still emit `ParticlesShaderGLES3 were never freed` plus DEF-002 resource/RID exit leaks; treat that Compatibility exit noise as non-blocking (P4-012-N01 / P4-044-N01) in `tools/verify_act1_release.sh` rather than failing release acceptance on ambient exit ERROR lines.
