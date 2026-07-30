@@ -15,7 +15,7 @@ can UV, bake, rig and animate. The runtime `CatRig` adapter instances the final
 GLB while keeping forge collision and navigation logic unchanged.
 """
 
-import bpy, bmesh, json, math, os
+import bpy, bmesh, json, math, os, sys
 from mathutils import Vector
 
 ASSET = os.path.abspath("generated/comfyui/forge_cat_hunyuan3d_v1")
@@ -31,6 +31,9 @@ PROD_GLB = os.path.join(OUT, "forge_cat_production_v1.glb")
 # read as a kitten next to the human rigs from the game camera.
 METRIC = 0.60 / 1.97
 TEX_SIZE = 1024
+# Rebuild geometry/rig/clips while keeping the already-authored 1024 maps. Used
+# when only animation/ground contact changes and a full AO bake is unnecessary.
+REUSE_TEXTURES = "--reuse-textures" in sys.argv
 
 
 def clear():
@@ -165,6 +168,20 @@ def rework_paws(obj):
                 # 3) extend the toe box toward the head on all four feet
                 v.co.y -= span * 0.012
     me.update()
+    # WHY: sole snap uses the pre-compress minimum; floating-point can leave a
+    # sub-millimetre skirt under z=0 that reads as the cat standing inside the
+    # floor once skinned.
+    snap_mesh_to_ground(obj)
+
+
+def snap_mesh_to_ground(obj):
+    """Translate mesh so the lowest vertex sits on z=0."""
+    gz = min(v.co.z for v in obj.data.vertices)
+    if abs(gz) <= 1e-6:
+        return
+    for v in obj.data.vertices:
+        v.co.z -= gz
+    obj.data.update()
 
 
 def deblock(obj):
@@ -173,6 +190,8 @@ def deblock(obj):
     m.factor = 0.5; m.iterations = 4
     bpy.ops.object.modifier_apply(modifier=m.name)
     bpy.ops.object.shade_smooth()
+    # Smoothing can pull sole verts slightly under the authored ground plane.
+    snap_mesh_to_ground(obj)
 
 
 def make_uv(obj):
@@ -871,6 +890,68 @@ def _pose_leg(key, rig, name, frame, ty, lift, body_up, paw_flex=0.0):
     return miss
 
 
+def _pose_leg_world(arm, key, rig, name, frame, foot_y, lift=0.0, paw_flex=0.0):
+    """Plant one foot using the hip's posed world position.
+
+    Sleep/lick/stretch pitch the spine and chest. Those bones parent the
+    forelegs, so a root-only body_up term leaves the elbows short of the floor
+    and the belly sinks through it. Measuring the live hip after the body keys
+    are applied keeps the paw tips on the authored ground plane.
+    """
+    bpy.context.scene.frame_set(frame)
+    bpy.context.view_layer.update()
+    hip = arm.matrix_world @ arm.pose.bones[name + "_upper"].head
+    ankle_z = rig["ankle_z"] + lift
+    ty = hip.y - foot_y
+    tz = ankle_z - hip.z
+    upper, lower, miss = leg_solve(rig, ty, tz, rig["legs"][name]["bend"])
+    key(name + "_upper", frame, rot=(upper, 0, 0))
+    key(name + "_lower", frame, rot=(lower, 0, 0))
+    key(name + "_paw", frame, rot=(-(upper + lower) + paw_flex, 0, 0))
+    return miss
+
+
+def _mesh_penetration(arm, meshes, frame):
+    bpy.context.scene.frame_set(frame)
+    bpy.context.view_layer.update()
+    dg = bpy.context.evaluated_depsgraph_get()
+    zs = []
+    for obj in meshes:
+        if obj is None:
+            continue
+        eo = obj.evaluated_get(dg)
+        me = eo.to_mesh()
+        zs.extend((eo.matrix_world @ v.co).z for v in me.vertices)
+        eo.to_mesh_clear()
+    return max(0.0, -min(zs)) if zs else 0.0
+
+
+def _settle_planted_frame(arm, key, rig, meshes, frame, foot_ys, lifts=None, paw_flex=0.0):
+    """Plant feet, then lift the root until the skinned belly clears the floor.
+
+    Folded rest poses compress a standing silhouette onto short legs; without
+    this second pass the paws stay on the ground while the chest volume clips
+    through it and the cat disappears from the gameplay camera.
+    """
+    lifts = lifts or {name: 0.0 for name in rig["legs"]}
+    misses = []
+    for _ in range(5):
+        for name in rig["legs"]:
+            misses.append(
+                _pose_leg_world(
+                    arm, key, rig, name, frame, foot_ys[name],
+                    lift=lifts.get(name, 0.0), paw_flex=paw_flex,
+                )
+            )
+        pen = _mesh_penetration(arm, meshes, frame)
+        if pen <= 0.002:
+            return misses
+        root = arm.pose.bones["root"]
+        lifted = (root.location.x, root.location.y + pen + 0.001, root.location.z)
+        key("root", frame, loc=lifted)
+    return misses
+
+
 def walk_foot(rig, name, phase, amplitude):
     """Fore/aft target, lift and toe angle for one leg at one cycle phase."""
     leg = rig["legs"][name]
@@ -898,7 +979,7 @@ def walk_foot(rig, name, phase, amplitude):
     return ty, lift, flex
 
 
-def make_animations(arm, rig):
+def make_animations(arm, rig, meshes):
     """Author the five canonical clips used by ForgeCat's ambient routine.
 
     Motion stays restrained because this cat is normally seen from an isometric
@@ -911,13 +992,16 @@ def make_animations(arm, rig):
 
     idle, key = _begin_action(arm, "idle", 150)
     # A standing cat is not a table: hold a little flexion in every joint.
+    # Body keys land first; feet are planted from the live hip so breath on the
+    # spine cannot drag the paws under the floor.
     for frame in (1, 40, 75, 110, 150):
         breath = {1: 0.0, 40: 0.006, 75: 0.009, 110: 0.004, 150: 0.0}[frame]
-        for name in rig["legs"]:
-            _pose_leg(key, rig, name, frame, 0.0, 0.0, -0.010 + breath * 0.5)
-        key("root", frame, loc=(0, -0.010 + breath * 0.5, 0))
+        body_up = -0.010 + breath * 0.5
+        key("root", frame, loc=(0, body_up, 0))
         key("spine", frame, rot=(breath * 2.4, 0, 0))
         key("chest", frame, rot=(breath * 1.5, 0, 0))
+        foot_ys = {name: rig["legs"][name]["y"] for name in rig["legs"]}
+        misses.extend(_settle_planted_frame(arm, key, rig, meshes, frame, foot_ys))
     for f, rx, ry in [(1, 0, 0), (60, 0.05, 0.03), (120, 0.02, -0.03), (150, 0, 0)]:
         key("head", f, rot=(rx, ry, 0))
         key("neck", f, rot=(rx * 0.4, ry * 0.5, 0))
@@ -975,20 +1059,21 @@ def make_animations(arm, rig):
     }
 
     sleep, key = _begin_action(arm, "sleep", 90)
-    # Loafed: body settled on folded legs, paws tucked slightly forward, head
-    # low and turned onto the shoulder. Root translation is along the bone's
-    # local Y, which is world up - the first pass used local Z and shunted the
-    # sleeping cat backwards instead of lowering it.
-    for f, breath in [(1, 0.0), (45, 0.010), (90, 0.0)]:
-        drop = -0.050 + breath
+    # Loafed: a shallow crouch on folded legs. The mesh is still a standing
+    # silhouette, so a deep root drop buries the belly; keep the settle small
+    # and let world-space planting plus root lift absorb the residual tuck.
+    for f, breath in [(1, 0.0), (45, 0.006), (90, 0.0)]:
+        drop = -0.016 + breath
         key("root", f, loc=(0, drop, 0))
-        for name in rig["legs"]:
-            tuck = -0.018 if rig["legs"][name]["fore"] else 0.012
-            _pose_leg(key, rig, name, f, tuck, 0.0, drop)
-        key("spine", f, rot=(0.10, 0, 0.03))
-        key("chest", f, rot=(0.16, 0, -0.04))
-        key("neck", f, rot=(0.26, 0.10, 0.12))
-        key("head", f, rot=(0.34, 0.12, 0.16))
+        key("spine", f, rot=(0.04, 0, 0.02))
+        key("chest", f, rot=(0.06, 0, -0.02))
+        key("neck", f, rot=(0.22, 0.10, 0.10))
+        key("head", f, rot=(0.30, 0.12, 0.14))
+        foot_ys = {
+            name: rig["legs"][name]["y"] + (-0.014 if rig["legs"][name]["fore"] else 0.010)
+            for name in rig["legs"]
+        }
+        misses.extend(_settle_planted_frame(arm, key, rig, meshes, f, foot_ys))
     for i in range(4):
         curl = 0.26 + i * 0.10
         for f in (1, 90):
@@ -998,11 +1083,16 @@ def make_animations(arm, rig):
     lick, key = _begin_action(arm, "lick", 48)
     # Sitting back on the hind legs, grooming the chest and shoulder.
     for f in (1, 48):
-        key("root", f, loc=(0, -0.028, 0))
-        key("pelvis", f, rot=(-0.12, 0, 0))
-        for name in rig["legs"]:
-            fore = rig["legs"][name]["fore"]
-            _pose_leg(key, rig, name, f, -0.012 if fore else 0.030, 0.0, -0.028)
+        drop = -0.014
+        key("root", f, loc=(0, drop, 0))
+        key("pelvis", f, rot=(-0.08, 0, 0))
+        key("spine", f, rot=(0.04, 0, 0))
+        key("chest", f, rot=(0.05, 0, 0))
+        foot_ys = {
+            name: rig["legs"][name]["y"] + (-0.010 if rig["legs"][name]["fore"] else 0.022)
+            for name in rig["legs"]
+        }
+        misses.extend(_settle_planted_frame(arm, key, rig, meshes, f, foot_ys))
     for f, rx, rz in [(1, 0.38, 0.10), (9, 0.58, 0.18), (17, 0.42, 0.04),
                       (25, 0.60, -0.12), (33, 0.43, 0.04), (41, 0.57, 0.16), (48, 0.38, 0.10)]:
         key("head", f, rot=(rx, 0.08, rz))
@@ -1015,20 +1105,24 @@ def make_animations(arm, rig):
     stretch, key = _begin_action(arm, "stretch", 60)
     # Forepaws reach ahead along the floor while the hips rise behind - the
     # classic feline bow - then the cat walks its feet back under itself.
+    # World-space planting is mandatory here: pelvis/spine/chest pitch moves the
+    # shoulder girdle farther than a root-only body_up term can cover.
     for f, amount in [(1, 0.0), (15, 1.0), (42, 1.0), (60, 0.0)]:
-        drop = -0.055 * amount
+        drop = -0.028 * amount
         key("root", f, loc=(0, drop, 0))
+        key("pelvis", f, rot=(-0.18 * amount, 0, 0))
+        key("spine", f, rot=(0.16 * amount, 0, 0))
+        key("chest", f, rot=(0.14 * amount, 0, 0))
+        key("neck", f, rot=(-0.14 * amount, 0, 0))
+        key("head", f, rot=(-0.16 * amount, 0, 0))
+        foot_ys = {}
+        lifts = {}
         for name in rig["legs"]:
             leg = rig["legs"][name]
-            if leg["fore"]:
-                _pose_leg(key, rig, name, f, -0.055 * amount, 0.0, drop)
-            else:
-                _pose_leg(key, rig, name, f, 0.030 * amount, 0.0, drop + 0.055 * amount)
-        key("pelvis", f, rot=(-0.26 * amount, 0, 0))
-        key("spine", f, rot=(0.24 * amount, 0, 0))
-        key("chest", f, rot=(0.20 * amount, 0, 0))
-        key("neck", f, rot=(-0.18 * amount, 0, 0))
-        key("head", f, rot=(-0.20 * amount, 0, 0))
+            reach = (-0.040 if leg["fore"] else 0.022) * amount
+            foot_ys[name] = leg["y"] + reach
+            lifts[name] = 0.004 * amount if leg["fore"] else 0.0
+        misses.extend(_settle_planted_frame(arm, key, rig, meshes, f, foot_ys, lifts=lifts))
     for i in range(4):
         for f, s in [(1, 0), (15, -0.10), (42, 0.10), (60, 0)]:
             key(f"tail_{i+1}", f, rot=(-0.12 if i == 0 else 0.0, 0, s * (i + 1) / 4.0))
@@ -1039,6 +1133,56 @@ def make_animations(arm, rig):
     animations["_solver"] = {"max_reach_shortfall_m": round(max(misses), 5),
                              "walk_amplitude_m": round(amplitude, 4)}
     return animations
+
+
+def audit_pose_ground(arm, meshes, clips):
+    """Fail the build when any rest clip buries mesh or paw tips in the floor.
+
+    The walk has its own stance audit; sleep/lick/stretch used to pass it by
+    never being measured, which is how a loaf pose shipped half-underground.
+    """
+    report = {"clips": {}, "worst_mesh_penetration_m": 0.0, "worst_tip_penetration_m": 0.0}
+    worst_mesh = 0.0
+    worst_tip = 0.0
+    for name, frames in clips:
+        action = bpy.data.actions.get(name)
+        if action is None:
+            continue
+        arm.animation_data.action = action
+        clip_mesh = 0.0
+        clip_tip = 0.0
+        for frame in frames:
+            bpy.context.scene.frame_set(frame)
+            bpy.context.view_layer.update()
+            dg = bpy.context.evaluated_depsgraph_get()
+            zs = []
+            for obj in meshes:
+                if obj is None:
+                    continue
+                eo = obj.evaluated_get(dg)
+                me = eo.to_mesh()
+                zs.extend((eo.matrix_world @ v.co).z for v in me.vertices)
+                eo.to_mesh_clear()
+            mesh_pen = max(0.0, -min(zs)) if zs else 0.0
+            tips = [
+                (arm.matrix_world @ arm.pose.bones[leg + "_paw"].tail).z
+                for leg in ("legFL", "legFR", "legBL", "legBR")
+            ]
+            tip_pen = max(0.0, -min(tips))
+            clip_mesh = max(clip_mesh, mesh_pen)
+            clip_tip = max(clip_tip, tip_pen)
+        report["clips"][name] = {
+            "mesh_penetration_m": round(clip_mesh, 5),
+            "tip_penetration_m": round(clip_tip, 5),
+        }
+        worst_mesh = max(worst_mesh, clip_mesh)
+        worst_tip = max(worst_tip, clip_tip)
+    report["worst_mesh_penetration_m"] = round(worst_mesh, 5)
+    report["worst_tip_penetration_m"] = round(worst_tip, 5)
+    # 4 mm mesh / 5 mm tip: matches the walk gait budget and stays invisible
+    # from the dimetric gameplay camera.
+    report["pass"] = worst_mesh <= 0.004 and worst_tip <= 0.005
+    return report
 
 
 def audit_gait(arm, rig, seconds):
@@ -1147,20 +1291,43 @@ def main():
     deblock(obj)
     lod0 = topo(obj)
     make_uv(obj)
-    ao_img, nrm_img = bake_maps(obj)
     body = measure_body(obj)
-    coat_images = {}
-    for coat in COATS:
-        coat_images[coat["id"]] = author_albedo(obj, ao_img, coat, body["back_z"])
-    rgh_img = author_roughness(obj, ao_img)
-    final_material(obj, coat_images["forge"], nrm_img, rgh_img)
+    if REUSE_TEXTURES:
+        # Keep the already-shipped PBR set; this rebuild only fixes paws/rig/clips.
+        alb = bpy.data.images.load(os.path.join(TEX, "forge_cat_albedo.png"))
+        nrm_img = bpy.data.images.load(os.path.join(TEX, "forge_cat_normal.png"))
+        rgh_img = bpy.data.images.load(os.path.join(TEX, "forge_cat_roughness.png"))
+        nrm_img.colorspace_settings.name = "Non-Color"
+        rgh_img.colorspace_settings.name = "Non-Color"
+        final_material(obj, alb, nrm_img, rgh_img)
+    else:
+        ao_img, nrm_img = bake_maps(obj)
+        coat_images = {}
+        for coat in COATS:
+            coat_images[coat["id"]] = author_albedo(obj, ao_img, coat, body["back_z"])
+        rgh_img = author_roughness(obj, ao_img)
+        final_material(obj, coat_images["forge"], nrm_img, rgh_img)
     arm, wmode, rig = build_rig(obj)
     face = add_face_details(arm, obj, body)
-    animations = make_animations(arm, rig)
+    animations = make_animations(arm, rig, [obj, face])
     gait = audit_gait(arm, rig, animations["walk"]["seconds"])
+    pose_ground = audit_pose_ground(
+        arm,
+        [obj, face],
+        [
+            ("idle", (1, 75, 150)),
+            ("sleep", (1, 45, 90)),
+            ("lick", (1, 25, 48)),
+            ("stretch", (1, 15, 30, 42, 60)),
+            ("walk", (1, 7, 10, 18)),
+        ],
+    )
     # Guard against any stray/floating geometry leaking into the export so the
-    # GLB carries exactly one character mesh + its armature.
-    for s in [o for o in bpy.data.objects if o.type == "MESH" and o not in (obj, face)]:
+    # GLB carries exactly one character mesh + its armature. Orphan primitives
+    # (for example a leftover Icosphere from a cancelled bake) inflate bounds
+    # and can hide the cat under a giant invisible shell in engine.
+    keep = {obj, face, arm}
+    for s in [o for o in list(bpy.data.objects) if o not in keep]:
         bpy.data.objects.remove(s, do_unlink=True)
     export_glb(arm, obj, face)
     lod1 = make_lod(obj, 3500, os.path.join(LOD, "forge_cat_lod1.glb"))
@@ -1189,14 +1356,21 @@ def main():
                 for k, v in rig.items() if k != "legs"},
         "animations": animations,
         "gait": gait,
+        "pose_ground": pose_ground,
         "budget_ok": {"lod0_within_cap": lod0["triangles"] <= 12000,
                       "lod1_in_range": 3000 <= lod1["triangles"] <= 4200,
                       "lod2_in_range": 700 <= lod2["triangles"] <= 1300,
-                      "gait_pass": gait["pass"]},
+                      "gait_pass": gait["pass"],
+                      "pose_ground_pass": pose_ground["pass"]},
     }
     with open(os.path.join(REP, "production_report.json"), "w") as f:
         json.dump(report, f, indent=2)
     print("PROD_REPORT=" + json.dumps(report))
+    if not report["budget_ok"]["gait_pass"] or not report["budget_ok"]["pose_ground_pass"]:
+        raise SystemExit(
+            "forge cat ground audit failed: gait_pass=%s pose_ground_pass=%s"
+            % (report["budget_ok"]["gait_pass"], report["budget_ok"]["pose_ground_pass"])
+        )
 
 
 if __name__ == "__main__":

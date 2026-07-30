@@ -30,9 +30,9 @@
     "components": 1
   },
   "metric_dimensions_m": [
-    0.1986,
-    0.5978,
-    0.4037
+    0.1987,
+    0.5971,
+    0.401
   ],
   "ground_min_z": 0.0,
   "uv_layers": [
@@ -145,7 +145,7 @@
       "loop": false
     },
     "_solver": {
-      "max_reach_shortfall_m": 0.0,
+      "max_reach_shortfall_m": 0.01401,
       "walk_amplitude_m": 0.0668
     }
   },
@@ -211,10 +211,38 @@
     "always_supported": true,
     "pass": true
   },
+  "pose_ground": {
+    "clips": {
+      "idle": {
+        "mesh_penetration_m": 0.00193,
+        "tip_penetration_m": 0.0
+      },
+      "sleep": {
+        "mesh_penetration_m": 0.00198,
+        "tip_penetration_m": 0.0
+      },
+      "lick": {
+        "mesh_penetration_m": 0.0,
+        "tip_penetration_m": 0.0
+      },
+      "stretch": {
+        "mesh_penetration_m": 0.00021,
+        "tip_penetration_m": 0.0
+      },
+      "walk": {
+        "mesh_penetration_m": 0.00252,
+        "tip_penetration_m": 0.0
+      }
+    },
+    "worst_mesh_penetration_m": 0.00252,
+    "worst_tip_penetration_m": 0.0,
+    "pass": true
+  },
   "budget_ok": {
     "lod0_within_cap": true,
     "lod1_in_range": true,
     "lod2_in_range": true,
-    "gait_pass": true
+    "gait_pass": true,
+    "pose_ground_pass": true
   }
 }

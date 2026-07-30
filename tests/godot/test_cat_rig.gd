@@ -98,6 +98,33 @@ func test_cat_coat_textures_and_sizes_exist() -> void:
 		)
 
 
+func test_cat_rig_soles_stay_on_the_ground_across_clips() -> void:
+	var cat := _instantiate_cat()
+	# Harness does not await coroutines; invoke the deferred snap synchronously.
+	cat._snap_model_to_ground()
+	assert_true(
+		cat.mesh_min_y() >= -0.005,
+		"Idle soles must sit on the actor origin after ground snap, got %s" % cat.mesh_min_y()
+	)
+	for animation_name: StringName in [&"idle", &"sleep", &"lick", &"stretch", &"walk"]:
+		assert_true(cat.play_animation(animation_name), "must play %s" % animation_name)
+		var player := cat.animation_player()
+		assert_true(player != null)
+		var length := maxf(player.current_animation_length, 0.01)
+		for t in [0.0, length * 0.35, length * 0.7]:
+			player.seek(t, true)
+			var min_y := cat.mesh_min_y()
+			assert_true(
+				min_y >= -0.008,
+				"%s @ %.2fs must not bury the body (min_y=%s)" % [animation_name, t, min_y]
+			)
+			assert_true(
+				min_y <= 0.06,
+				"%s @ %.2fs must not hover far above the floor (min_y=%s)" % [animation_name, t, min_y]
+			)
+	cat.queue_free()
+
+
 func test_town_cat_wears_a_coat_over_the_production_rig() -> void:
 	var cat := _instantiate_cat()
 	var coat := CatCoatVariants.apply(cat, 12345)

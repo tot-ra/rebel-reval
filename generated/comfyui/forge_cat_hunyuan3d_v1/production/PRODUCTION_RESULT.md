@@ -89,6 +89,12 @@ Loaded via `GLTFDocument` (tests the raw GLB, not a pre-baked import):
   offsets, 0.66 duty factor - which keeps two or three feet down at all times.
   Stride 0.134 m per stance over a 0.6 s cycle = **0.337 m/s ground speed**, the
   figure `CatRig.WALK_REFERENCE_SPEED_WORLD` is set to.
+- **Rest clips plant feet in world space, then settle the root.** Sleep/lick/stretch
+  pitch the spine/chest that parents the forelegs. A root-only `body_up` term left
+  the belly under the floor so the cat vanished from the dimetric camera.
+  `_pose_leg_world` measures the live hip, and `_settle_planted_frame` lifts the
+  root until skinned mesh penetration is under 4 mm. `audit_pose_ground` covers
+  every canonical clip; `budget_ok.pose_ground_pass` fails the build on regress.
 - **The gait is audited, not eyeballed.** `audit_gait` replays the clip and
   measures world-space paw tips: contact height error 0.000 m, floor penetration
   0.0004 m, worst stance slip 0.045 m/s, swing clearance 0.024 m, support count

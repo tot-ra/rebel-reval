@@ -26,8 +26,12 @@ const LOOPING_CAT_ANIMATIONS: Array[StringName] = [
 ## this speed is what keeps the paws planted instead of skating.
 const WALK_REFERENCE_SPEED_WORLD := 0.32
 const CAT_PROMPT_GLYPH_PADDING := 0.22
-## The production report guarantees a standing AABB top of 0.4037 m.
-const STANDING_MODEL_HEIGHT := 0.4037
+## The production report guarantees a standing AABB top near 0.40 m.
+const STANDING_MODEL_HEIGHT := 0.401
+## glTF Yup round-trips leave the skinned soles a few millimetres under y=0
+## even when the Blender audit is green. Snap the imported model so idle soles
+## sit on the actor origin; without this the loaf/sleep clips read as missing.
+const GROUND_SNAP_EPSILON := 0.001
 
 
 static func standing_glyph_height() -> float:
@@ -48,6 +52,45 @@ func _ready() -> void:
 	_animation_player = _find_animation_player(model)
 	_skeleton = _find_skeleton(model)
 	play_animation(start_animation)
+	# Defer until the AnimationPlayer applies the bind/idle pose so the AABB
+	# reflects skinned soles rather than the raw rest mesh.
+	call_deferred("_snap_model_to_ground")
+
+
+func _snap_model_to_ground() -> void:
+	var model := get_node_or_null("Model") as Node3D
+	if model == null or _animation_player == null:
+		return
+	if has_animation(&"idle"):
+		_animation_player.play("idle")
+		_animation_player.seek(0.0, true)
+	var min_y := _measure_mesh_min_y()
+	if min_y == INF:
+		return
+	# WHY: lift (or lower) the imported GLB so the lowest skinned vertex sits on
+	# the actor origin. Ambient and forge placements both assume y=0 is the
+	# floor, and a negative sole AABB is what made sleep/stretch disappear.
+	model.position.y -= min_y - GROUND_SNAP_EPSILON
+
+
+func _measure_mesh_min_y() -> float:
+	var min_y := INF
+	var model := get_node_or_null("Model") as Node3D
+	var search_root: Node = model if model != null else self
+	for found: Node in search_root.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := found as MeshInstance3D
+		if mesh_instance.mesh == null:
+			continue
+		var local_xf := global_transform.affine_inverse() * mesh_instance.global_transform
+		var aabb := mesh_instance.get_aabb()
+		for endpoint_index: int in 8:
+			min_y = minf(min_y, (local_xf * aabb.get_endpoint(endpoint_index)).y)
+	return min_y
+
+
+## Lowest skinned mesh Y in this rig's local space (for ground-contact tests).
+func mesh_min_y() -> float:
+	return _measure_mesh_min_y()
 
 
 func has_animation(canonical_name: StringName) -> bool:

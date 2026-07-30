@@ -96,3 +96,6 @@
 
 - Godot/`unittest` row checks that use `^` against multi-line TODO text need `(?m)` (or `re.M`); bare `assertRegex` is not multiline and will only test the first line, then dump the whole file on failure.
 - After structural edits shift a file, do not reuse stale line numbers for insertion. Re-read the target boundary or use exact-string replacement, then run a syntax check immediately.
+
+- Forge-cat sleep/stretch burial is usually uncompensated spine/chest pitch on foreleg parents, not a bad bind pose; plant feet from the live hip world position and lift the root until skinned mesh min Z clears the floor, then assert every clip in `audit_pose_ground` (walk-only gait audit will stay green while the loaf disappears).
+- When continuing a failed parent session that died mid-`production_build.py` read, re-measure the exported GLB mesh AABB per clip before rewriting IK - pose sheets and tip bones can disagree after glTF Yup round-trip.
