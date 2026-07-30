@@ -56,3 +56,5 @@
 - When downloading research papers, verify the response MIME/file signature before passing it to PDF tools; OJS download links can return an HTML interstitial, so resolve the actual article-download URL first.
 - For Act 1 packaging (`P4-013`), add a dedicated non-runnable `act1` export preset targeting `build/act1/rr.dmg`, keep the binary gitignored, and `git add -f` only the small SHA fingerprint sidecars (`package_fingerprint.json`, `PACKAGE_SHA256.txt`) so QA can bind `P4-044` without committing a multi-gigabyte DMG.
 - When closing a packaging row while unrelated WIP exists (for example charcoal-storage assets), stage only the allowlisted packaging files; never absorb concurrent map/prop edits into the packaging commit.
+- Before claiming a hot `TODO.md` row, re-read its exact current text immediately before editing; concurrent Producer or worker updates can change task wording and make a stale exact replacement fail.
+- Before running a named unit-test module from an old task contract or memory, discover the current test filename; the active docs suite is `tests/python/test_active_docs_report.py`, not `test_generate_active_docs_report.py`.
