@@ -99,7 +99,7 @@ func test_resolve_hammer_charged_profile_from_content() -> void:
 	assert_eq(charged.damage, 24.0)
 	assert_eq(charged.reach_px, 68.0)
 	assert_eq(charged.stamina_cost, 22.0)
-	assert_eq(charged.impact_timing_sec, 0.42)
+	assert_eq(charged.impact_timing_sec, 0.50)
 	assert_true(charged.damage > light.damage)
 	assert_true(charged.reach_px > light.reach_px)
 	assert_true(charged.stamina_cost > light.stamina_cost)

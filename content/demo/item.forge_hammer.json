@@ -32,8 +32,8 @@
       "damage": 14.0,
       "reach_px": 56.0,
       "facing_dot": 0.35,
-      "impact_timing_sec": 0.28,
-      "attack_duration_sec": 0.65,
+      "impact_timing_sec": 0.34,
+      "attack_duration_sec": 0.76,
       "stamina_cost": 12.0,
       "damage_type": "blunt"
     },
@@ -42,8 +42,8 @@
       "damage": 24.0,
       "reach_px": 68.0,
       "facing_dot": 0.35,
-      "impact_timing_sec": 0.42,
-      "attack_duration_sec": 0.85,
+      "impact_timing_sec": 0.50,
+      "attack_duration_sec": 1.02,
       "stamina_cost": 22.0,
       "damage_type": "blunt"
     },

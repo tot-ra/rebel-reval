@@ -82,4 +82,8 @@
 - When appending `assets/SOURCES.csv` rows, keep HEAD bytes for existing lines and append new rows as text; rewriting the whole file with `csv.writer` can silently drop quoting on fields that contain commas.
 - Before batching tool calls, verify every tool name against the available schema; placeholder or inferred tool names make the whole parallel batch noisy and unactionable.
 - Pass `tools/run_godot_checked.sh` a basename such as `seamless-terrain-chunks`, not an absolute `/tmp/...` path; the wrapper creates its own `${TMPDIR}/<log-name>.log` and nested path separators make a green Godot run fail during log capture.
+- In Godot capture scripts, add `Camera3D` to the scene tree before calling `look_at()`; otherwise the capture can write misleading frames while still emitting a checked-runner runtime ERROR.
+- Do not call an image-generation integration to inspect existing local capture frames; compose a local contact sheet and preview it through browser/UI tooling instead.
+- After `AnimationPlayer.seek()` in a no-frame pose audit, measure equipment from the skeleton bone global pose; `BoneAttachment3D.global_transform` may remain stale until a process frame updates it.
 - When one prop-kind suffix appears in both a grouped registry and `ALL_PROP_KINDS`, include the array declaration in exact edits; matching only the trailing entries is ambiguous.
+- Before patching a test with exact text, re-read the live function block; nearby formatting can differ even when the intended assertion is present.

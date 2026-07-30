@@ -274,6 +274,12 @@ func view_animation() -> StringName:
 	return StringName(animation_base)
 
 
+func view_animation_elapsed_sec() -> float:
+	if action_state_machine.state == PlayerActionState.State.ATTACK:
+		return action_state_machine.state_elapsed_sec
+	return 0.0
+
+
 func _current_locomotion_animation() -> String:
 	if _movement_blocked():
 		return "idle"

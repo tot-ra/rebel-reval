@@ -45,6 +45,14 @@ func configure(
 
 func set_screen_shake_callback(callback: Callable) -> void:
 	_request_screen_shake = callback
+	_bind_player_attack_feedback()
+
+
+func _bind_player_attack_feedback() -> void:
+	if _player == null or not _player.has_signal("melee_attack_resolved"):
+		return
+	if not _player.melee_attack_resolved.is_connected(_on_player_melee_attack_resolved):
+		_player.melee_attack_resolved.connect(_on_player_melee_attack_resolved)
 
 
 func register_view_actors(scene_root: Node) -> void:
@@ -118,6 +126,11 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 		wanted = &"run" if speed > RUN_ANIMATION_MIN_SPEED else &"walk"
 	if _player_rig.current_canonical_animation() != wanted:
 		_player_rig.play_animation(wanted)
+	if _player.has_method("view_animation_elapsed_sec"):
+		_player_rig.sync_action_presentation(
+			wanted,
+			float(_player.call("view_animation_elapsed_sec"))
+		)
 	_player_rig.set_locomotion_speed(speed * MapViewBridge.world_scale(_definition.cell_size))
 	_sync_actor_health_ring(_player_rig, _player)
 
@@ -200,6 +213,18 @@ func _on_player_health_changed(current: float, maximum: float) -> void:
 	var ring := _player_rig.get_node_or_null("HealthRing") as CharacterHealthRing3D
 	if ring != null:
 		ring.set_health(current, maximum)
+
+
+
+func _on_player_melee_attack_resolved(targets: Array[Node2D], profile: AttackProfile) -> void:
+	if targets.is_empty() or profile == null or not _request_screen_shake.is_valid():
+		return
+	if profile.animation not in [&"hammer_attack", &"hammer_charged_attack"]:
+		return
+	var amount := 0.18
+	if profile.animation == &"hammer_charged_attack":
+		amount = 0.28
+	_request_screen_shake.call(amount)
 
 
 static func _sync_actor_health_ring(rig: SharedCharacterRig, actor: Node) -> void:

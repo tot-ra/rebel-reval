@@ -7,8 +7,8 @@ const CANONICAL_ANIMATIONS: Dictionary = {
 	&"walk": &"Walking_A",
 	&"run": &"Running_B",
 	&"forge_strike": &"1H_Melee_Attack_Chop",
-	&"hammer_attack": &"1H_Melee_Attack_Slice_Diagonal",
-	&"hammer_charged_attack": &"1H_Melee_Attack_Slice_Horizontal",
+	&"hammer_attack": &"1H_Melee_Attack_Chop",
+	&"hammer_charged_attack": &"2H_Melee_Attack_Chop",
 	&"unarmed_attack": &"Unarmed_Melee_Attack_Punch_A",
 	&"guard": &"Blocking",
 	&"hit": &"Hit_A",
@@ -38,6 +38,23 @@ const LOCOMOTION_SPEED_SCALE_MIN := 0.7
 const LOCOMOTION_SPEED_SCALE_MAX := 1.5
 const TURN_SMOOTHING := 10.0
 const RIGHT_HAND_BONE := &"hand.r"
+## Hammer action clips are deliberately time-warped against the logic profile.
+## The wind-up gets screen time, the downswing accelerates into the authored
+## contact pose, and a short hold before follow-through gives the blow weight.
+const HAMMER_PRESENTATION: Dictionary = {
+	&"hammer_attack": {
+		"source_contact_sec": 0.68,
+		"impact_sec": 0.34,
+		"hit_stop_sec": 0.055,
+		"action_duration_sec": 0.76,
+	},
+	&"hammer_charged_attack": {
+		"source_contact_sec": 0.88,
+		"impact_sec": 0.50,
+		"hit_stop_sec": 0.10,
+		"action_duration_sec": 1.02,
+	},
+}
 
 ## Named bone-attachment points for rigid equipment (weapons, tools, props).
 ## Hands use the dedicated handslot grip bones so props sit in the palm.
@@ -96,6 +113,7 @@ static var _occluded_silhouette_material: ShaderMaterial
 @export_range(0.1, 5.0, 0.01) var visible_height_world: float = 2.0
 
 var _animation_player: AnimationPlayer
+var _current_canonical_animation: StringName = &""
 var _skeleton: Skeleton3D
 var _slot_attachments: Dictionary = {}
 var _garments: Dictionary = {}
@@ -177,7 +195,58 @@ func play_animation(canonical_name: StringName, blend_seconds: float = 0.12) -> 
 	else:
 		animation.loop_mode = Animation.LOOP_NONE
 	_animation_player.play(source_name, blend_seconds)
+	_current_canonical_animation = canonical_name
 	return true
+
+
+func sync_action_presentation(canonical_name: StringName, action_elapsed_sec: float) -> void:
+	if _animation_player == null or not HAMMER_PRESENTATION.has(canonical_name):
+		return
+	if current_canonical_animation() != canonical_name:
+		return
+	var animation := _animation_player.get_animation(_animation_player.current_animation)
+	var source_time := hammer_source_time(canonical_name, action_elapsed_sec, animation.length)
+	# WHY: Presentation follows the state machine clock instead of accumulating
+	# AnimationPlayer delta, so low FPS cannot move the visible contact away from
+	# the single gameplay impact signal.
+	_animation_player.pause()
+	_animation_player.seek(source_time, true)
+
+
+static func hammer_source_time(
+	canonical_name: StringName,
+	action_elapsed_sec: float,
+	source_length_sec: float
+) -> float:
+	if not HAMMER_PRESENTATION.has(canonical_name):
+		return clampf(action_elapsed_sec, 0.0, source_length_sec)
+	var presentation: Dictionary = HAMMER_PRESENTATION[canonical_name]
+	var contact := float(presentation["source_contact_sec"])
+	var impact := float(presentation["impact_sec"])
+	var hit_stop := float(presentation["hit_stop_sec"])
+	var duration := float(presentation["action_duration_sec"])
+	var elapsed := clampf(action_elapsed_sec, 0.0, duration)
+	if elapsed <= impact:
+		# Slow anticipation uses most of the pre-impact clock; the easing then
+		# compresses the actual downswing into a visibly accelerating finish.
+		var ratio := elapsed / maxf(impact, 0.001)
+		return contact * ratio * ratio
+	if elapsed <= impact + hit_stop:
+		return contact
+	var follow_ratio := (elapsed - impact - hit_stop) / maxf(duration - impact - hit_stop, 0.001)
+	return lerpf(contact, source_length_sec, clampf(follow_ratio, 0.0, 1.0))
+
+
+static func hammer_impact_sec(canonical_name: StringName) -> float:
+	if not HAMMER_PRESENTATION.has(canonical_name):
+		return 0.0
+	return float((HAMMER_PRESENTATION[canonical_name] as Dictionary)["impact_sec"])
+
+
+static func hammer_action_duration_sec(canonical_name: StringName) -> float:
+	if not HAMMER_PRESENTATION.has(canonical_name):
+		return 0.0
+	return float((HAMMER_PRESENTATION[canonical_name] as Dictionary)["action_duration_sec"])
 
 func set_facing(logic_direction: Vector2) -> void:
 	if logic_direction.is_zero_approx():
@@ -212,13 +281,7 @@ func set_locomotion_speed(world_speed: float) -> void:
 	)
 
 func current_canonical_animation() -> StringName:
-	if _animation_player == null:
-		return &""
-	var source_name := _animation_player.current_animation
-	for canonical_name: StringName in CANONICAL_ANIMATIONS:
-		if source_animation_name(canonical_name) == source_name:
-			return canonical_name
-	return &""
+	return _current_canonical_animation
 
 func validation_errors() -> Array[String]:
 	var errors: Array[String] = []
