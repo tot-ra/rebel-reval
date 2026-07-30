@@ -7,35 +7,36 @@ description: Generate consistent 2D item icons for game inventory using Leonardo
 
 ## Goal
 
-Generate consistent, high-quality 2D pixel art icons for game inventory items using Leonardo AI. Maintain a unified visual style across all icons for a cohesive inventory UI.
+Generate consistent, historically grounded inventory icons using Leonardo AI under ADR 0018: saturated fantasy/anime painting, a crisp silhouette, material-specific high detail, and controlled HDR-range accents. Maintain one coherent visual language across the inventory UI.
 
 ## Prompt Template
 
 Use this exact prompt structure for all inventory icons. Replace `[OBJECT]` with the item description:
 
 ```
-2D pixel art game inventory icon, [OBJECT], centered on solid dark brown background, 32-bit style, clean edges, no text, no shadows on ground
+2D game inventory icon, historically grounded medieval [OBJECT], high-detail fantasy/anime painterly rendering, rich controlled saturation, crisp expressive silhouette, material-specific meso and micro detail, controlled HDR-range rim and specular accents, three-quarter view, centered on transparent background, no text, no logo, no floor shadow, no bloom halo, no modern ornament
 ```
 
 ### Examples
 
 | Item | Prompt |
 |------|--------|
-| Forge Hammer | `2D pixel art game inventory icon, medieval blacksmith forge hammer, iron head wooden handle, centered on solid dark brown background, 32-bit style, clean edges, no text, no shadows on ground` |
-| Spearhead | `2D pixel art game inventory icon, medieval iron spearhead blade, pointed silver metal, centered on solid dark brown background, 32-bit style, clean edges, no text, no shadows on ground` |
-| Watch Buckle | `2D pixel art game inventory icon, brass circular watch buckle, ornate golden metal clasp, centered on solid dark brown background, 32-bit style, clean edges, no text, no shadows on ground` |
-| Hood | `2D pixel art game inventory icon, medieval brown leather hood hat, stitched leather cap, centered on solid dark brown background, 32-bit style, clean edges, no text, no shadows on ground` |
-| Backpack | `2D pixel art game inventory icon, medieval canvas backpack with leather straps, brown fabric sack, centered on solid dark brown background, 32-bit style, clean edges, no text, no shadows on ground` |
-| Combat Stick | `2D pixel art game inventory icon, simple wooden stick club with rope wrapping, centered on solid dark brown background, 32-bit style, clean edges, no text, no shadows on ground` |
+| Forge Hammer | `2D game inventory icon, historically grounded 1343 blacksmith hammer, iron head and polished oak handle, high-detail fantasy/anime painterly rendering, crimson reflected light and forge-amber rim, crisp three-quarter silhouette, hammered metal and wood-grain detail, transparent background, no text or bloom halo` |
+| Spearhead | `2D game inventory icon, historically grounded forged iron spearhead, high-detail fantasy/anime painterly rendering, cool iron-blue body and controlled cyan edge, crisp three-quarter silhouette, hammer marks and sharpened bevel detail, transparent background, no text or bloom halo` |
+| Watch Buckle | `2D game inventory icon, historically grounded medieval brass buckle, high-detail fantasy/anime painterly rendering, rich copper-gold color and controlled specular accent, crisp three-quarter silhouette, casting and wear detail, transparent background, no text or bloom halo` |
+| Hood | `2D game inventory icon, historically grounded medieval wool hood, high-detail fantasy/anime painterly rendering, saturated indigo cloth and warm lining, crisp folded silhouette, seams, weave, and wear detail, transparent background, no text or bloom halo` |
+| Backpack | `2D game inventory icon, historically grounded medieval satchel, high-detail fantasy/anime painterly rendering, rich ochre cloth and brown leather, crisp three-quarter silhouette, straps, stitching, and handling wear, transparent background, no text or bloom halo` |
+| Combat Stick | `2D game inventory icon, historically grounded wooden cudgel with hemp grip, high-detail fantasy/anime painterly rendering, rich oak color and controlled rim light, crisp diagonal silhouette, grain, cut, and binding detail, transparent background, no text or bloom halo` |
 
 ### Style Keywords
 
-- `2D pixel art` - Ensures flat, non-3D appearance
-- `game inventory icon` - Signals game asset context
-- `centered on solid dark brown background` - Consistent placement and background
-- `32-bit style` - Retro game aesthetic
-- `clean edges` - Sharp pixel art look
-- `no text, no shadows on ground` - Clean icon without artifacts
+- `historically grounded medieval` - Keeps form, construction, and material period-correct
+- `high-detail fantasy/anime painterly rendering` - Applies the binding expressive finish
+- `rich controlled saturation` - Avoids pale output without making every pixel equally loud
+- `crisp expressive silhouette` - Preserves recognition at inventory scale
+- `material-specific meso and micro detail` - Adds construction and close craft rather than random noise
+- `transparent background` - Keeps the icon compatible with the ornate inventory frame
+- `no text, no logo, no floor shadow, no bloom halo` - Prevents common generated artifacts
 
 ### Prompt Variations
 
@@ -43,16 +44,16 @@ For different art styles, replace the style keywords:
 
 | Style | Keywords |
 |-------|----------|
-| Realistic | `realistic medieval item, detailed textures, photorealistic` |
-| Hand-drawn | `hand-drawn sketch style, ink lines, parchment texture` |
-| Minimalist | `minimalist flat design, simple shapes, bold colors` |
-| Dark fantasy | `dark fantasy style, moody lighting, gothic aesthetic` |
+| Standard v1.1 | `high-detail fantasy/anime painterly item, rich controlled saturation, crisp silhouette` |
+| Folklore | `Baltic folklore accent, luminous symbolic motif authorized by canon, painterly PBR material read` |
+| Document | `illuminated manuscript influence, saturated mineral pigments, crisp period ink and parchment detail` |
+| Ominous | `dark historical fantasy, cobalt shadows, selective crimson and amber accents, controlled glow` |
 
 ## Generation Settings
 
 - **Tool**: `leonardo_generate_image`
-- **Resolution**: 128x128 pixels (optimal for inventory icons)
-- **Count**: 1 image per request (for consistency, regenerate if needed)
+- **Source resolution**: 512x512 pixels minimum; downscale to the runtime size after curation
+- **Count**: 2 candidates per request, curate one; regenerate only for objective defects or style drift
 
 ## File Format Handling
 

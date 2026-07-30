@@ -2,31 +2,31 @@ class_name OutdoorTerrainPalette
 extends RefCounted
 
 ## Outdoor-only material colors. IDs are shared MapTypes; this helper keeps the
-## approved city style stable while outdoor renderers gain historically plausible ground.
+## saturated style-lock-v1.1 stable while outdoor renderers retain historically plausible ground.
 
 
 static func color(terrain: StringName) -> Color:
 	match terrain:
-		MapTypes.TERRAIN_GRASS: return Color8(82, 121, 61)
-		MapTypes.TERRAIN_MEADOW: return Color8(102, 133, 72)
-		MapTypes.TERRAIN_SAND: return Color8(199, 171, 112)
-		MapTypes.TERRAIN_COAST_SAND: return Color8(184, 165, 120)
-		MapTypes.TERRAIN_HAY: return Color8(205, 164, 68)
-		MapTypes.TERRAIN_STRAW: return Color8(181, 143, 71)
-		MapTypes.TERRAIN_DIRT: return Color8(112, 78, 54)
-		MapTypes.TERRAIN_FARM_SOIL: return Color8(96, 63, 42)
-		MapTypes.TERRAIN_MUD: return Color8(78, 63, 49)
-		MapTypes.TERRAIN_FOREST_FLOOR: return Color8(76, 82, 54)
-		MapTypes.TERRAIN_BOG: return Color8(73, 91, 69)
-		# Muted dusty stone - bright clean greys read as linoleum at street scale.
-		MapTypes.TERRAIN_COBBLESTONE: return Color8(86, 84, 78)
-		MapTypes.TERRAIN_CASTLE_PAVING: return Color8(94, 92, 86)
-		MapTypes.TERRAIN_WATER: return Color8(58, 116, 143)
+		MapTypes.TERRAIN_GRASS: return Color8(79, 149, 79)
+		MapTypes.TERRAIN_MEADOW: return Color8(114, 175, 78)
+		MapTypes.TERRAIN_SAND: return Color8(210, 167, 94)
+		MapTypes.TERRAIN_COAST_SAND: return Color8(200, 162, 106)
+		MapTypes.TERRAIN_HAY: return Color8(227, 184, 63)
+		MapTypes.TERRAIN_STRAW: return Color8(201, 151, 50)
+		MapTypes.TERRAIN_DIRT: return Color8(154, 90, 63)
+		MapTypes.TERRAIN_FARM_SOIL: return Color8(111, 60, 45)
+		MapTypes.TERRAIN_MUD: return Color8(102, 59, 56)
+		MapTypes.TERRAIN_FOREST_FLOOR: return Color8(52, 101, 62)
+		MapTypes.TERRAIN_BOG: return Color8(49, 93, 80)
+		# Blue-gray variation keeps stone colorful without turning paving into painted tile.
+		MapTypes.TERRAIN_COBBLESTONE: return Color8(127, 145, 161)
+		MapTypes.TERRAIN_CASTLE_PAVING: return Color8(141, 160, 176)
+		MapTypes.TERRAIN_WATER: return Color8(22, 143, 170)
 		# The Pirita must read as a proper blue river, not a green-tinted shallow.
 		# Pull green well below blue so neither the palette nor the bed seen through
 		# the clear current casts an algae-like hue on the wide meanders.
-		MapTypes.TERRAIN_RIVER_WATER: return Color8(54, 110, 168)
-		MapTypes.TERRAIN_SHALLOW_WATER: return Color8(75, 137, 155)
-		MapTypes.TERRAIN_DEEP_WATER: return Color8(44, 86, 116)
-		MapTypes.TERRAIN_STONE: return Color8(126, 127, 118)
+		MapTypes.TERRAIN_RIVER_WATER: return Color8(24, 127, 183)
+		MapTypes.TERRAIN_SHALLOW_WATER: return Color8(45, 168, 196)
+		MapTypes.TERRAIN_DEEP_WATER: return Color8(20, 92, 131)
+		MapTypes.TERRAIN_STONE: return Color8(158, 173, 185)
 		_: return TerrainPalette.base_color(terrain)

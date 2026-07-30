@@ -87,9 +87,9 @@ Rural violence, the siege, and the reprisals stay historically anchored; an upri
 
 ## Visual direction
 
-The game presents as a fixed-camera 2:1 painted isometric view in the tradition of Fallout and Stoneshard, while gameplay logic (collision, navigation, interaction) stays on a simple orthogonal 2D plane. Maps are declarative, contract-tested definitions; the art that dresses them — terrain, buildings, props — is AI-generated under a locked style specification. Architecture draws from medieval Reval; candlelight, icy blues, earth tones, and mossy greens shape the mood.
+The game presents historically grounded 1343 Reval through a highly detailed, color-saturated fantasy/anime period-drama finish: painterly PBR materials, expressive silhouettes, colorful shadows, and HDR-range cinematic lighting with controlled bloom. Historical evidence still governs architecture, clothing, tools, fauna, and material culture; stylization governs color, shape emphasis, effects, and emotional staging. Gameplay logic (collision, navigation, interaction) remains on a deterministic orthogonal plane across third-person, first-person, and top-down camera modes.
 
-Production characters come from a shared low-poly rig with per-character texture and equipment swaps, rendered through the fixed orthographic camera. The decision and its rationale live in [`docs/adr/0007-ai-generated-isometric-presentation.md`](./docs/adr/0007-ai-generated-isometric-presentation.md); scale, palette, pivots, shadows, and readability rules are tracked in [`docs/ART_BIBLE.md`](./docs/ART_BIBLE.md).
+Production characters use one shared rig and animation library with tiered mesh, texture, and shader fidelity. The technical foundation lives in [`docs/adr/0007-ai-generated-isometric-presentation.md`](./docs/adr/0007-ai-generated-isometric-presentation.md); the current visual decision lives in [`docs/adr/0018-saturated-hdr-fantasy-anime-visual-direction.md`](./docs/adr/0018-saturated-hdr-fantasy-anime-visual-direction.md), with binding palette, detail, light, and readability rules in [`docs/ART_BIBLE.md`](./docs/ART_BIBLE.md).
 
 ## Built by AI agents
 

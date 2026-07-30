@@ -2,6 +2,8 @@
 
 ## Tooling
 
+- Never run parallel edits against the same file; dependent replacements can report success and then overwrite each other. Edit serially and re-read the saved block.
+- In a dirty shared worktree, generate repository-wide derived reports from a temporary clean worktree plus only the scoped patch; otherwise unrelated active-doc changes leak into the commit artifact.
 - If project file indexing is disabled, skip `file_search` and use targeted `find_files`, `grep`, or `rg` searches instead.
 - In `code_execution`, avoid relying on helper functions from comprehensions because the execution wrapper may isolate their scope; use explicit loops or inline calculations.
 - Godot headless filters must use user args after `--`: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_name`. Passing `--filter=` before `--` makes Godot ignore it and run the full suite.

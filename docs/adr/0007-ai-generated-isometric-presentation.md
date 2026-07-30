@@ -1,7 +1,7 @@
 # ADR 0007: Programmatic 3D isometric presentation with AI-generated materials
 
 **Reference:** TODO P0-040 rework, P0-051 through P0-053, P0-037 rework  
-**Style-lock kit:** [`docs/MATERIAL_STYLE_LOCK_KIT.md`](../MATERIAL_STYLE_LOCK_KIT.md) (`style-lock-v1.0`)
+**Style-lock kit:** [`docs/MATERIAL_STYLE_LOCK_KIT.md`](../MATERIAL_STYLE_LOCK_KIT.md) (`style-lock-v1.1` per ADR 0018)
 **Recorded:** 2026-07-16
 **Supersedes:** ADR 0004 (clean-painted candidate). **Amends:** ADR 0002 (presentation and direction-count rules).
 
@@ -12,6 +12,8 @@ Accepted
 Amended by [ADR 0011](0011-optional-first-person-camera.md) (2026-07-20): first-person inspection is exposed in release UI. [ADR 0015](0015-default-third-person-camera.md) (2026-07-23) later replaces the fixed orthographic default with a perspective third-person follow camera while retaining orthographic top-down as an alternate mode.
 
 Amended by [ADR 0013](0013-authorial-visual-direction-without-blind-ux-panels.md) (2026-07-23): P0-039 blind UX panels are cancelled; P0-040 closes on maintainer sign-off plus P0-038 technical evidence.
+
+Amended by [ADR 0018](0018-saturated-hdr-fantasy-anime-visual-direction.md) (2026-07-30): the programmatic 3D/PBR architecture remains, but the Fallout-looking desaturated presentation is replaced by a saturated, HDR-range, high-detail fantasy/anime direction grounded in historical forms.
 
 ## Context
 
@@ -29,7 +31,7 @@ Two production constraints shape the replacement:
 
 ## Decision
 
-Adopt a **programmatic 3D isometric presentation**: real runtime 3D geometry generated from the existing map definitions, viewed through a fixed orthographic dimetric camera, surfaced with AI-generated material textures, and graded to the target mood in post. "Fallout-looking" remains the reference bar; the geometry and animation are code, and image models are used only where they are reliable and consistency-free — seamless material textures and portraits.
+Adopt a **programmatic 3D isometric presentation**: real runtime 3D geometry generated from the existing map definitions, viewed through a fixed orthographic dimetric camera, surfaced with AI-generated material textures, and graded to the target mood in post. The original Fallout-looking reference bar is historical; ADR 0018 now governs the saturated fantasy/anime finish. The geometry and animation are code, and image models are used only where they are reliable and consistency-free - seamless material textures and portraits.
 
 1. **Logic layer is kept unchanged.** Declarative map definitions, anchors, footprints, collision, navigation, activation guards, and fingerprints remain the single source of truth, simulated on the flat orthogonal plane (ADR 0002 core, reaffirmed). The 3D scene is a pure view layer: a deterministic bridge maps logic coordinates `(x, y)` to world `(x, 0, z)` and synchronizes actor positions from the logic simulation. All existing map contracts and tests remain valid; this decision changes rendering only.
 2. **Geometry is generated, not modeled.** A mesh builder converts definition data to 3D at load time: building footprints plus per-type height rules become wall prisms and gabled roofs; terrain cells become a ground plane with per-material regions; props come from a small library of parametric primitives (barrel, cart, well, anvil, hay). Adding a building type is a code change plus a texture, not an asset commission — LLM-authorable end to end.
@@ -37,7 +39,7 @@ Adopt a **programmatic 3D isometric presentation**: real runtime 3D geometry gen
 4. **Surfaces use AI-generated seamless material textures under a style-lock kit.** Stone, lime plaster, timber, roof tile, mud, cobble, hay, water — each an independent tileable texture, the one asset class image models generate reliably with no cross-asset consistency problem. The kit freezes palette and material families (carried from the current ART_BIBLE), texture density rules, prompt block, and acceptance rubric; every texture gets a SOURCES.csv provenance row. Procedural noise materials are the placeholder fallback so the renderer never blocks on generation.
 5. **Characters are shared low-poly rigs with retargeted animations — no sprites.** One humanoid rig; animations come from a retarget library (Mixamo-class or equivalent), so a new animation is a retarget-and-trim, not a redraw or regeneration. Characters rotate freely, which deletes the direction-count question entirely: the four-direction cap from ADR 0002 is lifted because facing is now a transform. Per-character identity comes from palette/texture swaps, equipment meshes, and silhouette-level shape changes. This directly resolves the recorded animation and scaling failures of the sprite prototype: one rig scales globally, and consistency is structural rather than prompt-enforced.
 6. **Lighting and day/night are real.** One sun `DirectionalLight3D` plus ambient; buildings and characters cast real shadows. Night is a deterministic light-angle/color change preserving the existing ART_BIBLE night rules (≥20% darker, terrain identities preserved, warm emissive windows). No per-phase asset regeneration.
-7. **The Fallout mood comes from a frozen post-process grade.** Desaturated Baltic palette grade, soft outline or edge darkening, film grain, and vignette, specified in ART_BIBLE v2 and applied uniformly so programmatic geometry reads gritty rather than toy-like.
+7. **A frozen post-process grade unifies generated art.** ADR 0018 replaces the original desaturated Fallout grade with saturated Baltic color scripting, AgX HDR-range highlight handling, controlled bloom, selective outline/rim accents, and colorful night contrast, specified in ART_BIBLE v2 and applied consistently so programmatic geometry reads authored rather than toy-like.
 8. **Generation speed is a hard requirement with a budget.** A new NPC variant with the core animation set in under one working day; a single new animation in under one hour; a new building type (parametric rule plus texture) in under one working day — all measured end to end including retries, and enforced at the P0-037/P0-038 gates. Any pipeline element that misses the budget is replaced or cut, not tolerated.
 
 ## Alternatives
@@ -57,3 +59,4 @@ Adopt a **programmatic 3D isometric presentation**: real runtime 3D geometry gen
 - Godot 4.7 GL Compatibility renders 3D; if slice scenes miss frame-time budgets on minimum hardware, P0-038 escalates renderer settings (or renderer choice) before any art rework.
 - Risk: low-poly characters read as toy-like. Mitigated by the post grade, silhouette rules, and maintainer gameplay review ([ADR 0013](0013-authorial-visual-direction-without-blind-ux-panels.md)).
 - Risk: model/tool churn in texture generation. The kit records model, version, and full generation parameters per texture in SOURCES.csv so any texture can be regenerated or matched later.
+y texture can be regenerated or matched later.

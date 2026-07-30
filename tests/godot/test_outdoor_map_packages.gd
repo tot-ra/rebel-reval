@@ -96,6 +96,12 @@ func test_outdoor_palette_covers_every_extended_material() -> void:
 		assert_ne(OutdoorTerrainPalette.color(terrain), Color.MAGENTA)
 
 
+func test_outdoor_palette_uses_saturated_style_lock_v11() -> void:
+	assert_eq(OutdoorTerrainPalette.color(MapTypes.TERRAIN_GRASS), Color8(79, 149, 79))
+	assert_eq(OutdoorTerrainPalette.color(MapTypes.TERRAIN_WATER), Color8(22, 143, 170))
+	assert_eq(OutdoorTerrainPalette.color(MapTypes.TERRAIN_STONE), Color8(158, 173, 185))
+
+
 func test_padise_uses_one_definition_with_two_phases() -> void:
 	var padise := Villages.padise_monastery()
 	assert_eq(padise.get_meta("phases"), [&"before_attack", &"after_attack"])

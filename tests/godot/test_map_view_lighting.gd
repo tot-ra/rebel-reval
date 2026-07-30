@@ -51,6 +51,10 @@ func test_post_grade_differs_from_ungraded_baseline() -> void:
 	assert_false(baseline.adjustment_enabled, "baseline must stay unadjusted for contrast")
 	assert_false(baseline.glow_enabled, "baseline must stay without glow for contrast")
 	assert_true(
-		graded.adjustment_saturation < 1.0,
-		"day grade must desaturate the Baltic palette"
+		graded.adjustment_saturation > 1.0,
+		"ADR 0018 grade must preserve a saturated Baltic palette"
+	)
+	assert_true(
+		graded.glow_hdr_threshold < 1.0,
+		"HDR-range focal highlights must reach controlled glow before display white"
 	)

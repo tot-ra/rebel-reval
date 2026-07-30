@@ -7,7 +7,7 @@ description: Produce game-ready 3D assets through a token-efficient deterministi
 
 ## Objective
 
-Produce one verified asset with the fewest LLM decisions, context reads, and generation attempts. Spend compute in scripts and tools, not model context. Raw image-to-3D meshes are shape candidates, never shipped assets.
+Produce one verified asset with the fewest LLM decisions, context reads, and generation attempts. Spend compute in scripts and tools, not model context. Raw image-to-3D meshes are shape candidates, never shipped assets. All new output follows ADR 0018: historically grounded form, expressive fantasy/anime shape grouping, rich controlled color, painterly PBR response, and intentional macro/meso/micro detail.
 
 ## Token budget rules
 
@@ -83,14 +83,14 @@ Use one object, pose, and view on a uniform background, with 10% margins and no 
 
 ### Creature realism gate
 
-For pigs, sheep, cattle, horses, dogs, and other animals, target **anatomical and husbandry realism inside the binding non-photoreal art direction**. Realism means a species-correct silhouette, believable skeletal landmarks and weight distribution, plausible age/body condition, historically appropriate phenotype and tack, and restrained coat materials. It does not mean photoreal shaders, dense strand fur, or modern show-breed exaggeration.
+For pigs, sheep, cattle, horses, dogs, and other animals, target **anatomical and husbandry credibility inside the binding saturated fantasy/anime direction**. Credibility means a species-correct silhouette, believable skeletal landmarks and weight distribution, plausible age/body condition, and historically appropriate phenotype and tack. The finish uses clear expressive shape grouping, richer but plausible coat color, painterly PBR response, and tier-appropriate macro/meso/micro detail. It does not mean photographic shaders, dense strand fur, pale/desaturated coats, or modern show-breed exaggeration.
 
 Add `species`, `sex_age`, `use`, `phenotype`, `anatomy_reference`, and `pose` to the compact brief. For a historical setting, source the regional period phenotype; when evidence is incomplete, describe a generic unimproved landrace and record the assumption instead of inventing a named breed. Base dimensions on withers/shoulder height and nose-to-rump length, not on a generated mesh's bounds.
 
 Use this reference pattern, replacing the bracketed fields:
 
 ```text
-full-body anatomically credible [species, sex/age, use], [sourced regional-period phenotype], natural body condition, species-correct head-to-body ratio and leg joints, weight evenly supported in a neutral square stance, all four legs and feet clearly visible and separated, tail and ears clear of the body, restrained natural coat variation, realistic form adapted to the approved game art direction, eye-level front three-quarter view, even soft lighting, isolated on a uniform mid-gray background, 10% margin; no ground, cast shadow, scenery, text, extra limbs, merged legs, oversized head or eyes, inflated torso, peg legs, fantasy features, modern show-breed exaggeration, dramatic pose, or accessories not named in the brief
+full-body anatomically credible [species, sex/age, use], [sourced regional-period phenotype], natural body condition, species-correct head-to-body ratio and leg joints, weight evenly supported in a neutral square stance, all four legs and feet clearly visible and separated, tail and ears clear of the body, expressive fantasy/anime shape grouping with rich plausible coat color and high-detail painterly PBR surfaces, historically grounded form adapted to the approved game art direction, eye-level front three-quarter view, even soft neutral reference lighting, isolated on a uniform mid-gray background, 10% margin; no ground, cast shadow, scenery, text, extra limbs, merged legs, oversized head or eyes, inflated torso, peg legs, unsupported magical features, modern show-breed exaggeration, dramatic pose, or accessories not named in the brief
 ```
 
 Use species-specific cues without replacing a sourced anatomy reference:

@@ -45,23 +45,23 @@ const FOG_HOURS_AFTER_SUNRISE := 2.5
 const FOG_POTENTIAL_MIN := 0.8
 const FOG_POTENTIAL_FULL := 0.95
 
-## Frozen Baltic post-grade (MATERIAL_STYLE_LOCK_KIT day table + ART_BIBLE night
-## rules). Parameters freeze in ART_BIBLE v2 at P0-040; P0-141 wires them here.
+## ADR 0018 saturated HDR-range post-grade. AgX compresses scene-referred values
+## for the current SDR output; this does not claim HDR10 or wide-gamut delivery.
 const TONEMAP_MODE := Environment.TONE_MAPPER_AGX
-const GRADE_DAY_EXPOSURE := 1.0
-const GRADE_DAY_SATURATION := 0.82
-const GRADE_DAY_CONTRAST := 1.06
-const GRADE_DAY_BRIGHTNESS := 1.02
-const GRADE_NIGHT_EXPOSURE := 0.78
-const GRADE_NIGHT_SATURATION := 0.58
-const GRADE_NIGHT_CONTRAST := 1.10
-const GRADE_NIGHT_BRIGHTNESS := 0.74
-const GLOW_HDR_THRESHOLD := 1.0
-const GLOW_INTENSITY_DAY := 0.35
-const GLOW_INTENSITY_NIGHT := 0.48
-const GLOW_BLOOM := 0.12
-const GLOW_STRENGTH := 0.9
-const GLOW_MIX := 0.04
+const GRADE_DAY_EXPOSURE := 1.03
+const GRADE_DAY_SATURATION := 1.20
+const GRADE_DAY_CONTRAST := 1.12
+const GRADE_DAY_BRIGHTNESS := 1.03
+const GRADE_NIGHT_EXPOSURE := 0.82
+const GRADE_NIGHT_SATURATION := 1.08
+const GRADE_NIGHT_CONTRAST := 1.16
+const GRADE_NIGHT_BRIGHTNESS := 0.78
+const GLOW_HDR_THRESHOLD := 0.85
+const GLOW_INTENSITY_DAY := 0.48
+const GLOW_INTENSITY_NIGHT := 0.62
+const GLOW_BLOOM := 0.18
+const GLOW_STRENGTH := 1.0
+const GLOW_MIX := 0.06
 
 
 ## One-time WorldEnvironment setup: tonemap, glow, and color-adjustment toggles.
@@ -85,7 +85,7 @@ static func configure_post_process(environment: Environment) -> void:
 	environment.set("glow_levels/7", false)
 
 
-## Cycle-driven Baltic grade: desaturated day masters, cooler/darker night response.
+## Cycle-driven saturated Baltic grade: rich day masters and colorful darker nights.
 static func apply_post_grade(environment: Environment, day_blend: float) -> void:
 	if environment == null:
 		return

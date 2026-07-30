@@ -1,9 +1,6 @@
-# Visual Fidelity Plan — toward a Witcher-tier third-person look
+# Visual Fidelity Plan - saturated high-detail fantasy/anime PBR
 
-Companion to [`WITCHER3_REALISM_INSPIRATION.md`](WITCHER3_REALISM_INSPIRATION.md) (which covers
-*gameplay* realism). This document covers *visual* fidelity: the concrete gap between the
-current 3D presentation and a grounded, atmospheric, PBR-lit medieval look, and the ordered
-workstream that closes it. Backlog rows P0-140 … P0-157 in [`../TODO.md`](../TODO.md) implement it.
+Companion to [`WITCHER3_REALISM_INSPIRATION.md`](WITCHER3_REALISM_INSPIRATION.md), which covers gameplay realism, and [ADR 0018](adr/0018-saturated-hdr-fantasy-anime-visual-direction.md), which governs appearance. This document covers the concrete gap between the current 3D presentation and a saturated, high-detail, painterly PBR medieval fantasy/anime look with HDR-range lighting. Backlog rows P0-140 through P0-160 in [`../TODO.md`](../TODO.md) implement the underlying fidelity pipeline.
 
 Since [ADR 0015](adr/0015-default-third-person-camera.md) the default camera is an
 over-the-shoulder perspective follow camera (not the old fixed isometric view), so character
@@ -11,33 +8,29 @@ and prop surface quality is now on-screen and close to the player. This plan tar
 
 ## Honest target
 
-*The Witcher 3* shipped with ~240 people over ~3.5 years using hand-sculpted, motion-captured,
-per-asset-authored art. Reval Rebel's constraint ([ADR 0007](adr/0007-ai-generated-isometric-presentation.md))
-is the opposite: all-AI/procedural assets, one maintainer, minutes-to-hours iteration. We will
-**not** literally match Witcher 3. The achievable and worthwhile target is:
+Large premium RPG and anime productions use specialized concept, modeling, surfacing, lighting, VFX, and animation teams. Reval Rebel instead uses deterministic procedural/AI-assisted production with one maintainer. We will not claim feature-film anime rendering, hand-authored AAA asset volume, or HDR10 output. The achievable target is:
 
-> A grounded, PBR-lit, atmospherically graded medieval third-person look, where hero characters
-> read as real people in closeup and crowds/battles stay performant and non-toy-like.
+> A distinctive historical fantasy/anime period drama with rich controlled color, expressive shape language, painterly PBR materials, three-scale authored detail, colorful night lighting, and HDR-range highlights compressed cleanly through AgX, while crowds and battles remain performant.
 
-Everything below is chosen for the highest fidelity-per-unit-effort inside that constraint.
+"Realism" in source briefs now means historical, anatomical, functional, scale, and material credibility. It does not prescribe pale color, photographic noise, neutral lighting, or naturalistic proportions as the final visual finish. Everything below is chosen for high visible fidelity within the frozen tier and performance constraints.
 
-## Measured gap (2026-07-28)
+## Measured gap (updated 2026-07-30)
 
 | Area | Current state (measured) | Consequence |
 |---|---|---|
-| Character textures | `heroic_humanoid.glb`: ~51k indexed tris across anatomical layers, **0 images**, 14 flat per-part color materials. mart/henning/townswoman/etc. follow the same pattern. No UVs. | Reads "toy-like." No albedo/normal/roughness/AO, no skin or cloth shading - the #1 fidelity gap. |
-| Post-process grade | `Environment.new()` (`scripts/map/view3d/map_view_3d.gd`) sets only background + ambient. No tonemap, glow, or color adjustment. | The "frozen Fallout grade" promised by ADR 0007 was never implemented. Cheapest large win; works even on GL Compatibility. |
-| Renderer | `project.godot`: `renderer/rendering_method="gl_compatibility"`. | Godot's lowest tier: no SSAO/SSIL/SDFGI/SSR/volumetric fog. Hard ceiling on lighting realism. |
+| Character textures | `heroic_humanoid.glb`: ~51k indexed tris across anatomical layers, **0 images**, 14 flat per-part color materials. mart/henning/townswoman/etc. follow the same pattern. No UVs. | Reads toy-like and cannot carry expressive face/hand detail, costume story, rich material color, or anime-influenced shape grouping - the #1 fidelity gap. |
+| Post-process grade | AgX, glow, and adjustment are wired with ADR 0018 saturation, contrast, and controlled highlight values. | Matched visual captures still need review across day, night, weather, third-person, and top-down views. |
+| Renderer | `project.godot`: `renderer/rendering_method="gl_compatibility"`. | No SSAO/SSIL/SDFGI/SSR/volumetric fog and no established HDR10/wide-gamut output. This is a ceiling on advanced light/VFX, not permission to mislabel SDR output as display HDR. |
 | Props / animals | Forge & furniture GLBs carry 1–3 images (albedo only); animal GLBs 1 image. | Flat, unlit-looking surfaces under otherwise-good dynamic lighting. |
 | LOD / crowds | Shared rig has no `visibility_range`/LOD; no `MultiMeshInstance3D` for characters. | 40k-tri characters do not scale to battle-sized counts. |
 | Camera | Third-person perspective exists; no `CameraAttributes` (no DoF, no exposure). | No cinematic depth or exposure control in closeups. |
 
-**Strengths to preserve:** the environment pipeline is already strong — procedural building
+**Strengths to preserve:** the environment pipeline is already strong - procedural building
 shaders with normal maps, real day/night, weather, sky dome, water sky-reflection, and
 height-biased morning fog. This plan does not rebuild that; it lifts characters, props, grade,
 and lighting up to the same bar.
 
-## Two-tier character model (maintainer direction, 2026-07-28)
+## Three-tier character model (maintainer direction, 2026-07-28)
 
 ADR 0007 mandates a single shared low-poly rig with no bespoke authoring. The maintainer has
 widened this to a **fidelity-tiered** model - high quality where the player looks closely, cheap
@@ -83,8 +76,7 @@ Tier 0/1 caps. Garments: cape 720, hat 528.
 ## Workstreams
 
 ### A. Rendering foundation (unblocks everything, tier-independent)
-- **P0-141** Post-process grade: tonemap (AgX/Filmic), glow/bloom, color-adjustment wired into
-  the day/night cycle; params frozen in ART_BIBLE v2. *Works on GL Compatibility today.*
+- **P0-141** Post-process grade: AgX, controlled glow/bloom, and saturated color adjustment wired into the day/night cycle; ADR 0018 values are frozen in ART_BIBLE v2. Scene-referred highlights work on GL Compatibility today, but HDR10/wide-gamut output is not claimed.
 - **P0-142** Renderer evaluation spike: measured Forward+ vs Mobile vs GL-Compat comparison
   (frame time on min hardware + fidelity captures) with a maintainer decision. Fits ADR 0007's
   "P0-038 may escalate renderer choice" clause.
@@ -110,14 +102,14 @@ Tier 0/1 caps. Garments: cape 720, hat 528.
 - **P0-154** Crowd performance budget + battle-scene benchmark on min hardware.
 
 ### E. Prop / environment fidelity
-- **P0-155** Hero-prop ORM pass (normal+roughness+AO on anvil/furnace/bellows/chests).
-- **P0-156** Animal GLB PBR pass (normal/roughness for cattle/pig/sheep/horse).
-- **P0-157** Wear/grime/blood decal system (battle aftermath + environmental storytelling).
+- **P0-155** Hero-prop ORM pass (normal+roughness+AO on anvil/furnace/bellows/chests), with macro silhouette, meso construction, micro craft, and saturated material-family review.
+- **P0-156** Animal GLB PBR pass (normal/roughness for cattle/pig/sheep/horse) with anatomically credible silhouettes and expressive painterly coat grouping.
+- **P0-157** Wear/grime/blood decal system (battle aftermath + environmental storytelling), concentrated by use and exposure rather than uniform grunge.
 
 ### F. Fauna fidelity (birds, wild mammals, livestock, pets)
 Fauna follows the same tier logic as characters: **close** fauna (the forge cat, penned livestock
 the player stands beside) is Tier-1 quality; **ambient/distant** fauna (birds in flight, wild
-mammals fleeing at map margins) is Tier-2 — cheap, LOD'd, and instanced, but still lit rather than
+mammals fleeing at map margins) is Tier-2 - cheap, LOD'd, and instanced, but still lit rather than
 flat. Current state: birds and wild mammals are 100% procedural `SurfaceTool` vertex-color meshes
 with no textures or normals; livestock GLBs are albedo-only; the forge cat (textured GLB + LOD1/LOD2)
 is the quality bar to match.
@@ -131,7 +123,7 @@ is the quality bar to match.
 
 ## Sequencing
 
-1. **Immediate, cheap, high-impact:** P0-141 (grade), P0-155/P0-156 (prop/animal ORM) — visible
+1. **Immediate, cheap, high-impact:** P0-141 (grade), P0-155/P0-156 (prop/animal ORM) - visible
    jump with no renderer or ADR dependency.
 2. **Foundation:** P0-140 (tier ADR, done), P0-144 (UVs), P0-142 (renderer decision).
 3. **Character quality:** P0-145 → P0-146/147/148 → P0-149/150 (hero), and P0-151/152/153/154 (crowd).
@@ -140,7 +132,9 @@ is the quality bar to match.
 ## Guardrails
 
 - No task changes a map fingerprint or the flat logic plane (ADR 0007 core).
-- Every generated texture/mesh gets a `SOURCES.csv` provenance row and passes
-  `tools/verify_asset_lint.py`.
-- Tier budgets (poly/texture/shader) are frozen in the P0-140 tier spec and enforced by asset lint.
+- History governs form; ADR 0018 governs expressive color, shape emphasis, detail, light, and effects. Do not use fantasy styling to conceal unsupported forms.
+- Every hero/landmark brief identifies macro, meso, and micro detail and proves the relevant top-down, third-person, and close-camera reads.
+- Every generated texture/mesh gets a `SOURCES.csv` provenance row and passes `tools/verify_asset_lint.py`.
+- Tier budgets (poly/texture/shader) are frozen in the P0-140 tier spec and enforced by asset lint. High detail must fit those budgets and collapse cleanly through LOD/mipmaps.
+- Highlight hue and texture must survive AgX; bloom is selective and screen UI remains unaffected.
 - Performance is gated on minimum hardware; crowd counts have a deterministic cap.

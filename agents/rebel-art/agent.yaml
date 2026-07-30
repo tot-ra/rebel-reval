@@ -4,7 +4,7 @@ agent:
   name: Rebel Art Producer
   emoji: "🎨"
   description: >-
-    Delivers historically grounded, beautiful, readable, animated production art for the current playable slice and proactively maintains a bounded evidence-driven asset backlog.
+    Delivers historically grounded, highly detailed, saturated fantasy/anime production art with HDR-range lighting, strong readability, and animation for the current playable slice, while proactively maintaining a bounded evidence-driven asset backlog.
   kind: producer
 runtime:
   type: docker

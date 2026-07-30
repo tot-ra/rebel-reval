@@ -34,6 +34,33 @@ func test_visual_targets_freeze_scale_and_style_rules() -> void:
 			assert_ne(MapVisualStyle.terrain_color(terrain_id, target, MapVisualStyle.TIME_NIGHT), Color.MAGENTA)
 
 
+func test_production_palette_uses_saturated_style_lock_v11() -> void:
+	var target := MapVisualStyle.TARGET_CLEAN_PAINTED
+	assert_eq(
+		MapVisualStyle.terrain_color(MapTypes.TERRAIN_GRASS, target, MapVisualStyle.TIME_DAY),
+		Color8(79, 149, 79)
+	)
+	assert_eq(
+		MapVisualStyle.terrain_color(MapTypes.TERRAIN_WATER, target, MapVisualStyle.TIME_DAY),
+		Color8(22, 143, 170)
+	)
+	assert_eq(
+		MapVisualStyle.role_color(&"character_cloth", target, MapVisualStyle.TIME_DAY),
+		Color8(217, 54, 77)
+	)
+	var night_water := MapVisualStyle.terrain_color(
+		MapTypes.TERRAIN_WATER, target, MapVisualStyle.TIME_NIGHT
+	)
+	assert_true(night_water.b > night_water.r, "night water must retain the indigo/cyan script")
+	# Comparison profiles are historical P0-036 evidence, not migration targets.
+	assert_eq(
+		MapVisualStyle.terrain_color(
+			MapTypes.TERRAIN_GRASS, MapVisualStyle.TARGET_PIXEL, MapVisualStyle.TIME_DAY
+		),
+		Color8(86, 111, 64)
+	)
+
+
 func test_visual_targets_keep_definition_collisions_and_anchors_identical() -> void:
 	var definition: MapDefinition = SmithyCourtyardDefinition.create()
 	var grid: MapTerrainGrid = MapBuilder.build(definition)

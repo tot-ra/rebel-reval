@@ -1,7 +1,7 @@
 class_name MapVisualStyle
 extends RefCounted
 
-## Rendering-only profiles for P0-036. None of these values may alter gameplay geometry.
+## Rendering-only profiles. Pixel and woodcut preserve P0-036 evidence; the clean-painted ID remains a compatibility alias for the saturated style-lock-v1.1 production palette. None of these values may alter gameplay geometry.
 
 const TARGET_PIXEL := &"pixel"
 const TARGET_WOODCUT := &"digital_woodcut"
@@ -34,7 +34,7 @@ static func terrain_color(terrain_id: StringName, target: StringName, time_of_da
 			day_color = _woodcut_terrain(terrain_id)
 		TARGET_CLEAN_PAINTED:
 			day_color = _clean_terrain(terrain_id)
-	return apply_time(day_color, time_of_day)
+	return apply_time(day_color, time_of_day, false, target)
 
 
 static func role_color(role: StringName, target: StringName, time_of_day: StringName) -> Color:
@@ -46,17 +46,27 @@ static func role_color(role: StringName, target: StringName, time_of_day: String
 			day_color = _woodcut_role(role)
 		TARGET_CLEAN_PAINTED:
 			day_color = _clean_role(role)
-	return apply_time(day_color, time_of_day, role in [&"window", &"water_highlight"])
+	return apply_time(day_color, time_of_day, role in [&"window", &"water_highlight"], target)
 
 
-static func apply_time(day_color: Color, time_of_day: StringName, emissive: bool = false) -> Color:
+static func apply_time(
+	day_color: Color,
+	time_of_day: StringName,
+	emissive: bool = false,
+	target: StringName = TARGET_CLEAN_PAINTED
+) -> Color:
 	if time_of_day == TIME_DAY:
 		return day_color
+	if target != TARGET_CLEAN_PAINTED:
+		if emissive:
+			return day_color.lerp(Color8(238, 177, 92), 0.58)
+		var legacy_night := Color(day_color.r * 0.43, day_color.g * 0.50, day_color.b * 0.66, day_color.a)
+		return legacy_night.lerp(Color8(25, 35, 58, day_color.a8), 0.20)
 	if emissive:
-		return day_color.lerp(Color8(238, 177, 92), 0.58)
-	# Night shifts every profile toward moonlit blue while retaining terrain recognition.
-	var night := Color(day_color.r * 0.43, day_color.g * 0.50, day_color.b * 0.66, day_color.a)
-	return night.lerp(Color8(25, 35, 58, day_color.a8), 0.20)
+		return day_color.lerp(Color8(255, 210, 122), 0.65)
+	# Colorful indigo night preserves local hue instead of restoring the old gray wash.
+	var night := Color(day_color.r * 0.54, day_color.g * 0.58, day_color.b * 0.72, day_color.a)
+	return night.lerp(Color8(31, 41, 82, day_color.a8), 0.12)
 
 
 static func outline_width(target: StringName) -> float:
@@ -145,17 +155,17 @@ static func _woodcut_terrain(terrain_id: StringName) -> Color:
 
 static func _clean_terrain(terrain_id: StringName) -> Color:
 	match terrain_id:
-		MapTypes.TERRAIN_GRASS: return Color8(93, 126, 78)
-		MapTypes.TERRAIN_SAND: return Color8(199, 171, 112)
-		MapTypes.TERRAIN_HAY: return Color8(205, 164, 68)
-		MapTypes.TERRAIN_DIRT: return Color8(124, 88, 65)
-		MapTypes.TERRAIN_COBBLESTONE: return Color8(98, 96, 90)
-		MapTypes.TERRAIN_WATER: return Color8(58, 116, 143)
-		MapTypes.TERRAIN_RIVER_WATER: return Color8(72, 128, 164)
-		MapTypes.TERRAIN_STONE: return Color8(147, 147, 139)
-		MapTypes.TERRAIN_ASH: return Color8(108, 104, 98)
-		MapTypes.TERRAIN_TIMBER_FLOOR: return Color8(126, 88, 58)
-		MapTypes.TERRAIN_PLASTER: return Color8(205, 184, 146)
+		MapTypes.TERRAIN_GRASS: return Color8(79, 149, 79)
+		MapTypes.TERRAIN_SAND: return Color8(210, 167, 94)
+		MapTypes.TERRAIN_HAY: return Color8(227, 184, 63)
+		MapTypes.TERRAIN_DIRT: return Color8(154, 90, 63)
+		MapTypes.TERRAIN_COBBLESTONE: return Color8(127, 145, 161)
+		MapTypes.TERRAIN_WATER: return Color8(22, 143, 170)
+		MapTypes.TERRAIN_RIVER_WATER: return Color8(24, 127, 183)
+		MapTypes.TERRAIN_STONE: return Color8(158, 173, 185)
+		MapTypes.TERRAIN_ASH: return Color8(107, 108, 126)
+		MapTypes.TERRAIN_TIMBER_FLOOR: return Color8(107, 63, 53)
+		MapTypes.TERRAIN_PLASTER: return Color8(231, 201, 142)
 		_: return Color.MAGENTA
 
 
@@ -205,21 +215,21 @@ static func _woodcut_role(role: StringName) -> Color:
 
 static func _clean_role(role: StringName) -> Color:
 	match role:
-		&"ink": return Color8(43, 38, 36)
-		&"soot": return Color8(58, 51, 43)
-		&"plaster": return Color8(205, 184, 146)
-		&"timber": return Color8(83, 55, 42)
-		&"roof": return Color8(111, 59, 49)
-		&"stone": return Color8(145, 145, 137)
-		&"metal": return Color8(70, 79, 82)
-		&"wood": return Color8(119, 77, 45)
-		&"hay": return Color8(205, 164, 68)
-		&"window": return Color8(104, 158, 177)
-		&"water_highlight": return Color8(101, 177, 196)
-		&"character_cloth": return Color8(178, 61, 49)
-		&"character_skin": return Color8(216, 169, 123)
-		&"character_apron": return Color8(83, 99, 101)
-		&"ember": return Color8(224, 108, 48)
-		&"flower": return Color8(204, 112, 138)
-		&"vegetation": return Color8(78, 112, 64)
+		&"ink": return Color8(23, 27, 42)
+		&"soot": return Color8(48, 39, 55)
+		&"plaster": return Color8(231, 201, 142)
+		&"timber": return Color8(107, 63, 53)
+		&"roof": return Color8(185, 74, 61)
+		&"stone": return Color8(158, 173, 185)
+		&"metal": return Color8(57, 76, 101)
+		&"wood": return Color8(162, 105, 63)
+		&"hay": return Color8(227, 184, 63)
+		&"window": return Color8(88, 199, 232)
+		&"water_highlight": return Color8(70, 199, 216)
+		&"character_cloth": return Color8(217, 54, 77)
+		&"character_skin": return Color8(224, 160, 117)
+		&"character_apron": return Color8(64, 82, 123)
+		&"ember": return Color8(240, 161, 62)
+		&"flower": return Color8(201, 74, 155)
+		&"vegetation": return Color8(79, 149, 79)
 		_: return Color.MAGENTA

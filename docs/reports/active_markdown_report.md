@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `80`
-- Markdown files excluded as archive/reference/out of active scope: `462`
-- Local/external links inspected: `502`
-- Links to active Markdown docs: `222`
-- Links to existing archive/reference/non-active local docs: `99`
+- Active Markdown files scanned: `81`
+- Markdown files excluded as archive/reference/out of active scope: `463`
+- Local/external links inspected: `501`
+- Links to active Markdown docs: `225`
+- Links to existing archive/reference/non-active local docs: `96`
 - External links skipped for reachability: `33`
 - Issues found: `0`
 
@@ -56,6 +56,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0015-default-third-person-camera.md`
 - `docs/adr/0016-tiered-character-fidelity.md`
 - `docs/adr/0017-legacy-design-reintroduction.md`
+- `docs/adr/0018-saturated-hdr-fantasy-anime-visual-direction.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ARCHITECTURE.md`
 - `docs/ART_BIBLE.md`

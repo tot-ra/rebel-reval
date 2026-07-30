@@ -15,7 +15,7 @@ All humanoids use the same anatomy-first construction: animation drives the skel
 | 3. Body spec | New build (stocky, lanky, female frame) | entry in `character_specs.py` | ~1 hour |
 | 4. New geometry | New species/silhouette parts | new `PartBuilder` sections | day-scale |
 
-Never start at a higher tier than the game visibly needs at 64 px gameplay scale: at that size silhouette, stature, and palette do all the work; faces and detail read only in dialogue closeups.
+Never start at a higher tier than the relevant camera visibly needs. Top-down distance is led by silhouette, stature, pose, and palette; third-person adds costume construction, hair groups, and material response; first-person/dialogue closeups require authored face, hand, seam, wear, and surface detail. High detail must collapse cleanly through mipmaps and LOD rather than becoming distant noise.
 
 ## Tier 1 — variant (tint + equipment + garments)
 

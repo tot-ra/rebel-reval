@@ -1,154 +1,174 @@
-# Art Bible
+# Art Bible v2
 
-Status: **Superseded as style candidate** — [ADR 0007](adr/0007-ai-generated-isometric-presentation.md) (2026-07-16) replaces the clean-painted flat-color candidate with an AI-generated painted isometric presentation. Scale, pivot, shadow, value-hierarchy, night-grade, and Reval shape-language rules below carry forward into ART_BIBLE v2 (produced by P0-040); material prompts, post-grade parameters, and the eight-family palette lock live in [`MATERIAL_STYLE_LOCK_KIT.md`](MATERIAL_STYLE_LOCK_KIT.md) (P0-051). The flat-color palette-as-final-art sections are historical evidence only.
-Recorded: 2026-07-16  
-Evidence: [P0-036 visual target report](reports/visual_targets_p0_036.md), [P0-036 UX review](reports/visual_targets_p0_036_ux_review.md), [ADR 0004](adr/0004-clean-painted-visual-style-candidate.md) (superseded), [ADR 0007](adr/0007-ai-generated-isometric-presentation.md)
+**Status:** Normative visual direction; technical production freeze remains gated by P0-038 / P0-040
+**Art-direction approval:** [ADR 0018](adr/0018-saturated-hdr-fantasy-anime-visual-direction.md), maintainer-directed 2026-07-30
+**Technical foundation:** [ADR 0007](adr/0007-ai-generated-isometric-presentation.md), [ADR 0015](adr/0015-default-third-person-camera.md), [ADR 0016](adr/0016-tiered-character-fidelity.md)
+**Material lock:** [`MATERIAL_STYLE_LOCK_KIT.md`](MATERIAL_STYLE_LOCK_KIT.md) (`style-lock-v1.1`)
 
-This document froze the candidate rules exercised by the P0-036 Smithy Courtyard gate. It does not authorize conversion of active districts. Final approval remains blocked by P0-038 and a maintainer P0-040 decision over the ADR 0007 candidate per [ADR 0013](adr/0013-authorial-visual-direction-without-blind-ux-panels.md).
+This document is binding for new art decisions. It replaces the pale/desaturated clean-painted and Fallout-grade targets retained in P0-036 evidence. Existing accepted assets are migration inputs, not the color or detail ceiling for new work.
 
-## Candidate direction
+## Direction in one sentence
 
-- Engine: Godot 4.7, GL Compatibility.
-- Perspective: orthogonal gameplay plane with three-quarter architectural art.
-- Visual style: **clean-painted candidate**, with digital-woodcut line economy used only as a controlled accent, not full-surface hatching.
-- Comparison source: the single composition `scenes/map_prototype/smithy_courtyard.tscn`.
-- Negative constraints: no diamond-isometric physics, eight-direction sprite requirement, frame-specific character redraw pipeline, photorealism, unrestricted black outlines, or conversion of active districts before P0-040 approval.
+**Historically grounded 1343 Reval, presented as a highly detailed, color-saturated fantasy/anime period drama with painterly PBR materials, expressive silhouettes, and HDR-range cinematic lighting.**
 
-## Resolution, camera, and scale
+Historical grounding controls what exists, how it is built, worn, carried, and used. Stylization controls color, shape emphasis, facial expression, material response, effects, and dramatic composition. Fantasy treatment never licenses an anachronistic object, building, costume, creature, or magical effect without research/canon authorization.
 
-| Rule | Candidate value |
-|---|---:|
-| Internal viewport | 1600 x 900 |
-| Smithy comparison world | 1600 x 896 |
-| Camera | fixed orthogonal `Camera2D`, center `(800, 448)` |
-| Gameplay zoom | `1.0` |
-| Terrain authoring cell | 32 world px |
-| Character visible height | 64 px |
-| Character collision footprint | 28 x 20 px |
-| Character root/pivot | ground contact at `(0, 18)` relative to root |
-| Building pivot | center of south footprint edge |
-| Prop pivot | authored ground anchor |
+## Production foundation
 
-Art can overhang north/upward from an anchor. Collision, navigation, interaction distance, and Y-sort must use the ground-plane anchor and may not be inferred from transparent bounds or roof silhouettes.
+- Engine: Godot 4.7; current renderer: GL Compatibility.
+- Default view: perspective over-the-shoulder third person per ADR 0015.
+- Alternate views: first person and orthographic top-down.
+- World logic: deterministic orthogonal plane; rendering does not change map fingerprints, collision, navigation, or interactions.
+- Asset language: programmatic/generated 3D geometry, tiered shared-rig characters, painterly PBR surfaces, authored light and VFX.
+- Negative constraints: no photoreal photographic noise, pale/desaturated global wash, universal black cel outlines, plastic gloss, uncontrolled bloom, generic neon fantasy, or restored frame-by-frame sprite pipeline.
 
-## Candidate clean-painted palette
+## Historical truth and stylization boundary
 
-All values are sRGB day masters. Variations must remain recognizably within the same material family.
+### Must remain evidence-led
 
-### Terrain
+- footprints, street widths, landmark massing, construction systems, and roof forms;
+- garment cuts, armor coverage, tools, furniture, trade goods, material availability, and wear patterns;
+- fauna anatomy, husbandry, vegetation, weather, social status, and occupation cues;
+- canon labels for attested, plausible composite, folklore, and invented content.
 
-| Terrain | Hex | Value role |
+### May be authorially stylized
+
+- slightly heroic proportions and clearer facial features within rig compatibility;
+- grouped hair, cloth folds, and material planes that read at gameplay distance;
+- selective edge/rim accents, painterly gradients, colored shadows, and luminous highlights;
+- stronger faction color identity and expressive poses;
+- heightened VFX only where gameplay and canon authorize the underlying event.
+
+## Saturated Baltic fantasy palette
+
+Values are sRGB albedo or UI reference masters, not emitted light values. PBR lighting and AgX tonemapping produce the final image. Variants may move in hue and value, but must remain inside their material family and preserve the value hierarchy.
+
+### Environment families
+
+| Family | Master | Supporting range | Use |
+|---|---|---|---|
+| Moss/grass | `#4F954F` | pine `#277052`, spring `#72AF4E` | vegetation, damp edges, rural ground |
+| Amber earth | `#9A5A3F` | umber `#663B38`, ochre `#C9873D` | dirt, mud, worn yards |
+| Harvest gold | `#E3B83F` | straw `#C99732`, sunlit `#F2CE62` | hay, thatch, warm material accents |
+| Baltic water | `#168FAA` | deep teal `#14617C`, cyan `#46C7D8` | water, glazed cool accents, reflected sky |
+| Limestone blue-gray | `#9EADB9` | shadow `#667889`, light `#C8D1D3` | stone, cobble, cool structural neutrals |
+| Warm lime ivory | `#E7C98E` | shade `#B89B73`, light `#F3DFB3` | lime plaster and parchment-like surfaces |
+| Oak/bark | `#6B3F35` | tar `#342B30`, cut wood `#A2693F` | timber, doors, furniture |
+| Oxide roof red | `#B94A3D` | brick `#8E3837`, sunlit `#D76643` | tile, painted shields, controlled architecture accent |
+
+### Characters, interactables, and light
+
+| Role | Master | Rule |
 |---|---|---|
-| Grass | `#5D7E4E` | low-frequency ground |
-| Sand | `#C7AB70` | light warm ground |
-| Hay | `#CDA444` | warm material accent |
-| Dirt | `#7C5841` | courtyard ground |
-| Cobblestone | `#7E7D79` | neutral route |
-| Water | `#3A748F` | cool landmark |
-| Stone | `#93938B` | light neutral work surface |
+| Deep separation | `#171B2A` | colored near-black, never unrestricted pure-black contouring |
+| Hero crimson | `#D9364D` | Kalev/mobile focal accent; reserve for priority reads |
+| Rebel indigo | `#4052B5` | cool faction/narrative counter-accent |
+| Forge amber | `#F0A13E` | hot metal, fire-adjacent focus, interactable warmth |
+| Moon cyan | `#58C7E8` | moon edges and selective supernatural/cold focus |
+| Iron blue | `#394C65` | forged iron and cool equipment neutral |
+| Copper/brass | `#C98235` | status, inventory frames, civic and craft accents |
+| Fire core | `#FFD27A` | HDR-range emissive core; not an albedo paint color |
 
-### Architecture, props, and character
+Skin, hair, eyes, and cloth require authored ranges rather than one universal master. Preserve regionally plausible diversity and material identity. Do not increase saturation by turning every skin tone orange or every garment into a faction color.
 
-| Role | Hex |
-|---|---|
-| Ink/deep separation | `#2B2624` |
-| Lime plaster | `#CDB892` |
-| Structural timber | `#53372A` |
-| Roof red-brown | `#6F3B31` |
-| Cut stone | `#919189` |
-| Iron | `#464F52` |
-| Wood | `#774D2D` |
-| Window cool light | `#689EB1` |
-| Water highlight | `#65B1C4` |
-| Kalev cloth accent | `#B23D31` |
-| Skin | `#D8A97B` |
-| Smith apron | `#536365` |
+## Color scripting
 
-The red character cloth is the primary mobile accent. Hay and lit windows are secondary environmental accents. Do not distribute these accent values evenly across terrain.
+- Saturation is **selective, not uniform**. Characters, interactables, banners, flowers, water highlights, and story lighting may reach the highest chroma.
+- Large ground and wall fields use colorful mid-chroma variation so focal accents have room to peak.
+- Every composed view should establish a warm/cool relationship: for example amber forge against cyan dusk, oxide roofs against moss/cobalt surroundings, or crimson cloth against limestone blue-gray.
+- Reserve at least one quiet value/chroma field around the active focal point. High saturation everywhere is equivalent to no emphasis.
+- Gameplay states must remain readable by shape and value before hue. Color-blind-safe differences cannot rely on red versus green alone.
 
-## Outlines and marks
+## Detail hierarchy
 
-- Clean-painted target: 1 px deep-separation outline at 1.0 zoom.
-- Outlines describe silhouette intersections and prop identity, not every internal material edge.
-- Internal form uses color/value planes and restrained translucent wash.
-- Digital-woodcut hatching may be used on selected roof, cloth, and narrative-print surfaces only. It must not cover all terrain cells.
-- Pixel target remains comparison evidence, not the candidate production pipeline. Do not create new frame-animation assets from it.
+High detail is mandatory in art decisions, but it is budgeted by scale rather than spread as noise.
 
-## Shadows
+1. **Macro, silhouette and composition:** rooflines, body gesture, costume mass, prop profile, landmark asymmetry, and large color blocks. Must read in top-down and at distance.
+2. **Meso, construction and identity:** beams, masonry courses, garment panels, belts, tool assemblies, hair clumps, cart joinery, cracks, patched plaster, and readable material transitions. Must read in third person.
+3. **Micro, close-camera craft:** weave, stitching, pores, carved motifs, hammered metal, tool marks, edge wear, dirt accumulation, tiny chips, and anisotropic hair/cloth response. Must reward first-person/dialogue closeups.
 
-- Day cast-shadow offset: `(7, 6)` px at 1.0 zoom.
-- Day opacity: 22% using the deep-separation color.
-- Night opacity multiplier: 72% of day shadow opacity because ambient darkness already supplies separation.
-- Character and prop shadows stay compact and attached to the ground pivot.
-- Shadows communicate contact and overlap. They never replace collision footprints or create fake interactive depth.
+Rules:
 
-## Value hierarchy
+- Every hero character, hero prop, and landmark brief must list required macro, meso, and micro features.
+- Micro detail comes from geometry only when it changes silhouette or catches light; otherwise use albedo, normal, roughness, AO, decals, or shader variation.
+- Detail must be plausible for the material and concentrated around handling, weather exposure, construction joins, and narrative use.
+- Mipmaps/LOD must collapse micro detail cleanly. Distant surfaces may not shimmer, alias, or overpower characters.
+- Repetition is a defect: break identical wear, hue, roughness, and silhouette rhythms across adjacent assets.
+
+## Anime/fantasy shape and line language
+
+- Favor clean, intentional shape grouping over scanned realism or procedural lumpiness.
+- Faces use readable eye/brow/mouth planes and expressive posing without chibi proportions or oversized eyes.
+- Hair and cloth use large graphic clumps/folds, then selective strand/weave detail.
+- Selective contours and rim light may separate the player, interactables, or magic effects. Do not ink every internal material edge.
+- Exaggerate characteristic curves and angles enough to identify occupation, faction, age, and emotional state at gameplay distance.
+- Painterly PBR remains the base: stone stays mineral, cloth stays fibrous, metal stays metallic, skin stays skin. Anime influence does not mean flat unlit materials.
+
+## Value and readability hierarchy
 
 From highest gameplay priority to lowest:
 
-1. Player/NPC silhouette and interaction or combat feedback.
-2. Interactable props such as anvil, well, cart, barrels, and hay stack.
-3. Doors, passages, street-to-courtyard route, and collision boundaries.
-4. Building identity: lime plaster, dark timber, red-brown roof, stone enclosure.
-5. Terrain material texture.
-6. Decorative marks and printmaking accents.
+1. Player/NPC silhouette and interaction/combat feedback.
+2. Interactable props, hazards, and authorized VFX.
+3. Doors, passages, route surfaces, and collision boundaries.
+4. Landmark/building identity and faction color blocks.
+5. Meso material detail.
+6. Terrain variation and micro surface detail.
 
-At gameplay scale, a grayscale/squint pass must preserve tiers 1-3. Texture marks must not create stronger edge density than the player or interactable silhouette.
+A grayscale/squint pass must preserve tiers 1-3 in day, night, fog, rain, and firelight. Texture marks may not create stronger edge density than the player or current interactable. UI is rendered and graded separately from world bloom.
 
-## Day and night rules
+## HDR-range light and post-process
 
-- Author one day master palette. Night is a deterministic grade, not a separately recolored asset set.
-- Non-emissive night colors use approximately `43% red / 50% green / 66% blue`, then blend 20% toward moonlit `#19233A`.
-- Window and water highlights may blend 58% toward warm light `#EEB15C` to preserve landmarks.
-- Night captures must average at least 20% darker than matching day captures while preserving all seven terrain identities.
-- Do not use a full-screen opaque blue overlay that collapses character, route, and prop separation.
-- Gameplay-critical prompts and silhouettes must remain above background value noise in both phases.
-
-## Medieval Reval shape language
-
-- Lower Town buildings use compact gabled roofs, pale lime plaster, visible timber framing, small cool windows, and dark timber doors.
-- Stone enclosure walls use neutral local limestone with a lighter coping plane.
-- Forge props prioritize immediate silhouette recognition: broad anvil face, cart wheels/shaft, well rim/water opening, barrel bands, and stacked rectangular hay bales.
-- Architecture may exaggerate facade visibility for the three-quarter view, but footprints and street widths remain orthogonal.
-
-## Post-process grade (v2 draft, P0-141)
-
-Frozen on `MapViewLighting` and applied to every `MapView3D` `WorldEnvironment`. Day master textures are graded in post; night does **not** regenerate albedos. Full day/night tint tables remain in [`MATERIAL_STYLE_LOCK_KIT.md`](MATERIAL_STYLE_LOCK_KIT.md); edge darkening, grain, and vignette stay future work once P0-142 picks a renderer path.
+"HDR" in the current pipeline means scene-referred values above display white, AgX highlight compression, emissive separation, and controlled bloom before SDR output. It does **not** claim HDR10, wide-gamut, or HDR-monitor delivery.
 
 | Pass | Day (noon) | Night (midnight) |
 |---|---:|---:|
-| Tonemap | AgX, exposure `1.0` | AgX, exposure `0.78` |
-| Saturation | `0.82` | `0.58` |
-| Contrast | `1.06` | `1.10` |
-| Brightness | `1.02` | `0.74` |
-| Glow HDR threshold | `1.0` (both) | `1.0` |
-| Glow intensity | `0.35` | `0.48` |
-| Glow bloom / strength / mix | `0.12` / `0.9` / `0.04` | same |
+| Tonemap | AgX, exposure `1.03` | AgX, exposure `0.82` |
+| Saturation | `1.20` | `1.08` |
+| Contrast | `1.12` | `1.16` |
+| Brightness | `1.03` | `0.78` |
+| Glow HDR threshold | `0.85` | `0.85` |
+| Glow intensity | `0.48` | `0.62` |
+| Glow bloom / strength / mix | `0.18` / `1.0` / `0.06` | same |
 
-Night post-grade luminance proxy (`exposure * brightness`) must stay at least 20% below the day proxy while emissive windows and forge highlights keep a soft bloom.
+- Exposed skies, pale plaster, and metal highlights must retain color/texture through AgX rather than clipping to white.
+- Bloom belongs to emissive fire, forge heat, windows, wet speculars, rim effects, and authorized magic. Matte walls and UI text must not glow.
+- Do not fake the direction with a full-screen saturation overlay. Rich albedos, colored light, roughness response, atmospheric perspective, and local contrast must all contribute.
 
-## Character fidelity tiers (P0-140 / ADR 0016)
+## Day, night, and weather
 
-Humanoid runtime GLBs use the shared rig and animation library but ship at one of three frozen
-fidelity tiers. Full caps and enforcement live in
-[`VISUAL_FIDELITY_PLAN.md`](VISUAL_FIDELITY_PLAN.md) and `tools/character_fidelity_tiers.py`.
+- Author one rich day-master asset set. Night is deterministic lighting/post, not separately recolored textures.
+- Night remains at least 20 percent darker than day while retaining local hue identity.
+- Shadows shift toward indigo/cobalt; moon edges may use cyan; fire and windows remain amber/gold.
+- Overcast and fog compress contrast and chroma locally, but may not return the whole game to a permanent gray wash.
+- Rain deepens albedo and increases selective wet highlights. Snow, lightning, sunrise, and sunset must use authored color scripts rather than neutral exposure changes alone.
+- Gameplay prompts, silhouettes, routes, and hazards remain above background value noise in every phase.
 
-| Tier | Triangle cap | Texture cap | Typical cast |
+## Medieval Reval shape language
+
+- Lower Town buildings use compact gables, lime plaster, visible timber or plank structure where sourced, small openings, dark doors, and period roof materials.
+- Saturated color comes from light, weathered pigments, cloth, plants, water, and material response, not unsupported modern paint coverage.
+- Stone landmarks use regionally plausible limestone construction with individually authored massing and meso detail; exceptional buildings are not scaled-up ordinary houses.
+- Props prioritize silhouette recognition first, functional construction second, and close-camera craft third.
+- Architecture may exaggerate facade visibility and characteristic roof rhythm for gameplay cameras, but footprints, street widths, and access remain historically and mechanically grounded.
+
+## Character fidelity tiers
+
+All tiers share one skeleton and animation library. The tier determines the maximum budget and required visible detail, not whether the art direction applies.
+
+| Tier | Triangle cap | Texture cap | Required read |
 |---:|---:|---:|---|
-| 0 Hero | 60,000 | 2048 px | Kalev, Mart, Henning, townswoman base (Aita/Kaja), future Ellen/Jürgen |
-| 1 Named NPC | 56,000 | 1024 px | Innkeeper, watchman, sergeant, danish_warrior |
-| 2 Crowd / battle | 12,000 | 512 px | Battle and ambient crowds (P0-152) |
+| 0 Hero | 60,000 | 2048 px | expressive face/hands, authored hair, material-specific PBR, macro/meso/micro costume story |
+| 1 Named NPC | 56,000 | 1024 px | distinctive face/silhouette, occupation/status detail, shared but tuned PBR zones |
+| 2 Crowd/battle | 12,000 | 512 px | strong palette/silhouette variation, simplified lit materials, clean LOD/instancing |
 
-Garment GLBs (`hero_cape`, `hero_hat`) cap at 1,024 indexed triangles. Build-input KayKit source GLBs are
-not tier-linted.
+Performance caps in `tools/character_fidelity_tiers.py` remain binding. High detail means intentional information at the correct tier, not exceeding those caps.
 
-## Approval gate
+## Approval and migration
 
-Before changing this status to `Approved`:
+The maintainer's saturated HDR-range fantasy/anime decision is accepted through ADR 0018. P0-038 and P0-040 still govern the final technical production freeze for renderer/camera/scale/performance values. Until that gate closes:
 
-1. P0-037 proves the shared low-poly rig at the frozen 64 px character scale.
-2. P0-038 records performance and production measurements for the compared approach.
-3. The maintainer records accept/reject and any rule changes in P0-040 / ADR 0013 (blind UX panels are not required).
-4. Captures and automated geometry/collision/Y-sort verification remain green.
-
-Until all four steps pass, active district scenes and production runtime assets remain frozen.
+1. New art briefs and generated candidates use this v2 direction and `style-lock-v1.1`.
+2. Existing production assets are not mass-invalidated or mass-regenerated.
+3. Player-visible hero assets and locations migrate opportunistically when a scoped task already revises them.
+4. Captures must prove value readability, controlled highlights, material identity, and macro/meso/micro detail at the relevant camera distances.
