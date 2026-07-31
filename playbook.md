@@ -116,3 +116,5 @@
 - Shrinking a cap sphere that was implicitly closing a tube end opens a visible hole; cap tube ends explicitly (`ring` then `cap`) instead of relying on overlap.
 - Iterate character pose work on the skeleton intermediate (`build_heroic_humanoid_glb.py`, seconds) plus a numeric Blender audit; only run the full Blender body rebuild once the numbers land.
 - Bone-level proportion changes shift the generator's `BODY_STATURE`; update `SharedCharacterRig.HEROIC_MODEL_SCALE` to `2.0 / BODY_STATURE` in the same change, and regenerate character LODs or they keep the old silhouette.
+- Renaming a `docs/CANON.md` heading breaks auto-generated anchors used by active docs (`BROKEN_ANCHOR`); keep a stable HTML `<a id="...">` alias for the old slug (for example `timeline-aprilmay-1343`) when widening a timeline section, then re-run `python3 tools/generate_active_docs_report.py --check`.
+- When P7 design verify clauses require active-docs green, regenerate the report in-row; do not invent a parallel `P0-17x` refresh ID unless Current focus deliberately leaves the check red.

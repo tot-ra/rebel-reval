@@ -43,6 +43,8 @@ References:
 
 
 
+<!-- P7-008 delivered pending canon in current session -->
+
 <!-- P0-176 completed in current session -->
 
 <!-- P7-004 completed in current session -->
@@ -661,7 +663,7 @@ inspiration only.
 - [x] P7-003 | deps: P7-001 | deliverable: `docs/SYSTEMS/NATURAL.md` and `docs/SYSTEMS/PSYCHE.md` for seven aspects, psyche states, and explorable Hingepuu, stating how they extend or replace the current reflection-only screen | verify: progression rules, save fields, and UI needs named; no dependency on legacy pixel HUD assets | evidence: docs/SYSTEMS/NATURAL.md; docs/SYSTEMS/PSYCHE.md; docs/CANON.md NATURAL/psyche links; docs/LEGACY_REINTRODUCTION.md points at SYSTEMS contracts
 - [x] P7-004 | deps: P7-001,P4-016 | deliverable: `docs/SYSTEMS/LIVING_CITY.md` reconciling Hope/Fear (and related) meters with the faction ledger so bookkeeping is explicit | verify: worked examples show one forged event updating ledger and meters without a universal morality score; tower-capture remains excluded | evidence: docs/SYSTEMS/LIVING_CITY.md; docs/CANON.md Living City links contract; docs/LEGACY_REINTRODUCTION.md / docs/GAMEPLAY.md / docs/GAME-PILLARS.md point at SYSTEMS/LIVING_CITY.md
 - [ ] P7-005 | deps: P7-002,P7-003 | deliverable: combat and night design addendum merging `character/COMBAT.md` and `docs/GAMEPLAY-NIGHT.md` seeds with hammer combat and P5 night templates (no party control, no tower-capture) | verify: addendum lists player-visible verbs, content hooks, and which P2/P5 rows must change
-- [ ] P7-008 | deps: P7-001 | deliverable: canon/story pass folding usable beats from `history/HISTORY.md`, `history/TIMELINE.md`, and `story/STORY.md` into `docs/CANON.md` with confidence labels | verify: every promoted beat has a label; 1351 plague epilogue stays non-canon; active-docs check passes
+- [~] P7-008 | slice: legacy-design | role: design | deps: P7-001 | deliverable: canon/story pass folding usable beats from `history/HISTORY.md`, `history/TIMELINE.md`, and `story/STORY.md` into `docs/CANON.md` with confidence labels | verify: every promoted beat has a label; 1351 plague epilogue stays non-canon; active-docs check passes | review: canon | evidence: docs/CANON.md Timeline 1342-1346 + Political landscape + Promoted and rejected story seeds; story/STORY.md and history/HISTORY.md headers; docs/LEGACY_REINTRODUCTION.md decision 2026-07-31; python3 tools/generate_active_docs_report.py --check
 - [ ] P7-009 | deps: P7-001 | deliverable: cast and faction promotion plan from `characters/` into `docs/CHARACTERS/` briefs (priority order, act gates, art tier) noting 2D art as inspiration only | verify: plan names at least fifteen promote-first NPCs and faction candidates beyond the eight launch factions; CHARACTERS README index updated when first briefs land
 
 ### Large

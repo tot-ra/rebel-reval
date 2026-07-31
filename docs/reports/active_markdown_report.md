@@ -15,10 +15,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 ## Summary
 
 - Active Markdown files scanned: `86`
-- Markdown files excluded as archive/reference/out of active scope: `469`
-- Local/external links inspected: `545`
-- Links to active Markdown docs: `251`
-- Links to existing archive/reference/non-active local docs: `110`
+- Markdown files excluded as archive/reference/out of active scope: `475`
+- Local/external links inspected: `553`
+- Links to active Markdown docs: `255`
+- Links to existing archive/reference/non-active local docs: `114`
 - External links skipped for reachability: `37`
 - Issues found: `0`
 

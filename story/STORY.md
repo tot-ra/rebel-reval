@@ -1,9 +1,9 @@
 > **Legacy status:** `reference`  
-> **Reason:** Story seeds return through [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md) P7-008 into `docs/CANON.md`; this file is not runtime truth.  
+> **Reason:** P7-008 folded usable beats into [`docs/CANON.md`](../docs/CANON.md) (Promoted and rejected story seeds). This file remains a seed archive, not runtime truth.  
 > **Scope reconciliation:** [ADR 0008](../docs/adr/0008-three-act-campaign-and-faction-scope.md), [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md)  
-> **Reactivating:** three-act structure; Living City narrative beats; magic/faction plot hooks that pass confidence labelling.  
-> **Still out:** 1351 plague epilogue (non-canon); any beat that contradicts attested milestones without an alternate-history label.  
-> **Current source of truth:** [`README.md`](../README.md) and [`docs/CANON.md`](../docs/CANON.md) until P7-008 closes.
+> **Reactivating:** only rows marked **promote** / **adapt** in CANON; Living City uses Hope/Fear (no Chaos meter).  
+> **Still out:** 1351 plague epilogue (non-canon); wife/daughter hostage beat; army/fleet sims; Act 1 dated 1342; Battle of Pärnu as calendar rewrite of Sõjamäe.  
+> **Current source of truth:** [`README.md`](../README.md) and [`docs/CANON.md`](../docs/CANON.md).
 
 ## Storyline / Level progression
 ### Prequel Chapter: The Forging of Chains

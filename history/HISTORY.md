@@ -1,6 +1,6 @@
 > **Legacy status:** `reference`  
-> **Reason:** Historical background research; named claims still require confidence labels before use in shipped content.  
-> **Current source of truth:** [`README.md`](../README.md) - Historical and lore guardrails; future [`docs/CANON.md`](../docs/CANON.md) (TODO P0-008).
+> **Reason:** Historical background research. P7-008 promoted labelled beats into [`docs/CANON.md`](../docs/CANON.md); remaining prose here is not auto-canon.  
+> **Current source of truth:** [`README.md`](../README.md) Historical and lore guardrails; [`docs/CANON.md`](../docs/CANON.md) for confidence-labelled production claims.
 
 # The St. George's Night Uprising (1343–1345)
 
