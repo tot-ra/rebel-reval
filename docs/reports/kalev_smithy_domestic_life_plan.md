@@ -31,7 +31,7 @@ Confidence: conservative reconstruction for a **middling Lower Town master smith
 
 ### Selected cooking/heating fixture
 
-**Approved fixture:** **Hooded limestone cooking hearth** (`prop.domestic_hearth`) with:
+**Approved fixture:** **Hooded brick cooking hearth** (`prop.domestic_hearth`) with:
 
 - **Masonry or tile-lined firebox** (~0.8–1.0 m wide) built into the living-bay north wall
 - **Iron fire grate** and **adjustable pot hook / crane** (Low German *Haken* / *Kettlehaken* tradition)
@@ -260,10 +260,11 @@ and the kitchen had no work surface or seating - *"на чём вообще го
    accident. `banner` declares `+X` as its model front because its wall arm and
    cloth project along `+X`.
 3. **The kitchen is a range along the north wall**, west to east:
-   `domestic_hearth` (`facing=south`, mouth into the room) → `hearth_kindling_store`
-   on the boards → `kitchen_work_table` (`table.trestle_work`, the cooking and
-   prep surface) → `kitchen_dresser` (`shelf.burgher_cupboard`, dry stores) →
-   `wash_basin`. `kitchen_stool` faces the bench.
+   `wash_basin` → `kitchen_dresser` → `kitchen_work_table` → `hearth_kindling_store`
+   → brick `domestic_hearth` at mid-building cells `(11,1)` near the bay divider
+   (`facing=south`, mouth into the room). `kitchen_stool` faces the bench.
+   **Decision (2026-07-31):** playtest rejected the pale limestone corner heater;
+   the cooking fire is brick masonry and sits mid-building against the plaster.
 4. **Small items ride surfaces, not floors.** `visual_offset_px` lifts each item
    onto its host: trestle top **0.822**, eating board **0.792**, cupboard head
    **1.52**, wash-stand shelf **0.32**, mattress **0.79**. X offsets space
@@ -288,9 +289,10 @@ and the kitchen had no work surface or seating - *"на чём вообще го
 | Activity | Change |
 |---|---|
 | `ap.prepare.board` | Now binds `kitchen_work_table`, approach **(6.5, 2.5)** facing north - prep happens at the bench by the fire, not at the eating board |
-| `ap.hearth.tend` / `.cookpot` / `.bank` | Approach **(3.0, 2.5)** facing **north**; the mouth opens south, so standing east of the cheek no longer faces the fire |
-| `ap.cat.warmth` | Moved to **(3.0, 3.5)** facing north, the open side of the fire |
-| `ap.wash.basin` | Approach **(10.5, 2.5)** facing north, due south of the relocated stand |
+| `ap.hearth.tend` / `.cookpot` / `.bank` | Approach **(12.0, 2.5)** facing **north**; south of the mid-building brick hearth mouth |
+| `ap.cat.warmth` | Moved to **(12.0, 3.5)** facing north, the open side of the fire |
+| `ap.wash.basin` | Approach **(2.5, 2.5)** facing north, due south of the west-end wash stand |
+| `ap.prepare.board` | Approach **(7.5, 2.5)** facing north at the trestle west of the fire |
 | `ap.visitor.talk` | Faces **east** toward the single-cell `work_chair` at (11.5, 10.5) |
 
 ### Contract

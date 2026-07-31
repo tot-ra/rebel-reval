@@ -5,8 +5,12 @@ Run from the repository root:
     blender --background --factory-startup --python tools/generate_medieval_hearth_kit.py -- --preview
 
 The GLB contains three independently selected roots for lit, ember, and cold
-fire states. Each variant keeps masonry, hood, flue, crane, and cauldron
+fire states. Each variant keeps brick masonry, hood, flue, crane, and cauldron
 geometry while exposing FlameAnchor and SmokeAnchor markers for runtime fire.
+
+WHY brick shell: playtest rejected the pale limestone mass as historically
+unreadable for a craft-house cooking fire; staggered brick courses with a
+heat-darkened firebox read as assembled masonry instead of a cast stone block.
 """
 
 from __future__ import annotations
@@ -29,7 +33,7 @@ STATE_PATH = EVIDENCE_DIR / "state.json"
 DEFAULT_PREVIEW = EVIDENCE_DIR / "preview.png"
 ASSET_ID = "prop.medieval_hearth_kit"
 BLENDER_VERSION = "Blender 5.2 LTS"
-GENERATOR_VERSION = "medieval_hearth_kit_v1"
+GENERATOR_VERSION = "medieval_hearth_kit_v2"
 
 VARIANT_ROOTS = {
     "hearth.lit": "HearthLit",
@@ -54,8 +58,10 @@ BRIEF = {
     "approval": "task-authorized",
 }
 
-STONE_SRGB = (0x9A / 255.0, 0x93 / 255.0, 0x84 / 255.0)
-DARK_STONE_SRGB = (0x5E / 255.0, 0x58 / 255.0, 0x4F / 255.0)
+# Heat-darkened red clay brick - closer to Baltic craft fireboxes than pale
+# limestone ashlar, which read as a modern cast heater at gameplay distance.
+BRICK_SRGB = (0x8A / 255.0, 0x5A / 255.0, 0x3E / 255.0)
+DARK_BRICK_SRGB = (0x4A / 255.0, 0x36 / 255.0, 0x2C / 255.0)
 IRON_SRGB = (0x3F / 255.0, 0x46 / 255.0, 0x46 / 255.0)
 POTTERY_SRGB = (0x6A / 255.0, 0x3F / 255.0, 0x2A / 255.0)
 WOOD_SRGB = (0x6F / 255.0, 0x49 / 255.0, 0x2B / 255.0)
@@ -91,9 +97,21 @@ def _add_pattern(material: bpy.types.Material, image_name: str, base_srgb: tuple
     u = xx / float(size)
     v = yy / float(size)
     broad = np.sin((u * 2.8 + v * 1.9) * math.tau)
-    if pattern == "stone":
-        chips = np.sin((u * 19.0 - v * 11.0) * math.tau) * np.sin((v * 17.0 + u * 5.0) * math.tau)
-        variation = 0.84 + broad * 0.04 + chips * 0.03
+    if pattern == "brick":
+        # Staggered running bond: dark mortar grooves so cheeks read as courses.
+        brick_u = 10.0
+        brick_v = 4.5
+        course = np.floor(v * brick_v)
+        stagger = (course % 2.0) * 0.5
+        local_u = np.mod(u * brick_u + stagger, 1.0)
+        local_v = np.mod(v * brick_v, 1.0)
+        mortar = np.minimum(
+            np.minimum(local_u, 1.0 - local_u) / 0.08,
+            np.minimum(local_v, 1.0 - local_v) / 0.12,
+        )
+        mortar = np.clip(mortar, 0.0, 1.0)
+        heat = np.sin((u * 8.0 - v * 4.0) * math.tau) * np.sin((v * 9.0) * math.tau)
+        variation = (0.78 + broad * 0.04 + heat * 0.03) * (0.62 + 0.38 * mortar)
     elif pattern == "iron":
         hammered = np.sin((u * 14.0 + v * 6.0) * math.tau)
         variation = 0.78 + broad * 0.03 + hammered * 0.05
@@ -142,12 +160,13 @@ def _box(
     center: tuple[float, float, float],
     size: tuple[float, float, float],
     material: bpy.types.Material,
+    bevel: float = 0.006,
 ) -> bpy.types.Object:
     bpy.ops.mesh.primitive_cube_add(size=1.0, location=center)
     obj = bpy.context.object
     obj.name = name
     obj.scale = Vector(size)
-    parts.append(_finish(obj, material))
+    parts.append(_finish(obj, material, bevel))
     return obj
 
 
@@ -181,15 +200,56 @@ def _empty(parent: bpy.types.Object, name: str, location: tuple[float, float, fl
     return obj
 
 
-def _build_hearth_body(parts: list[bpy.types.Object], stone: bpy.types.Material, dark_stone: bpy.types.Material, iron: bpy.types.Material) -> None:
-    _box(parts, "BackWall", (0.0, -0.18, 0.62), (0.92, 0.22, 1.24), stone)
-    _box(parts, "LeftCheek", (-0.42, 0.08, 0.42), (0.16, 0.52, 0.84), stone)
-    _box(parts, "RightCheek", (0.42, 0.08, 0.42), (0.16, 0.52, 0.84), stone)
-    _box(parts, "HearthFloor", (0.0, 0.12, 0.12), (0.78, 0.58, 0.12), dark_stone)
-    _box(parts, "Lintel", (0.0, 0.12, 0.78), (0.86, 0.14, 0.16), stone)
-    _box(parts, "Hood", (0.0, -0.02, 1.02), (0.96, 0.34, 0.18), stone)
-    _box(parts, "HoodThroat", (0.0, -0.12, 1.18), (0.62, 0.22, 0.22), dark_stone)
-    _box(parts, "Flue", (0.0, -0.18, 1.42), (0.34, 0.24, 0.48), dark_stone)
+def _brick_course_cheek(
+    parts: list[bpy.types.Object],
+    side: float,
+    brick: bpy.types.Material,
+) -> None:
+    """Staggered jamb courses so cheeks read as laid brick, not one cast mass."""
+    # Four tall courses keep the bond readable under the 5200-tri kit budget.
+    course_height = 0.21
+    for course in range(4):
+        z = 0.07 + course_height * 0.5 + course * course_height
+        offset = 0.01 if course % 2 == 0 else -0.01
+        _box(
+            parts,
+            "Cheek%d_%s" % (course, "L" if side < 0.0 else "R"),
+            (side * (0.42 + offset), 0.08, z),
+            (0.15, 0.52, course_height - 0.014),
+            brick,
+            bevel=0.003,
+        )
+
+
+def _build_hearth_body(
+    parts: list[bpy.types.Object],
+    brick: bpy.types.Material,
+    dark_brick: bpy.types.Material,
+    iron: bpy.types.Material,
+) -> None:
+    # Five back courses keep a wall-flush brick mass without a limestone slab look.
+    course_height = 0.248
+    for course in range(5):
+        z = 0.08 + course_height * 0.5 + course * course_height
+        stagger = 0.02 if course % 2 == 0 else -0.02
+        _box(
+            parts,
+            "BackCourse%d" % course,
+            (stagger, -0.18, z),
+            (0.90, 0.22, course_height - 0.014),
+            brick,
+            bevel=0.003,
+        )
+    _brick_course_cheek(parts, -1.0, brick)
+    _brick_course_cheek(parts, 1.0, brick)
+    # Plinth plants the brick mass on the boards; without it the first course
+    # floats ~6 cm and the kit fails the ground-contact evidence check.
+    _box(parts, "BrickPlinth", (0.0, 0.02, 0.03), (0.96, 0.72, 0.06), dark_brick, bevel=0.002)
+    _box(parts, "HearthFloor", (0.0, 0.12, 0.12), (0.78, 0.58, 0.12), dark_brick)
+    _box(parts, "Lintel", (0.0, 0.12, 0.78), (0.86, 0.14, 0.16), brick)
+    _box(parts, "Hood", (0.0, -0.02, 1.02), (0.96, 0.34, 0.18), brick)
+    _box(parts, "HoodThroat", (0.0, -0.12, 1.18), (0.62, 0.22, 0.22), dark_brick)
+    _box(parts, "Flue", (0.0, -0.18, 1.42), (0.34, 0.24, 0.48), dark_brick)
     for index, offset in enumerate((-0.24, -0.08, 0.08, 0.24)):
         _box(parts, "GrateBar%d" % index, (offset, 0.18, 0.2), (0.05, 0.42, 0.03), iron)
     _cylinder(parts, "CranePost", (-0.44, 0.0, 1.02), 0.03, 0.78, iron)
@@ -222,7 +282,7 @@ def _build_variant(state: str, materials: dict[str, bpy.types.Material]) -> tupl
     root = bpy.data.objects.new(root_name, None)
     bpy.context.collection.objects.link(root)
     parts: list[bpy.types.Object] = []
-    _build_hearth_body(parts, materials["stone"], materials["dark_stone"], materials["iron"])
+    _build_hearth_body(parts, materials["brick"], materials["dark_brick"], materials["iron"])
     _build_cauldron(parts, materials["pottery"], materials["iron"], lowered=state == "hearth.cold")
     _build_fuel(parts, materials["wood"], materials["ash"], materials["ember"], state)
     for part in parts:
@@ -241,16 +301,16 @@ def _collect_objects(root: bpy.types.Object) -> list[bpy.types.Object]:
 
 def _build_model() -> tuple[bpy.types.Object, list[bpy.types.Object]]:
     materials = {
-        "stone": _create_material("Limestone", STONE_SRGB, 0.92),
-        "dark_stone": _create_material("SootedStone", DARK_STONE_SRGB, 0.96),
+        "brick": _create_material("HearthBrick", BRICK_SRGB, 0.92),
+        "dark_brick": _create_material("SootedBrick", DARK_BRICK_SRGB, 0.96),
         "iron": _create_material("WroughtIron", IRON_SRGB, 0.42, 0.82),
         "pottery": _create_material("CookingPot", POTTERY_SRGB, 0.78),
         "wood": _create_material("Kindling", WOOD_SRGB, 0.88),
         "ash": _create_material("ColdAsh", ASH_SRGB, 0.98),
         "ember": _create_material("EmberGlow", EMBER_SRGB, 0.55),
     }
-    _add_pattern(materials["stone"], "hearth_limestone_albedo", STONE_SRGB, "stone")
-    _add_pattern(materials["dark_stone"], "hearth_soot_albedo", DARK_STONE_SRGB, "stone")
+    _add_pattern(materials["brick"], "hearth_brick_albedo", BRICK_SRGB, "brick")
+    _add_pattern(materials["dark_brick"], "hearth_soot_albedo", DARK_BRICK_SRGB, "brick")
     _add_pattern(materials["iron"], "hearth_iron_albedo", IRON_SRGB, "iron")
     _add_pattern(materials["pottery"], "hearth_pot_albedo", POTTERY_SRGB, "pottery")
     _add_pattern(materials["wood"], "hearth_wood_albedo", WOOD_SRGB, "wood")

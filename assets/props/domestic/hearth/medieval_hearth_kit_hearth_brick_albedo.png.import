@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c073347qmr7t6"
-path="res://.godot/imported/medieval_hearth_kit_hearth_limestone_albedo.png-76bf0da381da83ef78b5bc5aa0f22061.ctex"
+uid="uid://d3k5vxcne1hx8"
+path="res://.godot/imported/medieval_hearth_kit_hearth_brick_albedo.png-7bb6c1dcd2db3bcf32784d9fa2fd78e8.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "6f8d97f015f038c35e1f817adfd2b538"
+"md5": "1df5ca1d784595c78adfe9afd88596a8"
 }
 
 [deps]
 
-source_file="res://assets/props/domestic/hearth/medieval_hearth_kit_hearth_limestone_albedo.png"
-dest_files=["res://.godot/imported/medieval_hearth_kit_hearth_limestone_albedo.png-76bf0da381da83ef78b5bc5aa0f22061.ctex"]
+source_file="res://assets/props/domestic/hearth/medieval_hearth_kit_hearth_brick_albedo.png"
+dest_files=["res://.godot/imported/medieval_hearth_kit_hearth_brick_albedo.png-7bb6c1dcd2db3bcf32784d9fa2fd78e8.ctex"]
 
 [params]
 

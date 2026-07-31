@@ -43,31 +43,27 @@ prop chest chest 1 7 rect=1,2 style_variant=chest.burgher facing=east
 prop tool_shelf shelf 22 2 rect=2,2
 prop coal_store charcoal_pile 23 4
 prop iron_scrap_store iron_scrap_pile 21 5
-# Living-bay kitchen range along the north wall (P2-057, re-dressed).
-# WHY: the fixtures were authored on footprints far larger than the shipped
-# models, so a 1.0 m hearth sat mid-corner facing its own back wall and the
-# 0.1-0.6 m kitchenware read as litter dropped on bare boards. The range now
-# runs hearth -> fuel -> prep bench -> cupboard against the plaster, every
-# fixture is turned to open into the room, and each small item is offset onto
-# the surface it belongs to instead of the floor. One cell is one metre, so
-# footprints are sized to the GLB, not to zone bands.
-prop domestic_hearth hearth 2 1 rect=2,1 style_variant=hearth.lit facing=south
-prop hearth_kindling_store household_clutter 4 1 style_variant=household.kindling_bundle
-prop kitchen_work_table table 5 1 rect=3,1 style_variant=table.trestle_work
-prop kitchen_stool chair 5 2 rect=1,1 facing=north
-prop kitchen_dresser shelf 8 1 rect=2,1 style_variant=shelf.burgher_cupboard facing=south
+# Living-bay kitchen along the north wall.
+# WHY: playtest rejected the limestone corner heater - it must read as brick
+# masonry and sit mid-building against the plaster (near the bay divider), not
+# jammed in the west corner. Prep furniture stays west of the fire so the
+# mouth still opens south into the room. One cell is one metre; footprints
+# match the shipped GLBs.
+prop wash_basin wash_tub 2 1 rect=1,1 style_variant=wash.stand_basin facing=south
+prop water_bucket household_clutter 2 1 style_variant=household.water_bucket visual_offset_px=-6.4,-10.2
+prop wash_cloth kitchenware 2 1 style_variant=kitchenware.basin_cloth visual_offset_px=4.2,-10.2
+prop kitchen_dresser shelf 4 1 rect=2,1 style_variant=shelf.burgher_cupboard facing=south
+prop kitchen_work_table table 6 1 rect=3,1 style_variant=table.trestle_work
+prop kitchen_stool chair 6 2 rect=1,1 facing=north
+prop hearth_kindling_store household_clutter 9 1 style_variant=household.kindling_bundle
+prop domestic_hearth hearth 11 1 rect=2,1 style_variant=hearth.lit facing=south
 # Cooking stores live on the trestle top (y 0.822) and cupboard head (y 1.52).
 # X offsets space each item along the 1.58 m board so nothing overhangs an edge.
-prop provision_peas household_clutter 5 1 style_variant=provision.dried_peas_bin visual_offset_px=12.2,-26.3
-prop table_prep kitchenware 6 1 style_variant=kitchenware.group.prep visual_offset_px=-5.8,-26.3
-prop provision_bread household_clutter 6 1 style_variant=provision.rye_bread_loaf visual_offset_px=9,-26.3
-prop provision_salt household_clutter 7 1 style_variant=provision.salt_crock visual_offset_px=-16,-26.3
-prop provision_onions household_clutter 9 1 style_variant=provision.onion_braid visual_offset_px=-16,-48.6
-# Hand-wash stand at the courtyard end of the range; bucket and cloth ride its
-# lower shelf (y 0.32) so the wash corner is furniture, not a puddle on boards.
-prop wash_basin wash_tub 10 1 rect=1,1 style_variant=wash.stand_basin facing=south
-prop water_bucket household_clutter 10 1 style_variant=household.water_bucket visual_offset_px=-6.4,-10.2
-prop wash_cloth kitchenware 10 1 style_variant=kitchenware.basin_cloth visual_offset_px=4.2,-10.2
+prop provision_peas household_clutter 6 1 style_variant=provision.dried_peas_bin visual_offset_px=12.2,-26.3
+prop table_prep kitchenware 7 1 style_variant=kitchenware.group.prep visual_offset_px=-5.8,-26.3
+prop provision_bread household_clutter 7 1 style_variant=provision.rye_bread_loaf visual_offset_px=9,-26.3
+prop provision_salt household_clutter 8 1 style_variant=provision.salt_crock visual_offset_px=-16,-26.3
+prop provision_onions household_clutter 5 1 style_variant=provision.onion_braid visual_offset_px=-16,-48.6
 prop apron_hook household_clutter 1 2 style_variant=household.apron facing=east visual_offset_px=-15,-38
 prop chest_provisions household_clutter 1 9 style_variant=household.group.closed
 # Eating board: the 2.3 m long-board variant, because settings, cleared bowls,
@@ -102,7 +98,7 @@ transition smithy_start_spawn 4 10 1 1 spawn=smithy_start
 decal decal.soot_furnace_pad soot 19 1 3 3 radius=1.8
 decal decal.soot_anvil_apron soot 18 5 3 2 radius=1.4
 decal decal.grime_quench grime 16 5 2 2 radius=1.1
-decal decal.wet_wash_corner wet_threshold 11 1 1 1 radius=1.0
+decal decal.wet_wash_corner wet_threshold 2 1 1 1 radius=1.0
 decal decal.mud_courtyard_door mud 12 13 2 1 radius=1.3
 decal decal.wet_courtyard_door wet_threshold 12 12 2 1 radius=1.0
 decal decal.grime_bay_divider grime 14 7 1 2 radius=1.0

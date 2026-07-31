@@ -3,9 +3,9 @@
   "living_bay_x_max_cell": 13,
   "zones": {
     "LZ-A": {"cells": "x3-6,y9-10", "props": ["bed", "bed_linen"]},
-    "LZ-B": {"cells": "x1-5,y3-5", "props": ["forge_ledger", "cloak_banner"]},
-    "LZ-C": {"cells": "x1-9,y1-2", "props": ["domestic_hearth", "hearth_kindling_store", "kitchen_work_table", "kitchen_stool", "kitchen_dresser", "provision_peas", "provision_onions", "provision_salt", "provision_bread", "table_prep", "apron_hook"]},
-    "LZ-D": {"cells": "x10-11,y1-3", "props": ["wash_basin", "water_bucket", "wash_cloth"]},
+    "LZ-B": {"cells": "x1-5,y3-5", "props": ["forge_ledger", "cloak_banner", "apron_hook"]},
+    "LZ-C": {"cells": "x4-13,y1-2", "props": ["domestic_hearth", "hearth_kindling_store", "kitchen_work_table", "kitchen_stool", "kitchen_dresser", "provision_peas", "provision_onions", "provision_salt", "provision_bread", "table_prep"]},
+    "LZ-D": {"cells": "x2-3,y1-3", "props": ["wash_basin", "water_bucket", "wash_cloth"]},
     "LZ-E": {"cells": "x6-11,y9-11", "props": ["food_table", "work_chair", "table_stool_west", "table_stool_east", "table_candle", "table_settings", "table_cleanup"]},
     "LZ-F": {"cells": "x1,y7-9", "props": ["chest", "chest_provisions"]},
     "LZ-G": {"cells": "x10-13,y12-13", "props": ["ash_scoop", "broom", "door_courtyard"]}
@@ -30,7 +30,7 @@
     {"id": "table_stool_west", "kind": "chair", "zone": "LZ-E", "facing": "south"},
     {"id": "table_stool_east", "kind": "chair", "zone": "LZ-E", "facing": "south"},
     {"id": "bed_linen", "kind": "household_clutter", "style_variant": "household.linen_folded", "zone": "LZ-A"},
-    {"id": "apron_hook", "kind": "household_clutter", "style_variant": "household.apron", "zone": "LZ-C", "facing": "east"},
+    {"id": "apron_hook", "kind": "household_clutter", "style_variant": "household.apron", "zone": "LZ-B", "facing": "east"},
     {"id": "ash_scoop", "kind": "household_clutter", "style_variant": "household.ash_scoop", "zone": "LZ-G"},
     {"id": "broom", "kind": "household_clutter", "style_variant": "household.broom", "zone": "LZ-G"}
   ],
@@ -59,7 +59,7 @@
     "iron_scrap_store"
   ],
   "hearth_clearance_cells": {
-    "domestic_hearth": {"x_min": 1, "x_max": 3, "y_min": 1, "y_max": 3},
+    "domestic_hearth": {"x_min": 10, "x_max": 13, "y_min": 1, "y_max": 3},
     "forge_furnace": {"x_min": 18, "x_max": 21, "y_min": 1, "y_max": 3}
   },
   "surface_mounted_props": [

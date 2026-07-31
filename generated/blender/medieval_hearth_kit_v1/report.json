@@ -1,7 +1,7 @@
 {
   "approval": "task-authorized",
   "blender_version": "Blender 5.2 LTS",
-  "cache_key": "78e9583fb31c6c7eccc25391d28545c24cddfc9d1bc8505da72a9e1f6bd5f8da",
+  "cache_key": "5c5f757c9e82d0b035dea3d7c7bd2b291fc57d7da0add68127c602fcab666f23",
   "checks": {
     "anchor_count": 6,
     "embedded_albedo": true,
@@ -13,18 +13,18 @@
     "y_up_glb": true
   },
   "dimensions_m": [
-    1.0,
-    1.051,
+    1.01,
+    1.091,
     1.66
   ],
   "floating_objects": 0,
   "generator": "tools/generate_medieval_hearth_kit.py",
-  "generator_version": "medieval_hearth_kit_v1",
+  "generator_version": "medieval_hearth_kit_v2",
   "ground_min_z": 0.0,
   "materials": 7,
   "route": "deterministic_blender",
-  "sha256": "7d157747aa2ce8ad37b63ea7b0cab8acb37e42c8a64281b854267b71dc19a70c",
+  "sha256": "cd584e7148d92fc3f0ba6faa34dcc01574a7990f7e44bd16decebef5be77bd94",
   "texture_size": 512,
-  "triangles": 3632,
+  "triangles": 5084,
   "uv_sets": 1
 }

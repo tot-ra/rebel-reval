@@ -1,7 +1,7 @@
 class_name MapViewDomesticHearthModels
 extends RefCounted
 
-## Runtime selector for the Reval 1343 hooded cooking-hearth kit. The GLB keeps
+## Runtime selector for the Reval 1343 hooded brick cooking-hearth kit. The GLB keeps
 ## lit, ember, and cold fuel states together while runtime flame, light, and smoke
 ## attach only to exported anchors - never as baked fire geometry.
 

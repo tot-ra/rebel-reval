@@ -22,7 +22,7 @@
     {
       "id": "ap.cat.feed",
       "zone": "LZ-C",
-      "approach_position": {"x": 96, "y": 96},
+      "approach_position": {"x": 384, "y": 96},
       "facing": "right",
       "prop_id": "domestic_hearth",
       "allowed_actors": ["char.forge_cat"],
