@@ -110,13 +110,13 @@ Decisions over `story/STORY.md`. Every promoted beat carries a confidence label.
 |------|----------|-------|-------|
 | Act 1 slow-burn intrigue to Viru Gate | **promote** | **`invented`** framing on **`attested`** night | Matches shipped Act 1 / Open-Seal-Break boundary. |
 | Living City meters as Act 1 progress | **adapt** | **`invented`** | Hope and Fear only ([`LIVING_CITY.md`](./SYSTEMS/LIVING_CITY.md)); no Chaos meter, no Balance of Power. |
-| Whisper of a third power with reptilian sigil (Lizard Union) | **defer** | **`invented`** | Candidate for **P7-009** faction promotion; do not ship as an ninth launch faction without that plan. |
+| Whisper of a third power with reptilian sigil (Lizard Union) | **defer** (ninth faction) / **adapt** (intrigue cell) | **`invented`** | **P7-009** plan: may ship as a clandestine cell (face `char.nikolaus_danzig`) using existing Order/Hanseatic ledger pressure; do **not** add a ninth launch faction without a later ADR. |
 | Siege of Reval player missions | **promote** | **`invented`** missions on **`attested`** siege | Owned by Act 2 design / P5 night and assault rows. |
 | "Battle of Pärnu" as major history rewrite | **adapt** | **`invented`** local mission | Pärnu may be an authored world location (README Act 2). It must not replace Kanavere or Sõjamäe as the calendar field battles. |
 | Swedish / Pskov gambit | **promote** | **`attested`** diplomacy + **`invented`** player verbs | Secure or sabotage aid; foreign armies do not become player-controlled. |
 | Open warfare / large-scale battles as army sim | **reject** | n/a | Party control and army/fleet simulation stay out (ADR 0008 / 0017). |
 | Forced-forge Act 3 (Order "acquires" Kalev) | **promote** | **`invented`** | Aligns with **P6-003**. Coercion, inspection risk, quiet sabotage. |
-| Brother Hermann as Order handler | **adapt** | **`plausible composite`** | Keep as Order officer archetype; name may change in **P6-001** / **P7-009**. |
+| Brother Hermann as Order handler | **adapt** | **`plausible composite`** | **P7-009** promote-first stub `char.brother_hermann` (Wave A/A3); name may still change in **P6-001** when the forced-forge brief lands. |
 | Hostage wife and daughter at the grove | **reject** | n/a | Conflicts with [`docs/CHARACTERS/kalev-family.md`](./CHARACTERS/kalev-family.md): no partner or children in the first campaign. Use Aita and/or Mart for private pressure. |
 | Saaremaa / Pöide climax with player-forged siege iron | **promote** | **`invented`** on **`attested`** island war | Owned by **P6-004**; steers local cost only. |
 | Act 1 labelled as year 1342 in STORY title card | **reject** (as playable date) | n/a | Playable Act 1 is spring 1343; 1342 is backstory tax pressure only. |

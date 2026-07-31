@@ -24,8 +24,8 @@ P7 design/canon rows may run in parallel. P7 implementation rows depend on slice
 | Quest seeds | `QUESTS.md`, `docs/IDEAS_RESEARCH.md` | content packages via P4 quest pipeline | P7-001, P7-006 | per-quest P4/P5/P6 rows |
 | Mini-games (selected) | `docs/MINI_GAMES.md` | priority shortlist; reject naval/castle sims unless later ADR | P7-001, P7-007 | per accepted mini-game row |
 | Story / timeline | `story/STORY.md`, `history/HISTORY.md`, `history/TIMELINE.md` | `docs/CANON.md` Timeline 1342–1346, Political landscape, Promoted and rejected story seeds | P7-001, P7-008 (delivered; pending canon) | P5/P6 act design + content tasks |
-| Expanded cast | `characters/**` sheets | `docs/CHARACTERS/*.md` briefs + portraits/models via art pipeline | P7-001, P7-009 | P2-004 follow-ons / A-track |
-| Expanded factions | `characters/README.md` (15+ roster) | README faction table + ledger content; bishoprics etc. as candidates | P7-001, P7-009 | P4-016+ follow-ons |
+| Expanded cast | `characters/**` sheets | [`docs/cast_faction_promotion.md`](./cast_faction_promotion.md) + `docs/CHARACTERS/*.md` briefs + portraits/models via art pipeline | P7-001, P7-009 (delivered; pending canon on first briefs) | P7-013 brief batches; P2-004 follow-ons / A-track |
+| Expanded factions | `characters/README.md` (15+ roster) | Promotion plan faction-candidate table; Blackheads / Ösel-Wiek candidates; Lizard Union stays intrigue cell until ADR | P7-001, P7-009 (delivered) | P4-045 Blackheads ledger stub; further P4-016+ follow-ons |
 | Bestiary / folklore creatures | `assets/bestiary/README.md` | CANON + fauna/folklore content; new 3D where needed | P7-001, P7-008 | art + content rows |
 
 ## Art rule (explicit)
@@ -54,3 +54,5 @@ P7 design/canon rows may run in parallel. P7 implementation rows depend on slice
 | 2026-07-29 | Do not call sub-agents for this planning pass; commit when documentation lands. |
 | 2026-07-31 | P7-004: Hope/Fear are independent `living_city.*` meters that complement `record_faction_event`; Balance of Power aggregate, tower-majority victory, and NPC-allegiance sums stay rejected. |
 | 2026-07-31 | P7-008: Folded labelled beats from HISTORY/TIMELINE/STORY into CANON (Padise, Saaremaa arc, Pskov Otepää colour, forced-forge Act 3). Rejected Chaos meter, Act 1-as-1342, wife/daughter hostage, and Pärnu as Sõjamäe rewrite. Plague 1351 remains non-canon. |
+| 2026-07-31 | P7-007: Mini-game pass in `docs/MINI_GAMES.md`. Naval/castle-building deferred without new ADR. Slice/A1 shortlist: Market Haggling, Smuggling Run, Tavern Brawling. Ritual Chanting and Herbalism deferred to magic/crafting rows. |
+| 2026-07-31 | P7-009: Cast/faction promotion plan in `docs/cast_faction_promotion.md` with 18 promote-first NPCs and candidates beyond the eight launch factions. First briefs: Old Toomas, Martin of the Cloaks, Konrad Preen, Lembit Helme. Lizard Union remains intrigue cell, not a ninth launch ledger, until a later ADR. 2D art stays inspiration only. |

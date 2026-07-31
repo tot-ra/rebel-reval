@@ -4,7 +4,7 @@
 > **Reactivating via ADR 0017:** eight launch factions plus bishopric / Blackheads / Lizard Union / Lithuania / Golden Horde candidates; named NPC hooks for act production.  
 > **Still out as primary frame:** mandatory early ruler/rebel join menu (allegiance still emerges from play).  
 > **Art note:** portraits and pixel sheets are inspiration; new shared-rig models required.  
-> **Current source of truth:** [`README.md`](../README.md) and `docs/CHARACTERS/` for active briefs; P7-009 owns promotion order.
+> **Current source of truth:** [`README.md`](../README.md) and `docs/CHARACTERS/` for active briefs; promotion order and faction-candidate decisions are in [`docs/cast_faction_promotion.md`](../docs/cast_faction_promotion.md) (P7-009).
 
 ## ⚔️ Factions
 You can ally, betray, or infiltrate these political forces. Your actions will determine the fate of Reval and the future of Estonia. Each faction offers unique quests, abilities, and endings.
