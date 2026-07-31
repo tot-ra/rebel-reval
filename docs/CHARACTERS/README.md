@@ -25,9 +25,14 @@ Kalev, Mart, Aita, Kaja, Henning, and Jürgen appear in the vertical slice. Elle
 | Old Toomas | Retired smith; quiet Cloaks mentor | A1 | 1 | `invented` | [Old Toomas](./old_toomas.md) |
 | Martin of the Cloaks | Urban Black Cloaks smith-contact (not Kalev / not Mart) | A1 | 1 | `invented` | [Martin of the Cloaks](./martin_black_cloaks.md) |
 | Viceroy Konrad Preen | Danish Crown face on Toompea | A1–A2 | 1 | `plausible composite` | [Konrad Preen](./konrad_preen.md) |
+| Brother Hermann | Livonian Order handler; later forced-forge pressure face | A1–A3 | 1 | `plausible composite` | [Brother Hermann](./brother_hermann.md) |
+| Johann von Minden | Blackheads merchant; candidate-seat organiser | A1–A2 | 1 | `plausible composite` | [Johann von Minden](./johann_von_minden.md) |
+| Hinrik the Cartographer | Harbour mapmaker and route witness | A1 | 1 | `plausible composite` | [Hinrik the Cartographer](./hinrik_cartographer.md) |
+| Mart Weaver | Blackheads artisan organiser (not apprentice Mart) | A1 | 1 | `plausible composite` | [Mart Weaver](./mart_weaver.md) |
+| Order Squire (Tomas Veld) | Henning's junior Order detail and conflicted witness | A1 | 1 | `invented` | [Order Squire](./order_squire.md) |
 | Lembit Helme | Harju Kings elder spokesman | A2 | 1 | `plausible composite` | [Lembit Helme](./lembit.md) |
 
-Remaining promote-first names are listed only in the [promotion plan](../cast_faction_promotion.md) until their briefs land (follow-up **P7-013**).
+Remaining Wave B/C names are listed in the [promotion plan](../cast_faction_promotion.md) until their act design gates open. The five remaining Wave A briefs are now landed under **P7-013**.
 
 ## Canon rules
 

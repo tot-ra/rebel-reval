@@ -130,3 +130,5 @@
 
 - When a research task finds a regionally correct media page without an explicit commercial license, treat it as a rights blocker: preserve the verified fallback, record the exact source URL and permission path, and never download or register the asset from metadata alone. If an external page also has TLS or API access errors, record that as evidence but do not treat it as permission.
 - When applying a generated patch from temporary files with `git apply --cached`, normalize both `diff --git` and `---`/`+++` paths to repository paths; otherwise staging fails without changing the index.
+
+- Before an exact-string edit in a coordination document, re-read the complete live line or paragraph; summarized grep output may omit or duplicate surrounding text and cause a false no-match.
