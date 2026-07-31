@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `86`
-- Markdown files excluded as archive/reference/out of active scope: `475`
-- Local/external links inspected: `553`
-- Links to active Markdown docs: `255`
+- Active Markdown files scanned: `92`
+- Markdown files excluded as archive/reference/out of active scope: `466`
+- Local/external links inspected: `577`
+- Links to active Markdown docs: `276`
 - Links to existing archive/reference/non-active local docs: `114`
 - External links skipped for reachability: `37`
 - Issues found: `0`
@@ -64,6 +64,7 @@ No active Markdown documentation issues found.
 - `docs/ASSET_INVENTORY.md`
 - `docs/ASSET_STORAGE_POLICY.md`
 - `docs/CANON.md`
+- `docs/cast_faction_promotion.md`
 - `docs/CHARACTER_GENERATION.md`
 - `docs/CHARACTERS/_template.md`
 - `docs/CHARACTERS/aita.md`
@@ -73,7 +74,11 @@ No active Markdown documentation issues found.
 - `docs/CHARACTERS/kaja.md`
 - `docs/CHARACTERS/kalev-family.md`
 - `docs/CHARACTERS/kalev.md`
+- `docs/CHARACTERS/konrad_preen.md`
+- `docs/CHARACTERS/lembit.md`
 - `docs/CHARACTERS/mart.md`
+- `docs/CHARACTERS/martin_black_cloaks.md`
+- `docs/CHARACTERS/old_toomas.md`
 - `docs/CHARACTERS/README.md`
 - `docs/FLORA_FAUNA.md`
 - `docs/FONTS.md`
@@ -89,6 +94,7 @@ No active Markdown documentation issues found.
 - `docs/MAP_AUTHORING.md`
 - `docs/MAP_CONVERSION_PLAN.md`
 - `docs/MATERIAL_STYLE_LOCK_KIT.md`
+- `docs/MINI_GAMES.md`
 - `docs/PERFORMANCE_REPORT.md`
 - `docs/quest_seed_shortlist.md`
 - `docs/quests/bandits.md`
