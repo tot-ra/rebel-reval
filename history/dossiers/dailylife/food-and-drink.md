@@ -152,6 +152,7 @@ You are feeding **April–May 1343 Lower Town Reval** — a **Hanseatic port und
 - [`clothing-and-status-markers.md`](clothing-and-status-markers.md) — feast vs work dress; apron and headscarf tiers.
 - [`hygiene-and-grooming-1343.md`](hygiene-and-grooming-1343.md) — hand-wash before meals, beer breath, and basin props in dornse.
 - [`old-market-vanaturg.md`](../topography/old-market-vanaturg.md) — grain-sack cart traffic at forum throat.
+- [`../crafts/trades-of-the-lower-town.md`](../crafts/trades-of-the-lower-town.md) - baker, brewer, butcher, and workshop-house trade context for food production and waste.
 
 ## Open questions
 

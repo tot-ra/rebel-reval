@@ -29,7 +29,7 @@ References:
 | P4 |    31  |       47  | Act 1: The Simmering City |
 | P5 |     9  |     3  | Act 2: The Fire of Rebellion |
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
-| R  |    19  |    29  | Historical research backlog (researcher-managed, cross-cutting) |
+| R  |    18  |    30  | Historical research backlog (researcher-managed, cross-cutting) |
 | A  |    10  |     0  | Art and animation backlog (art-managed, cross-cutting) |
 | P7+ |     8  |         5  | Reserved for future priority bands |
 
@@ -207,7 +207,7 @@ Rows close through `review: canon` like all content work.
 - [~] R-013 | role: research | deps: R-004 | deliverable: history/dossiers/crafts/blacksmith-materials-and-techniques.md - iron and steel sources, charcoal, fluxes, forging and hardening technique, realistic task durations and failure modes | verify: gives quantities and durations a crafting system can model, each labelled attested or plausible composite | review: canon
 - [~] R-014 | role: research | deps: none | deliverable: history/dossiers/economy/coinage-prices-and-measures.md - Riga mark, artig, öre; prices of bread, beer, iron, tools, livestock; wages; weights and measures in use at Reval | verify: a price table with source and confidence per line, sufficient to set in-game shop values | review: canon
 - [~] R-015 | role: research | deps: none | deliverable: history/dossiers/economy/hanseatic-trade-and-season.md - goods through Reval, the Novgorod route, sailing season and ice, staple rules, merchant practice and credit | verify: states the April-May trade situation specifically and what stalls when the countryside rises | review: canon | canon verdict P0-166: retain 13 April 1343 Julian; remove the stale pending-reconcile wording and return for Canon re-review after confirming no conflicting Easter date remains
-- [ ] R-027 | role: research | deps: R-012 | deliverable: history/dossiers/crafts/trades-of-the-lower-town.md - the other trades a district needs: baker, brewer, cobbler, tanner, cooper, carpenter, butcher, with workshop signs and nuisances | verify: each trade has a workshop description, a tool set, and a plausible street-level presence for map and art use | handoff: Canon Keeper; close through `review: canon`
+- [x] R-027 | role: research | deps: R-012 | deliverable: history/dossiers/crafts/trades-of-the-lower-town.md - the other trades a district needs: baker, brewer, cobbler, tanner, cooper, carpenter, butcher, with workshop signs and nuisances | verify: each trade has a workshop description, a tool set, and a plausible street-level presence for map and art use | handoff: Canon Keeper; close through `review: canon` | review: canon
 
 ### Religion, culture, folklore (Narrative, Dialogue, Art)
 

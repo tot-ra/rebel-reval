@@ -106,6 +106,7 @@ These are the **published edition entry numbers** backing the sea-side and extra
 - [`merchant-cart-and-transport-1340s.md`](merchant-cart-and-transport-1340s.md) — cart access from Coastal Gate landing.
 - [`../topography/harbour-and-shoreline.md`](../topography/harbour-and-shoreline.md) — cliff descent and wet margin where gardens sit.
 - [`../people/estonian-and-german-populations.md`](../people/estonian-and-german-populations.md) — *voorimees* labour tier.
+- [`../crafts/trades-of-the-lower-town.md`](../crafts/trades-of-the-lower-town.md) - cooper workshop and barrel-yard context for the attested aggregate garden pattern.
 
 ## Open questions
 

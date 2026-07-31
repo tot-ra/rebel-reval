@@ -121,6 +121,7 @@ No surviving **1343 Reval guild regalia or smith ordinance** plate exists; cerem
 - [`../religion/liturgical-calendar-spring-1343.md`](../religion/liturgical-calendar-spring-1343.md) — St Canute feast oaths and umbrella guild masses on holy days.
 - [`../religion/churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) — which craft umbrella holds chapels in which parish churches.
 - [`../military/watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) — guild masters on burgher watch rolls, not guild-only guard.
+- [`trades-of-the-lower-town.md`](trades-of-the-lower-town.md) - baker, brewer, cobbler, tanner, cooper, carpenter, and butcher workshop patterns, with tools, nuisances, and cautious guild placement for Spring 1343.
 - [`blacksmith-materials-and-techniques.md`](blacksmith-materials-and-techniques.md) — iron, charcoal, forge durations, and failure modes for Schmiede commissions.
 
 ## Open questions

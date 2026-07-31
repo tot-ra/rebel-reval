@@ -157,6 +157,7 @@ Dimensions below combine attested medieval bands [4] with surviving alignment [2
 - **Delivered neighbour:** [`topography/old-market-vanaturg.md`](./old-market-vanaturg.md) (R-031) — east throat / Vanaturu kael lane; *forum inferior* absent in 1343.
 - **Delivered neighbour:** [`../religion/churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) (R-016) — Dominican, St Michael, and parish church precincts that break strip blocks.
 - [`../architecture/toompea-castle-and-upper-town.md`](../architecture/toompea-castle-and-upper-town.md) (R-006) — Pikk jalg / Lühike jalg ascents and hill–Lower Town boundary control.
+- [`../crafts/trades-of-the-lower-town.md`](../crafts/trades-of-the-lower-town.md) - maps trade placement weights onto Lower Town craft plots, yards, market edges, and service lanes.
 
 ## Open questions
 
