@@ -295,3 +295,12 @@ godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_bir
 
 Provenance for every processed cue is recorded in ``sounds/birds/processed_manifest.csv``,
 linking each catalog cue back to the P0-122 source clip and license row.
+
+### P0-122f research attempt (2026-07-31)
+
+Loodusheli pages confirm Estonian field recordings for both gap species:
+
+- `great_cormorant` / *Phalacrocorax carbo*: [Kormoran](http://loodusheli.ee/ET/loomaliigid/linnud/taxonid=448&speciesid=482), credited to Veljo Runnel, Rõngu vald, Valguta polder, 2012-10-28.
+- `white_tailed_eagle` / *Haliaeetus albicilla*: [Merikotkas](http://loodusheli.ee/ET/loomaliigid/linnud/taxonid=302&speciesid=576).
+
+The pages expose audio metadata but no CC0, CC BY, CC BY-SA, or commercial permission. The HTTPS endpoint also currently fails certificate validation (`www.loodusheli.ee` certificate expired), so no audio was downloaded. The existing Germany iNaturalist clips remain the only verified commercial fallback. P0-122f is blocked until the University of Tartu Natural History Museum / recordist grants written permission, a record-level commercial license is published, or maintainers supply new Estonian/Baltic field takes with provenance. Do not replace the curated rows based on metadata presence alone.

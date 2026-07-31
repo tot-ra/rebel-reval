@@ -127,3 +127,5 @@
 - When cleaning generated assets, remove only the exact newly-created UUID paths; a broad glob can delete tracked artifacts from another worker.
 - If a repository-wide asset lint fails on an unrelated pre-existing asset, record the scoped asset checks and report the baseline failure instead of changing out-of-scope geometry.
 - Run `git diff --cached --check` before committing documentation; Markdown hard-break spaces can make an otherwise correct staged patch fail the commit guard.
+
+- When a research task finds a regionally correct media page without an explicit commercial license, treat it as a rights blocker: preserve the verified fallback, record the exact source URL and permission path, and never download or register the asset from metadata alone. If an external page also has TLS or API access errors, record that as evidence but do not treat it as permission.
