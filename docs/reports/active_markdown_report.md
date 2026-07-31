@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `92`
+- Active Markdown files scanned: `93`
 - Markdown files excluded as archive/reference/out of active scope: `474`
-- Local/external links inspected: `577`
-- Links to active Markdown docs: `276`
-- Links to existing archive/reference/non-active local docs: `114`
+- Local/external links inspected: `590`
+- Links to active Markdown docs: `285`
+- Links to existing archive/reference/non-active local docs: `118`
 - External links skipped for reachability: `37`
 - Issues found: `0`
 
@@ -118,6 +118,7 @@ No active Markdown documentation issues found.
 - `docs/SCENES/the-price-of-a-name-branch-map.md`
 - `docs/SCENES/the-price-of-a-name.md`
 - `docs/SETUP.md`
+- `docs/SYSTEMS/COMBAT_NIGHT.md`
 - `docs/SYSTEMS/LIVING_CITY.md`
 - `docs/SYSTEMS/MAGIC.md`
 - `docs/SYSTEMS/NATURAL.md`

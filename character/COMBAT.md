@@ -2,7 +2,7 @@
 > **Reason:** Spellforging combat returns with magic under [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md); party tactics stay out.  
 > **Scope reconciliation:** [ADR 0017](../docs/adr/0017-legacy-design-reintroduction.md), [`docs/LEGACY_REINTRODUCTION.md`](../docs/LEGACY_REINTRODUCTION.md)  
 > **Still out:** party control; sprawling weapon-family loot trees.  
-> **Current source of truth:** [`README.md`](../README.md) until P7-005 closes.
+> **Current source of truth:** [`docs/SYSTEMS/COMBAT_NIGHT.md`](../docs/SYSTEMS/COMBAT_NIGHT.md) for reconciled combat and night design; this file remains a legacy reference.
 
 # ⚔️ Combat Mechanics
 

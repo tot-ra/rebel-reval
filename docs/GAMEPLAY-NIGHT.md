@@ -3,7 +3,7 @@
 > **Scope reconciliation:** [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md), [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md)  
 > **Reactivating:** content-defined night mission templates; Living City night pressure; stealth and combat covert routes.  
 > **Still out:** tower-capture strategic loop; one-tower-per-night district siege meta-game.  
-> **Current source of truth:** [`README.md`](../README.md) until P7-005 closes.
+> **Current source of truth:** [`docs/SYSTEMS/COMBAT_NIGHT.md`](./SYSTEMS/COMBAT_NIGHT.md) for reconciled combat and night design; this file remains a legacy reference.
 
 # 🌙 Night Gameplay: The Siege of Reval
 

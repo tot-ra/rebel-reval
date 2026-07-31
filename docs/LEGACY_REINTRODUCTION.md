@@ -19,8 +19,8 @@ P7 design/canon rows may run in parallel. P7 implementation rows depend on slice
 | NATURAL aspects + progression | `character/BUILD.md` | [`docs/SYSTEMS/NATURAL.md`](./SYSTEMS/NATURAL.md) | P7-001, P7-003 | P7-011 |
 | Psyche / Hingepuu / Ego | `character/PSYCHE.md`, GAME-PILLARS Ego NPC | [`docs/SYSTEMS/PSYCHE.md`](./SYSTEMS/PSYCHE.md); extend Hingepuu beyond reflection screen | P7-001, P7-003 | P7-011 |
 | Living City meters + allegiance pressure | `docs/GAMEPLAY.md`, `docs/GAME-PILLARS.md` | [`docs/SYSTEMS/LIVING_CITY.md`](./SYSTEMS/LIVING_CITY.md); complements faction ledger (no Balance of Power aggregate) | P7-001, P7-004 | P7-012 |
-| Combat depth | `character/COMBAT.md` | extend combat design after magic/NATURAL contracts | P7-001, P7-005 | act-gated after P7-010/011 |
-| Night systems | `docs/GAMEPLAY-NIGHT.md` | enrich P5 night templates; keep authored missions | P7-001, P7-005 | P5/P7 follow-ons |
+| Combat depth | `character/COMBAT.md` | [`docs/SYSTEMS/COMBAT_NIGHT.md`](./SYSTEMS/COMBAT_NIGHT.md), extending the hammer-first combat contract after magic/NATURAL reconciliation | P7-001, P7-005 | act-gated after P7-010/011 |
+| Night systems | `docs/GAMEPLAY-NIGHT.md` | [`docs/SYSTEMS/COMBAT_NIGHT.md`](./SYSTEMS/COMBAT_NIGHT.md), enriching P5 authored night templates while excluding tower capture | P7-001, P7-005 | P5/P7 follow-ons |
 | Quest seeds | `QUESTS.md`, `docs/IDEAS_RESEARCH.md` | content packages via P4 quest pipeline | P7-001, P7-006 | per-quest P4/P5/P6 rows |
 | Mini-games (selected) | `docs/MINI_GAMES.md` | priority shortlist; reject naval/castle sims unless later ADR | P7-001, P7-007 | per accepted mini-game row |
 | Story / timeline | `story/STORY.md`, `history/HISTORY.md`, `history/TIMELINE.md` | `docs/CANON.md` Timeline 1342–1346, Political landscape, Promoted and rejected story seeds | P7-001, P7-008 (delivered; pending canon) | P5/P6 act design + content tasks |
