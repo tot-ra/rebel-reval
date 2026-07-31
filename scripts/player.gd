@@ -266,6 +266,29 @@ func _move_dodge(delta: float) -> void:
 	_dodge_distance_remaining = maxf(0.0, _dodge_distance_remaining - maxf(0.0, traveled))
 
 
+## Public entry for the context-sensitive primary click (left mouse button in
+## first/third person). Mirrors the instant-attack path so mouse, keyboard, and
+## gamepad attacks share the same state, stamina, and profile rules.
+func request_primary_attack() -> bool:
+	if not combat_input_enabled or _movement_blocked():
+		return false
+	var profile := _resolve_attack_profile(false)
+	if stamina < profile.stamina_cost:
+		return false
+	_prepare_attack_for_profile(profile)
+	if not action_state_machine.try_start_action(PlayerActionKind.Kind.ATTACK):
+		return false
+	stamina = maxf(0.0, stamina - profile.stamina_cost)
+	_sync_resource_bars()
+	return true
+
+
+## Exposed so the click router can hold the primary button to charge instead of
+## swinging on press when the equipped technique supports charging.
+func supports_charged_attack() -> bool:
+	return _supports_charged_attack()
+
+
 func _process_instant_attack_input() -> void:
 	for kind in PlayerActionInput.read_pressed_actions():
 		if kind != PlayerActionKind.Kind.ATTACK:

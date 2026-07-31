@@ -170,6 +170,7 @@ tools/run_performance_report.sh build/benchmarks/performance-smoke.json --quick
 | [`docs/CHARACTERS/`](./docs/CHARACTERS/README.md) | Active cast briefs and relationships |
 | [`docs/ART_BIBLE.md`](./docs/ART_BIBLE.md) | Visual target, scale, palette, and readability rules |
 | [`docs/SETUP.md`](./docs/SETUP.md) | Editor installation, import, startup, tests, and export |
+| [`docs/CONTROLS.md`](./docs/CONTROLS.md) | Camera-aware control scheme, context-sensitive primary click, and default bindings |
 | [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) | Compact map-blueprint primitives, stable IDs, compiler architecture, validation, and migration policy |
 | [`docs/adr/`](./docs/adr/) | Product and technical decisions |
 | [`docs/LEGACY_REINTRODUCTION.md`](./docs/LEGACY_REINTRODUCTION.md) | Legacy design → P7 plan inventory (ADR 0017) |

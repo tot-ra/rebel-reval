@@ -12,8 +12,9 @@ static func reset_guard_toggle() -> void:
 
 static func read_pressed_actions() -> Array[PlayerActionKind.Kind]:
 	var pressed: Array[PlayerActionKind.Kind] = []
-	# Left click is reserved for click-to-move in gameplay scenes. Keyboard and
-	# gamepad bindings still trigger attacks.
+	# Left click never attacks through the input map: MapClickInputController owns
+	# it and decides per camera mode whether it means attack, interact, or (top-down
+	# only) travel. Keyboard and gamepad bindings still trigger attacks directly.
 	if read_attack_just_pressed():
 		pressed.append(PlayerActionKind.Kind.ATTACK)
 	if Input.is_action_just_pressed(PlayerActionKind.ACTION_DODGE):

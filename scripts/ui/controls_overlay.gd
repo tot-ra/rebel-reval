@@ -6,7 +6,14 @@ extends CanvasLayer
 signal closed()
 
 const BindingSettingsScript := preload("res://scripts/settings/input_binding_settings.gd")
-const PANEL_MIN_SIZE := Vector2(1040, 760)
+const PANEL_MIN_SIZE := Vector2(1040, 800)
+
+## Mouse rules are camera-dependent, so they are shown as a legend rather than as
+## rebindable rows. Keep in sync with docs/CONTROLS.md and MapClickInputController.
+const MOUSE_LEGEND_TEXT := """Mouse
+- First-person and third-person: left click acts on what is in front of you - attack a hostile, or talk to / pick up / use a neutral target. Empty ground answers with a swing; there is no click-to-move.
+- Top-down: left click on the ground moves there, on an interactable interacts, on a hostile within reach attacks.
+- Right click guards (hold) and, while dragging, orbits the camera. Wheel zooms between first-person, third-person, and top-down."""
 
 var _settings_owner: Node
 var _binding_buttons: Dictionary = {}
@@ -202,6 +209,15 @@ func _build_ui() -> void:
 	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	intro.add_theme_color_override("font_color", Color(0.78, 0.82, 0.9, 1.0))
 	layout.add_child(intro)
+
+	# The primary click is context-sensitive and cannot be expressed as a single
+	# rebindable row, so the rules live next to the bindings instead of the manual.
+	var mouse_legend := Label.new()
+	mouse_legend.name = "MouseLegendLabel"
+	mouse_legend.text = MOUSE_LEGEND_TEXT
+	mouse_legend.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	mouse_legend.add_theme_color_override("font_color", Color(0.86, 0.9, 0.96, 1.0))
+	layout.add_child(mouse_legend)
 
 	var column_header := HBoxContainer.new()
 	column_header.add_theme_constant_override("separation", 10)

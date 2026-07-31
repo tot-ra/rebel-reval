@@ -6,7 +6,7 @@ extends CanvasLayer
 ## and conversion-plan retain rows; bootstrap no longer mounts a visible copy.
 
 const HELP_TEXT := (
-	"WASD or arrows - move | Click - travel | E - interact | "
+	"WASD or arrows - move | Click - attack / use ahead (top-down: travel) | E - interact | "
 	+ "C - camera | N - map | I - inventory | J - journal"
 )
 

@@ -155,6 +155,37 @@ static func find_at_logic_position(logic_position: Vector2, tree: SceneTree) -> 
 	return find_talk_interactable_near_actor(logic_position, tree)
 
 
+## Closest enabled interactable that the actor is already in range of and that
+## sits inside the facing cone. Used by the character-relative primary click
+## (first/third person), where the character - not the cursor - aims.
+static func find_in_front_of_actor(
+	actor: Node2D,
+	facing: Vector2,
+	minimum_facing_dot: float = 0.0
+) -> Interactable:
+	if actor == null or actor.get_tree() == null:
+		return null
+	var best: Interactable = null
+	var best_distance := INF
+	for node in actor.get_tree().get_nodes_in_group(&"interactable"):
+		var interactable := node as Interactable
+		if interactable == null or not interactable.is_enabled():
+			continue
+		if not interactable.is_actor_in_range(actor):
+			continue
+		var offset := interactable.global_position - actor.global_position
+		var distance_squared := offset.length_squared()
+		# A sensor centered on the actor's own feet (self-talk, mounts) has no
+		# direction; treat it as in front rather than dropping it.
+		if not facing.is_zero_approx() and not is_zero_approx(distance_squared):
+			if facing.dot(offset.normalized()) < minimum_facing_dot:
+				continue
+		if distance_squared < best_distance:
+			best_distance = distance_squared
+			best = interactable
+	return best
+
+
 ## Isometric clicks often land on the ground in front of a character instead of
 ## on the talk sensor centered at the actor's feet.
 static func find_talk_interactable_near_actor(logic_position: Vector2, tree: SceneTree) -> Interactable:

@@ -119,6 +119,23 @@ func test_controls_overlay_exposes_two_column_focus_navigation() -> void:
 	overlay.free()
 
 
+func test_controls_overlay_documents_context_sensitive_primary_click() -> void:
+	var overlay = ControlsOverlayScript.new()
+	overlay.configure(UserSettings)
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(overlay)
+	overlay.open()
+	var legend := overlay.find_child("MouseLegendLabel", true, false) as Label
+	assert_true(legend != null, "controls screen must explain the camera-dependent mouse scheme")
+	assert_true(
+		legend.text.contains("First-person and third-person"),
+		"legend must cover the character-relative primary click"
+	)
+	assert_true(legend.text.contains("Top-down"), "legend must cover pointer-mode click-to-move")
+	assert_true(legend.text.contains("Right click guards"), "legend must keep right click as defense")
+	overlay.free()
+
+
 func test_controls_overlay_captures_mouse_binding_before_gui_consumes_click() -> void:
 	var owner := FakeSettings.new()
 	var overlay = ControlsOverlayScript.new()

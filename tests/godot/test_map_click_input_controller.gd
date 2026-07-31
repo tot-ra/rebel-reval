@@ -137,6 +137,147 @@ func test_inventory_open_still_routes_world_drop_clicks() -> void:
 	_cleanup_harness(harness)
 
 
+func test_third_person_click_attacks_hostile_in_front() -> void:
+	var harness := _make_click_harness(false)
+	var player: Player = harness.player
+	player.set_view_facing(Vector2.RIGHT)
+	player.stamina = player.max_stamina
+	var hostile := _spawn_hostile(harness.root, Vector2(420, 240))
+	var initial_target := player.global_position
+	player.navigation_agent.target_position = initial_target
+
+	assert_true(_primary_click(harness.click_input, Vector2(640, 360)))
+	assert_eq(
+		player.action_state_machine.state,
+		PlayerActionState.State.ATTACK,
+		"An aggressive target in front must answer a primary click with an attack"
+	)
+	assert_eq(
+		player.navigation_agent.target_position,
+		initial_target,
+		"Character-relative modes must not click-to-move"
+	)
+	_cleanup_harness(harness)
+
+
+func test_third_person_click_interacts_with_neutral_in_front() -> void:
+	var harness := _make_click_harness(false)
+	var player: Player = harness.player
+	player.set_view_facing(Vector2.RIGHT)
+	var activated := [false]
+	var interactable := _spawn_interactable(harness.root, Vector2(380, 240), 96.0)
+	interactable.register_actor_in_range(player)
+	interactable.set_interact_callback(func(_actor: Node) -> void:
+		activated[0] = true
+	)
+
+	assert_true(harness.click_input.try_handle_click(_left_click(Vector2(640, 360))))
+	assert_true(activated[0], "A neutral target in front must open dialogue/pickup, not a swing")
+	assert_eq(player.action_state_machine.state, PlayerActionState.State.MOVE)
+	_cleanup_harness(harness)
+
+
+func test_third_person_click_prefers_hostile_over_neutral_target() -> void:
+	var harness := _make_click_harness(false)
+	var player: Player = harness.player
+	player.set_view_facing(Vector2.RIGHT)
+	player.stamina = player.max_stamina
+	var activated := [false]
+	var interactable := _spawn_interactable(harness.root, Vector2(380, 240), 96.0)
+	interactable.register_actor_in_range(player)
+	interactable.set_interact_callback(func(_actor: Node) -> void:
+		activated[0] = true
+	)
+	var hostile := _spawn_hostile(harness.root, Vector2(400, 240))
+
+	assert_true(_primary_click(harness.click_input, Vector2(640, 360)))
+	assert_false(activated[0], "Aggression must win over a neutral prompt in the same cone")
+	assert_eq(player.action_state_machine.state, PlayerActionState.State.ATTACK)
+	_cleanup_harness(harness)
+
+
+func test_third_person_click_on_open_ground_swings_instead_of_moving() -> void:
+	var harness := _make_click_harness(false)
+	var player: Player = harness.player
+	player.set_view_facing(Vector2.RIGHT)
+	player.stamina = player.max_stamina
+	var initial_target := player.global_position
+	player.navigation_agent.target_position = initial_target
+
+	assert_true(_primary_click(harness.click_input, Vector2(640, 360)))
+	assert_eq(player.action_state_machine.state, PlayerActionState.State.ATTACK)
+	assert_eq(player.navigation_agent.target_position, initial_target)
+	_cleanup_harness(harness)
+
+
+func test_third_person_click_ignores_hostile_behind_the_character() -> void:
+	var harness := _make_click_harness(false)
+	var player: Player = harness.player
+	player.set_view_facing(Vector2.RIGHT)
+	var activated := [false]
+	var interactable := _spawn_interactable(harness.root, Vector2(380, 240), 96.0)
+	interactable.register_actor_in_range(player)
+	interactable.set_interact_callback(func(_actor: Node) -> void:
+		activated[0] = true
+	)
+	var hostile := _spawn_hostile(harness.root, Vector2(220, 240))
+
+	assert_true(harness.click_input.try_handle_click(_left_click(Vector2(640, 360))))
+	assert_true(activated[0], "A foe behind the character must not steal the prompt in front")
+	_cleanup_harness(harness)
+
+
+func test_top_down_click_on_hostile_attacks_when_in_reach() -> void:
+	var harness := _make_click_harness()
+	var player: Player = harness.player
+	player.set_view_facing(Vector2.RIGHT)
+	player.stamina = player.max_stamina
+	var hostile := _spawn_hostile(harness.root, Vector2(400, 240))
+
+	assert_true(harness.click_input.try_handle_logic_click(hostile.global_position))
+	assert_eq(
+		player.action_state_machine.state,
+		PlayerActionState.State.ATTACK,
+		"Clicking an enemy in top-down must attack rather than walk into it"
+	)
+	_cleanup_harness(harness)
+
+
+func test_top_down_click_on_distant_hostile_walks_closer() -> void:
+	var harness := _make_click_harness()
+	var player: Player = harness.player
+	player.set_view_facing(Vector2.RIGHT)
+	var hostile := _spawn_hostile(harness.root, Vector2(900, 240))
+
+	assert_true(harness.click_input.try_handle_logic_click(hostile.global_position))
+	assert_eq(player.action_state_machine.state, PlayerActionState.State.MOVE)
+	assert_eq(player.navigation_agent.target_position, hostile.global_position)
+	_cleanup_harness(harness)
+
+
+## Full press/release pair: charged techniques commit their swing on release,
+## instant ones swing on press and ignore the release.
+func _primary_click(click_input: MapClickInputController, position: Vector2) -> bool:
+	var handled := click_input.try_handle_click(_left_click(position))
+	click_input.try_handle_primary_release(_left_release(position))
+	return handled
+
+
+func _left_release(position: Vector2) -> InputEventMouseButton:
+	var event := InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.pressed = false
+	event.position = position
+	return event
+
+
+func _spawn_hostile(root: Node2D, position: Vector2) -> Node2D:
+	var hostile := _StubHostile.new()
+	root.add_child(hostile)
+	hostile.global_position = position
+	return hostile
+
+
 func _left_click(position: Vector2) -> InputEventMouseButton:
 	var event := InputEventMouseButton.new()
 	event.button_index = MOUSE_BUTTON_LEFT
@@ -145,13 +286,16 @@ func _left_click(position: Vector2) -> InputEventMouseButton:
 	return event
 
 
-func _make_click_harness() -> Dictionary:
+## Pointer (top-down) mode is the default for click-to-move coverage; the
+## character-relative modes are exercised with top_down = false.
+func _make_click_harness(top_down: bool = true) -> Dictionary:
 	var root := _make_root()
 	var player: Player = PLAYER_SCENE.instantiate()
 	player.global_position = Vector2(320, 240)
 	root.add_child(player)
 	var runtime := _StubViewRuntime.new()
 	runtime.name = "StubViewRuntime"
+	runtime.top_down = top_down
 	root.add_child(runtime)
 	var click_input: MapClickInputController = CLICK_INPUT_SCRIPT.new()
 	click_input.name = "MapClickInput"
@@ -168,11 +312,35 @@ func _make_click_harness() -> Dictionary:
 class _StubViewRuntime:
 	extends MapViewRuntime
 
+	var top_down := true
+
 	func logic_position_at_screen(screen_position: Vector2) -> Vector2:
 		return screen_position
 
 	func is_camera_drag_active() -> bool:
 		return false
+
+	func is_top_down() -> bool:
+		return top_down
+
+
+class _StubHostile:
+	extends Node2D
+
+	var damage_taken := 0.0
+
+	func _ready() -> void:
+		add_to_group(&"combat_damageable")
+
+	func take_damage(
+		amount: float,
+		_source: Node = null,
+		_damage_type: StringName = &"",
+		_swing_id: int = 0,
+		_pierces_guard: bool = false
+	) -> float:
+		damage_taken += amount
+		return amount
 
 
 class _StubWorldItems:

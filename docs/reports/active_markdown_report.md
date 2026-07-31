@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `93`
-- Markdown files excluded as archive/reference/out of active scope: `474`
-- Local/external links inspected: `590`
-- Links to active Markdown docs: `285`
-- Links to existing archive/reference/non-active local docs: `118`
+- Active Markdown files scanned: `99`
+- Markdown files excluded as archive/reference/out of active scope: `477`
+- Local/external links inspected: `599`
+- Links to active Markdown docs: `292`
+- Links to existing archive/reference/non-active local docs: `120`
 - External links skipped for reachability: `37`
 - Issues found: `0`
 
@@ -68,8 +68,11 @@ No active Markdown documentation issues found.
 - `docs/CHARACTER_GENERATION.md`
 - `docs/CHARACTERS/_template.md`
 - `docs/CHARACTERS/aita.md`
+- `docs/CHARACTERS/brother_hermann.md`
 - `docs/CHARACTERS/ellen.md`
 - `docs/CHARACTERS/henning.md`
+- `docs/CHARACTERS/hinrik_cartographer.md`
+- `docs/CHARACTERS/johann_von_minden.md`
 - `docs/CHARACTERS/jurgen.md`
 - `docs/CHARACTERS/kaja.md`
 - `docs/CHARACTERS/kalev-family.md`
@@ -77,9 +80,12 @@ No active Markdown documentation issues found.
 - `docs/CHARACTERS/konrad_preen.md`
 - `docs/CHARACTERS/lembit.md`
 - `docs/CHARACTERS/mart.md`
+- `docs/CHARACTERS/mart_weaver.md`
 - `docs/CHARACTERS/martin_black_cloaks.md`
 - `docs/CHARACTERS/old_toomas.md`
+- `docs/CHARACTERS/order_squire.md`
 - `docs/CHARACTERS/README.md`
+- `docs/CONTROLS.md`
 - `docs/FLORA_FAUNA.md`
 - `docs/FONTS.md`
 - `docs/HISTORICAL_AUDIT.md`

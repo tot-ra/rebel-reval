@@ -13,9 +13,12 @@ const PANEL_MARGIN := 24.0
 const PANEL_HEIGHT := 118.0
 const PANEL_WIDTH := 1120.0
 const ControlsOverlayScript := preload("res://scripts/ui/controls_overlay.gd")
+## Click is context-sensitive: in first/third person it acts on what the character
+## faces, and only the top-down camera treats it as a travel order. Full rules live
+## in the Controls screen and docs/CONTROLS.md.
 const HELP_TEXT := (
-	"WASD or arrows - move | Click - travel | E - interact | "
-	+ "C - camera | Right-drag - look | N - minimap | M - map | I - inventory | J - journal | K - controls | Esc - settings | Debug"
+	"WASD or arrows - move | Click - attack / use ahead (top-down: travel) | E - interact | "
+	+ "C - camera | Right - guard, drag to look | N - minimap | M - map | I - inventory | J - journal | K - controls | Esc - settings | Debug"
 )
 
 var _inventory_controller: InventoryController
