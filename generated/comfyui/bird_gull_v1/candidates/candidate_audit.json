@@ -18,7 +18,66 @@
       "max_z_m": 0.985023,
       "materials": [],
       "animation_count": 0,
-      "animations": []
+      "animations": [],
+      "cleanup_feasibility": {
+        "blender_version": "5.2.0 LTS",
+        "triangle_budget": 7800,
+        "before_triangles": 608462,
+        "direct_decimation": {
+          "after_triangles": 523236,
+          "budget_pass": false,
+          "exported": false,
+          "reason": "collapse decimation stalls on split/non-manifold source topology"
+        },
+        "voxel_remesh": {
+          "after_triangles": 7800,
+          "budget_pass": true,
+          "connected_components": 10,
+          "non_manifold_edges": 0,
+          "mean_surface_error_m_source_space": 0.124765,
+          "max_sampled_surface_error_m_source_space": 0.870462,
+          "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/common_gull/voxel_remeshed.glb"
+        },
+        "catalog_scale_and_ground": {
+          "source_largest_axis_m": 1.9625,
+          "target_largest_axis_m": 1.112211,
+          "after_largest_axis_m": 1.112211,
+          "source_min_z_m": -0.97715,
+          "after_min_z_m": 0.0,
+          "scale_pass": true,
+          "ground_pass": true
+        },
+        "material_reconstruction": {
+          "before_material_count": 0,
+          "after_material_count": 3,
+          "status": "diagnostic_only",
+          "uv_status": "absent",
+          "species_faithful_plumage": false,
+          "result": "fail_production_material_contract"
+        },
+        "glide_sequence": {
+          "authored_static_frame_count": 8,
+          "expected_frame_count": 8,
+          "all_frames_within_triangle_budget": true,
+          "all_frames_grounded": true,
+          "unique_pose_metrics": 5,
+          "wingtip_root_mean_z_range_m": [
+            0.323636,
+            0.425152
+          ],
+          "method": "unrigged spatial outer-wing bend on cleaned voxel-remesh mesh",
+          "result": "technical_export_pass_articulation_fail",
+          "reason": "monolithic unrigged mesh has no anatomical wing joints; spatial bend degrades silhouette"
+        },
+        "candidate_keep": "retain_as_cleanup_evidence_only",
+        "production_verdict": "reject",
+        "verdict_reasons": [
+          "direct decimation remains over 8000 triangles",
+          "voxel remesh introduces or retains disconnected components and measurable silhouette loss",
+          "reconstructed materials are diagnostic colors without UV or species-faithful plumage",
+          "eight frames export but do not provide anatomically authored wing articulation"
+        ]
+      }
     },
     {
       "candidate": "common_tern_hunyuan_candidate.glb",
@@ -35,7 +94,66 @@
       "max_z_m": 0.985358,
       "materials": [],
       "animation_count": 0,
-      "animations": []
+      "animations": [],
+      "cleanup_feasibility": {
+        "blender_version": "5.2.0 LTS",
+        "triangle_budget": 7800,
+        "before_triangles": 617606,
+        "direct_decimation": {
+          "after_triangles": 545196,
+          "budget_pass": false,
+          "exported": false,
+          "reason": "collapse decimation stalls on split/non-manifold source topology"
+        },
+        "voxel_remesh": {
+          "after_triangles": 7800,
+          "budget_pass": true,
+          "connected_components": 27,
+          "non_manifold_edges": 0,
+          "mean_surface_error_m_source_space": 0.102141,
+          "max_sampled_surface_error_m_source_space": 1.008479,
+          "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/common_tern/voxel_remeshed.glb"
+        },
+        "catalog_scale_and_ground": {
+          "source_largest_axis_m": 1.962947,
+          "target_largest_axis_m": 1.133045,
+          "after_largest_axis_m": 1.133045,
+          "source_min_z_m": -0.977589,
+          "after_min_z_m": 0.0,
+          "scale_pass": true,
+          "ground_pass": true
+        },
+        "material_reconstruction": {
+          "before_material_count": 0,
+          "after_material_count": 3,
+          "status": "diagnostic_only",
+          "uv_status": "absent",
+          "species_faithful_plumage": false,
+          "result": "fail_production_material_contract"
+        },
+        "glide_sequence": {
+          "authored_static_frame_count": 8,
+          "expected_frame_count": 8,
+          "all_frames_within_triangle_budget": true,
+          "all_frames_grounded": true,
+          "unique_pose_metrics": 5,
+          "wingtip_root_mean_z_range_m": [
+            0.06536,
+            0.152298
+          ],
+          "method": "unrigged spatial outer-wing bend on cleaned voxel-remesh mesh",
+          "result": "technical_export_pass_articulation_fail",
+          "reason": "monolithic unrigged mesh has no anatomical wing joints; spatial bend degrades silhouette"
+        },
+        "candidate_keep": "retain_as_cleanup_evidence_only",
+        "production_verdict": "reject",
+        "verdict_reasons": [
+          "direct decimation remains over 8000 triangles",
+          "voxel remesh introduces or retains disconnected components and measurable silhouette loss",
+          "reconstructed materials are diagnostic colors without UV or species-faithful plumage",
+          "eight frames export but do not provide anatomically authored wing articulation"
+        ]
+      }
     },
     {
       "candidate": "herring_gull_hunyuan_candidate.glb",
@@ -52,7 +170,75 @@
       "max_z_m": 0.75291,
       "materials": [],
       "animation_count": 0,
-      "animations": []
+      "animations": [],
+      "cleanup_feasibility": {
+        "blender_version": "5.2.0 LTS",
+        "triangle_budget": 7800,
+        "before_triangles": 212932,
+        "direct_decimation": {
+          "after_triangles": 194345,
+          "budget_pass": false,
+          "exported": false,
+          "reason": "collapse decimation stalls on split/non-manifold source topology"
+        },
+        "voxel_remesh": {
+          "after_triangles": 4388,
+          "budget_pass": true,
+          "connected_components": 15,
+          "non_manifold_edges": 0,
+          "mean_surface_error_m_source_space": 0.049415,
+          "max_sampled_surface_error_m_source_space": 0.409092,
+          "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/herring_gull/voxel_remeshed.glb"
+        },
+        "catalog_scale_and_ground": {
+          "source_largest_axis_m": 1.961977,
+          "target_largest_axis_m": 1.551923,
+          "after_largest_axis_m": 1.551923,
+          "source_min_z_m": -0.744196,
+          "after_min_z_m": 0.0,
+          "scale_pass": true,
+          "ground_pass": true
+        },
+        "material_reconstruction": {
+          "before_material_count": 0,
+          "after_material_count": 3,
+          "status": "diagnostic_only",
+          "uv_status": "absent",
+          "species_faithful_plumage": false,
+          "result": "fail_production_material_contract"
+        },
+        "glide_sequence": {
+          "authored_static_frame_count": 8,
+          "expected_frame_count": 8,
+          "all_frames_within_triangle_budget": true,
+          "all_frames_grounded": true,
+          "unique_pose_metrics": 5,
+          "wingtip_root_mean_z_range_m": [
+            -0.0856,
+            0.104082
+          ],
+          "method": "unrigged spatial outer-wing bend on cleaned voxel-remesh mesh",
+          "result": "technical_export_pass_articulation_fail",
+          "reason": "monolithic unrigged mesh has no anatomical wing joints; spatial bend degrades silhouette"
+        },
+        "candidate_keep": "retain_as_cleanup_evidence_only",
+        "production_verdict": "reject",
+        "verdict_reasons": [
+          "direct decimation remains over 8000 triangles",
+          "voxel remesh introduces or retains disconnected components and measurable silhouette loss",
+          "reconstructed materials are diagnostic colors without UV or species-faithful plumage",
+          "eight frames export but do not provide anatomically authored wing articulation"
+        ]
+      }
     }
-  ]
+  ],
+  "cleanup_follow_up": {
+    "task": "P2-034b",
+    "script": "generated/comfyui/bird_gull_v1/blender_cleanup_experiment.py",
+    "results": "generated/comfyui/bird_gull_v1/candidates/cleanup/experiment_results.json",
+    "evidence": "docs/reports/images/fauna/p2_034b/cleanup_glide_contact_sheet.png",
+    "production_unchanged": true,
+    "overall_verdict": "all_three_rejected_for_production",
+    "art_canon_handoff": "not_requested_because_no_cleaned_candidate_is_competitive"
+  }
 }

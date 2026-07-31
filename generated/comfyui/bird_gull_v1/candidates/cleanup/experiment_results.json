@@ -1,0 +1,973 @@
+{
+  "task": "P2-034b",
+  "blender_version": "5.2.0 LTS",
+  "candidate_only": true,
+  "production_assets_opened": false,
+  "target_triangles": 7800,
+  "frame_count": 8,
+  "species": [
+    {
+      "species": "herring_gull",
+      "source": {
+        "path": "generated/comfyui/bird_gull_v1/candidates/herring_gull_hunyuan_candidate.glb",
+        "triangles": 212932,
+        "vertices": 60069,
+        "dimensions_m": [
+          1.961977,
+          1.24369,
+          1.497106
+        ],
+        "largest_axis_m": 1.961977,
+        "min_z_m": -0.744196,
+        "max_z_m": 0.75291,
+        "material_count": 0,
+        "materials": [],
+        "connected_components": 8,
+        "boundary_edges": 17,
+        "non_manifold_edges": 116706
+      },
+      "catalog_scale_m": 0.6,
+      "target_largest_axis_m": 1.551923,
+      "direct_decimation": {
+        "triangles": 194345,
+        "vertices": 50778,
+        "dimensions_m": [
+          1.551923,
+          0.983732,
+          1.184179
+        ],
+        "largest_axis_m": 1.551923,
+        "min_z_m": 0.0,
+        "max_z_m": 1.184179,
+        "material_count": 3,
+        "materials": [
+          "herring_gull_body_diagnostic",
+          "herring_gull_wing_diagnostic",
+          "herring_gull_accent_diagnostic"
+        ],
+        "connected_components": 8,
+        "boundary_edges": 17,
+        "non_manifold_edges": 116701,
+        "path": null,
+        "bytes": null,
+        "sha256": null,
+        "exported": false,
+        "mean_surface_error_m": 6.2e-05,
+        "max_sampled_surface_error_m": 0.009983,
+        "sample_count": 10084,
+        "uniform_scale_factor": 0.7909786326388513,
+        "ground_correction_m": 0.5886430740356445,
+        "budget_pass": false
+      },
+      "voxel_remesh": {
+        "triangles": 4388,
+        "vertices": 2224,
+        "dimensions_m": [
+          1.551923,
+          1.004516,
+          1.20159
+        ],
+        "largest_axis_m": 1.551923,
+        "min_z_m": 0.0,
+        "max_z_m": 1.20159,
+        "material_count": 3,
+        "materials": [
+          "herring_gull_body_diagnostic.001",
+          "herring_gull_wing_diagnostic.001",
+          "herring_gull_accent_diagnostic.001"
+        ],
+        "connected_components": 15,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/herring_gull/voxel_remeshed.glb",
+        "bytes": 84680,
+        "sha256": "124d4b982e1a4b406dd6d7719423f24e4ee69acb0443198c5bbedd097190028e",
+        "mean_surface_error_m": 0.049415,
+        "max_sampled_surface_error_m": 0.409092,
+        "sample_count": 7230,
+        "uniform_scale_factor": 0.8147915965725422,
+        "ground_correction_m": 0.6005635857582092,
+        "small_components_removed": 0,
+        "budget_pass": true
+      },
+      "material_reconstruction": {
+        "status": "diagnostic_only",
+        "material_count": 3,
+        "uv_status": "absent",
+        "assignment": "spatial body/wing/tip regions; not species-faithful plumage"
+      },
+      "glide_sequence": {
+        "frame_count": 8,
+        "method": "unrigged spatial outer-wing bend on cleaned voxel-remesh mesh",
+        "frames": [
+          {
+            "frame": 0,
+            "phase": 0.0,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": 0.009241,
+            "largest_axis_m": 1.551923,
+            "triangles": 4388,
+            "vertices": 2224,
+            "dimensions_m": [
+              1.551923,
+              1.004516,
+              1.20159
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 1.20159,
+            "material_count": 3,
+            "materials": [
+              "herring_gull_body_diagnostic.001",
+              "herring_gull_wing_diagnostic.001",
+              "herring_gull_accent_diagnostic.001"
+            ],
+            "connected_components": 15,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/herring_gull/gliding_00.glb",
+            "bytes": 84692,
+            "sha256": "b761d514d08f585a2dc4ab91ef9dff66a65cb2d01b2a985f6aee587f96c6fdf2"
+          },
+          {
+            "frame": 1,
+            "phase": 0.707107,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": 0.076304,
+            "largest_axis_m": 1.551923,
+            "triangles": 4388,
+            "vertices": 2224,
+            "dimensions_m": [
+              1.551923,
+              1.004453,
+              1.263237
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 1.263237,
+            "material_count": 3,
+            "materials": [
+              "herring_gull_body_diagnostic.001",
+              "herring_gull_wing_diagnostic.001",
+              "herring_gull_accent_diagnostic.001"
+            ],
+            "connected_components": 15,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/herring_gull/gliding_01.glb",
+            "bytes": 84692,
+            "sha256": "5c5528cca16a85cb3171f8b0838995a4211c4e52f10b14d9f1f6823975c0dadb"
+          },
+          {
+            "frame": 2,
+            "phase": 1.0,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": 0.104082,
+            "largest_axis_m": 1.551923,
+            "triangles": 4388,
+            "vertices": 2224,
+            "dimensions_m": [
+              1.551923,
+              1.004427,
+              1.289137
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 1.289137,
+            "material_count": 3,
+            "materials": [
+              "herring_gull_body_diagnostic.001",
+              "herring_gull_wing_diagnostic.001",
+              "herring_gull_accent_diagnostic.001"
+            ],
+            "connected_components": 15,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/herring_gull/gliding_02.glb",
+            "bytes": 84692,
+            "sha256": "9560d7602efecf7926d2181a8ae009b41ce7ab00e4c98a780f26b136af6b7f77"
+          },
+          {
+            "frame": 3,
+            "phase": 0.707107,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": 0.076304,
+            "largest_axis_m": 1.551923,
+            "triangles": 4388,
+            "vertices": 2224,
+            "dimensions_m": [
+              1.551923,
+              1.004453,
+              1.263237
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 1.263237,
+            "material_count": 3,
+            "materials": [
+              "herring_gull_body_diagnostic.001",
+              "herring_gull_wing_diagnostic.001",
+              "herring_gull_accent_diagnostic.001"
+            ],
+            "connected_components": 15,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/herring_gull/gliding_03.glb",
+            "bytes": 84692,
+            "sha256": "ed1c08539f363a828263afba52b754f5957d39a4c0715af9f896275722f49fd5"
+          },
+          {
+            "frame": 4,
+            "phase": 0.0,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": 0.009241,
+            "largest_axis_m": 1.551923,
+            "triangles": 4388,
+            "vertices": 2224,
+            "dimensions_m": [
+              1.551923,
+              1.004516,
+              1.20159
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 1.20159,
+            "material_count": 3,
+            "materials": [
+              "herring_gull_body_diagnostic.001",
+              "herring_gull_wing_diagnostic.001",
+              "herring_gull_accent_diagnostic.001"
+            ],
+            "connected_components": 15,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/herring_gull/gliding_04.glb",
+            "bytes": 84692,
+            "sha256": "0198c10200a631989349ee4e9837268a31ba245fa8e989b60069dc75c7d04cc3"
+          },
+          {
+            "frame": 5,
+            "phase": -0.707107,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": -0.057822,
+            "largest_axis_m": 1.551923,
+            "triangles": 4388,
+            "vertices": 2224,
+            "dimensions_m": [
+              1.551923,
+              1.004453,
+              1.267572
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 1.267572,
+            "material_count": 3,
+            "materials": [
+              "herring_gull_body_diagnostic.001",
+              "herring_gull_wing_diagnostic.001",
+              "herring_gull_accent_diagnostic.001"
+            ],
+            "connected_components": 15,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/herring_gull/gliding_05.glb",
+            "bytes": 84688,
+            "sha256": "7fcb41fdfabca69d454397819c4685295ac08a04eee4cfc2d74aa4ee2fefd6a1"
+          },
+          {
+            "frame": 6,
+            "phase": -1.0,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": -0.0856,
+            "largest_axis_m": 1.551923,
+            "triangles": 4388,
+            "vertices": 2224,
+            "dimensions_m": [
+              1.551923,
+              1.004427,
+              1.295479
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 1.295479,
+            "material_count": 3,
+            "materials": [
+              "herring_gull_body_diagnostic.001",
+              "herring_gull_wing_diagnostic.001",
+              "herring_gull_accent_diagnostic.001"
+            ],
+            "connected_components": 15,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/herring_gull/gliding_06.glb",
+            "bytes": 84692,
+            "sha256": "950f9c8a2395f23720f7d0ada5f1dc510a5e0a4fb2feb33941e6195b810fb84d"
+          },
+          {
+            "frame": 7,
+            "phase": -0.707107,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": -0.057822,
+            "largest_axis_m": 1.551923,
+            "triangles": 4388,
+            "vertices": 2224,
+            "dimensions_m": [
+              1.551923,
+              1.004453,
+              1.267572
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 1.267572,
+            "material_count": 3,
+            "materials": [
+              "herring_gull_body_diagnostic.001",
+              "herring_gull_wing_diagnostic.001",
+              "herring_gull_accent_diagnostic.001"
+            ],
+            "connected_components": 15,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/herring_gull/gliding_07.glb",
+            "bytes": 84688,
+            "sha256": "f1455b1320f1ea771c8bb5a692ee0a4ffa7645c0931ae0776e776b66ae159945"
+          }
+        ]
+      }
+    },
+    {
+      "species": "common_gull",
+      "source": {
+        "path": "generated/comfyui/bird_gull_v1/candidates/common_gull_hunyuan_candidate.glb",
+        "triangles": 608462,
+        "vertices": 176097,
+        "dimensions_m": [
+          1.9625,
+          1.254442,
+          1.962173
+        ],
+        "largest_axis_m": 1.9625,
+        "min_z_m": -0.97715,
+        "max_z_m": 0.985023,
+        "material_count": 0,
+        "materials": [],
+        "connected_components": 1,
+        "boundary_edges": 105,
+        "non_manifold_edges": 319528
+      },
+      "catalog_scale_m": 0.43,
+      "target_largest_axis_m": 1.112211,
+      "direct_decimation": {
+        "triangles": 523236,
+        "vertices": 133484,
+        "dimensions_m": [
+          1.112211,
+          0.711187,
+          1.11215
+        ],
+        "largest_axis_m": 1.112211,
+        "min_z_m": 0.0,
+        "max_z_m": 1.11215,
+        "material_count": 3,
+        "materials": [
+          "common_gull_body_diagnostic",
+          "common_gull_wing_diagnostic",
+          "common_gull_accent_diagnostic"
+        ],
+        "connected_components": 1,
+        "boundary_edges": 105,
+        "non_manifold_edges": 319528,
+        "path": null,
+        "bytes": null,
+        "sha256": null,
+        "exported": false,
+        "mean_surface_error_m": 0.000515,
+        "max_sampled_surface_error_m": 0.041803,
+        "sample_count": 10166,
+        "uniform_scale_factor": 0.5667317610556071,
+        "ground_correction_m": 0.5537819862365723,
+        "budget_pass": false
+      },
+      "voxel_remesh": {
+        "triangles": 7800,
+        "vertices": 3916,
+        "dimensions_m": [
+          1.112211,
+          0.707973,
+          0.813316
+        ],
+        "largest_axis_m": 1.112211,
+        "min_z_m": 0.0,
+        "max_z_m": 0.813316,
+        "material_count": 3,
+        "materials": [
+          "common_gull_body_diagnostic.001",
+          "common_gull_wing_diagnostic.001",
+          "common_gull_accent_diagnostic.001"
+        ],
+        "connected_components": 10,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/common_gull/voxel_remeshed.glb",
+        "bytes": 148560,
+        "sha256": "f8502a3c18097f8079f0c2f78bd1f8a180d76c49f255d4224c33ce3b57411609",
+        "mean_surface_error_m": 0.124765,
+        "max_sampled_surface_error_m": 0.870462,
+        "sample_count": 8948,
+        "uniform_scale_factor": 0.6006990905261098,
+        "ground_correction_m": 0.22364448010921478,
+        "small_components_removed": 4,
+        "budget_pass": true
+      },
+      "material_reconstruction": {
+        "status": "diagnostic_only",
+        "material_count": 3,
+        "uv_status": "absent",
+        "assignment": "spatial body/wing/tip regions; not species-faithful plumage"
+      },
+      "glide_sequence": {
+        "frame_count": 8,
+        "method": "unrigged spatial outer-wing bend on cleaned voxel-remesh mesh",
+        "frames": [
+          {
+            "frame": 0,
+            "phase": 0.0,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": 0.374394,
+            "largest_axis_m": 1.112211,
+            "triangles": 7800,
+            "vertices": 3916,
+            "dimensions_m": [
+              1.112211,
+              0.707973,
+              0.813316
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 0.813316,
+            "material_count": 3,
+            "materials": [
+              "common_gull_body_diagnostic.001",
+              "common_gull_wing_diagnostic.001",
+              "common_gull_accent_diagnostic.001"
+            ],
+            "connected_components": 10,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/common_gull/gliding_00.glb",
+            "bytes": 148568,
+            "sha256": "5f940466eb209ace23cbedd571d4ed06d4da23c3a905244171beea8eeacfe3af"
+          },
+          {
+            "frame": 1,
+            "phase": 0.707107,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": 0.410285,
+            "largest_axis_m": 1.112211,
+            "triangles": 7800,
+            "vertices": 3916,
+            "dimensions_m": [
+              1.112211,
+              0.707973,
+              0.853419
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 0.853419,
+            "material_count": 3,
+            "materials": [
+              "common_gull_body_diagnostic.001",
+              "common_gull_wing_diagnostic.001",
+              "common_gull_accent_diagnostic.001"
+            ],
+            "connected_components": 10,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/common_gull/gliding_01.glb",
+            "bytes": 148568,
+            "sha256": "a6c8b15b49196f38c9e3886b991e83b9d93136311bffe39b801c36abd1d1ad5f"
+          },
+          {
+            "frame": 2,
+            "phase": 1.0,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": 0.425152,
+            "largest_axis_m": 1.112211,
+            "triangles": 7800,
+            "vertices": 3916,
+            "dimensions_m": [
+              1.112211,
+              0.707973,
+              0.870063
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 0.870063,
+            "material_count": 3,
+            "materials": [
+              "common_gull_body_diagnostic.001",
+              "common_gull_wing_diagnostic.001",
+              "common_gull_accent_diagnostic.001"
+            ],
+            "connected_components": 10,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/common_gull/gliding_02.glb",
+            "bytes": 148568,
+            "sha256": "f70dde5312461ff6d5ec48f2346fcdce6002cbc2b4506db799ba434d31655abe"
+          },
+          {
+            "frame": 3,
+            "phase": 0.707107,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": 0.410285,
+            "largest_axis_m": 1.112211,
+            "triangles": 7800,
+            "vertices": 3916,
+            "dimensions_m": [
+              1.112211,
+              0.707973,
+              0.853419
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 0.853419,
+            "material_count": 3,
+            "materials": [
+              "common_gull_body_diagnostic.001",
+              "common_gull_wing_diagnostic.001",
+              "common_gull_accent_diagnostic.001"
+            ],
+            "connected_components": 10,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/common_gull/gliding_03.glb",
+            "bytes": 148568,
+            "sha256": "a203ae105466a0fbc1b1181b5bd6d7a9696e5cb9c4ba55168dd68839129f84ba"
+          },
+          {
+            "frame": 4,
+            "phase": 0.0,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": 0.374394,
+            "largest_axis_m": 1.112211,
+            "triangles": 7800,
+            "vertices": 3916,
+            "dimensions_m": [
+              1.112211,
+              0.707973,
+              0.813316
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 0.813316,
+            "material_count": 3,
+            "materials": [
+              "common_gull_body_diagnostic.001",
+              "common_gull_wing_diagnostic.001",
+              "common_gull_accent_diagnostic.001"
+            ],
+            "connected_components": 10,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/common_gull/gliding_04.glb",
+            "bytes": 148568,
+            "sha256": "03911f7a604da145b085178970cd9e6ec5d943770a4f6f17ef7f4cfb5a932406"
+          },
+          {
+            "frame": 5,
+            "phase": -0.707107,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": 0.338502,
+            "largest_axis_m": 1.112211,
+            "triangles": 7800,
+            "vertices": 3916,
+            "dimensions_m": [
+              1.112211,
+              0.707973,
+              0.786216
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 0.786216,
+            "material_count": 3,
+            "materials": [
+              "common_gull_body_diagnostic.001",
+              "common_gull_wing_diagnostic.001",
+              "common_gull_accent_diagnostic.001"
+            ],
+            "connected_components": 10,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/common_gull/gliding_05.glb",
+            "bytes": 148564,
+            "sha256": "98840429733c17086c15d6a1fe8fbbe08031651ca55d8ecc373e583072a46a11"
+          },
+          {
+            "frame": 6,
+            "phase": -1.0,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": 0.323636,
+            "largest_axis_m": 1.112211,
+            "triangles": 7800,
+            "vertices": 3916,
+            "dimensions_m": [
+              1.112211,
+              0.707973,
+              0.775073
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 0.775073,
+            "material_count": 3,
+            "materials": [
+              "common_gull_body_diagnostic.001",
+              "common_gull_wing_diagnostic.001",
+              "common_gull_accent_diagnostic.001"
+            ],
+            "connected_components": 10,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/common_gull/gliding_06.glb",
+            "bytes": 148564,
+            "sha256": "38f7afd703af77eb05c867fde2fe89c4c5319e0f397cbb0568b36d2ab085a72a"
+          },
+          {
+            "frame": 7,
+            "phase": -0.707107,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": 0.338502,
+            "largest_axis_m": 1.112211,
+            "triangles": 7800,
+            "vertices": 3916,
+            "dimensions_m": [
+              1.112211,
+              0.707973,
+              0.786216
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 0.786216,
+            "material_count": 3,
+            "materials": [
+              "common_gull_body_diagnostic.001",
+              "common_gull_wing_diagnostic.001",
+              "common_gull_accent_diagnostic.001"
+            ],
+            "connected_components": 10,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/common_gull/gliding_07.glb",
+            "bytes": 148564,
+            "sha256": "3c884fc59776ecfa7de69e9f4a4d751e5885e4c2ad8e27fea487f7b10f1c38f9"
+          }
+        ]
+      }
+    },
+    {
+      "species": "common_tern",
+      "source": {
+        "path": "generated/comfyui/bird_gull_v1/candidates/common_tern_hunyuan_candidate.glb",
+        "triangles": 617606,
+        "vertices": 175087,
+        "dimensions_m": [
+          1.962671,
+          1.168455,
+          1.962947
+        ],
+        "largest_axis_m": 1.962947,
+        "min_z_m": -0.977589,
+        "max_z_m": 0.985358,
+        "material_count": 0,
+        "materials": [],
+        "connected_components": 2,
+        "boundary_edges": 37,
+        "non_manifold_edges": 335101
+      },
+      "catalog_scale_m": 0.35,
+      "target_largest_axis_m": 1.133045,
+      "direct_decimation": {
+        "triangles": 545196,
+        "vertices": 138882,
+        "dimensions_m": [
+          1.132998,
+          0.674209,
+          1.133045
+        ],
+        "largest_axis_m": 1.133045,
+        "min_z_m": 0.0,
+        "max_z_m": 1.133045,
+        "material_count": 3,
+        "materials": [
+          "common_tern_body_diagnostic",
+          "common_tern_wing_diagnostic",
+          "common_tern_accent_diagnostic"
+        ],
+        "connected_components": 2,
+        "boundary_edges": 37,
+        "non_manifold_edges": 335101,
+        "path": null,
+        "bytes": null,
+        "sha256": null,
+        "exported": false,
+        "mean_surface_error_m": 0.000462,
+        "max_sampled_surface_error_m": 0.0594,
+        "sample_count": 10147,
+        "uniform_scale_factor": 0.577216399669873,
+        "ground_correction_m": 0.5642801523208618,
+        "budget_pass": false
+      },
+      "voxel_remesh": {
+        "triangles": 7800,
+        "vertices": 3950,
+        "dimensions_m": [
+          1.133045,
+          0.734061,
+          1.032117
+        ],
+        "largest_axis_m": 1.133045,
+        "min_z_m": 0.0,
+        "max_z_m": 1.032117,
+        "material_count": 3,
+        "materials": [
+          "common_tern_body_diagnostic.001",
+          "common_tern_wing_diagnostic.001",
+          "common_tern_accent_diagnostic.001"
+        ],
+        "connected_components": 27,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/common_tern/voxel_remeshed.glb",
+        "bytes": 149536,
+        "sha256": "cbd2d94df7b87e7fb2f0351c60e24ba78043630e0be27b9e385c55c07736d40b",
+        "mean_surface_error_m": 0.102141,
+        "max_sampled_surface_error_m": 1.008479,
+        "sample_count": 8953,
+        "uniform_scale_factor": 0.6413741031996939,
+        "ground_correction_m": 0.48103663325309753,
+        "small_components_removed": 0,
+        "budget_pass": true
+      },
+      "material_reconstruction": {
+        "status": "diagnostic_only",
+        "material_count": 3,
+        "uv_status": "absent",
+        "assignment": "spatial body/wing/tip regions; not species-faithful plumage"
+      },
+      "glide_sequence": {
+        "frame_count": 8,
+        "method": "unrigged spatial outer-wing bend on cleaned voxel-remesh mesh",
+        "frames": [
+          {
+            "frame": 0,
+            "phase": 0.0,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": 0.108829,
+            "largest_axis_m": 1.133045,
+            "triangles": 7800,
+            "vertices": 3950,
+            "dimensions_m": [
+              1.133045,
+              0.734061,
+              1.032117
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 1.032117,
+            "material_count": 3,
+            "materials": [
+              "common_tern_body_diagnostic.001",
+              "common_tern_wing_diagnostic.001",
+              "common_tern_accent_diagnostic.001"
+            ],
+            "connected_components": 27,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/common_tern/gliding_00.glb",
+            "bytes": 149548,
+            "sha256": "ed5cfd34ce642ae2d7854baeec6ce8818cefbe319f7602dfe229ce370c58595c"
+          },
+          {
+            "frame": 1,
+            "phase": 0.707107,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": 0.139566,
+            "largest_axis_m": 1.133045,
+            "triangles": 7800,
+            "vertices": 3950,
+            "dimensions_m": [
+              1.133045,
+              0.732437,
+              1.04879
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 1.04879,
+            "material_count": 3,
+            "materials": [
+              "common_tern_body_diagnostic.001",
+              "common_tern_wing_diagnostic.001",
+              "common_tern_accent_diagnostic.001"
+            ],
+            "connected_components": 27,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/common_tern/gliding_01.glb",
+            "bytes": 149540,
+            "sha256": "89632900abce06de58b51535bb81a5e5c0ee44a1b07d91cd6459b5515accb423"
+          },
+          {
+            "frame": 2,
+            "phase": 1.0,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": 0.152298,
+            "largest_axis_m": 1.133045,
+            "triangles": 7800,
+            "vertices": 3950,
+            "dimensions_m": [
+              1.133045,
+              0.731827,
+              1.055747
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 1.055747,
+            "material_count": 3,
+            "materials": [
+              "common_tern_body_diagnostic.001",
+              "common_tern_wing_diagnostic.001",
+              "common_tern_accent_diagnostic.001"
+            ],
+            "connected_components": 27,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/common_tern/gliding_02.glb",
+            "bytes": 149540,
+            "sha256": "8d06273583ce933264d838ffad394d06ffdba4c49e9f2712435e4ebaeea4d1e6"
+          },
+          {
+            "frame": 3,
+            "phase": 0.707107,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": 0.139566,
+            "largest_axis_m": 1.133045,
+            "triangles": 7800,
+            "vertices": 3950,
+            "dimensions_m": [
+              1.133045,
+              0.732437,
+              1.04879
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 1.04879,
+            "material_count": 3,
+            "materials": [
+              "common_tern_body_diagnostic.001",
+              "common_tern_wing_diagnostic.001",
+              "common_tern_accent_diagnostic.001"
+            ],
+            "connected_components": 27,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/common_tern/gliding_03.glb",
+            "bytes": 149540,
+            "sha256": "a5ac708809d45494e84e3e82113348fe02cb2283f9be6a965a36b6691ac37d8a"
+          },
+          {
+            "frame": 4,
+            "phase": 0.0,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": 0.108829,
+            "largest_axis_m": 1.133045,
+            "triangles": 7800,
+            "vertices": 3950,
+            "dimensions_m": [
+              1.133045,
+              0.734061,
+              1.032117
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 1.032117,
+            "material_count": 3,
+            "materials": [
+              "common_tern_body_diagnostic.001",
+              "common_tern_wing_diagnostic.001",
+              "common_tern_accent_diagnostic.001"
+            ],
+            "connected_components": 27,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/common_tern/gliding_04.glb",
+            "bytes": 149548,
+            "sha256": "063a1a0691ff7786645f4048cb94e1283943e4ff26c0fc9e9e0cba7a9bdf767e"
+          },
+          {
+            "frame": 5,
+            "phase": -0.707107,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": 0.078092,
+            "largest_axis_m": 1.133045,
+            "triangles": 7800,
+            "vertices": 3950,
+            "dimensions_m": [
+              1.133045,
+              0.732437,
+              1.015471
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 1.015471,
+            "material_count": 3,
+            "materials": [
+              "common_tern_body_diagnostic.001",
+              "common_tern_wing_diagnostic.001",
+              "common_tern_accent_diagnostic.001"
+            ],
+            "connected_components": 27,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/common_tern/gliding_05.glb",
+            "bytes": 149544,
+            "sha256": "f99746d7b5ccaf5500e68a8022c532ef5b69b4ef61de61b025fe0406eadca2e9"
+          },
+          {
+            "frame": 6,
+            "phase": -1.0,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": 0.06536,
+            "largest_axis_m": 1.133045,
+            "triangles": 7800,
+            "vertices": 3950,
+            "dimensions_m": [
+              1.133045,
+              0.731827,
+              1.008576
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 1.008576,
+            "material_count": 3,
+            "materials": [
+              "common_tern_body_diagnostic.001",
+              "common_tern_wing_diagnostic.001",
+              "common_tern_accent_diagnostic.001"
+            ],
+            "connected_components": 27,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/common_tern/gliding_06.glb",
+            "bytes": 149544,
+            "sha256": "eb0af5e612ece987299c4192a75d7be7e5a21d2a5c7eb4a5c0ee905f13402c7d"
+          },
+          {
+            "frame": 7,
+            "phase": -0.707107,
+            "ground_min_z_m": 0.0,
+            "wingtip_minus_root_mean_z_m": 0.078092,
+            "largest_axis_m": 1.133045,
+            "triangles": 7800,
+            "vertices": 3950,
+            "dimensions_m": [
+              1.133045,
+              0.732437,
+              1.015471
+            ],
+            "min_z_m": 0.0,
+            "max_z_m": 1.015471,
+            "material_count": 3,
+            "materials": [
+              "common_tern_body_diagnostic.001",
+              "common_tern_wing_diagnostic.001",
+              "common_tern_accent_diagnostic.001"
+            ],
+            "connected_components": 27,
+            "boundary_edges": 0,
+            "non_manifold_edges": 0,
+            "path": "generated/comfyui/bird_gull_v1/candidates/cleanup/common_tern/gliding_07.glb",
+            "bytes": 149544,
+            "sha256": "851f44a8e01f10802638b0243e452ff18614b7124dcfecc53027239dc985ded5"
+          }
+        ]
+      }
+    }
+  ]
+}
