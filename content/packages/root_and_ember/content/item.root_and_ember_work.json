@@ -2,7 +2,7 @@
   "type": "item",
   "id": "item.root_and_ember_work",
   "name": "Hearth ward hardware",
-  "icon": "res://assets/UI/inventory/forge_hammer.png",
+  "icon": "res://assets/UI/inventory/root_and_ember_work.png",
   "category": "commission_object",
   "confidence": "folklore",
   "canon_status": "draft",

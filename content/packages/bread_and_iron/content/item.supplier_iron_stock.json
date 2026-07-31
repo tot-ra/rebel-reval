@@ -2,7 +2,7 @@
   "type": "item",
   "id": "item.supplier_iron_stock",
   "name": "Contracted iron stock",
-  "icon": "res://assets/UI/inventory/forge_hammer.png",
+  "icon": "res://assets/UI/inventory/supplier_iron_stock.png",
   "category": "material",
   "confidence": "invented",
   "canon_status": "draft",

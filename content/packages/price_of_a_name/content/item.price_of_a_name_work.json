@@ -2,7 +2,7 @@
   "type": "item",
   "id": "item.price_of_a_name_work",
   "name": "Detention shackles and name-plate",
-  "icon": "res://assets/UI/inventory/forge_hammer.png",
+  "icon": "res://assets/UI/inventory/price_of_a_name_work.png",
   "category": "commission_object",
   "confidence": "invented",
   "canon_status": "draft",

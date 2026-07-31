@@ -2,7 +2,7 @@
   "type": "item",
   "id": "item.evidence.grain_tally_chit",
   "name": "Short-weight tally chit",
-  "icon": "res://assets/UI/inventory/forge_hammer.png",
+  "icon": "res://assets/UI/inventory/grain_tally_chit.png",
   "category": "evidence",
   "confidence": "invented",
   "canon_status": "draft",

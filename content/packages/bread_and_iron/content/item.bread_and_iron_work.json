@@ -2,7 +2,7 @@
   "type": "item",
   "id": "item.bread_and_iron_work",
   "name": "Weigh-house pivot brackets",
-  "icon": "res://assets/UI/inventory/forge_hammer.png",
+  "icon": "res://assets/UI/inventory/bread_and_iron_work.png",
   "category": "commission_object",
   "confidence": "invented",
   "canon_status": "draft",

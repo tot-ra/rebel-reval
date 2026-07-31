@@ -2,7 +2,7 @@
   "type": "item",
   "id": "item.evidence.seized_dispatch",
   "name": "Seized rebel dispatch",
-  "icon": "res://assets/UI/inventory/forge_hammer.png",
+  "icon": "res://assets/UI/inventory/seized_dispatch.png",
   "category": "evidence",
   "confidence": "invented",
   "canon_status": "draft",

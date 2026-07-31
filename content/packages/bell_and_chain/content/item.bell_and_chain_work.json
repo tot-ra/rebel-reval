@@ -2,7 +2,7 @@
   "type": "item",
   "id": "item.bell_and_chain_work",
   "name": "Gate chain assembly",
-  "icon": "res://assets/UI/inventory/forge_hammer.png",
+  "icon": "res://assets/UI/inventory/bell_and_chain_work.png",
   "category": "commission_object",
   "confidence": "invented",
   "canon_status": "draft",
