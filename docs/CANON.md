@@ -29,6 +29,7 @@ The playable narrative covers spring 1343 through the 1346 sale. Act 1–2 desig
   * Living City progress uses Hope / Fear per [`docs/SYSTEMS/LIVING_CITY.md`](./SYSTEMS/LIVING_CITY.md). Legacy STORY "Chaos" as a third city meter is **not** canon (see Promoted and rejected story seeds).
 * **April 13, 1343 (Easter Sunday)** - **`attested`** (Source: Julian computus tables [5ko.free.fr, UU Gent]; liturgical calendar dossier R-017)
   * Lent ends; meat and dairy return for observant burghers. Easter Monday (14 April) closes trade per Lübeck-law custom. Post-Easter market feasting resumes; convoy preparation begins. Easter is **ten days before** St George's Night, not two.
+  * **Canon verdict P0-166:** 13 April is the single approved Easter date for the playable calendar. The Julian computus tables and R-017's dated feast table agree; the former 21 April value is rejected as a computus error. R-015 must retain the correction note and remove any remaining conflicting date before Research can return it for Canon re-review.
 * **April 23, 1343 (St. George's Night)** - **`attested`** (Source: Chronicles of Balthasar Russow / Livonian Chronicle of Hermann de Wartberge)
   * A signal fire on a hilltop in Harju County triggers the uprising. Coordinated attacks begin on German nobles, merchants, and clergy.
   * The "Four Kings" (Neli kuningat) are elected by the rebels.
