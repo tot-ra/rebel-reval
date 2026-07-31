@@ -79,7 +79,7 @@
 - `--script` capture paths that instantiate `player.tscn` need a host `.tscn` so autoloads (`DoorNavigator`, `SessionState`) resolve; prefer MapView3D-only calibration cameras when Player is not required for the plate.
 - Outdoor night crushed to black after ADR 0018 is usually ambient/fill and clean-painted night multipliers, not the 20% post-grade luminance proxy alone; raise `AMBIENT_NIGHT_ENERGY` / night terrain multipliers before breaching the proxy.
 - In a dirty shared worktree, restore `TODO.md` from HEAD before applying a single-task closeout; otherwise `update_todo_counts.py --write` and unrelated WIP comment cleanup get absorbed into the commit.
-- Expand bird-batch allowlists to include `tools/generate_*.py` and `tests/godot/test_map_view_bird_meshes.gd` up front; authored GLBs fail CI without the mesh allowlist update even when the task row omitted them.
+- `python3 tools/verify_historical_dossier.py` currently fails on the pre-existing registry-map coverage gap (`holy_spirit_church` and `oleviste_church` missing dossier cards); keep this baseline failure separate from scoped dossier/plate verification.
 - When appending `assets/SOURCES.csv` rows, keep HEAD bytes for existing lines and append new rows as text; rewriting the whole file with `csv.writer` can silently drop quoting on fields that contain commas.
 - Before batching tool calls, verify every tool name against the available schema; placeholder or inferred tool names make the whole parallel batch noisy and unactionable.
 - Pass `tools/run_godot_checked.sh` a basename such as `seamless-terrain-chunks`, not an absolute `/tmp/...` path; the wrapper creates its own `${TMPDIR}/<log-name>.log` and nested path separators make a green Godot run fail during log capture.
@@ -130,7 +130,12 @@
 
 - When a research task finds a regionally correct media page without an explicit commercial license, treat it as a rights blocker: preserve the verified fallback, record the exact source URL and permission path, and never download or register the asset from metadata alone. If an external page also has TLS or API access errors, record that as evidence but do not treat it as permission.
 - When applying a generated patch from temporary files with `git apply --cached`, normalize both `diff --git` and `---`/`+++` paths to repository paths; otherwise staging fails without changing the index.
-
+- Exact file-edit calls must receive a file path in the file-path field; a directory path causes a misleading read failure before any replacement is attempted. Verify the target path and replacement count after tool errors.
 - Before an exact-string edit in a coordination document, re-read the complete live line or paragraph; summarized grep output may omit or duplicate surrounding text and cause a false no-match.
 - A short TODO readiness diagnostic failed because of a malformed Python expression; keep repository checks simple and rerun the exact command after any shell-snippet error before editing.
 - `python3 tools/verify_historical_dossier.py` currently fails on the pre-existing registry-map coverage gap (`holy_spirit_church` and `oleviste_church` missing dossier cards); keep this baseline failure separate from scoped dossier/plate verification.
+- Temporary Godot smoke scripts should live under the project `res://` tree; invoking a script directly from `/tmp` can fail before emitting a useful diagnostic.
+- A canon task that changes TODO structure can make `docs/reports/active_markdown_report.md` stale; if the task allowlist excludes the generated report, keep the scoped canon/TODO change and report the refresh as a separate follow-up instead of widening the commit.
+
+- Leonardo MCP is not registered in Cursor CLI (`MCP server does not exist: leonardo`); for smithy heraldry plates generate candidate images with Cursor `GenerateImage` and/or `tools/generate_black_cloaks_banner.py`, present options for approval, then bake the chosen plate into `assets/heraldry/black_cloaks_banner.png` only after user pick.
+- Godot `--headless` SubViewport closeups hit the dummy renderer (`texture_2d_get` null / `save_png` on null). Capture banner plates with a real driver instead: `/Applications/Godot.app/Contents/MacOS/Godot --path . --rendering-driver metal --script tools/capture_cloak_banner_closeup.gd`. Do not pipe the checked runner through `tail` until exit - it hides the live log while the process is still running.
