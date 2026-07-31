@@ -658,7 +658,7 @@ inspiration only.
 
 - [x] P7-001 | deps: none | deliverable: ADR 0017 plus `docs/LEGACY_REINTRODUCTION.md` inventory mapping every README legacy source to design/implementation TODO IDs; sync README, AGENTS.md, CANON, and legacy headers | verify: ADR 0017 accepted; inventory lists magic, NATURAL/psyche, Living City, cast/factions, story/history, combat/night, quests, mini-games; `python3 tools/generate_active_docs_report.py --check` passes
 - [x] P7-006 | deps: P7-001 | deliverable: quest-seed shortlist from `QUESTS.md` and `docs/IDEAS_RESEARCH.md` with target act, required systems, and stable content-ID stubs | verify: at least twelve seeds labelled keep/adapt/defer with act tags and no plague-epilogue content
-- [ ] P7-007 | deps: P7-001 | deliverable: mini-game priority pass over `docs/MINI_GAMES.md` accepting or deferring each idea; naval/castle-building remain deferred without a new ADR | verify: signed shortlist names at most three slice-or-Act-1 candidates with player-facing goals and verify sketches
+- [x] P7-007 | deps: P7-001 | deliverable: mini-game priority pass over `docs/MINI_GAMES.md` accepting or deferring each idea; naval/castle-building remain deferred without a new ADR | verify: signed shortlist names at most three slice-or-Act-1 candidates with player-facing goals and verify sketches | evidence: docs/MINI_GAMES.md reconciliation table + three signed candidates; docs/LEGACY_REINTRODUCTION.md decision 2026-07-31
 
 ### Medium
 
