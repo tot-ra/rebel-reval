@@ -256,8 +256,9 @@ func _validate_faction_standing(condition: Dictionary) -> String:
 			FactionLedger.STANDING_MIN,
 			FactionLedger.STANDING_MAX,
 		]
-	if not FactionLedger.is_active_faction(FactionLedger.faction_id_from_key(StringName(String(condition["key"])))):
-		return "faction_standing_at_least key must name an active faction"
+	var standing_faction := FactionLedger.faction_id_from_key(StringName(String(condition["key"])))
+	if not FactionCandidateSeats.is_recordable_faction(standing_faction):
+		return "faction_standing_at_least key must name a launch or candidate faction"
 	return ""
 
 
@@ -295,8 +296,8 @@ func _validate_record_faction_event(effect: Dictionary) -> String:
 	if typeof(effect["value"]) != TYPE_STRING or not String(effect["value"]).begins_with("faction."):
 		return "record_faction_event value must use the faction. namespace"
 	var faction_id := FactionLedger.faction_id_from_key(StringName(String(effect["value"])))
-	if not FactionLedger.is_active_faction(faction_id):
-		return "record_faction_event value must name an active faction"
+	if not FactionCandidateSeats.is_recordable_faction(faction_id):
+		return "record_faction_event value must name a launch or candidate faction"
 	if typeof(effect["amount"]) != TYPE_INT:
 		return "record_faction_event amount must be an integer"
 	var amount := int(effect["amount"])

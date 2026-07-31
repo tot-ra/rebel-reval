@@ -1,0 +1,115 @@
+{
+  "type": "quest",
+  "id": "quest.blackheads_candidate_hooks",
+  "title": "Blackheads Candidate Ledger Hooks",
+  "summary": "Content-only stub proving faction.blackheads can receive ledger events tied to Johann von Minden, Hinrik the Cartographer, and Mart Weaver without becoming a ninth launch faction.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-045",
+    "notes": "Events/IDs only. README launch-eight table unchanged. Lizard Union stays intrigue-cell-only. Face content IDs are documented in docs/data/faction_blackheads_candidate.json until P7-013 briefs land."
+  },
+  "entry_conditions": [
+    {
+      "op": "flag_is",
+      "key": "flag.blackheads_candidate_hooks_enabled",
+      "value": true
+    }
+  ],
+  "initial_state": "idle",
+  "states": [
+    {
+      "id": "idle",
+      "label": "No Blackheads candidate event recorded"
+    },
+    {
+      "id": "hooks_recorded",
+      "label": "At least one Blackheads candidate event recorded",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "johann_contract_favour",
+      "from_state": "idle",
+      "to_state": "hooks_recorded",
+      "effects": [
+        {
+          "op": "record_faction_event",
+          "key": "ledger.blackheads.johann_contract_favour",
+          "value": "faction.blackheads",
+          "amount": 1,
+          "summary": "Johann von Minden secured a favourable harbour contract for Kalev's forge."
+        }
+      ]
+    },
+    {
+      "id": "hinrik_harbour_chart",
+      "from_state": "idle",
+      "to_state": "hooks_recorded",
+      "effects": [
+        {
+          "op": "record_faction_event",
+          "key": "ledger.blackheads.hinrik_harbour_chart",
+          "value": "faction.blackheads",
+          "amount": 1,
+          "summary": "Hinrik shared a harbour chart that kept a Blackheads lighter off the watch schedule."
+        }
+      ]
+    },
+    {
+      "id": "mart_weaver_shield",
+      "from_state": "idle",
+      "to_state": "hooks_recorded",
+      "effects": [
+        {
+          "op": "record_faction_event",
+          "key": "ledger.blackheads.mart_weaver_shield",
+          "value": "faction.blackheads",
+          "amount": 1,
+          "summary": "Mart Weaver (char.mart_weaver, not apprentice Mart) shielded a forge contact from a guild fine."
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "record_candidate_hook",
+      "text": "Record one Blackheads candidate ledger event from the face stubs.",
+      "state_id": "hooks_recorded"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "candidate_seated",
+      "summary": "faction.blackheads accepted an event while remaining outside the launch-eight journal table.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.blackheads_candidate_event_recorded",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "content_links": {
+    "character_ids": [],
+    "dialogue_ids": [],
+    "bark_ids": [],
+    "commission_ids": [],
+    "item_ids": [],
+    "location_ids": []
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-045 candidate seat stub. Planned faces char.johann_von_minden, char.hinrik_cartographer, char.mart_weaver (P7-013). Wiring plan docs/data/faction_blackheads_candidate.json. Lizard Union has no ledger ID.",
+      "citations": [
+        "docs/cast_faction_promotion.md",
+        "docs/data/faction_blackheads_candidate.json",
+        "TODO.md#P4-045"
+      ]
+    }
+  ]
+}

@@ -40,7 +40,7 @@ These keep shipped `faction.*` ledger IDs. Promotion of NPCs into these factions
 
 | Candidate | Decision | Act gate | Ledger? | Notes |
 |---|---|---|---|---|
-| Brotherhood of Blackheads | **promote-candidate** | A1–A2 | Later (`faction.blackheads` stub only after a P4 row) | Unmarried merchants / foreigners; city-republic ambition. First faces: Johann von Minden, Hinrik the Cartographer, Mart Weaver (`char.mart_weaver` - **not** apprentice Mart). |
+| Brotherhood of Blackheads | **promote-candidate** | A1–A2 | **Candidate ledger seat** (`faction.blackheads` via P4-045; events/IDs only, not a ninth launch faction) | Unmarried merchants / foreigners; city-republic ambition. First faces: Johann von Minden, Hinrik the Cartographer, Mart Weaver (`char.mart_weaver` - **not** apprentice Mart). Wiring: `docs/data/faction_blackheads_candidate.json`. |
 | Bishopric of Ösel-Wiek | **promote-candidate** | A3 | Later | Saaremaa / Haapsalu sovereignty vs Order. Face: Hermann II Osenbrügge. |
 | Bishopric of Dorpat | **adapt-candidate** | A2 colour | No full ledger in A1/A2 | Otepää / Pskov colour; Meelis of Otepää as local contact. Do not open Dorpat as a playable city. |
 | Archbishopric of Riga | **defer** | post-campaign | No | Other-city campaign exclusion (ADR 0008). Mention-only diplomacy. |
@@ -139,7 +139,7 @@ Priority is production order inside each act wave. Content IDs are stubs for lat
 |---|---|---|
 | Remaining Wave A briefs (#4–#8) | Design / Narrative | Tracked as **P7-013**. |
 | Wave B/C brief batches | Design / Narrative | Open after P5-001 canon accept / P6 design. |
-| `faction.blackheads` ledger stub + events | Quest / Dev | Tracked as **P4-045**; must not become a ninth launch faction in README until that row ships. |
+| `faction.blackheads` ledger stub + events | Quest / Dev | **P4-045** delivered: candidate seat records events via `FactionCandidateSeats`; README / ADR 0008 launch-eight unchanged; Lizard Union still has no ledger ID. Elevation to launch table needs a later ADR/Producer row. |
 | Shared-rig models for Wave A faces | Art | After briefs + P2-004 / P0-150 pipelines; 2D seeds inspiration only. |
 | Lizard Union as ninth launch faction | Maintainer ADR | Explicitly out until ADR; intrigue cell may ship earlier. |
 
@@ -149,5 +149,5 @@ Priority is production order inside each act wave. Content IDs are stubs for lat
 
 1. Treat the seven slice-core briefs as frozen MVP cast; expand only through this list.
 2. Prefer Blackheads and Danish/Order faces for near-term Act 1 density; Harju Kings and Pskov faces for Act 2 design.
-3. Keep Lizard Union as an intrigue cell, not a ledger peer of the eight, until a dedicated ADR.
+3. Keep Lizard Union as an intrigue cell, not a ledger peer of the eight, until a dedicated ADR. P4-045 does **not** add `faction.lizard_union`; only `faction.blackheads` is a candidate seat.
 4. Never promote a second “Kalev-the-smith” or a second “Mart” without a distinct content ID and player-facing name.

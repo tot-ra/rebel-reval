@@ -428,7 +428,9 @@ func has_faction_event(event_id: StringName) -> bool:
 func record_faction_event(
 	event_id: StringName, faction_id: StringName, delta: int, summary: String
 ) -> bool:
-	if event_id.is_empty() or not FactionLedger.is_active_faction(faction_id):
+	# WHY: candidate seats (P4-045 Blackheads) record events/IDs without joining
+	# FactionLedger.ACTIVE_FACTIONS, so the launch-eight journal table stays exact.
+	if event_id.is_empty() or not FactionCandidateSeats.is_recordable_faction(faction_id):
 		return false
 	if _faction_events.has(event_id):
 		return false
@@ -443,7 +445,7 @@ func record_faction_event(
 
 
 func get_faction_standing(faction_id: StringName) -> int:
-	if not FactionLedger.is_active_faction(faction_id):
+	if not FactionCandidateSeats.is_recordable_faction(faction_id):
 		return 0
 	var total := 0
 	for event in _faction_events.values():

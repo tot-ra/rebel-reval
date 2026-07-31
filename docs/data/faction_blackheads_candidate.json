@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "task_id": "P4-045",
+  "faction_key": "faction.blackheads",
+  "faction_id": "blackheads",
+  "seat_kind": "candidate",
+  "display_name": "Brotherhood of Blackheads",
+  "launch_eight_member": false,
+  "journal_launch_table": "FactionLedger.ACTIVE_FACTIONS remains exactly eight; candidate standing is queryable via GameState but not listed as a launch row",
+  "faces": [
+    {
+      "content_id": "char.johann_von_minden",
+      "role": "merchant-republic ambition; harbour contracts",
+      "brief_wave": "P7-013 Wave A #5"
+    },
+    {
+      "content_id": "char.hinrik_cartographer",
+      "role": "maps, harbour intelligence, cart corridors",
+      "brief_wave": "P7-013 Wave A #6"
+    },
+    {
+      "content_id": "char.mart_weaver",
+      "role": "weaver / Blackheads contact; never collide with apprentice Mart",
+      "brief_wave": "P7-013 Wave A #7"
+    }
+  ],
+  "stub_event_ids": [
+    "ledger.blackheads.johann_contract_favour",
+    "ledger.blackheads.hinrik_harbour_chart",
+    "ledger.blackheads.mart_weaver_shield"
+  ],
+  "content_stub": "content/examples/support/faction.blackheads.candidate_hooks.json",
+  "runtime": {
+    "recordable_via": "FactionCandidateSeats.is_recordable_faction",
+    "state_paths": [
+      "scripts/state/faction_candidate_seats.gd",
+      "scripts/state/game_state.gd",
+      "scripts/state/state_rule_evaluator.gd",
+      "scripts/state/game_state_persistence.gd"
+    ]
+  },
+  "exclusions": {
+    "lizard_union_ledger_id": false,
+    "notes": "Lizard Union remains intrigue-cell-only per P7-009 / CANON; no faction.lizard_union or lizard_union ledger seat in this stub."
+  },
+  "promotion_gate": "A later ADR or Producer row must approve elevating Blackheads into README / ADR 0008 launch-eight before FactionLedger.ACTIVE_FACTIONS may grow."
+}

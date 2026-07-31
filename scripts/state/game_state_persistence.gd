@@ -246,7 +246,7 @@ static func _load_faction_events(source: Variant, errors: Array[String]) -> Dict
 		if event_id.is_empty():
 			errors.append("faction_events[%d] missing event_id" % index)
 			continue
-		if not FactionLedger.is_active_faction(faction_id):
+		if not FactionCandidateSeats.is_recordable_faction(faction_id):
 			errors.append("faction_events[%d] uses unknown faction %s" % [index, String(faction_id)])
 			continue
 		if out.has(event_id):
