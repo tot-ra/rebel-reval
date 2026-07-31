@@ -205,7 +205,15 @@ func sync_action_presentation(canonical_name: StringName, action_elapsed_sec: fl
 		return
 	if current_canonical_animation() != canonical_name:
 		return
-	var animation := _animation_player.get_animation(_animation_player.current_animation)
+	# WHY: Resolve through the canonical source name. AnimationPlayer.current_animation
+	# can be empty after a finished one-shot or before play() sticks, and reading
+	# .length on a null Animation hard-crashes the map view sync loop.
+	var source_name := source_animation_name(canonical_name)
+	if source_name.is_empty() or not _animation_player.has_animation(source_name):
+		return
+	var animation := _animation_player.get_animation(source_name)
+	if animation == null:
+		return
 	var source_time := hammer_source_time(canonical_name, action_elapsed_sec, animation.length)
 	# WHY: Presentation follows the state machine clock instead of accumulating
 	# AnimationPlayer delta, so low FPS cannot move the visible contact away from

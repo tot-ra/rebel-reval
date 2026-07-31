@@ -87,6 +87,18 @@ func test_hammer_profiles_match_authored_contact_frames_and_heavy_time_curve() -
 	player.free()
 
 
+func test_sync_action_presentation_tolerates_cleared_animation_player() -> void:
+	# WHY: After a one-shot clip ends, AnimationPlayer.current_animation can be
+	# empty while the canonical attack name is still active. Startup/map sync
+	# must not crash on animation.length of a null resource.
+	var kalev := _create_kalev()
+	assert_true(kalev.play_animation(&"hammer_attack", 0.0))
+	kalev.animation_player().stop()
+	kalev.sync_action_presentation(&"hammer_attack", 0.17)
+	assert_eq(kalev.current_canonical_animation(), &"hammer_attack")
+	kalev.queue_free()
+
+
 func test_each_hammer_swing_resolves_once_and_whiff_has_no_feedback() -> void:
 	var player := _create_player()
 	_equip_hammer()

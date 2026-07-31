@@ -32,6 +32,30 @@ func test_kalev_smithy_required_anchors_present() -> void:
 	assert_false(MapVerification.transition_rect(definition, &"smithy_start_spawn") == Rect2())
 
 
+func test_kalev_smithy_new_game_spawn_stands_at_bed_wake() -> void:
+	# Start uses DoorNavigator spawn smithy_start; it must sit at ap.sleep.wake,
+	# not the old anvil bay cell (19,7).
+	var definition: MapDefinition = KalevSmithyDefinition.create()
+	var routine: SmithyRoutineDefinition = RoutineDefinition.load_from_file(ROUTINE_PATH)
+	var wake: SmithyActivityPoint = routine.get_activity_point(&"ap.sleep.wake")
+	assert_true(wake != null, "Wake activity point must exist")
+	var start_rect := MapVerification.transition_rect(definition, &"smithy_start_spawn")
+	assert_true(
+		start_rect.has_point(wake.approach_position)
+		or start_rect.get_center().distance_to(wake.approach_position) <= float(definition.cell_size),
+		"smithy_start_spawn must share the wake cell beside the bed"
+	)
+	assert_true(
+		definition.player_spawn.distance_to(wake.approach_position) <= float(definition.cell_size) * 0.75,
+		"spawn.main must match the wake approach at the bed foot"
+	)
+	var bed := MapVerification.anchor_position(definition, &"bed_alcove")
+	assert_true(
+		definition.player_spawn.distance_to(bed) < definition.player_spawn.distance_to(MapVerification.anchor_position(definition, &"anvil")),
+		"Wake spawn must be closer to the bed than to the anvil"
+	)
+
+
 func test_kalev_smithy_door_and_work_triangle_reachable() -> void:
 	var definition: MapDefinition = KalevSmithyDefinition.create()
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
