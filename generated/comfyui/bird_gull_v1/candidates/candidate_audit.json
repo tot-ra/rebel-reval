@@ -1,0 +1,58 @@
+{
+  "generator": "hunyuan3d_candidate_v1",
+  "route": "local_comfyui_hunyuan3d_v2_multiview",
+  "production_unchanged": true,
+  "candidates": [
+    {
+      "candidate": "common_gull_hunyuan_candidate.glb",
+      "bytes": 9417408,
+      "mesh_count": 1,
+      "triangles": 608462,
+      "dimensions_m": [
+        1.9625,
+        1.254442,
+        1.962173
+      ],
+      "largest_axis_m": 1.9625,
+      "min_z_m": -0.97715,
+      "max_z_m": 0.985023,
+      "materials": [],
+      "animation_count": 0,
+      "animations": []
+    },
+    {
+      "candidate": "common_tern_hunyuan_candidate.glb",
+      "bytes": 9515012,
+      "mesh_count": 1,
+      "triangles": 617606,
+      "dimensions_m": [
+        1.962671,
+        1.168455,
+        1.962947
+      ],
+      "largest_axis_m": 1.962947,
+      "min_z_m": -0.977589,
+      "max_z_m": 0.985358,
+      "materials": [],
+      "animation_count": 0,
+      "animations": []
+    },
+    {
+      "candidate": "herring_gull_hunyuan_candidate.glb",
+      "bytes": 3278708,
+      "mesh_count": 1,
+      "triangles": 212932,
+      "dimensions_m": [
+        1.961977,
+        1.24369,
+        1.497106
+      ],
+      "largest_axis_m": 1.961977,
+      "min_z_m": -0.744196,
+      "max_z_m": 0.75291,
+      "materials": [],
+      "animation_count": 0,
+      "animations": []
+    }
+  ]
+}

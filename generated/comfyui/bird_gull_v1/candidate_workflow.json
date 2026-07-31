@@ -1,0 +1,40 @@
+{
+  "id": "fauna.harbour_gull_batch.hunyuan_candidate",
+  "route": "local_comfyui_hunyuan3d_v2_multiview",
+  "checkpoint": "hunyuan3d-dit-v2-mv_fp16.safetensors",
+  "conditioning": "Hunyuan3Dv2ConditioningMultiView",
+  "inputs": {
+    "herring_gull": {
+      "front": "generated/comfyui/bird_gull_v1/references/herring_gull_reference.png",
+      "back": "generated/comfyui/bird_gull_v1/references/herring_gull.png",
+      "seed": 1343034
+    },
+    "common_gull": {
+      "front": "generated/comfyui/bird_gull_v1/references/common_gull_reference.png",
+      "back": "generated/comfyui/bird_gull_v1/references/common_gull.png",
+      "seed": 1343035
+    },
+    "common_tern": {
+      "front": "generated/comfyui/bird_gull_v1/references/common_tern_reference.png",
+      "back": "generated/comfyui/bird_gull_v1/references/common_tern.png",
+      "seed": 1343036
+    }
+  },
+  "sampling": {
+    "steps": 20,
+    "cfg": 7.5,
+    "sampler": "euler",
+    "scheduler": "normal",
+    "resolution": 3072,
+    "octree_resolution": 256,
+    "voxel_to_mesh": "surface net"
+  },
+  "candidate_outputs": [
+    "generated/comfyui/bird_gull_v1/candidates/herring_gull_hunyuan_candidate.glb",
+    "generated/comfyui/bird_gull_v1/candidates/common_gull_hunyuan_candidate.glb",
+    "generated/comfyui/bird_gull_v1/candidates/common_tern_hunyuan_candidate.glb"
+  ],
+  "production_policy": "Candidates only; assets/birds production GLBs were not modified or replaced.",
+  "workflow_status": "healthy",
+  "audit_verdict": "rejected_for_production"
+}
