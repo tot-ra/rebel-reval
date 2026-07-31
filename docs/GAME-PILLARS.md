@@ -1,9 +1,9 @@
 > **Legacy status:** `reference`  
-> **Reason:** Original pillar set is a design seed corpus; runtime truth stays in README until P7 reconciliation closes.  
+> **Reason:** Original pillar set is a design seed corpus; Living City Hope/Fear rules now live in the P7-004 contract.  
 > **Scope reconciliation:** [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md), [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md), [`LEGACY_REINTRODUCTION.md`](./LEGACY_REINTRODUCTION.md)  
 > **Reactivating via ADR 0017:** combinatorial magic and spell-forging; Living City Hope/Fear meters; Ego/psyche Hingepuu play; day/night commission loop; fixed protagonist Kalev; forge as persistent narrative core.  
-> **Still out:** roguelike replayable-run structure; tower-capture until a later ADR; open world.  
-> **Current source of truth:** [`README.md`](../README.md) - Product vision and Scope boundaries.
+> **Still out:** roguelike replayable-run structure; Balance of Power aggregate; tower-capture until a later ADR; open world.  
+> **Current source of truth:** [`README.md`](../README.md) for product vision; Living City meters: [`docs/SYSTEMS/LIVING_CITY.md`](./SYSTEMS/LIVING_CITY.md).
 
 ## Inspirations
 Witcher, Hades, Fallout, Disco Elysium, Magicka, WoW, Skyrim, Kingdom Come Deliverance

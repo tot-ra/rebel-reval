@@ -1,9 +1,9 @@
 > **Legacy status:** `reference`  
-> **Reason:** Living City meters and allegiance-pressure design return under [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md); this file remains the seed until `docs/SYSTEMS/LIVING_CITY.md` lands.  
+> **Reason:** Living City meters and allegiance-pressure design return under [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md); this file remains a seed after P7-004.  
 > **Scope reconciliation:** [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md), [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md), [`LEGACY_REINTRODUCTION.md`](./LEGACY_REINTRODUCTION.md)  
-> **Reactivating via ADR 0017:** Hope/Fear city meters; NPC allegiance pressure; Balance of Power race design (reconcile with ledger); forge-to-consequence day/night loop.  
-> **Still out:** universal good/evil morality score; tower-capture until a later ADR.  
-> **Current source of truth:** [`README.md`](../README.md) until P7-004 closes.
+> **Reactivating via ADR 0017:** Hope/Fear city meters; NPC allegiance pressure reinterpreted as relationships + explicit events; forge-to-consequence day/night loop.  
+> **Still out:** universal good/evil morality score; Balance of Power aggregate; tower-capture until a later ADR.  
+> **Current source of truth:** [`docs/SYSTEMS/LIVING_CITY.md`](./SYSTEMS/LIVING_CITY.md) (P7-004). Runtime remains **P7-012**.
 
 # 🧙 Gameplay Mechanics
 

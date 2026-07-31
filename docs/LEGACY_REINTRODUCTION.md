@@ -18,7 +18,7 @@ P7 design/canon rows may run in parallel. P7 implementation rows depend on slice
 | Dual magic (pagan + divine rites) | `character/MAGIC-ELEMENTS.md`, `PAGAN-MAGIC.md`, `CHRISTIAN-MAGIC.md` | [`docs/SYSTEMS/MAGIC.md`](./SYSTEMS/MAGIC.md) + CANON folklore/invented labels | P7-001, P7-002 | P7-010 |
 | NATURAL aspects + progression | `character/BUILD.md` | [`docs/SYSTEMS/NATURAL.md`](./SYSTEMS/NATURAL.md) | P7-001, P7-003 | P7-011 |
 | Psyche / Hingepuu / Ego | `character/PSYCHE.md`, GAME-PILLARS Ego NPC | [`docs/SYSTEMS/PSYCHE.md`](./SYSTEMS/PSYCHE.md); extend Hingepuu beyond reflection screen | P7-001, P7-003 | P7-011 |
-| Living City meters + allegiance pressure | `docs/GAMEPLAY.md`, `docs/GAME-PILLARS.md` | `docs/SYSTEMS/LIVING_CITY.md` (to create); reconcile with faction ledger | P7-001, P7-004 | P7-012 |
+| Living City meters + allegiance pressure | `docs/GAMEPLAY.md`, `docs/GAME-PILLARS.md` | [`docs/SYSTEMS/LIVING_CITY.md`](./SYSTEMS/LIVING_CITY.md); complements faction ledger (no Balance of Power aggregate) | P7-001, P7-004 | P7-012 |
 | Combat depth | `character/COMBAT.md` | extend combat design after magic/NATURAL contracts | P7-001, P7-005 | act-gated after P7-010/011 |
 | Night systems | `docs/GAMEPLAY-NIGHT.md` | enrich P5 night templates; keep authored missions | P7-001, P7-005 | P5/P7 follow-ons |
 | Quest seeds | `QUESTS.md`, `docs/IDEAS_RESEARCH.md` | content packages via P4 quest pipeline | P7-001, P7-006 | per-quest P4/P5/P6 rows |
@@ -52,3 +52,4 @@ P7 design/canon rows may run in parallel. P7 implementation rows depend on slice
 | 2026-07-29 | Reintroduce Legacy Design & Research Material into the plan (characters, history, magic, systems). |
 | 2026-07-29 | 2D/pixel sprites are inspiration only; new models required. |
 | 2026-07-29 | Do not call sub-agents for this planning pass; commit when documentation lands. |
+| 2026-07-31 | P7-004: Hope/Fear are independent `living_city.*` meters that complement `record_faction_event`; Balance of Power aggregate, tower-majority victory, and NPC-allegiance sums stay rejected. |

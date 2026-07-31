@@ -20,7 +20,7 @@ References:
 <!-- Quick-reference counts updated on every structural change -->
 | Priority | Open | Done | Notes |
 |----------|-----:|-----:|-------|
-| P0 |    22  |    66  | Baseline, storage, materials, historical audit |
+| P0 |    23  |    66  | Baseline, storage, materials, historical audit |
 | P1 |     0  |     9  | Runtime systems, content foundation |
 | P2 |    19  |    51  | Vertical-slice production (playable MVP) |
 | P3 |     0  |    16  | Validation, accessibility, performance |
@@ -29,7 +29,7 @@ References:
 | P6 |     9  |     0  | Act 3: The Iron Harvest and full release |
 | R  |    20  |    29  | Historical research backlog (researcher-managed, cross-cutting) |
 | A  |    10  |     0  | Art and animation backlog (art-managed, cross-cutting) |
-| P7+ |     8  |     4  | Reserved for future priority bands |
+| P7+ |     7  |     5  | Reserved for future priority bands |
 
 
 
@@ -41,6 +41,8 @@ References:
 
 
 
+
+<!-- P7-004 completed in current session -->
 
 <!-- P0-164 completed in current session -->
 <!-- P4-044 completed in current session -->
@@ -318,6 +320,7 @@ Rows close through `review: canon` like all content work.
 - [x] P0-171 | slice: production-safety | role: qa | deps: none | goal: contributors see an active-document consistency report that matches the reconciled queue and roadmap | deliverable: regenerate the active Markdown report after the Producer ordering and Current focus update, without changing task contracts or suppressing real issues | constraints: report refresh only; do not edit TODO, ROADMAP, source docs, validator code, or ignore lists to force green | allowed files: `docs/reports/active_markdown_report.md` | verify: `python3 tools/generate_active_docs_report.py --check` exits 0 and the report fingerprints the current TODO/ROADMAP state | handoff: production-safety gate
 - [ ] P0-174 | slice: production-safety | role: qa | deps: none | goal: contributors see an active-document consistency report that matches the closed Act 1 release focus | deliverable: regenerate the active Markdown report after the P4-044 Current focus closeout, without changing task contracts or suppressing real issues | constraints: report refresh only; do not edit TODO, ROADMAP, source docs, validator code, or ignore lists to force green | allowed files: `docs/reports/active_markdown_report.md` | verify: `python3 tools/generate_active_docs_report.py --check` exits 0 and the report fingerprints the current TODO/ROADMAP state | handoff: production-safety gate
 - [ ] P0-175 | slice: production-safety | role: qa | deps: none | goal: contributors see an active-document consistency report that matches the P7-003 NATURAL/PSYCHE closeout | deliverable: regenerate the active Markdown report after the P7-003 Current focus coordination note, without changing task contracts or suppressing real issues | constraints: report refresh only; do not edit TODO, ROADMAP, source docs, validator code, or ignore lists to force green | allowed files: `docs/reports/active_markdown_report.md` | verify: `python3 tools/generate_active_docs_report.py --check` exits 0 and the report fingerprints the current TODO/ROADMAP state | handoff: production-safety gate
+- [ ] P0-176 | slice: production-safety | role: qa | deps: none | goal: contributors see an active-document consistency report that matches the P7-004 Living City closeout | deliverable: regenerate the active Markdown report after the P7-004 Current focus coordination note, without changing task contracts or suppressing real issues | constraints: report refresh only; do not edit TODO, ROADMAP, source docs, validator code, or ignore lists to force green | allowed files: `docs/reports/active_markdown_report.md` | verify: `python3 tools/generate_active_docs_report.py --check` exits 0 and the report fingerprints the current TODO/ROADMAP state | handoff: production-safety gate
 - [x] P0-172 | slice: act1-standalone-candidate | role: dev | deps: none | goal: headless Godot suites and the checked runner can load MapViewRuntime again so Act 1 packaged QA is not blocked by a parse error | deliverable: fix the illegal named-assignment call in `MapViewRuntime._install_crowd_renderer` (`_crowd_renderer.configure(max_instances = 200, ...)`) so GDScript 4.7 accepts the script; keep crowd capacity/seed behavior equivalent via positional args | constraints: runtime compile fix only; do not change crowd gameplay contracts, Act 1 quest content, or QA reports | allowed files: `scripts/map/view3d/map_view_runtime.gd`, `scripts/map/view3d/map_view_crowd_renderer.gd`, `scripts/characters/crowd_shader.gdshader`, `tests/godot/test_map_view_crowd_renderer.gd`, `TODO.md`, `docs/ROADMAP.md` | verify: `tools/run_godot_checked.sh --require-test-summary p0-172-runtime -- "$GODOT_BIN" --headless --path . --script tools/run_godot_tests.gd -- --filter=test_map_view_crowd_renderer` and the same checked runner for `--filter=test_act1_candidate_acceptance` both exit 0 with zero ambient SCRIPT ERROR from `map_view_runtime.gd` | handoff: P4-043
 
 
@@ -653,7 +656,7 @@ inspiration only.
 
 - [x] P7-002 | deps: P7-001 | deliverable: `docs/SYSTEMS/MAGIC.md` reconciling pagan combinatorial elements and Christian divine rites with forge-as-conduit and ADR 0003 deterministic content | verify: document defines schools, element budget, smith hammer rules, content ID forms, and slice-safe partial ship; links CANON folklore/invented labels | evidence: docs/SYSTEMS/MAGIC.md; docs/CANON.md Magic section links contract; docs/LEGACY_REINTRODUCTION.md points at SYSTEMS/MAGIC.md
 - [x] P7-003 | deps: P7-001 | deliverable: `docs/SYSTEMS/NATURAL.md` and `docs/SYSTEMS/PSYCHE.md` for seven aspects, psyche states, and explorable Hingepuu, stating how they extend or replace the current reflection-only screen | verify: progression rules, save fields, and UI needs named; no dependency on legacy pixel HUD assets | evidence: docs/SYSTEMS/NATURAL.md; docs/SYSTEMS/PSYCHE.md; docs/CANON.md NATURAL/psyche links; docs/LEGACY_REINTRODUCTION.md points at SYSTEMS contracts
-- [ ] P7-004 | deps: P7-001,P4-016 | deliverable: `docs/SYSTEMS/LIVING_CITY.md` reconciling Hope/Fear (and related) meters with the faction ledger so bookkeeping is explicit | verify: worked examples show one forged event updating ledger and meters without a universal morality score; tower-capture remains excluded
+- [x] P7-004 | deps: P7-001,P4-016 | deliverable: `docs/SYSTEMS/LIVING_CITY.md` reconciling Hope/Fear (and related) meters with the faction ledger so bookkeeping is explicit | verify: worked examples show one forged event updating ledger and meters without a universal morality score; tower-capture remains excluded | evidence: docs/SYSTEMS/LIVING_CITY.md; docs/CANON.md Living City links contract; docs/LEGACY_REINTRODUCTION.md / docs/GAMEPLAY.md / docs/GAME-PILLARS.md point at SYSTEMS/LIVING_CITY.md
 - [ ] P7-005 | deps: P7-002,P7-003 | deliverable: combat and night design addendum merging `character/COMBAT.md` and `docs/GAMEPLAY-NIGHT.md` seeds with hammer combat and P5 night templates (no party control, no tower-capture) | verify: addendum lists player-visible verbs, content hooks, and which P2/P5 rows must change
 - [ ] P7-008 | deps: P7-001 | deliverable: canon/story pass folding usable beats from `history/HISTORY.md`, `history/TIMELINE.md`, and `story/STORY.md` into `docs/CANON.md` with confidence labels | verify: every promoted beat has a label; 1351 plague epilogue stays non-canon; active-docs check passes
 - [ ] P7-009 | deps: P7-001 | deliverable: cast and faction promotion plan from `characters/` into `docs/CHARACTERS/` briefs (priority order, act gates, art tier) noting 2D art as inspiration only | verify: plan names at least fifteen promote-first NPCs and faction candidates beyond the eight launch factions; CHARACTERS README index updated when first briefs land

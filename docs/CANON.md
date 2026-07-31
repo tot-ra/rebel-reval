@@ -143,6 +143,7 @@ Per [ADR 0017](./adr/0017-legacy-design-reintroduction.md), the following return
   * Active contracts: [`docs/SYSTEMS/NATURAL.md`](./SYSTEMS/NATURAL.md) and [`docs/SYSTEMS/PSYCHE.md`](./SYSTEMS/PSYCHE.md) (P7-003). Runtime remains **P7-011**.
 * **Living City Hope / Fear pressure** - **`invented`**
   * City-scale consequence layer reconciled with per-faction ledger standing; not a universal good/evil score.
+  * Active contract: [`docs/SYSTEMS/LIVING_CITY.md`](./SYSTEMS/LIVING_CITY.md) (P7-004). Runtime remains **P7-012**.
 
 ## Superseded narrative (non-canon)
 
