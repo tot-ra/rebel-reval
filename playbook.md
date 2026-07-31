@@ -132,3 +132,5 @@
 - When applying a generated patch from temporary files with `git apply --cached`, normalize both `diff --git` and `---`/`+++` paths to repository paths; otherwise staging fails without changing the index.
 
 - Before an exact-string edit in a coordination document, re-read the complete live line or paragraph; summarized grep output may omit or duplicate surrounding text and cause a false no-match.
+- A short TODO readiness diagnostic failed because of a malformed Python expression; keep repository checks simple and rerun the exact command after any shell-snippet error before editing.
+- `python3 tools/verify_historical_dossier.py` currently fails on the pre-existing registry-map coverage gap (`holy_spirit_church` and `oleviste_church` missing dossier cards); keep this baseline failure separate from scoped dossier/plate verification.

@@ -99,7 +99,7 @@ Hull dendrochronology places construction wood felling **around 1360** — **sli
 
 ## Production hooks
 
-- **Art:** Burgher missile iron = **short socketed crossbow bolts** (`military.lower-town-weapon-finds-1340s.03` link-only) and **compact arrowheads** (`military.lower-town-weapon-finds-1340s.04` link-only); **springald head** proportions from Lootsi (`military.lower-town-weapon-finds-1340s.01` link-only). **Mail** = small ring patches on wealthy figures only (`military.lower-town-weapon-finds-1340s.05` link-only plated-mail context). **No handgonnes, lead balls, or stone cannonballs** in Spring 1343.
+- **Art:** Burgher missile iron = **short socketed crossbow bolts** ([`military.lower-town-weapon-finds-1340s.03`](../../reference/military/lower-town-weapon-finds-1340s/military.lower-town-weapon-finds-1340s.03.jpg), CC BY-SA comparandum from England) and **compact arrowheads** ([`military.lower-town-weapon-finds-1340s.04`](../../reference/military/lower-town-weapon-finds-1340s/military.lower-town-weapon-finds-1340s.04.jpg), CC BY-SA comparandum from England); **springald head** proportions from Lootsi (`military.lower-town-weapon-finds-1340s.01`, linked scholarly evidence only). The two downloaded plates are type-comparanda, not Reval finds, and do not replace the Lootsi PDF figures. **Mail** = small ring patches on wealthy figures only (`military.lower-town-weapon-finds-1340s.05`, linked plated-mail context). **No handgonnes, lead balls, or stone cannonballs** in Spring 1343.
 - **Map:** Place **`iron_scrap_pile`** and **`weapon_rack`** at smith lanes and knights' courts; **do not** seed domestic yards with bolt hoards. Harbour margin may show **salvage crates** referencing Lootsi-scale arrowhead lots (quest prop, not ambient clutter).
 - **Quest:** **Bitter Brew / watch resupply** — crossbow bolt batches match Jahu **massive bolt** class; **smuggled dagger blade** matches Jahu **two-blade** scale; **forged spearhead** remains plausible but **not archaeologically illustrated** for a named plot.
 - **Dev / systems:** Tag finds `context: in_situ | landfill_export | maritime`; tag `chronology_ok_1343: true|false`; whitelist Spring 1343 loot tables to **bolt, arrowhead, dagger, pike tip, pommel, scabbard**; blacklist `firearm`, `cannonball`, `plate_harness_complete`.
@@ -109,9 +109,9 @@ Hull dendrochronology places construction wood felling **around 1360** — **sli
 | Plate | Shows | Source, date, origin | License | Answers |
 |-------|-------|----------------------|---------|---------|
 | `military.lower-town-weapon-finds-1340s.01` (link-only) | springald (springald) head from Lootsi wreck | AVE 2022:10 fig. 9, 14th-c. wreck, Tallinn | linked | local springald-head proportions |
-| `military.lower-town-weapon-finds-1340s.02` (link-only) | find concentration plan in Lootsi hull | AVE 2022:10 fig. 7, 14th-c. wreck, Tallinn | linked | where ammunition clustered aboard |
-| `military.lower-town-weapon-finds-1340s.03` (link-only) | cast-iron crossbow quarrel with socket | PAS FindID 275964, 15th c., England | CC BY-SA 2.0 (link only) | massive bolt silhouette comparandum for Jahu class |
-| `military.lower-town-weapon-finds-1340s.04` (link-only) | forged iron broadhead arrowhead | PAS FindID 181248, 13th–14th c., England | CC BY-SA 2.0 (link only) | socketed arrowhead form comparandum |
+| `military.lower-town-weapon-finds-1340s.02` (link-only) | find concentration plan in Lootsi hull | AVE 2022:10 fig. 7, 14th-c. wreck, Tallinn | linked | where ammunition clustered aboard cog |
+| [`military.lower-town-weapon-finds-1340s.03`](../../reference/military/lower-town-weapon-finds-1340s/military.lower-town-weapon-finds-1340s.03.jpg) | cast-iron crossbow quarrel with socket | PAS FindID 275964, 15th c., England; non-Reval type-comparandum | CC BY-SA 2.0 | massive bolt silhouette comparandum for Jahu class |
+| [`military.lower-town-weapon-finds-1340s.04`](../../reference/military/lower-town-weapon-finds-1340s/military.lower-town-weapon-finds-1340s.04.jpg) | forged iron broadhead arrowhead | PAS FindID 181248, 13th–14th c., England; non-Reval type-comparandum | CC BY-SA 2.0 | socketed arrowhead form comparandum |
 | `military.lower-town-weapon-finds-1340s.05` (link-only) | militaria list context (bolts, mail scraps) | AVE 2018:13 militaria section, 15th-c. landfill, Tallinn | linked | which categories appear in town export |
 | [`military.lower-town-weapon-finds-1340s.06`](../../reference/military/lower-town-weapon-finds-1340s/military.lower-town-weapon-finds-1340s.06.jpg) | Lower Town street excavation horizons | Süda tänav rescue dig, Sept 2016, Tallinn | CC BY-SA 4.0 | in-situ occupation layer context — weapons rarely published from such trenches |
 
@@ -125,9 +125,9 @@ Hull dendrochronology places construction wood felling **around 1360** — **sli
 
 ## Open questions
 
-- **TLÜ foto.arheoloogia.ee / AI inventory pass** for named in-situ arrowheads and bolts from **Pikk, Lai, Rahukohtu, and Müürivahe** rescue collections — could fill the in-situ gap (candidate `R-061`).
-- **Meremuuseum open-licence photography** of conserved Lootsi arrowhead typology sets once conservation publishes — replace link-only AVE figures (`R-062`).
-- **Typological publication** of Jahu crossbow bolts (dimensions, socket diameters) — only counts in AVE 2018 prose today.
+- **TLÜ foto.arheoloogia.ee / AI inventory pass** for named in-situ arrowheads and bolts from **Pikk, Lai, Rahukohtu, and Müürivahe** rescue collections - could fill the in-situ gap (candidate `R-061`).
+- **Open-licence Lootsi projectile photography** from the Estonian Maritime Museum remains an evidence request: the AVE springald and concentration figures stay linked-only until the rights holder publishes a reusable licence.
+- **Typological publication** of Jahu crossbow bolts (dimensions, socket diameters) - only counts in AVE 2018 prose today.
 
 ## Sources
 
@@ -145,3 +145,5 @@ Hull dendrochronology places construction wood felling **around 1360** — **sli
 12. Tammet et al. 2022 — dendrochronology note via Maritime Museum summary (English).
 13. [`reval-law-codex-arms-and-watch.md`](../power/reval-law-codex-arms-and-watch.md) — arms obligation composite (project dossier).
 14. [`harbour-and-shoreline.md`](../topography/harbour-and-shoreline.md) — Lootsi wet margin (project dossier).
+15. Portable Antiquities Scheme, FindID 275964, "A complete Medieval cast iron crossbow quarrel (bolt) (15th century)," British Museum / PAS database — `https://finds.org.uk/database/artefacts/record/id/275964` (English; CC BY-SA 2.0 image via Wikimedia Commons; English non-Reval type-comparandum).
+16. Portable Antiquities Scheme, FindID 181248, "1704 Medieval arrowhead," British Museum / PAS database — `https://finds.org.uk/database/artefacts/record/id/181248` (English; CC BY-SA 2.0 image via Wikimedia Commons; English non-Reval type-comparandum).
