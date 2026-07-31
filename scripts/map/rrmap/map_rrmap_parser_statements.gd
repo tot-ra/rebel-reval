@@ -203,16 +203,23 @@ func _parse_terrain(tokens: Array[Dictionary], line: int) -> void:
 	):
 		return
 	var rect = _tokens.rect_from_tokens(tokens, line, 3)
-	var options = _tokens.options(tokens, line, 7, ["layer", "order", "style"])
+	var options = _tokens.options(tokens, line, 7, ["layer", "order", "style", "shore_confidence"])
 	if rect == null or options == null:
 		return
+	var overrides: Dictionary = {}
+	if options.has("shore_confidence"):
+		var confidence = _tokens.shore_confidence_value(options["shore_confidence"], line, _tokens.option_column(tokens, "shore_confidence"))
+		if confidence == null:
+			return
+		overrides[&"shore_confidence"] = confidence
 	_parser._blueprint.terrain_rect(
 		StringName(tokens[1]["text"]),
 		StringName(tokens[2]["text"]),
 		rect,
 		_tokens.int_option(options, "layer", 0, tokens, line),
 		_tokens.int_option(options, "order", 0, tokens, line),
-		StringName(options.get("style", ""))
+		StringName(options.get("style", "")),
+		overrides
 	)
 
 
@@ -225,16 +232,23 @@ func _parse_terrain_rects(tokens: Array[Dictionary], line: int) -> void:
 	):
 		return
 	var rects = _tokens.rect_list(tokens[3]["text"], line, tokens[3]["column"])
-	var options = _tokens.options(tokens, line, 4, ["layer", "order", "style"])
+	var options = _tokens.options(tokens, line, 4, ["layer", "order", "style", "shore_confidence"])
 	if rects == null or options == null:
 		return
+	var overrides: Dictionary = {}
+	if options.has("shore_confidence"):
+		var confidence = _tokens.shore_confidence_value(options["shore_confidence"], line, _tokens.option_column(tokens, "shore_confidence"))
+		if confidence == null:
+			return
+		overrides[&"shore_confidence"] = confidence
 	_parser._blueprint.terrain_rects(
 		StringName(tokens[1]["text"]),
 		StringName(tokens[2]["text"]),
 		rects,
 		_tokens.int_option(options, "layer", 0, tokens, line),
 		_tokens.int_option(options, "order", 0, tokens, line),
-		StringName(options.get("style", ""))
+		StringName(options.get("style", "")),
+		overrides
 	)
 
 
@@ -247,9 +261,15 @@ func _parse_stroke(tokens: Array[Dictionary], line: int) -> void:
 	):
 		return
 	var points = _tokens.point_list(tokens[3]["text"], line, tokens[3]["column"])
-	var options = _tokens.options(tokens, line, 4, ["thickness", "layer", "order", "style"])
+	var options = _tokens.options(tokens, line, 4, ["thickness", "layer", "order", "style", "shore_confidence"])
 	if points == null or options == null:
 		return
+	var overrides: Dictionary = {}
+	if options.has("shore_confidence"):
+		var confidence = _tokens.shore_confidence_value(options["shore_confidence"], line, _tokens.option_column(tokens, "shore_confidence"))
+		if confidence == null:
+			return
+		overrides[&"shore_confidence"] = confidence
 	_parser._blueprint.terrain_stroke(
 		StringName(tokens[1]["text"]),
 		StringName(tokens[2]["text"]),
@@ -257,7 +277,8 @@ func _parse_stroke(tokens: Array[Dictionary], line: int) -> void:
 		_tokens.int_option(options, "thickness", 1, tokens, line),
 		_tokens.int_option(options, "layer", 0, tokens, line),
 		_tokens.int_option(options, "order", 0, tokens, line),
-		StringName(options.get("style", ""))
+		StringName(options.get("style", "")),
+		overrides
 	)
 
 

@@ -9,7 +9,7 @@ const PropStyleVariants := preload("res://scripts/map/map_prop_style_variants.gd
 const STYLE_NAME_KEYS: Array[String] = [
 	"door_side", "ridge_axis", "wall_walk_axis", "interior_side", "primitive", "style_variant", "destination_scene_id",
 	"destination_spawn_id", "spawn_id", "building_id", "transition_visual", "view_landmark_id", "alignment", "kind", "door_material", "gate_variant", "grille_variant", "passage_axis",
-	"wall_material", "roof_material", "house_tier", "vehicle_class", "faction", "display_goods", "table_items",
+	"wall_material", "roof_material", "house_tier", "vehicle_class", "shore_confidence", "faction", "display_goods", "table_items",
 ]
 const STYLE_FLOAT_KEYS: Array[String] = ["wall_height", "wall_height_scale", "top_px", "movement_speed_multiplier"]
 const STYLE_COLOR_KEYS: Array[String] = ["wall_color", "roof_color"]
@@ -141,6 +141,11 @@ func typed_field(key: String, text: String, line: int, column: int) -> Variant:
 			_parser._error(line, column, &"unknown_gate_variant", "gate_variant is unknown: %s" % text)
 			return null
 		return gate_variant
+	if key == "shore_confidence":
+		if text not in ["attested", "reconstructed"]:
+			_parser._error(line, column, &"unknown_shore_confidence", "shore_confidence is unknown: %s; expected attested or reconstructed" % text)
+			return null
+		return StringName(text)
 	if key in STYLE_NAME_KEYS:
 		return StringName(text)
 	if key in STYLE_FLOAT_KEYS:
@@ -305,6 +310,13 @@ func int_option(options: Dictionary, key: String, fallback: int, tokens: Array[D
 		return fallback
 	var value = int_value(options[key], line, option_column(tokens, key))
 	return fallback if value == null else value
+
+
+func shore_confidence_value(text: String, line: int, column: int) -> Variant:
+	if text not in ["attested", "reconstructed"]:
+		_parser._error(line, column, &"unknown_shore_confidence", "shore_confidence is unknown: %s; expected attested or reconstructed" % text)
+		return null
+	return StringName(text)
 
 
 func take_int(raw: Dictionary, key: String, fallback: int, line: int, tokens: Array[Dictionary]) -> int:

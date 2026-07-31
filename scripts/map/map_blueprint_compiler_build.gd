@@ -25,6 +25,8 @@ static func build_definition(blueprint: MapBlueprint, expanded: Dictionary) -> M
 			zone["style_variant"] = entry["style_variant"]
 		if entry.has("movement_speed_multiplier"):
 			zone["movement_speed_multiplier"] = entry["movement_speed_multiplier"]
+		if entry.has("shore_confidence"):
+			zone["shore_confidence"] = entry["shore_confidence"]
 		definition.zones.append(zone)
 
 	var buildings: Array = expanded["buildings"]

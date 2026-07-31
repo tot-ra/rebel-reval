@@ -41,6 +41,9 @@ static func expand_terrain_rects(
 			entry["style_variant"] = style_variant
 		if values.has("movement_speed_multiplier"):
 			entry["movement_speed_multiplier"] = float(values["movement_speed_multiplier"])
+		if values.has("shore_confidence"):
+			_validate_shore_confidence(values["shore_confidence"], "%s.shore_confidence" % path, errors)
+			entry["shore_confidence"] = values["shore_confidence"]
 		expanded["terrain"].append(entry)
 
 
@@ -91,4 +94,12 @@ static func expand_terrain_stroke(
 			entry["style_variant"] = style_variant
 		if values.has("movement_speed_multiplier"):
 			entry["movement_speed_multiplier"] = float(values["movement_speed_multiplier"])
+		if values.has("shore_confidence"):
+			_validate_shore_confidence(values["shore_confidence"], "%s.shore_confidence" % path, errors)
+			entry["shore_confidence"] = values["shore_confidence"]
 		expanded["terrain"].append(entry)
+
+
+static func _validate_shore_confidence(value: Variant, path: String, errors: Array[String]) -> void:
+	if value not in [&"attested", &"reconstructed"]:
+		errors.append("%s must be attested or reconstructed" % path)
