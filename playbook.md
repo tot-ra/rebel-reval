@@ -142,3 +142,5 @@
 - For optional Hunyuan3D candidate tasks, first verify the local ComfyUI endpoint, checkpoint, and input staging; an absent per-asset workflow can be reconstructed from a known-good local template, but candidate GLBs must remain isolated until triangle, material, animation, grounding, and catalog-scale audits pass.
 - When inserting a follow-up beside neighboring TODO rows, re-read the shifted block and assert each task ID occurs exactly once; serial cleanup is safer than relying on stale line numbers in a hot coordination file.
 - Blender `bpy_prop_collection` does not support slices with a non-unit step; sample large vertex collections with an explicit index `range()` instead.
+- After adding a new `class_name` script, run `/Applications/Godot.app/Contents/MacOS/Godot --headless --editor --import --path .` before headless tests; otherwise every dependent script fails with `Identifier "X" not declared in the current scope`.
+- Default session equipment can support charged attacks, which swing on button *release*. A click-path test that only sends the press sees `State.MOVE` and looks like a broken attack; drive the full press/release pair instead.
