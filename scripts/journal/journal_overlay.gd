@@ -69,14 +69,14 @@ func _build_ui() -> void:
 	_panel = PanelContainer.new()
 	_panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_panel.custom_minimum_size = Vector2(560, 420)
+	_panel.custom_minimum_size = Vector2(780, 580)
 	root.add_child(_panel)
 
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 20)
-	margin.add_theme_constant_override("margin_right", 20)
-	margin.add_theme_constant_override("margin_top", 16)
-	margin.add_theme_constant_override("margin_bottom", 16)
+	margin.add_theme_constant_override("margin_left", 28)
+	margin.add_theme_constant_override("margin_right", 28)
+	margin.add_theme_constant_override("margin_top", 24)
+	margin.add_theme_constant_override("margin_bottom", 24)
 	_panel.add_child(margin)
 
 	var layout := VBoxContainer.new()
@@ -85,11 +85,11 @@ func _build_ui() -> void:
 
 	var header := Label.new()
 	header.text = "Journal"
-	header.add_theme_font_size_override("font_size", 22)
+	header.add_theme_font_size_override("font_size", 26)
 	layout.add_child(header)
 
 	_tab_container = TabContainer.new()
-	_tab_container.custom_minimum_size = Vector2(520, 300)
+	_tab_container.custom_minimum_size = Vector2(720, 480)
 	layout.add_child(_tab_container)
 
 	_build_objectives_tab()
@@ -97,7 +97,7 @@ func _build_ui() -> void:
 
 	var hint := Label.new()
 	hint.text = "Press J or Esc to close"
-	hint.add_theme_font_size_override("font_size", 12)
+	hint.add_theme_font_size_override("font_size", 13)
 	hint.add_theme_color_override("font_color", Color(0.72, 0.72, 0.68, 1.0))
 	layout.add_child(hint)
 
@@ -110,38 +110,40 @@ func _build_objectives_tab() -> void:
 
 	var objective_header := Label.new()
 	objective_header.text = "Current objective"
-	objective_header.add_theme_font_size_override("font_size", 16)
+	objective_header.add_theme_font_size_override("font_size", 18)
 	tab.add_child(objective_header)
 
 	_objective_title = Label.new()
 	_objective_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_objective_title.add_theme_font_size_override("font_size", 15)
+	_objective_title.add_theme_font_size_override("font_size", 17)
 	_objective_title.add_theme_color_override("font_color", Color(0.92, 0.9, 0.82, 1.0))
 	tab.add_child(_objective_title)
 
 	_objective_body = Label.new()
 	_objective_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_objective_body.add_theme_font_size_override("font_size", 14)
+	_objective_body.add_theme_font_size_override("font_size", 16)
 	tab.add_child(_objective_body)
 
 	var deadline_header := Label.new()
 	deadline_header.text = "Commission deadlines"
-	deadline_header.add_theme_font_size_override("font_size", 16)
+	deadline_header.add_theme_font_size_override("font_size", 18)
 	tab.add_child(deadline_header)
 
 	_deadline_list = ItemList.new()
-	_deadline_list.custom_minimum_size = Vector2(0, 72)
+	_deadline_list.custom_minimum_size = Vector2(0, 90)
 	_deadline_list.fixed_icon_size = Vector2.ZERO
+	_deadline_list.add_theme_font_size_override("font_size", 15)
 	tab.add_child(_deadline_list)
 
 	var evidence_header := Label.new()
 	evidence_header.text = "Discovered evidence"
-	evidence_header.add_theme_font_size_override("font_size", 16)
+	evidence_header.add_theme_font_size_override("font_size", 18)
 	tab.add_child(evidence_header)
 
 	_evidence_list = ItemList.new()
-	_evidence_list.custom_minimum_size = Vector2(0, 120)
+	_evidence_list.custom_minimum_size = Vector2(0, 150)
 	_evidence_list.fixed_icon_size = Vector2.ZERO
+	_evidence_list.add_theme_font_size_override("font_size", 15)
 	tab.add_child(_evidence_list)
 
 
@@ -154,13 +156,14 @@ func _build_factions_tab() -> void:
 	var intro := Label.new()
 	intro.text = "Each faction remembers explicit events. There is no overall score."
 	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	intro.add_theme_font_size_override("font_size", 13)
+	intro.add_theme_font_size_override("font_size", 14)
 	intro.add_theme_color_override("font_color", Color(0.78, 0.76, 0.7, 1.0))
 	tab.add_child(intro)
 
 	_faction_list = ItemList.new()
-	_faction_list.custom_minimum_size = Vector2(0, 220)
+	_faction_list.custom_minimum_size = Vector2(0, 280)
 	_faction_list.fixed_icon_size = Vector2.ZERO
+	_faction_list.add_theme_font_size_override("font_size", 15)
 	tab.add_child(_faction_list)
 
 
@@ -247,3 +250,4 @@ func _refresh_factions() -> void:
 
 	if not has_events:
 		_faction_list.add_item("No remembered faction events yet.")
+	_faction_list.add_item("No remembered faction events yet.")

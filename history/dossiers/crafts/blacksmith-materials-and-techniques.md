@@ -8,7 +8,7 @@ related:
   - guild-structure.md
   - ../military/arms-and-armour-livonia-1340s.md
   - ../economy/coinage-prices-and-measures.md
-updated: 2026-07-28
+updated: 2026-07-30
 ---
 
 # Blacksmith materials and techniques (Spring 1343 Reval)
@@ -51,7 +51,8 @@ You are modelling **Kalev's forge loop** in **April 1343 Lower Town Reval**: wha
 |---|---|---|
 | Fuel type | **Charcoal** primary for forge; bituminous coal is **north-German / later British** pattern, not Baltic urban default [5][16] | attested type for medieval forge [5] |
 | Wood source | **Birch, alder, pine** charcoal from Harju forests and hinterland stacks; **Saku / forest charcoal routes** in project lore [`docs/TOURIST_LANDMARKS.md`] | `plausible composite` Baltic forestry |
-| Delivery | **Cart sacks** to yard crib; master or apprentice stacks under roof [`smithy-workshop-layout.md`](../architecture/smithy-workshop-layout.md) | `plausible composite` |
+| Delivery | **Tied sacks** as a countable trade unit, carried by cart to the workshop; a 2025 study title quotes the medieval phrase "a sack of good charcoal" [20] | sacks attested in medieval metallurgical supply; Reval route is `plausible composite` |
+| Shop storage | Closed delivery sacks plus one open working sack, kept dry in the roofed forge corner and raised on simple timber dunnage; no modern metal coal scuttle [15][20][21] | sacks attested; raised dry corner is `plausible composite` |
 | Consumption scale | Experimental bloom-to-bar path: **~100 kg charcoal per 1 kg** finished bar from **ore** (smelting path, not Kalev's daily forge) [6] | attested experiment [6] |
 | Forge session | **~0.5–2 kg charcoal per heat** for small work; **8–15 kg** across a full journeyman day of mixed commissions | `plausible composite` from forge practice [5][10] |
 | April 1343 stress | Siege timber shortage raises **fire-watch** scrutiny; charcoal **price spike** before stockout is a valid quest beat | quest composite [17] |
@@ -152,7 +153,7 @@ Guild **quality inspection** (`Amt` visit) can catch **visible seams, wrong weig
 
 ## Production hooks
 
-- **Art:** **`crafts.blacksmith-materials-and-techniques.03`** for drawing flat stock; **`.04`** for quench bucket scale; **`.05`** for horseshoe silhouette; charcoal props as **sack piles** not ore rocks; bar stock **rectangular section**, osmund as **lumpy fist chunks** not modern round bar.
+- **Art:** **`crafts.blacksmith-materials-and-techniques.03`** for drawing flat stock; **`.04`** for quench bucket scale; **`.05`** for horseshoe silhouette; indoor charcoal as **tied delivery sacks with one open working sack and visible angular charcoal**, not an ore-rock heap or modern metal scuttle; bar stock **rectangular section**, osmund as **lumpy fist chunks** not modern round bar.
 - **Map:** Yard **charcoal crib** separate from **iron scrap pile**; no ore heap at urban plot [`smithy-workshop-layout.md`](../architecture/smithy-workshop-layout.md).
 - **Character:** Master judges heat by colour; apprentice runs bellows on long heats; Mart's nail practice is **volume not glamour** [`guild-structure.md`](guild-structure.md).
 - **Quest / Narrative:** **Charcoal shortage** during siege; **osmund barrel** delivery convoy [`P4-033`]; **soft-edge sabotage** on weapon commission; rural **cheap shoe** price pressure.
@@ -194,3 +195,5 @@ Guild **quality inspection** (`Amt` visit) can catch **visible seams, wrong weig
 17. [`watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) — siege curfew and fire watch (project dossier).
 18. A. Pärn & E. Russow, Haapsalu smithies 13th–14th c. — raised forge Baltic urban (German).
 19. [`guild-structure.md`](guild-structure.md) — Schmiede *Amt* obligations (project dossier).
+20. A. Fostikov, "A Sack of Good Charcoal: Production and Use of Charcoal in Metallurgy in Medieval Serbia and Czechia," Historical Institute Belgrade, 2025, https://doi.org/10.34298/ZR9788677431600.F095 - medieval metallurgical charcoal supply and the sack as an explicit trade unit (English abstract; Serbian study).
+21. U.S. National Park Service, "Charcoal House," Hopewell Furnace, https://www.nps.gov/hofu/charcoal-house.htm - later ironworks comparandum for wagon delivery and the operational need to keep charcoal dry; not direct evidence for Reval 1343.

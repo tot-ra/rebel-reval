@@ -103,8 +103,8 @@ SECTION_PLANS: dict[str, SectionPlan] = {
         "lore.northern_estonia_reports",
         "P5-001",
         "world_padise",
-        "landmark_gatehouse",
-        "scripts/map/definitions/outdoor/village_monastery_definitions.gd",
+        "landmark_early_stone_house",
+        "content/maps/world_padise.rrmap",
     ),
     "Central Estonia (Järvamaa and Paide)": SectionPlan(
         "event",

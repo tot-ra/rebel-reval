@@ -42,13 +42,19 @@ func test_buffered_attack_chains_after_dodge_recovery() -> void:
 	assert_eq(machine.state, PlayerActionState.State.MOVE, "Buffered chain should finish in MOVE")
 
 
-func test_hit_is_ignored_during_dodge_invulnerability() -> void:
+func test_hit_is_ignored_only_during_dodge_invulnerability() -> void:
 	var machine := _make_machine()
+	assert_false(machine.is_invulnerable(), "MOVE must not grant dodge i-frames")
 	assert_true(machine.try_start_action(PlayerActionKind.Kind.DODGE))
+	assert_true(machine.is_invulnerable(), "DODGE must own the one invulnerability window")
 	machine.apply_hit()
 	assert_eq(machine.state, PlayerActionState.State.DODGE, "Hit must not interrupt dodge")
-	_advance(machine, machine.dodge_duration_sec + machine.recovery_duration_sec)
+	_advance(machine, machine.dodge_duration_sec)
+	assert_eq(machine.state, PlayerActionState.State.RECOVERY)
+	assert_false(machine.is_invulnerable(), "Recovery must not extend dodge i-frames")
+	_advance(machine, machine.recovery_duration_sec)
 	assert_eq(machine.state, PlayerActionState.State.MOVE, "Dodge should still resolve normally")
+	assert_false(machine.is_invulnerable(), "MOVE must remain vulnerable")
 
 
 func test_random_input_sequence_never_stays_locked() -> void:
@@ -190,6 +196,64 @@ func test_player_scene_respects_action_lock_and_recovers() -> void:
 	player.free()
 
 
+func test_directional_dodge_mapping_uses_facing_relative_clips() -> void:
+	var facing := Vector2.DOWN
+	assert_eq(Player.dodge_animation_for_direction(Vector2.DOWN, facing), &"dodge_forward")
+	assert_eq(Player.dodge_animation_for_direction(Vector2.UP, facing), &"dodge_backward")
+	assert_eq(Player.dodge_animation_for_direction(Vector2.RIGHT, facing), &"dodge_right")
+	assert_eq(Player.dodge_animation_for_direction(Vector2.LEFT, facing), &"dodge_left")
+
+
+func test_dodge_locks_direction_travels_bounded_distance_and_recovers() -> void:
+	var player := _create_player()
+	player.global_position = Vector2.ZERO
+	player.set_view_facing(Vector2.DOWN)
+	player.stamina = 100.0
+	assert_true(player.try_start_dodge(Vector2.RIGHT))
+	assert_eq(player.view_animation(), &"dodge_right")
+	var locked_direction: Vector2 = player._dodge_direction
+	player.set_view_facing(Vector2.DOWN)
+	Input.action_press("ui_left")
+	_advance_player(player, player.action_state_machine.dodge_duration_sec)
+	Input.action_release("ui_left")
+	assert_true(player._dodge_direction.is_equal_approx(locked_direction), "Dodge direction must not follow later input")
+	assert_true(player._dodge_facing.is_equal_approx(Vector2.DOWN), "Dodge facing must stay fixed for visual/logical agreement")
+	assert_true(absf(player.global_position.x - Player.DODGE_DISTANCE_PX) < 1.0, "Open dodge must travel its authored distance")
+	assert_true(absf(player.global_position.y) < 0.1)
+	_advance_player(player, player.action_state_machine.recovery_duration_sec)
+	assert_eq(player.action_state_machine.state, PlayerActionState.State.MOVE)
+	player.free()
+
+
+func test_dodge_move_and_slide_stops_at_world_collision() -> void:
+	var player := _create_player()
+	player.global_position = Vector2.ZERO
+	var wall := StaticBody2D.new()
+	var wall_collision := CollisionShape2D.new()
+	var wall_shape := RectangleShape2D.new()
+	wall_shape.size = Vector2(16.0, 128.0)
+	wall_collision.shape = wall_shape
+	wall.add_child(wall_collision)
+	wall.global_position = Vector2(48.0, 0.0)
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(wall)
+	assert_true(player.try_start_dodge(Vector2.RIGHT))
+	_advance_player(player, player.action_state_machine.dodge_duration_sec)
+	assert_true(player.global_position.x < Player.DODGE_DISTANCE_PX - 20.0, "World collision must stop the roll short")
+	assert_true(player.global_position.x <= 24.1, "Player capsule must not cross the wall")
+	wall.free()
+	player.free()
+
+
+func test_no_input_dodge_defaults_right_relative_to_camera_facing() -> void:
+	var player := _create_player()
+	player.set_camera_facing(Vector2.UP)
+	assert_true(player.try_start_dodge())
+	assert_true(player._dodge_direction.is_equal_approx(Vector2.LEFT))
+	assert_eq(player.view_animation(), &"dodge_right")
+	player.free()
+
+
 func test_view_animation_reports_run_walk_and_attack() -> void:
 	var player := _create_player()
 	assert_eq(player.view_animation(), &"idle")
@@ -269,6 +333,14 @@ func _advance(machine: PlayerActionStateMachine, duration_sec: float) -> void:
 	while remaining > 0.0:
 		var step := minf(TEST_DELTA, remaining)
 		machine.tick(step)
+		remaining -= step
+
+
+func _advance_player(player: Player, duration_sec: float) -> void:
+	var remaining := duration_sec
+	while remaining > 0.0:
+		var step := minf(TEST_DELTA, remaining)
+		player._physics_process(step)
 		remaining -= step
 
 

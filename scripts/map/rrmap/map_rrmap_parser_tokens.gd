@@ -1,6 +1,8 @@
 class_name MapRrmapParserTokens
 extends RefCounted
 
+const PropStyleVariants := preload("res://scripts/map/map_prop_style_variants.gd")
+
 ## Tokenization and typed value coercion for MapRrmapParser. Split out so the
 ## statement dispatcher stays readable and tokenizer tests can load less code.
 
@@ -133,6 +135,12 @@ func typed_style_raw(raw: Dictionary, tokens: Array[Dictionary], line: int) -> V
 
 
 func typed_field(key: String, text: String, line: int, column: int) -> Variant:
+	if key == "gate_variant":
+		var gate_variant := StringName(text)
+		if not PropStyleVariants.is_known_gate_variant(gate_variant):
+			_parser._error(line, column, &"unknown_gate_variant", "gate_variant is unknown: %s" % text)
+			return null
+		return gate_variant
 	if key in STYLE_NAME_KEYS:
 		return StringName(text)
 	if key in STYLE_FLOAT_KEYS:

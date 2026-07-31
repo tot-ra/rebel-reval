@@ -167,7 +167,7 @@ static func entries() -> Array[Dictionary]:
 		{
 			"id": &"world.padise",
 			"source": "res://content/maps/world_padise.rrmap",
-			"required_anchors": [&"landmark_church", &"landmark_cloister", &"landmark_gatehouse", &"landmark_work_yard"],
+			"required_anchors": [&"landmark_early_stone_house", &"landmark_timber_oratory", &"landmark_fire_damage", &"landmark_work_yard", &"landmark_monastery_well"],
 		},
 		{
 			"id": &"world.saaremaa",

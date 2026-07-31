@@ -132,8 +132,10 @@ static func build_building(
 				cell_size,
 				entrances
 			)
+		else:
+			MapViewMeshBuilderBuildingHouses.add_authored_facade(root, building, size, height)
 		MapViewMeshBuilderBuildingHouses.add_historic_building_details(root, building, size, height, along_ridge_x)
-		MapViewMeshBuilderBuildingHouses.add_window_lights(root, building["id"])
+		MapViewMeshBuilderBuildingHouses.add_window_lights(root, building)
 	elif kind == MapTypes.BUILDING_KIND_INTERIOR_WALL:
 		MapViewMeshBuilderBuildingInteriorWalls.add_interior_wall_structure(root, building, size, height)
 	elif round_tower:

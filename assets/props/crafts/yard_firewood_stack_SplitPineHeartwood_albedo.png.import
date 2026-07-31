@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cgdervx5cyc6s"
-path="res://.godot/imported/yard_firewood_stack_SplitPineHeartwood_albedo.png-7f9cc6c21e53a4f06b3ded84ec1953cd.ctex"
+path.s3tc="res://.godot/imported/yard_firewood_stack_SplitPineHeartwood_albedo.png-7f9cc6c21e53a4f06b3ded84ec1953cd.s3tc.ctex"
+path.etc2="res://.godot/imported/yard_firewood_stack_SplitPineHeartwood_albedo.png-7f9cc6c21e53a4f06b3ded84ec1953cd.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "4ce3e228bae5c2b880b164b9a0112b2a"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/crafts/yard_firewood_stack_SplitPineHeartwood_albedo.png"
-dest_files=["res://.godot/imported/yard_firewood_stack_SplitPineHeartwood_albedo.png-7f9cc6c21e53a4f06b3ded84ec1953cd.ctex"]
+dest_files=["res://.godot/imported/yard_firewood_stack_SplitPineHeartwood_albedo.png-7f9cc6c21e53a4f06b3ded84ec1953cd.s3tc.ctex", "res://.godot/imported/yard_firewood_stack_SplitPineHeartwood_albedo.png-7f9cc6c21e53a4f06b3ded84ec1953cd.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

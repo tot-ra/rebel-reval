@@ -1,10 +1,13 @@
 # Kalev's Smithy domestic-life plan (26×14)
 
 Recorded: 2026-07-28  
+Revised: 2026-07-30 (living-bay kitchen re-dressing)
 Task: **P2-053**  
 Map: `content/maps/kalev_smithy.rrmap` (`loc.kalev_smithy`)  
-Grid: **26 × 14 cells** at **32 px** per cell (≈ **8.3 m × 4.5 m** interior gameplay footprint; mentally scale to a **7–11 m** craft plot per [`burgher-house-plan.md`](../../history/dossiers/architecture/burgher-house-plan.md))  
+Grid: **26 × 14 cells** at **32 px** per cell. **One cell renders as one metre** in the 3D view (`MapViewBridge.WORLD_UNITS_PER_CELL = 1.0`), so the interior is **26 m × 14 m** and the living bay is **13 m × 12 m**.
 Confidence: conservative reconstruction for a **middling Lower Town master smith**, April–May **1343**
+
+> **Correction (2026-07-30).** The original header read the grid as ≈ 8.3 m × 4.5 m. That is wrong: props are authored in metres and the view bridge maps one cell to one world unit, so the interior is three times the assumed size. The 2×2 and 3×3 "zone band" footprints in the tables below were therefore far larger than the shipped GLBs (hearth **1.0 m** wide, chair **0.55 m**, kitchenware **0.1–0.6 m**), which is what left the hearth stranded mid-corner and the small items scattered on bare boards. Placement is now sized to the model, not to the zone band. See [Living-bay kitchen re-dressing](#living-bay-kitchen-re-dressing-2026-07-30).
 
 ## Decision summary
 
@@ -239,6 +242,70 @@ All IDs are reserved for **P2-058**; transforms are approximate cell centres unt
 | **Mart's return date** after prologue | **Story-gated** by `mart_missing` clearance, not spatial plan |
 | **Henning overnight stay** | **Excluded** - visitor canon only |
 | Bake oven in smithy | **Excluded** - bread bought, not baked on site [1] |
+
+## Living-bay kitchen re-dressing (2026-07-30)
+
+Playtest feedback on the living bay: the hearth sat in the corner facing its own
+back wall, the Black Cloak banner hung in open air, small items lay on the floor,
+and the kitchen had no work surface or seating - *"на чём вообще готовили?"*
+
+### Decisions
+
+1. **One cell is one metre.** Prop footprints are sized to the GLB from now on.
+   Zone bands (`LZ-*`) stay as *review regions*, never as footprints.
+2. **Interior kits front toward local −Z (map north).** A new opt-in `facing`
+   cardinal on `prop` rotates the 3D model onto that direction
+   (`MapTypes.prop_facing_yaw`). The allowlist is narrow -
+   `MapTypes.FACING_AWARE_PROP_KINDS` - so no shipped map changes silhouette by
+   accident. `banner` declares `+X` as its model front because its wall arm and
+   cloth project along `+X`.
+3. **The kitchen is a range along the north wall**, west to east:
+   `domestic_hearth` (`facing=south`, mouth into the room) → `hearth_kindling_store`
+   on the boards → `kitchen_work_table` (`table.trestle_work`, the cooking and
+   prep surface) → `kitchen_dresser` (`shelf.burgher_cupboard`, dry stores) →
+   `wash_basin`. `kitchen_stool` faces the bench.
+4. **Small items ride surfaces, not floors.** `visual_offset_px` lifts each item
+   onto its host: trestle top **0.822**, eating board **0.792**, cupboard head
+   **1.52**, wash-stand shelf **0.32**, mattress **0.79**. X offsets space
+   clusters along the board so nothing overhangs an edge.
+5. **The eating board is `table.long_board` (2.3 m).** The 1.5 m household table
+   could not hold place settings, the cleared stack, and the candle at once - the
+   candle overhung the end. Two stools sit on the north side so the meal-beat
+   approach cells **(7,11)** and **(8,11)** stay clear.
+6. **Wash corner is furniture, not a puddle.** New `wash_tub` variant
+   `wash.stand_basin`: oak stand, recessed pewter basin with the water plane
+   **below** the rim, metal ewer, and a slate linen towel on a back rail. The
+   yard `wash.yard_tub` is unchanged for well aprons and service plots.
+7. **Wall hangings sit on plaster.** `cloak_banner` mounts on the living-bay west
+   wall (`facing=east`, `visual_offset_px=-16,0` puts the bracket on the wall
+   face at x = 1.0); `apron_hook` hangs on the same wall with `facing=east` so
+   its 0.02 m panel is not seen edge-on.
+8. **Chest turned along the west wall** under the window (`facing=east`) instead
+   of standing a metre out on open floor.
+
+### Routine consequences
+
+| Activity | Change |
+|---|---|
+| `ap.prepare.board` | Now binds `kitchen_work_table`, approach **(6.5, 2.5)** facing north - prep happens at the bench by the fire, not at the eating board |
+| `ap.hearth.tend` / `.cookpot` / `.bank` | Approach **(3.0, 2.5)** facing **north**; the mouth opens south, so standing east of the cheek no longer faces the fire |
+| `ap.cat.warmth` | Moved to **(3.0, 3.5)** facing north, the open side of the fire |
+| `ap.wash.basin` | Approach **(10.5, 2.5)** facing north, due south of the relocated stand |
+| `ap.visitor.talk` | Faces **east** toward the single-cell `work_chair` at (11.5, 10.5) |
+
+### Contract
+
+`tests/godot/test_smithy_kitchen_dressing.gd` guards the yaw maths, the authored
+`facing` values, the surface lifts, the reserved meal approach cells, the
+furniture kits, and the sunk basin water. The fixture
+`tests/fixtures/maps/kalev_smithy_domestic_life.json` gained
+`surface_mounted_props` and `meal_approach_cells`.
+
+**Known remaining gap:** the living bay is a 13 m × 12 m hall for one master
+smith. That is generous for a Lower Town craft *boda* and leaves large empty
+floor areas between furniture groups. Shrinking the interior shell would move the
+spawn, transitions, camera rect, and every route test, so it is deliberately out
+of scope here and recorded as a separate concern.
 
 ## Downstream task handoff
 

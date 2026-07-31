@@ -2,30 +2,35 @@
   "map_id": "loc.kalev_smithy",
   "living_bay_x_max_cell": 13,
   "zones": {
-    "LZ-A": {"cells": "x2-6,y8-11", "props": ["bed", "bed_linen"]},
-    "LZ-B": {"cells": "x2-6,y2-4", "props": ["forge_ledger", "cloak_banner", "provision_bread"]},
-    "LZ-C": {"cells": "x1-4,y1-3", "props": ["domestic_hearth", "hearth_kindling_store", "provision_peas", "provision_onions", "provision_salt"]},
-    "LZ-D": {"cells": "x10-12,y1-2", "props": ["wash_basin", "water_bucket", "wash_cloth"]},
-    "LZ-E": {"cells": "x6-10,y10-12", "props": ["food_table", "work_chair", "table_candle", "table_settings", "table_prep", "table_cleanup"]},
-    "LZ-F": {"cells": "x2-3,y7-8", "props": ["chest", "chest_provisions"]},
+    "LZ-A": {"cells": "x3-6,y9-10", "props": ["bed", "bed_linen"]},
+    "LZ-B": {"cells": "x1-5,y3-5", "props": ["forge_ledger", "cloak_banner"]},
+    "LZ-C": {"cells": "x1-9,y1-2", "props": ["domestic_hearth", "hearth_kindling_store", "kitchen_work_table", "kitchen_stool", "kitchen_dresser", "provision_peas", "provision_onions", "provision_salt", "provision_bread", "table_prep", "apron_hook"]},
+    "LZ-D": {"cells": "x10-11,y1-3", "props": ["wash_basin", "water_bucket", "wash_cloth"]},
+    "LZ-E": {"cells": "x6-11,y9-11", "props": ["food_table", "work_chair", "table_stool_west", "table_stool_east", "table_candle", "table_settings", "table_cleanup"]},
+    "LZ-F": {"cells": "x1,y7-9", "props": ["chest", "chest_provisions"]},
     "LZ-G": {"cells": "x10-13,y12-13", "props": ["ash_scoop", "broom", "door_courtyard"]}
   },
   "required_domestic_props": [
-    {"id": "domestic_hearth", "kind": "hearth", "style_variant": "hearth.lit", "zone": "LZ-C"},
+    {"id": "domestic_hearth", "kind": "hearth", "style_variant": "hearth.lit", "zone": "LZ-C", "facing": "south"},
     {"id": "hearth_kindling_store", "kind": "household_clutter", "style_variant": "household.kindling_bundle", "zone": "LZ-C"},
-    {"id": "wash_basin", "kind": "wash_tub", "zone": "LZ-D"},
+    {"id": "kitchen_work_table", "kind": "table", "style_variant": "table.trestle_work", "zone": "LZ-C"},
+    {"id": "kitchen_stool", "kind": "chair", "zone": "LZ-C", "facing": "north"},
+    {"id": "kitchen_dresser", "kind": "shelf", "style_variant": "shelf.burgher_cupboard", "zone": "LZ-C", "facing": "south"},
+    {"id": "wash_basin", "kind": "wash_tub", "style_variant": "wash.stand_basin", "zone": "LZ-D", "facing": "south"},
     {"id": "water_bucket", "kind": "household_clutter", "style_variant": "household.water_bucket", "zone": "LZ-D"},
     {"id": "wash_cloth", "kind": "kitchenware", "style_variant": "kitchenware.basin_cloth", "zone": "LZ-D"},
     {"id": "provision_peas", "kind": "household_clutter", "style_variant": "provision.dried_peas_bin", "zone": "LZ-C"},
     {"id": "provision_onions", "kind": "household_clutter", "style_variant": "provision.onion_braid", "zone": "LZ-C"},
     {"id": "provision_salt", "kind": "household_clutter", "style_variant": "provision.salt_crock", "zone": "LZ-C"},
-    {"id": "provision_bread", "kind": "household_clutter", "style_variant": "provision.rye_bread_loaf", "zone": "LZ-B"},
+    {"id": "provision_bread", "kind": "household_clutter", "style_variant": "provision.rye_bread_loaf", "zone": "LZ-C"},
     {"id": "chest_provisions", "kind": "household_clutter", "style_variant": "household.group.closed", "zone": "LZ-F"},
     {"id": "table_settings", "kind": "kitchenware", "style_variant": "kitchenware.group.eating", "zone": "LZ-E"},
-    {"id": "table_prep", "kind": "kitchenware", "style_variant": "kitchenware.group.prep", "zone": "LZ-E"},
+    {"id": "table_prep", "kind": "kitchenware", "style_variant": "kitchenware.group.prep", "zone": "LZ-C"},
     {"id": "table_cleanup", "kind": "kitchenware", "style_variant": "kitchenware.group.cleanup", "zone": "LZ-E"},
+    {"id": "table_stool_west", "kind": "chair", "zone": "LZ-E", "facing": "south"},
+    {"id": "table_stool_east", "kind": "chair", "zone": "LZ-E", "facing": "south"},
     {"id": "bed_linen", "kind": "household_clutter", "style_variant": "household.linen_folded", "zone": "LZ-A"},
-    {"id": "apron_hook", "kind": "household_clutter", "style_variant": "household.apron", "zone": "LZ-A"},
+    {"id": "apron_hook", "kind": "household_clutter", "style_variant": "household.apron", "zone": "LZ-C", "facing": "east"},
     {"id": "ash_scoop", "kind": "household_clutter", "style_variant": "household.ash_scoop", "zone": "LZ-G"},
     {"id": "broom", "kind": "household_clutter", "style_variant": "household.broom", "zone": "LZ-G"}
   ],
@@ -34,6 +39,7 @@
     "wash_basin",
     "door_courtyard",
     "food_table",
+    "kitchen_work_table",
     "domestic_hearth",
     "broom",
     "hearth_kindling_store",
@@ -55,5 +61,23 @@
   "hearth_clearance_cells": {
     "domestic_hearth": {"x_min": 1, "x_max": 3, "y_min": 1, "y_max": 3},
     "forge_furnace": {"x_min": 18, "x_max": 21, "y_min": 1, "y_max": 3}
-  }
+  },
+  "surface_mounted_props": [
+    "table_prep",
+    "table_settings",
+    "table_cleanup",
+    "table_candle",
+    "provision_peas",
+    "provision_bread",
+    "provision_salt",
+    "provision_onions",
+    "water_bucket",
+    "wash_cloth",
+    "bed_linen",
+    "apron_hook"
+  ],
+  "meal_approach_cells": [
+    {"x": 7, "y": 11},
+    {"x": 8, "y": 11}
+  ]
 }

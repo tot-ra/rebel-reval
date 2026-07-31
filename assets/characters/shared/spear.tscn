@@ -24,12 +24,12 @@ height = 0.22
 radial_segments = 8
 
 [node name="SeizedSpear" type="Node3D"]
-transform = Transform3D(0, 1, 0, -1, 0, 0, 0, 0, 1, -0.12, 0.04, 0.06)
+transform = Transform3D(0, -0.965926, 0.258819, 1, 0, 0, 0, 0.258819, 0.965926, 0, 0, 0)
 
 [node name="Shaft" type="MeshInstance3D" parent="."]
-position = Vector3(0, 0.58, 0)
+position = Vector3(0, 0.30, 0)
 mesh = SubResource("Mesh_shaft")
 
 [node name="Head" type="MeshInstance3D" parent="."]
-position = Vector3(0, 1.19, 0)
+position = Vector3(0, 0.91, 0)
 mesh = SubResource("Mesh_head")

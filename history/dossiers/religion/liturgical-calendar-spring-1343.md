@@ -28,7 +28,7 @@ You are scheduling **Catholic time in Julian-calendar Reval** for the playable *
 4. **St George (23 April)** is a **major saint's feast** with parish observance, but **no attested Reval market closure** for that day — rural rebels use the **feast-night calendar anchor**, not a town holy-day shutdown [4][8].
 5. **Campaign battles:** **Kanavere 11 May (Sunday)**; **Sõjamäe 14 May (Wednesday)** — Kanavere falls on a **Sunday** (reduced routine trade); Sõjamäe on an ordinary weekday [4][9].
 6. **Monastic rhythm:** Dominican and Cistercian houses keep **Office hours**; Dominican **fish-and-beer economy** peaks after Easter when Lent ends [`churches-and-religious-houses.md`](./churches-and-religious-houses.md) [10].
-7. **Do not use** the **21 April Easter** date in [`hanseatic-trade-and-season.md`](../economy/hanseatic-trade-and-season.md) — computus error; reconcile to **13 April** [1][11].
+7. ~~**Do not use** the **21 April Easter** date in [`hanseatic-trade-and-season.md`](../economy/hanseatic-trade-and-season.md) — computus error; reconcile to **13 April** [1][11].~~ **RESOLVED:** Easter date corrected to **13 April** in `hanseatic-trade-and-season.md` (P0-166).
 8. **Estonian rural layer:** Parish **Easter duties** and **tithes** press manors in April; vernacular **St George's feast** overlaps with mobilisation tradition — syncretic colour only, not attested church calendar text in Estonian [12][13].
 
 ## Findings
@@ -58,7 +58,7 @@ You are scheduling **Catholic time in Julian-calendar Reval** for the playable *
 | Trinity Sunday | 8 June | Sunday | attested [1] |
 | Corpus Christi | 12 June | Thursday | attested (1264 feast; observed in cathedral towns by 1343) `plausible composite` [2] |
 
-**Source conflict:** [`hanseatic-trade-and-season.md`](../economy/hanseatic-trade-and-season.md) lists Easter **21 April 1343** [11]. Dionysian/Julian computus tables give **13 April** [1][5]. **Use 13 April** for all new work; flag the trade dossier for Canon Keeper reconciliation.
+**Source conflict:** ~~[`hanseatic-trade-and-season.md`](../economy/hanseatic-trade-and-season.md) lists Easter **21 April 1343** [11].~~ **RESOLVED:** Easter date corrected to **13 April** in `hanseatic-trade-and-season.md` (P0-166).
 
 ### Fixed feasts in the campaign window
 
@@ -163,7 +163,7 @@ You are scheduling **Catholic time in Julian-calendar Reval** for the playable *
 8. Standard Roman calendar — **St George 23 April** (fixed feast).
 9. Livonian chronicle tradition via [`../../HISTORY.md`](../../HISTORY.md) — May battles (project, partial).
 10. [`churches-and-religious-houses.md`](./churches-and-religious-houses.md) — Dominican economy and parish trio (project dossier).
-11. [`hanseatic-trade-and-season.md`](../economy/hanseatic-trade-and-season.md) — **conflicting Easter 21 April** entry; do not treat as authoritative (project dossier).
+11. [`hanseatic-trade-and-season.md`](../economy/hanseatic-trade-and-season.md) — **RESOLVED** Easter date corrected to **13 April** in P0-166.
 12. [`harju-village-and-manor.md`](../hinterland/harju-village-and-manor.md) — tithe/Lent pressure (project dossier).
 13. [`../../../docs/lore/estonian_folklore.md`](../../../docs/lore/estonian_folklore.md) — vernacular calendar colour (project lore; `folklore` tier).
 14. Rūsiņa, "Feasts in Livonia," in *Acta Baltica Historiae et Philosophiae Scientiarum* / memo.imareal.sbg.ac.at — Lent menus for Livonian elites (**15th-c. evidence**, directional `plausible composite`).

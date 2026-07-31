@@ -2,6 +2,7 @@ class_name PlayerActionStateMachine
 extends RefCounted
 
 signal state_changed(previous: PlayerActionState.State, current: PlayerActionState.State)
+signal action_started(kind: PlayerActionKind.Kind)
 signal attack_impact
 
 const DEFAULT_ATTACK_SEC := 0.55
@@ -20,6 +21,9 @@ var recovery_duration_sec: float = DEFAULT_RECOVERY_SEC
 
 var state: PlayerActionState.State = PlayerActionState.State.MOVE
 var state_elapsed_sec: float = 0.0
+## Optional owner hook for resource/cooldown gates. Buffered actions are validated
+## again when recovery actually tries to start them.
+var action_start_validator: Callable
 
 var _input_buffer := PlayerInputBuffer.new()
 var _guard_held := false
@@ -121,16 +125,21 @@ func get_input_buffer() -> PlayerInputBuffer:
 
 
 func _begin_action(kind: PlayerActionKind.Kind) -> bool:
+	if action_start_validator.is_valid() and not bool(action_start_validator.call(kind)):
+		return false
 	match kind:
 		PlayerActionKind.Kind.ATTACK:
 			_set_state(PlayerActionState.State.ATTACK)
+			action_started.emit(kind)
 			return true
 		PlayerActionKind.Kind.GUARD:
 			_guard_held = true
 			_set_state(PlayerActionState.State.GUARD)
+			action_started.emit(kind)
 			return true
 		PlayerActionKind.Kind.DODGE:
 			_set_state(PlayerActionState.State.DODGE)
+			action_started.emit(kind)
 			return true
 		_:
 			return false

@@ -1,24 +1,43 @@
-# Harju Village campaign junction, kept compact for developer traversal.
+# Rural Harria in Spring 1343. The cluster-village relationship and field economy
+# are evidence-led; this exact farm graph and every facade are plausible composites.
+# The barn-dwelling uses only rehetuba + rehealune, never later chamber rows.
 rrmap 1
 map world.harju loc.world_harju 52 30 meadow scope=prototype active=false palette=clean_painted_outdoor seed=1344 cell_size=32
 source "scenes/world_travel/world_harju.tscn"
 source "scenes/world/harju_village.md"
 source "docs/reports/global_map_mockups.md"
+source "history/dossiers/hinterland/harju-village-and-manor.md"
+source "history/dossiers/architecture/rural-smoke-dwelling-and-farmstead-1343.md"
+style rural.barn_dwelling primitive=barn_dwelling_1343 wall_height=58 wall_color=63594dff wall_material=log roof_color=756548ff roof_material=thatch door_side=south ridge_axis=x
+style rural.smoke_cottage primitive=smoke_cottage_1343 wall_height=52 wall_color=5e5447ff wall_material=log roof_color=6f6045ff roof_material=thatch door_side=north ridge_axis=x
+style rural.barn primitive=rural_barn_1343 wall_height=56 wall_color=594d40ff wall_material=log roof_color=6a593fff roof_material=thatch door_side=south ridge_axis=x
+style wall.fence wall_height=20 wall_color=594737ff wall_material=plank
 terrain west_fields farm_soil 2 2 15 9 order=1
 terrain east_fields farm_soil 35 3 14 8 order=2
 terrain hay_field hay 4 23 10 5 order=3
 terrain village_road dirt 0 13 52 5 order=4
-terrain muddy_common mud 20 16 8 4 order=5
-terrain east_wood forest_floor 43 18 9 12 order=6
-building elder_farmstead house 18 7 8 4 primitive=farmhouse wall_height=54
-building threshing_barn house 30 7 9 4 primitive=barn wall_height=58
-building west_croft house 6 18 7 4 primitive=farmhouse wall_height=50
-building cattle_fence wall 28 21 12 1 primitive=palisade wall_height=20
+terrain elder_yard dirt 16 5 14 7 order=5
+terrain barn_yard dirt 29 6 13 7 order=6
+terrain croft_yard dirt 4 18 12 5 order=7
+terrain muddy_common mud 20 16 8 4 order=8
+terrain east_wood forest_floor 43 18 9 12 order=9
+building elder_farmstead house 17 6 12 5 style=rural.barn_dwelling
+building threshing_barn house 31 7 9 5 style=rural.barn
+building west_croft house 6 18 7 4 style=rural.smoke_cottage
+building cattle_fence wall 28 21 12 1 style=wall.fence primitive=palisade
 prop village_well well 25 15 primitive=well
-prop hay_rick hay_stack 9 25 primitive=hay_stack style_variant=hay_stack.tall
-prop field_cart cart 40 14 primitive=cart
+prop elder_root_cellar root_cellar_mound 18 11 rect=2,1
+prop elder_farm_cart farm_cart 27 10 rect=2,2
+prop barn_hay_rick hay_stack 37 12 primitive=hay_stack style_variant=hay_stack.tall
+prop west_kitchen_garden kitchen_garden 5 22 rect=2,1
+prop east_field_strip field_strip 39 5 rect=2,1
+prop pasture_fence_west pasture_fence 30 22 rect=3,1
+prop pasture_fence_east pasture_fence 36 22 rect=3,1
+prop spring_cattle cattle 33 25 rect=2,2
+prop spring_sheep_a sheep 37 25 rect=2,2
+prop spring_sheep_b sheep 40 26 rect=2,2
 anchor landmark_village_well 25 15 kind=well
-anchor landmark_threshing_barn 34 11 kind=barn
+anchor landmark_threshing_barn 35 10 kind=barn
 anchor landmark_split_fields 42 6 kind=farm_fields
 spawn prototype_inspection 3 15
 patrol prototype_inspection_route 3,15|14,15|25,15|38,15|48,16

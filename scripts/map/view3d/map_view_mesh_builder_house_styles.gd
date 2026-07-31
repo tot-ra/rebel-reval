@@ -3,8 +3,12 @@ extends RefCounted
 
 ## Deterministic house wall and roof style selection plus material resolution.
 
+const _Rural := preload("res://scripts/map/view3d/map_view_rural_dwelling_models.gd")
+
 
 static func house_style(building: Dictionary) -> StringName:
+	if _Rural.is_rural_1343(building):
+		return MapViewMeshBuilderConfig.HOUSE_STYLE_LOG
 	match StringName(building.get("wall_material", &"")):
 		&"plaster", &"timber":
 			return MapViewMeshBuilderConfig.HOUSE_STYLE_TIMBER
@@ -65,6 +69,15 @@ static func house_wall_material(building: Dictionary, wall_color: Color, size: V
 
 
 static func roof_style(building: Dictionary) -> StringName:
+	if _Rural.is_rural_1343(building):
+		# Split-board cover is retained only as an explicit smoke-cottage option;
+		# working barns and barn-dwellings use the conservative thatch lane.
+		if (
+			StringName(building.get("primitive", &"")) == _Rural.SMOKE_COTTAGE_PRIMITIVE
+			and StringName(building.get("roof_material", &"")) == &"shingle"
+		):
+			return MapViewMeshBuilderConfig.ROOF_STYLE_SHINGLE
+		return MapViewMeshBuilderConfig.ROOF_STYLE_THATCH
 	match StringName(building.get("roof_material", &"")):
 		&"tile":
 			return MapViewMeshBuilderConfig.ROOF_STYLE_TILE

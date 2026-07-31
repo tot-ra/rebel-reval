@@ -81,6 +81,35 @@ func test_screen_relative_basis_maps_arrows_to_camera_diagonals() -> void:
 	)
 	player.free()
 
+func test_dodge_spends_explicit_stamina_and_rejects_exhausted_start() -> void:
+	var player := _create_player()
+	player.stamina = Player.DODGE_STAMINA_COST
+	assert_true(player.try_start_dodge(Vector2.RIGHT), "Exact dodge cost must be sufficient")
+	_assert_eq(player.stamina, 0.0, "Dodge must spend its explicit stamina cost once")
+	player.free()
+
+	player = _create_player()
+	player.stamina = Player.DODGE_STAMINA_COST - 0.1
+	_assert_eq(player.try_start_dodge(Vector2.RIGHT), false, "Dodge must not start below its stamina cost")
+	_assert_eq(player.action_state_machine.state, PlayerActionState.State.MOVE, "Rejected dodge must stay in MOVE")
+	_assert_eq(player.stamina, Player.DODGE_STAMINA_COST - 0.1, "Rejected dodge must not spend stamina")
+	player.free()
+
+
+func test_buffered_dodge_rechecks_stamina_when_recovery_ends() -> void:
+	var player := _create_player()
+	player.stamina = Player.DODGE_STAMINA_COST
+	player.action_state_machine.try_start_action(PlayerActionKind.Kind.ATTACK)
+	_assert_eq(player.try_start_dodge(Vector2.LEFT), false, "Busy player should buffer rather than start dodge")
+	player.stamina = Player.DODGE_STAMINA_COST - 1.0
+	var machine := player.action_state_machine
+	while machine.state != PlayerActionState.State.MOVE:
+		machine.tick(TEST_DELTA)
+	_assert_eq(machine.state, PlayerActionState.State.MOVE, "Failed buffered stamina gate must recover to MOVE")
+	_assert_eq(player.stamina, Player.DODGE_STAMINA_COST - 1.0, "Failed buffered dodge must not spend stamina")
+	player.free()
+
+
 func _create_player() -> Player:
 	if SessionState.state == null:
 		SessionState.state = GameState.new()

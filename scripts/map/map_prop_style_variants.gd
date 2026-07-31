@@ -110,11 +110,68 @@ const CART_CORRIDORS: Array[StringName] = [
 	CART_CORRIDOR_HARJU_ROAD,
 ]
 
+## Closed R-006 / R-035 / P0-165 Toompea fabric keys. These values classify
+## authored map and art source; they do not make the inactive map traversable.
+const TOOMPEA_ZONE_SMALL_CASTLE := &"small_castle"
+const TOOMPEA_ZONE_GREAT_CASTLE := &"great_castle"
+const TOOMPEA_ZONE_OUTER_WARD := &"outer_ward"
+const TOOMPEA_ZONES: Array[StringName] = [
+	TOOMPEA_ZONE_SMALL_CASTLE,
+	TOOMPEA_ZONE_GREAT_CASTLE,
+	TOOMPEA_ZONE_OUTER_WARD,
+]
+
+const TOOMPEA_HOUSE_VASSAL_CURIA := &"vassal_curia"
+const TOOMPEA_HOUSE_CANON_LODGING := &"canon_lodging"
+const TOOMPEA_HOUSE_SERVICE_WING := &"service_wing"
+const TOOMPEA_HOUSE_TIERS: Array[StringName] = [
+	TOOMPEA_HOUSE_VASSAL_CURIA,
+	TOOMPEA_HOUSE_CANON_LODGING,
+	TOOMPEA_HOUSE_SERVICE_WING,
+]
+const ALL_HOUSE_TIERS: Array[StringName] = [
+	HOUSE_TIER_MERCHANT_STONE,
+	HOUSE_TIER_MERCHANT_TIMBER,
+	HOUSE_TIER_CRAFT_BODA,
+	TOOMPEA_HOUSE_VASSAL_CURIA,
+	TOOMPEA_HOUSE_CANON_LODGING,
+	TOOMPEA_HOUSE_SERVICE_WING,
+]
+
+const TOOMPEA_HILL_GATE_PIKK_JALG_TIMBER := &"hill_gate.pikk_jalg.timber"
+const TOOMPEA_HILL_GATE_LUHIKE_JALG_TIMBER := &"hill_gate.luhike_jalg.timber"
+const TOOMPEA_HILL_GATE_STYLES: Array[StringName] = [
+	TOOMPEA_HILL_GATE_PIKK_JALG_TIMBER,
+	TOOMPEA_HILL_GATE_LUHIKE_JALG_TIMBER,
+]
+
+const JURISDICTION_TOOMPEA_DANISH := &"toompea_danish"
+const JURISDICTION_ALL_LINN_LUBECK := &"all_linn_lubeck"
+const REVAL_JURISDICTIONS: Array[StringName] = [
+	JURISDICTION_TOOMPEA_DANISH,
+	JURISDICTION_ALL_LINN_LUBECK,
+]
+
+## Existing generated gate hardware is a closed leaf/grille vocabulary. In
+## particular, no value may imply a stone hill-gate tower in Spring 1343.
+const GATE_VARIANT_OAK := &"oak"
+const GATE_VARIANT_IRONBOUND := &"ironbound"
+const GATE_VARIANT_NONE := &"none"
+const GATE_VARIANT_COMPAT_WOOD := &"wood"
+const GATE_VARIANT_COMPAT_METAL := &"metal"
+const GATE_VARIANTS: Array[StringName] = [
+	GATE_VARIANT_OAK,
+	GATE_VARIANT_IRONBOUND,
+	GATE_VARIANT_NONE,
+	GATE_VARIANT_COMPAT_WOOD,
+	GATE_VARIANT_COMPAT_METAL,
+]
+
 
 static func is_known_house_tier(tier: StringName) -> bool:
 	if tier.is_empty():
 		return true
-	return tier in HOUSE_TIERS
+	return tier in ALL_HOUSE_TIERS
 
 
 static func house_tier_allows_hoist(tier: StringName) -> bool:
@@ -140,6 +197,26 @@ static func is_known_cart_corridor(corridor: StringName) -> bool:
 	if corridor.is_empty():
 		return true
 	return corridor in CART_CORRIDORS
+
+
+static func is_known_toompea_zone(zone: StringName) -> bool:
+	return zone in TOOMPEA_ZONES
+
+
+static func is_known_toompea_house_tier(tier: StringName) -> bool:
+	return tier in TOOMPEA_HOUSE_TIERS
+
+
+static func is_known_toompea_hill_gate_style(style: StringName) -> bool:
+	return style in TOOMPEA_HILL_GATE_STYLES
+
+
+static func is_known_reval_jurisdiction(jurisdiction: StringName) -> bool:
+	return jurisdiction in REVAL_JURISDICTIONS
+
+
+static func is_known_gate_variant(variant: StringName) -> bool:
+	return variant in GATE_VARIANTS
 
 
 static func cart_toll_pfennig() -> Variant:

@@ -6,6 +6,7 @@ extends RefCounted
 const _Styles := preload("res://scripts/map/view3d/map_view_mesh_builder_house_styles.gd")
 const _RoofDressing := preload("res://scripts/map/view3d/map_view_mesh_builder_house_roof_dressing.gd")
 const _Structure := preload("res://scripts/map/view3d/map_view_mesh_builder_house_structure.gd")
+const _Rural := preload("res://scripts/map/view3d/map_view_rural_dwelling_models.gd")
 
 
 static func house_style(building: Dictionary) -> StringName:
@@ -68,7 +69,28 @@ static func town_hall_gallery_inset(building: Dictionary, size: Vector2) -> floa
 ## Facade openings authored by the primitive itself must not be doubled by the
 ## generic house door and window pass.
 static func authors_own_facade(building: Dictionary) -> bool:
-	return StringName(building.get("primitive", &"")) == &"town_hall_1343"
+	return (
+		StringName(building.get("primitive", &"")) == &"town_hall_1343"
+		or _Rural.is_rural_1343(building)
+	)
+
+
+## Smoke cottages and early barn-dwellings use a flueless corner oven. A generic
+## roof stack would turn the archaeological baseline into a later heated house.
+static func allows_chimney(building: Dictionary) -> bool:
+	return not _Rural.is_smoke_heated(building) and (
+		StringName(building.get("primitive", &"")) != _Rural.RURAL_BARN_PRIMITIVE
+	)
+
+
+static func add_authored_facade(
+	root: Node3D,
+	building: Dictionary,
+	size: Vector2,
+	height: float
+) -> void:
+	if _Rural.is_rural_1343(building):
+		_Rural.add_facade(root, building, size, height)
 
 
 static func add_historic_building_details(
@@ -617,6 +639,8 @@ static func _add_stepped_merchant_gable(
 
 
 static func add_chimney(root: Node3D, building: Dictionary, size: Vector2, wall_height: float, ridge_along_x: bool) -> void:
+	if not allows_chimney(building):
+		return
 	var building_id: StringName = building["id"]
 	var seed := String(building_id).hash()
 	var chimney_size := MapViewMeshBuilderConfig.CHIMNEY_SIZE
@@ -661,7 +685,9 @@ static func add_chimney(root: Node3D, building: Dictionary, size: Vector2, wall_
 	root.add_child(smoke)
 
 
-static func add_window_lights(root: Node3D, building_id: StringName) -> void:
+static func add_window_lights(root: Node3D, building: Dictionary) -> void:
+	if _Rural.is_rural_1343(building):
+		return
 	var lights: BuildingWindowLights3D = MapViewMeshBuilderConfig.WINDOW_LIGHTS_SCRIPT.new()
 	root.add_child(lights)
-	lights.configure(building_id)
+	lights.configure(building["id"])

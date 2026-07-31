@@ -27,6 +27,9 @@ _SURFACE_PROFILES: dict[str, dict[str, float]] = {
     "aged_iron": {"normal_strength": 0.65, "roughness_base": 0.52, "roughness_range": 0.10, "ao_depth": 0.10},
     "inner_iron": {"normal_strength": 0.60, "roughness_base": 0.68, "roughness_range": 0.08, "ao_depth": 0.12},
     "leather": {"normal_strength": 0.45, "roughness_base": 0.78, "roughness_range": 0.10, "ao_depth": 0.14},
+    "linen": {"normal_strength": 0.42, "roughness_base": 0.94, "roughness_range": 0.04, "ao_depth": 0.10},
+    "hemp": {"normal_strength": 0.48, "roughness_base": 0.95, "roughness_range": 0.03, "ao_depth": 0.10},
+    "charcoal": {"normal_strength": 0.32, "roughness_base": 0.92, "roughness_range": 0.06, "ao_depth": 0.08},
     "stone": {"normal_strength": 0.40, "roughness_base": 0.92, "roughness_range": 0.05, "ao_depth": 0.08},
     "firebrick": {"normal_strength": 0.50, "roughness_base": 0.86, "roughness_range": 0.07, "ao_depth": 0.10},
     "soot": {"normal_strength": 0.25, "roughness_base": 0.94, "roughness_range": 0.04, "ao_depth": 0.06},
@@ -71,6 +74,19 @@ def _height_field(u, v, surface: str):
         fold = np.sin((u * 4.5 + 0.35 * np.sin(v * math.tau * 1.6)) * math.tau)
         crease = np.sin((v * 9.0 - u * 2.5) * math.tau)
         height = 0.50 + fold * 0.09 + crease * 0.04
+    elif surface == "linen":
+        warp = np.sin((u * 44.0 + 0.5 * np.sin(v * math.tau * 2.0)) * math.tau)
+        weft = np.sin((v * 40.0 - 0.4 * np.sin(u * math.tau * 1.7)) * math.tau)
+        broad = np.sin((u * 2.1 + v * 1.4) * math.tau)
+        height = 0.50 + warp * weft * 0.055 + broad * 0.025
+    elif surface == "hemp":
+        twist = np.sin((u * 24.0 + v * 9.0) * math.tau)
+        fiber = np.sin((u * 61.0 - v * 5.0) * math.tau)
+        height = 0.50 + twist * 0.08 + fiber * 0.025
+    elif surface == "charcoal":
+        fracture = np.sin((u * 9.0 + v * 3.0) * math.tau) * np.sin((v * 13.0 - u * 4.0) * math.tau)
+        growth_rings = np.sin((u * 21.0 + 0.7 * np.sin(v * math.tau * 3.0)) * math.tau)
+        height = 0.50 + fracture * 0.09 + growth_rings * 0.035
     elif surface == "stone":
         broad = np.sin((u * 2.0 + v * 1.45) * math.tau)
         chisel = np.sin((u * 14.0 - v * 5.0) * math.tau) * np.sin((v * 11.0 + u * 2.0) * math.tau)

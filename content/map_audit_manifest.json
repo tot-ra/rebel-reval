@@ -554,10 +554,11 @@
       "disposition": "convert",
       "capture": "world_padise.png",
       "mandatory_anchors": [
-        "landmark_church",
-        "landmark_cloister",
-        "landmark_gatehouse",
-        "landmark_work_yard"
+        "landmark_early_stone_house",
+        "landmark_timber_oratory",
+        "landmark_fire_damage",
+        "landmark_work_yard",
+        "landmark_monastery_well"
       ],
       "mandatory_transitions": [
         "road_to_reval",

@@ -102,6 +102,20 @@
 - Latin liturgical texts: Kyrie Eleison, Gloria in excelsis Deo, Sanctus, Agnus Dei
 - Monastic office: Matins, Lauds, Prime, Terce, Sext, None, Vespers, Compline
 
+## 1 May 1343 reconstruction boundary
+
+`content/maps/world_padise.rrmap` represents the site about one week after the 23 April attack. It is an uncertainty-aware gameplay reconstruction, not an exact archaeological plan.
+
+| Confidence | Evidence or implementation decision | Map consequence |
+| --- | --- | --- |
+| High | The Padise permanent exhibition records the killing of 28 monks and the burning of the buildings in 1343. | Restrained ash, scorch and ruined sill traces communicate recent damage without turning the entire site into a fire field. |
+| High | A substantial stone building from the pre-uprising period survived beneath and projected south from the later western range. | The long western stone house is the dominant landmark and the northern stone traces stay low and fragmentary. |
+| Medium | The pre-uprising monastery probably comprised several small, mostly wooden buildings scattered over a wider area than the later enclosure. | Timber halls and service sheds remain dispersed around an open close. They do not form a four-wing cloister. |
+| High | The foundation site lay beside the Simmiku/Kloostri River and the Tallinn-Haapsalu road crossing. | The western water edge and southern travel road are retained as broad geographic context, not a surveyed shoreline. |
+| Low / gameplay hypothesis | No reliable 1343 room-by-room plan establishes the exact oratory, infirmary, brewery, stable, well or work-yard positions used here. | Those labels and coordinates support readable traversal and narrative anchors only. They must not be cited as archaeological fact. |
+
+The completed quadrangular claustrum, stone church, western gate courtyard, drawbridges, towers, battlements and later baileys are deliberately excluded. The official architecture account describes them as products of the long post-uprising rebuilding campaign; the church itself was not consecrated until 1448.
+
 ## Game Implementation Notes for P6-009
 
 ### Phase 1 (Pre-War)
@@ -127,9 +141,12 @@
 
 ## Sources
 
-1. Padise Monastery Visitor Centre Permanent Exhibition "Südame ja mõistmisega" (With Heart and Understanding) - https://padise.rktv.ee/
-2. Wikipedia: Padise Abbey - https://en.wikipedia.org/wiki/Padise_Abbey
-3. Medieval Heritage: Padise Cistercian Abbey - https://medievalheritage.eu/en/main-page/heritage/estonia/padise-cistercian-monastery/
+1. Padise Monastery permanent exhibition, "Padise Monastery before the St. George’s Night Uprising (1343)" - https://padise.rktv.ee/padise-monastery-before-the-st-georges-night-uprising-1343/?lang=en
+2. Padise Monastery permanent exhibition, "The Foundation of the Padise Monastery" - https://padise.rktv.ee/the-foundation-of-the-padise-monastery/?lang=en
+3. Padise Monastery permanent exhibition, "Architecture of the Padise Monastery" - https://padise.rktv.ee/architecture-of-the-padise-monastery/?lang=en
+4. Villu Kadakas, "Archaeological Studies in the Cistercian Monastic Complex in Padise" (2019) - https://ojs.utlib.ee/index.php/AVE/article/download/25195/19183/38200
+5. Wikipedia: Padise Abbey - https://en.wikipedia.org/wiki/Padise_Abbey (orientation only; not used to place 1343 geometry)
+6. Medieval Heritage: Padise Cistercian Abbey - https://medievalheritage.eu/en/main-page/heritage/estonia/padise-cistercian-monastery/ (orientation only)
 
 ---
 

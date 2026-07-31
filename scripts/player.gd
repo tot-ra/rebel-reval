@@ -28,6 +28,9 @@ var max_health: float = 100.0
 var stamina: float = 100.0
 var max_stamina: float = 100.0
 const STAMINA_DRAIN_RATE := 10.0 # per second
+const DODGE_STAMINA_COST := 18.0
+const DODGE_DISTANCE_PX := 80.0
+const DODGE_DEFAULT_SIDE := Vector2.RIGHT
 
 var _screen_right_in_logic := Vector2.RIGHT
 var _screen_down_in_logic := Vector2.DOWN
@@ -39,6 +42,12 @@ var _active_attack_profile: AttackProfile = AttackProfile.unarmed()
 var _attack_charge_sec: float = 0.0
 var _attack_charge_active: bool = false
 var _last_hit_result: CombatHitResult
+var _pending_dodge_direction := Vector2.ZERO
+var _pending_dodge_facing := Vector2.ZERO
+var _dodge_direction := Vector2.ZERO
+var _dodge_facing := Vector2.ZERO
+var _dodge_animation: StringName = &"dodge_right"
+var _dodge_distance_remaining := 0.0
 
 func _ready() -> void:
 	CollisionLayers.apply_player(self)
@@ -47,8 +56,11 @@ func _ready() -> void:
 	_sync_resource_bars()
 	if not action_state_machine.attack_impact.is_connected(_on_attack_impact):
 		action_state_machine.attack_impact.connect(_on_attack_impact)
+	if not action_state_machine.action_started.is_connected(_on_action_started):
+		action_state_machine.action_started.connect(_on_action_started)
 	if not action_state_machine.state_changed.is_connected(_on_action_state_changed):
 		action_state_machine.state_changed.connect(_on_action_state_changed)
+	action_state_machine.action_start_validator = _can_start_action
 	DoorNavigator.on_trigger_player_spawn.connect(_on_spawn)
 	if navigation_agent != null:
 		navigation_agent.velocity_computed.connect(Callable(self, "_on_velocity_computed"))
@@ -69,9 +81,21 @@ func configure_map_movement(definition: MapDefinition, grid: MapTerrainGrid) -> 
 
 
 func _physics_process(_delta):
+	# Capture the portion of this physics interval that still belongs to DODGE
+	# before tick() can transition into recovery. This keeps travel independent
+	# of frame rate without extending the 0.28 s action/i-frame window.
+	var dodge_motion_sec := 0.0
+	var was_dodging := action_state_machine.state == PlayerActionState.State.DODGE
+	if was_dodging:
+		dodge_motion_sec = minf(
+			_delta,
+			maxf(0.0, action_state_machine.dodge_duration_sec - action_state_machine.state_elapsed_sec)
+		)
 	action_state_machine.tick(_delta)
 	combat_vitals.tick(_delta)
 	_process_action_input(_delta)
+	if not was_dodging and action_state_machine.state == PlayerActionState.State.DODGE:
+		dodge_motion_sec = minf(_delta, action_state_machine.dodge_duration_sec)
 
 	if _movement_blocked():
 		velocity = Vector2.ZERO
@@ -80,10 +104,16 @@ func _physics_process(_delta):
 		update_animation(_combat_or_locomotion_animation("idle"))
 		return
 
+	if dodge_motion_sec > 0.0:
+		_move_dodge(dodge_motion_sec)
+		_sync_resource_bars()
+		update_animation(_combat_or_locomotion_animation(action_state_machine.get_animation_base()))
+		return
+
 	if not action_state_machine.allows_movement():
 		velocity = Vector2.ZERO
-		_sync_resource_bars()
 		move_and_slide()
+		_sync_resource_bars()
 		update_animation(_combat_or_locomotion_animation(action_state_machine.get_animation_base()))
 		return
 
@@ -139,8 +169,101 @@ func _process_action_input(delta: float) -> void:
 	for kind in PlayerActionInput.read_pressed_actions():
 		if kind == PlayerActionKind.Kind.ATTACK:
 			continue
+		if kind == PlayerActionKind.Kind.DODGE:
+			try_start_dodge()
+			continue
 		action_state_machine.try_start_action(kind)
 	action_state_machine.set_guard_held(PlayerActionInput.read_guard_held())
+
+
+func try_start_dodge(direction: Vector2 = Vector2.ZERO) -> bool:
+	_pending_dodge_facing = _current_dodge_facing()
+	_pending_dodge_direction = (
+		direction.normalized() if not direction.is_zero_approx() else _requested_dodge_direction()
+	)
+	var was_free_to_start := action_state_machine.state == PlayerActionState.State.MOVE
+	var started := action_state_machine.try_start_action(PlayerActionKind.Kind.DODGE)
+	if was_free_to_start and not started:
+		_pending_dodge_direction = Vector2.ZERO
+		_pending_dodge_facing = Vector2.ZERO
+	return started
+
+
+func _requested_dodge_direction() -> Vector2:
+	var movement_direction := movement_direction_for_screen_input(ScreenDirectionInput.read_axis())
+	if not movement_direction.is_zero_approx():
+		return movement_direction
+	var facing := _current_dodge_facing()
+	# No-input dodge is deliberately the character's right side. It is stable in
+	# every camera mode and communicates why the Dodge_Right clip was selected.
+	return Vector2(facing.y, -facing.x) * DODGE_DEFAULT_SIDE.x
+
+
+func _current_dodge_facing() -> Vector2:
+	if not _camera_facing_direction.is_zero_approx():
+		return _camera_facing_direction.normalized()
+	if not _facing_direction.is_zero_approx():
+		return _facing_direction.normalized()
+	return Vector2.DOWN
+
+
+func _can_start_action(kind: PlayerActionKind.Kind) -> bool:
+	return kind != PlayerActionKind.Kind.DODGE or stamina >= DODGE_STAMINA_COST
+
+
+func _on_action_started(kind: PlayerActionKind.Kind) -> void:
+	if kind != PlayerActionKind.Kind.DODGE:
+		return
+	_dodge_facing = (
+		_pending_dodge_facing.normalized()
+		if not _pending_dodge_facing.is_zero_approx()
+		else _current_dodge_facing()
+	)
+	_dodge_direction = _pending_dodge_direction
+	if _dodge_direction.is_zero_approx():
+		_dodge_direction = Vector2(_dodge_facing.y, -_dodge_facing.x)
+	_dodge_direction = _dodge_direction.normalized()
+	_dodge_animation = dodge_animation_for_direction(_dodge_direction, _dodge_facing)
+	_facing_direction = _dodge_facing
+	_pending_dodge_direction = Vector2.ZERO
+	_pending_dodge_facing = Vector2.ZERO
+	_dodge_distance_remaining = DODGE_DISTANCE_PX
+	stamina = maxf(0.0, stamina - DODGE_STAMINA_COST)
+	_sync_resource_bars()
+
+
+static func dodge_animation_for_direction(direction: Vector2, facing: Vector2) -> StringName:
+	var normalized_facing := facing.normalized() if not facing.is_zero_approx() else Vector2.DOWN
+	var normalized_direction := direction.normalized() if not direction.is_zero_approx() else Vector2(
+		normalized_facing.y,
+		-normalized_facing.x
+	)
+	var right := Vector2(normalized_facing.y, -normalized_facing.x)
+	var forward_amount := normalized_direction.dot(normalized_facing)
+	var right_amount := normalized_direction.dot(right)
+	if absf(right_amount) > absf(forward_amount):
+		return &"dodge_right" if right_amount >= 0.0 else &"dodge_left"
+	return &"dodge_forward" if forward_amount >= 0.0 else &"dodge_backward"
+
+
+func _move_dodge(delta: float) -> void:
+	var intended_distance := minf(
+		_dodge_distance_remaining,
+		DODGE_DISTANCE_PX * delta / action_state_machine.dodge_duration_sec
+	)
+	if intended_distance <= 0.0:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
+	# move_and_slide owns collision resolution and uses the engine physics step.
+	# Scale velocity so direct focused-test calls with an explicit delta cover the
+	# same bounded distance as real physics callbacks.
+	var physics_delta := maxf(get_physics_process_delta_time(), 0.0001)
+	velocity = _dodge_direction * intended_distance / physics_delta
+	var before := global_position
+	move_and_slide()
+	var traveled := (global_position - before).dot(_dodge_direction)
+	_dodge_distance_remaining = maxf(0.0, _dodge_distance_remaining - maxf(0.0, traveled))
 
 
 func _process_instant_attack_input() -> void:
@@ -252,6 +375,8 @@ func is_combat_dead() -> bool:
 
 
 func view_facing() -> Vector2:
+	if action_state_machine.state == PlayerActionState.State.DODGE and not _dodge_facing.is_zero_approx():
+		return _dodge_facing
 	return _facing_direction
 
 
@@ -271,6 +396,8 @@ func view_animation() -> StringName:
 	var animation_base := _combat_or_locomotion_animation(_current_locomotion_animation())
 	if animation_base == "attack":
 		return _active_attack_profile.animation
+	if animation_base == "dodge":
+		return _dodge_animation
 	return StringName(animation_base)
 
 

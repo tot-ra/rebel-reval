@@ -5,6 +5,7 @@ extends RefCounted
 
 const _Styles := preload("res://scripts/map/view3d/map_view_mesh_builder_house_styles.gd")
 const _RoofDressing := preload("res://scripts/map/view3d/map_view_mesh_builder_house_roof_dressing.gd")
+const _Rural := preload("res://scripts/map/view3d/map_view_rural_dwelling_models.gd")
 
 
 static func add_house_structure(
@@ -15,13 +16,16 @@ static func add_house_structure(
 	along_ridge_x: bool
 ) -> void:
 	var style := _Styles.house_style(building)
-	MapViewMeshBuilderPrimitives.box(
-		root,
-		"Plinth",
-		Vector3(size.x + 0.12, MapViewMeshBuilderConfig.PLINTH_HEIGHT, size.y + 0.12),
-		Vector3(0.0, MapViewMeshBuilderConfig.PLINTH_HEIGHT * 0.5, 0.0),
-		&"stone"
-	)
+	if _Rural.is_rural_1343(building):
+		_add_rural_packing_stones(root, size)
+	else:
+		MapViewMeshBuilderPrimitives.box(
+			root,
+			"Plinth",
+			Vector3(size.x + 0.12, MapViewMeshBuilderConfig.PLINTH_HEIGHT, size.y + 0.12),
+			Vector3(0.0, MapViewMeshBuilderConfig.PLINTH_HEIGHT * 0.5, 0.0),
+			&"stone"
+		)
 	match style:
 		MapViewMeshBuilderConfig.HOUSE_STYLE_STONE, MapViewMeshBuilderConfig.HOUSE_STYLE_BRICK:
 			_add_masonry_dressing(root, size, height)
@@ -35,6 +39,19 @@ static func add_house_structure(
 			# 1343 Reval (see docs/HISTORICAL_AUDIT.md Building Materials Mix).
 			_add_plaster_timber_posts(root, size, height)
 	_RoofDressing.add_roof_trim(root, building, size, height, along_ridge_x)
+
+static func _add_rural_packing_stones(root: Node3D, size: Vector2) -> void:
+	var half := size * 0.5
+	for corner in [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)]:
+		var suffix := "%d_%d" % [int(corner.x), int(corner.y)]
+		MapViewMeshBuilderPrimitives.box(
+			root,
+			"FoundationPad_%s" % suffix,
+			Vector3(0.34, 0.10, 0.34),
+			Vector3(corner.x * (half.x - 0.20), 0.05, corner.y * (half.y - 0.20)),
+			&"stone"
+		)
+
 
 static func _add_masonry_dressing(root: Node3D, size: Vector2, height: float) -> void:
 	var half := size * 0.5

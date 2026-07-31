@@ -9,6 +9,7 @@ const COMMISSION_ID := &"commission.watch_buckle_repair"
 const DIALOGUE_HENNING := &"dialogue.makers_mark.henning_arrival"
 const DIALOGUE_CHEST := &"dialogue.makers_mark.chest_discovery"
 const DIALOGUE_LEDGER := &"dialogue.makers_mark.ledger_choice"
+const DIALOGUE_WAKE_UP := &"dialogue.makers_mark.wake_up"
 const CHEST_PROP_ID := &"chest"
 
 const TRANSITION_DISCOVER := &"discover_incident"
@@ -52,6 +53,7 @@ var _ledger_choice_interactable: Interactable
 var _hint_label: Label
 var _pending_quest_transition := &""
 var _henning_arrival_started := false
+var _wake_up_played := false
 
 
 func setup(
@@ -89,6 +91,8 @@ func setup(
 
 	_bootstrap_quest()
 	_sync_stage()
+	# Trigger the opening wake-up monologue on first launch.
+	_try_start_wake_up_monologue()
 
 
 func get_dialogue_runner() -> DialogueRunner:
@@ -173,6 +177,18 @@ func _commission_resolved() -> bool:
 
 func _quest_state() -> StringName:
 	return SessionState.state.get_quest_state(QUEST_ID)
+
+
+func _try_start_wake_up_monologue() -> void:
+	# Only play once per session; skip if already seen or runner is busy.
+	if _wake_up_played or _runner.is_active():
+		return
+	_wake_up_played = true
+	_runner.configure(SessionState.content_db, SessionState.state, _presenter)
+	if not _runner.start(DIALOGUE_WAKE_UP):
+		push_warning("Forge prologue failed to start wake-up monologue")
+		return
+	_set_interaction_enabled(false)
 
 
 func _try_start_henning_arrival() -> void:

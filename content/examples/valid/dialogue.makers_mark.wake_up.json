@@ -1,0 +1,59 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.makers_mark.wake_up",
+  "title": "Kalev wakes from a strange dream",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "Opening monologue for the Maker's Mark prologue. Kalev wakes near his bed and recalls a bizarre dream."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "Linear monologue; Kalev wakes up and talks to himself about a strange dream."
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "waking_groan",
+  "word_count_estimate": 72,
+  "nodes": [
+    {
+      "id": "waking_groan",
+      "speaker_id": "char.kalev",
+      "text": "Ugh... what a dream. What a... mad dream.",
+      "next_node_id": "dream_recount"
+    },
+    {
+      "id": "dream_recount",
+      "speaker_id": "char.kalev",
+      "text": "It was as if I was in the future - roads made of metal, men flying in metal birds, and we were ruling the Germans and the Russians.",
+      "next_node_id": "dream_dismiss"
+    },
+    {
+      "id": "dream_dismiss",
+      "speaker_id": "char.kalev",
+      "text": "Can you imagine? Us! Ruling over them. Ha. Must have been the stew.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.wake_up_monologue_seen",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Kalev wakes from a prophetic dream about the future - a meta nod to Estonia's modern history of occupation and independence.",
+      "citations": [
+        "docs/CHARACTERS/kalev.md",
+        "docs/SCENES/the-makers-mark.md"
+      ]
+    }
+  ]
+}

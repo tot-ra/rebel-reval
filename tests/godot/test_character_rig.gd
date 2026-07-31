@@ -18,6 +18,10 @@ const REQUIRED_ANIMATIONS: Array[StringName] = [
 	&"hammer_charged_attack",
 	&"unarmed_attack",
 	&"guard",
+	&"dodge_left",
+	&"dodge_right",
+	&"dodge_forward",
+	&"dodge_backward",
 	&"hit",
 	&"fall",
 	&"pickup",
@@ -39,6 +43,26 @@ func test_kalev_rig_has_required_skeleton_animations_and_hammer() -> void:
 
 	kalev.queue_free()
 
+func test_directional_dodges_use_non_looping_shared_clips() -> void:
+	var kalev := _instantiate(KALEV_SCENE)
+	var expected := {
+		&"dodge_left": &"Dodge_Left",
+		&"dodge_right": &"Dodge_Right",
+		&"dodge_forward": &"Dodge_Forward",
+		&"dodge_backward": &"Dodge_Backward",
+	}
+	for canonical_name: StringName in expected:
+		assert_true(kalev.play_animation(canonical_name, 0.0))
+		var source_name: StringName = expected[canonical_name]
+		assert_eq(kalev.animation_player().current_animation, source_name)
+		assert_eq(
+			kalev.animation_player().get_animation(source_name).loop_mode,
+			Animation.LOOP_NONE,
+			"Directional dodge clips must remain one-shot actions"
+		)
+	kalev.queue_free()
+
+
 func test_sword_attack_uses_diagonal_slice_clip() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
 	assert_true(kalev.play_animation(&"sword_attack"))
@@ -49,6 +73,7 @@ func test_sword_attack_uses_diagonal_slice_clip() -> void:
 		"Sword light attack must remain a one-shot shared-rig action"
 	)
 	kalev.queue_free()
+
 
 func test_unarmed_attack_uses_punch_clip() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
@@ -241,6 +266,7 @@ func test_sword_scene_mounts_with_grip_origin_and_blade_away_from_hand() -> void
 	assert_true((sword.get_node("Crossguard") as MeshInstance3D).get_aabb().size.x > 0.25)
 	kalev.queue_free()
 
+
 func test_sword_blade_points_away_from_torso_in_idle_and_attack() -> void:
 	var kalev := _instantiate(KALEV_SCENE)
 	var sword_scene := load("res://assets/characters/shared/sword.tscn") as PackedScene
@@ -269,6 +295,7 @@ func test_sword_blade_points_away_from_torso_in_idle_and_attack() -> void:
 		)
 	kalev.queue_free()
 
+
 func test_map_view_runtime_hot_swaps_hammer_sword_and_empty_hand_visuals() -> void:
 	var db := ContentDB.new()
 	assert_true(db.load_from_directories(SessionState.DEMO_CONTENT_DIRS))
@@ -294,6 +321,7 @@ func test_map_view_runtime_hot_swaps_hammer_sword_and_empty_hand_visuals() -> vo
 	assert_eq(kalev.equipped(&"right_hand"), null)
 	actors.disconnect_equipment_state()
 	kalev.queue_free()
+
 
 func test_equipment_slots_mount_replace_and_clear_props() -> void:
 	var kalev := _instantiate(KALEV_SCENE)

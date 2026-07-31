@@ -25,7 +25,7 @@ You are staging **April–May 1343 trade** at a **Danish Hanseatic entrepôt** o
 2. **No forced local warehousing yet.** Tallinn's **warehousing privilege** (*Lagerecht*) dates to **1346**, three years after the game date — April 1343 merchants may still **trans-ship without mandatory Reval middlemen**, though Great Guild practice already favours local storage on Pikk [`coinage-prices-and-measures.md`](./coinage-prices-and-measures.md) [4]. Do **not** script a 1346 staple law in Spring 1343 scenes.
 3. **Novgorod route:** Sea leg **Reval → Neva mouth (Kotlin) → Ladoga → Volkhov → Novgorod Peterhof**; land alternatives **Dorpat–Pskov** or **Narva–Wesenberg** when Swedish conflict or ice blocks the water leg [5][6][7]. Convoys run **twice yearly** — **summer and winter travellers** (*Sommer- und Winterfahrer*) [5][8].
 4. **April–May season band:** **Ice break-up** on the Gulf of Finland is **under way**; **first coastal sailings plausible** but **mud, grounding risk, and variable ice pans** persist — exact 1343 ice-off day **unknown** [`spring-climate-and-living-world.md`](../nature/spring-climate-and-living-world.md) [9][10]. **Winter Novgorod caravans** have largely **returned**; **summer convoy** is **forming**, not yet at peak.
-5. **Calendar anchors:** **Easter 1343 = 21 April** (Julian); **St George's Night = 23 April** — only two days later [11]. Post-Easter market activity is **plausible**; Lent fasting has **just ended**.
+5. **Calendar anchors:** **Easter 1343 = 13 April** (Julian) [11]; **St George's Night = 23 April** — ten days after Easter, not two. Post-Easter market activity is **plausible**; Lent fasting has **just ended**.
 6. **What keeps moving after 23 April:** **Harbour labour, roadstead lighters, and Hanseatic cogs standing offshore** can continue under **siege tension**; **interior cart traffic** from Harju manors **fractures** [12][13]. Apply **×1.25–1.5 scarcity** on grain, beer, charcoal from [`coinage-prices-and-measures.md`](./coinage-prices-and-measures.md) [14].
 7. **What stalls:** **Overland grain and livestock** from rebel-held countryside; **charcoal and forge fuel** cart routes; **Estonian stevedore labour** outside the wall; **land Novgorod corridor** through Harju; **Swedish relief fleet** (arrives **18–19 May**, too late) [12][15][16].
 8. **Credit is normal.** Long-distance settlement uses **bills of exchange** (*Wechsel*), **money-changers**, and **sealed partnership letters** on the **Novgorod–Reval–Lübeck–Bruges** chain — not bags of coin on every cog [17][18].
@@ -88,7 +88,7 @@ Hanseatic practice: **larger ships lay up November–March** on the Baltic; **sp
 | Date / window | Trade read | Confidence |
 |---|---|---|
 | **Early April 1343** | Last winter stocks; ice fringe possible offshore; harbour mud | plausible composite [9][10][24] |
-| **21 April (Easter)** | Lent ended; market feasting resumes; convoy preparation | attested calendar [11]; trade volume `plausible composite` |
+| **13 April (Easter)** | Lent ended; market feasting resumes; convoy preparation | attested calendar [11]; trade volume `plausible composite` |
 | **23 April (St George's Night)** | Countryside attacks begin; **interior supply chains fracture** | attested [12][15] |
 | **Late April (siege)** | **Harbour may still operate** under walls; roadstead resupply **plausible**; overland carts **risk ambush** | plausible composite [13][24] |
 | **11 May** | Crown **grain levy** still collected from town (*DD* III:1, no. 321) — council resources strained | attested [25] |
@@ -183,7 +183,7 @@ Hanseatic practice: **larger ships lay up November–March** on the Baltic; **sp
 8. Wikipedia, "Peterhof (Novgorod)" — summer/winter travellers; kontor residence limits; 1346 president selection (English).
 9. Wikipedia, "Ice season in the Baltic Sea" — November–April/May ice band (modern hydrographic baseline, not 1343 record).
 10. [`../nature/spring-climate-and-living-world.md`](../nature/spring-climate-and-living-world.md) — April harbour open-water read.
-11. Easter date tables (Dr. Mike's Math Games; UU Gent computus) — **Easter Sunday 1343 = 21 April** (Julian).
+11. Easter date tables (5ko.free.fr Julian Easter table; UU Gent computus) — **Easter Sunday 1343 = 13 April** (Julian) [1].
 12. [`../../TIMELINE.md`](../../TIMELINE.md) — St George's Night 23 April; late-April siege.
 13. [`../topography/harbour-and-shoreline.md`](../topography/harbour-and-shoreline.md) — harbour continues under siege tension.
 14. [`./coinage-prices-and-measures.md`](./coinage-prices-and-measures.md) — schiffspfund, siege multiplier, steelyard.

@@ -13,12 +13,12 @@ const VIEWPORT_SIZE := Vector2i(720, 900)
 const FIGURE_HEIGHT := 2.0
 
 const VIEWS: Array[Dictionary] = [
-	{"slug": "iso_idle", "animation": &"idle", "yaw_degrees": 0.0, "camera": "iso"},
-	{"slug": "front_idle", "animation": &"idle", "yaw_degrees": 0.0, "camera": "front"},
-	{"slug": "profile_idle", "animation": &"idle", "yaw_degrees": 90.0, "camera": "front"},
-	{"slug": "iso_walk", "animation": &"walk", "yaw_degrees": 0.0, "camera": "iso"},
-	{"slug": "front_run", "animation": &"run", "yaw_degrees": 0.0, "camera": "front"},
-	{"slug": "iso_run", "animation": &"run", "yaw_degrees": 0.0, "camera": "iso"},
+	{"slug": "iso_idle", "animation": &"idle", "time": 0.0, "yaw_degrees": 0.0, "camera": "iso"},
+	{"slug": "front_idle", "animation": &"idle", "time": 0.0, "yaw_degrees": 0.0, "camera": "front"},
+	{"slug": "profile_idle", "animation": &"idle", "time": 0.0, "yaw_degrees": 90.0, "camera": "front"},
+	{"slug": "iso_walk", "animation": &"walk", "time": 0.45, "yaw_degrees": 0.0, "camera": "iso"},
+	{"slug": "front_run", "animation": &"run", "time": 0.35, "yaw_degrees": 0.0, "camera": "front"},
+	{"slug": "iso_run", "animation": &"run", "time": 0.35, "yaw_degrees": 0.0, "camera": "iso"},
 ]
 
 
@@ -42,6 +42,15 @@ func _run() -> void:
 			scene = load(argument.trim_prefix("--scene=")) as PackedScene
 	var rig: SharedCharacterRig = scene.instantiate()
 	viewport.add_child(rig)
+	var action_animation: StringName = &"hammer_attack" if rig.variant_id() == &"char.kalev" else &"guard"
+	var views := VIEWS.duplicate(true)
+	views.append({
+		"slug": "iso_action",
+		"animation": action_animation,
+		"time": 0.34 if action_animation == &"hammer_attack" else 0.35,
+		"yaw_degrees": 0.0,
+		"camera": "iso",
+	})
 
 	var camera := Camera3D.new()
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
@@ -49,12 +58,15 @@ func _run() -> void:
 	viewport.add_child(camera)
 	camera.current = true
 
-	for view: Dictionary in VIEWS:
+	for view: Dictionary in views:
 		rig.rotation_degrees = Vector3(0.0, view["yaw_degrees"], 0.0)
 		rig.play_animation(view["animation"], 0.0)
+		rig.animation_player().seek(float(view["time"]), true)
+		rig.animation_player().pause()
+		rig.skeleton().force_update_all_bone_transforms()
 		_place_camera(camera, view["camera"])
-		# Let the pose settle mid-stride instead of at the clip's first frame.
-		for _frame in 20:
+		# Allow attachments and the renderer to consume the deterministic pose.
+		for _frame in 2:
 			await process_frame
 		var output := "%s/closeup_%s.png" % [output_dir, view["slug"]]
 		var error := viewport.get_texture().get_image().save_png(

@@ -63,6 +63,7 @@ func test_combat_room_hot_swaps_hammer_sword_and_unarmed_profiles() -> void:
 
 	_free_room(room)
 
+
 func test_watchman_completes_detect_to_disengage_in_combat_room() -> void:
 	_assert_room_enemy_loop(func(room: CombatRoom) -> CombatRoomEnemy: return room.get_watchman())
 
@@ -135,7 +136,7 @@ func test_keyboard_combat_run_covers_damage_stamina_parry_iron_and_recovery() ->
 	Input.action_release(PlayerActionKind.ACTION_DODGE)
 	if player.action_state_machine.state != PlayerActionState.State.DODGE:
 		assert_true(
-			player.action_state_machine.try_start_action(PlayerActionKind.Kind.DODGE),
+			player.try_start_dodge(),
 			"Keyboard dodge must start"
 		)
 	assert_eq(player.action_state_machine.state, PlayerActionState.State.DODGE)
@@ -207,7 +208,7 @@ func test_gamepad_combat_run_covers_attack_guard_dodge_and_recovery() -> void:
 	_joypad_release(JOY_BUTTON_RIGHT_SHOULDER)
 	if player.action_state_machine.state != PlayerActionState.State.DODGE:
 		assert_true(
-			player.action_state_machine.try_start_action(PlayerActionKind.Kind.DODGE),
+			player.try_start_dodge(),
 			"Gamepad dodge must start"
 		)
 	assert_eq(player.action_state_machine.state, PlayerActionState.State.DODGE)
