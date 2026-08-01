@@ -1,4 +1,5 @@
 extends "res://tests/godot/test_case.gd"
+const EnvironmentKit := preload("res://scripts/map/view3d/map_view_environment_kit.gd")
 
 ## P0-102f: deterministic integration contract for the four shared environment-kit
 ## target spaces. The fixture deliberately consumes authored MapDefinitions rather
@@ -150,7 +151,122 @@ func _space_specs() -> Array[Dictionary]:
 			"transition_ids": [&"viru_road_boundary"],
 			"patrol_ids": [&"viru_watch", &"iron_convoy"],
 		},
+
+
 	]
+
+
+func test_forge_and_street_well_modules_are_deterministic_view_only_assemblies() -> void:
+	var smithy := KalevSmithyDefinition.create()
+	var lower_town := LowerTownSliceDefinition.create()
+	var modules := [
+		[EnvironmentKit.MODULE_FORGE_INTERIOR, EnvironmentKit.build_forge_interior(smithy)],
+		[EnvironmentKit.MODULE_FORGE_YARD, EnvironmentKit.build_forge_yard(lower_town)],
+		[EnvironmentKit.MODULE_STREET_WELL, EnvironmentKit.build_street_well(lower_town)],
+	]
+	for entry in modules:
+		var module_id: StringName = entry[0]
+		var first: Node3D = entry[1]
+		var second: Node3D = _build_module(module_id, smithy, lower_town)
+		assert_eq(first.get_meta(&"environment_module"), module_id, "%s must expose its stable module id" % module_id)
+		assert_true(bool(first.get_meta(&"view_only", false)), "%s must be view-only" % module_id)
+		assert_true(
+			first.find_children("*", "MeshInstance3D", true, false).size() > 0,
+			"%s must assemble renderable geometry" % module_id
+		)
+		assert_eq(
+			_node_signature(first),
+			_node_signature(second),
+			"%s construction must be deterministic" % module_id
+		)
+		_assert_view_only(first, "%s environment module" % module_id)
+		first.free()
+		second.free()
+
+
+func test_forge_and_street_well_keep_clearance_and_local_wear_contract() -> void:
+	var smithy := KalevSmithyDefinition.create()
+	var smithy_grid: MapTerrainGrid = MapBuilder.build(smithy)
+	var forge_module := EnvironmentKit.build_forge_interior(smithy)
+	assert_true(forge_module.get_node("Buildings").get_child_count() >= 3, "forge shell must include shared wall segments")
+	assert_true(forge_module.get_node("Props").get_child_count() >= 9, "forge module must include the work/fuel grouping")
+	assert_true(
+		MapVerification.route_exists(smithy, smithy_grid, smithy.player_spawn, MapVerification.anchor_position(smithy, &"anvil")),
+		"forge assembly must preserve the player-to-anvil approach"
+	)
+	assert_true(
+		_has_decal(smithy, &"decal.soot_furnace_pad", MapTypes.DECAL_KIND_SOOT)
+		and _has_decal(smithy, &"decal.soot_anvil_apron", MapTypes.DECAL_KIND_SOOT)
+		and _has_decal(smithy, &"decal.grime_quench", MapTypes.DECAL_KIND_GRIME),
+		"forge assembly must retain local soot and quench wear cues"
+	)
+	forge_module.free()
+
+	var lower_town := LowerTownSliceDefinition.create()
+	var lower_town_grid: MapTerrainGrid = MapBuilder.build(lower_town)
+	var yard_module := EnvironmentKit.build_forge_yard(lower_town)
+	var well_module := EnvironmentKit.build_street_well(lower_town)
+	var smithy_door := MapVerification.anchor_position(lower_town, &"smithy_door")
+	var firewood := MapVerification.prop_position(lower_town, &"courtyard_firewood")
+	assert_true(
+		MapVerification.route_exists(lower_town, lower_town_grid, MapVerification.anchor_position(lower_town, &"street_start"), smithy_door),
+		"forge yard must keep the street-to-smithy route open"
+	)
+	assert_true(firewood.distance_to(smithy_door) > float(lower_town.cell_size * 2), "yard fuel must keep the door apron clear")
+	assert_true(yard_module.get_node("Buildings").get_child_count() >= 3, "forge yard must include shell and fence families")
+	assert_true(well_module.get_node("Props").get_child_count() == 3, "street/well must include both wells and the wash vessel")
+
+	var cistern := _prop_by_id(lower_town, &"cistern")
+	var wash_tub := _prop_by_id(lower_town, &"cistern_wash_tub")
+	assert_true(cistern["position"].distance_to(wash_tub["position"]) <= float(lower_town.cell_size * 3), "wash vessel must stay within the well apron")
+	assert_true(MapVerification.is_walkable_point(lower_town, lower_town_grid, cistern["position"]), "well center must not become a gameplay blocker")
+	assert_true(
+		MapVerification.route_exists(lower_town, lower_town_grid, MapVerification.anchor_position(lower_town, &"street_start"), MapVerification.anchor_position(lower_town, &"checkpoint_east")),
+		"street/well dressing must preserve the through-route"
+	)
+	assert_true(_has_decal(lower_town, &"decal.wet_cistern", MapTypes.DECAL_KIND_WET_THRESHOLD), "well apron needs a wet threshold cue")
+	assert_true(_has_decal(lower_town, &"decal.grime_courtyard_firewood", MapTypes.DECAL_KIND_GRIME), "forge yard needs local grime wear")
+	_assert_view_only(yard_module, "forge yard environment module")
+	_assert_view_only(well_module, "street/well environment module")
+	yard_module.free()
+	well_module.free()
+
+
+func _build_module(module_id: StringName, smithy: MapDefinition, lower_town: MapDefinition) -> Node3D:
+	match module_id:
+		EnvironmentKit.MODULE_FORGE_INTERIOR:
+			return EnvironmentKit.build_forge_interior(smithy)
+		EnvironmentKit.MODULE_FORGE_YARD:
+			return EnvironmentKit.build_forge_yard(lower_town)
+		EnvironmentKit.MODULE_STREET_WELL:
+			return EnvironmentKit.build_street_well(lower_town)
+	return Node3D.new()
+
+
+func _node_signature(root: Node) -> Array[String]:
+	var signature: Array[String] = []
+	_signature_walk(root, signature)
+	return signature
+
+
+func _signature_walk(node: Node, signature: Array[String]) -> void:
+	signature.append("%s:%s:%d" % [node.name, node.get_class(), node.get_child_count()])
+	for child in node.get_children():
+		_signature_walk(child, signature)
+
+
+func _has_decal(definition: MapDefinition, decal_id: StringName, kind: StringName) -> bool:
+	for decal in definition.decals:
+		if decal.get("id", &"") == decal_id and decal.get("kind", &"") == kind:
+			return true
+	return false
+
+
+func _prop_by_id(definition: MapDefinition, prop_id: StringName) -> Dictionary:
+	for prop in definition.props:
+		if prop.get("id", &"") == prop_id:
+			return prop
+	return {}
 
 
 func _assert_building_uses_shared_builder(
