@@ -3,6 +3,7 @@
 ## Session lessons
 
 - Markdown reports with intentional hard-break spaces fail `git diff --cached --check`; use plain line breaks before staging documentation.
+- A failed `git diff --cached --check` can stop a scoped documentation commit on Markdown hard-break spaces; normalize trailing spaces before staging, and stage only the intended report plus a clean patch for any playbook lesson when the playbook already has unrelated WIP.
 
 - RRMap `stroke` thickness grows from the start point in +x/+y, it is not centred on the polyline. Author river and lane strokes from their top-left edge or the compiler rejects the segment as out of bounds.
 - A new `view_landmark` kind needs three registrations, not one: `MapDefinition.VIEW_LANDMARK_KINDS`, the `_compile_landmark` field copy in `map_blueprint_compiler_build.gd`, and `LANDMARK_OVERRIDE_KEYS` for any new typed option. The parser token allowlist is separate again.
