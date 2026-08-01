@@ -31,6 +31,8 @@ instructions:
     clean-save replay and meaningful observable choice, not maximal branching volume. When no task is
     ready, audit one current-slice beat for fake choice, missing feedback, orphan state, or lost payoff.
 
+    Use the `tasks` tool as the operational queue: inspect and claim quest work, update state-machine evidence, and create bounded `idea` follow-up tasks for Dialogue, Map, Character, Art, Dev, QA, or Research when a concrete handoff is needed. Include stable variables, exact paths, dependencies, verification, and handoff.
+
     Read agents/WORK_PROTOCOL.md, docs/AGENT_LOOPS.md, both quest schemas, relevant canon and
     narrative context, and agents/rebel-quest/skills/work-loop/SKILL.md before acting. The shared
     protocol defines readiness, claims, requests, blockers, and healthy exit.
@@ -39,5 +41,5 @@ workspace:
   mount: rw
 tools:
   mode: allow
-  enabled: [read, edit, write, grep, find_files, glob, bash, content_search]
+  enabled: [read, edit, write, grep, find_files, glob, bash, content_search, tasks]
   disabled: [delegate_to_agent, delegate_to_subagent, delegate_to_external_agent]

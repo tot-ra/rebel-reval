@@ -2,18 +2,18 @@
 
 Reval Rebel uses an asynchronous pull system organized around playable vertical slices. The binding shared protocol is [`agents/WORK_PROTOCOL.md`](../agents/WORK_PROTOCOL.md); each agent's `skills/work-loop/SKILL.md` defines its role-specific delivery and proactive audit.
 
-> Scope: Godot 4.7 historical-fiction narrative action RPG set in Spring 1343 Reval. Product intent is in `README.md`, executable work in `TODO.md`, milestone order in `docs/ROADMAP.md`, canon in `docs/CANON.md`, and confidence labels are `attested` / `plausible composite` / `folklore` / `invented`.
+> Scope: Godot 4.7 historical-fiction narrative action RPG set in Spring 1343 Reval. Product intent is in `README.md`, operational work is in the project task board, durable/legacy task IDs remain in `TODO.md`, milestone order is in `docs/ROADMAP.md`, canon in `docs/CANON.md`, and confidence labels are `attested` / `plausible composite` / `folklore` / `invented`.
 
 ## Operating model
 
 ```text
-ROADMAP Current Focus + open work requests
+Task board + ROADMAP Current Focus + open work requests
                  |
                  v
        Producer validates and plans
                  |
                  v
-   role-tagged TODO rows grouped by slice
+   role-tagged board items and legacy TODO rows grouped by slice
                  |
       workers claim ready work
                  |
@@ -24,23 +24,32 @@ ROADMAP Current Focus + open work requests
         |                   |
         +------> playable checkpoint
 
-Idle worker -> bounded role audit -> work request -> Producer
-Blocked worker -> release claim + typed blocker/request -> Producer
+Idle worker -> bounded role audit -> task-board follow-up or work request -> Producer
+Blocked worker -> release claim + typed blocker + task-board follow-up or request -> Producer
 ```
 
-This is a pull queue, not a dispatch chain. Workers never call or wait for one another. The Producer does not need to predict every gap: specialists proactively discover grounded needs, but they propose work through `docs/reports/work_requests/` rather than silently expanding scope.
+This is a pull queue, not a dispatch chain. Workers never call or wait for one another. The Producer does not need to predict every gap: specialists proactively discover grounded needs. Concrete executable follow-ups go through the `tasks` tool; unresolved decisions and underspecified needs use `docs/reports/work_requests/` rather than silently expanding scope.
 
 ## Tick behavior
 
 Every agent performs the common sequence:
 
-1. **Orient** on repository state, current focus, queue, role rules, and relevant evidence.
+1. **Orient** on repository state, task-board state, current focus, queue, role rules, and relevant evidence.
 2. **Recover** its own valid unfinished claim before taking new work.
-3. **Deliver** the highest-priority ready row if one exists.
+3. **Deliver** the highest-priority ready board item or legacy row if one exists.
 4. **Improve** through a bounded unblock or current-slice scout when no row is ready.
 5. **Report and release** as delivered, pending canon, blocked with an owner, or `idle: healthy`.
 
 One tick produces at most one task delivery or one audit. Empty queues are not a reason to wait, but they are also not permission for speculative backlog generation.
+
+## Task board contract
+
+Use the project `tasks` tool for the operational queue. Existing TODO IDs remain useful durable
+identifiers, but a board `ref` is the execution identity and must be cited in handoffs. New
+follow-ups must be independently verifiable and include role, slice, goal, deliverable, allowed
+files, dependencies, constraints, verification, handoff, and a parent task or dossier. Start
+cross-role discoveries as `idea`; Producer triage promotes accepted work to `todo`. Use request
+cards only for unresolved decisions, missing evidence, rights, or underspecified scope.
 
 ## Task contract
 
@@ -92,7 +101,7 @@ These are gates, not a mandatory waterfall. Approved inputs should unlock parall
 | Dev | Runtime behavior and integration | `scripts/`, scenes, architecture docs, task-scoped feature tests | Approved content not surfaced, broken player loop, architecture risk, missing runtime feedback |
 | QA | Independent risk-based acceptance | acceptance/regression tests and verification tools | Recent deliveries without QA pairing, current-slice smoke gaps, persistence/input/visual regressions |
 
-All specialists may create uniquely named proposal cards in `docs/reports/work_requests/`. This is a coordination exception, not ownership of another role's output. Producer triage atomically replaces `status: open` with `status: accepted`, `status: rejected`, or `status: merged` and records the matching decision.
+All specialists may create bounded `idea` follow-ups with the `tasks` tool. This is a coordination exception, not ownership of another role's output. Producer triage promotes accepted ideas to `todo` after checking dependencies and path overlap. Specialists may still create uniquely named proposal cards in `docs/reports/work_requests/` for unresolved decisions; Producer triage atomically replaces request `status: open` with `status: accepted`, `status: rejected`, or `status: merged` and records the matching decision.
 
 ## Handoff requirements
 
@@ -111,7 +120,7 @@ A handoff names stable IDs, assumptions, evidence, exact paths, and the check th
 The Producer runs these checks every tick:
 
 - Assign `role:` and `slice:` to open Current Focus rows; never leave specialists to infer them.
-- Consume and decide open work requests before planning new breadth.
+- Consume and decide open task-board ideas and work requests before planning new breadth.
 - Remove stale leases, malformed `claim + review` combinations, and claims held while blocked.
 - Detect missing IDs, dependency cycles, self-dependencies, canon-review loops, and blocked dependencies with no owner.
 - Prevent overlapping allowed paths across all active rows, not only inside one role.
@@ -119,7 +128,7 @@ The Producer runs these checks every tick:
 - Pair every player-facing Dev row with a dependent QA row when the Dev row is planned.
 - Re-scope or split work whose result cannot be verified in one bounded tick.
 
-Art and Research are scoped structural exceptions. They may maintain only their `A-###` and `R-###` sections. Each refills below three grounded open rows and caps itself at eight; all cross-role needs go through work requests. The Producer remains the only planner of campaign-band rows.
+Art and Research are scoped structural exceptions. They may maintain only their `A-###` and `R-###` sections. Each refills below three grounded open rows and caps itself at eight; concrete cross-role needs go through task-board follow-ups, while unresolved decisions go through work requests. The Producer remains the only planner of campaign-band rows.
 
 ## Concurrency rules
 
@@ -135,7 +144,7 @@ Art and Research are scoped structural exceptions. They may maintain only their 
 
 Use events and queue pressure rather than running every role continuously:
 
-- Producer: one frequent singleton tick, plus immediate reconciliation when a work request, blocker, rejection, QA failure, or stale lease appears.
+- Producer: one frequent singleton tick, plus immediate reconciliation when a task-board idea, work request, blocker, rejection, QA failure, or stale lease appears.
 - Canon: singleton after content deliveries; prioritize reviews that unblock the current slice.
 - Research, Narrative, and Character: wider at slice inception, then bounded scouts.
 - Quest, Dialogue, Map, Art, and Dev: run while their slice has ready work; scale only when allowed paths do not overlap.
@@ -147,7 +156,7 @@ A healthy empty role queue is allowed. The agent records `idle: healthy` and exi
 
 Agent behavior is defined in this order:
 
-1. `agents/WORK_PROTOCOL.md` - shared state, readiness, proactivity, claims, blockers.
+1. `agents/WORK_PROTOCOL.md` - shared state, task-board usage, readiness, proactivity, claims, blockers.
 2. `agents/<role>/skills/work-loop/SKILL.md` - role delivery and scout lens.
 3. `agents/<role>/agent.yaml` and optional `system.md` - identity, rights, tools, runtime.
 4. This document - team topology, handoffs, cadence, and queue-health overview.

@@ -7,9 +7,18 @@ description: Keep Reval Rebel moving through dependency-safe playable slices, pr
 
 Read `agents/WORK_PROTOCOL.md` first. You are the singleton planner and queue steward. Perform one bounded tick in order.
 
+## Task board operations
+
+The task board is the operational queue for this singleton role:
+
+1. Begin with `tasks.stats`, `tasks.list`, and `tasks.get`; reconcile board `idea`, `todo`, and `in_progress` items against legacy TODO IDs and open request cards.
+2. For every accepted idea or request, use `tasks.update` to record the decision and promote it to `todo` only after checking role, dependencies, exact paths, WIP, and verification. Create missing dependency-safe tasks with `tasks.create` rather than leaving accepted scope in prose.
+3. Use `tasks.update` to release stale or blocked work, preserve evidence, and mark completed work only after its gates pass. Never delete task history; use `cancelled` with a reason.
+4. Ensure every executable follow-up has a board ref, parent ref/ID, role, slice, goal, deliverable, allowed files, dependencies, constraints, verification, and handoff. Keep markdown request cards for decision history, not as the sole execution queue.
+
 ## 1. Orient and reconcile
 
-1. Read repository status, `TODO.md`, `docs/ROADMAP.md` Current Focus, and every `status: open` card under `docs/reports/work_requests/`.
+1. Read repository status, task-board state, `TODO.md`, `docs/ROADMAP.md` Current Focus, and every `status: open` card under `docs/reports/work_requests/`.
 2. Reconcile queue state before adding work:
    - remove `claim:` from rows already carrying `review: canon`;
    - release expired leases after checking target paths and useful partial work;
@@ -41,7 +50,7 @@ Preferred row:
 
 Keep lower campaign bands first, then tasks that unblock the current playable checkpoint, then smaller work. Update priority counts through `python3 tools/update_todo_counts.py` when available and update `docs/ROADMAP.md` Current Focus so it names the slice, checkpoint, gates, major risks, and next acceptance event.
 
-Retain completed rows while an open dependency or milestone proof references them. Archive conservatively; never delete decision evidence merely because it is old. Never create, reorder, or delete Research `R-###` or Art `A-###` rows, though you reconcile their malformed states and consume their cross-role requests.
+Retain completed rows while an open dependency or milestone proof references them. Archive conservatively; never delete decision evidence merely because it is old. Never create, reorder, or delete Research `R-###` or Art `A-###` legacy rows, though you reconcile their malformed states and triage their task-board follow-ups and unresolved request cards.
 
 ## 5. Exit report
 

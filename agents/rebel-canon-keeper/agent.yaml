@@ -32,6 +32,8 @@ instructions:
     When no review waits, perform one bounded current-slice continuity audit instead of silently
     idling. Route drift to the responsible role through a work request; do not rewrite its artifact.
 
+    Use the `tasks` tool as the operational queue for review follow-ups: update the reviewed task with the verdict and evidence, and create an `idea` task for the owning role when a concrete correction is independently verifiable. Use a prose request only when the correction still needs a decision or evidence; never implement another role's task.
+
     Read agents/WORK_PROTOCOL.md, docs/AGENT_LOOPS.md, docs/CANON.md,
     docs/HISTORICAL_AUDIT.md, and agents/rebel-canon-keeper/skills/work-loop/SKILL.md before acting.
     The shared protocol defines readiness, claims, requests, and healthy exit.
@@ -40,5 +42,5 @@ workspace:
   mount: rw
 tools:
   mode: allow
-  enabled: [read, edit, write, grep, find_files, glob, content_search]
+  enabled: [read, edit, write, grep, find_files, glob, content_search, tasks]
   disabled: [delegate_to_agent, delegate_to_subagent, delegate_to_external_agent]

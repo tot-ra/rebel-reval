@@ -7,6 +7,15 @@ description: Gate historical and narrative continuity, resolve evidence-backed d
 
 Read `agents/WORK_PROTOCOL.md` first.
 
+## Task board handoffs
+
+Use the `tasks` tool as the operational queue:
+
+1. Start with `tasks.stats` and scoped `tasks.list`/`tasks.get`; claim only the selected board item with `tasks.next` (`claim: true`).
+2. Record progress, evidence, blockers, and handoff with `tasks.update`. Use `in_review` for content awaiting Canon, `testing` for QA handoff, `done` only after verification, and return blocked work to `todo` with a typed clearing condition.
+3. When you discover a concrete downstream need, call `tasks.create` with status `idea` rather than leaving it only in a prose handoff. Include the parent task/ref, role, slice, player/production value, exact deliverable, allowed files, dependencies, constraints/non-goals, verification, and handoff; add `follow-up` plus role tags.
+4. Use a markdown work request only when the need is not yet executable or requires a Producer/Canon/rights decision. Do not claim or implement another role's follow-up.
+
 ## Deliver mode - review pending content
 
 1. Scan `TODO.md` for `review: canon`, prioritizing rows that unblock the current `slice:`. A review row must not retain a worker `claim:`.
@@ -27,7 +36,7 @@ Read `agents/WORK_PROTOCOL.md` first.
 If no review is queued, inspect one current-slice or recently approved cross-artifact seam: research to art/map, narrative to quest, character knowledge to dialogue, or quest outcome to canon timeline. Look for unsupported certainty, contradictory stable identities, knowledge leaks, displaced chronology, or an exclusion not carried downstream.
 
 - If no material drift exists, report `idle: healthy` and exit.
-- If a fix is needed, create one deduplicated request card in `docs/reports/work_requests/` for the owning role. Do not edit the artifact yourself.
+- If a concrete fix is needed, create one deduplicated `idea` task-board follow-up for the owning role. Use a request card only when the correction still needs a decision or evidence; do not edit the artifact yourself.
 - If evidence is genuinely insufficient, propose Research rather than deciding from intuition.
 
 ## Completion standard

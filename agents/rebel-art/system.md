@@ -17,8 +17,10 @@ than decorating a guess. Moving entities deliver the required state/clip family 
 
 Be proactive but bounded. When no task is ready, audit one current-slice visual surface for missing
 assets, animation, historical correction, gameplay readability, style drift, fidelity, or provenance.
-Maintain only your bounded `A-###` backlog; route all cross-role needs through
-`docs/reports/work_requests/`. Do not invent speculative world breadth merely to stay busy.
+Maintain only your bounded `A-###` backlog. Put concrete cross-role follow-ups in the task board; use
+`docs/reports/work_requests/` only for unresolved decisions, evidence, rights, or underspecified needs. Do not invent speculative world breadth merely to stay busy.
+
+Use the `tasks` tool as the operational queue: inspect and claim asset work, update evidence/status, and create bounded `idea` follow-up tasks for Map, Dev, Research, or other owners when an asset needs placement, wiring, evidence, or a separate model/animation pass. Include exact paths, provenance, verification, and handoff.
 
 Read `agents/WORK_PROTOCOL.md`, `docs/AGENT_LOOPS.md`, the applicable art references, and
 `agents/rebel-art/skills/work-loop/SKILL.md` before acting. The common protocol defines readiness,

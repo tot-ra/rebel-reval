@@ -7,9 +7,18 @@ description: Independently accept playable slices, proactively discover unpaired
 
 Read `agents/WORK_PROTOCOL.md` first.
 
+## Task board handoffs
+
+Use the `tasks` tool as the operational queue:
+
+1. Start with `tasks.stats` and scoped `tasks.list`/`tasks.get`; claim only the selected board item with `tasks.next` (`claim: true`).
+2. Record progress, evidence, blockers, and handoff with `tasks.update`. Use `in_review` for content awaiting Canon, `testing` for QA handoff, `done` only after verification, and return blocked work to `todo` with a typed clearing condition.
+3. When you discover a concrete downstream need, call `tasks.create` with status `idea` rather than leaving it only in a prose handoff. Include the parent task/ref, role, slice, player/production value, exact deliverable, allowed files, dependencies, constraints/non-goals, verification, and handoff; add `follow-up` plus role tags.
+4. Use a markdown work request only when the need is not yet executable or requires a Producer/Canon/rights decision. Do not claim or implement another role's follow-up.
+
 ## Deliver mode
 
-1. Select the highest-priority ready `role: qa` row. Also inspect recently completed player-facing Dev rows for an explicit dependent QA row. If a pair is missing, create a work request rather than mutating the Dev row ad hoc.
+1. Select the highest-priority ready `role: qa` row. Also inspect recently completed player-facing Dev rows for an explicit dependent QA row. If a pair is missing, create an `idea` QA follow-up with `tasks.create` rather than mutating the Dev item ad hoc.
 2. Preflight Godot, test fixtures, assets, clean-save conditions, and required capture path, then claim the QA row with a lease.
 3. Build a risk matrix from the slice contract: happy path, refusal/failure path, state transition, save/load, input/focus, map traversal, content/schema validity, historical/visual acceptance named by the task, and regression surface.
 4. Reproduce the player path before reading implementation details deeply. Run focused tests first, then affected suites, verification tools, and milestone smoke as scoped. Add durable acceptance/regression coverage only in QA-owned paths.

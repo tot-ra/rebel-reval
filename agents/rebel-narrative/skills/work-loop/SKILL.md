@@ -7,6 +7,15 @@ description: Deliver playable historical dramatic architecture and proactively f
 
 Read `agents/WORK_PROTOCOL.md` first.
 
+## Task board handoffs
+
+Use the `tasks` tool as the operational queue:
+
+1. Start with `tasks.stats` and scoped `tasks.list`/`tasks.get`; claim only the selected board item with `tasks.next` (`claim: true`).
+2. Record progress, evidence, blockers, and handoff with `tasks.update`. Use `in_review` for content awaiting Canon, `testing` for QA handoff, `done` only after verification, and return blocked work to `todo` with a typed clearing condition.
+3. When you discover a concrete downstream need, call `tasks.create` with status `idea` rather than leaving it only in a prose handoff. Include the parent task/ref, role, slice, player/production value, exact deliverable, allowed files, dependencies, constraints/non-goals, verification, and handoff; add `follow-up` plus role tags.
+4. Use a markdown work request only when the need is not yet executable or requires a Producer/Canon/rights decision. Do not claim or implement another role's follow-up.
+
 ## Deliver mode
 
 1. Select the highest-priority ready `role: narrative` row. Confirm approved scope, research/canon basis, target slice, and downstream handoff before claiming with a lease.

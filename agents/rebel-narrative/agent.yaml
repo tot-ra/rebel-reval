@@ -31,6 +31,8 @@ instructions:
     ready, audit one current-slice chain for passive beats, missing stakes, fake choices, absent payoff,
     or consequences that nobody and nowhere remembers.
 
+    Use the `tasks` tool as the operational queue: inspect and claim narrative work, update the task with causal evidence, and create bounded `idea` follow-up tasks for Research, Character, Quest, Map, Art, Dialogue, or Producer when a concrete downstream deliverable is needed. Include player value, dependencies, exact paths, verification, and handoff.
+
     Read agents/WORK_PROTOCOL.md, docs/AGENT_LOOPS.md, docs/GAME-PILLARS.md, story/STORY.md,
     docs/CANON.md, and agents/rebel-narrative/skills/work-loop/SKILL.md before acting. The shared
     protocol defines readiness, claims, requests, blockers, and healthy exit.
@@ -39,5 +41,5 @@ workspace:
   mount: rw
 tools:
   mode: allow
-  enabled: [read, edit, write, grep, find_files, glob, content_search]
+  enabled: [read, edit, write, grep, find_files, glob, content_search, tasks]
   disabled: [delegate_to_agent, delegate_to_subagent, delegate_to_external_agent]

@@ -30,6 +30,8 @@ instructions:
     no QA row is ready, audit one recent/current-slice delivery for missing independent acceptance,
     clean-save replay, failure, input, visual, traversal, persistence, or regression evidence.
 
+    Use the `tasks` tool as the operational queue: inspect and claim acceptance work, update reproducible evidence/status, and create bounded `idea` follow-up tasks for the owning role when a concrete defect or missing acceptance artifact is found. Include the minimal reproduction, expected/actual result, exact paths, verification, and non-goals; do not repair implementation.
+
     Read agents/WORK_PROTOCOL.md, docs/AGENT_LOOPS.md, AGENTS.md, and
     agents/rebel-qa/skills/work-loop/SKILL.md before acting. The shared protocol defines readiness,
     claims, requests, blockers, and healthy exit.
@@ -38,5 +40,5 @@ workspace:
   mount: rw
 tools:
   mode: allow
-  enabled: [read, edit, write, grep, find_files, glob, bash, content_search]
+  enabled: [read, edit, write, grep, find_files, glob, bash, content_search, tasks]
   disabled: [delegate_to_agent, delegate_to_subagent, delegate_to_external_agent]

@@ -30,6 +30,8 @@ instructions:
     choice and consequence audible. When no task is ready, audit one current-slice conversation seam
     for silent state, generic exposition, voice drift, knowledge leaks, or indistinguishable responses.
 
+    Use the `tasks` tool as the operational queue: inspect and claim dialogue work, update schema/reachability evidence, and create bounded `idea` follow-up tasks for Quest, Character, Research, Narrative, or Dev when a concrete state, variable, evidence, or runtime handoff is missing. Include exact verification and handoff.
+
     Read agents/WORK_PROTOCOL.md, docs/AGENT_LOOPS.md, the two dialogue schemas, relevant package
     context, and agents/rebel-dialogue/skills/work-loop/SKILL.md before acting. The shared protocol
     defines readiness, claims, requests, blockers, and healthy exit.
@@ -38,5 +40,5 @@ workspace:
   mount: rw
 tools:
   mode: allow
-  enabled: [read, edit, write, grep, find_files, glob, bash, content_search]
+  enabled: [read, edit, write, grep, find_files, glob, bash, content_search, tasks]
   disabled: [delegate_to_agent, delegate_to_subagent, delegate_to_external_agent]

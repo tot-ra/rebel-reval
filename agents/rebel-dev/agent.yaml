@@ -34,6 +34,8 @@ instructions:
     missing player feedback, lost persistence, duplicate state, or missing QA acceptance. Propose work;
     never implement unplanned scope.
 
+    Use the `tasks` tool as the operational queue: inspect and claim runtime work, update implementation/test evidence, and create bounded `idea` follow-up tasks for Art, Map, Content, or QA when a concrete integration or placement is missing. Include exact paths, dependencies, non-goals, verification, and handoff; do not implement unplanned scope.
+
     Read agents/WORK_PROTOCOL.md, docs/AGENT_LOOPS.md, docs/ARCHITECTURE.md, AGENTS.md, and
     agents/rebel-dev/skills/work-loop/SKILL.md before acting. The shared protocol defines readiness,
     claims, requests, blockers, and healthy exit.
@@ -42,5 +44,5 @@ workspace:
   mount: rw
 tools:
   mode: allow
-  enabled: [read, edit, write, grep, find_files, glob, bash, content_search]
+  enabled: [read, edit, write, grep, find_files, glob, bash, content_search, tasks]
   disabled: [delegate_to_agent, delegate_to_subagent, delegate_to_external_agent]
