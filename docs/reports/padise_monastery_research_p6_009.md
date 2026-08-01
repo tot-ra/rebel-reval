@@ -116,6 +116,56 @@
 
 The completed quadrangular claustrum, stone church, western gate courtyard, drawbridges, towers, battlements and later baileys are deliberately excluded. The official architecture account describes them as products of the long post-uprising rebuilding campaign; the church itself was not consecrated until 1448.
 
+## 2026-08 rework: 100x60 estate on the Kadakas site frame
+
+The first pass expressed the monastery as one 28x19 m timber shed built from
+roofless interior-wall panels on a 50x30 m map. In the 3D view that read as a
+stockade rather than a religious house. The rework quadruples the site area to
+100x60 cells (1 cell = 1 m) and rebuilds the layout against Villu Kadakas,
+*Archaeological Studies in Padise Monastery* (AVE 2011), held locally at
+`history/AVE2011_Kadakas_Padise.pdf`.
+
+### What the excavations actually support for April 1343
+
+| Confidence | Evidence (Kadakas 2011) | Map consequence |
+| --- | --- | --- |
+| High | Siegburg stoneware from the foundation-trench fills dates the lower walls of the northern range/church no earlier than ~1350, possibly late 14th century; the eastern and southern ranges date with it. Kadakas concludes the monastic quadrangle "was started only after the St George's Night Uprising". | No claustrum, no stone church, no gate or gun towers, no moat. Everything conventual is timber. |
+| High | Fig. 3 item 12: an older building under the later western range, identified by Raam, encompassing the western range and the later western cloister area. | `early_west_stone_house`, the dominant limestone mass, occupies that footprint west of the timber garth. |
+| Medium-High | Fig. 3 item 11: the "building with arched niches" projecting south-west, which Kadakas re-reads as one of the earliest structures on the site and explicitly *not* the 13th-century chapel. | `arched_niche_house`, a secular limestone block south of the stone hall. |
+| Medium | Northern-courtyard test pits produced a 14th-15th century occupation layer with walls and pavements, "indicating intense use and housing". | The outer court north of the claustral block carries the barn, granary, stable and smithy rather than empty ground. |
+| High | Fig. 2: the ruin stands on a plateau above the Kloostri river with the Tallinn-Haapsalu road along the north and a pond to the east. | River and mud bank on the west, road and ford across the north, fish pond east, fields and orchard south. |
+| Medium | Raam read the Padise cloister galleries as possibly timber-framed structures. | The four `cloister_walk` galleries are posted timber pentices, not stone arcades. |
+| Low / gameplay hypothesis | Nothing fixes the 1343 positions of oratory, dorter, refectory, infirmary, brewhouse, mill, cemetery or precinct wall. | They follow standard Cistercian planning so the site is legible in play. Do not cite them as archaeology. |
+
+### New renderer vocabulary added for this rework
+
+- `cloister_walk` view landmark (`scripts/map/view3d/map_view_monastic_models.gd`):
+  oak posts, stone dwarf sill, wall plate, canted braces and a lean-to shingle
+  roof. It is a view landmark rather than a building so the covered walk stays a
+  walkable route. `passage_axis` sets the run and `interior_side` names the range
+  that carries the high eaves.
+- `timber_oratory_1343` house primitive: aisle-less oratory with paired lancet
+  lights, a framed west bellcote and bell, an east gable cross, and its own west
+  portal. It suppresses the generic domestic window/shutter pass and the roof
+  chimney, both of which previously made the oratory read as a hall.
+- `unheated_timber_range_1343` house primitive: dorter, chapter range and mill
+  floor carried no hearth, so the shared house pass must not add a flue stack.
+
+World-travel locations (`map_id` beginning `world.`) no longer draw a neighbour
+district preview past their edges. Padise is roughly 40 km from Reval, and the
+preview was rendering Toompea's city wall in the abbey's own field.
+
+### Evidence plates
+
+Captured with `godot --path . --rendering-driver metal --script tools/capture_padise_view.gd`.
+
+| Plate | Shows |
+| --- | --- |
+| [`world.padise_day_before.png`](images/view3d/world.padise_day_before.png) | The defect: one roofless interior-wall enclosure on the 50x30 map. |
+| [`world.padise_day_after.png`](images/view3d/world.padise_day_after.png) | The reworked 100x60 estate: river, ford, road, precinct, claustral block, grange, fields. |
+| [`world.padise_day_claustrum.png`](images/view3d/world.padise_day_claustrum.png) | Four roofed timber ranges around the garth. |
+| [`world.padise_day_oratory.png`](images/view3d/world.padise_day_oratory.png) | The `cloister_walk` gallery: posts, dwarf sill, plate and lean-to roof, with the oratory's east gable cross. |
+
 ## Game Implementation Notes for P6-009
 
 ### Phase 1 (Pre-War)

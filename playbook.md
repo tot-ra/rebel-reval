@@ -4,6 +4,13 @@
 
 - Markdown reports with intentional hard-break spaces fail `git diff --cached --check`; use plain line breaks before staging documentation.
 
+- RRMap `stroke` thickness grows from the start point in +x/+y, it is not centred on the polyline. Author river and lane strokes from their top-left edge or the compiler rejects the segment as out of bounds.
+- A new `view_landmark` kind needs three registrations, not one: `MapDefinition.VIEW_LANDMARK_KINDS`, the `_compile_landmark` field copy in `map_blueprint_compiler_build.gd`, and `LANDMARK_OVERRIDE_KEYS` for any new typed option. The parser token allowlist is separate again.
+- An outdoor district map should express buildings as roofed `house` records; `kind=interior_wall` produces roofless panels and a large "building" made of them renders as a stockade, not an institution.
+- Reserve roofless `kind=wall` records for burnt-out shells and boundary walls, where the missing roof is the point.
+- When a close-up capture needs a different framing, re-aim the shipped camera along its own `basis.z` instead of offsetting `position` in world XZ; an orthographic isometric camera offset that way slides off the map into sky.
+- Godot typed inference fails on `for side in [-1.0, 1.0]`; declare `for side: float in [...]` before using the loop variable in arithmetic that must stay typed.
+
 ## Tooling
 - For cart art, audit wheel count separately from wheel track; an inherited two-axle scaffold can violate a two-wheel Karren brief while the width metric still passes.
 - Use `functions.parallel` with `steps` and `multi_tool_use.parallel` with `tool_uses`; their batch schemas are not interchangeable.

@@ -33,7 +33,10 @@ const RECT_KEYS: Array[StringName] = [&"rect"]
 const DECAL_KEYS: Array[StringName] = [&"rect", &"kind", &"radius", &"rotation", &"tint"]
 const SIGN_KEYS: Array[StringName] = [&"text", &"cell", &"rect", &"direction"]
 const LANDMARK_OVERRIDE_KEYS: Array[StringName] = [
+	# interior_side names the range side of a cloister walk, which is the high
+	# eaves side of its lean-to roof. Gate arches ignore it.
 	&"rect", &"wall_color", &"top_px", &"door_material", &"gate_variant", &"grille_variant", &"passage_axis",
+	&"interior_side",
 ]
 const ALL_STYLE_KEYS: Array[StringName] = [
 	&"enabled", &"terrain", &"rect", &"wall_height", &"wall_height_scale", &"wall_color",

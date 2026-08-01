@@ -58,6 +58,10 @@ static func build_landmark(
 			var interior_lights = MapViewMeshBuilderConfig.INTERIOR_WINDOW_LIGHTS_SCRIPT.new()
 			interior_lights.configure_from(root)
 			root.add_child(interior_lights)
+		MapViewMonasticModels.CLOISTER_WALK_KIND:
+			# A cloister walk is a covered route, so it must stay walkable. The
+			# view-only landmark path is the one boundary that guarantees that.
+			MapViewMonasticModels.add_cloister_walk(root, landmark, size)
 	return root
 
 

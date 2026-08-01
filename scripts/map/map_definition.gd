@@ -44,9 +44,18 @@ var surroundings_town_sides: Array[StringName] = []
 ## &"woodland". Unlisted sides render no exterior backdrop.
 var surroundings_sides: Dictionary = {}
 
-const VIEW_LANDMARK_KINDS: Array[StringName] = [&"gate_arch", &"interior_window"]
+## cloister_walk is a covered monastic gallery. It is a view landmark rather than
+## a building so the walk it represents stays a walkable route.
+const VIEW_LANDMARK_KINDS: Array[StringName] = [&"gate_arch", &"interior_window", &"cloister_walk"]
 const WORLD_SIDES: Array[StringName] = [&"north", &"south", &"east", &"west"]
 const SURROUNDINGS_KINDS: Array[StringName] = [&"town", &"water", &"woodland"]
+
+
+## World-travel locations stand a day or more of road from Reval. They still use
+## ground transitions, but their destination district is not spatially adjacent,
+## so an edge preview of that district would place its walls in the same field.
+func is_world_travel_location() -> bool:
+	return String(map_id).begins_with("world.")
 
 
 func cell_rect_to_world_rect(cell_rect: Rect2i) -> Rect2:

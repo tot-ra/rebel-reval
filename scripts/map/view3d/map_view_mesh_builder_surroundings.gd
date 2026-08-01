@@ -25,6 +25,8 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 	var map_size := Vector2(definition.size_cells)
 	var previewed_sides: Dictionary = {}
 	for transition in definition.transitions:
+		if definition.is_world_travel_location():
+			break
 		if transition.get("transition_visual", MapTypes.TRANSITION_VISUAL_DOOR) != MapTypes.TRANSITION_VISUAL_GROUND:
 			continue
 		var side := _transition_side(definition, transition)

@@ -72,15 +72,18 @@ static func authors_own_facade(building: Dictionary) -> bool:
 	return (
 		StringName(building.get("primitive", &"")) == &"town_hall_1343"
 		or _Rural.is_rural_1343(building)
+		or MapViewMonasticModels.is_oratory(building)
 	)
 
 
 ## Smoke cottages and early barn-dwellings use a flueless corner oven. A generic
 ## roof stack would turn the archaeological baseline into a later heated house.
 static func allows_chimney(building: Dictionary) -> bool:
+	# An oratory has no hearth, so a roof stack would misread it as a dwelling.
 	return not _Rural.is_smoke_heated(building) and (
 		StringName(building.get("primitive", &"")) != _Rural.RURAL_BARN_PRIMITIVE
-	)
+	) and not MapViewMonasticModels.is_oratory(building) \
+		and not MapViewMonasticModels.is_unheated_range(building)
 
 
 static func add_authored_facade(
@@ -91,6 +94,8 @@ static func add_authored_facade(
 ) -> void:
 	if _Rural.is_rural_1343(building):
 		_Rural.add_facade(root, building, size, height)
+	elif MapViewMonasticModels.is_oratory(building):
+		MapViewMonasticModels.add_oratory_facade(root, building, size, height)
 
 
 static func add_historic_building_details(
@@ -107,6 +112,8 @@ static func add_historic_building_details(
 			_add_holy_spirit_chapel_details(root, size, height)
 		&"stepped_gable_merchant":
 			_add_stepped_merchant_gable(root, size, height, along_ridge_x)
+		MapViewMonasticModels.ORATORY_PRIMITIVE:
+			MapViewMonasticModels.add_oratory_details(root, building, size, height, along_ridge_x)
 
 
 static func _add_early_town_hall_details(
