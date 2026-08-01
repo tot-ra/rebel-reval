@@ -9,4 +9,14 @@ stable_id = &"char.kalev"
 material_tint = Color(1, 1, 1, 1)
 equipment = ExtResource("2_hammer")
 show_cape = true
+animation_overrides = {
+&"fall": &"Death_A",
+&"forge_strike": &"1H_Melee_Attack_Chop",
+&"guard": &"Blocking",
+&"hammer_attack": &"1H_Melee_Attack_Chop",
+&"hit": &"Hit_A",
+&"idle": &"Idle",
+&"pickup": &"PickUp",
+&"walk": &"Walking_A"
+}
 
