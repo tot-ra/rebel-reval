@@ -1,48 +1,90 @@
 # Padise on about 1 May 1343, after the St George's Night attack and fire.
-# Archaeology confirms the early western stone house; the scattered timber service
-# buildings are a deliberately conservative gameplay reconstruction, not a room plan.
+# The main timber range is an uncertainty-aware gameplay reconstruction: a single
+# readable monastic hall with room partitions, not a claim about an exact 1343 plan.
 rrmap 1
 map world.padise loc.world_padise 50 30 meadow scope=prototype active=false palette=clean_painted_outdoor seed=1343 cell_size=32
 source "scenes/world_travel/world_padise.tscn"
 source "scenes/world/padise/padise_monastery.md"
 source "docs/reports/padise_monastery_research_p6_009.md"
 style stone.early door_side=east ridge_axis=z wall_height=76 wall_color=918d83ff wall_material=limestone roof_color=4b4035ff roof_material=shingle
-style timber.monastic door_side=south wall_height=54 wall_color=665849ff wall_material=log roof_color=6c5a3fff roof_material=thatch
-style timber.service door_side=south wall_height=46 wall_color=5c4d40ff wall_material=plank roof_color=40372fff roof_material=shingle
-style wall.foundation wall_height=18 wall_color=868278ff wall_material=limestone
+style wall.monastery wall_height=120 wall_color=745d45ff wall_material=plank
+style wall.service wall_height=120 wall_color=66503dff wall_material=plank
+style wall.sacred wall_height=120 wall_color=84745cff wall_material=plank
 terrain kloostri_river river_water 0 0 5 24 order=1
 terrain river_bank mud 5 0 3 24 order=2
 terrain west_fields farm_soil 8 3 9 9 order=3
-terrain monastery_close dirt 18 4 25 19 order=4
-terrain stone_house_apron stone 19 5 8 18 order=5
-terrain burned_guest_house ash 40 6 7 5 order=6
-terrain burned_service_yard ash 9 21 9 3 order=7
-terrain south_road dirt 0 24 50 4 order=8
-terrain east_mud mud 43 12 7 8 order=9
-building early_west_stone_house house 20 6 6 16 style=stone.early primitive=stone_hall
-building north_masonry_west wall 26 6 6 1 style=wall.foundation primitive=wall
-building north_masonry_east wall 35 6 4 1 style=wall.foundation primitive=wall
-building timber_oratory house 30 8 8 4 style=timber.monastic primitive=timber_hall
-building infirmary_house house 32 14 8 4 style=timber.monastic primitive=timber_hall
-building brewery_kitchen house 9 17 8 4 style=timber.service primitive=work_shed
-building store_barn house 9 8 7 4 style=timber.monastic primitive=barn
-building stable_shed house 41 17 6 4 style=timber.service primitive=work_shed
-building burned_guest_sill_south wall 40 10 7 1 style=wall.foundation primitive=palisade
-building burned_guest_sill_west wall 40 7 1 3 style=wall.foundation primitive=palisade
-prop monastery_well well 28 16 primitive=well
-prop scorched_work_cart cart 17 23 primitive=cart
-prop herb_beds barrels 41 9 primitive=garden
-prop kitchen_stores barrels 14 16 primitive=barrels
+terrain monastery_close dirt 8 4 37 20 order=4
+terrain old_stone_apron stone 9 5 8 16 order=5
+terrain main_timber_floor timber_floor 18 5 27 18 order=6
+terrain oratory_floor stone 18 5 12 6 order=7
+terrain well_court dirt 27 11 5 6 order=8
+terrain brewery_floor stone 18 17 9 6 order=9
+terrain burned_guest_yard ash 40 6 6 5 order=10
+terrain burned_service_yard ash 9 21 9 3 order=11
+terrain south_road dirt 0 24 50 4 order=12
+terrain east_mud mud 43 12 7 8 order=13
+# The attested earlier western stone house remains as a trace beside the new
+# timber range; it is not the playable monastery interior.
+building early_west_stone_house house 10 6 5 12 style=stone.early primitive=stone_hall
+# Large timber monastery range. Interior-wall segments keep the shell and room
+# partitions collision-safe while their openings create one navigable building.
+wall monastery.outer.north 17 4 45 4 thickness=1 openings=29,4,3,1 kind=interior_wall style=wall.monastery
+wall monastery.outer.south 17 23 45 23 thickness=1 openings=29,23,3,1 kind=interior_wall style=wall.monastery
+wall monastery.outer.west 17 4 17 23 thickness=1 openings=17,21,1,2 kind=interior_wall style=wall.monastery
+wall monastery.outer.east 45 4 45 23 thickness=1 openings=45,21,1,2 kind=interior_wall style=wall.monastery
+# North rooms: oratory, scriptorium, and abbot's guest room.
+wall monastery.north.scriptorium 30 5 30 10 thickness=1 openings=30,7,1,1 kind=interior_wall style=wall.sacred
+wall monastery.north.abbot 37 5 37 10 thickness=1 openings=37,8,1,1 kind=interior_wall style=wall.monastery
+# Middle rooms: chapter hall, well court/infirmary, and parlour.
+wall monastery.middle.north 18 11 44 11 thickness=1 openings=25,11,3,1|34,11,3,1 kind=interior_wall style=wall.monastery
+wall monastery.middle.chapter 26 12 26 16 thickness=1 openings=26,14,1,1 kind=interior_wall style=wall.monastery
+wall monastery.middle.parlour 38 12 38 16 thickness=1 openings=38,13,1,1 kind=interior_wall style=wall.monastery
+# South rooms: brewery/kitchen, refectory, and dormitory.
+wall monastery.south.north 18 17 44 17 thickness=1 openings=24,17,3,1|35,17,3,1 kind=interior_wall style=wall.service
+wall monastery.south.refectory 26 18 26 22 thickness=1 openings=26,20,1,1 kind=interior_wall style=wall.service
+wall monastery.south.dormitory 36 18 36 22 thickness=1 openings=36,20,1,1 kind=interior_wall style=wall.monastery
+# Room dressing makes the new shell read as a lived-in institution rather than
+# an empty box, while every prop remains below the wall collision footprint.
+prop monastery_well well 29 14
+prop oratory_altar table 23 7 rect=2,1 style_variant=table.long_board
+prop oratory_candle candle 27 8 style_variant=artisan_tallow
+prop scriptorium_table table 33 7 rect=2,1 style_variant=table.trestle_work
+prop scriptorium_shelf shelf 34 9 rect=2,1
+prop abbot_chest chest 41 7 rect=2,1
+prop chapter_table table 22 14 rect=2,1 style_variant=table.common_household
+prop infirmary_beds bed 33 14 rect=2,1
+prop infirmary_chest chest 35 15 rect=1,1
+prop brewery_hearth hearth 20 20 rect=2,1 style_variant=hearth.lit facing=east
+prop brewery_stores barrels 22 21
+prop kitchen_table table 24 20 rect=2,1 style_variant=table.trestle_work
+prop refectory_table table 30 20 rect=3,1 style_variant=table.long_board
+prop refectory_candle candle 31 21 style_variant=artisan_tallow
+prop dormitory_bed bed 40 20 rect=2,1
+prop dormitory_chest chest 42 21 rect=1,1
+prop scorched_work_cart cart 17 23
+prop herb_beds barrels 41 9
 prop stable_hay hay_stack 45 15 primitive=hay_stack style_variant=hay_stack.small
-decal fire_guest_house scorch 41 7 6 4 radius=2.2 rotation=0.12
+decal fire_guest_yard scorch 41 7 6 4 radius=2.2 rotation=0.12
 decal fire_service_yard scorch 10 21 7 3 radius=2.0 rotation=-0.18
-decal smoke_stone_house soot 24 8 2 3 radius=1.4
-anchor landmark_early_stone_house 27 14 kind=stone_hall
-anchor landmark_timber_oratory 34 13 kind=timber_oratory
-anchor landmark_fire_damage 44 11 kind=burned_buildings
+decal smoke_stone_house soot 12 8 2 3 radius=1.4
+decal smoke_monastery_range soot 41 5 2 2 radius=1.2
+# Stable landmarks retain the previous outdoor API while room anchors expose the
+# new interior plan to tests, inspection tools, and future NPC routines.
+anchor landmark_early_stone_house 16 14 kind=stone_hall
+anchor landmark_timber_oratory 24 7 kind=oratory
+anchor landmark_fire_damage 44 10 kind=burned_buildings
 anchor landmark_work_yard 15 23 kind=work_yard
-anchor landmark_monastery_well 28 16 kind=well
+anchor landmark_monastery_well 29 14 kind=well
+anchor room_oratory 24 7 kind=oratory
+anchor room_scriptorium 34 7 kind=scriptorium
+anchor room_abbot_guest 41 7 kind=abbot_guest
+anchor room_chapter_hall 22 14 kind=chapter_hall
+anchor room_infirmary 34 14 kind=infirmary
+anchor room_parlour 41 14 kind=parlour
+anchor room_brewery_kitchen 21 20 kind=brewery_kitchen
+anchor room_refectory 30 20 kind=refectory
+anchor room_dormitory 40 20 kind=dormitory
 spawn prototype_inspection 4 25
-patrol prototype_inspection_route 4,25|14,25|24,24|29,20|34,19|42,22|46,25
+patrol prototype_inspection_route 4,25|14,25|30,25|30,22|25,20|25,14|34,14|41,20|46,25
 transition road_to_reval 46 24 4 3 to=reval_toompea destination_spawn=from_world_padise spawn=from_reval_west spawn_offset_px=-128,0 highlight_area=true transition_visual=ground alignment=travel
 transition road_to_parnu 0 24 4 3 to=world_parnu destination_spawn=from_world_padise spawn=from_world_parnu spawn_offset_px=128,0 highlight_area=true transition_visual=ground alignment=travel

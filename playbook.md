@@ -12,6 +12,7 @@
 - When Hunyuan3D/ComfyUI image-to-3D is unavailable, ship catalog-proportion Blender fauna GLBs with PBR maps and reference plates, then add an optional Hunyuan follow-up (`P2-034a` pattern) instead of blocking the batch.
 - Blender glTF export with packed textures still yields Godot-extracted `*_albedo.png` / `*_normal.png` / `*_roughness.png` sidecars; register those derived paths in `assets/SOURCES.csv` or provenance validation fails.
 - On macOS, `godot` is often not on `PATH`; use `/Applications/Godot.app/Contents/MacOS/Godot` or set `GODOT_BIN` before running headless tests or map pipeline scripts.
+- On macOS shell commands, assign `GODOT_BIN` before expanding it (`export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot`); `GODOT_BIN=... "$GODOT_BIN" ...` expands the old value and can fail with exit 127.
 - After adding fauna/prop GLBs, run `godot --headless --path . --import` before Godot tests; `ResourceLoader.exists` stays false until `.import` sidecars exist.
 - Bird authored-mesh allowlists live in `tests/godot/test_map_view_bird_meshes.gd`; update them in the same change as new `assets/birds/**` GLBs or CI fails.
 - For catalog birds with exact `MapViewBirdSpecies` metrics, prefer deterministic Blender generators over Hunyuan when prior animal candidates were rejected for topology; keep an optional Hunyuan follow-up row.
@@ -151,3 +152,7 @@
 - ComfyUI workflow validation can reject project-relative `LoadImage` paths before generation; inspect `/system_stats` for the running input/output roots and stage references into ComfyUI's input directory before retrying candidate workflows.
 - Host Blender 5.2 exposes the render engine enum as `BLENDER_EEVEE` (not `BLENDER_EEVEE_NEXT`); use the installed enum when generating audit plates.
 - Blender factory-startup may leave `scene.world` unset; create and assign an explicit `bpy.data.worlds.new(...)` before writing world color in headless preview scripts.
+- The multi-tool wrapper requires its own `tool_uses` schema; when a batch fails with `steps is required`, retry with `multi_tool_use.parallel` only for developer tools and valid wrapper arguments.
+- Discover exact support-file paths before reading; `MapWallWalkAccess` lives under `scripts/map/view3d/`, not the flatter inferred `scripts/map/` path.
+- Avoid passing broad regexes with unescaped parentheses to `grep`; use a literal search or escape the grouping before batching diagnostics.
+- Agent definitions do not share one instruction shape: `system_file`, inline `system`, and role-specific loop headings vary; inspect exact anchors before scripted updates and verify every profile/loop after editing.
