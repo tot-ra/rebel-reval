@@ -318,3 +318,66 @@ A second focused check did not produce a shippable Baltic replacement:
 
 The reproducible checks remain green against the existing fallback:
 `python3 tools/audio/verify_curated_bird_recordings.py`, `python3 tools/verify_bird_audio_manifest.py`, and `python3 tools/verify_bird_audio_clips.py`; the curated dry-run still resolves 30 records without downloading. This is an evidence boundary, not proof that no qualifying Baltic recording exists. The next unblock is a human permission request to the University of Tartu Natural History Museum / Veljo Runnel or a recordist with the exact commercial grant and attribution terms recorded in the curated manifest.
+
+### P0-122f human outreach packet (ready to send)
+
+The following request is intentionally prepared as a human action rather than an
+automatic download. Send it to `loodusmuuseum@ut.ee`, with `veljo.runnel@ut.ee` copied
+when the Kormoran record is the target. For PlutoF/eElurikkus records, also copy
+`kessy.abarenkov@ut.ee` or `info@elurikkus.ut.ee` and address the named recordist.
+Do not attach or register an audio file until the rightsholder replies with the
+permission fields below.
+
+**Subject:** Commercial permission request for two Estonian bird recordings in a game
+
+> Dear University of Tartu Natural History Museum / recordist,
+>
+> We are preparing *Rebel-reval*, a commercial historical game set in Reval in 1343.
+> We would like to use one or both of the following Estonian field recordings as
+> species-specific ambient audio:
+>
+> - Great cormorant (*Phalacrocorax carbo*):
+>   <http://loodusheli.ee/ET/loomaliigid/linnud/taxonid=448&speciesid=482>
+> - White-tailed eagle (*Haliaeetus albicilla*):
+>   <http://loodusheli.ee/ET/loomaliigid/linnud/taxonid=302&speciesid=576>
+>
+> Could the copyright holder grant us a written, non-exclusive commercial license for
+> the exact record(s), including permission to reproduce, store, trim, loudness-normalise,
+> loop or otherwise technically edit the recording for the game's ambient cues, and to
+> distribute the resulting game on digital and physical platforms worldwide, including
+> updates, trailers, and promotional materials? The license should be perpetual for
+> copies already released, or state its exact term if it is time-limited. A paid license
+> is acceptable; please state the fee and any reporting or renewal requirements.
+>
+> Please confirm the following for each approved record:
+>
+> 1. exact record URL or stable record ID;
+> 2. species, recordist, recording date, location, and duration;
+> 3. name and authority of the copyright holder or licensor;
+> 4. the applicable license text or a direct link to the commercial grant;
+> 5. whether the grant covers the edits and distribution described above;
+> 6. required attribution wording and where it must appear; and
+> 7. whether any separate consent is needed from the recordist, institution, or other
+>    rights holder.
+>
+> Please reply in writing with the permission attached to the exact record(s). We will
+> preserve the reply and the original record URL in our asset provenance log. We will
+> not use the recording if the only applicable term is CC BY-NC 3.0 EE or another
+> non-commercial/no-derivatives license.
+>
+> Kind regards,
+> [maintainer name and contact]
+
+#### Outreach response log
+
+Record a reply here before touching `tools/audio/curated_bird_recordings.json`:
+
+| Record | Contacted | Reply date | Rightsholder | Commercial grant / license URL | Edits and distribution approved | Attribution | Evidence path | Decision |
+|---|---|---|---|---|---|---|---|---|
+| `great_cormorant` | pending | - | - | - | - | - | - | blocked |
+| `white_tailed_eagle` | pending | - | - | - | - | - | - | blocked |
+
+A positive reply must be retained as an exportable message or signed document and
+linked from `Evidence path`. Only then may the relevant curated row be replaced and
+the three bird-audio verifiers be run. If a reply grants permission for only one
+record, keep the other German iNaturalist fallback unchanged and log the partial result.
