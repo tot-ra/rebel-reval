@@ -161,3 +161,4 @@
 - The multi-tool wrapper requires its own `tool_uses` schema; when a batch fails with `steps is required`, retry with `multi_tool_use.parallel` only for developer tools and valid wrapper arguments.
 
 - After structural insertions, re-read the surrounding function boundary before running tests; an inserted test can accidentally consume a helper declaration and leave a top-level match block.
+- For environment-kit acceptance in a dirty shared worktree, validate the acceptance suite on the live tree but re-run asset/provenance and regression baselines from a clean detached HEAD; this separates scoped findings (such as missing map wear) from unrelated WIP assets and renderer work.
