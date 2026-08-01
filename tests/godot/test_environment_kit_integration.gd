@@ -163,6 +163,8 @@ func test_forge_and_street_well_modules_are_deterministic_view_only_assemblies()
 		[EnvironmentKit.MODULE_FORGE_INTERIOR, EnvironmentKit.build_forge_interior(smithy)],
 		[EnvironmentKit.MODULE_FORGE_YARD, EnvironmentKit.build_forge_yard(lower_town)],
 		[EnvironmentKit.MODULE_STREET_WELL, EnvironmentKit.build_street_well(lower_town)],
+		[EnvironmentKit.MODULE_BREWERY, EnvironmentKit.build_brewery(lower_town)],
+		[EnvironmentKit.MODULE_CHECKPOINT, EnvironmentKit.build_checkpoint(lower_town)],
 	]
 	for entry in modules:
 		var module_id: StringName = entry[0]
@@ -232,6 +234,36 @@ func test_forge_and_street_well_keep_clearance_and_local_wear_contract() -> void
 	well_module.free()
 
 
+func test_brewery_and_checkpoint_modules_keep_clearance_and_landmark_dressing() -> void:
+	var definition := LowerTownSliceDefinition.create()
+	var grid: MapTerrainGrid = MapBuilder.build(definition)
+	var brewery := EnvironmentKit.build_brewery(definition)
+	var checkpoint := EnvironmentKit.build_checkpoint(definition)
+
+	assert_eq(brewery.get_node("Buildings").get_child_count(), 1, "brewery module must contain its authored shell")
+	assert_eq(brewery.get_node("Props").get_child_count(), 3, "brewery module must contain keg, malt, and evidence dressing")
+	assert_true(
+		MapVerification.route_exists(definition, grid, MapVerification.anchor_position(definition, &"street_start"), MapVerification.anchor_position(definition, &"brewery_door")),
+		"brewery dressing must preserve the street-to-door route"
+	)
+	assert_true(
+		MapVerification.anchor_position(definition, &"brewery_door").distance_to(_prop_by_id(definition, &"brewery_keg_stack")["position"]) > float(definition.cell_size),
+		"brewery keg stack must stay off the door apron"
+	)
+
+	assert_eq(checkpoint.get_node("Buildings").get_child_count(), 2, "checkpoint module must contain both gate towers")
+	assert_eq(checkpoint.get_node("Props").get_child_count(), 2, "checkpoint module must contain stall and cart dressing")
+	assert_eq(checkpoint.get_node("Landmarks").get_child_count(), 2, "checkpoint module must retain both view-only gate arches")
+	assert_true(
+		MapVerification.route_exists(definition, grid, MapVerification.anchor_position(definition, &"checkpoint_west"), MapVerification.anchor_position(definition, &"checkpoint_east")),
+		"checkpoint dressing must preserve the through-route"
+	)
+	_assert_view_only(brewery, "brewery environment module")
+	_assert_view_only(checkpoint, "checkpoint environment module")
+	brewery.free()
+	checkpoint.free()
+
+
 func _build_module(module_id: StringName, smithy: MapDefinition, lower_town: MapDefinition) -> Node3D:
 	match module_id:
 		EnvironmentKit.MODULE_FORGE_INTERIOR:
@@ -240,6 +272,10 @@ func _build_module(module_id: StringName, smithy: MapDefinition, lower_town: Map
 			return EnvironmentKit.build_forge_yard(lower_town)
 		EnvironmentKit.MODULE_STREET_WELL:
 			return EnvironmentKit.build_street_well(lower_town)
+		EnvironmentKit.MODULE_BREWERY:
+			return EnvironmentKit.build_brewery(lower_town)
+		EnvironmentKit.MODULE_CHECKPOINT:
+			return EnvironmentKit.build_checkpoint(lower_town)
 	return Node3D.new()
 
 

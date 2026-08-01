@@ -159,3 +159,5 @@
 - Asset validators `tools/verify_asset_lint.py` and `tools/validate_asset_sources.py` have no `--help` mode; inspect their module usage or run them without arguments instead of treating a help failure as a validation failure.
 - RRMap compiler expands long interior walls into stable segmented IDs such as `wall.north_forge/segment.000`; integration tests must inspect compiled records or use a prefix-aware lookup, not assume the source statement ID survives unchanged. When a focused test fails in a dirty mesh-builder worktree, inspect the saved log and separate pre-existing renderer errors from the scoped fixture.
 - The multi-tool wrapper requires its own `tool_uses` schema; when a batch fails with `steps is required`, retry with `multi_tool_use.parallel` only for developer tools and valid wrapper arguments.
+
+- After structural insertions, re-read the surrounding function boundary before running tests; an inserted test can accidentally consume a helper declaration and leave a top-level match block.

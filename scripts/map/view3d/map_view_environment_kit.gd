@@ -13,6 +13,8 @@ const MeshBuilder := preload("res://scripts/map/view3d/map_view_mesh_builder.gd"
 const MODULE_FORGE_INTERIOR := &"forge_interior"
 const MODULE_FORGE_YARD := &"forge_yard"
 const MODULE_STREET_WELL := &"street_well"
+const MODULE_BREWERY := &"brewery"
+const MODULE_CHECKPOINT := &"checkpoint"
 
 
 static func build_forge_interior(definition: MapDefinition) -> Node3D:
@@ -50,6 +52,32 @@ static func build_street_well(definition: MapDefinition) -> Node3D:
 		[],
 		[&"cistern", &"cistern_wash_tub", &"monastery_well"]
 	)
+
+
+static func build_brewery(definition: MapDefinition) -> Node3D:
+	return _build_module(
+		definition,
+		MODULE_BREWERY,
+		[&"foaming_mug_brewery"],
+		[&"brewery_keg_stack", &"brewery_malt_sacks", &"evidence_barrels"]
+	)
+
+
+static func build_checkpoint(definition: MapDefinition) -> Node3D:
+	var root := _build_module(
+		definition,
+		MODULE_CHECKPOINT,
+		[&"viru_gate_north_tower", &"viru_gate_south_tower"],
+		[&"market_stall_gate", &"gate_cart"]
+	)
+	var landmarks := Node3D.new()
+	landmarks.name = "Landmarks"
+	root.add_child(landmarks)
+	for landmark in definition.view_landmarks:
+		if landmark.get("id", &"") not in [&"viru_gate_arch", &"viru_foregate_arch"]:
+			continue
+		landmarks.add_child(MeshBuilder.build_landmark(landmark, definition.cell_size))
+	return root
 
 
 static func _build_module(
