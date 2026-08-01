@@ -270,6 +270,7 @@ decal decal.wet_smithy_door wet_threshold 88 74 2 1 radius=1.1
 decal decal.grime_hay_corner grime 86 76 2 2 radius=1.2
 decal decal.mud_quench_apron mud 98 76 1 1 radius=1.0
 decal decal.soot_courtyard_anvil soot 97 65 2 2 radius=1.3
+decal decal.grime_courtyard_firewood grime 97 65 2 2 radius=1.0
 decal decal.mud_brewery_door mud 78 60 2 1 radius=1.3
 decal decal.wet_cistern wet_threshold 104 60 2 2 radius=1.4
 decal decal.grime_yard_cart grime 79 84 2 2 radius=1.1
