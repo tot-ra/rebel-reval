@@ -30,6 +30,10 @@ style plant.thistle
 terrain water.deep deep_water 0 0 144 24 order=1
 terrain water.shallow shallow_water 0 24 144 10 order=2
 terrain shore.sand coast_sand 0 34 144 10 order=3
+# R-033 S1-S2 is a reconstructed Kalarand wet margin. Keep the existing
+# walkable shore track and timber landings outside this shallow-water band.
+terrain shore.reconstructed_water shallow_water 0 34 144 2 order=4 shore_confidence=reconstructed
+terrain shore.reconstructed_reed mud 0 43 144 1 order=5 shore_confidence=reconstructed
 # Kalamaja's working beach alternates shallow coves with sand spits instead of
 # following one ruler-straight band across the entire map.
 terrain_rects shore.headlands coast_sand 0,31,17,3|26,33,15,2|49,30,22,4|82,33,15,2|104,31,25,3|137,32,7,2 order=4

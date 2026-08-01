@@ -30,6 +30,10 @@ style plant.mugwort
 terrain water.deep deep_water 0 0 160 46 order=1
 terrain water.shallow shallow_water 0 46 160 8 order=2
 terrain shore.sand coast_sand 0 54 160 9 order=3
+# R-033 S3-S4 is a reconstructed Coastal Gate merchant-landing margin.
+# The narrow wet band stops before the rubble landings and cargo-yard track.
+terrain shore.reconstructed_water shallow_water 0 54 160 2 order=4 shore_confidence=reconstructed
+terrain shore.reconstructed_reed mud 0 62 160 1 order=5 shore_confidence=reconstructed
 # Low headlands and narrow inlets break the former ruler-straight Baltic edge.
 # Water stays blocked; these are deterministic authored silhouette changes only.
 terrain_rects shore.headlands coast_sand 0,51,18,3|25,53,16,2|48,50,24,4|81,53,14,2|103,51,27,3|142,52,18,2 order=4

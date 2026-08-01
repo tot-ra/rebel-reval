@@ -35,6 +35,18 @@ RRMap editor/plugin only needs to be enabled as documented in
 [`MAP_ALIGNMENT_EDITOR.md`](MAP_ALIGNMENT_EDITOR.md); runtime detail remains a
 derived view and never changes collision, navigation, or the map fingerprint.
 
+### Evidence-bounded wet margins (P0-168)
+
+Harbour shoreline layers use the existing `shallow_water` and `mud` terrain IDs
+for shallow water/mudflat and may add `style=reed.shore` for a reed margin. Mark
+the evidence status on each wet primitive with `shore_confidence=attested` or
+`shore_confidence=reconstructed`; the compiler preserves this typed metadata in
+the compiled zone. Use stable zone IDs tied to the R-033 segment table (for
+example `shore.reconstructed_water`), keep `deep_water` outside the approved
+GeoJSON polygon, and do not place the wet layer over walkable timber landings,
+required routes, or gate approaches. The R-033 GeoJSON is WGS84 interchange
+evidence; RRMap coordinates remain local integer cells, not longitude/latitude.
+
 ## Architecture and terminology
 
 ```text

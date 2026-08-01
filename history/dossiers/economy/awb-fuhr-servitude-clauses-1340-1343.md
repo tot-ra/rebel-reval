@@ -5,6 +5,7 @@ status: partial
 consumers: [quest, dev, dialogue, map, art]
 related:
   - reval-cart-tolls-and-fuhr-rent-1340s.md
+  - awb-clausuris-mortgage-text-1340-1343.md
   - merchant-cart-and-transport-1340s.md
   - pr-voorimees-garden-coastal-gate.md
   - ../architecture/burgher-house-plan.md
@@ -24,7 +25,7 @@ You are checking whether **1340–1343 Reval property registers** impose **cart 
 
 1. **No attested *Fuhrpacht*, *Fuhrgeld*, *Wagenzoll*, or transport-servitude clause in published AWB entries dated 1340–1343.** A keyword pass on Arbusow's *Ältestes Wittschopbuch* (1312–1360) plus secondary AWB surveys found **property sales, annuity foundations, and mortgage securities** — not municipal cart tariffs or *Fuhr* corvée lines **(gap)** [1][2][3].
 2. ***Fuhr* in MLG legal usage ≠ cart fee.** *Fuhre* can mean **passage/transport right across land** (DRW sense II) or **a cart-load measure** (DRW sense V) — neither is a Reval **wheel tax** [4]. Hinterland **manor *Fuhr* labour** applies to peasants, not Great Guild merchants [`harju-village-and-manor.md`](../hinterland/harju-village-and-manor.md) `plausible composite` [4][5].
-3. **What AWB *does* record near 1343:** dated **mortgage and annuity rows** with **house + yard components** — *lapideam domum*, *orto*, *kornhaus*, *stallis*, and (in the register vocabulary) ***clausuris*** as plot enclosures — **not** cart-hire schedules [2][6][7].
+3. **What AWB *does* record near 1343:** direct target-year entries use **mortgage, annuity, hereditary-plot, courtyard, and wall language** - *hereditas*, *area hereditatis*, *curia*, *murus*, and *retro consistorium* - while the exact plural ***clausuris*** is directly located only in later AWB entries [2][6][7][12].
 4. **Attested carter property, no rent figure:** Kaplinski's EV/PR survey places a **voorimehe** (carter) **kitchen garden before the Coastal Gate** alongside **two cooper (*püttsepp*) gardens** — **profession and plot exist; Fuhr rent does not** `attested` via published EV II/III indices (see [`pr-voorimees-garden-coastal-gate.md`](pr-voorimees-garden-coastal-gate.md); **no 1343-dated PR folio**) [8][11].
 5. **Extramural yard access pattern:** Burgher **vegetable gardens, barns (*Scheune*), and wood sheds (*holtrum*)** sit **outside the wall before named gates** — formulae include ***vor der Karrienpforte*** / ***buten der Karrienpforte*** (Coastal Gate zone). This is **plot location**, not a priced cart servitude `attested` pattern via Kaplinski; individual 1340–1343 deed text **not fully quoted** this tick `partial` [8][9].
 6. **Quest economy unchanged from parent dossier:** Carter **hire** remains **negotiated 4–12 sch.** (`plausible composite`); **no** municipal axle toll POI [`reval-cart-tolls-and-fuhr-rent-1340s.md`](reval-cart-tolls-and-fuhr-rent-1340s.md) [3].
@@ -50,11 +51,11 @@ Secondary scholarship cites these **numbered AWB entries** in the target window.
 | **430** | **1335** | Mortgage continuation in same network | **No *Fuhr* clause cited** | attested entry; transport text **gap** [2][7] | Kala 2018 [7] |
 | **508** | **1341** | Widow **Gertrude van Bremen** household property | **No *Fuhr* clause cited** | attested entry [2][7] | Kala 2018 [7] |
 | **516** | **1341** | Related **Gertrude van Bremen** household row | **No *Fuhr* clause cited** | attested entry [2][7] | Kala 2018 [7] |
-| **566** | **1343** | **Johann van Bremen** allocates **112 marks** annuity capital; council pays **7 marks** yearly to needy **consanguinei** | **Charitable annuity — not cart rent** | attested [6][7] | LECUB 2 no. 812; Kala 2018 [6][7] |
-| **570** | **1343** | **Johann van Bremen** borrowing / financial row | **No *Fuhr* clause cited** | attested entry [2][7] | Kala 2018 [7] |
+| **566** | **1343** | **Hermannus More** is recorded as bound to **Johannes de Breme** for **6 marks and 1 ferto** | **Financial security row - not cart rent** | attested [6][7][12] | Arbusow, printed p. 85; MDZ canvas 101; Kala 2018 [7] |
+| **570** | **1343** | **Johannes de Breme** amicably grants **Hinricus Dysche** 13 marks with which he acquired his hereditary property | **Hereditary-property finance - not cart rent** | attested [12] | Arbusow, printed p. 86; MDZ canvas 102 |
 | **1340–1343** | — | Keyword targets: *Fuhr*, *Fuhrpacht*, *Fuhrgeld*, *Wagen*, *Karren*, *fuhren* | **Explicit negative** in published secondary + register-type survey | gap (method below) [1][2][3] | This tick |
 
-**Method note:** Full-text folio read of Arbusow 1888 was **not completed in-repo** this tick (digitised edition fetch blocked). Verdict rests on (a) AWB's documented genre as **property/mortgage register**, not market police book [1]; (b) parallel **negative musician / cart-toll** searches in sibling dossiers [2][3]; (c) **six dated AWB rows** from Kala 2018 with **no *Fuhr* transport-servitude quotation** [7]. TLA microfilm confirmation remains an open upgrade path.
+**Method note:** The public-domain MDZ digitisation and OCR were checked for the printed pages covering entries 554-580, including 563-575. The direct 1343 quotations and the negative result for `clausura` variants are recorded in [`awb-clausuris-mortgage-text-1340-1343.md`](awb-clausuris-mortgage-text-1340-1343.md); a TLA manuscript/folio collation remains a bounded follow-up under `R-074`.
 
 ### Yard-access and enclosure clauses (what replaces *Fuhr* rent in AWB)
 
@@ -62,7 +63,7 @@ Secondary scholarship cites these **numbered AWB entries** in the target window.
 |---|---|---|---|
 | ***lapideam domum cum orto*** | Stone house with **kitchen garden** as mortgage security | Formula in **1346** Aleydis van Bremen mortgage (AWB 657); same register vocabulary applies to 1340s band | attested pattern; 1343 instance **plausible composite** [7] |
 | ***kornhaus*** / granary | **Grain storage** in security bundle | AWB 657 (1346) cites *domos … dicta kornhaus* | attested pattern [7] |
-| ***clausuris*** | **Plot enclosures** — yards, gates, cellar compounds (scholarly gloss: enclosures/cellars) | AWB **716–717 (1348)**, **755 (1349)** name *quinque clausuras* and *omnibus suis clausuris* — **post-1343** but same AWB lexicon | attested vocabulary; 1343 deed **not quoted** this tick `partial` [7] |
+| ***clausuris*** | **Plot enclosures** — yards, gates, cellar compounds (scholarly gloss: enclosures/cellars) | AWB **716–717 (1348)** and **926 (1355)** / **1004 (1358)** name the term — **all post-1343**; AWB 755 (1349) does **not** contain *clausuris* | attested later vocabulary; 1343 deed **not quoted** this tick `partial` [7][12] |
 | ***in hereditatibus et in ortis et aliis*** | **Orchards and other heritable plots** in acquisition | AWB **96 (1316)** — Bremen family property language | attested [7] |
 | ***vor der Karrienpforte*** / ***buten der Karrienpforte*** | Extramural garden/barn **before Coastal Gate** | Kaplinski survey of property-book formulae | attested pattern [8] |
 | ***holtrum*** (wood shed) | **Fuel storage** outside wall, often harbour-adjacent | **Great Coastal Gate** and **Nunnakopli** named in Kaplinski | attested pattern [8] |
@@ -107,7 +108,8 @@ Secondary scholarship cites these **numbered AWB entries** in the target window.
 ## Cross-references
 
 - [`reval-cart-tolls-and-fuhr-rent-1340s.md`](reval-cart-tolls-and-fuhr-rent-1340s.md) — parent gap statement; this dossier **confirms** no *Fuhrpacht* upgrade and adds **yard-access** vocabulary.
-- [`merchant-cart-and-transport-1340s.md`](merchant-cart-and-transport-1340s.md) — vehicle types; carter hire not servitude.
+- [`awb-clausuris-mortgage-text-1340-1343.md`](awb-clausuris-mortgage-text-1340-1343.md) - direct MDZ/OCR folio pass: two 1343 mortgage/property quotations, later *clausuris* control entries, and the corrected 1340-1343 evidence boundary.
+- [`merchant-cart-and-transport-1340s.md`](merchant-cart-and-transport-1340s.md) - vehicle types; carter hire not servitude.
 - [`../architecture/burgher-house-plan.md`](../architecture/burgher-house-plan.md) — rear yard and *clausuris* plot logic.
 - [`pr-voorimees-garden-coastal-gate.md`](pr-voorimees-garden-coastal-gate.md) — EV/PR register pass upgrading carter-plot row; PR scope limit for 1343.
 - [`../topography/harbour-and-shoreline.md`](../topography/harbour-and-shoreline.md) — Coastal Gate 1343 fabric limits.
@@ -133,3 +135,4 @@ Secondary scholarship cites these **numbered AWB entries** in the target window.
 9. [`../topography/harbour-and-shoreline.md`](../topography/harbour-and-shoreline.md) — *Strandporte* 1359; 1343 gate fabric (project dossier).
 10. [`../people/estonian-and-german-populations.md`](../people/estonian-and-german-populations.md) — carter labour tier (project dossier).
 11. [`pr-voorimees-garden-coastal-gate.md`](pr-voorimees-garden-coastal-gate.md) — EV/PR register pass for Coastal Gate carter garden (project dossier).
+12. [`awb-clausuris-mortgage-text-1340-1343.md`](awb-clausuris-mortgage-text-1340-1343.md) — direct public-domain AWB edition OCR pass; corrects the later-term boundary and quotes the 1343 property entries.
