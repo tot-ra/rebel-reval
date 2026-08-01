@@ -5,6 +5,8 @@
 - Markdown reports with intentional hard-break spaces fail `git diff --cached --check`; use plain line breaks before staging documentation.
 
 ## Tooling
+- For cart art, audit wheel count separately from wheel track; an inherited two-axle scaffold can violate a two-wheel Karren brief while the width metric still passes.
+- Use `functions.parallel` with `steps` and `multi_tool_use.parallel` with `tool_uses`; their batch schemas are not interchangeable.
 
 - RRMap `stroke` polylines are strictly orthogonal; represent angled historic street approaches as stepped axis-aligned segments before running the compiler.
 - In a dirty shared worktree, a broad transition test file can fail on an unrelated edited map; run its map-specific test methods separately before attributing the failure to the scoped map.
