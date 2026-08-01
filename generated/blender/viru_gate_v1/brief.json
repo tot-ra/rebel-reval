@@ -1,0 +1,25 @@
+{
+  "id": "landmark.viru_gate_1343",
+  "kind": "rigid_architecture_landmark",
+  "target": "res://assets/props/architecture/gates/viru_gate.glb",
+  "scene": "res://content/maps/lower_town_slice.rrmap#viru_gate_arch",
+  "dimensions_m": [
+    14.0,
+    3.8,
+    7.4
+  ],
+  "triangles": {
+    "target": 8500,
+    "max": 12000
+  },
+  "textures": {
+    "albedo": 512
+  },
+  "style_refs": [
+    "docs/ART_BIBLE.md",
+    "docs/MATERIAL_STYLE_LOCK_KIT.md"
+  ],
+  "historical_basis": "history/dossiers/topography/walls-gates-towers.md",
+  "historical_scope": "Simple mid-14th-century Viru gatehouse, possibly unfinished; no round foregate towers, barbican, Fat Margaret, or portcullis complex.",
+  "approval": "task-authorized"
+}

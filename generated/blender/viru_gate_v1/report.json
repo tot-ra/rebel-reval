@@ -1,0 +1,55 @@
+{
+  "asset": {
+    "checks": {
+      "anachronism_exclusions": true,
+      "embedded_albedo": true,
+      "ground_contact": true,
+      "metric_scale": true,
+      "portable_pbr": true,
+      "triangle_cap": true,
+      "uvs": true,
+      "walkable_void": true,
+      "y_up_glb": true
+    },
+    "dimensions_m": [
+      14.5,
+      4.35,
+      7.337
+    ],
+    "faces": 2040,
+    "ground_min_z": 0.0,
+    "material_names": [
+      "ViruIron",
+      "ViruLimestone",
+      "ViruLimestoneLight",
+      "ViruLimestoneShadow",
+      "ViruOak",
+      "ViruOakCut",
+      "ViruOakTar",
+      "ViruRoofTile"
+    ],
+    "materials": 8,
+    "max_z": 7.337013,
+    "mesh_objects": 78,
+    "sha256": "9f1a81f3a1c4fa3cc4d6c472fd9b4ae59e9938884802e0f3dc20f3f49fc079aa",
+    "texture_size": 512,
+    "triangles": 3504,
+    "uv_sets": 1,
+    "vertices": 1908
+  },
+  "asset_id": "landmark.viru_gate_1343",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "c100f20c4167f8d838d1a430927e6a556e627b9bc3048411e61417e09e802ac1",
+  "forbidden_forms": [
+    "round foregate towers",
+    "barbican",
+    "Fat Margaret",
+    "portcullis complex",
+    "zwinger"
+  ],
+  "generator": "generated/blender/viru_gate_v1/generate_viru_gate.py",
+  "generator_version": "viru_gate_v1",
+  "historical_scope": "Simple mid-14th-century Viru gatehouse, possibly unfinished; no round foregate towers, barbican, Fat Margaret, or portcullis complex.",
+  "preview": null,
+  "route": "deterministic_blender"
+}
