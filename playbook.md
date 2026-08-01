@@ -1,5 +1,9 @@
 # Playbook
 
+## Session lessons
+
+- Markdown reports with intentional hard-break spaces fail `git diff --cached --check`; use plain line breaks before staging documentation.
+
 ## Tooling
 
 - RRMap `stroke` polylines are strictly orthogonal; represent angled historic street approaches as stepped axis-aligned segments before running the compiler.
