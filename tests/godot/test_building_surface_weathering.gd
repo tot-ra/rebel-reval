@@ -15,6 +15,47 @@ func test_adjacent_houses_get_distinct_wall_textures() -> void:
 	)
 
 
+func test_wall_surface_families_keep_distinct_pattern_identity() -> void:
+	MapViewMaterials.reset()
+	var color := Color8(180, 157, 119)
+	var size := Vector3(4.0, 3.0, 5.0)
+	var families: Array[StringName] = [&"log", &"plank", &"plaster", &"limestone"]
+	var textures: Dictionary = {}
+	for family in families:
+		var material := MapViewMaterials.wall_surface_for_building(
+			StringName("family.%s" % String(family)),
+			family,
+			color,
+			size
+		)
+		assert_true(material.albedo_texture != null, "%s walls need a procedural pattern" % family)
+		textures[material.albedo_texture] = family
+	assert_eq(
+		textures.size(),
+		families.size(),
+		"log, plank, plaster, and limestone must resolve to distinct shared patterns"
+	)
+
+
+func test_roof_surface_families_keep_distinct_pattern_identity() -> void:
+	MapViewMaterials.reset()
+	var families: Array[StringName] = [&"tile", &"shingle", &"thatch"]
+	var textures: Dictionary = {}
+	for family in families:
+		var material := MapViewMaterials.roof_surface_for_building(
+			StringName("roof.%s" % String(family)),
+			family,
+			Color8(112, 83, 56)
+		)
+		assert_true(material.albedo_texture != null, "%s roofs need a procedural pattern" % family)
+		textures[material.albedo_texture] = family
+	assert_eq(
+		textures.size(),
+		families.size(),
+		"tile, shingle, and thatch must resolve to distinct shared patterns"
+	)
+
+
 func test_weathering_variant_is_deterministic_per_building() -> void:
 	var first := MapViewMaterials.surface_weathering_variant(&"brewery_yard")
 	var second := MapViewMaterials.surface_weathering_variant(&"brewery_yard")
@@ -25,24 +66,34 @@ func test_weathering_variant_is_deterministic_per_building() -> void:
 	)
 
 
-func test_weathering_variants_change_pattern_grayscale() -> void:
-	MapViewMaterials.reset()
+func test_all_weathering_variants_change_the_shared_pattern() -> void:
 	var seed := 9042
 	var fresh := MapViewMaterialPatterns.pattern_texture_weathered(
 		MapViewMaterials.PATTERN_PLASTER,
 		seed,
 		MapViewMaterials.WEATHER_FRESH
 	).get_image()
-	var worn := MapViewMaterialPatterns.pattern_texture_weathered(
-		MapViewMaterials.PATTERN_PLASTER,
-		seed,
-		MapViewMaterials.WEATHER_WORN
-	).get_image()
-	assert_ne(
-		fresh.get_pixel(8, 8).r,
-		worn.get_pixel(8, 8).r,
-		"worn plaster must diverge from the fresh baseline"
-	)
+	for weathering in MapViewMaterials.BUILDING_WEATHER_VARIANTS:
+		var image := MapViewMaterialPatterns.pattern_texture_weathered(
+			MapViewMaterials.PATTERN_PLASTER,
+			seed,
+			weathering
+		).get_image()
+		if weathering == MapViewMaterials.WEATHER_FRESH:
+			assert_eq(_mean_abs_delta(fresh, image), 0.0)
+		else:
+			assert_true(
+				_mean_abs_delta(fresh, image) > 0.0,
+				"%s state must be visible in the shared material" % weathering
+			)
+
+
+func _mean_abs_delta(first: Image, second: Image) -> float:
+	var total := 0.0
+	for y in first.get_height():
+		for x in first.get_width():
+			total += absf(first.get_pixel(x, y).r - second.get_pixel(x, y).r)
+	return total / float(first.get_width() * first.get_height())
 
 
 func test_lower_town_houses_emit_weathered_wall_materials() -> void:

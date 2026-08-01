@@ -252,6 +252,10 @@ static func _wall_pattern(family: StringName) -> StringName:
 			return PATTERN_BRICK
 		&"plank":
 			return PATTERN_PLANK
+		&"log":
+			# Keep log as a real construction family in the per-building path;
+			# falling through to plaster would erase the rural/timber distinction.
+			return PATTERN_LOG
 		&"limestone":
 			return PATTERN_LIMESTONE
 		_:

@@ -156,3 +156,4 @@
 - Discover exact support-file paths before reading; `MapWallWalkAccess` lives under `scripts/map/view3d/`, not the flatter inferred `scripts/map/` path.
 - Avoid passing broad regexes with unescaped parentheses to `grep`; use a literal search or escape the grouping before batching diagnostics.
 - Agent definitions do not share one instruction shape: `system_file`, inline `system`, and role-specific loop headings vary; inspect exact anchors before scripted updates and verify every profile/loop after editing.
+- Asset validators `tools/verify_asset_lint.py` and `tools/validate_asset_sources.py` have no `--help` mode; inspect their module usage or run them without arguments instead of treating a help failure as a validation failure.
