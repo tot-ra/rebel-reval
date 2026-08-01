@@ -162,3 +162,5 @@
 
 - After structural insertions, re-read the surrounding function boundary before running tests; an inserted test can accidentally consume a helper declaration and leave a top-level match block.
 - For environment-kit acceptance in a dirty shared worktree, validate the acceptance suite on the live tree but re-run asset/provenance and regression baselines from a clean detached HEAD; this separates scoped findings (such as missing map wear) from unrelated WIP assets and renderer work.
+- When a task-board `get` call rejects a visible product ID, retry with the internal task ref shown by `tasks.list` (for example `R-78` for deliverable `P0-122f`) instead of treating the task as missing.
+- When a task's verification command fails with a missing-file error, discover the repository path before retrying; the curated gap verifier is under `tools/audio/verify_curated_bird_recordings.py`, not the project root.
