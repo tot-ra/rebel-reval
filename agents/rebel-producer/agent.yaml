@@ -2,9 +2,9 @@ version: "1"
 agent:
   id: rebel-producer
   name: Rebel Producer
-  emoji: "🎬"
-  description: >-
-    Keeps specialists moving through dependency-safe playable slices by triaging proactive requests, enforcing ready work, recovering blockers, and maintaining low WIP without implementing deliverables.
+  description: Keeps specialists moving through dependency-safe playable slices by
+    triaging proactive requests, enforcing ready work, recovering blockers, and
+    maintaining low WIP without implementing deliverables.
   kind: orchestrator
 runtime:
   type: docker
@@ -16,12 +16,10 @@ instructions:
     - type: builtin_tools
       enabled: true
 workspace:
-  scope: configured_project
+  scope: current_project
   mount: rw
 tools:
-  mode: allow
-  enabled: [read, edit, write, grep, find_files, glob, bash, content_search]
-  disabled: [delegate_to_agent, delegate_to_subagent, delegate_to_external_agent]
+  mode: all
 networking:
   internet_access: true
 publish:
@@ -29,5 +27,4 @@ publish:
     category: engineering
     discoverable: false
 llm:
-  provider: openai_codex
-  model: gpt-5.6-sol
+  provider: fallback_chain:complex

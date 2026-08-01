@@ -655,4 +655,3 @@ func lod_visibility_configured() -> bool:
 					if mesh_instance.visibility_range_begin < LOD2_VISIBILITY_BEGIN:
 						return false
 	return true
-
