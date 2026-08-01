@@ -1,0 +1,152 @@
+{
+  "id": "fauna.waterfowl_batch.hunyuan_candidate",
+  "route": "local_comfyui_hunyuan3d_v2_single_image",
+  "checkpoint": "hunyuan3d-dit-v2-mv_fp16.safetensors",
+  "workflow_api_template": "generated/comfyui/medieval_animals_v1/workflow_api.json",
+  "workflow": {
+    "3": {
+      "class_type": "KSampler",
+      "inputs": {
+        "model": [
+          "70",
+          0
+        ],
+        "seed": 184726391,
+        "steps": 24,
+        "cfg": 7.0,
+        "sampler_name": "euler",
+        "scheduler": "normal",
+        "positive": [
+          "65",
+          0
+        ],
+        "negative": [
+          "65",
+          1
+        ],
+        "latent_image": [
+          "66",
+          0
+        ],
+        "denoise": 1.0
+      }
+    },
+    "51": {
+      "class_type": "CLIPVisionEncode",
+      "inputs": {
+        "clip_vision": [
+          "54",
+          1
+        ],
+        "image": [
+          "56",
+          0
+        ],
+        "crop": "none"
+      }
+    },
+    "54": {
+      "class_type": "ImageOnlyCheckpointLoader",
+      "inputs": {
+        "ckpt_name": "hunyuan3d-dit-v2-mv_fp16.safetensors"
+      }
+    },
+    "56": {
+      "class_type": "LoadImage",
+      "inputs": {
+        "image": "forge_cat_reference.png"
+      }
+    },
+    "61": {
+      "class_type": "VAEDecodeHunyuan3D",
+      "inputs": {
+        "samples": [
+          "3",
+          0
+        ],
+        "vae": [
+          "54",
+          2
+        ],
+        "num_chunks": 8000,
+        "octree_resolution": 256
+      }
+    },
+    "65": {
+      "class_type": "Hunyuan3Dv2Conditioning",
+      "inputs": {
+        "clip_vision_output": [
+          "51",
+          0
+        ]
+      }
+    },
+    "66": {
+      "class_type": "EmptyLatentHunyuan3Dv2",
+      "inputs": {
+        "resolution": 3072,
+        "batch_size": 1
+      }
+    },
+    "70": {
+      "class_type": "ModelSamplingAuraFlow",
+      "inputs": {
+        "model": [
+          "54",
+          0
+        ],
+        "shift": 1.0
+      }
+    },
+    "82": {
+      "class_type": "VoxelToMesh",
+      "inputs": {
+        "voxel": [
+          "61",
+          0
+        ],
+        "algorithm": "surface net",
+        "threshold": 0.6
+      }
+    },
+    "83": {
+      "class_type": "SaveGLB",
+      "inputs": {
+        "mesh": [
+          "82",
+          0
+        ],
+        "filename_prefix": "3d/forge_cat_hunyuan3d_v1"
+      }
+    }
+  },
+  "runs": [
+    {
+      "seed": 1343037,
+      "reference": "bird_waterfowl_v1/mute_swan_standing.png",
+      "run_id": "b2f301c8-6248-46de-8afe-de900e87ac61",
+      "output": "generated/comfyui/bird_waterfowl_v1/candidates/mute_swan_hunyuan_candidate.glb"
+    },
+    {
+      "seed": 1343038,
+      "reference": "bird_waterfowl_v1/mallard_standing.png",
+      "run_id": "79230297-b3bc-433d-bd15-c243d6179b90",
+      "output": "generated/comfyui/bird_waterfowl_v1/candidates/mallard_hunyuan_candidate.glb"
+    },
+    {
+      "seed": 1343039,
+      "reference": "bird_waterfowl_v1/greylag_goose_standing.png",
+      "run_id": "156418f3-058d-4f5f-9f2a-e1982ec544cb",
+      "output": "generated/comfyui/bird_waterfowl_v1/candidates/greylag_goose_hunyuan_candidate.glb"
+    },
+    {
+      "seed": 1343040,
+      "reference": "bird_waterfowl_v1/great_cormorant_standing.png",
+      "run_id": "df94925a-285c-4d8b-881c-32feaaaa5fe5",
+      "output": "generated/comfyui/bird_waterfowl_v1/candidates/great_cormorant_hunyuan_candidate.glb"
+    }
+  ],
+  "production_policy": "Candidates only; assets/birds production GLBs were not modified or replaced.",
+  "workflow_status": "healthy",
+  "audit_verdict": "rejected_for_production"
+}

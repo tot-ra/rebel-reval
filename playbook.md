@@ -149,3 +149,5 @@
 - When a scoped search command fails because a path was inferred, discover the actual file with `find_files`/`grep` first; do not retry against guessed repository paths.
 
 - ComfyUI workflow validation can reject project-relative `LoadImage` paths before generation; inspect `/system_stats` for the running input/output roots and stage references into ComfyUI's input directory before retrying candidate workflows.
+- Host Blender 5.2 exposes the render engine enum as `BLENDER_EEVEE` (not `BLENDER_EEVEE_NEXT`); use the installed enum when generating audit plates.
+- Blender factory-startup may leave `scene.world` unset; create and assign an explicit `bpy.data.worlds.new(...)` before writing world color in headless preview scripts.

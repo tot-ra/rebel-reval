@@ -1,0 +1,206 @@
+{
+  "id": "fauna.waterfowl_batch.hunyuan_candidate",
+  "generator": "Hunyuan3Dv2 via local ComfyUI 0.28.2",
+  "route": "local_comfyui_hunyuan3d_v2_single_image",
+  "checkpoint": "hunyuan3d-dit-v2-mv_fp16.safetensors",
+  "workflow_path": "generated/comfyui/bird_waterfowl_v1/candidate_workflow.json",
+  "reference_source": "generated/comfyui/bird_waterfowl_v1/previews/*_standing.png",
+  "candidate_only": true,
+  "production_unchanged": true,
+  "quality_contract": {
+    "triangle_budget": 8000,
+    "grounding_tolerance_m": 0.02,
+    "requires_materials": true,
+    "requires_catalog_scale_ratio": [
+      0.5,
+      1.5
+    ],
+    "requires_standing_pose": true
+  },
+  "candidates": [
+    {
+      "species": "mute_swan",
+      "candidate_path": "generated/comfyui/bird_waterfowl_v1/candidates/mute_swan_hunyuan_candidate.glb",
+      "sha256": "069a35102a6911dbeaaecd603101f5e4ed0337769bd7163ec1c48599ad71c3eb",
+      "bytes": 284732,
+      "source_reference": "bird_waterfowl_v1/mute_swan_standing.png",
+      "seed": 1343037,
+      "comfyui_run_id": "b2f301c8-6248-46de-8afe-de900e87ac61",
+      "metrics": {
+        "triangles": 17374,
+        "vertices": 6160,
+        "mesh_count": 1,
+        "dimensions_m": [
+          1.154516,
+          1.336941,
+          1.413758
+        ],
+        "largest_axis_m": 1.413758,
+        "min_z_m": -0.977063,
+        "max_z_m": 0.436695,
+        "material_count": 0,
+        "materials": [],
+        "animation_count": 0,
+        "animations": []
+      },
+      "production_comparison": {
+        "scale_m": 1.45,
+        "production_largest_axis_m": 3.678972,
+        "largest_axis_ratio": 0.384281
+      },
+      "checks": {
+        "triangle_budget": false,
+        "grounding": false,
+        "materials": false,
+        "catalog_scale": false,
+        "standing_pose_asset": true,
+        "human_silhouette_review": true
+      },
+      "production_verdict": "reject",
+      "verdict_reasons": [
+        "triangle budget exceeded (17374>8000)",
+        "no materials or textures exported",
+        "grounding failed (min_z=-0.977063 m)",
+        "catalog-scale mismatch (candidate/production largest-axis ratio=0.384)"
+      ]
+    },
+    {
+      "species": "mallard",
+      "candidate_path": "generated/comfyui/bird_waterfowl_v1/candidates/mallard_hunyuan_candidate.glb",
+      "sha256": "c136756f7478f1865c0343f02913784222e4b1ae75e82946694f088c4e11eb6c",
+      "bytes": 623352,
+      "source_reference": "bird_waterfowl_v1/mallard_standing.png",
+      "seed": 1343038,
+      "comfyui_run_id": "79230297-b3bc-433d-bd15-c243d6179b90",
+      "metrics": {
+        "triangles": 40772,
+        "vertices": 10980,
+        "mesh_count": 1,
+        "dimensions_m": [
+          0.867365,
+          0.822906,
+          0.853425
+        ],
+        "largest_axis_m": 0.867365,
+        "min_z_m": -0.481554,
+        "max_z_m": 0.371871,
+        "material_count": 0,
+        "materials": [],
+        "animation_count": 0,
+        "animations": []
+      },
+      "production_comparison": {
+        "scale_m": 0.56,
+        "production_largest_axis_m": 1.098865,
+        "largest_axis_ratio": 0.789328
+      },
+      "checks": {
+        "triangle_budget": false,
+        "grounding": false,
+        "materials": false,
+        "catalog_scale": true,
+        "standing_pose_asset": true,
+        "human_silhouette_review": true
+      },
+      "production_verdict": "reject",
+      "verdict_reasons": [
+        "triangle budget exceeded (40772>8000)",
+        "no materials or textures exported",
+        "grounding failed (min_z=-0.481554 m)"
+      ]
+    },
+    {
+      "species": "greylag_goose",
+      "candidate_path": "generated/comfyui/bird_waterfowl_v1/candidates/greylag_goose_hunyuan_candidate.glb",
+      "sha256": "40a140e7f3f9bd0a685fc8eb4678c35d377f34050f3eef7666185c57b8b7070f",
+      "bytes": 1457004,
+      "source_reference": "bird_waterfowl_v1/greylag_goose_standing.png",
+      "seed": 1343039,
+      "comfyui_run_id": "156418f3-058d-4f5f-9f2a-e1982ec544cb",
+      "metrics": {
+        "triangles": 87376,
+        "vertices": 33846,
+        "mesh_count": 1,
+        "dimensions_m": [
+          1.586644,
+          1.955384,
+          1.34071
+        ],
+        "largest_axis_m": 1.955384,
+        "min_z_m": -0.869814,
+        "max_z_m": 0.470896,
+        "material_count": 0,
+        "materials": [],
+        "animation_count": 0,
+        "animations": []
+      },
+      "production_comparison": {
+        "scale_m": 0.82,
+        "production_largest_axis_m": 1.830047,
+        "largest_axis_ratio": 1.068488
+      },
+      "checks": {
+        "triangle_budget": false,
+        "grounding": false,
+        "materials": false,
+        "catalog_scale": true,
+        "standing_pose_asset": true,
+        "human_silhouette_review": true
+      },
+      "production_verdict": "reject",
+      "verdict_reasons": [
+        "triangle budget exceeded (87376>8000)",
+        "no materials or textures exported",
+        "grounding failed (min_z=-0.869814 m)"
+      ]
+    },
+    {
+      "species": "great_cormorant",
+      "candidate_path": "generated/comfyui/bird_waterfowl_v1/candidates/great_cormorant_hunyuan_candidate.glb",
+      "sha256": "3e1b4efc9fbd44d5e4c8142272f8dab320933da004661f37e0828f55c04da5e1",
+      "bytes": 13048,
+      "source_reference": "bird_waterfowl_v1/great_cormorant_standing.png",
+      "seed": 1343040,
+      "comfyui_run_id": "df94925a-285c-4d8b-881c-32feaaaa5fe5",
+      "metrics": {
+        "triangles": 634,
+        "vertices": 259,
+        "mesh_count": 1,
+        "dimensions_m": [
+          0.073111,
+          0.701895,
+          0.160563
+        ],
+        "largest_axis_m": 0.701895,
+        "min_z_m": -0.091166,
+        "max_z_m": 0.069397,
+        "material_count": 0,
+        "materials": [],
+        "animation_count": 0,
+        "animations": []
+      },
+      "production_comparison": {
+        "scale_m": 0.88,
+        "production_largest_axis_m": 2.492676,
+        "largest_axis_ratio": 0.281583
+      },
+      "checks": {
+        "triangle_budget": true,
+        "grounding": false,
+        "materials": false,
+        "catalog_scale": false,
+        "standing_pose_asset": true,
+        "human_silhouette_review": false
+      },
+      "production_verdict": "reject",
+      "verdict_reasons": [
+        "no materials or textures exported",
+        "grounding failed (min_z=-0.091166 m)",
+        "catalog-scale mismatch (candidate/production largest-axis ratio=0.282)",
+        "mesh is visibly incomplete at catalog scale; silhouette review failed"
+      ]
+    }
+  ],
+  "overall_verdict": "all_four_rejected_for_production",
+  "follow_up": "Retain deterministic Blender waterfowl_v1 production meshes. Revisit only with a workflow that exports UV/materials and a controllable standing pose at the 8k triangle budget."
+}
