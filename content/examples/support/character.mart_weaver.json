@@ -1,0 +1,46 @@
+{
+  "type": "character",
+  "id": "char.mart_weaver",
+  "name": "Mart Weaver",
+  "role": "Blackheads candidate-seat weaver and organiser among Lower Town artisans",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-046",
+    "notes": "Candidate-seat support record only; distinct from apprentice Mart and never a ninth launch-faction row."
+  },
+  "pronunciation": "MART",
+  "brief": {
+    "want": "Protect Estonian craft knowledge through mutual support among Lower Town artisans.",
+    "fear": "A public act of defiance will bring fines, confiscation, or a watch raid onto every workshop in his network.",
+    "contradiction": "He distrusts merchant power but uses Blackheads access and credit to shelter artisans.",
+    "secret_or_withheld_fact": "He keeps a shorthand list of workshops willing to pass messages or supplies."
+  },
+  "relationships": [],
+  "voice": {
+    "summary": "Warm, deliberate, and practical.",
+    "diction": "Uses warp, weft, tension, and frayed thread as careful political images.",
+    "languages": [
+      "Estonian",
+      "Low German"
+    ]
+  },
+  "outcomes": [
+    {
+      "id": "candidate_hook_recorded",
+      "summary": "Mart Weaver's artisan-shield hook records a Blackheads candidate event while keeping apprentice Mart separate."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "P7-013 Wave A brief promoted into the P4-046 candidate-seat support corpus; surname keeps this face distinct from char.mart.",
+      "citations": [
+        "docs/CHARACTERS/mart_weaver.md",
+        "docs/CHARACTERS/mart.md",
+        "docs/data/faction_blackheads_candidate.json"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.blackheads.mart_weaver_shield",
+  "title": "Mart Weaver's artisan shield",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-046",
+    "notes": "P4-046 support dialogue; Mart Weaver is distinct from apprentice Mart and the event remains candidate-only."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "One authored choice records the Mart Weaver Blackheads candidate hook."
+  },
+  "participants": [
+    "char.kalev",
+    "char.mart_weaver"
+  ],
+  "start_node_id": "mart_weaver_opening",
+  "word_count_estimate": 53,
+  "nodes": [
+    {
+      "id": "mart_weaver_opening",
+      "speaker_id": "char.mart_weaver",
+      "text": "Do not confuse my name with the young apprentice at your forge. I am shielding a weaver who cannot pay the guild fine, and I need your word kept out of the ledger.",
+      "choices": [
+        {
+          "id": "shield_the_contact",
+          "text": "The contact stays out of the ledger.",
+          "target_node_id": "mart_weaver_close",
+          "effects": [
+            {
+              "op": "record_faction_event",
+              "key": "ledger.blackheads.mart_weaver_shield",
+              "value": "faction.blackheads",
+              "amount": 1,
+              "summary": "Mart Weaver shielded a forge contact from a guild fine."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mart_weaver_close",
+      "speaker_id": "char.mart_weaver",
+      "text": "Then the thread holds for another day. That is enough, if we remember who is carrying it."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-046 example dialogue for the P4-045 Mart Weaver candidate event; the surname is intentional.",
+      "citations": [
+        "docs/CHARACTERS/mart_weaver.md",
+        "docs/CHARACTERS/mart.md",
+        "docs/data/faction_blackheads_candidate.json"
+      ]
+    }
+  ]
+}

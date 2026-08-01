@@ -8,7 +8,7 @@
   "approval": {
     "status": "draft",
     "reviewer": "P4-045",
-    "notes": "Events/IDs only. README launch-eight table unchanged. Lizard Union stays intrigue-cell-only. Face content IDs are documented in docs/data/faction_blackheads_candidate.json until P7-013 briefs land."
+    "notes": "P4-045 candidate seat remains events/IDs only. P7-013 Wave A briefs are now linked by this P4-046 support pass; README launch-eight table and Lizard Union exclusion remain unchanged."
   },
   "entry_conditions": [
     {
@@ -94,8 +94,16 @@
     }
   ],
   "content_links": {
-    "character_ids": [],
-    "dialogue_ids": [],
+    "character_ids": [
+      "char.johann_von_minden",
+      "char.hinrik_cartographer",
+      "char.mart_weaver"
+    ],
+    "dialogue_ids": [
+      "dialogue.blackheads.johann_contract",
+      "dialogue.blackheads.hinrik_harbour_chart",
+      "dialogue.blackheads.mart_weaver_shield"
+    ],
     "bark_ids": [],
     "commission_ids": [],
     "item_ids": [],
@@ -104,11 +112,14 @@
   "source_notes": [
     {
       "confidence": "invented",
-      "summary": "P4-045 candidate seat stub. Planned faces char.johann_von_minden, char.hinrik_cartographer, char.mart_weaver (P7-013). Wiring plan docs/data/faction_blackheads_candidate.json. Lizard Union has no ledger ID.",
+      "summary": "P4-045 candidate seat stub now linked to the landed P7-013 Wave A face records and three P4-046 example dialogues. Lizard Union has no ledger ID.",
       "citations": [
         "docs/cast_faction_promotion.md",
         "docs/data/faction_blackheads_candidate.json",
-        "TODO.md#P4-045"
+        "docs/CHARACTERS/johann_von_minden.md",
+        "docs/CHARACTERS/hinrik_cartographer.md",
+        "docs/CHARACTERS/mart_weaver.md",
+        "TODO.md#P4-046"
       ]
     }
   ]
