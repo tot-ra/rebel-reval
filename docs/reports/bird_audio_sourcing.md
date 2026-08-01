@@ -17,7 +17,7 @@ script default filter is `len:15-90`.
 | **xeno-canto.org** | Excellent - filter by `cnt:Estonia`, thousands of recordings, per-recording quality grade A-E | Per recording: CC0, CC BY, CC BY-SA, **and** CC BY-NC(-SA/-ND) | **Only** the CC0 / BY / BY-SA subset | **Primary source.** Filter per recording. |
 | **freesound.org** | Some European recordings, not Estonia-tagged reliably | Per sound: CC0, CC BY, CC BY-SA, CC BY-NC | Only CC0 / BY / BY-SA | Secondary / gap filler. |
 | **Macaulay Library (eBird / Cornell)** | Very good regional coverage incl. Baltic birds | Free for research/education; **commercial use requires a paid license** via Cornell's ticketing system and the "Commercially requestable media" filter | **Yes, with fee and contract** | Not a free source. Viable paid fallback for gap species (cormorant, white-tailed eagle) when xeno-canto has zero CC0/BY/BY-SA takes. |
-| **loodusheli.ee** ("Kõrv loodusesse", Univ. of Tartu Natural History Museum) | Best available - recorded *in Estonia* by Estonian naturalists, incl. species soundscapes by biotope/season | **No license stated anywhere**; site footer is only `© 2016 TÜ loodusmuuseum`. Under EE/EU law, silence means all rights reserved | **No, not as-is** | Reject for direct download; **best candidate for a written permission request** (see below). |
+| **loodusheli.ee** ("Kõrv loodusesse", Univ. of Tartu Natural History Museum) | Best available - recorded *in Estonia* by Estonian naturalists, incl. species soundscapes by biotope/season | Per species page: **CC BY-NC 3.0 EE** (<http://creativecommons.org/licenses/by-nc/3.0/ee/>); page footer also identifies TÜ loodusmuuseum | **No** for commercial use under the published NC terms; written permission or a separate commercial grant is required | Regional provenance confirmed for both P0-122f gap species; do not download/register until permission is documented. |
 | **eElurikkus / PlutoF / "Minu loodusheli"** | Growing Estonian sound-observation corpus (Legulus, PlutoF GO, citizen science) | Occurrence metadata is open; **audio file copyright stays with each recordist**. The GBIF "My naturesounds" export is CC0, but that covers the dataset metadata - not a blanket license on every attached sound file | **Per file only** | Search <https://elurikkus.ee/app/occurrences/search?class=Aves&file_types=Audio> and ask recordists (or `kessy.abarenkov@ut.ee` / `info@elurikkus.ut.ee`) about commercial terms. |
 | **Veljo Runnel** (naturesoundscapes.eu, Bandcamp) | **Best Estonian songbird coverage** - most breeding songbirds, Matsalu wetlands, Padakõrve, etc. | Bandcamp albums are **all rights reserved**; not CC | **No, not as-is** | High-priority **paid or permission** contact: `veljo.runnel@ut.ee`. Could replace most `*.song` species and several calls in one negotiation. |
 | **iNaturalist** | Sparse but Estonia-tagged sound observations exist | Default upload license is CC BY-NC; some users choose CC0 or CC BY per observation | **Only CC0 / BY rows** | Manual gap filler. Filter by country, taxon, and license on each observation page. |
@@ -112,7 +112,7 @@ rather than an incomplete search:
 | Route | Estonian material? | Commercially licensed? |
 |---|---|---|
 | xeno-canto | Yes, thousands | **No** - xeno-canto's *default upload license is CC BY-NC-SA*, so the commercial subset is near-empty for Estonia |
-| loodusheli.ee | Yes, the best regional material | **No** - all rights reserved, no license offered |
+| loodusheli.ee | Yes, the best regional material | **No** - the species pages publish **CC BY-NC 3.0 EE**, which excludes commercial use unless the rightsholder grants separate permission |
 | freesound.org | Barely | Some CC0/BY, but Estonian rows tend to be NC |
 | Macaulay Library | Yes | **Paid license only** (commercial ticketing, not free) |
 | eElurikkus / PlutoF | Yes, growing | **Per-recordist** - metadata open, audio rights vary |
@@ -296,11 +296,11 @@ godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_bir
 Provenance for every processed cue is recorded in ``sounds/birds/processed_manifest.csv``,
 linking each catalog cue back to the P0-122 source clip and license row.
 
-### P0-122f research attempt (2026-07-31)
+### P0-122f research attempt (2026-08-01 follow-up)
 
 Loodusheli pages confirm Estonian field recordings for both gap species:
 
 - `great_cormorant` / *Phalacrocorax carbo*: [Kormoran](http://loodusheli.ee/ET/loomaliigid/linnud/taxonid=448&speciesid=482), credited to Veljo Runnel, Rõngu vald, Valguta polder, 2012-10-28.
 - `white_tailed_eagle` / *Haliaeetus albicilla*: [Merikotkas](http://loodusheli.ee/ET/loomaliigid/linnud/taxonid=302&speciesid=576).
 
-The pages expose audio metadata but no CC0, CC BY, CC BY-SA, or commercial permission. The HTTPS endpoint also currently fails certificate validation (`www.loodusheli.ee` certificate expired), so no audio was downloaded. The existing Germany iNaturalist clips remain the only verified commercial fallback. P0-122f is blocked until the University of Tartu Natural History Museum / recordist grants written permission, a record-level commercial license is published, or maintainers supply new Estonian/Baltic field takes with provenance. Do not replace the curated rows based on metadata presence alone.
+The pages expose Estonian provenance and an explicit **CC BY-NC 3.0 EE** link, but no CC0, CC BY, CC BY-SA, or commercial permission. The HTTPS endpoint also currently fails certificate validation (`www.loodusheli.ee` certificate expired), so no audio was downloaded. The existing Germany iNaturalist clips remain the only verified commercial fallback. P0-122f is blocked until the University of Tartu Natural History Museum / recordist grants written permission, a record-level commercial license is published, or maintainers supply new Estonian/Baltic field takes with provenance. Do not replace the curated rows based on metadata presence alone.
