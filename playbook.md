@@ -11,6 +11,8 @@
 - When a close-up capture needs a different framing, re-aim the shipped camera along its own `basis.z` instead of offsetting `position` in world XZ; an orthographic isometric camera offset that way slides off the map into sky.
 - Godot typed inference fails on `for side in [-1.0, 1.0]`; declare `for side: float in [...]` before using the loop variable in arithmetic that must stay typed.
 
+- In Blender reference generators, keep helper signatures aligned with call sites; a stale optional argument can abort a multi-plate render after already writing a partial evidence set. Run a tiny render smoke before the full batch.
+- Documentation contract smoke checks should normalize case for human-facing confidence labels; `Attested typology` and `attested typology` carry the same decision even when prose capitalization differs.
 ## Tooling
 - For cart art, audit wheel count separately from wheel track; an inherited two-axle scaffold can violate a two-wheel Karren brief while the width metric still passes.
 - Use `functions.parallel` with `steps` and `multi_tool_use.parallel` with `tool_uses`; their batch schemas are not interchangeable.
