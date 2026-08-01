@@ -185,3 +185,5 @@
 - For renderer-boundary QA, always run both a detached clean baseline and the live dirty worktree: a new boundary test can fail to parse from missing fixture helpers while the clean baseline still exposes the actual landmark contract defect. Record those as separate findings instead of merging them or committing another worker's implementation.
 - For closeout gates that fan out several Godot suites, use one clean detached worktree and bounded per-suite runs; if a batch times out, inspect its saved logs and stop the orphaned Godot process before retrying only the unfinished suite.
 - For rights-blocked media tasks, preserve the verified fallback and record access failures (rate limits, bot challenges, HTTP errors) as an evidence boundary; never substitute metadata, regional relevance, or an NC license for explicit commercial permission.
+
+- Blender 5.2 headless smoke scripts may expose the EEVEE engine enum as `BLENDER_EEVEE`, not `BLENDER_EEVEE_NEXT`; probe or use the installed enum before rendering evidence plates.
