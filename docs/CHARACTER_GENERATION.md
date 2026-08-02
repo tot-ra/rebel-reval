@@ -59,6 +59,15 @@ Then:
 3. Add a SOURCES.csv provenance row (creator `project maintainer`, tool chain, "generated in-repo").
 4. Add/extend a rig-contract test (see `test_innkeeper_body_spec_fulfills_the_rig_contract`).
 
+## Surfaces: UVs and procedural PBR detail (P0-144/P0-145)
+
+Every generated part gets UVs at build time: `PartBuilder.build()` runs an angle-based `smart_project` unwrap after the subdivision apply, so islands are deterministic and no hand-authored seams exist. Materials then wire the shared procedural detail maps from `tools/hero_body_textures.py`:
+
+- Five grayscale families - `cloth` (plain wool weave), `leather` (tanned grain and pores), `skin` (blotch, pores, freckles), `hair` (strand streaks), `metal` (brushed streaks and dents) - each generates 512 px albedo, tangent-space normal, roughness, and AO maps with seeded numpy noise inside Blender.
+- Base color is detail-albedo multiplied by the spec's palette color (exported as `baseColorTexture` x `baseColorFactor`), so palette entries keep working unchanged and one texture family serves every character and garment. Roughness is authored per-pixel from the same relief field instead of leaving cloth and skin at a plastic scalar.
+- Blender's glTF exporter packs each family's roughness into the native G channel of a `metallicRoughnessTexture` and exports AO through the standard `occlusionTexture`; Godot extracts that packed image as `<body>_hero_tex_<family>_ao-hero_tex_<family>_roughness.png`. Normal, albedo, ORM, and material slots are all embedded in the GLB.
+- Tier budgets: 512 px sits under the Tier 1 1024 px cap, so the same pipeline serves hero and named-NPC tiers; LOD decimation preserves UVs and the embedded PBR material graph.
+
 ## Anatomy and clothing layers
 
 `tools/hero_body_anatomy_builder.py` builds the shared body system from the retargeted skeleton rather than from uniform limb cylinders. Thigh, knee, calf, shin, deltoid, upper arm, elbow, and forearm use distinct profiles and blended joint weights. `tools/hero_body_torso_builder.py` then adds fitted tunic or mail and existing profession/rank outerwear above that envelope.

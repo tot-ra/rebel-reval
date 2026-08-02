@@ -34,6 +34,7 @@ from hero_body_context import BodyContext  # noqa: E402
 from hero_body_head_builder import build_head  # noqa: E402
 from hero_body_limb_builder import build_limbs  # noqa: E402
 from hero_body_mesh_builder import PartBuilder, find_armature  # noqa: E402
+from hero_body_textures import apply_texture  # noqa: E402
 from hero_body_torso_builder import build_torso  # noqa: E402
 from hero_garment_builder import build_garments  # noqa: E402
 
@@ -63,6 +64,9 @@ PALETTE = {
     "armor": (0.45, 0.47, 0.50, 1.0),
     "mail": (0.40, 0.43, 0.45, 1.0),
     "outerwear": (0.28, 0.20, 0.14, 1.0),
+    # Work-apron leather. Kept separate from "outerwear" because aprons read
+    # as tanned hide while vests and surcoats stay wool cloth.
+    "leather": (0.24, 0.16, 0.10, 1.0),
     "trim": (0.55, 0.40, 0.24, 1.0),
     "cape": (0.42, 0.24, 0.14, 1.0),
     "hat": (0.32, 0.36, 0.28, 1.0),
@@ -78,7 +82,11 @@ def _material(name: str) -> bpy.types.Material:
     material.use_nodes = True
     bsdf = material.node_tree.nodes["Principled BSDF"]
     # The palette is authored in sRGB; base color factors are linear.
-    srgb = _active_palette[name]
+    srgb = _active_palette.get(name)
+    if srgb is None:
+        # Late-added material names (for example apron "leather") fall back to
+        # the spec's outerwear tone instead of failing the whole build.
+        srgb = _active_palette.get("outerwear", PALETTE["outerwear"])
     linear = tuple(pow(channel, 2.2) for channel in srgb[:3]) + (srgb[3],)
     bsdf.inputs["Base Color"].default_value = linear
     # Material response is part of the model, not a global flat-plastic tint.
@@ -114,6 +122,9 @@ def _material(name: str) -> bpy.types.Material:
         bsdf.inputs["Metallic"].default_value = 0.72 if name in ("armor", "mail") else 0.0
     if "Specular IOR Level" in bsdf.inputs:
         bsdf.inputs["Specular IOR Level"].default_value = specular
+    # Procedural albedo/normal detail maps (P0-144/P0-145): the flat tint stays
+    # as the multiplicative factor, so spec palettes keep working unchanged.
+    apply_texture(material, name)
     return material
 
 

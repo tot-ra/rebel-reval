@@ -233,3 +233,4 @@
 - When correcting a Blender-imported animal axis, validate the authored head direction against the runtime rig before changing dimensions; a sign error can place eyes/neck on the tail while all size and animation checks still pass.
 - In a dirty shared worktree, `validate_asset_sources.py` can fail on unrelated newly-added runtime assets; run scoped provenance checks for the changed asset and report the baseline separately instead of absorbing unrelated SOURCES rows.
 - A Godot `--editor --import` can be blocked by an unrelated dirty-tree parse error; record the exact first failing script/function and continue with scoped GLB/PBR and asset-loader checks instead of editing out-of-scope runtime code.
+- In Godot `SceneTree` diagnostic scripts, call `quit()` directly; `get_tree()` is unavailable on the `SceneTree` object and causes a misleading probe parse failure.

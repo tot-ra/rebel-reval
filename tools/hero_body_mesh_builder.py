@@ -17,11 +17,14 @@ from mathutils import Vector
 if TYPE_CHECKING:
     pass
 
-# Ring density per tube cross-section. 24 keeps limb and tunic silhouettes
+# Ring density per tube cross-section. 20 keeps limb and tunic silhouettes
 # round at portrait distance; combined with smooth shading (build() sets
 # use_smooth on every polygon) and one Catmull-Clark subdivision applied at
-# build time the body no longer reads as faceted low-poly.
-RING_SEGMENTS = 24
+# build time the body no longer reads as faceted low-poly. It is also the
+# headroom lever for the ADR 0016 tier budgets: the P0-144/P0-145 detail pass
+# (sideburns, nape, nostrils, moustache, collar/hem trim) added ~8k tris per
+# body, and 20 segments returns every spec under its frozen cap.
+RING_SEGMENTS = 20
 
 # Applying one subdivision level pulls box corners toward the limit surface;
 # box() pre-scales its axes by this factor so hands, boots, and face features
@@ -285,14 +288,21 @@ class PartBuilder:
             subsurf.levels = self.subdivision
             bpy.ops.object.modifier_apply(modifier=subsurf.name)
 
-        modifier = obj.modifiers.new("Armature", "ARMATURE")
-        modifier.object = armature
-        obj.parent = armature
-
-        # Consistent outward normals.
+        # UVs for the procedural PBR texture sets (P0-144): angle-based smart
+        # projection gives every generated part deterministic islands without
+        # hand-authored seams, so cloth/leather/skin/hair detail maps can
+        # actually land on the mesh.
         bpy.context.view_layer.objects.active = obj
         bpy.ops.object.mode_set(mode="EDIT")
         bpy.ops.mesh.select_all(action="SELECT")
+        bpy.ops.uv.smart_project(
+            angle_limit=math.radians(66.0), island_margin=0.02, area_weight=True
+        )
+        # Consistent outward normals.
         bpy.ops.mesh.normals_make_consistent(inside=False)
         bpy.ops.object.mode_set(mode="OBJECT")
+
+        modifier = obj.modifiers.new("Armature", "ARMATURE")
+        modifier.object = armature
+        obj.parent = armature
         return obj

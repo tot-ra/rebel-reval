@@ -221,6 +221,18 @@ def _add_brow_and_nose(
     head_part.cap(
         face_point(context, shape, face, -0.064, 0.070), {"head": 1.0}, "skin"
     )
+    # Nostrils: two small shadowed beads tucked under the nose wings. The lip
+    # tone doubles as a dark cavity color, so the nose stops reading as a
+    # featureless wedge in close-ups.
+    for side in (1.0, -1.0):
+        head_part.uv_sphere(
+            face_point(context, shape, face, -0.056, 0.084 + 0.010 * nose)
+            + frame.left * side * 0.014 * scale,
+            Vector((0.0075 * scale, 0.009 * scale, 0.006 * scale)),
+            {"head": 1.0},
+            "lips",
+            rings=5,
+        )
 
 
 def _add_eyes(
@@ -243,15 +255,15 @@ def _add_eyes(
         eye_center = face_point(context, shape, face, EYE_HEIGHT, eye_depth) + offset
         head_part.uv_sphere(
             eye_center,
-            Vector((0.017 * scale, 0.015 * scale, 0.012 * scale)),
+            Vector((0.021 * scale, 0.018 * scale, 0.014 * scale)),
             {"head": 1.0},
             "eye_white",
             rings=8,
         )
         # A wide iris: a small dark bead in a large white reads as a stare.
         head_part.uv_sphere(
-            eye_center + frame.forward * 0.009 * scale,
-            Vector((0.011 * scale, 0.008 * scale, 0.010 * scale)),
+            eye_center + frame.forward * 0.010 * scale,
+            Vector((0.0125 * scale, 0.010 * scale, 0.011 * scale)),
             {"head": 1.0},
             "eyes",
             rings=7,
@@ -259,8 +271,8 @@ def _add_eyes(
         # Upper lid only: it clips the top of the eyeball and casts the line
         # that makes the eye read as open rather than as a bead.
         head_part.uv_sphere(
-            eye_center + frame.up * 0.016 * scale - frame.forward * 0.004 * scale,
-            Vector((0.024 * scale, 0.018 * scale, 0.011 * scale)),
+            eye_center + frame.up * 0.018 * scale - frame.forward * 0.004 * scale,
+            Vector((0.028 * scale, 0.021 * scale, 0.012 * scale)),
             {"head": 1.0},
             "skin",
             rings=7,
@@ -331,21 +343,24 @@ def _add_hair(
     # edge of the hair is never a visible rim.
     # The jump across the hairline section has to be decisive: two surfaces
     # crossing at a shallow angle speckle against each other along the seam.
+    # The bottom edge sits between the eye-line and brow sections; the nape
+    # patch below supplies the downward continuation at the center back, so
+    # the shell itself must not descend to the neck (that read as a swim cap).
     if style == "short":
         factors = (
-            (0.90, 0.76, 0.94),
-            (1.05, 1.05, 1.07),
-            (1.06, 1.06, 1.08),
-            (1.08, 1.08, 1.10),
-            (1.16, 1.14, 1.18),
+            (0.96, 0.92, 0.96),
+            (1.05, 1.03, 1.07),
+            (1.06, 1.05, 1.08),
+            (1.08, 1.07, 1.10),
+            (1.16, 1.13, 1.18),
         )
     else:
         factors = (
-            (0.94, 0.82, 0.98),
-            (1.08, 1.09, 1.11),
-            (1.09, 1.10, 1.12),
-            (1.12, 1.12, 1.15),
-            (1.22, 1.18, 1.26),
+            (0.98, 0.95, 0.99),
+            (1.08, 1.07, 1.11),
+            (1.09, 1.08, 1.12),
+            (1.12, 1.11, 1.15),
+            (1.22, 1.17, 1.26),
         )
     head_part.start_tube()
     for (side_factor, front_factor, back_factor), index in zip(
@@ -366,6 +381,29 @@ def _add_hair(
         {"head": 1.0},
         "hair",
     )
+
+    if style in ("short", "full"):
+        # Sideburns in front of the ears: they connect the scalp shell to the
+        # beard line, which breaks the "bathing cap" read the plain tube had.
+        for side in (1.0, -1.0):
+            head_part.uv_sphere(
+                face_point(context, shape, face, -0.012, -0.008)
+                + frame.left * side * 0.094 * scale * face["width"],
+                Vector((0.018 * scale, 0.014 * scale, 0.040 * scale)),
+                {"head": 1.0},
+                "hair",
+                rings=7,
+            )
+        # Nape taper: short hair continues down the back of the neck at the
+        # center only. The ears stay clear and the silhouette reads as a
+        # tapered haircut instead of a cap pulled down to the neck.
+        head_part.uv_sphere(
+            face_point(context, shape, face, 0.010, -0.116),
+            Vector((0.060 * scale * face["width"], 0.028 * scale, 0.072 * scale)),
+            {"head": 1.0},
+            "hair",
+            rings=8,
+        )
 
     if style == "ponytail":
         tail_base = face_point(context, shape, face, 0.070, -0.130)
@@ -480,19 +518,29 @@ def _add_beard(
             front_radius + grow,
             {"head": 1.0},
             "beard",
-            back_radius,
+            # The back of the band dives deep inside the skull. Without this
+            # shrink the beard ring wraps the whole lower head and reads as a
+            # dark hair band on the back of the head in every profile view.
+            back_radius * 0.72,
         )
     hang = -0.168 if style == "full" else -0.146
     head_part.cap(
         face_point(context, shape, face, hang, 0.026), {"head": 1.0}, "beard"
     )
 
-    if style == "full":
-        # Moustache bridging nose to beard, so the mouth stays readable.
-        head_part.uv_sphere(
-            face_point(context, shape, face, MOUTH_HEIGHT + 0.020, 0.086),
-            Vector((0.040 * scale * face["jaw_width"], 0.022 * scale, 0.012 * scale)),
-            {"head": 1.0},
-            "beard",
-            rings=7,
-        )
+    # Moustache bridging nose to beard, so the mouth stays readable. Short
+    # beards keep a slimmer moustache instead of none at all.
+    moustache = 1.0 if style == "full" else 0.72
+    head_part.uv_sphere(
+        face_point(context, shape, face, MOUTH_HEIGHT + 0.020, 0.086),
+        Vector(
+            (
+                0.040 * scale * face["jaw_width"] * moustache,
+                0.022 * scale * moustache,
+                0.012 * scale,
+            )
+        ),
+        {"head": 1.0},
+        "beard",
+        rings=7,
+    )

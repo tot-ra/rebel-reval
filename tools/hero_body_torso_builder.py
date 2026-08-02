@@ -204,6 +204,17 @@ def _add_anatomical_clothing(
             {"hips": 1.0},
             material,
         )
+        # Bound hem edging: the bridge between this ring and the next reads as
+        # a narrow trim band, so the tunic ends in a finished edge instead of
+        # a cut tube.
+        torso.ring(
+            context.hips - up * 0.118 * scale,
+            up,
+            (0.150 * belly + 0.002) * scale,
+            (0.110 * belly + 0.002) * scale,
+            {"hips": 1.0},
+            "trim",
+        )
     # Skip the profile's crotch section: the hem above already closes the
     # garment below the hips, and the pelvis belongs to the skin layer.
     for index, (center, side_radius, front_radius, back_radius, weights) in enumerate(
@@ -231,6 +242,22 @@ def _add_anatomical_clothing(
                 radius_back=(0.124 * belly + clearance) * scale,
             )
     torso.cap(context.neck_base + up * 0.038 * scale, {"chest": 1.0}, material)
+
+    # Collar edging: a trim band around the neck opening. Without it the tunic
+    # ends as a bare tube intersection against the neck skin.
+    neck_section = torso_profile(context, shape)[-1]
+    collar_clearance = clearance + 0.005
+    torso.start_tube()
+    torso.ring(
+        neck_section[0] - up * 0.004 * scale,
+        up,
+        (neck_section[1] + collar_clearance) * scale,
+        (neck_section[2] + collar_clearance) * scale,
+        {"chest": 1.0},
+        "trim",
+        radius_back=(neck_section[3] + collar_clearance) * scale,
+    )
+    torso.cap(neck_section[0] + up * 0.006 * scale, {"chest": 1.0}, "trim")
 
 
 def _worn_depth(context: BodyContext, shape: dict, section: int) -> float:
@@ -268,14 +295,16 @@ def _add_outerwear(
     shoulder_front = _worn_depth(context, shape, 6)
 
     if style == "apron":
-        # Leather work apron: bib, skirt, neck strap and belt ties.
+        # Leather work apron: bib, skirt, neck strap and belt ties. Bib and
+        # skirt use the "leather" material family so the apron reads as tanned
+        # hide against the wool tunic at closeups.
         torso.box(
             context.chest_height + forward * chest_front * scale,
             left * 0.105 * scale * chest_breadth,
             forward * 0.012 * scale,
             up * 0.170 * scale,
             blend_weights("spine", "chest", 0.55),
-            "outerwear",
+            "leather",
         )
         # The skirt stops at mid-thigh: hung to the knee it read as a plank
         # swinging clear of the legs.
@@ -288,7 +317,7 @@ def _add_outerwear(
             forward * 0.013 * scale,
             up * 0.200 * scale,
             {"hips": 1.0},
-            "outerwear",
+            "leather",
         )
         torso.box(
             context.hips + up * 0.025 * scale + forward * (hip_front + 0.008) * scale,
