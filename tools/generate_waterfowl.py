@@ -307,6 +307,40 @@ def _add_wedge(
         face.material_index = material_index
 
 
+def _add_goose_bill(
+    bm: bmesh.types.BMesh,
+    base: Vector,
+    width: float,
+    length: float,
+    height: float,
+    material_index: int,
+) -> None:
+    """Create a broad, blunt bill along the authored -Z forward axis."""
+    rings = []
+    for z_offset, ring_width, ring_height in (
+        (0.0, width, height),
+        (-length * 0.72, width * 0.72, height * 0.72),
+        (-length, width * 0.32, height * 0.38),
+    ):
+        rings.append(
+            [
+                bm.verts.new(base + Vector((-ring_width * 0.5, ring_height * 0.5, z_offset))),
+                bm.verts.new(base + Vector((ring_width * 0.5, ring_height * 0.5, z_offset))),
+                bm.verts.new(base + Vector((ring_width * 0.5, -ring_height * 0.5, z_offset))),
+                bm.verts.new(base + Vector((-ring_width * 0.5, -ring_height * 0.5, z_offset))),
+            ]
+        )
+    for ring_index in range(len(rings) - 1):
+        for corner in range(4):
+            next_corner = (corner + 1) % 4
+            face = bm.faces.new((rings[ring_index][corner], rings[ring_index][next_corner], rings[ring_index + 1][next_corner], rings[ring_index + 1][corner]))
+            face.material_index = material_index
+    cap = bm.faces.new(tuple(rings[-1]))
+    cap.material_index = material_index
+
+
+
+
 def _build_mallard(spec: dict) -> bpy.types.Object:
     """Build an anatomically readable standing mallard from a clean mesh kit.
 
@@ -485,6 +519,129 @@ def _build_mallard(spec: dict) -> bpy.types.Object:
     bpy.context.collection.objects.link(obj)
     for polygon in mesh.polygons:
         polygon.use_smooth = True
+    obj.select_set(False)
+    return obj
+
+
+def _build_greylag_goose(spec: dict) -> bpy.types.Object:
+    """Build a readable low-poly greylag goose with a connected neck."""
+    scale = _scale_factor(spec)
+    body = Vector(spec["body"]) * scale
+    body_radius = Vector((body.z, body.y, body.x)) * 0.5
+    head_r = float(spec["head"]) * scale
+    neck_len = float(spec["neck"]) * scale
+    leg_len = float(spec["legs"]) * scale
+    wing_chord = float(spec["wing_chord"]) * scale
+    tail_len = float(spec["tail"]) * scale
+    bm = bmesh.new()
+
+    MAT_BODY = 0
+    MAT_WING = 1
+    MAT_NECK = 2
+    MAT_BEAK = 3
+    MAT_LEG = 4
+    MAT_EYE = 5
+    MAT_FOOT = 6
+
+    body_center = Vector((0.0, leg_len + body_radius.y * 1.04, 0.0))
+    _add_ellipsoid(bm, body_center, body_radius, segments=16, rings=9, material_index=MAT_BODY)
+
+    # A connected tube makes the long neck read as a single anatomical form,
+    # rather than a chain of disconnected low-poly beads.
+    neck_base = body_center + Vector((0.0, body_radius.y * 0.48, -body_radius.z * 0.46))
+    neck_mid = neck_base + Vector((0.0, neck_len * 0.55, -neck_len * 0.08))
+    neck_end = neck_mid + Vector((0.0, neck_len * 0.38, -neck_len * 0.28))
+    points = [neck_base, neck_base.lerp(neck_mid, 0.45), neck_mid, neck_mid.lerp(neck_end, 0.55), neck_end]
+    radii = [head_r * 0.58, head_r * 0.54, head_r * 0.49, head_r * 0.43, head_r * 0.40]
+    rings: list[list[bmesh.types.BMVert]] = []
+    for index, point in enumerate(points):
+        tangent = (points[min(index + 1, len(points) - 1)] - points[max(index - 1, 0)])
+        tangent.normalize()
+        side_axis = Vector((1.0, 0.0, 0.0))
+        if abs(tangent.dot(side_axis)) > 0.9:
+            side_axis = Vector((0.0, 1.0, 0.0))
+        normal_axis = tangent.cross(side_axis).normalized()
+        side_axis = normal_axis.cross(tangent).normalized()
+        ring: list[bmesh.types.BMVert] = []
+        for segment in range(8):
+            angle = math.tau * segment / 8.0
+            offset = side_axis * math.cos(angle) + normal_axis * math.sin(angle)
+            ring.append(bm.verts.new(point + offset * radii[index]))
+        rings.append(ring)
+    for ring_index in range(len(rings) - 1):
+        for segment in range(8):
+            next_segment = (segment + 1) % 8
+            face = bm.faces.new((rings[ring_index][segment], rings[ring_index][next_segment], rings[ring_index + 1][next_segment], rings[ring_index + 1][segment]))
+            face.material_index = MAT_NECK
+    for ring in (rings[0], rings[-1]):
+        face = bm.faces.new(tuple(reversed(ring)))
+        face.material_index = MAT_NECK
+
+    head_center = neck_end + Vector((0.0, head_r * 0.35, -head_r * 0.10))
+    _add_ellipsoid(bm, head_center, Vector((head_r * 0.92, head_r, head_r * 0.96)), segments=12, rings=7, material_index=MAT_BODY)
+    _add_goose_bill(
+        bm,
+        head_center + Vector((0.0, -head_r * 0.06, -head_r * 0.68)),
+        width=head_r * 0.58,
+        length=head_r * 1.34,
+        height=head_r * 0.38,
+        material_index=MAT_BEAK,
+    )
+    for side in (-1.0, 1.0):
+        _add_ellipsoid(
+            bm,
+            head_center + Vector((side * head_r * 0.66, head_r * 0.14, -head_r * 0.24)),
+            Vector((head_r * 0.10, head_r * 0.09, head_r * 0.10)),
+            segments=6,
+            rings=3,
+            material_index=MAT_EYE,
+        )
+
+    # Folded wings are layered slabs, giving the goose a clear shoulder and tip.
+    for side in (-1.0, 1.0):
+        shoulder = body_center + Vector((side * body_radius.x * 0.62, body_radius.y * 0.16, -body_radius.z * 0.04))
+        mid = shoulder + Vector((side * body_radius.x * 0.34, -body_radius.y * 0.10, body_radius.z * 0.42))
+        tip = shoulder + Vector((side * body_radius.x * 0.24, -body_radius.y * 0.48, body_radius.z * 0.76))
+        rear = tip + Vector((-side * body_radius.x * 0.12, -body_radius.y * 0.06, wing_chord * 0.32))
+        front = shoulder + Vector((side * body_radius.x * 0.06, body_radius.y * 0.08, -wing_chord * 0.18))
+        _add_quad(bm, shoulder, front, tip, rear, material_index=MAT_WING)
+        _add_tri(bm, shoulder, mid, tip, material_index=MAT_WING)
+        _add_tri(bm, mid, rear, tip, material_index=MAT_WING)
+
+    tail_root = body_center + Vector((0.0, body_radius.y * 0.05, body_radius.z * 0.85))
+    for side in (-1.0, 0.0, 1.0):
+        _add_tri(
+            bm,
+            tail_root + Vector((side * tail_len * 0.18, 0.0, tail_len * 0.22)),
+            tail_root + Vector((side * tail_len * 0.08, -body_radius.y * 0.04, tail_len * 0.52)),
+            tail_root + Vector((side * tail_len * 0.06, -body_radius.y * 0.03, tail_len)),
+            material_index=MAT_WING,
+        )
+
+    for side in (-1.0, 1.0):
+        leg_x = side * body_radius.x * 0.27
+        leg_top = body_center + Vector((leg_x, -body_radius.y * 0.64, -body_radius.y * 0.54))
+        ankle = Vector((leg_x, -body_radius.y * 0.36, leg_len * 0.30))
+        _add_ellipsoid(bm, leg_top.lerp(ankle, 0.5), Vector((0.014, 0.014, leg_len * 0.30)), segments=6, rings=3, material_index=MAT_LEG)
+        foot = Vector((leg_x, -body_radius.y * 0.50, 0.01))
+        _add_ellipsoid(bm, foot, Vector((0.028, 0.060, 0.012)), segments=7, rings=3, material_index=MAT_FOOT)
+        _add_tri(bm, foot + Vector((-0.025, 0.018, 0.004)), foot + Vector((0.025, 0.018, 0.004)), foot + Vector((0.0, -0.052, 0.004)), material_index=MAT_FOOT)
+
+    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+    mesh = bpy.data.meshes.new("GreylagGooseMesh")
+    bm.to_mesh(mesh)
+    bm.free()
+    obj = bpy.data.objects.new("GreylagGooseBody", mesh)
+    bpy.context.collection.objects.link(obj)
+    for polygon in mesh.polygons:
+        polygon.use_smooth = True
+    obj.rotation_euler = (math.radians(-90.0), 0.0, 0.0)
+    bpy.context.view_layer.objects.active = obj
+    obj.select_set(True)
+    bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+    coords = [obj.matrix_world @ Vector(vertex.co) for vertex in obj.data.vertices]
+    obj.location.z -= min(point.z for point in coords)
+    bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
     obj.select_set(False)
     return obj
 
@@ -688,6 +845,19 @@ def build_species(species: str, spec: dict) -> dict[str, object]:
             _make_solid_material("mallard_feet", (0xD3, 0x8A, 0x38)),
             _make_solid_material("mallard_eye", (0x12, 0x10, 0x0C), roughness=0.28),
             _make_solid_material("mallard_speculum", (0x2B, 0x72, 0x6B)),
+        ]
+        for material in solid_materials:
+            obj.data.materials.append(material)
+    elif species == "greylag_goose":
+        obj = _build_greylag_goose(spec)
+        solid_materials = [
+            feather_material,
+            _make_solid_material("greylag_goose_wing", (0x6F, 0x71, 0x68)),
+            _make_solid_material("greylag_goose_neck", (0xA1, 0x9B, 0x88)),
+            _make_solid_material("greylag_goose_bill", (0xD6, 0x8C, 0x4C)),
+            _make_solid_material("greylag_goose_leg", (0xB2, 0x72, 0x43)),
+            _make_solid_material("greylag_goose_eye", (0x18, 0x15, 0x10), roughness=0.28),
+            _make_solid_material("greylag_goose_foot", (0xC0, 0x79, 0x43)),
         ]
         for material in solid_materials:
             obj.data.materials.append(material)
