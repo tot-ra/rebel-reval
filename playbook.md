@@ -194,3 +194,4 @@
 - In a dirty shared `playbook.md`, reconstruct a scoped staged patch from `HEAD` (or `HEAD^` while amending) and verify the cached diff contains only the intended lesson; do not let concurrent lessons enter a focused commit.
 - On macOS, BSD `sed -i` requires an explicit backup suffix; for safe Markdown whitespace normalization, use Python or `sed -i ''` and run `git diff --check` immediately.
 - A sourcing-report closeout can fail `git diff --check` when an inserted evidence note leaves an extra blank line at EOF; after appending documentation, run the check separately and trim the final empty row before staging.
+- When a focused unittest command exits non-zero without useful terminal diagnostics, capture stdout and stderr to a temporary log; this exposed a missing `json` import in the shared bird-audio test rather than an audio-manifest failure.
