@@ -6,6 +6,7 @@
 - A failed `git diff --cached --check` can stop a scoped documentation commit on Markdown hard-break spaces; normalize trailing spaces before staging, and stage only the intended report plus a clean patch for any playbook lesson when the playbook already has unrelated WIP.
 - For evidence-only acceptance gates, capture expected-failing command statuses separately and make log/path probes non-fatal; a missing temporary log or no-match `grep` can otherwise obscure the actual blocker.
 
+- Headless/dummy rendering cannot read a SubViewport texture; use Metal for PNG evidence.
 - RRMap `stroke` thickness grows from the start point in +x/+y, it is not centred on the polyline. Author river and lane strokes from their top-left edge or the compiler rejects the segment as out of bounds.
 - A new `view_landmark` kind needs three registrations, not one: `MapDefinition.VIEW_LANDMARK_KINDS`, the `_compile_landmark` field copy in `map_blueprint_compiler_build.gd`, and `LANDMARK_OVERRIDE_KEYS` for any new typed option. The parser token allowlist is separate again.
 - An outdoor district map should express buildings as roofed `house` records; `kind=interior_wall` produces roofless panels and a large "building" made of them renders as a stockade, not an institution.
