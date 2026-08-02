@@ -7,7 +7,7 @@
   "source": "generated/comfyui/medieval_animals_v1/pig_hendrik_reyneke_cc_by_source.glb",
   "source_sha256": "a029a0ec3f45a809f15b6f71a9a413c054cd3f0cb4d4137dc46f9504471cf9e5",
   "output": "assets/animals/medieval/medieval_pig.glb",
-  "output_sha256": "88a71bcf0bcb6b715a6756ee804e313a418d40c6813e14e07e02ead7e54d734a",
+  "output_sha256": "368ff7b129aec4ec082698367fcf835233e11533e703f9f619b7bbe003d84cf8",
   "raw": {
     "vertices": 3784,
     "polygons": 6748,

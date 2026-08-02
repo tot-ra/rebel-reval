@@ -34,8 +34,12 @@ func test_pig_has_realistic_rigged_body_and_locomotion_clips() -> void:
 	assert_true(aabb.size.x >= 1.30, "Pig must keep a low, long landrace silhouette")
 	assert_true(aabb.size.y >= 0.70, "Pig legs and back must retain plausible standing height")
 	assert_true(aabb.size.z >= 0.45, "Pig chest must retain believable load-bearing width")
-	assert_true(model.find_child("EyeLeft", true, false) != null)
-	assert_true(model.find_child("EyeRight", true, false) != null)
+	var eye_left := model.find_child("EyeLeft", true, false) as Node3D
+	var eye_right := model.find_child("EyeRight", true, false) as Node3D
+	assert_true(eye_left != null)
+	assert_true(eye_right != null)
+	assert_true(eye_left.global_position.x < -0.40, "Pig eyes must sit on the head side of the body")
+	assert_true(eye_right.global_position.x < -0.40, "Pig eyes must sit on the head side of the body")
 	var players := model.find_children("*", "AnimationPlayer", true, false)
 	assert_true(players.size() >= 1, "Pig needs imported skeletal animation")
 	var player := players[0] as AnimationPlayer

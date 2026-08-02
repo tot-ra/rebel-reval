@@ -502,8 +502,10 @@ def build(name: str, spec: dict) -> dict:
     raw = topology(obj)
     discarded_before = remove_tiny_islands(obj, 0.0015)
     if spec.get("source_long_axis") == "y":
-        # Keep authored head/tail orientation stable: source -Y becomes runtime -X.
-        obj.rotation_euler.z = -math.pi * 0.5
+        # The licensed source's head points along +Y. Rotate +90 degrees so that
+        # source +Y becomes runtime -X, matching the shared quadruped rig's head,
+        # neck, eye, and locomotion conventions.
+        obj.rotation_euler.z = math.pi * 0.5
         bpy.context.view_layer.objects.active = obj
         bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
     else:
