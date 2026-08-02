@@ -123,6 +123,7 @@ No licensed visual record survives for **Estonian regilaul performance in 1343**
 - [`../military/watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) — curfew bells and alarm signals versus music.
 - [`../people/estonian-and-german-populations.md`](../people/estonian-and-german-populations.md) — who may sing what, and where.
 - [`../dailylife/food-and-drink.md`](../dailylife/food-and-drink.md) - tavern and feast contexts for secular music.
+- [`festivals-games-and-public-life.md`](./festivals-games-and-public-life.md) - event windows, processions, tavern games, and the post-23 April shift from leisure to alarm.
 - [`./reval-musician-payments-1340s.md`](./reval-musician-payments-1340s.md) - AWB negative search; no council musician payroll in 1340-1343.
 - [`../economy/hanseatic-trade-and-season.md`](../economy/hanseatic-trade-and-season.md) — merchant wedding and harbour feast season.
 - [`../language/names-address-and-oaths.md`](../language/names-address-and-oaths.md) — Latin chant vs MLG tavern calls; register tags for musician NPC dialogue.

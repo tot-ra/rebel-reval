@@ -142,6 +142,7 @@ You are scheduling **Catholic time in Julian-calendar Reval** for the playable *
 - [`harju-village-and-manor.md`](../hinterland/harju-village-and-manor.md) — rural tithe pressure and St George mobilisation.
 - [`food-and-drink.md`](../dailylife/food-and-drink.md) — Lent fast foods, Easter feast resumption, and post-Easter burgher diet.
 - [`music-and-instruments.md`](../culture/music-and-instruments.md) — seasonal soundscape: Holy Week quiet, Easter bells, absent civic St George music.
+- [`../culture/festivals-games-and-public-life.md`](../culture/festivals-games-and-public-life.md) — dated public-event windows, Rogation/Ascension processions, and feast-day visibility.
 - [`../../TIMELINE.md`](../../TIMELINE.md) — attested campaign dates.
 
 ## Open questions

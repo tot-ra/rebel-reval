@@ -197,3 +197,7 @@
 - A sourcing-report closeout can fail `git diff --check` when an inserted evidence note leaves an extra blank line at EOF; after appending documentation, run the check separately and trim the final empty row before staging.
 - When a focused unittest command exits non-zero without useful terminal diagnostics, capture stdout and stderr to a temporary log; this exposed a missing `json` import in the shared bird-audio test rather than an audio-manifest failure.
 - For rights-blocked bird-audio integration, keep the existing commercial-compatible fallback unchanged when the regional candidate is metadata-only or CC BY-NC; record the exact source/permission boundary and create a permission-cleared follow-up instead of changing curated rows.
+
+- Research dossier reciprocal-link edits need the exact live line re-read after summarized grep; similar-looking cross-reference text can differ by path depth or punctuation and make a targeted replacement fail.
+- Direct DOI/handle fetches may return 403/500 even when indexed scholarly metadata is available; use the indexed abstract as comparative evidence, record the access boundary, and do not repeatedly retry broad fetches.
+- A dossier-specific smoke check should validate required sections and evidence labels actually used by the dossier, not require every possible confidence category to appear in every file.

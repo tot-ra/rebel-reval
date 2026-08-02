@@ -119,6 +119,7 @@ No surviving **1343 Reval guild regalia or smith ordinance** plate exists; cerem
 - [`../people/town-council-and-officers.md`](../people/town-council-and-officers.md) — council co-opts from merchant Kindergilde, not from smith *Amt*.
 - [`../people/estonian-and-german-populations.md`](../people/estonian-and-german-populations.md) — Estonian St Canute membership pre-uprising; Undeutsch craft tiers vs German elite crafts.
 - [`../religion/liturgical-calendar-spring-1343.md`](../religion/liturgical-calendar-spring-1343.md) — St Canute feast oaths and umbrella guild masses on holy days.
+- [`../culture/festivals-games-and-public-life.md`](../culture/festivals-games-and-public-life.md) — guild tables, feast obligations, and public event staging around parish and forum space.
 - [`../religion/churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) — which craft umbrella holds chapels in which parish churches.
 - [`../military/watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) — guild masters on burgher watch rolls, not guild-only guard.
 - [`trades-of-the-lower-town.md`](trades-of-the-lower-town.md) - baker, brewer, cobbler, tanner, cooper, carpenter, and butcher workshop patterns, with tools, nuisances, and cautious guild placement for Spring 1343.

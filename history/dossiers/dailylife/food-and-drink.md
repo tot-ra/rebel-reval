@@ -148,6 +148,7 @@ You are feeding **April–May 1343 Lower Town Reval** — a **Hanseatic port und
 - [`burgher-house-plan.md`](../architecture/burgher-house-plan.md) — cellar beer store, living-bay hearth.
 - [`domestic-storage-furniture.md`](../architecture/domestic-storage-furniture.md) — grain and spice chests.
 - [`music-and-instruments.md`](../culture/music-and-instruments.md) — tavern and feast music contexts for beer scenes.
+- [`../culture/festivals-games-and-public-life.md`](../culture/festivals-games-and-public-life.md) — Easter feasting, tavern sociability, games, and siege-era leisure pressure.
 - [`spring-climate-and-living-world.md`](../nature/spring-climate-and-living-world.md) — pre-harvest phenology and scarcity tone.
 - [`clothing-and-status-markers.md`](clothing-and-status-markers.md) — feast vs work dress; apron and headscarf tiers.
 - [`hygiene-and-grooming-1343.md`](hygiene-and-grooming-1343.md) — hand-wash before meals, beer breath, and basin props in dornse.

@@ -152,6 +152,7 @@ Register fetched files under `history/reference/nature/spring-climate-and-living
 - [`TIMELINE.md`](../../TIMELINE.md) — dated campaign events April–May 1343.
 - [`hanseatic-trade-and-season.md`](../economy/hanseatic-trade-and-season.md) — ice-break sailing season and interior supply stall after 23 April.
 - [`liturgical-calendar-spring-1343.md`](../religion/liturgical-calendar-spring-1343.md) — Easter 13 April and St George 23 April weekday anchors.
+- [`../culture/festivals-games-and-public-life.md`](../culture/festivals-games-and-public-life.md) — outdoor processional windows, spring public life, and weather-sensitive event dressing.
 - [`food-and-drink.md`](../dailylife/food-and-drink.md) — pre-harvest diet scarcity and siege grain tension.
 
 ## Open questions

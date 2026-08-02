@@ -153,6 +153,7 @@ Consumers are quest/narrative; four procedure and punishment visuals suffice. No
 - [`../crafts/guild-structure.md`](../crafts/guild-structure.md) — *Amt* fines vs council jurisdiction over smiths before 1363 Schragen.
 - [`../topography/raekoja-plats-extents-1343.md`](../topography/raekoja-plats-extents-1343.md) — forum polygon for pillory placement; note 1337 pillory attestation vs dossier's earlier uncertainty.
 - [`../economy/coinage-prices-and-measures.md`](../economy/coinage-prices-and-measures.md) — 60 schilling perjury fine and general mark/schilling/pfennig scale.
+- [`../culture/festivals-games-and-public-life.md`](../culture/festivals-games-and-public-life.md) — public punishment as spectacle, forum crowd behaviour, and siege-era proclamations.
 - [`../language/names-address-and-oaths.md`](../language/names-address-and-oaths.md) — oath formulae, compurgation speech, and insult register for court dialogue.
 
 ## Open questions
