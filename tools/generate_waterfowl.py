@@ -29,7 +29,7 @@ EVIDENCE_DIR = ROOT / "generated" / "comfyui" / "bird_waterfowl_v1"
 BIRDS_DIR = ROOT / "assets" / "birds"
 REPORTS_DIR = ROOT / "docs" / "reports" / "images" / "fauna"
 BLENDER_VERSION = "Blender 5.2 LTS"
-GENERATOR_VERSION = "waterfowl_v1"
+GENERATOR_VERSION = "waterfowl_v2_mallard"
 TEXTURE_SIZE = 256
 
 # Catalog geometry mirrors scripts/map/view3d/map_view_bird_species.gd
@@ -197,6 +197,18 @@ def _make_material(name: str, maps: dict[str, bpy.types.Image], base_rgb: tuple[
     return material
 
 
+def _make_solid_material(name: str, color: tuple[int, int, int], roughness: float = 0.82) -> bpy.types.Material:
+    material = bpy.data.materials.new(name)
+    material.diffuse_color = (*_hex_to_linear(color), 1.0)
+    material.use_nodes = True
+    bsdf = material.node_tree.nodes.get("Principled BSDF")
+    if bsdf is not None:
+        bsdf.inputs["Base Color"].default_value = (*_hex_to_linear(color), 1.0)
+        bsdf.inputs["Metallic"].default_value = 0.0
+        bsdf.inputs["Roughness"].default_value = roughness
+    return material
+
+
 def _uv_smart_project(obj: bpy.types.Object) -> None:
     bpy.context.view_layer.objects.active = obj
     obj.select_set(True)
@@ -207,7 +219,14 @@ def _uv_smart_project(obj: bpy.types.Object) -> None:
     obj.select_set(False)
 
 
-def _add_ellipsoid(bm: bmesh.types.BMesh, center: Vector, radii: Vector, segments: int = 10, rings: int = 6) -> None:
+def _add_ellipsoid(
+    bm: bmesh.types.BMesh,
+    center: Vector,
+    radii: Vector,
+    segments: int = 10,
+    rings: int = 6,
+    material_index: int = 0,
+) -> None:
     verts: list[bmesh.types.BMVert] = []
     for ring in range(rings + 1):
         v_t = ring / rings
@@ -227,16 +246,247 @@ def _add_ellipsoid(bm: bmesh.types.BMesh, center: Vector, radii: Vector, segment
             b = ring * segments + ((seg + 1) % segments)
             c = (ring + 1) * segments + ((seg + 1) % segments)
             d = (ring + 1) * segments + seg
-            bm.faces.new((verts[a], verts[b], verts[c], verts[d]))
+            face = bm.faces.new((verts[a], verts[b], verts[c], verts[d]))
+            face.material_index = material_index
 
 
-def _add_quad(bm: bmesh.types.BMesh, a: Vector, b: Vector, c: Vector, d: Vector) -> None:
+def _add_quad(
+    bm: bmesh.types.BMesh,
+    a: Vector,
+    b: Vector,
+    c: Vector,
+    d: Vector,
+    material_index: int = 0,
+) -> None:
     va, vb, vc, vd = bm.verts.new(a), bm.verts.new(b), bm.verts.new(c), bm.verts.new(d)
-    bm.faces.new((va, vb, vc, vd))
+    face = bm.faces.new((va, vb, vc, vd))
+    face.material_index = material_index
 
 
-def _add_tri(bm: bmesh.types.BMesh, a: Vector, b: Vector, c: Vector) -> None:
-    bm.faces.new((bm.verts.new(a), bm.verts.new(b), bm.verts.new(c)))
+def _add_tri(
+    bm: bmesh.types.BMesh,
+    a: Vector,
+    b: Vector,
+    c: Vector,
+    material_index: int = 0,
+) -> None:
+    face = bm.faces.new((bm.verts.new(a), bm.verts.new(b), bm.verts.new(c)))
+    face.material_index = material_index
+
+
+def _add_wedge(
+    bm: bmesh.types.BMesh,
+    center: Vector,
+    width: float,
+    depth: float,
+    height: float,
+    material_index: int,
+) -> None:
+    """Low-poly broad duck bill with a blunt tip, rather than a pointed cone."""
+    back_y = center.y + depth * 0.42
+    front_y = center.y - depth * 0.58
+    half_back = width * 0.50
+    half_front = width * 0.39
+    bottom = center.z - height * 0.52
+    top = center.z + height * 0.48
+    vertices = [
+        Vector((-half_back, back_y, bottom)),
+        Vector((half_back, back_y, bottom)),
+        Vector((half_back, back_y, top)),
+        Vector((-half_back, back_y, top)),
+        Vector((-half_front, front_y, bottom * 0.92 + center.z * 0.08)),
+        Vector((half_front, front_y, bottom * 0.92 + center.z * 0.08)),
+        Vector((half_front, front_y, top * 0.92 + center.z * 0.08)),
+        Vector((-half_front, front_y, top * 0.92 + center.z * 0.08)),
+    ]
+    # Translate the local wedge around the supplied center. The z blend above
+    # keeps the bill slightly downturned without creating a needle-like beak.
+    vertices = [Vector((v.x + center.x, v.y, v.z)) for v in vertices]
+    for indices in ((0, 1, 2, 3), (4, 7, 6, 5), (0, 4, 5, 1), (3, 2, 6, 7), (0, 3, 7, 4), (1, 5, 6, 2)):
+        face = bm.faces.new(tuple(bm.verts.new(vertices[index]) for index in indices))
+        face.material_index = material_index
+
+
+def _build_mallard(spec: dict) -> bpy.types.Object:
+    """Build an anatomically readable standing mallard from a clean mesh kit.
+
+    The old shared waterfowl block used large flat triangles for the wing and bill,
+    which made the duck read as an abstract prop at close range. This branch keeps
+    the catalog scale but gives the mallard a compact body, planted legs, blunt
+    bill, white neck ring, green head, folded wing volumes, and visible eyes.
+    """
+    scale = float(spec["scale_m"]) / 0.56
+    body_length = 0.68 * scale
+    body_width = 0.38 * scale
+    body_height = 0.34 * scale
+    leg_length = 0.14 * scale
+    body_z = leg_length + body_height * 0.58
+    body_center = Vector((0.0, 0.04 * scale, body_z))
+    bm = bmesh.new()
+
+    MAT_BODY = 0
+    MAT_BREAST = 1
+    MAT_HEAD = 2
+    MAT_WING = 3
+    MAT_WHITE = 4
+    MAT_BEAK = 5
+    MAT_FEET = 6
+    MAT_EYE = 7
+    MAT_SPECULUM = 8
+
+    # Compact pear-shaped torso and warm chest patch.
+    _add_ellipsoid(
+        bm,
+        body_center,
+        Vector((body_width * 0.50, body_length * 0.50, body_height * 0.50)),
+        segments=18,
+        rings=12,
+        material_index=MAT_BODY,
+    )
+    _add_ellipsoid(
+        bm,
+        Vector((0.0, -0.18 * scale, body_z - 0.005 * scale)),
+        Vector((body_width * 0.43, body_length * 0.19, body_height * 0.42)),
+        segments=12,
+        rings=6,
+        material_index=MAT_BREAST,
+    )
+
+    # Short neck with a distinct white collar and the characteristic green head.
+    neck_base_z = body_z + body_height * 0.32
+    _add_ellipsoid(
+        bm,
+        Vector((0.0, -0.15 * scale, neck_base_z + 0.035 * scale)),
+        Vector((0.085 * scale, 0.075 * scale, 0.105 * scale)),
+        segments=10,
+        rings=5,
+        material_index=MAT_HEAD,
+    )
+    _add_ellipsoid(
+        bm,
+        Vector((0.0, -0.205 * scale, neck_base_z + 0.115 * scale)),
+        Vector((0.078 * scale, 0.070 * scale, 0.095 * scale)),
+        segments=10,
+        rings=5,
+        material_index=MAT_HEAD,
+    )
+    _add_ellipsoid(
+        bm,
+        Vector((0.0, -0.185 * scale, neck_base_z + 0.075 * scale)),
+        Vector((0.092 * scale, 0.080 * scale, 0.026 * scale)),
+        segments=10,
+        rings=4,
+        material_index=MAT_WHITE,
+    )
+    head_center = Vector((0.0, -0.265 * scale, neck_base_z + 0.19 * scale))
+    head_radius = 0.125 * scale
+    _add_ellipsoid(
+        bm,
+        head_center,
+        Vector((head_radius * 0.92, head_radius * 0.92, head_radius * 1.06)),
+        segments=12,
+        rings=7,
+        material_index=MAT_HEAD,
+    )
+
+    # Broad, blunt bill and two small glossy eyes give the head a readable silhouette.
+    _add_wedge(
+        bm,
+        Vector((0.0, -0.38 * scale, head_center.z - 0.025 * scale)),
+        width=0.115 * scale,
+        depth=0.145 * scale,
+        height=0.060 * scale,
+        material_index=MAT_BEAK,
+    )
+    for side in (-1.0, 1.0):
+        _add_ellipsoid(
+            bm,
+            Vector((side * 0.087 * scale, -0.352 * scale, head_center.z + 0.035 * scale)),
+            Vector((0.014 * scale, 0.009 * scale, 0.014 * scale)),
+            segments=7,
+            rings=4,
+            material_index=MAT_EYE,
+        )
+
+    # Volumetric folded wings with a teal speculum patch and layered feather tip.
+    for side in (-1.0, 1.0):
+        wing_x = side * body_width * 0.39
+        wing_center = Vector((wing_x, 0.055 * scale, body_z - 0.005 * scale))
+        _add_ellipsoid(
+            bm,
+            wing_center,
+            Vector((0.052 * scale, 0.235 * scale, 0.145 * scale)),
+            segments=12,
+            rings=6,
+            material_index=MAT_WING,
+        )
+        _add_ellipsoid(
+            bm,
+            Vector((side * (body_width * 0.39 + 0.050 * scale), 0.095 * scale, body_z - 0.015 * scale)),
+            Vector((0.011 * scale, 0.088 * scale, 0.056 * scale)),
+            segments=9,
+            rings=4,
+            material_index=MAT_SPECULUM,
+        )
+        for feather_offset, feather_z in ((0.16, -0.055), (0.235, -0.080)):
+            _add_ellipsoid(
+                bm,
+                Vector((side * (body_width * 0.39 + 0.040 * scale), feather_offset * scale, body_z + feather_z * scale)),
+                Vector((0.018 * scale, 0.105 * scale, 0.038 * scale)),
+                segments=8,
+                rings=4,
+                material_index=MAT_WING,
+            )
+
+    # Three overlapping tail feathers taper the rear of the body without a flat fan.
+    for side, z_offset in ((-1.0, 0.0), (0.0, 0.018), (1.0, 0.0)):
+        _add_ellipsoid(
+            bm,
+            Vector((side * 0.055 * scale, 0.355 * scale, body_z + z_offset * scale)),
+            Vector((0.055 * scale, 0.17 * scale, 0.045 * scale)),
+            segments=8,
+            rings=4,
+            material_index=MAT_WING,
+        )
+
+    # Orange legs and broad webbed feet sit directly on the ground plane.
+    for side in (-1.0, 1.0):
+        leg_x = side * 0.095 * scale
+        _add_ellipsoid(
+            bm,
+            Vector((leg_x, -0.035 * scale, leg_length * 0.50)),
+            Vector((0.018 * scale, 0.020 * scale, leg_length * 0.50)),
+            segments=7,
+            rings=4,
+            material_index=MAT_FEET,
+        )
+        foot = Vector((leg_x, -0.095 * scale, 0.012 * scale))
+        _add_ellipsoid(
+            bm,
+            foot + Vector((0.0, -0.015 * scale, 0.008 * scale)),
+            Vector((0.048 * scale, 0.075 * scale, 0.012 * scale)),
+            segments=8,
+            rings=3,
+            material_index=MAT_FEET,
+        )
+        _add_tri(
+            bm,
+            foot + Vector((-0.042 * scale, 0.0, 0.0)),
+            foot + Vector((0.042 * scale, 0.0, 0.0)),
+            foot + Vector((0.0, -0.075 * scale, 0.0)),
+            material_index=MAT_FEET,
+        )
+
+    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+    mesh = bpy.data.meshes.new("MallardMesh")
+    bm.to_mesh(mesh)
+    bm.free()
+    obj = bpy.data.objects.new("MallardBody", mesh)
+    bpy.context.collection.objects.link(obj)
+    for polygon in mesh.polygons:
+        polygon.use_smooth = True
+    obj.select_set(False)
+    return obj
 
 
 def _build_standing_bird(spec: dict) -> bpy.types.Object:
@@ -423,12 +673,27 @@ def _render_species_preview(obj: bpy.types.Object, path: Path) -> None:
 def build_species(species: str, spec: dict) -> dict[str, object]:
     _reset_scene()
     maps = _create_feather_maps(species, spec["colors"][0], spec["colors"][1], spec.get("breast"))
-    material = _make_material(f"{species}_feather", maps, _hex_to_linear(spec["colors"][0]))
-    obj = _build_standing_bird(spec)
-    if obj.data.materials:
-        obj.data.materials[0] = material
+    feather_material = _make_material(f"{species}_feather", maps, _hex_to_linear(spec["colors"][0]))
+    if species == "mallard":
+        obj = _build_mallard(spec)
+        # Keep PBR maps on the torso while using explicit solid slots for the
+        # species-defining head, collar, breast, bill, feet, and eye colours.
+        solid_materials = [
+            feather_material,
+            _make_solid_material("mallard_breast", (0x77, 0x50, 0x3A)),
+            _make_solid_material("mallard_head", (0x33, 0x5B, 0x4D)),
+            _make_solid_material("mallard_wing", (0x76, 0x6A, 0x4D)),
+            _make_solid_material("mallard_collar", (0xE8, 0xE4, 0xD8)),
+            _make_solid_material("mallard_bill", (0xD3, 0xA4, 0x42)),
+            _make_solid_material("mallard_feet", (0xD3, 0x8A, 0x38)),
+            _make_solid_material("mallard_eye", (0x12, 0x10, 0x0C), roughness=0.28),
+            _make_solid_material("mallard_speculum", (0x2B, 0x72, 0x6B)),
+        ]
+        for material in solid_materials:
+            obj.data.materials.append(material)
     else:
-        obj.data.materials.append(material)
+        obj = _build_standing_bird(spec)
+        obj.data.materials.append(feather_material)
     _uv_smart_project(obj)
 
     out_dir = BIRDS_DIR / species
