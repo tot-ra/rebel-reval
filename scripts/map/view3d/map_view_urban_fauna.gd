@@ -62,6 +62,7 @@ var _actors: Array[Node3D] = []
 var _fauna_enabled := true
 var _map_id := &""
 var _context := &""
+var _definition: MapDefinition = null
 var _cell_size := 32
 var _elapsed := 0.0
 
@@ -84,9 +85,15 @@ func active_fauna_count() -> int:
 	return count
 
 
-func configure(map_id: StringName, context: StringName, cell_size: int) -> void:
+func configure(
+	map_id: StringName,
+	context: StringName,
+	cell_size: int,
+	map_definition: MapDefinition = null
+) -> void:
 	_map_id = map_id
 	_context = context
+	_definition = map_definition
 	_cell_size = maxi(cell_size, 1)
 	_elapsed = 0.0
 	_rebuild_actors()
@@ -164,7 +171,7 @@ func _make_actor(index: int, placement: Dictionary) -> Node3D:
 	var radius := float(placement.get("radius", 1.0))
 	var cell: Vector2i = placement.get("cell", Vector2i.ZERO)
 	var pose := _pose_for_behavior(behavior, species)
-	var home := MapViewBridge.cell_center_to_world(cell, _cell_size)
+	var home := MapViewBridge.cell_center_to_world(cell, _cell_size, _ground_height_for_cell(cell))
 	var actor := Node3D.new()
 	actor.name = "UrbanFauna%d" % index
 	var model := MedievalAnimalModels.add_model(actor, species)
@@ -217,6 +224,10 @@ static func _wander_config(behavior: StringName, home: Vector3, radius: float, s
 func _advance_actor(actor: Node3D, listener_position: Vector3, delta: float) -> void:
 	var previous_position := actor.position
 	GroundWander.advance(actor, _map_id, listener_position, delta)
+	if _definition != null:
+		# Keep the visual actor on the same relief surface as Terrain_Ground while
+		# it crosses a yard. The logic plane remains flat and authoritative.
+		actor.position.y = _ground_height_at(actor.position)
 	MedievalAnimalModels.sync_animation(actor, previous_position, delta)
 
 
@@ -228,6 +239,17 @@ static func _pose_for_behavior(behavior: StringName, species: StringName) -> Str
 			return MammalSpecies.POSE_GRAZING if species == MammalSpecies.SPECIES_HORSE else MammalSpecies.POSE_STANDING
 		_:
 			return MammalSpecies.default_pose(species)
+
+
+func _ground_height_for_cell(cell: Vector2i) -> float:
+	if _definition == null:
+		return 0.0
+	var world := MapViewBridge.cell_center_to_world(cell, _cell_size)
+	return _ground_height_at(world)
+
+
+func _ground_height_at(world: Vector3) -> float:
+	return MapViewMeshBuilder.ground_height(_definition, Vector2(world.x, world.z)) if _definition != null else 0.0
 
 
 func _yaw_for_placement(index: int) -> float:

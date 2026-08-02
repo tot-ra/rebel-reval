@@ -3,6 +3,7 @@ extends "res://tests/godot/test_case.gd"
 const FaunaContext := preload("res://scripts/map/view3d/map_view_fauna_context.gd")
 const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
 const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
+const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 const SouthQuarterDefinition := preload("res://scripts/map/definitions/prototypes/south_quarter_definition.gd")
 const UrbanFauna := preload("res://scripts/map/view3d/map_view_urban_fauna.gd")
@@ -61,6 +62,21 @@ func test_urban_fauna_stays_on_the_ground_plane() -> void:
 			)
 	fauna.queue_free()
 
+
+func test_urban_fauna_uses_the_visible_terrain_height() -> void:
+	var definition: MapDefinition = SouthQuarterDefinition.create()
+	var grid := MapBuilder.build(definition)
+	MapViewMeshBuilder.ensure_height_field(definition, grid)
+	var fauna := UrbanFauna.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(fauna)
+	fauna.configure(definition.map_id, MammalSpecies.CONTEXT_LOWER_TOWN, definition.cell_size, definition)
+	for actor in fauna.get_children():
+		var expected := MapViewMeshBuilder.ground_height(definition, Vector2(actor.position.x, actor.position.z))
+		assert_true(
+			is_equal_approx(actor.position.y, expected),
+			"%s must share Terrain_Ground height (expected %s, got %s)" % [actor.name, expected, actor.position.y]
+		)
+	fauna.queue_free()
 
 func test_moving_fauna_walks_in_straight_segments_instead_of_circling() -> void:
 	var fauna := UrbanFauna.new()

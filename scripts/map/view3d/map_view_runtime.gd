@@ -231,7 +231,7 @@ func _install_urban_fauna() -> void:
 	_urban_fauna.name = "UrbanFauna"
 	add_child(_urban_fauna)
 	var context := FaunaContext.context_for_map(_definition.map_id)
-	_urban_fauna.configure(_definition.map_id, context, _definition.cell_size)
+	_urban_fauna.configure(_definition.map_id, context, _definition.cell_size, _definition)
 
 
 func _install_penned_fauna() -> void:
