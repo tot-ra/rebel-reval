@@ -1,5 +1,7 @@
 extends "res://tests/godot/map_view_3d_test_base.gd"
 
+const MarketCivicQuarterDefinition := preload("res://scripts/map/definitions/prototypes/market_civic_quarter_definition.gd")
+
 func test_enclosed_interior_suppresses_countryside_surroundings() -> void:
 	var definition := KalevSmithyDefinition.create()
 	var view := MapView3D.create(definition, MapBuilder.build(definition))
@@ -561,3 +563,10 @@ func test_barrels_have_coopered_bodies_heads_and_iron_hoops() -> void:
 				belly_radius = maxf(belly_radius, radial_distance)
 		assert_true(belly_radius > end_radius * 1.15, "%s needs a visibly convex bilge" % barrel_name)
 	pair.free()
+
+
+func _building_by_id(definition: MapDefinition, building_id: StringName) -> Dictionary:
+	for building in definition.buildings:
+		if building["id"] == building_id:
+			return building
+	return {}
