@@ -99,6 +99,7 @@
 - `python3 tools/verify_historical_dossier.py` currently fails on the pre-existing registry-map coverage gap (`holy_spirit_church` and `oleviste_church` missing dossier cards); keep this baseline failure separate from scoped dossier/plate verification.
 - When appending `assets/SOURCES.csv` rows, keep HEAD bytes for existing lines and append new rows as text; rewriting the whole file with `csv.writer` can silently drop quoting on fields that contain commas.
 - Before batching tool calls, verify every tool name against the available schema; placeholder or inferred tool names make the whole parallel batch noisy and unactionable.
+- When using the tasks tool in a parallel lookup, preserve array-typed fields such as `tags`; a malformed string parameter fails the whole lookup even when no state change was requested.
 - Pass `tools/run_godot_checked.sh` a basename such as `seamless-terrain-chunks`, not an absolute `/tmp/...` path; the wrapper creates its own `${TMPDIR}/<log-name>.log` and nested path separators make a green Godot run fail during log capture.
 - In Godot capture scripts, add `Camera3D` to the scene tree before calling `look_at()`; otherwise the capture can write misleading frames while still emitting a checked-runner runtime ERROR.
 - Do not call an image-generation integration to inspect existing local capture frames; compose a local contact sheet and preview it through browser/UI tooling instead.
@@ -185,5 +186,7 @@
 - For renderer-boundary QA, always run both a detached clean baseline and the live dirty worktree: a new boundary test can fail to parse from missing fixture helpers while the clean baseline still exposes the actual landmark contract defect. Record those as separate findings instead of merging them or committing another worker's implementation.
 - For closeout gates that fan out several Godot suites, use one clean detached worktree and bounded per-suite runs; if a batch times out, inspect its saved logs and stop the orphaned Godot process before retrying only the unfinished suite.
 - For rights-blocked media tasks, preserve the verified fallback and record access failures (rate limits, bot challenges, HTTP errors) as an evidence boundary; never substitute metadata, regional relevance, or an NC license for explicit commercial permission.
+- When a final QA matrix intentionally stops on a known external suite failure, inspect that saved log and run the remaining independent validators separately; the failed checked runner must not hide later lint/provenance classifications.
 
 - Blender 5.2 headless smoke scripts may expose the EEVEE engine enum as `BLENDER_EEVEE`, not `BLENDER_EEVEE_NEXT`; probe or use the installed enum before rendering evidence plates.
+- For visual sign-off reports, distinguish documentation studies and asset previews from gameplay-camera acceptance; when corridor assets or placements are missing, record a conditional pass and name the owning follow-up rows instead of inventing captures.
