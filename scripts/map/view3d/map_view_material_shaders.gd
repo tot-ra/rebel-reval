@@ -197,7 +197,14 @@ void fragment() {
 	vec2 flow_advection = flow_direction * (flow_strength * TIME * wave_speed * 0.6);
 	vec3 shape = _water_shape(water_world_position.xz - flow_advection, TIME * wave_speed);
 	vec3 world_normal = normalize(vec3(-shape.y * wave_height, 1.0, -shape.z * wave_height));
-	vec3 view_normal = normalize((VIEW_MATRIX * vec4(world_normal, 0.0)).xyz);
+	// Low-angle sunlight turns tiny animated normal changes into long, fast
+	// specular bands. Keep the physical wave displacement, but reduce only the
+	// shading normal relief near the horizon; the blend widens the sunrise and
+	// sunset transition instead of switching the highlight on frame-to-frame.
+	float sun_height_stability = smoothstep(0.03, 0.28, abs(sun_direction.y));
+	float direct_normal_relief = mix(0.24, 0.80, sun_height_stability);
+	vec3 calm_normal = normalize(mix(vec3(0.0, 1.0, 0.0), world_normal, direct_normal_relief));
+	vec3 view_normal = normalize((VIEW_MATRIX * vec4(calm_normal, 0.0)).xyz);
 	NORMAL = view_normal;
 
 	float surface_depth = max(-VERTEX.z, 0.0001);
@@ -257,7 +264,13 @@ void fragment() {
 
 	// Caustics belong to the floor, so they fade with both depth and night. Keeping
 	// the pattern in world space avoids UV seams between separate water materials.
-	float caustic_visibility = exp(-water_depth * 7.0) * (1.0 - bed_layers.w) * day_blend;
+	// The sun-disk visibility ramp is intentionally not used here: it spans only
+	// a few degrees around the horizon and makes animated wave normals look like
+	// a sudden band of moving illumination at sunrise and sunset. The wider solar
+	// envelope keeps the transition visually continuous while the floor still
+	// goes dark at night.
+	float twilight_water_light = smoothstep(-0.25, 0.25, sun_direction.y);
+	float caustic_visibility = exp(-water_depth * 7.0) * (1.0 - bed_layers.w) * twilight_water_light;
 	float caustics = _bed_caustics(water_world_position.xz, TIME * wave_speed);
 	water_color += highlight_color * caustics * caustic_visibility * caustic_strength;
 
@@ -275,8 +288,8 @@ void fragment() {
 	// pre-dawn sparkles on open sea. Celestial samples use a calmer normal so
 	// waves still displace while glints stay readable instead of strobing.
 	vec3 world_view = normalize((INV_VIEW_MATRIX * vec4(normalize(VIEW), 0.0)).xyz);
-	vec3 calm_normal = normalize(mix(vec3(0.0, 1.0, 0.0), world_normal, 0.38));
-	vec3 reflected_sky_ray = normalize(reflect(-world_view, calm_normal));
+	vec3 reflection_normal = normalize(mix(vec3(0.0, 1.0, 0.0), world_normal, 0.38));
+	vec3 reflected_sky_ray = normalize(reflect(-world_view, reflection_normal));
 	float reflected_above_horizon = smoothstep(-0.01, 0.06, reflected_sky_ray.y);
 	vec3 reflected_stars = texture(star_map, _equatorial_uv(reflected_sky_ray)).rgb;
 	// Drop star glitter as soon as the sun disk begins to rise so dawn does not

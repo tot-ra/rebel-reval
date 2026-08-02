@@ -75,6 +75,13 @@ func test_water_shader_layers_seabed_materials_by_depth() -> void:
 	assert_true("spectral_transmission" in source, "water lighting must attenuate wavelengths by depth")
 	assert_true("_bed_caustics" in source, "sunlit shallows need moving floor light")
 	assert_true("day_blend" in source, "floor caustics must fade at night")
+	assert_true("twilight_water_light" in source, "water caustics must use a broad solar transition")
+	assert_true("sun_height_stability" in source, "direct water lighting must stabilize at low sun angles")
+	assert_true("direct_normal_relief" in source, "wave displacement must stay separate from low-sun shading relief")
+	assert_true(
+		"smoothstep(-0.25, 0.25, sun_direction.y)" in source,
+		"sunrise and sunset must not switch animated water illumination on at the disk edge"
+	)
 
 
 func test_authored_water_families_keep_distinct_optical_depths() -> void:
