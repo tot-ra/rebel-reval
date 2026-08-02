@@ -13,6 +13,7 @@
 - Godot typed inference fails on `for side in [-1.0, 1.0]`; declare `for side: float in [...]` before using the loop variable in arithmetic that must stay typed.
 
 - In Blender reference generators, keep helper signatures aligned with call sites; a stale optional argument can abort a multi-plate render after already writing a partial evidence set. Run a tiny render smoke before the full batch.
+- In Blender reference generators, the installed headless build may expose the EEVEE engine as `BLENDER_EEVEE` rather than `BLENDER_EEVEE_NEXT`; smoke-test the enum before running a multi-plate batch.
 - Documentation contract smoke checks should normalize case for human-facing confidence labels; `Attested typology` and `attested typology` carry the same decision even when prose capitalization differs.
 ## Tooling
 - For cart art, audit wheel count separately from wheel track; an inherited two-axle scaffold can violate a two-wheel Karren brief while the width metric still passes.
