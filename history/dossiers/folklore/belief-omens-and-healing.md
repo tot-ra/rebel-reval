@@ -9,6 +9,7 @@ related:
   - ../people/estonian-and-german-populations.md
   - ../religion/churches-and-religious-houses.md
   - ../religion/liturgical-calendar-spring-1343.md
+  - ./tales-tellable-in-1343.md
 - [`../culture/music-and-instruments.md`](../culture/music-and-instruments.md) — *regilaul* as healing/charm song genre.
   - ../nature/spring-climate-and-living-world.md
   - ../dailylife/food-and-drink.md

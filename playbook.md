@@ -201,3 +201,4 @@
 - Research dossier reciprocal-link edits need the exact live line re-read after summarized grep; similar-looking cross-reference text can differ by path depth or punctuation and make a targeted replacement fail.
 - Direct DOI/handle fetches may return 403/500 even when indexed scholarly metadata is available; use the indexed abstract as comparative evidence, record the access boundary, and do not repeatedly retry broad fetches.
 - A dossier-specific smoke check should validate required sections and evidence labels actually used by the dossier, not require every possible confidence category to appear in every file.
+- The task board replaced the legacy `TODO.md`, so research-index link checks may report that pre-existing path as missing; exclude that known legacy link when validating a scoped dossier rather than widening the research task.
