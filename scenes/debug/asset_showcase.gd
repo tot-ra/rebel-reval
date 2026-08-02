@@ -342,10 +342,11 @@ func _add_catalog_bird(parent: Node3D, species: StringName, position: Vector3, i
 	var model := MeshInstance3D.new()
 	model.name = "Model"
 	actor.add_child(model)
-	_apply_catalog_material(model)
 	var cycle := BirdMeshes.flap_cycle(species)
 	if not cycle.is_empty():
 		model.mesh = cycle[index % cycle.size()]
+	if not BirdMeshes.uses_authored_mesh(species, BirdSpecies.POSE_GLIDING):
+		_apply_catalog_material(model)
 	_catalog_birds.append({"model": model, "cycle": cycle})
 	_add_world_label(parent, String(species).replace("_", " ").to_upper(), position + Vector3(0.0, 3.2, 0.0), 28)
 
@@ -363,6 +364,9 @@ func _apply_catalog_material(model: MeshInstance3D) -> void:
 	material.vertex_color_use_as_albedo = true
 	material.metallic = 0.0
 	material.roughness = 0.9
+	# Mirrored low-poly wing cards can have opposite winding on the far side.
+	# Do not let the showcase hide that wing while reviewing flap frames.
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	model.material_override = material
 
 

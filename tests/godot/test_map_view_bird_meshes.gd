@@ -1,6 +1,7 @@
 extends "res://tests/godot/test_case.gd"
 
 const BirdAssets := preload("res://scripts/map/view3d/map_view_bird_assets.gd")
+const BirdFlight := preload("res://scripts/map/view3d/map_view_bird_flight.gd")
 const BirdMeshes := preload("res://scripts/map/view3d/map_view_bird_meshes.gd")
 const BirdSpecies := preload("res://scripts/map/view3d/map_view_bird_species.gd")
 
@@ -78,6 +79,44 @@ func test_harbour_gull_flap_cycle_uses_authored_frames() -> void:
 	# Neutral gliding.glb matches flap frame 02 (MapViewBirdAssets convention).
 	assert_true((cycle[2] as ArrayMesh).get_aabb().is_equal_approx(neutral.get_aabb()))
 
+
+func test_harbour_flap_frames_move_both_wing_halves() -> void:
+	BirdMeshes.reset_cache()
+	var cycle := BirdMeshes.flap_cycle(BirdSpecies.SPECIES_HERRING_GULL)
+	assert_eq(cycle.size(), BirdAssets.FLAP_FRAME_COUNT)
+	var neutral_vertices: PackedVector3Array = (cycle[2] as ArrayMesh).surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+	var down_vertices: PackedVector3Array = (cycle[4] as ArrayMesh).surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+	var left_delta := _mean_wing_lift(neutral_vertices, down_vertices, -1.0)
+	var right_delta := _mean_wing_lift(neutral_vertices, down_vertices, 1.0)
+	assert_true(left_delta > 0.01, "left wing must move during a flap frame")
+	assert_true(right_delta > 0.01, "right wing must move during a flap frame")
+	assert_true(absf(left_delta - right_delta) <= 0.01, "both wing halves should use the same flap amplitude")
+
+
+func test_runtime_bird_material_keeps_both_wing_faces_visible() -> void:
+	var flight := BirdFlight.new()
+	var model := MeshInstance3D.new()
+	flight._apply_mesh_material(model)
+	var material := model.material_override as StandardMaterial3D
+	assert_true(material != null)
+	assert_eq(material.cull_mode, BaseMaterial3D.CULL_DISABLED)
+	model.free()
+	flight.free()
+
+
+func _mean_wing_lift(
+	neutral_vertices: PackedVector3Array,
+	frame_vertices: PackedVector3Array,
+	side: float
+) -> float:
+	var total := 0.0
+	var count := 0
+	for index in neutral_vertices.size():
+		if neutral_vertices[index].x * side < 0.28:
+			continue
+		total += absf(frame_vertices[index].y - neutral_vertices[index].y)
+		count += 1
+	return total / float(maxi(count, 1))
 
 func test_bird_asset_paths_follow_runtime_convention() -> void:
 	assert_eq(

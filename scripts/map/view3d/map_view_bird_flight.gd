@@ -189,7 +189,13 @@ func _spawn_bird() -> void:
 		return
 	# Start with the neutral wing position (index 2 in FLAP_KEYFRAMES = 0.0)
 	model.mesh = cycle[2]
-	_apply_mesh_material(model)
+	if BirdMeshes.uses_authored_mesh(species, BirdSpecies.POSE_GLIDING):
+		# Preserve authored double-sided PBR materials. The temporary procedural
+		# override installed by _make_bird_actor would hide mirrored wing cards and
+		# discard the GLB feather textures.
+		model.material_override = null
+	else:
+		_apply_mesh_material(model)
 	var start: Vector3 = path["start"]
 	var end: Vector3 = path["end"]
 	bird.position = start
@@ -314,4 +320,8 @@ func _apply_mesh_material(model: MeshInstance3D) -> void:
 	material.vertex_color_use_as_albedo = true
 	material.metallic = 0.0
 	material.roughness = 0.92
+	# Wing cards are mirrored across the body. Keep both faces visible because an
+	# imported mirrored card can have the opposite winding on the far wing; the
+	# runtime override must not cull that wing (or its flap frames).
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	model.material_override = material
