@@ -5,6 +5,7 @@
 - Markdown reports with intentional hard-break spaces fail `git diff --cached --check`; use plain line breaks before staging documentation.
 - A failed `git diff --cached --check` can stop a scoped documentation commit on Markdown hard-break spaces; normalize trailing spaces before staging, and stage only the intended report plus a clean patch for any playbook lesson when the playbook already has unrelated WIP.
 - For evidence-only acceptance gates, capture expected-failing command statuses separately and make log/path probes non-fatal; a missing temporary log or no-match `grep` can otherwise obscure the actual blocker.
+- For SubViewport evidence captures, use the Metal rendering driver and verify the saved PNG header/dimensions; headless dummy rendering may not expose a readable texture.
 
 - Headless/dummy rendering cannot read a SubViewport texture; use Metal for PNG evidence.
 - RRMap `stroke` thickness grows from the start point in +x/+y, it is not centred on the polyline. Author river and lane strokes from their top-left edge or the compiler rejects the segment as out of bounds.

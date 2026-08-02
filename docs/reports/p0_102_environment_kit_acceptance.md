@@ -27,8 +27,28 @@ The implementation is accepted for the checks that pass below, but the parent ta
 | Asset lint | **BLOCKED by unrelated baseline** | Clean HEAD `python3 tools/verify_asset_lint.py` fails only on `assets/characters/shared/sergeant.glb: tier 1 (named_npc) triangle budget exceeded (57168>56000)`. This is owned by completed P2-005, is not an environment-kit asset, and is recorded without changing out-of-scope character art. |
 | Asset provenance | **PASS on clean HEAD; dirty worktree has unrelated failure** | Clean HEAD `python3 tools/validate_asset_sources.py` passes: schema ok, 758 rows, 609 inventory paths covered, 603 active runtime assets covered. The live shared worktree additionally contains unregistered `assets/animals/medieval/medieval_horse_pack_horse_{albedo,normal,roughness}.png` from in-progress A-002/R-1; those files were excluded from this acceptance commit. |
 | Import and checked focused acceptance runner | **PASS** | Clean HEAD Godot editor import passes. `tools/run_godot_checked.sh --require-test-summary p0-102g-environment-kit -- ... --filter=test_environment_kit_integration` passes with 5/5 and only allowlisted shutdown leak diagnostics. |
-| Matched gameplay-scale day/night evidence for all four spaces | **PARTIAL - brewery pair captured; three spaces remain** | The dedicated brewery pair is now recorded below. Forge, street/well, and checkpoint still need their own matched acceptance plates; this task does not claim P0-101 final visual sign-off. |
+| Matched gameplay-scale day/night evidence for all four spaces | **PARTIAL - brewery and checkpoint pairs captured; forge and street/well remain** | Dedicated brewery and checkpoint pairs are recorded below. Forge and street/well still need their own matched acceptance plates; this task does not claim P0-101 final visual sign-off. |
 | P0-101 landmark and P2-063-P2-067 house-tier scope separation | **PASS** | No P0-101 landmark art or P2-063-P2-067 house-tier asset/deliverable is included in this report or the P0-102 module changes. The contract's ownership table remains authoritative. |
+
+## P0-102m.4 checkpoint evidence
+
+The checkpoint-only matched pair was captured from the authored `lower_town_slice` map with the shared `MapView3D` renderer. The crop keeps the gameplay orthographic scale and frames the `viru_gate_arch` gate throat, both Viru gate towers, `gate_cart`, the player approach lane, and the incomplete `viru_foregate_arch` context together.
+
+| Plate | Path | Lighting | Framing metadata |
+|---|---|---|---|
+| Day | [`checkpoint_day.png`](images/p0_102_environment_kit/checkpoint_day.png) | `MapView3D.TIME_DAY` | 1280x720; orthographic size 17.5; focus logic cell (117.5, 55.5); focus height 0.8; map `lower_town_slice` |
+| Night | [`checkpoint_night.png`](images/p0_102_environment_kit/checkpoint_night.png) | `MapView3D.TIME_NIGHT` | 1280x720; orthographic size 17.5; focus logic cell (117.5, 55.5); focus height 0.8; map `lower_town_slice` |
+
+Both plates decode as non-empty RGB PNGs at 1280x720. The pair uses one camera configuration and differs only by the authored day/night lighting state.
+
+Reproduction:
+
+```sh
+export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot
+"$GODOT_BIN" --path . --rendering-driver metal --script tools/capture_checkpoint_environment_kit.gd
+```
+
+The script is evidence-only: it does not alter map semantics, runtime behavior, collision/navigation, or tests.
 
 ## P0-102m.3 brewery evidence
 
