@@ -53,6 +53,20 @@ func test_finds_reciprocal_harbor_transition_and_aligns_kalamaja_to_west() -> vo
 	assert_eq(MapAlignmentMath.seam_span_cells(east, pair["neighbor"], &"east"), 8.0)
 
 
+func test_partial_rrmap_load_keeps_valid_definitions_and_reports_invalid_sources() -> void:
+	var result := MapAlignmentWorkspace.parse_map_paths([
+		"res://content/maps/lower_town_slice.rrmap",
+		"res://content/maps/missing_alignment_fixture.rrmap",
+	])
+	var definitions: Array = result["definitions"]
+	var skipped_names: Array = result["skipped_names"]
+	var issues: PackedStringArray = result["issues"]
+	assert_eq(definitions.size(), 1)
+	assert_eq(definitions[0].map_id, &"lower_town_slice")
+	assert_eq(skipped_names, ["missing_alignment_fixture"])
+	assert_true("file does not exist" in "\n".join(issues))
+
+
 func test_layout_connected_city_maps_places_every_reciprocal_neighbor() -> void:
 	var definitions: Array[MapDefinition] = []
 	for path in [

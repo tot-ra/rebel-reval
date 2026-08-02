@@ -31,6 +31,8 @@ var _blink_visible := true
 var _map_paths: Array[String] = []
 var _definitions: Array[MapDefinition] = []
 var _seams: Array[Dictionary] = []
+var _load_issues: PackedStringArray = []
+var _skipped_map_names: Array[String] = []
 
 
 func _ready() -> void:
@@ -291,6 +293,9 @@ func _refresh_maps() -> void:
 	_map_paths.clear()
 	_source_list.clear()
 	_root_picker.clear()
+	_load_issues.clear()
+	_skipped_map_names.clear()
+	_status.tooltip_text = ""
 	var directory := DirAccess.open("res://content/maps")
 	if directory == null:
 		_status.text = "Cannot open res://content/maps"
@@ -308,6 +313,7 @@ func _refresh_maps() -> void:
 	for index in _map_paths.size():
 		_source_list.select(index, false)
 	_status.text = "Found %d .rrmap files. All are preselected; Load selected or Load all maps." % _map_paths.size()
+	_status.tooltip_text = ""
 
 
 func _load_selected_maps() -> void:
@@ -324,18 +330,41 @@ func _load_all_maps() -> void:
 	_load_paths(_map_paths)
 
 
-func _load_paths(paths: Array[String]) -> void:
-	_definitions.clear()
-	var errors := PackedStringArray()
+static func parse_map_paths(paths: Array[String]) -> Dictionary:
+	var definitions: Array[MapDefinition] = []
+	var issues := PackedStringArray()
+	var skipped_names: Array[String] = []
 	for path in paths:
 		var parsed := MapRrmapParser.parse_file(path)
 		if parsed.is_ok():
-			_definitions.append(parsed.definition)
-		else:
-			errors.append_array(parsed.formatted_diagnostics())
-	if not errors.is_empty():
-		_status.text = "Could not compile all requested maps:\n%s" % "\n".join(errors)
+			definitions.append(parsed.definition)
+			continue
+		skipped_names.append(path.get_file().get_basename())
+		issues.append_array(parsed.formatted_diagnostics())
+	return {
+		"definitions": definitions,
+		"issues": issues,
+		"skipped_names": skipped_names,
+	}
+
+
+func _load_paths(paths: Array[String]) -> void:
+	var parsed := parse_map_paths(paths)
+	_definitions = parsed["definitions"]
+	_load_issues = parsed["issues"]
+	_skipped_map_names = parsed["skipped_names"]
+
+	if _definitions.is_empty():
+		_seams.clear()
+		_canvas.clear()
+		_refresh_layer_picker()
+		_status.text = "Could not load any requested maps:\n%s" % "\n".join(_load_issues)
+		_status.tooltip_text = "\n".join(_load_issues)
 		return
+
+	# Keep valid maps visible even when another source has semantic errors. This is
+	# intentionally a partial load, not an error waiver: bad sources are listed so
+	# the author can fix them without losing the useful alignment context.
 	_auto_layout()
 
 
@@ -490,6 +519,9 @@ func _update_status() -> void:
 		_definitions.size(), _seams.size(), mismatch_count, background_summary,
 		_canvas.selected_map_id, offset_cells.x, offset_cells.y, interaction_hint,
 	]
+	if not _load_issues.is_empty():
+		_status.text += " Skipped %d map(s): %s." % [_skipped_map_names.size(), ", ".join(_skipped_map_names)]
+		_status.tooltip_text = "\n".join(_load_issues)
 
 
 func _choose_export_path() -> void:

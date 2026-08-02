@@ -218,3 +218,4 @@
 - During research tool batching, validate each wrapper payload shape before dispatch; one malformed parallel step can fail an otherwise independent evidence sweep.
 - A dossier smoke check should validate the confidence labels and evidence boundary actually used by the file, not require an arbitrary count of one label; distinguish scoped link failures from the known legacy `history/RESEARCH_INDEX.md -> ../TODO.md` task-board migration gap.
 - If a chained Godot import/diagnostic command returns before printing its captured logs, inspect the temporary log files first and rerun only the failed stage; shell error handling can hide the useful diagnostic.
+- An exact edit with identical old and new text is rejected; after a no-op edit error, re-read the live block and apply only the intended non-empty change.
