@@ -40,6 +40,21 @@ Kühnert's 1926 study, as cited by the heritage summary, is the plan and phasing
 
 The AVE 2016/17 surveillance by Kraut and Nurk covers the Viru, Vana turg, and Kuninga streets. In the relevant eastern approach it records the archaeological limits of the street-side context and the poor survival / unclear dating of some occupation layers east of Vene; it does **not** excavate or prove a Dominican south-yard plan [4]. Use it to constrain the lane and southern approach treatment, not as direct evidence for a brewery, stable, or quay.
 
+### Evidence audit (R-060a)
+
+The plan artifact requested by this row has been located, but it does **not** upgrade the yard to measured 1343 geometry. The University of Tartu Library ADA record identifies a plan image titled **“Tallinn. All-linn. Dominiiklaste kloostri territooriumi hoonestus 1926.a-l. E. Kühnerti ja O. Grohmanni joonis”** (item `10062/34977`, catalogued 1924; the record's verso description says *Allgemeiner Situationsplan des Klosterareals und seiner Bebauung i. J. 1926*). The record supplies the A-94-2236 TIFF/JPEG plan files, but dates the depicted built-up state to 1926 rather than April 1343 [13]. It is therefore usable for relative church / cloister / east-side service orientation, not as a 1343 cadastral survey or a safe source for transferring later wall lines into the game.
+
+The AVE surveillance report is a second negative check. Kraut and Nurk describe the Viru / Vana turu / Müürivahe street works on pp. 181-184, including disturbed modern services and only sporadic, unclear-dated earlier layers east of Vene; the medieval gate and an inner limestone wall along Müürivahe are discussed on pp. 186-187. None of those observations identifies a Dominican service-yard wall, gate, drain, fish-transfer surface, or brewery/stable footprint [4]. The plan and report therefore support the following bounded anchor audit:
+
+| Anchor | Source-backed observation | April 1343 geometry status | Ship decision |
+|---|---|---|---|
+| **SY-1** south-east church/service threshold | The archive plan supports the church's southern / eastern service-side relationship at the level of relative layout; no 1343 wall or threshold is isolated. | **bounded composite**; no measured length | Retain as the inner return toward the church east wall; do not mark a surviving threshold. |
+| **SY-2** east curtain-side service-lane turn | The parent dossier places the east edge against the curtain / Müürivahe side [1]. AVE 2016 pp. 186-187 records a wall along Müürivahe near Viru Gate, but not a Dominican yard boundary [4]. | **partial contextual anchor only**, not partial-attested yard geometry | Retain a controlled service opening toward the lane; do not claim an excavated gate or exact wall line. |
+| **SY-3** north-east edge below the east service wing | The archive plan is consistent with a service-side range relative to the church and cloister, but its 1926 date prevents direct 1343 attribution [13]. No AVE feature identifies this edge. | **bounded composite**; no dated structure | Keep the northern return below the east wing inside the production envelope. |
+| **SY-4** inner yard return at the church east wall | No reviewed source publishes a dated 1343 return wall, drain, floor, or activity boundary at this point [4][13]. | **bounded composite**; no measured length | Keep the yard outside the nave and east wall footprint; treat the return as authoring geometry only. |
+
+**Measurement verdict:** no source-backed metre values can safely be assigned to SY-1..SY-4. The existing **18-24 m north-south depth x 24-32 m east-west span** remains a production envelope derived from the ~58 x 95 m parent close, not a measured yard. The requested upgrade from composite anchors to partial-attested geometry is therefore **not warranted**. This is an evidence result, not a claim that no service yard existed. A future upgrade needs a plan with a 1343 phase legend or a dated excavation/property record that distinguishes the east/south service range from later monastery fabric.
+
 ### Authoring polygon and anchors
 
 The following is a local authoring frame derived from the labelled precinct, not a GIS coordinate claim:
@@ -126,7 +141,7 @@ No new licensed plate is required for this partial dossier. Reuse the existing D
 
 ## Open questions
 
-- **Measured Dominican south-yard footprint:** locate and digitise the full Kühnert / Neumann plan or a Tallinn archaeology report that identifies the east/south service range; upgrade `SY-1` through `SY-4` from composite anchors to partial-attested geometry.
+- **Measured Dominican south-yard footprint:** the R-060a audit located the 1926 Kühnert / Grohmann plan record and checked AVE 2016, pp. 181-187. Neither source provides a dated 1343 yard boundary or metre values for SY-1..SY-4, so the production envelope remains bounded composite; do not upgrade the anchors without a 1343 phase plan or dated excavation/property record.
 - **Stable evidence:** check excavation reports and priory property records for a dated stable, cart shelter, or animal-waste feature within the Dominican close.
 - **Fish transfer point:** determine whether the fish intermediation happened at the priory gate, in a south yard, or at a separate market-side receiving point; do not hard-code a wharf until a source distinguishes them.
 - **Vene naming in 1343:** verify the period form of the route name in AWB / Tallinn City Archives before using `Vene` in NPC dialogue; retain it as an authoring anchor meanwhile.
@@ -145,3 +160,4 @@ No new licensed plate is required for this partial dossier. Reuse the existing D
 10. [`../power/reval-street-cleaning-ordinances-1340s.md`](../power/reval-street-cleaning-ordinances-1340s.md) - project dossier; wet-work, drains, waste, and street-obstruction constraints.
 11. [`../topography/harbour-and-shoreline.md`](../topography/harbour-and-shoreline.md) - project dossier; main harbour below the Coastal Gate, not inside the Dominican close.
 12. [`../topography/kalamaja-fishing-shore-1343.md`](../topography/kalamaja-fishing-shore-1343.md) - project dossier; fishing shore outside the wall and market distinction.
+13. University of Tartu Library ADA, item `10062/34977`, “Tallinn. All-linn. Dominiiklaste kloostri territooriumi hoonestus 1926.a-l. E. Kühnerti ja O. Grohmanni joonis,” catalogued 1924, A-94-2236 TIFF/JPEG files, https://hdl.handle.net/10062/34977 (late plan record; relative orientation only, not a 1343 survey).

@@ -118,6 +118,7 @@
 - `tools/validate_content.py` requires one or more explicit content paths; pass the scoped JSON file instead of invoking it without arguments.
 - Do not copy hammer attachment orientation onto a long blade without pose-space clearance checks; the same `handslot.r` transform can point a sword through the torso. Compare grip/tip distance from chest in idle and attack, then render both plates.
 - Full-character Godot pose probes can hang when several imported rigs are instantiated and freed in one `SceneTree`; run one actor/pose per process and use the checked runner so teardown failures stay isolated.
+- When an archive download endpoint returns HTML instead of the advertised file, verify the response MIME type and file signature before using it as evidence; prefer the repository's API content route or cite the catalog record and preserve the access limitation.
 
 - Godot/`unittest` row checks that use `^` against multi-line TODO text need `(?m)` (or `re.M`); bare `assertRegex` is not multiline and will only test the first line, then dump the whole file on failure.
 - After structural edits shift a file, do not reuse stale line numbers for insertion. Re-read the target boundary or use exact-string replacement, then run a syntax check immediately.
