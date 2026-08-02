@@ -219,4 +219,9 @@
 - A dossier smoke check should validate the confidence labels and evidence boundary actually used by the file, not require an arbitrary count of one label; distinguish scoped link failures from the known legacy `history/RESEARCH_INDEX.md -> ../TODO.md` task-board migration gap.
 - If a chained Godot import/diagnostic command returns before printing its captured logs, inspect the temporary log files first and rerun only the failed stage; shell error handling can hide the useful diagnostic.
 - An exact edit with identical old and new text is rejected; after a no-op edit error, re-read the live block and apply only the intended non-empty change.
+- When replacing a documentation section by line range, re-read the saved block immediately; a shifted range can splice tables into prose even when the edit call succeeds. Restore the complete bounded section before running Markdown checks.
 - When adding reciprocal dossier links, inspect the exact live cross-reference wording first; a semantically equivalent line can make an exact edit fail, so re-read the saved block and patch the actual boundary serially.
+
+- No-op exact replacements are rejected by the edit tool; avoid issuing an edit when the target block already matches and verify the live block before retrying.
+- When a geometry smoke test hard-codes expected values, derive and print the intermediate area/moment terms first; a denominator convention mistake can falsely blame the authored coordinate. Use the same shoelace formula in the test as in the deliverable calculation.
+- The historical dossier unittest is stale in task-board repositories that no longer ship `TODO.md`; record its `FileNotFoundError` as a baseline limitation and use scoped dossier/index contract checks instead of creating a compatibility file.

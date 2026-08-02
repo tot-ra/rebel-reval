@@ -84,6 +84,9 @@
           "id": "from_monastery"
         },
         {
+          "id": "from_monastery_outer"
+        },
+        {
           "id": "to_reval_harbor"
         }
       ]
@@ -102,6 +105,9 @@
         },
         {
           "id": "from_reval_east"
+        },
+        {
+          "id": "outer_monastery_exit"
         },
         {
           "id": "from_reval_toompea"
@@ -177,6 +183,9 @@
       "spawns": [
         {
           "id": "from_reval_north"
+        },
+        {
+          "id": "from_reval_north_outer"
         },
         {
           "id": "from_harbor_east"
