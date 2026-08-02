@@ -3,13 +3,14 @@ extends "res://tests/godot/test_case.gd"
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 const MammalMeshes := preload("res://scripts/map/view3d/map_view_mammal_meshes.gd")
 
-## Catalog silhouettes stay cheap, but the two Lower Town urban actors are seen
+## Catalog silhouettes stay cheap, but the three Lower Town urban actors are seen
 ## from close range on the street and carry facial and paw detail, so they get a
 ## wider budget. Concurrency is capped at eight urban actors (P2-024).
 const REFERENCE_TRIANGLE_BUDGET := 420
 const DETAILED_TRIANGLE_BUDGET := 680
 const DETAILED_SPECIES: Array[StringName] = [
 	MammalSpecies.SPECIES_CAT,
+	MammalSpecies.SPECIES_DOG,
 	MammalSpecies.SPECIES_RAT,
 ]
 

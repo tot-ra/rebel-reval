@@ -180,7 +180,11 @@ const PROFILES: Dictionary = {
 	# measured from the real animal rather than inherited from the felid/rodent
 	# reference blocks: small head, low-slung body, long tail.
 	SPECIES_CAT: {"name": "Domestic cat", "group": GROUP_FELID, "scale_m": 0.42, "pose": POSE_RESTING, "colors": [Color("8a7a62"), Color("4a4038"), Color("e8ddd0")], "geometry": {"body": Vector3(0.48, 0.20, 0.17), "head": 0.09, "neck": 0.05, "legs": 0.20, "ears": 0.07, "tail": 0.32}, "abundance": 0.72, "spawn": {CONTEXT_LOWER_TOWN: 0.92, CONTEXT_MARKET: 0.68}},
-	SPECIES_DOG: {"name": "Domestic dog", "group": GROUP_CANID, "scale_m": 0.52, "pose": POSE_STANDING, "colors": [Color("8a6a42"), Color("4a4038"), Color("2a2824")], "geometry": {"body": Vector3(0.62, 0.28, 0.24), "tail": 0.24}, "abundance": 0.68, "spawn": {CONTEXT_LOWER_TOWN: 0.88, CONTEXT_MARKET: 0.62}},
+	# Like the cat, the dog is a close-range street actor, so its proportions are
+	# measured from the real animal: smaller head, longer legs, pricked ears, and a
+	# longer tail for the raised curl. The palette is a tan farm dog with a darker
+	# saddle/ear tone and cream muzzle, chest, and paws.
+	SPECIES_DOG: {"name": "Domestic dog", "group": GROUP_CANID, "scale_m": 0.52, "pose": POSE_STANDING, "colors": [Color("8a6a42"), Color("6b5233"), Color("d8c8a8")], "geometry": {"body": Vector3(0.62, 0.28, 0.24), "head": 0.095, "neck": 0.13, "legs": 0.36, "tail": 0.28, "ears": 0.105}, "abundance": 0.68, "spawn": {CONTEXT_LOWER_TOWN: 0.88, CONTEXT_MARKET: 0.62}},
 	SPECIES_HORSE: {"name": "Horse", "group": GROUP_UNGULATE, "scale_m": 1.42, "pose": POSE_STANDING, "colors": [Color("7a5a38"), Color("4a3424"), Color("2a241c")], "geometry": {"body": Vector3(1.02, 0.50, 0.34), "neck": 0.34, "legs": 0.58, "tail": 0.42}, "abundance": 0.54, "spawn": {CONTEXT_LOWER_TOWN: 0.48, CONTEXT_MARKET: 0.42, CONTEXT_FORELAND: 0.38}},
 	SPECIES_RAT: {"name": "Brown rat", "group": GROUP_RODENT, "scale_m": 0.24, "pose": POSE_STANDING, "colors": [Color("6a5a48"), Color("4a4038"), Color("2a2824")], "geometry": {"body": Vector3(0.28, 0.11, 0.10), "head": 0.055, "neck": 0.02, "legs": 0.05, "ears": 0.05, "tail": 0.30}, "abundance": 0.82, "spawn": {CONTEXT_LOWER_TOWN: 0.86, CONTEXT_HARBOR: 0.72}},
 	SPECIES_CHICKEN: {"name": "Chicken", "group": GROUP_FOWL, "scale_m": 0.34, "pose": POSE_STANDING, "colors": [Color("c8a86a"), Color("8a4a28"), Color("d8c8a8")], "abundance": 0.76, "spawn": {CONTEXT_LOWER_TOWN: 0.62, CONTEXT_FORELAND: 0.58}},
