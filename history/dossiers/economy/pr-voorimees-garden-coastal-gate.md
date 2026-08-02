@@ -9,6 +9,7 @@ related:
   - merchant-cart-and-transport-1340s.md
   - ../topography/harbour-and-shoreline.md
   - ../people/estonian-and-german-populations.md
+  - ev2-karrienpforte-carter-ort-folio.md
 updated: 2026-07-29
 ---
 
@@ -23,10 +24,11 @@ You need the **primary register anchor** for the **carter (*voorimees* / *Fuhrma
 1. **No PR folio dated 1343 exists.** *Das Revaler Pergament Rentenbuch* (Plaesterer 1930) covers **1382–1518** only [1]. Spring 1343 evidence must come from the **Erbebuch (EV)** line and the **Ältestes Wittschopbuch (AWB, 1312–1360)** — not from PR.
 2. **Attested pattern (upgraded from secondary):** Kaplinski's survey of published EV/PR editions records that **before the Coastal Gate in the 14th century** the extramural garden zone held **two cooper (*püttsepp*) gardens and one carter garden** — aggregate head-count, not a single named owner deed quoted this tick `attested` via published EV/PR indices [2][3].
 3. **Register formulae:** Extramural plots are located ***vor der Karrienpforte*** / ***buten der Karrienpforte***; fuel sheds (*holtrum*) are tied to **Suurt Rannavärav** (Great Coastal Gate) and **Nunnakopli** in the same corpus `attested` pattern [2][4].
-4. **EV II entry band (sea-side gardens):** Kaplinski footnote 99 cites **EV II** nos. **352, 454, 515, 566, 676, 690, 691, 786, 823, 824, 829**; **EV III** nos. **87, 90, 235, 250**; **PR** nos. **83, 173, 200, 204, 287, 341, 372** for extramural garden holdings — the carter plot sits in this survey but **is not isolated to one numbered entry** in the published secondary `partial` [2][3].
-5. **1343 date precision:** EV II opens **1360**; AWB closes **1360**. The carter garden is attested for the **14th century** as a register fact; **no deed dated April 1343** with owner name was located in published editions this tick `gap` [1][2][5].
-6. **Rent / Fuhr fee:** Garden rows record **plot components** (*ort*, *hortus*, *clausura*) — **not** *Fuhrpacht* or cart-hire tariffs. Parent dossier negative stands `attested` negative [6].
-7. **Map tag:** `extramural_garden_coastal_gate` polygon on **wet margin below Pikk cliff** — **three craft garden slots** (2 cooper + 1 carter) as **confidence: attested aggregate / owner names gap** [`harbour-and-shoreline.md`](../topography/harbour-and-shoreline.md).
+4. **EV II folio result (R-073):** Nottbeck's published EV II directly gives *extra karienporten* garden deeds in **no. 686, printed p. 101** (`... unum ortum, situm extra karienporten ... Borchardo myt der Have ...`) and **no. 859, printed p. 132** (`... ortum suum exteriorem extra karienporten ... Ghos(s)chalco van Rode ...`) [10]. These are named gate-plot holders, **not named carter deeds**: the checked Kaplinski fn. 99 EV II set contains no *Fuhrmann*, *voorimees*, *carrarius*, or equivalent occupational label [10][2].
+5. **Carter-owner verdict:** Kaplinski's statement remains an **attested aggregate** - two cooper gardens and one carter garden before the Coastal Gate - but her fn. 99 list does not identify which deed belongs to the carter [2][10]. Keep the carter's owner name `null`; do not assign Borchardus myt der Have or Ghos(s)chalcus van Rode [10].
+6. **1343 date precision:** EV II covers **1360-1383**; no EV II deed can itself be an April 1343 deed. The carter garden is a fourteenth-century register/survey fact; its Spring 1343 placement remains a cross-period reconstruction [1][2][10].
+7. **Rent / Fuhr fee:** Garden rows record **plot components** (*ort*, *hortus*, *clausura*) - **not** *Fuhrpacht* or cart-hire tariffs. Parent dossier negative stands `attested` negative [6].
+8. **Map tag:** `extramural_garden_coastal_gate` polygon on **wet margin below Pikk cliff** - **three craft garden slots** (2 cooper + 1 carter) as **confidence: attested aggregate / owner names gap** [`harbour-and-shoreline.md`](../topography/harbour-and-shoreline.md).
 
 ## Findings
 
@@ -62,7 +64,7 @@ These are the **published edition entry numbers** backing the sea-side and extra
 | **EV III** | 87, 90, 235, 250 | Nottbeck 1892 pagination [3] |
 | **PR** | 83, 173, 200, 204, 287, 341, 372 | Plaesterer 1930 pagination [1] |
 
-**Nottbeck EV II p. citation for Coastal Gate formulae:** Search targets ***Karrienpforte***, ***buten der Karrienpforte***, ***hortus***, ***ort*** in Nottbeck 1890 — **verbatim Latin/German excerpt not copied** this tick (edition PDF fetch blocked); upgrade path is TLA microfilm folio match to entry numbers above `partial` [3][7].
+**Nottbeck EV II folio result:** Search targets ***Karrienpforte***, ***buten der Karrienpforte***, ***hortus***, and ***ort*** in Nottbeck 1890 were checked against the complete public-domain KPBC DjVu. EV II no. 686 (printed p. 101) and no. 859 (printed p. 132) provide verbatim *extra karienporten* garden deeds with named holders, but neither names a carter. The dedicated folio dossier records the readings and keeps the carter-owner link `gap` [3][7][10].
 
 ### Regional context
 
@@ -125,3 +127,4 @@ These are the **published edition entry numbers** backing the sea-side and extra
 7. ILC Stadtbücher catalogue — Erbebuch **1360–1458**, AWB **1312–1360** sig. conventions: https://www.stadtbuecher.de/de/stadtbuecher/estland/kreis-harju/reval-talinn/
 8. [`../topography/harbour-and-shoreline.md`](../topography/harbour-and-shoreline.md) — Coastal Gate merchant landing apron (project dossier).
 9. [`../people/estonian-and-german-populations.md`](../people/estonian-and-german-populations.md) — carter status (project dossier).
+10. [`ev2-karrienpforte-carter-ort-folio.md`](ev2-karrienpforte-carter-ort-folio.md) - direct EV II public-domain scan pass for nos. 686 and 859; named gate-plot holders, but no named carter profession.
