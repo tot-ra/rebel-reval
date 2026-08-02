@@ -125,6 +125,7 @@ Consumers are quest/narrative only; three authority visuals suffice. No survivin
 - [`order-comptoir-transition-1343-1346.md`](./order-comptoir-transition-1343-1346.md) — dated authority table for post-16 May through 1346 sale; Komturei powers vs council continuity.
 - [`../people/estonian-and-german-populations.md`](../people/estonian-and-german-populations.md) — Estonian watch squad, legal freedom in town vs manor serfdom; population segments for forum-shopping scenes.
 - [`../religion/churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) — parish trio, Dominican sanctuary seam, bishop's cathedral jurisdiction.
+- [`../economy/reval-harbour-customs-1340s.md`](../economy/reval-harbour-customs-1340s.md) — no dated 1343 harbour rate located; use the council/crown seam as a jurisdictional open question.
 
 ## Open questions
 

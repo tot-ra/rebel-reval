@@ -161,12 +161,13 @@ Hanseatic practice: **larger ships lay up November–March** on the Baltic; **sp
 - [`../nature/spring-climate-and-living-world.md`](../nature/spring-climate-and-living-world.md) — ice, mud, and Easter/St George calendar.
 - [`../religion/liturgical-calendar-spring-1343.md`](../religion/liturgical-calendar-spring-1343.md) — **authoritative Easter 13 April** and Lent end; supersedes Easter date in this dossier pending canon reconcile.
 - [`../power/jurisdictions-of-reval.md`](../power/jurisdictions-of-reval.md) — 11 May grain levy and council–crown seam.
+- [`../economy/reval-harbour-customs-1340s.md`](../economy/reval-harbour-customs-1340s.md) — no dated 1343 rate found; later Pfundzoll is control evidence only.
 - [`../crafts/guild-structure.md`](../crafts/guild-structure.md) — Great Guild warehouse and trade restrictions (R-012).
 - [`../dailylife/food-and-drink.md`](../dailylife/food-and-drink.md) — Lent herring trade and post-siege grain/beer scarcity.
 
 ## Open questions
 
-- **Tallinn City Archives / AWB harbour toll entries 1340–1343** — exact dues on cog landing and crane use; candidate `R-048`.
+- **Tallinn City Archives / TLA folio pass:** locate any unpublished AWB supplement, council account, or harbour memorandum for 1340–1343 naming *portus*, *Lade*, *Zoll*, *Kran*, or a landing collector.
 - **Named Reval–Novgorod partnership or Wechsel chain** in Denkelbuch 1342–1344 — prosopography tie to R-038.
 - **1343 ice-off date** for Gulf of Finland — no attestation; keep `plausible composite` only.
 - **Quantified convoy size** (ships, schiffspfund) leaving Reval summer 1343 — needs kontor/Lübeck letter pass.

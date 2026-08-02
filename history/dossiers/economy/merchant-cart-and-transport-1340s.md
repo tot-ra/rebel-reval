@@ -102,6 +102,7 @@ Tracked in `TODO.md` (2026-07-30 decision): contract **P0-164** → art brief **
 - [`../topography/harbour-and-shoreline.md`](../topography/harbour-and-shoreline.md) — barrel transfer from lighter to cart at wet margin.
 - [`../hinterland/harju-village-and-manor.md`](../hinterland/harju-village-and-manor.md) — manor cart obligations and rebel road risk.
 - [`reval-cart-tolls-and-fuhr-rent-1340s.md`](reval-cart-tolls-and-fuhr-rent-1340s.md) — explicit gap for wheel tax / cart toll; attested 1342–1343 tax substitutions and composite fee bands.
+- [`reval-harbour-customs-1340s.md`](reval-harbour-customs-1340s.md) — AWB 485/539/553 delivery and free-access lines; no dated 1343 crane or landing tariff.
 - [`awb-fuhr-servitude-clauses-1340-1343.md`](awb-fuhr-servitude-clauses-1340-1343.md) — AWB folio pass confirms no *Fuhrpacht* 1340–1343; yard-access and *clausuris* vocabulary.
 - [`../power/reval-street-cleaning-ordinances-1340s.md`](../power/reval-street-cleaning-ordinances-1340s.md) — parallel AWB gap for municipal dung carts.
 

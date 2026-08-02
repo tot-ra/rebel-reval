@@ -114,7 +114,7 @@ You are pricing **cart movement through forum throats, gate aprons, and harbour 
 ## Open questions
 
 - **TLA folio read AWB 1340–1343** for verbatim ***clausuris*** strings — see [`awb-fuhr-servitude-clauses-1340-1343.md`](awb-fuhr-servitude-clauses-1340-1343.md) open questions (`R-072`).
-- **Harbour crane and landing dues 1340–1343** — Stieda corpus starts 1362; earlier AWB harbour rows remain `R-048`.
+- **Harbour crane and landing dues 1340–1343** — the accessible AWB pass found civic wood-delivery and access comparators but no dated harbour tariff; see [`reval-harbour-customs-1340s.md`](reval-harbour-customs-1340s.md).
 - **Denkelbuch / council Burspraken** for explicit **forum cart-hour** or **market-day** traffic rules — overlaps `R-050` market weekday row.
 
 ## Sources

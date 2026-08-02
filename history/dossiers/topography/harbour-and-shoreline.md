@@ -134,6 +134,7 @@ No licensed plate reproduces the **1343 rectangular Coastal Gate** or **exact 13
 - [`../economy/merchant-cart-and-transport-1340s.md`](../economy/merchant-cart-and-transport-1340s.md) — barrel transfer from lighter to cart at wet margin; harbour supply loads.
 - [`../economy/pr-voorimees-garden-coastal-gate.md`](../economy/pr-voorimees-garden-coastal-gate.md) — extramural carter + cooper gardens on north apron below gate.
 - [`../economy/hanseatic-trade-and-season.md`](../economy/hanseatic-trade-and-season.md) — April–May sailing, Novgorod route, staple goods (R-015 deliverable).
+- [`../economy/reval-harbour-customs-1340s.md`](../economy/reval-harbour-customs-1340s.md) — AWB evidence boundary for civic wood delivery and the absent 1343 harbour tariff.
 - Project report [`../../../docs/reports/reval_harbour_1343_research.md`](../../../docs/reports/reval_harbour_1343_research.md) — map translation decisions for `reval_harbor_north` / `reval_harbor_east`.
 
 ## Open questions
