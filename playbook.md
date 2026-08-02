@@ -190,3 +190,4 @@
 
 - Blender 5.2 headless smoke scripts may expose the EEVEE engine enum as `BLENDER_EEVEE`, not `BLENDER_EEVEE_NEXT`; probe or use the installed enum before rendering evidence plates.
 - For visual sign-off reports, distinguish documentation studies and asset previews from gameplay-camera acceptance; when corridor assets or placements are missing, record a conditional pass and name the owning follow-up rows instead of inventing captures.
+- The task board's `get` action requires the internal `R-*` ref, not the visible product ID; use `tasks.list` first and resolve product IDs such as `P0-122f` to refs such as `R-78` before calling `get`.
