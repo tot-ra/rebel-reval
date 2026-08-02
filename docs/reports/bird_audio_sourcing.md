@@ -374,7 +374,7 @@ Record a reply here before touching `tools/audio/curated_bird_recordings.json`:
 
 | Record | Contacted | Reply date | Rightsholder | Commercial grant / license URL | Edits and distribution approved | Attribution | Evidence path | Decision |
 |---|---|---|---|---|---|---|---|---|
-| `great_cormorant` | pending | - | - | - | - | - | - | blocked |
+| `great_cormorant` | not contacted; published source reviewed 2026-08-02 | - | TÜ loodusmuuseum; recording credited to Veljo Runnel | [CC BY-NC 3.0 EE](http://creativecommons.org/licenses/by-nc/3.0/ee/); no commercial grant | **No** - NC term does not permit commercial game distribution or the requested edit scope | BY attribution is required, but approved wording is not published | [`docs/reports/evidence/p0_122f/great_cormorant_permission.md`](evidence/p0_122f/great_cormorant_permission.md) | **blocked** - written commercial permission and duration are missing |
 | `white_tailed_eagle` | pending | - | - | - | - | - | - | blocked |
 
 A positive reply must be retained as an exportable message or signed document and
