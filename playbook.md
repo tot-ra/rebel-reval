@@ -205,3 +205,4 @@
 - A dossier-specific smoke check should validate required sections and evidence labels actually used by the dossier, not require every possible confidence category to appear in every file.
 - The task board replaced the legacy `TODO.md`, so research-index link checks may report that pre-existing path as missing; exclude that known legacy link when validating a scoped dossier rather than widening the research task.
 - When a research PDF endpoint returns HTML or an anti-bot interstitial, verify MIME type and the file signature before using `pdftotext`; preserve the source URL and pivot to an accessible official OCR or archive catalogue instead of treating the failed download as evidence.
+- When `tasks.get` rejects a visible product ID or an already-removed dependency, use `tasks.list` to resolve the current internal `R-*` ref and continue from the repository evidence; do not treat a missing dependency lookup as proof that the claimed task is blocked.
