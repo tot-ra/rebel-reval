@@ -175,3 +175,17 @@ tools/run_godot_checked.sh --require-test-summary p0-102g-environment-kit -- "$G
 - Existing unrelated baselines remain visible: `sergeant.glb` asset-lint budget and clean-HEAD Karja Gate test failure.
 
 **Decision:** keep R-359 in `in_review`. Do not mark parent P0-102 done or ready for review until R-360, R-353, and the required handoff evidence/baseline gates are resolved or explicitly accepted by their owners.
+
+## P0-102m.5 evidence audit
+
+The dedicated evidence audit is reproducible with:
+
+```sh
+python3 tools/verify_p0_102_environment_kit_evidence.py
+```
+
+The audit checks exactly eight linked plates in `docs/reports/images/p0_102_environment_kit/`: forge, street/well, brewery, and checkpoint, each in `day` and `night`. Every plate is present, decodes as an RGB PNG at 1280x720, has non-flat luminance, and differs from its paired state. Each report row records the map identity, `MapView3D.TIME_DAY` or `MapView3D.TIME_NIGHT`, orthographic camera size, focus logic cell, and focus height. Day/night rows for each space must carry identical framing metadata.
+
+The evidence set preserves readability of routes, doors, player approach areas, and interactables. The forge crop includes the furnace/anvil work area, courtyard door, and approach; street/well includes the cistern, wash tub, wet threshold, and `street_start` approach; brewery includes `foaming_mug_brewery`, `brewery_door`, yard props, and approach lane; checkpoint includes `viru_gate_arch`, both gate towers, `gate_cart`, approach lane, and `viru_foregate_arch`. Capture limitations are explicit: the plates are evidence-only camera captures, do not replace P0-101 human visual sign-off, and capture commands can emit non-fatal map-audit or renderer shutdown diagnostics without changing the saved images.
+
+**Audit result:** PASS - 8/8 plates present, decodable, non-blank, paired, and linked exactly once. This verification does not close the outstanding P0-102 implementation prerequisites or unrelated baseline findings recorded above.

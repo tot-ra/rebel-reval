@@ -8,6 +8,7 @@
 - For SubViewport evidence captures, use the Metal rendering driver and verify the saved PNG header/dimensions; headless dummy rendering may not expose a readable texture.
 - For line insertion, pass the full target file path, not the project directory; a directory path fails before any report edit is applied.
 - In Godot 4.7 evidence helpers, conditional inference from `definition.map_id` can become a `Variant` warning treated as an error; explicitly cast map IDs to `String` when building capture filenames.
+- When an evidence audit requires exact acceptance vocabulary, add those terms explicitly to the report; semantically equivalent prose may still fail a contract smoke check.
 
 - Headless/dummy rendering cannot read a SubViewport texture; use Metal for PNG evidence.
 - RRMap `stroke` thickness grows from the start point in +x/+y, it is not centred on the polyline. Author river and lane strokes from their top-left edge or the compiler rejects the segment as out of bounds.
