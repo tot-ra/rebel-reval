@@ -7,6 +7,7 @@ related:
   - ./law-courts-and-punishment.md
   - ./jurisdictions-of-reval.md
   - ./reval-street-cleaning-ordinances-1340s.md
+  - ./reval-codex-cm6-folio-map.md
   - ../military/watch-duty-and-town-defence.md
   - ../military/arms-and-armour-livonia-1340s.md
   - ../people/town-council-and-officers.md
@@ -130,6 +131,7 @@ Hanse Lexikon summarises the **Bürgereid / Burspraken** obligations recurring i
 
 ## Cross-references
 
+- [`./reval-codex-cm6-folio-map.md`](./reval-codex-cm6-folio-map.md) - article-level print coverage and the explicit Cm 6 folio evidence boundary; use it to keep Reval numbering separate from Bardewik parallels.
 - [`./law-courts-and-punishment.md`](./law-courts-and-punishment.md) — Vogt forum, fine/pillory scale, Art. 50 perjury; pointed here for codex article depth.
 - [`./jurisdictions-of-reval.md`](./jurisdictions-of-reval.md) — council vs viceroy vs Order; who may order muster.
 - [`../military/watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) — nightly routine, gate names, tier kit table; operational layer beneath this legal dossier.
