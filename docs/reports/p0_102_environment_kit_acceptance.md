@@ -9,7 +9,7 @@
 
 This acceptance covers the four P0-102 target spaces: forge, street/well, brewery, and checkpoint. It evaluates the shared view-only assemblies and existing contracts; it does not author new art, runtime behavior, ordinary house-tier assets, or landmark art. P0-101 and P2-063-P2-067 remain separate ownership boundaries.
 
-The implementation is accepted for the checks that pass below, but the parent task is not accepted as complete. The remaining findings are either an open prerequisite (`R-353`), an existing repository baseline defect, missing dedicated visual evidence, or the newly opened scoped follow-up `R-360`.
+The implementation is accepted for the checks that pass below, but the parent task is not accepted as complete. The remaining findings are either an open prerequisite (`R-353`), an existing repository baseline defect, or the newly opened scoped follow-up `R-360`. The dedicated eight-plate evidence requirement is complete; this does not constitute the separate P0-101 human visual sign-off.
 
 ## Verification matrix
 
@@ -27,8 +27,28 @@ The implementation is accepted for the checks that pass below, but the parent ta
 | Asset lint | **BLOCKED by unrelated baseline** | Clean HEAD `python3 tools/verify_asset_lint.py` fails only on `assets/characters/shared/sergeant.glb: tier 1 (named_npc) triangle budget exceeded (57168>56000)`. This is owned by completed P2-005, is not an environment-kit asset, and is recorded without changing out-of-scope character art. |
 | Asset provenance | **PASS on clean HEAD; dirty worktree has unrelated failure** | Clean HEAD `python3 tools/validate_asset_sources.py` passes: schema ok, 758 rows, 609 inventory paths covered, 603 active runtime assets covered. The live shared worktree additionally contains unregistered `assets/animals/medieval/medieval_horse_pack_horse_{albedo,normal,roughness}.png` from in-progress A-002/R-1; those files were excluded from this acceptance commit. |
 | Import and checked focused acceptance runner | **PASS** | Clean HEAD Godot editor import passes. `tools/run_godot_checked.sh --require-test-summary p0-102g-environment-kit -- ... --filter=test_environment_kit_integration` passes with 5/5 and only allowlisted shutdown leak diagnostics. |
-| Matched gameplay-scale day/night evidence for all four spaces | **PARTIAL - street/well, brewery, and checkpoint pairs captured; forge remains** | Dedicated street/well, brewery, and checkpoint pairs are recorded below. Forge still needs its own matched acceptance plates; this task does not claim P0-101 final visual sign-off. |
+| Matched gameplay-scale day/night evidence for all four spaces | **PASS - 8/8 plates captured** | Dedicated forge, street/well, brewery, and checkpoint pairs are recorded below. All eight files are present, decode as non-blank RGB PNGs at 1280x720, and use matched day/night framing. This evidence does not replace P0-101 human visual sign-off. |
 | P0-101 landmark and P2-063-P2-067 house-tier scope separation | **PASS** | No P0-101 landmark art or P2-063-P2-067 house-tier asset/deliverable is included in this report or the P0-102 module changes. The contract's ownership table remains authoritative. |
+
+## P0-102m.1 forge evidence
+
+The forge-only matched pair was captured from the authored `kalev_smithy` map with the shared `MapView3D` renderer. The evidence crop keeps the gameplay-scale orthographic framing and includes the furnace/anvil work area, the player approach, and the courtyard door. The capture helper's `--forge-evidence` mode changes only the evidence camera and output path; it does not alter map semantics, runtime behavior, collision/navigation, or tests.
+
+| Plate | Path | Lighting | Framing metadata |
+|---|---|---|---|
+| Day | [`forge_day.png`](images/p0_102_environment_kit/forge_day.png) | `MapView3D.TIME_DAY` | 1280x720; orthographic size 13.5; focus logic cell (17.5, 7.0); focus height 0.8; map `kalev_smithy` |
+| Night | [`forge_night.png`](images/p0_102_environment_kit/forge_night.png) | `MapView3D.TIME_NIGHT` | 1280x720; orthographic size 13.5; focus logic cell (17.5, 7.0); focus height 0.8; map `kalev_smithy` |
+
+Both plates decode as non-empty RGB PNGs at 1280x720. They use one camera configuration and differ only by the authored day/night lighting state. The forge work area, courtyard door, and approach space remain in the same crop; the night plate is darker but retains visible lit geometry.
+
+Reproduction:
+
+```sh
+export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot
+"$GODOT_BIN" --path . --rendering-driver metal --script tools/capture_kalev_smithy_domestic_life.gd -- --forge-evidence
+```
+
+The capture emitted existing non-fatal `world_harju.rrmap` audit diagnostics and renderer shutdown leak diagnostics, but exited successfully and wrote both PNGs. These limitations do not affect the saved evidence files and are not changed by this evidence-only task.
 
 ## P0-102m.2 street/well evidence
 
@@ -61,7 +81,7 @@ The script is evidence-only: it does not alter map semantics, runtime behavior, 
 
 This acceptance covers the four P0-102 target spaces: forge, street/well, brewery, and checkpoint. It evaluates the shared view-only assemblies and existing contracts; it does not author new art, runtime behavior, ordinary house-tier assets, or landmark art. P0-101 and P2-063-P2-067 remain separate ownership boundaries.
 
-The implementation is accepted for the checks that pass below, but the parent task is not accepted as complete. The remaining findings are either an open prerequisite (`R-353`), an existing repository baseline defect, missing dedicated visual evidence, or the newly opened scoped follow-up `R-360`.
+The implementation is accepted for the checks that pass below, but the parent task is not accepted as complete. The remaining findings are either an open prerequisite (`R-353`), an existing repository baseline defect, or the newly opened scoped follow-up `R-360`. The dedicated eight-plate evidence requirement is complete; this does not constitute the separate P0-101 human visual sign-off.
 
 ## Verification matrix
 
@@ -79,7 +99,7 @@ The implementation is accepted for the checks that pass below, but the parent ta
 | Asset lint | **BLOCKED by unrelated baseline** | Clean HEAD `python3 tools/verify_asset_lint.py` fails only on `assets/characters/shared/sergeant.glb: tier 1 (named_npc) triangle budget exceeded (57168>56000)`. This is owned by completed P2-005, is not an environment-kit asset, and is recorded without changing out-of-scope character art. |
 | Asset provenance | **PASS on clean HEAD; dirty worktree has unrelated failure** | Clean HEAD `python3 tools/validate_asset_sources.py` passes: schema ok, 758 rows, 609 inventory paths covered, 603 active runtime assets covered. The live shared worktree additionally contains unregistered `assets/animals/medieval/medieval_horse_pack_horse_{albedo,normal,roughness}.png` from in-progress A-002/R-1; those files were excluded from this acceptance commit. |
 | Import and checked focused acceptance runner | **PASS** | Clean HEAD Godot editor import passes. `tools/run_godot_checked.sh --require-test-summary p0-102g-environment-kit -- ... --filter=test_environment_kit_integration` passes with 5/5 and only allowlisted shutdown leak diagnostics. |
-| Matched gameplay-scale day/night evidence for all four spaces | **PARTIAL - street/well, brewery, and checkpoint pairs captured; forge remains** | Dedicated street/well, brewery, and checkpoint pairs are recorded below. Forge still needs its own matched acceptance plates; this task does not claim P0-101 final visual sign-off. |
+| Matched gameplay-scale day/night evidence for all four spaces | **PASS - 8/8 plates captured** | Dedicated forge, street/well, brewery, and checkpoint pairs are recorded below. All eight files are present, decode as non-blank RGB PNGs at 1280x720, and use matched day/night framing. This evidence does not replace P0-101 human visual sign-off. |
 | P0-101 landmark and P2-063-P2-067 house-tier scope separation | **PASS** | No P0-101 landmark art or P2-063-P2-067 house-tier asset/deliverable is included in this report or the P0-102 module changes. The contract's ownership table remains authoritative. |
 
 ## P0-102m.4 checkpoint evidence

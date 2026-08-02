@@ -6,6 +6,8 @@
 - A failed `git diff --cached --check` can stop a scoped documentation commit on Markdown hard-break spaces; normalize trailing spaces before staging, and stage only the intended report plus a clean patch for any playbook lesson when the playbook already has unrelated WIP.
 - For evidence-only acceptance gates, capture expected-failing command statuses separately and make log/path probes non-fatal; a missing temporary log or no-match `grep` can otherwise obscure the actual blocker.
 - For SubViewport evidence captures, use the Metal rendering driver and verify the saved PNG header/dimensions; headless dummy rendering may not expose a readable texture.
+- For line insertion, pass the full target file path, not the project directory; a directory path fails before any report edit is applied.
+- In Godot 4.7 evidence helpers, conditional inference from `definition.map_id` can become a `Variant` warning treated as an error; explicitly cast map IDs to `String` when building capture filenames.
 
 - Headless/dummy rendering cannot read a SubViewport texture; use Metal for PNG evidence.
 - RRMap `stroke` thickness grows from the start point in +x/+y, it is not centred on the polyline. Author river and lane strokes from their top-left edge or the compiler rejects the segment as out of bounds.
