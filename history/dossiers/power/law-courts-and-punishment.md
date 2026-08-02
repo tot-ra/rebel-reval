@@ -150,6 +150,7 @@ Consumers are quest/narrative; four procedure and punishment visuals suffice. No
 - [`./order-comptoir-transition-1343-1346.md`](./order-comptoir-transition-1343-1346.md) — post-16 May Order castle authority; Vogt/Rat unchanged inside Lower Town.
 - [`../people/town-council-and-officers.md`](../people/town-council-and-officers.md) — Vogt, Rat, burgomasters, Stadtschreiber, and Town Hall meeting room.
 - [`../military/watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) — curfew breaches and gate-control offences handed to Vogt.
+- [`../crafts/schmiede-amt-ordinances-pre-1363.md`](../crafts/schmiede-amt-ordinances-pre-1363.md) - forge-specific inspection disputes, fire-risk escalation, and the pre-1363 tariff gap.
 - [`../crafts/guild-structure.md`](../crafts/guild-structure.md) — *Amt* fines vs council jurisdiction over smiths before 1363 Schragen.
 - [`../topography/raekoja-plats-extents-1343.md`](../topography/raekoja-plats-extents-1343.md) — forum polygon for pillory placement; note 1337 pillory attestation vs dossier's earlier uncertainty.
 - [`../economy/coinage-prices-and-measures.md`](../economy/coinage-prices-and-measures.md) — 60 schilling perjury fine and general mark/schilling/pfennig scale.

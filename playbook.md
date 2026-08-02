@@ -9,6 +9,7 @@
 - For line insertion, pass the full target file path, not the project directory; a directory path fails before any report edit is applied.
 - In Godot 4.7 evidence helpers, conditional inference from `definition.map_id` can become a `Variant` warning treated as an error; explicitly cast map IDs to `String` when building capture filenames.
 - When an evidence audit requires exact acceptance vocabulary, add those terms explicitly to the report; semantically equivalent prose may still fail a contract smoke check.
+- A headless Godot diagnostic that waits on scene frames can hang in a dirty editor-heavy worktree; kill only the probe process, remove its temporary script and rely on a bounded focused harness for verification.
 
 - Headless/dummy rendering cannot read a SubViewport texture; use Metal for PNG evidence.
 - RRMap `stroke` thickness grows from the start point in +x/+y, it is not centred on the polyline. Author river and lane strokes from their top-left edge or the compiler rejects the segment as out of bounds.
@@ -214,3 +215,6 @@
 - When `tasks.get` rejects a visible product ID or an already-removed dependency, use `tasks.list` to resolve the current internal `R-*` ref and continue from the repository evidence; do not treat a missing dependency lookup as proof that the claimed task is blocked.
 - When a historical dossier's verifier assumes coordination files that are absent from the checkout, treat that as an environment baseline failure; run scoped source/diff checks and record the missing-path limitation instead of fabricating the file.
 - The tasks API dependency field requires the board ref (for example `R-149`), not a displayed deliverable ID such as `P2-005`; use `tasks.get` or `tasks.list` to resolve the internal ref before creating follow-ups.
+- During research tool batching, validate each wrapper payload shape before dispatch; one malformed parallel step can fail an otherwise independent evidence sweep.
+- A dossier smoke check should validate the confidence labels and evidence boundary actually used by the file, not require an arbitrary count of one label; distinguish scoped link failures from the known legacy `history/RESEARCH_INDEX.md -> ../TODO.md` task-board migration gap.
+- If a chained Godot import/diagnostic command returns before printing its captured logs, inspect the temporary log files first and rerun only the failed stage; shell error handling can hide the useful diagnostic.

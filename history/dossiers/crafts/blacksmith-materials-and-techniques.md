@@ -165,6 +165,7 @@ Guild **quality inspection** (`Amt` visit) can catch **visible seams, wrong weig
 - [`../architecture/smithy-workshop-layout.md`](../architecture/smithy-workshop-layout.md) — hearth geometry, charcoal storage, quench station placement.
 - [`guild-structure.md`](guild-structure.md) — Schmiede *Amt*, apprentice nail labour, inspection fines.
 - [`../military/arms-and-armour-livonia-1340s.md`](../military/arms-and-armour-livonia-1340s.md) — which finished metal goods leave the shop.
+- [`schmiede-amt-ordinances-pre-1363.md`](schmiede-amt-ordinances-pre-1363.md) - inspection disputes, visible forge failures, and the distinction between *Amt* remedies and town-law penalties.
 - [`../economy/coinage-prices-and-measures.md`](../economy/coinage-prices-and-measures.md) — coin scale, iron/charcoal price rows, siege multiplier.
 
 ## Open questions

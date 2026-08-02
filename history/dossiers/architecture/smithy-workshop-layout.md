@@ -176,6 +176,7 @@ No **Reval 1343 Feuerordnung** survives in this pass. Hanseatic composite norms:
 - [`burgher-house-plan.md`](burgher-house-plan.md) — craft *boda* and diele shell the forge occupies; rear yard charcoal path.
 - [`../crafts/guild-structure.md`](../crafts/guild-structure.md) — Schmiede *Amt*, apprentice household, St Canute obligations.
 - [`../crafts/blacksmith-materials-and-techniques.md`](../crafts/blacksmith-materials-and-techniques.md) — fuel, iron, and task durations (R-013 deliverable).
+- [`../crafts/schmiede-amt-ordinances-pre-1363.md`](../crafts/schmiede-amt-ordinances-pre-1363.md) — pre-1363 craft-rule evidence boundary, fire-risk pair, and the open archive pass.
 - [`../military/arms-and-armour-livonia-1340s.md`](../military/arms-and-armour-livonia-1340s.md) — what leaves the shop as finished work.
 - [`../topography/lower-town-street-plan.md`](../topography/lower-town-street-plan.md) — Harju smith lane and plot rhythm.
 - [`../military/watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) — curfew bell and fire-watch duty.
