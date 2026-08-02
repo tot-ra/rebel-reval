@@ -145,3 +145,13 @@ No new follow-up task is required because every remaining finding maps to an exi
 6. **P2-063-P2-067 and P0-101:** complete the ordinary house families, plot dressing, Lower Town tier wiring, exceptional landmark art, and final gameplay-scale acceptance before claiming the broader P0-102 deliverable.
 
 **Final decision:** **BLOCKED for acceptance, but boundary reconciliation complete.** The current code proves the intended ordinary-versus-exceptional routing and preserves Viru Gate/Lower Town route interfaces. It is not acceptable to close R-383 as evidence that the parent P0-102 is ready while the named R-353/St. Catherine/Karja and provenance findings remain open.
+
+## R-397 clean recheck addendum (2026-08-02)
+
+A fresh detached worktree at `/tmp/rebel-reval-r397-20260802` from `HEAD=94ea0de5980af5b66c68c2b4ca051c228484c840` was imported with Godot 4.7.1 before the focused test. The live shared worktree was excluded from acceptance because it contains unrelated WIP.
+
+`tools/run_godot_checked.sh --require-test-summary p0-102-r397-boundary -- "$GODOT_BIN" --headless --path /tmp/rebel-reval-r397-20260802 --script tools/run_godot_tests.gd -- --filter=test_map_view_3d_fortification` returned status 1. Saved log: `/tmp/r397_checked/p0-102-r397-boundary.log`.
+
+The clean result is **8 test methods, 2 failures, and 6 engine/script errors**. The pre-existing exceptional landmark blocker remains: `Landmark_karja_gate_arch/GateDoor0` is absent and the null `material_override` access follows at `tests/godot/test_map_view_3d_fortification.gd:137`. A second independent baseline blocker is `MAP_ID_DUPLICATE` for `outer_wall_road` at `content/maps/monastery_quarter.rrmap:162`, which prevents the north neighbor preview from being built and causes the `Surroundings/Neighbor_north/Buildings` assertion to fail. R-413 owns that map-source defect. The other six fortification methods pass, including the ordinary-house regression and wall-walk checks.
+
+This recheck changed documentation only. It does not weaken boundary assertions or route either landmark through the ordinary-house renderer. Keep the boundary acceptance **BLOCKED** until R-353 resolves `GateDoor0` and R-413 resolves the monastery stable-ID collision.

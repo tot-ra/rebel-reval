@@ -102,3 +102,25 @@ Keep R-385 in review or blocked until the existing owners resolve the following:
 5. **R-108 / P0-101 and P2-063 through P2-067:** complete the existing ordinary-house, plot-dressing, tier-wiring, landmark, parity, and gameplay-scale visual handoffs.
 
 No new follow-up task was created: each blocker already has an owning task-board row. The shared environment-kit implementation is green on its six scoped suites, but the full acceptance gate is **BLOCKED** and must not promote parent P0-102g to ready.
+
+## R-397 exceptional-boundary recheck addendum (2026-08-02)
+
+This bounded recheck used a fresh detached clean worktree at `/tmp/rebel-reval-r397-20260802` from `HEAD=94ea0de5980af5b66c68c2b4ca051c228484c840`. The live worktree was not used for acceptance because it contains unrelated modified and untracked WIP. Godot 4.7.1 editor import completed successfully before the focused run.
+
+Exact verification command:
+
+```sh
+export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot
+export GODOT_LOG_DIR=/tmp/r397_checked
+tools/run_godot_checked.sh --require-test-summary p0-102-r397-boundary -- \
+  "$GODOT_BIN" --headless --path /tmp/rebel-reval-r397-20260802 \
+  --script tools/run_godot_tests.gd -- --filter=test_map_view_3d_fortification
+```
+
+Result: **BLOCKED**. The checked command returned exit status 1. The saved log `/tmp/r397_checked/p0-102-r397-boundary.log` reports 8 test methods, 2 failures, and 6 engine/script errors:
+
+- `test_town_wall_gets_battlements_and_gate_arch_clears_character` still fails because `Landmark_karja_gate_arch/GateDoor0` is absent; the follow-up `material_override` access is null at `tests/godot/test_map_view_3d_fortification.gd:137`.
+- `test_district_boundaries_use_ground_markers_and_real_neighbor_previews` is also blocked by `MAP_ID_DUPLICATE` for `outer_wall_road` at `content/maps/monastery_quarter.rrmap:162`, followed by the missing `Surroundings/Neighbor_north/Buildings` node. This is a separate map-source defect, not an exceptional-renderer assertion. Follow-up task **R-413** owns the fix.
+- The remaining six methods pass, including `test_houses_get_facade_doors_and_windows`, the tower regressions, and the wall-walk checks.
+
+No runtime, test, landmark, or map source was changed by R-397. The exceptional renderer boundary therefore remains **not accepted** until R-353 resolves `GateDoor0` and R-413 resolves the monastery stable-ID collision. Existing shutdown renderer leak diagnostics are retained as non-blocking noise; the two named test failures are the acceptance blockers.

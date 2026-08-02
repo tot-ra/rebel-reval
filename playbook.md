@@ -234,3 +234,4 @@
 - In a dirty shared worktree, `validate_asset_sources.py` can fail on unrelated newly-added runtime assets; run scoped provenance checks for the changed asset and report the baseline separately instead of absorbing unrelated SOURCES rows.
 - A Godot `--editor --import` can be blocked by an unrelated dirty-tree parse error; record the exact first failing script/function and continue with scoped GLB/PBR and asset-loader checks instead of editing out-of-scope runtime code.
 - In Godot `SceneTree` diagnostic scripts, call `quit()` directly; `get_tree()` is unavailable on the `SceneTree` object and causes a misleading probe parse failure.
+- For chained Godot acceptance commands, capture the wrapper's saved log and exit status separately; `set -e` can hide whether import or the expected failing suite produced the non-zero result. In dirty repositories, compare the detached clean snapshot to the live tree before classifying map-source diagnostics as boundary findings.
