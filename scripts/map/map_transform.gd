@@ -19,7 +19,7 @@ func is_valid() -> bool:
 
 
 func quarter_turns() -> int:
-	return posmod(rotation_degrees / 90, 4)
+	return posmod(int(float(rotation_degrees) / 90.0), 4)
 
 
 func transform_cell(cell: Vector2i) -> Vector2i:

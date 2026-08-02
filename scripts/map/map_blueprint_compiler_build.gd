@@ -10,7 +10,7 @@ static func build_definition(blueprint: MapBlueprint, expanded: Dictionary) -> M
 	definition.location = blueprint.location
 	definition.scope = blueprint.scope
 	definition.active = blueprint.active
-	definition.seed = blueprint.seed
+	definition.seed = blueprint.map_seed
 	definition.palette = blueprint.palette
 	definition.size_cells = blueprint.size_cells
 	definition.base_terrain = blueprint.base_terrain

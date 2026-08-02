@@ -12,7 +12,7 @@ var map_id: StringName
 var location: StringName
 var scope: StringName
 var active: bool
-var seed: int
+var map_seed: int
 var palette: StringName
 var size_cells: Vector2i
 var base_terrain: StringName
@@ -54,7 +54,7 @@ func _init(
 	scope = scope_value
 	active = active_value
 	palette = palette_value
-	seed = seed_value
+	map_seed = seed_value
 	cell_size = cell_size_value
 
 

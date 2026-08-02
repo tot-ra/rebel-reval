@@ -128,7 +128,7 @@ func _parse_map(tokens: Array[Dictionary], line: int) -> void:
 	if options.has("seed"):
 		var seed = _tokens.int_value(options["seed"], line, _tokens.option_column(tokens, "seed"))
 		if seed != null:
-			_parser._blueprint.seed = seed
+			_parser._blueprint.map_seed = seed
 	if options.has("cell_size"):
 		var cell_size = _tokens.int_value(options["cell_size"], line, _tokens.option_column(tokens, "cell_size"))
 		if cell_size != null:
