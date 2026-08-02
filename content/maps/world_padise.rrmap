@@ -15,10 +15,11 @@
 # dates the northern, eastern and southern ranges no earlier than ~1350-1400, and
 # the abbey church was consecrated only in 1448. Kadakas concludes the quadrangle
 # was begun only after the 1343 uprising. Everything monastic here is therefore
-# timber, arranged as a Cistercian house of the period around an open garth. That
-# arrangement is an uncertainty-aware gameplay reconstruction, not a measured plan.
+# timber or early masonry, scattered across an open estate rather than packed into
+# a later fortified square. The arrangement is an uncertainty-aware gameplay
+# reconstruction, not a measured plan.
 rrmap 1
-map world.padise loc.world_padise 100 60 meadow scope=prototype active=false palette=clean_painted_outdoor seed=1343 cell_size=32
+map world.padise loc.world_padise 140 90 meadow scope=prototype active=false palette=clean_painted_outdoor seed=1343 cell_size=32
 source "scenes/world_travel/world_padise.tscn"
 source "scenes/world/padise/padise_monastery.md"
 source "docs/reports/padise_monastery_research_p6_009.md"
@@ -47,150 +48,158 @@ style tree.mixed
 style tree.apple
 style tree.linden
 style bush.dense
-terrain north_woodland forest_floor 0 0 100 4 style=tree.mixed order=1
+terrain north_woodland forest_floor 0 0 140 4 style=tree.mixed order=1
 # Stroke rects grow from the start point in +x/+y, so the bank is authored as a
 # plain rect and the water is laid inside it.
-terrain kloostri_bank mud 0 0 12 50 order=2
-stroke kloostri_river river_water 3,0|3,44 thickness=7 order=3
-stroke kloostri_river_bend river_water 0,44|3,44 thickness=7 order=3
-terrain tallinn_haapsalu_road dirt 0 4 100 5 order=4
+terrain kloostri_bank mud 0 0 14 76 order=2
+stroke kloostri_river river_water 3,0|3,70 thickness=7 order=3
+stroke kloostri_river_bend river_water 0,70|3,70 thickness=7 order=3
+terrain tallinn_haapsalu_road dirt 0 4 140 6 order=4
 # The road crossing is the documented reason for the site; the causeway carries
 # it dry-shod over the Kloostri.
-terrain river_ford stone 0 4 14 5 order=5
-stroke precinct_lane dirt 34,9|34,20 thickness=5 order=5
-terrain west_fields farm_soil 11 14 9 20 order=5
-terrain mill_yard dirt 10 34 10 11 order=5
-terrain south_fields farm_soil 24 54 40 6 order=5
-terrain orchard_close grass 66 54 20 6 style=tree.apple order=5
-terrain pond_shallows shallow_water 86 32 14 18 order=5
-terrain monastery_close dirt 21 11 64 41 order=6
-terrain fish_pond water 88 34 12 14 order=6
-terrain stone_apron stone 30 22 16 24 order=7
-terrain kitchen_garden_soil farm_soil 66 47 18 5 order=7
-terrain cloister_garth grass 53 27 16 14 style=grass.short order=8
-terrain cemetery_grass grass 72 12 13 7 style=grass.tall order=8
-terrain burn_ash_guest ash 76 22 10 10 order=9
-terrain burn_ash_lay ash 20 38 11 7 order=9
+terrain river_ford stone 0 4 15 6 order=5
+# Fields surround the open estate instead of leaving the monastery as an isolated
+# building cluster. The exact strips are a gameplay reconstruction, not a survey.
+terrain north_fields farm_soil 16 13 23 13 order=5
+terrain west_fields farm_soil 16 27 23 25 order=5
+terrain east_fields farm_soil 108 14 29 27 order=5
+terrain south_fields farm_soil 16 74 46 14 order=5
+terrain south_east_fields farm_soil 64 76 37 12 order=5
+terrain orchard_close grass 105 70 30 18 style=tree.apple order=5
+terrain mill_yard dirt 15 50 13 14 order=5
+stroke precinct_lane dirt 43,21|43,31 thickness=4 order=5
+terrain monastery_close dirt 39 18 66 53 order=6
+terrain pond_shallows shallow_water 115 43 25 23 order=6
+terrain fish_pond water 121 46 15 15 order=7
+terrain stone_apron stone 48 31 24 34 order=7
+terrain kitchen_garden_soil farm_soil 88 67 18 6 order=7
+terrain cloister_garth grass 69 37 18 14 style=grass.short order=8
+terrain cemetery_grass grass 78 20 16 9 style=grass.tall order=8
+terrain burn_ash_guest ash 101 23 13 11 order=9
+terrain burn_ash_lay ash 32 52 12 8 order=9
 # Attested pre-quadrangle masonry. The long hall is the building later buried
 # under the western range; the southern block is the "building with arched
 # niches", which Kadakas reads as one of the earliest structures on the site.
-building early_west_stone_house house 32 24 13 20 style=stone.early primitive=stone_hall
-building arched_niche_house house 28 45 14 6 style=stone.niche primitive=stone_hall
-# Timber claustral ranges around an open garth. Aisle-less oratory on the north
-# with the altar east, lay range west, chapter/parlour/dorter east, refectory and
-# frater south. No stone church: consecration is still a century away.
-building timber_oratory house 47 20 22 7 style=timber.oratory primitive=timber_oratory_1343
-building timber_west_range house 47 29 6 12 style=timber.lay primitive=unheated_timber_range_1343 ridge_axis=z
-building timber_east_range house 69 21 8 20 style=timber.range primitive=unheated_timber_range_1343 ridge_axis=z
-building timber_south_range house 47 41 26 6 style=timber.service ridge_axis=x
+# Their separation leaves the historic southern projection legible in the open.
+building early_west_stone_house house 54 34 15 25 style=stone.early primitive=stone_hall
+building arched_niche_house house 50 63 18 8 style=stone.niche primitive=stone_hall
+# These timber conventual buildings are deliberately detached. They provide a
+# readable monastic close without reproducing the later post-1343 quadrangle.
+building timber_oratory house 72 23 18 7 style=timber.oratory primitive=timber_oratory_1343
+building timber_west_range house 40 39 8 14 style=timber.lay primitive=unheated_timber_range_1343 ridge_axis=z
+building timber_east_range house 92 35 8 17 style=timber.range primitive=unheated_timber_range_1343 ridge_axis=z
+building timber_south_range house 72 59 24 7 style=timber.service ridge_axis=x
 # Outer court: the grange that actually fed the house. The northern courtyard
 # test pits produced a 14th-15th century occupation layer with walls and
-# pavements, so intense use north of the claustral block is evidenced.
-building grange_barn house 22 12 11 7 style=timber.barn primitive=rural_barn_1343 ridge_axis=x
-building grange_granary house 40 13 9 6 style=timber.barn primitive=rural_barn_1343 ridge_axis=x
-building grange_stable house 58 13 12 6 style=timber.barn primitive=rural_barn_1343 ridge_axis=x
-building grange_smithy house 22 22 7 5 style=timber.service door_side=east
-building lay_brothers_cottage house 22 29 7 8 style=timber.cottage primitive=smoke_cottage_1343 ridge_axis=z
-building infirmary house 78 34 7 8 style=timber.range
-building brew_bakehouse house 50 47 14 4 style=timber.service ridge_axis=x
-building watermill house 10 36 8 7 style=timber.mill primitive=unheated_timber_range_1343
+# pavements, so intense use north of the core is evidenced, but the structures
+# remain individually spaced across the wider estate.
+building grange_barn house 22 13 12 7 style=timber.barn primitive=rural_barn_1343 ridge_axis=x
+building grange_granary house 42 13 9 6 style=timber.barn primitive=rural_barn_1343 ridge_axis=x
+building grange_stable house 66 13 12 6 style=timber.barn primitive=rural_barn_1343 ridge_axis=x
+building grange_smithy house 23 24 8 5 style=timber.service door_side=east
+building lay_brothers_cottage house 23 35 8 8 style=timber.cottage primitive=smoke_cottage_1343 ridge_axis=z
+building infirmary house 110 37 8 8 style=timber.range
+building brew_bakehouse house 74 79 14 4 style=timber.service ridge_axis=x
+building watermill house 15 54 8 7 style=timber.mill primitive=unheated_timber_range_1343
 # 23 April damage: two burnt-out shells rather than a site-wide fire field.
-building burned_guest_range wall 78 24 7 7 style=wall.burned
-building burned_lay_workshop wall 21 39 8 4 style=wall.burned
+building burned_guest_range wall 105 25 8 7 style=wall.burned
+building burned_lay_workshop wall 33 52 8 4 style=wall.burned
 # Precinct close. Two gaps: the north cart gate onto the Tallinn road and a
 # south wicket toward the fields and the river.
-building precinct_wall_north_west wall 20 11 14 1 style=wall.precinct
-building precinct_wall_north_east wall 39 11 46 1 style=wall.precinct
-building precinct_wall_west wall 20 11 1 42 style=wall.precinct
-building precinct_wall_east wall 85 11 1 42 style=wall.precinct
-building precinct_wall_south_west wall 20 52 24 1 style=wall.precinct
-building precinct_wall_south_east wall 50 52 36 1 style=wall.precinct
-# Covered timber cloister walks. They are view-only landmarks so the walk stays
-# a walkable route; interior_side names the range that carries the high eaves.
-landmark cloister_walk_north cloister_walk 53 27 16 2 passage_axis=x interior_side=north wall_color=6b5844ff top_px=80
-landmark cloister_walk_south cloister_walk 53 39 16 2 passage_axis=x interior_side=south wall_color=6b5844ff top_px=80
-landmark cloister_walk_west cloister_walk 53 29 2 10 passage_axis=z interior_side=west wall_color=6b5844ff top_px=80
-landmark cloister_walk_east cloister_walk 67 29 2 10 passage_axis=z interior_side=east wall_color=6b5844ff top_px=80
-landmark precinct_gate gate_arch 34 11 5 1 gate_variant=oak passage_axis=z wall_color=8d897fff top_px=112
-prop monastery_well well 60 34
-prop garth_herb_beds kitchen_garden 57 32 rect=3,2
-prop close_cart farm_cart 46 24
-prop close_firewood firewood_stack 46 37
-prop close_wash_tub wash_tub 47 43
-prop close_root_cellar root_cellar_mound 44 48
-prop grange_hay hay_stack 36 21
-prop grange_hay_wagon hay_wagon 52 20
-prop grange_pitchfork pitchfork 56 20
-prop grange_horses horse 62 20
-prop grange_pigsty pigsty 22 20
-prop grange_chicken_run chicken_run 34 22
-prop smithy_anvil anvil 30 24
-prop smithy_charcoal charcoal_pile 30 26
-prop mill_sacks malt_sack_pile 19 35
-prop mill_barrels barrels 19 38
-prop mill_cart cart 19 41
-prop brew_kegs brewery_keg_stack 66 48
-prop brew_malt malt_sack_pile 65 49
-prop kitchen_garden_beds kitchen_garden 68 48 rect=6,4
-prop garden_fence timber_fence 66 47 rect=1,5
-prop orchard_row_south orchard_row 68 55 rect=8,2
-prop field_strip_west field_strip 12 16 rect=7,8
-prop field_strip_south field_strip 26 55 rect=12,4
-prop pasture_cattle cattle 90 20
-prop pasture_sheep sheep 94 24
-prop pasture_fence_east pasture_fence 88 14 rect=1,12
-prop burnt_cart cart 77 22
-prop infirmary_herbs herb_drying_rack 75 43
-prop cemetery_linden tree 71 15 style=tree.linden
-prop close_linden tree 46 19 style=tree.linden
+building precinct_wall_north_west wall 39 18 20 1 style=wall.precinct
+building precinct_wall_north_east wall 66 18 39 1 style=wall.precinct
+building precinct_wall_west wall 39 18 1 53 style=wall.precinct
+building precinct_wall_east wall 104 18 1 53 style=wall.precinct
+building precinct_wall_south_west wall 39 71 28 1 style=wall.precinct
+building precinct_wall_south_east wall 79 71 26 1 style=wall.precinct
+# Short covered timber walks. They are view-only landmarks so the walks stay
+# walkable; they suggest monastic circulation without closing the site into a
+# later stone claustrum.
+landmark cloister_walk_north cloister_walk 69 33 13 2 passage_axis=x interior_side=north wall_color=6b5844ff top_px=80
+landmark cloister_walk_south cloister_walk 70 55 15 2 passage_axis=x interior_side=south wall_color=6b5844ff top_px=80
+landmark cloister_walk_west cloister_walk 50 39 2 11 passage_axis=z interior_side=west wall_color=6b5844ff top_px=80
+landmark cloister_walk_east cloister_walk 89 37 2 12 passage_axis=z interior_side=east wall_color=6b5844ff top_px=80
+landmark precinct_gate gate_arch 59 18 7 1 gate_variant=oak passage_axis=z wall_color=8d897fff top_px=112
+prop monastery_well well 76 47
+prop garth_herb_beds kitchen_garden 73 43 rect=3,2
+prop close_cart farm_cart 62 30
+prop close_firewood firewood_stack 47 51
+prop close_wash_tub wash_tub 73 54
+prop close_root_cellar root_cellar_mound 45 67
+prop grange_hay hay_stack 37 22
+prop grange_hay_wagon hay_wagon 54 22
+prop grange_pitchfork pitchfork 61 22
+prop grange_horses horse 80 21
+prop grange_pigsty pigsty 22 21
+prop grange_chicken_run chicken_run 35 27
+prop smithy_anvil anvil 32 28
+prop smithy_charcoal charcoal_pile 32 30
+prop mill_sacks malt_sack_pile 22 53
+prop mill_barrels barrels 22 58
+prop mill_cart cart 22 62
+prop brew_kegs brewery_keg_stack 89 80
+prop brew_malt malt_sack_pile 88 81
+prop kitchen_garden_beds kitchen_garden 95 68 rect=6,4
+prop garden_fence timber_fence 93 67 rect=1,6
+prop orchard_row_south orchard_row 111 73 rect=10,2
+prop field_strip_west field_strip 17 30 rect=8,8
+prop field_strip_east field_strip 110 18 rect=10,6
+prop field_strip_south field_strip 21 78 rect=13,4
+prop pasture_cattle cattle 124 27
+prop pasture_sheep sheep 129 31
+prop pasture_fence_east pasture_fence 121 14 rect=1,16
+prop burnt_cart cart 114 27
+prop infirmary_herbs herb_drying_rack 108 50
+prop cemetery_linden tree 80 23 style=tree.linden
+prop close_linden tree 47 28 style=tree.linden
 prop river_bushes bush 12 30 rect=2,2 style=bush.dense
 prop road_linden tree 44 10 style=tree.linden
-prop close_linden_apron tree 46 32 style=tree.linden
-prop close_linden_north tree 44 21 style=tree.linden
-prop close_linden_south tree 44 50 style=tree.linden
-prop cemetery_yew tree 84 16 style=tree.linden
-prop cemetery_scrub bush 76 17 rect=2,2 style=bush.dense
-prop close_wall_scrub bush 22 47 rect=2,2 style=bush.dense
-prop close_firewood_west firewood_stack 22 44
-prop grange_hay_north hay_stack 55 19
-prop grange_handcart cart 39 21
-prop close_pallet market_goods_pallet 44 22
-prop stone_hall_barrels barrels 46 26
-prop field_scythe scythe 25 55
-prop field_rake rake 30 56
-prop field_hay_wagon hay_wagon 40 55
-prop pasture_sheep_north sheep 90 26
-prop river_scrub_south bush 12 48 rect=2,2 style=bush.dense
-prop mill_firewood firewood_stack 19 44
-prop road_linden_west tree 26 10 style=tree.linden
-prop road_linden_east tree 70 10 style=tree.linden
-decal fire_guest_yard scorch 74 23 11 9 radius=2.4 rotation=0.12
-decal fire_lay_yard scorch 20 38 10 6 radius=2.0 rotation=-0.18
-decal soot_stone_house soot 46 30 2 3 radius=1.4
-decal soot_oratory soot 67 26 2 2 radius=1.2
-# Stable landmarks keep the audit-manifest contract; the added anchors expose the
-# reworked precinct to inspection tools and future NPC routines.
-anchor landmark_early_stone_house 30 34 kind=stone_hall
-anchor landmark_timber_oratory 58 29 kind=oratory
-anchor landmark_fire_damage 77 32 kind=burned_buildings
-anchor landmark_work_yard 31 21 kind=work_yard
-anchor landmark_monastery_well 60 36 kind=well
-anchor precinct_gate_anchor 36 13 kind=gate
-anchor room_cloister_garth 60 32 kind=cloister_garth
-anchor room_chapter_range 67 35 kind=chapter_hall
-anchor room_refectory 60 40 kind=refectory
-anchor room_infirmary 77 43 kind=infirmary
-anchor room_brewhouse 49 49 kind=brewery_kitchen
-anchor room_lay_brothers 30 33 kind=lay_brothers
-anchor landmark_watermill 19 39 kind=mill
-anchor landmark_monks_cemetery 78 20 kind=cemetery
-anchor landmark_river_ford 12 7 kind=ford
-anchor landmark_arched_niche_house 45 48 kind=stone_hall
-spawn prototype_inspection 24 7
-patrol prototype_inspection_route 24,7|36,7|36,21|46,21|46,29|58,31|46,29|46,50|66,50|80,48|80,22|60,20
-transition road_to_reval 96 4 4 5 to=reval_toompea destination_spawn=from_world_padise spawn=from_reval_west spawn_offset_px=-128,0 highlight_area=true transition_visual=ground alignment=travel
-transition road_to_parnu 0 4 4 5 to=world_parnu destination_spawn=from_world_padise spawn=from_world_parnu spawn_offset_px=128,0 highlight_area=true transition_visual=ground alignment=travel
-sign sign_reval "Reval" 92 10 east
-sign sign_haapsalu "Haapsalu" 8 10 west
-camera 0 0 100 60
+prop close_linden_apron tree 70 50 style=tree.linden
+prop close_linden_north tree 47 22 style=tree.linden
+prop close_linden_south tree 69 68 style=tree.linden
+prop cemetery_yew tree 91 24 style=tree.linden
+prop cemetery_scrub bush 94 20 rect=2,2 style=bush.dense
+prop close_wall_scrub bush 42 67 rect=2,2 style=bush.dense
+prop close_firewood_west firewood_stack 34 47
+prop grange_hay_north hay_stack 58 19
+prop grange_handcart cart 38 21
+prop close_pallet market_goods_pallet 48 23
+prop stone_hall_barrels barrels 48 30
+prop field_scythe scythe 25 79
+prop field_rake rake 31 80
+prop field_hay_wagon hay_wagon 42 79
+prop pasture_sheep_north sheep 126 23
+prop river_scrub_south bush 12 68 rect=2,2 style=bush.dense
+prop mill_firewood firewood_stack 24 64
+prop road_linden_west tree 29 10 style=tree.linden
+prop road_linden_east tree 100 10 style=tree.linden
+decal fire_guest_yard scorch 101 24 13 11 radius=2.4 rotation=0.12
+decal fire_lay_yard scorch 32 52 12 8 radius=2.0 rotation=-0.18
+decal soot_stone_house soot 68 43 2 3 radius=1.4
+decal soot_oratory soot 88 27 2 2 radius=1.2
+# Stable landmarks keep the audit-manifest contract; the anchors expose the
+# reworked open estate to inspection tools and future NPC routines.
+anchor landmark_early_stone_house 70 46 kind=stone_hall
+anchor landmark_timber_oratory 81 31 kind=oratory
+anchor landmark_fire_damage 114 30 kind=burned_buildings
+anchor landmark_work_yard 32 28 kind=work_yard
+anchor landmark_monastery_well 76 49 kind=well
+anchor precinct_gate_anchor 62 20 kind=gate
+anchor room_cloister_garth 78 44 kind=cloister_garth
+anchor room_chapter_range 101 43 kind=chapter_hall
+anchor room_refectory 84 67 kind=refectory
+anchor room_infirmary 119 36 kind=infirmary
+anchor room_brewhouse 81 84 kind=brewery_kitchen
+anchor room_lay_brothers 49 46 kind=lay_brothers
+anchor landmark_watermill 24 58 kind=mill
+anchor landmark_monks_cemetery 86 20 kind=cemetery
+anchor landmark_river_ford 9 8 kind=ford
+anchor landmark_arched_niche_house 59 73 kind=stone_hall
+spawn prototype_inspection 18 8
+patrol prototype_inspection_route 18,8|32,8|32,27|40,27|40,46|51,46|66,46|66,54|84,54|84,68|100,68|112,68|112,49|100,49|100,27|82,22
+transition road_to_reval 136 4 4 6 to=reval_toompea destination_spawn=from_world_padise spawn=from_reval_west spawn_offset_px=-128,0 highlight_area=true transition_visual=ground alignment=travel
+transition road_to_parnu 0 4 4 6 to=world_parnu destination_spawn=from_world_padise spawn=from_world_parnu spawn_offset_px=128,0 highlight_area=true transition_visual=ground alignment=travel
+sign sign_reval "Reval" 130 10 east
+sign sign_haapsalu "Haapsalu" 10 10 west
+camera 0 0 140 90
 surroundings north woodland east woodland south woodland west woodland

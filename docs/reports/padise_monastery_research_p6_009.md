@@ -111,19 +111,31 @@
 | High | The Padise permanent exhibition records the killing of 28 monks and the burning of the buildings in 1343. | Restrained ash, scorch and ruined sill traces communicate recent damage without turning the entire site into a fire field. |
 | High | A substantial stone building from the pre-uprising period survived beneath and projected south from the later western range. | The long western stone house is the dominant landmark and the northern stone traces stay low and fragmentary. |
 | Medium | The pre-uprising monastery probably comprised several small, mostly wooden buildings scattered over a wider area than the later enclosure. | Timber halls and service sheds remain dispersed around an open close. They do not form a four-wing cloister. |
-| High | The foundation site lay beside the Simmiku/Kloostri River and the Tallinn-Haapsalu road crossing. | The western water edge and southern travel road are retained as broad geographic context, not a surveyed shoreline. |
+| High | The foundation site lay beside the Simmiku/Kloostri River and the Tallinn-Haapsalu road crossing. | The western water edge and northern travel road are retained as broad geographic context, not a surveyed shoreline. |
 | Low / gameplay hypothesis | No reliable 1343 room-by-room plan establishes the exact oratory, infirmary, brewery, stable, well or work-yard positions used here. | Those labels and coordinates support readable traversal and narrative anchors only. They must not be cited as archaeological fact. |
 
 The completed quadrangular claustrum, stone church, western gate courtyard, drawbridges, towers, battlements and later baileys are deliberately excluded. The official architecture account describes them as products of the long post-uprising rebuilding campaign; the church itself was not consecrated until 1448.
 
-## 2026-08 rework: 100x60 estate on the Kadakas site frame
+## 2026-08 rework: 140x90 open estate on the Kadakas site frame
 
-The first pass expressed the monastery as one 28x19 m timber shed built from
-roofless interior-wall panels on a 50x30 m map. In the 3D view that read as a
-stockade rather than a religious house. The rework quadruples the site area to
-100x60 cells (1 cell = 1 m) and rebuilds the layout against Villu Kadakas,
-*Archaeological Studies in Padise Monastery* (AVE 2011), held locally at
-`history/AVE2011_Kadakas_Padise.pdf`.
+The estate is intentionally wider than the later monastic core. It now uses a
+140x90-cell envelope (1 cell = 1 m), with the Kloostri river and mill on the west,
+the Tallinn-Haapsalu road and ford on the north, fields on the north-west, west,
+east and south, and an orchard beside the eastern pond. The precinct remains a
+low boundary around a dispersed monastic close rather than a tight square.
+
+The two limestone masses remain the historically grounded anchors: the older
+western building later buried beneath the western range, and the smaller building
+with arched niches projecting south. The oratory, ranges, grange and service
+buildings are detached timber masses with readable clearings between them. Their
+exact positions are still a low-confidence gameplay reconstruction, but the
+settlement pattern now follows the museum's description of several small mostly
+wooden buildings scattered across a larger area before 1343.
+
+Fields are explicit terrain context rather than decorative edge texture: five
+farm-soil zones surround the precinct, with a separate kitchen garden and orchard.
+The late fortified square, stone church, towers, moat and later claustrum remain
+excluded from this 1 May 1343 phase.
 
 ### What the excavations actually support for April 1343
 
@@ -161,10 +173,11 @@ Captured with `godot --path . --rendering-driver metal --script tools/capture_pa
 
 | Plate | Shows |
 | --- | --- |
-| [`world.padise_day_before.png`](images/view3d/world.padise_day_before.png) | The defect: one roofless interior-wall enclosure on the 50x30 map. |
-| [`world.padise_day_after.png`](images/view3d/world.padise_day_after.png) | The reworked 100x60 estate: river, ford, road, precinct, claustral block, grange, fields. |
-| [`world.padise_day_claustrum.png`](images/view3d/world.padise_day_claustrum.png) | Four roofed timber ranges around the garth. |
-| [`world.padise_day_oratory.png`](images/view3d/world.padise_day_oratory.png) | The `cloister_walk` gallery: posts, dwarf sill, plate and lean-to roof, with the oratory's east gable cross. |
+| [`world.padise_day_before.png`](images/view3d/world.padise_day_before.png) | The earlier defect: one roofless interior-wall enclosure on the 50x30 map. |
+| [`world.padise_day_rework.png`](images/view3d/world.padise_day_rework.png) | The current 140x90 estate: river, ford, road, detached precinct, grange, fields and orchard. |
+| [`world.padise_day_after.png`](images/view3d/world.padise_day_after.png) | Previous 100x60 rework reference retained for historical comparison. |
+| [`world.padise_day_claustrum.png`](images/view3d/world.padise_day_claustrum.png) | Previous close-up of roofed timber ranges and open garth. |
+| [`world.padise_day_oratory.png`](images/view3d/world.padise_day_oratory.png) | Previous close-up of the `cloister_walk` gallery and oratory gable cross. |
 
 ## Game Implementation Notes for P6-009
 

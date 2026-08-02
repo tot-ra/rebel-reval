@@ -4,9 +4,10 @@ extends "res://tests/godot/test_case.gd"
 ##
 ## The earlier contract described one oversized timber shed built from roofless
 ## interior-wall panels on a 50x30 map. That read as a stockade in the 3D view.
-## This contract fixes the reworked site instead: a 100x60 plateau above the
-## Kloostri, roofed timber claustral ranges around an open garth, the two stone
-## buildings the excavations place before the quadrangle, and a working grange.
+## This contract fixes the reworked site instead: a 140x90 plateau above the
+## Kloostri, roofed timber monastic buildings distributed around an open close,
+## the two stone buildings the excavations place before the quadrangle, and a
+## working grange with surrounding fields.
 ##
 ## The post-uprising fortified complex must stay out. Villu Kadakas (AVE 2011)
 ## dates the northern, eastern and southern ranges to ~1350-1400 and the church
@@ -57,12 +58,26 @@ const PRECINCT_ANCHORS: Array[StringName] = [
 ]
 
 
-func test_world_padise_is_a_four_times_larger_monastic_estate() -> void:
+func test_world_padise_is_a_wider_monastic_estate() -> void:
 	var definition := _definition()
 	if definition == null:
 		return
-	assert_eq(definition.size_cells, Vector2i(100, 60), "the rework quadruples the 50x30 site area")
+	assert_eq(definition.size_cells, Vector2i(140, 90), "the rework expands the monastery into a wider estate")
+	var grid := MapBuilder.build(definition)
+	var farm_cells := 0
+	for y in definition.size_cells.y:
+		for x in definition.size_cells.x:
+			if grid.get_terrain(Vector2i(x, y)) == MapTypes.TERRAIN_FARM_SOIL:
+				farm_cells += 1
+	assert_true(farm_cells >= 1_400, "fields must visibly surround the monastery estate")
 	var buildings := _buildings_by_id(definition)
+	var stone_rect: Rect2 = buildings[&"early_west_stone_house"]["footprint"]
+	var oratory_rect: Rect2 = buildings[&"timber_oratory"]["footprint"]
+	var horizontal_gap := maxf(
+		stone_rect.position.x - oratory_rect.end.x,
+		oratory_rect.position.x - stone_rect.end.x,
+	)
+	assert_true(horizontal_gap >= float(definition.cell_size * 2), "the open estate needs a clear break between major buildings")
 	for stone_id in ATTESTED_STONE_IDS:
 		assert_true(buildings.has(stone_id), "missing archaeologically attested stone building: %s" % stone_id)
 		assert_eq(buildings[stone_id].get("primitive"), &"stone_hall")
