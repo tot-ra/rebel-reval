@@ -76,6 +76,18 @@ Vene is a useful **relative route anchor**, not proof that the modern street nam
 
 AVE 2016/17 confirms that archaeology around the Viru / Vana turg / Müürivahe approaches is heavily disturbed and that some earlier occupation layers are black humus or otherwise hard to date [4]. That negative evidence is important: do not turn a nearby paving or wall observation into a named Dominican yard structure. Use the report to keep the service approach earth, pebble, or limited rubble, with no blanket late-medieval paving [4][5].
 
+### Fish-transfer point verdict
+
+The reviewed evidence does **not** isolate the April 1343 hand-off point among the three live alternatives:
+
+- **Inside the south service yard:** remains the safest production location, but only as a **low-medium plausible composite**. The institutional dossier attests Dominican fish intermediation [2], while the precinct dossier places a brewery / stable service yard south of the east wing as a bounded reconstruction [1]. Neither source identifies a fish-processing feature, dated paving, drain, wall, or inventory tied to that yard.
+- **At a priory gate:** remains operationally possible because the close had controlled service access from the lane network [5]. It is **not attested** as the receiving point: no reviewed source names a gate, gate-side fish stall, or dated delivery record connecting a consignment to the Dominican entrance.
+- **At a separate market-side point:** remains an economic alternative, not a location verdict. The harbour dossier places the main merchant landing below the Coastal Gate and the fishing dossier places small-boat processing at the extramural Kalamaja shore [11][12]. Neither source connects either interface to the Dominican fish intermediation, and the evidence does not support a public fish market inside or beside the close.
+
+The negative archaeological evidence is material to this decision. Kraut and Nurk's AVE 2016/17 surveillance reports extensive modern utility disturbance around the Viru / Vana turg / Müürivahe approaches; north of Viru Street east of Vene it found only sporadic earlier activity in a black-humus layer of unclear date, while the south side preserved only scarce earlier structural traces (AVE 2016, pp. 182-184) [4]. The report documents water-system and possible fortification remains near Müürivahe, but does **not** identify a Dominican plot, service gate, fish-transfer surface, or market-side receiving installation. This is a limit on inference, not evidence that no transfer occurred.
+
+**Verdict for April 1343:** retain `fish_transfer` inside `dominican_south_service_yard` as a **low-medium plausible composite** and keep the exact hand-off point unresolved. Author a restricted wet-ground or short timber receiving edge that can be reached from the service side, but do not promote it to an attested priory gate, public fish market, stone quay, or named harbour facility. A future upgrade requires a dated property, excavation, plan, or economic record that distinguishes one of the three alternatives.
+
 ### What the yard is not
 
 - It is **not** a second public harbour. The main merchant landing belongs below the Coastal Gate; small-boat fishing belongs at the north-western Kalamaja shore [11][12].
