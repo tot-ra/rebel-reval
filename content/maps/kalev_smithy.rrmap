@@ -85,16 +85,19 @@ landmark window.north_living interior_window 5 0 1 1 passage_axis=z
 landmark window.north_forge interior_window 20 0 1 1 passage_axis=z
 landmark window.west interior_window 0 6 1 2 passage_axis=x
 landmark window.east interior_window 25 6 1 2 passage_axis=x
-# New-game / wake spawn: stand at the bed foot matching ap.sleep.wake (4,10).
+# Keep the bed footprint out of both navigation and direct keyboard movement.
+# The wake approach remains on the first clear cell beyond the bed foot.
+exclude blocked.bed 3 9 4 2
+# New-game / wake spawn: stand at the bed foot matching ap.sleep.wake (4,11).
 # smithy_start must share this cell - Start flow uses DoorNavigator spawn
 # smithy_start, not definition.player_spawn, so leaving it at the anvil kept
 # Kalev waking in the work bay.
-spawn spawn.main 4 10
+spawn spawn.main 4 11
 anchor anvil 18 5 rect=3,2
 anchor ledger 4 3 rect=2,2
-anchor bed_alcove 3 9 rect=4,2
+anchor bed_alcove 4 11
 transition door_courtyard 12 13 2 1 to=reval_east destination_spawn=forge spawn=door_courtyard spawn_offset_px=0,-64
-transition smithy_start_spawn 4 10 1 1 spawn=smithy_start
+transition smithy_start_spawn 4 11 1 1 spawn=smithy_start
 decal decal.soot_furnace_pad soot 19 1 3 3 radius=1.8
 decal decal.soot_anvil_apron soot 18 5 3 2 radius=1.4
 decal decal.grime_quench grime 16 5 2 2 radius=1.1

@@ -4,7 +4,7 @@
     {
       "id": "ap.sleep.wake",
       "zone": "LZ-A",
-      "approach_position": {"x": 144, "y": 336},
+      "approach_position": {"x": 144, "y": 368},
       "facing": "up",
       "prop_id": "bed",
       "allowed_actors": ["char.kalev", "char.mart"],
@@ -18,7 +18,7 @@
     {
       "id": "ap.sleep.rest",
       "zone": "LZ-A",
-      "approach_position": {"x": 144, "y": 336},
+      "approach_position": {"x": 144, "y": 368},
       "facing": "up",
       "prop_id": "bed",
       "allowed_actors": ["char.kalev", "char.mart"],

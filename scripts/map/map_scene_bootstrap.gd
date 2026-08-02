@@ -31,6 +31,7 @@ static func assemble(
 	host.add_child(nav)
 	var world_bounds := _create_world_bounds(definition, host)
 	var water_blocks := _create_water_blocks(definition, grid, host)
+	var excluded_blocks := _create_excluded_area_blocks(definition, host)
 
 	var gameplay := Node2D.new()
 	gameplay.name = "Gameplay"
@@ -47,6 +48,7 @@ static func assemble(
 		"navigation": nav,
 		"world_bounds": world_bounds,
 		"water_blocks": water_blocks,
+		"excluded_blocks": excluded_blocks,
 		"doors": doors,
 		"anchors": anchors,
 		"fades": fades,
@@ -177,6 +179,28 @@ static func _create_water_blocks(definition: MapDefinition, grid: MapTerrainGrid
 	if water_rects.is_empty():
 		body.free()
 		return null
+	parent.add_child(body)
+	return body
+
+
+## Excluded areas already remove cells from navigation. Mirror them as physical
+## world blocks so direct CharacterBody2D movement cannot walk through the same
+## authored obstruction (for example, a bed footprint).
+static func _create_excluded_area_blocks(definition: MapDefinition, parent: Node2D) -> StaticBody2D:
+	if definition.excluded_areas.is_empty():
+		return null
+	var body := StaticBody2D.new()
+	body.name = "ExcludedAreaBlocks"
+	body.add_to_group(&"map_excluded_collision")
+	for index in definition.excluded_areas.size():
+		var world_rect := definition.cell_rect_to_world_rect(definition.excluded_areas[index])
+		var collision := CollisionShape2D.new()
+		collision.name = "Excluded%d" % index
+		var shape := RectangleShape2D.new()
+		shape.size = world_rect.size
+		collision.shape = shape
+		collision.position = world_rect.get_center()
+		body.add_child(collision)
 	parent.add_child(body)
 	return body
 

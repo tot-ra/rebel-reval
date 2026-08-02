@@ -1,6 +1,7 @@
 extends "res://tests/godot/test_case.gd"
 
 const SmithyCourtyard := preload("res://scripts/map/smithy_courtyard_definition.gd")
+const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
 const LowerTownSlice := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const MapTypes := preload("res://scripts/map/map_types.gd")
@@ -88,4 +89,32 @@ func test_bootstrap_adds_water_collision_for_direct_keyboard_movement() -> void:
 				covered_cells[cell] = true
 	assert_eq(covered_cells, water_cells, "merged collisions must cover exactly the water cells")
 	assert_true(water_blocks.get_child_count() < water_cells.size(), "contiguous water must use fewer collision shapes")
+
+
+func test_bootstrap_adds_physics_blocks_for_authored_exclusions() -> void:
+	var definition: MapDefinition = KalevSmithy.create()
+	var root := Node2D.new()
+	var actors := Node2D.new()
+	root.add_child(actors)
+	var bootstrap := MapSceneBootstrap.assemble(root, definition, actors)
+	var excluded_blocks := bootstrap.get("excluded_blocks") as StaticBody2D
+	assert_true(excluded_blocks != null, "authored exclusions need physical world blocks")
+	if excluded_blocks == null:
+		root.free()
+		return
+	assert_true(excluded_blocks.is_in_group(&"map_excluded_collision"))
+	assert_eq(excluded_blocks.get_child_count(), definition.excluded_areas.size())
+	for index in definition.excluded_areas.size():
+		var collision := excluded_blocks.get_node("Excluded%d" % index) as CollisionShape2D
+		assert_true(collision != null, "missing physical exclusion %d" % index)
+		if collision == null:
+			continue
+		var shape := collision.shape as RectangleShape2D
+		var expected := definition.cell_rect_to_world_rect(definition.excluded_areas[index])
+		assert_eq(Rect2(collision.position - shape.size * 0.5, shape.size), expected)
+	assert_eq(
+		(excluded_blocks.get_node("Excluded0").shape as RectangleShape2D).size,
+		Vector2(128, 64),
+		"bed collision must cover its four-by-two-cell footprint"
+	)
 	root.free()

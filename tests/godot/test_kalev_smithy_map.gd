@@ -39,17 +39,34 @@ func test_kalev_smithy_new_game_spawn_stands_at_bed_wake() -> void:
 	var routine: SmithyRoutineDefinition = RoutineDefinition.load_from_file(ROUTINE_PATH)
 	var wake: SmithyActivityPoint = routine.get_activity_point(&"ap.sleep.wake")
 	assert_true(wake != null, "Wake activity point must exist")
-	var start_rect := MapVerification.transition_rect(definition, &"smithy_start_spawn")
+	if wake == null:
+		return
+	var grid: MapTerrainGrid = MapBuilder.build(definition)
+	assert_eq(wake.approach_position, Vector2(144, 368), "Wake must be at the bed foot")
+	assert_true(MapVerification.is_walkable_point(definition, grid, wake.approach_position))
 	assert_true(
-		start_rect.has_point(wake.approach_position)
-		or start_rect.get_center().distance_to(wake.approach_position) <= float(definition.cell_size),
-		"smithy_start_spawn must share the wake cell beside the bed"
+		MapVerification.is_walkable_point(definition, grid, definition.player_spawn),
+		"New-game spawn must be on the clear floor outside the bed"
+	)
+	var bed_rect := Rect2(3 * definition.cell_size, 9 * definition.cell_size, 4 * definition.cell_size, 2 * definition.cell_size)
+	assert_false(
+		MapVerification.is_walkable_point(definition, grid, bed_rect.get_center()),
+		"Bed footprint must stay blocked"
+	)
+	assert_true(
+		definition.player_spawn.y > bed_rect.end.y - 0.01,
+		"New-game spawn must be outside the bed footprint"
 	)
 	assert_true(
 		definition.player_spawn.distance_to(wake.approach_position) <= float(definition.cell_size) * 0.75,
 		"spawn.main must match the wake approach at the bed foot"
 	)
 	var bed := MapVerification.anchor_position(definition, &"bed_alcove")
+	assert_eq(bed, Vector2(144, 368), "Bed approach anchor must stay outside the bed")
+	assert_true(
+		definition.player_spawn.distance_to(bed) <= float(definition.cell_size) * 0.75,
+		"Wake spawn must match the bed-foot anchor"
+	)
 	assert_true(
 		definition.player_spawn.distance_to(bed) < definition.player_spawn.distance_to(MapVerification.anchor_position(definition, &"anvil")),
 		"Wake spawn must be closer to the bed than to the anvil"

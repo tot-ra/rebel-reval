@@ -36,7 +36,7 @@ func test_definition_loads_all_authored_activity_points() -> void:
 	var wake := definition.get_activity_point(&"ap.sleep.wake")
 	assert_true(wake != null)
 	assert_eq(wake.prop_id, &"bed")
-	assert_eq(wake.approach_position, PointScript.cell_center_to_position(Vector2i(4, 10)))
+	assert_eq(wake.approach_position, PointScript.cell_center_to_position(Vector2i(4, 11)))
 
 
 func test_pick_next_activity_is_deterministic_for_seed() -> void:
