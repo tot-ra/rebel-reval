@@ -58,6 +58,17 @@ This is a reproducible placement target, not a claim that medieval surveyors mar
 - [`../power/law-courts-and-punishment.md`](../power/law-courts-and-punishment.md) - supplies the 1337+ forum-centre attestation and public-shame gameplay context.
 - [`./lower-town-street-plan.md`](./lower-town-street-plan.md) - establishes the forum as the central open market node and its feeder streets.
 
+## R-044 verification: bounded negative result (2026-08-02)
+
+The requested source pass did not locate a documentary, archaeological, or archival measurement that places the 1337-1343 pillory within the forum. This remains a **bounded negative result**, not evidence that the fixture was absent:
+
+- **Local holdings checked:** OCR text from all 16 repository PDFs in `history/` (including `Linnakindlustuste kaardistus.pdf` and the Tallinn archaeology yearbooks `AVE2009`-`AVE2022`) was searched for `pillory`, `Schandpfahl`, `Pranger`, `Raekoja`, `Rathausplatz`, and `forum`. The hits were modern square/map labels or unrelated address text; no dated plan, excavation coordinate, or measured pillory position was published in the searchable text.
+- **Published web pages checked:** Tallinn Town Hall, “The building” (official institutional history); Medieval Heritage, “Tallinn town hall” (architectural history and Neumann/Nottbeck bibliography); Tallinn Streets, “Raekoja plats” (pillory/manacle chronology); and the German “Rathausplatz (Tallinn)” page (1337-1816 chronology and modern geographic coordinates). These establish the square association, chronology, or later building phases, but none supplies a 1337-1343 local measurement.
+- **Blocked primary-plan check:** the Heidelberg University Library scan for Neumann and Nottbeck, `https://digi.ub.uni-heidelberg.de/diglit/nottbeck1904bd2/0213`, returned an anti-bot challenge during this pass. The existing dossier's plate manifest already treats the relevant 1904 material as a later hall-plan/relationship comparandum, not a direct pillory survey; the access failure is recorded as an evidence boundary rather than inferred evidence.
+- **Coordinate decision:** retain `(X=21.3 m, Y=17.7 m)` as **plausible composite** centroid placement. Rechecking the authored polygon from `raekoja-plats-extents-1343.md` gives positive edge cross-products `(708.0, 706.6, 730.0, 731.4)` and a minimum straight-edge clearance of approximately `17.361 m`, so the target remains inside the authored forum polygon.
+
+No documentary coordinate is promoted, and no map polygon, modern landmark, or shipped target is changed by this result.
+
 ## Open questions
 
 - Whether a surviving plan, archaeological report, or archival entry can replace the centroid target with a measured 1337-1343 position.
