@@ -24,8 +24,11 @@ const PAN_SCROLL_ZOOM_SENSITIVITY := 1.0
 const THIRD_PERSON_DISTANCE := 6.0
 ## Closest boom before scroll-zoom flips into first-person.
 const THIRD_PERSON_MIN_DISTANCE := 2.0
-## Interior follow targets this close to the floor edge count as wall clips.
-const INTERIOR_FLOOR_EDGE_MARGIN := 0.35
+## Interior follow targets this close to the floor edge count as wall clips. The
+## authored perimeter walls occupy a full cell, so leave that cell plus a small
+## lens/mesh buffer between the camera and the room boundary. Without this
+## clearance, the safety pass alternates between the wall AABB and the boom target.
+const INTERIOR_FLOOR_EDGE_MARGIN := 1.05
 ## Farthest boom before scroll-zoom flips into the orthographic top-down overview.
 const THIRD_PERSON_MAX_DISTANCE := 12.0
 const THIRD_PERSON_TARGET_HEIGHT := 1.15
@@ -188,6 +191,21 @@ func _resolve_third_person_target(target: Vector3) -> Vector3:
 		while distance > THIRD_PERSON_MIN_DISTANCE and view.is_point_inside_occluder(target):
 			distance = maxf(THIRD_PERSON_MIN_DISTANCE, distance * 0.75)
 			target = anchor + direction * distance
+	if view.definition.suppresses_exterior_surroundings():
+		# A minimum boom can still leave a player near a perimeter wall with the
+		# lens inside that wall's AABB. Clamp the final target to the walkable room
+		# envelope so the next-frame safety pass cannot pull it back and forth.
+		return _clamp_interior_target(target)
+	return target
+
+
+func _clamp_interior_target(target: Vector3) -> Vector3:
+	var size := view.definition.size_cells
+	var min_edge := INTERIOR_FLOOR_EDGE_MARGIN
+	var max_x := maxf(min_edge, float(size.x) - min_edge)
+	var max_z := maxf(min_edge, float(size.y) - min_edge)
+	target.x = clampf(target.x, min_edge, max_x)
+	target.z = clampf(target.z, min_edge, max_z)
 	return target
 
 
@@ -500,6 +518,12 @@ func _pull_out_of_buildings() -> void:
 ## ghost overlay handles the visual; this mostly fires for third-person.
 func _ensure_player_visible() -> void:
 	if view == null:
+		return
+	# Enclosed interiors have authored perimeter walls by design. The camera and
+	# player are both constrained to the same room envelope, so treating a wall
+	# as outdoor line-of-sight occlusion would pull the lens back toward the actor
+	# every frame and fight the stable interior target above.
+	if view.definition != null and view.definition.suppresses_exterior_surroundings():
 		return
 	var player_pos := player_rig.position
 	if not view.is_segment_occluded(camera.position, player_pos):

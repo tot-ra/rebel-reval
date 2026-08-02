@@ -340,6 +340,27 @@ func test_smithy_start_third_person_camera_avoids_walls() -> void:
 		and camera.position.z < float(definition.size_cells.y) - 0.25,
 		"smithy start camera must stay inside the authored floor envelope"
 	)
+	assert_true(
+		camera.position.x >= MapViewRuntimeCamera.INTERIOR_FLOOR_EDGE_MARGIN
+			and camera.position.z >= MapViewRuntimeCamera.INTERIOR_FLOOR_EDGE_MARGIN,
+		"smithy start camera must keep the perimeter-wall clearance"
+	)
+	var settled_position := camera.position
+	for _frame in 8:
+		runtime._sync_player(true)
+		assert_false(
+			runtime.view.is_point_inside_occluder(camera.position),
+			"smithy start camera must not re-enter a wall during follow"
+		)
+		assert_true(
+			camera.position.x >= MapViewRuntimeCamera.INTERIOR_FLOOR_EDGE_MARGIN
+				and camera.position.z >= MapViewRuntimeCamera.INTERIOR_FLOOR_EDGE_MARGIN,
+			"smithy start camera must retain its perimeter-wall clearance"
+		)
+	assert_true(
+		camera.position.distance_to(settled_position) < 0.01,
+		"smithy start camera must settle instead of oscillating against a wall"
+	)
 	_free_map_scene(scene_root)
 
 
