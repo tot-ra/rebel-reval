@@ -73,10 +73,28 @@ func test_urban_fauna_uses_the_visible_terrain_height() -> void:
 	for actor in fauna.get_children():
 		var expected := MapViewMeshBuilder.ground_height(definition, Vector2(actor.position.x, actor.position.z))
 		assert_true(
-			is_equal_approx(actor.position.y, expected),
-			"%s must share Terrain_Ground height (expected %s, got %s)" % [actor.name, expected, actor.position.y]
+			actor.position.y >= expected + UrbanFauna.GROUND_CLEARANCE - 0.0001,
+			"%s root must stay above Terrain_Ground (expected %s, got %s)" % [actor.name, expected, actor.position.y]
+		)
+		assert_true(
+			_lowest_world_y(actor) >= expected + UrbanFauna.GROUND_CLEARANCE - 0.0001,
+			"%s visual mesh must not sink below Terrain_Ground" % actor.name
 		)
 	fauna.queue_free()
+
+
+func _lowest_world_y(actor: Node3D) -> float:
+	var lowest := INF
+	for mesh_instance in actor.find_children("*", "MeshInstance3D", true, false):
+		var mesh := mesh_instance as MeshInstance3D
+		if mesh.mesh == null:
+			continue
+		var bounds := mesh.get_aabb()
+		for x in [bounds.position.x, bounds.end.x]:
+			for y in [bounds.position.y, bounds.end.y]:
+				for z in [bounds.position.z, bounds.end.z]:
+					lowest = minf(lowest, (mesh.global_transform * Vector3(x, y, z)).y)
+	return lowest
 
 func test_moving_fauna_walks_in_straight_segments_instead_of_circling() -> void:
 	var fauna := UrbanFauna.new()

@@ -19,6 +19,9 @@ const FLEE_SPEED := 4.2
 const TETHER_SPEED := 0.24
 const WANDER_SPEED := 0.62
 const SCURRY_SPEED := 1.35
+## Tiny visual lift prevents sub-pixel terrain intersections from hiding small rats
+## when the relief mesh and height-field sample differ at a cell boundary.
+const GROUND_CLEARANCE := 0.012
 
 const URBAN_SPECIES: Array[StringName] = [
 	MammalSpecies.SPECIES_CAT,
@@ -159,6 +162,8 @@ func _rebuild_actors() -> void:
 		var actor := _make_actor(index, placement)
 		add_child(actor)
 		_actors.append(actor)
+		if _definition != null:
+			_snap_actor_visual_to_ground(actor, _ground_height_at(actor.position))
 
 
 ## Cats amble; they do not trot around a yard like a working dog.
@@ -228,6 +233,7 @@ func _advance_actor(actor: Node3D, listener_position: Vector3, delta: float) -> 
 		# Keep the visual actor on the same relief surface as Terrain_Ground while
 		# it crosses a yard. The logic plane remains flat and authoritative.
 		actor.position.y = _ground_height_at(actor.position)
+		_snap_actor_visual_to_ground(actor, actor.position.y)
 	MedievalAnimalModels.sync_animation(actor, previous_position, delta)
 
 
@@ -246,6 +252,25 @@ func _ground_height_for_cell(cell: Vector2i) -> float:
 		return 0.0
 	var world := MapViewBridge.cell_center_to_world(cell, _cell_size)
 	return _ground_height_at(world)
+
+
+func _snap_actor_visual_to_ground(actor: Node3D, ground_y: float) -> void:
+	var lowest_y := INF
+	for mesh_instance in actor.find_children("*", "MeshInstance3D", true, false):
+		var mesh := mesh_instance as MeshInstance3D
+		if mesh.mesh == null:
+			continue
+		var local_bounds := mesh.get_aabb()
+		for corner_x in [local_bounds.position.x, local_bounds.end.x]:
+			for corner_y in [local_bounds.position.y, local_bounds.end.y]:
+				for corner_z in [local_bounds.position.z, local_bounds.end.z]:
+					var world_corner := mesh.global_transform * Vector3(corner_x, corner_y, corner_z)
+					lowest_y = minf(lowest_y, world_corner.y)
+	if is_inf(lowest_y):
+		return
+	# Move the actor, not the model, so its authored home/waypoint remains the
+	# single position used by GroundWander and the terrain height sampler.
+	actor.position.y += ground_y + GROUND_CLEARANCE - lowest_y
 
 
 func _ground_height_at(world: Vector3) -> float:

@@ -53,8 +53,6 @@ static func geometry_stats(species: StringName, pose: StringName = &"") -> Dicti
 
 
 static func _build_mesh(species: StringName, pose: StringName) -> ArrayMesh:
-	if species == MammalSpecies.SPECIES_DOG:
-		return MapViewMammalMeshes._build_dog_mesh(species, pose)
 	var group := MammalSpecies.group_for(species)
 	if group == MammalSpecies.GROUP_BAT:
 		return _build_bat_mesh(species, pose)
@@ -189,133 +187,6 @@ static func _build_bat_mesh(species: StringName, pose: StringName) -> ArrayMesh:
 	return _commit_mesh(surface, species)
 
 
-static func _build_dog_mesh(species: StringName, pose: StringName) -> ArrayMesh:
-	var geometry := MammalSpecies.geometry_for(species)
-	var colors := MammalSpecies.colors_for(species)
-	var scale_factor := MammalSpecies.scale_m(species) / maxf(float(geometry["body"].x), 0.01)
-	var body_dims: Vector3 = geometry["body"]
-	var body_radius := Vector3(body_dims.z, body_dims.y, body_dims.x) * scale_factor * 0.5
-	var head_radius := float(geometry["head"]) * scale_factor
-	var neck_length := float(geometry["neck"]) * scale_factor
-	var leg_length := float(geometry["legs"]) * scale_factor
-	var tail_length := float(geometry["tail"]) * scale_factor
-	var ear_size := float(geometry.get("ears", 0.10)) * scale_factor
-
-	var surface := SurfaceTool.new()
-	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-
-	# A dog carries its weight between a deep chest and a compact, muscular rump.
-	# Keeping these masses separate avoids the featureless capsule silhouette that
-	# made the original street actor read as a toy or a fox-like quadruped.
-	var body_center := Vector3(0.0, leg_length + body_radius.y * 0.92, 0.0)
-	_append_ellipsoid(surface, body_center, body_radius, colors[0], 7, 4)
-	_append_ellipsoid(
-		surface,
-		body_center + Vector3(0.0, body_radius.y * 0.06, -body_radius.z * 0.38),
-		Vector3(body_radius.x * 1.04, body_radius.y * 1.02, body_radius.z * 0.54),
-		colors[0].lightened(0.025),
-		6,
-		3
-	)
-	_append_ellipsoid(
-		surface,
-		body_center + Vector3(0.0, -body_radius.y * 0.02, body_radius.z * 0.38),
-		Vector3(body_radius.x * 1.02, body_radius.y * 0.94, body_radius.z * 0.56),
-		colors[1],
-		6,
-		3
-	)
-
-	var neck_start := body_center + Vector3(0.0, body_radius.y * 0.16, -body_radius.z * 0.70)
-	var neck_end := neck_start + Vector3(
-		0.0,
-		neck_length * 0.86,
-		-neck_length * 0.44 - body_radius.z * 0.12
-	)
-	_append_tapered_tube(
-		surface,
-		neck_start,
-		neck_end,
-		body_radius.x * 0.42,
-		head_radius * 0.72,
-		colors[0].darkened(0.04),
-		6
-	)
-	# A light bib follows the front of the neck into the chest rather than sitting
-	# as a perfectly flat decal, which gives the coat break a believable volume.
-	_append_ellipsoid(
-		surface,
-		body_center + Vector3(0.0, body_radius.y * 0.02, -body_radius.z * 0.84),
-		Vector3(body_radius.x * 0.52, body_radius.y * 0.64, body_radius.z * 0.10),
-		colors[2],
-		5,
-		3
-	)
-
-	var head_center := neck_end + Vector3(0.0, head_radius * 0.12, -head_radius * 0.34)
-	_append_ellipsoid(
-		surface,
-		head_center,
-		Vector3(head_radius * 0.98, head_radius * 1.04, head_radius * 1.06),
-		colors[1],
-		9,
-		5
-	)
-	# The lower jaw gives the long muzzle a stop and a visible mouth line instead
-	# of leaving a single cone projected from a featureless head sphere.
-	_append_ellipsoid(
-		surface,
-		head_center + Vector3(0.0, -head_radius * 0.19, -head_radius * 0.72),
-		Vector3(head_radius * 0.52, head_radius * 0.25, head_radius * 0.48),
-		colors[2].darkened(0.04),
-		6,
-		3
-	)
-	_append_snout(surface, head_center, head_radius, colors[2], MammalSpecies.GROUP_CANID, species)
-	_append_ears(surface, head_center, head_radius, ear_size, colors[1], MammalSpecies.GROUP_CANID, species)
-	_append_face_details(surface, head_center, head_radius, colors, species)
-	_append_chest_patch(surface, body_center, body_radius, colors[2])
-
-	# Four articulated legs establish shoulder and hip landmarks. The hind legs
-	# bend back through the hock, while the forelegs stay nearly vertical under the
-	# deep chest, which is much closer to a real standing dog than four straight rods.
-	for side_sign: float in [-1.0, 1.0]:
-		_append_dog_leg(surface, body_center, body_radius, leg_length, side_sign, true, colors[0], colors[2])
-		_append_dog_leg(surface, body_center, body_radius, leg_length, side_sign, false, colors[1], colors[2])
-	_append_tail(surface, body_center, body_radius, tail_length, colors[1], MammalSpecies.GROUP_CANID, pose, species)
-	return _commit_mesh(surface, species)
-
-
-static func _append_dog_leg(
-	surface: SurfaceTool,
-	body_center: Vector3,
-	body_radius: Vector3,
-	leg_length: float,
-	side_sign: float,
-	front_leg: bool,
-	color: Color,
-	paw_color: Color
-) -> void:
-	var z_offset := -body_radius.z * 0.36 if front_leg else body_radius.z * 0.36
-	var top := body_center + Vector3(side_sign * body_radius.x * 0.43, -body_radius.y * 0.38, z_offset)
-	var upper_radius := maxf(leg_length * 0.115, body_radius.x * 0.25)
-	var lower_radius := upper_radius * 0.72
-	var knee := top + Vector3(0.0, -leg_length * 0.43, leg_length * (0.025 if front_leg else 0.16))
-	var ankle := knee + Vector3(0.0, -leg_length * 0.42, -leg_length * (0.06 if front_leg else 0.14))
-	_append_tapered_tube(surface, top, knee, upper_radius, lower_radius, color, 5)
-	_append_tapered_tube(surface, knee, ankle, lower_radius, lower_radius * 0.68, color.darkened(0.035), 5)
-	var paw_length := maxf(leg_length * 0.28, body_radius.x * 0.62)
-	var paw_center := ankle + Vector3(0.0, -upper_radius * 0.32, -paw_length * 0.28)
-	_append_ellipsoid(
-		surface,
-		paw_center,
-		Vector3(upper_radius * 1.05, upper_radius * 0.60, paw_length * 0.55),
-		paw_color,
-		4,
-		2
-	)
-
-
 static func _build_seal_mesh(species: StringName, pose: StringName) -> ArrayMesh:
 	var geometry := MammalSpecies.geometry_for(species)
 	var colors := MammalSpecies.colors_for(species)
@@ -381,17 +252,10 @@ static func _append_snout(
 		length = head_radius * 0.52
 	elif group == MammalSpecies.GROUP_FELID:
 		length = head_radius * 0.20
-	elif species == MammalSpecies.SPECIES_DOG:
-		# A village dog reads by its long, defined muzzle; the generic canid nub
-		# collapses into the head at street range.
-		length = head_radius * 0.55
 	var root := head_center + Vector3(0.0, -head_radius * 0.08, -head_radius * 0.82)
 	var tip := root + Vector3(0.0, -length * 0.12, -length)
 	var start_radius := head_radius * (0.30 if group == MammalSpecies.GROUP_RODENT else 0.24)
 	var end_radius := head_radius * 0.08
-	if species == MammalSpecies.SPECIES_DOG:
-		start_radius = head_radius * 0.30
-		end_radius = head_radius * 0.11
 	_append_tapered_tube(surface, root, tip, start_radius, end_radius, color, 6)
 
 
@@ -460,16 +324,13 @@ static func _append_face_details(
 	colors: Array[Color],
 	species: StringName
 ) -> void:
-	if species not in [MammalSpecies.SPECIES_CAT, MammalSpecies.SPECIES_DOG, MammalSpecies.SPECIES_RAT]:
+	if species not in [MammalSpecies.SPECIES_CAT, MammalSpecies.SPECIES_RAT]:
 		return
 	var is_cat := species == MammalSpecies.SPECIES_CAT
-	var is_dog := species == MammalSpecies.SPECIES_DOG
-	var muzzle_color := colors[2] if is_cat or is_dog else colors[1].lightened(0.12)
-	# The dog muzzle is longer than the cat/rat snout, so its nose and muzzle
-	# patches sit further forward.
-	var muzzle_z := head_radius * (1.00 if is_dog else 0.91)
-	var nose_z := head_radius * (1.36 if is_dog else 1.14)
-	var nose_drop := head_radius * (0.15 if is_dog else 0.12)
+	var muzzle_color := colors[2] if is_cat else colors[1].lightened(0.12)
+	var muzzle_z := head_radius * 0.91
+	var nose_z := head_radius * 1.14
+	var nose_drop := head_radius * 0.12
 	for side_sign in [-1.0, 1.0]:
 		var muzzle_center := head_center + Vector3(
 			side_sign * head_radius * 0.18,
@@ -489,7 +350,7 @@ static func _append_face_details(
 			head_radius * 0.16,
 			-head_radius * 0.72
 		)
-		# Cats get the amber iris; dogs and rats keep the small black bead.
+		# Cats get the amber iris; rats keep the small black bead.
 		_append_ellipsoid(
 			surface,
 			eye_center,
@@ -508,10 +369,7 @@ static func _append_face_details(
 				2
 			)
 	var nose_center := head_center + Vector3(0.0, -nose_drop, -nose_z)
-	# A dog nose is a wet black leather pad, not the pink rodent nose.
 	var nose_color := Color("352927") if is_cat else Color("bc7e78")
-	if is_dog:
-		nose_color = Color("1b1512")
 	_append_ellipsoid(
 		surface,
 		nose_center,
@@ -520,10 +378,6 @@ static func _append_face_details(
 		4,
 		2
 	)
-	if is_dog:
-		# Dog whiskers are near-invisible at street range; skip them and keep the
-		# triangle budget for the muzzle and tail instead.
-		return
 	for side_sign in [-1.0, 1.0]:
 		for whisker_index in 2:
 			var vertical_spread := (float(whisker_index) - 0.5) * head_radius * 0.16

@@ -21,7 +21,11 @@
 
 - In Blender reference generators, keep helper signatures aligned with call sites; a stale optional argument can abort a multi-plate render after already writing a partial evidence set. Run a tiny render smoke before the full batch.
 - In Blender reference generators, the installed headless build may expose the EEVEE engine as `BLENDER_EEVEE` rather than `BLENDER_EEVEE_NEXT`; smoke-test the enum before running a multi-plate batch.
+- For Blender headless preview scripts, use the engine enum reported by `bpy.context.scene.render.bl_rna.properties['engine'].enum_items`; Blender 5.2 on this host accepts `BLENDER_EEVEE`, not `BLENDER_EEVEE_NEXT`.
 - Documentation contract smoke checks should normalize case for human-facing confidence labels; `Attested typology` and `attested typology` carry the same decision even when prose capitalization differs.
+- A malformed multi-tool batch can hide the real verification result; when a command invocation fails before Godot starts, rerun the exact check independently with the wrapper's documented argument order.
+- Dependent exact edits in one hot source file must be serialized; parallel replacements can all miss after the first context changes. Re-read the live block and apply each replacement sequentially.
+- When inserting a large Godot helper into a hot source file, do not rely on stale line numbers; re-read the saved function boundary immediately, because an insertion can land inside the preceding function and cause a misleading preload parse cascade.
 ## Tooling
 - For cart art, audit wheel count separately from wheel track; an inherited two-axle scaffold can violate a two-wheel Karren brief while the width metric still passes.
 - Use `functions.parallel` with `steps` and `multi_tool_use.parallel` with `tool_uses`; their batch schemas are not interchangeable.
@@ -235,5 +239,6 @@
 - A Godot `--editor --import` can be blocked by an unrelated dirty-tree parse error; record the exact first failing script/function and continue with scoped GLB/PBR and asset-loader checks instead of editing out-of-scope runtime code.
 - In Godot `SceneTree` diagnostic scripts, call `quit()` directly; `get_tree()` is unavailable on the `SceneTree` object and causes a misleading probe parse failure.
 - For chained Godot acceptance commands, capture the wrapper's saved log and exit status separately; `set -e` can hide whether import or the expected failing suite produced the non-zero result. In dirty repositories, compare the detached clean snapshot to the live tree before classifying map-source diagnostics as boundary findings.
-- When inserting a large Godot helper into a hot source file, do not rely on stale line numbers; re-read the saved function boundary immediately, because an insertion can land inside the preceding function and cause a misleading preload parse cascade.
+- In temporary Godot probes, transform AABB corners with `Transform3D * Vector3`; multiplying a transform by a scalar fails at parse time and hides the intended grounding diagnostic.
 - When recovering a partially overwritten Blender asset generator in a shared worktree, verify the full dependency closure of each newly referenced helper, not only the builder function; a successful Python compile does not catch undefined names until the targeted builder executes.
+- When batching tool calls, validate every parallel step has an explicit tool name; a malformed step can fail the whole batch before any command runs.
