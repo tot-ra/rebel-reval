@@ -8,6 +8,7 @@ related:
   - guild-structure.md
   - ../military/arms-and-armour-livonia-1340s.md
   - ../economy/coinage-prices-and-measures.md
+  - ../economy/steel-sheet-import-1340s.md
 updated: 2026-07-30
 ---
 
@@ -20,7 +21,7 @@ You are modelling **Kalev's forge loop** in **April 1343 Lower Town Reval**: wha
 **Ship these decisions:**
 
 1. **Stock on the bench:** Urban masters work **imported Swedish osmund** and **hammered bar** more often than raw Livonian blooms — osmund needs **less charcoal and less prep** than local bloomery iron and was already traded to Livonia by the 1330s [1][2]. Kalev still buys **scrap, nails, and worn tools** for rework.
-2. **Steel is imported or bought, not home-smelted:** Better edges come from **Lübeck steel sheet / rod** (15th-c. records are explicit; 1343 presence is `plausible composite` Hanse norm) or from **select osmund pieces** carburised in the forge — not from a full bloomery in the yard [1][3][4].
+2. **Steel is imported or bought, not home-smelted:** Better edges can come from **Lübeck steel sheet / rod** (documented for later fifteenth-century Livonia; pre-1368 Reval presence is a documented **gap**) or from **select osmund pieces** carburised in the forge - not from a full bloomery in the yard [1][3][4].
 3. **Charcoal fuel:** **Birch and mixed hardwood charcoal** delivered in sacks or bulk cart loads; a **full commission day** burns roughly **8–15 kg charcoal** for intermittent forging (composite from experimental forge practice) [5][6]. Siege April tightens supply — price rises before quantity zeros [`smithy-workshop-layout.md`](../architecture/smithy-workshop-layout.md).
 4. **Fluxes at the forge:** **Dry sand** on the anvil face for forge-welding; **clay** for hearth repair and case-hardening packs; **limestone** is smelting flux, not daily forge flux — do not show lime pots beside the anvil [5][7].
 5. **Technique stack:** Heat → draw/upset → (optional) forge-weld → shape → quench or air-cool → temper → finish grind. **Water quench** for tools and blades; **slack quench / partial hardening** reduces warp risk on thin work [8][9].
@@ -38,7 +39,7 @@ You are modelling **Kalev's forge loop** in **April 1343 Lower Town Reval**: wha
 | **Hammered bar** | Rectangular bar stock | Osmund hammered at Lübeck hinterland mills or local master's stock | Minimal — ready to heat and draw | `plausible composite` [1][14] |
 | **Local bloomery iron** | Bloom / schiene bar | Livonian rural bloomeries (declining) | Heavy forging to de-slag | attested production earlier; **uneconomic by late 1340s** [2][15] |
 | **Scrap & rework** | Old nails, hinges, broken tools | Customer trade-ins, scrap heap | Clean, reheat | `plausible composite` daily practice [5] |
-| **Steel (edge)** | Sheet, strip, or rod | **Lübeck import** (15th-c. documented); Riga market | Cut inserts, forge-weld to iron body | `plausible composite` for 1343 [1][4] |
+| **Steel (edge)** | Sheet, strip, or rod | **Lübeck import** (steel and sheet-metal are documented for later fifteenth-century Livonia; pre-1368 Reval evidence is not located) | Cut inserts, forge-weld to iron body | `gap` for 1343; later trade attested [1][4] |
 | **Imported blade** | Finished sword blade | Solingen / west German trade | Smith hilts only | `plausible composite` [4][12] |
 
 **Regional arc:** Before the mid-14th century rural producers sold bloom to town smiths; after Swedish osmund dominated Hanse routes, **towns controlled import** and guild barriers squeezed rural competitors [2][15]. Kalev's **price pressure from Estonian rural smiths** [`lower-town-street-plan`](../topography/lower-town-street-plan.md) is **economic**, not evidence they use better steel.
@@ -158,7 +159,7 @@ Guild **quality inspection** (`Amt` visit) can catch **visible seams, wrong weig
 - **Character:** Master judges heat by colour; apprentice runs bellows on long heats; Mart's nail practice is **volume not glamour** [`guild-structure.md`](guild-structure.md).
 - **Quest / Narrative:** **Charcoal shortage** during siege; **osmund barrel** delivery convoy [`P4-033`]; **soft-edge sabotage** on weapon commission; rural **cheap shoe** price pressure.
 - **Dialogue:** *Osmund* / *Eisen* / *Stahl*; *Kohle* (charcoal); *Amboss*; *Zähne* (temper colours); *Lösch* (quench).
-- **Dev / systems:** Model `iron_stock_kg`, `charcoal_kg`, `commission_forge_minutes`; failure flags `cold_shut`, `quench_crack`, `soft_edge`; duration table above; osmund reduces `prep_labour` vs `bloom_iron`.
+- **Dev / systems:** Model `iron_stock_kg`, `charcoal_kg`, `commission_forge_minutes`; failure flags `cold_shut`, `quench_crack`, `soft_edge`; duration table above; osmund reduces `prep_labour` vs `bloom_iron`; use the osmund weight and later price anchors in [`../economy/steel-sheet-import-1340s.md`](../economy/steel-sheet-import-1340s.md).
 
 ## Cross-references
 
@@ -167,13 +168,12 @@ Guild **quality inspection** (`Amt` visit) can catch **visible seams, wrong weig
 - [`../military/arms-and-armour-livonia-1340s.md`](../military/arms-and-armour-livonia-1340s.md) — which finished metal goods leave the shop.
 - [`schmiede-amt-ordinances-pre-1363.md`](schmiede-amt-ordinances-pre-1363.md) - inspection disputes, visible forge failures, and the distinction between *Amt* remedies and town-law penalties.
 - [`../economy/coinage-prices-and-measures.md`](../economy/coinage-prices-and-measures.md) — coin scale, iron/charcoal price rows, siege multiplier.
+- [`../economy/steel-sheet-import-1340s.md`](../economy/steel-sheet-import-1340s.md) - osmund piece/barrel weights, later price anchors, and the pre-1368 steel evidence gap.
 
 ## Open questions
 
-- **Reval 1343 iron price per kg or per barrel** — partial rows in economy dossier; AWB folio pass still needed (R-042).
-- **Steel sheet import to Reval before 1368 Lübeck records** — attested later; 1343 presence uncertain (candidate R-042).
-- **Weight standard for osmund barrel** in Reval customs — Swedish *kappe* comparandum [14].
-- **Schmiede masterpiece steel requirements** — Tallinn archives pass (R-041).
+- **Reval 1343 iron price per kg or per barrel** - the new dossier supplies later 1357-1372 anchors, but an AWB target-year price line remains open.
+- **Schmiede masterpiece steel requirements** - Tallinn archives pass (R-041).
 
 ## Sources
 
