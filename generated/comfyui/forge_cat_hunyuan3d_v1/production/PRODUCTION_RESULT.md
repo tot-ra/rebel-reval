@@ -142,5 +142,5 @@ Loaded via `GLTFDocument` (tests the raw GLB, not a pre-baked import):
 blender -b --python production_build.py                       # build GLB + LODs + textures + coats + report + gait audit
 blender -b --python render_review.py                          # walk-cycle, pose and coat review sheets
 blender -b --python render_textured.py -- forge_cat_production_v1.glb previews/prod
-Godot --path godot_verify                                     # in-engine verify + preview
+Godot --headless --path . --script generated/comfyui/forge_cat_hunyuan3d_v1/production/godot_verify/run_verify.gd  # in-engine verify + preview
 ```

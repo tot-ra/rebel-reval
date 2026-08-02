@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://c0forgecatverify0"]
 
-[ext_resource type="Script" path="res://verify.gd" id="1_verify"]
+[ext_resource type="Script" path="res://generated/comfyui/forge_cat_hunyuan3d_v1/production/godot_verify/verify.gd" id="1_verify"]
 
 [node name="Verify" type="Node3D"]
 script = ExtResource("1_verify")

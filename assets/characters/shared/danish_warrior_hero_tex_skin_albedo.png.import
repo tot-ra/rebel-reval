@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d0yr1n3h8xfpr"
-path="res://.godot/imported/danish_warrior_hero_tex_skin_albedo.png-6f9f50705f3fe49e077a86c28578c9d6.ctex"
+path.s3tc="res://.godot/imported/danish_warrior_hero_tex_skin_albedo.png-6f9f50705f3fe49e077a86c28578c9d6.s3tc.ctex"
+path.etc2="res://.godot/imported/danish_warrior_hero_tex_skin_albedo.png-6f9f50705f3fe49e077a86c28578c9d6.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "9dee1d76d3ffbfaeb9076acb08e465fe"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/characters/shared/danish_warrior_hero_tex_skin_albedo.png"
-dest_files=["res://.godot/imported/danish_warrior_hero_tex_skin_albedo.png-6f9f50705f3fe49e077a86c28578c9d6.ctex"]
+dest_files=["res://.godot/imported/danish_warrior_hero_tex_skin_albedo.png-6f9f50705f3fe49e077a86c28578c9d6.s3tc.ctex", "res://.godot/imported/danish_warrior_hero_tex_skin_albedo.png-6f9f50705f3fe49e077a86c28578c9d6.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

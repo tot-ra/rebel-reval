@@ -6,9 +6,12 @@ extends Node3D
 # writes a JSON report and quits. This verifies the integrated production asset.
 
 # Load the sibling production GLB directly (no duplicated copy in the repo).
-var _glb := ProjectSettings.globalize_path("res://").path_join("../forge_cat_production_v1.glb").simplify_path()
-var _shot := ProjectSettings.globalize_path("res://").path_join("../previews/godot_preview.png").simplify_path()
-const REPORT := "res://godot_verify.json"
+const GLB_PATH := "res://generated/comfyui/forge_cat_hunyuan3d_v1/production/forge_cat_production_v1.glb"
+const SHOT_PATH := "res://generated/comfyui/forge_cat_hunyuan3d_v1/production/previews/godot_preview.png"
+
+var _glb := ProjectSettings.globalize_path(GLB_PATH)
+var _shot := ProjectSettings.globalize_path(SHOT_PATH)
+const REPORT := "res://generated/comfyui/forge_cat_hunyuan3d_v1/production/godot_verify/godot_verify.json"
 
 var _report := {}
 
