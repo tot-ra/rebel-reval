@@ -2930,6 +2930,25 @@
         0.000000000
       ],
       "transition_visual": "ground"
+    },
+    {
+      "alignment": "travel",
+      "destination_scene_id": "reval_monastery",
+      "destination_spawn_id": "outer_workers_entry",
+      "highlight_area": true,
+      "id": "workers_outer_wall_road",
+      "rect": [
+        4640.000000000,
+        1376.000000000,
+        128.000000000,
+        96.000000000
+      ],
+      "spawn_id": "workers_outer_exit",
+      "spawn_offset": [
+        128.000000000,
+        0.000000000
+      ],
+      "transition_visual": "ground"
     }
   ]
 }

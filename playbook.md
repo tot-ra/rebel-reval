@@ -242,3 +242,6 @@
 - In temporary Godot probes, transform AABB corners with `Transform3D * Vector3`; multiplying a transform by a scalar fails at parse time and hides the intended grounding diagnostic.
 - When recovering a partially overwritten Blender asset generator in a shared worktree, verify the full dependency closure of each newly referenced helper, not only the builder function; a successful Python compile does not catch undefined names until the targeted builder executes.
 - When batching tool calls, validate every parallel step has an explicit tool name; a malformed step can fail the whole batch before any command runs.
+- When editing repeated spawn objects in `active_destinations.json`, include the enclosing scene context in exact replacements; a bare final-spawn object can match multiple scene registries.
+- Discover map alignment helper paths before reading them; `MapAlignmentMath` is not necessarily stored at `scripts/map/map_alignment_math.gd`.
+- Run `map_pipeline_hardening` outside a large parallel batch with a longer timeout; its focused harness can exceed the parallel step's 90-second ceiling even when other map suites finish quickly.

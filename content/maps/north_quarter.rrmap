@@ -223,8 +223,9 @@ anchor from_reval_harbor 104 13 rect=2,2
 anchor from_monastery 104 133 rect=2,2
 anchor from_monastery_outer 232 133 rect=2,2
 transition to_reval_harbor 103 0 7 3 to=reval_harbor_north destination_spawn=from_reval_north spawn=to_reval_harbor spawn_offset_px=-48,400 highlight_area=true transition_visual=ground view_landmark_id=coast_gate_arch
-transition to_harbor_outer 228 0 8 3 to=reval_harbor_north destination_spawn=from_reval_north_outer spawn=to_harbor_outer spawn_offset_px=0,128 highlight_area=true transition_visual=ground
+transition to_harbor_outer 228 0 8 3 to=reval_harbor_north destination_spawn=from_reval_north_outer spawn=outer_harbor_exit spawn_offset_px=0,128 highlight_area=true transition_visual=ground alignment=travel
 transition to_monastery 98 136 12 4 to=reval_monastery destination_spawn=from_reval_north spawn=from_monastery spawn_offset_px=0,-128 highlight_area=true transition_visual=ground
+transition to_monastery_outer 228 136 8 4 to=reval_monastery destination_spawn=outer_monastery_exit spawn=from_monastery_outer spawn_offset_px=0,-128 highlight_area=true transition_visual=ground alignment=travel
 sign sign.harbour "to trade harbour" 107 31 north
 sign sign.outer_wall "outer wall road to harbour" 237 10 north
 sign sign.monastery "to monastery district" 102 131 south

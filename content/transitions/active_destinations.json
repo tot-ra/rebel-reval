@@ -39,6 +39,9 @@
         },
         {
           "id": "from_reval_south"
+        },
+        {
+          "id": "workers_outer_exit"
         }
       ]
     },
@@ -88,6 +91,9 @@
         },
         {
           "id": "to_reval_harbor"
+        },
+        {
+          "id": "outer_harbor_exit"
         }
       ]
     },
@@ -108,6 +114,9 @@
         },
         {
           "id": "outer_monastery_exit"
+        },
+        {
+          "id": "outer_workers_entry"
         },
         {
           "id": "from_reval_toompea"

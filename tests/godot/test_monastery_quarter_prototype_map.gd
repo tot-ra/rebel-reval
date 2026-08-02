@@ -5,7 +5,7 @@ const MonasteryQuarterDefinition := preload("res://scripts/map/definitions/proto
 
 func test_monastery_district_is_the_wide_lower_half_of_the_northern_ward() -> void:
 	var definition: MapDefinition = MonasteryQuarterDefinition.create()
-	assert_eq(definition.size_cells, Vector2i(208, 112))
+	assert_eq(definition.size_cells, Vector2i(260, 112))
 	assert_true(definition.size_cells.x > definition.size_cells.y)
 	assert_true(MapBuilder.validate(definition).is_empty())
 	for anchor_id in [&"monastery_close", &"st_olaf_frontage", &"guild_frontage", &"from_reval_north"]:
@@ -62,11 +62,18 @@ func test_monastery_district_has_dated_early_towers_and_later_wall_positions() -
 func test_monastery_district_links_the_merchant_civic_worker_and_toompea_maps() -> void:
 	var definition: MapDefinition = MonasteryQuarterDefinition.create()
 	var destinations: Dictionary = {}
+	var route_destinations: Dictionary = {}
 	for transition in definition.transitions:
-		destinations[transition["destination_scene_id"]] = transition["destination_spawn_id"]
-	assert_eq(destinations[&"reval_north"], &"from_monastery")
+		var destination: StringName = transition["destination_scene_id"]
+		if destination in [&"reval_north", &"reval_east"]:
+			route_destinations[transition["id"]] = transition["destination_spawn_id"]
+		else:
+			destinations[destination] = transition["destination_spawn_id"]
+	assert_eq(route_destinations[&"to_reval_north"], &"from_monastery")
+	assert_eq(route_destinations[&"to_reval_north_outer"], &"from_monastery_outer")
 	assert_eq(destinations[&"reval_center"], &"to_reval_north")
-	assert_eq(destinations[&"reval_east"], &"vene_district_boundary")
+	assert_eq(route_destinations[&"to_reval_east"], &"vene_district_boundary")
+	assert_eq(route_destinations[&"to_reval_east_outer"], &"workers_outer_exit")
 	assert_eq(destinations[&"reval_toompea"], &"from_reval_north")
 
 
