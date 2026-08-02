@@ -6,6 +6,7 @@ from __future__ import annotations
 import contextlib
 import csv
 import io
+import json
 import sys
 import tempfile
 import unittest
