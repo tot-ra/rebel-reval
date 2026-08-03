@@ -1,0 +1,94 @@
+{
+  "capacity": 64,
+  "map_id": "lower_town_slice",
+  "scenarios": [
+    {
+      "active_count": 21,
+      "capture": "res://docs/reports/images/population/lower_town_population_day.png",
+      "civilian_count": 18,
+      "date": {
+        "day": 22,
+        "month": 4,
+        "year": 1343
+      },
+      "id": "day",
+      "label": "Ordinary day",
+      "phase_id": "phase.investigation_morning",
+      "placement_zone_counts": {
+        "residential_yard": 7,
+        "street_frontage": 7,
+        "work_yard": 7
+      },
+      "profile_id": "day",
+      "renderer_capacity": 64,
+      "seed": 1343,
+      "total_count": 21,
+      "viewport_px": [
+        1280,
+        720
+      ],
+      "watch_count": 3
+    },
+    {
+      "active_count": 33,
+      "capture": "res://docs/reports/images/population/lower_town_population_market_day.png",
+      "civilian_count": 28,
+      "date": {
+        "day": 24,
+        "month": 4,
+        "year": 1343
+      },
+      "id": "market_day",
+      "label": "Market day",
+      "phase_id": "phase.investigation_morning",
+      "placement_zone_counts": {
+        "market_lane": 8,
+        "residential_yard": 8,
+        "street_frontage": 9,
+        "work_yard": 8
+      },
+      "profile_id": "market_day",
+      "renderer_capacity": 64,
+      "seed": 2024,
+      "total_count": 33,
+      "viewport_px": [
+        1280,
+        720
+      ],
+      "watch_count": 5
+    },
+    {
+      "active_count": 12,
+      "capture": "res://docs/reports/images/population/lower_town_population_night_checkpoint.png",
+      "civilian_count": 6,
+      "date": {
+        "day": 22,
+        "month": 4,
+        "year": 1343
+      },
+      "id": "night_checkpoint",
+      "label": "Night checkpoint",
+      "phase_id": "phase.investigation_night",
+      "placement_zone_counts": {
+        "checkpoint": 4,
+        "residential_yard": 4,
+        "safe_interior": 4
+      },
+      "profile_id": "night",
+      "renderer_capacity": 64,
+      "seed": 1343,
+      "total_count": 12,
+      "viewport_px": [
+        1280,
+        720
+      ],
+      "watch_count": 6
+    }
+  ],
+  "source": "res://content/maps/lower_town_slice.rrmap",
+  "task": "R-419",
+  "viewport_px": [
+    1280,
+    720
+  ]
+}
