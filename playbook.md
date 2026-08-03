@@ -258,3 +258,4 @@
 - After a structural test insertion shifts helper boundaries, re-read the saved block before the next edit; stale line ranges can duplicate helpers or move assertions into the wrong function.
 - When validating documentation contracts, allow intentional Markdown line wrapping and punctuation variants; assert structural phrases or normalize whitespace before treating a smoke failure as a deliverable defect.
 - When a tool path includes accidental prose or non-ASCII suffixes, retry with the exact discovered path before treating the file as unavailable.
+- For no-op fallback acceptance in a dirty worktree, compare semantic manifest rows and tracked audio hashes rather than whole-file CSV hashes; line-ending normalization can change bytes without changing the scoped row or runtime asset.
