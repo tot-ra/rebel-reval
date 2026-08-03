@@ -253,3 +253,4 @@
 - When repairing task-board metadata after a malformed update, pass the full explicit priority, complexity, and status fields; verify the parent status immediately because an omitted or zero-value field can silently demote the task.
 - MDZ OCR endpoints return XHTML, and AWB entries can cross page canvases; strip tags, normalize whitespace, and inspect adjacent canvases before classifying a missing token as an evidence gap.
 - When checking a literal line that begins with `-`, pass `--` to grep or use `-e`; otherwise grep treats the lesson text as an option.
+- For append-only CSV edits in a dirty worktree, do not assume one newline convention; preserve raw bytes and validate the actual line ending mix before inserting rows.
