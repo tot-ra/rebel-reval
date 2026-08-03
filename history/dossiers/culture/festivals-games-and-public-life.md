@@ -125,6 +125,7 @@ The dossier reuses three already licensed evidence plates rather than downloadin
 - [`./music-and-instruments.md`](./music-and-instruments.md) - bells, chant, tavern musicians, and the absence of a 1343 civic piper corps.
 - [`../crafts/guild-structure.md`](../crafts/guild-structure.md) - guild feast obligations, chapels, tables, and the pre-1343 guild chronology.
 - [`../topography/old-market-vanaturg.md`](../topography/old-market-vanaturg.md) - forum as market and the east throat as cart circulation rather than a second market square.
+- [`../economy/reval-market-weekday-1340s.md`](../economy/reval-market-weekday-1340s.md) - the unresolved weekly market weekday and the holy-day trading comparandum.
 - [`../power/law-courts-and-punishment.md`](../power/law-courts-and-punishment.md) - pillory, banishment, court jurisdiction, and punishment venues.
 - [`../nature/spring-climate-and-living-world.md`](../nature/spring-climate-and-living-world.md) - spring light, field work, mud, and outdoor processional conditions.
 

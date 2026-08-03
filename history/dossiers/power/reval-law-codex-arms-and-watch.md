@@ -138,6 +138,7 @@ Hanse Lexikon summarises the **Bürgereid / Burspraken** obligations recurring i
 - [`../military/arms-and-armour-livonia-1340s.md`](../military/arms-and-armour-livonia-1340s.md) — materials and smith-producible items for arms-check scenes.
 - [`../people/town-council-and-officers.md`](../people/town-council-and-officers.md) — burgomasters, Vogt, Stadtschreiber as enforcement officers.
 - [`../economy/coinage-prices-and-measures.md`](../economy/coinage-prices-and-measures.md) — mark/schilling/pfennig scale for Art. 90/91/50 fines.
+- [`../economy/reval-market-weekday-1340s.md`](../economy/reval-market-weekday-1340s.md) — Art. 91 market-peace anchor and the distinction between received Lübeck law and local Reval attestation.
 - [`../crafts/schmiede-amt-ordinances-pre-1363.md`](../crafts/schmiede-amt-ordinances-pre-1363.md) - pre-1363 craft remedies and the distinction between guild custom and Vogt/Rat penalties.
 - [`./reval-street-cleaning-ordinances-1340s.md`](./reval-street-cleaning-ordinances-1340s.md) — Art. 31 Burspraken layer applied to street dumping and bath regulation; fine amounts mostly gap.
 

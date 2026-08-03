@@ -107,6 +107,7 @@ You are pricing **cart movement through forum throats, gate aprons, and harbour 
 - [`coinage-prices-and-measures.md`](coinage-prices-and-measures.md) — schilling fine bands when ordinance amount is silent.
 - [`hanseatic-trade-and-season.md`](hanseatic-trade-and-season.md) — what keeps moving by cart after 23 April.
 - [`../power/reval-law-codex-arms-and-watch.md`](../power/reval-law-codex-arms-and-watch.md) — Art. 31 / 91 fine framework for blockage and curfew.
+- [`reval-market-weekday-1340s.md`](reval-market-weekday-1340s.md) — market-peace source boundary and the unresolved weekly market-day rule.
 - [`../power/reval-street-cleaning-ordinances-1340s.md`](../power/reval-street-cleaning-ordinances-1340s.md) — parallel AWB gap for municipal dung carts.
 - [`../topography/old-market-vanaturg.md`](../topography/old-market-vanaturg.md) — east-throat cart queue where blockage fines apply.
 - [`../topography/viru-vanaturg-paving-archaeology.md`](../topography/viru-vanaturg-paving-archaeology.md) — Viru apron surfaces for inbound Harju carts.

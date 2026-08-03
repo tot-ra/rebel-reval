@@ -145,6 +145,7 @@ Local axes: **+X east**, **+Y north**, origin at **forum SE corner** (shared wit
 - [`../architecture/burgher-house-plan.md`](../architecture/burgher-house-plan.md) — Strip-plot diele frontage on neck houses; projecting shop bay type.
 - [`../power/reval-street-cleaning-ordinances-1340s.md`](../power/reval-street-cleaning-ordinances-1340s.md) — fish-offal and dung dumping fines at forum throat under Art. 31 orders.
 - [`../culture/festivals-games-and-public-life.md`](../culture/festivals-games-and-public-life.md) — forum market, processional route constraints, and public spectacle overlays.
+- [`../economy/reval-market-weekday-1340s.md`](../economy/reval-market-weekday-1340s.md) — forum location, Vanaturu kael boundary, and the unresolved weekday question.
 - [`../economy/merchant-cart-and-transport-1340s.md`](../economy/merchant-cart-and-transport-1340s.md) — east-throat cart queue geometry and wheel track for supply traffic.
 
 ## Open questions
