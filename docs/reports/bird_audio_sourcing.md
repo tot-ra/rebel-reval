@@ -305,6 +305,29 @@ Loodusheli pages confirm Estonian field recordings for both gap species:
 
 The pages expose Estonian provenance and an explicit **CC BY-NC 3.0 EE** link, but no CC0, CC BY, CC BY-SA, or commercial permission. The HTTPS endpoint also currently fails certificate validation (`www.loodusheli.ee` certificate expired), so no audio was downloaded. The existing Germany iNaturalist clips remain the only verified commercial fallback. P0-122f is blocked until the University of Tartu Natural History Museum / recordist grants written permission, a record-level commercial license is published, or maintainers supply new Estonian/Baltic field takes with provenance. Do not replace the curated rows based on metadata presence alone.
 
+### Permission-backed source contract (P0-122f)
+
+A written commercial grant may be represented only with a curated row using
+`"source": "permission"` and the sentinel `"license": "permission-granted"`.
+This sentinel is intentionally not treated as a Creative Commons URL: the
+verifier requires a separate evidence file and does not accept an NC license as
+an implicit grant. The row must carry all of the following:
+
+- exact `recording_id`, HTTP(S) `page` containing that ID, and species-accurate
+  `scientific` name;
+- exactly one of `download_url` or repository-relative `local_file`;
+- repository-relative `permission_evidence` containing the written grant,
+  explicit `attribution`, `recordist`, `country`, `length` (15-90 seconds), and
+  `quality` (A-E).
+
+The downloader validates this contract before materialization, copies a staged
+local file or downloads the permitted URL, and emits the existing manifest row
+shape with the stable `PM<recording_id>` filename prefix. A permission row must
+not be added for a metadata-only candidate, a published CC BY-NC term, or a
+record whose grant does not cover commercial storage, editing, and distribution.
+The current German iNaturalist fallback remains unchanged until such evidence
+exists for an Estonian or Baltic replacement.
+
 A Baltic-state Commons spot check on 2026-08-01 did not clear that blocker. Lithuania search results for [Great Cormorant](https://commons.wikimedia.org/wiki/File:Great_Cormorant-Mindaugas_Urbonas-1.jpg) and Latvia search results for [white-tailed eagle](https://commons.wikimedia.org/wiki/File:Kurzemes_Zoo_Park_-_panoramio_-_---%3DXEON%3D---_(1).jpg) were photographs, not field audio. The searchable eagle audio result, [De-Seeadler.ogg](https://commons.wikimedia.org/wiki/File:De-Seeadler.ogg), is a German pronunciation recording rather than a species call. This is an evidence boundary, not proof that no Baltic recording exists: no candidate was registered because neither a qualifying field take nor its commercial permission was verified.
 
 ### P0-122f evidence boundary (2026-08-02)
@@ -320,6 +343,8 @@ The reproducible checks remain green against the existing fallback:
 `python3 tools/audio/verify_curated_bird_recordings.py`, `python3 tools/verify_bird_audio_manifest.py`, and `python3 tools/verify_bird_audio_clips.py`; the curated dry-run still resolves 30 records without downloading. This is an evidence boundary, not proof that no qualifying Baltic recording exists. The next unblock is a human permission request to the University of Tartu Natural History Museum / Veljo Runnel or a recordist with the exact commercial grant and attribution terms recorded in the curated manifest.
 
 ### P0-122f human outreach packet (ready to send)
+
+The canonical, exportable copy of the packet is [`docs/reports/evidence/p0_122f/permission_packet.md`](evidence/p0_122f/permission_packet.md). It names the exact candidate records, intended recipients, requested commercial storage/editing/distribution scope, duration, and attribution fields. The packet was prepared on **2026-08-03 UTC**, but this environment has no email transmission integration, so it is **not sent** until an email-capable maintainer transmits it and preserves the outbound message copy or provider ID.
 
 The following request is intentionally prepared as a human action rather than an
 automatic download. Send it to `loodusmuuseum@ut.ee`, with `veljo.runnel@ut.ee` copied
@@ -370,16 +395,21 @@ permission fields below.
 
 #### Outreach response log
 
-Record a reply here before touching `tools/audio/curated_bird_recordings.json`:
+The packet was prepared on **2026-08-03 UTC**. No email-capable integration is available
+in this environment, so no external message is claimed as sent. A maintainer must send
+the canonical packet, preserve the outbound copy/provider message ID, and update this
+log. The follow-up deadline is **2026-08-10 UTC**. No response, delayed response, or
+metadata-only confirmation is permission; the German iNaturalist fallbacks remain in
+place until a written grant clears the exact-record contract.
 
-| Record | Contacted | Reply date | Rightsholder | Commercial grant / license URL | Edits and distribution approved | Attribution | Evidence path | Decision |
-|---|---|---|---|---|---|---|---|---|
-| `great_cormorant` | not contacted; published source reviewed 2026-08-02 | - | TÜ loodusmuuseum; recording credited to Veljo Runnel | [CC BY-NC 3.0 EE](http://creativecommons.org/licenses/by-nc/3.0/ee/); no commercial grant | **No** - NC term does not permit commercial game distribution or the requested edit scope | BY attribution is required, but approved wording is not published | [`docs/reports/evidence/p0_122f/great_cormorant_permission.md`](evidence/p0_122f/great_cormorant_permission.md) | **blocked** - written commercial permission and duration are missing |
-| `white_tailed_eagle` | not contacted; published source reviewed 2026-08-02 | - | TÜ loodusmuuseum; recording credited to Veljo Runnel | [CC BY-NC 3.0 EE](http://creativecommons.org/licenses/by-nc/3.0/ee/); no commercial grant | **No** - NC term does not permit commercial game distribution or the requested edit scope | BY attribution is required, but approved wording is not published | [`docs/reports/evidence/p0_122f/white_tailed_eagle_permission.md`](evidence/p0_122f/white_tailed_eagle_permission.md) | **blocked** - written commercial permission, duration, and exact edit/distribution grant are missing |
+| Record | Contacted | Reply date | Rightsholder | Commercial grant / license URL | Edits and distribution approved | Duration | Attribution | Evidence path | Decision |
+|---|---|---|---|---|---|---|---|---|---|
+| `great_cormorant` | **not sent** - packet prepared 2026-08-03 UTC; intended To `loodusmuuseum@ut.ee`, Cc `veljo.runnel@ut.ee`, `kessy.abarenkov@ut.ee`, `info@elurikkus.ut.ee` | - | TÜ loodusmuuseum; recording credited to Veljo Runnel | [CC BY-NC 3.0 EE](http://creativecommons.org/licenses/by-nc/3.0/ee/); no commercial grant yet | **Unknown pending written reply**; published NC term does not clear commercial game use | Not published; request requires exact seconds | BY attribution is required, but approved wording is not published; request requires wording | [`permission_packet.md`](evidence/p0_122f/permission_packet.md), [`great_cormorant_permission.md`](evidence/p0_122f/great_cormorant_permission.md) | **blocked / awaiting external transmission and written commercial permission** |
+| `white_tailed_eagle` | **not sent** - packet prepared 2026-08-03 UTC; intended To `loodusmuuseum@ut.ee`, Cc `veljo.runnel@ut.ee`, `kessy.abarenkov@ut.ee`, `info@elurikkus.ut.ee` | - | TÜ loodusmuuseum; recording credited to Veljo Runnel | [CC BY-NC 3.0 EE](http://creativecommons.org/licenses/by-nc/3.0/ee/); no commercial grant yet | **Unknown pending written reply**; published NC term does not clear commercial game use | Not published; request requires exact seconds | BY attribution is required, but approved wording is not published; request requires wording | [`permission_packet.md`](evidence/p0_122f/permission_packet.md), [`white_tailed_eagle_permission.md`](evidence/p0_122f/white_tailed_eagle_permission.md) | **blocked / awaiting external transmission and written commercial permission** |
 
-The exact Estonian source page for `white_tailed_eagle` was reviewed on 2026-08-02: [Merikotkas](http://loodusheli.ee/ET/loomaliigid/linnud/taxonid=302&speciesid=576), credited to Veljo Runnel, Peipsiääre vald, Padakõrve küla, 2018-03-24. It publishes CC BY-NC 3.0 EE, does not publish a duration, and supplies no commercial grant. The archived evidence is [`docs/reports/evidence/p0_122f/white_tailed_eagle_permission.md`](evidence/p0_122f/white_tailed_eagle_permission.md); the decision is **blocked**. Keep the Germany iNaturalist fallback unchanged until written permission tied to this exact record, including edit/distribution scope, duration, and attribution wording, is preserved.
-
-A positive reply must be retained as an exportable message or signed document and
-linked from `Evidence path`. Only then may the relevant curated row be replaced and
-the three bird-audio verifiers be run. If a reply grants permission for only one
-record, keep the other German iNaturalist fallback unchanged and log the partial result.
+After transmission, replace `not sent` only with the actual send date/time, channel, and
+provider message ID. A positive reply must be retained as an exportable message or
+signed document and linked from `Evidence path`. Only then may the relevant curated row
+be replaced and the three bird-audio verifiers be run. If a reply grants permission for
+only one record, keep the other German iNaturalist fallback unchanged and log the partial
+result.
