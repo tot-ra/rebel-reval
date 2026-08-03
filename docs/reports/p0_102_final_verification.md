@@ -124,3 +124,14 @@ Result: **BLOCKED**. The checked command returned exit status 1. The saved log `
 - The remaining six methods pass, including `test_houses_get_facade_doors_and_windows`, the tower regressions, and the wall-walk checks.
 
 No runtime, test, landmark, or map source was changed by R-397. The exceptional renderer boundary therefore remains **not accepted** until R-353 resolves `GateDoor0` and R-413 resolves the monastery stable-ID collision. Existing shutdown renderer leak diagnostics are retained as non-blocking noise; the two named test failures are the acceptance blockers.
+
+## R-398 provenance reconciliation addendum (2026-08-03)
+
+Task R-398 reconciled the 14 generated albedo sidecars that were missing from the clean-snapshot provenance check above:
+
+- Eight `viru_gate_*_albedo.png` paths under `assets/props/architecture/gates/`.
+- Six `supply_cart_*_albedo.png` paths under `assets/props/trade/`.
+
+Each row is now present in `assets/SOURCES.csv` with its generator, parent GLB, AGPL-3.0-or-later project-author license, task-authorized review status, and exact PNG SHA-256. A direct file check confirms all 14 paths exist and all 14 recorded hashes match.
+
+The original matrix row and handoff item 3 remain historical results from the detached snapshot. This addendum supersedes only that 14-path provenance blocker for the current manifest. `python3 tools/validate_asset_sources.py` still exits 1 for six separate animal sidecars owned outside R-398: `medieval_dog` albedo/normal/roughness and `medieval_horse_pack` albedo/normal/roughness. The full environment-kit gate therefore remains blocked by the other findings listed above, not by the reconciled Viru Gate/cart paths.
