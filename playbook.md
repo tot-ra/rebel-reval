@@ -249,3 +249,4 @@
 - Run `map_pipeline_hardening` outside a large parallel batch with a longer timeout; its focused harness can exceed the parallel step's 90-second ceiling even when other map suites finish quickly.
 - Blender GLB smoke scripts must pass absolute project paths to `bpy.ops.import_scene.gltf`; a relative path resolved inside the temporary runner can produce the misleading `Please select a file` error before any asset is inspected.
 - When updating task-board cards, an empty `body` is not a no-op: it can erase the task description and omitted priority/complexity fields can reset metadata. Pass the full body and explicit metadata on updates, then re-read the card to verify its description, priority, complexity, and dependencies.
+- In a parallel tool batch, use `bash` for Git commands; `git` is not a standalone tool name.
