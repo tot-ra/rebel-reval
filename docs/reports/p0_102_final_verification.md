@@ -135,3 +135,32 @@ Task R-398 reconciled the 14 generated albedo sidecars that were missing from th
 Each row is now present in `assets/SOURCES.csv` with its generator, parent GLB, AGPL-3.0-or-later project-author license, task-authorized review status, and exact PNG SHA-256. A direct file check confirms all 14 paths exist and all 14 recorded hashes match.
 
 The original matrix row and handoff item 3 remain historical results from the detached snapshot. This addendum supersedes only that 14-path provenance blocker for the current manifest. `python3 tools/validate_asset_sources.py` still exits 1 for six separate animal sidecars owned outside R-398: `medieval_dog` albedo/normal/roughness and `medieval_horse_pack` albedo/normal/roughness. The full environment-kit gate therefore remains blocked by the other findings listed above, not by the reconciled Viru Gate/cart paths.
+
+## R-399 final acceptance verification addendum (2026-08-03)
+
+Task **R-399 / P0-102** ran the final acceptance gate against a detached clean worktree at `/tmp/rebel-reval-r399-20260803` from `HEAD=fb85c559` (`Reconcile Viru Gate and supply cart provenance`). The live worktree was not used for acceptance because it contains unrelated modified and untracked WIP. Godot 4.7.1 editor import completed with status 0.
+
+| Acceptance clause | Result | Evidence and classification |
+|---|---|---|
+| Clean import | **PASS** | `godot --headless --editor --import --path /tmp/rebel-reval-r399-20260803` returned 0. |
+| Shared environment-kit and focused regressions | **PASS** | The six scoped suites passed: `test_environment_kit_integration` 5/5, `test_map_view_decals` 8/8, `test_building_surface_weathering` 6/6, `test_map_view_material_resolution` 4/4, `test_map_view_3d_core` 17/17, and `test_map_view_3d_mesh` 18/18. Total: **58/58**, 0 failures and 0 errors. |
+| Dedicated day/night evidence | **PASS** | `python3 tools/verify_p0_102_environment_kit_evidence.py` passed with **8/8 plates**. The forge, street/well, brewery, and checkpoint pairs are present, linked once, decodable at 1280x720, non-flat, and use matching day/night framing metadata. Routes, doors, player approach areas, and interactables remain explicitly covered; capture limitations remain documented. |
+| Asset lint | **PASS** | `python3 tools/verify_asset_lint.py` passed: 8 style-lock textures, 8 character GLBs, 26 tier-classified character GLBs, and 0 portraits checked. This supersedes the older clean-snapshot `sergeant.glb` baseline finding recorded above. |
+| Asset provenance | **PASS** | `python3 tools/validate_asset_sources.py` passed: schema valid, 994 rows, 843 inventory paths covered, and 837 active runtime assets covered. This supersedes the older Viru Gate/cart and animal-sidecar findings recorded above for prior snapshots. |
+| Exceptional fortification boundary | **BLOCKED - external R-353 / R-413 ownership** | `test_map_view_3d_fortification` remains red: 8 tests, 2 failures, and 2 engine errors. `Landmark_karja_gate_arch/GateDoor0` is absent, causing the open-metal-door assertion and subsequent null `material_override` diagnostic. The district-boundary check also reports 5 ground cues where 4 are expected. No environment-kit runtime, map, landmark, or test source was changed by R-399. |
+
+Exact checked commands and logs:
+
+```text
+Worktree: /tmp/rebel-reval-r399-20260803
+Logs: /tmp/r399_checked/
+
+Import: godot --headless --editor --import --path /tmp/rebel-reval-r399-20260803 (exit 0)
+Scoped suites: tools/run_godot_checked.sh --require-test-summary p0-102-r399-<suite> -- godot --headless --path /tmp/rebel-reval-r399-20260803 --script tools/run_godot_tests.gd -- --filter=<suite>
+Evidence: python3 tools/verify_p0_102_environment_kit_evidence.py (exit 0)
+Asset lint: python3 tools/verify_asset_lint.py (exit 0)
+Provenance: python3 tools/validate_asset_sources.py (exit 0)
+Fortification: test_map_view_3d_fortification (exit 1; 2 failures, 2 engine errors)
+```
+
+The expected renderer teardown ObjectDB/resource/RID diagnostics are retained as non-blocking shutdown noise. The shared environment-kit implementation and its dedicated evidence set are green, but the full P0-102 acceptance gate remains **BLOCKED** and must not promote the parent task to done or ready for review until the fortification findings are resolved by their owners. No new follow-up task was created because R-353 and R-413 already own the outstanding boundary findings.
