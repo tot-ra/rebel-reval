@@ -1,6 +1,9 @@
 extends "res://tests/godot/test_case.gd"
 
 const ProfileScript := preload("res://scripts/world/urban_population_profile.gd")
+const CrowdRenderer := preload("res://scripts/map/view3d/map_view_crowd_renderer.gd")
+const MapBuilder := preload("res://scripts/map/map_builder.gd")
+const MapVerification := preload("res://scripts/map/map_verification.gd")
 
 const PHASE_DAY := GameState.PHASE_INVESTIGATION_MORNING
 const PHASE_NIGHT := GameState.PHASE_INVESTIGATION_NIGHT
@@ -105,3 +108,172 @@ func test_unknown_profile_falls_back_to_day_without_side_effects() -> void:
 	var snapshot := ProfileScript.resolve(&"not_a_profile", PHASE_DAY, DATE_OFF_DAY, 1343)
 	assert_eq(snapshot.get("profile_id"), ProfileScript.PROFILE_DAY)
 	assert_eq(snapshot.get("civilian_count"), 18)
+
+
+func test_seeded_placement_fixture_replays_identical_actor_ids_and_positions() -> void:
+	var profile := ProfileScript.market_day(PHASE_DAY, DATE_MARKET_DAY, 2024)
+	var first := _build_placement_fixture(profile, 10)
+	var second := _build_placement_fixture(profile, 10)
+	assert_eq(first, second, "equal profile inputs must reproduce crowd IDs and positions")
+	assert_eq(first.size(), 10)
+	for placement: Dictionary in first:
+		assert_true(placement.has("actor_id"))
+		assert_true(placement.has("position"))
+		assert_false(String(placement["actor_id"]).is_empty())
+
+
+func test_placement_fixture_is_authored_walkable_and_clear_of_buildings_props() -> void:
+	var profile := ProfileScript.day(PHASE_DAY, DATE_OFF_DAY, 2024)
+	var placements := _build_placement_fixture(profile, 8)
+	var map_fixture := _build_map_fixture()
+	var definition: MapDefinition = map_fixture["definition"]
+	var grid: MapTerrainGrid = map_fixture["grid"]
+	var allowed_zones := {
+		&"street_frontage": Rect2(32.0, 32.0, 160.0, 96.0),
+		&"work_yard": Rect2(256.0, 32.0, 192.0, 96.0),
+		&"residential_yard": Rect2(480.0, 32.0, 160.0, 96.0),
+	}
+	var prop_position := MapVerification.prop_position(definition, &"yard_barrel")
+	assert_false(
+		MapVerification.is_walkable_point(definition, grid, Vector2(336.0, 80.0)),
+		"building footprint must reject crowd placement cells"
+	)
+
+	for placement: Dictionary in placements:
+		var position: Vector2 = placement["position"]
+		var zone_id: StringName = placement["zone_id"]
+		assert_true(allowed_zones.has(zone_id), "placement must use an authored active zone")
+		assert_true((allowed_zones[zone_id] as Rect2).has_point(position), "placement must stay inside its authored zone")
+		assert_true(MapVerification.is_walkable_point(definition, grid, position), "placement must stay on a walkable cell")
+		assert_false(position.distance_to(prop_position) < 24.0, "placement must keep clearance from authored prop collision")
+
+
+func test_invalid_points_are_rejected_and_valid_points_are_capped_by_renderer_capacity() -> void:
+	var profile := ProfileScript.day(PHASE_DAY, DATE_OFF_DAY, 2024)
+	var placements := _build_placement_fixture(profile, 64)
+	var renderer := CrowdRenderer.new()
+	renderer.configure(3, 2024)
+
+	var accepted := 0
+	for placement: Dictionary in placements:
+		if not _is_valid_placement(placement):
+			continue
+		accepted += 1
+		renderer.set_actor_position(accepted, Vector3(placement["position"].x, 0.0, placement["position"].y))
+
+	assert_true(accepted > renderer.capacity(), "fixture must exercise renderer overflow")
+	assert_eq(renderer.capacity(), 3, "renderer capacity must remain the authored cap")
+	assert_true(renderer.active_count() >= accepted, "logical placement registration must not silently drop valid actors")
+	assert_false(_is_valid_placement({"actor_id": "crowd.invalid", "zone_id": &"not_authored", "position": Vector2(-1.0, -1.0)}),
+		"invalid zone and out-of-bounds point must be rejected")
+	renderer.queue_free()
+
+
+func test_named_and_interactable_npcs_are_excluded_from_generated_crowd_set() -> void:
+	var profile := ProfileScript.day(PHASE_DAY, DATE_OFF_DAY, 2024)
+	var named_ids := {&"crowd.day.005": true, &"char.mart": true, &"interact.cistern": true}
+	var generated := _build_placement_fixture(profile, 32, named_ids)
+
+	assert_eq(generated.size(), 31, "reserved named actor must reduce generated crowd count")
+	for placement: Dictionary in generated:
+		assert_false(named_ids.has(StringName(placement["actor_id"])),
+			"named/interactable actors must not be generated crowd members")
+
+
+func _build_placement_fixture(profile: Dictionary, requested_count: int, excluded_ids: Dictionary = {}) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	var zones: Array[StringName] = profile["zone_ids"]
+	var seed := int(profile["seed"])
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed
+	for index in requested_count:
+		var actor_id := StringName("crowd.%s.%03d" % [String(profile["profile_id"]), index])
+		if excluded_ids.has(actor_id):
+			continue
+		var zone_id: StringName = zones[index % zones.size()]
+		var origin := _fixture_zone_origin(zone_id)
+		var offset := Vector2(rng.randi_range(4, 20), rng.randi_range(4, 20))
+		result.append({
+			"actor_id": actor_id,
+			"zone_id": zone_id,
+			"position": origin + offset,
+		})
+	return result
+
+
+func _build_map_fixture() -> Dictionary:
+	var definition := MapDefinition.new()
+	definition.map_id = &"test_urban_population"
+	definition.cell_size = 32
+	definition.size_cells = Vector2i(32, 16)
+	definition.base_terrain = MapTypes.TERRAIN_GRASS
+	definition.player_spawn = Vector2(16.0, 16.0)
+	definition.location = &"test"
+	definition.scope = &"prototype"
+	definition.palette = &"test"
+	definition.fingerprint = "urban-population-test"
+	definition.buildings.append({
+		"id": &"test_building",
+		"kind": MapTypes.BUILDING_KIND_HOUSE,
+		"footprint": Rect2(10.0 * 32.0, 2.0 * 32.0, 2.0 * 32.0, 2.0 * 32.0),
+	})
+	definition.props.append({
+		"id": &"yard_barrel",
+		"kind": MapTypes.PROP_KIND_BARRELS,
+		"position": Vector2(17.0 * 32.0, 3.0 * 32.0),
+	})
+	return {"definition": definition, "grid": MapBuilder.build(definition)}
+
+
+func _fixture_zone_origin(zone_id: StringName) -> Vector2:
+	match zone_id:
+		&"street_frontage":
+			return Vector2(32.0, 32.0)
+		&"work_yard":
+			return Vector2(256.0, 32.0)
+		&"residential_yard":
+			return Vector2(480.0, 32.0)
+		&"market_lane":
+			return Vector2(32.0, 160.0)
+		&"checkpoint":
+			return Vector2(704.0, 32.0)
+		&"safe_interior":
+			return Vector2(800.0, 32.0)
+	return Vector2(-1000.0, -1000.0)
+
+
+func _is_valid_placement(placement: Dictionary) -> bool:
+	var actor_id := StringName(placement.get("actor_id", &""))
+	var zone_id := StringName(placement.get("zone_id", &""))
+	var position: Vector2 = placement.get("position", Vector2(-1.0, -1.0))
+	if actor_id.is_empty() or not String(actor_id).begins_with("crowd."):
+		return false
+	var zone := _fixture_zone_rect(zone_id)
+	if zone == Rect2() or not zone.has_point(position):
+		return false
+	var map_fixture := _build_map_fixture()
+	var definition: MapDefinition = map_fixture["definition"]
+	var grid: MapTerrainGrid = map_fixture["grid"]
+	if not MapVerification.is_walkable_point(definition, grid, position):
+		return false
+	var prop_position := MapVerification.prop_position(definition, &"yard_barrel")
+	if position.distance_to(prop_position) < 24.0:
+		return false
+	return true
+
+
+func _fixture_zone_rect(zone_id: StringName) -> Rect2:
+	match zone_id:
+		&"street_frontage":
+			return Rect2(32.0, 32.0, 160.0, 96.0)
+		&"work_yard":
+			return Rect2(256.0, 32.0, 192.0, 96.0)
+		&"residential_yard":
+			return Rect2(480.0, 32.0, 160.0, 96.0)
+		&"market_lane":
+			return Rect2(32.0, 160.0, 192.0, 96.0)
+		&"checkpoint":
+			return Rect2(704.0, 32.0, 160.0, 96.0)
+		&"safe_interior":
+			return Rect2(800.0, 32.0, 160.0, 96.0)
+	return Rect2()
