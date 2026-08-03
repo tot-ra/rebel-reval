@@ -20,6 +20,7 @@ func test_all_four_profiles_are_constructible_from_explicit_inputs() -> void:
 	assert_eq(profiles[1].get("profile_id"), ProfileScript.PROFILE_NIGHT)
 	assert_eq(profiles[2].get("profile_id"), ProfileScript.PROFILE_MARKET_DAY)
 	assert_eq(profiles[3].get("profile_id"), ProfileScript.PROFILE_CRACKDOWN)
+	assert_eq(ProfileScript.PROFILE_TENSE, ProfileScript.PROFILE_CRACKDOWN)
 	for profile: Dictionary in profiles:
 		assert_false(profile.get("phase_id", &"").is_empty())
 		assert_eq(profile.get("date"), DATE_OFF_DAY if profile.get("profile_id") != ProfileScript.PROFILE_MARKET_DAY else DATE_MARKET_DAY)
@@ -70,6 +71,10 @@ func test_profiles_expose_occupation_zone_and_authored_cap_rules() -> void:
 	assert_eq(occupation_mix.get(&"artisan"), 5)
 	assert_eq(occupation_mix.get(&"laborer"), 5)
 	assert_eq(occupation_mix.get(&"resident"), 4)
+	var civilian_occupation_total := 0
+	for occupation in occupation_mix.values():
+		civilian_occupation_total += int(occupation)
+	assert_eq(civilian_occupation_total, snapshot["civilian_count"])
 	assert_eq(actor_plan.size(), snapshot["total_count"])
 	for actor in actor_plan:
 		assert_array_contains(snapshot["zone_ids"], actor["zone_id"])

@@ -1,6 +1,7 @@
 # Playbook
 
 ## Session lessons
+- After a sequential exact edit reports no match, re-read the live target block before applying the next change; nearby context or a prior edit can make the original replacement stale.
 
 - Markdown reports with intentional hard-break spaces fail `git diff --cached --check`; use plain line breaks before staging documentation.
 - A failed `git diff --cached --check` can stop a scoped documentation commit on Markdown hard-break spaces; normalize trailing spaces before staging, and stage only the intended report plus a clean patch for any playbook lesson when the playbook already has unrelated WIP.
