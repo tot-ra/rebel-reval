@@ -73,6 +73,25 @@ func test_checkpoint_arm_spawns_watch_enemies_and_sets_quest_active() -> void:
 	_free_scene(east)
 
 
+func test_checkpoint_enemies_are_registered_in_the_3d_view_after_spawn() -> void:
+	_prepare_night_state(RECORD_HONEST)
+	var east := await _spawn_lower_town()
+	var consequence := _find_night_consequence(east)
+	consequence.arm_encounter_for_test()
+	await Engine.get_main_loop().process_frame
+	var runtime := east.get_node_or_null("MapViewRuntime") as MapViewRuntime
+	assert_true(runtime != null, "Lower Town must install the 3D runtime")
+	assert_true(
+		runtime.get_actor_rig(consequence.watchman) != null,
+		"A night enemy spawned after runtime install must be visible in 3D"
+	)
+	assert_true(
+		runtime.get_actor_rig(consequence.sergeant) != null,
+		"Both night enemies must receive shared character rigs"
+	)
+	_free_scene(east)
+
+
 func _assert_route_resolves(
 	record_id: StringName,
 	kind: StringName,

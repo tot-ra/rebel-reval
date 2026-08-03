@@ -20,6 +20,7 @@ var _logic_direction_toward_camera: Callable
 var _last_facing := Vector2.ZERO
 var _last_player_health := -1.0
 var _actor_rigs: Dictionary = {}
+var _actors_without_rig: Dictionary = {}
 var _equipment_state: GameState
 var _content_db: ContentDB
 var _request_screen_shake: Callable
@@ -69,9 +70,14 @@ func register_view_actor(actor: Node2D) -> void:
 	if actor == null or _actor_rigs.has(actor):
 		return
 	var rig_scene: PackedScene = actor.get("rig_scene") as PackedScene
+	if rig_scene == null and actor.has_method("view_rig_scene"):
+		rig_scene = actor.call("view_rig_scene") as PackedScene
 	if rig_scene == null:
-		push_warning("Map view actor %s has no rig_scene" % actor.name)
+		if not _actors_without_rig.has(actor):
+			_actors_without_rig[actor] = true
+			push_warning("Map view actor %s has no rig_scene" % actor.name)
 		return
+	_actors_without_rig.erase(actor)
 	var rig := rig_scene.instantiate() as SharedCharacterRig
 	if rig == null:
 		push_warning("Map view actor %s rig is not a SharedCharacterRig" % actor.name)
@@ -84,12 +90,18 @@ func register_view_actor(actor: Node2D) -> void:
 
 
 func sync_view_actors(delta: float) -> void:
+	# Encounter controllers spawn enemies after install(); rescan the scene root so
+	# those damageable actors become visible in the same frame without requiring
+	# every quest controller to know about 3D presentation internals.
+	if _host != null:
+		register_view_actors(_host.get_parent())
 	for actor: Node2D in _actor_rigs.keys():
 		if not is_instance_valid(actor):
 			var stale_rig: SharedCharacterRig = _actor_rigs[actor]
 			if is_instance_valid(stale_rig):
 				stale_rig.queue_free()
 			_actor_rigs.erase(actor)
+			_actors_without_rig.erase(actor)
 			continue
 		_sync_view_actor(actor, _actor_rigs[actor] as SharedCharacterRig, false, delta)
 

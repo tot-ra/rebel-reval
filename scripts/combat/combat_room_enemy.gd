@@ -33,10 +33,14 @@ var _label: Label
 var _target: Node2D
 var _swing_counter := 9000
 var _signals_wired := false
+## MapViewRuntime mirrors combat actors through the same shared rigs as the player.
+## The scene is selected from the archetype so watchmen and sergeants retain their
+## authored silhouette, equipment, and animation overrides in the 3D map.
 
 
 func _ready() -> void:
 	add_to_group(&"combat_damageable")
+	add_to_group(&"map_view_actor")
 	combat_vitals.configure(health, max_health, stamina, max_stamina)
 	if not combat_vitals.died.is_connected(_on_vitals_died):
 		combat_vitals.died.connect(_on_vitals_died)
@@ -67,6 +71,38 @@ func reset_actor() -> void:
 
 func get_machine() -> EnemyCombatStateMachine:
 	return machine
+
+
+func view_facing() -> Vector2:
+	if _target != null and is_instance_valid(_target):
+		var toward_target := _target.global_position - global_position
+		if toward_target.length_squared() > 1.0:
+			return toward_target.normalized()
+	return Vector2.DOWN
+
+
+func view_rig_scene() -> PackedScene:
+	return machine.archetype.character_scene
+
+
+func view_animation() -> StringName:
+	if machine.is_dead():
+		return &"fall"
+	match machine.state:
+		EnemyCombatState.State.ATTACK:
+			return machine.archetype.attack_animation
+		EnemyCombatState.State.REACT:
+			return &"hit"
+		EnemyCombatState.State.PATROL, EnemyCombatState.State.DISENGAGE:
+			return &"walk"
+		EnemyCombatState.State.TELEGRAPH:
+			return &"guard"
+		_:
+			return &"idle"
+
+
+func is_combat_dead() -> bool:
+	return machine.is_dead()
 
 
 func set_ai_target(target: Node2D) -> void:
