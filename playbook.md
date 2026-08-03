@@ -251,3 +251,5 @@
 - When updating task-board cards, an empty `body` is not a no-op: it can erase the task description and omitted priority/complexity fields can reset metadata. Pass the full body and explicit metadata on updates, then re-read the card to verify its description, priority, complexity, and dependencies.
 - In a parallel tool batch, use `bash` for Git commands; `git` is not a standalone tool name.
 - When repairing task-board metadata after a malformed update, pass the full explicit priority, complexity, and status fields; verify the parent status immediately because an omitted or zero-value field can silently demote the task.
+- MDZ OCR endpoints return XHTML, and AWB entries can cross page canvases; strip tags, normalize whitespace, and inspect adjacent canvases before classifying a missing token as an evidence gap.
+- When checking a literal line that begins with `-`, pass `--` to grep or use `-e`; otherwise grep treats the lesson text as an option.
