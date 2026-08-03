@@ -2,6 +2,8 @@
 
 ## Session lessons
 - After a sequential exact edit reports no match, re-read the live target block before applying the next change; nearby context or a prior edit can make the original replacement stale.
+- Task-board selection must compare the complete open-task set by both priority and complexity before choosing a parent. The built-in `next` operation can return a small task even when a higher-complexity task exists elsewhere; do not begin decomposition until the full candidate list is checked.
+- If an attempted playbook overwrite drops accumulated lessons, restore the file from the current baseline before appending the new lesson; use an append/insertion operation for additive changes.
 
 - Markdown reports with intentional hard-break spaces fail `git diff --cached --check`; use plain line breaks before staging documentation.
 - A failed `git diff --cached --check` can stop a scoped documentation commit on Markdown hard-break spaces; normalize trailing spaces before staging, and stage only the intended report plus a clean patch for any playbook lesson when the playbook already has unrelated WIP.
