@@ -2,6 +2,10 @@ class_name MarketDayController
 extends Node
 
 ## Toggles market stall density and merchant trade dialogue from the campaign calendar.
+## The signal/binding below is the narrow bridge consumed by urban population systems:
+## market-day owns the calendar decision, while population owns actor density.
+
+signal market_day_changed(active: bool)
 
 const ModelScript := preload("res://scripts/world/market_day_model.gd")
 const RunnerScript := preload("res://scripts/dialogue/dialogue_runner.gd")
@@ -35,6 +39,15 @@ var _market_day_active := false
 var _crowd_layer: CanvasLayer
 var _crowd_label: Label
 var _crowd_timer := 0.0
+var _population_controller: Object
+
+
+func bind_population_controller(controller: Object) -> void:
+	_population_controller = controller
+	if _population_controller == null:
+		return
+	if _population_controller.has_method(&"set_market_day_active"):
+		_population_controller.call(&"set_market_day_active", _market_day_active)
 
 
 func setup(
@@ -93,6 +106,7 @@ func sync_for_test(phase_id: StringName, elapsed_days: int) -> void:
 	var previous_active := _market_day_active
 	_market_day_active = ModelScript.sync_flag(_state, phase_id, elapsed_days)
 	_apply_market_presence(previous_active)
+	_notify_population(previous_active)
 	_synced_date_key = _date_key_for(phase_id, elapsed_days)
 
 
@@ -130,6 +144,15 @@ func _sync_from_calendar() -> void:
 	var previous_active := _market_day_active
 	_market_day_active = ModelScript.sync_flag(_state, phase_id, elapsed_days)
 	_apply_market_presence(previous_active)
+	_notify_population(previous_active)
+
+
+func _notify_population(previous_active: bool) -> void:
+	if previous_active == _market_day_active:
+		return
+	market_day_changed.emit(_market_day_active)
+	if _population_controller != null and _population_controller.has_method(&"set_market_day_active"):
+		_population_controller.call(&"set_market_day_active", _market_day_active)
 
 
 func _elapsed_days() -> int:

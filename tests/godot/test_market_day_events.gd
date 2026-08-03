@@ -15,6 +15,18 @@ const DIALOGUE_ID := &"dialogue.merchant.market_day"
 const FLAG_MARKET_DAY := &"flag.market_day_active"
 
 
+class PopulationProbe:
+	extends RefCounted
+
+	var received_states: Array[bool] = []
+
+	func set_market_day_active(active: bool) -> void:
+		received_states.append(active)
+
+	func record_signal(active: bool) -> void:
+		received_states.append(active)
+
+
 var db: ContentDB
 var state: GameState
 var presenter: DialogueTestPresenter
@@ -71,6 +83,23 @@ func test_market_day_herring_choice_records_fact() -> void:
 	runner.advance_for_test()
 	assert_true(runner.select_choice("buy_herring"))
 	assert_true(state.get_fact(&"fact.market_day.sampled_herring"))
+
+
+func test_market_day_bridge_notifies_population_only_when_calendar_state_changes() -> void:
+	var controller := ControllerScript.new()
+	var probe := PopulationProbe.new()
+	controller._state = state
+	controller.bind_population_controller(probe)
+	controller.market_day_changed.connect(probe.record_signal)
+	controller.sync_for_test(GameState.PHASE_INVESTIGATION_MORNING, 0)
+	assert_eq(probe.received_states, [false], "Binding must provide the current off-day snapshot")
+	controller.sync_for_test(GameState.PHASE_INVESTIGATION_MORNING, 2)
+	assert_eq(probe.received_states, [false, true, true], "Population receives the market-day update and signal")
+	controller.sync_for_test(GameState.PHASE_INVESTIGATION_MORNING, 2)
+	assert_eq(probe.received_states, [false, true, true], "Repeated sync on one date must not duplicate the update")
+	controller.sync_for_test(GameState.PHASE_INVESTIGATION_MORNING, 3)
+	assert_eq(probe.received_states, [false, true, true, false, false], "Off-day transition reaches population and signal")
+	controller.free()
 
 
 func test_market_stall_has_visible_keeper_with_talk_sensor() -> void:
