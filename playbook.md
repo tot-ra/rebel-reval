@@ -256,3 +256,4 @@
 - When checking a literal line that begins with `-`, pass `--` to grep or use `-e`; otherwise grep treats the lesson text as an option.
 - For append-only CSV edits in a dirty worktree, do not assume one newline convention; preserve raw bytes and validate the actual line ending mix before inserting rows.
 - After a structural test insertion shifts helper boundaries, re-read the saved block before the next edit; stale line ranges can duplicate helpers or move assertions into the wrong function.
+- When validating documentation contracts, allow intentional Markdown line wrapping and punctuation variants; assert structural phrases or normalize whitespace before treating a smoke failure as a deliverable defect.
