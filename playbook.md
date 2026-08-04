@@ -263,3 +263,4 @@
 - For no-op fallback acceptance in a dirty worktree, compare semantic manifest rows and tracked audio hashes rather than whole-file CSV hashes; line-ending normalization can change bytes without changing the scoped row or runtime asset.
 - A focused historical-dossier unittest may be stale after the TODO.md-to-task-board migration; capture the full traceback and classify the missing TODO.md as baseline instead of changing the scoped research note.
 - Run documentation whitespace hygiene checks before staging; Markdown hard-break spaces can make a green focused test look like a failed scoped commit.
+- When a scoped commit is blocked by pre-existing staged whitespace, run `git diff --cached --check -- <allowlisted paths>` and commit with `git commit --only <allowlisted paths>` so unrelated index WIP cannot block or enter the commit; record the staged baseline separately.
