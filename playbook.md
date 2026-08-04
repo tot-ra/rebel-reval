@@ -262,3 +262,4 @@
 - When a tool path includes accidental prose or non-ASCII suffixes, retry with the exact discovered path before treating the file as unavailable.
 - For no-op fallback acceptance in a dirty worktree, compare semantic manifest rows and tracked audio hashes rather than whole-file CSV hashes; line-ending normalization can change bytes without changing the scoped row or runtime asset.
 - A focused historical-dossier unittest may be stale after the TODO.md-to-task-board migration; capture the full traceback and classify the missing TODO.md as baseline instead of changing the scoped research note.
+- Run documentation whitespace hygiene checks before staging; Markdown hard-break spaces can make a green focused test look like a failed scoped commit.
