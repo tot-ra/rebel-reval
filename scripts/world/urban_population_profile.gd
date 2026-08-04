@@ -100,6 +100,57 @@ static func is_known_profile(profile_id: StringName) -> bool:
 	return PROFILE_RULES.has(profile_id)
 
 
+## Selects the renderer-agnostic profile from current world inputs without reading
+## or mutating GameState. Explicit context flags are useful to the controller when
+## a phase overlay has already resolved market/crackdown state; omitted flags fall
+## back to the deterministic campaign date and phase. Precedence is crackdown,
+## night, market-day, then ordinary day so a tense night never presents as trade.
+static func profile_id_for_context(
+	phase_id: StringName,
+	date: Dictionary,
+	context: Dictionary = {}
+) -> StringName:
+	var is_crackdown := _context_bool(context, &"crackdown", false)
+	is_crackdown = is_crackdown or _context_bool(context, &"tense", false)
+	if is_crackdown:
+		return PROFILE_CRACKDOWN
+
+	var time_band := _phase_time_band(phase_id)
+	if context.has(&"time_band"):
+		var requested_band := StringName(String(context.get(&"time_band", &"")))
+		# Unknown explicit bands use the safe daytime profile rather than guessing
+		# that an unrecognised phase is a curfew or consequence state.
+		if requested_band == &"night" or requested_band == &"day":
+			time_band = requested_band
+		else:
+			time_band = &"day"
+	if time_band == &"night":
+		return PROFILE_NIGHT
+
+	var calendar_market_day := _is_market_day(_normalized_date(date))
+	var market_day := _context_bool(context, &"market_day", calendar_market_day)
+	if market_day:
+		return PROFILE_MARKET_DAY
+	return PROFILE_DAY
+
+
+## Resolves the selected context profile through the canonical profile builder so
+## actor plans, seed, date, and replay_inputs remain identical to direct profiles.
+static func resolve_for_context(
+	phase_id: StringName,
+	date: Dictionary,
+	seed: int = 0,
+	context: Dictionary = {}
+) -> Dictionary:
+	return resolve(profile_id_for_context(phase_id, date, context), phase_id, date, seed)
+
+
+static func _context_bool(context: Dictionary, key: StringName, fallback: bool) -> bool:
+	if not context.has(key) or typeof(context[key]) != TYPE_BOOL:
+		return fallback
+	return bool(context[key])
+
+
 static func resolve(
 	profile_id: StringName,
 	phase_id: StringName,

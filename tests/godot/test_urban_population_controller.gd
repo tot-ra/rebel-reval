@@ -110,6 +110,81 @@ func test_unknown_profile_falls_back_to_day_without_side_effects() -> void:
 	assert_eq(snapshot.get("civilian_count"), 18)
 
 
+func test_context_resolver_selects_four_profiles_from_phase_date_and_overlays() -> void:
+	var day := ProfileScript.resolve_for_context(PHASE_DAY, DATE_OFF_DAY, 1343)
+	var market_day := ProfileScript.resolve_for_context(PHASE_DAY, DATE_MARKET_DAY, 1343)
+	var night := ProfileScript.resolve_for_context(PHASE_NIGHT, DATE_OFF_DAY, 1343)
+	var crackdown := ProfileScript.resolve_for_context(
+		PHASE_DAY,
+		DATE_OFF_DAY,
+		1343,
+		{"crackdown": true}
+	)
+
+	assert_eq(day["profile_id"], ProfileScript.PROFILE_DAY)
+	assert_eq(market_day["profile_id"], ProfileScript.PROFILE_MARKET_DAY)
+	assert_eq(night["profile_id"], ProfileScript.PROFILE_NIGHT)
+	assert_eq(crackdown["profile_id"], ProfileScript.PROFILE_CRACKDOWN)
+	assert_eq(day["replay_inputs"]["phase_id"], PHASE_DAY)
+	assert_eq(market_day["replay_inputs"]["date"], DATE_MARKET_DAY)
+	assert_eq(night["replay_inputs"]["seed"], 1343)
+	for profile: Dictionary in [day, market_day, night, crackdown]:
+		assert_false(profile.has("GameState"))
+		assert_false(profile.has("state"))
+		assert_eq(profile["actor_plan"].size(), profile["total_count"])
+
+
+func test_context_resolver_precedence_keeps_overlays_deterministic() -> void:
+	var tense_night := ProfileScript.resolve_for_context(
+		PHASE_NIGHT,
+		DATE_MARKET_DAY,
+		7,
+		{"market_day": true, "tense": true}
+	)
+	var explicit_night := ProfileScript.resolve_for_context(
+		PHASE_DAY,
+		DATE_MARKET_DAY,
+		7,
+		{"time_band": "night", "market_day": true}
+	)
+	var unknown_band := ProfileScript.resolve_for_context(
+		PHASE_DAY,
+		DATE_OFF_DAY,
+		7,
+		{"time_band": "twilight"}
+	)
+
+	assert_eq(tense_night["profile_id"], ProfileScript.PROFILE_CRACKDOWN)
+	assert_eq(explicit_night["profile_id"], ProfileScript.PROFILE_NIGHT)
+	assert_eq(unknown_band["profile_id"], ProfileScript.PROFILE_DAY)
+	assert_eq(
+		unknown_band,
+		ProfileScript.resolve_for_context(PHASE_DAY, DATE_OFF_DAY, 7, {"time_band": "twilight"}),
+		"unknown context inputs must use a stable safe fallback"
+	)
+
+
+func test_context_resolver_replays_same_inputs_without_game_state_writes() -> void:
+	var first := ProfileScript.resolve_for_context(
+		PHASE_DAY,
+		DATE_MARKET_DAY,
+		2024,
+		{"market_day": true}
+	)
+	var second := ProfileScript.resolve_for_context(
+		PHASE_DAY,
+		DATE_MARKET_DAY,
+		2024,
+		{"market_day": true}
+	)
+
+	assert_eq(first, second)
+	assert_eq(first["replay_inputs"]["profile_id"], ProfileScript.PROFILE_MARKET_DAY)
+	assert_eq(first["replay_inputs"]["seed"], 2024)
+	assert_false(first.has("GameState"))
+	assert_false(first.has("state"))
+
+
 func test_seeded_placement_fixture_replays_identical_actor_ids_and_positions() -> void:
 	var profile := ProfileScript.market_day(PHASE_DAY, DATE_MARKET_DAY, 2024)
 	var first := _build_placement_fixture(profile, 10)
