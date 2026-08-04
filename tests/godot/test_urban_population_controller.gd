@@ -180,6 +180,81 @@ func test_named_and_interactable_npcs_are_excluded_from_generated_crowd_set() ->
 			"named/interactable actors must not be generated crowd members")
 
 
+func test_all_profiles_keep_crowd_clear_of_gameplay_reserved_spaces() -> void:
+	var profiles: Array[Dictionary] = [
+		ProfileScript.day(PHASE_DAY, DATE_OFF_DAY, 2024),
+		ProfileScript.market_day(PHASE_DAY, DATE_MARKET_DAY, 2024),
+		ProfileScript.night(PHASE_NIGHT, DATE_OFF_DAY, 2024),
+		ProfileScript.crackdown(PHASE_DAY, DATE_OFF_DAY, 2024),
+	]
+	for profile: Dictionary in profiles:
+		var profile_id := StringName(profile["profile_id"])
+		var requested_count := int(profile["total_count"])
+		var first := _build_placement_fixture(profile, requested_count)
+		var second := _build_placement_fixture(profile, requested_count)
+		assert_eq(first, second, "profile %s placement must be deterministic" % String(profile_id))
+		assert_eq(first.size(), requested_count, "profile %s must produce its complete plan" % String(profile_id))
+		for placement: Dictionary in first:
+			var violation := _gameplay_reserved_space_violation(placement)
+			assert_eq(
+				violation,
+				&"",
+				"profile %s actor %s violates %s reserve" % [
+					String(profile_id),
+					String(placement["actor_id"]),
+					String(violation),
+				]
+			)
+
+
+func test_reserved_space_diagnostics_identify_each_gameplay_category() -> void:
+	for reserved: Dictionary in _fixture_gameplay_reserved_spaces():
+		var bounds: Rect2 = reserved["bounds"]
+		var placement := {
+			"actor_id": "crowd.reserve.%s" % String(reserved["category"]),
+			"zone_id": reserved["zone_id"],
+			"position": bounds.get_center(),
+		}
+		assert_eq(
+			_gameplay_reserved_space_violation(placement),
+			reserved["category"],
+			"diagnostic must identify %s" % String(reserved["category"]),
+		)
+
+
+func _fixture_gameplay_reserved_spaces() -> Array[Dictionary]:
+	return [
+		{
+			"category": &"player_spawn",
+			"zone_id": &"street_frontage",
+			"bounds": Rect2(128.0, 80.0, 32.0, 32.0),
+		},
+		{
+			"category": &"entrance",
+			"zone_id": &"work_yard",
+			"bounds": Rect2(400.0, 80.0, 32.0, 32.0),
+		},
+		{
+			"category": &"prompt",
+			"zone_id": &"residential_yard",
+			"bounds": Rect2(592.0, 80.0, 32.0, 32.0),
+		},
+		{
+			"category": &"patrol_route",
+			"zone_id": &"checkpoint",
+			"bounds": Rect2(816.0, 80.0, 32.0, 32.0),
+		},
+	]
+
+
+func _gameplay_reserved_space_violation(placement: Dictionary) -> StringName:
+	var position: Vector2 = placement.get("position", Vector2(-1.0, -1.0))
+	for reserved: Dictionary in _fixture_gameplay_reserved_spaces():
+		var bounds: Rect2 = reserved["bounds"]
+		if bounds.grow(24.0).has_point(position):
+			return StringName(reserved["category"])
+	return &""
+
 func _build_placement_fixture(profile: Dictionary, requested_count: int, excluded_ids: Dictionary = {}) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	var zones: Array[StringName] = profile["zone_ids"]
