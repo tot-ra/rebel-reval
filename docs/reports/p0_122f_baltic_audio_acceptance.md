@@ -1,13 +1,13 @@
 # P0-122f Baltic Bird-Audio Acceptance
 
-**Task:** R-426 / P0-122f
+**Task:** R-427 / P0-122f
 **Acceptance date:** 2026-08-05
 **Decision:** **BLOCKED - preserve the verified German iNaturalist fallbacks.**
 
-This post-permission gate verifies the two P0-122f gap species, the 30-species
-source manifest, the processed cue set, the focused Python contract tests, and the
-focused Godot bird-audio suites. No curated row, runtime species ID, scheduler, or
-audio asset was changed by this verification pass.
+This final rights-boundary closeout verifies the two P0-122f gap species, the 30-species
+source manifest, the processed cue set, provenance registration, the focused Python
+contract tests, and the focused Godot bird-audio suites. No curated row, runtime
+species ID, scheduler, or audio asset was changed by this closeout.
 
 ## Per-species decision
 
@@ -20,6 +20,21 @@ The exact current curated rows are in `tools/audio/curated_bird_recordings.json`
 `sounds/birds/manifest.csv`. Both satisfy the commercial-license verifier. Neither
 Estonian candidate may be downloaded, trimmed, registered, or substituted from
 metadata alone.
+
+## Cross-manifest identity check
+
+The final closeout compared the two gap-species records across every production
+manifest. Each row resolves to the same source ID, observation URL, recordist,
+license, source file, and processed runtime cue; `assets/SOURCES.csv` contains the
+matching provenance entries for both source WAVs and both processed MP3s.
+
+| Species | Curated JSON | Source manifest | Processed manifest | Provenance | Decision |
+|---|---|---|---|---|---|
+| `great_cormorant` | `inaturalist` / `367008` / `jeremybarker` / CC0 | `367008` / `sounds/birds/great_cormorant/great_cormorant_IN367008.wav` | `bird.great_cormorant.call` -> `call.mp3` / `367008` / CC0 | source + processed rows in `assets/SOURCES.csv` | **fallback retained** |
+| `white_tailed_eagle` | `inaturalist` / `803125` / `emilvus` / CC BY 4.0 | `803125` / `sounds/birds/white_tailed_eagle/white_tailed_eagle_IN803125.wav` | `bird.white_tailed_eagle.call` -> `call.mp3` / `803125` / CC BY 4.0 | source + processed rows in `assets/SOURCES.csv` | **fallback retained** |
+
+No metadata-only candidate, CC BY-NC/ND source, unregistered file, or
+`source=permission` row is present for either gap species.
 
 ## Verification matrix
 
