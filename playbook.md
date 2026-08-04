@@ -213,6 +213,8 @@
 - When a focused unittest command exits non-zero without useful terminal diagnostics, capture stdout and stderr to a temporary log; this exposed a missing `json` import in the shared bird-audio test rather than an audio-manifest failure.
 - For rights-blocked bird-audio integration, keep the existing commercial-compatible fallback unchanged when the regional candidate is metadata-only or CC BY-NC; record the exact source/permission boundary and create a permission-cleared follow-up instead of changing curated rows.
 - A permission-cleared regional audio replacement cannot be completed from metadata or a non-commercial page: preserve the verified fallback, record the exact rights boundary, and hand off to the existing human-outreach task before changing the curated row or registering audio.
+- For cross-manifest CSV diagnostics, parse `assets/SOURCES.csv` with `csv.DictReader`; splitting provenance rows on commas misreads quoted edit fields and can create a false verification failure.
+- When comparing processed-manifest paths to repository provenance, normalize absolute `processed_file` values relative to the project root before matching them to `assets/SOURCES.csv` paths.
 
 - Research dossier reciprocal-link edits need the exact live line re-read after summarized grep; similar-looking cross-reference text can differ by path depth or punctuation and make a targeted replacement fail.
 - Direct DOI/handle fetches may return 403/500 even when indexed scholarly metadata is available; use the indexed abstract as comparative evidence, record the access boundary, and do not repeatedly retry broad fetches.
