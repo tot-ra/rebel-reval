@@ -1,0 +1,25 @@
+{
+  "asset_id": "assets.animals.medieval.horse",
+  "source": "assets/animals/medieval/medieval_pack_horse.glb",
+  "source_sha256": "48c78d7997d398d8ba62a6dd74a5217f8c5c2a3d70a24bd0df1a5c665a79d50d",
+  "output": "assets/animals/medieval/medieval_horse.glb",
+  "output_sha256": "7bcb7a029f3930fc7e3417f78eca367d983283bbb9323e6e6f83c1a59066c3ef",
+  "route": "reviewed_pack_horse_rig_to_standalone_blender_export",
+  "dimensions_m_xyz": [
+    2.35,
+    0.78,
+    1.65
+  ],
+  "ground_min_z_m": 0.0,
+  "mesh_objects": 7,
+  "armatures": 1,
+  "animations": [
+    "Idle-loop",
+    "Walk-loop"
+  ],
+  "glb_nodes": 17,
+  "glb_meshes": 7,
+  "glb_skins": 1,
+  "embedded_materials": true,
+  "period_note": "Generic stocky draft/cob service horse; no post-1346 cavalry tack or decorative breed markers."
+}
