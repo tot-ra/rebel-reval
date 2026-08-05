@@ -94,7 +94,7 @@ Both should reference **4.7**.
 1. Launch Godot **4.7.x**.
 2. In the Project Manager, choose **Import** (first time) or **Edit** (subsequent opens).
 3. Select [`project.godot`](../project.godot) at the repository root.
-4. Wait for the editor to finish importing tracked assets (`.import` sidecars are committed; local `.godot/` cache is regenerated). See the tracked sidecar and cache rules in [`docs/reports/godot_import_cache_policy_p0_023.md`](./reports/godot_import_cache_policy_p0_023.md).
+4. Wait for the editor to finish importing tracked runtime assets. Runtime `.import` sidecars are committed; documentation evidence/reference images under `docs/reports/images/` are excluded from live import by that directory's `.gdignore`. The local `.godot` cache is regenerated. See the tracked sidecar and cache rules in [`docs/reports/godot_import_cache_policy_p0_023.md`](./reports/godot_import_cache_policy_p0_023.md).
 
 Run the game from the editor with **F5** or **Project -> Run**. The main scene is `res://scenes/menu/main_menu.tscn`.
 

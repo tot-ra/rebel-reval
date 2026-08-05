@@ -267,3 +267,4 @@
 - A focused historical-dossier unittest may be stale after the TODO.md-to-task-board migration; capture the full traceback and classify the missing TODO.md as baseline instead of changing the scoped research note.
 - Run documentation whitespace hygiene checks before staging; Markdown hard-break spaces can make a green focused test look like a failed scoped commit.
 - When a scoped commit is blocked by pre-existing staged whitespace, run `git diff --cached --check -- <allowlisted paths>` and commit with `git commit --only <allowlisted paths>` so unrelated index WIP cannot block or enter the commit; record the staged baseline separately.
+- Before editing setup documentation from a nearby excerpt, re-read the exact live paragraph; line numbering or surrounding wording may differ after earlier changes.

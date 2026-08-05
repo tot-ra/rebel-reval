@@ -46,6 +46,8 @@ Track these files when they belong to an approved, prototype, or otherwise inten
 2. The matching `source.ext.import` sidecar.
 3. Project resources and scenes that reference those imported assets.
 
+The evidence/reference image tree `docs/reports/images/` is the intentional exception: its `.gdignore` prevents live-import sidecars because the files are consumed as filesystem evidence or Markdown images, not as runtime `Texture2D` resources.
+
 Reason: Godot sidecars are metadata, not disposable cache. They store the importer, resource type, stable UID, source path, destination cache path pattern, and import parameters such as texture compression, mipmap generation, alpha handling, font rendering, and MP3 loop settings. Without the sidecar, a clean clone may import with editor defaults and change runtime appearance, audio behavior, or resource UIDs.
 
 ### Ignore and regenerate
@@ -56,6 +58,7 @@ Do not track these generated files or folders:
 2. `.import/` - legacy Godot 3 import cache folder, if it appears after opening the project with an older editor or external tooling.
 3. `/android/` and export/build output folders covered by existing setup/export practice.
 4. Generated translation/import artifacts from documentation manifests, for example `assets/SOURCES.csv.import` and `assets/SOURCES.*.translation`.
+5. Documentation evidence/reference image import sidecars under `docs/reports/images/`. The image files themselves remain tracked as source evidence, while `docs/reports/images/.gdignore` prevents live import from creating sidecars.
 
 Reason: these files are derived from tracked sources, tracked `*.import` sidecars, `project.godot`, and the installed Godot version. They are platform/editor output, can be large, and are safely recreated by `godot --headless --editor --quit`.
 

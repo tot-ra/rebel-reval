@@ -71,13 +71,13 @@ Follow [`docs/SETUP.md`](./docs/SETUP.md) for platform install steps, version ve
 
 ## Import
 
-Godot generates import metadata for binary assets. The repository tracks `*.import` sidecars for images, audio, and other resources.
+Godot generates import metadata for binary assets. Runtime assets keep their matching `*.import` sidecars, but reference/evidence images under `docs/reports/images/` are excluded from the live Godot filesystem with [`docs/reports/images/.gdignore`](./docs/reports/images/.gdignore), so opening the editor does not create sidecars for documentation output.
 
 | Action | Command or procedure | Status |
 |--------|----------------------|--------|
 | Import via editor | Open `project.godot` in Godot 4.7; the editor imports resources on load | Supported (manual) |
 | Headless import on clean clone | Documented copy-paste shell command | **Supported** - see [`docs/SETUP.md`](./docs/SETUP.md) and [`docs/reports/startup_baseline.md`](./docs/reports/startup_baseline.md) |
-| Import cache policy | Documented `.godot/` regeneration rules | **Not yet available** - dependency **P0-023** |
+| Import cache policy | Documented `.godot/` regeneration and `.gdignore` exclusions | **Supported** - see [`docs/reports/godot_import_cache_policy_p0_023.md`](./docs/reports/godot_import_cache_policy_p0_023.md) |
 | Large binary sources | Follow [`docs/ASSET_STORAGE_POLICY.md`](./docs/ASSET_STORAGE_POLICY.md); enforce with `python3 tools/verify_storage_hygiene.py` | **Supported** - **P0-025**, **P0-064** |
 
 ## Startup
