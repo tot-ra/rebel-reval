@@ -1,6 +1,6 @@
 extends SceneTree
 
-## R-419 evidence capture for readable Lower Town population clusters.
+## R-419 / R-446 evidence capture for readable Lower Town population clusters.
 ## WHY: the urban population profile is renderer-agnostic, so this tool supplies a
 ## deterministic, view-only placement layer for acceptance evidence without
 ## changing GameState, the production rrmap, or gameplay actor ownership.
