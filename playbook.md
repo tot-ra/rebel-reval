@@ -268,3 +268,5 @@
 - Run documentation whitespace hygiene checks before staging; Markdown hard-break spaces can make a green focused test look like a failed scoped commit.
 - When a scoped commit is blocked by pre-existing staged whitespace, run `git diff --cached --check -- <allowlisted paths>` and commit with `git commit --only <allowlisted paths>` so unrelated index WIP cannot block or enter the commit; record the staged baseline separately.
 - Before editing setup documentation from a nearby excerpt, re-read the exact live paragraph; line numbering or surrounding wording may differ after earlier changes.
+
+- Godot glTF imports may normalize hyphenated source clip names such as `Idle-loop`/`Walk-loop` to runtime names `Idle`/`Walk`; bounded import evidence should record the explicit source-to-runtime mapping and validate the names used by the runtime.

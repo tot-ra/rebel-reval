@@ -1,0 +1,67 @@
+{
+  "animation_player_count": 1,
+  "animations": [
+    "Idle",
+    "Walk"
+  ],
+  "asset_id": "assets.animals.medieval.horse",
+  "bone_count": 9,
+  "clip_name_mapping": {
+    "Idle-loop": "Idle",
+    "Walk-loop": "Walk"
+  },
+  "errors": [],
+  "godot_version": "4.7.1-stable (official)",
+  "import_error_code": 0,
+  "import_sidecar": "assets/animals/medieval/medieval_horse.glb.import",
+  "instantiated": true,
+  "materials": [
+    "StandardMaterial3D",
+    "StandardMaterial3D",
+    "StandardMaterial3D",
+    "StandardMaterial3D",
+    "StandardMaterial3D",
+    "StandardMaterial3D",
+    "StandardMaterial3D"
+  ],
+  "mesh_count": 7,
+  "mesh_nodes": [
+    "EyeLeft",
+    "PupilLeft",
+    "EyeRight",
+    "PupilRight",
+    "TailTuft",
+    "TailTuftStem",
+    "AnimalMesh"
+  ],
+  "packed_scene_loaded": true,
+  "required_clips": {
+    "Idle-loop": {
+      "length_seconds": 2.0,
+      "loop_mode": 1,
+      "runtime_name": "Idle",
+      "track_count": 9
+    },
+    "Walk-loop": {
+      "length_seconds": 1.0,
+      "loop_mode": 1,
+      "runtime_name": "Walk",
+      "track_count": 9
+    }
+  },
+  "resource_type": "PackedScene",
+  "skeleton_count": 1,
+  "skeleton_nodes": [
+    "Skeleton3D"
+  ],
+  "source": "assets/animals/medieval/medieval_horse.glb",
+  "focused_suite": {
+    "command": "tools/run_godot_checked.sh --require-test-summary medieval-animal-models -- $GODOT_BIN --headless --path . --script tools/run_godot_tests.gd -- --filter=test_medieval_animal_models",
+    "status": "horse_import_scope_passed_unrelated_baseline_failure",
+    "horse_related_test": "test_pack_horse_has_tall_rigged_body_tail_and_locomotion_clips: pass",
+    "suite_summary": "8 tests, 6 pass, 2 failures, 2 engine diagnostics",
+    "unrelated_failure": "test_pig_has_realistic_rigged_body_and_locomotion_clips fails its pig eye placement assertions while the host node is outside the scene tree",
+    "note": "The unrelated pig failure is recorded but not changed because R-431 is limited to standalone horse import evidence and does not permit runtime fauna or pig asset edits."
+  },
+  "surface_count": 7
+}
