@@ -270,3 +270,4 @@
 - Before editing setup documentation from a nearby excerpt, re-read the exact live paragraph; line numbering or surrounding wording may differ after earlier changes.
 
 - Godot glTF imports may normalize hyphenated source clip names such as `Idle-loop`/`Walk-loop` to runtime names `Idle`/`Walk`; bounded import evidence should record the explicit source-to-runtime mapping and validate the names used by the runtime.
+- When repairing a provenance manifest in a shared dirty worktree, enforce the task path allowlist before insertion; parent assets that are not requested can create an accidental extra provenance row.
