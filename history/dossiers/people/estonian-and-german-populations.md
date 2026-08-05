@@ -12,6 +12,7 @@ related:
   - ../culture/music-and-instruments.md
   - ../language/names-address-and-oaths.md
   - ../dailylife/clothing-and-status-markers.md
+  - ../economy/reval-brewery-ordinances-1340s.md
 updated: 2026-07-29
 ---
 
@@ -19,7 +20,7 @@ updated: 2026-07-29
 
 ## Brief for Character / Art / Dialogue
 
-Reval in April–May 1343 is a **multi-ethnic Hanseatic port**, not a homogeneous German town. The **council and long-distance trade are German-monopolised**, but **Estonians, Swedes, Finns, and a few Russians** form a large share of residents and do most harbour labour, building, brewing-tax collection, and lower-tier craft work. **Rural Harju outside the walls** is Estonian-majority and increasingly unfree; **inside the walls Estonians are legally free** but socially subordinate.
+Reval in April–May 1343 is a **multi-ethnic Hanseatic port**, not a homogeneous German town. The **council and long-distance trade are German-monopolised**, but **Estonians, Swedes, Finns, and a few Russians** form a large share of residents and do most harbour labour, building, lower-tier craft work, and other service work. A secondary source reports brewing-tax collection by Estonians, but its 1340–1343 local dating remains unverified [1][`../economy/reval-brewery-ordinances-1340s.md`](../economy/reval-brewery-ordinances-1340s.md)]. **Rural Harju outside the walls** is Estonian-majority and increasingly unfree; **inside the walls Estonians are legally free** but socially subordinate.
 
 **Ship these decisions:**
 
@@ -27,7 +28,7 @@ Reval in April–May 1343 is a **multi-ethnic Hanseatic port**, not a homogeneou
 2. **Population scale (wide uncertainty):** Treat **~3,000–4,500 people** in Lower Town + immediate suburbs for spring 1343 as a `plausible composite` bracket; **exact April headcount is unattested** [4][5][6]. Official municipal historiography once cited **<1,000** for mid-14th c. — treat that as **superseded** by archival estimates unless a scene needs deliberate emptiness [7].
 3. **Ethnic mix (conflicting estimates — do not flatten):** Johansen & von zur Mühlen: **Germans somewhat <50 %**, **Estonians ~⅓**, remainder mostly **Swedes/Finns** and a few **Russians** by **late 14th c.** [1]. Naum (archaeological synthesis): **~50 % Estonian**, **30–40 % German**, smaller Scandinavian/Russian shares by **mid-14th c.** [8]. Tallinn municipal history: **at least half Estonian** among townsfolk by **14th–15th c.** [7]. **Use all three as brackets**, not a single pie chart.
 4. **Legal seam — town vs manor:** **Lübeck law** governs Lower Town. **Estonians resident in town remain free men** while manorial peasants in Harju are being reduced to serfdom in the same era — a **daily contrast** Kalev's household can exploit [1][9]. **Returning runaway peasants to landlords** is attested as urban practice in the broader late-medieval trajectory; treat **April 1343 enforcement** as `plausible composite` unless a scene cites a specific case [1].
-5. **Undeutsch labour tiers:** **Carriers, drovers, fishermen**, and much **building trade** are **Undeutsch-dominated**; **long-distance wholesale and prestigious crafts** are **German-dominated** [1][10][11]. **One Estonian watch squad** and an **Estonian-speaking city herdsman** are **attested roles** [1]. **Beer-excise collection from German brewers** was handled by **Estonians** [1].
+5. **Undeutsch labour tiers:** **Carriers, drovers, fishermen**, and much **building trade** are **Undeutsch-dominated**; **long-distance wholesale and prestigious crafts** are **German-dominated** [1][10][11]. **One Estonian watch squad** and an **Estonian-speaking city herdsman** are **attested roles** [1]. A secondary account reports **beer-excise collection from German brewers** by Estonians, but no dated 1340–1343 Reval ordinance, named collector, or rate was located [`../economy/reval-brewery-ordinances-1340s.md`](../economy/reval-brewery-ordinances-1340s.md) [1].
 6. **Guild/citizenship:** Some **Estonians and Swedes held Bürgerrecht**; many more were **permanent residents without full civic rank** [1][2]. **St Canute had Estonian members before the uprising**; post–St George's Night schism is **after the game window** but may be foreshadowed [12].
 7. **Clergy and hill population:** **Bishop, Danish viceroy, and vassal knights** on **Toompea** are **German/Low German** in speech and dress; **Lower Town parish clergy** serve mixed congregations. **Do not dress Estonian labourers like knights or councillors** [`people.estonian-and-german-populations.01` vs `.02`].
 8. **Transients in spring 1343:** **Hanseatic sailors**, **Novgorod traders**, **Swedish envoys** (from **18–19 May**), **refugee Germans** from burned manors, and **Estonian country folk** at gates — all plausible; **no single "default crowd"** [13][14].
@@ -85,7 +86,7 @@ Johansen notes **Scandinavian and Russian merchant settlements** around **St Ola
 |---|---|---|---|
 | **Estonian night-watch squad** | Estonian | Johansen & von zur Mühlen via Lituanus review [1] | attested secondary |
 | **City herdsman (Estonian oath)** | Estonian | same [1] | attested secondary |
-| **Beer-excise collectors** | Estonian collectors / German brewers taxed | same [1] | attested secondary |
+| **Beer-excise collectors** | Secondary account reports Estonian collection from German brewers; target-year office/date/rate not verified | same [1] | attested secondary role; 1340–1343 dating gap |
 | **Estonian masons** | Estonian labour, German-style building output | same [1] | attested secondary |
 | **St Canute Estonian members** | Estonian | Zür Mülen / guild dossier — pre-uprising [12] | attested secondary |
 | **Town herds / livestock on common** | Mixed burgher ownership, Estonian herder | same [1] | attested secondary |
@@ -134,7 +135,8 @@ Johansen notes **Scandinavian and Russian merchant settlements** around **St Ola
 - [`../crafts/guild-structure.md`](../crafts/guild-structure.md) — Estonian St Canute membership pre-uprising; apprenticeship tiers.
 - [`../military/watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) — burgher watch; Estonian squad fits here.
 - [`../architecture/burgher-house-plan.md`](../architecture/burgher-house-plan.md) — who lives in diele vs service wing.
-- [`../dailylife/food-and-drink.md`](../dailylife/food-and-drink.md) — beer-excise collectors; labourer vs burgher meal tiers.
+- [`../dailylife/food-and-drink.md`](../dailylife/food-and-drink.md) — labourer vs burgher meal tiers and corrected beer-law boundary.
+- [`../economy/reval-brewery-ordinances-1340s.md`](../economy/reval-brewery-ordinances-1340s.md) — secondary collector role versus missing dated ordinance or excise line.
 - [`../military/arms-and-armour-livonia-1340s.md`](../military/arms-and-armour-livonia-1340s.md) — faction kit by group.
 - [`../culture/music-and-instruments.md`](../culture/music-and-instruments.md) — regilaul rural layer vs German urban music; who sings where.
 - [`../folklore/belief-omens-and-healing.md`](../folklore/belief-omens-and-healing.md) — who may practice folk belief versus who may prosecute it; syncretic Estonian labour in town.

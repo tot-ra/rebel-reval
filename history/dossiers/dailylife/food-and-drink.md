@@ -9,6 +9,7 @@ related:
   - ../religion/liturgical-calendar-spring-1343.md
   - ../religion/churches-and-religious-houses.md
   - ../people/estonian-and-german-populations.md
+  - ../economy/reval-brewery-ordinances-1340s.md
   - ../architecture/burgher-house-plan.md
   - ../architecture/domestic-storage-furniture.md
   - ../nature/spring-climate-and-living-world.md
@@ -24,7 +25,7 @@ You are feeding **April–May 1343 Lower Town Reval** — a **Hanseatic port und
 
 1. **Staples:** **Rye bread** and **beer** are the daily calorie base for almost everyone; **fish** peaks in Lent and remains common after Easter; **meat, eggs, and dairy** return for observant burghers from **Easter Sunday** onward [`liturgical-calendar-spring-1343.md`](../religion/liturgical-calendar-spring-1343.md) `plausible composite` [1][2][3].
 2. **Status tiers differ in quality, not in skipping bread and beer.** A **German merchant** eats **white or fine rye loaves, city beer, imported herring, butter, and occasional meat**; an **Estonian haulier** eats **coarse rye, thin beer, onions, salt fish, and rare meat**; a **Dominican friar** eats **fish, legumes, bread, and monastery beer** under mendicant rules `plausible composite` [2][4][5][6].
-3. **Brewing is a German civic monopoly** in the Hanseatic pattern — **citizen brewers** in Lower Town; **Estonians collect beer excise** but are **barred from the profitable brew trade** in later ordinances; treat **1343 as the same seam** `plausible composite` [7][8]. **Dominican priory** runs its **own brewery** east of the market [`churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) [9].
+3. **Brewing is a German civic-monopoly hypothesis, not a dated 1343 Reval rule.** Later Tallinn ordinances support a `plausible composite` citizen-brewer seam, while a secondary source reports Estonian beer-excise collection without a dated AWB/Denkelbuch line; see [`reval-brewery-ordinances-1340s.md`](../economy/reval-brewery-ordinances-1340s.md) [7][8]. **Dominican priory** runs its **own brewery** east of the market [`churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) [9].
 4. **Two-meal rhythm:** **Dinner (*Mittagessen*)** = main cooked meal **late morning to midday**; **supper (*Abendessen*)** = lighter **evening** bread, beer, and leftovers. **Breakfast** is **working-class practical**, morally suspect for gentry `plausible composite` [10][11].
 5. **April–May scarcity:** **Last year's grain** still feeds the town, but **spring sowing** and **wet fields** mean **no fresh harvest**; **pre-harvest tension** before St George's Night — rye and beer prices are **nominal-normal** until **23 April** then **×1.25–1.5** when hinterland carts stop [`coinage-prices-and-measures.md`](../economy/coinage-prices-and-measures.md) [12][13].
 6. **Kitchen location:** Cooking in **rear yard or living bay** at **open hearth** or **hooded fire**; **beer and grain in stone cellars**; **smokehouses** at fishing shore and some merchant yards `plausible composite` [14][15].
@@ -59,7 +60,7 @@ You are feeding **April–May 1343 Lower Town Reval** — a **Hanseatic port und
 
 - **Beer is food:** Hanseatic **daily drink** for adults and many adolescents; **thin beer (*Stopbier*)** cheaper than bread per calorie `plausible composite` [3][12][22].
 - **Hopped beer** standard in Hanse towns by **early 14th c.** — Lübeck, Hamburg, Bremen export model; Reval **imports beer culture** through German settlers `plausible composite` [22][23].
-- **Town brewers:** **German citizens** brew for **household sale and taverns**; **1450s Tallinn ordinances** explicitly restrict brewing to citizens — **directionally valid for 1343** `plausible composite` [8]. **Estonians** attested as **beer-excise collectors** from German brewers [7].
+- **Town brewers:** German-citizen brewing and household/tavern sale are a Hanseatic reconstruction. **1450s Tallinn ordinances** are later comparanda, not 1343 law; the Estonian collector role is a datedness gap in the local record [`../economy/reval-brewery-ordinances-1340s.md`](../economy/reval-brewery-ordinances-1340s.md) [7][8].
 - **Dominican brewery:** Priory **east of market** produces **beer for friary and sale** — **four beer types** in later descriptions; **1343 operational** `plausible composite` [9].
 - **Monastic vs civic:** Friary beer **not** under council guild brewer rules — **sanctuary seam** for tavern competition `plausible composite` [9].
 - **Prices:** Thin beer **~1 pfennig per ~1.8 L** (Hamburg 1462 comparandum); tavern quart **2–4 pfennig** [12].
@@ -124,7 +125,7 @@ You are feeding **April–May 1343 Lower Town Reval** — a **Hanseatic port und
 - **Art:** **Burgher table** — trencher, knife, pewter or wooden cup, **brown beer** in ceramic jug [`dailylife.food-and-drink.03`]; **labourer** — **single thick rye slice**, onion, **wooden cup** [`dailylife.food-and-drink.04`]; **baker yard** — peel, oven mouth, flour sacks [`dailylife.food-and-drink.02`]; **brewery yard** — malt sacks, kegs, **copper/brass kettle** [`dailylife.food-and-drink.01`]. **No tea/coffee props.** Easter scene: **meat joint and white loaf**; Lent flashback: **herring barrel** [`dailylife.food-and-drink.05`].
 - **Character:** Kalev household = **middling craft** — **beer at midday and evening**, **bread at every meal**, **meat on Sunday/feast** after Easter; apprentice **eats with household** not separately `plausible composite`. Estonian haulier NPC **buys 1–2 pfennig bread** at forum; **cannot afford tavern strong beer** daily.
 - **Dialogue:** MLG **Brod**, **Bier**, **Öl** (beer), **Fisch**, **Hering**, **Butter**, **Käse**, **Fasten**; Estonian **leib**, **õlu** (loanword register); prices in **pfennigs** from coinage dossier. Spring small talk: **"last year's grain"**, **"fields not ready"**, **"beer still flows"** [`spring-climate-and-living-world.md`](../nature/spring-climate-and-living-world.md).
-- **Quest / Narrative:** **Easter feast 13–14 Apr** communal meal; **grain-sack queue** at Viru Gate after 23 Apr; **Dominican fish cart** through Vanaturg throat; **beer-excise quarrel** between Estonian collector and German brewer; **forge charcoal vs bread price** competition in siege economy.
+- **Quest / Narrative:** **Easter feast 13–14 Apr** communal meal; **grain-sack queue** at Viru Gate after 23 Apr; **Dominican fish cart** through Vanaturg throat; a **beer-excise quarrel** between an Estonian collector and German brewer is usable only as `plausible composite`/`invented`, not attested 1343; **forge charcoal vs bread price** competition in siege economy.
 - **Map:** Place **brewery service yard** with `malt_sack_pile` and `brewery_keg_stack`; **cellar neck** at street on affluent plots; **forum bread stall** near steelyard [`old-market-vanaturg.md`](../topography/old-market-vanaturg.md); **Dominican brewery** smoke east of market.
 
 ## Reference plates
@@ -143,7 +144,8 @@ You are feeding **April–May 1343 Lower Town Reval** — a **Hanseatic port und
 - [`liturgical-calendar-spring-1343.md`](../religion/liturgical-calendar-spring-1343.md) — Lent end, Easter feast, holy-day market closures.
 - [`coinage-prices-and-measures.md`](../economy/coinage-prices-and-measures.md) — bread, beer, fish prices and siege multiplier.
 - [`hanseatic-trade-and-season.md`](../economy/hanseatic-trade-and-season.md) — herring in Lent; interior supply stall after uprising.
-- [`estonian-and-german-populations.md`](../people/estonian-and-german-populations.md) — beer-excise collectors; labourer wage band.
+- [`estonian-and-german-populations.md`](../people/estonian-and-german-populations.md) — labourer vs burgher meal tiers and the undated secondary collector role.
+- [`../economy/reval-brewery-ordinances-1340s.md`](../economy/reval-brewery-ordinances-1340s.md) — AWB/council negative finding for 1340–1343 brewery rules and beer excise.
 - [`churches-and-religious-houses.md`](../religion/churches-and-religious-houses.md) — Dominican brewery and fish trade.
 - [`burgher-house-plan.md`](../architecture/burgher-house-plan.md) — cellar beer store, living-bay hearth.
 - [`domestic-storage-furniture.md`](../architecture/domestic-storage-furniture.md) — grain and spice chests.
