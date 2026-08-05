@@ -182,7 +182,7 @@ static func resolve(
 		"profile_is_market_day": selected_id == PROFILE_MARKET_DAY,
 		"calendar_is_market_day": calendar_market_day,
 	}
-	return {
+	var snapshot := {
 		"profile_id": selected_id,
 		"phase_id": phase_id,
 		"phase_time_band": _phase_time_band(phase_id),
@@ -213,6 +213,42 @@ static func resolve(
 			"seed": seed,
 		},
 	}
+	# Keep the resolved snapshot as the sole source of actor records so every
+	# renderer receives stable IDs and the exact replay seed used for resolution.
+	snapshot["actor_plan"] = actor_records(snapshot)
+	return snapshot
+
+
+## Converts a resolved profile plan into renderer-agnostic crowd actor records.
+## WHY: renderers need stable identities and replay metadata, while profile rules
+## remain concerned only with deterministic population composition.
+static func actor_records(profile: Dictionary) -> Array[Dictionary]:
+	var records: Array[Dictionary] = []
+	var profile_id := StringName(profile.get("profile_id", PROFILE_DAY))
+	var replay_seed := int(profile.get("seed", 0))
+	var raw_plan: Variant = profile.get("actor_plan", [])
+	if not raw_plan is Array:
+		return records
+	for plan_index in (raw_plan as Array).size():
+		var raw_actor: Variant = (raw_plan as Array)[plan_index]
+		if not raw_actor is Dictionary:
+			continue
+		var actor: Dictionary = raw_actor
+		var actor_index := int(actor.get("actor_index", plan_index))
+		var actor_id := StringName(actor.get("actor_id", &""))
+		if actor_id.is_empty():
+			actor_id = StringName("crowd.%s.%03d" % [String(profile_id), actor_index])
+		records.append({
+			"actor_id": actor_id,
+			"actor_index": actor_index,
+			"role": StringName(actor.get("role", &"")),
+			"occupation": StringName(actor.get("occupation", &"")),
+			"zone_id": StringName(actor.get("zone_id", &"")),
+			"movement_mode": StringName(actor.get("movement_mode", &"")),
+			"anchor_mode": StringName(actor.get("anchor_mode", &"")),
+			"replay_seed": replay_seed,
+		})
+	return records
 
 
 static func day(phase_id: StringName, date: Dictionary, seed: int = 0) -> Dictionary:

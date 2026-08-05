@@ -89,6 +89,34 @@ func test_profiles_expose_occupation_zone_and_authored_cap_rules() -> void:
 	assert_eq(snapshot["rules"]["watch_vs_civilian"], &"routine_watch")
 
 
+func test_actor_plan_adapter_exposes_stable_renderer_agnostic_records() -> void:
+	var profile := ProfileScript.market_day(PHASE_DAY, DATE_MARKET_DAY, 2024)
+	var records: Array[Dictionary] = ProfileScript.actor_records(profile)
+	assert_eq(records, profile["actor_plan"])
+	assert_eq(records.size(), profile["total_count"])
+	var expected_ids: Array[StringName] = []
+	for index in records.size():
+		var record: Dictionary = records[index]
+		expected_ids.append(StringName("crowd.market_day.%03d" % index))
+		assert_eq(record["actor_id"], expected_ids[index])
+		assert_eq(record["actor_index"], index)
+		assert_eq(record["replay_seed"], 2024)
+		for field: StringName in [
+			&"role",
+			&"occupation",
+			&"zone_id",
+			&"movement_mode",
+			&"anchor_mode",
+		]:
+			assert_true(record.has(field), "actor record must expose %s" % String(field))
+			assert_false(String(record[field]).is_empty(), "actor record field %s must be non-empty" % String(field))
+	assert_eq(records, ProfileScript.actor_records(profile), "same resolved profile must replay identical records")
+	var changed_seed := ProfileScript.actor_records(ProfileScript.market_day(PHASE_DAY, DATE_MARKET_DAY, 2025))
+	assert_ne(records, changed_seed, "seed must affect deterministic assignment records")
+	assert_eq(records[0]["actor_id"], changed_seed[0]["actor_id"], "identity must not depend on replay seed")
+	assert_eq(changed_seed[0]["replay_seed"], 2025)
+
+
 func test_seed_replays_identical_profile_without_game_state_mutation() -> void:
 	var first := ProfileScript.market_day(PHASE_DAY, DATE_MARKET_DAY, 2024)
 	var second := ProfileScript.market_day(PHASE_DAY, DATE_MARKET_DAY, 2024)
