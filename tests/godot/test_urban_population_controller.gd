@@ -252,8 +252,21 @@ func test_authored_lower_town_clusters_feed_all_four_profiles() -> void:
 			"profile %s must feed merchant/customer activity or explicitly shelter at night" % String(profile["profile_id"]))
 		assert_true(_profile_has_role(profile, &"watch"),
 			"profile %s must feed watch/checkpoint activity" % String(profile["profile_id"]))
+		var actor_cluster_ids := _actor_plan_cluster_ids(profile, first_clusters)
+		assert_eq(actor_cluster_ids.size(), (profile["actor_plan"] as Array).size(),
+			"profile %s must map every actor plan record to an authored cluster" % String(profile["profile_id"]))
 		assert_eq(_actor_plan_cluster_ids(profile, first_clusters), _actor_plan_cluster_ids(profile, second_clusters),
-			"profile %s cluster assignment must be deterministic" % String(profile["profile_id"]))
+			"profile %s cluster assignment must be stable across map parses" % String(profile["profile_id"]))
+		var replay_profile := ProfileScript.resolve(
+			profile["profile_id"],
+			profile["phase_id"],
+			profile["date"],
+			profile["seed"],
+		)
+		assert_eq(profile["actor_plan"], replay_profile["actor_plan"],
+			"profile %s actor plan must replay from equal inputs" % String(profile["profile_id"]))
+		assert_eq(actor_cluster_ids, _actor_plan_cluster_ids(replay_profile, second_clusters),
+			"profile %s actor cluster assignment must replay from equal inputs" % String(profile["profile_id"]))
 
 	var all_consumed_clusters: Array[StringName] = []
 	for profile: Dictionary in profiles:
