@@ -280,6 +280,13 @@ func test_all_profiles_keep_crowd_clear_of_gameplay_reserved_spaces() -> void:
 					String(violation),
 				]
 			)
+			assert_true(
+				_is_valid_placement(placement),
+				"profile %s actor %s must pass the complete placement safety gate" % [
+					String(profile_id),
+					String(placement["actor_id"]),
+				]
+			)
 
 
 func test_reserved_space_diagnostics_identify_each_gameplay_category() -> void:
@@ -295,6 +302,10 @@ func test_reserved_space_diagnostics_identify_each_gameplay_category() -> void:
 			reserved["category"],
 			"diagnostic must identify %s" % String(reserved["category"]),
 		)
+		assert_false(
+			_is_valid_placement(placement),
+			"placement validation must reject %s" % String(reserved["category"]),
+		)
 
 
 func _fixture_gameplay_reserved_spaces() -> Array[Dictionary]:
@@ -305,12 +316,17 @@ func _fixture_gameplay_reserved_spaces() -> Array[Dictionary]:
 			"bounds": Rect2(128.0, 80.0, 32.0, 32.0),
 		},
 		{
-			"category": &"entrance",
+			"category": &"transition",
+			"zone_id": &"market_lane",
+			"bounds": Rect2(160.0, 192.0, 32.0, 32.0),
+		},
+		{
+			"category": &"building_entrance",
 			"zone_id": &"work_yard",
 			"bounds": Rect2(400.0, 80.0, 32.0, 32.0),
 		},
 		{
-			"category": &"prompt",
+			"category": &"interaction_prompt",
 			"zone_id": &"residential_yard",
 			"bounds": Rect2(592.0, 80.0, 32.0, 32.0),
 		},
@@ -330,6 +346,7 @@ func _gameplay_reserved_space_violation(placement: Dictionary) -> StringName:
 			return StringName(reserved["category"])
 	return &""
 
+
 func _build_placement_fixture(profile: Dictionary, requested_count: int, excluded_ids: Dictionary = {}) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	var zones: Array[StringName] = profile["zone_ids"]
@@ -341,13 +358,24 @@ func _build_placement_fixture(profile: Dictionary, requested_count: int, exclude
 		if excluded_ids.has(actor_id):
 			continue
 		var zone_id: StringName = zones[index % zones.size()]
-		var origin := _fixture_zone_origin(zone_id)
-		var offset := Vector2(rng.randi_range(4, 20), rng.randi_range(4, 20))
-		result.append({
-			"actor_id": actor_id,
-			"zone_id": zone_id,
-			"position": origin + offset,
-		})
+		var zone := _fixture_zone_rect(zone_id)
+		var placed := false
+		for _attempt in 64:
+			var position := Vector2(
+				rng.randi_range(int(zone.position.x) + 4, int(zone.end.x) - 4),
+				rng.randi_range(int(zone.position.y) + 4, int(zone.end.y) - 4),
+			)
+			var placement := {
+				"actor_id": actor_id,
+				"zone_id": zone_id,
+				"position": position,
+			}
+			if not _is_valid_placement(placement):
+				continue
+			result.append(placement)
+			placed = true
+			break
+		assert_true(placed, "fixture could not find a safe point in %s" % String(zone_id))
 	return result
 
 
@@ -409,7 +437,7 @@ func _is_valid_placement(placement: Dictionary) -> bool:
 	var prop_position := MapVerification.prop_position(definition, &"yard_barrel")
 	if position.distance_to(prop_position) < 24.0:
 		return false
-	return true
+	return _gameplay_reserved_space_violation({"position": position}) == &""
 
 
 func _fixture_zone_rect(zone_id: StringName) -> Rect2:
