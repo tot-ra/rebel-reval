@@ -395,12 +395,7 @@ permission fields below.
 
 #### Outreach response log
 
-The packet was prepared on **2026-08-03 UTC**. No email-capable integration is available
-in this environment, so no external message is claimed as sent. A maintainer must send
-the canonical packet, preserve the outbound copy/provider message ID, and update this
-log. The follow-up deadline is **2026-08-10 UTC**. No response, delayed response, or
-metadata-only confirmation is permission; the German iNaturalist fallbacks remain in
-place until a written grant clears the exact-record contract.
+The packet was prepared on **2026-08-03 UTC**. A transmission check on **2026-08-05 15:32 UTC** found no email-capable integration: Gmail redirected to its sign-in page and no authenticated mail account or email API is available in this environment. No external message is claimed as sent. A maintainer must send the canonical packet, preserve the outbound copy/provider message ID, and update this log. The follow-up deadline is **2026-08-10 UTC**. No response, delayed response, or metadata-only confirmation is permission; the German iNaturalist fallbacks remain in place until a written grant clears the exact-record contract.
 
 | Record | Contacted | Reply date | Rightsholder | Commercial grant / license URL | Edits and distribution approved | Duration | Attribution | Evidence path | Decision |
 |---|---|---|---|---|---|---|---|---|---|
