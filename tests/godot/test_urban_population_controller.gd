@@ -4,6 +4,7 @@ const ProfileScript := preload("res://scripts/world/urban_population_profile.gd"
 const CrowdRenderer := preload("res://scripts/map/view3d/map_view_crowd_renderer.gd")
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const MapVerification := preload("res://scripts/map/map_verification.gd")
+const LowerTownSliceDefinition := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
 
 const PHASE_DAY := GameState.PHASE_INVESTIGATION_MORNING
 const PHASE_NIGHT := GameState.PHASE_INVESTIGATION_NIGHT
@@ -183,6 +184,147 @@ func test_context_resolver_replays_same_inputs_without_game_state_writes() -> vo
 	assert_eq(first["replay_inputs"]["seed"], 2024)
 	assert_false(first.has("GameState"))
 	assert_false(first.has("state"))
+
+
+func test_authored_lower_town_clusters_feed_all_four_profiles() -> void:
+	var first_map: MapDefinition = LowerTownSliceDefinition.create()
+	var second_map: MapDefinition = LowerTownSliceDefinition.create()
+	var first_clusters := _lower_town_population_clusters(first_map)
+	var second_clusters := _lower_town_population_clusters(second_map)
+	var grid := MapBuilder.build(first_map)
+
+	assert_eq(first_clusters, second_clusters, "authored cluster IDs and anchors must be stable across parses")
+	assert_eq(first_clusters.size(), 3, "Lower Town must expose worker, merchant, and watch clusters")
+	for cluster: Dictionary in first_clusters:
+		assert_false(String(cluster["cluster_id"]).is_empty())
+		assert_false((cluster["zone_ids"] as Array).is_empty())
+		assert_false((cluster["anchor_ids"] as Array).is_empty())
+		for anchor_id: StringName in cluster["anchor_ids"]:
+			assert_true(MapVerification.has_anchor(first_map, anchor_id), "missing authored cluster anchor %s" % String(anchor_id))
+			var anchor_position := MapVerification.anchor_position(first_map, anchor_id)
+			assert_true(MapVerification.is_walkable_point(first_map, grid, anchor_position),
+				"cluster anchor %s must remain walkable" % String(anchor_id))
+
+	var profiles: Array[Dictionary] = [
+		ProfileScript.day(PHASE_DAY, DATE_OFF_DAY, 434),
+		ProfileScript.market_day(PHASE_DAY, DATE_MARKET_DAY, 434),
+		ProfileScript.night(PHASE_NIGHT, DATE_OFF_DAY, 434),
+		ProfileScript.crackdown(PHASE_DAY, DATE_OFF_DAY, 434),
+	]
+	for profile: Dictionary in profiles:
+		var consumed_clusters := _clusters_consumed_by_profile(profile, first_clusters)
+		assert_true(consumed_clusters.size() >= 1,
+			"profile %s must consume an authored readable cluster" % String(profile["profile_id"]))
+		for zone_id: StringName in profile["zone_ids"]:
+			assert_true(_cluster_has_zone(first_clusters, zone_id),
+				"profile %s zone %s must be backed by an authored cluster" % [String(profile["profile_id"]), String(zone_id)])
+		assert_true(_profile_has_occupation(profile, &"laborer") or _profile_has_occupation(profile, &"artisan"),
+			"profile %s must feed worker/carrier activity" % String(profile["profile_id"]))
+		assert_true(_profile_has_occupation(profile, &"merchant") or profile["profile_id"] == ProfileScript.PROFILE_NIGHT,
+			"profile %s must feed merchant/customer activity or explicitly shelter at night" % String(profile["profile_id"]))
+		assert_true(_profile_has_role(profile, &"watch"),
+			"profile %s must feed watch/checkpoint activity" % String(profile["profile_id"]))
+		assert_eq(_actor_plan_cluster_ids(profile, first_clusters), _actor_plan_cluster_ids(profile, second_clusters),
+			"profile %s cluster assignment must be deterministic" % String(profile["profile_id"]))
+
+	var all_consumed_clusters: Array[StringName] = []
+	for profile: Dictionary in profiles:
+		for cluster_id: StringName in _clusters_consumed_by_profile(profile, first_clusters):
+			if not all_consumed_clusters.has(cluster_id):
+				all_consumed_clusters.append(cluster_id)
+	assert_eq(all_consumed_clusters.size(), 3, "the four profiles must collectively consume all readable clusters")
+
+
+func test_lower_town_cluster_roles_cover_workers_merchants_and_watch() -> void:
+	var definition: MapDefinition = LowerTownSliceDefinition.create()
+	var clusters := _lower_town_population_clusters(definition)
+	var cluster_by_id := {}
+	for cluster: Dictionary in clusters:
+		cluster_by_id[cluster["cluster_id"]] = cluster
+
+	assert_true(cluster_by_id.has(&"workers_carriers"))
+	assert_true(cluster_by_id.has(&"merchants_customers"))
+	assert_true(cluster_by_id.has(&"watch_checkpoint"))
+	assert_array_contains(cluster_by_id[&"workers_carriers"]["anchor_ids"], &"smithy_door")
+	assert_array_contains(cluster_by_id[&"workers_carriers"]["anchor_ids"], &"brewery_door")
+	assert_array_contains(cluster_by_id[&"merchants_customers"]["anchor_ids"], &"mart_street")
+	assert_array_contains(cluster_by_id[&"watch_checkpoint"]["anchor_ids"], &"checkpoint_west")
+	assert_array_contains(cluster_by_id[&"watch_checkpoint"]["anchor_ids"], &"checkpoint_east")
+	assert_array_contains(cluster_by_id[&"workers_carriers"]["zone_ids"], ProfileScript.ZONE_WORK_YARD)
+	assert_array_contains(cluster_by_id[&"merchants_customers"]["zone_ids"], ProfileScript.ZONE_MARKET)
+	assert_array_contains(cluster_by_id[&"watch_checkpoint"]["zone_ids"], ProfileScript.ZONE_CHECKPOINT)
+
+
+func _lower_town_population_clusters(definition: MapDefinition) -> Array[Dictionary]:
+	# Test-only projection of R-410's authored anchors into the profile's semantic
+	# zones. Runtime population remains renderer-agnostic and does not gain map data.
+	var anchor_ids: Array[StringName] = []
+	for anchor: Dictionary in definition.interaction_anchors:
+		anchor_ids.append(anchor["id"])
+	return [
+		{
+			"cluster_id": &"workers_carriers",
+			"zone_ids": [ProfileScript.ZONE_WORK_YARD, ProfileScript.ZONE_RESIDENTIAL],
+			"anchor_ids": _stable_present_anchors(anchor_ids, [&"smithy_door", &"brewery_door", &"street_start"]),
+		},
+		{
+			"cluster_id": &"merchants_customers",
+			"zone_ids": [ProfileScript.ZONE_MARKET, ProfileScript.ZONE_STREET],
+			"anchor_ids": _stable_present_anchors(anchor_ids, [&"mart_street", &"street_start"]),
+		},
+		{
+			"cluster_id": &"watch_checkpoint",
+			"zone_ids": [ProfileScript.ZONE_CHECKPOINT, ProfileScript.ZONE_STREET, ProfileScript.ZONE_SAFE_INTERIOR],
+			"anchor_ids": _stable_present_anchors(anchor_ids, [&"checkpoint_west", &"checkpoint_east"]),
+		},
+	]
+
+
+func _stable_present_anchors(present_ids: Array[StringName], expected_ids: Array[StringName]) -> Array[StringName]:
+	var result: Array[StringName] = []
+	for anchor_id: StringName in expected_ids:
+		if present_ids.has(anchor_id):
+			result.append(anchor_id)
+	return result
+
+
+func _clusters_consumed_by_profile(profile: Dictionary, clusters: Array[Dictionary]) -> Array[StringName]:
+	var consumed: Array[StringName] = []
+	var profile_zones: Array = profile["zone_ids"]
+	for cluster: Dictionary in clusters:
+		for zone_id: StringName in cluster["zone_ids"]:
+			if profile_zones.has(zone_id):
+				consumed.append(cluster["cluster_id"])
+				break
+	return consumed
+
+
+func _cluster_has_zone(clusters: Array[Dictionary], zone_id: StringName) -> bool:
+	for cluster: Dictionary in clusters:
+		if (cluster["zone_ids"] as Array).has(zone_id):
+			return true
+	return false
+
+
+func _profile_has_occupation(profile: Dictionary, occupation: StringName) -> bool:
+	return int((profile["occupation_mix"] as Dictionary).get(occupation, 0)) > 0
+
+
+func _profile_has_role(profile: Dictionary, role: StringName) -> bool:
+	for actor: Dictionary in profile["actor_plan"]:
+		if actor["role"] == role:
+			return true
+	return false
+
+
+func _actor_plan_cluster_ids(profile: Dictionary, clusters: Array[Dictionary]) -> Array[StringName]:
+	var result: Array[StringName] = []
+	for actor: Dictionary in profile["actor_plan"]:
+		for cluster: Dictionary in clusters:
+			if cluster["zone_ids"].has(actor["zone_id"]):
+				result.append(cluster["cluster_id"])
+				break
+	return result
 
 
 func test_seeded_placement_fixture_replays_identical_actor_ids_and_positions() -> void:
