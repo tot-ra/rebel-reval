@@ -12,7 +12,7 @@ related:
   - ../military/arms-and-armour-livonia-1340s.md
   - ../people/town-council-and-officers.md
   - ../economy/coinage-prices-and-measures.md
-updated: 2026-07-28
+updated: 2026-08-05
 ---
 
 # Reval law codex — arms, watch, and muster (Spring 1343)
@@ -25,12 +25,12 @@ You are enforcing **written Lübeck law inside Lower Town**, not inventing a mod
 
 1. **Corpus in force:** Treat the **1282 codex** (TLA Best. 230, Cm 6) as the quotable statute book; the **1257** manuscript (Cm 5 tradition) as earlier Latin transmission; **Burspraken** (publicly read council proclamations) as the layer that names **Wacht**, **Harnisch**, and **Waffen** upkeep even when a numbered article is silent [4][5][6].
 2. **Who is bound:** Adult **German burghers** with citizenship (*Bürgerschaft* / *borgherschap*) from **age twelve upward** in the Lübeck-law tradition — not journeymen without standing, not Estonian labourers without burgher oath, not transients [7][8]. See [`estonian-and-german-populations.md`](../people/estonian-and-german-populations.md).
-3. **Core codex rule (defence vs Heerfahrt):** Transmitted Lübeck **Art. 179** (Bardewik numbering; Kala parallel in 1282 edition): *"Ne ghen borghere … schal van rechte hereuart uaren, danne to siner were schal he stan vnde weren sine stat"* — no foreign lord's campaign; stand ready and **defend the city** [9][10]. **Plausible composite** for Reval 1343: Kala notes some Lübeck-only paragraphs were not followed verbatim in distant daughter towns [11].
-4. **Council command:** **Art. 31** — what the Rat sets, the Rat judges; breaches yield **two-thirds to the city, one-third to the court** in the ratmannen-break tradition [12]. Muster and gate hours are **council orders under this authority**, not viceroy edicts [`jurisdictions-of-reval.md`](./jurisdictions-of-reval.md) [3].
-5. **Arms kit (composite, not a single codex sentence):** Wealth-tiered **spear/glaive, sword, iron cap, padded jack, crossbow optional** — from Hanse Bürgermilitär practice and [`arms-and-armour-livonia-1340s.md`](../military/arms-and-armour-livonia-1340s.md); **Burspraken** require *Harnisch und Waffen in Ordnung halten* [5][13]. The 1282 codex does **not** survive as a clean equipment checklist for Reval.
+3. **Core codex rule (defence vs Heerfahrt):** Transmitted Lübeck/Bardewik **Art. 179** (the “defend the city rather than serve on an external campaign” comparator) has **no verified Reval 1282 article parallel** in the current Cm 6 map. Keep its transfer to Reval 1343 as **plausible composite**; do not assign that number to Reval [9][10][11].
+4. **Council command:** **Reval Art. 28** (Bardewik/Lübeck parallel **Art. 29**) states that what the Rat sets, the Rat judges; breaches yield **two-thirds to the city, one-third to the court** in the ratmannen-break tradition [12]. Muster and gate hours are **council orders under this authority**, not viceroy edicts [`jurisdictions-of-reval.md`](./jurisdictions-of-reval.md) [3].
+5. **Arms kit (composite, not a single codex sentence):** Wealth-tiered **spear/glaive, sword, iron cap, padded jack, crossbow optional** - from Hanse Bürgermilitär practice and [`arms-and-armour-livonia-1340s.md`](../military/arms-and-armour-livonia-1340s.md); **Burspraken** require *Harnisch und Waffen in Ordnung halten* [5][13]. The 1282 codex does **not** survive as a clean equipment checklist for Reval.
 6. **Watch and gate fines:** Night **Wacht** on walls and gates is a **Bürgerpflicht** under the 1188 Lübeck-privilege logic (Heerfreiheit ↔ self-defence) transferred with *ius Lubicense* [14][15]. **Explicit gate-curfew fine amounts for Reval 1343 are not attested** in the 168-article snapshot — use **Vogt fine + detention until paid** from [`law-courts-and-punishment.md`](./law-courts-and-punishment.md) and London 1282 gate-ordinance comparandum [16][17].
-7. **Muster:** Council may call **burgher muster** for wall defence; the Rat **cannot** impress burghers for external campaigns (Art. 179 logic) — hired soldiers (*knechte*) for offensive war **plausible composite** [14][18]. April 1343 siege = **mandatory turn-out**, not optional volunteering [19].
-8. **Penalties that are quotable:** Assault on a **councillor in city service** — **60 schillings** to victim, **3 marks silver** to city, **10 schillings** per councillor (**Art. 90** transmission) [12]. **Market violence** — **3 marks** assessed by Rat, **two-thirds city / one-third court** (**Art. 91**) [12]. **False witness** — **60 schillings** + permanent witness bar (**Art. 50**) [20].
+7. **Muster:** Council may call **burgher muster** for wall defence under the Reval council-authority article (**Reval 28 / Bardewik-Lübeck 29**); the Rat cannot impress burghers for external campaigns under the **Bardewik-Lübeck Art. 179 comparator**, for which no Reval article parallel is verified. Hired soldiers (*knechte*) for offensive war remain **plausible composite** [14][18]. April 1343 siege = **mandatory turn-out**, not optional volunteering [19].
+8. **Penalties that are quotable:** Assault on a **councillor in city service** - **Reval Art. 90 / Bardewik-Lübeck Art. 91**: **60 schillings** to victim, **3 marks silver** to city, **10 schillings** per councillor [4][12]. **Market violence** remains a Lübeck Art. 91 comparator only; no separate Reval article number is verified in the current Cm 6 map. **False witness** - **Bardewik-Lübeck Art. 50**: **60 schillings** + permanent witness bar; no Reval parallel is currently identified [20].
 9. **Do not cite as 1343 Reval law:** 1363 craft *Schragen*, 1586 Balhorn print articles, Sachsenspiegel village law, or Order martial codes replacing Vogt inside Lower Town before 16 May 1343 [21][22].
 
 ## Findings
@@ -50,20 +50,26 @@ Kala's editorial note: daughter towns knew Lübeck's privileges but **could not 
 
 ### Article table — defence, arms, watch, and adjacent penalties
 
-Article numbers below use **Lübeck/Bardewik transmission numbering** as cited in Hamburg, Heidelberg LRD, and Kala's parallel columns; the **Reval 1282 manuscript uses its own 1–168 sequence** — Kala maps equivalents per article [3][24]. Where only the Lübeck line is published online, label **plausible composite** for 1343 Reval enforcement until an archival folio read confirms identity.
+Rows below put the **Reval 1282 sequence first**. A Bardewik/Lübeck number is comparative only; `no verified Reval parallel` means the current Cm 6 map does not identify an equivalent Reval article. Every `Cm 6 folio` value remains honest about the public evidence boundary [1][3][4].
 
-| Art. (Lüb./Bard.) | Topic | Excerpt / paraphrase (MLG) | 1343 Reval use | Confidence |
-|---|---|---|---|---|
-| **Prologue** | Statute authority | Latin intro: consules Lübecenses, August 1257 — received law unviolated | Frames codex legitimacy | attested (ms.) [2][3] |
-| **31** | Rat legislation | *dat de ratman settet, dat scholen de ratman richten*; breach fines split Rat/court | Council orders watch hours, muster, gate rules | plausible composite [12] |
-| **50** | False witness | 60 schillings + never testify again | Court / watch testimony disputes | attested transmission [20] |
-| **55** | Assault / slander | 60 sch + 10 marks silver for limb injury; banishment variant | Brawl on wall-walk or gate | plausible composite [12] |
-| **90** | Councillor assaulted in service | 60 sch to victim; 3 marks city; 10 sch per councillor | Attacking watch officer / Rat envoy | plausible composite [12] |
-| **91** | Market peace | Fine after breach; 2/3 city, 1/3 court | Forum riot during muster call | plausible composite [12] |
-| **108** | *Schote* | Defence levy / contribution tradition in Lübeck law block | Funding wall repair, engines, siege costs | plausible composite [25] |
-| **162–172** | Path / neighbour duty | Secure pavement before house; animal injury liability | Merchant must clear gate approach hazards | plausible composite [26] |
-| **179** | No foreign campaign | Burgess stands for *were*, defends city, no *hereuart* | Legal bar on viceroy impressing burghers for Danish field army | plausible composite [9][10] |
-| **240** | *Borgnerscap* | From 12 years up must win citizenship to dwell permanently | Who is on militia roll | plausible composite [7] |
+| Reval art. | Bardewik/Lübeck parallel | Cm 6 folio | Topic | 1343 Reval use | Confidence |
+|---:|---:|---|---|---|---|
+| **Prologue** | no article | not exposed in public source | Statute authority | Frames codex legitimacy | attested (ms.) [2][3] |
+| **28** | **29** | not exposed in public source | Rat legislation | The Rat's orders govern watch hours, muster, and gate rules; the printed wording is `dat de ratman settet, dat scholen de ratman richten` | attested text; defence application plausible composite [4][5] |
+| **34** | **35** | not exposed in public source | City need / assembly | Rat-called morning assembly can frame a civic muster or proclamation, not a named militia roster | attested text; defence use plausible composite [4] |
+| **45** | **46** | not exposed in public source | Bursprake / public proclamation | Public-law witness layer; use only after Kala wording check | attested heading; interpretation partial [3][4] |
+| **50-60** | no article-level parallel verified in current map | not exposed in public source | Testimony, councillors, building, injury | Do not promote an individual Lübeck penalty into a Reval article without Kala collation | edition range attested; article mapping gap [1][3][4] |
+| **69** | **70** | not exposed in public source | Night order | Night walking and detention support a curfew or night-watch encounter without a fixed fine | attested text; 1343 watch transfer plausible composite [4][6] |
+| **90** | **91** | not exposed in public source | Councillor assaulted in service | 60 schillings to the injured person, 3 marks silver to the city, and councillor shares | attested text [4] |
+| **92** | **93** | not exposed in public source | Expulsion | Rat-ordered expulsion and discretionary readmission support a severe public-order consequence | attested text [4] |
+| **158** | **159** | not exposed in public source | *Burspraken* | Crier may read civic orders, but this is not a surviving arms checklist | attested heading; detail needs Kala collation [3][4] |
+| **not identified** | **50** | not exposed in public source | False witness | 60 schillings and witness bar remain a Lübeck comparator; **no verified Reval parallel** | attested Lübeck transmission; Reval transfer plausible composite [20] |
+| **not identified** | **55** | not exposed in public source | Assault / slander | Limb-injury penalty and banishment variant remain comparative only; **no verified Reval parallel** | plausible composite [12] |
+| **not identified** | **91** | not exposed in public source | Market peace | Use the 3-mark / two-thirds-city scale only as a Lübeck comparator; **no verified Reval parallel** in the current crosswalk, which assigns Reval 90 to parallel 91's councillor-assault heading | plausible composite; Reval identity unresolved [4][12] |
+| **not identified** | **108** | not exposed in public source | *Schote* | Defence levy / contribution tradition may inform wall repair and siege costs, but **no verified Reval parallel** is identified | plausible composite [25] |
+| **not identified** | **162-172** | not exposed in public source | Path / neighbour duty | Merchant clears gate-approach hazards only as a comparative production rule; **no verified Reval parallel** is identified | plausible composite [26] |
+| **not identified** | **179** | not exposed in public source | No foreign campaign | “Defend the city rather than serve on an external campaign” is a Bardewik/Lübeck comparator; **no verified Reval parallel** and do not assign that number to Reval | plausible composite [9][10][11] |
+| **not identified** | **240** | not exposed in public source | *Borgnerscap* | Citizenship-from-twelve may inform the militia-roll boundary only as a comparative rule; **no verified Reval parallel** and do not assign that number to Reval | plausible composite [7] |
 
 **Not found in published 1282 Reval excerpts:** a numbered article listing **sword + jack + crossbow** as mandatory kit, or a **fixed pfennig fine for curfew breach**. Those behaviours are **plausible composite** from Burspraken + Hanse militia scholarship + [`watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) [5][13][17].
 
@@ -87,20 +93,20 @@ Hanse Lexikon summarises the **Bürgereid / Burspraken** obligations recurring i
 | Minimum kit | Iron cap, padded jack, sword, spear **or** crossbow — tier table in watch dossier | plausible composite [13][17] |
 | Who inspects? | **Watch sergeant / gate officer** under Vogt authority | plausible composite [17] |
 | Failure to appear armed | Fine or detention until fine paid; repeat → council summons / banishment threat | plausible composite [17][20] |
-| Foreign campaign | **Forbidden** to burghers under Art. 179 logic; viceroy uses castle garrison | plausible composite [9][3] |
+| Foreign campaign | **Forbidden to burghers under the Bardewik-Lübeck Art. 179 comparator**; no Reval article parallel is verified and the viceroy uses the castle garrison | plausible composite |
 | April 1343 siege | Full muster; no exemption for guild feast unless council grants | attested siege frame; detail composite [19] |
 
 ### Offence → consequence pairs (quest-usable)
 
 | Offence | Forum | Codex / custom basis | Typical consequence | Confidence |
 |---|---|---|---|---|
-| Skip watch night without excuse | Vogt | Burspraken *Wacht* + Art. 31 council order | Fine (unfixed amount) or detention | plausible composite [5][17] |
+| Skip watch night without excuse | Vogt | Burspraken *Wacht* + **Reval 28 / Bardewik-Lübeck 29** council order | Fine (unfixed amount) or detention | plausible composite [5][17] |
 | Appear without required arms | Vogt / muster officer | Burspraken *Harnisch* + militia custom | Fine; barred from gate duty until equipped | plausible composite [5][13] |
 | Night gate breach | Vogt | Nachtruhe + watch context | Fine; repeat → pillory path | plausible composite [17][20] |
-| Strike councillor on watch business | Vogt → Rat | **Art. 90** | 60 sch + 3 marks + councillor shares | plausible composite [12] |
-| Riot at muster assembly | Rat | **Art. 91** market peace | 3 marks scale; 2/3 city | plausible composite [12] |
-| False alarm / perjured watch testimony | Rat | **Art. 50** | 60 sch + witness bar | attested transmission [20] |
-| Burgher joins viceroy's field campaign | Council dispute | **Art. 179** | Fine / citizenship challenge | plausible composite [9] |
+| Strike councillor on watch business | Vogt → Rat | **Reval 90 / Bardewik-Lübeck 91** | 60 sch + 3 marks + councillor shares | attested Reval text; defence application plausible composite [4][12] |
+| Riot at muster assembly | Rat | **Bardewik-Lübeck 91 market peace comparator; no separate Reval number verified** | 3 marks scale; 2/3 city | plausible composite [12] |
+| False alarm / perjured watch testimony | Rat | **Bardewik-Lübeck 50 comparator; no Reval parallel verified** | 60 sch + witness bar | plausible composite [20] |
+| Burgher joins viceroy's field campaign | Council dispute | **Bardewik-Lübeck 179 comparator; no Reval parallel verified** | Fine / citizenship challenge | plausible composite [9][11] |
 | Estonian servant on wall without standing | Vogt | No *borgherschap* | Turn back or master fined | plausible composite [7][8] |
 
 ### Regional context
@@ -108,13 +114,13 @@ Hanse Lexikon summarises the **Bürgereid / Burspraken** obligations recurring i
 | Polity | Relation to codex arms/watch rules |
 |---|---|
 | **Danish crown** | Granted 1248 law; does not set nightly watch roster inside All-linn [1][3] |
-| **Viceroy (Preen)** | Commands Toompea garrison; **cannot** replace Art. 179 bar on burgher *Heerfahrt* without political breach | plausible composite [3][9] |
+| **Viceroy (Preen)** | Commands Toompea garrison; **cannot** replace the Bardewik-Lübeck Art. 179 comparator's bar on burgher *Heerfahrt* without political breach; no Reval article parallel is verified | plausible composite [3][9][11] |
 | **Livonian Order** | Extramural until invited; invited knights **supplement** walls, do not void burgher obligation [3][19] |
 | **Lübeck mother city** | Appeal court for civil disputes; not April 1343 emergency muster commander | plausible composite [28] |
 
 ## Production hooks
 
-- **Quest:** **Arms-check fail** — Kalev's neighbour musters with a spear but no cap; Vogt fines or borrows house kit. **Art. 90** — player witnesses assault on councillor during Viru gate dispute. **Art. 179** — viceroy's sergeant tries to impress merchants for Danish field army; council cites codex. **Curfew breach** — fine line without fixed amount; council hungry for revenue during siege. **False testimony** after night raid — **Art. 50** disqualifies witness.
+- **Quest:** **Arms-check fail** - Kalev's neighbour musters with a spear but no cap; Vogt fines or borrows house kit. **Reval Art. 90 / Bardewik-Lübeck Art. 91** - player witnesses assault on councillor during Viru gate dispute. **Bardewik-Lübeck Art. 179 comparator, with no verified Reval parallel** - viceroy's sergeant tries to impress merchants for Danish field army; council cites the received-law boundary. **Curfew breach** - fine line without fixed amount; council hungry for revenue during siege. **Bardewik-Lübeck Art. 50 comparator, with no verified Reval parallel** - false testimony after night raid disqualifies witness.
 - **Narrative:** Town crier reads **Burspraken** before St George's Day muster; Stadtschreiber holds **Cm 6** facsimile in Rat chamber [`power.reval-law-codex-arms-and-watch.01`]. Henning checks caps and spears against custom, not a printed list.
 - **Dialogue:** *"na deme lübischen rechte"*; *"de rat heft setten"* (the council has ordained); *"to der wacht"*; *"harnisch unde wapen"*; *"hier nich ut"* (not out on campaign); *"vor deme vogeten"* for gate fines.
 - **Dev / systems:** `law_source: {codex_1282, bursprake, privilege_1248}`; `offence_id` → `{article_ref, confidence, fine_marks|null, witness_bar_bool}`; `muster_obligation` per burgher household; `arms_check` enum `{pass, fail_fine, fail_detain}`; siege boolean forces `muster_obligation = mandatory`.
@@ -137,14 +143,14 @@ Hanse Lexikon summarises the **Bürgereid / Burspraken** obligations recurring i
 - [`../military/watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md) — nightly routine, gate names, tier kit table; operational layer beneath this legal dossier.
 - [`../military/arms-and-armour-livonia-1340s.md`](../military/arms-and-armour-livonia-1340s.md) — materials and smith-producible items for arms-check scenes.
 - [`../people/town-council-and-officers.md`](../people/town-council-and-officers.md) — burgomasters, Vogt, Stadtschreiber as enforcement officers.
-- [`../economy/coinage-prices-and-measures.md`](../economy/coinage-prices-and-measures.md) — mark/schilling/pfennig scale for Art. 90/91/50 fines.
-- [`../economy/reval-market-weekday-1340s.md`](../economy/reval-market-weekday-1340s.md) — Art. 91 market-peace anchor and the distinction between received Lübeck law and local Reval attestation.
+- [`../economy/coinage-prices-and-measures.md`](../economy/coinage-prices-and-measures.md) - mark/schilling/pfennig scale for **Reval 90 / Bardewik-Lübeck 91**, and the Bardewik-Lübeck 50 comparator fine; no Reval parallel is currently verified.
+- [`../economy/reval-market-weekday-1340s.md`](../economy/reval-market-weekday-1340s.md) - Lübeck Art. 91 market-peace comparator and the distinction between received Lübeck law and local Reval attestation.
 - [`../crafts/schmiede-amt-ordinances-pre-1363.md`](../crafts/schmiede-amt-ordinances-pre-1363.md) - pre-1363 craft remedies and the distinction between guild custom and Vogt/Rat penalties.
-- [`./reval-street-cleaning-ordinances-1340s.md`](./reval-street-cleaning-ordinances-1340s.md) — Art. 31 Burspraken layer applied to street dumping and bath regulation; fine amounts mostly gap.
+- [`./reval-street-cleaning-ordinances-1340s.md`](./reval-street-cleaning-ordinances-1340s.md) - **Reval 28 / Bardewik-Lübeck 29** council-authority layer applied to street dumping and bath regulation; fine amounts mostly gap.
 
 ## Open questions
-
-- Line-by-line map of **Reval 1282 arts. 1–168** to published Lübeck numbers for **Art. 179** and **Art. 108** — needs TLA Cm 6 folio read with Kala 1998 parallels.
+- Whether the **Bardewik-Lübeck Art. 179 comparator** has a documented Reval parallel in Kala's apparatus; the current Cm 6 map identifies none, so retain the `plausible composite` label and do not assign that number to Reval.
+- Whether the Lübeck **Art. 240 *borgnerscap*** comparator has any Reval parallel; until a Kala/Cm 6 collation lands, keep citizenship-from-twelve as a comparative rule and do not assign that number to Reval.
 - **Fixed curfew-fine amount** in any Reval manuscript or AWB entry 1340–1343 — may not exist; candidate AWB pass.
 - Whether **1257 Latin codex** contains defence articles absent from the 168-article 1282 selection.
 - **Guild vs parish** roster unit for watch — not resolved in codex text alone (see watch dossier).

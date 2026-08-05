@@ -235,6 +235,7 @@
 - No-op exact replacements are rejected by the edit tool; avoid issuing an edit when the target block already matches and verify the live block before retrying.
 - When a geometry smoke test hard-codes expected values, derive and print the intermediate area/moment terms first; a denominator convention mistake can falsely blame the authored coordinate. Use the same shoelace formula in the test as in the deliverable calculation.
 - The historical dossier unittest is stale in task-board repositories that no longer ship `TODO.md`; record its `FileNotFoundError` as a baseline limitation and use scoped dossier/index contract checks instead of creating a compatibility file.
+- When a documentation contract check targets a Markdown table, isolate the bounded section before counting columns or searching for evidence-boundary phrases; whole-file literals also occur in narrative and production hooks and can produce false failures.
 - When applying a generated patch to the index, inspect the temporary diff on failure; staged paths must be repository-relative, and a malformed patch should not be retried blindly in a dirty shared worktree.
 - In `code_execution`, helper functions can be unavailable inside later expressions; keep geometry diagnostics inline or use explicit loops, then rerun the exact calculation before editing documentation.
 - When a final contract check counts repeated literals, account for legitimate production-hook and findings occurrences; assert structural markers and exact sections separately from occurrence counts.
