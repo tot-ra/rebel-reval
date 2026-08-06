@@ -62,7 +62,7 @@ static func _paint_door_wood(image: Image, noise_seed: int) -> void:
 	var knot_y := int((0.22 + _hash01(5, 11, noise_seed) * 0.56) * float(height))
 	for y in height:
 		for x in width:
-			var slow_warp := (_lattice(float(x) / 18.0, float(y) / 42.0, maxi(width / 18, 2), noise_seed + 17) - 0.5) * 13.0
+			var slow_warp := (_lattice(float(x) / 18.0, float(y) / 42.0, maxi(floori(float(width) / 18.0), 2), noise_seed + 17) - 0.5) * 13.0
 			var fiber := sin((float(x) + slow_warp) * 0.23)
 			var fine := sin((float(x) + slow_warp * 0.45) * 0.71 + float(y) * 0.014)
 			var broad := _lattice(float(x) / 24.0, float(y) / 48.0, maxi(width / 24, 2), noise_seed + 43)
