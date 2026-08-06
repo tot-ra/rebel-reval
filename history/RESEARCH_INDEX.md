@@ -91,7 +91,7 @@ roles directly.
 | 2026-07-28 | research | Fetch `religion.liturgical-calendar-spring-1343.03` and `.04` reference plates once Wikimedia hash drift is corrected | [`liturgical-calendar-spring-1343`](dossiers/religion/liturgical-calendar-spring-1343.md) |
 | 2026-07-28 | research | Fetch `topography.back-lanes-east-of-pikk.01`–`.04` reference plates once Wikimedia rate-limit clears | [`back-lanes-east-of-pikk`](dossiers/topography/back-lanes-east-of-pikk.md) |
 | 2026-07-28 | canon | Reconcile Easter 1343 date in `hanseatic-trade-and-season.md` (21 Apr → **13 Apr** Julian) against computus | [`liturgical-calendar-spring-1343`](dossiers/religion/liturgical-calendar-spring-1343.md) |
-| 2026-08-01 | canon / research | Collate AWB 1340–1343 entries 554–580 against the MDZ OCR extract for *clausura* variants and confirm whether the negative result is edition-wide or only a searchable-OCR boundary | [`awb-clausuris-mortgage-text-1340-1343`](dossiers/economy/awb-clausuris-mortgage-text-1340-1343.md) |
+| 2026-08-06 | canon / research | **Delivered:** AWB 554-580 page/image ledger and MDZ OCR collation; result is negative for *clausura* variants in the published entry band, with 1342/1343 versus 1344 boundaries corrected. Canon Keeper review remains open for any TLA manuscript upgrade | [`awb-clausuris-mortgage-text-1340-1343`](dossiers/economy/awb-clausuris-mortgage-text-1340-1343.md) |
 
 ## Maintenance
 
