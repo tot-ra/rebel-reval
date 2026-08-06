@@ -836,7 +836,7 @@ static func shader(name: String, code: String) -> Shader:
 	var key := "shader:%s" % name
 	if _cache.has(key):
 		return _cache[key]
-	var shader := Shader.new()
-	shader.code = code
-	_cache[key] = shader
-	return shader
+	var compiled_shader := Shader.new()
+	compiled_shader.code = code
+	_cache[key] = compiled_shader
+	return compiled_shader
