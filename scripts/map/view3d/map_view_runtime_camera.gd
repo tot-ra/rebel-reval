@@ -391,10 +391,18 @@ func set_camera_mode(next_mode: CameraMode) -> void:
 func _apply_perspective_camera_attributes() -> void:
 	if _perspective_attributes == null:
 		return
-	_perspective_attributes.auto_exposure_enabled = PERSPECTIVE_AUTO_EXPOSURE_ENABLED
-	_perspective_attributes.auto_exposure_scale = PERSPECTIVE_AUTO_EXPOSURE_SCALE
-	_perspective_attributes.auto_exposure_speed = PERSPECTIVE_AUTO_EXPOSURE_SPEED
-	_perspective_attributes.exposure_sensitivity = PERSPECTIVE_EXPOSURE_SENSITIVITY
+	if _supports_auto_exposure():
+		_perspective_attributes.auto_exposure_enabled = PERSPECTIVE_AUTO_EXPOSURE_ENABLED
+		_perspective_attributes.auto_exposure_scale = PERSPECTIVE_AUTO_EXPOSURE_SCALE
+		_perspective_attributes.auto_exposure_speed = PERSPECTIVE_AUTO_EXPOSURE_SPEED
+		_perspective_attributes.exposure_sensitivity = PERSPECTIVE_EXPOSURE_SENSITIVITY
+	if not _supports_depth_of_field():
+		# Compatibility does not implement DOF and logs a warning when blur is enabled.
+		# Keep practical exposure attributes active while leaving unsupported blur off.
+		_perspective_attributes.dof_blur_near_enabled = false
+		_perspective_attributes.dof_blur_far_enabled = false
+		camera.attributes = _perspective_attributes
+		return
 	_perspective_attributes.dof_blur_near_enabled = false
 	_perspective_attributes.dof_blur_far_enabled = true
 	match camera_mode:
@@ -409,6 +417,15 @@ func _apply_perspective_camera_attributes() -> void:
 		_:
 			return
 	camera.attributes = _perspective_attributes
+
+
+func _supports_auto_exposure() -> bool:
+	return str(ProjectSettings.get_setting("rendering/renderer/rendering_method", "")) == "forward_plus"
+
+
+func _supports_depth_of_field() -> bool:
+	var rendering_method := str(ProjectSettings.get_setting("rendering/renderer/rendering_method", ""))
+	return rendering_method in ["forward_plus", "mobile"]
 
 
 func _clear_camera_attributes() -> void:
