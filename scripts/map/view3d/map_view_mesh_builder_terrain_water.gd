@@ -84,7 +84,7 @@ static func cell_near_terrain(field: Dictionary, cell: Vector2i, terrain_id: Str
 static func add_water_cell_quad(
 	surface: SurfaceTool,
 	field: Dictionary,
-	grid: MapTerrainGrid,
+	_grid: MapTerrainGrid,
 	x: int,
 	y: int,
 	terrain_id: StringName
