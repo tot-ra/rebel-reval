@@ -374,7 +374,7 @@ static func _load_int_dictionary(
 
 
 static func _load_pressure_dictionary(
-	state: GameState,
+	_state: GameState,
 	source: Variant,
 	errors: Array[String]
 ) -> Dictionary[StringName, int]:
