@@ -113,8 +113,8 @@ func check_add(item_id: StringName, quantity: int = 1) -> AddResult:
 			var next_quantity := placement.quantity + add_count
 			if next_quantity > ItemCarryProfile.MAX_STACK_SIZE:
 				return AddResult.STACK_FULL
-			var added_weight := profile.weight_kg * add_count
-			if get_total_weight() + reserved_weight_kg + added_weight > MAX_WEIGHT_KG + 0.001:
+			var stack_added_weight := profile.weight_kg * add_count
+			if get_total_weight() + reserved_weight_kg + stack_added_weight > MAX_WEIGHT_KG + 0.001:
 				return AddResult.OVER_WEIGHT
 			return AddResult.OK
 
@@ -140,8 +140,8 @@ func try_add(item_id: StringName, quantity: int = 1) -> AddResult:
 			var next_quantity := placement.quantity + add_count
 			if next_quantity > ItemCarryProfile.MAX_STACK_SIZE:
 				return AddResult.STACK_FULL
-			var added_weight := profile.weight_kg * add_count
-			if get_total_weight() + reserved_weight_kg + added_weight > MAX_WEIGHT_KG + 0.001:
+			var stack_added_weight := profile.weight_kg * add_count
+			if get_total_weight() + reserved_weight_kg + stack_added_weight > MAX_WEIGHT_KG + 0.001:
 				return AddResult.OVER_WEIGHT
 			placement.quantity = next_quantity
 			return AddResult.OK
