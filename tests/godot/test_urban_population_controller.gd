@@ -4,6 +4,7 @@ const ProfileScript := preload("res://scripts/world/urban_population_profile.gd"
 const CrowdRenderer := preload("res://scripts/map/view3d/map_view_crowd_renderer.gd")
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const MapVerification := preload("res://scripts/map/map_verification.gd")
+const UrbanPopulationMapBinding := preload("res://scripts/world/urban_population_map_binding.gd")
 const LowerTownSliceDefinition := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
 
 const PHASE_DAY := GameState.PHASE_INVESTIGATION_MORNING
@@ -286,47 +287,59 @@ func test_lower_town_cluster_roles_cover_workers_merchants_and_watch() -> void:
 	assert_true(cluster_by_id.has(&"workers_carriers"))
 	assert_true(cluster_by_id.has(&"merchants_customers"))
 	assert_true(cluster_by_id.has(&"watch_checkpoint"))
-	assert_array_contains(cluster_by_id[&"workers_carriers"]["anchor_ids"], &"smithy_door")
-	assert_array_contains(cluster_by_id[&"workers_carriers"]["anchor_ids"], &"brewery_door")
-	assert_array_contains(cluster_by_id[&"merchants_customers"]["anchor_ids"], &"mart_street")
-	assert_array_contains(cluster_by_id[&"watch_checkpoint"]["anchor_ids"], &"checkpoint_west")
-	assert_array_contains(cluster_by_id[&"watch_checkpoint"]["anchor_ids"], &"checkpoint_east")
+	assert_array_contains(cluster_by_id[&"workers_carriers"]["anchor_ids"], &"workers_yard")
+	assert_array_contains(cluster_by_id[&"workers_carriers"]["anchor_ids"], &"carriers_lane")
+	assert_array_contains(cluster_by_id[&"merchants_customers"]["anchor_ids"], &"merchants_market")
+	assert_array_contains(cluster_by_id[&"watch_checkpoint"]["anchor_ids"], &"watch_west_checkpoint")
+	assert_array_contains(cluster_by_id[&"watch_checkpoint"]["anchor_ids"], &"watch_east_checkpoint")
 	assert_array_contains(cluster_by_id[&"workers_carriers"]["zone_ids"], ProfileScript.ZONE_WORK_YARD)
 	assert_array_contains(cluster_by_id[&"merchants_customers"]["zone_ids"], ProfileScript.ZONE_MARKET)
 	assert_array_contains(cluster_by_id[&"watch_checkpoint"]["zone_ids"], ProfileScript.ZONE_CHECKPOINT)
 
 
+func test_lower_town_binding_snapshot_and_profile_records_are_complete() -> void:
+	var definition: MapDefinition = LowerTownSliceDefinition.create()
+	var grid := MapBuilder.build(definition)
+	var lookup := UrbanPopulationMapBinding.build_lookup(definition, grid)
+
+	assert_eq(lookup["map_id"], &"lower_town_slice")
+	assert_eq(lookup["clusters"], UrbanPopulationMapBinding.lookup(definition, grid))
+	assert_eq((lookup["clusters_by_id"] as Dictionary).keys().size(), 3)
+	for cluster_id: StringName in [
+		UrbanPopulationMapBinding.CLUSTER_WORKERS,
+		UrbanPopulationMapBinding.CLUSTER_MERCHANTS,
+		UrbanPopulationMapBinding.CLUSTER_WATCH,
+	]:
+		assert_true((lookup["clusters_by_id"] as Dictionary).has(cluster_id))
+	for anchor_id: StringName in [&"workers_yard", &"merchants_market", &"watch_east_checkpoint"]:
+		var anchor_record: Dictionary = lookup["anchors_by_id"][anchor_id]
+		assert_eq(anchor_record["anchor_id"], anchor_id)
+		assert_eq(anchor_record["anchor_position"], MapVerification.anchor_position(definition, anchor_id))
+		assert_true(MapVerification.is_walkable_point(definition, grid, anchor_record["anchor_position"]))
+
+	var profile := ProfileScript.market_day(PHASE_DAY, DATE_MARKET_DAY, 434)
+	var records := UrbanPopulationMapBinding.bind_profile(profile, definition, grid)
+	assert_eq(records.size(), (profile["actor_plan"] as Array).size())
+	for record: Dictionary in records:
+		assert_false(String(record["cluster_id"]).is_empty())
+		assert_false(String(record["anchor_id"]).is_empty())
+		assert_eq(record["anchor_position"], MapVerification.anchor_position(definition, record["anchor_id"]))
+
+
+func test_population_binding_fails_closed_for_unknown_map_and_ids() -> void:
+	var definition := MapDefinition.new()
+	definition.map_id = &"not_lower_town"
+	var unknown_lookup := UrbanPopulationMapBinding.build_lookup(definition)
+	assert_true((unknown_lookup["clusters"] as Array).is_empty())
+	assert_true((unknown_lookup["anchors_by_id"] as Dictionary).is_empty())
+	assert_true(UrbanPopulationMapBinding.clusters_for_map(definition).is_empty())
+	assert_true(UrbanPopulationMapBinding.anchor_ids_for_cluster(&"missing_cluster", []).is_empty())
+	assert_eq(UrbanPopulationMapBinding.cluster_id_for_actor({"zone_id": &"missing_zone"}, []), &"")
+	assert_true(UrbanPopulationMapBinding.bind_profile({"actor_plan": [{"actor_index": 0, "zone_id": &"missing_zone"}]}, definition).is_empty())
+
+
 func _lower_town_population_clusters(definition: MapDefinition) -> Array[Dictionary]:
-	# Test-only projection of R-410's authored anchors into the profile's semantic
-	# zones. Runtime population remains renderer-agnostic and does not gain map data.
-	var anchor_ids: Array[StringName] = []
-	for anchor: Dictionary in definition.interaction_anchors:
-		anchor_ids.append(anchor["id"])
-	return [
-		{
-			"cluster_id": &"workers_carriers",
-			"zone_ids": [ProfileScript.ZONE_WORK_YARD, ProfileScript.ZONE_RESIDENTIAL],
-			"anchor_ids": _stable_present_anchors(anchor_ids, [&"smithy_door", &"brewery_door", &"street_start"]),
-		},
-		{
-			"cluster_id": &"merchants_customers",
-			"zone_ids": [ProfileScript.ZONE_MARKET, ProfileScript.ZONE_STREET],
-			"anchor_ids": _stable_present_anchors(anchor_ids, [&"mart_street", &"street_start"]),
-		},
-		{
-			"cluster_id": &"watch_checkpoint",
-			"zone_ids": [ProfileScript.ZONE_CHECKPOINT, ProfileScript.ZONE_STREET, ProfileScript.ZONE_SAFE_INTERIOR],
-			"anchor_ids": _stable_present_anchors(anchor_ids, [&"checkpoint_west", &"checkpoint_east"]),
-		},
-	]
-
-
-func _stable_present_anchors(present_ids: Array[StringName], expected_ids: Array[StringName]) -> Array[StringName]:
-	var result: Array[StringName] = []
-	for anchor_id: StringName in expected_ids:
-		if present_ids.has(anchor_id):
-			result.append(anchor_id)
-	return result
+	return UrbanPopulationMapBinding.clusters_for_map(definition)
 
 
 func _clusters_consumed_by_profile(profile: Dictionary, clusters: Array[Dictionary]) -> Array[StringName]:

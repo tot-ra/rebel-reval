@@ -50,6 +50,11 @@ terrain wall.margin.west grass 3 8 8 96 order=3
 terrain wall.margin.east grass 220 8 15 96 order=3
 terrain outer_wall.verge grass 228 8 32 96 order=3
 terrain outer_wall.road dirt 232 0 20 112 order=8
+# Keep the Workers' District visual language at the shared outer road: the
+# limestone curtain is followed by a shallow wet ditch and then a packed-earth
+# wall road. The travel opening is a dirt causeway through the ditch.
+terrain outer_wall.ditch water 228 8 4 96 order=10
+terrain outer_wall.causeway dirt 228 40 4 12 order=11
 terrain south.seam.grass grass 30 98 110 14 order=3
 terrain lai.rear.grass grass 148 60 22 28 order=3
 # Medicinal beds and disturbed-ground plants around the convent and wall margins.
@@ -90,7 +95,7 @@ building monastery_west_gate_south_jamb wall 0 39 8 2 style=wall.city tower=fals
 building monastery_city_wall_west_south wall 0 48 3 64 style=wall.city
 building monastery_wall_tower_west_mid wall 0 72 8 8 style=wall.tower tower=true door_side=east
 building monastery_wall_tower_southwest wall 0 104 8 8 style=wall.tower tower=false
-building monastery_city_wall_east wall 225 0 3 96 style=wall.city
+building monastery_city_wall_east wall 225 0 3 112 style=wall.city
 building monastery_wall_tower_northeast wall 220 0 8 8 style=wall.tower tower=false
 building monastery_wall_tower_east_mid wall 220 52 8 8 style=wall.tower tower=false
 building monastery_wall_tower_southeast wall 220 104 8 8 style=wall.tower tower=false

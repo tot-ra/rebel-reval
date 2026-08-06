@@ -344,6 +344,56 @@ CHARACTERS = {
         "fidelity_tier": 1,
         "garments": [],
     },
+    # Road bandit: a leaner civilian frame in patched dark wool and leather. He
+    # has no Order insignia or armour, so the silhouette reads as a criminal
+    # threat rather than another watch rank while retaining the shared rig clips.
+    "bandit": {
+        "proportions": {
+            "leg_length": 1.80,
+            "arm_length": 1.24,
+            "torso_length": 0.86,
+            "shoulder_width": 0.70,
+            "hip_socket_width": 0.60,
+            "hand_size": 0.80,
+        },
+        "shape": {
+            "bulk": 0.92,
+            "chest_breadth": 0.94,
+            "belly": 0.92,
+            "head_scale": 1.0,
+        },
+        "face": {
+            "width": 0.98,
+            "depth": 1.02,
+            "length": 1.03,
+            "jaw_width": 1.02,
+            "nose_length": 1.02,
+            "eye_spacing": 1.0,
+            "brow_height": 0.96,
+        },
+        "palette": {
+            "tunic": (0.16, 0.13, 0.12, 1.0),
+            "sleeves": (0.30, 0.28, 0.25, 1.0),
+            "sleeve_band": (0.42, 0.12, 0.08, 1.0),
+            "pants": (0.12, 0.12, 0.13, 1.0),
+            "boots": (0.18, 0.10, 0.07, 1.0),
+            "belt": (0.25, 0.14, 0.08, 1.0),
+            "hair": (0.12, 0.09, 0.07, 1.0),
+            "beard": (0.10, 0.08, 0.06, 1.0),
+            "outerwear": (0.25, 0.11, 0.08, 1.0),
+            "trim": (0.46, 0.18, 0.10, 1.0),
+        },
+        "features": {
+            "hair_style": "full",
+            "beard_style": "short",
+            "sleeve_style": "long",
+            "tunic_length": "short",
+            "outerwear": "vest",
+        },
+        "output": "assets/characters/shared/bandit.glb",
+        "fidelity_tier": 1,
+        "garments": [],
+    },
     # Livonian watch sergeant: broader and taller than the watchman, with baked
     # pauldrons and a helmet garment. Stays below Captain Henning so rank reads
     # at gameplay scale without sharing the captain's silhouette.

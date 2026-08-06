@@ -306,10 +306,11 @@ func _process_charged_attack_input(delta: float) -> void:
 	if action_state_machine.state != PlayerActionState.State.MOVE:
 		_reset_attack_charge()
 		return
-	if PlayerActionInput.read_attack_just_pressed():
+	var attack_held := PlayerActionInput.read_attack_held()
+	if PlayerActionInput.read_attack_just_pressed() or (attack_held and not _attack_charge_active):
 		_attack_charge_active = true
 		_attack_charge_sec = 0.0
-	if _attack_charge_active and PlayerActionInput.read_attack_held():
+	if _attack_charge_active and attack_held:
 		_attack_charge_sec += delta
 	if PlayerActionInput.read_attack_just_released() and _attack_charge_active:
 		_commit_attack_from_charge_hold(_attack_charge_sec)
@@ -416,6 +417,10 @@ func set_camera_facing(direction: Vector2) -> void:
 
 
 func view_animation() -> StringName:
+	# WHY: Charged attacks intentionally commit on release, but the player must
+	# still see the hammer wind-up while Space/gamepad X is held.
+	if _attack_charge_active:
+		return _resolve_attack_profile(true).animation
 	var animation_base := _combat_or_locomotion_animation(_current_locomotion_animation())
 	if animation_base == "attack":
 		return _active_attack_profile.animation
@@ -429,6 +434,8 @@ func view_animation() -> StringName:
 
 
 func view_animation_elapsed_sec() -> float:
+	if _attack_charge_active:
+		return _attack_charge_sec
 	if action_state_machine.state == PlayerActionState.State.ATTACK:
 		return action_state_machine.state_elapsed_sec
 	return 0.0

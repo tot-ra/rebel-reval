@@ -18,7 +18,7 @@ You are blocking out the **open market reserve** (*forum*, modern Raekoja plats)
 
 **Ship these decisions:**
 
-1. **Smaller than today.** The hall reached its full **36.8 m** length only in **1371–74**; the square’s east–west span grew with it. For April 1343 use a **shorter south edge (~22–28 m)** and a **smaller open polygon** than the modern plaza [1][2][3].
+1. **Smaller than today.** The hall reached its full **36.78 m** measured north frontage in the completed configuration described by Neumann; the 1371–74 extension is the accepted phase boundary for that full length. For April 1343 use a **shorter south edge (~22–28 m)** and a **smaller open polygon** than the modern plaza [1][2][3][5].
 2. **South edge = hall only.** One-storey grey-limestone hall, clay-tile gable roof, **no arcade**, **no tower**, **no upper council storey**. The north façade is a plain wall with simple stone-framed windows opening to the market [1][4][5].
 3. **North edge = built frontage, not void.** Strip burgess plots and the modest **Holy Spirit chapel–almshouse** complex sit north of the open ground; the square does **not** read as a formal rectangle walled on four sides [6][7][8].
 4. **Open ground is irregular.** Temporary stalls, carts, and foot traffic only — no permanent market halls, no Christmas-tree tradition (1441+), no pillory as a fixed prop unless flagged uncertain [9][10].
@@ -43,7 +43,8 @@ The market and Town Hall share a site from at least the 1322 consistorium record
 | Element | 1343 state | Confidence |
 |---|---|---|
 | Position | South side of *forum*, exit of gate-ward streets [2] | attested |
-| Length along south edge | **~22–28 m** (western core + first-quarter-14th-c. extension; **not** 36.8 m) | plausible composite [1][2][3][5] |
+| Length along south edge | **~22–28 m** (western core + first-quarter-14th-c. extension; **not** the completed 36.78 m north frontage) | plausible composite [1][2][3][5] |
+| Completed north frontage | **36.78 m** (Neumann measured finished building; use only as a later-state comparandum) | attested measured [5] |
 | Width (north–south) | **~14.5–15.2 m** (trapezoid taper ≤0.5 m) | attested for finished hall; apply to 1343 core [2] |
 | Storeys | **One** storey + attic storeroom; board or tile roof [1][3] | attested |
 | Arcade loggia | **Absent** (1402–04) [1][4] | attested |
@@ -110,7 +111,7 @@ No municipal survey gives a 1343 polygon; ranges synthesise hall phasing [1][2],
 
 ## Production hooks
 
-- **Map:** Trace polygon SW→SE→NE→NW; reserve south strip **8–32 m** (X) for hall; keep interior **~1,200 m²** open. Feed approaches: Kullassepa (W), Vanaturu throat (E), Pühavaimu (N). Prototype `market_civic_quarter` 80×48-cell module should feel **tighter** than modern square — shrink open core ~25–30% vs present tourist pavement [14]. Plate [`topography.raekoja-plats-extents-1343.02`](../../reference/topography/raekoja-plats-extents-1343/topography.raekoja-plats-extents-1343.02.jpg) for hall-to-square proportion (post-1404 façade — comparandum only).
+- **Map:** Trace polygon SW→SE→NE→NW; reserve south strip **8–32 m** (X) for hall; keep interior **~1,200 m²** open. Feed approaches: Kullassepa (W), Vanaturu throat (E), Pühavaimu (N). Prototype `market_civic_quarter` 80×48-cell module should feel **tighter** than modern square — shrink open core ~25–30% vs present tourist pavement [14]. Plate [`topography.raekoja-hall-phase-plans.01`](../../reference/topography/raekoja-hall-phase-plans/topography.raekoja-hall-phase-plans.01.jpg) shows the later market-to-hall relationship; plate [`topography.raekoja-hall-phase-plans.02`](../../reference/topography/raekoja-hall-phase-plans/topography.raekoja-hall-phase-plans.02.jpg) supplies the later plan/section and published scale, not a direct 1343 footprint [14][18].
 - **Art:** South skyline = **low** limestone gable (~8–10 m ridge), tile roof, no tower silhouette. Market = packed earth / patch limestone, movable awning canvas, hand-carts, ale buckets — not stone stall rows. North skyline = mixed timber/stone burgess gables + modest chapel bell-cote at most [6][8][15].
 - **Character:** Council announcements from hall doorway (west portal tradition [2]); Estonian labourers and servants in open ground; German burghers on north frontage plots [15][17].
 - **Quest / Narrative:** Bread-and-iron grain tension, St George’s Night rally potential, council proclamations before siege [17].
@@ -121,7 +122,9 @@ No municipal survey gives a 1343 polygon; ranges synthesise hall phasing [1][2],
 
 | Plate | Shows | Source, date, origin | License | Answers |
 |-------|-------|----------------------|---------|---------|
-| `topography.raekoja-plats-extents-1343.01` (link-only) | Neumann & Nottbeck ground-floor plan, west–east room sequence | *Geschichte und Kunstdenkmäler der Stadt Reval*, vol. 2, Reval 1904, plate in dig. 52772 | linked (1904 book) | Hall room zoning; **post-1371** length — use phase labels |
+| [`topography.raekoja-hall-phase-plans.01`](../../reference/topography/raekoja-hall-phase-plans/topography.raekoja-hall-phase-plans.01.jpg) | Neumann & Nottbeck, *Geschichte und Kunstdenkmäler der Stadt Reval*, vol. 2, p. 187, Fig. 159, Reval 1904 | Public Domain Mark | Market-to-hall relationship and later urban enclosure; not a 1343 plan |
+| [`topography.raekoja-hall-phase-plans.02`](../../reference/topography/raekoja-hall-phase-plans/topography.raekoja-hall-phase-plans.02.jpg) | Neumann & Nottbeck, vol. 2, p. 188, Figs. 161–162, Reval 1904 | Public Domain Mark | Published upper-floor plan and cross-section; scale is useful for finished hall dimensions, not a direct pre-1371 footprint |
+| `topography.raekoja-plats-extents-1343.01` (link-only) | Neumann & Nottbeck ground-floor plan, west–east room sequence | *Geschichte und Kunstdenkmäler der Stadt Reval*, vol. 2, Reval 1904, Heidelberg facsimile | linked (1904 book) | Hall room zoning; **post-1371** length — use phase labels |
 | [`topography.raekoja-plats-extents-1343.02`](../../reference/topography/raekoja-plats-extents-1343/topography.raekoja-plats-extents-1343.02.jpg) | Town Hall north façade and square relationship | Ymblanter photo, 2018, Tallinn | CC BY-SA 4.0 | Square–hall proportion; **post-1404** arcade — comparandum |
 | [`topography.raekoja-plats-extents-1343.03`](../../reference/topography/raekoja-plats-extents-1343/topography.raekoja-plats-extents-1343.03.jpg) | Holy Spirit church tight urban massing north of market | Panoramio / Wikimedia, 2010s, Tallinn | CC BY-SA 3.0 | North-edge built density; church **later** than 1343 core |
 | [`topography.raekoja-plats-extents-1343.04`](../../reference/topography/raekoja-plats-extents-1343/topography.raekoja-plats-extents-1343.04.jpg) | Market square overview with hall south | Julian Nyča photo, 2014, Tallinn | CC BY-SA 4.0 | Irregular open ground shape around hall |
@@ -137,7 +140,7 @@ No municipal survey gives a 1343 polygon; ranges synthesise hall phasing [1][2],
 
 ## Open questions
 
-- Measured **pre-1371** hall length from Neumann phase drawings — worth a plate-gathering pass on Heidelberg facsimile pages (candidate `R-###` plate row).
+- Measured **pre-1371** hall length from Neumann phase drawings remains unresolved: the Heidelberg plates publish the completed hall plan/section and the 36.78 m finished north frontage, but do not expose a separate dimension line for the earlier core. Keep **~22–28 m** as a plausible composite until a phase-specific measured drawing is found.
 - Archaeological paving limits of *forum* vs surrounding plots — no citywide 1343 survey published in reviewed sources.
 - Whether a **well** stood in the open ground in 1343 (modern decorative well is not evidence).
 - Exact 1343 boundary between *forum* and the road convergence later called Vana Turg — resolved in [`old-market-vanaturg.md`](./old-market-vanaturg.md) (R-031): neck is a lane, not *forum inferior*.
@@ -148,7 +151,7 @@ No municipal survey gives a 1343 polygon; ranges synthesise hall phasing [1][2],
 2. Medieval Heritage, “Tallinn town hall,” https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-town-hall/ — dimensions 36.8×14.7/15.2 m, west-to-east phasing (English).
 3. Wikipedia, “Tallinn Town Hall,” https://en.wikipedia.org/wiki/Tallinn_Town_Hall — square length in 1370s, single-storey pre-1402 state (English).
 4. Project internal: `docs/HISTORICAL_AUDIT.md` H06 — 1343 hall without tower; arcade legibility note (English).
-5. Neumann W. & Nottbeck E., *Geschichte und Kunstdenkmäler der Stadt Reval*, vol. 2, Reval: Kluge, 1904 — plans cited via https://doi.org/10.11588/diglit.52772 (German).
+5. Neumann W. & Nottbeck E., *Geschichte und Kunstdenkmäler der Stadt Reval*, vol. 2, Reval: Kluge, 1904, pp. 186–188, Figs. 158–162 — Heidelberg facsimile, Public Domain Mark: https://doi.org/10.11588/diglit.52774#0212 (German). Measured completed north frontage: 36.78 m; the pages do not provide a separate pre-1371 dimension line.
 6. Medieval Heritage, “Holy Spirit Church,” https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-holy-spirit-church-puha-vaimu-kirik/ — 1316 chapel, 1360s rebuild donations (English).
 7. Pühavaimu congregation, “Kirikuhoone,” https://puhavaimu.ee/kirikuhoone/ — choir c. 1300, aisle 14th c., 1375–80 works (Estonian).
 8. Project internal: `docs/HISTORICAL_AUDIT.md` — Holy Spirit 1343 modest chapel–almshouse (English).
@@ -161,3 +164,4 @@ No municipal survey gives a 1343 polygon; ranges synthesise hall phasing [1][2],
 15. [`burgher-house-plan.md`](../architecture/burgher-house-plan.md) — plot widths, market frontage (English).
 16. Raeapteek history, https://raepret.ee/en/about/ — pharmacy from 1422 (English).
 17. Project internal: `history/HISTORY.md`, `history/TIMELINE.md` — 1343 power and siege (English).
+18. Heidelberg University Library, *Geschichte und Kunstdenkmäler der Stadt Reval* vol. 2, pp. 187–188, image leaves 0213–0214, Public Domain Mark: https://digi.ub.uni-heidelberg.de/diglit/nottbeck1904bd2/0213 and https://digi.ub.uni-heidelberg.de/diglit/nottbeck1904bd2/0214 — Fig. 159 market view/plan, Fig. 161 upper-floor plan, Fig. 162 cross-section; direct JPEGs are linked in the plate manifest.

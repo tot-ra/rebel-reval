@@ -13,6 +13,7 @@ extends RefCounted
 const _Config := preload("res://scripts/map/view3d/map_view_mesh_builder_config.gd")
 const _Terrain := preload("res://scripts/map/view3d/map_view_mesh_builder_terrain.gd")
 const _Buildings := preload("res://scripts/map/view3d/map_view_mesh_builder_buildings.gd")
+const _BuildingRegistry := preload("res://scripts/map/view3d/map_view_mesh_builder_building_registry.gd")
 const _Landmarks := preload("res://scripts/map/view3d/map_view_mesh_builder_landmarks.gd")
 const _Props := preload("res://scripts/map/view3d/map_view_mesh_builder_props.gd")
 const _Surroundings := preload("res://scripts/map/view3d/map_view_mesh_builder_surroundings.gd")
@@ -42,6 +43,23 @@ static func build_building(
 	map_bounds: Rect2 = Rect2()
 ) -> Node3D:
 	return _Buildings.build_building(building, cell_size, entrances, map_bounds)
+
+
+static func is_exceptional_building(building: Dictionary) -> bool:
+	return _BuildingRegistry.is_exceptional(building)
+
+
+static func exceptional_building_category(building: Dictionary) -> StringName:
+	return _BuildingRegistry.exceptional_category(building)
+
+
+static func build_exceptional_building(
+	building: Dictionary,
+	cell_size: int,
+	entrances: Array[Dictionary] = [],
+	map_bounds: Rect2 = Rect2()
+) -> Node3D:
+	return _Buildings.build_exceptional_building(building, cell_size, entrances, map_bounds)
 
 
 static func interior_shell_wall_height_world(definition: MapDefinition) -> float:

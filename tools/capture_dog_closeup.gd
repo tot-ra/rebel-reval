@@ -1,13 +1,13 @@
 extends SceneTree
 
-## Close-up render of the P2-024 street dog after its realism pass. Reuses the
-## P0-118 reference stage lighting. Run with a rendering-capable Godot process
-## (headless hits the dummy renderer):
+## Close-up render of the P2-024 street dog production GLB (medieval_dog.glb).
+## Reuses the P0-118 reference stage lighting. Run with a rendering-capable
+## Godot process (headless hits the dummy renderer):
 ## /Applications/Godot.app/Contents/MacOS/Godot --path . \
 ##   --rendering-driver metal --script tools/capture_dog_closeup.gd
 
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
-const MammalMeshes := preload("res://scripts/map/view3d/map_view_mammal_meshes.gd")
+const MedievalAnimalModels := preload("res://scripts/map/view3d/map_view_medieval_animal_models.gd")
 
 const OUTPUT := "res://build/previews/dog_closeup.png"
 const VIEWPORT_SIZE := Vector2i(1600, 900)
@@ -61,17 +61,9 @@ func _run() -> void:
 func _dog_instance(view_rotation_degrees: Vector3) -> Node3D:
 	var root_3d := Node3D.new()
 	root_3d.name = "Dog"
-	var mesh := MammalMeshes.mesh_for(MammalSpecies.SPECIES_DOG)
-	var instance := MeshInstance3D.new()
-	instance.name = "Model"
-	instance.mesh = mesh
-	instance.rotation_degrees = view_rotation_degrees
-	var material := StandardMaterial3D.new()
-	material.vertex_color_use_as_albedo = true
-	material.roughness = 0.84
-	material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	instance.material_override = material
-	root_3d.add_child(instance)
+	var model := MedievalAnimalModels.add_model(root_3d, MammalSpecies.SPECIES_DOG)
+	assert(model != null, "medieval_dog.glb must be imported before the closeup capture")
+	model.rotation_degrees = view_rotation_degrees
 	return root_3d
 
 

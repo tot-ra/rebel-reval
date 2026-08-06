@@ -286,6 +286,30 @@ func test_view_animation_reports_run_walk_and_attack() -> void:
 	player.free()
 
 
+func test_charged_attack_preview_is_visible_before_release() -> void:
+	_ensure_content_loaded()
+	var player := _create_player()
+	_equip_item(&"right_hand", &"item.forge_hammer")
+	player.stamina = 100.0
+	# Input edges are owned by the engine and are covered by the combat-room helper;
+	# this test isolates the player-to-view presentation contract while the button
+	# is held, before release commits the attack state.
+	player._attack_charge_active = true
+	player._attack_charge_sec = TEST_DELTA
+
+	assert_eq(
+		player.view_animation(),
+		&"hammer_charged_attack",
+		"Holding Space must show the hammer wind-up before release commits the swing"
+	)
+	assert_true(player.view_animation_elapsed_sec() > 0.0)
+
+	assert_true(player.commit_attack_from_charge_hold(0.05))
+	assert_eq(player.action_state_machine.state, PlayerActionState.State.ATTACK)
+	assert_eq(player.view_animation(), &"hammer_attack", "A quick Space tap must start the light swing")
+	player.free()
+
+
 func test_left_mouse_click_does_not_start_attack() -> void:
 	var player := _create_unarmed_player()
 	player.combat_input_enabled = true

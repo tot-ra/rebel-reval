@@ -5,6 +5,24 @@
   },
   "bodies": [
     {
+      "body": "bandit.glb",
+      "lod0_triangles": 51456,
+      "levels": {
+        "lod1": {
+          "path": "assets/characters/shared/bandit_lod1.glb",
+          "triangles": 25722,
+          "fraction_of_lod0": 0.4999,
+          "target_ratio": 0.5
+        },
+        "lod2": {
+          "path": "assets/characters/shared/bandit_lod2.glb",
+          "triangles": 10281,
+          "fraction_of_lod0": 0.1998,
+          "target_ratio": 0.2
+        }
+      }
+    },
+    {
       "body": "danish_warrior.glb",
       "lod0_triangles": 51504,
       "levels": {

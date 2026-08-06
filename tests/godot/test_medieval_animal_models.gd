@@ -32,8 +32,17 @@ func test_pig_has_realistic_rigged_body_and_locomotion_clips() -> void:
 	assert_true(mesh != null)
 	var aabb := mesh.get_aabb()
 	assert_true(aabb.size.x >= 1.30, "Pig must keep a low, long landrace silhouette")
+	assert_true(aabb.size.x < 1.50, "Pig must not inherit an inflated scan/helper bound")
 	assert_true(aabb.size.y >= 0.70, "Pig legs and back must retain plausible standing height")
+	assert_true(aabb.size.y < 0.85, "Pig must retain a low landrace body profile")
 	assert_true(aabb.size.z >= 0.45, "Pig chest must retain believable load-bearing width")
+	assert_true(aabb.size.z < 0.55, "Pig must not become an over-wide generic blob")
+	var skeletons := model.find_children("*", "Skeleton3D", true, false)
+	assert_true(skeletons.size() >= 1, "Pig needs an imported skeleton")
+	var skeleton := skeletons[0] as Skeleton3D
+	for bone_name: StringName in [&"FrontLeftLeg", &"FrontRightLeg", &"BackLeftLeg", &"BackRightLeg"]:
+		assert_true(skeleton.find_bone(bone_name) >= 0, "%s needs four authored weight-bearing leg bones" % bone_name)
+	assert_true(mesh.mesh.get_surface_count() == 1, "Pig body must remain one portable production surface")
 	var eye_left := model.find_child("EyeLeft", true, false) as Node3D
 	var eye_right := model.find_child("EyeRight", true, false) as Node3D
 	assert_true(eye_left != null)

@@ -9,6 +9,7 @@ extends Control
 signal view_changed
 signal selected_layer_changed(map_id: StringName)
 signal background_changed
+signal edit_cell_clicked(cell: Vector2i, button_index: int)
 
 const MARGIN := 48.0
 const MIN_ZOOM := 0.01
@@ -59,6 +60,7 @@ var background_scale := 1.0
 var background_opacity := 0.55
 var background_visible := true
 var edit_background := false
+var edit_mode := false
 
 var _zoom := 0.12
 var _pan := Vector2.ZERO
@@ -92,6 +94,17 @@ func configure(map_definitions: Array[MapDefinition], offsets: Dictionary, map_s
 	selected_map_id = layers[0]["id"] if not layers.is_empty() else &""
 	request_fit()
 	queue_redraw()
+
+
+func update_layer_definition(map_id: StringName, updated_definition: MapDefinition) -> void:
+	for index in layers.size():
+		if layers[index]["id"] != map_id:
+			continue
+		layers[index]["definition"] = updated_definition
+		layers[index]["terrain_texture"] = _build_terrain_texture(updated_definition)
+		queue_redraw()
+		view_changed.emit()
+		return
 
 
 func clear() -> void:
@@ -282,6 +295,16 @@ func _gui_input(event: InputEvent) -> void:
 		elif button.button_index == MOUSE_BUTTON_WHEEL_DOWN and button.pressed:
 			_zoom_at(button.position, 1.0 / 1.12)
 			accept_event()
+		elif button.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT] and button.pressed and edit_mode and not edit_background:
+			var clicked_cell := _cell_at(button.position)
+			if clicked_cell != Vector2i(-1, -1):
+				edit_cell_clicked.emit(clicked_cell, button.button_index)
+				accept_event()
+				return
+			_select_layer_at(button.position)
+			_drag_mode = &"pan"
+			_last_mouse = button.position
+			accept_event()
 		elif button.button_index == MOUSE_BUTTON_LEFT:
 			if button.pressed:
 				if edit_background and has_background():
@@ -405,6 +428,19 @@ func _draw_map(map_layer: Dictionary) -> void:
 	draw_rect(world_rect, Color.WHITE if selected else Color(accent, opacity), false, 5.0 if selected else 2.0)
 	_draw_id(String(DISPLAY_NAMES.get(definition.map_id, definition.map_id)), world_rect.position + Vector2(8.0, 20.0), Color.WHITE if selected else accent, opacity, false)
 
+
+func _cell_at(screen_point: Vector2) -> Vector2i:
+	if layers.is_empty() or selected_map_id.is_empty():
+		return Vector2i(-1, -1)
+	var target := layer(selected_map_id)
+	if target.is_empty():
+		return Vector2i(-1, -1)
+	var definition: MapDefinition = target["definition"]
+	var world_point := (screen_point - _pan) / _zoom - Vector2(target["offset"])
+	var cell := Vector2i(floori(world_point.x / float(definition.cell_size)), floori(world_point.y / float(definition.cell_size)))
+	if cell.x < 0 or cell.y < 0 or cell.x >= definition.size_cells.x or cell.y >= definition.size_cells.y:
+		return Vector2i(-1, -1)
+	return cell
 
 func _build_terrain_texture(definition: MapDefinition) -> ImageTexture:
 	var grid := MapBuilder.build(definition)

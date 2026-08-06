@@ -1,0 +1,87 @@
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+WARNING: Detected another project.godot at res://generated/comfyui/forge_cat_hunyuan3d_v1/production/godot_verify. The folder will be ignored.
+     at: _should_skip_directory (editor/file_system/editor_file_system.cpp:3497)
+[  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+[  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+[  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+[  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+[  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+[92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+[0m
+[   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (28 steps)[39m[0m
+[   0% ] [90m[1m_update_scan_actions[22m | medieval_pig.glb[39m[0m
+[   3% ] [90m[1m_update_scan_actions[22m | pig_albedo.png[39m[0m
+[   6% ] [90m[1m_update_scan_actions[22m | pig_normal.png[39m[0m
+[  10% ] [90m[1m_update_scan_actions[22m | pig_roughness.png[39m[0m
+[  13% ] [90m[1m_update_scan_actions[22m | Ambush on Pikk Street (1).mp3[39m[0m
+[  17% ] [90m[1m_update_scan_actions[22m | Ambush on Pikk Street.mp3[39m[0m
+[  20% ] [90m[1m_update_scan_actions[22m | Baltic Tempest (1).mp3[39m[0m
+[  24% ] [90m[1m_update_scan_actions[22m | Baltic Tempest (2).mp3[39m[0m
+[  27% ] [90m[1m_update_scan_actions[22m | Baltic Tempest.mp3[39m[0m
+[  31% ] [90m[1m_update_scan_actions[22m | Battle for Oleviste.mp3[39m[0m
+[  34% ] [90m[1m_update_scan_actions[22m | Blackheads' Charge (1).mp3[39m[0m
+[  37% ] [90m[1m_update_scan_actions[22m | Blackheads' Charge.mp3[39m[0m
+[  41% ] [90m[1m_update_scan_actions[22m | Clash on the Docks.mp3[39m[0m
+[  44% ] [90m[1m_update_scan_actions[22m | Defense of the Town Hall.mp3[39m[0m
+[  48% ] [90m[1m_update_scan_actions[22m | Market Mayhem.mp3[39m[0m
+[  51% ] [90m[1m_update_scan_actions[22m | Riot in the Square.mp3[39m[0m
+[  55% ] [90m[1m_update_scan_actions[22m | Sacking the Nunnery (1).mp3[39m[0m
+[  58% ] [90m[1m_update_scan_actions[22m | Sacking the Nunnery.mp3[39m[0m
+[  62% ] [90m[1m_update_scan_actions[22m | The Blackheads' Oath.mp3[39m[0m
+[  65% ] [90m[1m_update_scan_actions[22m | The Festival of St. John.mp3[39m[0m
+[  68% ] [90m[1m_update_scan_actions[22m | The Guild War.mp3[39m[0m
+[  72% ] [90m[1m_update_scan_actions[22m | The Guilds at War (1).mp3[39m[0m
+[  75% ] [90m[1m_update_scan_actions[22m | The Guilds at War.mp3[39m[0m
+[  79% ] [90m[1m_update_scan_actions[22m | great_spotted_woodpecker_XC995604.mp3[39m[0m
+[  82% ] [90m[1m_update_scan_actions[22m | osprey_XC1090078.mp3[39m[0m
+[  86% ] [90m[1m_update_scan_actions[22m | rook_XC1148742.mp3[39m[0m
+[  89% ] [90m[1m_update_scan_actions[22m | western_jackdaw_XC842238.mp3[39m[0m
+[  93% ] [90m[1m_update_scan_actions[22m | screenshot_1785675859.png[39m[0m
+[92m[ DONE ][39m [1m_update_scan_actions[22m
+[0m
+[   0% ] [90m[1mreimport[22m | Started (Re)Importing Assets (7 steps)[39m[0m
+[   0% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  12% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  25% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  37% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  50% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  62% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  75% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[   0% ] [90m[1mreimport[22m | Executing pre-reimport operations...[39m[0m
+[   0% ] [90m[1mpreload_reimporting_scene[22m | Started Preparing scenes for reload (1 steps)[39m[0m
+[   0% ] [90m[1mpreload_reimporting_scene[22m | Analyzing scene [empty][39m[0m
+[  50% ] [90m[1mpreload_reimporting_scene[22m | Preparation done.[39m[0m
+[92m[ DONE ][39m [1mpreload_reimporting_scene[22m
+[0m
+[   0% ] [90m[1mreimport[22m | medieval_pig_pig_albedo.png[39m[0m
+[  12% ] [90m[1mreimport[22m | medieval_pig_pig_roughness.png[39m[0m
+[  25% ] [90m[1mreimport[22m | medieval_pig_pig_normal.png[39m[0m
+[  37% ] [90m[1mreimport[22m | pig_albedo.png[39m[0m
+[  50% ] [90m[1mreimport[22m | pig_normal.png[39m[0m
+[  62% ] [90m[1mreimport[22m | screenshot_1785675859.png[39m[0m
+[  75% ] [90m[1mreimport[22m | medieval_pig.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  87% ] [90m[1mreimport[22m | Finalizing Asset Import...[39m[0m
+[92m[ DONE ][39m [1mreimport[22m
+[0m
+[   0% ] [90m[1mreimport[22m | Started (Re)Importing Assets (7 steps)[39m[0m
+[   0% ] [90m[1mreimport[22m | Executing post-reimport operations...[39m[0m
+[92m[ DONE ][39m [1mreimport[22m
+[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+[  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+[  33% ] [90m[1mloading_editor_layout[22m | Reopening scenes...[39m[0m
+[  50% ] [90m[1mloading_editor_layout[22m | Loading central editor layout...[39m[0m
+[  66% ] [90m[1mloading_editor_layout[22m | Loading plugin window layout...[39m[0m
+[  83% ] [90m[1mloading_editor_layout[22m | Editor layout ready.[39m[0m
+[92m[ DONE ][39m [1mloading_editor_layout[22m
+[0m

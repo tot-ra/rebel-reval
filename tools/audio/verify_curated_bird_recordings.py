@@ -19,11 +19,15 @@ AUDIO_DIR = Path(__file__).resolve().parent
 if str(AUDIO_DIR) not in sys.path:
     sys.path.insert(0, str(AUDIO_DIR))
 
+from bird_audio_curated import (  # noqa: E402
+    PERMISSION_LICENSE,
+    validate_permission_entry,
+)
 from fetch_bird_songs import SPECIES, is_commercial_license  # noqa: E402
 
 DEFAULT_CURATED = AUDIO_DIR / "curated_bird_recordings.json"
 GAP_SPECIES = ("great_cormorant", "white_tailed_eagle")
-ALLOWED_GAP_SOURCES = frozenset({"xeno-canto", "inaturalist", "maintainer"})
+ALLOWED_GAP_SOURCES = frozenset({"xeno-canto", "inaturalist", "maintainer", "permission"})
 PROCEDURAL_GAP_PAGE = "tools/audio/generate_gap_bird_clips.py"
 
 
@@ -41,15 +45,21 @@ def verify(curated_path: Path) -> list[str]:
         source = entry.get("source", "xeno-canto")
         if source not in ALLOWED_GAP_SOURCES:
             errors.append(
-                f"{bird_id}: gap species must use xeno-canto, inaturalist, or maintainer field recording, got {source!r}"
+                f"{bird_id}: gap species must use xeno-canto, inaturalist, maintainer, or permission field recording, got {source!r}"
             )
         if entry.get("stand_in_species"):
             errors.append(f"{bird_id}: stand_in_species is not allowed after P0-122b")
         if source == "wikimedia":
             errors.append(f"{bird_id}: wikimedia gap fill must be replaced in P0-122b")
         license_url = entry.get("license", "")
-        if license_url and not is_commercial_license(license_url):
+        if (
+            license_url
+            and license_url != PERMISSION_LICENSE
+            and not is_commercial_license(license_url)
+        ):
             errors.append(f"{bird_id}: non-commercial license {license_url!r}")
+        if source == "permission":
+            errors.extend(validate_permission_entry(bird_id, entry))
         if source == "maintainer":
             page = str(entry.get("page", ""))
             if PROCEDURAL_GAP_PAGE in page:
@@ -59,7 +69,9 @@ def verify(curated_path: Path) -> list[str]:
             local_file = entry.get("local_file", "")
             if not local_file:
                 errors.append(f"{bird_id}: maintainer entry missing local_file")
-            elif not Path(local_file).is_file() and not (Path(__file__).resolve().parents[2] / local_file).is_file():
+            elif not Path(local_file).is_file() and not (
+                Path(__file__).resolve().parents[2] / local_file
+            ).is_file():
                 errors.append(f"{bird_id}: maintainer local_file missing on disk: {local_file}")
         if source == "inaturalist":
             if not entry.get("download_url"):

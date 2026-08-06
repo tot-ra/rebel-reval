@@ -69,6 +69,66 @@ class VerifyCuratedBirdRecordingsTest(unittest.TestCase):
             errors = curated.verify(path)
         self.assertTrue(any("stand_in_species" in err for err in errors))
 
+    def permission_entry(self, **overrides: object) -> dict[str, object]:
+        entry: dict[str, object] = {
+            "source": "permission",
+            "recording_id": "lh-576",
+            "scientific": "Haliaeetus albicilla",
+            "recordist": "Veljo Runnel",
+            "license": "permission-granted",
+            "page": "https://example.test/recordings/lh-576",
+            "download_url": "https://example.test/audio/lh-576.wav",
+            "permission_evidence": "docs/reports/evidence/p0_122f/white_tailed_eagle_permission.md",
+            "attribution": "Veljo Runnel / University of Tartu Natural History Museum",
+            "length": "26",
+            "quality": "A",
+            "country": "Estonia",
+        }
+        entry.update(overrides)
+        return entry
+
+    def test_permission_entry_accepts_explicit_commercial_grant(self) -> None:
+        errors = curated.validate_permission_entry(
+            "white_tailed_eagle",
+            self.permission_entry(),
+        )
+        self.assertEqual(errors, [])
+
+    def test_permission_entry_rejects_missing_evidence(self) -> None:
+        errors = curated.validate_permission_entry(
+            "white_tailed_eagle",
+            self.permission_entry(permission_evidence="missing/permission.txt"),
+        )
+        self.assertTrue(any("permission evidence missing" in error for error in errors))
+
+    def test_permission_entry_rejects_non_commercial_license(self) -> None:
+        errors = curated.validate_permission_entry(
+            "white_tailed_eagle",
+            self.permission_entry(license="https://creativecommons.org/licenses/by-nc/4.0/"),
+        )
+        self.assertTrue(any("permission-granted" in error for error in errors))
+
+    def test_permission_entry_rejects_wrong_species_or_source_page(self) -> None:
+        errors = curated.validate_permission_entry(
+            "white_tailed_eagle",
+            self.permission_entry(
+                scientific="Haliaeetus leucocephalus",
+                page="https://example.test/recordings/other-id",
+            ),
+        )
+        self.assertTrue(any("scientific name" in error for error in errors))
+        self.assertTrue(any("must identify recording" in error for error in errors))
+
+    def test_permission_entry_rejects_missing_local_audio(self) -> None:
+        errors = curated.validate_permission_entry(
+            "white_tailed_eagle",
+            self.permission_entry(
+                download_url="",
+                local_file="sounds/birds/white_tailed_eagle/missing.wav",
+            ),
+        )
+        self.assertTrue(any("local_file missing" in error for error in errors))
+
 
 if __name__ == "__main__":
     unittest.main()

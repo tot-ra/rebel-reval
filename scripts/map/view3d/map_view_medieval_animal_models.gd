@@ -21,6 +21,9 @@ const MODEL_PATHS: Dictionary = {
 	MammalSpecies.SPECIES_PIG: "res://assets/animals/medieval/medieval_pig.glb",
 	MammalSpecies.SPECIES_SHEEP: "res://assets/animals/medieval/medieval_sheep.glb",
 	MammalSpecies.SPECIES_HORSE: "res://assets/animals/medieval/medieval_pack_horse.glb",
+	# The Lower Town street dog is an authored hound: closed anatomy, PBR coat,
+	# and the shared livestock idle/walk clips instead of the procedural proxy.
+	MammalSpecies.SPECIES_DOG: "res://assets/animals/medieval/medieval_dog.glb",
 	# Town cats are the same production cat as Kalev's, dressed in another coat.
 	MammalSpecies.SPECIES_CAT: "res://assets/characters/cat/cat_rig.tscn",
 }

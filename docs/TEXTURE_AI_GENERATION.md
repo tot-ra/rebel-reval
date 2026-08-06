@@ -69,6 +69,13 @@ The PBR textures live under `assets/materials/pbr/<family>/` with the naming con
 > rough plaster surface with subtle cracks, blue-purple normal map colors, PBR normal
 > map texture, top-down view, 512x512 tileable
 
+### Runtime terrain albedo pass (2026-08-06)
+
+- Grass candidate: `76bae8e4-00a6-406f-9471-5f8133eca660`, selected image `-1`, installed at `assets/materials/pbr/grass/grass_albedo.png`. The first grass generation was rejected for a yellow/dry cast and is not wired.
+- Timber-floor candidate: `85f90518-4e44-4457-aa49-bc744568f807`, selected image `-1`, installed at `assets/materials/pbr/timber_floor/timber_floor_albedo.png`.
+- The prompts use the shared v1.1 style block and explicitly request a neutral top-down material plate with no baked lighting, scene, horizon, or figures. `tools/process_leonardo_terrain_textures.py` resizes each output to 512x512 and welds the wrapping edges.
+- The runtime keeps the existing 128px texture-array budget. These two RGB albedos are downsampled on load, preserve their authored color in the terrain shader, and still receive a restrained family tint. Procedural grayscale fallback remains for all other terrain layers.
+
 **Roughness prompt:**
 > Seamless tileable lime plaster roughness map, grayscale texture, medium grey with
 > subtle variations for rough plaster surface, PBR roughness map, top-down view,
@@ -152,10 +159,14 @@ The PBR textures live under `assets/materials/pbr/<family>/` with the naming con
 
 ## Runtime integration
 
-The PBR textures under `assets/materials/pbr/` are source/reference assets. The actual
-runtime materials in Godot are still procedurally generated in GDScript (P0-053 surface
-kit). When the visual fidelity ladder reaches the P0-130 wiring stage, these textures
-will be loaded into `StandardMaterial3D` instances replacing the procedural patterns.
+The complete PBR sets under `assets/materials/pbr/` remain source/reference material for
+future family-by-family migration. This pass wires two selected Leonardo albedo plates into
+the existing runtime terrain texture array: `grass/grass_albedo.png` backs grass, meadow,
+forest-floor, and bog layers; `timber_floor/timber_floor_albedo.png` backs timber floors.
+They are resized to the existing 128px terrain tier at load time, while the terrain shader
+preserves their RGB albedo and applies only a restrained palette tint. All other terrain
+layers retain the procedural grayscale fallback until a scoped visual pass approves their
+replacement.
 
 The existing `style_lock/` albedo-only textures are retained as reference material for
 the style-lock kit verification pipeline.

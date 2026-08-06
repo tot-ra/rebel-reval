@@ -97,17 +97,15 @@ SPECS = {
         "dimensions_m": (1.35, 0.75, 0.48),
         "triangles": 7_000,
         "voxel_divisor": 72.0,
-        "base_color": (0.19, 0.105, 0.055),
-        "accent_color": (0.40, 0.205, 0.095),
+        "base_color": (0.23, 0.09, 0.055),
+        "accent_color": (0.48, 0.22, 0.12),
         "seed": 208744134,
         "animated": True,
-        # WHY: this licensed source already has four clean, articulated legs and
-        # cloven feet. Voxel remeshing would erase anatomy instead of repairing it.
-        "preserve_topology": True,
-        "source_long_axis": "y",
-        "route": "licensed_existing_mesh_to_blender_cleanup",
+        # WHY: the licensed scan remains the anatomy/proportion reference, but
+        # its open fragments are not suitable as the shipped body surface.
+        "route": "licensed_reference_to_authored_closed_anatomy_rebuild",
         "source_license": "CC BY 4.0 - hendrikReyneke",
-        "anatomy_decision": "approved_four_separate_weight_bearing_legs",
+        "anatomy_decision": "authored_closed_four_leg_landrace_body_from_licensed_reference",
         "scale_basis": "1.35 m nose-to-rump length; 0.75 m standing height",
     },
     "sheep": {
@@ -492,32 +490,144 @@ def export_glb(
     )
 
 
+
+def create_pig_mesh() -> bpy.types.Object:
+    """Build a coherent low-poly landrace pig from closed anatomical volumes.
+
+    WHY: the licensed scan is useful as a proportion reference, but its 17 open
+    surface islands read as detached fragments in runtime. These closed volumes
+    keep the approved silhouette while making the body, snout, ears, legs, hooves,
+    and curled tail intentionally readable at the ambient-fauna camera distance.
+    """
+    parts: list[bpy.types.Object] = []
+
+    def sphere(
+        part_name: str,
+        location: tuple[float, float, float],
+        scale: tuple[float, float, float],
+        rotation: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    ) -> bpy.types.Object:
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=20, ring_count=10, location=location)
+        part = bpy.context.object
+        part.name = part_name
+        part.rotation_euler = rotation
+        part.scale = scale
+        bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
+        parts.append(part)
+        return part
+
+    def segment(
+        part_name: str,
+        start: tuple[float, float, float],
+        end: tuple[float, float, float],
+        start_radius: float,
+        end_radius: float,
+        vertices: int = 12,
+    ) -> bpy.types.Object:
+        start_v = Vector(start)
+        end_v = Vector(end)
+        direction = end_v - start_v
+        bpy.ops.mesh.primitive_cone_add(
+            vertices=vertices,
+            radius1=end_radius,
+            radius2=start_radius,
+            depth=direction.length,
+            location=(start_v + end_v) * 0.5,
+        )
+        part = bpy.context.object
+        part.name = part_name
+        part.rotation_euler = direction.to_track_quat("Z", "Y").to_euler()
+        bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
+        parts.append(part)
+        return part
+
+    # One low, deep torso with distinct shoulder and rump masses avoids the
+    # inflated single-blob silhouette of the rejected image-to-3D candidate.
+    sphere("PigBodyCore", (0.08, 0.0, 0.49), (0.50, 0.215, 0.225))
+    sphere("PigBelly", (0.04, 0.0, 0.35), (0.40, 0.195, 0.145))
+    sphere("PigShoulder", (-0.28, 0.0, 0.50), (0.23, 0.215, 0.22))
+    sphere("PigRump", (0.42, 0.0, 0.50), (0.24, 0.205, 0.215))
+
+    # The head slopes down from the neck into a broad, mobile muzzle.
+    segment("PigNeck", (-0.30, 0.0, 0.54), (-0.50, 0.0, 0.66), 0.18, 0.14)
+    sphere("PigHead", (-0.58, 0.0, 0.65), (0.235, 0.17, 0.17), (0.0, -0.12, 0.0))
+    sphere("PigMuzzle", (-0.73, 0.0, 0.59), (0.145, 0.145, 0.105), (0.0, -0.12, 0.0))
+    sphere("PigJaw", (-0.68, 0.0, 0.525), (0.14, 0.13, 0.07))
+
+    # Short tapered ears are deliberately separate volumes so their silhouette
+    # remains legible instead of disappearing into the head scan.
+    segment("PigEarLeft", (-0.54, 0.12, 0.76), (-0.49, 0.18, 0.88), 0.075, 0.018, 8)
+    segment("PigEarRight", (-0.54, -0.12, 0.76), (-0.49, -0.18, 0.88), 0.075, 0.018, 8)
+
+    # Four short legs have a slight species-credible rake and terminate in
+    # compact cloven-foot volumes. Their vertex regions are assigned to the
+    # existing quadruped bones by create_pig_rig().
+    for side, y in (("Left", 0.14), ("Right", -0.14)):
+        segment("PigFront%sUpper" % side, (-0.28, y, 0.42), (-0.30, y, 0.18), 0.085, 0.068)
+        segment("PigFront%sLower" % side, (-0.30, y, 0.20), (-0.32, y, 0.075), 0.068, 0.055)
+        sphere("PigFront%sHoof" % side, (-0.32, y, 0.055), (0.085, 0.067, 0.045))
+        segment("PigBack%sUpper" % side, (0.36, y, 0.43), (0.39, y, 0.19), 0.09, 0.07)
+        segment("PigBack%sLower" % side, (0.39, y, 0.20), (0.36, y, 0.075), 0.07, 0.055)
+        sphere("PigBack%sHoof" % side, (0.36, y, 0.055), (0.088, 0.068, 0.045))
+
+    # A compact three-bend tail gives the rear silhouette a pig-specific cue.
+    segment("PigTailBase", (0.58, 0.0, 0.58), (0.68, 0.0, 0.66), 0.055, 0.043)
+    segment("PigTailMid", (0.68, 0.0, 0.66), (0.74, 0.0, 0.75), 0.043, 0.031)
+    segment("PigTailCurl", (0.74, 0.0, 0.75), (0.67, 0.0, 0.83), 0.031, 0.015)
+
+    bpy.ops.object.select_all(action="DESELECT")
+    for part in parts:
+        part.select_set(True)
+    bpy.context.view_layer.objects.active = parts[0]
+    bpy.ops.object.join()
+    obj = bpy.context.view_layer.objects.active
+    obj.name = "AnimalMesh"
+    # The active torso keeps its old object origin after joining. Reset it before
+    # metric normalization so the exported skin does not inherit a hidden offset.
+    obj.location = (0.0, 0.0, 0.0)
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="SELECT")
+    bpy.ops.mesh.quads_convert_to_tris(quad_method="BEAUTY", ngon_method="BEAUTY")
+    bpy.ops.object.mode_set(mode="OBJECT")
+    for polygon in obj.data.polygons:
+        polygon.use_smooth = True
+    return obj
+
 def build(name: str, spec: dict) -> dict:
     source: Path = spec["source"]
     if not source.exists():
         raise FileNotFoundError(f"Missing approved candidate: {source}")
     clear_scene()
     bpy.ops.import_scene.gltf(filepath=str(source))
-    obj = flatten_imported_hierarchy()
-    raw = topology(obj)
-    discarded_before = remove_tiny_islands(obj, 0.0015)
-    if spec.get("source_long_axis") == "y":
-        # The licensed source's head points along +Y. Rotate +90 degrees so that
-        # source +Y becomes runtime -X, matching the shared quadruped rig's head,
-        # neck, eye, and locomotion conventions.
-        obj.rotation_euler.z = math.pi * 0.5
-        bpy.context.view_layer.objects.active = obj
-        bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+    source_obj = flatten_imported_hierarchy()
+    raw = topology(source_obj)
+    if name == "pig":
+        # Keep the licensed mesh as the measured reference, but do not ship its
+        # open scan fragments. The authored body below is the production source.
+        clear_scene()
+        obj = create_pig_mesh()
     else:
-        align_long_axis(obj)
-    if not spec.get("preserve_topology", False):
-        rebuild_surface(obj, spec["voxel_divisor"], spec["triangles"])
-    else:
-        for polygon in obj.data.polygons:
-            polygon.use_smooth = True
+        obj = source_obj
+        discarded_before = remove_tiny_islands(obj, 0.0015)
+        if spec.get("source_long_axis") == "y":
+            # The licensed source's head points along +Y. Rotate +90 degrees so that
+            # source +Y becomes runtime -X, matching the shared quadruped rig's head,
+            # neck, eye, and locomotion conventions.
+            obj.rotation_euler.z = math.pi * 0.5
+            bpy.context.view_layer.objects.active = obj
+            bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+        else:
+            align_long_axis(obj)
+        if not spec.get("preserve_topology", False):
+            rebuild_surface(obj, spec["voxel_divisor"], spec["triangles"])
+        else:
+            for polygon in obj.data.polygons:
+                polygon.use_smooth = True
     # Pack-horse scans retain tack islands; discard more aggressively before rigging.
     if name == "pack_horse":
         remove_tiny_islands(obj, 0.0025)
+    if name == "pig":
+        discarded_before = 0
     normalize_dimensions(obj, spec["dimensions_m"])
     make_uv(obj)
     profile = SURFACE_PROFILES[name]

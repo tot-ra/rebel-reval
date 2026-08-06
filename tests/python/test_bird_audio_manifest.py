@@ -117,6 +117,40 @@ class FetchBirdSongsTest(unittest.TestCase):
             "great_cormorant_IN367008.wav",
         )
 
+    def test_download_curated_permission_dry_run_uses_permission_prefix(self) -> None:
+        payload = json.loads(
+            (AUDIO_TOOLS / "curated_bird_recordings.json").read_text(encoding="utf-8")
+        )
+        payload["recordings"]["white_tailed_eagle"] = {
+            "source": "permission",
+            "recording_id": "lh-576",
+            "scientific": "Haliaeetus albicilla",
+            "recordist": "Veljo Runnel",
+            "license": "permission-granted",
+            "page": "https://example.test/recordings/lh-576",
+            "download_url": "https://example.test/audio/lh-576.wav",
+            "permission_evidence": "docs/reports/evidence/p0_122f/white_tailed_eagle_permission.md",
+            "attribution": "Veljo Runnel / University of Tartu Natural History Museum",
+            "length": "26",
+            "quality": "A",
+            "country": "Estonia",
+        }
+        with tempfile.TemporaryDirectory() as temp_dir, tempfile.NamedTemporaryFile(
+            mode="w", suffix=".json", encoding="utf-8"
+        ) as curated_file, contextlib.redirect_stdout(io.StringIO()):
+            json.dump(payload, curated_file)
+            curated_file.flush()
+            rows = fetch.download_curated(
+                Path(curated_file.name),
+                Path(temp_dir) / "birds",
+                dry_run=True,
+            )
+
+        eagle_row = next(row for row in rows if row["bird_id"] == "white_tailed_eagle")
+        self.assertEqual(eagle_row["xc_id"], "lh-576")
+        self.assertEqual(eagle_row["file"].split("/")[-1], "white_tailed_eagle_PMlh-576.wav")
+        self.assertEqual(eagle_row["license"], "permission-granted")
+
     def test_main_rejects_missing_api_key_without_creating_output(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             output_dir = Path(temp_dir) / "birds"

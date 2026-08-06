@@ -20,6 +20,8 @@ const WATER_MATERIALS := preload("res://scripts/map/view3d/map_view_water_materi
 const BUILDING_MATERIALS := preload("res://scripts/map/view3d/map_view_building_materials.gd")
 const PROP_MATERIALS := preload("res://scripts/map/view3d/map_view_prop_materials.gd")
 const HAY_FIBER_TEXTURE := preload("res://assets/materials/production/hay_fibers.png")
+const GRASS_ALBEDO_TEXTURE := preload("res://assets/materials/pbr/grass/grass_albedo.png")
+const TIMBER_FLOOR_ALBEDO_TEXTURE := preload("res://assets/materials/pbr/timber_floor/timber_floor_albedo.png")
 const FISHING_NET_HEMP_TEXTURE := preload("res://assets/props/crafts/fishing_nets_TarredHempNet_albedo.png")
 const FISHING_NET_FLOAT_TEXTURE := preload("res://assets/props/crafts/fishing_nets_BarkCorkFloats_albedo.png")
 const FISHING_NET_SINKER_TEXTURE := preload("res://assets/props/crafts/fishing_nets_PiercedStoneSinkers_albedo.png")
@@ -213,7 +215,21 @@ static func terrain_pattern_array(noise_seed: int) -> Texture2DArray:
 	var images: Array[Image] = []
 	for terrain_id in BLEND_TERRAIN_ORDER:
 		var image: Image
-		if terrain_id in [MapTypes.TERRAIN_HAY, MapTypes.TERRAIN_STRAW]:
+		if terrain_id in [MapTypes.TERRAIN_GRASS, MapTypes.TERRAIN_MEADOW, MapTypes.TERRAIN_FOREST_FLOOR, MapTypes.TERRAIN_BOG]:
+			# Leonardo's grass albedo supplies the shared outdoor family while the
+			# existing palette tint still differentiates meadow, bog, and woodland.
+			image = GRASS_ALBEDO_TEXTURE.get_image()
+			if image.get_width() != TEXTURE_SIZE or image.get_height() != TEXTURE_SIZE:
+				image.resize(TEXTURE_SIZE, TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
+			image.generate_mipmaps()
+		elif terrain_id == MapTypes.TERRAIN_TIMBER_FLOOR:
+			# Interior/pier floors use the same texture-array tier as outdoor ground;
+			# a separate source avoids stretching the directional grain across cells.
+			image = TIMBER_FLOOR_ALBEDO_TEXTURE.get_image()
+			if image.get_width() != TEXTURE_SIZE or image.get_height() != TEXTURE_SIZE:
+				image.resize(TEXTURE_SIZE, TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
+			image.generate_mipmaps()
+		elif terrain_id in [MapTypes.TERRAIN_HAY, MapTypes.TERRAIN_STRAW]:
 			# Both harvested field layers use the same production fiber source; their
 			# distinct palette tints still separate fresh hay from weathered stubble.
 			image = HAY_FIBER_TEXTURE.get_image()

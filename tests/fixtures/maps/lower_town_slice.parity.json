@@ -8,6 +8,14 @@
       ]
     },
     {
+      "id": "carriers_lane",
+      "kind": "carriers_lane",
+      "position": [
+        2176.000000000,
+        2784.000000000
+      ]
+    },
+    {
       "id": "checkpoint_east",
       "position": [
         3520.000000000,
@@ -19,6 +27,14 @@
       "position": [
         128.000000000,
         1664.000000000
+      ]
+    },
+    {
+      "id": "customers_street",
+      "kind": "customers_street",
+      "position": [
+        2272.000000000,
+        1760.000000000
       ]
     },
     {
@@ -40,6 +56,14 @@
       "position": [
         2464.000000000,
         1760.000000000
+      ]
+    },
+    {
+      "id": "merchants_market",
+      "kind": "merchants_market",
+      "position": [
+        768.000000000,
+        1824.000000000
       ]
     },
     {
@@ -75,6 +99,30 @@
       "position": [
         800.000000000,
         128.000000000
+      ]
+    },
+    {
+      "id": "watch_east_checkpoint",
+      "kind": "watch_checkpoint",
+      "position": [
+        3680.000000000,
+        1760.000000000
+      ]
+    },
+    {
+      "id": "watch_west_checkpoint",
+      "kind": "watch_checkpoint",
+      "position": [
+        288.000000000,
+        1760.000000000
+      ]
+    },
+    {
+      "id": "workers_yard",
+      "kind": "workers_yard",
+      "position": [
+        2624.000000000,
+        2336.000000000
       ]
     }
   ],

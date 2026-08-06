@@ -26,6 +26,19 @@ var _background_opacity_label: Label
 var _background_scale_spin: SpinBox
 var _background_x_spin: SpinBox
 var _background_y_spin: SpinBox
+var _editor_model: MapAlignmentEditorModel
+var _edit_mode_toggle: CheckButton
+var _save_editor_button: Button
+var _revert_editor_button: Button
+var _editor_tool_picker: OptionButton
+var _editor_terrain_picker: OptionButton
+var _editor_building_picker: OptionButton
+var _editor_width_spin: SpinBox
+var _editor_height_spin: SpinBox
+var _editor_map_width_spin: SpinBox
+var _editor_map_height_spin: SpinBox
+var _editor_elevation_spin: SpinBox
+var _editor_status: Label
 var _blink_enabled := false
 var _blink_visible := true
 var _map_paths: Array[String] = []
@@ -61,6 +74,17 @@ func _build_ui() -> void:
 	_add_button(toolbar, "↓", func() -> void: _canvas.nudge_selected(Vector2i.DOWN))
 	_add_button(toolbar, "→", func() -> void: _canvas.nudge_selected(Vector2i.RIGHT))
 	_add_button(toolbar, "Export PNG", _choose_export_path)
+	_save_editor_button = Button.new()
+	_save_editor_button.text = "Save map"
+	_save_editor_button.tooltip_text = "Write the selected map's editable draft back to its .rrmap source"
+	_save_editor_button.pressed.connect(_save_editor_map)
+	_save_editor_button.disabled = true
+	toolbar.add_child(_save_editor_button)
+	_revert_editor_button = Button.new()
+	_revert_editor_button.text = "Revert map"
+	_revert_editor_button.pressed.connect(_revert_editor_map)
+	_revert_editor_button.disabled = true
+	toolbar.add_child(_revert_editor_button)
 
 	var split := HSplitContainer.new()
 	split.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -128,6 +152,7 @@ func _build_ui() -> void:
 	blink_toggle.text = "Blink selected layer"
 	blink_toggle.toggled.connect(_set_blink)
 	sidebar.add_child(blink_toggle)
+	_build_editor_controls(sidebar)
 	var grid_toggle := CheckButton.new()
 	grid_toggle.text = "Grid"
 	grid_toggle.button_pressed = true
@@ -159,6 +184,7 @@ func _build_ui() -> void:
 	_canvas.custom_minimum_size = Vector2(480, 300)
 	_canvas.view_changed.connect(_update_status)
 	_canvas.selected_layer_changed.connect(_on_canvas_layer_selected)
+	_canvas.edit_cell_clicked.connect(_on_editor_cell_clicked)
 	_canvas.background_changed.connect(_sync_background_controls)
 	split.add_child(_canvas)
 
@@ -289,6 +315,86 @@ func _add_background_spin(
 	return spin
 
 
+func _build_editor_controls(sidebar: VBoxContainer) -> void:
+	var separator := HSeparator.new()
+	sidebar.add_child(separator)
+	var title := Label.new()
+	title.text = "Map editor"
+	sidebar.add_child(title)
+	_edit_mode_toggle = CheckButton.new()
+	_edit_mode_toggle.text = "Edit selected map"
+	_edit_mode_toggle.tooltip_text = "Left click paints terrain or places a building; right click removes a building"
+	_edit_mode_toggle.toggled.connect(_set_edit_mode)
+	sidebar.add_child(_edit_mode_toggle)
+	var tool_row := HBoxContainer.new()
+	sidebar.add_child(tool_row)
+	var tool_label := Label.new()
+	tool_label.text = "Tool"
+	tool_row.add_child(tool_label)
+	_editor_tool_picker = OptionButton.new()
+	_editor_tool_picker.add_item("Paint terrain")
+	_editor_tool_picker.add_item("Place building")
+	_editor_tool_picker.item_selected.connect(func(_index: int) -> void: _sync_editor_status())
+	_editor_tool_picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tool_row.add_child(_editor_tool_picker)
+	_editor_terrain_picker = OptionButton.new()
+	for terrain in MapTypes.ALL_TERRAINS:
+		_editor_terrain_picker.add_item(String(terrain))
+	sidebar.add_child(_editor_terrain_picker)
+	_editor_building_picker = OptionButton.new()
+	for kind in MapTypes.ALL_BUILDING_KINDS:
+		_editor_building_picker.add_item(String(kind))
+	_editor_building_picker.selected = 0
+	sidebar.add_child(_editor_building_picker)
+	var footprint_label := Label.new()
+	footprint_label.text = "Building footprint (cells)"
+	sidebar.add_child(footprint_label)
+	var footprint_grid := GridContainer.new()
+	footprint_grid.columns = 2
+	sidebar.add_child(footprint_grid)
+	_editor_width_spin = _add_editor_spin(footprint_grid, "W", 1.0, 64.0, 1.0, 3.0)
+	_editor_height_spin = _add_editor_spin(footprint_grid, "H", 1.0, 64.0, 1.0, 3.0)
+	var size_label := Label.new()
+	size_label.text = "Map size (cells)"
+	sidebar.add_child(size_label)
+	var size_grid := GridContainer.new()
+	size_grid.columns = 2
+	sidebar.add_child(size_grid)
+	_editor_map_width_spin = _add_editor_spin(size_grid, "W", 1.0, 2048.0, 1.0, 1.0)
+	_editor_map_height_spin = _add_editor_spin(size_grid, "H", 1.0, 2048.0, 1.0, 1.0)
+	_editor_map_width_spin.value_changed.connect(_resize_editor_map)
+	_editor_map_height_spin.value_changed.connect(_resize_editor_map)
+	var elevation_row := HBoxContainer.new()
+	sidebar.add_child(elevation_row)
+	var elevation_label := Label.new()
+	elevation_label.text = "Height"
+	elevation_row.add_child(elevation_label)
+	_editor_elevation_spin = SpinBox.new()
+	_editor_elevation_spin.min_value = 0.0
+	_editor_elevation_spin.max_value = 8.0
+	_editor_elevation_spin.step = 0.1
+	_editor_elevation_spin.value_changed.connect(_set_editor_elevation)
+	_editor_elevation_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	elevation_row.add_child(_editor_elevation_spin)
+	_editor_status = Label.new()
+	_editor_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_editor_status.text = "Load one map to start editing."
+	sidebar.add_child(_editor_status)
+
+
+func _add_editor_spin(parent: GridContainer, label_text: String, minimum: float, maximum: float, step: float, initial_value: float) -> SpinBox:
+	var label := Label.new()
+	label.text = label_text
+	parent.add_child(label)
+	var spin := SpinBox.new()
+	spin.min_value = minimum
+	spin.max_value = maximum
+	spin.step = step
+	spin.value = initial_value
+	spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	parent.add_child(spin)
+	return spin
+
 func _refresh_maps() -> void:
 	_map_paths.clear()
 	_source_list.clear()
@@ -406,6 +512,8 @@ func _on_layer_picked(index: int) -> void:
 	if index >= 0:
 		_canvas.select_layer(StringName(_layer_picker.get_item_text(index)))
 	_sync_layer_controls()
+	if _edit_mode_toggle != null and _edit_mode_toggle.button_pressed:
+		_load_editor_for_selected()
 
 
 func _on_canvas_layer_selected(map_id: StringName) -> void:
@@ -414,6 +522,131 @@ func _on_canvas_layer_selected(map_id: StringName) -> void:
 			_layer_picker.select(index)
 			break
 	_sync_layer_controls()
+	if _edit_mode_toggle != null and _edit_mode_toggle.button_pressed:
+		_load_editor_for_selected()
+
+
+func _load_editor_for_selected() -> void:
+	if _editor_model == null:
+		_editor_model = MapAlignmentEditorModel.new()
+	if _canvas.selected_map_id.is_empty():
+		return
+	var path := "res://content/maps/%s.rrmap" % _canvas.selected_map_id
+	if not _editor_model.load_source(path):
+		_set_editor_status(_editor_model.last_error)
+		return
+	_sync_editor_controls()
+
+
+func _set_edit_mode(enabled: bool) -> void:
+	_canvas.edit_mode = enabled
+	_sync_editor_status()
+	if enabled:
+		_load_editor_for_selected()
+
+
+func _sync_editor_controls() -> void:
+	if _editor_model == null or _editor_model.blueprint == null:
+		_save_editor_button.disabled = true
+		_revert_editor_button.disabled = true
+		return
+	_save_editor_button.disabled = not _editor_model.dirty
+	_revert_editor_button.disabled = false
+	_editor_map_width_spin.set_value_no_signal(_editor_model.blueprint.size_cells.x)
+	_editor_map_height_spin.set_value_no_signal(_editor_model.blueprint.size_cells.y)
+	_editor_elevation_spin.set_value_no_signal(_editor_model.blueprint.ground_elevation)
+	_sync_editor_status()
+
+
+func _sync_editor_status() -> void:
+	if _editor_status == null:
+		return
+	if _editor_model == null or _editor_model.blueprint == null:
+		_editor_status.text = "Select a map and enable Edit selected map."
+		return
+	var tool := _editor_tool_picker.get_item_text(_editor_tool_picker.selected)
+	_editor_status.text = "%s | %d x %d cells | height %.1f | %s%s" % [
+		tool,
+		_editor_model.blueprint.size_cells.x,
+		_editor_model.blueprint.size_cells.y,
+		_editor_model.blueprint.ground_elevation,
+		"unsaved changes" if _editor_model.dirty else "saved",
+		("\n" + _editor_model.last_error) if not _editor_model.last_error.is_empty() else "",
+	]
+
+
+func _set_editor_status(message: String) -> void:
+	if _editor_status != null:
+		_editor_status.text = message
+
+
+func _resize_editor_map(_value: float) -> void:
+	if _editor_model == null or _editor_model.blueprint == null:
+		return
+	var next_size := Vector2i(roundi(_editor_map_width_spin.value), roundi(_editor_map_height_spin.value))
+	if next_size == _editor_model.blueprint.size_cells:
+		return
+	if not _editor_model.set_size(next_size):
+		_set_editor_status(_editor_model.last_error)
+		return
+	_apply_editor_preview()
+
+
+func _set_editor_elevation(value: float) -> void:
+	if _editor_model == null or _editor_model.blueprint == null:
+		return
+	if is_equal_approx(_editor_model.blueprint.ground_elevation, value):
+		return
+	if not _editor_model.set_ground_elevation(value):
+		_set_editor_status(_editor_model.last_error)
+		return
+	_apply_editor_preview()
+
+
+func _on_editor_cell_clicked(cell: Vector2i, button_index: int) -> void:
+	if _editor_model == null or _editor_model.blueprint == null:
+		_load_editor_for_selected()
+	if _editor_model == null or _editor_model.blueprint == null:
+		return
+	if button_index == MOUSE_BUTTON_RIGHT:
+		var removed: StringName = _editor_model.remove_building_at(cell)
+		_set_editor_status("Removed %s" % removed if not removed.is_empty() else "No building at %s" % cell)
+	elif _editor_tool_picker.selected == 0:
+		var terrain := StringName(_editor_terrain_picker.get_item_text(_editor_terrain_picker.selected))
+		_editor_model.paint_terrain(cell, terrain)
+		_apply_editor_preview()
+	elif _editor_tool_picker.selected == 1:
+		var kind := StringName(_editor_building_picker.get_item_text(_editor_building_picker.selected))
+		_editor_model.add_building(kind, cell, Vector2i(roundi(_editor_width_spin.value), roundi(_editor_height_spin.value)))
+		_apply_editor_preview()
+
+
+func _apply_editor_preview() -> void:
+	if _editor_model == null or _editor_model.definition == null:
+		_sync_editor_status()
+		return
+	_canvas.update_layer_definition(_canvas.selected_map_id, _editor_model.definition)
+	for index in _definitions.size():
+		if _definitions[index].map_id == _canvas.selected_map_id:
+			_definitions[index] = _editor_model.definition
+			break
+	_sync_editor_controls()
+	_update_status()
+
+
+func _save_editor_map() -> void:
+	if _editor_model == null or not _editor_model.save():
+		_set_editor_status(_editor_model.last_error if _editor_model != null else "No editor session")
+		return
+	_apply_editor_preview()
+	_set_editor_status("Saved %s" % _editor_model.source_path)
+
+
+func _revert_editor_map() -> void:
+	if _editor_model == null or not _editor_model.revert():
+		_set_editor_status(_editor_model.last_error if _editor_model != null else "No editor session")
+		return
+	_apply_editor_preview()
 
 
 func _sync_layer_controls() -> void:
@@ -424,6 +657,8 @@ func _sync_layer_controls() -> void:
 	var opacity := float(layer["opacity"])
 	_opacity_slider.set_value_no_signal(opacity)
 	_opacity_label.text = "%d%%" % roundi(opacity * 100.0)
+	if _edit_mode_toggle != null and _edit_mode_toggle.button_pressed:
+		_load_editor_for_selected()
 
 
 func _set_selected_visible(value: bool) -> void:

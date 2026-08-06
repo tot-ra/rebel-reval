@@ -1,10 +1,14 @@
 # Playbook
 
 ## Session lessons
+- When a scoped commit fails on whole-index whitespace, inspect staged path ownership and use a path-limited check plus `git commit --only <allowlisted-path>`; do not clean or absorb unrelated staged WIP.
 - After a sequential exact edit reports no match, re-read the live target block before applying the next change; nearby context or a prior edit can make the original replacement stale.
 - Task-board selection must compare the complete open-task set by both priority and complexity before choosing a parent. The built-in `next` operation can return a small task even when a higher-complexity task exists elsewhere; do not begin decomposition until the full candidate list is checked.
 - If an attempted playbook overwrite drops accumulated lessons, restore the file from the current baseline before appending the new lesson; use an append/insertion operation for additive changes.
+- When an exact replacement fails after a nearby edit, the target may already have changed; re-read the live block, apply only the remaining delta, and verify the saved ledger before proceeding.
+- When a Godot preload reports that an existing script cannot be resolved, run the target script directly to expose the first parse error; dependent preload messages are often only a cascade.
 
+- `git diff --no-index /dev/null <new-file>` returns status 1 for a valid diff; when batching checks, do not treat that expected diff status as a test failure, and run `git diff --check` separately.
 - Markdown reports with intentional hard-break spaces fail `git diff --cached --check`; use plain line breaks before staging documentation.
 - A failed `git diff --cached --check` can stop a scoped documentation commit on Markdown hard-break spaces; normalize trailing spaces before staging, and stage only the intended report plus a clean patch for any playbook lesson when the playbook already has unrelated WIP.
 - For evidence-only acceptance gates, capture expected-failing command statuses separately and make log/path probes non-fatal; a missing temporary log or no-match `grep` can otherwise obscure the actual blocker.
@@ -234,6 +238,8 @@
 - When replacing a documentation section by line range, re-read the saved block immediately; a shifted range can splice tables into prose even when the edit call succeeds. Restore the complete bounded section before running Markdown checks.
 - When adding reciprocal dossier links, inspect the exact live cross-reference wording first; a semantically equivalent line can make an exact edit fail, so re-read the saved block and patch the actual boundary serially.
 
+- When inserting a regression test before an existing function, preserve the following function declaration; replacing only its header can leave the test body at top level and cause a misleading duplicate-variable parse error.
+- Temporary Godot probes need project autoloads and must call `Input.parse_input_event`, not `SceneTree.parse_input_event`; if a probe is only for input semantics, remove it after the diagnostic and rely on the repository harness.
 - No-op exact replacements are rejected by the edit tool; avoid issuing an edit when the target block already matches and verify the live block before retrying.
 - When a geometry smoke test hard-codes expected values, derive and print the intermediate area/moment terms first; a denominator convention mistake can falsely blame the authored coordinate. Use the same shoelace formula in the test as in the deliverable calculation.
 - The historical dossier unittest is stale in task-board repositories that no longer ship `TODO.md`; record its `FileNotFoundError` as a baseline limitation and use scoped dossier/index contract checks instead of creating a compatibility file.
@@ -263,24 +269,30 @@
 - When checking a literal line that begins with `-`, pass `--` to grep or use `-e`; otherwise grep treats the lesson text as an option.
 - For append-only CSV edits in a dirty worktree, do not assume one newline convention; preserve raw bytes and validate the actual line ending mix before inserting rows.
 - After a structural test insertion shifts helper boundaries, re-read the saved block before the next edit; stale line ranges can duplicate helpers or move assertions into the wrong function.
-- When validating documentation contracts, allow intentional Markdown line wrapping and punctuation variants; assert structural phrases or normalize whitespace before treating a smoke failure as a deliverable defect.
-- When a tool path includes accidental prose or non-ASCII suffixes, retry with the exact discovered path before treating the file as unavailable.
-- For no-op fallback acceptance in a dirty worktree, compare semantic manifest rows and tracked audio hashes rather than whole-file CSV hashes; line-ending normalization can change bytes without changing the scoped row or runtime asset.
-- A focused historical-dossier unittest may be stale after the TODO.md-to-task-board migration; capture the full traceback and classify the missing TODO.md as baseline instead of changing the scoped research note.
+- A repository-wide `git diff --check` can fail on unrelated dirty files; rerun the check against the scoped patch before attributing the whitespace error to the current change.
+- When staging a narrow hunk from a shared file, generate the patch from a clean HEAD snapshot plus only the scoped insertion; current working-tree hunk offsets include concurrent edits and `git apply --cached` can fail before changing the index.
 - Run documentation whitespace hygiene checks before staging; Markdown hard-break spaces can make a green focused test look like a failed scoped commit.
 - When a scoped commit is blocked by pre-existing staged whitespace, run `git diff --cached --check -- <allowlisted paths>` and commit with `git commit --only <allowlisted paths>` so unrelated index WIP cannot block or enter the commit; record the staged baseline separately.
+- When a dirty worktree already contains unrelated staged files, validate the scoped pathspec rather than the full index before committing; a whole-index filename comparison can abort an otherwise clean narrow commit, and `git commit --only` should be used to avoid absorbing concurrent WIP.
+- When building a temporary scoped commit patch, validate the helper script syntax before relying on `set -e`; a malformed indentation can fail after creating only partial temporary files, so re-read the live target and rebuild the patch from HEAD.
 - Before editing setup documentation from a nearby excerpt, re-read the exact live paragraph; line numbering or surrounding wording may differ after earlier changes.
-
+- When using `replace_lines`, pass the complete file path rather than its parent directory; the directory read error occurs before any replacement and can be mistaken for a content mismatch.
 - Godot glTF imports may normalize hyphenated source clip names such as `Idle-loop`/`Walk-loop` to runtime names `Idle`/`Walk`; bounded import evidence should record the explicit source-to-runtime mapping and validate the names used by the runtime.
 - When repairing a provenance manifest in a shared dirty worktree, enforce the task path allowlist before insertion; parent assets that are not requested can create an accidental extra provenance row.
+- For narrow commits, keep message/options such as `-m` before `--`; placing `--` before the message option makes Git treat the option and its text as pathspecs.
 - For permission/outreach tasks, never claim an email was sent without an authenticated mail channel and provider message ID; record the failed channel check with UTC time and create a maintainer follow-up instead.
-- For a final QA gate spanning active runtime WIP, run each focused suite separately and record both passing evidence and the first compile blocker; do not repair a shared owner file from an evidence-only QA scope.
+- A line-range edit must pass the complete file path in `path`; passing the project directory fails before applying the replacement. After a failed edit, re-read the live target block and retry with the exact file path.
+- Never run parallel edits against the same file: one replacement can overwrite the other even when both tool calls report success. Serialize dependent edits and re-read the saved block before continuing.
+- When an exact edit is submitted with identical old and new strings, correct the no-op request before retrying; the edit tool rejects it without changing the file.
+- When a combined status/diff/commit command fails without surfaced output, rerun status, diff checks, and commit as separate commands with shell tracing so the hook or path error is preserved.
 - Keep temporary Godot probe scripts until every planned verification run is complete; deleting a probe after the first pass makes later reruns fail for an unrelated missing-file reason.
+- When a reported GDScript path is not found, discover the repository path before reading or editing; runtime diagnostics may omit the `scripts/` prefix.
 - When a Godot warning names a script without its repository path, discover the exact nested path before reading or editing; `map_view_material_patterns.gd` lives under `scripts/map/view3d/`.
 - When repairing GDScript integer-division warnings, preserve the original bucket semantics explicitly with `floori(float(value) / divisor)` and re-read the edited match block before testing; indentation errors can mask the real parser diagnostic.
-
+- For broad integer-division cleanup, avoid overlapping substring replacements such as `course` before `course_h`; inspect the saved block immediately and use exact live-line edits if a replacement corrupts a longer identifier.
+- When GDScript reports `CONFUSABLE_LOCAL_DECLARATION`, a local declared in a nested loop can conflict with a same-named local in the parent function block; rename the narrower-scope variable rather than changing control flow.
 - When a focused Godot suite fails after the target script loads cleanly, inspect the saved checked-runner log and separate unrelated assertion failures from the scoped parser or warning fix; do not widen the patch into unrelated shader changes.
 
 - When a focused Godot suite contains an unrelated physics failure, use its individual passing test output plus a bounded standalone probe for the scoped behavior; do not modify the unrelated collision test. `git diff --check` can also surface pre-existing CRLF/trailing-whitespace rows in a concurrently edited provenance file, so inspect only the scoped paths before commit.
-
 - The Godot harness `tools/run_godot_tests.gd` discovers only `tests/godot/test_*.gd`; scene smoke scripts under `scenes/tests/` must be validated through their packed scenes or a direct scene run, not the harness filter.
+- Leonardo generation can reject an otherwise valid material request when `preset_style` is not an accepted integration value; retry with the field empty/default rather than guessing preset names.

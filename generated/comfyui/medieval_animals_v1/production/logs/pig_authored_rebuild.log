@@ -1,0 +1,32 @@
+15:59:45 | INFO: Data are loaded, start creating Blender stuff
+15:59:45 | INFO: Blender create Mesh node Object_0
+15:59:45 | INFO: glTF import finished in 0.01s
+/Users/artjomkurapov/git/rebel-reval/tools/assets/build_medieval_animal_models.py:328: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  material.use_nodes = True
+/Users/artjomkurapov/git/rebel-reval/tools/assets/build_medieval_animal_models.py:363: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  material.use_nodes = True
+/Users/artjomkurapov/git/rebel-reval/tools/assets/build_medieval_animal_models.py:429: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  material.use_nodes = True
+Info: Baking map saved to internal image, save it externally or pack it
+Info: No active image found in material slot (0) for object "AnimalMesh"
+INFO Draco is available, use library at /Applications/Blender.app/Contents/Resources/5.2/scripts/addons_core/io_scene_gltf2/libbf_intern_draco_bridge.dylib
+INFO MeshOptimizer is available, use library at /Applications/Blender.app/Contents/Resources/5.2/scripts/addons_core/io_scene_gltf2/libbf_intern_meshopt_bridge.dylib
+15:59:47 | INFO: Starting glTF 2.0 export
+15:59:47 | INFO: Extracting primitive: Sphere
+15:59:47 | WARNING: Sphere: Could not calculate tangents. Please try to triangulate the mesh first.
+15:59:47 | INFO: Primitives created: 1
+15:59:47 | INFO: Extracting primitive: Sphere.011
+15:59:47 | INFO: Primitives created: 1
+15:59:47 | INFO: Extracting primitive: Sphere.012
+15:59:47 | INFO: Primitives created: 1
+15:59:47 | INFO: Extracting primitive: Sphere.013
+15:59:47 | INFO: Primitives created: 1
+15:59:47 | INFO: Extracting primitive: Sphere.014
+15:59:47 | INFO: Primitives created: 1
+15:59:47 | INFO: Finished glTF 2.0 export in 0.04463791847229004 s
+
+Warning: Sphere: Could not calculate tangents. Please try to triangulate the mesh first.
+ASSET_METRICS={"asset":"pig","triangles":4544,"components":25,"dimensions_m":[1.35,0.75,0.48],"sha256":"3409db2d8b17768ac035d6e26483db5788cd222821fa1df0438dec8389dc4eed"}
+Blender 5.2.0 LTS (hash fbe6228777e7 built 2026-07-14 01:31:22)
+
+Blender quit

@@ -602,14 +602,28 @@ void vertex() {
 	terrain_world_xz = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xz;
 }
 
-float sample_terrain_pattern(int layer, vec2 uv) {
+vec3 sample_terrain_pattern(int layer, vec2 uv) {
 	if (layer == cobblestone_layer) {
-		return texture(cobble_patterns, vec3(uv, 0.0)).r;
+		return vec3(texture(cobble_patterns, vec3(uv, 0.0)).r);
 	}
 	if (layer == castle_paving_layer) {
-		return texture(cobble_patterns, vec3(uv, 1.0)).r;
+		return vec3(texture(cobble_patterns, vec3(uv, 1.0)).r);
 	}
-	return texture(terrain_patterns, vec3(uv, float(layer))).r;
+	return texture(terrain_patterns, vec3(uv, float(layer))).rgb;
+}
+
+bool uses_realistic_albedo(int layer) {
+	// These layers are backed by authored RGB material plates. All other layers
+	// remain grayscale procedural patterns multiplied by their palette tint.
+	return layer == 0 || layer == 1 || layer == 2 || layer == 3 || layer == 15;
+}
+
+vec3 terrain_pattern_albedo(int layer, vec2 uv, vec3 palette_tint) {
+	vec3 pattern = sample_terrain_pattern(layer, uv);
+	if (uses_realistic_albedo(layer)) {
+		return pattern * mix(vec3(1.0), palette_tint, 0.16);
+	}
+	return vec3(pattern.r) * palette_tint;
 }
 
 float cobble_layer_weight(int layer) {
@@ -635,10 +649,12 @@ void fragment() {
 	float blend = clamp(blend_mix.x, 0.0, 1.0);
 	float tone = blend_mix.y;
 
-	float primary = sample_terrain_pattern(blend_layers.x, UV);
-	float secondary = sample_terrain_pattern(blend_layers.y, UV);
-	float pattern = mix(primary, secondary, blend);
-	vec3 terrain_albedo = vec3(pattern) * COLOR.rgb * tone;
+	vec3 primary_tint = COLOR.rgb;
+	vec3 secondary_tint = COLOR.rgb;
+	vec3 primary_albedo = terrain_pattern_albedo(blend_layers.x, UV, primary_tint);
+	vec3 secondary_albedo = terrain_pattern_albedo(blend_layers.y, UV, secondary_tint);
+	vec3 terrain_albedo = mix(primary_albedo, secondary_albedo, blend) * tone;
+	float pattern = mix(primary_albedo.r, secondary_albedo.r, blend);
 
 	float primary_cobble = cobble_layer_weight(blend_layers.x);
 	float secondary_cobble = cobble_layer_weight(blend_layers.y);

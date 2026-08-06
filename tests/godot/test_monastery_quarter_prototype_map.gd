@@ -49,6 +49,22 @@ func test_monastery_district_has_dated_early_towers_and_later_wall_positions() -
 	var definition: MapDefinition = MonasteryQuarterDefinition.create()
 	for wall_id in [&"monastery_city_wall_west_north", &"monastery_city_wall_west_south", &"monastery_city_wall_east"]:
 		assert_false(_building_by_id(definition, wall_id).is_empty(), "Missing Monastery District wall %s" % wall_id)
+	var east_wall := _building_by_id(definition, &"monastery_city_wall_east")
+	assert_eq(
+		east_wall["footprint"],
+		definition.cell_rect_to_world_rect(Rect2i(225, 0, 3, 112)),
+		"east curtain must continue to the southern map edge"
+	)
+	var workers: MapDefinition = preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd").create()
+	var workers_wall := _building_by_id(workers, &"city_wall_north")
+	assert_eq(east_wall.get("wall_color"), workers_wall.get("wall_color"), "district walls must share limestone color")
+	assert_eq(east_wall.get("wall_height"), workers_wall.get("wall_height"), "district walls must share authored height")
+	var grid := MapBuilder.build(definition)
+	for y in [8, 24, 56, 88, 104]:
+		assert_eq(grid.get_terrain(Vector2i(229, y)), MapTypes.TERRAIN_WATER, "outer ditch must follow the east wall")
+	for y in [40, 48]:
+		assert_eq(grid.get_terrain(Vector2i(229, y)), MapTypes.TERRAIN_DIRT, "outer gate must keep a dirt causeway through the ditch")
+	assert_true(MapVerification.is_walkable_cell(definition, grid, Vector2i(229, 44)), "outer wall road causeway must remain walkable")
 	for tower_id in [&"monastery_wall_tower_northwest", &"monastery_wall_tower_west_mid"]:
 		var tower := _building_by_id(definition, tower_id)
 		assert_true(bool(tower.get("tower", false)), "%s must be completed in the conservative 1343 registry" % tower_id)

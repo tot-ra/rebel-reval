@@ -5,6 +5,8 @@ extends RefCounted
 ## Implementation is split across focused modules; this class keeps the public
 ## API stable for callers and tests.
 
+const _Registry := preload("res://scripts/map/view3d/map_view_mesh_builder_building_registry.gd")
+
 
 static func build_building(
 	building: Dictionary,
@@ -12,6 +14,9 @@ static func build_building(
 	entrances: Array[Dictionary] = [],
 	map_bounds: Rect2 = Rect2()
 ) -> Node3D:
+	if _Registry.is_exceptional(building):
+		return build_exceptional_building(building, cell_size, entrances, map_bounds)
+
 	# Oak-ring / treeline footprints must not render as house boxes. Sacred Grove
 	# and similar outdoor rings are authored as house+tree_line for collision
 	# envelopes, then dressed as real oak instances in the 3D view.
@@ -20,6 +25,7 @@ static func build_building(
 
 	var root := Node3D.new()
 	root.name = "Building_%s" % String(building["id"])
+	root.set_meta(&"renderer_boundary", &"ordinary")
 	var scale := MapViewBridge.world_scale(cell_size)
 	var footprint: Rect2 = building["footprint"]
 	var size := footprint.size * scale
@@ -191,6 +197,78 @@ static func build_building(
 			MapViewMeshBuilderBuildingFortification.add_base_arcades(root, building, size, map_bounds)
 			MapViewMeshBuilderBuildingFortification.add_battlements(root, building, size, height)
 			MapViewMeshBuilderBuildingFortification.add_wall_walk_roof(root, size, height)
+	return root
+
+
+## Specialized handoff for authored landmarks and institutions. It intentionally
+## owns only the landmark mass and dressing, never the ordinary house kit.
+static func build_exceptional_building(
+	building: Dictionary,
+	cell_size: int,
+	entrances: Array[Dictionary] = [],
+	map_bounds: Rect2 = Rect2()
+) -> Node3D:
+	var category := _Registry.exceptional_category(building)
+	var root := Node3D.new()
+	root.name = "Building_%s" % String(building["id"])
+	root.set_meta(&"renderer_boundary", &"exceptional")
+	root.set_meta(&"exceptional_category", category)
+	var scale := MapViewBridge.world_scale(cell_size)
+	var footprint: Rect2 = building["footprint"]
+	var size := footprint.size * scale
+	var authored_height_px := float(building.get("wall_height", MapViewMeshBuilderConfig.DEFAULT_WALL_HEIGHT_PX[MapTypes.BUILDING_KIND_HOUSE]))
+	var height := MapTypes.resolved_wall_height_px(building) * scale
+	var center := footprint.get_center() * scale
+	root.position = Vector3(center.x, 0.0, center.y)
+	var wall_color := Color(building.get("wall_color", MapViewMeshBuilderConfig.DEFAULT_WALL_COLOR))
+	var gallery_inset := MapViewMeshBuilderBuildingHouses.town_hall_gallery_inset(building, size)
+	var wall_mesh := BoxMesh.new()
+	wall_mesh.size = Vector3(size.x, height, maxf(size.y - gallery_inset, 0.25))
+	var walls := MeshInstance3D.new()
+	walls.name = "Walls"
+	walls.mesh = wall_mesh
+	walls.position = Vector3(0.0, height * 0.5, gallery_inset * 0.5)
+	walls.material_override = MapViewMeshBuilderBuildingHouses.house_wall_material(
+		building,
+		wall_color,
+		wall_mesh.size
+	)
+	root.add_child(walls)
+
+	# Existing primitive detail passes remain the source of truth for period-specific
+	# church and civic features, but they are now downstream of this boundary.
+	MapViewMeshBuilderBuildingHouses.add_historic_building_details(
+		root,
+		building,
+		size,
+		height,
+		MapViewMeshBuilderBuildingFacade.ridge_along_x(building, size)
+	)
+	if category == &"gatehouse":
+		var cap := MeshInstance3D.new()
+		cap.name = "LandmarkCap"
+		var cap_mesh := BoxMesh.new()
+		cap_mesh.size = Vector3(size.x + MapViewMeshBuilderConfig.CAP_OVERHANG * 2.0, MapViewMeshBuilderConfig.CAP_HEIGHT, size.y + MapViewMeshBuilderConfig.CAP_OVERHANG * 2.0)
+		cap.mesh = cap_mesh
+		cap.position = Vector3(0.0, height + MapViewMeshBuilderConfig.CAP_HEIGHT * 0.5, 0.0)
+		cap.material_override = MapViewMaterials.wall_surface_for_size(&"limestone", wall_color.lightened(0.12), cap_mesh.size)
+		root.add_child(cap)
+	else:
+		var roof := MeshInstance3D.new()
+		roof.name = "LandmarkRoof"
+		var along_ridge_x := MapViewMeshBuilderBuildingFacade.ridge_along_x(building, size)
+		roof.mesh = MapViewMeshBuilderPrimitives.gabled_roof_mesh(
+			size,
+			along_ridge_x,
+			MapViewMeshBuilderConfig.ROOF_OVERHANG,
+			true,
+			MapViewMeshBuilderConfig.ROOF_PITCH
+		)
+		roof.position = Vector3(0.0, height, 0.0)
+		roof.material_override = MapViewMeshBuilderBuildingHouses.house_roof_material(building)
+		root.add_child(roof)
+	if category != &"gatehouse":
+		MapViewMeshBuilderBuildingHouses.add_window_lights(root, building)
 	return root
 
 

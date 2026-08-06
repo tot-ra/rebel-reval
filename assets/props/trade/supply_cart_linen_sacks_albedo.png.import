@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b1yujm11iqeg2"
-path="res://.godot/imported/supply_cart_linen_sacks_albedo.png-a180c5ea2b0ac308ea4774492e14e9ab.ctex"
+path.s3tc="res://.godot/imported/supply_cart_linen_sacks_albedo.png-a180c5ea2b0ac308ea4774492e14e9ab.s3tc.ctex"
+path.etc2="res://.godot/imported/supply_cart_linen_sacks_albedo.png-a180c5ea2b0ac308ea4774492e14e9ab.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "ce3c66a2aed9ff460a48f157bf5e4231"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/trade/supply_cart_linen_sacks_albedo.png"
-dest_files=["res://.godot/imported/supply_cart_linen_sacks_albedo.png-a180c5ea2b0ac308ea4774492e14e9ab.ctex"]
+dest_files=["res://.godot/imported/supply_cart_linen_sacks_albedo.png-a180c5ea2b0ac308ea4774492e14e9ab.s3tc.ctex", "res://.godot/imported/supply_cart_linen_sacks_albedo.png-a180c5ea2b0ac308ea4774492e14e9ab.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

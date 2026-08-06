@@ -13,11 +13,99 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from urllib.parse import urlparse
 
-from bird_audio_catalog import SPECIES
+from bird_audio_catalog import SPECIES, parse_len_seconds
 from xeno_canto import XC_BASE, download, fetch_html
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+
+PERMISSION_LICENSE = "permission-granted"
+PERMISSION_REQUIRED_FIELDS = (
+    "recording_id",
+    "permission_evidence",
+    "attribution",
+    "recordist",
+    "scientific",
+    "country",
+    "length",
+    "quality",
+)
+
+
+def resolve_repo_path(value: str, *, root: Path | None = None) -> Path:
+    """Resolve a manifest path without allowing it to escape the repository."""
+    path = Path(value)
+    base = (root or REPO_ROOT).resolve()
+    if not path.is_absolute():
+        path = base / path
+    return path.resolve()
+
+
+def validate_permission_entry(
+    bird_id: str,
+    entry: dict,
+    *,
+    root: Path | None = None,
+) -> list[str]:
+    """Validate a rights-cleared recording before it can enter the downloader."""
+    errors: list[str] = []
+    root = (root or REPO_ROOT).resolve()
+    if entry.get("license") != PERMISSION_LICENSE:
+        errors.append(
+            f"{bird_id}: permission entry must use license {PERMISSION_LICENSE!r}"
+        )
+    for field in PERMISSION_REQUIRED_FIELDS:
+        if not str(entry.get(field, "")).strip():
+            errors.append(f"{bird_id}: permission entry missing {field}")
+
+    expected_scientific = SPECIES.get(bird_id, "")
+    if entry.get("scientific") != expected_scientific:
+        errors.append(
+            f"{bird_id}: permission entry scientific name must be {expected_scientific!r}"
+        )
+    if not entry.get("page"):
+        errors.append(f"{bird_id}: permission entry missing source page/ID")
+    else:
+        page = str(entry["page"])
+        parsed_page = urlparse(page)
+        if parsed_page.scheme not in {"http", "https"} or not parsed_page.netloc:
+            errors.append(f"{bird_id}: permission entry page must be an absolute HTTP(S) URL")
+        if str(entry.get("recording_id", "")) not in page:
+            errors.append(
+                f"{bird_id}: permission entry page must identify recording {entry.get('recording_id', '')!r}"
+            )
+
+    evidence = str(entry.get("permission_evidence", ""))
+    evidence_path = Path(evidence)
+    if evidence_path.is_absolute() or ".." in evidence_path.parts:
+        errors.append(f"{bird_id}: permission evidence must be repository-relative")
+    elif not (root / evidence_path).is_file():
+        errors.append(f"{bird_id}: permission evidence missing: {evidence}")
+
+    length = parse_len_seconds(str(entry.get("length", "")))
+    if length < 15 or length > 90:
+        errors.append(f"{bird_id}: permission entry length must be 15-90 seconds")
+    if str(entry.get("quality", "")) not in {"A", "B", "C", "D", "E"}:
+        errors.append(f"{bird_id}: permission entry quality must be A-E")
+
+    has_download = bool(entry.get("download_url"))
+    has_local = bool(entry.get("local_file"))
+    if has_download == has_local:
+        errors.append(
+            f"{bird_id}: permission entry requires exactly one of download_url or local_file"
+        )
+    if has_download:
+        parsed_download = urlparse(str(entry["download_url"]))
+        if parsed_download.scheme not in {"http", "https"} or not parsed_download.netloc:
+            errors.append(f"{bird_id}: permission download_url must be an absolute HTTP(S) URL")
+    if has_local:
+        local_path = resolve_repo_path(str(entry["local_file"]), root=root)
+        if not local_path.is_relative_to(root):
+            errors.append(f"{bird_id}: permission local_file must stay inside the repository")
+        elif not local_path.is_file():
+            errors.append(f"{bird_id}: permission local_file missing: {entry['local_file']}")
+    return errors
 
 
 def normalize_protocol_relative_url(url: str) -> str:
@@ -99,6 +187,7 @@ def _source_prefix(source: str) -> str:
         "inaturalist": "IN",
         "wikimedia": "WM",
         "maintainer": "MR",
+        "permission": "PM",
     }.get(source, "XC")
 
 
@@ -143,6 +232,29 @@ def _source_recording(
             "file": str(source_path),
         }
 
+    if source == "permission":
+        errors = validate_permission_entry(bird_id, entry)
+        if errors:
+            raise ValueError("; ".join(errors))
+        common["lic"] = entry["license"]
+        common["cnt"] = entry["country"]
+        common["q"] = entry["quality"]
+        common["rec"] = entry["recordist"]
+        if entry.get("local_file"):
+            source_path = resolve_repo_path(str(entry["local_file"]))
+            return common | {
+                "url": str(entry["page"]),
+                "file": str(source_path),
+                "permission_evidence": entry["permission_evidence"],
+                "attribution": entry["attribution"],
+            }
+        return common | {
+            "url": str(entry["page"]),
+            "file": str(entry["download_url"]),
+            "permission_evidence": entry["permission_evidence"],
+            "attribution": entry["attribution"],
+        }
+
     if source == "freesound":
         page = entry.get("page", "")
         return common | {
@@ -185,6 +297,13 @@ def _write_curated_file(
             shutil.copy2(source_resolved, dest_resolved)
         return
 
+    if source == "permission" and Path(rec["file"]).is_file():
+        source_resolved = Path(rec["file"]).resolve()
+        dest_resolved = dest.resolve()
+        if source_resolved != dest_resolved:
+            shutil.copy2(source_resolved, dest_resolved)
+        return
+
     trim = entry.get("trim")
     if not trim:
         download(rec["file"], dest)
@@ -221,8 +340,9 @@ def download_curated(
         )
         species_dir = out_dir / bird_id
         prefix = _source_prefix(source)
+        source_location = str(entry.get("download_url") or entry.get("local_file", ""))
         dest = species_dir / (
-            f"{bird_id}_{prefix}{recording_id}{_download_extension(str(entry.get('download_url', '')))}"
+            f"{bird_id}_{prefix}{recording_id}{_download_extension(source_location)}"
         )
         recording = _source_recording(
             bird_id,

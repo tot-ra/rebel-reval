@@ -338,6 +338,74 @@ def create_pig_rig(obj: bpy.types.Object) -> tuple[bpy.types.Object, list[bpy.ty
     )
 
 
+def create_dog_rig(
+    obj: bpy.types.Object,
+    coord_scale: "Vector | None" = None,
+) -> tuple[bpy.types.Object, list[bpy.types.Object]]:
+    """Lean hound rig with amber eyes and a dark nose on the pricked-ear head.
+
+    WHY: the P2-024 street dog is met at arm's length, so its muzzle needs a
+    readable dark nose detail just like the livestock need visible eyes. The
+    nose is a separate closed detail parented to the head (Neck) bone; the
+    sickle tail stays part of the authored mesh and follows the Tail vertex
+    group, matching the pig route.
+
+    The builder normalizes the mesh to metric dimensions before rigging, so
+    every literal below is authored in raw mesh space and must be scaled by
+    ``coord_scale`` (the measured normalization factors); otherwise eyes, nose,
+    and bones drift off the final body (scaled skull vs unscaled eye anchors).
+    """
+    scale = coord_scale if coord_scale is not None else Vector((1.0, 1.0, 1.0))
+
+    def at(point: tuple[float, float, float]) -> tuple[float, float, float]:
+        return (point[0] * scale.x, point[1] * scale.y, point[2] * scale.z)
+
+    def dim(sizes: tuple[float, float, float]) -> tuple[float, float, float]:
+        return (sizes[0] * scale.x, sizes[1] * scale.y, sizes[2] * scale.z)
+
+    armature, details = create_quadruped_rig(
+        obj,
+        "DogRig",
+        at((0.0, 0.0, 0.26)),
+        at((0.0, 0.0, 0.50)),
+        {
+            "Neck": (at((-0.30, 0.0, 0.47)), at((-0.50, 0.0, 0.60))),
+            "Tail": (at((0.38, 0.0, 0.48)), at((0.52, 0.0, 0.68))),
+            "FrontLeftLeg": (at((-0.26, 0.078, 0.38)), at((-0.27, 0.078, 0.04))),
+            "FrontRightLeg": (at((-0.26, -0.078, 0.38)), at((-0.27, -0.078, 0.04))),
+            "BackLeftLeg": (at((0.24, 0.085, 0.40)), at((0.24, 0.085, 0.04))),
+            "BackRightLeg": (at((0.24, -0.085, 0.40)), at((0.24, -0.085, 0.04))),
+            "EyeLeft": (at((-0.53, 0.068, 0.58)), at((-0.53, 0.068, 0.63))),
+            "EyeRight": (at((-0.53, -0.068, 0.58)), at((-0.53, -0.068, 0.63))),
+        },
+        {
+            "neck_x": -0.34 * scale.x,
+            "neck_z": 0.50 * scale.z,
+            "tail_x": 0.40 * scale.x,
+            "tail_z": 0.50 * scale.z,
+            "tail_y": 0.08 * scale.y,
+            "leg_z": 0.26 * scale.z,
+            "front_leg_x": -0.10 * scale.x,
+            "back_leg_x": 0.10 * scale.x,
+            "eye_x": 0.53 * scale.x,
+            "eye_scale": dim((0.026, 0.014, 0.024)),
+            "pupil_scale": dim((0.012, 0.006, 0.013)),
+            "pupil_offset": 0.011 * scale.y,
+            "tail_tuft_scale": dim((0.030, 0.026, 0.040)),
+        },
+        eye_specs=[
+            ("Left", 0.068 * scale.y, 0.58 * scale.z, "EyeLeft"),
+            ("Right", -0.068 * scale.y, 0.58 * scale.z, "EyeRight"),
+        ],
+        tail_specs=None,
+    )
+    nose_material = create_flat_material("dogrig_nose", (0.028, 0.020, 0.016, 1.0))
+    nose = add_uv_sphere("NoseTip", at((-0.685, 0.0, 0.522)), dim((0.022, 0.019, 0.016)), nose_material)
+    parent_to_bone(nose, armature, "Neck")
+    details.append(nose)
+    return armature, details
+
+
 def create_livestock_animations(armature: bpy.types.Object) -> None:
     """Author two short looping clips with diagonal walk and independent blinks."""
     armature.animation_data_create()
@@ -425,6 +493,7 @@ def create_livestock_animations(armature: bpy.types.Object) -> None:
 
 RIG_BUILDERS = {
     "cattle": create_cattle_rig,
+    "dog": create_dog_rig,
     "pig": create_pig_rig,
     "sheep": create_sheep_rig,
     "pack_horse": create_pack_horse_rig,

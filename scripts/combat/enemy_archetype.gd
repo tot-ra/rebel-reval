@@ -8,9 +8,11 @@ const ID_WATCHMAN := &"enemy.watchman"
 const ID_SERGEANT := &"enemy.sergeant"
 const ID_KNIGHT_ORDER := &"enemy.knight_order"
 const ID_CROSSBOWMAN := &"enemy.crossbowman"
+const ID_BANDIT := &"enemy.bandit"
 
 const WATCHMAN_SCENE := preload("res://assets/characters/variants/watchman.tscn")
 const SERGEANT_SCENE := preload("res://assets/characters/variants/sergeant.tscn")
+const BANDIT_SCENE := preload("res://assets/characters/variants/bandit.tscn")
 
 var id: StringName = ID_WATCHMAN
 var display_label := "Watchman"
@@ -53,6 +55,8 @@ static func from_id(archetype_id: StringName) -> EnemyArchetype:
 		return knight_order()
 	if archetype_id == ID_CROSSBOWMAN:
 		return crossbowman()
+	if archetype_id == ID_BANDIT:
+		return bandit()
 	return watchman()
 
 
@@ -147,6 +151,30 @@ static func crossbowman() -> EnemyArchetype:
 	profile.attack_stamina_cost = 7.0
 	profile.attack_damage_type = &"pierce"
 	profile.attack_animation = &"crossbow_shot"
+	return profile
+
+
+static func bandit() -> EnemyArchetype:
+	## Road bandit: a quick, lightly protected ambusher with a readable slash.
+	var profile := EnemyArchetype.new()
+	profile.id = ID_BANDIT
+	profile.display_label = "Bandit"
+	profile.detect_radius = 132.0
+	profile.engage_radius = 70.0
+	profile.lose_sight_radius = 235.0
+	profile.detect_duration_sec = 0.35
+	profile.telegraph_duration_sec = 0.48
+	profile.attack_duration_sec = 0.56
+	profile.attack_impact_sec = 0.18
+	profile.react_duration_sec = 0.30
+	profile.disengage_duration_sec = 0.55
+	profile.attack_damage = 10.0
+	profile.attack_reach_px = 52.0
+	profile.attack_stamina_cost = 6.0
+	profile.attack_damage_type = &"slash"
+	profile.attack_animation = &"sword_attack"
+	profile.character_scene = BANDIT_SCENE
+	profile.body_half_width = 14.0
 	return profile
 
 

@@ -565,6 +565,35 @@ func test_barrels_have_coopered_bodies_heads_and_iron_hoops() -> void:
 	pair.free()
 
 
+func test_exceptional_buildings_cross_landmark_boundary_without_house_kit() -> void:
+	var definition := MarketCivicQuarterDefinition.create()
+	for building_id in [&"town_hall_mass", &"church_silhouette", &"guild_frontage", &"holy_spirit_hospital"]:
+		var building := _building_by_id(definition, building_id)
+		assert_true(MapViewMeshBuilder.is_exceptional_building(building), "%s must use landmark boundary" % building_id)
+		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
+		assert_eq(node.name, "Building_%s" % String(building_id))
+		assert_eq(node.get_meta(&"renderer_boundary"), &"exceptional")
+		assert_false(node.has_node("Roof"), "%s must not use ordinary house Roof" % building_id)
+		assert_false(node.has_node("Chimney"), "%s must not use ordinary house chimney" % building_id)
+		assert_true(node.has_node("Walls"), "%s still needs a view-only mass" % building_id)
+		node.free()
+
+	var ordinary_definition := SmithyCourtyard.create()
+	var found_ordinary := false
+	for building in ordinary_definition.buildings:
+		if building.get("kind") != MapTypes.BUILDING_KIND_HOUSE:
+			continue
+		if MapViewMeshBuilder.is_exceptional_building(building):
+			continue
+		var node := MapViewMeshBuilder.build_building(building, ordinary_definition.cell_size)
+		assert_eq(node.get_meta(&"renderer_boundary"), &"ordinary")
+		assert_true(node.has_node("Roof"), "%s must retain ordinary house kit" % building["id"])
+		node.free()
+		found_ordinary = true
+		break
+	assert_true(found_ordinary, "fixture must contain an ordinary house")
+
+
 func _building_by_id(definition: MapDefinition, building_id: StringName) -> Dictionary:
 	for building in definition.buildings:
 		if building["id"] == building_id:
