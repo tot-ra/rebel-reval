@@ -280,3 +280,5 @@
 - When a focused Godot suite fails after the target script loads cleanly, inspect the saved checked-runner log and separate unrelated assertion failures from the scoped parser or warning fix; do not widen the patch into unrelated shader changes.
 
 - When a focused Godot suite contains an unrelated physics failure, use its individual passing test output plus a bounded standalone probe for the scoped behavior; do not modify the unrelated collision test. `git diff --check` can also surface pre-existing CRLF/trailing-whitespace rows in a concurrently edited provenance file, so inspect only the scoped paths before commit.
+
+- The Godot harness `tools/run_godot_tests.gd` discovers only `tests/godot/test_*.gd`; scene smoke scripts under `scenes/tests/` must be validated through their packed scenes or a direct scene run, not the harness filter.

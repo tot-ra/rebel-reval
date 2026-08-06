@@ -6,7 +6,7 @@ const PortraitResolverScript := preload("res://scripts/dialogue/dialogue_portrai
 const DialogueSettingsScript := preload("res://scripts/settings/dialogue_settings.gd")
 const PseudoLocalizationScript := preload("res://scripts/dialogue/dialogue_pseudo_localization.gd")
 const TextLayoutScript := preload("res://scripts/dialogue/dialogue_text_layout.gd")
-const DialogueUiBuilder := preload("res://scripts/dialogue/dialogue_ui_builder.gd")
+const DialogueUiBuilderScript := preload("res://scripts/dialogue/dialogue_ui_builder.gd")
 const DialogueUiTheme := preload("res://scripts/dialogue/dialogue_ui_theme.gd")
 const DialogueUiInput := preload("res://scripts/dialogue/dialogue_ui_input.gd")
 const DialogueUiReveal := preload("res://scripts/dialogue/dialogue_ui_reveal.gd")
@@ -376,7 +376,7 @@ func _apply_text_scale() -> void:
 
 
 func _build_ui() -> void:
-	var nodes := DialogueUiBuilder.build(self, _font, {
+	var nodes := DialogueUiBuilderScript.build(self, _font, {
 		"toggle_backlog": _toggle_backlog,
 		"skip_requested": func() -> void: skip_requested.emit(),
 		"sync_text_label_width": _sync_text_label_width,
