@@ -274,3 +274,4 @@
 - For permission/outreach tasks, never claim an email was sent without an authenticated mail channel and provider message ID; record the failed channel check with UTC time and create a maintainer follow-up instead.
 - For a final QA gate spanning active runtime WIP, run each focused suite separately and record both passing evidence and the first compile blocker; do not repair a shared owner file from an evidence-only QA scope.
 - Keep temporary Godot probe scripts until every planned verification run is complete; deleting a probe after the first pass makes later reruns fail for an unrelated missing-file reason.
+- When a Godot warning names a script without its repository path, discover the exact nested path before reading or editing; `map_view_material_patterns.gd` lives under `scripts/map/view3d/`.
