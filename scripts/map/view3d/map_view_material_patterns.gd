@@ -171,10 +171,10 @@ static func _apply_surface_weathering(image: Image, weathering: StringName, nois
 						value += 0.07
 				MapViewMaterials.WEATHER_DAMP:
 					value *= 0.9
-					if _hash01(x / 7, y / 9, noise_seed + 503) > 0.58:
+					if _hash01(floori(float(x) / 7.0), floori(float(y) / 9.0), noise_seed + 503) > 0.58:
 						value -= 0.07
 				MapViewMaterials.WEATHER_REPAIRED:
-					if _hash01(x / 11, y / 9, noise_seed + 607) > 0.78:
+					if _hash01(floori(float(x) / 11.0), floori(float(y) / 9.0), noise_seed + 607) > 0.78:
 						value = lerpf(value, 0.94, 0.62)
 				_:
 					pass
