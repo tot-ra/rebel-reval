@@ -7,6 +7,7 @@
 - If an attempted playbook overwrite drops accumulated lessons, restore the file from the current baseline before appending the new lesson; use an append/insertion operation for additive changes.
 - When an exact replacement fails after a nearby edit, the target may already have changed; re-read the live block, apply only the remaining delta, and verify the saved ledger before proceeding.
 - When a Godot preload reports that an existing script cannot be resolved, run the target script directly to expose the first parse error; dependent preload messages are often only a cascade.
+- Keep content-only CI jobs scoped to content validators and their direct fixtures. Broad `unittest discover` can collect release, map, and legacy task-ledger tests that require artifacts or deleted files owned by another workflow; run those gates in their dedicated CI job instead.
 
 - `git diff --no-index /dev/null <new-file>` returns status 1 for a valid diff; when batching checks, do not treat that expected diff status as a test failure, and run `git diff --check` separately.
 - Markdown reports with intentional hard-break spaces fail `git diff --cached --check`; use plain line breaks before staging documentation.
