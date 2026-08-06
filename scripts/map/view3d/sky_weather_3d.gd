@@ -14,7 +14,6 @@ const SKY_RESOURCES := preload("res://scripts/map/view3d/sky_weather_resources.g
 const SkyWeatherRoofAudioScript := preload("res://scripts/map/view3d/sky_weather_roof_audio.gd")
 const STAR_CATALOG := preload("res://scripts/map/view3d/estonia_star_catalog.gd")
 const GAME_CALENDAR := preload("res://scripts/global/game_calendar.gd")
-const SkyAstronomy := preload("res://scripts/map/view3d/sky_astronomy.gd")
 
 const WEATHER_CLEAR := &"clear"
 const WEATHER_CLOUDY := &"cloudy"
