@@ -40,6 +40,23 @@ class VerifyStorageHygieneTest(unittest.TestCase):
         self.assertTrue(any("build/benchmarks/result.json" in error for error in errors))
         self.assertTrue(any("tools/__pycache__/tool.pyc" in error for error in errors))
 
+
+    def test_act1_release_fingerprints_are_allowed(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            self._write_manifest(root, [])
+            with mock.patch.object(
+                verifier,
+                "tracked_paths",
+                return_value=[
+                    "build/act1/PACKAGE_SHA256.txt",
+                    "build/act1/package_fingerprint.json",
+                ],
+            ):
+                errors = verifier.validate(root)
+
+        self.assertEqual(errors, [])
+
     def test_unapproved_large_binary_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)

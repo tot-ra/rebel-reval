@@ -17,6 +17,11 @@ EXCEPTIONS = ROOT / "docs" / "storage_binary_exceptions.json"
 LARGE_FILE_BYTES = 10 * 1024 * 1024
 REQUIRED_FIELDS = ("path", "size_bytes", "sha256", "owner", "rationale", "follow_up")
 FORBIDDEN_EXACT_PATHS = frozenset({"bin/rr.zip"})
+# P4-013 deliberately tracks only these tiny fingerprints so release QA can
+# bind the accepted package without tracking the generated package itself.
+TRACKED_RELEASE_FINGERPRINTS = frozenset(
+    {"build/act1/PACKAGE_SHA256.txt", "build/act1/package_fingerprint.json"}
+)
 FORBIDDEN_PARTS = frozenset({"__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"})
 FORBIDDEN_SUFFIXES = frozenset({".pyc", ".pyo"})
 
@@ -108,6 +113,8 @@ def read_exceptions(path: Path) -> tuple[dict[str, BinaryException], list[str]]:
 
 def is_forbidden_tracked_path(path: str) -> bool:
     relative = Path(path)
+    if path in TRACKED_RELEASE_FINGERPRINTS:
+        return False
     if path in FORBIDDEN_EXACT_PATHS or relative.parts[:1] in {("bin",), ("build",)}:
         return True
     return bool(FORBIDDEN_PARTS.intersection(relative.parts)) or relative.suffix.lower() in FORBIDDEN_SUFFIXES

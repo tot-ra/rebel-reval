@@ -52,13 +52,13 @@ Do not add another exception without a separately approved task and documented r
 
 ## Git LFS migration
 
-P0-070 migrated 110 current-tree objects totaling 569,387,736 bytes to authenticated GitHub LFS without rewriting shared history:
+P0-070 migrated the initial 110 current-tree objects totaling 569,387,736 bytes to authenticated GitHub LFS without rewriting shared history. Subsequent runtime audio and research-plate additions bring the current manifest to 281 objects:
 
 | Scope | Objects | Bytes | Default checkout |
 |------|------:|------:|------------------|
-| Runtime audio | 25 | 152,233,236 | Restored explicitly by CI and `tools/restore_lfs_assets.sh runtime`. |
-| Inactive audio archive | 28 | 165,481,547 | Excluded by `.lfsconfig`; restore on demand. |
-| Historical research media | 39 | 166,557,881 | Excluded by `.lfsconfig`; reference-only rights status is preserved. |
+| Runtime audio | 34 | 212,222,440 | Restored explicitly by CI and `tools/restore_lfs_assets.sh runtime`. |
+| Inactive audio archive | 26 | 154,526,695 | Excluded by `.lfsconfig`; restore on demand. |
+| Historical research media | 209 | 532,699,256 | Excluded by `.lfsconfig`; reference-only rights status is preserved. |
 | Legacy narrative images | 12 | 46,584,682 | Excluded by `.lfsconfig`; archive-only rights status is preserved. |
 
 [`lfs_assets.json`](./lfs_assets.json) is the authoritative machine-readable manifest. Every row records repository-relative path, exact bytes, SHA-256/LFS object ID, owner, license or explicit rights uncertainty, approval, source reference, and scope. GitHub repository `tot-ra/rebel-reval` owns storage at remote `origin`; upload and download authorization were proven over SSH before migration, and every object must be uploaded before the pointer commit.
@@ -67,7 +67,7 @@ The migration is deliberately current-tree-only. Old standard-Git blobs remain i
 
 ## LFS retrieval and failure behavior
 
-Normal checkouts intentionally leave inactive archive, research, and narrative LFS objects as pointers. Restore the 25 runtime objects, including the shared battle library, before import, test, or export:
+Normal checkouts intentionally leave inactive archive, research, and narrative LFS objects as pointers. Restore the 34 runtime objects, including the shared battle library, before import, test, or export:
 
 ```bash
 tools/restore_lfs_assets.sh runtime
