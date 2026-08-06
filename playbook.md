@@ -278,3 +278,5 @@
 - When repairing GDScript integer-division warnings, preserve the original bucket semantics explicitly with `floori(float(value) / divisor)` and re-read the edited match block before testing; indentation errors can mask the real parser diagnostic.
 
 - When a focused Godot suite fails after the target script loads cleanly, inspect the saved checked-runner log and separate unrelated assertion failures from the scoped parser or warning fix; do not widen the patch into unrelated shader changes.
+
+- When a focused Godot suite contains an unrelated physics failure, use its individual passing test output plus a bounded standalone probe for the scoped behavior; do not modify the unrelated collision test. `git diff --check` can also surface pre-existing CRLF/trailing-whitespace rows in a concurrently edited provenance file, so inspect only the scoped paths before commit.

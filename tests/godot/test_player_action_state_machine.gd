@@ -196,6 +196,20 @@ func test_player_scene_respects_action_lock_and_recovers() -> void:
 	player.free()
 
 
+func test_recovery_uses_idle_map_presentation() -> void:
+	var player := _create_player()
+	assert_true(player.action_state_machine.try_start_action(PlayerActionKind.Kind.ATTACK))
+	_advance(player.action_state_machine, player.action_state_machine.attack_duration_sec)
+
+	assert_eq(player.action_state_machine.state, PlayerActionState.State.RECOVERY)
+	assert_eq(
+		player.view_animation(),
+		&"idle",
+		"Recovery is a logic-only lock and must use the shared idle presentation"
+	)
+	player.free()
+
+
 func test_directional_dodge_mapping_uses_facing_relative_clips() -> void:
 	var facing := Vector2.DOWN
 	assert_eq(Player.dodge_animation_for_direction(Vector2.DOWN, facing), &"dodge_forward")

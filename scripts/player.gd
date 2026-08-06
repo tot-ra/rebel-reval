@@ -421,6 +421,10 @@ func view_animation() -> StringName:
 		return _active_attack_profile.animation
 	if animation_base == "dodge":
 		return _dodge_animation
+	if animation_base == "recovery":
+		# Recovery is a logic-only lock window; the shared humanoid has no
+		# dedicated recovery clip, so keep the map presentation at idle.
+		return &"idle"
 	return StringName(animation_base)
 
 
