@@ -341,8 +341,8 @@ static func height_multiplier(size_class: StringName) -> float:
 ## Non-uniform instance scale: roll picks within SIZE_SCALE, then height bias
 ## stretches Y so large trees tower over the stand.
 static func instance_scale(size_class: StringName, roll: float = 0.5) -> Vector3:
-	var range := scale_range(size_class)
-	var uniform := range.x + clampf(roll, 0.0, 1.0) * (range.y - range.x)
+	var scale_bounds := scale_range(size_class)
+	var uniform := scale_bounds.x + clampf(roll, 0.0, 1.0) * (scale_bounds.y - scale_bounds.x)
 	var height := uniform * height_multiplier(size_class)
 	return Vector3(uniform, height, uniform)
 
