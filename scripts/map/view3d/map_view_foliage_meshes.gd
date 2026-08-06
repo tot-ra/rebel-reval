@@ -443,9 +443,9 @@ static func _add_cattail_head(
 				surface.add_vertex(vertex[0])
 
 
-static func _add_reed_panicle(surface: SurfaceTool, base: Vector3, yaw: float, seed: int) -> void:
+static func _add_reed_panicle(surface: SurfaceTool, base: Vector3, yaw: float, panicle_seed: int) -> void:
 	var direction := Vector3(sin(yaw), 0.0, cos(yaw))
-	var plume_color := Color(1.35, 0.90, 0.38).lerp(Color(1.08, 0.68, 0.28), MeshMath.hash01(seed, 31, 401))
+	var plume_color := Color(1.35, 0.90, 0.38).lerp(Color(1.08, 0.68, 0.28), MeshMath.hash01(panicle_seed, 31, 401))
 	var tip := base + Vector3.UP * 0.16 + direction * 0.035
 	_add_tapered_stem(surface, base, tip, 0.0035, 0.0015, 4, plume_color, 0.88, 1.0)
 	for branch_index in 5:
@@ -453,7 +453,7 @@ static func _add_reed_panicle(surface: SurfaceTool, base: Vector3, yaw: float, s
 		var branch_base := base.lerp(tip, branch_progress)
 		var branch_yaw := yaw + (-1.0 if branch_index % 2 == 0 else 1.0) * (0.62 + float(branch_index) * 0.10)
 		var branch_direction := Vector3(sin(branch_yaw), 0.0, cos(branch_yaw))
-		var branch_length := 0.035 + MeshMath.hash01(seed, branch_index, 409) * 0.035
+		var branch_length := 0.035 + MeshMath.hash01(panicle_seed, branch_index, 409) * 0.035
 		var branch_tip := branch_base + branch_direction * branch_length + Vector3.UP * (0.025 + branch_progress * 0.025)
 		_add_tapered_stem(surface, branch_base, branch_tip, 0.0022, 0.0008, 3, plume_color, 0.90, 1.0)
 
