@@ -395,7 +395,7 @@ static func _append_segment(
 	})
 
 
-static func _build_wood_mesh(species: StringName, skeleton: Dictionary) -> ArrayMesh:
+static func _build_wood_mesh(_species: StringName, skeleton: Dictionary) -> ArrayMesh:
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var segments: Array = skeleton["segments"]
