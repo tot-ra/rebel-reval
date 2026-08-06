@@ -288,6 +288,23 @@ func _install_crowd_renderer() -> void:
 	_crowd_renderer.configure(200, hash(_definition.map_id))
 
 
+func configure_crowd(max_instances: int, seed_value: int) -> void:
+	if _crowd_renderer != null:
+		_crowd_renderer.clear_actors()
+		remove_child(_crowd_renderer)
+		_crowd_renderer.queue_free()
+		_crowd_renderer = null
+	_crowd_renderer = CrowdRenderer.new()
+	_crowd_renderer.name = "CrowdRenderer"
+	add_child(_crowd_renderer)
+	_crowd_renderer.configure(max_instances, seed_value)
+	_crowd_renderer.set_crowd_enabled(_crowd_enabled)
+
+
+func get_crowd_renderer() -> MapViewCrowdRenderer:
+	return _crowd_renderer
+
+
 func set_crowd_enabled(enabled: bool) -> void:
 	_crowd_enabled = enabled
 	if _crowd_renderer != null:

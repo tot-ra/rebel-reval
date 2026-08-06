@@ -8,6 +8,7 @@ const NIGHT_CONSEQUENCE_SCRIPT := preload(
 const AFTERMATH_SCRIPT := preload("res://scripts/investigation/bitter_brew_aftermath.gd")
 const REPUTATION_SCRIPT := preload("res://scripts/faction/social_reputation_controller.gd")
 const MARKET_DAY_SCRIPT := preload("res://scripts/world/market_day_controller.gd")
+const POPULATION_SCRIPT := preload("res://scripts/world/urban_population_controller.gd")
 const SUPPLY_CHAIN_SCRIPT := preload("res://scripts/world/supply_chain_controller.gd")
 const ENVIRONMENT_SCRIPT := preload("res://scripts/world/environmental_consequence_controller.gd")
 const BELL_INVESTIGATION_SCRIPT := preload(
@@ -52,6 +53,8 @@ const ST_GEORGES_CLIMAX_SCRIPT := preload(
 const ST_GEORGES_AFTERMATH_SCRIPT := preload(
 	"res://scripts/investigation/st_georges_night_aftermath.gd"
 )
+const BANDIT_SCENE := preload("res://scenes/reval_east/workers_district_bandit.tscn")
+const BANDIT_SPAWN := Vector2(4256.0, 1760.0)
 
 @onready var map_root: Node2D = $MapRoot
 @onready var actors: Node2D = $Actors
@@ -60,11 +63,13 @@ const ST_GEORGES_AFTERMATH_SCRIPT := preload(
 var _bootstrap: Dictionary = {}
 var _view_runtime: MapViewRuntime
 var _mart_encounter: DemoMartEncounter
+var _bandit_encounter: WorkersDistrictBandit
 var _bitter_brew_investigation: Node
 var _bitter_brew_night: Node
 var _bitter_brew_aftermath: Node
 var _social_reputation: Node
 var _market_day: Node
+var _urban_population: Node
 var _supply_chain: Node
 var _environmental_consequence: Node
 var _bell_and_chain_investigation: Node
@@ -95,6 +100,12 @@ func _ready() -> void:
 	_mart_encounter.name = "DemoMartEncounter"
 	add_child(_mart_encounter)
 	_mart_encounter.spawn_mart(actors, definition)
+
+	_bandit_encounter = BANDIT_SCENE.instantiate() as WorkersDistrictBandit
+	_bandit_encounter.name = "WorkersDistrictBandit"
+	_bandit_encounter.global_position = BANDIT_SPAWN
+	actors.add_child(_bandit_encounter)
+	_bandit_encounter.configure_bandit(player)
 
 	_view_runtime = MapViewRuntime.install(self, _bootstrap, map_root, player)
 	_setup_phase_binder(definition)
@@ -148,6 +159,16 @@ func _ready() -> void:
 		_mart_encounter.get_interaction_controller(),
 		&"loc.lower_town_slice"
 	)
+	_urban_population = POPULATION_SCRIPT.new()
+	_urban_population.name = "UrbanPopulationController"
+	add_child(_urban_population)
+	_urban_population.setup(
+		definition,
+		_bootstrap["grid"],
+		_view_runtime,
+		&"loc.lower_town_slice"
+	)
+	_market_day.bind_population_controller(_urban_population)
 	_supply_chain = SUPPLY_CHAIN_SCRIPT.new()
 	_supply_chain.name = "SupplyChainController"
 	add_child(_supply_chain)
@@ -265,6 +286,10 @@ func _ready() -> void:
 		_patrol_controller,
 		st_georges_climax
 	)
+
+
+func get_workers_district_bandit() -> WorkersDistrictBandit:
+	return _bandit_encounter
 
 
 func _setup_phase_binder(definition: MapDefinition) -> void:
