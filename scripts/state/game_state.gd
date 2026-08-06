@@ -202,7 +202,7 @@ func equip_from_bag(slot: StringName, item_id: StringName) -> bool:
 
 	# Take one unit out of the grid before attempting the swap-back so the
 	# previous occupant can use the freed cells.
-	var restore_origin := Vector2i(placement.grid_x, placement.grid_y)
+	var _restore_origin := Vector2i(placement.grid_x, placement.grid_y)
 	if placement.quantity > 1:
 		placement.quantity -= 1
 	else:
