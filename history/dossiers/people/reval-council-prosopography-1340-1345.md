@@ -8,34 +8,44 @@ related:
   - ../language/names-address-and-oaths.md
   - ../power/jurisdictions-of-reval.md
   - ../economy/awb-clausuris-mortgage-text-1340-1343.md
-updated: 2026-08-02
+updated: 2026-08-06
 ---
 
 # Reval council prosopography, 1340-1345
 
 ## Brief for Character / Narrative / Quest / Dialogue
 
-This dossier separates dated council evidence from the still-unread annual election rolls. The
-public-domain AWB edition identifies several men as `consulatus socius` or `consul` in entries dated
-1341, 1343, 1344, and 1345, while the Diplomatarium Danicum identifies the town's council only
-collectively in the 1343 crisis documents. It does **not** establish a named burgomaster pair for
-every year in 1340-1345.
+This dossier separates dated council evidence from annual council lists. The public-domain AWB edition identifies
+several men as `consulatus socius` or `consul` in entries dated 1341, 1343, 1344, and 1345. A traceable
+secondary transcription by F. G. von Bunge also reproduces the annual `sitzender Rat` lists for 1340-1345
+and discusses their rotation. The Bunge lists materially narrow the 1343-1345 bench, but they remain a
+nineteenth-century secondary witness, not a folio-level read of TLA.230.1.Aa2. The dossier still does **not**
+establish a securely named burgomaster pair from the Denkelbuch itself.
 
 **Ship these decisions:**
 
 1. Use **Johannes de Breme**, **Hermannus More**, **Wynandus Longus**, **Bertoldus Bickinchusen**,
    **Reynekinus Crowel**, **Detmarus de Unna**, **Hunoldus de Ostinchusen**, **Remboldus de Lenepe**,
    and **Arnoldus** as dated council-member candidates only when the cited entry is named [1].
-2. Keep **Dietrich (Didericus) Zierenberg** as the one near-1343 burgomaster identified by the
+2. For a 1343 council scene, the Bunge list supports the sitting bench **Hermannus Moren, Wynandus
+   Longus, Hermannus Stympel, Theodericus de Unna, Johannes Cracht, Johannes de Bremen, Johannes Albus,
+   Everhardus de Unna, Hinricus Crowel, Thidemannus Cosfelt, Arnoldus Colner, Hermannus Weldege, Johannes
+   Hamer, Johannes Dunevar, and Johannes de Lippia**. Label this a secondary `sitzender Rat` list, not a
+   complete Denkelbuch election transcription [9].
+3. The first two positions in Bunge's annual lists are a strong secondary indicator of the two leading
+   `proconsules`: **Hermannus Moren / Wynandus Longus** in 1343, **Reynekinus Crowel / Wennemarus Holloger**
+   in 1344, and **Wynandus Longus / Hermannus Moren** in 1345. Do not present these as a securely collated
+   1343-1345 burgomaster pair: Bunge also says that the wider old and new councils could contain up to five
+   proconsules in 1342-1343 [9].
+4. Keep **Dietrich (Didericus) Zierenberg** as the one near-1343 burgomaster identified by the
    existing council dossier, with death on 6 December 1345; this file does not independently upgrade
    the burgomaster claim [4][5].
-3. Do not present an AWB `consulatus socius` as a burgomaster. The phrase proves council
-   membership or council association in that entry, not which chair the man held [1].
-4. The 1333 cohort remains a dated name stock, not proof that all fourteen councillors still sat in
-   1343. Mark continued membership as `plausible composite` unless a dated council-book entry is
-   supplied [3][6].
-5. The exact 1343-1345 burgomaster pair and the December 1343 election outcome remain an archival
-   gap pending a folio-level read of Denkelbuch TLA.230.1.Aa2 [2].
+5. Do not present an AWB `consulatus socius` as a burgomaster. The phrase proves council membership or
+   council association in that entry, not which chair the man held [1].
+6. The 1333 cohort remains a dated name stock, not proof that all fourteen councillors still sat in
+   1343. Mark continued membership as `plausible composite` unless a dated council-book entry is supplied [3][6].
+7. The exact December 1343 election outcome and a manuscript-confirmed burgomaster pair remain an
+   archival gap pending a folio-level read of Denkelbuch TLA.230.1.Aa2 [2].
 
 ## Findings
 
@@ -52,6 +62,35 @@ The ILC catalogue identifies the first Denkelbuch volume as **TLA.230.1.Aa2**, 4
 archive reference and period, but its public page does not expose the folio text [2]. This is why the
 present dossier reports dated AWB names and a bounded negative result rather than inventing a full
 annual roll.
+### Bunge's secondary annual lists, 1340-1345
+
+Bunge's *Die Revaler Rathslinie* reproduces the older annual council-list tradition in a traceable BSB
+scan. The heading says that the names for 1340-1367 represent entry into the relevant office and that
+the following number marks exit or last documentary occurrence; Bunge then prints the annual `sitzender
+Rat` entries from the underlying list [9]. These are useful as a secondary transcription and as a check on
+name forms, but they are not a substitute for reading TLA.230.1.Aa2.
+
+| Year | Bunge's printed `sitzender Rat` list | Reading / use |
+|---|---|---|
+| **1340** | Hermannus Moren; Reynekinus Crowel; Wennemarus Hollogher; Detmarus de Unna; Rotcherus de Lapide; Gerhardus Stalbiter; Remboldus de Lenepe; Lodwicus Hamer; Hinricus Friso; Gerlacus Caporie; Arnoldus Colner; Arnoldus de Stocken | 12-person active list; first two positions indicate the two leading offices in Bunge's reconstruction [9] |
+| **1341** | Winandus Longus; Hermannus Stympel; Wernerus Niger; Theodericus de Unna; Johannes Cracht; Johannes Albus; Hinricus Crowel; Everhardus de Unna; Johannes de Bremen; Thidemannus Cosfelt; Gerlacus Lebart; Constantinus; Hermannus Weldege; Johannes Hamer | 14-person active list; no assumption that every 1340 name left the wider council [9] |
+| **1342** | Wennemarus Holloger; Reynekinus Crowel; Rotcherus de Lapide; Detmarus de Unna; Hinricus Friso; Remboldus; Lodwicus Hamer; Everhardus de Unna; Gerhardus Stalbiter; Gerlacus Caporie; Constantinus; Bertoldus Vickynchusen; Hinricus Medebeke | 12-person active list; Bunge says the old and new councils together could show five `proconsules` in this year [9] |
+| **1343** | Hermannus Moren; Wynandus Longus; Hermannus Stympel; Theodericus de Unna; Johannes Cracht; Johannes de Bremen; Johannes Albus; Everhardus de Unna; Hinricus Crowel; Thidemannus Cosfelt; Arnoldus Colner; Hermannus Weldege; Johannes Hamer; Johannes Dunevar; Johannes de Lippia | 15-person active list; Bunge says this is 11 names from 1341, two from 1340, and two new names [9] |
+| **1344** | Reynekinus Crowel; Wennemarus Holloger; Rotcherus de Lapide; Hinricus Vrese; Gerlacus Caporie; Johannes Albus; Lodwicus Hamer; Remboldus de Lenepe; Gerhardus Stalbiter; Bertoldus Vickynchusen; Wernerus de Calmaria; Hinricus de Beke | 12-person active list; the entry is explicitly dated `Dominica post octavas beati Michaelis` [9] |
+| **1345** | Wynandus Longus; Hermannus Moren; Hinricus Crowel; Johannes de Bremen; Thidemannus Cosfelt; Everhardus de Unna; Arnoldus Colner; Johannes Hamer; Hinricus Medebeke; Johannes de Lippia; Johannes Dunevar; followed by six names marked `postea fuerunt electi`: Johannes Albus, Remboldus, Lodwicus Hamer, Rotcherus de Lapide, Bertoldus Vickynchusen, Wernerus de Calmaria | 12 names in the annual entry plus six later elected names; the entry is explicitly dated `Dominica post octavas sancti Michaelis` [9] |
+
+Bunge's structural discussion is as important as the names. He counts 24 as the normal total for the
+whole council, with four `proconsules`, and says that annual co-optation normally occurred on the second
+Sunday after St Michael (the active session ran from October to October). He also notes that the old and
+new councils remained institutionally connected, that 1342 and 1343 could show five burgomasters across
+both benches, and that a burgomaster vacancy could be filled immediately rather than waiting for the
+annual council change [9]. This explains why the first two names in a sitting list are useful chair
+indicators but do not by themselves yield one fixed pair for the whole 1343-1345 interval.
+
+No Bunge page inspected here supplies a separate December 1343 election note. The source therefore
+contradicts neither the project's later generic 20 December election description nor the requested
+Denkelbuch check, but it does not confirm that date for 1343; keep the December outcome unresolved.
+
 
 ### Dated council members in the accessible AWB evidence
 
@@ -158,8 +197,7 @@ full charter witness list [1][7].
 6. `../language/names-address-and-oaths.md`, existing project dossier, 1333 name-stock and evidence boundary.
 7. *Diplomatarium Danicum*, 1343, nos. 321, 324, and 376: https://tekstnet.dk/books/dipdan/1343/ (Danish regesta; dates 11 May, 21 May, and 27 October 1343).
 8. *Diplomatarium Danicum*, 1345, nos. 116-119: https://tekstnet.dk/books/dipdan/1345/ (Danish regesta; 7 January 1345 Reval privileges and civic water authority).
-
-## Downstream requests
+9. F. G. von Bunge, *Die Revaler Rathslinie nebst Geschichte der Rathsverfassung und einem Anhange über Riga und Dorpat*, Reval: Franz Kluge, 1874, German, BSB digital scan BSB-ID `bsb11190451`, especially pp. 3-4, 21-23, and 37-41. The scan reproduces the annual council-list tradition and Bunge's discussion of `sitzender Rat`, rotation, and `proconsules`; it is secondary evidence, not a folio-level Denkelbuch reading. Manifest: https://api.digitale-sammlungen.de/iiif/presentation/v2/bsb11190451/manifest; page OCR: https://api.digitale-sammlungen.de/ocr/bsb11190451/13 and https://api.digitale-sammlungen.de/ocr/bsb11190451/33 (OCR is discovery support; consult the scan for exact readings).
 
 - **Canon Keeper:** approve the distinction between dated AWB council associates and the still-unidentified burgomaster pair before any named second burgomaster enters canon.
 - **Producer / Narrative:** keep the Denkelbuch folio read as a follow-up dependency for a fully named 1343-1345 council bench.
