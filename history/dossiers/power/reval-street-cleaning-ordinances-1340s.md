@@ -10,14 +10,15 @@ related:
   - ../economy/coinage-prices-and-measures.md
   - ../topography/old-market-vanaturg.md
   - ../topography/viru-vanaturg-paving-archaeology.md
-updated: 2026-07-29
+  - ./awb-sanitation-clauses-1340-1343.md
+updated: 2026-08-06
 ---
 
 # Reval street-cleaning and bath-house ordinances (1340s)
 
 ## Brief for Quest / Narrative / Dialogue
 
-You are writing **civic sanitation enforcement in April–May 1343 Lower Town**, not a modern environmental health code. Waste is a **burgher obligation under council authority**, baths are **city-owned buildings rented to operators**, and the **Vogt** collects fines the Rat proclaims — but **no published AWB folio from 1340–1343 names a dung-cart tariff, a street-dumping fine amount, or a bath rent in pfennigs** in the sources reviewed this tick.
+You are writing **civic sanitation enforcement in April–May 1343 Lower Town**, not a modern environmental health code. Waste is a **burgher obligation under council authority**, and baths are documented public venues; however, the accessible AWB pass does **not** establish municipal ownership, an operator lease, a dung-cart tariff, a street-dumping fine amount, or a bath rent in pfennigs for 1340–1343. The Vogt remains the relevant enforcement office under the council legal frame, but the amount of any sanitation fine is not attested in the reviewed AWB material.
 
 **Ship these decisions:**
 
@@ -28,9 +29,9 @@ You are writing **civic sanitation enforcement in April–May 1343 Lower Town**,
    - **1329:** sauna by **St Olaf's church** attested `attested` (document date) [5][6].
 3. **Street dumping:** Prohibit **night soil, butcher offal, and dung** in the **forum throat** and **gate aprons**; offenders face **Vogt fine under Art. 31** with amount **unset in published Reval record** — quest may use **4–12 schillings** only as labelled Hanse comparandum [`coinage-prices-and-measures.md`](../economy/coinage-prices-and-measures.md) `plausible composite` [7][8][9].
 4. **Dung carts:** **No attested 1343 Reval municipal dung-cart contract** in AWB or Bunge *Ordnungen* reviewed; stage **burgher corvée** (sweep frontage) plus **occasional hired carter** beyond **Viru** or **harbour gate** pits `plausible composite` from Hanse/Scandinavian pattern [8][10]. **Do not** show a named weekly municipal cart roster.
-5. **Bath rent:** City **leases** baths to **Saunapidaja** operators who obey **Rat** rules; **1391** cession requiring **free Thursday entry for the poor** is **post-1343** — cite only as **directional municipal welfare logic**, not as April 1343 law `plausible composite` [11][12]. **Do not** stage a named Thursday free-bath scene as attested 1343 fact.
+5. **Bath rent:** AWB 526 records an annual annuity secured in the hereditary property or *stupa* of the fraternity of St Olaf, but it does **not** name a bath-operator lease or *Badpacht*. The **1391** cession requiring **free Thursday entry for the poor** is **post-1343** — cite only as **directional municipal welfare logic**, not as April 1343 law `plausible composite` [11][12]. **Do not** stage a named Thursday free-bath scene or a pfennig bath rent as attested 1343 fact [14].
 6. **Siege overlay (April–May):** **Dung-cart service thins**; **forum stench rises**; council still **fines dumping** but **enforcement weakens** — friction beat, not sewer collapse [`hygiene-and-grooming-1343.md`](../dailylife/hygiene-and-grooming-1343.md) `plausible composite` [13].
-7. **AWB scope:** In project usage **AWB** = **Ältestes Wittschopbuch (1312–1360)** — a **property/mortgage register**, not a sanitation code book. Bath and lane facts may appear as **lease clauses**; a dedicated **1340–1343 street-cleaning ordinance** was **not located** in Nottbeck/Arbusow editions this tick **(gap)** [14].
+7. **AWB scope:** In project usage **AWB** = **Ältestes Wittschopbuch (1312–1360)** — a **property/mortgage register**, not a sanitation code book. AWB 526 and 553 provide bath-property and wood-delivery comparators, not *Badpacht* or street-fine proof. A dedicated **1340–1343 street-cleaning ordinance** was **not located** in the reviewed Arbusow edition **(gap)** [14][23].
 
 ## Findings
 
@@ -115,11 +116,12 @@ You are writing **civic sanitation enforcement in April–May 1343 Lower Town**,
 - [`viru-vanaturg-paving-archaeology.md`](../topography/viru-vanaturg-paving-archaeology.md) — gate apron surfaces and dumping prohibition zone.
 - [`public-bath-locations-1343.md`](../topography/public-bath-locations-1343.md) — mapped municipal bath POIs for stupa brawl and peripheral drain logic.
 - [`../economy/merchant-cart-and-transport-1340s.md`](../economy/merchant-cart-and-transport-1340s.md) — dung-cart gap; no attested 1343 municipal cart livery.
+- [`awb-sanitation-clauses-1340-1343.md`](./awb-sanitation-clauses-1340-1343.md) - AWB 526/553 findings narrow bath-rent and sanitation-fine claims.
 - [`../crafts/trades-of-the-lower-town.md`](../crafts/trades-of-the-lower-town.md) - trade-specific heat, wet, organic, and dry nuisances to place under the general council/frontage rules.
 
 ## Open questions
 
-- **AWB folio read 1340–1343** for explicit **Badpacht**, **Mist**, or **Gasse** clauses — needs Tallinn City Archives / Nottbeck 1888 pagination (candidate **R-066**).
+- **Denkelbuch / council register** rows naming **dung carrier** or **street sweeper** payment in **1342–1343** — pairs with hygiene siege beat.
 - **Denkelbuch / council register** rows naming **dung carrier** or **street sweeper** payment in **1342–1343** — pairs with hygiene siege beat.
 - **Fixed pfennig or schilling fine** for **night-soil in forum** — may not exist; AWB pass may only yield **custom** not **tariff**.
 
@@ -138,7 +140,7 @@ You are writing **civic sanitation enforcement in April–May 1343 Lower Town**,
 11. F. van Dam, bathhouse regulation typology; Brussels 1330 theft law — cited in Fake History Hunter index: https://fakehistoryhunter.net/2025/08/06/list-of-medieval-towns-villages-cities-with-bathhouses/
 12. Same as [11] — **1391** Tallinn bath cession, Thursday poor entry (**post-1343**).
 13. [`hygiene-and-grooming-1343.md`](../dailylife/hygiene-and-grooming-1343.md) — waste and siege sanitation (project dossier).
-14. E. von Nottbeck (ed.), *Das älteste Wittschopbuch der Stadt Reval (1312–1360)*, Reval 1888 (Archiv für die Geschichte Liv-, Est- und Curlands, 3. Folge, Bd. 1) — **AWB** corpus (German).
+14. L. Arbusow (ed.), *Das älteste Wittschopbuch der Stadt Reval (1312–1360)*, Reval: Kluge, 1888 (Latin/German), public-domain BSB/MDZ scan and OCR; AWB 526 p. 80 and AWB 553 p. 83 are discussed in [`awb-sanitation-clauses-1340-1343.md`](./awb-sanitation-clauses-1340-1343.md). Manifest: https://api.digitale-sammlungen.de/iiif/presentation/v2/bsb00149661/manifest .
 15. Scholarly citation of AWB nos. 401 (1334), 430 (1335), 566/570 (1343) — property entries; sanitation not extracted in this tick (Polish academy article on Reval legal acts).
 16. F. G. von Bunge, *Die Quellen des Revaler Stadtrechts*, Bd. I Lieferung 2: *Ordnungen des Rathes*, Dorpat 1843 — later Straßenordnung tradition (German).
 17. ILC Reval city books inventory — Denkelbuch from **1333**, Wittschopbuch **1312–1360**: https://www.stadtbuecher.de/en/stadtbuecher/estland/kreis-harju/reval-talinn/
@@ -147,3 +149,4 @@ You are writing **civic sanitation enforcement in April–May 1343 Lower Town**,
 20. [`reval-law-codex-arms-and-watch.md`](./reval-law-codex-arms-and-watch.md) — enforcement ladder (project dossier).
 21. [`jurisdictions-of-reval.md`](./jurisdictions-of-reval.md) — 11 May 1343 levy (project dossier).
 22. T. Kala, "Old Documents – New Meanings," *EAA* 2022, https://doi.org/10.12697/aa.2022.2-3.04 — daughter-town selective Lübeck use (English).
+23. [`awb-sanitation-clauses-1340-1343.md`](./awb-sanitation-clauses-1340-1343.md) — scoped AWB 1340-1343 search and transcription notes.
