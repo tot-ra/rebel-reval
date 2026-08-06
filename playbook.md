@@ -73,6 +73,8 @@
 - When a prior QA report says "do not start X until defect Y is fixed" but Current focus still lists X as claimable, prefer the Current focus claim, run the preflight, and record Y as an in-scope severity finding rather than editing runtime outside the QA allowlist.
 - For packaged-menu contract tests while `MapViewRuntime` fails to parse, assert `main_menu.tscn` source nodes/scripts instead of `instantiate()`; loading the packed scene cascades through `PackagedDemoWalkthrough` and turns a green suite into harness errors.
 - `DialogueSettings.default_settings()` is untyped; under Godot 4.7 assign it to an explicit `Variant` (or add a return type on the helper) before reading fields, or the test script itself fails to parse.
+- On macOS, GNU `timeout` may be unavailable; use a Python subprocess watchdog for bounded Godot smoke runs so a missing shell utility is not mistaken for a game failure.
+- When converting a `git diff --no-index` result into a scoped repository patch, rewrite its temporary `a/tmp/...` and `b/tmp/...` headers to the real repository path before `git apply --cached`.
 - `tools/verify_supported_platform.sh` runs `--filter=test_packaged_platform_smoke` before mounting the DMG; a MapViewRuntime parse defect fails that entrypoint step and never reaches in-binary install/start/save/load/exit.
 - After clearing the first GDScript parse error named in a QA finding, re-run `tools/run_godot_checked.sh` immediately: dependent scripts can hide further compile/shader defects that only surface once the first error is gone (P0-172 CrowdRenderer cascade after MapViewRuntime named-assignment).
 - GDScript 4.7 rejects `name = value` inside call sites as assignment-in-expression; prefer positional args for `configure(...)` and similar helpers.
