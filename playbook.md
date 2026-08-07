@@ -298,3 +298,6 @@
 - The Godot harness `tools/run_godot_tests.gd` discovers only `tests/godot/test_*.gd`; scene smoke scripts under `scenes/tests/` must be validated through their packed scenes or a direct scene run, not the harness filter.
 - Leonardo generation can reject an otherwise valid material request when `preset_style` is not an accepted integration value; retry with the field empty/default rather than guessing preset names.
 - When reconciling a generated LFS manifest, do not assume every tracked research file has a central `plates.csv` fetched row; first classify legacy dossier/root files and preserve their source-specific attribution before writing any manifest changes.
+- After a line-number insertion lands inside a long function, repair the function boundary before any parse/test run; re-read around both the insertion and intended destination first.
+- Do not run ordinary Node/RefCounted GDScripts directly with Godot `--script`; unlike SceneTree tools they do not exit. Use the owning test harness or a bounded preload probe.
+- In a dirty worktree, isolate focused camera regressions from unrelated rig/runtime WIP; report the target camera test separately instead of attributing every suite failure to a spawn-only map change.
