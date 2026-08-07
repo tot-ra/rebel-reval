@@ -122,6 +122,7 @@ var _current_canonical_animation: StringName = &""
 var _skeleton: Skeleton3D
 var _slot_attachments: Dictionary = {}
 var _garments: Dictionary = {}
+var _extra_visual_layers := 0
 var _occlusion_ghost := false
 
 func _ready() -> void:
@@ -331,6 +332,24 @@ func set_occlusion_ghost(enabled: bool) -> void:
 func occlusion_ghost_enabled() -> bool:
 	return _occlusion_ghost
 
+
+## Adds a render layer to this rig and to equipment mounted later. Runtime uses
+## this to target player-only readability light without brightening the map/NPCs.
+func add_visual_layer(layer_number: int) -> void:
+	if layer_number < 1 or layer_number > 20:
+		push_warning("Visual layer must be between 1 and 20: %s" % layer_number)
+		return
+	_extra_visual_layers |= 1 << (layer_number - 1)
+	_apply_visual_layers(self)
+
+
+func _apply_visual_layers(root: Node) -> void:
+	if root is VisualInstance3D:
+		(root as VisualInstance3D).layers |= _extra_visual_layers
+	for child: Node in root.get_children():
+		_apply_visual_layers(child)
+
+
 static func _silhouette_material() -> ShaderMaterial:
 	if _occluded_silhouette_material == null:
 		_occluded_silhouette_material = ShaderMaterial.new()
@@ -367,6 +386,7 @@ func equip(slot: StringName, scene: PackedScene) -> Node3D:
 		_slot_attachments[slot] = attachment
 	var instance := scene.instantiate() as Node3D
 	attachment.add_child(instance)
+	_apply_visual_layers(instance)
 	if _occlusion_ghost:
 		_apply_overlay(instance, _silhouette_material())
 	return instance
@@ -403,6 +423,7 @@ func equip_garment(garment_id: StringName, scene: PackedScene) -> bool:
 		_skeleton.add_child(mesh_instance)
 		mesh_instance.skeleton = NodePath("..")
 		mesh_instance.transform = Transform3D.IDENTITY
+		_apply_visual_layers(mesh_instance)
 		if _occlusion_ghost:
 			_apply_overlay(mesh_instance, _silhouette_material())
 		mounted.append(mesh_instance)

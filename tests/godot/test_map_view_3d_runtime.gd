@@ -61,6 +61,14 @@ func test_runtime_maps_keyboard_to_screen_axes_and_preserves_facing_on_stop() ->
 	)
 
 	var rig := runtime.get_node("PlayerRig") as SharedCharacterRig
+	var fill := rig.get_node("ReadabilityFill") as OmniLight3D
+	assert_true(fill != null, "player rig must carry its readability fill")
+	assert_eq(fill.light_cull_mask, 1 << (MapViewRuntime.PLAYER_LIGHT_LAYER - 1))
+	for found: Node in rig.find_children("*", "MeshInstance3D", true, false):
+		assert_true(
+			(found as VisualInstance3D).get_layer_mask_value(MapViewRuntime.PLAYER_LIGHT_LAYER),
+			"readability fill must reach every player visual"
+		)
 	runtime._sync_player(true)
 	var expected_spawn := player.view_facing()
 	assert_true(

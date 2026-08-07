@@ -9,6 +9,10 @@ extends Node3D
 ## logic to view, through MapViewBridge.
 
 const PLAYER_RIG_SCENE := preload("res://assets/characters/kalev/kalev.tscn")
+const PLAYER_LIGHT_LAYER := 20
+const PLAYER_FILL_LIGHT_COLOR := Color8(255, 226, 196)
+const PLAYER_FILL_LIGHT_ENERGY := 0.65
+const PLAYER_FILL_LIGHT_RANGE := 3.5
 const CLICK_INPUT_SCRIPT_PATH := "res://scripts/map/map_click_input_controller.gd"
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 const GameCalendarScript := preload("res://scripts/global/game_calendar.gd")
@@ -137,12 +141,17 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 	runtime._actor_controller.set_screen_shake_callback(runtime._camera_controller.add_screen_shake)
 
 	scene_root.add_child(runtime)
+	# The rig's _ready() creates distance LOD meshes; assign the isolated light
+	# layer only after the runtime enters the tree so every generated visual gets it.
+	runtime._player_rig.add_visual_layer(PLAYER_LIGHT_LAYER)
+	runtime._install_player_fill_light()
 	# Created at runtime, so enable input explicitly before the first frame.
 	runtime.set_process_unhandled_input(true)
 	runtime._bind_session_state()
 	runtime._actor_controller.register_view_actors(scene_root)
 	runtime._configure_screen_relative_movement()
 	runtime._sync_player(true)
+
 	runtime._actor_controller.bind_player_health_ring()
 	# WHY: Each district used to restart at DEFAULT_PROGRESS, so harbor kept a
 	# moving sun while Workers' District (and any fresh map) snapped morning.
@@ -161,6 +170,20 @@ static func install(scene_root: Node2D, bootstrap: Dictionary, map_root: CanvasI
 	runtime._install_crowd_renderer()
 	runtime._install_click_input(scene_root)
 	return runtime
+
+
+func _install_player_fill_light() -> void:
+	# A layer-isolated fill keeps Kalev readable when his front faces away from
+	# the sun, without flattening authored map lighting or illuminating NPCs.
+	var fill := OmniLight3D.new()
+	fill.name = "ReadabilityFill"
+	fill.position = Vector3(0.0, 1.35, 0.75)
+	fill.light_color = PLAYER_FILL_LIGHT_COLOR
+	fill.light_energy = PLAYER_FILL_LIGHT_ENERGY
+	fill.omni_range = PLAYER_FILL_LIGHT_RANGE
+	fill.shadow_enabled = false
+	fill.light_cull_mask = 1 << (PLAYER_LIGHT_LAYER - 1)
+	_player_rig.add_child(fill)
 
 
 func configure_click_input(world_items: Node = null) -> void:
