@@ -1,0 +1,34 @@
+{
+  "id": "fauna.wader_batch.hunyuan_candidate",
+  "route": "local_comfyui_hunyuan3d_v2_single_image",
+  "checkpoint": "hunyuan3d-dit-v2-mv_fp16.safetensors",
+  "workflow_api": "generated/comfyui/bird_wader_v1/candidate_workflow_api.json",
+  "manifest": "generated/comfyui/bird_wader_v1/candidate_workflow_manifest.json",
+  "reference_inputs": [
+    "bird_wader_v1/grey_heron_standing.png",
+    "bird_wader_v1/northern_lapwing_standing.png",
+    "bird_wader_v1/common_snipe_standing.png"
+  ],
+  "runs": [
+    {
+      "species": "grey_heron",
+      "seed": 1343040,
+      "comfyui_run_id": "4dc3aaa2-a241-4999-b258-10c499f584a8",
+      "candidate": "generated/comfyui/bird_wader_v1/candidates/grey_heron_hunyuan_candidate.glb"
+    },
+    {
+      "species": "northern_lapwing",
+      "seed": 1343041,
+      "comfyui_run_id": "6ddfc883-2f08-4b70-827b-b69ae15fdd39",
+      "candidate": "generated/comfyui/bird_wader_v1/candidates/northern_lapwing_hunyuan_candidate.glb"
+    },
+    {
+      "species": "common_snipe",
+      "seed": 1343042,
+      "comfyui_run_id": "3692405b-c6a3-4537-b6d0-4bc6b6fc3b12",
+      "candidate": "generated/comfyui/bird_wader_v1/candidates/common_snipe_hunyuan_candidate.glb"
+    }
+  ],
+  "candidate_only": true,
+  "production_policy": "Keep generated Blender waders_v1 GLBs under assets/birds/** as production; do not promote these candidates."
+}

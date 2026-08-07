@@ -1,0 +1,153 @@
+{
+  "id": "fauna.wader_batch.hunyuan_candidate",
+  "generator": "Hunyuan3Dv2 via local ComfyUI 0.28.2",
+  "route": "local_comfyui_hunyuan3d_v2_single_image",
+  "checkpoint": "hunyuan3d-dit-v2-mv_fp16.safetensors",
+  "workflow_path": "generated/comfyui/bird_wader_v1/candidate_workflow_api.json",
+  "reference_source": "generated/comfyui/bird_wader_v1/previews/*_standing.png",
+  "candidate_only": true,
+  "production_unchanged": true,
+  "quality_contract": {
+    "triangle_budget": 8000,
+    "grounding_tolerance_m": 0.02,
+    "requires_materials": true,
+    "requires_catalog_scale_ratio": [
+      0.5,
+      1.5
+    ],
+    "requires_standing_pose": true,
+    "requires_animation_coverage": true
+  },
+  "candidates": [
+    {
+      "species": "grey_heron",
+      "candidate_path": "generated/comfyui/bird_wader_v1/candidates/grey_heron_hunyuan_candidate.glb",
+      "sha256": "c249a8cb29f657fbb53559e57444b3d3858e79ed479407e5b1a5e02454eb846a",
+      "bytes": 35664,
+      "metrics": {
+        "triangles": 2038,
+        "vertices": 741,
+        "mesh_count": 1,
+        "dimensions_m": [
+          0.422993,
+          0.233959,
+          1.170941
+        ],
+        "largest_axis_m": 1.170941,
+        "min_z_m": -0.201805,
+        "max_z_m": 0.969136,
+        "material_count": 0,
+        "materials": [],
+        "animation_count": 0,
+        "animations": []
+      },
+      "production_comparison": {
+        "production_largest_axis_m": 3.2685,
+        "largest_axis_ratio": 0.35825
+      },
+      "checks": {
+        "triangle_budget": true,
+        "grounding": false,
+        "materials": false,
+        "catalog_scale": false,
+        "standing_pose_asset": true,
+        "animation_coverage": false
+      },
+      "production_verdict": "reject",
+      "verdict_reasons": [
+        "grounding outside 2 cm tolerance (min Z -0.201805 m)",
+        "no imported materials/textures",
+        "catalog scale ratio outside [0.5, 1.5] (0.358)",
+        "no authored animation"
+      ]
+    },
+    {
+      "species": "northern_lapwing",
+      "candidate_path": "generated/comfyui/bird_wader_v1/candidates/northern_lapwing_hunyuan_candidate.glb",
+      "sha256": "3de49e9377fe056a6664623524fb7eeff21b709d38ffacf847833d1615ae79ae",
+      "bytes": 13284492,
+      "metrics": {
+        "triangles": 879680,
+        "vertices": 227166,
+        "mesh_count": 1,
+        "dimensions_m": [
+          0.782672,
+          1.957214,
+          1.963176
+        ],
+        "largest_axis_m": 1.963176,
+        "min_z_m": -0.97777,
+        "max_z_m": 0.985405,
+        "material_count": 0,
+        "materials": [],
+        "animation_count": 0,
+        "animations": []
+      },
+      "production_comparison": {
+        "production_largest_axis_m": 0.5543,
+        "largest_axis_ratio": 3.54172
+      },
+      "checks": {
+        "triangle_budget": false,
+        "grounding": false,
+        "materials": false,
+        "catalog_scale": false,
+        "standing_pose_asset": true,
+        "animation_coverage": false
+      },
+      "production_verdict": "reject",
+      "verdict_reasons": [
+        "triangle budget exceeded (879680 > 8000)",
+        "grounding outside 2 cm tolerance (min Z -0.977770 m)",
+        "no imported materials/textures",
+        "catalog scale ratio outside [0.5, 1.5] (3.542)",
+        "no authored animation"
+      ]
+    },
+    {
+      "species": "common_snipe",
+      "candidate_path": "generated/comfyui/bird_wader_v1/candidates/common_snipe_hunyuan_candidate.glb",
+      "sha256": "3440a4c4139ac0f0b02d4f652dffd696c80469014f6ec5d1296444167f52df00",
+      "bytes": 1014048,
+      "metrics": {
+        "triangles": 66242,
+        "vertices": 18068,
+        "mesh_count": 1,
+        "dimensions_m": [
+          0.999354,
+          1.273029,
+          0.199301
+        ],
+        "largest_axis_m": 1.273029,
+        "min_z_m": -0.418796,
+        "max_z_m": -0.219495,
+        "material_count": 0,
+        "materials": [],
+        "animation_count": 0,
+        "animations": []
+      },
+      "production_comparison": {
+        "production_largest_axis_m": 0.7644,
+        "largest_axis_ratio": 1.665396
+      },
+      "checks": {
+        "triangle_budget": false,
+        "grounding": false,
+        "materials": false,
+        "catalog_scale": false,
+        "standing_pose_asset": true,
+        "animation_coverage": false
+      },
+      "production_verdict": "reject",
+      "verdict_reasons": [
+        "triangle budget exceeded (66242 > 8000)",
+        "grounding outside 2 cm tolerance (min Z -0.418796 m)",
+        "no imported materials/textures",
+        "catalog scale ratio outside [0.5, 1.5] (1.665)",
+        "no authored animation"
+      ]
+    }
+  ],
+  "production_policy": "Candidates only; assets/birds production GLBs were not modified or replaced.",
+  "workflow_status": "healthy"
+}

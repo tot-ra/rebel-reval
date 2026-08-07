@@ -4,5 +4,8 @@
   "stage": "production_ready",
   "generator_version": "waders_v1",
   "blender_version": "Blender 5.2 LTS",
-  "note": "Hunyuan3D unavailable; catalog-proportion standing waders with PBR feather maps, heron neck/legs, lapwing crest, snipe bill"
+  "candidate_route": "local_comfyui_hunyuan3d_v2_single_image",
+  "candidate_stage": "audited_rejected",
+  "candidate_report": "docs/reports/images/fauna/p2_036a_wader_hunyuan_candidate_audit.md",
+  "candidate_note": "Hunyuan3D candidates for grey heron, northern lapwing, and common snipe were generated and rejected for triangle, grounding, material, scale, and animation-contract failures; production Blender GLBs remain unchanged."
 }
