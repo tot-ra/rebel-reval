@@ -288,6 +288,39 @@ func test_authored_ground_elevation_creates_a_tapered_plateau() -> void:
 	terrain.free()
 
 
+func test_rolling_ground_contains_readable_rises_and_depressions() -> void:
+	var definition := _flat_terrain_definition(&"test_rolling_ground", Vector2i(64, 64))
+	var grid := MapBuilder.build(definition)
+	var terrain := MapViewMeshBuilder.build_terrain(definition, grid)
+	var minimum := INF
+	var maximum := -INF
+	for y in range(4, 61, 2):
+		for x in range(4, 61, 2):
+			var height := MapViewMeshBuilder.ground_height(definition, Vector2(float(x), float(y)))
+			minimum = minf(minimum, height)
+			maximum = maxf(maximum, height)
+	assert_true(minimum < -0.2, "urban relief needs visible depressions below the shared datum")
+	assert_true(maximum > 0.2, "urban relief needs visible rises above the shared datum")
+	assert_true(maximum - minimum > 0.75, "macro relief must remain readable at street level")
+	terrain.free()
+
+
+func test_rolling_ground_keeps_building_footprints_level() -> void:
+	var definition := _flat_terrain_definition(&"test_rolling_ground_pad", Vector2i(32, 32))
+	definition.buildings.append({
+		"id": &"level_house",
+		"kind": MapTypes.BUILDING_KIND_HOUSE,
+		"footprint": Rect2(12.0 * 32.0, 12.0 * 32.0, 4.0 * 32.0, 4.0 * 32.0),
+	})
+	var grid := MapBuilder.build(definition)
+	var terrain := MapViewMeshBuilder.build_terrain(definition, grid)
+	assert_true(
+		absf(MapViewMeshBuilder.ground_height(definition, Vector2(14.0, 14.0))) < 0.001,
+		"building pads must stay on the gameplay datum while surrounding ground rolls"
+	)
+	terrain.free()
+
+
 func _flat_terrain_definition(map_id: StringName, size_cells: Vector2i) -> MapDefinition:
 	var definition := MapDefinition.new()
 	definition.map_id = map_id

@@ -48,13 +48,16 @@ const TERRAIN_JITTER := 0.07
 const TERRAIN_PATCH_STRENGTH := 0.06
 const TERRAIN_PATCH_CELLS := 5
 
-## Gentle rolling ground relief. Heights flatten to zero around buildings,
-## transitions, water, and the map border so gameplay-relevant geometry keeps
-## sitting on level pads and the logic plane's flat collision stays honest.
-const HEIGHT_BROAD_AMPLITUDE := 0.38
-const HEIGHT_FINE_AMPLITUDE := 0.09
-const HEIGHT_BROAD_PERIOD := 9.0
-const HEIGHT_FINE_PERIOD := 3.1
+## Rolling urban ground combines a long landform wave with smaller undulation.
+## All noise is centred around the shared datum, so maps visibly contain both
+## rises and shallow depressions instead of only swelling above a flat plane.
+## Buildings, transitions, water, and map seams still flatten through the masks.
+const HEIGHT_MACRO_AMPLITUDE := 0.72
+const HEIGHT_BROAD_AMPLITUDE := 0.34
+const HEIGHT_FINE_AMPLITUDE := 0.10
+const HEIGHT_MACRO_PERIOD := 42.0
+const HEIGHT_BROAD_PERIOD := 12.0
+const HEIGHT_FINE_PERIOD := 3.8
 ## Authored elevated districts taper into their neighboring map datum over a
 ## broad edge band. Gameplay transitions remain at the edge while the interior
 ## reads as a raised plateau.

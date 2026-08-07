@@ -135,9 +135,14 @@ static func field_height(field: Dictionary, position: Vector2) -> float:
 	if field["water"].has(cell):
 		return -MapViewMeshBuilderConfig.WATER_RECESS
 	var noise_seed: int = field["seed"]
-	var broad := value_noise(position / MapViewMeshBuilderConfig.HEIGHT_BROAD_PERIOD, noise_seed + 7717)
-	var fine := value_noise(position / MapViewMeshBuilderConfig.HEIGHT_FINE_PERIOD, noise_seed + 8317)
-	var relief := broad * MapViewMeshBuilderConfig.HEIGHT_BROAD_AMPLITUDE + fine * MapViewMeshBuilderConfig.HEIGHT_FINE_AMPLITUDE
+	var macro := value_noise(position / MapViewMeshBuilderConfig.HEIGHT_MACRO_PERIOD, noise_seed + 6949) * 2.0 - 1.0
+	var broad := value_noise(position / MapViewMeshBuilderConfig.HEIGHT_BROAD_PERIOD, noise_seed + 7717) * 2.0 - 1.0
+	var fine := value_noise(position / MapViewMeshBuilderConfig.HEIGHT_FINE_PERIOD, noise_seed + 8317) * 2.0 - 1.0
+	var relief := (
+		macro * MapViewMeshBuilderConfig.HEIGHT_MACRO_AMPLITUDE
+		+ broad * MapViewMeshBuilderConfig.HEIGHT_BROAD_AMPLITUDE
+		+ fine * MapViewMeshBuilderConfig.HEIGHT_FINE_AMPLITUDE
+	)
 	var base_elevation := float(field.get("ground_elevation", 0.0)) * elevation_factor(field, position)
 	return base_elevation + relief * minf(pad_factor(field, position), water_factor(field, position))
 
