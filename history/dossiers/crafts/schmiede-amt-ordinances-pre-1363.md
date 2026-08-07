@@ -9,7 +9,7 @@ related:
   - ../architecture/smithy-workshop-layout.md
   - ../power/law-courts-and-punishment.md
   - ../power/reval-law-codex-arms-and-watch.md
-updated: 2026-08-02
+updated: 2026-08-07
 ---
 
 # Schmiede *Amt* rules and penalties before 1363 (Reval)
@@ -37,6 +37,12 @@ This dossier answers a narrow question: what can a forge quest safely treat as a
 | Was there a pre-1363 Schmiede *Schragen*? | No text or archival folio was located in this pass. The surviving evidence is a gap, not evidence that no local custom existed. | evidence gap [1][2] |
 | Where did smiths belong? | A retrospective allocation places bakers, tailors, shoemakers, smiths, and goldsmiths in St. Kanuti around 1500. It is a useful institutional comparator, not a dated 1343 roster. | plausible composite [1][2] |
 | Was a masterpiece required? | Apprentice-to-journeyman-to-master progression and a guild-approved masterpiece are wider German craft norms. A Reval Schmiede test before 1363 is not attested here. | plausible composite [5] |
+
+### Tallinn archive and catalogue pass (2026-08-07)
+
+The official Rahvusarhiiv **Pärgamendid** catalogue was queried with institution `TLA`, date bounds `1340` to `1363`, and each of the title terms `Schmiede`, `Schmied`, `Smed`, `Schragen`, and `innige`. Each query returned **No results found**; the result pages are reproducible through the query form, for example [Schmied search](https://www.ra.ee/apps/pargamendid/index.php/en/parchment/search?institution=TLA&title=Schmied&start_year=1340&end_year=1363&q=1) and [Schragen search](https://www.ra.ee/apps/pargamendid/index.php/en/parchment/search?institution=TLA&title=Schragen&start_year=1340&end_year=1363&q=1). The same catalogue's bounded search identifies the relevant Denkelbuch record as **TLA.230.1.Aa2**, *Ältestes Denkelbuch des Revaler Rats*, 1333-1374: [RA catalogue record](https://www.ra.ee/apps/pargamendid/index.php/en/parchment/search?institution=TLA&refcode=TLA.230.1.Aa2&start_year=1340&end_year=1363&q=1).
+
+The ILC city-book catalogue independently describes this volume as one 48-page band with notes on council elections, punishments, and judgments: [Denkelbuch catalogue](https://www.stadtbuecher.de/en/stadtbuecher/estland/kreis-harju/reval-talinn/aeltestes-denkelbuch-des-revaler-rats/). Its image link redirects to the RA.ee VAU login, so this pass could not inspect the manuscript folios or quote original wording. The result is therefore a **bounded negative catalogue check**, not proof that no smith entry exists in the book. The AWB (*Altere Verzeichnisse*) and Denkelbuch folio text likewise remain unreviewed behind the archive access boundary. No local 1340-1363 Schmiede offence, remedy, fine, or masterpiece condition was located; all local penalty amounts remain **unset**.
 
 The **1363 boundary is a prohibition on false precision**: a quest may show elders enforcing custom, inspecting work, or withholding recognition, but it should not display a numbered “Schmiedeordnung 1343” unless a future Tallinn City Archives pass finds one [1][2].
 
@@ -92,7 +98,7 @@ No new licensed visual evidence was found for a pre-1363 Reval Schmiede ordinanc
 
 ## Open questions
 
-- **Tallinn City Archives pass:** locate and collate any Reval 1340-1363 council, *Amt*, or *innige* record that names a smith offence, remedy, fine, or master admission condition.
+- **Tallinn City Archives pass:** the 2026-08-07 catalogue pass covered TLA title searches and identified Denkelbuch `TLA.230.1.Aa2`, but its folio images redirect to VAU login; a future authenticated folio read remains the clearing condition for any quoted 1340-1363 Schmiede record.
 - **Exact Schmiede masterpiece:** determine whether a Reval smith test existed before 1363 and identify its object, material, witnesses, and fee if attested.
 - **Named smiths:** search AWB and Denkelbuch entries for 1340-1343 masters, apprentices, or forge disputes that can attach a penalty to a person and place.
 - **St. Kanuti scope:** test whether the later smith allocation can be moved closer to 1343 without relying only on retrospective guild lists.
@@ -104,3 +110,6 @@ No new licensed visual evidence was found for a pre-1363 Reval Schmiede ordinanc
 3. Hamburg University, "Stadtrecht" - excerpts from Lübeck city law, especially Art. 31, Art. 50, and Art. 91, https://www.spaetmittelalter.uni-hamburg.de/spaetmittelalter/luebeck/stadtrecht.html (Middle Low German transcription with German framing).
 4. Heidelberg University Library, *Lübisches Recht - digital*, introduction and Bardewik article families, https://digi.ub.uni-heidelberg.de/lrd/einfuehrung/recht.html - legal structure, penalties, and the Lübeck-law transmission context (German).
 5. Germanisches Nationalmuseum, "Apprentice & Master," https://zunft-und-handwerk.gnm.de/en/apprentice-and-master - wider German apprenticeship, journeyman, master, and masterpiece framework; not a Reval 1343 ordinance (English/German).
+6. Rahvusarhiiv, **Pärgamendid**, TLA bounded catalogue search for `Schmied` / `Schragen`, 1340-1363, no results: https://www.ra.ee/apps/pargamendid/index.php/en/parchment/search?institution=TLA&title=Schmied&start_year=1340&end_year=1363&q=1 (official catalogue, accessed 2026-08-07).
+7. Rahvusarhiiv, **Pärgamendid**, `TLA.230.1.Aa2` catalogue record, *Ältestes Denkelbuch des Revaler Rats*, 1333-1374: https://www.ra.ee/apps/pargamendid/index.php/en/parchment/search?institution=TLA&refcode=TLA.230.1.Aa2&start_year=1340&end_year=1363&q=1 (official catalogue, folio viewer requires VAU login, accessed 2026-08-07).
+8. International League of Historical Cities / Stadtbücher, **Denkelbuch**, Reval, `TLA.230.1.Aa2`, 1333-1374: https://www.stadtbuecher.de/en/stadtbuecher/estland/kreis-harju/reval-talinn/aeltestes-denkelbuch-des-revaler-rats/ (catalogue metadata; folio-level text not accessible, accessed 2026-08-07).
