@@ -4,6 +4,13 @@ extends "res://tests/godot/test_case.gd"
 ## detail than secondary terrain materials without inflating their texture array.
 
 
+func test_natural_ground_repeat_matches_character_scale() -> void:
+	var expected_repeat := MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE / MapViewMaterials.TERRAIN_GRASS_UV_SCALE
+	assert_eq(expected_repeat, 2.0, "grass repeat should match the frozen 2.0-unit character height")
+	var material := MapViewMaterials.blended_ground(731)
+	assert_eq(material.get_shader_parameter("natural_ground_uv_scale"), MapViewMaterials.TERRAIN_GRASS_UV_SCALE)
+
+
 func test_cobblestone_uses_a_dedicated_high_resolution_texture_array() -> void:
 	var terrain_patterns := MapViewMaterials.terrain_pattern_array(731)
 	var cobble_patterns := MapViewMaterials.cobble_pattern_array(731)

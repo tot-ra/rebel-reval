@@ -63,6 +63,11 @@ const WATER_TERRAINS: Array[StringName] = [
 ## meshes emit world-space UVs divided by this, so patterns run seamlessly
 ## across cell borders instead of restarting per cell.
 const TERRAIN_TEXTURE_WORLD_SIZE := 4.0
+## The authored grass plate carries broad blades that read oversized at the
+## gameplay scale when left at the shared terrain repeat. Sample natural grass
+## layers twice as densely so one visible repeat is about the frozen 2.0-unit
+## character height, while paving and soil retain their existing world scale.
+const TERRAIN_GRASS_UV_SCALE := 2.0
 
 ## Pattern families for terrain and building surfaces.
 const PATTERN_GRASS := &"grass"
@@ -284,6 +289,7 @@ static func blended_ground(noise_seed: int) -> ShaderMaterial:
 	material.set_shader_parameter("pattern_layers", float(BLEND_TERRAIN_ORDER.size()))
 	material.set_shader_parameter("cobblestone_layer", terrain_blend_index(MapTypes.TERRAIN_COBBLESTONE))
 	material.set_shader_parameter("castle_paving_layer", terrain_blend_index(MapTypes.TERRAIN_CASTLE_PAVING))
+	material.set_shader_parameter("natural_ground_uv_scale", TERRAIN_GRASS_UV_SCALE)
 	_cache[key] = material
 	return material
 

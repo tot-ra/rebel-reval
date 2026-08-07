@@ -301,3 +301,4 @@
 - After a line-number insertion lands inside a long function, repair the function boundary before any parse/test run; re-read around both the insertion and intended destination first.
 - Do not run ordinary Node/RefCounted GDScripts directly with Godot `--script`; unlike SceneTree tools they do not exit. Use the owning test harness or a bounded preload probe.
 - In a dirty worktree, isolate focused camera regressions from unrelated rig/runtime WIP; report the target camera test separately instead of attributing every suite failure to a spawn-only map change.
+- In a dirty shared worktree, a focused Godot suite can fail before the target code loads because another worker's new binary asset lacks an import sidecar; reproduce the target patch in a clean temporary worktree before attributing the cascade to your change.

@@ -588,6 +588,7 @@ uniform sampler2D cobble_surface : filter_linear_mipmap, repeat_enable;
 uniform float pattern_layers = 1.0;
 uniform int cobblestone_layer = 12;
 uniform int castle_paving_layer = 13;
+uniform float natural_ground_uv_scale = 2.0;
 
 // CUSTOM0 is only readable in vertex(); layer indices must stay flat (an
 // interpolated index would sample arbitrary in-between layers mid-triangle)
@@ -602,6 +603,17 @@ void vertex() {
 	terrain_world_xz = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xz;
 }
 
+vec2 terrain_pattern_uv(int layer, vec2 base_uv) {
+	// Natural ground needs a tighter repeat than paving/soil: the authored grass
+	// plate is intentionally broad, so matching it to the 2.0-unit actor keeps
+	// blade clusters readable beside a house rather than billboard-sized.
+	float scale = 1.0;
+	if (layer >= 0 && layer <= 3) {
+		scale = natural_ground_uv_scale;
+	}
+	return base_uv * scale;
+}
+
 vec3 sample_terrain_pattern(int layer, vec2 uv) {
 	if (layer == cobblestone_layer) {
 		return vec3(texture(cobble_patterns, vec3(uv, 0.0)).r);
@@ -609,7 +621,7 @@ vec3 sample_terrain_pattern(int layer, vec2 uv) {
 	if (layer == castle_paving_layer) {
 		return vec3(texture(cobble_patterns, vec3(uv, 1.0)).r);
 	}
-	return texture(terrain_patterns, vec3(uv, float(layer))).rgb;
+	return texture(terrain_patterns, vec3(terrain_pattern_uv(layer, uv), float(layer))).rgb;
 }
 
 bool uses_realistic_albedo(int layer) {
