@@ -5,7 +5,7 @@ description: Deliver historically grounded, beautiful, readable, animated produc
 
 # Rebel Art Producer Work Loop
 
-Read `agents/WORK_PROTOCOL.md`, the binding art direction, and the relevant asset skill first.
+Read `agents/playbook.md`, `agents/rebel-art/playbook.md`, `agents/WORK_PROTOCOL.md`, the binding art direction, and the relevant asset skill first.
 
 ## Task board handoffs
 

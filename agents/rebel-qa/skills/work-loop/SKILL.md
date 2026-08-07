@@ -5,7 +5,7 @@ description: Independently accept playable slices, proactively discover unpaired
 
 # Rebel QA Work Loop
 
-Read `agents/WORK_PROTOCOL.md` first.
+Read `agents/playbook.md`, `agents/rebel-qa/playbook.md`, and `agents/WORK_PROTOCOL.md` first.
 
 ## Task board handoffs
 

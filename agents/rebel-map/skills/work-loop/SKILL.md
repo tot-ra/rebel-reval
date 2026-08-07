@@ -5,7 +5,7 @@ description: Deliver historically legible playable spaces and proactively find r
 
 # Rebel Map Author Work Loop
 
-Read `agents/WORK_PROTOCOL.md` first.
+Read `agents/playbook.md`, `agents/rebel-map/playbook.md`, and `agents/WORK_PROTOCOL.md` first.
 
 ## Task board handoffs
 

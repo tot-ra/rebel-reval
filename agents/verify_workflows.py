@@ -96,6 +96,13 @@ def validate() -> list[str]:
 
     protocol_path = AGENTS_DIR / "WORK_PROTOCOL.md"
     protocol = protocol_path.read_text(encoding="utf-8")
+    shared_playbook_path = AGENTS_DIR / "playbook.md"
+    if not shared_playbook_path.is_file():
+        error(errors, AGENTS_DIR, "missing shared playbook")
+    else:
+        shared_playbook = shared_playbook_path.read_text(encoding="utf-8")
+        if "## Shared workflow and tooling" not in shared_playbook:
+            error(errors, shared_playbook_path, "missing shared workflow section")
     for required in (
         "## Definition of Ready",
         "## One tick: Orient, Recover, Deliver, Improve, Report",
@@ -162,6 +169,16 @@ def validate() -> list[str]:
             error(errors, directory, "missing work-loop skill")
             continue
         loop = loop_path.read_text(encoding="utf-8")
+        role_playbook_path = directory / "playbook.md"
+        if not role_playbook_path.is_file():
+            error(errors, directory, "missing role playbook")
+        else:
+            role_playbook = role_playbook_path.read_text(encoding="utf-8")
+            if "agents/playbook.md" not in role_playbook:
+                error(errors, role_playbook_path, "role playbook must load the shared playbook")
+        for required_playbook in ("agents/playbook.md", f"agents/{agent_id}/playbook.md"):
+            if required_playbook not in loop:
+                error(errors, loop_path, f"work loop must load {required_playbook}")
         if "agents/WORK_PROTOCOL.md" not in loop:
             error(errors, loop_path, "work loop must load the shared protocol")
         if agent_id == "rebel-producer":

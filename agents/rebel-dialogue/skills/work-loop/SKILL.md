@@ -5,7 +5,7 @@ description: Deliver concise state-aware historical dialogue and proactively fin
 
 # Rebel Dialogue Writer Work Loop
 
-Read `agents/WORK_PROTOCOL.md` first.
+Read `agents/playbook.md`, `agents/rebel-dialogue/playbook.md`, and `agents/WORK_PROTOCOL.md` first.
 
 ## Task board handoffs
 

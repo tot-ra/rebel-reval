@@ -5,7 +5,7 @@ description: Integrate approved Reval Rebel content into small playable runtime 
 
 # Rebel Developer Work Loop
 
-Read `agents/WORK_PROTOCOL.md` first.
+Read `agents/playbook.md`, `agents/rebel-dev/playbook.md`, and `agents/WORK_PROTOCOL.md` first.
 
 ## Task board handoffs
 

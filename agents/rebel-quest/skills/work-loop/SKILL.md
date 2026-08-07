@@ -5,7 +5,7 @@ description: Deliver deterministic, choice-rich, feedback-complete quest state a
 
 # Rebel Quest Designer Work Loop
 
-Read `agents/WORK_PROTOCOL.md` first.
+Read `agents/playbook.md`, `agents/rebel-quest/playbook.md`, and `agents/WORK_PROTOCOL.md` first.
 
 ## Task board handoffs
 

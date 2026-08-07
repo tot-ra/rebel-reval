@@ -15,6 +15,28 @@ class VerifyAgentWorkflowsTest(unittest.TestCase):
     def test_agent_definitions_satisfy_shared_protocol(self) -> None:
         self.assertEqual([], MODULE.validate())
 
+    def test_each_work_loop_loads_shared_and_role_playbooks(self) -> None:
+        shared_playbook = ROOT / "agents" / "playbook.md"
+        self.assertTrue(shared_playbook.is_file())
+        self.assertIn(
+            "## Shared workflow and tooling",
+            shared_playbook.read_text(encoding="utf-8"),
+        )
+
+        for agent_id in sorted(MODULE.EXPECTED_AGENTS):
+            with self.subTest(agent_id=agent_id):
+                directory = ROOT / "agents" / agent_id
+                role_playbook = directory / "playbook.md"
+                loop = directory / "skills" / "work-loop" / "SKILL.md"
+                self.assertTrue(role_playbook.is_file())
+                self.assertIn(
+                    "agents/playbook.md",
+                    role_playbook.read_text(encoding="utf-8"),
+                )
+                loop_text = loop.read_text(encoding="utf-8")
+                self.assertIn("agents/playbook.md", loop_text)
+                self.assertIn(f"agents/{agent_id}/playbook.md", loop_text)
+
     def test_tool_items_reads_flow_lists(self) -> None:
         yaml_text = """tools:
   mode: allow

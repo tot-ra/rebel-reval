@@ -5,7 +5,7 @@ description: Deliver playable historical dramatic architecture and proactively f
 
 # Rebel Narrative Designer Work Loop
 
-Read `agents/WORK_PROTOCOL.md` first.
+Read `agents/playbook.md`, `agents/rebel-narrative/playbook.md`, and `agents/WORK_PROTOCOL.md` first.
 
 ## Task board handoffs
 

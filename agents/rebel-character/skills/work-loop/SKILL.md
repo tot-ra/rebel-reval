@@ -5,7 +5,7 @@ description: Deliver historically grounded, dramatically useful characters and p
 
 # Rebel Character Designer Work Loop
 
-Read `agents/WORK_PROTOCOL.md` first.
+Read `agents/playbook.md`, `agents/rebel-character/playbook.md`, and `agents/WORK_PROTOCOL.md` first.
 
 ## Task board handoffs
 

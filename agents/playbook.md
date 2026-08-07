@@ -1,0 +1,78 @@
+# Shared agent playbook
+
+Read this file together with the role-specific `agents/rebel-*/playbook.md` before working.
+This file contains only cross-role operating lessons. Domain lessons belong to the agent that owns that work.
+
+## Shared workflow and tooling
+- When a scoped commit fails on whole-index whitespace, inspect staged path ownership and use a path-limited check plus `git commit --only <allowlisted-path>`; do not clean or absorb unrelated staged WIP.
+- After a sequential exact edit reports no match, re-read the live target block before applying the next change; nearby context or a prior edit can make the original replacement stale.
+- If an attempted playbook overwrite drops accumulated lessons, restore the file from the current baseline before appending the new lesson; use an append/insertion operation for additive changes.
+- When an exact replacement fails after a nearby edit, the target may already have changed; re-read the live block, apply only the remaining delta, and verify the saved ledger before proceeding.
+- `git diff --no-index /dev/null <new-file>` returns status 1 for a valid diff; when batching checks, do not treat that expected diff status as a test failure, and run `git diff --check` separately.
+- Markdown reports with intentional hard-break spaces fail `git diff --cached --check`; use plain line breaks before staging documentation.
+- A failed `git diff --cached --check` can stop a scoped documentation commit on Markdown hard-break spaces; normalize trailing spaces before staging, and stage only the intended report plus a clean patch for any playbook lesson when the playbook already has unrelated WIP.
+- For line insertion, pass the full target file path, not the project directory; a directory path fails before any report edit is applied.
+- A malformed multi-tool batch can hide the real verification result; when a command invocation fails before Godot starts, rerun the exact check independently with the wrapper's documented argument order.
+- Dependent exact edits in one hot source file must be serialized; parallel replacements can all miss after the first context changes. Re-read the live block and apply each replacement sequentially.
+- When inserting a large Godot helper into a hot source file, do not rely on stale line numbers; re-read the saved function boundary immediately, because an insertion can land inside the preceding function and cause a misleading preload parse cascade.
+- Use `functions.parallel` with `steps` and `multi_tool_use.parallel` with `tool_uses`; their batch schemas are not interchangeable.
+- In a dirty shared worktree, a broad transition test file can fail on an unrelated edited map; run its map-specific test methods separately before attributing the failure to the scoped map.
+- Never run parallel edits against the same file; dependent replacements can report success and then overwrite each other. Edit serially and re-read the saved block.
+- In a dirty shared worktree, generate repository-wide derived reports from a temporary clean worktree plus only the scoped patch; otherwise unrelated active-doc changes leak into the commit artifact.
+- If project file indexing is disabled, skip `file_search` and use targeted `find_files`, `grep`, or `rg` searches instead.
+- In `code_execution`, avoid relying on helper functions from comprehensions because the execution wrapper may isolate their scope; use explicit loops or inline calculations.
+- Before `git commit`, inspect `git status` for already-staged unrelated files (`M ` in the first column); unstage them or the commit will absorb them.
+- In Python diagnostic snippets, precompute regex matches before formatting; backslashes inside f-string expressions cause a SyntaxError.
+- The parallel tool accepts at most 12 steps per call; split larger exploration batches before dispatch.
+- When validating YAML-like text, match full keys/values with anchored regexes; substring checks such as `mode: all` also match valid `mode: allow`.
+- After programmatic regex edits, inspect the saved source representation and run a tiny fixture immediately; doubled backslashes in raw strings can silently change whitespace matching into literal text matching.
+- When converting a `git diff --no-index` result into a scoped repository patch, rewrite its temporary `a/tmp/...` and `b/tmp/...` headers to the real repository path before `git apply --cached`.
+- When instruction blocks conflict (delegate to sub-agents vs do not call sub-agents), follow the more specific project/session constraint and state the conflict once.
+- Before an exact-string edit or helper-file read, inspect the current target block and discover the actual path; stale snippets and inferred filenames create avoidable no-match failures.
+- Do not `git checkout HEAD --` a shared hot file like `map_types.gd` to carve a narrow commit while other dirty scripts already call APIs from that WIP; restore fails cascade (`is_known_house_tier`, `build_prop`) and red focused suites. Prefer committing the interdependent WIP together or use an isolated worktree.
+- Before batching tool calls, verify every tool name against the available schema; placeholder or inferred tool names make the whole parallel batch noisy and unactionable.
+- When using the tasks tool in a parallel lookup, preserve array-typed fields such as `tags`; a malformed string parameter fails the whole lookup even when no state change was requested.
+- After structural edits shift a file, do not reuse stale line numbers for insertion. Re-read the target boundary or use exact-string replacement, then run a syntax check immediately.
+- Instruction conflict: general orchestrator guidance may ask to delegate to sub-agents while the project/session block says not to; follow the more specific project constraint and state the conflict once.
+- When comparing a scoped patch from a detached verification worktree against the live index, do not compare raw patch files or whole-file hashes after concurrent commits move `HEAD`; diff headers, hunk offsets, and unrelated committed bytes will differ. Recreate verification from current `HEAD`, apply the staged scoped diff, then compare/test that snapshot.
+- Run `git diff --cached --check` before committing documentation; Markdown hard-break spaces can make an otherwise correct staged patch fail the commit guard.
+- When applying a generated patch from temporary files with `git apply --cached`, normalize both `diff --git` and `---`/`+++` paths to repository paths; otherwise staging fails without changing the index.
+- Exact file-edit calls must receive a file path in the file-path field; a directory path causes a misleading read failure before any replacement is attempted. Verify the target path and replacement count after tool errors.
+- Before an exact-string edit in a coordination document, re-read the complete live line or paragraph; summarized grep output may omit or duplicate surrounding text and cause a false no-match.
+- When editing a shared coordination file, never batch parallel replacements against the same file; re-read after each serial edit and verify the saved block.
+- When a scoped search command fails because a path was inferred, discover the actual file with `find_files`/`grep` first; do not retry against guessed repository paths.
+- The multi-tool wrapper requires its own `tool_uses` schema; when a batch fails with `steps is required`, retry with `multi_tool_use.parallel` only for developer tools and valid wrapper arguments.
+- Avoid passing broad regexes with unescaped parentheses to `grep`; use a literal search or escape the grouping before batching diagnostics.
+- Agent definitions do not share one instruction shape: `system_file`, inline `system`, and role-specific loop headings vary; inspect exact anchors before scripted updates and verify every profile/loop after editing.
+- In a dirty shared `playbook.md`, reconstruct a scoped staged patch from `HEAD` (or `HEAD^` while amending) and verify the cached diff contains only the intended lesson; do not let concurrent lessons enter a focused commit.
+- On macOS, BSD `sed -i` requires an explicit backup suffix; for safe Markdown whitespace normalization, use Python or `sed -i ''` and run `git diff --check` immediately.
+- A sourcing-report closeout can fail `git diff --check` when an inserted evidence note leaves an extra blank line at EOF; after appending documentation, run the check separately and trim the final empty row before staging.
+- When an exact-string documentation edit fails after a summarized read, re-read the live target block before retrying; the failed replacement may have been based on stale punctuation or Unicode dash variants.
+- An exact edit with identical old and new text is rejected; after a no-op edit error, re-read the live block and apply only the intended non-empty change.
+- When replacing a documentation section by line range, re-read the saved block immediately; a shifted range can splice tables into prose even when the edit call succeeds. Restore the complete bounded section before running Markdown checks.
+- No-op exact replacements are rejected by the edit tool; avoid issuing an edit when the target block already matches and verify the live block before retrying.
+- When applying a generated patch to the index, inspect the temporary diff on failure; staged paths must be repository-relative, and a malformed patch should not be retried blindly in a dirty shared worktree.
+- In `code_execution`, helper functions can be unavailable inside later expressions; keep geometry diagnostics inline or use explicit loops, then rerun the exact calculation before editing documentation.
+- When batching tool calls, validate every parallel step has an explicit tool name; a malformed step can fail the whole batch before any command runs.
+- In a parallel tool batch, use `bash` for Git commands; `git` is not a standalone tool name.
+- When checking a literal line that begins with `-`, pass `--` to grep or use `-e`; otherwise grep treats the lesson text as an option.
+- For append-only CSV edits in a dirty worktree, do not assume one newline convention; preserve raw bytes and validate the actual line ending mix before inserting rows.
+- After a structural test insertion shifts helper boundaries, re-read the saved block before the next edit; stale line ranges can duplicate helpers or move assertions into the wrong function.
+- A repository-wide `git diff --check` can fail on unrelated dirty files; rerun the check against the scoped patch before attributing the whitespace error to the current change.
+- When staging a narrow hunk from a shared file, generate the patch from a clean HEAD snapshot plus only the scoped insertion; current working-tree hunk offsets include concurrent edits and `git apply --cached` can fail before changing the index.
+- Run documentation whitespace hygiene checks before staging; Markdown hard-break spaces can make a green focused test look like a failed scoped commit.
+- When a scoped commit is blocked by pre-existing staged whitespace, run `git diff --cached --check -- <allowlisted paths>` and commit with `git commit --only <allowlisted paths>` so unrelated index WIP cannot block or enter the commit; record the staged baseline separately.
+- When a dirty worktree already contains unrelated staged files, validate the scoped pathspec rather than the full index before committing; a whole-index filename comparison can abort an otherwise clean narrow commit, and `git commit --only` should be used to avoid absorbing concurrent WIP.
+- When building a temporary scoped commit patch, validate the helper script syntax before relying on `set -e`; a malformed indentation can fail after creating only partial temporary files, so re-read the live target and rebuild the patch from HEAD.
+- Before editing setup documentation from a nearby excerpt, re-read the exact live paragraph; line numbering or surrounding wording may differ after earlier changes.
+- When using `replace_lines`, pass the complete file path rather than its parent directory; the directory read error occurs before any replacement and can be mistaken for a content mismatch.
+- When repairing a provenance manifest in a shared dirty worktree, enforce the task path allowlist before insertion; parent assets that are not requested can create an accidental extra provenance row.
+- For narrow commits, keep message/options such as `-m` before `--`; placing `--` before the message option makes Git treat the option and its text as pathspecs.
+- A line-range edit must pass the complete file path in `path`; passing the project directory fails before applying the replacement. After a failed edit, re-read the live target block and retry with the exact file path.
+- Never run parallel edits against the same file: one replacement can overwrite the other even when both tool calls report success. Serialize dependent edits and re-read the saved block before continuing.
+- When an exact edit is submitted with identical old and new strings, correct the no-op request before retrying; the edit tool rejects it without changing the file.
+- When a combined status/diff/commit command fails without surfaced output, rerun status, diff checks, and commit as separate commands with shell tracing so the hook or path error is preserved.
+- Before calling an exact edit, compare the replacement payloads; a no-op replacement fails without modifying the file and only adds verification noise.
+- When inserting a helper after structural edits, re-read the live function boundary before line-based insertion; stale line positions can place the helper inside an unfinished condition and break parsing.
+- In `code_execution`, imports defined at snippet scope may be invisible inside wrapper-executed functions; import dependencies inside `main` or use an explicit loop-only body.
+- When `agents/verify_workflows.py` reports pre-existing agent-profile drift, confirm that no playbook-specific errors are present and test the playbook contract independently; do not widen a documentation split into unrelated LLM or tool-allowlist changes.

@@ -5,7 +5,7 @@ description: Keep Reval Rebel moving through dependency-safe playable slices, pr
 
 # Rebel Producer Work Loop
 
-Read `agents/WORK_PROTOCOL.md` first. You are the singleton planner and queue steward. Perform one bounded tick in order.
+Read `agents/playbook.md`, `agents/rebel-producer/playbook.md`, and `agents/WORK_PROTOCOL.md` first. You are the singleton planner and queue steward. Perform one bounded tick in order.
 
 ## Task board operations
 

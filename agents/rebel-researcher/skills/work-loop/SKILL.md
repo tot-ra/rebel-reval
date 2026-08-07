@@ -5,7 +5,7 @@ description: Deliver sourced production evidence for 1343 Reval and proactively 
 
 # Rebel Historical-Geo Researcher Work Loop
 
-Read `agents/WORK_PROTOCOL.md`, `history/RESEARCH_INDEX.md`, and the dossier-standard skill first.
+Read `agents/playbook.md`, `agents/rebel-researcher/playbook.md`, `agents/WORK_PROTOCOL.md`, `history/RESEARCH_INDEX.md`, and the dossier-standard skill first.
 
 ## Task board handoffs
 

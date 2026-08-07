@@ -5,7 +5,7 @@ description: Gate historical and narrative continuity, resolve evidence-backed d
 
 # Rebel Canon Keeper Work Loop
 
-Read `agents/WORK_PROTOCOL.md` first.
+Read `agents/playbook.md`, `agents/rebel-canon-keeper/playbook.md`, and `agents/WORK_PROTOCOL.md` first.
 
 ## Task board handoffs
 
