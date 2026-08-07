@@ -10,6 +10,8 @@ const DIALOGUE_HENNING := &"dialogue.makers_mark.henning_arrival"
 const DIALOGUE_CHEST := &"dialogue.makers_mark.chest_discovery"
 const DIALOGUE_LEDGER := &"dialogue.makers_mark.ledger_choice"
 const DIALOGUE_WAKE_UP := &"dialogue.makers_mark.wake_up"
+const BARK_WAKE_UP_ROOM := &"bark.prologue.wake_up_room"
+const LOCATION_SMITHY := &"loc.kalev_smithy"
 const CHEST_PROP_ID := &"chest"
 
 const TRANSITION_DISCOVER := &"discover_incident"
@@ -24,6 +26,7 @@ const STATE_LEDGER_COMMITTED := &"ledger_committed"
 const RunnerScript := preload("res://scripts/dialogue/dialogue_runner.gd")
 const UiPresenterScript := preload("res://scripts/dialogue/dialogue_ui_presenter.gd")
 const UiScript := preload("res://scripts/dialogue/dialogue_ui.gd")
+const BarkPresenterScript := preload("res://scripts/dialogue/dialogue_bark_presenter.gd")
 const PhaseProfileModelScript := preload("res://scripts/phase/phase_profile_model.gd")
 const InteractableScene := preload("res://scenes/interaction/interactable.tscn")
 
@@ -48,6 +51,7 @@ var _quest_manager: QuestManager
 var _runner: DialogueRunner
 var _presenter: RefCounted
 var _dialogue_ui: DialogueUI
+var _bark_presenter: DialogueBarkPresenter
 var _chest_interactable: Interactable
 var _ledger_choice_interactable: Interactable
 var _hint_label: Label
@@ -77,6 +81,7 @@ func setup(
 
 	_quest_manager = QuestManager.new(SessionState.content_db, SessionState.state)
 	_build_dialogue_stack()
+	_build_bark_presenter()
 	_build_hint_label()
 	_spawn_chest_interactable()
 	_spawn_ledger_choice_interactable()
@@ -144,6 +149,8 @@ func _on_dialogue_finished(dialogue_id: StringName) -> void:
 		_henning.set_conversation_partner(null)
 		if dialogue_id == DIALOGUE_HENNING:
 			_henning.resume_after_dialogue()
+	if dialogue_id == DIALOGUE_WAKE_UP:
+			_play_wake_up_bark()
 	if not _is_prologue_active():
 		return
 	match dialogue_id:
@@ -191,6 +198,12 @@ func _try_start_wake_up_monologue() -> void:
 	_set_interaction_enabled(false)
 
 
+func _build_bark_presenter() -> void:
+	_bark_presenter = BarkPresenterScript.new()
+	_bark_presenter.name = "ForgePrologueBarkPresenter"
+	_scene_root.add_child(_bark_presenter)
+
+
 func _try_start_henning_arrival() -> void:
 	if (
 		_henning_arrival_started
@@ -203,6 +216,21 @@ func _try_start_henning_arrival() -> void:
 	if _henning != null:
 		_henning.begin_prologue_visit()
 	_start_branching_dialogue(DIALOGUE_HENNING)
+
+
+func _play_wake_up_bark() -> void:
+	# The room's aside is deliberately independent from the blocking monologue:
+	# it reads as an NPC comment, not as another turn in Kalev's conversation.
+	if _bark_presenter == null or _henning == null or not _henning.visible:
+		return
+	_runner.play_bark(
+		BARK_WAKE_UP_ROOM,
+		_bark_presenter,
+		_henning,
+		_scene_root.get_node_or_null("MapViewRuntime"),
+		GameState.PHASE_PROLOGUE_DAY,
+		LOCATION_SMITHY
+	)
 
 
 func _start_branching_dialogue(dialogue_id: StringName) -> void:

@@ -202,6 +202,29 @@ func resolve_bark(
 	return {}
 
 
+## Presents one authored bark without changing runner activity or input state.
+## Important dialogue keeps using start()/advance(); ambient comments use this path
+## so movement, interaction prompts, and camera controls remain available.
+func play_bark(
+	bark_pool_id: StringName,
+	bark_presenter: Node,
+	anchor: Node2D = null,
+	view_runtime: Node = null,
+	phase_id: StringName = &"",
+	location_id: StringName = &"",
+	duration_sec: float = 3.2
+) -> bool:
+	if bark_presenter == null or not bark_presenter.has_method("show_bark"):
+		return false
+	var resolved_phase := phase_id
+	if resolved_phase.is_empty() and _state != null:
+		resolved_phase = _state.get_phase()
+	var bark := resolve_bark(bark_pool_id, resolved_phase, location_id)
+	if bark.is_empty():
+		return false
+	return bool(bark_presenter.call("show_bark", bark, anchor, view_runtime, duration_sec))
+
+
 func _enter_node(node_id: String, depth: int = 0) -> bool:
 	if depth > _nodes_by_id.size():
 		_close()

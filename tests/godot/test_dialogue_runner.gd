@@ -3,9 +3,25 @@ extends "res://tests/godot/test_case.gd"
 const PresenterScript := preload("res://scripts/dialogue/dialogue_presenter.gd")
 const RunnerScript := preload("res://scripts/dialogue/dialogue_runner.gd")
 const TestPresenterScript := preload("res://tests/godot/dialogue_test_presenter.gd")
+
+class _BarkTestPresenter:
+	extends Node
+
+	var showing := false
+
+	func show_bark(
+		_feedback: Dictionary,
+		_anchor: Node2D = null,
+		_view_runtime: Node = null,
+		_duration_sec: float = 3.2
+	) -> bool:
+		showing = true
+		return true
+
 const INTRO_ID := &"dialogue.test_runner.intro"
 const FOLLOWUP_ID := &"dialogue.test_runner.followup"
 const BARK_ID := &"bark.prologue.watch_pressure"
+const WAKE_BARK_ID := &"bark.prologue.wake_up_room"
 const FLAG_TRUSTED := &"flag.test_runner_trusted"
 const FLAG_DOUBTED := &"flag.test_runner_doubted"
 const FACT_WARNING := &"fact.test_runner_warning_heard"
@@ -120,6 +136,29 @@ func test_resolve_bark_returns_first_valid_entry_for_phase_and_location() -> voi
 	var priority := runner.resolve_bark(BARK_ID, PHASE_PROLOGUE, LOC_SMITHY)
 	assert_eq(String(priority.get("entry_id", "")), "ledger_waiting")
 	assert_eq(String(priority.get("text", "")), "The ledger, smith. Before the bell.")
+
+
+func test_play_bark_does_not_change_active_blocking_dialogue() -> void:
+	var root := _make_root()
+	var presenter: RefCounted = TestPresenterScript.new()
+	var db := ContentDB.new()
+	assert_true(db.load_from_directories(CONTENT_DIRS))
+
+	var state := GameState.new()
+	var runner = RunnerScript.new()
+	root.add_child(runner)
+	runner.configure(db, state, presenter)
+
+	assert_true(runner.start(INTRO_ID))
+	var active_node := runner.get_current_node_id()
+	var bark_presenter := _BarkTestPresenter.new()
+	root.add_child(bark_presenter)
+	assert_true(runner.play_bark(WAKE_BARK_ID, bark_presenter, null, null, PHASE_PROLOGUE, LOC_SMITHY))
+	assert_true(bark_presenter.showing)
+	assert_eq(runner.get_current_node_id(), active_node)
+	assert_true(runner.is_active())
+	assert_false(runner.is_waiting_for_choice())
+	_cleanup_node(root)
 
 
 func test_dialogue_nodes_seen_round_trip_in_game_state_payload() -> void:

@@ -6,20 +6,20 @@
   "canon_status": "draft",
   "approval": {
     "status": "review",
-    "notes": "Opening monologue for the Maker's Mark prologue. Kalev wakes near his bed and recalls a bizarre dream."
+    "notes": "Opening monologue for the Maker's Mark prologue. Kalev wakes near his bed and recalls a bizarre dream. The stew joke is an ambient bark from the room, not part of the blocking monologue."
   },
   "deterministic_offline": {
     "authored": true,
     "runtime_llm_allowed": false,
     "free_text_input_allowed": false,
     "selection": "explicit_node_id",
-    "notes": "Linear monologue; Kalev wakes up and talks to himself about a strange dream."
+    "notes": "Linear blocking monologue; the nearby NPC comment is authored separately as a non-blocking bark."
   },
   "participants": [
     "char.kalev"
   ],
   "start_node_id": "waking_groan",
-  "word_count_estimate": 72,
+  "word_count_estimate": 56,
   "nodes": [
     {
       "id": "waking_groan",
@@ -30,13 +30,7 @@
     {
       "id": "dream_recount",
       "speaker_id": "char.kalev",
-      "text": "It was as if I was in the future - roads made of metal, men flying in metal birds, and we were ruling the Germans and the Russians.",
-      "next_node_id": "dream_dismiss"
-    },
-    {
-      "id": "dream_dismiss",
-      "speaker_id": "char.kalev",
-      "text": "Can you imagine? Us! Ruling over them. Ha. Must have been the stew.",
+      "text": "It was as if I was in the future - roads made of metal, men flying in metal birds, and we were ruling the Germans and the Russians. Can you imagine? Us! Ruling over them. Ha.",
       "effects": [
         {
           "op": "set_flag",
@@ -49,7 +43,7 @@
   "source_notes": [
     {
       "confidence": "invented",
-      "summary": "Kalev wakes from a prophetic dream about the future - a meta nod to Estonia's modern history of occupation and independence.",
+      "summary": "Kalev wakes from a prophetic dream about the future - a meta nod to Estonia's modern history of occupation and independence. The room's comic interruption belongs to the bark layer.",
       "citations": [
         "docs/CHARACTERS/kalev.md",
         "docs/SCENES/the-makers-mark.md"

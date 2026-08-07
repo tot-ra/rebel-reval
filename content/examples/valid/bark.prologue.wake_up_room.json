@@ -1,0 +1,49 @@
+{
+  "type": "bark_pool",
+  "id": "bark.prologue.wake_up_room",
+  "title": "Kalev's room comments on the dream",
+  "owner_id": "char.henning",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "Opening ambient interruption: Henning's dry comment lands over the blocking dream monologue without opening a dialogue scene."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "first_valid_in_order"
+  },
+  "selection": "first_valid_in_order",
+  "phase_ids": [
+    "phase.prologue_day"
+  ],
+  "location_ids": [
+    "loc.kalev_smithy"
+  ],
+  "entries": [
+    {
+      "id": "henning_stew_comment",
+      "speaker_id": "char.henning",
+      "text": "Must have been the stew.",
+      "priority": 5
+    },
+    {
+      "id": "henning_dry_rebuttal",
+      "speaker_id": "char.henning",
+      "text": "Metal roads, is it? Keep your feet on the floor, smith.",
+      "priority": 1
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "A short NPC aside turns the former monologue punchline into a room-level bark.",
+      "citations": [
+        "docs/SCENES/the-makers-mark.md",
+        "docs/adr/0003-authored-offline-dialogue-and-prohibit-runtime-llm.md"
+      ]
+    }
+  ]
+}
