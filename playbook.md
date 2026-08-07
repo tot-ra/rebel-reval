@@ -16,3 +16,4 @@ The project playbook is split by agent ownership so each role loads only relevan
 - Research: [`agents/rebel-researcher/playbook.md`](agents/rebel-researcher/playbook.md)
 
 New lessons must be appended to the shared playbook or the narrowest relevant role playbook. Do not rebuild identical copies across every agent.
+- A temporary Godot navigation probe can fail before running when a loop iterator name is redeclared in the same scope; inspect the saved log and use distinct iterator names before classifying the engine bake result.
