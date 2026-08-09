@@ -58,3 +58,4 @@ This file contains lessons specific to the Art role.
 - Do not call an image-generation integration to inspect existing local capture frames; compose a local contact sheet and preview it through browser/UI tooling instead.
 - Shrinking a cap sphere that was implicitly closing a tube end opens a visible hole; cap tube ends explicitly (`ring` then `cap`) instead of relying on overlap.
 - When cleaning generated assets, remove only the exact newly-created UUID paths; a broad glob can delete tracked artifacts from another worker.
+- Verification-only Godot captures can overwrite tracked evidence PNGs; check `git status` immediately after the capture and restore exact pre-existing outputs before preparing a scoped commit.

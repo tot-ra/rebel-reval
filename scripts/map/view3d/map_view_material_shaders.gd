@@ -588,7 +588,9 @@ uniform sampler2D cobble_surface : filter_linear_mipmap, repeat_enable;
 uniform float pattern_layers = 1.0;
 uniform int cobblestone_layer = 12;
 uniform int castle_paving_layer = 13;
+uniform int timber_floor_layer = 15;
 uniform float natural_ground_uv_scale = 2.0;
+uniform float timber_floor_uv_scale = 2.0;
 
 // CUSTOM0 is only readable in vertex(); layer indices must stay flat (an
 // interpolated index would sample arbitrary in-between layers mid-triangle)
@@ -610,6 +612,9 @@ vec2 terrain_pattern_uv(int layer, vec2 base_uv) {
 	float scale = 1.0;
 	if (layer >= 0 && layer <= 3) {
 		scale = natural_ground_uv_scale;
+	}
+	if (layer == timber_floor_layer) {
+		scale = timber_floor_uv_scale;
 	}
 	return base_uv * scale;
 }

@@ -69,6 +69,11 @@ const TERRAIN_TEXTURE_WORLD_SIZE := 4.0
 ## character height, while paving and soil retain their existing world scale.
 const TERRAIN_GRASS_UV_SCALE := 2.0
 
+## The authored timber plate is broad enough to make boards read oversized at the
+## gameplay camera when sampled at the shared 4.0-unit terrain repeat. Keep the
+## blended-ground path aligned with the regular terrain material's 2x repeat.
+const TERRAIN_TIMBER_FLOOR_UV_SCALE := 2.0
+
 ## Pattern families for terrain and building surfaces.
 const PATTERN_GRASS := &"grass"
 const PATTERN_SPECKLE := &"speckle"
@@ -289,7 +294,9 @@ static func blended_ground(noise_seed: int) -> ShaderMaterial:
 	material.set_shader_parameter("pattern_layers", float(BLEND_TERRAIN_ORDER.size()))
 	material.set_shader_parameter("cobblestone_layer", terrain_blend_index(MapTypes.TERRAIN_COBBLESTONE))
 	material.set_shader_parameter("castle_paving_layer", terrain_blend_index(MapTypes.TERRAIN_CASTLE_PAVING))
+	material.set_shader_parameter("timber_floor_layer", terrain_blend_index(MapTypes.TERRAIN_TIMBER_FLOOR))
 	material.set_shader_parameter("natural_ground_uv_scale", TERRAIN_GRASS_UV_SCALE)
+	material.set_shader_parameter("timber_floor_uv_scale", TERRAIN_TIMBER_FLOOR_UV_SCALE)
 	_cache[key] = material
 	return material
 

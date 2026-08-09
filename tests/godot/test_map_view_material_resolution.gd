@@ -34,6 +34,21 @@ func test_cobblestone_surface_map_matches_high_resolution_source() -> void:
 	var material := MapViewMaterials.blended_ground(731)
 	assert_eq(material.get_shader_parameter("cobble_surface"), surface)
 
+func test_timber_floor_blended_ground_repeat_is_doubled() -> void:
+	var material := MapViewMaterials.blended_ground(731)
+	assert_eq(
+		material.get_shader_parameter("timber_floor_layer"),
+		MapViewMaterials.terrain_blend_index(MapTypes.TERRAIN_TIMBER_FLOOR),
+		"timber floor shader layer must follow the stable terrain array order"
+	)
+	assert_eq(
+		material.get_shader_parameter("timber_floor_uv_scale"),
+		MapViewMaterials.TERRAIN_TIMBER_FLOOR_UV_SCALE,
+		"smithy timber floor must repeat at the smaller authored scale"
+	)
+	assert_eq(MapViewMaterials.TERRAIN_TIMBER_FLOOR_UV_SCALE, 2.0)
+
+
 func test_natural_rock_pattern_avoids_masonry_horizontal_banding() -> void:
 	var rock := MapViewMaterialPatterns.pattern_texture(MapViewMaterials.PATTERN_ROCK, 9041).get_image()
 	var limestone := MapViewMaterialPatterns.pattern_texture(MapViewMaterials.PATTERN_LIMESTONE, 9041).get_image()
