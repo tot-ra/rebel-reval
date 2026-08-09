@@ -18,6 +18,8 @@ creation time, so no automatic-weight heuristics are involved.
 
 from __future__ import annotations
 
+import json
+import struct
 import sys
 from pathlib import Path
 
@@ -58,9 +60,25 @@ PALETTE = {
     "belt": (0.62, 0.46, 0.28, 1.0),
     "hair": (0.48, 0.32, 0.20, 1.0),
     "beard": (0.42, 0.28, 0.16, 1.0),
-    "eyes": (0.10, 0.16, 0.18, 1.0),
-    "eye_white": (0.78, 0.76, 0.68, 1.0),
-    "lips": (0.48, 0.25, 0.20, 1.0),
+    # Iris. Kept at a readable mid value on purpose: paired with the near-black
+    # pupil and limbal ring below, a lighter iris is what makes an eye read as
+    # an eye instead of a dark hole (see docs/reports/face_realism_research.md).
+    "eyes": (0.34, 0.38, 0.38, 1.0),
+    # Sclera. Never paper white: a real sclera sits in the shadow of the lids
+    # and is closer to a warm light grey, which is why bright white eyeballs
+    # are the classic giveaway of a game character.
+    "eye_white": (0.70, 0.68, 0.62, 1.0),
+    # Pupil and limbal ring share this material: the darkest value on the face.
+    "pupil": (0.04, 0.04, 0.05, 1.0),
+    # Cornea: the transparent bulge over the iris that carries the wet
+    # highlight. Alpha comes from TRANSPARENT_ALPHA below.
+    "cornea": (0.92, 0.95, 0.97, 1.0),
+    # Lips read as slightly redder, slightly darker skin. Anything more
+    # saturated turns into lipstick at portrait distance.
+    "lips": (0.52, 0.31, 0.26, 1.0),
+    # Vermillion seam where the lips meet - much darker than the lips, and the
+    # cue that reads as a closed mouth at dialogue distance.
+    "lip_seam": (0.20, 0.09, 0.08, 1.0),
     "armor": (0.45, 0.47, 0.50, 1.0),
     "mail": (0.40, 0.43, 0.45, 1.0),
     "outerwear": (0.28, 0.20, 0.14, 1.0),
@@ -72,6 +90,11 @@ PALETTE = {
     "hat": (0.32, 0.36, 0.28, 1.0),
 }
 _active_palette: dict = dict(PALETTE)
+
+# Materials exported with glTF alpha blending, and their opacity. Only the
+# cornea qualifies: everything else stays opaque so the GL Compatibility
+# renderer keeps a single sorted transparent surface per character.
+TRANSPARENT_ALPHA = {"cornea": 0.16}
 
 
 def _material(name: str) -> bpy.types.Material:
@@ -98,7 +121,12 @@ def _material(name: str) -> bpy.types.Material:
         "beard": 0.82,
         "eyes": 0.32,
         "eye_white": 0.50,
+        # The cornea is the glossiest surface on the body; its highlight is the
+        # single strongest "alive" cue we can afford without an eye shader.
+        "cornea": 0.05,
+        "pupil": 0.22,
         "lips": 0.58,
+        "lip_seam": 0.62,
         "boots": 0.66,
         "sole": 0.80,
         "belt": 0.64,
@@ -110,7 +138,10 @@ def _material(name: str) -> bpy.types.Material:
         "skin": 0.28,
         "eyes": 0.55,
         "eye_white": 0.34,
+        "cornea": 0.90,
+        "pupil": 0.50,
         "lips": 0.36,
+        "lip_seam": 0.30,
         "boots": 0.24,
         "sole": 0.14,
         "belt": 0.24,
@@ -118,6 +149,17 @@ def _material(name: str) -> bpy.types.Material:
         "mail": 0.48,
     }.get(name, 0.16)
     bsdf.inputs["Roughness"].default_value = roughness
+    alpha = TRANSPARENT_ALPHA.get(name)
+    if alpha is not None:
+        # glTF takes baseColorFactor alpha from the Alpha socket, and alphaMode
+        # BLEND from the material's blend setting. Blender 4.2+ replaced
+        # `blend_method` with `surface_render_method`, so set whichever exists
+        # rather than pinning the tool to one Blender generation.
+        bsdf.inputs["Alpha"].default_value = alpha
+        if hasattr(material, "surface_render_method"):
+            material.surface_render_method = "BLENDED"
+        if hasattr(material, "blend_method"):
+            material.blend_method = "BLEND"
     if "Metallic" in bsdf.inputs:
         bsdf.inputs["Metallic"].default_value = 0.72 if name in ("armor", "mail") else 0.0
     if "Specular IOR Level" in bsdf.inputs:
@@ -204,6 +246,126 @@ def _export(path: Path, animations: bool) -> None:
         export_skins=True,
         export_def_bones=False,
         export_yup=True,
+        # Keep the default 'MATERIAL' + all-colour-sets behaviour: it is the
+        # only combination that writes the head's tint attribute to every
+        # primitive. _promote_vertex_colors then moves it into COLOR_0.
+        export_vertex_color="MATERIAL",
+        export_all_vertex_colors=True,
+    )
+    _promote_vertex_colors(path)
+
+
+def _promote_vertex_colors(path: Path) -> None:
+    """Move the real vertex-colour set into COLOR_0 and drop the placeholder.
+
+    Blender 5.2's glTF exporter carries a mesh's colour attribute into the
+    first primitive only when selecting a single set, so we export all sets;
+    that writes a flat white COLOR_0 (the material-driven slot) ahead of the
+    real data in COLOR_1. Godot reads COLOR_0 and nothing else, so without this
+    step the complexion and hair tints are exported but never render.
+
+    The rewrite is index-level only: the surviving buffer views are copied
+    verbatim into a fresh binary chunk, and accessor/buffer-view references are
+    remapped. No vertex data is recomputed.
+    """
+    blob = path.read_bytes()
+    json_length = struct.unpack_from("<I", blob, 12)[0]
+    document = json.loads(blob[20 : 20 + json_length])
+    binary = blob[20 + json_length + 8 :]
+
+    dropped: set[int] = set()
+    for mesh in document.get("meshes", []):
+        for primitive in mesh.get("primitives", []):
+            attributes = primitive["attributes"]
+            extra = sorted(
+                name for name in attributes if name.startswith("COLOR_") and name != "COLOR_0"
+            )
+            if not extra:
+                continue
+            dropped.add(attributes["COLOR_0"])
+            attributes["COLOR_0"] = attributes.pop(extra[0])
+            for name in extra[1:]:
+                dropped.add(attributes.pop(name))
+    if not dropped:
+        return
+
+    kept_accessors = [i for i in range(len(document["accessors"])) if i not in dropped]
+    accessor_map = {old: new for new, old in enumerate(kept_accessors)}
+    kept_views = sorted(
+        {
+            document["accessors"][i].get("bufferView")
+            for i in kept_accessors
+            if document["accessors"][i].get("bufferView") is not None
+        }
+        | {
+            image["bufferView"]
+            for image in document.get("images", [])
+            if "bufferView" in image
+        }
+    )
+    view_map = {old: new for new, old in enumerate(kept_views)}
+
+    chunks: list[bytes] = []
+    offset = 0
+    views: list[dict] = []
+    for old_index in kept_views:
+        view = dict(document["bufferViews"][old_index])
+        start = view.get("byteOffset", 0)
+        data = binary[start : start + view["byteLength"]]
+        padding = (-len(data)) % 4
+        view["byteOffset"] = offset
+        views.append(view)
+        chunks.append(data + b"\x00" * padding)
+        offset += len(data) + padding
+
+    document["bufferViews"] = views
+    document["accessors"] = [
+        {
+            **document["accessors"][i],
+            **(
+                {"bufferView": view_map[document["accessors"][i]["bufferView"]]}
+                if document["accessors"][i].get("bufferView") is not None
+                else {}
+            ),
+        }
+        for i in kept_accessors
+    ]
+    for image in document.get("images", []):
+        if "bufferView" in image:
+            image["bufferView"] = view_map[image["bufferView"]]
+    for mesh in document.get("meshes", []):
+        for primitive in mesh.get("primitives", []):
+            primitive["attributes"] = {
+                name: accessor_map[index]
+                for name, index in primitive["attributes"].items()
+            }
+            if "indices" in primitive:
+                primitive["indices"] = accessor_map[primitive["indices"]]
+            for target in primitive.get("targets", []):
+                for name, index in list(target.items()):
+                    target[name] = accessor_map[index]
+    for skin in document.get("skins", []):
+        if "inverseBindMatrices" in skin:
+            skin["inverseBindMatrices"] = accessor_map[skin["inverseBindMatrices"]]
+    for animation in document.get("animations", []):
+        for sampler in animation.get("samplers", []):
+            sampler["input"] = accessor_map[sampler["input"]]
+            sampler["output"] = accessor_map[sampler["output"]]
+
+    payload = b"".join(chunks)
+    document["buffers"] = [{"byteLength": len(payload)}]
+    encoded = json.dumps(document, separators=(",", ":")).encode("utf-8")
+    encoded += b" " * ((-len(encoded)) % 4)
+    total = 12 + 8 + len(encoded) + 8 + len(payload)
+    path.write_bytes(
+        b"glTF"
+        + struct.pack("<II", 2, total)
+        + struct.pack("<I", len(encoded))
+        + b"JSON"
+        + encoded
+        + struct.pack("<I", len(payload))
+        + b"BIN\x00"
+        + payload
     )
 
 

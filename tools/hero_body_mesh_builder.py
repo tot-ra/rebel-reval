@@ -39,6 +39,60 @@ def find_armature() -> bpy.types.Object:
     raise RuntimeError("no armature in imported scene")
 
 
+# Materials whose corners receive a vertex tint. Skin takes the complexion
+# zoning; hair and beard take a fibre breakup, without which a single flat
+# colour over a smooth shell reads as painted wood. Eyes and lips stay flat.
+VERTEX_TINT_MATERIALS = {"skin", "hair", "beard"}
+
+
+# Colour attribute the head's tints are painted into. Blender's glTF exporter
+# writes every colour attribute of a mesh to every primitive, so one shared
+# layer is enough; see _promote_vertex_colors in generate_hero_body for why it
+# still has to be moved into COLOR_0 afterwards.
+TINT_LAYER = "Color"
+
+
+def _apply_vertex_colors(
+    obj: bpy.types.Object,
+    material_names: list[str],
+    tint_fn: Callable[[Vector, str], tuple],
+) -> None:
+    """Paint per-vertex RGBA tints on the final (subdivided) mesh.
+
+    Deterministic: the tint is a pure function of vertex position, evaluated
+    after the subdivision apply. Multiplied into the albedo by the material's
+    Color Attribute node (see _wire_vertex_tint in generate_hero_body), so spec
+    palettes keep working unchanged - white means "no change".
+    """
+    mesh = obj.data
+    # POINT, not CORNER: the tint is a pure function of position, so per-vertex
+    # is both correct and cheaper than per-corner.
+    attribute = mesh.color_attributes.new(TINT_LAYER, "BYTE_COLOR", "POINT")
+    mesh.color_attributes.active_color = attribute
+    white = (1.0, 1.0, 1.0, 1.0)
+    # A vertex can be shared by polygons of different materials (skin meets
+    # hair along the hairline); the first tinted material touching it wins,
+    # which keeps the seam continuous.
+    owner: dict[int, str] = {}
+    for polygon in mesh.polygons:
+        material = (
+            material_names[polygon.material_index]
+            if polygon.material_index < len(material_names)
+            else ""
+        )
+        if material not in VERTEX_TINT_MATERIALS:
+            continue
+        for vertex_index in polygon.vertices:
+            owner.setdefault(vertex_index, material)
+    for vertex_index in range(len(mesh.vertices)):
+        material = owner.get(vertex_index)
+        attribute.data[vertex_index].color = (
+            white
+            if material is None
+            else tint_fn(mesh.vertices[vertex_index].co, material)
+        )
+
+
 def bone_head(armature: bpy.types.Object, name: str) -> Vector:
     bone = armature.data.bones.get(name)
     if bone is None:
@@ -75,12 +129,24 @@ class PartBuilder:
     """
 
     def __init__(
-        self, name: str, frame: Frame, bulk: float = 1.0, subdivision: int = 1
+        self,
+        name: str,
+        frame: Frame,
+        bulk: float = 1.0,
+        subdivision: int = 1,
+        segments: int = RING_SEGMENTS,
     ) -> None:
         self.name = name
         self.frame = frame
         self.bulk = bulk
         self.subdivision = subdivision
+        # Cross-section vertex count. Feature-heavy parts (the head) can drop
+        # this to fund sculpted detail elsewhere under the tier triangle cap.
+        self.segments = segments
+        # Optional position -> RGBA tint hook evaluated on the final subdivided
+        # mesh (CORNER domain, exported as COLOR_0). Faces use it for skin
+        # complexion zoning; see hero_body_head_builder.
+        self.vertex_color_fn: Callable[[Vector, str], tuple] | None = None
         self.vertices: list[Vector] = []
         self.weights: list[dict[str, float]] = []
         self.faces: list[tuple[int, ...]] = []
@@ -122,15 +188,15 @@ class PartBuilder:
         radius_forward *= self.bulk
         radius_back = radius_forward if radius_back is None else radius_back * self.bulk
         indices: list[int] = []
-        for step in range(RING_SEGMENTS):
-            angle = math.tau * step / RING_SEGMENTS
+        for step in range(self.segments):
+            angle = math.tau * step / self.segments
             depth = math.sin(angle)
             offset = side * (math.cos(angle) * radius_side)
             offset += forward * (depth * (radius_forward if depth >= 0.0 else radius_back))
             indices.append(self._add_vertex(center + offset, weights))
         if self._last_ring is not None:
-            for step in range(RING_SEGMENTS):
-                next_step = (step + 1) % RING_SEGMENTS
+            for step in range(self.segments):
+                next_step = (step + 1) % self.segments
                 self.faces.append(
                     (
                         self._last_ring[step],
@@ -168,8 +234,8 @@ class PartBuilder:
         if self._last_ring is None:
             return
         apex = self._add_vertex(center, weights)
-        for step in range(RING_SEGMENTS):
-            next_step = (step + 1) % RING_SEGMENTS
+        for step in range(self.segments):
+            next_step = (step + 1) % self.segments
             self.faces.append((self._last_ring[step], self._last_ring[next_step], apex))
             self.face_materials.append(material)
 
@@ -238,8 +304,8 @@ class PartBuilder:
             )
             if first:
                 apex = self._add_vertex(bottom, weights)
-                for step in range(RING_SEGMENTS):
-                    next_step = (step + 1) % RING_SEGMENTS
+                for step in range(self.segments):
+                    next_step = (step + 1) % self.segments
                     self.faces.append((indices[next_step], indices[step], apex))
                     self.face_materials.append(material)
                 first = False
@@ -301,6 +367,9 @@ class PartBuilder:
         # Consistent outward normals.
         bpy.ops.mesh.normals_make_consistent(inside=False)
         bpy.ops.object.mode_set(mode="OBJECT")
+
+        if self.vertex_color_fn is not None:
+            _apply_vertex_colors(obj, materials, self.vertex_color_fn)
 
         modifier = obj.modifiers.new("Armature", "ARMATURE")
         modifier.object = armature
