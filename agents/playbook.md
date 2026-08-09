@@ -76,3 +76,5 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - When inserting a helper after structural edits, re-read the live function boundary before line-based insertion; stale line positions can place the helper inside an unfinished condition and break parsing.
 - In `code_execution`, imports defined at snippet scope may be invisible inside wrapper-executed functions; import dependencies inside `main` or use an explicit loop-only body.
 - When `agents/verify_workflows.py` reports pre-existing agent-profile drift, confirm that no playbook-specific errors are present and test the playbook contract independently; do not widen a documentation split into unrelated LLM or tool-allowlist changes.
+- In parallel verification, a cleanup command can race the status probe; verify temporary diagnostics in a separate sequential check before concluding they remain.
+- Godot line-range reads require start_line <= end_line; for a tail section, use an exact bounded range or read from the section start instead of passing an inverted range.

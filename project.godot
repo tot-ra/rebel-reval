@@ -146,6 +146,7 @@ player_dodge={
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+anti_aliasing/quality/msaa_3d=2
 textures/vram_compression/import_etc2_astc=true
 lights_and_shadows/directional_shadow/16_bits=false
 environment/defaults/default_clear_color=Color(0, 0, 0, 1)
