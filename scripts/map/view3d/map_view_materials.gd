@@ -296,6 +296,7 @@ static func blended_ground(noise_seed: int) -> ShaderMaterial:
 	material.set_shader_parameter("castle_paving_layer", terrain_blend_index(MapTypes.TERRAIN_CASTLE_PAVING))
 	material.set_shader_parameter("timber_floor_layer", terrain_blend_index(MapTypes.TERRAIN_TIMBER_FLOOR))
 	material.set_shader_parameter("natural_ground_uv_scale", TERRAIN_GRASS_UV_SCALE)
+	material.set_shader_parameter("natural_ground_variation", 0.72)
 	material.set_shader_parameter("timber_floor_uv_scale", TERRAIN_TIMBER_FLOOR_UV_SCALE)
 	_cache[key] = material
 	return material

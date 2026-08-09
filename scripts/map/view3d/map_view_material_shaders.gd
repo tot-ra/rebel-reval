@@ -590,6 +590,7 @@ uniform int cobblestone_layer = 12;
 uniform int castle_paving_layer = 13;
 uniform int timber_floor_layer = 15;
 uniform float natural_ground_uv_scale = 2.0;
+uniform float natural_ground_variation = 0.72;
 uniform float timber_floor_uv_scale = 2.0;
 
 // CUSTOM0 is only readable in vertex(); layer indices must stay flat (an
@@ -619,12 +620,58 @@ vec2 terrain_pattern_uv(int layer, vec2 base_uv) {
 	return base_uv * scale;
 }
 
+float natural_hash(vec2 p) {
+	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+}
+
+float natural_noise(vec2 p) {
+	vec2 cell = floor(p);
+	vec2 local = fract(p);
+	local = local * local * (3.0 - 2.0 * local);
+	return mix(
+		mix(natural_hash(cell), natural_hash(cell + vec2(1.0, 0.0)), local.x),
+		mix(natural_hash(cell + vec2(0.0, 1.0)), natural_hash(cell + vec2(1.0, 1.0)), local.x),
+		local.y
+	);
+}
+
+vec2 natural_warp(vec2 uv) {
+	// The warp is continuous in world space, so terrain chunks share the same
+	// value along their seam instead of each chunk restarting a random pattern.
+	float warp_x = natural_noise(uv * 0.52 + vec2(13.7, 4.3));
+	float warp_y = natural_noise(uv * 0.52 + vec2(41.2, 19.8));
+	return uv + (vec2(warp_x, warp_y) - 0.5) * 0.32;
+}
+
+// Blend the authored plate at two coherent scales and apply a very low-frequency
+// tonal field. The source remains tileable, while the continuous world-space warp
+// prevents its 2 m repeat from reading as a checkerboard across the whole meadow.
+vec3 sample_natural_ground(int layer, vec2 base_uv) {
+	vec2 grass_uv = natural_warp(base_uv * natural_ground_uv_scale);
+	vec3 primary = texture(terrain_patterns, vec3(fract(grass_uv), float(layer))).rgb;
+	vec2 macro_uv = vec2(
+		dot(grass_uv, vec2(0.61, 0.19)),
+		dot(grass_uv, vec2(-0.17, 0.67))
+	) * 0.58 + vec2(0.23, 0.41);
+	vec3 macro = texture(terrain_patterns, vec3(fract(macro_uv), float(layer))).rgb;
+	float patch = natural_noise(base_uv * 0.34 + vec2(4.8, 19.2));
+	float fine = natural_noise(base_uv * 1.7 + vec2(31.4, 7.7));
+	float variation = clamp(natural_ground_variation, 0.0, 1.0);
+	float macro_mix = (0.14 + patch * 0.18) * variation;
+	vec3 result = mix(primary, macro, macro_mix);
+	result *= 1.0 + (fine - 0.5) * 0.20 * variation;
+	return result;
+}
+
 vec3 sample_terrain_pattern(int layer, vec2 uv) {
 	if (layer == cobblestone_layer) {
 		return vec3(texture(cobble_patterns, vec3(uv, 0.0)).r);
 	}
 	if (layer == castle_paving_layer) {
 		return vec3(texture(cobble_patterns, vec3(uv, 1.0)).r);
+	}
+	if (layer >= 0 && layer <= 3) {
+		return sample_natural_ground(layer, uv);
 	}
 	return texture(terrain_patterns, vec3(terrain_pattern_uv(layer, uv), float(layer))).rgb;
 }
