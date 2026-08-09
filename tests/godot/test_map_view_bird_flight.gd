@@ -39,6 +39,23 @@ func test_harbor_context_surfaces_distinct_gliding_species() -> void:
 	assert_true(species.size() >= 3, "Harbour day cycle should surface at least three gliding species")
 
 
+func test_flight_path_uses_wind_carved_curve() -> void:
+	var flight := BirdFlight.new()
+	var bird := Node3D.new()
+	bird.set_meta(&"start", Vector3(5.0, 10.0, 12.0))
+	bird.set_meta(&"end", Vector3(55.0, 10.2, 20.0))
+	bird.set_meta(&"sway_phase", 0.8)
+	bird.set_meta(&"sway_amplitude", 0.5)
+	bird.set_meta(&"sway_frequency", 1.1)
+	var midpoint: Vector3 = flight._flight_position(bird, 0.5)
+	var straight_midpoint: Vector3 = bird.get_meta(&"start").lerp(bird.get_meta(&"end"), 0.5)
+	assert_true(midpoint.distance_to(straight_midpoint) > 0.03, "flight should arc through the wind instead of following a ruler-straight line")
+	assert_true(flight._flight_position(bird, 0.0).is_equal_approx(bird.get_meta(&"start")))
+	assert_true(flight._flight_position(bird, 1.0).is_equal_approx(bird.get_meta(&"end")))
+	bird.free()
+	flight.free()
+
+
 func test_species_selection_is_deterministic_for_seed_and_tick() -> void:
 	var first := BirdFlight.pick_species(&"lower_town_slice", BirdSpecies.CONTEXT_LOWER_TOWN, 0.35, 7)
 	var second := BirdFlight.pick_species(&"lower_town_slice", BirdSpecies.CONTEXT_LOWER_TOWN, 0.35, 7)

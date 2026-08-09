@@ -93,6 +93,27 @@ func test_harbour_flap_frames_move_both_wing_halves() -> void:
 	assert_true(absf(left_delta - right_delta) <= 0.01, "both wing halves should use the same flap amplitude")
 
 
+
+func test_procedural_flap_cycle_sweeps_wings_fore_and_aft() -> void:
+	BirdMeshes.reset_cache()
+	var cycle := BirdMeshes.flap_cycle(BirdSpecies.SPECIES_BARN_SWALLOW)
+	assert_eq(cycle.size(), BirdMeshes.FLAP_KEYFRAMES.size())
+	var early_vertices: PackedVector3Array = (cycle[0] as ArrayMesh).surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+	var late_vertices: PackedVector3Array = (cycle[4] as ArrayMesh).surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+	var sweep_delta := _mean_wing_depth_delta(early_vertices, late_vertices)
+	assert_true(sweep_delta > 0.002, "procedural flap frames should sweep the wings through the stroke")
+
+
+func _mean_wing_depth_delta(early_vertices: PackedVector3Array, late_vertices: PackedVector3Array) -> float:
+	var total := 0.0
+	var count := 0
+	for index in early_vertices.size():
+		if absf(early_vertices[index].x) < 0.08:
+			continue
+		total += absf(late_vertices[index].z - early_vertices[index].z)
+		count += 1
+	return total / float(maxi(count, 1))
+
 func test_runtime_bird_material_keeps_both_wing_faces_visible() -> void:
 	var flight := BirdFlight.new()
 	var model := MeshInstance3D.new()

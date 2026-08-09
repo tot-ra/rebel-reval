@@ -1,9 +1,8 @@
 class_name MapViewBirdMeshes
 extends RefCounted
 
-## Cached low-poly reference geometry for the P0-117 bird catalog. Meshes are
-## intentionally static: future runtime wing animation or flight paths belong to
-## P0-105 and can reuse these proportions without changing catalog semantics.
+## Cached low-poly reference geometry for the P0-117 bird catalog. Procedural
+## fallback meshes also provide the runtime flap cycle when no authored GLBs exist.
 
 const BirdAssets := preload("res://scripts/map/view3d/map_view_bird_assets.gd")
 const BirdSpecies := preload("res://scripts/map/view3d/map_view_bird_species.gd")
@@ -15,6 +14,10 @@ const HEAD_RINGS := 5
 
 ## Wing flapping keyframes: -1.0 = wings fully down, 0.0 = neutral, 1.0 = fully up
 const FLAP_KEYFRAMES: Array[float] = [-0.6, -0.3, 0.0, 0.4, 0.7, 0.4, 0.0, -0.3]
+## The stroke also sweeps the primaries through the air. Keeping this separate
+## from lift avoids the mechanical "elevator" motion of moving the whole wing
+## straight up and down.
+const FLAP_SWEEP_KEYFRAMES: Array[float] = [0.16, 0.08, -0.02, -0.12, -0.20, -0.10, 0.04, 0.12]
 
 static var _mesh_cache: Dictionary = {}
 static var _flap_mesh_cache: Dictionary = {}
@@ -60,8 +63,13 @@ static func flap_cycle(species: StringName) -> Array:
 		_flap_mesh_cache[cache_key] = authored_cycle
 		return authored_cycle
 	var cycle: Array = []
-	for lift in FLAP_KEYFRAMES:
-		var mesh := _build_mesh(species, BirdSpecies.POSE_GLIDING, lift)
+	for frame_index in FLAP_KEYFRAMES.size():
+		var mesh := _build_mesh(
+			species,
+			BirdSpecies.POSE_GLIDING,
+			FLAP_KEYFRAMES[frame_index],
+			FLAP_SWEEP_KEYFRAMES[frame_index]
+		)
 		cycle.append(mesh)
 	_flap_mesh_cache[cache_key] = cycle
 	return cycle
@@ -82,7 +90,12 @@ static func geometry_stats(species: StringName, pose: StringName = &"") -> Dicti
 	}
 
 
-static func _build_mesh(species: StringName, pose: StringName, wing_lift: float = 0.0) -> ArrayMesh:
+static func _build_mesh(
+	species: StringName,
+	pose: StringName,
+	wing_lift: float = 0.0,
+	wing_sweep: float = 0.0
+) -> ArrayMesh:
 	var geometry := BirdSpecies.geometry_for(species)
 	var colors := BirdSpecies.colors_for(species)
 	var body_dims: Vector3 = geometry["body"]
@@ -144,7 +157,7 @@ static func _build_mesh(species: StringName, pose: StringName, wing_lift: float 
 		_append_facial_disc(surface, head_center, head_radius, colors[2])
 
 	if pose == BirdSpecies.POSE_GLIDING:
-		_append_extended_wings(surface, body_center, body_radius, wing_span, wing_chord, colors[1], wing_lift)
+		_append_extended_wings(surface, body_center, body_radius, wing_span, wing_chord, colors[1], wing_lift, wing_sweep)
 	else:
 		_append_folded_wings(surface, body_center, body_radius, wing_chord, colors[1])
 
@@ -175,12 +188,15 @@ static func _append_extended_wings(
 	wing_span: float,
 	wing_chord: float,
 	color: Color,
-	wing_lift: float = 0.0
+	wing_lift: float = 0.0,
+	wing_sweep: float = 0.0
 ) -> void:
 	var half_span := maxf(wing_span * 0.5, body_radius.x * 1.4)
-	# wing_lift ranges -1..1; multiply by a fraction of the body height to get
-	# a vertical offset that makes the wing visually flap up and down.
+	# Lift is paired with a fore/aft sweep. Real wings travel in an arc: the
+	# primaries lead on the downstroke and trail on recovery instead of all
+	# vertices translating vertically as one rigid card.
 	var lift_offset := wing_lift * body_radius.y * 1.8
+	var sweep_offset := wing_sweep * half_span * 0.28
 	for side_sign in [-1.0, 1.0]:
 		var shoulder := body_center + Vector3(side_sign * body_radius.x * 0.58, body_radius.y * 0.32 + lift_offset, -body_radius.z * 0.08)
 		# Elbow and wrist lift progressively more than the shoulder for a
@@ -188,9 +204,9 @@ static func _append_extended_wings(
 		var elbow_lift := lift_offset * 1.15
 		var wrist_lift := lift_offset * 1.30
 		var tip_lift := lift_offset * 1.40
-		var elbow := shoulder + Vector3(side_sign * half_span * 0.30, half_span * 0.03 + (elbow_lift - lift_offset), -wing_chord * 0.03)
-		var wrist := shoulder + Vector3(side_sign * half_span * 0.62, half_span * 0.07 + (wrist_lift - lift_offset), wing_chord * 0.05)
-		var tip := shoulder + Vector3(side_sign * half_span, half_span * 0.10 + (tip_lift - lift_offset), wing_chord * 0.14)
+		var elbow := shoulder + Vector3(side_sign * half_span * 0.30, half_span * 0.03 + (elbow_lift - lift_offset) - sweep_offset * 0.25, -wing_chord * 0.03 + sweep_offset * 0.20)
+		var wrist := shoulder + Vector3(side_sign * half_span * 0.62, half_span * 0.07 + (wrist_lift - lift_offset) - sweep_offset * 0.62, wing_chord * 0.05 + sweep_offset * 0.46)
+		var tip := shoulder + Vector3(side_sign * half_span, half_span * 0.10 + (tip_lift - lift_offset) - sweep_offset, wing_chord * 0.14 + sweep_offset * 0.72)
 		# Trailing edge points mirror the leading edge so each arm/hand panel
 		# keeps a believable chord instead of collapsing into a flat ribbon.
 		var rear_shoulder := shoulder + Vector3(0.0, -half_span * 0.015, body_radius.z * 0.82)

@@ -78,3 +78,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - When `agents/verify_workflows.py` reports pre-existing agent-profile drift, confirm that no playbook-specific errors are present and test the playbook contract independently; do not widen a documentation split into unrelated LLM or tool-allowlist changes.
 - In parallel verification, a cleanup command can race the status probe; verify temporary diagnostics in a separate sequential check before concluding they remain.
 - Godot line-range reads require start_line <= end_line; for a tail section, use an exact bounded range or read from the section start instead of passing an inverted range.
+- If Godot-focused validation exits 127, check `command -v godot godot4` before retrying; record the missing-engine limitation and continue with scoped diff/syntax checks rather than treating it as a gameplay regression.

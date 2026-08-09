@@ -16,6 +16,10 @@ const FLIGHT_HEIGHT_MAX := 15.0
 const FLIGHT_SPEED_MIN := 5.5
 const FLIGHT_SPEED_MAX := 11.0
 const EDGE_MARGIN := 5.0
+const SWAY_AMPLITUDE_MIN := 0.18
+const SWAY_AMPLITUDE_MAX := 0.55
+const SWAY_FREQUENCY_MIN := 0.8
+const SWAY_FREQUENCY_MAX := 1.45
 
 ## Wing flap timing: seconds between keyframe advances. 0.12s gives roughly
 ## 3-4 flaps/second which looks natural for most species at gameplay distance.
@@ -161,15 +165,45 @@ func _advance_active_birds(delta: float) -> void:
 		if traveled >= path_length:
 			bird.visible = false
 			continue
-		var start: Vector3 = bird.get_meta(&"start")
-		var end: Vector3 = bird.get_meta(&"end")
 		var t := traveled / path_length
-		var position := start.lerp(end, t)
+		var position := _flight_position(bird, t)
+		var look_ahead := _flight_position(bird, minf(t + 0.02, 1.0))
 		bird.position = position
-		bird.look_at(position + (end - start).normalized(), Vector3.UP)
+		bird.look_at(look_ahead, Vector3.UP)
+		var sway_phase := float(bird.get_meta(&"sway_phase", 0.0))
+		var sway_amplitude := float(bird.get_meta(&"sway_amplitude", 0.3))
+		var sway_frequency := float(bird.get_meta(&"sway_frequency", 1.0))
+		var bank := sin(t * TAU * sway_frequency + sway_phase) * sway_amplitude * 0.65 * sin(t * PI)
+		bird.rotate_object_local(Vector3.FORWARD, bank)
 		bird.set_meta(&"traveled", traveled)
 		# Advance wing flap animation
 		_advance_flap(bird, delta)
+
+
+func _flight_position(bird: Node3D, t: float) -> Vector3:
+	var start: Vector3 = bird.get_meta(&"start")
+	var end: Vector3 = bird.get_meta(&"end")
+	var forward := end - start
+	var distance := maxf(forward.length(), 0.001)
+	var direction := forward / distance
+	var side := Vector3.UP.cross(direction)
+	if side.length_squared() < 0.001:
+		side = Vector3.RIGHT
+	else:
+		side = side.normalized()
+	var up := direction.cross(side).normalized()
+	var sway_phase := float(bird.get_meta(&"sway_phase", 0.0))
+	var sway_amplitude := float(bird.get_meta(&"sway_amplitude", 0.3))
+	var sway_frequency := float(bird.get_meta(&"sway_frequency", 1.0))
+	# Smoothstep eases entry/exit while the two harmonics produce a shallow,
+	# wind-carved S-curve rather than a predictable up/down elevator motion.
+	var eased_t := smoothstep(0.0, 1.0, t)
+	var base := start.lerp(end, eased_t)
+	var envelope := sin(eased_t * PI)
+	var lateral := sin(eased_t * TAU * sway_frequency + sway_phase) * sway_amplitude * envelope
+	lateral += sin(eased_t * TAU * sway_frequency * 0.47 + sway_phase * 1.7) * sway_amplitude * 0.32 * envelope
+	var vertical := sin(eased_t * PI + sway_phase * 0.61) * sway_amplitude * 0.34 * envelope
+	return base + side * lateral + up * vertical
 
 
 func _spawn_bird() -> void:
@@ -206,6 +240,9 @@ func _spawn_bird() -> void:
 	bird.set_meta(&"speed", path["speed"])
 	bird.set_meta(&"path_length", start.distance_to(end))
 	bird.set_meta(&"traveled", 0.0)
+	bird.set_meta(&"sway_phase", path["sway_phase"])
+	bird.set_meta(&"sway_amplitude", path["sway_amplitude"])
+	bird.set_meta(&"sway_frequency", path["sway_frequency"])
 	# Flapping state: mesh cycle, current keyframe index, and timer
 	bird.set_meta(&"flap_cycle", cycle)
 	bird.set_meta(&"flap_index", 2)
@@ -227,20 +264,23 @@ func _random_path(seed_key: StringName, spawn_tick: int) -> Dictionary:
 	match side:
 		0:
 			start = Vector3(min_axis, height, _rng.randf_range(min_axis, max_z))
-			end = Vector3(max_x, height * _rng.randf_range(0.92, 1.08), _rng.randf_range(min_axis, max_z))
+			end = Vector3(max_x, height + _rng.randf_range(-0.35, 0.35), _rng.randf_range(min_axis, max_z))
 		1:
 			start = Vector3(max_x, height, _rng.randf_range(min_axis, max_z))
-			end = Vector3(min_axis, height * _rng.randf_range(0.92, 1.08), _rng.randf_range(min_axis, max_z))
+			end = Vector3(min_axis, height + _rng.randf_range(-0.35, 0.35), _rng.randf_range(min_axis, max_z))
 		2:
 			start = Vector3(_rng.randf_range(min_axis, max_x), height, min_axis)
-			end = Vector3(_rng.randf_range(min_axis, max_x), height * _rng.randf_range(0.92, 1.08), max_z)
+			end = Vector3(_rng.randf_range(min_axis, max_x), height + _rng.randf_range(-0.35, 0.35), max_z)
 		_:
 			start = Vector3(_rng.randf_range(min_axis, max_x), height, max_z)
-			end = Vector3(_rng.randf_range(min_axis, max_x), height * _rng.randf_range(0.92, 1.08), min_axis)
+			end = Vector3(_rng.randf_range(min_axis, max_x), height + _rng.randf_range(-0.35, 0.35), min_axis)
 	return {
 		"start": start,
 		"end": end,
 		"speed": _rng.randf_range(FLIGHT_SPEED_MIN, FLIGHT_SPEED_MAX),
+		"sway_phase": _rng.randf_range(0.0, TAU),
+		"sway_amplitude": _rng.randf_range(SWAY_AMPLITUDE_MIN, SWAY_AMPLITUDE_MAX),
+		"sway_frequency": _rng.randf_range(SWAY_FREQUENCY_MIN, SWAY_FREQUENCY_MAX),
 	}
 
 
@@ -266,14 +306,16 @@ func _advance_flap(bird: Node3D, delta: float) -> void:
 	if timer < FLAP_INTERVAL_S:
 		bird.set_meta(&"flap_timer", timer)
 		return
-	# Reset timer, carry over excess time for consistent frame pacing
+	# Reset timer, carry over excess time for consistent frame pacing.
 	bird.set_meta(&"flap_timer", fmod(timer, FLAP_INTERVAL_S))
-	# During glide skip frames the bird holds the neutral pose.
-	if counter < glide_skip:
+	var idx: int = bird.get_meta(&"flap_index", 2)
+	# A glide is a pause after the recovery frame, not a slowdown of every
+	# keyframe. This keeps the downstroke readable while larger birds still soar
+	# between short flap bursts.
+	if idx == 2 and counter < glide_skip:
 		bird.set_meta(&"glide_counter", counter + 1)
 		return
 	bird.set_meta(&"glide_counter", 0)
-	var idx: int = bird.get_meta(&"flap_index", 2)
 	idx = (idx + 1) % cycle.size()
 	bird.set_meta(&"flap_index", idx)
 	var model := bird.get_node_or_null("Model") as MeshInstance3D
