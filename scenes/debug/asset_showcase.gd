@@ -19,6 +19,7 @@ const CAT_SCENE := preload("res://assets/characters/cat/cat_rig.tscn")
 const CatCoats := preload("res://assets/characters/cat/cat_coat_variants.gd")
 const GroundWander := preload("res://scripts/map/view3d/map_view_ground_wander.gd")
 const BirdMeshes := preload("res://scripts/map/view3d/map_view_bird_meshes.gd")
+const BirdFlight := preload("res://scripts/map/view3d/map_view_bird_flight.gd")
 const BirdSpecies := preload("res://scripts/map/view3d/map_view_bird_species.gd")
 const MammalMeshes := preload("res://scripts/map/view3d/map_view_mammal_meshes.gd")
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
@@ -120,14 +121,20 @@ func _process(delta: float) -> void:
 		GroundWander.advance(actor, &"debug_characters_animals", listener_position, delta)
 		MedievalAnimalModels.sync_animation(actor, previous_position, delta)
 	for spec in _catalog_birds:
-		var model := spec.get("model") as MeshInstance3D
-		if model == null or not is_instance_valid(model):
+		var actor := spec.get("actor") as Node3D
+		if actor == null or not is_instance_valid(actor):
 			continue
-		var cycle: Array = spec.get("cycle", [])
-		if cycle.is_empty():
-			continue
-		var frame := int(floor(_catalog_elapsed / MapViewBirdFlight.FLAP_INTERVAL_S)) % cycle.size()
-		model.mesh = cycle[frame]
+		var phase := float(spec.get("phase", 2.0)) + delta / MapViewBirdFlight.FLAP_INTERVAL_S
+		if phase >= 10.0:
+			phase = 2.0
+			var glide_skip := int(spec.get("glide_skip", 0))
+			spec["pause"] = float(glide_skip) * MapViewBirdFlight.FLAP_INTERVAL_S
+		var pause := maxf(float(spec.get("pause", 0.0)) - delta, 0.0)
+		if pause > 0.0:
+			phase = 2.0
+		spec["phase"] = phase
+		spec["pause"] = pause
+		_apply_showcase_wing_pose(actor, phase)
 
 
 func is_large_showcase() -> bool:
@@ -339,16 +346,85 @@ func _add_catalog_bird(parent: Node3D, species: StringName, position: Vector3, i
 	actor.name = "Bird_%s" % String(species)
 	actor.position = position + Vector3(0.0, 1.8, 0.0)
 	parent.add_child(actor)
-	var model := MeshInstance3D.new()
-	model.name = "Model"
-	actor.add_child(model)
-	var cycle := BirdMeshes.flap_cycle(species)
-	if not cycle.is_empty():
-		model.mesh = cycle[index % cycle.size()]
-	if not BirdMeshes.uses_authored_mesh(species, BirdSpecies.POSE_GLIDING):
-		_apply_catalog_material(model)
-	_catalog_birds.append({"model": model, "cycle": cycle})
+	var frame := BirdMeshes.modular_rig_for(species)
+	if frame.is_empty():
+		return
+	_install_showcase_modular_rig(actor, frame)
+	_catalog_birds.append({
+		"actor": actor,
+		"phase": 2.0 + float(index % 4) * 0.35,
+		"pause": 0.0,
+		"glide_skip": _showcase_glide_skip(species),
+	})
 	_add_world_label(parent, String(species).replace("_", " ").to_upper(), position + Vector3(0.0, 3.2, 0.0), 28)
+
+
+func _install_showcase_modular_rig(actor: Node3D, frame: Dictionary) -> void:
+	var body := _showcase_mesh_node("Body", frame["body"] as ArrayMesh)
+	actor.add_child(body)
+	for side in [-1, 1]:
+		var side_name := "L" if side < 0 else "R"
+		var side_key := "left" if side < 0 else "right"
+		var shoulder := Node3D.new()
+		shoulder.name = "WingRoot%s" % side_name
+		shoulder.position = frame["%s_shoulder" % side_key]
+		actor.add_child(shoulder)
+		var elbow := Node3D.new()
+		elbow.name = "WingElbow%s" % side_name
+		elbow.position = frame["%s_elbow" % side_key] - shoulder.position
+		shoulder.add_child(elbow)
+		var upper := _showcase_mesh_node("WingUpper%s" % side_name, frame["%s_upper" % side_key] as ArrayMesh)
+		shoulder.add_child(upper)
+		var primary := _showcase_mesh_node("WingPrimary%s" % side_name, frame["%s_primary" % side_key] as ArrayMesh)
+		elbow.add_child(primary)
+
+
+func _showcase_mesh_node(node_name: String, mesh: ArrayMesh) -> MeshInstance3D:
+	var model := MeshInstance3D.new()
+	model.name = node_name
+	model.mesh = mesh
+	model.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	_apply_catalog_material(model)
+	return model
+
+
+func _apply_showcase_wing_pose(actor: Node3D, phase: float) -> void:
+	var root_l := actor.get_node_or_null("WingRootL") as Node3D
+	var elbow_l := actor.get_node_or_null("WingRootL/WingElbowL") as Node3D
+	var root_r := actor.get_node_or_null("WingRootR") as Node3D
+	var elbow_r := actor.get_node_or_null("WingRootR/WingElbowR") as Node3D
+	if root_l == null or elbow_l == null or root_r == null or elbow_r == null:
+		return
+	var root_angle := _showcase_flap_angle(BirdFlight.WING_ROOT_ANGLES, phase)
+	var elbow_angle := _showcase_flap_angle(BirdFlight.WING_ELBOW_ANGLES, phase)
+	var sweep_angle := _showcase_flap_angle(BirdFlight.WING_SWEEP_ANGLES, phase)
+	root_l.rotation = Vector3(0.0, -sweep_angle, -root_angle)
+	elbow_l.rotation = Vector3(0.0, sweep_angle * 0.65, -elbow_angle)
+	root_r.rotation = Vector3(0.0, sweep_angle, root_angle)
+	elbow_r.rotation = Vector3(0.0, -sweep_angle * 0.65, elbow_angle)
+
+
+func _showcase_flap_angle(keyframes: Array[float], phase: float) -> float:
+	var wrapped := fposmod(phase, float(keyframes.size()))
+	var first := floori(wrapped)
+	var second := (first + 1) % keyframes.size()
+	return lerpf(keyframes[first], keyframes[second], wrapped - float(first))
+
+
+func _showcase_glide_skip(species: StringName) -> int:
+	match BirdSpecies.group_for(species):
+		BirdSpecies.GROUP_RAPTOR:
+			return 6
+		BirdSpecies.GROUP_GULL, BirdSpecies.GROUP_WATERFOWL:
+			return 4
+		BirdSpecies.GROUP_OWL:
+			return 5
+		BirdSpecies.GROUP_SWALLOW:
+			return 1
+		BirdSpecies.GROUP_TERN:
+			return 2
+		_:
+			return 3
 
 
 func _catalog_position(start: Vector3, index: int) -> Vector3:

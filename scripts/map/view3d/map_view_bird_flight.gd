@@ -27,6 +27,9 @@ const FLAP_INTERVAL_S := 0.12
 ## Some species glide more than they flap; skip that many flaps between active
 ## stroke bursts so swallows flap often while eagles mostly soar.
 const GLIDE_SKIP_DEFAULT := 3
+const WING_ROOT_ANGLES: Array[float] = [-0.34, -0.18, 0.0, 0.28, 0.48, 0.28, 0.0, -0.18]
+const WING_ELBOW_ANGLES: Array[float] = [-0.10, -0.05, 0.0, 0.12, 0.20, 0.12, 0.0, -0.05]
+const WING_SWEEP_ANGLES: Array[float] = [0.14, 0.08, -0.02, -0.10, -0.16, -0.08, 0.03, 0.10]
 
 var _birds: Array[Node3D] = []
 var _rng := RandomNumberGenerator.new()
@@ -180,6 +183,93 @@ func _advance_active_birds(delta: float) -> void:
 		_advance_flap(bird, delta)
 
 
+func _install_modular_rig(bird: Node3D, frame: Dictionary, procedural_material: bool) -> bool:
+	if frame.is_empty():
+		return false
+	for child in bird.get_children():
+		child.free()
+	var body := _make_mesh_node("Body", frame["body"] as ArrayMesh, procedural_material)
+	bird.add_child(body)
+	var left_shoulder := Node3D.new()
+	left_shoulder.name = "WingRootL"
+	left_shoulder.position = frame["left_shoulder"]
+	bird.add_child(left_shoulder)
+	var left_elbow := Node3D.new()
+	left_elbow.name = "WingElbowL"
+	left_elbow.position = frame["left_elbow"] - frame["left_shoulder"]
+	left_shoulder.add_child(left_elbow)
+	var left_upper := _make_mesh_node("WingUpperL", frame["left_upper"] as ArrayMesh, procedural_material)
+	left_upper.position = Vector3.ZERO
+	left_shoulder.add_child(left_upper)
+	var left_primary := _make_mesh_node("WingPrimaryL", frame["left_primary"] as ArrayMesh, procedural_material)
+	left_primary.position = Vector3.ZERO
+	left_elbow.add_child(left_primary)
+	var right_shoulder := Node3D.new()
+	right_shoulder.name = "WingRootR"
+	right_shoulder.position = frame["right_shoulder"]
+	bird.add_child(right_shoulder)
+	var right_elbow := Node3D.new()
+	right_elbow.name = "WingElbowR"
+	right_elbow.position = frame["right_elbow"] - frame["right_shoulder"]
+	right_shoulder.add_child(right_elbow)
+	var right_upper := _make_mesh_node("WingUpperR", frame["right_upper"] as ArrayMesh, procedural_material)
+	right_upper.position = Vector3.ZERO
+	right_shoulder.add_child(right_upper)
+	var right_primary := _make_mesh_node("WingPrimaryR", frame["right_primary"] as ArrayMesh, procedural_material)
+	right_primary.position = Vector3.ZERO
+	right_elbow.add_child(right_primary)
+	bird.set_meta(&"wing_rig_frame", frame)
+	return true
+
+
+func _make_mesh_node(node_name: String, mesh: ArrayMesh, procedural_material: bool) -> MeshInstance3D:
+	var model := MeshInstance3D.new()
+	model.name = node_name
+	model.mesh = mesh
+	model.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	if procedural_material:
+		_apply_mesh_material(model)
+	else:
+		_apply_authored_mesh_material(model)
+	return model
+
+
+func _apply_authored_mesh_material(model: MeshInstance3D) -> void:
+	var source_mesh := model.mesh as ArrayMesh
+	if source_mesh == null:
+		return
+	for surface_index in source_mesh.get_surface_count():
+		var source_material := source_mesh.surface_get_material(surface_index)
+		if source_material == null or not source_material is StandardMaterial3D:
+			continue
+		var material := (source_material as StandardMaterial3D).duplicate() as StandardMaterial3D
+		material.cull_mode = BaseMaterial3D.CULL_DISABLED
+		model.set_surface_override_material(surface_index, material)
+
+
+func _apply_wing_pose(bird: Node3D, phase: float) -> void:
+	var root_l := bird.get_node_or_null("WingRootL") as Node3D
+	var elbow_l := bird.get_node_or_null("WingRootL/WingElbowL") as Node3D
+	var root_r := bird.get_node_or_null("WingRootR") as Node3D
+	var elbow_r := bird.get_node_or_null("WingRootR/WingElbowR") as Node3D
+	if root_l == null or elbow_l == null or root_r == null or elbow_r == null:
+		return
+	var root_angle := _sample_flap_angle(WING_ROOT_ANGLES, phase)
+	var elbow_angle := _sample_flap_angle(WING_ELBOW_ANGLES, phase)
+	var sweep_angle := _sample_flap_angle(WING_SWEEP_ANGLES, phase)
+	root_l.rotation = Vector3(0.0, -sweep_angle, -root_angle)
+	elbow_l.rotation = Vector3(0.0, sweep_angle * 0.65, -elbow_angle)
+	root_r.rotation = Vector3(0.0, sweep_angle, root_angle)
+	elbow_r.rotation = Vector3(0.0, -sweep_angle * 0.65, elbow_angle)
+
+
+func _sample_flap_angle(keyframes: Array[float], phase: float) -> float:
+	var wrapped := fposmod(phase, float(keyframes.size()))
+	var first := floori(wrapped)
+	var second := (first + 1) % keyframes.size()
+	return lerpf(keyframes[first], keyframes[second], wrapped - float(first))
+
+
 func _flight_position(bird: Node3D, t: float) -> Vector3:
 	var start: Vector3 = bird.get_meta(&"start")
 	var end: Vector3 = bird.get_meta(&"end")
@@ -214,22 +304,14 @@ func _spawn_bird() -> void:
 	if bird == null:
 		return
 	var path := _random_path(_seed_key, _spawn_tick)
-	# Generate the flapping cycle meshes for this species
-	var cycle := BirdMeshes.flap_cycle(species)
-	if cycle.is_empty():
+	# Build a real body/wing hierarchy. The wing meshes are attached at the
+	# shoulder and elbow pivots, so their roots stay connected to the body while
+	# the outer primaries rotate through the stroke.
+	var modular_cycle := BirdMeshes.modular_flap_cycle(species)
+	if modular_cycle.is_empty():
 		return
-	var model := bird.get_node_or_null("Model") as MeshInstance3D
-	if model == null:
+	if not _install_modular_rig(bird, modular_cycle[mini(2, modular_cycle.size() - 1)], not BirdMeshes.uses_authored_mesh(species, BirdSpecies.POSE_GLIDING)):
 		return
-	# Start with the neutral wing position (index 2 in FLAP_KEYFRAMES = 0.0)
-	model.mesh = cycle[2]
-	if BirdMeshes.uses_authored_mesh(species, BirdSpecies.POSE_GLIDING):
-		# Preserve authored double-sided PBR materials. The temporary procedural
-		# override installed by _make_bird_actor would hide mirrored wing cards and
-		# discard the GLB feather textures.
-		model.material_override = null
-	else:
-		_apply_mesh_material(model)
 	var start: Vector3 = path["start"]
 	var end: Vector3 = path["end"]
 	bird.position = start
@@ -243,13 +325,13 @@ func _spawn_bird() -> void:
 	bird.set_meta(&"sway_phase", path["sway_phase"])
 	bird.set_meta(&"sway_amplitude", path["sway_amplitude"])
 	bird.set_meta(&"sway_frequency", path["sway_frequency"])
-	# Flapping state: mesh cycle, current keyframe index, and timer
-	bird.set_meta(&"flap_cycle", cycle)
+	# Flapping state is continuous; mesh frames are used for the neutral shape,
+	# while the modular pivots carry the smooth animation.
 	bird.set_meta(&"flap_index", 2)
-	bird.set_meta(&"flap_timer", 0.0)
-	# Species-dependent glide skip: larger birds flap less often
+	bird.set_meta(&"flap_phase", 2.0)
+	bird.set_meta(&"flap_pause", 0.0)
 	bird.set_meta(&"glide_skip", _glide_skip_for_species(species))
-	bird.set_meta(&"glide_counter", 0)
+	_apply_wing_pose(bird, 2.0)
 
 
 func _random_path(seed_key: StringName, spawn_tick: int) -> Dictionary:
@@ -297,30 +379,17 @@ func _first_idle_bird() -> Node3D:
 
 
 func _advance_flap(bird: Node3D, delta: float) -> void:
-	var cycle: Array = bird.get_meta(&"flap_cycle", [])
-	if cycle.is_empty():
+	var pause := maxf(float(bird.get_meta(&"flap_pause", 0.0)) - delta, 0.0)
+	if pause > 0.0:
+		bird.set_meta(&"flap_pause", pause)
+		_apply_wing_pose(bird, 2.0)
 		return
-	var timer := float(bird.get_meta(&"flap_timer", 0.0)) + delta
-	var glide_skip: int = bird.get_meta(&"glide_skip", GLIDE_SKIP_DEFAULT)
-	var counter: int = bird.get_meta(&"glide_counter", 0)
-	if timer < FLAP_INTERVAL_S:
-		bird.set_meta(&"flap_timer", timer)
-		return
-	# Reset timer, carry over excess time for consistent frame pacing.
-	bird.set_meta(&"flap_timer", fmod(timer, FLAP_INTERVAL_S))
-	var idx: int = bird.get_meta(&"flap_index", 2)
-	# A glide is a pause after the recovery frame, not a slowdown of every
-	# keyframe. This keeps the downstroke readable while larger birds still soar
-	# between short flap bursts.
-	if idx == 2 and counter < glide_skip:
-		bird.set_meta(&"glide_counter", counter + 1)
-		return
-	bird.set_meta(&"glide_counter", 0)
-	idx = (idx + 1) % cycle.size()
-	bird.set_meta(&"flap_index", idx)
-	var model := bird.get_node_or_null("Model") as MeshInstance3D
-	if model != null:
-		model.mesh = cycle[idx]
+	var phase := float(bird.get_meta(&"flap_phase", 2.0)) + delta / FLAP_INTERVAL_S
+	if phase >= 10.0:
+		phase = 2.0
+		bird.set_meta(&"flap_pause", float(bird.get_meta(&"glide_skip", GLIDE_SKIP_DEFAULT)) * FLAP_INTERVAL_S)
+	bird.set_meta(&"flap_phase", phase)
+	_apply_wing_pose(bird, phase)
 
 
 ## Larger soaring birds (raptors, gulls) hold the glide longer between flap
@@ -348,13 +417,9 @@ func _hide_all_birds() -> void:
 
 
 func _make_bird_actor(index: int) -> Node3D:
-	var bird := Node3D.new()
-	bird.name = "FlightBird%d" % index
-	var model := MeshInstance3D.new()
-	model.name = "Model"
-	bird.add_child(model)
-	_apply_mesh_material(model)
-	return bird
+	var actor := Node3D.new()
+	actor.name = "FlightBird%d" % index
+	return actor
 
 
 func _apply_mesh_material(model: MeshInstance3D) -> void:

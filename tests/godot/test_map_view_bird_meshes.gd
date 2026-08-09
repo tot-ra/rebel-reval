@@ -185,3 +185,20 @@ func _assert_lit_fauna_material(material: Material, label: String, expect_vertex
 	)
 	if expect_vertex_tint:
 		assert_true(std.vertex_color_use_as_albedo, "%s keeps vertex colour as albedo tint" % label)
+
+
+func test_modular_flap_rig_exposes_attached_wings_and_shadow_casters() -> void:
+	BirdMeshes.reset_cache()
+	var frame := BirdMeshes.modular_rig_for(BirdSpecies.SPECIES_HERRING_GULL)
+	assert_false(frame.is_empty())
+	var flight := BirdFlight.new()
+	var actor := Node3D.new()
+	assert_true(flight._install_modular_rig(actor, frame, false))
+	for pivot_name in [&"WingRootL", &"WingRootR", &"WingRootL/WingElbowL", &"WingRootR/WingElbowR"]:
+		assert_true(actor.get_node_or_null(pivot_name) is Node3D, "%s pivot must exist" % pivot_name)
+	for mesh_name in [&"Body", &"WingUpperL", &"WingPrimaryL", &"WingUpperR", &"WingPrimaryR"]:
+		var mesh_node := actor.get_node_or_null(mesh_name) as MeshInstance3D
+		assert_true(mesh_node != null, "%s must be a separate mesh module" % mesh_name)
+		assert_eq(mesh_node.cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_ON, "%s must cast a shadow" % mesh_name)
+	actor.free()
+	flight.free()

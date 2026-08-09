@@ -21,6 +21,7 @@ const FLAP_SWEEP_KEYFRAMES: Array[float] = [0.16, 0.08, -0.02, -0.12, -0.20, -0.
 
 static var _mesh_cache: Dictionary = {}
 static var _flap_mesh_cache: Dictionary = {}
+static var _modular_flap_cache: Dictionary = {}
 
 
 static func mesh_for(species: StringName, pose: StringName = &"") -> ArrayMesh:
@@ -49,6 +50,7 @@ static func uses_authored_mesh(species: StringName, pose: StringName = &"") -> b
 static func reset_cache() -> void:
 	_mesh_cache.clear()
 	_flap_mesh_cache.clear()
+	_modular_flap_cache.clear()
 	BirdAssets.reset_cache()
 
 
@@ -73,6 +75,140 @@ static func flap_cycle(species: StringName) -> Array:
 		cycle.append(mesh)
 	_flap_mesh_cache[cache_key] = cycle
 	return cycle
+
+
+## Runtime-ready flap frames. The body and each wing side are separate meshes so
+## the flight actor can rotate them around shoulder/elbow pivots instead of
+## translating one monolithic wing card vertically.
+static func modular_flap_cycle(species: StringName) -> Array:
+	var cache_key := String(species)
+	if _modular_flap_cache.has(cache_key):
+		return _modular_flap_cache[cache_key]
+	var cycle: Array = []
+	for mesh: ArrayMesh in flap_cycle(species):
+		cycle.append(_split_flap_mesh(mesh))
+	_modular_flap_cache[cache_key] = cycle
+	return cycle
+
+
+static func modular_rig_for(species: StringName) -> Dictionary:
+	var cycle := modular_flap_cycle(species)
+	if cycle.is_empty():
+		return {}
+	# Frame 02 is the authored neutral/glide pose. Keeping one neutral geometry
+	# and animating its pivots avoids popping between disconnected baked meshes.
+	return cycle[mini(2, cycle.size() - 1)] as Dictionary
+
+
+static func _split_flap_mesh(mesh: ArrayMesh) -> Dictionary:
+	if mesh == null or mesh.get_surface_count() == 0:
+		return {}
+	var arrays := mesh.surface_get_arrays(0)
+	var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	if vertices.size() < 3:
+		return {}
+	var bounds := mesh.get_aabb()
+	var max_x := maxf(absf(bounds.position.x), absf(bounds.position.x + bounds.size.x))
+	var body_limit := maxf(max_x * 0.24, 0.025)
+	var wing_span := maxf(max_x - body_limit, 0.01)
+	var buckets: Array[Array] = [[], [], [], [], []]
+	var source_indices := PackedInt32Array()
+	if arrays[Mesh.ARRAY_INDEX] != null:
+		source_indices = arrays[Mesh.ARRAY_INDEX] as PackedInt32Array
+	var triangle_indices: Array[int] = []
+	if source_indices.size() >= 3:
+		for source_index in source_indices:
+			triangle_indices.append(int(source_index))
+	else:
+		for vertex_index in vertices.size():
+			triangle_indices.append(vertex_index)
+	for triangle_start in range(0, triangle_indices.size() - 2, 3):
+		var first_index := triangle_indices[triangle_start]
+		var second_index := triangle_indices[triangle_start + 1]
+		var third_index := triangle_indices[triangle_start + 2]
+		var centroid := (vertices[first_index] + vertices[second_index] + vertices[third_index]) / 3.0
+		var abs_x := absf(centroid.x)
+		var bucket := 0
+		if abs_x > body_limit:
+			var outer_ratio := (abs_x - body_limit) / wing_span
+			if centroid.x < 0.0:
+				bucket = 1 if outer_ratio < 0.52 else 2
+			else:
+				bucket = 3 if outer_ratio < 0.52 else 4
+		buckets[bucket].append(first_index)
+		buckets[bucket].append(second_index)
+		buckets[bucket].append(third_index)
+	var raw_parts := {
+		"body": _mesh_from_vertex_indices(mesh, arrays, buckets[0], Vector3.ZERO),
+		"left_upper": _mesh_from_vertex_indices(mesh, arrays, buckets[1], Vector3.ZERO),
+		"left_primary": _mesh_from_vertex_indices(mesh, arrays, buckets[2], Vector3.ZERO),
+		"right_upper": _mesh_from_vertex_indices(mesh, arrays, buckets[3], Vector3.ZERO),
+		"right_primary": _mesh_from_vertex_indices(mesh, arrays, buckets[4], Vector3.ZERO),
+	}
+	var left_upper_bounds := (raw_parts["left_upper"] as ArrayMesh).get_aabb()
+	var left_primary_bounds := (raw_parts["left_primary"] as ArrayMesh).get_aabb()
+	var right_upper_bounds := (raw_parts["right_upper"] as ArrayMesh).get_aabb()
+	var right_primary_bounds := (raw_parts["right_primary"] as ArrayMesh).get_aabb()
+	var left_shoulder := _wing_anchor(left_upper_bounds, -1.0, body_limit)
+	var left_elbow := _wing_elbow(left_primary_bounds, -1.0, body_limit, max_x)
+	var right_shoulder := _wing_anchor(right_upper_bounds, 1.0, body_limit)
+	var right_elbow := _wing_elbow(right_primary_bounds, 1.0, body_limit, max_x)
+	# Rebuild each wing section in its pivot-local space. At rest the section
+	# lands exactly on the authored silhouette; rotation then happens around the
+	# shoulder or elbow instead of around the bird origin.
+	return {
+		"body": raw_parts["body"],
+		"left_upper": _mesh_from_vertex_indices(mesh, arrays, buckets[1], left_shoulder),
+		"left_primary": _mesh_from_vertex_indices(mesh, arrays, buckets[2], left_elbow),
+		"right_upper": _mesh_from_vertex_indices(mesh, arrays, buckets[3], right_shoulder),
+		"right_primary": _mesh_from_vertex_indices(mesh, arrays, buckets[4], right_elbow),
+		"left_shoulder": left_shoulder,
+		"left_elbow": left_elbow,
+		"right_shoulder": right_shoulder,
+		"right_elbow": right_elbow,
+	}
+
+
+static func _mesh_from_vertex_indices(mesh: ArrayMesh, arrays: Array, indices: Array, local_origin: Vector3) -> ArrayMesh:
+	if indices.is_empty():
+		return ArrayMesh.new()
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	var colors := PackedColorArray()
+	if arrays[Mesh.ARRAY_COLOR] != null:
+		colors = arrays[Mesh.ARRAY_COLOR] as PackedColorArray
+	var uvs := PackedVector2Array()
+	if arrays[Mesh.ARRAY_TEX_UV] != null:
+		uvs = arrays[Mesh.ARRAY_TEX_UV] as PackedVector2Array
+	for source_index: int in indices:
+		if colors.size() == vertices.size():
+			surface.set_color(colors[source_index])
+		if uvs.size() == vertices.size():
+			surface.set_uv(uvs[source_index])
+		surface.add_vertex(vertices[source_index] - local_origin)
+	surface.generate_normals()
+	var output := surface.commit()
+	var source_material := mesh.surface_get_material(0)
+	if output != null and source_material != null:
+		output.surface_set_material(0, source_material)
+	return output
+
+
+static func _merge_part_bounds(first: ArrayMesh, second: ArrayMesh) -> AABB:
+	if first == null or first.get_surface_count() == 0:
+		return second.get_aabb() if second != null else AABB()
+	if second == null or second.get_surface_count() == 0:
+		return first.get_aabb()
+	return first.get_aabb().merge(second.get_aabb())
+
+
+static func _wing_anchor(bounds: AABB, side: float, body_limit: float) -> Vector3:
+	return Vector3(side * body_limit, bounds.position.y + bounds.size.y * 0.52, bounds.position.z + bounds.size.z * 0.52)
+
+
+static func _wing_elbow(bounds: AABB, side: float, body_limit: float, max_x: float) -> Vector3:
+	return Vector3(side * lerpf(body_limit, max_x, 0.50), bounds.position.y + bounds.size.y * 0.50, bounds.position.z + bounds.size.z * 0.50)
 
 
 static func geometry_stats(species: StringName, pose: StringName = &"") -> Dictionary:
