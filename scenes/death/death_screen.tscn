@@ -1,0 +1,120 @@
+[gd_scene load_steps=3 format=3 uid="uid://c4deathscreen01"]
+
+[ext_resource type="Script" path="res://scenes/death/death_screen.gd" id="1_death"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.0705882, 0.054902, 0.0627451, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.38, 0.20, 0.17, 0.9)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_color = Color(0, 0, 0, 0.55)
+shadow_size = 24
+
+[node name="DeathScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+process_mode = 3
+script = ExtResource("1_death")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.012, 0.009, 0.012, 1)
+
+[node name="RedVeil" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.16, 0.018, 0.014, 0.28)
+
+[node name="TopRule" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 3.0
+grow_horizontal = 2
+color = Color(0.56, 0.28, 0.20, 0.8)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+custom_minimum_size = Vector2(720, 440)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Content" type="VBoxContainer" parent="Center/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="SpacerTop" type="Control" parent="Center/Panel/Content"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+
+[node name="Kicker" type="Label" parent="Center/Panel/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.67, 0.48, 0.38, 1)
+theme_override_font_sizes/font_size = 20
+text = "THE FORGE GOES COLD"
+horizontal_alignment = 1
+
+[node name="Title" type="Label" parent="Center/Panel/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.91, 0.84, 0.72, 1)
+theme_override_font_sizes/font_size = 56
+text = "KALEV HAS FALLEN"
+horizontal_alignment = 1
+
+[node name="Divider" type="HSeparator" parent="Center/Panel/Content"]
+layout_mode = 2
+theme_override_colors/separator = Color(0.45, 0.25, 0.19, 0.8)
+
+[node name="Epitaph" type="Label" parent="Center/Panel/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.67, 0.60, 1)
+theme_override_font_sizes/font_size = 24
+text = "The streets of Reval remember those who fall."
+horizontal_alignment = 1
+
+[node name="Countdown" type="Label" parent="Center/Panel/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.46, 0.40, 1)
+theme_override_font_sizes/font_size = 18
+text = "Returning to the main menu in 4"
+horizontal_alignment = 1
+
+[node name="ReturnButton" type="Button" parent="Center/Panel/Content"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+focus_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.84, 0.02, 1)
+theme_override_font_sizes/font_size = 26
+text = "Return to Main Menu"
+
+[node name="SpacerBottom" type="Control" parent="Center/Panel/Content"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2

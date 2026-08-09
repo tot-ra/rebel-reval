@@ -6,6 +6,7 @@ const MeleeAttackResolverScript := preload("res://scripts/combat/melee_attack_re
 const AttackProfileScript := preload("res://scripts/combat/attack_profile.gd")
 const AttackProfileResolverScript := preload("res://scripts/combat/attack_profile_resolver.gd")
 const NpcPushScript := preload("res://scripts/physics/npc_push.gd")
+const DEATH_SCREEN_PATH := "res://scenes/death/death_screen.tscn"
 
 signal melee_attack_resolved(targets: Array[Node2D], profile: AttackProfile)
 signal health_changed(current: float, maximum: float)
@@ -48,6 +49,7 @@ var _dodge_direction := Vector2.ZERO
 var _dodge_facing := Vector2.ZERO
 var _dodge_animation: StringName = &"dodge_right"
 var _dodge_distance_remaining := 0.0
+var _death_transition_started := false
 
 func _ready() -> void:
 	CollisionLayers.apply_player(self)
@@ -498,6 +500,37 @@ func _configure_combat_vitals() -> void:
 
 func _on_combat_vitals_died() -> void:
 	died.emit()
+	# Test, debug, and prototype hosts intentionally keep their local death/retry
+	# behavior. Release gameplay scenes are the only scenes that enter the death
+	# epilogue and end the current run.
+	if _death_transition_started or not _should_show_death_screen():
+		return
+	_death_transition_started = true
+	call_deferred("_open_death_screen")
+
+
+func _should_show_death_screen() -> bool:
+	var tree := get_tree()
+	if tree == null or not is_inside_tree():
+		return false
+	var scene := tree.current_scene
+	if scene == null:
+		return false
+	var scene_path := scene.scene_file_path
+	return not (
+		scene_path.begins_with("res://scenes/tests/")
+		or scene_path.begins_with("res://scenes/debug/")
+		or scene_path.begins_with("res://scenes/map_prototype/")
+	)
+
+
+func _open_death_screen() -> void:
+	if not is_inside_tree():
+		return
+	var error := get_tree().change_scene_to_file(DEATH_SCREEN_PATH)
+	if error != OK:
+		_death_transition_started = false
+		push_error("Could not open the death screen: %s" % error_string(error))
 
 
 func _sync_vitals_from_fields() -> void:
