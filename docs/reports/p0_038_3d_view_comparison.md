@@ -8,7 +8,7 @@ Git commit: `a87b6002917fdfdc7afdb3fbf2fd8b1c030207d0`
 
 **Pass (development baseline).** Headless frame time is inside budget, slice navigation remains green, animation reuse and NPC-variant timings meet ADR 0007 budgets. GPU texture memory and minimum-hardware frame time still require a non-headless capture before P0-040.
 
-This report compares the programmatic 3D isometric candidate on the P0-053 slice surface kit. It is development-baseline evidence for P0-040 and does not replace the human blind-readability gate in P0-039 or the minimum-hardware declaration in P3-011.
+This report compares the programmatic 3D isometric candidate on the P0-053 slice surface kit. It is development-baseline evidence for P0-040 and does not replace maintainer review or the minimum-hardware declaration in P3-011.
 
 ## Repeatable procedure
 

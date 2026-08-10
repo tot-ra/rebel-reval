@@ -242,8 +242,8 @@ def render(evidence: dict[str, Any]) -> str:
         _verdict_text(evidence.get("verdict", "")),
         "",
         "This report compares the programmatic 3D isometric candidate on the P0-053 slice "
-        "surface kit. It is development-baseline evidence for P0-040 and does not replace the "
-        "human blind-readability gate in P0-039 or the minimum-hardware declaration in P3-011.",
+        "surface kit. It is development-baseline evidence for P0-040 and does not replace "
+        "maintainer review or the minimum-hardware declaration in P3-011.",
         "",
         "## Repeatable procedure",
         "",

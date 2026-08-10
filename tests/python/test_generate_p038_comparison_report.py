@@ -102,7 +102,12 @@ class GenerateP038ComparisonReportTest(unittest.TestCase):
         ):
             self.assertIn(heading, report)
 
-    def test_verdict_passes_on_headless_budget(self) -> None:
+    def test_report_uses_current_authorial_review_contract(self) -> None:
+        report = generator.render(SAMPLE_EVIDENCE)
+        self.assertIn("does not replace maintainer review", report)
+        self.assertNotIn("P0-039", report)
+        self.assertNotIn("blind-readability gate", report)
+
         verdict = generator._verdict(
             {"frame_time_ms_p95": 7.5},
             {"measurement_host": {"headless": True}},

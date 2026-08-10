@@ -91,3 +91,4 @@ This file contains lessons specific to the Dev role.
 - On macOS, set `GODOT_LOG_DIR` explicitly when using `tools/run_godot_checked.sh`; the default `TMPDIR` can point into a private temp directory that is easy to miss when inspecting logs.
 - When an exceptional house is intentionally outside the ordinary renderer kit, exclude it from ordinary chimney/facade assertions and add a dedicated exceptional-category test; otherwise the legacy loop reports a false regression and may emit null-node diagnostics.
 - When a focused localization test file reports an existing typed-array error during `DialogueRunner._init`, verify the isolated localization assertion separately and track the initialization cascade as follow-up work instead of widening a c1 test-only task into runtime repair.
+- When an exact replacement misses a wrapped string literal, re-read the live source block and match the actual line concatenation instead of retrying the summarized wording.
