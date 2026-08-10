@@ -84,3 +84,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - If one step in a multi-tool verification batch fails because of malformed invocation data, rerun that check independently and inspect the other step logs before classifying the change as blocked.
 - Scoped Markdown validation must special-case hub indexes such as `history/RESEARCH_INDEX.md`; validate their heading/link contract instead of assuming every Markdown file has front matter.
 - When using `replace_lines`, pass the complete file path in `path`; passing the project directory fails before any map edit is applied.
+- The tasks board `next` operation does not filter by complexity; when a low-complexity request receives a larger row, return that row to `todo`, inspect the candidates, and claim an explicitly low-complexity task before editing.
