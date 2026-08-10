@@ -1,0 +1,161 @@
+{
+  "type": "quest",
+  "id": "quest.toompea_hill_gate_message",
+  "title": "A Message Under the Hill-Gate Curfew",
+  "summary": "Carry an April report from All-linn toward the Domberg cathedral close while the wooden hill gates and rival Danish factions turn every stair into a jurisdictional seam.",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-041",
+    "notes": "Act 1 Toompea colour package. April-only baseline: the package stops before the 16 May castle handover and leaves Konrad Preen's Paide capture to Act 2 P5-001/P5-009."
+  },
+  "entry_conditions": [
+    {
+      "op": "always"
+    }
+  ],
+  "initial_state": "message_pending",
+  "states": [
+    {
+      "id": "message_pending",
+      "label": "Report not yet carried"
+    },
+    {
+      "id": "curfew_heard",
+      "label": "Hill-gate curfew understood"
+    },
+    {
+      "id": "cathedral_seen",
+      "label": "Cathedral construction recorded"
+    },
+    {
+      "id": "court_colour_heard",
+      "label": "April court tension recorded"
+    },
+    {
+      "id": "message_delivered",
+      "label": "Report delivered at the cathedral close",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "record_hill_gate_curfew",
+      "from_state": "message_pending",
+      "to_state": "curfew_heard",
+      "conditions": [
+        {
+          "op": "fact_known",
+          "key": "fact.toompea_hill_gate_message.curfew_heard"
+        }
+      ],
+      "effects": []
+    },
+    {
+      "id": "record_cathedral_construction",
+      "from_state": "curfew_heard",
+      "to_state": "cathedral_seen",
+      "conditions": [
+        {
+          "op": "fact_known",
+          "key": "fact.toompea_hill_gate_message.cathedral_construction_seen"
+        }
+      ],
+      "effects": []
+    },
+    {
+      "id": "record_april_court_colour",
+      "from_state": "cathedral_seen",
+      "to_state": "court_colour_heard",
+      "conditions": [
+        {
+          "op": "fact_known",
+          "key": "fact.toompea_hill_gate_message.court_colour_heard"
+        }
+      ],
+      "effects": []
+    },
+    {
+      "id": "deliver_report",
+      "from_state": "court_colour_heard",
+      "to_state": "message_delivered",
+      "conditions": [
+        {
+          "op": "fact_known",
+          "key": "fact.toompea_hill_gate_message.message_delivered"
+        }
+      ],
+      "effects": []
+    }
+  ],
+  "objectives": [
+    {
+      "id": "hear_gate_curfew",
+      "text": "Learn how the All-linn watch closes the wooden Pikk jalg and Lühike jalg gates after dark.",
+      "state_id": "curfew_heard"
+    },
+    {
+      "id": "note_cathedral_work",
+      "text": "Record the unfinished St. Mary's Cathedral nave and its active construction yard on the Domberg.",
+      "state_id": "cathedral_seen"
+    },
+    {
+      "id": "hear_april_factions",
+      "text": "Carry the reported April positions of Bishop Olaf and Captain Marquard Breide without turning either report into a post-May authority claim.",
+      "state_id": "court_colour_heard"
+    },
+    {
+      "id": "deliver_report",
+      "text": "Deliver the report at the cathedral close before the hill-gate route goes quiet.",
+      "state_id": "message_delivered"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "delivered",
+      "summary": "The April report reaches the cathedral close; the Danish hill, the All-linn watch, and the rival court factions remain distinct in the account.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.toompea_hill_gate_message",
+          "value": "message_delivered"
+        }
+      ]
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.kalev",
+      "char.kaja",
+      "char.henning",
+      "char.ellen",
+      "char.jurgen",
+      "char.mart"
+    ],
+    "dialogue_ids": [
+      "dialogue.toompea.hill_gate_curfew",
+      "dialogue.toompea.cathedral_close_reports",
+      "dialogue.toompea.april_court_tension"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "attested",
+      "summary": "The April frame follows the Danish Domberg/Castrum Danorum seat, the All-linn legal boundary, the cathedral enlargement in progress, and the two wooden hill-gate routes described by the project dossiers.",
+      "citations": [
+        "history/dossiers/architecture/toompea-castle-and-upper-town.md",
+        "history/dossiers/power/jurisdictions-of-reval.md",
+        "history/dossiers/military/watch-duty-and-town-defence.md"
+      ]
+    },
+    {
+      "confidence": "plausible composite",
+      "summary": "The courier route, curfew exchange, and reported court colour are authored connective tissue for April Act 1. Olaf, Breide, and Preen are referenced as reported historical actors rather than added as unavailable character records; the 16 May handover and Paide capture remain Act 2.",
+      "citations": [
+        "docs/ROADMAP.md",
+        "history/dossiers/power/jurisdictions-of-reval.md"
+      ]
+    }
+  ]
+}

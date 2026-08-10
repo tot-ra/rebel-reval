@@ -1,0 +1,73 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.toompea.hill_gate_curfew",
+  "title": "Toompea - The Hill-Gate Curfew",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-041",
+    "notes": "April Act 1 gate beat; the hill gates are wooden and the exchange stays on the All-linn/Domberg boundary."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev",
+    "char.kaja",
+    "char.henning"
+  ],
+  "start_node_id": "curfew_warning",
+  "word_count_estimate": 91,
+  "nodes": [
+    {
+      "id": "curfew_warning",
+      "speaker_id": "char.kaja",
+      "text": "The All-linn watch is drawing the wooden leaves of Pikk jalg and Lühike jalg. When the hill-gate curfew is called, Domberg keeps its messengers above us and the council keeps the stairs below. Carry the report now, or wait for daylight.",
+      "choices": [
+        {
+          "id": "carry_now",
+          "text": "Tell me where to wait.",
+          "target_node_id": "curfew_recorded"
+        },
+        {
+          "id": "wait_below",
+          "text": "I will not test the chain tonight.",
+          "target_node_id": "curfew_recorded"
+        }
+      ]
+    },
+    {
+      "id": "curfew_recorded",
+      "speaker_id": "char.henning",
+      "text": "Wait below the gate line. The watch closes the route from the Lower Town side after dark; a hill clerk may speak of Domberg, but no message crosses these stairs until the chain is lifted.",
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.toompea_hill_gate_message.curfew_heard",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "attested",
+      "summary": "The dialogue uses the dossier's April distinction between Toompea/Domberg and All-linn and its two named hill-gate routes.",
+      "citations": [
+        "history/dossiers/architecture/toompea-castle-and-upper-town.md",
+        "history/dossiers/power/jurisdictions-of-reval.md"
+      ]
+    },
+    {
+      "confidence": "plausible composite",
+      "summary": "A short courier exchange turns the documented wooden-gate curfew seam into an authored Act 1 beat without activating a map or assigning new historical characters.",
+      "citations": [
+        "history/dossiers/military/watch-duty-and-town-defence.md"
+      ]
+    }
+  ]
+}
