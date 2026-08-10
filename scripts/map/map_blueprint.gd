@@ -21,6 +21,9 @@ var cell_size: int
 ## legacy maps flat at their existing datum; elevated districts ease down at
 ## their map edge so transitions remain on the shared gameplay plane.
 var ground_elevation: float = 0.0
+## Ordered, view-only elevation profiles. The compiler preserves this order so
+## overlapping authored features remain deterministic.
+var elevation_profiles: Array[Dictionary] = []
 
 var primitives: Array[Dictionary] = []
 var styles: Array[Dictionary] = []
@@ -75,6 +78,54 @@ func add_source_reference(path: String) -> MapBlueprint:
 func add_source_references(paths: Array[String]) -> MapBlueprint:
 	for path in paths:
 		add_source_reference(path)
+	return self
+
+
+func grade(profile_id: StringName, direction: Vector2i, delta: float) -> MapBlueprint:
+	elevation_profiles.append({
+		"id": profile_id,
+		"kind": &"grade",
+		"direction": direction,
+		"delta": delta,
+	})
+	return self
+
+
+func elevation_area(
+	profile_id: StringName,
+	center_cell: Vector2i,
+	radius: float,
+	height: float,
+	falloff: float = 0.0
+) -> MapBlueprint:
+	elevation_profiles.append({
+		"id": profile_id,
+		"kind": &"area",
+		"center": center_cell,
+		"radius": radius,
+		"height": height,
+		"falloff": falloff,
+	})
+	return self
+
+
+func elevation_ramp(
+	profile_id: StringName,
+	start_cell: Vector2i,
+	end_cell: Vector2i,
+	start_height: float,
+	end_height: float,
+	width: float = 1.0
+) -> MapBlueprint:
+	elevation_profiles.append({
+		"id": profile_id,
+		"kind": &"ramp",
+		"start": start_cell,
+		"end": end_cell,
+		"start_height": start_height,
+		"end_height": end_height,
+		"width": width,
+	})
 	return self
 
 

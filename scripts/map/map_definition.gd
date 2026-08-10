@@ -11,6 +11,9 @@ var base_terrain: StringName = MapTypes.TERRAIN_GRASS
 ## Outdoor terrain datum in 3D world units. This is view geometry only: 2D
 ## collision/navigation remain on the canonical X/Y gameplay plane.
 var ground_elevation: float = 0.0
+## View-only authored relief. Coordinates remain in canonical cell space and never
+## reach collision, navigation, terrain IDs, or other gameplay systems.
+var elevation_profiles: Array[Dictionary] = []
 var zones: Array[Dictionary] = []
 var buildings: Array[Dictionary] = []
 var props: Array[Dictionary] = []
@@ -49,6 +52,7 @@ var surroundings_sides: Dictionary = {}
 const VIEW_LANDMARK_KINDS: Array[StringName] = [&"gate_arch", &"interior_window", &"cloister_walk"]
 const WORLD_SIDES: Array[StringName] = [&"north", &"south", &"east", &"west"]
 const SURROUNDINGS_KINDS: Array[StringName] = [&"town", &"water", &"woodland"]
+const ELEVATION_PROFILE_KINDS: Array[StringName] = [&"grade", &"area", &"ramp"]
 
 
 ## World-travel locations stand a day or more of road from Reval. They still use
@@ -79,6 +83,8 @@ func validate() -> Array[String]:
 		errors.append("size_cells must be positive")
 	if not is_finite(ground_elevation) or ground_elevation < 0.0 or ground_elevation > 8.0:
 		errors.append("ground_elevation must be finite and between 0 and 8 world units")
+	for index in elevation_profiles.size():
+		errors.append_array(_validate_elevation_profile(elevation_profiles[index], index))
 
 	if not MapTypes.ALL_TERRAINS.has(base_terrain):
 		errors.append("unknown base_terrain: %s" % String(base_terrain))
@@ -199,6 +205,45 @@ func _world_rect_to_cell_rect(world_rect: Rect2) -> Rect2i:
 		maxi(1, int(round(world_rect.size.x / pixel))),
 		maxi(1, int(round(world_rect.size.y / pixel)))
 	)
+
+
+func _validate_elevation_profile(profile: Dictionary, index: int) -> Array[String]:
+	var errors: Array[String] = []
+	var prefix := "elevation_profiles[%d]" % index
+	if not profile.has("id") or String(profile["id"]).is_empty():
+		errors.append("%s.id is required" % prefix)
+	var kind: StringName = profile.get("kind", &"")
+	if not ELEVATION_PROFILE_KINDS.has(kind):
+		errors.append("%s.kind is unknown: %s" % [prefix, String(kind)])
+	if kind == &"grade":
+		var direction: Variant = profile.get("direction")
+		if not direction is Vector2i or direction == Vector2i.ZERO:
+			errors.append("%s.direction must be a non-zero cardinal Vector2i" % prefix)
+		if not is_finite(float(profile.get("delta", NAN))) or absf(float(profile.get("delta", 0.0))) > 8.0:
+			errors.append("%s.delta must be finite and between -8 and 8" % prefix)
+	elif kind == &"area":
+		if not profile.get("center") is Vector2i:
+			errors.append("%s.center must be Vector2i" % prefix)
+		var radius := float(profile.get("radius", 0.0))
+		var falloff := float(profile.get("falloff", 0.0))
+		if not is_finite(radius) or radius <= 0.0:
+			errors.append("%s.radius must be positive and finite" % prefix)
+		if not is_finite(falloff) or falloff < 0.0 or falloff >= radius:
+			errors.append("%s.falloff must be finite and in [0, radius)" % prefix)
+		if not is_finite(float(profile.get("height", NAN))) or absf(float(profile.get("height", 0.0))) > 8.0:
+			errors.append("%s.height must be finite and between -8 and 8" % prefix)
+	elif kind == &"ramp":
+		if not profile.get("start") is Vector2i or not profile.get("end") is Vector2i:
+			errors.append("%s.start and end must be Vector2i" % prefix)
+		if profile.get("start") == profile.get("end"):
+			errors.append("%s.start and end must differ" % prefix)
+		var width := float(profile.get("width", 0.0))
+		if not is_finite(width) or width <= 0.0:
+			errors.append("%s.width must be positive and finite" % prefix)
+		for key in [&"start_height", &"end_height"]:
+			if not is_finite(float(profile.get(key, NAN))) or absf(float(profile.get(key, 0.0))) > 8.0:
+				errors.append("%s.%s must be finite and between -8 and 8" % [prefix, key])
+	return errors
 
 
 func _validate_zone(zone: Dictionary, index: int) -> Array[String]:

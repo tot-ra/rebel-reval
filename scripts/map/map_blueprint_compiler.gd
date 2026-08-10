@@ -8,7 +8,7 @@ extends RefCounted
 ## this class keeps validation helpers and the public compile entry points.
 
 
-const COMPILER_VERSION := 8
+const COMPILER_VERSION := 9
 const ID_PATTERN := "^[a-z0-9_.-]+$"
 
 const COMMON_STYLE_KEYS: Array[StringName] = [&"enabled"]
@@ -67,6 +67,7 @@ static func compile_with_diagnostics(
 
 	_validate_metadata(blueprint, result.errors)
 	_validate_deterministic_value(blueprint.styles, "styles", result.errors)
+	_validate_deterministic_value(blueprint.elevation_profiles, "elevation_profiles", result.errors)
 	_validate_deterministic_value(blueprint.primitives, "primitives", result.errors)
 	_validate_deterministic_value(blueprint.object_overrides, "object_overrides", result.errors)
 	var prefab_expansion := MapPrefabExpander.expand(blueprint, result.errors)

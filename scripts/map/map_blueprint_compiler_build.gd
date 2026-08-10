@@ -16,6 +16,7 @@ static func build_definition(blueprint: MapBlueprint, expanded: Dictionary) -> M
 	definition.base_terrain = blueprint.base_terrain
 	definition.cell_size = blueprint.cell_size
 	definition.ground_elevation = blueprint.ground_elevation
+	definition.elevation_profiles = blueprint.elevation_profiles.duplicate(true)
 
 	var terrain: Array = expanded["terrain"]
 	terrain.sort_custom(MapBlueprintCompiler._compare_terrain)
