@@ -3,7 +3,7 @@ extends RefCounted
 
 ## Data-only catalog for north-Baltic ambient birds. P0-117 owns stable IDs,
 ## visual/acoustic profile stubs, and district suitability. Runtime spawning,
-## Runtime spawning, flight, and voice playback are owned by P0-105; no gameplay interaction.
+## flight, and voice playback are owned by P0-105; this catalog has no gameplay interaction.
 
 const GROUP_GULL := &"gull"
 const GROUP_TERN := &"tern"
