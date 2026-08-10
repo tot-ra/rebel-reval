@@ -210,3 +210,10 @@ func test_localization_falls_back_to_inline_text_for_missing_key() -> void:
 	localization.add_catalog("en", {"known": "Translated"})
 	assert_eq(localization.resolve("missing", "Authored fallback"), "Authored fallback")
 	assert_eq(localization.resolve("missing"), "")
+
+
+func test_localization_trims_whitespace_from_translation_key() -> void:
+	var localization = preload("res://scripts/dialogue/dialogue_localization.gd").new()
+	localization.add_catalog("en", {"known": "Translated"})
+	assert_eq(localization.resolve("  known\t", "Authored fallback"), "Translated")
+	assert_eq(localization.resolve("  missing\t", "Authored fallback"), "Authored fallback")
