@@ -81,6 +81,19 @@ This is a **bounded catalogue-title check**, not a full-text or folio search. Th
 
 The AIS record marks the unit as digitized, but the public DGS permalink [TLA.230.1.Aa2](https://www.ra.ee/dgs/_purl.php?shc=TLA.230.1.Aa2) redirects to the VAU login before the manuscript image can be read. No folio/page reference, original Latin or Middle Low German wording, document date, rate, or collector name can therefore be reported from TLA in this pass. The result is an **archival lead plus access blocker**, not evidence that the Denkelbuch lacks harbour-dues material. The clearing condition is tracked as `R-459` [7][8].
 
+### Repeat access verification (2026-08-10)
+
+A fresh unauthenticated fetch of the official AIS unit page reproduced the catalogue record for `TLA.230.1.Aa2`; it did not expose a folio transcription. A fresh fetch of the official DGS permalink returned the VAU sign-in page and an embedded remote target for a protected TIFF image rather than manuscript pixels or OCR. Because no authenticated session or archive-supplied scan/transcription was available, this probe inspected **zero folios** and produced **no text-level hit or no-hit result**. The protected image target is recorded only as an access diagnostic, not as evidence that its folio was read.
+
+| Probe | Observed result | Evidence boundary |
+|---|---|---|
+| Official AIS unit page | Catalogue metadata page loads for `TLA.230.1.Aa2` | Unit identity and extent only; no folio text |
+| Official DGS permalink | Redirects to VAU authentication before image display | Access blocker; no folio/page read |
+| Protected DGS TIFF target exposed by redirect | Image endpoint is named in the login redirect, but remains unauthenticated | Endpoint discovery only; no image/OCR evidence |
+| Harbour-term search | Not run against folio text because authentication is unavailable | No responsible text-level positive or negative claim |
+
+This repeat check strengthens the provenance of the access boundary while leaving the harbour-dues question open. The next lawful action is an authenticated VAU/DGS review or a request to Tallinn City Archives / Rahvusarhiiv for a scan or transcription with folio identifiers.
+
 | Evidence item | Result | Confidence |
 |---|---|---|
 | TLA Pärgamendid title queries, 16 terms listed above | No catalogue-title result under the stated TLA and 1340-1343 parameters | bounded catalogue negative; not folio evidence [7] |
