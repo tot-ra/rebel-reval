@@ -9,7 +9,7 @@ related:
   - reval-market-weekday-1340s.md
   - ../religion/dominican-brewery-fish-yard-1343.md
   - coinage-prices-and-measures.md
-updated: 2026-08-05
+updated: 2026-08-10
 ---
 
 # Reval brewery ordinances, beer excise, and Estonian collectors (1340–1343)
@@ -77,6 +77,7 @@ No suitable licensed visual evidence was found for a 1340–1343 Reval brewery o
 - [`reval-market-weekday-1340s.md`](reval-market-weekday-1340s.md) - parallel AWB/Denkelbuch folio-access gap for council regulation.
 - [`../religion/dominican-brewery-fish-yard-1343.md`](../religion/dominican-brewery-fish-yard-1343.md) - monastic brewery context, not proof of civic excise.
 - [`coinage-prices-and-measures.md`](coinage-prices-and-measures.md) - keeps later or comparative beer prices separate from a missing 1343 tariff.
+- [`../../../docs/reports/work_requests/research-2026-08-05-brewery-denkelbuch-access.md`](../../../docs/reports/work_requests/research-2026-08-05-brewery-denkelbuch-access.md) - open archival-access blocker and clearing condition for the Denkelbuch folio pass.
 
 ## Open questions
 
