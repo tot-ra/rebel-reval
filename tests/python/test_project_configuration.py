@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import re
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -11,6 +12,18 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 PROJECT_FILE = ROOT / "project.godot"
 VERSION_FILE = ROOT / ".godot-version"
+
+
+def _scene_paths_for_uid(root: Path, scene_uid: str) -> list[Path]:
+    scene_paths = []
+    for scene_path in root.rglob("*.tscn"):
+        if ".git" in scene_path.parts or ".godot" in scene_path.parts:
+            continue
+        scene_text = scene_path.read_text(encoding="utf-8", errors="ignore")
+        scene_header = scene_text.splitlines()[0] if scene_text else ""
+        if scene_header.startswith("[gd_scene ") and f'uid="{scene_uid}"' in scene_header:
+            scene_paths.append(scene_path)
+    return scene_paths
 
 
 class ProjectConfigurationTest(unittest.TestCase):
@@ -35,14 +48,7 @@ class ProjectConfigurationTest(unittest.TestCase):
 
         self.assertIsNotNone(main_scene_match, "project.godot must declare run/main_scene")
         main_scene_uid = main_scene_match.group(1)
-        scene_paths = []
-        for scene_path in ROOT.rglob("*.tscn"):
-            if ".git" in scene_path.parts or ".godot" in scene_path.parts:
-                continue
-            scene_text = scene_path.read_text(encoding="utf-8", errors="ignore")
-            scene_header = scene_text.splitlines()[0] if scene_text else ""
-            if scene_header.startswith("[gd_scene ") and f'uid="{main_scene_uid}"' in scene_header:
-                scene_paths.append(scene_path)
+        scene_paths = _scene_paths_for_uid(ROOT, main_scene_uid)
 
         self.assertEqual(
             len(scene_paths),
@@ -50,6 +56,21 @@ class ProjectConfigurationTest(unittest.TestCase):
             f"main scene UID {main_scene_uid} must resolve to exactly one .tscn",
         )
         self.assertTrue(scene_paths[0].is_file())
+
+    def test_duplicate_main_scene_uid_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            fixture_root = Path(temp_dir)
+            scene_header = '[gd_scene load_steps=1 format=3 uid="uid://main"]\n'
+            (fixture_root / "main.tscn").write_text(scene_header, encoding="utf-8")
+            (fixture_root / "duplicate.tscn").write_text(scene_header, encoding="utf-8")
+
+            scene_paths = _scene_paths_for_uid(fixture_root, "uid://main")
+
+        self.assertEqual(
+            len(scene_paths),
+            2,
+            "duplicate main-scene UIDs must not be treated as a unique resolution",
+        )
 
 
 if __name__ == "__main__":
