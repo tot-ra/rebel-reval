@@ -4,6 +4,7 @@ extends Node
 const PresenterScript := preload("res://scripts/dialogue/dialogue_presenter.gd")
 const EntryResolverScript := preload("res://scripts/dialogue/dialogue_entry_resolver.gd")
 const TextFormatterScript := preload("res://scripts/dialogue/dialogue_text_formatter.gd")
+const LocalizationScript := preload("res://scripts/dialogue/dialogue_localization.gd")
 
 ## Authored offline dialogue playback: branching choices, conditions, effects,
 ## once-only nodes, and phase bark resolution. UI is delegated to DialoguePresenter.
@@ -27,18 +28,27 @@ var _active := false
 var _waiting_for_choice := false
 var _pending_choices: Array = []
 var _input_enabled := false
+var _localization: RefCounted
+
+
+func _init() -> void:
+	_localization = LocalizationScript.new()
+	_localization.load_from_directories(["res://localization"])
 
 
 func configure(
 	content_db: ContentDB,
 	state: GameState,
 	presenter: RefCounted,
-	evaluator: StateRuleEvaluator = null
+	evaluator: StateRuleEvaluator = null,
+	localization: RefCounted = null
 ) -> void:
 	_content_db = content_db
 	_state = state
 	_presenter = presenter
 	_evaluator = evaluator if evaluator != null else StateRuleEvaluator.new()
+	if localization != null:
+		_localization = localization
 
 
 func is_active() -> bool:
@@ -197,7 +207,7 @@ func resolve_bark(
 			"entry_id": String(entry.get("id", "")),
 			"speaker_id": StringName(String(entry.get("speaker_id", ""))),
 			"speaker_name": _speaker_name(StringName(String(entry.get("speaker_id", "")))),
-			"text": _format_text(String(entry.get("text", ""))),
+			"text": _format_text(_resolve_authored_text(entry)),
 		}
 	return {}
 
@@ -249,7 +259,7 @@ func _enter_node(node_id: String, depth: int = 0) -> bool:
 	_apply_node_effects(node)
 	_mark_node_seen(_dialogue_id, node)
 
-	var text := _format_text(String(node.get("text", "")))
+	var text := _format_text(_resolve_authored_text(node))
 	var choices := _resolve_choices(node)
 	var speaker_id := StringName(String(node.get("speaker_id", "")))
 	if not text.is_empty():
@@ -305,7 +315,7 @@ func _resolve_choice(choice: Dictionary) -> Dictionary:
 		enabled = _evaluator.evaluate_conditions(_runtime_rules(conditions), _state)
 	return {
 		"id": String(choice.get("id", "")),
-		"text": String(choice.get("text", "")),
+		"text": _resolve_authored_text(choice),
 		"target_node_id": String(choice.get("target_node_id", "")),
 		"enabled": enabled,
 		"disabled_reason": String(choice.get("disabled_reason", "")),
@@ -376,6 +386,14 @@ func _speaker_name(speaker_id: StringName) -> String:
 	if character.is_empty():
 		return String(speaker_id)
 	return String(character.get("name", speaker_id))
+
+
+func _resolve_authored_text(entry: Dictionary) -> String:
+	var inline_text := String(entry.get("text", ""))
+	var text_key := String(entry.get("text_key", ""))
+	if _localization != null and _localization.has_method("resolve"):
+		return String(_localization.call("resolve", text_key, inline_text))
+	return inline_text
 
 
 func _format_text(text: String) -> String:

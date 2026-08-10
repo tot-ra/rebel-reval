@@ -38,6 +38,13 @@ def validate_dialogue_record(context: RecordValidationContext) -> None:
             participant if isinstance(participant, str) else None,
             "character",
         )
+    for node_index, node in enumerate(record.get("nodes") or []):
+        if not isinstance(node, dict):
+            continue
+        _validate_localized_text(context, f"$.nodes[{node_index}]", node)
+        for choice_index, choice in enumerate(node.get("choices") or []):
+            if isinstance(choice, dict):
+                _validate_localized_text(context, f"$.nodes[{node_index}].choices[{choice_index}]", choice)
     validate_dialogue(
         context.diagnostics,
         path=context.path,
@@ -59,6 +66,7 @@ def validate_bark_pool(context: RecordValidationContext) -> None:
     context.check_record_duplicates("entries")
     for entry_index, entry in enumerate(record.get("entries") or []):
         if isinstance(entry, dict):
+            _validate_localized_text(context, f"$.entries[{entry_index}]", entry)
             context.require_ref(
                 f"$.entries[{entry_index}].speaker_id",
                 entry.get("speaker_id"),
@@ -128,3 +136,16 @@ def _reject_direct_self_state_effect(
                 f"$.transitions[{transition_index}].effects[{effect_index}]",
                 "quest transitions must use to_state instead of setting their own quest state",
             )
+
+
+def _validate_localized_text(context: RecordValidationContext, pointer: str, entry: dict[str, Any]) -> None:
+    text = entry.get("text")
+    text_key = entry.get("text_key")
+    has_text = isinstance(text, str) and bool(text.strip())
+    has_key = isinstance(text_key, str) and bool(text_key.strip())
+    if not has_text and not has_key:
+        context.diagnose(
+            "LOCALIZATION_TEXT",
+            pointer,
+            "entry must provide non-empty text or text_key",
+        )

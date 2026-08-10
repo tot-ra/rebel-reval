@@ -7,6 +7,7 @@ const AudioSettingsScript := preload("res://scripts/settings/audio_settings.gd")
 
 const BUS_MUSIC := &"Music"
 const BUS_SFX := &"SFX"
+const BUS_VOICE := &"Voice"
 
 
 static func apply_settings(settings) -> void:
@@ -15,6 +16,7 @@ static func apply_settings(settings) -> void:
 	settings.normalize()
 	_set_bus_linear_volume(BUS_MUSIC, settings.music_volume)
 	_set_bus_linear_volume(BUS_SFX, settings.sfx_volume)
+	_set_bus_linear_volume(BUS_VOICE, settings.voice_volume)
 
 
 static func assign_bus(player: Node, bus_name: StringName) -> void:

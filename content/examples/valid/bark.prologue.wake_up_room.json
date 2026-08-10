@@ -26,6 +26,7 @@
     {
       "id": "henning_stew_comment",
       "speaker_id": "char.henning",
+      "text_key": "bark.prologue.wake_up_room.henning_stew_comment",
       "text": "Must have been the stew.",
       "priority": 5
     },

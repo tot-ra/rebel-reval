@@ -183,3 +183,30 @@ func _tree() -> SceneTree:
 func _cleanup_node(node: Node) -> void:
 	if is_instance_valid(node):
 		node.free()
+
+
+func test_localization_resolves_line_choice_and_bark_text_with_inline_fallback() -> void:
+	var db := ContentDB.new()
+	assert_true(db.load_from_directories(CONTENT_DIRS))
+	var localization = preload("res://scripts/dialogue/dialogue_localization.gd").new()
+	localization.add_catalog("en", {
+		"dialogue.test_runner.intro.mart_opens": "Localized greeting.",
+		"dialogue.test_runner.intro.trust_mart": "Localized trust choice.",
+		"bark.prologue.wake_up_room.henning_stew_comment": "Localized bark.",
+	})
+	var presenter: RefCounted = TestPresenterScript.new()
+	var runner = RunnerScript.new()
+	runner.configure(db, GameState.new(), presenter, null, localization)
+	assert_true(runner.start(INTRO_ID))
+	assert_eq(presenter.last_text, "Localized greeting.")
+	runner.advance_for_test()
+	assert_eq(presenter.last_choices[0]["text"], "Localized trust choice.")
+	var bark := runner.resolve_bark(WAKE_BARK_ID, PHASE_PROLOGUE, LOC_SMITHY)
+	assert_eq(String(bark.get("text", "")), "Localized bark.")
+
+
+func test_localization_falls_back_to_inline_text_for_missing_key() -> void:
+	var localization = preload("res://scripts/dialogue/dialogue_localization.gd").new()
+	localization.add_catalog("en", {"known": "Translated"})
+	assert_eq(localization.resolve("missing", "Authored fallback"), "Authored fallback")
+	assert_eq(localization.resolve("missing"), "")

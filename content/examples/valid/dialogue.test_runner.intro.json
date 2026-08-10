@@ -25,15 +25,18 @@
     {
       "id": "mart_opens",
       "speaker_id": "char.mart",
+      "text_key": "dialogue.test_runner.intro.mart_opens",
       "text": "Kalev, the street is restless tonight.",
       "choices": [
         {
           "id": "trust_mart",
+          "text_key": "dialogue.test_runner.intro.trust_mart",
           "text": "Tell me what you saw.",
           "target_node_id": "mart_trusted"
         },
         {
           "id": "doubt_mart",
+          "text_key": "dialogue.test_runner.intro.doubt_mart",
           "text": "Keep your rumors to yourself.",
           "target_node_id": "mart_doubted"
         }

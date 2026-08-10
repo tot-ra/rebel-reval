@@ -18,21 +18,25 @@ func test_audio_settings_round_trip_persists_both_volumes() -> void:
 	var settings = AudioSettingsScript.default_settings()
 	settings.music_volume = 0.35
 	settings.sfx_volume = 0.8
+	settings.voice_volume = 0.45
 
 	assert_true(store.save_audio_settings(settings))
 	var loaded = store.load_audio_settings()
 	assert_true(is_equal_approx(loaded.music_volume, 0.35))
 	assert_true(is_equal_approx(loaded.sfx_volume, 0.8))
+	assert_true(is_equal_approx(loaded.voice_volume, 0.45))
 
 
 func test_invalid_audio_settings_normalize_to_safe_range() -> void:
 	var settings = AudioSettingsScript.from_dict({
 		"music_volume": 2.5,
 		"sfx_volume": -0.4,
+		"voice_volume": 4.0,
 	})
 	settings.normalize()
 	assert_true(is_equal_approx(settings.music_volume, 1.0))
 	assert_true(is_equal_approx(settings.sfx_volume, 0.0))
+	assert_true(is_equal_approx(settings.voice_volume, 1.0))
 
 
 func test_audio_bus_service_applies_linear_volumes() -> void:

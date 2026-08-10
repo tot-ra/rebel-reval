@@ -69,8 +69,7 @@
         "additionalProperties": false,
         "required": [
           "id",
-          "speaker_id",
-          "text"
+          "speaker_id"
         ],
         "properties": {
           "id": {
@@ -80,6 +79,10 @@
             "$ref": "common.schema.json#/$defs/content_id"
           },
           "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "text_key": {
             "type": "string",
             "minLength": 1
           },

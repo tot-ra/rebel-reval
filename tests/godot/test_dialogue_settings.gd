@@ -17,19 +17,27 @@ func after_each() -> void:
 func test_dialogue_settings_round_trip_persists_all_fields() -> void:
 	var store = _store()
 	var settings = SettingsScript.default_settings()
+	settings.locale = "et-EE"
 	settings.text_scale = "large"
 	settings.text_speed = "fast"
 	settings.high_contrast = true
 	settings.subtitle_background = false
 	settings.reduced_motion = true
+	settings.subtitles_enabled = false
+	settings.bark_subtitles_enabled = false
+	settings.voice_enabled = false
 
 	assert_true(store.save_dialogue_settings(settings))
 	var loaded = store.load_dialogue_settings()
+	assert_eq(loaded.locale, "et-ee")
 	assert_eq(loaded.text_scale, "large")
 	assert_eq(loaded.text_speed, "fast")
 	assert_true(loaded.high_contrast)
 	assert_false(loaded.subtitle_background)
 	assert_true(loaded.reduced_motion)
+	assert_false(loaded.subtitles_enabled)
+	assert_false(loaded.bark_subtitles_enabled)
+	assert_false(loaded.voice_enabled)
 	assert_false(loaded.pseudo_localization)
 
 

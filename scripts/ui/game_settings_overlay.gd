@@ -23,6 +23,9 @@ var _text_speed_option: OptionButton
 var _high_contrast_check: CheckButton
 var _subtitle_background_check: CheckButton
 var _reduced_motion_check: CheckButton
+var _subtitles_check: CheckButton
+var _bark_subtitles_check: CheckButton
+var _voice_check: CheckButton
 var _guard_mode_option: OptionButton
 var _screen_shake_check: CheckButton
 var _reduced_flashing_check: CheckButton
@@ -156,6 +159,12 @@ func _build_ui() -> void:
 	_high_contrast_check.toggled.connect(_on_high_contrast_toggled)
 	_subtitle_background_check = _add_toggle_row(layout, "Subtitle background")
 	_subtitle_background_check.toggled.connect(_on_subtitle_background_toggled)
+	_subtitles_check = _add_toggle_row(layout, "Subtitles")
+	_subtitles_check.toggled.connect(_on_subtitles_toggled)
+	_bark_subtitles_check = _add_toggle_row(layout, "Bark subtitles")
+	_bark_subtitles_check.toggled.connect(_on_bark_subtitles_toggled)
+	_voice_check = _add_toggle_row(layout, "Voice playback")
+	_voice_check.toggled.connect(_on_voice_toggled)
 	_reduced_motion_check = _add_toggle_row(layout, "Reduced motion")
 	_reduced_motion_check.toggled.connect(_on_reduced_motion_toggled)
 
@@ -274,6 +283,9 @@ func _sync_from_settings() -> void:
 	_high_contrast_check.set_pressed_no_signal(dialogue_settings.high_contrast)
 	_subtitle_background_check.set_pressed_no_signal(dialogue_settings.subtitle_background)
 	_reduced_motion_check.set_pressed_no_signal(dialogue_settings.reduced_motion)
+	_subtitles_check.set_pressed_no_signal(dialogue_settings.subtitles_enabled)
+	_bark_subtitles_check.set_pressed_no_signal(dialogue_settings.bark_subtitles_enabled)
+	_voice_check.set_pressed_no_signal(dialogue_settings.voice_enabled)
 
 	var gameplay_settings = _current_gameplay_settings()
 	_select_option_value(_guard_mode_option, gameplay_settings.guard_mode)
@@ -317,6 +329,24 @@ func _on_high_contrast_toggled(pressed: bool) -> void:
 func _on_subtitle_background_toggled(pressed: bool) -> void:
 	var dialogue = _current_dialogue_settings()
 	dialogue.subtitle_background = pressed
+	_apply_dialogue_settings(dialogue)
+
+
+func _on_subtitles_toggled(pressed: bool) -> void:
+	var dialogue = _current_dialogue_settings()
+	dialogue.subtitles_enabled = pressed
+	_apply_dialogue_settings(dialogue)
+
+
+func _on_bark_subtitles_toggled(pressed: bool) -> void:
+	var dialogue = _current_dialogue_settings()
+	dialogue.bark_subtitles_enabled = pressed
+	_apply_dialogue_settings(dialogue)
+
+
+func _on_voice_toggled(pressed: bool) -> void:
+	var dialogue = _current_dialogue_settings()
+	dialogue.voice_enabled = pressed
 	_apply_dialogue_settings(dialogue)
 
 

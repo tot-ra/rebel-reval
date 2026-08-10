@@ -7,7 +7,7 @@ const AudioSettingsScript := preload("res://scripts/settings/audio_settings.gd")
 const DialogueSettingsScript := preload("res://scripts/settings/dialogue_settings.gd")
 const GameplayAccessibilitySettingsScript := preload("res://scripts/settings/gameplay_accessibility_settings.gd")
 const InputBindingSettingsScript := preload("res://scripts/settings/input_binding_settings.gd")
-const CURRENT_VERSION := 3
+const CURRENT_VERSION := 4
 const LEGACY_VERSION := 1
 const DEFAULT_DIRECTORY := "user://settings"
 
@@ -86,7 +86,7 @@ func _load_envelope() -> Dictionary:
 		return {}
 	var envelope: Dictionary = parsed
 	var version := int(envelope.get("version", 0))
-	if version not in [LEGACY_VERSION, CURRENT_VERSION]:
+	if version < LEGACY_VERSION or version > CURRENT_VERSION:
 		return {}
 	return envelope
 

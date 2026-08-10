@@ -11,6 +11,7 @@ const DEFAULT_LINEAR := 1.0
 
 var music_volume: float = DEFAULT_LINEAR
 var sfx_volume: float = DEFAULT_LINEAR
+var voice_volume: float = DEFAULT_LINEAR
 
 
 static func default_settings() -> AudioSettings:
@@ -21,12 +22,14 @@ func duplicate_settings() -> AudioSettings:
 	var copy := SelfScript.new()
 	copy.music_volume = music_volume
 	copy.sfx_volume = sfx_volume
+	copy.voice_volume = voice_volume
 	return copy
 
 
 func normalize() -> void:
 	music_volume = clampf(music_volume, MIN_LINEAR, MAX_LINEAR)
 	sfx_volume = clampf(sfx_volume, MIN_LINEAR, MAX_LINEAR)
+	voice_volume = clampf(voice_volume, MIN_LINEAR, MAX_LINEAR)
 
 
 func to_dict() -> Dictionary:
@@ -34,6 +37,7 @@ func to_dict() -> Dictionary:
 	return {
 		"music_volume": music_volume,
 		"sfx_volume": sfx_volume,
+		"voice_volume": voice_volume,
 	}
 
 
@@ -41,5 +45,6 @@ static func from_dict(data: Dictionary) -> AudioSettings:
 	var settings := SelfScript.new()
 	settings.music_volume = float(data.get("music_volume", DEFAULT_LINEAR))
 	settings.sfx_volume = float(data.get("sfx_volume", DEFAULT_LINEAR))
+	settings.voice_volume = float(data.get("voice_volume", DEFAULT_LINEAR))
 	settings.normalize()
 	return settings

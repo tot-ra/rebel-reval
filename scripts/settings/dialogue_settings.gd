@@ -15,12 +15,16 @@ const CHARS_PER_SECOND := {
 	"instant": 99999.0,
 }
 
+var locale: String = "en"
 var text_scale: String = "normal"
 var text_speed: String = "normal"
 var high_contrast: bool = false
 var subtitle_background: bool = true
 var reduced_motion: bool = false
 var pseudo_localization: bool = false
+var subtitles_enabled: bool = true
+var bark_subtitles_enabled: bool = true
+var voice_enabled: bool = true
 
 
 static func default_settings():
@@ -29,16 +33,23 @@ static func default_settings():
 
 func duplicate_settings():
 	var copy := SelfScript.new()
+	copy.locale = locale
 	copy.text_scale = text_scale
 	copy.text_speed = text_speed
 	copy.high_contrast = high_contrast
 	copy.subtitle_background = subtitle_background
 	copy.reduced_motion = reduced_motion
 	copy.pseudo_localization = pseudo_localization
+	copy.subtitles_enabled = subtitles_enabled
+	copy.bark_subtitles_enabled = bark_subtitles_enabled
+	copy.voice_enabled = voice_enabled
 	return copy
 
 
 func normalize() -> void:
+	locale = locale.strip_edges().to_lower().replace("_", "-")
+	if locale.is_empty():
+		locale = "en"
 	if not TextScaleScript.is_supported(text_scale):
 		text_scale = "normal"
 	if not TEXT_SPEEDS.has(text_speed):
@@ -60,22 +71,30 @@ func reveal_instantly() -> bool:
 func to_dict() -> Dictionary:
 	normalize()
 	return {
+		"locale": locale,
 		"text_scale": text_scale,
 		"text_speed": text_speed,
 		"high_contrast": high_contrast,
 		"subtitle_background": subtitle_background,
 		"reduced_motion": reduced_motion,
 		"pseudo_localization": pseudo_localization,
+		"subtitles_enabled": subtitles_enabled,
+		"bark_subtitles_enabled": bark_subtitles_enabled,
+		"voice_enabled": voice_enabled,
 	}
 
 
 static func from_dict(data: Dictionary):
 	var settings := SelfScript.new()
+	settings.locale = String(data.get("locale", "en"))
 	settings.text_scale = String(data.get("text_scale", "normal"))
 	settings.text_speed = String(data.get("text_speed", "normal"))
 	settings.high_contrast = bool(data.get("high_contrast", false))
 	settings.subtitle_background = bool(data.get("subtitle_background", true))
 	settings.reduced_motion = bool(data.get("reduced_motion", false))
 	settings.pseudo_localization = bool(data.get("pseudo_localization", false))
+	settings.subtitles_enabled = bool(data.get("subtitles_enabled", true))
+	settings.bark_subtitles_enabled = bool(data.get("bark_subtitles_enabled", true))
+	settings.voice_enabled = bool(data.get("voice_enabled", true))
 	settings.normalize()
 	return settings
