@@ -369,6 +369,9 @@ func test_chimney_smoke_varies_by_building_and_time_of_day() -> void:
 	for building in definition.buildings:
 		if building["kind"] != MapTypes.BUILDING_KIND_HOUSE:
 			continue
+		if MapViewMeshBuilder.is_exceptional_building(building):
+			# Exceptional house records intentionally bypass the ordinary chimney kit.
+			continue
 		house_ids.append(building["id"])
 		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
 		assert_true(node.has_node("Chimney"), "%s: every house keeps a chimney stack" % building["id"])
@@ -577,6 +580,25 @@ func test_exceptional_buildings_cross_landmark_boundary_without_house_kit() -> v
 		assert_false(node.has_node("Chimney"), "%s must not use ordinary house chimney" % building_id)
 		assert_true(node.has_node("Walls"), "%s still needs a view-only mass" % building_id)
 		node.free()
+
+	var lower_town_definition := LowerTownSlice.create()
+	var lower_town_church := _building_by_id(lower_town_definition, &"st_catherines_church")
+	assert_false(lower_town_church.is_empty(), "Lower Town must retain St. Catherine's stable building record")
+	assert_eq(
+		MapViewMeshBuilder.exceptional_building_category(lower_town_church),
+		&"church",
+		"St. Catherine's must resolve to the exceptional church boundary"
+	)
+	var lower_town_church_node := MapViewMeshBuilder.build_building(
+		lower_town_church,
+		lower_town_definition.cell_size
+	)
+	assert_eq(lower_town_church_node.get_meta(&"renderer_boundary"), &"exceptional")
+	assert_eq(lower_town_church_node.get_meta(&"exceptional_category"), &"church")
+	assert_false(lower_town_church_node.has_node("Roof"), "St. Catherine's must not use ordinary house Roof")
+	assert_false(lower_town_church_node.has_node("Chimney"), "St. Catherine's must not use ordinary house chimney")
+	assert_true(lower_town_church_node.has_node("Walls"), "St. Catherine's still needs a view-only mass")
+	lower_town_church_node.free()
 
 	var ordinary_definition := SmithyCourtyard.create()
 	var found_ordinary := false

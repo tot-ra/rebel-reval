@@ -5,6 +5,9 @@ func test_houses_get_facade_doors_and_windows() -> void:
 	for building in definition.buildings:
 		if building["kind"] != MapTypes.BUILDING_KIND_HOUSE:
 			continue
+		if MapViewMeshBuilder.is_exceptional_building(building):
+			# This loop verifies the ordinary house kit; landmarks have a separate contract.
+			continue
 		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
 		if building.get("door_side", &"south") == &"none":
 			assert_false(node.has_node("Door"), "%s: door_side none must suppress the plain door" % building["id"])
