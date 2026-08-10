@@ -86,3 +86,5 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - When using `replace_lines`, pass the complete file path in `path`; passing the project directory fails before any map edit is applied.
 - The tasks board `next` operation does not filter by complexity; when a low-complexity request receives a larger row, return that row to `todo`, inspect the candidates, and claim an explicitly low-complexity task before editing.
 - When a task description lists dependency labels that are not registered as board refs, `tasks.get` returns `task not found`; verify the dependency artifacts directly in the repository before deciding whether the task is actionable.
+- If Godot-focused validation exits 127 only because `godot` is absent from PATH, check the installed app binary (for example `/Applications/Godot.app/Contents/MacOS/Godot`) before reporting the test as unavailable; keep the PATH limitation separate from code failures.
+- When invoking `tools/run_godot_checked.sh`, do not expand `GODOT_BIN` on the same assignment line; pass the explicit Godot executable after `--` or export the variable in a preceding command.

@@ -39,3 +39,11 @@ func test_expand_speaker_name_matches_base_expansion_and_preserves_empty() -> vo
 		PseudoLocalizationScript.expand(source)
 	)
 	assert_eq(PseudoLocalizationScript.expand_speaker_name(""), "")
+
+
+func test_expand_speaker_name_preserves_surrounding_whitespace() -> void:
+	var source := "\t Mart \n"
+	var expanded := PseudoLocalizationScript.expand_speaker_name(source)
+	assert_true(expanded.begins_with("\t "))
+	assert_true(expanded.ends_with(" \n"))
+	assert_eq(expanded.strip_edges(), PseudoLocalizationScript.expand("Mart"))

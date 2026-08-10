@@ -42,7 +42,14 @@ static func expand_choice(source: String) -> String:
 static func expand_speaker_name(source: String) -> String:
 	if source.is_empty():
 		return source
-	return expand(source)
+
+	var visible_name := source.strip_edges()
+	if visible_name.is_empty():
+		return source
+
+	var visible_start := source.find(visible_name)
+	var visible_end := visible_start + visible_name.length()
+	return source.left(visible_start) + expand(visible_name) + source.substr(visible_end)
 
 
 static func _accent_vowels(source: String) -> String:
