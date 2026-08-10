@@ -33,7 +33,8 @@ var _localization: RefCounted
 
 func _init() -> void:
 	_localization = LocalizationScript.new()
-	_localization.load_from_directories(["res://localization"])
+	var localization_directories: Array[String] = ["res://localization"]
+	_localization.load_from_directories(localization_directories)
 
 
 func configure(

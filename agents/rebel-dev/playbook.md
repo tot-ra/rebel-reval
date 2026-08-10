@@ -10,6 +10,7 @@ This file contains lessons specific to the Dev role.
 - A new `view_landmark` kind needs three registrations, not one: `MapDefinition.VIEW_LANDMARK_KINDS`, the `_compile_landmark` field copy in `map_blueprint_compiler_build.gd`, and `LANDMARK_OVERRIDE_KEYS` for any new typed option. The parser token allowlist is separate again.
 - Godot typed inference fails on `for side in [-1.0, 1.0]`; declare `for side: float in [...]` before using the loop variable in arithmetic that must stay typed.
 - Godot headless filters must use user args after `--`: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_name`. Passing `--filter=` before `--` makes Godot ignore it and run the full suite.
+- When a focused Godot run unexpectedly reaches the global timeout, inspect the harness argument parser before retrying; `--filter` belongs after the standalone `--` so Godot forwards it as a user argument rather than launching the full suite.
 - Blender glTF export with packed textures still yields Godot-extracted `*_albedo.png` / `*_normal.png` / `*_roughness.png` sidecars; register those derived paths in `assets/SOURCES.csv` or provenance validation fails.
 - On macOS, `godot` is often not on `PATH`; use `/Applications/Godot.app/Contents/MacOS/Godot` or set `GODOT_BIN` before running headless tests or map pipeline scripts.
 - On macOS shell commands, assign `GODOT_BIN` before expanding it (`export GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot`); `GODOT_BIN=... "$GODOT_BIN" ...` expands the old value and can fail with exit 127.
