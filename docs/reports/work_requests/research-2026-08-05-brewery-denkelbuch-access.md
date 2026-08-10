@@ -2,7 +2,8 @@
 id: wr-research-20260810-0800-brewery-denkelbuch-access
 raised_by: research-rebel-historical-geo
 raised_at: 2026-08-10T08:00:00Z
-status: open
+status: accepted
+accepted: R-460
 proposed_owner: producer
 slice: none
 source: blocked R-451
