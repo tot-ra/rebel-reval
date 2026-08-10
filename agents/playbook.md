@@ -85,3 +85,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - Scoped Markdown validation must special-case hub indexes such as `history/RESEARCH_INDEX.md`; validate their heading/link contract instead of assuming every Markdown file has front matter.
 - When using `replace_lines`, pass the complete file path in `path`; passing the project directory fails before any map edit is applied.
 - The tasks board `next` operation does not filter by complexity; when a low-complexity request receives a larger row, return that row to `todo`, inspect the candidates, and claim an explicitly low-complexity task before editing.
+- When a task description lists dependency labels that are not registered as board refs, `tasks.get` returns `task not found`; verify the dependency artifacts directly in the repository before deciding whether the task is actionable.
