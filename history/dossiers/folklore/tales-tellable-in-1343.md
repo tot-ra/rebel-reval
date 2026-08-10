@@ -9,6 +9,7 @@ related:
   - ../culture/music-and-instruments.md
   - ../../../docs/lore/estonian_folklore.md
   - ../../../docs/CANON.md
+  - ./medieval-estonian-tale-fragment-evidence.md
 updated: 2026-08-02
 ---
 
