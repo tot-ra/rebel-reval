@@ -49,7 +49,19 @@ These lines are useful controls against inventing a regulation. They are dated d
 | AWB no. 566 | 1343 | Hermannus More bound to Johannes de Breme for 6 marks and 1 ferto | Financial security is not a beer tax or brewing licence | attested [1][2] |
 | AWB no. 570 | 1343 | Johannes de Breme grants Hinricus Dysche 13 marks for hereditary property | Hereditary-property finance is not an excise line | attested [1][2] |
 | LECUB 2 no. 812 | 1343 | Johann van Bremen annuity/foundation context | No beer rate or brewery office is present in the cited text | attested [3] |
-| Denkelbuch TLA.230.1.Aa2 | 1333–1374 catalogue span | Council-book location and archival lead | Folio-level 1340–1343 beer entries were not accessible in this pass | source lead; target passage gap [8] |
+| Denkelbuch TLA.230.1.Aa2 | 1333–1374 catalogue span | Council-book location and archival lead | Folio-level 1340–1343 beer entries were not accessible in this pass | source lead; target passage gap [8][9][10] |
+
+### Archival access audit (2026-08-10)
+
+The official Rahvusarhiiv catalogue identifies `TLA.230.1.Aa2` as a digitized **48-page** German-language Denkelbuch unit covering **1333–1374**, with catalogue metadata about council elections, punishments, and judgments. The public DGS permalink for the unit redirects to VAU authentication before the manuscript image can be read. No 1340–1343 folio/page, original wording, beer-excise rate, collector name, or office can therefore be reported from this pass [9][10].
+
+The public BSB/MDZ IIIF manifest for Arbusow's **1888 printed** *Ältestes Wittschopbuch* remains usable for the separate AWB publication and its OCR, but it is not a folio-level surrogate for Denkelbuch `TLA.230.1.Aa2`. The result is an **access blocker**, not negative evidence about the contents of the Denkelbuch. R-451 remains blocked until an authenticated VAU/DGS review or a lawful archive-provided scan/transcription preserves provenance and folio/page identifiers [1][9][10].
+
+| Access item | Result | Evidence boundary |
+|---|---|---|
+| Rahvusarhiiv AIS / Pärgamendid catalogue | Unit and catalogue metadata located; title-term queries do not expose manuscript text | catalogue metadata only [9] |
+| Rahvusarhiiv DGS permalink | Redirects to VAU authentication | no folio text inspected [10] |
+| BSB/MDZ `bsb00149661` | Public OCR/scan for the separate 1888 printed AWB | not a Denkelbuch substitute [1] |
 
 ### Later and indirect material that must stay labelled
 
@@ -96,3 +108,5 @@ No suitable licensed visual evidence was found for a 1340–1343 Reval brewery o
 6. [`../dailylife/food-and-drink.md`](../dailylife/food-and-drink.md) - beer, brewing, diet, and prop context, with later comparanda labelled.
 7. [`../religion/dominican-brewery-fish-yard-1343.md`](../religion/dominican-brewery-fish-yard-1343.md) - bounded Dominican brewery/fish-yard reconstruction.
 8. International League of Historical Cities / Stadtbücher, **Denkelbuch**, Reval, TLA.230.1.Aa2, 1333–1374 catalogue record: https://www.stadtbuecher.de/en/stadtbuecher/estland/kreis-harju/reval-talinn/aeltestes-denkelbuch-des-revaler-rats/ - archival location; viewer access was not sufficient for a folio-level beer-law read.
+9. Rahvusarhiiv, **AIS**, `TLA.230.1.Aa2`, *Ältestes Denkelbuch des Revaler Rats*, 1333–1374, 48 pages, German-language material, catalogue note on council elections, punishments, and judgments: https://ais.ra.ee/en/description-unit/view?id=124030010181&ru=5GsV5p - catalogue metadata, accessed 2026-08-10.
+10. Rahvusarhiiv, **DGS/VAU**, `TLA.230.1.Aa2` image permalink: https://www.ra.ee/dgs/_purl.php?shc=TLA.230.1.Aa2 - redirects to VAU authentication; no folio text accessible in this pass, accessed 2026-08-10.
