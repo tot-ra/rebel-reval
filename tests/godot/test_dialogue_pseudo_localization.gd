@@ -22,3 +22,20 @@ func test_expand_accents_vowels() -> void:
 
 func test_expand_empty_string_is_unchanged() -> void:
 	assert_eq(PseudoLocalizationScript.expand(""), "")
+
+
+func test_expand_choice_matches_base_expansion() -> void:
+	var source := "Choose the safer route."
+	assert_eq(
+		PseudoLocalizationScript.expand_choice(source),
+		PseudoLocalizationScript.expand(source)
+	)
+
+
+func test_expand_speaker_name_matches_base_expansion_and_preserves_empty() -> void:
+	var source := "Mart"
+	assert_eq(
+		PseudoLocalizationScript.expand_speaker_name(source),
+		PseudoLocalizationScript.expand(source)
+	)
+	assert_eq(PseudoLocalizationScript.expand_speaker_name(""), "")
