@@ -9,7 +9,7 @@ related:
   - ../architecture/smithy-workshop-layout.md
   - ../power/law-courts-and-punishment.md
   - ../power/reval-law-codex-arms-and-watch.md
-updated: 2026-08-07
+updated: 2026-08-10
 ---
 
 # Schmiede *Amt* rules and penalties before 1363 (Reval)
@@ -44,7 +44,20 @@ The official Rahvusarhiiv **Pärgamendid** catalogue was queried with institutio
 
 The ILC city-book catalogue independently describes this volume as one 48-page band with notes on council elections, punishments, and judgments: [Denkelbuch catalogue](https://www.stadtbuecher.de/en/stadtbuecher/estland/kreis-harju/reval-talinn/aeltestes-denkelbuch-des-revaler-rats/). Its image link redirects to the RA.ee VAU login, so this pass could not inspect the manuscript folios or quote original wording. The result is therefore a **bounded negative catalogue check**, not proof that no smith entry exists in the book. The AWB (*Altere Verzeichnisse*) and Denkelbuch folio text likewise remain unreviewed behind the archive access boundary. No local 1340-1363 Schmiede offence, remedy, fine, or masterpiece condition was located; all local penalty amounts remain **unset**.
 
-The **1363 boundary is a prohibition on false precision**: a quest may show elders enforcing custom, inspecting work, or withholding recognition, but it should not display a numbered “Schmiedeordnung 1343” unless a future Tallinn City Archives pass finds one [1][2].
+### Repeat access verification (2026-08-10)
+
+A fresh unauthenticated fetch of the official Rahvusarhiiv AIS record reproduced the catalogue identity for `TLA.230.1.Aa2`: *Ältestes Denkelbuch des Revaler Rats*, 1333-1374, 48 pages, German-language material, with catalogue notes on council elections, punishments, and judgments [9]. The public DGS permalink again returned the VAU sign-in page and an embedded protected TIFF target rather than manuscript pixels or OCR [10]. This probe inspected **zero folios** and produced no responsible text-level hit or no-hit result for `Schmiede`, `Schmied`, `Smed`, `Schragen`, `innige`, smith names, or forge-related terms.
+
+| Probe | Observed result | Evidence boundary |
+|---|---|---|
+| Official AIS unit page | Catalogue metadata loads for `TLA.230.1.Aa2` | Unit identity and extent only; no folio text |
+| Official DGS permalink | Redirects to VAU authentication before image display | Access blocker; no folio/page read |
+| Protected DGS TIFF target exposed by redirect | Image endpoint is named in the login redirect, but remains unauthenticated | Endpoint discovery only; no image/OCR evidence |
+| Schmiede-term search | Not run against folio text because authentication is unavailable | No responsible text-level positive or negative claim |
+
+This repeat check strengthens the provenance of the access boundary without changing the historical finding: the public catalogue's `No results found` title queries remain a bounded catalogue check, not proof that the Denkelbuch contains no smith material. The clearing condition is an authenticated VAU/DGS review or a lawful archive-provided scan/transcription preserving folio/page identifiers and provenance; the existing direct-pass follow-up is tracked as **R-402** [9][10].
+
+The **1363 boundary remains a prohibition on false precision**: until R-402 supplies a folio-level result, no local pre-1363 smith offence, remedy, fine, named smith, or masterpiece condition may be upgraded from the current evidence gap or composite labels.
 
 ### Craft authority versus town authority
 
@@ -98,7 +111,7 @@ No new licensed visual evidence was found for a pre-1363 Reval Schmiede ordinanc
 
 ## Open questions
 
-- **Tallinn City Archives pass:** the 2026-08-07 catalogue pass covered TLA title searches and identified Denkelbuch `TLA.230.1.Aa2`, but its folio images redirect to VAU login; a future authenticated folio read remains the clearing condition for any quoted 1340-1363 Schmiede record.
+- **Tallinn City Archives pass (R-402):** the 2026-08-07 catalogue pass and 2026-08-10 unauthenticated access recheck covered TLA title searches and identified Denkelbuch `TLA.230.1.Aa2`, but its folio images redirect to VAU login; an authenticated folio read remains the clearing condition for any quoted 1340-1363 Schmiede record.
 - **Exact Schmiede masterpiece:** determine whether a Reval smith test existed before 1363 and identify its object, material, witnesses, and fee if attested.
 - **Named smiths:** search AWB and Denkelbuch entries for 1340-1343 masters, apprentices, or forge disputes that can attach a penalty to a person and place.
 - **St. Kanuti scope:** test whether the later smith allocation can be moved closer to 1343 without relying only on retrospective guild lists.
@@ -113,3 +126,5 @@ No new licensed visual evidence was found for a pre-1363 Reval Schmiede ordinanc
 6. Rahvusarhiiv, **Pärgamendid**, TLA bounded catalogue search for `Schmied` / `Schragen`, 1340-1363, no results: https://www.ra.ee/apps/pargamendid/index.php/en/parchment/search?institution=TLA&title=Schmied&start_year=1340&end_year=1363&q=1 (official catalogue, accessed 2026-08-07).
 7. Rahvusarhiiv, **Pärgamendid**, `TLA.230.1.Aa2` catalogue record, *Ältestes Denkelbuch des Revaler Rats*, 1333-1374: https://www.ra.ee/apps/pargamendid/index.php/en/parchment/search?institution=TLA&refcode=TLA.230.1.Aa2&start_year=1340&end_year=1363&q=1 (official catalogue, folio viewer requires VAU login, accessed 2026-08-07).
 8. International League of Historical Cities / Stadtbücher, **Denkelbuch**, Reval, `TLA.230.1.Aa2`, 1333-1374: https://www.stadtbuecher.de/en/stadtbuecher/estland/kreis-harju/reval-talinn/aeltestes-denkelbuch-des-revaler-rats/ (catalogue metadata; folio-level text not accessible, accessed 2026-08-07).
+9. Rahvusarhiiv, **AIS**, `TLA.230.1.Aa2`, *Ältestes Denkelbuch des Revaler Rats*, 1333-1374, 48 pages, German-language material, catalogue note on council elections, punishments, and judgments: https://ais.ra.ee/en/description-unit/view?id=124030010181&ru=5GsV5p (catalogue metadata, accessed 2026-08-10).
+10. Rahvusarhiiv, **DGS/VAU**, `TLA.230.1.Aa2` image permalink: https://www.ra.ee/dgs/_purl.php?shc=TLA.230.1.Aa2 (redirects to VAU authentication; no folio text accessible in this pass, accessed 2026-08-10). Clearing condition: R-402.
