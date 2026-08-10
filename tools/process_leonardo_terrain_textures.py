@@ -25,6 +25,10 @@ OUTPUTS = {
         GENERATED / "85f90518-4e44-4457-aa49-bc744568f807-1.jpg",
         ROOT / "assets/materials/pbr/timber_floor/timber_floor_albedo.png",
     ),
+    "smithy_floor": (
+        GENERATED / "3713e478-8edb-4e36-87c1-88a14fce5b24-1.jpg",
+        ROOT / "assets/materials/pbr/smithy_floor/smithy_floor_albedo.png",
+    ),
 }
 TARGET_SIZE = 512
 

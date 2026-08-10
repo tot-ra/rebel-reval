@@ -22,6 +22,7 @@ const PROP_MATERIALS := preload("res://scripts/map/view3d/map_view_prop_material
 const HAY_FIBER_TEXTURE := preload("res://assets/materials/production/hay_fibers.png")
 const GRASS_ALBEDO_TEXTURE := preload("res://assets/materials/pbr/grass/grass_albedo.png")
 const TIMBER_FLOOR_ALBEDO_TEXTURE := preload("res://assets/materials/pbr/timber_floor/timber_floor_albedo.png")
+const SMITHY_FLOOR_ALBEDO_TEXTURE := preload("res://assets/materials/pbr/smithy_floor/smithy_floor_albedo.png")
 const FISHING_NET_HEMP_TEXTURE := preload("res://assets/props/crafts/fishing_nets_TarredHempNet_albedo.png")
 const FISHING_NET_FLOAT_TEXTURE := preload("res://assets/props/crafts/fishing_nets_BarkCorkFloats_albedo.png")
 const FISHING_NET_SINKER_TEXTURE := preload("res://assets/props/crafts/fishing_nets_PiercedStoneSinkers_albedo.png")
@@ -218,6 +219,14 @@ static func terrain_blend_index(terrain_id: StringName) -> int:
 	return index if index >= 0 else 0
 
 
+static func smithy_floor_albedo_image() -> Image:
+	var image := SMITHY_FLOOR_ALBEDO_TEXTURE.get_image()
+	if image.get_width() != TEXTURE_SIZE or image.get_height() != TEXTURE_SIZE:
+		image.resize(TEXTURE_SIZE, TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
+	image.generate_mipmaps()
+	return image
+
+
 static func terrain_pattern_array(noise_seed: int) -> Texture2DArray:
 	var key := "terrain_pattern_array:%d" % noise_seed
 	if _cache.has(key):
@@ -239,6 +248,10 @@ static func terrain_pattern_array(noise_seed: int) -> Texture2DArray:
 			if image.get_width() != TEXTURE_SIZE or image.get_height() != TEXTURE_SIZE:
 				image.resize(TEXTURE_SIZE, TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
 			image.generate_mipmaps()
+		elif terrain_id == MapTypes.TERRAIN_STONE:
+			# The smithy floor uses irregular flagstones rather than the procedural
+			# limestone ashlar pattern, which reads as a tiled brick grid at gameplay zoom.
+			image = smithy_floor_albedo_image()
 		elif terrain_id in [MapTypes.TERRAIN_HAY, MapTypes.TERRAIN_STRAW]:
 			# Both harvested field layers use the same production fiber source; their
 			# distinct palette tints still separate fresh hay from weathered stubble.

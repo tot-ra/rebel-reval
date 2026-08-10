@@ -36,7 +36,7 @@ spawn spawn.main 2 2
 func test_round_tower_wall_walk_fields_compile_into_buildings() -> void:
 	var source := """rrmap 1
 map tower_walk loc.tower_walk 12 10 grass
-building tower wall 3 3 4 4 wall_height=240 tower=false round_tower=true wall_walk_axis=x interior_side=south
+building tower wall 3 3 4 4 wall_height=240 tower=false round_tower=true wall_walk_axis=x interior_side=south persistent=true
 spawn spawn.main 2 2
 """
 	var parsed := MapRrmapParser.parse(source, "res://tower_walk.rrmap")
@@ -45,6 +45,7 @@ spawn spawn.main 2 2
 		return
 	var building: Dictionary = parsed.definition.buildings[0]
 	assert_true(bool(building.get("round_tower", false)))
+	assert_true(bool(building.get("persistent", false)))
 	assert_eq(building.get("wall_walk_axis"), &"x")
 	assert_eq(building.get("interior_side"), &"south")
 

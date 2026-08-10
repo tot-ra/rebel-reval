@@ -34,6 +34,17 @@ func test_cobblestone_surface_map_matches_high_resolution_source() -> void:
 	var material := MapViewMaterials.blended_ground(731)
 	assert_eq(material.get_shader_parameter("cobble_surface"), surface)
 
+
+func test_stone_layer_uses_authored_smithy_floor_albedo() -> void:
+	var terrain_patterns := MapViewMaterials.terrain_pattern_array(731)
+	var stone_layer := MapViewMaterials.terrain_blend_index(MapTypes.TERRAIN_STONE)
+	var expected := MapViewMaterials.smithy_floor_albedo_image()
+	assert_eq(stone_layer, 14, "stone layer index must remain stable for terrain arrays")
+	assert_eq(expected.get_width(), MapViewMaterials.TEXTURE_SIZE)
+	assert_eq(expected.get_height(), MapViewMaterials.TEXTURE_SIZE)
+	assert_true(terrain_patterns.get_layers() > stone_layer, "stone layer must be present in terrain array")
+
+
 func test_timber_floor_blended_ground_repeat_is_doubled() -> void:
 	var material := MapViewMaterials.blended_ground(731)
 	assert_eq(

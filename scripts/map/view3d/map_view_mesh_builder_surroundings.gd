@@ -24,13 +24,17 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 		return root
 	var map_size := Vector2(definition.size_cells)
 	var previewed_sides: Dictionary = {}
+	var preview_count_by_side: Dictionary = {}
 	for transition in definition.transitions:
-		if definition.is_world_travel_location():
-			break
+		# Travel links are gameplay routes, not physically adjoining districts. In
+		# particular, the outer-wall road must not place Workers' District east of
+		# Monastery District when their real reciprocal seam is to the south.
+		if transition.get("alignment", &"edge") == &"travel":
+			continue
 		if transition.get("transition_visual", MapTypes.TRANSITION_VISUAL_DOOR) != MapTypes.TRANSITION_VISUAL_GROUND:
 			continue
 		var side := _transition_side(definition, transition)
-		if side.is_empty() or previewed_sides.has(side):
+		if side.is_empty():
 			continue
 		var neighbor := _NeighborRegistry.create_definition(transition.get("destination_scene_id", &""))
 		if neighbor == null:
@@ -38,7 +42,13 @@ static func build_surroundings(definition: MapDefinition) -> Node3D:
 		var preview := _neighbor_preview(definition, neighbor, transition, side)
 		if preview == null:
 			continue
+		var preview_count := int(preview_count_by_side.get(side, 0))
+		if preview_count > 0:
+			# A wide edge may border multiple authored districts. Keep the first
+			# stable legacy name and give later previews deterministic unique names.
+			preview.name = "Neighbor_%s_%s" % [String(side), String(neighbor.map_id)]
 		root.add_child(preview)
+		preview_count_by_side[side] = preview_count + 1
 		previewed_sides[side] = true
 
 	# Natural and water backdrops may extend beyond authored maps. Urban sides do

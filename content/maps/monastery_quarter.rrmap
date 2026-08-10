@@ -95,10 +95,10 @@ building monastery_west_gate_south_jamb wall 0 39 8 2 style=wall.city tower=fals
 building monastery_city_wall_west_south wall 0 48 3 64 style=wall.city
 building monastery_wall_tower_west_mid wall 0 72 8 8 style=wall.tower tower=true door_side=east
 building monastery_wall_tower_southwest wall 0 104 8 8 style=wall.tower tower=false
-building monastery_city_wall_east wall 225 0 3 112 style=wall.city
-building monastery_wall_tower_northeast wall 220 0 8 8 style=wall.tower tower=false
-building monastery_wall_tower_east_mid wall 220 52 8 8 style=wall.tower tower=false
-building monastery_wall_tower_southeast wall 220 104 8 8 style=wall.tower tower=false
+building monastery_city_wall_east wall 225 0 3 112 style=wall.city persistent=true
+building monastery_wall_tower_northeast wall 220 0 8 8 style=wall.tower tower=false persistent=true
+building monastery_wall_tower_east_mid wall 220 52 8 8 style=wall.tower tower=false persistent=true
+building monastery_wall_tower_southeast wall 220 104 8 8 style=wall.tower tower=false persistent=true
 building st_michaels_convent house 16 16 22 14 style=house.convent
 building convent_chapel house 16 36 14 10 style=house.church
 building convent_service_wing house 44 16 10 22 style=house.service

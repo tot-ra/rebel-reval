@@ -59,6 +59,14 @@ func test_monastery_district_has_dated_early_towers_and_later_wall_positions() -
 	var workers_wall := _building_by_id(workers, &"city_wall_north")
 	assert_eq(east_wall.get("wall_color"), workers_wall.get("wall_color"), "district walls must share limestone color")
 	assert_eq(east_wall.get("wall_height"), workers_wall.get("wall_height"), "district walls must share authored height")
+	var view := MapView3D.create(definition, MapBuilder.build(definition))
+	var streamer := view.object_streamer()
+	for wall_id in [&"monastery_city_wall_east", &"monastery_wall_tower_northeast", &"monastery_wall_tower_east_mid", &"monastery_wall_tower_southeast"]:
+		assert_true(
+			streamer.loaded_instance(wall_id) != null,
+			"%s must stay resident so the east curtain is visible between its towers" % wall_id
+		)
+	view.free()
 	var grid := MapBuilder.build(definition)
 	for y in [8, 24, 56, 88, 104]:
 		assert_eq(grid.get_terrain(Vector2i(229, y)), MapTypes.TERRAIN_WATER, "outer ditch must follow the east wall")
@@ -91,6 +99,21 @@ func test_monastery_district_links_the_merchant_civic_worker_and_toompea_maps() 
 	assert_eq(route_destinations[&"to_reval_east"], &"vene_district_boundary")
 	assert_eq(route_destinations[&"to_reval_east_outer"], &"workers_outer_exit")
 	assert_eq(destinations[&"reval_toompea"], &"from_reval_north")
+
+
+func test_monastery_south_edge_previews_civic_and_workers_districts() -> void:
+	var definition: MapDefinition = MonasteryQuarterDefinition.create()
+	var surroundings := MapViewMeshBuilder.build_surroundings(definition)
+	assert_true(surroundings.has_node("Neighbor_south"), "south edge needs the civic-centre preview")
+	assert_true(
+		surroundings.has_node("Neighbor_south_lower_town_slice/Buildings/Building_city_wall_north"),
+		"south-east edge needs the authored Workers' District preview"
+	)
+	assert_false(
+		surroundings.has_node("Neighbor_east"),
+		"the travel-only outer-wall road must not place Workers' District east of the city wall"
+	)
+	surroundings.free()
 
 
 func test_monastery_quarter_service_life_dressing() -> void:

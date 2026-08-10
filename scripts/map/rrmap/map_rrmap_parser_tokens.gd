@@ -16,7 +16,7 @@ const STYLE_COLOR_KEYS: Array[String] = ["wall_color", "roof_color"]
 const STYLE_VECTOR_KEYS: Array[String] = ["visual_offset_px", "spawn_offset_px"]
 const STYLE_CARDINAL_VECTOR_KEYS: Array[String] = ["facing", "direction"]
 const STYLE_RECT_KEYS: Array[String] = ["rect", "cell"]
-const STYLE_BOOL_KEYS: Array[String] = ["enabled", "tower", "round_tower", "highlight_area"]
+const STYLE_BOOL_KEYS: Array[String] = ["enabled", "tower", "round_tower", "highlight_area", "persistent"]
 
 var _parser
 func _init(parser) -> void:

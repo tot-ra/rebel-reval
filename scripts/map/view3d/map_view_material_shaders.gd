@@ -679,7 +679,7 @@ vec3 sample_terrain_pattern(int layer, vec2 uv) {
 bool uses_realistic_albedo(int layer) {
 	// These layers are backed by authored RGB material plates. All other layers
 	// remain grayscale procedural patterns multiplied by their palette tint.
-	return layer == 0 || layer == 1 || layer == 2 || layer == 3 || layer == 15;
+	return layer == 0 || layer == 1 || layer == 2 || layer == 3 || layer == 14 || layer == 15;
 }
 
 vec3 terrain_pattern_albedo(int layer, vec2 uv, vec3 palette_tint) {
