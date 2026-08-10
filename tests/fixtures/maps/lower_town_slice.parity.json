@@ -135,6 +135,7 @@
         256.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_stone",
       "id": "apothecary_house",
       "kind": "house",
       "roof_color": [
@@ -161,6 +162,7 @@
         256.000000000,
         192.000000000
       ],
+      "house_tier": "craft_boda",
       "id": "artisan_shed",
       "kind": "house",
       "roof_color": [
@@ -307,6 +309,7 @@
         256.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_timber",
       "id": "coopers_house",
       "kind": "house",
       "roof_color": [
@@ -333,6 +336,7 @@
         320.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_timber",
       "id": "corner_house_muurivahe",
       "kind": "house",
       "roof_color": [
@@ -359,6 +363,7 @@
         288.000000000,
         256.000000000
       ],
+      "house_tier": "craft_boda",
       "id": "dyers_house",
       "kind": "house",
       "roof_color": [
@@ -517,6 +522,7 @@
         256.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_timber",
       "id": "glassblowers_house",
       "kind": "house",
       "roof_color": [
@@ -543,6 +549,7 @@
         288.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_stone",
       "id": "glovers_house",
       "kind": "house",
       "roof_color": [
@@ -596,6 +603,7 @@
         256.000000000,
         256.000000000
       ],
+      "house_tier": "craft_boda",
       "id": "hedge_house",
       "kind": "house",
       "roof_color": [
@@ -642,6 +650,7 @@
         352.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_stone",
       "id": "kaik_house_east",
       "kind": "house",
       "roof_color": [
@@ -668,6 +677,7 @@
         384.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_stone",
       "id": "kaik_house_mid",
       "kind": "house",
       "roof_color": [
@@ -694,6 +704,7 @@
         352.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_stone",
       "id": "kaik_house_west",
       "kind": "house",
       "roof_color": [
@@ -746,6 +757,7 @@
         320.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_timber",
       "id": "karja_corner_house",
       "kind": "house",
       "roof_color": [
@@ -798,6 +810,7 @@
         256.000000000,
         192.000000000
       ],
+      "house_tier": "craft_boda",
       "id": "kuninga_house_east",
       "kind": "house",
       "roof_color": [
@@ -824,6 +837,7 @@
         256.000000000,
         192.000000000
       ],
+      "house_tier": "craft_boda",
       "id": "kuninga_house_mid",
       "kind": "house",
       "roof_color": [
@@ -850,6 +864,7 @@
         288.000000000,
         192.000000000
       ],
+      "house_tier": "craft_boda",
       "id": "kuninga_house_west",
       "kind": "house",
       "roof_color": [
@@ -876,6 +891,7 @@
         288.000000000,
         256.000000000
       ],
+      "house_tier": "craft_boda",
       "id": "laundress_house",
       "kind": "house",
       "roof_color": [
@@ -902,6 +918,7 @@
         256.000000000,
         320.000000000
       ],
+      "house_tier": "merchant_stone",
       "id": "market_row_house",
       "kind": "house",
       "roof_color": [
@@ -928,6 +945,7 @@
         352.000000000,
         320.000000000
       ],
+      "house_tier": "merchant_stone",
       "id": "merchants_house",
       "kind": "house",
       "roof_color": [
@@ -1057,6 +1075,7 @@
         256.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_stone",
       "id": "moneychangers_house",
       "kind": "house",
       "roof_color": [
@@ -1109,6 +1128,7 @@
         288.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_stone",
       "id": "pikk_corner_house",
       "kind": "house",
       "roof_color": [
@@ -1135,6 +1155,7 @@
         256.000000000,
         192.000000000
       ],
+      "house_tier": "craft_boda",
       "id": "potters_house",
       "kind": "house",
       "roof_color": [
@@ -1187,6 +1208,7 @@
         256.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_timber",
       "id": "rope_makers_house",
       "kind": "house",
       "roof_color": [
@@ -1213,6 +1235,7 @@
         288.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_timber",
       "id": "saddlers_house",
       "kind": "house",
       "roof_color": [
@@ -1239,6 +1262,7 @@
         288.000000000,
         320.000000000
       ],
+      "house_tier": "merchant_stone",
       "id": "saiakang_house",
       "kind": "house",
       "roof_color": [
@@ -1265,6 +1289,7 @@
         256.000000000,
         256.000000000
       ],
+      "house_tier": "craft_boda",
       "id": "sauna_corner_house",
       "kind": "house",
       "roof_color": [
@@ -1325,6 +1350,7 @@
         320.000000000,
         192.000000000
       ],
+      "house_tier": "craft_boda",
       "id": "south_apron_far_roofs",
       "kind": "house",
       "roof_color": [
@@ -1351,6 +1377,7 @@
         256.000000000,
         192.000000000
       ],
+      "house_tier": "craft_boda",
       "id": "south_apron_timber_house",
       "kind": "house",
       "roof_color": [
@@ -1429,6 +1456,7 @@
         288.000000000,
         256.000000000
       ],
+      "house_tier": "craft_boda",
       "id": "tenement_row",
       "kind": "house",
       "roof_color": [
@@ -1455,6 +1483,7 @@
         224.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_timber",
       "id": "turg_house_north",
       "kind": "house",
       "roof_color": [
@@ -1481,6 +1510,7 @@
         256.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_timber",
       "id": "turg_south_house",
       "kind": "house",
       "roof_color": [
@@ -1507,6 +1537,7 @@
         320.000000000,
         192.000000000
       ],
+      "house_tier": "craft_boda",
       "id": "vaike_karja_house",
       "kind": "house",
       "roof_color": [
@@ -1533,6 +1564,7 @@
         320.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_timber",
       "id": "vanaturu_kael_house",
       "kind": "house",
       "roof_color": [
@@ -1559,6 +1591,7 @@
         192.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_stone",
       "id": "vene_corner_house",
       "kind": "house",
       "roof_color": [
@@ -1585,6 +1618,7 @@
         192.000000000,
         320.000000000
       ],
+      "house_tier": "merchant_stone",
       "id": "vene_gate_house",
       "kind": "house",
       "roof_color": [
@@ -1611,6 +1645,7 @@
         256.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_stone",
       "id": "vene_row_house",
       "kind": "house",
       "roof_color": [
@@ -1713,6 +1748,7 @@
         288.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_timber",
       "id": "viru_house_east",
       "kind": "house",
       "roof_color": [
@@ -1739,6 +1775,7 @@
         448.000000000,
         320.000000000
       ],
+      "house_tier": "merchant_timber",
       "id": "viru_house_mid",
       "kind": "house",
       "roof_color": [
@@ -1765,6 +1802,7 @@
         352.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_stone",
       "id": "viru_house_stone",
       "kind": "house",
       "ridge_axis": "z",
@@ -1792,6 +1830,7 @@
         352.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_timber",
       "id": "viru_house_west",
       "kind": "house",
       "ridge_axis": "z",
@@ -1955,6 +1994,7 @@
         256.000000000,
         256.000000000
       ],
+      "house_tier": "craft_boda",
       "id": "wall_side_house",
       "kind": "house",
       "roof_color": [
@@ -2081,6 +2121,7 @@
         320.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_timber",
       "id": "weary_traveler_inn",
       "kind": "house",
       "roof_color": [
@@ -2107,6 +2148,7 @@
         256.000000000,
         256.000000000
       ],
+      "house_tier": "merchant_timber",
       "id": "west_lane_house",
       "kind": "house",
       "roof_color": [
@@ -2133,6 +2175,7 @@
         320.000000000,
         256.000000000
       ],
+      "house_tier": "craft_boda",
       "id": "widows_house",
       "kind": "house",
       "roof_color": [
@@ -2866,7 +2909,7 @@
     "west"
   ],
   "terrain": {
-    "terrain_id_grid_sha256": "6e39501959447c8216167571d0c27dac03d4140774ee67adf641e37045b8b927",
+    "terrain_id_grid_sha256": "25974111ef3745451e630f5fe8b4f50292fabf8a603ae9eafa25c41a138b7f7d",
     "used_terrain_ids": [
       "cobblestone",
       "dirt",

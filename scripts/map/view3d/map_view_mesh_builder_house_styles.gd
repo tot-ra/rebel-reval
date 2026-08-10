@@ -9,6 +9,9 @@ const _Rural := preload("res://scripts/map/view3d/map_view_rural_dwelling_models
 static func house_style(building: Dictionary) -> StringName:
 	if _Rural.is_rural_1343(building):
 		return MapViewMeshBuilderConfig.HOUSE_STYLE_LOG
+	# WHY: Lower Town tiers are semantic defaults, not a global recolor. Preserve
+	# authored material keys first so local stone, plank, and roof variation remains
+	# visible even when a frontage is classified as a broader R-003 tier.
 	match StringName(building.get("wall_material", &"")):
 		&"plaster", &"timber":
 			return MapViewMeshBuilderConfig.HOUSE_STYLE_TIMBER
@@ -20,6 +23,15 @@ static func house_style(building: Dictionary) -> StringName:
 			return MapViewMeshBuilderConfig.HOUSE_STYLE_LOG
 		&"limestone", &"stone":
 			return MapViewMeshBuilderConfig.HOUSE_STYLE_STONE
+	# R-003 tier fallback for newly authored houses that do not yet carry a
+	# material key. Existing legacy houses continue to use the deterministic hash.
+	match StringName(building.get("house_tier", &"")):
+		&"merchant_stone":
+			return MapViewMeshBuilderConfig.HOUSE_STYLE_STONE
+		&"merchant_timber":
+			return MapViewMeshBuilderConfig.HOUSE_STYLE_TIMBER
+		&"craft_boda":
+			return MapViewMeshBuilderConfig.HOUSE_STYLE_LOG
 	var roll := absi(String(building["id"]).hash()) % 20
 	# 1343 mix: log dominates, plaster/plank common, limestone emerging, brick rare.
 	if roll < 9:
@@ -85,6 +97,18 @@ static func roof_style(building: Dictionary) -> StringName:
 			return MapViewMeshBuilderConfig.ROOF_STYLE_SHINGLE
 		&"thatch", &"straw":
 			return MapViewMeshBuilderConfig.ROOF_STYLE_THATCH
+	# R-003 roof bias applies only when no authored cover is present. This keeps
+	# merchant stone fronts tile-forward while timber and boda houses stay in the
+	# historically safer shingle/thatch lane.
+	match StringName(building.get("house_tier", &"")):
+		&"merchant_stone":
+			return MapViewMeshBuilderConfig.ROOF_STYLE_TILE
+		&"merchant_timber":
+			return MapViewMeshBuilderConfig.ROOF_STYLE_SHINGLE
+		&"craft_boda":
+			if absi(floori(float(String(building["id"]).hash()) / 10.0)) % 3 < 2:
+				return MapViewMeshBuilderConfig.ROOF_STYLE_THATCH
+			return MapViewMeshBuilderConfig.ROOF_STYLE_SHINGLE
 	match house_style(building):
 		MapViewMeshBuilderConfig.HOUSE_STYLE_STONE, MapViewMeshBuilderConfig.HOUSE_STYLE_BRICK:
 			return MapViewMeshBuilderConfig.ROOF_STYLE_TILE
