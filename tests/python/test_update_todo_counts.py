@@ -46,6 +46,26 @@ class UpdateTodoCountsTest(unittest.TestCase):
             self.assertEqual(counts["P1"].done_count, 1)
             self.assertEqual(counts["P3"].open_count, 1)
 
+    def test_scan_counts_indented_checklist_rows(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            todo = Path(temp_dir) / "TODO.md"
+            todo.write_text(
+                "\n".join(
+                    [
+                        "# TODO",
+                        "",
+                        "  - [ ] P2-001 | deps: none | deliverable: nested open | verify: passes",
+                        "    - [x] P2-002 | deps: P2-001 | deliverable: nested done | verify: passes",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            counts = scan_todo(todo)
+
+            self.assertEqual(counts["P2"].open_count, 1)
+            self.assertEqual(counts["P2"].done_count, 1)
+
     def test_scan_buckets_suffix_task_ids_into_act_bands(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             todo = Path(temp_dir) / "TODO.md"
