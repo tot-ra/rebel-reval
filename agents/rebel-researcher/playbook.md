@@ -28,3 +28,4 @@ This file contains lessons specific to the Researcher role.
 - When adding reciprocal dossier links, inspect the exact live cross-reference wording first; a semantically equivalent line can make an exact edit fail, so re-read the saved block and patch the actual boundary serially.
 - MDZ OCR endpoints return XHTML, and AWB entries can cross page canvases; strip tags, normalize whitespace, and inspect adjacent canvases before classifying a missing token as an evidence gap.
 - After an exact dossier edit misses because the live block differs from the earlier excerpt, re-read the current bounded section before retrying; preserve the existing evidence wording and apply only the new archival delta.
+- If `generate_active_docs_report.py --check` reports a stale generated report plus pre-existing issue count while the scoped historical dossier links pass, do not regenerate or widen the research patch; record the baseline limitation and validate the changed dossier locally.

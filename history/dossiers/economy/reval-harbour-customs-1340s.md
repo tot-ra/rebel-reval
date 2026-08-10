@@ -9,7 +9,7 @@ related:
   - merchant-cart-and-transport-1340s.md
   - ../topography/harbour-and-shoreline.md
   - ../power/jurisdictions-of-reval.md
-updated: 2026-08-02
+updated: 2026-08-10
 ---
 
 # Reval harbour customs, landing, and crane dues (1340–1343)
@@ -73,6 +73,21 @@ The table preserves the original wording where it matters. Dates marked **sequen
 | **Bathhouse operator / civic steward** | Collects or accounts for the AWB-style fuel and delivery obligation | attested civic comparator [1] |
 | **Crane master** | Do not name as an attested 1343 office; a yard crane and its fee remain reconstruction | plausible composite only [3] |
 
+### TLA/AIS catalogue pass (2026-08-10)
+
+The public Tallinn City Archives search was rerun against the official Rahvusarhiiv **Pärgamendid** endpoint with `institution=TLA`, `start_year=1340`, `end_year=1343`, and `q=1`. The title field returned **No results found** for every searched harbour, customs, crane, and collector term: `portus`, `Lade`, `Ladung`, `Hafen`, `Hafenzoll`, `Zoll`, `Kran`, `telonium`, `teloneum`, `thelonium`, `Zollner`, `Zöllner`, `tolner`, `telonearius`, `collectarius`, and `Pfundzoll`. Representative reproducible queries are [portus](https://www.ra.ee/apps/pargamendid/index.php/en/parchment/search?institution=TLA&title=portus&start_year=1340&end_year=1343&q=1), [Zoll](https://www.ra.ee/apps/pargamendid/index.php/en/parchment/search?institution=TLA&title=Zoll&start_year=1340&end_year=1343&q=1), and [collectarius](https://www.ra.ee/apps/pargamendid/index.php/en/parchment/search?institution=TLA&title=collectarius&start_year=1340&end_year=1343&q=1).
+
+This is a **bounded catalogue-title check**, not a full-text or folio search. The same catalogue identifies **TLA.230.1.Aa2**, *Ältestes Denkelbuch des Revaler Rats*, for **1333-1374**. The public AIS record gives the exact archival unit, a **48-page** extent, German as the material language, and the catalogue note: “**Enthält Notizen über Ratswahlen, Strafen, Sententien usw. Als Denkelbuch gehört auch Ad 5 hier.**” That is verbatim catalogue metadata, not a quotation from a 1340-1343 folio [6].
+
+The AIS record marks the unit as digitized, but the public DGS permalink [TLA.230.1.Aa2](https://www.ra.ee/dgs/_purl.php?shc=TLA.230.1.Aa2) redirects to the VAU login before the manuscript image can be read. No folio/page reference, original Latin or Middle Low German wording, document date, rate, or collector name can therefore be reported from TLA in this pass. The result is an **archival lead plus access blocker**, not evidence that the Denkelbuch lacks harbour-dues material. The clearing condition is tracked as `R-459` [7][8].
+
+| Evidence item | Result | Confidence |
+|---|---|---|
+| TLA Pärgamendid title queries, 16 terms listed above | No catalogue-title result under the stated TLA and 1340-1343 parameters | bounded catalogue negative; not folio evidence [7] |
+| AIS unit `TLA.230.1.Aa2` | 48-page German-language Denkelbuch, 1333-1374; digitized catalogue unit | attested catalogue metadata [6] |
+| DGS image access | Redirects to VAU authentication; manuscript text not inspected | access blocker [8] |
+| TLA folio-level harbour due, crane fee, landing collector, rate | No responsible claim possible without authenticated image or archive transcription | evidence gap [6][8] |
+
 ## Production hooks
 
 - **Quest:** A clerk can produce the AWB-style line *pro lignis ... advectendis* when demanding payment for civic fuel, but a harbour master cannot quote an attested 1343 crane rate. A landing dispute should turn on missing cargo, wet-margin access, damage, or negotiated labour, not a fabricated tariff table. A later-period document may mention Pfundzoll only in a post-1362 scene.
@@ -100,6 +115,7 @@ No licensed visual evidence was found for a dated **1340–1343 Reval fee line**
 
 ## Open questions
 
+- **TLA/AIS folio pass (R-459):** obtain lawful authenticated VAU/DGS access or an archive-supplied scan/transcription for `TLA.230.1.Aa2`; inspect the 1340-1343 pages for *portus*, *Lade/Ladung*, *Hafen/Hafenzoll*, *Zoll*, *Kran*, *telonium/teloneum/thelonium*, and collector terms. Preserve folio/page identifiers and original wording before changing any `gap` label.
 - **Tallinn City Archives / TLA folio pass:** locate any unpublished AWB supplement, council account, or harbour memorandum for 1340–1343 naming *portus*, *Lade*, *Zoll*, *Kran*, or a landing collector.
 - **Crane attestation:** test Lübeck and Riga port accounts for a dated treadwheel/crane payment that can remain a named Hanseatic comparandum rather than a Reval fact.
 - **Crown versus council:** resolve who collected any pre-1362 Reval harbour dues, if a dated source is found, against the 1248 customs privilege and the Lower Town jurisdiction dossier.
@@ -112,3 +128,6 @@ No licensed visual evidence was found for a dated **1340–1343 Reval fee line**
 3. [`reval-cart-tolls-and-fuhr-rent-1340s.md`](reval-cart-tolls-and-fuhr-rent-1340s.md) - project dossier recording the negative 1340–1343 search for *Wagenzoll*, *Radsteuer*, *Fuhrpacht*, and *Fuhrgeld* and deferring harbour dues to R-048.
 4. [`hanseatic-trade-and-season.md`](hanseatic-trade-and-season.md) - project dossier for the spring 1343 merchant landing, roadstead, steelyard, and the explicit R-048 harbour tariff open question.
 5. [`../topography/harbour-and-shoreline.md`](../topography/harbour-and-shoreline.md) - project dossier for the Coastal Gate landing, lighters, timber jetties, and the crane as a labelled plausible composite rather than a dated Reval attestation.
+6. Rahvusarhiiv, **AIS**, `TLA.230.1.Aa2`, *Ältestes Denkelbuch des Revaler Rats*, 1333-1374, 48 pages, German-language material, catalogue note on council elections, punishments, and judgments: https://ais.ra.ee/en/description-unit/view?id=124030010181&ru=5GsV5p (catalogue metadata, accessed 2026-08-10).
+7. Rahvusarhiiv, **Pärgamendid**, bounded TLA title queries for harbour/customs/crane/collector terms, 1340-1343: searched `portus`, `Lade`, `Ladung`, `Hafen`, `Hafenzoll`, `Zoll`, `Kran`, `telonium`, `teloneum`, `thelonium`, `Zollner`, `Zöllner`, `tolner`, `telonearius`, `collectarius`, and `Pfundzoll`; representative URLs for `portus` https://www.ra.ee/apps/pargamendid/index.php/en/parchment/search?institution=TLA&title=portus&start_year=1340&end_year=1343&q=1, `Zoll` https://www.ra.ee/apps/pargamendid/index.php/en/parchment/search?institution=TLA&title=Zoll&start_year=1340&end_year=1343&q=1, and `collectarius` https://www.ra.ee/apps/pargamendid/index.php/en/parchment/search?institution=TLA&title=collectarius&start_year=1340&end_year=1343&q=1 (all returned `No results found`, accessed 2026-08-10; catalogue-title check only).
+8. Rahvusarhiiv, **DGS/VAU**, `TLA.230.1.Aa2` image permalink: https://www.ra.ee/dgs/_purl.php?shc=TLA.230.1.Aa2 (redirects to VAU authentication; no folio text accessible in this pass, accessed 2026-08-10). Clearing condition: `R-459`.
