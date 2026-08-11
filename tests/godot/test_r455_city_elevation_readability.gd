@@ -1,4 +1,12 @@
-extends GutTest
+extends "res://tests/godot/test_case.gd"
+
+const ToompeaDefinition := preload("res://scripts/map/definitions/prototypes/toompea_quarter_definition.gd")
+const MonasteryQuarterDefinition := preload("res://scripts/map/definitions/prototypes/monastery_quarter_definition.gd")
+const RevalHarborEastDefinition := preload("res://scripts/map/definitions/outdoor/reval_harbor_east_definition.gd")
+const LowerTownSliceDefinition := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
+const MapBuilder := preload("res://scripts/map/map_builder.gd")
+const MapTypes := preload("res://scripts/map/map_types.gd")
+const MapViewMeshBuilder := preload("res://scripts/map/view3d/map_view_mesh_builder.gd")
 
 # R-455 acceptance coverage is intentionally data-first: visual readability is
 # only marked PASS when the runtime exposes measurable geometry/metadata.
@@ -20,8 +28,8 @@ func _terrain_grid(definition):
 	return MapBuilder.build(definition)
 
 func _water_count(grid) -> int:
-	var width := int(grid.get("width"))
-	var height := int(grid.get("height"))
+	var width := int(grid.size_cells.x)
+	var height := int(grid.size_cells.y)
 	var count := 0
 	for y in range(height):
 		for x in range(width):
@@ -30,8 +38,8 @@ func _water_count(grid) -> int:
 	return count
 
 func _water_shore_edges(grid) -> int:
-	var width := int(grid.get("width"))
-	var height := int(grid.get("height"))
+	var width := int(grid.size_cells.x)
+	var height := int(grid.size_cells.y)
 	var edges := 0
 	for y in range(height):
 		for x in range(width):
@@ -39,7 +47,7 @@ func _water_shore_edges(grid) -> int:
 			if not MapTypes.WATER_TERRAINS.has(grid.get_terrain(cell)):
 				continue
 			for direction in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
-				var neighbour := cell + direction
+				var neighbour: Vector2i = cell + direction
 				if neighbour.x < 0 or neighbour.y < 0 or neighbour.x >= width or neighbour.y >= height:
 					continue
 				if not MapTypes.WATER_TERRAINS.has(grid.get_terrain(neighbour)):
@@ -50,17 +58,20 @@ func _assert_camera_bounds(label: String, definition) -> void:
 	var bounds = definition.get("camera_bounds")
 	assert_true(bounds is Rect2, "%s camera bounds must be a Rect2" % label)
 	if bounds is Rect2:
-		assert_gt(bounds.size.x, 0.0, "%s camera bounds width" % label)
-		assert_gt(bounds.size.y, 0.0, "%s camera bounds height" % label)
+		assert_true(bounds.size.x > 0.0, "%s camera bounds width" % label)
+		assert_true(bounds.size.y > 0.0, "%s camera bounds height" % label)
 
 func test_r455_toompea_ground_elevation_and_deterministic_height() -> void:
 	var definition = _new_toompea()
-	assert_almost_eq(float(definition.get("ground_elevation")), TOOMPEA_GROUND_ELEVATION, 0.001, "Toompea authored elevation")
+	assert_true(
+		absf(float(definition.get("ground_elevation")) - TOOMPEA_GROUND_ELEVATION) <= 0.001,
+		"Toompea authored elevation"
+	)
 	_assert_camera_bounds("Toompea", definition)
 	var cell := Vector2i.ZERO
 	var first := float(MapViewMeshBuilder.ground_height(definition, cell))
 	var second := float(MapViewMeshBuilder.ground_height(definition, cell))
-	assert_almost_eq(first, second, 0.0001, "ground height must be deterministic")
+	assert_true(absf(first - second) <= 0.0001, "ground height must be deterministic")
 
 func test_r455_target_maps_expose_or_explicitly_lack_grade_metadata() -> void:
 	for item in [
@@ -82,9 +93,9 @@ func test_r455_recessed_water_and_shoreline_have_runtime_cells() -> void:
 	var harbor_grid = _terrain_grid(_new_harbor())
 	var monastery_water := _water_count(monastery_grid)
 	var harbor_water := _water_count(harbor_grid)
-	assert_gt(monastery_water, 0, "Monastery ditch/water cells must be authored")
-	assert_gt(harbor_water, 0, "Harbor North water cells must be authored")
-	assert_gt(_water_shore_edges(harbor_grid), 0, "Harbor North water must meet non-water shoreline cells")
+	assert_true(monastery_water > 0, "Monastery ditch/water cells must be authored")
+	assert_true(harbor_water > 0, "Harbor North water cells must be authored")
+	assert_true(_water_shore_edges(harbor_grid) > 0, "Harbor North water must meet non-water shoreline cells")
 	print("[R-455][BLOCKED] no public ditch-depth field proves the recessed offset; visual/mesh evidence remains required")
 
 func test_r455_objects_patrols_and_camera_contracts() -> void:
@@ -97,16 +108,16 @@ func test_r455_objects_patrols_and_camera_contracts() -> void:
 		var buildings = definition.get("buildings")
 		assert_true(buildings is Array, "%s buildings contract" % label)
 		if buildings is Array:
-			assert_gt(buildings.size(), 0, "%s must contain placed objects" % label)
+			assert_true(buildings.size() > 0, "%s must contain placed objects" % label)
 		_assert_camera_bounds(label, definition)
 		var patrols = definition.get("patrols")
 		assert_true(patrols is Array, "%s patrols contract" % label)
 		if patrols is Array:
-			assert_gt(patrols.size(), 0, "%s must contain patrol routes" % label)
+			assert_true(patrols.size() > 0, "%s must contain patrol routes" % label)
 			for patrol in patrols:
 				assert_true(patrol is Dictionary, "%s patrol entries must be dictionaries" % label)
 				var route = patrol.get("route", patrol.get("points", patrol.get("waypoints", []))) if patrol is Dictionary else []
 				assert_true(route is Array, "%s patrol route must be an array" % label)
 				if route is Array:
-					assert_gte(route.size(), 2, "%s patrol route must have a segment" % label)
+					assert_true(route.size() >= 2, "%s patrol route must have a segment" % label)
 		print("[R-455][BLOCKED] player-eye/top-down readability and exact object-to-terrain alignment need rendered camera evidence")
