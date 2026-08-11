@@ -14,7 +14,7 @@ related:
   - ../architecture/domestic-storage-furniture.md
   - ../nature/spring-climate-and-living-world.md
   - ../culture/music-and-instruments.md
-updated: 2026-07-28
+updated: 2026-08-11
 ---
 
 # Food and drink (Spring 1343 Reval)
@@ -159,7 +159,7 @@ You are feeding **April–May 1343 Lower Town Reval** — a **Hanseatic port und
 
 ## Open questions
 
-- **Reval brewery ordinances 1340–1343** — AWB/council pass for citizen-only rule and excise rates (candidate **R-053**).
+- **Reval brewery ordinances 1340–1343** — AWB/Denkelbuch pass completed: the public AWB OCR review found no relevant beer, brewing, excise, or collector hit; Denkelbuch folio access remains blocked behind VAU, so no local ordinance or rate is attested (candidate **R-053** resolved; follow-up access blocker **R-460**).
 - **Named bakery streets or Beckh guild linkage** in Lower Town 1343 — not in reviewed topography dossiers.
 - **1343 Tallinn household inventory** with kitchen goods — no archival row reviewed.
 - **Monastic daily menu quantities** for Dominican house in 1343 — Black Heads accounts begin **1418** [5].
