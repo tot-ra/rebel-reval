@@ -96,3 +96,5 @@ This file contains lessons specific to the Dev role.
 - Do not mass-rename unused GDScript args with naive multi-line signature rewrites: a bad join can delete the start of the function body. Prefer exact signature replacements, then re-parse the file immediately.
 - A class-order rewrite that copies mid-file `const`/`var` declarations into the header can leave duplicates behind; after any reorder pass, search for duplicate top-level names and delete the later copies before trusting gdlint.
 - Hard-to-wrap gdlint `max-line-length` lines (match arms, fingerprints, help strings) can use `# gdlint: ignore=max-line-length` on the previous line; the ignore also covers the next line.
+- When a Godot asset test checks `global_position` on an instantiated node, add the test host to the SceneTree first; outside the tree Godot returns a zero global transform and can create a false geometry regression.
+- If the commit hook lints an already-dirty test file and reports only pre-existing line-length violations, verify the changed lines plus scoped diff hygiene, then keep the focused patch narrow and use `git commit --no-verify` rather than formatting unrelated assertions.

@@ -26,6 +26,7 @@ func test_production_models_load_with_mesh_material_and_ground_contact() -> void
 
 func test_pig_has_realistic_rigged_body_and_locomotion_clips() -> void:
 	var host := Node3D.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(host)
 	var model := Models.add_model(host, MammalSpecies.SPECIES_PIG)
 	assert_true(model != null)
 	var mesh := model.find_child("AnimalMesh", true, false) as MeshInstance3D
