@@ -1,6 +1,20 @@
+# Optional pre-commit framework config. The repository-owned installer
+# (tools/install_git_hooks.sh) is the supported path and does not require this
+# package. Keep hooks aligned with tools/run_pre_commit_checks.sh.
 repos:
+  - repo: local
+    hooks:
+      - id: rebel-reval-on-commit
+        name: rebel-reval on-commit checks
+        entry: tools/run_pre_commit_checks.sh staged
+        language: system
+        pass_filenames: false
+        always_run: true
+
   - repo: https://github.com/Scony/godot-gdscript-toolkit
     rev: 4.5.0
     hooks:
+      # CI runs gdlint only; keep formatter out of the default commit path so
+      # commits do not churn unrelated formatting.
       - id: gdlint
-      - id: gdformat
+        files: \.gd$

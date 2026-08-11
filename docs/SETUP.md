@@ -98,6 +98,38 @@ Both should reference **4.7**.
 
 Run the game from the editor with **F5** or **Project -> Run**. The main scene is `res://scenes/menu/main_menu.tscn`.
 
+## On-commit lint and test hooks
+
+Install the repository-owned Git hook after clone so common CI failures are caught before push:
+
+```bash
+python3 -m pip install --user 'gdtoolkit==4.5.0'
+tools/install_git_hooks.sh
+```
+
+What the hook runs (path-aware on staged files):
+
+| Staged paths | Checks |
+|--------------|--------|
+| any commit | `git diff --cached --check` |
+| `.gd` files | `gdlint` via `python3 -m gdtoolkit.linter` (same toolkit pin as CI: `4.5.0`) |
+| `content/` or content validators | content schema examples, `test_validate_content`, example corpus |
+| asset provenance / storage tools | `validate_asset_sources.py`, `verify_storage_hygiene.py` |
+| `README.md`, `AGENTS.md`, `docs/CANON.md`, active-doc report/generator | `generate_active_docs_report.py --check` (run manually before push for other doc edits; CI always runs it) |
+| map scripts / map tools / `MAP_AUTHORING.md` | map audit/activation/conversion gates; blueprint validation when `godot` is on `PATH` |
+| `.godot-version` / `project.godot` / `export_presets.cfg` | CI Godot pin and icon/bundle parity |
+
+Manual and escape hatches:
+
+```bash
+tools/run_pre_commit_checks.sh staged
+tools/run_pre_commit_checks.sh all
+SKIP_PRE_COMMIT=1 git commit ...
+PRE_COMMIT_FULL=1 tools/run_pre_commit_checks.sh staged   # optional full Godot suite
+```
+
+The installer writes `.git/hooks/pre-commit` and re-runs `git lfs install --local` so LFS `post-*` / `pre-push` hooks remain in place. Optional [`pre-commit`](https://pre-commit.com/) users can `pre-commit install` against [`.pre-commit-config.yaml`](../.pre-commit-config.yaml); that config calls the same runner and keeps `gdlint` (not `gdformat`) to match CI.
+
 ## CI alignment
 
 [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) reads the same 4.7 family pin from `.godot-version` and checks `project.godot` `config/features` before running automation. The workflow installs Godot `4.7.1` with matching export templates, matching the recorded P0-017 baseline patch release.
