@@ -9,7 +9,7 @@ related:
   - reval-market-weekday-1340s.md
   - ../religion/dominican-brewery-fish-yard-1343.md
   - coinage-prices-and-measures.md
-updated: 2026-08-10
+updated: 2026-08-11
 ---
 
 # Reval brewery ordinances, beer excise, and Estonian collectors (1340–1343)
@@ -63,6 +63,28 @@ The public BSB/MDZ IIIF manifest for Arbusow's **1888 printed** *Ältestes Witts
 | Rahvusarhiiv DGS permalink | Redirects to VAU authentication | no folio text inspected [10] |
 | BSB/MDZ `bsb00149661` | Public OCR/scan for the separate 1888 printed AWB | not a Denkelbuch substitute [1] |
 
+### AWB OCR collation (2026-08-11)
+
+A bounded OCR pass was run against the public BSB/MDZ digitisation of Arbusow's printed AWB, covering printed pp. 74–87 and AWB nos. 500–580 (MDZ canvases 90–103). This span contains the 1340–1343 entries used here; canvas 104 / printed p. 88 was checked only as the 1344 boundary, where AWB 577 begins on 3 January 1344. The OCR is hOCR XHTML, so tags were stripped, whitespace normalized, and adjacent canvases inspected before classifying a token as absent [1].
+
+The search families were `Bier` / `bire` / `cervisia` / `cerevisia`, `Brau*` / `Brauer` / `Brauerschragen`, `accisa` / `excisa` / `collect*` / `vectigal` / `tribut*` / `telon` / `thelon` / `Zoll` / `Steuer` / `tax`, plus `Fass`, `doli*`, `cupa`, `malz` / `malt`, and collector terms. No relevant beer, brewing, excise, or collector hit was found in this AWB span. The apparent OCR fragments `tol` on pp. 74–75 and 83 are parts of unrelated words, and `cupa` on p. 80 occurs in the phrase `cupa ... intrare et exire` about a property access clause; neither supports a beer duty or brewery reading [1].
+
+| Printed pages | MDZ canvases | AWB entries / date boundary | Collation result |
+|---|---:|---|---|
+| 74–75 | 90–91 | 500–511; 1340–1341 entries | No relevant beer, brewing, excise, or collector token |
+| 76–78 | 92–94 | 512–529; 1341–1342 transition | No relevant token; property, annuity, wall, and service language only |
+| 79–82 | 95–98 | 530–551; 1342 entries | No relevant token; civic/property obligations only |
+| 83–84 | 99–100 | 552–562; 1342–1343 boundary | No relevant token; AWB 553 concerns payment for wood and hauling, not beer excise |
+| 85–87 | 101–103 | 563–576; 1343 entries | No relevant token; mortgage, hereditary-property, and annuity clauses only |
+| 87–88 | 103–104 | 577–580 then 581 onward; 1344 boundary | 577 begins 1344; canvas 104 is endpoint control, not target-year evidence |
+
+This is a **bounded negative result for the published AWB edition/OCR**, not evidence that the manuscript witness or Denkelbuch lacks brewery material. It strengthens the AWB side of the gap statement while leaving the authenticated `TLA.230.1.Aa2` folio read as the clearing condition for R-451 [8][9][10].
+
+| AWB OCR check | Result | Evidence boundary |
+|---|---|---|
+| Public printed AWB, pp. 74–87 / canvases 90–103 | No relevant target-term hit in the searched 1340–1343 span | Published edition and OCR only [1] |
+| Printed p. 88 / canvas 104 | 1344 continuation confirmed; not searched as target-year evidence | Boundary control only [1] |
+| Denkelbuch `TLA.230.1.Aa2` | No folio inspected because public DGS route redirects to VAU | Access blocker, not a no-hit claim [9][10] |
 ### Later and indirect material that must stay labelled
 
 - Bunge's identifiable *Brauerschragen* material is from **1485 or later**, not 1340–1343. It can illustrate a later regulatory vocabulary, but cannot be used as Spring 1343 law [4].
@@ -100,7 +122,7 @@ No suitable licensed visual evidence was found for a 1340–1343 Reval brewery o
 
 ## Sources
 
-1. L. Arbusow, ed., *Das älteste Wittschopbuch der Stadt Reval (1312–1360)*, Reval 1888 (AWB), printed entries and pages cited in the related AWB dossiers; German/Latin primary register.
+1. L. Arbusow, ed., *Das älteste Wittschopbuch der Stadt Reval (1312–1360)*, Reval 1888 (AWB), printed entries and pages cited in the related AWB dossiers; German/Latin primary register. Public BSB/MDZ manifest and OCR: https://api.digitale-sammlungen.de/iiif/presentation/v2/bsb00149661/manifest; target pass OCR canvases 90–104 (printed pp. 74–88), with canvases 90–103 covering AWB nos. 500–580 and canvas 104 checked as the 1344 boundary.
 2. [`awb-fuhr-servitude-clauses-1340-1343.md`](awb-fuhr-servitude-clauses-1340-1343.md) - published AWB pass identifying nos. 508, 516, 566, and 570 and separating property finance from transport or tax claims.
 3. F. G. von Bunge, *Liv-, Est- und Curländisches Urkundenbuch*, Abt. 1, Bd. 2 (1301–1367), Reval 1855 - LECUB 2 no. 812 (1343) and related charter context.
 4. F. G. von Bunge, *Die Quellen des Revaler Stadtrechts*, plus the later *Brauerschragen* material identified in the research pass - 1485 or later; later comparative evidence only.
