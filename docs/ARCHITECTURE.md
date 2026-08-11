@@ -256,7 +256,9 @@ The P0-065 TODO text expected 11 runtime scripts over 400 lines and referenced a
 
 ### Scheduled follow-up
 
-P1-034 completed the first extraction identified by this audit: local-map and fast-travel presentation now live in focused child views behind the preserved `WorldMapOverlay` facade, with travel side effects still owned by `WorldMapController`. P0-079 completed the second: procedural sky resource baking now lives in `SkyWeatherResources` while `SkyWeather3D` keeps weather simulation and astronomy facades. The runtime actor/equipment extraction is also complete: `MapViewRuntimeActors` owns 2D-to-3D rig synchronization while `MapViewRuntime` preserves the scene-facing API. Other candidates remain thresholds, not scheduled rewrites. They require a new or updated TODO contract before implementation.
+P1-034 completed the first extraction identified by this audit: local-map and fast-travel presentation now live in focused child views behind the preserved `WorldMapOverlay` facade, with travel side effects still owned by `WorldMapController`. P0-079 completed the second: procedural sky resource baking now lives in `SkyWeatherResources` while `SkyWeather3D` keeps weather simulation and astronomy facades. The runtime actor/equipment extraction is also complete: `MapViewRuntimeActors` owns 2D-to-3D rig synchronization while `MapViewRuntime` preserves the scene-facing API. Other candidates remain thresholds, not scheduled rewrites.
+
+The 2026-07-21 table below is stale relative to the 2026-08-11 size audit: runtime `scripts/**/*.gd` now has 60 files over 400 lines (22 over 600, 6 over 800). Refresh and justified extractions are scheduled as **P0-184** / **P0-185** in [`docs/STORAGE_SIZE_BACKLOG.md`](./STORAGE_SIZE_BACKLOG.md); do not split by line count alone before that refresh.
 
 ## Verification baseline
 
