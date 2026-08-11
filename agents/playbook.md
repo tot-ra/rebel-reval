@@ -99,3 +99,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - On-commit gates must be path-aware and bash-3.2-safe (`mapfile` is unavailable on macOS system bash); invoke `gdlint` via `python3 -m gdtoolkit.linter` so user PATH gaps do not skip CI-equivalent lint.
 - When verifying a claimed task with `tasks.get`, pass the board reference through `ref`; putting the reference in `q` makes the tool reject the request before lookup.
 - Stateful `browser_chrome` actions cannot run through a parallel wrapper; issue browser navigation and inspection calls as top-level sequential operations, while keeping filesystem and shell checks parallel where independent.
+- For rights-sensitive audio replacements, a regional metadata hit is not a shippable source: require record-level commercial terms or written permission plus local evidence, preserve the verified fallback, and log search blockers instead of registering NC audio.

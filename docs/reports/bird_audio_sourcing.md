@@ -342,6 +342,18 @@ A second focused check did not produce a shippable Baltic replacement:
 The reproducible checks remain green against the existing fallback:
 `python3 tools/audio/verify_curated_bird_recordings.py`, `python3 tools/verify_bird_audio_manifest.py`, and `python3 tools/verify_bird_audio_clips.py`; the curated dry-run still resolves 30 records without downloading. This is an evidence boundary, not proof that no qualifying Baltic recording exists. The next unblock is a human permission request to the University of Tartu Natural History Museum / Veljo Runnel or a recordist with the exact commercial grant and attribution terms recorded in the curated manifest.
 
+### P0-122f verification attempt (2026-08-12)
+
+A further rights-first search was run before changing the curated rows. The xeno-canto
+Estonia queries remained behind an Anubis challenge; Tavily surfaced no verifiable
+record-level candidate, and Exa surfaced the eElurikkus audio occurrence portal but no
+specific recording with a commercial-compatible license or grant. No audio was
+downloaded, registered, or substituted. The two German iNaturalist fallbacks therefore
+remain the only verified commercial sources, and the replacement remains blocked on
+human transmission of the prepared permission packet or a new Baltic field take with
+explicit rights evidence. The existing three bird-audio verifiers and focused Python
+permission/manifest tests pass against that unchanged fallback.
+
 ### P0-122f human outreach packet (ready to send)
 
 The canonical, exportable copy of the packet is [`docs/reports/evidence/p0_122f/permission_packet.md`](evidence/p0_122f/permission_packet.md). It names the exact candidate records, intended recipients, requested commercial storage/editing/distribution scope, duration, and attribution fields. The packet was prepared on **2026-08-03 UTC**, but this environment has no email transmission integration, so it is **not sent** until an email-capable maintainer transmits it and preserves the outbound message copy or provider ID.
