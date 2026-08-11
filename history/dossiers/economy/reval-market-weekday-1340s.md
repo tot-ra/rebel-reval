@@ -8,7 +8,7 @@ related:
   - ../culture/festivals-games-and-public-life.md
   - ./reval-cart-tolls-and-fuhr-rent-1340s.md
   - ../power/reval-law-codex-arms-and-watch.md
-updated: 2026-08-06
+updated: 2026-08-11
 ---
 
 # Reval market weekday and holy-day trading (1340–1343)
@@ -45,9 +45,9 @@ The negative result is bounded: the accessible AWB material is a property, rent,
 |---|---|---|---|
 | **Lübeck Stadtrecht, legal extract dated 1260–1276**, Art. 91 | Violence on the market violates *market peace*; the offender pays three marks silver, with the council's share split two-thirds to the city and one-third to the court | A transferable legal vocabulary for a Reval forum brawl or market-peace intervention under received Lübeck law; it does not set a stall fee or market weekday | attested Lübeck text; Reval application plausible composite [6][7] |
 | **1864 volume, catalogued as _Zeitschrift für Rechtsgeschichte_**, exact article/page not recovered | The scanned volume's title page/contents and OCR pass did not confirm the project note about Lübeck holy-day trading fines; underlying ordinance, town, date, and wording remain unidentified | Retain only as an unresolved bibliography lead. It does not support a Reval rule, a Lübeck fine, or a claim about the contents of the 1864 volume | unresolved lead; negative source check [5] |
-| **Middelburg, 1338**, market moved from Sunday to Tuesday | A North European comparandum showing that a town could move a market off Sunday | Demonstrates that a named weekday must be sourced locally rather than inferred from a generic “market day” rule | attested comparative document; not Reval evidence [9] |
+| **Middelburg, 4 August 1338**, count Willem IV, Huygens record WI_048 | For religious reasons, the weekly market may no longer be held on Sunday; a **5-schelling Tournois fine** applies, and the market moves to **Tuesday**. The same charter prohibits Sunday trade throughout Walcheren | A dated North European comparandum showing both a named weekday and a feast-day trading penalty. It demonstrates the kind of local charter needed, but it does not set Reval's weekday or prove Reval adopted the fine | attested comparative document; not Reval evidence [9] |
 
-The dated **1260–1276** Lübeck text is the strongest directly inspectable legal anchor in this pass. It establishes market-peace enforcement. The 1864 bibliography lead did not survive title/contents/OCR verification, so it cannot currently support a holy-day fine or comparative rule [5][6].
+The dated **1260–1276** Lübeck text remains the strongest directly inspectable legal anchor for market-peace enforcement, while the **4 August 1338 Middelburg charter** is the strongest directly inspectable comparative anchor for a named weekday plus a holy-day trading fine. Neither source supplies a Reval 1340–1343 rule: the Lübeck text is not a holy-day clause, and the Middelburg charter is a different town. The 1864 bibliography lead did not survive title/contents/OCR verification, so it cannot currently support an additional Lübeck holy-day fine or comparative rule [5][6][9].
 
 ### Holy days in the April–May 1343 window
 
@@ -101,4 +101,4 @@ No licensed visual evidence was found for a dated Reval 1340–1343 market sched
 6. Rolf Sprandel (ed.), *Quellen zur Hanse-Geschichte*, Darmstadt 1982, p. 15, reproducing Korlén, *Stadtrecht*, pp. 83–153 - excerpt from **Lübeck Stadtrecht 1260–1276**, Art. 91, market-peace fine; https://www.spaetmittelalter.uni-hamburg.de/spaetmittelalter/luebeck/stadtrecht.html (German).
 7. T. Kala (ed.), *Der Revaler Kodex des lübischen Rechts 1282*, Tallinn 1998, and Geschichtsquellen Werk/5024 - Reval's 1257/1282 Lübeck-law codices and the daughter-town evidence boundary; https://www.geschichtsquellen.de/werk/5024 (German/Estonian).
 8. Project runtime: `scripts/world/market_day_model.gd` and `tests/godot/test_market_day_events.gd` - current Wednesday/Saturday implementation, recorded here as an explicit gameplay fallback rather than historical evidence.
-9. Count of Holland, Middelburg market moved from Sunday to Tuesday, **1338**, Huygens RGP online edition - North European comparative evidence cited in the liturgical dossier; not Reval evidence.
+9. Count of Holland, **WI_048**, 4 August 1338, Middelburg, Huygens RGP online edition: [record](https://resources.huygens.knaw.nl/registershollandsegrafelijkheid/oorkonde/WI_048) - the regest states that religious reasons moved the Middelburg weekly market from Sunday to Tuesday under a 5-schelling Tournois fine and prohibited Sunday trade throughout Walcheren; archival reference AGH 218, f. 8r, no. 47. North European comparative evidence only, not Reval evidence.

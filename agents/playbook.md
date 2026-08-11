@@ -98,3 +98,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - When adding clone/setup docs, prefer `docs/SETUP.md` over `AGENTS.md` if the live active-doc report is stale: staging `AGENTS.md` triggers the on-commit active-doc gate against the whole worktree.
 - On-commit gates must be path-aware and bash-3.2-safe (`mapfile` is unavailable on macOS system bash); invoke `gdlint` via `python3 -m gdtoolkit.linter` so user PATH gaps do not skip CI-equivalent lint.
 - When verifying a claimed task with `tasks.get`, pass the board reference through `ref`; putting the reference in `q` makes the tool reject the request before lookup.
+- Stateful `browser_chrome` actions cannot run through a parallel wrapper; issue browser navigation and inspection calls as top-level sequential operations, while keeping filesystem and shell checks parallel where independent.
