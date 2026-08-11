@@ -8,7 +8,7 @@ related:
   - ../economy/reval-harbour-customs-1340s.md
   - ../economy/awb-fuhr-servitude-clauses-1340-1343.md
   - ../dailylife/hygiene-and-grooming-1343.md
-updated: 2026-08-06
+updated: 2026-08-12
 ---
 
 # AWB sanitation, bath-income, and street-language clauses (1340-1343)
@@ -29,11 +29,11 @@ The accessible Arbusow edition of the *Ältestes Wittschopbuch* gives useful bat
 
 ### Positive AWB comparators
 
-| AWB entry | Printed page / scan locator | Latin evidence | What it supports | Confidence |
-|---|---|---|---|---|
-| **526** | p. 80; MDZ canvas 94 | *redditus unius mc. arg. in hereditatem sive stupam fraternitatis sancti Olavi*; payable at Michaelmas and redeemable for 12 marks of silver | A bath or bath-property (*stupa*) could carry an annuity in the register. This is property/credit language, not a named bath operator's rent or a sanitation fine | attested [1] |
-| **553** | p. 83; MDZ canvas 99 | *stupa extra civitatem* owes *unam mc. arg.*, *stupa sub longo monte* *unam mc. arg.*, and *stupa iuxta beatum Olavum* `4 mc. den.` at Michaelmas, *pro lignis persolvendis et pro lignis advectendis* | Three local bath sites are tied to recurring wood-payment and wood-delivery obligations to the city | attested clause; date sequence partial [1] |
-| **539** | pp. 80-81; MDZ canvases 96-97 | A shared *via* is to remain high and wide enough for one vehicle and wagon to enter and leave; the text calls it *gaanc* | Access and passage obligation, not a toll, fine, or confirmed *Gasse* sanitation term | attested [1] |
+| AWB entry | Document date / register boundary | Printed page / scan locator | Latin evidence | What it supports | Confidence |
+|---|---|---|---|---|---|
+| **526** | **1341 register sequence; day/month not stated**. The annual due is payable at Michaelmas, which is a payment term, not the document date. | p. 80; MDZ canvas 94 | *redditus unius mc. arg. in hereditatem sive stupam fraternitatis sancti Olavi*; payable at Michaelmas and redeemable for 12 marks of silver | A bath or bath-property (*stupa*) could carry an annuity in the register. This is property/credit language, not a named bath operator's rent or a sanitation fine | attested [1] |
+| **553** | **1342 register sequence; day/month not stated**. The clause appears before AWB 554, dated 3 Dec. 1342; its annual due is payable at Michaelmas, not dated to that feast. | p. 83; MDZ canvas 99 | *stupa extra civitatem* owes *unam mc. arg.*, *stupa sub longo monte* *unam mc. arg.*, and *stupa iuxta beatum Olavum* `4 mc. den.` at Michaelmas, *pro lignis persolvendis et pro lignis advectendis* | Three local bath sites are tied to recurring wood-payment and wood-delivery obligations to the city | attested clause; date sequence partial [1] |
+| **539** | **9 Mar. 1342** (*anno eodem ante letare*); exact date supplied by the edition's marginal gloss. | pp. 80-81; MDZ canvases 96-97 | A shared *via* is to remain high and wide enough for one vehicle and wagon to enter and leave; the text calls it *gaanc* | Access and passage obligation, not a toll, fine, or confirmed *Gasse* sanitation term | attested [1] |
 
 The printed AWB text reads `4 mc. den.` in AWB 553. The abbreviation is reproduced rather than silently normalised: the present evidence does not justify choosing between a mark-denarius expansion and another editorial explanation. The harbour dossier's prose expansion to “4 denarii” therefore requires a separate editorial reconciliation and is not adopted here [1][4].
 

@@ -162,8 +162,8 @@ You are dressing **April–May 1343 Lower Town Reval** — a **Hanseatic port** 
 
 ## Open questions
 
-- **AWB / council pass for 1340–1343 street-cleaning, dung-cart, and bath-house rent rows** — delivered in [`reval-street-cleaning-ordinances-1340s.md`](../power/reval-street-cleaning-ordinances-1340s.md); **folio-level Badpacht/Mist clauses still open** (downstream index request).
-- **Measured map of attested 14th-c. bath plots** — delivered in [`public-bath-locations-1343.md`](../topography/public-bath-locations-1343.md); AWB Badpacht folio rows remain **R-066**.
+- **AWB / council pass for 1340–1343 street-cleaning, dung-cart, and bath-house rent rows** — delivered in [`reval-street-cleaning-ordinances-1340s.md`](../power/reval-street-cleaning-ordinances-1340s.md) and the AWB evidence sub-pass [`awb-sanitation-clauses-1340-1343.md`](../power/awb-sanitation-clauses-1340-1343.md); **authenticated Denkelbuch/TLA folio collation remains open** for any upgrade beyond the public Arbusow edition.
+- **Measured map of attested 14th-c. bath plots** — delivered in [`public-bath-locations-1343.md`](../topography/public-bath-locations-1343.md); AWB does not supply a confirmed 1340–1343 *Badpacht* amount.
 - **1343 poor-law charity bath day** — only **1391** comparandum reviewed; needs archival folio before staging.
 - **Archaeological privy locations** on Pikk/Lai 1340s layers — tie to [`pikk-lai-frontage-materials-1340s.md`](../topography/pikk-lai-frontage-materials-1340s.md).
 
