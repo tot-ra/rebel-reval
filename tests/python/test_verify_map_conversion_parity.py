@@ -10,6 +10,7 @@ import tempfile
 import unittest
 import zlib
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 TOOLS = ROOT / "tools"
@@ -57,6 +58,20 @@ class VerifyMapConversionParityTest(unittest.TestCase):
         manifest = load_manifest(DEFAULT_MANIFEST)
         self.assertEqual(manifest["task_id"], "P2-021a")
         self.assertEqual(len(manifest["maps"]), 2)
+
+    def test_godot_binary_honors_environment_override(self) -> None:
+        from verify_map_conversion_parity import _godot_binary
+
+        with patch.dict("os.environ", {"GODOT_BIN": "/custom/godot"}, clear=False):
+            self.assertEqual(_godot_binary(), "/custom/godot")
+
+    def test_godot_binary_uses_documented_macos_fallback(self) -> None:
+        from verify_map_conversion_parity import _godot_binary
+
+        with patch.dict("os.environ", {}, clear=True), patch(
+            "verify_map_conversion_parity.Path.is_file", return_value=True
+        ):
+            self.assertEqual(_godot_binary(), "/Applications/Godot.app/Contents/MacOS/Godot")
 
     def test_missing_anchor_fails_accounting(self) -> None:
         manifest = load_manifest(DEFAULT_MANIFEST)

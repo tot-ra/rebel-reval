@@ -235,9 +235,21 @@ def validate_report(root: Path, manifest: dict, *, require_human_sign_off: bool)
     return errors
 
 
+def _godot_binary() -> str:
+    """Resolve the project-documented macOS install before falling back to PATH."""
+    override = os.environ.get("GODOT_BIN", "").strip()
+    if override:
+        return override
+
+    mac_default = Path("/Applications/Godot.app/Contents/MacOS/Godot")
+    if mac_default.is_file():
+        return str(mac_default)
+    return "godot"
+
+
 def run_godot_map_tests(root: Path, manifest: dict) -> list[ValidationError]:
     errors: list[ValidationError] = []
-    godot_bin = os.environ.get("GODOT_BIN", "godot")
+    godot_bin = _godot_binary()
     filters = sorted(
         {
             str(map_entry.get("godot_test_filter", ""))

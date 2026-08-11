@@ -91,3 +91,4 @@ This file contains only cross-role operating lessons. Domain lessons belong to t
 - A benchmark's `TARGET_HARDWARE` JSON labels the report but does not emulate that device; a non-headless run on a different host is supplementary renderer evidence, not minimum-hardware acceptance. Keep the task open until the declared target is measured or a maintainer explicitly changes the acceptance contract.
 - When resolving a Godot scene UID in repository tests, match only the `[gd_scene ...]` header; the same UID legitimately appears in `ExtResource` references from other scenes.
 - A pipeline filter stage rejects `start_line: -1` / `end_line: -1`; omit optional line bounds when filtering the complete previous tool output.
+- After an exact replacement that adds a regression test, re-read the surrounding test class and confirm existing coverage was preserved before running the suite.
