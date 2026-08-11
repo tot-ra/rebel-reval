@@ -72,6 +72,7 @@ static func build_checkpoint(definition: MapDefinition) -> Node3D:
 	)
 	var landmarks := Node3D.new()
 	landmarks.name = "Landmarks"
+	_build_group_metadata(landmarks, &"landmarks")
 	root.add_child(landmarks)
 	for landmark in definition.view_landmarks:
 		if landmark.get("id", &"") not in [&"viru_gate_arch", &"viru_foregate_arch"]:
@@ -93,6 +94,10 @@ static func _build_module(
 
 	var buildings := Node3D.new()
 	buildings.name = "Buildings"
+	# WHY: child groups are reusable assembly boundaries. Keeping the view-only
+	# contract on each group prevents future callers from treating a subtree as
+	# gameplay geometry when modules are embedded into larger previews.
+	_build_group_metadata(buildings, &"buildings")
 	root.add_child(buildings)
 	for building in definition.buildings:
 		if not _matches_building(building, building_selectors):
@@ -108,6 +113,7 @@ static func _build_module(
 
 	var props := Node3D.new()
 	props.name = "Props"
+	_build_group_metadata(props, &"props")
 	root.add_child(props)
 	for prop_id in prop_ids:
 		var prop := _record_by_id(definition.props, prop_id)
@@ -115,6 +121,13 @@ static func _build_module(
 			continue
 		props.add_child(MeshBuilder.build_prop(prop, definition.cell_size, definition))
 	return root
+
+
+static func _build_group_metadata(group: Node3D, group_id: StringName) -> void:
+	# WHY: each reusable subtree must carry the same boundary contract as its
+	# module root, so consumers can inspect a group without guessing ownership.
+	group.set_meta(&"view_only", true)
+	group.set_meta(&"environment_group", group_id)
 
 
 static func _matches_building(building: Dictionary, selectors: Array[StringName]) -> bool:

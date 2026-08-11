@@ -172,6 +172,10 @@ func test_forge_and_street_well_modules_are_deterministic_view_only_assemblies()
 		var second: Node3D = _build_module(module_id, smithy, lower_town)
 		assert_eq(first.get_meta(&"environment_module"), module_id, "%s must expose its stable module id" % module_id)
 		assert_true(bool(first.get_meta(&"view_only", false)), "%s must be view-only" % module_id)
+		_assert_group_metadata(first.get_node("Buildings"), &"buildings", "%s Buildings" % module_id)
+		_assert_group_metadata(first.get_node("Props"), &"props", "%s Props" % module_id)
+		if module_id == EnvironmentKit.MODULE_CHECKPOINT:
+			_assert_group_metadata(first.get_node("Landmarks"), &"landmarks", "%s Landmarks" % module_id)
 		assert_true(
 			first.find_children("*", "MeshInstance3D", true, false).size() > 0,
 			"%s must assemble renderable geometry" % module_id
@@ -361,6 +365,11 @@ func _assert_view_only(node: Node, label: String) -> void:
 	assert_eq(node.find_children("*", "CollisionShape3D", true, false).size(), 0, "%s must not author 3D collision" % label)
 	assert_eq(node.find_children("*", "NavigationRegion2D", true, false).size(), 0, "%s must not author 2D navigation" % label)
 	assert_eq(node.find_children("*", "NavigationRegion3D", true, false).size(), 0, "%s must not author 3D navigation" % label)
+
+
+func _assert_group_metadata(group: Node, group_id: StringName, label: String) -> void:
+	assert_true(bool(group.get_meta(&"view_only", false)), "%s must be view-only" % label)
+	assert_eq(group.get_meta(&"environment_group", &""), group_id, "%s must expose its stable group id" % label)
 
 
 func _record_by_id(records: Array, record_id: StringName) -> Dictionary:
